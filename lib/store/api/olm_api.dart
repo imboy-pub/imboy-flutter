@@ -223,11 +223,56 @@ class OlmApi extends HttpClient {
     if (!resp.ok) {
       throw Exception('olm claim_key failed: ${resp.msg}');
     }
-    final payload = resp.payload;
-    if (payload is Map) {
-      return Map<String, dynamic>.from(payload);
+    return parseClaimPayload(resp.payload);
+  }
+
+  /// C17b（AC-35 前置）：claim 响应严格解析（fail-closed）。
+  ///
+  /// E2EE 威胁模型内服务端不可信（零密码学契约靠客户端守门），claim 响应
+  /// 属服务端可控内容。此前 `_establishOutboundSession` 直接
+  /// `claim['identity'] as Map<String, dynamic>` 硬 cast——恶意/损坏响应
+  /// （如 `identity` 为字符串、`key_base64` 为整数）会抛 **TypeError**，
+  /// 绕过 `isTransientClaimFailure` 的前缀识别，以非契约异常炸进发送路径。
+  ///
+  /// 此处把结构校验收口到唯一入口：字段缺失/类型混淆一律抛带
+  /// `olm claim_key: invalid payload` 前缀的 Exception（与既有失败前缀
+  /// 体系一致，重投/降级语义不变）。密码学校验（签名/TOFU/base64 密钥
+  /// 解码）不在本层，仍由 `OlmSessionService` 负责。
+  ///
+  /// 供 fuzz harness（`parser_fuzz_harness_test.dart`）作确定性 oracle。
+  @visibleForTesting
+  static Map<String, dynamic> parseClaimPayload(dynamic payload) {
+    Never reject(String why) =>
+        throw Exception('olm claim_key: invalid payload: $why');
+
+    if (payload is! Map) {
+      reject('顶层不是 map（${payload.runtimeType}）');
     }
-    throw Exception('olm claim_key: invalid payload');
+    // reject 返回 Never：上面分支不可达，此处 payload 已提升为 Map。
+    final map = payload;
+
+    final identity = map['identity'];
+    if (identity is! Map) {
+      reject('identity 不是 map（${identity.runtimeType}）');
+    }
+    final identityMap = Map<String, dynamic>.from(identity);
+
+    // X3DH 消费方（_establishOutboundSession）逐字段硬 cast，
+    // 这里必须先证明每个 cast 目标类型成立。
+    for (final key in const ['type', 'key_id', 'key_base64']) {
+      final v = map[key];
+      if (v is! String || v.isEmpty) {
+        reject('字段 "$key" 须为非空 String（${v.runtimeType}）');
+      }
+    }
+    for (final key in const ['ed25519_key', 'curve25519_key', 'signature']) {
+      final v = identityMap[key];
+      if (v is! String || v.isEmpty) {
+        reject('identity."$key" 须为非空 String（${v.runtimeType}）');
+      }
+    }
+
+    return {...Map<String, dynamic>.from(map), 'identity': identityMap};
   }
 
   /// `POST /api/v1/e2ee/trust/record` — 上报一条信任决策事件（ADR 16）。
