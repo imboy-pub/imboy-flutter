@@ -8,7 +8,8 @@ import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 /// 阻止切入另一账号）。
 void main() {
   /// 每类秘密一个 canary：RSA 身份/历史/分片、Olm account/pickle key/session、
-  /// Megolm inbound、群旗标、SQLCipher key、MLS 预留、backup/recovery 元数据。
+  /// Megolm inbound、群旗标、safety number 信任态、SQLCipher key、MLS 预留、
+  /// backup/recovery 元数据。
   Map<String, String> seedCanaries() => {
     'e2ee_private_key': 'rsa-priv',
     'e2ee_public_key': 'rsa-pub',
@@ -19,6 +20,7 @@ void main() {
     'e2ee_shard_s1': 'shard',
     'e2ee_shard_id_list': '["s1"]',
     'e2ee_shard_metadata_list': '[]',
+    'e2ee_backup_passphrase': 'pw-canary',
     'olm_account_pickle': 'acct',
     'olm_pickle_key': 'pk',
     'olm_session_u2:d9': 'sess',
@@ -26,6 +28,7 @@ void main() {
     'megolm_history_grant_gid7:sess1': 'grant',
     'megolm_restored_history_grant_gid7:sess1': 'restored-grant',
     'group_e2ee_mode_gid7': '1',
+    'safety_number_verified_9001': '1',
     'db_cipher_key_uid5': 'sqlcipher',
     'mls_reserved_future': 'mls',
   };
@@ -34,6 +37,9 @@ void main() {
     final store = seedCanaries();
     store['secure_token'] = 'jwt'; // 非 E2EE 键，由 token 服务负责
     store['unrelated_key'] = 'keep';
+    // 声明豁免：设备级信任锚 / 凭据键不随账号清理（矩阵中的有意保留项）
+    store['compliance_key_pin_v1'] = '{"key_id":"k","fingerprint":"fp"}';
+    store['upload_key'] = 'upload-cred';
     var memoryCleared = false;
     var artifactPurged = false;
 
@@ -52,6 +58,9 @@ void main() {
     }
     expect(store['secure_token'], 'jwt');
     expect(store['unrelated_key'], 'keep');
+    // 豁免键不被 purge 误伤（它们的清理责任在各自 owner）
+    expect(store['compliance_key_pin_v1'], isNotNull);
+    expect(store['upload_key'], isNotNull);
     expect(memoryCleared, isTrue);
     expect(artifactPurged, isTrue);
   });
@@ -127,6 +136,7 @@ void main() {
       'megolm_history_grant_g1:s1',
       'megolm_restored_history_grant_g1:s1',
       'group_e2ee_mode_g1',
+      'safety_number_verified_9001',
       'db_cipher_key_u1',
       'mls_group_state',
     ];
@@ -135,5 +145,56 @@ void main() {
     }
     expect(E2eeSecretInventory.matchesSecretKey('secure_token'), isFalse);
     expect(E2eeSecretInventory.matchesSecretKey('unrelated'), isFalse);
+  });
+
+  // ─── C05 inventory 报告一致性 ──────────────────────────────────────────────
+
+  test('报告矩阵与前缀清单双向一致（清单即 purge 覆盖）', () {
+    final prefixes = E2eeSecretInventory.secretKeyPrefixes;
+    final matrixPrefixes = E2eeSecretInventory.categories
+        .map((c) => c.keyPrefix)
+        .toList();
+    // 每个矩阵条目的前缀必须真实存在于 purge 前缀清单
+    for (final p in matrixPrefixes) {
+      expect(prefixes.contains(p), isTrue, reason: '矩阵前缀不在 purge 清单: $p');
+    }
+    // purge 前缀清单的每一项都必须有矩阵条目（无孤儿前缀）
+    for (final p in prefixes) {
+      expect(matrixPrefixes.contains(p), isTrue, reason: 'purge 前缀无矩阵条目: $p');
+    }
+    // 无重复条目
+    expect(matrixPrefixes.toSet().length, matrixPrefixes.length);
+  });
+
+  test('矩阵声明 backup=false / logout=清理 / 换号=清理 的基线不变式', () {
+    for (final c in E2eeSecretInventory.categories) {
+      expect(c.inOsBackup, isFalse, reason: '${c.id} 声称会进 OS 备份，需人工复核');
+      expect(c.clearedOnLogout, isTrue, reason: '${c.id} 未纳入 logout 清理');
+      expect(c.clearedOnAccountSwitch, isTrue, reason: '${c.id} 未纳入换号清理');
+    }
+  });
+
+  test('report() 输出包含每个类别与豁免项', () {
+    final report = E2eeSecretInventory.report();
+    for (final c in E2eeSecretInventory.categories) {
+      expect(report, contains('[${c.id}]'));
+      expect(report, contains(c.keyPrefix));
+    }
+    for (final exempt in E2eeSecretInventory.declaredExemptions.keys) {
+      expect(report, contains(exempt));
+    }
+    // 备份/清理结论进入报告
+    expect(report, contains('osBackup=no'));
+    expect(report, contains('logout=purge'));
+  });
+
+  test('豁免键确实不在 purge 范围（豁免与清理互斥）', () {
+    for (final exempt in E2eeSecretInventory.declaredExemptions.keys) {
+      expect(
+        E2eeSecretInventory.matchesSecretKey(exempt),
+        isFalse,
+        reason: '$exempt 在豁免表但也被 purge 前缀命中（矛盾）',
+      );
+    }
   });
 }
