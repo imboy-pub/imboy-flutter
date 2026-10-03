@@ -1,0 +1,22 @@
+{
+  "scope": "PRELIMINARY_MAPPING_INTEGRITY_ONLY",
+  "product_pass": false,
+  "artifacts": [
+    {
+      "path": "case-map.tsv",
+      "sha256": "ba4b65b8658790160800e80e1447afbfd706de7d2232d0ac90df3650eb7f3fe2"
+    },
+    {
+      "path": "target-list.json",
+      "sha256": "4655a308325387dec82285329caef1ec871b812352efa66af94f9e41659473b2"
+    },
+    {
+      "path": "state.json",
+      "sha256": "931ddf035cf05a8622d3e3b25f8ca82fcfc1e7de67b1a1419879f74c54edd246"
+    },
+    {
+      "path": "README.md",
+      "sha256": "91b5f110c134b7aba1bfa6dab57067fde841788d3be482f33463fa2098c39c3d"
+    }
+  ]
+}

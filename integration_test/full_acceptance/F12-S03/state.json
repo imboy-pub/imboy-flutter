@@ -1,0 +1,36 @@
+{
+  "card": "F12-S03",
+  "status": "WAITING",
+  "scope": "CUSTOMER_SERVICE_GOVERNANCE_SUBSET_ONLY",
+  "source_head": "190abeef6f84a3aa2ffa018830198e4cf59f25ad",
+  "mapped_control_rows": 14,
+  "proposed_behavior_cases": 10,
+  "source_bindings": [
+    {
+      "path": "lib/modules/customer_service/presentation/cs_governance_page.dart",
+      "sha256": "4992cb12e0cb36d653e81a98c8f805141dbec1c72eea12bbebf64d1f7225d50c"
+    },
+    {
+      "path": "test/customer_service/cs_governance_page_widget_test.dart",
+      "sha256": "dd1a9908753ca8fa18c96be3aebe17b80f434f6ce56d4ebb291dae55cdc8256e"
+    },
+    {
+      "path": "test/customer_service/cs_governance_test_fixtures.dart",
+      "sha256": "21ef52fd910976b42bdb1bdfb4e095271826ba5cc3dc4ad115017fd0d8e00417"
+    },
+    {
+      "path": "test/customer_service/cs_governance_pagination_race_test.dart",
+      "sha256": "7ebb818c0c7737421db05edce2f1d41476d21b6c4f20f4ff30f5e390370be9e9"
+    }
+  ],
+  "legacy_seed_reconciliation": "NO_MATCH_IN_EXISTING_DRAFT_NOT_APPROVED_AS_NEW_YET",
+  "required_cases_frozen": false,
+  "product_pass": false,
+  "remaining": [
+    "F00 confirm NEW IDs and all seed dispositions",
+    "freeze actual profile/role/platform required-case keys",
+    "backend fixture and real persistent facts",
+    "Android/macOS and parent visitor/concurrent queue journey",
+    "complete Admin organization department/group/channel governance coverage"
+  ]
+}
