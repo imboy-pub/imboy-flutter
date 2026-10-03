@@ -172,6 +172,47 @@ class _DeferredSubscribeApi extends _FakeBillingApi {
   }
 }
 
+class _DeferredBillingStageApi extends _FakeBillingApi {
+  _DeferredBillingStageApi(this.stage)
+    : super(
+        subscribeResult: 9001,
+        invoicesResult: [_inv('INV-1', BillingInvoiceStatus.unpaid)],
+        payResult: const <String, dynamic>{},
+      );
+  final String stage;
+  final reached = Completer<void>();
+  final response = Completer<Object?>();
+
+  Future<T> _hold<T>() {
+    reached.complete();
+    return response.future.then((value) => value as T);
+  }
+
+  @override
+  Future<bool> generateInvoice(int subscriptionId) async {
+    final result = await super.generateInvoice(subscriptionId);
+    return stage == 'generate' ? _hold<bool>() : result;
+  }
+
+  @override
+  Future<List<BillingInvoice>?> listInvoices(int subscriptionId) async {
+    final result = await super.listInvoices(subscriptionId);
+    if (stage == 'list' || (stage == 'poll' && listCalls.length == 2)) {
+      return _hold<List<BillingInvoice>?>();
+    }
+    return result;
+  }
+
+  @override
+  Future<Map<String, dynamic>?> payInvoice(
+    String invoiceNo,
+    String method,
+  ) async {
+    final result = await super.payInvoice(invoiceNo, method);
+    return stage == 'pay' ? _hold<Map<String, dynamic>?>() : result;
+  }
+}
+
 class _DeferredPlansApi extends _FakeBillingApi {
   final requests = <Completer<List<BillingPlan>?>>[];
 
@@ -324,6 +365,36 @@ void main() {
       expect(fake.listCalls, isEmpty);
       expect(fake.payCalls, isEmpty);
     });
+
+    for (final stage in ['generate', 'list', 'pay', 'poll']) {
+      test('$stage 等待期间销毁不得继续请求或返回成功', () async {
+        final fake = _DeferredBillingStageApi(stage);
+        final container = _containerWith(fake);
+        final pending = container
+            .read(billingProvider.notifier)
+            .subscribePlan(_plan());
+        await fake.reached.future.timeout(const Duration(seconds: 2));
+        final before = [
+          fake.generateCalls.length,
+          fake.listCalls.length,
+          fake.payCalls.length,
+          fake.subscriptionCalls,
+        ];
+        container.dispose();
+        fake.response.complete(switch (stage) {
+          'generate' => true,
+          'pay' => <String, dynamic>{},
+          _ => [_inv('INV-1', BillingInvoiceStatus.paid)],
+        });
+        expect(await pending, isFalse);
+        expect([
+          fake.generateCalls.length,
+          fake.listCalls.length,
+          fake.payCalls.length,
+          fake.subscriptionCalls,
+        ], before);
+      });
+    }
 
     test('账单查询失败不得视为已付清或订阅成功', () async {
       final fake = _FakeBillingApi(subscribeResult: 9001, invoicesResult: null);
