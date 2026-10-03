@@ -9,6 +9,11 @@ import 'package:imboy/service/storage.dart';
 /// - E2EEDecryptFailureMetrics：累计发生口径（分桶 / 去重 / 归一化）
 /// - E2EEHealthCheckService.failedPayloadReason：存量盘点的分桶核心（纯函数）
 /// - E2EEFailureInventory：不可解 / 可恢复分类
+class _PrivateReason {
+  @override
+  String toString() => throw StateError('must not stringify private reason');
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -24,11 +29,59 @@ void main() {
       expect(E2EEDecryptFailureMetrics.normalizeReason(''), 'unknown');
     });
 
-    test('非空 reason 原样通过', () {
+    test('已知 reason 保留分类', () {
+      expect(
+        E2EEDecryptFailureMetrics.normalizeReason('invalid_e2ee'),
+        'invalid_e2ee',
+      );
       expect(
         E2EEDecryptFailureMetrics.normalizeReason('no_device_envelope'),
         'no_device_envelope',
       );
+    });
+  });
+
+  test('任意对象不被转换为日志内容', () {
+    expect(
+      E2EEDecryptFailureMetrics.normalizeReason(_PrivateReason()),
+      'unknown',
+    );
+  });
+
+  test('不可信原因只持久化固定分类', () async {
+    for (final reason in ['secret-user-key-1', 'secret-user-key-2']) {
+      await E2EEDecryptFailureMetrics.countAwait(reason);
+    }
+    expect(await E2EEDecryptFailureMetrics.snapshot(), {'unknown': 2});
+    expect(StorageService.getMap('e2ee_decrypt_fail_metrics'), {'unknown': 2});
+  });
+
+  test('带动态值的边界错误归有限分类', () {
+    expect(
+      E2EEDecryptFailureMetrics.normalizeReason('bounds_secret-key'),
+      'bounds_invalid',
+    );
+    expect(
+      E2EEDecryptFailureMetrics.normalizeReason('envelope_secret-key'),
+      'envelope_invalid',
+    );
+    expect(E2EEDecryptFailureMetrics.normalizeReason(42), 'unknown');
+  });
+
+  test('历史不可信分类合并且下一次写入清除旧键', () async {
+    await StorageService.setMap('e2ee_decrypt_fail_metrics', {
+      'secret-user-key-1': 2,
+      'secret-user-key-2': 3,
+      'decrypt_error': 1,
+    });
+    expect(await E2EEDecryptFailureMetrics.snapshot(), {
+      'unknown': 5,
+      'decrypt_error': 1,
+    });
+    await E2EEDecryptFailureMetrics.countAwait('decrypt_error');
+    expect(StorageService.getMap('e2ee_decrypt_fail_metrics'), {
+      'unknown': 5,
+      'decrypt_error': 2,
     });
   });
 

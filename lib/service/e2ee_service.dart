@@ -12,6 +12,7 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/decrypt_failure_reason.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
@@ -135,10 +136,9 @@ class E2EEDecryptFailureMetrics {
   /// 本次启动内去重（读时解密失败按「reason×行」计一次）
   static final Set<String> _seenDedupKeys = {};
 
-  /// 归一化失败原因：空值归 unknown，保证分桶键稳定
+  /// 归一化失败原因：只允许有限分类，避免持久化不可信内容
   static String normalizeReason(Object? reason) {
-    final r = reason?.toString() ?? '';
-    return r.isEmpty ? 'unknown' : r;
+    return normalizeDecryptFailureReason(reason);
   }
 
   /// 记一次占位产生（fire-and-forget：度量绝不阻塞消息主链路）。
@@ -158,8 +158,8 @@ class E2EEDecryptFailureMetrics {
       if (dedupKey != null && !_seenDedupKeys.add('$key|$dedupKey')) {
         return;
       }
-      final m = StorageService.getMap(_storeKey);
-      m[key] = ((m[key] as int?) ?? 0) + 1;
+      final m = _normalizedSnapshot();
+      m[key] = (m[key] ?? 0) + 1;
       await StorageService.setMap(_storeKey, m);
       iPrint('📊 [E2EE_METRICS] decrypt failure: $key total=${m[key]}');
     } catch (_) {
@@ -168,12 +168,19 @@ class E2EEDecryptFailureMetrics {
   }
 
   /// 累计计数快照（reason → 次数）
-  static Future<Map<String, int>> snapshot() async {
+  static Future<Map<String, int>> snapshot() async => _normalizedSnapshot();
+
+  static Map<String, int> _normalizedSnapshot() {
     try {
       final m = StorageService.getMap(_storeKey);
-      return m.map(
-        (k, v) => MapEntry(k, v is int ? v : int.tryParse('$v') ?? 0),
-      );
+      final result = <String, int>{};
+      for (final entry in m.entries) {
+        final key = normalizeReason(entry.key);
+        final value = entry.value;
+        final count = value is int ? value : int.tryParse('$value') ?? 0;
+        result[key] = (result[key] ?? 0) + count;
+      }
+      return result;
     } catch (_) {
       return <String, int>{};
     }
