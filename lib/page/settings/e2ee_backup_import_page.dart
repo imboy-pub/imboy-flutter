@@ -46,6 +46,14 @@ class E2EEBackupImportPage extends StatefulWidget {
   /// 文件校验实现；默认使用真实本地文件校验。
   final Future<Map<String, dynamic>> Function(String path)? backupFileVerifier;
 
+  /// 文件解密实现；默认使用真实本地备份服务。
+  final Future<Map<String, dynamic>> Function(
+    String path,
+    String password,
+    String? expectedAccountId,
+  )?
+  backupFileImporter;
+
   /// 恢复成功后回写服务端设备公钥的实现（测试注入用；null 走真实 [E2EEApi]）。
   final Future<bool> Function(Map<String, dynamic> restored)? deviceKeyReporter;
   final Future<bool> Function(int sessionCount)? historicalKeyGrantConfirmer;
@@ -57,6 +65,7 @@ class E2EEBackupImportPage extends StatefulWidget {
     this.initialFilePath,
     this.cloudBackupProbe,
     this.backupFileVerifier,
+    this.backupFileImporter,
     this.deviceKeyReporter,
     this.historicalKeyGrantConfirmer,
     this.historicalKeyGrantAuditor,
@@ -684,16 +693,28 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   Future<void> _handleImport() async {
+    if (!mounted ||
+        _isImporting ||
+        _selectedFile == null ||
+        _backupInfo == null) {
+      return;
+    }
     final password = _passwordController.text;
 
     try {
       setState(() => _isImporting = true);
 
-      final result = await E2EELocalBackupService.importBackup(
-        filePath: _selectedFile!.path,
-        password: password,
-        expectedAccountId: _currentAccountId,
-      );
+      final result =
+          await (widget.backupFileImporter?.call(
+                _selectedFile!.path,
+                password,
+                _currentAccountId,
+              ) ??
+              E2EELocalBackupService.importBackup(
+                filePath: _selectedFile!.path,
+                password: password,
+                expectedAccountId: _currentAccountId,
+              ));
 
       await _applyRestoredKeys(result);
     } on StateError catch (e) {
