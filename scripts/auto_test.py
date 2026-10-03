@@ -189,6 +189,16 @@ def _flutter_env_defines() -> list[str]:
     return defines
 
 
+def platform_for_device(device: str) -> str:
+    """在线 run 的目标平台推断：-d macos/darwin 为 macOS 桌面端，其余按 android 真机处理。
+
+    平台值进入 target fingerprint；错误平台会让 macOS run 带着错误指纹入账。
+    """
+    if device in ('macos', 'darwin') or device.startswith('darwin-'):
+        return 'macos'
+    return 'android'
+
+
 def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir: Path) -> int:
     """唯一 target 执行：机器事件判定结果；preflight 在启动子进程前挡下不满足项。"""
     plan_specs = [spec for _, spec in specs]
@@ -200,7 +210,7 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
         return 64
     api_url, ws_url = _target_urls()
     env = dict(os.environ)
-    cfg = effective_target_config(env=env, device_id=device, platform='android')
+    cfg = effective_target_config(env=env, device_id=device, platform=platform_for_device(device))
     env_defines = cfg.dart_defines
     results = []
     for spec in plan:
@@ -716,7 +726,7 @@ def main() -> int:
     capture.add_argument('--output', default='')
     capture.add_argument('--hold-ms', type=int, default=2500)
     capture.add_argument('--app-env', default=os.environ.get('IMBOY_APP_ENV', 'local_office'))
-    capture.add_argument('--platform', choices=('android', 'ios'), default='android')
+    capture.add_argument('--platform', choices=('android', 'ios', 'macos'), default='android')
     capture.add_argument('--execute', action='store_true')
     impact = sub.add_parser('impact')
     impact.add_argument('changed', nargs='+')
