@@ -8,6 +8,7 @@ import 'package:imboy/config/payment_config.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/billing/billing_provider.dart';
 import 'package:imboy/service/payment_launcher.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/store/api/billing_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -76,10 +77,16 @@ class _PlanListPageState extends ConsumerState<PlanListPage> {
   /// 执行订阅：编排成功/失败按第三方唤起结果差异化提示（同钱包）。
   Future<void> _doSubscribe(BillingPlan plan, String method) async {
     AppLoading.show(status: t.main.payingDots);
-    final ok = await ref
-        .read(billingProvider.notifier)
-        .subscribePlan(plan, paymentMethod: method);
-    AppLoading.dismiss();
+    var ok = false;
+    try {
+      ok = await ref
+          .read(billingProvider.notifier)
+          .subscribePlan(plan, paymentMethod: method);
+    } on Exception catch (error) {
+      AppLogger.error('[billing] subscription failed: ${error.runtimeType}');
+    } finally {
+      await AppLoading.dismiss();
+    }
     if (!mounted) return;
     if (ok) {
       AppLoading.showSuccess(t.billing.paySuccess);

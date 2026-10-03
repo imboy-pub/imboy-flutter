@@ -85,47 +85,60 @@ Widget _buildTestApp(BillingApi api, {bool withLoading = false}) {
 }
 
 void main() {
-  testWidgets('PL-7 订阅等待期间按钮禁用，失败后恢复可用', (tester) async {
-    final pending = Completer<int?>();
-    final api = _FakeBillingApi(
-      pendingSubscribe: pending,
-      plansResult: [
-        _plan(
-          id: 101,
-          name: 'synthetic-plan',
-          price: 100,
-          billingPeriod: 'month',
+  for (final throwing in [false, true]) {
+    testWidgets(throwing ? 'PL-8 订阅异常结束加载并恢复按钮' : 'PL-7 订阅等待期间按钮禁用，失败后恢复可用', (
+      tester,
+    ) async {
+      final pending = Completer<int?>();
+      final api = _FakeBillingApi(
+        pendingSubscribe: pending,
+        plansResult: [
+          _plan(
+            id: 101,
+            name: 'synthetic-plan',
+            price: 100,
+            billingPeriod: 'month',
+          ),
+        ],
+      );
+      await tester.pumpWidget(_buildTestApp(api, withLoading: true));
+      await tester.pumpAndSettle();
+      final subscribe = find.byWidgetPredicate(
+        (w) => w is CupertinoButton && w.color != null,
+      );
+      await tester.ensureVisible(find.text(t.billing.subscribe));
+      await tester.tap(find.text(t.billing.subscribe));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(
+          CupertinoActionSheetAction,
+          t.billing.payMethodAlipay,
         ),
-      ],
-    );
-    await tester.pumpWidget(_buildTestApp(api, withLoading: true));
-    await tester.pumpAndSettle();
-    final subscribe = find.byWidgetPredicate(
-      (w) => w is CupertinoButton && w.color != null,
-    );
-    await tester.ensureVisible(find.text(t.billing.subscribe));
-    await tester.tap(find.text(t.billing.subscribe));
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.widgetWithText(
-        CupertinoActionSheetAction,
-        t.billing.payMethodAlipay,
-      ),
-    );
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(api.subscribeCalls, 1);
-    expect(tester.widget<CupertinoButton>(subscribe).onPressed, isNull);
-    expect(api.invoiceCalls, 0);
-    pending.complete(null);
-    for (var i = 0; i < 50; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(tester.widget<CupertinoButton>(subscribe).onPressed, isNotNull);
-    expect(api.subscribeCalls, 1);
-    expect(api.invoiceCalls, 0);
-    expect(tester.takeException(), isNull);
-  });
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(api.subscribeCalls, 1);
+      expect(tester.widget<CupertinoButton>(subscribe).onPressed, isNull);
+      expect(api.invoiceCalls, 0);
+      if (throwing) {
+        pending.completeError(Exception('synthetic subscription failure'));
+      } else {
+        pending.complete(null);
+      }
+      for (var frame = 0; frame < 10; frame++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(find.text(t.main.payingDots), findsNothing);
+      expect(find.text(t.billing.payFailed), findsOneWidget);
+      for (var i = 0; i < 50; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(tester.widget<CupertinoButton>(subscribe).onPressed, isNotNull);
+      expect(api.subscribeCalls, 1);
+      expect(api.invoiceCalls, 0);
+      expect(tester.takeException(), isNull);
+    });
+  }
   testWidgets('PL-6 取消支付方式选择不订阅、不创建账单且可重新打开', (tester) async {
     final api = _FakeBillingApi(
       plansResult: [
