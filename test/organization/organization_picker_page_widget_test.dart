@@ -165,6 +165,33 @@ class _DeferredPickerAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _DeferredDetailAdapter implements HttpClientAdapter {
+  final detail = Completer<ResponseBody>();
+  int detailCalls = 0;
+  ResponseBody response(dynamic body) => ResponseBody.fromString(
+    jsonEncode(body),
+    200,
+    headers: {
+      Headers.contentTypeHeader: [Headers.jsonContentType],
+    },
+  );
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    if (options.path.endsWith('/organizations/mine')) {
+      return Future.value(response(_mineOf([_orgA, _orgB])));
+    }
+    detailCalls++;
+    return detail.future;
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 Map<String, dynamic> _ok(dynamic payload) => {
   'code': 0,
   'msg': 'success',
@@ -296,6 +323,60 @@ void main() {
     );
     addTearDown(container.dispose);
     return container;
+  }
+
+  for (final returnToOriginal in [false, true]) {
+    testWidgets('账号${returnToOriginal ? '往返' : '改变'}后旧企业切换失效并释放进行中门', (
+      tester,
+    ) async {
+      const other = '91002';
+      addTearDown(() => OrganizationCache.disposeAccount(other));
+      addTearDown(() => CurrentOrganizationStore.disposeAccount(other));
+      final adapter = _DeferredDetailAdapter();
+      final api = _WsFakeApi(const []);
+      final container = makeContainer(api);
+      HttpClient.adapterForTest = adapter;
+      await CurrentOrganizationStore.forAccount(_accountKey)
+          .set(const Organization(id: _orgA, name: '组织$_orgA'));
+      Widget host(String account) => TranslationProvider(
+        child: UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(home: OrganizationPickerPage(accountKey: account)),
+        ),
+      );
+      final tile = find.byKey(const ValueKey('org-picker-tile-7002'));
+      await tester.pumpWidget(host(_accountKey));
+      await pumpUntilFound(tester, tile);
+      await tester.tap(tile);
+      for (var i = 0; i < 30 && adapter.detailCalls == 0; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(adapter.detailCalls, 1);
+      await tester.pumpWidget(host(other));
+      await pumpUntilFound(tester, tile);
+      if (returnToOriginal) {
+        await tester.pumpWidget(host(_accountKey));
+        await pumpUntilFound(tester, tile);
+      }
+      expect(tester.widget<ListTile>(tile).onTap, isNull);
+      adapter.detail.complete(
+        adapter.response(
+          _ok({
+            'id': int.parse(_orgB),
+            'name': '组织$_orgB',
+            'member_role': 'member',
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(api.mineCalls, 0);
+      expect(CurrentOrganizationStore.forAccount(_accountKey).value?.id, _orgA);
+      expect(tester.widget<ListTile>(tile).onTap, isNotNull);
+      expect(
+        find.byKey(const ValueKey('org-picker-switch-error')),
+        findsNothing,
+      );
+    });
   }
 
   testWidgets('选择器切换账号后旧列表不得写入新账号缓存', (tester) async {

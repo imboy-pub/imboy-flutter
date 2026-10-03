@@ -65,6 +65,7 @@ class _OrganizationPickerPageState
   List<Organization> _orgs = const [];
   bool _loading = false;
   int _refreshGeneration = 0;
+  int _accountEpoch = 0;
   String? _error;
 
   /// 两阶段切换状态（ENT-APP-04）：进行中门（重复点击不重入）+ 页内
@@ -105,6 +106,7 @@ class _OrganizationPickerPageState
   void didUpdateWidget(covariant OrganizationPickerPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.accountKey == widget.accountKey) return;
+    ++_accountEpoch;
     _orgs = const [];
     _switchError = null;
     _refresh();
@@ -148,9 +150,13 @@ class _OrganizationPickerPageState
 
   /// 两阶段原子切换（ENT-APP-04；语义见文件头）。任一阶段失败 → 页内
   /// 错误态 + 恢复旧状态；补偿失败按实际指针对齐，不把失败报告为成功。
+  bool _acceptSwitch(String account, int epoch) =>
+      mounted && account == _accountKey && epoch == _accountEpoch;
+
   Future<void> _switchTo(Organization org) async {
     if (_switching) return;
     final account = _accountKey;
+    final epoch = _accountEpoch;
     final prev = _currentOrg;
     final previousShell = ref.read(workspaceShellProvider);
     var committing = false;
@@ -159,36 +165,42 @@ class _OrganizationPickerPageState
       _switchError = null;
     });
     try {
-      final fresh = await _prepareTarget(org, account);
-      if (!mounted || _accountKey != account) return;
+      final fresh = await _prepareTarget(org, account, epoch);
+      if (!_acceptSwitch(account, epoch)) return;
       committing = true;
-      await _commitTarget(fresh, prev, account);
+      await _commitTarget(fresh, prev, account, epoch);
     } on Object catch (e) {
-      if (!mounted || _accountKey != account) return;
+      if (!_acceptSwitch(account, epoch)) return;
       final recoveryError = committing
-          ? await _rollbackSwitch(prev, org, previousShell, account)
+          ? await _rollbackSwitch(prev, org, previousShell, account, epoch)
           : null;
-      if (!mounted || _accountKey != account) return;
+      if (!_acceptSwitch(account, epoch)) return;
       setState(() {
         _switching = false;
         _switchError = _switchErrorText(recoveryError ?? e);
       });
       return;
+    } finally {
+      if (mounted) setState(() => _switching = false);
     }
-    if (!mounted || _accountKey != account) return;
+    if (!_acceptSwitch(account, epoch)) return;
     setState(() => _switching = false);
     _leave();
   }
 
-  Future<Organization> _prepareTarget(Organization org, String account) async {
+  Future<Organization> _prepareTarget(
+    Organization org,
+    String account,
+    int epoch,
+  ) async {
     final fresh = await _api.detail(org.id);
-    if (!mounted || _accountKey != account) {
+    if (!_acceptSwitch(account, epoch)) {
       throw StateError('Organization account changed');
     }
     await ref
         .read(workspaceShellProvider.notifier)
         .loadMine(keepListOnFailure: true);
-    if (!mounted || _accountKey != account) {
+    if (!_acceptSwitch(account, epoch)) {
       throw StateError('Organization account changed');
     }
     final error = ref.read(workspaceShellProvider).error;
@@ -200,7 +212,9 @@ class _OrganizationPickerPageState
     Organization fresh,
     Organization? prev,
     String account,
+    int epoch,
   ) async {
+    if (!_acceptSwitch(account, epoch)) return;
     if (prev != null) _cache.invalidateOrg(prev.id);
     ref.invalidate(workspaceOverviewProvider);
     ref.invalidate(workspaceChannelsProvider);
@@ -208,11 +222,11 @@ class _OrganizationPickerPageState
     ref.invalidate(workspaceMembersProvider);
     ref.invalidate(workspaceProjectsProvider);
     await _currentStore.set(fresh);
-    if (!mounted || _accountKey != account) {
+    if (!_acceptSwitch(account, epoch)) {
       throw StateError('Organization account changed');
     }
-    await _landDefaultWorkspace(fresh);
-    if (!mounted || _accountKey != account) {
+    await _landDefaultWorkspace(fresh, account, epoch);
+    if (!_acceptSwitch(account, epoch)) {
       throw StateError('Organization account changed');
     }
     await ref
@@ -228,14 +242,16 @@ class _OrganizationPickerPageState
     Organization failed,
     WorkspaceShellState previousShell,
     String account,
+    int epoch,
   ) async {
+    if (!_acceptSwitch(account, epoch)) return null;
     Object? recoveryError;
     try {
       await _currentStore.restore(prev);
     } on Object catch (e) {
       recoveryError = e;
     }
-    if (!mounted || _accountKey != account) return recoveryError;
+    if (!_acceptSwitch(account, epoch)) return recoveryError;
     _cache.invalidateOrg(failed.id);
     final pointed = _currentStore.value;
     final snapshot = recoveryError == null
@@ -248,6 +264,7 @@ class _OrganizationPickerPageState
           ? snapshot.currentWorkspaceId
           : '',
     );
+    if (!_acceptSwitch(account, epoch)) return recoveryError;
     shell.selectDestination(snapshot.destination);
     return recoveryError;
   }
@@ -288,11 +305,18 @@ class _OrganizationPickerPageState
     }
   }
 
-  Future<void> _landDefaultWorkspace(Organization org) async {
+  Future<void> _landDefaultWorkspace(
+    Organization org,
+    String account,
+    int epoch,
+  ) async {
     await ref.read(workspaceShellProvider.notifier).selectOrganization(
       org.id,
       () async {
         final dw = await _api.defaultWorkspace(org.id);
+        if (!_acceptSwitch(account, epoch)) {
+          throw StateError('Organization account changed');
+        }
         return dw.defaultWorkspaceId;
       },
     );
