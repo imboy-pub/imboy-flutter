@@ -237,7 +237,7 @@ void main() {
   // 3. C2C Olm per-device fan-out 信封（源码合同）
   // ─────────────────────────────────────────────────────────────────────
 
-  test('C2C fan-out e2ee 信封字段集合 == 白名单（5 字段 + devices 映射）', () {
+  test('C2C fan-out e2ee 信封字段集合 == 白名单（6 字段 + devices 映射）', () {
     final source = readLib('page/chat/chat/services/chat_network_service.dart');
     final keys = mapLiteralKeys(
       source,
@@ -245,11 +245,19 @@ void main() {
     );
     expect(
       keys,
-      <String>{'meta_version', 'protocol', 'version', 'fan_out', 'devices'},
+      <String>{
+        'meta_version',
+        'protocol',
+        'version',
+        'fan_out',
+        'devices',
+        'skipped_devices',
+      },
       reason:
           'fan-out 信封的 devices 键是「对端设备 ID → 逐设备密文」'
-          '映射：服务器可见收件设备列表（设备关系图谱）。此结构变更需同步 '
-          'privacy-profile.md §设备关系',
+          '映射：服务器可见收件设备列表（设备关系图谱）；skipped_devices '
+          '（C07 逐设备套件门卫跳过项）同样向服务器暴露设备 ID 集合，'
+          '计入同一图谱面。此结构变更需同步 privacy-profile.md §设备关系',
     );
   });
 
