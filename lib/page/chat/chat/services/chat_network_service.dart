@@ -658,6 +658,8 @@ class ChatNetworkService {
     required String messageType,
     List<String> removeKeys = const [],
   }) async {
+    final outboundUid = UserRepoLocal.to.currentUid;
+    final outboundGeneration = UserRepoLocal.to.sessionGeneration;
     // P0-B B4：群级 E2EE 开启的群强制加密（独立于全局策略与本地开关，
     // 服务端 fail-closed 门会拒明文）
     //
@@ -681,6 +683,7 @@ class ChatNetworkService {
               chatType,
               toId: toId,
             ));
+    _requireOutboundSession(outboundUid, outboundGeneration);
     if (!needEncrypt) return null;
 
     // 发送路径全量 Megolm（vodozemac）：C2G 群会话、C2C 二人会话。
@@ -699,7 +702,10 @@ class ChatNetworkService {
         action,
         messageId: messageId,
         messageType: messageType,
+        outboundUid: outboundUid,
+        outboundGeneration: outboundGeneration,
       );
+      _requireOutboundSession(outboundUid, outboundGeneration);
       return _addEditRoutingMetadata(result, plaintextPayload, action);
     }
 
@@ -761,6 +767,15 @@ class ChatNetworkService {
     return {...encrypted, 'e2ee': e2ee};
   }
 
+  void _requireOutboundSession(String uid, int generation) {
+    final repo = UserRepoLocal.to;
+    if (repo.isClearingSession ||
+        repo.currentUid != uid ||
+        !repo.isCurrentSession(generation)) {
+      throw const E2eeSecurityException('outbound_session_changed');
+    }
+  }
+
   /// S2.2: C2C per-device Olm fan-out。
   ///
   /// 对对端每个设备分别建立/复用 Olm 会话，加密完整 inner_frame（PFv3），
@@ -771,11 +786,16 @@ class ChatNetworkService {
     String action, {
     required String messageId,
     required String messageType,
+    required String outboundUid,
+    required int outboundGeneration,
   }) async {
+    _requireOutboundSession(outboundUid, outboundGeneration);
     await E2eeBootstrap.ensureReady();
+    _requireOutboundSession(outboundUid, outboundGeneration);
 
     // 获取对端所有设备公钥
     final keyResult = await E2EEService.getUserDevicePublicKeys(toId);
+    _requireOutboundSession(outboundUid, outboundGeneration);
     final didToPem = keyResult['didToPem'] ?? {};
     final didToKid = keyResult['didToKid'] ?? {};
 
@@ -796,7 +816,8 @@ class ChatNetworkService {
       fanoutDeviceIds: didToPem.keys.toSet(),
     );
 
-    final myUid = UserRepoLocal.to.currentUid;
+    _requireOutboundSession(outboundUid, outboundGeneration);
+    final myUid = outboundUid;
     final myDid = deviceId;
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -804,6 +825,7 @@ class ChatNetworkService {
     // 独立密文副本——服务端会把 C2C 消息 echo 给发送者的其他设备，若
     // devices map 没有它们，接收侧按 fan_out_missing_devices 判不可恢复。
     final selfKeyResult = await E2EEService.getUserDevicePublicKeys(myUid);
+    _requireOutboundSession(outboundUid, outboundGeneration);
     final selfDidToPem =
         ((selfKeyResult['didToPem'] ?? {}) as Map).cast<String, String>()
           ..remove(myDid); // 当前设备本地已有明文行，不需要密文副本
@@ -818,6 +840,8 @@ class ChatNetworkService {
         excludedFromGhostDetection: {myDid},
       );
     }
+
+    _requireOutboundSession(outboundUid, outboundGeneration);
 
     // fan-out 目标：对端全部活跃设备 + 自己的其他设备。
     // 每个目标一台独立 Olm 会话（AC-16：各目标密文互不相同且各自可解）。
@@ -845,6 +869,7 @@ class ChatNetworkService {
     // 后续补投以该记录为依据。安全/能力类错误不跳过（fail-closed 拒发）。
     final skippedDevices = <String, String>{};
     for (final target in targets) {
+      _requireOutboundSession(outboundUid, outboundGeneration);
       final peerDid = target.did;
 
       // E2EE-025：session_ref 必须是**真实**的 Olm 会话标识，且必须在构造
@@ -889,6 +914,7 @@ class ChatNetworkService {
         rethrow;
       }
 
+      _requireOutboundSession(outboundUid, outboundGeneration);
       final encrypted = await E2eeOutboundRouter.encryptV3(
         suite: ProtocolSuite.olm,
         plaintext: plaintext,
@@ -938,11 +964,13 @@ class ChatNetworkService {
       'devices': devices,
       if (skippedDevices.isNotEmpty) 'skipped_devices': skippedDevices,
     };
+    _requireOutboundSession(outboundUid, outboundGeneration);
     await E2eeOutboundRouter.persistOutboxPayload(
       messageId: messageId,
       payload: {'e2ee': e2ee, 'payload': ''},
     );
 
+    _requireOutboundSession(outboundUid, outboundGeneration);
     return {'e2ee': e2ee, 'payload': ''};
   }
 

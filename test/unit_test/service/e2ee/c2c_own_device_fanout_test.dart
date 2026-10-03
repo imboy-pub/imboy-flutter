@@ -15,6 +15,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:dio/dio.dart'
     show DioException, HttpClientAdapter, RequestOptions, ResponseBody;
@@ -30,6 +31,7 @@ import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/e2ee/capability_guard.dart';
+import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart' show CanonicalCbor;
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
@@ -39,6 +41,7 @@ import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../vodozemac_native_lib.dart';
 
@@ -133,6 +136,9 @@ void main() {
           final key = args?['key'] as String?;
           switch (call.method) {
             case 'write':
+              if (key == 'secure_token') {
+                throw PlatformException(code: 'synthetic-login-commit-stop');
+              }
               if (key != null) {
                 secureStore[key] = args?['value']?.toString() ?? '';
               }
@@ -384,6 +390,69 @@ void main() {
           ),
           throwsA(isA<FixedSuiteIncompatibleException>()),
         );
+        expect(await CryptoStore(db).getOutboxEntry(messageId), isNull);
+      },
+    );
+  }
+  for (final pendingUid in [peerUid, myUid]) {
+    test(
+      'session generation changes during directory query ($pendingUid) rejects old send',
+      () async {
+        E2EEService.setUserDeviceKeyCacheForTest(peerUid, {peerDid: 'PEM-B1'});
+        E2EEService.setUserDeviceKeyCacheForTest(myUid, {
+          myDid: 'PEM-A1',
+          selfOtherDid: 'PEM-A2',
+        });
+        final pending = Completer<List<Map<String, dynamic>>>();
+        final observed = Completer<void>();
+        E2EEService.debugOlmDeviceListLoader = (uid) async {
+          if (uid == pendingUid) {
+            observed.complete();
+            return pending.future;
+          }
+          return [
+            {'device_id': uid == peerUid ? peerDid : selfOtherDid},
+          ];
+        };
+        final messageId = 'stale-send-directory-$pendingUid';
+        final send = ChatNetworkService().encryptPayload(
+          chatType: 'C2C',
+          toId: peerUid,
+          plaintextMap: const {
+            'msg_type': 'text',
+            'body': 'synthetic old-session canary',
+          },
+          action: '',
+          messageId: messageId,
+          messageType: 'text',
+        );
+        await observed.future.timeout(const Duration(seconds: 3));
+        final repo = UserRepoLocal.to;
+        final generation = repo.sessionGeneration;
+        await expectLater(
+          repo.loginAfter('synthetic-session', {
+            'uid': '101',
+            'token': 'synthetic-access-value',
+            'refreshtoken': 'synthetic-refresh-value',
+          }),
+          throwsA(isA<PlatformException>()),
+        );
+        expect(repo.sessionGeneration, generation + 1);
+        expect(repo.currentUid, myUid);
+        final rejected = expectLater(
+          send,
+          throwsA(
+            isA<E2eeSecurityException>().having(
+              (e) => e.toString(),
+              'code',
+              contains('outbound_session_changed'),
+            ),
+          ),
+        );
+        pending.complete([
+          {'device_id': pendingUid == peerUid ? peerDid : selfOtherDid},
+        ]);
+        await rejected;
         expect(await CryptoStore(db).getOutboxEntry(messageId), isNull);
       },
     );
