@@ -156,3 +156,45 @@ def audit_billing_cancel_artifacts(root: Path, expected: Any, artifacts: Any) ->
             expected, snapshots['before'], snapshots['after']))
         result['scope'] = 'BILLING_SNAPSHOT_ARTIFACT_STATE_ONLY'
     return result
+
+
+def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
+    """Require explicit frozen obligations, exact records and runtime bindings.
+
+    This gate checks declared snapshot obligations only. Coverage discovery and
+    independent request/database audits remain separate required gates.
+    """
+    if not isinstance(frozen, dict):
+        return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
+    obligations = frozen.get('billing_cancel_snapshots')
+    if not isinstance(obligations, list) or not isinstance(records, dict):
+        return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
+    indexed = {}
+    for obligation in obligations:
+        if not isinstance(obligation, dict) or set(obligation) != {'id', 'context'}:
+            return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
+        identifier, context = obligation['id'], obligation['context']
+        if (not isinstance(identifier, str) or not identifier.strip()
+                or identifier in indexed or not _context_valid(context)):
+            return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
+        try:
+            if (context['run_id'] != frozen['run_id']
+                    or context['fixture_generation'] != frozen['fixture_generation']
+                    or context['backend_sha'] != frozen['candidates']['imboy']['head']):
+                return ['BILLING_FROZEN_RUNTIME_MISMATCH']
+        except (KeyError, TypeError):
+            return ['BILLING_FROZEN_RUNTIME_MISMATCH']
+        indexed[identifier] = context
+    if set(records) != set(indexed):
+        return ['BILLING_SNAPSHOT_RECORDED_SET_MISMATCH']
+    errors, paths = [], set()
+    for identifier, context in indexed.items():
+        result = audit_billing_cancel_artifacts(root, context, records[identifier])
+        errors.extend(result['errors'])
+        if result['errors']:
+            continue
+        for descriptor in records[identifier].values():
+            if descriptor['path'] in paths:
+                errors.append('BILLING_SNAPSHOT_CAPTURE_REUSED_ACROSS_OBLIGATIONS')
+            paths.add(descriptor['path'])
+    return errors

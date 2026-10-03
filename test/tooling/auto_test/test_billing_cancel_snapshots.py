@@ -32,6 +32,21 @@ def fixture():
 
 
 class BillingCancelSnapshots(unittest.TestCase):
+    def test_frozen_obligations_are_explicit_and_exact(self):
+        audit = billing_cancel_snapshots.audit_billing_cancel_set
+        self.assertTrue(audit(Path('.'), {}, {}))
+        self.assertEqual(audit(Path('.'), {'billing_cancel_snapshots': []}, {}), [])
+        self.assertTrue(audit(Path('.'), {'billing_cancel_snapshots': []}, {'extra': {}}))
+
+    def test_obligations_reject_runtime_drift(self):
+        context, _ = fixture()
+        frozen = dict(billing_cancel_snapshots=[dict(id='cancel', context=context)],
+                      run_id='different', fixture_generation=context['fixture_generation'],
+                      candidates={'imboy': {'head': context['backend_sha']}})
+        self.assertIn('BILLING_FROZEN_RUNTIME_MISMATCH',
+                      billing_cancel_snapshots.audit_billing_cancel_set(
+                          Path('.'), frozen, {'cancel': {}}))
+
     def test_pinned_artifacts_compare_complete_rows(self):
         context, snapshot = fixture()
         with tempfile.TemporaryDirectory() as directory:

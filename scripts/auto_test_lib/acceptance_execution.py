@@ -8,6 +8,7 @@ from auto_test_lib import acceptance_preflight, acceptance_coverage, acceptance_
 from auto_test_lib import acceptance_defects, acceptance_versions, acceptance_ux
 from auto_test_lib import acceptance_upstream
 from auto_test_lib import acceptance_upstream_commands
+from auto_test_lib import billing_cancel_snapshots
 
 
 def audit_case_event_runs(root: Path, frozen_cases: Any, runs: Any) -> List[str]:
@@ -91,6 +92,8 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
         report, report_errors = acceptance.load_frozen_json(root, report_descriptor)
         result['errors'].extend(report_errors)
         if not report_errors and isinstance(report, dict):
+            result['errors'].extend(billing_cancel_snapshots.audit_billing_cancel_set(
+                root, frozen, report.get('billing_cancel_snapshots')))
             result['errors'].extend(acceptance_versions.audit_version_inputs(
                 root, frozen.get('version_inputs'), report.get('version_inputs')))
             result['errors'].extend(acceptance_versions.audit_version_acceptance_set(root, frozen))

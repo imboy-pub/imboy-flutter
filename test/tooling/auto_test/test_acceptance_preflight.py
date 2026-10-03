@@ -172,6 +172,8 @@ class PreflightTests(unittest.TestCase):
         self.report['defects'] = []
         self.frozen['cross_device_journeys'] = []
         self.report['cross_device_records'] = {}
+        self.frozen['billing_cancel_snapshots'] = []
+        self.report['billing_cancel_snapshots'] = {}
         case = self.frozen['required_cases'][0]
         binding = {key: case[key] for key in
                    ('case_id', 'platform', 'profile', 'role_variant')}
