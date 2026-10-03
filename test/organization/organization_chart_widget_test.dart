@@ -10,6 +10,7 @@ import 'package:imboy/modules/organization/presentation/organization_chart.dart'
 
 class ChartSource implements HumanDirectoryDataSource {
   bool deny = false;
+  bool unavailable = false;
   Completer<HumanDirectoryPage<HumanDirectoryDepartment>>? pending;
   final calls = <String>[];
   @override
@@ -21,6 +22,9 @@ class ChartSource implements HumanDirectoryDataSource {
   }) async {
     calls.add('$organizationId/${parentId ?? "root"}/${cursor ?? "first"}');
     if (pending != null) return pending!.future;
+    if (unavailable) {
+      throw const OrganizationApiException(503, 'synthetic unavailable');
+    }
     if (deny) throw const OrganizationApiException(403, 'synthetic denied');
     final rows = parentId == null
         ? cursor == null
@@ -197,6 +201,29 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('根部门加载失败后重试恢复，不留旧错误或加载标记', (tester) async {
+    final source = ChartSource()..unavailable = true;
+    await tester.pumpWidget(chartHost(source));
+    await tester.pumpAndSettle();
+    expect(find.text('销售部'), findsNothing);
+    final retry = find.byKey(const ValueKey('org-chart-expand-'));
+    expect(retry.hitTestable(), findsOneWidget);
+    expect(
+      tester.widget<IconButton>(retry).tooltip,
+      t.organization.common.reload,
+    );
+    source.unavailable = false;
+    await tester.tap(retry);
+    await tester.pumpAndSettle();
+    expect(find.text('销售部'), findsOneWidget);
+    expect(find.text('技术部'), findsOneWidget);
+    expect(
+      tester.widget<IconButton>(retry).tooltip,
+      t.organization.departments.collapseNode(name: '广州示例公司'),
+    );
+    expect(source.calls.where((call) => call == '100/root/first').length, 2);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('分支撤权立即清空整图并通知成员列表', (tester) async {
     final source = ChartSource();
     var denied = false;

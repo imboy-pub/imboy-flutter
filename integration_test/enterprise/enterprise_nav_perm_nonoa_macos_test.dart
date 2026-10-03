@@ -29,6 +29,7 @@ import 'package:imboy/modules/organization/infrastructure/organization_api.dart'
 import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/page/mine/mine/mine_page.dart';
 
 import 'macos_storage_isolation.dart';
 
@@ -189,10 +190,17 @@ void main() {
       tester,
       find.byKey(const ValueKey('enterprise-mine-organization-entry')),
     );
+    // The entry exists before the role provider finishes. Wait for the loaded
+    // organization in this UI, not a separate API request or elapsed time.
+    await waitFor(
+      tester,
+      find.byWidgetPredicate(
+        (widget) => widget is MinePage && widget.enterpriseName == _orgAName,
+      ),
+    );
     final role = await tester.runAsync(() => OrganizationApi().detail(_orgAId));
     expect(role?.memberRole, 'member');
     expect(role?.id, _orgAId);
-    await tester.pump(const Duration(milliseconds: 800));
     expect(
       find.text(t.organization.manage.entry),
       findsNothing,
