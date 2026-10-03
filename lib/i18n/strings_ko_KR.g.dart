@@ -1456,6 +1456,11 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => '이전 그룹 키 복원';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => '이 기기에 ${count}개의 그룹 키 복원을 별도로 승인하며, 각 가입 세대와 메시지 순번 범위 안에서만 기록을 복호화합니다. 신원 키는 이미 복원되었습니다. 취소하면 이 그룹 키들은 복원하지 않습니다.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '이전 그룹 키: ${restored}개 승인 및 복원, ${omitted}개 제외';
+	@override String get e2eeBackupErrAccountMismatch => '이 백업은 다른 계정의 것이므로 복원이 거부되었습니다';
+	@override String get e2eeBackupErrStaleBackup => '이 백업은 이 기기에서 가장 최근에 복원된 것보다 오래되어(재사용 의심) 거부되었습니다';
+	@override String get e2eeBackupRestorePartialTitle => '부분 완료';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'E2EE 키가 복원되었습니다. 그룹 키 쓰기가 중단되었습니다(${written}/${total} 항목 완료). 동일한 백업을 다시 가져오면 나머지를 안전하게 이어서 완료할 수 있습니다';
+	@override String get e2eeBackupSafetyNumberChangedNote => '기기 신원 키가 변경되어 연락처와의 안전번호가 변경됩니다. 다시 확인해 주세요';
 	@override String get e2eeBackupCreatedAtRow => '생성 시간';
 	@override String get e2eeBackupCloudUploadBtn => '클라우드에 백업';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})';
@@ -4483,6 +4488,11 @@ extension on TranslationsKoKr {
 			'common.e2eeBackupHistoryGrantTitle' => '이전 그룹 키 복원',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => '이 기기에 ${count}개의 그룹 키 복원을 별도로 승인하며, 각 가입 세대와 메시지 순번 범위 안에서만 기록을 복호화합니다. 신원 키는 이미 복원되었습니다. 취소하면 이 그룹 키들은 복원하지 않습니다.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '이전 그룹 키: ${restored}개 승인 및 복원, ${omitted}개 제외',
+			'common.e2eeBackupErrAccountMismatch' => '이 백업은 다른 계정의 것이므로 복원이 거부되었습니다',
+			'common.e2eeBackupErrStaleBackup' => '이 백업은 이 기기에서 가장 최근에 복원된 것보다 오래되어(재사용 의심) 거부되었습니다',
+			'common.e2eeBackupRestorePartialTitle' => '부분 완료',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'E2EE 키가 복원되었습니다. 그룹 키 쓰기가 중단되었습니다(${written}/${total} 항목 완료). 동일한 백업을 다시 가져오면 나머지를 안전하게 이어서 완료할 수 있습니다',
+			'common.e2eeBackupSafetyNumberChangedNote' => '기기 신원 키가 변경되어 연락처와의 안전번호가 변경됩니다. 다시 확인해 주세요',
 			'common.e2eeBackupCreatedAtRow' => '생성 시간',
 			'common.e2eeBackupCloudUploadBtn' => '클라우드에 백업',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '클라우드에 백업했습니다 (버전 ${version})',
@@ -4699,13 +4709,13 @@ extension on TranslationsKoKr {
 			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			'discovery.momentActionLike' => '좋아요',
 			'discovery.momentActionCancelLike' => '좋아요 취소',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => '댓글',
 			'discovery.momentActionDelete' => '삭제',
 			'discovery.momentActionReport' => '신고',
 			'discovery.momentActionCancel' => '취소',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names}님이 좋아합니다',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 외 ${count}명이 좋아합니다',
 			'discovery.momentContentPlaceholder' => '지금 이 순간의 생각...',
 			'discovery.momentShowFull' => '전체 보기',
@@ -5213,13 +5223,13 @@ extension on TranslationsKoKr {
 			'organization.home.myInvitations' => '내 초대',
 			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
 			'organization.detail.leaveOrg' => '조직 나가기',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => '나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다.',
 			'organization.detail.leaveFailed' => '나가기 실패',
 			'organization.detail.leaveOwnerHint' => '나가기 전에 조직 소유권을 이전하세요',
 			'organization.detail.leaveCleanupFailed' => '조직에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요',
 			'organization.detail.title' => '조직 상세',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => '조직을 찾을 수 없습니다',
 			'organization.detail.archiveOrg' => '조직 보관',
 			'organization.detail.archiveConfirmBody' => '보관하면 조직은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다.',
@@ -5727,13 +5737,13 @@ extension on TranslationsKoKr {
 			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',
 			'workspace.taskEmptySubtitle' => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료',
 			'workspace.projectsLoadMore' => '더 로드',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectW2SectionTitle' => '프로젝트 협업',
 			'workspace.projectMembersEntry' => '구성원',
 			'workspace.projectMilestonesEntry' => '마일스톤',
 			'workspace.projectChannelsEntry' => '프로젝트 채널',
 			'workspace.projectInsightsEntry' => '콘텐츠 집계',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNoPermission' => '권한 없음: 프로젝트 구성원, 프로젝트 담당자 또는 워크스페이스 Owner만 볼 수 있습니다',
 			'workspace.projectGuestReadonly' => '게스트(Guest) 신분은 프로젝트가 읽기 전용입니다',
 			'workspace.projectLoadMore' => '더 로드',

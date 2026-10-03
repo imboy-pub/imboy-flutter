@@ -22,6 +22,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -49,6 +50,10 @@ const _kDeviceId = 'test-device-abc123';
 const _kKeyId = 'kid_abc12345';
 const _kValidPassword = 'MyStr0ng!Pass';
 const _kShortPassword = 'Short1!'; // 7 位，低于最小 8 位要求
+
+/// KDF 600k（OWASP 2023）纯 Dart 派生在 CI 并发下单次数秒，
+/// 涉及 pack/unpack 的用例统一放宽超时。
+const _kdfTimeout = Timeout(Duration(minutes: 2));
 
 // ---------------------------------------------------------------------------
 // 平台通道 Mock / Platform channel mock for path_provider
@@ -174,7 +179,7 @@ void main() {
 
       // Assert
       expect(utf8.decode(decrypted), equals(plainText));
-    });
+    }, timeout: _kdfTimeout);
 
     // 5. 错误密码解密应抛出异常 / Wrong password decryption throws
     test('错误密码解密应抛出异常 / wrong password throws on decrypt', () async {
@@ -235,7 +240,7 @@ void main() {
       expect(result['private_key'], equals(_kFakePrivateKey));
       expect(result['public_key'], equals(_kFakePublicKey));
       expect(result['file_size'], isPositive);
-    });
+    }, timeout: _kdfTimeout);
 
     test('安全存储不可读时拒绝生成不完整备份', () async {
       await expectLater(
@@ -329,6 +334,7 @@ void main() {
           throwsA(isA<ArgumentError>()),
         );
       },
+      timeout: _kdfTimeout,
     );
 
     // 9. Magic Number 错误应抛出异常 / Invalid magic number throws
@@ -409,6 +415,394 @@ void main() {
       expect(info['version'], equals(E2EECryptoService.formatVersion));
       expect(info['algorithm'], equals(E2EECryptoService.algorithmId));
       expect(info['file_size'], isPositive);
+    }, timeout: _kdfTimeout);
+  });
+
+  // =========================================================================
+  // 组 4（C03）：备份包含/排除材料清单核验
+  // =========================================================================
+  group('C03 — 备份包含/排除材料清单核验', () {
+    test('导出物逐字段与文档清单一致（RSA + Megolm inbound v2 + 元数据）', () async {
+      const gid = '100';
+      const sessionId = 'session-inventory';
+      const grantJson =
+          '{"version":1,"scope":"100","session_id":'
+          '"session-inventory","epoch_id":"session-inventory",'
+          '"generation_no":2,"start_seq":481,"end_seq":900,'
+          '"source":"server_history_grant"}';
+      final bytes = await E2EELocalBackupService.packBackupBytes(
+        password: _kValidPassword,
+        privateKey: _kFakePrivateKey,
+        publicKey: _kFakePublicKey,
+        deviceId: _kDeviceId,
+        keyId: _kKeyId,
+        accountId: '900001',
+        secureEntriesForTest: {
+          'megolm_inbound_$gid:$sessionId': 'exported-key-inventory',
+          'megolm_history_grant_$gid:$sessionId': grantJson,
+        },
+      );
+
+      final restored = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: bytes,
+        password: _kValidPassword,
+      );
+
+      // 顶层字段逐项核验（备份格式版本 version 由 32 字节文件头承载，
+      // 见 KDF 版本化组的头部断言；unpack 返回面不含 version）
+      expect(restored['device_id'], _kDeviceId);
+      expect(restored['private_key'], _kFakePrivateKey);
+      expect(restored['public_key'], _kFakePublicKey);
+      expect(restored['key_id'], _kKeyId);
+      expect(restored['account_id'], '900001');
+      expect(restored['created_at'], isA<String>());
+      final createdAt = DateTime.parse(restored['created_at'] as String);
+      expect(createdAt.isUtc, isTrue, reason: 'created_at 须为 UTC ISO-8601');
+
+      // Megolm inbound 段逐项核验（v2 结构 + grant 元数据）
+      final section = E2EELocalBackupService.megolmBackupSection(restored);
+      expect(section.sessions, hasLength(1));
+      final session = section.sessions.single;
+      expect(session.scope, gid);
+      expect(session.sessionId, sessionId);
+      expect(session.exportedKey, 'exported-key-inventory');
+      expect(session.grant.generationNo, 2);
+      expect(session.grant.startSeq, 481);
+      expect(session.grant.endSeq, 900);
+      expect(session.grant.epochId, sessionId);
+      expect(section.omittedSessionCount, 0);
+    }, timeout: _kdfTimeout);
+
+    test('排除项不可达：Olm ratchet / 社交恢复分片 / 历史私钥 / DID 均不进入导出物', () async {
+      // 哨兵法：每类排除材料给唯一值，解密后的完整 JSON 不得包含任何哨兵
+      final excluded = <String, String>{
+        'olm_account_pickle': 'OLM-ACCOUNT-PICKLE-SECRET',
+        'olm_session_900001:did_peer_1': 'OLM-SESSION-RATCHET-SECRET',
+        'e2ee_shard_1': 'SHAMIR-SHARD-SECRET',
+        'e2ee_shard_id_list': 'SHARD-ID-LIST-SECRET',
+        'e2ee_private_key_history_kid_old': 'HISTORICAL-PRIVATE-KEY-SECRET',
+        'e2ee_device_id': 'DID-SECRET',
+        'e2ee_key_created_at': 'KEY-CREATED-AT-SECRET',
+        'db_cipher_key_900001': 'SQLCIPHER-KEY-SECRET',
+        'group_e2ee_mode_100': 'GROUP-MODE-FLAG',
+      };
+
+      final bytes = await E2EELocalBackupService.packBackupBytes(
+        password: _kValidPassword,
+        privateKey: _kFakePrivateKey,
+        publicKey: _kFakePublicKey,
+        deviceId: _kDeviceId,
+        keyId: _kKeyId,
+        secureEntriesForTest: excluded,
+      );
+
+      // 直接解出明文 JSON 全文（绕过 unpack 的字段筛选，验证密文载荷本体）
+      final header = ByteData.sublistView(bytes);
+      final iterations = header.getUint32(12);
+      final salt = bytes.sublist(32, 48);
+      final iv = bytes.sublist(48, 60);
+      final authTag = bytes.sublist(60, 76);
+      final ciphertext = bytes.sublist(76, bytes.length);
+      final key = await E2EECryptoService.deriveKey(
+        _kValidPassword,
+        salt,
+        iterations: iterations,
+      );
+      final plaintext = await E2EECryptoService.decryptAesGcm(
+        ciphertext,
+        authTag,
+        key,
+        iv,
+      );
+      final payload = utf8.decode(plaintext);
+
+      for (final secret in excluded.values) {
+        expect(payload, isNot(contains(secret)), reason: '排除材料泄漏进备份：$secret');
+      }
+      // 双保险：恢复写入集合也不含任何排除键（ratchet 非克隆）
+      final section = E2EELocalBackupService.megolmBackupSection(
+        await E2EELocalBackupService.unpackBackupBytes(
+          bytes: bytes,
+          password: _kValidPassword,
+        ),
+      );
+      expect(section.isEmpty, isTrue, reason: '排除键不该产出可恢复的群 session');
+    }, timeout: _kdfTimeout);
+  });
+
+  // =========================================================================
+  // 组 5（C03）：KDF 参数版本化（OWASP 2023 评审落地）
+  // =========================================================================
+  group('C03 — KDF 参数版本化', () {
+    test('常量守护：600k 满足 OWASP 2023 建议且在头部合法区间内', () {
+      // OWASP Password Storage Cheat Sheet（2023）：PBKDF2-HMAC-SHA256 ≥600k
+      expect(
+        E2EELocalBackupService.kdfIterationsV2,
+        greaterThanOrEqualTo(600000),
+      );
+      // 头部 iterations 解析区间 [1, 1e6]：新参数必须落在可解密区间
+      expect(
+        E2EELocalBackupService.kdfIterationsV2,
+        lessThanOrEqualTo(E2EELocalBackupService.maxKdfIterations),
+      );
+      expect(
+        E2EELocalBackupService.kdfIterationsV1,
+        lessThanOrEqualTo(E2EELocalBackupService.maxKdfIterations),
+      );
+    });
+
+    test('新导出头部写入 kdfIterationsV2（600k）', () async {
+      final bytes = await E2EELocalBackupService.packBackupBytes(
+        password: _kValidPassword,
+        privateKey: _kFakePrivateKey,
+        publicKey: _kFakePublicKey,
+        deviceId: _kDeviceId,
+        keyId: _kKeyId,
+        secureEntriesForTest: const {},
+      );
+      // 文件头偏移 12：iterations（uint32 大端）
+      final iterations = ByteData.sublistView(bytes).getUint32(12);
+      expect(iterations, E2EELocalBackupService.kdfIterationsV2);
+      expect(iterations, 600000);
+    }, timeout: _kdfTimeout);
+
+    test('310k 参数版本 1 的存量备份仍可解密（头部自描述，向后兼容）', () async {
+      // 手工构建 310k 旧参数备份：复刻 pack 的二进制格式，
+      // 派生与头部均用 kdfIterationsV1（等价于旧版 App 导出的文件）。
+      final Map<String, dynamic> backupData = {
+        'version': E2EECryptoService.formatVersion,
+        'device_id': _kDeviceId,
+        'private_key': _kFakePrivateKey,
+        'public_key': _kFakePublicKey,
+        'key_id': _kKeyId,
+        'created_at': '2026-01-31T00:00:00.000Z',
+        'megolm_inbound': <String, dynamic>{
+          'format_version': 2,
+          'sessions': <dynamic>[],
+          'omitted_session_count': 0,
+        },
+      };
+      final checksum = E2EECryptoService.calculateChecksum(
+        Uint8List.fromList(utf8.encode(json.encode(backupData))),
+      );
+      backupData['checksum'] = 'sha256:$checksum';
+
+      final salt = E2EECryptoService.generateSalt();
+      final iv = E2EECryptoService.generateIV();
+      final legacyKey = await E2EECryptoService.deriveKey(
+        _kValidPassword,
+        salt,
+        iterations: E2EELocalBackupService.kdfIterationsV1,
+      );
+      final encrypted = await E2EECryptoService.encryptAesGcm(
+        Uint8List.fromList(utf8.encode(json.encode(backupData))),
+        legacyKey,
+        iv,
+      );
+
+      Uint8List u16(int v) =>
+          (ByteData(2)..setUint16(0, v)).buffer.asUint8List();
+      Uint8List u32(int v) =>
+          (ByteData(4)..setUint32(0, v)).buffer.asUint8List();
+
+      final header = BytesBuilder();
+      header.add(utf8.encode('IMBOYBKP'.padRight(8, '\x00')));
+      header.add(u16(E2EECryptoService.formatVersion));
+      header.add(u16(E2EECryptoService.algorithmId));
+      header.add(u32(E2EELocalBackupService.kdfIterationsV1));
+      header.add(u16(E2EECryptoService.saltLength));
+      header.add(u16(E2EECryptoService.ivLength));
+      header.add(u16(E2EECryptoService.authTagLength));
+      header.add(u32(0)); // notes_length
+      header.add(Uint8List(6)); // reserved
+      final legacyBytes = BytesBuilder()
+        ..add(header.toBytes())
+        ..add(salt)
+        ..add(iv)
+        ..add(encrypted['authTag']!)
+        ..add(encrypted['ciphertext']!);
+
+      final restored = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: legacyBytes.toBytes(),
+        password: _kValidPassword,
+      );
+      expect(restored['private_key'], _kFakePrivateKey);
+      expect(restored['device_id'], _kDeviceId);
+    }, timeout: _kdfTimeout);
+
+    test('kdfIterationsV1 与全局旧常量锚定一致（旧备份解密语义防漂移）', () {
+      expect(
+        E2EELocalBackupService.kdfIterationsV1,
+        E2EECryptoService.pbkdf2Iterations,
+        reason: '若全局常量调整而 V1 锚定值未同步，310k 存量备份将不可解密',
+      );
+    });
+  });
+
+  // =========================================================================
+  // 组 6（C03）：账号绑定（跨账号恢复拒绝）
+  // =========================================================================
+  group('C03 — 账号绑定', () {
+    test('account_id 写入导出物；匹配放行 / 不匹配拒绝 / 空期望放行 / 旧备份放行', () async {
+      final bound = await E2EELocalBackupService.packBackupBytes(
+        password: _kValidPassword,
+        privateKey: _kFakePrivateKey,
+        publicKey: _kFakePublicKey,
+        deviceId: _kDeviceId,
+        keyId: _kKeyId,
+        accountId: '900001',
+        secureEntriesForTest: const {},
+      );
+
+      // 匹配：放行且返回绑定账号
+      final ok = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: bound,
+        password: _kValidPassword,
+        expectedAccountId: '900001',
+      );
+      expect(ok['account_id'], '900001');
+
+      // 不匹配：拒绝（StateError backup_account_mismatch），且发生在写入前
+      await expectLater(
+        E2EELocalBackupService.unpackBackupBytes(
+          bytes: bound,
+          password: _kValidPassword,
+          expectedAccountId: '900002',
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'backup_account_mismatch',
+          ),
+        ),
+      );
+
+      // 空期望（登出态/未知会话）：不强校验，放行
+      final noExpect = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: bound,
+        password: _kValidPassword,
+        expectedAccountId: null,
+      );
+      expect(noExpect['private_key'], _kFakePrivateKey);
+
+      // 旧备份（无 account_id 字段）：无绑定信息可校验，保持放行
+      final legacy = await E2EELocalBackupService.packBackupBytes(
+        password: _kValidPassword,
+        privateKey: _kFakePrivateKey,
+        publicKey: _kFakePublicKey,
+        deviceId: _kDeviceId,
+        keyId: _kKeyId,
+        secureEntriesForTest: const {},
+      );
+      final legacyRestored = await E2EELocalBackupService.unpackBackupBytes(
+        bytes: legacy,
+        password: _kValidPassword,
+        expectedAccountId: '900002',
+      );
+      expect(legacyRestored['account_id'], isNull);
+      expect(legacyRestored['private_key'], _kFakePrivateKey);
+    }, timeout: _kdfTimeout);
+  });
+
+  // =========================================================================
+  // 组 7（C03）：抗回滚（旧版本备份重放策略）
+  // =========================================================================
+  group('C03 — 抗回滚（水位标记）', () {
+    const newer = '2026-10-01T00:00:00.000Z';
+    const older = '2026-09-01T00:00:00.000Z';
+
+    test('无水位 → 放行（首次恢复）', () {
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: older,
+          backupKeyId: 'kid-old',
+          markerCreatedAt: null,
+          markerKeyId: null,
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('备份严格更旧且换钥 → 拒绝（stale_backup_rejected）', () {
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: older,
+          backupKeyId: 'kid-old',
+          markerCreatedAt: newer,
+          markerKeyId: 'kid-new',
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'stale_backup_rejected',
+          ),
+        ),
+      );
+    });
+
+    test('同一备份重复导入（key_id 相同）→ 放行（幂等重试）', () {
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: older,
+          backupKeyId: 'kid-same',
+          markerCreatedAt: newer,
+          markerKeyId: 'kid-same',
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('备份不旧于水位（同刻或更新）→ 放行', () {
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: newer,
+          backupKeyId: 'kid-x',
+          markerCreatedAt: newer,
+          markerKeyId: 'kid-y',
+        ),
+        returnsNormally,
+      );
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: '2026-11-01T00:00:00.000Z',
+          backupKeyId: 'kid-x',
+          markerCreatedAt: newer,
+          markerKeyId: 'kid-y',
+        ),
+        returnsNormally,
+      );
+    });
+
+    test('元数据缺失（旧备份无 created_at / 空 key_id）→ 放行（fail-open 取舍）', () {
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: null,
+          backupKeyId: 'kid-old',
+          markerCreatedAt: newer,
+          markerKeyId: 'kid-new',
+        ),
+        returnsNormally,
+      );
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: older,
+          backupKeyId: '',
+          markerCreatedAt: newer,
+          markerKeyId: 'kid-new',
+        ),
+        returnsNormally,
+      );
+      expect(
+        () => E2EELocalBackupService.ensureNotStaleRestore(
+          backupCreatedAt: older,
+          backupKeyId: 'kid-old',
+          markerCreatedAt: '',
+          markerKeyId: 'kid-new',
+        ),
+        returnsNormally,
+      );
     });
   });
 }

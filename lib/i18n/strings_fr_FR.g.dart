@@ -1459,6 +1459,11 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => 'Restaurer les clés de groupe historiques';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Cette action autorise séparément cet appareil à restaurer ${count} clés de groupe et à déchiffrer l\'historique uniquement dans la génération d\'adhésion et la plage de séquence de chaque clé. Les clés d\'identité sont déjà restaurées ; annuler ignore ces clés de groupe.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Clés de groupe historiques : ${restored} autorisées et restaurées, ${omitted} omises';
+	@override String get e2eeBackupErrAccountMismatch => 'Cette sauvegarde appartient à un autre compte ; restauration refusée';
+	@override String get e2eeBackupErrStaleBackup => 'Cette sauvegarde est plus ancienne que la dernière restauration réussie sur cet appareil (rejeu possible) ; refusée';
+	@override String get e2eeBackupRestorePartialTitle => 'Partiellement terminé';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'Clés E2EE restaurées ; l\'écriture des clés de groupe a été interrompue (${written}/${total} entrées). Réimportez la même sauvegarde pour reprendre — les écritures répétées sont sans danger';
+	@override String get e2eeBackupSafetyNumberChangedNote => 'La clé d\'identité de cet appareil a changé, les numéros de sécurité avec vos contacts vont donc changer. Veuillez revérifier';
 	@override String get e2eeBackupCreatedAtRow => 'Créée le';
 	@override String get e2eeBackupCloudUploadBtn => 'Sauvegarder dans le cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Sauvegardé dans le cloud (version ${version})';
@@ -4486,6 +4491,11 @@ extension on TranslationsFrFr {
 			'common.e2eeBackupHistoryGrantTitle' => 'Restaurer les clés de groupe historiques',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Cette action autorise séparément cet appareil à restaurer ${count} clés de groupe et à déchiffrer l\'historique uniquement dans la génération d\'adhésion et la plage de séquence de chaque clé. Les clés d\'identité sont déjà restaurées ; annuler ignore ces clés de groupe.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Clés de groupe historiques : ${restored} autorisées et restaurées, ${omitted} omises',
+			'common.e2eeBackupErrAccountMismatch' => 'Cette sauvegarde appartient à un autre compte ; restauration refusée',
+			'common.e2eeBackupErrStaleBackup' => 'Cette sauvegarde est plus ancienne que la dernière restauration réussie sur cet appareil (rejeu possible) ; refusée',
+			'common.e2eeBackupRestorePartialTitle' => 'Partiellement terminé',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'Clés E2EE restaurées ; l\'écriture des clés de groupe a été interrompue (${written}/${total} entrées). Réimportez la même sauvegarde pour reprendre — les écritures répétées sont sans danger',
+			'common.e2eeBackupSafetyNumberChangedNote' => 'La clé d\'identité de cet appareil a changé, les numéros de sécurité avec vos contacts vont donc changer. Veuillez revérifier',
 			'common.e2eeBackupCreatedAtRow' => 'Créée le',
 			'common.e2eeBackupCloudUploadBtn' => 'Sauvegarder dans le cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Sauvegardé dans le cloud (version ${version})',
@@ -4702,13 +4712,13 @@ extension on TranslationsFrFr {
 			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
 			'discovery.momentActionLike' => 'J\'aime',
 			'discovery.momentActionCancelLike' => 'Je n\'aime plus',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => 'Commenter',
 			'discovery.momentActionDelete' => 'Supprimer',
 			'discovery.momentActionReport' => 'Signaler',
 			'discovery.momentActionCancel' => 'Annuler',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} aiment ça',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} et ${count} autres aiment ça',
 			'discovery.momentContentPlaceholder' => 'À quoi pensez-vous...',
 			'discovery.momentShowFull' => 'Voir tout',
@@ -5216,13 +5226,13 @@ extension on TranslationsFrFr {
 			'organization.home.myInvitations' => 'Mes invitations',
 			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
 			'organization.detail.leaveOrg' => 'Quitter l’organisation',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => 'Vous perdrez l’accès à l’annuaire, aux groupes, aux canaux et aux fichiers. Les fichiers restent conservés. Une invitation est nécessaire pour revenir.',
 			'organization.detail.leaveFailed' => 'Impossible de quitter',
 			'organization.detail.leaveOwnerHint' => 'Transférez la propriété de l’organisation avant de quitter',
 			'organization.detail.leaveCleanupFailed' => 'Vous avez quitté, mais les préférences locales n’ont pas pu être effacées. Redémarrez et vérifiez votre espace',
 			'organization.detail.title' => 'Détails de l\'organisation',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => 'Organisation introuvable',
 			'organization.detail.archiveOrg' => 'Archiver l\'organisation',
 			'organization.detail.archiveConfirmBody' => 'Une fois archivée, l\'organisation passe en lecture seule ; toutes les écritures sont rejetées (fail-closed), seule la restauration (restore) peut la déverrouiller. Les membres et les données ne sont pas supprimés.',
@@ -5730,13 +5740,13 @@ extension on TranslationsFrFr {
 			'workspace.taskEmptyTitle' => 'Aucune tâche pour le moment',
 			'workspace.taskEmptySubtitle' => 'Suivez l\'exécution en quatre états : à faire → en cours → en revue → terminé',
 			'workspace.projectsLoadMore' => 'Charger plus',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectW2SectionTitle' => 'Collaboration du projet',
 			'workspace.projectMembersEntry' => 'Membres',
 			'workspace.projectMilestonesEntry' => 'Jalons',
 			'workspace.projectChannelsEntry' => 'Canaux du projet',
 			'workspace.projectInsightsEntry' => 'Agrégation de contenus',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'Accès refusé : seuls les membres du projet, le responsable du projet ou l\'Owner de l\'espace de travail peuvent consulter',
 			'workspace.projectGuestReadonly' => 'En tant qu\'invité (Guest), accès en lecture seule au projet',
 			'workspace.projectLoadMore' => 'Charger plus',

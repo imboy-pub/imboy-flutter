@@ -139,6 +139,9 @@ class E2EEBackupSetupService {
         publicKey: publicKey,
         deviceId: await StorageSecureService.to.getDeviceId() ?? 'unknown',
         keyId: await StorageSecureService.to.getKeyId() ?? 'unknown',
+        // 账号绑定：写入备份明文 JSON 的 account_id，恢复端据此拒绝
+        // 跨账号恢复（与 completeSetup 的 uid 绑定同一语义）。
+        accountId: UserRepoLocal.to.currentUid,
         api: api,
       );
       iPrint(

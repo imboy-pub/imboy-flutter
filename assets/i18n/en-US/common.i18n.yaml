@@ -740,6 +740,11 @@ e2eeBackupImportSuccessNote: "Note: Only group sessions included in this backup 
 e2eeBackupHistoryGrantTitle: Restore historical group keys
 e2eeBackupHistoryGrantBody(count): "This separately authorizes this device to restore $count group keys and decrypt history only within each membership generation and message sequence range. Identity keys are already restored; canceling skips these group keys."
 e2eeBackupHistoryRestoreResult(restored, omitted): "Historical group keys: $restored authorized and restored, $omitted omitted"
+e2eeBackupErrAccountMismatch: "This backup belongs to a different account; restore rejected"
+e2eeBackupErrStaleBackup: "This backup is older than the most recent successful restore on this device (possible replay); rejected"
+e2eeBackupRestorePartialTitle: Partially completed
+e2eeBackupRestorePartialBody(written, total): "E2EE keys restored; group key restore interrupted ($written/$total entries written). Re-import the same backup to resume — repeated writes are safe"
+e2eeBackupSafetyNumberChangedNote: "Your identity key has changed, so safety numbers with your contacts will change. Please re-verify"
 e2eeBackupCreatedAtRow: Created at
 e2eeBackupCloudUploadBtn: Back up to cloud
 e2eeBackupCloudUploadSuccess(version): Backed up to cloud (version $version)

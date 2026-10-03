@@ -22,9 +22,13 @@ import 'e2ee_crypto_service.dart';
 /// - 分享备份：通过邮件/云盘分享备份文件
 ///
 /// 安全特性：
-/// - 使用 PBKDF2-HMAC-SHA256 派生密钥（310,000 次迭代）
-/// - 使用 AES-256-GCM 加密私钥
+/// - 使用 PBKDF2-HMAC-SHA256 派生密钥（600,000 次迭代，见 [kdfIterationsV2]）
+/// - 使用 AES-256-GCM 加密私钥（AEAD：密文任一比特被篡改即拒绝）
 /// - SHA-256 校验和验证文件完整性
+/// - 账号绑定：新导出写入 account_id，跨账号恢复被拒绝（见
+///   [unpackBackupBytes] 的 expectedAccountId）
+/// - 抗回滚：恢复成功记录水位标记，更旧的不同密钥备份重放被拒绝
+///   （见 [ensureNotStaleRestore]）
 /// - 本地备份文件由用户控制；云备份服务器仅存储加密包
 ///
 /// @author Imboy Team
@@ -45,6 +49,24 @@ class E2EELocalBackupService {
   /// 越界值（如 2^32-1）会让 KDF 挂死 → 在派生前拒绝。
   static const int minKdfIterations = 1;
   static const int maxKdfIterations = 1000000;
+
+  /// 备份 KDF 迭代数——参数版本 2（OWASP 2023）。
+  ///
+  /// 评审结论（run-20261003 C03）：OWASP Password Storage Cheat Sheet
+  /// 自 2023 起对 PBKDF2-HMAC-SHA256 的建议为 ≥600,000 次迭代；旧值
+  /// 310,000（OWASP 2021，[kdfIterationsV1]）不再满足当前建议。新导出
+  /// 一律使用本值；解密按文件头偏移 12 处的自描述迭代数派生，因此
+  /// 310k 参数版本 1 的存量备份仍可解密（迭代数即 KDF 参数的版本载体，
+  /// 与 lib/service/e2ee/kdf_version.dart 的版本化调度机制同一设计：
+  /// 参数自描述、新写用最新、旧读按版本、降级拒绝）。
+  static const int kdfIterationsV2 = 600000;
+
+  /// 备份 KDF 迭代数——参数版本 1（OWASP 2021，已过时）。
+  ///
+  /// 仅供解密存量旧备份与回归测试参照，不再用于新导出。
+  /// 数值等价于 [E2EECryptoService.pbkdf2Iterations]；显式写死而非引用，
+  /// 防止全局常量将来单独调整时旧备份的解密语义随之漂移。
+  static const int kdfIterationsV1 = 310000;
 
   /// 用户备注字节上限（64 KiB）。
   static const int maxNotesBytes = 64 * 1024;
@@ -102,6 +124,7 @@ class E2EELocalBackupService {
     required String deviceId,
     required String keyId,
     String? userNotes,
+    String? accountId,
     @visibleForTesting Map<String, String>? secureEntriesForTest,
     @visibleForTesting
     Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
@@ -114,6 +137,7 @@ class E2EELocalBackupService {
       deviceId: deviceId,
       keyId: keyId,
       userNotes: userNotes,
+      accountId: accountId,
       secureEntriesForTest: secureEntriesForTest,
       historyGrantLoaderForTest: historyGrantLoaderForTest,
     );
@@ -133,6 +157,11 @@ class E2EELocalBackupService {
   ///
   /// 本地文件备份与服务端云备份（E2EEServerBackupService）共用的
   /// 加密核与二进制格式：[头 32] + [salt 16] + [iv 12] + [authTag 16] + [密文]。
+  ///
+  /// [accountId]：导出账号绑定（当前登录 uid）。写入明文 JSON 的
+  /// account_id 字段；恢复端用它拒绝跨账号恢复（见 [unpackBackupBytes]）。
+  /// 旧版本备份无此字段——恢复端对无绑定信息的存量备份保持放行
+  /// （拒绝将使全部存量备份不可恢复），新导出一律带绑定。
   static Future<Uint8List> packBackupBytes({
     required String password,
     required String privateKey,
@@ -140,6 +169,7 @@ class E2EELocalBackupService {
     required String deviceId,
     required String keyId,
     String? userNotes,
+    String? accountId,
     @visibleForTesting Map<String, String>? secureEntriesForTest,
     @visibleForTesting
     Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
@@ -177,6 +207,7 @@ class E2EELocalBackupService {
       'public_key': publicKey,
       'key_id': keyId,
       'created_at': DateTime.now().toUtc().toIso8601String(),
+      if (accountId != null && accountId.isNotEmpty) 'account_id': accountId,
       // 空段也写入：让「新格式但确实没有群会话」与「旧格式备份」可区分
       kMegolmSectionKey: megolmSection.toJson(),
     };
@@ -191,8 +222,13 @@ class E2EELocalBackupService {
     final salt = E2EECryptoService.generateSalt();
     final iv = E2EECryptoService.generateIV();
 
-    // 5. 派生密钥
-    final derivedKey = await E2EECryptoService.deriveKey(password, salt);
+    // 5. 派生密钥（参数版本 2：OWASP 2023 ≥600k；迭代数写入文件头，
+    // 旧参数版本备份按头部自描述值解密）
+    final derivedKey = await E2EECryptoService.deriveKey(
+      password,
+      salt,
+      iterations: kdfIterationsV2,
+    );
 
     // 6. 加密数据（重新编码带校验和的 JSON）
     final jsonWithChecksum = json.encode(backupData);
@@ -332,6 +368,7 @@ class E2EELocalBackupService {
   static Future<Map<String, dynamic>> importBackup({
     required String filePath,
     required String password,
+    String? expectedAccountId,
   }) async {
     // 1. 读取备份文件
     final file = File(filePath);
@@ -341,13 +378,23 @@ class E2EELocalBackupService {
 
     _ensureSizeBounds(await file.length()); // 在 readAsBytes 前拒绝超大文件，防 OOM
     final fileBytes = await file.readAsBytes();
-    return unpackBackupBytes(bytes: fileBytes, password: password);
+    return unpackBackupBytes(
+      bytes: fileBytes,
+      password: password,
+      expectedAccountId: expectedAccountId,
+    );
   }
 
   /// 恢复备份中包含的 Megolm inbound session。
   ///
-  /// 任一安全存储写入失败即向上传播，调用方不得显示完整恢复成功。
-  /// 已完成的写入无法由 Secure Storage 原子回滚，因此重试必须保持幂等。
+  /// 任一安全存储写入失败即抛 [MegolmRestoreException]（携带已写入/总条数
+  /// 与失败键），调用方据此给出「部分完成」的精确文案——既不虚报完整成功，
+  /// 也不把已完成的部分说成全失败。
+  ///
+  /// durable progress / 幂等：已写入条目无法由 Secure Storage 原子回滚，
+  /// 进程中断或失败后重试同一备份时，写入按确定性幂等键
+  /// （`megolm_restored_history_grant_*` / `megolm_history_grant_*` /
+  /// `megolm_inbound_*` + suffix）收敛到相同值，重复写入无副作用。
   static Future<int> restoreMegolmSessions(
     Map<String, dynamic> backup, {
     required bool historicalGrantConfirmed,
@@ -362,12 +409,30 @@ class E2EELocalBackupService {
     }
     if (!section.isEmpty) await auditBeforeRestore(section);
     final entries = megolmRestoreEntries(section);
-    for (final entry in entries) {
-      if (writeForTest != null) {
-        await writeForTest(entry.key, entry.value);
-      } else {
-        await StorageSecureService.to.write(key: entry.key, value: entry.value);
+    var written = 0;
+    try {
+      for (final entry in entries) {
+        if (writeForTest != null) {
+          await writeForTest(entry.key, entry.value);
+        } else {
+          await StorageSecureService.to.write(
+            key: entry.key,
+            value: entry.value,
+          );
+        }
+        written++;
       }
+    } on Object catch (e) {
+      // Secure Storage 无事务回滚：已写入的 written 条保留（这正是 durable
+      // progress——重试从第 written 条起继续而非从零开始）。抛出的进度让
+      // UI 能说「密钥已恢复、群密钥已写入 X/Y，请重试补完」，而不是笼统的
+      // 「导入失败」（密钥本体其实已恢复成功）。
+      throw MegolmRestoreException(
+        writtenEntries: written,
+        totalEntries: entries.length,
+        failedKey: entries[written].key,
+        cause: e,
+      );
     }
     return section.sessions.length;
   }
@@ -377,10 +442,19 @@ class E2EELocalBackupService {
 
   /// 解包加密备份字节（importBackup 与云备份恢复共用）
   ///
+  /// [expectedAccountId]：当前登录账号 uid。备份明文 JSON 带 account_id
+  /// 且与期望不符时抛 StateError('backup_account_mismatch')——跨账号
+  /// 恢复会把 A 账号的私钥装进 B 账号的设备，此后所有按本账号公钥
+  /// 加密的消息都解不开，还会污染 key_id / 设备公钥登记，必须拒绝。
+  /// 存量旧备份（无 account_id 字段）无绑定信息可校验，保持放行——
+  /// 拒绝将使全部存量备份不可恢复；新导出一律带绑定。
+  ///
   /// @throws ArgumentError 密码错误（GCM 认证失败）/ 格式无效 / 校验和不匹配
+  /// @throws StateError 账号不匹配（backup_account_mismatch）
   static Future<Map<String, dynamic>> unpackBackupBytes({
     required Uint8List bytes,
     required String password,
+    String? expectedAccountId,
   }) async {
     final fileBytes = bytes;
 
@@ -467,6 +541,18 @@ class E2EELocalBackupService {
       throw ArgumentError('备份文件已损坏（校验和不匹配）');
     }
 
+    // 9.5 账号绑定校验（跨账号恢复拒绝）：
+    // 仅当「备份带了 account_id」且「调用方给出期望账号」且「两者不等」
+    // 才拒绝——空期望（登出态/未知会话）与无绑定的旧备份均放行。
+    final boundAccountId = backupData['account_id'];
+    if (expectedAccountId != null &&
+        expectedAccountId.isNotEmpty &&
+        boundAccountId is String &&
+        boundAccountId.isNotEmpty &&
+        boundAccountId != expectedAccountId) {
+      throw StateError('backup_account_mismatch');
+    }
+
     // 10. 返回密钥数据
     //
     // P3-1：`megolm_inbound` 为可选段——v1 旧备份无此字段时解析为空 map，
@@ -477,6 +563,7 @@ class E2EELocalBackupService {
       'private_key': backupData['private_key'],
       'public_key': backupData['public_key'],
       'created_at': backupData['created_at'],
+      'account_id': boundAccountId is String ? boundAccountId : null,
       'file_size': fileBytes.length,
       kMegolmSectionKey: parseMegolmSection(backupData[kMegolmSectionKey])
           .toJson(),
@@ -635,9 +722,10 @@ class E2EELocalBackupService {
     final algoData = ByteData(2)..setUint16(0, E2EECryptoService.algorithmId);
     header.add(algoData.buffer.asUint8List());
 
-    // Iterations (4 bytes)
-    final iterData = ByteData(4)
-      ..setUint32(0, E2EECryptoService.pbkdf2Iterations);
+    // Iterations (4 bytes)——KDF 参数版本载体：写入实际使用的迭代数
+    // （当前为 kdfIterationsV2=600k，OWASP 2023）；解密按此自描述值派生，
+    // 310k 参数版本 1 的存量备份因此保持可解。
+    final iterData = ByteData(4)..setUint32(0, kdfIterationsV2);
     header.add(iterData.buffer.asUint8List());
 
     // Salt Length (2 bytes)
@@ -719,4 +807,82 @@ class E2EELocalBackupService {
     }
     return fileBytes.sublist(dataStartOffset, ciphertextEnd);
   }
+
+  // ================================================================
+  // 抗回滚（旧版本备份重放策略）
+  // ================================================================
+
+  /// 恢复水位标记的持久化键（SharedPreferences 域）。
+  ///
+  /// 值为 JSON {created_at, key_id}——两者本就存在于备份明文 JSON，
+  /// 非敏感。旧版本备份重放策略（显式）：
+  /// - 云端备份：服务端版本单调递增（putBackup 409 拒绝旧版本号），
+  ///   restore 只拉当前最新版并做 payload_hash 完整性校验——重放旧
+  ///   密文包在该路径不可达，版本权威在服务端；
+  /// - 本地文件：无服务端版本权威，用本水位做客户端防线——成功应用
+  ///   备份后记录其 created_at；此后导入 created_at 严格更早且 key_id
+  ///   不同的备份（旧密钥重放会把可能已泄露/已轮换的旧私钥装回本机）
+  ///   被拒绝。同一备份的重复导入（key_id 相同）放行——幂等重试。
+  static const String kLastRestoreMarkerKey = 'e2ee_last_restore_marker';
+
+  /// 抗回滚校验（纯函数，便于确定性测试）。
+  ///
+  /// [backupCreatedAt]/[backupKeyId]：待导入备份的 created_at / key_id
+  /// （来自解密后的备份 JSON）。[markerCreatedAt]/[markerKeyId]：本机
+  /// 最近一次成功恢复的水位标记（无标记传 null）。
+  ///
+  /// 拒绝条件（全部满足）：存在水位 且 备份 created_at 严格早于水位
+  /// 且 key_id 不同。created_at 为等长 UTC ISO-8601 字符串（pack 侧
+  /// `toUtc().toIso8601String()`），字典序即时间序；任一为 null/空
+  /// （旧备份、异常数据）时不拒绝——fail-open 取舍：水位防线只拦截
+  /// 「明确更旧且换钥」的重放，不因元数据缺失阻断恢复。
+  ///
+  /// @throws StateError stale_backup_rejected（疑似旧版本备份重放）
+  static void ensureNotStaleRestore({
+    required String? backupCreatedAt,
+    required String? backupKeyId,
+    required String? markerCreatedAt,
+    required String? markerKeyId,
+  }) {
+    if (markerCreatedAt == null ||
+        markerCreatedAt.isEmpty ||
+        backupCreatedAt == null ||
+        backupCreatedAt.isEmpty) {
+      return;
+    }
+    if (backupKeyId != null &&
+        backupKeyId.isNotEmpty &&
+        backupKeyId != markerKeyId &&
+        backupCreatedAt.compareTo(markerCreatedAt) < 0) {
+      throw StateError('stale_backup_rejected');
+    }
+  }
+}
+
+/// Megolm 恢复部分失败（durable progress 载体）。
+///
+/// [writtenEntries] / [totalEntries]：已成功写入 / 全部待写入的
+/// Secure Storage 条数（每 session 3 条：restored marker、grant、
+/// inbound key）。[failedKey]：第一条写入失败的键。[cause]：底层异常。
+///
+/// 语义：密钥本体（RSA）在到达本异常前已恢复；Megolm 部分完成
+/// writtenEntries/totalEntries。重试同一备份按幂等键收敛，从断点
+/// 续写无副作用——UI 应提示「重新导入以补完」而非「从头再来」。
+class MegolmRestoreException implements Exception {
+  MegolmRestoreException({
+    required this.writtenEntries,
+    required this.totalEntries,
+    required this.failedKey,
+    required this.cause,
+  });
+
+  final int writtenEntries;
+  final int totalEntries;
+  final String failedKey;
+  final Object cause;
+
+  @override
+  String toString() =>
+      'MegolmRestoreException(written=$writtenEntries/$totalEntries, '
+      'failedKey=$failedKey): $cause';
 }

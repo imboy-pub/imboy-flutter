@@ -736,6 +736,11 @@ e2eeBackupImportSuccessNote: "注意：このバックアップに含まれ、�
 e2eeBackupHistoryGrantTitle: 過去のグループ鍵を復元
 e2eeBackupHistoryGrantBody(count): "この端末に $count 個のグループ鍵の復元を個別に許可し、それぞれの参加世代とメッセージ連番の範囲内だけで履歴を復号します。ID 鍵はすでに復元済みです。キャンセルするとこれらのグループ鍵は復元しません。"
 e2eeBackupHistoryRestoreResult(restored, omitted): "過去のグループ鍵：$restored 個を許可して復元、$omitted 個を省略"
+e2eeBackupErrAccountMismatch: "このバックアップは別のアカウントのものであるため、復元を拒否しました"
+e2eeBackupErrStaleBackup: "このバックアップはこの端末で最後に復元したものより古いため（リプレイの疑い）、拒否しました"
+e2eeBackupRestorePartialTitle: 部分的に完了
+e2eeBackupRestorePartialBody(written, total): "E2EE 鍵は復元済み。グループ鍵の書き込みが中断されました（$written/$total 件完了）。同じバックアップを再インポートすると残りを安全に再開できます"
+e2eeBackupSafetyNumberChangedNote: "端末の識別鍵が変わったため、連絡先との安全番号が変化します。再確認してください"
 e2eeBackupCreatedAtRow: 作成日時
 e2eeBackupCloudUploadBtn: クラウドにバックアップ
 e2eeBackupCloudUploadSuccess(version): クラウドにバックアップしました（バージョン $version）

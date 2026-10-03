@@ -766,6 +766,11 @@ e2eeBackupHistoryGrantTitle: 恢复历史群密钥
 e2eeBackupHistoryGrantBody(count): "此操作将授权本设备恢复 $count 个群密钥，并仅按各自的入群世代和消息序号范围解密历史。身份密钥已单独恢复；取消不会恢复这些群密钥。"
 e2eeBackupHistoryRestoreResult(restored, omitted): "历史群密钥：已授权恢复 $restored 个，已省略 $omitted 个"
 e2eeBackupDeviceKeySyncPending: "提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步"
+e2eeBackupErrAccountMismatch: "备份属于其他账号，已拒绝恢复"
+e2eeBackupErrStaleBackup: "该备份早于本机最近一次成功恢复（疑似旧版本重放），已拒绝"
+e2eeBackupRestorePartialTitle: 部分完成
+e2eeBackupRestorePartialBody(written, total): "E2EE 密钥已恢复；群密钥写入中断（已写入 $written/$total 条）。请重新导入同一备份以补完剩余部分（重复写入安全）"
+e2eeBackupSafetyNumberChangedNote: "本机身份密钥已更换，与联系人的安全码将发生变化，请重新核验"
 e2eeBackupCreatedAtRow: 创建时间
 e2eeBackupCloudUploadBtn: 备份到云端
 e2eeBackupCloudUploadSuccess(version): 已备份到云端（版本 $version）

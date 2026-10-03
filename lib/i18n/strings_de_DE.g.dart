@@ -1459,6 +1459,11 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => 'Historische Gruppenschlüssel wiederherstellen';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Dies autorisiert dieses Gerät separat, ${count} Gruppenschlüssel wiederherzustellen und Verlauf nur innerhalb der jeweiligen Mitgliedschaftsgeneration und Nachrichtensequenz zu entschlüsseln. Identitätsschlüssel wurden bereits wiederhergestellt; Abbrechen überspringt diese Gruppenschlüssel.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Historische Gruppenschlüssel: ${restored} autorisiert und wiederhergestellt, ${omitted} ausgelassen';
+	@override String get e2eeBackupErrAccountMismatch => 'Dieses Backup gehört zu einem anderen Konto; Wiederherstellung abgelehnt';
+	@override String get e2eeBackupErrStaleBackup => 'Dieses Backup ist älter als die zuletzt erfolgreiche Wiederherstellung auf diesem Gerät (möglicher Replay); abgelehnt';
+	@override String get e2eeBackupRestorePartialTitle => 'Teilweise abgeschlossen';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'E2EE-Schlüssel wiederhergestellt; das Schreiben der Gruppenschlüssel wurde unterbrochen (${written}/${total} Einträge). Dieselbe Backup-Datei erneut importieren, um fortzufahren — wiederholtes Schreiben ist sicher';
+	@override String get e2eeBackupSafetyNumberChangedNote => 'Der Identitätsschlüssel dieses Geräts hat sich geändert, daher ändern sich die Sicherheitsnummern mit deinen Kontakten. Bitte erneut verifizieren';
 	@override String get e2eeBackupCreatedAtRow => 'Erstellt am';
 	@override String get e2eeBackupCloudUploadBtn => 'In die Cloud sichern';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'In der Cloud gesichert (Version ${version})';
@@ -4486,6 +4491,11 @@ extension on TranslationsDeDe {
 			'common.e2eeBackupHistoryGrantTitle' => 'Historische Gruppenschlüssel wiederherstellen',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Dies autorisiert dieses Gerät separat, ${count} Gruppenschlüssel wiederherzustellen und Verlauf nur innerhalb der jeweiligen Mitgliedschaftsgeneration und Nachrichtensequenz zu entschlüsseln. Identitätsschlüssel wurden bereits wiederhergestellt; Abbrechen überspringt diese Gruppenschlüssel.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Historische Gruppenschlüssel: ${restored} autorisiert und wiederhergestellt, ${omitted} ausgelassen',
+			'common.e2eeBackupErrAccountMismatch' => 'Dieses Backup gehört zu einem anderen Konto; Wiederherstellung abgelehnt',
+			'common.e2eeBackupErrStaleBackup' => 'Dieses Backup ist älter als die zuletzt erfolgreiche Wiederherstellung auf diesem Gerät (möglicher Replay); abgelehnt',
+			'common.e2eeBackupRestorePartialTitle' => 'Teilweise abgeschlossen',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'E2EE-Schlüssel wiederhergestellt; das Schreiben der Gruppenschlüssel wurde unterbrochen (${written}/${total} Einträge). Dieselbe Backup-Datei erneut importieren, um fortzufahren — wiederholtes Schreiben ist sicher',
+			'common.e2eeBackupSafetyNumberChangedNote' => 'Der Identitätsschlüssel dieses Geräts hat sich geändert, daher ändern sich die Sicherheitsnummern mit deinen Kontakten. Bitte erneut verifizieren',
 			'common.e2eeBackupCreatedAtRow' => 'Erstellt am',
 			'common.e2eeBackupCloudUploadBtn' => 'In die Cloud sichern',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'In der Cloud gesichert (Version ${version})',
@@ -4702,13 +4712,13 @@ extension on TranslationsDeDe {
 			'discovery.momentsFeedStale' => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt',
 			'discovery.momentActionLike' => 'Gefällt mir',
 			'discovery.momentActionCancelLike' => 'Gefällt mir nicht mehr',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => 'Kommentieren',
 			'discovery.momentActionDelete' => 'Löschen',
 			'discovery.momentActionReport' => 'Melden',
 			'discovery.momentActionCancel' => 'Abbrechen',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} gefällt das',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} und ${count} weiteren gefällt das',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} Personen gefiel dies',
 			'discovery.momentContentPlaceholder' => 'Woran denken Sie...',
@@ -5216,13 +5226,13 @@ extension on TranslationsDeDe {
 			'organization.home.myInvitations' => 'Meine Einladungen',
 			'organization.home.emptyHint' => 'Du bist noch keiner Organisation beigetreten\nZum Aktualisieren nach unten ziehen oder oben rechts erstellen',
 			'organization.detail.leaveOrg' => 'Organisation verlassen',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => 'Der Austritt entzieht den Zugriff auf Verzeichnis, Gruppen, Kanäle und Dateien. Organisationsdateien bleiben erhalten. Für den Wiedereintritt ist eine Einladung erforderlich.',
 			'organization.detail.leaveFailed' => 'Austritt fehlgeschlagen',
 			'organization.detail.leaveOwnerHint' => 'Vor dem Austritt die Organisationsinhaberschaft übertragen',
 			'organization.detail.leaveCleanupFailed' => 'Ausgetreten, aber lokale Einstellungen konnten nicht gelöscht werden. Neu starten und den gewählten Bereich prüfen',
 			'organization.detail.title' => 'Organisationsdetails',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => 'Organisation nicht gefunden',
 			'organization.detail.archiveOrg' => 'Organisation archivieren',
 			'organization.detail.archiveConfirmBody' => 'Nach der Archivierung ist die Organisation schreibgeschützt; alle Schreiboperationen scheitern kontrolliert (fail-closed), nur Wiederherstellen (restore) entsperrt sie. Mitglieder und Daten werden nicht gelöscht.',
@@ -5730,13 +5740,13 @@ extension on TranslationsDeDe {
 			'workspace.taskEmptyTitle' => 'Noch keine Aufgaben',
 			'workspace.taskEmptySubtitle' => 'Verfolgen Sie die Ausführung in vier Status: Offen → In Bearbeitung → In Prüfung → Abgeschlossen',
 			'workspace.projectsLoadMore' => 'Mehr laden',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectW2SectionTitle' => 'Projektzusammenarbeit',
 			'workspace.projectMembersEntry' => 'Mitglieder',
 			'workspace.projectMilestonesEntry' => 'Meilensteine',
 			'workspace.projectChannelsEntry' => 'Projektkanäle',
 			'workspace.projectInsightsEntry' => 'Inhaltsübersicht',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'Keine Berechtigung: Nur Projektmitglieder, die Projektleitung oder der Arbeitsbereich-Owner können dies ansehen',
 			'workspace.projectGuestReadonly' => 'Als Gast (Guest) ist das Projekt nur lesbar',
 			'workspace.projectLoadMore' => 'Mehr laden',

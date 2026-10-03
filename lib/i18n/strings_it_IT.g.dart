@@ -1459,6 +1459,11 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => 'Ripristina chiavi di gruppo storiche';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Questa azione autorizza separatamente il dispositivo a ripristinare ${count} chiavi di gruppo e a decifrare la cronologia solo entro la generazione di appartenenza e l\'intervallo di sequenza di ogni chiave. Le chiavi identità sono già ripristinate; annullando queste chiavi di gruppo vengono ignorate.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Chiavi di gruppo storiche: ${restored} autorizzate e ripristinate, ${omitted} omesse';
+	@override String get e2eeBackupErrAccountMismatch => 'Questo backup appartiene a un altro account; ripristino rifiutato';
+	@override String get e2eeBackupErrStaleBackup => 'Questo backup è più vecchio dell\'ultimo ripristino riuscito su questo dispositivo (possibile replay); rifiutato';
+	@override String get e2eeBackupRestorePartialTitle => 'Completato parzialmente';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'Chiavi E2EE ripristinate; la scrittura delle chiavi di gruppo è stata interrotta (${written}/${total} voci). Reimporta lo stesso backup per riprendere — le scritture ripetute sono sicure';
+	@override String get e2eeBackupSafetyNumberChangedNote => 'La chiave di identità di questo dispositivo è cambiata, quindi i numeri di sicurezza con i tuoi contatti cambieranno. Verifica di nuovo';
 	@override String get e2eeBackupCreatedAtRow => 'Creato il';
 	@override String get e2eeBackupCloudUploadBtn => 'Backup su cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backup su cloud completato (versione ${version})';
@@ -4486,6 +4491,11 @@ extension on TranslationsItIt {
 			'common.e2eeBackupHistoryGrantTitle' => 'Ripristina chiavi di gruppo storiche',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Questa azione autorizza separatamente il dispositivo a ripristinare ${count} chiavi di gruppo e a decifrare la cronologia solo entro la generazione di appartenenza e l\'intervallo di sequenza di ogni chiave. Le chiavi identità sono già ripristinate; annullando queste chiavi di gruppo vengono ignorate.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Chiavi di gruppo storiche: ${restored} autorizzate e ripristinate, ${omitted} omesse',
+			'common.e2eeBackupErrAccountMismatch' => 'Questo backup appartiene a un altro account; ripristino rifiutato',
+			'common.e2eeBackupErrStaleBackup' => 'Questo backup è più vecchio dell\'ultimo ripristino riuscito su questo dispositivo (possibile replay); rifiutato',
+			'common.e2eeBackupRestorePartialTitle' => 'Completato parzialmente',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'Chiavi E2EE ripristinate; la scrittura delle chiavi di gruppo è stata interrotta (${written}/${total} voci). Reimporta lo stesso backup per riprendere — le scritture ripetute sono sicure',
+			'common.e2eeBackupSafetyNumberChangedNote' => 'La chiave di identità di questo dispositivo è cambiata, quindi i numeri di sicurezza con i tuoi contatti cambieranno. Verifica di nuovo',
 			'common.e2eeBackupCreatedAtRow' => 'Creato il',
 			'common.e2eeBackupCloudUploadBtn' => 'Backup su cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backup su cloud completato (versione ${version})',
@@ -4702,13 +4712,13 @@ extension on TranslationsItIt {
 			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
 			'discovery.momentActionLike' => 'Mi piace',
 			'discovery.momentActionCancelLike' => 'Non mi piace più',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => 'Commenta',
 			'discovery.momentActionDelete' => 'Elimina',
 			'discovery.momentActionReport' => 'Segnala',
 			'discovery.momentActionCancel' => 'Annulla',
 			'discovery.momentLikedBy' => ({required Object names}) => 'A ${names} piace',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => 'A ${names} e altri ${count} piace',
 			'discovery.momentContentPlaceholder' => 'A cosa stai pensando...',
 			'discovery.momentShowFull' => 'Mostra tutto',
@@ -5216,13 +5226,13 @@ extension on TranslationsItIt {
 			'organization.home.myInvitations' => 'I miei inviti',
 			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
 			'organization.detail.leaveOrg' => 'Lascia organizzazione',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => 'L’uscita revoca l’accesso a directory, gruppi, canali e file. I file vengono conservati. Per rientrare serve un invito.',
 			'organization.detail.leaveFailed' => 'Uscita non riuscita',
 			'organization.detail.leaveOwnerHint' => 'Trasferisci la proprietà dell’organizzazione prima di uscire',
 			'organization.detail.leaveCleanupFailed' => 'Uscita completata, ma le preferenze locali non sono state cancellate. Riavvia e verifica lo spazio',
 			'organization.detail.title' => 'Dettagli organizzazione',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => 'Organizzazione non trovata',
 			'organization.detail.archiveOrg' => 'Archivia organizzazione',
 			'organization.detail.archiveConfirmBody' => 'Dopo l\'archiviazione l\'organizzazione passa in sola lettura; ogni operazione di scrittura viene rifiutata (fail-closed), solo il ripristino (restore) la sblocca. Membri e dati non vengono eliminati.',
@@ -5730,13 +5740,13 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneFilterReached' => 'Raggiunte',
 			'workspace.projectMilestoneNameLabel' => 'Nome',
 			'workspace.projectMilestoneNameRequired' => 'Il nome della milestone non può essere vuoto',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestoneReach' => 'Segna come raggiunta',
 			'workspace.projectMilestoneReachedHint' => 'Raggiunta (non è possibile tornare indietro)',
 			'workspace.projectMilestoneReachedToast' => 'Milestone raggiunta',
 			'workspace.projectMilestonesEntry' => 'Milestone',
 			'workspace.projectMilestonesTitle' => 'Milestone',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNameHint' => 'Ad es.: Rifacimento sito web',
 			'workspace.projectNameLabel' => 'Nome progetto',
 			'workspace.projectNameRequired' => 'Il nome del progetto non può essere vuoto',

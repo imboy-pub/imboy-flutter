@@ -1461,6 +1461,11 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => 'Restore historical group keys';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'This separately authorizes this device to restore ${count} group keys and decrypt history only within each membership generation and message sequence range. Identity keys are already restored; canceling skips these group keys.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Historical group keys: ${restored} authorized and restored, ${omitted} omitted';
+	@override String get e2eeBackupErrAccountMismatch => 'This backup belongs to a different account; restore rejected';
+	@override String get e2eeBackupErrStaleBackup => 'This backup is older than the most recent successful restore on this device (possible replay); rejected';
+	@override String get e2eeBackupRestorePartialTitle => 'Partially completed';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'E2EE keys restored; group key restore interrupted (${written}/${total} entries written). Re-import the same backup to resume — repeated writes are safe';
+	@override String get e2eeBackupSafetyNumberChangedNote => 'Your identity key has changed, so safety numbers with your contacts will change. Please re-verify';
 	@override String get e2eeBackupCreatedAtRow => 'Created at';
 	@override String get e2eeBackupCloudUploadBtn => 'Back up to cloud';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Backed up to cloud (version ${version})';
@@ -4626,6 +4631,11 @@ extension on TranslationsEnUs {
 			'common.e2eeBackupHistoryGrantTitle' => 'Restore historical group keys',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'This separately authorizes this device to restore ${count} group keys and decrypt history only within each membership generation and message sequence range. Identity keys are already restored; canceling skips these group keys.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Historical group keys: ${restored} authorized and restored, ${omitted} omitted',
+			'common.e2eeBackupErrAccountMismatch' => 'This backup belongs to a different account; restore rejected',
+			'common.e2eeBackupErrStaleBackup' => 'This backup is older than the most recent successful restore on this device (possible replay); rejected',
+			'common.e2eeBackupRestorePartialTitle' => 'Partially completed',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'E2EE keys restored; group key restore interrupted (${written}/${total} entries written). Re-import the same backup to resume — repeated writes are safe',
+			'common.e2eeBackupSafetyNumberChangedNote' => 'Your identity key has changed, so safety numbers with your contacts will change. Please re-verify',
 			'common.e2eeBackupCreatedAtRow' => 'Created at',
 			'common.e2eeBackupCloudUploadBtn' => 'Back up to cloud',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Backed up to cloud (version ${version})',
@@ -4841,13 +4851,13 @@ extension on TranslationsEnUs {
 			'customerService.queuedEmptyTitle' => 'No queued conversations',
 			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
 			'customerService.loadingMore' => 'Loading more…',
+			_ => null,
+		} ?? switch (path) {
 			'customerService.loadMoreFailed' => 'Failed to load more, scroll up to retry',
 			'customerService.noMore' => 'No more conversations',
 			'customerService.claimAction' => 'Claim',
 			'customerService.claimSuccess' => 'Claimed',
 			'customerService.claimConflict' => 'This conversation was claimed by another seat or its state changed. The queue has been refreshed',
-			_ => null,
-		} ?? switch (path) {
 			'customerService.claimOffboardingRequired' => 'Offboarding handover in progress; claiming is unavailable',
 			'customerService.claimForbidden' => 'Seat is suspended; claiming is unavailable',
 			'customerService.claimFailed' => 'Claim failed, please try again later',
@@ -5355,13 +5365,13 @@ extension on TranslationsEnUs {
 			'main.collecting' => 'Collecting...',
 			'main.user' => 'User',
 			'main.recommended' => 'Recommended',
+			_ => null,
+		} ?? switch (path) {
 			'main.larger' => 'Larger',
 			'main.fillIn' => 'Fill In',
 			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
 			'main.inviterLabel' => ({required Object uid}) => 'Inviter: ${uid}',
 			'main.inviteeLabel' => ({required Object uid}) => 'Invitee: ${uid}',
-			_ => null,
-		} ?? switch (path) {
 			'main.mySentTab' => 'Sent',
 			'main.reject' => 'Reject',
 			'main.myOrders' => 'My Orders',
@@ -5869,13 +5879,13 @@ extension on TranslationsEnUs {
 			'workspace.membersTitle' => 'Workspace Members',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
 			'workspace.membersEmpty' => 'No workspace members yet',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.membersEmptySubtitle' => 'Invite registered users as Workspace Members (Owner / Member / Guest)',
 			'workspace.membersViewAll' => 'View all',
 			'workspace.projectsEmptyTitle' => 'No projects yet',
 			'workspace.projectsEmptySubtitle' => 'Projects track clear deliverables; a community workspace with only channels and groups is perfectly fine',
 			'workspace.channelsEmptyTitle' => 'No workspace channels yet',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',

@@ -13,6 +13,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// E2EE 备份导出页面
 ///
@@ -431,6 +432,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         deviceId: keys.deviceId,
         keyId: keys.keyId,
         userNotes: _notesController.text,
+        // 账号绑定：恢复端据此拒绝跨账号恢复
+        accountId: UserRepoLocal.to.currentUid,
       );
 
       if (!mounted) return;
@@ -469,6 +472,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
         publicKey: keys.publicKey,
         deviceId: keys.deviceId,
         keyId: keys.keyId,
+        // 账号绑定：恢复端据此拒绝跨账号恢复
+        accountId: UserRepoLocal.to.currentUid,
       );
 
       if (!mounted) return;

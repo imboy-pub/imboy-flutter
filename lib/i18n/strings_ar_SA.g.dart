@@ -1468,6 +1468,11 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => 'استعادة مفاتيح المجموعة التاريخية';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'يمنح هذا الجهاز تفويضًا منفصلًا لاستعادة ${count} من مفاتيح المجموعة وفك سجل الرسائل ضمن جيل العضوية ونطاق تسلسل الرسائل الخاص بكل مفتاح فقط. تمت استعادة مفاتيح الهوية بالفعل؛ الإلغاء يتجاوز مفاتيح المجموعة هذه.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'مفاتيح المجموعة التاريخية: تم تفويض واستعادة ${restored}، وتم تجاوز ${omitted}';
+	@override String get e2eeBackupErrAccountMismatch => 'هذه النسخة الاحتياطية تنتمي إلى حساب آخر؛ تم رفض الاستعادة';
+	@override String get e2eeBackupErrStaleBackup => 'هذه النسخة الاحتياطية أقدم من آخر استعادة ناجحة على هذا الجهاز (احتمال إعادة استخدام)؛ تم الرفض';
+	@override String get e2eeBackupRestorePartialTitle => 'مكتمل جزئيًا';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'تمت استعادة مفاتيح E2EE؛ انقطعت كتابة مفاتيح المجموعة (${written}/${total} عنصرًا). أعد استيراد النسخة نفسها للمتابعة — الكتابة المتكررة آمنة';
+	@override String get e2eeBackupSafetyNumberChangedNote => 'تغيّر مفتاح هوية هذا الجهاز، لذلك ستتغير أرقام الأمان مع جهات اتصالك. يرجى التحقق مجددًا';
 	@override String get e2eeBackupCreatedAtRow => 'تاريخ الإنشاء';
 	@override String get e2eeBackupCloudUploadBtn => 'النسخ الاحتياطي إلى السحابة';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})';
@@ -4495,6 +4500,11 @@ extension on TranslationsArSa {
 			'common.e2eeBackupHistoryGrantTitle' => 'استعادة مفاتيح المجموعة التاريخية',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'يمنح هذا الجهاز تفويضًا منفصلًا لاستعادة ${count} من مفاتيح المجموعة وفك سجل الرسائل ضمن جيل العضوية ونطاق تسلسل الرسائل الخاص بكل مفتاح فقط. تمت استعادة مفاتيح الهوية بالفعل؛ الإلغاء يتجاوز مفاتيح المجموعة هذه.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'مفاتيح المجموعة التاريخية: تم تفويض واستعادة ${restored}، وتم تجاوز ${omitted}',
+			'common.e2eeBackupErrAccountMismatch' => 'هذه النسخة الاحتياطية تنتمي إلى حساب آخر؛ تم رفض الاستعادة',
+			'common.e2eeBackupErrStaleBackup' => 'هذه النسخة الاحتياطية أقدم من آخر استعادة ناجحة على هذا الجهاز (احتمال إعادة استخدام)؛ تم الرفض',
+			'common.e2eeBackupRestorePartialTitle' => 'مكتمل جزئيًا',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'تمت استعادة مفاتيح E2EE؛ انقطعت كتابة مفاتيح المجموعة (${written}/${total} عنصرًا). أعد استيراد النسخة نفسها للمتابعة — الكتابة المتكررة آمنة',
+			'common.e2eeBackupSafetyNumberChangedNote' => 'تغيّر مفتاح هوية هذا الجهاز، لذلك ستتغير أرقام الأمان مع جهات اتصالك. يرجى التحقق مجددًا',
 			'common.e2eeBackupCreatedAtRow' => 'تاريخ الإنشاء',
 			'common.e2eeBackupCloudUploadBtn' => 'النسخ الاحتياطي إلى السحابة',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'تم النسخ إلى السحابة (الإصدار ${version})',
@@ -4711,13 +4721,13 @@ extension on TranslationsArSa {
 			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			'discovery.momentActionLike' => 'إعجاب',
 			'discovery.momentActionCancelLike' => 'إلغاء الإعجاب',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => 'تعليق',
 			'discovery.momentActionDelete' => 'حذف',
 			'discovery.momentActionReport' => 'إبلاغ',
 			'discovery.momentActionCancel' => 'إلغاء',
 			'discovery.momentLikedBy' => ({required Object names}) => 'أعجب ${names}',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} و${count} آخرون أعجبوا',
 			'discovery.momentContentPlaceholder' => 'بماذا تفكر...',
 			'discovery.momentShowFull' => 'عرض الكل',
@@ -5225,13 +5235,13 @@ extension on TranslationsArSa {
 			'organization.home.myInvitations' => 'دعواتي',
 			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
 			'organization.detail.leaveOrg' => 'مغادرة المؤسسة',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => 'تُلغي المغادرة الوصول إلى دليل المؤسسة ومجموعاتها وقنواتها وملفاتها. تبقى ملفات المؤسسة محفوظة. يلزم الحصول على دعوة للانضمام مجددًا.',
 			'organization.detail.leaveFailed' => 'تعذرت المغادرة',
 			'organization.detail.leaveOwnerHint' => 'انقل ملكية المؤسسة قبل المغادرة',
 			'organization.detail.leaveCleanupFailed' => 'تمت المغادرة ولكن تعذر مسح التفضيلات المحلية. أعد التشغيل وتحقق من المساحة المختارة',
 			'organization.detail.title' => 'تفاصيل المنظمة',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => 'المنظمة غير موجودة',
 			'organization.detail.archiveOrg' => 'أرشفة المنظمة',
 			'organization.detail.archiveConfirmBody' => 'بعد الأرشفة تدخل المنظمة في وضع القراءة فقط، وتُرفض جميع عمليات الكتابة (fail-closed)، ولا يمكن فك القفل إلا بالاستعادة (restore). لن يتم حذف الأعضاء ولا البيانات.',
@@ -5739,13 +5749,13 @@ extension on TranslationsArSa {
 			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',
 			'workspace.taskEmptySubtitle' => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة',
 			'workspace.projectsLoadMore' => 'تحميل المزيد',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectW2SectionTitle' => 'تعاون المشروع',
 			'workspace.projectMembersEntry' => 'الأعضاء',
 			'workspace.projectMilestonesEntry' => 'المعالم',
 			'workspace.projectChannelsEntry' => 'قنوات المشروع',
 			'workspace.projectInsightsEntry' => 'تجميع المحتوى',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'لا توجد صلاحية: يمكن العرض لأعضاء المشروع أو مسؤول المشروع أو Owner مساحة العمل فقط',
 			'workspace.projectGuestReadonly' => 'صلاحية الضيف (Guest) للقراءة فقط على المشروع',
 			'workspace.projectLoadMore' => 'تحميل المزيد',

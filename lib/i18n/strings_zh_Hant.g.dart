@@ -1459,6 +1459,11 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => '恢復歷史群組金鑰';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => '此操作將授權本裝置恢復 ${count} 個群組金鑰，並只依各自的入群世代與訊息序號範圍解密歷史。身分金鑰已單獨恢復；取消不會恢復這些群組金鑰。';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '歷史群組金鑰：已授權恢復 ${restored} 個，已省略 ${omitted} 個';
+	@override String get e2eeBackupErrAccountMismatch => '備份屬於其他帳號，已拒絕恢復';
+	@override String get e2eeBackupErrStaleBackup => '該備份早於本機最近一次成功恢復（疑似舊版本重放），已拒絕';
+	@override String get e2eeBackupRestorePartialTitle => '部分完成';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'E2EE 金鑰已恢復；群金鑰寫入中斷（已寫入 ${written}/${total} 條）。請重新匯入同一備份以補完剩餘部分（重複寫入安全）';
+	@override String get e2eeBackupSafetyNumberChangedNote => '本機身份金鑰已更換，與聯絡人的安全碼將發生變化，請重新核驗';
 	@override String get e2eeBackupCreatedAtRow => '建立時間';
 	@override String get e2eeBackupCloudUploadBtn => '備份到雲端';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => '已備份到雲端（版本 ${version}）';
@@ -4487,6 +4492,11 @@ extension on TranslationsZhHant {
 			'common.e2eeBackupHistoryGrantTitle' => '恢復歷史群組金鑰',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => '此操作將授權本裝置恢復 ${count} 個群組金鑰，並只依各自的入群世代與訊息序號範圍解密歷史。身分金鑰已單獨恢復；取消不會恢復這些群組金鑰。',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '歷史群組金鑰：已授權恢復 ${restored} 個，已省略 ${omitted} 個',
+			'common.e2eeBackupErrAccountMismatch' => '備份屬於其他帳號，已拒絕恢復',
+			'common.e2eeBackupErrStaleBackup' => '該備份早於本機最近一次成功恢復（疑似舊版本重放），已拒絕',
+			'common.e2eeBackupRestorePartialTitle' => '部分完成',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'E2EE 金鑰已恢復；群金鑰寫入中斷（已寫入 ${written}/${total} 條）。請重新匯入同一備份以補完剩餘部分（重複寫入安全）',
+			'common.e2eeBackupSafetyNumberChangedNote' => '本機身份金鑰已更換，與聯絡人的安全碼將發生變化，請重新核驗',
 			'common.e2eeBackupCreatedAtRow' => '建立時間',
 			'common.e2eeBackupCloudUploadBtn' => '備份到雲端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已備份到雲端（版本 ${version}）',
@@ -4700,13 +4710,13 @@ extension on TranslationsZhHant {
 			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			'discovery.momentActionLike' => '讚',
 			'discovery.momentActionCancelLike' => '取消讚',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => '評論',
 			'discovery.momentActionDelete' => '刪除',
 			'discovery.momentActionReport' => '舉報',
 			'discovery.momentActionCancel' => '取消動作',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} 讚了',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 等${count}人讚了',
 			'discovery.momentContentPlaceholder' => '這一刻的想法...',
 			'discovery.momentShowFull' => '展開全文',
@@ -5214,13 +5224,13 @@ extension on TranslationsZhHant {
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '我的邀請',
 			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrg' => '退出企業',
 			'organization.detail.leaveOrgBody' => '退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。',
 			'organization.detail.leaveFailed' => '退出失敗',
 			'organization.detail.leaveOwnerHint' => '請先移交企業負責人，再退出企業',
 			'organization.detail.leaveCleanupFailed' => '已退出企業，但本機偏好清理失敗，請重新啟動後確認空間',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.title' => '組織詳情',
 			'organization.detail.notFound' => '組織不存在',
 			'organization.detail.archiveOrg' => '封存組織',
@@ -5728,13 +5738,13 @@ extension on TranslationsZhHant {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
 			'workspace.taskEmptyTitle' => '還沒有任務',
 			'workspace.taskEmptySubtitle' => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectsLoadMore' => '載入更多',
 			'workspace.projectW2SectionTitle' => '專案協作',
 			'workspace.projectMembersEntry' => '成員',
 			'workspace.projectMilestonesEntry' => '專案里程碑',
 			'workspace.projectChannelsEntry' => '專案頻道',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectInsightsEntry' => '內容聚合',
 			'workspace.projectNoPermission' => '無權限：僅專案成員、專案負責人或工作區 Owner 可查看',
 			'workspace.projectGuestReadonly' => '訪客（Guest）身分對專案唯讀',

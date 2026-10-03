@@ -1456,6 +1456,11 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => '過去のグループ鍵を復元';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'この端末に ${count} 個のグループ鍵の復元を個別に許可し、それぞれの参加世代とメッセージ連番の範囲内だけで履歴を復号します。ID 鍵はすでに復元済みです。キャンセルするとこれらのグループ鍵は復元しません。';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => '過去のグループ鍵：${restored} 個を許可して復元、${omitted} 個を省略';
+	@override String get e2eeBackupErrAccountMismatch => 'このバックアップは別のアカウントのものであるため、復元を拒否しました';
+	@override String get e2eeBackupErrStaleBackup => 'このバックアップはこの端末で最後に復元したものより古いため（リプレイの疑い）、拒否しました';
+	@override String get e2eeBackupRestorePartialTitle => '部分的に完了';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'E2EE 鍵は復元済み。グループ鍵の書き込みが中断されました（${written}/${total} 件完了）。同じバックアップを再インポートすると残りを安全に再開できます';
+	@override String get e2eeBackupSafetyNumberChangedNote => '端末の識別鍵が変わったため、連絡先との安全番号が変化します。再確認してください';
 	@override String get e2eeBackupCreatedAtRow => '作成日時';
 	@override String get e2eeBackupCloudUploadBtn => 'クラウドにバックアップ';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）';
@@ -4483,6 +4488,11 @@ extension on TranslationsJaJp {
 			'common.e2eeBackupHistoryGrantTitle' => '過去のグループ鍵を復元',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'この端末に ${count} 個のグループ鍵の復元を個別に許可し、それぞれの参加世代とメッセージ連番の範囲内だけで履歴を復号します。ID 鍵はすでに復元済みです。キャンセルするとこれらのグループ鍵は復元しません。',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '過去のグループ鍵：${restored} 個を許可して復元、${omitted} 個を省略',
+			'common.e2eeBackupErrAccountMismatch' => 'このバックアップは別のアカウントのものであるため、復元を拒否しました',
+			'common.e2eeBackupErrStaleBackup' => 'このバックアップはこの端末で最後に復元したものより古いため（リプレイの疑い）、拒否しました',
+			'common.e2eeBackupRestorePartialTitle' => '部分的に完了',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'E2EE 鍵は復元済み。グループ鍵の書き込みが中断されました（${written}/${total} 件完了）。同じバックアップを再インポートすると残りを安全に再開できます',
+			'common.e2eeBackupSafetyNumberChangedNote' => '端末の識別鍵が変わったため、連絡先との安全番号が変化します。再確認してください',
 			'common.e2eeBackupCreatedAtRow' => '作成日時',
 			'common.e2eeBackupCloudUploadBtn' => 'クラウドにバックアップ',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'クラウドにバックアップしました（バージョン ${version}）',
@@ -4699,13 +4709,13 @@ extension on TranslationsJaJp {
 			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			'discovery.momentActionLike' => 'いいね',
 			'discovery.momentActionCancelLike' => 'いいねを取り消す',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => 'コメント',
 			'discovery.momentActionDelete' => '削除',
 			'discovery.momentActionReport' => '通報',
 			'discovery.momentActionCancel' => 'キャンセル',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names}がいいねしました',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} 他${count}人がいいねしました',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count}人がいいねしました',
 			'discovery.momentContentPlaceholder' => '今の思い...',
@@ -5213,13 +5223,13 @@ extension on TranslationsJaJp {
 			'organization.home.myInvitations' => '自分の招待',
 			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
 			'organization.detail.leaveOrg' => '組織から退出',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => '退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。',
 			'organization.detail.leaveFailed' => '退出できませんでした',
 			'organization.detail.leaveOwnerHint' => '退出する前に組織の所有権を移譲してください',
 			'organization.detail.leaveCleanupFailed' => '退出済みですが端末の設定を削除できませんでした。再起動して選択中のスペースを確認してください',
 			'organization.detail.title' => '組織の詳細',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => '組織が見つかりません',
 			'organization.detail.archiveOrg' => '組織をアーカイブ',
 			'organization.detail.archiveConfirmBody' => 'アーカイブ後、組織は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。',
@@ -5727,13 +5737,13 @@ extension on TranslationsJaJp {
 			'workspace.taskEmptyTitle' => 'タスクはまだありません',
 			'workspace.taskEmptySubtitle' => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了',
 			'workspace.projectsLoadMore' => 'さらに読み込む',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectW2SectionTitle' => 'プロジェクトコラボレーション',
 			'workspace.projectMembersEntry' => 'メンバー',
 			'workspace.projectMilestonesEntry' => 'マイルストーン',
 			'workspace.projectChannelsEntry' => 'プロジェクトチャンネル',
 			'workspace.projectInsightsEntry' => 'コンテンツ集約',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNoPermission' => '権限がありません：プロジェクトメンバー、プロジェクト担当者、またはワークスペースのOwnerのみ閲覧できます',
 			'workspace.projectGuestReadonly' => 'ゲスト（Guest）はプロジェクトを閲覧のみ可能です',
 			'workspace.projectLoadMore' => 'さらに読み込む',

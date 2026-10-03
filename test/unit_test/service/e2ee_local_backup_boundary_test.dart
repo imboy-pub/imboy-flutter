@@ -40,11 +40,14 @@ void main() {
   }
 
   group('notes 确定性 writer/reader 布局', () {
+    // KDF 600k（OWASP 2023）派生数秒级，组内用例统一放宽超时
+    const kdfTimeout = Timeout(Duration(minutes: 2));
+
     test('无备注往返成功', () async {
       final result = await unpack(await pack());
       expect(result['private_key'], privateKey);
       expect(result['device_id'], deviceId);
-    });
+    }, timeout: kdfTimeout);
 
     test('备注长度 0（空串等价无备注）往返成功', () async {
       final result = await unpack(await pack(userNotes: ''));
@@ -78,10 +81,12 @@ void main() {
       final tampered = Uint8List.fromList([...bytes, 1, 2, 3, 4]);
       // 头部 notes_length=0，但实际多了 4 字节 → GCM 认证必败（ArgumentError）
       await expectLater(unpack(tampered), throwsArgumentError);
-    });
+    }, timeout: kdfTimeout);
   });
 
   group('大分配 / KDF 上限（派生前拒绝）', () {
+    const kdfTimeout = Timeout(Duration(minutes: 2));
+
     test('超过 maxBackupBytes 的字节直接拒绝，不进入解密', () async {
       final huge = Uint8List(E2EELocalBackupService.maxBackupBytes + 1);
       // 前 8 字节填 magic，确保不是 magic 先失败而是 size 先失败
@@ -95,7 +100,7 @@ void main() {
       // offset 12..16 是 iterations(uint32 大端)，写入 0xFFFFFFFF
       ByteData.sublistView(mutated).setUint32(12, 0xFFFFFFFF);
       await expectLater(unpack(mutated), throwsArgumentError);
-    });
+    }, timeout: kdfTimeout);
   });
 
   group('短文件 / 畸形输入确定性处理（ArgumentError，非 RangeError）', () {

@@ -739,6 +739,11 @@ e2eeBackupImportSuccessNote: "Hinweis: Nur Gruppensitzungen, die in dieser Siche
 e2eeBackupHistoryGrantTitle: Historische Gruppenschlüssel wiederherstellen
 e2eeBackupHistoryGrantBody(count): "Dies autorisiert dieses Gerät separat, $count Gruppenschlüssel wiederherzustellen und Verlauf nur innerhalb der jeweiligen Mitgliedschaftsgeneration und Nachrichtensequenz zu entschlüsseln. Identitätsschlüssel wurden bereits wiederhergestellt; Abbrechen überspringt diese Gruppenschlüssel."
 e2eeBackupHistoryRestoreResult(restored, omitted): "Historische Gruppenschlüssel: $restored autorisiert und wiederhergestellt, $omitted ausgelassen"
+e2eeBackupErrAccountMismatch: "Dieses Backup gehört zu einem anderen Konto; Wiederherstellung abgelehnt"
+e2eeBackupErrStaleBackup: "Dieses Backup ist älter als die zuletzt erfolgreiche Wiederherstellung auf diesem Gerät (möglicher Replay); abgelehnt"
+e2eeBackupRestorePartialTitle: Teilweise abgeschlossen
+e2eeBackupRestorePartialBody(written, total): "E2EE-Schlüssel wiederhergestellt; das Schreiben der Gruppenschlüssel wurde unterbrochen ($written/$total Einträge). Dieselbe Backup-Datei erneut importieren, um fortzufahren — wiederholtes Schreiben ist sicher"
+e2eeBackupSafetyNumberChangedNote: "Der Identitätsschlüssel dieses Geräts hat sich geändert, daher ändern sich die Sicherheitsnummern mit deinen Kontakten. Bitte erneut verifizieren"
 e2eeBackupCreatedAtRow: Erstellt am
 e2eeBackupCloudUploadBtn: In die Cloud sichern
 e2eeBackupCloudUploadSuccess(version): In der Cloud gesichert (Version $version)
