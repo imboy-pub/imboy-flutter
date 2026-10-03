@@ -11,6 +11,37 @@ class RegisteredWireBinding {
   const RegisteredWireBinding(this.fixture);
   final RegisteredFixture fixture;
 
+  /// Validate server-downlink string IDs without changing received evidence.
+  /// Outgoing messages keep their existing integer-ID contract.
+  void validateReceivedC2c(WireFrame frame) {
+    final body = Map<String, dynamic>.from(frame.body);
+    for (final key in ['from', 'to']) {
+      final value = body[key];
+      if (value is String) {
+        if (!RegExp(r'^[1-9][0-9]*$').hasMatch(value)) {
+          throw const FormatException('invalid received account ID');
+        }
+        final parsed = int.tryParse(value);
+        if (parsed == null || parsed.toString() != value) {
+          throw const FormatException('invalid received account ID');
+        }
+        body[key] = parsed;
+      } else if (value is! int || value <= 0) {
+        throw const FormatException('invalid received account ID');
+      }
+    }
+    prepareC2c(
+      WireFrame(
+        messageId: frame.messageId,
+        senderUid: frame.senderUid,
+        senderDid: frame.senderDid,
+        recipientUid: frame.recipientUid,
+        recipientDid: frame.recipientDid,
+        body: body,
+      ),
+    );
+  }
+
   Map<String, dynamic> prepareC2c(WireFrame frame) {
     final sender = _device(frame.senderDid, frame.senderUid);
     final recipient = _logicalRecipient(frame, sender);

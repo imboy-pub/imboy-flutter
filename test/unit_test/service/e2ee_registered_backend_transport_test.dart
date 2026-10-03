@@ -93,6 +93,31 @@ void main() {
       },
     );
   }
+  test('production string IDs are received and can be acknowledged', () async {
+    await transport.start();
+    await transport.connectDevice(recipient);
+    final body = RegisteredWireBinding(bindings.registered())
+        .prepareC2c(bindings.wire());
+    body['sender_did'] = 'registered-a';
+    body['from'] = body['from'].toString();
+    body['to'] = body['to'].toString();
+    body.remove('created_at'); // production assemble_msg/8 uses server_ts
+    channels['b1']!.input.add(incoming(body));
+    await Future<void>.delayed(Duration.zero);
+    final inbox = transport.drainInbox('b1');
+    expect(inbox, hasLength(1));
+    expect(inbox.single.body['from'], '9007199254740993');
+    final acknowledged = transport.acknowledgeReceived(inbox.single);
+    channels['b1']!.input.add(
+      incoming({
+        'id': 'xid',
+        'type': 'CLIENT_ACK_CONFIRM',
+        'action': 'CLIENT_ACK_CONFIRM',
+        'in_reply_to': 'xid',
+      }),
+    );
+    await acknowledged;
+  });
   test('actual received ciphertext queues once per drain', () async {
     await transport.start();
     await transport.connectDevice(recipient);

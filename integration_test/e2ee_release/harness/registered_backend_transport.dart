@@ -165,7 +165,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
       recipientDid: alias,
       body: message,
     );
-    RegisteredWireBinding(fixture).prepareC2c(wire);
+    RegisteredWireBinding(fixture).validateReceivedC2c(wire);
     _received.add(wire);
     (_inbox[alias] ??= []).add(wire);
   }
@@ -178,7 +178,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
         'cannot acknowledge a frame not received by this transport',
       );
     }
-    RegisteredWireBinding(fixture).prepareC2c(frame);
+    RegisteredWireBinding(fixture).validateReceivedC2c(frame);
     final alias = frame.recipientDid;
     final session = _sessions[alias];
     if (!_started || session == null || !session.connected) {

@@ -126,6 +126,53 @@ WireFrame wire({
 }
 
 void main() {
+  test('received canonical IDs preserve raw body and outgoing ID contract', () {
+    final frame = wire();
+    frame.body['from'] = '9007199254740993';
+    frame.body['to'] = '9007199254740994';
+    final binding = RegisteredWireBinding(registered());
+    binding.validateReceivedC2c(frame);
+    expect(frame.body['from'], '9007199254740993');
+    expect(frame.body['to'], '9007199254740994');
+    expect(() => binding.prepareC2c(frame), throwsFormatException);
+  });
+  test('received IDs require explicit integral identities', () {
+    final binding = RegisteredWireBinding(registered());
+    for (final key in ['from', 'to']) {
+      for (final value in [null, true, 9007199254740994.0, -1, 0]) {
+        final frame = wire();
+        frame.body['from'] = '9007199254740993';
+        frame.body['to'] = '9007199254740994';
+        frame.body[key] = value;
+        expect(() => binding.validateReceivedC2c(frame), throwsFormatException);
+      }
+      final frame = wire();
+      frame.body['from'] = '9007199254740993';
+      frame.body['to'] = '9007199254740994';
+      frame.body.remove(key);
+      expect(() => binding.validateReceivedC2c(frame), throwsFormatException);
+    }
+  });
+  test('received IDs reject aliases, rounding and noncanonical integers', () {
+    final binding = RegisteredWireBinding(registered());
+    for (final value in [
+      '',
+      '09007199254740994',
+      '+9007199254740994',
+      '9007199254740994.0',
+      '9e15',
+      'b',
+      '0',
+      '-1',
+      '999999999999999999999999999999',
+      '9007199254740995',
+    ]) {
+      final frame = wire();
+      frame.body['from'] = '9007199254740993';
+      frame.body['to'] = value;
+      expect(() => binding.validateReceivedC2c(frame), throwsFormatException);
+    }
+  });
   final binding = RegisteredWireBinding(registered());
   test('accepts actual outbound router header with protocol stub', () async {
     E2eeProtocolRegistry.resetForTest();
