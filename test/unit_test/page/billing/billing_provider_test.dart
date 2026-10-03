@@ -13,6 +13,8 @@
 /// - BP-10 paying 完成后复位，重入防抖
 library;
 
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -161,6 +163,17 @@ class _FakeLauncher extends PaymentLauncher {
   }
 }
 
+class _DeferredPlansApi extends _FakeBillingApi {
+  final requests = <Completer<List<BillingPlan>?>>[];
+
+  @override
+  Future<List<BillingPlan>?> fetchPlans() {
+    final request = Completer<List<BillingPlan>?>();
+    requests.add(request);
+    return request.future;
+  }
+}
+
 ProviderContainer _containerWith(
   _FakeBillingApi fake, {
   _FakeLauncher? launcher,
@@ -188,6 +201,28 @@ void main() {
   });
 
   group('BillingNotifier.loadPlans', () {
+    test('较旧请求晚到不得覆盖较新请求的套餐列表', () async {
+      final fake = _DeferredPlansApi();
+      final container = _containerWith(fake);
+      addTearDown(container.dispose);
+      final notifier = container.read(billingProvider.notifier);
+      final first = notifier.loadPlans();
+      final second = notifier.loadPlans();
+      fake.requests[1].complete([_plan(id: 202)]);
+      await second;
+      fake.requests[0].complete([_plan(id: 101)]);
+      await first;
+      expect(container.read(billingProvider).plans.single.id, 202);
+    });
+
+    test('容器销毁后请求完成不得更新已销毁状态', () async {
+      final fake = _DeferredPlansApi();
+      final container = _containerWith(fake);
+      final pending = container.read(billingProvider.notifier).loadPlans();
+      container.dispose();
+      fake.requests.single.complete([_plan()]);
+      await expectLater(pending, completes);
+    });
     test('BP-1a 成功 → plans 填充、isLoading 复位、error 为空', () async {
       final fake = _FakeBillingApi(plansResult: [_plan()]);
       final container = _containerWith(fake);

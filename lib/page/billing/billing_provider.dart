@@ -77,16 +77,21 @@ class BillingState {
 /// 契约差异（对 wallet）：后端 subscribe 只回 `subscription_id`，账单号
 /// 须经 generate（幂等，只回 invoice_id）+ list 两步取得。
 class BillingNotifier extends Notifier<BillingState> {
+  int _planLoadGeneration = 0;
   late final BillingApi _api = ref.read(billingApiProvider);
   late final PaymentLauncher _launcher = ref.read(
     billingPaymentLauncherProvider,
   );
 
   @override
-  BillingState build() => const BillingState();
+  BillingState build() {
+    _planLoadGeneration++;
+    return const BillingState();
+  }
 
   /// 加载套餐列表（页面下拉刷新/初始进入）。
   Future<void> loadPlans() async {
+    final generation = ++_planLoadGeneration;
     state = state.copyWith(isLoading: true, clearError: true);
     List<BillingPlan>? plans;
     try {
@@ -94,6 +99,7 @@ class BillingNotifier extends Notifier<BillingState> {
     } catch (error) {
       debugPrint('[BillingNotifier] plan load failed: ${error.runtimeType}');
     }
+    if (!ref.mounted || generation != _planLoadGeneration) return;
     if (plans != null) {
       state = state.copyWith(isLoading: false, plans: plans);
     } else {
