@@ -442,6 +442,36 @@ def validate_inventory(root: Path, inventory: dict) -> list[str]:
 
 # ----------------------------------------------------------------- IO
 
+def acceptance_readiness_errors(inventory: object) -> list[str]:
+    """Reject unresolved inventory obligations before business acceptance.
+
+    This static gate proves neither executable oracle quality nor execution.
+    Exclusions require an independently approved applicability contract; an
+    unverified disposition cannot remove an obligation here.
+    """
+    if not isinstance(inventory, dict):
+        return ['ACCEPTANCE_INVENTORY_SCHEMA_INVALID']
+    functions = inventory.get('functions')
+    if not isinstance(functions, list) or not functions:
+        return ['ACCEPTANCE_INVENTORY_EMPTY_OR_INVALID']
+    errors = []
+    for index, function in enumerate(functions):
+        if not isinstance(function, dict):
+            errors.append(f'ACCEPTANCE_FUNCTION_SCHEMA_INVALID:{index}')
+            continue
+        if function.get('disposition') != 'required':
+            errors.append(f'ACCEPTANCE_APPLICABILITY_UNVERIFIED:{index}')
+        oracle, details = function.get('expected_oracle'), function.get('details', '')
+        if not isinstance(oracle, str) or not oracle.strip() or not isinstance(details, str):
+            errors.append(f'ACCEPTANCE_ORACLE_INVALID:{index}')
+        elif ('GENERATED_ORACLE_PLACEHOLDER' in details
+              or '<控件可观察状态>' in oracle):
+            errors.append(f'ACCEPTANCE_ORACLE_PLACEHOLDER:{index}')
+        target = function.get('test_target')
+        if not isinstance(target, str) or not target.strip():
+            errors.append(f'ACCEPTANCE_TARGET_MISSING:{index}')
+    return errors
+
 def render_json(payload: dict) -> str:
     return json.dumps(payload, ensure_ascii=False, indent=2) + '\n'
 
@@ -472,10 +502,16 @@ def check_inventory(root: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     root = Path(__file__).resolve().parents[2]
-    check = '--check' in argv
+    acceptance_check = '--acceptance-check' in argv
+    check = '--check' in argv or acceptance_check
     write_ledgers = '--write-ledgers' in argv
+    if acceptance_check and write_ledgers:
+        print('ERROR: ACCEPTANCE_CHECK_CANNOT_WRITE_LEDGERS', file=sys.stderr)
+        return 64
     inventory, written = generate_inventory(root, write_missing_ledgers=write_ledgers)
     errors = validate_inventory(root, inventory)
+    if acceptance_check:
+        errors.extend(acceptance_readiness_errors(inventory))
     if errors:
         for err in errors:
             print(f'ERROR: {err}', file=sys.stderr)
