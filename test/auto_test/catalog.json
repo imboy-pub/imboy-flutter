@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "35876ede023288039937983420a303b2e8f8fbfb",
-    "backend_head": "1474edca0f46205145fcd742216d05a4ac013709",
-    "integration_test_count": 152,
+    "app_head": "4567805fd40837f5bd6cd579106d2a42c86d62fd",
+    "backend_head": "ab09d3b0065c60b9ae817a67e7dd9dc886924996",
+    "integration_test_count": 153,
     "lib_page_count": 166,
     "module_page_count": 22,
     "route_page_component_count": 147,
-    "spec_count": 26
+    "spec_count": 27
   },
   "entries": [
     {
@@ -1237,6 +1237,32 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/full_acceptance/organization/organization_home_device_test.dart",
+      "target": "integration_test/full_acceptance/organization/organization_home_device_test.dart",
+      "target_sha256": "ce4449c065545d261868b089299e3e019f475de3b4d7a29b0b1ef507b7524058",
+      "sources": [
+        "lib/modules/organization/presentation/organization_home_page.dart"
+      ],
+      "dependencies": [
+        "integration_test/full_acceptance/billing/billing_device_preflight.dart",
+        "lib/modules/organization/infrastructure/organization_api.dart",
+        "lib/modules/organization/presentation/human_directory_page.dart",
+        "lib/modules/organization/presentation/organization_routes.dart"
+      ],
+      "risk": "external-impact",
+      "requirements": [
+        "authorization.business_write",
+        "backend.local",
+        "credentials.primary",
+        "fixture.disposable_account"
+      ],
+      "tags": [
+        "full_acceptance"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/group/f2f_diag_probe_test.dart",
       "target": "integration_test/group/f2f_diag_probe_test.dart",
       "target_sha256": "7f2fefb3b5807d59159c0347b575cf2d740dbc7ab5aab5243e88b1684df234dc",
@@ -2424,9 +2450,11 @@
     {
       "page": "lib/modules/organization/presentation/human_directory_page.dart",
       "mapped_targets": [],
-      "dependency_targets": [],
+      "dependency_targets": [
+        "integration_test/full_acceptance/organization/organization_home_device_test.dart"
+      ],
       "route_registered": false,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""
@@ -2483,10 +2511,12 @@
     },
     {
       "page": "lib/modules/organization/presentation/organization_home_page.dart",
-      "mapped_targets": [],
+      "mapped_targets": [
+        "integration_test/full_acceptance/organization/organization_home_device_test.dart"
+      ],
       "dependency_targets": [],
       "route_registered": true,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""

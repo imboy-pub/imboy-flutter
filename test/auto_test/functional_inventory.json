@@ -27206,8 +27206,8 @@
       "source": "test/auto_test/organization/organization_home_page.md",
       "control": "button",
       "action": "通讯录入口：当前组织优先，回落非归档组织，再回落首项；空列表不导航",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; step9-generated ledger row",
+      "expected_oracle": "指定合成组织名称可见后点击 organization-home-directory-entry，实际 HumanDirectoryBrowserPage.orgId 等于预置 ACCEPTANCE_ORG_ID；夹具必须明确当前组织指针或回落选择。此入口不证明通讯录成员数据、无写入或资源授权。",
+      "details": "DECLARED_ORACLE_NOT_EXECUTED; step9-generated ledger row",
       "platforms": [
         "android",
         "macos"
@@ -27217,7 +27217,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/full_acceptance/organization/organization_home_device_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },

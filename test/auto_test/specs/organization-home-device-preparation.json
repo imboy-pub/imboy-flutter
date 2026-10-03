@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "F09-ORGANIZATION-DIRECTORY-DEVICE-PREPARATION",
+  "title": "组织首页通讯录真实设备准备入口：精确目标组织路由",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": [
+    "lib/modules/organization/presentation/organization_home_page.dart"
+  ],
+  "dependencies": [
+    "lib/modules/organization/presentation/human_directory_page.dart",
+    "lib/modules/organization/presentation/organization_routes.dart",
+    "lib/modules/organization/infrastructure/organization_api.dart",
+    "integration_test/full_acceptance/billing/billing_device_preflight.dart"
+  ],
+  "assertions": {
+    "functional": [
+      "预置身份与expected_uid一致，组织名称可见",
+      "点击首页通讯录入口后实际HumanDirectoryBrowserPage的orgId等于ACCEPTANCE_ORG_ID",
+      "页面出现不证明通讯录数据、零写入或授权，必须另行收集独立证据"
+    ],
+    "ui": [
+      "精确目录页面挂载且orgId一致"
+    ]
+  },
+  "visual": {
+    "rubric": [
+      "organization_home_directory_entry"
+    ],
+    "baseline": "NOT_EXECUTED"
+  },
+  "runner": {
+    "type": "flutter",
+    "target": "integration_test/full_acceptance/organization/organization_home_device_test.dart",
+    "requires": [
+      "backend.local",
+      "credentials.primary",
+      "fixture.disposable_account",
+      "authorization.business_write"
+    ]
+  },
+  "safe_to_execute": false,
+  "risk_mode": "external-impact",
+  "execution_block_reason": "App bootstrap may register push/sync state. Independent approval, exact device lease, isolated runtime and disabled external services must be verified before enabling execution. Runner boolean/hash shape does not grant authorization.",
+  "original_acceptance_status": "NOT_EXECUTED",
+  "platform_obligations": [
+    "android",
+    "macos"
+  ],
+  "function_ids": [
+    "fn:organization:organization_home_page:005"
+  ],
+  "function_oracles": {
+    "fn:organization:organization_home_page:005": "指定合成组织名称可见后点击 organization-home-directory-entry，实际 HumanDirectoryBrowserPage.orgId 等于预置 ACCEPTANCE_ORG_ID；夹具必须明确当前组织指针或回落选择。此入口不证明通讯录成员数据、无写入或资源授权。"
+  }
+}
