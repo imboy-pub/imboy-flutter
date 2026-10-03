@@ -1,20 +1,25 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 
 import '../../../integration_test/e2ee_release/fixture_contract.dart';
 import '../../../integration_test/e2ee_release/harness/registered_fixture.dart';
 import '../../../integration_test/e2ee_release/harness/registered_wire_binding.dart';
 import 'e2ee_registered_wire_binding_test.dart' as helpers;
 
-RegisteredFixture multi() => RegisteredFixture.bind(
-  fixture: const FixtureSet(
+RegisteredFixture multi({bool ownDevice = false}) => RegisteredFixture.bind(
+  fixture: FixtureSet(
     runTag: 'abc234',
     accounts: [
       SynthAccount(
         uid: 'a',
         role: 'a',
-        devices: [SynthDevice(deviceId: 'a1', platform: 'android')],
+        devices: [
+          const SynthDevice(deviceId: 'a1', platform: 'android'),
+          if (ownDevice) const SynthDevice(deviceId: 'a2', platform: 'macos'),
+        ],
       ),
       SynthAccount(
         uid: 'b',
@@ -31,6 +36,15 @@ RegisteredFixture multi() => RegisteredFixture.bind(
   groupIds: {},
   devices: [
     ...helpers.registered().devices.values,
+    if (ownDevice)
+      const RegisteredDevice(
+        alias: 'a2',
+        accountAlias: 'a',
+        accountId: '9007199254740993',
+        did: 'registered-a2',
+        platform: 'macos',
+        tokenReference: 'A2_TOKEN',
+      ),
     const RegisteredDevice(
       alias: 'b2',
       accountAlias: 'b',
@@ -44,6 +58,40 @@ RegisteredFixture multi() => RegisteredFixture.bind(
 
 void main() {
   final binding = RegisteredWireBinding(multi());
+  test('requires sender other device but excludes current sender device', () {
+    final ownBinding = RegisteredWireBinding(multi(ownDevice: true));
+    final frame = helpers.wire();
+    final devices = frame.body['e2ee']['devices'] as Map<String, dynamic>;
+    devices['registered-b2'] = jsonDecode(jsonEncode(devices['registered-b']));
+    expect(() => ownBinding.prepareC2c(frame), throwsFormatException);
+    devices['registered-a2'] = jsonDecode(jsonEncode(devices['registered-b']));
+    expect(ownBinding.prepareC2c(frame)['to'], 9007199254740994);
+    devices['registered-a'] = jsonDecode(jsonEncode(devices['registered-b']));
+    expect(() => ownBinding.prepareC2c(frame), throwsFormatException);
+  });
+  for (final mutation in <String, Object>{
+    'message_type': 'image',
+    'action': 'edit',
+    'created_at_ms': 124,
+  }.entries) {
+    test('rejects independently valid different ${mutation.key}', () {
+      final frame = helpers.wire();
+      final devices = frame.body['e2ee']['devices'] as Map<String, dynamic>;
+      final original = {
+        'meta_version': 3,
+        ...devices['registered-b'] as Map<String, dynamic>,
+      };
+      final header = Map<String, dynamic>.from(
+        ProtectedFrameV3.verifyOuterEnvelope(original).decodedHeader!,
+      )..[mutation.key] = mutation.value;
+      devices['registered-b2'] = ProtectedFrameV3.encodeOuterEnvelope(
+        context: FrameContext.fromHeader(header),
+        ciphertext: Uint8List.fromList([4, 5, 6]),
+        protocolMetadata: const {'session_id': 'session'},
+      )..remove('meta_version');
+      expect(() => binding.prepareC2c(frame), throwsFormatException);
+    });
+  }
   test('requires both registered recipient envelopes', () {
     final frame = helpers.wire();
     expect(() => binding.prepareC2c(frame), throwsFormatException);
