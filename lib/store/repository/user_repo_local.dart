@@ -36,6 +36,30 @@ class UserRepoLocal extends ChangeNotifier {
   /// 获取单例实例
   static UserRepoLocal get to => _instance;
 
+  int _sessionGeneration = 0;
+  bool _isClearingSession = false;
+  bool get isClearingSession => _isClearingSession;
+  Future<void> _sessionWrites = Future<void>.value();
+
+  int get sessionGeneration => _sessionGeneration;
+  bool isCurrentSession(int generation) => generation == _sessionGeneration;
+
+  Future<T> _serializeSessionWrite<T>(Future<T> Function() operation) {
+    final result = _sessionWrites.then((_) => operation());
+    _sessionWrites = result.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    return result;
+  }
+
+  Future<bool> saveAccessTokenForSession(int generation, String token) =>
+      _serializeSessionWrite(() async {
+        if (!isCurrentSession(generation)) return false;
+        await SecureTokenStorageService.saveToken(token);
+        return isCurrentSession(generation);
+      });
+
   String get currentUid => StorageService.to.getString(Keys.currentUid);
 
   bool get isLoggedIn {
@@ -187,7 +211,16 @@ class UserRepoLocal extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> loginAfter(String account, Map<String, dynamic> payload) async {
+  Future<bool> loginAfter(String account, Map<String, dynamic> payload) {
+    validateLoginPayload(payload);
+    _sessionGeneration++;
+    return _serializeSessionWrite(() => _commitLogin(account, Map.of(payload)));
+  }
+
+  Future<bool> _commitLogin(
+    String account,
+    Map<String, dynamic> payload,
+  ) async {
     // E2EE-015：上次 logout 秘密清理未完成时先补救；
     // 补救仍失败则抛异常，拒绝建立新账号会话（fail-closed）。
     if (StorageService.to.getBool(Keys.e2eePurgePending) ?? false) {
@@ -211,11 +244,6 @@ class UserRepoLocal extends ChangeNotifier {
       unawaited(StorageService.to.setList(Keys.loginHistory, li));
     }
 
-    await StorageService.to.setString(
-      Keys.currentUid,
-      (payload['user_id'] ?? payload['uid']).toString(),
-    );
-
     await SecureTokenStorageService.saveToken(
       IMBoyHttpResponse.payloadStr(payload, 'token') ?? '',
     );
@@ -228,6 +256,11 @@ class UserRepoLocal extends ChangeNotifier {
 
     // await StorageService.to.setString(Keys.currentUid, payload['uid']);
     await StorageService.setMap(Keys.currentUser, payload);
+    await StorageService.to.setString(
+      Keys.currentUid,
+      (payload['user_id'] ?? payload['uid']).toString(),
+    );
+
     notifyListeners();
     SqliteService.to.db;
     // 初始化 WebSocket 链接
@@ -244,7 +277,22 @@ class UserRepoLocal extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> quitLogin() async {
+  Future<bool> quitLogin({int? expectedGeneration}) => _serializeSessionWrite(
+    () async {
+      if (expectedGeneration != null && !isCurrentSession(expectedGeneration)) {
+        return false;
+      }
+      _sessionGeneration++;
+      _isClearingSession = true;
+      try {
+        return await _clearLogin();
+      } finally {
+        _isClearingSession = false;
+      }
+    },
+  );
+
+  Future<bool> _clearLogin() async {
     try {
       final logoutUid = currentUid;
       iPrint("> quitLogin: Starting logout process");

@@ -93,6 +93,7 @@ bool _isNavigatingToSignIn = false;
 bool _isAppDisposing = false;
 
 void navigateToSignIn({String source = 'unknown'}) {
+  final generation = UserRepoLocal.to.sessionGeneration;
   if (_isAppDisposing) {
     logger.i('navigateToSignIn skipped (app disposing), source=$source');
     return;
@@ -107,7 +108,11 @@ void navigateToSignIn({String source = 'unknown'}) {
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
     try {
-      if (_isAppDisposing) return;
+      if (_isAppDisposing ||
+          !UserRepoLocal.to.isCurrentSession(generation) ||
+          UserRepoLocal.to.isLoggedIn) {
+        return;
+      }
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
         context.go(AppRoutes.signIn);

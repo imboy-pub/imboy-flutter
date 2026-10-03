@@ -9,8 +9,6 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/env.dart';
-import 'package:imboy/service/secure_token_storage_service.dart'
-    show SecureTokenStorageService;
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -39,9 +37,15 @@ class UserApi extends HttpClient {
     String refreshToken, {
     bool checkNewToken = true,
   }) async {
+    if (UserRepoLocal.to.isClearingSession) return '';
+    final generation = UserRepoLocal.to.sessionGeneration;
     if (strEmpty(refreshToken)) {
-      await UserRepoLocal.to.quitLogin();
-      navigateToSignIn(source: 'user_api_relogin');
+      final cleared = await UserRepoLocal.to.quitLogin(
+        expectedGeneration: generation,
+      );
+      if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+        navigateToSignIn(source: 'user_api_relogin');
+      }
       return "";
     }
     Map<String, dynamic> headers = await defaultHeaders();
@@ -51,18 +55,27 @@ class UserApi extends HttpClient {
     // iPrint("refreshAccessTokenApi ${response.toString()}");
     // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
     IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);
+    if (!UserRepoLocal.to.isCurrentSession(generation)) return '';
     // 处理 token 相关错误（401 UNAUTHORIZED 包含了所有 token 失效情况）
     if (ErrorCode.shouldReLogin(resp.code)) {
       checkNewToken = true;
     }
     String newToken = resp.payload?['token'] as String? ?? '';
     if (checkNewToken && strEmpty(newToken)) {
-      await UserRepoLocal.to.quitLogin();
-      navigateToSignIn(source: 'user_api_relogin');
+      final cleared = await UserRepoLocal.to.quitLogin(
+        expectedGeneration: generation,
+      );
+      if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+        navigateToSignIn(source: 'user_api_relogin');
+      }
       return "";
     }
-    await SecureTokenStorageService.saveToken(newToken);
-    return newToken;
+    if (newToken.isEmpty) return '';
+    final saved = await UserRepoLocal.to.saveAccessTokenForSession(
+      generation,
+      newToken,
+    );
+    return saved ? newToken : '';
   }
 
   Future<Map<String, dynamic>?> ftsRecentlyUser({

@@ -234,6 +234,17 @@ class HttpClient {
       return;
     }
 
+    // Push unregister runs inside serialized logout. It must not refresh or
+    // enqueue another logout while the cleanup is waiting for this request.
+    if (UserRepoLocal.to.isClearingSession) {
+      final token = await UserRepoLocal.to.accessToken;
+      _dio.options.headers.remove(Keys.tokenKey);
+      _dio.options.headers.remove(Keys.refreshTokenKey);
+      _dio.options.headers.addAll(await defaultHeaders());
+      if (token.isNotEmpty) _dio.options.headers[Keys.tokenKey] = token;
+      return;
+    }
+
     // 检查是否存在令牌解密失败标记，如果有则触发重新登录
     if (UserRepoLocal.to.hasTokenDecryptionFailure) {
       await _handleTokenDecryptionFailure();
@@ -293,6 +304,7 @@ class HttpClient {
   /// 处理 Token 过期的后续流程（弹窗提示 + 跳转登录页）
   /// 使用 Completer 替代布尔标志，确保并发请求有序等待且标志不会锁死
   Future<void> _handleTokenExpired() async {
+    final generation = UserRepoLocal.to.sessionGeneration;
     // 已有过期处理流程在进行中，等待其完成
     if (_loginExpiredCompleter != null) {
       return _loginExpiredCompleter!.future;
@@ -302,7 +314,9 @@ class HttpClient {
 
     try {
       // 执行登出操作
-      await UserRepoLocal.to.quitLogin();
+      final cleared = await UserRepoLocal.to.quitLogin(
+        expectedGeneration: generation,
+      );
 
       // 获取当前 context（用于显示 SnackBar）
       final context = navigatorKey.currentState?.overlay?.context;
@@ -317,7 +331,9 @@ class HttpClient {
       // 延迟跳转，让用户看到提示
       await Future<dynamic>.delayed(const Duration(seconds: 1));
 
-      _notifyAuthExpired(reason: 'token_expired');
+      if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+        _notifyAuthExpired(reason: 'token_expired');
+      }
       _loginExpiredCompleter!.complete();
     } catch (e) {
       _loginExpiredCompleter!.completeError(e);
@@ -331,11 +347,16 @@ class HttpClient {
 
   /// 处理令牌解密失败的后续流程
   Future<void> _handleTokenDecryptionFailure() async {
+    final generation = UserRepoLocal.to.sessionGeneration;
     // 清除失败标记
     UserRepoLocal.to.clearTokenDecryptionFailureFlag();
     // 执行登出操作
-    await UserRepoLocal.to.quitLogin();
-    _notifyAuthExpired(reason: 'token_decryption_failure');
+    final cleared = await UserRepoLocal.to.quitLogin(
+      expectedGeneration: generation,
+    );
+    if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+      _notifyAuthExpired(reason: 'token_decryption_failure');
+    }
   }
 
   Future<IMBoyHttpResponse> get(
@@ -356,7 +377,6 @@ class HttpClient {
         onReceiveProgress: onReceiveProgress,
       ),
       httpTransformer: httpTransformer,
-      onResponse: _checkAuthExpired,
     );
   }
 
@@ -367,9 +387,15 @@ class HttpClient {
   }
 
   /// 统一的认证过期响应处理
-  void _checkAuthExpired(IMBoyHttpResponse resp) {
-    if (ErrorCode.shouldReLogin(resp.code)) {
-      unawaited(UserRepoLocal.to.quitLogin());
+  Future<void> _checkAuthExpired(IMBoyHttpResponse resp, int generation) async {
+    if (!ErrorCode.shouldReLogin(resp.code) ||
+        UserRepoLocal.to.isClearingSession) {
+      return;
+    }
+    final cleared = await UserRepoLocal.to.quitLogin(
+      expectedGeneration: generation,
+    );
+    if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
       _notifyAuthExpired(reason: 'api_relogin_required');
     }
   }
@@ -388,9 +414,11 @@ class HttpClient {
       );
     }
     final requestUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     try {
       await _setDefaultConfig(uri);
-      if (requestUid != UserRepoLocal.to.currentUid) {
+      if (requestUid != UserRepoLocal.to.currentUid ||
+          !UserRepoLocal.to.isCurrentSession(generation)) {
         return IMBoyHttpResponse.failure(
           errCode: 409,
           errMsg: t.common.errorNetwork,
@@ -402,11 +430,15 @@ class HttpClient {
         uri: uri,
         httpTransformer: httpTransformer,
       );
-      if (requestUid != UserRepoLocal.to.currentUid) {
+      if (requestUid != UserRepoLocal.to.currentUid ||
+          !UserRepoLocal.to.isCurrentSession(generation)) {
         return IMBoyHttpResponse.failure(
           errCode: 409,
           errMsg: t.common.errorNetwork,
         );
+      }
+      if (!_shouldSkipAuthForUri(uri)) {
+        await _checkAuthExpired(resp, generation);
       }
       onResponse?.call(resp);
       return resp;
@@ -437,7 +469,6 @@ class HttpClient {
         onReceiveProgress: onReceiveProgress,
       ),
       httpTransformer: httpTransformer,
-      onResponse: _checkAuthExpired,
     );
   }
 
@@ -459,7 +490,6 @@ class HttpClient {
         cancelToken: cancelToken,
       ),
       httpTransformer: httpTransformer,
-      onResponse: _checkAuthExpired,
     );
   }
 
@@ -485,7 +515,6 @@ class HttpClient {
         onReceiveProgress: onReceiveProgress,
       ),
       httpTransformer: httpTransformer,
-      onResponse: _checkAuthExpired,
     );
   }
 
@@ -507,7 +536,6 @@ class HttpClient {
         cancelToken: cancelToken,
       ),
       httpTransformer: httpTransformer,
-      onResponse: _checkAuthExpired,
     );
   }
 
