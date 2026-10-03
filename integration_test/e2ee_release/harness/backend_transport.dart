@@ -3,14 +3,15 @@
 /// 两层实现：
 /// - [InMemoryReleaseTransport]：冒烟层（本地嵌入式服务器替身），完全离线，
 ///   只用于 harness 自检，**不构成 AC-22/AC-23 证据**。
-/// - [RealBackendTransport]：真实后端层 stub —— `REQUIRES_AUTHORIZED_BACKEND`。
-///   完整运行依赖 C07/C08/C10 完成与后端/设备授权（attack-matrix.md §9），
-///   本轮（先行阶段）不实现真实层。
+/// - [RealBackendTransport]：默认入口拒绝运行；registered 入口提供注册
+///   身份的 C2C 接线，完整运行仍依赖后端/设备授权及 C07/C08/C10。
+///   群组、真实密钥目录及真机旅程尚未验收。
 library;
 
 import 'dart:convert';
 
 import '../fixture_contract.dart';
+import 'registered_backend_transport.dart';
 
 /// 线上传输帧（WS 外层 JSON 的替身抽象：发送方 uid/did + 收件设备 + 帧内容）。
 class WireFrame {
@@ -235,45 +236,51 @@ class InMemoryReleaseTransport implements ReleaseTransport {
 /// 场景提供设备显示 oracle（真机 Patrol 断言）与服务端密文 oracle（授权查询）。
 /// ---------------------------------------------------------------------------
 class RealBackendTransport implements ReleaseTransport {
-  RealBackendTransport() {
+  RealBackendTransport() : _transport = null {
     throw UnsupportedError(
-      'REQUIRES_AUTHORIZED_BACKEND: RealBackendTransport 尚未实现；'
+      'REQUIRES_AUTHORIZED_BACKEND: 默认入口没有注册夹具或授权后端；'
       '真实旅程依赖 C07/C08/C10 完成与后端/设备授权'
       '（见 attack-matrix.md §9 前置依赖清单）。',
     );
   }
 
+  /// Explicit registered composition; prerequisites and resources still need
+  /// independent qualification. This does not authorize network execution.
+  RealBackendTransport.registered(RegisteredBackendTransport transport)
+    : _transport = transport;
+  final RegisteredBackendTransport? _transport;
+  RegisteredBackendTransport get _registered =>
+      _transport ?? (throw UnsupportedError(_stubMessage));
+
   @override
   String get layerId => 'real-backend';
 
   @override
-  Future<void> start() async => throw UnsupportedError(_stubMessage);
+  Future<void> start() => _registered.start();
 
   @override
-  Future<void> dispose() async => throw UnsupportedError(_stubMessage);
+  Future<void> dispose() => _registered.dispose();
 
   @override
-  Future<void> connectDevice(SynthDevice device) async =>
-      throw UnsupportedError(_stubMessage);
+  Future<void> connectDevice(SynthDevice device) =>
+      _registered.connectDevice(device);
 
   @override
-  Future<void> disconnectDevice(SynthDevice device) async =>
-      throw UnsupportedError(_stubMessage);
+  Future<void> disconnectDevice(SynthDevice device) =>
+      _registered.disconnectDevice(device);
 
   @override
   bool isDeviceConnected(String deviceId) =>
-      throw UnsupportedError(_stubMessage);
+      _registered.isDeviceConnected(deviceId);
 
   @override
-  Future<DeliveryReceipt> send(WireFrame frame) async =>
-      throw UnsupportedError(_stubMessage);
+  Future<DeliveryReceipt> send(WireFrame frame) => _registered.send(frame);
 
   @override
   List<WireFrame> drainInbox(String deviceId) =>
-      throw UnsupportedError(_stubMessage);
+      _registered.drainInbox(deviceId);
 
-  static const String _stubMessage =
-      'REQUIRES_AUTHORIZED_BACKEND: 真实后端传输层未实现（C11 先行阶段只交付合同与冒烟层）';
+  static const String _stubMessage = 'REQUIRES_AUTHORIZED_BACKEND: 未配置注册后端传输层';
 }
 
 /// REQUIRES_AUTHORIZED_BACKEND 标记常量：真实层代码/文档统一引用此串，
