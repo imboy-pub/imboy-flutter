@@ -18,6 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts'))
+from auto_test_lib import acceptance  # noqa: E402
 from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
 from auto_test_lib.result import classify_attempts  # noqa: E402
 
@@ -128,6 +129,29 @@ def run_target(target: str, device: str, platform: str, out_dir: Path, run_id: s
     }
 
 
+def load_targets(path: Path) -> list[str]:
+    """Validate the whole target manifest before any device or output access."""
+    with os.fdopen(acceptance._open_artifact(path.parent, path.name), 'rb') as stream:
+        raw = stream.read(1024 * 1024 + 1)
+    if len(raw) > 1024 * 1024:
+        raise ValueError('target manifest too large')
+    payload = json.loads(raw.decode('utf-8'),
+                         object_pairs_hook=acceptance._unique_json_object,
+                         parse_constant=acceptance._reject_json_constant)
+    targets = payload.get('targets') if isinstance(payload, dict) else None
+    if (not isinstance(targets, list) or not targets
+            or any(not isinstance(t, str) or not t.strip() for t in targets)
+            or len(set(targets)) != len(targets)):
+        raise ValueError('invalid target list')
+    for target in targets:
+        parts = acceptance._parts(target)
+        if '/'.join(parts) != target or not target.endswith('.dart'):
+            raise ValueError('invalid target path')
+        fd = acceptance._open_artifact(ROOT, target)
+        os.close(fd)
+    return targets
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--device', required=True)
@@ -136,13 +160,11 @@ def main() -> int:
     parser.add_argument('--out', required=True, help='output dir under RUN_ROOT')
     parser.add_argument('--run-id', default='hardening-20260918T151153Z')
     args = parser.parse_args()
-    payload = json.loads(Path(args.targets).read_text())
-    targets = payload.get('targets') if isinstance(payload, dict) else None
-    if (not isinstance(targets, list) or not targets
-            or any(not isinstance(t, str) or not t.strip() for t in targets)
-            or len(set(targets)) != len(targets)):
-        print('shard blocked: TARGET_LIST_INVALID', file=sys.stderr)
-        return 2
+    try:
+        targets = load_targets(Path(args.targets))
+    except (OSError, ValueError, TypeError, RecursionError):
+        print('shard blocked: TARGET_MANIFEST_INVALID', file=sys.stderr)
+        return 64
     out_dir = Path(args.out)
     results = []
     for target in targets:

@@ -2,6 +2,7 @@
 import importlib.util
 import hashlib
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -33,9 +34,46 @@ class ShardJournalTests(unittest.TestCase):
                         '--targets', str(source), '--out', str(output)]
                 with patch.object(shard.sys, 'argv', argv), \
                         patch.object(shard, 'run_target') as launch:
-                    self.assertEqual(shard.main(), 2)
+                    self.assertEqual(shard.main(), 64)
                     launch.assert_not_called()
                 self.assertFalse(output.exists())
+
+    def test_target_manifest_paths_and_json_fail_before_device_access(self):
+        valid = self.root / 'valid.dart'
+        valid.write_text('// synthetic target')
+        (self.root / 'alias.dart').symlink_to(valid)
+        invalid = ['{', '{"targets":["valid.dart"],"targets":[]}',
+                   '{"targets":NaN}', '{"targets":["missing.dart"]}',
+                   '{"targets":["../valid.dart"]}',
+                   '{"targets":["alias.dart"]}',
+                   '{"targets":["./valid.dart"]}',
+                   '{"targets":["valid.dart/"]}']
+        for raw in invalid:
+            with self.subTest(raw=raw):
+                source = self.root / 'targets.json'
+                source.write_text(raw)
+                argv = ['shard', '--device', 'synthetic', '--platform', 'android',
+                        '--targets', str(source), '--out', str(self.root / 'out')]
+                with patch.object(shard.sys, 'argv', argv), \
+                        patch.object(shard, 'ROOT', self.root), \
+                        patch.object(shard, 'run_target') as launch:
+                    self.assertEqual(shard.main(), 64)
+                    launch.assert_not_called()
+                self.assertFalse((self.root / 'out').exists())
+        source.write_text(json.dumps({'targets': ['valid.dart']}))
+        with patch.object(shard, 'ROOT', self.root):
+            self.assertEqual(shard.load_targets(source), ['valid.dart'])
+
+    def test_fifo_manifest_is_rejected_without_waiting_or_launching(self):
+        source = self.root / 'targets.fifo'
+        os.mkfifo(source)
+        argv = ['shard', '--device', 'synthetic', '--platform', 'android',
+                '--targets', str(source), '--out', str(self.root / 'out')]
+        with patch.object(shard.sys, 'argv', argv), \
+                patch.object(shard, 'run_target') as launch:
+            self.assertEqual(shard.main(), 64)
+            launch.assert_not_called()
+        self.assertFalse((self.root / 'out').exists())
 
     def run_target(self, target, timeout_first=False):
         launches = []
