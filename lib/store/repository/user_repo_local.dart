@@ -44,6 +44,10 @@ class UserRepoLocal extends ChangeNotifier {
   int get sessionGeneration => _sessionGeneration;
   bool isCurrentSession(int generation) => generation == _sessionGeneration;
 
+  // Check only after awaiting quitLogin: cleanup may fail after UID removal.
+  bool isLoggedOutAfter(int generation) =>
+      isCurrentSession(generation + 1) && !isLoggedIn;
+
   Future<T> _serializeSessionWrite<T>(Future<T> Function() operation) {
     final result = _sessionWrites.then((_) => operation());
     _sessionWrites = result.then<void>(

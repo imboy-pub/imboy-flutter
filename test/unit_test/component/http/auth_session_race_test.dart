@@ -159,6 +159,42 @@ void main() {
       expect(secure['secure_token'], 'new-session-token');
     },
   );
+  test('auth expiry still notifies when secret purge needs recovery', () async {
+    await StorageService.to.setString(Keys.currentUid, '1001');
+    final part = base64Url
+        .encode(utf8.encode('{"exp":4102444800}'))
+        .replaceAll('=', '');
+    secure['secure_token'] = 'e30.$part.signature';
+    secure['e2ee_synthetic'] = 'synthetic-secret';
+    beforeDelete = (key) async {
+      if (key == 'e2ee_synthetic') {
+        throw PlatformException(code: 'synthetic-purge-failure');
+      }
+    };
+    var notifications = 0;
+    HttpClient.onAuthExpired = () => notifications++;
+    transport = () async => ResponseBody.fromString(
+      '{"code":401,"msg":"synthetic expired"}',
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+    final client = HttpClient(
+      options: BaseOptions(baseUrl: 'http://127.0.0.1'),
+    );
+    final response = await client.get('/synthetic-protected');
+    expect(response.code, 401);
+    expect(repo.isLoggedIn, isFalse);
+    expect(secure['secure_token'], isNull);
+    expect(StorageService.to.getBool(Keys.e2eePurgePending), isTrue);
+    expect(notifications, 1);
+    await expectLater(
+      repo.loginAfter('synthetic', payload()),
+      throwsA(isA<Exception>()),
+    );
+    expect(repo.isLoggedIn, isFalse);
+  });
   test('public login 401 does not expire the existing session', () async {
     await StorageService.to.setString(Keys.currentUid, '1001');
     var notifications = 0;

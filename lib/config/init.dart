@@ -96,7 +96,7 @@ Future<void> quitLoginAndNavigateToSignIn({required String source}) async {
   final repo = UserRepoLocal.to;
   final generation = repo.sessionGeneration;
   await repo.quitLogin(expectedGeneration: generation);
-  if (repo.isCurrentSession(generation + 1) && !repo.isLoggedIn) {
+  if (repo.isLoggedOutAfter(generation)) {
     navigateToSignIn(source: source);
   }
 }

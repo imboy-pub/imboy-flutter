@@ -314,9 +314,7 @@ class HttpClient {
 
     try {
       // 执行登出操作
-      final cleared = await UserRepoLocal.to.quitLogin(
-        expectedGeneration: generation,
-      );
+      await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
 
       // 获取当前 context（用于显示 SnackBar）
       final context = navigatorKey.currentState?.overlay?.context;
@@ -331,7 +329,7 @@ class HttpClient {
       // 延迟跳转，让用户看到提示
       await Future<dynamic>.delayed(const Duration(seconds: 1));
 
-      if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+      if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
         _notifyAuthExpired(reason: 'token_expired');
       }
       _loginExpiredCompleter!.complete();
@@ -351,10 +349,8 @@ class HttpClient {
     // 清除失败标记
     UserRepoLocal.to.clearTokenDecryptionFailureFlag();
     // 执行登出操作
-    final cleared = await UserRepoLocal.to.quitLogin(
-      expectedGeneration: generation,
-    );
-    if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+    await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
+    if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
       _notifyAuthExpired(reason: 'token_decryption_failure');
     }
   }
@@ -392,10 +388,8 @@ class HttpClient {
         UserRepoLocal.to.isClearingSession) {
       return;
     }
-    final cleared = await UserRepoLocal.to.quitLogin(
-      expectedGeneration: generation,
-    );
-    if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+    await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
+    if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
       _notifyAuthExpired(reason: 'api_relogin_required');
     }
   }

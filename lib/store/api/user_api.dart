@@ -40,10 +40,8 @@ class UserApi extends HttpClient {
     if (UserRepoLocal.to.isClearingSession) return '';
     final generation = UserRepoLocal.to.sessionGeneration;
     if (strEmpty(refreshToken)) {
-      final cleared = await UserRepoLocal.to.quitLogin(
-        expectedGeneration: generation,
-      );
-      if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+      await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
+      if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
         navigateToSignIn(source: 'user_api_relogin');
       }
       return "";
@@ -62,10 +60,8 @@ class UserApi extends HttpClient {
     }
     String newToken = resp.payload?['token'] as String? ?? '';
     if (checkNewToken && strEmpty(newToken)) {
-      final cleared = await UserRepoLocal.to.quitLogin(
-        expectedGeneration: generation,
-      );
-      if (cleared && UserRepoLocal.to.isCurrentSession(generation + 1)) {
+      await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
+      if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
         navigateToSignIn(source: 'user_api_relogin');
       }
       return "";
