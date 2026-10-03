@@ -316,6 +316,32 @@ void main() {
       expect(container.read(billingProvider).paying, isFalse);
     });
 
+    for (final entry in <String, List<BillingInvoice>>{
+      '空账单列表': [],
+      '未付账单缺账单号': [_inv('', BillingInvoiceStatus.unpaid)],
+      '已付账单缺账单号': [_inv('', BillingInvoiceStatus.paid)],
+      '有效待付后出现缺账单号': [
+        _inv('INV-1', BillingInvoiceStatus.unpaid),
+        _inv('', BillingInvoiceStatus.unpaid, id: 2),
+      ],
+    }.entries) {
+      test('${entry.key}不得视为已付清或订阅成功', () async {
+        final fake = _FakeBillingApi(
+          subscribeResult: 9001,
+          invoicesResult: entry.value,
+        );
+        final container = _containerWith(fake);
+        addTearDown(container.dispose);
+        final ok = await container
+            .read(billingProvider.notifier)
+            .subscribePlan(_plan());
+        expect(ok, isFalse);
+        expect(fake.payCalls, isEmpty);
+        expect(fake.subscriptionCalls, 0);
+        expect(container.read(billingProvider).paying, isFalse);
+      });
+    }
+
     test('BP-2 subscribe 失败 → false，后续步骤不执行', () async {
       final fake = _FakeBillingApi(
         subscribeResult: null,

@@ -147,7 +147,7 @@ class BillingNotifier extends Notifier<BillingState> {
 
       // 3. 从账单列表取待支付账单号
       final pending = await _pendingInvoiceNo(subId);
-      if (!pending.fetched) return false;
+      if (!pending.valid) return false;
       final invoiceNo = pending.invoiceNo;
       if (invoiceNo == null) {
         // 无待支付账单（重复订阅且已付清）：视为成功，刷新订阅即可
@@ -179,18 +179,24 @@ class BillingNotifier extends Notifier<BillingState> {
     }
   }
 
-  /// 取订阅下第一张待支付账单号；全部已付返回 `null`。
-  Future<({bool fetched, String? invoiceNo})> _pendingInvoiceNo(
+  /// 查询有效账单：失败、空列表或缺账单号不作为已付清证据。
+  /// 仅非空有效列表全部已付时，返回空待付账单号。
+  Future<({bool valid, String? invoiceNo})> _pendingInvoiceNo(
     int subscriptionId,
   ) async {
     final invoices = await _api.listInvoices(subscriptionId);
-    if (invoices == null) return (fetched: false, invoiceNo: null);
+    if (invoices == null || invoices.isEmpty) {
+      return (valid: false, invoiceNo: null);
+    }
+    if (invoices.any((invoice) => invoice.invoiceNo.isEmpty)) {
+      return (valid: false, invoiceNo: null);
+    }
     for (final inv in invoices) {
       if (!inv.isPaid && inv.invoiceNo.isNotEmpty) {
-        return (fetched: true, invoiceNo: inv.invoiceNo);
+        return (valid: true, invoiceNo: inv.invoiceNo);
       }
     }
-    return (fetched: true, invoiceNo: null);
+    return (valid: true, invoiceNo: null);
   }
 
   /// 唤起第三方收银台并记录结果到 state。
