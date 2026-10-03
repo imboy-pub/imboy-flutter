@@ -226,6 +226,17 @@ class PreflightTests(unittest.TestCase):
         descriptor = {'path': 'upstream.tsv', 'sha256': hashlib.sha256(raw).hexdigest()}
         self.frozen['upstream_acceptance_artifact'] = descriptor
         self.report['upstream_acceptance_artifact'] = copy.deepcopy(descriptor)
+        command = {field: row[field] for field in ('command_id', 'command',
+            'exit_code', 'test_count', 'config_hash', 'evidence_path', 'evidence_sha256')}
+        descriptor = self.descriptor('upstream-commands.json', {'commands': [command]})
+        self.frozen['upstream_commands_artifact'] = descriptor
+        self.report['upstream_commands_artifact'] = copy.deepcopy(descriptor)
+
+    def test_execution_requires_upstream_command_registry(self):
+        self.prepare_event_run()
+        del self.report['upstream_commands_artifact']
+        self.assertIn('UPSTREAM_COMMAND_REGISTRY_BINDING_CHANGED',
+                      self.execution_audit()['errors'])
 
     def test_execution_rejects_missing_or_changed_upstream_ledger(self):
         self.prepare_event_run()

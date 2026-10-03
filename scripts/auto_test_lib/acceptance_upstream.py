@@ -127,6 +127,9 @@ def run_cli(args: Any, workspace: Path) -> int:
             root, frozen.get('version_inputs'), report.get('version_inputs')))
         result['errors'].extend(audit_upstream_ledger(
             root, frozen, report.get('upstream_acceptance_artifact')))
+        from auto_test_lib import acceptance_upstream_commands
+        result['errors'].extend(acceptance_upstream_commands.audit_upstream_command_links(
+            root, frozen, report.get('upstream_commands_artifact')))
     elif not result['errors']:
         result['errors'].append('UPSTREAM_INPUT_SCHEMA_INVALID')
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))
