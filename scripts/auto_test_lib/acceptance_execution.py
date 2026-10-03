@@ -94,6 +94,7 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
             result['errors'].extend(acceptance_versions.audit_version_acceptance_set(root, frozen))
             result['errors'].extend(acceptance_versions.audit_version_document_links(root, frozen))
             result['errors'].extend(acceptance_versions.audit_dispatch_acceptance_set(root, frozen))
+            result['errors'].extend(acceptance_versions.audit_case_dispatch_links(root, frozen))
             result['errors'].extend(acceptance_coverage.audit_input_case_coverage(
                 frozen.get('coverage_inputs'), frozen.get('required_cases'),
                 report.get('coverage_mappings'), frozen.get('approved_dispositions')))

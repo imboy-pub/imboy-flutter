@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
 from auto_test_lib.acceptance_versions import (
     audit_version_inputs, audit_version_acceptance_set, audit_dispatch_acceptance_set,
     audit_version_document_links,
+    audit_case_dispatch_links,
 )
 
 
@@ -131,6 +132,48 @@ class VersionInputsTests(unittest.TestCase):
         document['upstream'] = None
         self.assertIn('VERSION_DOCUMENT_UPSTREAM_MISMATCH',
                       audit_version_document_links(self.root, self.linked_document(document)))
+
+    def case_dispatch_input(self):
+        frozen = self.dispatch_input([{'id': 'card', 'acceptance_ids': ['F01-A01']}])
+        case = dict(case_id='case', platform='android', profile='enabled', role_variant='sender',
+                    parent_acceptance_ids=['F01-A01'], seed_ids=['seed'], oracle='synthetic',
+                    applicability='REQUIRED', dispatch_card_ids=['card'])
+        frozen['required_cases'] = [case]
+        return frozen
+
+    def test_case_dispatch_exact_valid_and_missing_assignments(self):
+        frozen = self.case_dispatch_input()
+        self.assertEqual([], audit_case_dispatch_links(self.root, frozen))
+        for assignment in (None, [], ['unknown'], ['card', 'card']):
+            frozen['required_cases'][0]['dispatch_card_ids'] = assignment
+            self.assertTrue(audit_case_dispatch_links(self.root, frozen))
+
+    def test_case_parent_must_belong_to_assigned_card(self):
+        frozen = self.case_dispatch_input()
+        frozen['required_cases'][0]['parent_acceptance_ids'] = ['other']
+        errors = audit_case_dispatch_links(self.root, frozen)
+        self.assertIn('CASE_DISPATCH_UNRELATED_CARD', errors)
+        self.assertIn('CASE_DISPATCH_PARENT_NOT_COVERED', errors)
+
+    def test_unassigned_card_cannot_be_hidden_by_another_card(self):
+        cases = self.case_dispatch_input()['required_cases']
+        frozen = self.dispatch_input([
+            {'id': 'card', 'acceptance_ids': ['F01-A01']},
+            {'id': 'unused', 'acceptance_ids': ['F01-A01']}])
+        frozen['required_cases'] = cases
+        self.assertIn('DISPATCH_CARD_WITHOUT_REQUIRED_CASE', audit_case_dispatch_links(self.root, frozen))
+
+    def test_each_card_requires_cases_for_all_its_parents(self):
+        cases = self.case_dispatch_input()['required_cases']
+        other = copy.deepcopy(cases[0])
+        other.update(case_id='other', parent_acceptance_ids=['F02-A01'], dispatch_card_ids=['second'])
+        cases.append(other)
+        frozen = self.dispatch_input([
+            {'id': 'card', 'acceptance_ids': ['F01-A01', 'F02-A01']},
+            {'id': 'second', 'acceptance_ids': ['F02-A01']}])
+        frozen.update(acceptance_ids=['F01-A01', 'F02-A01'], required_cases=cases)
+        self.assertIn('DISPATCH_CARD_PARENT_CASE_COVERAGE_MISMATCH',
+                      audit_case_dispatch_links(self.root, frozen))
 
 
 if __name__ == '__main__':

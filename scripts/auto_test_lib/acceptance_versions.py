@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Any, List
 import re
 
-from auto_test_lib import acceptance
+from auto_test_lib import acceptance, acceptance_contract
 
 _ROLES = {'product_plan', 'e2ee_plan', 'execution_contract', 'dispatch_cards',
           'acceptance_set', 'coverage_seed', 'input_manifest'}
@@ -120,4 +120,46 @@ def audit_dispatch_acceptance_set(root: Path, frozen: Any) -> List[str]:
         covered.update(parents)
     if covered != set(identifiers):
         errors.append('DISPATCH_ACCEPTANCE_COVERAGE_MISMATCH')
+    return errors
+
+
+def audit_case_dispatch_links(root: Path, frozen: Any) -> List[str]:
+    """Every card needs frozen cases; case parents must match assigned cards.
+
+    Declaration coverage is not proof of a card's business oracles or owner.
+    """
+    errors = audit_dispatch_acceptance_set(root, frozen)
+    if errors:
+        return errors
+    document, errors = acceptance.load_frozen_json(
+        root, frozen['version_inputs']['dispatch_cards'])
+    if errors:
+        return errors
+    cases = frozen.get('required_cases')
+    if acceptance_contract._case_index(cases) is None:
+        return ['DISPATCH_REQUIRED_CASE_SET_INVALID']
+    cards = {card['id']: set(card['acceptance_ids']) for card in document['cards']}
+    used, errors = {}, []
+    for case in cases:
+        assignments = case.get('dispatch_card_ids')
+        if (not isinstance(assignments, list) or not assignments
+                or any(not isinstance(i, str) or not i.strip() for i in assignments)
+                or len(set(assignments)) != len(assignments)):
+            errors.append('CASE_DISPATCH_DECLARATION_INVALID')
+            continue
+        if any(identifier not in cards for identifier in assignments):
+            errors.append('CASE_DISPATCH_CARD_UNKNOWN')
+            continue
+        parents, covered = set(case['parent_acceptance_ids']), set()
+        for identifier in assignments:
+            if not parents & cards[identifier]:
+                errors.append('CASE_DISPATCH_UNRELATED_CARD')
+            covered.update(cards[identifier])
+            used.setdefault(identifier, set()).update(parents & cards[identifier])
+        if not parents <= covered:
+            errors.append('CASE_DISPATCH_PARENT_NOT_COVERED')
+    if set(used) != set(cards):
+        errors.append('DISPATCH_CARD_WITHOUT_REQUIRED_CASE')
+    if any(used.get(identifier, set()) != parents for identifier, parents in cards.items()):
+        errors.append('DISPATCH_CARD_PARENT_CASE_COVERAGE_MISMATCH')
     return errors

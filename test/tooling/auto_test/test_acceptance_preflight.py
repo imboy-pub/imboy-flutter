@@ -139,6 +139,8 @@ class PreflightTests(unittest.TestCase):
                 self.descriptor('report.json', self.report), {})
 
     def prepare_version_inputs(self):
+        for case in self.frozen['required_cases']:
+            case['dispatch_card_ids'] = ['synthetic-card']
         self.frozen['version_inputs'] = {
             role: self.descriptor(role + '.snapshot',
                 {'acceptance_ids': self.frozen['acceptance_ids']} if role == 'acceptance_set'
