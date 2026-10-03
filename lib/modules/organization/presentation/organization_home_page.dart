@@ -55,7 +55,21 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
     _refresh();
   }
 
+  @override
+  void didUpdateWidget(covariant OrganizationHomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.accountKey == widget.accountKey) return;
+    _orgs = const [];
+    _pendingInvites = 0;
+    ++_invitationGeneration;
+    _refresh();
+  }
+
+  bool _acceptRefresh(String account, int generation) =>
+      mounted && account == _accountKey && generation == _refreshGeneration;
+
   Future<void> _refresh() async {
+    final account = _accountKey;
     final generation = ++_refreshGeneration;
     setState(() {
       _loading = true;
@@ -63,7 +77,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
     });
     try {
       final organizations = await _api.allMine();
-      if (!mounted || generation != _refreshGeneration) return;
+      if (!_acceptRefresh(account, generation)) return;
       // 服务端事实到达后覆盖缓存（缓存永不先于真源）。
       _cache.replaceMineOrgs(organizations);
       if (!mounted) return;
@@ -71,24 +85,24 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
         _orgs = organizations;
       });
     } on OrganizationApiException catch (e) {
-      if (!mounted || generation != _refreshGeneration) return;
+      if (!_acceptRefresh(account, generation)) return;
       setState(() {
         _error = '${e.message} (code=${e.code})';
       });
     } on Object catch (e) {
-      if (!mounted || generation != _refreshGeneration) return;
+      if (!_acceptRefresh(account, generation)) return;
       setState(() {
         _error = e.toString();
       });
     } finally {
-      if (mounted && generation == _refreshGeneration) {
+      if (_acceptRefresh(account, generation)) {
         setState(() {
           _loading = false;
         });
       }
     }
     // 触达角标（P1）：失败静默归零——角标是增强信息，不与组织列表竞争报错。
-    if (!mounted || generation != _refreshGeneration) return;
+    if (!_acceptRefresh(account, generation)) return;
     await _refreshPendingInvites();
   }
 
@@ -151,15 +165,22 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
 
   /// 只重算触达角标（不闪组织列表 loading）。
   Future<void> _refreshPendingInvites() async {
+    final account = _accountKey;
     final generation = ++_invitationGeneration;
     try {
       final invites = await _api.myInvitations(status: 'pending');
-      if (!mounted || generation != _invitationGeneration) return;
+      if (!mounted ||
+          account != _accountKey ||
+          generation != _invitationGeneration)
+        return;
       setState(() {
         _pendingInvites = invites.length;
       });
     } on Object {
-      if (!mounted || generation != _invitationGeneration) return;
+      if (!mounted ||
+          account != _accountKey ||
+          generation != _invitationGeneration)
+        return;
       setState(() {
         _pendingInvites = 0;
       });

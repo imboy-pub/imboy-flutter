@@ -144,6 +144,35 @@ void main() {
   Widget buildHost() =>
       const MaterialApp(home: OrganizationHomePage(accountKey: '1001'));
 
+  testWidgets('切换账号后旧请求不得写入新账号列表或缓存', (tester) async {
+    for (final account in ['1001', '1002']) {
+      OrganizationCache.disposeAccount(account);
+      addTearDown(() => OrganizationCache.disposeAccount(account));
+    }
+    final adapter = _DeferredMineAdapter();
+    HttpClient.adapterForTest = adapter;
+    await tester.pumpWidget(buildHost());
+    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 1);
+    await tester.pumpWidget(
+      const MaterialApp(home: OrganizationHomePage(accountKey: '1002')),
+    );
+    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 2);
+    adapter.complete(1, '新账号组织');
+    await pumpUntilFound(tester, find.text('新账号组织'));
+    adapter.complete(0, '旧账号组织');
+    await tester.pumpAndSettle();
+    expect(find.text('新账号组织'), findsOneWidget);
+    expect(find.text('旧账号组织'), findsNothing);
+    expect(OrganizationCache.forAccount('1002').org('7001')?.name, '新账号组织');
+    expect(OrganizationCache.forAccount('1001').org('7001'), isNull);
+  });
+
   for (final staleFailure in [false, true]) {
     testWidgets('迟到的旧刷新${staleFailure ? '失败' : '成功'}不得覆盖新组织列表及缓存', (
       tester,
