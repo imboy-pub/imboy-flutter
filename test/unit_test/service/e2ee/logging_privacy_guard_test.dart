@@ -25,6 +25,11 @@ void main() {
       'lib/modules/messaging/infrastructure/message_model_mapper.dart': [
         r'payload=$payload',
         r'error=$e',
+        r'E2EE 解密成功，id=$id',
+        r'E2EE 解密失败，id=$id',
+        r'v3 解密成功，id=$id',
+        r'v3 解密失败，id=$id',
+        r"reason=${v3Result['_e2ee_reason']}",
         "'_e2ee_error'",
       ],
       'lib/service/message.dart': [

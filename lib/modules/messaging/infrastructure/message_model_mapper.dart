@@ -80,11 +80,11 @@ extension MessageModelMapper on MessageModel {
           'Expected JSON object, got ${decoded.runtimeType}',
         );
       }
-      iPrint('✅ toTypeMessage: E2EE 解密成功，id=$id');
+      iPrint('✅ toTypeMessage: E2EE 解密成功');
       return decoded;
     } on Object catch (e) {
       iPrint(
-        '⚠️ toTypeMessage: E2EE 解密失败，id=$id, '
+        '⚠️ toTypeMessage: E2EE 解密失败，'
         'error=${e.runtimeType}',
       );
       return <String, dynamic>{
@@ -124,7 +124,7 @@ extension MessageModelMapper on MessageModel {
             );
             // fail-closed：不回落 v1/v2、不暴露密文，只给出稳定的失败分类
             iPrint(
-              '⚠️ toTypeMessage: v3 解密失败，id=$id, reason=${v3Result['_e2ee_reason']}',
+              '⚠️ toTypeMessage: v3 解密失败，reason=${E2EEDecryptFailureMetrics.normalizeReason(v3Result['_e2ee_reason'])}',
             );
             return TextMessage(
               authorId: fromId.toString(),
@@ -144,7 +144,7 @@ extension MessageModelMapper on MessageModel {
             );
           }
           payloadData = v3Result;
-          iPrint('✅ toTypeMessage: v3 解密成功，id=$id');
+          iPrint('✅ toTypeMessage: v3 解密成功');
         } else {
           payloadData = await _decryptLegacyPayload();
           if (payloadData.containsKey('_e2ee_failed')) {
