@@ -8,6 +8,30 @@ import 'package:imboy/service/protocol/imboy.pb.dart';
 import '../../../integration_test/e2ee_release/harness/release_wire_codec.dart';
 
 void main() {
+  test('C2G consumer receipts retain direction in text and framed modes', () {
+    for (final protocol in ['text', 'imboy.v2']) {
+      final encoded = ReleaseWireCodec(protocol)
+          .encodeClientAck('group-message', 'registered-did', direction: 'C2G');
+      final text = encoded is String
+          ? encoded
+          : utf8.decode(
+              ImboyFrame.tryDecode(encoded as Uint8List)!.frame.payload,
+            );
+      expect(text, 'CLIENT_ACK,C2G,group-message,registered-did');
+      if (encoded is Uint8List) {
+        expect(ImboyFrame.tryDecode(encoded)!.frame.type, FrameType.msgC2S);
+      }
+    }
+  });
+  test('consumer receipt directions reject unknown values and injection', () {
+    final codec = ReleaseWireCodec('text');
+    for (final direction in ['', 'C2G,C2C', 'c2g', 'WEBRTC', 'C2G\n']) {
+      expect(
+        () => codec.encodeClientAck('id', 'did', direction: direction),
+        throwsFormatException,
+      );
+    }
+  });
   final message = {'id': 'xid', 'type': 'C2C', 'payload': 'encrypted'};
   Uint8List frame({int flags = 0, int type = FrameType.msgS2C}) =>
       ImboyFrame.encode(

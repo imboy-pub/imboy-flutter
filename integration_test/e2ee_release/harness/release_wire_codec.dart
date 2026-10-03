@@ -40,7 +40,14 @@ class ReleaseWireCodec {
         : text;
   }
 
-  Object encodeClientAck(String messageId, String did) {
+  Object encodeClientAck(
+    String messageId,
+    String did, {
+    String direction = 'C2C',
+  }) {
+    if (!const {'C2C', 'C2G'}.contains(direction)) {
+      throw const FormatException('invalid client acknowledgement direction');
+    }
     for (final value in [messageId, did]) {
       if (value.isEmpty ||
           value.contains(',') ||
@@ -49,7 +56,7 @@ class ReleaseWireCodec {
         throw const FormatException('invalid client acknowledgement identity');
       }
     }
-    final text = 'CLIENT_ACK,C2C,$messageId,$did';
+    final text = 'CLIENT_ACK,$direction,$messageId,$did';
     final payload = Uint8List.fromList(utf8.encode(text));
     _checkSize(payload.length + (framed ? ImboyFrame.headerSize : 0));
     return framed

@@ -181,9 +181,11 @@ class ReleaseSocketSession {
     _socket!.send(_codec!.encode(message));
   }
 
-  void sendClientAck(String messageId, String did) {
+  void sendClientAck(String messageId, String did, {String direction = 'C2C'}) {
     if (!_connected) throw StateError('release socket not confirmed');
-    _socket!.send(_codec!.encodeClientAck(messageId, did));
+    _socket!.send(
+      _codec!.encodeClientAck(messageId, did, direction: direction),
+    );
   }
 
   Future<void> disconnect() async {
