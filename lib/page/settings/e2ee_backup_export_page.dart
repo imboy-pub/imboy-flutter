@@ -426,6 +426,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       setState(() => _isExporting = true);
 
       final keys = await _readKeys();
+      if (!mounted) return;
       if (keys == null) {
         if (mounted) _showError(t.common.e2eeBackupErrNoKeyData);
         return;
@@ -468,6 +469,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
       setState(() => _isCloudUploading = true);
 
       final keys = await _readKeys();
+      if (!mounted) return;
       if (keys == null) {
         if (mounted) _showError(t.common.e2eeBackupErrNoKeyData);
         return;
@@ -511,9 +513,13 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   >
   _readKeys() async {
     final privateKey = await StorageSecureService.to.getPrivateKey();
+    if (!mounted) return null;
     final publicKey = await StorageSecureService.to.getPublicKey();
+    if (!mounted) return null;
     final deviceId = await StorageSecureService.to.getDeviceId();
+    if (!mounted) return null;
     final keyId = await StorageSecureService.to.getKeyId();
+    if (!mounted) return null;
 
     if (privateKey == null || publicKey == null) return null;
     return (

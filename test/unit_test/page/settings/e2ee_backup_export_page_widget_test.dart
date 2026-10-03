@@ -28,6 +28,7 @@ void main() {
   _registerClipboardDisposalTest();
   _registerClipboardDelayedReadTest();
   _registerBackupOperationConcurrencyTests();
+  _registerBackupDisposalTests();
   Widget wrap(Widget page) {
     return TranslationProvider(
       child: ProviderScope(child: MaterialApp(home: page)),
@@ -391,6 +392,7 @@ void _registerClipboardDelayedReadTest() {
 class _KeyReadProbe {
   final pending = Completer<String?>();
   int privateReads = 0;
+  int totalReads = 0;
 
   void install() {
     const channel = MethodChannel(
@@ -399,6 +401,7 @@ class _KeyReadProbe {
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
+      if (call.method == 'read') totalReads++;
       if (call.method == 'read' &&
           (call.arguments as Map)['key'] == 'e2ee_private_key') {
         privateReads++;
@@ -470,5 +473,36 @@ Future<void> _assertSingleBackupOperation(
   }
   expect(readsWhilePending, 1);
   expect(storage.privateReads, 1);
+  expect(tester.takeException(), isNull);
+}
+
+void _registerBackupDisposalTests() {
+  for (final cloud in [false, true]) {
+    testWidgets(
+      '${cloud ? '上传' : '导出'}等待密钥时关闭页面停止后续读取',
+      (tester) => _assertBackupStopsAfterDisposal(tester, cloud),
+    );
+  }
+}
+
+Future<void> _assertBackupStopsAfterDisposal(
+  WidgetTester tester,
+  bool cloud,
+) async {
+  final storage = _KeyReadProbe()..install();
+  await tester.pumpWidget(_exportHarness());
+  await tester.enterText(find.byType(TextField).at(0), 'SyntheticPassword123!');
+  await tester.enterText(find.byType(TextField).at(1), 'SyntheticPassword123!');
+  await tester.pump();
+  _backupAction(tester, cloud)();
+  await tester.pump();
+  expect(storage.totalReads, 1);
+  await tester.pumpWidget(const SizedBox.shrink());
+  // 后续公钥读取替身返回 null，旧实现也不会进入真实服务。
+  storage.pending.complete('SyntheticPrivateKey');
+  for (var frame = 0; frame < 100; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(storage.totalReads, 1);
   expect(tester.takeException(), isNull);
 }
