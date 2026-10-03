@@ -75,3 +75,9 @@ result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 �
 只读入口已注册为 `python3 scripts/auto_test.py acceptance-case-events --evidence-root <run-root> --frozen-input <relative-json> --frozen-sha256 <independently-pinned-hash>`。单目标冻结输入使用schema_version整数1，必含required_cases、case_event_bindings、event_artifact（相对path与sha256）。此结构独立于acceptance-preflight的schema2；任一入口单独成功都不是总验收。
 
 入口始终输出scope=RAW_CASE_IDENTITY_ONLY、product_pass=false及剩余门禁。退出0只表示该冻结集合与日志结构一致；错误返回2。入口不启动测试、不改证据、不根据worker报告生成冻结绑定。不同平台/profile/角色若同目标并发执行，冻结的完整测试名称必须唯一且能区分其格子；仍须另行验证运行时来源和真实业务事实。
+
+## 运行记录组合入口
+
+`acceptance-execution-preflight` 使用与 `acceptance-preflight` 相同的五个输入参数；schema2冻结输入额外必须包含非空case_event_runs。每组含完整required_cases子集、case_event_bindings、event_artifact及process_exit_code整数0。各组的四维键必须互斥且逐整行覆盖全量冻结required集合；原始日志路径和内容hash都不得复用。
+
+该入口同时执行候选/运行指纹/尝试保留门及原始用例身份门，始终输出EXECUTION_RECORD_INPUTS_ONLY和product_pass=false。尚不能证明各组日志与独立attempt索引是同一次真实执行，真实业务事实、完整覆盖、UX和最终资格仍必须完成。

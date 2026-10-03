@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
-from auto_test_lib import acceptance_preflight
+from auto_test_lib import acceptance_preflight, acceptance_execution
 
 
 class PreflightTests(unittest.TestCase):
@@ -130,6 +130,65 @@ class PreflightTests(unittest.TestCase):
         result = json.loads(completed.stdout)
         self.assertIs(result['product_pass'], False)
         self.assertTrue(result['errors'])
+
+    def execution_audit(self):
+        with patch('auto_test_lib.acceptance_contract.audit_candidate_repositories',
+                   return_value=[]):
+            return acceptance_execution.audit_execution_inputs(
+                self.root, self.descriptor('frozen.json', self.frozen),
+                self.descriptor('report.json', self.report), {})
+
+    def prepare_event_run(self):
+        case = self.frozen['required_cases'][0]
+        binding = {key: case[key] for key in
+                   ('case_id', 'platform', 'profile', 'role_variant')}
+        binding['test_name'] = 'synthetic case'
+        events = [{'type': 'start'}, {'type': 'testStart',
+                  'test': {'id': 1, 'name': 'synthetic case'}},
+                  {'type': 'testDone', 'testID': 1, 'result': 'success'},
+                  {'type': 'done', 'success': True}]
+        data = '\n'.join(json.dumps(e) for e in events).encode()
+        (self.root / 'events.jsonl').write_bytes(data)
+        self.frozen['case_event_runs'] = [{'required_cases': [copy.deepcopy(case)],
+            'case_event_bindings': [binding], 'process_exit_code': 0,
+            'event_artifact': {'path': 'events.jsonl', 'sha256':
+                               hashlib.sha256(data).hexdigest()}}]
+
+    def test_execution_composition_requires_raw_run_index(self):
+        self.assertIn('FROZEN_CASE_EVENT_RUNS_INVALID', self.execution_audit()['errors'])
+        self.prepare_event_run()
+        result = self.execution_audit()
+        self.assertEqual(result['errors'], [])
+        self.assertIs(result['product_pass'], False)
+        self.assertEqual(result['scope'], 'EXECUTION_RECORD_INPUTS_ONLY')
+
+    def test_execution_composition_rejects_duplicate_case_run_or_log(self):
+        self.prepare_event_run()
+        duplicate = copy.deepcopy(self.frozen['case_event_runs'][0])
+        self.frozen['case_event_runs'].append(duplicate)
+        self.assertTrue(self.execution_audit()['errors'])
+        duplicate['event_artifact']['path'] = 'another.jsonl'
+        self.assertIn('CASE_EVENT_CONTENT_REUSED_OR_INVALID', self.execution_audit()['errors'])
+        duplicate['event_artifact']['sha256'] = '0' * 64
+        self.assertIn('CASE_EVENT_KEY_ASSIGNED_MULTIPLE_RUNS',
+                      self.execution_audit()['errors'])
+
+    def test_execution_composition_rejects_changed_case_obligation(self):
+        self.prepare_event_run()
+        self.frozen['case_event_runs'][0]['required_cases'][0]['oracle'] = 'changed'
+        self.assertIn('CASE_EVENT_RUN_COVERAGE_OR_OBLIGATION_MISMATCH',
+                      self.execution_audit()['errors'])
+
+    def test_execution_composition_rejects_bad_exit_and_dropped_failure(self):
+        self.prepare_event_run()
+        for value in [1, False, '0', None]:
+            self.frozen['case_event_runs'][0]['process_exit_code'] = value
+            self.assertIn('CASE_EVENT_PROCESS_EXIT_NOT_ZERO',
+                          self.execution_audit()['errors'])
+        self.frozen['case_event_runs'][0]['process_exit_code'] = 0
+        self.report['attempts'] = self.report['attempts'][1:]
+        self.assertIn('ATTEMPT_HISTORY_MISSING_UNKNOWN_OR_REORDERED',
+                      self.execution_audit()['errors'])
 
 
 if __name__ == '__main__':
