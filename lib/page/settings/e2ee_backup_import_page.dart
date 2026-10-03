@@ -54,6 +54,13 @@ class E2EEBackupImportPage extends StatefulWidget {
   )?
   backupFileImporter;
 
+  /// 云端解密实现；默认使用真实云端备份服务。
+  final Future<Map<String, dynamic>> Function(
+    String password,
+    String? accountId,
+  )?
+  cloudBackupRestorer;
+
   /// 恢复成功后回写服务端设备公钥的实现（测试注入用；null 走真实 [E2EEApi]）。
   final Future<bool> Function(Map<String, dynamic> restored)? deviceKeyReporter;
   final Future<bool> Function(int sessionCount)? historicalKeyGrantConfirmer;
@@ -66,6 +73,7 @@ class E2EEBackupImportPage extends StatefulWidget {
     this.cloudBackupProbe,
     this.backupFileVerifier,
     this.backupFileImporter,
+    this.cloudBackupRestorer,
     this.deviceKeyReporter,
     this.historicalKeyGrantConfirmer,
     this.historicalKeyGrantAuditor,
@@ -240,7 +248,9 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
             ),
             AppSpacing.verticalMedium,
             OutlinedButton.icon(
-              onPressed: _isCloudRestoring ? null : _promptCloudRestore,
+              onPressed: (_isCloudRestoring || _isImporting)
+                  ? null
+                  : _promptCloudRestore,
               icon: _isCloudRestoring
                   ? const SizedBox(
                       height: AppSpacing.large,
@@ -426,7 +436,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     final isEnabled =
         _passwordController.text.isNotEmpty &&
         _backupInfo != null &&
-        !_isImporting;
+        !_isImporting &&
+        !_isCloudRestoring;
 
     return SizedBox(
       width: double.infinity,
@@ -695,6 +706,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   Future<void> _handleImport() async {
     if (!mounted ||
         _isImporting ||
+        _isCloudRestoring ||
         _selectedFile == null ||
         _backupInfo == null) {
       return;
@@ -785,6 +797,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   /// 弹出口令输入确认框（恢复会覆盖本地密钥，需显式确认）
   Future<void> _promptCloudRestore() async {
+    if (!mounted || _isImporting || _isCloudRestoring) return;
     _cloudPasswordController.clear();
     final password = await showCupertinoDialog<String>(
       context: context,
@@ -827,13 +840,19 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   Future<void> _handleCloudRestore(String password) async {
+    if (!mounted || _isImporting || _isCloudRestoring) return;
     try {
       setState(() => _isCloudRestoring = true);
 
-      final result = await E2EEServerBackupService.restore(
-        password: password,
-        expectedAccountId: _currentAccountId,
-      );
+      final result =
+          await (widget.cloudBackupRestorer?.call(
+                password,
+                _currentAccountId,
+              ) ??
+              E2EEServerBackupService.restore(
+                password: password,
+                expectedAccountId: _currentAccountId,
+              ));
 
       await _applyRestoredKeys(result);
     } on StateError catch (e) {
