@@ -55,6 +55,33 @@ def _make_synthetic_root(base: Path) -> Path:
     return root
 
 
+class FunctionTargetDeclarationTest(unittest.TestCase):
+    def test_unknown_function_declaration_is_rejected(self):
+        functions = [{'function_id': 'fn:page:001', 'page': 'lib/page/foo.dart',
+                      'test_target': 'integration_test/foo_test.dart'}]
+        spec = {'runner': {'target': 'integration_test/foo_test.dart'},
+                'sources': ['lib/page/foo.dart'], 'function_ids': ['fn:typo:001']}
+        with self.assertRaisesRegex(ValueError, 'FUNCTION_TARGET_IDS_UNKNOWN'):
+            inventory.constrain_function_targets(functions, [spec])
+
+    def test_foreign_page_declaration_is_rejected(self):
+        functions = [{'function_id': 'fn:page:001', 'page': 'lib/page/foo.dart',
+                      'test_target': 'integration_test/foo_test.dart'}]
+        spec = {'runner': {'target': 'integration_test/foo_test.dart'},
+                'sources': ['lib/page/other.dart'], 'function_ids': ['fn:page:001']}
+        with self.assertRaisesRegex(ValueError, 'FUNCTION_TARGET_SOURCE_MISMATCH'):
+            inventory.constrain_function_targets(functions, [spec])
+
+    def test_duplicate_function_declaration_is_rejected(self):
+        functions = [{'function_id': 'fn:page:001', 'page': 'lib/page/foo.dart',
+                      'test_target': 'integration_test/foo_test.dart'}]
+        spec = {'runner': {'target': 'integration_test/foo_test.dart'},
+                'sources': ['lib/page/foo.dart'],
+                'function_ids': ['fn:page:001', 'fn:page:001']}
+        with self.assertRaisesRegex(ValueError, 'FUNCTION_TARGET_IDS_INVALID'):
+            inventory.constrain_function_targets(functions, [spec])
+
+
 class InventoryGenerationTest(unittest.TestCase):
     """真实仓库：确定性 + --check + 生成物在盘。"""
 

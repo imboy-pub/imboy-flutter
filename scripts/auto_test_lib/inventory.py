@@ -473,19 +473,35 @@ def acceptance_readiness_errors(inventory: object) -> list[str]:
             errors.append(f'ACCEPTANCE_TARGET_MISSING:{index}')
     return errors
 
+def _function_target_restrictions(functions: list[dict], specs: list[dict]) -> dict:
+    known = {f['function_id']: f['page'] for f in functions}
+    restricted = {}
+    for spec in specs:
+        if 'function_ids' not in spec:
+            continue
+        ids = spec['function_ids']
+        if (not isinstance(ids, list) or not ids
+                or any(not isinstance(i, str) or not i.strip() for i in ids)
+                or len(ids) != len(set(ids))):
+            raise ValueError('FUNCTION_TARGET_IDS_INVALID')
+        if set(ids) - set(known):
+            raise ValueError('FUNCTION_TARGET_IDS_UNKNOWN')
+        if any(known[i] not in spec.get('sources', []) for i in ids):
+            raise ValueError('FUNCTION_TARGET_SOURCE_MISMATCH')
+        target = spec['runner']['target']
+        if target in restricted:
+            raise ValueError('FUNCTION_TARGET_DECLARATION_DUPLICATE')
+        restricted[target] = set(ids)
+    return restricted
+
+
 def constrain_function_targets(functions: list[dict], specs: list[dict]) -> list[dict]:
     """Explicit per-function declarations restrict page-level target hints.
 
     This static link never establishes executed coverage or behavior PASS.
     Legacy specs without declarations retain their historical hints.
     """
-    restricted = {}
-    for spec in specs:
-        if 'function_ids' in spec:
-            ids = spec['function_ids']
-            restricted[spec['runner']['target']] = (
-                set(ids) if isinstance(ids, list)
-                and all(isinstance(i, str) for i in ids) else set())
+    restricted = _function_target_restrictions(functions, specs)
     result = []
     for function in functions:
         target = function.get('test_target')
