@@ -43,6 +43,9 @@ class E2EEBackupImportPage extends StatefulWidget {
   final String? initialFilePath;
   final Future<E2EEBackupInfo> Function()? cloudBackupProbe;
 
+  /// 文件校验实现；默认使用真实本地文件校验。
+  final Future<Map<String, dynamic>> Function(String path)? backupFileVerifier;
+
   /// 恢复成功后回写服务端设备公钥的实现（测试注入用；null 走真实 [E2EEApi]）。
   final Future<bool> Function(Map<String, dynamic> restored)? deviceKeyReporter;
   final Future<bool> Function(int sessionCount)? historicalKeyGrantConfirmer;
@@ -53,6 +56,7 @@ class E2EEBackupImportPage extends StatefulWidget {
     super.key,
     this.initialFilePath,
     this.cloudBackupProbe,
+    this.backupFileVerifier,
     this.deviceKeyReporter,
     this.historicalKeyGrantConfirmer,
     this.historicalKeyGrantAuditor,
@@ -614,14 +618,16 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   }
 
   Future<void> _verifyFile() async {
-    if (_selectedFile == null) return;
+    if (!mounted || _selectedFile == null) return;
 
     try {
-      final info = await E2EELocalBackupService.verifyBackupFile(
-        _selectedFile!.path,
-      );
+      final verify =
+          widget.backupFileVerifier ?? E2EELocalBackupService.verifyBackupFile;
+      final info = await verify(_selectedFile!.path);
+      if (!mounted) return;
       setState(() => _backupInfo = info);
     } on Object catch (e) {
+      if (!mounted) return;
       // verifyBackupFile 的格式错误均为 ArgumentError——当前 Dart SDK 中
       // ArgumentError 仅 implements Error（不 implements Exception），
       // 用 on Exception 会捕获不到而静默冒泡（用户无任何提示）。

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -34,6 +35,7 @@ import '../../helper/sqflite_test_helper.dart';
 /// 文件校验（_verifyFile 的 readAsBytes）是真实 IO，在 FakeAsync zone
 /// 永不完成，必须用 tester.runAsync 包裹 pump 与等待。
 void main() {
+  _registerFileVerificationDisposalTests();
   Widget wrap(Widget page) {
     return TranslationProvider(
       child: ProviderScope(
@@ -315,4 +317,77 @@ void main() {
       expect(reported!['public_key'], 'FAKE_PUBLIC_KEY_PEM');
     });
   });
+}
+
+void _registerFileVerificationDisposalTests() {
+  for (final valid in [false, true]) {
+    testWidgets('文件校验${valid ? '成功' : '失败'}前关闭页面不更新界面', (tester) async {
+      final dir = Directory.systemTemp.createTempSync('backup-disposal-');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final file = File('${dir.path}/backup.enc');
+      file.writeAsBytesSync(valid ? _verificationOnlyBytes() : [1, 2, 3]);
+      Map<String, dynamic>? info;
+      Object? failure;
+      await tester.runAsync(() async {
+        try {
+          info = await E2EELocalBackupService.verifyBackupFile(file.path);
+        } on Object catch (error) {
+          failure = error;
+        }
+      });
+      expect(info != null, valid);
+      expect(failure != null, !valid);
+      final pending = Completer<Map<String, dynamic>>();
+      String? startedPath;
+      await tester.pumpWidget(
+        _verificationPage(file.path, (path) {
+          startedPath = path;
+          return pending.future;
+        }),
+      );
+      expect(startedPath, file.path);
+      await tester.pumpWidget(const SizedBox.shrink());
+      // 已完成的真实校验结果在销毁后释放；pump 消费这条 Future 的回调。
+      if (valid) {
+        pending.complete(info!);
+      } else {
+        pending.completeError(failure!);
+      }
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    });
+  }
+}
+
+Widget _verificationPage(
+  String path,
+  Future<Map<String, dynamic>> Function(String) verifier,
+) => TranslationProvider(
+  child: ProviderScope(
+    child: MaterialApp(
+      builder: AppLoading.init(),
+      home: E2EEBackupImportPage(
+        initialFilePath: path,
+        backupFileVerifier: verifier,
+        cloudBackupProbe: () async => E2EEBackupInfo(hasBackup: false),
+      ),
+    ),
+  ),
+);
+
+Uint8List _verificationOnlyBytes() {
+  final bytes = Uint8List(77);
+  final data = ByteData.sublistView(bytes);
+  bytes.setRange(
+    0,
+    8,
+    E2EECryptoService.magicNumber.padRight(8, '\x00').codeUnits,
+  );
+  data.setUint16(8, E2EECryptoService.formatVersion);
+  data.setUint16(10, E2EECryptoService.algorithmId);
+  data.setUint32(12, E2EECryptoService.pbkdf2Iterations);
+  data.setUint16(16, E2EECryptoService.saltLength);
+  data.setUint16(18, E2EECryptoService.ivLength);
+  data.setUint16(20, E2EECryptoService.authTagLength);
+  return bytes;
 }
