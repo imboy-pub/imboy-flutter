@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import time
@@ -25,52 +26,93 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def run_target(target: str, device: str, platform: str, out_dir: Path, run_id: str) -> dict:
-    out_dir.mkdir(parents=True, exist_ok=True)
-    attempts = []
-    command_fingerprint = hashlib.sha256(f'flutter|test|{target}|{device}'.encode()).hexdigest()
-    for attempt in range(3):
-        started = time.time()
+def append_journal(path: Path, record: dict) -> None:
+    """Persist each transition before continuing to another subprocess."""
+    with path.open('a', encoding='utf-8') as stream:
+        stream.write(json.dumps(record, ensure_ascii=False, allow_nan=False) + '\n')
+        stream.flush()
+        os.fsync(stream.fileno())
+
+
+def capture_process(target: str, device: str) -> tuple[str, int]:
+    try:
         proc = subprocess.run(
             ['flutter', 'test', target, '-d', device, '--machine', '--no-pub'],
-            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=1800,
+            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, timeout=1800,
         )
-        duration = round(time.time() - started, 1)
-        events_path = out_dir / f'{Path(target).stem}.attempt{attempt + 1}.events.jsonl'
-        events_path.write_text(proc.stdout or '', encoding='utf-8')
-        parsed = parse_machine_events((proc.stdout or '').splitlines(), proc.returncode, None)
-        attempts.append({
-            'parsed': {
-                'test_status': parsed.test_status, 'executed': parsed.executed,
-                'skipped': parsed.skipped, 'failed': parsed.failed,
-                'oracle_count': parsed.oracle_count, 'reason_code': parsed.reason_code,
-                'failure_class': parsed.failure_class,
-            },
-            'fingerprint': {
-                'app_head': subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT,
-                                           capture_output=True, text=True).stdout.strip(),
-                'backend_head': subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=ROOT / '../imboy',
-                                               capture_output=True, text=True).stdout.strip(),
-                'target_sha256': sha256_file(ROOT / target),
-                'config_sha256': command_fingerprint,
-                'fixture_fingerprint': f'offline:{run_id}',
-                'device_fingerprint': f'{platform}:{device[:12]}',
-            },
-            'exit_code': proc.returncode,
-            'duration_s': duration,
-            'events': events_path.name,
-        })
-        verdict = attempts[-1]['parsed']
-        if verdict['failure_class'] == 'infra' and attempt < 2:
-            continue
-        break
-    final = classify_attempts(attempts)
+        return proc.stdout or '', proc.returncode
+    except subprocess.TimeoutExpired as error:
+        output = error.stdout or ''
+        if isinstance(output, bytes):
+            output = output.decode('utf-8', errors='replace')
+        return output, 124
+
+
+def attempt_fingerprint(target: str, device: str, platform: str, run_id: str) -> dict:
+    def head(root: Path) -> str:
+        return subprocess.run(['git', 'rev-parse', 'HEAD'], cwd=root,
+                              capture_output=True, text=True).stdout.strip()
     return {
-        'target': target,
-        'platform': platform,
-        'device': device[:12],
-        'attempts': attempts,
-        'final': final,
+        'app_head': head(ROOT), 'backend_head': head(ROOT / '../imboy'),
+        'target_sha256': sha256_file(ROOT / target),
+        'config_sha256': hashlib.sha256(f'flutter|test|{target}|{device}'.encode()).hexdigest(),
+        'fixture_fingerprint': f'offline:{run_id}',
+        'device_fingerprint': f'{platform}:{device[:12]}',
+    }
+
+
+def run_attempt(target: str, device: str, platform: str, out_dir: Path,
+                target_dir: Path, run_id: str, number: int) -> dict:
+    started = time.time()
+    attempt_id = f'{run_id}:{target}:{number}'
+    append_journal(target_dir / 'starts.jsonl', {'attempt_id': attempt_id,
+                   'target': target, 'started_at': started})
+    output, exit_code = capture_process(target, device)
+    duration = round(time.time() - started, 1)
+    events_path = target_dir / f'attempt{number}.events.jsonl'
+    with events_path.open('x', encoding='utf-8') as stream:
+        stream.write(output)
+        stream.flush()
+        os.fsync(stream.fileno())
+    parsed = parse_machine_events(output.splitlines(), exit_code, None)
+    if exit_code == 124:
+        business_failure = (parsed.failed > 0 or parsed.test_status == 'FAIL'
+            or parsed.failure_class == 'business'
+            or getattr(getattr(parsed, 'first_failure', None), 'is_failure', None) is True)
+        parsed.test_status = 'FAIL' if business_failure else 'BLOCKED'
+        parsed.reason_code = 'BUSINESS_ASSERTION_FAIL' if business_failure else 'RUNNER_CRASH'
+        parsed.failure_class = 'business' if business_failure else 'infra'
+    record = {
+        'attempt_id': attempt_id,
+        'parsed': {
+            'test_status': parsed.test_status, 'executed': parsed.executed,
+            'skipped': parsed.skipped, 'failed': parsed.failed,
+            'oracle_count': parsed.oracle_count, 'reason_code': parsed.reason_code,
+            'failure_class': parsed.failure_class,
+        },
+        'fingerprint': attempt_fingerprint(target, device, platform, run_id),
+        'exit_code': exit_code, 'duration_s': duration,
+        'events': events_path.relative_to(out_dir).as_posix(),
+    }
+    append_journal(target_dir / 'attempts.jsonl', record)
+    return record
+
+
+def run_target(target: str, device: str, platform: str, out_dir: Path, run_id: str) -> dict:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    identity = json.dumps([run_id, target], ensure_ascii=False).encode()
+    target_dir = out_dir / hashlib.sha256(identity).hexdigest()
+    target_dir.mkdir(exist_ok=False)
+    attempts = []
+    for number in range(1, 4):
+        record = run_attempt(target, device, platform, out_dir, target_dir, run_id, number)
+        attempts.append(record)
+        if record['parsed']['failure_class'] != 'infra':
+            break
+    return {
+        'target': target, 'platform': platform, 'device': device[:12],
+        'attempts': attempts, 'final': classify_attempts(attempts),
         'duration_s': sum(a['duration_s'] for a in attempts),
     }
 
