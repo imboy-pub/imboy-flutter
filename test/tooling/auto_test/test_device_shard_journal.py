@@ -21,6 +21,22 @@ class ShardJournalTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
+    def test_invalid_target_lists_never_launch_or_write_results(self):
+        invalid = [[], None, 'test/a.dart', [None], [''], ['  '],
+                   ['test/a.dart', 'test/a.dart']]
+        for targets in invalid:
+            with self.subTest(targets=targets):
+                source = self.root / 'targets.json'
+                source.write_text(json.dumps({'targets': targets}))
+                output = self.root / 'output'
+                argv = ['shard', '--device', 'synthetic', '--platform', 'android',
+                        '--targets', str(source), '--out', str(output)]
+                with patch.object(shard.sys, 'argv', argv), \
+                        patch.object(shard, 'run_target') as launch:
+                    self.assertEqual(shard.main(), 2)
+                    launch.assert_not_called()
+                self.assertFalse(output.exists())
+
     def run_target(self, target, timeout_first=False):
         launches = []
 

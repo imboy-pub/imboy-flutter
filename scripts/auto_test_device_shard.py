@@ -136,7 +136,13 @@ def main() -> int:
     parser.add_argument('--out', required=True, help='output dir under RUN_ROOT')
     parser.add_argument('--run-id', default='hardening-20260918T151153Z')
     args = parser.parse_args()
-    targets = json.loads(Path(args.targets).read_text())['targets']
+    payload = json.loads(Path(args.targets).read_text())
+    targets = payload.get('targets') if isinstance(payload, dict) else None
+    if (not isinstance(targets, list) or not targets
+            or any(not isinstance(t, str) or not t.strip() for t in targets)
+            or len(set(targets)) != len(targets)):
+        print('shard blocked: TARGET_LIST_INVALID', file=sys.stderr)
+        return 2
     out_dir = Path(args.out)
     results = []
     for target in targets:
