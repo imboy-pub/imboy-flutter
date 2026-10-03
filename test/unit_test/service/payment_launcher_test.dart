@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -55,6 +56,8 @@ void main() {
     const canary = 'synthetic-private-payment-signature';
     final gateway = _FakeGateway()..aliPayError = StateError(canary);
     final logs = <String>[];
+    void captureOutput(OutputEvent event) => logs.addAll(event.lines);
+    Logger.addOutputListener(captureOutput);
     final previousPrint = debugPrint;
     final previousAppId = PaymentConfig.debugAlipayAppIdOverride;
     PaymentConfig.debugAlipayAppIdOverride = 'synthetic-app-id';
@@ -68,10 +71,15 @@ void main() {
         PaymentLaunchResult.failed,
       );
     } finally {
+      Logger.removeOutputListener(captureOutput);
       debugPrint = previousPrint;
       PaymentConfig.debugAlipayAppIdOverride = previousAppId;
     }
     expect(gateway.aliPayCalls, 1);
+    expect(
+      logs.join('\n'),
+      contains('[PaymentLauncher] alipay launch failed: StateError'),
+    );
     expect(logs, contains('[PaymentLauncher] alipay error: StateError'));
     expect(logs.join('\n'), isNot(contains(canary)));
   });
