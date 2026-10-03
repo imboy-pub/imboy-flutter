@@ -229,10 +229,13 @@ def git_is_ancestor(
 ) -> bool:
     """``git merge-base --is-ancestor`` via subprocess (injectable in tests)."""
     completed = subprocess.run(
-        ["git", "-C", str(repo), "merge-base", "--is-ancestor", ancestor, descendant],
+        ["git", "--no-replace-objects", "-C", str(repo), "merge-base",
+         "--is-ancestor", ancestor, descendant],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=False,
+        env=dict(os.environ, GIT_GRAFT_FILE=os.devnull),
+        timeout=10,
     )
     return completed.returncode == 0
 
