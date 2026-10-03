@@ -364,49 +364,57 @@ class MessageRepo implements MessageRepository {
   // 更新信息
   @override
   Future<int> update(Map<String, dynamic> data, {Transaction? txn}) async {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    final updateData = Map<String, dynamic>.from(data);
+    final targetId = updateData[MessageRepo.id];
+    final msgId = targetId?.toString() ?? '';
     // payload: Map -> JSON 字符串
-    if (data.containsKey(MessageRepo.payload) &&
-        data[MessageRepo.payload] is Map<String, dynamic>) {
-      data[MessageRepo.payload] = jsonEncode(data[MessageRepo.payload]);
+    if (updateData.containsKey(MessageRepo.payload) &&
+        updateData[MessageRepo.payload] is Map<String, dynamic>) {
+      updateData[MessageRepo.payload] = jsonEncode(
+        updateData[MessageRepo.payload],
+      );
     }
     // e2ee: Map -> JSON 字符串（数据库存储需要字符串格式）
-    if (data.containsKey(MessageRepo.e2ee) &&
-        data[MessageRepo.e2ee] is Map<String, dynamic>) {
-      data[MessageRepo.e2ee] = jsonEncode(data[MessageRepo.e2ee]);
+    if (updateData.containsKey(MessageRepo.e2ee) &&
+        updateData[MessageRepo.e2ee] is Map<String, dynamic>) {
+      updateData[MessageRepo.e2ee] = jsonEncode(updateData[MessageRepo.e2ee]);
     }
     // 移除主键 id，因为 SQLite 不允许更新主键
-    final updateData = Map<String, dynamic>.from(data);
     updateData.remove(MessageRepo.id);
     updateData.remove(MessageRepo.autoId);
 
-    // payload 更新后重索引 FTS：FTS 仅在 insert/batchInsert 时写入，
-    // E2EE 占位行恢复明文、消息编辑等 payload 更新若不重索引，
-    // 搜索命中的仍是旧文本（占位串），已恢复的消息按明文搜不到。
-    if (data.containsKey(MessageRepo.payload)) {
-      final msgId = data[MessageRepo.id]?.toString() ?? '';
-      if (msgId.isNotEmpty) {
-        final task = _reindexFtsAfterPayloadUpdate(msgId);
-        _ftsReindexTasks.add(task);
-        unawaited(task.whenComplete(() => _ftsReindexTasks.remove(task)));
-      }
-    }
-
     func_helper.iPrint("message_repo/update $tableName ;");
+    final int updatedRows;
     if (txn != null) {
-      return await txn.update(
+      updatedRows = await txn.update(
         tableName,
         updateData,
         where: '${MessageRepo.id} = ?',
-        whereArgs: [data[MessageRepo.id]],
+        whereArgs: [targetId],
       );
     } else {
-      return await _db.update(
+      updatedRows = await _db.update(
         tableName,
         updateData,
         where: '${MessageRepo.id} = ?',
-        whereArgs: [data[MessageRepo.id]],
+        whereArgs: [targetId],
       );
     }
+    // Re-read only after a successful write, retaining the original session.
+    if (updatedRows > 0 &&
+        updateData.containsKey(MessageRepo.payload) &&
+        msgId.isNotEmpty &&
+        session.currentUid == ownerUid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession) {
+      final task = _reindexFtsAfterPayloadUpdate(msgId);
+      _ftsReindexTasks.add(task);
+      unawaited(task.whenComplete(() => _ftsReindexTasks.remove(task)));
+    }
+    return updatedRows;
   }
 
   /// 【新增 H3】带条件的更新操作（CAS - Compare-And-Set）
