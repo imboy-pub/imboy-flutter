@@ -23,6 +23,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 
@@ -83,6 +84,13 @@ class _StaticJsonAdapter implements HttpClientAdapter {
 }
 
 void main() {
+  setUp(() {
+    // API contract tests use empty synthetic credentials, never native storage.
+    // A missing plugin must not replace the intended response-shape oracle
+    // with session cleanup and a 409 transport error.
+    FlutterSecureStorage.setMockInitialValues({});
+  });
+
   setUpAll(() {
     HttpClient.adapterForTest = _AlwaysFailingAdapter();
   });
