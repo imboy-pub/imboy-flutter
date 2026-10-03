@@ -1250,6 +1250,8 @@ class MessageActions {
     required String? msgId,
     required String chatType,
   }) async {
+    final ownerUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     try {
       // 1. 打印调试日志
       iPrint('🚫 [NOT_A_FRIEND] msgId=$msgId, chatType=$chatType');
@@ -1277,6 +1279,8 @@ class MessageActions {
               messageId: msgId,
               messageType: chatType,
               newStatus: 41, // IMBoyMessageStatus.error
+              ownerUid: ownerUid,
+              sessionGeneration: generation,
               notifyUI: true,
             ),
           );
@@ -1321,6 +1325,8 @@ class MessageActions {
     required String? msgId,
     required String chatType,
   }) async {
+    final ownerUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     try {
       // 1. 打印调试日志
       iPrint('🚫 [DENYLIST] msgId=$msgId, chatType=$chatType');
@@ -1348,6 +1354,8 @@ class MessageActions {
               messageId: msgId,
               messageType: chatType,
               newStatus: 41, // IMBoyMessageStatus.error
+              ownerUid: ownerUid,
+              sessionGeneration: generation,
               notifyUI: true,
             ),
           );

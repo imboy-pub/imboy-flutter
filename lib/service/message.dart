@@ -272,14 +272,24 @@ class MessageService with EventSubscriptionManager {
   Future<void> _handleStatusUpdateRequest(
     MessageStatusUpdateRequestedEvent event,
   ) async {
+    final session = UserRepoLocal.to;
+    bool isCurrent() =>
+        event.ownerUid.isNotEmpty &&
+        session.currentUid == event.ownerUid &&
+        session.isCurrentSession(event.sessionGeneration) &&
+        !session.isClearingSession;
+    if (!isCurrent()) return;
     try {
       final repo = getMessageRepo(event.messageType);
       await updateStatus(repo, event.messageId, event.newStatus);
+      if (!isCurrent()) return;
 
       if (event.notifyUI) {
         final updatedMsg = await repo.find(event.messageId);
+        if (!isCurrent()) return;
         if (updatedMsg != null) {
           final typeMessage = await updatedMsg.toTypeMessage();
+          if (!isCurrent()) return;
           AppEventBus.fireData([typeMessage], 'List<Message>');
         }
       }
@@ -1212,6 +1222,8 @@ class MessageService with EventSubscriptionManager {
         messageId: msgId,
         messageType: 'C2C', // UI 会根据 ID 匹配
         newStatus: IMBoyMessageStatus.seen,
+        ownerUid: uid,
+        sessionGeneration: generation,
         notifyUI: true,
       ),
     );

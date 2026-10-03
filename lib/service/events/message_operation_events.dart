@@ -160,6 +160,10 @@ final class MessageStatusUpdateRequestedEvent extends AppEvent {
   /// 旧状态（可选）
   final int? oldStatus;
 
+  /// 事件创建时的账号与会话代次，排队消费不得重新归属。
+  final String ownerUid;
+  final int sessionGeneration;
+
   /// 是否需要触发 UI 更新
   final bool notifyUI;
 
@@ -167,6 +171,8 @@ final class MessageStatusUpdateRequestedEvent extends AppEvent {
     required this.messageId,
     required this.messageType,
     required this.newStatus,
+    required this.ownerUid,
+    required this.sessionGeneration,
     this.oldStatus,
     this.notifyUI = true,
   });
@@ -176,6 +182,8 @@ final class MessageStatusUpdateRequestedEvent extends AppEvent {
     messageId,
     messageType,
     newStatus,
+    ownerUid,
+    sessionGeneration,
     oldStatus,
     notifyUI,
   ];
