@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "2904824f6139a4b5608c716843077e5fbf66f821",
-    "backend_head": "895d68d065e8605c95887fb793b39660a42216bf",
-    "integration_test_count": 151,
+    "app_head": "35876ede023288039937983420a303b2e8f8fbfb",
+    "backend_head": "1474edca0f46205145fcd742216d05a4ac013709",
+    "integration_test_count": 152,
     "lib_page_count": 166,
     "module_page_count": 22,
     "route_page_component_count": 147,
-    "spec_count": 25
+    "spec_count": 26
   },
   "entries": [
     {
@@ -1206,6 +1206,32 @@
       "requirements": [],
       "tags": [
         "enterprise"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/full_acceptance/billing/plan_list_device_test.dart",
+      "target": "integration_test/full_acceptance/billing/plan_list_device_test.dart",
+      "target_sha256": "1fcea14715599bb1bfc2bb81d9a857d1c2f2a2999d2932fc5bbe2a8b1c8551dd",
+      "sources": [
+        "lib/page/billing/plan_list_page.dart"
+      ],
+      "dependencies": [
+        "integration_test/full_acceptance/billing/billing_device_preflight.dart",
+        "lib/config/router/routes/mine_routes.dart",
+        "lib/page/billing/billing_provider.dart",
+        "lib/store/api/billing_api.dart"
+      ],
+      "risk": "external-impact",
+      "requirements": [
+        "authorization.business_write",
+        "backend.local",
+        "credentials.primary",
+        "fixture.disposable_account"
+      ],
+      "tags": [
+        "full_acceptance"
       ],
       "enabled": false,
       "oracle_hint": true
@@ -2527,10 +2553,12 @@
     },
     {
       "page": "lib/page/billing/plan_list_page.dart",
-      "mapped_targets": [],
+      "mapped_targets": [
+        "integration_test/full_acceptance/billing/plan_list_device_test.dart"
+      ],
       "dependency_targets": [],
       "route_registered": true,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""

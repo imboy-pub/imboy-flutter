@@ -58,6 +58,14 @@ def _make_synthetic_root(base: Path) -> Path:
 class InventoryGenerationTest(unittest.TestCase):
     """真实仓库：确定性 + --check + 生成物在盘。"""
 
+    def test_billing_cancel_target_does_not_claim_payment_or_retry(self):
+        data, _ = inventory.generate_inventory(ROOT)
+        rows = [f for f in data["functions"]
+                if f["page"] == "lib/page/billing/plan_list_page.dart"]
+        mapped = {f["function_id"] for f in rows if f["test_target"]}
+        self.assertEqual(mapped, {"fn:billing:plan_list_page:004",
+                                  "fn:billing:plan_list_page:006"})
+
     @classmethod
     def setUpClass(cls):
         cls.root = ROOT

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "id": "F14-PLAN-DEVICE-PREPARATION",
+  "title": "付费计划真实设备准备入口：读取预置套餐并取消支付",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": [
+    "lib/page/billing/plan_list_page.dart"
+  ],
+  "dependencies": [
+    "lib/page/billing/billing_provider.dart",
+    "lib/store/api/billing_api.dart",
+    "lib/config/router/routes/mine_routes.dart",
+    "integration_test/full_acceptance/billing/billing_device_preflight.dart"
+  ],
+  "assertions": {
+    "functional": [
+      "预置合成身份与明确 expected_uid 一致",
+      "真实路由读取指定套餐名称与价格",
+      "指定套餐支付面板打开后取消，页面退出支付中状态",
+      "后端零写入和真实设备 provenance 仍须独立 oracle，不由本入口签署"
+    ],
+    "ui": [
+      "指定套餐名称可见，取消后支付面板消失"
+    ]
+  },
+  "visual": {
+    "rubric": [
+      "plan_name",
+      "cancel_sheet"
+    ],
+    "baseline": "NOT_EXECUTED"
+  },
+  "runner": {
+    "type": "flutter",
+    "target": "integration_test/full_acceptance/billing/plan_list_device_test.dart",
+    "requires": [
+      "backend.local",
+      "credentials.primary",
+      "fixture.disposable_account",
+      "authorization.business_write"
+    ]
+  },
+  "safe_to_execute": false,
+  "risk_mode": "external-impact",
+  "execution_block_reason": "App bootstrap may register push/sync state. Independent approval, exact device lease, isolated runtime and disabled external services must be verified before enabling execution. Runner boolean/hash shape does not grant authorization.",
+  "original_acceptance_status": "NOT_EXECUTED",
+  "platform_obligations": [
+    "android",
+    "macos"
+  ],
+  "function_ids": [
+    "fn:billing:plan_list_page:004",
+    "fn:billing:plan_list_page:006"
+  ]
+}

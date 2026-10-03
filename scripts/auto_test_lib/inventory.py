@@ -363,6 +363,7 @@ def generate_inventory(root: Path, *, write_missing_ledgers: bool = False) -> tu
             del record['_seq_source'], record['_module'], record['_stem']
             functions.append(record)
     functions.sort(key=lambda r: r['function_id'])
+    functions = constrain_function_targets(functions, discovery.load_specs(root))
 
     page_summary = []
     for page in all_pages:
@@ -471,6 +472,27 @@ def acceptance_readiness_errors(inventory: object) -> list[str]:
         if not isinstance(target, str) or not target.strip():
             errors.append(f'ACCEPTANCE_TARGET_MISSING:{index}')
     return errors
+
+def constrain_function_targets(functions: list[dict], specs: list[dict]) -> list[dict]:
+    """Explicit per-function declarations restrict page-level target hints.
+
+    This static link never establishes executed coverage or behavior PASS.
+    Legacy specs without declarations retain their historical hints.
+    """
+    restricted = {}
+    for spec in specs:
+        if 'function_ids' in spec:
+            ids = spec['function_ids']
+            restricted[spec['runner']['target']] = (
+                set(ids) if isinstance(ids, list)
+                and all(isinstance(i, str) for i in ids) else set())
+    result = []
+    for function in functions:
+        target = function.get('test_target')
+        excluded = target in restricted and function['function_id'] not in restricted[target]
+        result.append({**function, 'test_target': None} if excluded else dict(function))
+    return result
+
 
 def render_json(payload: dict) -> str:
     return json.dumps(payload, ensure_ascii=False, indent=2) + '\n'

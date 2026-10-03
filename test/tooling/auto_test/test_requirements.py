@@ -183,8 +183,8 @@ class Atf303SpecMigration(unittest.TestCase):
         spec_paths = sorted(SPECS_DIR.glob("*.json"))
         self.assertEqual(
             len(spec_paths),
-            25,
-            "Step 1 sampled 25 specs; drift must be re-baselined before Step 4 "
+            26,
+            "25 historical specs plus disabled billing preparation; drift requires review before "
             "acceptance (found %d)" % len(spec_paths),
         )
 
@@ -255,7 +255,7 @@ class Atf303SpecMigration(unittest.TestCase):
         )
         self.assertTrue(REPORT_PATH.is_file())
         reloaded = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
-        self.assertEqual(reloaded["spec_count"], 25)
+        self.assertEqual(reloaded["spec_count"], 26)
         self.assertEqual(reloaded["unmapped_total"], 0)
 
 

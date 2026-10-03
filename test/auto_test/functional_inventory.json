@@ -96,7 +96,7 @@
         "device.android"
       ],
       "fixture": "shared:readonly",
-      "test_target": null,
+      "test_target": "integration_test/full_acceptance/billing/plan_list_device_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -140,7 +140,7 @@
         "device.android"
       ],
       "fixture": "shared:readonly",
-      "test_target": null,
+      "test_target": "integration_test/full_acceptance/billing/plan_list_device_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },

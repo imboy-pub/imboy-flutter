@@ -28,7 +28,8 @@ class TestCatalogGeneration(unittest.TestCase):
         page = next(p for p in self.catalog["pages"]
                     if p["page"] == "lib/page/billing/plan_list_page.dart")
         self.assertTrue(page["route_registered"])
-        self.assertFalse(page["mapped_targets"])
+        self.assertIn("integration_test/full_acceptance/billing/plan_list_device_test.dart",
+                      page["mapped_targets"])
 
     def test_atf403_deterministic_two_runs(self):
         again = discovery.generate_catalog(ROOT)
@@ -107,6 +108,13 @@ class TestImpact(unittest.TestCase):
 
     def test_catalogued_page_without_targets_fails(self):
         catalog = discovery.generate_catalog(ROOT)
+        for entry in catalog["entries"]:
+            entry["sources"] = []
+            entry["dependencies"] = []
+        page = next(p for p in catalog["pages"]
+                    if p["page"] == "lib/page/billing/plan_list_page.dart")
+        page["mapped_targets"] = []
+        page["dependency_targets"] = []
         with self.assertRaises(ValueError) as ctx:
             discovery.impact_targets(
                 catalog, ["lib/page/billing/plan_list_page.dart"],
