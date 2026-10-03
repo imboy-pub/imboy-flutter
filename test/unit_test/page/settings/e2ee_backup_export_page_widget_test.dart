@@ -51,6 +51,26 @@ void main() {
       expect(isExportButtonEnabled(tester), isFalse);
     });
 
+    testWidgets('清空任一密码后本地导出和云端上传均重新禁用', (tester) async {
+      await tester.pumpWidget(wrap(const E2EEBackupExportPage()));
+      await tester.pump();
+      final cloud = find.widgetWithText(
+        OutlinedButton,
+        t.common.e2eeBackupCloudUploadBtn,
+      );
+      for (final index in [0, 1]) {
+        await tester.enterText(find.byType(TextField).at(0), 'secret123');
+        await tester.enterText(find.byType(TextField).at(1), 'secret123');
+        await tester.pump();
+        expect(isExportButtonEnabled(tester), isTrue);
+        expect(tester.widget<OutlinedButton>(cloud).onPressed, isNotNull);
+        await tester.enterText(find.byType(TextField).at(index), '');
+        await tester.pump();
+        expect(isExportButtonEnabled(tester), isFalse);
+        expect(tester.widget<OutlinedButton>(cloud).onPressed, isNull);
+      }
+    });
+
     testWidgets('仅填密码框时导出按钮仍 disabled', (tester) async {
       await tester.pumpWidget(wrap(const E2EEBackupExportPage()));
       await tester.pump();
