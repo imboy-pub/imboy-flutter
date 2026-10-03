@@ -846,6 +846,8 @@ e2eeUseRecoveryKey: Generate recovery key (backup credential if you forget your 
 e2eeRecoveryKeySaveNote: "Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered."
 e2eeRecoveryKeyCopiedAutoClear(seconds): "Recovery key copied. The clipboard will be cleared in $seconds seconds — save it now."
 e2eeErrAttachmentSeal: "Failed to seal the encrypted attachment; the file was not uploaded. Please try again later"
+e2eeErrForwardPlaintextTarget: "The target chat is not end-to-end encrypted, so the encrypted attachment cannot be forwarded"
+e2eeErrForwardUndecryptable: "The original encrypted attachment cannot be decrypted on this device; forwarding failed"
 e2eeRetryFailedMessages: "Retry messages that failed to decrypt"
 e2eeRetryFailedDone(count): "Retried $count messages that failed to decrypt"
 e2eeRetryFailedNone: "No failed messages to retry"

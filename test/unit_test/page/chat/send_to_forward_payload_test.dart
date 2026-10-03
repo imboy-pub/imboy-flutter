@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/send_to/send_to_provider.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// 转发消息构造契约测试。
 ///
@@ -62,6 +63,40 @@ void main() {
 
     test('msg_type 缺失 → 兜底 text', () {
       expect(SendToNotifier.resolveForwardMsgType({'text': 'hi'}), 'text');
+    });
+  });
+
+  // FWDFIX：加密附件转发失败 → 用户可见文案映射（既有 i18n 机制）。
+  group('SendToNotifier.forwardFailureToast（稳定错误码 → i18n 文案）', () {
+    test('明文目标域拒绝 → 专属文案（不落兜底）', () {
+      expect(
+        SendToNotifier.forwardFailureToast(
+          'attachment_forward_plaintext_target',
+        ),
+        t.common.e2eeErrForwardPlaintextTarget,
+      );
+    });
+
+    test('源不可解密 / 认证解密失败 → 专属文案', () {
+      expect(
+        SendToNotifier.forwardFailureToast('attachment_forward_undecryptable'),
+        t.common.e2eeErrForwardUndecryptable,
+      );
+      expect(
+        SendToNotifier.forwardFailureToast('attachment_forward_open_failed'),
+        t.common.e2eeErrForwardUndecryptable,
+      );
+    });
+
+    test('基础设施失败（下载/上传）→ 既有通用 sendFailed', () {
+      expect(
+        SendToNotifier.forwardFailureToast('attachment_forward_fetch_failed'),
+        t.common.sendFailed,
+      );
+      expect(
+        SendToNotifier.forwardFailureToast('attachment_forward_upload_failed'),
+        t.common.sendFailed,
+      );
     });
   });
 }

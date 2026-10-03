@@ -436,10 +436,11 @@ void main() {
       cell = await _runCell('image', messageId: 'msg-src');
     });
 
-    test('转发语义：源 metadata 原样展开 → descriptor 与密文 object_key 一起被复制', () {
-      // SendToNotifier.buildForwardPayload 的语义 = {...?sourceMetadata, 目标覆盖}。
-      // 这里以同一语义构造（该函数是纯静态展开，见 send_to_provider.dart），
-      // 并用源码契约锁住「不剔除 attachment_descriptor」。
+    test('转发语义（FWDFIX 后）：带 key 的源经重封装，纯展开只留给无 key 源', () {
+      // SendToNotifier.buildForwardPayload 的语义 = {...?sourceMetadata, 目标覆盖}
+      // ——该纯展开**只对不带 content key 的源**（文本/明文附件）生效；
+      // 带 key 的源自 FWDFIX 起走 AttachmentForward 重封装/拒绝，不再原样复制
+      // descriptor（C07 根因 / C04 记录的功能缺口已修复）。
       final sourceMetadata = <String, dynamic>{
         AttachmentSealPolicy.descriptorPayloadKey: cell.descriptor.toMap(),
         'peer_id': '2002',
@@ -454,26 +455,34 @@ void main() {
       expect(
         forwarded[AttachmentSealPolicy.descriptorPayloadKey],
         isNotNull,
-        reason: '转发会原样携带含 content key 的 descriptor',
+        reason: '（旧语义构造对照）原样展开确实会携带 descriptor——这正是被修复的缺口',
       );
 
       final providerSource = File('lib/page/chat/send_to/send_to_provider.dart')
           .readAsStringSync();
       expect(
         providerSource,
-        isNot(contains('descriptorPayloadKey')),
-        reason: 'buildForwardPayload 未对 descriptor 做任何特殊处理（原样复制）',
+        contains('AttachmentForward.reSeal'),
+        reason: '带 key 的源必须经重封装（解密→新 key/nonce/绑定→重上传）',
+      );
+      expect(
+        providerSource,
+        contains('AttachmentForwardException'),
+        reason: '明文目标域/源不可解密在落库前显式失败（无半转发状态）',
       );
       expect(
         providerSource,
         contains('...?sourceMetadata'),
-        reason: '转发的 payload 语义必须仍是源 metadata 展开',
+        reason: '无 key 源的 payload 语义必须仍是源 metadata 展开（零破坏）',
       );
     });
 
-    test('⚠️ 命运一（加密目标会话）：新消息 binding 已变 → 拒绝打开（fail-closed）', () {
+    test('⚠️ 命运一（加密目标会话·旧复制语义回归锚点）：密文+旧 descriptor 搬到新消息 → 仍拒绝打开', () {
       // 转发消息拿到新 message_id；AAD 绑定的是原消息三元组，
       // 接收侧重算必然失配 → 拒绝，绝不返回半截明文。
+      // FWDFIX 后转发链不再产出这种 payload（重封装替换 descriptor），
+      // 但 openForMessage 对「旧密文+旧 descriptor 搬家」的 fail-closed
+      // 属性不变——这是 ATT-01 的底层回归锚点。
       final payload = <String, dynamic>{
         AttachmentSealPolicy.descriptorPayloadKey: cell.descriptor.toMap(),
       };
@@ -487,7 +496,7 @@ void main() {
           toUid: '3003',
         ),
         throwsA(isA<AttachmentOpenException>()),
-        reason: '转发的密文在新消息下必须打不开（ATT-01），坏图而非泄漏',
+        reason: '旧密文在新消息下必须打不开（ATT-01），坏图而非泄漏',
       );
     });
 

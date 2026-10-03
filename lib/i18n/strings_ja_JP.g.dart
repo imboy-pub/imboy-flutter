@@ -1610,6 +1610,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get e2eeRecoveryKeyTitle => 'リカバリーキー';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください';
 	@override String get e2eeErrAttachmentSeal => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください';
+	@override String get e2eeErrForwardPlaintextTarget => '転送先の会話はエンドツーエンド暗号化されていないため、暗号化添付ファイルを転送できません';
+	@override String get e2eeErrForwardUndecryptable => '元の暗号化添付ファイルをこの端末で復号できませんでした。転送に失敗しました';
 	@override String get e2eeRetryFailedMessages => '復号に失敗したメッセージを再試行';
 	@override String e2eeRetryFailedDone({required Object count}) => '復号に失敗したメッセージ ${count} 件を再試行しました';
 	@override String get e2eeRetryFailedNone => '再試行が必要なメッセージはありません';
@@ -4643,6 +4645,8 @@ extension on TranslationsJaJp {
 			'common.e2eeRecoveryKeyTitle' => 'リカバリーキー',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください',
 			'common.e2eeErrAttachmentSeal' => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください',
+			'common.e2eeErrForwardPlaintextTarget' => '転送先の会話はエンドツーエンド暗号化されていないため、暗号化添付ファイルを転送できません',
+			'common.e2eeErrForwardUndecryptable' => '元の暗号化添付ファイルをこの端末で復号できませんでした。転送に失敗しました',
 			'common.e2eeRetryFailedMessages' => '復号に失敗したメッセージを再試行',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '復号に失敗したメッセージ ${count} 件を再試行しました',
 			'common.e2eeRetryFailedNone' => '再試行が必要なメッセージはありません',
@@ -4708,10 +4712,10 @@ extension on TranslationsJaJp {
 			'discovery.momentsVisibilityExclude' => '一部の友達を除外',
 			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
 			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
-			'discovery.momentActionLike' => 'いいね',
-			'discovery.momentActionCancelLike' => 'いいねを取り消す',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => 'いいね',
+			'discovery.momentActionCancelLike' => 'いいねを取り消す',
 			'discovery.momentActionComment' => 'コメント',
 			'discovery.momentActionDelete' => '削除',
 			'discovery.momentActionReport' => '通報',
@@ -5222,10 +5226,10 @@ extension on TranslationsJaJp {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます',
 			'organization.home.tabOrg' => '組織',
-			'organization.home.myInvitations' => '自分の招待',
-			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => '自分の招待',
+			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
 			'organization.detail.leaveOrg' => '組織から退出',
 			'organization.detail.leaveOrgBody' => '退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。',
 			'organization.detail.leaveFailed' => '退出できませんでした',
@@ -5736,10 +5740,10 @@ extension on TranslationsJaJp {
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」へ進める',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} を差し戻す…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
-			'workspace.taskEmptyTitle' => 'タスクはまだありません',
-			'workspace.taskEmptySubtitle' => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => 'タスクはまだありません',
+			'workspace.taskEmptySubtitle' => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了',
 			'workspace.projectsLoadMore' => 'さらに読み込む',
 			'workspace.projectW2SectionTitle' => 'プロジェクトコラボレーション',
 			'workspace.projectMembersEntry' => 'メンバー',

@@ -1561,6 +1561,8 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => 'L\'altro non ha ancora effettuato l\'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l\'altro effettui l\'accesso e riprova';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra ${seconds} secondi, salvala al più presto';
 	@override String get e2eeErrAttachmentSeal => 'Impossibile sigillare l\'allegato crittografato, il file non è stato caricato. Riprova più tardi';
+	@override String get e2eeErrForwardPlaintextTarget => 'La chat di destinazione non è cifrata end-to-end, l\'allegato cifrato non può essere inoltrato';
+	@override String get e2eeErrForwardUndecryptable => 'Impossibile decifrare l\'allegato cifrato originale su questo dispositivo; inoltro non riuscito';
 	@override String get e2eeRetryFailedMessages => 'Riprova i messaggi non decifrati';
 	@override String e2eeRetryFailedDone({required Object count}) => 'Ritentata la decifratura di ${count} messaggi';
 	@override String get e2eeRetryFailedNone => 'Nessun messaggio da riprovare';
@@ -4594,6 +4596,8 @@ extension on TranslationsItIt {
 			'common.e2eeErrPeerNotOnboarded' => 'L\'altro non ha ancora effettuato l\'accesso da nessun dispositivo, impossibile inviare in cifratura per ora; attendi che l\'altro effettui l\'accesso e riprova',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Chiave di recupero copiata, gli appunti verranno cancellati automaticamente tra ${seconds} secondi, salvala al più presto',
 			'common.e2eeErrAttachmentSeal' => 'Impossibile sigillare l\'allegato crittografato, il file non è stato caricato. Riprova più tardi',
+			'common.e2eeErrForwardPlaintextTarget' => 'La chat di destinazione non è cifrata end-to-end, l\'allegato cifrato non può essere inoltrato',
+			'common.e2eeErrForwardUndecryptable' => 'Impossibile decifrare l\'allegato cifrato originale su questo dispositivo; inoltro non riuscito',
 			'common.e2eeRetryFailedMessages' => 'Riprova i messaggi non decifrati',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Ritentata la decifratura di ${count} messaggi',
 			'common.e2eeRetryFailedNone' => 'Nessun messaggio da riprovare',
@@ -4711,10 +4715,10 @@ extension on TranslationsItIt {
 			'discovery.momentsVisibilityExclude' => 'Eccezioni',
 			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
 			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
-			'discovery.momentActionLike' => 'Mi piace',
-			'discovery.momentActionCancelLike' => 'Non mi piace più',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => 'Mi piace',
+			'discovery.momentActionCancelLike' => 'Non mi piace più',
 			'discovery.momentActionComment' => 'Commenta',
 			'discovery.momentActionDelete' => 'Elimina',
 			'discovery.momentActionReport' => 'Segnala',
@@ -5225,10 +5229,10 @@ extension on TranslationsItIt {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creazione non riuscita: ${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata',
 			'organization.home.tabOrg' => 'Organizzazioni',
-			'organization.home.myInvitations' => 'I miei inviti',
-			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => 'I miei inviti',
+			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
 			'organization.detail.leaveOrg' => 'Lascia organizzazione',
 			'organization.detail.leaveOrgBody' => 'L’uscita revoca l’accesso a directory, gruppi, canali e file. I file vengono conservati. Per rientrare serve un invito.',
 			'organization.detail.leaveFailed' => 'Uscita non riuscita',
@@ -5739,10 +5743,10 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneEmptyTitle' => 'Nessuna milestone per ora',
 			'workspace.projectMilestoneFilterAll' => 'Tutte',
 			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
-			'workspace.projectMilestoneFilterReached' => 'Raggiunte',
-			'workspace.projectMilestoneNameLabel' => 'Nome',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMilestoneFilterReached' => 'Raggiunte',
+			'workspace.projectMilestoneNameLabel' => 'Nome',
 			'workspace.projectMilestoneNameRequired' => 'Il nome della milestone non può essere vuoto',
 			'workspace.projectMilestoneReach' => 'Segna come raggiunta',
 			'workspace.projectMilestoneReachedHint' => 'Raggiunta (non è possibile tornare indietro)',

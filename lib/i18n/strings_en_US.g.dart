@@ -1567,6 +1567,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get e2eeRecoveryKeySaveNote => 'Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered.';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Recovery key copied. The clipboard will be cleared in ${seconds} seconds — save it now.';
 	@override String get e2eeErrAttachmentSeal => 'Failed to seal the encrypted attachment; the file was not uploaded. Please try again later';
+	@override String get e2eeErrForwardPlaintextTarget => 'The target chat is not end-to-end encrypted, so the encrypted attachment cannot be forwarded';
+	@override String get e2eeErrForwardUndecryptable => 'The original encrypted attachment cannot be decrypted on this device; forwarding failed';
 	@override String get e2eeRetryFailedMessages => 'Retry messages that failed to decrypt';
 	@override String e2eeRetryFailedDone({required Object count}) => 'Retried ${count} messages that failed to decrypt';
 	@override String get e2eeRetryFailedNone => 'No failed messages to retry';
@@ -4738,6 +4740,8 @@ extension on TranslationsEnUs {
 			'common.e2eeRecoveryKeySaveNote' => 'Save this recovery key now (take a screenshot or store it in a password manager). If you forget your passphrase, it is the only credential that can decrypt your backup; once lost, the backup cannot be recovered.',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Recovery key copied. The clipboard will be cleared in ${seconds} seconds — save it now.',
 			'common.e2eeErrAttachmentSeal' => 'Failed to seal the encrypted attachment; the file was not uploaded. Please try again later',
+			'common.e2eeErrForwardPlaintextTarget' => 'The target chat is not end-to-end encrypted, so the encrypted attachment cannot be forwarded',
+			'common.e2eeErrForwardUndecryptable' => 'The original encrypted attachment cannot be decrypted on this device; forwarding failed',
 			'common.e2eeRetryFailedMessages' => 'Retry messages that failed to decrypt',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Retried ${count} messages that failed to decrypt',
 			'common.e2eeRetryFailedNone' => 'No failed messages to retry',
@@ -4850,10 +4854,10 @@ extension on TranslationsEnUs {
 			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} d ${h} h',
 			'customerService.sourceLabel' => 'Source',
 			'customerService.queuedEmptyTitle' => 'No queued conversations',
-			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
-			'customerService.loadingMore' => 'Loading more…',
 			_ => null,
 		} ?? switch (path) {
+			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
+			'customerService.loadingMore' => 'Loading more…',
 			'customerService.loadMoreFailed' => 'Failed to load more, scroll up to retry',
 			'customerService.noMore' => 'No more conversations',
 			'customerService.claimAction' => 'Claim',
@@ -5364,10 +5368,10 @@ extension on TranslationsEnUs {
 			'main.takePhoto' => 'Take Photo',
 			'main.deletingInProgressPleaseWait' => 'Deleting in progress, please wait...',
 			'main.collecting' => 'Collecting...',
-			'main.user' => 'User',
-			'main.recommended' => 'Recommended',
 			_ => null,
 		} ?? switch (path) {
+			'main.user' => 'User',
+			'main.recommended' => 'Recommended',
 			'main.larger' => 'Larger',
 			'main.fillIn' => 'Fill In',
 			'main.msgProtectedByComplianceKey' => 'Message protected by compliance key',
@@ -5878,10 +5882,10 @@ extension on TranslationsEnUs {
 			'workspace.overviewPinnedEmpty' => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)',
 			'workspace.overviewRecentFiles' => 'Recent files',
 			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
-			'workspace.membersTitle' => 'Workspace Members',
-			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.membersTitle' => 'Workspace Members',
+			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
 			'workspace.membersEmpty' => 'No workspace members yet',
 			'workspace.membersEmptySubtitle' => 'Invite registered users as Workspace Members (Owner / Member / Guest)',
 			'workspace.membersViewAll' => 'View all',

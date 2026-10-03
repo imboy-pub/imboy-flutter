@@ -4001,6 +4001,12 @@ class Translations$common$zh_CN {
 	/// zh-CN: '加密附件封装失败，文件未上传；请稍后重试'
 	String get e2eeErrAttachmentSeal => '加密附件封装失败，文件未上传；请稍后重试';
 
+	/// zh-CN: '目标会话不是端到端加密，无法转发加密附件'
+	String get e2eeErrForwardPlaintextTarget => '目标会话不是端到端加密，无法转发加密附件';
+
+	/// zh-CN: '原加密附件无法在本机解密，转发失败'
+	String get e2eeErrForwardUndecryptable => '原加密附件无法在本机解密，转发失败';
+
 	/// zh-CN: '重试解密失败的消息'
 	String get e2eeRetryFailedMessages => '重试解密失败的消息';
 
@@ -10156,6 +10162,8 @@ extension on Translations {
 			'common.e2eeRecoveryKeySaveNote' => '请立即保存这串恢复密钥（截图或存入密码管理器）。忘记口令时，它是解密备份的唯一凭据；一旦丢失，备份将永久无法恢复。',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '恢复密钥已复制，${seconds} 秒后将自动清除剪贴板，请尽快保存',
 			'common.e2eeErrAttachmentSeal' => '加密附件封装失败，文件未上传；请稍后重试',
+			'common.e2eeErrForwardPlaintextTarget' => '目标会话不是端到端加密，无法转发加密附件',
+			'common.e2eeErrForwardUndecryptable' => '原加密附件无法在本机解密，转发失败',
 			'common.e2eeRetryFailedMessages' => '重试解密失败的消息',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重试 ${count} 条解密失败的消息',
 			'common.e2eeRetryFailedNone' => '没有需要重试的解密失败消息',
@@ -10399,10 +10407,10 @@ extension on Translations {
 			'contact.momentsVisibilityFriends' => '仅好友',
 			'contact.tagLengthExceeded' => ({required Object param}) => '标签长度不能超过 ${param} 个字符',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能添加 ${param} 个标签',
-			'contact.selectedTags' => ({required Object param, required Object max}) => '已选标签 (${param}/${max})',
-			'contact.friendRequestSent' => '已发送',
 			_ => null,
 		} ?? switch (path) {
+			'contact.selectedTags' => ({required Object param, required Object max}) => '已选标签 (${param}/${max})',
+			'contact.friendRequestSent' => '已发送',
 			'contact.channelMaxTagsCount' => '最多可添加 8 个标签',
 			'contact.tagInputHint' => '输入标签...',
 			'customerService.entryTitle' => '客服工作台',
@@ -10913,10 +10921,10 @@ extension on Translations {
 			'main.systemDefault' => '系统默认',
 			'main.gradientBlue' => '渐变蓝',
 			'main.gradientPurple' => '渐变紫',
-			'main.copiedToClipboard' => '已复制到剪贴板',
-			'main.destroyTime' => '销毁时间',
 			_ => null,
 		} ?? switch (path) {
+			'main.copiedToClipboard' => '已复制到剪贴板',
+			'main.destroyTime' => '销毁时间',
 			'main.previewEffect' => '预览效果',
 			'main.thisIsTitleText' => '这是标题文本',
 			'main.thisIsAuxiliaryText' => '这是辅助说明文字',
@@ -11427,10 +11435,10 @@ extension on Translations {
 			'workspace.experienceModeWorkspace' => '工作区',
 			'workspace.experienceModeReset' => '恢复部署默认值',
 			'workspace.switchToWorkspace' => '切换到工作区',
-			'workspace.switchToPersonal' => '切换到个人',
-			'workspace.createTitle' => '创建工作区',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => '切换到个人',
+			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',

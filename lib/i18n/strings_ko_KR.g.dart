@@ -1558,6 +1558,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => '상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '복구 키가 복사되었습니다. ${seconds}초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요';
 	@override String get e2eeErrAttachmentSeal => '암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요';
+	@override String get e2eeErrForwardPlaintextTarget => '대화 상대가 종단 간 암호화되어 있지 않아 암호화 첨부 파일을 전달할 수 없습니다';
+	@override String get e2eeErrForwardUndecryptable => '원본 암호화 첨부 파일을 이 기기에서 복호화할 수 없어 전달에 실패했습니다';
 	@override String get e2eeRetryFailedMessages => '복호화에 실패한 메시지 다시 시도';
 	@override String e2eeRetryFailedDone({required Object count}) => '복호화에 실패한 메시지 ${count}건을 다시 시도했습니다';
 	@override String get e2eeRetryFailedNone => '재시도할 메시지가 없습니다';
@@ -4591,6 +4593,8 @@ extension on TranslationsKoKr {
 			'common.e2eeErrPeerNotOnboarded' => '상대방이 어떤 기기에서도 로그인한 적이 없어 암호화 전송이 일시적으로 불가합니다. 상대방이 로그인한 후 다시 시도해 주세요',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '복구 키가 복사되었습니다. ${seconds}초 후 클립보드에서 자동으로 지워지니 빨리 저장해 주세요',
 			'common.e2eeErrAttachmentSeal' => '암호화 첨부 파일 봉인에 실패하여 파일이 업로드되지 않았습니다. 잠시 후 다시 시도해 주세요',
+			'common.e2eeErrForwardPlaintextTarget' => '대화 상대가 종단 간 암호화되어 있지 않아 암호화 첨부 파일을 전달할 수 없습니다',
+			'common.e2eeErrForwardUndecryptable' => '원본 암호화 첨부 파일을 이 기기에서 복호화할 수 없어 전달에 실패했습니다',
 			'common.e2eeRetryFailedMessages' => '복호화에 실패한 메시지 다시 시도',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '복호화에 실패한 메시지 ${count}건을 다시 시도했습니다',
 			'common.e2eeRetryFailedNone' => '재시도할 메시지가 없습니다',
@@ -4708,10 +4712,10 @@ extension on TranslationsKoKr {
 			'discovery.momentsVisibilityExclude' => '특정 친구 제외',
 			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
 			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
-			'discovery.momentActionLike' => '좋아요',
-			'discovery.momentActionCancelLike' => '좋아요 취소',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => '좋아요',
+			'discovery.momentActionCancelLike' => '좋아요 취소',
 			'discovery.momentActionComment' => '댓글',
 			'discovery.momentActionDelete' => '삭제',
 			'discovery.momentActionReport' => '신고',
@@ -5222,10 +5226,10 @@ extension on TranslationsKoKr {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다',
 			'organization.home.tabOrg' => '조직',
-			'organization.home.myInvitations' => '내 초대',
-			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => '내 초대',
+			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
 			'organization.detail.leaveOrg' => '조직 나가기',
 			'organization.detail.leaveOrgBody' => '나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다.',
 			'organization.detail.leaveFailed' => '나가기 실패',
@@ -5736,10 +5740,10 @@ extension on TranslationsKoKr {
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」 상태로 진행',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} 상태로 되돌리기…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
-			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',
-			'workspace.taskEmptySubtitle' => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',
+			'workspace.taskEmptySubtitle' => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료',
 			'workspace.projectsLoadMore' => '더 로드',
 			'workspace.projectW2SectionTitle' => '프로젝트 협업',
 			'workspace.projectMembersEntry' => '구성원',

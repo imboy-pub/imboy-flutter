@@ -1561,6 +1561,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get declineCall => '拒接';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => '恢復金鑰已複製，${seconds} 秒後將自動清除剪貼簿，請盡快儲存';
 	@override String get e2eeErrAttachmentSeal => '加密附件封裝失敗，檔案未上傳；請稍後重試';
+	@override String get e2eeErrForwardPlaintextTarget => '目標會話不是端對端加密，無法轉發加密附件';
+	@override String get e2eeErrForwardUndecryptable => '原加密附件無法在本機解密，轉發失敗';
 	@override String get e2eeRetryFailedMessages => '重試解密失敗的訊息';
 	@override String e2eeRetryFailedDone({required Object count}) => '已重試 ${count} 條解密失敗的訊息';
 	@override String get e2eeRetryFailedNone => '沒有需要重試的解密失敗訊息';
@@ -4595,6 +4597,8 @@ extension on TranslationsZhHant {
 			'common.declineCall' => '拒接',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => '恢復金鑰已複製，${seconds} 秒後將自動清除剪貼簿，請盡快儲存',
 			'common.e2eeErrAttachmentSeal' => '加密附件封裝失敗，檔案未上傳；請稍後重試',
+			'common.e2eeErrForwardPlaintextTarget' => '目標會話不是端對端加密，無法轉發加密附件',
+			'common.e2eeErrForwardUndecryptable' => '原加密附件無法在本機解密，轉發失敗',
 			'common.e2eeRetryFailedMessages' => '重試解密失敗的訊息',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => '已重試 ${count} 條解密失敗的訊息',
 			'common.e2eeRetryFailedNone' => '沒有需要重試的解密失敗訊息',
@@ -4709,10 +4713,10 @@ extension on TranslationsZhHant {
 			'discovery.momentsVisibilityExclude' => '不給誰看',
 			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
 			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
-			'discovery.momentActionLike' => '讚',
-			'discovery.momentActionCancelLike' => '取消讚',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => '讚',
+			'discovery.momentActionCancelLike' => '取消讚',
 			'discovery.momentActionComment' => '評論',
 			'discovery.momentActionDelete' => '刪除',
 			'discovery.momentActionReport' => '舉報',
@@ -5223,10 +5227,10 @@ extension on TranslationsZhHant {
 			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
-			'organization.home.tabOrg' => '組織',
-			'organization.home.myInvitations' => '我的邀請',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.tabOrg' => '組織',
+			'organization.home.myInvitations' => '我的邀請',
 			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
 			'organization.detail.leaveOrg' => '退出企業',
 			'organization.detail.leaveOrgBody' => '退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。',
@@ -5737,10 +5741,10 @@ extension on TranslationsZhHant {
 			'workspace.taskStatusDone' => '已結案',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '推進到「${status}」',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
-			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
-			'workspace.taskEmptyTitle' => '還沒有任務',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
+			'workspace.taskEmptyTitle' => '還沒有任務',
 			'workspace.taskEmptySubtitle' => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案',
 			'workspace.projectsLoadMore' => '載入更多',
 			'workspace.projectW2SectionTitle' => '專案協作',

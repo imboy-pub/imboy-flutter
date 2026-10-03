@@ -1567,6 +1567,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeErrPeerNotOnboarded => 'Собеседник ещё не входил ни на одном устройстве, зашифрованная отправка пока невозможна; дождитесь его входа и повторите';
 	@override String e2eeRecoveryKeyCopiedAutoClear({required Object seconds}) => 'Ключ восстановления скопирован; буфер обмена будет очищен через ${seconds} сек, сохраните его как можно скорее';
 	@override String get e2eeErrAttachmentSeal => 'Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже';
+	@override String get e2eeErrForwardPlaintextTarget => 'Целевой чат не использует сквозное шифрование, переслать зашифрованное вложение невозможно';
+	@override String get e2eeErrForwardUndecryptable => 'Не удалось расшифровать исходное зашифрованное вложение на этом устройстве; пересылка не выполнена';
 	@override String get e2eeRetryFailedMessages => 'Повторить сообщения с ошибкой расшифровки';
 	@override String e2eeRetryFailedDone({required Object count}) => 'Повторно обработано сообщений с ошибкой расшифровки: ${count}';
 	@override String get e2eeRetryFailedNone => 'Нет сообщений для повтора';
@@ -4600,6 +4602,8 @@ extension on TranslationsRuRu {
 			'common.e2eeErrPeerNotOnboarded' => 'Собеседник ещё не входил ни на одном устройстве, зашифрованная отправка пока невозможна; дождитесь его входа и повторите',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Ключ восстановления скопирован; буфер обмена будет очищен через ${seconds} сек, сохраните его как можно скорее',
 			'common.e2eeErrAttachmentSeal' => 'Не удалось запечатать зашифрованное вложение, файл не загружен. Повторите попытку позже',
+			'common.e2eeErrForwardPlaintextTarget' => 'Целевой чат не использует сквозное шифрование, переслать зашифрованное вложение невозможно',
+			'common.e2eeErrForwardUndecryptable' => 'Не удалось расшифровать исходное зашифрованное вложение на этом устройстве; пересылка не выполнена',
 			'common.e2eeRetryFailedMessages' => 'Повторить сообщения с ошибкой расшифровки',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Повторно обработано сообщений с ошибкой расшифровки: ${count}',
 			'common.e2eeRetryFailedNone' => 'Нет сообщений для повтора',
@@ -4717,10 +4721,10 @@ extension on TranslationsRuRu {
 			'discovery.momentsVisibilityExclude' => 'Скрыть от...',
 			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
 			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
-			'discovery.momentActionLike' => 'Нравится',
-			'discovery.momentActionCancelLike' => 'Убрать лайк',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentActionLike' => 'Нравится',
+			'discovery.momentActionCancelLike' => 'Убрать лайк',
 			'discovery.momentActionComment' => 'Комментарий',
 			'discovery.momentActionDelete' => 'Удалить',
 			'discovery.momentActionReport' => 'Пожаловаться',
@@ -5231,10 +5235,10 @@ extension on TranslationsRuRu {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать',
 			'organization.home.tabOrg' => 'Организации',
-			'organization.home.myInvitations' => 'Мои приглашения',
-			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.myInvitations' => 'Мои приглашения',
+			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
 			'organization.detail.leaveOrg' => 'Покинуть организацию',
 			'organization.detail.leaveOrgBody' => 'Вы потеряете доступ к каталогу, группам, каналам и файлам. Файлы организации сохранятся. Для повторного вступления нужно приглашение.',
 			'organization.detail.leaveFailed' => 'Не удалось выйти',
@@ -5745,10 +5749,10 @@ extension on TranslationsRuRu {
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Перевести в «${status}»',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Вернуть «${title}» к...',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
-			'workspace.taskEmptyTitle' => 'Пока нет задач',
-			'workspace.taskEmptySubtitle' => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskEmptyTitle' => 'Пока нет задач',
+			'workspace.taskEmptySubtitle' => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено',
 			'workspace.projectsLoadMore' => 'Загрузить ещё',
 			'workspace.projectW2SectionTitle' => 'Совместная работа по проекту',
 			'workspace.projectMembersEntry' => 'Участники',
