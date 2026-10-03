@@ -107,8 +107,8 @@ class _OrganizationPickerPageState
     });
     try {
       final organizations = await _api.allMine();
-      _cache.saveOrgs(organizations);
       if (!mounted) return;
+      _cache.replaceMineOrgs(organizations);
       setState(() {
         _orgs = organizations;
       });

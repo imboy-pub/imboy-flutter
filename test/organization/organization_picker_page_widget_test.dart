@@ -301,6 +301,8 @@ void main() {
   });
 
   testWidgets('企业列表为空时仍可从空间选择器返回个人', (tester) async {
+    final cache = OrganizationCache.forAccount(_accountKey);
+    cache.saveOrgs([const Organization(id: _orgA, name: '已移除企业')]);
     HttpClient.adapterForTest = _RoutingAdapter((path) => _mineOf([]));
     final container = makeContainer(_WsFakeApi(const []));
     final store = CurrentOrganizationStore.forAccount(_accountKey);
@@ -310,6 +312,7 @@ void main() {
         .select(ProductExperience.workspace);
     await _pump(tester, container);
     await tester.pump(const Duration(milliseconds: 200));
+    expect(cache.orgs, isEmpty);
     final personal = find.byKey(const ValueKey('org-picker-personal-entry'));
     expect(personal, findsOneWidget);
     expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
