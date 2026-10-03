@@ -18,6 +18,35 @@ void main() {
     OrganizationCache.disposeAll();
   });
 
+  test('全量成员组织替换只清除被移除组织的关联缓存，不影响其他账号', () {
+    final account = OrganizationCache.forAccount('1001');
+    final other = OrganizationCache.forAccount('1002');
+    for (final cache in [account, other]) {
+      for (final id in ['1', '2']) {
+        cache.saveOrgs([Organization(id: id, name: '旧组织$id')]);
+        cache.saveMembers(id, [
+          OrganizationMember(organizationId: id, userId: '11', role: 'member'),
+        ]);
+        cache.saveDepartments(id, [
+          OrganizationDepartment(id: '31', organizationId: id, name: '合成部门'),
+        ]);
+      }
+    }
+    account.replaceMineOrgs([const Organization(id: '2', name: '新组织2')]);
+    expect(account.org('1'), isNull);
+    expect(account.members('1'), isEmpty);
+    expect(account.departments('1'), isEmpty);
+    expect(account.org('2')?.name, '新组织2');
+    expect(account.members('2').single.userId, '11');
+    expect(account.departments('2').single.name, '合成部门');
+    expect(other.orgs, hasLength(2));
+    expect(other.members('1').single.userId, '11');
+    expect(other.departments('1').single.name, '合成部门');
+    account.saveOrgs([const Organization(id: '3', name: '局部详情更新')]);
+    expect(account.org('2')?.name, '新组织2');
+    expect(account.org('3')?.name, '局部详情更新');
+  });
+
   group('account scope 隔离', () {
     test('账号 A / B 互不可见', () {
       final a = OrganizationCache.forAccount('1001');
