@@ -55,6 +55,17 @@ void main() {
     groupAlias: group,
     body: value,
   );
+  test('outgoing group numeric context rejects floating point values', () {
+    for (final entry in {
+      'from': 9007199254740993,
+      'to': 9223372036854775807,
+      'created_at': 123,
+    }.entries) {
+      final frame = body();
+      frame[entry.key] = entry.value.toDouble();
+      expect(() => prepare(frame), throwsFormatException);
+    }
+  });
   test('binds group IDs and snapshots original encrypted envelope', () {
     final original = body();
     final result = prepare(original);

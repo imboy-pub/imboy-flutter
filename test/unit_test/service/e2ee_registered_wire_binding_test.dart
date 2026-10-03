@@ -126,6 +126,18 @@ WireFrame wire({
 }
 
 void main() {
+  test('outgoing numeric context rejects equal floating point values', () {
+    final binding = RegisteredWireBinding(registered());
+    for (final entry in {
+      'from': 9007199254740993,
+      'to': 9007199254740994,
+      'created_at': 123,
+    }.entries) {
+      final frame = wire();
+      frame.body[entry.key] = entry.value.toDouble();
+      expect(() => binding.prepareC2c(frame), throwsFormatException);
+    }
+  });
   test('received canonical IDs preserve raw body and outgoing ID contract', () {
     final frame = wire();
     frame.body['from'] = '9007199254740993';

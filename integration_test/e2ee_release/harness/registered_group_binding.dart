@@ -41,7 +41,9 @@ class RegisteredGroupBinding {
       'created_at': header['created_at_ms'],
     };
     for (final entry in expected.entries) {
-      if (copy.containsKey(entry.key) && copy[entry.key] != entry.value) {
+      if (copy.containsKey(entry.key) &&
+          (copy[entry.key] != entry.value ||
+              (entry.value is int && copy[entry.key] is! int))) {
         throw const FormatException('outer group context mismatch');
       }
       copy[entry.key] = entry.value;

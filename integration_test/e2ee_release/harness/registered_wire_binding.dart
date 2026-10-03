@@ -186,7 +186,8 @@ class RegisteredWireBinding {
   }
 
   void _checkExisting(Map<String, dynamic> body, String key, Object? expected) {
-    if (body.containsKey(key) && body[key] != expected) {
+    if (body.containsKey(key) &&
+        (body[key] != expected || (expected is int && body[key] is! int))) {
       throw const FormatException('outer protected context mismatch');
     }
   }
