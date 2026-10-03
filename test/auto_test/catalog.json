@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "8b0ee23607d6d6c3d5861092b81d21015cd3991d",
-    "backend_head": "2b44bd82972ad4a22736c26a37bc399621e370f8",
-    "integration_test_count": 153,
+    "app_head": "557422d096d4f83d2558562c90f9aae9b3ddcf47",
+    "backend_head": "34a81fcc5dc9329f2db1b0a29b616200136195e6",
+    "integration_test_count": 154,
     "lib_page_count": 166,
     "module_page_count": 22,
     "route_page_component_count": 147,
-    "spec_count": 27
+    "spec_count": 28
   },
   "entries": [
     {
@@ -1222,6 +1222,36 @@
         "lib/config/router/routes/mine_routes.dart",
         "lib/page/billing/billing_provider.dart",
         "lib/store/api/billing_api.dart"
+      ],
+      "risk": "external-impact",
+      "requirements": [
+        "authorization.business_write",
+        "backend.local",
+        "credentials.primary",
+        "fixture.disposable_account"
+      ],
+      "tags": [
+        "full_acceptance"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart",
+      "target": "integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart",
+      "target_sha256": "ae35734cf1e0f5796242bb7b558720e4c733d9712ba9245536a5e5d0472560da",
+      "sources": [
+        "lib/app_core/feature_flags/app_feature_registry.dart"
+      ],
+      "dependencies": [
+        "integration_test/full_acceptance/billing/billing_device_preflight.dart",
+        "lib/app_core/feature_flags/app_feature_registry.dart",
+        "lib/config/router/app_router.dart",
+        "lib/config/router/generated_product_feature_routes.dart",
+        "lib/page/bottom_navigation/bottom_navigation_page.dart",
+        "lib/page/bottom_navigation/bottom_navigation_provider.dart",
+        "lib/page/chat_shell/chat_shell_bootstrap.dart",
+        "lib/page/chat_shell/chat_shell_page.dart"
       ],
       "risk": "external-impact",
       "requirements": [
@@ -2596,9 +2626,11 @@
     {
       "page": "lib/page/bottom_navigation/bottom_navigation_page.dart",
       "mapped_targets": [],
-      "dependency_targets": [],
+      "dependency_targets": [
+        "integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart"
+      ],
       "route_registered": false,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""
@@ -2817,9 +2849,11 @@
     {
       "page": "lib/page/chat_shell/chat_shell_page.dart",
       "mapped_targets": [],
-      "dependency_targets": [],
+      "dependency_targets": [
+        "integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart"
+      ],
       "route_registered": false,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""

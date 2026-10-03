@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "id": "F14-BOTTOM-NAVIGATION-CHANNEL-DEVICE-PREPARATION",
+  "title": "Bottom navigation: actual channel profile and tab switching preparation",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": [
+    "lib/app_core/feature_flags/app_feature_registry.dart"
+  ],
+  "dependencies": [
+    "lib/page/bottom_navigation/bottom_navigation_page.dart",
+    "lib/page/bottom_navigation/bottom_navigation_provider.dart",
+    "lib/page/chat_shell/chat_shell_bootstrap.dart",
+    "lib/page/chat_shell/chat_shell_page.dart",
+    "lib/config/router/app_router.dart",
+    "lib/app_core/feature_flags/app_feature_registry.dart",
+    "lib/config/router/generated_product_feature_routes.dart",
+    "integration_test/full_acceptance/billing/billing_device_preflight.dart"
+  ],
+  "assertions": {
+    "functional": [
+      "Actual expected UID, leased local runtime and narrow chat shell; compiled channel component must exist",
+      "ACCEPTANCE_NAV_CHANNEL_PROFILE enabled/disabled matches actual feature registry; no injected fake switch or pages",
+      "Disabled profile has no channel tab and three actual pages with other tabs usable; enabled profile has four tabs and pages",
+      "Each platform must supply both enabled and disabled frozen-profile receipts; one profile cannot complete the function"
+    ],
+    "ui": [
+      "Actual tab keys and PageController page agree; no navigation exception"
+    ]
+  },
+  "visual": {
+    "rubric": [
+      "bottom_navigation_channel_profile"
+    ],
+    "baseline": "NOT_EXECUTED"
+  },
+  "runner": {
+    "type": "flutter",
+    "target": "integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart",
+    "requires": [
+      "backend.local",
+      "credentials.primary",
+      "fixture.disposable_account",
+      "authorization.business_write"
+    ]
+  },
+  "safe_to_execute": false,
+  "risk_mode": "external-impact",
+  "execution_block_reason": "App bootstrap may register push/sync state. Independent approval, exact device lease, isolated runtime and disabled external services must be verified before enabling execution. Runner boolean/hash shape does not grant authorization. This is a single-profile preparation target. No full-function binding is registered until an executable Android/macOS x enabled/disabled composition gate validates all four frozen receipts.",
+  "original_acceptance_status": "NOT_EXECUTED",
+  "platform_obligations": [
+    "android",
+    "macos"
+  ],
+  "fixture_requirements": [
+    "Owned authenticated expected_uid; experience=chat, actual logical viewport width<600 under explicit lease",
+    "Both channel profiles on an isolated runtime with the same compiled capability; ACCEPTANCE_NAV_CHANNEL_PROFILE supplies the expected value",
+    "Independent auth/runtime/fixture records, disabled external services and per-platform/profile receipts required"
+  ],
+  "proposed_function_ids": [
+    "fn:bottom_navigation:bottom_navigation_page:006"
+  ],
+  "proposed_function_oracles": {
+    "fn:bottom_navigation:bottom_navigation_page:006": "Compiled channel capability exists and actual narrow chat shell is mounted. Disabled receipt proves no channel tab, three pages and remaining tabs usable; separate enabled receipt proves four tabs/pages. Both profiles on both platforms are required; one successful run is insufficient."
+  },
+  "mapping_status": "UNBOUND_UNTIL_EXECUTABLE_PLATFORM_PROFILE_COMPOSITION_GATE"
+}
