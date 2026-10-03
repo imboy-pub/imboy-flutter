@@ -56,13 +56,14 @@ class BillingState {
     bool clearError = false,
     List<BillingPlan>? plans,
     BillingSubscription? subscription,
+    bool clearSubscription = false,
     bool? paying,
     PaymentLaunchResult? lastLaunchResult,
   }) => BillingState(
     isLoading: isLoading ?? this.isLoading,
     error: clearError ? null : error ?? this.error,
     plans: plans ?? this.plans,
-    subscription: subscription ?? this.subscription,
+    subscription: clearSubscription ? null : subscription ?? this.subscription,
     paying: paying ?? this.paying,
     lastLaunchResult: lastLaunchResult ?? this.lastLaunchResult,
   );
@@ -78,6 +79,7 @@ class BillingState {
 /// 须经 generate（幂等，只回 invoice_id）+ list 两步取得。
 class BillingNotifier extends Notifier<BillingState> {
   int _planLoadGeneration = 0;
+  int _subscriptionLoadGeneration = 0;
   late final BillingApi _api = ref.read(billingApiProvider);
   late final PaymentLauncher _launcher = ref.read(
     billingPaymentLauncherProvider,
@@ -86,6 +88,7 @@ class BillingNotifier extends Notifier<BillingState> {
   @override
   BillingState build() {
     _planLoadGeneration++;
+    _subscriptionLoadGeneration++;
     return const BillingState();
   }
 
@@ -109,8 +112,10 @@ class BillingNotifier extends Notifier<BillingState> {
 
   /// 加载当前订阅。
   Future<void> loadSubscription() async {
+    final generation = ++_subscriptionLoadGeneration;
     final sub = await _api.fetchSubscription();
-    state = state.copyWith(subscription: sub);
+    if (!ref.mounted || generation != _subscriptionLoadGeneration) return;
+    state = state.copyWith(subscription: sub, clearSubscription: sub == null);
   }
 
   /// 订阅套餐并走完支付闭环。成功返回 `true`。

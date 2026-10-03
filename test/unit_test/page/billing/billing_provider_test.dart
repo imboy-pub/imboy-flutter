@@ -174,6 +174,17 @@ class _DeferredPlansApi extends _FakeBillingApi {
   }
 }
 
+class _DeferredSubscriptionApi extends _FakeBillingApi {
+  final requests = <Completer<BillingSubscription?>>[];
+
+  @override
+  Future<BillingSubscription?> fetchSubscription() {
+    final request = Completer<BillingSubscription?>();
+    requests.add(request);
+    return request.future;
+  }
+}
+
 ProviderContainer _containerWith(
   _FakeBillingApi fake, {
   _FakeLauncher? launcher,
@@ -188,6 +199,47 @@ ProviderContainer _containerWith(
 }
 
 void main() {
+  group('BillingNotifier.loadSubscription', () {
+    test('无订阅响应清除此前的当前套餐', () async {
+      final fake = _DeferredSubscriptionApi();
+      final container = _containerWith(fake);
+      addTearDown(container.dispose);
+      final notifier = container.read(billingProvider.notifier);
+      final initial = notifier.loadSubscription();
+      fake.requests[0].complete(_sub());
+      await initial;
+      expect(container.read(billingProvider).subscription, isNotNull);
+      final refresh = notifier.loadSubscription();
+      fake.requests[1].complete(null);
+      await refresh;
+      expect(container.read(billingProvider).subscription, isNull);
+    });
+
+    test('旧订阅响应不得覆盖较新的订阅', () async {
+      final fake = _DeferredSubscriptionApi();
+      final container = _containerWith(fake);
+      addTearDown(container.dispose);
+      final notifier = container.read(billingProvider.notifier);
+      final old = notifier.loadSubscription();
+      final fresh = notifier.loadSubscription();
+      fake.requests[1].complete(_sub(planId: 202));
+      await fresh;
+      fake.requests[0].complete(_sub(planId: 101));
+      await old;
+      expect(container.read(billingProvider).subscription!.planId, 202);
+    });
+
+    test('销毁后订阅响应完成不写入状态', () async {
+      final fake = _DeferredSubscriptionApi();
+      final container = _containerWith(fake);
+      final pending = container
+          .read(billingProvider.notifier)
+          .loadSubscription();
+      container.dispose();
+      fake.requests.single.complete(_sub());
+      await expectLater(pending, completes);
+    });
+  });
   group('BillingState', () {
     test('BP-S1 默认值与 copyWith 不可变', () {
       const s = BillingState();
