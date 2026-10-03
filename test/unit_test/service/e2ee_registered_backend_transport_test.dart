@@ -67,6 +67,32 @@ void main() {
     await transport.disconnectDevice(sender);
     await failure;
   });
+  for (final attack in ['sender-did', 'sender-account', 'missing-device']) {
+    test(
+      'inbound $attack mismatch closes connection without queuing',
+      () async {
+        await transport.start();
+        await transport.connectDevice(recipient);
+        final body = RegisteredWireBinding(bindings.registered())
+            .prepareC2c(bindings.wire());
+        body['sender_did'] = 'registered-a';
+        if (attack == 'sender-did') {
+          body['sender_did'] = 'unknown-device';
+        } else if (attack == 'sender-account') {
+          body['from'] = 999;
+        } else {
+          (body['e2ee']['devices'] as Map).clear();
+        }
+        channels['b1']!.input.add(incoming(body));
+        await Future<void>.delayed(Duration.zero);
+        expect(transport.drainInbox('b1'), isEmpty);
+        expect(transport.isDeviceConnected('b1'), isFalse);
+        expect(channels['b1']!.closed, isTrue);
+        // Only the handshake ping was sent; no automatic consumer ACK.
+        expect(channels['b1']!.sent.length, 1);
+      },
+    );
+  }
   test('actual received ciphertext queues once per drain', () async {
     await transport.start();
     await transport.connectDevice(recipient);
