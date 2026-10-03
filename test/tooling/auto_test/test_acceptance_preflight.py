@@ -163,6 +163,9 @@ class PreflightTests(unittest.TestCase):
 
     def prepare_event_run(self):
         self.prepare_version_inputs()
+        self.frozen['candidates'] = {name: {'head': 'a' * 40}
+            for name in ('imboy', 'imboyapp', 'imboyadmin')}
+        self.report['candidates'] = copy.deepcopy(self.frozen['candidates'])
         self.frozen['defects'] = []
         self.report['defects'] = []
         self.frozen['cross_device_journeys'] = []
@@ -201,6 +204,22 @@ class PreflightTests(unittest.TestCase):
             dict(row, owner='/root', source_refs=['synthetic.dart:1'],
                  disposition='CASE_MAPPED', case_keys=[key])
             for row in self.frozen['coverage_inputs']]
+        self.prepare_ux_review(key)
+
+    def prepare_ux_review(self, key):
+        visual = self.descriptor('ux-visual', {'synthetic_visual': True})
+        self.frozen['ux_review_requirements'] = [dict(review_id='UX1',
+            case_keys=[key], reviewed_artifacts=[visual])]
+        self.report['ux_reviews'] = {'UX1': self.descriptor('ux-review', dict(
+            review_id='UX1', case_keys=[key], reviewed_artifacts=[visual],
+            candidate_heads={name: 'a' * 40 for name in self.frozen['candidates']},
+            version_inputs=self.frozen['version_inputs'], reviewer_kind='USER',
+            status='APPROVED', approval_ref='synthetic approval only'))}
+
+    def test_execution_requires_explicit_user_ux_records(self):
+        self.prepare_event_run()
+        del self.report['ux_reviews']
+        self.assertIn('UX_REVIEW_SET_MISMATCH', self.execution_audit()['errors'])
 
     def test_execution_composition_requires_raw_run_index(self):
         self.assertIn('FROZEN_CASE_EVENT_RUNS_INVALID', self.execution_audit()['errors'])
