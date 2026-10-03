@@ -4,6 +4,7 @@
 // - 点击重试触发 onRetry，重试期间按钮禁用防重复触发
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/error/init_error_page.dart';
 
@@ -46,5 +47,78 @@ void main() {
     await tester.pumpAndSettle();
     expect(calls, 1); // 未重复触发
     expect(find.text('重试'), findsOneWidget);
+  });
+
+  testWidgets('重试失败后恢复可点击并允许第二次成功重试', (tester) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      InitErrorPage(
+        error: StateError('initial failure'),
+        onRetry: () async {
+          calls++;
+          if (calls == 1) throw StateError('retry failure');
+        },
+      ),
+    );
+    await tester.tap(find.text('重试'));
+    await tester.pumpAndSettle();
+    expect(calls, 1);
+    expect(tester.takeException(), isNull);
+    expect(
+      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      isNotNull,
+    );
+    await tester.tap(find.text('重试'));
+    await tester.pumpAndSettle();
+    expect(calls, 2);
+    expect(find.text('重试'), findsOneWidget);
+  });
+
+  testWidgets('同一帧快速连续点击只启动一次重试', (tester) async {
+    var calls = 0;
+    final gate = Completer<void>();
+    addTearDown(() {
+      if (!gate.isCompleted) gate.complete();
+    });
+    await tester.pumpWidget(
+      InitErrorPage(
+        error: StateError('initial failure'),
+        onRetry: () async {
+          calls++;
+          await gate.future;
+        },
+      ),
+    );
+    await tester.tap(find.text('重试'));
+    await tester.tap(find.text('重试'));
+    expect(calls, 1);
+    await tester.pump();
+    expect(
+      tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+      isNull,
+    );
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(calls, 1);
+  });
+
+  testWidgets('页面卸载后重试完成不更新已销毁状态', (tester) async {
+    final gate = Completer<void>();
+    addTearDown(() {
+      if (!gate.isCompleted) gate.complete();
+    });
+    await tester.pumpWidget(
+      InitErrorPage(
+        error: StateError('initial failure'),
+        onRetry: () => gate.future,
+      ),
+    );
+    await tester.tap(find.text('重试'));
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox.shrink());
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    expect(find.byType(InitErrorPage), findsNothing);
   });
 }
