@@ -13,6 +13,7 @@ class _FakeGateway implements PaymentSdkGateway {
   int? wechatPayReturn = 0;
 
   Object? aliPayError;
+  Object? wechatPayError;
   int aliPayCalls = 0;
   int wechatPayCalls = 0;
   String? lastAliOrder;
@@ -46,6 +47,7 @@ class _FakeGateway implements PaymentSdkGateway {
     String? signType,
   }) async {
     wechatPayCalls++;
+    if (wechatPayError != null) throw wechatPayError!;
     return wechatPayReturn;
   }
 }
@@ -81,6 +83,49 @@ void main() {
       contains('[PaymentLauncher] alipay launch failed: StateError'),
     );
     expect(logs, contains('[PaymentLauncher] alipay error: StateError'));
+    expect(logs.join('\n'), isNot(contains(canary)));
+  });
+
+  test('微信配置门及 SDK 异常日志不得输出签名参数', () async {
+    const canary = 'synthetic-private-wechat-signature';
+    final gateway = _FakeGateway()..wechatPayError = StateError(canary);
+    final launcher = PaymentLauncher(gateway: gateway);
+    final params = <String, dynamic>{
+      'appid': PaymentConfig.wechatAppId,
+      'partnerid': 'synthetic-partner',
+      'prepay_id': 'synthetic-prepay',
+      'package': 'Sign=WXPay',
+      'noncestr': 'synthetic-nonce',
+      'timestamp': 1490840662,
+      'sign': canary,
+    };
+    if (!PaymentConfig.isWechatConfigured) {
+      expect(
+        await launcher.launchWechat(params),
+        PaymentLaunchResult.notConfigured,
+      );
+      expect(gateway.wechatPayCalls, 0);
+      return;
+    }
+    final logs = <String>[];
+    void captureOutput(OutputEvent event) => logs.addAll(event.lines);
+    Logger.addOutputListener(captureOutput);
+    final previousPrint = debugPrint;
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) logs.add(message);
+    };
+    try {
+      expect(await launcher.launchWechat(params), PaymentLaunchResult.failed);
+    } finally {
+      Logger.removeOutputListener(captureOutput);
+      debugPrint = previousPrint;
+    }
+    expect(gateway.wechatPayCalls, 1);
+    expect(logs, contains('[PaymentLauncher] wechat error: StateError'));
+    expect(
+      logs.join('\n'),
+      contains('[PaymentLauncher] wechat launch failed: StateError'),
+    );
     expect(logs.join('\n'), isNot(contains(canary)));
   });
 
