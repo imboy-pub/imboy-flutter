@@ -318,7 +318,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
     final isEnabled =
         _passwordController.text.isNotEmpty &&
         _confirmPasswordController.text.isNotEmpty &&
-        !_isExporting;
+        !_isExporting &&
+        !_isCloudUploading;
 
     return SizedBox(
       width: double.infinity,
@@ -412,6 +413,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   }
 
   Future<void> _handleExport() async {
+    if (!mounted || _isExporting || _isCloudUploading) return;
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
@@ -454,6 +456,7 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   /// 备份到云端：复用同一密码输入与密钥读取，服务内部已对
   /// 版本冲突自动重试一次，此处失败即提示。
   Future<void> _handleCloudUpload() async {
+    if (!mounted || _isExporting || _isCloudUploading) return;
     final password = _passwordController.text;
 
     if (password != _confirmPasswordController.text) {

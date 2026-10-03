@@ -27,6 +27,7 @@ void main() {
   _registerClipboardGenerationTest();
   _registerClipboardDisposalTest();
   _registerClipboardDelayedReadTest();
+  _registerBackupOperationConcurrencyTests();
   Widget wrap(Widget page) {
     return TranslationProvider(
       child: ProviderScope(child: MaterialApp(home: page)),
@@ -385,4 +386,89 @@ void _registerClipboardDelayedReadTest() {
       expect(clipboard.writes, [first, second, '']);
     });
   }
+}
+
+class _KeyReadProbe {
+  final pending = Completer<String?>();
+  int privateReads = 0;
+
+  void install() {
+    const channel = MethodChannel(
+      'plugins.it_nomads.com/flutter_secure_storage',
+    );
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      if (call.method == 'read' &&
+          (call.arguments as Map)['key'] == 'e2ee_private_key') {
+        privateReads++;
+        return pending.future;
+      }
+      return null;
+    });
+    addTearDown(() {
+      if (!pending.isCompleted) pending.complete(null);
+      messenger.setMockMethodCallHandler(channel, null);
+    });
+  }
+}
+
+VoidCallback _backupAction(WidgetTester tester, bool cloud) => cloud
+    ? tester
+          .widget<OutlinedButton>(
+            find.widgetWithText(
+              OutlinedButton,
+              t.common.e2eeBackupCloudUploadBtn,
+            ),
+          )
+          .onPressed!
+    : tester
+          .widget<CupertinoButton>(
+            find.widgetWithText(
+              CupertinoButton,
+              t.common.e2eeBackupGenerateBtn,
+            ),
+          )
+          .onPressed!;
+
+void _registerBackupOperationConcurrencyTests() {
+  for (final sequence in [
+    (false, false, '导出→导出'),
+    (true, true, '上传→上传'),
+    (true, false, '上传→导出'),
+    (false, true, '导出→上传'),
+  ]) {
+    testWidgets(
+      '同一帧备份操作互斥：${sequence.$3}',
+      (tester) =>
+          _assertSingleBackupOperation(tester, sequence.$1, sequence.$2),
+    );
+  }
+}
+
+Future<void> _assertSingleBackupOperation(
+  WidgetTester tester,
+  bool firstCloud,
+  bool secondCloud,
+) async {
+  final storage = _KeyReadProbe()..install();
+  await tester.pumpWidget(_exportHarness());
+  await tester.pump();
+  await tester.enterText(find.byType(TextField).at(0), 'SyntheticPassword123!');
+  await tester.enterText(find.byType(TextField).at(1), 'SyntheticPassword123!');
+  await tester.pump();
+  // 两个事件复用本帧已构建按钮的真实回调，不让重建禁用态隐藏重入。
+  final first = _backupAction(tester, firstCloud);
+  final second = _backupAction(tester, secondCloud);
+  first();
+  second();
+  await tester.pump();
+  final readsWhilePending = storage.privateReads;
+  storage.pending.complete(null);
+  for (var frame = 0; frame < 100; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(readsWhilePending, 1);
+  expect(storage.privateReads, 1);
+  expect(tester.takeException(), isNull);
 }
