@@ -20,7 +20,7 @@ class UpstreamLedgerTests(unittest.TestCase):
         (self.root / 'oracle').write_bytes(raw)
         row = dict(zip(_FIELDS, ['synthetic'] * len(_FIELDS)))
         row.update(status='PASS', plan_sha='b' * 64, backend_sha='a' * 40,
-                   app_sha='a' * 40, config_hash='c' * 64, exit_code='0',
+                   app_sha='a' * 40, other_repo_sha='-', config_hash='c' * 64, exit_code='0',
                    test_count='1', evidence_path='oracle',
                    evidence_sha256=hashlib.sha256(raw).hexdigest())
         self.rows = [dict(row, id=identifier, card=_CARDS[identifier])
@@ -45,6 +45,20 @@ class UpstreamLedgerTests(unittest.TestCase):
 
     def test_synthetic_full_ledger_structure_only(self):
         self.assertEqual([], self.audit())
+
+    def test_declared_admin_sha_requires_current_frozen_candidate(self):
+        self.rows[0]['other_repo_sha'] = 'd' * 40
+        self.assertIn('UPSTREAM_OTHER_REPO_BINDING_MISMATCH:AC-00', self.audit())
+        self.frozen['candidates']['imboyadmin'] = {'head': 'd' * 40}
+        self.assertEqual([], self.audit())
+        self.rows[0]['other_repo_sha'] = 'e' * 40
+        self.assertIn('UPSTREAM_OTHER_REPO_BINDING_MISMATCH:AC-00', self.audit())
+
+    def test_empty_invalid_or_zero_other_repo_sha_cannot_pass(self):
+        self.frozen['candidates']['imboyadmin'] = {'head': 'd' * 40}
+        for value in ('', 'synthetic', '0' * 40, 'd' * 39):
+            self.rows[0]['other_repo_sha'] = value
+            self.assertIn('UPSTREAM_OTHER_REPO_BINDING_MISMATCH:AC-00', self.audit())
 
     def test_wrong_card_rejected_even_with_complete_ids_and_valid_hashes(self):
         self.rows[0]['card'] = 'C17'

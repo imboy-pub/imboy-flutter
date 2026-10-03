@@ -96,7 +96,25 @@ def audit_upstream_ledger(root: Path, frozen: Any, observed: Any) -> List[str]:
         return errors
     for row in rows:
         errors.extend(_pass_errors(root, row, expected))
+        errors.extend(_other_repo_errors(row, frozen))
     return errors
+
+
+def _other_repo_errors(row: dict, frozen: dict) -> List[str]:
+    """Validate a declared third-repo binding; '-' declares no dependency.
+
+    This does not certify that omitting Admin is appropriate for an oracle.
+    Current full-product candidate repositories have one third repo: imboyadmin.
+    """
+    if row['status'] != 'PASS' or row['other_repo_sha'] == '-':
+        return []
+    candidate = frozen.get('candidates', {}).get('imboyadmin')
+    head = candidate.get('head') if isinstance(candidate, dict) else None
+    claimed = row['other_repo_sha']
+    if (not isinstance(head, str) or not re.fullmatch('[0-9a-f]{40}', head)
+            or head == '0' * 40 or claimed != head):
+        return ['UPSTREAM_OTHER_REPO_BINDING_MISMATCH:' + row['id']]
+    return []
 
 
 def register_cli(subparsers: Any) -> None:

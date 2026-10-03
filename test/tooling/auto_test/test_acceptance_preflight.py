@@ -214,6 +214,7 @@ class PreflightTests(unittest.TestCase):
         oracle = self.descriptor('upstream-oracle', {'synthetic': True})
         row = dict.fromkeys(_FIELDS, 'synthetic')
         row.update(status='PASS', exit_code='0', test_count='1',
+                   other_repo_sha='-',
                    plan_sha=self.frozen['version_inputs']['e2ee_plan']['sha256'],
                    backend_sha='a' * 40, app_sha='a' * 40, config_hash='c' * 64,
                    evidence_path=oracle['path'], evidence_sha256=oracle['sha256'])
