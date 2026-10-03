@@ -90,8 +90,11 @@ class _StatusDatabase extends _EmptyDatabase {
     ConflictAlgorithm? conflictAlgorithm,
   }) async {
     updates++;
-    entered.complete();
-    return release.future;
+    if (updates == 1) {
+      entered.complete();
+      return release.future;
+    }
+    return 0;
   }
 
   @override
@@ -224,62 +227,66 @@ void main() {
       SqliteService.setDbForTest(null);
     }
   });
-  for (final stale in [false, true]) {
-    test('status update completion session changed=$stale', () async {
-      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
-      await StorageService.init();
-      final database = _StatusDatabase();
-      SqliteService.setDbForTest(database);
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(secureChannel, (call) async {
-            if (call.method == 'write' &&
-                (call.arguments as Map)['key'] == 'secure_token') {
-              throw PlatformException(code: 'synthetic-login-stop');
+  for (final firstResult in [0, 1]) {
+    for (final stale in [false, true]) {
+      test(
+        'status update completion firstResult=$firstResult session changed=$stale',
+        () async {
+          SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+          await StorageService.init();
+          final database = _StatusDatabase();
+          SqliteService.setDbForTest(database);
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(secureChannel, (call) async {
+                if (call.method == 'write' &&
+                    (call.arguments as Map)['key'] == 'secure_token') {
+                  throw PlatformException(code: 'synthetic-login-stop');
+                }
+                return null;
+              });
+          final events = <DataWrapperEvent<dynamic>>[];
+          final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>()
+              .listen(events.add);
+          try {
+            final pending = const ChatNetworkService().updateMessageStatus(
+              'synthetic-status',
+              IMBoyMessageStatus.error,
+            );
+            await database.entered.future;
+            if (stale) {
+              await expectLater(
+                UserRepoLocal.to.loginAfter('synthetic-session', {
+                  'uid': '101',
+                  'token': 'synthetic-token',
+                  'refreshtoken': 'synthetic-refresh',
+                }),
+                throwsA(isA<PlatformException>()),
+              );
             }
-            return null;
-          });
-      final events = <DataWrapperEvent<dynamic>>[];
-      final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen(
-        events.add,
+            database.release.complete(firstResult);
+            await pending;
+            await pumpEventQueue();
+            expect(database.updates, !stale && firstResult == 0 ? 3 : 1);
+            expect(database.queries, stale || firstResult == 0 ? 0 : 2);
+            final notifications = events.where(
+              (e) => e.dataType == 'List<Message>',
+            );
+            expect(notifications.length, stale || firstResult == 0 ? 0 : 1);
+            if (!stale && firstResult > 0) {
+              expect(
+                (notifications.single.data as List).single.id,
+                'synthetic-status',
+              );
+            }
+          } finally {
+            await subscription.cancel();
+            SqliteService.setDbForTest(null);
+            TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+                .setMockMethodCallHandler(secureChannel, null);
+          }
+        },
       );
-      try {
-        final pending = const ChatNetworkService().updateMessageStatus(
-          'synthetic-status',
-          IMBoyMessageStatus.error,
-        );
-        await database.entered.future;
-        if (stale) {
-          await expectLater(
-            UserRepoLocal.to.loginAfter('synthetic-session', {
-              'uid': '101',
-              'token': 'synthetic-token',
-              'refreshtoken': 'synthetic-refresh',
-            }),
-            throwsA(isA<PlatformException>()),
-          );
-        }
-        database.release.complete(1);
-        await pending;
-        await pumpEventQueue();
-        expect(database.updates, 1);
-        expect(database.queries, stale ? 0 : 2);
-        final notifications = events.where(
-          (e) => e.dataType == 'List<Message>',
-        );
-        expect(notifications.length, stale ? 0 : 1);
-        if (!stale) {
-          expect(
-            (notifications.single.data as List).single.id,
-            'synthetic-status',
-          );
-        }
-      } finally {
-        await subscription.cancel();
-        SqliteService.setDbForTest(null);
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(secureChannel, null);
-      }
-    });
+    }
   }
   test('retry rejects expired generation and stale encode failure', () async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});

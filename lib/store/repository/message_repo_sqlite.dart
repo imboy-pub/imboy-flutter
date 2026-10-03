@@ -238,14 +238,25 @@ class MessageRepo implements MessageRepository {
 
   /// 跨表更新消息状态（遍历 C2C/C2G/C2S 查找消息并更新）
   ///
-  /// 返回 true 表示找到并更新成功，false 表示未找到
+  /// 返回 true 表示当前会话找到并更新成功；未找到或会话失效返回 false。
+  /// 会话失效时停止后续表更新，不回滚已开始的写入。
   static Future<bool> updateStatusInAnyTable(
     String messageId,
     int status,
   ) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        uid.isNotEmpty &&
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!isCurrent()) return false;
     try {
       final db = SqliteService.to;
       for (final tableType in ['C2C', 'C2G', 'C2S']) {
+        if (!isCurrent()) return false;
         final tb = getTableName(tableType);
         final updated = await db.update(
           tb,
@@ -253,6 +264,7 @@ class MessageRepo implements MessageRepository {
           where: '${MessageRepo.id} = ?',
           whereArgs: [messageId],
         );
+        if (!isCurrent()) return false;
         if (updated > 0) return true;
       }
       return false;
