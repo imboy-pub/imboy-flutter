@@ -31,9 +31,15 @@ void main() {
     "'\$kMegolmRestoredGrantPrefix\$suffix'": const {
       'prefix': 'megolm_restored_history_grant_',
     },
-    '_verifiedPrefix + widget.peerUid': const {
-      'prefix': 'safety_number_verified_',
+    // ── safety number 信任态（C05 verified 标记 + C07/AC-15 设备集合）──
+    // 页面直写已收口到 SafetyNumberService（AC-15），表达式全部在 service 内。
+    '_verifiedKeyPrefix + peerUid': const {'prefix': 'safety_number_verified_'},
+    '_approvedDevsetKeyPrefix + peerUid': const {
+      'prefix': 'safety_number_devset_',
     },
+    // 局部变量：_checkDeviceSetDrift 内 baselineKey = _devsetBaselineKeyPrefix
+    // + peerUid（safety_number_devset_ 前缀覆盖 devset_baseline_ 子族）
+    'baselineKey': const {'prefix': 'safety_number_devset_'},
     'kE2eeBackupPassphraseSecureKey': const {'prefix': 'e2ee_'},
     // ── 常量（定义处值见各 service）──
     '_accountPickleStorageKey': const {'prefix': 'olm_'},

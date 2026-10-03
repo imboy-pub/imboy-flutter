@@ -29,6 +29,8 @@ void main() {
     'megolm_restored_history_grant_gid7:sess1': 'restored-grant',
     'group_e2ee_mode_gid7': '1',
     'safety_number_verified_9001': '1',
+    'safety_number_devset_9001': '["d1","d2"]',
+    'safety_number_devset_baseline_9001': '["d1"]',
     'db_cipher_key_uid5': 'sqlcipher',
     'mls_reserved_future': 'mls',
   };
@@ -137,6 +139,8 @@ void main() {
       'megolm_restored_history_grant_g1:s1',
       'group_e2ee_mode_g1',
       'safety_number_verified_9001',
+      'safety_number_devset_9001',
+      'safety_number_devset_baseline_9001',
       'db_cipher_key_u1',
       'mls_group_state',
     ];

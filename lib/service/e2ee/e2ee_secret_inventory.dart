@@ -80,6 +80,8 @@ class SecretCategory {
 /// - SQLCipher DB key（`db_cipher_key_*`，删除后旧库无法打开）；
 /// - safety number 验证标记（`safety_number_verified_*`，C05：信任态残留，
 ///   换号不清会让新账号错误继承旧账号对同一 peer 的「已验证」结论）；
+/// - safety number 设备集合（`safety_number_devset_*`，C07/AC-15：批准集合
+///   与漂移基线，同为对 peer 的信任态/观察态）；
 /// - MLS 预留（`mls_*`，尚无写入方）；
 /// - 各服务内存缓存与本地备份临时文件。
 ///
@@ -129,6 +131,9 @@ class E2eeSecretInventory {
     'megolm_restored_history_grant_', // 备份恢复会话的范围门 marker
     'group_e2ee_mode_', // 群 E2EE 旗标（服务端权威，可重拉）
     'safety_number_verified_', // safety number 信任态（C05：防换号残留）
+    // safety number 设备集合（C07/AC-15）：用户批准集合 + 漂移检测基线
+    //（前缀同时覆盖 safety_number_devset_baseline_* 子族）
+    'safety_number_devset_',
     'db_cipher_key_', // SQLCipher DB key（按 uid）
     'mls_', // MLS 预留
   ];
@@ -231,6 +236,22 @@ class E2eeSecretInventory {
       clearedOnLogout: true,
       clearedOnAccountSwitch: true,
       note: 'C05 新增：防换号后新账号错误继承旧账号验证结论',
+    ),
+    SecretCategory(
+      id: 'safety-number-device-set',
+      // 同前缀覆盖 safety_number_devset_<uid>（用户批准集合）与
+      // safety_number_devset_baseline_<uid>（漂移检测观察基线）两族键。
+      keyPrefix: 'safety_number_devset_',
+      storageLocation: 'secure storage',
+      derivation:
+          '用户验证安全码时记录的对端设备批准集合（排序 JSON）；'
+          '观察基线为服务端下发设备集合的本地快照',
+      inOsBackup: false,
+      clearedOnLogout: true,
+      clearedOnAccountSwitch: true,
+      note:
+          'C07/AC-15 新增：设备集合是对 peer 的信任态/观察态，换号不清会让'
+          '新账号继承旧账号的设备批准结论（与 safety_number_verified_ 同理）',
     ),
     SecretCategory(
       id: 'sqlcipher-db-key',
