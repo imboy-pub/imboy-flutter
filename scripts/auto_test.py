@@ -364,6 +364,18 @@ def capture_case(spec: dict, device: str, output: Path, hold_ms: int, app_env: s
         print('PLANNED: dry-run；未启动真机或读取测试账号。')
         print(shlex.join(command))
         return 0
+    # 执行前真实设备资格（与 run 同一门；dry-run 保持离线）。
+    devices, discovery_error = discover_devices()
+    if discovery_error:
+        print(f'BLOCKED: 设备发现失败（{discovery_error}）；资格不明时不启动采集子进程。')
+        return 2
+    qualified_platform, qual_errors = qualify_device(device, devices)
+    if qual_errors:
+        print(f'BLOCKED: 设备资格被拒（{device}）：{", ".join(qual_errors)}')
+        return 2
+    if platform != qualified_platform:
+        print(f'BLOCKED: --platform {platform} 与设备实际平台 {qualified_platform} 不一致。')
+        return 2
     completed = subprocess.run(command, cwd=ROOT, check=False)
     expected = spec.get('checkpoints', [])
     captured = sorted(path.name for path in output.glob('*.png'))

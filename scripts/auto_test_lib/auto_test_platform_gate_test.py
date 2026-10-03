@@ -189,6 +189,55 @@ class ExecuteGateBeforeSpawnTest(unittest.TestCase):
         self.assertIn('REALANDROID01', started[0])
 
 
+class CaptureGateTest(unittest.TestCase):
+    """capture 子命令与 run 共用执行前设备资格门。"""
+
+    def _capture(self, device: str, platform: str, execute: bool):
+        spec = {'id': 'CAP-SPEC', 'safe_to_execute': True,
+                'runner': {'type': 'flutter', 'target': 'cap_test.dart', 'requires': []},
+                'checkpoints': []}
+        spawned = []
+
+        def guard(*args, **kwargs):
+            spawned.append(args)
+            raise AssertionError('capture 在资格拒绝后仍启动了子进程')
+
+        with tempfile.TemporaryDirectory() as td, \
+             mock.patch.object(auto_test, 'discover_devices', return_value=(ALL, None)), \
+             mock.patch.object(auto_test.subprocess, 'run', side_effect=guard), \
+             mock.patch.object(auto_test, '_target_urls', return_value=('http://127.0.0.1:9801', None)):
+            code = auto_test.capture_case(spec, device, Path(td), 100, 'local_office',
+                                          platform, execute)
+        return code, spawned
+
+    def test_capture_ios_device_rejected_before_spawn(self):
+        code, spawned = self._capture('IPHONEUDID', 'android', execute=True)
+        self.assertEqual(code, 2)
+        self.assertEqual(spawned, [])
+
+    def test_capture_platform_mismatch_rejected_before_spawn(self):
+        code, spawned = self._capture('REALANDROID01', 'macos', execute=True)
+        self.assertEqual(code, 2)
+        self.assertEqual(spawned, [])
+
+    def test_capture_emulator_rejected_before_spawn(self):
+        code, spawned = self._capture('EMULATOR01', 'android', execute=True)
+        self.assertEqual(code, 2)
+        self.assertEqual(spawned, [])
+
+    def test_capture_dry_run_skips_device_discovery(self):
+        with mock.patch.object(auto_test, 'discover_devices') as disc, \
+             mock.patch.object(auto_test, '_target_urls', return_value=('http://127.0.0.1:9801', None)):
+            with tempfile.TemporaryDirectory() as td:
+                code = auto_test.capture_case(
+                    {'id': 'CAP-D', 'safe_to_execute': True,
+                     'runner': {'type': 'flutter', 'target': 'cap_test.dart', 'requires': []},
+                     'checkpoints': []},
+                    'ANY', Path(td), 100, 'local_office', 'android', execute=False)
+            disc.assert_not_called()
+        self.assertEqual(code, 0)
+
+
 class DryRunInferenceSeparationTest(unittest.TestCase):
     """离线 dry-run 的平台推断与执行资格严格分离。"""
 
