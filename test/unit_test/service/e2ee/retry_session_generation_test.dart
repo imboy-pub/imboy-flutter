@@ -130,8 +130,16 @@ void main() {
     }
     expect(calls, 0, reason: 'No unsimulated transport may run');
   });
-  for (final stale in [false, true]) {
-    test('manual retry session changed=$stale', () async {
+  for (final stage in [
+    'manual-normal',
+    'manual-stale',
+    'auto-normal',
+    'auto-queued',
+    'auto-inflight',
+    'auto-clear',
+  ]) {
+    final stale = !stage.endsWith('normal');
+    test('retry stage=$stage', () async {
       for (final table in ['msg_c2c', 'msg_c2g', 'msg_c2s']) {
         await db.execute(_msgC2cDdl.replaceFirst('msg_c2c', table));
       }
@@ -158,8 +166,7 @@ void main() {
           'action': '',
           'e2ee': jsonEncode({'protocol': 'olm', 'ciphertext': 'synthetic'}),
         });
-        final sending = retry.retryMessage('retry-synthetic', 'C2C');
-        if (stale) {
+        Future<void> invalidateSession() async {
           final repo = UserRepoLocal.to;
           final generation = repo.sessionGeneration;
           await expectLater(
@@ -173,7 +180,21 @@ void main() {
           expect(repo.sessionGeneration, generation + 1);
           expect(repo.currentUid, '100');
         }
-        expect(await sending, !stale);
+
+        if (stage.startsWith('manual')) {
+          final sending = retry.retryMessage('retry-synthetic', 'C2C');
+          if (stale) await invalidateSession();
+          expect(await sending, !stale);
+        } else {
+          retry.addToRetryQueue('retry-synthetic', 'C2C');
+          await pumpEventQueue();
+          retry.getRetryInfo('retry-synthetic')!.lastRetryTime -= 100000;
+          if (stage == 'auto-queued') await invalidateSession();
+          final sending = retry.retryFailedMessages();
+          if (stage == 'auto-inflight') await invalidateSession();
+          if (stage == 'auto-clear') retry.clearRetryQueue();
+          await sending;
+        }
         await pumpEventQueue();
         expect(sends, stale ? isEmpty : hasLength(1));
       } finally {

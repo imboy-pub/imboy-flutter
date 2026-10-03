@@ -339,18 +339,20 @@ class MessageRetry with EventSubscriptionManager {
     );
     _ensureTimerRunning();
     // 标记为"待重试"中间态（异步容错；不覆盖已成功/已撤回的终态）
-    unawaited(_markPendingRetryStatus(messageId, normalizedType));
+    unawaited(_markPendingRetryStatus(_retryQueue[messageId]!));
     iPrint('消息加入重试队列: $messageId, type=$normalizedType');
   }
 
   /// 将队列中消息置为 pendingRetry 中间态（仅当其仍处发送中/失败态）。
   ///
   /// 守卫：已 sent/delivered/seen/撤回 的终态不回退，避免覆盖成功/撤回结果。
-  Future<void> _markPendingRetryStatus(String messageId, String type) async {
+  Future<void> _markPendingRetryStatus(MessageRetryInfo info) async {
+    final messageId = info.messageId;
     try {
-      final repo = getMessageRepo(type);
+      if (!_isCurrentRetry(info)) return;
+      final repo = getMessageRepo(info.type);
       final msg = await repo.find(messageId);
-      if (msg == null) return;
+      if (!_isCurrentRetry(info) || msg == null) return;
       final s = msg.status;
       if (s == IMBoyMessageStatus.sent ||
           s == IMBoyMessageStatus.delivered ||
@@ -395,6 +397,17 @@ class MessageRetry with EventSubscriptionManager {
     }
   }
 
+  bool _isCurrentRetry(MessageRetryInfo info) =>
+      identical(_retryQueue[info.messageId], info) &&
+      UserRepoLocal.to.isCurrentSession(info.sessionGeneration) &&
+      !UserRepoLocal.to.isClearingSession;
+
+  void _removeRetryIfSame(MessageRetryInfo info) {
+    if (identical(_retryQueue[info.messageId], info)) {
+      _retryQueue.remove(info.messageId);
+    }
+  }
+
   Future<void> _retryFailedMessagesLocked() async {
     final now = DateTimeHelper.millisecond();
 
@@ -405,7 +418,11 @@ class MessageRetry with EventSubscriptionManager {
     final List<MessageRetryInfo> toRemove = [];
     final retryList = <MessageRetryInfo>[];
 
-    for (final info in _retryQueue.values) {
+    for (final info in _retryQueue.values.toList(growable: false)) {
+      if (!_isCurrentRetry(info)) {
+        toRemove.add(info);
+        continue;
+      }
       // 检查是否超过最大重试次数
       if (info.retryCount >= _maxRetryAttempts) {
         await _markMessageAsError(info);
@@ -423,6 +440,10 @@ class MessageRetry with EventSubscriptionManager {
       // 检查消息状态，已成功则无需重试
       final repo = getMessageRepo(info.type);
       final msg = await repo.find(info.messageId);
+      if (!_isCurrentRetry(info)) {
+        toRemove.add(info);
+        continue;
+      }
 
       if (msg == null) {
         // 消息不存在，从队列移除
@@ -446,7 +467,7 @@ class MessageRetry with EventSubscriptionManager {
 
     // 清理不需要重试的消息
     for (final info in toRemove) {
-      _retryQueue.remove(info.messageId);
+      _removeRetryIfSame(info);
     }
 
     // 重试消息
@@ -507,6 +528,7 @@ class MessageRetry with EventSubscriptionManager {
   /// 【修复 H3】使用数据库事务防止竞态条件
   /// 确保消息状态检查和更新的原子性
   Future<void> _retryMessage(MessageRetryInfo info) async {
+    if (!_isCurrentRetry(info)) return;
     try {
       final repo = getMessageRepo(info.type);
 
@@ -520,18 +542,21 @@ class MessageRetry with EventSubscriptionManager {
       // 用户永远看到「发送中」而不是「失败」，DB 写入无上限；且随后即出队，
       // retryCount 被丢弃，**永远到不了放弃上限**。
       final msg = await repo.find(info.messageId);
+      if (!_isCurrentRetry(info)) return;
       if (msg == null) {
         iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
-        _retryQueue.remove(info.messageId);
+        _removeRetryIfSame(info);
         return;
       }
-      if (await _isPlaintextRetryBlocked(msg)) {
+      final blocked = await _isPlaintextRetryBlocked(msg);
+      if (!_isCurrentRetry(info)) return;
+      if (blocked) {
         iPrint('🚫 [RETRY] 未加密消息不得重发，已拦下: ${info.messageId}');
         // 必须落终态再出队：库里的 payload 已经是明文，闸门条件不会自行好转。
         // 只出队不改状态的话，行仍是 sending/pendingRetry，下一轮扫描原样捞回，
         // 每个周期白跑一遍 DB —— 与 error 被扫描表收录是同一类闭环自噬。
         await _markMessageAsError(info);
-        _retryQueue.remove(info.messageId);
+        _removeRetryIfSame(info);
         return;
       }
 
@@ -548,6 +573,8 @@ class MessageRetry with EventSubscriptionManager {
         ],
       );
 
+      if (!_isCurrentRetry(info)) return;
+
       // 如果没有更新任何行，说明消息状态已被其他操作改变，跳过重试
       if (updatedRows == 0) {
         final msg = await repo.find(info.messageId);
@@ -558,7 +585,7 @@ class MessageRetry with EventSubscriptionManager {
             '⚠️ [RETRY] 消息状态已变更，跳过重试: ${info.messageId}, 当前状态: ${msg.status}',
           );
         }
-        _retryQueue.remove(info.messageId);
+        _removeRetryIfSame(info);
         return;
       }
 
@@ -607,12 +634,13 @@ class MessageRetry with EventSubscriptionManager {
       }
     } on Object catch (e) {
       iPrint('重试消息错误: ${info.messageId}, $e');
+      if (!_isCurrentRetry(info)) return;
       // 异常也计入一次尝试，避免异常场景无穷重试
       info.retryCount++;
       info.lastRetryTime = DateTimeHelper.millisecond();
       if (info.retryCount >= _maxRetryAttempts) {
         await _markMessageAsError(info);
-        _retryQueue.remove(info.messageId);
+        _removeRetryIfSame(info);
       }
     }
   }
@@ -747,10 +775,11 @@ class MessageRetry with EventSubscriptionManager {
   }
 
   Future<void> _markMessageAsError(MessageRetryInfo info) async {
+    if (!_isCurrentRetry(info)) return;
     try {
       final repo = getMessageRepo(info.type);
       final msg = await repo.find(info.messageId);
-      if (msg == null) return;
+      if (!_isCurrentRetry(info) || msg == null) return;
 
       if (msg.status == IMBoyMessageStatus.sent ||
           msg.status == IMBoyMessageStatus.delivered ||
@@ -805,6 +834,7 @@ class MessageRetry with EventSubscriptionManager {
 class MessageRetryInfo {
   final String messageId;
   final String type;
+  final int sessionGeneration;
   int retryCount;
   int lastRetryTime; // 毫秒时间戳
 
@@ -813,5 +843,7 @@ class MessageRetryInfo {
     required this.type,
     required this.retryCount,
     required this.lastRetryTime,
-  });
+    int? sessionGeneration,
+  }) : sessionGeneration =
+           sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 }
