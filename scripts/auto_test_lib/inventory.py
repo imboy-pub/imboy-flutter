@@ -227,7 +227,8 @@ def _make_record(
     component = _stem_component(stem)
     registered = component in route_components
     test_target = None
-    requirements = ['device.android']
+    platforms = ['android', 'macos']
+    requirements = ['device.' + platform for platform in platforms]
     if catalog_page:
         mapped = catalog_page.get('mapped_targets') or []
         if mapped:
@@ -242,9 +243,10 @@ def _make_record(
         'action': action,
         'expected_oracle': oracle,
         'details': details,
-        'platforms': ['android', 'macos'],
+        'platforms': platforms,
         'requirements': requirements,
-        'fixture': 'shared:readonly',
+        # Static extraction cannot establish a disposable fixture or authorization.
+        'fixture': 'pending:authorized-isolated',
         'test_target': test_target,
         'disposition': 'required',
         'exclusion_code': None,

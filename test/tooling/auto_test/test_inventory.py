@@ -85,6 +85,13 @@ class FunctionTargetDeclarationTest(unittest.TestCase):
 class InventoryGenerationTest(unittest.TestCase):
     """真实仓库：确定性 + --check + 生成物在盘。"""
 
+    def test_static_inventory_does_not_grant_shared_fixture_or_drop_platform(self):
+        data, _ = inventory.generate_inventory(ROOT)
+        for row in data['functions']:
+            self.assertEqual(row['requirements'],
+                             ['device.' + platform for platform in row['platforms']])
+            self.assertEqual(row['fixture'], 'pending:authorized-isolated')
+
     def test_billing_cancel_target_does_not_claim_payment_or_retry(self):
         data, _ = inventory.generate_inventory(ROOT)
         rows = [f for f in data["functions"]
