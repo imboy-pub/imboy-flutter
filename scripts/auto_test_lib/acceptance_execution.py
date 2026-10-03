@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from auto_test_lib import acceptance, acceptance_case_events, acceptance_contract
-from auto_test_lib import acceptance_preflight
+from auto_test_lib import acceptance_preflight, acceptance_coverage
 
 
 def audit_case_event_runs(root: Path, frozen_cases: Any, runs: Any) -> List[str]:
@@ -88,6 +88,9 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
         report, report_errors = acceptance.load_frozen_json(root, report_descriptor)
         result['errors'].extend(report_errors)
         if not report_errors and isinstance(report, dict):
+            result['errors'].extend(acceptance_coverage.audit_input_case_coverage(
+                frozen.get('coverage_inputs'), frozen.get('required_cases'),
+                report.get('coverage_mappings'), frozen.get('approved_dispositions')))
             result['errors'].extend(audit_run_attempt_links(
                 frozen.get('case_event_runs'), report.get('attempts')))
     return result

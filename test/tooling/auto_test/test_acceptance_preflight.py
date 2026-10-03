@@ -164,6 +164,15 @@ class PreflightTests(unittest.TestCase):
                 json.dumps(row, sort_keys=True, ensure_ascii=False, allow_nan=False,
                            separators=(',', ':')).encode()).hexdigest()}
             for row in self.report['attempts']]
+        self.frozen['coverage_inputs'] = [
+            {'input_kind': kind, 'input_id': 'synthetic-' + kind}
+            for kind in ['seed', 'generated', 'page', 'api', 'ws', 'admin']]
+        self.frozen['approved_dispositions'] = []
+        key = [case[field] for field in ('case_id', 'platform', 'profile', 'role_variant')]
+        self.report['coverage_mappings'] = [
+            dict(row, owner='/root', source_refs=['synthetic.dart:1'],
+                 disposition='CASE_MAPPED', case_keys=[key])
+            for row in self.frozen['coverage_inputs']]
 
     def test_execution_composition_requires_raw_run_index(self):
         self.assertIn('FROZEN_CASE_EVENT_RUNS_INVALID', self.execution_audit()['errors'])
@@ -230,6 +239,21 @@ class PreflightTests(unittest.TestCase):
         runs = self.frozen['case_event_runs'] * 2
         self.assertIn('CASE_EVENT_ATTEMPT_MISSING_UNKNOWN_OR_REUSED',
                       acceptance_execution.audit_run_attempt_links(runs, self.report['attempts']))
+
+    def test_execution_coverage_cannot_omit_inputs_or_report_mappings(self):
+        self.prepare_event_run()
+        inputs = self.frozen.pop('coverage_inputs')
+        self.assertTrue(self.execution_audit()['errors'])
+        self.frozen['coverage_inputs'] = inputs
+        self.report['coverage_mappings'].pop()
+        self.assertIn('COVERAGE_INPUT_MISSING', self.execution_audit()['errors'])
+
+    def test_execution_coverage_cannot_self_approve_disposal(self):
+        self.prepare_event_run()
+        self.report['coverage_mappings'][0].update(
+            disposition='DELETED', case_keys=[], approval_ref='worker-self-signed')
+        self.assertIn('COVERAGE_DISPOSITION_NOT_IN_FROZEN_APPROVALS',
+                      self.execution_audit()['errors'])
 
 
 if __name__ == '__main__':

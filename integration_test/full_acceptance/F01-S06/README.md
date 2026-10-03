@@ -91,3 +91,5 @@ result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 �
 CASE_MAPPED需要非空case_keys；MERGED需要保留用例且整行匹配独立冻结审批，DELETED仅允许空case_keys并匹配审批。审批规范哈希计算失败即拒绝，不能用空值匹配。报告不能自行减少冻结分母。
 
 组件目前未接组合CLI；仅证明相对于冻结索引的结构覆盖，不证明索引穷尽实际源码、映射语义正确、产品profile已批准或真实行为执行。当前全产品覆盖门仍未关闭。
+
+组合入口现强制执行F00覆盖结构门。schema2冻结输入必含coverage_inputs（六域input_kind/input_id全集）和approved_dispositions（整行独立审批集合，可为空）；report必含coverage_mappings。输入、审批和required集合来自同一独立固定hash冻结文档，报告不能用自签审批替代。旧样本若缺字段按新门拒绝，历史结果不改写。该接线不证明源码全集已完整收集或映射语义正确。
