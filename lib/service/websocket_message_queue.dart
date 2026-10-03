@@ -116,6 +116,7 @@ class PersistentMessageQueue {
   persistenceWriterForTest;
   Future<void> _pendingPersistence = Future<void>.value();
   Object? _persistenceError;
+  bool _recoveryBlocked = false;
 
   Future<bool> _writeSnapshot(SharedPreferences prefs, List<String> snapshot) {
     final writer = persistenceWriterForTest;
@@ -150,6 +151,7 @@ class PersistentMessageQueue {
 
   /// 初始化：从 SharedPreferences 加载历史队列
   Future<PersistentMessageQueue> init() async {
+    _recoveryBlocked = true;
     await _pendingPersistence;
     _prefs = await SharedPreferences.getInstance();
     final jsonList = _prefs?.getStringList(_storageKey) ?? [];
@@ -164,6 +166,9 @@ class PersistentMessageQueue {
         iPrint('⚠️ [QUEUE] 恢复消息失败: $e');
       }
     }
+    if (_projectedRestoreSize(groups.values) > _maxQueueSize) {
+      throw StateError('Queue recovery exceeds capacity');
+    }
     for (final group in groups.values) {
       _restoreGroup(group);
     }
@@ -172,7 +177,31 @@ class PersistentMessageQueue {
       messages.map((entry) => jsonEncode(entry.toJson())).toList(),
     );
     if (saved == false) throw StateError('Queue recovery persistence failed');
+    _recoveryBlocked = false;
     return this;
+  }
+
+  int _projectedRestoreSize(Iterable<List<QueuedMessage>> groups) {
+    var projected = messages.length;
+    for (final group in groups) {
+      final first = group.first;
+      final existing = messages
+          .where(
+            (entry) => entry.ownerUid == first.ownerUid && entry.id == first.id,
+          )
+          .toList();
+      final combined = [...existing, ...group];
+      final contents = combined.map((entry) => entry.data).toSet();
+      final quarantined =
+          contents.length > 1 || combined.any((entry) => entry.quarantined);
+      final restoredCount = quarantined
+          ? contents.length
+          : existing.isEmpty
+          ? 1
+          : existing.length;
+      projected += restoredCount - existing.length;
+    }
+    return projected;
   }
 
   void _restoreGroup(List<QueuedMessage> group) {
@@ -245,6 +274,7 @@ class PersistentMessageQueue {
     String ownerUid = '',
     int? sessionGeneration,
   }) {
+    if (_recoveryBlocked) return false;
     final msg = QueuedMessage(
       id: id,
       data: data,
@@ -273,6 +303,7 @@ class PersistentMessageQueue {
   ///
   /// 出队顺序：2(重试) > 1(高优先级) > 0(普通)
   QueuedMessage? dequeueByPriority({bool Function(QueuedMessage)? eligible}) {
+    if (_recoveryBlocked) return null;
     // 按优先级顺序检查：2(重试) > 1(高) > 0(普通)
     for (int p = 2; p >= 0; p--) {
       final queue = _priorityQueues[p]!;
@@ -304,6 +335,7 @@ class PersistentMessageQueue {
     String? ownerUid,
     int? sessionGeneration,
   }) {
+    if (_recoveryBlocked) return;
     final matches = messages
         .where(
           (entry) =>
@@ -383,6 +415,7 @@ class PersistentMessageQueue {
 
   /// 【新增 M1】清理过期消息
   void _cleanupExpiredMessages() {
+    if (_recoveryBlocked) return;
     final now = DateTime.now();
     int totalCleaned = 0;
 
@@ -457,6 +490,7 @@ class PersistentMessageQueue {
 
   /// 内部持久化
   void _save() {
+    if (_recoveryBlocked) return;
     final allMessages = <String>[];
     for (final queue in _priorityQueues.values) {
       for (final msg in queue) {

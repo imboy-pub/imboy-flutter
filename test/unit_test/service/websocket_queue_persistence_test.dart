@@ -82,4 +82,76 @@ void main() {
       expect(prefs.getStringList('ws_message_queue'), hasLength(2));
     },
   );
+  List<String> rows(int count, String prefix) => List.generate(
+    count,
+    (i) => jsonEncode({
+      'id': '$prefix-$i',
+      'data': 'synthetic-$i',
+      'ownerUid': '100',
+      'priority': 0,
+      'createdAt': DateTime.now().toIso8601String(),
+    }),
+  );
+  test('oversized restore preserves disk and does not mutate memory', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final original = rows(201, 'oversized');
+    await prefs.setStringList('ws_message_queue', original);
+    await expectLater(queue.init(), throwsA(isA<StateError>()));
+    expect(queue.messages, isEmpty);
+    expect(prefs.getStringList('ws_message_queue'), original);
+  });
+  test(
+    'merged restore capacity check preserves active memory and disk',
+    () async {
+      for (var i = 0; i < 150; i++) {
+        queue.enqueue(
+          'active-$i',
+          'synthetic',
+          ownerUid: '100',
+          sessionGeneration: 0,
+        );
+      }
+      await queue.flushPersistence();
+      final prefs = await SharedPreferences.getInstance();
+      final original = rows(150, 'restored');
+      await prefs.setStringList('ws_message_queue', original);
+      await expectLater(queue.init(), throwsA(isA<StateError>()));
+      expect(queue.messages, hasLength(150));
+      expect(
+        queue.messages.every((entry) => entry.id.startsWith('active-')),
+        isTrue,
+      );
+      expect(prefs.getStringList('ws_message_queue'), original);
+    },
+  );
+  test(
+    'failed restore blocks conflicting sends and writes until recovery',
+    () async {
+      queue.enqueue('conflict-0', 'old', ownerUid: '100', sessionGeneration: 0);
+      await queue.flushPersistence();
+      final prefs = await SharedPreferences.getInstance();
+      final original = rows(201, 'conflict');
+      await prefs.setStringList('ws_message_queue', original);
+      await expectLater(queue.init(), throwsA(isA<StateError>()));
+      expect(queue.dequeueByPriority(eligible: (_) => true), isNull);
+      expect(queue.enqueue('new', 'new'), isFalse);
+      queue.cleanupExpired();
+      await queue.flushPersistence();
+      expect(queue.messages.single.data, 'old');
+      expect(prefs.getStringList('ws_message_queue'), original);
+      await prefs.setStringList('ws_message_queue', original.take(1).toList());
+      await queue.init();
+      expect(queue.messages, hasLength(2));
+      expect(queue.messages.every((entry) => entry.quarantined), isTrue);
+      expect(queue.enqueue('after-recovery', 'synthetic'), isTrue);
+    },
+  );
+  test('exact capacity restore stays idempotent', () async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('ws_message_queue', rows(200, 'exact'));
+    await queue.init();
+    await queue.init();
+    expect(queue.messages, hasLength(200));
+    expect(prefs.getStringList('ws_message_queue'), hasLength(200));
+  });
 }
