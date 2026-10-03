@@ -64,6 +64,7 @@ class _OrganizationPickerPageState
 
   List<Organization> _orgs = const [];
   bool _loading = false;
+  int _refreshGeneration = 0;
   String? _error;
 
   /// 两阶段切换状态（ENT-APP-04）：进行中门（重复点击不重入）+ 页内
@@ -101,29 +102,30 @@ class _OrganizationPickerPageState
   }
 
   Future<void> _refresh() async {
+    final generation = ++_refreshGeneration;
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
       final organizations = await _api.allMine();
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       _cache.replaceMineOrgs(organizations);
       setState(() {
         _orgs = organizations;
       });
     } on OrganizationApiException catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       setState(() {
         _error = '${e.message} (code=${e.code})';
       });
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _refreshGeneration) return;
       setState(() {
         _error = e.toString();
       });
     } finally {
-      if (mounted) {
+      if (mounted && generation == _refreshGeneration) {
         setState(() {
           _loading = false;
         });

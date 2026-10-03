@@ -139,6 +139,32 @@ class _RoutingAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _DeferredPickerAdapter implements HttpClientAdapter {
+  final requests = <Completer<ResponseBody>>[];
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    final result = Completer<ResponseBody>();
+    requests.add(result);
+    return result.future;
+  }
+
+  void complete(int index, String id) => requests[index].complete(
+    ResponseBody.fromString(
+      jsonEncode(_mineOf([id])),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    ),
+  );
+  @override
+  void close({bool force = false}) {}
+}
+
 Map<String, dynamic> _ok(dynamic payload) => {
   'code': 0,
   'msg': 'success',
@@ -271,6 +297,35 @@ void main() {
     addTearDown(container.dispose);
     return container;
   }
+
+  testWidgets('旧列表刷新迟到不得覆盖新组织及缓存', (tester) async {
+    final adapter = _DeferredPickerAdapter();
+    HttpClient.adapterForTest = adapter;
+    await _pump(tester, makeContainer(_WsFakeApi(const [])));
+    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 1);
+    final refreshing = tester
+        .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+        .onRefresh();
+    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 2);
+    adapter.complete(1, _orgB);
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-picker-tile-7002')),
+    );
+    adapter.complete(0, _orgA);
+    await tester.pumpAndSettle();
+    await refreshing;
+    expect(find.byKey(const ValueKey('org-picker-tile-7002')), findsOneWidget);
+    expect(find.byKey(const ValueKey('org-picker-tile-7001')), findsNothing);
+    expect(OrganizationCache.forAccount(_accountKey).org(_orgB), isNotNull);
+    expect(OrganizationCache.forAccount(_accountKey).org(_orgA), isNull);
+  });
 
   testWidgets('数据源=Organization membership：mine 供料渲染组织行 + 加入企业入口', (
     tester,
