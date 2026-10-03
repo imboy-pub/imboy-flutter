@@ -14,6 +14,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/store/api/e2ee_api.dart' show E2EEGroupHistoryGrant;
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 import '../vodozemac_native_lib.dart';
@@ -168,6 +169,13 @@ void main() {
         mode: EncryptionMode.plaintext,
         initialized: true,
       );
+      // AC-17 C2G 套件门：注入设备能力查询（peerDid 有 Olm 身份 → 支持 Megolm）
+      GroupSessionService.to.debugGroupSuiteDeviceListLoader = (uid) async => [
+        {'device_id': uid == 'uid_peer_did' ? peerDid : senderDid},
+      ];
+      addTearDown(() {
+        GroupSessionService.to.debugGroupSuiteDeviceListLoader = null;
+      });
 
       Map<String, dynamic>? sentRoomKey;
       String? sentChatType;
@@ -240,6 +248,13 @@ void main() {
         mode: EncryptionMode.plaintext,
         initialized: true,
       );
+      // AC-17 C2G 套件门：注入设备能力查询（peerDid 支持 Megolm）
+      GroupSessionService.to.debugGroupSuiteDeviceListLoader = (uid) async => [
+        {'device_id': uid == 'uid_peer_did' ? peerDid : senderDid},
+      ];
+      addTearDown(() {
+        GroupSessionService.to.debugGroupSuiteDeviceListLoader = null;
+      });
 
       var roomKeyCount = 0;
       GroupSessionService.to.debugRoomKeySender = (chatType, to, payload) =>
@@ -362,7 +377,9 @@ void main() {
       final pem = keyInfo['public_key'] as String;
       deviceId = did; // handleRoomKeyMessage 按全局 deviceId 找本设备条目
 
-      const gid = 'g_h1_regression';
+      // AC-18：群域 gid 用数字（生产 gid 为 TSID 数字串，授权区间锚定数字域）；
+      // 注入权威 grant loader（handleRoomKeyMessage 群域强制 grant 验证）。
+      const gid = '9101';
       final outbound = vod.GroupSession();
       final sessionId = outbound.sessionId;
       final exported = outbound.toInbound().exportAt(0)!;
@@ -377,6 +394,15 @@ void main() {
       // （返回真实 exported 供 import）；不再依赖 RSA ek 传输。
       GroupSessionService.to.debugOlmUnwrap = (a, b, c, d) async => exported;
       addTearDown(() => GroupSessionService.to.debugOlmUnwrap = null);
+      GroupSessionService.to.debugHistoryGrantLoader = (g, sid) async =>
+          E2EEGroupHistoryGrant(
+            gid: g,
+            sessionId: sid,
+            generationNo: 1,
+            startSeq: 1,
+            endSeq: 100,
+          );
+      addTearDown(() => GroupSessionService.to.debugHistoryGrantLoader = null);
       await GroupSessionService.attachOlmWraps(
         keys: payload['keys'] as List,
         exportedKey: exported,

@@ -21,7 +21,9 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
+import 'package:imboy/store/api/olm_api.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/e2ee/capability_guard.dart';
 
 /// Megolm 会话套件标识（e2ee 元数据 e2ee_suite 字段，区分既有 RSA+AES 套件）
 const String kMegolmSuite = 'MEGOLM.V1';
@@ -124,6 +126,17 @@ class GroupSessionService {
   @visibleForTesting
   Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
   debugHistoryGrantLoader;
+
+  /// AC-17 C2G 固定套件门的设备能力查询注入点（生产默认 `OlmApi().listDevices`，
+  /// 与 [E2EEService.debugOlmDeviceListLoader] 同模式）。
+  @visibleForTesting
+  Future<List<Map<String, dynamic>>> Function(String uid)?
+  debugGroupSuiteDeviceListLoader;
+
+  /// AC-17：C2G 套件门累计拒发计数（进程内；rollout 观测与测试断言用，
+  /// 与后端 C12obs 的 group_e2ee_plaintext_rejected_total 对称）。
+  /// 拒发 = fail-closed：不降级 RSA、不静默跳过设备、不产出半份 room key。
+  static int c2gSuiteIncompatibleCount = 0;
 
   // ===== 群级 E2EE 旗标（来源：S2C group_e2ee_mode 广播 / 群详情 / 收到 room key）=====
 
@@ -260,6 +273,19 @@ class GroupSessionService {
         (DateTime.now().millisecondsSinceEpoch - outbound.createdAt) >=
             _maxSessionAgeMs;
     if (needsRotate) {
+      // AC-17 C2G 套件门（C07 建议生产接线）：新会话建立或设备集合变化时，
+      // 对全量 recipient 设备执行 FixedSuitePolicy(scope:'c2g') 校验，
+      // 任一设备不支持 Megolm 套件（旧端仅有 RSA / 能力未知）→ 显式拒发。
+      // 消息数/存活时间超限的 rotate 设备集合未变、能力结论不变，不重复查询
+      // （与 room key 全量重分发同节奏）。
+      if (isGroup && (outbound == null || !setEquals(outbound.dids, didSet))) {
+        await enforceGroupFanoutSuitePolicy(
+          gid: scopeKey,
+          recipientDidToPem: Map<String, String>.from(didToPem)
+            ..remove(deviceId),
+          didToUid: deviceKeys['didToUid'] ?? const <String, String>{},
+        );
+      }
       // ponytail: 任何成员/设备集合变化都整体 rotate + 全量重分发；
       // 若 key 消息量成为负担，可对"仅新增设备"改为 exportAt(当前 index) 定向补发
       outbound = await _rotateAndDistribute(
@@ -464,12 +490,29 @@ class GroupSessionService {
         );
         return true;
       }
+      // AC-18 历史授权区间：群 room key 落地前必须取得与服务器一致的权威
+      // grant（generation/start/end）。被撤销成员的 grant 查询会被服务端
+      // deny（authorize_group_history → denied），此时拒存 room key
+      // （fail-closed）——防止误投/重放的 room key 让离线被踢设备在重连后
+      // 解密撤销后的消息。C2C 域（scope='c2c'）无历史授权语义，不校验。
+      if (storageScope != c2cScope) {
+        final grantVerified = await _storeAuthoritativeHistoryGrant(
+          storageScope,
+          sessionId,
+        );
+        if (!grantVerified) {
+          AppLogger.error(
+            '[group_session] 权威 grant 验证失败，拒存群 room key '
+            'scope=$storageScope session=$sessionId',
+          );
+          return true; // 丢弃（不写安全存储、不进内存缓存）
+        }
+      }
       await StorageSecureService.to.write(
         key: '$_inboundKeyPrefix$storageScope:$sessionId',
         value: exported,
       );
       _inbound['$storageScope:$sessionId'] = inbound;
-      await _storeAuthoritativeHistoryGrant(storageScope, sessionId);
       // 安全：不从 room key 反推群策略旗标——e2ee_room_key 是任意成员可发的 C2G
       // 具名 action（后端仅校验 is_member，不校验群主/群 e2ee_mode），据此翻转
       // 本地强制加密旗标会让普通成员越权触发"仅群主可决策"的群级策略。旗标权威
@@ -650,12 +693,18 @@ class GroupSessionService {
     await _storeAuthoritativeHistoryGrant(storageScope, sessionId);
   }
 
-  Future<void> _storeAuthoritativeHistoryGrant(
+  /// 群域：加载并落档服务器权威 grant；返回是否成功。
+  ///
+  /// 接收侧（handleRoomKeyMessage）把返回值用作 room key 是否落地的门
+  /// （AC-18 fail-closed）；发送端自持路径（_storeInbound）忽略返回值——
+  /// 发送端必然刚通过成员/设备快照校验，grant 查询偶发失败不阻断发送，
+  /// 越权由服务端 attestation gate 兜底拒收。
+  Future<bool> _storeAuthoritativeHistoryGrant(
     String storageScope,
     String sessionId,
   ) async {
     final gid = BigInt.tryParse(storageScope);
-    if (gid == null || gid <= BigInt.zero) return;
+    if (gid == null || gid <= BigInt.zero) return false;
     try {
       final grant = await _loadAuthoritativeHistoryGrant(
         storageScope,
@@ -665,11 +714,13 @@ class GroupSessionService {
         key: '$kMegolmHistoryGrantPrefix$storageScope:$sessionId',
         value: jsonEncode(grant.toJson()),
       );
+      return true;
     } on Object catch (e) {
       iPrint(
         '[group_session] history grant unavailable '
         'scope=$storageScope error=${e.runtimeType}',
       );
+      return false;
     }
   }
 
@@ -755,6 +806,77 @@ class GroupSessionService {
   ) => _enforceRestoredHistoryGrant(gid, sessionId, convSeq);
 
   // ===== 纯函数（可独立单测，不依赖原生库）=====
+
+  /// AC-17 C2G 套件门：群 room key 分发前的固定套件能力校验（C02
+  /// [FixedSuitePolicy.enforcePeerSupportsRequired] scope:'c2g' 生产接线，
+  /// C07 建议）。
+  ///
+  /// 群会话固定 Megolm（协议规范 §8.2，发送链不做运行时协商），room key
+  /// 逐设备经 Olm 包裹分发——接收设备必须具备 Olm 身份（出现在服务端该
+  /// 成员 uid 的 Olm 设备列表中：有 Olm 身份 = 新客户端 = 同一 vodozemac
+  /// 库支持 Megolm）。
+  ///
+  /// fail-closed 语义（与 C2C 门 [E2EEService.enforceC2CFanoutSuitePolicy]
+  /// 同源）：任一 recipient 设备缺失 → [FixedSuiteIncompatibleException]
+  /// 显式拒发并递增 [c2gSuiteIncompatibleCount]——不降级 RSA、不静默跳过
+  /// 该设备、不产出半份 room key；`didToUid` 无映射 = 能力归属未知，同样
+  /// 拒绝（能力未知 = 不支持，不猜测）。查询列表为空（服务端查询失败，
+  /// `OlmApi.listDevices` 对 !ok 返回空表）时所有设备均不匹配 → 拒发。
+  ///
+  /// 幂等纯校验：不修改会话状态；同 uid 多设备只查询一次。
+  static Future<void> enforceGroupFanoutSuitePolicy({
+    required String gid,
+    required Map<String, String> recipientDidToPem,
+    required Map<String, String> didToUid,
+  }) async {
+    if (recipientDidToPem.isEmpty) return; // 单人自持会话无远端 recipient
+    final olmDevicesByUid = <String, Set<String>>{};
+    Future<Set<String>> olmDevicesOf(String uid) async {
+      final cached = olmDevicesByUid[uid];
+      if (cached != null) return cached;
+      final loader =
+          GroupSessionService.to.debugGroupSuiteDeviceListLoader ??
+          (String uid) => OlmApi().listDevices(uid: uid);
+      final devices = await loader(uid);
+      final dids = <String>{
+        for (final row in devices) row['device_id']?.toString() ?? '',
+      }..remove('');
+      olmDevicesByUid[uid] = dids;
+      return dids;
+    }
+
+    for (final did in recipientDidToPem.keys) {
+      final uid = didToUid[did] ?? '';
+      if (uid.isEmpty) {
+        // 设备 → 成员归属未知：无法定位能力声明来源，fail-closed 拒发
+        c2gSuiteIncompatibleCount++;
+        iPrint(
+          '[group_session][AC-17] C2G 套件门拒发：设备归属未知 '
+          'gid=$gid did=$did（能力未知 = 不支持，不猜测）',
+        );
+        throw FixedSuiteIncompatibleException(
+          scope: 'c2g',
+          requiredSuite: FixedSuitePolicy.requiredSuiteFor('c2g'),
+          peerDeviceId: did,
+          peerProtocols: const <String>{},
+        );
+      }
+      final olmDids = await olmDevicesOf(uid);
+      final supports = olmDids.contains(did);
+      if (!supports) {
+        c2gSuiteIncompatibleCount++;
+        iPrint(
+          '[group_session][AC-17] C2G 套件门拒发：设备不支持 Megolm 套件 '
+          'gid=$gid did=$did uid=$uid',
+        );
+      }
+      FixedSuitePolicy.enforcePeerSupportsRequired(
+        scope: 'c2g',
+        peerDeviceId: did,
+        peerProtocols: supports ? const <String>{'megolm'} : const <String>{},
+      );
+    }
+  }
 
   /// 组装 room key 分发 payload（v3 Olm-only）。
   /// [gid] 非空 → 群 payload；空/null → C2C payload（带 scope='c2c'）。
