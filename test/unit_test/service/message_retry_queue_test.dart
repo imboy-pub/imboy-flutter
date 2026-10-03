@@ -46,7 +46,7 @@ void main() {
       expect(retry.getRetryInfo('msg_rm'), isNotNull);
 
       AppEventBus.fire(
-        const RemoveFromRetryQueueRequestedEvent(
+        RemoveFromRetryQueueRequestedEvent(
           messageId: 'msg_rm',
           messageType: 'C2C',
           reason: 'test',

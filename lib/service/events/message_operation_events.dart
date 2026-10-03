@@ -2,6 +2,7 @@
 library;
 
 import 'package:imboy/service/events/base_event.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// ACK 发送请求事件
 ///
@@ -208,14 +209,27 @@ final class RemoveFromRetryQueueRequestedEvent extends AppEvent {
   /// 移除原因（success, failed, revoked 等）
   final String reason;
 
-  const RemoveFromRetryQueueRequestedEvent({
+  final String ownerUid;
+  final int sessionGeneration;
+
+  RemoveFromRetryQueueRequestedEvent({
     required this.messageId,
     required this.messageType,
     this.reason = 'success',
-  });
+    String? ownerUid,
+    int? sessionGeneration,
+  }) : ownerUid = ownerUid ?? UserRepoLocal.to.currentUid,
+       sessionGeneration =
+           sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 
   @override
-  List<Object> get props => [messageId, messageType, reason];
+  List<Object> get props => [
+    messageId,
+    messageType,
+    reason,
+    ownerUid,
+    sessionGeneration,
+  ];
 
   @override
   String toString() {

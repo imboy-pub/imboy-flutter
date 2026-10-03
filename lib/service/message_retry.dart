@@ -144,10 +144,16 @@ class MessageRetry with EventSubscriptionManager {
     // 使用 EventSubscriptionManager 管理
     subscribeTo(
       AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().listen((event) {
+        if (!_isRemovalSessionCurrent(event)) return;
+        final pending = _retryQueue[event.messageId];
+        if (pending != null &&
+            pending.sessionGeneration != event.sessionGeneration) {
+          return;
+        }
         removeFromRetryQueue(event.messageId);
         // E2EE-027 outbox 读侧接线：ACK 移除重试时同步确认 outbox 条目
         // （防 crypto_outbox 无限增长；清理失败只记日志，不影响 ACK 主路径）
-        unawaited(_confirmOutboxQuietly(event.messageId));
+        unawaited(_confirmOutboxQuietly(event));
         iPrint(
           '🗑️ [RETRY_QUEUE] 从重试队列移除: messageId=${event.messageId}, reason=${event.reason}',
         );
@@ -155,15 +161,27 @@ class MessageRetry with EventSubscriptionManager {
     );
   }
 
+  bool _isRemovalSessionCurrent(RemoveFromRetryQueueRequestedEvent event) {
+    final session = UserRepoLocal.to;
+    return !session.isClearingSession &&
+        session.currentUid == event.ownerUid &&
+        session.isCurrentSession(event.sessionGeneration);
+  }
+
   /// E2EE-027 outbox 读侧接线：确认 outbox 条目（ACK 汇聚点调用）。
   /// 卫生动作非安全路径：失败静默记录，不阻断 ACK/重试移除。
-  Future<void> _confirmOutboxQuietly(String messageId) async {
+  Future<void> _confirmOutboxQuietly(
+    RemoveFromRetryQueueRequestedEvent event,
+  ) async {
+    if (!_isRemovalSessionCurrent(event)) return;
     try {
       final db = await SqliteService.to.db;
-      if (db == null) return;
-      await CryptoStore(db).confirmOutbox(messageId);
+      if (db == null || !_isRemovalSessionCurrent(event)) return;
+      await CryptoStore(db).confirmOutbox(event.messageId);
     } on Object catch (e) {
-      iPrint('⚠️ [RETRY] outbox 确认失败（不影响 ACK）: $messageId, $e');
+      iPrint(
+        '⚠️ [RETRY] outbox 确认失败（不影响 ACK）: ${event.messageId}, errType=${e.runtimeType}',
+      );
     }
   }
 

@@ -309,6 +309,7 @@ class MessageActions {
   ) async {
     final msgType = parseModelString(data['type']);
     final currentUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
 
     // 【重要】从重试队列中移除撤回消息
     final revokeMsgId = parseModelString(data['id']);
@@ -318,6 +319,8 @@ class MessageActions {
           messageId: revokeMsgId,
           messageType: msgType,
           reason: 'revoked',
+          ownerUid: currentUid,
+          sessionGeneration: generation,
         ),
       );
       iPrint('✅ [REVOKE_ACK] 已从重试队列移除撤回消息: revokeMsgId=$revokeMsgId');
@@ -446,6 +449,7 @@ class MessageActions {
     final msgType = parseModelString(data['type']);
     final payload = parseModelJsonMap(data['payload']) ?? {};
     final currentUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
 
     // 【重要】从重试队列中移除编辑消息
     final editMsgId = parseModelString(data['id']);
@@ -455,6 +459,8 @@ class MessageActions {
           messageId: editMsgId,
           messageType: msgType,
           reason: 'edited',
+          ownerUid: currentUid,
+          sessionGeneration: generation,
         ),
       );
       iPrint('✅ [EDIT_ACK] 已从重试队列移除编辑消息: editMsgId=$editMsgId');
@@ -1295,6 +1301,8 @@ class MessageActions {
             RemoveFromRetryQueueRequestedEvent(
               messageId: msgId,
               messageType: chatType,
+              ownerUid: ownerUid,
+              sessionGeneration: generation,
               reason: 'not_a_friend',
             ),
           );
@@ -1370,6 +1378,8 @@ class MessageActions {
             RemoveFromRetryQueueRequestedEvent(
               messageId: msgId,
               messageType: chatType,
+              ownerUid: ownerUid,
+              sessionGeneration: generation,
               reason: 'in_denylist',
             ),
           );

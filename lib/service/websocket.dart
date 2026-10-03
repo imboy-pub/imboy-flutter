@@ -887,6 +887,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 统一处理消息确认（包含ACK和撤回确认）
   void _handleMessageAck(String action, String messageId, {String? reason}) {
+    final ownerUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     // action-ACK（撤回/编辑/表情回应等无 *_SERVER_ACK 的操作确认）：
     // 汇入出站确认状态机的单一清除入口（MessageRetry 停重发）。
     // CLIENT_ACK_CONFIRM/ERROR 属机制C（入站收据），不在此列。
@@ -899,6 +901,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           messageId: messageId,
           messageType: 'UNKNOWN',
           reason: 'ws_action_ack',
+          ownerUid: ownerUid,
+          sessionGeneration: generation,
         ),
       );
     }

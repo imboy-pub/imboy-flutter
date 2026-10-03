@@ -1363,6 +1363,8 @@ class MessageService with EventSubscriptionManager {
   /// Handle server-side ACK for sent messages
   /// 处理服务端发送确认
   Future<void> _receiveServerAck(Map<String, dynamic> data) async {
+    final ownerUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     final msgId = parseModelString(data['id']);
     final type = parseModelString(data['type']);
     if (msgId.isEmpty || type.isEmpty) return;
@@ -1402,6 +1404,8 @@ class MessageService with EventSubscriptionManager {
         messageId: msgId,
         messageType: type,
         reason: 'server_ack',
+        ownerUid: ownerUid,
+        sessionGeneration: generation,
       ),
     );
     iPrint('✅ [SERVER_ACK] 请求从重试队列移除: msgId=$msgId');
