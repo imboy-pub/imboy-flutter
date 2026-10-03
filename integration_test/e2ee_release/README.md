@@ -25,10 +25,11 @@ journeys/
 ```sh
 # worktree 根目录；dylib 指向主仓 build 产物（worktree 无 gitignored spikes 产物）
 FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR=/path/to/imboyapp/spikes/e2ee-group/rust/target/release/ \
-  flutter test integration_test/e2ee_release/harness_smoke_test.dart --reporter expanded
+  flutter test test/unit_test/service/e2ee_release_harness_host_test.dart --reporter expanded
 ```
 
-注意：`integration_test/` 不被 `flutter test test/` 扫到，必须显式指定本文件。
+宿主自检通过 `test/` 下入口调用同一组测试，使用 `flutter_tester`。
+不要用原 `integration_test/` 路径做未授权的宿主自检：Flutter 可能自动选择连接的设备。
 
 ## 防伪边界（重要）
 

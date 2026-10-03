@@ -3,7 +3,7 @@
 /// 运行（worktree 根目录）：
 /// ```sh
 /// FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR=<主仓>/imboyapp/spikes/e2ee-group/rust/target/release/ \
-///   flutter test integration_test/e2ee_release/harness_smoke_test.dart --reporter expanded
+///   flutter test test/unit_test/service/e2ee_release_harness_host_test.dart --reporter expanded
 /// ```
 ///
 /// 防伪声明：本测试只证明冒烟 harness 自身可用（vodozemac 真实加解密、
