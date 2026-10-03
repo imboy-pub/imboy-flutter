@@ -82,6 +82,14 @@ class TestCatalogDiff(unittest.TestCase):
         issues = discovery.catalog_diff(self.current, disk)
         self.assertTrue(any('含已消失页面' in issue for issue in issues))
 
+    def test_route_registration_drift_detected(self):
+        disk = copy.deepcopy(self.current)
+        page = next(p for p in disk["pages"]
+                    if p["page"] == "lib/page/billing/plan_list_page.dart")
+        page["route_registered"] = False
+        issues = discovery.catalog_diff(self.current, disk)
+        self.assertTrue(any("route_registered" in issue for issue in issues))
+
     def test_invalid_exclusion_code_detected(self):
         disk = copy.deepcopy(self.current)
         disk['entries'][0]['exclusion_code'] = 'AI_THINKS_IT_IS_FINE'

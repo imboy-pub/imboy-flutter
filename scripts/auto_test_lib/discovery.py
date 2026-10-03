@@ -212,6 +212,14 @@ def catalog_diff(current: dict, disk: dict) -> list[str]:
         issues.append(f'catalog 缺失页面: {missing}')
     for stale in sorted(disk_pages - cur_pages):
         issues.append(f'catalog 含已消失页面: {stale}')
+    current_pages = {p['page']: p for p in current['pages']}
+    for page in disk['pages']:
+        expected = current_pages.get(page['page'])
+        if expected is not None and (
+            type(page.get('route_registered')) is not bool
+            or page['route_registered'] != expected['route_registered']
+        ):
+            issues.append(f"route_registered 漂移: {page['page']}")
     for key in ('integration_test_count', 'lib_page_count', 'module_page_count'):
         if current['generated_from'][key] != disk['generated_from'][key]:
             issues.append(f'{key} 漂移: disk={disk["generated_from"][key]} now={current["generated_from"][key]}')
