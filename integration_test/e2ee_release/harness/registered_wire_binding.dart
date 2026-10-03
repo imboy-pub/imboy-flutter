@@ -35,16 +35,22 @@ class RegisteredWireBinding {
     if (envelope is! Map<String, dynamic>) {
       throw const FormatException('recipient DID not registered');
     }
-    final header = _verifyContext(envelope, frame, sender, recipient);
+    final header = _verifyContext(
+      {'meta_version': 3, ...envelope},
+      frame,
+      sender,
+      recipient,
+    );
+    final action = header['action'] == 'message' ? '' : header['action'];
     _checkExisting(body, 'from', int.parse(sender.accountId));
     _checkExisting(body, 'to', int.parse(recipient.accountId));
     _checkExisting(body, 'msg_type', header['message_type']);
-    _checkExisting(body, 'action', header['action']);
+    _checkExisting(body, 'action', action);
     _checkExisting(body, 'created_at', header['created_at_ms']);
     body['from'] = int.parse(sender.accountId);
     body['to'] = int.parse(recipient.accountId);
     body['msg_type'] = header['message_type'];
-    body['action'] = header['action'];
+    body['action'] = action;
     body['created_at'] = header['created_at_ms'];
     return body;
   }
@@ -66,18 +72,26 @@ class RegisteredWireBinding {
     ProtectedFrameV3.validateEnvelopeBounds(envelope);
     final verification = ProtectedFrameV3.verifyOuterEnvelope(envelope);
     final header = verification.decodedHeader;
+    final participants = [sender.accountId, recipient.accountId]..sort();
+    final metadata = envelope['protocol_metadata'];
     if (!verification.isValid ||
         header == null ||
         header['message_id'] != frame.messageId ||
         header['scope'] != 'c2c' ||
         header['sender_uid'] != sender.accountId ||
         header['sender_did'] != sender.did ||
-        header['conversation_id'] != recipient.accountId ||
-        header['destination'] != recipient.did ||
+        header['conversation_id'] != participants.join(':') ||
+        header['destination'] != recipient.accountId ||
         header['message_type'] is! String ||
         (header['message_type'] as String).isEmpty ||
         header['action'] is! String ||
-        header['created_at_ms'] is! int) {
+        header['created_at_ms'] is! int ||
+        metadata is! Map<String, dynamic> ||
+        header['session_ref'] is! String ||
+        (header['session_ref'] as String).isEmpty ||
+        metadata['session_id'] != header['session_ref'] ||
+        envelope['ciphertext'] is! String ||
+        (envelope['ciphertext'] as String).isEmpty) {
       throw const FormatException('registered protected context mismatch');
     }
     return header;
