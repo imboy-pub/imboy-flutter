@@ -132,6 +132,104 @@ void main() {
       );
     });
 
+    // C17b 复审 m1：int64 顶格 length 探针。additionalInfo == 27 的
+    // 8 字节 length 可达 2^63-1（shortest 检查只放行 >= 2^32 的正数），
+    // 修复前 `_offset + length` 补码溢出为负、上限检查翻转，RangeError
+    // 从 sublistView 泄出（绕过调用方 CborParseException 捕获）。
+    // 不变量：任何 length 值（含顶格）只允许 CborParseException。
+    group('C17b m1: int64 顶格 length 防溢出', () {
+      // 0x5B = major 2 (byte string) + additionalInfo 27 (8-byte length)
+      final bstrMax = Uint8List.fromList([
+        0x5B, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, // len = 2^63-1
+      ]);
+      // 0x7B = major 3 (text string) + additionalInfo 27
+      final tstrMax = Uint8List.fromList([
+        0x7B,
+        0x7F,
+        0xFF,
+        0xFF,
+        0xFF,
+        0xFF,
+        0xFF,
+        0xFF,
+        0xFF,
+      ]);
+
+      test('byte string 顶格 length → CborParseException（非 RangeError）', () {
+        expect(
+          () => CanonicalCbor.decode(bstrMax),
+          throwsA(isA<CborParseException>()),
+          reason: '顶格 length 不得以 RangeError 泄漏',
+        );
+      });
+
+      test('text string 顶格 length → CborParseException（非 RangeError）', () {
+        expect(
+          () => CanonicalCbor.decode(tstrMax),
+          throwsA(isA<CborParseException>()),
+        );
+      });
+
+      test('补码负 length（0xFFFF.. = -1）→ CborParseException', () {
+        // shortest 检查应在 _readBytes 之前拦截（负值 < 2^32 判非最短）。
+        final bad = Uint8List.fromList([
+          0x5B,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+        ]);
+        expect(
+          () => CanonicalCbor.decode(bad),
+          throwsA(isA<CborParseException>()),
+        );
+      });
+
+      test('2^63-1 邻近的大正数 length 同样不溢出', () {
+        // 0x7FFFFFFFFFFFFF00：仍远超任何真实数据长度，防溢出比较须拒。
+        final bad = Uint8List.fromList([
+          0x5B,
+          0x7F,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0xFF,
+          0x00,
+        ]);
+        expect(
+          () => CanonicalCbor.decode(bad),
+          throwsA(isA<CborParseException>()),
+        );
+      });
+
+      test('verifyOuterEnvelope 全链路：顶格 length 只判 invalid、不抛', () {
+        // 构造 headerBytes = map(1) { "v": bytes(len=2^63-1) }，
+        // header_hash 与之匹配 → 走到 CBOR decode 层。修复前此处
+        // RangeError 会炸出 verifyOuterEnvelope。
+        final headerBytes = Uint8List.fromList([
+          0xA1, // map(1)
+          0x61, 0x76, // text(1) "v"
+          ...bstrMax, // byte string, len = 2^63-1
+        ]);
+        final envelope = <String, dynamic>{
+          'meta_version': 3,
+          'protected_header': base64Url.encode(headerBytes),
+          'header_hash': base64Url.encode(sha256.convert(headerBytes).bytes),
+          'ciphertext': '',
+          'protocol_metadata': <String, dynamic>{},
+        };
+        final result = ProtectedFrameV3.verifyOuterEnvelope(envelope);
+        expect(result.isValid, isFalse);
+        expect(result.reason, contains('CBOR invalid'));
+      });
+    });
+
     test('enforces max nesting depth', () {
       // 构造超过 16 层嵌套
       dynamic nested = 'leaf';

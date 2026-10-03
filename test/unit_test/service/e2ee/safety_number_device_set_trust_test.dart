@@ -82,8 +82,9 @@ void main() {
           final key = args?['key'] as String?;
           switch (call.method) {
             case 'write':
-              if (key != null)
+              if (key != null) {
                 secureStore[key] = args?['value']?.toString() ?? '';
+              }
               return null;
             case 'read':
               return secureStore[key];

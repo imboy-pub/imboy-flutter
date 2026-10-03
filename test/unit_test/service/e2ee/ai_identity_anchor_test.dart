@@ -15,7 +15,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 import 'package:imboy/service/e2ee/ai_identity_anchor.dart';
-import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
 
 import '../../vodozemac_native_lib.dart';
 
@@ -90,7 +89,6 @@ void main() {
       expect(identity.fingerprint, signed.anchorFingerprint);
       expect(identity.version, 7);
       // 与派生指纹不同：独立锚必然使旧（派生）确认失效
-      const derived = DeploymentScopedPeerIdentitySource();
       expect(identity.fingerprint, isNot(contains('imboy.ai-peer.v1|')));
     });
 

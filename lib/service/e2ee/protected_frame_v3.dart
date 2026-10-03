@@ -367,7 +367,15 @@ class _CborReader {
   }
 
   Uint8List _readBytes(int length) {
-    if (_offset + length > _data.length) {
+    // C17b 复审 m1：length 可为 int64 顶格值（additionalInfo == 27 时最大
+    // 2^63-1，且 shortest 检查只放行 >= 2^32 的正数）。原来的加法形式
+    // `_offset + length > _data.length` 在顶格时补码溢出为负数、比较翻转，
+    // 检查被绕过，随后 sublistView 以负 end 抛 **RangeError**——绕过调用方
+    // （verifyOuterEnvelope 等）的 `on CborParseException` 捕获，泄漏整条
+    // 链路。改用减法形式（`_data.length - _offset` 恒 >= 0，永不溢出），
+    // 并显式拒绝负 length 兜底（当前调用路径负值已被 shortest 检查拦截，
+    // 此处为函数自身不变量）：解析失败一律 CborParseException。
+    if (length < 0 || length > _data.length - _offset) {
       throw CborParseException('byte string length exceeds data');
     }
     final bytes = Uint8List.sublistView(_data, _offset, _offset + length);

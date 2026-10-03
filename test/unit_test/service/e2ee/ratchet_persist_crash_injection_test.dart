@@ -20,7 +20,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
-import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:imboy/service/olm_session_service.dart';

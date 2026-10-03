@@ -15,6 +15,7 @@
 /// | attachment descriptor | `AttachmentDescriptor.fromCanonicalBytes` | 合法 descriptor（带 thumb）canonical CBOR | `AttachmentDescriptorException` |
 /// | backup 下载体 | `E2EELocalBackupService.unpackBackupBytes` | `packBackupBytes` 真实导出（见下方 KDF 成本闸） | `ArgumentError` / `FormatException` / `StateError` |
 /// | handshake/claim 响应 | `OlmApi.parseClaimPayload`（jsonDecode 之后） | 合法 claim 响应 JSON | `FormatException` / `olm claim_key: invalid payload` 前缀 Exception |
+/// | get_identity 响应 | `OlmApi.parseIdentityPayload`（jsonDecode 之后；C17b 复审 gap 收口） | 合法 identity 响应 JSON | `FormatException` / `olm get_identity: invalid payload` 前缀 Exception |
 ///
 /// 不变量：**任何输入只能抛域白名单内的异常**（fail-closed 契约）。
 /// TypeError / RangeError / StackOverflowError 等非契约异常 = 测试失败
@@ -23,9 +24,12 @@
 /// KDF 成本闸（backup 域）：`unpackBackupBytes` 的 PBKDF2 迭代数来自
 /// 文件头偏移 12（攻击者可控，合法区间 [1, 1e6]）。随机腐蚀若把该字段
 /// 打进 (64, 1e6] 会让单轮 fuzz 跑数十万次 PBKDF2，oracle 预算被 KDF
-/// 吞掉。故腐蚀后若该字段 ∈ (64, 1e6] 则钳回 17（区间外/小区间值原样
-/// 保留——区间校验路径仍被腐蚀覆盖）。迭代数**越界值**的固定向量见
-/// `backup 下载体固定恶意向量` 组（越界值在派生前即被拒，零 KDF 成本）。
+/// 吞掉。故腐蚀后该字段 **> 64 即钳回 17**——不只 (64, 1e6] 的合法昂贵
+/// 区间，**越界值（> 1e6，如 0xFFFFFFFF）同样被钳**，seeded 腐蚀不会
+/// 命中「区间校验拒绝」分支（该路径由下方「迭代数越界固定向量」组以
+/// 零 KDF 成本覆盖）；<= 64 的值（含越界的 0）原样保留。迭代数越界的
+/// 固定向量见 `backup 下载体固定恶意向量` 组（越界值在派生前即被拒，
+/// 零 KDF 成本）。
 ///
 /// 迭代规模：每域 5 seeds × 40 rounds = 200 次（AC-35 下限）。
 /// 运行：`flutter test test/unit_test/service/e2ee/parser_fuzz_harness_test.dart`
@@ -438,7 +442,9 @@ void main() {
       corpus = packed;
     });
 
-    /// KDF 成本闸：腐蚀后若迭代数 ∈ (64, 1e6]（合法但昂贵），钳回 17。
+    /// KDF 成本闸：腐蚀后若迭代数 > 64（含合法昂贵区间 (64, 1e6] 与越界
+    /// 值 > 1e6），一律钳回 17——seeded 腐蚀不覆盖越界拒绝分支（该路径由
+    /// 固定向量组覆盖）；<= 64（含越界的 0）原样保留。
     Uint8List kdfCostGuard(Uint8List b) {
       final view = ByteData.sublistView(b);
       if (b.length < 16) return b;
@@ -599,6 +605,21 @@ void main() {
         {...valid}..remove('key_base64'),
         {...valid}..remove('identity'),
         {...valid}..remove('type'),
+        // C17b 复审 m2：非 String key 的 Map。生产 jsonDecode 不可达
+        // （JSON 对象 key 恒为 String），但 oracle 契约要求显式拒收而非
+        // `Map<String, dynamic>.from` 抛 TypeError 泄出。
+        // 顶层混入 int key（spread + int key → Map<dynamic, dynamic>）。
+        <dynamic, dynamic>{...valid, 42: 'x'},
+        // identity 是 int-key map。
+        <dynamic, dynamic>{
+          ...valid,
+          'identity': <dynamic, dynamic>{1: 'AA'},
+        },
+        // identity 混入 int key（合法 String key 也在）。
+        <dynamic, dynamic>{
+          ...valid,
+          'identity': <dynamic, dynamic>{'ed25519_key': 'AA', 7: 'BB'},
+        },
       ];
 
       for (var i = 0; i < vectors.length; i++) {
@@ -650,6 +671,103 @@ void main() {
           final decoded = jsonDecode(deep);
           OlmApi.parseClaimPayload(decoded);
         }, claimWhitelist);
+      }
+    });
+  });
+
+  group('fuzz: get_identity 响应（C17b 复审 gap 收口）', () {
+    /// 合法 identity corpus：与后端 `olm_identity_repo:find_identity` 的
+    /// SELECT 列一致（device_id/ed25519_key/curve25519_key/signature，
+    /// 密码学有效性不在 parse 层——验签在 OlmSessionService）。
+    Uint8List buildIdentityCorpus() {
+      final identity = <String, dynamic>{
+        'device_id': 'dev-peer-1',
+        'ed25519_key': base64Url.encode(
+          _bytes(List.generate(32, (i) => (i * 5) & 0xFF)),
+        ),
+        'curve25519_key': base64Url.encode(
+          _bytes(List.generate(32, (i) => (i * 11) & 0xFF)),
+        ),
+        'signature': base64Url.encode(
+          _bytes(List.generate(64, (i) => (i * 13) & 0xFF)),
+        ),
+      };
+      return _bytes(utf8.encode(jsonEncode(identity)));
+    }
+
+    bool identityWhitelist(Object e) =>
+        e is FormatException ||
+        (e is Exception &&
+            e.toString().contains('olm get_identity: invalid payload'));
+
+    test('seeded 腐蚀 ×200：jsonDecode + parseIdentityPayload 只抛白名单', () {
+      final corpus = buildIdentityCorpus();
+      var mutations = 0;
+      for (final seed in fuzzSeeds) {
+        final rng = Random(seed ^ 0x6E0);
+        for (var round = 0; round < roundsPerSeed; round++) {
+          final (mutated, ops) = _mutate(corpus, rng);
+          mutations++;
+          _checkInvariant('get_identity', seed, round, ops, () {
+            final decoded = jsonDecode(utf8.decode(mutated));
+            OlmApi.parseIdentityPayload(decoded);
+          }, identityWhitelist);
+        }
+      }
+      expect(mutations, greaterThanOrEqualTo(200));
+      // 合法 corpus 锚点：未腐蚀时必须完整通过（防恒拒收假绿）。
+      final ok = OlmApi.parseIdentityPayload(jsonDecode(utf8.decode(corpus)));
+      expect(ok['device_id'], 'dev-peer-1');
+    });
+
+    test('类型混淆/非 String key 固定向量：fail-closed 拒收（TypeError=失败）', () {
+      final valid = <String, dynamic>{
+        'device_id': 'dev-peer-1',
+        'ed25519_key': 'AA',
+        'curve25519_key': 'AA',
+        'signature': 'AA',
+      };
+
+      final vectors = <dynamic>[
+        'not a map',
+        42,
+        true,
+        null,
+        <dynamic>[],
+        {...valid, 'curve25519_key': 32},
+        {...valid, 'curve25519_key': null},
+        {...valid, 'ed25519_key': <dynamic>[]},
+        {...valid, 'signature': <dynamic, dynamic>{}},
+        {...valid, 'device_id': true},
+        {...valid}..remove('device_id'),
+        {...valid}..remove('ed25519_key'),
+        {...valid}..remove('curve25519_key'),
+        {...valid}..remove('signature'),
+        // 非 String key（生产 jsonDecode 不可达，oracle 契约边角）：
+        // 修复前 `Map<String, dynamic>.from` 在此处抛 TypeError。
+        <dynamic, dynamic>{...valid, 1: 'x'},
+        <dynamic, dynamic>{...valid, 'curve25519_key': 'AA', 9: null},
+      ];
+
+      for (var i = 0; i < vectors.length; i++) {
+        final raw = vectors[i];
+        if (raw is Map) {
+          expect(
+            () => OlmApi.parseIdentityPayload(raw),
+            throwsA(
+              predicate<Object>(
+                (e) =>
+                    e.toString().contains('olm get_identity: invalid payload'),
+                'fail-closed 拒收（vector #$i: ${raw.keys.toList()}）',
+              ),
+            ),
+            reason: '类型混淆 vector #$i 必须被 parseIdentityPayload 拒收',
+          );
+        } else {
+          _checkInvariant('get_identity.类型混淆', -1, i, 'fixed', () {
+            OlmApi.parseIdentityPayload(raw);
+          }, identityWhitelist);
+        }
       }
     });
   });

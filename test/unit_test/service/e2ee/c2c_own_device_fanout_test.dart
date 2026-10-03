@@ -15,7 +15,6 @@
 library;
 
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart'
     show DioException, HttpClientAdapter, RequestOptions, ResponseBody;
@@ -93,8 +92,7 @@ void main() {
       config: legacyOlmSessionConfig(),
     );
     // inboundResult.session 已解出 bootstrap 明文；保留该 session 供断言解密
-    targetInbound['$targetUid:$targetDid'] =
-        inboundResult.session as vod.Session;
+    targetInbound['$targetUid:$targetDid'] = inboundResult.session;
 
     final pickleKey = Uint8List.fromList(
       List<int>.generate(32, (i) => (i * 7 + 3) % 256),
@@ -307,8 +305,8 @@ void main() {
 
     // 缺钥设备被**显式**记录（不静默消失）：fan-out 元数据带 skipped_devices
     final skipped = e2ee['skipped_devices'];
-    expect(skipped, isA<Map>(), reason: '跳过必须显式记录，不得静默');
-    expect((skipped as Map).keys, contains(offlineDid));
+    expect(skipped, isA<Map<dynamic, dynamic>>(), reason: '跳过必须显式记录，不得静默');
+    expect(skipped.keys, contains(offlineDid));
 
     // AC-16 补投策略：跳过只对本条消息生效——设备恢复（会话可达）后，
     // 下一条消息的 fan-out 重新包含它，投递收敛；skipped_devices 不再出现。
