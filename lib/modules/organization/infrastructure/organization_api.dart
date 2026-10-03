@@ -72,11 +72,18 @@ class OrganizationApi extends HttpClient implements HumanDirectoryDataSource {
   /// 切换器需要完整成员企业列表；全部分页成功后才向界面交付。
   Future<List<Organization>> allMine() async {
     final account = UserRepoLocal.to.currentUid;
+    final session = UserRepoLocal.to.sessionGeneration;
     final organizations = <EntityId, Organization>{};
     var totalPages = 1;
     for (var page = 1; page <= totalPages; page++) {
+      if (!UserRepoLocal.to.isCurrentSession(session) ||
+          UserRepoLocal.to.isClearingSession) {
+        throw StateError('Organization session changed');
+      }
       final result = await mine(page: page, size: 100);
-      if (UserRepoLocal.to.currentUid != account) {
+      if (UserRepoLocal.to.currentUid != account ||
+          !UserRepoLocal.to.isCurrentSession(session) ||
+          UserRepoLocal.to.isClearingSession) {
         throw StateError('Organization account changed');
       }
       if (page == 1) totalPages = result.totalPage;

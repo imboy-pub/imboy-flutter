@@ -65,6 +65,11 @@ class _OrganizationPickerPageState
   List<Organization> _orgs = const [];
   bool _loading = false;
   int _refreshGeneration = 0;
+  final int _sessionGeneration = UserRepoLocal.to.sessionGeneration;
+
+  bool get _sessionCurrent =>
+      !UserRepoLocal.to.isClearingSession &&
+      UserRepoLocal.to.isCurrentSession(_sessionGeneration);
   int _accountEpoch = 0;
   String? _error;
 
@@ -97,7 +102,7 @@ class _OrganizationPickerPageState
     if (widget.autoJoin) {
       // 等首帧后再弹：对话框依赖已挂载的 Navigator/Overlay。
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _joinByCode();
+        if (mounted && _sessionCurrent && _accountKey.isNotEmpty) _joinByCode();
       });
     }
   }
@@ -113,9 +118,13 @@ class _OrganizationPickerPageState
   }
 
   bool _acceptRefresh(String account, int generation) =>
-      mounted && account == _accountKey && generation == _refreshGeneration;
+      mounted &&
+      _sessionCurrent &&
+      account == _accountKey &&
+      generation == _refreshGeneration;
 
   Future<void> _refresh() async {
+    if (!_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final generation = ++_refreshGeneration;
     setState(() {
@@ -151,10 +160,13 @@ class _OrganizationPickerPageState
   /// 两阶段原子切换（ENT-APP-04；语义见文件头）。任一阶段失败 → 页内
   /// 错误态 + 恢复旧状态；补偿失败按实际指针对齐，不把失败报告为成功。
   bool _acceptSwitch(String account, int epoch) =>
-      mounted && account == _accountKey && epoch == _accountEpoch;
+      mounted &&
+      _sessionCurrent &&
+      account == _accountKey &&
+      epoch == _accountEpoch;
 
   Future<void> _switchTo(Organization org) async {
-    if (_switching) return;
+    if (_switching || !_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final epoch = _accountEpoch;
     final prev = _currentOrg;
@@ -288,7 +300,7 @@ class _OrganizationPickerPageState
   }
 
   Future<void> _selectPersonal() async {
-    if (_switching) return;
+    if (_switching || !_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final epoch = _accountEpoch;
     setState(() => _switching = true);
@@ -327,6 +339,7 @@ class _OrganizationPickerPageState
   }
 
   Future<void> _joinByCode() async {
+    if (!_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final epoch = _accountEpoch;
     final result = await showDialog<OrgJoinDialogResult>(

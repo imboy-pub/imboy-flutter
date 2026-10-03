@@ -34,6 +34,7 @@ import 'organization_manage_page.dart';
 import 'organization_member_detail_page.dart';
 import 'organization_members_page.dart';
 import 'organization_picker_page.dart';
+import 'organization_session_scope.dart';
 import 'organization_tools_page.dart';
 import 'org_workspace_members_page.dart';
 
@@ -53,8 +54,12 @@ List<RouteBase> organizationRoutes() => [
   GoRoute(
     path: kOrganizationHomePath,
     name: 'organization_home',
-    pageBuilder: (context, state) =>
-        CupertinoPage(key: state.pageKey, child: const OrganizationHomePage()),
+    pageBuilder: (context, state) => CupertinoPage(
+      key: state.pageKey,
+      child: OrganizationSessionBoundary(
+        builder: (account) => OrganizationHomePage(accountKey: account),
+      ),
+    ),
     routes: [
       // 静态段 'picker' 优先于参数段 ':orgId'（go_router 匹配序）。
       GoRoute(
@@ -62,9 +67,12 @@ List<RouteBase> organizationRoutes() => [
         name: 'organization_picker',
         pageBuilder: (context, state) => CupertinoPage(
           key: state.pageKey,
-          child: OrganizationPickerPage(
-            // §5.1「加入企业」入口可直接落到加入动作（?autoJoin=1）
-            autoJoin: state.uri.queryParameters['autoJoin'] == '1',
+          child: OrganizationSessionBoundary(
+            builder: (account) => OrganizationPickerPage(
+              accountKey: account,
+              // §5.1「加入企业」入口可直接落到加入动作（?autoJoin=1）
+              autoJoin: state.uri.queryParameters['autoJoin'] == '1',
+            ),
           ),
         ),
       ),

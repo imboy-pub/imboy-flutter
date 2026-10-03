@@ -39,6 +39,11 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   List<Organization> _orgs = const [];
   bool _loading = false;
   int _refreshGeneration = 0;
+  final int _sessionGeneration = UserRepoLocal.to.sessionGeneration;
+
+  bool get _sessionCurrent =>
+      !UserRepoLocal.to.isClearingSession &&
+      UserRepoLocal.to.isCurrentSession(_sessionGeneration);
   int _invitationGeneration = 0;
   String? _error;
 
@@ -66,9 +71,13 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   }
 
   bool _acceptRefresh(String account, int generation) =>
-      mounted && account == _accountKey && generation == _refreshGeneration;
+      mounted &&
+      _sessionCurrent &&
+      account == _accountKey &&
+      generation == _refreshGeneration;
 
   Future<void> _refresh() async {
+    if (!_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final generation = ++_refreshGeneration;
     setState(() {
@@ -165,11 +174,13 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
 
   /// 只重算触达角标（不闪组织列表 loading）。
   Future<void> _refreshPendingInvites() async {
+    if (!_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final generation = ++_invitationGeneration;
     try {
       final invites = await _api.myInvitations(status: 'pending');
       if (!mounted ||
+          !_sessionCurrent ||
           account != _accountKey ||
           generation != _invitationGeneration) {
         return;
@@ -179,6 +190,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
       });
     } on Object {
       if (!mounted ||
+          !_sessionCurrent ||
           account != _accountKey ||
           generation != _invitationGeneration) {
         return;
