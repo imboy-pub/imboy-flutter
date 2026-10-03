@@ -181,6 +181,11 @@ class ReleaseSocketSession {
     _socket!.send(_codec!.encode(message));
   }
 
+  void sendClientAck(String messageId, String did) {
+    if (!_connected) throw StateError('release socket not confirmed');
+    _socket!.send(_codec!.encodeClientAck(messageId, did));
+  }
+
   Future<void> disconnect() async {
     final cleanup = _cleanup;
     _generation++;

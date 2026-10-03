@@ -40,6 +40,23 @@ class ReleaseWireCodec {
         : text;
   }
 
+  Object encodeClientAck(String messageId, String did) {
+    for (final value in [messageId, did]) {
+      if (value.isEmpty ||
+          value.contains(',') ||
+          value.contains('\r') ||
+          value.contains('\n')) {
+        throw const FormatException('invalid client acknowledgement identity');
+      }
+    }
+    final text = 'CLIENT_ACK,C2C,$messageId,$did';
+    final payload = Uint8List.fromList(utf8.encode(text));
+    _checkSize(payload.length + (framed ? ImboyFrame.headerSize : 0));
+    return framed
+        ? ImboyFrame.encode(type: FrameType.msgC2S, flags: 0, payload: payload)
+        : text;
+  }
+
   /// Returns business messages only. Control frames are surfaced separately,
   /// never converted to business ACKs; adapter must handle ping/close explicitly.
   DecodedReleaseFrame decode(Object data) {

@@ -38,6 +38,9 @@ class RegisteredBackendTransport implements ReleaseTransport {
   final _connectionEpoch = <String, int>{};
   final _inbox = <String, List<WireFrame>>{};
   final _pending = <(String, String), _PendingDelivery>{};
+  final _receipts = <(String, String), _PendingReceipt>{};
+  final _receiptAttempts = <(String, String, int)>{};
+  final _received = Set<WireFrame>.identity();
   final _acks = ServerAckTracker();
   final _clock = Stopwatch();
   bool _started = false;
@@ -126,6 +129,7 @@ class RegisteredBackendTransport implements ReleaseTransport {
     final message = frame.message;
     if (message == null) return;
     final session = _sessions[alias]!;
+    if (_receiveReceipt(alias, session.generation, message)) return;
     final result = _acks.receive(
       deviceAlias: alias,
       connectionGeneration: session.generation,
@@ -161,7 +165,80 @@ class RegisteredBackendTransport implements ReleaseTransport {
       body: message,
     );
     RegisteredWireBinding(fixture).prepareC2c(wire);
+    _received.add(wire);
     (_inbox[alias] ??= []).add(wire);
+  }
+
+  /// Explicit consumer acknowledgement. Caller must independently check decrypt
+  /// and display; this proves only the server's receipt-confirmation response.
+  Future<void> acknowledgeReceived(WireFrame frame) {
+    if (!_received.contains(frame)) {
+      throw StateError(
+        'cannot acknowledge a frame not received by this transport',
+      );
+    }
+    RegisteredWireBinding(fixture).prepareC2c(frame);
+    final alias = frame.recipientDid;
+    final session = _sessions[alias];
+    if (!_started || session == null || !session.connected) {
+      throw const UnconfirmedDelivery();
+    }
+    final key = (alias, frame.messageId);
+    final existing = _receipts[key];
+    if (existing != null) return existing.result.future;
+    if (!_receiptAttempts.add((alias, frame.messageId, session.generation))) {
+      throw StateError('receipt retry requires a new connection generation');
+    }
+    final receipt = _PendingReceipt(
+      frame,
+      session.generation,
+      _clock.elapsedMilliseconds + timeout.inMilliseconds,
+    );
+    _receipts[key] = receipt;
+    receipt.timer = Timer(timeout, () => _finishReceipt(key, false));
+    try {
+      session.sendClientAck(frame.messageId, fixture.devices[alias]!.did);
+    } on Object {
+      _finishReceipt(key, false);
+    }
+    return receipt.result.future;
+  }
+
+  bool _receiveReceipt(
+    String alias,
+    int generation,
+    Map<String, dynamic> message,
+  ) {
+    final type = message['type'];
+    if (type != 'CLIENT_ACK_CONFIRM' && type != 'CLIENT_ACK_ERROR') {
+      return false;
+    }
+    final id = message['id'];
+    final key = (alias, id is String ? id : '');
+    final pending = _receipts[key];
+    if (pending != null &&
+        pending.generation == generation &&
+        message['in_reply_to'] == id &&
+        message['action'] == type) {
+      _finishReceipt(
+        key,
+        type == 'CLIENT_ACK_CONFIRM' &&
+            _clock.elapsedMilliseconds < pending.deadline,
+      );
+    }
+    return true;
+  }
+
+  void _finishReceipt((String, String) key, bool confirmed) {
+    final receipt = _receipts.remove(key);
+    if (receipt == null) return;
+    receipt.timer?.cancel();
+    if (confirmed) {
+      _received.remove(receipt.frame);
+      receipt.result.complete();
+    } else {
+      receipt.result.completeError(const UnconfirmedDelivery());
+    }
   }
 
   void _finish((String, String) key, bool accepted) {
@@ -176,6 +253,10 @@ class RegisteredBackendTransport implements ReleaseTransport {
   }
 
   void _unconfirmDevice(String alias) {
+    final receipts = _receipts.keys.where((key) => key.$1 == alias).toList();
+    for (final key in receipts) {
+      _finishReceipt(key, false);
+    }
     final keys = _pending.keys.where((key) => key.$1 == alias).toList();
     for (final key in keys) {
       _acks.disconnect(alias, _pending[key]!.request.connectionGeneration);
@@ -204,7 +285,20 @@ class RegisteredBackendTransport implements ReleaseTransport {
     }
     await Future.wait(_sessions.values.map((session) => session.disconnect()));
     _inbox.clear();
+    _received.clear();
+    _receiptAttempts.clear();
   }
+}
+
+class _PendingReceipt {
+  _PendingReceipt(this.frame, this.generation, this.deadline) {
+    result.future.ignore();
+  }
+  final WireFrame frame;
+  final int generation;
+  final int deadline;
+  final result = Completer<void>();
+  Timer? timer;
 }
 
 class _PendingDelivery {

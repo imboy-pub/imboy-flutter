@@ -79,6 +79,118 @@ void main() {
     expect(inbox.single.messageId, 'xid');
     expect(inbox.single.senderDid, 'a1');
     expect(transport.drainInbox('b1'), isEmpty);
+    expect(channels['b1']!.sent.length, 1); // no automatic ACK
+    final confirmation = transport.acknowledgeReceived(inbox.single);
+    final encoded = channels['b1']!.sent.last as Uint8List;
+    final decoded = ImboyFrame.tryDecode(encoded)!;
+    expect(decoded.frame.type, FrameType.msgC2S);
+    expect(
+      utf8.decode(decoded.frame.payload),
+      'CLIENT_ACK,C2C,xid,registered-b',
+    );
+    channels['b1']!.input.add(
+      incoming({
+        'id': 'xid',
+        'type': 'CLIENT_ACK_CONFIRM',
+        'action': 'CLIENT_ACK_CONFIRM',
+        'in_reply_to': 'xid',
+      }),
+    );
+    await confirmation;
+    expect(() => transport.acknowledgeReceived(inbox.single), throwsStateError);
+  });
+  for (final event in ['error', 'disconnect']) {
+    test('receipt $event cannot become success', () async {
+      await transport.start();
+      await transport.connectDevice(recipient);
+      final body = RegisteredWireBinding(bindings.registered())
+          .prepareC2c(bindings.wire());
+      body['sender_did'] = 'registered-a';
+      channels['b1']!.input.add(incoming(body));
+      await Future<void>.delayed(Duration.zero);
+      final frame = transport.drainInbox('b1').single;
+      final failure = expectLater(
+        transport.acknowledgeReceived(frame),
+        throwsA(isA<UnconfirmedDelivery>()),
+      );
+      if (event == 'error') {
+        channels['b1']!.input.add(
+          incoming({
+            'id': 'xid',
+            'type': 'CLIENT_ACK_ERROR',
+            'action': 'CLIENT_ACK_ERROR',
+            'in_reply_to': 'xid',
+          }),
+        );
+      } else {
+        await transport.disconnectDevice(recipient);
+      }
+      await failure;
+      if (event == 'error') {
+        expect(() => transport.acknowledgeReceived(frame), throwsStateError);
+        channels['b1']!.input.add(
+          incoming({
+            'id': 'xid',
+            'type': 'CLIENT_ACK_CONFIRM',
+            'action': 'CLIENT_ACK_CONFIRM',
+            'in_reply_to': 'xid',
+          }),
+        );
+        await Future<void>.delayed(Duration.zero);
+      }
+    });
+  }
+  test('cannot acknowledge a locally generated outgoing frame', () {
+    expect(
+      () => transport.acknowledgeReceived(bindings.wire()),
+      throwsStateError,
+    );
+  });
+  test('receipt timeout and wrong confirmation remain unconfirmed', () async {
+    await transport.start();
+    await transport.connectDevice(recipient);
+    final body = RegisteredWireBinding(bindings.registered())
+        .prepareC2c(bindings.wire());
+    body['sender_did'] = 'registered-a';
+    channels['b1']!.input.add(incoming(body));
+    await Future<void>.delayed(Duration.zero);
+    final frame = transport.drainInbox('b1').single;
+    final failure = expectLater(
+      transport.acknowledgeReceived(frame),
+      throwsA(isA<UnconfirmedDelivery>()),
+    );
+    channels['b1']!.input.add(
+      incoming({
+        'id': 'other',
+        'type': 'CLIENT_ACK_CONFIRM',
+        'action': 'CLIENT_ACK_CONFIRM',
+        'in_reply_to': 'other',
+      }),
+    );
+    await failure;
+    expect(() => transport.acknowledgeReceived(frame), throwsStateError);
+    channels['b1']!.input.add(
+      incoming({
+        'id': 'xid',
+        'type': 'CLIENT_ACK_CONFIRM',
+        'action': 'CLIENT_ACK_CONFIRM',
+        'in_reply_to': 'xid',
+      }),
+    );
+    await Future<void>.delayed(Duration.zero);
+    await transport.disconnectDevice(recipient);
+    channels.remove('b1');
+    await transport.connectDevice(recipient);
+    final retried = transport.acknowledgeReceived(frame);
+    channels['b1']!.input.add(
+      incoming({
+        'id': 'xid',
+        'type': 'CLIENT_ACK_CONFIRM',
+        'action': 'CLIENT_ACK_CONFIRM',
+        'in_reply_to': 'xid',
+      }),
+    );
+    await retried;
   });
   test('synthetic protected identities fail before channel write', () async {
     await transport.start();

@@ -252,6 +252,9 @@ class RealBackendTransport implements ReleaseTransport {
   RegisteredBackendTransport get _registered =>
       _transport ?? (throw UnsupportedError(_stubMessage));
 
+  Future<void> acknowledgeReceived(WireFrame frame) =>
+      _registered.acknowledgeReceived(frame);
+
   @override
   String get layerId => 'real-backend';
 

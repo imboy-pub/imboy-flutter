@@ -107,4 +107,16 @@ void main() {
       throwsFormatException,
     );
   });
+  test('legacy receipt uses string IDs and rejects delimiter injection', () {
+    final codec = ReleaseWireCodec('text');
+    expect(codec.encodeClientAck('xid', 'did'), 'CLIENT_ACK,C2C,xid,did');
+    expect(
+      () => codec.encodeClientAck('xid,other', 'did'),
+      throwsFormatException,
+    );
+    expect(
+      () => codec.encodeClientAck('xid', 'did\nother'),
+      throwsFormatException,
+    );
+  });
 }
