@@ -810,6 +810,15 @@ class ChatNetworkService {
     final selfDidToKid = ((selfKeyResult['didToKid'] ?? {}) as Map)
         .cast<String, String>();
 
+    // A cached Olm session must not bypass the current self-device directory.
+    if (selfDidToPem.isNotEmpty) {
+      await E2EEService.enforceC2CFanoutSuitePolicy(
+        peerUid: myUid,
+        fanoutDeviceIds: selfDidToPem.keys.toSet(),
+        excludedFromGhostDetection: {myDid},
+      );
+    }
+
     // fan-out 目标：对端全部活跃设备 + 自己的其他设备。
     // 每个目标一台独立 Olm 会话（AC-16：各目标密文互不相同且各自可解）。
     final targets = <({String uid, String did, String pem, String kid})>[

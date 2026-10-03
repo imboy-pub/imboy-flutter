@@ -1336,6 +1336,7 @@ class E2EEService {
   static Future<Set<String>> enforceC2CFanoutSuitePolicy({
     required String peerUid,
     required Set<String> fanoutDeviceIds,
+    Set<String> excludedFromGhostDetection = const <String>{},
   }) async {
     final Future<List<Map<String, dynamic>>> Function(String uid) loader =
         debugOlmDeviceListLoader ?? ((uid) => OlmApi().listDevices(uid: uid));
@@ -1360,7 +1361,10 @@ class E2EEService {
 
     // 幽灵设备（AC-15）：服务端 Olm 列表下发、但不在本次 fan-out 集合中的
     // 未知设备——刷新 + 告警，不崩溃不静默（发送链本身继续）。
-    final ghosts = olmDids.difference(fanoutDeviceIds);
+    // Exclusions affect anomaly reporting only, never target capability checks.
+    final ghosts = olmDids
+        .difference(fanoutDeviceIds)
+        .difference(excludedFromGhostDetection);
     if (ghosts.isNotEmpty) {
       iPrint(
         '[E2EE][AC-15] ghost devices detected: peer=$peerUid '

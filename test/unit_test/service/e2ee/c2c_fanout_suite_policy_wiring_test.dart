@@ -259,4 +259,15 @@ void main() {
       expect(message, t.main.e2eeErrPeerSuiteUnsupported);
     });
   });
+  test('ghost exclusion cannot bypass target capability validation', () async {
+    E2EEService.debugOlmDeviceListLoader = (uid) async => [];
+    await expectLater(
+      E2EEService.enforceC2CFanoutSuitePolicy(
+        peerUid: peerUid,
+        fanoutDeviceIds: const {'b-1'},
+        excludedFromGhostDetection: const {'b-1'},
+      ),
+      throwsA(isA<FixedSuiteIncompatibleException>()),
+    );
+  });
 }
