@@ -17,6 +17,7 @@
     "functional": [
       "预置身份与expected_uid一致，组织名称可见",
       "点击首页通讯录入口后实际HumanDirectoryBrowserPage的orgId等于ACCEPTANCE_ORG_ID",
+      "目录初始根成员页中预置 ACCEPTANCE_DIRECTORY_MEMBER_ID 对应行展示精确 ACCEPTANCE_DIRECTORY_MEMBER_NAME；fixture须独立证明该成员归属当前组织",
       "页面出现不证明通讯录数据、零写入或授权，必须另行收集独立证据"
     ],
     "ui": [
@@ -52,5 +53,10 @@
   ],
   "function_oracles": {
     "fn:organization:organization_home_page:005": "指定合成组织名称可见后点击 organization-home-directory-entry，实际 HumanDirectoryBrowserPage.orgId 等于预置 ACCEPTANCE_ORG_ID；夹具必须明确当前组织指针或回落选择。此入口不证明通讯录成员数据、无写入或资源授权。"
-  }
+  },
+  "fixture_requirements": [
+    "Owned synthetic account, current organization/fallback bound to ACCEPTANCE_ORG_ID and exact organization name",
+    "Owned synthetic member in initial root directory page with exact ID and display name",
+    "Independent backend membership oracle and zero-write audit remain mandatory"
+  ]
 }

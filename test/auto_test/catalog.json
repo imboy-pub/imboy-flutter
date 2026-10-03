@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "4567805fd40837f5bd6cd579106d2a42c86d62fd",
-    "backend_head": "ab09d3b0065c60b9ae817a67e7dd9dc886924996",
+    "app_head": "ebd1127cc09a448c1df626435b96dda6a0964e9c",
+    "backend_head": "bde987b07d62f764a7b29fd4da497f53806f706a",
     "integration_test_count": 153,
     "lib_page_count": 166,
     "module_page_count": 22,
@@ -1239,7 +1239,7 @@
     {
       "id": "test:integration_test/full_acceptance/organization/organization_home_device_test.dart",
       "target": "integration_test/full_acceptance/organization/organization_home_device_test.dart",
-      "target_sha256": "ce4449c065545d261868b089299e3e019f475de3b4d7a29b0b1ef507b7524058",
+      "target_sha256": "fedb85bde60ca5f743bbfa6a7fc4ce85a19dd1499e2e79708054457dde9f19bc",
       "sources": [
         "lib/modules/organization/presentation/organization_home_page.dart"
       ],

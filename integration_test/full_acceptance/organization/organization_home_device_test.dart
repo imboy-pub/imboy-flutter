@@ -51,8 +51,34 @@ void _checkInputs(Map<String, String> inputs, String orgId, String orgName) {
     isEmpty,
   );
   expect(orgName.trim(), isNotEmpty);
+  expect(
+    validateBillingDeviceInputs({
+      ...inputs,
+      'expected_uid': const String.fromEnvironment(
+        'ACCEPTANCE_DIRECTORY_MEMBER_ID',
+      ),
+    }),
+    isEmpty,
+  );
+  expect(
+    const String.fromEnvironment('ACCEPTANCE_DIRECTORY_MEMBER_NAME').trim(),
+    isNotEmpty,
+  );
   expect(const bool.fromEnvironment('ACCEPTANCE_RUNNER_VERIFIED'), isTrue);
   expect(app.appEnv, 'local');
+}
+
+Future<void> _checkDirectoryMember(WidgetTester tester) async {
+  const memberId = String.fromEnvironment('ACCEPTANCE_DIRECTORY_MEMBER_ID');
+  const memberName = String.fromEnvironment('ACCEPTANCE_DIRECTORY_MEMBER_NAME');
+  final row = find.byKey(const ValueKey('org-dir-member-$memberId'));
+  // Fixture must place this owned synthetic member in the initial root page.
+  await _waitFor(tester, () => tester.any(row));
+  expect(row, findsOneWidget);
+  expect(
+    find.descendant(of: row, matching: find.text(memberName)),
+    findsOneWidget,
+  );
 }
 
 void main() {
@@ -96,7 +122,8 @@ void main() {
           .orgId,
       orgId,
     );
+    await _checkDirectoryMember(tester);
     // Fixture must bind the current organization pointer/fallback to orgId.
-    // Directory backend data, zero-write audit and device provenance remain separate.
+    // Backend identity/membership oracle, zero-write audit and provenance remain separate.
   });
 }
