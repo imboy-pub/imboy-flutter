@@ -83,3 +83,11 @@ result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 �
 该入口同时执行候选/运行指纹/尝试保留门及原始用例身份门，始终输出EXECUTION_RECORD_INPUTS_ONLY和product_pass=false。尚不能证明各组日志与独立attempt索引是同一次真实执行，真实业务事实、完整覆盖、UX和最终资格仍必须完成。
 
 组合入口的每个case_event_runs组现强制包含attempt_id，对应独立固定attempt_index所绑定的report attempts记录。同一attempt不可给多个日志组复用；events相对路径、events_sha256、exit_code整数0，以及parsed的PASS/executed/failed/skipped必须一致。旧的未关联样本按现行规则失败，历史校准保留不移签。关联一致不证明索引完整或设备、业务真实性。
+
+## F00输入覆盖结构组件
+
+`acceptance_coverage.audit_input_case_coverage` 要求协调者独立冻结的输入全集包含seed、generated、page、api、ws、admin六域，全部输入精确映射且全部冻结required格子仍有去向。映射必须有owner、source_refs及已知唯一的四维case_keys；明确占位符不能作为owner/oracle/source_refs。
+
+CASE_MAPPED需要非空case_keys；MERGED需要保留用例且整行匹配独立冻结审批，DELETED仅允许空case_keys并匹配审批。审批规范哈希计算失败即拒绝，不能用空值匹配。报告不能自行减少冻结分母。
+
+组件目前未接组合CLI；仅证明相对于冻结索引的结构覆盖，不证明索引穷尽实际源码、映射语义正确、产品profile已批准或真实行为执行。当前全产品覆盖门仍未关闭。
