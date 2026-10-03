@@ -139,6 +139,11 @@ class PreflightTests(unittest.TestCase):
                 self.descriptor('report.json', self.report), {})
 
     def prepare_event_run(self):
+        self.frozen['version_inputs'] = {
+            role: self.descriptor(role + '.snapshot', {'synthetic_role': role})
+            for role in ('product_plan', 'e2ee_plan', 'execution_contract', 'dispatch_cards',
+                         'acceptance_set', 'coverage_seed', 'input_manifest')}
+        self.report['version_inputs'] = copy.deepcopy(self.frozen['version_inputs'])
         self.frozen['defects'] = []
         self.report['defects'] = []
         self.frozen['cross_device_journeys'] = []
@@ -201,6 +206,11 @@ class PreflightTests(unittest.TestCase):
         self.frozen['defects'] = []
         del self.report['defects']
         self.assertIn('DEFECT_SET_INVALID', self.execution_audit()['errors'])
+
+    def test_execution_requires_version_input_components(self):
+        self.prepare_event_run()
+        del self.frozen['version_inputs']
+        self.assertIn('VERSION_INPUT_ROLE_SET_INVALID', self.execution_audit()['errors'])
 
     def test_execution_cli_checks_journey_inputs_without_writing(self):
         self.prepare_event_run()
