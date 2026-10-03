@@ -8,6 +8,7 @@
 /// - PL-4 当前套餐标记
 library;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,21 @@ import 'package:imboy/store/api/billing_api.dart';
 
 class _FakeBillingApi extends BillingApi {
   _FakeBillingApi({this.plansResult, this.subscriptionResult});
+
+  int subscribeCalls = 0;
+  int invoiceCalls = 0;
+
+  @override
+  Future<int?> subscribe(int planId) async {
+    subscribeCalls++;
+    return null;
+  }
+
+  @override
+  Future<bool> generateInvoice(int subscriptionId) async {
+    invoiceCalls++;
+    return false;
+  }
 
   final List<BillingPlan>? plansResult;
   final BillingSubscription? subscriptionResult;
@@ -58,6 +74,40 @@ Widget _buildTestApp(BillingApi api) {
 }
 
 void main() {
+  testWidgets('PL-6 取消支付方式选择不订阅、不创建账单且可重新打开', (tester) async {
+    final api = _FakeBillingApi(
+      plansResult: [
+        _plan(
+          id: 101,
+          name: 'synthetic-plan',
+          price: 100,
+          billingPeriod: 'month',
+        ),
+      ],
+    );
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+    for (var attempt = 0; attempt < 2; attempt++) {
+      final subscribe = find.widgetWithText(
+        CupertinoButton,
+        t.billing.subscribe,
+      );
+      await tester.ensureVisible(subscribe);
+      await tester.tap(subscribe);
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoActionSheet), findsOneWidget);
+      expect(find.text(t.billing.payMethodAlipay), findsOneWidget);
+      expect(find.text(t.billing.payMethodWechat), findsOneWidget);
+      await tester.tap(
+        find.widgetWithText(CupertinoActionSheetAction, t.common.cancel),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoActionSheet), findsNothing);
+      expect(api.subscribeCalls, 0);
+      expect(api.invoiceCalls, 0);
+    }
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('PL-1 套餐列表为空 → 渲染空态文案', (tester) async {
     await tester.pumpWidget(
       _buildTestApp(_FakeBillingApi(plansResult: const [])),
