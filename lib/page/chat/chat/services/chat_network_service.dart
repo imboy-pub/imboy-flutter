@@ -353,6 +353,15 @@ class ChatNetworkService {
 
   /// 通过 WebSocket 发送消息（含 E2EE 加密）
   Future<bool> sendWsMsg(MessageModel obj) async {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool current() =>
+        ownerUid.isNotEmpty &&
+        session.currentUid == ownerUid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!current()) return false;
     iPrint('📤 [sendWsMsg] 开始: msgId=${obj.id}, status=${obj.status}');
     if (obj.status != IMBoyMessageStatus.sending) {
       iPrint(
@@ -379,7 +388,9 @@ class ChatNetworkService {
         toId: obj.toId.toString(),
         action: action,
       );
+      if (!current()) return false;
     } on E2eeSecurityException catch (e) {
+      if (!current()) return false;
       // 策略门 fail-closed 拒发。旧行为：异常直接向上穿透，
       // _addMessage 一个裸 catch 吞掉 → 用户点了发送什么都没发生（消息连
       // UI 列表都进不去），且 _pageMessages 会因此整页加载失败。
@@ -408,6 +419,7 @@ class ChatNetworkService {
           messageType: msgType,
           removeKeys: ['client_send_ts'],
         );
+        if (!current()) return false;
         final protected = _requireEncryptedResult(encrypted);
         e2ee = protected['e2ee'] as Map<String, dynamic>;
         finalPayload = protected['payload'];
@@ -418,7 +430,9 @@ class ChatNetworkService {
         await MessageRepo(
           tableName: MessageRepo.getTableName(obj.type ?? 'C2C'),
         ).update({MessageRepo.id: obj.id, MessageRepo.e2ee: e2ee});
+        if (!current()) return false;
       } catch (e) {
+        if (!current()) return false;
         // Finding 014：不输出异常对象/stackTrace（加密链异常可能携带明文/密文片段）
         iPrint('❌ [E2EE] v2.0 加密失败: msgId=${obj.id}, errType=${e.runtimeType}');
         AppLogger.error(
@@ -462,7 +476,8 @@ class ChatNetworkService {
       iPrint('消息ID为空，无法发送');
       return false;
     }
-    return await sendWithRetry(obj.id, msg);
+    if (!current()) return false;
+    return await sendWithRetry(obj.id, msg, sessionGeneration: generation);
   }
 
   /// 直接发送消息（不经过数据库），含 E2EE 加密
@@ -593,16 +608,32 @@ class ChatNetworkService {
   }
 
   /// 带重试机制的消息发送
-  Future<bool> sendWithRetry(String messageId, Map<String, dynamic> msg) async {
+  Future<bool> sendWithRetry(
+    String messageId,
+    Map<String, dynamic> msg, {
+    int? sessionGeneration,
+  }) async {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = sessionGeneration ?? session.sessionGeneration;
+    bool current() =>
+        ownerUid.isNotEmpty &&
+        session.currentUid == ownerUid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!current()) return false;
     try {
       iPrint(
         '📤 [sendWithRetry] 开始发送: msgId=$messageId, type=${msg['type']}, msgType=${msg['msg_type']}',
       );
 
+      final encoded = json.encode(msg);
+      if (!current()) return false;
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(
-          message: json.encode(msg),
+          message: encoded,
           messageId: messageId,
+          sessionGeneration: generation,
         ),
       );
 
@@ -612,6 +643,7 @@ class ChatNetworkService {
       iPrint('✅ [sendWithRetry] 消息已提交到重试队列: msgId=$messageId');
       return true;
     } catch (e) {
+      if (!current()) return false;
       // Finding 014：WS 发送异常可能回显报文内容，只记类型
       iPrint(
         '❌ [sendWithRetry] 消息发送失败: msgId=$messageId, errType=${e.runtimeType}',
