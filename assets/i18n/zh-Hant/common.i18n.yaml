@@ -738,6 +738,11 @@ e2eeBackupImportSuccessNote: "注意：只有備份中包含且成功寫入的�
 e2eeBackupHistoryGrantTitle: 恢復歷史群組金鑰
 e2eeBackupHistoryGrantBody(count): "此操作將授權本裝置恢復 $count 個群組金鑰，並只依各自的入群世代與訊息序號範圍解密歷史。身分金鑰已單獨恢復；取消不會恢復這些群組金鑰。"
 e2eeBackupHistoryRestoreResult(restored, omitted): "歷史群組金鑰：已授權恢復 $restored 個，已省略 $omitted 個"
+e2eeBackupErrAccountMismatch: "備份屬於其他帳號，已拒絕恢復"
+e2eeBackupErrStaleBackup: "該備份早於本機最近一次成功恢復（疑似舊版本重放），已拒絕"
+e2eeBackupRestorePartialTitle: 部分完成
+e2eeBackupRestorePartialBody(written, total): "E2EE 金鑰已恢復；群金鑰寫入中斷（已寫入 $written/$total 條）。請重新匯入同一備份以補完剩餘部分（重複寫入安全）"
+e2eeBackupSafetyNumberChangedNote: "本機身份金鑰已更換，與聯絡人的安全碼將發生變化，請重新核驗"
 e2eeBackupCreatedAtRow: 建立時間
 e2eeBackupCloudUploadBtn: 備份到雲端
 e2eeBackupCloudUploadSuccess(version): 已備份到雲端（版本 $version）

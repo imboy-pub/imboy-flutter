@@ -11,6 +11,7 @@ import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -425,6 +426,8 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
       publicKey: publicKey,
       deviceId: await StorageSecureService.to.getDeviceId() ?? 'unknown',
       keyId: await StorageSecureService.to.getKeyId() ?? 'unknown',
+      // 账号绑定：恢复端据此拒绝跨账号恢复
+      accountId: UserRepoLocal.to.currentUid,
       cancelToken: cancelToken,
     );
   }

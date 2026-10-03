@@ -4169,6 +4169,21 @@ class Translations$common$zh_CN {
 	/// zh-CN: '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步'
 	String get e2eeBackupDeviceKeySyncPending => '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步';
 
+	/// zh-CN: '备份属于其他账号，已拒绝恢复'
+	String get e2eeBackupErrAccountMismatch => '备份属于其他账号，已拒绝恢复';
+
+	/// zh-CN: '该备份早于本机最近一次成功恢复（疑似旧版本重放），已拒绝'
+	String get e2eeBackupErrStaleBackup => '该备份早于本机最近一次成功恢复（疑似旧版本重放），已拒绝';
+
+	/// zh-CN: '部分完成'
+	String get e2eeBackupRestorePartialTitle => '部分完成';
+
+	/// zh-CN: 'E2EE 密钥已恢复；群密钥写入中断（已写入 $written/$total 条）。请重新导入同一备份以补完剩余部分（重复写入安全）'
+	String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'E2EE 密钥已恢复；群密钥写入中断（已写入 ${written}/${total} 条）。请重新导入同一备份以补完剩余部分（重复写入安全）';
+
+	/// zh-CN: '本机身份密钥已更换，与联系人的安全码将发生变化，请重新核验'
+	String get e2eeBackupSafetyNumberChangedNote => '本机身份密钥已更换，与联系人的安全码将发生变化，请重新核验';
+
 	/// zh-CN: '创建时间'
 	String get e2eeBackupCreatedAtRow => '创建时间';
 
@@ -10194,6 +10209,11 @@ extension on Translations {
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => '此操作将授权本设备恢复 ${count} 个群密钥，并仅按各自的入群世代和消息序号范围解密历史。身份密钥已单独恢复；取消不会恢复这些群密钥。',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => '历史群密钥：已授权恢复 ${restored} 个，已省略 ${omitted} 个',
 			'common.e2eeBackupDeviceKeySyncPending' => '提示：设备身份同步暂未完成，本设备可能暂时无法解密新消息；重新登录后将自动完成同步',
+			'common.e2eeBackupErrAccountMismatch' => '备份属于其他账号，已拒绝恢复',
+			'common.e2eeBackupErrStaleBackup' => '该备份早于本机最近一次成功恢复（疑似旧版本重放），已拒绝',
+			'common.e2eeBackupRestorePartialTitle' => '部分完成',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'E2EE 密钥已恢复；群密钥写入中断（已写入 ${written}/${total} 条）。请重新导入同一备份以补完剩余部分（重复写入安全）',
+			'common.e2eeBackupSafetyNumberChangedNote' => '本机身份密钥已更换，与联系人的安全码将发生变化，请重新核验',
 			'common.e2eeBackupCreatedAtRow' => '创建时间',
 			'common.e2eeBackupCloudUploadBtn' => '备份到云端',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => '已备份到云端（版本 ${version}）',
@@ -10378,13 +10398,13 @@ extension on Translations {
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能添加 ${param} 个标签',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已选标签 (${param}/${max})',
 			'contact.friendRequestSent' => '已发送',
+			_ => null,
+		} ?? switch (path) {
 			'contact.channelMaxTagsCount' => '最多可添加 8 个标签',
 			'contact.tagInputHint' => '输入标签...',
 			'customerService.entryTitle' => '客服工作台',
 			'customerService.entrySubtitle' => '接单并处理排队中的客户会话',
 			'customerService.title' => '客服工作台',
-			_ => null,
-		} ?? switch (path) {
 			'customerService.tabQueued' => '待接',
 			'customerService.tabActive' => '处理中',
 			'customerService.tabClosed' => '已关闭',
@@ -10892,13 +10912,13 @@ extension on Translations {
 			'main.gradientPurple' => '渐变紫',
 			'main.copiedToClipboard' => '已复制到剪贴板',
 			'main.destroyTime' => '销毁时间',
+			_ => null,
+		} ?? switch (path) {
 			'main.previewEffect' => '预览效果',
 			'main.thisIsTitleText' => '这是标题文本',
 			'main.thisIsAuxiliaryText' => '这是辅助说明文字',
 			'main.toBeCompleted' => '待完善',
 			'main.availableCount' => '可选择',
-			_ => null,
-		} ?? switch (path) {
 			'main.mostUsed' => '最常用',
 			'main.school' => '学校',
 			'main.hobbiesAndInterests' => '兴趣爱好',
@@ -11406,13 +11426,13 @@ extension on Translations {
 			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createNameLabel' => '工作区名称',
 			'workspace.createNameHint' => '例如：官网改版项目组',
 			'workspace.createNameRequired' => '工作区名称不能为空',
 			'workspace.createSubmit' => '创建',
 			'workspace.createEntry' => '创建工作区',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createSuccess' => '工作区创建成功',
 			'workspace.createIdempotentHit' => '已存在同名工作区，直接进入',
 			'workspace.createTemplateTitle' => '将自动初始化',

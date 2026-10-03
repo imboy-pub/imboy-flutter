@@ -193,9 +193,147 @@ void main() {
             throw StateError('secure_storage_write_failed');
           },
         ),
-        throwsA(isA<StateError>()),
+        throwsA(isA<MegolmRestoreException>()),
       );
       expect(attempted, ['megolm_restored_history_grant_100:session-a']);
+    });
+  });
+
+  group('durable progress 与幂等（C03）', () {
+    /// 3 个 session 的备份：megolmRestoreEntries 产出 9 条确定性写入
+    /// （每 session 依次 restored marker / grant / inbound key）。
+    Map<String, dynamic> threeSessionBackup() => {
+      kMegolmSectionKey: MegolmBackupSection(
+        sessions: [
+          for (var i = 1; i <= 3; i++)
+            MegolmBackupSession(
+              scope: '100',
+              sessionId: 's$i',
+              exportedKey: 'key-$i',
+              grant: MegolmHistoryGrant(
+                scope: '100',
+                sessionId: 's$i',
+                generationNo: 2,
+                startSeq: 481,
+                endSeq: 900,
+              ),
+            ),
+        ],
+      ).toJson(),
+    };
+
+    test('第 N 条写入失败 → MegolmRestoreException 携带精确进度，已写入条目保留', () async {
+      final store = <String, String>{};
+      final backup = threeSessionBackup();
+      late MegolmRestoreException failure;
+      try {
+        await E2EELocalBackupService.restoreMegolmSessions(
+          backup,
+          historicalGrantConfirmed: true,
+          auditBeforeRestore: (_) async {},
+          writeForTest: (key, value) async {
+            // 第 4 条（第 2 个 session 的 restored marker）注入失败：
+            // 前 3 条（s1 全部）已持久化。
+            if (store.length == 3) {
+              throw StateError('secure_storage_write_failed');
+            }
+            store[key] = value;
+          },
+        );
+        fail('应抛 MegolmRestoreException');
+      } on MegolmRestoreException catch (e) {
+        failure = e;
+      }
+
+      expect(failure.writtenEntries, 3);
+      expect(failure.totalEntries, 9);
+      expect(failure.failedKey, 'megolm_restored_history_grant_100:s2');
+      expect(failure.cause, isA<StateError>());
+      // durable progress：已写入的 3 条保留在存储中，不清空、不回滚
+      expect(
+        store.keys,
+        unorderedEquals([
+          'megolm_restored_history_grant_100:s1',
+          'megolm_history_grant_100:s1',
+          'megolm_inbound_100:s1',
+        ]),
+      );
+      expect(store['megolm_inbound_100:s1'], 'key-1');
+    });
+
+    test('进程中断后重试同一备份：幂等键收敛，从断点续写无副作用', () async {
+      final store = <String, String>{};
+      final backup = threeSessionBackup();
+
+      // 第一次：第 4 条写入失败（模拟进程中断，3/9 持久化）
+      await expectLater(
+        E2EELocalBackupService.restoreMegolmSessions(
+          backup,
+          historicalGrantConfirmed: true,
+          auditBeforeRestore: (_) async {},
+          writeForTest: (key, value) async {
+            if (store.length == 3) throw StateError('killed');
+            store[key] = value;
+          },
+        ),
+        throwsA(isA<MegolmRestoreException>()),
+      );
+      final afterCrash = Map<String, String>.from(store);
+
+      // 第二次：完整重试（诚实写入）——幂等键相同，前 3 条值不变，补齐 9 条
+      final restored = await E2EELocalBackupService.restoreMegolmSessions(
+        backup,
+        historicalGrantConfirmed: true,
+        auditBeforeRestore: (_) async {},
+        writeForTest: (key, value) async => store[key] = value,
+      );
+      expect(restored, 3);
+      expect(store, hasLength(9));
+      for (final entry in afterCrash.entries) {
+        expect(
+          store[entry.key],
+          entry.value,
+          reason: '幂等键 ${entry.key} 值须收敛不变',
+        );
+      }
+
+      // 第三次：再次完整重试 → 集合与值完全收敛（重复恢复无副作用）
+      await E2EELocalBackupService.restoreMegolmSessions(
+        backup,
+        historicalGrantConfirmed: true,
+        auditBeforeRestore: (_) async {},
+        writeForTest: (key, value) async => store[key] = value,
+      );
+      expect(store, hasLength(9));
+      for (var i = 1; i <= 3; i++) {
+        expect(store['megolm_inbound_100:s$i'], 'key-$i');
+        expect(
+          store['megolm_history_grant_100:s$i'],
+          store['megolm_restored_history_grant_100:s$i'],
+          reason: 'grant 与 restored marker 须同值',
+        );
+      }
+      expect(store.keys.every((k) => k.startsWith('megolm_')), isTrue);
+    });
+
+    test('恢复写入集合只含 megolm_* 三类键：不触碰 DID / Olm ratchet / RSA 键', () async {
+      // 新设备恢复边界（静态证明）：恢复材料能触发的写入键空间仅限
+      // megolm_inbound_ / megolm_history_grant_ / megolm_restored_history_grant_；
+      // 活跃 C2C ratchet（olm_*）、设备身份（e2ee_device_id）不在其列——
+      // 恢复后设备 DID/会话独立建立，不克隆原设备。
+      final entries = megolmRestoreEntries(
+        parseMegolmSection(threeSessionBackup()[kMegolmSectionKey]),
+      );
+      expect(entries, isNotEmpty);
+      for (final entry in entries) {
+        final allowed =
+            entry.key.startsWith(kMegolmInboundPrefix) ||
+            entry.key.startsWith(kMegolmHistoryGrantPrefix) ||
+            entry.key.startsWith(kMegolmRestoredGrantPrefix);
+        expect(allowed, isTrue, reason: '越界写入键：${entry.key}');
+        expect(entry.key.startsWith('olm_'), isFalse);
+        expect(entry.key.startsWith('e2ee_'), isFalse);
+      }
     });
   });
 

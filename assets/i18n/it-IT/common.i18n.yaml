@@ -739,6 +739,11 @@ e2eeBackupImportSuccessNote: "Nota: solo le sessioni di gruppo incluse in questo
 e2eeBackupHistoryGrantTitle: Ripristina chiavi di gruppo storiche
 e2eeBackupHistoryGrantBody(count): "Questa azione autorizza separatamente il dispositivo a ripristinare $count chiavi di gruppo e a decifrare la cronologia solo entro la generazione di appartenenza e l'intervallo di sequenza di ogni chiave. Le chiavi identità sono già ripristinate; annullando queste chiavi di gruppo vengono ignorate."
 e2eeBackupHistoryRestoreResult(restored, omitted): "Chiavi di gruppo storiche: $restored autorizzate e ripristinate, $omitted omesse"
+e2eeBackupErrAccountMismatch: "Questo backup appartiene a un altro account; ripristino rifiutato"
+e2eeBackupErrStaleBackup: "Questo backup è più vecchio dell'ultimo ripristino riuscito su questo dispositivo (possibile replay); rifiutato"
+e2eeBackupRestorePartialTitle: Completato parzialmente
+e2eeBackupRestorePartialBody(written, total): "Chiavi E2EE ripristinate; la scrittura delle chiavi di gruppo è stata interrotta ($written/$total voci). Reimporta lo stesso backup per riprendere — le scritture ripetute sono sicure"
+e2eeBackupSafetyNumberChangedNote: "La chiave di identità di questo dispositivo è cambiata, quindi i numeri di sicurezza con i tuoi contatti cambieranno. Verifica di nuovo"
 e2eeBackupCreatedAtRow: Creato il
 e2eeBackupCloudUploadBtn: Backup su cloud
 e2eeBackupCloudUploadSuccess(version): Backup su cloud completato (versione $version)

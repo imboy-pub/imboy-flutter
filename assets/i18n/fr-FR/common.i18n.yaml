@@ -739,6 +739,11 @@ e2eeBackupImportSuccessNote: "Remarque : seules les sessions de groupe incluses 
 e2eeBackupHistoryGrantTitle: Restaurer les clés de groupe historiques
 e2eeBackupHistoryGrantBody(count): "Cette action autorise séparément cet appareil à restaurer $count clés de groupe et à déchiffrer l'historique uniquement dans la génération d'adhésion et la plage de séquence de chaque clé. Les clés d'identité sont déjà restaurées ; annuler ignore ces clés de groupe."
 e2eeBackupHistoryRestoreResult(restored, omitted): "Clés de groupe historiques : $restored autorisées et restaurées, $omitted omises"
+e2eeBackupErrAccountMismatch: "Cette sauvegarde appartient à un autre compte ; restauration refusée"
+e2eeBackupErrStaleBackup: "Cette sauvegarde est plus ancienne que la dernière restauration réussie sur cet appareil (rejeu possible) ; refusée"
+e2eeBackupRestorePartialTitle: Partiellement terminé
+e2eeBackupRestorePartialBody(written, total): "Clés E2EE restaurées ; l'écriture des clés de groupe a été interrompue ($written/$total entrées). Réimportez la même sauvegarde pour reprendre — les écritures répétées sont sans danger"
+e2eeBackupSafetyNumberChangedNote: "La clé d'identité de cet appareil a changé, les numéros de sécurité avec vos contacts vont donc changer. Veuillez revérifier"
 e2eeBackupCreatedAtRow: Créée le
 e2eeBackupCloudUploadBtn: Sauvegarder dans le cloud
 e2eeBackupCloudUploadSuccess(version): Sauvegardé dans le cloud (version $version)

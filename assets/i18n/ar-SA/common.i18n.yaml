@@ -748,6 +748,11 @@ e2eeBackupImportSuccessNote: "ملاحظة: لا يمكن قراءة السجل 
 e2eeBackupHistoryGrantTitle: استعادة مفاتيح المجموعة التاريخية
 e2eeBackupHistoryGrantBody(count): "يمنح هذا الجهاز تفويضًا منفصلًا لاستعادة $count من مفاتيح المجموعة وفك سجل الرسائل ضمن جيل العضوية ونطاق تسلسل الرسائل الخاص بكل مفتاح فقط. تمت استعادة مفاتيح الهوية بالفعل؛ الإلغاء يتجاوز مفاتيح المجموعة هذه."
 e2eeBackupHistoryRestoreResult(restored, omitted): "مفاتيح المجموعة التاريخية: تم تفويض واستعادة $restored، وتم تجاوز $omitted"
+e2eeBackupErrAccountMismatch: "هذه النسخة الاحتياطية تنتمي إلى حساب آخر؛ تم رفض الاستعادة"
+e2eeBackupErrStaleBackup: "هذه النسخة الاحتياطية أقدم من آخر استعادة ناجحة على هذا الجهاز (احتمال إعادة استخدام)؛ تم الرفض"
+e2eeBackupRestorePartialTitle: مكتمل جزئيًا
+e2eeBackupRestorePartialBody(written, total): "تمت استعادة مفاتيح E2EE؛ انقطعت كتابة مفاتيح المجموعة ($written/$total عنصرًا). أعد استيراد النسخة نفسها للمتابعة — الكتابة المتكررة آمنة"
+e2eeBackupSafetyNumberChangedNote: "تغيّر مفتاح هوية هذا الجهاز، لذلك ستتغير أرقام الأمان مع جهات اتصالك. يرجى التحقق مجددًا"
 e2eeBackupCreatedAtRow: تاريخ الإنشاء
 e2eeBackupCloudUploadBtn: النسخ الاحتياطي إلى السحابة
 e2eeBackupCloudUploadSuccess(version): تم النسخ إلى السحابة (الإصدار $version)

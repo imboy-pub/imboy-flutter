@@ -30,6 +30,7 @@ import 'package:imboy/service/events/message_events.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// E2EE 备份导入页面
 ///
@@ -633,6 +634,32 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     }
   }
 
+  /// 当前登录账号 uid（跨账号恢复校验用）。
+  /// 登出态/读取异常 → null（无法判定则不强校验，与缓存口令的 uid
+  /// 保险逻辑同一取舍）。
+  String? get _currentAccountId {
+    try {
+      final uid = UserRepoLocal.to.currentUid;
+      return uid.isEmpty ? null : uid;
+    } on Object {
+      return null;
+    }
+  }
+
+  /// 把恢复链路的 StateError 映射为精确文案（区别于笼统的导入失败）：
+  /// - backup_account_mismatch：备份属于其他账号
+  /// - stale_backup_rejected：旧版本备份重放
+  String _stateErrorMessage(StateError e) {
+    switch (e.message) {
+      case 'backup_account_mismatch':
+        return t.common.e2eeBackupErrAccountMismatch;
+      case 'stale_backup_rejected':
+        return t.common.e2eeBackupErrStaleBackup;
+      default:
+        return t.common.e2eeBackupErrImportFailed;
+    }
+  }
+
   Future<void> _handleImport() async {
     final password = _passwordController.text;
 
@@ -642,9 +669,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       final result = await E2EELocalBackupService.importBackup(
         filePath: _selectedFile!.path,
         password: password,
+        expectedAccountId: _currentAccountId,
       );
 
       await _applyRestoredKeys(result);
+    } on StateError catch (e) {
+      iPrint('[E2EEBackupImport] 导入被拒绝: ${e.message}');
+      if (mounted) _showError(_stateErrorMessage(e));
     } on Object catch (e) {
       // importBackup 的口令错误/格式无效/校验和不匹配均为 ArgumentError，
       // 只 implements Error 不 implements Exception，on Exception 捕不到
@@ -754,11 +785,19 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     try {
       setState(() => _isCloudRestoring = true);
 
-      final result = await E2EEServerBackupService.restore(password: password);
+      final result = await E2EEServerBackupService.restore(
+        password: password,
+        expectedAccountId: _currentAccountId,
+      );
 
       await _applyRestoredKeys(result);
-    } on StateError {
-      if (mounted) _showError(t.common.e2eeBackupErrNoCloudBackup);
+    } on StateError catch (e) {
+      if (!mounted) return;
+      if (e.message == '无云端备份') {
+        _showError(t.common.e2eeBackupErrNoCloudBackup);
+      } else {
+        _showError(_stateErrorMessage(e));
+      }
     } on ArgumentError {
       if (mounted) _showError(t.common.e2eeBackupErrCloudPwd);
     } on Exception catch (e) {
@@ -772,6 +811,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   /// 恢复成功后的统一后处理：保存密钥四元组到安全存储 + 成功弹窗。
   /// 文件导入与云端恢复两条路径共用。
   Future<void> _applyRestoredKeys(Map<String, dynamic> result) async {
+    // 抗回滚：比本机最近一次成功恢复更旧且换钥的备份（旧密钥重放）
+    // 在写任何存储前拒绝（stale_backup_rejected 由调用方映射文案）。
+    await _ensureNotStaleRestore(result);
+
     await StorageSecureService.to.savePrivateKey(
       result['private_key'] as String,
     );
@@ -779,17 +822,31 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     // E2EE-016 req3：备份内的 device_id 仅作归档元数据展示（见成功弹窗），
     // 不得覆盖当前物理设备 DID——否则本机会冒充备份来源设备，
     // 破坏 E2EE-013「加密写入绑定已认证设备」的授权边界。故此处不再 setDeviceId。
+    // 同理，恢复材料不含 Olm account/session（活跃 ratchet），本机 C2C
+    // 会话与新 DID 独立建立——恢复的是「身份密钥 + 群历史解密材料」，
+    // 不是克隆原设备。
     await StorageSecureService.to.setKeyId(result['key_id'] as String);
 
     final section = E2EELocalBackupService.megolmBackupSection(result);
     var restored = 0;
+    // durable progress：第 N 条写入失败时异常携带精确进度；密钥本体此刻
+    // 已恢复，不能虚报「导入失败」，也不能谎称群历史全部就绪。
+    MegolmRestoreException? partialFailure;
     if (!section.isEmpty &&
         await _confirmHistoricalKeyGrant(section.sessions.length)) {
-      restored = await E2EELocalBackupService.restoreMegolmSessions(
-        result,
-        historicalGrantConfirmed: true,
-        auditBeforeRestore: _auditHistoricalKeyGrant,
-      );
+      try {
+        restored = await E2EELocalBackupService.restoreMegolmSessions(
+          result,
+          historicalGrantConfirmed: true,
+          auditBeforeRestore: _auditHistoricalKeyGrant,
+        );
+      } on MegolmRestoreException catch (e) {
+        partialFailure = e;
+        iPrint(
+          '[RESTORE] Megolm 恢复部分完成: '
+          '${e.writtenEntries}/${e.totalEntries} failedKey=${e.failedKey}',
+        );
+      }
       GroupSessionService.to.clearMemory();
     }
 
@@ -816,6 +873,10 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       iPrint('[RESTORE] 设备公钥回写未完成，保留恢复待办标记');
     }
 
+    // 抗回滚水位：密钥本体已应用即记录 created_at/key_id（Megolm 部分完成
+    // 也记录——水位锚定的是密钥版本，群历史可幂等重试补完）。
+    await _writeRestoreMarker(result);
+
     // 路径4：自动重试解密失败消息。Megolm session 已回填，群聊历史的
     // 「[加密消息]」占位此刻即可翻明文——若等用户去恢复中心手动点
     // 「重试解密」，等于没人点。逐条修复自带 events/messages 回填，
@@ -829,6 +890,16 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     }
 
     if (!mounted) return;
+    if (partialFailure != null) {
+      // 部分完成：密钥已恢复 + Megolm 写入 X/Y——精确陈述，不虚报完整成功，
+      // 也不把已完成部分说成全失败；重试同一备份按幂等键续写收敛。
+      _showPartialRestoreDialog(
+        partialFailure,
+        deviceKeySynced: synced,
+        recovered: recovered,
+      );
+      return;
+    }
     _showSuccessDialog(
       result,
       deviceKeySynced: synced,
@@ -838,6 +909,52 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           section.omittedSessionCount +
           (restored == 0 ? section.sessions.length : 0),
     );
+  }
+
+  /// 抗回滚前置校验：读取本机恢复水位并调用纯校验函数。
+  /// 水位读取失败（平台通道异常等）按「无水位」放行——水位只是回滚防线，
+  /// 不能因元数据通道故障阻断合法恢复。
+  Future<void> _ensureNotStaleRestore(Map<String, dynamic> result) async {
+    final raw = _readRestoreMarkerRaw();
+    Map<dynamic, dynamic>? marker;
+    try {
+      final decoded = raw.isEmpty ? null : jsonDecode(raw);
+      if (decoded is Map) marker = decoded;
+    } on FormatException {
+      marker = null;
+    }
+    E2EELocalBackupService.ensureNotStaleRestore(
+      backupCreatedAt: result['created_at']?.toString(),
+      backupKeyId: result['key_id']?.toString(),
+      markerCreatedAt: marker?['created_at']?.toString(),
+      markerKeyId: marker?['key_id']?.toString(),
+    );
+  }
+
+  String _readRestoreMarkerRaw() {
+    try {
+      return StorageService.to.getString(
+        E2EELocalBackupService.kLastRestoreMarkerKey,
+      );
+    } on Object catch (e) {
+      iPrint('[RESTORE] 水位标记读取失败(按无水位放行): ${e.runtimeType}');
+      return '';
+    }
+  }
+
+  Future<void> _writeRestoreMarker(Map<String, dynamic> result) async {
+    try {
+      await StorageService.to.setString(
+        E2EELocalBackupService.kLastRestoreMarkerKey,
+        jsonEncode({
+          'created_at': result['created_at']?.toString() ?? '',
+          'key_id': result['key_id']?.toString() ?? '',
+        }),
+      );
+    } on Object catch (e) {
+      // 水位写入失败不阻断恢复成功态：只是少一道回滚防线
+      iPrint('[RESTORE] 水位标记写入失败: ${e.runtimeType}');
+    }
   }
 
   Future<bool> _confirmHistoricalKeyGrant(int sessionCount) async {
@@ -933,6 +1050,78 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     }
   }
 
+  /// 部分完成弹窗（durable progress 精确文案）：
+  /// 密钥本体已恢复；群密钥写入 X/Y 条中断，重试同一备份即可幂等补完。
+  void _showPartialRestoreDialog(
+    MegolmRestoreException failure, {
+    required bool deviceKeySynced,
+    int recovered = 0,
+  }) {
+    showCupertinoDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(t.common.e2eeBackupRestorePartialTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppSpacing.verticalSmall,
+            Text(
+              t.common.e2eeBackupRestorePartialBody(
+                written: failure.writtenEntries,
+                total: failure.totalEntries,
+              ),
+            ),
+            AppSpacing.verticalSmall,
+            // 信任根变化可见：恢复即更换本机身份密钥，Safety Number 随之变化
+            Text(
+              t.common.e2eeBackupSafetyNumberChangedNote,
+              style: context.textStyle(
+                FontSizeType.small,
+                color: AppColors.getTextSecondary(Theme.of(context).brightness),
+              ),
+            ),
+            if (!deviceKeySynced) ...[
+              AppSpacing.verticalSmall,
+              Text(
+                t.common.e2eeBackupDeviceKeySyncPending,
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: AppColors.getTextSecondary(
+                    Theme.of(context).brightness,
+                  ),
+                ),
+              ),
+            ],
+            if (recovered > 0) ...[
+              AppSpacing.verticalSmall,
+              Text(
+                t.common.e2eeRetryFailedDone(count: recovered),
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: AppColors.getTextSecondary(
+                    Theme.of(context).brightness,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+            child: Text(t.common.buttonAccomplish),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showSuccessDialog(
     Map<String, dynamic> result, {
     required bool deviceKeySynced,
@@ -963,6 +1152,17 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
               style: context.textStyle(
                 FontSizeType.small,
                 color: AppColors.getTextSecondary(Theme.of(context).brightness),
+              ),
+            ),
+            // 信任根变化可见：恢复即更换本机身份密钥，与联系人的
+            // Safety Number 随之变化——此前已验证的比对结果不再适用，
+            // 需重新带外核验（见 safety_number.dart 的多设备聚合语义）。
+            AppSpacing.verticalSmall,
+            Text(
+              t.common.e2eeBackupSafetyNumberChangedNote,
+              style: context.textStyle(
+                FontSizeType.small,
+                color: AppColors.iosOrange,
               ),
             ),
             AppSpacing.verticalSmall,

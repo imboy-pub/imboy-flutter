@@ -1465,6 +1465,11 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get e2eeBackupHistoryGrantTitle => 'Восстановить исторические ключи групп';
 	@override String e2eeBackupHistoryGrantBody({required Object count}) => 'Это отдельно разрешит устройству восстановить ${count} ключей групп и расшифровывать историю только в пределах поколения членства и диапазона номеров сообщений каждого ключа. Ключи идентификации уже восстановлены; отмена пропустит эти ключи групп.';
 	@override String e2eeBackupHistoryRestoreResult({required Object restored, required Object omitted}) => 'Исторические ключи групп: ${restored} разрешено и восстановлено, ${omitted} пропущено';
+	@override String get e2eeBackupErrAccountMismatch => 'Эта резервная копия принадлежит другой учётной записи; восстановление отклонено';
+	@override String get e2eeBackupErrStaleBackup => 'Эта копия старее последнего успешного восстановления на этом устройстве (возможен повтор); отклонено';
+	@override String get e2eeBackupRestorePartialTitle => 'Частично завершено';
+	@override String e2eeBackupRestorePartialBody({required Object written, required Object total}) => 'Ключи E2EE восстановлены; запись групповых ключей прервана (${written}/${total} записей). Импортируйте тот же файл заново, чтобы продолжить — повторная запись безопасна';
+	@override String get e2eeBackupSafetyNumberChangedNote => 'Ключ личности устройства изменён, поэтому номера безопасности с контактами изменятся. Проверьте заново';
 	@override String get e2eeBackupCreatedAtRow => 'Дата создания';
 	@override String get e2eeBackupCloudUploadBtn => 'Сохранить в облако';
 	@override String e2eeBackupCloudUploadSuccess({required Object version}) => 'Сохранено в облаке (версия ${version})';
@@ -4492,6 +4497,11 @@ extension on TranslationsRuRu {
 			'common.e2eeBackupHistoryGrantTitle' => 'Восстановить исторические ключи групп',
 			'common.e2eeBackupHistoryGrantBody' => ({required Object count}) => 'Это отдельно разрешит устройству восстановить ${count} ключей групп и расшифровывать историю только в пределах поколения членства и диапазона номеров сообщений каждого ключа. Ключи идентификации уже восстановлены; отмена пропустит эти ключи групп.',
 			'common.e2eeBackupHistoryRestoreResult' => ({required Object restored, required Object omitted}) => 'Исторические ключи групп: ${restored} разрешено и восстановлено, ${omitted} пропущено',
+			'common.e2eeBackupErrAccountMismatch' => 'Эта резервная копия принадлежит другой учётной записи; восстановление отклонено',
+			'common.e2eeBackupErrStaleBackup' => 'Эта копия старее последнего успешного восстановления на этом устройстве (возможен повтор); отклонено',
+			'common.e2eeBackupRestorePartialTitle' => 'Частично завершено',
+			'common.e2eeBackupRestorePartialBody' => ({required Object written, required Object total}) => 'Ключи E2EE восстановлены; запись групповых ключей прервана (${written}/${total} записей). Импортируйте тот же файл заново, чтобы продолжить — повторная запись безопасна',
+			'common.e2eeBackupSafetyNumberChangedNote' => 'Ключ личности устройства изменён, поэтому номера безопасности с контактами изменятся. Проверьте заново',
 			'common.e2eeBackupCreatedAtRow' => 'Дата создания',
 			'common.e2eeBackupCloudUploadBtn' => 'Сохранить в облако',
 			'common.e2eeBackupCloudUploadSuccess' => ({required Object version}) => 'Сохранено в облаке (версия ${version})',
@@ -4708,13 +4718,13 @@ extension on TranslationsRuRu {
 			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			'discovery.momentActionLike' => 'Нравится',
 			'discovery.momentActionCancelLike' => 'Убрать лайк',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentActionComment' => 'Комментарий',
 			'discovery.momentActionDelete' => 'Удалить',
 			'discovery.momentActionReport' => 'Пожаловаться',
 			'discovery.momentActionCancel' => 'Отмена',
 			'discovery.momentLikedBy' => ({required Object names}) => '${names} оценили это',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentAndOthersLiked' => ({required Object names, required Object count}) => '${names} и еще ${count} оценили это',
 			'discovery.momentLikesCountOnly' => ({required Object count}) => '${count} человек оценили это',
 			'discovery.momentContentPlaceholder' => 'О чём вы думаете...',
@@ -5222,13 +5232,13 @@ extension on TranslationsRuRu {
 			'organization.home.myInvitations' => 'Мои приглашения',
 			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
 			'organization.detail.leaveOrg' => 'Покинуть организацию',
+			_ => null,
+		} ?? switch (path) {
 			'organization.detail.leaveOrgBody' => 'Вы потеряете доступ к каталогу, группам, каналам и файлам. Файлы организации сохранятся. Для повторного вступления нужно приглашение.',
 			'organization.detail.leaveFailed' => 'Не удалось выйти',
 			'organization.detail.leaveOwnerHint' => 'Перед выходом передайте права владельца организации',
 			'organization.detail.leaveCleanupFailed' => 'Вы вышли, но локальные настройки не очищены. Перезапустите приложение и проверьте выбранное пространство',
 			'organization.detail.title' => 'Об организации',
-			_ => null,
-		} ?? switch (path) {
 			'organization.detail.notFound' => 'Организация не найдена',
 			'organization.detail.archiveOrg' => 'Архивировать организацию',
 			'organization.detail.archiveConfirmBody' => 'После архивации организация переходит в режим только для чтения; все операции записи отклоняются (fail-closed), разблокировать может только восстановление (restore). Участники и данные не удаляются.',
@@ -5736,13 +5746,13 @@ extension on TranslationsRuRu {
 			'workspace.taskEmptyTitle' => 'Пока нет задач',
 			'workspace.taskEmptySubtitle' => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено',
 			'workspace.projectsLoadMore' => 'Загрузить ещё',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectW2SectionTitle' => 'Совместная работа по проекту',
 			'workspace.projectMembersEntry' => 'Участники',
 			'workspace.projectMilestonesEntry' => 'Этапы',
 			'workspace.projectChannelsEntry' => 'Каналы проекта',
 			'workspace.projectInsightsEntry' => 'Сводка контента',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectNoPermission' => 'Нет доступа: просмотр доступен только участникам проекта, ответственному за проект или Owner рабочего пространства',
 			'workspace.projectGuestReadonly' => 'Гость (Guest) имеет доступ к проекту только для чтения',
 			'workspace.projectLoadMore' => 'Загрузить ещё',
