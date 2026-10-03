@@ -258,6 +258,36 @@ void main() {
     expect(next.calls.every((call) => call.startsWith('200/')), isTrue);
   });
 
+  for (final switchEnterprise in [false, true]) {
+    testWidgets('${switchEnterprise ? '切换企业' : '同企业刷新'}后迟到403不得清空新图或发出撤权通知', (
+      tester,
+    ) async {
+      final pending = Completer<HumanDirectoryPage<HumanDirectoryDepartment>>();
+      final old = ChartSource()..pending = pending;
+      var denied = 0;
+      await tester.pumpWidget(chartHost(old, onDenied: (_) => denied++));
+      await tester.pump();
+      expect(old.calls, ['100/root/first']);
+      if (switchEnterprise) {
+        await tester.pumpWidget(
+          chartHost(ChartSource(), org: '200', onDenied: (_) => denied++),
+        );
+      } else {
+        old.pending = null;
+        await tester.tap(find.byTooltip(t.organization.common.reload));
+      }
+      await tester.pumpAndSettle();
+      expect(find.text('销售部'), findsOneWidget);
+      expect(find.text('技术部'), findsOneWidget);
+      pending.completeError(const OrganizationApiException(403, 'old denial'));
+      await tester.pumpAndSettle();
+      expect(find.text('销售部'), findsOneWidget);
+      expect(find.text('技术部'), findsOneWidget);
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+      expect(denied, 0);
+      expect(tester.takeException(), isNull);
+    });
+  }
   testWidgets('窄屏双倍字号无布局溢出', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
