@@ -123,6 +123,75 @@ void main() {
     'action': 'CLIENT_ACK_CONFIRM',
     'in_reply_to': 'gid',
   };
+  RegisteredFixture fourAccountFixture() {
+    final aliases = ['a', 'b', 'c', 'd'];
+    return RegisteredFixture.bind(
+      fixture: FixtureSet(
+        runTag: 'abc234',
+        accounts: [
+          for (final alias in aliases)
+            SynthAccount(
+              uid: alias,
+              role: alias,
+              devices: [
+                SynthDevice(deviceId: '${alias}1', platform: 'android'),
+              ],
+            ),
+        ],
+        groups: [SynthGroup(gid: 'group', memberUids: aliases)],
+      ),
+      runTag: 'abc234',
+      devices: [
+        for (var i = 0; i < aliases.length; i++)
+          fixtures.device(
+            '${aliases[i]}1',
+            aliases[i],
+            '${9007199254740993 + i}',
+          ),
+      ],
+      groupIds: {'group': '9223372036854775807'},
+    );
+  }
+
+  test('four-account group receipts stay isolated per recipient', () async {
+    await transport.dispose();
+    fixture = fourAccountFixture();
+    final peers = {
+      for (final alias in ['b1', 'c1', 'd1']) alias: sockets.FakeSocket(),
+    };
+    transport = RealBackendTransport.registered(
+      RegisteredBackendTransport(
+        fixture: fixture,
+        connector: (_, headers) async => peers[headers['did']]!,
+        tokenResolver: (_) async => 'synthetic-token',
+        version: '1.0.0',
+        timeout: const Duration(milliseconds: 100),
+      ),
+    );
+    await transport.start();
+    for (final alias in peers.keys) {
+      await transport.connectDevice(
+        SynthDevice(deviceId: alias, platform: 'android'),
+      );
+      peers[alias]!.input.add(frames.incoming(downlink()));
+    }
+    await Future<void>.delayed(Duration.zero);
+    final done = <String>[];
+    final pending = {
+      for (final alias in peers.keys)
+        alias: transport
+            .acknowledgeGroupReceived(transport.drainGroupInbox(alias).single)
+            .then((_) => done.add(alias)),
+    };
+    peers['b1']!.input.add(frames.incoming(confirmation()));
+    await pending['b1'];
+    expect(done, ['b1']);
+    for (final alias in ['c1', 'd1']) {
+      peers[alias]!.input.add(frames.incoming(confirmation()));
+      await pending[alias];
+    }
+    expect(done, ['b1', 'c1', 'd1']);
+  });
   test(
     'same object coalesces ACK but distinct same-ID frames do not',
     () async {
