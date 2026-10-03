@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 
 from auto_test_lib import acceptance, acceptance_case_events, acceptance_contract
 from auto_test_lib import acceptance_preflight, acceptance_coverage, acceptance_journeys
+from auto_test_lib import acceptance_defects
 
 
 def audit_case_event_runs(root: Path, frozen_cases: Any, runs: Any) -> List[str]:
@@ -97,6 +98,8 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
                 root, frozen, report.get('cross_device_records')))
             result['errors'].extend(acceptance_journeys.audit_journey_attempt_links(
                 root, frozen, report.get('cross_device_records')))
+            result['errors'].extend(acceptance_defects.audit_defect_records(
+                root, frozen, report.get('defects')))
     return result
 
 

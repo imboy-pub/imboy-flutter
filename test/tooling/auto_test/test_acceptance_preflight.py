@@ -139,6 +139,8 @@ class PreflightTests(unittest.TestCase):
                 self.descriptor('report.json', self.report), {})
 
     def prepare_event_run(self):
+        self.frozen['defects'] = []
+        self.report['defects'] = []
         self.frozen['cross_device_journeys'] = []
         self.report['cross_device_records'] = {}
         case = self.frozen['required_cases'][0]
@@ -191,6 +193,14 @@ class PreflightTests(unittest.TestCase):
         self.frozen['cross_device_journeys'] = []
         del self.report['cross_device_records']
         self.assertIn('JOURNEY_RECORDED_SET_MISMATCH', self.execution_audit()['errors'])
+
+    def test_execution_requires_explicit_defect_inventory(self):
+        self.prepare_event_run()
+        del self.frozen['defects']
+        self.assertIn('DEFECT_SET_INVALID', self.execution_audit()['errors'])
+        self.frozen['defects'] = []
+        del self.report['defects']
+        self.assertIn('DEFECT_SET_INVALID', self.execution_audit()['errors'])
 
     def test_execution_cli_checks_journey_inputs_without_writing(self):
         self.prepare_event_run()
