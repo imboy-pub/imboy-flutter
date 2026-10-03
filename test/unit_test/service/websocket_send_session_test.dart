@@ -133,75 +133,89 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_channel, null);
   });
-  for (final (framing, stale) in [
-    (FramingMode.v2, false),
-    (FramingMode.v2, true),
-    (FramingMode.none, true),
+  for (final (framing, stale, stage) in [
+    (FramingMode.v2, false, 'connected'),
+    (FramingMode.v2, true, 'connected'),
+    (FramingMode.none, true, 'connected'),
+    (FramingMode.v2, false, 'disconnected'),
+    (FramingMode.v2, false, 'rejected'),
   ]) {
-    test('revoke lookup framing=$framing session changed=$stale', () async {
-      final svc = WebSocketService.to;
-      final fake = _FakeChannel();
-      svc.channelForTest = fake;
-      svc.statusForTest = SocketStatus.connected;
-      svc.framingForTest = framing;
-      final entered = Completer<void>();
-      final release = Completer<MessageModel?>();
-      MessageActions.revokeMessageLoaderForTest = (type, id) {
-        expect(type, 'C2C');
-        expect(id, '1001');
-        entered.complete();
-        return release.future;
-      };
-      SqliteService.setDbForTest(_EmptyRetryDatabase());
-      final requests = <WebSocketMessageSendRequestEvent>[];
-      final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
-          .listen((event) {
-            requests.add(event);
-            svc.handleSendRequestForTest(event);
-          });
-      try {
-        final pending = MessageActions.instance.sendRevokeMessage(
-          '1001',
-          'C2C',
-        );
-        await entered.future;
-        if (stale) {
-          await expectLater(
-            UserRepoLocal.to.loginAfter('synthetic-session', {
-              'uid': '101',
-              'token': 'synthetic-token',
-              'refreshtoken': 'synthetic-refresh',
-            }),
-            throwsA(isA<PlatformException>()),
-          );
+    test(
+      'revoke lookup framing=$framing session changed=$stale stage=$stage',
+      () async {
+        final svc = WebSocketService.to;
+        final fake = _FakeChannel();
+        svc.channelForTest = fake;
+        svc.statusForTest = stage == 'disconnected'
+            ? SocketStatus.disconnected
+            : SocketStatus.connected;
+        if (stage == 'rejected') {
+          fake._sink.onAdd = () =>
+              throw StateError('Synthetic recall sink rejection');
         }
-        release.complete(
-          MessageModel(
+        svc.framingForTest = framing;
+        final entered = Completer<void>();
+        final release = Completer<MessageModel?>();
+        MessageActions.revokeMessageLoaderForTest = (type, id) {
+          expect(type, 'C2C');
+          expect(id, '1001');
+          entered.complete();
+          return release.future;
+        };
+        SqliteService.setDbForTest(_EmptyRetryDatabase());
+        final requests = <WebSocketMessageSendRequestEvent>[];
+        final subscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+            .listen((event) {
+              requests.add(event);
+              svc.handleSendRequestForTest(event);
+            });
+        try {
+          final pending = MessageActions.instance.sendRevokeMessage(
             '1001',
-            autoId: 0,
-            conversationUk3: 'C2C_100_200',
-            type: 'C2C',
-            fromId: 100,
-            toId: 200,
-            msgType: 'text',
-            payload: {'text': 'synthetic'},
-            status: IMBoyMessageStatus.sent,
-            createdAt: DateTime.now().millisecondsSinceEpoch,
-            isAuthor: 1,
-          ),
-        );
-        expect(await pending, !stale);
-        await pumpEventQueue();
-        expect(requests, isEmpty);
-        expect(fake._sink.sent, stale ? isEmpty : hasLength(1));
-      } finally {
-        await subscription.cancel();
-        MessageActions.revokeMessageLoaderForTest = null;
-        await MessageRetry.instance.debugWaitForIdle();
-        MessageRetry.instance.dispose();
-        SqliteService.setDbForTest(null);
-      }
-    });
+            'C2C',
+          );
+          await entered.future;
+          if (stale) {
+            await expectLater(
+              UserRepoLocal.to.loginAfter('synthetic-session', {
+                'uid': '101',
+                'token': 'synthetic-token',
+                'refreshtoken': 'synthetic-refresh',
+              }),
+              throwsA(isA<PlatformException>()),
+            );
+          }
+          release.complete(
+            MessageModel(
+              '1001',
+              autoId: 0,
+              conversationUk3: 'C2C_100_200',
+              type: 'C2C',
+              fromId: 100,
+              toId: 200,
+              msgType: 'text',
+              payload: {'text': 'synthetic'},
+              status: IMBoyMessageStatus.sent,
+              createdAt: DateTime.now().millisecondsSinceEpoch,
+              isAuthor: 1,
+            ),
+          );
+          expect(await pending, !stale && stage == 'connected');
+          await pumpEventQueue();
+          expect(requests, isEmpty);
+          expect(
+            fake._sink.sent,
+            stale || stage == 'disconnected' ? isEmpty : hasLength(1),
+          );
+        } finally {
+          await subscription.cancel();
+          MessageActions.revokeMessageLoaderForTest = null;
+          await MessageRetry.instance.debugWaitForIdle();
+          MessageRetry.instance.dispose();
+          SqliteService.setDbForTest(null);
+        }
+      },
+    );
   }
   for (final framing in [FramingMode.none, FramingMode.v2]) {
     for (final stale in [false, true]) {

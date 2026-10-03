@@ -800,9 +800,11 @@ class MessageActions {
         final int? numericMsgId = int.tryParse(messageId);
         if (numericMsgId != null) {
           final bytes = ImboyFrame.recall(numericMsgId);
-          WebSocketService.to.sendDirect(bytes);
-          iPrint('🔄 发送 v2 二进制撤回请求: msgId=$messageId');
-          return true;
+          final accepted = WebSocketService.to.sendDirect(bytes);
+          if (accepted) {
+            iPrint('🔄 发送 v2 二进制撤回请求: msgId=$messageId');
+          }
+          return accepted;
         }
       }
 
