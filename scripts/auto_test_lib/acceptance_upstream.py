@@ -8,6 +8,11 @@ from typing import Any, List
 from auto_test_lib import acceptance, acceptance_contract, acceptance_versions
 
 _IDS = {'AC-%02d' % number for number in range(36)}
+_CARD_GROUPS = ((0, 1, 2), (3, 4), (5, 6), (7, 8), (9, 10), (11, 12),
+                (13, 14), (15, 16), (17, 18), (19, 20), (21,), (22, 23),
+                (24, 25, 26), (27, 28), (29,), (30, 31), (32, 33), (34, 35))
+_CARDS = {'AC-%02d' % number: 'C%02d' % card
+          for card, numbers in enumerate(_CARD_GROUPS) for number in numbers}
 _FIELDS = ('id', 'card', 'status', 'plan_sha', 'backend_sha', 'app_sha',
            'other_repo_sha', 'config_hash', 'command_id', 'command', 'exit_code',
            'test_count', 'oracle', 'evidence_path', 'evidence_sha256', 'reviewer',
@@ -55,8 +60,10 @@ def _bindings(frozen: Any):
 
 def _pass_errors(root: Path, row: dict, expected: dict) -> List[str]:
     errors = []
+    if row['card'] != _CARDS[row['id']]:
+        errors.append('UPSTREAM_ACCEPTANCE_CARD_MISMATCH:' + row['id'])
     if row['status'] != 'PASS':
-        return ['UPSTREAM_REQUIRED_NOT_PASS:' + row['id']]
+        return errors + ['UPSTREAM_REQUIRED_NOT_PASS:' + row['id']]
     if any(row[field] != value for field, value in expected.items()):
         errors.append('UPSTREAM_PASS_BINDING_MISMATCH:' + row['id'])
     if row['exit_code'] != '0' or not re.fullmatch('[1-9][0-9]{0,11}', row['test_count']):

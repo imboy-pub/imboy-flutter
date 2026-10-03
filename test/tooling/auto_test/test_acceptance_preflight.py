@@ -210,7 +210,7 @@ class PreflightTests(unittest.TestCase):
         self.prepare_upstream_ledger()
 
     def prepare_upstream_ledger(self):
-        from auto_test_lib.acceptance_upstream import _FIELDS
+        from auto_test_lib.acceptance_upstream import _FIELDS, _CARDS
         oracle = self.descriptor('upstream-oracle', {'synthetic': True})
         row = dict.fromkeys(_FIELDS, 'synthetic')
         row.update(status='PASS', exit_code='0', test_count='1',
@@ -220,7 +220,7 @@ class PreflightTests(unittest.TestCase):
         stream = io.StringIO()
         writer = csv.DictWriter(stream, fieldnames=_FIELDS, delimiter='\t')
         writer.writeheader()
-        writer.writerows(dict(row, id='AC-%02d' % n) for n in range(36))
+        writer.writerows(dict(row, id=i, card=_CARDS[i]) for i in sorted(_CARDS))
         raw = stream.getvalue().encode()
         (self.root / 'upstream.tsv').write_bytes(raw)
         descriptor = {'path': 'upstream.tsv', 'sha256': hashlib.sha256(raw).hexdigest()}

@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
-from auto_test_lib.acceptance_upstream import audit_upstream_ledger, _FIELDS
+from auto_test_lib.acceptance_upstream import audit_upstream_ledger, _FIELDS, _CARDS
 
 
 class UpstreamLedgerTests(unittest.TestCase):
@@ -23,7 +23,8 @@ class UpstreamLedgerTests(unittest.TestCase):
                    app_sha='a' * 40, config_hash='c' * 64, exit_code='0',
                    test_count='1', evidence_path='oracle',
                    evidence_sha256=hashlib.sha256(raw).hexdigest())
-        self.rows = [dict(row, id='AC-%02d' % number) for number in range(36)]
+        self.rows = [dict(row, id=identifier, card=_CARDS[identifier])
+                     for identifier in sorted(_CARDS)]
         self.frozen = dict(version_inputs={'e2ee_plan': {'sha256': 'b' * 64}},
                            candidates={name: {'head': 'a' * 40}
                                for name in ('imboy', 'imboyapp')})
@@ -44,6 +45,14 @@ class UpstreamLedgerTests(unittest.TestCase):
 
     def test_synthetic_full_ledger_structure_only(self):
         self.assertEqual([], self.audit())
+
+    def test_wrong_card_rejected_even_with_complete_ids_and_valid_hashes(self):
+        self.rows[0]['card'] = 'C17'
+        self.assertIn('UPSTREAM_ACCEPTANCE_CARD_MISMATCH:AC-00', self.audit())
+        self.rows[0]['status'] = 'PARTIAL'
+        errors = self.audit()
+        self.assertIn('UPSTREAM_ACCEPTANCE_CARD_MISMATCH:AC-00', errors)
+        self.assertIn('UPSTREAM_REQUIRED_NOT_PASS:AC-00', errors)
 
     def test_missing_extra_duplicate_and_unknown_ids_rejected(self):
         original = copy.deepcopy(self.rows)
