@@ -1,3 +1,8 @@
+import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -8,6 +13,35 @@ import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/megolm_protocol.dart';
 import 'package:imboy/service/e2ee/olm_protocol.dart';
 import 'package:imboy/service/e2ee/rsa_legacy_protocol.dart';
+
+Future<TestDefaultBinaryMessenger> _installDeviceFixture() async {
+  const channel = MethodChannel('dev.fluttercommunity.plus/device_info');
+  SharedPreferences.setMockInitialValues({});
+  await StorageService.init();
+  await StorageService.to.setString(Keys.currentUid, 'synthetic-user');
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(
+    channel,
+    (_) async => {
+      'computerName': 'test',
+      'hostName': 'test',
+      'arch': 'arm64',
+      'model': 'test',
+      'modelName': 'test',
+      'kernelVersion': 'test',
+      'osRelease': 'test',
+      'majorVersion': 1,
+      'minorVersion': 0,
+      'patchVersion': 0,
+      'activeCPUs': 1,
+      'memorySize': 1,
+      'cpuFrequency': 1,
+      'systemGUID': 'synthetic-device',
+    },
+  );
+  return messenger;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +69,39 @@ void main() {
     expect(logs.join('\n'), isNot(contains(canary)));
   });
 
+  test('ensureReady 调用注册套件并隔离失败日志', () async {
+    const canary = 'synthetic-private-initialize-key';
+    const channel = MethodChannel('dev.fluttercommunity.plus/device_info');
+    final messenger = await _installDeviceFixture();
+    E2eeBootstrap.resetForTest();
+    E2eeBootstrap.ensureRegistered();
+    E2eeProtocolRegistry.resetForTest();
+    final failing = _InitProbeProtocol(failure: StateError(canary));
+    final succeeding = _InitProbeProtocol(protocol: 'probe-success');
+    E2eeProtocolRegistry.register(failing);
+    E2eeProtocolRegistry.register(succeeding);
+    final logs = <String>[];
+    final previousDebugPrint = debugPrint;
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) logs.add(message);
+    };
+    try {
+      await E2eeBootstrap.ensureReady();
+      expect(failing.initCalls, 1);
+      expect(succeeding.initCalls, 1);
+      expect(succeeding.lastUserId, 'synthetic-user');
+      expect(succeeding.lastDeviceId, 'synthetic-device');
+      expect(
+        logs,
+        contains('[E2eeBootstrap] initialize probe failed: StateError'),
+      );
+      expect(logs.join('\n'), isNot(contains(canary)));
+    } finally {
+      debugPrint = previousDebugPrint;
+      messenger.setMockMethodCallHandler(channel, null);
+      E2eeBootstrap.resetForTest();
+    }
+  });
   _bug72InitializationContract();
   group('E2eeBootstrap.ensureRegistered', () {
     setUp(E2eeBootstrap.resetForTest);
@@ -110,8 +177,8 @@ void main() {
 /// `E2eeSessionProtocol.initialize` 三个实现都写好了，却**全项目零调用点**。
 /// 这里把「ensureReady 会把 initialize 传导到每个已注册实现」钉成断言。
 void _bug72InitializationContract() {
-  group('BUG#72 ensureReady 必须初始化所有已注册协议', () {
-    test('每个注册实现都收到 initialize（含 userId / deviceId）', () async {
+  group('初始化探针的字段记录', () {
+    test('直接调用探针记录 userId / deviceId', () async {
       E2eeBootstrap.resetForTest();
       final probe = _InitProbeProtocol();
       E2eeProtocolRegistry.register(probe);
@@ -128,12 +195,15 @@ void _bug72InitializationContract() {
 }
 
 class _InitProbeProtocol implements E2eeSessionProtocol {
+  _InitProbeProtocol({this.failure, this.protocol = 'probe'});
+  final Object? failure;
+  final String protocol;
   int initCalls = 0;
   String? lastUserId;
   String? lastDeviceId;
 
   @override
-  ProtocolSuite get suite => const ProtocolSuite('probe', 1, 'none');
+  ProtocolSuite get suite => ProtocolSuite(protocol, 1, 'none-$protocol');
 
   @override
   Future<void> initialize({
@@ -143,6 +213,7 @@ class _InitProbeProtocol implements E2eeSessionProtocol {
     initCalls++;
     lastUserId = userId;
     lastDeviceId = deviceId;
+    if (failure != null) throw failure!;
   }
 
   @override
