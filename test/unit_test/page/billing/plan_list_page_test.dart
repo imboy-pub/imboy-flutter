@@ -161,6 +161,11 @@ void main() {
       await tester.tap(subscribe);
       await tester.pumpAndSettle();
       expect(find.byType(CupertinoActionSheet), findsOneWidget);
+      const expectMock = bool.fromEnvironment('EXPECT_MOCK_PAYMENT');
+      expect(
+        find.text(t.billing.payMethodMock),
+        expectMock ? findsOneWidget : findsNothing,
+      );
       expect(find.text(t.billing.payMethodAlipay), findsOneWidget);
       expect(find.text(t.billing.payMethodWechat), findsOneWidget);
       await tester.tap(
