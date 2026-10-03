@@ -76,6 +76,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   bool _isDownloading = false;
   File? _selectedFile;
   Map<String, dynamic>? _backupInfo;
+  int _fileVerificationGeneration = 0;
   E2EEBackupInfo? _cloudInfo;
 
   /// 云端备份探测失败标记（如网络抖动）：true 时在云端恢复入口位置渲染重试按钮，
@@ -619,15 +620,17 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Future<void> _verifyFile() async {
     if (!mounted || _selectedFile == null) return;
+    final file = _selectedFile!;
+    final generation = ++_fileVerificationGeneration;
 
     try {
       final verify =
           widget.backupFileVerifier ?? E2EELocalBackupService.verifyBackupFile;
-      final info = await verify(_selectedFile!.path);
-      if (!mounted) return;
+      final info = await verify(file.path);
+      if (!_isCurrentFileVerification(file, generation)) return;
       setState(() => _backupInfo = info);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!_isCurrentFileVerification(file, generation)) return;
       // verifyBackupFile 的格式错误均为 ArgumentError——当前 Dart SDK 中
       // ArgumentError 仅 implements Error（不 implements Exception），
       // 用 on Exception 会捕获不到而静默冒泡（用户无任何提示）。
@@ -639,6 +642,11 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       _showError(t.common.e2eeBackupErrValidateFailed);
     }
   }
+
+  bool _isCurrentFileVerification(File file, int generation) =>
+      mounted &&
+      _selectedFile == file &&
+      _fileVerificationGeneration == generation;
 
   /// 当前登录账号 uid（跨账号恢复校验用）。
   /// 登出态/读取异常 → null（无法判定则不强校验，与缓存口令的 uid
