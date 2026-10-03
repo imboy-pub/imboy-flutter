@@ -228,6 +228,48 @@ void main() {
       );
     });
 
+    test(
+      'failed membership refresh retains stale marker for next send',
+      () async {
+        if (!hasLib) {
+          markTestSkipped('vodozemac test library unavailable');
+          return;
+        }
+        await _ensureVod();
+        const gid = 'g_failed_membership_refresh';
+        GroupSessionService.to.clearMemory();
+        var refreshes = 0;
+        E2EEService.debugGroupMemberKeysLoader = (_) async {
+          refreshes++;
+          return [];
+        };
+        addTearDown(() {
+          GroupSessionService.to.clearMemory();
+          E2EEService.debugGroupMemberKeysLoader = null;
+          E2EEService.clearKeyCacheForTest();
+        });
+        GroupSessionService.to.markGroupStale(gid);
+        await expectLater(
+          GroupSessionService.to.ensureOutboundSession(gid: gid),
+          throwsA(isA<Exception>()),
+        );
+        expect(GroupSessionService.to.debugIsGroupStale(gid), isTrue);
+        E2EEService.setGroupDeviceKeyCacheForTest(gid, {
+          'old_member': 'old-pem',
+        });
+        await expectLater(
+          GroupSessionService.to.ensureOutboundSession(gid: gid),
+          throwsA(isA<Exception>()),
+        );
+        expect(
+          refreshes,
+          2,
+          reason: 'retry must refresh despite a populated cache',
+        );
+        expect(GroupSessionService.to.debugIsGroupStale(gid), isTrue);
+      },
+    );
+
     test('ensureOutboundSession：建会话不加密不计数，encrypt 复用同一会话', () async {
       if (!hasLib) {
         markTestSkipped('vodozemac 测试原生库缺失（修复指引见 vodozemac_native_lib.dart）');

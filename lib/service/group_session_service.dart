@@ -243,25 +243,44 @@ class GroupSessionService {
 
   /// 发送锁内调用：确保会话域上存在与当前设备集合匹配的 outbound 会话
   /// （设备集合变化 / 消息数 / 存活时间超限 → rotate + 全量重分发）。
-  Future<_OutboundGroupSession> _resolveOutbound({
+  Future<Map<String, Map<String, String>>> _loadRecipientSnapshot({
     required bool isGroup,
     required String scopeKey,
     required String target,
   }) async {
     final force = _staleGids.remove(scopeKey);
-    final deviceKeys = isGroup
-        ? await E2EEService.getGroupDevicePublicKeys(
-            target,
-            forceRefresh: force,
-          )
-        : await E2EEService.getUserDevicePublicKeys(
-            target,
-            forceRefresh: force,
-          );
-    final didToPem = deviceKeys['didToPem'] ?? const <String, String>{};
-    if (didToPem.isEmpty) {
-      throw Exception('no_recipient_keys');
+    try {
+      final keys = isGroup
+          ? await E2EEService.getGroupDevicePublicKeys(
+              target,
+              forceRefresh: force,
+            )
+          : await E2EEService.getUserDevicePublicKeys(
+              target,
+              forceRefresh: force,
+            );
+      if ((keys['didToPem'] ?? const <String, String>{}).isEmpty) {
+        throw Exception('no_recipient_keys');
+      }
+      return keys;
+    } catch (_) {
+      // Failed refresh must not consume a membership-change notification.
+      if (force) _staleGids.add(scopeKey);
+      rethrow;
     }
+  }
+
+  Future<_OutboundGroupSession> _resolveOutbound({
+    required bool isGroup,
+    required String scopeKey,
+    required String target,
+  }) async {
+    final deviceKeys = await _loadRecipientSnapshot(
+      isGroup: isGroup,
+      scopeKey: scopeKey,
+      target: target,
+    );
+    final didToPem = deviceKeys['didToPem']!;
     final didSet = didToPem.keys.toSet();
 
     var outbound = _outbound[scopeKey];
