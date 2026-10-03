@@ -213,8 +213,12 @@ void main() {
 
   // 供文档引用：密文不落 outbox 的判定也覆盖 fan_out per_device 元数据形态。
   test('json 编码的 fan-out 信封在 outbox 断言中可被识别', () {
-    final envelope = jsonEncode({
-      'e2ee': {'meta_version': 3, 'fan_out': 'per_device', 'devices': {}},
+    final envelope = jsonEncode(<String, dynamic>{
+      'e2ee': <String, dynamic>{
+        'meta_version': 3,
+        'fan_out': 'per_device',
+        'devices': <String, dynamic>{},
+      },
       'payload': '',
     });
     expect(envelope, contains('per_device'));

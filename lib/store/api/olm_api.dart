@@ -122,6 +122,14 @@ class OlmApi extends HttpClient {
 
   /// 查询对端身份键（X3DH createInboundSession / createOutboundSession 需要）
   /// 返回字段：device_id、ed25519_key、curve25519_key、signature（均为公钥/签名）
+  ///
+  /// C17b 复审 gap 收口：响应属服务端可控内容，与 [parseClaimPayload] 同型
+  /// 走严格解析——结构损坏（非 map / 非 String key / 字段类型混淆）抛带
+  /// `olm get_identity: invalid payload` 前缀的 Exception，而非让
+  /// `Map<String, dynamic>.from` 的 TypeError 或消费点（`_lookupPeerIdentity`
+  /// 的 `as String` 硬 cast）以非契约异常炸进建会话路径。
+  /// `!resp.ok`（HTTP 层失败/对端无身份）保持既有空 map 语义——上层
+  /// `verifyIdentitySignature` 对空 identity 会 fail-closed 拒收。
   Future<Map<String, dynamic>> getIdentity({
     required String uid,
     required String deviceId,
@@ -131,11 +139,7 @@ class OlmApi extends HttpClient {
       queryParameters: {'uid': uid, 'device_id': deviceId},
     );
     if (!resp.ok) return <String, dynamic>{};
-    final payload = resp.payload;
-    if (payload is Map) {
-      return Map<String, dynamic>.from(payload);
-    }
-    return <String, dynamic>{};
+    return parseIdentityPayload(resp.payload);
   }
 
   /// `GET /api/v1/e2ee/devices?uid=` — 列出对端全部活跃 Olm 设备。
@@ -226,6 +230,27 @@ class OlmApi extends HttpClient {
     return parseClaimPayload(resp.payload);
   }
 
+  /// C17b 复审 m2：把 key 类型未知的 Map 显式转写为 `Map<String, dynamic>`。
+  ///
+  /// `Map<String, dynamic>.from(m)` 遇非 String key 会抛 **TypeError** 泄出
+  /// 解析层（生产 jsonDecode 不可达，但 fuzz oracle 契约要求解析失败一律走
+  /// 带前缀的拒收 Exception）。改为逐 entry 检查 key 类型，违规即调用
+  /// [reject]（各 parse 函数自己的 fail-closed 前缀）。
+  static Map<String, dynamic> _asStringKeyMap(
+    Map<dynamic, dynamic> m,
+    String field,
+    Never Function(String why) reject,
+  ) {
+    final out = <String, dynamic>{};
+    for (final e in m.entries) {
+      if (e.key is! String) {
+        reject('$field 含非 String key（${e.key.runtimeType}）');
+      }
+      out[e.key as String] = e.value;
+    }
+    return out;
+  }
+
   /// C17b（AC-35 前置）：claim 响应严格解析（fail-closed）。
   ///
   /// E2EE 威胁模型内服务端不可信（零密码学契约靠客户端守门），claim 响应
@@ -255,7 +280,7 @@ class OlmApi extends HttpClient {
     if (identity is! Map) {
       reject('identity 不是 map（${identity.runtimeType}）');
     }
-    final identityMap = Map<String, dynamic>.from(identity);
+    final identityMap = _asStringKeyMap(identity, 'identity', reject);
 
     // X3DH 消费方（_establishOutboundSession）逐字段硬 cast，
     // 这里必须先证明每个 cast 目标类型成立。
@@ -272,7 +297,42 @@ class OlmApi extends HttpClient {
       }
     }
 
-    return {...Map<String, dynamic>.from(map), 'identity': identityMap};
+    return {..._asStringKeyMap(map, '顶层', reject), 'identity': identityMap};
+  }
+
+  /// C17b 复审 gap：get_identity 响应严格解析（fail-closed），与
+  /// [parseClaimPayload] 同模式。
+  ///
+  /// 消费方（`OlmSessionService._lookupPeerIdentity`）在 Ed25519 验签后对
+  /// `curve25519_key` 做 `as String` 硬 cast——响应字段类型混淆（如整数）
+  /// 会以 TypeError 泄漏。此处先证明结构成立：顶层 map、全 String key、
+  /// 四个契约字段（后端 `olm_identity_repo:find_identity` 的 SELECT 列）
+  /// 均为非空 String。违规一律抛 `olm get_identity: invalid payload` 前缀
+  /// Exception。签名/base64 密码学校验仍在 `OlmSessionService` 层。
+  ///
+  /// 供 fuzz harness（`parser_fuzz_harness_test.dart`）作确定性 oracle。
+  @visibleForTesting
+  static Map<String, dynamic> parseIdentityPayload(dynamic payload) {
+    Never reject(String why) =>
+        throw Exception('olm get_identity: invalid payload: $why');
+
+    if (payload is! Map) {
+      reject('顶层不是 map（${payload.runtimeType}）');
+    }
+    final map = _asStringKeyMap(payload, '顶层', reject);
+
+    for (final key in const [
+      'device_id',
+      'ed25519_key',
+      'curve25519_key',
+      'signature',
+    ]) {
+      final v = map[key];
+      if (v is! String || v.isEmpty) {
+        reject('字段 "$key" 须为非空 String（${v.runtimeType}）');
+      }
+    }
+    return map;
   }
 
   /// `POST /api/v1/e2ee/trust/record` — 上报一条信任决策事件（ADR 16）。

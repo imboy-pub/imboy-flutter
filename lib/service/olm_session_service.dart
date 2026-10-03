@@ -1032,6 +1032,11 @@ class OlmSessionService {
   /// 与 [_lookupPeerIdentityKey] 同一条安全路径：Ed25519 自签核验 + TOFU pin。
   /// trust/record 上报需要 `target_ed25519`（签进 canonical 的对方身份快照），
   /// 必须与本路径同源，禁止裸调 [OlmApi.getIdentity]。
+  ///
+  /// C17b 复审 gap：响应结构由 `OlmApi.parseIdentityPayload` 收口保证
+  /// （`curve25519_key` 等字段已证明为非空 String），下方/调用方的
+  /// `as String` cast 与 `_establishOutboundSession` 对 claim 的 cast 同型，
+  /// 不会以 TypeError 泄漏。
   Future<Map<String, dynamic>> _lookupPeerIdentity(
     String peerUid,
     String peerDeviceId,
