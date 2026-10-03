@@ -48,6 +48,45 @@ List<RegisteredDevice> devices() => [
 ];
 
 void main() {
+  test('snapshots initial group members in deeply immutable collections', () {
+    final baseline = fixture(), members = ['a', 'b'];
+    final result = RegisteredFixture.bind(
+      fixture: FixtureSet(
+        runTag: baseline.runTag,
+        accounts: baseline.accounts,
+        groups: [SynthGroup(gid: 'group', memberUids: members)],
+      ),
+      runTag: baseline.runTag,
+      devices: devices(),
+      groupIds: {'group': '9223372036854775807'},
+    );
+    members.clear();
+    expect(result.groupMembers['group'], {'a', 'b'});
+    expect(() => result.groupMembers.clear(), throwsUnsupportedError);
+    expect(() => result.groupMembers['group']!.clear(), throwsUnsupportedError);
+  });
+  test('rejects empty duplicate or unregistered group members', () {
+    for (final members in [
+      <String>[],
+      ['a', 'a'],
+      ['a', 'unknown'],
+    ]) {
+      final baseline = fixture();
+      expect(
+        () => RegisteredFixture.bind(
+          fixture: FixtureSet(
+            runTag: baseline.runTag,
+            accounts: baseline.accounts,
+            groups: [SynthGroup(gid: 'group', memberUids: members)],
+          ),
+          runTag: baseline.runTag,
+          devices: devices(),
+          groupIds: {'group': '9223372036854775807'},
+        ),
+        throwsFormatException,
+      );
+    }
+  });
   RegisteredFixture bind(
     List<RegisteredDevice> input, {
     String run = 'abc234',

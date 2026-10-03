@@ -22,11 +22,18 @@ class RegisteredDevice {
 }
 
 class RegisteredFixture {
-  RegisteredFixture._(this.runTag, this.devices, this.groupIds);
+  RegisteredFixture._(
+    this.runTag,
+    this.devices,
+    this.groupIds,
+    this.groupMembers,
+  );
 
   final String runTag;
   final Map<String, RegisteredDevice> devices;
   final Map<String, String> groupIds;
+  // Initial fixture membership only; not live membership or authorization.
+  final Map<String, Set<String>> groupMembers;
 
   factory RegisteredFixture.bind({
     required FixtureSet fixture,
@@ -65,6 +72,10 @@ class RegisteredFixture {
       runTag,
       Map.unmodifiable(bound),
       Map.unmodifiable(groupIds),
+      Map.unmodifiable({
+        for (final group in fixture.groups)
+          group.gid: Set<String>.unmodifiable(group.memberUids),
+      }),
     );
   }
 }
@@ -110,6 +121,15 @@ bool _validId(String value) {
 }
 
 void _validateGroups(FixtureSet fixture, Map<String, String> groups) {
+  final accounts = fixture.accounts.map((account) => account.uid).toSet();
+  for (final group in fixture.groups) {
+    final members = group.memberUids;
+    if (members.isEmpty ||
+        members.toSet().length != members.length ||
+        members.any((member) => !accounts.contains(member))) {
+      throw const FormatException('invalid group membership binding');
+    }
+  }
   final aliases = fixture.groups.map((group) => group.gid).toSet();
   if (aliases.length != fixture.groups.length ||
       groups.length != aliases.length ||
