@@ -550,8 +550,9 @@ void main() {
         ],
       },
       beforeResponse: (key) async {
-        if (key.endsWith('/seat-limit') && ++limitRequests == 2)
+        if (key.endsWith('/seat-limit') && ++limitRequests == 2) {
           await delayed.future;
+        }
       },
     );
     HttpClient.adapterForTest = adapter;
