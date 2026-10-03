@@ -212,6 +212,223 @@ void main() {
       });
     });
 
+    group('Field Stripping from Wire JSON (C02 negative cases)', () {
+      // C02 合同负例：从 wire JSON 删除任一被签名字段后，
+      // 解析出的 manifest 必须通不过签名验证（fail-closed，不静默接受空壳）。
+      late Map<String, dynamic> signedJson;
+
+      setUp(() {
+        final manifest = buildValidManifest();
+        final signed = manifest.signDevice((msg) => signerFn(msg));
+        signedJson = signed.toJson();
+        // 基线：未篡改时验签必须通过
+        expect(
+          DeviceManifest.fromJson(signedJson).verifyDeviceSignature(),
+          isTrue,
+        );
+      });
+
+      test('stripping ed25519 from wire JSON fails verification', () {
+        final stripped = Map<String, dynamic>.from(signedJson)
+          ..remove('ed25519');
+        final parsed = DeviceManifest.fromJson(stripped);
+        expect(parsed.ed25519, isEmpty);
+        expect(parsed.verifyDeviceSignature(), isFalse);
+      });
+
+      test('stripping capabilities from wire JSON fails verification', () {
+        final stripped = Map<String, dynamic>.from(signedJson)
+          ..remove('capabilities');
+        final parsed = DeviceManifest.fromJson(stripped);
+        expect(parsed.capabilities, isEmpty);
+        expect(parsed.verifyDeviceSignature(), isFalse);
+      });
+
+      test('stripping uid from wire JSON fails verification', () {
+        final stripped = Map<String, dynamic>.from(signedJson)..remove('uid');
+        final parsed = DeviceManifest.fromJson(stripped);
+        expect(parsed.uid, isEmpty);
+        expect(parsed.verifyDeviceSignature(), isFalse);
+      });
+
+      test('stripping device_id from wire JSON fails verification', () {
+        final stripped = Map<String, dynamic>.from(signedJson)
+          ..remove('device_id');
+        final parsed = DeviceManifest.fromJson(stripped);
+        expect(parsed.deviceId, isEmpty);
+        expect(parsed.verifyDeviceSignature(), isFalse);
+      });
+    });
+
+    group('Forged Signature (C02 negative cases)', () {
+      // C02 合同负例：伪签名 —— 攻击者用**自己的**设备密钥对同一 manifest
+      // 内容签名，冒充对端设备。用 manifest 自带的 ed25519 验签必须失败。
+      test(
+        'device_signature forged by a different device key fails verification',
+        () {
+          final manifest = buildValidManifest();
+
+          final attacker = vod.Account();
+          final forgedSig = attacker.sign(
+            base64Url.encode(manifest.canonicalBytes()),
+          );
+
+          final forged = manifest.copyWith(
+            deviceSignature: forgedSig.toBase64(),
+          );
+          expect(forged.deviceSignature, isNotNull);
+          expect(forged.verifyDeviceSignature(), isFalse);
+        },
+      );
+
+      test('garbage (non-signature) device_signature fails verification', () {
+        final manifest = buildValidManifest();
+        final forged = manifest.copyWith(deviceSignature: 'AAAAAAAA');
+        expect(forged.verifyDeviceSignature(), isFalse);
+      });
+    });
+
+    group('Expiry Validation (C02 replay protection)', () {
+      test('isExpiredAt: now >= expiresAtMs 视为过期（含边界与缺失=0）', () {
+        final m = buildValidManifest().copyWith(expiresAtMs: 1000);
+        expect(m.isExpiredAt(999), isFalse); // 未过期
+        expect(m.isExpiredAt(1000), isTrue); // 边界：到期即过期
+        expect(m.isExpiredAt(1001), isTrue); // 已过期
+      });
+
+      test(
+        'expiresAtMs 缺失（fromJson 默认 0）→ isExpiredAt 恒为 true（fail-closed）',
+        () {
+          final json = buildValidManifest().toJson()..remove('expires_at_ms');
+          final parsed = DeviceManifest.fromJson(json);
+          expect(parsed.expiresAtMs, equals(0));
+          expect(parsed.isExpiredAt(0), isTrue);
+        },
+      );
+
+      test('ensureNotExpired: 未过期 → 通过（不抛）', () {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        final m = buildValidManifest().copyWith(expiresAtMs: now + 3600000);
+        expect(() => m.ensureNotExpired(nowMs: now), returnsNormally);
+      });
+
+      test('ensureNotExpired: 已过期（签名可能仍有效）→ 抛 ManifestValidityException', () {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        final m = buildValidManifest().copyWith(expiresAtMs: now - 1);
+        expect(
+          () => m.ensureNotExpired(nowMs: now),
+          throwsA(
+            isA<ManifestValidityException>().having(
+              (e) => e.message,
+              'message',
+              allOf(contains('expired'), contains('device-abc')),
+            ),
+          ),
+        );
+      });
+
+      test('ensureNotExpired: expiresAtMs=0（缺失）→ 抛（不静默放行）', () {
+        final m = buildValidManifest().copyWith(expiresAtMs: 0);
+        expect(
+          () =>
+              m.ensureNotExpired(nowMs: DateTime.now().millisecondsSinceEpoch),
+          throwsA(isA<ManifestValidityException>()),
+        );
+      });
+    });
+
+    group('Manifest Hash & Chain Link (C02 replay protection)', () {
+      test('manifestHash 确定性：同内容一致，内容变化即变化', () {
+        final m1 = buildValidManifest();
+        final m2 = buildValidManifest();
+        expect(m1.manifestHash(), equals(m2.manifestHash()));
+
+        final changed = buildValidManifest().copyWith(identityVersion: 99);
+        expect(changed.manifestHash(), isNot(equals(m1.manifestHash())));
+      });
+
+      test('ensureChainLinked：合法后继（previousManifestHash == 当前哈希）→ 通过', () {
+        final current = buildValidManifest();
+        final successor = current.copyWith(
+          identityVersion: current.identityVersion + 1,
+          previousManifestHash: current.manifestHash(),
+        );
+        expect(
+          () => DeviceManifest.ensureChainLinked(
+            successor,
+            current.manifestHash(),
+          ),
+          returnsNormally,
+        );
+      });
+
+      test('ensureChainLinked：同一 manifest 重投（幂等）→ 通过', () {
+        final current = buildValidManifest();
+        expect(
+          () =>
+              DeviceManifest.ensureChainLinked(current, current.manifestHash()),
+          returnsNormally,
+        );
+      });
+
+      test('ensureChainLinked：旧 manifest 重放 → 抛 ManifestValidityException', () {
+        // 链：v0 ← v1 ← v2（当前已知 v2）。攻击者重放 v1：
+        // v1.manifestHash() != v2 哈希 且 v1.previousManifestHash（=v0 哈希）!= v2 哈希。
+        final v0 = buildValidManifest();
+        final v1 = v0.copyWith(
+          identityVersion: v0.identityVersion + 1,
+          previousManifestHash: v0.manifestHash(),
+        );
+        final v2 = v1.copyWith(
+          identityVersion: v1.identityVersion + 1,
+          previousManifestHash: v1.manifestHash(),
+        );
+
+        expect(
+          () => DeviceManifest.ensureChainLinked(v1, v2.manifestHash()),
+          throwsA(
+            isA<ManifestValidityException>().having(
+              (e) => e.message,
+              'message',
+              allOf(contains('chain'), contains('replay')),
+            ),
+          ),
+        );
+      });
+
+      test(
+        'ensureChainLinked：previousManifestHash 为 null（genesis 冒充后继）→ 抛',
+        () {
+          final current = buildValidManifest();
+          final genesis = buildValidManifest().copyWith(
+            previousManifestHash: null,
+          );
+          // copyWith(null) 不生效（?? 语义保留旧值），用 fromJson 构造真正的 null
+          final json = genesis.toJson()..remove('previous_manifest_hash');
+          final parsed = DeviceManifest.fromJson(json);
+          expect(parsed.previousManifestHash, isNull);
+
+          expect(
+            () => DeviceManifest.ensureChainLinked(
+              parsed,
+              current.manifestHash(),
+            ),
+            throwsA(isA<ManifestValidityException>()),
+          );
+        },
+      );
+
+      test('ensureChainLinked：断链（previousManifestHash 指向伪造值）→ 抛', () {
+        final current = buildValidManifest();
+        final forged = current.copyWith(previousManifestHash: 'forged-hash');
+        expect(
+          () =>
+              DeviceManifest.ensureChainLinked(forged, current.manifestHash()),
+          throwsA(isA<ManifestValidityException>()),
+        );
+      });
+    });
+
     group('Key Validation Rules', () {
       test('validateKeys rejects invalid key lengths', () {
         // Valid 32-byte key mock

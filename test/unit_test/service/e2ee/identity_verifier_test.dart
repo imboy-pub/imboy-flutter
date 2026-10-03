@@ -166,7 +166,8 @@ void main() {
         };
       });
 
-      DeviceManifest buildSignedManifest() {
+      DeviceManifest buildSignedManifest({int? expiresAtMs}) {
+        final now = DateTime.now().millisecondsSinceEpoch;
         final manifest = DeviceManifest(
           manifestVersion: 1,
           uid: 'user-100',
@@ -176,8 +177,8 @@ void main() {
           ed25519: ed25519Pub,
           curve25519: curve25519Pub,
           capabilities: const {'olm'},
-          createdAtMs: 1753500000000,
-          expiresAtMs: 1753503600000,
+          createdAtMs: now,
+          expiresAtMs: expiresAtMs ?? now + 3600000,
         );
         final signedDevice = manifest.signDevice(signerFn);
         return signedDevice.copyWith(
@@ -235,6 +236,57 @@ void main() {
               contains('account_signature 验证失败'),
             ),
           ),
+        );
+      });
+
+      test(
+        'verifyDeviceManifest rejects expired manifest (C02 replay protection)',
+        () {
+          // 签名有效但已过期 → 显式拒绝，不静默放行
+          final now = DateTime.now().millisecondsSinceEpoch;
+          final expired = buildSignedManifest(expiresAtMs: now - 1);
+
+          expect(
+            () => verifyDeviceManifest(
+              expired,
+              peerMasterKey: accountPub,
+              nowMs: now,
+            ),
+            throwsA(
+              isA<IdentityVerificationException>().having(
+                (e) => e.message,
+                'message',
+                contains('expired'),
+              ),
+            ),
+          );
+        },
+      );
+
+      test('verifyDeviceManifest default wall-clock nowMs also rejects expired manifest', () {
+        final expired = buildSignedManifest(
+          expiresAtMs: DateTime.now().millisecondsSinceEpoch - 1,
+        );
+
+        expect(
+          () => verifyDeviceManifest(expired, peerMasterKey: accountPub),
+          throwsA(isA<IdentityVerificationException>()),
+        );
+      });
+
+      test('verifyIdentityWithManifest rejects expired manifest via nowMs passthrough', () {
+        final identity = buildValidIdentity();
+        final now = DateTime.now().millisecondsSinceEpoch;
+        final expired = buildSignedManifest(expiresAtMs: now - 1);
+
+        expect(
+          () => verifyIdentityWithManifest(
+            identity,
+            expired,
+            peerMasterKey: accountPub,
+            nowMs: now,
+          ),
+          throwsA(isA<IdentityVerificationException>()),
         );
       });
 

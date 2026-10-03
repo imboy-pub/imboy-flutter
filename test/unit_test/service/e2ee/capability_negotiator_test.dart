@@ -130,6 +130,7 @@ void main() {
     late String ed25519Pub;
     late String curve25519Pub;
     late String Function(String) signerFn;
+    late int nowMs;
 
     setUpAll(() async {
       // Initialize vodozemac Rust library
@@ -145,10 +146,15 @@ void main() {
       };
     });
 
+    setUp(() {
+      nowMs = DateTime.now().millisecondsSinceEpoch;
+    });
+
     DeviceManifest buildSignedManifest(
       String deviceId,
-      Set<String> capabilities,
-    ) {
+      Set<String> capabilities, {
+      int? expiresAtMs,
+    }) {
       final manifest = DeviceManifest(
         manifestVersion: 1,
         uid: 'user-100',
@@ -158,8 +164,8 @@ void main() {
         ed25519: ed25519Pub,
         curve25519: curve25519Pub,
         capabilities: capabilities,
-        createdAtMs: 1753500000000,
-        expiresAtMs: 1753503600000,
+        createdAtMs: nowMs,
+        expiresAtMs: expiresAtMs ?? nowMs + 3600000,
       );
       return manifest.signDevice(signerFn);
     }
@@ -197,6 +203,82 @@ void main() {
         }, tampered),
         throwsA(isA<CapVerificationFailed>()),
       );
+    });
+
+    test('negotiateWithManifest rejects expired manifest (replay) even though signature is valid', () {
+      // C02 合同负例：旧 manifest 重放 —— 签名真实有效（设备自己签的），
+      // 但已过期。协商入口必须显式拒绝（不退明文、不静默继续）。
+      final m = buildSignedManifest('d1', {
+        'olm',
+        'megolm',
+      }, expiresAtMs: nowMs - 1);
+      expect(
+        () => CapabilityNegotiator.negotiateWithManifest(
+          {'olm', 'megolm'},
+          m,
+          nowMs: nowMs,
+        ),
+        throwsA(isA<ManifestValidityException>()),
+      );
+    });
+
+    test('negotiateWithManifest rejects manifest with missing expiresAtMs (fail-closed)', () {
+      // 场景 A：签名时 expiresAtMs 就是 0（未设置但被签名覆盖）——
+      // 验签通过，过期检查触发 ManifestValidityException（显式兼容错误）。
+      final signed = buildSignedManifest('d1', {'olm'}, expiresAtMs: 0);
+      expect(
+        () => CapabilityNegotiator.negotiateWithManifest(
+          {'olm', 'megolm'},
+          signed,
+          nowMs: nowMs,
+        ),
+        throwsA(isA<ManifestValidityException>()),
+      );
+
+      // 场景 B：从 wire JSON 删除 expires_at_ms 字段——canonical bytes
+      // 变化导致验签先失败（CapVerificationFailed），同样是显式拒绝。
+      final ok = buildSignedManifest('d1', {'olm'});
+      final stripped = Map<String, dynamic>.from(ok.toJson())
+        ..remove('expires_at_ms');
+      final parsed = DeviceManifest.fromJson(stripped);
+      expect(parsed.expiresAtMs, equals(0));
+      expect(
+        () => CapabilityNegotiator.negotiateWithManifest(
+          {'olm', 'megolm'},
+          parsed,
+          nowMs: nowMs,
+        ),
+        throwsA(isA<CapVerificationFailed>()),
+      );
+    });
+
+    test('negotiateWithManifest default nowMs (wall clock) also rejects expired manifest', () {
+      final m = buildSignedManifest('d1', {
+        'olm',
+      }, expiresAtMs: DateTime.now().millisecondsSinceEpoch - 1);
+      expect(
+        () => CapabilityNegotiator.negotiateWithManifest({'olm'}, m),
+        throwsA(isA<ManifestValidityException>()),
+      );
+    });
+
+    test('negotiatePeerWithManifests marks expired device unsupported without interrupting others', () {
+      final mGood = buildSignedManifest('GOOD', {'olm'});
+      final mExpired = buildSignedManifest('EXPIRED', {
+        'olm',
+      }, expiresAtMs: nowMs - 1);
+
+      final plan = CapabilityNegotiator.negotiatePeerWithManifests(
+        {'olm', 'megolm'},
+        [mGood, mExpired],
+        nowMs: nowMs,
+      );
+
+      expect(plan['GOOD']!.outcome, equals(NegotiationOutcome.ok));
+      expect(plan['GOOD']!.suite, equals('olm'));
+      // 过期设备被排除出扇出（unsupported），其余设备不受影响
+      expect(plan['EXPIRED']!.outcome, equals(NegotiationOutcome.unsupported));
+      expect(plan['EXPIRED']!.suite, isNull);
     });
 
     test('negotiatePeerWithManifests negotiates mixed results and filters out tampered device', () {

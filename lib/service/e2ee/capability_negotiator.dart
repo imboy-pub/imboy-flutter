@@ -143,13 +143,22 @@ class CapabilityNegotiator {
   /// 校验失败直接 Fail-Closed 抛出 [CapVerificationFailed] 异常。
   /// 校验通过则取 `myProtocols` 与 `manifest.capabilities` 的交集，按 [securityRank]
   /// Fallback 链选出并返回最高共同支持套件；无交集返回 `null`（NO_COMMON_SUITE）。
+  ///
+  /// C02: 签名验证后强制过期校验（[DeviceManifest.ensureNotExpired]）——
+  /// 旧 manifest 重放的签名依然有效，只有时间维度校验能拒绝。过期抛
+  /// [ManifestValidityException]（显式兼容错误，不退明文、不静默继续）。
+  /// [nowMs] 可注入固定时间保持纯函数性；缺省读墙钟（fail-closed）。
   static String? negotiateWithManifest(
     Set<String> myProtocols,
-    DeviceManifest manifest,
-  ) {
+    DeviceManifest manifest, {
+    int? nowMs,
+  }) {
     if (!manifest.verifyDeviceSignature()) {
       throw CapVerificationFailed(manifest.deviceId);
     }
+    manifest.ensureNotExpired(
+      nowMs: nowMs ?? DateTime.now().millisecondsSinceEpoch,
+    );
     for (final suite in securityRank) {
       if (myProtocols.contains(suite) &&
           manifest.capabilities.contains(suite)) {
@@ -162,16 +171,17 @@ class CapabilityNegotiator {
   /// 严格模式协商：多物理设备 Signed Capabilities 协商扇出。
   ///
   /// 遍历对端每一个活跃设备的 `DeviceManifest`，通过 [negotiateWithManifest] 严格进行
-  /// 签名校验和套件协商。签名异常或不合规的设备将被安全地标记为 [NegotiationOutcome.unsupported]
-  /// 从而在消息扇出中被排除，其余合法设备不被中断。
+  /// 签名校验和套件协商。签名异常、manifest 过期或不合规的设备将被安全地标记为
+  /// [NegotiationOutcome.unsupported] 从而在消息扇出中被排除，其余合法设备不被中断。
   static Map<String, DeviceNegotiation> negotiatePeerWithManifests(
     Set<String> myProtocols,
-    List<DeviceManifest> manifests,
-  ) {
+    List<DeviceManifest> manifests, {
+    int? nowMs,
+  }) {
     final plan = <String, DeviceNegotiation>{};
     for (final m in manifests) {
       try {
-        final suite = negotiateWithManifest(myProtocols, m);
+        final suite = negotiateWithManifest(myProtocols, m, nowMs: nowMs);
         plan[m.deviceId] = suite == null
             ? DeviceNegotiation(
                 m.deviceId,
@@ -180,6 +190,12 @@ class CapabilityNegotiator {
               )
             : DeviceNegotiation(m.deviceId, NegotiationOutcome.ok, suite);
       } on CapVerificationFailed {
+        plan[m.deviceId] = DeviceNegotiation(
+          m.deviceId,
+          NegotiationOutcome.unsupported,
+          null,
+        );
+      } on ManifestValidityException {
         plan[m.deviceId] = DeviceNegotiation(
           m.deviceId,
           NegotiationOutcome.unsupported,
