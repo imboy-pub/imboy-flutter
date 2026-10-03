@@ -9,11 +9,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import re
 import stat
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from auto_test_lib import evidence, machine_events
 
@@ -99,15 +100,63 @@ def validate_artifact_files(
     return errors
 
 
-def _read_event_artifact(root: Path, artifact: Dict[str, Any]) -> List[str]:
-    """Read and hash from the same descriptor, then decode machine events."""
+def _read_verified_artifact(root: Path, artifact: Dict[str, Any]) -> bytes:
+    """Read bounded bytes and verify their hash on the same descriptor."""
     with os.fdopen(_open_artifact(root, artifact['path']), 'rb') as stream:
         content = stream.read(_MAX_EVENT_BYTES + 1)
     if len(content) > _MAX_EVENT_BYTES:
         raise ValueError('MACHINE_EVENT_ARTIFACT_TOO_LARGE')
     if hashlib.sha256(content).hexdigest() != artifact['sha256']:
         raise ValueError('ARTIFACT_CHANGED_DURING_AUDIT')
-    return content.decode('utf-8').splitlines()
+    return content
+
+
+def _read_event_artifact(root: Path, artifact: Dict[str, Any]) -> List[str]:
+    return _read_verified_artifact(root, artifact).decode('utf-8').splitlines()
+
+
+def _unique_json_object(pairs: list) -> dict:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError('DUPLICATE_JSON_KEY')
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> None:
+    raise ValueError('NONFINITE_JSON_NUMBER')
+
+
+def _finite_json_float(value: str) -> float:
+    number = float(value)
+    if not math.isfinite(number):
+        raise ValueError('NONFINITE_JSON_NUMBER')
+    return number
+
+
+def load_frozen_json(root: Path, artifact: Any) -> Tuple[Any, List[str]]:
+    """Load bounded JSON from an independently pinned artifact descriptor.
+
+    Caller supplies path/hash from a trusted frozen input index, never from
+    the report under audit. This function proves bytes and parsing only;
+    candidate ancestry and domain schemas remain separate mandatory gates.
+    """
+    if not isinstance(artifact, dict):
+        return None, ['FROZEN_INPUT_DESCRIPTOR_INVALID']
+    errors = validate_artifact_files(root, [artifact])
+    if errors:
+        return None, errors
+    try:
+        content = _read_verified_artifact(Path(root), artifact).decode('utf-8')
+        value = json.loads(content, object_pairs_hook=_unique_json_object,
+                           parse_constant=_reject_json_constant,
+                           parse_float=_finite_json_float)
+    except (OSError, UnicodeError, ValueError, RecursionError):
+        return None, ['FROZEN_INPUT_UNREADABLE_OR_AMBIGUOUS']
+    if not isinstance(value, (dict, list)):
+        return None, ['FROZEN_INPUT_CONTAINER_REQUIRED']
+    return value, []
 
 
 def _raw_result_errors(root: Path, artifact: Dict[str, Any], result: dict) -> List[str]:
