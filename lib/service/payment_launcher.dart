@@ -77,9 +77,13 @@ class PaymentLauncher {
         universalLink: _nullIfEmpty(PaymentConfig.alipayUniversalLink),
       );
       return parseAlipayResult(result);
-    } on Object catch (e, s) {
-      if (kDebugMode) debugPrint('[PaymentLauncher] alipay error: $e');
-      AppLogger.error('[PaymentLauncher] alipay launch failed', e, s);
+    } on Object catch (e) {
+      if (kDebugMode) {
+        debugPrint('[PaymentLauncher] alipay error: ${e.runtimeType}');
+      }
+      AppLogger.error(
+        '[PaymentLauncher] alipay launch failed: ${e.runtimeType}',
+      );
       return PaymentLaunchResult.failed;
     }
   }
@@ -115,9 +119,13 @@ class PaymentLauncher {
         signType: fields.signType,
       );
       return parseWechatResult(errCode);
-    } on Object catch (e, s) {
-      if (kDebugMode) debugPrint('[PaymentLauncher] wechat error: $e');
-      AppLogger.error('[PaymentLauncher] wechat launch failed', e, s);
+    } on Object catch (e) {
+      if (kDebugMode) {
+        debugPrint('[PaymentLauncher] wechat error: ${e.runtimeType}');
+      }
+      AppLogger.error(
+        '[PaymentLauncher] wechat launch failed: ${e.runtimeType}',
+      );
       return PaymentLaunchResult.failed;
     }
   }

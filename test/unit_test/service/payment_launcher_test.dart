@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/config/payment_config.dart';
@@ -10,6 +11,7 @@ class _FakeGateway implements PaymentSdkGateway {
   bool wechatRegisteredReturn = true;
   int? wechatPayReturn = 0;
 
+  Object? aliPayError;
   int aliPayCalls = 0;
   int wechatPayCalls = 0;
   String? lastAliOrder;
@@ -21,6 +23,7 @@ class _FakeGateway implements PaymentSdkGateway {
   }) async {
     aliPayCalls++;
     lastAliOrder = orderStr;
+    if (aliPayError != null) throw aliPayError!;
     return aliPayReturn;
   }
 
@@ -47,6 +50,32 @@ class _FakeGateway implements PaymentSdkGateway {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  test('支付宝 SDK 异常日志不输出错误原文或签名参数', () async {
+    const canary = 'synthetic-private-payment-signature';
+    final gateway = _FakeGateway()..aliPayError = StateError(canary);
+    final logs = <String>[];
+    final previousPrint = debugPrint;
+    final previousAppId = PaymentConfig.debugAlipayAppIdOverride;
+    PaymentConfig.debugAlipayAppIdOverride = 'synthetic-app-id';
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) logs.add(message);
+    };
+    try {
+      expect(
+        await PaymentLauncher(gateway: gateway)
+            .launchAlipay({'order_str': canary}),
+        PaymentLaunchResult.failed,
+      );
+    } finally {
+      debugPrint = previousPrint;
+      PaymentConfig.debugAlipayAppIdOverride = previousAppId;
+    }
+    expect(gateway.aliPayCalls, 1);
+    expect(logs, contains('[PaymentLauncher] alipay error: StateError'));
+    expect(logs.join('\n'), isNot(contains(canary)));
+  });
+
   group('parseAlipayResult', () {
     test('9000 maps to success', () {
       expect(
