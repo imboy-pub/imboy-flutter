@@ -36,6 +36,7 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -126,7 +127,7 @@ void navigateToSignIn({String source = 'unknown'}) {
       if (context != null && context.mounted) {
         context.go(AppRoutes.signIn);
       } else {
-        logger.w(
+        AppLogger.warning(
           'navigateToSignIn skipped: context unavailable, source=$source',
         );
       }
@@ -233,7 +234,7 @@ class AppInitializer {
       // 并发防御：调用方（main）为单次串行调用，重试由用户显式触发。
       _initialized = true;
     } catch (e, stack) {
-      logger.e("Initialization failed", error: e, stackTrace: stack);
+      AppLogger.error("Initialization failed", e, stack);
       rethrow;
     }
   }
@@ -293,7 +294,9 @@ class AppInitializer {
         logger.i('Cleaned up $cleaned old migration backups');
       }
     } on Exception catch (e) {
-      logger.w('Failed to cleanup old migration backups: ${e.runtimeType}');
+      AppLogger.warning(
+        'Failed to cleanup old migration backups: ${e.runtimeType}',
+      );
     }
   }
 
@@ -560,7 +563,7 @@ class AppInitializer {
         );
         await Env.getUploadKey(); // populate in-memory cache
       } on Exception catch (e) {
-        logger.w('upload_key secure persistence unavailable: $e');
+        AppLogger.warning('upload_key secure persistence unavailable: $e');
       }
       await StorageService.to.setString(
         Keys.uploadScene,
@@ -595,11 +598,7 @@ class AppInitializer {
       return payload;
     } on Exception catch (e, stack) {
       // 记录真实异常以便诊断（如 macOS Keychain entitlement 缺失会抛 PlatformException）
-      logger.e(
-        "initConfig failed during payload persistence",
-        error: e,
-        stackTrace: stack,
-      );
+      AppLogger.error("initConfig failed during payload persistence", e, stack);
       if (kDebugMode) {
         debugPrint('❌ initConfig: 配置处理异常 ${e.runtimeType}: $e');
       }
@@ -721,7 +720,9 @@ class AppInitializer {
       return result;
     } on Exception catch (e) {
       final fallback = {'skipped': 1, 'errors': 1, 'reason': 500};
-      logger.w('Group membership self-heal trigger failed: ${e.runtimeType}');
+      AppLogger.warning(
+        'Group membership self-heal trigger failed: ${e.runtimeType}',
+      );
       if (!_groupSelfHealCompleter!.isCompleted) {
         _groupSelfHealCompleter!.complete(fallback);
       }
@@ -790,7 +791,7 @@ class AppInitializer {
       );
       return result;
     } on Exception catch (e) {
-      logger.w('Group membership self-heal failed: ${e.runtimeType}');
+      AppLogger.warning('Group membership self-heal failed: ${e.runtimeType}');
       return {'skipped': 0, 'errors': 1, 'reason': 500};
     }
   }
@@ -875,7 +876,7 @@ class AppInitializer {
         await UserApi.to.refreshAccessTokenApi(refreshToken);
       }
     } on Exception catch (e) {
-      logger.e("Failed to refresh token", error: e);
+      AppLogger.error("Failed to refresh token", e);
       // 可以考虑在这里处理token刷新失败的情况，比如退出登录
     }
   }
@@ -898,7 +899,7 @@ class AppInitializer {
         await WebSocketService.to.openSocket(from: 'connectivityChanged');
       }
     } on Exception catch (e) {
-      logger.e('WebSocket连接状态处理失败: ${e.runtimeType}');
+      AppLogger.error('WebSocket连接状态处理失败: ${e.runtimeType}');
     }
   }
 
@@ -928,21 +929,23 @@ class AppInitializer {
         await WebSocketService.to.closeSocket();
       }
     } on Exception catch (e) {
-      logger.w('Failed to close WebSocket: ${e.runtimeType}');
+      AppLogger.warning('Failed to close WebSocket: ${e.runtimeType}');
     }
 
     // 清理MessageOfflineService资源
     try {
       MessageOfflineService.instance.onDispose();
     } on Exception catch (e) {
-      logger.w('Failed to dispose MessageOfflineService: ${e.runtimeType}');
+      AppLogger.warning(
+        'Failed to dispose MessageOfflineService: ${e.runtimeType}',
+      );
     }
 
     // 清理MessageRetry资源（定时器和事件订阅）
     try {
       MessageRetry.instance.dispose();
     } on Exception catch (e) {
-      logger.w('Failed to dispose MessageRetry: ${e.runtimeType}');
+      AppLogger.warning('Failed to dispose MessageRetry: ${e.runtimeType}');
     }
 
     // 停止升级检查定时器

@@ -4,6 +4,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:logger/logger.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
+import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/modules/messaging/public.dart';
@@ -127,7 +128,7 @@ class MessageHandlingService {
     } catch (e) {
       AppLoading.dismiss();
       AppLoading.showError('${t.common.retryAbnormal}: $e');
-      _msgLogger.e('消息重试异常: $e');
+      AppLogger.error('消息重试异常: $e');
     }
   }
 

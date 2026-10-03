@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/service/migrations/manifest_all.dart';
 import 'package:imboy/service/migration_script.dart';
 import 'package:imboy/service/migration_script_planner.dart';
+import 'package:imboy/service/app_logger.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -133,11 +134,7 @@ class MigrationService {
       _logger.i('Loaded ${_downgradeScripts!.length} downgrade scripts');
       _logger.i('Target version: $targetVersion');
     } catch (e, stackTrace) {
-      _logger.e(
-        'Failed to initialize MigrationService',
-        error: e,
-        stackTrace: stackTrace,
-      );
+      AppLogger.error('Failed to initialize MigrationService', e, stackTrace);
       rethrow;
     }
   }
@@ -274,7 +271,7 @@ class MigrationService {
         toVersion: toVersion,
       );
     } catch (e, stackTrace) {
-      _logger.e('Migration failed', error: e, stackTrace: stackTrace);
+      AppLogger.error('Migration failed', e, stackTrace);
 
       // 【WP2】失败路径只依赖外层 sqflite 事务回滚（调用方 rethrow 本
       // failure 后 sqflite 回滚且不推进版本号）。这里绝不：
@@ -321,7 +318,7 @@ class MigrationService {
       // 执行 SQLite 完整性检查
       final result = await db.rawQuery('PRAGMA integrity_check');
       if (result.isNotEmpty && result.first.values.first != 'ok') {
-        _logger.e(
+        AppLogger.error(
           'Database integrity check failed: ${result.first.values.first}',
         );
         return false;
@@ -330,13 +327,13 @@ class MigrationService {
       // 检查外键约束
       final foreignKeyCheck = await db.rawQuery('PRAGMA foreign_key_check');
       if (foreignKeyCheck.isNotEmpty) {
-        _logger.e('Foreign key check failed: $foreignKeyCheck');
+        AppLogger.error('Foreign key check failed: $foreignKeyCheck');
         return false;
       }
 
       return true;
     } catch (e) {
-      _logger.e('Error during integrity check: $e');
+      AppLogger.error('Error during integrity check: $e');
       return false;
     }
   }
