@@ -183,6 +183,75 @@ void main() {
       );
     });
   }
+  for (final priority in [0, 1]) {
+    test(
+      'failed flush preserves original when sink fills queue priority=$priority',
+      () async {
+        final svc = WebSocketService.to;
+        final fake = _FakeChannel();
+        svc.channelForTest = fake;
+        svc.statusForTest = SocketStatus.connected;
+        final queue = PersistentMessageQueue.to;
+        final generation = UserRepoLocal.to.sessionGeneration;
+        queue.enqueue(
+          'original',
+          'synthetic-original',
+          ownerUid: '100',
+          sessionGeneration: generation,
+        );
+        fake._sink.onAdd = () {
+          for (var i = 0; i < 200; i++) {
+            queue.enqueue(
+              'competing-$i',
+              'synthetic',
+              priority: priority,
+              ownerUid: 'other',
+              sessionGeneration: generation,
+            );
+          }
+          throw StateError('Synthetic sink rejection');
+        };
+        await svc.flushMessageQueueForTest();
+        expect(queue.messages, hasLength(200));
+        final original = queue.messages
+            .where((entry) => entry.id == 'original')
+            .single;
+        expect(original.data, 'synthetic-original');
+        expect(original.ownerUid, '100');
+        expect(original.sessionGeneration, generation);
+        expect(
+          queue.peekByPriority(eligible: (entry) => entry.id == 'original'),
+          same(original),
+        );
+        fake._sink.onAdd = null;
+        svc.channelForTest = fake;
+        svc.statusForTest = SocketStatus.connected;
+        await svc.flushMessageQueueForTest();
+        expect(
+          queue.messages.where((entry) => entry.id == 'original'),
+          isEmpty,
+        );
+        expect(queue.messages, hasLength(199));
+      },
+    );
+  }
+  test('in-flight priority update cannot duplicate accepted message', () async {
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    final queue = PersistentMessageQueue.to;
+    queue.enqueue(
+      'original',
+      'synthetic-original',
+      ownerUid: '100',
+      sessionGeneration: UserRepoLocal.to.sessionGeneration,
+    );
+    fake._sink.onAdd = () => queue.updatePriority('original', 2);
+    await svc.flushMessageQueueForTest();
+    expect(fake._sink.sent, hasLength(1));
+    expect(queue.messages, isEmpty);
+  });
   test('flush stops after first frame changes session generation', () async {
     final svc = WebSocketService.to;
     final fake = _FakeChannel();

@@ -110,6 +110,7 @@ class PersistentMessageQueue {
 
   // 去重集合
   final Set<String> _deduplicationSet = {};
+  final Set<QueuedMessage> _inFlight = Set.identity();
 
   SharedPreferences? _prefs;
   static Future<bool> Function(SharedPreferences prefs, List<String> snapshot)?
@@ -303,27 +304,45 @@ class PersistentMessageQueue {
   ///
   /// 出队顺序：2(重试) > 1(高优先级) > 0(普通)
   QueuedMessage? dequeueByPriority({bool Function(QueuedMessage)? eligible}) {
+    final candidate = peekByPriority(eligible: eligible);
+    if (candidate != null) removeAccepted(candidate);
+    return candidate;
+  }
+
+  /// 保留消息，发送接口接受后再删除，失败时无需重新占用容量。
+  QueuedMessage? peekByPriority({bool Function(QueuedMessage)? eligible}) {
     if (_recoveryBlocked) return null;
-    // 按优先级顺序检查：2(重试) > 1(高) > 0(普通)
     for (int p = 2; p >= 0; p--) {
-      final queue = _priorityQueues[p]!;
-      QueuedMessage? candidate;
-      for (final entry in queue) {
-        if (eligible == null || eligible(entry)) {
-          candidate = entry;
-          break;
+      for (final entry in _priorityQueues[p]!) {
+        if (!_inFlight.contains(entry) &&
+            (eligible == null || eligible(entry))) {
+          return entry;
         }
-      }
-      if (candidate != null) {
-        final msg = candidate;
-        queue.remove(msg);
-        _deduplicationSet.remove(msg.deduplicationKey);
-        _save();
-        iPrint('📤 [QUEUE] 出队: ${msg.id}, priority=$p');
-        return msg;
       }
     }
     return null;
+  }
+
+  QueuedMessage? reserveByPriority({bool Function(QueuedMessage)? eligible}) {
+    final candidate = peekByPriority(eligible: eligible);
+    if (candidate != null) _inFlight.add(candidate);
+    return candidate;
+  }
+
+  void releaseReservation(QueuedMessage message) => _inFlight.remove(message);
+
+  /// 只删除实际接受的对象，避免同 ID 的新会话消息被误删。
+  bool removeAccepted(QueuedMessage message) {
+    if (_recoveryBlocked) return false;
+    final queue = _priorityQueues[message.priority];
+    if (queue == null || !queue.remove(message)) return false;
+    if (!messages.any(
+      (entry) => entry.deduplicationKey == message.deduplicationKey,
+    )) {
+      _deduplicationSet.remove(message.deduplicationKey);
+    }
+    _save();
+    return true;
   }
 
   /// 更新消息优先级
@@ -347,6 +366,7 @@ class PersistentMessageQueue {
         .toList();
     if (matches.length != 1) return;
     final target = matches.single;
+    if (_inFlight.contains(target)) return;
     for (int p = 0; p < 3; p++) {
       final queue = _priorityQueues[p]!;
       final index = queue.toList().indexWhere((msg) => identical(msg, target));
@@ -382,6 +402,7 @@ class PersistentMessageQueue {
       queue.clear();
     }
     _deduplicationSet.clear();
+    _inFlight.clear();
     _save();
     iPrint('🧹 [QUEUE] 清空队列');
   }
@@ -430,7 +451,8 @@ class PersistentMessageQueue {
       while (queue.isNotEmpty) {
         final msg = queue.removeFirst();
         // 检查消息是否过期
-        if (now.difference(msg.createdAt) > expiry) {
+        if (!_inFlight.contains(msg) &&
+            now.difference(msg.createdAt) > expiry) {
           _deduplicationSet.remove(msg.deduplicationKey);
           cleaned++;
         } else {
@@ -475,8 +497,10 @@ class PersistentMessageQueue {
     // 从最低优先级开始查找可移除的消息
     for (int p = 0; p < newMessagePriority; p++) {
       final queue = _priorityQueues[p]!;
-      if (queue.isNotEmpty) {
-        final removed = queue.removeFirst();
+      final candidates = queue.where((entry) => !_inFlight.contains(entry));
+      if (candidates.isNotEmpty) {
+        final removed = candidates.first;
+        queue.remove(removed);
         if (!messages.any(
           (entry) => entry.deduplicationKey == removed.deduplicationKey,
         )) {

@@ -967,7 +967,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
       while (!_messageQueue.isEmpty && _status == SocketStatus.connected) {
         if (_channel == null || !current()) break;
-        final queued = _messageQueue.dequeueByPriority(
+        final queued = _messageQueue.reserveByPriority(
           eligible: (entry) =>
               !entry.quarantined &&
               entry.ownerUid == ownerUid &&
@@ -976,10 +976,15 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         if (queued == null) break;
 
         try {
-          final payload = _framing == FramingMode.v2
-              ? _encodeV2BusinessFrame(queued.data)
-              : queued.data;
-          _channel!.sink.add(payload);
+          try {
+            final payload = _framing == FramingMode.v2
+                ? _encodeV2BusinessFrame(queued.data)
+                : queued.data;
+            _channel!.sink.add(payload);
+            _messageQueue.removeAccepted(queued);
+          } finally {
+            _messageQueue.releaseReservation(queued);
+          }
           sentCount++;
           if (sentCount >= maxBatch) {
             await Future<void>.delayed(const Duration(milliseconds: 300));
@@ -989,13 +994,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           }
         } catch (e) {
           iPrint('> ws: flushMessageQueue failed: ${e.runtimeType}');
-          _messageQueue.enqueue(
-            queued.id,
-            queued.data,
-            priority: queued.priority,
-            ownerUid: queued.ownerUid,
-            sessionGeneration: queued.sessionGeneration,
-          );
           if (!current()) break;
           // sink.add 失败通常意味着 channel 已死（而非单条消息本身的问题），
           // 继续发送其余消息大概率会重复失败。主动清理并调度重连，而不是
