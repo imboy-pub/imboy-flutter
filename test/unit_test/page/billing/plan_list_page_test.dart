@@ -121,13 +121,26 @@ void main() {
     expect(find.text('标准版'), findsOneWidget);
     expect(api.calls, 2);
   });
+
+  testWidgets('PL-4 失败后重试返回空列表应清除旧错误并显示空态', (tester) async {
+    final api = _FailOnceBillingApi(() {}, emptyAfterRetry: true);
+    await tester.pumpWidget(_buildTestApp(api));
+    await tester.pumpAndSettle();
+    expect(find.text(t.billing.loadFailed), findsOneWidget);
+    await tester.tap(find.text(t.billing.retry));
+    await tester.pumpAndSettle();
+    expect(api.calls, 2);
+    expect(find.text(t.billing.noPlans), findsOneWidget);
+    expect(find.text(t.billing.loadFailed), findsNothing);
+  });
 }
 
 /// 首次 fetchPlans 失败、重试成功的 fake（驱动错误态 → 重试路径）。
 class _FailOnceBillingApi extends BillingApi {
-  _FailOnceBillingApi(this.onCall);
+  _FailOnceBillingApi(this.onCall, {this.emptyAfterRetry = false});
 
   final VoidCallback onCall;
+  final bool emptyAfterRetry;
   int calls = 0;
 
   @override
@@ -135,6 +148,7 @@ class _FailOnceBillingApi extends BillingApi {
     onCall();
     calls++;
     if (calls == 1) return null;
+    if (emptyAfterRetry) return [];
     return [_plan(id: 101, name: '标准版', price: 100, billingPeriod: 'month')];
   }
 

@@ -52,13 +52,14 @@ class BillingState {
   BillingState copyWith({
     bool? isLoading,
     String? error,
+    bool clearError = false,
     List<BillingPlan>? plans,
     BillingSubscription? subscription,
     bool? paying,
     PaymentLaunchResult? lastLaunchResult,
   }) => BillingState(
     isLoading: isLoading ?? this.isLoading,
-    error: error ?? this.error,
+    error: clearError ? null : error ?? this.error,
     plans: plans ?? this.plans,
     subscription: subscription ?? this.subscription,
     paying: paying ?? this.paying,
@@ -85,7 +86,7 @@ class BillingNotifier extends Notifier<BillingState> {
 
   /// 加载套餐列表（页面下拉刷新/初始进入）。
   Future<void> loadPlans() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true, clearError: true);
     final plans = await _api.fetchPlans();
     if (plans != null) {
       state = state.copyWith(isLoading: false, plans: plans);
