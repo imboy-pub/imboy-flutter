@@ -1,0 +1,38 @@
+{
+  "card": "F12-S02",
+  "owner": "/root",
+  "status": "WAITING",
+  "scope": "WEB_SEAT_SESSION_ACTION_SUBSET_ONLY",
+  "proposed_behavior_cases": 5,
+  "unique_control_inputs": 3,
+  "candidate_admin": "997971a882928d67e70d6261629d5c69d2703539",
+  "source_bindings": [
+    {
+      "repo": "imboyadmin",
+      "path": "src/modules/customer_service/seat/workbench/SeatWorkspacePage.session-actions.test.tsx",
+      "sha256": "12c275dc63a1081b8774eeedb64304e6f2e6310419a124d9a77594e43ce697d5"
+    },
+    {
+      "repo": "imboyadmin",
+      "path": "src/modules/customer_service/seat/workbench/SeatWorkspacePage.tsx",
+      "sha256": "6788e203831e86b90e9ae4eed2eb3811e9d0dd64095cc82d4231e5cf5408a99b"
+    },
+    {
+      "repo": "imboyadmin",
+      "path": "src/modules/customer_service/seat/workbench/detailPanel.tsx",
+      "sha256": "fec1e265b3e97c3df7078cf4c0355b2374a7c95e859b65518ddb61b7a94280e6"
+    }
+  ],
+  "required_cases_frozen": false,
+  "parent_android_macos_visitor_role_requirements_preserved": true,
+  "real_backend": false,
+  "real_browser": false,
+  "product_pass": false,
+  "remaining": [
+    "F00 approve NEW IDs and input dispositions",
+    "freeze real profile/role keys and exact final oracles",
+    "Widget visitor to seat plus attachment/history end-to-end",
+    "real backend browser and Android/macOS counterparts",
+    "independent final review and UX"
+  ]
+}
