@@ -202,7 +202,7 @@ class PersistentMessageQueue {
   /// - [id]: 消息唯一标识（用于去重）
   /// - [data]: 消息内容（JSON 字符串）
   /// - [priority]: 优先级（0=普通, 1=高优先级/ACK, 2=重试）
-  void enqueue(
+  bool enqueue(
     String id,
     String data, {
     int priority = 0,
@@ -212,23 +212,25 @@ class PersistentMessageQueue {
     final msg = QueuedMessage(
       id: id,
       data: data,
-      priority: priority,
+      priority: priority.clamp(0, 2),
       ownerUid: ownerUid,
       sessionGeneration: sessionGeneration,
     );
     if (_deduplicationSet.contains(msg.deduplicationKey)) {
       iPrint('⚠️ [QUEUE] 消息已存在: $id');
-      return;
+      return false;
     }
     if (_totalSize >= _maxQueueSize) {
-      _removeLowestPriorityMessage(priority);
+      _removeLowestPriorityMessage(msg.priority);
+      if (_totalSize >= _maxQueueSize) return false;
     }
 
-    _priorityQueues[priority.clamp(0, 2)]!.addLast(msg);
+    _priorityQueues[msg.priority]!.addLast(msg);
     _deduplicationSet.add(msg.deduplicationKey);
     _save();
 
     iPrint('📥 [QUEUE] 入队: $id, priority=$priority, 总数=$_totalSize');
+    return true;
   }
 
   /// 按优先级出队（优先返回高优先级消息）
@@ -405,7 +407,12 @@ class PersistentMessageQueue {
     for (int p = 0; p < newMessagePriority; p++) {
       final queue = _priorityQueues[p]!;
       if (queue.isNotEmpty) {
-        queue.removeFirst();
+        final removed = queue.removeFirst();
+        if (!messages.any(
+          (entry) => entry.deduplicationKey == removed.deduplicationKey,
+        )) {
+          _deduplicationSet.remove(removed.deduplicationKey);
+        }
         iPrint('🗑️ [QUEUE] 移除低优先级消息: priority=$p');
         return;
       }

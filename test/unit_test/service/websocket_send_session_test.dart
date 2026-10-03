@@ -375,4 +375,27 @@ void main() {
       );
     });
   }
+  for (final stage in [
+    'same-priority',
+    'lower-priority',
+    'evicted-reenqueue',
+  ]) {
+    test('bounded queue $stage', () {
+      final queue = PersistentMessageQueue.to;
+      final priority = stage == 'lower-priority' ? 2 : 0;
+      for (var i = 0; i < 200; i++) {
+        queue.enqueue('capacity-$i', 'synthetic-$i', priority: priority);
+      }
+      if (stage == 'evicted-reenqueue') {
+        queue.enqueue('high', 'synthetic-high', priority: 1);
+        expect(queue.dequeueByPriority()!.id, 'high');
+        queue.enqueue('capacity-0', 'synthetic-0');
+        expect(queue.messages.any((entry) => entry.id == 'capacity-0'), isTrue);
+      } else {
+        queue.enqueue('overflow', 'synthetic-overflow');
+        expect(queue.messages.any((entry) => entry.id == 'overflow'), isFalse);
+      }
+      expect(queue.messages, hasLength(200));
+    });
+  }
 }

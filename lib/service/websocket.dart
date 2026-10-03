@@ -1303,14 +1303,18 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         msgId = decoded['id'].toString();
       }
     } catch (_) {}
-    _messageQueue.enqueue(
+    final accepted = _messageQueue.enqueue(
       msgId,
       message,
       priority: 0,
       ownerUid: ownerUid,
       sessionGeneration: generation,
     );
-    iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
+    if (accepted) {
+      iPrint('> ws: 消息入队（当前队列长度：${_messageQueue.messages.length}）');
+    } else {
+      iPrint('> ws: 消息未入队（容量或去重限制）');
+    }
   }
 
   void _cancelStream() {
