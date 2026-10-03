@@ -82,10 +82,10 @@ class _MentionListPageState extends ConsumerState<MentionListPage> {
 
     if (!mounted) return;
     setState(() {
-      _page = nextPage;
       if (result != null) {
+        _page = nextPage;
         final items = result['items'] as List? ?? [];
-        _mentions.addAll(items.cast<Map<String, dynamic>>());
+        _mentions = [..._mentions, ...items.cast<Map<String, dynamic>>()];
         _hasMore = items.length >= 20;
       }
       _isLoadingMore = false;
