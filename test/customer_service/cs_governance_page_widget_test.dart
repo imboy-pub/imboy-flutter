@@ -628,7 +628,7 @@ void main() {
     );
   });
 
-  testWidgets('加载更多成功：追加新行保留原行且末页移除入口', (tester) async {
+  testWidgets('分页失败后重试：保留原行和游标，成功追加并移除末页入口', (tester) async {
     final adapter = _GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
       'GET /cs/organizations/$orgA/seats': [
@@ -639,6 +639,7 @@ void main() {
             nextAfterId: identityA,
           ),
         ),
+        (500, errEnvelope(500, 'pagination_unavailable')),
         (200, _seatsPayload(seats: [_seatRow(orgA, identityB)])),
       ],
     });
@@ -654,6 +655,24 @@ void main() {
     await tester.tap(more);
     await pumpUntilUxFound(
       tester,
+      find.textContaining('pagination_unavailable'),
+    );
+    expect(
+      find.byKey(const ValueKey('cs-governance-seat-$identityA')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('cs-governance-seat-$identityB')),
+      findsNothing,
+    );
+    expect(tester.widget<ListTile>(more).enabled, isTrue);
+    expect(
+      adapter.queries['GET /cs/organizations/$orgA/seats']!.last['after_id'],
+      identityA,
+    );
+    await tester.tap(more);
+    await pumpUntilUxFound(
+      tester,
       find.byKey(const ValueKey('cs-governance-seat-$identityB')),
     );
     expect(
@@ -665,7 +684,7 @@ void main() {
       findsOneWidget,
     );
     expect(more, findsNothing);
-    expect(adapter.hits.where((h) => h.endsWith('/seats')), hasLength(2));
+    expect(adapter.hits.where((h) => h.endsWith('/seats')), hasLength(3));
     expect(adapter.hits.where((h) => h.endsWith('/seat-limit')), hasLength(1));
     final seatQueries = adapter.queries['GET /cs/organizations/$orgA/seats']!;
     expect(seatQueries.first.containsKey('after_id'), isFalse);
