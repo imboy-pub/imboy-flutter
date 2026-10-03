@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 // B.2 守护测试：三套件注册引导 + Registry 路由（不触发 vodozemac）。
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
@@ -7,6 +10,31 @@ import 'package:imboy/service/e2ee/olm_protocol.dart';
 import 'package:imboy/service/e2ee/rsa_legacy_protocol.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  test('后台信任失效失败不输出异常原文且不打断事件流', () async {
+    const canary = 'synthetic-private-trust-user-key';
+    final logs = <String>[];
+    final previousDebugPrint = debugPrint;
+    final logged = Completer<void>();
+    debugPrint = (String? message, {int? wrapWidth}) {
+      if (message != null) logs.add(message);
+      if (message?.contains('[E2eeBootstrap]') == true && !logged.isCompleted) {
+        logged.complete();
+      }
+    };
+    try {
+      E2eeBootstrap.unawaitedFn(Future<void>.error(StateError(canary)));
+      await logged.future.timeout(const Duration(seconds: 2));
+    } finally {
+      debugPrint = previousDebugPrint;
+    }
+    expect(
+      logs,
+      contains('[E2eeBootstrap] trust invalidation failed: StateError'),
+    );
+    expect(logs.join('\n'), isNot(contains(canary)));
+  });
+
   _bug72InitializationContract();
   group('E2eeBootstrap.ensureRegistered', () {
     setUp(E2eeBootstrap.resetForTest);

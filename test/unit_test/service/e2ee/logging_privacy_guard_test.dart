@@ -40,6 +40,7 @@ void main() {
         r'堆栈: $stack',
         r'接收标记: $receivingMsgKey',
       ],
+      'lib/service/e2ee/e2ee_bootstrap.dart': [r'failed: $e'],
       'lib/service/e2ee_service.dart': [r'${e.runtimeType}: $e'],
       'lib/service/message_s2c.dart': [
         r'${oldMsg.toJson()}',

@@ -94,7 +94,7 @@ class E2eeBootstrap {
   /// fire-and-forget 辅助：后台信任失效失败只留痕，不打断事件流。
   static void unawaitedFn(Future<void> future) {
     future.catchError((Object e) {
-      debugPrint('[E2eeBootstrap] trust invalidation failed: $e');
+      debugPrint('[E2eeBootstrap] trust invalidation failed: ${e.runtimeType}');
     });
   }
 
@@ -140,7 +140,7 @@ class E2eeBootstrap {
         // 单个套件初始化失败不应拖垮其它套件（如 Megolm 失败不该挡住 Olm）；
         // 真正的失败会在 encrypt 时以明确异常暴露，这里只留痕。
         debugPrint(
-          '[E2eeBootstrap] initialize ${impl.suite.protocol} failed: $e',
+          '[E2eeBootstrap] initialize ${impl.suite.protocol} failed: ${e.runtimeType}',
         );
       }
     }
