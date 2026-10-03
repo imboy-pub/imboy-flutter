@@ -8,26 +8,34 @@
 /// - PL-4 当前套餐标记
 library;
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/billing/billing_provider.dart';
 import 'package:imboy/page/billing/plan_list_page.dart';
 import 'package:imboy/store/api/billing_api.dart';
 
 class _FakeBillingApi extends BillingApi {
-  _FakeBillingApi({this.plansResult, this.subscriptionResult});
+  _FakeBillingApi({
+    this.plansResult,
+    this.subscriptionResult,
+    this.pendingSubscribe,
+  });
 
+  final Completer<int?>? pendingSubscribe;
   int subscribeCalls = 0;
   int invoiceCalls = 0;
 
   @override
   Future<int?> subscribe(int planId) async {
     subscribeCalls++;
-    return null;
+    return pendingSubscribe == null ? null : await pendingSubscribe!.future;
   }
 
   @override
@@ -64,16 +72,60 @@ BillingPlan _plan({
   );
 }
 
-Widget _buildTestApp(BillingApi api) {
+Widget _buildTestApp(BillingApi api, {bool withLoading = false}) {
   return TranslationProvider(
     child: ProviderScope(
       overrides: [billingApiProvider.overrideWithValue(api)],
-      child: const MaterialApp(home: PlanListPage()),
+      child: MaterialApp(
+        builder: withLoading ? AppLoading.init() : null,
+        home: const PlanListPage(),
+      ),
     ),
   );
 }
 
 void main() {
+  testWidgets('PL-7 订阅等待期间按钮禁用，失败后恢复可用', (tester) async {
+    final pending = Completer<int?>();
+    final api = _FakeBillingApi(
+      pendingSubscribe: pending,
+      plansResult: [
+        _plan(
+          id: 101,
+          name: 'synthetic-plan',
+          price: 100,
+          billingPeriod: 'month',
+        ),
+      ],
+    );
+    await tester.pumpWidget(_buildTestApp(api, withLoading: true));
+    await tester.pumpAndSettle();
+    final subscribe = find.byWidgetPredicate(
+      (w) => w is CupertinoButton && w.color != null,
+    );
+    await tester.ensureVisible(find.text(t.billing.subscribe));
+    await tester.tap(find.text(t.billing.subscribe));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.widgetWithText(
+        CupertinoActionSheetAction,
+        t.billing.payMethodAlipay,
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(api.subscribeCalls, 1);
+    expect(tester.widget<CupertinoButton>(subscribe).onPressed, isNull);
+    expect(api.invoiceCalls, 0);
+    pending.complete(null);
+    for (var i = 0; i < 50; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(tester.widget<CupertinoButton>(subscribe).onPressed, isNotNull);
+    expect(api.subscribeCalls, 1);
+    expect(api.invoiceCalls, 0);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('PL-6 取消支付方式选择不订阅、不创建账单且可重新打开', (tester) async {
     final api = _FakeBillingApi(
       plansResult: [
