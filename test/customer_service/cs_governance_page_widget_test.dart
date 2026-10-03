@@ -18,121 +18,14 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_client.dart';
-import 'package:imboy/modules/customer_service/presentation/cs_governance_page.dart';
 
 import '../ux_matrix/ux_harness.dart';
-
-const String orgA = '7266418340025468901';
-const String orgB = '7266418340025468999';
-const String identityA = '7266418340025468902';
-const String identityB = '7266418340025468912';
-
-Map<String, dynamic> okEnvelope({dynamic payload}) => {
-  'code': 0,
-  'msg': 'success',
-  'payload': ?payload,
-};
-
-Map<String, dynamic> errEnvelope(int status, String tag) => {
-  'code': status,
-  'msg': tag,
-  'payload': <String, dynamic>{},
-};
-
-Map<String, dynamic> _limitPayload(
-  String org, {
-  dynamic seatLimit = 5,
-  int used = 3,
-}) => okEnvelope(
-  payload: {'organization_id': org, 'seat_limit': seatLimit, 'used': used},
-);
-
-Map<String, dynamic> _seatsPayload({
-  List<Map<String, dynamic>>? seats,
-  dynamic nextAfterId,
-}) => okEnvelope(
-  payload: {
-    'seats': seats ?? <Map<String, dynamic>>[],
-    'next_after_id': nextAfterId,
-  },
-);
-
-Map<String, dynamic> _seatRow(
-  String org,
-  String identity, {
-  bool enabled = true,
-}) => {
-  'organization_id': org,
-  'business_identity_id': identity,
-  'function_key': 'customer_service',
-  'enabled': enabled,
-  'max_concurrent': 3,
-  'active_count': 1,
-};
-
-/// 按 `METHOD fragment` 复合键路由的桩（contains 匹配 path）；响应按序
-/// 消耗、耗尽停留最后一个。记录命中序列供路径断言。
-class _GovRouterAdapter implements HttpClientAdapter {
-  _GovRouterAdapter(this.routes, {this.beforeResponse});
-
-  final Map<String, List<(int, Map<String, dynamic>)>> routes;
-  final Future<void> Function(String key)? beforeResponse;
-  final List<String> hits = [];
-  final Map<String, List<Object?>> bodies = {};
-  final Map<String, List<Map<String, dynamic>>> queries = {};
-  final Map<String, int> _cursor = {};
-
-  @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
-    for (final key in routes.keys) {
-      final method = key.substring(0, key.indexOf(' '));
-      final fragment = key.substring(key.indexOf(' ') + 1);
-      if (options.method == method && options.uri.path.contains(fragment)) {
-        hits.add(key);
-        queries.putIfAbsent(key, () => []).add(Map.of(options.queryParameters));
-        await beforeResponse?.call(key);
-        bodies.putIfAbsent(key, () => []).add(options.data);
-        final queue = routes[key]!;
-        // 按序消费、耗尽停留最后一个（首次 index 0，之后逐帧前进）。
-        final i = _cursor.putIfAbsent(key, () => 0);
-        _cursor[key] = (i + 1).clamp(0, queue.length - 1);
-        final (status, body) = queue[i];
-        return ResponseBody.fromString(
-          jsonEncode(body),
-          status,
-          headers: {
-            Headers.contentTypeHeader: [Headers.jsonContentType],
-          },
-        );
-      }
-    }
-    return ResponseBody.fromString(
-      jsonEncode(okEnvelope(payload: <String, dynamic>{})),
-      200,
-      headers: {
-        Headers.contentTypeHeader: [Headers.jsonContentType],
-      },
-    );
-  }
-
-  @override
-  void close({bool force = false}) {}
-}
-
-Widget _host(String orgId) =>
-    uxHost(CsGovernancePage(orgId: orgId), const UxCombo(kUxMediumViewport));
+import 'cs_governance_test_fixtures.dart';
 
 void main() {
   setUp(() async {
@@ -142,18 +35,18 @@ void main() {
   tearDown(teardownUxHarness);
 
   testWidgets('ready：额度事实 + 坐席行 + TSID 19 位 lossless 展示', (tester) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 5, used: 3)),
+        (200, limitPayload(orgA, seatLimit: 5, used: 3)),
       ],
       'GET /cs/organizations/$orgA/seats': [
-        (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
       ],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-limit-value')),
@@ -178,18 +71,18 @@ void main() {
   });
 
   testWidgets('unlimited：显示「不限」且无上限徽标', (tester) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 'unlimited', used: 12)),
+        (200, limitPayload(orgA, seatLimit: 'unlimited', used: 12)),
       ],
       'GET /cs/organizations/$orgA/seats': [
-        (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
       ],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-limit-value')),
@@ -204,7 +97,7 @@ void main() {
   });
 
   testWidgets('权限负例：403 governance_insufficient 诚实权限终态（无重试）', (tester) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
         (403, errEnvelope(403, 'governance_insufficient')),
       ],
@@ -212,7 +105,7 @@ void main() {
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-error')),
@@ -237,17 +130,17 @@ void main() {
   });
 
   testWidgets('一般错误：500 wire tag 透传 + 点击重试恢复', (tester) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
         (500, errEnvelope(500, 'facts_unavailable')),
-        (200, _limitPayload(orgA)),
+        (200, limitPayload(orgA)),
       ],
-      'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+      'GET /cs/organizations/$orgA/seats': [(200, seatsPayload())],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-error')),
@@ -263,16 +156,16 @@ void main() {
   });
 
   testWidgets('清除额度输入并保存：PUT 缺省上限并回显不限', (tester) async {
-    final adapter = _GovRouterAdapter({
-      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
-      'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [(200, seatsPayload())],
       'PUT /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 'unlimited')),
+        (200, limitPayload(orgA, seatLimit: 'unlimited')),
       ],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(tester, find.text('3/5 席位'));
     await tester.tap(find.byKey(const ValueKey('cs-governance-limit-adjust')));
     await tester.pumpAndSettle();
@@ -297,19 +190,19 @@ void main() {
 
   for (final suspend in [false, true]) {
     testWidgets('取消${suspend ? '停用坐席' : '额度调整'}：关闭对话框且不发写请求', (tester) async {
-      final adapter = _GovRouterAdapter({
-        'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+      final adapter = GovRouterAdapter({
+        'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
         'GET /cs/organizations/$orgA/seats': [
-          (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+          (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
         ],
-        'PUT /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+        'PUT /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
         'POST /cs/organizations/$orgA/seats/$identityA/suspend': [
           (200, okEnvelope(payload: <String, dynamic>{})),
         ],
       });
       HttpClient.adapterForTest = adapter;
       addTearDown(() => HttpClient.adapterForTest = null);
-      await tester.pumpWidget(_host(orgA));
+      await tester.pumpWidget(governanceHost(orgA));
       await pumpUntilUxFound(tester, find.text('3/5 席位'));
       await tester.tap(
         find.byKey(
@@ -347,14 +240,14 @@ void main() {
   }
 
   testWidgets('空坐席：空态文案（不报错）', (tester) async {
-    final adapter = _GovRouterAdapter({
-      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
-      'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [(200, seatsPayload())],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-seats-empty')),
@@ -365,23 +258,23 @@ void main() {
   });
 
   testWidgets('额度变化：调整 2 → PUT body + 新额度回显 + 达上限徽标', (tester) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 5, used: 3)),
+        (200, limitPayload(orgA, seatLimit: 5, used: 3)),
         // PUT 后 _refresh 的下一次 GET。
-        (200, _limitPayload(orgA, seatLimit: 2, used: 2)),
+        (200, limitPayload(orgA, seatLimit: 2, used: 2)),
       ],
       'PUT /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 2, used: 2)),
+        (200, limitPayload(orgA, seatLimit: 2, used: 2)),
       ],
       'GET /cs/organizations/$orgA/seats': [
-        (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
       ],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-limit-value')),
@@ -411,14 +304,14 @@ void main() {
   });
 
   testWidgets('非法输入（0）：本地拒绝，不发 PUT', (tester) async {
-    final adapter = _GovRouterAdapter({
-      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
-      'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [(200, seatsPayload())],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-limit-value')),
@@ -441,15 +334,12 @@ void main() {
   testWidgets('超额冲突：resume 失败 seat_limit_exceeded → 可解释 SnackBar', (
     tester,
   ) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 2, used: 2)),
+        (200, limitPayload(orgA, seatLimit: 2, used: 2)),
       ],
       'GET /cs/organizations/$orgA/seats': [
-        (
-          200,
-          _seatsPayload(seats: [_seatRow(orgA, identityA, enabled: false)]),
-        ),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA, enabled: false)])),
       ],
       // resume 撞额度上限（envelope tag；后端 classify 未显式登记时 500 漂移）。
       'POST /cs/organizations/$orgA/seats/$identityA/resume': [
@@ -459,7 +349,7 @@ void main() {
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-seat-$identityA')),
@@ -485,15 +375,12 @@ void main() {
   });
 
   testWidgets('停用坐席：确认 → POST suspend + 成功反馈 + 刷新', (tester) async {
-    final adapter = _GovRouterAdapter({
-      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
       'GET /cs/organizations/$orgA/seats': [
-        (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
         // suspend 后 _refresh 回显 enabled=false。
-        (
-          200,
-          _seatsPayload(seats: [_seatRow(orgA, identityA, enabled: false)]),
-        ),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA, enabled: false)])),
       ],
       'POST /cs/organizations/$orgA/seats/$identityA/suspend': [
         (200, okEnvelope(payload: <String, dynamic>{})),
@@ -502,7 +389,7 @@ void main() {
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-seat-$identityA')),
@@ -533,16 +420,16 @@ void main() {
 
   testWidgets('切换组织后旧额度响应晚到不能覆盖新组织事实', (tester) async {
     final delayed = Completer<void>();
-    final adapter = _GovRouterAdapter(
+    final adapter = GovRouterAdapter(
       {
         'GET /cs/organizations/$orgA/seat-limit': [
-          (200, _limitPayload(orgA, seatLimit: 5, used: 1)),
+          (200, limitPayload(orgA, seatLimit: 5, used: 1)),
         ],
         'GET /cs/organizations/$orgB/seat-limit': [
-          (200, _limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
+          (200, limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
         ],
         'GET /cs/organizations/$orgB/seats': [
-          (200, _seatsPayload(seats: [_seatRow(orgB, identityB)])),
+          (200, seatsPayload(seats: [seatRow(orgB, identityB)])),
         ],
       },
       beforeResponse: (key) async {
@@ -554,7 +441,7 @@ void main() {
     addTearDown(() {
       if (!delayed.isCompleted) delayed.complete();
     });
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     for (var i = 0; i < 30 && adapter.hits.isEmpty; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 10)),
@@ -562,7 +449,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
     }
     expect(adapter.hits, contains('GET /cs/organizations/$orgA/seat-limit'));
-    await tester.pumpWidget(_host(orgB));
+    await tester.pumpWidget(governanceHost(orgB));
     await pumpUntilUxFound(
       tester,
       find.byKey(ValueKey('cs-governance-seat-$identityB')),
@@ -581,17 +468,17 @@ void main() {
 
   testWidgets('旧组织额度写入晚到不能覆盖切换后的组织', (tester) async {
     final delayed = Completer<void>();
-    final adapter = _GovRouterAdapter(
+    final adapter = GovRouterAdapter(
       {
-        'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
-        'GET /cs/organizations/$orgA/seats': [(200, _seatsPayload())],
+        'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
+        'GET /cs/organizations/$orgA/seats': [(200, seatsPayload())],
         'PUT /cs/organizations/$orgA/seat-limit': [
-          (200, _limitPayload(orgA, seatLimit: 2)),
+          (200, limitPayload(orgA, seatLimit: 2)),
         ],
         'GET /cs/organizations/$orgB/seat-limit': [
-          (200, _limitPayload(orgB, seatLimit: 'unlimited')),
+          (200, limitPayload(orgB, seatLimit: 'unlimited')),
         ],
-        'GET /cs/organizations/$orgB/seats': [(200, _seatsPayload())],
+        'GET /cs/organizations/$orgB/seats': [(200, seatsPayload())],
       },
       beforeResponse: (key) async {
         if (key.startsWith('PUT ')) await delayed.future;
@@ -602,7 +489,7 @@ void main() {
     addTearDown(() {
       if (!delayed.isCompleted) delayed.complete();
     });
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-limit-adjust')),
@@ -616,7 +503,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('cs-governance-limit-save')));
     await settleUx(tester);
     expect(adapter.hits, contains('PUT /cs/organizations/$orgA/seat-limit'));
-    await tester.pumpWidget(_host(orgB));
+    await tester.pumpWidget(governanceHost(orgB));
     await pumpUntilUxFound(tester, find.text('不限'));
     delayed.complete();
     await settleUx(tester);
@@ -629,23 +516,23 @@ void main() {
   });
 
   testWidgets('分页失败后重试：保留原行和游标，成功追加并移除末页入口', (tester) async {
-    final adapter = _GovRouterAdapter({
-      'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
       'GET /cs/organizations/$orgA/seats': [
         (
           200,
-          _seatsPayload(
-            seats: [_seatRow(orgA, identityA)],
+          seatsPayload(
+            seats: [seatRow(orgA, identityA)],
             nextAfterId: identityA,
           ),
         ),
         (500, errEnvelope(500, 'pagination_unavailable')),
-        (200, _seatsPayload(seats: [_seatRow(orgA, identityB)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityB)])),
       ],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     final more = find.byKey(const ValueKey('cs-governance-seats-more'));
     await pumpUntilUxFound(tester, more);
     expect(
@@ -694,18 +581,18 @@ void main() {
   testWidgets('刷新期间禁止使用旧游标加载更多', (tester) async {
     final delayed = Completer<void>();
     var limitRequests = 0;
-    final adapter = _GovRouterAdapter(
+    final adapter = GovRouterAdapter(
       {
-        'GET /cs/organizations/$orgA/seat-limit': [(200, _limitPayload(orgA))],
+        'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
         'GET /cs/organizations/$orgA/seats': [
           (
             200,
-            _seatsPayload(
-              seats: [_seatRow(orgA, identityA)],
+            seatsPayload(
+              seats: [seatRow(orgA, identityA)],
               nextAfterId: identityA,
             ),
           ),
-          (200, _seatsPayload(seats: [_seatRow(orgA, identityB)])),
+          (200, seatsPayload(seats: [seatRow(orgA, identityB)])),
         ],
       },
       beforeResponse: (key) async {
@@ -719,7 +606,7 @@ void main() {
     addTearDown(() {
       if (!delayed.isCompleted) delayed.complete();
     });
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     final more = find.byKey(const ValueKey('cs-governance-seats-more'));
     await pumpUntilUxFound(tester, more);
     final refresh = tester
@@ -739,24 +626,24 @@ void main() {
   });
 
   testWidgets('切换 Organization：orgId 变化失效重建（新路径重拉 + 旧数据消失）', (tester) async {
-    final adapter = _GovRouterAdapter({
+    final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
-        (200, _limitPayload(orgA, seatLimit: 5, used: 1)),
+        (200, limitPayload(orgA, seatLimit: 5, used: 1)),
       ],
       'GET /cs/organizations/$orgA/seats': [
-        (200, _seatsPayload(seats: [_seatRow(orgA, identityA)])),
+        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
       ],
       'GET /cs/organizations/$orgB/seat-limit': [
-        (200, _limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
+        (200, limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
       ],
       'GET /cs/organizations/$orgB/seats': [
-        (200, _seatsPayload(seats: [_seatRow(orgB, identityB)])),
+        (200, seatsPayload(seats: [seatRow(orgB, identityB)])),
       ],
     });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
-    await tester.pumpWidget(_host(orgA));
+    await tester.pumpWidget(governanceHost(orgA));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-seat-$identityA')),
@@ -765,7 +652,7 @@ void main() {
     expect(find.text('1/5 席位'), findsOneWidget);
 
     // 同 runtimeType 重建（didUpdateWidget 路径）：orgId A → B。
-    await tester.pumpWidget(_host(orgB));
+    await tester.pumpWidget(governanceHost(orgB));
     await pumpUntilUxFound(
       tester,
       find.byKey(const ValueKey('cs-governance-seat-$identityB')),
