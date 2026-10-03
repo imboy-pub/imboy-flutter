@@ -39,6 +39,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   List<Organization> _orgs = const [];
   bool _loading = false;
   int _refreshGeneration = 0;
+  int _accountEpoch = 0;
   final int _sessionGeneration = UserRepoLocal.to.sessionGeneration;
 
   bool get _sessionCurrent =>
@@ -64,6 +65,7 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
   void didUpdateWidget(covariant OrganizationHomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.accountKey == widget.accountKey) return;
+    ++_accountEpoch;
     _orgs = const [];
     _pendingInvites = 0;
     ++_invitationGeneration;
@@ -115,26 +117,37 @@ class _OrganizationHomePageState extends State<OrganizationHomePage> {
     await _refreshPendingInvites();
   }
 
+  bool _acceptAction(String account, int epoch) =>
+      mounted &&
+      _sessionCurrent &&
+      account.isNotEmpty &&
+      account == _accountKey &&
+      epoch == _accountEpoch;
+
   Future<void> _createOrg() async {
+    final account = _accountKey;
+    final epoch = _accountEpoch;
+    if (!_acceptAction(account, epoch)) return;
     final name = await orgPromptInput(
       context,
       title: t.organization.home.createOrg,
       hint: t.organization.home.orgNameLabel,
     );
-    if (name == null) return;
+    if (name == null || !_acceptAction(account, epoch)) return;
     try {
       final org = await _api.create(name: name);
+      if (!_acceptAction(account, epoch)) return;
       _cache.invalidateOrg(org.id);
       await _refresh();
       // 创建可能落 pending（待运营审核）：成功 ≠ 立即可用，如实告知。
-      if (!mounted) return;
+      if (!mounted || !_acceptAction(account, epoch)) return;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(t.organization.home.createSubmittedPendingReview),
         ),
       );
     } on OrganizationApiException catch (e) {
-      if (!mounted) return;
+      if (!mounted || !_acceptAction(account, epoch)) return;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(
