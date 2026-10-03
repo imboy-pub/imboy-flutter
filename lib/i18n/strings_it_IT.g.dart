@@ -2268,6 +2268,7 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => 'Nessuna modifica della chiave in attesa di conferma';
 	@override String get e2eeErrDeviceNotReady => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova';
 	@override String get e2eeErrProtocolMismatch => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova';
+	@override String get e2eeErrPeerSuiteUnsupported => 'Il dispositivo del destinatario non supporta la suite di cifratura richiesta, messaggio non inviato. Chiedi di aggiornare l\'app e riprova';
 	@override String get e2eeErrSessionExportFailed => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi';
 	@override String get safetyNumberCopied => 'Copiato';
 	@override String get safetyNumberCopy => 'Copia';
@@ -5158,6 +5159,7 @@ extension on TranslationsItIt {
 			'main.complianceKeyRotationNoPending' => 'Nessuna modifica della chiave in attesa di conferma',
 			'main.e2eeErrDeviceNotReady' => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova',
 			'main.e2eeErrProtocolMismatch' => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova',
+			'main.e2eeErrPeerSuiteUnsupported' => 'Il dispositivo del destinatario non supporta la suite di cifratura richiesta, messaggio non inviato. Chiedi di aggiornare l\'app e riprova',
 			'main.e2eeErrSessionExportFailed' => 'Generazione della chiave di sessione di gruppo non riuscita; riprova più tardi',
 			'main.safetyNumberCopied' => 'Copiato',
 			'main.safetyNumberCopy' => 'Copia',
@@ -5225,9 +5227,9 @@ extension on TranslationsItIt {
 			'organization.home.tabOrg' => 'Organizzazioni',
 			'organization.home.myInvitations' => 'I miei inviti',
 			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
-			'organization.detail.leaveOrg' => 'Lascia organizzazione',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => 'Lascia organizzazione',
 			'organization.detail.leaveOrgBody' => 'L’uscita revoca l’accesso a directory, gruppi, canali e file. I file vengono conservati. Per rientrare serve un invito.',
 			'organization.detail.leaveFailed' => 'Uscita non riuscita',
 			'organization.detail.leaveOwnerHint' => 'Trasferisci la proprietà dell’organizzazione prima di uscire',
@@ -5739,9 +5741,9 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
 			'workspace.projectMilestoneFilterReached' => 'Raggiunte',
 			'workspace.projectMilestoneNameLabel' => 'Nome',
-			'workspace.projectMilestoneNameRequired' => 'Il nome della milestone non può essere vuoto',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMilestoneNameRequired' => 'Il nome della milestone non può essere vuoto',
 			'workspace.projectMilestoneReach' => 'Segna come raggiunta',
 			'workspace.projectMilestoneReachedHint' => 'Raggiunta (non è possibile tornare indietro)',
 			'workspace.projectMilestoneReachedToast' => 'Milestone raggiunta',

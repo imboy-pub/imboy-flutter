@@ -15,10 +15,102 @@ import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/ai_plaintext_gate.dart';
+import 'package:imboy/service/e2ee/capability_guard.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
+import 'package:imboy/service/events/base_event.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/olm_session_service.dart';
+import 'package:imboy/store/api/olm_api.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+/// 设备集合异常类别（AC-15）。
+enum DeviceSetAnomalyKind {
+  /// 幽灵设备：服务端 Olm 设备列表下发了本地 fan-out / 已批准集合中
+  /// 不存在的未知设备。
+  ghostDevice,
+
+  /// 遗漏设备：本地已知（上次记录）的设备未出现在服务端下发的活跃集合中
+  /// （可能被撤销/下线，也可能是服务端数据不一致）。
+  missingDevice,
+
+  /// 新设备：对端设备集合相对上次记录出现新增设备（聚合安全码将变化，
+  /// 既有「已验证」状态失效，需要重新带外核验）。
+  newDevice,
+}
+
+/// E2EE 设备集合异常事件（AC-15）。
+///
+/// 触发策略：**刷新 + 告警，不崩溃不静默**——
+/// - 幽灵/遗漏/新增意味着服务端设备视图与本地信任视图不一致（可能被塞入、
+///   移除设备，或对端合法增删设备），消费方应清密钥缓存强制刷新并提示
+///   用户重验安全码；
+/// - 事件只承载事实（设备 ID 集合），不携带任何密钥材料。
+final class E2eeDeviceSetAnomalyEvent extends AppEvent {
+  const E2eeDeviceSetAnomalyEvent({
+    required this.peerUid,
+    required this.kind,
+    this.ghostDeviceIds = const {},
+    this.missingDeviceIds = const {},
+    this.newDeviceIds = const {},
+  });
+
+  /// 发生异常的对端用户 ID。
+  final String peerUid;
+
+  /// 异常类别。
+  final DeviceSetAnomalyKind kind;
+
+  /// 幽灵设备 ID 集合（kind == ghostDevice 时非空）。
+  final Set<String> ghostDeviceIds;
+
+  /// 遗漏设备 ID 集合（kind == missingDevice 时非空）。
+  final Set<String> missingDeviceIds;
+
+  /// 新增设备 ID 集合（kind == newDevice 时非空）。
+  final Set<String> newDeviceIds;
+
+  @override
+  List<Object?> get props => [
+    peerUid,
+    kind,
+    ghostDeviceIds,
+    missingDeviceIds,
+    newDeviceIds,
+  ];
+
+  @override
+  String toString() =>
+      'E2eeDeviceSetAnomalyEvent(peerUid: $peerUid, kind: $kind, '
+      'ghost={${ghostDeviceIds.join(',')}}, '
+      'missing={${missingDeviceIds.join(',')}}, '
+      'new={${newDeviceIds.join(',')}})';
+}
+
+/// 本地安全码信任标记失效事件（AC-15）。
+///
+/// 对端身份换钥（S2C `e2ee_key_changed`，C01 identity_version 推进）或
+/// 信任撤销（`e2ee_trust_changed` → revoked/unverified）时，本地
+/// 「已验证」标记必须同步失效——静默沿用旧验证等于放行换钥后的 MITM。
+final class SafetyNumberTrustInvalidatedEvent extends AppEvent {
+  const SafetyNumberTrustInvalidatedEvent({
+    required this.peerUid,
+    required this.reason,
+  });
+
+  /// 信任被失效的对端用户 ID。
+  final String peerUid;
+
+  /// 失效原因（peer_key_changed / trust_revoked / …），仅用于日志与 UI 提示。
+  final String reason;
+
+  @override
+  List<Object?> get props => [peerUid, reason];
+
+  @override
+  String toString() =>
+      'SafetyNumberTrustInvalidatedEvent(peerUid: $peerUid, reason: $reason)';
+}
 
 /// 解密失败发生率度量 —— 「[加密消息] 占位发生率压到一辈子遇不到」的验证仪表。
 ///
@@ -118,8 +210,16 @@ class E2EEService {
   static final Map<String, int> _userKeyCacheTimestamp = {};
   static final Map<String, int> _groupKeyCacheTimestamp = {};
 
+  /// 群成员设备密钥测试注入点（绕过网络）。
   static Future<List<Map<String, dynamic>>> Function(String gid)?
   debugGroupMemberKeysLoader;
+
+  /// C2C fan-out 套件门卫的 Olm 设备列表测试注入点（AC-06）。
+  ///
+  /// 生产路径默认 `OlmApi().listDevices`；测试注入以驱动生产调用链
+  /// （与 [debugGroupMemberKeysLoader] 同模式）。
+  static Future<List<Map<String, dynamic>>> Function(String uid)?
+  debugOlmDeviceListLoader;
 
   /// 缓存 TTL（30 分钟），超过此时间的缓存条目将被视为过期
   static const int _cacheTtlMs = 30 * 60 * 1000;
@@ -1205,6 +1305,70 @@ class E2EEService {
     final rnd = Random.secure();
     final bytes = List<int>.generate(length, (_) => rnd.nextInt(256));
     return Uint8List.fromList(bytes);
+  }
+
+  /// AC-06：C2C fan-out 前置固定套件门卫（C02 [FixedSuitePolicy] 生产接线）。
+  ///
+  /// C2C 发送链不做运行时套件协商（协议规范 §8.2）：固定 Olm per-device
+  /// fan-out。本门卫把该结构性决策落到**对端能力校验**维度——fan-out 目标
+  /// 设备（含对端设备与本发送者的其他设备）必须全部具备 Olm 身份
+  /// （出现在 `GET /api/v1/e2ee/devices` 的活跃 Olm 设备列表中）。
+  ///
+  /// - 任一设备不在列表（旧端只有 RSA / 能力声明缺失）→
+  ///   [FixedSuiteIncompatibleException] **显式失败**：不回退明文、不静默
+  ///   跳过该设备、不降级 RSA（retry_plaintext_guard 同源 fail-closed 语义）。
+  ///   发送路径把它映射为用户可见的「对端设备不支持加密」类错误。
+  /// - 能力列表为空（查询失败，`OlmApi.listDevices` 对 !ok 返回空表）同样
+  ///   拒绝：能力未知 = 不支持（fail-closed，不猜测）。
+  ///
+  /// 幂等纯校验：不修改任何状态（幽灵告警事件除外——事件只承载事实，
+  /// 可安全重入），重试路径重复经过无副作用。
+  ///
+  /// 返回值：服务端认定的对端 Olm 设备 ID 集合（供幽灵设备检测与调用方
+  /// 记账）。
+  static Future<Set<String>> enforceC2CFanoutSuitePolicy({
+    required String peerUid,
+    required Set<String> fanoutDeviceIds,
+  }) async {
+    final Future<List<Map<String, dynamic>>> Function(String uid) loader =
+        debugOlmDeviceListLoader ?? ((uid) => OlmApi().listDevices(uid: uid));
+    final devices = await loader(peerUid);
+    final olmDids = <String>{};
+    for (final row in devices) {
+      final did = row['device_id']?.toString() ?? '';
+      if (did.isNotEmpty) olmDids.add(did);
+    }
+
+    // 对 fan-out 目标逐设备执行 C02 固定套件策略：不在 Olm 设备列表 =
+    // 能力声明不含 olm（空能力集合同样拒绝，fail-closed）。
+    for (final did in fanoutDeviceIds) {
+      FixedSuitePolicy.enforcePeerSupportsRequired(
+        scope: 'c2c',
+        peerDeviceId: did,
+        peerProtocols: olmDids.contains(did)
+            ? const <String>{'olm'}
+            : const <String>{},
+      );
+    }
+
+    // 幽灵设备（AC-15）：服务端 Olm 列表下发、但不在本次 fan-out 集合中的
+    // 未知设备——刷新 + 告警，不崩溃不静默（发送链本身继续）。
+    final ghosts = olmDids.difference(fanoutDeviceIds);
+    if (ghosts.isNotEmpty) {
+      iPrint(
+        '[E2EE][AC-15] ghost devices detected: peer=$peerUid '
+        'ghost={${ghosts.join(',')}} fanout={${fanoutDeviceIds.join(',')}}',
+      );
+      AppEventBus.fire(
+        E2eeDeviceSetAnomalyEvent(
+          peerUid: peerUid,
+          kind: DeviceSetAnomalyKind.ghostDevice,
+          ghostDeviceIds: ghosts,
+        ),
+      );
+    }
+
+    return olmDids;
   }
 
   /// 重试解密之前失败的 E2EE 消息

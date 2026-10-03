@@ -2265,6 +2265,7 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get complianceKeyRotationNoPending => '확인 대기 중인 키 변경이 없습니다';
 	@override String get e2eeErrDeviceNotReady => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요';
 	@override String get e2eeErrProtocolMismatch => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요';
+	@override String get e2eeErrPeerSuiteUnsupported => '상대방 기기가 필요한 암호화 스위트를 지원하지 않아 메시지가 전송되지 않았습니다. 상대방에게 앱 업데이트를 요청한 후 다시 시도해 주세요';
 	@override String get e2eeErrSessionExportFailed => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요';
 	@override String get safetyNumberCopied => '복사되었습니다';
 	@override String get safetyNumberCopy => '복사';
@@ -5155,6 +5156,7 @@ extension on TranslationsKoKr {
 			'main.complianceKeyRotationNoPending' => '확인 대기 중인 키 변경이 없습니다',
 			'main.e2eeErrDeviceNotReady' => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요',
 			'main.e2eeErrProtocolMismatch' => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요',
+			'main.e2eeErrPeerSuiteUnsupported' => '상대방 기기가 필요한 암호화 스위트를 지원하지 않아 메시지가 전송되지 않았습니다. 상대방에게 앱 업데이트를 요청한 후 다시 시도해 주세요',
 			'main.e2eeErrSessionExportFailed' => '그룹 세션 키 생성에 실패했습니다. 잠시 후 다시 시도해 주세요',
 			'main.safetyNumberCopied' => '복사되었습니다',
 			'main.safetyNumberCopy' => '복사',
@@ -5222,9 +5224,9 @@ extension on TranslationsKoKr {
 			'organization.home.tabOrg' => '조직',
 			'organization.home.myInvitations' => '내 초대',
 			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
-			'organization.detail.leaveOrg' => '조직 나가기',
 			_ => null,
 		} ?? switch (path) {
+			'organization.detail.leaveOrg' => '조직 나가기',
 			'organization.detail.leaveOrgBody' => '나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다.',
 			'organization.detail.leaveFailed' => '나가기 실패',
 			'organization.detail.leaveOwnerHint' => '나가기 전에 조직 소유권을 이전하세요',
@@ -5736,9 +5738,9 @@ extension on TranslationsKoKr {
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
 			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',
 			'workspace.taskEmptySubtitle' => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료',
-			'workspace.projectsLoadMore' => '더 로드',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectsLoadMore' => '더 로드',
 			'workspace.projectW2SectionTitle' => '프로젝트 협업',
 			'workspace.projectMembersEntry' => '구성원',
 			'workspace.projectMilestonesEntry' => '마일스톤',

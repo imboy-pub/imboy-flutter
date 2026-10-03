@@ -162,6 +162,7 @@ complianceKeyRotationConfirmed: "تم تأكيد تدوير مفتاح الام�
 complianceKeyRotationNoPending: "لا يوجد تغيير مفتاح في انتظار التأكيد"
 e2eeErrDeviceNotReady: لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة
 e2eeErrProtocolMismatch: هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة
+e2eeErrPeerSuiteUnsupported: جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة
 e2eeErrSessionExportFailed: تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً
 complianceKeyInfoTitle: مفتاح تدقيق الامتثال
 complianceKeyInfoServerKey: المفتاح العام الصادر من الخادم

@@ -786,22 +786,57 @@ class ChatNetworkService {
       throw E2eeDecryptException('peer_has_no_device');
     }
 
+    // AC-06（C02 FixedSuitePolicy 生产接线）：进入逐设备加密前，先对
+    // fan-out 目标集合做固定套件能力校验。任一活跃设备不支持 Olm
+    // （旧端仅有 RSA 身份 / 能力未知）→ FixedSuiteIncompatibleException
+    // 显式失败——不回退明文、不静默跳过该设备、不产出半份密文。
+    // 发送路径将其映射为「对端设备不支持加密」类用户可见错误。
+    await E2EEService.enforceC2CFanoutSuitePolicy(
+      peerUid: toId,
+      fanoutDeviceIds: didToPem.keys.toSet(),
+    );
+
     final myUid = UserRepoLocal.to.currentUid;
     final myDid = deviceId;
     final now = DateTime.now().millisecondsSinceEpoch;
 
+    // AC-16（own-device fan-out）：发送者自己的其他设备也必须收到该消息的
+    // 独立密文副本——服务端会把 C2C 消息 echo 给发送者的其他设备，若
+    // devices map 没有它们，接收侧按 fan_out_missing_devices 判不可恢复。
+    final selfKeyResult = await E2EEService.getUserDevicePublicKeys(myUid);
+    final selfDidToPem =
+        ((selfKeyResult['didToPem'] ?? {}) as Map).cast<String, String>()
+          ..remove(myDid); // 当前设备本地已有明文行，不需要密文副本
+    final selfDidToKid = ((selfKeyResult['didToKid'] ?? {}) as Map)
+        .cast<String, String>();
+
+    // fan-out 目标：对端全部活跃设备 + 自己的其他设备。
+    // 每个目标一台独立 Olm 会话（AC-16：各目标密文互不相同且各自可解）。
+    final targets = <({String uid, String did, String pem, String kid})>[
+      for (final entry in didToPem.entries)
+        (
+          uid: toId,
+          did: entry.key,
+          pem: entry.value,
+          kid: didToKid[entry.key] ?? entry.key,
+        ),
+      for (final entry in selfDidToPem.entries)
+        (
+          uid: myUid,
+          did: entry.key,
+          pem: entry.value,
+          kid: selfDidToKid[entry.key] ?? entry.key,
+        ),
+    ];
+
     // 逐设备加密
     final devices = <String, dynamic>{};
-    for (final entry in didToPem.entries) {
-      final peerDid = entry.key;
-      final peerPubKey = entry.value;
-      final peerKid = didToKid[peerDid] ?? peerDid;
-
-      final recipient = RecipientDevice(
-        deviceId: peerDid,
-        keyId: peerKid,
-        publicKey: peerPubKey,
-      );
+    // AC-16（缺钥设备）：瞬态失败（离线设备 claim 不上 OTK / 网络错误）的
+    // 设备**明确跳过**并记录在信封元数据——不静默消失、不阻塞其他设备；
+    // 后续补投以该记录为依据。安全/能力类错误不跳过（fail-closed 拒发）。
+    final skippedDevices = <String, String>{};
+    for (final target in targets) {
+      final peerDid = target.did;
 
       // E2EE-025：session_ref 必须是**真实**的 Olm 会话标识，且必须在构造
       // protected_header 之前取得——header 要先进 inner_frame 才能被加密，
@@ -812,16 +847,35 @@ class ChatNetworkService {
       //
       // 每一个活跃收件设备都必须拥有可用的 Olm 身份和会话。
       //
-      // 不能跳过 `device_not_registered`：那会让发送者看到「发送成功」，
+      // 不能静默跳过 `device_not_registered`：那会让发送者看到「发送成功」，
       // 但对端的另一台活跃设备永远收不到该消息，破坏 per-device fan-out
       // 的完整投递语义。strict E2EE 下宁可拒发并要求该设备完成密钥注册，
       // 也不能产出一条不完整的密文消息。
       final String sessionRef;
       try {
-        sessionRef = await OlmSessionService.to.ensureSessionId(toId, peerDid);
+        sessionRef = await OlmSessionService.to.ensureSessionId(
+          target.uid,
+          peerDid,
+        );
       } on Exception catch (e) {
         if (e.toString().contains('device_not_registered')) {
           throw E2eeDecryptException('recipient_device_not_olm_ready:$peerDid');
+        }
+        // AC-16：仅瞬态基础设施错误可跳过（OlmSessionService.isTransient
+        // SessionFailure 白名单，安全类异常仍 rethrow 拒发整条）。
+        //
+        // 补投策略：跳过只对**本条消息**生效，设备不出任何持久黑名单——
+        // 下一次发送的 fan-out 目标仍取「对端全部活跃设备 + 自己其他设备」，
+        // 离线设备恢复（claim 可达）后自动回到密文集合，投递随下一条消息
+        // 收敛（Matrix per-device fan-out 同款语义）。skipped_devices 元数据
+        // 让跳过**可审计**：不静默消失、不阻塞其他设备、不产出未持久密文。
+        if (isTransientSessionFailure(e)) {
+          skippedDevices[peerDid] = e.runtimeType.toString();
+          iPrint(
+            '[E2EE][AC-16] device skipped (transient): did=$peerDid '
+            'errType=${e.runtimeType}（下次发送自动补投）',
+          );
+          continue;
         }
         rethrow;
       }
@@ -829,9 +883,17 @@ class ChatNetworkService {
       final encrypted = await E2eeOutboundRouter.encryptV3(
         suite: ProtocolSuite.olm,
         plaintext: plaintext,
-        recipients: [recipient],
+        recipients: [
+          RecipientDevice(
+            deviceId: peerDid,
+            keyId: target.kid,
+            publicKey: target.pem,
+          ),
+        ],
+        // self 设备的 Olm 会话 peer 是自己账号（claim 自己设备的 OTK）；
+        // PFv3 信封 destination 仍是对端（消息最终目的地不变）。
         context: E2eeContext(
-          peerUid: toId,
+          peerUid: target.uid,
           peerDeviceId: peerDid,
           scope: 'c2c',
         ),
@@ -865,6 +927,7 @@ class ChatNetworkService {
       'version': 1,
       'fan_out': 'per_device',
       'devices': devices,
+      if (skippedDevices.isNotEmpty) 'skipped_devices': skippedDevices,
     };
     await E2eeOutboundRouter.persistOutboxPayload(
       messageId: messageId,
@@ -921,6 +984,13 @@ class ChatNetworkService {
   String getE2EEErrorMessage(dynamic error) {
     final String errorStr = error.toString().toLowerCase();
 
+    if (errorStr.contains('fixedsuiteincompatible')) {
+      // AC-06（C02 FixedSuitePolicy 生产接线）：fan-out 目标设备不支持
+      // scope 固定套件（旧端仅有 RSA 身份 / 能力未知）。fail-closed 拒发是
+      // 安全设计；用户侧行动指引是让对方更新应用，故给专属文案而非
+      // 笼统默认（FixedSuiteIncompatibleException 的类名即稳定错误码）。
+      return t.main.e2eeErrPeerSuiteUnsupported;
+    }
     if (errorStr.contains('policy_not_initialized')) {
       // 真因就是 policy 端点拉不到（网络/后端不可达）；这条文案给出了最关键的
       // 事实——"消息未发送"，避免用户以为已经发出去了。

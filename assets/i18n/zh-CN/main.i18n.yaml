@@ -159,6 +159,7 @@ complianceKeyRotationNoPending: "没有待确认的密钥变更"
 e2eeErrDeviceNotReady: 当前设备未完成安全初始化，请退出重新登录后重试
 e2eeErrSessionExportFailed: 群会话密钥生成失败，请稍后重试
 e2eeErrProtocolMismatch: 加密协议配置异常，请更新应用后重试
+e2eeErrPeerSuiteUnsupported: 对方设备不支持要求的加密套件，消息未发送；请让对方更新应用后重试
 complianceKeyInfoTitle: 合规审计密钥
 complianceKeyInfoServerKey: 服务端下发的公钥
 complianceKeyInfoLocalPin: 本地固定（TOFU）
