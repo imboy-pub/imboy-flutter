@@ -10,18 +10,21 @@ import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 
 final class _PickedFile extends PlatformFile {
+  _PickedFile([this.filename = 'new.enc']);
+  final String filename;
   @override
-  String get name => 'new.enc';
+  String get name => filename;
   @override
-  Uri get uri => Uri.file('/synthetic/new.enc');
+  Uri get uri => Uri.file('/synthetic/$filename');
   @override
   dynamic noSuchMethod(Invocation invocation) =>
       throw UnsupportedError('Only picker name/path are used in this test');
 }
 
 class _SelectionPicker extends FilePickerPlatform {
-  _SelectionPicker({this.pending});
+  _SelectionPicker({this.pending, this.results});
   final Future<PlatformFile?>? pending;
+  final List<Future<PlatformFile?>>? results;
   int calls = 0;
   @override
   Future<PlatformFile?> pickFile({
@@ -38,11 +41,18 @@ class _SelectionPicker extends FilePickerPlatform {
     WebOptions webOptions = const WebOptions(),
   }) async {
     calls++;
+    if (results != null) return await results![calls - 1];
     return pending == null ? _PickedFile() : await pending;
   }
 }
 
 void main() {
+  for (final fails in [false, true]) {
+    testWidgets(
+      '旧选择器${fails ? '错误' : '结果'}不能覆盖较新选择',
+      (tester) => _assertLatestPickerWins(tester, fails),
+    );
+  }
   for (final fails in [false, true]) {
     testWidgets(
       '关闭恢复页后忽略选择器${fails ? '错误' : '结果'}',
@@ -55,6 +65,51 @@ void main() {
       (tester) => _assertLatestFileWins(tester, oldFails),
     );
   }
+}
+
+Future<void> _assertLatestPickerWins(WidgetTester tester, bool fails) async {
+  final old = Completer<PlatformFile?>();
+  final current = Completer<PlatformFile?>();
+  final picker = _SelectionPicker(results: [old.future, current.future]);
+  final original = FilePickerPlatform.instance;
+  FilePickerPlatform.instance = picker;
+  addTearDown(() => FilePickerPlatform.instance = original);
+  var verifications = 0;
+  await tester.pumpWidget(
+    _pickerPage((path) async {
+      verifications++;
+      return {'version': path, 'algorithm': 'synthetic', 'file_size': 77};
+    }),
+  );
+  await tester.tap(find.text(t.common.e2eeBackupSelectFileHint));
+  await tester.tap(find.text(t.common.e2eeBackupSelectFileHint));
+  await tester.pump();
+  expect(picker.calls, 2);
+  current.complete(_PickedFile('current.enc'));
+  await tester.pump();
+  await tester.pump();
+  expect(find.text('current.enc'), findsOneWidget);
+  if (fails) {
+    old.completeError(Exception('stale picker failure'));
+  } else {
+    old.complete(_PickedFile('old.enc'));
+  }
+  for (var frame = 0; frame < 10; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  final staleToast = find
+      .text(t.common.e2eeBackupErrSelectFile)
+      .evaluate()
+      .isNotEmpty;
+  for (var frame = 0; frame < 100; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(staleToast, isFalse);
+  expect(find.text('current.enc'), findsOneWidget);
+  expect(find.text('/synthetic/current.enc'), findsOneWidget);
+  expect(find.text('old.enc'), findsNothing);
+  expect(verifications, 1);
+  expect(tester.takeException(), isNull);
 }
 
 Future<void> _assertPickerStopsAfterDisposal(

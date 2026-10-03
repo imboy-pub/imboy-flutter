@@ -77,6 +77,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   File? _selectedFile;
   Map<String, dynamic>? _backupInfo;
   int _fileVerificationGeneration = 0;
+  int _fileSelectionGeneration = 0;
   E2EEBackupInfo? _cloudInfo;
 
   /// 云端备份探测失败标记（如网络抖动）：true 时在云端恢复入口位置渲染重试按钮，
@@ -437,12 +438,13 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Future<void> _selectFile() async {
     if (!mounted) return;
+    final generation = ++_fileSelectionGeneration;
     try {
       final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['enc'],
       );
-      if (!mounted) return;
+      if (!_isCurrentFileSelection(generation)) return;
 
       if (result != null && result.path != null) {
         // 切换到文件选择器来源前，清理之前 URL 下载产生的临时文件
@@ -450,7 +452,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           await E2EEBackupUrlDownloadService.cleanupTempFile(
             _selectedFile!.path,
           );
-          if (!mounted) return;
+          if (!_isCurrentFileSelection(generation)) return;
         }
         setState(() {
           _selectedFile = File(result.path!);
@@ -460,11 +462,14 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
         await _verifyFile();
       }
     } on Exception catch (e) {
-      if (!mounted) return;
+      if (!_isCurrentFileSelection(generation)) return;
       iPrint('[E2EEBackupImport] 选择备份文件失败: $e');
       _showError(t.common.e2eeBackupErrSelectFile);
     }
   }
+
+  bool _isCurrentFileSelection(int generation) =>
+      mounted && _fileSelectionGeneration == generation;
 
   /// 通过 URL 下载备份文件到临时目录，然后走与文件选择相同的校验链路。
   /// 下载前先清理之前选中文件产生的临时副本（URL 来源）。
