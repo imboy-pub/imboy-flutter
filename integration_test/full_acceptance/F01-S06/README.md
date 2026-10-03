@@ -65,3 +65,9 @@ result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 �
 分隔符为逗号与冒号且无额外空白。缺历史、删失败留成功、重排或改写均失败。
 索引必须来自执行期独立记录，不能从最终报告自行生成后冒充完整历史。
 该检查只证明相对索引的保留性，真实执行和独立索引完整性仍须另外验收。
+
+## 精确原始用例事件组件
+
+`auto_test_lib.acceptance_case_events.audit_case_event_artifact` 读取单个实际hash绑定的Flutter machine日志，校验非隐藏成功测试名称与协调者独立冻结的绑定全集精确相等。绑定行只含case_id、platform、profile、role_variant、test_name；必须覆盖传入的全部冻结required格子，且测试名称唯一。调用方必须先从独立固定hash加载冻结集合，不能根据日志反向生成绑定。
+
+相同数量但不同名称、漏项、未知项、重复名称、hidden/skip required均拒绝。此组件只证明日志身份结构和产物完整性，不能证明日志真实执行、平台配置、业务事实或完整attempt来源；当前未接入最终CLI，不构成F01-S06或产品PASS。
