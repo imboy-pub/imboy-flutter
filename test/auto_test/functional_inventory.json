@@ -35428,7 +35428,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35451,7 +35451,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35474,7 +35474,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35497,7 +35497,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35520,7 +35520,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35543,7 +35543,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35566,7 +35566,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35589,7 +35589,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35612,7 +35612,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35635,7 +35635,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35658,7 +35658,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -35681,7 +35681,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": "integration_test/mine/mine_subpages_smoke_test.dart",
+      "test_target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },

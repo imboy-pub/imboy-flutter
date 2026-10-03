@@ -1,23 +1,28 @@
 {
  "schema_version": 1,
  "id": "E2EE-BACKUP-IMPORT-001",
- "title": "E2EE 备份导入前置与危险操作门禁",
+ "title": "E2EE 备份导入/云端恢复真实动作验收（导航冒烟不构成导入覆盖）",
  "risk": "P0",
  "phase": "p0",
  "sources": [
   "lib/page/settings/e2ee_backup_import_page.dart"
  ],
  "dependencies": [
-  "lib/service/e2ee_backup_url_download_service.dart"
+  "lib/service/e2ee_backup_url_download_service.dart",
+  "lib/page/settings/e2ee_backup_export_page.dart"
  ],
  "assertions": {
   "functional": [
-   "非法文件不能启用导入",
-   "风险警告可见",
-   "真实导入默认不执行"
+   "真实导出产出 .enc 备份文件后，注入导入页输入密码完成导入并恢复私钥到安全存储",
+   "导入成功弹窗展示脱敏 Device/Key 标识",
+   "云端恢复口令确认框可取消且不执行恢复",
+   "云端口令错误时提示口令错误或备份损坏",
+   "非法文件不能启用导入（widget L0 前置）",
+   "风险警告可见（widget L0 前置）"
   ],
   "ui": [
-   "警告、禁用态、云端恢复入口均可读"
+   "警告、禁用态、云端恢复入口均可读",
+   "成功弹窗脱敏标识可读"
   ]
  },
  "visual": {
@@ -31,15 +36,27 @@
  },
  "runner": {
   "type": "flutter",
-  "target": "integration_test/mine/mine_subpages_smoke_test.dart",
+  "target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
   "requires": [
    "device.android",
+   "backend.local",
    "credentials.primary",
    "fixture.disposable_account"
   ]
  },
- "checkpoints": [
-  "e2ee_01_backup_import"
+ "unit_targets": [
+  "test/unit_test/page/settings/e2ee_backup_import_page_widget_test.dart",
+  "test/unit_test/service/e2ee_backup_restore_test.dart",
+  "test/unit_test/service/e2ee_local_backup_boundary_test.dart"
+ ],
+ "assertion_ids": [
+  "AT-EI-FILE",
+  "AT-EI-DLG",
+  "AT-EI-CANC",
+  "AT-EI-WRONG"
+ ],
+ "known_gaps": [
+  "fn:settings:e2ee_backup_import_page:012 回填群聊会话密钥需群历史 fixture，acceptance 测试明确维持阻塞，不得记 PASS"
  ],
  "safe_to_execute": false,
  "risk_mode": "local-write"

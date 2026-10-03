@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "9b03d28ee6c3899d97b0cfb605d53df11bcf5c9f",
-    "backend_head": "55b0b4f92f098fccb132f5c8d3ecf781f290cb60",
+    "app_head": "a3f1e3d0bd2d3090c07aa36a7e3366593773ca7d",
+    "backend_head": "ce31761fbcc8a0d678ba9f73ecf8c070365ae400",
     "integration_test_count": 154,
     "lib_page_count": 166,
     "module_page_count": 22,
@@ -1535,18 +1535,10 @@
       "id": "test:integration_test/mine/mine_subpages_smoke_test.dart",
       "target": "integration_test/mine/mine_subpages_smoke_test.dart",
       "target_sha256": "6e42d653ea2e5f6867d330771f8840d863a75f849e4998ce37389adb0830ca8b",
-      "sources": [
-        "lib/page/settings/e2ee_backup_import_page.dart"
-      ],
-      "dependencies": [
-        "lib/service/e2ee_backup_url_download_service.dart"
-      ],
-      "risk": "local-write",
-      "requirements": [
-        "credentials.primary",
-        "device.android",
-        "fixture.disposable_account"
-      ],
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
       "tags": [
         "mine"
       ],
@@ -1865,10 +1857,20 @@
       "id": "test:integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "target": "integration_test/settings/e2ee_backup_import_acceptance_test.dart",
       "target_sha256": "d6b7fbf58a78ea1c8c9a01c29c46a5453cf2a76b82ef6fb036177ae6dfdd68fc",
-      "sources": [],
-      "dependencies": [],
-      "risk": "device-readonly",
-      "requirements": [],
+      "sources": [
+        "lib/page/settings/e2ee_backup_import_page.dart"
+      ],
+      "dependencies": [
+        "lib/page/settings/e2ee_backup_export_page.dart",
+        "lib/service/e2ee_backup_url_download_service.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "backend.local",
+        "credentials.primary",
+        "device.android",
+        "fixture.disposable_account"
+      ],
       "tags": [
         "settings"
       ],
@@ -3903,9 +3905,11 @@
     {
       "page": "lib/page/settings/e2ee_backup_export_page.dart",
       "mapped_targets": [],
-      "dependency_targets": [],
+      "dependency_targets": [
+        "integration_test/settings/e2ee_backup_import_acceptance_test.dart"
+      ],
       "route_registered": false,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""
@@ -3913,7 +3917,7 @@
     {
       "page": "lib/page/settings/e2ee_backup_import_page.dart",
       "mapped_targets": [
-        "integration_test/mine/mine_subpages_smoke_test.dart"
+        "integration_test/settings/e2ee_backup_import_acceptance_test.dart"
       ],
       "dependency_targets": [],
       "route_registered": false,
