@@ -101,7 +101,20 @@ class _OrganizationPickerPageState
     }
   }
 
+  @override
+  void didUpdateWidget(covariant OrganizationPickerPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.accountKey == widget.accountKey) return;
+    _orgs = const [];
+    _switchError = null;
+    _refresh();
+  }
+
+  bool _acceptRefresh(String account, int generation) =>
+      mounted && account == _accountKey && generation == _refreshGeneration;
+
   Future<void> _refresh() async {
+    final account = _accountKey;
     final generation = ++_refreshGeneration;
     setState(() {
       _loading = true;
@@ -109,23 +122,23 @@ class _OrganizationPickerPageState
     });
     try {
       final organizations = await _api.allMine();
-      if (!mounted || generation != _refreshGeneration) return;
+      if (!_acceptRefresh(account, generation)) return;
       _cache.replaceMineOrgs(organizations);
       setState(() {
         _orgs = organizations;
       });
     } on OrganizationApiException catch (e) {
-      if (!mounted || generation != _refreshGeneration) return;
+      if (!_acceptRefresh(account, generation)) return;
       setState(() {
         _error = '${e.message} (code=${e.code})';
       });
     } on Object catch (e) {
-      if (!mounted || generation != _refreshGeneration) return;
+      if (!_acceptRefresh(account, generation)) return;
       setState(() {
         _error = e.toString();
       });
     } finally {
-      if (mounted && generation == _refreshGeneration) {
+      if (_acceptRefresh(account, generation)) {
         setState(() {
           _loading = false;
         });

@@ -298,6 +298,43 @@ void main() {
     return container;
   }
 
+  testWidgets('选择器切换账号后旧列表不得写入新账号缓存', (tester) async {
+    const nextAccount = '91002';
+    addTearDown(() => OrganizationCache.disposeAccount(nextAccount));
+    addTearDown(() => CurrentOrganizationStore.disposeAccount(nextAccount));
+    final adapter = _DeferredPickerAdapter();
+    HttpClient.adapterForTest = adapter;
+    final container = makeContainer(_WsFakeApi(const []));
+    Widget host(String account) => TranslationProvider(
+      child: UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(home: OrganizationPickerPage(accountKey: account)),
+      ),
+    );
+    await tester.pumpWidget(host(_accountKey));
+    for (var i = 0; i < 30 && adapter.requests.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 1);
+    await tester.pumpWidget(host(nextAccount));
+    for (var i = 0; i < 30 && adapter.requests.length < 2; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.requests.length, 2);
+    adapter.complete(1, _orgB);
+    await pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-picker-tile-7002')),
+    );
+    adapter.complete(0, _orgA);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('org-picker-tile-7002')), findsOneWidget);
+    expect(find.byKey(const ValueKey('org-picker-tile-7001')), findsNothing);
+    expect(OrganizationCache.forAccount(nextAccount).org(_orgB), isNotNull);
+    expect(OrganizationCache.forAccount(nextAccount).org(_orgA), isNull);
+    expect(OrganizationCache.forAccount(_accountKey).org(_orgA), isNull);
+  });
+
   testWidgets('旧列表刷新迟到不得覆盖新组织及缓存', (tester) async {
     final adapter = _DeferredPickerAdapter();
     HttpClient.adapterForTest = adapter;
