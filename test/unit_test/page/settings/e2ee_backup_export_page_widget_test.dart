@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -21,6 +23,10 @@ void main() {
   _registerStrengthTest();
   _registerRecoveryTest();
   _registerMismatchTest();
+  _registerClipboardReplacementTest();
+  _registerClipboardGenerationTest();
+  _registerClipboardDisposalTest();
+  _registerClipboardDelayedReadTest();
   Widget wrap(Widget page) {
     return TranslationProvider(
       child: ProviderScope(child: MaterialApp(home: page)),
@@ -244,4 +250,139 @@ void _registerMismatchTest() {
     }
     expect(find.text(t.common.e2eeBackupErrPwdMismatch), findsNothing);
   });
+}
+
+class _ClipboardProbe {
+  String text = '';
+  final writes = <String>[];
+  Completer<dynamic>? nextRead;
+  int readStarts = 0;
+
+  void install() {
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') {
+        text = (call.arguments as Map)['text'] as String;
+        writes.add(text);
+      }
+      if (call.method == 'Clipboard.getData') {
+        readStarts++;
+        final deferred = nextRead;
+        nextRead = null;
+        if (deferred != null) return deferred.future;
+        return text.isEmpty ? null : {'text': text};
+      }
+      return null;
+    });
+    addTearDown(
+      () => messenger.setMockMethodCallHandler(SystemChannels.platform, null),
+    );
+  }
+}
+
+Future<String> _copyRecoveryKey(WidgetTester tester) async {
+  await tester.tap(find.text(t.common.e2eeUseRecoveryKey));
+  await tester.pumpAndSettle();
+  final key = tester
+      .widget<SelectableText>(
+        find.descendant(
+          of: find.byType(CupertinoAlertDialog),
+          matching: find.byType(SelectableText),
+        ),
+      )
+      .data!;
+  await tester.tap(
+    find.widgetWithText(CupertinoDialogAction, t.common.buttonCopy),
+  );
+  for (var frame = 0; frame < 80; frame++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  expect(find.byType(CupertinoAlertDialog), findsNothing);
+  return key;
+}
+
+void _registerClipboardReplacementTest() {
+  testWidgets('到期清理不覆盖用户后来复制的其他内容', (tester) async {
+    final clipboard = _ClipboardProbe()..install();
+    await tester.pumpWidget(_exportHarness());
+    await tester.pump();
+    final key = await _copyRecoveryKey(tester);
+    expect(clipboard.text, key);
+    await Clipboard.setData(const ClipboardData(text: 'unrelated-content'));
+    await tester.pump(const Duration(seconds: 61));
+    await tester.pumpAndSettle();
+    expect(clipboard.text, 'unrelated-content');
+    expect(clipboard.writes, [key, 'unrelated-content']);
+  });
+}
+
+void _registerClipboardGenerationTest() {
+  testWidgets('旧密钥计时器不清除后来生成复制的新密钥', (tester) async {
+    final clipboard = _ClipboardProbe()..install();
+    await tester.pumpWidget(_exportHarness());
+    await tester.pump();
+    final first = await _copyRecoveryKey(tester);
+    await tester.pump(const Duration(seconds: 30));
+    final second = await _copyRecoveryKey(tester);
+    expect(second, isNot(first));
+    expect(clipboard.text, second);
+    await tester.pump(const Duration(seconds: 16));
+    await tester.pumpAndSettle();
+    expect(clipboard.text, second);
+    expect(clipboard.writes, [first, second]);
+    await tester.pump(const Duration(seconds: 38));
+    await tester.pumpAndSettle();
+    expect(clipboard.text, '');
+    expect(clipboard.writes, [first, second, '']);
+  });
+}
+
+void _registerClipboardDisposalTest() {
+  testWidgets('页面销毁后仍清理自己的旧密钥且无界面写入异常', (tester) async {
+    final clipboard = _ClipboardProbe()..install();
+    await tester.pumpWidget(_exportHarness());
+    await tester.pump();
+    final key = await _copyRecoveryKey(tester);
+    expect(clipboard.text, key);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 61));
+    await tester.pumpAndSettle();
+    expect(clipboard.text, '');
+    expect(clipboard.writes, [key, '']);
+    expect(tester.takeException(), isNull);
+  });
+}
+
+void _registerClipboardDelayedReadTest() {
+  for (final replacePage in [false, true]) {
+    final suffix = replacePage ? '重建页面' : '同一页面';
+    testWidgets('迟到的旧剪贴板读取不能清空新复制的恢复密钥（$suffix）', (tester) async {
+      final clipboard = _ClipboardProbe()..install();
+      await tester.pumpWidget(_exportHarness());
+      await tester.pump();
+      final first = await _copyRecoveryKey(tester);
+      final staleRead = Completer<dynamic>();
+      clipboard.nextRead = staleRead;
+      await tester.pump(const Duration(seconds: 53));
+      expect(clipboard.readStarts, 1);
+      if (replacePage) {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpWidget(_exportHarness());
+        await tester.pump();
+      }
+      final second = await _copyRecoveryKey(tester);
+      expect(second, isNot(first));
+      staleRead.complete({'text': first});
+      await tester.pump();
+      await tester.pump();
+      final afterStaleRead = clipboard.text;
+      // 完成新计时器后再断言，失败也不留下 pending timer。
+      await tester.pump(const Duration(seconds: 61));
+      await tester.pumpAndSettle();
+      expect(afterStaleRead, second);
+      expect(clipboard.text, '');
+      expect(clipboard.writes, [first, second, '']);
+    });
+  }
 }

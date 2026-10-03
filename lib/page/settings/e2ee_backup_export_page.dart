@@ -36,6 +36,8 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   /// 到期仅当剪贴板内容仍是该密钥时覆写为空串——用户中途复制了其他
   /// 内容则不动。只访问剪贴板、不触碰 context，页面关闭后执行也安全。
   static const Duration _recoveryKeyClipboardTtl = Duration(seconds: 60);
+  // 跨页面实例共享：迟到的旧读取不能清除后来成功复制的新密钥。
+  static int _recoveryKeyClipboardGeneration = 0;
 
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -45,9 +47,11 @@ class _E2EEBackupExportPageState extends State<E2EEBackupExportPage> {
   String? _generatedFilePath;
 
   void _scheduleRecoveryKeyClipboardClear(String key) {
+    final generation = ++_recoveryKeyClipboardGeneration;
     Future<void>.delayed(_recoveryKeyClipboardTtl, () async {
+      if (generation != _recoveryKeyClipboardGeneration) return;
       final data = await Clipboard.getData('text/plain');
-      if (data?.text == key) {
+      if (generation == _recoveryKeyClipboardGeneration && data?.text == key) {
         await Clipboard.setData(const ClipboardData(text: ''));
       }
     });
