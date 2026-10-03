@@ -211,12 +211,35 @@ def _attempt_device_errors(root: Path, frozen: dict, context: dict) -> list:
     return []
 
 
-def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
-    """Require explicit frozen obligations, exact records and runtime bindings.
+def _cancel_case_obligation_errors(frozen: dict, obligations: list) -> list:
+    """Require snapshots for every explicitly declared generated cancel case."""
+    cases = frozen.get('required_cases', [])
+    if not isinstance(cases, list):
+        return ['BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH']
+    required = set()
+    for case in cases:
+        if not isinstance(case, dict):
+            return ['BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH']
+        seeds = case.get('seed_ids', [])
+        if not isinstance(seeds, list) or any(not isinstance(seed, str) for seed in seeds):
+            return ['BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH']
+        if 'fn:billing:plan_list_page:004' in seeds:
+            key = tuple(case.get(k) for k in acceptance_contract._KEY_FIELDS)
+            if any(not isinstance(k, str) or not k.strip() for k in key):
+                return ['BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH']
+            required.add(key)
+    keys = [obligation.get('case_key') for obligation in obligations]
+    if any(not isinstance(key, list) or len(key) != 4 or any(
+            not isinstance(part, str) for part in key) for key in keys):
+        return ['BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH']
+    actual = [tuple(key) for key in keys]
+    if len(actual) != len(set(actual)) or set(actual) != required:
+        return ['BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH']
+    return []
 
-    This gate checks declared snapshot obligations only. Coverage discovery and
-    independent request/database audits remain separate required gates.
-    """
+
+def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
+    """Bind declared cancel cases; independent coverage discovery/audits required."""
     if not isinstance(frozen, dict):
         return ['BILLING_FROZEN_OBLIGATIONS_INVALID']
     obligations = frozen.get('billing_cancel_snapshots')
@@ -240,6 +263,9 @@ def audit_billing_cancel_set(root: Path, frozen: Any, records: Any) -> list:
         indexed[identifier] = obligation
     if set(records) != set(indexed):
         return ['BILLING_SNAPSHOT_RECORDED_SET_MISMATCH']
+    coverage_errors = _cancel_case_obligation_errors(frozen, obligations)
+    if coverage_errors:
+        return coverage_errors
     errors, paths = [], set()
     for identifier, obligation in indexed.items():
         context = obligation['context']

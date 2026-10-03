@@ -57,6 +57,14 @@ def composed_fixture(root):
 
 
 class BillingCancelSnapshots(unittest.TestCase):
+    def test_cancel_case_cannot_omit_snapshot_obligation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            frozen, _, _ = composed_fixture(root)
+            frozen['billing_cancel_snapshots'] = []
+            self.assertIn('BILLING_CANCEL_CASE_OBLIGATION_SET_MISMATCH',
+                          billing_cancel_snapshots.audit_billing_cancel_set(root, frozen, {}))
+
     def test_complete_nonempty_composition_and_negative_samples(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
