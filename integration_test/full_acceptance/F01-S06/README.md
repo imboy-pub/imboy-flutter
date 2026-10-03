@@ -81,3 +81,5 @@ result.py `INFRA_RETRY_LIMIT=3`（3 连 infra 耗尽），而执行合同第 5 �
 `acceptance-execution-preflight` 使用与 `acceptance-preflight` 相同的五个输入参数；schema2冻结输入额外必须包含非空case_event_runs。每组含完整required_cases子集、case_event_bindings、event_artifact及process_exit_code整数0。各组的四维键必须互斥且逐整行覆盖全量冻结required集合；原始日志路径和内容hash都不得复用。
 
 该入口同时执行候选/运行指纹/尝试保留门及原始用例身份门，始终输出EXECUTION_RECORD_INPUTS_ONLY和product_pass=false。尚不能证明各组日志与独立attempt索引是同一次真实执行，真实业务事实、完整覆盖、UX和最终资格仍必须完成。
+
+组合入口的每个case_event_runs组现强制包含attempt_id，对应独立固定attempt_index所绑定的report attempts记录。同一attempt不可给多个日志组复用；events相对路径、events_sha256、exit_code整数0，以及parsed的PASS/executed/failed/skipped必须一致。旧的未关联样本按现行规则失败，历史校准保留不移签。关联一致不证明索引完整或设备、业务真实性。

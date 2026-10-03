@@ -153,6 +153,17 @@ class PreflightTests(unittest.TestCase):
             'case_event_bindings': [binding], 'process_exit_code': 0,
             'event_artifact': {'path': 'events.jsonl', 'sha256':
                                hashlib.sha256(data).hexdigest()}}]
+        run = self.frozen['case_event_runs'][0]
+        run['attempt_id'] = 'synthetic-green'
+        record = self.report['attempts'][1]
+        record.update(events='events.jsonl', events_sha256=run['event_artifact']['sha256'],
+                      exit_code=0, parsed={'test_status': 'PASS', 'executed': 1,
+                                           'failed': 0, 'skipped': 0})
+        self.frozen['attempt_index'] = [
+            {'attempt_id': row['attempt_id'], 'record_sha256': hashlib.sha256(
+                json.dumps(row, sort_keys=True, ensure_ascii=False, allow_nan=False,
+                           separators=(',', ':')).encode()).hexdigest()}
+            for row in self.report['attempts']]
 
     def test_execution_composition_requires_raw_run_index(self):
         self.assertIn('FROZEN_CASE_EVENT_RUNS_INVALID', self.execution_audit()['errors'])
@@ -189,6 +200,36 @@ class PreflightTests(unittest.TestCase):
         self.report['attempts'] = self.report['attempts'][1:]
         self.assertIn('ATTEMPT_HISTORY_MISSING_UNKNOWN_OR_REORDERED',
                       self.execution_audit()['errors'])
+
+    def test_raw_log_cannot_attach_to_unknown_or_unrelated_attempt(self):
+        self.prepare_event_run()
+        run = self.frozen['case_event_runs'][0]
+        run['attempt_id'] = 'unknown'
+        self.assertIn('CASE_EVENT_ATTEMPT_MISSING_UNKNOWN_OR_REUSED',
+                      self.execution_audit()['errors'])
+        run['attempt_id'] = 'synthetic-red'
+        self.assertIn('CASE_EVENT_ATTEMPT_ARTIFACT_MISMATCH', self.execution_audit()['errors'])
+
+    def test_attempt_link_rejects_metadata_mismatch_even_with_pinned_record(self):
+        self.prepare_event_run()
+        original = copy.deepcopy(self.report['attempts'])
+        variants = [('events', 'other.jsonl', 'CASE_EVENT_ATTEMPT_ARTIFACT_MISMATCH'),
+                    ('events_sha256', '0' * 64, 'CASE_EVENT_ATTEMPT_ARTIFACT_MISMATCH'),
+                    ('exit_code', False, 'CASE_EVENT_ATTEMPT_EXIT_NOT_ZERO'),
+                    ('parsed', {'test_status': 'FAIL'}, 'CASE_EVENT_ATTEMPT_NOT_PASS'),
+                    ('parsed', {'test_status': 'PASS', 'executed': True,
+                                'failed': 0, 'skipped': 0}, 'CASE_EVENT_ATTEMPT_COUNTS_MISMATCH')]
+        for key, value, expected in variants:
+            records = copy.deepcopy(original)
+            records[1][key] = value
+            self.assertIn(expected, acceptance_execution.audit_run_attempt_links(
+                self.frozen['case_event_runs'], records))
+
+    def test_one_attempt_cannot_supply_multiple_raw_runs(self):
+        self.prepare_event_run()
+        runs = self.frozen['case_event_runs'] * 2
+        self.assertIn('CASE_EVENT_ATTEMPT_MISSING_UNKNOWN_OR_REUSED',
+                      acceptance_execution.audit_run_attempt_links(runs, self.report['attempts']))
 
 
 if __name__ == '__main__':

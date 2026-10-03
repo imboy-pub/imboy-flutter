@@ -43,6 +43,37 @@ def audit_case_event_runs(root: Path, frozen_cases: Any, runs: Any) -> List[str]
         return ['FROZEN_CASE_EVENT_RUNS_INVALID']
 
 
+def audit_run_attempt_links(runs: Any, attempts: Any) -> List[str]:
+    """Bind each distinct raw run to one pinned completion, not to authenticity."""
+    if not isinstance(runs, list) or not isinstance(attempts, list):
+        return ['CASE_EVENT_ATTEMPT_LINK_INVALID']
+    try:
+        indexed = {row['attempt_id']: row for row in attempts}
+        if len(indexed) != len(attempts):
+            return ['CASE_EVENT_ATTEMPT_LINK_INVALID']
+        used = set()
+        for run in runs:
+            identifier = run.get('attempt_id')
+            if not isinstance(identifier, str) or identifier not in indexed or identifier in used:
+                return ['CASE_EVENT_ATTEMPT_MISSING_UNKNOWN_OR_REUSED']
+            used.add(identifier)
+            record, artifact = indexed[identifier], run['event_artifact']
+            if (record.get('events') != artifact['path']
+                    or record.get('events_sha256') != artifact['sha256']):
+                return ['CASE_EVENT_ATTEMPT_ARTIFACT_MISMATCH']
+            if type(record.get('exit_code')) is not int or record['exit_code'] != 0:
+                return ['CASE_EVENT_ATTEMPT_EXIT_NOT_ZERO']
+            parsed = record.get('parsed')
+            if not isinstance(parsed, dict) or parsed.get('test_status') != 'PASS':
+                return ['CASE_EVENT_ATTEMPT_NOT_PASS']
+            expected = {'executed': len(run['required_cases']), 'failed': 0, 'skipped': 0}
+            if any(type(parsed.get(k)) is not int or parsed[k] != v for k, v in expected.items()):
+                return ['CASE_EVENT_ATTEMPT_COUNTS_MISMATCH']
+        return []
+    except (KeyError, TypeError, AttributeError):
+        return ['CASE_EVENT_ATTEMPT_LINK_INVALID']
+
+
 def audit_execution_inputs(root: Path, frozen_descriptor: Any,
                            report_descriptor: Any, repositories: Any) -> Dict[str, Any]:
     """Compose live candidate/runtime/history and exact raw identities."""
@@ -54,6 +85,11 @@ def audit_execution_inputs(root: Path, frozen_descriptor: Any,
     if not errors and isinstance(frozen, dict):
         result['errors'].extend(audit_case_event_runs(
             root, frozen.get('required_cases'), frozen.get('case_event_runs')))
+        report, report_errors = acceptance.load_frozen_json(root, report_descriptor)
+        result['errors'].extend(report_errors)
+        if not report_errors and isinstance(report, dict):
+            result['errors'].extend(audit_run_attempt_links(
+                frozen.get('case_event_runs'), report.get('attempts')))
     return result
 
 
