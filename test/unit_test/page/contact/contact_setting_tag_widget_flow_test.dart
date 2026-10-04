@@ -9,6 +9,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_page.dart';
 import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_provider.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart';
+import 'package:imboy/page/user_tag/user_tag_relation/user_tag_relation_provider.dart';
 
 /// 备注标签页 widget 流程测试（5-2）。
 ///
@@ -52,6 +54,69 @@ class SpyContactSettingTagNotifier extends ContactSettingTagNotifier {
     lastRemark = remark;
     return changeRemarkResult;
   }
+}
+
+/// 标签关系页的统计信息 Spy：返回空统计（本地构造，不触 API）
+class SpyUserTagRelationNotifier extends UserTagRelationNotifier {
+  @override
+  UserTagRelationState build() => const UserTagRelationState();
+
+  @override
+  Future<Map<String, dynamic>> getTagStatistics(
+    String scene, {
+    List<String> ensureTags = const [],
+  }) async {
+    return <String, dynamic>{
+      'tags': ensureTags,
+      'usage_count': <String, int>{},
+      'tag_id_by_name': <String, int>{},
+    };
+  }
+}
+
+/// 带 UserTagRelation Spy 的页面壳：供标签行导航/Chip 用例
+/// （tap 标签行会 push TagRelationPage，其 initData 走统计 API）
+Future<SpyContactSettingTagNotifier> _pushWithUserTagSpy(
+  WidgetTester tester, {
+  required String peerTag,
+}) async {
+  final spy = SpyContactSettingTagNotifier();
+  await tester.pumpWidget(
+    TranslationProvider(
+      child: ProviderScope(
+        overrides: [
+          contactSettingTagProvider.overrideWith(() => spy),
+          userTagRelationProvider.overrideWith(SpyUserTagRelationNotifier.new),
+        ],
+        child: MaterialApp(builder: AppLoading.init(), home: const _HostPage()),
+      ),
+    ),
+  );
+  await tester.pump();
+
+  final ctx = tester.element(find.byType(_HostPage));
+  unawaited(
+    Navigator.of(ctx).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ContactSettingTagPage(
+          peerId: '1000000xx',
+          peerAvatar: '',
+          peerAccount: 'wang_acct',
+          peerNickname: '王大力',
+          peerGender: 1,
+          peerTitle: '',
+          peerSign: '',
+          peerRegion: '',
+          peerSource: '通过搜索添加',
+          peerRemark: '老王',
+          peerTag: peerTag,
+        ),
+      ),
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+  return spy;
 }
 
 Future<SpyContactSettingTagNotifier> _openPage(
@@ -205,5 +270,42 @@ void main() {
       findsOneWidget,
       reason: '失败留在本页',
     );
+  });
+
+  testWidgets('流程F 备注输入框进入即自动聚焦', (tester) async {
+    await _openPage(
+      tester,
+      spy: SpyContactSettingTagNotifier(),
+      onRemarkChanged: (_) {},
+    );
+
+    final field = tester.widget<CupertinoTextField>(
+      find.byType(CupertinoTextField),
+    );
+    expect(field.autofocus, isTrue, reason: '备注输入框应声明 autofocus（:002）');
+    expect(field.focusNode, isNotNull);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(field.focusNode!.hasFocus, isTrue, reason: '进入页面后焦点应落在备注输入框');
+  });
+
+  testWidgets('流程G 点标签行进入标签关系页', (tester) async {
+    await _pushWithUserTagSpy(tester, peerTag: '家人');
+
+    await tester.tap(find.byKey(const Key('contact_tag_row')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(
+      find.byType(TagRelationPage),
+      findsOneWidget,
+      reason: '点标签行应进入标签关系页（:006）',
+    );
+  });
+
+  testWidgets('流程H 已有标签渲染 Chip 列表', (tester) async {
+    await _pushWithUserTagSpy(tester, peerTag: '家人,同事');
+
+    expect(find.text('家人'), findsOneWidget, reason: '标签 Chip 应渲染（:007）');
+    expect(find.text('同事'), findsOneWidget);
   });
 }
