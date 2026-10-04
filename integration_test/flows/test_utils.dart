@@ -367,6 +367,9 @@ Future<bool> waitForEntryState(
   for (int i = 0; i < maxAttempts; i++) {
     // 版本升级弹窗（recommend 型）会遮罩登录页/主 Shell，出现即关。
     await dismissUpgradeDialog(tester);
+    // 新账号首登的 E2EE 备份设置向导是全页遮罩（非弹窗），同样挡住
+    // 主 Shell 判定，出现即走「稍后再说→暂不设置」离开。
+    await dismissE2eeBackupSetupPage(tester);
     if (isOnLoginPage(tester) ||
         isOnWelcomePage(tester) ||
         isOnMainShell(tester)) {
@@ -389,13 +392,43 @@ Future<bool> waitForMainShell(
   for (int i = 0; i < maxAttempts; i++) {
     if (isOnMainShell(tester)) return true;
     // 登录成功后异步弹窗可能遮住主 Shell 判定（新设备 E2EE 恢复弹窗、
-    // 晚到的版本升级弹窗），每轮顺手关掉——两者都幂等，无弹窗零副作用。
+    // 晚到的版本升级弹窗、新账号 E2EE 备份设置向导全页），每轮顺手
+    // 关掉——三者都幂等，无遮罩时零副作用。
     await dismissE2eeRecoveryDialog(tester);
     await dismissUpgradeDialog(tester);
+    await dismissE2eeBackupSetupPage(tester);
     await Future<void>.delayed(const Duration(seconds: 1));
     await tester.pump(const Duration(milliseconds: 300));
   }
   return false;
+}
+
+/// 新账号首次登录的 E2EE 备份设置向导（E2EEBackupSetupPage，全页遮罩）
+/// 出现时走「稍后再说（下次启动仍会提醒）→ 暂不设置」离开（幂等）。
+///
+/// 与 dismissE2eeRecoveryDialog 的差异：这是整页路由而非弹窗，且点击
+/// 「稍后再说」后会弹代价确认框，必须再点「暂不设置」才真正离开。
+/// 跳过不落完成标记、不写任何业务数据，零副作用。
+Future<bool> dismissE2eeBackupSetupPage(WidgetTester tester) async {
+  const laterTexts = ['稍后再说（下次启动仍会提醒）', '稍后再说', 'Later', 'Skip for now'];
+  final later = find.byWidgetPredicate(
+    (widget) => widget is Text && laterTexts.contains(widget.data?.trim()),
+  );
+  if (!tester.any(later)) return false;
+  final tapped = await safeTap(tester, later.first);
+  if (!tapped) return false;
+  // 代价确认框：破坏性动作「暂不设置」= 离开向导。
+  const leaveTexts = ['暂不设置', 'Not now', 'Skip'];
+  final leave = find.byWidgetPredicate(
+    (widget) => widget is Text && leaveTexts.contains(widget.data?.trim()),
+  );
+  if (!tester.any(leave)) return false;
+  final confirmed = await safeTap(tester, leave.first);
+  if (confirmed) {
+    await settle(tester, maxSeconds: 2);
+    flowLog('已离开 E2EE 备份设置向导（稍后再说→暂不设置）');
+  }
+  return confirmed;
 }
 
 /// 新设备登录后 E2EE 恢复引导弹窗出现时点「稍后」关闭（幂等）。
