@@ -3,10 +3,13 @@
 // 面对面建群 + 群组空态验收（批次123）：解锁 group 域 10 行阻塞
 // （face_to_face_page 3 + face_to_face_confirm_page 4 中的本地可构造 3 +
 //   launch_chat/group_select/add_member 空态 3）。
-// 载体：主账号 SmokeEmpty（account=51730，UI 建群方）；
-//       对端 B=Batch123Peer（mobile=51798，HTTP API 加入同码群）；
-//       空态账号=Batch123Empty（mobile=51799，零好友零群）。
-// 红线：仅本地环境（9801/4323）；建群/入群均写本地测试库。
+// 载体（三账号由调用方按目标隔离后端注入，uid 为环境 TSID 不可跨库复用，
+// 故一律必填 define、无内置默认值——FIND-GROUP-04 参数化改造）：
+//   主账号（UI 建群方，TEST_PHONE/TEST_PASSWORD/TEST_EXPECTED_UID）；
+//   对端 B（HTTP API 加入同码群，TEST_PEER_ACCOUNT/PASSWORD/UID）；
+//   空态账号（零好友零群，TEST_EMPTY_ACCOUNT/TEST_EMPTY_UID）。
+// 红线：仅本地/隔离环境；建群/入群均写目标隔离测试库（API 与 PG 均以
+// dart-define 注入，见下方运行配方与 integration_test/flows/pg_helper.dart）。
 //
 // 服务端契约（group_logic:face2face/4）：
 //   50 米内存在同 code 的 random_code → join 该群；否则建新匹配（random_code
@@ -26,15 +29,22 @@
 //   AT-GF10 群选择页无群空态
 //   AT-GF11 添加成员页无联系人空态
 //
-// 运行（单场景 --plain-name；define 与批次122 相同配方）：
+// 运行（单场景 --plain-name；载体账号按目标隔离后端注入，勿写死任何库的
+// 真实 uid/account——示例一律用占位符）：
 //   flutter test integration_test/group/face_to_face_acceptance_test.dart \
 //     -d macos --plain-name "AT-GF1" \
 //     --dart-define=APP_ENV=local_office \
-//     --dart-define=API_BASE_URL=http://127.0.0.1:9801 \
-//     --dart-define=API_BASE_URL_OVERRIDE=http://127.0.0.1:9801 \
-//     --dart-define=WS_URL_OVERRIDE=ws://127.0.0.1:9801/api/v1/ws \
-//     --dart-define=TEST_PHONE=51730 --dart-define=TEST_PASSWORD=admin888c \
-//     --dart-define=TEST_EXPECTED_UID=111174215241304064 \
+//     --dart-define=API_BASE_URL=http://127.0.0.1:19800 \
+//     --dart-define=API_BASE_URL_OVERRIDE=http://127.0.0.1:19800 \
+//     --dart-define=WS_URL_OVERRIDE=ws://127.0.0.1:19800/api/v1/ws \
+//     --dart-define=TEST_PHONE=<carrier-account> \
+//     --dart-define=TEST_PASSWORD=<carrier-password> \
+//     --dart-define=TEST_EXPECTED_UID=<carrier-uid> \
+//     --dart-define=TEST_PEER_ACCOUNT=<peer-account> \
+//     --dart-define=TEST_PEER_PASSWORD=<peer-password> \
+//     --dart-define=TEST_PEER_UID=<peer-uid> \
+//     --dart-define=TEST_EMPTY_ACCOUNT=<empty-account> \
+//     --dart-define=TEST_EMPTY_UID=<empty-uid> \
 //     --dart-define=TEST_ALLOW_GROUP_WRITES=true
 
 import 'dart:convert';
@@ -61,30 +71,36 @@ const _allowFlag = String.fromEnvironment(
 const _allow = _allowFlag == 'true' || _allowFlag == 'True';
 
 /// 对端 B 账号（HTTP API 加入同码群，制造 join_group 事件）
-const _peerAccount = String.fromEnvironment(
-  'TEST_PEER_ACCOUNT',
-  defaultValue: '51798',
-);
-const _peerPassword = String.fromEnvironment(
-  'TEST_PEER_PASSWORD',
-  defaultValue: 'admin888c',
-);
+const _peerAccount = String.fromEnvironment('TEST_PEER_ACCOUNT');
+const _peerPassword = String.fromEnvironment('TEST_PEER_PASSWORD');
 
-/// B 账号 uid（account=51734，mobile=51798），DB 成员断言用
-const _peerUid = String.fromEnvironment(
-  'TEST_PEER_UID',
-  defaultValue: '111279969973569536',
-);
+/// B 账号 uid（DB 成员断言用）
+const _peerUid = String.fromEnvironment('TEST_PEER_UID');
 
 /// 空态账号（零好友零群，注册后已清 system_onboarding 引导关系）
-const _emptyAccount = String.fromEnvironment(
-  'TEST_EMPTY_ACCOUNT',
-  defaultValue: '51799',
-);
-const _emptyUid = String.fromEnvironment(
-  'TEST_EMPTY_UID',
-  defaultValue: '111279920011020288',
-);
+const _emptyAccount = String.fromEnvironment('TEST_EMPTY_ACCOUNT');
+const _emptyUid = String.fromEnvironment('TEST_EMPTY_UID');
+
+/// FIND-GROUP-04：载体账号一律必填 define（uid 是环境 TSID、account 由
+/// 后端生成不可指定，任何内置默认值都会把测试耦合到某个具体库的预置行）。
+/// 缺参时 fail-closed 并列出缺失项，避免跑到一半才在深水区失败。
+String _requireCarrierParams() {
+  final required = {
+    'TEST_PHONE': FlowConfig.testPhone,
+    'TEST_PASSWORD': FlowConfig.testPassword,
+    'TEST_EXPECTED_UID': _expectedUid,
+    'TEST_PEER_ACCOUNT': _peerAccount,
+    'TEST_PEER_PASSWORD': _peerPassword,
+    'TEST_PEER_UID': _peerUid,
+    'TEST_EMPTY_ACCOUNT': _emptyAccount,
+    'TEST_EMPTY_UID': _emptyUid,
+  };
+  final missing = required.entries
+      .where((e) => e.value.isEmpty)
+      .map((e) => e.key)
+      .toList();
+  return missing.isEmpty ? '' : '载体账号参数缺失（按目标隔离后端以 dart-define 注入）: $missing';
+}
 
 final _baseUrl = const String.fromEnvironment(
   'API_BASE_URL',
@@ -125,6 +141,12 @@ Future<bool> _boot(
   String? expectedUid,
   bool signOutFirst = false,
 }) async {
+  final missingParams = _requireCarrierParams();
+  if (missingParams.isNotEmpty) {
+    iPrint('[FIND-GROUP-04] $missingParams');
+    markTestSkipped(missingParams);
+    return false;
+  }
   app.main();
   await _pump(tester, seconds: 12);
   const wsEmptySeen = Key('workspace-empty-create-entry');
@@ -139,6 +161,9 @@ Future<bool> _boot(
   for (var i = 0; i < 12; i++) {
     // 稳定态：workspace 引导页 或 主 Shell（2026-09 版本 SmokeEmpty 登录后
     // 直接落主 Shell 消息页，不再强制走 bootstrap 引导）
+    // 登录后可能弹 E2EE 备份向导浮层挡住主 Shell 判定（moment 旅程同款），
+    // 每轮先尝试 dismiss（内部幂等：无向导即 no-op）。
+    await dismissE2eeBackupSetupPage(tester);
     if (tester.any(find.byKey(wsEmptySeen)) ||
         tester.any(find.text('还没有工作区')) ||
         isOnMainShell(tester)) {
