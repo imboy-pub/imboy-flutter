@@ -15,7 +15,6 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
