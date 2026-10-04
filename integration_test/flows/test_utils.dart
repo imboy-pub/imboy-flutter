@@ -48,6 +48,16 @@ class FlowConfig {
 
   static bool get hasExplicitTestEnvironment => hasApiUrl || appEnv.isNotEmpty;
 
+  /// 探活/直连目标审查：仅允许本机、私网或 dev 域名。
+  /// 供 ensureBackendAvailable 做 fail-closed 拦截——Env() 依赖运行时
+  /// currentEnv（init 阶段可能被设备持久化的 savedEnv 拉回 pro），
+  /// 非生产测试环境下解析出公网生产域名时必须拒绝发请求。
+  static bool isApprovedProbeTarget(String baseUrl) {
+    final uri = Uri.tryParse(baseUrl);
+    final host = uri?.host;
+    return host != null && host.isNotEmpty && _isPrivateOrDevelopmentHost(host);
+  }
+
   static const nonProductionEnvironments = {
     'dev',
     'local',
@@ -249,6 +259,27 @@ Future<bool> ensureBackendAvailable({bool forceRecheck = false}) async {
   final baseUrl = FlowConfig.hasApiUrl
       ? FlowConfig.apiBaseUrl
       : Env().apiBaseUrl;
+
+  // FIND-W2-01 fail-closed：非生产测试环境（APP_ENV 显式声明 local_*/dev，
+  // 或显式传了私网 API_BASE_URL）下，探活目标必须是本机/私网/dev 域名。
+  // Env() 的运行时 currentEnv 可能被设备持久化值拉回 pro，曾把探活打到
+  // https://pro.imboy.pub —— 此处直接拒绝发请求，而不是"探活生产通过"。
+  final isExplicitNonProd =
+      FlowConfig.nonProductionEnvironments.contains(
+        FlowConfig.appEnv.toLowerCase(),
+      ) ||
+      (FlowConfig.hasApiUrl &&
+          FlowConfig.isApprovedProbeTarget(FlowConfig.apiBaseUrl));
+  if (isExplicitNonProd && !FlowConfig.isApprovedProbeTarget(baseUrl)) {
+    _backendProbed = true;
+    _backendAvailable = false;
+    flowLog(
+      '探活已拦截(fail-closed): APP_ENV=${FlowConfig.appEnv} 禁止探测非开发地址: $baseUrl'
+      ' — 请显式传 --dart-define=API_BASE_URL=<本机/私网地址>',
+    );
+    return false;
+  }
+
   final uri = Uri.parse('$baseUrl${API.initConfig}');
 
   final client = HttpClient()
