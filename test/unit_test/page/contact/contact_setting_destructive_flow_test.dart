@@ -7,6 +7,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/contact/contact_setting/contact_setting_page.dart';
 import 'package:imboy/page/contact/contact_setting/contact_setting_provider.dart';
+import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_page.dart';
+import 'package:imboy/page/contact/contact_setting_tag/contact_setting_tag_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// 联系人设置页破坏性流程 widget 测试（一段流程覆盖多个功能行）。
@@ -67,6 +69,33 @@ ContactSettingPage _page() => const ContactSettingPage(
   peerRemark: '老王',
   peerTag: '',
 );
+
+class SpyContactSettingTagNotifier extends ContactSettingTagNotifier {
+  @override
+  ContactSettingTagState build() => const ContactSettingTagState();
+}
+
+/// 额外覆写 tag 页 provider：流程D push ContactSettingTagPage 时其
+/// provider 不触真实数据链
+Future<SpyContactSettingNotifier> _pumpWithTagSpy(WidgetTester tester) async {
+  final spy = SpyContactSettingNotifier();
+  await tester.pumpWidget(
+    TranslationProvider(
+      child: ProviderScope(
+        overrides: [
+          contactSettingProvider.overrideWith(() => spy),
+          contactSettingTagProvider.overrideWith(
+            SpyContactSettingTagNotifier.new,
+          ),
+        ],
+        child: MaterialApp(builder: AppLoading.init(), home: _page()),
+      ),
+    ),
+  );
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 100));
+  return spy;
+}
 
 Future<SpyContactSettingNotifier> _pump(
   WidgetTester tester, {
@@ -210,5 +239,33 @@ void main() {
     // 不点任何理由：不触发 ReportApi（fn:…:009 提交路径由真实后端流程覆盖）
     expect(spy.toggleCalls, 0);
     expect(spy.deleteCalls, 0);
+  });
+
+  testWidgets('流程C 「推荐给朋友」提示功能开发中', (tester) async {
+    await _pump(tester);
+
+    await tester.tap(find.text(t.contact.recommendToFriend));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(
+      find.text(t.common.featureInDevelopment),
+      findsOneWidget,
+      reason: 'fn:contact:people_info_more_page:002 推荐入口应提示功能开发中',
+    );
+  });
+
+  testWidgets('流程D 进入「设置备注和标签」页', (tester) async {
+    await _pumpWithTagSpy(tester);
+
+    await tester.tap(find.text(t.main.setParam(param: t.contact.remarksTags)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(
+      find.byType(ContactSettingTagPage),
+      findsOneWidget,
+      reason: 'fn:contact:people_info_more_page:003 应进入设置备注和标签页',
+    );
   });
 }
