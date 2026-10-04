@@ -22,13 +22,6 @@ import 'package:imboy/page/group/vote/group_vote_page.dart';
 ///
 /// 运行：flutter test test/unit_test/page/group/vote/group_vote_widget_flow_test.dart
 
-class _HostPage extends StatelessWidget {
-  const _HostPage();
-
-  @override
-  Widget build(BuildContext context) => const Scaffold(body: Text('host'));
-}
-
 Future<void> _pushPage(WidgetTester tester, {bool autoCreate = false}) async {
   await tester.pumpWidget(
     TranslationProvider(
