@@ -305,6 +305,42 @@ void main() {
     expect(spyAdd.lastGroupId, '7001');
   });
 
+  testWidgets('流程F 加载结束转圈消停：终态无活动指示器且列表已渲染', (tester) async {
+    await _openPage(tester);
+
+    expect(
+      find.byType(CupertinoActivityIndicator),
+      findsNothing,
+      reason:
+          'loadData 完成后转圈应结束（首帧转圈由 setLoading(true) 先于'
+          '查询的结构保证；no-isolate 下查询经 microtask 落定，FakeAsync'
+          '捕捉不到转圈时序窗，此处断言终态）',
+    );
+    expect(find.text('好友乙'), findsOneWidget, reason: '加载完成即渲染列表');
+  });
+
+  testWidgets('流程G 列表剔除功能入口占位：仅渲染真实好友', (tester) async {
+    await _openPage(tester);
+
+    // findFriend 只读 contact 表（is_friend=1、当前 uid），天然不含
+    // contactList 内存混入的功能入口占位（朋友圈/找附近的人/AI 助手广场等）。
+    expect(find.text('朋友圈'), findsNothing, reason: '功能入口占位不应出现');
+    expect(find.textContaining('AI '), findsNothing, reason: '入口占位不应出现');
+    expect(find.text('好友乙'), findsOneWidget);
+    expect(find.text('成员甲'), findsOneWidget);
+  });
+
+  testWidgets('流程H 点左上角关闭退出选人页', (tester) async {
+    await _openPage(tester);
+
+    await tester.tap(find.byTooltip(t.common.buttonCancel));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(AddMemberPage), findsNothing, reason: '关闭后应退出选人页');
+    expect(find.text('host'), findsOneWidget, reason: '应回到宿主页');
+  });
+
   testWidgets('流程E 无联系人空态', (tester) async {
     // 同步 ffi 清表：FakeAsync 内 microtask 可落定
     await db.delete('contact');
