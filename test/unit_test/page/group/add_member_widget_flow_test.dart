@@ -69,6 +69,7 @@ class SpyAddMemberNotifier extends AddMemberNotifier {
   final bool joinResult;
   int joinCalls = 0;
   String? lastGroupId;
+  List<int> lastMemberIds = <int>[];
 
   @override
   AddMemberState build() => const AddMemberState();
@@ -77,6 +78,7 @@ class SpyAddMemberNotifier extends AddMemberNotifier {
   Future<bool> joinGroup(String groupId, items) async {
     joinCalls++;
     lastGroupId = groupId;
+    lastMemberIds = items.map((e) => e.peerId).toList();
     return joinResult;
   }
 }
@@ -339,6 +341,82 @@ void main() {
 
     expect(find.byType(AddMemberPage), findsNothing, reason: '关闭后应退出选人页');
     expect(find.text('host'), findsOneWidget, reason: '应回到宿主页');
+  });
+
+  testWidgets('流程I 提交添加成员入群：名单与群号入 Spy，成功后 pop 回宿主', (tester) async {
+    final spyAdd = SpyAddMemberNotifier();
+    await _resetLoginState();
+    // 成员甲(8001)在 group_member 表属成员行不可选（onTap null，流程C 已钉）。
+    // 补 seed 非成员好友丙须在 push 之前：页面列表只在 initState 拉一次，
+    // 打开后插库不会回填 state。
+    await db.insert('contact', {
+      'user_id': _me,
+      'peer_id': 8003,
+      'nickname': '好友丙',
+      'avatar': '',
+      'gender': 1,
+      'account': '8003',
+      'status': 1,
+      'remark': '',
+      'tag': '',
+      'region': '',
+      'sign': '',
+      'source': 'test',
+      'updated_at': 1790000000000,
+      'is_friend': 1,
+      'category_id': '',
+      'is_from': 1,
+      'account_type': 'normal',
+    });
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [
+            addMemberProvider.overrideWith(() => spyAdd),
+            contactProvider.overrideWith(SpyContactNotifier.new),
+          ],
+          child: MaterialApp(
+            builder: AppLoading.init(),
+            home: const _HostPage(),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    final ctx = tester.element(find.byType(_HostPage));
+    unawaited(
+      Navigator.of(ctx).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const AddMemberPage(groupId: '7001'),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    // 选中非成员好友乙/丙（8001 是成员行不可选），提交
+    await tester.tap(find.text('好友乙'));
+    await tester.pump();
+    await tester.tap(find.text('好友丙'));
+    await tester.pump();
+    await tester.tap(find.textContaining(t.common.buttonAccomplish));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(spyAdd.joinCalls, 1, reason: '提交应走 joinGroup');
+    expect(spyAdd.lastGroupId, '7001', reason: '群号应随提交传入');
+    expect(spyAdd.lastMemberIds.toSet(), {
+      8002,
+      8003,
+    }, reason: '选中名单应完整入参（成员行 8001 不可选）');
+    // pop 转场 300ms：多 pump 数帧等动画走完再断言离树
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(
+      find.byType(AddMemberPage),
+      findsNothing,
+      reason: 'joinGroup 成功后应 pop 回宿主页',
+    );
+    expect(find.text('host'), findsOneWidget);
   });
 
   testWidgets('流程E 无联系人空态', (tester) async {
