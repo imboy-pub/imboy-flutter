@@ -527,7 +527,10 @@ void main() {
       reason: '前置：匹配成功进确认页',
     );
 
-    await tester.ensureVisible(find.text('进入该群'));
+    // 不用 tester.ensureVisible：LiveTestWidgetsFlutterBinding（真机）下
+    // 其 SemanticsHandle 在 test 结束时未释放会触发
+    // 'A SemanticsHandle was active at the end of the test' 收尾失败；
+    // 按钮本就在视口内，直接 tap(warnIfMissed: false)。
     await tester.tap(find.text('进入该群'), warnIfMissed: false);
     // face2face_save 建群 → pushReplacement /chat/<gid>
     // 群名异步加载，标题文本不稳定，直接断言聊天页类型挂载
@@ -579,7 +582,8 @@ void main() {
       {'uid': int.parse(_expectedUid), 'code': _codeGf8},
     );
 
-    await tester.ensureVisible(find.text('进入该群'));
+    // 同 GF7：不用 ensureVisible（真机 binding 下 SemanticsHandle 泄漏），
+    // 按钮在视口内直接 tap。
     await tester.tap(find.text('进入该群'), warnIfMissed: false);
     // toast 断言受「确认页 3 秒后自动消失」缺陷阻塞（GF5 KNOWN-ISSUE）：
     // 页面消失后 toast/跳转均无法稳定验证，改为断言服务端事实——
@@ -599,7 +603,7 @@ void main() {
     if (!await _boot(
       tester,
       account: _emptyAccount,
-      password: 'admin888c',
+      password: FlowConfig.testPassword,
       expectedUid: _emptyUid,
       signOutFirst: true,
     )) {
@@ -619,7 +623,7 @@ void main() {
     if (!await _boot(
       tester,
       account: _emptyAccount,
-      password: 'admin888c',
+      password: FlowConfig.testPassword,
       expectedUid: _emptyUid,
       signOutFirst: true,
     )) {
@@ -639,7 +643,7 @@ void main() {
     if (!await _boot(
       tester,
       account: _emptyAccount,
-      password: 'admin888c',
+      password: FlowConfig.testPassword,
       expectedUid: _emptyUid,
       signOutFirst: true,
     )) {
