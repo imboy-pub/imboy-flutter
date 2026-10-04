@@ -101,8 +101,14 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
 
   /// 面对面建群
   Future<Map<String, dynamic>> faceToFace(String code) async {
-    // 获取位置（失败时降级为 0.0, 0.0，不阻断流程）
-    final hasLocation = await getLocation();
+    // 获取位置（失败时降级为 0.0, 0.0，不阻断流程）。
+    // timeout 兜底：定位权限弹窗等待用户（无人点）或 native 定位挂起时，
+    // getLocation 永不返回会把整个 face2face 卡死在 API 调用之前——
+    // 页面对位置的承诺是"降级不阻断"，超时同样是失败的一种。
+    final hasLocation = await getLocation().timeout(
+      const Duration(seconds: 3),
+      onTimeout: () => false,
+    );
     if (!hasLocation) {
       state = state.copyWith(longitude: '0.0', latitude: '0.0');
     }
