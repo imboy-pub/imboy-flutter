@@ -730,7 +730,9 @@ Future<void> joinEnterprise(WidgetTester tester) async {
 
 Future<void> leaveEnterprise(WidgetTester tester) async {
   await selectEnterpriseTab(tester, t.common.me);
-  final manage = find.text(t.organization.manage.entry);
+  // 入口 tile 对所有成员恒在，但标签按角色门控（canManage 才显示
+  // 「企业管理」，普通成员显示企业 tab 文案）——按 key 定位，不断言文案。
+  final manage = find.byKey(const Key('enterprise-mine-organization-entry'));
   await waitFor(tester, manage.hitTestable());
   await tester.tap(manage);
   final leave = find.byKey(const Key('organization-detail-leave'));
