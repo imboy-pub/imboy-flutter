@@ -429,6 +429,24 @@ Future<void> checkNativeGroupFile(WidgetTester tester) async {
   const groupId = '995301';
   const name = 'native-enterprise-file.txt';
   const body = 'synthetic native enterprise file';
+  // Purge stale same-name uploads left by earlier failed rounds so the fresh
+  // file is the only matching row (tap() below needs a unique target).
+  while (true) {
+    final before = await tester.runAsync(
+      () => GroupFileService.to.getFiles(groupId: groupId),
+    );
+    final staleRows = (before!['list'] as List)
+        .cast<Map<String, dynamic>>()
+        .where((row) => row['file_name'] == name)
+        .toList();
+    if (staleRows.isEmpty) break;
+    expect(
+      await tester.runAsync(
+        () => GroupFileService.to.deleteFile(staleRows.first['id']),
+      ),
+      isTrue,
+    );
+  }
   final created = await tester.runAsync(
     () => GroupFileService.to.uploadFile(
       groupId: groupId,
