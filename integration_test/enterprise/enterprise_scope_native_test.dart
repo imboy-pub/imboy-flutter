@@ -186,7 +186,10 @@ void main() {
         'e2ee=${AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)}',
       );
       expect(tab, findsOneWidget);
-      await tester.tap(tab);
+      // 瞬时浮层（snackbar/横幅）可能短暂盖住底栏 tab：等 hitTestable 再点，
+      // 与 openPersonalEnterprisePicker 的防浮层模式一致。
+      await waitFor(tester, tab.hitTestable());
+      await tester.tap(tab.hitTestable().first);
       await tester.pump(const Duration(milliseconds: 300));
       expect(tester.takeException(), isNull);
     }
