@@ -171,7 +171,11 @@ extension MessageModelMapper on MessageModel {
           }
         }
       } else {
-        // payload 是 String 但没有 e2ee 元数据，尝试 JSON 解析
+        // payload 是 String 但没有 e2ee 元数据：先按 JSON 对象解析（兼容
+        // 历史 map 形状）；解析失败时按**纯文本正文**处理——归档回填链
+        // （archiveRowToOfflineShape）解包 wire 信封后，明文正文就是裸
+        // 字符串（生产 msg_store c2g 行实证），按占位渲染会让明文部署
+        // 的全部历史群消息显示「[加密消息]」（EO-20261006 WS 段 r13）。
         try {
           final decoded = jsonDecode(payload as String);
           if (decoded is! Map<String, dynamic>) {
@@ -181,22 +185,8 @@ extension MessageModelMapper on MessageModel {
           }
           payloadData = decoded;
         } catch (e) {
-          iPrint(
-            '⚠️ toTypeMessage: payload 解析失败，id=$id, '
-            'error=${e.runtimeType}',
-          );
-          return TextMessage(
-            authorId: fromId.toString(),
-            createdAt: DateTimeHelper.millisecondToDateTime(createdAt),
-            id: id.toString(),
-            text: t.chat.encryptedMessagePlaceholder,
-            status: MessageStatus.error,
-            metadata: {
-              'conversation_uk3': conversationUk3,
-              'peer_id': toId,
-              'error': 'encrypted_payload',
-            },
-          );
+          iPrint('ℹ️ toTypeMessage: payload 非 JSON，按纯文本正文渲染，id=$id');
+          payloadData = {'text': payload};
         }
       }
     } else if (payload is Map<String, dynamic>) {

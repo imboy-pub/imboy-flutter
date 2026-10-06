@@ -510,4 +510,56 @@ void main() {
       });
     });
   });
+
+  group('TDD: MessageModel.toTypeMessage() - 明文归档回填正文', () {
+    // 回归背景（EO-20261006 WS 段 r13）：归档回填链
+    // （archiveRowToOfflineShape）解包 wire 信封后，明文正文是裸字符串；
+    // 原实现对非 JSON 字符串 payload 一律渲染「[加密消息]」占位，明文
+    // 部署的历史群消息全部不可读。
+    test('非 JSON 字符串 payload 按纯文本正文渲染', () async {
+      final model = MessageModel(
+        'native-unread-one',
+        autoId: 1,
+        type: 'C2G',
+        status: 11,
+        fromId: 995011,
+        toId: 995301,
+        msgType: 'text',
+        payload: 'native unread one',
+        isAuthor: 0,
+        conversationUk3: 'C2G_user1_995301',
+        createdAt: 1642579200000,
+      );
+
+      final message = await model.toTypeMessage();
+
+      expect(message, isA<TextMessage>());
+      final textMessage = message as TextMessage;
+      expect(textMessage.text, equals('native unread one'));
+      expect(textMessage.status, isNot(MessageStatus.error));
+      expect(textMessage.metadata?['error'], isNull);
+    });
+
+    test('JSON 字符串 payload 仍解析为 map（兼容不回归）', () async {
+      final model = MessageModel(
+        'msg-json',
+        autoId: 2,
+        type: 'C2G',
+        status: 11,
+        fromId: 995011,
+        toId: 995301,
+        msgType: 'text',
+        payload: '{"text":"json body"}',
+        isAuthor: 0,
+        conversationUk3: 'C2G_user1_995301',
+        createdAt: 1642579200000,
+      );
+
+      final message = await model.toTypeMessage();
+
+      expect(message, isA<TextMessage>());
+      expect((message as TextMessage).text, equals('json body'));
+      expect(message.metadata?['error'], isNull);
+    });
+  });
 }
