@@ -24,6 +24,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/error/init_error_page.dart';
+import 'package:imboy/page/settings/e2ee_backup_setup_page.dart'
+    show E2EEBackupSetupPage;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_member_detail_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_home_page.dart';
@@ -41,6 +43,8 @@ import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/workspace_conversation_model.dart'
+    show WorkspaceConversationModel;
 import 'package:imboy/config/init.dart' show AppInitializer, navigatorKey;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 
@@ -174,21 +178,20 @@ void main() {
             widget.key == const Key('enterprise-shell-bottom-nav'),
       ),
     );
+    await dismissE2eeBackupSetup(tester);
     if (enterpriseNavigation().evaluate().isNotEmpty) {
       await selectPersonal(tester);
     }
-    await waitFor(tester, personalTab('tab_conversations'));
+    await waitForPersonalTab(tester, 'tab_conversations');
+    await dismissE2eeBackupSetup(tester);
     for (final key in ['tab_contacts', 'tab_channel', 'tab_mine']) {
+      await waitForPersonalTab(tester, key);
       final tab = personalTab(key);
-      debugPrint(
-        'NATIVE_UI_CHECK $key count=${tab.evaluate().length} '
-        'channel=${AppFeatureRegistry.isEnabled(FeatureKeys.channel)} '
-        'e2ee=${AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)}',
-      );
-      expect(tab, findsOneWidget);
       // 瞬时浮层（snackbar/横幅）可能短暂盖住底栏 tab：等 hitTestable 再点，
-      // 与 openPersonalEnterprisePicker 的防浮层模式一致。
-      await waitFor(tester, tab.hitTestable());
+      // 与 openPersonalEnterprisePicker 的防浮层模式一致。E2EE 备份引导在主
+      // 界面稳定后才异步弹出（首次 tab 等待即被其遮挡，r8 实证）——每次
+      // 等待前后都清一次。
+      await waitForTabDismissingSetup(tester, tab);
       await tester.tap(tab.hitTestable().first);
       await tester.pump(const Duration(milliseconds: 300));
       expect(tester.takeException(), isNull);
@@ -255,9 +258,23 @@ void main() {
 }
 
 Future<void> checkNativeWorkspaceUnread(WidgetTester tester) async {
-  final initial = await tester.runAsync(
-    () => WorkspaceApi().conversations('995201'),
-  );
+  // 真机 USB 链路偶发 503/瞬态断连（r1 实证：同请求 curl 200）——退避重试。
+  List<WorkspaceConversationModel>? initial;
+  for (var i = 0; i < 4; i++) {
+    try {
+      initial = await tester.runAsync(
+        () => WorkspaceApi().conversations('995201'),
+      );
+      break;
+    } on WorkspaceApiException catch (e) {
+      if (i == 3) rethrow;
+      debugPrint('NATIVE_WS_CONVERSATIONS_RETRY #$i err=$e');
+      await tester.runAsync(
+        () => Future<void>.delayed(Duration(milliseconds: 500 * (i + 1))),
+      );
+    }
+  }
+  expect(initial, isNotNull);
   expect(
     initial!.singleWhere((row) => row.group.groupId == 995301).unreadCount,
     2,
@@ -273,9 +290,28 @@ Future<void> checkNativeWorkspaceUnread(WidgetTester tester) async {
   await waitFor(tester, row.hitTestable());
   await tester.tap(row);
   await waitFor(tester, find.byType(ChatPage));
+  await tester.pump(const Duration(milliseconds: 2500));
+  // 诊断 dump：气泡文本经 GptMarkdown 渲染，失败时看不出实际内容——
+  // 把屏上全部 Text/RichText 纯文本打出来取证（含 E2EE 占位文案情形）。
+  final onScreen = find
+      .byWidgetPredicate((w) => w is Text || w is RichText)
+      .evaluate()
+      .map((e) {
+        final w = e.widget;
+        if (w is Text) return w.data ?? w.textSpan?.toPlainText() ?? '<span>';
+        return (w as RichText).text.toPlainText();
+      })
+      .where((s) => s.trim().isNotEmpty)
+      .join(' | ');
+  debugPrint(
+    'NATIVE_CHAT_TEXTS ${onScreen.length > 1200 ? '${onScreen.substring(0, 1200)}…' : onScreen}',
+  );
   for (final body in ['native unread one', 'native unread two']) {
-    await waitFor(tester, find.text(body));
-    await tester.ensureVisible(find.text(body));
+    // 气泡文本经 GptMarkdown（RichText/TextSpan）渲染——find.text 默认不
+    // 匹配 RichText，须开 findRichText（r11 实证 fetched=2 但 0 匹配）。
+    final bubble = find.text(body, findRichText: true);
+    await waitFor(tester, bubble);
+    await tester.ensureVisible(bubble);
     await tester.pump(const Duration(milliseconds: 300));
   }
   await waitForNativeGroupRead(tester);
@@ -349,7 +385,7 @@ Future<void> checkNativeGroupMessage(WidgetTester tester) async {
           widget.controller?.text.isEmpty == true,
     ),
   );
-  await waitFor(tester, find.text(body));
+  await waitFor(tester, find.text(body, findRichText: true));
   expect(tester.takeException(), isNull);
   final back = find.byType(GlassBackButton).hitTestable();
   await waitFor(tester, back);
@@ -540,8 +576,15 @@ Future<void> openNativeDepartments(WidgetTester tester) async {
     matching: find.byType(Scrollable),
   );
   await waitFor(tester, scroll.hitTestable());
-  await tester.scrollUntilVisible(zone, 250, scrollable: scroll);
-  await tester.tap(zone.hitTestable());
+  // scrollUntilVisible 的内部判定不含 hitTestable 过滤，且 BouncingScrollPhysics
+  // 会在返回后回弹、把刚滚到的 tile 弹离 lazy 视口（视口外即不 build）——
+  // 小步 drag 循环直到 tile 可命中再点（与防浮层 waitFor 模式同族）。
+  for (var i = 0; i < 24 && zone.hitTestable().evaluate().isEmpty; i++) {
+    await tester.drag(scroll, const Offset(0, -180));
+    await tester.pump(const Duration(milliseconds: 150));
+  }
+  await waitFor(tester, zone.hitTestable());
+  await tester.tap(zone.hitTestable().first);
   await waitFor(tester, find.byType(OrganizationDepartmentsPage));
 }
 
@@ -646,6 +689,80 @@ Future<void> selectPersonal(WidgetTester tester) async {
   await tester.tap(personal);
   await waitFor(tester, find.byType(BottomNavigationPage));
   await waitFor(tester, personalTab('tab_conversations'));
+}
+
+/// 等待个人空间目标 tab 就位：tab 循环中段 App 可能被路由切走（r5 实证
+/// 检查 tab_channel 时 BottomNavigationPage 已不在树上，疑似残留的
+/// 企业空间/深链导航在异步初始化完成后抢占路由）——若企业壳出现则切回
+/// 个人空间重等；仍失败则 dump 页面栈取证后再断言。
+Future<void> waitForPersonalTab(WidgetTester tester, String key) async {
+  Finder tab = personalTab(key);
+  final deadline = DateTime.now().add(const Duration(seconds: 30));
+  while (tab.evaluate().isEmpty && DateTime.now().isBefore(deadline)) {
+    if (find.byType(E2EEBackupSetupPage).evaluate().isNotEmpty) {
+      await dismissE2eeBackupSetup(tester);
+    }
+    if (enterpriseNavigation().evaluate().isNotEmpty) {
+      debugPrint('NATIVE_PERSONAL_TAB_HEAL $key enterprise-shell-detected');
+      await selectPersonal(tester);
+    }
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    tab = personalTab(key);
+  }
+  if (tab.evaluate().isEmpty) {
+    final pages = find.byWidgetPredicate(
+      (widget) => widget.runtimeType.toString().endsWith('Page'),
+    );
+    debugPrint(
+      'NATIVE_PERSONAL_TAB_STUCK $key '
+      'bottomNav=${find.byType(BottomNavigationPage).evaluate().length} '
+      'rail=${find.byType(NavigationRail).evaluate().length} '
+      'pages=${pages.evaluate().map((e) => e.widget.runtimeType).join(',')}',
+    );
+  }
+  debugPrint(
+    'NATIVE_UI_CHECK $key count=${tab.evaluate().length} '
+    'channel=${AppFeatureRegistry.isEnabled(FeatureKeys.channel)} '
+    'e2ee=${AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)}',
+  );
+  expect(tab, findsOneWidget);
+}
+
+/// 等待目标 tab 可命中的同时，持续清理异步弹出的 E2EE 备份引导（fresh
+/// 安装每次启动触发、整页盖住主界面，r8 实证首个 tab 等待被其遮挡）。
+Future<void> waitForTabDismissingSetup(WidgetTester tester, Finder tab) async {
+  final deadline = DateTime.now().add(const Duration(seconds: 60));
+  while (DateTime.now().isBefore(deadline)) {
+    if (find.byType(E2EEBackupSetupPage).evaluate().isNotEmpty) {
+      await dismissE2eeBackupSetup(tester);
+    }
+    if (tab.hitTestable().evaluate().isNotEmpty) {
+      return;
+    }
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+  }
+}
+
+/// E2EE 备份引导（fresh 安装每次启动触发）会整页盖住主界面——点「稍后再说」
+/// 并在确认框里确认离开，让主旅程继续。
+Future<void> dismissE2eeBackupSetup(WidgetTester tester) async {
+  if (find.byType(E2EEBackupSetupPage).evaluate().isEmpty) {
+    return;
+  }
+  final later = find.text(t.common.e2eeBackupSetupLater).hitTestable();
+  await waitFor(tester, later);
+  await tester.tap(later.first);
+  final confirm = find.text(t.common.e2eeBackupSetupLaterConfirmLeave);
+  await waitFor(tester, confirm.hitTestable());
+  await tester.tap(confirm.first);
+  await tester.pump(const Duration(milliseconds: 400));
+  debugPrint('NATIVE_E2EE_BACKUP_SETUP_DISMISSED');
 }
 
 Future<void> waitFor(WidgetTester tester, Finder finder) async {
