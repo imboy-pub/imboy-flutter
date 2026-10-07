@@ -137,7 +137,7 @@ if req_errors:
 # --- catalog 页双向覆盖 ----------------------------------------------------
 current = {
     'entries': [{'target': 'integration_test/a_test.dart'}],
-    'pages': [{'page': 'lib/page/demo/demo_page.dart'}],
+    'pages': [{'page': 'lib/page/demo/demo_page.dart', 'route_registered': False}],
     'generated_from': {'integration_test_count': 1, 'lib_page_count': 1, 'module_page_count': 0},
 }
 disk = copy.deepcopy(current)
