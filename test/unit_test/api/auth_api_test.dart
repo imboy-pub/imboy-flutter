@@ -22,6 +22,15 @@ void main() {
   // 异常场景）整文件跳过而非假失败。详见 ApiTestConfig.isNetworkMocked。
   final networkSkip = ApiTestConfig.skipReasonIfNoRealNetwork;
 
+  // 签名密钥不可得（IMBOY_SOLIDIFIED_KEY / IMBOY_ENV_PRO 指向文件均未
+  // 提供）时同样整文件跳过：本文件全部用例都发真实请求，签名头比登录
+  // 更底层——包括无需登录凭证的 init_config/版本检查/无效路径用例。
+  // 与 app_version_api_test 的 hasSigningKey 逐用例保护同一语义。
+  final signingSkip = ApiTestConfig.hasSigningKey
+      ? null
+      : 'API 契约测试需要签名密钥（设置 IMBOY_SOLIDIFIED_KEY，或 '
+            'IMBOY_ENV_PRO 指向含 SOLIDIFIED_KEY 的配置文件），跳过';
+
   late ApiTestClient client;
 
   setUpAll(() async {
@@ -92,7 +101,7 @@ void main() {
         noAuthClient.close();
       }
     });
-  }, skip: networkSkip);
+  }, skip: networkSkip ?? signingSkip);
 
   group('App 初始化配置', () {
     test('2.1 init_config 无需认证可达，返回 code=0', () async {
@@ -128,7 +137,7 @@ void main() {
         );
       }
     });
-  }, skip: networkSkip);
+  }, skip: networkSkip ?? signingSkip);
 
   group('用户信息', () {
     test('3.1 获取当前用户信息', () async {
@@ -145,12 +154,12 @@ void main() {
       ApiAssert.success(resp, context: '获取用户信息');
       expect(resp['payload'], isA<Map<String, dynamic>>());
     });
-  }, skip: networkSkip);
+  }, skip: networkSkip ?? signingSkip);
 
   group('错误处理', () {
     test('4.1 无效路径 — 返回非 0 code', () async {
       final resp = await client.get('/api/v1/nonexistent_e2e_endpoint_xyz');
       expect(resp['code'], isNot(0), reason: '无效路径应返回错误');
     });
-  }, skip: networkSkip);
+  }, skip: networkSkip ?? signingSkip);
 }
