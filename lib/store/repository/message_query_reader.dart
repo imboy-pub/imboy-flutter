@@ -54,7 +54,7 @@ class MessageQueryReader {
       columns: _readColumns,
       where: where,
       whereArgs: args,
-      orderBy: "${MessageColumns.autoId} ASC",
+      orderBy: "${MessageColumns.autoId} ${nextAutoId > 0 ? 'DESC' : 'ASC'}",
       limit: size,
       offset: offset,
     );
@@ -67,7 +67,8 @@ class MessageQueryReader {
     for (var map in maps) {
       messages.add(MessageModel.fromJson(map));
     }
-    return messages;
+    // Select the nearest older window, then preserve ascending UI order.
+    return nextAutoId > 0 ? messages.reversed.toList() : messages;
   }
 
   /// 加载较新的消息（用于双向分页）

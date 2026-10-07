@@ -47,6 +47,9 @@ void main() {
 
     setUp(() async {
       await db.delete('msg_c2c');
+      await db.execute(
+        "INSERT INTO msg_c2c_fts(msg_c2c_fts) VALUES ('delete-all')",
+      );
       await db.delete('conversation');
       container = ProviderContainer();
       MessageRepo.setProviderContainer(container);
@@ -56,6 +59,7 @@ void main() {
 
     tearDown(() async {
       offlineService.onDispose();
+      await _waitForIndex(db, (await db.query('msg_c2c')).length);
       container.dispose();
     });
 
@@ -286,6 +290,46 @@ void main() {
     });
 
     group('分页处理', () {
+      test('超过20页的消息续拉不得遗漏中间消息', () async {
+        final messages = List.generate(
+          45,
+          (i) => <String, dynamic>{
+            'msg_id': '${116837000000000100 + i}',
+            'type': 'C2C',
+            'msg_type': 'text',
+            'payload': {'text': 'page-$i'},
+            'from': '995012',
+            'to': '995011',
+            'created_at': 1750000000000 + i,
+          },
+        );
+        await messageRepo.batchInsertOfflineMessages(messages);
+        final fetched = <String>[];
+        var cursor = 0;
+        var pages = 0;
+        while (true) {
+          final page = await messageRepo.pageForConversation(
+            'C2C_995011_995012',
+            cursor,
+            2,
+          );
+          if (page.isEmpty) break;
+          expect(
+            page.map((msg) => msg.autoId),
+            orderedEquals(page.map((msg) => msg.autoId).toList()..sort()),
+          );
+          fetched.addAll(page.map((msg) => msg.id));
+          final nextCursor = page.first.autoId;
+          expect(cursor == 0 || nextCursor < cursor, isTrue);
+          cursor = nextCursor;
+          pages++;
+          expect(pages, lessThanOrEqualTo(23));
+        }
+        expect(pages, 23);
+        expect(fetched, unorderedEquals(messages.map((msg) => msg['msg_id'])));
+        expect(fetched.toSet(), hasLength(45));
+      });
+
       test('应该能够处理 has_more 标志', () {
         final response = {
           'c2c': {
@@ -646,4 +690,13 @@ void main() {
       });
     });
   });
+}
+
+Future<void> _waitForIndex(Database db, int expectedCount) async {
+  for (var attempt = 0; attempt < 100; attempt++) {
+    final rows = await db.query('msg_c2c_fts');
+    if (rows.length == expectedCount) return;
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+  }
+  fail('Offline search index did not finish before fixture cleanup');
 }
