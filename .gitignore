@@ -242,3 +242,4 @@ test/auto_test/credentials.local.json
 # Execution plans and candidate-specific reports belong outside Git.
 /test/auto_test/LOOP_PROMPT.md
 /test/demo_flow/P0_EXECUTION_PLAN.md
+/test/auto_test/task_state.json

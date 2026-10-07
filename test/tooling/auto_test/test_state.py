@@ -161,13 +161,14 @@ class TestStateValidation(unittest.TestCase):
 
 class TestLegacyTaskState(unittest.TestCase):
     def test_legacy_task_state_read_only_compat(self):
-        # 只读兼容：能读取现有 task_state.json，且加载函数不写回任何内容
-        path = ROOT / 'test' / 'auto_test' / 'task_state.json'
-        before = path.read_bytes()
-        data = state.load_legacy_task_state(path)
-        self.assertIsInstance(data, dict)
-        self.assertIn('goal', data)
-        self.assertEqual(path.read_bytes(), before, 'task_state.json 必须保持只读')
+        # Compatibility is verified with synthetic input, independent of run history.
+        with tempfile_dir() as tmp:
+            path = tmp / 'task_state.json'
+            before = b'{"goal":"synthetic regression","pending_tasks":[]}'
+            path.write_bytes(before)
+            data = state.load_legacy_task_state(path)
+            self.assertEqual(data, {'goal': 'synthetic regression', 'pending_tasks': []})
+            self.assertEqual(path.read_bytes(), before, 'legacy input must remain read-only')
 
     def test_missing_file_returns_empty_and_corrupt_raises(self):
         with tempfile_dir() as tmp:
