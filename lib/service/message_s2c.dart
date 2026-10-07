@@ -28,6 +28,7 @@ import 'package:imboy/store/api/user_api.dart';
 
 import 'package:imboy/store/model/moment_notify_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/moment_notify_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -36,6 +37,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
+import 'package:imboy/service/message_read_sync_plan.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/e2ee/trust_event_client.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -444,37 +446,64 @@ class MessageS2CService {
     );
   }
 
-  /// 处理已读状态同步（自己其他设备已读了某条 C2C 消息）
+  /// 处理已读状态同步（自己其他设备已读了某会话的消息）
   ///
   /// Action: message_read_sync（ws-protocol-contract.md §9，2026-07-02 新增）
   /// 触发时机：本账号任一设备发送已读回执并落库后，服务端推送给阅读者本人
-  /// payload: { msg_id, peer, read_at }
-  /// 处理逻辑：复用消息状态事件把该消息标记为 seen（DB 与 UI 由既有监听者处理）；
-  /// 本设备若正是阅读设备，消息已是 seen，事件幂等无副作用。
+  /// payload: { msg_id, msg_ids, peer, read_at }
+  ///
+  /// Q04-F05：不再固定按 c2c 处理。会话类型由 [MessageReadSyncPlan] 按
+  /// payload.type 显式声明或本地会话表判定（c2g 事件 peer 即 gid），
+  /// c2g 已读跨设备同步与 c2c 同链路生效；本设备若正是阅读设备，
+  /// 消息已是 seen，事件幂等无副作用。
   static Future<void> _handleMessageReadSync(
     Map<String, dynamic> payload,
   ) async {
-    final syncMsgId = parseModelString(payload['msg_id']);
-    // peer = 后端 To（原消息发送者的编码 id），与本地会话表的 peerId 同源
-    final peer = parseModelString(payload['peer']);
-    if (syncMsgId.isEmpty || peer.isEmpty) {
+    final plan = await MessageReadSyncPlan.build(
+      payload,
+      lookupConversationType: _lookupReadSyncConversationType,
+    );
+    if (plan == null) {
       return;
     }
-    iPrint('message_read_sync 同步其他设备已读 msgId=$syncMsgId peer=$peer');
+    iPrint(
+      'message_read_sync 同步其他设备已读 '
+      'type=${plan.conversationType} peer=${plan.peer} '
+      'count=${plan.msgIds.length}',
+    );
     // 复用 chatProvider.markAsRead 而非只发 MessageStatusUpdateRequestedEvent：
     // 后者只更新消息行状态，不递减会话未读数（unreadNum），会导致本设备
     // 消息已读但未读徽章残留。syncToServer=false 避免再次上报已读回执，
     // 否则会与服务端 message_read_sync 推送形成 ACK/回执循环。
     try {
-      await _container.read(chatProvider.notifier).markAsRead(
-        MessageFlowType.c2c,
-        peer,
-        [syncMsgId],
-        syncToServer: false,
-      );
+      await _container
+          .read(chatProvider.notifier)
+          .markAsRead(
+            plan.conversationType,
+            plan.peer,
+            plan.msgIds,
+            syncToServer: false,
+          );
     } on Object catch (e) {
       iPrint('❌ [message_read_sync] markAsRead 失败: $e');
     }
+  }
+
+  /// 按本地会话表判定 message_read_sync 的目标会话类型（Q04-F05）。
+  ///
+  /// c2c 的 peer（对方 uid）与 c2g 的 peer（gid）同为数字串，无法从
+  /// payload 区分时以本地会话存在性为准：C2C 先于 C2G——既有 c2c 事件
+  /// 行为保持不变，仅本地不存在 c2c 会话而存在 c2g 会话时按 C2G 命中，
+  /// 使 c2g 已读事件「到达即处理」；两者皆无返回 null（事件安全跳过）。
+  static Future<String?> _lookupReadSyncConversationType(String peer) async {
+    final repo = ConversationRepo();
+    if (await repo.findByPeerId(MessageFlowType.c2c, peer) != null) {
+      return MessageFlowType.c2c;
+    }
+    if (await repo.findByPeerId(MessageFlowType.c2g, peer) != null) {
+      return MessageFlowType.c2g;
+    }
+    return null;
   }
 
   /// 处理 C2C 消息撤回
