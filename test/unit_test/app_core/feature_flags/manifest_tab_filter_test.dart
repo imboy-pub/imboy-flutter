@@ -66,6 +66,42 @@ void main() {
       expect(manifest.ensureBuildCompatible, returnsNormally);
     });
 
+    test(
+      'matching hash cannot authorize incomplete or duplicated features',
+      () {
+        for (final features in <List<String>>[
+          compiledProductFeatures.skip(1).toList(),
+          if (compiledProductFeatures.length > 1)
+            [
+              ...compiledProductFeatures.take(
+                compiledProductFeatures.length - 1,
+              ),
+              compiledProductFeatures.first,
+            ],
+          [...compiledProductFeatures, compiledProductFeatures.first],
+        ]) {
+          final manifest = AppManifest.fromMap(<String, dynamic>{
+            'manifest_hash': productFeatureManifestHash,
+            'manifest_schema_version': productFeatureSchemaVersion,
+            'compiled_features': features,
+          });
+          expect(
+            manifest.ensureBuildCompatible,
+            throwsA(isA<AppManifestMismatchException>()),
+          );
+        }
+      },
+    );
+
+    test('matching feature set may arrive in a different order', () {
+      final manifest = AppManifest.fromMap(<String, dynamic>{
+        'manifest_hash': productFeatureManifestHash,
+        'manifest_schema_version': productFeatureSchemaVersion,
+        'compiled_features': compiledProductFeatures.reversed.toList(),
+      });
+      expect(manifest.ensureBuildCompatible, returnsNormally);
+    });
+
     test('missing, malformed and mismatched contract fields fail closed', () {
       for (final raw in <Map<String, dynamic>>[
         {},

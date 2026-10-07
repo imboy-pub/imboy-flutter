@@ -94,11 +94,12 @@ class AppManifest {
     if (manifestSchemaVersion != productFeatureSchemaVersion) {
       throw const AppManifestMismatchException('App 与服务端功能清单版本不一致，请安装匹配版本');
     }
-    if (compiledFeatures.isEmpty ||
+    if (compiledFeatures.length != compiledProductFeatures.length ||
+        compiledFeatures.toSet().length != compiledProductFeatures.length ||
         compiledFeatures.any(
           (feature) => !compiledProductFeatures.contains(feature),
         )) {
-      throw const AppManifestMismatchException('服务端功能集合超出 App 编译能力，请安装匹配版本');
+      throw const AppManifestMismatchException('服务端功能集合与 App 编译能力不一致，请安装匹配版本');
     }
   }
 }
