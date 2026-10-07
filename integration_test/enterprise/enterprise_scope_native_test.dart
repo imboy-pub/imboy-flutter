@@ -34,6 +34,7 @@ import 'package:imboy/modules/organization/presentation/organization_departments
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
@@ -175,12 +176,14 @@ void main() {
       find.byWidgetPredicate(
         (widget) =>
             widget is BottomNavigationPage ||
+            widget is WorkspaceShellPage ||
             widget.key == const Key('enterprise-shell-rail') ||
             widget.key == const Key('enterprise-shell-bottom-nav'),
       ),
     );
     await dismissE2eeBackupSetup(tester);
-    if (enterpriseNavigation().evaluate().isNotEmpty) {
+    if (enterpriseNavigation().evaluate().isNotEmpty ||
+        find.byType(WorkspaceShellPage).evaluate().isNotEmpty) {
       await selectPersonal(tester);
     }
     await waitForPersonalTab(tester, 'tab_conversations');
