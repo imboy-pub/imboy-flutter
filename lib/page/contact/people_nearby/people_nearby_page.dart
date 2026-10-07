@@ -23,13 +23,14 @@ class PeopleNearbyPage extends ConsumerStatefulWidget {
 }
 
 class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _animationController;
   bool _isRotating = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     debugPrint('[PeopleNearbyPerf] 0b.页面 initState');
     _animationController = AnimationController(
       vsync: this,
@@ -46,8 +47,16 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _animationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle == AppLifecycleState.resumed && mounted) {
+      ref.read(peopleNearbyProvider.notifier).peopleNearby();
+    }
   }
 
   void _rotateCompass() {

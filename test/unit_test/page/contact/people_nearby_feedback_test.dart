@@ -13,11 +13,17 @@ class _PendingVisibility extends PeopleNearbyNotifier {
   final bool visible;
   final result = Completer<bool>();
   int calls = 0;
+  int nearbyCalls = 0;
 
   @override
   PeopleNearbyState build() => PeopleNearbyState(peopleNearbyVisible: visible);
   @override
   Future<void> init() async {}
+  @override
+  Future<void> peopleNearby() async {
+    nearbyCalls++;
+  }
+
   @override
   Future<bool> makeMyselfVisible() {
     calls++;
@@ -32,6 +38,29 @@ class _PendingVisibility extends PeopleNearbyNotifier {
 }
 
 void main() {
+  testWidgets('resume revalidates nearby location and permissions', (
+    tester,
+  ) async {
+    final notifier = _PendingVisibility(false);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [peopleNearbyProvider.overrideWith(() => notifier)],
+          child: MaterialApp(
+            builder: AppLoading.init(),
+            home: const PeopleNearbyPage(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(notifier.nearbyCalls, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   for (final visible in [true, false]) {
     for (final succeeds in [true, false]) {
       testWidgets(

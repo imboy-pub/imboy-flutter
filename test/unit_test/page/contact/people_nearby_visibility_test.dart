@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +13,15 @@ import 'package:imboy/page/contact/people_nearby/people_nearby_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/model/people_model.dart';
+
+class _LocationPlatform extends GeolocatorPlatform {
+  bool enabled = true;
+  LocationPermission permission = LocationPermission.whileInUse;
+  @override
+  Future<bool> isLocationServiceEnabled() async => enabled;
+  @override
+  Future<LocationPermission> checkPermission() async => permission;
+}
 
 class _Adapter implements HttpClientAdapter {
   final requested = Completer<void>();
@@ -46,9 +56,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late ProviderContainer container;
   late _Adapter adapter;
+  late _LocationPlatform location;
+  late GeolocatorPlatform originalLocation;
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
 
   setUp(() async {
+    originalLocation = GeolocatorPlatform.instance;
+    location = _LocationPlatform();
+    GeolocatorPlatform.instance = location;
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
     await StorageService.to.setString(Keys.currentUid, '1001');
@@ -80,6 +95,7 @@ void main() {
   });
 
   tearDown(() {
+    GeolocatorPlatform.instance = originalLocation;
     container.dispose();
     HttpClient.adapterForTest = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -281,6 +297,101 @@ void main() {
       expect(await oldShow, false);
       expect(await oldHide, false);
       expect(adapter.paths, [API.makeMyselfVisible]);
+      expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+    },
+  );
+  for (final denied in [
+    LocationPermission.denied,
+    LocationPermission.deniedForever,
+  ]) {
+    test(
+      'cached location cleared and visibility revoked for $denied',
+      () async {
+        await StorageService.setMap(Keys.currentUser, {
+          'uid': '1001',
+          'setting': {'people_nearby_visible': true},
+        });
+        final notifier = container.read(peopleNearbyProvider.notifier);
+        notifier.updateLocation('113', '23');
+        notifier.updatePeopleList([PeopleModel(id: 123, account: 'synthetic')]);
+        location.permission = denied;
+        final pending = notifier.peopleNearby();
+        await adapter.requested.future.timeout(const Duration(seconds: 5));
+        expect(adapter.paths, [API.makeMyselfUnVisible]);
+        expect(container.read(peopleNearbyProvider).longitude, isEmpty);
+        expect(container.read(peopleNearbyProvider).peopleList, isEmpty);
+        reply(true);
+        await pending;
+        expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+      },
+    );
+  }
+
+  test(
+    'disabled location service prevents cached coordinates being published',
+    () async {
+      final notifier = container.read(peopleNearbyProvider.notifier);
+      notifier.updateLocation('113', '23');
+      location.enabled = false;
+      final pending = notifier.makeMyselfVisible();
+      await adapter.requested.future.timeout(const Duration(seconds: 5));
+      expect(adapter.paths, [API.makeMyselfUnVisible]);
+      reply(true);
+      expect(await pending, false);
+      expect(container.read(peopleNearbyProvider).longitude, isEmpty);
+      expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+    },
+  );
+  test(
+    'permission withdrawn during query discards result and hides location',
+    () async {
+      final notifier = container.read(peopleNearbyProvider.notifier);
+      notifier.updateLocation('113', '23');
+      final pending = notifier.peopleNearby();
+      await adapter.requested.future.timeout(const Duration(seconds: 5));
+      location.permission = LocationPermission.denied;
+      reply(true);
+      await pending;
+      expect(adapter.paths, [API.peopleNearby, API.makeMyselfUnVisible]);
+      expect(container.read(peopleNearbyProvider).longitude, isEmpty);
+      expect(container.read(peopleNearbyProvider).peopleList, isEmpty);
+      expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+    },
+  );
+
+  test(
+    'failed revocation clears cache without claiming server location hidden',
+    () async {
+      await StorageService.setMap(Keys.currentUser, {
+        'uid': '1001',
+        'setting': {'people_nearby_visible': true},
+      });
+      final notifier = container.read(peopleNearbyProvider.notifier);
+      notifier.updateLocation('113', '23');
+      location.permission = LocationPermission.deniedForever;
+      final pending = notifier.peopleNearby();
+      await adapter.requested.future.timeout(const Duration(seconds: 5));
+      reply(false);
+      await pending;
+      expect(container.read(peopleNearbyProvider).longitude, isEmpty);
+      expect(container.read(peopleNearbyProvider).peopleList, isEmpty);
+      expect(container.read(peopleNearbyProvider).peopleNearbyVisible, true);
+      expect(UserRepoLocal.to.setting.peopleNearbyVisible, true);
+    },
+  );
+  test(
+    'permission withdrawn during show confirmation triggers hiding',
+    () async {
+      final notifier = container.read(peopleNearbyProvider.notifier);
+      notifier.updateLocation('113', '23');
+      final pending = notifier.makeMyselfVisible();
+      await adapter.requested.future.timeout(const Duration(seconds: 5));
+      location.permission = LocationPermission.denied;
+      reply(true);
+      expect(await pending, false);
+      expect(adapter.paths, [API.makeMyselfVisible, API.makeMyselfUnVisible]);
+      expect(container.read(peopleNearbyProvider).longitude, isEmpty);
+      expect(container.read(peopleNearbyProvider).peopleNearbyVisible, false);
       expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
     },
   );

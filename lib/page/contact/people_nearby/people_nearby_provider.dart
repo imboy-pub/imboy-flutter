@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -85,6 +86,43 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     return PeopleNearbyState(peopleNearbyVisible: isVisible);
   }
 
+  Future<bool> _hasLocationAccess({bool requestIfDenied = false}) async {
+    const timeout = Duration(seconds: 5);
+    try {
+      if (!await Geolocator.isLocationServiceEnabled().timeout(timeout)) {
+        return false;
+      }
+      var permission = await Geolocator.checkPermission().timeout(timeout);
+      if (requestIfDenied && permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission().timeout(timeout);
+      }
+      return permission == LocationPermission.whileInUse ||
+          permission == LocationPermission.always;
+    } on Object {
+      debugPrint('[PeopleNearby] location permission unavailable');
+      return false;
+    }
+  }
+
+  void _clearLocation() {
+    _listRequest++;
+    state = state.copyWith(
+      longitude: '',
+      latitude: '',
+      peopleList: [],
+      isLoading: false,
+    );
+  }
+
+  Future<void> _revokeLocation((String, int, int) session) async {
+    if (!_isCurrent(session)) return;
+    _clearLocation();
+    final hidden = await makeMyselfUnVisible();
+    if (_isCurrent(session) && !hidden) {
+      AppLoading.showBackendError(t.common.operationFailedAgainLater);
+    }
+  }
+
   /// 更新人员列表
   void updatePeopleList(List<PeopleModel> list) {
     state = state.copyWith(peopleList: list);
@@ -152,6 +190,14 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     final swTotal = Stopwatch()..start();
     int msLocate = 0, msApi = 0, msLocalDb = 0;
     try {
+      final permitted = await _hasLocationAccess(
+        requestIfDenied: state.longitude.isEmpty,
+      );
+      if (!active()) return;
+      if (!permitted) {
+        await _revokeLocation(session);
+        return;
+      }
       if (state.longitude.isEmpty) {
         final swLocate = Stopwatch()..start();
         // preferLastKnown: 附近的人半径 500km，几分钟前的坐标与实时坐标
@@ -188,6 +234,12 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       msApi = swApi.elapsedMilliseconds;
       debugPrint('[PeopleNearbyPerf] 2.接口 ${msApi}ms');
 
+      final stillPermitted = await _hasLocationAccess();
+      if (!active()) return;
+      if (!stillPermitted) {
+        await _revokeLocation(session);
+        return;
+      }
       if (payload == null) {
         return;
       }
@@ -214,6 +266,12 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
           model.isFriend = friendUidList.contains(pid);
           l.add(model);
         }
+      }
+      final permittedAtCompletion = await _hasLocationAccess();
+      if (!active()) return;
+      if (!permittedAtCompletion) {
+        await _revokeLocation(session);
+        return;
       }
       updatePeopleList(l);
     } finally {
@@ -260,6 +318,18 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     return result;
   }
 
+  Future<bool> _allowVisibility((String, int, int) session) async {
+    final permitted = await _hasLocationAccess();
+    if (!_isCurrent(session)) return false;
+    if (permitted) return true;
+    _clearLocation();
+    final hidden = await _commitVisibility(session, false, '', '');
+    if (_isCurrent(session) && !hidden) {
+      AppLoading.showBackendError(t.common.operationFailedAgainLater);
+    }
+    return false;
+  }
+
   Future<bool> _commitVisibility(
     (String, int, int) session,
     bool visible,
@@ -267,12 +337,14 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
     String latitude,
   ) async {
     if (session.$1.isEmpty || !_isCurrent(session)) return false;
+    if (visible && !await _allowVisibility(session)) return false;
     final api = LocationApi();
     final res = visible
         ? await api.makeMyselfVisible(longitude: longitude, latitude: latitude)
         : await api.makeMyselfUnVisible();
     if (!_isCurrent(session)) return false;
     if (!res) return false;
+    if (visible && !await _allowVisibility(session)) return false;
     final setting = UserRepoLocal.to.setting..peopleNearbyVisible = visible;
     final saved = await UserRepoLocal.to.changeSettingForSession(
       setting,
