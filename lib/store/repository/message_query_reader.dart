@@ -49,29 +49,25 @@ class MessageQueryReader {
       offset = 0;
     }
 
-    try {
-      List<Map<String, dynamic>> maps = await db.query(
-        tableName,
-        columns: _readColumns,
-        where: where,
-        whereArgs: args,
-        orderBy: "${MessageColumns.autoId} ASC",
-        limit: size,
-        offset: offset,
-      );
+    List<Map<String, dynamic>> maps = await db.query(
+      tableName,
+      columns: _readColumns,
+      where: where,
+      whereArgs: args,
+      orderBy: "${MessageColumns.autoId} ASC",
+      limit: size,
+      offset: offset,
+    );
 
-      if (maps.isEmpty) {
-        return [];
-      }
-
-      List<MessageModel> messages = [];
-      for (var map in maps) {
-        messages.add(MessageModel.fromJson(map));
-      }
-      return messages;
-    } on Object {
+    if (maps.isEmpty) {
       return [];
     }
+
+    List<MessageModel> messages = [];
+    for (var map in maps) {
+      messages.add(MessageModel.fromJson(map));
+    }
+    return messages;
   }
 
   /// 加载较新的消息（用于双向分页）
@@ -92,29 +88,25 @@ class MessageQueryReader {
       args = [uk3, prevAutoId];
     }
 
-    try {
-      List<Map<String, dynamic>> maps = await db.query(
-        tableName,
-        columns: _readColumns,
-        where: where,
-        whereArgs: args,
-        orderBy: "${MessageColumns.autoId} ASC",
-        offset: 0,
-        limit: size,
-      );
+    List<Map<String, dynamic>> maps = await db.query(
+      tableName,
+      columns: _readColumns,
+      where: where,
+      whereArgs: args,
+      orderBy: "${MessageColumns.autoId} ASC",
+      offset: 0,
+      limit: size,
+    );
 
-      if (maps.isEmpty) {
-        return [];
-      }
-
-      List<MessageModel> messages = [];
-      for (int i = 0; i < maps.length; i++) {
-        messages.add(MessageModel.fromJson(maps[i]));
-      }
-      return messages;
-    } on Object {
+    if (maps.isEmpty) {
       return [];
     }
+
+    List<MessageModel> messages = [];
+    for (int i = 0; i < maps.length; i++) {
+      messages.add(MessageModel.fromJson(maps[i]));
+    }
+    return messages;
   }
 
   Future<List<MessageModel>> page({
@@ -177,29 +169,25 @@ class MessageQueryReader {
 
     func_helper.iPrint('searchLeading_tag query started');
 
-    try {
-      List<Map<String, dynamic>> maps = await db.query(
-        tableName,
-        columns: _readColumns,
-        where: where,
-        whereArgs: whereArgs,
-        orderBy: optimizedOrderBy,
-        limit: size,
-        offset: offset,
-      );
+    List<Map<String, dynamic>> maps = await db.query(
+      tableName,
+      columns: _readColumns,
+      where: where,
+      whereArgs: whereArgs,
+      orderBy: optimizedOrderBy,
+      limit: size,
+      offset: offset,
+    );
 
-      if (maps.isEmpty) {
-        return [];
-      }
-
-      List<MessageModel> messages = [];
-      for (int i = 0; i < maps.length; i++) {
-        messages.add(MessageModel.fromJson(maps[i]));
-      }
-      return messages;
-    } on Object {
+    if (maps.isEmpty) {
       return [];
     }
+
+    List<MessageModel> messages = [];
+    for (int i = 0; i < maps.length; i++) {
+      messages.add(MessageModel.fromJson(maps[i]));
+    }
+    return messages;
   }
 
   Future<List<MessageModel>> pageRetryCandidates({
@@ -328,23 +316,19 @@ class MessageQueryReader {
     }
     final columns = defaultColumns.join(', ');
     final where = predicates.isEmpty ? '1=1' : predicates.join(' AND ');
-    try {
-      // 合并后只应用一次 OFFSET，避免每张表分别跳过导致全局历史漏项。
-      final rows = await db.rawQuery(
-        'SELECT * FROM ('
-        'SELECT $columns, ${MessageColumns.senderDid} FROM $c2cTable '
-        'UNION ALL '
-        'SELECT $columns, NULL AS ${MessageColumns.senderDid} FROM $c2gTable'
-        ') WHERE $where '
-        'ORDER BY ${MessageColumns.createdAt} DESC, '
-        '${MessageColumns.type} ASC, ${MessageColumns.autoId} DESC, ${MessageColumns.id} ASC '
-        'LIMIT ? OFFSET ?',
-        [...arguments, limit, offset < 0 ? 0 : offset],
-      );
-      return rows.map(MessageModel.fromJson).toList(growable: false);
-    } on Object {
-      return [];
-    }
+    // 合并后只应用一次 OFFSET，避免每张表分别跳过导致全局历史漏项。
+    final rows = await db.rawQuery(
+      'SELECT * FROM ('
+      'SELECT $columns, ${MessageColumns.senderDid} FROM $c2cTable '
+      'UNION ALL '
+      'SELECT $columns, NULL AS ${MessageColumns.senderDid} FROM $c2gTable'
+      ') WHERE $where '
+      'ORDER BY ${MessageColumns.createdAt} DESC, '
+      '${MessageColumns.type} ASC, ${MessageColumns.autoId} DESC, ${MessageColumns.id} ASC '
+      'LIMIT ? OFFSET ?',
+      [...arguments, limit, offset < 0 ? 0 : offset],
+    );
+    return rows.map(MessageModel.fromJson).toList(growable: false);
   }
 
   /// 计算与某个用户的消息数量
@@ -353,33 +337,28 @@ class MessageQueryReader {
   /// [since] 起始时间戳（毫秒），可选
   /// Returns: 消息数量
   Future<int> countMessagesWithUser(String peerId, {int? since}) async {
-    try {
-      int total = 0;
+    int total = 0;
 
-      // 遍历所有消息表
-      for (final table in [c2cTable, c2gTable]) {
-        String where =
-            '(${MessageColumns.from} = ? OR ${MessageColumns.to} = ?)';
-        List<Object?> whereArgs = [peerId, peerId];
+    // 遍历所有消息表
+    for (final table in [c2cTable, c2gTable]) {
+      String where = '(${MessageColumns.from} = ? OR ${MessageColumns.to} = ?)';
+      List<Object?> whereArgs = [peerId, peerId];
 
-        if (since != null) {
-          where = '$where AND ${MessageColumns.createdAt} >= ?';
-          whereArgs.add(since); // 消息 created_at 与调用契约均为毫秒
-        }
-
-        final count = await db.pluck<int>(
-          "COUNT(*) as count",
-          table,
-          where: where,
-          whereArgs: whereArgs,
-        );
-
-        total += count ?? 0;
+      if (since != null) {
+        where = '$where AND ${MessageColumns.createdAt} >= ?';
+        whereArgs.add(since); // 消息 created_at 与调用契约均为毫秒
       }
 
-      return total;
-    } on Object {
-      return 0;
+      final count = await db.pluck<int>(
+        "COUNT(*) as count",
+        table,
+        where: where,
+        whereArgs: whereArgs,
+      );
+
+      total += count ?? 0;
     }
+
+    return total;
   }
 }
