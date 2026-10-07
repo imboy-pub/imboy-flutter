@@ -872,6 +872,7 @@ class MessageRepo implements MessageRepository {
     }
 
     final List<InsertedOfflineMessage> inserted = [];
+    final conversations = <ConversationModel>[];
     try {
       // 先收集 S2C 消息，在事务外处理
       final List<Map<String, dynamic>> s2cMessages = [];
@@ -1107,9 +1108,14 @@ class MessageRepo implements MessageRepository {
             "离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3",
           );
         }
+        conversations.addAll(await _persistOfflineConversations(inserted, txn));
       });
 
       if (inserted.isNotEmpty) {
+        _db.clearQueryCache(ConversationRepo.tableName);
+        for (final type in inserted.map((msg) => msg.type).toSet()) {
+          _db.clearQueryCache(MessageRepo.getTableName(type));
+        }
         // 批量写入 FTS 索引（异步，不阻塞离线消息处理）
         for (final msg in inserted) {
           unawaited(
@@ -1125,7 +1131,7 @@ class MessageRepo implements MessageRepository {
           );
         }
 
-        await _syncOfflineConversationsAndNotify(inserted);
+        await _syncOfflineConversationsAndNotify(inserted, conversations);
       }
       // 处理 S2C 消息（在事务外）
       if (s2cMessages.isNotEmpty) {
@@ -1230,25 +1236,26 @@ class MessageRepo implements MessageRepository {
 
   Future<void> _syncOfflineConversationsAndNotify(
     List<InsertedOfflineMessage> inserted,
+    List<ConversationModel> conversations,
   ) async {
     // 后台入库没有页面监听；跨数据库等待时保留自动释放的会话状态。
     final container = _container;
     final subscription = container.listen(conversationProvider, (_, _) {});
     try {
-      await _syncOfflineConversations(inserted);
+      await _publishOfflineConversations(inserted, conversations);
     } finally {
       subscription.close();
     }
   }
 
-  Future<void> _syncOfflineConversations(
+  Future<List<ConversationModel>> _persistOfflineConversations(
     List<InsertedOfflineMessage> inserted,
+    Transaction txn,
   ) async {
+    final conversations = <ConversationModel>[];
     final conversationRepo = ConversationRepo();
     final contactRepo = ContactRepo();
     final groupRepo = GroupRepo();
-
-    final conversationNotifier = _container.read(conversationProvider.notifier);
 
     // 获取当前会话 ID - 使用静态字段跟踪当前活动会话
     // 注意：如果没有打开的聊天页面，currentConversationUk3 将为空
@@ -1277,11 +1284,15 @@ class MessageRepo implements MessageRepository {
       String title = '';
       try {
         if (agg.type == 'C2G') {
-          final g = await groupRepo.findById(agg.peerId);
+          final g = await groupRepo.findById(agg.peerId, txn: txn);
           avatar = g?.avatar ?? '';
           title = g?.title ?? '';
         } else {
-          final ct = await contactRepo.findByUid(agg.peerId, autoFetch: false);
+          final ct = await contactRepo.findByUid(
+            agg.peerId,
+            autoFetch: false,
+            txn: txn,
+          );
           avatar = ct?.avatar ?? '';
           title = ct?.title ?? '';
         }
@@ -1307,6 +1318,7 @@ class MessageRepo implements MessageRepository {
       final existing = await conversationRepo.findByPeerId(
         agg.type,
         agg.peerId,
+        txn: txn,
       );
 
       ConversationModel conv;
@@ -1328,7 +1340,7 @@ class MessageRepo implements MessageRepository {
           payload: {},
           isShow: 1,
         );
-        conv.id = await conversationRepo.insert(conv);
+        conv.id = await conversationRepo.insert(conv, txn: txn);
         func_helper.iPrint('创建新会话: type=${conv.type}, 未读数: ${agg.unreadDelta}');
       } else {
         // 更新现有会话，总是更新最后消息信息
@@ -1346,26 +1358,33 @@ class MessageRepo implements MessageRepository {
           ConversationRepo.unreadNum: newUnreadNum,
           ConversationRepo.mentionUnread: newMentionUnread, // C7-β
           ConversationRepo.isShow: 1,
-        });
+        }, txn: txn);
 
         // 重新获取更新后的会话
-        conv = (await conversationRepo.findById(existing.id)) ?? existing;
+        conv =
+            (await conversationRepo.findById(existing.id, txn: txn)) ??
+            existing;
         func_helper.iPrint(
           '更新会话: type=${conv.type}, '
           '新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum',
         );
       }
 
-      // 触发会话列表刷新 - 多重保障
-      AppEventBus.fireData(conv); // 全局事件
-
-      // 更新会话逻辑中的内存映射
-      // 使用 Riverpod Provider
-      // DB 已包含本批未读增量；应用完整快照，避免再次增量写入与延迟覆盖。
-      conversationNotifier.applyConversationSnapshot(conv);
-
-      func_helper.iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
+      conversations.add(conv);
     }
+    return conversations;
+  }
+
+  Future<void> _publishOfflineConversations(
+    List<InsertedOfflineMessage> inserted,
+    List<ConversationModel> conversations,
+  ) async {
+    final conversationNotifier = _container.read(conversationProvider.notifier);
+    for (final conv in conversations) {
+      AppEventBus.fireData(conv);
+      conversationNotifier.applyConversationSnapshot(conv);
+    }
+    final currentConversationUk3 = _currentActiveConversationUk3 ?? '';
 
     if (currentConversationUk3.isNotEmpty) {
       for (final msg in inserted) {
