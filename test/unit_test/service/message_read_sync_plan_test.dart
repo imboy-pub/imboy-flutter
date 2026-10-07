@@ -30,8 +30,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/page/chat/chat/chat_provider.dart';
-import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_read_sync_plan.dart';
@@ -289,15 +287,9 @@ void main() {
           voicePlaybackServiceProvider.overrideWith(_Voice.new),
         ],
       );
-      // chatProvider / conversationProvider 都是 autoDispose：markAsRead
-      // 存在 async gap，无 listener 会在执行中途被销毁（Ref used after
-      // disposed / UnmountedRefException，游标推进失败）。
-      final keepAlive = container.listen(chatProvider, (_, _) {});
-      final keepAliveConv = container.listen(conversationProvider, (_, _) {});
+      // No UI listeners: production background read sync owns its lifetime.
       MessageService.setProviderContainer(container);
       addTearDown(() async {
-        keepAlive.close();
-        keepAliveConv.close();
         container.dispose();
         // chatProvider 拉起会启动 MessageRetry 周期扫描（单例），
         // 不清理会带着已关闭的库跨测试继续跑。

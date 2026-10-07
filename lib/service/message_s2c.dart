@@ -11,6 +11,7 @@ import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:imboy/page/contact/new_friend/new_friend_provider.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -483,8 +484,12 @@ class MessageS2CService {
     // 后者只更新消息行状态，不递减会话未读数（unreadNum），会导致本设备
     // 消息已读但未读徽章残留。syncToServer=false 避免再次上报已读回执，
     // 否则会与服务端 message_read_sync 推送形成 ACK/回执循环。
+    final container = _container;
+    // A background event has no page listener to retain autoDispose providers.
+    final chat = container.listen(chatProvider, (_, _) {});
+    final conversations = container.listen(conversationProvider, (_, _) {});
     try {
-      await _container
+      await container
           .read(chatProvider.notifier)
           .markAsRead(
             plan.conversationType,
@@ -492,8 +497,9 @@ class MessageS2CService {
             plan.msgIds,
             syncToServer: false,
           );
-    } on Object catch (e) {
-      iPrint('❌ [message_read_sync] markAsRead 失败: $e');
+    } finally {
+      conversations.close();
+      chat.close();
     }
   }
 
