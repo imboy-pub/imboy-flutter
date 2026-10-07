@@ -163,11 +163,11 @@ class MessageQueryReader {
     // 高级过滤：时间范围
     if (startDate != null) {
       where = "$where AND ${MessageColumns.createdAt} >= ?";
-      whereArgs.add(startDate.millisecondsSinceEpoch ~/ 1000);
+      whereArgs.add(startDate.millisecondsSinceEpoch);
     }
     if (endDate != null) {
       where = "$where AND ${MessageColumns.createdAt} <= ?";
-      whereArgs.add(endDate.millisecondsSinceEpoch ~/ 1000);
+      whereArgs.add(endDate.millisecondsSinceEpoch);
     }
 
     // 使用优化的排序和索引
@@ -418,7 +418,7 @@ class MessageQueryReader {
 
         if (since != null) {
           where = '$where AND ${MessageColumns.createdAt} >= ?';
-          whereArgs.add(since ~/ 1000); // 转换为秒
+          whereArgs.add(since); // 消息 created_at 与调用契约均为毫秒
         }
 
         final count = await db.pluck<int>(
