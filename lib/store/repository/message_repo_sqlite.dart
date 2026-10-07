@@ -1237,6 +1237,19 @@ class MessageRepo implements MessageRepository {
   Future<void> _syncOfflineConversationsAndNotify(
     List<InsertedOfflineMessage> inserted,
   ) async {
+    // 后台入库没有页面监听；跨数据库等待时保留自动释放的会话状态。
+    final container = _container;
+    final subscription = container.listen(conversationProvider, (_, _) {});
+    try {
+      await _syncOfflineConversations(inserted);
+    } finally {
+      subscription.close();
+    }
+  }
+
+  Future<void> _syncOfflineConversations(
+    List<InsertedOfflineMessage> inserted,
+  ) async {
     final conversationRepo = ConversationRepo();
     final contactRepo = ContactRepo();
     final groupRepo = GroupRepo();
@@ -1354,15 +1367,8 @@ class MessageRepo implements MessageRepository {
 
       // 更新会话逻辑中的内存映射
       // 使用 Riverpod Provider
-      await conversationNotifier.replace(conv);
-
-      // 更新未读数
-      if (agg.unreadDelta > 0) {
-        await conversationNotifier.increaseConversationRemind(
-          conv,
-          agg.unreadDelta,
-        );
-      }
+      // DB 已包含本批未读增量；应用完整快照，避免再次增量写入与延迟覆盖。
+      conversationNotifier.applyConversationSnapshot(conv);
 
       func_helper.iPrint("已更新会话列表: ${conv.uk3}, 未读数增加: ${agg.unreadDelta}");
     }
