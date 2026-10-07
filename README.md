@@ -6,7 +6,7 @@ IMBoy 的 Flutter 客户端，支持 iOS、Android 和桌面端。主要功能�
 
 ### 1. 准备环境
 
-- Flutter 3.41.x（项目要求 Dart 3.8+）
+- Flutter 3.47.x stable（项目 Dart SDK 约束 `^3.13.3`，见 pubspec.yaml `environment.sdk`）
 - 一台已连接电脑的真机
 - 可访问的 IMBoy 后端
 
