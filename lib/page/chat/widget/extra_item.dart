@@ -6,6 +6,8 @@ import 'package:carousel_slider_plus/carousel_slider_plus.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/location/amap_helper.dart';
@@ -207,55 +209,56 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
           }
         },
       ),
-      ExtraItem(
-        title: t.groupSchedule.location,
-        image: const Icon(CupertinoIcons.location, size: iconSize),
-        onPressed: () async {
-          if (!context.mounted) return;
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.location))
+        ExtraItem(
+          title: t.groupSchedule.location,
+          image: const Icon(CupertinoIcons.location, size: iconSize),
+          onPressed: () async {
+            if (!context.mounted) return;
 
-          // 定位（尤其是高德失败降级到 geolocator 时）可能要等几秒，
-          // 之前点击后界面毫无反应，像按钮坏了；先给一个 loading 反馈。
-          AppLoading.show(status: t.common.loading);
-          AMapPosition? l = await LocationService().getCurrentPosition();
-          await AppLoading.dismiss();
-          if (!context.mounted) return;
-          if (l == null) {
-            AppLoading.showError(t.common.failedGetMapTryAgain);
-            return;
-          }
-          if (context.mounted) {
-            // 使用 go_router 进行导航
-            final result = await context.push<Map<String, dynamic>>(
-              '/map_location_picker',
-              extra: {
-                "lat": double.parse(l.latLng.latitude.toString()),
-                "lng": double.parse(l.latLng.longitude.toString()),
-                "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
-                "isMapImage": true,
-              },
-            );
+            // 定位（尤其是高德失败降级到 geolocator 时）可能要等几秒，
+            // 之前点击后界面毫无反应，像按钮坏了；先给一个 loading 反馈。
+            AppLoading.show(status: t.common.loading);
+            AMapPosition? l = await LocationService().getCurrentPosition();
+            await AppLoading.dismiss();
+            if (!context.mounted) return;
+            if (l == null) {
+              AppLoading.showError(t.common.failedGetMapTryAgain);
+              return;
+            }
+            if (context.mounted) {
+              // 使用 go_router 进行导航
+              final result = await context.push<Map<String, dynamic>>(
+                '/map_location_picker',
+                extra: {
+                  "lat": double.parse(l.latLng.latitude.toString()),
+                  "lng": double.parse(l.latLng.longitude.toString()),
+                  "citycode": AMapApi.getCityNameByGaoDe(l.adCode),
+                  "isMapImage": true,
+                },
+              );
 
-            if (result != null && context.mounted) {
-              if (result["image"] == null) {
-                AppLoading.showError(t.common.failedGetMapTryAgain);
-                FocusScope.of(context).requestFocus(FocusNode());
-                return;
-              }
-              if (widget.handleLocationSelection != null &&
-                  result["image"] != null) {
-                widget.handleLocationSelection!(
-                  result["id"] as String,
-                  result["image"] as Uint8List,
-                  result["address"] as String,
-                  result["title"] as String,
-                  result["latitude"].toString(),
-                  result["longitude"].toString(),
-                );
+              if (result != null && context.mounted) {
+                if (result["image"] == null) {
+                  AppLoading.showError(t.common.failedGetMapTryAgain);
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  return;
+                }
+                if (widget.handleLocationSelection != null &&
+                    result["image"] != null) {
+                  widget.handleLocationSelection!(
+                    result["id"] as String,
+                    result["image"] as Uint8List,
+                    result["address"] as String,
+                    result["title"] as String,
+                    result["latitude"].toString(),
+                    result["longitude"].toString(),
+                  );
+                }
               }
             }
-          }
-        },
-      ),
+          },
+        ),
       ExtraItem(
         title: t.chat.file,
         image: const Icon(CupertinoIcons.doc, size: iconSize),
@@ -275,7 +278,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         image: const Icon(CupertinoIcons.person, size: iconSize),
         onPressed: widget.handleVisitCardSelection,
       ),
-      if (widget.type != 'C2G')
+      if (widget.type != 'C2G' && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
         ExtraItem(
           title: t.common.voiceCall,
           image: const Icon(CupertinoIcons.phone, size: iconSize),
@@ -292,7 +295,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             );
           },
         ),
-      if (widget.type != 'C2G')
+      if (widget.type != 'C2G' && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
         ExtraItem(
           title: t.common.videoCall,
           image: const Icon(CupertinoIcons.videocam, size: iconSize),
@@ -313,27 +316,27 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
     // —— 群协作（仅群聊 C2G，直达创建表单）——
     final collabItems = <ExtraItem>[
-      if (isC2G)
+      if (isC2G && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
         ExtraItem(
           title: t.common.groupCall,
           image: const Icon(CupertinoIcons.videocam, size: iconSize),
           onPressed: () => _joinGroupCall(context),
         ),
-      if (isC2G)
+      if (isC2G && AppFeatureRegistry.isEnabled(FeatureKeys.groupVote))
         ExtraItem(
           title: t.groupVote.title,
           image: const Icon(CupertinoIcons.chart_bar, size: iconSize),
           onPressed: () =>
               context.push('/group/${widget.options['to']}/vote?create=1'),
         ),
-      if (isC2G)
+      if (isC2G && AppFeatureRegistry.isEnabled(FeatureKeys.groupSchedule))
         ExtraItem(
           title: t.groupSchedule.title,
           image: const Icon(CupertinoIcons.calendar, size: iconSize),
           onPressed: () =>
               context.push('/group/${widget.options['to']}/schedule?create=1'),
         ),
-      if (isC2G)
+      if (isC2G && AppFeatureRegistry.isEnabled(FeatureKeys.groupTask))
         ExtraItem(
           title: t.groupTask.title,
           image: const Icon(CupertinoIcons.checkmark, size: iconSize),
@@ -344,25 +347,27 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
     // —— 资金 ——
     final fundItems = <ExtraItem>[
-      ExtraItem(
-        title: t.common.redPacket,
-        image: const Icon(
-          CupertinoIcons.gift,
-          size: iconSize,
-          color: AppColors.iosRed,
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.wallet))
+        ExtraItem(
+          title: t.common.redPacket,
+          image: const Icon(
+            CupertinoIcons.gift,
+            size: iconSize,
+            color: AppColors.iosRed,
+          ),
+          onPressed: () async {
+            FocusScope.of(context).requestFocus(FocusNode());
+            final result = await context.push<Map<String, dynamic>>(
+              '/red_packet_send',
+              extra: {'type': widget.type, 'to': widget.options['to']},
+            );
+            if (result != null && widget.handleRedPacketSelection != null) {
+              widget.handleRedPacketSelection!(result);
+            }
+          },
         ),
-        onPressed: () async {
-          FocusScope.of(context).requestFocus(FocusNode());
-          final result = await context.push<Map<String, dynamic>>(
-            '/red_packet_send',
-            extra: {'type': widget.type, 'to': widget.options['to']},
-          );
-          if (result != null && widget.handleRedPacketSelection != null) {
-            widget.handleRedPacketSelection!(result);
-          }
-        },
-      ),
-      if (widget.type != 'C2G')
+      if (widget.type != 'C2G' &&
+          AppFeatureRegistry.isEnabled(FeatureKeys.wallet))
         ExtraItem(
           title: t.common.transfer,
           image: const Icon(

@@ -1,4 +1,5 @@
 class FeatureKeys {
+  static const rtc = 'rtc';
   static const channel = 'channel';
   static const channelDiscover = 'channel_discover';
   static const channelInvitation = 'channel_invitation';
