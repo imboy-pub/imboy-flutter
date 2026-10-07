@@ -45,6 +45,7 @@ import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
 import 'package:imboy/service/group_member_role_s2c.dart';
 import 'package:imboy/service/group_notice_s2c.dart';
+import 'package:imboy/service/group_transfer_s2c.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/model/group_member_columns.dart';
@@ -380,6 +381,12 @@ class MessageS2CService {
         case 'group_member_role':
           // 群成员角色变更广播（slice-4：写本地 group_member.role + 广播事件）
           await _handleGroupMemberRole(payloadMap);
+          break;
+        case 'group_transfer':
+          // Q05/AC10：群转让广播（owner 变更），刷新本地群/成员角色缓存
+          // 并广播事件；save 通知，在线与离线拉取走同一分发（见
+          // message_offline.dart 的 switchS2C 调用）。
+          await _handleGroupTransfer(payloadMap);
           break;
         case 'group_notice_published':
           // 群公告发布广播（W1.1：不写本地表，仅广播事件触发 UI 刷新）
@@ -1222,6 +1229,77 @@ class MessageS2CService {
           updatedAt: p.updatedAt,
         ),
       ),
+      log: iPrint,
+    );
+  }
+
+  /// 处理群转让的广播（S2C `group_transfer`）
+  ///
+  /// Action: group_transfer
+  /// 触发时机：群主转让事务成功后，后端（group_event_handler 的
+  /// owner_transferred 分支）向全体成员广播（save，离线可补）。
+  /// payload: { gid, from_owner_uid, to_owner_uid }（TSID integer）。
+  ///
+  /// 本地处理（Q05/AC10，见 group_transfer_s2c.dart 的合约注释）：
+  ///   1. 更新 `group.owner_uid`（群详情/群列表本地缓存的 owner 归属，
+  ///      owner_uid 直接驱动群列表 owner/manager/join 视图查询）
+  ///   2. 更新旧主/新主的 `group_member.role`（1=成员 / 4=群主，
+  ///      镜像服务端 do_transfer 事务内的角色终态）
+  ///   3. 广播 `GroupEditEvent`（owner_uid 字段变更）+ `GroupMemberRoleEvent`
+  ///      ×2（旧主/新主）——chat_page 既有订阅按 gid + 当前用户过滤，
+  ///      当前会话正是该群且自己是当事方时刷新会话头角色展示
+  ///   4. 不做导航跳转
+  ///
+  /// 使用 `handleGroupTransferS2C` 做分派（见
+  /// `test/unit_test/service/group_transfer_s2c_handler_test.dart`）。
+  static Future<void> _handleGroupTransfer(Map<String, dynamic> payload) async {
+    await handleGroupTransferS2C(
+      payload: payload,
+      applyOwnerUpdate: (gid, toOwnerUid) =>
+          GroupRepo().update(gid.toString(), {GroupRepo.ownerUid: toOwnerUid}),
+      applyRoleUpdate: (gid, userId, role) => GroupMemberRepo().update(
+        gid.toString(),
+        userId.toString(),
+        {GroupMemberColumns.role: role},
+      ),
+      fireEvent: (p) {
+        AppEventBus.fire(
+          GroupEditEvent(
+            gid: p.gid,
+            updates: {
+              // toOwnerUid 未带（0）时不携带 owner_uid 键，避免潜在订阅者
+              // 把 owner 误写成 0（对齐 GroupEditEvent.updates 可为空契约）
+              if (p.toOwnerUid > 0) GroupRepo.ownerUid: p.toOwnerUid,
+            },
+          ),
+        );
+        if (p.fromOwnerUid > 0) {
+          AppEventBus.fire(
+            GroupMemberRoleEvent(
+              gid: p.gid,
+              userId: p.fromOwnerUid,
+              role: groupTransferRoleMember,
+              roleText: '',
+              nickname: '',
+              adminNickname: '',
+              updatedAt: 0,
+            ),
+          );
+        }
+        if (p.toOwnerUid > 0) {
+          AppEventBus.fire(
+            GroupMemberRoleEvent(
+              gid: p.gid,
+              userId: p.toOwnerUid,
+              role: groupTransferRoleOwner,
+              roleText: '',
+              nickname: '',
+              adminNickname: '',
+              updatedAt: 0,
+            ),
+          );
+        }
+      },
       log: iPrint,
     );
   }

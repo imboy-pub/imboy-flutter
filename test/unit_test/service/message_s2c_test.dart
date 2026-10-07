@@ -240,6 +240,7 @@ void main() {
         'group_member_join': '_handleGroupMemberJoin',
         'group_dissolve': '_handleGroupDissolve',
         'group_member_leave': '_handleGroupMemberLeave',
+        'group_transfer': '_handleGroupTransfer',
         'apply_friend_confirm': '_handleApplyFriendConfirm',
         'logged_another_device': '_handleLoggedAnotherDevice',
         'please_refresh_token': '_handlePleaseRefreshToken',
