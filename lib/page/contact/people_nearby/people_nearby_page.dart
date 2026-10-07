@@ -147,12 +147,17 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
                     const CupertinoListTileChevron(),
                   ],
                 ),
-                onTap: () {
+                onTap: () async {
                   if (!state.peopleNearbyVisible) {
                     _showVisibilityDialog(context, notifier);
                   } else {
-                    notifier.makeMyselfUnVisible();
-                    AppLoading.showSuccess(t.common.locationHidden);
+                    final hidden = await notifier.makeMyselfUnVisible();
+                    if (!mounted) return;
+                    if (hidden) {
+                      AppLoading.showSuccess(t.common.locationHidden);
+                    } else {
+                      AppLoading.showError(t.common.operationFailedAgainLater);
+                    }
                   }
                 },
               ),
@@ -371,10 +376,15 @@ class _PeopleNearbyPageState extends ConsumerState<PeopleNearbyPage>
           ),
           CupertinoDialogAction(
             isDefaultAction: true,
-            onPressed: () {
-              notifier.makeMyselfVisible();
+            onPressed: () async {
               Navigator.pop(ctx);
-              AppLoading.showSuccess(t.common.locationVisible);
+              final visible = await notifier.makeMyselfVisible();
+              if (!mounted) return;
+              if (visible) {
+                AppLoading.showSuccess(t.common.locationVisible);
+              } else {
+                AppLoading.showError(t.common.operationFailedAgainLater);
+              }
             },
             child: Text(t.common.buttonConfirm),
           ),
