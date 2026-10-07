@@ -4,6 +4,9 @@ import 'package:flutter_chat_core/flutter_chat_core.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/chat/message.dart' show CustomMessageBuilder;
+import 'package:imboy/component/chat/message_audio_builder_mobile.dart'
+    as owned_audio
+    show AudioMessageBuilder;
 import 'package:imboy/plugins/builtin/register_builtin_plugins.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -149,34 +152,39 @@ void main() {
       expect(find.byType(CustomMessageBuilder), findsOneWidget);
     });
 
-    testWidgets(
-      '应该正确路由 voice 消息类型',
-      (WidgetTester tester) async {
-        // GIVEN: 一个 voice 类型的消息
-        final message = createTestMessage(
-          msgType: MessageType.voice,
-          metadata: {
-            // 避免测试中触发真实下载重试导致 pending timer
-            'uri': '',
-            'duration_ms': 15000,
-          },
-        );
+    testWidgets('应该正确路由 voice 消息类型', (WidgetTester tester) async {
+      // GIVEN: 一个 voice 类型的消息
+      final message = createTestMessage(
+        msgType: MessageType.voice,
+        metadata: {
+          // 避免测试中触发真实下载重试导致 pending timer
+          'uri': '',
+          'duration_ms': 15000,
+        },
+      );
 
-        // WHEN: 构建 CustomMessageBuilder
-        await tester.pumpWidget(
-          MaterialApp(
-            home: Scaffold(
-              body: CustomMessageBuilder(type: 'C2C', message: message),
-            ),
+      // WHEN: 构建 CustomMessageBuilder
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: CustomMessageBuilder(type: 'C2C', message: message),
           ),
-        );
+        ),
+      );
 
-        // THEN: 应该渲染 AudioMessageBuilder
-        expect(find.byType(CustomMessageBuilder), findsOneWidget);
-      },
-      // AudioMessageBuilder 在 widget test 环境存在 pending timer 问题，需单独治理
-      skip: true,
-    );
+      // THEN: 应该渲染 AudioMessageBuilder
+      expect(find.byType(owned_audio.AudioMessageBuilder), findsOneWidget);
+      await tester.pump();
+      expect(find.text('点击重试'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      for (var retry = 0; retry < 2; retry++) {
+        await tester.tap(find.text('点击重试'));
+        await tester.pump();
+        expect(find.text('点击重试'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
 
     testWidgets('应该正确路由 location 消息类型', (WidgetTester tester) async {
       // GIVEN: 一个 location 类型的消息

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -59,8 +58,7 @@ class AudioMessageBuilder extends StatefulWidget {
 
 class _AudioMessageBuilderState extends State<AudioMessageBuilder>
     with SingleTickerProviderStateMixin {
-  // 使用 Completer 来跟踪加载状态
-  final Completer<String> _audioPathCompleter = Completer<String>();
+  String? _audioPath;
   late AnimationController _animationController;
   late Animation<double> _pulseAnimation;
   // 仅用于渲染更好看的波形，不用于播放控制
@@ -208,9 +206,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
         setState(() {
           _isLoading = false;
           _errorMessage = null;
+          _audioPath = tmpF.path;
         });
       }
-      _audioPathCompleter.complete(tmpF.path);
     } catch (e) {
       iPrint('❌ _loadAudioFile 失败: ${e.runtimeType}');
       if (mounted) {
@@ -219,7 +217,6 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           _errorMessage = '加载失败';
         });
       }
-      _audioPathCompleter.completeError(e);
     }
   }
 
@@ -241,45 +238,17 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
       return _buildErrorWidget(_errorMessage!);
     }
 
-    // 使用 FutureBuilder 监听音频路径加载
-    return FutureBuilder<String>(
-      future: _audioPathCompleter.future,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          iPrint(
-            '❌ audioPathSnapshot.hasError: ${snapshot.error?.runtimeType}',
-          );
-          return _buildErrorWidget('音频加载失败');
-        }
-        if (!snapshot.hasData) {
-          return _buildLoadingWidget();
-        }
-        final audioPath = snapshot.data!;
+    final audioPath = _audioPath;
+    if (audioPath == null) return _buildLoadingWidget();
+    final durationMs = msg.metadata?["duration_ms"];
+    final metadataDuration = Duration(milliseconds: (durationMs as int?) ?? 0);
+    final duration = metadataDuration.inMilliseconds > 0
+        ? metadataDuration
+        : _totalDuration.inMilliseconds > 0
+        ? _totalDuration
+        : _getAudioDuration(audioPath);
 
-        final durationMs = msg.metadata?["duration_ms"];
-
-        // 获取时长
-        Duration duration;
-        final metadataDuration = Duration(
-          milliseconds: (durationMs as int?) ?? 0,
-        );
-
-        if (metadataDuration.inMilliseconds > 0) {
-          duration = metadataDuration;
-        } else if (_totalDuration.inMilliseconds > 0) {
-          duration = _totalDuration;
-        } else {
-          duration = _getAudioDuration(audioPath);
-        }
-
-        return _buildEnhancedAudioMessage(
-          audioPath,
-          duration,
-          msg,
-          userIsAuthor,
-        );
-      },
-    );
+    return _buildEnhancedAudioMessage(audioPath, duration, msg, userIsAuthor);
   }
 
   Widget _buildLoadingWidget() {
@@ -313,8 +282,9 @@ class _AudioMessageBuilderState extends State<AudioMessageBuilder>
           setState(() {
             _isLoading = true;
             _errorMessage = null;
-            _initAudioPath();
+            _audioPath = null;
           });
+          _initAudioPath();
         },
         child: Padding(
           padding: MessageSpacing.bubblePaddingAll,
