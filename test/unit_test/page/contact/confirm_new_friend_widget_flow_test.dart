@@ -41,12 +41,11 @@ class _HostPage extends StatelessWidget {
 
 class SpyConfirmNewFriendNotifier extends ConfirmNewFriendNotifier {
   SpyConfirmNewFriendNotifier({
-    bool confirmResult = true,
-    String initialTag = '',
-  }) : _confirmResult = confirmResult,
-       initialTag = initialTag;
+    this.confirmResult = true,
+    this.initialTag = '',
+  });
 
-  final bool _confirmResult;
+  final bool confirmResult;
   final String initialTag;
 
   int confirmCalls = 0;
@@ -72,7 +71,7 @@ class SpyConfirmNewFriendNotifier extends ConfirmNewFriendNotifier {
     lastTo = to;
     lastPayload = payload;
     if (gate != null) return gate!.future;
-    return _confirmResult;
+    return confirmResult;
   }
 }
 
