@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AI 真机回归规格的校验、影响分析与受控编排。
 
-规格是可提交的 JSON；截图、日志及真实运行报告只写入 test/auto_test/reports/。
+规格是可提交的 JSON；截图、日志及真实运行报告只写入仓外 AUTO_TEST_REPORT_ROOT。
 本工具默认只读/dry-run。--execute 仍不会越过 case 的本地环境和风险门禁。
 """
 from __future__ import annotations
@@ -23,7 +23,11 @@ from urllib.parse import urlsplit
 ROOT = Path(__file__).resolve().parent.parent
 AUTO = ROOT / 'test' / 'auto_test'
 SPECS = AUTO / 'specs'
-REPORTS = AUTO / 'reports'
+REPORTS = Path(os.environ.get('AUTO_TEST_REPORT_ROOT',
+    str(Path.home() / '.local' / 'state' / 'imboyapp-auto-test' /
+        hashlib.sha256(str(ROOT).encode()).hexdigest()[:12]))).expanduser().resolve()
+if REPORTS == ROOT or ROOT in REPORTS.parents:
+    raise ValueError('AUTO_TEST_REPORT_ROOT_MUST_BE_OUTSIDE_REPOSITORY')
 BASELINES = AUTO / 'baselines'
 CATALOG = AUTO / 'catalog.json'
 VALID_RISKS = {'P0', 'P1', 'P2'}
@@ -32,7 +36,7 @@ VALID_RUNNERS = {'flutter', 'patrol'}
 VALID_VISUAL_RESULTS = {'PASS', 'FAIL', 'REVIEW', 'BLOCKED'}
 sys.path.insert(0, str(ROOT / 'scripts'))
 from auto_test_lib.requirements import REQUIREMENTS  # noqa: E402
-from auto_test_lib import discovery  # noqa: E402
+from auto_test_lib import discovery, inventory  # noqa: E402
 from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
 from auto_test_lib.result import overall_exit_code, plan_unique_targets  # noqa: E402
 from auto_test_lib.target_config import effective_target_config  # noqa: E402
@@ -400,6 +404,7 @@ def capture_case(spec: dict, device: str, output: Path, hold_ms: int, app_env: s
 
 
 def write_index(specs: list[tuple[Path, dict]]) -> None:
+    REPORTS.mkdir(parents=True, exist_ok=True)
     output = [
         '# AI 真机回归规格索引',
         '',
@@ -425,37 +430,20 @@ def write_index(specs: list[tuple[Path, dict]]) -> None:
             spec['id'], spec['risk'], spec['title'], runner['target'], checkpoints, baseline,
             '是' if not spec['safe_to_execute'] else '否'))
     output += ['', '## 使用', '', '```bash', 'python3 scripts/auto_test.py validate', 'python3 scripts/auto_test.py plan --phase p0', 'python3 scripts/auto_test.py impact lib/page/wallet/transfer_send_page.dart', 'python3 scripts/auto_test.py run --phase p0 --device <真实设备ID> --dry-run', 'python3 scripts/auto_test.py capture --case CONVERSATION-LIST-001 --device <Android真实设备ID>', '```', '']
-    (AUTO / 'AI_TEST_INDEX.md').write_text('\n'.join(output), encoding='utf-8')
+    (REPORTS / 'AI_TEST_INDEX.md').write_text('\n'.join(output), encoding='utf-8')
 
 
 def page_inventory() -> list[dict]:
-    """读取既有页面台账，复用其源码路径而不引入第二份页面名单。"""
-    pages: list[dict] = []
-    for path in sorted(AUTO.glob('*/*.md')):
-        if path.parent.name in {'specs', 'reports', 'baselines'}:
-            continue
-        rows = 0
-        attention = 0
-        source = ''
-        for line in path.read_text(encoding='utf-8').splitlines():
-            if not line.startswith('| ') or line.startswith('| 计划变化'):
-                continue
-            columns = [item.strip() for item in line.split('|')]
-            if len(columns) < 11:
-                continue
-            rows += 1
-            if columns[1] != '无待办':
-                attention += 1
-            if not source:
-                source = columns[3].strip('`')
-                if source.startswith('page/'):
-                    source = f'lib/{source}'
-        if rows:
-            pages.append({'path': path, 'source': source, 'rows': rows, 'attention': attention})
-    return pages
+    """Reusable declarations determine coverage; historical results do not."""
+    return [{
+        'path': ROOT / page['ordering_key'],
+        'source': page['page'],
+        'rows': len(page['requirements']),
+    } for page in inventory.load_page_requirements(ROOT)]
 
 
 def write_coverage_matrix(specs: list[tuple[Path, dict]]) -> None:
+    REPORTS.mkdir(parents=True, exist_ok=True)
     """生成页面级规格迁移队列；样板存在不等于页面所有功能点都已验证。"""
     by_source: dict[str, list[str]] = {}
     for _, spec in specs:
@@ -467,7 +455,7 @@ def write_coverage_matrix(specs: list[tuple[Path, dict]]) -> None:
     lines = [
         '# AI 真机规格覆盖矩阵',
         '',
-        '> 本矩阵从既有 `test/auto_test/<模块>/<页面>.md` 自动生成。',
+        '> 本矩阵从 `test/auto_test/page_requirements.json` 声明生成；历史路径仅作来源标识。',
         '> “已有样板”仅表示至少一个可执行规格关联到该页；**不等于该页全部功能点或全部 UI 状态已覆盖**。',
         '',
         '## 汇总',
@@ -495,10 +483,10 @@ def write_coverage_matrix(specs: list[tuple[Path, dict]]) -> None:
             status = '待分级并补规格'
         relative = page['path'].relative_to(AUTO).as_posix()
         case_text = '<br>'.join(f'`{case}`' for case in cases) if cases else '—'
-        lines.append('| %s | [%s](%s) | `%s` | %d | %s | %s |' % (
+        lines.append('| %s | %s（%s） | `%s` | %d | %s | %s |' % (
             page['path'].parent.name, page['path'].stem, relative, source or '—',
             page['rows'], status, case_text))
-    (AUTO / 'AI_COVERAGE_MATRIX.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+    (REPORTS / 'AI_COVERAGE_MATRIX.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
 
 def spec_backlog(specs: list[tuple[Path, dict]]) -> list[dict]:
@@ -509,13 +497,13 @@ def spec_backlog(specs: list[tuple[Path, dict]]) -> list[dict]:
     ]
     return sorted(candidates, key=lambda page: (
         CORE_MODULE_PRIORITY.get(page['path'].parent.name, 99),
-        -page['attention'],
         -page['rows'],
         page['path'].as_posix(),
     ))
 
 
 def write_spec_backlog(specs: list[tuple[Path, dict]]) -> None:
+    REPORTS.mkdir(parents=True, exist_ok=True)
     candidates = spec_backlog(specs)
     lines = [
         '# AI 真机规格补齐队列',
@@ -523,20 +511,20 @@ def write_spec_backlog(specs: list[tuple[Path, dict]]) -> None:
         '> 本文件由 `python3 scripts/auto_test.py coverage-report` 生成。',
         '> 这是规格补齐优先级，不是风险结论、可执行许可或测试通过证据。每项仍须先定义非破坏性流程、数据前置与截图检查点。',
         '',
-        '排序规则：核心用户旅程（登录→会话→聊天→联系人→群→我的→钱包）优先；同一模块内，台账有待办项和功能点更多的页面优先。',
+        '排序规则：核心用户旅程（登录→会话→聊天→联系人→群→我的→钱包）优先；同一模块内，声明功能点更多的页面优先；历史结果不参与排序。',
         '',
-        '| 顺序 | 建议层级 | 模块 | 页面 | 源码 | 功能点 | 台账待办 | 下一步 |',
-        '|---:|---|---|---|---|---:|---:|---|',
+        '| 顺序 | 建议层级 | 模块 | 页面 | 源码 | 功能点 | 下一步 |',
+        '|---:|---|---|---|---|---:|---|',
     ]
     for index, page in enumerate(candidates, 1):
         module = page['path'].parent.name
         suggested = 'P0 候选' if module in CORE_MODULE_PRIORITY else 'P1 候选'
         relative = page['path'].relative_to(AUTO).as_posix()
         next_step = '定义只读/夹具流程、风险门禁和截图检查点'
-        lines.append('| %d | %s | %s | [%s](%s) | `%s` | %d | %d | %s |' % (
+        lines.append('| %d | %s | %s | %s（%s） | `%s` | %d | %s |' % (
             index, suggested, module, page['path'].stem, relative, page['source'],
-            page['rows'], page['attention'], next_step))
-    (AUTO / 'AI_SPEC_BACKLOG.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
+            page['rows'], next_step))
+    (REPORTS / 'AI_SPEC_BACKLOG.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
 
 def print_next_batch(specs: list[tuple[Path, dict]], limit: int) -> None:
@@ -544,7 +532,7 @@ def print_next_batch(specs: list[tuple[Path, dict]], limit: int) -> None:
     for index, page in enumerate(candidates[:limit], 1):
         module = page['path'].parent.name
         suggested = 'P0 候选' if module in CORE_MODULE_PRIORITY else 'P1 候选'
-        print(f'{index}. [{suggested}] {page["source"]} — {page["rows"]} 功能点 / 台账待办 {page["attention"]}')
+        print(f'{index}. [{suggested}] {page["source"]} — {page["rows"]} 功能点')
     if not candidates:
         print('没有待补规格页面。')
 
@@ -923,14 +911,14 @@ def main() -> int:
         write_index(select(specs, args.phase))
         write_coverage_matrix(specs)
         write_spec_backlog(specs)
-        print('✅ 已生成 test/auto_test/AI_TEST_INDEX.md')
-        print('✅ 已生成 test/auto_test/AI_COVERAGE_MATRIX.md')
-        print('✅ 已生成 test/auto_test/AI_SPEC_BACKLOG.md')
+        print(f'✅ 已生成 {REPORTS}/AI_TEST_INDEX.md')
+        print(f'✅ 已生成 {REPORTS}/AI_COVERAGE_MATRIX.md')
+        print(f'✅ 已生成 {REPORTS}/AI_SPEC_BACKLOG.md')
     elif args.command == 'coverage-report':
         write_coverage_matrix(specs)
         write_spec_backlog(specs)
-        print('✅ 已生成 test/auto_test/AI_COVERAGE_MATRIX.md')
-        print('✅ 已生成 test/auto_test/AI_SPEC_BACKLOG.md')
+        print(f'✅ 已生成 {REPORTS}/AI_COVERAGE_MATRIX.md')
+        print(f'✅ 已生成 {REPORTS}/AI_SPEC_BACKLOG.md')
     elif args.command == 'next-batch':
         if args.limit < 1:
             parser.error('--limit 必须大于 0')

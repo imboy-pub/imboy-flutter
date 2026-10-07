@@ -9,7 +9,7 @@
 #   1. Python tooling unit tests（含凭证/脱敏负向测试）
 #   2. auto_test.py validate --strict
 #   3. auto_test.py catalog --check
-#   4. auto_test.py report 生成物一致（regeneration 不得改变磁盘文件）
+#   4. auto_test.py report 仓外连续生成一致（不要求提交报告）
 #      + git diff --check
 #   5. py_compile 全部控制面脚本
 #   6. 框架自检（唯一 target / 假绿 / 凭证字段 / requirement 枚举 / catalog 页覆盖）
@@ -30,15 +30,17 @@ set -uo pipefail
 APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_ROOT="${IMBOY_BACKEND_ROOT:-$APP_ROOT/../imboy}"
 NEGATIVE="${AUTO_TEST_FRAMEWORK_NEGATIVE:-}"
-SUMMARY_PATH="${AUTO_TEST_FRAMEWORK_GATE_SUMMARY:-$APP_ROOT/test/auto_test/reports/gate/gate_summary.json}"
+AUTO_TEST_REPORT_ROOT="${AUTO_TEST_REPORT_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/imboyapp-auto-test.XXXXXX")}"
+export AUTO_TEST_REPORT_ROOT
+SUMMARY_PATH="${AUTO_TEST_FRAMEWORK_GATE_SUMMARY:-$AUTO_TEST_REPORT_ROOT/gate_summary.json}"
 export AUTO_TEST_FRAMEWORK_NEGATIVE  # heredoc python 读取同一注入开关
 
 KNOWN_NEGATIVE_CASES="missing_catalog_page unknown_requirement all_skip_fake_green target_conflict credential_field"
 
 GENERATED_DOCS=(
-  "test/auto_test/AI_TEST_INDEX.md"
-  "test/auto_test/AI_COVERAGE_MATRIX.md"
-  "test/auto_test/AI_SPEC_BACKLOG.md"
+  "$AUTO_TEST_REPORT_ROOT/AI_TEST_INDEX.md"
+  "$AUTO_TEST_REPORT_ROOT/AI_COVERAGE_MATRIX.md"
+  "$AUTO_TEST_REPORT_ROOT/AI_SPEC_BACKLOG.md"
 )
 
 CHECK_NAMES=()
@@ -55,7 +57,7 @@ record() { # <name> <code> <detail>
 sha_list() { # <files...> -> 每文件 sha256
   local f sum
   for f in "$@"; do
-    if [ -f "$APP_ROOT/$f" ]; then sum="$(shasum -a 256 "$APP_ROOT/$f" | awk '{print $1}')"; else sum="MISSING"; fi
+    if [ -f "$f" ]; then sum="$(shasum -a 256 "$f" | awk '{print $1}')"; else sum="MISSING"; fi
     printf '%s\n' "$sum"
   done
 }
@@ -185,7 +187,7 @@ fi
 cd "$APP_ROOT"
 
 # 1. tooling 单元测试（含凭证负向测试）
-if (cd "$APP_ROOT" && python3 -m unittest discover -s test/tooling -p 'test_*.py' >/tmp/atf_gate_unittest.log 2>&1); then
+if (cd "$APP_ROOT" && PYTHONPATH="$APP_ROOT/test/tooling/auto_test${PYTHONPATH:+:$PYTHONPATH}" python3 -m unittest discover -s test/tooling -p 'test_*.py' >/tmp/atf_gate_unittest.log 2>&1); then
   record "tooling_unittest" 0 "$(tail -1 /tmp/atf_gate_unittest.log)"
 else
   code=$?
@@ -207,20 +209,22 @@ else
 fi
 
 # 4. report 生成物一致（regeneration 必须与磁盘字节一致）+ git diff --check
-before="$(sha_list "${GENERATED_DOCS[@]}")"
 python3 scripts/auto_test.py report >/tmp/atf_gate_report.log 2>&1
 report_code=$?
+before="$(sha_list "${GENERATED_DOCS[@]}")"
+if [ "$report_code" -eq 0 ]; then
+  python3 scripts/auto_test.py report >>/tmp/atf_gate_report.log 2>&1
+  report_code=$?
+fi
 after="$(sha_list "${GENERATED_DOCS[@]}")"
 if [ "$report_code" -ne 0 ]; then
   record "generated_docs_check" "$report_code" "report 退出码 $report_code"
 elif [ "$before" != "$after" ]; then
-  record "generated_docs_check" 1 "GENERATED_DOCS_STALE: report 重生成改变了磁盘文件；请运行 python3 scripts/auto_test.py report 并提交生成物"
+  record "generated_docs_check" 1 "仓外报告连续生成不一致"
+elif git diff --check >/tmp/atf_gate_diffcheck.log 2>&1; then
+  record "generated_docs_check" 0 "仓外报告生成一致; git diff --check 干净"
 else
-  if git diff --check >/tmp/atf_gate_diffcheck.log 2>&1; then
-    record "generated_docs_check" 0 "report 生成物一致; git diff --check 干净"
-  else
-    record "generated_docs_check" "$?" "git diff --check 报告问题: $(cat /tmp/atf_gate_diffcheck.log)"
-  fi
+  record "generated_docs_check" "$?" "git diff --check 报告问题"
 fi
 
 # 5. py_compile

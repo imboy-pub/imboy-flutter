@@ -131,6 +131,29 @@ class FunctionTargetDeclarationTest(unittest.TestCase):
             inventory.constrain_function_targets(functions, [spec])
 
 
+class ReportDestinationTest(unittest.TestCase):
+    def test_reports_use_declarations_without_reading_markdown(self):
+        import importlib.util
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location('owned_auto_test', ROOT / 'scripts/auto_test.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        read_text = Path.read_text
+
+        def read(path, *args, **kwargs):
+            if path.suffix == '.md' and 'auto_test' in path.parts:
+                raise AssertionError('Historical report consumed: ' + str(path))
+            return read_text(path, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as directory:
+            with patch.object(module, 'REPORTS', Path(directory)), patch.object(Path, 'read_text', read):
+                specs = module.load_specs()
+                module.write_index(specs)
+                module.write_coverage_matrix(specs)
+                module.write_spec_backlog(specs)
+            self.assertEqual(len(list(Path(directory).glob('AI_*.md'))), 3)
+
+
 class InventoryGenerationTest(unittest.TestCase):
     """真实仓库：确定性 + --check + 生成物在盘。"""
 
