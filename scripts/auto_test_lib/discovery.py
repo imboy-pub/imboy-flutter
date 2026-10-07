@@ -86,33 +86,18 @@ def load_specs(root: Path) -> list[dict]:
     return specs
 
 
-_LEDGER_ROW_RE = re.compile(r'^\|[^|]*\|[^|]*\|[^|]*`([^`]+)`')
-
-
-_PATH_LIKE_RE = re.compile(r'^(?:lib/)?[A-Za-z0-9_/.-]+\.dart$')
-
-
 def scan_ledger_issues(root: Path) -> list[dict]:
-    """页面台账健康检查：首个页面源码路径必须存在；非页面路径仅提示不阻断。"""
+    """Check declared source paths without consuming execution ledgers."""
     issues = []
-    base = root / 'test' / 'auto_test'
-    for path in sorted(base.glob('*/*_page.md')):
-        first_source = ''
-        for line in path.read_text(encoding='utf-8', errors='replace').splitlines():
-            match = _LEDGER_ROW_RE.match(line)
-            if not match:
-                continue
-            candidate = match.group(1).strip()
-            if candidate.startswith('page/'):
-                candidate = f'lib/{candidate}'
-            if _PATH_LIKE_RE.match(candidate):
-                first_source = candidate
-                break
-        rel = path.relative_to(root).as_posix()
-        if not first_source:
-            issues.append({'ledger': rel, 'issue': 'NO_PAGE_SOURCE_FOUND'})
-        elif not (root / first_source).is_file():
-            issues.append({'ledger': rel, 'issue': 'PAGE_SOURCE_MISSING', 'source': first_source})
+    path = root / 'test' / 'auto_test' / 'page_requirements.json'
+    if not path.is_file():
+        return issues
+    declarations = json.loads(path.read_text(encoding='utf-8'))['pages']
+    for declaration in declarations:
+        source = declaration['page']
+        if not (root / source).is_file():
+            issues.append({'ledger': declaration['ordering_key'],
+                           'issue': 'PAGE_SOURCE_MISSING', 'source': source})
     return issues
 
 

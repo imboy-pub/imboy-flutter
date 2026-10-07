@@ -1,12 +1,9 @@
 """Step 9: 全页面功能清单（functional inventory）生成器。
 
 数据源（机器优先，AI 只做后续语义审核）：
-  (a) test/auto_test/*/*_page.md 页面台账：每行表格的功能列生成一条 function 记录。
-  (b) lib/modules/{organization,enterprise,customer_service}/presentation/*_page.dart
-      台账缺失的 9 个企业模块页面：静态提取可交互控件（宁多勿漏），并可为它们
-      生成带 `generated ... by step9` 标记的台账 md（--write-ledgers）。
-  (b2) 其余无台账的 lib/page/**/*_page.dart：同样静态提取，source 标
-      'generated:lib_page'，不新增台账文件（台账新增仅限授权的 9 个模块页）。
+  (a) test/auto_test/page_requirements.json：可复用页面要求；不读取执行台账。
+  (b) 未声明的 lib/modules/ 与 lib/page/ 页面：静态提取控件，标记待细化的
+      oracle；静态清单不构成运行验收。
   (c) 路由注册：discovery.scan_route_pages 的组件集 -> route_registered 标注。
 
 生成 test/auto_test/functional_inventory.json；--check 只比较不改文件。
@@ -269,6 +266,21 @@ def _ledger_generated_fields(row: dict) -> tuple[str, str, str]:
     return control, GENERATED_ORACLE, details
 
 
+def load_page_requirements(root: Path) -> list[dict]:
+    """Load reusable declarations; execution ledgers are never runtime inputs."""
+    path = Path(root) / 'test' / 'auto_test' / 'page_requirements.json'
+    payload = json.loads(path.read_text(encoding='utf-8'))
+    if payload.get('schema_version') != 1 or not isinstance(payload.get('pages'), list):
+        raise ValueError('PAGE_REQUIREMENTS_SCHEMA_INVALID')
+    for page in payload['pages']:
+        if set(page) != {'module', 'ordering_key', 'page', 'generated', 'requirements'}:
+            raise ValueError('PAGE_REQUIREMENTS_FIELDS_INVALID')
+        for row in page['requirements']:
+            if set(row) != {'page', 'action', 'control', 'expected_oracle', 'details'}:
+                raise ValueError('PAGE_REQUIREMENT_FIELDS_INVALID')
+    return payload['pages']
+
+
 def generate_inventory(root: Path, *, write_missing_ledgers: bool = False) -> tuple[dict, list[str]]:
     """确定性生成 functional inventory。返回 (inventory, 新写台账路径列表)。"""
     root = Path(root)
@@ -287,29 +299,23 @@ def generate_inventory(root: Path, *, write_missing_ledgers: bool = False) -> tu
     ledger_pages: set[str] = set()
     written: list[str] = []
 
-    # (a) 全部台账行
-    for ledger_path in sorted(auto_dir.glob('*/*_page.md')):
-        ledger = parse_ledger(ledger_path)
-        rel = ledger_path.relative_to(root).as_posix()
-        if not ledger['rows'] or not ledger['first_source']:
-            continue
-        ledger_pages.add(ledger['first_source'])
-        for i, row in enumerate(ledger['rows']):
-            page = _row_page(row, ledger['first_source'], root)
-            if ledger['generated']:
-                control, oracle, details = _ledger_generated_fields(row)
-            else:
-                control, oracle, details = 'unknown', LEDGER_ORACLE, ''
+    # Historical paths are stable ordering/provenance keys, never file inputs.
+    declarations = load_page_requirements(root)
+    for declaration in declarations:
+        rel = declaration['ordering_key']
+        ledger_pages.add(declaration['page'])
+        for i, row in enumerate(declaration['requirements']):
+            page = row['page']
             records.append(_make_record(
                 page=page,
-                module=ledger_path.parent.name,
+                module=declaration['module'],
                 stem=Path(page).stem,
                 seq_source=(rel, i),
                 source=rel,
-                control=control,
+                control=row['control'],
                 action=row['action'],
-                oracle=oracle,
-                details=details,
+                oracle=row['expected_oracle'],
+                details=row['details'],
                 route_components=route_components,
                 catalog_page=catalog_by_page.get(page),
             ))
@@ -386,7 +392,7 @@ def generate_inventory(root: Path, *, write_missing_ledgers: bool = False) -> tu
         'schema_version': INVENTORY_SCHEMA_VERSION,
         'generated_from': {
             'app_head': 'see-catalog',
-            'ledger_count': len(sorted(auto_dir.glob('*/*_page.md'))),
+            'ledger_count': len(declarations),
             'ledger_row_count': sum(1 for r in records if not r['source'].startswith('generated:')),
             'lib_page_count': len(lib_pages),
             'module_page_count': len(module_pages),
@@ -411,11 +417,7 @@ def validate_inventory(root: Path, inventory: dict) -> list[str]:
     registered_pages = {f['page'] for f in functions}
 
     reachable = set(discovery.scan_lib_pages(root)) | set(discovery.scan_module_pages(root))
-    auto_dir = root / 'test' / 'auto_test'
-    for ledger_path in sorted(auto_dir.glob('*/*_page.md')):
-        ledger = parse_ledger(ledger_path)
-        if ledger['first_source']:
-            reachable.add(ledger['first_source'])
+    reachable.update(page['page'] for page in load_page_requirements(root))
     for page in sorted(reachable - registered_pages):
         errors.append(f'可达页面未登记任何功能: {page}')
 

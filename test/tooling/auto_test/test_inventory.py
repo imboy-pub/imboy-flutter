@@ -47,6 +47,20 @@ def _make_synthetic_root(base: Path) -> Path:
         '| 无待办 | - | `page/foo/foo_page.dart` | 下拉刷新列表 | 未测 | 批次1 | 0 | 0 | 0 | - |\n',
         encoding='utf-8',
     )
+    ledger_path = root / 'test' / 'auto_test' / 'foo' / 'foo_page.md'
+    ledger = inventory.parse_ledger(ledger_path)
+    declarations = {'schema_version': 1, 'pages': [{
+        'module': 'foo', 'ordering_key': 'test/auto_test/foo/foo_page.md',
+        'page': ledger['first_source'], 'generated': False,
+        'requirements': [{
+            'page': ledger['first_source'], 'action': row['action'],
+            'control': 'unknown', 'expected_oracle': inventory.LEDGER_ORACLE,
+            'details': '',
+        } for row in ledger['rows']],
+    }]}
+    (root / 'test' / 'auto_test' / 'page_requirements.json').write_text(
+        json.dumps(declarations), encoding='utf-8')
+    ledger_path.unlink()
     (root / 'integration_test').mkdir(parents=True)
     (root / 'integration_test' / 'foo_test.dart').write_text(
         "void main() { expect(1, 1); }\n", encoding='utf-8',
@@ -143,6 +157,21 @@ class InventoryGenerationTest(unittest.TestCase):
         cls.first_text = inventory.render_json(first)
         cls.second_text = inventory.render_json(second)
         cls.first = first
+
+    def test_generation_does_not_read_execution_ledgers(self):
+        from unittest.mock import patch
+        original = Path.read_text
+
+        def read(path, *args, **kwargs):
+            if path.suffix == '.md' and 'auto_test' in path.parts:
+                raise AssertionError('Execution ledger consumed: ' + str(path))
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, 'read_text', read):
+            data, _ = inventory.generate_inventory(self.root)
+            errors = inventory.validate_inventory(self.root, data)
+        self.assertEqual(errors, [])
+        self.assertEqual(inventory.render_json(data), self.first_text)
 
     def test_deterministic_bytes(self):
         self.assertEqual(self.first_text, self.second_text)
@@ -249,8 +278,9 @@ class InventoryValidationTest(unittest.TestCase):
         self.assertTrue(errors, 'stale 磁盘文件必须被 --check 发现')
 
     def test_zero_function_page(self):
-        # 从合成根移走台账后再校验旧 inventory => 该页 0 功能
-        (self.root / 'test' / 'auto_test' / 'foo' / 'foo_page.md').unlink()
+        # 移除声明后再移除该页记录：可达页面必须报告缺失功能
+        (self.root / 'test' / 'auto_test' / 'page_requirements.json').write_text(
+            json.dumps({'schema_version': 1, 'pages': []}), encoding='utf-8')
         mutated, _ = inventory.generate_inventory(self.root)
         mutated['functions'] = [f for f in mutated['functions']
                                 if not f['page'].endswith('foo_page.dart')]
