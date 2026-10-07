@@ -221,7 +221,6 @@ void main() {
       // ✅ _handleGroupDissolve
       // ✅ _handleGroupMemberLeave
       // ✅ _handleApplyFriendConfirm
-      // ✅ _handleLoggedAnotherDevice
       // ✅ _handlePleaseRefreshToken
       // ✅ _handleAppUpgrade
       // ✅ _handleDeviceForceOffline
@@ -242,7 +241,6 @@ void main() {
         'group_member_leave': '_handleGroupMemberLeave',
         'group_transfer': '_handleGroupTransfer',
         'apply_friend_confirm': '_handleApplyFriendConfirm',
-        'logged_another_device': '_handleLoggedAnotherDevice',
         'please_refresh_token': '_handlePleaseRefreshToken',
         'app_upgrade': '_handleAppUpgrade',
         'device_force_offline': '_handleDeviceForceOffline',

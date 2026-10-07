@@ -286,8 +286,8 @@ class MessageS2CService {
           await _handleNotAFriend(data, payloadMap);
           break;
         case 'logged_another_device':
-          autoAck = false;
-          await _handleLoggedAnotherDevice(payloadMap);
+          // Other-device presence is informational. Explicit kick events below
+          // remain authoritative for terminating this device's session.
           break;
         case 'please_refresh_token':
           autoAck = false;
@@ -754,37 +754,6 @@ class MessageS2CService {
     await _container
         .read(newFriendProvider.notifier)
         .receivedConfirmFriend(true, data);
-  }
-
-  /// 处理异地登录
-  ///
-  /// Action: logged_another_device
-  /// 触发时机：账号在其他设备登录
-  /// 处理逻辑：强制退出当前设备登录，跳转到登录页
-  static Future<void> _handleLoggedAnotherDevice(
-    Map<String, dynamic> payload,
-  ) async {
-    final did = payload['did'] ?? '';
-    if (did != deviceId) {
-      try {
-        await UserRepoLocal.to.quitLogin();
-
-        // 使用延迟确保 quitLogin 完全执行完毕
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-        // 使用 go_router 进行导航
-        final context = navigatorKey.currentContext;
-        if (context != null && context.mounted) {
-          // 使用 go_router 的 go 方法替代 Navigator.pushNamedAndRemoveUntil
-          // go_router 会自动清除路由栈
-          context.go(AppRoutes.signIn);
-        }
-      } on Object catch (e) {
-        iPrint("switchS2C error: $e");
-        // 如果导航失败，尝试使用其他方式
-        rethrow;
-      }
-    }
   }
 
   /// 处理 Token 刷新请求
