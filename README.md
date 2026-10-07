@@ -22,8 +22,13 @@ flutter devices
 ### 2. 安装依赖
 
 ```bash
+git submodule update --init --recursive
+dart tool/bootstrap_local_config.dart
 flutter pub get
+dart run build_runner build
 ```
+
+初始化工具仅补齐缺失的本地环境配置，保留已有文件；默认使用环回地址、公开测试签名值和空第三方凭据，不适用于部署。登录前须在被忽略的 `.env.<环境>` 中配置与后端一致的签名值，再重新生成。可运行 `dart tool/bootstrap_local_config.dart --check` 检查配置文件是否齐全；该检查不验证凭据有效性。
 
 ### 3. 运行
 
