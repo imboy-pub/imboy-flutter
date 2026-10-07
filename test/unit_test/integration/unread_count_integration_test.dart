@@ -6,79 +6,44 @@
 /// 3. 未读数清空（进入会话、已读确认）
 /// 4. 已读水位推进
 /// 5. 批量消息已读处理
-@Skip('Requires native sqflite_sqlcipher plugin — run on device')
 library;
 
-import 'dart:io';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const MethodChannel pathProviderChannel = MethodChannel(
-    'plugins.flutter.io/path_provider',
-  );
+  late Database db;
 
   setUpAll(() async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(pathProviderChannel, (methodCall) async {
-          switch (methodCall.method) {
-            case 'getTemporaryDirectory':
-            case 'getApplicationDocumentsDirectory':
-            case 'getApplicationSupportDirectory':
-            case 'getDatabasesPath':
-              return Directory.systemTemp.path;
-            default:
-              return Directory.systemTemp.path;
-          }
-        });
-
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
-    await StorageService.to.setString(Keys.currentUid, 'test_uid_unread');
-    await SqliteService.to.db;
+    await StorageService.to.setString(Keys.currentUid, '995012');
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    db = await openFixtureDatabaseAtVersion(version: 32);
+    SqliteService.setDbForTest(db);
   });
 
   tearDownAll(() async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(pathProviderChannel, null);
+    SqliteService.setDbForTest(null);
+    await db.close();
   });
 
   group('未读消息数管理集成测试', () {
     late ConversationRepo conversationRepo;
-    late MessageRepo messageRepo;
 
     setUp(() async {
-      await StorageService.to.setString(Keys.currentUid, 'test_uid_unread');
+      await db.delete(ConversationRepo.tableName);
       conversationRepo = ConversationRepo();
-      messageRepo = MessageRepo(tableName: 'msg_c2c');
-    });
-
-    tearDown(() async {
-      // 清理测试数据
-      try {
-        await conversationRepo.delete('C2C', 'test_unread_peer_1');
-        await conversationRepo.delete('C2C', 'test_unread_peer_2');
-        await conversationRepo.delete('C2C', 'test_unread_peer_3');
-
-        // 清理测试消息
-        for (int i = 0; i < 20; i++) {
-          final msg = await messageRepo.find('test_unread_msg_$i');
-          if (msg != null) {
-            await messageRepo.delete(msg.id.toString());
-          }
-        }
-      } catch (e) {
-        // 忽略清理错误
-      }
     });
 
     group('已读水位管理', () {
@@ -350,17 +315,12 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 通过 peerId 清空未读数
-        await conversationRepo.updateByPeerId(
-          'C2C',
-          'test_unread_peer_clear_2',
-          {ConversationRepo.unreadNum: 0},
-        );
+        await conversationRepo.updateByPeerId('C2C', '2', {
+          ConversationRepo.unreadNum: 0,
+        });
 
         // 3. 验证
-        final updated = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_unread_peer_clear_2',
-        );
+        final updated = await conversationRepo.findByPeerId('C2C', '2');
         expect(updated, isNotNull);
         expect(updated!.unreadNum, 0);
       });
