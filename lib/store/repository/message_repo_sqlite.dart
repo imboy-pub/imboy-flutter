@@ -903,7 +903,6 @@ class MessageRepo implements MessageRepository {
         // S2C 消息是系统消息，不应该插入数据库
         if (type == 'S2C') {
           s2cMessages.add(msgData);
-          addAckId(msgId);
           continue;
         }
 
@@ -1129,19 +1128,14 @@ class MessageRepo implements MessageRepository {
         await _syncOfflineConversationsAndNotify(inserted);
       }
       // 处理 S2C 消息（在事务外）
-      // 处理 S2C 消息（在事务外）
-      if (s2cMessages.isNotEmpty && onS2CMessage != null) {
+      if (s2cMessages.isNotEmpty) {
+        if (onS2CMessage == null) {
+          throw StateError('offline S2C messages require a handler');
+        }
         func_helper.iPrint("开始处理 ${s2cMessages.length} 条 S2C 消息");
         for (final msgData in s2cMessages) {
-          try {
-            // 调用回调函数处理 S2C 消息
-            await onS2CMessage(msgData);
-          } on Object catch (e) {
-            func_helper.iPrint(
-              '处理 S2C 消息失败: ${msgData['id']}, '
-              'error=${e.runtimeType}',
-            );
-          }
+          await onS2CMessage(msgData);
+          addAckId((msgData['msg_id'] ?? msgData['id']).toString());
         }
       }
     } on Object catch (e, s) {
