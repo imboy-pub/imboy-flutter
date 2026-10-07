@@ -1,7 +1,0 @@
-# 登录后恢复内部直达页面
-
-未登录打开企业页面会被转到登录页，既有移动/Web/QR登录成功又转到默认首页，导致目标path、query和fragment丢失。现在共享createAppRouter守卫以当前router实例的内存保存一个内部目标，登录进入默认壳时先清空再恢复，随后继续功能及后端授权；不持久化、不恢复extra、不改变登录状态。
-
-只保存无scheme/authority、单斜杠开头的受保护URI；公共页和无query/fragment默认首页不保存。个人标签index直达仍可恢复。八个生产redirect回调回归在修复前3通过5失败，修复后通过；合计登录/路由/导航聚焦回归 375 项通过，全App分析零问题，输入和HEAD在运行期间未变。Flutter及安全独立审查APPROVE。
-
-基线 `478d9f59`，精确补丁源摘要、命令及私有日志摘要见result.json。测试使用实际UserRepoLocal与合成Storage，直接调用生产redirect，未挂载目标业务页，不能作为macOS系统冷启动链接或后端企业授权证据。既有原生与权限证据单独保留。

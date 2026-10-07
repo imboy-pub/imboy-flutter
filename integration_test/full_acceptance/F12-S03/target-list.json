@@ -1,9 +1,0 @@
-{
-  "scope": "HOST_PREPARATION_ONLY",
-  "qualification": "NOT_DEVICE_TARGETS",
-  "targets": [
-    "test/customer_service/cs_governance_page_widget_test.dart",
-    "test/customer_service/cs_governance_pagination_race_test.dart"
-  ],
-  "product_pass": false
-}

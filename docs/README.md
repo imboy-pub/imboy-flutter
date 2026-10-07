@@ -1,6 +1,6 @@
 # imboyapp 文档入口
 
-> 本目录只放 Flutter 客户端的稳定知识、代码地图、测试、合规和架构决策。临时会话记录、已完成计划和一次性 QA 材料分别放在 `archive/`；完整项目说明见 [根 README](../README.md) 和 [CLAUDE.md](../CLAUDE.md)。
+> 本目录只放 Flutter 客户端的稳定知识、代码地图、合规和架构决策。AI 计划、审查报告、测试报告和一次性测试材料放在仓外，不进入 Git；完整项目说明见 [根 README](../README.md) 和 [CLAUDE.md](../CLAUDE.md)。
 
 ## 按目标开始
 
@@ -10,7 +10,7 @@
 | 了解架构和边界 | [CLAUDE.md](../CLAUDE.md) · [模块地图](./module-map.md) |
 | 找代码入口 | [代码地图](./codemaps/index.md) |
 | 写 UI | 先读 [DESIGN.md](../DESIGN.md) |
-| 做单元 / Widget / 真机测试 | [测试宪章](./qa/testing-charter.md) · [全量清单](./qa/full-app-test-checklist.md) |
+| 做单元 / Widget / 真机测试 | [测试源码](../test/) · [原生集成测试](../integration_test/) · [运行命令](../README.md) |
 | 构建正式包 / 发布 Play | [构建与发布](./build-and-release.md) |
 | 查功能状态 | [功能状态](./reference/feature-status.md) |
 | 查用户可见帮助 | [FAQ](./FAQ.md) |
@@ -35,11 +35,9 @@
 | 目录 | 内容 | 是否进入日常入口 |
 |---|---|---|
 | `codemaps/` | 架构、依赖、数据流和代码地图 | 是 |
-| `qa/` | 测试策略与验收清单 | 是 |
 | `reference/` | 功能状态和稳定参考 | 是 |
 | `adr/` | 架构决策记录 | 按需 |
-| `plans/` | 进行中的方案 | 否，完成后归档 |
-| `archive/` | 已完成计划、审计和一次性报告 | 仅历史查询 |
+| `archive/` | 仍有维护价值的历史产品说明 | 按需 |
 
 根目录的 `FAQ.md`、`privacy-policy.md`、`data-safety-declaration.md` 会随 App 打包，文件名和路径不可改。
 

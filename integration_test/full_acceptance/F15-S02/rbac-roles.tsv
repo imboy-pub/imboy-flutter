@@ -1,7 +1,0 @@
-role_id	role_name	permission_count	negative_candidate
-1	super_admin	291	低角色访问该角色专属adm action应403无权限操作(adm_acl:ensure_permission,ERR_FORBIDDEN)
-2	ops_admin	162	低角色访问该角色专属adm action应403无权限操作(adm_acl:ensure_permission,ERR_FORBIDDEN)
-3	audit_admin	70	低角色访问该角色专属adm action应403无权限操作(adm_acl:ensure_permission,ERR_FORBIDDEN)
-4	moderator	54	低角色访问该角色专属adm action应403无权限操作(adm_acl:ensure_permission,ERR_FORBIDDEN)
-5	security_admin	35	低角色访问该角色专属adm action应403无权限操作(adm_acl:ensure_permission,ERR_FORBIDDEN)
-6	support	13	低角色访问该角色专属adm action应403无权限操作(adm_acl:ensure_permission,ERR_FORBIDDEN)

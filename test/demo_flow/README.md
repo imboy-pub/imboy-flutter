@@ -14,7 +14,7 @@
 
 本目录不参与 `test/auto_test/regen_readme.py` 的页面统计，也不放 `*_test.dart` 文件。
 
-P0 的现有测试复用、缺口和执行门槛见 [P0_EXECUTION_PLAN.md](./P0_EXECUTION_PLAN.md)。
+P0 的现有测试复用、缺口和执行门槛见 P0_EXECUTION_PLAN.md（仓外执行材料）。
 
 ## 2. Demo Flow 清单
 
