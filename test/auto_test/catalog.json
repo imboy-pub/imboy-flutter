@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "0a4a8a30dbf276571b52df7980512104ab71b756",
-    "backend_head": "dea9f3b398d492810b7f3f31e19afa3be0f89cf8",
-    "integration_test_count": 154,
+    "app_head": "c33990b986ce41c3f0c9de52ea5b3474c2e67ead",
+    "backend_head": "e55a19086238491bc891756e78fcb3e46d9e4aad",
+    "integration_test_count": 155,
     "lib_page_count": 166,
     "module_page_count": 22,
     "route_page_component_count": 147,
@@ -1116,7 +1116,7 @@
     {
       "id": "test:integration_test/enterprise/enterprise_scope_native_test.dart",
       "target": "integration_test/enterprise/enterprise_scope_native_test.dart",
-      "target_sha256": "f09eebe9db783944f5a4f4f9ecb09affc7cb25b634c9060a61b1e0a27fbb3000",
+      "target_sha256": "b905a19787ca13370b9b210cbf8fc255fca18574f3ff298f7e0717d694de8308",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1310,7 +1310,7 @@
     {
       "id": "test:integration_test/group/face_to_face_acceptance_test.dart",
       "target": "integration_test/group/face_to_face_acceptance_test.dart",
-      "target_sha256": "d9444a0cdbcdbb182964e5e2ed5d71e40b0da01fd6674c5e26590961562b8438",
+      "target_sha256": "685a215801eb254ec0b73bd6ef54207836743a8e52dc8fbc82c50af9a227095a",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1578,6 +1578,20 @@
       "id": "test:integration_test/moment/moment_feed_video_playback_batch174_test.dart",
       "target": "integration_test/moment/moment_feed_video_playback_batch174_test.dart",
       "target_sha256": "e8cbb576d32fdf53234a7f25672e5d1b9bcf92e96b0ff343e7371818570cfb75",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "moment"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/moment/moment_visibility_device_test.dart",
+      "target": "integration_test/moment/moment_visibility_device_test.dart",
+      "target_sha256": "fb71c68f0987bd967666e36395f10bbf8342ae923a99b069759c0af3542a5266",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
