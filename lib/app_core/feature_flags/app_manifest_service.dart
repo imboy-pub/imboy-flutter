@@ -117,11 +117,15 @@ class AppManifestService {
 
   /// Load cached manifest from local storage (synchronous).
   static void loadFromCache() {
+    _cache = null;
+    _etag = null;
     final raw = StorageService.getMap(Keys.appManifest);
-    if (raw.isNotEmpty) {
-      _useIfCompatible(AppManifest.fromMap(raw), source: 'cache');
+    if (raw.isNotEmpty &&
+        _useIfCompatible(AppManifest.fromMap(raw), source: 'cache')) {
+      // A conditional request is valid only while its cached body is usable.
+      final cachedEtag = StorageService.to.getString(Keys.appManifestEtag);
+      _etag = cachedEtag.isEmpty ? null : cachedEtag;
     }
-    _etag = StorageService.to.getString(Keys.appManifestEtag);
   }
 
   /// Fetch manifest from server and update cache.
@@ -155,16 +159,22 @@ class AppManifestService {
       if (!_useIfCompatible(manifest, source: 'response')) {
         return;
       }
-      await StorageService.setMap(Keys.appManifest, raw);
-
-      // Cache the etag from response header
-      final newEtag = response.headers.value('etag');
-      if (newEtag != null) {
-        _etag = newEtag;
-        await StorageService.to.setString(Keys.appManifestEtag, newEtag);
-      }
+      await _persistCache(raw, response.headers.value('etag'));
     } catch (error) {
       debugPrint('[app_manifest_service] setString error: $error');
+    }
+  }
+
+  static Future<void> _persistCache(
+    Map<String, dynamic> raw,
+    String? etag,
+  ) async {
+    await StorageService.setMap(Keys.appManifest, raw);
+    _etag = etag;
+    if (etag != null) {
+      await StorageService.to.setString(Keys.appManifestEtag, etag);
+    } else {
+      await StorageService.to.remove(Keys.appManifestEtag);
     }
   }
 
@@ -175,6 +185,7 @@ class AppManifestService {
       return true;
     } on AppManifestMismatchException catch (error) {
       _cache = null;
+      _etag = null;
       debugPrint(
         '[app_manifest_service] ignoring incompatible $source: $error',
       );
