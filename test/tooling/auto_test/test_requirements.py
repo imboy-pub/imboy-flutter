@@ -9,6 +9,7 @@ migration report under RUN_ROOT/steps/).
 
 import json
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -25,9 +26,36 @@ CONTRACT_PATH = (
     Path(__file__).resolve().parent / "fixtures" / "interfaces" / "wave1_contracts.json"
 )
 SPECS_DIR = REPO_ROOT / "test" / "auto_test" / "specs"
-REPORT_PATH = (
-    REPO_ROOT / "test" / "auto_test" / "reports" / RUN_ID / "steps" / "step4_migration_report.json"
-)
+REQUIRED_SPEC_FILES = frozenset({
+    'AUTH-PASSWORD-CHANGE-001.json',
+    'C2C-E2EE-SEND-RENDER-001.json',
+    'C2C-PLAINTEXT-REJECT-001.json',
+    'CHANNEL-CREATE-001.json',
+    'CHANNEL-DETAIL-PUBLISH-001.json',
+    'CHANNEL-EDIT-001.json',
+    'CHANNEL-PUBLISH-SMOKE-001.json',
+    'CHANNEL-SUBSCRIBED-CONSISTENCY-001.json',
+    'CHAT-GROUP-001.json',
+    'CHAT-SINGLE-READONLY-001.json',
+    'CHAT-VOICE-RENDER-001.json',
+    'CONTACT-ADD-FRIEND-001.json',
+    'CONTACT-CONFIRM-FRIEND-001.json',
+    'CONTACT-FRIEND-MANAGE-001.json',
+    'GROUP-MANAGEMENT-READONLY-001.json',
+    'TWO-CLIENT-MAC-C2C-PING-001.json',
+    'TWO-CLIENT-MAC-FRIEND-APPLY-001.json',
+    'billing-device-preparation.json',
+    'bottom-navigation-device-preparation.json',
+    'chat-page.json',
+    'chat-quick-reply-manage.json',
+    'conversation-list.json',
+    'e2ee-backup-import.json',
+    'group-schedule.json',
+    'organization-home-device-preparation.json',
+    'passport-login.json',
+    'passport-signup.json',
+    'wallet-transfer.json',
+})
 
 
 class EnumSyncWithFrozenContract(unittest.TestCase):
@@ -175,17 +203,15 @@ class ValidateRequirements(unittest.TestCase):
 class Atf303SpecMigration(unittest.TestCase):
     """ATF-303: migrate every current spec read-only; empty unmapped, no widening.
 
-    Also writes the run-scoped summary to
-    ``test/auto_test/reports/<run-id>/steps/step4_migration_report.json``.
+    Report serialization is exercised in a temporary directory outside Git.
     """
 
     def test_all_specs_migrate_without_unmapped_or_widening(self):
         spec_paths = sorted(SPECS_DIR.glob("*.json"))
         self.assertEqual(
-            len(spec_paths),
-            26,
-            "25 historical specs plus disabled billing preparation; drift requires review before "
-            "acceptance (found %d)" % len(spec_paths),
+            {path.name for path in spec_paths},
+            REQUIRED_SPEC_FILES,
+            "Spec identities drifted; review additions/removals before acceptance",
         )
 
         entries = []
@@ -248,15 +274,15 @@ class Atf303SpecMigration(unittest.TestCase):
                 "migrated": dict(sorted(migrated_histogram.items())),
             },
         }
-        REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        REPORT_PATH.write_text(
-            json.dumps(report, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
-            encoding="utf-8",
-        )
-        self.assertTrue(REPORT_PATH.is_file())
-        reloaded = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
-        self.assertEqual(reloaded["spec_count"], 26)
-        self.assertEqual(reloaded["unmapped_total"], 0)
+        with tempfile.TemporaryDirectory() as directory:
+            report_path = Path(directory) / "migration_report.json"
+            report_path.write_text(
+                json.dumps(report, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            reloaded = json.loads(report_path.read_text(encoding="utf-8"))
+            self.assertEqual(reloaded["spec_count"], len(REQUIRED_SPEC_FILES))
+            self.assertEqual(reloaded["unmapped_total"], 0)
 
 
 if __name__ == "__main__":  # pragma: no cover
