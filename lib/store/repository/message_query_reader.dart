@@ -311,91 +311,37 @@ class MessageQueryReader {
     int? startTime,
     int? endTime,
   }) async {
-    try {
-      final List<MessageModel> allMessages = [];
-
-      final results = await Future.wait([
-        _getMessagesFromTable(
-          db,
-          c2cTable,
-          conversationUk3: conversationUk3,
-          limit: limit,
-          offset: offset,
-          startTime: startTime,
-          endTime: endTime,
-        ),
-        _getMessagesFromTable(
-          db,
-          c2gTable,
-          conversationUk3: conversationUk3,
-          limit: limit,
-          offset: offset,
-          startTime: startTime,
-          endTime: endTime,
-        ),
-      ]);
-      allMessages.addAll(results[0]);
-      allMessages.addAll(results[1]);
-
-      // 按创建时间降序排序
-      allMessages.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-
-      // 应用 limit
-      if (allMessages.length > limit) {
-        return allMessages.sublist(0, limit);
-      }
-
-      return allMessages;
-    } on Object {
-      return [];
+    if (limit <= 0) return [];
+    final predicates = <String>[];
+    final arguments = <Object?>[];
+    if (func_helper.strNoEmpty(conversationUk3)) {
+      predicates.add('${MessageColumns.conversationUk3} = ?');
+      arguments.add(conversationUk3);
     }
-  }
-
-  /// 从单个表查询消息
-  Future<List<MessageModel>> _getMessagesFromTable(
-    SqliteService db,
-    String table, {
-    String? conversationUk3,
-    int limit = 20,
-    int offset = 0,
-    int? startTime,
-    int? endTime,
-  }) async {
+    if (startTime != null) {
+      predicates.add('${MessageColumns.createdAt} >= ?');
+      arguments.add(startTime);
+    }
+    if (endTime != null) {
+      predicates.add('${MessageColumns.createdAt} <= ?');
+      arguments.add(endTime);
+    }
+    final columns = defaultColumns.join(', ');
+    final where = predicates.isEmpty ? '1=1' : predicates.join(' AND ');
     try {
-      String where = "1=1";
-      List<Object?> whereArgs = [];
-
-      if (func_helper.strNoEmpty(conversationUk3)) {
-        where = "$where AND ${MessageColumns.conversationUk3}=?";
-        whereArgs.add(conversationUk3);
-      }
-
-      if (startTime != null) {
-        where = "$where AND ${MessageColumns.createdAt} >= ?";
-        whereArgs.add(startTime);
-      }
-
-      if (endTime != null) {
-        where = "$where AND ${MessageColumns.createdAt} <= ?";
-        whereArgs.add(endTime);
-      }
-
-      final List<Map<String, dynamic>> maps = await db.query(
-        table,
-        columns: table == c2cTable ? c2cColumns : defaultColumns,
-        where: where,
-        whereArgs: whereArgs,
-        orderBy: "${MessageColumns.createdAt} DESC",
-        limit: limit,
-        offset: offset,
+      // 合并后只应用一次 OFFSET，避免每张表分别跳过导致全局历史漏项。
+      final rows = await db.rawQuery(
+        'SELECT * FROM ('
+        'SELECT $columns, ${MessageColumns.senderDid} FROM $c2cTable '
+        'UNION ALL '
+        'SELECT $columns, NULL AS ${MessageColumns.senderDid} FROM $c2gTable'
+        ') WHERE $where '
+        'ORDER BY ${MessageColumns.createdAt} DESC, '
+        '${MessageColumns.type} ASC, ${MessageColumns.autoId} DESC, ${MessageColumns.id} ASC '
+        'LIMIT ? OFFSET ?',
+        [...arguments, limit, offset < 0 ? 0 : offset],
       );
-
-      final List<MessageModel> messages = [];
-      for (final map in maps) {
-        messages.add(MessageModel.fromJson(map));
-      }
-
-      return messages;
+      return rows.map(MessageModel.fromJson).toList(growable: false);
     } on Object {
       return [];
     }
