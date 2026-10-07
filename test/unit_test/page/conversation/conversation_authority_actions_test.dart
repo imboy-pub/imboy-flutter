@@ -1,9 +1,3 @@
-@Skip('Requires native sqflite_sqlcipher plugin — run on device')
-library;
-
-import 'dart:io';
-
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
@@ -14,8 +8,11 @@ import 'package:imboy/store/api/conversation_api.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-const _testUid = 'test_uid_conversation_authority_actions';
+import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
+
+const _testUid = '995011';
 
 class _FakeConversationApi extends ConversationApi {
   List<Map<String, dynamic>> entries = const <Map<String, dynamic>>[];
@@ -99,36 +96,22 @@ Future<ConversationModel> _insertConversation({
 }
 
 void main() {
-  // Skip: requires native sqflite_sqlcipher plugin (SqliteService.to.db).
-  // Run on device with: flutter test --device-id <device> test/page/conversation/
   TestWidgetsFlutterBinding.ensureInitialized();
-  const MethodChannel pathProviderChannel = MethodChannel(
-    'plugins.flutter.io/path_provider',
-  );
+  late Database db;
 
   setUpAll(() async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(pathProviderChannel, (methodCall) async {
-          switch (methodCall.method) {
-            case 'getTemporaryDirectory':
-            case 'getApplicationDocumentsDirectory':
-            case 'getApplicationSupportDirectory':
-            case 'getDatabasesPath':
-              return Directory.systemTemp.path;
-            default:
-              return Directory.systemTemp.path;
-          }
-        });
-
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
     await StorageService.to.setString(Keys.currentUid, _testUid);
-    await SqliteService.to.db;
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    db = await openFixtureDatabaseAtVersion(version: 32);
+    SqliteService.setDbForTest(db);
   });
 
   tearDownAll(() async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(pathProviderChannel, null);
+    SqliteService.setDbForTest(null);
+    await db.close();
   });
 
   setUp(() async {
