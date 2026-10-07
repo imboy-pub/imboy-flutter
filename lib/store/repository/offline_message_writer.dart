@@ -1,3 +1,4 @@
+import 'package:imboy/store/repository/offline_message_payload.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 import 'dart:async';
@@ -140,53 +141,13 @@ class OfflineMessageWriter {
             continue;
           }
 
-          // 解析消息负载
-          // E2EE 消息的 payload 是密文字符串（base64(nonce).base64(ciphertext)），
-          // 非 JSON。此处禁止 json.decode，否则会抛 FormatException 并把密文丢成 {}，
-          // 导致离线加密消息内容永久丢失。密文原样落库，由读取路径
-          // MessageModelMapper.toTypeMessage() 解密（decrypt-on-read）。
-          Map<String, dynamic> payload = {};
-          String? rawPayloadCipher; // 非 null 表示原始密文/协议空 payload，原样落库
-          dynamic e2ee = msgData['e2ee'];
-          if (e2ee is Map) {
-            final normalized = Map<String, dynamic>.from(e2ee);
-            normalized.remove('_archive_conv_seq');
-            if (trustedArchive) {
-              final rawSeq = msgData['conv_seq'];
-              final convSeq = rawSeq is int
-                  ? rawSeq
-                  : int.tryParse(rawSeq?.toString() ?? '');
-              if (convSeq != null && convSeq > 0) {
-                normalized['_archive_conv_seq'] = convSeq;
-              }
-            }
-            e2ee = normalized;
-          }
-          final hasE2ee =
-              (e2ee is Map && e2ee.isNotEmpty) ||
-              (e2ee is String && e2ee.isNotEmpty);
-          final payloadRaw = msgData['payload'];
-          if (payloadRaw is Map) {
-            payload = payloadRaw.cast<String, dynamic>();
-          } else if (payloadRaw is String) {
-            if (payloadRaw.isEmpty && hasE2ee) {
-              // PFv3 外层 payload 恒为空串；必须保留为空串，读取时才能
-              // 进入 decryptInboundV3，而不是被序列化成 {}。
-              rawPayloadCipher = payloadRaw;
-            } else if (payloadRaw.isNotEmpty) {
-              try {
-                final decoded = json.decode(payloadRaw);
-                if (decoded is Map) {
-                  payload = decoded.cast<String, dynamic>();
-                } else {
-                  rawPayloadCipher = payloadRaw;
-                }
-              } on FormatException {
-                // 非 JSON：E2EE 密文等，原样保留供读取路径解密，不丢内容、不刷屏
-                rawPayloadCipher = payloadRaw;
-              }
-            }
-          }
+          final decoded = OfflineMessagePayload.decode(
+            msgData,
+            trustedArchive: trustedArchive,
+          );
+          final payload = decoded.payload;
+          final rawPayloadCipher = decoded.rawCipher;
+          final e2ee = decoded.encryption;
 
           // WebSocket API v2.0: msg_type/action/e2ee 在顶层，不在 payload 内
           // 获取顶层字段
