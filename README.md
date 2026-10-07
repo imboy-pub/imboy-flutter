@@ -1,6 +1,6 @@
 # IMBoy App
 
-IMBoy 的 Flutter 客户端，支持 iOS、Android 和桌面端。主要功能包括单聊、群聊、联系人、频道、朋友圈、收藏、通知和端到端加密。
+IMBoy 的 Flutter 客户端，支持 iOS、Android 和桌面端。一期交付能力：单聊、群聊、联系人、频道、朋友圈、收藏与通知。音视频通话（RTC）、直播（live_room）、Bot、AI 助手与端到端加密（E2EE）为二期保留能力，交付版默认关闭，开发态状态详见 [功能状态](./docs/reference/feature-status.md)。
 
 ## 本地启动
 
