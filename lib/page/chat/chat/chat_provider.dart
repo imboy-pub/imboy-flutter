@@ -33,6 +33,7 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_read_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -554,46 +555,22 @@ class ChatNotifier extends _$ChatNotifier {
     ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
     if (c == null || UserRepoLocal.to.currentUid != owner) return false;
 
-    final String tb = MessageRepo.getTableName(c.type);
-    final int newUnreadNum = c.unreadNum - msgIds.length;
-    c.unreadNum = newUnreadNum > 0 ? newUnreadNum : 0;
-
-    final bool res = await db.transaction((txn) async {
-      await txn.update(
-        ConversationRepo.tableName,
-        {ConversationRepo.unreadNum: c.unreadNum},
-        where: "${ConversationRepo.id}=?",
-        whereArgs: [c.id],
+    final result = await MessageReadRepo.apply(db, c, msgIds);
+    c = c.copyWith(unreadNum: result.unreadNum);
+    await ref
+        .read(conversationProvider.notifier)
+        .advanceReadWatermarkByMsgIds(c, result.msgIds);
+    await ref.read(conversationProvider.notifier).replace(c);
+    await _emitUpdatedMessagesAfterStatusChange(type, result.msgIds);
+    if (syncToServer) {
+      await _enqueueReadReceipt(
+        type: type,
+        peerId: peerId,
+        msgIds: result.msgIds,
+        owner: owner,
       );
-
-      for (final String id in msgIds) {
-        await txn.update(
-          tb,
-          {MessageRepo.status: IMBoyMessageStatus.seen},
-          where: "${MessageRepo.id}=?",
-          whereArgs: [id],
-        );
-      }
-      return true;
-    });
-
-    if (res) {
-      await ref
-          .read(conversationProvider.notifier)
-          .advanceReadWatermarkByMsgIds(c, msgIds);
-      await ref.read(conversationProvider.notifier).replace(c);
-      await _emitUpdatedMessagesAfterStatusChange(type, msgIds);
-      if (syncToServer) {
-        await _enqueueReadReceipt(
-          type: type,
-          peerId: peerId,
-          msgIds: msgIds,
-          owner: owner,
-        );
-      }
-      return true;
     }
-    return false;
+    return true;
   }
 
   Future<void> _emitUpdatedMessagesAfterStatusChange(

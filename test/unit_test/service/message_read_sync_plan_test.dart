@@ -436,6 +436,107 @@ void main() {
       expect(_lastReadAutoId(row), 2);
     });
 
+    test(
+      'inverse and repeated read events preserve newer unread message',
+      () async {
+        await _insertMsg(db, 'msg_c2g', 'c2g_msg_3', _c2gUk3, 3);
+        await db.update(
+          'conversation',
+          {'unread_num': 3},
+          where: 'type = ? AND peer_id = ?',
+          whereArgs: ['C2G', _c2gGid],
+        );
+        var eventIndex = 0;
+        for (final seq in [2, 1, 2, 1]) {
+          eventIndex++;
+          await MessageS2CService.switchS2C({
+            'id': 'ordered_receipt_$eventIndex',
+            'type': 'S2C',
+            'action': 'message_read_sync',
+            'from': 'server',
+            'to': '$_ownerUid',
+            'payload': {
+              'msg_id': 'receipt_$seq',
+              'gid': _c2gGid,
+              'conversation_type': 'c2g',
+              'read_seq': seq,
+              'msg_ids': seq == 2 ? ['c2g_msg_1', 'c2g_msg_2'] : ['c2g_msg_1'],
+              'read_at': 1790931169469,
+            },
+            'server_ts': 1790931169470 + eventIndex,
+          });
+          final row = await _conversationRow(db, 'C2G', _c2gGid);
+          expect(row['unread_num'], 1, reason: 'seq=$seq must retain N+1');
+          expect(_lastReadAutoId(row), 2, reason: 'seq=$seq cannot regress');
+          expect(
+            await _msgStatus(db, 'msg_c2g', 'c2g_msg_3'),
+            IMBoyMessageStatus.delivered,
+          );
+          expect(
+            (await _conversationRow(db, 'C2C', _c2cPeer))['unread_num'],
+            2,
+          );
+        }
+      },
+    );
+
+    test(
+      'read events ignore duplicate, missing, authored and foreign IDs',
+      () async {
+        await _insertMsg(db, 'msg_c2g', 'authored', _c2gUk3, 3);
+        await db.update(
+          'msg_c2g',
+          {'is_author': 1},
+          where: 'id = ?',
+          whereArgs: ['authored'],
+        );
+        await _insertMsg(db, 'msg_c2g', 'foreign', 'another-conversation', 4);
+        await _insertMsg(db, 'msg_c2g', 'revoked', _c2gUk3, 5);
+        await db.update(
+          'msg_c2g',
+          {'status': IMBoyMessageStatus.peerRevoked},
+          where: 'id = ?',
+          whereArgs: ['revoked'],
+        );
+        await MessageS2CService.switchS2C({
+          'id': 'scoped_receipt',
+          'type': 'S2C',
+          'action': 'message_read_sync',
+          'from': 'server',
+          'to': '$_ownerUid',
+          'payload': {
+            'gid': _c2gGid,
+            'conversation_type': 'c2g',
+            'msg_ids': [
+              'c2g_msg_1',
+              'c2g_msg_1',
+              'authored',
+              'foreign',
+              'missing',
+              'revoked',
+            ],
+          },
+          'server_ts': 1790931169490,
+        });
+        final row = await _conversationRow(db, 'C2G', _c2gGid);
+        expect(row['unread_num'], 1);
+        expect(_lastReadAutoId(row), 1);
+        expect(
+          await _msgStatus(db, 'msg_c2g', 'c2g_msg_2'),
+          IMBoyMessageStatus.delivered,
+        );
+        expect(
+          await _msgStatus(db, 'msg_c2g', 'foreign'),
+          IMBoyMessageStatus.delivered,
+        );
+        expect(
+          await _msgStatus(db, 'msg_c2g', 'revoked'),
+          IMBoyMessageStatus.peerRevoked,
+        );
+        expect((await _conversationRow(db, 'C2C', _c2cPeer))['unread_num'], 2);
+      },
+    );
+
     test('peer 无本地会话：事件安全跳过（不误建会话、不抛异常）', () async {
       await MessageS2CService.switchS2C({
         'id': '',

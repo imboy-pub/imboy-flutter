@@ -1,5 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/service/message_retry.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +19,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/utils/conversation_uk3_generator.dart';
 
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
@@ -63,6 +70,12 @@ void main() {
     () async {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
+      FlutterSecureStorage.setMockInitialValues({
+        'secure_token': _fakeJwt,
+        'secure_refresh_token': _fakeJwt,
+      });
+      HttpClient.adapterForTest = _NoNetworkAdapter();
+      addTearDown(() => HttpClient.adapterForTest = null);
       await _seedQueue();
       final db = await openFixtureDatabaseAtVersion(version: 32);
       SqliteService.setDbForTest(db);
@@ -73,6 +86,26 @@ void main() {
         'unread_num': 3,
         'last_time': 1790931169467,
       });
+      final uk3 = ConversationUk3Generator.generateSmart(
+        type: 'C2G',
+        currentUserId: '995011',
+        peerId: '995301',
+      );
+      for (var index = 1; index <= 3; index++) {
+        await db.insert('msg_c2g', {
+          'id': '${1000 + index}',
+          'msg_type': 'text',
+          'from_id': 995012,
+          'to_id': 995011,
+          'conversation_uk3': uk3,
+          'payload': '{}',
+          'created_at': 1790931169467 + index,
+          'status': 20,
+          'is_author': 0,
+          'type': 'C2G',
+          'action': '',
+        });
+      }
       final api = _DeferredApi();
       final container = ProviderContainer(
         overrides: [
@@ -86,6 +119,7 @@ void main() {
         keepAlive.close();
         container.dispose();
         MessageService.to.dispose();
+        MessageRetry.instance.dispose();
         SqliteService.setDbForTest(null);
         await db.close();
       });
@@ -154,4 +188,27 @@ Future<void> _checkFailedRetry(ChatNotifier notifier, _DeferredApi api) async {
   await _waitForQueue(
     (items) => items.length == 1 && items.single['id'] == 'foreign',
   );
+}
+
+class _NoNetworkAdapter implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<dynamic>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString('{}', 200);
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+/// exp=9999999999 的未过期伪 JWT（base64url 段拼接），
+/// 供 HttpClient 拦截器 tokenExpired 检查放行。
+String get _fakeJwt {
+  const header = '{"alg":"HS256","typ":"JWT"}';
+  const claims = '{"exp":9999999999}';
+  String b64(String s) => base64Url.encode(utf8.encode(s)).replaceAll('=', '');
+  return '${b64(header)}.${b64(claims)}.test-signature';
 }
