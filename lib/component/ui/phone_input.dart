@@ -14,7 +14,14 @@ import 'phone_input_stub.dart' if (dart.library.io) 'phone_input_mobile.dart';
 /// - 移动端：使用 InternationalPhoneNumberInput（完整功能）
 class PhoneInputWidget extends StatelessWidget {
   final String initialValue;
-  final void Function(String) onInputChanged;
+
+  /// `fullNumber`：国家码+号码整串（如 +8613800000001）；
+  /// `localNumber`：用户输入的本地号码原文（如 13800000001）。
+  ///
+  /// localNumber 由组件精确剥离 dialCode 后下发——调用方不要再用正则
+  /// 二次剥离国家码（`^\+\d+` 会贪婪吞掉整串连续数字，历史 P0：
+  /// 手机注册/登录/找回密码表单因此永久禁用）。
+  final void Function(String fullNumber, String localNumber) onInputChanged;
   final String? hintText;
   final InputDecoration? decoration;
 
@@ -51,7 +58,7 @@ class PhoneInputWidget extends StatelessWidget {
 /// Web 平台简单电话号码输入组件
 class _WebPhoneInputWidget extends StatefulWidget {
   final String initialValue;
-  final void Function(String) onInputChanged;
+  final void Function(String fullNumber, String localNumber) onInputChanged;
   final String? hintText;
   final InputDecoration? decoration;
 
@@ -93,7 +100,7 @@ class _WebPhoneInputWidgetState extends State<_WebPhoneInputWidget> {
   void _onChanged(String value) {
     // 组合完整的电话号码
     final fullNumber = '$_selectedCountryCode$value';
-    widget.onInputChanged(fullNumber);
+    widget.onInputChanged(fullNumber, value);
   }
 
   @override

@@ -316,9 +316,11 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
             child: PhoneInputWidget(
               initialValue: '',
-              onInputChanged: (v) {
+              onInputChanged: (v, local) {
                 _fullMobile = v;
-                _mobileController.text = v.replaceFirst(RegExp(r'^\+\d+'), '');
+                // localNumber 由组件精确剥掉国家码，勿用正则二次剥离
+                // （^\+\d+ 贪婪吞整串，历史 P0：手机登录表单永久禁用）
+                _mobileController.text = local;
                 setState(() {});
               },
               hintText: t.account.mobile,

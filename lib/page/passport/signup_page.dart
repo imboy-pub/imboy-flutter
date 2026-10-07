@@ -367,12 +367,11 @@ class _SignupPageState extends ConsumerState<SignupPage>
             ),
             child: PhoneInputWidget(
               initialValue: '',
-              onInputChanged: (String fullNumber) {
+              onInputChanged: (String fullNumber, String localNumber) {
                 _fullMobile = fullNumber;
-                _mobileController.text = fullNumber.replaceFirst(
-                  RegExp(r'^\+\d+'),
-                  '',
-                );
+                // localNumber 由组件精确剥掉国家码，勿用正则二次剥离
+                // （^\+\d+ 贪婪吞整串，历史 P0：手机注册表单永久禁用）
+                _mobileController.text = localNumber;
                 setState(() {});
               },
               hintText: t.passport.hintMobile,

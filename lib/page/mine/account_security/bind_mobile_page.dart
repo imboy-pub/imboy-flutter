@@ -124,7 +124,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
                     Expanded(
                       child: PhoneInputWidget(
                         initialValue: '',
-                        onInputChanged: (String full) => ref
+                        onInputChanged: (String full, String local) => ref
                             .read(bindMobileProvider.notifier)
                             .updateMobile(full),
                         hintText: t.account.enterMobileHint,

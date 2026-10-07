@@ -218,13 +218,11 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           ),
           child: PhoneInputWidget(
             initialValue: '',
-            onInputChanged: (String fullNumber) {
+            onInputChanged: (String fullNumber, String localNumber) {
               _fullMobile = fullNumber;
-              // 同步到控制器
-              _mobileController.text = fullNumber.replaceFirst(
-                RegExp(r'^\+\d+'),
-                '',
-              );
+              // localNumber 由组件精确剥掉国家码，勿用正则二次剥离
+              // （^\+\d+ 贪婪吞整串，历史 P0：手机找回密码表单永久禁用）
+              _mobileController.text = localNumber;
             },
             hintText: t.main.pleaseInputParam(param: t.account.mobile),
           ),
