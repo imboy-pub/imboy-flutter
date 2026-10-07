@@ -25,6 +25,8 @@ class _PagedAdapter implements HttpClientAdapter {
   final acknowledged = <String>{};
   final cursors = <int>[];
   bool stall = false;
+  bool c2gMode = false;
+  final groupCursors = <String?>[];
   String? rejectAckId;
   void Function()? onTwentiethAck;
 
@@ -49,6 +51,7 @@ class _PagedAdapter implements HttpClientAdapter {
   }
 
   ResponseBody offlinePage(RequestOptions options) {
+    if (c2gMode) return groupPage(options);
     final cursor =
         int.tryParse('${options.queryParameters['c2c_last_msg_at']}') ?? 0;
     cursors.add(cursor);
@@ -72,6 +75,35 @@ class _PagedAdapter implements HttpClientAdapter {
     return response({
       'code': 0,
       'payload': {'c2c': section},
+    });
+  }
+
+  ResponseBody groupPage(RequestOptions options) {
+    final token = options.queryParameters['c2g_cursor'] as String?;
+    groupCursors.add(token);
+    final page = token == null ? 1 : int.parse(token.substring(1)) + 1;
+    return response({
+      'code': 0,
+      'payload': {
+        'c2g': {
+          'list': page > 23
+              ? <Map<String, dynamic>>[]
+              : [
+                  {
+                    'msg_id': '${116837000000000100 + page}',
+                    'from': '995012',
+                    'to': '995013',
+                    'msg_type': 'text',
+                    'payload': {'text': ''},
+                    'created_at': 1750000000000,
+                    'conv_seq': page,
+                  },
+                ],
+          'has_more': page < 23,
+          'next_last_msg_at': 1750000000000,
+          'next_cursor': 'g${page > 23 ? 23 : page}',
+        },
+      },
     });
   }
 
@@ -155,6 +187,87 @@ void main() {
       await tester.pumpAndSettle();
     },
   );
+  testWidgets(
+    'C2G composite cursor drains tied timestamps beyond20 pages and resumes',
+    (tester) async {
+      adapter.c2gMode = true;
+      service.onDispose();
+      await StorageService.to.remove(Keys.currentUid);
+      service = MessageOfflineService.instance;
+      await StorageService.to.setString(Keys.currentUid, '995011');
+      await tester.pumpWidget(
+        MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+      );
+      await tester.runAsync(() async {
+        expect(
+          await service.requestPull(source: 'c2g_cursor', force: true),
+          isTrue,
+        );
+        for (var i = 0; i < 150 && adapter.acknowledged.length < 23; i++) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+        expect(adapter.acknowledged, hasLength(23));
+        expect(await db.query('msg_c2g'), hasLength(23));
+        expect((await db.query('conversation')).single['unread_num'], 23);
+        expect(
+          adapter.groupCursors,
+          orderedEquals([null, ...List.generate(22, (i) => 'g${i + 1}')]),
+        );
+        final key = '${Keys.offlineCursorC2gPage}_${currentEnv}_995011';
+        expect(StorageService.to.getString(key), 'g23');
+        expect(
+          StorageService.to.getString(
+            '${Keys.offlineCursorC2gPage}_${currentEnv}_995014',
+          ),
+          isEmpty,
+        );
+        service.onDispose();
+        service = MessageOfflineService.instance;
+        expect(
+          await service.requestPull(source: 'restart_cursor', force: true),
+          isTrue,
+        );
+        expect(adapter.groupCursors.last, 'g23');
+        expect((await db.query('conversation')).single['unread_num'], 23);
+      });
+    },
+  );
+
+  testWidgets('C2G failed ACK does not publish a composite cursor', (
+    tester,
+  ) async {
+    adapter.c2gMode = true;
+    adapter.rejectAckId = '116837000000000103';
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+    );
+    await tester.runAsync(() async {
+      expect(
+        await service.requestPull(source: 'c2g_failed_ack', force: true),
+        isFalse,
+      );
+      final key = '${Keys.offlineCursorC2gPage}_${currentEnv}_995011';
+      expect(StorageService.to.getString(key), isEmpty);
+      expect(adapter.acknowledged, hasLength(2));
+      expect(await db.query('msg_c2g'), hasLength(3));
+      expect(
+        await service.requestPull(source: 'c2g_retry', force: true),
+        isTrue,
+      );
+      for (var i = 0; i < 150 && adapter.acknowledged.length < 23; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+      }
+      expect(adapter.acknowledged, hasLength(23));
+      expect(await db.query('msg_c2g'), hasLength(23));
+      expect((await db.query('conversation')).single['unread_num'], 23);
+      expect(StorageService.to.getString(key), 'g23');
+      expect(
+        adapter.groupCursors.where((cursor) => cursor == null),
+        hasLength(2),
+      );
+    });
+  });
+
   testWidgets('disposed service does not launch a continuation', (
     tester,
   ) async {

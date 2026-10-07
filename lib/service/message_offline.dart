@@ -78,6 +78,8 @@ class MessageOfflineService {
   /// onInit 恢复，避免冷启动后游标归零触发全量重拉。
   int _c2cLastMsgAt = 0;
   int _c2gLastMsgAt = 0;
+  String _c2gCursor = '';
+  String _c2gCursorKey = '';
   int _s2cLastMsgAt = 0;
 
   /// 离线消息拉取请求事件的订阅
@@ -120,7 +122,7 @@ class MessageOfflineService {
     // 恢复持久化游标：StorageService 未就绪时 readStoredCursor 返回 0，
     // 退化为一次性全量拉取（与旧行为一致，无正确性风险）
     _c2cLastMsgAt = readStoredCursor(Keys.offlineCursorC2c);
-    _c2gLastMsgAt = readStoredCursor(Keys.offlineCursorC2g);
+    _restoreC2gCursorScope();
     _s2cLastMsgAt = readStoredCursor(Keys.offlineCursorS2c);
     _pullRequestedSubscription ??=
         AppEventBus.on<OfflineMessagesPullRequestedEvent>().listen((event) {
@@ -129,6 +131,22 @@ class MessageOfflineService {
             await requestPull(source: event.source, reason: event.reason);
           });
         });
+  }
+
+  String _currentC2gCursorKey() =>
+      '${Keys.offlineCursorC2gPage}_${currentEnv}_${StorageService.to.getString(Keys.currentUid)}';
+
+  void _restoreC2gCursorScope() {
+    final key = _currentC2gCursorKey();
+    if (_c2gCursorKey == key) return;
+    _c2gCursorKey = key;
+    _c2gCursor = StorageService.to.getString(key);
+    // Replay once when migrating an unscoped legacy timestamp or switching
+    // accounts. A pre-login service must adopt the authenticated user's scope.
+    _c2gLastMsgAt = _c2gCursor.isEmpty
+        ? 0
+        : readStoredCursor(Keys.offlineCursorC2g);
+    _nextAllowedPullAt = null;
   }
 
   /// 释放资源（取消订阅）
@@ -141,6 +159,7 @@ class MessageOfflineService {
     // 单例重建（onInit）时恢复，避免重启/重建后全量重拉（D4 修复）
     _c2cLastMsgAt = 0;
     _c2gLastMsgAt = 0;
+    _c2gCursor = '';
     _s2cLastMsgAt = 0;
     _instance = null;
   }
@@ -196,6 +215,7 @@ class MessageOfflineService {
     String? reason,
     bool force = false,
   }) async {
+    if (_inFlightPull == null) _restoreC2gCursorScope();
     final now = DateTime.now();
 
     _requestedTotal++;
@@ -279,6 +299,7 @@ class MessageOfflineService {
       // 本次拉取周期内使用的游标（拉取过程中持续更新）
       int localC2cLastMsgAt = _c2cLastMsgAt;
       int localC2gLastMsgAt = _c2gLastMsgAt;
+      var localC2gCursor = _c2gCursor;
       int localS2cLastMsgAt = _s2cLastMsgAt;
 
       while (hasMore && pullCount < _maxPullCount) {
@@ -297,6 +318,9 @@ class MessageOfflineService {
         }
         if (localC2cLastMsgAt > 0) {
           queryParams['c2c_last_msg_at'] = localC2cLastMsgAt;
+        }
+        if (localC2gCursor.isNotEmpty) {
+          queryParams['c2g_cursor'] = localC2gCursor;
         }
         if (localC2gLastMsgAt > 0) {
           queryParams['c2g_last_msg_at'] = localC2gLastMsgAt;
@@ -364,6 +388,12 @@ class MessageOfflineService {
           localC2gLastMsgAt = nextC2g;
         }
 
+        final c2gSection = payload['c2g'];
+        if (c2gSection is Map && c2gSection['next_cursor'] is String) {
+          final cursor = c2gSection['next_cursor'] as String;
+          if (cursor.isNotEmpty) localC2gCursor = cursor;
+        }
+
         // 处理 S2C 离线消息
         currentBatchFetched += await _processTypeBatch(
           payload: payload,
@@ -396,12 +426,23 @@ class MessageOfflineService {
         final advanced =
             localC2cLastMsgAt > _c2cLastMsgAt ||
             localC2gLastMsgAt > _c2gLastMsgAt ||
-            localS2cLastMsgAt > _s2cLastMsgAt;
+            localS2cLastMsgAt > _s2cLastMsgAt ||
+            localC2gCursor != _c2gCursor;
         if (!advanced) {
           throw StateError('offline pagination made no cursor progress');
         }
         // Yield at the per-cycle limit, then drain the remaining backlog.
         if (_pullRequestedSubscription != null) _hasPendingPullRequest = true;
+      }
+
+      if (_c2gCursorKey != _currentC2gCursorKey()) {
+        throw StateError('offline cursor account changed during pull');
+      }
+      if (localC2gCursor != _c2gCursor) {
+        await StorageService.to.persistPreference(
+          () => StorageService.to.setString(_c2gCursorKey, localC2gCursor),
+        );
+        _c2gCursor = localC2gCursor;
       }
 
       // 拉取成功后持久化游标（D4 修复）：只向前推进，不回退

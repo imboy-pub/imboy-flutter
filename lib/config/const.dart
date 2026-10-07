@@ -99,6 +99,7 @@ class Keys {
   // 应用重启后恢复，避免冷启动全量重拉）
   static const String offlineCursorC2c = 'offline_cursor_c2c';
   static const String offlineCursorC2g = 'offline_cursor_c2g';
+  static const String offlineCursorC2gPage = 'offline_cursor_c2g_page';
   static const String offlineCursorS2c = 'offline_cursor_s2c';
 }
 
