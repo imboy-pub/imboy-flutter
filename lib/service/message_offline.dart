@@ -596,7 +596,10 @@ class MessageOfflineService {
                     ordinaryMessages,
                     onS2CMessage: (msgData) async {
                       // 处理 S2C 消息
-                      await MessageS2CService.switchS2C(msgData);
+                      await MessageS2CService.switchS2C(
+                        msgData,
+                        propagateErrors: true,
+                      );
                     },
                   );
           ordinaryAckIds.addAll(ids ?? <String>[]);

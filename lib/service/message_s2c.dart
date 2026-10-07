@@ -170,12 +170,17 @@ class MessageS2CService {
   ///   "server_ts": "1234567890"
   /// }
   /// ```
-  static Future<void> switchS2C(Map<String, dynamic> data) async {
+  static Future<void> switchS2C(
+    Map<String, dynamic> data, {
+    bool propagateErrors = false,
+  }) async {
     // 安全日志：只输出消息类型，不输出完整数据
     final msgId = data['id'] ?? '';
     final from = data['from'] ?? '';
     final to = data['to'] ?? '';
     bool autoAck = true;
+    String? reservedKey;
+    int? reservedAt;
 
     try {
       // v2.0: 从顶层读取 action 字段（不再兼容旧格式）
@@ -208,6 +213,8 @@ class MessageS2CService {
         return;
       }
       _processedS2CIds[dedupKey] = now;
+      reservedKey = dedupKey;
+      reservedAt = now;
 
       // v2.0: 使用 switch 处理不同的 action（统一转小写，避免大小写问题）
       switch (actionLower) {
@@ -414,7 +421,11 @@ class MessageS2CService {
       // 确认消息
       _sendS2CAck(msgId.toString(), autoAck);
     } on Object catch (e, s) {
-      iPrint("switchS2C error: $e, $s");
+      if (reservedKey != null && _processedS2CIds[reservedKey] == reservedAt) {
+        _processedS2CIds.remove(reservedKey);
+      }
+      iPrint('switchS2C error: ${e.runtimeType}');
+      if (propagateErrors) Error.throwWithStackTrace(e, s);
     }
   }
 
