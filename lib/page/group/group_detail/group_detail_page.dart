@@ -17,6 +17,7 @@ import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/model/group_member_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/people_model.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -237,7 +238,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   }
 
   /// 免打扰开关变化（GroupPreferencesSection 上抛）：setState + KV 落库
-  /// + 失败回滚。与拆分前 build 内联闭包逐行等价。
+  /// + 会话列投影 + 失败回滚。与拆分前 build 内联闭包逐行等价。
   Future<void> _onNoticeDisabledChanged(bool v) async {
     final prev = _noticeDisabled;
     setState(() => _noticeDisabled = v);
@@ -253,6 +254,28 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
         setState(() => _noticeDisabled = prev);
         AppLoading.showError(t.common.tipFailed);
       }
+      return;
+    }
+    // Q09/G1（AC22 免打扰）：KV 真源写入成功后，把状态投影到
+    // conversation.is_muted 列（会话列表免打扰角标与通知管线主源读列）。
+    // 投影失败只记日志、不回滚开关：通知抑制语义已由管线侧 KV 合并
+    // （message.dart isGroupDndActive）兜底，漂移只影响角标显示，
+    // 下次开关变化即收敛。
+    await _syncMuteColumnProjection(v);
+  }
+
+  /// 把群免打扰状态投影到 conversation.is_muted 列（C2G 会话行存在时）。
+  ///
+  /// 会话行由首条群消息 upsert 创建——行不存在（还没收到过该群消息）
+  /// 时直接返回，由管线侧 KV 合并判定兜底。
+  Future<void> _syncMuteColumnProjection(bool muted) async {
+    try {
+      final repo = ConversationRepo();
+      final conv = await repo.findByPeerId('C2G', widget.groupId);
+      if (conv == null || conv.id == 0) return;
+      await repo.updateById(conv.id, {ConversationRepo.isMuted: muted ? 1 : 0});
+    } catch (e) {
+      iPrint('[GroupDetail] 免打扰列投影同步失败（不影响抑制语义）: $e');
     }
   }
 

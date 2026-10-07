@@ -99,7 +99,8 @@ int computeMentionUnreadIncrement({
 ///
 /// [isMentioned] 可选参数（默认 false，保持向后兼容）。
 /// 当用户被定向 `@`（含 `@所有人`）时，DND 应被**穿透** → 正常通知。
-/// 对齐 `shouldNotifyGroupMessage`（slice-5）以及微信 / TG / Slack 行业共识。
+/// 语义对齐微信 / TG / Slack 行业共识（原注释引用的
+/// `shouldNotifyGroupMessage`（slice-5）从未实现，见 [isGroupDndActive]）。
 ///
 /// 判定顺序：
 ///   1. `isMentioned == true` → 不抑制（穿透）
@@ -111,4 +112,38 @@ bool shouldSuppressNotification({
 }) {
   if (isMentioned) return false;
   return isMuted > 0;
+}
+
+/// Q09/G1（AC22 免打扰）：C2G 群会话的 DND 判定源合并（纯函数）。
+///
+/// ## 断点背景（2026-10-07 Q09 调查）
+///
+/// 群免打扰在此前存在**两套未打通的存储**：
+///   - `conversation.is_muted` 列（C7-α-1）：通知管线（本文件
+///     [shouldSuppressNotification] 在 `message.dart` 的接线）与会话列表
+///     免打扰角标读这里；C2C 单聊设置页（chat_setting_page）写这里；
+///   - KV `group_notice_disabled:<gid>`（slice-6，`group_notice_config.dart`）：
+///     群详情页开关**只写这里**。
+///
+/// 结果：用户在群详情页开启免打扰后，管线读到的 `isMuted` 恒为 0，
+/// **通知照常弹出**（DND 失效）——这就是 App 侧 DND 未接线的断点。
+///
+/// ## 接线语义
+///
+/// 任一源命中即抑制（OR 合并）：
+///   - [isMutedColumn]：`conversation.is_muted` 列（主源，C2C/C2G 共用）；
+///   - [kvNoticeDisabled]：KV 开关值（群详情页真源）。
+///
+/// KV 参与合并还覆盖两个「列缺失」场景：
+///   1. slice-6 存量记录（只写过 KV，列从未同步）；
+///   2. 「先设免打扰、会话行后建」——群会话行由首条消息 upsert 创建，
+///      新行 `isMuted` 默认 0。
+///
+/// 注意：本函数只回答「DND 是否命中」；`@` 穿透仍由
+/// [shouldSuppressNotification] 统一裁决（命中 DND 但被 @ 时不抑制）。
+bool isGroupDndActive({
+  required int isMutedColumn,
+  required bool kvNoticeDisabled,
+}) {
+  return isMutedColumn > 0 || kvNoticeDisabled;
 }

@@ -11,7 +11,9 @@ import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
+import 'package:imboy/service/group_notice_config.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/modules/enterprise_app/public.dart'
     show hostedMessageNotificationPrefix;
@@ -1161,10 +1163,22 @@ class MessageService with EventSubscriptionManager {
       // 只有当用户不在当前会话且消息不是自己发送的时候才显示通知
       // C7-α-2：用户为该会话开启了免打扰（isMuted > 0）时也抑制通知
       // slice-8：DND 下 @ 当前用户时穿透抑制（对齐微信 / TG / Slack）
+      // Q09/G1（AC22 免打扰）：C2G 群会话合并 KV 源（group_notice_disabled:
+      // <gid>）——群详情页免打扰开关此前只落 KV，而本判定只读
+      // conversation.is_muted 列，两套存储未打通导致群 DND 失效（断点）。
+      // 合并后任一源命中即抑制；KV 读失败按未设置处理（不影响通知）。
+      // 不变量：DND 只抑制通知弹窗，消息落库/未读/已读语义在上方已完成，
+      // 不受此判定影响。
+      final bool dndSuppressed = chatType == 'C2G'
+          ? isGroupDndActive(
+              isMutedColumn: savedConv.isMuted,
+              kvNoticeDisabled: _readGroupNoticeDisabledSafe(savedConv.peerId),
+            )
+          : savedConv.isMuted > 0;
       if (!isFromCurrentUser &&
           !isUserInChat &&
           !shouldSuppressNotification(
-            isMuted: savedConv.isMuted,
+            isMuted: dndSuppressed ? 1 : 0,
             isMentioned: mentionIncrement > 0,
           )) {
         _showMessageNotification(
@@ -1441,6 +1455,24 @@ class MessageService with EventSubscriptionManager {
     } on Object catch (e) {
       iPrint('❌ [ACTIVE_CONVERSATION] 检查失败: $e');
       return false; // 失败时返回 false，保守增加未读数
+    }
+  }
+
+  /// Q09/G1：群免打扰 KV 读取安全壳（消息热路径专用）。
+  ///
+  /// [StorageService.getBool] 在服务未初始化时**抛异常**——若在
+  /// [_processMessageInBackground] 内裸调，异常会冒泡到外层 on Object
+  /// 兜底，导致整条消息按「处理失败」回滚 UI（消息消失）。因此这里
+  /// 吞掉一切读取异常并按「未设置免打扰」（false）降级：宁可多弹一条
+  /// 通知，不可让消息落库流程失败。
+  bool _readGroupNoticeDisabledSafe(int gid) {
+    try {
+      return readNoticeDisabled(
+        gid,
+        readBool: (key) => StorageService.to.getBool(key),
+      );
+    } on Object {
+      return false;
     }
   }
 

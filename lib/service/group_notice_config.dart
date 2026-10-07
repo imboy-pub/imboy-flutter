@@ -25,15 +25,24 @@
 /// );
 /// ```
 ///
-/// 与 `shouldNotifyGroupMessage`（slice-5）组合：
+/// 与通知管线的组合（Q09/G1 实际接线，2026-10-07）：
 ///
 /// ```dart
-/// final shouldPush = shouldNotifyGroupMessage(
-///   noticeDisabled: readNoticeDisabled(gid, readBool: StorageService.to.getBool),
-///   fromSelf: msg.fromId == currentUid,
-///   isMentioned: ..., // slice-?（@ 模块）
+/// // message.dart C7-α-2 判定处（C2G 分支）：
+/// final bool dndHit = isGroupDndActive(
+///   isMutedColumn: savedConv.isMuted,
+///   kvNoticeDisabled: readNoticeDisabled(gid, readBool: StorageService.to.getBool),
 /// );
+/// // → shouldSuppressNotification(isMuted: dndHit ? 1 : 0, isMentioned: ...)
 /// ```
+///
+/// 两个判定函数均在 `message_conversation_utils.dart`。
+/// （本文件旧注释引用的 `shouldNotifyGroupMessage`（slice-5）从未实现，
+/// 属幽灵引用，已由上述组合取代。）
+///
+/// 群详情页开关（group_detail_page）写入时除 KV 外还会把状态投影到
+/// `conversation.is_muted` 列（会话列表角标/主源一致性）；KV 仍是本开关
+/// 的真源——管线侧合并判定保证只写 KV 的存量记录同样生效。
 library;
 
 /// KV 键格式。**不要硬编码此字符串到调用侧**，一律走本函数以便将来迁移。

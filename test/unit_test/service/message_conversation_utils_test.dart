@@ -234,6 +234,124 @@ void main() {
     });
   });
 
+  /// Q09/G1（AC22 免打扰）：C2G 群会话 DND 双源合并判定 + 接线不变量。
+  ///
+  /// 断点背景：群详情页免打扰开关只落 KV（group_notice_config，slice-6），
+  /// 而通知管线只读 conversation.is_muted 列（C7-α-1）——两套存储未打通，
+  /// 群 DND 开启后通知照常弹出。isGroupDndActive 把两源合并（任一命中
+  /// 即抑制），message.dart 已在 C2G 分支接线。
+  group('isGroupDndActive — Q09/G1 双源合并', () {
+    test('列=0 + KV=false → 不抑制（默认通知）', () {
+      expect(
+        isGroupDndActive(isMutedColumn: 0, kvNoticeDisabled: false),
+        isFalse,
+      );
+    });
+
+    test('列命中（列>0，KV 任意）→ 抑制', () {
+      expect(
+        isGroupDndActive(isMutedColumn: 1, kvNoticeDisabled: false),
+        isTrue,
+      );
+      expect(
+        isGroupDndActive(isMutedColumn: 999, kvNoticeDisabled: true),
+        isTrue,
+      );
+    });
+
+    test('KV 命中、列=0 → 抑制（slice-6 存量记录 / 先设 DND 后建会话行）', () {
+      // 覆盖两个列缺失场景：
+      // 1. slice-6 时代只写 KV，列从未同步的存量用户；
+      // 2. 用户先开免打扰、群会话行由首条消息 upsert 创建（is_muted 默认 0）。
+      expect(
+        isGroupDndActive(isMutedColumn: 0, kvNoticeDisabled: true),
+        isTrue,
+      );
+    });
+
+    test('列脏数据（负数）+ KV=true → KV 兜底抑制', () {
+      expect(
+        isGroupDndActive(isMutedColumn: -1, kvNoticeDisabled: true),
+        isTrue,
+      );
+    });
+
+    test('列脏数据（负数）+ KV=false → 防御性不抑制（宁可多弹不可丢通知）', () {
+      expect(
+        isGroupDndActive(isMutedColumn: -1, kvNoticeDisabled: false),
+        isFalse,
+      );
+    });
+  });
+
+  /// Q09/G1 不变量：DND 只抑制通知弹窗，消息本体与已读/未读语义不受影响。
+  ///
+  /// message.dart 的接线顺序固化：消息落库、未读/mention 自增、UI 事件
+  /// 全部在 DND 判定**之前**完成；DND 仅决定 _showMessageNotification 是否
+  /// 调用。这里把「未读增量计算不接收 DND 参数」固化为契约——若未来有人
+  /// 把 DND 传进未读计算（顺手"静音也不计未读"），此处编译期即暴露。
+  group('Q09/G1 不变量 — DND 抑制通知但不动已读/未读语义', () {
+    test('DND 命中时未读增量照常 +1（离线他人消息）', () {
+      const dndHit = true;
+      expect(
+        computeConversationUnreadIncrement(
+          isFromCurrentUser: false,
+          isUserInChat: false,
+        ),
+        1,
+        reason: '未读增量函数不接收 DND 参数：DND 命中不得影响未读计数',
+      );
+      expect(dndHit, isTrue); // 语义锚：上文场景确为 DND 命中
+    });
+
+    test('DND 命中时 mention 未读增量照常计算', () {
+      expect(
+        computeMentionUnreadIncrement(
+          isFromCurrentUser: false,
+          isUserInChat: false,
+          mentionIds: const <String>['all'],
+          currentUid: 'u_me',
+        ),
+        1,
+        reason: '@所有人 的 mention 未读不受 DND 影响',
+      );
+    });
+
+    test('DND 命中（KV 源）→ 通知被抑制；@ 穿透仍生效', () {
+      final dndHit = isGroupDndActive(isMutedColumn: 0, kvNoticeDisabled: true);
+      expect(dndHit, isTrue);
+      // 管线实际组合形态：shouldSuppressNotification(isMuted: dndHit ? 1 : 0, ...)
+      expect(
+        shouldSuppressNotification(isMuted: dndHit ? 1 : 0),
+        isTrue,
+        reason: '群详情页开免打扰后，群消息通知必须被抑制（G1 断点修复）',
+      );
+      expect(
+        shouldSuppressNotification(isMuted: dndHit ? 1 : 0, isMentioned: true),
+        isFalse,
+        reason: '被 @ 时穿透 DND（slice-8 语义在合并源下保持）',
+      );
+    });
+
+    test('DND 未命中（双源全空）→ 通知正常', () {
+      final dndHit = isGroupDndActive(
+        isMutedColumn: 0,
+        kvNoticeDisabled: false,
+      );
+      expect(shouldSuppressNotification(isMuted: dndHit ? 1 : 0), isFalse);
+    });
+
+    test('C2C 单聊语义不回归：isMuted 列直判（无 KV 源）', () {
+      // message.dart C2C 分支不查 KV，直接 savedConv.isMuted > 0
+      const c2cIsMuted = 1;
+      expect(
+        shouldSuppressNotification(isMuted: c2cIsMuted),
+        isTrue,
+        reason: 'C2C 单聊设置页（chat_setting_page）写列，管线读列——闭环不变',
+      );
+    });
+  });
+
   /// `extractMentionIdsFromPayload` 的契约固化测试。
   ///
   /// 这个函数在 `message.dart:836` / `message_repo_sqlite.dart:1465` 两处消费，
