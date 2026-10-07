@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -1259,6 +1262,7 @@ class PassportNotifier extends _$PassportNotifier {
   /// 全新注册用户首次登录虽然也走"新生成密钥"路径，但 other_device_count
   /// 为 0，没有历史消息需要恢复，因此不会显示恢复横幅（误报收敛）。
   Future<void> _reportE2EEPublicKey() async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return;
     // 是否本次新生成密钥对（换设备/重装信号），供后续判断是否引导恢复。
     bool newlyGenerated = false;
     try {

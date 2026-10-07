@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+
 import 'package:flutter/foundation.dart' show kIsWeb, compute;
 import 'package:pointycastle/export.dart' as pg;
 import 'package:pointycastle/pointycastle.dart';
@@ -173,6 +176,7 @@ class E2EEKeyService {
   ///
   /// @returns true 表示新密钥已生成且新公钥成功上报；false 表示生成或上报失败。
   static Future<bool> regenerateAndReportDeviceKey() async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return false;
     // 1. 强制生成新密钥对（旧私钥按旧 kid 归档，不丢历史）
     await generateKeyPair();
 

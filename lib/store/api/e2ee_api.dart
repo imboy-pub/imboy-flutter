@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -129,6 +131,9 @@ class E2EEApi extends HttpClient {
     required String publicKey,
     required String keyId,
   }) async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+      return const E2EEReportResult(ok: false);
+    }
     final IMBoyHttpResponse resp = await post(
       API.e2eeReportDeviceKey,
       data: {
