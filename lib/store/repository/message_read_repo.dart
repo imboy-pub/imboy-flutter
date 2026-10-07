@@ -7,6 +7,38 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 /// Applies local read receipts without counting replayed or foreign messages.
 class MessageReadRepo {
+  static Future<ConversationModel?> recount(
+    Database db,
+    int conversationId,
+  ) => db.transaction((txn) async {
+    final current = await ConversationRepo().findById(conversationId, txn: txn);
+    if (current == null) return null;
+    final watermark = current.payload?['last_read_auto_id'];
+    final lastRead = watermark is int
+        ? watermark
+        : int.tryParse('$watermark') ?? 0;
+    final rows = await txn.rawQuery(
+      'SELECT COUNT(*) AS unread FROM ${MessageRepo.getTableName(current.type)} '
+      'WHERE ${MessageRepo.conversationUk3}=? AND ${MessageRepo.isAuthor}=0 '
+      'AND ${MessageRepo.autoId}>? AND ${MessageRepo.status}<?',
+      [current.uk3, lastRead, IMBoyMessageStatus.seen],
+    );
+    final count = rows.single['unread'] as int;
+    await txn.update(
+      ConversationRepo.tableName,
+      {
+        ConversationRepo.unreadNum: count,
+        if (count == 0) ConversationRepo.mentionUnread: 0,
+      },
+      where: '${ConversationRepo.id}=?',
+      whereArgs: [conversationId],
+    );
+    return current.copyWith(
+      unreadNum: count,
+      mentionUnread: count == 0 ? 0 : current.mentionUnread,
+    );
+  });
+
   static Future<({int unreadNum, List<String> msgIds})> apply(
     Database db,
     ConversationModel conversation,

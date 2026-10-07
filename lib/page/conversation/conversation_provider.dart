@@ -20,6 +20,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/message_read_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
@@ -1010,16 +1011,12 @@ class ConversationNotifier extends _$ConversationNotifier {
   Future<void> recalculateConversationRemind(ConversationModel cm) async {
     if (cm.uk3.isEmpty) return;
     try {
-      String tb = MessageRepo.getTableName(cm.type);
-      final lastRead = _getLastReadAutoId(cm);
-      int? count = await SqliteService.to.count(
-        tb,
-        where:
-            "${MessageRepo.conversationUk3} = ? and ${MessageRepo.isAuthor} = ? and ${MessageRepo.autoId} > ?",
-        whereArgs: [cm.uk3, 0, lastRead],
-      );
-      if (count != null) {
-        await setConversationRemind(cm, count);
+      _debounceTimers.remove(cm.uk3)?.cancel();
+      final db = await SqliteService.to.db;
+      if (db == null) return;
+      final current = await MessageReadRepo.recount(db, cm.id);
+      if (current != null && ref.mounted) {
+        applyConversationSnapshot(current);
       }
     } catch (e) {
       iPrint('recalculateConversationRemind error=${e.runtimeType}');

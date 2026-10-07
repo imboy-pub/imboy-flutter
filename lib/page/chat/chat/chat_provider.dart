@@ -560,7 +560,8 @@ class ChatNotifier extends _$ChatNotifier {
     await ref
         .read(conversationProvider.notifier)
         .advanceReadWatermarkByMsgIds(c, result.msgIds);
-    await ref.read(conversationProvider.notifier).replace(c);
+    final current = await ConversationRepo().findById(c.id);
+    await ref.read(conversationProvider.notifier).replace(current ?? c);
     await _emitUpdatedMessagesAfterStatusChange(type, result.msgIds);
     if (syncToServer) {
       await _enqueueReadReceipt(

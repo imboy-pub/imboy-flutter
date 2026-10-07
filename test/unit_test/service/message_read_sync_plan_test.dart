@@ -30,6 +30,8 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_read_sync_plan.dart';
@@ -236,6 +238,7 @@ void main() {
 
   group('switchS2C(message_read_sync) - 全链路（fixture DB）', () {
     late Database db;
+    late ProviderContainer container;
 
     setUpAll(() async {
       sqfliteFfiInit();
@@ -281,7 +284,7 @@ void main() {
       await _insertMsg(db, 'msg_c2g', 'c2g_msg_1', _c2gUk3, 1);
       await _insertMsg(db, 'msg_c2g', 'c2g_msg_2', _c2gUk3, 2);
 
-      final container = ProviderContainer(
+      container = ProviderContainer(
         overrides: [
           workspaceApiProvider.overrideWithValue(_NoopApi()),
           voicePlaybackServiceProvider.overrideWith(_Voice.new),
@@ -528,6 +531,96 @@ void main() {
         expect((await _conversationRow(db, 'C2C', _c2cPeer))['unread_num'], 2);
       },
     );
+
+    test('visible conversation read sync does not restore stale unread after debounce', () async {
+      await _insertMsg(db, 'msg_c2g', 'c2g_msg_3', _c2gUk3, 3);
+      await db.update(
+        'conversation',
+        {'unread_num': 3},
+        where: 'type=? AND peer_id=?',
+        whereArgs: ['C2G', _c2gGid],
+      );
+      final listener = container.listen(conversationProvider, (_, _) {});
+      addTearDown(listener.close);
+      final conversation = await ConversationRepo().findByPeerId(
+        'C2G',
+        '$_c2gGid',
+      );
+      await container
+          .read(conversationProvider.notifier)
+          .replace(conversation!);
+      await MessageS2CService.switchS2C({
+        'id': 'visible_debounce_receipt',
+        'type': 'S2C',
+        'action': 'message_read_sync',
+        'from': 'server',
+        'to': '$_ownerUid',
+        'payload': {
+          'conversation_type': 'c2g',
+          'gid': _c2gGid,
+          'msg_ids': ['c2g_msg_1', 'c2g_msg_2'],
+          'read_seq': 2,
+        },
+        'server_ts': 1790931169590,
+      });
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      final row = await _conversationRow(db, 'C2G', _c2gGid);
+      expect(_lastReadAutoId(row), 2);
+      expect(
+        row['unread_num'],
+        1,
+        reason: 'old snapshot must not overwrite read result',
+      );
+      expect(
+        await _msgStatus(db, 'msg_c2g', 'c2g_msg_3'),
+        IMBoyMessageStatus.delivered,
+      );
+    });
+
+    test('new arrival survives a pending read recount', () async {
+      final listener = container.listen(conversationProvider, (_, _) {});
+      addTearDown(listener.close);
+      final conversation = await ConversationRepo().findByPeerId(
+        'C2G',
+        '$_c2gGid',
+      );
+      await container
+          .read(conversationProvider.notifier)
+          .replace(conversation!);
+      await MessageS2CService.switchS2C({
+        'id': 'arrival_during_debounce_receipt',
+        'type': 'S2C',
+        'action': 'message_read_sync',
+        'from': 'server',
+        'to': '$_ownerUid',
+        'payload': {
+          'conversation_type': 'c2g',
+          'gid': _c2gGid,
+          'msg_ids': ['c2g_msg_1', 'c2g_msg_2'],
+          'read_seq': 2,
+        },
+        'server_ts': 1790931169591,
+      });
+      await _insertMsg(db, 'msg_c2g', 'c2g_msg_3', _c2gUk3, 3);
+      await db.update(
+        'conversation',
+        {'unread_num': 1},
+        where: 'type=? AND peer_id=?',
+        whereArgs: ['C2G', _c2gGid],
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 700));
+      final row = await _conversationRow(db, 'C2G', _c2gGid);
+      expect(_lastReadAutoId(row), 2);
+      expect(
+        row['unread_num'],
+        1,
+        reason: 'pending recount must not erase arrival',
+      );
+      expect(
+        await _msgStatus(db, 'msg_c2g', 'c2g_msg_3'),
+        IMBoyMessageStatus.delivered,
+      );
+    });
 
     test('peer 无本地会话：事件安全跳过（不误建会话、不抛异常）', () async {
       await MessageS2CService.switchS2C({
