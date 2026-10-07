@@ -6,15 +6,20 @@
 // 会再次调用 pinLoopbackTestEnv（幂等）。
 //
 // A04：钉住 Env() 到 loopback 合成环境，flutter test 输出零生产域名。
+// G17：把 flutter_secure_storage 钉为惰性空存储（test/secure_storage_test_pin.dart），
+// 防止 MissingPluginException 被打成 token 解密失败标记、令多请求契约用例
+// 第二次请求起被判 409（详见该文件头部注释；不触达 unit_test 域）。
 
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 
 import 'env_test_pin.dart';
+import 'secure_storage_test_pin.dart';
 
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   pinLoopbackTestEnv();
+  pinInertSecureStorage();
   await testMain();
 }
