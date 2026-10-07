@@ -941,6 +941,11 @@ class MessageRepo implements MessageRepository {
                   existing.single,
                   msgData,
                 );
+            final snapshot = await _existingOfflineConversation(
+              txn,
+              existing.single,
+            );
+            if (snapshot != null) conversations.add(snapshot);
             addAckId(msgId);
             func_helper.iPrint(
               upgraded ? "历史密文已修复失败占位: $msgId" : "离线消息已存在，跳过: $msgId",
@@ -1130,7 +1135,8 @@ class MessageRepo implements MessageRepository {
             ),
           );
         }
-
+      }
+      if (conversations.isNotEmpty) {
         await _syncOfflineConversationsAndNotify(inserted, conversations);
       }
       // 处理 S2C 消息（在事务外）
@@ -1160,6 +1166,21 @@ class MessageRepo implements MessageRepository {
       Error.throwWithStackTrace(e, s);
     }
     return ackMsgIds;
+  }
+
+  static Future<ConversationModel?> _existingOfflineConversation(
+    Transaction txn,
+    Map<String, Object?> row,
+  ) async {
+    // 从已持久化的信封确定会话，重投数据不能覆盖原消息的会话归属。
+    final type = row[MessageRepo.type]?.toString() ?? '';
+    final sender = row[MessageRepo.from]?.toString() ?? '';
+    final recipient = row[MessageRepo.to]?.toString() ?? '';
+    final peer = type == 'C2G' || sender == UserRepoLocal.to.currentUid
+        ? recipient
+        : sender;
+    if (peer.isEmpty) return null;
+    return ConversationRepo().findByPeerId(type, peer, txn: txn);
   }
 
   static Future<bool> _upgradeFailedMegolmArchive(
