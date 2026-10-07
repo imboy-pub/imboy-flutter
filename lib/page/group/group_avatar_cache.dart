@@ -37,6 +37,7 @@ class GroupAvatarMemberCache {
   final _cache = <String, _GroupAvatarEntry>{};
   final _inflight = <String, Future<List<String>>>{};
   StreamSubscription<GroupMemberUpdateEvent>? _subscription;
+  bool _suspended = false;
 
   /// 命中且未过期 → 直接返回缓存；否则调 loader 并写缓存（并发去重）。
   ///
@@ -49,6 +50,7 @@ class GroupAvatarMemberCache {
     String gid,
     Future<List<String>> Function(String gid) loader,
   ) {
+    if (_suspended) return Future.value(const <String>[]);
     final entry = _cache[gid];
     if (entry != null && _now().isBefore(entry.expiredAt)) {
       return Future.value(entry.urls);
@@ -76,6 +78,17 @@ class GroupAvatarMemberCache {
       }
     }());
     return completer.future;
+  }
+
+  /// Stop new database work and wait for existing loaders before storage closes.
+  Future<void> suspendAndDrain() async {
+    _suspended = true;
+    await Future.wait(_inflight.values.toList());
+    _cache.clear();
+  }
+
+  void resume() {
+    _suspended = false;
   }
 
   /// 同步嗅探：会话列表预热后，列表项 build 时先问这里，命中即同步渲染

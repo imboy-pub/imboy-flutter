@@ -11,6 +11,36 @@ import 'package:imboy/service/events/common_events.dart';
 /// 用注入时钟的独立实例测缓存行为，不碰全局单例；
 /// 事件联动用 AppEventBus 真 fire（cache 构造内订阅）。
 void main() {
+  test(
+    'shutdown waits for writes and rejects new loaders until resumed',
+    () async {
+      final cache = GroupAvatarMemberCache();
+      addTearDown(cache.dispose);
+      final write = Completer<List<String>>();
+      final loading = cache.load('g1', (_) => write.future);
+      var drained = false;
+      final drain = cache.suspendAndDrain().then((_) => drained = true);
+      await Future<void>.delayed(Duration.zero);
+      expect(drained, isFalse);
+      var extraCalls = 0;
+      expect(
+        await cache.load('g2', (_) async {
+          extraCalls++;
+          return ['other'];
+        }),
+        isEmpty,
+      );
+      expect(extraCalls, 0);
+      write.complete(['saved']);
+      expect(await loading, ['saved']);
+      await drain;
+      expect(drained, isTrue);
+      expect(cache.peek('g1'), isNull);
+      cache.resume();
+      expect(await cache.load('g2', (_) async => ['new']), ['new']);
+    },
+  );
+
   group('GroupAvatarMemberCache 缓存命中与 TTL', () {
     late DateTime now;
     late GroupAvatarMemberCache cache;

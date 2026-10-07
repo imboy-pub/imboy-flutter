@@ -3,6 +3,8 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:imboy/page/group/group_avatar_cache.dart';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/cupertino.dart';
@@ -223,6 +225,7 @@ class AppInitializer {
     required String signKeyVsn,
   }) async {
     if (_initialized) return;
+    GroupAvatarMemberCache.instance.resume();
 
     try {
       await _initializeCore(env: env, signKeyVsn: signKeyVsn);
@@ -923,6 +926,7 @@ class AppInitializer {
   static Future<void> dispose() async {
     logger.i('Disposing AppInitializer resources...');
     _isAppDisposing = true;
+    await GroupAvatarMemberCache.instance.suspendAndDrain();
 
     // 取消网络监听器
     await _connectivitySubscription?.cancel();

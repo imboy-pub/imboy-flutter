@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
@@ -278,7 +276,7 @@ class GroupListService {
     }
     final rows = <Map<String, dynamic>>[];
     for (var item in IMBoyHttpResponse.payloadList(payload)) {
-      unawaited(GroupMemberRepo().save(item));
+      await GroupMemberRepo().save(item);
       rows.add(item);
     }
     return serverRowsToAvatarList(
