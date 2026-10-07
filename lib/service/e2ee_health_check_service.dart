@@ -5,6 +5,8 @@ import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
@@ -145,7 +147,8 @@ class E2EEHealthCheckService {
 
   /// 初始化服务并开始监听 WebSocket 状态变化及 App 生命周期
   void init() {
-    _wsStatusSubscription?.cancel();
+    dispose();
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return;
     _wsStatusSubscription = AppEventBus.on<WebSocketStatusChangedEvent>()
         .listen((event) {
           if (event.status.toLowerCase() == 'connected') {
@@ -180,6 +183,7 @@ class E2EEHealthCheckService {
   /// 协议一致性修复 D3：客户端通过增量拉取好友密钥变更通知，
   /// 自动清除并更新失效的好友公钥缓存，从而彻底解决对端重装/换机后导致的解密失败。
   Future<void> pullKeyNotifications() async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return;
     // 初始化阶段服务会先注册生命周期/WS监听；此时可能还没有用户会话。
     // 不能在未登录状态请求受保护接口，否则 401 的统一处理会异步清理
     // 正在建立的登录会话，形成“登录成功后又被登出”的竞态。
@@ -296,6 +300,7 @@ class E2EEHealthCheckService {
 
   /// 校验服务端密钥状态，若本地密钥丢失且服务端已注册，则自动标记需要恢复引导
   Future<void> checkServerKeyStatusAndGuide() async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) return;
     try {
       // 首次启动可能早于登录页提交；未登录时不访问受保护的密钥状态接口。
       if (!UserRepoLocal.to.isLoggedIn) return;
@@ -510,6 +515,15 @@ class E2EEHealthCheckService {
   /// 和待处理通知（/api/v1/e2ee/notifications/pull）。
   /// Returns: 健康状态 Map
   Future<Map<String, dynamic>> getHealthStatus() async {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
+      return {
+        'has_key': false,
+        'status': 'disabled',
+        'pending_notifications': <Map<String, dynamic>>[],
+        'pending_notifications_count': 0,
+        'checked_at': DateTime.now().toUtc().toIso8601String(),
+      };
+    }
     try {
       final hasKey = await hasValidKey();
       final keyInfo = await getKeyInfo();
