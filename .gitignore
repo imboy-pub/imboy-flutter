@@ -251,3 +251,12 @@ test/auto_test/credentials.local.json
 /test/auto_test/AI_COVERAGE_MATRIX.md
 /test/auto_test/AI_SPEC_BACKLOG.md
 /test/auto_test/regen_readme.py
+
+# Historical AI workflow plans and run-specific harnesses.
+/test/demo_flow/*.md
+/scripts/auto_test_render_final_report.py
+/scripts/h2_run_p1_c2c.sh
+/scripts/h2_run_p1_c2g.sh
+/scripts/h2_run_p2_matrix.sh
+/scripts/h2_seed_p2.sh
+/scripts/h2_shard_cred_runner.py
