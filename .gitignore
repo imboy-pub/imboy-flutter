@@ -243,3 +243,11 @@ test/auto_test/credentials.local.json
 /test/auto_test/LOOP_PROMPT.md
 /test/demo_flow/P0_EXECUTION_PLAN.md
 /test/auto_test/task_state.json
+
+# Historical execution ledgers and generated reports stay local.
+/test/auto_test/*/*_page.md
+/test/auto_test/README.md
+/test/auto_test/AI_TEST_INDEX.md
+/test/auto_test/AI_COVERAGE_MATRIX.md
+/test/auto_test/AI_SPEC_BACKLOG.md
+/test/auto_test/regen_readme.py
