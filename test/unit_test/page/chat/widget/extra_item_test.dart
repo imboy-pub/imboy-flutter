@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/extra_item.dart';
 
@@ -12,6 +14,8 @@ import 'package:imboy/page/chat/widget/extra_item.dart';
 /// （openCallScreen / context.push / 各 handler）在 pump 期间不会触发，故重依赖
 /// （location/webrtc）不进入执行路径，可在 host 层稳定渲染其分组/过滤逻辑。
 void main() {
+  setUp(() => AppFeatureRegistry.replaceSnapshotForTest({}));
+  tearDown(() => AppFeatureRegistry.replaceSnapshotForTest({}));
   Future<void> pump(
     WidgetTester tester, {
     required String title,
@@ -68,79 +72,74 @@ void main() {
     await tester.pump();
   }
 
-  /// 翻到附加面板第 2 页。
-  ///
-  /// 面板已从「分区标题 + 长列表」重构为 CarouselSlider 分页，只构建当前页，
-  /// 所以第 2 页的项在首帧 find 不到，必须先滑动。
-  Future<void> swipeToPage2(WidgetTester tester) async {
-    await tester.drag(find.byType(PageView).first, const Offset(-400, 0));
-    await tester.pumpAndSettle();
+  Future<Set<String>> visiblePageTitles(WidgetTester tester) async {
+    Set<String> titles() => tester
+        .widgetList<ExtraItem>(find.byType(ExtraItem))
+        .map((item) => item.title)
+        .toSet();
+    final result = titles();
+    final pages = find.byType(PageView);
+    if (pages.evaluate().isNotEmpty) {
+      await tester.drag(pages.first, const Offset(-400, 0));
+      await tester.pumpAndSettle();
+      result.addAll(titles());
+    }
+    return result;
   }
 
-  group('ExtraItems C2G (群聊)', () {
-    testWidgets('第 1 页是通用项 + 群通话', (tester) async {
-      await pumpItems(tester, type: 'C2G');
+  void expectCompiledTool(Set<String> titles, String title, String feature) {
+    expect(titles.contains(title), compiledProductFeatures.contains(feature));
+  }
 
+  for (final type in ['C2C', 'C2G']) {
+    testWidgets('$type 保留基础媒体入口并隐藏旧表情占位', (tester) async {
+      await pumpItems(tester, type: type);
       expect(find.text(t.main.album), findsOneWidget);
-      expect(find.text(t.common.groupCall), findsOneWidget);
-      // 单聊专属项不串场
-      expect(find.text(t.common.transfer), findsNothing);
+      expect(find.text(t.main.camera), findsOneWidget);
+      expect(find.text(t.chat.file), findsOneWidget);
+      final titles = await visiblePageTitles(tester);
+      expect(titles, isNot(contains(t.common.expression)));
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('投票升到第 1 页，日程/作业仍在第 2 页', (tester) async {
-      await pumpItems(tester, type: 'C2G');
-
-      // 历史：这三项曾要求"无需翻页"，面板改成分页轮播后全被挤到第 2 页，
-      // 群聊最核心的协作入口要滑一下才看得见（当时钉住的是这个退化现状）。
-      // 删掉"表情"假贴图入口后每项前移一格，投票已回到第 1 页。
-      // C2G 第 1 页 8 项：相册/拍摄/位置/文件/收藏/名片/群通话/投票
-      expect(find.text(t.groupVote.title), findsOneWidget, reason: '已回到第 1 页');
-      expect(find.text(t.groupSchedule.title), findsNothing);
-      expect(find.text(t.groupTask.title), findsNothing);
-
-      await swipeToPage2(tester);
-
-      expect(find.text(t.groupSchedule.title), findsOneWidget);
-      expect(find.text(t.groupTask.title), findsOneWidget);
+    testWidgets('$type 通话和资金入口遵循编译能力', (tester) async {
+      await pumpItems(tester, type: type);
+      final titles = await visiblePageTitles(tester);
+      expectCompiledTool(titles, t.common.redPacket, 'wallet');
+      if (type == 'C2G') {
+        expectCompiledTool(titles, t.common.groupCall, 'rtc');
+        expect(titles, isNot(contains(t.common.voiceCall)));
+        expect(titles, isNot(contains(t.common.videoCall)));
+        expect(titles, isNot(contains(t.common.transfer)));
+      } else {
+        expectCompiledTool(titles, t.common.voiceCall, 'rtc');
+        expectCompiledTool(titles, t.common.videoCall, 'rtc');
+        expectCompiledTool(titles, t.common.transfer, 'wallet');
+      }
+      expect(tester.takeException(), isNull);
     });
+  }
 
-    testWidgets('"表情"不再出现在附加面板（emoji 只有输入框笑脸键一个入口）', (tester) async {
-      await pumpItems(tester, type: 'C2G');
-      expect(find.text(t.common.expression), findsNothing);
-      await swipeToPage2(tester);
-      expect(find.text(t.common.expression), findsNothing);
-    });
+  testWidgets('群协作工具裁剪后仍可在可用页面中找到', (tester) async {
+    await pumpItems(tester, type: 'C2G');
+    final titles = await visiblePageTitles(tester);
+    expectCompiledTool(titles, t.groupVote.title, 'group_vote');
+    expectCompiledTool(titles, t.groupSchedule.title, 'group_schedule');
+    expectCompiledTool(titles, t.groupTask.title, 'group_task');
+    expect(tester.takeException(), isNull);
   });
 
-  group('ExtraItems C2C (单聊) 不串场群工具', () {
-    testWidgets('两页都不出现任何群工具项', (tester) async {
-      await pumpItems(tester, type: 'C2C');
-
-      void expectNoGroupTools() {
-        expect(find.text(t.groupVote.title), findsNothing);
-        expect(find.text(t.groupSchedule.title), findsNothing);
-        expect(find.text(t.groupTask.title), findsNothing);
-        expect(find.text(t.common.groupCall), findsNothing);
-      }
-
-      expectNoGroupTools();
-      await swipeToPage2(tester);
-      expectNoGroupTools();
-    });
-
-    testWidgets('单聊专属项：语音/视频通话在第 1 页，红包/转账在第 2 页', (tester) async {
-      await pumpItems(tester, type: 'C2C');
-
-      // C2C 第 1 页 8 项：相册/拍摄/位置/文件/收藏/名片/语音通话/视频通话
-      // 删掉"表情"假贴图入口后每项前移一格，视频通话从第 2 页回到第 1 页。
-      expect(find.text(t.common.voiceCall), findsOneWidget);
-      expect(find.text(t.common.videoCall), findsOneWidget, reason: '已回到第 1 页');
-      expect(find.text(t.common.transfer), findsNothing);
-
-      await swipeToPage2(tester);
-
-      expect(find.text(t.common.redPacket), findsOneWidget);
-      expect(find.text(t.common.transfer), findsOneWidget);
-    });
+  testWidgets('单聊所有可用页面均不出现群协作工具', (tester) async {
+    await pumpItems(tester, type: 'C2C');
+    final titles = await visiblePageTitles(tester);
+    for (final title in [
+      t.groupVote.title,
+      t.groupSchedule.title,
+      t.groupTask.title,
+      t.common.groupCall,
+    ]) {
+      expect(titles, isNot(contains(title)));
+    }
+    expect(tester.takeException(), isNull);
   });
 }
