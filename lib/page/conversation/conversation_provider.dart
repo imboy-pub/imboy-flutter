@@ -1057,6 +1057,7 @@ class ConversationNotifier extends _$ConversationNotifier {
   // 将水位推进到当前会话"来自对方"的最新消息（用于"标为已读"）
   Future<void> advanceWatermarkToLatest(ConversationModel cm) async {
     if (cm.uk3.isEmpty) return;
+    final lifetime = ref.keepAlive();
     try {
       String tb = MessageRepo.getTableName(cm.type);
       final int? maxAutoId = await SqliteService.to.pluck<int>(
@@ -1072,6 +1073,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       }
     } catch (e) {
       iPrint('advanceWatermarkToLatest error=${e.runtimeType}');
+    } finally {
+      lifetime.close();
     }
   }
 
