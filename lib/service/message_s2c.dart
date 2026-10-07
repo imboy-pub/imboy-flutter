@@ -90,6 +90,7 @@ class MessageS2CService {
   //       但【仍发送 ACK】（否则服务端继续重发）。
   //       pull_offline_msg 是服务端主动 nudge（非事件），跨重连可能合法重发，单独走短 TTL。
   static final Map<String, int> _processedS2CIds = {}; // key -> 处理时间戳(ms)
+  static final Map<String, Future<void>> _pendingS2CFrames = {};
   // 常规去重 TTL 必须 ≫ 服务端 S2C 重发窗口（2/5/7/11s，最大约 11s），
   // 否则窗口内的重投会被当作新事件重复执行。@visibleForTesting 供特征化测试断言此不变量。
   @visibleForTesting
@@ -174,6 +175,28 @@ class MessageS2CService {
     Map<String, dynamic> data, {
     bool propagateErrors = false,
   }) async {
+    final key = buildS2CDedupKey(
+      data,
+      (data['action'] ?? '').toString().toLowerCase(),
+      (data['from'] ?? '').toString(),
+      (data['to'] ?? '').toString(),
+    );
+    final pending = _pendingS2CFrames[key];
+    final processing = pending ?? _processS2C(data);
+    if (pending == null) _pendingS2CFrames[key] = processing;
+    try {
+      // 正在处理的副本共享结果；成功去重与 ACK 只能发生在处理完成后。
+      await processing;
+    } on Object catch (error, stack) {
+      if (propagateErrors) Error.throwWithStackTrace(error, stack);
+    } finally {
+      if (identical(_pendingS2CFrames[key], processing)) {
+        _pendingS2CFrames.remove(key);
+      }
+    }
+  }
+
+  static Future<void> _processS2C(Map<String, dynamic> data) async {
     // 安全日志：只输出消息类型，不输出完整数据
     final msgId = data['id'] ?? '';
     final from = data['from'] ?? '';
@@ -425,7 +448,7 @@ class MessageS2CService {
         _processedS2CIds.remove(reservedKey);
       }
       iPrint('switchS2C error: ${e.runtimeType}');
-      if (propagateErrors) Error.throwWithStackTrace(e, s);
+      Error.throwWithStackTrace(e, s);
     }
   }
 
