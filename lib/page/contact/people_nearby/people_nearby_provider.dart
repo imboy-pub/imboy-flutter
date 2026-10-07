@@ -9,6 +9,7 @@ import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/api/location_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// 附近的人状态类
@@ -58,8 +59,24 @@ class PeopleNearbyState {
 
 /// 附近的人状态通知器
 class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
+  int _epoch = 0;
+  int _listRequest = 0;
+
+  (String, int, int) get _session =>
+      (UserRepoLocal.to.currentUid, UserRepoLocal.to.sessionGeneration, _epoch);
+
+  bool _isCurrent((String, int, int) session) =>
+      ref.mounted && session == _session && !UserRepoLocal.to.isClearingSession;
+
   @override
   PeopleNearbyState build() {
+    ref.watch(
+      currentUserProvider.select(
+        (user) => (user?.uid ?? '', UserRepoLocal.to.sessionGeneration),
+      ),
+    );
+    _epoch++;
+    _listRequest++;
     // 初始化时从本地存储读取可见性设置
     final isVisible = UserRepoLocal.to.setting.peopleNearbyVisible;
 
@@ -120,6 +137,10 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
 
   /// 获取附近的人
   Future<void> peopleNearby() async {
+    final session = _session;
+    if (session.$1.isEmpty || !_isCurrent(session)) return;
+    final request = ++_listRequest;
+    bool active() => _isCurrent(session) && request == _listRequest;
     // 进入即置加载态：首次定位(GPS+权限)耗时期间显示加载菊花，
     // 而非误导性的空状态。finally 统一兜底关闭。
     state = state.copyWith(isLoading: true);
@@ -136,6 +157,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
         AMapPosition? l = await LocationService().getCurrentPosition(
           preferLastKnown: true,
         );
+        if (!active()) return;
         msLocate = swLocate.elapsedMilliseconds;
         debugPrint('[PeopleNearbyPerf] 1.定位 ${msLocate}ms');
         updateLocation('${l?.latLng.longitude}', '${l?.latLng.latitude}');
@@ -160,6 +182,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
         radius: radius,
         unit: 'm',
       );
+      if (!active()) return;
       msApi = swApi.elapsedMilliseconds;
       debugPrint('[PeopleNearbyPerf] 2.接口 ${msApi}ms');
 
@@ -170,6 +193,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       List<Map<String, dynamic>> li = await ContactRepo().selectFriend(
         columns: [ContactRepo.peerId],
       );
+      if (!active()) return;
       msLocalDb = swDb.elapsedMilliseconds;
       debugPrint('[PeopleNearbyPerf] 3.本地好友查询 ${msLocalDb}ms');
       List<String> friendUidList = [];
@@ -191,7 +215,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       }
       updatePeopleList(l);
     } finally {
-      state = state.copyWith(isLoading: false);
+      if (active()) state = state.copyWith(isLoading: false);
       debugPrint(
         '[PeopleNearbyPerf] 合计 ${swTotal.elapsedMilliseconds}ms '
         '= 定位 ${msLocate}ms + 接口 ${msApi}ms + 本地库 ${msLocalDb}ms '
@@ -202,6 +226,8 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
 
   /// 让自己可见
   Future<bool> makeMyselfVisible() async {
+    final session = _session;
+    if (session.$1.isEmpty || !_isCurrent(session)) return false;
     // 检查坐标是否有效
     if (!_isValidCoordinate(state.longitude, state.latitude)) {
       AppLoading.showInfo(
@@ -214,23 +240,37 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       longitude: state.longitude,
       latitude: state.latitude,
     );
+    if (!_isCurrent(session)) return false;
     if (res) {
       var s = UserRepoLocal.to.setting;
-      updateVisibility(true);
       s.peopleNearbyVisible = true;
-      await UserRepoLocal.to.changeSetting(s);
+      final saved = await UserRepoLocal.to.changeSettingForSession(
+        s,
+        uid: session.$1,
+        generation: session.$2,
+      );
+      if (!saved || !_isCurrent(session)) return false;
+      updateVisibility(s.peopleNearbyVisible);
     }
     return res;
   }
 
   /// 让自己不可见
   Future<bool> makeMyselfUnVisible() async {
+    final session = _session;
+    if (session.$1.isEmpty || !_isCurrent(session)) return false;
     bool res = await LocationApi().makeMyselfUnVisible();
+    if (!_isCurrent(session)) return false;
     if (res) {
       var s = UserRepoLocal.to.setting;
-      updateVisibility(false);
       s.peopleNearbyVisible = false;
-      await UserRepoLocal.to.changeSetting(s);
+      final saved = await UserRepoLocal.to.changeSettingForSession(
+        s,
+        uid: session.$1,
+        generation: session.$2,
+      );
+      if (!saved || !_isCurrent(session)) return false;
+      updateVisibility(s.peopleNearbyVisible);
     }
     return res;
   }

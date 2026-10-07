@@ -11,6 +11,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/page/contact/people_nearby/people_nearby_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/model/people_model.dart';
 
 class _Adapter implements HttpClientAdapter {
   final requested = Completer<void>();
@@ -132,6 +133,102 @@ void main() {
       expect(await pending, true);
       expect(container.read(peopleNearbyProvider).peopleNearbyVisible, true);
       expect(UserRepoLocal.to.setting.peopleNearbyVisible, true);
+    },
+  );
+  Future<void> switchAccount({required bool visible}) async {
+    await StorageService.to.setString(Keys.currentUid, '2002');
+    await UserRepoLocal.to.changeInfo({
+      'uid': '2002',
+      'setting': {'people_nearby_visible': visible},
+    });
+  }
+
+  test('account switch clears old nearby coordinates and people', () async {
+    final notifier = container.read(peopleNearbyProvider.notifier);
+    notifier.updateLocation('113', '23');
+    notifier.updatePeopleList([PeopleModel(id: 123, account: 'synthetic')]);
+    await switchAccount(visible: false);
+    final current = container.read(peopleNearbyProvider);
+    expect(current.longitude, isEmpty);
+    expect(current.latitude, isEmpty);
+    expect(current.peopleList, isEmpty);
+    expect(current.peopleNearbyVisible, false);
+  });
+
+  test('old show response cannot make new account visible', () async {
+    final notifier = container.read(peopleNearbyProvider.notifier);
+    notifier.updateLocation('113', '23');
+    final pending = notifier.makeMyselfVisible();
+    await adapter.requested.future.timeout(const Duration(seconds: 5));
+    await switchAccount(visible: false);
+    container.read(peopleNearbyProvider);
+    reply(true);
+    expect(await pending, false);
+    expect(container.read(peopleNearbyProvider).peopleNearbyVisible, false);
+    expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+  });
+
+  test('old hide response cannot hide new account', () async {
+    final notifier = container.read(peopleNearbyProvider.notifier);
+    final pending = notifier.makeMyselfUnVisible();
+    await adapter.requested.future.timeout(const Duration(seconds: 5));
+    await switchAccount(visible: true);
+    container.read(peopleNearbyProvider);
+    reply(true);
+    expect(await pending, false);
+    expect(container.read(peopleNearbyProvider).peopleNearbyVisible, true);
+    expect(UserRepoLocal.to.setting.peopleNearbyVisible, true);
+  });
+  test(
+    'settings reject wrong account and expired session generation',
+    () async {
+      final repo = UserRepoLocal.to;
+      final setting = repo.setting..peopleNearbyVisible = true;
+      expect(
+        await repo.changeSettingForSession(
+          setting,
+          uid: '2002',
+          generation: repo.sessionGeneration,
+        ),
+        false,
+      );
+      expect(
+        await repo.changeSettingForSession(
+          setting,
+          uid: '1001',
+          generation: repo.sessionGeneration - 1,
+        ),
+        false,
+      );
+      expect(repo.setting.peopleNearbyVisible, false);
+      expect(
+        await repo.changeSettingForSession(
+          setting,
+          uid: '1001',
+          generation: repo.sessionGeneration,
+        ),
+        true,
+      );
+      expect(repo.setting.peopleNearbyVisible, true);
+    },
+  );
+
+  test(
+    'old nearby response leaves new account location and list empty',
+    () async {
+      final notifier = container.read(peopleNearbyProvider.notifier);
+      notifier.updateLocation('113', '23');
+      final pending = notifier.peopleNearby();
+      await adapter.requested.future.timeout(const Duration(seconds: 5));
+      await switchAccount(visible: false);
+      container.read(peopleNearbyProvider);
+      reply(true);
+      await pending;
+      final current = container.read(peopleNearbyProvider);
+      expect(current.longitude, isEmpty);
+      expect(current.latitude, isEmpty);
+      expect(current.peopleList, isEmpty);
+      expect(current.isLoading, false);
     },
   );
 }

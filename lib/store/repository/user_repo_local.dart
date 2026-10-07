@@ -209,6 +209,20 @@ class UserRepoLocal extends ChangeNotifier {
     return true;
   }
 
+  /// 将设置写入与登录/退出串行化，拒绝已失效账号的异步结果。
+  Future<bool> changeSettingForSession(
+    UserSettingModel setting, {
+    required String uid,
+    required int generation,
+  }) => _serializeSessionWrite(() async {
+    if (currentUid != uid ||
+        !isCurrentSession(generation) ||
+        isClearingSession) {
+      return false;
+    }
+    return changeSetting(setting);
+  });
+
   Future<bool> changeInfo(Map<String, dynamic> payload) async {
     await StorageService.setMap(Keys.currentUser, payload);
     notifyListeners();
