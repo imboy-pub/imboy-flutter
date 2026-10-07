@@ -246,12 +246,12 @@ class MessageOfflineService {
       _inFlightPull = null;
 
       // 如果拉取期间又来了新请求，则补拉一次（force=true，确保不会被冷却窗口吞掉）
-      if (_hasPendingPullRequest) {
+      if (_hasPendingPullRequest && _pullRequestedSubscription != null) {
         _hasPendingPullRequest = false;
         unawaited(
           requestPull(
             source: 'merged_pending',
-            reason: '拉取过程中收到新的离线拉取请求',
+            reason: '继续处理剩余积压或合并的拉取请求',
             force: true,
           ),
         );
@@ -390,6 +390,18 @@ class MessageOfflineService {
           // 短暂延迟，避免分页场景下连续高频请求
           await Future<dynamic>.delayed(_pagePullDelay);
         }
+      }
+
+      if (hasMore) {
+        final advanced =
+            localC2cLastMsgAt > _c2cLastMsgAt ||
+            localC2gLastMsgAt > _c2gLastMsgAt ||
+            localS2cLastMsgAt > _s2cLastMsgAt;
+        if (!advanced) {
+          throw StateError('offline pagination made no cursor progress');
+        }
+        // Yield at the per-cycle limit, then drain the remaining backlog.
+        if (_pullRequestedSubscription != null) _hasPendingPullRequest = true;
       }
 
       // 拉取成功后持久化游标（D4 修复）：只向前推进，不回退
