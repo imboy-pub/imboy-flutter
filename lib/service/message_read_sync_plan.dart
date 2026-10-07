@@ -8,8 +8,8 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// 事件来源：WebSocket S2C 帧 action=message_read_sync，由服务端在
 /// msg_c2c_logic.erl 的 handle_read_receipt 落库后推送给阅读者本人
 /// （多端未读数一致，T18/MSG-P1-6）。c2g 会话的同类事件由本计划
-/// 「格式兼容、事件到达即处理」：peer 对 c2g 即 gid，会话类型按
-/// payload.type 显式声明或本地会话表判定，不依赖服务端同步改动。
+/// 服务端群事件使用 conversation_type/gid，旧事件使用 type/peer；
+/// 缺少显式类型的旧事件由本地会话表判定。
 class MessageReadSyncPlan {
   /// 目标会话类型（MessageFlowType.c2c / c2g）
   final String conversationType;
@@ -35,8 +35,7 @@ class MessageReadSyncPlan {
   ///   才是被读消息 id）。
   ///
   /// 会话类型决策：
-  /// - payload.type 显式声明（C2C/C2G，大小写不敏感）优先——服务端
-  ///   c2g 事件的最小扩展点；
+  /// - payload.conversation_type 显式声明优先，兼容旧 payload.type；
   /// - 缺失或非 C2C/C2G 值时由 [lookupConversationType] 按本地会话表
   ///   判定（生产实现：C2C 先于 C2G，保证既有 c2c 事件行为不变）；
   /// - 两者都无法判定返回 null（未知会话不误标记）。
@@ -44,15 +43,21 @@ class MessageReadSyncPlan {
     Map<String, dynamic> payload, {
     Future<String?> Function(String peer)? lookupConversationType,
   }) async {
-    final peer = parseModelString(payload['peer']);
+    final explicitType =
+        normalizeConversationType(payload['conversation_type']) ??
+        normalizeConversationType(payload['type']);
+    final peer = parseModelString(
+      explicitType == MessageFlowType.c2g
+          ? payload['gid'] ?? payload['peer']
+          : payload['peer'],
+    );
     if (peer.isEmpty) return null;
 
     final msgIds = _parseMsgIds(payload);
     if (msgIds.isEmpty) return null;
 
     final conversationType =
-        normalizeConversationType(payload['type']) ??
-        await lookupConversationType?.call(peer);
+        explicitType ?? await lookupConversationType?.call(peer);
     if (conversationType == null) return null;
 
     return MessageReadSyncPlan(

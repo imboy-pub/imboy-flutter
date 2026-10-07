@@ -457,10 +457,11 @@ class MessageS2CService {
   ///
   /// Action: message_read_sync（ws-protocol-contract.md §9，2026-07-02 新增）
   /// 触发时机：本账号任一设备发送已读回执并落库后，服务端推送给阅读者本人
-  /// payload: { msg_id, msg_ids, peer, read_at }
+  /// C2C payload: { msg_id, msg_ids, peer, read_at }
+  /// C2G payload: { conversation_type, gid, read_seq, msg_ids, read_at }
   ///
   /// Q04-F05：不再固定按 c2c 处理。会话类型由 [MessageReadSyncPlan] 按
-  /// payload.type 显式声明或本地会话表判定（c2g 事件 peer 即 gid），
+  /// payload.conversation_type/type 显式声明或本地会话表判定，
   /// c2g 已读跨设备同步与 c2c 同链路生效；本设备若正是阅读设备，
   /// 消息已是 seen，事件幂等无副作用。
   static Future<void> _handleMessageReadSync(

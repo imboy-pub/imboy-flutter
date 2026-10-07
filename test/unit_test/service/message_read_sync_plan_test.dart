@@ -65,6 +65,40 @@ final _c2gUk3 = ConversationUk3Generator.generateSmart(
 
 void main() {
   group('MessageReadSyncPlan.build - payload 解析（纯函数）', () {
+    test('服务端群已读事件按 gid 与 conversation_type 解析', () async {
+      final plan = await MessageReadSyncPlan.build({
+        'conversation_type': 'c2g',
+        'gid': _c2gGid,
+        'read_seq': 2,
+        'msg_ids': ['c2g_msg_1', 'c2g_msg_2'],
+        'read_at': 1790931169469,
+      });
+      expect(plan, isNotNull);
+      expect(plan!.conversationType, MessageFlowType.c2g);
+      expect(plan.peer, '$_c2gGid');
+      expect(plan.msgIds, ['c2g_msg_1', 'c2g_msg_2']);
+    });
+
+    test('群事件优先使用服务端 gid，不被旧 peer/type 覆盖', () async {
+      final plan = await MessageReadSyncPlan.build({
+        'conversation_type': 'c2g',
+        'gid': _c2gGid,
+        'peer': '$_c2cPeer',
+        'type': 'C2C',
+        'msg_ids': ['c2g_msg_1'],
+      });
+      expect(plan!.conversationType, MessageFlowType.c2g);
+      expect(plan.peer, '$_c2gGid');
+    });
+
+    test('无明确群类型时不能把 gid 误当 C2C peer', () async {
+      final plan = await MessageReadSyncPlan.build({
+        'gid': _c2gGid,
+        'msg_ids': ['c2g_msg_1'],
+      }, lookupConversationType: (_) async => MessageFlowType.c2c);
+      expect(plan, isNull);
+    });
+
     test('c2c 回归：旧单值格式 msg_id+peer 解析为单条计划', () async {
       final plan = await MessageReadSyncPlan.build({
         'msg_id': 'm1',
@@ -283,7 +317,9 @@ void main() {
         'payload': {
           'msg_id': 'receipt_g',
           'msg_ids': ['c2g_msg_1', 'c2g_msg_2'],
-          'peer': '$_c2gGid',
+          'gid': _c2gGid,
+          'conversation_type': 'c2g',
+          'read_seq': 2,
           'read_at': 1790931169469,
         },
         'server_ts': 1790931169470,
