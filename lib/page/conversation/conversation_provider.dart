@@ -1029,6 +1029,7 @@ class ConversationNotifier extends _$ConversationNotifier {
     List<String> msgIds,
   ) async {
     if (cm.uk3.isEmpty || msgIds.isEmpty) return;
+    final lifetime = ref.keepAlive();
     try {
       String tb = MessageRepo.getTableName(cm.type);
       final placeholders = List.filled(msgIds.length, '?').join(',');
@@ -1048,6 +1049,8 @@ class ConversationNotifier extends _$ConversationNotifier {
       }
     } catch (e) {
       iPrint('advanceReadWatermarkByMsgIds error=${e.runtimeType}');
+    } finally {
+      lifetime.close();
     }
   }
 
