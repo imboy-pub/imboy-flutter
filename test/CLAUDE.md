@@ -82,41 +82,26 @@ cp target/release/libvodozemac_bindings_dart.dylib \
 `.github/scripts/ci_build_vod.sh` 构建并布置 `.so`；Android/iOS 由插件构建。
 
 
-### `auto_test/` —— 测试计划表（文档）
+### `auto_test/` —— 可复用测试要求与规格
 
-**不是可执行代码**，是 imboyapp 全部功能点的测试计划，共 **137 个页面 / 1541 个功能点**。
-（统计以 `auto_test/README.md` 为准，由 `regen_readme.py` 自动生成，勿手抄数字。）
+[`auto_test/page_requirements.json`](./auto_test/page_requirements.json) 声明页面功能要求；
+[`auto_test/functional_inventory.json`](./auto_test/functional_inventory.json) 是确定性生成的清单。
+[`auto_test/specs/README.md`](./auto_test/specs/README.md) 说明可执行规格与运行命令。
+声明或静态清单不代表功能已经验收通过。
 
-目录结构**镜像 `lib/page/`**：
+新增或修改页面时，维护对应声明、可执行规格和实际回归测试，再运行：
 
-| 改了这个 | 就更新这个 |
-|---|---|
-| `lib/page/channel/channel_list_page.dart` | `test/auto_test/channel/channel_list_page.md` |
-| `lib/page/wallet/wallet_page.dart` | `test/auto_test/wallet/wallet_page.md` |
+```bash
+python3 scripts/auto_test_lib/inventory.py --check
+python3 scripts/auto_test.py validate --strict
+bash scripts/check_auto_test_framework.sh
+```
 
-入口：[`auto_test/README.md`](./auto_test/README.md)（全局汇总 + 模块索引 + 页面清单）
-
-**维护铁律 —— 保证文档有限膨胀**：
-
-| 规则 | 说明 |
-|---|---|
-| 一行 = 一个功能点 | 行数只随功能增加，**不随测试轮次增加** |
-| 按功能介绍**覆盖写** | 同一功能点永远只有一行；新一轮改状态和计数，不加行 |
-| bug 用**计数**不用叙述 | `待处理 = 发现 − 解决`，恒等式可自动校验 |
-| 备注只写**当前未闭环**的事 | 闭环即清空；修复细节去 git log 查 |
-
-新增页面时：在对应模块目录建 `<page_name>.md`，抽 8～12 个功能点，
-并更新 `auto_test/README.md` 的汇总与索引。
-
-### `demo_flow/` —— 跨模块业务流程计划
-
-`test/demo_flow/` 记录跨页面、跨模块的演示链路，例如频道到群日程、添加好友到单聊、
-群管理和朋友圈。它不镜像 `lib/page/`，不参与 `auto_test/README.md` 的页面/功能点统计，
-也不放可执行的 `*_test.dart` 文件。
-
-每个流程文档必须写清楚：前置账号与环境、操作步骤、对应的 `auto_test` 页面计划、
-服务端证据、验收标准、阻塞条件，以及未来对应的 `integration_test/` 文件。
-入口见 [`demo_flow/README.md`](./demo_flow/README.md)。
+AI 计划、执行台账、截图、日志和运行报告保存在仓外，不提交到 Git。
+`AUTO_TEST_REPORT_ROOT` 可指定仓外报告目录；未指定时，工具使用用户状态目录，
+统一检查门使用独立临时目录。`report`/`coverage-report` 显示实际报告路径。
+历史 `demo_flow/` Markdown 和页面台账仅为本地保留材料，不是新检出的必要输入。
+可复用业务旅程回归保留在 `integration_test/`。
 
 ### `test_driver/` —— flutter drive 驱动
 

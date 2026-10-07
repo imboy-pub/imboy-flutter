@@ -51,7 +51,7 @@
 | `WS_URL_OVERRIDE` | 否 | 空 | 覆盖 WebSocket 地址（集成测试注入，避免首次安装真机依赖历史缓存） |
 | `SOLIDIFIED_KEY_OVERRIDE` / `SOLIDIFIED_KEY_IV_OVERRIDE` | 否 | 空 | 覆盖签名密钥 / IV（测试用） |
 | `API_BASE_URL` | Tier 2/3 必填 | — | 集成测试与 macOS 桌面运行的后端地址（如 `http://127.0.0.1:9800`、`https://pro.imboy.pub`） |
-| `TEST_PHONE` / `TEST_PASSWORD` | 集成测试必填 | — | 测试账号凭证 |
+| `TEST_PHONE` / `TEST_PASSWORD` | 必填 | 由自有隔离环境提供 | 测试账号与凭证；运行前核对账号归属和登录能力。不得使用生产账号或把凭证写入仓库、报告。 |
 
 ### 支付（payment_config.dart）
 
@@ -96,7 +96,7 @@
 
 | 变量 | 必填 | 默认（test.env 现值） | 说明 |
 |------|------|------|------|
-| `TEST_PHONE` / `TEST_PASSWORD` | 必填 | `13900001002` / `admin888` | 测试账号。⚠️ 仓内脚本未见创建来源（`setup_test_data.sh` 只建 smoke 用的 alice/bob）；且该手机号在本地库存在两个 uid、凭证有效性存疑（记载见 `test/demo_flow/group_creation_flow.md:126-130`），使用前先在目标环境实测登录 |
+| `TEST_PHONE` / `TEST_PASSWORD` | 必填 | 由自有隔离环境提供 | 测试账号与凭证；运行前核对账号归属和登录能力。不得使用生产账号或把凭证写入仓库、报告。 |
 | `PGHOST` / `PGPORT` / `PGUSER` / `PGDATABASE` / `PGPASSWORD` | 必填 | `127.0.0.1` / `4323` / `imboy_user` / `imboy_v1` / `abc54321` | 测试 PostgreSQL 连接（`setup_test_data.sh` 使用） |
 | `IMBOYENV` | 必填 | `local` | 后端环境标识 |
 | `HTTP_PORT` | 必填 | `9800` | 后端 HTTP 端口 |

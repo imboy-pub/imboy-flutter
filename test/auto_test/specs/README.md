@@ -6,7 +6,10 @@
 
 `scripts/run_test_suite.sh` 的 L0 层会自动运行此规格校验，因此普通 quick/full/release 回归也会发现规格、源码路径或截图检查点失配；它只做静态检查，不会启动真机或模型。
 
+报告与截图保存在仓外。以下示例先指定报告目录；不得把它设为任何仓库内部路径。
+
 ```bash
+export AUTO_TEST_REPORT_ROOT="${TMPDIR:-/tmp}/imboyapp-regression-$(date +%Y%m%d-%H%M%S)"
 python3 scripts/auto_test.py validate
 python3 scripts/auto_test.py coverage-report
 python3 scripts/auto_test.py next-batch --limit 12
@@ -18,7 +21,7 @@ python3 scripts/auto_test.py visual-request --case CONVERSATION-LIST-001 --scree
 python3 scripts/auto_test.py visual-diff --baseline <基线.png> --current <当前截图.png> --diff <差异.png>
 python3 scripts/auto_test.py visual-review --request <任务.json> --output <结果.json>
 python3 scripts/auto_test.py baseline-register --case CONVERSATION-LIST-001 --screenshot <已人工确认截图.png> --device android-1080x2400 --theme light
-python3 scripts/auto_test.py render-report --summary test/auto_test/reports/<run-id>/summary.json --output test/auto_test/reports/<run-id>/report.md
+python3 scripts/auto_test.py render-report --summary "$AUTO_TEST_REPORT_ROOT/<run-id>/summary.json" --output "$AUTO_TEST_REPORT_ROOT/<run-id>/report.md"
 ```
 
 只有显式传入 `--execute`，且目标为本地地址，执行器才会运行 Flutter/Patrol 测试；远程环境还需要 `IMBOY_ALLOW_REMOTE_TEST=1`。高风险 case 的 `safe_to_execute` 默认是 `false`，执行器只会报告阻塞。
@@ -39,7 +42,7 @@ export IMBOY_TEST_PASSWORD='<测试密码>'
 python3 scripts/capture_integration_screenshots.py \
   --target integration_test/chat/conversation_test.dart \
   --device <Android真实设备ID> \
-  --output test/auto_test/reports/<run-id>/screenshots
+  --output "$AUTO_TEST_REPORT_ROOT/<run-id>/screenshots"
 ```
 
 该脚本只在现有 `takeScreenshot` 检查点短暂停留并抓屏；没有显式配置测试账号时会在启动前 `BLOCKED`。
