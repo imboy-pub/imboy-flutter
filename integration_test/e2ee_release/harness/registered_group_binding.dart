@@ -211,7 +211,8 @@ Object? _immutableGroupValue(Object? value) {
       value.map((key, item) => MapEntry(key, _immutableGroupValue(item))),
     );
   }
-  if (value is List)
+  if (value is List) {
     return List<Object?>.unmodifiable(value.map(_immutableGroupValue));
+  }
   return value;
 }

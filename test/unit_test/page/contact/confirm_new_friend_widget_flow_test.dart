@@ -46,7 +46,7 @@ class SpyConfirmNewFriendNotifier extends ConfirmNewFriendNotifier {
   }) : _confirmResult = confirmResult,
        initialTag = initialTag;
 
-  bool _confirmResult;
+  final bool _confirmResult;
   final String initialTag;
 
   int confirmCalls = 0;
