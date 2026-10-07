@@ -1,101 +1,51 @@
 /// 会话状态同步集成测试
 ///
 /// 测试目标：
-/// 1. 会话创建和更新
-/// 2. 新消息到达时会话状态同步
-/// 3. 会话最后消息更新
-/// 4. 会话在内存和数据库的一致性
-/// 5. 事件发布和订阅机制
-@Skip('Requires native sqflite_sqlcipher plugin — run on device')
+/// 1. 生产Schema上的会话创建、查询、更新和删除
+/// 2. 保存会话时的未读数累加
+/// 3. 会话列表排序与类型筛选
+/// 4. 消息摘要和UK3生成
+/// 5. JSON序列化及特殊字符持久化
 library;
 
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const MethodChannel pathProviderChannel = MethodChannel(
-    'plugins.flutter.io/path_provider',
-  );
+  late Database db;
 
-  // 初始化服务
   setUpAll(() async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(pathProviderChannel, (methodCall) async {
-          switch (methodCall.method) {
-            case 'getTemporaryDirectory':
-            case 'getApplicationDocumentsDirectory':
-            case 'getApplicationSupportDirectory':
-            case 'getDatabasesPath':
-              return Directory.systemTemp.path;
-            default:
-              return Directory.systemTemp.path;
-          }
-        });
-
-    SharedPreferences.setMockInitialValues({});
-    // 初始化存储服务（数据库服务依赖它）
+    SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
-    await StorageService.to.setString(
-      Keys.currentUid,
-      'test_uid_for_conversation',
-    );
-    // 初始化数据库服务
-    await SqliteService.to.db;
+    await StorageService.to.setString(Keys.currentUid, '995013');
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    db = await openFixtureDatabaseAtVersion(version: 32);
+    SqliteService.setDbForTest(db);
   });
 
   tearDownAll(() async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(pathProviderChannel, null);
+    SqliteService.setDbForTest(null);
+    await db.close();
   });
 
   group('会话状态同步集成测试', () {
     late ConversationRepo conversationRepo;
-    late StreamSubscription<DataWrapperEvent<dynamic>> eventSubscription;
 
     setUp(() async {
+      await db.delete(ConversationRepo.tableName);
       conversationRepo = ConversationRepo();
-
-      // 每个用例前清理当前测试用户的会话数据，避免跨用例/跨轮次残留影响断言。
-      try {
-        await SqliteService.to.delete(
-          ConversationRepo.tableName,
-          where: '${ConversationRepo.userId} = ?',
-          whereArgs: ['test_uid_for_conversation'],
-        );
-      } catch (_) {
-        // 清理失败不阻塞当前用例，后续断言会暴露真实问题。
-      }
-
-      // 订阅会话更新事件
-      eventSubscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
-        event,
-      ) {
-        // 测试中只记录事件，不做处理
-      });
-    });
-
-    tearDown(() async {
-      await eventSubscription.cancel();
-
-      // 清理测试数据
-      try {
-        await conversationRepo.delete('C2C', 'test_peer_user_1');
-        await conversationRepo.delete('C2G', 'test_group_1');
-      } catch (e) {
-        // 忽略清理错误
-      }
     });
 
     group('会话基础功能', () {
@@ -165,10 +115,7 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 查找会话
-        final found = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_peer_user_2',
-        );
+        final found = await conversationRepo.findByPeerId('C2C', '1302');
 
         expect(found, isNotNull);
         expect(found!.peerId, 1302);
@@ -255,16 +202,13 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 通过 peerId 更新
-        await conversationRepo.updateByPeerId('C2C', 'test_peer_user_5', {
+        await conversationRepo.updateByPeerId('C2C', '1305', {
           ConversationRepo.title: 'peerId更新后的标题',
           ConversationRepo.unreadNum: 3,
         });
 
         // 3. 验证更新
-        final updated = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_peer_user_5',
-        );
+        final updated = await conversationRepo.findByPeerId('C2C', '1305');
 
         expect(updated, isNotNull);
         expect(updated!.title, 'peerId更新后的标题');
@@ -358,10 +302,7 @@ void main() {
         await conversationRepo.save(conv); // saved variable not needed
 
         // 重新读取
-        final found = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_peer_user_8',
-        );
+        final found = await conversationRepo.findByPeerId('C2C', '8');
 
         expect(found, isNotNull);
         expect(found!.payload, isNotNull);
@@ -395,7 +336,7 @@ void main() {
         // 2. 查询所有会话
         final list = await conversationRepo.list();
 
-        expect(list, isNotEmpty);
+        expect(list, hasLength(3));
         // 验证按 lastTime DESC 排序（最新的在前面）
         expect(list.first.lastTime, greaterThan(list.last.lastTime));
       });
@@ -612,7 +553,7 @@ void main() {
 
         final content = conv.content;
 
-        expect(content, contains('[位置]'));
+        expect(content, '[地点]北京市朝阳区建国路88号');
         expect(content, contains('北京市朝阳区建国路88号'));
       });
 
@@ -675,8 +616,7 @@ void main() {
 
         final uk3 = conv.uk3;
 
-        expect(uk3, isNotEmpty);
-        expect(uk3, contains('C2C'));
+        expect(uk3, 'C2C_3_995013');
       });
 
       test('应该正确生成 C2G 会话的 UK3', () {
@@ -696,8 +636,7 @@ void main() {
 
         final uk3 = conv.uk3;
 
-        expect(uk3, isNotEmpty);
-        expect(uk3, contains('C2G'));
+        expect(uk3, 'C2G_995013_3');
       });
     });
 
@@ -721,20 +660,14 @@ void main() {
         await conversationRepo.insert(conv);
 
         // 2. 验证存在
-        final foundBefore = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_peer_user_delete',
-        );
+        final foundBefore = await conversationRepo.findByPeerId('C2C', '1400');
         expect(foundBefore, isNotNull);
 
         // 3. 删除
-        await conversationRepo.delete('C2C', 'test_peer_user_delete');
+        await conversationRepo.delete('C2C', '1400');
 
         // 4. 验证已删除
-        final foundAfter = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_peer_user_delete',
-        );
+        final foundAfter = await conversationRepo.findByPeerId('C2C', '1400');
         expect(foundAfter, isNull);
       });
     });
@@ -885,10 +818,7 @@ void main() {
 
         expect(saved, greaterThan(0));
 
-        final found = await conversationRepo.findByPeerId(
-          'C2C',
-          'test_peer_large_unread',
-        );
+        final found = await conversationRepo.findByPeerId('C2C', '1402');
 
         expect(found, isNotNull);
         expect(found!.unreadNum, 999999);
@@ -903,17 +833,17 @@ void main() {
           '用户\t制表符\t测试',
         ];
 
-        for (final title in specialTitles) {
+        for (final (index, title) in specialTitles.indexed) {
           final conv = ConversationModel(
             id: 0,
-            peerId: title.hashCode.abs() % 10000 + 2000,
+            peerId: index + 2000,
             avatar: '',
             title: title,
             subtitle: '测试',
             type: 'C2C',
             msgType: 'text',
             lastTime: 1642579200000,
-            lastMsgId: title.hashCode.abs() % 10000 + 3000,
+            lastMsgId: index + 3000,
             unreadNum: 0,
             payload: {},
           );
@@ -921,6 +851,9 @@ void main() {
           final saved = await conversationRepo.insert(conv);
 
           expect(saved, greaterThan(0));
+          final persisted = await conversationRepo.findById(saved);
+          expect(persisted, isNotNull);
+          expect(persisted!.title, title);
         }
       });
 
