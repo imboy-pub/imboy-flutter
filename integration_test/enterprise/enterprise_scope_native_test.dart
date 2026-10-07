@@ -34,6 +34,7 @@ import 'package:imboy/modules/organization/presentation/organization_departments
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
@@ -837,7 +838,10 @@ Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
   final mine = personalTab('tab_mine');
   await waitFor(tester, mine.hitTestable());
   await tester.tap(mine);
-  final switcher = find.text(t.organization.picker.switchEnterprise);
+  final switcher = find.descendant(
+    of: find.byType(MinePage),
+    matching: find.text(t.organization.picker.switchEnterprise),
+  );
   await waitFor(tester, switcher.hitTestable());
   await tester.tap(switcher);
 }
