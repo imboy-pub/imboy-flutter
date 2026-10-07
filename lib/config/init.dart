@@ -35,6 +35,7 @@ import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/push_notification_service.dart';
+import 'package:imboy/service/jpush_flutter_binding.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
@@ -655,6 +656,14 @@ class AppInitializer {
 
     // 初始化推送通知服务（FCM token 注册 + 前台消息监听）
     await PushNotificationService.instance.initialize();
+
+    // Q09/G2（AC23 Android 前置）：JPush SDK 接线（EPGZ-06 W3 桥的 W4
+    // 集成波次落点）。一期 phase1 profile 语义：`--dart-define
+    // IMBOY_JPUSH_ENABLED` 缺省 false → standard 构建零行为变化；
+    // Android + 构建开关开启才 setup/注册（JPushSdkWiring 内部守卫）。
+    // 安全性：unawaited（不阻塞启动链）+ 内部 _initialized 幂等守卫 +
+    // 原生异常 try-catch 降级（失败 = 无推送，不影响其余功能）。
+    unawaited(JPushSdkWiring().initialize());
 
     // 初始化地图服务
     AMapHelper.init(); // 设置隐私协议（必须先调用）

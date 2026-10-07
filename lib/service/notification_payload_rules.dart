@@ -15,6 +15,22 @@
 ///    新增 `friend_request` / `group_invite` 显式分支。
 /// 4. **不做副作用**：仅返回 sealed Result + 路径字符串，**不调用 GoRouter**，
 ///    路由跳转由调用侧（`NotificationService` / `PushNotificationService`）负责。
+///
+/// ## ⚠️ 待用户决策 C1（Q09 / 2026-10-07，决策前不得改动本语义）
+///
+/// 服务端隐私不变量：C2C/C2G 聊天推送的 Data **恒为空**（文案恒常量
+/// 「新消息/发来一条消息」，推送 payload 禁止携带 peer_id/chat_type 等
+/// 动态内容——见 imboy `push_notification_logic` 隐私注释）。因此**远程
+/// 聊天推送点击后 [parseNotificationPayload] 必然返回
+/// `Skip('empty_payload')`，不导航到会话**；仅 org_invite（notify_type
+/// 常量）与**本地通知**（App 在线收到消息自建 payload，携带完整坐标）
+/// 可路由。
+///
+/// 这与 AC23「点击正确会话」存在合同冲突（CONTRACT_CONFLICT C1），两个
+/// 候选方案（a）服务端放宽 Data 白名单至 {notify_type, peer_id,
+/// chat_type} 常量坐标集 /（b）验收口径改为仅 org_invite 可路由、聊天
+/// 推送点击降级「打开 App」——**须由用户拍板**。该不变量已固化为测试：
+/// `notification_payload_rules_test.dart` 的「C1 隐私不变量」组。
 library;
 
 /// 通知类别（对齐 `notify_type` 字段）

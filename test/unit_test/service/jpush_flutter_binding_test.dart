@@ -7,7 +7,9 @@
 /// - onOpenNotification → extras 提取 → parseNotificationPayload →
 ///   tapRouter（登录守卫/路由由注入 router 断言，不拉起 GetX）；
 /// - 冷启动 getLaunchAppNotification 补投（空 map 不路由）；
-/// - 原生异常不外抛（降级语义）。
+/// - 原生异常不外抛（降级语义）；
+/// - Q09/G2：启动链安全契约（init.dart `unawaited` 接线依赖
+///   initialize 永不外抛——setup/registerHandlers 抛异常也吞掉）。
 ///
 /// 纯函数 [extractJPushRoutingPayload] 矩阵直测。
 library;
@@ -37,6 +39,9 @@ class _FakeJPushPlugin implements JPushPluginChannel {
   int registrationIdFetchCount = 0;
   Object? fetchError;
 
+  /// 非空时 registerHandlers 抛出（Q09/G2 启动链安全用例）。
+  Object? registerHandlersError;
+
   @override
   void setup({required bool production, required String channel}) {
     setupCalled = true;
@@ -50,6 +55,7 @@ class _FakeJPushPlugin implements JPushPluginChannel {
     Future<void> Function(Map<String, dynamic> event)? onReceiveNotification,
     Future<void> Function(Map<String, dynamic> event)? onConnected,
   }) {
+    if (registerHandlersError != null) throw registerHandlersError!;
     this.onOpenNotification = onOpenNotification;
     this.onConnected = onConnected;
   }
@@ -85,6 +91,28 @@ JPushSdkWiring _wiringWith(
     enabledCheck: () => enabled,
     registrationIdPollAttempts: pollAttempts,
   );
+}
+
+/// Q09/G2 启动链安全用例：setup 即抛（原生插件未注册/初始化失败的形态）。
+class _ThrowingSetupPlugin implements JPushPluginChannel {
+  @override
+  void setup({required bool production, required String channel}) {
+    throw Exception('native plugin not registered');
+  }
+
+  @override
+  void registerHandlers({
+    Future<void> Function(Map<String, dynamic> event)? onOpenNotification,
+    Future<void> Function(Map<String, dynamic> event)? onReceiveNotification,
+    Future<void> Function(Map<String, dynamic> event)? onConnected,
+  }) {}
+
+  @override
+  Future<String> fetchRegistrationId() async => 'rid-never-reached';
+
+  @override
+  Future<Map<dynamic, dynamic>> fetchLaunchNotification() async =>
+      <dynamic, dynamic>{};
 }
 
 void main() {
@@ -199,6 +227,40 @@ void main() {
       await plugin.onConnected!(<String, dynamic>{'result': true});
       await pumpEventQueue();
       expect(tokens, <String>['rid-1'], reason: '空 rid 不得注入');
+    });
+  });
+
+  /// Q09/G2（AC23 Android 前置）：启动链接入安全性契约。
+  ///
+  /// init.dart `_initializeServices` 以 `unawaited(JPushSdkWiring().initialize())`
+  /// 接线（PushNotificationService.initialize 之后）。unawaited 的前提是
+  /// **initialize 的 Future 永不抛错**——否则变成 uncaught async error 污染
+  /// 启动链。这里固化各环节原生异常都被吞掉（降级 = 无推送）的契约。
+  group('initialize — 启动链安全（Q09/G2）', () {
+    test('setup 抛 Exception → 吞掉不外抛（失败 = 无推送，不阻断启动）', () async {
+      final plugin = _ThrowingSetupPlugin();
+      final tokens = <String>[];
+      final wiring = JPushSdkWiring.withDefaults(
+        plugin: plugin,
+        tokenInjector: (String rid) async => tokens.add(rid),
+        tapRouter: (_) {},
+        enabledCheck: () => true,
+        registrationIdPollAttempts: 1,
+      );
+      // 若 initialize 外抛，此 await 直接 fail 测试（即启动链被污染）。
+      await wiring.initialize();
+      await pumpEventQueue();
+      expect(tokens, isEmpty, reason: 'setup 失败后不得继续注入 token');
+    });
+
+    test('registerHandlers 抛 Exception → 同样吞掉不外抛', () async {
+      final plugin = _FakeJPushPlugin(registrationIds: <String>['rid-1'])
+        ..registerHandlersError = Exception('handler registration failed');
+      final tokens = <String>[];
+      final wiring = _wiringWith(plugin, injectedTokens: tokens);
+      await wiring.initialize();
+      await pumpEventQueue();
+      expect(tokens, isEmpty);
     });
   });
 

@@ -22,9 +22,10 @@
 /// 日志红线：RegistrationID / AppKey / MasterSecret 不落日志。
 ///
 /// **W3 形态注**：本桥为独立新文件（未改 A7 的 push 模块源文件）；
-/// 启动期调用点（AppInitializer，`lib/config/init.dart` 共享文件）归
-/// A0 W4 集成波次接线——调用形态：在 `PushNotificationService.initialize()`
-/// 之后 `unawaited(JPushSdkWiring().initialize())`。
+/// 启动期调用点已于 Q09/G2（2026-10-07）接入 `lib/config/init.dart`
+/// `_initializeServices`——在 `PushNotificationService.initialize()` 之后
+/// `unawaited(JPushSdkWiring().initialize())`（一期 phase1 profile 语义：
+/// `IMBOY_JPUSH_ENABLED` 缺省 false，standard 构建零行为变化）。
 library;
 
 import 'dart:async';
