@@ -210,29 +210,27 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       return false;
     }
 
-    updateVisibility(!state.peopleNearbyVisible);
-
     bool res = await LocationApi().makeMyselfVisible(
       longitude: state.longitude,
       latitude: state.latitude,
     );
     if (res) {
       var s = UserRepoLocal.to.setting;
+      updateVisibility(true);
       s.peopleNearbyVisible = true;
-      UserRepoLocal.to.changeSetting(s);
+      await UserRepoLocal.to.changeSetting(s);
     }
     return res;
   }
 
   /// 让自己不可见
   Future<bool> makeMyselfUnVisible() async {
-    updateVisibility(!state.peopleNearbyVisible);
-
     bool res = await LocationApi().makeMyselfUnVisible();
     if (res) {
       var s = UserRepoLocal.to.setting;
+      updateVisibility(false);
       s.peopleNearbyVisible = false;
-      UserRepoLocal.to.changeSetting(s);
+      await UserRepoLocal.to.changeSetting(s);
     }
     return res;
   }
