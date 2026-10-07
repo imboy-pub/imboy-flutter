@@ -9,6 +9,15 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
+
+import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
+
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -19,24 +28,35 @@ void main() {
     late MessageOfflineService offlineService;
     late MessageRepo messageRepo;
 
-    setUp(() {
+    late Database db;
+    late ProviderContainer container;
+
+    setUpAll(() async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '995011'});
+      await StorageService.init();
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      db = await openFixtureDatabaseAtVersion(version: 32);
+      SqliteService.setDbForTest(db);
+    });
+
+    tearDownAll(() async {
+      SqliteService.setDbForTest(null);
+      await db.close();
+    });
+
+    setUp(() async {
+      await db.delete('msg_c2c');
+      await db.delete('conversation');
+      container = ProviderContainer();
+      MessageRepo.setProviderContainer(container);
       offlineService = MessageOfflineService.instance;
       messageRepo = MessageRepo(tableName: 'msg_c2c');
     });
 
     tearDown(() async {
       offlineService.onDispose();
-      // 清理测试数据
-      try {
-        for (int i = 0; i < 10; i++) {
-          final testMsg = await messageRepo.find('offline_test_msg_$i');
-          if (testMsg != null) {
-            await messageRepo.delete(testMsg.id.toString());
-          }
-        }
-      } catch (e) {
-        // 忽略清理错误
-      }
+      container.dispose();
     });
 
     group('基础功能测试', () {
@@ -230,18 +250,18 @@ void main() {
         final testMessages = <Map<String, dynamic>>[];
         for (int i = 0; i < 3; i++) {
           testMessages.add({
-            'id': 'offline_test_msg_$i',
+            'id': '${116837000000000010 + i}',
             'type': 'C2C',
             'msg_type': 'text',
             'action': '',
             'e2ee': '',
             'payload': {'text': 'Test message $i'},
-            'from': 'user1',
-            'to': 'user2',
+            'from': '995012',
+            'to': '995011',
             'created_at': 1642579200000 + (i * 1000),
             'status': IMBoyMessageStatus.delivered,
             'is_author': 0,
-            'conversation_uk3': 'C2C_user1_user2',
+            'conversation_uk3': 'C2C_995011_995012',
           });
         }
 
@@ -250,15 +270,19 @@ void main() {
           testMessages,
         );
 
-        // 验证插入成功
-        expect(msgIds, isNotNull);
-        expect(msgIds!.length, greaterThanOrEqualTo(0));
-
-        // 清理
-        for (final msgId in msgIds) {
-          await messageRepo.delete(msgId);
-        }
-      }, skip: '需要 sqflite_ffi 初始化真实数据库');
+        final expectedIds = testMessages.map((msg) => msg['id']).toList();
+        expect(msgIds, expectedIds);
+        expect(
+          await messageRepo.batchInsertOfflineMessages(testMessages),
+          expectedIds,
+        );
+        final stored = await db.query('msg_c2c');
+        expect(
+          stored.map((row) => row['id'].toString()),
+          unorderedEquals(expectedIds),
+        );
+        expect((await db.query('conversation')).single['unread_num'], 3);
+      });
     });
 
     group('分页处理', () {
