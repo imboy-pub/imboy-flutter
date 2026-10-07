@@ -586,6 +586,8 @@ class MessageOfflineService {
       }
 
       final ordinaryAckIds = <String>[];
+      Object? ordinaryFailure;
+      StackTrace? ordinaryFailureStack;
       if (ordinaryMessages.isNotEmpty) {
         try {
           final ids =
@@ -598,10 +600,12 @@ class MessageOfflineService {
                     },
                   );
           ordinaryAckIds.addAll(ids ?? <String>[]);
-        } on Object catch (e) {
+        } on Object catch (e, stack) {
           // 批量入库失败：普通消息不入 ACK（服务端保留 pending 下次重拉，
           // msg_id 幂等兜底重复插入），已入库的加密消息仍正常 ACK
           iPrint('普通离线消息批量入库失败本批不ACK err=${e.runtimeType}');
+          ordinaryFailure = e;
+          ordinaryFailureStack = stack;
         }
       }
       final msgIds = {...encryptedAckIds, ...ordinaryAckIds}.toList();
@@ -609,6 +613,10 @@ class MessageOfflineService {
       if (msgIds.isNotEmpty) {
         // 发送确认消息
         await _sendOfflineAck(type, msgIds);
+      }
+      // 已提交的安全消息仍可 ACK，但失败批次不能推进游标或计为成功。
+      if (ordinaryFailure != null) {
+        Error.throwWithStackTrace(ordinaryFailure, ordinaryFailureStack!);
       }
       iPrint('$type 离线消息处理完成');
     } on Object catch (e) {
