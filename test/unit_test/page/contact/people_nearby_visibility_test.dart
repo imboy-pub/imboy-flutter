@@ -15,6 +15,8 @@ import 'package:imboy/store/model/people_model.dart';
 
 class _Adapter implements HttpClientAdapter {
   final requested = Completer<void>();
+  final paths = <String>[];
+  int responseCode = 0;
   final response = Completer<ResponseBody>();
 
   @override
@@ -23,8 +25,17 @@ class _Adapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) {
+    paths.add(options.path);
     if (!requested.isCompleted) requested.complete();
-    return response.future;
+    return response.future.then(
+      (_) => ResponseBody.fromString(
+        '{"code":$responseCode,"msg":"","payload":{}}',
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      ),
+    );
   }
 
   @override
@@ -76,6 +87,7 @@ void main() {
   });
 
   void reply(bool success) {
+    adapter.responseCode = success ? 0 : 1;
     adapter.response.complete(
       ResponseBody.fromString(
         '{"code":${success ? 0 : 1},"msg":"","payload":{}}',
@@ -229,6 +241,47 @@ void main() {
       expect(current.latitude, isEmpty);
       expect(current.peopleList, isEmpty);
       expect(current.isLoading, false);
+    },
+  );
+  test('rapid show then hide sends visibility changes in order', () async {
+    final notifier = container.read(peopleNearbyProvider.notifier);
+    notifier.updateLocation('113', '23');
+    final show = notifier.makeMyselfVisible();
+    await adapter.requested.future.timeout(const Duration(seconds: 5));
+    final hide = notifier.makeMyselfUnVisible();
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    expect(adapter.paths, [API.makeMyselfVisible]);
+    reply(true);
+    expect(await show, true);
+    expect(await hide, true);
+    expect(adapter.paths, [API.makeMyselfVisible, API.makeMyselfUnVisible]);
+    expect(container.read(peopleNearbyProvider).peopleNearbyVisible, false);
+    expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+  });
+  test(
+    'new account can update visibility while old account queue is pending',
+    () async {
+      final oldNotifier = container.read(peopleNearbyProvider.notifier);
+      oldNotifier.updateLocation('113', '23');
+      final oldShow = oldNotifier.makeMyselfVisible();
+      await adapter.requested.future.timeout(const Duration(seconds: 5));
+      final oldHide = oldNotifier.makeMyselfUnVisible();
+      await switchAccount(visible: true);
+      container.read(peopleNearbyProvider);
+      final newAdapter = _Adapter();
+      HttpClient.adapterForTest = newAdapter;
+      final newHide = container
+          .read(peopleNearbyProvider.notifier)
+          .makeMyselfUnVisible();
+      await newAdapter.requested.future.timeout(const Duration(seconds: 5));
+      newAdapter.response.complete(ResponseBody.fromString('', 200));
+      expect(await newHide, true);
+      expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
+      reply(true);
+      expect(await oldShow, false);
+      expect(await oldHide, false);
+      expect(adapter.paths, [API.makeMyselfVisible]);
+      expect(UserRepoLocal.to.setting.peopleNearbyVisible, false);
     },
   );
 }

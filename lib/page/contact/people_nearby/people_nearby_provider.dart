@@ -61,6 +61,7 @@ class PeopleNearbyState {
 class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
   int _epoch = 0;
   int _listRequest = 0;
+  Future<void> _visibilityWrites = Future<void>.value();
 
   (String, int, int) get _session =>
       (UserRepoLocal.to.currentUid, UserRepoLocal.to.sessionGeneration, _epoch);
@@ -75,6 +76,7 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
         (user) => (user?.uid ?? '', UserRepoLocal.to.sessionGeneration),
       ),
     );
+    _visibilityWrites = Future<void>.value();
     _epoch++;
     _listRequest++;
     // 初始化时从本地存储读取可见性设置
@@ -236,43 +238,50 @@ class PeopleNearbyNotifier extends Notifier<PeopleNearbyState> {
       return false;
     }
 
-    bool res = await LocationApi().makeMyselfVisible(
-      longitude: state.longitude,
-      latitude: state.latitude,
-    );
-    if (!_isCurrent(session)) return false;
-    if (res) {
-      var s = UserRepoLocal.to.setting;
-      s.peopleNearbyVisible = true;
-      final saved = await UserRepoLocal.to.changeSettingForSession(
-        s,
-        uid: session.$1,
-        generation: session.$2,
-      );
-      if (!saved || !_isCurrent(session)) return false;
-      updateVisibility(s.peopleNearbyVisible);
-    }
-    return res;
+    return _setVisibility(true);
   }
 
   /// 让自己不可见
-  Future<bool> makeMyselfUnVisible() async {
+  Future<bool> makeMyselfUnVisible() => _setVisibility(false);
+
+  Future<bool> _setVisibility(bool visible) {
     final session = _session;
+    if (session.$1.isEmpty || !_isCurrent(session)) return Future.value(false);
+    final longitude = state.longitude;
+    final latitude = state.latitude;
+    final result = _visibilityWrites.then(
+      (_) => _commitVisibility(session, visible, longitude, latitude),
+    );
+    // 仅恢复队列，原 result 仍向调用方传播错误。
+    _visibilityWrites = result.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    return result;
+  }
+
+  Future<bool> _commitVisibility(
+    (String, int, int) session,
+    bool visible,
+    String longitude,
+    String latitude,
+  ) async {
     if (session.$1.isEmpty || !_isCurrent(session)) return false;
-    bool res = await LocationApi().makeMyselfUnVisible();
+    final api = LocationApi();
+    final res = visible
+        ? await api.makeMyselfVisible(longitude: longitude, latitude: latitude)
+        : await api.makeMyselfUnVisible();
     if (!_isCurrent(session)) return false;
-    if (res) {
-      var s = UserRepoLocal.to.setting;
-      s.peopleNearbyVisible = false;
-      final saved = await UserRepoLocal.to.changeSettingForSession(
-        s,
-        uid: session.$1,
-        generation: session.$2,
-      );
-      if (!saved || !_isCurrent(session)) return false;
-      updateVisibility(s.peopleNearbyVisible);
-    }
-    return res;
+    if (!res) return false;
+    final setting = UserRepoLocal.to.setting..peopleNearbyVisible = visible;
+    final saved = await UserRepoLocal.to.changeSettingForSession(
+      setting,
+      uid: session.$1,
+      generation: session.$2,
+    );
+    if (!saved || !_isCurrent(session)) return false;
+    updateVisibility(visible);
+    return true;
   }
 }
 
