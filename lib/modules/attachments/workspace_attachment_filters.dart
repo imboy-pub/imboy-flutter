@@ -113,9 +113,17 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
       children: [
         Row(
           children: [
-            Expanded(child: _dropdown('group_id', t.allGroups)),
+            Expanded(
+              child: _dropdown('group_id', t.allGroups, t.selectGroupTitle),
+            ),
             const SizedBox(width: AppSpacing.small),
-            Expanded(child: _dropdown('channel_id', t.allChannels)),
+            Expanded(
+              child: _dropdown(
+                'channel_id',
+                t.allChannels,
+                t.selectChannelTitle,
+              ),
+            ),
           ],
         ),
         AppSpacing.verticalSmall,
@@ -219,52 +227,176 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
     );
   }
 
-  Widget _dropdown(String key, String label) {
+  /// 群组/频道选择器：字段外壳沿用控件族容器（InputDecorator），点开后
+  /// 用底部弹层选择（iOS 惯例）替代 Material 下拉覆盖层——覆盖层与字段
+  /// 错位、无选中勾选态、长列表滚动差，弹层一并解决。
+  Widget _dropdown(String key, String label, String sheetTitle) {
     final selected = _selection[key];
+    final selectedLabel = selected == null ? null : _choices[key]?[selected];
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // value 已弃用（Flutter 3.33+）：initialValue + ValueKey 重建——
-    // 「清除筛选」等外部状态变化仍能重置下拉回显。
-    return DropdownButtonFormField<EntityId>(
-      key: ValueKey('$key:$selected'),
-      initialValue: selected,
-      isExpanded: true,
-      // 触达高度：内容 padding(12*2) + 行高 ≈ 46。
-      icon: Icon(
-        CupertinoIcons.chevron_down,
-        size: 16,
-        color: AppColors.iosGray,
-      ),
-      style: context.textStyle(
-        FontSizeType.normal,
-        color: selected == null
-            ? AppColors.iosGray
-            : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-      ),
-      decoration: _fieldDecoration(
-        context,
-        active: selected != null,
-        hintText: label,
-      ),
-      items: [
-        DropdownMenuItem(value: '', child: Text(label)),
-        for (final choice in _choices[key]!.entries)
-          DropdownMenuItem(
-            value: choice.key,
-            child: Text(choice.value, overflow: TextOverflow.ellipsis),
+    return InkWell(
+      borderRadius: AppRadius.input,
+      onTap: () => _openPicker(context, key, label, sheetTitle),
+      child: InputDecorator(
+        decoration: _fieldDecoration(
+          context,
+          active: selected != null,
+          hintText: label,
+          suffixIcon: Icon(
+            CupertinoIcons.chevron_down,
+            size: 16,
+            color: AppColors.iosGray,
           ),
-      ],
-      onChanged: (value) {
-        setState(() {
-          if (value == null || value.isEmpty) {
-            _selection.remove(key);
-          } else {
-            _selection[key] = value;
-          }
-          if (key == 'group_id') _selection.remove('channel_id');
-          if (key == 'channel_id') _selection.remove('group_id');
-        });
-        _emit();
-      },
+        ),
+        // 空 child 时 InputDecorator 落回 hint 形态；选中回显常规前景。
+        child: selectedLabel == null
+            ? null
+            : Text(
+                selectedLabel,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
+              ),
+      ),
+    );
+  }
+
+  /// 底部弹层选择：「全部」回传 ''（清除），具体项回传其 id；滑落/点外
+  /// 回传 null = 不变更。
+  Future<void> _openPicker(
+    BuildContext context,
+    String key,
+    String allLabel,
+    String title,
+  ) async {
+    final choices = _choices[key]!;
+    final selected = _selection[key];
+    final picked = await showModalBottomSheet<EntityId>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.6,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 拖拽指示条。
+              Container(
+                width: 36,
+                height: 5,
+                margin: const EdgeInsets.only(top: AppSpacing.small),
+                decoration: BoxDecoration(
+                  color: Theme.of(sheetContext).brightness == Brightness.dark
+                      ? AppColors.iosGray3Dark
+                      : AppColors.iosGray4,
+                  borderRadius: BorderRadius.circular(2.5),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: AppSpacing.medium,
+                ),
+                child: Text(
+                  title,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.only(bottom: AppSpacing.small),
+                  children: [
+                    _pickerOption(
+                      sheetContext,
+                      label: allLabel,
+                      selected: selected == null,
+                      onPick: () => Navigator.pop(sheetContext, ''),
+                    ),
+                    for (final choice in choices.entries)
+                      _pickerOption(
+                        sheetContext,
+                        label: choice.value,
+                        selected: choice.key == selected,
+                        onPick: () => Navigator.pop(sheetContext, choice.key),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      if (picked.isEmpty) {
+        _selection.remove(key);
+      } else {
+        _selection[key] = picked;
+      }
+      if (key == 'group_id') _selection.remove('channel_id');
+      if (key == 'channel_id') _selection.remove('group_id');
+    });
+    _emit();
+  }
+
+  /// 弹层选项行：≥48pt 触达、名称 + 当前项 primary 勾选。
+  Widget _pickerOption(
+    BuildContext sheetContext, {
+    required String label,
+    required bool selected,
+    required VoidCallback onPick,
+  }) {
+    final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
+    return InkWell(
+      onTap: onPick,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
+        alignment: Alignment.centerLeft,
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyle(
+                  FontSizeType.normal,
+                  fontWeight: selected ? FontWeight.w600 : null,
+                  color: selected
+                      ? AppColors.getIosBlue(Theme.of(sheetContext).brightness)
+                      : (isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary),
+                ),
+              ),
+            ),
+            if (selected)
+              Icon(
+                CupertinoIcons.check_mark,
+                size: 18,
+                color: AppColors.getIosBlue(Theme.of(sheetContext).brightness),
+              ),
+          ],
+        ),
+      ),
     );
   }
 

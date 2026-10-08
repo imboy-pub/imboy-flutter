@@ -302,6 +302,8 @@ class _Translations$attachmentManager$en_US extends Translations$attachmentManag
 	@override String get emptyHint => 'Try a different keyword or filter';
 	@override String get clearFiltersAction => 'Clear filters';
 	@override String get retryAction => 'Retry';
+	@override String get selectGroupTitle => 'Select a group';
+	@override String get selectChannelTitle => 'Select a channel';
 }
 
 // Path: billing
@@ -3553,6 +3555,8 @@ extension on TranslationsEnUs {
 			'attachmentManager.emptyHint' => 'Try a different keyword or filter',
 			'attachmentManager.clearFiltersAction' => 'Clear filters',
 			'attachmentManager.retryAction' => 'Retry',
+			'attachmentManager.selectGroupTitle' => 'Select a group',
+			'attachmentManager.selectChannelTitle' => 'Select a channel',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3871,10 +3875,10 @@ extension on TranslationsEnUs {
 			'chat.youWithdrewAMessage' => 'You recalled a message',
 			'chat.formatCheck' => 'Format check',
 			'chat.featureRequest' => 'Feature request',
-			'chat.chatResend' => 'Resend',
-			'chat.profileExportProfile' => 'Export profile',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatResend' => 'Resend',
+			'chat.profileExportProfile' => 'Export profile',
 			'chat.momentsSend' => 'Send',
 			'chat.loginExpiredMessage' => 'Session expired. Please log in again.',
 			'chat.alipayLoginInterrupted' => 'Alipay sign-in was interrupted. Please try again.',
@@ -4385,10 +4389,10 @@ extension on TranslationsEnUs {
 			'common.deleteSuccess' => 'Deleted successfully',
 			'common.localDeleteSuccess' => 'Local deletion successful',
 			'common.localDeleteFailed' => 'Local deletion failed',
-			'common.revokeSuccess' => 'Revoked successfully',
-			'common.editContentCannotBeEmpty' => 'Edit content cannot be empty',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => 'Revoked successfully',
+			'common.editContentCannotBeEmpty' => 'Edit content cannot be empty',
 			'common.editSuccess' => 'Edit successful',
 			'common.enabled' => 'Enabled',
 			'common.disabled' => 'Disabled',
@@ -4899,10 +4903,10 @@ extension on TranslationsEnUs {
 			'complaintReason.other' => 'Other',
 			'contact.blocked' => 'Blocked',
 			'contact.applyChanges' => 'Please restart the app to apply the changes.',
-			'contact.inputNewTag' => 'Enter new tag...',
-			'contact.denylist' => 'Blocklist',
 			_ => null,
 		} ?? switch (path) {
+			'contact.inputNewTag' => 'Enter new tag...',
+			'contact.denylist' => 'Blocklist',
 			'contact.denylistEmpty' => 'Blocklist is empty',
 			'contact.favoriteGroupTagsEtc' => 'Favorite names, group names, tags, etc.',
 			'contact.newFriend' => 'New friends',
@@ -5413,10 +5417,10 @@ extension on TranslationsEnUs {
 			'main.tooBad' => 'Too bad',
 			'main.tryAgainQ' => 'Want to try again?',
 			'main.type' => 'Type',
-			'main.unanswered' => 'Unanswered',
-			'main.unnamed' => 'Unnamed',
 			_ => null,
 		} ?? switch (path) {
+			'main.unanswered' => 'Unanswered',
+			'main.unnamed' => 'Unnamed',
 			'main.usedSpace' => 'Used space',
 			'main.you' => 'You',
 			'main.zhCn' => 'Simplified Chinese',
@@ -5927,10 +5931,10 @@ extension on TranslationsEnUs {
 			'welcome.step3Title' => 'Ready to Explore?',
 			'welcome.step3Desc' => 'Join a vibrant community. Let the conversation begin!',
 			'welcome.next' => 'Next',
-			'welcome.getStarted' => 'Get Started',
-			'welcome.skip' => 'Skip',
 			_ => null,
 		} ?? switch (path) {
+			'welcome.getStarted' => 'Get Started',
+			'welcome.skip' => 'Skip',
 			'workspace.navOverview' => 'Overview',
 			'workspace.navProjects' => 'Projects',
 			'workspace.navChannels' => 'Channels',

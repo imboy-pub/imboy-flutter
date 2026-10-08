@@ -226,15 +226,18 @@ void main() {
     await _pump(tester, api);
     expect(find.text('清除筛选'), findsNothing);
 
+    // Material 下拉覆盖层与字段错位、无勾选态——已改为底部弹层选择器。
     await tester.tap(find.text('全部群组'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('研发群').last);
+    expect(find.text('选择群组'), findsOneWidget, reason: '弹层带居中标题');
+    await tester.tap(find.text('研发群'));
     await tester.pumpAndSettle();
     expect(find.text('清除筛选'), findsOneWidget, reason: '激活筛选给出显式撤销入口');
+    expect(find.text('研发群'), findsOneWidget, reason: '字段回显选中项');
 
     await tester.tap(find.text('清除筛选'));
     await tester.pumpAndSettle();
     expect(find.text('清除筛选'), findsNothing);
-    expect(find.text('全部群组'), findsOneWidget, reason: '清除后下拉回显复位');
+    expect(find.text('全部群组'), findsOneWidget, reason: '清除后字段回显复位 hint');
   });
 }

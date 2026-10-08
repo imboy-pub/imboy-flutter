@@ -54,14 +54,17 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      await tester.tap(find.byType(DropdownButton<String>).first);
+      // 群组/频道选择走底部弹层（Material 下拉覆盖层已废弃）。
+      await tester.tap(find.text('全部群组'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Alpha group').last);
+      expect(find.text('选择群组'), findsOneWidget);
+      await tester.tap(find.text('Alpha group'));
       await tester.pumpAndSettle();
       expect(selection['group_id'], '100');
-      await tester.tap(find.byType(DropdownButton<String>).last);
+      await tester.tap(find.text('全部频道'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Alpha channel').last);
+      expect(find.text('选择频道'), findsOneWidget);
+      await tester.tap(find.text('Alpha channel'));
       await tester.pumpAndSettle();
       expect(selection['channel_id'], '200');
       expect(selection.containsKey('group_id'), isFalse);

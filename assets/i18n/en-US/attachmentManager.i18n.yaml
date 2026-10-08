@@ -32,3 +32,5 @@ resultCount: "${count} attachments"
 emptyHint: Try a different keyword or filter
 clearFiltersAction: Clear filters
 retryAction: Retry
+selectGroupTitle: Select a group
+selectChannelTitle: Select a channel
