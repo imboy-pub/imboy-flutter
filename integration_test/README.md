@@ -37,6 +37,20 @@ flutter test integration_test/smoke/smoke_test.dart \
 
 ---
 
+## Tier 2.5：桌面真实相机冒烟（显式开启才跑）
+
+```bash
+flutter test integration_test/smoke/camera_capture_real_smoke_test.dart \
+  -d macos --dart-define=IMBOY_REAL_CAMERA_SMOKE=1
+```
+
+默认 skip（不碰相机硬件、不触发授权弹窗）。开启前置：宿主（终端/IDE）
+已在「系统设置→隐私与安全性→相机」授权，且关闭其他占用相机的应用；
+否则 initialize 挂起（TCC 归因到宿主，flutter#70374）。仅拍照不录像，
+不依赖后端、不发送消息；无摄像头机器按无设备降级路径验证并通过。
+
+---
+
 ## Tier 3：UI 流程测试
 
 ### 全量
