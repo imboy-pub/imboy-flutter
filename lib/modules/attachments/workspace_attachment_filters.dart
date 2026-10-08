@@ -241,27 +241,28 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
         decoration: _fieldDecoration(
           context,
           active: selected != null,
-          hintText: label,
           suffixIcon: Icon(
             CupertinoIcons.chevron_down,
             size: 16,
             color: AppColors.iosGray,
           ),
         ),
-        // 空 child 时 InputDecorator 落回 hint 形态；选中回显常规前景。
-        child: selectedLabel == null
-            ? null
-            : Text(
-                selectedLabel,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.textStyle(
-                  FontSizeType.normal,
-                  color: isDark
+        // 未选中回显灰色 hint 文案、选中回显常规前景——用显式 child 而非
+        // InputDecoration.hintText：裸 InputDecorator 的 hint 显示机制在
+        // 真 Mac 渲染下不稳定（测试环境可见、真机空白）。
+        child: Text(
+          selectedLabel ?? label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textStyle(
+            FontSizeType.normal,
+            color: selectedLabel == null
+                ? AppColors.iosGray
+                : (isDark
                       ? AppColors.darkTextPrimary
-                      : AppColors.lightTextPrimary,
-                ),
-              ),
+                      : AppColors.lightTextPrimary),
+          ),
+        ),
       ),
     );
   }
