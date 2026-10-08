@@ -15,6 +15,7 @@ import 'package:imboy/component/chat/message_red_packet_builder.dart';
 import 'package:imboy/component/chat/message_transfer_builder.dart';
 import 'package:imboy/component/chat/message_group_schedule_builder.dart';
 import 'package:imboy/component/chat/message_group_vote_builder.dart';
+import 'package:imboy/component/chat/message_group_task_builder.dart';
 import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
@@ -52,6 +53,7 @@ void registerBuiltinPlugins(MessageTypeRegistry registry) {
     TransferMessageTypePlugin(),
     GroupScheduleMessageTypePlugin(),
     GroupVoteMessageTypePlugin(),
+    GroupTaskMessageTypePlugin(),
   ]);
 }
 

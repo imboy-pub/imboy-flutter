@@ -1,11 +1,9 @@
+import 'group_schedule_create_dialog.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:xid/xid.dart';
-import 'package:imboy/page/chat/chat/chat_provider.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -77,246 +75,25 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   }
 
   Future<void> _createSchedule() async {
-    final titleController = TextEditingController();
-    DateTime selectedDate = DateTime.now();
-    TimeOfDay selectedTime = TimeOfDay.now();
-
-    final result = await showCupertinoDialog<bool>(
+    final draft = await showCupertinoDialog<GroupScheduleDraft>(
       context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.groupSchedule.createSchedule),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CupertinoTextField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: titleController,
-              placeholder: t.groupSchedule.scheduleTitle,
-            ),
-            const SizedBox(height: AppSpacing.regular),
-            Row(
-              children: [
-                Expanded(
-                  child: CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () async {
-                      final date = await _pickCupertinoDate(
-                        ctx,
-                        initial: selectedDate,
-                      );
-                      if (date != null) {
-                        selectedDate = date;
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(CupertinoIcons.calendar, size: 18),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.groupSchedule.selectDate,
-                          style: context.textStyle(FontSizeType.normal),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () async {
-                      final time = await _pickCupertinoTime(
-                        ctx,
-                        initial: selectedTime,
-                      );
-                      if (time != null) {
-                        selectedTime = time;
-                      }
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(CupertinoIcons.clock, size: 18),
-                        const SizedBox(width: 4),
-                        Text(
-                          t.groupSchedule.selectTime,
-                          style: context.textStyle(FontSizeType.normal),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(t.common.cancel),
-          ),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
+      builder: (_) => const GroupScheduleCreateDialog(),
     );
-
-    if (result == true && titleController.text.isNotEmpty) {
-      final startTime =
-          DateTime(
-            selectedDate.year,
-            selectedDate.month,
-            selectedDate.day,
-            selectedTime.hour,
-            selectedTime.minute,
-          ).millisecondsSinceEpoch ~/
-          1000;
-
-      final schedule = await GroupScheduleService.to.createSchedule(
-        groupId: widget.groupId,
-        title: titleController.text,
-        startTime: startTime,
-      );
-      if (!mounted) return;
-      if (schedule == null) {
-        AppLoading.showError(t.common.tipFailed);
-      } else {
-        _loadSchedules();
-
-        // 自动向群内分发一条交互式群日程卡片消息
-        try {
-          final currentUid = UserRepoLocal.to.currentUid;
-          final timeStr =
-              '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')} ${selectedTime.hour.toString().padLeft(2, '0')}:${selectedTime.minute.toString().padLeft(2, '0')}';
-
-          // 【审计修复 F-14】client_msg_id 用于去重：服务端群广播若重新分配 id，
-          // 客户端靠此字段识别"这是我自己发的"，避免回推时重复显示卡片。
-          // local_origin 标记本地发起，与服务器回推的卡片在 type 层面区分。
-          final clientMsgId = Xid().toString();
-          final message = CustomMessage(
-            authorId: currentUid,
-            id: clientMsgId,
-            createdAt: DateTime.now(),
-            metadata: {
-              'msg_type': 'groupSchedule',
-              'id': schedule['id']?.toString() ?? '',
-              'group_id': widget.groupId,
-              'title': titleController.text,
-              'start_time': timeStr,
-              'local_origin': true,
-              'client_msg_id': clientMsgId,
-            },
-          );
-
-          await ref
-              .read(chatProvider.notifier)
-              .addMessage(
-                currentUid,
-                widget.groupId,
-                '', // Group Avatar
-                '', // Group Title
-                'C2G', // MessageFlowType.c2g
-                message,
-              );
-        } catch (e) {
-          debugPrint('发送群日程消息失败: $e');
-        }
+    if (draft == null || !mounted) return;
+    final schedule = await GroupScheduleService.to.createSchedule(
+      groupId: widget.groupId,
+      title: draft.title,
+      startTime: draft.start.millisecondsSinceEpoch ~/ 1000,
+    );
+    if (!mounted) return;
+    if (schedule == null) {
+      AppLoading.showError(t.common.tipFailed);
+    } else {
+      _loadSchedules();
+      if (schedule['message_status'] == 'failed') {
+        AppLoading.showError(t.common.sendFailed);
       }
     }
-  }
-
-  /// iOS 风格日期选择器（底部滚轮），替代 Material showDatePicker。
-  Future<DateTime?> _pickCupertinoDate(
-    BuildContext context, {
-    required DateTime initial,
-  }) async {
-    DateTime temp = initial;
-    return showCupertinoModalPopup<DateTime>(
-      context: context,
-      builder: (ctx) => Container(
-        height: 280,
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CupertinoButton(
-                  child: Text(t.common.cancel),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-                CupertinoButton(
-                  child: Text(t.common.confirm),
-                  onPressed: () => Navigator.pop(ctx, temp),
-                ),
-              ],
-            ),
-            Expanded(
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.date,
-                initialDateTime: initial,
-                // minimumDate 必须 <= initialDateTime，否则 CupertinoDatePicker
-                // 断言崩溃。initial 是弹窗前捕获的时间戳，这里若用 DateTime.now()
-                // 会取到"更晚的现在">initial → 点开选日期必现断言失败。改用今日
-                // 零点（恒 <= initial，同时仍限制不能选过去）。
-                minimumDate: DateTime(
-                  DateTime.now().year,
-                  DateTime.now().month,
-                  DateTime.now().day,
-                ),
-                maximumDate: DateTime.now().add(const Duration(days: 365)),
-                onDateTimeChanged: (d) => temp = d,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// iOS 风格时间选择器（底部滚轮），替代 Material showTimePicker。
-  Future<TimeOfDay?> _pickCupertinoTime(
-    BuildContext context, {
-    required TimeOfDay initial,
-  }) async {
-    DateTime temp = DateTime(2026, 1, 1, initial.hour, initial.minute);
-    final result = await showCupertinoModalPopup<DateTime>(
-      context: context,
-      builder: (ctx) => Container(
-        height: 280,
-        color: Theme.of(context).scaffoldBackgroundColor,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CupertinoButton(
-                  child: Text(t.common.cancel),
-                  onPressed: () => Navigator.pop(ctx),
-                ),
-                CupertinoButton(
-                  child: Text(t.common.confirm),
-                  onPressed: () => Navigator.pop(ctx, temp),
-                ),
-              ],
-            ),
-            Expanded(
-              child: CupertinoDatePicker(
-                mode: CupertinoDatePickerMode.time,
-                initialDateTime: temp,
-                onDateTimeChanged: (d) => temp = d,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (result == null) return null;
-    return TimeOfDay(hour: result.hour, minute: result.minute);
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'group_collab_created_message.dart';
+
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
@@ -94,13 +96,14 @@ class GroupTaskService implements IGroupTaskService {
     List<String>? assigneeIds,
   }) async {
     try {
-      final result = await _api.createTask(
+      final created = await _api.createTask(
         groupId: groupId,
         title: title,
         description: description,
         deadline: deadline,
         assigneeIds: assigneeIds,
       );
+      final result = await persistGroupCollabCreatedMessage(created);
       if (result != null) {
         iPrint('GroupTaskService: 创建任务成功 - $title');
         AppEventBus.fire(TaskCreatedEvent(groupId: groupId, data: result));

@@ -98,16 +98,16 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           children: [
             const SizedBox(height: 8),
             CupertinoTextField(
-              enableSuggestions: false,
-              autocorrect: false,
+              enableSuggestions: true,
+              autocorrect: true,
               key: const Key('task_title_field'),
               controller: titleController,
               placeholder: t.groupTask.taskTitle,
             ),
             const SizedBox(height: AppSpacing.regular),
             CupertinoTextField(
-              enableSuggestions: false,
-              autocorrect: false,
+              enableSuggestions: true,
+              autocorrect: true,
               controller: descController,
               maxLines: 3,
               placeholder: t.groupTask.taskDescription,
@@ -142,6 +142,9 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
       if (!mounted) return;
       if (task != null) {
         _loadTasks();
+        if (task['message_status'] == 'failed') {
+          AppLoading.showError(t.common.sendFailed);
+        }
       } else {
         AppLoading.showError(t.common.tipFailed);
       }

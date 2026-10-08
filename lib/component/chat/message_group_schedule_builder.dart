@@ -21,7 +21,12 @@ class MessageGroupScheduleBuilder extends StatelessWidget {
     final metadata = message.metadata ?? {};
     final title =
         metadata['title']?.toString() ?? t.groupSchedule.untitledSchedule;
-    final startTime = metadata['start_time']?.toString() ?? '';
+    final rawStart = metadata['start_time']?.toString() ?? '';
+    final parsed = DateTime.tryParse(rawStart)?.toLocal();
+    final localizations = MaterialLocalizations.of(context);
+    final startTime = parsed == null
+        ? rawStart
+        : '${localizations.formatMediumDate(parsed)} ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(parsed), alwaysUse24HourFormat: true)}';
     final scheduleId = metadata['id']?.toString() ?? '';
     final groupId = metadata['group_id']?.toString() ?? '';
 

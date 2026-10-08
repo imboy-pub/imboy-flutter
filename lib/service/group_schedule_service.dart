@@ -1,3 +1,5 @@
+import 'group_collab_created_message.dart';
+
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/base_event.dart';
@@ -35,7 +37,7 @@ class GroupScheduleService {
     List<String>? participantIds,
   }) async {
     try {
-      final result = await _api.createSchedule(
+      final created = await _api.createSchedule(
         groupId: groupId,
         title: title,
         startTime: startTime,
@@ -45,6 +47,7 @@ class GroupScheduleService {
         remindBefore: remindBefore,
         participantIds: participantIds,
       );
+      final result = await persistGroupCollabCreatedMessage(created);
       if (result != null) {
         iPrint('GroupScheduleService: 创建日程成功 - $title');
         AppEventBus.fire(ScheduleCreatedEvent(groupId: groupId, data: result));
