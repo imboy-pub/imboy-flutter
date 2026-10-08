@@ -25,7 +25,7 @@ import 'package:imboy/service/storage.dart';
 ///   - InsetGrouped Scaffold 背景（surfaceGrouped）
 ///   - 大标题 'titleMine'（"我的"）
 ///   - Profile Card：用户 nickname / 'ImBoy ID: $uid' / QR 入口图标 / chevron
-///   - 6 个 ImBoySettingsTile：switchToWorkspace / storageSpace /
+///   - 7 个 ImBoySettingsTile：switchToWorkspace / personalAttachments / storageSpace /
 ///     loginDeviceManagement / appeal / setting / feedback
 ///     （钱包 QuickAction 受 feature flag 控制，默认配置不渲染）
 ///   - Section 内菜单 icon 容器使用 10% alpha 背景 + iconColor 应用
@@ -218,6 +218,7 @@ void main() {
 
         // 存储空间 / 登录设备管理 / 设置 / 反馈建议
         expect(find.text('存储空间'), findsOneWidget);
+        expect(find.text(t.attachmentManager.personalTitle), findsOneWidget);
         expect(find.text('登录设备管理'), findsOneWidget);
         expect(find.text('设置'), findsOneWidget);
         expect(find.text('反馈建议'), findsOneWidget);
@@ -238,18 +239,16 @@ void main() {
         findsOneWidget,
         reason: 'profile card 右侧应有 chevron_right',
       );
-      // 6 个 ImBoySettingsTile（switchToWorkspace/storageSpace/
+      // 7 个 ImBoySettingsTile（switchToWorkspace/personalAttachments/storageSpace/
       // loginDeviceManagement/appeal/setting/feedback）默认 trailing 为
       // CupertinoListTileChevron，内部渲染 CupertinoIcons.right_chevron。
       // favorites 已移入 QuickActionGrid，不是 Tile。
-      // 2026-08-31：新增「切换到工作区」直达 tile（4→5）。
-      // R-04.1：新增「处置与申诉」tile（5→6，此前登记滞后）。
       // CSM-01 客服入口是 CsWorkspaceEntryTile，普通用户渲染为
       // SizedBox.shrink（不占位、无 chevron），不影响计数。
       expect(
         find.byIcon(CupertinoIcons.right_chevron),
-        findsNWidgets(6),
-        reason: '6 个设置项每项右侧应有 CupertinoListTileChevron',
+        findsNWidgets(7),
+        reason: '7 个设置项每项右侧应有 CupertinoListTileChevron',
       );
     });
   });
