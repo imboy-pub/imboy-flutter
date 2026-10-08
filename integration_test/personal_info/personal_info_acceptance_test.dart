@@ -140,6 +140,16 @@ class _FakeMediaPicker implements MediaPickerCapability {
 
   @override
   Future<AssetEntity?> pickCameraDual(BuildContext context) async => null;
+
+  @override
+  Future<PickedMedia?> pickCameraCapture(
+    BuildContext context, {
+    bool enableRecording = false,
+    bool dual = false,
+  }) async {
+    lastCall = 'pickCameraCapture';
+    return nextCamera;
+  }
 }
 
 late _FakeMediaPicker _picker;
