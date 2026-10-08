@@ -17,14 +17,15 @@ import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart';
 import 'package:imboy/page/workspace/workspace_projects_page.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 
 import 'workspace_account_menu.dart';
 import 'workspace_shell_breakpoint.dart';
+import 'workspace_segment_switcher.dart';
 import 'workspace_shell_provider.dart';
+import 'workspace_top_bar.dart';
 
 final _mineOrganizationProvider = FutureProvider.autoDispose
     .family<Organization, ({String accountKey, String organizationId})>(
@@ -157,28 +158,12 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   ) {
     return Column(
       children: [
-        SafeArea(
-          bottom: false,
-          minimum: const EdgeInsets.symmetric(horizontal: AppSpacing.xxLarge),
-          child: Row(
-            children: [
-              const Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: WorkspaceSwitcherChip(),
-                ),
-              ),
-              Text(title),
-              Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: _selected == EnterpriseShellDestination.mine
-                      ? const SizedBox(height: 44)
-                      : const WorkspaceAccountButton(),
-                ),
-              ),
-            ],
-          ),
+        WorkspaceTopBar(
+          title: title,
+          leading: const WorkspaceSwitcherChip(),
+          actions: _selected == EnterpriseShellDestination.mine
+              ? null
+              : const [WorkspaceAccountButton()],
         ),
         if (ref.watch(currentWorkspaceProvider)?.isArchived ?? false)
           const WorkspaceArchivedBanner(),
@@ -367,27 +352,18 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     );
   }
 
-  Widget _messageFilter() => Padding(
-    padding: AppSpacing.allSmall,
-    child: CupertinoSlidingSegmentedControl<bool>(
-      groupValue: _channels,
-      children: {
-        false: SizedBox(
-          height: 44,
-          child: Center(child: Text(t.chat.groupChat)),
-        ),
-        true: SizedBox(height: 44, child: Center(child: Text(t.channel.title))),
-      },
-      onValueChanged: (value) {
-        if (value == null || value == _channels) return;
-        setState(() => _channels = value);
-        _rememberNavigation();
-        final id = ref.read(currentWorkspaceProvider)?.id ?? '';
-        if (value && id.isNotEmpty) {
-          ref.invalidate(workspaceChannelsProvider(id));
-        }
-      },
-    ),
+  Widget _messageFilter() => WorkspaceSegmentSwitcher(
+    value: _channels,
+    offLabel: t.chat.groupChat,
+    onLabel: t.channel.title,
+    onChanged: (value) {
+      setState(() => _channels = value);
+      _rememberNavigation();
+      final id = ref.read(currentWorkspaceProvider)?.id ?? '';
+      if (value && id.isNotEmpty) {
+        ref.invalidate(workspaceChannelsProvider(id));
+      }
+    },
   );
 
   Widget _mine() {

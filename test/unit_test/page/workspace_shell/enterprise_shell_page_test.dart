@@ -258,11 +258,14 @@ void main() {
         tester.getTopLeft(find.text('合成员工')).dy,
         lessThan(tester.getTopLeft(entry).dy),
       );
+      // 顶栏对齐 IosPageTemplate 导航栏边距策略：leading start 8
+      // （旧壳顶栏是 32pt 自拼边距，违反 DESIGN.md 4.2 的 16pt 页面
+      // padding 约定，已随 WorkspaceTopBar 统一）。
       expect(
         tester
             .getTopLeft(find.byKey(const ValueKey('workspace-shell-switcher')))
             .dx,
-        AppSpacing.xxLarge,
+        AppSpacing.small,
       );
       await tester.scrollUntilVisible(
         find.text('反馈建议'),
