@@ -18,3 +18,5 @@ actionContentRemoval: 內容刪除
 statusPending: 待複審
 statusAccepted: 已翻案
 statusRejected: 已維持
+allClearTitle: 一切正常
+allClearSubtitle: 沒有針對你的處置，也不需要申訴。

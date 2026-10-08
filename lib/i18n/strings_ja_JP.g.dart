@@ -255,6 +255,8 @@ class _Translations$appeal$ja_JP extends Translations$appeal$zh_CN {
 	@override String get statusPending => '審査中';
 	@override String get statusAccepted => '取り消し';
 	@override String get statusRejected => '維持';
+	@override String get allClearTitle => '問題なし';
+	@override String get allClearSubtitle => 'あなたに対する処分はなく、申し立ての必要もありません。';
 }
 
 // Path: billing
@@ -3328,6 +3330,8 @@ extension on TranslationsJaJp {
 			'appeal.statusPending' => '審査中',
 			'appeal.statusAccepted' => '取り消し',
 			'appeal.statusRejected' => '維持',
+			'appeal.allClearTitle' => '問題なし',
+			'appeal.allClearSubtitle' => 'あなたに対する処分はなく、申し立ての必要もありません。',
 			'billing.title' => 'プラン登録',
 			'billing.planPeriodMonthly' => '月額',
 			'billing.planPeriodYearly' => '年額',
@@ -3682,10 +3686,10 @@ extension on TranslationsJaJp {
 			'chat.setAvatar' => 'アバターを設定',
 			'chat.fastForward' => ({required Object seconds}) => '早送り ${seconds}秒',
 			'chat.messageId' => 'メッセージID',
-			'chat.chatType' => 'チャットタイプ',
-			'chat.deletingMessage' => '削除中...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatType' => 'チャットタイプ',
+			'chat.deletingMessage' => '削除中...',
 			'chat.deletingLocalMessage' => 'ローカルメッセージ削除中...',
 			'chat.quickReplyReceived' => '受信しました',
 			'chat.quickReplyThanks' => 'ありがとう',
@@ -4196,10 +4200,10 @@ extension on TranslationsJaJp {
 			'common.shareWithOtherFriends' => '他の友達と共有',
 			'common.addTagsToFavorites' => 'コレクションにタグを追加',
 			'common.addRemarkToFavorites' => 'コレクションに備考を追加',
-			'common.deleteThisCollection' => 'このコレクションを削除',
-			'common.changeSuccess' => '変更しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => 'このコレクションを削除',
+			'common.changeSuccess' => '変更しました',
 			'common.lengthOk' => '長さはOKです',
 			'common.confirmNewPassword' => '新しいパスワードを確認',
 			'common.validationPassed' => '検証に合格しました',
@@ -4710,10 +4714,10 @@ extension on TranslationsJaJp {
 			'discovery.momentsVisibilityPublic' => '全員に公開',
 			'discovery.momentsVisibilityPartial' => '一部の友達',
 			'discovery.momentsVisibilityExclude' => '一部の友達を除外',
-			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
-			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
+			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			'discovery.momentActionLike' => 'いいね',
 			'discovery.momentActionCancelLike' => 'いいねを取り消す',
 			'discovery.momentActionComment' => 'コメント',
@@ -5224,10 +5228,10 @@ extension on TranslationsJaJp {
 			'organization.home.createOrg' => '組織を作成',
 			'organization.home.orgNameLabel' => '組織名（1-200 文字）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます',
-			'organization.home.tabOrg' => '組織',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createSubmittedPendingReview' => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます',
+			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '自分の招待',
 			'organization.home.emptyHint' => 'まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください',
 			'organization.detail.leaveOrg' => '組織から退出',
@@ -5738,10 +5742,10 @@ extension on TranslationsJaJp {
 			'workspace.taskStatusReview' => 'レビュー中',
 			'workspace.taskStatusDone' => '完了',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」へ進める',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} を差し戻す…',
-			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} を差し戻す…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
 			'workspace.taskEmptyTitle' => 'タスクはまだありません',
 			'workspace.taskEmptySubtitle' => '4つのステータスで実行を追跡します：TODO → 進行中 → レビュー中 → 完了',
 			'workspace.projectsLoadMore' => 'さらに読み込む',

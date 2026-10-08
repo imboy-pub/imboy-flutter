@@ -18,3 +18,5 @@ actionContentRemoval: コンテンツ削除
 statusPending: 審査中
 statusAccepted: 取り消し
 statusRejected: 維持
+allClearTitle: 問題なし
+allClearSubtitle: あなたに対する処分はなく、申し立ての必要もありません。

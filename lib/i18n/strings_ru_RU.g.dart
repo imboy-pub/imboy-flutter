@@ -255,6 +255,8 @@ class _Translations$appeal$ru_RU extends Translations$appeal$zh_CN {
 	@override String get statusPending => 'На рассмотрении';
 	@override String get statusAccepted => 'Отменено';
 	@override String get statusRejected => 'Оставлено';
+	@override String get allClearTitle => 'Всё в порядке';
+	@override String get allClearSubtitle => 'Меры против вас отсутствуют, подавать апелляцию не требуется.';
 }
 
 // Path: billing
@@ -3337,6 +3339,8 @@ extension on TranslationsRuRu {
 			'appeal.statusPending' => 'На рассмотрении',
 			'appeal.statusAccepted' => 'Отменено',
 			'appeal.statusRejected' => 'Оставлено',
+			'appeal.allClearTitle' => 'Всё в порядке',
+			'appeal.allClearSubtitle' => 'Меры против вас отсутствуют, подавать апелляцию не требуется.',
 			'billing.title' => 'Подписки',
 			'billing.planPeriodMonthly' => 'Ежемесячно',
 			'billing.planPeriodYearly' => 'Ежегодно',
@@ -3691,10 +3695,10 @@ extension on TranslationsRuRu {
 			'chat.setAvatar' => 'Установить аватар',
 			'chat.fastForward' => ({required Object seconds}) => 'Быстрая перемотка вперёд ${seconds} сек',
 			'chat.messageId' => 'ID сообщения',
-			'chat.chatType' => 'Тип чата',
-			'chat.deletingMessage' => 'Удаление...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatType' => 'Тип чата',
+			'chat.deletingMessage' => 'Удаление...',
 			'chat.deletingLocalMessage' => 'Удаление локального сообщения...',
 			'chat.quickReplyReceived' => 'Получено',
 			'chat.quickReplyThanks' => 'Спасибо',
@@ -4205,10 +4209,10 @@ extension on TranslationsRuRu {
 			'common.shareWithOtherFriends' => 'Поделиться с другими друзьями',
 			'common.addTagsToFavorites' => 'Добавить теги в избранное',
 			'common.addRemarkToFavorites' => 'Добавить примечание в избранное',
-			'common.deleteThisCollection' => 'Удалить эту коллекцию',
-			'common.changeSuccess' => 'Успешно изменено',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => 'Удалить эту коллекцию',
+			'common.changeSuccess' => 'Успешно изменено',
 			'common.lengthOk' => 'Длина в порядке',
 			'common.confirmNewPassword' => 'Подтвердите новый пароль',
 			'common.validationPassed' => 'Проверка пройдена',
@@ -4719,10 +4723,10 @@ extension on TranslationsRuRu {
 			'discovery.momentsVisibilityPublic' => 'Все',
 			'discovery.momentsVisibilityPartial' => 'Некоторые',
 			'discovery.momentsVisibilityExclude' => 'Скрыть от...',
-			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
-			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
+			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			'discovery.momentActionLike' => 'Нравится',
 			'discovery.momentActionCancelLike' => 'Убрать лайк',
 			'discovery.momentActionComment' => 'Комментарий',
@@ -5233,10 +5237,10 @@ extension on TranslationsRuRu {
 			'organization.home.createOrg' => 'Создать организацию',
 			'organization.home.orgNameLabel' => 'Название организации (1-200 символов)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать',
-			'organization.home.tabOrg' => 'Организации',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createSubmittedPendingReview' => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать',
+			'organization.home.tabOrg' => 'Организации',
 			'organization.home.myInvitations' => 'Мои приглашения',
 			'organization.home.emptyHint' => 'Вы пока не присоединились ни к одной организации\nПотяните вниз, чтобы обновить, или создайте организацию кнопкой справа вверху',
 			'organization.detail.leaveOrg' => 'Покинуть организацию',
@@ -5747,10 +5751,10 @@ extension on TranslationsRuRu {
 			'workspace.taskStatusReview' => 'На проверке',
 			'workspace.taskStatusDone' => 'Завершено',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Перевести в «${status}»',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Вернуть «${title}» к...',
-			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Вернуть «${title}» к...',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
 			'workspace.taskEmptyTitle' => 'Пока нет задач',
 			'workspace.taskEmptySubtitle' => 'Отслеживайте выполнение по четырём статусам: к выполнению → в процессе → на проверке → завершено',
 			'workspace.projectsLoadMore' => 'Загрузить ещё',

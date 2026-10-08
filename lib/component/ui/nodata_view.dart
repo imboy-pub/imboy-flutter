@@ -19,6 +19,10 @@ class NoDataView extends StatelessWidget {
   /// 图标尺寸。默认 48（原值，向后兼容）。
   final double iconSize;
 
+  /// 图标语义色（同时用于圆形底的 10% alpha 底色）。null = 主题次要色
+  /// （向后兼容）；语义空态传系统色，如「一切正常」用 getIosGreen。
+  final Color? iconColor;
+
   /// 图标容器形状。null = BoxShape.circle（向后兼容默认）；非 null 时容器渲染为
   /// 带 borderRadius 的矩形，形状由传入的 BorderRadiusGeometry 决定（对齐 user_device 等矩形空态）。
   final BorderRadiusGeometry? iconBgBorderRadius;
@@ -35,6 +39,7 @@ class NoDataView extends StatelessWidget {
     this.description,
     this.iconBgSize,
     this.iconSize = 48,
+    this.iconColor,
     this.iconBgBorderRadius,
     this.retryLabel,
   });
@@ -46,6 +51,7 @@ class NoDataView extends StatelessWidget {
     // theme.dart 已配置 onSurfaceVariant → lightTextSecondary / darkTextSecondary，
     // 通过 ColorScheme 访问可正确随主题切换。
     final secondaryColor = Theme.of(context).colorScheme.onSurfaceVariant;
+    final iconTone = iconColor ?? secondaryColor;
     // 空态整体（图标 + 文案 + 重试块）约 200pt 高。搜索类页面键盘弹起后
     // 可用高度只剩 100 出头，固定 Center 会直接 RenderFlex overflow
     // （真机实测群内搜索空态溢出 91px）。
@@ -73,17 +79,13 @@ class NoDataView extends StatelessWidget {
                         : null,
                     alignment: iconBgSize == null ? null : Alignment.center,
                     decoration: BoxDecoration(
-                      color: secondaryColor.withValues(alpha: 0.1),
+                      color: iconTone.withValues(alpha: 0.1),
                       shape: iconBgBorderRadius == null
                           ? BoxShape.circle
                           : BoxShape.rectangle,
                       borderRadius: iconBgBorderRadius,
                     ),
-                    child: Icon(
-                      icon!,
-                      size: iconSize,
-                      color: secondaryColor, // 使用主题次要文字色
-                    ),
+                    child: Icon(icon!, size: iconSize, color: iconTone),
                   ),
                 if (icon != null) const SizedBox(height: 16),
 

@@ -255,6 +255,8 @@ class _Translations$appeal$ar_SA extends Translations$appeal$zh_CN {
 	@override String get statusPending => 'قيد المراجعة';
 	@override String get statusAccepted => 'تم الإلغاء';
 	@override String get statusRejected => 'تم التأكيد';
+	@override String get allClearTitle => 'كل شيء على ما يرام';
+	@override String get allClearSubtitle => 'لا توجد إجراءات ضدك، ولا حاجة لتقديم اعتراض.';
 }
 
 // Path: billing
@@ -3340,6 +3342,8 @@ extension on TranslationsArSa {
 			'appeal.statusPending' => 'قيد المراجعة',
 			'appeal.statusAccepted' => 'تم الإلغاء',
 			'appeal.statusRejected' => 'تم التأكيد',
+			'appeal.allClearTitle' => 'كل شيء على ما يرام',
+			'appeal.allClearSubtitle' => 'لا توجد إجراءات ضدك، ولا حاجة لتقديم اعتراض.',
 			'billing.title' => 'الاشتراكات',
 			'billing.planPeriodMonthly' => 'شهري',
 			'billing.planPeriodYearly' => 'سنوي',
@@ -3694,10 +3698,10 @@ extension on TranslationsArSa {
 			'chat.setAvatar' => 'تعيين الصورة الرمزية',
 			'chat.fastForward' => ({required Object seconds}) => 'تقديم سريع ${seconds} ثانية',
 			'chat.messageId' => 'معرف الرسالة',
-			'chat.chatType' => 'نوع الدردشة',
-			'chat.deletingMessage' => 'جارٍ حذف الرسالة...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatType' => 'نوع الدردشة',
+			'chat.deletingMessage' => 'جارٍ حذف الرسالة...',
 			'chat.deletingLocalMessage' => 'جارٍ حذف الرسائل المحلية...',
 			'chat.quickReplyReceived' => 'تم الاستلام',
 			'chat.quickReplyThanks' => 'شكراً',
@@ -4208,10 +4212,10 @@ extension on TranslationsArSa {
 			'common.shareWithOtherFriends' => 'مشاركة مع أصدقاء آخرين',
 			'common.addTagsToFavorites' => 'إضافة علامات للمفضلة',
 			'common.addRemarkToFavorites' => 'إضافة ملاحظة للمفضلة',
-			'common.deleteThisCollection' => 'حذف هذه المفضلة',
-			'common.changeSuccess' => 'نجح التعديل',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => 'حذف هذه المفضلة',
+			'common.changeSuccess' => 'نجح التعديل',
 			'common.lengthOk' => 'الطول صحيح',
 			'common.confirmNewPassword' => 'تأكيد كلمة المرور الجديدة',
 			'common.validationPassed' => 'نجح التحقق',
@@ -4722,10 +4726,10 @@ extension on TranslationsArSa {
 			'discovery.momentsVisibilityPublic' => 'عام',
 			'discovery.momentsVisibilityPartial' => 'بعض الأشخاص',
 			'discovery.momentsVisibilityExclude' => 'إخفاء عن...',
-			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
-			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
+			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			'discovery.momentActionLike' => 'إعجاب',
 			'discovery.momentActionCancelLike' => 'إلغاء الإعجاب',
 			'discovery.momentActionComment' => 'تعليق',
@@ -5236,10 +5240,10 @@ extension on TranslationsArSa {
 			'organization.home.createOrg' => 'إنشاء منظمة',
 			'organization.home.orgNameLabel' => 'اسم المنظمة (1-200 حرفاً)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة',
-			'organization.home.tabOrg' => 'المنظمات',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createSubmittedPendingReview' => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة',
+			'organization.home.tabOrg' => 'المنظمات',
 			'organization.home.myInvitations' => 'دعواتي',
 			'organization.home.emptyHint' => 'لم تنضم إلى أي منظمة بعد\nاسحب للأسفل للتحديث أو أنشئ منظمة من الزر في أعلى اليمين',
 			'organization.detail.leaveOrg' => 'مغادرة المؤسسة',
@@ -5750,10 +5754,10 @@ extension on TranslationsArSa {
 			'workspace.taskStatusReview' => 'قيد المراجعة',
 			'workspace.taskStatusDone' => 'مكتملة',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'الانتقال إلى «${status}»',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'إعادة ${title} إلى…',
-			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'إعادة ${title} إلى…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
 			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',
 			'workspace.taskEmptySubtitle' => 'تتبّع التنفيذ بأربع حالات: قيد الانتظار ← قيد التنفيذ ← قيد المراجعة ← مكتملة',
 			'workspace.projectsLoadMore' => 'تحميل المزيد',

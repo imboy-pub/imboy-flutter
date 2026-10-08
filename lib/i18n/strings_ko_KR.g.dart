@@ -255,6 +255,8 @@ class _Translations$appeal$ko_KR extends Translations$appeal$zh_CN {
 	@override String get statusPending => '검토 중';
 	@override String get statusAccepted => '뒤집힘';
 	@override String get statusRejected => '유지';
+	@override String get allClearTitle => '정상';
+	@override String get allClearSubtitle => '회원님에 대한 조치가 없으며 항소할 필요도 없습니다.';
 }
 
 // Path: billing
@@ -3328,6 +3330,8 @@ extension on TranslationsKoKr {
 			'appeal.statusPending' => '검토 중',
 			'appeal.statusAccepted' => '뒤집힘',
 			'appeal.statusRejected' => '유지',
+			'appeal.allClearTitle' => '정상',
+			'appeal.allClearSubtitle' => '회원님에 대한 조치가 없으며 항소할 필요도 없습니다.',
 			'billing.title' => '구독 플랜',
 			'billing.planPeriodMonthly' => '월간',
 			'billing.planPeriodYearly' => '연간',
@@ -3682,10 +3686,10 @@ extension on TranslationsKoKr {
 			'chat.setAvatar' => '프로필 사진 설정',
 			'chat.fastForward' => ({required Object seconds}) => '${seconds}초 빨리감기',
 			'chat.messageId' => '메시지 ID',
-			'chat.chatType' => '채팅 유형',
-			'chat.deletingMessage' => '삭제 중...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatType' => '채팅 유형',
+			'chat.deletingMessage' => '삭제 중...',
 			'chat.deletingLocalMessage' => '로컬 메시지 삭제 중...',
 			'chat.quickReplyReceived' => '받았습니다',
 			'chat.quickReplyThanks' => '감사합니다',
@@ -4196,10 +4200,10 @@ extension on TranslationsKoKr {
 			'common.shareWithOtherFriends' => '다른 친구와 공유',
 			'common.addTagsToFavorites' => '즐겨찾기에 태그 추가',
 			'common.addRemarkToFavorites' => '즐겨찾기에 메모 추가',
-			'common.deleteThisCollection' => '이 수집 항목 삭제',
-			'common.changeSuccess' => '수정 성공',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => '이 수집 항목 삭제',
+			'common.changeSuccess' => '수정 성공',
 			'common.lengthOk' => '길이 적합',
 			'common.confirmNewPassword' => '새 비밀번호 확인',
 			'common.validationPassed' => '검증 통과',
@@ -4710,10 +4714,10 @@ extension on TranslationsKoKr {
 			'discovery.momentsVisibilityPublic' => '공개',
 			'discovery.momentsVisibilityPartial' => '일부만',
 			'discovery.momentsVisibilityExclude' => '특정 친구 제외',
-			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
-			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
+			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			'discovery.momentActionLike' => '좋아요',
 			'discovery.momentActionCancelLike' => '좋아요 취소',
 			'discovery.momentActionComment' => '댓글',
@@ -5224,10 +5228,10 @@ extension on TranslationsKoKr {
 			'organization.home.createOrg' => '조직 만들기',
 			'organization.home.orgNameLabel' => '조직 이름(1-200자)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다',
-			'organization.home.tabOrg' => '조직',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createSubmittedPendingReview' => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다',
+			'organization.home.tabOrg' => '조직',
 			'organization.home.myInvitations' => '내 초대',
 			'organization.home.emptyHint' => '아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요',
 			'organization.detail.leaveOrg' => '조직 나가기',
@@ -5738,10 +5742,10 @@ extension on TranslationsKoKr {
 			'workspace.taskStatusReview' => '검토 중',
 			'workspace.taskStatusDone' => '완료됨',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」 상태로 진행',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} 상태로 되돌리기…',
-			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} 상태로 되돌리기…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
 			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',
 			'workspace.taskEmptySubtitle' => '4단계 상태로 실행을 추적합니다: 할 일 → 진행 중 → 검토 중 → 완료',
 			'workspace.projectsLoadMore' => '더 로드',

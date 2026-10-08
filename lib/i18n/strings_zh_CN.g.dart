@@ -553,6 +553,12 @@ class Translations$appeal$zh_CN {
 
 	/// zh-CN: '已维持'
 	String get statusRejected => '已维持';
+
+	/// zh-CN: '一切正常'
+	String get allClearTitle => '一切正常';
+
+	/// zh-CN: '没有针对你的处置，也不需要申诉。'
+	String get allClearSubtitle => '没有针对你的处置，也不需要申诉。';
 }
 
 // Path: billing
@@ -9023,6 +9029,8 @@ extension on Translations {
 			'appeal.statusPending' => '待复审',
 			'appeal.statusAccepted' => '已翻案',
 			'appeal.statusRejected' => '已维持',
+			'appeal.allClearTitle' => '一切正常',
+			'appeal.allClearSubtitle' => '没有针对你的处置，也不需要申诉。',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -9377,10 +9385,10 @@ extension on Translations {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '正在回复 @{name}',
 			'chat.sendNewMessage' => '发送新消息',
-			'chat.markRead' => '标记已读',
-			'chat.markUnread' => '标记未读',
 			_ => null,
 		} ?? switch (path) {
+			'chat.markRead' => '标记已读',
+			'chat.markUnread' => '标记未读',
 			'chat.pleaseEnterSignature' => '请输入个性签名',
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
@@ -9891,10 +9899,10 @@ extension on Translations {
 			'common.burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',
 			'common.burnDisabledMessage' => '关闭后：消息不会自动销毁',
 			'common.noGroupAnnouncement' => '暂无群公告',
-			'common.featureComingSoon' => '功能暂未实现',
-			'common.understood' => '明白了',
 			_ => null,
 		} ?? switch (path) {
+			'common.featureComingSoon' => '功能暂未实现',
+			'common.understood' => '明白了',
 			'common.noProblem' => '没问题',
 			'common.onMyWay' => '马上到',
 			'common.operationOptions' => '操作选项',
@@ -10405,10 +10413,10 @@ extension on Translations {
 			'contact.enterRemark' => '请输入备注名',
 			'contact.pleaseEnterTags' => '请输入标签',
 			'contact.momentsVisibilityFriends' => '仅好友',
-			'contact.tagLengthExceeded' => ({required Object param}) => '标签长度不能超过 ${param} 个字符',
-			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能添加 ${param} 个标签',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => '标签长度不能超过 ${param} 个字符',
+			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能添加 ${param} 个标签',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已选标签 (${param}/${max})',
 			'contact.friendRequestSent' => '已发送',
 			'contact.channelMaxTagsCount' => '最多可添加 8 个标签',
@@ -10919,10 +10927,10 @@ extension on Translations {
 			'main.termsOfService' => '服务条款',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => '系统默认',
-			'main.gradientBlue' => '渐变蓝',
-			'main.gradientPurple' => '渐变紫',
 			_ => null,
 		} ?? switch (path) {
+			'main.gradientBlue' => '渐变蓝',
+			'main.gradientPurple' => '渐变紫',
 			'main.copiedToClipboard' => '已复制到剪贴板',
 			'main.destroyTime' => '销毁时间',
 			'main.previewEffect' => '预览效果',
@@ -11433,10 +11441,10 @@ extension on Translations {
 			'workspace.experienceModeHint' => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份',
 			'workspace.experienceModePersonal' => '个人',
 			'workspace.experienceModeWorkspace' => '工作区',
-			'workspace.experienceModeReset' => '恢复部署默认值',
-			'workspace.switchToWorkspace' => '切换到工作区',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModeReset' => '恢复部署默认值',
+			'workspace.switchToWorkspace' => '切换到工作区',
 			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',

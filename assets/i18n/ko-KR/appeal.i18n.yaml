@@ -18,3 +18,5 @@ actionContentRemoval: 콘텐츠 삭제
 statusPending: 검토 중
 statusAccepted: 뒤집힘
 statusRejected: 유지
+allClearTitle: 정상
+allClearSubtitle: 회원님에 대한 조치가 없으며 항소할 필요도 없습니다.

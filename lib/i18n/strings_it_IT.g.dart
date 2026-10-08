@@ -255,6 +255,8 @@ class _Translations$appeal$it_IT extends Translations$appeal$zh_CN {
 	@override String get statusPending => 'In revisione';
 	@override String get statusAccepted => 'Annullata';
 	@override String get statusRejected => 'Confermata';
+	@override String get allClearTitle => 'Tutto in ordine';
+	@override String get allClearSubtitle => 'Nessuna azione nei tuoi confronti, nessun ricorso necessario.';
 }
 
 // Path: billing
@@ -3331,6 +3333,8 @@ extension on TranslationsItIt {
 			'appeal.statusPending' => 'In revisione',
 			'appeal.statusAccepted' => 'Annullata',
 			'appeal.statusRejected' => 'Confermata',
+			'appeal.allClearTitle' => 'Tutto in ordine',
+			'appeal.allClearSubtitle' => 'Nessuna azione nei tuoi confronti, nessun ricorso necessario.',
 			'billing.title' => 'Abbonamenti',
 			'billing.planPeriodMonthly' => 'Mensile',
 			'billing.planPeriodYearly' => 'Annuale',
@@ -3685,10 +3689,10 @@ extension on TranslationsItIt {
 			'chat.setAvatar' => 'Imposta avatar',
 			'chat.fastForward' => ({required Object seconds}) => 'Avanti veloce ${seconds} secondi',
 			'chat.messageId' => 'ID messaggio',
-			'chat.chatType' => 'Tipo di chat',
-			'chat.deletingMessage' => 'Eliminazione in corso...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatType' => 'Tipo di chat',
+			'chat.deletingMessage' => 'Eliminazione in corso...',
 			'chat.deletingLocalMessage' => 'Eliminazione messaggio locale in corso...',
 			'chat.quickReplyReceived' => 'Ricevuto',
 			'chat.quickReplyThanks' => 'Grazie',
@@ -4199,10 +4203,10 @@ extension on TranslationsItIt {
 			'common.shareWithOtherFriends' => 'Condividi con altri amici',
 			'common.addTagsToFavorites' => 'Aggiungi tag ai preferiti',
 			'common.addRemarkToFavorites' => 'Aggiungi nota ai preferiti',
-			'common.deleteThisCollection' => 'Elimina questa raccolta',
-			'common.changeSuccess' => 'Modificato con successo',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => 'Elimina questa raccolta',
+			'common.changeSuccess' => 'Modificato con successo',
 			'common.lengthOk' => 'Lunghezza OK',
 			'common.confirmNewPassword' => 'Conferma nuova password',
 			'common.validationPassed' => 'Convalida superata',
@@ -4713,10 +4717,10 @@ extension on TranslationsItIt {
 			'discovery.momentsVisibilityPublic' => 'Pubblico',
 			'discovery.momentsVisibilityPartial' => 'Parziale',
 			'discovery.momentsVisibilityExclude' => 'Eccezioni',
-			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
-			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
+			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
 			'discovery.momentActionLike' => 'Mi piace',
 			'discovery.momentActionCancelLike' => 'Non mi piace più',
 			'discovery.momentActionComment' => 'Commenta',
@@ -5227,10 +5231,10 @@ extension on TranslationsItIt {
 			'organization.home.createOrg' => 'Crea organizzazione',
 			'organization.home.orgNameLabel' => 'Nome organizzazione (1-200 caratteri)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creazione non riuscita: ${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata',
-			'organization.home.tabOrg' => 'Organizzazioni',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createSubmittedPendingReview' => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata',
+			'organization.home.tabOrg' => 'Organizzazioni',
 			'organization.home.myInvitations' => 'I miei inviti',
 			'organization.home.emptyHint' => 'Non hai ancora aderito a nessuna organizzazione\nTrascina in basso per aggiornare o tocca in alto a destra per crearne una',
 			'organization.detail.leaveOrg' => 'Lascia organizzazione',
@@ -5741,10 +5745,10 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneDueLabel' => 'Scadenza',
 			'workspace.projectMilestoneEmptySubtitle' => 'Contrassegna i nodi chiave del progetto con le milestone (pianificata → raggiunta, a senso unico)',
 			'workspace.projectMilestoneEmptyTitle' => 'Nessuna milestone per ora',
-			'workspace.projectMilestoneFilterAll' => 'Tutte',
-			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMilestoneFilterAll' => 'Tutte',
+			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
 			'workspace.projectMilestoneFilterReached' => 'Raggiunte',
 			'workspace.projectMilestoneNameLabel' => 'Nome',
 			'workspace.projectMilestoneNameRequired' => 'Il nome della milestone non può essere vuoto',

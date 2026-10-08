@@ -255,6 +255,8 @@ class Translations$appeal$zh_Hant extends Translations$appeal$zh_CN {
 	@override String get statusPending => '待複審';
 	@override String get statusAccepted => '已翻案';
 	@override String get statusRejected => '已維持';
+	@override String get allClearTitle => '一切正常';
+	@override String get allClearSubtitle => '沒有針對你的處置，也不需要申訴。';
 }
 
 // Path: billing
@@ -3329,6 +3331,8 @@ extension on TranslationsZhHant {
 			'appeal.statusPending' => '待複審',
 			'appeal.statusAccepted' => '已翻案',
 			'appeal.statusRejected' => '已維持',
+			'appeal.allClearTitle' => '一切正常',
+			'appeal.allClearSubtitle' => '沒有針對你的處置，也不需要申訴。',
 			'billing.title' => '方案訂閱',
 			'billing.planPeriodMonthly' => '月繳',
 			'billing.planPeriodYearly' => '年繳',
@@ -3683,10 +3687,10 @@ extension on TranslationsZhHant {
 			'chat.momentsReplyingTo' => '正在回覆 @{name}',
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
-			'chat.markUnread' => '標記未讀',
-			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			_ => null,
 		} ?? switch (path) {
+			'chat.markUnread' => '標記未讀',
+			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			'chat.exportProfile' => '匯出資料',
 			'chat.setSignature' => '設定個性簽名',
 			'chat.setAvatar' => '設定頭像',
@@ -4197,10 +4201,10 @@ extension on TranslationsZhHant {
 			'common.operationOptions' => '操作選項',
 			'common.copyTextContent' => '複製文字內容',
 			'common.shareWithOtherFriends' => '分享給其他好友',
-			'common.addTagsToFavorites' => '為收藏新增標籤',
-			'common.addRemarkToFavorites' => '為收藏新增備註',
 			_ => null,
 		} ?? switch (path) {
+			'common.addTagsToFavorites' => '為收藏新增標籤',
+			'common.addRemarkToFavorites' => '為收藏新增備註',
 			'common.deleteThisCollection' => '刪除此收藏',
 			'common.changeSuccess' => '更改成功',
 			'common.lengthOk' => '長度符合',
@@ -4711,10 +4715,10 @@ extension on TranslationsZhHant {
 			'discovery.momentsVisibilityPublic' => '公開',
 			'discovery.momentsVisibilityPartial' => '部分可見',
 			'discovery.momentsVisibilityExclude' => '不給誰看',
-			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
-			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
+			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			'discovery.momentActionLike' => '讚',
 			'discovery.momentActionCancelLike' => '取消讚',
 			'discovery.momentActionComment' => '評論',
@@ -5225,10 +5229,10 @@ extension on TranslationsZhHant {
 			'organization.common.orgStatusRejected' => '未通過審核',
 			'organization.home.createOrg' => '建立企業',
 			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
-			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
+			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '我的邀請',
 			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
@@ -5739,10 +5743,10 @@ extension on TranslationsZhHant {
 			'workspace.taskStatusDoing' => '進行中',
 			'workspace.taskStatusReview' => '審核中',
 			'workspace.taskStatusDone' => '已結案',
-			'workspace.taskAdvanceTo' => ({required Object status}) => '推進到「${status}」',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAdvanceTo' => ({required Object status}) => '推進到「${status}」',
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
 			'workspace.taskEmptyTitle' => '還沒有任務',
 			'workspace.taskEmptySubtitle' => '以四種狀態追蹤執行：待辦 → 進行中 → 審核中 → 已結案',

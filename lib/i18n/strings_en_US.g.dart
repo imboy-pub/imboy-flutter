@@ -256,6 +256,8 @@ class _Translations$appeal$en_US extends Translations$appeal$zh_CN {
 	@override String get statusPending => 'Under review';
 	@override String get statusAccepted => 'Overturned';
 	@override String get statusRejected => 'Upheld';
+	@override String get allClearTitle => 'All clear';
+	@override String get allClearSubtitle => 'No enforcement actions on you, and no appeals needed.';
 }
 
 // Path: billing
@@ -3470,6 +3472,8 @@ extension on TranslationsEnUs {
 			'appeal.statusPending' => 'Under review',
 			'appeal.statusAccepted' => 'Overturned',
 			'appeal.statusRejected' => 'Upheld',
+			'appeal.allClearTitle' => 'All clear',
+			'appeal.allClearSubtitle' => 'No enforcement actions on you, and no appeals needed.',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3824,10 +3828,10 @@ extension on TranslationsEnUs {
 			'chat.chatStatusSending' => 'Sending',
 			'chat.chatStatusSent' => 'Sent',
 			'chat.chatStatusDelivered' => 'Delivered',
-			'chat.chatStatusSeen' => 'Seen',
-			'chat.deletingMessage' => 'Deleting...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatStatusSeen' => 'Seen',
+			'chat.deletingMessage' => 'Deleting...',
 			'chat.deletingLocalMessage' => 'Deleting local message...',
 			'chat.quickReplyReceived' => 'Received',
 			'chat.quickReplyThanks' => 'Thanks',
@@ -4338,10 +4342,10 @@ extension on TranslationsEnUs {
 			'common.deleteThisCollection' => 'Delete this collection',
 			'common.changeSuccess' => 'Changed successfully',
 			'common.lengthOk' => 'Length OK',
-			'common.confirmNewPassword' => 'Confirm New Password',
-			'common.validationPassed' => 'Validation passed',
 			_ => null,
 		} ?? switch (path) {
+			'common.confirmNewPassword' => 'Confirm New Password',
+			'common.validationPassed' => 'Validation passed',
 			'common.momentsContentHint' => 'Share something...',
 			'common.momentsAddMedia' => 'Add media',
 			'common.momentsAllowUidsLabel' => 'Visible to these UIDs (comma-separated)',
@@ -4852,10 +4856,10 @@ extension on TranslationsEnUs {
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} min',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} h ${m} min',
 			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} d ${h} h',
-			'customerService.sourceLabel' => 'Source',
-			'customerService.queuedEmptyTitle' => 'No queued conversations',
 			_ => null,
 		} ?? switch (path) {
+			'customerService.sourceLabel' => 'Source',
+			'customerService.queuedEmptyTitle' => 'No queued conversations',
 			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
 			'customerService.loadingMore' => 'Loading more…',
 			'customerService.loadMoreFailed' => 'Failed to load more, scroll up to retry',
@@ -5366,10 +5370,10 @@ extension on TranslationsEnUs {
 			'main.pleaseTryAgain' => 'Please try again',
 			'main.secret' => 'Secret',
 			'main.takePhoto' => 'Take Photo',
-			'main.deletingInProgressPleaseWait' => 'Deleting in progress, please wait...',
-			'main.collecting' => 'Collecting...',
 			_ => null,
 		} ?? switch (path) {
+			'main.deletingInProgressPleaseWait' => 'Deleting in progress, please wait...',
+			'main.collecting' => 'Collecting...',
 			'main.user' => 'User',
 			'main.recommended' => 'Recommended',
 			'main.larger' => 'Larger',
@@ -5880,10 +5884,10 @@ extension on TranslationsEnUs {
 			'workspace.overviewResources' => 'Resources',
 			'workspace.overviewPinnedContent' => 'Pinned channel posts',
 			'workspace.overviewPinnedEmpty' => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)',
-			'workspace.overviewRecentFiles' => 'Recent files',
-			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.overviewRecentFiles' => 'Recent files',
+			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			'workspace.membersTitle' => 'Workspace Members',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} members',
 			'workspace.membersEmpty' => 'No workspace members yet',

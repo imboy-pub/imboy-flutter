@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Theme;
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/appeal_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -147,36 +149,43 @@ class _AppealPageState extends State<AppealPage> {
             child: Center(child: CupertinoActivityIndicator()),
           )
         else if (_error != null)
+          // 错误态给人话文案 + 重试入口，不渲染 e.toString() 原始串。
           SliverFillRemaining(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  _error!,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-                CupertinoButton(onPressed: _load, child: Text(t.common.retry)),
-              ],
+            hasScrollBody: false,
+            child: NoDataView(
+              icon: CupertinoIcons.exclamationmark_circle,
+              text: t.common.errorNetwork,
+              onTop: _load,
+            ),
+          )
+        else if (_actions.isEmpty && _appeals.isEmpty)
+          // 双空合并为一个「一切正常」安心空态（图标传达"无处置"的
+          // 正面语义），替代原先两行互不相关的「暂无xx记录」+ 大段空白。
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: NoDataView(
+              icon: CupertinoIcons.checkmark_seal_fill,
+              iconColor: AppColors.getIosGreen(Theme.of(context).brightness),
+              text: t.appeal.allClearTitle,
+              description: t.appeal.allClearSubtitle,
             ),
           )
         else ...[
-          SliverToBoxAdapter(
-            child: _buildSectionHeader(t.appeal.actionsSection),
-          ),
-          if (_actions.isEmpty)
-            SliverToBoxAdapter(child: _buildEmpty(t.appeal.actionsEmpty))
-          else
+          // 单侧为空时该 section 整体收起（header + 空字条都不渲染），
+          // 只展示有内容的一侧。
+          if (_actions.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: _buildSectionHeader(t.appeal.actionsSection),
+            ),
             SliverToBoxAdapter(child: _buildActionsCard()),
-          SliverToBoxAdapter(
-            child: _buildSectionHeader(t.appeal.appealsSection),
-          ),
-          if (_appeals.isEmpty)
-            SliverToBoxAdapter(child: _buildEmpty(t.appeal.appealsEmpty))
-          else
+          ],
+          if (_appeals.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: _buildSectionHeader(t.appeal.appealsSection),
+            ),
             SliverToBoxAdapter(child: _buildAppealsCard()),
+          ],
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xLarge)),
         ],
       ],
     );
@@ -195,21 +204,6 @@ class _AppealPageState extends State<AppealPage> {
         style: context.textStyle(
           FontSizeType.footnote,
           color: AppColors.iosGray,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmpty(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(AppSpacing.regular),
-      child: Center(
-        child: Text(
-          text,
-          style: context.textStyle(
-            FontSizeType.footnote,
-            color: AppColors.iosGray,
-          ),
         ),
       ),
     );

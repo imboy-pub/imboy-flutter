@@ -255,6 +255,8 @@ class _Translations$appeal$fr_FR extends Translations$appeal$zh_CN {
 	@override String get statusPending => 'En examen';
 	@override String get statusAccepted => 'Annulée';
 	@override String get statusRejected => 'Maintenue';
+	@override String get allClearTitle => 'Tout est en ordre';
+	@override String get allClearSubtitle => 'Aucune mesure prise à votre encontre, aucun recours nécessaire.';
 }
 
 // Path: billing
@@ -3331,6 +3333,8 @@ extension on TranslationsFrFr {
 			'appeal.statusPending' => 'En examen',
 			'appeal.statusAccepted' => 'Annulée',
 			'appeal.statusRejected' => 'Maintenue',
+			'appeal.allClearTitle' => 'Tout est en ordre',
+			'appeal.allClearSubtitle' => 'Aucune mesure prise à votre encontre, aucun recours nécessaire.',
 			'billing.title' => 'Abonnements',
 			'billing.planPeriodMonthly' => 'Mensuel',
 			'billing.planPeriodYearly' => 'Annuel',
@@ -3685,10 +3689,10 @@ extension on TranslationsFrFr {
 			'chat.setAvatar' => 'Définir l\'avatar',
 			'chat.fastForward' => ({required Object seconds}) => 'Avance rapide de ${seconds} secondes',
 			'chat.messageId' => 'ID du message',
-			'chat.chatType' => 'Type de conversation',
-			'chat.deletingMessage' => 'Suppression en cours...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.chatType' => 'Type de conversation',
+			'chat.deletingMessage' => 'Suppression en cours...',
 			'chat.deletingLocalMessage' => 'Suppression du message local en cours...',
 			'chat.quickReplyReceived' => 'Reçu',
 			'chat.quickReplyThanks' => 'Merci',
@@ -4199,10 +4203,10 @@ extension on TranslationsFrFr {
 			'common.shareWithOtherFriends' => 'Partager avec d\'autres amis',
 			'common.addTagsToFavorites' => 'Ajouter des étiquettes aux favoris',
 			'common.addRemarkToFavorites' => 'Ajouter une remarque aux favoris',
-			'common.deleteThisCollection' => 'Supprimer cette collection',
-			'common.changeSuccess' => 'Modifié avec succès.',
 			_ => null,
 		} ?? switch (path) {
+			'common.deleteThisCollection' => 'Supprimer cette collection',
+			'common.changeSuccess' => 'Modifié avec succès.',
 			'common.lengthOk' => 'Longueur correcte',
 			'common.confirmNewPassword' => 'Confirmer le nouveau mot de passe',
 			'common.validationPassed' => 'Validation réussie.',
@@ -4713,10 +4717,10 @@ extension on TranslationsFrFr {
 			'discovery.momentsVisibilityPublic' => 'Public',
 			'discovery.momentsVisibilityPartial' => 'Partiel',
 			'discovery.momentsVisibilityExclude' => 'Exceptions',
-			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
-			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
 			_ => null,
 		} ?? switch (path) {
+			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
+			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
 			'discovery.momentActionLike' => 'J\'aime',
 			'discovery.momentActionCancelLike' => 'Je n\'aime plus',
 			'discovery.momentActionComment' => 'Commenter',
@@ -5227,10 +5231,10 @@ extension on TranslationsFrFr {
 			'organization.home.createOrg' => 'Créer une organisation',
 			'organization.home.orgNameLabel' => 'Nom de l\'organisation (1-200 caractères)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Échec de la création : ${msg} (${code})',
-			'organization.home.createSubmittedPendingReview' => 'Envoyé. En attente de validation par l\'équipe des opérations ; l\'entreprise pourra être utilisée normalement une fois validée',
-			'organization.home.tabOrg' => 'Organisations',
 			_ => null,
 		} ?? switch (path) {
+			'organization.home.createSubmittedPendingReview' => 'Envoyé. En attente de validation par l\'équipe des opérations ; l\'entreprise pourra être utilisée normalement une fois validée',
+			'organization.home.tabOrg' => 'Organisations',
 			'organization.home.myInvitations' => 'Mes invitations',
 			'organization.home.emptyHint' => 'Vous n\'avez encore rejoint aucune organisation\nTirez vers le bas pour actualiser ou créez-en une en haut à droite',
 			'organization.detail.leaveOrg' => 'Quitter l’organisation',
@@ -5741,10 +5745,10 @@ extension on TranslationsFrFr {
 			'workspace.taskStatusReview' => 'En revue',
 			'workspace.taskStatusDone' => 'Terminé',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Faire avancer vers « ${status} »',
-			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Replacer ${title} à…',
-			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Déplacé vers « ${status} »',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Replacer ${title} à…',
+			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Déplacé vers « ${status} »',
 			'workspace.taskEmptyTitle' => 'Aucune tâche pour le moment',
 			'workspace.taskEmptySubtitle' => 'Suivez l\'exécution en quatre états : à faire → en cours → en revue → terminé',
 			'workspace.projectsLoadMore' => 'Charger plus',

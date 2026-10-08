@@ -18,3 +18,5 @@ actionContentRemoval: Контент удалён
 statusPending: На рассмотрении
 statusAccepted: Отменено
 statusRejected: Оставлено
+allClearTitle: Всё в порядке
+allClearSubtitle: Меры против вас отсутствуют, подавать апелляцию не требуется.
