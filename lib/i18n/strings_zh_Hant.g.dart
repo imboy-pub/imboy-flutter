@@ -496,6 +496,11 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => '頻道 “${name}” 已建立';
 	@override String startGrowing({required Object name}) => '開始發展壯大 “${name}”';
 	@override String shareInviteText({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}';
+	@override String get discussion => '討論區';
+	@override String get joinDiscussion => '加入討論';
+	@override String get essence => '精華';
+	@override String get allPosts => '全部內容';
+	@override String get editPostTags => '編輯標籤';
 }
 
 // Path: chat
@@ -3554,6 +3559,11 @@ extension on TranslationsZhHant {
 			'channel.channelCreated' => ({required Object name}) => '頻道 “${name}” 已建立',
 			'channel.startGrowing' => ({required Object name}) => '開始發展壯大 “${name}”',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}',
+			'channel.discussion' => '討論區',
+			'channel.joinDiscussion' => '加入討論',
+			'channel.essence' => '精華',
+			'channel.allPosts' => '全部內容',
+			'channel.editPostTags' => '編輯標籤',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3682,13 +3692,13 @@ extension on TranslationsZhHant {
 			'chat.momentsMediaTooManyImages' => '最多隻能選擇 9 張圖片',
 			'chat.momentsMediaTooManyVideos' => '最多隻能選擇 1 個影片',
 			'chat.momentsMediaMixedImageAndVideo' => '圖片和影片不能同時釋出',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplyPrefix' => '回覆 @',
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '正在回覆 @{name}',
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
-			_ => null,
-		} ?? switch (path) {
 			'chat.markUnread' => '標記未讀',
 			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			'chat.exportProfile' => '匯出資料',
@@ -4196,13 +4206,13 @@ extension on TranslationsZhHant {
 			'common.noGroupAnnouncement' => '暫無群組公告',
 			'common.featureComingSoon' => '功能暫未實現',
 			'common.understood' => '我懂了',
+			_ => null,
+		} ?? switch (path) {
 			'common.noProblem' => '沒問題',
 			'common.onMyWay' => '馬上到',
 			'common.operationOptions' => '操作選項',
 			'common.copyTextContent' => '複製文字內容',
 			'common.shareWithOtherFriends' => '分享給其他好友',
-			_ => null,
-		} ?? switch (path) {
 			'common.addTagsToFavorites' => '為收藏新增標籤',
 			'common.addRemarkToFavorites' => '為收藏新增備註',
 			'common.deleteThisCollection' => '刪除此收藏',
@@ -4710,13 +4720,13 @@ extension on TranslationsZhHant {
 			'discovery.otherUsersCanFindMe' => '其他使用者可以通過搜尋找到我',
 			'discovery.momentsDenyUidsLabel' => '不給誰看 UID 列表（逗號分隔）',
 			'discovery.moments' => '動態',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => '寫評論...',
 			'discovery.momentsVisibility' => '可見性',
 			'discovery.momentsVisibilityPublic' => '公開',
 			'discovery.momentsVisibilityPartial' => '部分可見',
 			'discovery.momentsVisibilityExclude' => '不給誰看',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
 			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			'discovery.momentActionLike' => '讚',
@@ -5224,13 +5234,13 @@ extension on TranslationsZhHant {
 			'organization.common.targetUidHint' => '對方使用者 UID（數字）',
 			'organization.common.uidMustBePositive' => '使用者 UID 必須是正整數',
 			'organization.common.loading' => '載入中…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => '載入更多',
 			'organization.common.orgStatusPending' => '審核中',
 			'organization.common.orgStatusRejected' => '未通過審核',
 			'organization.home.createOrg' => '建立企業',
 			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
 			'organization.home.tabOrg' => '組織',
@@ -5738,13 +5748,13 @@ extension on TranslationsZhHant {
 			'workspace.taskCreatedToast' => '任務已建立',
 			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
 			'workspace.taskUpdatedToast' => '任務已儲存',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => '所有',
 			'workspace.taskStatusTodo' => '待辦',
 			'workspace.taskStatusDoing' => '進行中',
 			'workspace.taskStatusReview' => '審核中',
 			'workspace.taskStatusDone' => '已結案',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAdvanceTo' => ({required Object status}) => '推進到「${status}」',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',

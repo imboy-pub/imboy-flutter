@@ -25,6 +25,8 @@ import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
+import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'channel_detail_rules.dart';
 
@@ -47,6 +49,8 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
   final VoidCallback? onReactionChanged;
   final ValueChanged<bool>? onPinned;
   final VoidCallback? onDeleted;
+  final VoidCallback? onMetadataChanged;
+  final ValueChanged<String>? onTagSelected;
 
   /// R-01 频道消息举报入口：长按消息触发（由 feed 层注入）。
   final VoidCallback? onLongPress;
@@ -59,6 +63,8 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
     this.onReactionChanged,
     this.onPinned,
     this.onDeleted,
+    this.onMetadataChanged,
+    this.onTagSelected,
     this.onLongPress,
   });
 
@@ -78,6 +84,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   // 让底栏计数即时反映操作（后端消息列表不会随点赞实时刷新）。
   int _likeDelta = 0;
   bool _likeActionBusy = false;
+  bool _metadataBusy = false;
   // 双击点赞浮层动画
   late AnimationController _likeAnimController;
 
@@ -324,6 +331,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildMetaBar(context, secondaryColor),
+                if (ChannelApi.microCommunityEnabled)
+                  _buildPostMetadata(context),
                 _buildContentArea(textColor, secondaryColor, isText),
                 _buildBottomBar(context, textColor, secondaryColor),
               ],
@@ -942,6 +951,92 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
   }
 
+  Widget _buildPostMetadata(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+    child: Wrap(
+      spacing: AppSpacing.small,
+      children: [
+        if (widget.message.isEssence)
+          Padding(
+            padding: AppSpacing.allTiny,
+            child: Text(
+              context.t.channel.essence,
+              style: context.textStyle(
+                FontSizeType.caption2,
+                color: AppColors.iosOrange,
+              ),
+            ),
+          ),
+        for (final tag in widget.message.tags)
+          CupertinoButton(
+            key: ValueKey('mc_tag_${widget.message.id}_$tag'),
+            padding: AppSpacing.allTiny,
+            minimumSize: const Size(44, 44),
+            onPressed: widget.onTagSelected == null
+                ? null
+                : () => widget.onTagSelected!(tag),
+            child: Text(
+              '#$tag',
+              style: context.textStyle(
+                FontSizeType.caption2,
+                color: AppColors.iosBlue,
+              ),
+            ),
+          ),
+      ],
+    ),
+  );
+
+  Future<void> _setEssence() async {
+    if (_metadataBusy ||
+        !widget.isManaged ||
+        !ChannelApi.microCommunityEnabled) {
+      return;
+    }
+    _metadataBusy = true;
+    try {
+      await ref
+          .read(channelApiProvider)
+          .setPostEssence(
+            widget.channelId,
+            widget.message.id.toString(),
+            !widget.message.isEssence,
+          );
+      await ref
+          .read(channelDetailProvider.notifier)
+          .loadMessages(widget.channelId);
+      widget.onMetadataChanged?.call();
+    } catch (_) {
+      if (mounted) AppLoading.showError(context.t.common.loadError);
+    } finally {
+      _metadataBusy = false;
+    }
+  }
+
+  Future<void> _editTags() async {
+    if (_metadataBusy || !ChannelApi.microCommunityEnabled) return;
+    final value = await showCupertinoDialog<List<String>>(
+      context: context,
+      builder: (_) => PostTagsDialog(initialTags: widget.message.tags),
+    );
+    if (value == null || !mounted) return;
+    final tags = value;
+    _metadataBusy = true;
+    try {
+      await ref
+          .read(channelApiProvider)
+          .setPostTags(widget.channelId, widget.message.id.toString(), tags);
+      await ref
+          .read(channelDetailProvider.notifier)
+          .loadMessages(widget.channelId);
+      widget.onMetadataChanged?.call();
+    } catch (_) {
+      if (mounted) AppLoading.showError(context.t.common.loadError);
+    } finally {
+      _metadataBusy = false;
+    }
+  }
+
   // ---- 管理菜单 ----
 
   void _showManageMenu(BuildContext context) {
@@ -959,6 +1054,14 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
         position.dy + renderBox.size.height,
       ),
       items: [
+        if (ChannelApi.microCommunityEnabled)
+          CheckedPopupMenuItem(
+            value: 'essence',
+            checked: widget.message.isEssence,
+            child: Text(t.channel.essence),
+          ),
+        if (ChannelApi.microCommunityEnabled)
+          PopupMenuItem(value: 'tags', child: Text(t.channel.editPostTags)),
         PopupMenuItem(
           value: widget.message.isPinned ? 'unpin' : 'pin',
           child: ListTile(
@@ -1005,6 +1108,16 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (ChannelApi.microCommunityEnabled &&
+                widget.message.authorId?.toString() ==
+                    UserRepoLocal.to.currentUid)
+              CupertinoButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _editTags();
+                },
+                child: Text(t.channel.editPostTags),
+              ),
             ListTile(
               leading: const Icon(CupertinoIcons.doc_on_doc),
               title: Text(t.common.copy),
@@ -1034,6 +1147,12 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
 
   Future<void> _handleMessageAction(String action) async {
     switch (action) {
+      case 'essence':
+        await _setEssence();
+        break;
+      case 'tags':
+        await _editTags();
+        break;
       case 'pin':
         await _setPinned(true);
         break;
@@ -1290,4 +1409,62 @@ class _ChannelAudioPlayerState extends ConsumerState<_ChannelAudioPlayer> {
       ),
     );
   }
+}
+
+/// Each field is one tag; punctuation inside a tag is never a delimiter.
+class PostTagsDialog extends StatefulWidget {
+  const PostTagsDialog({super.key, required this.initialTags});
+  final List<String> initialTags;
+  @override
+  State<PostTagsDialog> createState() => _PostTagsDialogState();
+}
+
+class _PostTagsDialogState extends State<PostTagsDialog> {
+  late final List<TextEditingController> _inputs = List.generate(
+    5,
+    (index) => TextEditingController(
+      text: index < widget.initialTags.length ? widget.initialTags[index] : '',
+    ),
+  );
+  @override
+  void dispose() {
+    for (final input in _inputs) {
+      input.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => CupertinoAlertDialog(
+    title: Text(context.t.channel.editPostTags),
+    content: Column(
+      children: [
+        for (var index = 0; index < _inputs.length; index++)
+          Padding(
+            padding: AppSpacing.allSmall,
+            child: CupertinoTextField(
+              key: Key('mc_post_tags_input_$index'),
+              controller: _inputs[index],
+            ),
+          ),
+      ],
+    ),
+    actions: [
+      CupertinoDialogAction(
+        onPressed: () => Navigator.pop(context),
+        child: Text(context.t.common.buttonCancel),
+      ),
+      CupertinoDialogAction(
+        key: const Key('mc_post_tags_confirm'),
+        onPressed: () => Navigator.pop(
+          context,
+          _inputs
+              .map((input) => input.text.trim())
+              .where((tag) => tag.isNotEmpty)
+              .toList(),
+        ),
+        child: Text(context.t.common.buttonConfirm),
+      ),
+    ],
+  );
 }

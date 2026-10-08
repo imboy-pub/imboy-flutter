@@ -496,6 +496,11 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Канал "${name}" создан';
 	@override String startGrowing({required Object name}) => 'Развивайте "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}';
+	@override String get discussion => 'Обсуждение';
+	@override String get joinDiscussion => 'Присоединиться к обсуждению';
+	@override String get essence => 'Избранные публикации';
+	@override String get allPosts => 'Все публикации';
+	@override String get editPostTags => 'Изменить теги';
 }
 
 // Path: chat
@@ -3562,6 +3567,11 @@ extension on TranslationsRuRu {
 			'channel.channelCreated' => ({required Object name}) => 'Канал "${name}" создан',
 			'channel.startGrowing' => ({required Object name}) => 'Развивайте "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}',
+			'channel.discussion' => 'Обсуждение',
+			'channel.joinDiscussion' => 'Присоединиться к обсуждению',
+			'channel.essence' => 'Избранные публикации',
+			'channel.allPosts' => 'Все публикации',
+			'channel.editPostTags' => 'Изменить теги',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3690,13 +3700,13 @@ extension on TranslationsRuRu {
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
 			'chat.pleaseEnterSignature' => 'Введите подпись',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'Экспортировать профиль',
 			'chat.setSignature' => 'Установить подпись',
 			'chat.setAvatar' => 'Установить аватар',
 			'chat.fastForward' => ({required Object seconds}) => 'Быстрая перемотка вперёд ${seconds} сек',
 			'chat.messageId' => 'ID сообщения',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'Тип чата',
 			'chat.deletingMessage' => 'Удаление...',
 			'chat.deletingLocalMessage' => 'Удаление локального сообщения...',
@@ -4204,13 +4214,13 @@ extension on TranslationsRuRu {
 			'common.understood' => 'Понятно',
 			'common.noProblem' => 'Без проблем',
 			'common.onMyWay' => 'Уже в пути',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationOptions' => 'Операции',
 			'common.copyTextContent' => 'Копировать текстовое содержание',
 			'common.shareWithOtherFriends' => 'Поделиться с другими друзьями',
 			'common.addTagsToFavorites' => 'Добавить теги в избранное',
 			'common.addRemarkToFavorites' => 'Добавить примечание в избранное',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Удалить эту коллекцию',
 			'common.changeSuccess' => 'Успешно изменено',
 			'common.lengthOk' => 'Длина в порядке',
@@ -4718,13 +4728,13 @@ extension on TranslationsRuRu {
 			'discovery.otherUsersCanFindMe' => 'Другие пользователи могут найти меня через поиск',
 			'discovery.momentsDenyUidsLabel' => 'Скрыть от UID (через запятую)',
 			'discovery.moments' => 'Моменты',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => 'Написать комментарий...',
 			'discovery.momentsVisibility' => 'Видимость',
 			'discovery.momentsVisibilityPublic' => 'Все',
 			'discovery.momentsVisibilityPartial' => 'Некоторые',
 			'discovery.momentsVisibilityExclude' => 'Скрыть от...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
 			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			'discovery.momentActionLike' => 'Нравится',
@@ -5232,13 +5242,13 @@ extension on TranslationsRuRu {
 			'organization.common.uidMustBePositive' => 'UID пользователя должен быть положительным целым числом',
 			'organization.common.loading' => 'Загрузка…',
 			'organization.common.loadMore' => 'Загрузить ещё',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.orgStatusPending' => 'На проверке',
 			'organization.common.orgStatusRejected' => 'Проверка не пройдена',
 			'organization.home.createOrg' => 'Создать организацию',
 			'organization.home.orgNameLabel' => 'Название организации (1-200 символов)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать',
 			'organization.home.tabOrg' => 'Организации',
 			'organization.home.myInvitations' => 'Мои приглашения',
@@ -5746,13 +5756,13 @@ extension on TranslationsRuRu {
 			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
 			'workspace.taskFilterAll' => 'Все',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskStatusTodo' => 'К выполнению',
 			'workspace.taskStatusDoing' => 'В процессе',
 			'workspace.taskStatusReview' => 'На проверке',
 			'workspace.taskStatusDone' => 'Завершено',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Перевести в «${status}»',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Вернуть «${title}» к...',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
 			'workspace.taskEmptyTitle' => 'Пока нет задач',

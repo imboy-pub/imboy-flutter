@@ -1358,6 +1358,21 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '大家快来关注我的频道【$name】吧！$url'
 	String shareInviteText({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}';
+
+	/// zh-CN: '讨论区'
+	String get discussion => '讨论区';
+
+	/// zh-CN: '加入讨论'
+	String get joinDiscussion => '加入讨论';
+
+	/// zh-CN: '精华'
+	String get essence => '精华';
+
+	/// zh-CN: '全部内容'
+	String get allPosts => '全部内容';
+
+	/// zh-CN: '编辑标签'
+	String get editPostTags => '编辑标签';
 }
 
 // Path: chat
@@ -9409,6 +9424,11 @@ extension on Translations {
 			'channel.channelCreated' => ({required Object name}) => '频道 “${name}” 已创建',
 			'channel.startGrowing' => ({required Object name}) => '开始发展壮大 “${name}”',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}',
+			'channel.discussion' => '讨论区',
+			'channel.joinDiscussion' => '加入讨论',
+			'channel.essence' => '精华',
+			'channel.allPosts' => '全部内容',
+			'channel.editPostTags' => '编辑标签',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -9501,13 +9521,13 @@ extension on Translations {
 			'chat.voiceReleaseCancelSend' => '松开 取消发送',
 			'chat.voiceReleaseCancel' => '松开 取消',
 			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
+			_ => null,
+		} ?? switch (path) {
 			'chat.convertToText' => '转文字',
 			'chat.sending' => '正在发送...',
 			'chat.socialProfile' => '社交资料',
 			'chat.sureOpenTheFile' => '确定要打开文件吗？',
 			'chat.titleMessage' => '消息',
-			_ => null,
-		} ?? switch (path) {
 			'chat.unpin' => '取消置顶',
 			'chat.userData' => '用户数据',
 			'chat.video' => '视频',
@@ -10015,13 +10035,13 @@ extension on Translations {
 			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被设备【${device}】强制下线',
 			'common.loadingTagDataFailed' => '加载标签数据失败',
 			'common.pleaseEnterContent' => '请输入内容',
+			_ => null,
+		} ?? switch (path) {
 			'common.comingSoon' => '敬请期待',
 			'common.backgroundTransparency' => '背景透明度',
 			'common.defaultBackground' => '默认背景',
 			'common.solidColorBackground' => '纯色背景',
 			'common.selectImageFailed' => '选择图片失败',
-			_ => null,
-		} ?? switch (path) {
 			'common.locationSelectNotImplemented' => '位置选择功能暂未实现',
 			'common.selectLocationFailed' => '选择位置失败',
 			'common.sendCardNotImplemented' => '名片发送功能暂未实现',
@@ -10529,13 +10549,13 @@ extension on Translations {
 			'common.minutesAgo' => '分钟前',
 			'common.hoursAgo' => '小时前',
 			'common.collapse' => '收起',
+			_ => null,
+		} ?? switch (path) {
 			'common.expandFull' => '展开',
 			'common.fontSizeOptionSmall' => '小',
 			'common.fontSizeOptionNormal' => '标准',
 			'common.fontSizeOptionMedium' => '中',
 			'common.fontSizeOptionLarge' => '大',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontSizeOptionExtraLarge' => '特大',
 			'common.fontSizeOptionHuge' => '超大',
 			'common.developer' => '开发者',
@@ -11043,13 +11063,13 @@ extension on Translations {
 			'main.play' => '播放',
 			'main.pleaseInputParam' => ({required Object param}) => '请输入${param}',
 			'main.pleaseSelect' => '请选择',
+			_ => null,
+		} ?? switch (path) {
 			'main.quote' => '引用',
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '松开结束',
 			'main.memberDetail' => '成员详情',
 			'main.replied' => '已回复',
-			_ => null,
-		} ?? switch (path) {
 			'main.ringing' => '已响铃...',
 			'main.ruRu' => '俄罗斯俄语',
 			'main.selectedCount' => ({required Object count}) => '已选 (${count})',
@@ -11557,13 +11577,13 @@ extension on Translations {
 			'passport.hintPassword' => '请输入密码',
 			'passport.hintVerifyCode' => '请输入验证码',
 			'passport.getVerifyCode' => '获取验证码',
+			_ => null,
+		} ?? switch (path) {
 			'passport.oneKeyLogin' => '一键登录',
 			'passport.qrCodeExpired' => '二维码已过期，请重新扫码',
 			'passport.qrCodeUsed' => '此二维码已使用',
 			'passport.qrLoginCancelled' => '登录已取消',
 			'passport.qrLoginConfirming' => '正在登录...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginCancelledByMe' => '已取消登录',
 			'passport.qrConnecting' => '正在连接...',
 			'passport.qrWebLoginTitle' => 'Web 端登录确认',

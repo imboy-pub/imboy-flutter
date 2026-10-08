@@ -496,6 +496,11 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Kanal „${name}“ erstellt';
 	@override String startGrowing({required Object name}) => 'Wachse mit „${name}“';
 	@override String shareInviteText({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}';
+	@override String get discussion => 'Diskussion';
+	@override String get joinDiscussion => 'Diskussion beitreten';
+	@override String get essence => 'Highlights';
+	@override String get allPosts => 'Alle Beiträge';
+	@override String get editPostTags => 'Tags bearbeiten';
 }
 
 // Path: chat
@@ -3556,6 +3561,11 @@ extension on TranslationsDeDe {
 			'channel.channelCreated' => ({required Object name}) => 'Kanal „${name}“ erstellt',
 			'channel.startGrowing' => ({required Object name}) => 'Wachse mit „${name}“',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}',
+			'channel.discussion' => 'Diskussion',
+			'channel.joinDiscussion' => 'Diskussion beitreten',
+			'channel.essence' => 'Highlights',
+			'channel.allPosts' => 'Alle Beiträge',
+			'channel.editPostTags' => 'Tags bearbeiten',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3684,13 +3694,13 @@ extension on TranslationsDeDe {
 			'chat.markRead' => 'Als gelesen markieren',
 			'chat.markUnread' => 'Als ungelesen markieren',
 			'chat.pleaseEnterSignature' => 'Persönliche Signatur eingeben',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'Profil exportieren',
 			'chat.setSignature' => 'Signatur festlegen',
 			'chat.setAvatar' => 'Avatar festlegen',
 			'chat.fastForward' => ({required Object seconds}) => 'Schnell vor ${seconds} Sekunden',
 			'chat.messageId' => 'Nachrichten-ID',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'Chat-Typ',
 			'chat.deletingMessage' => 'Wird gelöscht...',
 			'chat.deletingLocalMessage' => 'Lokale Nachricht wird gelöscht...',
@@ -4198,13 +4208,13 @@ extension on TranslationsDeDe {
 			'common.understood' => 'Verstanden',
 			'common.noProblem' => 'Kein Problem',
 			'common.onMyWay' => 'Bin unterwegs',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationOptions' => 'Optionen',
 			'common.copyTextContent' => 'Textinhalt kopieren',
 			'common.shareWithOtherFriends' => 'Mit anderen Freunden teilen',
 			'common.addTagsToFavorites' => 'Tags zu Favoriten hinzufügen',
 			'common.addRemarkToFavorites' => 'Bemerkung zu Favoriten hinzufügen',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Diese Sammlung löschen',
 			'common.changeSuccess' => 'Erfolgreich geändert',
 			'common.lengthOk' => 'Länge in Ordnung',
@@ -4712,13 +4722,13 @@ extension on TranslationsDeDe {
 			'discovery.otherUsersCanFindMe' => 'Andere Benutzer können mich durch Suche finden',
 			'discovery.momentsDenyUidsLabel' => 'Ausgeschlossen UIDs (kommagetrennt)',
 			'discovery.moments' => 'Momente',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => 'Kommentar schreiben...',
 			'discovery.momentsVisibility' => 'Sichtbarkeit',
 			'discovery.momentsVisibilityPublic' => 'Öffentlich',
 			'discovery.momentsVisibilityPartial' => 'Teilweise',
 			'discovery.momentsVisibilityExclude' => 'Ausnahmen',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Letzter Entwurf wiederhergestellt',
 			'discovery.momentsFeedStale' => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt',
 			'discovery.momentActionLike' => 'Gefällt mir',
@@ -5226,13 +5236,13 @@ extension on TranslationsDeDe {
 			'organization.common.uidMustBePositive' => 'Die Nutzer-UID muss eine positive Ganzzahl sein',
 			'organization.common.loading' => 'Wird geladen…',
 			'organization.common.loadMore' => 'Mehr laden',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.orgStatusPending' => 'In Prüfung',
 			'organization.common.orgStatusRejected' => 'Prüfung nicht bestanden',
 			'organization.home.createOrg' => 'Organisation erstellen',
 			'organization.home.orgNameLabel' => 'Organisationsname (1-200 Zeichen)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Erstellen fehlgeschlagen: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Übermittelt. Wartet auf die Prüfung durch das Betreiberteam; das Unternehmen kann nach Genehmigung normal genutzt werden',
 			'organization.home.tabOrg' => 'Organisationen',
 			'organization.home.myInvitations' => 'Meine Einladungen',
@@ -5740,13 +5750,13 @@ extension on TranslationsDeDe {
 			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
 			'workspace.taskUpdatedToast' => 'Aufgabe gespeichert',
 			'workspace.taskFilterAll' => 'Alle',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskStatusTodo' => 'Offen',
 			'workspace.taskStatusDoing' => 'In Bearbeitung',
 			'workspace.taskStatusReview' => 'In Prüfung',
 			'workspace.taskStatusDone' => 'Abgeschlossen',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Weiter zu „${status}“',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} zurücksetzen auf…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Verschoben zu „${status}“',
 			'workspace.taskEmptyTitle' => 'Noch keine Aufgaben',

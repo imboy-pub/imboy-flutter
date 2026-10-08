@@ -496,6 +496,11 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => '채널 "${name}"이(가) 생성되었습니다';
 	@override String startGrowing({required Object name}) => '"${name}" 성장시키기';
 	@override String shareInviteText({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}';
+	@override String get discussion => '토론';
+	@override String get joinDiscussion => '토론 참여';
+	@override String get essence => '추천 게시물';
+	@override String get allPosts => '모든 게시물';
+	@override String get editPostTags => '태그 편집';
 }
 
 // Path: chat
@@ -3553,6 +3558,11 @@ extension on TranslationsKoKr {
 			'channel.channelCreated' => ({required Object name}) => '채널 "${name}"이(가) 생성되었습니다',
 			'channel.startGrowing' => ({required Object name}) => '"${name}" 성장시키기',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}',
+			'channel.discussion' => '토론',
+			'channel.joinDiscussion' => '토론 참여',
+			'channel.essence' => '추천 게시물',
+			'channel.allPosts' => '모든 게시물',
+			'channel.editPostTags' => '태그 편집',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3681,13 +3691,13 @@ extension on TranslationsKoKr {
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
 			'chat.pleaseEnterSignature' => '한 줄 소개를 입력하세요',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => '프로필 내보내기',
 			'chat.setSignature' => '서명 설정',
 			'chat.setAvatar' => '프로필 사진 설정',
 			'chat.fastForward' => ({required Object seconds}) => '${seconds}초 빨리감기',
 			'chat.messageId' => '메시지 ID',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => '채팅 유형',
 			'chat.deletingMessage' => '삭제 중...',
 			'chat.deletingLocalMessage' => '로컬 메시지 삭제 중...',
@@ -4195,13 +4205,13 @@ extension on TranslationsKoKr {
 			'common.understood' => '이해함',
 			'common.noProblem' => '문제 없음',
 			'common.onMyWay' => '곧 도착합니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationOptions' => '작업 옵션',
 			'common.copyTextContent' => '텍스트 내용 복사',
 			'common.shareWithOtherFriends' => '다른 친구와 공유',
 			'common.addTagsToFavorites' => '즐겨찾기에 태그 추가',
 			'common.addRemarkToFavorites' => '즐겨찾기에 메모 추가',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => '이 수집 항목 삭제',
 			'common.changeSuccess' => '수정 성공',
 			'common.lengthOk' => '길이 적합',
@@ -4709,13 +4719,13 @@ extension on TranslationsKoKr {
 			'discovery.otherUsersCanFindMe' => '다른 사용자가 검색을 통해 찾을 수 있습니다',
 			'discovery.momentsDenyUidsLabel' => '제외할 UID 목록 (쉼표로 구분)',
 			'discovery.moments' => '모멘트',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => '댓글을 입력하세요...',
 			'discovery.momentsVisibility' => '공개 범위',
 			'discovery.momentsVisibilityPublic' => '공개',
 			'discovery.momentsVisibilityPartial' => '일부만',
 			'discovery.momentsVisibilityExclude' => '특정 친구 제외',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
 			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			'discovery.momentActionLike' => '좋아요',
@@ -5223,13 +5233,13 @@ extension on TranslationsKoKr {
 			'organization.common.uidMustBePositive' => '사용자 UID는 양의 정수여야 합니다',
 			'organization.common.loading' => '불러오는 중…',
 			'organization.common.loadMore' => '더 불러오기',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.orgStatusPending' => '심사 중',
 			'organization.common.orgStatusRejected' => '심사 미통과',
 			'organization.home.createOrg' => '조직 만들기',
 			'organization.home.orgNameLabel' => '조직 이름(1-200자)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다',
 			'organization.home.tabOrg' => '조직',
 			'organization.home.myInvitations' => '내 초대',
@@ -5737,13 +5747,13 @@ extension on TranslationsKoKr {
 			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
 			'workspace.taskFilterAll' => '전체',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskStatusTodo' => '할 일',
 			'workspace.taskStatusDoing' => '진행 중',
 			'workspace.taskStatusReview' => '검토 중',
 			'workspace.taskStatusDone' => '완료됨',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」 상태로 진행',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} 상태로 되돌리기…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
 			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',

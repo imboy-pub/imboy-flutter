@@ -496,6 +496,11 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'チャンネル「${name}」を作成しました';
 	@override String startGrowing({required Object name}) => '「${name}」を育てよう';
 	@override String shareInviteText({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}';
+	@override String get discussion => 'ディスカッション';
+	@override String get joinDiscussion => '議論に参加';
+	@override String get essence => '注目の投稿';
+	@override String get allPosts => 'すべての投稿';
+	@override String get editPostTags => 'タグを編集';
 }
 
 // Path: chat
@@ -3553,6 +3558,11 @@ extension on TranslationsJaJp {
 			'channel.channelCreated' => ({required Object name}) => 'チャンネル「${name}」を作成しました',
 			'channel.startGrowing' => ({required Object name}) => '「${name}」を育てよう',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}',
+			'channel.discussion' => 'ディスカッション',
+			'channel.joinDiscussion' => '議論に参加',
+			'channel.essence' => '注目の投稿',
+			'channel.allPosts' => 'すべての投稿',
+			'channel.editPostTags' => 'タグを編集',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3681,13 +3691,13 @@ extension on TranslationsJaJp {
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
 			'chat.pleaseEnterSignature' => 'ひとことを入力してください',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'プロフィールをエクスポート',
 			'chat.setSignature' => '署名を設定',
 			'chat.setAvatar' => 'アバターを設定',
 			'chat.fastForward' => ({required Object seconds}) => '早送り ${seconds}秒',
 			'chat.messageId' => 'メッセージID',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'チャットタイプ',
 			'chat.deletingMessage' => '削除中...',
 			'chat.deletingLocalMessage' => 'ローカルメッセージ削除中...',
@@ -4195,13 +4205,13 @@ extension on TranslationsJaJp {
 			'common.understood' => '了解しました',
 			'common.noProblem' => '問題ありません',
 			'common.onMyWay' => 'すぐに向かいます',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationOptions' => '操作オプション',
 			'common.copyTextContent' => 'テキストをコピー',
 			'common.shareWithOtherFriends' => '他の友達と共有',
 			'common.addTagsToFavorites' => 'コレクションにタグを追加',
 			'common.addRemarkToFavorites' => 'コレクションに備考を追加',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'このコレクションを削除',
 			'common.changeSuccess' => '変更しました',
 			'common.lengthOk' => '長さはOKです',
@@ -4709,13 +4719,13 @@ extension on TranslationsJaJp {
 			'discovery.otherUsersCanFindMe' => '他のユーザーが検索で私を見つけることができます',
 			'discovery.momentsDenyUidsLabel' => '除外対象 UID リスト（カンマ区切り）',
 			'discovery.moments' => 'モーメンツ',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => 'コメントを書く...',
 			'discovery.momentsVisibility' => '公開範囲',
 			'discovery.momentsVisibilityPublic' => '全員に公開',
 			'discovery.momentsVisibilityPartial' => '一部の友達',
 			'discovery.momentsVisibilityExclude' => '一部の友達を除外',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
 			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			'discovery.momentActionLike' => 'いいね',
@@ -5223,13 +5233,13 @@ extension on TranslationsJaJp {
 			'organization.common.uidMustBePositive' => 'ユーザー UID は正の整数である必要があります',
 			'organization.common.loading' => '読み込み中…',
 			'organization.common.loadMore' => 'さらに読み込む',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.orgStatusPending' => '審査中',
 			'organization.common.orgStatusRejected' => '審査不合格',
 			'organization.home.createOrg' => '組織を作成',
 			'organization.home.orgNameLabel' => '組織名（1-200 文字）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます',
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '自分の招待',
@@ -5737,13 +5747,13 @@ extension on TranslationsJaJp {
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
 			'workspace.taskFilterAll' => 'すべて',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskStatusTodo' => '未着手',
 			'workspace.taskStatusDoing' => '進行中',
 			'workspace.taskStatusReview' => 'レビュー中',
 			'workspace.taskStatusDone' => '完了',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」へ進める',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} を差し戻す…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
 			'workspace.taskEmptyTitle' => 'タスクはまだありません',

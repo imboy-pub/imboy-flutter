@@ -496,6 +496,11 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'تم إنشاء القناة "${name}"';
 	@override String startGrowing({required Object name}) => 'نمِّ القناة "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}';
+	@override String get discussion => 'المناقشة';
+	@override String get joinDiscussion => 'الانضمام إلى المناقشة';
+	@override String get essence => 'المنشورات المميزة';
+	@override String get allPosts => 'كل المنشورات';
+	@override String get editPostTags => 'تعديل الوسوم';
 }
 
 // Path: chat
@@ -3565,6 +3570,11 @@ extension on TranslationsArSa {
 			'channel.channelCreated' => ({required Object name}) => 'تم إنشاء القناة "${name}"',
 			'channel.startGrowing' => ({required Object name}) => 'نمِّ القناة "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}',
+			'channel.discussion' => 'المناقشة',
+			'channel.joinDiscussion' => 'الانضمام إلى المناقشة',
+			'channel.essence' => 'المنشورات المميزة',
+			'channel.allPosts' => 'كل المنشورات',
+			'channel.editPostTags' => 'تعديل الوسوم',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3693,13 +3703,13 @@ extension on TranslationsArSa {
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
 			'chat.pleaseEnterSignature' => 'أدخل توقيعك الشخصي',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'تصدير الملف الشخصي',
 			'chat.setSignature' => 'تعيين التوقيع الشخصي',
 			'chat.setAvatar' => 'تعيين الصورة الرمزية',
 			'chat.fastForward' => ({required Object seconds}) => 'تقديم سريع ${seconds} ثانية',
 			'chat.messageId' => 'معرف الرسالة',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'نوع الدردشة',
 			'chat.deletingMessage' => 'جارٍ حذف الرسالة...',
 			'chat.deletingLocalMessage' => 'جارٍ حذف الرسائل المحلية...',
@@ -4207,13 +4217,13 @@ extension on TranslationsArSa {
 			'common.understood' => 'فهمت',
 			'common.noProblem' => 'لا مشكلة',
 			'common.onMyWay' => 'قادم الآن',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationOptions' => 'خيارات العملية',
 			'common.copyTextContent' => 'نسخ محتوى النص',
 			'common.shareWithOtherFriends' => 'مشاركة مع أصدقاء آخرين',
 			'common.addTagsToFavorites' => 'إضافة علامات للمفضلة',
 			'common.addRemarkToFavorites' => 'إضافة ملاحظة للمفضلة',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'حذف هذه المفضلة',
 			'common.changeSuccess' => 'نجح التعديل',
 			'common.lengthOk' => 'الطول صحيح',
@@ -4721,13 +4731,13 @@ extension on TranslationsArSa {
 			'discovery.otherUsersCanFindMe' => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث',
 			'discovery.momentsDenyUidsLabel' => 'قائمة UID المخفي عنهم (مفصولة بفواصل)',
 			'discovery.moments' => 'اللحظات',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => 'اكتب تعليقاً...',
 			'discovery.momentsVisibility' => 'الظهور',
 			'discovery.momentsVisibilityPublic' => 'عام',
 			'discovery.momentsVisibilityPartial' => 'بعض الأشخاص',
 			'discovery.momentsVisibilityExclude' => 'إخفاء عن...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
 			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			'discovery.momentActionLike' => 'إعجاب',
@@ -5235,13 +5245,13 @@ extension on TranslationsArSa {
 			'organization.common.uidMustBePositive' => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً',
 			'organization.common.loading' => 'جارٍ التحميل…',
 			'organization.common.loadMore' => 'تحميل المزيد',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.orgStatusPending' => 'قيد المراجعة',
 			'organization.common.orgStatusRejected' => 'لم تجتز المراجعة',
 			'organization.home.createOrg' => 'إنشاء منظمة',
 			'organization.home.orgNameLabel' => 'اسم المنظمة (1-200 حرفاً)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة',
 			'organization.home.tabOrg' => 'المنظمات',
 			'organization.home.myInvitations' => 'دعواتي',
@@ -5749,13 +5759,13 @@ extension on TranslationsArSa {
 			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
 			'workspace.taskFilterAll' => 'الكل',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskStatusTodo' => 'قيد الانتظار',
 			'workspace.taskStatusDoing' => 'قيد التنفيذ',
 			'workspace.taskStatusReview' => 'قيد المراجعة',
 			'workspace.taskStatusDone' => 'مكتملة',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'الانتقال إلى «${status}»',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'إعادة ${title} إلى…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
 			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',

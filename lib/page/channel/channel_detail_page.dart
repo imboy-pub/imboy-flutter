@@ -24,6 +24,7 @@ import 'package:imboy/component/helper/func.dart';
 import 'channel_detail_rules.dart';
 import 'channel_provider.dart';
 import 'widgets/channel_header_bar.dart';
+import 'widgets/channel_discussion_entry.dart';
 import 'widgets/channel_message_feed.dart';
 import 'widgets/channel_publish_bar.dart';
 
@@ -435,6 +436,13 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             ),
           ),
         // 付费锁定 vs 消息流
+        if (state.channel != null)
+          SliverToBoxAdapter(
+            child: ChannelDiscussionEntry(
+              key: ValueKey('discussion_$channelId'),
+              channel: state.channel!,
+            ),
+          ),
         if (isPaidChannelLocked(state.channel))
           SliverFillRemaining(
             hasScrollBody: false,

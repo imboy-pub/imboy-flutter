@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/http/http_response.dart';
@@ -359,7 +360,7 @@ class ChannelDetailState {
 /// 频道详情 Notifier
 @riverpod
 class ChannelDetailNotifier extends _$ChannelDetailNotifier {
-  final ChannelApi _api = ChannelApi();
+  ChannelApi get _api => ref.read(channelApiProvider);
   String? _channelId;
   @visibleForTesting
   void debugSetChannelId(String? channelId) => _channelId = channelId;
@@ -830,3 +831,25 @@ int channelUnreadCount(Ref ref) {
 Future<int> refreshChannelUnreadCount() async {
   return await _channelUnreadCountCache.refresh();
 }
+
+/// Search uses page/size, separate from the legacy created_at message cursor.
+typedef ChannelPostSearch = ({
+  String channelId,
+  String q,
+  String? tag,
+  bool? essence,
+  int page,
+});
+
+final channelPostSearchProvider = FutureProvider.autoDispose
+    .family<ChannelPostsResult, ChannelPostSearch>((ref, filter) {
+      return ref
+          .watch(channelApiProvider)
+          .searchPosts(
+            channelId: filter.channelId,
+            q: filter.q,
+            tag: filter.tag,
+            essence: filter.essence,
+            page: filter.page,
+          );
+    });

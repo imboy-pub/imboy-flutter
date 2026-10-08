@@ -18,6 +18,7 @@ import 'package:imboy/config/routes.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/api/report_api.dart';
+import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 
 import '../channel_message_item.dart';
@@ -47,6 +48,11 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
     this.onRefresh,
   });
 
+  static bool contentToolsAvailable(ChannelModel? channel) =>
+      ChannelApi.microCommunityEnabled &&
+      channel != null &&
+      (channel.isManaged || hasChannelContentAccess(channel));
+
   @override
   ConsumerState<ChannelMessageFeed> createState() => _ChannelMessageFeedState();
 }
@@ -55,6 +61,26 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   late ScrollController _scrollController;
   bool _showScrollTop = false;
   bool _isSubscribingFromEmpty = false;
+  String _query = '';
+  String? _tag;
+  final _tagInput = TextEditingController();
+  bool _essenceOnly = false;
+  int _page = 1;
+  bool get _searchActive => _query.isNotEmpty || _tag != null || _essenceOnly;
+
+  ChannelPostSearch get _filter => (
+    channelId: widget.channelId,
+    q: _query,
+    tag: _tag,
+    essence: _essenceOnly ? true : null,
+    page: _page,
+  );
+
+  void _selectTag(String tag) => setState(() {
+    _tag = tag;
+    _tagInput.text = tag;
+    _page = 1;
+  });
 
   @override
   void initState() {
@@ -65,6 +91,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   @override
   void dispose() {
+    _tagInput.dispose();
     _scrollController.removeListener(_onScroll);
     if (widget.scrollController == null) _scrollController.dispose();
     super.dispose();
@@ -131,6 +158,143 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   @override
   Widget build(BuildContext context) {
+    final channel = ref.watch(channelDetailProvider.select((s) => s.channel));
+    final enabled = ChannelMessageFeed.contentToolsAvailable(channel);
+    return Column(
+      children: [
+        if (enabled) _buildPostFilters(context),
+        Expanded(
+          child: enabled && _searchActive
+              ? _buildSearchResults(context)
+              : _buildRegularFeed(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPostFilters(BuildContext context) => Padding(
+    padding: AppSpacing.allRegular,
+    child: Column(
+      children: [
+        CupertinoSearchTextField(
+          key: const Key('mc_post_search'),
+          placeholder: context.t.common.search,
+          onChanged: (q) {
+            if (q.trim().isEmpty && _query.isNotEmpty) {
+              setState(() {
+                _query = '';
+                _page = 1;
+              });
+            }
+          },
+          onSubmitted: (q) => setState(() {
+            _query = q.trim();
+            _page = 1;
+          }),
+        ),
+        AppSpacing.verticalSmall,
+        Row(
+          children: [
+            Expanded(
+              child: CupertinoTextField(
+                key: const Key('mc_tag_filter'),
+                controller: _tagInput,
+                onChanged: (value) {
+                  if (value.trim().isEmpty && _tag != null) {
+                    setState(() {
+                      _tag = null;
+                      _page = 1;
+                    });
+                  }
+                },
+                placeholder: context.t.contact.tags,
+                onSubmitted: (value) => setState(() {
+                  _tag = value.trim().isEmpty ? null : value.trim();
+                  _page = 1;
+                }),
+              ),
+            ),
+            AppSpacing.horizontalSmall,
+            CupertinoSlidingSegmentedControl<bool>(
+              key: const Key('mc_essence_filter'),
+              groupValue: _essenceOnly,
+              children: {
+                false: Text(context.t.channel.allPosts),
+                true: Text(context.t.channel.essence),
+              },
+              onValueChanged: (value) => setState(() {
+                _essenceOnly = value ?? false;
+                _page = 1;
+              }),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+
+  Widget _buildSearchResults(BuildContext context) {
+    final result = ref.watch(channelPostSearchProvider(_filter));
+    return result.when(
+      skipLoadingOnRefresh: false,
+      loading: () => const Center(child: CupertinoActivityIndicator()),
+      error: (_, _) => NoDataView(
+        text: context.t.common.loadError,
+        onTop: () => ref.invalidate(channelPostSearchProvider(_filter)),
+        retryLabel: context.t.common.retry,
+      ),
+      data: (page) => Column(
+        children: [
+          Expanded(
+            child: page.list.isEmpty
+                ? NoDataView(text: context.t.channel.noResults)
+                : ListView.builder(
+                    itemCount: page.list.length,
+                    itemBuilder: (context, index) => ChannelMessageItem(
+                      key: ValueKey(page.list[index].id),
+                      message: page.list[index],
+                      channelId: widget.channelId,
+                      isManaged: widget.isManaged,
+                      onTagSelected: _selectTag,
+                      onPinned: (_) =>
+                          ref.invalidate(channelPostSearchProvider(_filter)),
+                      onMetadataChanged: () =>
+                          ref.invalidate(channelPostSearchProvider(_filter)),
+                      onDeleted: () =>
+                          ref.invalidate(channelPostSearchProvider(_filter)),
+                    ),
+                  ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CupertinoButton(
+                key: const Key('mc_posts_previous'),
+                onPressed: _page > 1 ? () => setState(() => _page--) : null,
+                child: Icon(
+                  CupertinoIcons.chevron_left,
+                  semanticLabel: MaterialLocalizations.of(context)
+                      .previousPageTooltip,
+                ),
+              ),
+              Text('${page.page}'),
+              CupertinoButton(
+                key: const Key('mc_posts_next'),
+                onPressed: page.hasMore ? () => setState(() => _page++) : null,
+                child: Icon(
+                  CupertinoIcons.chevron_right,
+                  semanticLabel: MaterialLocalizations.of(context)
+                      .nextPageTooltip,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegularFeed(BuildContext context) {
     final state = ref.watch(channelDetailProvider);
     final t = context.t;
 
@@ -222,6 +386,9 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                     message: message,
                     channelId: widget.channelId,
                     isManaged: widget.isManaged,
+                    onTagSelected: ChannelApi.microCommunityEnabled
+                        ? _selectTag
+                        : null,
                     onReactionChanged: widget.onReactionChanged,
                     // R-01 频道消息举报入口：长按弹原因选择，走 message 一等举报
                     onLongPress: () => _showChannelMessageReport(message, t),

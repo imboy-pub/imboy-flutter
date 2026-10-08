@@ -210,3 +210,10 @@ addDescription: "説明を追加"
 channelCreated(name): "チャンネル「$name」を作成しました"
 startGrowing(name): "「$name」を育てよう"
 shareInviteText(name, url): "私のチャンネル「$name」をフォローしてください！$url"
+
+# Micro-community content and explicit discussion membership.
+discussion: "ディスカッション"
+joinDiscussion: "議論に参加"
+essence: "注目の投稿"
+allPosts: "すべての投稿"
+editPostTags: "タグを編集"

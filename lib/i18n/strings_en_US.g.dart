@@ -543,6 +543,11 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Channel "${name}" created';
 	@override String startGrowing({required Object name}) => 'Start growing "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}';
+	@override String get discussion => 'Discussion';
+	@override String get joinDiscussion => 'Join discussion';
+	@override String get essence => 'Highlights';
+	@override String get allPosts => 'All posts';
+	@override String get editPostTags => 'Edit tags';
 }
 
 // Path: chat
@@ -3778,6 +3783,11 @@ extension on TranslationsEnUs {
 			'channel.channelCreated' => ({required Object name}) => 'Channel "${name}" created',
 			'channel.startGrowing' => ({required Object name}) => 'Start growing "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}',
+			'channel.discussion' => 'Discussion',
+			'channel.joinDiscussion' => 'Join discussion',
+			'channel.essence' => 'Highlights',
+			'channel.allPosts' => 'All posts',
+			'channel.editPostTags' => 'Edit tags',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -3870,13 +3880,13 @@ extension on TranslationsEnUs {
 			'chat.videoMessage' => '[Video]',
 			'chat.viewAttachments' => 'View attachments',
 			'chat.viewLargeImage' => 'View large image',
+			_ => null,
+		} ?? switch (path) {
 			'chat.voice' => 'Voice',
 			'chat.voiceMessage' => 'Voice message',
 			'chat.youWithdrewAMessage' => 'You recalled a message',
 			'chat.formatCheck' => 'Format check',
 			'chat.featureRequest' => 'Feature request',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatResend' => 'Resend',
 			'chat.profileExportProfile' => 'Export profile',
 			'chat.momentsSend' => 'Send',
@@ -4384,13 +4394,13 @@ extension on TranslationsEnUs {
 			'common.featureNotImplemented' => 'Feature not implemented',
 			'common.sendCollectionNotImplemented' => 'Collection sending feature not implemented',
 			'common.fileOpenNotImplemented' => 'File opening feature not implemented',
+			_ => null,
+		} ?? switch (path) {
 			'common.fileShareNotImplemented' => 'File sharing feature not implemented',
 			'common.retrySuccess' => 'Resent successfully',
 			'common.deleteSuccess' => 'Deleted successfully',
 			'common.localDeleteSuccess' => 'Local deletion successful',
 			'common.localDeleteFailed' => 'Local deletion failed',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'Revoked successfully',
 			'common.editContentCannotBeEmpty' => 'Edit content cannot be empty',
 			'common.editSuccess' => 'Edit successful',
@@ -4898,13 +4908,13 @@ extension on TranslationsEnUs {
 			'complaint.e2eeConsentSubmit' => 'Consent & submit evidence',
 			'complaint.e2eeConsentDecline' => 'Report only (no content)',
 			'complaintReason.spam' => 'Spam',
+			_ => null,
+		} ?? switch (path) {
 			'complaintReason.harassment' => 'Harassment',
 			'complaintReason.inappropriate' => 'Inappropriate content',
 			'complaintReason.other' => 'Other',
 			'contact.blocked' => 'Blocked',
 			'contact.applyChanges' => 'Please restart the app to apply the changes.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.inputNewTag' => 'Enter new tag...',
 			'contact.denylist' => 'Blocklist',
 			'contact.denylistEmpty' => 'Blocklist is empty',
@@ -5412,13 +5422,13 @@ extension on TranslationsEnUs {
 			'main.stillNeeded' => 'Still need',
 			'main.storageSpace' => 'Storage space',
 			'main.text' => 'Text',
+			_ => null,
+		} ?? switch (path) {
 			'main.thisWeek' => 'This week',
 			'main.titleMine' => 'Me',
 			'main.tooBad' => 'Too bad',
 			'main.tryAgainQ' => 'Want to try again?',
 			'main.type' => 'Type',
-			_ => null,
-		} ?? switch (path) {
 			'main.unanswered' => 'Unanswered',
 			'main.unnamed' => 'Unnamed',
 			'main.usedSpace' => 'Used space',
@@ -5926,13 +5936,13 @@ extension on TranslationsEnUs {
 			'splash.slogan' => 'Connect Freely, Communicate Anywhere',
 			'welcome.step1Title' => 'Simple Connection',
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step2Title' => 'Secure & Private',
 			'welcome.step2Desc' => 'End-to-end encryption Keeps your personal moments strictly yours.',
 			'welcome.step3Title' => 'Ready to Explore?',
 			'welcome.step3Desc' => 'Join a vibrant community. Let the conversation begin!',
 			'welcome.next' => 'Next',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
 			'workspace.navOverview' => 'Overview',

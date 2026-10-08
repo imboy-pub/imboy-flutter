@@ -206,3 +206,10 @@ addDescription: "설명 추가"
 channelCreated(name): "채널 \"$name\"이(가) 생성되었습니다"
 startGrowing(name): "\"$name\" 성장시키기"
 shareInviteText(name, url): "제 채널 \"$name\"에 팔로우해 주세요! $url"
+
+# Micro-community content and explicit discussion membership.
+discussion: "토론"
+joinDiscussion: "토론 참여"
+essence: "추천 게시물"
+allPosts: "모든 게시물"
+editPostTags: "태그 편집"

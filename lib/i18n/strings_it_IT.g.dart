@@ -496,6 +496,11 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Canale "${name}" creato';
 	@override String startGrowing({required Object name}) => 'Fai crescere "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}';
+	@override String get discussion => 'Discussione';
+	@override String get joinDiscussion => 'Partecipa alla discussione';
+	@override String get essence => 'In evidenza';
+	@override String get allPosts => 'Tutti i post';
+	@override String get editPostTags => 'Modifica tag';
 }
 
 // Path: chat
@@ -3556,6 +3561,11 @@ extension on TranslationsItIt {
 			'channel.channelCreated' => ({required Object name}) => 'Canale "${name}" creato',
 			'channel.startGrowing' => ({required Object name}) => 'Fai crescere "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}',
+			'channel.discussion' => 'Discussione',
+			'channel.joinDiscussion' => 'Partecipa alla discussione',
+			'channel.essence' => 'In evidenza',
+			'channel.allPosts' => 'Tutti i post',
+			'channel.editPostTags' => 'Modifica tag',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3684,13 +3694,13 @@ extension on TranslationsItIt {
 			'chat.markRead' => 'Segna come letto',
 			'chat.markUnread' => 'Segna come non letto',
 			'chat.pleaseEnterSignature' => 'Inserisci la tua firma',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'Esporta profilo',
 			'chat.setSignature' => 'Imposta firma',
 			'chat.setAvatar' => 'Imposta avatar',
 			'chat.fastForward' => ({required Object seconds}) => 'Avanti veloce ${seconds} secondi',
 			'chat.messageId' => 'ID messaggio',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'Tipo di chat',
 			'chat.deletingMessage' => 'Eliminazione in corso...',
 			'chat.deletingLocalMessage' => 'Eliminazione messaggio locale in corso...',
@@ -4198,13 +4208,13 @@ extension on TranslationsItIt {
 			'common.understood' => 'Capito',
 			'common.noProblem' => 'Nessun problema',
 			'common.onMyWay' => 'Sto arrivando',
+			_ => null,
+		} ?? switch (path) {
 			'common.operationOptions' => 'Opzioni operazione',
 			'common.copyTextContent' => 'Copia contenuto testo',
 			'common.shareWithOtherFriends' => 'Condividi con altri amici',
 			'common.addTagsToFavorites' => 'Aggiungi tag ai preferiti',
 			'common.addRemarkToFavorites' => 'Aggiungi nota ai preferiti',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Elimina questa raccolta',
 			'common.changeSuccess' => 'Modificato con successo',
 			'common.lengthOk' => 'Lunghezza OK',
@@ -4712,13 +4722,13 @@ extension on TranslationsItIt {
 			'discovery.otherUsersCanFindMe' => 'Altri utenti possono trovarmi tramite ricerca',
 			'discovery.momentsDenyUidsLabel' => 'UID esclusi (separati da virgola)',
 			'discovery.moments' => 'Momenti',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.momentsWriteComment' => 'Scrivi un commento...',
 			'discovery.momentsVisibility' => 'Visibilità',
 			'discovery.momentsVisibilityPublic' => 'Pubblico',
 			'discovery.momentsVisibilityPartial' => 'Parziale',
 			'discovery.momentsVisibilityExclude' => 'Eccezioni',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
 			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
 			'discovery.momentActionLike' => 'Mi piace',
@@ -5226,13 +5236,13 @@ extension on TranslationsItIt {
 			'organization.common.uidMustBePositive' => 'L\'UID utente deve essere un intero positivo',
 			'organization.common.loading' => 'Caricamento…',
 			'organization.common.loadMore' => 'Carica altri',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.orgStatusPending' => 'In revisione',
 			'organization.common.orgStatusRejected' => 'Revisione non superata',
 			'organization.home.createOrg' => 'Crea organizzazione',
 			'organization.home.orgNameLabel' => 'Nome organizzazione (1-200 caratteri)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creazione non riuscita: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata',
 			'organization.home.tabOrg' => 'Organizzazioni',
 			'organization.home.myInvitations' => 'I miei inviti',
@@ -5740,13 +5750,13 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneCreateSubmit' => 'Crea',
 			'workspace.projectMilestoneCreateTitle' => 'Nuova milestone',
 			'workspace.projectMilestoneCreatedToast' => 'Milestone creata',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestoneDueDateInvalid' => 'Il formato della data deve essere YYYY-MM-DD',
 			'workspace.projectMilestoneDueDateLabel' => 'Data di scadenza (YYYY-MM-DD, opzionale)',
 			'workspace.projectMilestoneDueLabel' => 'Scadenza',
 			'workspace.projectMilestoneEmptySubtitle' => 'Contrassegna i nodi chiave del progetto con le milestone (pianificata → raggiunta, a senso unico)',
 			'workspace.projectMilestoneEmptyTitle' => 'Nessuna milestone per ora',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneFilterAll' => 'Tutte',
 			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
 			'workspace.projectMilestoneFilterReached' => 'Raggiunte',

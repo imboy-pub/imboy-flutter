@@ -209,3 +209,10 @@ addDescription: "新增描述"
 channelCreated(name): "頻道 “$name” 已建立"
 startGrowing(name): "開始發展壯大 “$name”"
 shareInviteText(name, url): "大家快來關注我的頻道【$name】吧！$url"
+
+# Micro-community content and explicit discussion membership.
+discussion: "討論區"
+joinDiscussion: "加入討論"
+essence: "精華"
+allPosts: "全部內容"
+editPostTags: "編輯標籤"
