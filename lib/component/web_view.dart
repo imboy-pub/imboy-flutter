@@ -209,6 +209,8 @@ class WebViewPageState extends State<WebViewPage> {
             AppLoading.dismiss();
             if (title.isEmpty && _controller != null) {
               _controller!.getTitle().then((fetched) {
+                // getTitle 异步返回时页面可能已 dispose（加载中返回）。
+                if (!mounted) return;
                 if (fetched != null && fetched.isNotEmpty) {
                   setState(() {
                     title = fetched;
@@ -280,12 +282,19 @@ class WebViewPageState extends State<WebViewPage> {
     await _controller!.loadRequest(Uri.parse(widget.url));
   }
 
-  /// 桥消息入口：分发并异步回推（页面可能在导航中，回推失败可安全丢弃）。
+  /// 桥消息入口：分发并异步回推。
+  ///
+  /// 通道按初始 URL 挂载，且 WebView 内跨导航常驻——imboy.pub 页面把
+  /// 用户带到第三方站点后，对方页面仍能向通道发消息。这里按当前页 URL
+  /// 复核域名，非 imboy.pub 一律静默丢弃（fail-closed）；取 URL 或回推
+  /// 失败（导航中、已销毁）同样安全丢弃。
   Future<void> _handleBridgeMessage(String raw) async {
-    final reply = await _bridge.handle(raw);
-    if (reply == null) return;
     try {
-      _controller?.runJavaScript(reply);
+      final String? current = await _controller?.currentUrl();
+      if (current == null || !isJsBridgeHost(current)) return;
+      final String? reply = await _bridge.handle(raw);
+      if (reply == null) return;
+      await _controller?.runJavaScript(reply);
     } catch (_) {}
   }
 
@@ -349,7 +358,8 @@ class WebViewPageState extends State<WebViewPage> {
     if (isJsBridgeHost(widget.url)) {
       _controller!.removeJavaScriptChannel('imboyJSBridge');
     }
-    _controller!.clearLocalStorage();
+    // dispose 不能 await：捕获异步错误，避免污染 zone。
+    unawaited(_controller!.clearLocalStorage().catchError((Object _) {}));
     _controller = null;
     super.dispose();
   }
