@@ -1867,7 +1867,7 @@ class Translations$enterpriseOa$zh_Hant extends Translations$enterpriseOa$zh_CN 
 	@override String get ssoIssuing => '正在取得單一登入憑證…';
 	@override String ssoCountdown({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入';
 	@override String get workbenchTitle => '工作台';
-	@override String get officialWebsite => 'IMBoy 官網';
+	@override String get oaOffice => 'OA辦公';
 }
 
 // Path: error
@@ -4859,7 +4859,7 @@ extension on TranslationsZhHant {
 			'enterpriseOa.ssoIssuing' => '正在取得單一登入憑證…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入',
 			'enterpriseOa.workbenchTitle' => '工作台',
-			'enterpriseOa.officialWebsite' => 'IMBoy 官網',
+			'enterpriseOa.oaOffice' => 'OA辦公',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',

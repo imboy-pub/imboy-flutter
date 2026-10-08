@@ -665,11 +665,8 @@ void main() {
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     await tester.tap(find.text('工作台'));
     await tester.pumpAndSettle();
-    expect(
-      find.byKey(const ValueKey('workbench-official-website')),
-      findsOneWidget,
-    );
-    expect(find.text('https://imboy.pub/'), findsOneWidget);
+    expect(find.byKey(const ValueKey('workbench-oa-office')), findsOneWidget);
+    expect(find.text('https://imboy.pub/test_oa.html'), findsOneWidget);
     for (final (path, reason) in [
       ('/workspace/100/projects/200', RouteBlockReason.featureFlag),
       ('/channel/discover', RouteBlockReason.featureFlag),

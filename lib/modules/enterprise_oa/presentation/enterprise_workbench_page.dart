@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/safe_launcher.dart';
+import 'package:imboy/component/web_view.dart';
 
 import '../enterprise_oa_runtime_config.dart';
 import 'oa_tab_page.dart';
@@ -20,6 +22,10 @@ class EnterpriseWorkbenchPage extends StatefulWidget {
   final String organizationId;
   final List<Widget> resourceEntries;
 
+  /// OA 办公联调页，应用内 WebView 打开；imboy.pub 域名会自动挂
+  /// imboyJSBridge 通道（见 component/web_view.dart）。
+  static const String oaOfficeUrl = 'https://imboy.pub/test_oa.html';
+
   @override
   State<EnterpriseWorkbenchPage> createState() =>
       _EnterpriseWorkbenchPageState();
@@ -37,11 +43,30 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
     }
   }
 
-  Future<void> _openOfficialWebsite() async {
+  /// webview_flutter 仅 Android/iOS 有平台实现（macOS/Web 无实现包），
+  /// 其余平台保持系统浏览器兜底。
+  bool get _inAppWebViewSupported =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
+  Future<void> _openOaOffice() async {
+    if (_inAppWebViewSupported) {
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        CupertinoPageRoute<dynamic>(
+          builder: (_) => WebViewPage(
+            EnterpriseWorkbenchPage.oaOfficeUrl,
+            t.enterpriseOa.oaOffice,
+          ),
+        ),
+      );
+      return;
+    }
     var opened = false;
     try {
       opened = await SafeLauncher.safeLaunchUrl(
-        Uri.parse('https://imboy.pub/'),
+        Uri.parse(EnterpriseWorkbenchPage.oaOfficeUrl),
       );
     } catch (_) {
       // 系统浏览器不可用时给出与无法打开链接相同的提示。
@@ -70,11 +95,11 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
             CupertinoListSection.insetGrouped(
               children: [
                 CupertinoListTile(
-                  key: const ValueKey('workbench-official-website'),
-                  title: Text(t.enterpriseOa.officialWebsite),
-                  subtitle: const Text('https://imboy.pub/'),
+                  key: const ValueKey('workbench-oa-office'),
+                  title: Text(t.enterpriseOa.oaOffice),
+                  subtitle: const Text(EnterpriseWorkbenchPage.oaOfficeUrl),
                   trailing: const CupertinoListTileChevron(),
-                  onTap: _openOfficialWebsite,
+                  onTap: _openOaOffice,
                 ),
               ],
             ),
