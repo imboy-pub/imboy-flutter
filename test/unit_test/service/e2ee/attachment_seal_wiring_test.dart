@@ -492,6 +492,64 @@ void main() {
         ),
       );
     });
+
+    test('⚠️ File 版同款：只封本体不封缩略图 → 上传前失败（桌面拍摄路径）', () async {
+      final seal = AttachmentSealRequest(
+        bindingHash: AttachmentBinding.compute(
+          messageId: 'msg-1',
+          conversationId: 'c2c:1:2',
+          senderUid: '1001',
+        ),
+        attachmentId: 'video',
+      );
+      // 闸门先于一切 IO：File 路径无所谓存在与否，抛出即证明未触达
+      // presign/PUT/confirm（缩略图/视频均未上传）。
+      await expectLater(
+        AttachmentApi.uploadVideoFileViaPresign(
+          File('/tmp/imboy-wiring-test-missing.mp4'),
+          durationMs: 3000,
+          width: 640,
+          height: 480,
+          videoSeal: seal,
+          thumbSeal: null,
+        ),
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            'attachment_partial_seal',
+          ),
+        ),
+      );
+    });
+
+    test('⚠️ File 版反向：只封缩略图不封本体 → 同样上传前失败', () async {
+      final seal = AttachmentSealRequest(
+        bindingHash: AttachmentBinding.compute(
+          messageId: 'msg-1',
+          conversationId: 'c2c:1:2',
+          senderUid: '1001',
+        ),
+        attachmentId: 'video_thumb',
+      );
+      await expectLater(
+        AttachmentApi.uploadVideoFileViaPresign(
+          File('/tmp/imboy-wiring-test-missing.mp4'),
+          durationMs: 3000,
+          width: 640,
+          height: 480,
+          videoSeal: null,
+          thumbSeal: seal,
+        ),
+        throwsA(
+          isA<E2eeSecurityException>().having(
+            (e) => e.reason,
+            'reason',
+            'attachment_partial_seal',
+          ),
+        ),
+      );
+    });
   });
 
   group('9. LT02-SEC-01：AI 明文通道封装判定经共享身份门（AI-ID=B）', () {

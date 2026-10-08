@@ -613,14 +613,24 @@ class AttachmentApi {
     return <String, dynamic>{'thumb': thumb, 'video': video};
   }
 
-  /// File 版视频上传（压缩+缩略图+上传三件套），供频道发布等已持有 File
-  /// 与元数据（时长/宽高）、无 AssetEntity 的场景使用。
+  /// File 版视频上传（压缩+缩略图+上传三件套），供已持有 File 与元数据
+  /// （时长/宽高）、无 AssetEntity 的场景使用：频道发布（明文）与桌面拍摄
+  /// （聊天，带 E2EE 封装）共用。
   ///
   /// 与 [uploadVideoViaPresign]（AssetEntity 版）流程一致，差异：
   ///   - 直接接收 [file]（不经 entity.file 再取一次）；
   ///   - width/height/durationMs 由调用方传入，不再从 entity 反推；
-  ///   - 返回扁平 `{video_uri, size, thumb_uri}`，失败返回 null（调用方
-  ///     以 `result == null` 判失败，不抛异常）。
+  ///   - [anchorMsgId]/[videoSeal]/[thumbSeal] 为聊天桌面拍摄新增，语义与
+  ///     AssetEntity 版完全一致（含缩略图 descriptor 挂接与 partial seal 闸门）。
+  ///
+  /// 返回值按是否封装分流：
+  ///   - 未带 seal（频道等明文场景）：返回扁平
+  ///     `{video_uri, size, thumb_uri, duration, width, height}`，失败返回
+  ///     null（调用方以 `result == null` 判失败，不抛异常）；
+  ///   - 带 seal（桌面拍摄）：返回 `{thumb: EntityImage, video: EntityVideo}`，
+  ///     与 [uploadVideoViaPresign] 同形，下游 handleVideoUpload 可直接消费；
+  ///     同样以 null 表示失败，partial seal 除外——闸门先于一切 IO 直接抛出
+  ///     （fail-closed 与 AssetEntity 版对齐，不静默降级）。
   static Future<Map<String, dynamic>?> uploadVideoFileViaPresign(
     File file, {
     required int durationMs,
@@ -628,7 +638,18 @@ class AttachmentApi {
     required int height,
     String scope = 'private',
     String? scopeRef,
+    String? anchorMsgId,
+    AttachmentSealRequest? videoSeal,
+    AttachmentSealRequest? thumbSeal,
   }) async {
+    // 一致性闸门（与 uploadVideoViaPresign 同款）：只封其一时整次失败——
+    // 先于任何文件 IO，上传 seam 零调用。
+    if (!AttachmentSealPolicy.sealTogether(videoSeal, thumbSeal)) {
+      throw const E2eeSecurityException('attachment_partial_seal');
+    }
+    final bool sealed = videoSeal != null && thumbSeal != null;
+    final int videoWidth = width;
+    final int videoHeight = height;
     try {
       final String path = file.path;
 
@@ -647,7 +668,12 @@ class AttachmentApi {
         process: false,
         scope: scope,
         scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
+        seal: thumbSeal,
       );
+      // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
+      // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
+      videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
 
       // 2. 压缩视频 → presign（同上：压缩失败退回原视频，不放弃整次上传）
       MediaInfo? info;
@@ -669,9 +695,43 @@ class AttachmentApi {
         'video/mp4',
         scope: scope,
         scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
+        seal: videoSeal,
       );
 
       await VideoCompress.deleteAllCache();
+      if (sealed) {
+        // 缩略图尺寸（沿用 uploadVideoViaPresign：长边压到 800 内）
+        final int thumbW = videoWidth < 800 ? videoWidth : 800;
+        final int thumbH = videoWidth < 800
+            ? videoHeight
+            : (videoHeight / videoWidth * 800).toInt();
+        final EntityImage thumb = EntityImage(
+          fileHash256:
+              IMBoyHttpResponse.payloadStr(thumbMeta, 'file_hash256') ?? '',
+          name: thumbName,
+          uri: IMBoyHttpResponse.payloadStr(thumbMeta, 'object_key') ?? '',
+          size: IMBoyHttpResponse.payloadInt(thumbMeta, 'size') ?? 0,
+          width: thumbW,
+          height: thumbH,
+        );
+        final EntityVideo video = EntityVideo(
+          // 与服务端 attachment.file_hash256 同值：封装时是密文哈希
+          fileHash256:
+              videoSeal.uploadedFileHash256 ??
+              sha256.convert(videoBytes).toString(),
+          name: videoName,
+          uri: videoObjKey,
+          // duration：压缩结果与调用方 stopwatch 计时都是毫秒；探测缺失时
+          // 退调用方值，宁可近似也不留空。
+          size: info?.filesize ?? videoBytes.length,
+          duration: info?.duration ?? durationMs.toDouble(),
+          author: info?.author,
+          width: info?.width ?? videoWidth,
+          height: info?.height ?? videoHeight,
+        );
+        return <String, dynamic>{'thumb': thumb, 'video': video};
+      }
       return <String, dynamic>{
         'video_uri': videoObjKey,
         'thumb_uri':
