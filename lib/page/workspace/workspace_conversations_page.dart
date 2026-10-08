@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
+import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/button.dart' show RoundedCupertinoButton;
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/group_avatar_cache.dart'
+    show defaultGroupAvatarLoader;
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_account_menu.dart';
@@ -20,6 +23,7 @@ import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -230,73 +234,80 @@ class _WorkspaceConversationsPageState
           SliverFillRemaining(hasScrollBody: false, child: _emptyMessages()),
         SliverList.builder(
           itemCount: visible.length,
-          itemBuilder: (_, index) => _MessageRow(row: visible[index]),
+          itemBuilder: (_, index) {
+            final brightness = Theme.of(context).brightness;
+            return Column(
+              children: [
+                _MessageRow(row: visible[index]),
+                // 分隔线：左 16(页面 padding) + 56(头像) + 12(间距) = 84，
+                // 与文字左缘对齐（同 Personal 会话列表，DESIGN.md 8.3 A）；
+                // 末行不画——多一条线会让列表看起来"还没到底"。
+                if (index < visible.length - 1)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 84),
+                    child: Divider(
+                      height: 0.5,
+                      color: AppColors.getIosSeparator(brightness)
+                          .withValues(alpha: 0.3),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _emptyMessages() => WorkspaceEmptyView(
-    icon: CupertinoIcons.chat_bubble,
-    title: _search.text.trim().isEmpty
-        ? t.workspace.groupsEmptyTitle
-        : t.common.searchNoResults,
-    subtitle: _search.text.trim().isEmpty
-        ? t.workspace.groupsEmptySubtitle
-        : '',
-  );
+  Widget _emptyMessages() {
+    final searching = _search.text.trim().isNotEmpty;
+    return WorkspaceEmptyView(
+      icon: CupertinoIcons.chat_bubble,
+      title: searching
+          ? t.common.searchNoResults
+          : t.workspace.groupsEmptyTitle,
+      subtitle: searching ? '' : t.workspace.groupsEmptySubtitle,
+      // 空态引导动作（企微/飞书惯例）：列表为空时给出下一步去向；
+      // 搜索无结果时不需要。按钮走项目统一的 RoundedCupertinoButton
+      // 次级样式（brand 描边），不用 Material tonal（DESIGN.md 8.4）。
+      actions: searching
+          ? const []
+          : [
+              RoundedCupertinoButton(
+                text: t.groupDiscovery.title,
+                highlighted: false,
+                icon: CupertinoIcons.search,
+                onPressed: () => context.push('/group/discover'),
+              ),
+            ],
+    );
+  }
 }
 
-class _MessageRow extends StatelessWidget {
+class _MessageRow extends StatefulWidget {
   const _MessageRow({required this.row});
   final WorkspaceConversationModel row;
 
   @override
+  State<_MessageRow> createState() => _MessageRowState();
+}
+
+/// 视觉规格与 Personal 会话行 [ConversationItem] 逐项对齐（56 群拼图
+/// 头像 + 未读徽标同位、标题 body w600 letterSpacing -0.4、时间戳
+/// footnote tabularFigures、预览 subheadline 灰、按压 100ms 高光），
+/// 但不与 Personal 模型/provider 耦合——见该文件头注释的取舍说明。
+class _MessageRowState extends State<_MessageRow> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final group = row.group;
-    final preview = row.previewText;
-    return CupertinoListTile.notched(
-      key: ValueKey('workspace-message-${group.groupId}'),
-      title: Text(
-        group.displayTitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        preview.isEmpty
-            ? t.workspace.groupTileSubtitle(count: group.memberCount.toString())
-            : preview,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      leading: BadgeWidget(
-        key: ValueKey('workspace-unread-${group.groupId}'),
-        showBadge: row.unreadCount > 0,
-        color: Theme.of(context).brightness == Brightness.dark
-            ? AppColors.iosRedDark
-            : AppColors.iosRed,
-        semanticLabel: context.t.common.unreadCount(
-          count: '${row.unreadCount}',
-        ),
-        content: Text(
-          row.unreadCount > 99 ? '99+' : '${row.unreadCount}',
-          style: context.textStyle(
-            FontSizeType.tiny,
-            color: AppColors.onPrimary,
-          ),
-        ),
-        child: CircleAvatar(
-          backgroundImage: group.avatar.isEmpty
-              ? null
-              : avatarImageProvider(group.avatar),
-          child: group.avatar.isEmpty
-              ? const Icon(CupertinoIcons.person_2)
-              : null,
-        ),
-      ),
-      additionalInfo: row.serverTs > 0
-          ? Text(DateTimeHelper.lastTimeFmt(row.serverTs))
-          : null,
+    final group = widget.row.group;
+    final t = context.t;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final preview = widget.row.previewText.isEmpty
+        ? t.workspace.groupTileSubtitle(count: group.memberCount.toString())
+        : widget.row.previewText;
+    return GestureDetector(
       onTap: () => context.push(
         '/chat/${group.groupId}',
         extra: {
@@ -304,6 +315,122 @@ class _MessageRow extends StatelessWidget {
           'title': group.displayTitle,
           'avatar': group.avatar,
         },
+      ),
+      // 不触发 HapticFeedback：iOS 系统列表按下不给触感（同 ConversationItem）。
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        // DESIGN.md 6.4：Cell 按压反馈 100ms
+        duration: AppDuration.buttonPress,
+        key: ValueKey('workspace-message-${group.groupId}'),
+        color: _isPressed
+            ? (isDark ? AppColors.overlayWhite10 : AppColors.overlayBlack5)
+            : (isDark ? AppColors.darkSurface : AppColors.lightSurface),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 头像区域 + 未读角标（位置/字号/颜色与 ConversationItem 相同）
+            BadgeWidget(
+              key: ValueKey('workspace-unread-${group.groupId}'),
+              showBadge: widget.row.unreadCount > 0,
+              semanticLabel: t.common.unreadCount(
+                count: '${widget.row.unreadCount}',
+              ),
+              content: Text(
+                widget.row.unreadCount > 99
+                    ? '99+'
+                    : '${widget.row.unreadCount}',
+                style: context
+                    .textStyle(
+                      FontSizeType.caption2,
+                      color: AppColors.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    )
+                    .copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+              ),
+              color: AppColors.iosRed,
+              padding: const EdgeInsets.all(5),
+              top: -4,
+              left: -4,
+              right: null,
+              child: SmartGroupAvatar(
+                avatar: group.avatar,
+                groupId: group.groupId.toString(),
+                size: 56,
+                avatarLoader: defaultGroupAvatarLoader,
+                heroTag: 'avatar_${group.groupId}',
+              ),
+            ),
+            // 12pt：分隔线按 16(左padding)+56(头像)+12 = 84 起画（列表层）
+            AppSpacing.horizontalMedium,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          group.displayTitle,
+                          style: context
+                              .textStyle(
+                                FontSizeType.body,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                              )
+                              .copyWith(letterSpacing: -0.4),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      // 不画 disclosure chevron：整行可点（同 ConversationItem /
+                      // 微信 / Telegram 的会话列表）。
+                      if (widget.row.serverTs > 0)
+                        Text(
+                          DateTimeHelper.lastTimeFmt(widget.row.serverTs),
+                          style: context
+                              .textStyle(
+                                FontSizeType.footnote,
+                                color: AppColors.iosGray,
+                                fontWeight: FontWeight.w400,
+                              )
+                              .copyWith(
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                        ),
+                    ],
+                  ),
+                  AppSpacing.verticalTiny,
+                  Text(
+                    preview,
+                    style: context
+                        .textStyle(
+                          FontSizeType.subheadline,
+                          color: AppColors.iosGray,
+                        )
+                        .copyWith(height: 1.3, letterSpacing: -0.2),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
