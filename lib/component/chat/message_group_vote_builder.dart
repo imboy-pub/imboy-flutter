@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -25,10 +26,10 @@ class GroupVoteMessageTypePlugin implements MessageTypePlugin {
       builder: (context) => Card(
         child: ListTile(
           contentPadding: const EdgeInsets.all(AppSpacing.regular),
-          leading: const Icon(Icons.poll_outlined),
+          leading: const Icon(CupertinoIcons.chart_bar),
           title: Text(metadata['title']?.toString() ?? t.groupVote.title),
           subtitle: Text(t.groupVote.title),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(CupertinoIcons.chevron_right),
           onTap: groupId.isEmpty || voteId.isEmpty
               ? null
               : () {

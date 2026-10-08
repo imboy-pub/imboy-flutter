@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -25,10 +26,10 @@ class GroupTaskMessageTypePlugin implements MessageTypePlugin {
       builder: (context) => Card(
         child: ListTile(
           contentPadding: const EdgeInsets.all(AppSpacing.regular),
-          leading: const Icon(Icons.assignment_outlined),
+          leading: const Icon(CupertinoIcons.doc_text),
           title: Text(metadata['title']?.toString() ?? t.groupTask.title),
           subtitle: Text(t.groupTask.title),
-          trailing: const Icon(Icons.chevron_right),
+          trailing: const Icon(CupertinoIcons.chevron_right),
           onTap: groupId.isEmpty || taskId.isEmpty
               ? null
               : () {
