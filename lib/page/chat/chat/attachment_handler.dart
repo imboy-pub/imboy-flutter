@@ -3,6 +3,7 @@
 /// 负责处理所有附件相关的上传、选择和消息创建逻辑
 library;
 
+import 'dart:convert' show jsonDecode;
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -33,6 +34,8 @@ import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/user_collect_model.dart';
+import 'package:imboy/service/message_type_constants.dart';
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -977,24 +980,211 @@ class ChatAttachmentHandler {
   // ExpressionMessageTypePlugin 保留，仍能渲染他端/历史的贴图消息。
   // 要恢复生产，前提是后端有表情包资源（当前 user_collect 的 kind 1~7 里没有）。
 
+  /// 收藏 info 里的消息 payload，归一成 map。
+  ///
+  /// 历史收藏三种形态：
+  /// - 信封形（现行客户端）：info['payload'] 是 map（或 JSON 字符串）；
+  /// - 解密形（v1/v3 加密收藏）：`decryptIncomingPayload` 把解密原文整体
+  ///   替换进 info，内容平铺在顶层，没有 payload 键——剔除信封列后
+  ///   从 info 顶层提取（列表渲染 buildItemBody 读的就是这些顶层键）；
+  /// - 坏形（解密失败/密文残留）：payload 是非 JSON 密文串，兜底同样走
+  ///   info 平铺，仍为空则由调用方放弃发送。
+  @visibleForTesting
+  static Map<String, dynamic> collectPayload(UserCollectModel collect) {
+    final Object? raw = collect.info['payload'];
+    final Map<String, dynamic> payload = <String, dynamic>{};
+    if (raw is Map<String, dynamic>) {
+      payload.addAll(raw);
+    } else if (raw is String && raw.isNotEmpty) {
+      try {
+        final Object? decoded = jsonDecode(raw);
+        if (decoded is Map<String, dynamic>) payload.addAll(decoded);
+      } on FormatException {
+        // 历史密文/脏数据：走 info 平铺兜底
+      }
+    }
+    if (payload.isEmpty) {
+      collect.info.forEach((Object? key, Object? value) {
+        if (value != null && !_envelopeKeys.contains(key.toString())) {
+          payload[key.toString()] = value;
+        }
+      });
+    }
+    return payload;
+  }
+
+  /// MessageModel 信封列（toJson/decryptIncomingPayload 的结构性键）。
+  /// info 平铺兜底时必须剔除，避免把 from_id/e2ee 密文等带进线上 payload。
+  static const Set<String> _envelopeKeys = <String>{
+    'id',
+    'auto_id',
+    'type',
+    'from_id',
+    'to_id',
+    'status',
+    'created_at',
+    'is_author',
+    'topic_id',
+    'conversation_uk3',
+    'msg_type',
+    'action',
+    'e2ee',
+    'sender_did',
+    'sender_dtype',
+    'payload',
+    'metadata',
+    'client_send_ts',
+  };
+
+  /// toTypeMessage 管线有专属分支、能构造成 flutter_chat_core 类型化消息的
+  /// msg_type；其余（location/visitCard 等业务卡）走直构 CustomMessage。
+  static const Set<String> _pipelineMsgTypes = <String>{
+    MessageType.text,
+    MessageType.image,
+    MessageType.file,
+    MessageType.video,
+    MessageType.voice,
+  };
+
+  /// 收藏对应的线上 msg_type：info 顶层 → payload 内 → kind 推导，
+  /// 统一归一到渲染真值（audio→voice，与 MessageTypeNormalizer 同口径）。
+  ///
+  /// 历史收藏常缺顶层 msg_type——直接 MessageModel.fromJson(info)
+  /// 会因 msg_type 为空命中「无效消息类型」占位分支，把「[不支持的消息]」
+  /// 当正文发出去（真机实证：macOS 收藏的位置消息转发到群后显示
+  /// [不支持的消息]）。'unsupported' 与 v2.0 之前的 'e2ee' 是脏值，
+  /// 同样不能作为发送类型。
+  @visibleForTesting
+  static String collectMsgType(
+    UserCollectModel collect,
+    Map<String, dynamic> payload,
+  ) {
+    final Set<String> validTypes = <String>{
+      ...MessageType.allTypes,
+      MessageType.custom,
+    };
+    final List<Object?> candidates = <Object?>[
+      collect.info['msg_type'],
+      payload['msg_type'],
+    ];
+    for (final Object? v in candidates) {
+      final String s = v?.toString() ?? '';
+      if (validTypes.contains(s)) {
+        return s == MessageType.audio ? MessageType.voice : s;
+      }
+    }
+    // Kind 被收藏的资源种类：
+    // 1 文本 2 图片 3 语音 4 视频 5 文件 6 位置消息 7 个人名片
+    switch (collect.kind) {
+      case 1:
+        return MessageType.text;
+      case 2:
+        return MessageType.image;
+      case 3:
+        return MessageType.voice;
+      case 4:
+        return MessageType.video;
+      case 5:
+        return MessageType.file;
+      case 6:
+        return MessageType.location;
+      case 7:
+        return MessageType.visitCard;
+      default:
+        return MessageType.custom;
+    }
+  }
+
+  /// 收藏 → 出站 payload：内容归一 + msg_type 解析 + 目标会话重绑定（纯函数）。
+  ///
+  /// 内容无法还原（加密收藏解密失败/空收藏）时抛异常，由调用方给可见反馈，
+  /// 不生产脏消息。
+  @visibleForTesting
+  static Map<String, dynamic> collectOutboundPayload(
+    UserCollectModel collect, {
+    required String targetPeerId,
+  }) {
+    // 仍未解密的加密收藏（解密失败时 decryptIncomingPayload 原样保留）：
+    // 内容还是密文，fail-closed 拒发，不能把密文/空壳当消息内容发出
+    final Object? e2ee = collect.info['e2ee'];
+    if (e2ee != null && e2ee != '') {
+      throw Exception('collect ${collect.kindId} is still encrypted');
+    }
+    final Map<String, dynamic> payload = collectPayload(collect);
+    if (payload.isEmpty) {
+      throw Exception('collect ${collect.kindId} payload unavailable');
+    }
+    final String msgType = collectMsgType(collect, payload);
+    // 文本正文兜底：部分旧收藏把 text 平铺在 info 顶层（列表渲染同款兜底）
+    if (payload['text'] == null && collect.info['text'] != null) {
+      payload['text'] = collect.info['text'];
+    }
+    // 历史视频收藏内容嵌套在 payload['video'] 里（后端 user_collect_logic
+    // kind-4 与列表渲染 buildItemBody 同款形状）；线上 video payload 是顶层
+    // uri/size/width/height，发送前提升，否则 uri 为空发出去是坏视频
+    if (msgType == MessageType.video &&
+        (payload['uri']?.toString().isEmpty ?? true) &&
+        payload['video'] is Map) {
+      (payload['video'] as Map).forEach((Object? k, Object? v) {
+        if (v != null && payload[k.toString()] == null) {
+          payload[k.toString()] = v;
+        }
+      });
+    }
+    // 源会话绑定不得跟随收藏转发（与 buildForwardPayload 同一口径）：
+    // getMsgFromTMsg 以 metadata['peer_id'] 为 toId，残留源 peer_id 会串会话
+    payload
+      ..remove('peer_id')
+      ..remove('conversation_uk3')
+      ..['msg_type'] = msgType
+      ..['peer_id'] = targetPeerId;
+    return payload;
+  }
+
   /// 发送收藏消息
+  ///
+  /// 输入是收藏项而非裸 info：msg_type 缺失、payload 形态不一、源会话
+  /// 绑定残留（peer_id/conversation_uk3）三类历史问题都在
+  /// [collectOutboundPayload] 里消化。结构化类型（text/image/file/video/
+  /// voice）复用 toTypeMessage 管线构造；位置/名片等 custom 族
+  /// toTypeMessage 无对应分支，直构干净的 CustomMessage（与
+  /// handleLocationSelection/sendVisitCardMessage 同一形状），避免兜底
+  /// 分支把 unsupported/error 噪声写进线上 payload。
   Future<void> sendCollectMessage(
     BuildContext context,
-    Map<String, dynamic> collectInfo,
+    UserCollectModel collect,
   ) async {
-    final data = Map<String, dynamic>.from(collectInfo)
-      ..addAll({
-        MessageRepo.id: Xid().toString(),
-        MessageRepo.from: UserRepoLocal.to.currentUid,
-        MessageRepo.to: peerId,
-        MessageRepo.status: 10,
-        MessageRepo.conversationUk3: conversationUk3,
-        MessageRepo.createdAt: DateTime.fromMillisecondsSinceEpoch(
-          DateTimeHelper.millisecond(),
-          isUtc: true,
-        ),
-      });
-    final msg0 = await MessageModel.fromJson(data).toTypeMessage();
+    final Map<String, dynamic> payload = collectOutboundPayload(
+      collect,
+      targetPeerId: peerId,
+    );
+    final String msgType = collectMsgType(collect, payload);
+    final DateTime created = DateTime.fromMillisecondsSinceEpoch(
+      DateTimeHelper.millisecond(),
+      isUtc: true,
+    );
+    final Message msg0;
+    if (_pipelineMsgTypes.contains(msgType)) {
+      final data = Map<String, dynamic>.from(collect.info)
+        ..addAll({
+          MessageRepo.id: Xid().toString(),
+          MessageRepo.from: UserRepoLocal.to.currentUid,
+          MessageRepo.to: peerId,
+          MessageRepo.status: 10,
+          MessageRepo.conversationUk3: conversationUk3,
+          MessageRepo.createdAt: created,
+          'payload': payload,
+          'msg_type': msgType,
+        });
+      msg0 = await MessageModel.fromJson(data).toTypeMessage();
+    } else {
+      msg0 = CustomMessage(
+        authorId: _currentUser.id,
+        createdAt: created,
+        id: Xid().toString(),
+        metadata: _withBurnMetadata(payload),
+      );
+    }
     final msg = burnEnabled
         ? msg0.copyWith(
             metadata: _withBurnMetadata(

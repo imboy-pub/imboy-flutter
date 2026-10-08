@@ -1167,7 +1167,7 @@ class ChatPageState extends ConsumerState<ChatPage>
     if (result != null && mounted) {
       try {
         // ignore: use_build_context_synchronously
-        await _attachmentHandler.sendCollectMessage(context, result.info);
+        await _attachmentHandler.sendCollectMessage(context, result);
       } catch (e) {
         iPrint('[chat_page] 发送收藏消息失败: $e');
         if (mounted) {
