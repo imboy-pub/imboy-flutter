@@ -1112,7 +1112,15 @@ class ChatAttachmentHandler {
     }
     final Map<String, dynamic> payload = collectPayload(collect);
     if (payload.isEmpty) {
-      throw Exception('collect ${collect.kindId} payload unavailable');
+      // 内容无法还原（本地缓存 info 为空/只剩信封列）：把形状带给日志便于
+      // 定位历史数据形态——只落键名与值类型，不落内容（Finding 014 口径）
+      final String shape = collect.info.keys
+          .map((k) => '$k:${collect.info[k].runtimeType}')
+          .join(',');
+      throw Exception(
+        'collect ${collect.kindId} payload unavailable, '
+        'kind=${collect.kind}, infoKeys=[$shape]',
+      );
     }
     final String msgType = collectMsgType(collect, payload);
     // 文本正文兜底：部分旧收藏把 text 平铺在 info 顶层（列表渲染同款兜底）
