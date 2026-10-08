@@ -23,16 +23,16 @@ class WorkspaceAttachmentsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ws = ref.watch(currentWorkspaceProvider);
     final uid = ref.watch(currentUserProvider)?.uid ?? '';
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t.attachmentManager.enterpriseTitle)),
-      body: ws == null || uid.isEmpty
-          ? Center(child: Text(context.t.workspace.emptyNoWorkspace))
-          : _AttachmentIndex(
-              key: ValueKey('${ws.id}:$uid'),
-              workspaceId: ws.id,
-              owner: uid,
-            ),
-    );
+    // 唯一入口是企业工作台资源项（enterprise_shell_page _resourceEntry），
+    // 外层已提供 Scaffold + 「附件」标题栏——本页直接返回内容，自带
+    // AppBar 会叠出双层标题。
+    return ws == null || uid.isEmpty
+        ? Center(child: Text(context.t.workspace.emptyNoWorkspace))
+        : _AttachmentIndex(
+            key: ValueKey('${ws.id}:$uid'),
+            workspaceId: ws.id,
+            owner: uid,
+          );
   }
 }
 

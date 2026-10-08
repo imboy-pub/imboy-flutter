@@ -540,6 +540,10 @@ void main() {
     expect(find.byType(WorkspaceAttachmentsPage), findsOneWidget);
     expect(find.text('enterprise-report.pdf'), findsOneWidget);
     expect(find.text(t.attachmentManager.personSearch), findsOneWidget);
+    // 页面不再自带 AppBar（否则与资源入口外壳叠出双层标题——附件/企业附件
+    // 双 back 回归钉）：入口外壳的「附件」标题栏是唯一 AppBar。
+    expect(find.byType(AppBar), findsOneWidget);
+    expect(find.text(t.attachmentManager.enterpriseTitle), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
