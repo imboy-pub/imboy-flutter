@@ -56,7 +56,6 @@ dart run slang                          # 重新生成多语言代码
 flutter build apk --release --flavor standard   # 构建 Android APK
 ./scripts/build_play_aab.sh <build_number>      # 构建 Google Play AAB（正式包）
 
-cd ios && rm Podfile.lock && rm -rf .symlinks/ && flutter clean && flutter pub get && pod update && pod repo update && cd ..
 ```
 
 需要运行真机集成测试时，先阅读 [集成测试说明](./integration_test/README.md)。
