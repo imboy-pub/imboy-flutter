@@ -14,6 +14,8 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'storage_space_provider.dart';
 
+import 'package:imboy/modules/attachments/personal_attachments_page.dart';
+
 /// 存储空间页面 - 像素级对齐 iOS 设置风
 class StorageSpacePage extends ConsumerStatefulWidget {
   const StorageSpacePage({super.key});
@@ -40,6 +42,42 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     }
   }
 
+  Future<void> _confirmClearCache() async {
+    final t = context.t;
+    final confirmed = await showCupertinoDialog<bool>(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(t.attachmentManager.cacheConfirmTitle),
+        content: Text(t.attachmentManager.cacheConfirmBody),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(t.common.buttonCancel),
+          ),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(t.main.clean),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      final success = await ref
+          .read(storageSpaceProvider.notifier)
+          .clearAllCache();
+      if (!mounted) return;
+      if (success) {
+        AppLoading.showSuccess(t.common.tipSuccess);
+      } else {
+        AppLoading.showToast(t.attachmentManager.cacheFailed);
+      }
+    } on Exception {
+      if (mounted) AppLoading.showToast(t.attachmentManager.cacheFailed);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final storageState = ref.watch(storageSpaceProvider);
@@ -62,6 +100,20 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ImBoySettingsSection(
+                children: [
+                  ImBoySettingsTile(
+                    title: Text(t.attachmentManager.personalTitle),
+                    subtitle: Text(t.attachmentManager.storageHint),
+                    leading: const Icon(CupertinoIcons.folder),
+                    onTap: () => Navigator.of(context).push(
+                      CupertinoPageRoute<void>(
+                        builder: (_) => const PersonalAttachmentsPage(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               _buildStorageOverview(context, storageState, t),
               const SizedBox(height: AppSpacing.xLarge),
               _buildAppUsageSection(context, storageState, t),
@@ -266,14 +318,9 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
             ),
             color: AppColors.getIosBlue(Theme.of(context).brightness),
             borderRadius: BorderRadius.circular(20),
-            onPressed: () async {
-              bool res = await ref
-                  .read(storageSpaceProvider.notifier)
-                  .clearAllCache();
-              if (res) AppLoading.showSuccess(t.common.tipSuccess);
-            },
+            onPressed: state.isLoading ? null : _confirmClearCache,
             child: Text(
-              t.main.clean,
+              t.attachmentManager.cacheAction,
               style: context.textStyle(
                 FontSizeType.footnote,
                 fontWeight: FontWeight.bold,

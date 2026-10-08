@@ -45,6 +45,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$agent$zh_CN agent = Translations$agent$zh_CN.internal(_root);
 	late final Translations$agentTask$zh_CN agentTask = Translations$agentTask$zh_CN.internal(_root);
 	late final Translations$appeal$zh_CN appeal = Translations$appeal$zh_CN.internal(_root);
+	late final Translations$attachmentManager$zh_CN attachmentManager = Translations$attachmentManager$zh_CN.internal(_root);
 	late final Translations$billing$zh_CN billing = Translations$billing$zh_CN.internal(_root);
 	late final Translations$channel$zh_CN channel = Translations$channel$zh_CN.internal(_root);
 	late final Translations$chat$zh_CN chat = Translations$chat$zh_CN.internal(_root);
@@ -559,6 +560,81 @@ class Translations$appeal$zh_CN {
 
 	/// zh-CN: '没有针对你的处置，也不需要申诉。'
 	String get allClearSubtitle => '没有针对你的处置，也不需要申诉。';
+}
+
+// Path: attachmentManager
+class Translations$attachmentManager$zh_CN {
+	Translations$attachmentManager$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '附件'
+	String get title => '附件';
+
+	/// zh-CN: '本机附件'
+	String get personalTitle => '本机附件';
+
+	/// zh-CN: '企业附件'
+	String get enterpriseTitle => '企业附件';
+
+	/// zh-CN: '按本机聊天记录查找附件，点按文件返回来源消息。'
+	String get personalHint => '按本机聊天记录查找附件，点按文件返回来源消息。';
+
+	/// zh-CN: '本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。'
+	String get personalBoundary => '本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。';
+
+	/// zh-CN: '群组附件'
+	String get groupSource => '群组附件';
+
+	/// zh-CN: '选择当前工作区内的群组查看云端文件。'
+	String get enterpriseHint => '选择当前工作区内的群组查看云端文件。';
+
+	/// zh-CN: '当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。'
+	String get enterpriseBoundary => '当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。';
+
+	/// zh-CN: '搜索附件名称'
+	String get searchHint => '搜索附件名称';
+
+	/// zh-CN: '搜索群组'
+	String get searchGroupsHint => '搜索群组';
+
+	/// zh-CN: '暂无本机可查看附件'
+	String get emptyLocal => '暂无本机可查看附件';
+
+	/// zh-CN: '未找到匹配附件'
+	String get emptySearch => '未找到匹配附件';
+
+	/// zh-CN: '查看来源消息'
+	String get openSource => '查看来源消息';
+
+	/// zh-CN: '加载更多'
+	String get loadMore => '加载更多';
+
+	/// zh-CN: '本机消息索引'
+	String get localOnly => '本机消息索引';
+
+	/// zh-CN: '清理临时缓存？'
+	String get cacheConfirmTitle => '清理临时缓存？';
+
+	/// zh-CN: '将清理临时下载和预览缓存，不删除聊天记录、加密密钥或企业云端附件。部分内容再次查看时需要下载。'
+	String get cacheConfirmBody => '将清理临时下载和预览缓存，不删除聊天记录、加密密钥或企业云端附件。部分内容再次查看时需要下载。';
+
+	/// zh-CN: '缓存清理失败，请稍后重试'
+	String get cacheFailed => '缓存清理失败，请稍后重试';
+
+	/// zh-CN: '清理临时缓存'
+	String get cacheAction => '清理临时缓存';
+
+	/// zh-CN: '此处管理设备占用；查找和查看附件请使用本机附件。'
+	String get storageHint => '此处管理设备占用；查找和查看附件请使用本机附件。';
+
+	/// zh-CN: '来源会话已不存在，无法安全打开附件'
+	String get unavailableSource => '来源会话已不存在，无法安全打开附件';
+
+	/// zh-CN: '加载更多失败，请重试。'
+	String get moreFailed => '加载更多失败，请重试。';
 }
 
 // Path: billing
@@ -9031,6 +9107,28 @@ extension on Translations {
 			'appeal.statusRejected' => '已维持',
 			'appeal.allClearTitle' => '一切正常',
 			'appeal.allClearSubtitle' => '没有针对你的处置，也不需要申诉。',
+			'attachmentManager.title' => '附件',
+			'attachmentManager.personalTitle' => '本机附件',
+			'attachmentManager.enterpriseTitle' => '企业附件',
+			'attachmentManager.personalHint' => '按本机聊天记录查找附件，点按文件返回来源消息。',
+			'attachmentManager.personalBoundary' => '本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。',
+			'attachmentManager.groupSource' => '群组附件',
+			'attachmentManager.enterpriseHint' => '选择当前工作区内的群组查看云端文件。',
+			'attachmentManager.enterpriseBoundary' => '当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。',
+			'attachmentManager.searchHint' => '搜索附件名称',
+			'attachmentManager.searchGroupsHint' => '搜索群组',
+			'attachmentManager.emptyLocal' => '暂无本机可查看附件',
+			'attachmentManager.emptySearch' => '未找到匹配附件',
+			'attachmentManager.openSource' => '查看来源消息',
+			'attachmentManager.loadMore' => '加载更多',
+			'attachmentManager.localOnly' => '本机消息索引',
+			'attachmentManager.cacheConfirmTitle' => '清理临时缓存？',
+			'attachmentManager.cacheConfirmBody' => '将清理临时下载和预览缓存，不删除聊天记录、加密密钥或企业云端附件。部分内容再次查看时需要下载。',
+			'attachmentManager.cacheFailed' => '缓存清理失败，请稍后重试',
+			'attachmentManager.cacheAction' => '清理临时缓存',
+			'attachmentManager.storageHint' => '此处管理设备占用；查找和查看附件请使用本机附件。',
+			'attachmentManager.unavailableSource' => '来源会话已不存在，无法安全打开附件',
+			'attachmentManager.moreFailed' => '加载更多失败，请重试。',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -9363,6 +9461,8 @@ extension on Translations {
 			'chat.chatResend' => '重新发送',
 			'chat.profileExportProfile' => '导出资料',
 			'chat.momentsSend' => '发送',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => '登录过期，请重新登录',
 			'chat.alipayLoginInterrupted' => '支付宝登录流程被系统中断，请重试',
 			'chat.customImage' => '自定义图片',
@@ -9385,8 +9485,6 @@ extension on Translations {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '正在回复 @{name}',
 			'chat.sendNewMessage' => '发送新消息',
-			_ => null,
-		} ?? switch (path) {
 			'chat.markRead' => '标记已读',
 			'chat.markUnread' => '标记未读',
 			'chat.pleaseEnterSignature' => '请输入个性签名',
@@ -9877,6 +9975,8 @@ extension on Translations {
 			'common.localDeleteFailed' => '本地删除失败',
 			'common.revokeSuccess' => '撤回成功',
 			'common.editContentCannotBeEmpty' => '编辑内容不能为空',
+			_ => null,
+		} ?? switch (path) {
 			'common.editSuccess' => '编辑成功',
 			'common.enabled' => '已开启',
 			'common.disabled' => '已关闭',
@@ -9899,8 +9999,6 @@ extension on Translations {
 			'common.burnEnabledMessage' => ({required Object duration}) => '开启后：消息在被阅读后 ${duration} 自动销毁',
 			'common.burnDisabledMessage' => '关闭后：消息不会自动销毁',
 			'common.noGroupAnnouncement' => '暂无群公告',
-			_ => null,
-		} ?? switch (path) {
 			'common.featureComingSoon' => '功能暂未实现',
 			'common.understood' => '明白了',
 			'common.noProblem' => '没问题',
@@ -10391,6 +10489,8 @@ extension on Translations {
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
 			'complaint.e2eeConsentSubmit' => '同意并提交证据',
 			'complaint.e2eeConsentDecline' => '仅举报（不提交内容）',
+			_ => null,
+		} ?? switch (path) {
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
 			'complaintReason.inappropriate' => '不当内容',
@@ -10413,8 +10513,6 @@ extension on Translations {
 			'contact.enterRemark' => '请输入备注名',
 			'contact.pleaseEnterTags' => '请输入标签',
 			'contact.momentsVisibilityFriends' => '仅好友',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tagLengthExceeded' => ({required Object param}) => '标签长度不能超过 ${param} 个字符',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能添加 ${param} 个标签',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已选标签 (${param}/${max})',
@@ -10905,6 +11003,8 @@ extension on Translations {
 			'main.stillNeeded' => '还需',
 			'main.storageSpace' => '存储空间',
 			'main.text' => '文本',
+			_ => null,
+		} ?? switch (path) {
 			'main.thisWeek' => '本周',
 			'main.titleMine' => '我的',
 			'main.tooBad' => '太差了',
@@ -10927,8 +11027,6 @@ extension on Translations {
 			'main.termsOfService' => '服务条款',
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => '系统默认',
-			_ => null,
-		} ?? switch (path) {
 			'main.gradientBlue' => '渐变蓝',
 			'main.gradientPurple' => '渐变紫',
 			'main.copiedToClipboard' => '已复制到剪贴板',
@@ -11419,6 +11517,8 @@ extension on Translations {
 			'splash.slogan' => '畅所欲言，自在沟通',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step2Title' => '安全私密',
 			'welcome.step2Desc' => '端到端加密 保护你的个人时刻只属于你自己。',
 			'welcome.step3Title' => '准备探索？',
@@ -11441,8 +11541,6 @@ extension on Translations {
 			'workspace.experienceModeHint' => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份',
 			'workspace.experienceModePersonal' => '个人',
 			'workspace.experienceModeWorkspace' => '工作区',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModeReset' => '恢复部署默认值',
 			'workspace.switchToWorkspace' => '切换到工作区',
 			'workspace.switchToPersonal' => '切换到个人',

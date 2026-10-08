@@ -15,6 +15,7 @@ import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart';
+import 'package:imboy/modules/attachments/workspace_attachments_page.dart';
 import 'package:imboy/page/workspace/workspace_projects_page.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -308,8 +309,8 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
               ),
               _resourceEntry(t.channel.title, const WorkspaceChannelsPage()),
               _resourceEntry(
-                t.chat.groupFile,
-                const WorkspaceGroupsPage(openFiles: true),
+                t.attachmentManager.title,
+                const WorkspaceAttachmentsPage(),
               ),
             ],
           ],

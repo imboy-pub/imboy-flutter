@@ -101,7 +101,8 @@ class StorageSpaceNotifier extends _$StorageSpaceNotifier {
         try {
           await cacheManager.emptyCache();
         } on Exception {
-          // Ignore error
+          // A partial cleanup must not be reported as a successful cleanup.
+          res = false;
         }
         // 清理后磁盘空间也变了，需重新拉取 free/total/used，
         // 否则页面剩余空间停留在 initData 时的陈旧值。

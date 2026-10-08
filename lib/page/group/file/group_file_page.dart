@@ -26,6 +26,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
 
 import 'group_file_audio_preview_page.dart';
+import 'group_attachment_tile.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -34,8 +35,17 @@ enum _MediaPreviewType { video, audio }
 /// 群文件页面
 class GroupFilePage extends ConsumerStatefulWidget {
   final String groupId;
+  final String? displayTitle;
+  final String? scopeHint;
+  final bool readOnly;
 
-  const GroupFilePage({super.key, required this.groupId});
+  const GroupFilePage({
+    super.key,
+    required this.groupId,
+    this.displayTitle,
+    this.scopeHint,
+    this.readOnly = false,
+  });
 
   @visibleForTesting
   static Future<void> Function(BuildContext context, String url, String title)?
@@ -100,6 +110,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   /// SR-4：删除文件仅上传者本人 / 管理员 / 群主可见可点。
   bool _canDeleteFile(Map<String, dynamic> file) {
+    if (widget.readOnly) return false;
     if (isGroupAdmin(_currentUserRole)) return true;
     final uploaderId = file['uploader_id']?.toString().trim() ?? '';
     return uploaderId.isNotEmpty && uploaderId == UserRepoLocal.to.currentUid;
@@ -540,15 +551,16 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GlassAppBar(
-        title: t.chat.groupFile,
+        title: widget.displayTitle ?? t.chat.groupFile,
         automaticallyImplyLeading: true,
         rightDMActions: [
           if (_isOpening) const CupertinoActivityIndicator(),
-          IconButton(
-            icon: const Icon(CupertinoIcons.arrow_up_doc, size: 22),
-            tooltip: t.common.groupFileUploadTooltip,
-            onPressed: _isUploading ? null : _pickAndUploadFile,
-          ),
+          if (!widget.readOnly)
+            IconButton(
+              icon: const Icon(CupertinoIcons.arrow_up_doc, size: 22),
+              tooltip: t.common.groupFileUploadTooltip,
+              onPressed: _isUploading ? null : _pickAndUploadFile,
+            ),
         ],
       ),
       body: _buildBody(),
@@ -564,6 +576,11 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     return Column(
       children: [
         if (_isUploading) const CupertinoActivityIndicator(),
+        if (widget.scopeHint != null)
+          Padding(
+            padding: AppSpacing.allRegular,
+            child: Text(widget.scopeHint!),
+          ),
         _buildSearchBar(),
         _buildCategoryFilters(),
         Expanded(child: _buildFileList()),
@@ -642,7 +659,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
             style: context.textStyle(
               FontSizeType.footnote,
               color: isSelected
-                  ? AppColors.lightTextPrimary
+                  ? AppColors.onPrimary
                   : (brightness == Brightness.dark
                         ? AppColors.darkTextPrimary
                         : AppColors.lightTextPrimary),
@@ -714,30 +731,14 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     final size = _formatBytes(_toInt(file['file_size']));
     final createdAt = file['created_at']?.toString() ?? '';
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ListTile(
-        leading: const Icon(CupertinoIcons.doc),
-        title: Text(name),
-        onTap: () => _openFile(file),
-        subtitle: Text(
-          [
-            if (category.isNotEmpty) category,
-            size,
-            if (createdAt.isNotEmpty) createdAt,
-          ].join(' · '),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        // SR-4：删除仅上传者本人 / 管理员 / 群主可见（隐藏而非报错）
-        trailing: _canDeleteFile(file)
-            ? IconButton(
-                tooltip: t.common.groupFileDeleteTitle,
-                icon: const Icon(CupertinoIcons.delete),
-                onPressed: () => _deleteFile(file),
-              )
-            : null,
-      ),
+    return GroupAttachmentTile(
+      name: name,
+      category: _categoryLabel(category),
+      size: size,
+      createdAt: createdAt,
+      onOpen: () => _openFile(file),
+      deleteLabel: t.common.groupFileDeleteTitle,
+      onDelete: _canDeleteFile(file) ? () => _deleteFile(file) : null,
     );
   }
 

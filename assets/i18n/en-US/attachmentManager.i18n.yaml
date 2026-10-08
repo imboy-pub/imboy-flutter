@@ -1,0 +1,22 @@
+title: Attachments
+personalTitle: On-device attachments
+enterpriseTitle: Enterprise attachments
+personalHint: Find attachments in local chat history. Tap a file to return to its source message.
+personalBoundary: Local availability is not a cloud backup. Clearing cache keeps the message index; deleted chat history is not automatically restored. Encrypted content still requires available keys.
+groupSource: Group attachments
+enterpriseHint: Choose a group in the current workspace to browse its cloud files.
+enterpriseBoundary: Group files are not yet covered by enterprise retention governance. Long-term retention is not guaranteed.
+searchHint: Search attachment names
+searchGroupsHint: Search groups
+emptyLocal: No locally viewable attachments
+emptySearch: No matching attachments
+openSource: View source message
+loadMore: Load more
+localOnly: Local message index
+cacheConfirmTitle: Clear temporary cache?
+cacheConfirmBody: Clear temporary downloads and previews without deleting chat history, encryption keys or enterprise cloud attachments. Some content must be downloaded again.
+cacheFailed: Could not clear cache. Try again.
+cacheAction: Clear temporary cache
+storageHint: Manage device usage here. Use on-device attachments to find and view files.
+unavailableSource: The source conversation no longer exists. This attachment cannot be opened safely.
+moreFailed: Could not load more. Retry.

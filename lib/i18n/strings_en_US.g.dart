@@ -43,6 +43,7 @@ class TranslationsEnUs extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$agent$en_US agent = _Translations$agent$en_US._(_root);
 	@override late final _Translations$agentTask$en_US agentTask = _Translations$agentTask$en_US._(_root);
 	@override late final _Translations$appeal$en_US appeal = _Translations$appeal$en_US._(_root);
+	@override late final _Translations$attachmentManager$en_US attachmentManager = _Translations$attachmentManager$en_US._(_root);
 	@override late final _Translations$billing$en_US billing = _Translations$billing$en_US._(_root);
 	@override late final _Translations$channel$en_US channel = _Translations$channel$en_US._(_root);
 	@override late final _Translations$chat$en_US chat = _Translations$chat$en_US._(_root);
@@ -258,6 +259,37 @@ class _Translations$appeal$en_US extends Translations$appeal$zh_CN {
 	@override String get statusRejected => 'Upheld';
 	@override String get allClearTitle => 'All clear';
 	@override String get allClearSubtitle => 'No enforcement actions on you, and no appeals needed.';
+}
+
+// Path: attachmentManager
+class _Translations$attachmentManager$en_US extends Translations$attachmentManager$zh_CN {
+	_Translations$attachmentManager$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Attachments';
+	@override String get personalTitle => 'On-device attachments';
+	@override String get enterpriseTitle => 'Enterprise attachments';
+	@override String get personalHint => 'Find attachments in local chat history. Tap a file to return to its source message.';
+	@override String get personalBoundary => 'Local availability is not a cloud backup. Clearing cache keeps the message index; deleted chat history is not automatically restored. Encrypted content still requires available keys.';
+	@override String get groupSource => 'Group attachments';
+	@override String get enterpriseHint => 'Choose a group in the current workspace to browse its cloud files.';
+	@override String get enterpriseBoundary => 'Group files are not yet covered by enterprise retention governance. Long-term retention is not guaranteed.';
+	@override String get searchHint => 'Search attachment names';
+	@override String get searchGroupsHint => 'Search groups';
+	@override String get emptyLocal => 'No locally viewable attachments';
+	@override String get emptySearch => 'No matching attachments';
+	@override String get openSource => 'View source message';
+	@override String get loadMore => 'Load more';
+	@override String get localOnly => 'Local message index';
+	@override String get cacheConfirmTitle => 'Clear temporary cache?';
+	@override String get cacheConfirmBody => 'Clear temporary downloads and previews without deleting chat history, encryption keys or enterprise cloud attachments. Some content must be downloaded again.';
+	@override String get cacheFailed => 'Could not clear cache. Try again.';
+	@override String get cacheAction => 'Clear temporary cache';
+	@override String get storageHint => 'Manage device usage here. Use on-device attachments to find and view files.';
+	@override String get unavailableSource => 'The source conversation no longer exists. This attachment cannot be opened safely.';
+	@override String get moreFailed => 'Could not load more. Retry.';
 }
 
 // Path: billing
@@ -3474,6 +3506,28 @@ extension on TranslationsEnUs {
 			'appeal.statusRejected' => 'Upheld',
 			'appeal.allClearTitle' => 'All clear',
 			'appeal.allClearSubtitle' => 'No enforcement actions on you, and no appeals needed.',
+			'attachmentManager.title' => 'Attachments',
+			'attachmentManager.personalTitle' => 'On-device attachments',
+			'attachmentManager.enterpriseTitle' => 'Enterprise attachments',
+			'attachmentManager.personalHint' => 'Find attachments in local chat history. Tap a file to return to its source message.',
+			'attachmentManager.personalBoundary' => 'Local availability is not a cloud backup. Clearing cache keeps the message index; deleted chat history is not automatically restored. Encrypted content still requires available keys.',
+			'attachmentManager.groupSource' => 'Group attachments',
+			'attachmentManager.enterpriseHint' => 'Choose a group in the current workspace to browse its cloud files.',
+			'attachmentManager.enterpriseBoundary' => 'Group files are not yet covered by enterprise retention governance. Long-term retention is not guaranteed.',
+			'attachmentManager.searchHint' => 'Search attachment names',
+			'attachmentManager.searchGroupsHint' => 'Search groups',
+			'attachmentManager.emptyLocal' => 'No locally viewable attachments',
+			'attachmentManager.emptySearch' => 'No matching attachments',
+			'attachmentManager.openSource' => 'View source message',
+			'attachmentManager.loadMore' => 'Load more',
+			'attachmentManager.localOnly' => 'Local message index',
+			'attachmentManager.cacheConfirmTitle' => 'Clear temporary cache?',
+			'attachmentManager.cacheConfirmBody' => 'Clear temporary downloads and previews without deleting chat history, encryption keys or enterprise cloud attachments. Some content must be downloaded again.',
+			'attachmentManager.cacheFailed' => 'Could not clear cache. Try again.',
+			'attachmentManager.cacheAction' => 'Clear temporary cache',
+			'attachmentManager.storageHint' => 'Manage device usage here. Use on-device attachments to find and view files.',
+			'attachmentManager.unavailableSource' => 'The source conversation no longer exists. This attachment cannot be opened safely.',
+			'attachmentManager.moreFailed' => 'Could not load more. Retry.',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3806,6 +3860,8 @@ extension on TranslationsEnUs {
 			'chat.passwordMismatch' => 'Passwords do not match',
 			'chat.pleaseTryAgainLater' => 'Please try again later',
 			'chat.historyUnavailable' => 'History messages are temporarily unavailable',
+			_ => null,
+		} ?? switch (path) {
 			'chat.historyUnavailableHint' => 'Server-side history archive is disabled or unavailable. Tap retry to re-sync',
 			'chat.momentsRecordVideo' => 'Record Video',
 			'chat.momentsVisibilityPrivate' => 'Private',
@@ -3828,8 +3884,6 @@ extension on TranslationsEnUs {
 			'chat.chatStatusSending' => 'Sending',
 			'chat.chatStatusSent' => 'Sent',
 			'chat.chatStatusDelivered' => 'Delivered',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatStatusSeen' => 'Seen',
 			'chat.deletingMessage' => 'Deleting...',
 			'chat.deletingLocalMessage' => 'Deleting local message...',
@@ -4320,6 +4374,8 @@ extension on TranslationsEnUs {
 			'common.basicInfo' => 'Basic Info',
 			'common.contactInfo' => 'Contact Info',
 			'common.editTags' => 'Edit Tags',
+			_ => null,
+		} ?? switch (path) {
 			'common.quickActions' => 'Quick Actions',
 			'common.noNewFriendRequests' => 'No new friend requests for now',
 			'common.pleaseEnterVerificationMessage' => 'Please enter verification message',
@@ -4342,8 +4398,6 @@ extension on TranslationsEnUs {
 			'common.deleteThisCollection' => 'Delete this collection',
 			'common.changeSuccess' => 'Changed successfully',
 			'common.lengthOk' => 'Length OK',
-			_ => null,
-		} ?? switch (path) {
 			'common.confirmNewPassword' => 'Confirm New Password',
 			'common.validationPassed' => 'Validation passed',
 			'common.momentsContentHint' => 'Share something...',
@@ -4834,6 +4888,8 @@ extension on TranslationsEnUs {
 			'contact.suggestedTags' => 'Suggested Tags',
 			'contact.pleaseEnterRemark' => 'Please enter remark',
 			'contact.enterRemark' => 'Enter remark name',
+			_ => null,
+		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'Please enter tags',
 			'contact.momentsVisibilityFriends' => 'Friends Only',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag length cannot exceed ${param} characters',
@@ -4856,8 +4912,6 @@ extension on TranslationsEnUs {
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} min',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} h ${m} min',
 			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} d ${h} h',
-			_ => null,
-		} ?? switch (path) {
 			'customerService.sourceLabel' => 'Source',
 			'customerService.queuedEmptyTitle' => 'No queued conversations',
 			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
@@ -5348,6 +5402,8 @@ extension on TranslationsEnUs {
 			'main.publish' => 'Publish',
 			'main.privacyPolicy' => 'Privacy Policy',
 			'main.termsOfService' => 'Terms of Service',
+			_ => null,
+		} ?? switch (path) {
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'System Default',
 			'main.gradientBlue' => 'Gradient Blue',
@@ -5370,8 +5426,6 @@ extension on TranslationsEnUs {
 			'main.pleaseTryAgain' => 'Please try again',
 			'main.secret' => 'Secret',
 			'main.takePhoto' => 'Take Photo',
-			_ => null,
-		} ?? switch (path) {
 			'main.deletingInProgressPleaseWait' => 'Deleting in progress, please wait...',
 			'main.collecting' => 'Collecting...',
 			'main.user' => 'User',
@@ -5862,6 +5916,8 @@ extension on TranslationsEnUs {
 			'workspace.dmEntry' => 'All messages',
 			'workspace.experienceModeEntry' => 'Home layout',
 			'workspace.experienceModeHint' => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'Personal',
 			'workspace.experienceModeWorkspace' => 'Workspace',
 			'workspace.experienceModeReset' => 'Restore deployment default',
@@ -5884,8 +5940,6 @@ extension on TranslationsEnUs {
 			'workspace.overviewResources' => 'Resources',
 			'workspace.overviewPinnedContent' => 'Pinned channel posts',
 			'workspace.overviewPinnedEmpty' => 'No pinned channel posts yet; Group Notices are not aggregated here (they belong to each group)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFiles' => 'Recent files',
 			'workspace.overviewRecentFilesEmpty' => 'Recently uploaded files will appear here; attachments are also available inside each channel',
 			'workspace.membersTitle' => 'Workspace Members',

@@ -11,6 +11,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
+import 'package:imboy/modules/attachments/personal_attachments_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -143,6 +144,18 @@ class _MinePageState extends ConsumerState<MinePage> {
                   ),
                   children: [
                     // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
+                    ImBoySettingsTile(
+                      title: Text(t.attachmentManager.personalTitle),
+                      leading: _buildIcon(
+                        CupertinoIcons.folder,
+                        AppColors.iosBlue,
+                      ),
+                      onTap: () => Navigator.of(context).push(
+                        CupertinoPageRoute<void>(
+                          builder: (_) => const PersonalAttachmentsPage(),
+                        ),
+                      ),
+                    ),
                     ImBoySettingsTile(
                       title: Text(t.main.storageSpace),
                       leading: _buildIcon(
