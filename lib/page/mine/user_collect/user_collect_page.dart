@@ -984,82 +984,88 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     // 不使用 ImBoySettingsSection（CupertinoListSection）包裹 ExpansionTile——
     // CupertinoListSection 的 DecoratedBox 会遮盖 ListTile 的 ink splash，
     // 触发 "ListTile background color or ink splashes may be invisible" 断言。
-    // 改用 Material + Container 提供独立的渲染层和圆角背景。
+    // 背景色必须落在 Material 上（而不是中间层 DecoratedBox）：
+    // ExpansionTile 头部本身是 ListTile，在最近的 Material 祖先上画背景与
+    // 水波纹，中间任何带背景色的 DecoratedBox 都会触发同一断言——
+    // macOS 真机实证（2026-10-08），故用 Material 提供圆角背景。
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
+      child: Material(
         color: isDark
             ? AppColors.darkSurfaceGrouped
             : AppColors.lightSurfaceGrouped,
         borderRadius: BorderRadius.circular(10),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          backgroundColor: Colors.transparent,
-          collapsedBackgroundColor: Colors.transparent,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          title: Row(
+        clipBehavior: Clip.antiAlias,
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            backgroundColor: Colors.transparent,
+            collapsedBackgroundColor: Colors.transparent,
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 4,
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  CupertinoIcons.slider_horizontal_3,
+                  size: 18,
+                  color: AppColors.getIosBlue(brightness),
+                ),
+                AppSpacing.horizontalMedium,
+                Text(
+                  t.main.type,
+                  style: context.textStyle(
+                    FontSizeType.medium,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
             children: [
-              Icon(
-                CupertinoIcons.slider_horizontal_3,
-                size: 18,
-                color: AppColors.getIosBlue(brightness),
-              ),
-              AppSpacing.horizontalMedium,
-              Text(
-                t.main.type,
-                style: context.textStyle(
-                  FontSizeType.medium,
-                  fontWeight: FontWeight.w500,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: kindMap.entries.map((e) {
+                    final isSelected = currentState.kind == e.key;
+                    return ChoiceChip(
+                      label: Text(
+                        e.value,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: isSelected ? AppColors.onPrimary : null,
+                        ),
+                      ),
+                      selected: isSelected,
+                      onSelected: (v) {
+                        if (v) _searchByKind(context, e.key, e.value);
+                      },
+                      selectedColor: AppColors.getIosBlue(brightness),
+                      showCheckmark: false,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
+              if (currentState.tagItems.isNotEmpty) ...[
+                const Divider(indent: 16, endIndent: 16, height: 1),
+                Padding(
+                  padding: AppSpacing.allRegular,
+                  child: Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: currentState.tagItems,
+                  ),
+                ),
+              ],
             ],
           ),
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: kindMap.entries.map((e) {
-                  final isSelected = currentState.kind == e.key;
-                  return ChoiceChip(
-                    label: Text(
-                      e.value,
-                      style: context.textStyle(
-                        FontSizeType.footnote,
-                        color: isSelected ? AppColors.onPrimary : null,
-                      ),
-                    ),
-                    selected: isSelected,
-                    onSelected: (v) {
-                      if (v) _searchByKind(context, e.key, e.value);
-                    },
-                    selectedColor: AppColors.getIosBlue(brightness),
-                    showCheckmark: false,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-            if (currentState.tagItems.isNotEmpty) ...[
-              const Divider(indent: 16, endIndent: 16, height: 1),
-              Padding(
-                padding: AppSpacing.allRegular,
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: currentState.tagItems,
-                ),
-              ),
-            ],
-          ],
         ),
       ),
     );
