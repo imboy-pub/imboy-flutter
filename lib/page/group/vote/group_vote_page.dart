@@ -13,6 +13,8 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
+import 'group_vote_input_fields.dart';
+
 /// 群投票页面
 class GroupVotePage extends ConsumerStatefulWidget {
   final String groupId;
@@ -89,25 +91,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
         title: Text(t.groupVote.createVote),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: AppSpacing.small),
-            CupertinoTextField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: titleController,
-              placeholder: t.groupVote.voteTitle,
-            ),
-            const SizedBox(height: AppSpacing.regular),
-            CupertinoTextField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: optionsController,
-              maxLines: 4,
-              placeholder: t.groupVote.eachOptionPerLine,
-            ),
-          ],
+        content: GroupVoteInputFields(
+          titleController: titleController,
+          optionsController: optionsController,
         ),
         actions: [
           CupertinoDialogAction(
