@@ -70,8 +70,10 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(groupDiscoveryProvider);
     final notifier = ref.read(groupDiscoveryProvider.notifier);
-    final showStateView =
-        state.isLoading || state.error != null || state.list.isEmpty;
+    // 状态视图（加载/错误/空）只在列表为空时占满屏：筛选/排序/搜索切换
+    // 失败时保留已有卡片（错误反馈以 Http 层 toast 为准，不再整页切成
+    // 错误态造成 toast + 全屏错误双重反馈、旧内容被吞）。
+    final showStateView = state.list.isEmpty;
 
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
@@ -88,7 +90,7 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
           ),
           if (state.categories.isNotEmpty)
             SliverToBoxAdapter(child: _buildCategoryBar(state, notifier)),
-          if (!state.keyword.trim().isNotEmpty)
+          if (state.keyword.trim().isEmpty)
             SliverToBoxAdapter(child: _buildSortBar(state, notifier)),
           if (showStateView)
             SliverFillRemaining(
@@ -96,7 +98,7 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
               child: AsyncStateView(
                 isLoading: state.isLoading,
                 error: state.error,
-                isEmpty: state.list.isEmpty,
+                isEmpty: true,
                 onRetry: notifier.refresh,
                 emptyText: state.keyword.trim().isEmpty
                     ? t.groupDiscovery.emptyTitle
@@ -160,24 +162,29 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
                 vertical: AppSpacing.small,
               ),
               decoration: BoxDecoration(
+                // 选中态用品牌蓝（DESIGN.md 双蓝策略：激活态归 brand，
+                // 原用 iosBlue 与系统语义色混用）；文字 onPrimary 白，
+                // 原选中态为蓝底深字，对比度不足（WCAG AA）。
                 color: selected
-                    ? AppColors.getIosBlue(brightness)
+                    ? AppColors.primary
                     : (brightness == Brightness.dark
                           ? AppColors.darkSurface
                           : AppColors.lightSurface),
                 borderRadius: AppRadius.button,
-                border: Border.all(
-                  color: AppColors.getIosSeparator(brightness)
-                      .withValues(alpha: 0.3),
-                  width: 0.33,
-                ),
+                border: selected
+                    ? null
+                    : Border.all(
+                        color: AppColors.getIosSeparator(brightness)
+                            .withValues(alpha: 0.3),
+                        width: 0.33,
+                      ),
               ),
               child: Text(
                 cat.name,
                 style: context.textStyle(
                   FontSizeType.footnote,
                   color: selected
-                      ? AppColors.lightTextPrimary
+                      ? AppColors.onPrimary
                       : (brightness == Brightness.dark
                             ? AppColors.darkTextPrimary
                             : AppColors.lightTextPrimary),
@@ -191,28 +198,44 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
     );
   }
 
-  /// 排序切换（搜索态隐藏——FTS 自带相关性排序）
+  /// 排序切换（搜索态隐藏——FTS 自带相关性排序）。
+  /// 紧凑右对齐、内容宽：排序是低权重微调，不该像原来那样满宽占一行
+  /// （与 App Store 的排序控件同位语义，把首屏还给内容）。
   Widget _buildSortBar(
     GroupDiscoveryState state,
     GroupDiscoveryNotifier notifier,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
-      child: CupertinoSlidingSegmentedControl<String>(
-        groupValue: state.sort,
-        children: {
-          'popular': Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Text(t.groupDiscovery.sortPopular),
-          ),
-          'newest': Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Text(t.groupDiscovery.sortNewest),
-          ),
-        },
-        onValueChanged: (sort) {
-          if (sort != null) notifier.updateSort(sort);
-        },
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.tiny,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: CupertinoSlidingSegmentedControl<String>(
+          groupValue: state.sort,
+          children: {
+            'popular': Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppSpacing.tiny,
+                horizontal: AppSpacing.small,
+              ),
+              child: Text(t.groupDiscovery.sortPopular),
+            ),
+            'newest': Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: AppSpacing.tiny,
+                horizontal: AppSpacing.small,
+              ),
+              child: Text(t.groupDiscovery.sortNewest),
+            ),
+          },
+          onValueChanged: (sort) {
+            if (sort != null) notifier.updateSort(sort);
+          },
+        ),
       ),
     );
   }
