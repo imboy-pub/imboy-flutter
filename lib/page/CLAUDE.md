@@ -37,6 +37,7 @@
 | `workspace_shell/` | 工作区桌面三栏壳 | `workspace_shell/workspace_shell_page.dart` |
 | `web_shell/` | Web 桌面三栏壳 | `web_shell/web_shell_page.dart`（详见 [web_shell/README.md](./web_shell/README.md)） |
 | `chat_shell/` | 聊天桌面壳 | `chat_shell/chat_shell_page.dart` |
+| `camera/` | 桌面拍摄页（macOS/Windows/Linux 真拍照/录像；仅能力适配层 WechatAssetsPickerAdapter 可导航，业务页不得直开） | `camera/camera_capture_page.dart` |
 
 ---
 
