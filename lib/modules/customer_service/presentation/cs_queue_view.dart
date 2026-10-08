@@ -26,6 +26,7 @@ import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.
     show kCsWorkspacePath;
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 class CsQueueView extends StatefulWidget {
@@ -259,40 +260,48 @@ class _QueueTile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.tiny),
-                Row(
-                  children: [
-                    if (item.source.isNotEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 1,
+                _queuePreviewText(context, item),
+                if (item.source.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.tiny),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          CupertinoIcons.chat_bubble,
+                          size: AppSpacing.regular,
+                          color: AppColors.iosGray,
                         ),
-                        decoration: BoxDecoration(
-                          color: AppColors.iosSkyBlue.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          '${t.sourceLabel}: ${item.source}',
-                          style: context.textStyle(
-                            FontSizeType.caption2,
-                            color: AppColors.primary,
+                        const SizedBox(width: AppSpacing.tiny),
+                        Flexible(
+                          child: Text(
+                            item.source == 'widget'
+                                ? 'Web'
+                                : '${t.sourceLabel}: ${item.source}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.textStyle(
+                              FontSizeType.caption2,
+                              color: AppColors.iosGray,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.tiny),
-                    ],
-                    Expanded(child: _queuePreviewText(context, item)),
-                  ],
-                ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.medium),
-          FilledButton.tonal(
+          FilledButton(
             onPressed: claiming ? null : onClaim,
             style: FilledButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+              foregroundColor: AppColors.sentMessageText,
+              backgroundColor: AppColors.primary,
+              minimumSize: const Size(
+                AppSizes.buttonMinWidth,
+                AppSizes.buttonHeightXLarge,
+              ),
+
               textStyle: TextStyle(
                 fontSize: FontSizeType.footnote.size,
                 fontWeight: FontWeight.w600,
