@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,8 +8,17 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 
+/// 企业附件筛选控件族。
+///
+/// 视觉口径：全部控件同款「填充式圆角 10」容器（fill/radius 对齐全局
+/// InputDecorationTheme，下拉从裸 DropdownButton 升级为
+/// DropdownButtonFormField，消除三种控件风格混排）；高度 ≥44 满足触达
+/// 合同；激活的筛选以 primary 描边 + primary 前景表达，状态可见。
 class WorkspaceAttachmentFilters extends ConsumerStatefulWidget {
   const WorkspaceAttachmentFilters({
     super.key,
@@ -83,65 +93,152 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
     });
   }
 
+  bool get _hasActive =>
+      _selection.isNotEmpty || _dates != null || _person.text.isNotEmpty;
+
   @override
   Widget build(BuildContext context) {
     final t = context.t.attachmentManager;
-    if (_loading) return const LinearProgressIndicator();
+    if (_loading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.regular),
+        child: Center(child: CupertinoActivityIndicator(radius: 10)),
+      );
+    }
     if (_error != null) {
       return TextButton(onPressed: _loadChoices, child: Text(t.moreFailed));
     }
-    return Wrap(
-      spacing: AppSpacing.small,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _dropdown('group_id', t.allGroups),
-        _dropdown('channel_id', t.allChannels),
+        Row(
+          children: [
+            Expanded(child: _dropdown('group_id', t.allGroups)),
+            const SizedBox(width: AppSpacing.small),
+            Expanded(child: _dropdown('channel_id', t.allChannels)),
+          ],
+        ),
+        AppSpacing.verticalSmall,
         TextField(
           controller: _person,
-          decoration: InputDecoration(labelText: t.personSearch),
+          decoration: _fieldDecoration(
+            context,
+            active: _person.text.isNotEmpty,
+            hintText: t.personSearch,
+            prefixIcon: Icon(
+              CupertinoIcons.search,
+              size: 16,
+              color: AppColors.iosGray,
+            ),
+            suffixIcon: _person.text.isEmpty
+                ? null
+                : GestureDetector(
+                    onTap: () {
+                      _person.clear();
+                      setState(() {});
+                      _emit();
+                    },
+                    child: Icon(
+                      CupertinoIcons.clear_thick_circled,
+                      size: 18,
+                      color: AppColors.iosGray3,
+                    ),
+                  ),
+          ),
           onChanged: (_) {
+            setState(() {});
             _debounce?.cancel();
             _debounce = Timer(const Duration(milliseconds: 300), _emit);
           },
         ),
-        TextButton(
-          onPressed: () async {
-            final range = await showDateRangePicker(
-              context: context,
-              firstDate: DateTime(2000),
-              lastDate: DateTime.now(),
-              initialDateRange: _dates,
-            );
-            if (range == null || !mounted) return;
-            setState(() => _dates = range);
-            _emit();
-          },
-          child: Text(
-            _dates == null
-                ? t.dateRange
-                : '${DateFormat('MM/dd').format(_dates!.start)}–${DateFormat('MM/dd').format(_dates!.end)}',
-          ),
+        AppSpacing.verticalSmall,
+        Wrap(
+          spacing: AppSpacing.small,
+          runSpacing: AppSpacing.small,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _dateButton(context),
+            if (_hasActive) _clearButton(context),
+          ],
         ),
-        if (_selection.isNotEmpty || _dates != null || _person.text.isNotEmpty)
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _selection.clear();
-                _dates = null;
-                _person.clear();
-              });
-              _emit();
-            },
-            child: Text(t.clearFilters),
-          ),
       ],
     );
   }
 
-  Widget _dropdown(String key, String label) => SizedBox(
-    width: (MediaQuery.sizeOf(context).width - AppSpacing.regular * 3) / 2,
-    child: DropdownButton<EntityId>(
+  InputDecoration _fieldDecoration(
+    BuildContext context, {
+    bool active = false,
+    String? hintText,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InputDecoration(
+      isDense: true,
+      hintText: hintText,
+      hintStyle: context.textStyle(
+        FontSizeType.normal,
+        color: AppColors.iosGray,
+      ),
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.medium,
+      ),
+      border: OutlineInputBorder(
+        borderRadius: AppRadius.input,
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: AppRadius.input,
+        borderSide: active
+            ? BorderSide(
+                color: AppColors.getIosBlue(Theme.of(context).brightness),
+              )
+            : BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: AppRadius.input,
+        borderSide: BorderSide(
+          color: AppColors.getIosBlue(Theme.of(context).brightness),
+        ),
+      ),
+      // 与全局主题同源（component_theme_manager getInputDecorationTheme），
+      // 显式声明保证下拉/输入/按钮三族容器填色一致。
+      fillColor: isDark
+          ? AppColors.darkSurfaceGroupedTertiary
+          : AppColors.lightBorder.withValues(alpha: 0.5),
+      filled: true,
+    );
+  }
+
+  Widget _dropdown(String key, String label) {
+    final selected = _selection[key];
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // value 已弃用（Flutter 3.33+）：initialValue + ValueKey 重建——
+    // 「清除筛选」等外部状态变化仍能重置下拉回显。
+    return DropdownButtonFormField<EntityId>(
+      key: ValueKey('$key:$selected'),
+      initialValue: selected,
       isExpanded: true,
-      value: _selection[key] ?? '',
+      // 触达高度：内容 padding(12*2) + 行高 ≈ 46。
+      icon: Icon(
+        CupertinoIcons.chevron_down,
+        size: 16,
+        color: AppColors.iosGray,
+      ),
+      style: context.textStyle(
+        FontSizeType.normal,
+        color: selected == null
+            ? AppColors.iosGray
+            : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+      ),
+      decoration: _fieldDecoration(
+        context,
+        active: selected != null,
+        hintText: label,
+      ),
       items: [
         DropdownMenuItem(value: '', child: Text(label)),
         for (final choice in _choices[key]!.entries)
@@ -162,6 +259,83 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
         });
         _emit();
       },
-    ),
-  );
+    );
+  }
+
+  /// 时间范围：与下拉同款填充容器（激活态 primary 着色 + 已选区间回显）。
+  Widget _dateButton(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final active = _dates != null;
+    final label = _dates == null
+        ? context.t.attachmentManager.dateRange
+        : '${DateFormat('MM/dd').format(_dates!.start)}–${DateFormat('MM/dd').format(_dates!.end)}';
+    return TextButton.icon(
+      onPressed: () async {
+        final range = await showDateRangePicker(
+          context: context,
+          firstDate: DateTime(2000),
+          lastDate: DateTime.now(),
+          initialDateRange: _dates,
+        );
+        if (range == null || !mounted) return;
+        setState(() => _dates = range);
+        _emit();
+      },
+      icon: Icon(
+        CupertinoIcons.calendar,
+        size: 16,
+        color: active
+            ? AppColors.getIosBlue(Theme.of(context).brightness)
+            : AppColors.iosGray,
+      ),
+      label: Text(label),
+      style: TextButton.styleFrom(
+        backgroundColor: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightBorder.withValues(alpha: 0.5),
+        foregroundColor: active
+            ? AppColors.getIosBlue(Theme.of(context).brightness)
+            : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.input),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: AppSpacing.medium,
+        ),
+        minimumSize: const Size(0, 46),
+        textStyle: context.textStyle(FontSizeType.normal),
+      ),
+    );
+  }
+
+  /// 清除筛选：与控件族同高的中性胶囊（图标先行，行为可预期）。
+  Widget _clearButton(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return TextButton.icon(
+      onPressed: () {
+        setState(() {
+          _selection.clear();
+          _dates = null;
+          _person.clear();
+        });
+        _emit();
+      },
+      icon: Icon(CupertinoIcons.xmark, size: 14, color: AppColors.iosGray),
+      label: Text(context.t.attachmentManager.clearFiltersAction),
+      style: TextButton.styleFrom(
+        backgroundColor: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightBorder.withValues(alpha: 0.5),
+        foregroundColor: isDark
+            ? AppColors.darkTextSecondary
+            : AppColors.lightTextSecondary,
+        shape: RoundedRectangleBorder(borderRadius: AppRadius.input),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.medium,
+          vertical: AppSpacing.medium,
+        ),
+        minimumSize: const Size(0, 46),
+        textStyle: context.textStyle(FontSizeType.normal),
+      ),
+    );
+  }
 }

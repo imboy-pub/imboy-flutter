@@ -27,3 +27,7 @@ cacheAction: Clear temporary cache
 storageHint: Manage device usage here. Use on-device attachments to find and view files.
 unavailableSource: The source conversation no longer exists. This attachment cannot be opened safely.
 moreFailed: Could not load more. Retry.
+loadFailed: Couldn't load attachments. Tap to retry
+resultCount: "${count} attachments"
+emptyHint: Try a different keyword or filter
+clearFiltersAction: Clear filters

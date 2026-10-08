@@ -297,6 +297,10 @@ class _Translations$attachmentManager$en_US extends Translations$attachmentManag
 	@override String get storageHint => 'Manage device usage here. Use on-device attachments to find and view files.';
 	@override String get unavailableSource => 'The source conversation no longer exists. This attachment cannot be opened safely.';
 	@override String get moreFailed => 'Could not load more. Retry.';
+	@override String get loadFailed => 'Couldn\'t load attachments. Tap to retry';
+	@override String resultCount({required Object count}) => '${count} attachments';
+	@override String get emptyHint => 'Try a different keyword or filter';
+	@override String get clearFiltersAction => 'Clear filters';
 }
 
 // Path: billing
@@ -3543,6 +3547,10 @@ extension on TranslationsEnUs {
 			'attachmentManager.storageHint' => 'Manage device usage here. Use on-device attachments to find and view files.',
 			'attachmentManager.unavailableSource' => 'The source conversation no longer exists. This attachment cannot be opened safely.',
 			'attachmentManager.moreFailed' => 'Could not load more. Retry.',
+			'attachmentManager.loadFailed' => 'Couldn\'t load attachments. Tap to retry',
+			'attachmentManager.resultCount' => ({required Object count}) => '${count} attachments',
+			'attachmentManager.emptyHint' => 'Try a different keyword or filter',
+			'attachmentManager.clearFiltersAction' => 'Clear filters',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3864,12 +3872,12 @@ extension on TranslationsEnUs {
 			'chat.chatResend' => 'Resend',
 			'chat.profileExportProfile' => 'Export profile',
 			'chat.momentsSend' => 'Send',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Session expired. Please log in again.',
 			'chat.alipayLoginInterrupted' => 'Alipay sign-in was interrupted. Please try again.',
 			'chat.customImage' => 'Custom Image',
 			'chat.burnAfterReading' => 'Burn After Reading',
-			_ => null,
-		} ?? switch (path) {
 			'chat.goodReadability' => 'Good readability',
 			'chat.profileCompleteness' => 'Profile Completeness',
 			'chat.tagStatistics' => 'Tag Statistics',
@@ -4378,12 +4386,12 @@ extension on TranslationsEnUs {
 			'common.revokeSuccess' => 'Revoked successfully',
 			'common.editContentCannotBeEmpty' => 'Edit content cannot be empty',
 			'common.editSuccess' => 'Edit successful',
+			_ => null,
+		} ?? switch (path) {
 			'common.enabled' => 'Enabled',
 			'common.disabled' => 'Disabled',
 			'common.fontSizeSettingUpdated' => 'Font size setting updated',
 			'common.fontSizeSetting' => 'Font Size Setting',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Font is too small and may affect reading',
 			'common.dragSliderAdjustFontSize' => 'Drag slider to adjust font size',
 			'common.personalInfo' => 'Personal Info',
@@ -4892,12 +4900,12 @@ extension on TranslationsEnUs {
 			'contact.inputNewTag' => 'Enter new tag...',
 			'contact.denylist' => 'Blocklist',
 			'contact.denylistEmpty' => 'Blocklist is empty',
+			_ => null,
+		} ?? switch (path) {
 			'contact.favoriteGroupTagsEtc' => 'Favorite names, group names, tags, etc.',
 			'contact.newFriend' => 'New friends',
 			'contact.recommendToFriend' => 'Recommend to friends',
 			'contact.remark' => 'Remark',
-			_ => null,
-		} ?? switch (path) {
 			'contact.remarksTags' => 'Remarks and tags',
 			'contact.selectAGroup' => 'Select a group',
 			'contact.selectFriends' => 'Select friends',
@@ -5406,12 +5414,12 @@ extension on TranslationsEnUs {
 			'main.unanswered' => 'Unanswered',
 			'main.unnamed' => 'Unnamed',
 			'main.usedSpace' => 'Used space',
+			_ => null,
+		} ?? switch (path) {
 			'main.you' => 'You',
 			'main.zhCn' => 'Simplified Chinese',
 			'main.zhHant' => 'Traditional Chinese',
 			'main.bound' => 'Bound',
-			_ => null,
-		} ?? switch (path) {
 			'main.correct' => 'Correct',
 			'main.pendingInput' => 'Pending input',
 			'main.lengthCheck' => 'Length check',
@@ -5920,12 +5928,12 @@ extension on TranslationsEnUs {
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
 			'workspace.navOverview' => 'Overview',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navProjects' => 'Projects',
 			'workspace.navChannels' => 'Channels',
 			'workspace.navGroups' => 'Groups',
 			'workspace.pickerTitle' => 'My Workspaces',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.switchWorkspace' => 'Switch workspace',
 			'workspace.pickerEmptyTitle' => 'No workspace yet',
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',

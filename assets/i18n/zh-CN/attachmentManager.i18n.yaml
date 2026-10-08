@@ -27,3 +27,7 @@ cacheAction: 清理临时缓存
 storageHint: 此处管理设备占用；查找和查看附件请使用本机附件。
 unavailableSource: 来源会话已不存在，无法安全打开附件
 moreFailed: 加载更多失败，请重试。
+loadFailed: 附件加载失败，请重试
+resultCount: "共 ${count} 个附件"
+emptyHint: 试试调整关键词或筛选条件
+clearFiltersAction: 清除筛选

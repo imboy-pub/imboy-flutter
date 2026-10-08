@@ -656,6 +656,18 @@ class Translations$attachmentManager$zh_CN {
 
 	/// zh-CN: '加载更多失败，请重试。'
 	String get moreFailed => '加载更多失败，请重试。';
+
+	/// zh-CN: '附件加载失败，请重试'
+	String get loadFailed => '附件加载失败，请重试';
+
+	/// zh-CN: '共 ${count} 个附件'
+	String resultCount({required Object count}) => '共 ${count} 个附件';
+
+	/// zh-CN: '试试调整关键词或筛选条件'
+	String get emptyHint => '试试调整关键词或筛选条件';
+
+	/// zh-CN: '清除筛选'
+	String get clearFiltersAction => '清除筛选';
 }
 
 // Path: billing
@@ -9160,6 +9172,10 @@ extension on Translations {
 			'attachmentManager.storageHint' => '此处管理设备占用；查找和查看附件请使用本机附件。',
 			'attachmentManager.unavailableSource' => '来源会话已不存在，无法安全打开附件',
 			'attachmentManager.moreFailed' => '加载更多失败，请重试。',
+			'attachmentManager.loadFailed' => '附件加载失败，请重试',
+			'attachmentManager.resultCount' => ({required Object count}) => '共 ${count} 个附件',
+			'attachmentManager.emptyHint' => '试试调整关键词或筛选条件',
+			'attachmentManager.clearFiltersAction' => '清除筛选',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -9481,12 +9497,12 @@ extension on Translations {
 			'chat.unpin' => '取消置顶',
 			'chat.userData' => '用户数据',
 			'chat.video' => '视频',
+			_ => null,
+		} ?? switch (path) {
 			'chat.videoMessage' => '[视频]',
 			'chat.viewAttachments' => '浏览附件',
 			'chat.viewLargeImage' => '查看大图',
 			'chat.voice' => '语音',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceMessage' => '语音消息',
 			'chat.youWithdrewAMessage' => '你撤回了一条消息',
 			'chat.formatCheck' => '格式检查',
@@ -9995,12 +10011,12 @@ extension on Translations {
 			'common.locationSelectNotImplemented' => '位置选择功能暂未实现',
 			'common.selectLocationFailed' => '选择位置失败',
 			'common.sendCardNotImplemented' => '名片发送功能暂未实现',
+			_ => null,
+		} ?? switch (path) {
 			'common.voiceSendFailed' => '语音发送失败',
 			'common.featureNotImplemented' => '功能暂未实现',
 			'common.sendCollectionNotImplemented' => '收藏发送功能暂未实现',
 			'common.fileOpenNotImplemented' => '文件打开功能暂未实现',
-			_ => null,
-		} ?? switch (path) {
 			'common.fileShareNotImplemented' => '文件分享功能暂未实现',
 			'common.retrySuccess' => '重试成功',
 			'common.deleteSuccess' => '删除成功',
@@ -10509,12 +10525,12 @@ extension on Translations {
 			'common.fontSizeOptionExtraLarge' => '特大',
 			'common.fontSizeOptionHuge' => '超大',
 			'common.developer' => '开发者',
+			_ => null,
+		} ?? switch (path) {
 			'common.searchFailedRetry' => '搜索失败，请重试',
 			'common.searchDisabledTitle' => '消息搜索未启用',
 			'common.searchDisabledByEncryption' => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '视频格式暂不支持，无法找到对应视频',
-			_ => null,
-		} ?? switch (path) {
 			'common.retry' => '重试',
 			'common.retrying' => '重试中…',
 			'complaint.complaint' => '投诉',
@@ -11023,12 +11039,12 @@ extension on Translations {
 			'main.ringing' => '已响铃...',
 			'main.ruRu' => '俄罗斯俄语',
 			'main.selectedCount' => ({required Object count}) => '已选 (${count})',
+			_ => null,
+		} ?? switch (path) {
 			'main.selected' => '已选',
 			'main.sent' => '已发送',
 			'main.sentByMe' => '我发送的',
 			'main.setParam' => ({required Object param}) => '设置${param}',
-			_ => null,
-		} ?? switch (path) {
 			'main.setting' => '设置',
 			'main.siginQ' => '已经有账号了？',
 			'main.source' => '来源',
@@ -11537,12 +11553,12 @@ extension on Translations {
 			'passport.qrLoginCancelledByMe' => '已取消登录',
 			'passport.qrConnecting' => '正在连接...',
 			'passport.qrWebLoginTitle' => 'Web 端登录确认',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => '请确认是否在 Web 端登录此账号',
 			'passport.qrLoginAction' => '确认登录',
 			'passport.qrLoginSuccess' => '登录成功',
 			'passport.alipayNotSupportedWeb' => 'Web 平台不支持支付宝登录',
-			_ => null,
-		} ?? switch (path) {
 			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支持一键登录功能',
 			'passport.oneKeyInitFailed' => '一键登录服务初始化失败，请稍后重试',
 			'passport.oneKeyNoSimCard' => '当前网络环境不支持，或者手机没有绑定电话卡',
