@@ -70,7 +70,7 @@ void main() {
 
     expect(
       RegExp(r'anchorMsgId:\s*messageId,').allMatches(source),
-      hasLength(8),
+      hasLength(9),
       reason: '文件、图片、视频/缩略图、语音、位置上传都必须携带 anchor_msg_id',
     );
 
@@ -88,7 +88,11 @@ void main() {
         dotAll: true,
       ),
       RegExp(
-        r'_uploadImagePlatformFile\(.*?anchorMsgId:\s*messageId,.*?ImageMessage\(.*?id:\s*messageId,',
+        r'_uploadImageBytes\(.*?anchorMsgId:\s*messageId,.*?ImageMessage\(.*?id:\s*messageId,',
+        dotAll: true,
+      ),
+      RegExp(
+        r"uploadCameraFile\(.*?uploadVideoFileViaPresign\(.*?anchorMsgId:\s*messageId,.*?thumbSeal:\s*await _sealFor\(messageId,\s*'video_thumb'\).*?handleVideoUpload\(.*?messageId:\s*messageId,",
         dotAll: true,
       ),
       RegExp(

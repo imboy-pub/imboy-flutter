@@ -1,9 +1,10 @@
-/// C04（附件完整覆盖与卫生）—— 八个生产上传入口的全覆盖矩阵 + 转发/重试 trace
+/// C04（附件完整覆盖与卫生）—— 九个生产上传入口的全覆盖矩阵 + 转发/重试 trace
 ///
 /// ## 证据分两层
 ///
-/// **层 1（静态接线契约）**：八个生产入口（文件/相机图片/相机视频/文件选择图片/
-/// 相册图片/相册视频/语音/位置缩略图）各自把 `_sealFor(messageId, '<attachmentId>')`
+/// **层 1（静态接线契约）**：九个生产入口（文件/相机图片/相机视频/文件选择图片/
+/// 桌面拍摄视频/相册图片/相册视频/语音/位置缩略图；桌面拍摄图片复用文件选择
+/// 图片的字节管道）各自把 `_sealFor(messageId, '<attachmentId>')`
 /// 产出的 seal 传给 `AttachmentApi`，且 anchor_msg_id 与最终消息 ID 同值
 /// （`attachment_seal_wiring_test` 已锁大半；本文件补 **attachmentId 集合与
 /// seal 透传的精确枚举**，让「新增入口漏接线」变成集合差集变红）。
@@ -38,11 +39,12 @@ import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 
-/// 八个生产入口的矩阵行定义。
+/// 九个生产入口的矩阵行定义。
 ///
 /// [sealCallsInHandler] 是该入口在 `attachment_handler.dart` 里发起的
-/// `_sealFor(messageId, …)` 的 attachmentId 序列（相机/相册视频各产生
-/// video + video_thumb 两笔）。
+/// `_sealFor(messageId, …)` 的 attachmentId 序列（相机/相册/桌面拍摄视频各
+/// 产生 video + video_thumb 两笔；桌面拍摄图片复用文件选择图片的
+/// uploadBytesViaPresignMeta 字节管道，共用 image 格）。
 class _Entry {
   final String name;
   final String apiMethod;
@@ -55,6 +57,7 @@ const List<_Entry> _entries = <_Entry>[
   _Entry('相机图片', 'uploadImageEntityViaPresign', ['image']),
   _Entry('相机视频', 'uploadVideoViaPresign', ['video', 'video_thumb']),
   _Entry('文件选择图片', 'uploadBytesViaPresignMeta', ['image']),
+  _Entry('桌面拍摄视频', 'uploadVideoFileViaPresign', ['video', 'video_thumb']),
   _Entry('相册图片', 'uploadImageEntityViaPresign', ['image']),
   _Entry('相册视频', 'uploadVideoViaPresign', ['video', 'video_thumb']),
   _Entry('语音', 'uploadBytesViaPresignMeta', ['voice']),
@@ -168,19 +171,19 @@ void main() {
   final apiSource = File('lib/store/api/attachment_api.dart')
       .readAsStringSync();
 
-  group('层 1：静态接线契约（八个入口精确枚举）', () {
-    test('⚠️ handler 里 _sealFor 的 attachmentId 全集恰为六种、十笔（8 入口）', () {
+  group('层 1：静态接线契约（九个入口精确枚举）', () {
+    test('⚠️ handler 里 _sealFor 的 attachmentId 全集恰为六种、十二笔（9 入口）', () {
       final calls = RegExp(r"_sealFor\(\s*messageId,\s*'([a-z_]+)'\s*\)")
           .allMatches(handlerSource)
           .map((m) => m.group(1)!)
           .toList();
-      // file×1 + image×3 + video×2 + video_thumb×2 + voice×1 + location_thumb×1
-      expect(calls, hasLength(10));
+      // file×1 + image×3 + video×3 + video_thumb×3 + voice×1 + location_thumb×1
+      expect(calls, hasLength(12));
       final expected = <String, int>{
         'file': 1,
         'image': 3,
-        'video': 2,
-        'video_thumb': 2,
+        'video': 3,
+        'video_thumb': 3,
         'voice': 1,
         'location_thumb': 1,
       };
@@ -262,7 +265,7 @@ void main() {
   });
 
   group('层 2：运行时矩阵（入口 × attachmentId 逐格全链）', () {
-    // 每格 = 一个 _sealFor 调用点（10 格 = 8 入口）。
+    // 每格 = 一个 _sealFor 调用点（12 格 = 9 入口）。
     final cells = <_CellResult>[];
 
     setUpAll(() async {
@@ -273,8 +276,8 @@ void main() {
       }
     });
 
-    test('矩阵规模：8 入口 → 10 格', () {
-      expect(cells, hasLength(10));
+    test('矩阵规模：9 入口 → 12 格', () {
+      expect(cells, hasLength(12));
       expect(cells.map((c) => c.attachmentId).toSet(), {
         'file',
         'image',

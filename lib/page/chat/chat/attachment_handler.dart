@@ -17,6 +17,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:image/image.dart' as img;
 import 'package:xid/xid.dart';
 import 'package:mime/mime.dart';
+import 'package:video_compress/video_compress.dart';
 
 import 'package:imboy/capabilities/capability_locator.dart';
 import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
@@ -464,6 +465,18 @@ class ChatAttachmentHandler {
       return;
     }
     try {
+      // 桌面(macOS/Windows/Linux)：拍摄产物为本地临时文件（不经照片库，
+      // 不依赖照片库 TCC 授权），走文件直传管道；移动端维持 AssetEntity
+      // 管线不变（kIsWeb 已在上方 return，此处 Platform 安全）。
+      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+        final PickedMedia? media = await CapabilityLocator.I
+            .get<MediaPickerCapability>()
+            .pickCameraCapture(context, dual: true);
+        if (!context.mounted || media == null) return;
+        await uploadCameraFile(context, File(media.path), type: media.type);
+        return;
+      }
+
       bool hasPermission = await requestCameraPermission();
       if (!hasPermission || !context.mounted) return;
 
@@ -552,6 +565,65 @@ class ChatAttachmentHandler {
     (await entity.file)?.deleteSync();
   }
 
+  /// 桌面拍摄产物上传（本地文件语义）：产物只落临时目录、不经照片库，
+  /// 因此不依赖照片库授权（App Sandbox TCC）。图片走 [_uploadImageBytes]
+  /// 字节管道；视频元数据经 VideoCompress 探测后走 uploadVideoFileViaPresign
+  /// （seal/锚点语义与 uploadCameraAsset 视频分支一致）。无论成败，上传
+  /// 尝试后删除临时文件（对齐 uploadCameraAsset 的 deleteSync 语义）。
+  Future<void> uploadCameraFile(
+    BuildContext context,
+    File file, {
+    required MediaType type,
+  }) async {
+    try {
+      if (type == MediaType.video) {
+        final s = _uploadScope;
+        final String messageId = Xid().toString();
+        final seal = await _sealFor(messageId, 'video');
+        // 探测只读元数据不转码；探测失败不放弃上传（0 值由下游兜底）
+        MediaInfo? info;
+        try {
+          info = await VideoCompress.getMediaInfo(file.path);
+        } on Object catch (e) {
+          debugPrint('[attachment_handler] getMediaInfo failed: $e');
+        }
+        final resp = await AttachmentApi.uploadVideoFileViaPresign(
+          file,
+          durationMs: info?.duration?.round() ?? 0,
+          width: info?.width ?? 0,
+          height: info?.height ?? 0,
+          scope: s.scope,
+          scopeRef: s.scopeRef,
+          anchorMsgId: messageId,
+          videoSeal: seal,
+          thumbSeal: await _sealFor(messageId, 'video_thumb'),
+        );
+        if (resp == null) {
+          throw Exception('uploadVideoFileViaPresign returned null');
+        }
+        await handleVideoUpload(resp, messageId: messageId, seal: seal);
+      } else {
+        final Uint8List bytes = await file.readAsBytes();
+        if (bytes.isEmpty) {
+          debugPrint('[attachment_handler] camera image bytes is empty');
+          return;
+        }
+        final String name = file.path.split(Platform.pathSeparator).last;
+        await _uploadImageBytes(bytes, fileName: name);
+      }
+    } on Object catch (e) {
+      final p = _attachmentFailurePresentation(e);
+      debugPrint('[attachment_handler] uploadCameraFile failed, ${p.log}');
+      AppLoading.showError(p.toast);
+    } finally {
+      try {
+        if (file.existsSync()) file.deleteSync();
+      } on Object {
+        // 临时文件删除失败不影响主流程
+      }
+    }
+  }
+
   /// 处理图片上传（S3 presign：source 存 object_key，渲染经 cachedImageProvider 异步解析）
   ///
   /// [messageId] 由上传前生成并透传（绑定值的输入）；为 null 时退回自生成，
@@ -637,7 +709,7 @@ class ChatAttachmentHandler {
       if (!context.mounted) return;
 
       for (final file in files) {
-        await _uploadImagePlatformFile(context, file);
+        await _uploadImagePlatformFile(file);
       }
     } on Object catch (e) {
       debugPrint(
@@ -654,18 +726,24 @@ class ChatAttachmentHandler {
   }
 
   /// 上传 FilePicker 选中的图片文件
-  Future<void> _uploadImagePlatformFile(
-    BuildContext context,
-    PlatformFile file,
-  ) async {
-    try {
-      // file_picker 12 移除同步 bytes，统一走异步读取
-      final Uint8List bytes = await file.readAsBytes();
-      if (bytes.isEmpty) {
-        debugPrint('[attachment_handler] image bytes is null: ${file.name}');
-        return;
-      }
+  Future<void> _uploadImagePlatformFile(PlatformFile file) async {
+    // file_picker 12 移除同步 bytes，统一走异步读取
+    final Uint8List bytes = await file.readAsBytes();
+    if (bytes.isEmpty) {
+      debugPrint('[attachment_handler] image bytes is null: ${file.name}');
+      return;
+    }
+    await _uploadImageBytes(bytes, fileName: file.name);
+  }
 
+  /// 图片字节上传公共管道（file_picker 选中文件与桌面拍摄产物共用）：
+  /// 尺寸解码 → seal → presign 直传 → ImageMessage。
+  Future<void> _uploadImageBytes(
+    Uint8List bytes, {
+    required String fileName,
+    String? anchorId,
+  }) async {
+    try {
       // 解析图片尺寸
       int width = 0;
       int height = 0;
@@ -681,14 +759,14 @@ class ChatAttachmentHandler {
         );
       }
 
-      final fileName = file.name.isNotEmpty ? file.name : '${Xid()}.jpg';
-      final ext = fileName.contains('.')
-          ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
+      final name = fileName.isNotEmpty ? fileName : '${Xid()}.jpg';
+      final ext = name.contains('.')
+          ? name.substring(name.lastIndexOf('.') + 1).toLowerCase()
           : 'jpg';
       final mime = 'image/$ext';
 
       final s = _uploadScope;
-      final String messageId = Xid().toString();
+      final String messageId = anchorId ?? Xid().toString();
       final seal = await _sealFor(messageId, 'image');
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
@@ -707,7 +785,7 @@ class ChatAttachmentHandler {
           isUtc: true,
         ),
         id: messageId,
-        text: fileName,
+        text: name,
         height: height * 1.0,
         width: width * 1.0,
         size: meta['size'] as int?,
@@ -722,9 +800,7 @@ class ChatAttachmentHandler {
       await _sendMessage(message);
     } on Object catch (e) {
       final p = _attachmentFailurePresentation(e);
-      debugPrint(
-        '[attachment_handler] _uploadImagePlatformFile failed, ${p.log}',
-      );
+      debugPrint('[attachment_handler] _uploadImageBytes failed, ${p.log}');
       // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
       AppLoading.showError(p.toast);
     }
