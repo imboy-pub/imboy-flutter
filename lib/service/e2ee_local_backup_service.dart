@@ -178,6 +178,10 @@ class E2EELocalBackupService {
     // 1. 验证密码强度
     _validatePassword(password);
 
+    if (userNotes != null && utf8.encode(userNotes).length > maxNotesBytes) {
+      throw ArgumentError('备注过长（上限 $maxNotesBytes 字节）');
+    }
+
     // Megolm inbound session 是群历史解密材料。安全存储不可读时必须
     // 拒绝导出；否则 UI 会把一份不完整的 RSA-only 包报告为备份成功。
     final Map<String, String> all;
