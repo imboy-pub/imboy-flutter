@@ -494,6 +494,21 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
                 )
               : Image.file(File(file.path), fit: BoxFit.contain),
         ),
+        // 桌面端无滑动返回手势：预览态提供显式退出（未移交产物由
+        // dispose 清理，契约与路由 pop 一致）。
+        Positioned(
+          top: MediaQuery.paddingOf(context).top + AppSpacing.small,
+          left: AppSpacing.large,
+          child: IconButton(
+            key: const ValueKey('camera_preview_back'),
+            tooltip: t.common.buttonBack,
+            icon: const Icon(
+              Icons.arrow_back,
+              color: AppColors.cameraShutterRing,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
         Positioned(
           bottom: MediaQuery.paddingOf(context).bottom + AppSpacing.xxxLarge,
           left: AppSpacing.large,

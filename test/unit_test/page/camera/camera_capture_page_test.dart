@@ -3,7 +3,8 @@
 // 覆盖：无设备友好降级自动出栈、初始化渲染取景（含模式切换 chips）、
 // 拍照→预览→使用（isVideo=false）、重拍删除临时文件回取景、
 // dual 视频模式录像徽标→停止→使用（isVideo=true）、videoOnly 直录、
-// 未移交产物在关闭页面时清理、退出时控制器释放。
+// 预览态返回按钮退出并清理、未移交产物随页面退出清理、
+// 退出时控制器释放。
 //
 // camera_platform_interface 目前是 camera/camera_desktop 的传递依赖；
 // 待 pubspec.yaml 空闲时把下面的 import 升级为 dev_dependencies 声明
@@ -363,8 +364,30 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(photo.existsSync(), isTrue);
 
-    // 预览态无关闭按钮，系统返回（路由 pop）走 dispose 清理路径。
+    // 直接路由 pop（与预览态返回按钮同路径）：未移交产物走 dispose 清理。
     tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+    await tester.pumpAndSettle();
+
+    expect(got, isNull);
+    expect(photo.existsSync(), isFalse, reason: '未移交的产物随页面退出清理');
+    expect(fake.disposeCalls, 1);
+  });
+
+  testWidgets('预览态返回按钮：退出页面并清理临时文件', (tester) async {
+    final fake = _FakeCameraPlatform();
+    final photo = _tempPhoto('f.jpg');
+    fake.photoPath = photo.path;
+    CameraPlatform.instance = fake;
+    CameraCaptureResult? got;
+    await _open(tester, onResult: (r) => got = r);
+
+    await tester.tap(find.byKey(const ValueKey('camera_shutter')));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // 桌面端无滑动返回手势，预览态须有显式退出口。
+    expect(find.byKey(const ValueKey('camera_preview_back')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('camera_preview_back')));
     await tester.pumpAndSettle();
 
     expect(got, isNull);
