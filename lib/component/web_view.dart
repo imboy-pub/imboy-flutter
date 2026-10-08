@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -6,6 +8,55 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+
+/// `imboyJSBridge` 的最小双向消息协议。
+///
+/// H5 → 原生：`imboyJSBridge.postMessage(JSON.stringify({id?, type, data?}))`
+/// 原生 → H5：页面 `window` 上派发 `imboyBridgeMessage` MessageEvent，
+/// `event.data = {id?, type, ok, data?, error?}`。
+///
+/// 方法白名单制：通道挂在所有 `imboy.pub` 页面上（通道名公开可知），
+/// 因此每个新方法都必须先单独评审再添加（企业 OA 计划 §3.3 的约束）；
+/// 当前只内置 `ping` / `echo` 两个无副作用方法，供 OA 联调页
+/// （test_oa.html 等）验证通道。未知方法回 `unsupported` 错误回执，
+/// 便于 H5 侧联调定位；坏 JSON 无法构造回执，静默忽略。
+class ImboyJsBridge {
+  ImboyJsBridge._();
+
+  /// 处理一条 H5 → 原生消息，返回应回推给页面的 JavaScript 语句；
+  /// 无需回推（坏 JSON）时返回 null。
+  static String? buildReply(String raw) {
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(raw);
+    } catch (_) {
+      return null;
+    }
+    if (decoded is! Map<String, dynamic>) return null;
+    final payload = <String, dynamic>{
+      if (decoded['id'] != null) 'id': decoded['id'],
+      'type': decoded['type'] is String ? decoded['type'] : '',
+      'ok': false,
+    };
+    switch (payload['type']) {
+      case 'ping':
+        payload
+          ..['ok'] = true
+          ..['data'] = {
+            'pong': true,
+            'ts': DateTime.now().millisecondsSinceEpoch,
+          };
+      case 'echo':
+        payload
+          ..['ok'] = true
+          ..['data'] = decoded['data'];
+      default:
+        payload['error'] = 'unsupported';
+    }
+    return "window.dispatchEvent(new MessageEvent('imboyBridgeMessage', "
+        '{data: ${jsonEncode(payload)}}));';
+  }
+}
 
 // ignore: must_be_immutable
 class WebViewPage extends StatefulWidget {
@@ -118,7 +169,15 @@ class WebViewPageState extends State<WebViewPage> {
     if (isJsBridgeHost(widget.url)) {
       widget._controller!.addJavaScriptChannel(
         'imboyJSBridge', // 与h5 端的一致 不然收不到消息
-        onMessageReceived: (JavaScriptMessage message) {},
+        onMessageReceived: (JavaScriptMessage message) {
+          final reply = ImboyJsBridge.buildReply(message.message);
+          if (reply != null) {
+            try {
+              // 页面可能在导航中，回推失败可安全丢弃。
+              widget._controller?.runJavaScript(reply);
+            } catch (_) {}
+          }
+        },
       );
     }
 
