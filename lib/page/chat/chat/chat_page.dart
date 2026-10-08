@@ -1271,7 +1271,18 @@ class ChatPageState extends ConsumerState<ChatPage>
         message.metadata?['effective_msg_type'] ??
             message.metadata?['msg_type'],
       );
-      if (msgType == MessageType.channelCard) {
+      if (msgType == MessageType.groupSchedule) {
+        final groupId = parseModelString(message.metadata?['group_id']);
+        final scheduleId = parseModelString(
+          message.metadata?['schedule_id'] ?? message.metadata?['id'],
+        );
+        if (groupId.isNotEmpty && scheduleId.isNotEmpty) {
+          context.push(
+            '/group/$groupId/schedule/${Uri.encodeComponent(scheduleId)}',
+          );
+          return;
+        }
+      } else if (msgType == MessageType.channelCard) {
         final channelId = parseModelString(message.metadata?['channel_id']);
         if (channelId.isNotEmpty) {
           context.push('/channel/$channelId');
