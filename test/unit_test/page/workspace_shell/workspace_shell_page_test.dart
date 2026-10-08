@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
@@ -62,7 +63,7 @@ Future<void> _pumpShell(
 }
 
 void main() {
-  testWidgets('移动端：底部导航五项 + 顶栏 [切换 chip | 标题 | 头像]', (tester) async {
+  testWidgets('移动端：底部导航遵循编译功能 + 顶栏 [切换 chip | 标题 | 头像]', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);
 
@@ -76,7 +77,10 @@ void main() {
     expect(find.text('概览'), findsWidgets);
     expect(find.text('频道'), findsWidgets);
     expect(find.text('群组'), findsWidgets);
-    expect(find.text('项目'), findsWidgets);
+    expect(
+      find.text('项目'),
+      compiledProductFeatures.contains('project') ? findsWidgets : findsNothing,
+    );
     // Members 退出五项导航（入口收敛进 Overview 成员卡片）
     expect(find.text('成员'), findsNothing);
     // 切换 chip 恢复移动端常驻（壳顶栏 + WorkspaceConversationsPage leading 各一，
@@ -128,7 +132,7 @@ void main() {
     expect(find.text('群聊'), findsWidgets);
   });
 
-  testWidgets('桌面端：NavigationRail 五项 + 顶部切换器 + 头像沉底', (tester) async {
+  testWidgets('桌面端：NavigationRail 遵循编译功能 + 顶部切换器 + 头像沉底', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);
 
@@ -149,7 +153,10 @@ void main() {
       findsWidgets,
     );
     expect(find.text('群聊'), findsWidgets);
-    expect(find.text('项目'), findsWidgets);
+    expect(
+      find.text('项目'),
+      compiledProductFeatures.contains('project') ? findsWidgets : findsNothing,
+    );
     expect(find.text('成员'), findsNothing);
   });
 
@@ -214,8 +221,7 @@ void main() {
 
   group('project 功能隐藏（计划 §5.3）', () {
     setUp(() {
-      // 默认快照未含 project → _readFlag 缺省为 true（功能开启）；
-      // 这里显式关闭，等价于广州演示构建从 Git 外传入的固定关闭值。
+      // 显式远程关闭；编译关闭的配置同样不得展示项目入口。
       AppFeatureRegistry.replaceSnapshotForTest({'project': false});
     });
     tearDown(() {
@@ -257,7 +263,7 @@ void main() {
       expect(rail.selectedIndex, 0);
     });
 
-    testWidgets('project 开启（默认）时仍是五项导航（通用行为不回归）', (tester) async {
+    testWidgets('远程 project=true：不能重新打开编译关闭的项目入口', (tester) async {
       AppFeatureRegistry.replaceSnapshotForTest({'project': true});
       final container = await _seededContainer();
       addTearDown(container.dispose);
@@ -267,7 +273,18 @@ void main() {
       final nav = tester.widget<NavigationBar>(
         find.byKey(const ValueKey('workspace-shell-bottom-nav')),
       );
-      expect(nav.destinations.length, kWorkspaceShellDestinationCount);
+      expect(
+        nav.destinations.length,
+        compiledProductFeatures.contains('project')
+            ? kWorkspaceShellDestinationCount
+            : kWorkspaceShellDestinationCount - 1,
+      );
+      expect(
+        find.text('项目'),
+        compiledProductFeatures.contains('project')
+            ? findsWidgets
+            : findsNothing,
+      );
     });
   });
 }
