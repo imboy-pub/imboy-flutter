@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/e2ee_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
@@ -86,8 +87,15 @@ void main() {
   test('enabled report retains successful device-count contract', () async {
     AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true});
     final result = await report();
-    expect(result.ok, isTrue);
-    expect(result.otherDeviceCount, 2);
-    expect(adapter.paths.single, contains('/e2ee/report_device_key'));
+    if (compiledProductFeatures.contains('e2ee')) {
+      expect(result.ok, isTrue);
+      expect(result.otherDeviceCount, 2);
+      expect(adapter.paths.single, contains('/e2ee/report_device_key'));
+    } else {
+      expect(result.ok, isFalse);
+      expect(result.otherDeviceCount, 0);
+      expect(result.hasOtherDevice, isFalse);
+      expect(adapter.paths, isEmpty);
+    }
   });
 }

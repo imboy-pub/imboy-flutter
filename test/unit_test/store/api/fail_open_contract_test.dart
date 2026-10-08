@@ -26,6 +26,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 
 import 'package:imboy/service/group_schedule_service.dart';
 import 'package:imboy/service/mention_service.dart';
@@ -439,9 +440,10 @@ void main() {
         publicKey: '-----BEGIN PUBLIC KEY-----',
         keyId: 'kid-1',
       );
-      expect(r.ok, isTrue);
-      expect(r.otherDeviceCount, 2);
-      expect(r.hasOtherDevice, isTrue);
+      final enabled = compiledProductFeatures.contains('e2ee');
+      expect(r.ok, enabled);
+      expect(r.otherDeviceCount, enabled ? 2 : 0);
+      expect(r.hasOtherDevice, enabled);
     });
   });
 }
