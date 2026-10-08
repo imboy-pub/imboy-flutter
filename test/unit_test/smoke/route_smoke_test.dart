@@ -13,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/router/app_router.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/service/websocket_message_queue.dart';
 
 import 'route_registry.dart';
 import 'smoke_test_harness.dart';
@@ -50,6 +52,25 @@ void main() {
         );
       });
     }
+  });
+
+  testWidgets('disabled social entry cannot certify target rendering', (
+    tester,
+  ) async {
+    addTearDown(() => PersistentMessageQueue.to.dispose());
+    final manifest = AppManifestService.manifest!;
+    AppManifestService.replaceForTest({
+      ...manifest.toMap(),
+      'app_entries': <String>[],
+    });
+    addTearDown(() => AppManifestService.replaceForTest(manifest.toMap()));
+    final route = smokeRoutes.singleWhere(
+      (route) => route.name == 'moment_feed',
+    );
+    final error = await renderRoute(tester, route);
+    PersistentMessageQueue.to.dispose();
+    expect(error, isA<StateError>());
+    expect(error.toString(), contains('got /bottom_navigation'));
   });
 
   group('注册表完整性 / Registry integrity', () {
