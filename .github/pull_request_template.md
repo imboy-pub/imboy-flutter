@@ -21,7 +21,7 @@
 
 ### 编码规范
 
-- [ ] 遵守 [imboyapp/CLAUDE.md](CLAUDE.md) UI 设计规范（DESIGN.md §13 For Coding Agents）
+- [ ] 遵守 [imboyapp/CLAUDE.md](../CLAUDE.md) UI 设计规范（DESIGN.md §13 For Coding Agents）
 - [ ] 颜色/间距/字号通过 `AppColors` / `AppSpacing` / `FontSizeType` Token，无硬编码
 - [ ] 最小触达区 ≥ 44×44pt
 - [ ] `MessageModel.id` 用 `String`（Xid base32hex），禁 `int.tryParse`
