@@ -308,7 +308,7 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
                 ),
                 child: Text(
                   title,
-                  style: context.textStyle(
+                  style: sheetContext.textStyle(
                     FontSizeType.normal,
                     fontWeight: FontWeight.w600,
                   ),
@@ -377,7 +377,7 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: context.textStyle(
+                style: sheetContext.textStyle(
                   FontSizeType.normal,
                   fontWeight: selected ? FontWeight.w600 : null,
                   color: selected
