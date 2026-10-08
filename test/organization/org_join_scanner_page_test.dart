@@ -48,4 +48,38 @@ void main() {
       expect(parseOrgJoinCode('imboy://org/join?x=ABCD2345'), isNull);
     });
   });
+
+  group('parseOrgJoinDeepLink（通用扫一扫分发口径）', () {
+    test('imboy://org/join 契约格式 → 解析出码', () {
+      expect(parseOrgJoinDeepLink('imboy://org/join?c=ABCD2345'), 'ABCD2345');
+      expect(parseOrgJoinDeepLink('IMBOY://ORG/JOIN?C=abcd2345'), 'ABCD2345');
+      expect(
+        parseOrgJoinDeepLink('imboy://org/join?code=ABCD2345'),
+        'ABCD2345',
+      );
+      expect(
+        parseOrgJoinDeepLink('imboy://org/join?c=ABCD2345&src=adm'),
+        'ABCD2345',
+      );
+    });
+
+    test('裸 8 位明码 → null（通用扫一扫不误判任意 8 位文本）', () {
+      expect(parseOrgJoinDeepLink('ABCD2345'), isNull);
+      expect(parseOrgJoinDeepLink('abcd2345'), isNull);
+      expect(parseOrgJoinDeepLink('ORDER888'), isNull);
+    });
+
+    test('非 deep link 内容 → null', () {
+      expect(parseOrgJoinDeepLink('https://imboy.pub/xyz'), isNull);
+      expect(parseOrgJoinDeepLink('imboy://qr_login/token123'), isNull);
+      expect(parseOrgJoinDeepLink(null), isNull);
+      expect(parseOrgJoinDeepLink(''), isNull);
+    });
+
+    test('imboy 前缀但码缺失/非法 → null', () {
+      expect(parseOrgJoinDeepLink('imboy://org/join'), isNull);
+      expect(parseOrgJoinDeepLink('imboy://org/join?c=ZZZ'), isNull);
+      expect(parseOrgJoinDeepLink('imboy://org/join?c=0I1OABCD'), isNull);
+    });
+  });
 }

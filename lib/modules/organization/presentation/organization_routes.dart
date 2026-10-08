@@ -70,8 +70,11 @@ List<RouteBase> organizationRoutes() => [
           child: OrganizationSessionBoundary(
             builder: (account) => OrganizationPickerPage(
               accountKey: account,
-              // §5.1「加入企业」入口可直接落到加入动作（?autoJoin=1）
+              // §5.1「加入企业」入口可直接落到加入动作（?autoJoin=1）；
+              // ?code=XXX 由通用扫一扫识别 org join deep link 后带入，
+              // 对话框预填邀请码直接 preview 进确认态。
               autoJoin: state.uri.queryParameters['autoJoin'] == '1',
+              joinCode: state.uri.queryParameters['code'],
             ),
           ),
         ),

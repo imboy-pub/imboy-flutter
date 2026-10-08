@@ -31,6 +31,8 @@ import 'package:imboy/page/scanner/qr_login_confirm_page.dart';
 import 'package:imboy/page/scanner/qr_login_intent.dart';
 import 'package:imboy/page/scanner/scanner_result_page.dart';
 import 'package:imboy/page/scanner/scanner_provider.dart';
+import 'package:imboy/modules/organization/presentation/org_join_scanner_page.dart'
+    show parseOrgJoinDeepLink;
 import 'package:imboy/theme/default/app_colors.dart';
 
 class ScannerPage extends ConsumerStatefulWidget {
@@ -216,6 +218,20 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
         CupertinoPageRoute<dynamic>(
           builder: (context) => QrLoginConfirmPage(qrToken: intent.qrToken),
         ),
+      );
+      return;
+    }
+
+    // org join 邀请 deep link（imboy://org/join?c=CODE）：推进加入企业
+    // 确认流（对话框预填码直接 preview「确认加入 XX 企业」）。只认 deep
+    // link 契约——裸 8 位明码在通用扫一扫不触发（任意 8 位文本误判风险）。
+    // pushReplacement 复用扫码页的 go_router 栈位：join 成功切换工作区
+    // 后 picker 页自 pop，不再落回扫码取景页。
+    final orgJoinCode = parseOrgJoinDeepLink(barcodeStr);
+    if (orgJoinCode != null) {
+      if (!mounted) return;
+      context.pushReplacement(
+        '/organization/picker?autoJoin=1&code=$orgJoinCode',
       );
       return;
     }

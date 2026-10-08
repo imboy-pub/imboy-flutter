@@ -44,6 +44,7 @@ class OrganizationPickerPage extends ConsumerStatefulWidget {
     super.key,
     this.accountKey,
     this.autoJoin = false,
+    this.joinCode,
   });
 
   /// 缓存/指针账号键；测试可注入。缺省取当前登录账号。
@@ -52,6 +53,10 @@ class OrganizationPickerPage extends ConsumerStatefulWidget {
   /// 进入即自动打开「加入企业」邀请码对话框（计划 §5.1：正常入口点「加入企业」
   /// 应当一步到达加入动作，而不是先落到选择器再让用户找第二次）。
   final bool autoJoin;
+
+  /// 预填的邀请码（通用扫一扫识别 `imboy://org/join?c=CODE` 后带入）：
+  /// autoJoin 打开的对话框跳过输入/扫码，直接 preview 进「确认加入」态。
+  final String? joinCode;
 
   @override
   ConsumerState<OrganizationPickerPage> createState() =>
@@ -102,7 +107,9 @@ class _OrganizationPickerPageState
     if (widget.autoJoin) {
       // 等首帧后再弹：对话框依赖已挂载的 Navigator/Overlay。
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _sessionCurrent && _accountKey.isNotEmpty) _joinByCode();
+        if (mounted && _sessionCurrent && _accountKey.isNotEmpty) {
+          _joinByCode(widget.joinCode);
+        }
       });
     }
   }
@@ -338,7 +345,7 @@ class _OrganizationPickerPageState
     );
   }
 
-  Future<void> _joinByCode() async {
+  Future<void> _joinByCode([String? initialCode]) async {
     if (!_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final epoch = _accountEpoch;
@@ -346,6 +353,7 @@ class _OrganizationPickerPageState
       context: context,
       builder: (ctx) => _OrgJoinCodeDialog(
         isCurrentAccount: () => _acceptSwitch(account, epoch),
+        initialCode: initialCode,
       ),
     );
     if (result == null || !_acceptSwitch(account, epoch)) return;
@@ -478,9 +486,13 @@ class OrgJoinDialogResult {
 /// preview「确认加入 XX 企业」→ code-only join。用户不再输入企业 ID。
 /// 错误态（981/982/透传）页内展示；扫码扫到非邀请码留在扫码页继续扫。
 class _OrgJoinCodeDialog extends StatefulWidget {
-  const _OrgJoinCodeDialog({required this.isCurrentAccount});
+  const _OrgJoinCodeDialog({required this.isCurrentAccount, this.initialCode});
 
   final bool Function() isCurrentAccount;
+
+  /// 外部入口（通用扫一扫 deep link）预填的邀请码：非空时挂载后
+  /// 自动 preview，直接进「确认加入 XX 企业」态。
+  final String? initialCode;
 
   @override
   State<_OrgJoinCodeDialog> createState() => _OrgJoinCodeDialogState();
@@ -497,6 +509,19 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
   OrgInvitePreview? _preview;
 
   bool get _isCurrent => mounted && widget.isCurrentAccount();
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initialCode;
+    if (initial != null && initial.trim().isNotEmpty) {
+      _codeCtrl.text = initial.trim().toUpperCase();
+      // 首帧后自动 preview：对话框刚挂载，避免 build 期间 setState。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_isCurrent) _previewByCode(initial);
+      });
+    }
+  }
 
   @override
   void dispose() {

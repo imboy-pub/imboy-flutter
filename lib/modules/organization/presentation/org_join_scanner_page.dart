@@ -23,8 +23,6 @@ import 'package:permission_handler/permission_handler.dart'
         openAppSettings;
 
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart'
-    show kOrgJoinQrPrefix;
 import 'package:imboy/theme/default/app_colors.dart';
 
 class OrgJoinScannerPage extends StatefulWidget {
@@ -242,6 +240,27 @@ class _OrgJoinScannerPageState extends State<OrgJoinScannerPage> {
   }
 }
 
+/// 解析企业邀请 deep link（仅认 `imboy://org/join?c=CODE` 契约格式，
+/// 容忍 `code=` 键名或带额外参数的 payload 变体；裸明码不算 deep link）。
+/// 通用扫一扫（ScannerPage）用它分发加入企业流程——通用场景里任意
+/// 8 位文本可能是订单号/序列号，不能当邀请码。
+String? parseOrgJoinDeepLink(String? raw) {
+  if (raw == null) return null;
+  final s = raw.trim().toUpperCase();
+  if (!s.contains('IMBOY://ORG/JOIN')) return null;
+  // 容忍 `code=` 键名或带额外参数的 payload 变体：query 按 ?& 切分取首个
+  // c=/code= 值（不能按前缀截断——`?c=CODE&src=x` 会把尾巴带进码里）。
+  for (final part in s.split(RegExp(r'[?&]'))) {
+    final idx = part.indexOf('=');
+    if (idx <= 0) continue;
+    final key = part.substring(0, idx);
+    if (key == 'C' || key == 'CODE') {
+      return _validCode(part.substring(idx + 1));
+    }
+  }
+  return null;
+}
+
 /// 解析企业邀请码：
 /// - QR payload 契约 `imboy://org/join?c=CODE`（容忍 `code=` 键名）；
 /// - 裸 8 位明码（A-Z2-9 排除 0/O/1/I；大小写不敏感）——口令被系统
@@ -251,21 +270,9 @@ String? parseOrgJoinCode(String? raw) {
   if (raw == null) return null;
   final s = raw.trim().toUpperCase();
   if (s.isEmpty) return null;
-  if (s.startsWith(kOrgJoinQrPrefix.toUpperCase())) {
-    return _validCode(s.substring(kOrgJoinQrPrefix.length));
-  }
-  if (s.contains('IMBOY://ORG/JOIN')) {
-    // 容忍 `code=` 键名或带额外参数的 payload 变体
-    for (final part in s.split(RegExp(r'[?&]'))) {
-      final idx = part.indexOf('=');
-      if (idx <= 0) continue;
-      final key = part.substring(0, idx);
-      if (key == 'C' || key == 'CODE') {
-        return _validCode(part.substring(idx + 1));
-      }
-    }
-    return null;
-  }
+  final viaLink = parseOrgJoinDeepLink(s);
+  if (viaLink != null) return viaLink;
+  if (s.contains('IMBOY://ORG/JOIN')) return null;
   return _validCode(s);
 }
 
