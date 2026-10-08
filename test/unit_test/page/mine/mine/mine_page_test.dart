@@ -253,50 +253,76 @@ void main() {
     });
   });
 
-  for (final enterprise in [false, true]) {
-    testWidgets('客服入口在 enterprise=$enterprise 保留坐席权限组件', (tester) async {
-      await _pumpMine(tester, enterprise: enterprise);
-      expect(find.byType(CsWorkspaceEntryTile), findsOneWidget);
-      expect(
-        find.text('客服工作台'),
-        findsNothing,
-        reason: '无合格坐席上下文时仍隐藏，模式切换不能绕过权限',
-      );
-    });
-  }
+  testWidgets('客服入口仅个人模式挂载坐席权限组件', (tester) async {
+    await _pumpMine(tester);
+    expect(find.byType(CsWorkspaceEntryTile), findsOneWidget);
+    expect(find.text('客服工作台'), findsNothing, reason: '无合格坐席上下文时仍隐藏，模式切换不能绕过权限');
+  });
 
-  for (final enterprise in [false, true]) {
-    testWidgets('合格坐席 enterprise=$enterprise 入口可见且可打开', (tester) async {
-      const secureChannel = MethodChannel(
-        'plugins.it_nomads.com/flutter_secure_storage',
-      );
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(
-            secureChannel,
-            (call) async =>
-                call.method == 'readAll' ? <String, String>{} : null,
-          );
-      addTearDown(
-        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(secureChannel, null),
-      );
-      HttpClient.adapterForTest = _EligibleSeatAdapter();
-      addTearDown(() => HttpClient.adapterForTest = null);
-      await tester.runAsync(() async {
-        await CsApi().seatContexts();
-      });
-      await _pumpMine(tester, enterprise: enterprise);
-      await tester.runAsync(() async {
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      });
-      await tester.pumpAndSettle();
-      expect(find.text('客服工作台'), findsOneWidget);
-      await tester.ensureVisible(find.text('客服工作台'));
-      await tester.tap(find.text('客服工作台'));
-      await tester.pumpAndSettle();
-      expect(find.text('客服工作台目标'), findsOneWidget);
+  testWidgets('企业模式不挂载客服入口（工作台已有同名入口）', (tester) async {
+    await _pumpMine(tester, enterprise: true);
+    expect(
+      find.byType(CsWorkspaceEntryTile),
+      findsNothing,
+      reason: '企业模式工作台已有客服工作台入口，我页重复披露',
+    );
+    expect(find.text('客服工作台'), findsNothing);
+  });
+
+  testWidgets('合格坐席个人模式入口可见且可打开', (tester) async {
+    const secureChannel = MethodChannel(
+      'plugins.it_nomads.com/flutter_secure_storage',
+    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          secureChannel,
+          (call) async => call.method == 'readAll' ? <String, String>{} : null,
+        );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secureChannel, null),
+    );
+    HttpClient.adapterForTest = _EligibleSeatAdapter();
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await tester.runAsync(() async {
+      await CsApi().seatContexts();
     });
-  }
+    await _pumpMine(tester);
+    await tester.runAsync(() async {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pumpAndSettle();
+    expect(find.text('客服工作台'), findsOneWidget);
+    await tester.ensureVisible(find.text('客服工作台'));
+    await tester.tap(find.text('客服工作台'));
+    await tester.pumpAndSettle();
+    expect(find.text('客服工作台目标'), findsOneWidget);
+  });
+
+  testWidgets('合格坐席企业模式入口也不渲染（入口收敛到工作台）', (tester) async {
+    // 预热一份合格坐席上下文，证明"不渲染"是模式门控而非坐席资格缺失；
+    // 企业模式下页面不挂载 CsWorkspaceEntryTile，不会发起 seat-contexts。
+    const secureChannel = MethodChannel(
+      'plugins.it_nomads.com/flutter_secure_storage',
+    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          secureChannel,
+          (call) async => call.method == 'readAll' ? <String, String>{} : null,
+        );
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secureChannel, null),
+    );
+    HttpClient.adapterForTest = _EligibleSeatAdapter();
+    addTearDown(() => HttpClient.adapterForTest = null);
+    await tester.runAsync(() async {
+      await CsApi().seatContexts();
+    });
+    await _pumpMine(tester, enterprise: true);
+    expect(find.text('客服工作台'), findsNothing);
+    expect(find.byType(CsWorkspaceEntryTile), findsNothing);
+  });
 
   group('MinePage navigation', () {
     testWidgets('tap setting → /mine/setting', (tester) async {

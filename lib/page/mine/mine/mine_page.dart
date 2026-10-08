@@ -125,9 +125,10 @@ class _MinePageState extends ConsumerState<MinePage> {
                     ),
                     onTap: () => context.push(kOrganizationPickerPath),
                   ),
-                  // CSM-01 §12.5.1：客服工作台入口（合格坐席可见，权限判定在
-                  // owned 模块内；普通用户渲染为空占位）
-                  const CsWorkspaceEntryTile(),
+                  // CSM-01 §12.5.1：客服工作台入口仅个人模式展示——企业模式
+                  // 工作台已有同名入口，两处并存属重复披露。坐席可见性判定
+                  // 仍在 owned 模块内（普通用户渲染为空占位）。
+                  if (!widget.enterprise) const CsWorkspaceEntryTile(),
                 ],
               ),
             ),
