@@ -668,6 +668,9 @@ class Translations$attachmentManager$zh_CN {
 
 	/// zh-CN: '清除筛选'
 	String get clearFiltersAction => '清除筛选';
+
+	/// zh-CN: '重试'
+	String get retryAction => '重试';
 }
 
 // Path: billing
@@ -9176,6 +9179,7 @@ extension on Translations {
 			'attachmentManager.resultCount' => ({required Object count}) => '共 ${count} 个附件',
 			'attachmentManager.emptyHint' => '试试调整关键词或筛选条件',
 			'attachmentManager.clearFiltersAction' => '清除筛选',
+			'attachmentManager.retryAction' => '重试',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -9496,9 +9500,9 @@ extension on Translations {
 			'chat.titleMessage' => '消息',
 			'chat.unpin' => '取消置顶',
 			'chat.userData' => '用户数据',
-			'chat.video' => '视频',
 			_ => null,
 		} ?? switch (path) {
+			'chat.video' => '视频',
 			'chat.videoMessage' => '[视频]',
 			'chat.viewAttachments' => '浏览附件',
 			'chat.viewLargeImage' => '查看大图',
@@ -10010,9 +10014,9 @@ extension on Translations {
 			'common.selectImageFailed' => '选择图片失败',
 			'common.locationSelectNotImplemented' => '位置选择功能暂未实现',
 			'common.selectLocationFailed' => '选择位置失败',
-			'common.sendCardNotImplemented' => '名片发送功能暂未实现',
 			_ => null,
 		} ?? switch (path) {
+			'common.sendCardNotImplemented' => '名片发送功能暂未实现',
 			'common.voiceSendFailed' => '语音发送失败',
 			'common.featureNotImplemented' => '功能暂未实现',
 			'common.sendCollectionNotImplemented' => '收藏发送功能暂未实现',
@@ -10524,9 +10528,9 @@ extension on Translations {
 			'common.fontSizeOptionLarge' => '大',
 			'common.fontSizeOptionExtraLarge' => '特大',
 			'common.fontSizeOptionHuge' => '超大',
-			'common.developer' => '开发者',
 			_ => null,
 		} ?? switch (path) {
+			'common.developer' => '开发者',
 			'common.searchFailedRetry' => '搜索失败，请重试',
 			'common.searchDisabledTitle' => '消息搜索未启用',
 			'common.searchDisabledByEncryption' => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索',
@@ -11038,9 +11042,9 @@ extension on Translations {
 			'main.replied' => '已回复',
 			'main.ringing' => '已响铃...',
 			'main.ruRu' => '俄罗斯俄语',
-			'main.selectedCount' => ({required Object count}) => '已选 (${count})',
 			_ => null,
 		} ?? switch (path) {
+			'main.selectedCount' => ({required Object count}) => '已选 (${count})',
 			'main.selected' => '已选',
 			'main.sent' => '已发送',
 			'main.sentByMe' => '我发送的',
@@ -11552,9 +11556,9 @@ extension on Translations {
 			'passport.qrLoginConfirming' => '正在登录...',
 			'passport.qrLoginCancelledByMe' => '已取消登录',
 			'passport.qrConnecting' => '正在连接...',
-			'passport.qrWebLoginTitle' => 'Web 端登录确认',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrWebLoginTitle' => 'Web 端登录确认',
 			'passport.qrWebLoginDesc' => '请确认是否在 Web 端登录此账号',
 			'passport.qrLoginAction' => '确认登录',
 			'passport.qrLoginSuccess' => '登录成功',

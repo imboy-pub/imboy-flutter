@@ -56,12 +56,11 @@ class _Api extends WorkspaceApi {
   }) : _items = attachmentItems,
        _groups = groupList,
        _channels = channelList,
-       _fail = shouldFail;
+       failAttachments = shouldFail;
 
   final List<Map<String, dynamic>> _items;
   final List<GroupModel> _groups;
   final List<ChannelModel> _channels;
-  final bool _fail;
 
   @override
   Future<List<GroupModel>> memberGroups(EntityId workspaceId) async => _groups;
@@ -72,12 +71,17 @@ class _Api extends WorkspaceApi {
     String? status,
   }) async => _channels;
 
+  bool failAttachments;
+
   @override
   Future<Map<String, dynamic>> attachments(
     EntityId workspaceId,
     Map<String, dynamic> filters,
   ) async {
-    if (_fail) throw Exception('synthetic attachment failure');
+    if (failAttachments) {
+      failAttachments = false;
+      throw Exception('synthetic attachment failure');
+    }
     return {'workspace_id': workspaceId, 'next_cursor': null, 'items': _items};
   }
 }
@@ -189,10 +193,28 @@ void main() {
     expect(find.textContaining('共 '), findsNothing);
   });
 
-  testWidgets('首屏失败：居中错误态 + 可重试文案', (tester) async {
-    await _pump(tester, _Api(shouldFail: true));
+  testWidgets('首屏失败：居中错误态 + 重试按钮点击恢复', (tester) async {
+    final api = _Api(
+      attachmentItems: [_item('enterprise-report.pdf')],
+      shouldFail: true,
+    );
+    await _pump(tester, api);
     expect(find.byKey(const ValueKey('ws-attachments-error')), findsOneWidget);
     expect(find.text('附件加载失败，请重试'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('ws-attachments-retry')),
+      findsOneWidget,
+      reason: '重试必须是显式可供件（pull-to-refresh 是隐藏路径）',
+    );
+
+    await tester.tap(find.byKey(const ValueKey('ws-attachments-retry')));
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('ws-attachments-error')),
+      findsNothing,
+      reason: 'api 恢复后重试即回到数据态',
+    );
+    expect(find.text('enterprise-report.pdf'), findsOneWidget);
   });
 
   testWidgets('选中群组出现「清除筛选」，点击后回收', (tester) async {

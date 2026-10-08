@@ -132,16 +132,22 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
             ),
             suffixIcon: _person.text.isEmpty
                 ? null
-                : GestureDetector(
-                    onTap: () {
+                : IconButton(
+                    onPressed: () {
                       _person.clear();
                       setState(() {});
                       _emit();
                     },
-                    child: Icon(
+                    icon: Icon(
                       CupertinoIcons.clear_thick_circled,
                       size: 18,
                       color: AppColors.iosGray3,
+                    ),
+                    // 18px 字形不够触达：约束到 40x40 命中区。
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(
+                      minWidth: 40,
+                      minHeight: 40,
                     ),
                   ),
           ),

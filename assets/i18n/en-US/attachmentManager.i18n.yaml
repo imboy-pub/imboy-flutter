@@ -31,3 +31,4 @@ loadFailed: Couldn't load attachments. Tap to retry
 resultCount: "${count} attachments"
 emptyHint: Try a different keyword or filter
 clearFiltersAction: Clear filters
+retryAction: Retry

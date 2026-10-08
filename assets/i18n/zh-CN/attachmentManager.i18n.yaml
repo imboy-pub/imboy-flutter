@@ -31,3 +31,4 @@ loadFailed: 附件加载失败，请重试
 resultCount: "共 ${count} 个附件"
 emptyHint: 试试调整关键词或筛选条件
 clearFiltersAction: 清除筛选
+retryAction: 重试

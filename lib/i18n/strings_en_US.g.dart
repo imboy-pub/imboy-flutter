@@ -301,6 +301,7 @@ class _Translations$attachmentManager$en_US extends Translations$attachmentManag
 	@override String resultCount({required Object count}) => '${count} attachments';
 	@override String get emptyHint => 'Try a different keyword or filter';
 	@override String get clearFiltersAction => 'Clear filters';
+	@override String get retryAction => 'Retry';
 }
 
 // Path: billing
@@ -3551,6 +3552,7 @@ extension on TranslationsEnUs {
 			'attachmentManager.resultCount' => ({required Object count}) => '${count} attachments',
 			'attachmentManager.emptyHint' => 'Try a different keyword or filter',
 			'attachmentManager.clearFiltersAction' => 'Clear filters',
+			'attachmentManager.retryAction' => 'Retry',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3871,9 +3873,9 @@ extension on TranslationsEnUs {
 			'chat.featureRequest' => 'Feature request',
 			'chat.chatResend' => 'Resend',
 			'chat.profileExportProfile' => 'Export profile',
-			'chat.momentsSend' => 'Send',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsSend' => 'Send',
 			'chat.loginExpiredMessage' => 'Session expired. Please log in again.',
 			'chat.alipayLoginInterrupted' => 'Alipay sign-in was interrupted. Please try again.',
 			'chat.customImage' => 'Custom Image',
@@ -4385,9 +4387,9 @@ extension on TranslationsEnUs {
 			'common.localDeleteFailed' => 'Local deletion failed',
 			'common.revokeSuccess' => 'Revoked successfully',
 			'common.editContentCannotBeEmpty' => 'Edit content cannot be empty',
-			'common.editSuccess' => 'Edit successful',
 			_ => null,
 		} ?? switch (path) {
+			'common.editSuccess' => 'Edit successful',
 			'common.enabled' => 'Enabled',
 			'common.disabled' => 'Disabled',
 			'common.fontSizeSettingUpdated' => 'Font size setting updated',
@@ -4899,9 +4901,9 @@ extension on TranslationsEnUs {
 			'contact.applyChanges' => 'Please restart the app to apply the changes.',
 			'contact.inputNewTag' => 'Enter new tag...',
 			'contact.denylist' => 'Blocklist',
-			'contact.denylistEmpty' => 'Blocklist is empty',
 			_ => null,
 		} ?? switch (path) {
+			'contact.denylistEmpty' => 'Blocklist is empty',
 			'contact.favoriteGroupTagsEtc' => 'Favorite names, group names, tags, etc.',
 			'contact.newFriend' => 'New friends',
 			'contact.recommendToFriend' => 'Recommend to friends',
@@ -5413,9 +5415,9 @@ extension on TranslationsEnUs {
 			'main.type' => 'Type',
 			'main.unanswered' => 'Unanswered',
 			'main.unnamed' => 'Unnamed',
-			'main.usedSpace' => 'Used space',
 			_ => null,
 		} ?? switch (path) {
+			'main.usedSpace' => 'Used space',
 			'main.you' => 'You',
 			'main.zhCn' => 'Simplified Chinese',
 			'main.zhHant' => 'Traditional Chinese',
@@ -5927,9 +5929,9 @@ extension on TranslationsEnUs {
 			'welcome.next' => 'Next',
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
-			'workspace.navOverview' => 'Overview',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.navOverview' => 'Overview',
 			'workspace.navProjects' => 'Projects',
 			'workspace.navChannels' => 'Channels',
 			'workspace.navGroups' => 'Groups',

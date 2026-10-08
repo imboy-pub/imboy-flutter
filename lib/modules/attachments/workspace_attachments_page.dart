@@ -254,7 +254,8 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
     );
   }
 
-  /// 居中错误态（首屏失败）：图标 + 文案 + 点击重试，与列表内容互斥。
+  /// 居中错误态（首屏失败）：图标 + 文案 + 显式重试按钮（pull-to-refresh
+  /// 是隐藏可供件，不能是唯一重试路径）。
   Widget _errorState(String text) {
     final brightness = Theme.of(context).brightness;
     return Padding(
@@ -278,6 +279,13 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
               FontSizeType.normal,
               color: AppColors.iosGray,
             ),
+          ),
+          AppSpacing.verticalRegular,
+          TextButton.icon(
+            key: const ValueKey('ws-attachments-retry'),
+            onPressed: () => unawaited(_load()),
+            icon: const Icon(CupertinoIcons.refresh, size: 16),
+            label: Text(context.t.attachmentManager.retryAction),
           ),
         ],
       ),
@@ -422,7 +430,8 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
     }
   }
 
-  /// 元数据：来源 · 上传人 · 人性化大小 · 时间（跨年带年份）。
+  /// 元数据：来源 · 上传人 · 人性化大小 · 时间（跨年带年份）；空段
+  /// 丢弃后再 join，避免「来源 ·  · 时间」双分隔符。
   String _metadata(Map<String, dynamic> row) {
     final date = DateTime.tryParse('${row['created_at']}');
     final now = DateTime.now();
@@ -433,12 +442,13 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
         : DateFormat('yyyy/MM/dd HH:mm').format(date.toLocal());
     final source = row['source_name'];
     final creator = row['creator_name'] ?? row['creator_user_id'];
-    return [
+    final parts = [
       if (source != null && '$source'.isNotEmpty) '$source',
       if (creator != null && '$creator'.isNotEmpty) '$creator',
       _formatSize(row['size']),
       if (dateText.isNotEmpty) dateText,
-    ].join(' · ');
+    ].where((part) => part.isNotEmpty).toList(growable: false);
+    return parts.join(' · ');
   }
 
   /// 字节数人性化：B/KB/MB/GB（1 位小数去尾零）。
