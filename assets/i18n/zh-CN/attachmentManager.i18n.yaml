@@ -1,4 +1,11 @@
 title: 附件
+centerHint: 检索当前工作区内有权查看的群组和频道附件。
+allGroups: 全部群组
+allChannels: 全部频道
+allPeople: 全部上传人
+personSearch: 上传人姓名、账号或编号
+dateRange: 时间范围
+clearFilters: 清除筛选
 personalTitle: 本机附件
 enterpriseTitle: 企业附件
 personalHint: 按本机聊天记录查找附件，点按文件返回来源消息。

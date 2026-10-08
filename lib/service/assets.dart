@@ -10,7 +10,23 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'encrypter.dart';
 
+import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/workspace_model.dart';
+
 class AssetsService {
+  /// The server rechecks membership and resource ACL before signing.
+  static Future<Uri> workspaceAttachmentUrl(
+    EntityId workspaceId,
+    EntityId id,
+  ) async {
+    final raw = await WorkspaceApi().attachmentUrl(workspaceId, id);
+    final uri = Uri.parse(raw);
+    if (!['https', 'http'].contains(uri.scheme) || uri.host.isEmpty) {
+      throw const FormatException('Invalid authorized attachment URL');
+    }
+    return uri;
+  }
+
   static Future<String?> mimeType(File file) async {
     String? mimeType = lookupMimeType(file.path);
     if (mimeType == null) {

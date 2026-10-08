@@ -14,6 +14,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
@@ -29,7 +32,7 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
-import 'package:imboy/page/group/file/group_file_page.dart';
+import 'package:imboy/modules/attachments/workspace_attachments_page.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -71,6 +74,28 @@ class _Shell extends WorkspaceShellNotifier {
 }
 
 class _Api extends WorkspaceApi {
+  @override
+  Future<List<GroupModel>> memberGroups(EntityId workspaceId) async => [];
+  @override
+  Future<Map<String, dynamic>> attachments(
+    EntityId workspaceId,
+    Map<String, dynamic> filters,
+  ) async => {
+    'workspace_id': workspaceId,
+    'next_cursor': null,
+    'items': [
+      {
+        'id': 991,
+        'name': 'enterprise-report.pdf',
+        'size': 100,
+        'scope': 'group',
+        'scope_ref': '200',
+        'source_name': 'test group',
+        'creator_name': 'test uploader',
+        'created_at': '2026-10-08T03:00:00Z',
+      },
+    ],
+  };
   @override
   Future<List<WorkspaceConversationModel>> conversations(
     EntityId workspaceId,
@@ -485,7 +510,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(t.workspace.navGroups), findsOneWidget);
     expect(find.text(t.channel.title), findsOneWidget);
-    expect(find.text(t.chat.groupFile), findsOneWidget);
+    expect(find.text(t.attachmentManager.title), findsOneWidget);
     await tester.tap(find.text('通讯录'));
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
@@ -495,7 +520,9 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
-  testWidgets('无 OA 工作台群文件按当前工作区进入指定群', (tester) async {
+  testWidgets('无 OA 工作台附件入口进入企业统一检索中心', (tester) async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
+    await StorageService.init();
     final api = _OaApi();
     await _pump(
       tester,
@@ -508,14 +535,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('工作台'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(t.chat.groupFile));
+    await tester.tap(find.text(t.attachmentManager.title));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('workspace-group-tile-301')));
-    await tester.pumpAndSettle();
-    expect(
-      tester.widget<GroupFilePage>(find.byType(GroupFilePage)).groupId,
-      '301',
-    );
+    expect(find.byType(WorkspaceAttachmentsPage), findsOneWidget);
+    expect(find.text('enterprise-report.pdf'), findsOneWidget);
+    expect(find.text(t.attachmentManager.personSearch), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

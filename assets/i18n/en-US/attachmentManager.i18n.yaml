@@ -1,4 +1,11 @@
 title: Attachments
+centerHint: Find authorized group and channel attachments in this workspace.
+allGroups: All groups
+allChannels: All channels
+allPeople: All uploaders
+personSearch: Uploader name, account or ID
+dateRange: Date range
+clearFilters: Clear filters
 personalTitle: On-device attachments
 enterpriseTitle: Enterprise attachments
 personalHint: Find attachments in local chat history. Tap a file to return to its source message.

@@ -573,6 +573,27 @@ class Translations$attachmentManager$zh_CN {
 	/// zh-CN: '附件'
 	String get title => '附件';
 
+	/// zh-CN: '检索当前工作区内有权查看的群组和频道附件。'
+	String get centerHint => '检索当前工作区内有权查看的群组和频道附件。';
+
+	/// zh-CN: '全部群组'
+	String get allGroups => '全部群组';
+
+	/// zh-CN: '全部频道'
+	String get allChannels => '全部频道';
+
+	/// zh-CN: '全部上传人'
+	String get allPeople => '全部上传人';
+
+	/// zh-CN: '上传人姓名、账号或编号'
+	String get personSearch => '上传人姓名、账号或编号';
+
+	/// zh-CN: '时间范围'
+	String get dateRange => '时间范围';
+
+	/// zh-CN: '清除筛选'
+	String get clearFilters => '清除筛选';
+
 	/// zh-CN: '本机附件'
 	String get personalTitle => '本机附件';
 
@@ -9108,6 +9129,13 @@ extension on Translations {
 			'appeal.allClearTitle' => '一切正常',
 			'appeal.allClearSubtitle' => '没有针对你的处置，也不需要申诉。',
 			'attachmentManager.title' => '附件',
+			'attachmentManager.centerHint' => '检索当前工作区内有权查看的群组和频道附件。',
+			'attachmentManager.allGroups' => '全部群组',
+			'attachmentManager.allChannels' => '全部频道',
+			'attachmentManager.allPeople' => '全部上传人',
+			'attachmentManager.personSearch' => '上传人姓名、账号或编号',
+			'attachmentManager.dateRange' => '时间范围',
+			'attachmentManager.clearFilters' => '清除筛选',
 			'attachmentManager.personalTitle' => '本机附件',
 			'attachmentManager.enterpriseTitle' => '企业附件',
 			'attachmentManager.personalHint' => '按本机聊天记录查找附件，点按文件返回来源消息。',
@@ -9454,6 +9482,8 @@ extension on Translations {
 			'chat.viewAttachments' => '浏览附件',
 			'chat.viewLargeImage' => '查看大图',
 			'chat.voice' => '语音',
+			_ => null,
+		} ?? switch (path) {
 			'chat.voiceMessage' => '语音消息',
 			'chat.youWithdrewAMessage' => '你撤回了一条消息',
 			'chat.formatCheck' => '格式检查',
@@ -9461,8 +9491,6 @@ extension on Translations {
 			'chat.chatResend' => '重新发送',
 			'chat.profileExportProfile' => '导出资料',
 			'chat.momentsSend' => '发送',
-			_ => null,
-		} ?? switch (path) {
 			'chat.loginExpiredMessage' => '登录过期，请重新登录',
 			'chat.alipayLoginInterrupted' => '支付宝登录流程被系统中断，请重试',
 			'chat.customImage' => '自定义图片',
@@ -9968,6 +9996,8 @@ extension on Translations {
 			'common.featureNotImplemented' => '功能暂未实现',
 			'common.sendCollectionNotImplemented' => '收藏发送功能暂未实现',
 			'common.fileOpenNotImplemented' => '文件打开功能暂未实现',
+			_ => null,
+		} ?? switch (path) {
 			'common.fileShareNotImplemented' => '文件分享功能暂未实现',
 			'common.retrySuccess' => '重试成功',
 			'common.deleteSuccess' => '删除成功',
@@ -9975,8 +10005,6 @@ extension on Translations {
 			'common.localDeleteFailed' => '本地删除失败',
 			'common.revokeSuccess' => '撤回成功',
 			'common.editContentCannotBeEmpty' => '编辑内容不能为空',
-			_ => null,
-		} ?? switch (path) {
 			'common.editSuccess' => '编辑成功',
 			'common.enabled' => '已开启',
 			'common.disabled' => '已关闭',
@@ -10482,6 +10510,8 @@ extension on Translations {
 			'common.searchDisabledTitle' => '消息搜索未启用',
 			'common.searchDisabledByEncryption' => '端到端加密已开启，服务器无法读取消息内容，因此不提供全文搜索',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '视频格式暂不支持，无法找到对应视频',
+			_ => null,
+		} ?? switch (path) {
 			'common.retry' => '重试',
 			'common.retrying' => '重试中…',
 			'complaint.complaint' => '投诉',
@@ -10489,8 +10519,6 @@ extension on Translations {
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
 			'complaint.e2eeConsentSubmit' => '同意并提交证据',
 			'complaint.e2eeConsentDecline' => '仅举报（不提交内容）',
-			_ => null,
-		} ?? switch (path) {
 			'complaintReason.spam' => '垃圾信息',
 			'complaintReason.harassment' => '骚扰',
 			'complaintReason.inappropriate' => '不当内容',
@@ -10996,6 +11024,8 @@ extension on Translations {
 			'main.sentByMe' => '我发送的',
 			'main.setParam' => ({required Object param}) => '设置${param}',
 			'main.setting' => '设置',
+			_ => null,
+		} ?? switch (path) {
 			'main.siginQ' => '已经有账号了？',
 			'main.source' => '来源',
 			'main.speakingTooShort' => '说话时间太短',
@@ -11003,8 +11033,6 @@ extension on Translations {
 			'main.stillNeeded' => '还需',
 			'main.storageSpace' => '存储空间',
 			'main.text' => '文本',
-			_ => null,
-		} ?? switch (path) {
 			'main.thisWeek' => '本周',
 			'main.titleMine' => '我的',
 			'main.tooBad' => '太差了',
@@ -11510,6 +11538,8 @@ extension on Translations {
 			'passport.qrLoginSuccess' => '登录成功',
 			'passport.alipayNotSupportedWeb' => 'Web 平台不支持支付宝登录',
 			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支持一键登录功能',
+			_ => null,
+		} ?? switch (path) {
 			'passport.oneKeyInitFailed' => '一键登录服务初始化失败，请稍后重试',
 			'passport.oneKeyNoSimCard' => '当前网络环境不支持，或者手机没有绑定电话卡',
 			'passport.cannotGetScreenSize' => '无法获取屏幕尺寸',
@@ -11517,8 +11547,6 @@ extension on Translations {
 			'splash.slogan' => '畅所欲言，自在沟通',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step2Title' => '安全私密',
 			'welcome.step2Desc' => '端到端加密 保护你的个人时刻只属于你自己。',
 			'welcome.step3Title' => '准备探索？',

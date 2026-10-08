@@ -504,6 +504,62 @@ class WorkspaceApi extends HttpClient {
 
   // ==================== 内部：envelope 解包 ====================
 
+  Future<Map<String, dynamic>> attachments(
+    EntityId workspaceId,
+    Map<String, dynamic> filters,
+  ) async {
+    final response = await get(
+      '/api/v1/workspaces/$workspaceId/attachments',
+      queryParameters: filters,
+    );
+    final payload = _ensureOk(response);
+    if (payload['items'] is! List ||
+        entityIdOf(payload['workspace_id']) != workspaceId) {
+      throw const WorkspaceApiException(502, 'Invalid attachment index');
+    }
+    final items = payload['items'] as List;
+    if (items.length > 100 || items.any((item) => !_validAttachment(item))) {
+      throw const WorkspaceApiException(502, 'Invalid attachment metadata');
+    }
+    final cursor = payload['next_cursor'];
+    if (cursor != null) {
+      final next = int.tryParse(entityIdOf(cursor));
+      final previous = int.tryParse('${filters['cursor']}');
+      if (next == null || next <= 0 || (previous != null && next >= previous)) {
+        throw const WorkspaceApiException(502, 'Invalid attachment cursor');
+      }
+    }
+    return payload;
+  }
+
+  bool _validAttachment(Object? row) {
+    if (row is! Map<String, dynamic>) return false;
+    final id = int.tryParse(entityIdOf(row['id']));
+    return id != null &&
+        id > 0 &&
+        row['name'] is String &&
+        row['size'] is num &&
+        ['group', 'channel'].contains(row['scope']) &&
+        row['scope_ref'] != null &&
+        !row.containsKey('path') &&
+        !row.containsKey('url');
+  }
+
+  Future<String> attachmentUrl(
+    EntityId workspaceId,
+    EntityId attachmentId,
+  ) async {
+    final response = await get(
+      '/api/v1/workspaces/$workspaceId/attachments/$attachmentId/open',
+    );
+    final payload = _ensureOk(response);
+    final url = payload['url'];
+    if (url is! String || url.isEmpty) {
+      throw const WorkspaceApiException(502, 'Invalid attachment URL');
+    }
+    return url;
+  }
+
   Map<String, dynamic> _ensureOk(IMBoyHttpResponse resp) {
     if (!resp.ok) {
       throw WorkspaceApiException(resp.code, resp.msg);

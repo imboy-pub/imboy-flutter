@@ -269,6 +269,13 @@ class _Translations$attachmentManager$en_US extends Translations$attachmentManag
 
 	// Translations
 	@override String get title => 'Attachments';
+	@override String get centerHint => 'Find authorized group and channel attachments in this workspace.';
+	@override String get allGroups => 'All groups';
+	@override String get allChannels => 'All channels';
+	@override String get allPeople => 'All uploaders';
+	@override String get personSearch => 'Uploader name, account or ID';
+	@override String get dateRange => 'Date range';
+	@override String get clearFilters => 'Clear filters';
 	@override String get personalTitle => 'On-device attachments';
 	@override String get enterpriseTitle => 'Enterprise attachments';
 	@override String get personalHint => 'Find attachments in local chat history. Tap a file to return to its source message.';
@@ -3507,6 +3514,13 @@ extension on TranslationsEnUs {
 			'appeal.allClearTitle' => 'All clear',
 			'appeal.allClearSubtitle' => 'No enforcement actions on you, and no appeals needed.',
 			'attachmentManager.title' => 'Attachments',
+			'attachmentManager.centerHint' => 'Find authorized group and channel attachments in this workspace.',
+			'attachmentManager.allGroups' => 'All groups',
+			'attachmentManager.allChannels' => 'All channels',
+			'attachmentManager.allPeople' => 'All uploaders',
+			'attachmentManager.personSearch' => 'Uploader name, account or ID',
+			'attachmentManager.dateRange' => 'Date range',
+			'attachmentManager.clearFilters' => 'Clear filters',
 			'attachmentManager.personalTitle' => 'On-device attachments',
 			'attachmentManager.enterpriseTitle' => 'Enterprise attachments',
 			'attachmentManager.personalHint' => 'Find attachments in local chat history. Tap a file to return to its source message.',
@@ -3853,6 +3867,8 @@ extension on TranslationsEnUs {
 			'chat.alipayLoginInterrupted' => 'Alipay sign-in was interrupted. Please try again.',
 			'chat.customImage' => 'Custom Image',
 			'chat.burnAfterReading' => 'Burn After Reading',
+			_ => null,
+		} ?? switch (path) {
 			'chat.goodReadability' => 'Good readability',
 			'chat.profileCompleteness' => 'Profile Completeness',
 			'chat.tagStatistics' => 'Tag Statistics',
@@ -3860,8 +3876,6 @@ extension on TranslationsEnUs {
 			'chat.passwordMismatch' => 'Passwords do not match',
 			'chat.pleaseTryAgainLater' => 'Please try again later',
 			'chat.historyUnavailable' => 'History messages are temporarily unavailable',
-			_ => null,
-		} ?? switch (path) {
 			'chat.historyUnavailableHint' => 'Server-side history archive is disabled or unavailable. Tap retry to re-sync',
 			'chat.momentsRecordVideo' => 'Record Video',
 			'chat.momentsVisibilityPrivate' => 'Private',
@@ -4367,6 +4381,8 @@ extension on TranslationsEnUs {
 			'common.disabled' => 'Disabled',
 			'common.fontSizeSettingUpdated' => 'Font size setting updated',
 			'common.fontSizeSetting' => 'Font Size Setting',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Font is too small and may affect reading',
 			'common.dragSliderAdjustFontSize' => 'Drag slider to adjust font size',
 			'common.personalInfo' => 'Personal Info',
@@ -4374,8 +4390,6 @@ extension on TranslationsEnUs {
 			'common.basicInfo' => 'Basic Info',
 			'common.contactInfo' => 'Contact Info',
 			'common.editTags' => 'Edit Tags',
-			_ => null,
-		} ?? switch (path) {
 			'common.quickActions' => 'Quick Actions',
 			'common.noNewFriendRequests' => 'No new friend requests for now',
 			'common.pleaseEnterVerificationMessage' => 'Please enter verification message',
@@ -4881,6 +4895,8 @@ extension on TranslationsEnUs {
 			'contact.newFriend' => 'New friends',
 			'contact.recommendToFriend' => 'Recommend to friends',
 			'contact.remark' => 'Remark',
+			_ => null,
+		} ?? switch (path) {
 			'contact.remarksTags' => 'Remarks and tags',
 			'contact.selectAGroup' => 'Select a group',
 			'contact.selectFriends' => 'Select friends',
@@ -4888,8 +4904,6 @@ extension on TranslationsEnUs {
 			'contact.suggestedTags' => 'Suggested Tags',
 			'contact.pleaseEnterRemark' => 'Please enter remark',
 			'contact.enterRemark' => 'Enter remark name',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'Please enter tags',
 			'contact.momentsVisibilityFriends' => 'Friends Only',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag length cannot exceed ${param} characters',
@@ -5395,6 +5409,8 @@ extension on TranslationsEnUs {
 			'main.zhHant' => 'Traditional Chinese',
 			'main.bound' => 'Bound',
 			'main.correct' => 'Correct',
+			_ => null,
+		} ?? switch (path) {
 			'main.pendingInput' => 'Pending input',
 			'main.lengthCheck' => 'Length check',
 			'main.bugReport' => 'Bug report',
@@ -5402,8 +5418,6 @@ extension on TranslationsEnUs {
 			'main.publish' => 'Publish',
 			'main.privacyPolicy' => 'Privacy Policy',
 			'main.termsOfService' => 'Terms of Service',
-			_ => null,
-		} ?? switch (path) {
 			'main.saving' => _root.common.loading,
 			'main.systemDefault' => 'System Default',
 			'main.gradientBlue' => 'Gradient Blue',
@@ -5909,6 +5923,8 @@ extension on TranslationsEnUs {
 			'workspace.navGroups' => 'Groups',
 			'workspace.pickerTitle' => 'My Workspaces',
 			'workspace.switchWorkspace' => 'Switch workspace',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.pickerEmptyTitle' => 'No workspace yet',
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
 			'workspace.archivedBadge' => 'Archived',
@@ -5916,8 +5932,6 @@ extension on TranslationsEnUs {
 			'workspace.dmEntry' => 'All messages',
 			'workspace.experienceModeEntry' => 'Home layout',
 			'workspace.experienceModeHint' => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'Personal',
 			'workspace.experienceModeWorkspace' => 'Workspace',
 			'workspace.experienceModeReset' => 'Restore deployment default',
