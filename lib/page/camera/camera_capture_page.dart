@@ -297,6 +297,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       child: Row(
         children: [
           IconButton(
+            key: const ValueKey('camera_close'),
             tooltip: t.common.buttonClose,
             icon: const Icon(Icons.close, color: AppColors.cameraShutterRing),
             onPressed: () => Navigator.of(context).pop(),
@@ -384,11 +385,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
           _buildModeChip(context, t.common.cameraModePhoto, !isVideo, () {
             if (_busy) return;
             setState(() => _recording = null);
-          }),
+          }, key: const ValueKey('camera_mode_photo')),
           _buildModeChip(context, t.common.cameraModeVideo, isVideo, () {
             if (_busy) return;
             setState(() => _recording = false);
-          }),
+          }, key: const ValueKey('camera_mode_video')),
         ],
       ),
     );
@@ -398,9 +399,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     BuildContext context,
     String label,
     bool active,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    Key? key,
+  }) {
     return GestureDetector(
+      key: key,
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Padding(
@@ -426,6 +429,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     final isVideoMode = _recording != null;
     final isRecording = _recording == true;
     return GestureDetector(
+      key: const ValueKey('camera_shutter'),
       onTap: isVideoMode ? _toggleRecording : _takePhoto,
       child: Container(
         width: 72,
