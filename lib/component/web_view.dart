@@ -291,16 +291,20 @@ class WebViewPageState extends State<WebViewPage> {
 
   /// `openChat` 桥动作：打开与该用户的原生聊天页，由用户亲手输入发送。
   /// peerTitle/avatar 传空——ChatPage 内部自行解析 peer 信息。
+  /// 回执语义是「已发起导航」：push 后立即返回，不等聊天页关闭——
+  /// 否则 H5 侧的回执超时（5s）必先到期。
   Future<bool> _openNativeChat(String peerId) async {
     if (!mounted) return false;
-    await Navigator.of(context).push(
-      CupertinoPageRoute<dynamic>(
-        builder: (_) => ChatPage(
-          peerId: peerId,
-          type: 'C2C',
-          peerTitle: '',
-          peerAvatar: '',
-          peerSign: '',
+    unawaited(
+      Navigator.of(context).push(
+        CupertinoPageRoute<dynamic>(
+          builder: (_) => ChatPage(
+            peerId: peerId,
+            type: 'C2C',
+            peerTitle: '',
+            peerAvatar: '',
+            peerSign: '',
+          ),
         ),
       ),
     );
