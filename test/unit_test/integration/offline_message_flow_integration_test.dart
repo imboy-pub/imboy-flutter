@@ -8,7 +8,15 @@
 /// 5. 网络错误处理
 library;
 
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -22,6 +30,83 @@ import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
+
+class _EmptyOfflineAdapter implements HttpClientAdapter {
+  int requests = 0;
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    expect(options.path, API.msgOffline);
+    requests++;
+    return ResponseBody.fromString(
+      jsonEncode({
+        'code': 0,
+        'payload': {
+          'c2c': {'list': <Map<String, dynamic>>[], 'has_more': false},
+        },
+      }),
+      200,
+      headers: {
+        'content-type': ['application/json'],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+Future<void> _expectEventPull(
+  MessageOfflineService service, {
+  bool initializeTwice = false,
+  bool disposed = false,
+}) async {
+  final previousFeatures = AppFeatureRegistry.snapshot;
+  AppFeatureRegistry.replaceSnapshotForTest({
+    ...previousFeatures,
+    'e2ee': false,
+  });
+  final adapter = _EmptyOfflineAdapter();
+  String encode(Object value) =>
+      base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+  FlutterSecureStorage.setMockInitialValues({
+    'secure_token':
+        '${encode({'alg': 'none'})}.${encode({'exp': 4102444800, 'uid': 995011})}.test',
+  });
+  HttpClient.adapterForTest = adapter;
+  serviceContainer.put(HttpClient());
+  try {
+    if (initializeTwice) service.onInit();
+    if (disposed) service.onDispose();
+    Future<void> dispatch() async {
+      AppEventBus.fire(
+        OfflineMessagesPullRequestedEvent(source: 'offline_event_contract'),
+      );
+      final deadline = DateTime.now().add(const Duration(seconds: 5));
+      do {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      } while (!disposed &&
+          service.getPullStats()['in_flight'] == true &&
+          DateTime.now().isBefore(deadline));
+    }
+
+    await dispatch();
+    expect(adapter.requests, disposed ? 0 : 1);
+    expect(service.getPullStats()['succeeded_total'], disposed ? 0 : 1);
+    expect(service.getPullStats()['failed_total'], 0);
+    if (!disposed) {
+      expect(service.getPullStats()['last_source'], 'offline_event_contract');
+    }
+  } finally {
+    service.onDispose();
+    HttpClient.adapterForTest = null;
+    serviceContainer.clear();
+    AppFeatureRegistry.replaceSnapshotForTest(previousFeatures);
+  }
+}
 
 void main() {
   group('离线消息处理流程集成测试', () {
@@ -77,40 +162,14 @@ void main() {
     });
 
     group('离线消息拉取请求', () {
-      test('应该能够触发离线消息拉取', () async {
-        bool pullRequested = false;
+      test('拉取事件实际发出请求并完成空批次', () async {
+        await _expectEventPull(offlineService);
+        expect(await db.query('msg_c2c'), isEmpty);
+      });
 
-        // 模拟触发拉取
-        try {
-          // 通过事件总线触发拉取
-          AppEventBus.fire(
-            OfflineMessagesPullRequestedEvent(source: 'test_trigger'),
-          );
-
-          // 等待事件传播
-          await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-          // 验证事件已触发（实际环境中会执行拉取）
-          pullRequested = true;
-        } catch (e) {
-          // 忽略错误，只验证事件触发机制
-        }
-
-        expect(pullRequested, true);
-      }, skip: '需要 EasyLoading 和 HttpClient 初始化');
-
-      test('应该能够通过事件总线触发拉取', () async {
-        // 触发拉取请求
-        AppEventBus.fire(
-          OfflineMessagesPullRequestedEvent(source: 'test_event_bus'),
-        );
-
-        // 等待事件传播
-        await Future<dynamic>.delayed(const Duration(milliseconds: 200));
-
-        // 验证事件触发成功
-        expect(true, true);
-      }, skip: '需要 EasyLoading 和 HttpClient 初始化');
+      test('重复初始化不重复订阅拉取事件', () async {
+        await _expectEventPull(offlineService, initializeTwice: true);
+      });
     });
 
     group('消息批量处理', () {
@@ -482,18 +541,9 @@ void main() {
     });
 
     group('与事件总线集成', () {
-      test('应该在收到拉取请求时触发处理', () async {
-        // 触发拉取请求
-        AppEventBus.fire(
-          OfflineMessagesPullRequestedEvent(source: 'test_integration'),
-        );
-
-        // 等待事件传播
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-        // 验证事件触发成功
-        expect(true, true);
-      }, skip: '需要 EasyLoading 和 HttpClient 初始化');
+      test('释放服务后拉取事件不再发出请求', () async {
+        await _expectEventPull(offlineService, disposed: true);
+      });
     });
 
     group('批量处理性能', () {
