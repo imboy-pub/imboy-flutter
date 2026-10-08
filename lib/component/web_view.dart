@@ -208,10 +208,10 @@ class WebViewPageState extends State<WebViewPage> {
           onPageFinished: (String url) {
             AppLoading.dismiss();
             if (title.isEmpty && _controller != null) {
-              _controller!.getTitle().then((title) {
-                if (title != null) {
+              _controller!.getTitle().then((fetched) {
+                if (fetched != null && fetched.isNotEmpty) {
                   setState(() {
-                    title = title;
+                    title = fetched;
                   });
                 }
               });
