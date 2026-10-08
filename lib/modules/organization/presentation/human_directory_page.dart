@@ -20,15 +20,13 @@ library;
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart'
-    show
-        CupertinoIcons,
-        CupertinoSearchTextField,
-        CupertinoSlidingSegmentedControl;
+    show CupertinoIcons, CupertinoPageRoute, CupertinoSearchTextField;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
@@ -98,8 +96,6 @@ class _HumanDirectoryBrowserPageState
 
   final TextEditingController _searchCtrl = TextEditingController();
   Timer? _searchDebounce;
-  bool _chart = false;
-  bool _chartVisited = false;
 
   /// 当前展示的企业名（切换成功后更新；orgName 仅初始种子）。
   late String _orgName;
@@ -408,110 +404,35 @@ class _HumanDirectoryBrowserPageState
         body: Column(
           children: [
             Padding(
-              padding: AppSpacing.allRegular,
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: AppSpacing.xxxLarge * 8,
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: CupertinoSlidingSegmentedControl<bool>(
-                      key: const ValueKey('org-directory-view-switcher'),
-                      groupValue: _chart,
-                      children: {
-                        false: SizedBox(
-                          height: 44,
-                          child: Center(
-                            child: Text(
-                              t.organization.directory.membersSection,
-                            ),
-                          ),
-                        ),
-                        true: SizedBox(
-                          height: 44,
-                          child: Center(
-                            child: Text(
-                              t.organization.directory.structureSection,
-                            ),
-                          ),
-                        ),
-                      },
-                      onValueChanged: (value) {
-                        if (value == null || value == _chart) return;
-                        _clearSearch();
-                        _controller.setQuery('');
-                        setState(() {
-                          _chart = value;
-                          _chartVisited |= value;
-                        });
-                      },
-                    ),
-                  ),
-                ),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.regular,
+                AppSpacing.medium,
+                AppSpacing.regular,
+                AppSpacing.small,
+              ),
+              child: CupertinoSearchTextField(
+                key: const Key('org_directory_search_input'),
+                controller: _searchCtrl,
+                onChanged: _onSearchChanged,
+                placeholder: t.organization.directory.searchHint,
               ),
             ),
-            if (!_chart)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.regular,
-                  AppSpacing.medium,
-                  AppSpacing.regular,
-                  AppSpacing.small,
-                ),
-                child: CupertinoSearchTextField(
-                  key: const Key('org_directory_search_input'),
-                  controller: _searchCtrl,
-                  onChanged: _onSearchChanged,
-                  placeholder: t.organization.directory.searchHint,
-                ),
+            // 「组织架构」入口行为页面级固定行（企业微信式：低频治理视图
+            // 从首屏分段降级为入口行 → 二级页）。不放进列表：目录加载失败/
+            // 错误态下列表整体被错误视图替换，而架构图有独立数据源，入口
+            // 必须保持可达。仅企业根展示。
+            if (isRoot) ...[
+              _orgChartEntryRow(context),
+              const Divider(
+                height: 0.5,
+                indent: AppSpacing.regular,
+                endIndent: AppSpacing.regular,
               ),
+            ],
             Expanded(
               child: AnimatedBuilder(
                 animation: _controller,
-                builder: (context, _) {
-                  if (_controller.phase == HumanDirectoryPhase.error) {
-                    return _buildBody(context, isRoot);
-                  }
-                  return IndexedStack(
-                    index: _chart ? 1 : 0,
-                    children: [
-                      _buildBody(context, isRoot),
-                      if (_chartVisited)
-                        OrganizationChart(
-                          key: ValueKey(
-                            'organization-chart-$_accountKey-${_controller.identity?.organizationId ?? widget.orgId}',
-                          ),
-                          accountKey: _accountKey,
-                          organizationId:
-                              _controller.identity?.organizationId ??
-                              widget.orgId,
-                          organizationName: _orgName,
-                          source: widget.dataSource ?? _orgApi,
-                          onAccessDenied: _controller.rejectAccess,
-                          onOpenDepartment: (path) {
-                            if (path.isEmpty) return;
-                            _clearSearch();
-                            setState(() {
-                              _chart = false;
-                              _levels = [
-                                _DirectoryLevel(name: _orgName),
-                                for (final department in path)
-                                  _DirectoryLevel(
-                                    departmentId: department.id,
-                                    name: department.name,
-                                  ),
-                              ];
-                            });
-                            _controller.setQuery('');
-                            _controller.openDepartment(path.last.id);
-                          },
-                        )
-                      else
-                        const SizedBox.shrink(),
-                    ],
-                  );
-                },
+                builder: (context, _) => _buildBody(context, isRoot),
               ),
             ),
           ],
@@ -566,8 +487,13 @@ class _HumanDirectoryBrowserPageState
       // 「我的部门」捷径（/me；仅企业根展示，失败/为空即收起）。
       if (isRoot && c.myDepartments.isNotEmpty) ...[
         _sectionHeader(context, t.organization.directory.myDepartmentsSection),
-        for (final d in c.myDepartments)
-          _departmentRow(context, d, keySuffix: 'mine'),
+        for (var i = 0; i < c.myDepartments.length; i++)
+          _departmentRow(
+            context,
+            c.myDepartments[i],
+            keySuffix: 'mine',
+            isLast: i == c.myDepartments.length - 1,
+          ),
         AppSpacing.verticalSmall,
       ],
       _sectionHeader(context, t.organization.directory.deptSection),
@@ -576,6 +502,7 @@ class _HumanDirectoryBrowserPageState
           context,
           depts.items[i],
           triggerLoadMore: i == depts.items.length - 1,
+          isLast: i == depts.items.length - 1,
         ),
       _sectionFooter(
         context,
@@ -583,6 +510,9 @@ class _HumanDirectoryBrowserPageState
         error: depts.error,
         emptyText: t.organization.directory.emptyDepartments,
         onRetry: () => c.retrySection(HumanDirectorySectionKind.departments),
+        // 空分区不渲染「暂无子部门」——原实现把这句顶在最后一行下面，
+        // 观感像上一行的副标题（DESIGN.md 一致性/清晰度审查结论）。
+        showEmptyText: false,
       ),
     ];
   }
@@ -598,6 +528,7 @@ class _HumanDirectoryBrowserPageState
           context,
           members.items[i],
           triggerLoadMore: i == members.items.length - 1,
+          isLast: i == members.items.length - 1,
         ),
       _sectionFooter(
         context,
@@ -605,25 +536,107 @@ class _HumanDirectoryBrowserPageState
         error: members.error,
         emptyText: t.organization.directory.emptyMembers,
         onRetry: () => c.retrySection(HumanDirectorySectionKind.members),
+        showEmptyText: false,
       ),
       AppSpacing.verticalSmall,
     ];
   }
 
+  // ---- 组织架构入口行 + 二级页（企业微信式信息架构） ----
+
+  Widget _orgChartEntryRow(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ImBoyListTile(
+      key: const ValueKey('org-directory-chart-entry'),
+      onTap: _openOrganizationChart,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
+      leading: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.cell),
+          color: AppColors.primaryAlpha10,
+        ),
+        child: const Icon(
+          CupertinoIcons.person_3_fill,
+          size: 24,
+          color: AppColors.primary,
+        ),
+      ),
+      title: Text(
+        context.t.organization.directory.structureSection,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Icon(
+        CupertinoIcons.chevron_right,
+        size: 16,
+        color: isDark ? AppColors.iosGray3Dark : AppColors.iosGray3,
+      ),
+    );
+  }
+
+  /// 打开组织架构二级页；从图中点部门时 pop 回传路径，本页下钻到该部门
+  /// （保留原分段模式下 onOpenDepartment 的交互能力）。
+  Future<void> _openOrganizationChart() async {
+    final account = _accountKey;
+    final path = await Navigator.of(context)
+        .push<List<HumanDirectoryDepartment>>(
+          CupertinoPageRoute<List<HumanDirectoryDepartment>>(
+            builder: (_) => OrganizationChartPage(
+              accountKey: account,
+              organizationId:
+                  _controller.identity?.organizationId ?? widget.orgId,
+              organizationName: _orgName,
+              source: widget.dataSource ?? _orgApi,
+              onAccessDenied: _controller.rejectAccess,
+            ),
+          ),
+        );
+    if (path == null || path.isEmpty || !mounted) return;
+    _clearSearch();
+    setState(() {
+      _levels = [
+        _DirectoryLevel(name: _orgName),
+        for (final department in path)
+          _DirectoryLevel(departmentId: department.id, name: department.name),
+      ];
+    });
+    _controller.setQuery('');
+    _controller.openDepartment(path.last.id);
+  }
+
   Widget _sectionHeader(BuildContext context, String label) {
-    final theme = Theme.of(context);
     return Padding(
       key: ValueKey('org-dir-section-$label'),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.regular,
         vertical: AppSpacing.small,
       ),
+      // footnote 13pt + 次级灰（DESIGN.md 8.3 B）；原品牌蓝是 Material 风格。
       child: Text(
         label,
-        style: theme.textTheme.labelMedium?.copyWith(
-          color: AppColors.primary,
+        style: context.textStyle(
+          FontSizeType.footnote,
           fontWeight: FontWeight.w600,
+          color: AppColors.iosGray,
         ),
+      ),
+    );
+  }
+
+  /// 行尾分隔线：左 16(页面 padding) + 44(leading) + 12(间距) = 72，
+  /// 与文字左缘对齐（DESIGN.md 8.3 A；推导基数同 ImBoyListTile 注释）。
+  Widget _rowDivider(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return Padding(
+      padding: const EdgeInsets.only(left: 72),
+      child: Divider(
+        height: 0.5,
+        color: AppColors.getIosSeparator(brightness).withValues(alpha: 0.4),
       ),
     );
   }
@@ -633,43 +646,47 @@ class _HumanDirectoryBrowserPageState
     HumanDirectoryDepartment d, {
     String keySuffix = 'list',
     bool triggerLoadMore = false,
+    bool isLast = false,
   }) {
     final t = context.t;
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (triggerLoadMore) {
       _scheduleLoadMore(_controller.loadMoreDepartments);
     }
-    return ListTile(
+    return Column(
       key: ValueKey('org-dir-dept-$keySuffix-${d.id}'),
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-      ),
-      leading: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppRadius.cell),
-          color: AppColors.primaryAlpha10,
+      children: [
+        ImBoyListTile(
+          onTap: () => _openDepartment(d),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
+          leading: Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadius.cell),
+              color: AppColors.primaryAlpha10,
+            ),
+            child: const Icon(
+              CupertinoIcons.folder_fill,
+              size: 24,
+              color: AppColors.primary,
+            ),
+          ),
+          title: Text(d.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(
+            t.organization.directory.memberCountWith(count: d.memberCount),
+          ),
+          trailing: Icon(
+            CupertinoIcons.chevron_right,
+            size: 16,
+            color: isDark ? AppColors.iosGray3Dark : AppColors.iosGray3,
+          ),
         ),
-        child: const Icon(
-          CupertinoIcons.folder_fill,
-          size: 18,
-          color: AppColors.primary,
-        ),
-      ),
-      title: Text(
-        d.name,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.bodyLarge,
-      ),
-      subtitle: Text(
-        t.organization.directory.memberCountWith(count: d.memberCount),
-        style: theme.textTheme.bodySmall,
-      ),
-      trailing: const Icon(CupertinoIcons.chevron_right, size: 14),
-      onTap: () => _openDepartment(d),
+        if (!isLast) _rowDivider(context),
+      ],
     );
   }
 
@@ -677,26 +694,35 @@ class _HumanDirectoryBrowserPageState
     BuildContext context,
     HumanDirectoryMember m, {
     bool triggerLoadMore = false,
+    bool isLast = false,
   }) {
-    final theme = Theme.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (triggerLoadMore) {
       _scheduleLoadMore(_controller.loadMoreMembers);
     }
-    return ListTile(
+    return Column(
       key: ValueKey('org-dir-member-${m.userId}'),
-      dense: true,
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-      ),
-      leading: Avatar(imgUri: m.avatar, width: 36, height: 36),
-      title: Text(
-        m.displayName,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.bodyLarge,
-      ),
-      trailing: const Icon(CupertinoIcons.chevron_right, size: 14),
-      onTap: () => _openMemberDetail(m),
+      children: [
+        ImBoyListTile(
+          onTap: () => _openMemberDetail(m),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
+          leading: Avatar(imgUri: m.avatar, width: 44, height: 44),
+          title: Text(
+            m.displayName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: Icon(
+            CupertinoIcons.chevron_right,
+            size: 16,
+            color: isDark ? AppColors.iosGray3Dark : AppColors.iosGray3,
+          ),
+        ),
+        if (!isLast) _rowDivider(context),
+      ],
     );
   }
 
@@ -706,6 +732,7 @@ class _HumanDirectoryBrowserPageState
     required String? error,
     required String emptyText,
     required VoidCallback onRetry,
+    bool showEmptyText = true,
   }) {
     final t = context.t;
     final theme = Theme.of(context);
@@ -744,6 +771,7 @@ class _HumanDirectoryBrowserPageState
         ),
       );
     }
+    if (!showEmptyText) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: Text(emptyText, style: theme.textTheme.bodySmall),
@@ -765,6 +793,7 @@ class _HumanDirectoryBrowserPageState
             context,
             s.items[i],
             triggerLoadMore: i == s.items.length - 1,
+            isLast: i == s.items.length - 1,
           ),
         _sectionFooter(
           context,
@@ -781,21 +810,28 @@ class _HumanDirectoryBrowserPageState
     BuildContext context,
     HumanDirectorySearchItem item, {
     bool triggerLoadMore = false,
+    bool isLast = false,
   }) {
     if (triggerLoadMore) {
       _scheduleLoadMore(_controller.loadMoreSearch);
     }
     if (item.isDepartment && item.department != null) {
-      return _departmentRow(context, item.department!);
+      return _departmentRow(context, item.department!, isLast: isLast);
     }
     if (item.isMember && item.member != null) {
-      return _memberRow(context, item.member!);
+      return _memberRow(context, item.member!, isLast: isLast);
     }
-    // 未知 type：原样保留展示，不臆造语义（ORG-A13）。
-    final theme = Theme.of(context);
-    return ListTile(
-      dense: true,
-      title: Text(item.type, style: theme.textTheme.bodySmall),
+    // 未知 type：原样保留展示，不臆造语义（ORG-A13）。纯文本占位行，
+    // 不用 ListTile（DESIGN.md 13.2 禁 Material 风格 cell）。
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
+      child: Text(
+        item.type,
+        style: context.textStyle(FontSizeType.normal, color: AppColors.iosGray),
+      ),
     );
   }
 
@@ -804,5 +840,44 @@ class _HumanDirectoryBrowserPageState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) loadMore();
     });
+  }
+}
+
+/// 组织架构全屏二级页（企业微信式：从通讯录入口行进入）。
+///
+/// 顶栏走 [IosPageTemplate]（毛玻璃 + 0.33pt 分隔线 + 17pt w600 标题，
+/// DESIGN.md 8.1），与全 App 导航栏形态一致。
+/// 图中点部门 → pop 回传部门路径，由 [HumanDirectoryBrowserPage] 下钻。
+class OrganizationChartPage extends StatelessWidget {
+  const OrganizationChartPage({
+    super.key,
+    required this.accountKey,
+    required this.organizationId,
+    required this.organizationName,
+    required this.source,
+    this.onAccessDenied,
+  });
+
+  final String accountKey;
+  final EntityId organizationId;
+  final String organizationName;
+  final HumanDirectoryDataSource source;
+  final ValueChanged<OrganizationApiException>? onAccessDenied;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    return IosPageTemplate(
+      title: t.organization.directory.structureSection,
+      body: OrganizationChart(
+        key: ValueKey('organization-chart-$accountKey-$organizationId'),
+        accountKey: accountKey,
+        organizationId: organizationId,
+        organizationName: organizationName,
+        source: source,
+        onAccessDenied: onAccessDenied,
+        onOpenDepartment: (path) => Navigator.of(context).pop(path),
+      ),
+    );
   }
 }

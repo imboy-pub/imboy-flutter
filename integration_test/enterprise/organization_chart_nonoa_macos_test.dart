@@ -220,15 +220,15 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
+    // 企业微信式：组织架构从首屏分段降级为页面级入口行（→ 全屏二级页）。
+    expect(find.byKey(const Key('org-directory-chart-entry')), findsOneWidget);
     expect(
-      find.byKey(const Key('org-directory-view-switcher')),
+      find.text(t.organization.directory.structureSection),
       findsOneWidget,
     );
-    expect(find.text(t.organization.directory.membersSection), findsWidgets);
-    expect(find.text(t.organization.directory.structureSection), findsWidgets);
     await markShot(tester, 'n2_a01_directory_members_view');
 
-    // 切到「组织架构」图形视图。
+    // 「组织架构」入口行 → 二级页图形视图。
     await tester.tap(find.text(t.organization.directory.structureSection));
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 400));
@@ -281,11 +281,24 @@ void main() {
     debugPrint('NATIVE_N2_A01_PASS');
 
     // ============================ N2-A02 ============================
+    // A01 点图中部门已 pop 回目录页；重新进入组织架构二级页。
     await tester.tap(find.text(t.organization.directory.structureSection));
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 400));
-    // 图在同页 keep-alive：A01 已展开的子树仍在。
+    // 二级页每次进入重新拉取授权快照（不保留上个实例的展开态，与
+    // 「撤权后不得恢复旧节点」的安全模型一致）——重新展开两层恢复现场，
+    // 供 A04 宽树用例继续使用。
+    await waitFor(tester, find.byKey(Key('org-chart-node-${ids['sales']}')));
+    await tapChartControl(
+      tester,
+      find.byKey(Key('org-chart-expand-${ids['sales']}')),
+    );
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['gz']}')));
+    await tapChartControl(
+      tester,
+      find.byKey(Key('org-chart-expand-${ids['tech']}')),
+    );
+    await waitFor(tester, find.byKey(Key('org-chart-node-${ids['platform']}')));
 
     Matrix4 matrix() => tester
         .widget<InteractiveViewer>(
@@ -439,7 +452,7 @@ void main() {
     for (final probe in ['专项测试组01', '专项测试组30', '专项测试组52']) {
       await waitFor(tester, find.text(probe));
     }
-    // 三层深：技术中心 → 平台架构组（A01 已展开，keep-alive 保留）→ 存储小组。
+    // 三层深：技术中心 → 平台架构组（A02 进入时已重新展开）→ 存储小组。
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['platform']}')));
     await tapChartControl(
       tester,

@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/human_directory_models.dart';
 import 'package:imboy/modules/organization/infrastructure/human_directory_api.dart';
@@ -316,12 +317,17 @@ void main({bool realTime = false}) {
     );
     src.resolveDepartments(items: _defaultDepts);
     await tester.pumpAndSettle();
+    // 组织架构入口行 → 二级页（企业微信式，替代原首屏分段）。
+    // 转场用固定时长 pump（不 settle）：图表请求挂起时加载态常转，
+    // pumpAndSettle 会超时——与原分段版测试的单帧 pump 同理。
     await tester.tap(find.text(t.organization.directory.structureSection));
-    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 350));
     src.resolveDepartments(items: _defaultDepts);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('org-chart-node-$dept1')), findsOneWidget);
-    await tester.tap(find.text(t.organization.directory.membersSection).first);
+    // 返回目录页（原「切回成员」分段）。pageBack() 只认 Material Back /
+    // CupertinoNavigationBarBackButton，IosPageTemplate 用的是 GlassBackButton。
+    await tester.tap(find.byType(GlassBackButton));
     await tester.pumpAndSettle();
     final refresh = tester
         .widget<RefreshIndicator>(find.byType(RefreshIndicator))
@@ -332,10 +338,18 @@ void main({bool realTime = false}) {
     );
     await refresh;
     await tester.pumpAndSettle();
+    // 目录进入错误态，但组织架构入口是页面级固定行，仍可达（架构图
+    // 有独立数据源，不随目录失败失效）。
+    expect(find.textContaining('权限已收回'), findsOneWidget);
     await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.pump(const Duration(milliseconds: 350));
+    // 二级页是新 OrganizationChart 实例（原分段模式复用 IndexedStack
+    // 旧实例不重拉）——它的拉取同样以 403 完成：撤权后重拉不得复活旧节点。
+    src._pendingDepartments.last.completeError(
+      const OrganizationApiException(403, '权限已收回'),
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('org-chart-node-$dept1')), findsNothing);
-    expect(find.textContaining('权限已收回'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'package:imboy/main.dart' as app;
+import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/init.dart' show AppInitializer;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
@@ -141,8 +142,9 @@ void main() {
     await waitFor(tester, find.text(_orgCName));
     expect(find.byKey(const ValueKey('org-chart-canvas')), findsOneWidget);
     expect(find.text(_orgAName), findsNothing);
-    // 互切检查不能代替上述重新读取。
-    await tester.tap(find.text(t.organization.directory.membersSection));
+    // 互切检查不能代替上述重新读取（组织架构现为二级页：返回目录再进入；
+    // pageBack() 不认 GlassBackButton，显式 tap）。
+    await tester.tap(find.byType(GlassBackButton));
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
     await tester.tap(find.text(t.organization.directory.structureSection));
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
@@ -268,11 +270,12 @@ void main() {
       );
       // 旧部门数据不再次出现（拒绝态文案由 App 异常层本地化，非 oracle）。
       expect(find.text(_orgAOnlyDept), findsNothing);
-      // 切回成员视图再回图：旧数据不因视图切换而复活。
-      await tester.tap(find.text(t.organization.directory.membersSection));
+      // 切回成员视图再回图：旧数据不因视图切换而复活（组织架构现为
+      // 二级页：返回目录再进入；重进重新拉取，等待 403 落定再断言）。
+      await tester.tap(find.byType(GlassBackButton));
       await tester.pump(const Duration(milliseconds: 500));
       await tester.tap(find.text(t.organization.directory.structureSection));
-      await tester.pump(const Duration(milliseconds: 1200));
+      await waitForChartIdle(tester);
       expect(
         find.byKey(const ValueKey('org-chart-canvas')),
         findsNothing,
