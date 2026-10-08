@@ -64,34 +64,40 @@ class _CsWorkspaceEntryTileState extends State<CsWorkspaceEntryTile> {
     if (_visible == null || _visible == false) {
       return const SizedBox.shrink();
     }
-    return ListTile(
-      leading: Container(
-        width: 29,
-        height: 29,
-        decoration: BoxDecoration(
-          color: AppColors.iosSkyBlue,
-          borderRadius: BorderRadius.circular(7.2),
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        leading: Container(
+          width: 29,
+          height: 29,
+          decoration: BoxDecoration(
+            color: AppColors.iosSkyBlue,
+            borderRadius: BorderRadius.circular(7.2),
+          ),
+          child: const Icon(
+            CupertinoIcons.chat_bubble_2_fill,
+            color: AppColors.onPrimary,
+            size: 19,
+          ),
         ),
-        child: const Icon(
-          CupertinoIcons.chat_bubble_2_fill,
-          color: AppColors.onPrimary,
-          size: 19,
+        title: Text(
+          t.entryTitle,
+          style: context.textStyle(FontSizeType.normal),
         ),
-      ),
-      title: Text(t.entryTitle, style: context.textStyle(FontSizeType.normal)),
-      subtitle: Text(
-        t.entrySubtitle,
-        style: context.textStyle(
-          FontSizeType.footnote,
-          color: AppColors.iosGray,
+        subtitle: Text(
+          t.entrySubtitle,
+          style: context.textStyle(
+            FontSizeType.footnote,
+            color: AppColors.iosGray,
+          ),
         ),
+        trailing: const Icon(
+          CupertinoIcons.chevron_right,
+          size: 14,
+          color: AppColors.iosGray3,
+        ),
+        onTap: () => context.push(kCsWorkspacePath),
       ),
-      trailing: const Icon(
-        CupertinoIcons.chevron_right,
-        size: 14,
-        color: AppColors.iosGray3,
-      ),
-      onTap: () => context.push(kCsWorkspacePath),
     );
   }
 }

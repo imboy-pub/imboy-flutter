@@ -1,5 +1,12 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +32,37 @@ import 'package:imboy/service/storage.dart';
 ///
 /// 不验证 channel feature flag 菜单（依赖 AppFeatureRegistry snapshot 状态，
 /// 默认未配置时行为不确定，留 manual QA / 集成测试覆盖）。
+class _EligibleSeatAdapter implements HttpClientAdapter {
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(
+      jsonEncode({
+        'code': 0,
+        'payload': {
+          'contexts': [
+            {
+              'organization_id': '7266418340025468901',
+              'business_identity_id': '7266418340025468902',
+              'seat_enabled': true,
+            },
+          ],
+        },
+      }),
+      200,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 GoRouter _stubRouter({bool enterprise = false}) {
   // 所有菜单跳转目标都用 stub 接住，避免 context.push 抛 'no route' 错
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
@@ -36,6 +74,7 @@ GoRouter _stubRouter({bool enterprise = false}) {
         builder: (_, _) => MinePage(enterprise: enterprise),
       ),
       GoRoute(path: '/wallet', builder: (_, _) => stub('wallet stub')),
+      GoRoute(path: kCsWorkspacePath, builder: (_, _) => stub('客服工作台目标')),
       GoRoute(path: '/favorites', builder: (_, _) => stub('favorites stub')),
       GoRoute(path: '/storage_space', builder: (_, _) => stub('storage stub')),
       GoRoute(path: '/devices', builder: (_, _) => stub('devices stub')),
@@ -224,6 +263,39 @@ void main() {
         findsNothing,
         reason: '无合格坐席上下文时仍隐藏，模式切换不能绕过权限',
       );
+    });
+  }
+
+  for (final enterprise in [false, true]) {
+    testWidgets('合格坐席 enterprise=$enterprise 入口可见且可打开', (tester) async {
+      const secureChannel = MethodChannel(
+        'plugins.it_nomads.com/flutter_secure_storage',
+      );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            secureChannel,
+            (call) async =>
+                call.method == 'readAll' ? <String, String>{} : null,
+          );
+      addTearDown(
+        () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, null),
+      );
+      HttpClient.adapterForTest = _EligibleSeatAdapter();
+      addTearDown(() => HttpClient.adapterForTest = null);
+      await tester.runAsync(() async {
+        await CsApi().seatContexts();
+      });
+      await _pumpMine(tester, enterprise: enterprise);
+      await tester.runAsync(() async {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pumpAndSettle();
+      expect(find.text('客服工作台'), findsOneWidget);
+      await tester.ensureVisible(find.text('客服工作台'));
+      await tester.tap(find.text('客服工作台'));
+      await tester.pumpAndSettle();
+      expect(find.text('客服工作台目标'), findsOneWidget);
     });
   }
 
