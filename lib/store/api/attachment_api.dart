@@ -12,7 +12,7 @@ import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
-import 'package:mime/mime.dart';
+import 'package:imboy/component/upload/upload_mime.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/e2ee/attachment_descriptor.dart';
@@ -304,7 +304,7 @@ class AttachmentApi {
         throw Exception('uploadFileViaPresignCompat: 文件路径为空');
       }
       final Uint8List bytes = await File(path).readAsBytes();
-      final String mime = lookupMimeType(path) ?? 'application/octet-stream';
+      final String mime = resolveUploadMime(path, bytes);
       final String ext = path.contains('.')
           ? path.substring(path.lastIndexOf('.') + 1)
           : 'bin';
@@ -359,8 +359,7 @@ class AttachmentApi {
           : 'png';
       if (ext.isEmpty) ext = 'png';
       final String fileName = '${Xid().toString()}.$ext';
-      final String mime =
-          lookupMimeType(fileName) ?? 'application/octet-stream';
+      final String mime = resolveUploadMime(fileName, file);
       final meta = await uploadBytesViaPresignMeta(
         file,
         fileName,
