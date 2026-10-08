@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/routes.dart';
 
@@ -89,7 +90,7 @@ void main() {
       expect(AppFeatureRegistry.isEnabled(FeatureKeys.channel), isTrue);
       expect(
         AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation),
-        isTrue,
+        compiledProductFeatures.contains(FeatureKeys.channelInvitation),
       );
       expect(AppFeatureRegistry.isEnabled(FeatureKeys.moment), isTrue);
       expect(AppFeatureRegistry.isEnabled(FeatureKeys.groupVote), isTrue);
@@ -157,7 +158,9 @@ void main() {
           isLoggedIn: true,
           currentPath: '/channel/invitations',
         ),
-        isNull,
+        compiledProductFeatures.contains(FeatureKeys.channelInvitation)
+            ? isNull
+            : equals('/bottom_navigation'),
       );
       expect(
         RouteFeatureGuard.redirectPath(

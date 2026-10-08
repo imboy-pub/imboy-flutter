@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/router/generated_product_feature_routes.dart';
 
@@ -32,12 +33,27 @@ void main() {
         'group_task_detail',
         'channel_list',
         'qrcode_channel',
-        'channel_discover',
-        'channel_invitations',
-        'channel_orders',
-        'channel_order_detail',
+        if (compiledProductFeatures.contains('channel_discover'))
+          'channel_discover',
+        if (compiledProductFeatures.contains('channel_invitation'))
+          'channel_invitations',
+        if (compiledProductFeatures.contains('channel_order')) ...{
+          'channel_orders',
+          'channel_order_detail',
+        },
       }),
     );
+    for (final entry in <String, Set<String>>{
+      'channel_discover': {'channel_discover'},
+      'channel_invitation': {'channel_invitations'},
+      'channel_order': {'channel_orders', 'channel_order_detail'},
+    }.entries) {
+      if (!compiledProductFeatures.contains(entry.key)) {
+        for (final name in entry.value) {
+          expect(names, isNot(contains(name)));
+        }
+      }
+    }
   });
 
   group('RouteFeatureGuard.appEntryForPath', () {
@@ -284,7 +300,9 @@ void main() {
       for (final path in projectPaths) {
         expect(
           RouteFeatureGuard.redirectPath(isLoggedIn: true, currentPath: path),
-          isNull,
+          compiledProductFeatures.contains('project')
+              ? isNull
+              : equals('/bottom_navigation'),
           reason: '被误拦：$path',
         );
       }
