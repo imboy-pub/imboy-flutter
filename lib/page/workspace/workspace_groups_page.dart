@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
@@ -57,6 +58,22 @@ class WorkspaceGroupsPage extends ConsumerWidget {
         onRetry: () => ref.invalidate(workspaceGroupsProvider(wsId)),
       ),
       data: (list) => _GroupList(groups: list, openFiles: openFiles),
+    );
+  }
+}
+
+/// 独立推入形态：嵌入式 [WorkspaceGroupsPage] 无自带 Scaffold（容器由壳
+/// Tab 提供），从消息空态 CTA 等入口推入时经本页用 IosPageTemplate 承载。
+/// 数据语义仍是"本账号已加入的本工作区群"（scope=workspace 创建后不可
+/// 变），不跨域到个人模式的平台公开群发现页。
+class WorkspaceGroupsStandalonePage extends ConsumerWidget {
+  const WorkspaceGroupsStandalonePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return IosPageTemplate(
+      title: t.workspace.navGroups,
+      body: const WorkspaceGroupsPage(),
     );
   }
 }

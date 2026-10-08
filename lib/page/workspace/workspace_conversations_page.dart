@@ -13,6 +13,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_avatar_cache.dart'
     show defaultGroupAvatarLoader;
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart'
+    show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_account_menu.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
@@ -270,14 +272,20 @@ class _WorkspaceConversationsPageState
       // 空态引导动作（企微/飞书惯例）：列表为空时给出下一步去向；
       // 搜索无结果时不需要。按钮走项目统一的 RoundedCupertinoButton
       // 次级样式（brand 描边），不用 Material tonal（DESIGN.md 8.4）。
+      // 目标限定本工作区群组（T5 双体验：群 scope=workspace）——发现
+      // 语义按模式分区：个人模式才暴露平台公开群发现页（/group/discover）。
       actions: searching
           ? const []
           : [
               RoundedCupertinoButton(
-                text: t.groupDiscovery.title,
+                text: t.workspace.navGroups,
                 highlighted: false,
-                icon: CupertinoIcons.search,
-                onPressed: () => context.push('/group/discover'),
+                icon: CupertinoIcons.person_2,
+                onPressed: () => Navigator.of(context).push(
+                  CupertinoPageRoute<void>(
+                    builder: (_) => const WorkspaceGroupsStandalonePage(),
+                  ),
+                ),
               ),
             ],
     );

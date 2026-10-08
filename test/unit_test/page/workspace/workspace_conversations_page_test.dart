@@ -6,11 +6,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/button.dart' show RoundedCupertinoButton;
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart'
+    show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -43,6 +47,9 @@ class _Api extends WorkspaceApi {
     pending.add(reply);
     return reply.future;
   }
+
+  @override
+  Future<List<GroupModel>> memberGroups(EntityId workspaceId) async => [];
 }
 
 void _select(ProviderContainer container, String id) => container
@@ -205,6 +212,28 @@ void main() {
       await tester.pump();
       expect(find.text('access revoked'), findsOneWidget);
       expect(find.text('workspace B'), findsNothing);
+      await _disposePage(tester);
+    },
+  );
+
+  testWidgets(
+    'empty state CTA opens the scoped workspace groups page, not platform discovery',
+    (tester) async {
+      final api = _Api();
+      final container = _container(api);
+      addTearDown(container.dispose);
+      _select(container, '100');
+      await _pump(tester, container);
+      api.pending.single.complete([]);
+      await tester.pump();
+      await tester.pump();
+      final cta = find.byType(RoundedCupertinoButton);
+      expect(cta, findsOneWidget);
+      await tester.tap(cta);
+      await tester.pumpAndSettle();
+      expect(find.byType(WorkspaceGroupsStandalonePage), findsOneWidget);
+      // 独立页承载（IosPageTemplate 标题）而非平台公开群发现页
+      expect(find.text(t.workspace.navGroups), findsWidgets);
       await _disposePage(tester);
     },
   );
