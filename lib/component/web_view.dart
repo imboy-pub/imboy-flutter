@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -189,10 +191,49 @@ class WebViewPageState extends State<WebViewPage> {
       widget.errorCallback?.call(widget.url);
     }
 
+    // H5 设备能力（定位/相机）授权接线。iOS 的 WKWebView 无回调时默认
+    // prompt 系统权限弹窗（Info.plist 描述已备），无需接线；macOS/Web
+    // 无 webview 实现（走系统浏览器），也不适用。
+    final platform = widget._controller!.platform;
+    if (platform is AndroidWebViewController) {
+      unawaited(_wireAndroidDevicePermissions(platform));
+    }
+
     // setBackgroundColor is not supported on macOS
     if (defaultTargetPlatform != TargetPlatform.macOS) {
       widget._controller!.setBackgroundColor(AppColors.transparent);
     }
+  }
+
+  /// Android WebView 的定位与相机授权（如 test_oa.html 的 Web 标准定位/
+  /// getUserMedia）。信任模型与系统浏览器一致：仅安全 origin 能发起请求，
+  /// 宿主先确保 App 持有对应系统权限（缺失则向用户请求），再放行 WebView
+  /// 层授权。只放行相机与定位，麦克风等其他资源一律拒绝。
+  Future<void> _wireAndroidDevicePermissions(
+    AndroidWebViewController controller,
+  ) async {
+    await controller.setGeolocationEnabled(true);
+    await controller.setGeolocationPermissionsPromptCallbacks(
+      onShowPrompt: (request) async {
+        final status = await Permission.locationWhenInUse.request();
+        // retain：同会话内页内导航免重复弹窗；WebView 销毁即失效。
+        return GeolocationPermissionsResponse(
+          allow: status.isGranted,
+          retain: true,
+        );
+      },
+    );
+    await controller.setOnPlatformPermissionRequest((request) async {
+      if (request.types.length == 1 &&
+          request.types.contains(WebViewPermissionResourceType.camera)) {
+        final status = await Permission.camera.request();
+        if (status.isGranted) {
+          await request.grant();
+          return;
+        }
+      }
+      await request.deny();
+    });
   }
 
   @override
