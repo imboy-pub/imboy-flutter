@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -101,6 +102,14 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         _controller = controller;
         _initialized = true;
       });
+    } on MissingPluginException {
+      // 平台无相机原生委托（camera_desktop 仅 Apple 实现，Windows/Linux 走
+      // 这里）：按「无设备」口径提示，不误导用户去系统设置改权限。
+      await controller?.dispose();
+      debugPrint(
+        '[camera_capture_page] no camera impl, errType=MissingPluginException',
+      );
+      _abort(t.common.cameraNoDevice);
     } on Object catch (e) {
       // 初始化失败（权限被拒/设备占用等）必须释放半初始化的控制器，
       // 否则原生捕获会话泄漏。

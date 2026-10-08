@@ -17,6 +17,7 @@ import 'package:camera_platform_interface/camera_platform_interface.dart';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -127,6 +128,16 @@ class _FakeCameraPlatform extends CameraPlatform {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// 模拟 Windows/Linux：Dart 插件已注册但原生无相机委托，方法通道抛
+/// MissingPluginException（camera_desktop 仅 Apple 实现）。
+class _NoNativeCameraPlatform extends _FakeCameraPlatform {
+  _NoNativeCameraPlatform() : super(cameras: const []);
+
+  @override
+  Future<List<CameraDescription>> availableCameras() async =>
+      throw MissingPluginException('camera_desktop: no native implementation');
+}
+
 class _Host extends StatelessWidget {
   const _Host({
     required this.dual,
@@ -199,8 +210,26 @@ void main() {
 
     expect(got, isNull);
     expect(find.byType(CameraCapturePage), findsNothing);
+    expect(find.text(t.common.cameraNoDevice), findsOneWidget);
 
     // EasyLoading toast 的自动消失定时器排空，避免用例结束残留 pending timer。
+    await tester.pump(const Duration(seconds: 4));
+  });
+
+  testWidgets('平台无相机原生委托（Windows/Linux）：按无设备口径提示', (tester) async {
+    CameraPlatform.instance = _NoNativeCameraPlatform();
+    CameraCaptureResult? got;
+    await _open(tester, onResult: (r) => got = r);
+
+    expect(got, isNull);
+    expect(find.byType(CameraCapturePage), findsNothing);
+    expect(
+      find.text(t.common.cameraNoDevice),
+      findsOneWidget,
+      reason: 'MissingPluginException 不是权限问题，不应用权限失败文案',
+    );
+    expect(find.text(t.common.permissionAcquisitionFailed), findsNothing);
+
     await tester.pump(const Duration(seconds: 4));
   });
 
