@@ -7,6 +7,7 @@ import 'package:imboy/component/ui/cell_pressable.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat_setting/chat_setting_page.dart';
 import 'package:imboy/service/storage.dart';
@@ -102,7 +103,12 @@ void main() {
       // B2: options=null 且 EncryptionModeService 未初始化（widget 测试无
       // policy 拉取链路）→ 加密模式未知，显示中性占位 '-'，
       // 不得把实际可能已加密的会话谎报成"消息未加密传输"或具体模式名。
-      expect(find.text('-'), findsOneWidget);
+      expect(
+        find.text('-'),
+        compiledProductFeatures.contains('e2ee')
+            ? findsOneWidget
+            : findsNothing,
+      );
       expect(find.text('消息未加密传输'), findsNothing);
       await _unmount(tester);
     });
@@ -120,7 +126,7 @@ void main() {
 
   group('ChatSettingPage E2EE 功能位隐藏', () {
     tearDown(() {
-      // 恢复缺省 snapshot（缺 flag = 功能开），避免污染其他用例
+      // 恢复缺省远程 snapshot；最终可用性仍受编译功能集合约束。
       AppFeatureRegistry.replaceSnapshotForTest(const {});
     });
 
@@ -137,11 +143,15 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('features.e2ee 缺省（开）：既有入口保持渲染', (tester) async {
+    testWidgets('features.e2ee 缺省：入口遵循编译功能集合', (tester) async {
       await _pump(tester, type: 'C2C');
-      // B2 未知加密态占位 + 安全码入口照常
-      expect(find.text('-'), findsOneWidget);
-      expect(find.text('安全码验证'), findsOneWidget);
+      // 完整配置保留 B2 未知加密态占位；第一期不能因远程缺省开启入口。
+      final expected = compiledProductFeatures.contains('e2ee')
+          ? findsOneWidget
+          : findsNothing;
+      expect(find.text('-'), expected);
+      expect(find.text('安全码验证'), expected);
+      expect(find.text('消息免打扰'), findsOneWidget);
       await _unmount(tester);
     });
   });
