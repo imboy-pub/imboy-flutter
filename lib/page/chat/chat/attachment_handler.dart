@@ -394,9 +394,19 @@ class ChatAttachmentHandler {
       // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
       final String messageId = Xid().toString();
       final seal = await _sealFor(messageId, 'file');
+      // 上传对象名匿名化（对齐图片路径 '${Xid()}.$ext'）：macOS 等桌面端原始
+      // 文件名常含空格/中文/emoji，直接进 presign→object_key→PUT 签名链路会
+      // 因编码不一致被 Garage 拒收（重试 3 次后抛 Exception）。展示名仍用
+      // file.name，落在 FileMessage.name 上，与上传对象名解耦。
+      final String rawName = file.name;
+      final String ext =
+          rawName.contains('.') &&
+              rawName.substring(rawName.lastIndexOf('.') + 1).isNotEmpty
+          ? rawName.substring(rawName.lastIndexOf('.') + 1).toLowerCase()
+          : 'bin';
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
-        file.name,
+        '${Xid()}.$ext',
         mime,
         scope: s.scope,
         scopeRef: s.scopeRef,
@@ -427,6 +437,10 @@ class ChatAttachmentHandler {
     } on Object catch (e) {
       final p = _attachmentFailurePresentation(e);
       debugPrint('[attachment_handler] uploadFile failed, ${p.log}');
+      // 全量异常落调试日志（同 uploadFileViaPresignCompat 先例）：errType 收窄
+      // 日志在「图片成功、文件失败」这类差异场景下无法定位根因，必须能看到
+      // presign/confirm/PUT 各步的真实错误消息才能收敛。
+      debugPrint('[attachment_handler] uploadFile FAIL err=$e');
       // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
       AppLoading.showError(p.toast);
     }
