@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_task_service.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -32,6 +33,11 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
   bool _isLoading = true;
   bool _isSubmitting = false;
   Object? _error;
+
+  bool _isCreator(Map<String, dynamic> task) {
+    final uid = UserRepoLocal.to.currentUid;
+    return uid.isNotEmpty && _toText(task['creator_id']) == uid;
+  }
 
   @override
   void initState() {
@@ -63,7 +69,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
       );
 
       int pendingCount = 0;
-      if (task != null) {
+      if (task != null && _isCreator(task)) {
         final taskRouteId = _toText(task['task_id']).isNotEmpty
             ? _toText(task['task_id'])
             : widget.taskId;
@@ -193,10 +199,11 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                 ),
                 // 不展示 task_id：那是内部标识（形如 task.5yPMVuT6W5P03.c），
                 // 对用户没有任何意义，只会让详情页看起来像调试面板。
-                _InfoLine(
-                  label: context.t.groupTask.pendingReview,
-                  value: _pendingReviewCount.toString(),
-                ),
+                if (_isCreator(_task!))
+                  _InfoLine(
+                    label: context.t.groupTask.pendingReview,
+                    value: _pendingReviewCount.toString(),
+                  ),
                 const SizedBox(height: AppSpacing.regular),
                 if (!isCompleted && !isSubmitted && !isReviewed)
                   SizedBox(
