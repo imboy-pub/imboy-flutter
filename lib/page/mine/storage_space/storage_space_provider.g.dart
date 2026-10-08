@@ -42,7 +42,7 @@ final class StorageSpaceNotifierProvider
 }
 
 String _$storageSpaceNotifierHash() =>
-    r'399d5f7490bff20e5df887f8429ba45abd385aee';
+    r'063e86e54c61ffa8a5cfbffe7b763b7054b14fb8';
 
 abstract class _$StorageSpaceNotifier extends $Notifier<StorageSpaceState> {
   StorageSpaceState build();
