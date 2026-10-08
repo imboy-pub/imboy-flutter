@@ -114,6 +114,7 @@ CsSessionFlow newFlow({
   String conversationId = '7266418340025468950',
   String workspaceId = '7266418340025468921',
   EnterpriseStore? store,
+  void Function()? onChanged,
 }) {
   HttpClient.adapterForTest = adapter;
   addTearDown(() => HttpClient.adapterForTest = null);
@@ -125,6 +126,7 @@ CsSessionFlow newFlow({
     workspaceId: workspaceId,
     contactMaskedName: '张**',
     store: store ?? EnterpriseMemoryStore(),
+    onChanged: onChanged,
   );
 }
 
@@ -1017,7 +1019,8 @@ void main() {
           ],
         ),
       ]);
-      final flow = newFlow(adapter: adapter);
+      var updates = 0;
+      final flow = newFlow(adapter: adapter, onChanged: () => updates++);
       expect(flow.messages, isEmpty);
 
       final stream = CsSeatEventsStream(
@@ -1035,6 +1038,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
 
       expect(flow.messages, hasLength(1), reason: '访客新消息自动出现');
+      expect(updates, 1, reason: '权威数据同步后必须通知页面重建');
       flow.dispose();
     });
 

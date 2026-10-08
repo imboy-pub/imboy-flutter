@@ -54,6 +54,8 @@ CsSeatFailureKind csClassifySeatFailure(CsApiException e) {
 class CsSessionFlow {
   final CsApi _csApi;
   final EnterpriseStore _store;
+  final void Function()? onChanged;
+  bool _disposed = false;
 
   final String orgId;
   final String sessionId;
@@ -124,6 +126,7 @@ class CsSessionFlow {
     this.contactMaskedName = '',
     CsApi? csApi,
     EnterpriseStore? store,
+    this.onChanged,
   }) : _csApi = csApi ?? CsApi(),
        _store = store ?? EnterpriseStoreHolder.instance;
 
@@ -534,43 +537,46 @@ class CsSessionFlow {
     stream.start(onEvent: _onSeatEvent);
   }
 
-  void _onSeatEvent(CsSseEnvelope e) {
+  Future<void> _onSeatEvent(CsSseEnvelope e) async {
     // 降级/只读终态后停止消费（不再发任何刷新请求；撤权降级由权威
     // 请求的 403/409 驱动，服务端也会在撤权后关闭流）。
-    if (!machine.shouldPoll) return;
+    if (_disposed || !machine.shouldPoll) return;
     switch (e.type) {
       case CsSseEnvelope.typeMessageAppended:
         // 访客新消息：增量权威拉取（游标防重，事件重复无害）→ 页面在场
         // 消费即「展示完成」→ ACK 推进读游标（CS-APP-02）。
-        loadIncremental().then((_) => ackReadSeen());
+        await loadIncremental();
+        await ackReadSeen();
       case CsSseEnvelope.typeSessionChanged:
         if (e.resourceId.isEmpty || e.resourceId == sessionId) {
-          refreshSessionState();
+          await refreshSessionState();
         }
       case CsSseEnvelope.typeAssignmentChanged:
       case CsSseEnvelope.typeSeatChanged:
         // 撤权/挂起/过期最小事件：立即权威刷新，让 403/409/回显定格降级。
-        refreshSessionState();
+        await refreshSessionState();
       case CsSseEnvelope.typeResyncRequired:
         // 游标缺失/过期/不连续：清消息游标 + **未读陈旧化**（null——重连后
         // 不得渲染陈旧未读），先重同步读状态（游标/未读权威值）再增量
         // 拉取渲染，展示完成后 ACK 推进（CS-RUNTIME-04 重连顺序）。
         cursor = '';
         unreadCount = null;
-        refreshSessionState();
-        resyncReadState()
-            .then((_) => loadIncremental())
-            .then((_) => ackReadSeen());
+        await refreshSessionState();
+        await resyncReadState();
+        await loadIncremental();
+        await ackReadSeen();
       case CsSseEnvelope.typeQueueChanged:
         // 队列事件由工作台页面级流消费；会话页不响应。
-        break;
+        return;
       default:
-        break;
+        return;
     }
+    if (!_disposed) onChanged?.call();
   }
 
   /// 释放事件流（页面 dispose 时调用；重连定时器/订阅一并取消）。
   void dispose() {
+    _disposed = true;
     _events?.dispose();
     _events = null;
   }

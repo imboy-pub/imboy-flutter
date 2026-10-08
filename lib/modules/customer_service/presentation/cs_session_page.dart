@@ -29,12 +29,11 @@ import 'package:imboy/modules/customer_service/domain/cs_session_actions.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
-import 'package:imboy/modules/customer_service/presentation/cs_attachment_views.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_message_bubble.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
-import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 class CsSessionPage extends StatefulWidget {
@@ -71,8 +70,11 @@ class _CsSessionPageState extends State<CsSessionPage>
   late final CsSeatEventsStream _events;
   final TextEditingController _input = TextEditingController();
   final CsApi _csApi = CsApi();
+  final ScrollController _messageScroll = ScrollController();
+  String? _lastMessageId;
 
   bool _busy = false;
+  bool _sending = false;
   String? _error;
 
   /// 附件字节 future 缓存（每 asset 只发一次授权代理请求；重建不重拉）。
@@ -97,6 +99,9 @@ class _CsSessionPageState extends State<CsSessionPage>
       identityId: widget.identityId,
       workspaceId: widget.workspaceId,
       contactMaskedName: csMaskContactName(widget.contactName),
+      onChanged: () {
+        if (mounted) setState(() {});
+      },
     );
     // A02：坐席事件流（org 作用域 + workspace 作用域）。事件只触发权威
     // 刷新；访客新消息由 message.appended 驱动增量拉取自动出现。
@@ -113,6 +118,7 @@ class _CsSessionPageState extends State<CsSessionPage>
     WidgetsBinding.instance.removeObserver(this);
     _flow.dispose();
     _input.dispose();
+    _messageScroll.dispose();
     super.dispose();
   }
 
@@ -168,12 +174,19 @@ class _CsSessionPageState extends State<CsSessionPage>
   Future<void> _send() async {
     final text = _input.text.trim();
     if (text.isEmpty || _busy) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _sending = true;
+    });
     final ok = await _flow.send(text);
     if (!mounted) return;
-    setState(() => _busy = false);
+    setState(() {
+      _busy = false;
+      _sending = false;
+    });
     if (ok) {
       _input.clear();
+      _scrollToLatest();
     } else {
       // A05：失败按类分流（不伪成功）。降级类失败页面横幅已给可解释
       // 只读态，toast 只补充非降级类。
@@ -643,15 +656,24 @@ class _CsSessionPageState extends State<CsSessionPage>
                     child: TextField(
                       controller: _input,
                       enabled: canWrite && !_busy,
-                      onSubmitted: (_) => _send(),
+                      minLines: 1,
+                      maxLines: 5,
+                      textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(hintText: t.inputHint),
                     ),
                   ),
                 ),
                 IconButton(
                   onPressed: canWrite && !_busy ? _send : null,
-                  tooltip: t.seatLabel,
-                  icon: const Icon(CupertinoIcons.paperplane_fill),
+                  tooltip: _sending
+                      ? context.t.chat.sending
+                      : context.t.chat.send,
+                  icon: _sending
+                      ? const CircularProgressIndicator()
+                      : const Icon(
+                          CupertinoIcons.paperplane_fill,
+                          color: AppColors.primary,
+                        ),
                 ),
               ],
             ),
@@ -698,6 +720,14 @@ class _CsSessionPageState extends State<CsSessionPage>
     return const SizedBox.shrink();
   }
 
+  void _scrollToLatest() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _messageScroll.hasClients) {
+        _messageScroll.jumpTo(_messageScroll.position.maxScrollExtent);
+      }
+    });
+  }
+
   Widget _messagesList() {
     if (_busy && _flow.messages.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -721,7 +751,17 @@ class _CsSessionPageState extends State<CsSessionPage>
         ],
       );
     }
+    final lastId = _flow.messages.last.id;
+    if (_lastMessageId != lastId) {
+      final shouldScroll =
+          _lastMessageId == null ||
+          !_messageScroll.hasClients ||
+          _messageScroll.position.extentAfter < AppSizes.touchTarget;
+      _lastMessageId = lastId;
+      if (shouldScroll) _scrollToLatest();
+    }
     return ListView.builder(
+      controller: _messageScroll,
       physics: const AlwaysScrollableScrollPhysics(),
       itemCount: _flow.messages.length,
       itemBuilder: (context, index) {
@@ -733,51 +773,14 @@ class _CsSessionPageState extends State<CsSessionPage>
         // CSX-01 冻结投影：assets 五键白名单（空 = 纯文本）；图片缩略与
         // 文件行分型渲染，查看只经授权 content 代理。
         final assets = _flow.messageAssets[m.id] ?? const <CsMessageAsset>[];
-        return Align(
-          alignment: actor.isSeat
-              ? Alignment.centerRight
-              : Alignment.centerLeft,
-          child: Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.medium,
-              vertical: AppSpacing.tiny,
-            ),
-            padding: const EdgeInsets.all(AppSpacing.medium),
-            constraints: const BoxConstraints(
-              maxWidth: AppSizes.messageBubbleMaxWidth,
-            ),
-            decoration: BoxDecoration(
-              color: actor.isSeat
-                  ? Theme.of(context).colorScheme.primaryContainer
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-              borderRadius: AppRadius.borderRadiusMedium,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (m.content.isNotEmpty) Text(m.content),
-                for (final asset in assets)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: m.content.isEmpty
-                          ? AppSpacing.none
-                          : AppSpacing.tiny,
-                    ),
-                    child: CsAssetAttachmentView(
-                      asset: asset,
-                      bytesLoader: _cachedAssetBytes,
-                      onView: () => _viewAsset(asset),
-                    ),
-                  ),
-                // sender-actor 展示：业务身份名（非自然人好友，EB-D03/D05）
-                Text(
-                  actor.label,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ],
-            ),
-          ),
+        return CsMessageBubble(
+          key: ValueKey(m.id),
+          message: m,
+          isSeat: actor.isSeat,
+          actorLabel: actor.label,
+          assets: assets,
+          bytesLoader: _cachedAssetBytes,
+          onView: _viewAsset,
         );
       },
     );
