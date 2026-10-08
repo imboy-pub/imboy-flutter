@@ -219,7 +219,7 @@ inviteQr:
   # pending/rejected 企業の発行入口無効化ヒント（サーバーの preview/join は一律 409）
   inviteDisabledPending: "企業は審査待ちです。審査に合格するとメンバーを招待できます"
 directory:
-  currentMembersSection: Direct members
+  currentMembersSection: 直属メンバー
   structureSection: 組織構成
   title: "ディレクトリ"
   deptSection: "部門"
@@ -365,10 +365,10 @@ tools:
   moreInWorkspaceShellHint: グローバルなワークスペース切替を開く（企業横断）。
 
 chart:
-  zoomIn: Zoom in
-  zoomOut: Zoom out
-  fit: Fit to window
-  expand: Expand departments
-  collapse: Collapse departments
-  gestureHint: Drag to pan · Pinch to zoom
-  directMembers: ${count} direct members
+  zoomIn: 拡大
+  zoomOut: 縮小
+  fit: ウィンドウに合わせる
+  expand: 下位部門を展開
+  collapse: 下位部門を折りたたむ
+  gestureHint: ドラッグで移動 · ピンチで拡大縮小
+  directMembers: 直属 ${count} 人

@@ -2979,7 +2979,7 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get currentMembersSection => 'Direct members';
+	@override String get currentMembersSection => 'المرتبطون المباشرون';
 	@override String get structureSection => 'الهيكل التنظيمي';
 	@override String get title => 'الدليل';
 	@override String get deptSection => 'الأقسام';
@@ -3175,13 +3175,13 @@ class _Translations$organization$chart$ar_SA extends Translations$organization$c
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get zoomIn => 'Zoom in';
-	@override String get zoomOut => 'Zoom out';
-	@override String get fit => 'Fit to window';
-	@override String get expand => 'Expand departments';
-	@override String get collapse => 'Collapse departments';
-	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
-	@override String directMembers({required Object count}) => '${count} direct members';
+	@override String get zoomIn => 'تكبير';
+	@override String get zoomOut => 'تصغير';
+	@override String get fit => 'ملاءمة النافذة';
+	@override String get expand => 'توسيع الأقسام الفرعية';
+	@override String get collapse => 'طي الأقسام الفرعية';
+	@override String get gestureHint => 'اسحب للتنقل · اقرص للتكبير والتصغير';
+	@override String directMembers({required Object count}) => 'المرتبطون المباشرون: ${count}';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5439,7 +5439,7 @@ extension on TranslationsArSa {
 			'organization.inviteQr.copyCode' => 'نسخ الرمز',
 			'organization.inviteQr.copied' => 'تم نسخ رمز الدعوة',
 			'organization.inviteQr.inviteDisabledPending' => 'المؤسسة بانتظار المراجعة؛ لا يمكن دعوة الأعضاء إلا بعد اجتيازها',
-			'organization.directory.currentMembersSection' => 'Direct members',
+			'organization.directory.currentMembersSection' => 'المرتبطون المباشرون',
 			'organization.directory.structureSection' => 'الهيكل التنظيمي',
 			'organization.directory.title' => 'الدليل',
 			'organization.directory.deptSection' => 'الأقسام',
@@ -5572,13 +5572,13 @@ extension on TranslationsArSa {
 			'organization.tools.projectsError' => ({required Object err}) => 'فشل تحميل المشاريع: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'استعراض كل مساحات العمل',
 			'organization.tools.moreInWorkspaceShellHint' => 'فتح مبدّل مساحات العمل العام (بين المؤسسات).',
-			'organization.chart.zoomIn' => 'Zoom in',
-			'organization.chart.zoomOut' => 'Zoom out',
-			'organization.chart.fit' => 'Fit to window',
-			'organization.chart.expand' => 'Expand departments',
-			'organization.chart.collapse' => 'Collapse departments',
-			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
-			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			'organization.chart.zoomIn' => 'تكبير',
+			'organization.chart.zoomOut' => 'تصغير',
+			'organization.chart.fit' => 'ملاءمة النافذة',
+			'organization.chart.expand' => 'توسيع الأقسام الفرعية',
+			'organization.chart.collapse' => 'طي الأقسام الفرعية',
+			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
+			'organization.chart.directMembers' => ({required Object count}) => 'المرتبطون المباشرون: ${count}',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

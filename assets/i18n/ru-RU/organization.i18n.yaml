@@ -220,7 +220,7 @@ inviteQr:
   # Подсказка о запрете выдачи кода для pending/rejected предприятий (сервер preview/join всегда 409)
   inviteDisabledPending: "Предприятие ожидает проверки; приглашать участников можно будет только после одобрения"
 directory:
-  currentMembersSection: Direct members
+  currentMembersSection: Прямые подчинённые
   structureSection: Структура организации
   title: "Справочник"
   deptSection: "Отделы"
@@ -366,10 +366,10 @@ tools:
   moreInWorkspaceShellHint: Открыть глобальный переключатель пространств (между организациями).
 
 chart:
-  zoomIn: Zoom in
-  zoomOut: Zoom out
-  fit: Fit to window
-  expand: Expand departments
-  collapse: Collapse departments
-  gestureHint: Drag to pan · Pinch to zoom
-  directMembers: ${count} direct members
+  zoomIn: Увеличить
+  zoomOut: Уменьшить
+  fit: По размеру окна
+  expand: Развернуть отделы
+  collapse: Свернуть отделы
+  gestureHint: Перетаскивайте для просмотра · Масштаб щипком
+  directMembers: "Прямые подчинённые: ${count}"

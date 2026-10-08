@@ -2967,7 +2967,7 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get currentMembersSection => 'Direct members';
+	@override String get currentMembersSection => '直属メンバー';
 	@override String get structureSection => '組織構成';
 	@override String get title => 'ディレクトリ';
 	@override String get deptSection => '部門';
@@ -3163,13 +3163,13 @@ class _Translations$organization$chart$ja_JP extends Translations$organization$c
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get zoomIn => 'Zoom in';
-	@override String get zoomOut => 'Zoom out';
-	@override String get fit => 'Fit to window';
-	@override String get expand => 'Expand departments';
-	@override String get collapse => 'Collapse departments';
-	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
-	@override String directMembers({required Object count}) => '${count} direct members';
+	@override String get zoomIn => '拡大';
+	@override String get zoomOut => '縮小';
+	@override String get fit => 'ウィンドウに合わせる';
+	@override String get expand => '下位部門を展開';
+	@override String get collapse => '下位部門を折りたたむ';
+	@override String get gestureHint => 'ドラッグで移動 · ピンチで拡大縮小';
+	@override String directMembers({required Object count}) => '直属 ${count} 人';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5427,7 +5427,7 @@ extension on TranslationsJaJp {
 			'organization.inviteQr.copyCode' => 'コードをコピー',
 			'organization.inviteQr.copied' => '招待コードをコピーしました',
 			'organization.inviteQr.inviteDisabledPending' => '企業は審査待ちです。審査に合格するとメンバーを招待できます',
-			'organization.directory.currentMembersSection' => 'Direct members',
+			'organization.directory.currentMembersSection' => '直属メンバー',
 			'organization.directory.structureSection' => '組織構成',
 			'organization.directory.title' => 'ディレクトリ',
 			'organization.directory.deptSection' => '部門',
@@ -5560,13 +5560,13 @@ extension on TranslationsJaJp {
 			'organization.tools.projectsError' => ({required Object err}) => 'プロジェクトの読み込みに失敗：${err}',
 			'organization.tools.moreInWorkspaceShell' => 'すべてのワークスペースを表示',
 			'organization.tools.moreInWorkspaceShellHint' => 'グローバルなワークスペース切替を開く（企業横断）。',
-			'organization.chart.zoomIn' => 'Zoom in',
-			'organization.chart.zoomOut' => 'Zoom out',
-			'organization.chart.fit' => 'Fit to window',
-			'organization.chart.expand' => 'Expand departments',
-			'organization.chart.collapse' => 'Collapse departments',
-			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
-			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			'organization.chart.zoomIn' => '拡大',
+			'organization.chart.zoomOut' => '縮小',
+			'organization.chart.fit' => 'ウィンドウに合わせる',
+			'organization.chart.expand' => '下位部門を展開',
+			'organization.chart.collapse' => '下位部門を折りたたむ',
+			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
+			'organization.chart.directMembers' => ({required Object count}) => '直属 ${count} 人',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

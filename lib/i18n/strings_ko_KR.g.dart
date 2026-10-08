@@ -2967,7 +2967,7 @@ class _Translations$organization$directory$ko_KR extends Translations$organizati
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
-	@override String get currentMembersSection => 'Direct members';
+	@override String get currentMembersSection => '직속 구성원';
 	@override String get structureSection => '조직 구조';
 	@override String get title => '디렉터리';
 	@override String get deptSection => '부서';
@@ -3163,13 +3163,13 @@ class _Translations$organization$chart$ko_KR extends Translations$organization$c
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
-	@override String get zoomIn => 'Zoom in';
-	@override String get zoomOut => 'Zoom out';
-	@override String get fit => 'Fit to window';
-	@override String get expand => 'Expand departments';
-	@override String get collapse => 'Collapse departments';
-	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
-	@override String directMembers({required Object count}) => '${count} direct members';
+	@override String get zoomIn => '확대';
+	@override String get zoomOut => '축소';
+	@override String get fit => '창에 맞추기';
+	@override String get expand => '하위 부서 펼치기';
+	@override String get collapse => '하위 부서 접기';
+	@override String get gestureHint => '드래그하여 이동 · 핀치로 확대/축소';
+	@override String directMembers({required Object count}) => '직속 ${count}명';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5427,7 +5427,7 @@ extension on TranslationsKoKr {
 			'organization.inviteQr.copyCode' => '코드 복사',
 			'organization.inviteQr.copied' => '초대 코드가 복사되었습니다',
 			'organization.inviteQr.inviteDisabledPending' => '기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다',
-			'organization.directory.currentMembersSection' => 'Direct members',
+			'organization.directory.currentMembersSection' => '직속 구성원',
 			'organization.directory.structureSection' => '조직 구조',
 			'organization.directory.title' => '디렉터리',
 			'organization.directory.deptSection' => '부서',
@@ -5560,13 +5560,13 @@ extension on TranslationsKoKr {
 			'organization.tools.projectsError' => ({required Object err}) => '프로젝트 로드 실패: ${err}',
 			'organization.tools.moreInWorkspaceShell' => '모든 워크스페이스 탐색',
 			'organization.tools.moreInWorkspaceShellHint' => '전역 워크스페이스 전환기 열기(기업 간).',
-			'organization.chart.zoomIn' => 'Zoom in',
-			'organization.chart.zoomOut' => 'Zoom out',
-			'organization.chart.fit' => 'Fit to window',
-			'organization.chart.expand' => 'Expand departments',
-			'organization.chart.collapse' => 'Collapse departments',
-			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
-			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			'organization.chart.zoomIn' => '확대',
+			'organization.chart.zoomOut' => '축소',
+			'organization.chart.fit' => '창에 맞추기',
+			'organization.chart.expand' => '하위 부서 펼치기',
+			'organization.chart.collapse' => '하위 부서 접기',
+			'organization.chart.gestureHint' => '드래그하여 이동 · 핀치로 확대/축소',
+			'organization.chart.directMembers' => ({required Object count}) => '직속 ${count}명',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

@@ -219,7 +219,7 @@ inviteQr:
   # pending/rejected 기업의 코드 발급 진입 비활성 안내(서버 preview/join은 항상 409)
   inviteDisabledPending: "기업이 심사 대기 중입니다. 심사가 통과된 후에만 멤버를 초대할 수 있습니다"
 directory:
-  currentMembersSection: Direct members
+  currentMembersSection: 직속 구성원
   structureSection: 조직 구조
   title: "디렉터리"
   deptSection: "부서"
@@ -365,10 +365,10 @@ tools:
   moreInWorkspaceShellHint: 전역 워크스페이스 전환기 열기(기업 간).
 
 chart:
-  zoomIn: Zoom in
-  zoomOut: Zoom out
-  fit: Fit to window
-  expand: Expand departments
-  collapse: Collapse departments
-  gestureHint: Drag to pan · Pinch to zoom
-  directMembers: ${count} direct members
+  zoomIn: 확대
+  zoomOut: 축소
+  fit: 창에 맞추기
+  expand: 하위 부서 펼치기
+  collapse: 하위 부서 접기
+  gestureHint: 드래그하여 이동 · 핀치로 확대/축소
+  directMembers: 직속 ${count}명

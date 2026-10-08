@@ -2976,7 +2976,7 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get currentMembersSection => 'Direct members';
+	@override String get currentMembersSection => 'Прямые подчинённые';
 	@override String get structureSection => 'Структура организации';
 	@override String get title => 'Справочник';
 	@override String get deptSection => 'Отделы';
@@ -3172,13 +3172,13 @@ class _Translations$organization$chart$ru_RU extends Translations$organization$c
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get zoomIn => 'Zoom in';
-	@override String get zoomOut => 'Zoom out';
-	@override String get fit => 'Fit to window';
-	@override String get expand => 'Expand departments';
-	@override String get collapse => 'Collapse departments';
-	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
-	@override String directMembers({required Object count}) => '${count} direct members';
+	@override String get zoomIn => 'Увеличить';
+	@override String get zoomOut => 'Уменьшить';
+	@override String get fit => 'По размеру окна';
+	@override String get expand => 'Развернуть отделы';
+	@override String get collapse => 'Свернуть отделы';
+	@override String get gestureHint => 'Перетаскивайте для просмотра · Масштаб щипком';
+	@override String directMembers({required Object count}) => 'Прямые подчинённые: ${count}';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5436,7 +5436,7 @@ extension on TranslationsRuRu {
 			'organization.inviteQr.copyCode' => 'Копировать код',
 			'organization.inviteQr.copied' => 'Код приглашения скопирован',
 			'organization.inviteQr.inviteDisabledPending' => 'Предприятие ожидает проверки; приглашать участников можно будет только после одобрения',
-			'organization.directory.currentMembersSection' => 'Direct members',
+			'organization.directory.currentMembersSection' => 'Прямые подчинённые',
 			'organization.directory.structureSection' => 'Структура организации',
 			'organization.directory.title' => 'Справочник',
 			'organization.directory.deptSection' => 'Отделы',
@@ -5569,13 +5569,13 @@ extension on TranslationsRuRu {
 			'organization.tools.projectsError' => ({required Object err}) => 'Не удалось загрузить проекты: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Все рабочие пространства',
 			'organization.tools.moreInWorkspaceShellHint' => 'Открыть глобальный переключатель пространств (между организациями).',
-			'organization.chart.zoomIn' => 'Zoom in',
-			'organization.chart.zoomOut' => 'Zoom out',
-			'organization.chart.fit' => 'Fit to window',
-			'organization.chart.expand' => 'Expand departments',
-			'organization.chart.collapse' => 'Collapse departments',
-			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
-			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			'organization.chart.zoomIn' => 'Увеличить',
+			'organization.chart.zoomOut' => 'Уменьшить',
+			'organization.chart.fit' => 'По размеру окна',
+			'organization.chart.expand' => 'Развернуть отделы',
+			'organization.chart.collapse' => 'Свернуть отделы',
+			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
+			'organization.chart.directMembers' => ({required Object count}) => 'Прямые подчинённые: ${count}',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',
