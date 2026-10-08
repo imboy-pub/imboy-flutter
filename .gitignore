@@ -261,3 +261,6 @@ test/auto_test/credentials.local.json
 
 # AI 工作过程产物（预览/一次性验证），不入库
 .ai/
+
+# Generated test coverage reports belong to execution artifacts.
+/coverage/
