@@ -8,6 +8,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
 
@@ -142,11 +144,39 @@ void main() {
     });
 
     group('会话状态计算', () {
-      test('应该正确计算UK3', () {
-        // 跳过此测试，因为需要 UserRepoLocal.to.currentUid
-        // 而那需要 StorageService 初始化
-        expect(true, true);
-      }, skip: '需要StorageService初始化');
+      test('UK3 使用当前账号并在账号切换后重新计算', () async {
+        final previousUid = StorageService.to.getString(Keys.currentUid);
+        addTearDown(
+          () => StorageService.to.setString(Keys.currentUid, previousUid),
+        );
+        final direct = ConversationModel(
+          id: 1,
+          peerId: 8002,
+          type: 'C2C',
+          avatar: '',
+          title: '',
+          subtitle: '',
+          msgType: 'text',
+          unreadNum: 0,
+        );
+        final group = ConversationModel(
+          id: 2,
+          peerId: 9001,
+          type: 'C2G',
+          avatar: '',
+          title: '',
+          subtitle: '',
+          msgType: 'text',
+          unreadNum: 0,
+        );
+        await StorageService.to.setString(Keys.currentUid, '8001');
+        expect(direct.uk3, 'C2C_8001_8002');
+        expect(group.uk3, 'C2G_8001_9001');
+
+        await StorageService.to.setString(Keys.currentUid, '8003');
+        expect(direct.uk3, 'C2C_8002_8003');
+        expect(group.uk3, 'C2G_8003_9001');
+      });
 
       test('应该正确处理未读数', () {
         final conv = ConversationModel(
