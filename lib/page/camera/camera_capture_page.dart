@@ -257,6 +257,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
       child: Row(
         children: [
           IconButton(
+            tooltip: t.common.buttonClose,
             icon: const Icon(Icons.close, color: AppColors.cameraShutterRing),
             onPressed: () => Navigator.of(context).pop(),
           ),
