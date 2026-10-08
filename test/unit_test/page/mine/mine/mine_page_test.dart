@@ -9,6 +9,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/service/storage.dart';
 
 /// MinePage（我的页面）渲染契约测试
@@ -24,13 +25,16 @@ import 'package:imboy/service/storage.dart';
 ///
 /// 不验证 channel feature flag 菜单（依赖 AppFeatureRegistry snapshot 状态，
 /// 默认未配置时行为不确定，留 manual QA / 集成测试覆盖）。
-GoRouter _stubRouter() {
+GoRouter _stubRouter({bool enterprise = false}) {
   // 所有菜单跳转目标都用 stub 接住，避免 context.push 抛 'no route' 错
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
   return GoRouter(
     initialLocation: '/mine',
     routes: [
-      GoRoute(path: '/mine', builder: (_, _) => const MinePage()),
+      GoRoute(
+        path: '/mine',
+        builder: (_, _) => MinePage(enterprise: enterprise),
+      ),
       GoRoute(path: '/wallet', builder: (_, _) => stub('wallet stub')),
       GoRoute(path: '/favorites', builder: (_, _) => stub('favorites stub')),
       GoRoute(path: '/storage_space', builder: (_, _) => stub('storage stub')),
@@ -66,7 +70,7 @@ Future<void> _setUser({
   });
 }
 
-Future<void> _pumpMine(WidgetTester tester) async {
+Future<void> _pumpMine(WidgetTester tester, {bool enterprise = false}) async {
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = const Size(390, 844);
   addTearDown(() {
@@ -77,7 +81,9 @@ Future<void> _pumpMine(WidgetTester tester) async {
   await tester.pumpWidget(
     ProviderScope(
       child: TranslationProvider(
-        child: MaterialApp.router(routerConfig: _stubRouter()),
+        child: MaterialApp.router(
+          routerConfig: _stubRouter(enterprise: enterprise),
+        ),
       ),
     ),
   );
@@ -208,6 +214,18 @@ void main() {
       );
     });
   });
+
+  for (final enterprise in [false, true]) {
+    testWidgets('客服入口在 enterprise=$enterprise 保留坐席权限组件', (tester) async {
+      await _pumpMine(tester, enterprise: enterprise);
+      expect(find.byType(CsWorkspaceEntryTile), findsOneWidget);
+      expect(
+        find.text('客服工作台'),
+        findsNothing,
+        reason: '无合格坐席上下文时仍隐藏，模式切换不能绕过权限',
+      );
+    });
+  }
 
   group('MinePage navigation', () {
     testWidgets('tap setting → /mine/setting', (tester) async {

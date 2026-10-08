@@ -126,7 +126,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                   ),
                   // CSM-01 §12.5.1：客服工作台入口（合格坐席可见，权限判定在
                   // owned 模块内；普通用户渲染为空占位）
-                  if (!widget.enterprise) const CsWorkspaceEntryTile(),
+                  const CsWorkspaceEntryTile(),
                 ],
               ),
             ),
