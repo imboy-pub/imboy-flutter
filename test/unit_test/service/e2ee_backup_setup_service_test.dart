@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:dio/dio.dart' show CancelToken;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -99,7 +100,15 @@ void main() {
       expect(api.infoCalls, 0);
       expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: true});
-      expect(await E2EEBackupSetupService.to.shouldPromptNow(api: api), isTrue);
+      expect(
+        await E2EEBackupSetupService.to.shouldPromptNow(api: api),
+        compiledProductFeatures.contains(FeatureKeys.e2ee),
+      );
+      expect(
+        api.infoCalls,
+        compiledProductFeatures.contains(FeatureKeys.e2ee) ? 1 : 0,
+      );
+      expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
     });
 
     test('备份查询期间关闭时不弹出，也不改写完成标记', () async {
@@ -107,6 +116,12 @@ void main() {
       final pending = Completer<E2EEBackupInfo>();
       final api = _FakeBackupApi(pendingInfo: pending.future);
       final result = E2EEBackupSetupService.to.shouldPromptNow(api: api);
+      if (!compiledProductFeatures.contains(FeatureKeys.e2ee)) {
+        expect(await result, isFalse);
+        expect(api.infoCalls, 0);
+        expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+        return;
+      }
       await api.infoStarted.future;
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: false});
       pending.complete(const E2EEBackupInfo(hasBackup: true, backupVersion: 1));
@@ -115,20 +130,29 @@ void main() {
     });
     test('服务端已有备份 → 静默补完成标记并返回 false', () async {
       await seedKeys();
-      final prompt = await E2EEBackupSetupService.to.shouldPromptNow(
-        api: _FakeBackupApi(hasBackup: true),
-      );
+      final api = _FakeBackupApi(hasBackup: true);
+      final prompt = await E2EEBackupSetupService.to.shouldPromptNow(api: api);
       expect(prompt, isFalse);
-      expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isTrue);
+      expect(
+        StorageService.to.getBool(kE2eeBackupSetupDoneKey),
+        compiledProductFeatures.contains(FeatureKeys.e2ee),
+      );
+      expect(
+        api.infoCalls,
+        compiledProductFeatures.contains(FeatureKeys.e2ee) ? 1 : 0,
+      );
     });
 
     test('服务端无备份 → true；推过一次后本次会话不再推', () async {
       await seedKeys();
+      final api = _FakeBackupApi(hasBackup: false);
       expect(
-        await E2EEBackupSetupService.to.shouldPromptNow(
-          api: _FakeBackupApi(hasBackup: false),
-        ),
-        isTrue,
+        await E2EEBackupSetupService.to.shouldPromptNow(api: api),
+        compiledProductFeatures.contains(FeatureKeys.e2ee),
+      );
+      expect(
+        api.infoCalls,
+        compiledProductFeatures.contains(FeatureKeys.e2ee) ? 1 : 0,
       );
       E2EEBackupSetupService.to.markPrompted();
       expect(
