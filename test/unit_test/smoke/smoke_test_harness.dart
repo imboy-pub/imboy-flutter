@@ -21,7 +21,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/page/moment/moment_feed_page.dart';
+import 'package:imboy/page/moment/moment_create_page.dart';
+import 'package:imboy/page/moment/moment_detail_page.dart';
+import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
+import 'package:imboy/component/http/http_client.dart' as api;
+import 'package:imboy/component/ui/app_loading.dart';
+
+import '../../secure_storage_test_pin.dart';
+
 import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/billing/billing_provider.dart';
@@ -42,7 +55,20 @@ void installSmokeHttpOverrides() {
 /// StorageService 已由 test/flutter_test_config.dart 全局初始化。
 Future<void> prepareSmokeEnv() async {
   mockSqfliteSqlcipher();
+  pinInertSecureStorage();
+  if (!serviceContainer.isRegistered<api.HttpClient>()) {
+    serviceContainer.put(api.HttpClient());
+  }
   await StorageService.to.setString(Keys.currentUid, 'smoke_test_uid');
+  await StorageService.setMap(Keys.appManifest, {
+    'manifest_hash': productFeatureManifestHash,
+    'manifest_schema_version': productFeatureSchemaVersion,
+    'compiled_features': compiledProductFeatures.toList(),
+    'features': {'moment': true, 'location': true},
+    'app_entries': ['moment_tab', 'people_nearby_page'],
+  });
+  AppManifestService.loadFromCache();
+  AppFeatureRegistry.replaceSnapshotForTest({'moment': true, 'location': true});
 }
 
 /// 构建带真实 GoRouter 的测试 App（镜像 lib/run.dart 的 IMBoyApp 关键结构）。
@@ -57,6 +83,7 @@ Widget buildRouterApp(GoRouter router) {
       builder: (_, _) => MaterialApp.router(
         debugShowCheckedModeBanner: false,
         routerConfig: router,
+        builder: AppLoading.init(),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
@@ -102,6 +129,23 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
     await tester.pump(const Duration(milliseconds: 100));
   }
   captured = tester.takeException();
+  final targetType = switch (route.name) {
+    'moment_feed' => MomentFeedPage,
+    'moment_create' => MomentCreatePage,
+    'moment_detail' => MomentDetailPage,
+    'people_nearby' => PeopleNearbyPage,
+    _ => null,
+  };
+  if (targetType != null) {
+    final actualPath = router.routeInformationProvider.value.uri.path;
+    final expectedPath = Uri.parse(route.location).path;
+    if (find.byType(targetType).evaluate().length != 1 ||
+        actualPath != expectedPath) {
+      captured ??= StateError(
+        '${route.name}: expected $targetType at $expectedPath, got $actualPath',
+      );
+    }
+  }
 
   // 卸载页面树：触发 State.dispose 取消页面自身的订阅/定时器
   await tester.pumpWidget(const SizedBox.shrink());
