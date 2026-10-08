@@ -1,8 +1,8 @@
-/// WebSocket API v2.0 端到端集成测试
+/// WebSocket API v2.0 消息模型与格式契约测试
 ///
 /// 测试目标：
 /// 1. 消息发送使用 v2.0 格式（msg_type/action/e2ee 在顶层）
-/// 2. E2EE 加密和解密正常工作
+/// 2. E2EE 元数据的消息模型序列化保持兼容
 /// 3. 消息接收正确解析 v2.0 格式
 /// 4. MessageModel 正确序列化和反序列化
 library;
@@ -12,7 +12,7 @@ import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
 void main() {
-  // 初始化 Flutter binding（E2EE 测试需要）
+  // 初始化 Flutter 测试绑定。
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('WebSocket API v2.0 集成测试', () {
@@ -206,21 +206,7 @@ void main() {
       });
     });
 
-    group('E2EE Service v2.0 测试', () {
-      // 跳过整个E2EE测试组，因为需要 flutter_secure_storage 插件
-      // 这些测试需要在真实设备或模拟器上运行
-      test('应该返回分离的 e2ee 元数据和密文', () async {
-        // Skip in test environment - requires flutter_secure_storage
-        // 在真实设备上运行此测试
-        expect(true, true); // 占位测试
-      }, skip: '需要 flutter_secure_storage 插件');
-
-      test('e2ee 元数据不应包含 ciphertext', () async {
-        // Skip in test environment - requires flutter_secure_storage
-        // 在真实设备上运行此测试
-        expect(true, true); // 占位测试
-      }, skip: '需要 flutter_secure_storage 插件');
-    });
+    // 真实加密、元数据分离与解密往返由 service/e2ee_service_test.dart 覆盖。
 
     group('v2.0 消息格式验证测试', () {
       test('C2C 消息应包含 msg_type 但不包含 action', () {

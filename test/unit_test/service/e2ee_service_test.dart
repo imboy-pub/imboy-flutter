@@ -251,6 +251,8 @@ void main() {
 
       // 验证 e2ee 元数据
       final e2ee = result['e2ee'] as Map<String, dynamic>;
+      expect(e2ee.containsKey('ciphertext'), isFalse);
+      expect(e2ee.containsKey('payload'), isFalse);
       expect(e2ee['e2ee'], true);
       expect(e2ee['e2ee_ver'], 1);
       expect(e2ee['e2ee_suite'], 'RSA-OAEP-256+AES-256-GCM');
@@ -263,6 +265,17 @@ void main() {
       expect(parts.length, 2);
       expect(parts[0].isNotEmpty, true); // IV
       expect(parts[1].isNotEmpty, true); // 密文
+      expect(base64Decode(parts[0]), hasLength(12));
+      expect(parts[0], e2ee['nonce']);
+      expect(
+        jsonDecode(
+          await E2EEService.decryptE2EEMessage(
+            ciphertext: ciphertext,
+            e2ee: e2ee,
+          ),
+        ),
+        plaintextPayload,
+      );
 
       // 验证 keys 数组
       final keys = e2ee['keys'] as List;
