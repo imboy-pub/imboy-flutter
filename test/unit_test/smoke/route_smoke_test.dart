@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/router/app_router.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 
@@ -93,14 +94,54 @@ void main() {
 
       final registered = smokeRoutes.map((e) => e.name).toSet();
       final missing = actual.difference(registered);
+      const optionalRouteNames = <String, Set<String>>{
+        'moment': {
+          'moment_feed',
+          'moment_create',
+          'moment_notify',
+          'moment_detail',
+        },
+        'location': {'people_nearby', 'map_location_picker'},
+        'channel': {
+          'qrcode_channel',
+          'channel_list',
+          'channel_create',
+          'channel_detail',
+          'channel_edit',
+          'channel_compose',
+          'channel_admins',
+          'channel_subscribers',
+          'channel_article',
+          'channel_comments',
+        },
+        'channel_discover': {'channel_discover'},
+        'channel_invitation': {'channel_invitations'},
+        'channel_order': {'channel_orders', 'channel_order_detail'},
+        'group_vote': {'group_vote', 'group_vote_detail'},
+        'group_schedule': {'group_schedule', 'group_schedule_detail'},
+        'group_task': {'group_task', 'group_task_detail'},
+      };
+      final excluded = <String>{
+        for (final entry in optionalRouteNames.entries)
+          if (!compiledProductFeatures.contains(entry.key)) ...entry.value,
+      };
+      expect(
+        actual.intersection(excluded),
+        isEmpty,
+        reason: 'Excluded feature routes must not be registered',
+      );
       final extra = registered.difference(actual);
+      expect(
+        extra,
+        excluded,
+        reason: 'Only explicitly compiled-out routes may be absent',
+      );
 
       expect(
         missing,
         isEmpty,
         reason: '以下路由未登记进 route_registry.dart: $missing',
       );
-      expect(extra, isEmpty, reason: '注册表存在 router 中不存在的多余路由（可能已被删除）: $extra');
     });
   });
 }

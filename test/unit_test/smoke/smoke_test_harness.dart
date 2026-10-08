@@ -39,6 +39,7 @@ import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/billing/billing_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/websocket_message_queue.dart';
 
 import '../helper/sqflite_test_helper.dart';
 import 'route_registry.dart';
@@ -157,6 +158,10 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
   } finally {
     router.dispose();
   }
+
+  // A blocked route can initialize the home page's process-wide queue.
+  // Release its synthetic test state before Flutter checks pending timers.
+  PersistentMessageQueue.to.dispose();
 
   // 冲刷本页遗留的一次性定时器（Future.delayed 等），把泄漏限制在本用例内。
   await tester.pump(const Duration(seconds: 5));
