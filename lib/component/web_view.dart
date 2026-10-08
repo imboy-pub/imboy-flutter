@@ -124,14 +124,12 @@ class ImboyJsBridge {
   }
 }
 
-// ignore: must_be_immutable
 class WebViewPage extends StatefulWidget {
   final String url;
-  String title;
-  WebViewController? _controller;
+  final String title;
   final void Function(String url)? errorCallback;
 
-  WebViewPage(this.url, this.title, {super.key, this.errorCallback});
+  const WebViewPage(this.url, this.title, {super.key, this.errorCallback});
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
@@ -140,6 +138,12 @@ class WebViewPage extends StatefulWidget {
 class WebViewPageState extends State<WebViewPage> {
   /// H5 桥（openChat 导航动作由本 State 提供 context）。
   late final ImboyJsBridge _bridge = ImboyJsBridge(onOpenChat: _openNativeChat);
+
+  /// controller/title 归 State 持有：上层 rebuild 会向路由页传入新的
+  /// widget 实例，若可变状态挂 widget 上，新实例字段为空会导致 build
+  /// 期空断言崩溃（openChat 打开聊天 → 未读徽标更新 → 触发过一次）。
+  WebViewController? _controller;
+  late String title = widget.title;
 
   /// 仅允许的 URL scheme。
   ///
@@ -176,7 +180,7 @@ class WebViewPageState extends State<WebViewPage> {
   void initState() {
     super.initState();
 
-    widget._controller = WebViewController()
+    _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       // 注意：JavaScriptMode.unrestricted 是 JS bridge（javascriptChannel）
       // 正常工作的必要条件。非 imboy.pub 域名加载时，NavigationDelegate 的
@@ -187,7 +191,7 @@ class WebViewPageState extends State<WebViewPage> {
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
-            if (widget.title.isEmpty) {
+            if (title.isEmpty) {
               AppLoading.showProgress(
                 progress / 100,
                 status: t.common.webpageLoading,
@@ -203,11 +207,11 @@ class WebViewPageState extends State<WebViewPage> {
           },
           onPageFinished: (String url) {
             AppLoading.dismiss();
-            if (widget.title.isEmpty && widget._controller != null) {
-              widget._controller!.getTitle().then((title) {
+            if (title.isEmpty && _controller != null) {
+              _controller!.getTitle().then((title) {
                 if (title != null) {
                   setState(() {
-                    widget.title = title;
+                    title = title;
                   });
                 }
               });
@@ -236,7 +240,7 @@ class WebViewPageState extends State<WebViewPage> {
     // 页面都能往里发消息。方法白名单见 ImboyJsBridge 类注释；第三方站点
     // 不在本通道挂载域内（isJsBridgeHost 只放行 imboy.pub 后缀）。
     if (isJsBridgeHost(widget.url)) {
-      widget._controller!.addJavaScriptChannel(
+      _controller!.addJavaScriptChannel(
         'imboyJSBridge', // 与h5 端的一致 不然收不到消息
         onMessageReceived: (JavaScriptMessage message) {
           unawaited(_handleBridgeMessage(message.message));
@@ -255,14 +259,14 @@ class WebViewPageState extends State<WebViewPage> {
     // H5 设备能力（定位/相机）授权接线。iOS 的 WKWebView 无回调时默认
     // prompt 系统权限弹窗（Info.plist 描述已备），无需接线；macOS/Web
     // 无 webview 实现（走系统浏览器），也不适用。
-    final platform = widget._controller!.platform;
+    final platform = _controller!.platform;
     if (platform is AndroidWebViewController) {
       unawaited(_wireAndroidDevicePermissions(platform));
     }
 
     // setBackgroundColor is not supported on macOS
     if (defaultTargetPlatform != TargetPlatform.macOS) {
-      widget._controller!.setBackgroundColor(AppColors.transparent);
+      _controller!.setBackgroundColor(AppColors.transparent);
     }
   }
 
@@ -271,9 +275,9 @@ class WebViewPageState extends State<WebViewPage> {
     // 对无 Cache-Control 响应的启发式缓存滞留旧页面；第三方页面（扫码
     // 浏览）保持缓存不清理。
     if (isJsBridgeHost(widget.url)) {
-      await widget._controller!.clearCache();
+      await _controller!.clearCache();
     }
-    await widget._controller!.loadRequest(Uri.parse(widget.url));
+    await _controller!.loadRequest(Uri.parse(widget.url));
   }
 
   /// 桥消息入口：分发并异步回推（页面可能在导航中，回推失败可安全丢弃）。
@@ -281,7 +285,7 @@ class WebViewPageState extends State<WebViewPage> {
     final reply = await _bridge.handle(raw);
     if (reply == null) return;
     try {
-      widget._controller?.runJavaScript(reply);
+      _controller?.runJavaScript(reply);
     } catch (_) {}
   }
 
@@ -339,20 +343,18 @@ class WebViewPageState extends State<WebViewPage> {
     AppLoading.dismiss();
     // 通道现在是按域名条件注册的，移除也必须同条件，否则移除未注册的通道
     if (isJsBridgeHost(widget.url)) {
-      widget._controller!.removeJavaScriptChannel('imboyJSBridge');
+      _controller!.removeJavaScriptChannel('imboyJSBridge');
     }
-    widget._controller!.clearLocalStorage();
-    widget._controller = null;
+    _controller!.clearLocalStorage();
+    _controller = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     PlatformWebViewWidgetCreationParams params =
-        PlatformWebViewWidgetCreationParams(
-          controller: widget._controller!.platform,
-        );
-    if (widget._controller!.platform is AndroidWebViewController) {
+        PlatformWebViewWidgetCreationParams(controller: _controller!.platform);
+    if (_controller!.platform is AndroidWebViewController) {
       params =
           AndroidWebViewWidgetCreationParams.fromPlatformWebViewWidgetCreationParams(
             params,
@@ -362,7 +364,7 @@ class WebViewPageState extends State<WebViewPage> {
     return Scaffold(
       appBar: GlassAppBar(
         titleWidget: Text(
-          widget.title,
+          title,
           // style: AppStyle.navAppBarTitleStyle,
         ),
         automaticallyImplyLeading: true,
