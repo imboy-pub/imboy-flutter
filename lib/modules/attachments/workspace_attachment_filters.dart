@@ -141,6 +141,7 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
             suffixIcon: _person.text.isEmpty
                 ? null
                 : IconButton(
+                    tooltip: context.t.common.clear,
                     onPressed: () {
                       _person.clear();
                       setState(() {});
