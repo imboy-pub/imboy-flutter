@@ -129,6 +129,9 @@ class _GroupVotePageState extends ConsumerState<GroupVotePage> {
       if (!mounted) return;
       if (vote != null) {
         _loadVotes(refresh: true);
+        if (vote['message_status'] == 'failed') {
+          AppLoading.showError(t.common.sendFailed);
+        }
       } else {
         AppLoading.showError(
           t.common.networkErrorWithAction(param: t.groupVote.createVote),

@@ -338,6 +338,7 @@ abstract class MessageType {
 
   /// 群日程卡片消息
   static const String groupSchedule = 'groupSchedule';
+  static const String groupVote = 'groupVote';
 
   /// 自定义消息
   ///
@@ -385,6 +386,7 @@ abstract class MessageType {
     redPacket,
     transfer,
     groupSchedule,
+    groupVote,
   ];
 
   /// 判断是否为有效的消息类型

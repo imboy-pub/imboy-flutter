@@ -2,6 +2,7 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/events/base_event.dart';
 import 'package:imboy/store/api/group_vote_api.dart';
+import 'package:imboy/modules/messaging/public.dart' show MessagingFacade;
 
 /// 群投票服务
 ///
@@ -35,11 +36,24 @@ class GroupVoteService {
         allowMultiple: allowMultiple,
         endTime: endTime,
       );
+      var localMessageFailed = false;
       if (result != null) {
+        final message = result['chat_message'];
+        if (message is Map<String, dynamic>) {
+          try {
+            await MessagingFacade.instance.processMessage('C2G', message);
+          } catch (e) {
+            // 云端消息已接受，本机失败不能把投票创建伪装成失败而诱发重复创建。
+            localMessageFailed = true;
+            iPrint('GroupVoteService: 本机投票消息写入失败 ${e.runtimeType}');
+          }
+        }
         iPrint('GroupVoteService: 创建投票成功 - $title');
         AppEventBus.fire(VoteCreatedEvent(groupId: groupId, data: result));
       }
-      return result;
+      return localMessageFailed && result != null
+          ? {...result, 'message_status': 'failed'}
+          : result;
     } catch (e) {
       iPrint('GroupVoteService: 创建投票失败 - $e');
       return null;
