@@ -33,6 +33,7 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'moment_interactions.dart';
 import 'moment_album_picker.dart';
+import 'moment_desktop_picker.dart';
 import 'moment_utils.dart';
 
 /// 朋友圈发布页 - 沉浸式重构（对标微信朋友圈发布体验）
@@ -353,6 +354,10 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     }
     // 剩余可选额度而非固定 momentMaxImageCount：避免多轮选择后总数超限。
     final remaining = momentMaxImageCount - _uploads.length;
+    if (Platform.isMacOS) {
+      await pickMomentDesktopMedia(context, _uploads);
+      return;
+    }
     final assets = await pickMomentAlbum(context, maxAssets: remaining);
     if (assets == null || assets.isEmpty || !mounted) return;
 
