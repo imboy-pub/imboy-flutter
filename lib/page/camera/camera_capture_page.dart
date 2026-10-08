@@ -56,8 +56,15 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
 
   /// 产物已通过 _confirm 移交调用方（dispose 时不再删除）。
   bool _handedOff = false;
+
+  /// 拍摄/启停录像操作在途标志：挡住动画/原生调用窗口期的重入点击，
+  /// 避免 startVideoRecording 二次触发导致状态机失衡。
+  bool _busy = false;
   final Stopwatch _recordWatch = Stopwatch();
   Timer? _recordTicker;
+
+  /// 录像预览缩略图（进入预览态时生成一次，避免 build 重建重复打原生）。
+  Future<File?>? _videoThumbFuture;
 
   @override
   void initState() {
@@ -67,6 +74,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   Future<void> _initCamera() async {
+    CameraController? controller;
     try {
       final cameras = await availableCameras();
       if (cameras.isEmpty) {
@@ -78,7 +86,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         (c) => c.lensDirection == CameraLensDirection.back,
         orElse: () => cameras.first,
       );
-      final controller = CameraController(
+      controller = CameraController(
         camera,
         ResolutionPreset.high,
         enableAudio: true,
@@ -94,6 +102,9 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         _initialized = true;
       });
     } on Object catch (e) {
+      // 初始化失败（权限被拒/设备占用等）必须释放半初始化的控制器，
+      // 否则原生捕获会话泄漏。
+      await controller?.dispose();
       debugPrint('[camera_capture_page] init failed, errType=${e.runtimeType}');
       _abort(t.common.permissionAcquisitionFailed);
     }
@@ -107,51 +118,71 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
   }
 
   Future<void> _takePhoto() async {
+    final controller = _controller;
+    if (controller == null || _busy) return;
+    _busy = true;
     try {
-      final file = await _controller!.takePicture();
+      final file = await controller.takePicture();
       if (!mounted) return;
-      setState(() => _captured = file);
+      setState(() {
+        _captured = file;
+        _videoThumbFuture = null;
+      });
     } on Object catch (e) {
       debugPrint('[camera_capture_page] takePicture error: $e');
       if (mounted) AppLoading.showToast(t.common.cameraShootFailed);
+    } finally {
+      _busy = false;
     }
   }
 
   Future<void> _toggleRecording() async {
     final controller = _controller;
-    if (controller == null) return;
-    if (_recording != true) {
+    if (controller == null || _busy) return;
+    _busy = true;
+    try {
+      if (_recording != true) {
+        try {
+          _recordWatch
+            ..reset()
+            ..start();
+          await controller.startVideoRecording();
+          if (!mounted) return;
+          setState(() => _recording = true);
+          _recordTicker = Timer.periodic(const Duration(milliseconds: 500), (
+            _,
+          ) {
+            if (mounted && _recording == true) setState(() {});
+          });
+        } on Object catch (e) {
+          debugPrint('[camera_capture_page] startRecording error: $e');
+          _recordWatch.stop();
+          if (mounted) AppLoading.showToast(t.common.cameraShootFailed);
+        }
+        return;
+      }
       try {
-        _recordWatch
-          ..reset()
-          ..start();
-        await controller.startVideoRecording();
+        final file = await controller.stopVideoRecording();
         if (!mounted) return;
-        setState(() => _recording = true);
-        _recordTicker = Timer.periodic(const Duration(milliseconds: 500), (_) {
-          if (mounted && _recording == true) setState(() {});
+        setState(() {
+          _captured = file;
+          _recording = false;
+          _videoThumbFuture = VideoCompress.getFileThumbnail(
+            file.path,
+            quality: 60,
+            position: -1,
+          );
         });
       } on Object catch (e) {
-        debugPrint('[camera_capture_page] startRecording error: $e');
-        _recordWatch.stop();
+        debugPrint('[camera_capture_page] stopRecording error: $e');
         if (mounted) AppLoading.showToast(t.common.cameraShootFailed);
+      } finally {
+        _recordTicker?.cancel();
+        _recordWatch.stop();
+        if (mounted) setState(() => _recording = false);
       }
-      return;
-    }
-    try {
-      final file = await controller.stopVideoRecording();
-      if (!mounted) return;
-      setState(() {
-        _captured = file;
-        _recording = false;
-      });
-    } on Object catch (e) {
-      debugPrint('[camera_capture_page] stopRecording error: $e');
-      if (mounted) AppLoading.showToast(t.common.cameraShootFailed);
     } finally {
-      _recordTicker?.cancel();
-      _recordWatch.stop();
-      if (mounted) setState(() => _recording = false);
+      _busy = false;
     }
   }
 
@@ -165,7 +196,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         // 临时目录文件删除失败不影响交互
       }
     }
-    if (mounted) setState(() => _captured = null);
+    if (mounted) {
+      setState(() {
+        _captured = null;
+        _videoThumbFuture = null;
+      });
+    }
   }
 
   void _confirm() {
@@ -204,8 +240,12 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
     if (controller != null) {
       if (_recording == true) {
         // 页面在录像中被关闭：先停录再释放，避免原生层悬挂。
+        // stop 失败（如录像已异常终止）同样必须释放控制器。
         unawaited(
-          controller.stopVideoRecording().then((_) => controller.dispose()),
+          controller
+              .stopVideoRecording()
+              .then((_) => controller.dispose())
+              .catchError((Object _) => controller.dispose()),
         );
       } else {
         unawaited(controller.dispose());
@@ -270,8 +310,8 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
             ),
           ),
           const Spacer(),
-          // 与左侧关闭按钮对称的占位，保证标题居中。
-          const SizedBox(width: 48),
+          // 与左侧关闭按钮（默认 48 逻辑像素宽）对称的占位，保证标题居中。
+          const SizedBox(width: AppSpacing.xxxLarge),
         ],
       ),
     );
@@ -342,9 +382,11 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildModeChip(context, t.common.cameraModePhoto, !isVideo, () {
+            if (_busy) return;
             setState(() => _recording = null);
           }),
           _buildModeChip(context, t.common.cameraModeVideo, isVideo, () {
+            if (_busy) return;
             setState(() => _recording = false);
           }),
         ],
@@ -424,11 +466,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
         Center(
           child: isVideo
               ? FutureBuilder<File?>(
-                  future: VideoCompress.getFileThumbnail(
-                    file.path,
-                    quality: 60,
-                    position: -1,
-                  ),
+                  future: _videoThumbFuture,
                   builder: (context, snap) {
                     final thumb = snap.data;
                     if (thumb == null) {
