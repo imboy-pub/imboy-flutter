@@ -211,6 +211,33 @@ void main() {
       });
     });
 
+    test('任意扩展名二进制文件保持名称、字节与三步 MIME 一致', () async {
+      for (final filename in ['settings.toml', 'archive.unknown', 'tool.exe']) {
+        final original = Uint8List.fromList([0, 1, 127, 255]);
+        await AttachmentApi.uploadViaPresign(
+          original,
+          filename,
+          'application/octet-stream',
+          process: false,
+          presignFn: (name, mime) async {
+            expect(name, filename);
+            expect(mime, 'application/octet-stream');
+            return okPresign();
+          },
+          putFn: (url, data, mime, process) async {
+            expect(data, original);
+            expect(mime, 'application/octet-stream');
+          },
+          confirmFn: (body) async {
+            expect(body['mime_type'], 'application/octet-stream');
+            expect(body['size'], original.length);
+            expect(body['file_hash256'], sha256.convert(original).toString());
+            return IMBoyHttpResponse.success(<String, dynamic>{});
+          },
+        );
+      }
+    });
+
     test('scope=public → confirmBody 带 scope=public、不带 scope_ref', () async {
       Map<String, dynamic>? confirmBody;
       await AttachmentApi.uploadViaPresign(

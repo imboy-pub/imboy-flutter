@@ -407,7 +407,8 @@ class ChatAttachmentHandler {
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         '${Xid()}.$ext',
-        mime,
+        // 普通文件按二进制直传；消息仍保留原始名称、扩展名及 MIME。
+        'application/octet-stream',
         scope: s.scope,
         scopeRef: s.scopeRef,
         // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
