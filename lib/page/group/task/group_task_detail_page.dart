@@ -97,7 +97,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
   }
 
   Future<void> _submitTask() async {
-    if (_isSubmitting || _task == null) return;
+    if (_isSubmitting || _task == null || _assignmentStatus >= 2) return;
     setState(() => _isSubmitting = true);
 
     final success = await GroupTaskService.to.submitTask(
@@ -140,6 +140,11 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
     );
   }
 
+  int get _assignmentStatus {
+    final assignment = _task?['my_assignment'];
+    return assignment is Map ? _toInt(assignment['status']) : 0;
+  }
+
   Widget _buildDetailContent() {
     final status = _toInt(_task!['status']);
     // group_task.status 枚举是 1待完成 2进行中 3已截止（见 foundation 迁移的列注释），
@@ -148,6 +153,8 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
     // 对最常见的状态 100% 不可用。疑似与 group_task_assignment.status
     //（0待完成 1进行中 2已提交 3已批改）的枚举混淆。
     final isCompleted = status == 3;
+    final isSubmitted = _assignmentStatus == 2;
+    final isReviewed = _assignmentStatus == 3;
 
     return CustomScrollView(
       slivers: [
@@ -167,7 +174,9 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                 ),
                 const SizedBox(height: AppSpacing.small),
                 _iosChip(
-                  isCompleted
+                  isSubmitted
+                      ? context.t.groupTask.taskSubmitted
+                      : isCompleted || isReviewed
                       ? context.t.groupTask.completed
                       : context.t.groupTask.pending,
                   isDark: Theme.of(context).brightness == Brightness.dark,
@@ -189,7 +198,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
                   value: _pendingReviewCount.toString(),
                 ),
                 const SizedBox(height: AppSpacing.regular),
-                if (!isCompleted)
+                if (!isCompleted && !isSubmitted && !isReviewed)
                   SizedBox(
                     width: double.infinity,
                     child: CupertinoButton.filled(
