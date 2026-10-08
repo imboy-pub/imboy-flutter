@@ -1,5 +1,6 @@
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,13 +65,24 @@ void main() {
         ),
       ),
     );
-    expect(find.text(t.chat.e2eeRecoveryBannerText), findsOneWidget);
+    expect(
+      find.text(t.chat.e2eeRecoveryBannerText),
+      compiledProductFeatures.contains(FeatureKeys.e2ee)
+          ? findsOneWidget
+          : findsNothing,
+    );
+    expect(dismissed, isFalse);
   });
 
   testWidgets('弹窗打开后关闭开关，恢复按钮不进入隐藏页面', (tester) async {
     await tester.pumpWidget(wrapGuide(E2EERecoveryScene.newDevice));
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
+    if (!compiledProductFeatures.contains(FeatureKeys.e2ee)) {
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+      expect(tester.takeException(), isNull);
+      return;
+    }
     AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: false});
     await tester.tap(find.text(t.chat.e2eeRecoveryGoRecover));
     await tester.pumpAndSettle();
@@ -88,6 +100,12 @@ void main() {
       ),
     );
 
+    if (!compiledProductFeatures.contains(FeatureKeys.e2ee)) {
+      expect(find.text(t.chat.e2eeRecoveryBannerText), findsNothing);
+      expect(find.byIcon(CupertinoIcons.xmark_circle_fill), findsNothing);
+      expect(dismissed, isFalse);
+      return;
+    }
     expect(find.text(t.chat.e2eeRecoveryBannerText), findsOneWidget);
 
     await tester.tap(find.byIcon(CupertinoIcons.xmark_circle_fill));
@@ -102,6 +120,11 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
+    if (!compiledProductFeatures.contains(FeatureKeys.e2ee)) {
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+      expect(find.text(t.chat.e2eeRecoveryGoRecover), findsNothing);
+      return;
+    }
     expect(find.text(t.chat.e2eeRecoveryNewDeviceTitle), findsOneWidget);
     expect(find.text(t.chat.e2eeRecoveryLater), findsOneWidget);
     expect(find.text(t.chat.e2eeRecoveryGoRecover), findsOneWidget);
@@ -118,6 +141,11 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
+    if (!compiledProductFeatures.contains(FeatureKeys.e2ee)) {
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+      expect(find.text(t.chat.e2eeRecoveryGoRecover), findsNothing);
+      return;
+    }
     expect(find.text(t.chat.e2eeRecoveryDecryptFailedTitle), findsOneWidget);
     expect(find.text(t.chat.e2eeRecoveryGoRecover), findsOneWidget);
   });

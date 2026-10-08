@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
@@ -90,10 +91,15 @@ void main() {
     expect(adapter.paths, isEmpty);
   });
 
-  test('enabled notification pull remains available', () async {
+  test('notification pull respects the compiled encryption boundary', () async {
     AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true});
     await service.pullKeyNotifications();
-    expect(adapter.paths, hasLength(1));
-    expect(adapter.paths.single, contains('notifications/pull'));
+    if (compiledProductFeatures.contains('e2ee')) {
+      expect(adapter.paths, hasLength(1));
+      expect(adapter.paths.single, contains('notifications/pull'));
+    } else {
+      expect(adapter.paths, isEmpty);
+      expect(StorageService.to.getInt('e2ee_notification_last_since'), isNull);
+    }
   });
 }
