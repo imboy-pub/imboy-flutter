@@ -1,6 +1,6 @@
 # imboyapp 功能状态清单 / Feature Status Checklist
 
-> 最后更新 / Last updated：2026-10-07
+> 最后更新 / Last updated：2026-10-08
 > 范围 / Scope：Flutter 客户端（iOS / Android / macOS）功能开关与实现状态
 > 真源 / Source of truth：
 > - 编译期产品面：`lib/app_core/feature_flags/generated_product_features.dart`（**生成物勿手改**，生成器 `imboy/scripts/generate_product_features.py`）
@@ -20,11 +20,11 @@
 | ② 本地硬关闭 | `AppFeatureRegistry._localDisabledKeys`（编译期常量集合） | 次之，覆盖后端 |
 | ③ 远程开关 | 后端 `/v1/app/features` snapshot，无数据默认 **true**，子功能随父级联动 | 最低 |
 
-**开发态 vs 交付态（重要）**：仓内 checked-in 的生成文件按 manifest `full-selected` profile 产出（开发态，编译面 15 键：core 基座 + 14 selected）；**一期交付**时以 `phase1_delivery` profile manifest 重新生成——编译面收敛为 `core / channel / customer_service / enterprise_business` 四键，moment、channel_discover/invitation/order、group_vote/schedule/task、location、bot_webhook、e2ee、project 的路由不生成、入口为 0（AC05 dry-render 实测记录，见 RUN_ROOT control/acceptance.tsv）。
+**开发态与交付态**：仓内生成文件以当前 manifest 为准；一期交付使用 `phase1_delivery` profile 重新生成。第一期包含 Core IM、企业、客服、频道基础、朋友圈、附近的人，以及群投票、群日程、群作业。二期和三期功能按交付白名单关闭。生成物中的功能键与服务端 profile 必须一致，不能仅凭入口可见认定能力已验收。
 
 **解除本地硬关闭**：从 `_localDisabledKeys` 删除对应 `FeatureKeys.*` 常量即可，功能代码保留。
 
-Feature visibility is controlled by three layers: compiled product face (generated) → local hard-disable → remote snapshot. The checked-in artifact reflects the **full-selected development profile**; phase1 delivery regenerates it with the `phase1_delivery` profile, shrinking the compiled face to four keys with all secondary-domain routes not generated.
+Feature visibility is controlled by the compiled product profile, local hard-disable rules and the remote snapshot. Phase 1 includes moments, nearby people and group collaboration; delivery artifacts must be regenerated from the matching profile.
 
 ---
 
@@ -46,24 +46,24 @@ Feature visibility is controlled by three layers: compiled product face (generat
 | OA 对接 / 推送通知 | ✅ | ✅ | 无，常驻 | 不可见（后台） | JPush 出口受 DND 规则 |
 | 设备管理 | ✅ | ✅ | 无，常驻 | 我的 → 设备 | — |
 
-### 一期受控面 / Delivery-profile Controlled（📦 四键）
+### 一期受控面 / Delivery-profile Controlled
 
 | 功能 | 前端 | 后端 API | 开关 | 备注 |
 |------|------|---------|------|------|
 | 频道基础 `channel` | ✅ | ✅ | 📦 🟢 | 父开关，一期交付面内含 |
 | 企业业务域 `enterprise_business` | ✅ | ✅ | 📦 🟢 | 组织/RBAC/工作空间 |
 | 客服域 `customer_service` | ✅ | ✅ | 📦 🟢 | 坐席/排队/转接 |
+| 朋友圈 `moment` | ✅ | ✅ | 📦 🟢 | 动态流/发布/点赞/评论/通知中心 |
+| 附近的人 `location` | ✅ | ✅ | 📦 🟢 | 定位权限与可见性受用户设置控制 |
+| 群投票/日程/作业 `group_vote/group_schedule/group_task` | ✅ | ✅ | 📦 🟢 | 创建后发布群消息卡片，点击进入详情 |
 
 ### 开发态可用 / Development-only（一期交付不生成入口）
 
-以下功能开发态（full-selected）默认开、代码完整；**phase1_delivery 交付时路由不生成、入口为 0**，服务端一期 profile 同步关闭（AC02 实测 5190 拒绝）：
+以下功能不属于一期交付白名单；开发态是否可用以实际配置和实现为准。交付时必须同时限制生成路由、客户端入口与服务端调用。
 
 | 功能 | 前端 | 后端 API | 开关（开发态） | 备注 |
 |------|------|---------|--------------|------|
-| 朋友圈全套 `moment` | ✅ | ✅ | 🟢 默认开 | 动态流/发布/点赞/评论/通知中心 |
 | 频道发现/邀请/订阅 `channelDiscover/Invitation/Order` | ✅ | ✅ | 🟢 依赖 `channel` | 一期交付仅保留 channel 基础 |
-| 群投票/日程/任务 `groupVote/Schedule/Task` | ✅ | ✅ | 🟢 默认开 | 群协作三件套 |
-| 附近人 `location` | ✅ | ✅ | 🟢 默认开 | 高德地图 |
 | 项目协作 `project` | ✅ | ✅ | 🟢 默认开 | — |
 | Bot Webhook `bot_webhook` | ✅ | ✅ | 🟢 默认开 | 二期 Bot 域保留源码 |
 | E2EE 端对端加密 `e2ee` | ✅ | ✅ | 🟢 开发态开；**phase1_delivery 关闭** | RSA-OAEP-256 + AES-256-GCM；UI 入口挂 `FeatureKeys.e2ee`（chat_setting_page / contact_setting_page / group_member_detail_page）；一期 OFF 不影响 TLS/企业托管加密/归档/历史/权限 |
