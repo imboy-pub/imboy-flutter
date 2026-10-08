@@ -106,13 +106,12 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
   // 卸载页面树：触发 State.dispose 取消页面自身的订阅/定时器
   await tester.pumpWidget(const SizedBox.shrink());
 
-  // 在本用例内显式、受保护地 dispose container：
-  // 避免「provider 异步 build 未完成时 dispose」抛错残留到 teardown，
-  // 污染共享 binding 引发后续用例级联（framework.dart:2168）。
+  // 清理失败必须使测试失败，不能被解释为路由渲染通过。
+  // Cleanup failures must fail the test rather than certify the route.
   try {
     container.dispose();
-  } on Object {
-    // 清理期的 pending-provider 噪音不算页面崩溃，吞掉但不影响 captured。
+  } finally {
+    router.dispose();
   }
 
   // 冲刷本页遗留的一次性定时器（Future.delayed 等），把泄漏限制在本用例内。
