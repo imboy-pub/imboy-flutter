@@ -124,8 +124,6 @@ const Set<String> leakyRoutesQuarantine = {
   'set_gender',
   'set_nickname',
   'set_region',
-  'settings',
-  'sign_in',
   'sign_up',
   'sign_up_continue',
   'transfer_send',

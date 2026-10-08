@@ -21,6 +21,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/page/mine/setting/setting_page.dart';
+import 'package:imboy/page/passport/login_page.dart';
+import 'package:imboy/page/passport/web_login_page.dart';
 import 'package:imboy/page/moment/moment_feed_page.dart';
 import 'package:imboy/page/moment/moment_create_page.dart';
 import 'package:imboy/page/moment/moment_detail_page.dart';
@@ -130,23 +133,7 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
     await tester.pump(const Duration(milliseconds: 100));
   }
   captured = tester.takeException();
-  final targetType = switch (route.name) {
-    'moment_feed' => MomentFeedPage,
-    'moment_create' => MomentCreatePage,
-    'moment_detail' => MomentDetailPage,
-    'people_nearby' => PeopleNearbyPage,
-    _ => null,
-  };
-  if (targetType != null) {
-    final actualPath = router.routeInformationProvider.value.uri.path;
-    final expectedPath = Uri.parse(route.location).path;
-    if (find.byType(targetType).evaluate().length != 1 ||
-        actualPath != expectedPath) {
-      captured ??= StateError(
-        '${route.name}: expected $targetType at $expectedPath, got $actualPath',
-      );
-    }
-  }
+  captured ??= _targetRenderError(tester, route, router);
 
   // 卸载页面树：触发 State.dispose 取消页面自身的订阅/定时器
   await tester.pumpWidget(const SizedBox.shrink());
@@ -167,6 +154,33 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
   await tester.pump(const Duration(seconds: 5));
 
   return captured;
+}
+
+Object? _targetRenderError(
+  WidgetTester tester,
+  SmokeRoute route,
+  GoRouter router,
+) {
+  final targets = switch (route.name) {
+    'sign_in' => <Type>[LoginPage, WebLoginPage],
+    'settings' => <Type>[SettingPage],
+    'moment_feed' => <Type>[MomentFeedPage],
+    'moment_create' => <Type>[MomentCreatePage],
+    'moment_detail' => <Type>[MomentDetailPage],
+    'people_nearby' => <Type>[PeopleNearbyPage],
+    _ => <Type>[],
+  };
+  if (targets.isEmpty) return null;
+  final actualPath = router.routeInformationProvider.value.uri.path;
+  final expectedPath = Uri.parse(route.location).path;
+  final targetCount = targets.fold<int>(
+    0,
+    (count, type) => count + find.byType(type).evaluate().length,
+  );
+  if (targetCount == 1 && actualPath == expectedPath) return null;
+  return StateError(
+    '${route.name}: expected $targets at $expectedPath, got $actualPath',
+  );
 }
 
 /// 账单页 initState 会同时拉取套餐与订阅；烟雾测试只验证渲染，不应连接真实
