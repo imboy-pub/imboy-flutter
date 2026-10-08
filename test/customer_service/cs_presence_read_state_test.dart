@@ -369,11 +369,13 @@ void main() {
       final adapter = _GateAdapter(
         firstReadState: readStateBody(kMsg1, 5),
         secondReadState: readStateBody(kMsg1, 3),
+        detailDelay: const Duration(milliseconds: 100),
         detail: detailBody(),
         history: historyBody(),
       );
       HttpClient.adapterForTest = adapter;
       addTearDown(() => HttpClient.adapterForTest = null);
+      final resyncCompleted = Completer<void>();
       final flow = CsSessionFlow(
         orgId: kOrgId,
         sessionId: kSessionId,
@@ -381,8 +383,13 @@ void main() {
         conversationId: kConvId,
         workspaceId: kWsId,
         contactMaskedName: '张**',
+        onChanged: () {
+          if (!resyncCompleted.isCompleted) resyncCompleted.complete();
+        },
         store: EnterpriseMemoryStore(),
       );
+
+      addTearDown(flow.dispose);
 
       // 断线前的本地快照（陈旧源）：未读 5。
       await flow.resyncReadState();
@@ -407,7 +414,9 @@ void main() {
       );
       flow.bindEvents(stream);
       // 读状态 GET 被闸住：此窗口内断言「陈旧未读已失效、消息未渲染」。
-      await Future<void>.delayed(const Duration(milliseconds: 30));
+      await adapter.secondReadRequested.future.timeout(
+        const Duration(seconds: 5),
+      );
       expect(flow.unreadCount, isNull, reason: 'resync 后陈旧未读立即失效（null = 不渲染）');
       expect(
         adapter.messagesFetched,
@@ -418,7 +427,7 @@ void main() {
 
       // 放行：重同步完成 → 增量消息 → 展示完成 ACK。
       adapter.gate.complete();
-      await Future<void>.delayed(const Duration(milliseconds: 80));
+      await resyncCompleted.future.timeout(const Duration(seconds: 5));
 
       expect(adapter.messagesFetched, isTrue);
       final order = adapter.methodPathLog;
@@ -429,7 +438,6 @@ void main() {
       expect(msgIdx, lessThan(ackIdx), reason: '展示完成后才 ACK');
       expect(flow.ackedCursor, kMsg2);
       expect(flow.unreadCount, 0, reason: 'ACK 后未读清零，不残留重连前的 5');
-      flow.dispose();
     });
 
     test('转接后未读陈旧化：transferredAway 终态不渲染旧坐席视角未读', () async {
@@ -524,6 +532,7 @@ class _GateAdapter implements HttpClientAdapter {
     required this.secondReadState,
     required this.detail,
     required this.history,
+    this.detailDelay = Duration.zero,
   }) : gate = Completer<void>();
 
   final Map<String, dynamic> firstReadState;
@@ -531,6 +540,8 @@ class _GateAdapter implements HttpClientAdapter {
   final Map<String, dynamic> detail;
   final Map<String, dynamic> history;
   final Completer<void> gate;
+  final Duration detailDelay;
+  final secondReadRequested = Completer<void>();
 
   int readStateGets = 0;
   bool messagesFetched = false;
@@ -549,7 +560,10 @@ class _GateAdapter implements HttpClientAdapter {
       if (method == 'GET') {
         readStateGets++;
         methodPathLog.add('GET /read-cursor');
-        if (readStateGets == 2) await gate.future;
+        if (readStateGets == 2) {
+          secondReadRequested.complete();
+          await gate.future;
+        }
         return _json(readStateGets == 1 ? firstReadState : secondReadState);
       }
       ackBody = options.data;
@@ -558,6 +572,7 @@ class _GateAdapter implements HttpClientAdapter {
     }
     if (path.contains('/sessions/$kSessionId')) {
       methodPathLog.add('GET /sessions');
+      await Future<void>.delayed(detailDelay);
       return _json(detail);
     }
     if (path.contains('conversations/$kConvId/messages')) {
