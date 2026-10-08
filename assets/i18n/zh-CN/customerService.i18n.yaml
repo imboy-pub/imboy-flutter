@@ -136,6 +136,7 @@ governance:
   actionDone: "操作已生效"
   actionFailed: "操作失败，请稍后重试"
   errorForbidden: "无治理权限：客服治理仅对组织 owner/admin 开放"
+  errorNoDefaultWorkspace: "组织未设置默认工作区，无法确定客服治理作用域"
   errorLoadFailed: "加载失败"
   errorWithCode: "${msg}（${code}）"
   seatLimitExceededHint: "席位额度已满：已用 ${used}/${limit}，无法新增坐席（seat_limit_exceeded）"

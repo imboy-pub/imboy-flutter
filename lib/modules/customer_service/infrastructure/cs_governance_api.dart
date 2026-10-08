@@ -4,13 +4,22 @@
 /// 候选 67e18677 集成面）：以下端点全部是**租户治理面**（route metadata
 /// `auth_context => enterprise_owner_admin` + `required_governance =>
 /// [owner, admin]`），凭证 = 移动端统一 Human JWT（HttpClient 链路）：
-/// - `GET  /api/v1/cs/organizations/:org_id/seat-limit`（额度视图）；
+/// - `GET  /api/v1/cs/organizations/:org_id/seat-limit?workspace_id=`
+///   （额度视图）；
 /// - `PUT  /api/v1/cs/organizations/:org_id/seat-limit`（body 形如
-///    `{"seat_limit": n}`；缺省 = 清除 → unlimited；CS-BE-06）；
-/// - `GET  /api/v1/cs/organizations/:org_id/seats?after_id=&limit=`
+///    `{"seat_limit": n, "workspace_id": ws}`；seat_limit 缺省 = 清除 →
+///    unlimited；CS-BE-06）；
+/// - `GET  /api/v1/cs/organizations/:org_id/seats?workspace_id=&after_id=&limit=`
 ///   （seat 列表键集分页，行投影含 enabled/max_concurrent/active_count）；
-/// - `POST /api/v1/cs/organizations/:org_id/seats/:id/suspend`（reason 可选）
-///   / `POST .../seats/:id/resume`（enabled 治理）。
+/// - `POST /api/v1/cs/organizations/:org_id/seats/:id/suspend`（body 含
+///   workspace_id；reason 可选）/ `POST .../seats/:id/resume`（enabled 治理）。
+///
+/// workspace 门（CS-BE-02）：租户治理面 `workspace_id` 是 handler 级必填
+/// ——GET 走查询串、写走正文，缺失即 422 `missing_workspace_id`（真机
+/// 「加载失败：missing_workspace_id (422)」的根因即本客户端此前未携带）。
+/// 取数来源 = 组织默认工作区指针（C05
+/// `GET /api/v1/organizations/:org_id/default-workspace`），由治理页解析
+/// 后透传；本客户端不自行解析。
 ///
 /// 凭证纪律（任务卡红线）：本客户端只走 Human JWT 租户面——**绝不**请求
 /// `/api/adm`（平台 Admin Cookie 面），也不消费 Seat JWT 专属端点
@@ -173,8 +182,14 @@ class CsGovernanceApiException implements Exception {
 /// 企业自助客服治理 API 客户端（Human JWT 租户治理面，owner/admin）。
 class CsGovernanceApi extends HttpClient {
   /// 额度视图：GET /api/v1/cs/organizations/:org_id/seat-limit。
-  Future<CsSeatLimitView> seatLimitView(EntityId orgId) async {
-    final resp = await get('/api/v1/cs/organizations/$orgId/seat-limit');
+  Future<CsSeatLimitView> seatLimitView(
+    EntityId orgId, {
+    required EntityId workspaceId,
+  }) async {
+    final resp = await get(
+      '/api/v1/cs/organizations/$orgId/seat-limit',
+      queryParameters: <String, dynamic>{'workspace_id': workspaceId},
+    );
     _ensureOk(resp);
     return CsSeatLimitView.fromJson(resp.payload);
   }
@@ -185,10 +200,17 @@ class CsGovernanceApi extends HttpClient {
   /// [seatLimit] 正整数 = 配置上限；null = 清除（→ unlimited，组织缺省）。
   /// 成功回显新额度视图（含现算 used）；403（治理权限不足）/ 422
   /// （invalid_seat_limit）诚实抛出。
-  Future<CsSeatLimitView> setSeatLimit(EntityId orgId, int? seatLimit) async {
+  Future<CsSeatLimitView> setSeatLimit(
+    EntityId orgId,
+    int? seatLimit, {
+    required EntityId workspaceId,
+  }) async {
     final resp = await put(
       '/api/v1/cs/organizations/$orgId/seat-limit',
-      data: <String, dynamic>{'seat_limit': ?seatLimit},
+      data: <String, dynamic>{
+        'workspace_id': workspaceId,
+        'seat_limit': ?seatLimit,
+      },
     );
     _ensureOk(resp);
     return CsSeatLimitView.fromJson(resp.payload);
@@ -197,12 +219,14 @@ class CsGovernanceApi extends HttpClient {
   /// seat 列表（键集分页）：GET /api/v1/cs/organizations/:org_id/seats。
   Future<CsGovernanceSeatPage> seatsPage(
     EntityId orgId, {
+    required EntityId workspaceId,
     String? afterId,
     int? limit,
   }) async {
     final resp = await get(
       '/api/v1/cs/organizations/$orgId/seats',
       queryParameters: <String, dynamic>{
+        'workspace_id': workspaceId,
         if (afterId != null && afterId.isNotEmpty) 'after_id': afterId,
         if (limit != null && limit > 0) 'limit': limit,
       },
@@ -215,21 +239,26 @@ class CsGovernanceApi extends HttpClient {
   Future<void> suspendSeat(
     EntityId orgId,
     EntityId businessIdentityId, {
+    required EntityId workspaceId,
     String? reason,
   }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/seats/$businessIdentityId/suspend',
-      data: <String, dynamic>{'reason': ?reason},
+      data: <String, dynamic>{'workspace_id': workspaceId, 'reason': ?reason},
     );
     _ensureOk(resp);
   }
 
   /// 恢复坐席（enabled=true）：
   /// POST /api/v1/cs/organizations/:org_id/seats/:id/resume。
-  Future<void> resumeSeat(EntityId orgId, EntityId businessIdentityId) async {
+  Future<void> resumeSeat(
+    EntityId orgId,
+    EntityId businessIdentityId, {
+    required EntityId workspaceId,
+  }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/seats/$businessIdentityId/resume',
-      data: <String, dynamic>{},
+      data: <String, dynamic>{'workspace_id': workspaceId},
     );
     _ensureOk(resp);
   }

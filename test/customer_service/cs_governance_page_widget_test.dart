@@ -3,11 +3,14 @@
 /// 覆盖：
 /// - ready 态：额度事实卡（n|unlimited + used）+ 坐席行投影 + TSID 19 位
 ///   lossless 展示；
+/// - workspace 门（CS-BE-02）：页面先经 C05 默认工作区指针解析再携带
+///   `workspace_id`（GET 走 query、写走 body）；指针未设置即诚实终态且
+///   治理端点不发出；
 /// - 权限负例：403（governance_insufficient）诚实渲染权限终态（无重试
 ///   按钮、不伪装成空列表）；
 /// - 一般错误（500）：错误态 + 重试入口；
-/// - 额度变化：调整对话框提交 → PUT body `{seat_limit}` → 回显新额度
-///   （含达上限徽标）；非法输入本地拒绝不发 PUT；
+/// - 额度变化：调整对话框提交 → PUT body `{seat_limit, workspace_id}` →
+///   回显新额度（含达上限徽标）；非法输入本地拒绝不发 PUT；
 /// - 超额冲突可解释：动作失败 envelope msg=seat_limit_exceeded →
 ///   SnackBar 给可解释文案（含当前额度事实）；
 /// - 切换 Organization 失效重建：orgId 变化即丢弃旧 Org 数据并按新
@@ -63,7 +66,7 @@ void main() {
       find.byKey(const ValueKey('cs-governance-limit-at-capacity')),
       findsNothing,
     );
-    expect(adapter.hits.length, 2);
+    expect(adapter.hits.length, 3, reason: '默认工作区解析 + seat-limit + seats');
     expect(
       find.byKey(const ValueKey('cs-governance-scope-note')),
       findsOneWidget,
@@ -97,7 +100,8 @@ void main() {
       adapter
           .bodies['POST /cs/organizations/$orgA/seats/$identityA/resume']!
           .single,
-      <String, dynamic>{},
+      <String, dynamic>{'workspace_id': wsA},
+      reason: 'workspace 门：写走正文（CS-BE-02）',
     );
     expect(adapter.hits.where((h) => h.endsWith('/seats')), hasLength(2));
     expect(adapter.hits.where((h) => h.endsWith('/seat-limit')), hasLength(2));
@@ -162,6 +166,37 @@ void main() {
     );
   });
 
+  testWidgets('组织未设置默认工作区：诚实终态，治理端点不发出', (tester) async {
+    final adapter = GovRouterAdapter({
+      'GET /cs/organizations/$orgA/seat-limit': [(200, limitPayload(orgA))],
+      'GET /cs/organizations/$orgA/seats': [(200, seatsPayload())],
+    }, defaultWorkspaceId: null);
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+
+    await tester.pumpWidget(governanceHost(orgA));
+    await pumpUntilUxFound(
+      tester,
+      find.byKey(const ValueKey('cs-governance-error')),
+    );
+    await settleUx(tester);
+
+    expect(
+      find.textContaining('组织未设置默认工作区'),
+      findsOneWidget,
+      reason: 'C05 指针为空 → 诚实终态，不伪装成空列表',
+    );
+    expect(
+      find.byKey(const ValueKey('cs-governance-limit-value')),
+      findsNothing,
+    );
+    expect(
+      adapter.hits.where((h) => h.contains('/seat-limit')),
+      isEmpty,
+      reason: '无 workspace 门参数可携带，治理端点不发出',
+    );
+  });
+
   testWidgets('一般错误：500 wire tag 透传 + 点击重试恢复', (tester) async {
     final adapter = GovRouterAdapter({
       'GET /cs/organizations/$orgA/seat-limit': [
@@ -217,7 +252,8 @@ void main() {
     await pumpUntilUxFound(tester, find.text('不限'));
     expect(
       adapter.bodies['PUT /cs/organizations/$orgA/seat-limit']!.single,
-      <String, dynamic>{},
+      <String, dynamic>{'workspace_id': wsA},
+      reason: 'workspace_id 必带；seat_limit 缺省键 = 清除 → unlimited',
     );
   });
 
@@ -326,7 +362,10 @@ void main() {
 
     final putBodies =
         adapter.bodies['PUT /cs/organizations/$orgA/seat-limit'] ?? [];
-    expect(putBodies.single, <String, dynamic>{'seat_limit': 2});
+    expect(putBodies.single, <String, dynamic>{
+      'seat_limit': 2,
+      'workspace_id': wsA,
+    });
     expect(find.text('2/2 席位'), findsOneWidget, reason: '额度变化后回显服务端事实');
     expect(
       find.byKey(const ValueKey('cs-governance-limit-at-capacity')),
@@ -465,6 +504,7 @@ void main() {
           (200, seatsPayload(seats: [seatRow(orgB, identityB)])),
         ],
       },
+      orgs: const <String>[orgA, orgB],
       beforeResponse: (key) async {
         if (key.contains('$orgA/seat-limit')) await delayed.future;
       },
@@ -513,6 +553,7 @@ void main() {
         ],
         'GET /cs/organizations/$orgB/seats': [(200, seatsPayload())],
       },
+      orgs: const <String>[orgA, orgB],
       beforeResponse: (key) async {
         if (key.startsWith('PUT ')) await delayed.future;
       },
@@ -659,20 +700,23 @@ void main() {
   });
 
   testWidgets('切换 Organization：orgId 变化失效重建（新路径重拉 + 旧数据消失）', (tester) async {
-    final adapter = GovRouterAdapter({
-      'GET /cs/organizations/$orgA/seat-limit': [
-        (200, limitPayload(orgA, seatLimit: 5, used: 1)),
-      ],
-      'GET /cs/organizations/$orgA/seats': [
-        (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
-      ],
-      'GET /cs/organizations/$orgB/seat-limit': [
-        (200, limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
-      ],
-      'GET /cs/organizations/$orgB/seats': [
-        (200, seatsPayload(seats: [seatRow(orgB, identityB)])),
-      ],
-    });
+    final adapter = GovRouterAdapter(
+      {
+        'GET /cs/organizations/$orgA/seat-limit': [
+          (200, limitPayload(orgA, seatLimit: 5, used: 1)),
+        ],
+        'GET /cs/organizations/$orgA/seats': [
+          (200, seatsPayload(seats: [seatRow(orgA, identityA)])),
+        ],
+        'GET /cs/organizations/$orgB/seat-limit': [
+          (200, limitPayload(orgB, seatLimit: 'unlimited', used: 7)),
+        ],
+        'GET /cs/organizations/$orgB/seats': [
+          (200, seatsPayload(seats: [seatRow(orgB, identityB)])),
+        ],
+      },
+      orgs: const <String>[orgA, orgB],
+    );
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
@@ -700,8 +744,8 @@ void main() {
     );
     expect(
       adapter.hits.where((h) => h.contains(orgA)).length,
-      2,
-      reason: 'orgA 仅首轮 2 个请求（seat-limit + seats）',
+      3,
+      reason: 'orgA 仅首轮 3 个请求（默认工作区解析 + seat-limit + seats）',
     );
     expect(
       adapter.hits.where((h) => h.contains(orgB)),

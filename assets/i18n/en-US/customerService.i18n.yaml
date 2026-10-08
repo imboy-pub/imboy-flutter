@@ -135,6 +135,7 @@ governance:
   actionDone: "Action applied"
   actionFailed: "Action failed. Please try again later"
   errorForbidden: "Governance denied: support governance is limited to organization owner/admin"
+  errorNoDefaultWorkspace: "No default workspace is set for this organization; governance scope is undetermined"
   errorLoadFailed: "Failed to load"
   errorWithCode: "${msg} (${code})"
   seatLimitExceededHint: "Seat quota exceeded: ${used}/${limit} in use, cannot add seats (seat_limit_exceeded)"

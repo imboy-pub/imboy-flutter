@@ -36,6 +36,7 @@ void main() {
           ],
           'GET /cs/organizations/$orgB/seats': [(200, seatsPayload())],
         },
+        orgs: const <String>[orgA, orgB],
         beforeResponse: (key) async {
           if (key.endsWith('$orgA/seats') && ++aSeatRequests == 2) {
             started.complete();

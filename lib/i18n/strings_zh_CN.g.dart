@@ -7770,6 +7770,9 @@ class Translations$customerService$governance$zh_CN {
 	/// zh-CN: '无治理权限：客服治理仅对组织 owner/admin 开放'
 	String get errorForbidden => '无治理权限：客服治理仅对组织 owner/admin 开放';
 
+	/// zh-CN: '组织未设置默认工作区，无法确定客服治理作用域'
+	String get errorNoDefaultWorkspace => '组织未设置默认工作区，无法确定客服治理作用域';
+
 	/// zh-CN: '加载失败'
 	String get errorLoadFailed => '加载失败';
 
@@ -10659,6 +10662,7 @@ extension on Translations {
 			'customerService.governance.actionDone' => '操作已生效',
 			'customerService.governance.actionFailed' => '操作失败，请稍后重试',
 			'customerService.governance.errorForbidden' => '无治理权限：客服治理仅对组织 owner/admin 开放',
+			'customerService.governance.errorNoDefaultWorkspace' => '组织未设置默认工作区，无法确定客服治理作用域',
 			'customerService.governance.errorLoadFailed' => '加载失败',
 			'customerService.governance.errorWithCode' => ({required Object msg, required Object code}) => '${msg}（${code}）',
 			'customerService.governance.seatLimitExceededHint' => ({required Object used, required Object limit}) => '席位额度已满：已用 ${used}/${limit}，无法新增坐席（seat_limit_exceeded）',
@@ -11023,9 +11027,9 @@ extension on Translations {
 			'main.sent' => '已发送',
 			'main.sentByMe' => '我发送的',
 			'main.setParam' => ({required Object param}) => '设置${param}',
-			'main.setting' => '设置',
 			_ => null,
 		} ?? switch (path) {
+			'main.setting' => '设置',
 			'main.siginQ' => '已经有账号了？',
 			'main.source' => '来源',
 			'main.speakingTooShort' => '说话时间太短',
@@ -11537,9 +11541,9 @@ extension on Translations {
 			'passport.qrLoginAction' => '确认登录',
 			'passport.qrLoginSuccess' => '登录成功',
 			'passport.alipayNotSupportedWeb' => 'Web 平台不支持支付宝登录',
-			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支持一键登录功能',
 			_ => null,
 		} ?? switch (path) {
+			'passport.oneKeyNotSupportedWeb' => 'Web 平台不支持一键登录功能',
 			'passport.oneKeyInitFailed' => '一键登录服务初始化失败，请稍后重试',
 			'passport.oneKeyNoSimCard' => '当前网络环境不支持，或者手机没有绑定电话卡',
 			'passport.cannotGetScreenSize' => '无法获取屏幕尺寸',

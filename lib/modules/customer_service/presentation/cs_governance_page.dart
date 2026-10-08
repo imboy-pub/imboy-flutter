@@ -6,6 +6,9 @@
 ///   面，也不消费 Seat JWT 专属端点）；
 /// - 坐席席位列表（enabled / max_concurrent / active_count 投影）与
 ///   suspend/resume 启停治理；
+/// - workspace 门（CS-BE-02）：治理端点 `workspace_id` 必填（缺失 422
+///   missing_workspace_id），本页进入作用域时经 C05 默认工作区指针解析
+///   （`GET /organizations/:orgId/default-workspace`），未设置即诚实终态；
 /// - widget 治理：tenant API 未提供只读 widget 治理端点（widget 面是
 ///   访客 bootstrap 令牌面），本页不伪装提供该能力。
 ///
@@ -26,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/modules/customer_service/infrastructure/cs_governance_api.dart';
+import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -38,6 +42,15 @@ class CsGovernanceErrorUi {
 
   final bool permissionDenied;
   final String text;
+}
+
+/// 组织未设置默认工作区（C05 指针为 null）——租户治理面 workspace 门
+/// （CS-BE-02）无法满足，治理数据不可达。诚实终态，不伪装成空列表。
+class CsNoDefaultWorkspaceError implements Exception {
+  const CsNoDefaultWorkspaceError();
+
+  @override
+  String toString() => 'default_workspace_not_set';
 }
 
 /// 错误 → UI 状态映射：页面/动作反馈共用（不自行解析错误字符串）。
@@ -54,6 +67,9 @@ CsGovernanceErrorUi csGovernanceErrorToUi(Object error, Translations t) {
       text: gov.errorWithCode(msg: error.message, code: error.code),
     );
   }
+  if (error is CsNoDefaultWorkspaceError) {
+    return CsGovernanceErrorUi(text: gov.errorNoDefaultWorkspace);
+  }
   return CsGovernanceErrorUi(text: error.toString());
 }
 
@@ -69,7 +85,12 @@ class CsGovernancePage extends StatefulWidget {
 
 class _CsGovernancePageState extends State<CsGovernancePage> {
   final CsGovernanceApi _api = CsGovernanceApi();
+  final OrganizationApi _orgApi = OrganizationApi();
   final TextEditingController _limitInput = TextEditingController();
+
+  /// 当前 Org 作用域的默认工作区（C05 指针解析产物；租户治理面 workspace
+  /// 门的必填参数来源）。按 scope 缓存：orgId 变化即失效，refresh 不重解析。
+  EntityId? _workspaceId;
 
   CsSeatLimitView? _limit;
   List<CsGovernanceSeatRow> _seats = const <CsGovernanceSeatRow>[];
@@ -92,9 +113,11 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
   void didUpdateWidget(CsGovernancePage old) {
     super.didUpdateWidget(old);
     // 切换 Organization 失效重建：orgId 变化即丢弃全部旧 Org 治理数据
-    // （额度/列表/游标/错误态），按新 orgId 重新拉取——不残留陈旧事实。
+    // （额度/列表/游标/错误态/工作区解析），按新 orgId 重新拉取——不残留
+    // 陈旧事实。
     if (old.orgId != widget.orgId) {
       _scopeEpoch++;
+      _workspaceId = null;
       _resetState();
       _refresh();
     }
@@ -129,9 +152,25 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
       _errorObj = null;
     });
     try {
-      final limit = await _api.seatLimitView(orgId);
+      var wsId = _workspaceId;
+      if (wsId == null) {
+        // C05 默认工作区指针：租户治理面 workspace 门的取数来源（空 =
+        // 组织未设置，治理数据不可达，诚实终态）。
+        final wsRef = await _orgApi.defaultWorkspace(orgId);
+        if (!_currentRead(orgId, epoch, generation)) return;
+        wsId = wsRef.defaultWorkspaceId;
+        if (wsId.isEmpty) {
+          setState(() {
+            _resetState();
+            _errorObj = const CsNoDefaultWorkspaceError();
+          });
+          return;
+        }
+        _workspaceId = wsId;
+      }
+      final limit = await _api.seatLimitView(orgId, workspaceId: wsId);
       if (!_currentRead(orgId, epoch, generation)) return;
-      final page = await _api.seatsPage(orgId);
+      final page = await _api.seatsPage(orgId, workspaceId: wsId);
       if (!_currentRead(orgId, epoch, generation)) return;
       setState(() {
         _limit = limit;
@@ -153,12 +192,18 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
 
   Future<void> _loadMore() async {
     if (_loading || _loadingMore || _nextAfterId.isEmpty) return;
+    final wsId = _workspaceId;
+    if (wsId == null) return;
     final orgId = widget.orgId;
     final epoch = _scopeEpoch;
     final generation = _readGeneration;
     setState(() => _loadingMore = true);
     try {
-      final page = await _api.seatsPage(orgId, afterId: _nextAfterId);
+      final page = await _api.seatsPage(
+        orgId,
+        workspaceId: wsId,
+        afterId: _nextAfterId,
+      );
       if (!_currentRead(orgId, epoch, generation)) return;
       setState(() {
         _seats = [..._seats, ...page.rows];
@@ -335,6 +380,8 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
   }
 
   Future<void> _applyLimitValue(String raw) async {
+    final wsId = _workspaceId;
+    if (wsId == null) return;
     final orgId = widget.orgId;
     final epoch = _scopeEpoch;
     final t = context.t.customerService.governance;
@@ -344,7 +391,11 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
       return;
     }
     try {
-      final view = await _api.setSeatLimit(orgId, raw.isEmpty ? null : parsed);
+      final view = await _api.setSeatLimit(
+        orgId,
+        raw.isEmpty ? null : parsed,
+        workspaceId: wsId,
+      );
       if (!_currentScope(orgId, epoch)) return;
       setState(() => _limit = view);
       _snack(t.limitSaved);
@@ -376,12 +427,22 @@ class _CsGovernancePageState extends State<CsGovernancePage> {
       ),
     );
     if (ok != true || !_currentScope(orgId, epoch)) return;
-    await _runSeatAction(() => _api.suspendSeat(orgId, row.businessIdentityId));
+    final wsId = _workspaceId;
+    if (wsId == null) return;
+    await _runSeatAction(
+      () => _api.suspendSeat(orgId, row.businessIdentityId, workspaceId: wsId),
+    );
   }
 
   Future<void> _resume(CsGovernanceSeatRow row) async {
+    final wsId = _workspaceId;
+    if (wsId == null) return;
     await _runSeatAction(
-      () => _api.resumeSeat(widget.orgId, row.businessIdentityId),
+      () => _api.resumeSeat(
+        widget.orgId,
+        row.businessIdentityId,
+        workspaceId: wsId,
+      ),
     );
   }
 

@@ -10,6 +10,10 @@
 ///   enabled/max_concurrent/active_count）；
 /// - `POST .../seats/:id/suspend|resume`（enabled 治理）。
 ///
+/// workspace 门（CS-BE-02）：全部用例 `workspace_id` 必带（GET 走查询串、
+/// 写走正文，缺失即 422 missing_workspace_id）——真机「加载失败：
+/// missing_workspace_id (422)」根因回归钉。
+///
 /// 红线（token 纪律）：全部请求**不得**命中 `/api/adm`（平台 Admin 面），
 /// 也不得命中 Seat JWT 专属端点（heartbeat/presence）——compile-time +
 /// runtime 双重钉住。
@@ -39,6 +43,9 @@ const String orgId = '7266418340025468901';
 const String identityA = '7266418340025468902';
 const String identityB = '7266418340025468912';
 const String cursor = '7266418340025468930';
+
+/// 治理面 workspace 门必填参数（CS-BE-02；取数来源 = C05 默认工作区指针）。
+const String wsId = '7266418340025468950';
 
 /// 记录请求并恒返指定 statusCode + JSON envelope 的出口。
 class _RecordingAdapter implements HttpClientAdapter {
@@ -129,13 +136,13 @@ void main() {
         ),
       );
       final api = CsGovernanceApi();
-      final view = await api.seatLimitView(orgId);
+      final view = await api.seatLimitView(orgId, workspaceId: wsId);
 
       final (method, path, data, query, _) = adapter.requests.single;
       expect(method, 'GET');
       expect(path, '/api/v1/cs/organizations/$orgId/seat-limit');
       expect(data, isNull);
-      expect(query, isEmpty);
+      expect(query, <String, dynamic>{'workspace_id': wsId});
       expectTokenDiscipline(adapter);
 
       expect(view.organizationId, orgId, reason: 'TSID string 逐字保真');
@@ -158,7 +165,10 @@ void main() {
             },
           ),
         );
-        final view = await CsGovernanceApi().seatLimitView(orgId);
+        final view = await CsGovernanceApi().seatLimitView(
+          orgId,
+          workspaceId: wsId,
+        );
         expect(view.isUnlimited, true);
         expect(view.limitValue, isNull);
         expect(view.used, 12);
@@ -173,13 +183,17 @@ void main() {
           payload: {'organization_id': orgId, 'seat_limit': 2, 'used': 2},
         ),
       );
-      final view = await CsGovernanceApi().setSeatLimit(orgId, 2);
+      final view = await CsGovernanceApi().setSeatLimit(
+        orgId,
+        2,
+        workspaceId: wsId,
+      );
 
       final (method, path, data, query, _) = adapter.requests.single;
       expect(method, 'PUT');
       expect(path, '/api/v1/cs/organizations/$orgId/seat-limit');
       expect(query, isEmpty);
-      expect(data, <String, dynamic>{'seat_limit': 2});
+      expect(data, <String, dynamic>{'seat_limit': 2, 'workspace_id': wsId});
       expectTokenDiscipline(adapter);
 
       expect(view.limitValue, 2);
@@ -198,10 +212,12 @@ void main() {
           },
         ),
       );
-      await CsGovernanceApi().setSeatLimit(orgId, null);
+      await CsGovernanceApi().setSeatLimit(orgId, null, workspaceId: wsId);
 
       final (_, _, data, _, _) = adapter.requests.single;
-      expect(data, <String, dynamic>{}, reason: 'null = 缺省键（清除 → unlimited）');
+      expect(data, <String, dynamic>{
+        'workspace_id': wsId,
+      }, reason: 'seat_limit 缺省键 = 清除（→ unlimited）；workspace_id 必带');
     });
 
     test('403 governance_insufficient：isForbidden 诚实分型（member 负例）', () async {
@@ -210,7 +226,7 @@ void main() {
         errEnvelope(403, 'governance_insufficient'),
       );
       try {
-        await CsGovernanceApi().seatLimitView(orgId);
+        await CsGovernanceApi().seatLimitView(orgId, workspaceId: wsId);
         fail('应抛 CsGovernanceApiException');
       } on CsGovernanceApiException catch (e) {
         expect(e.isForbidden, true);
@@ -224,7 +240,7 @@ void main() {
       // 客户端以 envelope tag 为准。
       final adapter = useAdapter(500, errEnvelope(500, 'seat_limit_exceeded'));
       try {
-        await CsGovernanceApi().resumeSeat(orgId, identityA);
+        await CsGovernanceApi().resumeSeat(orgId, identityA, workspaceId: wsId);
         fail('应抛 CsGovernanceApiException');
       } on CsGovernanceApiException catch (e) {
         expect(e.isSeatLimitExceeded, true, reason: 'tag 命中即超额冲突');
@@ -236,7 +252,7 @@ void main() {
     test('invalid_seat_limit：422 取值不成立分型', () async {
       useAdapter(422, errEnvelope(422, 'invalid_seat_limit'));
       try {
-        await CsGovernanceApi().setSeatLimit(orgId, -1);
+        await CsGovernanceApi().setSeatLimit(orgId, -1, workspaceId: wsId);
         fail('应抛 CsGovernanceApiException');
       } on CsGovernanceApiException catch (e) {
         expect(e.isInvalidSeatLimit, true);
@@ -274,6 +290,7 @@ void main() {
       );
       final page = await CsGovernanceApi().seatsPage(
         orgId,
+        workspaceId: wsId,
         afterId: cursor,
         limit: 50,
       );
@@ -281,7 +298,11 @@ void main() {
       final (method, path, _, query, _) = adapter.requests.single;
       expect(method, 'GET');
       expect(path, '/api/v1/cs/organizations/$orgId/seats');
-      expect(query, <String, dynamic>{'after_id': cursor, 'limit': 50});
+      expect(query, <String, dynamic>{
+        'workspace_id': wsId,
+        'after_id': cursor,
+        'limit': 50,
+      });
       expectTokenDiscipline(adapter);
 
       expect(page.rows, hasLength(2));
@@ -301,37 +322,46 @@ void main() {
           payload: {'seats': <Map<String, dynamic>>[], 'next_after_id': null},
         ),
       );
-      final page = await CsGovernanceApi().seatsPage(orgId);
+      final page = await CsGovernanceApi().seatsPage(orgId, workspaceId: wsId);
       expect(page.rows, isEmpty);
       expect(page.hasMore, false);
     });
 
     test('suspendSeat：POST 路径 + reason body', () async {
       final adapter = useAdapter(200, okEnvelope(payload: <String, dynamic>{}));
-      await CsGovernanceApi().suspendSeat(orgId, identityA, reason: '休假');
+      await CsGovernanceApi().suspendSeat(
+        orgId,
+        identityA,
+        workspaceId: wsId,
+        reason: '休假',
+      );
 
       final (method, path, data, _, _) = adapter.requests.single;
       expect(method, 'POST');
       expect(path, '/api/v1/cs/organizations/$orgId/seats/$identityA/suspend');
-      expect(data, <String, dynamic>{'reason': '休假'});
+      expect(data, <String, dynamic>{'workspace_id': wsId, 'reason': '休假'});
       expectTokenDiscipline(adapter);
     });
 
     test('resumeSeat：POST 路径 + 空 body', () async {
       final adapter = useAdapter(200, okEnvelope(payload: <String, dynamic>{}));
-      await CsGovernanceApi().resumeSeat(orgId, identityB);
+      await CsGovernanceApi().resumeSeat(orgId, identityB, workspaceId: wsId);
 
       final (method, path, data, _, _) = adapter.requests.single;
       expect(method, 'POST');
       expect(path, '/api/v1/cs/organizations/$orgId/seats/$identityB/resume');
-      expect(data, <String, dynamic>{});
+      expect(data, <String, dynamic>{'workspace_id': wsId});
       expectTokenDiscipline(adapter);
     });
 
     test('suspendSeat 403（cross_org）：isForbidden 负例', () async {
       useAdapter(403, errEnvelope(403, 'cross_org'));
       try {
-        await CsGovernanceApi().suspendSeat(orgId, identityA);
+        await CsGovernanceApi().suspendSeat(
+          orgId,
+          identityA,
+          workspaceId: wsId,
+        );
         fail('应抛 CsGovernanceApiException');
       } on CsGovernanceApiException catch (e) {
         expect(e.isForbidden, true);
@@ -341,7 +371,7 @@ void main() {
     test('seat_disabled 403：tag 透传（诚实展示面）', () async {
       useAdapter(403, errEnvelope(403, 'seat_disabled'));
       try {
-        await CsGovernanceApi().resumeSeat(orgId, identityA);
+        await CsGovernanceApi().resumeSeat(orgId, identityA, workspaceId: wsId);
         fail('应抛 CsGovernanceApiException');
       } on CsGovernanceApiException catch (e) {
         expect(e.isForbidden, true);
@@ -362,7 +392,10 @@ void main() {
           },
         ),
       );
-      final view = await CsGovernanceApi().seatLimitView(orgId);
+      final view = await CsGovernanceApi().seatLimitView(
+        orgId,
+        workspaceId: wsId,
+      );
       expect(view.organizationId, '7266418340025468901');
       expect(view.organizationId.length, 19, reason: '超 double 精度 TSID 不丢位');
     });
@@ -386,7 +419,7 @@ void main() {
           },
         ),
       );
-      final page = await CsGovernanceApi().seatsPage(orgId);
+      final page = await CsGovernanceApi().seatsPage(orgId, workspaceId: wsId);
       expect(page.rows.single.businessIdentityId, identityA);
     });
   });

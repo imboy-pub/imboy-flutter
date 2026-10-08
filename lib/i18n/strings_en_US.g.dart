@@ -2852,6 +2852,7 @@ class _Translations$customerService$governance$en_US extends Translations$custom
 	@override String get actionDone => 'Action applied';
 	@override String get actionFailed => 'Action failed. Please try again later';
 	@override String get errorForbidden => 'Governance denied: support governance is limited to organization owner/admin';
+	@override String get errorNoDefaultWorkspace => 'No default workspace is set for this organization; governance scope is undetermined';
 	@override String get errorLoadFailed => 'Failed to load';
 	@override String errorWithCode({required Object msg, required Object code}) => '${msg} (${code})';
 	@override String seatLimitExceededHint({required Object used, required Object limit}) => 'Seat quota exceeded: ${used}/${limit} in use, cannot add seats (seat_limit_exceeded)';
@@ -5024,6 +5025,7 @@ extension on TranslationsEnUs {
 			'customerService.governance.actionDone' => 'Action applied',
 			'customerService.governance.actionFailed' => 'Action failed. Please try again later',
 			'customerService.governance.errorForbidden' => 'Governance denied: support governance is limited to organization owner/admin',
+			'customerService.governance.errorNoDefaultWorkspace' => 'No default workspace is set for this organization; governance scope is undetermined',
 			'customerService.governance.errorLoadFailed' => 'Failed to load',
 			'customerService.governance.errorWithCode' => ({required Object msg, required Object code}) => '${msg} (${code})',
 			'customerService.governance.seatLimitExceededHint' => ({required Object used, required Object limit}) => 'Seat quota exceeded: ${used}/${limit} in use, cannot add seats (seat_limit_exceeded)',
@@ -5408,9 +5410,9 @@ extension on TranslationsEnUs {
 			'main.zhCn' => 'Simplified Chinese',
 			'main.zhHant' => 'Traditional Chinese',
 			'main.bound' => 'Bound',
-			'main.correct' => 'Correct',
 			_ => null,
 		} ?? switch (path) {
+			'main.correct' => 'Correct',
 			'main.pendingInput' => 'Pending input',
 			'main.lengthCheck' => 'Length check',
 			'main.bugReport' => 'Bug report',
@@ -5922,9 +5924,9 @@ extension on TranslationsEnUs {
 			'workspace.navChannels' => 'Channels',
 			'workspace.navGroups' => 'Groups',
 			'workspace.pickerTitle' => 'My Workspaces',
-			'workspace.switchWorkspace' => 'Switch workspace',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => 'Switch workspace',
 			'workspace.pickerEmptyTitle' => 'No workspace yet',
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
 			'workspace.archivedBadge' => 'Archived',

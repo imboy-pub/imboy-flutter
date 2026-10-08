@@ -15,6 +15,10 @@ import '../ux_matrix/ux_harness.dart';
 
 const String kOrgId = '7266418340025468951';
 
+/// C05 默认工作区指针桩（治理面 workspace 门的客户端取数来源；缺失即
+/// 页面诚实终态，渲染不出治理数据）。
+const String kWsId = '7266418340025468952';
+
 void main() {
   setUp(() async {
     await initUxHarness();
@@ -23,6 +27,53 @@ void main() {
   tearDown(teardownUxHarness);
 
   testWidgets('治理页：320×568 目标尺寸渲染无溢出', (tester) async {
+    uxInstallStub(
+      RouteStubAdapter([
+        (
+          '/default-workspace',
+          [
+            (
+              200,
+              uxEnvelope(
+                payload: {
+                  'organization_id': kOrgId,
+                  'default_workspace_id': kWsId,
+                },
+              ),
+            ),
+          ],
+        ),
+        (
+          '/seat-limit',
+          [
+            (
+              200,
+              uxEnvelope(
+                payload: {
+                  'organization_id': kOrgId,
+                  'seat_limit': 5,
+                  'used': 3,
+                },
+              ),
+            ),
+          ],
+        ),
+        (
+          '/seats',
+          [
+            (
+              200,
+              uxEnvelope(
+                payload: {
+                  'seats': <Map<String, dynamic>>[],
+                  'next_after_id': null,
+                },
+              ),
+            ),
+          ],
+        ),
+      ]),
+    );
     await tester.pumpWidget(
       uxHost(
         const CsGovernancePage(orgId: kOrgId),
@@ -37,6 +88,20 @@ void main() {
   testWidgets('治理页：44pt 触达（输入控件高度合同）', (tester) async {
     uxInstallStub(
       RouteStubAdapter([
+        (
+          '/default-workspace',
+          [
+            (
+              200,
+              uxEnvelope(
+                payload: {
+                  'organization_id': kOrgId,
+                  'default_workspace_id': kWsId,
+                },
+              ),
+            ),
+          ],
+        ),
         (
           '/seat-limit',
           [
