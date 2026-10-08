@@ -20,6 +20,8 @@ import 'package:imboy/service/websocket_events.dart'
 import 'channel_di_provider.dart';
 
 part 'channel_provider.g.dart';
+part 'channel_detail_state.dart';
+part 'channel_post_search_provider.dart';
 
 /// 频道未读总数缓存（进程内）
 ///
@@ -316,44 +318,6 @@ class ChannelListNotifier extends _$ChannelListNotifier {
     } catch (e) {
       return false;
     }
-  }
-}
-
-/// 频道详情状态
-class ChannelDetailState {
-  final ChannelModel? channel;
-  final List<ChannelMessageModel> messages;
-  final bool isLoading;
-  final bool isPublishing;
-  final bool hasMore;
-  final String? error;
-
-  const ChannelDetailState({
-    this.channel,
-    this.messages = const [],
-    this.isLoading = false,
-    this.isPublishing = false,
-    this.hasMore = true,
-    this.error,
-  });
-
-  ChannelDetailState copyWith({
-    ChannelModel? channel,
-    List<ChannelMessageModel>? messages,
-    bool? isLoading,
-    bool? isPublishing,
-    bool? hasMore,
-    String? error,
-    bool clearChannel = false,
-  }) {
-    return ChannelDetailState(
-      channel: clearChannel ? null : (channel ?? this.channel),
-      messages: messages ?? this.messages,
-      isLoading: isLoading ?? this.isLoading,
-      isPublishing: isPublishing ?? this.isPublishing,
-      hasMore: hasMore ?? this.hasMore,
-      error: error,
-    );
   }
 }
 
@@ -831,25 +795,3 @@ int channelUnreadCount(Ref ref) {
 Future<int> refreshChannelUnreadCount() async {
   return await _channelUnreadCountCache.refresh();
 }
-
-/// Search uses page/size, separate from the legacy created_at message cursor.
-typedef ChannelPostSearch = ({
-  String channelId,
-  String q,
-  String? tag,
-  bool? essence,
-  int page,
-});
-
-final channelPostSearchProvider = FutureProvider.autoDispose
-    .family<ChannelPostsResult, ChannelPostSearch>((ref, filter) {
-      return ref
-          .watch(channelApiProvider)
-          .searchPosts(
-            channelId: filter.channelId,
-            q: filter.q,
-            tag: filter.tag,
-            essence: filter.essence,
-            page: filter.page,
-          );
-    });

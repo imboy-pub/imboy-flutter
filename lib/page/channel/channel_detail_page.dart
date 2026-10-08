@@ -22,6 +22,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/helper/func.dart';
 
 import 'channel_detail_rules.dart';
+import 'channel_share_payload.dart';
 import 'channel_provider.dart';
 import 'widgets/channel_header_bar.dart';
 import 'widgets/channel_discussion_entry.dart';
@@ -788,18 +789,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
                 Navigator.pop(context);
                 context.push(
                   '/chat/send_to',
-                  extra: {
-                    'msg': {
-                      'msg_type': 'channel_card',
-                      'content': channel.name,
-                      'payload': {
-                        'channel_id': channel.id,
-                        'channel_name': channel.name,
-                        'channel_avatar': channel.avatar,
-                        'subscriber_count': channel.subscriberCount,
-                      },
-                    },
-                  },
+                  extra: channelCardShareExtra(channel),
                 );
               },
             ),

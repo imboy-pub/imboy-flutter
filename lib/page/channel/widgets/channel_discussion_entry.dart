@@ -69,6 +69,24 @@ class _ChannelDiscussionEntryState
       (widget.channel.isSubscribed &&
           (!widget.channel.isPaid || widget.channel.hasPurchased));
 
+  Future<bool?> _confirmJoin() => showCupertinoDialog<bool>(
+    context: context,
+    builder: (ctx) => CupertinoAlertDialog(
+      title: Text(context.t.channel.joinDiscussion),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(context.t.common.buttonCancel),
+        ),
+        CupertinoDialogAction(
+          key: const Key('mc_join_confirm'),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: Text(context.t.common.buttonConfirm),
+        ),
+      ],
+    ),
+  );
+
   Future<void> _join() async {
     if (_busy ||
         !_eligible ||
@@ -76,23 +94,7 @@ class _ChannelDiscussionEntryState
         !ChannelApi.microCommunityEnabled) {
       return;
     }
-    final approved = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: Text(context.t.channel.joinDiscussion),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(context.t.common.buttonCancel),
-          ),
-          CupertinoDialogAction(
-            key: const Key('mc_join_confirm'),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(context.t.common.buttonConfirm),
-          ),
-        ],
-      ),
-    );
+    final approved = await _confirmJoin();
     if (approved != true || !mounted || !ChannelApi.microCommunityEnabled) {
       return;
     }
