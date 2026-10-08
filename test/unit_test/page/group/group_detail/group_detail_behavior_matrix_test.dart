@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show serviceContainer;
 import 'package:imboy/i18n/strings.g.dart';
@@ -454,6 +455,13 @@ void main() {
         tester,
         state: GroupDetailState(role: 1, title: '矩阵测试群', memberCount: 3),
       );
+      if (!compiledProductFeatures.contains('e2ee')) {
+        // 第一期开关不可发现，群主权限也不能绕过编译关闭边界。
+        expect(find.text(t.group.e2eeTitle), findsNothing);
+        expect(find.text(t.group.e2eeEnableConfirm), findsNothing);
+        await unmount(tester);
+        return;
+      }
       expect(find.text(t.group.e2eeTitle), findsOneWidget);
       expect(switchUnderLabel(tester, t.group.e2eeTitle).onChanged, isNull);
       await unmount(tester);
@@ -472,6 +480,13 @@ void main() {
         tester,
         state: GroupDetailState(role: 4, title: '矩阵测试群', memberCount: 3),
       );
+      if (!compiledProductFeatures.contains('e2ee')) {
+        // 第一期开关不可发现，群主权限也不能绕过编译关闭边界。
+        expect(find.text(t.group.e2eeTitle), findsNothing);
+        expect(find.text(t.group.e2eeEnableConfirm), findsNothing);
+        await unmount(tester);
+        return;
+      }
       await tester.pump(const Duration(milliseconds: 200));
       expect(switchUnderLabel(tester, t.group.e2eeTitle).onChanged, isNotNull);
 
@@ -492,6 +507,13 @@ void main() {
         tester,
         state: GroupDetailState(role: 4, title: '矩阵测试群', memberCount: 3),
       );
+      if (!compiledProductFeatures.contains('e2ee')) {
+        // 第一期开关不可发现，群主权限也不能绕过编译关闭边界。
+        expect(find.text(t.group.e2eeTitle), findsNothing);
+        expect(find.text(t.group.e2eeEnableConfirm), findsNothing);
+        await unmount(tester);
+        return;
+      }
       await tester.pump(const Duration(milliseconds: 200));
       await tapVisible(tester, find.byType(CupertinoSwitch).last);
       await tester.pumpAndSettle();
