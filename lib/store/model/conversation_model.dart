@@ -186,6 +186,12 @@ class ConversationModel {
     } else if (msgType == MessageType.groupSchedule) {
       str = t.groupSchedule.title;
       return "[$str]$subtitle";
+    } else if (msgType == MessageType.groupVote) {
+      str = t.groupVote.title;
+      return "[$str]$subtitle";
+    } else if (msgType == MessageType.groupTask) {
+      str = t.groupTask.title;
+      return "[$str]$subtitle";
     } else if (msgType == MessageType.visitCard) {
       str = t.common.personalCard;
       return "[$str]$subtitle";
