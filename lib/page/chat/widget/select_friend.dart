@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:azlistview/azlistview.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
@@ -7,17 +9,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lpinyin/lpinyin.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/ui/common.dart';
 import 'package:imboy/component/ui/common_bar.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
+import 'package:imboy/component/ui/shimmer_list.dart';
 
-import 'package:imboy/service/assets.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
-/// 选择好友页面
+/// 选择好友页面（iOS 分组列表风格，对齐 contact_page 设计语言）
 /// 使用 Riverpod 进行状态管理
 class SelectFriendPage extends ConsumerStatefulWidget {
   final Map<String, String> peer;
@@ -34,13 +37,24 @@ class SelectFriendPage extends ConsumerStatefulWidget {
 }
 
 class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
-  // final int _suspensionHeight = 30;
-  final int _itemHeight = 60;
+  /// 行高 = 44 头像 + 上下 10 内边距，≥ 44pt 触控标准
+  static const double _itemHeight = 64;
+
+  /// 分隔线左缩进 = 16 页边距 + 44 头像 + 12 图文间距（DESIGN.md 8.3）
+  static const double _dividerIndent = 72;
 
   List<ContactModel> _contactList = [];
+  bool _loading = true;
 
-  // ignore: prefer_collection_literals
-  final Set<String> _currIndexBarData = {};
+  /// 搜索关键词（trim + 小写）；空串 = 未过滤
+  String _searchQuery = '';
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  void _onSearchChanged(String value) {
+    final q = value.trim().toLowerCase();
+    if (q == _searchQuery) return;
+    setState(() => _searchQuery = q);
+  }
 
   @override
   void initState() {
@@ -51,35 +65,48 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     });
   }
 
-  List<dynamic> selects = [];
+  /// 标题/拼音本地过滤。query 空返回原列表（同一批对象，保持排序与吸顶标记）。
+  List<ContactModel> _filterList(String query) {
+    if (query.isEmpty) return _contactList;
+    return _contactList
+        .where((m) {
+          if (m.title.toLowerCase().contains(query)) return true;
+          final pinyin = (m.namePinyin ?? '').toLowerCase();
+          return pinyin.contains(query);
+        })
+        .toList(growable: false);
+  }
 
-  // 构建索引栏项目
-  Widget _buildSusItem(BuildContext context, String tag) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      height: 30,
-      alignment: Alignment.centerLeft,
-      color: Theme.of(context).colorScheme.surface,
-      child: Text(
-        tag,
-        style: context.textStyle(
-          FontSizeType.small,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-    );
+  /// 由过滤结果派生索引栏标签：A-Z 升序、# 沉底、'↑'（回顶部）最前。
+  /// 避免"索引栏有字母但列表无对应项"。
+  List<String> _indexBarDataFor(List<ContactModel> list) {
+    if (list.isEmpty) return [];
+    final tags = <String>{};
+    var hasUp = false;
+    for (final m in list) {
+      final tg = m.getSuspensionTag();
+      if (tg == '↑') {
+        hasUp = true;
+      } else if (tg.isNotEmpty) {
+        tags.add(tg);
+      }
+    }
+    final letters = tags.where((t) => t != '#').toList()..sort();
+    return [if (hasUp) '↑', ...letters, if (tags.contains('#')) '#'];
   }
 
   void loadData() async {
     // 加载联系人列表
     final contactList = await ContactRepo().findFriend();
+    if (!mounted) return;
 
     setState(() {
       _contactList = contactList;
     });
 
     _handleList(_contactList);
+    if (!mounted) return;
+    setState(() => _loading = false);
   }
 
   void _handleList(List<ContactModel> list) {
@@ -89,42 +116,14 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
       list[i].namePinyin = pinyin;
       if (RegExp("[A-Z]").hasMatch(tag)) {
         list[i].nameIndex = tag;
-        _currIndexBarData.add(tag);
       } else {
         list[i].nameIndex = "#";
       }
     }
-    _currIndexBarData.add('#');
 
     // A-Z sort.
     SuspensionUtil.sortListBySuspensionTag(_contactList);
-
-    // show sus tag.
-    SuspensionUtil.setShowSuspensionStatus(_contactList);
-
-    setState(() {});
   }
-
-  /*
-  Widget _buildSusWidget(String susTag) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      height: _suspensionHeight.toDouble(),
-      width: double.infinity,
-      alignment: Alignment.centerLeft,
-      color: AppColors.AppBarColor,
-      child: Text(
-        susTag,
-        textScaleFactor: 1.2,
-        style:  TextStyle(
-          color: AppColors.lightTextSecondary,
-          fontSize: FontSizeType.small.size,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-  */
 
   void sendToDialog(ContactModel model) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -234,55 +233,176 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
     );
   }
 
-  Widget _buildListItem(ContactModel model) {
-    // String susTag = model.getSuspensionTag();
+  Widget _buildListItem(
+    BuildContext context,
+    ContactModel model, {
+    required bool showDivider,
+  }) {
+    final brightness = Theme.of(context).brightness;
     return Column(
       children: [
-        SizedBox(
-          height: _itemHeight.toDouble(),
+        Semantics(
+          button: true,
           child: GestureDetector(
+            // 不用 InkWell：DESIGN.md §13.2 禁止 Cupertino 列表行用 Ripple
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               sendToDialog(model);
-              // model.selected = !model.selected;
-              // if (model.selected) {
-              //   selects.insert(0, model);
-              // } else {
-              //   selects.remove(model);
-              // }
-              // setState(() {});
             },
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Avatar(imgUri: model.avatar, width: 49, height: 49),
-                ),
-                const Space(),
-                Expanded(
-                  child: Container(
-                    alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.only(right: 30),
-                    height: _itemHeight.toDouble(),
-                    decoration: const BoxDecoration(
-                      border: Border(top: BorderSide(width: 0.5)),
-                    ),
+            child: Container(
+              height: _itemHeight,
+              // 行背景用 surface，与页面 grouped 背景形成 iOS 分组层次
+              color: brightness == Brightness.dark
+                  ? AppColors.darkSurface
+                  : AppColors.lightSurface,
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+              ),
+              child: Row(
+                children: [
+                  Avatar(imgUri: model.avatar, width: 44, height: 44),
+                  AppSpacing.horizontalMedium,
+                  Expanded(
                     child: Text(
                       model.title,
-                      style: context.textStyle(FontSizeType.normal),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context
+                          .textStyle(
+                            FontSizeType.body,
+                            fontWeight: FontWeight.w500,
+                          )
+                          .copyWith(letterSpacing: -0.4),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
+        // 仅同分组相邻项之间画分隔线；左缩进对齐文字（72 = 16+44+12）
+        if (showDivider)
+          Padding(
+            padding: const EdgeInsets.only(left: _dividerIndent),
+            child: Divider(
+              height: 0.5,
+              color: AppColors.getIosSeparator(brightness)
+                  .withValues(alpha: 0.5),
+            ),
+          ),
       ],
+    );
+  }
+
+  /// 构建吸顶分组头（A-Z），样式对齐 contact_page
+  Widget _buildSusItem(BuildContext context, String tag) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // width 必须按约束决定，不能写死 double.infinity。
+    // AzListView 把吸顶头同时用在两处：列表内联项（宽度有界）和悬浮头
+    // （Stack 的 positioned child，某些布局路径下不给横向锚点 → 宽度无界）。
+    // 无界时 double.infinity 会直接触发
+    // "BoxConstraints forces an infinite width" 断言，整页布局崩掉。
+    return LayoutBuilder(
+      builder: (context, constraints) => Container(
+        height: 32,
+        width: constraints.hasBoundedWidth ? double.infinity : null,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        alignment: Alignment.centerLeft,
+        color: isDark
+            ? AppColors.darkSurfaceGrouped
+            : AppColors.lightSurfaceGrouped,
+        child: Text(
+          tag,
+          style: context.textStyle(
+            FontSizeType.footnote,
+            fontWeight: FontWeight.w600,
+            color: AppColors.iosGray,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListView(List<ContactModel> visibleList) {
+    final brightness = Theme.of(context).brightness;
+    final barData = _indexBarDataFor(visibleList);
+
+    // IndexBar 是固定高度的 Column（27 项 × itemHeight），列表区高度不足时
+    // 右侧字母栏会 RenderFlex overflow；按可用高度压缩每项高度即可。
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final itemHeight = constraints.maxHeight.isFinite
+            ? math.min(
+                kIndexBarItemHeight,
+                constraints.maxHeight / math.max(barData.length, 1),
+              )
+            : kIndexBarItemHeight;
+        return AzListView(
+          data: visibleList,
+          itemCount: visibleList.length,
+          indexBarItemHeight: itemHeight,
+          itemBuilder: (context, i) {
+            final showDivider =
+                i < visibleList.length - 1 &&
+                visibleList[i].getSuspensionTag() ==
+                    visibleList[i + 1].getSuspensionTag();
+            return _buildListItem(
+              context,
+              visibleList[i],
+              showDivider: showDivider,
+            );
+          },
+          // 解决联系人数据量少的情况下无法刷新的问题
+          // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
+          physics: const AlwaysScrollableScrollPhysics(),
+          susItemBuilder: (BuildContext context, int index) {
+            ContactModel model = visibleList[index];
+            if ('↑' == model.getSuspensionTag()) {
+              return const SizedBox.shrink();
+            }
+            return _buildSusItem(context, model.getSuspensionTag());
+          },
+          indexBarData: barData,
+          indexBarOptions: IndexBarOptions(
+            needRebuild: true,
+            ignoreDragCancel: true,
+            downTextStyle: context.textStyle(
+              FontSizeType.small,
+              color: AppColors.onPrimary,
+            ),
+            downItemDecoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.primary,
+            ),
+            indexHintDecoration: BoxDecoration(
+              color: AppColors.getIosBlue(brightness).withValues(alpha: 0.9),
+              shape: BoxShape.circle,
+            ),
+            indexHintTextStyle: context.textStyle(
+              FontSizeType.largeTitle,
+              color: AppColors.onPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+            indexHintOffset: const Offset(-20, 0),
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+
+    // 搜索过滤后重建吸顶标记，保证分组头只出现在"可见项"的组首
+    final visibleList = _filterList(_searchQuery);
+    SuspensionUtil.setShowSuspensionStatus(visibleList);
+
     return Scaffold(
+      backgroundColor: isDark
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       appBar: GlassAppBar(
         title: t.contact.selectFriends,
         leading: CupertinoButton(
@@ -297,79 +417,65 @@ class _SelectFriendPageState extends ConsumerState<SelectFriendPage> {
           ),
         ),
       ),
-      body: Stack(
+      body: Column(
         children: [
-          RefreshIndicator(
-            onRefresh: () async {
-              // 检查网络状态
-              var connectivityResult = await Connectivity().checkConnectivity();
-              if (connectivityResult.contains(ConnectivityResult.none)) {
-                String msg = t.common.tipConnectDesc;
-                AppLoading.showInfo(' $msg');
-                return;
-              }
-              List<ContactModel> contact = await ContactRepo().findFriend();
-              if (contact.isNotEmpty) {
-                setState(() {
-                  _contactList = contact;
-                  // contactIsEmpty.value = _contactList.isEmpty;
-                });
-                _handleList(_contactList);
-              }
-            },
-            child: AzListView(
-              data: _contactList,
-              itemCount: _contactList.length,
-              itemBuilder: (context, i) => _buildListItem(_contactList[i]),
-              // 解决联系人数据量少的情况下无法刷新的问题
-              // 在listview的physice属性赋值new AlwaysScrollableScrollPhysics()，保持listview任何情况都能滚动
-              physics: const AlwaysScrollableScrollPhysics(),
-              susItemBuilder: (BuildContext context, int index) {
-                ContactModel model = _contactList[index];
-                if ('↑' == model.getSuspensionTag()) {
-                  return Container();
-                }
-
-                return _buildSusItem(context, model.getSuspensionTag());
-              },
-              // indexBarData: const ['↑', ...kIndexBarData],
-              indexBarData: _contactList.isNotEmpty
-                  ? ['↑', ..._currIndexBarData]
-                  : [],
-              indexBarOptions: IndexBarOptions(
-                needRebuild: true,
-                ignoreDragCancel: true,
-                downTextStyle: context.textStyle(
-                  FontSizeType.small,
-                  color: AppColors.onPrimary,
-                ),
-                downItemDecoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.primary,
-                ),
-                indexHintWidth: 128 / 2,
-                indexHintHeight: 128 / 2,
-                indexHintDecoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(
-                      AssetsService.getImgPath('index_bar_bubble_gray'),
-                    ),
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                indexHintAlignment: Alignment.centerRight,
-                indexHintChildAlignment: const Alignment(-0.25, 0.0),
-                indexHintOffset: const Offset(-20, 0),
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.medium,
+              AppSpacing.regular,
+              AppSpacing.small,
             ),
+            child: CupertinoSearchTextField(
+              key: const Key('select_friend_search_input'),
+              controller: _searchCtrl,
+              onChanged: _onSearchChanged,
+              placeholder: t.common.search,
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const ShimmerList(itemHeight: _itemHeight)
+                : _contactList.isEmpty
+                ? RefreshIndicator(
+                    onRefresh: _onPullRefresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [NoDataView(text: t.common.noContacts)],
+                    ),
+                  )
+                : visibleList.isEmpty
+                ? NoDataView(text: t.common.searchNoResults)
+                : RefreshIndicator(
+                    onRefresh: _onPullRefresh,
+                    child: _buildListView(visibleList),
+                  ),
           ),
         ],
       ),
     );
   }
 
+  /// 下拉刷新：仅离线时提示，成功后重建列表与索引
+  Future<void> _onPullRefresh() async {
+    var connectivityResult = await Connectivity().checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none)) {
+      String msg = t.common.tipConnectDesc;
+      AppLoading.showInfo(' $msg');
+      return;
+    }
+    List<ContactModel> contact = await ContactRepo().findFriend();
+    if (contact.isNotEmpty && mounted) {
+      setState(() {
+        _contactList = contact;
+      });
+      _handleList(_contactList);
+    }
+  }
+
   @override
   void dispose() {
+    _searchCtrl.dispose();
     super.dispose();
   }
 }
