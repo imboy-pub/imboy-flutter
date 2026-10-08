@@ -185,7 +185,7 @@ class WebViewPageState extends State<WebViewPage> {
 
     // 首屏加载不一定经过 onNavigationRequest（各平台实现不一致），单独把闸。
     if (isSchemeAllowed(widget.url)) {
-      widget._controller!.loadRequest(Uri.parse(widget.url));
+      unawaited(_loadInitialUrl());
     } else {
       AppLoading.dismiss();
       widget.errorCallback?.call(widget.url);
@@ -203,6 +203,16 @@ class WebViewPageState extends State<WebViewPage> {
     if (defaultTargetPlatform != TargetPlatform.macOS) {
       widget._controller!.setBackgroundColor(AppColors.transparent);
     }
+  }
+
+  Future<void> _loadInitialUrl() async {
+    // 自家 H5（OA 应用）改版需即时生效：打开前清 HTTP 缓存，避免 WebView
+    // 对无 Cache-Control 响应的启发式缓存滞留旧页面；第三方页面（扫码
+    // 浏览）保持缓存不清理。
+    if (isJsBridgeHost(widget.url)) {
+      await widget._controller!.clearCache();
+    }
+    await widget._controller!.loadRequest(Uri.parse(widget.url));
   }
 
   /// Android WebView 的定位与相机授权（如 test_oa.html 的 Web 标准定位/
