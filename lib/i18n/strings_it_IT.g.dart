@@ -1107,6 +1107,12 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'Elimina per tutti, non può essere annullato';
 	@override String get chatInitFailed => 'Inizializzazione chat non riuscita';
 	@override String get cameraShootFailed => 'Foto non riuscita';
+	@override String get cameraCapture => 'Fotocamera';
+	@override String get cameraModePhoto => 'Foto';
+	@override String get cameraModeVideo => 'Video';
+	@override String get cameraRetake => 'Riprova';
+	@override String get cameraUse => 'Usa';
+	@override String get cameraNoDevice => 'Nessuna fotocamera disponibile';
 	@override String get avatarEditAvatar => 'Modifica avatar';
 	@override String get backgroundUseCustomColor => 'Usa colore personalizzato';
 	@override String get backgroundOnlySolidColor => 'Applicabile solo per sfondi a colori solidi';
@@ -4142,6 +4148,12 @@ extension on TranslationsItIt {
 			'common.chatDeleteAll' => 'Elimina per tutti, non può essere annullato',
 			'common.chatInitFailed' => 'Inizializzazione chat non riuscita',
 			'common.cameraShootFailed' => 'Foto non riuscita',
+			'common.cameraCapture' => 'Fotocamera',
+			'common.cameraModePhoto' => 'Foto',
+			'common.cameraModeVideo' => 'Video',
+			'common.cameraRetake' => 'Riprova',
+			'common.cameraUse' => 'Usa',
+			'common.cameraNoDevice' => 'Nessuna fotocamera disponibile',
 			'common.avatarEditAvatar' => 'Modifica avatar',
 			'common.backgroundUseCustomColor' => 'Usa colore personalizzato',
 			'common.backgroundOnlySolidColor' => 'Applicabile solo per sfondi a colori solidi',
@@ -4197,14 +4209,14 @@ extension on TranslationsItIt {
 			'common.featureComingSoon' => 'Funzionalità prossimamente',
 			'common.understood' => 'Capito',
 			'common.noProblem' => 'Nessun problema',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => 'Sto arrivando',
 			'common.operationOptions' => 'Opzioni operazione',
 			'common.copyTextContent' => 'Copia contenuto testo',
 			'common.shareWithOtherFriends' => 'Condividi con altri amici',
 			'common.addTagsToFavorites' => 'Aggiungi tag ai preferiti',
 			'common.addRemarkToFavorites' => 'Aggiungi nota ai preferiti',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Elimina questa raccolta',
 			'common.changeSuccess' => 'Modificato con successo',
 			'common.lengthOk' => 'Lunghezza OK',
@@ -4711,14 +4723,14 @@ extension on TranslationsItIt {
 			'discovery.myChannels' => 'I miei canali',
 			'discovery.otherUsersCanFindMe' => 'Altri utenti possono trovarmi tramite ricerca',
 			'discovery.momentsDenyUidsLabel' => 'UID esclusi (separati da virgola)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => 'Momenti',
 			'discovery.momentsWriteComment' => 'Scrivi un commento...',
 			'discovery.momentsVisibility' => 'Visibilità',
 			'discovery.momentsVisibilityPublic' => 'Pubblico',
 			'discovery.momentsVisibilityPartial' => 'Parziale',
 			'discovery.momentsVisibilityExclude' => 'Eccezioni',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Bozza precedente ripristinata',
 			'discovery.momentsFeedStale' => 'Errore di rete, mostra contenuti in cache',
 			'discovery.momentActionLike' => 'Mi piace',
@@ -5225,14 +5237,14 @@ extension on TranslationsItIt {
 			'organization.common.targetUidHint' => 'UID dell\'altro utente (numerico)',
 			'organization.common.uidMustBePositive' => 'L\'UID utente deve essere un intero positivo',
 			'organization.common.loading' => 'Caricamento…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => 'Carica altri',
 			'organization.common.orgStatusPending' => 'In revisione',
 			'organization.common.orgStatusRejected' => 'Revisione non superata',
 			'organization.home.createOrg' => 'Crea organizzazione',
 			'organization.home.orgNameLabel' => 'Nome organizzazione (1-200 caratteri)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Creazione non riuscita: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Inviato. In attesa di revisione da parte del team operativo; l\'azienda potrà essere utilizzata normalmente una volta approvata',
 			'organization.home.tabOrg' => 'Organizzazioni',
 			'organization.home.myInvitations' => 'I miei inviti',
@@ -5739,14 +5751,14 @@ extension on TranslationsItIt {
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Questa milestone è già stata raggiunta',
 			'workspace.projectMilestoneCreateSubmit' => 'Crea',
 			'workspace.projectMilestoneCreateTitle' => 'Nuova milestone',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMilestoneCreatedToast' => 'Milestone creata',
 			'workspace.projectMilestoneDueDateInvalid' => 'Il formato della data deve essere YYYY-MM-DD',
 			'workspace.projectMilestoneDueDateLabel' => 'Data di scadenza (YYYY-MM-DD, opzionale)',
 			'workspace.projectMilestoneDueLabel' => 'Scadenza',
 			'workspace.projectMilestoneEmptySubtitle' => 'Contrassegna i nodi chiave del progetto con le milestone (pianificata → raggiunta, a senso unico)',
 			'workspace.projectMilestoneEmptyTitle' => 'Nessuna milestone per ora',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneFilterAll' => 'Tutte',
 			'workspace.projectMilestoneFilterPlanned' => 'Pianificate',
 			'workspace.projectMilestoneFilterReached' => 'Raggiunte',

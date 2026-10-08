@@ -57,6 +57,16 @@ class AppColors {
   /// ⚠️ 不可用 [transparent]（黑底透明）替代，否则白→黑插值会出灰边。
   static const Color overlayWhiteTransparent = Color(0x00FFFFFF);
 
+  // ============ 相机拍摄页（桌面 camera_desktop 取景界面） ============
+  /// 取景/预览纯黑背景（相机页惯例，避免灰边干扰取景判断）。
+  static const Color cameraBackdrop = Color(0xFF000000);
+
+  /// 快门外圈（拍照态白圈）。
+  static const Color cameraShutterRing = Color(0xFFFFFFFF);
+
+  /// 录像态指示红（录像按钮填充与录制中闪烁点）。
+  static const Color cameraRecordingRed = Color(0xFFFF3B30);
+
   // ============ 组件辅助色（shimmer / tag，保原值零视觉变更） ============
   static const Color shimmerBase = Color(0xFFE0E0E0);
   static const Color shimmerHighlight = Color(0xFFF5F5F5);

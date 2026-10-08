@@ -388,6 +388,12 @@ chatDeleteOnlyLocal: 仅在你这里删除，对方仍可见
 chatDeleteAll: 从所有人的聊天中删除，无法撤销
 chatInitFailed: 聊天初始化失败
 cameraShootFailed: 拍摄失败
+cameraCapture: 拍摄
+cameraModePhoto: 照片
+cameraModeVideo: 视频
+cameraRetake: 重拍
+cameraUse: 使用
+cameraNoDevice: 未检测到可用的摄像头
 avatarEditAvatar: 编辑头像
 backgroundUseCustomColor: 使用自定义颜色
 backgroundOnlySolidColor: 仅适用于纯色背景

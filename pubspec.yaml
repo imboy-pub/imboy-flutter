@@ -84,8 +84,11 @@ dependencies:
   # │ 📷 Media & Camera                                               │
   # └─────────────────────────────────────────────────────────────────┘
   wechat_assets_picker: ^10.1.1     # Asset picker for photos/videos (album)
-  wechat_camera_picker: ^4.5.0      # 原生相机取景界面（拍照/录像），全局唯一相机拍摄入口
-  image_picker: ^1.1.2               # 仅作桌面平台(macOS/Windows/Linux)兜底，见 wechat_assets_picker_adapter.dart
+  wechat_camera_picker: ^4.5.0      # 原生相机取景界面（拍照/录像），移动端唯一相机拍摄入口
+  camera: ^0.12.1                    # 官方相机 API（拍摄页仅用此包的接口编码）
+  camera_desktop: 2.0.0              # 桌面(macOS/Windows/Linux)相机平台实现：实现官方
+                                     # camera_platform_interface，AVFoundation 后端；
+                                     # 单人维护包，精确锁版，失修可 fork（MIT）
   photo_view: ^0.15.0                # Interactive image viewer with zoom/pan
   photo_manager: 3.12.0               # Media management; 3.12.0 breaks current Android Kotlin build
   carousel_slider_plus: ^7.1.2       # 聊天附件面板左右滑动分页

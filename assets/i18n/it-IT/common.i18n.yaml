@@ -385,6 +385,12 @@ chatDeleteOnlyLocal: Elimina solo per te, ancora visibile agli altri
 chatDeleteAll: Elimina per tutti, non può essere annullato
 chatInitFailed: Inizializzazione chat non riuscita
 cameraShootFailed: Foto non riuscita
+cameraCapture: Fotocamera
+cameraModePhoto: Foto
+cameraModeVideo: Video
+cameraRetake: Riprova
+cameraUse: Usa
+cameraNoDevice: Nessuna fotocamera disponibile
 avatarEditAvatar: Modifica avatar
 backgroundUseCustomColor: Usa colore personalizzato
 backgroundOnlySolidColor: Applicabile solo per sfondi a colori solidi

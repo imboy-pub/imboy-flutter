@@ -391,6 +391,12 @@ chatDeleteOnlyLocal: Удалить только у вас, всё ещё вид
 chatDeleteAll: Удалить для всех, нельзя отменить
 chatInitFailed: Не удалось инициализировать чат
 cameraShootFailed: Не удалось сделать снимок
+cameraCapture: Камера
+cameraModePhoto: Фото
+cameraModeVideo: Видео
+cameraRetake: Переснять
+cameraUse: Использовать
+cameraNoDevice: Камера не найдена
 avatarEditAvatar: Редактировать аватар
 backgroundUseCustomColor: Использовать пользовательский цвет
 backgroundOnlySolidColor: Применимо только к сплошным фонам

@@ -1104,6 +1104,12 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'すべてのユーザーのチャットから削除、取り消せません';
 	@override String get chatInitFailed => 'チャットの初期化に失敗しました';
 	@override String get cameraShootFailed => '撮影に失敗しました';
+	@override String get cameraCapture => '撮影';
+	@override String get cameraModePhoto => '写真';
+	@override String get cameraModeVideo => '動画';
+	@override String get cameraRetake => '撮り直す';
+	@override String get cameraUse => '使用する';
+	@override String get cameraNoDevice => '利用可能なカメラがありません';
 	@override String get avatarEditAvatar => 'アバターを編集';
 	@override String get backgroundUseCustomColor => 'カスタム色を使用';
 	@override String get backgroundOnlySolidColor => '単色背景にのみ適用されます';
@@ -4139,6 +4145,12 @@ extension on TranslationsJaJp {
 			'common.chatDeleteAll' => 'すべてのユーザーのチャットから削除、取り消せません',
 			'common.chatInitFailed' => 'チャットの初期化に失敗しました',
 			'common.cameraShootFailed' => '撮影に失敗しました',
+			'common.cameraCapture' => '撮影',
+			'common.cameraModePhoto' => '写真',
+			'common.cameraModeVideo' => '動画',
+			'common.cameraRetake' => '撮り直す',
+			'common.cameraUse' => '使用する',
+			'common.cameraNoDevice' => '利用可能なカメラがありません',
 			'common.avatarEditAvatar' => 'アバターを編集',
 			'common.backgroundUseCustomColor' => 'カスタム色を使用',
 			'common.backgroundOnlySolidColor' => '単色背景にのみ適用されます',
@@ -4194,14 +4206,14 @@ extension on TranslationsJaJp {
 			'common.featureComingSoon' => '近日公開',
 			'common.understood' => '了解しました',
 			'common.noProblem' => '問題ありません',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => 'すぐに向かいます',
 			'common.operationOptions' => '操作オプション',
 			'common.copyTextContent' => 'テキストをコピー',
 			'common.shareWithOtherFriends' => '他の友達と共有',
 			'common.addTagsToFavorites' => 'コレクションにタグを追加',
 			'common.addRemarkToFavorites' => 'コレクションに備考を追加',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'このコレクションを削除',
 			'common.changeSuccess' => '変更しました',
 			'common.lengthOk' => '長さはOKです',
@@ -4708,14 +4720,14 @@ extension on TranslationsJaJp {
 			'discovery.myChannels' => 'マイチャンネル',
 			'discovery.otherUsersCanFindMe' => '他のユーザーが検索で私を見つけることができます',
 			'discovery.momentsDenyUidsLabel' => '除外対象 UID リスト（カンマ区切り）',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => 'モーメンツ',
 			'discovery.momentsWriteComment' => 'コメントを書く...',
 			'discovery.momentsVisibility' => '公開範囲',
 			'discovery.momentsVisibilityPublic' => '全員に公開',
 			'discovery.momentsVisibilityPartial' => '一部の友達',
 			'discovery.momentsVisibilityExclude' => '一部の友達を除外',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => '前回の未送信下書きを復元しました',
 			'discovery.momentsFeedStale' => '通信エラーのため、キャッシュの内容を表示しています',
 			'discovery.momentActionLike' => 'いいね',
@@ -5222,14 +5234,14 @@ extension on TranslationsJaJp {
 			'organization.common.targetUidHint' => '相手ユーザーの UID（数値）',
 			'organization.common.uidMustBePositive' => 'ユーザー UID は正の整数である必要があります',
 			'organization.common.loading' => '読み込み中…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => 'さらに読み込む',
 			'organization.common.orgStatusPending' => '審査中',
 			'organization.common.orgStatusRejected' => '審査不合格',
 			'organization.home.createOrg' => '組織を作成',
 			'organization.home.orgNameLabel' => '組織名（1-200 文字）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '作成に失敗しました：${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => '送信しました。運営の審査を待っています。審査に合格すると企業を利用できます',
 			'organization.home.tabOrg' => '組織',
 			'organization.home.myInvitations' => '自分の招待',
@@ -5736,14 +5748,14 @@ extension on TranslationsJaJp {
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'すべて',
 			'workspace.taskStatusTodo' => '未着手',
 			'workspace.taskStatusDoing' => '進行中',
 			'workspace.taskStatusReview' => 'レビュー中',
 			'workspace.taskStatusDone' => '完了',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」へ進める',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} を差し戻す…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」に移動しました',
 			'workspace.taskEmptyTitle' => 'タスクはまだありません',

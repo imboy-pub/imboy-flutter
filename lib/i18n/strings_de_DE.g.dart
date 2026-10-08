@@ -1107,6 +1107,12 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'Für alle löschen, kann nicht rückgängig gemacht werden';
 	@override String get chatInitFailed => 'Chat-Initialisierung fehlgeschlagen';
 	@override String get cameraShootFailed => 'Aufnahme fehlgeschlagen';
+	@override String get cameraCapture => 'Kamera';
+	@override String get cameraModePhoto => 'Foto';
+	@override String get cameraModeVideo => 'Video';
+	@override String get cameraRetake => 'Neu aufnehmen';
+	@override String get cameraUse => 'Verwenden';
+	@override String get cameraNoDevice => 'Keine Kamera verfügbar';
 	@override String get avatarEditAvatar => 'Avatar bearbeiten';
 	@override String get backgroundUseCustomColor => 'Benutzerdefinierte Farbe verwenden';
 	@override String get backgroundOnlySolidColor => 'Gilt nur für einfarbige Hintergründe';
@@ -4142,6 +4148,12 @@ extension on TranslationsDeDe {
 			'common.chatDeleteAll' => 'Für alle löschen, kann nicht rückgängig gemacht werden',
 			'common.chatInitFailed' => 'Chat-Initialisierung fehlgeschlagen',
 			'common.cameraShootFailed' => 'Aufnahme fehlgeschlagen',
+			'common.cameraCapture' => 'Kamera',
+			'common.cameraModePhoto' => 'Foto',
+			'common.cameraModeVideo' => 'Video',
+			'common.cameraRetake' => 'Neu aufnehmen',
+			'common.cameraUse' => 'Verwenden',
+			'common.cameraNoDevice' => 'Keine Kamera verfügbar',
 			'common.avatarEditAvatar' => 'Avatar bearbeiten',
 			'common.backgroundUseCustomColor' => 'Benutzerdefinierte Farbe verwenden',
 			'common.backgroundOnlySolidColor' => 'Gilt nur für einfarbige Hintergründe',
@@ -4197,14 +4209,14 @@ extension on TranslationsDeDe {
 			'common.featureComingSoon' => 'Funktion demnächst verfügbar',
 			'common.understood' => 'Verstanden',
 			'common.noProblem' => 'Kein Problem',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => 'Bin unterwegs',
 			'common.operationOptions' => 'Optionen',
 			'common.copyTextContent' => 'Textinhalt kopieren',
 			'common.shareWithOtherFriends' => 'Mit anderen Freunden teilen',
 			'common.addTagsToFavorites' => 'Tags zu Favoriten hinzufügen',
 			'common.addRemarkToFavorites' => 'Bemerkung zu Favoriten hinzufügen',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Diese Sammlung löschen',
 			'common.changeSuccess' => 'Erfolgreich geändert',
 			'common.lengthOk' => 'Länge in Ordnung',
@@ -4711,14 +4723,14 @@ extension on TranslationsDeDe {
 			'discovery.myChannels' => 'Meine Kanäle',
 			'discovery.otherUsersCanFindMe' => 'Andere Benutzer können mich durch Suche finden',
 			'discovery.momentsDenyUidsLabel' => 'Ausgeschlossen UIDs (kommagetrennt)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => 'Momente',
 			'discovery.momentsWriteComment' => 'Kommentar schreiben...',
 			'discovery.momentsVisibility' => 'Sichtbarkeit',
 			'discovery.momentsVisibilityPublic' => 'Öffentlich',
 			'discovery.momentsVisibilityPartial' => 'Teilweise',
 			'discovery.momentsVisibilityExclude' => 'Ausnahmen',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Letzter Entwurf wiederhergestellt',
 			'discovery.momentsFeedStale' => 'Netzwerkfehler, zwischengespeicherte Inhalte werden angezeigt',
 			'discovery.momentActionLike' => 'Gefällt mir',
@@ -5225,14 +5237,14 @@ extension on TranslationsDeDe {
 			'organization.common.targetUidHint' => 'UID des anderen Nutzers (numerisch)',
 			'organization.common.uidMustBePositive' => 'Die Nutzer-UID muss eine positive Ganzzahl sein',
 			'organization.common.loading' => 'Wird geladen…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => 'Mehr laden',
 			'organization.common.orgStatusPending' => 'In Prüfung',
 			'organization.common.orgStatusRejected' => 'Prüfung nicht bestanden',
 			'organization.home.createOrg' => 'Organisation erstellen',
 			'organization.home.orgNameLabel' => 'Organisationsname (1-200 Zeichen)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Erstellen fehlgeschlagen: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Übermittelt. Wartet auf die Prüfung durch das Betreiberteam; das Unternehmen kann nach Genehmigung normal genutzt werden',
 			'organization.home.tabOrg' => 'Organisationen',
 			'organization.home.myInvitations' => 'Meine Einladungen',
@@ -5739,14 +5751,14 @@ extension on TranslationsDeDe {
 			'workspace.taskCreatedToast' => 'Aufgabe erstellt',
 			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
 			'workspace.taskUpdatedToast' => 'Aufgabe gespeichert',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'Alle',
 			'workspace.taskStatusTodo' => 'Offen',
 			'workspace.taskStatusDoing' => 'In Bearbeitung',
 			'workspace.taskStatusReview' => 'In Prüfung',
 			'workspace.taskStatusDone' => 'Abgeschlossen',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Weiter zu „${status}“',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} zurücksetzen auf…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Verschoben zu „${status}“',
 			'workspace.taskEmptyTitle' => 'Noch keine Aufgaben',

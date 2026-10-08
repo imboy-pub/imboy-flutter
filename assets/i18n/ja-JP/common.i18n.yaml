@@ -382,6 +382,12 @@ chatDeleteOnlyLocal: 自分のみ削除、相手には表示されます
 chatDeleteAll: すべてのユーザーのチャットから削除、取り消せません
 chatInitFailed: チャットの初期化に失敗しました
 cameraShootFailed: 撮影に失敗しました
+cameraCapture: 撮影
+cameraModePhoto: 写真
+cameraModeVideo: 動画
+cameraRetake: 撮り直す
+cameraUse: 使用する
+cameraNoDevice: 利用可能なカメラがありません
 avatarEditAvatar: アバターを編集
 backgroundUseCustomColor: カスタム色を使用
 backgroundOnlySolidColor: 単色背景にのみ適用されます

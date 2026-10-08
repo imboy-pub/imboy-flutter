@@ -382,6 +382,12 @@ chatDeleteOnlyLocal: 나만 삭제, 상대방에게는 여전히 표시
 chatDeleteAll: 모든 사용자의 채팅에서 삭제, 되돌릴 수 없음
 chatInitFailed: 채팅 초기화 실패
 cameraShootFailed: 촬영 실패
+cameraCapture: 촬영
+cameraModePhoto: 사진
+cameraModeVideo: 동영상
+cameraRetake: 다시 촬영
+cameraUse: 사용
+cameraNoDevice: 사용 가능한 카메라가 없습니다
 avatarEditAvatar: 프로필 사진 편집
 backgroundUseCustomColor: 사용자 지정 색상 사용
 backgroundOnlySolidColor: 단색 배경에만 적용

@@ -394,6 +394,12 @@ chatDeleteOnlyLocal: حذف من جانبك فقط، لا يزال مرئياً 
 chatDeleteAll: حذف من محادثات الجميع، لا يمكن التراجع
 chatInitFailed: فشل تهيئة الدردشة
 cameraShootFailed: فشل التقاط الصورة
+cameraCapture: الكاميرا
+cameraModePhoto: صورة
+cameraModeVideo: فيديو
+cameraRetake: إعادة التصوير
+cameraUse: استخدام
+cameraNoDevice: لا توجد كاميرا متاحة
 avatarEditAvatar: تعديل الصورة الرمزية
 backgroundUseCustomColor: استخدام لون مخصص
 backgroundOnlySolidColor: ينطبق على الخلفية الصلبة فقط

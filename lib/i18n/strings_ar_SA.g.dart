@@ -1116,6 +1116,12 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'حذف من محادثات الجميع، لا يمكن التراجع';
 	@override String get chatInitFailed => 'فشل تهيئة الدردشة';
 	@override String get cameraShootFailed => 'فشل التقاط الصورة';
+	@override String get cameraCapture => 'الكاميرا';
+	@override String get cameraModePhoto => 'صورة';
+	@override String get cameraModeVideo => 'فيديو';
+	@override String get cameraRetake => 'إعادة التصوير';
+	@override String get cameraUse => 'استخدام';
+	@override String get cameraNoDevice => 'لا توجد كاميرا متاحة';
 	@override String get avatarEditAvatar => 'تعديل الصورة الرمزية';
 	@override String get backgroundUseCustomColor => 'استخدام لون مخصص';
 	@override String get backgroundOnlySolidColor => 'ينطبق على الخلفية الصلبة فقط';
@@ -4151,6 +4157,12 @@ extension on TranslationsArSa {
 			'common.chatDeleteAll' => 'حذف من محادثات الجميع، لا يمكن التراجع',
 			'common.chatInitFailed' => 'فشل تهيئة الدردشة',
 			'common.cameraShootFailed' => 'فشل التقاط الصورة',
+			'common.cameraCapture' => 'الكاميرا',
+			'common.cameraModePhoto' => 'صورة',
+			'common.cameraModeVideo' => 'فيديو',
+			'common.cameraRetake' => 'إعادة التصوير',
+			'common.cameraUse' => 'استخدام',
+			'common.cameraNoDevice' => 'لا توجد كاميرا متاحة',
 			'common.avatarEditAvatar' => 'تعديل الصورة الرمزية',
 			'common.backgroundUseCustomColor' => 'استخدام لون مخصص',
 			'common.backgroundOnlySolidColor' => 'ينطبق على الخلفية الصلبة فقط',
@@ -4206,14 +4218,14 @@ extension on TranslationsArSa {
 			'common.featureComingSoon' => 'الميزة قادمة قريباً',
 			'common.understood' => 'فهمت',
 			'common.noProblem' => 'لا مشكلة',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => 'قادم الآن',
 			'common.operationOptions' => 'خيارات العملية',
 			'common.copyTextContent' => 'نسخ محتوى النص',
 			'common.shareWithOtherFriends' => 'مشاركة مع أصدقاء آخرين',
 			'common.addTagsToFavorites' => 'إضافة علامات للمفضلة',
 			'common.addRemarkToFavorites' => 'إضافة ملاحظة للمفضلة',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'حذف هذه المفضلة',
 			'common.changeSuccess' => 'نجح التعديل',
 			'common.lengthOk' => 'الطول صحيح',
@@ -4720,14 +4732,14 @@ extension on TranslationsArSa {
 			'discovery.myChannels' => 'قنواتي',
 			'discovery.otherUsersCanFindMe' => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث',
 			'discovery.momentsDenyUidsLabel' => 'قائمة UID المخفي عنهم (مفصولة بفواصل)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => 'اللحظات',
 			'discovery.momentsWriteComment' => 'اكتب تعليقاً...',
 			'discovery.momentsVisibility' => 'الظهور',
 			'discovery.momentsVisibilityPublic' => 'عام',
 			'discovery.momentsVisibilityPartial' => 'بعض الأشخاص',
 			'discovery.momentsVisibilityExclude' => 'إخفاء عن...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'تمت استعادة المسودة الأخيرة',
 			'discovery.momentsFeedStale' => 'خطأ في الشبكة، يتم عرض المحتوى المخزّن مؤقتاً',
 			'discovery.momentActionLike' => 'إعجاب',
@@ -5234,14 +5246,14 @@ extension on TranslationsArSa {
 			'organization.common.targetUidHint' => 'UID المستخدم الآخر (رقم)',
 			'organization.common.uidMustBePositive' => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً',
 			'organization.common.loading' => 'جارٍ التحميل…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => 'تحميل المزيد',
 			'organization.common.orgStatusPending' => 'قيد المراجعة',
 			'organization.common.orgStatusRejected' => 'لم تجتز المراجعة',
 			'organization.home.createOrg' => 'إنشاء منظمة',
 			'organization.home.orgNameLabel' => 'اسم المنظمة (1-200 حرفاً)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'فشل الإنشاء: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'تم الإرسال. بانتظار مراجعة فريق العمليات؛ يمكن استخدام المؤسسة بشكل طبيعي بعد الموافقة',
 			'organization.home.tabOrg' => 'المنظمات',
 			'organization.home.myInvitations' => 'دعواتي',
@@ -5748,14 +5760,14 @@ extension on TranslationsArSa {
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
 			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'الكل',
 			'workspace.taskStatusTodo' => 'قيد الانتظار',
 			'workspace.taskStatusDoing' => 'قيد التنفيذ',
 			'workspace.taskStatusReview' => 'قيد المراجعة',
 			'workspace.taskStatusDone' => 'مكتملة',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'الانتقال إلى «${status}»',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'إعادة ${title} إلى…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'تم الانتقال إلى «${status}»',
 			'workspace.taskEmptyTitle' => 'لا توجد مهام بعد',

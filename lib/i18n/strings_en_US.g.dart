@@ -1151,6 +1151,12 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'Delete for everyone, cannot be undone';
 	@override String get chatInitFailed => 'Chat initialization failed';
 	@override String get cameraShootFailed => 'Camera failed';
+	@override String get cameraCapture => 'Camera';
+	@override String get cameraModePhoto => 'Photo';
+	@override String get cameraModeVideo => 'Video';
+	@override String get cameraRetake => 'Retake';
+	@override String get cameraUse => 'Use';
+	@override String get cameraNoDevice => 'No camera available';
 	@override String get avatarEditAvatar => 'Edit avatar';
 	@override String get backgroundUseCustomColor => 'Use custom color';
 	@override String get backgroundOnlySolidColor => 'Only applies to solid color backgrounds';
@@ -4361,6 +4367,12 @@ extension on TranslationsEnUs {
 			'common.chatDeleteAll' => 'Delete for everyone, cannot be undone',
 			'common.chatInitFailed' => 'Chat initialization failed',
 			'common.cameraShootFailed' => 'Camera failed',
+			'common.cameraCapture' => 'Camera',
+			'common.cameraModePhoto' => 'Photo',
+			'common.cameraModeVideo' => 'Video',
+			'common.cameraRetake' => 'Retake',
+			'common.cameraUse' => 'Use',
+			'common.cameraNoDevice' => 'No camera available',
 			'common.avatarEditAvatar' => 'Edit avatar',
 			'common.backgroundUseCustomColor' => 'Use custom color',
 			'common.backgroundOnlySolidColor' => 'Only applies to solid color backgrounds',
@@ -4383,14 +4395,14 @@ extension on TranslationsEnUs {
 			'common.voiceSendFailed' => 'Failed to send voice',
 			'common.featureNotImplemented' => 'Feature not implemented',
 			'common.sendCollectionNotImplemented' => 'Collection sending feature not implemented',
+			_ => null,
+		} ?? switch (path) {
 			'common.fileOpenNotImplemented' => 'File opening feature not implemented',
 			'common.fileShareNotImplemented' => 'File sharing feature not implemented',
 			'common.retrySuccess' => 'Resent successfully',
 			'common.deleteSuccess' => 'Deleted successfully',
 			'common.localDeleteSuccess' => 'Local deletion successful',
 			'common.localDeleteFailed' => 'Local deletion failed',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'Revoked successfully',
 			'common.editContentCannotBeEmpty' => 'Edit content cannot be empty',
 			'common.editSuccess' => 'Edit successful',
@@ -4897,14 +4909,14 @@ extension on TranslationsEnUs {
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
 			'complaint.e2eeConsentSubmit' => 'Consent & submit evidence',
 			'complaint.e2eeConsentDecline' => 'Report only (no content)',
+			_ => null,
+		} ?? switch (path) {
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
 			'complaintReason.inappropriate' => 'Inappropriate content',
 			'complaintReason.other' => 'Other',
 			'contact.blocked' => 'Blocked',
 			'contact.applyChanges' => 'Please restart the app to apply the changes.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.inputNewTag' => 'Enter new tag...',
 			'contact.denylist' => 'Blocklist',
 			'contact.denylistEmpty' => 'Blocklist is empty',
@@ -5411,14 +5423,14 @@ extension on TranslationsEnUs {
 			'main.speed' => 'Speed',
 			'main.stillNeeded' => 'Still need',
 			'main.storageSpace' => 'Storage space',
+			_ => null,
+		} ?? switch (path) {
 			'main.text' => 'Text',
 			'main.thisWeek' => 'This week',
 			'main.titleMine' => 'Me',
 			'main.tooBad' => 'Too bad',
 			'main.tryAgainQ' => 'Want to try again?',
 			'main.type' => 'Type',
-			_ => null,
-		} ?? switch (path) {
 			'main.unanswered' => 'Unanswered',
 			'main.unnamed' => 'Unnamed',
 			'main.usedSpace' => 'Used space',
@@ -5925,14 +5937,14 @@ extension on TranslationsEnUs {
 			'passport.oneKeyFailedRetry' => 'One-tap login failed, check your network and try again',
 			'splash.slogan' => 'Connect Freely, Communicate Anywhere',
 			'welcome.step1Title' => 'Simple Connection',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
 			'welcome.step2Title' => 'Secure & Private',
 			'welcome.step2Desc' => 'End-to-end encryption Keeps your personal moments strictly yours.',
 			'welcome.step3Title' => 'Ready to Explore?',
 			'welcome.step3Desc' => 'Join a vibrant community. Let the conversation begin!',
 			'welcome.next' => 'Next',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
 			'workspace.navOverview' => 'Overview',

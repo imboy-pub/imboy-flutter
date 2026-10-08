@@ -3162,6 +3162,24 @@ class Translations$common$zh_CN {
 	/// zh-CN: '拍摄失败'
 	String get cameraShootFailed => '拍摄失败';
 
+	/// zh-CN: '拍摄'
+	String get cameraCapture => '拍摄';
+
+	/// zh-CN: '照片'
+	String get cameraModePhoto => '照片';
+
+	/// zh-CN: '视频'
+	String get cameraModeVideo => '视频';
+
+	/// zh-CN: '重拍'
+	String get cameraRetake => '重拍';
+
+	/// zh-CN: '使用'
+	String get cameraUse => '使用';
+
+	/// zh-CN: '未检测到可用的摄像头'
+	String get cameraNoDevice => '未检测到可用的摄像头';
+
 	/// zh-CN: '编辑头像'
 	String get avatarEditAvatar => '编辑头像';
 
@@ -10004,6 +10022,12 @@ extension on Translations {
 			'common.chatDeleteAll' => '从所有人的聊天中删除，无法撤销',
 			'common.chatInitFailed' => '聊天初始化失败',
 			'common.cameraShootFailed' => '拍摄失败',
+			'common.cameraCapture' => '拍摄',
+			'common.cameraModePhoto' => '照片',
+			'common.cameraModeVideo' => '视频',
+			'common.cameraRetake' => '重拍',
+			'common.cameraUse' => '使用',
+			'common.cameraNoDevice' => '未检测到可用的摄像头',
 			'common.avatarEditAvatar' => '编辑头像',
 			'common.backgroundUseCustomColor' => '使用自定义颜色',
 			'common.backgroundOnlySolidColor' => '仅适用于纯色背景',
@@ -10014,14 +10038,14 @@ extension on Translations {
 			'common.audioPlayFailed' => '播放失败',
 			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被设备【${device}】强制下线',
 			'common.loadingTagDataFailed' => '加载标签数据失败',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => '请输入内容',
 			'common.comingSoon' => '敬请期待',
 			'common.backgroundTransparency' => '背景透明度',
 			'common.defaultBackground' => '默认背景',
 			'common.solidColorBackground' => '纯色背景',
 			'common.selectImageFailed' => '选择图片失败',
-			_ => null,
-		} ?? switch (path) {
 			'common.locationSelectNotImplemented' => '位置选择功能暂未实现',
 			'common.selectLocationFailed' => '选择位置失败',
 			'common.sendCardNotImplemented' => '名片发送功能暂未实现',
@@ -10528,14 +10552,14 @@ extension on Translations {
 			'common.justNow' => '刚刚',
 			'common.minutesAgo' => '分钟前',
 			'common.hoursAgo' => '小时前',
+			_ => null,
+		} ?? switch (path) {
 			'common.collapse' => '收起',
 			'common.expandFull' => '展开',
 			'common.fontSizeOptionSmall' => '小',
 			'common.fontSizeOptionNormal' => '标准',
 			'common.fontSizeOptionMedium' => '中',
 			'common.fontSizeOptionLarge' => '大',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontSizeOptionExtraLarge' => '特大',
 			'common.fontSizeOptionHuge' => '超大',
 			'common.developer' => '开发者',
@@ -11042,14 +11066,14 @@ extension on Translations {
 			'main.peerHasHungUp' => '对方已挂断',
 			'main.play' => '播放',
 			'main.pleaseInputParam' => ({required Object param}) => '请输入${param}',
+			_ => null,
+		} ?? switch (path) {
 			'main.pleaseSelect' => '请选择',
 			'main.quote' => '引用',
 			'main.recentlyUsed' => '最近使用',
 			'main.releaseEnd' => '松开结束',
 			'main.memberDetail' => '成员详情',
 			'main.replied' => '已回复',
-			_ => null,
-		} ?? switch (path) {
 			'main.ringing' => '已响铃...',
 			'main.ruRu' => '俄罗斯俄语',
 			'main.selectedCount' => ({required Object count}) => '已选 (${count})',
@@ -11556,14 +11580,14 @@ extension on Translations {
 			'passport.hintMobile' => '请输入手机号',
 			'passport.hintPassword' => '请输入密码',
 			'passport.hintVerifyCode' => '请输入验证码',
+			_ => null,
+		} ?? switch (path) {
 			'passport.getVerifyCode' => '获取验证码',
 			'passport.oneKeyLogin' => '一键登录',
 			'passport.qrCodeExpired' => '二维码已过期，请重新扫码',
 			'passport.qrCodeUsed' => '此二维码已使用',
 			'passport.qrLoginCancelled' => '登录已取消',
 			'passport.qrLoginConfirming' => '正在登录...',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginCancelledByMe' => '已取消登录',
 			'passport.qrConnecting' => '正在连接...',
 			'passport.qrWebLoginTitle' => 'Web 端登录确认',

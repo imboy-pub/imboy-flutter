@@ -60,7 +60,7 @@
 		<key>NSCalendarsUsageDescription</key>
 		<string>IMBoy does not need this permission</string>
 		<key>NSCameraUsageDescription</key>
-		<string>IMBoy does not need this permission</string>
+		<string>IMBoy needs camera access to take photos and record videos in chats.</string>
 		<key>NSContactsUsageDescription</key>
 		<string>IMBoy does not need this permission</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -72,7 +72,7 @@
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>请允许$(PRODUCT_NAME)获取您的位置信息</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>IMBoy uses the microphone to record your speech and convert it to text.</string>
+		<string>IMBoy uses the microphone for voice messages, video recording, and calls.</string>
 		<key>com.apple.security.personal-information.location</key>
 		<true/>
 		<key>NSMotionUsageDescription</key>

@@ -385,6 +385,12 @@ chatDeleteOnlyLocal: Supprimer uniquement pour vous. Toujours visible pour les a
 chatDeleteAll: Supprimer pour tout le monde. Impossible à annuler.
 chatInitFailed: Échec de l'initialisation de la conversation.
 cameraShootFailed: Échec de la prise de photo.
+cameraCapture: Appareil photo
+cameraModePhoto: Photo
+cameraModeVideo: Vidéo
+cameraRetake: Reprendre
+cameraUse: Utiliser
+cameraNoDevice: Aucun appareil disponible
 avatarEditAvatar: Modifier l'avatar
 backgroundUseCustomColor: Utiliser une couleur personnalisée
 backgroundOnlySolidColor: S'applique uniquement aux arrière-plans de couleur unie.

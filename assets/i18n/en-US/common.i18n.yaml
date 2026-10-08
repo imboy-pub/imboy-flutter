@@ -381,6 +381,12 @@ chatDeleteOnlyLocal: "Delete only for you, still visible to others"
 chatDeleteAll: "Delete for everyone, cannot be undone"
 chatInitFailed: Chat initialization failed
 cameraShootFailed: Camera failed
+cameraCapture: Camera
+cameraModePhoto: Photo
+cameraModeVideo: Video
+cameraRetake: Retake
+cameraUse: Use
+cameraNoDevice: No camera available
 avatarEditAvatar: Edit avatar
 backgroundUseCustomColor: Use custom color
 backgroundOnlySolidColor: Only applies to solid color backgrounds

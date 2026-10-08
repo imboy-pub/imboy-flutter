@@ -1107,6 +1107,12 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'Supprimer pour tout le monde. Impossible à annuler.';
 	@override String get chatInitFailed => 'Échec de l\'initialisation de la conversation.';
 	@override String get cameraShootFailed => 'Échec de la prise de photo.';
+	@override String get cameraCapture => 'Appareil photo';
+	@override String get cameraModePhoto => 'Photo';
+	@override String get cameraModeVideo => 'Vidéo';
+	@override String get cameraRetake => 'Reprendre';
+	@override String get cameraUse => 'Utiliser';
+	@override String get cameraNoDevice => 'Aucun appareil disponible';
 	@override String get avatarEditAvatar => 'Modifier l\'avatar';
 	@override String get backgroundUseCustomColor => 'Utiliser une couleur personnalisée';
 	@override String get backgroundOnlySolidColor => 'S\'applique uniquement aux arrière-plans de couleur unie.';
@@ -4142,6 +4148,12 @@ extension on TranslationsFrFr {
 			'common.chatDeleteAll' => 'Supprimer pour tout le monde. Impossible à annuler.',
 			'common.chatInitFailed' => 'Échec de l\'initialisation de la conversation.',
 			'common.cameraShootFailed' => 'Échec de la prise de photo.',
+			'common.cameraCapture' => 'Appareil photo',
+			'common.cameraModePhoto' => 'Photo',
+			'common.cameraModeVideo' => 'Vidéo',
+			'common.cameraRetake' => 'Reprendre',
+			'common.cameraUse' => 'Utiliser',
+			'common.cameraNoDevice' => 'Aucun appareil disponible',
 			'common.avatarEditAvatar' => 'Modifier l\'avatar',
 			'common.backgroundUseCustomColor' => 'Utiliser une couleur personnalisée',
 			'common.backgroundOnlySolidColor' => 'S\'applique uniquement aux arrière-plans de couleur unie.',
@@ -4197,14 +4209,14 @@ extension on TranslationsFrFr {
 			'common.featureComingSoon' => 'Fonctionnalité bientôt disponible.',
 			'common.understood' => 'Compris',
 			'common.noProblem' => 'Aucun problème',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => 'J\'arrive',
 			'common.operationOptions' => 'Options',
 			'common.copyTextContent' => 'Copier le contenu du texte',
 			'common.shareWithOtherFriends' => 'Partager avec d\'autres amis',
 			'common.addTagsToFavorites' => 'Ajouter des étiquettes aux favoris',
 			'common.addRemarkToFavorites' => 'Ajouter une remarque aux favoris',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Supprimer cette collection',
 			'common.changeSuccess' => 'Modifié avec succès.',
 			'common.lengthOk' => 'Longueur correcte',
@@ -4711,14 +4723,14 @@ extension on TranslationsFrFr {
 			'discovery.myChannels' => 'Mes canaux',
 			'discovery.otherUsersCanFindMe' => 'D\'autres utilisateurs peuvent me trouver via la recherche.',
 			'discovery.momentsDenyUidsLabel' => 'UIDs exclus (séparés par virgule)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => 'Fil d\'actualité',
 			'discovery.momentsWriteComment' => 'Écrire un commentaire...',
 			'discovery.momentsVisibility' => 'Visibilité',
 			'discovery.momentsVisibilityPublic' => 'Public',
 			'discovery.momentsVisibilityPartial' => 'Partiel',
 			'discovery.momentsVisibilityExclude' => 'Exceptions',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Brouillon précédent restauré',
 			'discovery.momentsFeedStale' => 'Erreur réseau, affichage du cache',
 			'discovery.momentActionLike' => 'J\'aime',
@@ -5225,14 +5237,14 @@ extension on TranslationsFrFr {
 			'organization.common.targetUidHint' => 'UID de l\'utilisateur cible (nombre)',
 			'organization.common.uidMustBePositive' => 'L\'UID utilisateur doit être un entier positif',
 			'organization.common.loading' => 'Chargement…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => 'Charger plus',
 			'organization.common.orgStatusPending' => 'En cours d\'examen',
 			'organization.common.orgStatusRejected' => 'Examen non validé',
 			'organization.home.createOrg' => 'Créer une organisation',
 			'organization.home.orgNameLabel' => 'Nom de l\'organisation (1-200 caractères)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Échec de la création : ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Envoyé. En attente de validation par l\'équipe des opérations ; l\'entreprise pourra être utilisée normalement une fois validée',
 			'organization.home.tabOrg' => 'Organisations',
 			'organization.home.myInvitations' => 'Mes invitations',
@@ -5739,14 +5751,14 @@ extension on TranslationsFrFr {
 			'workspace.taskCreatedToast' => 'Tâche créée',
 			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
 			'workspace.taskUpdatedToast' => 'Tâche enregistrée',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'Tout',
 			'workspace.taskStatusTodo' => 'À faire',
 			'workspace.taskStatusDoing' => 'En cours',
 			'workspace.taskStatusReview' => 'En revue',
 			'workspace.taskStatusDone' => 'Terminé',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Faire avancer vers « ${status} »',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Replacer ${title} à…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Déplacé vers « ${status} »',
 			'workspace.taskEmptyTitle' => 'Aucune tâche pour le moment',

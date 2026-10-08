@@ -1113,6 +1113,12 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => 'Удалить для всех, нельзя отменить';
 	@override String get chatInitFailed => 'Не удалось инициализировать чат';
 	@override String get cameraShootFailed => 'Не удалось сделать снимок';
+	@override String get cameraCapture => 'Камера';
+	@override String get cameraModePhoto => 'Фото';
+	@override String get cameraModeVideo => 'Видео';
+	@override String get cameraRetake => 'Переснять';
+	@override String get cameraUse => 'Использовать';
+	@override String get cameraNoDevice => 'Камера не найдена';
 	@override String get avatarEditAvatar => 'Редактировать аватар';
 	@override String get backgroundUseCustomColor => 'Использовать пользовательский цвет';
 	@override String get backgroundOnlySolidColor => 'Применимо только к сплошным фонам';
@@ -4148,6 +4154,12 @@ extension on TranslationsRuRu {
 			'common.chatDeleteAll' => 'Удалить для всех, нельзя отменить',
 			'common.chatInitFailed' => 'Не удалось инициализировать чат',
 			'common.cameraShootFailed' => 'Не удалось сделать снимок',
+			'common.cameraCapture' => 'Камера',
+			'common.cameraModePhoto' => 'Фото',
+			'common.cameraModeVideo' => 'Видео',
+			'common.cameraRetake' => 'Переснять',
+			'common.cameraUse' => 'Использовать',
+			'common.cameraNoDevice' => 'Камера не найдена',
 			'common.avatarEditAvatar' => 'Редактировать аватар',
 			'common.backgroundUseCustomColor' => 'Использовать пользовательский цвет',
 			'common.backgroundOnlySolidColor' => 'Применимо только к сплошным фонам',
@@ -4203,14 +4215,14 @@ extension on TranslationsRuRu {
 			'common.featureComingSoon' => 'Функция скоро будет доступна',
 			'common.understood' => 'Понятно',
 			'common.noProblem' => 'Без проблем',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => 'Уже в пути',
 			'common.operationOptions' => 'Операции',
 			'common.copyTextContent' => 'Копировать текстовое содержание',
 			'common.shareWithOtherFriends' => 'Поделиться с другими друзьями',
 			'common.addTagsToFavorites' => 'Добавить теги в избранное',
 			'common.addRemarkToFavorites' => 'Добавить примечание в избранное',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => 'Удалить эту коллекцию',
 			'common.changeSuccess' => 'Успешно изменено',
 			'common.lengthOk' => 'Длина в порядке',
@@ -4717,14 +4729,14 @@ extension on TranslationsRuRu {
 			'discovery.myChannels' => 'Мои каналы',
 			'discovery.otherUsersCanFindMe' => 'Другие пользователи могут найти меня через поиск',
 			'discovery.momentsDenyUidsLabel' => 'Скрыть от UID (через запятую)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => 'Моменты',
 			'discovery.momentsWriteComment' => 'Написать комментарий...',
 			'discovery.momentsVisibility' => 'Видимость',
 			'discovery.momentsVisibilityPublic' => 'Все',
 			'discovery.momentsVisibilityPartial' => 'Некоторые',
 			'discovery.momentsVisibilityExclude' => 'Скрыть от...',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => 'Восстановлен черновик',
 			'discovery.momentsFeedStale' => 'Сетевая ошибка, показан кэш',
 			'discovery.momentActionLike' => 'Нравится',
@@ -5231,14 +5243,14 @@ extension on TranslationsRuRu {
 			'organization.common.targetUidHint' => 'UID другого пользователя (число)',
 			'organization.common.uidMustBePositive' => 'UID пользователя должен быть положительным целым числом',
 			'organization.common.loading' => 'Загрузка…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => 'Загрузить ещё',
 			'organization.common.orgStatusPending' => 'На проверке',
 			'organization.common.orgStatusRejected' => 'Проверка не пройдена',
 			'organization.home.createOrg' => 'Создать организацию',
 			'organization.home.orgNameLabel' => 'Название организации (1-200 символов)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => 'Не удалось создать: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => 'Отправлено. Ожидается проверка со стороны операторов; после одобрения предприятие можно будет использовать',
 			'organization.home.tabOrg' => 'Организации',
 			'organization.home.myInvitations' => 'Мои приглашения',
@@ -5745,14 +5757,14 @@ extension on TranslationsRuRu {
 			'workspace.taskCreatedToast' => 'Задача создана',
 			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'Все',
 			'workspace.taskStatusTodo' => 'К выполнению',
 			'workspace.taskStatusDoing' => 'В процессе',
 			'workspace.taskStatusReview' => 'На проверке',
 			'workspace.taskStatusDone' => 'Завершено',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Перевести в «${status}»',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => 'Вернуть «${title}» к...',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => 'Переведено в «${status}»',
 			'workspace.taskEmptyTitle' => 'Пока нет задач',

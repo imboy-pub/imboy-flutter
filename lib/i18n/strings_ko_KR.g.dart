@@ -1104,6 +1104,12 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => '모든 사용자의 채팅에서 삭제, 되돌릴 수 없음';
 	@override String get chatInitFailed => '채팅 초기화 실패';
 	@override String get cameraShootFailed => '촬영 실패';
+	@override String get cameraCapture => '촬영';
+	@override String get cameraModePhoto => '사진';
+	@override String get cameraModeVideo => '동영상';
+	@override String get cameraRetake => '다시 촬영';
+	@override String get cameraUse => '사용';
+	@override String get cameraNoDevice => '사용 가능한 카메라가 없습니다';
 	@override String get avatarEditAvatar => '프로필 사진 편집';
 	@override String get backgroundUseCustomColor => '사용자 지정 색상 사용';
 	@override String get backgroundOnlySolidColor => '단색 배경에만 적용';
@@ -4139,6 +4145,12 @@ extension on TranslationsKoKr {
 			'common.chatDeleteAll' => '모든 사용자의 채팅에서 삭제, 되돌릴 수 없음',
 			'common.chatInitFailed' => '채팅 초기화 실패',
 			'common.cameraShootFailed' => '촬영 실패',
+			'common.cameraCapture' => '촬영',
+			'common.cameraModePhoto' => '사진',
+			'common.cameraModeVideo' => '동영상',
+			'common.cameraRetake' => '다시 촬영',
+			'common.cameraUse' => '사용',
+			'common.cameraNoDevice' => '사용 가능한 카메라가 없습니다',
 			'common.avatarEditAvatar' => '프로필 사진 편집',
 			'common.backgroundUseCustomColor' => '사용자 지정 색상 사용',
 			'common.backgroundOnlySolidColor' => '단색 배경에만 적용',
@@ -4194,14 +4206,14 @@ extension on TranslationsKoKr {
 			'common.featureComingSoon' => '기능 출시 예정',
 			'common.understood' => '이해함',
 			'common.noProblem' => '문제 없음',
+			_ => null,
+		} ?? switch (path) {
 			'common.onMyWay' => '곧 도착합니다',
 			'common.operationOptions' => '작업 옵션',
 			'common.copyTextContent' => '텍스트 내용 복사',
 			'common.shareWithOtherFriends' => '다른 친구와 공유',
 			'common.addTagsToFavorites' => '즐겨찾기에 태그 추가',
 			'common.addRemarkToFavorites' => '즐겨찾기에 메모 추가',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteThisCollection' => '이 수집 항목 삭제',
 			'common.changeSuccess' => '수정 성공',
 			'common.lengthOk' => '길이 적합',
@@ -4708,14 +4720,14 @@ extension on TranslationsKoKr {
 			'discovery.myChannels' => '내 채널',
 			'discovery.otherUsersCanFindMe' => '다른 사용자가 검색을 통해 찾을 수 있습니다',
 			'discovery.momentsDenyUidsLabel' => '제외할 UID 목록 (쉼표로 구분)',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => '모멘트',
 			'discovery.momentsWriteComment' => '댓글을 입력하세요...',
 			'discovery.momentsVisibility' => '공개 범위',
 			'discovery.momentsVisibilityPublic' => '공개',
 			'discovery.momentsVisibilityPartial' => '일부만',
 			'discovery.momentsVisibilityExclude' => '특정 친구 제외',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => '마지막 저장된 임시글이 복원되었습니다',
 			'discovery.momentsFeedStale' => '네트워크 오류로 캐시된 내용을 표시합니다',
 			'discovery.momentActionLike' => '좋아요',
@@ -5222,14 +5234,14 @@ extension on TranslationsKoKr {
 			'organization.common.targetUidHint' => '상대 사용자 UID(숫자)',
 			'organization.common.uidMustBePositive' => '사용자 UID는 양의 정수여야 합니다',
 			'organization.common.loading' => '불러오는 중…',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loadMore' => '더 불러오기',
 			'organization.common.orgStatusPending' => '심사 중',
 			'organization.common.orgStatusRejected' => '심사 미통과',
 			'organization.home.createOrg' => '조직 만들기',
 			'organization.home.orgNameLabel' => '조직 이름(1-200자)',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '생성 실패: ${msg} (${code})',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createSubmittedPendingReview' => '제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다',
 			'organization.home.tabOrg' => '조직',
 			'organization.home.myInvitations' => '내 초대',
@@ -5736,14 +5748,14 @@ extension on TranslationsKoKr {
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
 			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFilterAll' => '전체',
 			'workspace.taskStatusTodo' => '할 일',
 			'workspace.taskStatusDoing' => '진행 중',
 			'workspace.taskStatusReview' => '검토 중',
 			'workspace.taskStatusDone' => '완료됨',
 			'workspace.taskAdvanceTo' => ({required Object status}) => '「${status}」 상태로 진행',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '${title} 상태로 되돌리기…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '「${status}」 상태로 변경되었습니다',
 			'workspace.taskEmptyTitle' => '아직 작업이 없습니다',

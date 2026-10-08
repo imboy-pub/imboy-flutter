@@ -1106,6 +1106,12 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get chatDeleteAll => '從所有人的聊天中刪除，無法撤銷';
 	@override String get chatInitFailed => '聊天初始化失敗';
 	@override String get cameraShootFailed => '拍攝失敗';
+	@override String get cameraCapture => '拍攝';
+	@override String get cameraModePhoto => '照片';
+	@override String get cameraModeVideo => '影片';
+	@override String get cameraRetake => '重拍';
+	@override String get cameraUse => '使用';
+	@override String get cameraNoDevice => '未偵測到可用的攝影機';
 	@override String get avatarEditAvatar => '編輯頭像';
 	@override String get backgroundUseCustomColor => '使用自訂顏色';
 	@override String get backgroundOnlySolidColor => '僅適用於純色背景';
@@ -4142,6 +4148,12 @@ extension on TranslationsZhHant {
 			'common.chatDeleteAll' => '從所有人的聊天中刪除，無法撤銷',
 			'common.chatInitFailed' => '聊天初始化失敗',
 			'common.cameraShootFailed' => '拍攝失敗',
+			'common.cameraCapture' => '拍攝',
+			'common.cameraModePhoto' => '照片',
+			'common.cameraModeVideo' => '影片',
+			'common.cameraRetake' => '重拍',
+			'common.cameraUse' => '使用',
+			'common.cameraNoDevice' => '未偵測到可用的攝影機',
 			'common.avatarEditAvatar' => '編輯頭像',
 			'common.backgroundUseCustomColor' => '使用自訂顏色',
 			'common.backgroundOnlySolidColor' => '僅適用於純色背景',
@@ -4195,14 +4207,14 @@ extension on TranslationsZhHant {
 			'common.burnDisabledMessage' => '關閉後：訊息不會自動銷毀',
 			'common.noGroupAnnouncement' => '暫無群組公告',
 			'common.featureComingSoon' => '功能暫未實現',
+			_ => null,
+		} ?? switch (path) {
 			'common.understood' => '我懂了',
 			'common.noProblem' => '沒問題',
 			'common.onMyWay' => '馬上到',
 			'common.operationOptions' => '操作選項',
 			'common.copyTextContent' => '複製文字內容',
 			'common.shareWithOtherFriends' => '分享給其他好友',
-			_ => null,
-		} ?? switch (path) {
 			'common.addTagsToFavorites' => '為收藏新增標籤',
 			'common.addRemarkToFavorites' => '為收藏新增備註',
 			'common.deleteThisCollection' => '刪除此收藏',
@@ -4709,14 +4721,14 @@ extension on TranslationsZhHant {
 			'discovery.myChannels' => '我的頻道',
 			'discovery.otherUsersCanFindMe' => '其他使用者可以通過搜尋找到我',
 			'discovery.momentsDenyUidsLabel' => '不給誰看 UID 列表（逗號分隔）',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.moments' => '動態',
 			'discovery.momentsWriteComment' => '寫評論...',
 			'discovery.momentsVisibility' => '可見性',
 			'discovery.momentsVisibilityPublic' => '公開',
 			'discovery.momentsVisibilityPartial' => '部分可見',
 			'discovery.momentsVisibilityExclude' => '不給誰看',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.momentsDraftRestored' => '已恢復上次未傳送的草稿',
 			'discovery.momentsFeedStale' => '網路異常，顯示的是快取內容',
 			'discovery.momentActionLike' => '讚',
@@ -5223,14 +5235,14 @@ extension on TranslationsZhHant {
 			'organization.common.noMembers' => '尚無成員',
 			'organization.common.targetUidHint' => '對方使用者 UID（數字）',
 			'organization.common.uidMustBePositive' => '使用者 UID 必須是正整數',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.loading' => '載入中…',
 			'organization.common.loadMore' => '載入更多',
 			'organization.common.orgStatusPending' => '審核中',
 			'organization.common.orgStatusRejected' => '未通過審核',
 			'organization.home.createOrg' => '建立企業',
 			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
-			_ => null,
-		} ?? switch (path) {
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
 			'organization.home.tabOrg' => '組織',
@@ -5737,14 +5749,14 @@ extension on TranslationsZhHant {
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',
 			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '任務已儲存',
 			'workspace.taskFilterAll' => '所有',
 			'workspace.taskStatusTodo' => '待辦',
 			'workspace.taskStatusDoing' => '進行中',
 			'workspace.taskStatusReview' => '審核中',
 			'workspace.taskStatusDone' => '已結案',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAdvanceTo' => ({required Object status}) => '推進到「${status}」',
 			'workspace.taskFallbackMenuTitle' => ({required Object title}) => '回退 ${title} 至…',
 			'workspace.taskStatusMovedToast' => ({required Object status}) => '已流轉到「${status}」',
