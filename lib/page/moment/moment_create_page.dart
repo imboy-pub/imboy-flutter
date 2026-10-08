@@ -32,6 +32,7 @@ import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'moment_interactions.dart';
+import 'moment_album_picker.dart';
 import 'moment_utils.dart';
 
 /// 朋友圈发布页 - 沉浸式重构（对标微信朋友圈发布体验）
@@ -352,14 +353,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     }
     // 剩余可选额度而非固定 momentMaxImageCount：避免多轮选择后总数超限。
     final remaining = momentMaxImageCount - _uploads.length;
-    final assets = await AssetPicker.pickAssets(
-      context,
-      pickerConfig: AssetPickerConfig(
-        maxAssets: remaining,
-        requestType: RequestType.common,
-        specialPickerType: SpecialPickerType.wechatMoment,
-      ),
-    );
+    final assets = await pickMomentAlbum(context, maxAssets: remaining);
     if (assets == null || assets.isEmpty || !mounted) return;
 
     // 逐张占位入网格 + 并行上传（controller 内部 Future.wait）；失败项保留
