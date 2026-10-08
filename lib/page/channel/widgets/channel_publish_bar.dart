@@ -258,14 +258,40 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
     setState(() => _isUploadingMedia = true);
 
-    final assets = await AssetPicker.pickAssets(
-      context,
-      pickerConfig: AssetPickerConfig(
-        maxAssets: 9,
-        requestType: RequestType.common,
-        textDelegate: const EnglishAssetPickerTextDelegate(),
-      ),
-    );
+    final List<AssetEntity>? assets;
+    try {
+      assets = await AssetPicker.pickAssets(
+        context,
+        pickerConfig: AssetPickerConfig(
+          maxAssets: 9,
+          requestType: RequestType.common,
+          textDelegate: const EnglishAssetPickerTextDelegate(),
+        ),
+      );
+    } on Object catch (error) {
+      // 选择器任何异常都不能逃逸：uncaught 之外，更要紧的是上面已置位的
+      // _isUploadingMedia 永不复位——发布栏被自身守卫挡死，所有入口点击
+      // 无反应，直到页面重建。兜底口径与 channel_compose_page._pickImages
+      // 一致（真实异常透出为 toast）；权限拒绝单独给专用文案（前缀判定同
+      // moment_album_picker）。
+      debugPrint(
+        '[channel][publish_bar] pickAssets THREW, errType='
+        '${error.runtimeType}',
+      );
+      final isPermissionDenied =
+          error is StateError &&
+          error.message.toString().startsWith(
+            'Permission state error with PermissionState.',
+          );
+      if (!mounted) return;
+      setState(() => _isUploadingMedia = false);
+      AppLoading.showError(
+        isPermissionDenied
+            ? context.t.common.permissionAcquisitionFailed
+            : context.t.common.operationFailedAgainLater,
+      );
+      return;
+    }
 
     if (assets == null || assets.isEmpty) {
       if (mounted) setState(() => _isUploadingMedia = false);

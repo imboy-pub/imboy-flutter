@@ -8,6 +8,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity, AssetType;
 import 'package:file_picker/file_picker.dart';
@@ -350,7 +351,24 @@ class ChatAttachmentHandler {
 
   /// 处理文件选择
   Future<void> handleFileSelection(BuildContext context) async {
-    final files = await FilePicker.pickFiles(type: FileType.any);
+    final List<PlatformFile> files;
+    try {
+      files = await FilePicker.pickFiles(type: FileType.any);
+    } on Object catch (e) {
+      // macOS App Sandbox 缺 user-selected entitlement 时，file_picker 抛
+      // PlatformException(ENTITLEMENT_NOT_FOUND)；不捕获即 uncaught，
+      // 用户点「文件」毫无反馈。取消选择返回空列表，不会进这里。
+      debugPrint(
+        '[attachment_handler] handleFileSelection error, '
+        'errType=${e.runtimeType}',
+      );
+      AppLoading.showError(
+        e is PlatformException
+            ? t.common.permissionAcquisitionFailed
+            : t.common.operationFailedAgainLater,
+      );
+      return;
+    }
     if (files.isEmpty || files.single.path == null) {
       return;
     }
@@ -607,6 +625,12 @@ class ChatAttachmentHandler {
         '[attachment_handler] handleImageFileSelection error, '
         'errType=${e.runtimeType}',
       );
+      // 与 handleFileSelection 同款：失败必须可见，否则用户以为点击无效
+      AppLoading.showError(
+        e is PlatformException
+            ? t.common.permissionAcquisitionFailed
+            : t.common.operationFailedAgainLater,
+      );
     }
   }
 
@@ -705,6 +729,9 @@ class ChatAttachmentHandler {
         '[attachment_handler] handleImageSelection permission error, '
         'errType=${e.runtimeType}',
       );
+      // 相册权限被拒（移动端未授权 / macOS TCC 拒绝）：只打日志会变成
+      // 「点了没反应」，提示文案与 moment_album_picker 保持一致
+      AppLoading.showError(t.common.permissionAcquisitionFailed);
     }
   }
 
