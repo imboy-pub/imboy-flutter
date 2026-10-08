@@ -13,6 +13,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
+import 'package:imboy/service/group_collaboration_summary.dart';
 import 'package:imboy/service/group_notice_config.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/modules/enterprise_app/public.dart'
@@ -1555,17 +1556,12 @@ class MessageService with EventSubscriptionManager {
       case 'webrtc_video':
       case 'webrtcVideo':
         return '[视频通话]';
-      // redPacket/transfer/groupSchedule 不在白名单时会 fallback 成
-      // payload['text']（红包/转账 payload 没有 text 字段）→ 「[消息]」，
-      // 会话列表/通知把红包显示成普通消息
       case 'redPacket':
         final greeting = payload['greeting']?.toString() ?? '';
         return greeting.isNotEmpty ? '[红包] $greeting' : '[红包]';
       case 'transfer':
         final remark = payload['remark']?.toString() ?? '';
         return remark.isNotEmpty ? '[转账] $remark' : '[转账]';
-      case 'groupSchedule':
-        return '[群日程]';
       case 'revoked':
         return '[消息已撤回]';
       case 'custom':
@@ -1578,11 +1574,12 @@ class MessageService with EventSubscriptionManager {
 
   /// 获取通知内容
   String _getNotificationContent(MessageModel msg) {
-    return _messageTypeLabel(
-      msg.msgType ?? '',
-      msg.payloadMap,
-      fallback: '[新消息]',
-    );
+    return groupCollaborationSummary(
+          msg.msgType ?? '',
+          msg.payloadMap,
+          includeLabel: true,
+        ) ??
+        _messageTypeLabel(msg.msgType ?? '', msg.payloadMap, fallback: '[新消息]');
   }
 
   /// Handle error codes from server
@@ -1598,9 +1595,9 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
-  /// v2.0: 根据消息类型构造会话副标题
   String _getMessageSubtitle(String messageType, Map<String, dynamic> payload) {
-    return _messageTypeLabel(messageType, payload, fallback: '[消息]');
+    return groupCollaborationSummary(messageType, payload) ??
+        _messageTypeLabel(messageType, payload, fallback: '[消息]');
   }
 
   // 便捷转发方法

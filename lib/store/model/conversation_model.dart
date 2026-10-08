@@ -1,6 +1,7 @@
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/group_collaboration_summary.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -157,7 +158,13 @@ class ConversationModel {
       }
     }
     // 不在日志中输出 title/subtitle（含用户隐私数据）
-    if (msgType == MessageType.custom) {}
+    final collaboration = groupCollaborationSummary(
+      msgType,
+      payload ?? {},
+      includeLabel: true,
+      fallbackTitle: subtitle,
+    );
+    if (collaboration != null) return collaboration;
     // 普通消息类型
     if (msgType == MessageType.text || msgType == '') {
       return subtitle;
@@ -182,15 +189,6 @@ class ConversationModel {
       return "[$str]$subtitle";
     } else if (msgType == MessageType.transfer) {
       str = t.common.transfer;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.groupSchedule) {
-      str = t.groupSchedule.title;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.groupVote) {
-      str = t.groupVote.title;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.groupTask) {
-      str = t.groupTask.title;
       return "[$str]$subtitle";
     } else if (msgType == MessageType.visitCard) {
       str = t.common.personalCard;
