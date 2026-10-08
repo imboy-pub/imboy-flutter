@@ -77,12 +77,3 @@ Feature visibility is controlled by the compiled product profile, local hard-dis
 | 音视频通话（WebRTC/LiveRoom 群通话） | ✅ | ⚠️ 一期 5190 拒绝 | **不经过 Feature Flag 体系**（无 `FeatureKeys.rtc` 键） | 开发态构建入口存在（聊天页群通话 extra_item）；一期服务端 `rtc/room/join` 返回 5190（AC02 实测），点击透出后端错误提示。一期交付面的入口收敛依赖 phase1 重渲染路由裁剪覆盖核验（Q12 门复核项） |
 
 ---
-
-## 变更记录 / Change Log
-
-| 日期 | 变更 | 原因 |
-|------|------|------|
-| 2026-04-17 | `wallet`、`liveRoom` 加入 `_localDisabledKeys` | W1.5 稳定化 Sprint — App Store 审核 |
-| 2026-04-17 | `friendTag`、`moment interactions` 移出 `_localDisabledKeys` | 用户决定继续完善 |
-| 2026-06-05 | 创建本文档，整理功能矩阵 | — |
-| 2026-10-07 | 全量重写：两层开关机制更正为三层（补编译期产品面）；建立开发态/交付态双口径（full-selected vs phase1_delivery 四键）；钱包条目更正（后端已实现，改为编译面控制）；live_room 更正为产品决策关闭；RTC 条目新增（不走 flag 体系的边界现状） | DOC-Q11 跳过项 #9 清偿——原文件 4 个月未更新且与一期 phase1_delivery 边界冲突（AC02/AC05 验收后口径对齐） |
