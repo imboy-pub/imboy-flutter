@@ -47,6 +47,22 @@ allprojects {
     }
 }
 
+// 插件子项目（.pub-cache 里的 build.gradle）自带的 buildscript 仓库仍是
+// google()/mavenCentral()，不受上面 allprojects 管辖——JVM 到
+// repo.maven.apache.org 的 TLS 握手会被注入 RST，插件 AGP classpath 解析
+// 直接失败（"Remote host terminated the handshake"）。这里给 buildscript
+// 前置阿里云镜像：根 subprojects 动作先于子项目自身 buildscript 求值，
+// 镜像排在插件自声明的仓库之前，命中即不再访问裸源。
+subprojects {
+    buildscript {
+        repositories {
+            maven { url = uri("https://maven.aliyun.com/repository/public") }
+            maven { url = uri("https://maven.aliyun.com/repository/google") }
+            maven { url = uri("https://maven.aliyun.com/repository/central") }
+        }
+    }
+}
+
 // Patrol E2E：AGP 的 consistent resolution 会把 androidx.test 对齐到传递依赖里的
 // 1.2.0，而 PatrolJUnitRunner 覆写的 shouldWaitForActivitiesToComplete() 在 1.2.0
 // 中尚不存在 → :patrol:compileDebugJavaWithJavac 报"方法不会覆盖超类型的方法"。
