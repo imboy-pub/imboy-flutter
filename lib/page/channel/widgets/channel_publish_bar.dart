@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -20,6 +21,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/utils/chat_draft_keys.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
@@ -258,44 +260,62 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
     setState(() => _isUploadingMedia = true);
 
-    final List<AssetEntity>? assets;
-    try {
-      assets = await AssetPicker.pickAssets(
-        context,
-        pickerConfig: AssetPickerConfig(
-          maxAssets: 9,
-          requestType: RequestType.common,
-          textDelegate: const EnglishAssetPickerTextDelegate(),
-        ),
-      );
-    } on Object catch (error) {
-      // 选择器任何异常都不能逃逸：uncaught 之外，更要紧的是上面已置位的
-      // _isUploadingMedia 永不复位——发布栏被自身守卫挡死，所有入口点击
-      // 无反应，直到页面重建。兜底口径与 channel_compose_page._pickImages
-      // 一致（真实异常透出为 toast）；权限拒绝单独给专用文案（前缀判定同
-      // moment_album_picker）。
-      debugPrint(
-        '[channel][publish_bar] pickAssets THREW, errType='
-        '${error.runtimeType}',
-      );
-      final isPermissionDenied =
-          error is StateError &&
-          error.message.toString().startsWith(
-            'Permission state error with PermissionState.',
-          );
+    // macOS 保证可发图：wechat 相册依赖照片库 TCC 授权（用户可拒）。先尝试
+    // 请求授权，被拒或超时则绕行系统文件选择器（仅图片，只依赖已签入的
+    // user-selected entitlement，行为确定）；授权通过走原相册路径（图片+视频）。
+    var viaFilePicker = false;
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS) {
+      viaFilePicker = !await _photoPermissionGranted();
+      // 授权探测是异步间隙（await 后离页保护），后续 pickAssets 还要用 context
       if (!mounted) return;
-      setState(() => _isUploadingMedia = false);
-      AppLoading.showError(
-        isPermissionDenied
-            ? context.t.common.permissionAcquisitionFailed
-            : context.t.common.operationFailedAgainLater,
-      );
-      return;
     }
+    List<AssetEntity>? assets;
+    var pickedFiles = const <File>[];
+    if (viaFilePicker) {
+      pickedFiles = await _pickImageFilesViaFilePicker();
+      if (pickedFiles.isEmpty || !mounted) {
+        if (mounted) setState(() => _isUploadingMedia = false);
+        return;
+      }
+    } else {
+      try {
+        assets = await AssetPicker.pickAssets(
+          context,
+          pickerConfig: AssetPickerConfig(
+            maxAssets: 9,
+            requestType: RequestType.common,
+            textDelegate: const EnglishAssetPickerTextDelegate(),
+          ),
+        );
+      } on Object catch (error) {
+        // 选择器任何异常都不能逃逸：uncaught 之外，更要紧的是上面已置位的
+        // _isUploadingMedia 永不复位——发布栏被自身守卫挡死，所有入口点击
+        // 无反应，直到页面重建。兜底口径与 channel_compose_page._pickImages
+        // 一致（真实异常透出为 toast）；权限拒绝单独给专用文案（前缀判定同
+        // moment_album_picker）。
+        debugPrint(
+          '[channel][publish_bar] pickAssets THREW, errType='
+          '${error.runtimeType}',
+        );
+        final isPermissionDenied =
+            error is StateError &&
+            error.message.toString().startsWith(
+              'Permission state error with PermissionState.',
+            );
+        if (!mounted) return;
+        setState(() => _isUploadingMedia = false);
+        AppLoading.showError(
+          isPermissionDenied
+              ? context.t.common.permissionAcquisitionFailed
+              : context.t.common.operationFailedAgainLater,
+        );
+        return;
+      }
 
-    if (assets == null || assets.isEmpty) {
-      if (mounted) setState(() => _isUploadingMedia = false);
-      return;
+      if (assets == null || assets.isEmpty) {
+        if (mounted) setState(() => _isUploadingMedia = false);
+        return;
+      }
     }
     if (!mounted) return;
     final t = context.t;
@@ -304,6 +324,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     // 为可重试态而非整批作废。已发布项记入 publishedIdx，避免重试后重复发布。
     final controller = BatchUploadController<_ChannelMediaUpload>(
       uploader: _uploadSingleAsset,
+      // file_picker 绕行项（macOS）走 File 管道，与相册项同一状态机
+      fileUploader: _uploadImageFile,
       concurrency: _uploadConcurrency,
     );
     void onProgress() {
@@ -345,11 +367,13 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
 
     try {
-      AppLoading.showProgress(
-        0,
-        status: '${t.common.uploading} 0/${assets.length}',
-      );
-      await controller.addAndUpload(assets);
+      final total = viaFilePicker ? pickedFiles.length : assets!.length;
+      AppLoading.showProgress(0, status: '${t.common.uploading} 0/$total');
+      if (viaFilePicker) {
+        await controller.addFilesAndUpload(pickedFiles);
+      } else {
+        await controller.addAndUpload(assets!);
+      }
       AppLoading.dismiss();
       controller.removeListener(onProgress);
       if (!mounted) return;
@@ -487,6 +511,66 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final fileName = asset.title ?? file.path.split('/').last;
     final content = fileName.trim().isEmpty ? '[media]' : fileName;
     return (msgType: msgType, content: content, payload: payload);
+  }
+
+  /// macOS 照片库授权探测：requestPermissionExtend 会触发系统 TCC 弹窗
+  /// （依赖已签入的 photos-library entitlement）。原生层若挂起则超时兜底走
+  /// 绕行（15s：用户阅读/点击系统弹窗需要时间，不能沿用探测类的 5s）。
+  Future<bool> _photoPermissionGranted() async {
+    try {
+      final ps = await PhotoManager.requestPermissionExtend().timeout(
+        const Duration(seconds: 15),
+      );
+      return ps == PermissionState.authorized || ps == PermissionState.limited;
+    } on Object catch (e) {
+      debugPrint(
+        '[channel][publish_bar] requestPermissionExtend failed, '
+        'errType=${e.runtimeType}',
+      );
+      return false;
+    }
+  }
+
+  /// macOS 绕行：系统文件选择器选图（仅图片；视频仍走授权后的相册路径）。
+  /// 取消/失败返回空列表，异常已就地 toast。
+  Future<List<File>> _pickImageFilesViaFilePicker() async {
+    try {
+      final result = await FilePicker.pickFiles(type: FileType.image);
+      return [
+        for (final f in result)
+          if (f.path != null) File(f.path!),
+      ];
+    } on Object catch (e) {
+      debugPrint(
+        '[channel][publish_bar] file_picker THREW, errType='
+        '${e.runtimeType}',
+      );
+      if (mounted) {
+        AppLoading.showError(
+          e is PlatformException
+              ? context.t.common.permissionAcquisitionFailed
+              : context.t.common.operationFailedAgainLater,
+        );
+      }
+      return const [];
+    }
+  }
+
+  /// File 项上传器（file_picker 绕行路径）：与 [_uploadSingleAsset] 的图片
+  /// 分支同构。isVideo 预留（绕行仅选图片，视频走授权后的相册路径）。
+  Future<_ChannelMediaUpload?> _uploadImageFile(File file, bool isVideo) async {
+    final uploadedUri = await _uploadChannelFile(file, prefix: 'img');
+    if (uploadedUri == null || uploadedUri.isEmpty) return null;
+    final fileName = file.path.split('/').last;
+    return (
+      msgType: ChannelMessageType.image,
+      content: fileName.trim().isEmpty ? '[media]' : fileName,
+      payload: <String, dynamic>{
+        'name': fileName,
+        'size': await file.length(),
+        'uri': uploadedUri,
+      },
+    );
   }
 
   Future<String?> _uploadChannelFile(

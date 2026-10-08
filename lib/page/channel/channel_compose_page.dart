@@ -228,13 +228,18 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     // Android 上 photo_manager 在部分定制 ROM（华为 Android 9 等）的 platform
     // channel 会挂起：wechat_assets_picker 永远弹不出且无异常、无日志——正是
     // BUG#137「点击无反应」的症状（chat_page 为此已全量绕行 file_picker）。
-    // 先短超时探测可用性：挂起/异常走 file_picker（系统原生 Intent）；正常
-    // 设备保留 wechat 相册体验（与频道发布栏一致）。override 非空时跳过探测，
-    // 保持测试注入走 wechat 路径（widget 测试无真实 platform channel）。
-    if (widget.pickAssetsOverride == null &&
+    // Android 先短超时探测可用性：挂起/异常走 file_picker（系统原生 Intent），
+    // 正常设备保留 wechat 相册体验；macOS 直接绕行——App Sandbox 下 wechat
+    // 相册依赖照片库 TCC 授权（用户可拒），系统选择器只依赖已签入的
+    // user-selected entitlement，行为确定（保证可发图）。override 非空时跳过
+    // 绕行，保持测试注入走 wechat 路径（widget 测试无真实 platform channel）。
+    final bypassToPicker =
         !kIsWeb &&
-        defaultTargetPlatform == TargetPlatform.android &&
-        !await _photoManagerUsable()) {
+        widget.pickAssetsOverride == null &&
+        (defaultTargetPlatform == TargetPlatform.macOS ||
+            (defaultTargetPlatform == TargetPlatform.android &&
+                !await _photoManagerUsable()));
+    if (bypassToPicker) {
       if (!mounted) return;
       await _pickImagesViaFilePicker(remaining);
       return;
@@ -290,8 +295,8 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     }
   }
 
-  /// Android 绕行：file_picker 走系统原生 Intent（ACTION_GET_CONTENT），
-  /// 完全绕过 photo_manager。选中的本地文件同样进 [_PickedImage] 双轨，
+  /// Android/macOS 绕行：file_picker 走系统原生选择器，完全绕过
+  /// photo_manager。选中的本地文件同样进 [_PickedImage] 双轨，
   /// 后续上传/预览与相册路径一致。
   Future<void> _pickImagesViaFilePicker(int remaining) async {
     try {

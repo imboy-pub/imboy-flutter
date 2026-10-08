@@ -605,12 +605,13 @@ class ChatAttachmentHandler {
     await _sendMessage(message);
   }
 
-  /// 通过 FilePicker 选择图片并上传（Android fallback 方案）。
+  /// 通过 FilePicker 选择图片并上传（Android/macOS fallback 方案）。
   ///
-  /// 在部分定制 ROM（如华为 Android 9）上，photo_manager 的所有 platform
-  /// channel 调用都挂起，导致 wechat_assets_picker 的选择器无法弹出。
-  /// 此方法用 file_picker（走 Android 原生 Intent ACTION_GET_CONTENT）
-  /// 完全绕过 photo_manager。
+  /// Android：部分定制 ROM（如华为 Android 9）上 photo_manager 的所有
+  /// platform channel 调用都挂起，导致 wechat_assets_picker 的选择器无法
+  /// 弹出，用 file_picker（走系统原生 Intent ACTION_GET_CONTENT）完全绕过。
+  /// macOS：App Sandbox 下 wechat_assets_picker 依赖照片库 TCC 授权（可拒），
+  /// 同样绕行系统选择器（配合 Runner entitlements 的 user-selected read-only）。
   Future<void> handleImageFileSelection(BuildContext context) async {
     try {
       final files = await FilePicker.pickFiles(type: FileType.image);
