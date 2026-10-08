@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/theme/default/app_shadows.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -41,6 +42,9 @@ class _OrganizationChartState extends State<OrganizationChart> {
   int _generation = 0;
   Size _viewport = Size.zero;
   Size _canvas = Size.zero;
+
+  /// 工具条展开态；收起后为单个百分比胶囊，点击恢复（重进回默认展开）。
+  bool _toolbarOpen = true;
 
   @override
   void initState() {
@@ -211,104 +215,69 @@ class _OrganizationChartState extends State<OrganizationChart> {
     final colors = Theme.of(context).colorScheme;
     return Column(
       children: [
-        Padding(
-          padding: AppSpacing.allRegular,
-          child: Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerLowest,
-                border: Border.all(color: colors.outlineVariant),
-                borderRadius: BorderRadius.circular(AppRadius.regular),
-              ),
-              child: IconButtonTheme(
-                data: IconButtonThemeData(
-                  style: IconButton.styleFrom(
-                    foregroundColor: colors.onSurfaceVariant,
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    IconButton(
-                      key: const ValueKey('org-chart-zoom-out'),
-                      tooltip: t.organization.chart.zoomOut,
-                      onPressed: () => _zoom(1 / 1.25),
-                      icon: const Icon(CupertinoIcons.minus),
-                    ),
-                    IconButton(
-                      key: const ValueKey('org-chart-zoom-in'),
-                      tooltip: t.organization.chart.zoomIn,
-                      onPressed: () => _zoom(1.25),
-                      icon: const Icon(CupertinoIcons.plus),
-                    ),
-                    ListenableBuilder(
-                      listenable: _transform,
-                      builder: (context, _) => SizedBox(
-                        width: AppSpacing.xxxLarge,
-                        child: Center(
-                          child: Text(
-                            '${(_transform.value.getMaxScaleOnAxis() * 100).toStringAsFixed(_transform.value.getMaxScaleOnAxis() < .1 ? 1 : 0)}%',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      key: const ValueKey('org-chart-fit'),
-                      tooltip: t.organization.chart.fit,
-                      onPressed: _fit,
-                      icon: const Icon(
-                        CupertinoIcons.arrow_up_left_arrow_down_right,
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: t.organization.common.reload,
-                      onPressed: _refresh,
-                      icon: const Icon(CupertinoIcons.refresh),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
         Expanded(
-          child: ColoredBox(
-            color: colors.surfaceContainerLow,
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                _viewport = constraints.biggest;
-                return InteractiveViewer(
-                  key: const ValueKey('org-chart-canvas'),
-                  transformationController: _transform,
-                  constrained: false,
-                  minScale: _minimumScale,
-                  maxScale: 4,
-                  trackpadScrollCausesScale: true,
-                  boundaryMargin: EdgeInsets.all(AppSpacing.xxxLarge * 4),
-                  child: SizedBox(
-                    width: layout.size.width,
-                    height: layout.size.height,
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: _ChartLines(layout, colors.outline),
-                          ),
-                        ),
-                        for (final entry in layout.nodes.entries)
-                          Positioned.fromRect(
-                            rect: entry.value.rect,
-                            child: _node(context, entry.key, entry.value.path),
-                          ),
-                      ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              _viewport = constraints.biggest;
+              return Stack(
+                children: [
+                  Positioned.fill(
+                    child: ColoredBox(
+                      color: colors.surfaceContainerLow,
+                      child: LayoutBuilder(
+                        builder: (context, _) {
+                          return InteractiveViewer(
+                            key: const ValueKey('org-chart-canvas'),
+                            transformationController: _transform,
+                            constrained: false,
+                            minScale: _minimumScale,
+                            maxScale: 4,
+                            trackpadScrollCausesScale: true,
+                            boundaryMargin: EdgeInsets.all(
+                              AppSpacing.xxxLarge * 4,
+                            ),
+                            child: SizedBox(
+                              width: layout.size.width,
+                              height: layout.size.height,
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: CustomPaint(
+                                      painter: _ChartLines(
+                                        layout,
+                                        colors.outline,
+                                      ),
+                                    ),
+                                  ),
+                                  for (final entry in layout.nodes.entries)
+                                    Positioned.fromRect(
+                                      rect: entry.value.rect,
+                                      child: _node(
+                                        context,
+                                        entry.key,
+                                        entry.value.path,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
-                );
-              },
-            ),
+                  // 悬浮可拖拽工具条（对标地图/白板类缩放控件）：默认
+                  // 右下，可拖至视口内任意位置；支持收起为百分比胶囊，
+                  // 不再占用布局行——画布占满全高（DESIGN.md 原则 2）。
+                  _FloatingChartToolbar(
+                    viewport: _viewport,
+                    child: _toolbarOpen
+                        ? _toolbar(context)
+                        : _collapsedToolbar(context),
+                  ),
+                ],
+              );
+            },
           ),
         ),
         Padding(
@@ -319,6 +288,114 @@ class _OrganizationChartState extends State<OrganizationChart> {
           ),
         ),
       ],
+    );
+  }
+
+  /// 工具条表面（底色 + 描边 + 圆角），展开/收起两态共用同一外观。
+  Widget _toolbarSurface(BuildContext context, Widget child) {
+    final colors = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLowest,
+        border: Border.all(color: colors.outlineVariant),
+        borderRadius: BorderRadius.circular(AppRadius.regular),
+      ),
+      child: child,
+    );
+  }
+
+  Widget _toolbar(BuildContext context) {
+    return IconButtonTheme(
+      data: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+      child: _toolbarSurface(
+        context,
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            IconButton(
+              key: const ValueKey('org-chart-zoom-out'),
+              tooltip: t.organization.chart.zoomOut,
+              onPressed: () => _zoom(1 / 1.25),
+              icon: const Icon(CupertinoIcons.minus),
+            ),
+            IconButton(
+              key: const ValueKey('org-chart-zoom-in'),
+              tooltip: t.organization.chart.zoomIn,
+              onPressed: () => _zoom(1.25),
+              icon: const Icon(CupertinoIcons.plus),
+            ),
+            ListenableBuilder(
+              listenable: _transform,
+              builder: (context, _) => SizedBox(
+                width: AppSpacing.xxxLarge,
+                child: Center(
+                  child: Text(
+                    '${(_transform.value.getMaxScaleOnAxis() * 100).toStringAsFixed(_transform.value.getMaxScaleOnAxis() < .1 ? 1 : 0)}%',
+                    style: Theme.of(context).textTheme.labelMedium,
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              key: const ValueKey('org-chart-fit'),
+              tooltip: t.organization.chart.fit,
+              onPressed: _fit,
+              icon: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
+            ),
+            IconButton(
+              tooltip: t.organization.common.reload,
+              onPressed: _refresh,
+              icon: const Icon(CupertinoIcons.refresh),
+            ),
+            // 收起为百分比胶囊（地图/白板类标配）；点胶囊恢复。
+            IconButton(
+              key: const ValueKey('org-chart-toolbar-collapse'),
+              tooltip: t.common.collapse,
+              onPressed: () => setState(() => _toolbarOpen = false),
+              icon: const Icon(CupertinoIcons.chevron_down),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 收起态：单个百分比胶囊，点击展开完整工具条；缩放时实时刷新读数。
+  Widget _collapsedToolbar(BuildContext context) {
+    return ListenableBuilder(
+      listenable: _transform,
+      builder: (context, _) {
+        final scale = _transform.value.getMaxScaleOnAxis();
+        final label = '${(scale * 100).toStringAsFixed(scale < .1 ? 1 : 0)}%';
+        return Semantics(
+          button: true,
+          label: t.common.expandFull,
+          child: GestureDetector(
+            key: const ValueKey('org-chart-toolbar-collapsed'),
+            onTap: () => setState(() => _toolbarOpen = true),
+            behavior: HitTestBehavior.opaque,
+            child: _toolbarSurface(
+              context,
+              Container(
+                height: 44,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.regular,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -520,4 +597,87 @@ class _ChartLines extends CustomPainter {
   @override
   bool shouldRepaint(covariant _ChartLines oldDelegate) =>
       oldDelegate.layout != layout || oldDelegate.color != color;
+}
+
+/// 悬浮可拖拽工具条容器（对标地图/白板类缩放控件）。
+///
+/// - 默认吸附右下角（[AppSpacing.regular] 边距）；拖动后按指针轨迹平移，
+///   自动 clamp 在视口内（拖不出去也不遮挡不到的地方）。
+/// - 浮层视觉：surface 容器底 + 描边 + [AppShadows.cardForBrightness]
+///   极淡投影（DESIGN.md 5.2 浮层允许的唯二投影场景）。
+/// - 手势：外层 pan 与内层按钮 tap 在手势竞技场自然分流——原地点击按钮
+///   生效，移动超过 slop 才进入拖拽，互不误触；底层画布（InteractiveViewer）
+///   不会收到穿透事件。
+/// - 位置是页面级状态（重进回默认右下），不做持久化；child 由宿主在
+///   展开/收起两态间切换，本容器只负责拖拽与定位。
+class _FloatingChartToolbar extends StatefulWidget {
+  const _FloatingChartToolbar({required this.viewport, required this.child});
+
+  /// 宿主 Stack 的可用区域（用于 clamp），窗口 resize 时随 build 更新。
+  final Size viewport;
+  final Widget child;
+
+  @override
+  State<_FloatingChartToolbar> createState() => _FloatingChartToolbarState();
+}
+
+class _FloatingChartToolbarState extends State<_FloatingChartToolbar> {
+  final GlobalKey _barKey = GlobalKey();
+
+  /// null = 未拖过，保持默认右下吸附。
+  Offset? _dragPos;
+
+  Size get _barSize =>
+      (_barKey.currentContext?.findRenderObject() as RenderBox?)?.size ??
+      Size.zero;
+
+  /// 把默认「右下角」换算成绝对坐标（首次拖动时锚定）。树向下生长、
+  /// 根节点恒在画布顶部居中——右上是根的地盘，右下在浅树/深树时都是
+  /// 空白区，与地图/白板类缩放控件的默认位一致。
+  Offset get _defaultPos => Offset(
+    widget.viewport.width - _barSize.width - AppSpacing.regular,
+    widget.viewport.height - _barSize.height - AppSpacing.regular,
+  );
+
+  Offset _clamp(Offset next) {
+    final size = _barSize;
+    return Offset(
+      next.dx.clamp(0.0, (widget.viewport.width - size.width).clamp(0, 1e9)),
+      next.dy.clamp(0.0, (widget.viewport.height - size.height).clamp(0, 1e9)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // resize 后视口变小可能让已存位置越界，build 期收一次边界。
+    final pos = _dragPos == null ? null : _clamp(_dragPos!);
+    final bar = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadius.regular),
+        boxShadow: AppShadows.cardForBrightness(
+          isDark ? Brightness.dark : Brightness.light,
+        ),
+      ),
+      child: KeyedSubtree(
+        key: _barKey,
+        child: GestureDetector(
+          onPanUpdate: (details) => setState(
+            () => _dragPos = _clamp((_dragPos ?? _defaultPos) + details.delta),
+          ),
+          behavior: HitTestBehavior.opaque,
+          child: widget.child,
+        ),
+      ),
+    );
+    // 默认态用右/下锚（右下角）；拖过后切左/上锚，展开↔收起切换时
+    // 尺寸变化由 build 期 clamp 收回视口内。
+    return Positioned(
+      left: pos?.dx,
+      top: pos?.dy,
+      right: pos == null ? AppSpacing.regular : null,
+      bottom: pos == null ? AppSpacing.regular : null,
+      child: bar,
+    );
+  }
 }
