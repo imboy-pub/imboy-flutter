@@ -676,12 +676,14 @@ class ChatAttachmentHandler {
     await _sendMessage(message);
   }
 
-  /// 上传响应 → 视频消息，按返回形状分流（明文会话对扁平形状强转
-  /// EntityImage 直接 _TypeError，冒烟实证）：
-  ///   - 封装（seal 非 null）：{thumb: EntityImage, video: EntityVideo}
-  ///   - 明文（seal 为 null 的合法路径）：扁平
-  ///     {video_uri, thumb_uri, size, duration, width, height}
-  ///     （见 AttachmentApi.uploadVideoViaPresign / uploadVideoFileViaPresign）
+  /// 上传响应 → 视频消息，按返回形状分流（macOS 冒烟实证：明文会话视频
+  /// 上传后构造消息直接 _TypeError）：
+  ///   - 封装形状 {thumb: EntityImage, video: EntityVideo}——
+  ///     uploadVideoViaPresign（AssetEntity 版）恒为此形状；
+  ///     uploadVideoFileViaPresign 在 seal 非 null 时同形；
+  ///   - 扁平形状 {video_uri, thumb_uri, size, duration, width, height}——
+  ///     仅 uploadVideoFileViaPresign 在 seal 为 null（明文会话合法路径）
+  ///     时返回。
   VideoMessage _videoMessageFromUploadResp(
     Map<String, dynamic> resp, {
     String? messageId,

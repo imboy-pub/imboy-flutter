@@ -179,9 +179,10 @@ void main() {
   });
 
   group('视频上传扁平形状（明文会话，seal=null 是合法路径）', () {
-    // AttachmentApi.uploadVideoViaPresign / uploadVideoFileViaPresign 在
-    // seal 为 null 时返回的扁平形状。此前 handleVideoUpload 对它强转
-    // EntityImage 直接 _TypeError（macOS 冒烟实证，图库路径同隐患）。
+    // 扁平形状仅出自 uploadVideoFileViaPresign 的 seal=null 分支（桌面拍摄
+    // 所用）。此前 handleVideoUpload 对它强转 EntityImage 直接 _TypeError
+    // （macOS 冒烟实证）。AssetEntity 版 uploadVideoViaPresign 恒返回
+    // {thumb, video} 实体形状，图库路径不受此崩溃影响。
     final Map<String, dynamic> flatResp = <String, dynamic>{
       'video_uri': 'u9/file_3_c/db457a8q98qfvv675a3g.mp4',
       'thumb_uri': 'u9/file_3_d/db457a0q98qfvv675a30.jpg',
