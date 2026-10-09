@@ -1,21 +1,22 @@
 ---
-title: グループタスク
-createTask: タスクを作成
-taskTitle: タスク名
-taskDescription: タスクの説明
+title: グループ課題
+createTask: 課題を作成
+editTask: 課題を編集
+taskTitle: 課題名
+taskDescription: 課題の説明
 deadline: 期限
 noDeadline: 期限なし
-noTask: タスクはありません
+noTask: 課題はありません
 all: すべて
 pending: 未完了
 completed: 完了
-taskSubmitted: タスクを提出しました
-submitTask: "タスクを提出"
+taskSubmitted: 課題を提出しました
+submitTask: "課題を提出"
 overdue: 期限切れ
 daysLeft: あと $days 日
 hoursLeft: あと $hours 時間
 dueSoon: 期限が迫っています
 submitFailed: 提出に失敗しました。後でもう一度お試しください
 pendingReview: 審査待ち
-taskIdMissing: タスクIDがありません。詳細を表示できません
-taskIdMissingSubmit: タスクIDがありません。提出できません
+taskIdMissing: 課題IDがありません。詳細を表示できません
+taskIdMissingSubmit: 課題IDがありません。提出できません

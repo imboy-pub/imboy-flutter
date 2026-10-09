@@ -1,14 +1,15 @@
 title: 群作業
-createTask: 建立任務
-taskTitle: 任務標題
-taskDescription: 任務描述
+createTask: 建立作業
+editTask: 編輯作業
+taskTitle: 作業標題
+taskDescription: 作業描述
 deadline: 截止時間
 noDeadline: 無截止時間
-noTask: 暫無任務
+noTask: 暫無作業
 all: 所有
 pending: 待處理
 completed: 已結案
-taskSubmitted: 任務已提交
+taskSubmitted: 作業已提交
 submitTask: "提交作業"
 overdue: 已過期
 daysLeft: $days 天後截止
@@ -16,5 +17,5 @@ hoursLeft: $hours 小時後截止
 dueSoon: 即將截止
 submitFailed: 提交失敗，請稍後重試
 pendingReview: 待稽核
-taskIdMissing: 任務ID缺失，無法檢視詳情
-taskIdMissingSubmit: 任務ID缺失，無法提交
+taskIdMissing: 作業ID缺失，無法檢視詳情
+taskIdMissingSubmit: 作業ID缺失，無法提交

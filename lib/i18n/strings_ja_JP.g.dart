@@ -2048,26 +2048,27 @@ class _Translations$groupTask$ja_JP extends Translations$groupTask$zh_CN {
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'グループタスク';
-	@override String get createTask => 'タスクを作成';
-	@override String get taskTitle => 'タスク名';
-	@override String get taskDescription => 'タスクの説明';
+	@override String get title => 'グループ課題';
+	@override String get createTask => '課題を作成';
+	@override String get editTask => '課題を編集';
+	@override String get taskTitle => '課題名';
+	@override String get taskDescription => '課題の説明';
 	@override String get deadline => '期限';
 	@override String get noDeadline => '期限なし';
-	@override String get noTask => 'タスクはありません';
+	@override String get noTask => '課題はありません';
 	@override String get all => 'すべて';
 	@override String get pending => '未完了';
 	@override String get completed => '完了';
-	@override String get taskSubmitted => 'タスクを提出しました';
-	@override String get submitTask => 'タスクを提出';
+	@override String get taskSubmitted => '課題を提出しました';
+	@override String get submitTask => '課題を提出';
 	@override String get overdue => '期限切れ';
 	@override String daysLeft({required Object days}) => 'あと ${days} 日';
 	@override String hoursLeft({required Object hours}) => 'あと ${hours} 時間';
 	@override String get dueSoon => '期限が迫っています';
 	@override String get submitFailed => '提出に失敗しました。後でもう一度お試しください';
 	@override String get pendingReview => '審査待ち';
-	@override String get taskIdMissing => 'タスクIDがありません。詳細を表示できません';
-	@override String get taskIdMissingSubmit => 'タスクIDがありません。提出できません';
+	@override String get taskIdMissing => '課題IDがありません。詳細を表示できません';
+	@override String get taskIdMissingSubmit => '課題IDがありません。提出できません';
 }
 
 // Path: groupVote
@@ -4973,26 +4974,27 @@ extension on TranslationsJaJp {
 			'groupTag.noTag' => 'タグはありません',
 			'groupTag.removeTitle' => 'タグを削除',
 			'groupTag.removeConfirm' => 'このタグを削除しますか？',
-			'groupTask.title' => 'グループタスク',
-			'groupTask.createTask' => 'タスクを作成',
-			'groupTask.taskTitle' => 'タスク名',
-			'groupTask.taskDescription' => 'タスクの説明',
+			'groupTask.title' => 'グループ課題',
+			'groupTask.createTask' => '課題を作成',
+			'groupTask.editTask' => '課題を編集',
+			'groupTask.taskTitle' => '課題名',
+			'groupTask.taskDescription' => '課題の説明',
 			'groupTask.deadline' => '期限',
 			'groupTask.noDeadline' => '期限なし',
-			'groupTask.noTask' => 'タスクはありません',
+			'groupTask.noTask' => '課題はありません',
 			'groupTask.all' => 'すべて',
 			'groupTask.pending' => '未完了',
 			'groupTask.completed' => '完了',
-			'groupTask.taskSubmitted' => 'タスクを提出しました',
-			'groupTask.submitTask' => 'タスクを提出',
+			'groupTask.taskSubmitted' => '課題を提出しました',
+			'groupTask.submitTask' => '課題を提出',
 			'groupTask.overdue' => '期限切れ',
 			'groupTask.daysLeft' => ({required Object days}) => 'あと ${days} 日',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'あと ${hours} 時間',
 			'groupTask.dueSoon' => '期限が迫っています',
 			'groupTask.submitFailed' => '提出に失敗しました。後でもう一度お試しください',
 			'groupTask.pendingReview' => '審査待ち',
-			'groupTask.taskIdMissing' => 'タスクIDがありません。詳細を表示できません',
-			'groupTask.taskIdMissingSubmit' => 'タスクIDがありません。提出できません',
+			'groupTask.taskIdMissing' => '課題IDがありません。詳細を表示できません',
+			'groupTask.taskIdMissingSubmit' => '課題IDがありません。提出できません',
 			'groupVote.title' => 'グループ投票',
 			'groupVote.createVote' => '投票を作成',
 			'groupVote.voteTitle' => '投票タイトル',
@@ -5239,9 +5241,9 @@ extension on TranslationsJaJp {
 			'organization.common.close' => '閉じる',
 			'organization.common.reload' => '再読み込み',
 			'organization.common.createFailed' => '作成に失敗しました',
-			'organization.common.addFailed' => '追加に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => '追加に失敗しました',
 			'organization.common.confirmArchive' => 'アーカイブを確認',
 			'organization.common.forbidden403' => 'この操作を実行する権限がありません（403）',
 			'organization.common.noMembers' => 'メンバーがいません',
@@ -5753,9 +5755,9 @@ extension on TranslationsJaJp {
 			'workspace.taskTitleLabel' => 'タスクのタイトル',
 			'workspace.taskTitleRequired' => 'タスクのタイトルは空にできません',
 			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
-			'workspace.taskAssigneeNone' => '担当者を未指定',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeNone' => '担当者を未指定',
 			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
 			'workspace.taskSubmitCreate' => 'タスクを作成',
 			'workspace.taskSubmitSave' => '保存する',

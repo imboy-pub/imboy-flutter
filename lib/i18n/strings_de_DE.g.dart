@@ -2053,6 +2053,7 @@ class _Translations$groupTask$de_DE extends Translations$groupTask$zh_CN {
 	// Translations
 	@override String get title => 'Gruppen-Aufgaben';
 	@override String get createTask => 'Aufgabe erstellen';
+	@override String get editTask => 'Aufgabe bearbeiten';
 	@override String get taskTitle => 'Aufgaben-Titel';
 	@override String get taskDescription => 'Beschreibung';
 	@override String get deadline => 'Frist';
@@ -4978,6 +4979,7 @@ extension on TranslationsDeDe {
 			'groupTag.removeConfirm' => 'Dieses Tag wirklich entfernen?',
 			'groupTask.title' => 'Gruppen-Aufgaben',
 			'groupTask.createTask' => 'Aufgabe erstellen',
+			'groupTask.editTask' => 'Aufgabe bearbeiten',
 			'groupTask.taskTitle' => 'Aufgaben-Titel',
 			'groupTask.taskDescription' => 'Beschreibung',
 			'groupTask.deadline' => 'Frist',
@@ -5242,9 +5244,9 @@ extension on TranslationsDeDe {
 			'organization.common.close' => 'Schließen',
 			'organization.common.reload' => 'Neu laden',
 			'organization.common.createFailed' => 'Erstellen fehlgeschlagen',
-			'organization.common.addFailed' => 'Hinzufügen fehlgeschlagen',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => 'Hinzufügen fehlgeschlagen',
 			'organization.common.confirmArchive' => 'Archivieren bestätigen',
 			'organization.common.forbidden403' => 'Keine Berechtigung für diese Aktion (403)',
 			'organization.common.noMembers' => 'Noch keine Mitglieder',
@@ -5756,9 +5758,9 @@ extension on TranslationsDeDe {
 			'workspace.taskTitleLabel' => 'Aufgabentitel',
 			'workspace.taskTitleRequired' => 'Aufgabentitel darf nicht leer sein',
 			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
-			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
 			'workspace.taskAssigneeRefresh' => 'Kandidaten aktualisieren',
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',
 			'workspace.taskSubmitSave' => 'Speichern',

@@ -2195,26 +2195,27 @@ class _Translations$groupTask$en_US extends Translations$groupTask$zh_CN {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Group Tasks';
-	@override String get createTask => 'Create Task';
-	@override String get taskTitle => 'Task Title';
+	@override String get title => 'Group Assignments';
+	@override String get createTask => 'Create Assignment';
+	@override String get editTask => 'Edit Assignment';
+	@override String get taskTitle => 'Assignment Title';
 	@override String get taskDescription => 'Description';
 	@override String get deadline => 'Deadline';
 	@override String get noDeadline => 'No deadline';
-	@override String get noTask => 'No tasks yet';
+	@override String get noTask => 'No assignments yet';
 	@override String get all => 'All';
 	@override String get pending => 'Pending';
 	@override String get completed => 'Completed';
-	@override String get taskSubmitted => 'Task submitted';
-	@override String get submitTask => 'Submit Task';
+	@override String get taskSubmitted => 'Assignment submitted';
+	@override String get submitTask => 'Submit Assignment';
 	@override String get overdue => 'Overdue';
 	@override String daysLeft({required Object days}) => '${days} days left';
 	@override String hoursLeft({required Object hours}) => '${hours} hours left';
 	@override String get dueSoon => 'Due soon';
 	@override String get submitFailed => 'Submit failed, please try again';
 	@override String get pendingReview => 'Pending Review';
-	@override String get taskIdMissing => 'Task ID missing, cannot view details';
-	@override String get taskIdMissingSubmit => 'Task ID missing, cannot submit';
+	@override String get taskIdMissing => 'Assignment ID missing, cannot view details';
+	@override String get taskIdMissingSubmit => 'Assignment ID missing, cannot submit';
 }
 
 // Path: groupVote
@@ -5316,26 +5317,27 @@ extension on TranslationsEnUs {
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.removeTitle' => 'Remove Tag',
 			'groupTag.removeConfirm' => 'Remove this tag?',
-			'groupTask.title' => 'Group Tasks',
-			'groupTask.createTask' => 'Create Task',
-			'groupTask.taskTitle' => 'Task Title',
+			'groupTask.title' => 'Group Assignments',
+			'groupTask.createTask' => 'Create Assignment',
+			'groupTask.editTask' => 'Edit Assignment',
+			'groupTask.taskTitle' => 'Assignment Title',
 			'groupTask.taskDescription' => 'Description',
 			'groupTask.deadline' => 'Deadline',
 			'groupTask.noDeadline' => 'No deadline',
-			'groupTask.noTask' => 'No tasks yet',
+			'groupTask.noTask' => 'No assignments yet',
 			'groupTask.all' => 'All',
 			'groupTask.pending' => 'Pending',
 			'groupTask.completed' => 'Completed',
-			'groupTask.taskSubmitted' => 'Task submitted',
-			'groupTask.submitTask' => 'Submit Task',
+			'groupTask.taskSubmitted' => 'Assignment submitted',
+			'groupTask.submitTask' => 'Submit Assignment',
 			'groupTask.overdue' => 'Overdue',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} hours left',
 			'groupTask.dueSoon' => 'Due soon',
 			'groupTask.submitFailed' => 'Submit failed, please try again',
 			'groupTask.pendingReview' => 'Pending Review',
-			'groupTask.taskIdMissing' => 'Task ID missing, cannot view details',
-			'groupTask.taskIdMissingSubmit' => 'Task ID missing, cannot submit',
+			'groupTask.taskIdMissing' => 'Assignment ID missing, cannot view details',
+			'groupTask.taskIdMissingSubmit' => 'Assignment ID missing, cannot submit',
 			'groupVote.title' => 'Group Votes',
 			'groupVote.createVote' => 'Create Vote',
 			'groupVote.voteTitle' => 'Vote Title',
@@ -5428,9 +5430,9 @@ extension on TranslationsEnUs {
 			'main.sent' => 'Sent',
 			'main.sentByMe' => 'Sent by me',
 			'main.setParam' => ({required Object param}) => 'Set ${param}',
-			'main.setting' => 'Settings',
 			_ => null,
 		} ?? switch (path) {
+			'main.setting' => 'Settings',
 			'main.siginQ' => 'Already have an account?',
 			'main.source' => 'Source',
 			'main.speakingTooShort' => 'Speaking time too short',
@@ -5942,9 +5944,9 @@ extension on TranslationsEnUs {
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
 			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
 			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
-			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',
 			_ => null,
 		} ?? switch (path) {
+			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',
 			'passport.oneKeyInitFailed' => 'Failed to initialize one-tap login, please try again later',
 			'passport.oneKeyNoSimCard' => 'The current network is not supported, or the phone has no SIM card',
 			'passport.cannotGetScreenSize' => 'Unable to get screen size',

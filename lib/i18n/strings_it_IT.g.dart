@@ -2051,26 +2051,27 @@ class _Translations$groupTask$it_IT extends Translations$groupTask$zh_CN {
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Attività di gruppo';
-	@override String get createTask => 'Crea attività';
-	@override String get taskTitle => 'Titolo attività';
+	@override String get title => 'Compiti di gruppo';
+	@override String get createTask => 'Crea compito';
+	@override String get editTask => 'Modifica compito';
+	@override String get taskTitle => 'Titolo del compito';
 	@override String get taskDescription => 'Descrizione';
 	@override String get deadline => 'Scadenza';
 	@override String get noDeadline => 'Senza scadenza';
-	@override String get noTask => 'Nessuna attività';
+	@override String get noTask => 'Nessun compito';
 	@override String get all => 'Tutte';
 	@override String get pending => 'In corso';
 	@override String get completed => 'Completate';
-	@override String get taskSubmitted => 'Attività inviata';
-	@override String get submitTask => 'Invia attività';
+	@override String get taskSubmitted => 'Compito inviato';
+	@override String get submitTask => 'Invia compito';
 	@override String get overdue => 'In ritardo';
 	@override String daysLeft({required Object days}) => 'Scadenza tra ${days} gg';
 	@override String hoursLeft({required Object hours}) => 'Scadenza tra ${hours} h';
 	@override String get dueSoon => 'Scadenza vicina';
 	@override String get submitFailed => 'Invio fallito. Riprova più tardi.';
 	@override String get pendingReview => 'In attesa di revisione';
-	@override String get taskIdMissing => 'ID attività mancante, dettagli non disponibili';
-	@override String get taskIdMissingSubmit => 'ID attività mancante, invio impossibile';
+	@override String get taskIdMissing => 'ID compito mancante, dettagli non disponibili';
+	@override String get taskIdMissingSubmit => 'ID compito mancante, invio impossibile';
 }
 
 // Path: groupVote
@@ -4976,26 +4977,27 @@ extension on TranslationsItIt {
 			'groupTag.noTag' => 'Nessun tag',
 			'groupTag.removeTitle' => 'Rimuovi tag',
 			'groupTag.removeConfirm' => 'Rimuovere questo tag ?',
-			'groupTask.title' => 'Attività di gruppo',
-			'groupTask.createTask' => 'Crea attività',
-			'groupTask.taskTitle' => 'Titolo attività',
+			'groupTask.title' => 'Compiti di gruppo',
+			'groupTask.createTask' => 'Crea compito',
+			'groupTask.editTask' => 'Modifica compito',
+			'groupTask.taskTitle' => 'Titolo del compito',
 			'groupTask.taskDescription' => 'Descrizione',
 			'groupTask.deadline' => 'Scadenza',
 			'groupTask.noDeadline' => 'Senza scadenza',
-			'groupTask.noTask' => 'Nessuna attività',
+			'groupTask.noTask' => 'Nessun compito',
 			'groupTask.all' => 'Tutte',
 			'groupTask.pending' => 'In corso',
 			'groupTask.completed' => 'Completate',
-			'groupTask.taskSubmitted' => 'Attività inviata',
-			'groupTask.submitTask' => 'Invia attività',
+			'groupTask.taskSubmitted' => 'Compito inviato',
+			'groupTask.submitTask' => 'Invia compito',
 			'groupTask.overdue' => 'In ritardo',
 			'groupTask.daysLeft' => ({required Object days}) => 'Scadenza tra ${days} gg',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'Scadenza tra ${hours} h',
 			'groupTask.dueSoon' => 'Scadenza vicina',
 			'groupTask.submitFailed' => 'Invio fallito. Riprova più tardi.',
 			'groupTask.pendingReview' => 'In attesa di revisione',
-			'groupTask.taskIdMissing' => 'ID attività mancante, dettagli non disponibili',
-			'groupTask.taskIdMissingSubmit' => 'ID attività mancante, invio impossibile',
+			'groupTask.taskIdMissing' => 'ID compito mancante, dettagli non disponibili',
+			'groupTask.taskIdMissingSubmit' => 'ID compito mancante, invio impossibile',
 			'groupVote.title' => 'Sondaggio di gruppo',
 			'groupVote.createVote' => 'Crea sondaggio',
 			'groupVote.voteTitle' => 'Titolo sondaggio',
@@ -5242,9 +5244,9 @@ extension on TranslationsItIt {
 			'organization.common.close' => 'Chiudi',
 			'organization.common.reload' => 'Ricarica',
 			'organization.common.createFailed' => 'Creazione non riuscita',
-			'organization.common.addFailed' => 'Aggiunta non riuscita',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => 'Aggiunta non riuscita',
 			'organization.common.confirmArchive' => 'Conferma archiviazione',
 			'organization.common.forbidden403' => 'Non sei autorizzato a eseguire questa azione (403)',
 			'organization.common.noMembers' => 'Nessun membro',
@@ -5756,9 +5758,9 @@ extension on TranslationsItIt {
 			'workspace.projectMemberRemovedToast' => 'Rimosso',
 			'workspace.projectMemberTransferConfirm' => 'Conferma trasferimento',
 			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
-			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
 			'workspace.projectMembersEntry' => 'Membri',
 			'workspace.projectMembersTitle' => 'Membri del progetto',

@@ -1,20 +1,21 @@
-title: Group Tasks
-createTask: Create Task
-taskTitle: Task Title
+title: Group Assignments
+createTask: Create Assignment
+editTask: Edit Assignment
+taskTitle: Assignment Title
 taskDescription: Description
 deadline: Deadline
 noDeadline: No deadline
-noTask: No tasks yet
+noTask: No assignments yet
 all: All
 pending: Pending
 completed: Completed
-taskSubmitted: Task submitted
-submitTask: "Submit Task"
+taskSubmitted: Assignment submitted
+submitTask: "Submit Assignment"
 overdue: Overdue
 daysLeft: $days days left
 hoursLeft: $hours hours left
 dueSoon: Due soon
 submitFailed: "Submit failed, please try again"
 pendingReview: Pending Review
-taskIdMissing: "Task ID missing, cannot view details"
-taskIdMissingSubmit: "Task ID missing, cannot submit"
+taskIdMissing: "Assignment ID missing, cannot view details"
+taskIdMissingSubmit: "Assignment ID missing, cannot submit"

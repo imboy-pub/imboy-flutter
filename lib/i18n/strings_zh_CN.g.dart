@@ -6050,14 +6050,17 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '群作业'
 	String get title => '群作业';
 
-	/// zh-CN: '创建任务'
-	String get createTask => '创建任务';
+	/// zh-CN: '创建作业'
+	String get createTask => '创建作业';
 
-	/// zh-CN: '任务标题'
-	String get taskTitle => '任务标题';
+	/// zh-CN: '编辑作业'
+	String get editTask => '编辑作业';
 
-	/// zh-CN: '任务描述'
-	String get taskDescription => '任务描述';
+	/// zh-CN: '作业标题'
+	String get taskTitle => '作业标题';
+
+	/// zh-CN: '作业描述'
+	String get taskDescription => '作业描述';
 
 	/// zh-CN: '截止时间'
 	String get deadline => '截止时间';
@@ -6065,8 +6068,8 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '无截止时间'
 	String get noDeadline => '无截止时间';
 
-	/// zh-CN: '暂无任务'
-	String get noTask => '暂无任务';
+	/// zh-CN: '暂无作业'
+	String get noTask => '暂无作业';
 
 	/// zh-CN: '全部'
 	String get all => '全部';
@@ -6077,8 +6080,8 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '已完成'
 	String get completed => '已完成';
 
-	/// zh-CN: '任务已提交'
-	String get taskSubmitted => '任务已提交';
+	/// zh-CN: '作业已提交'
+	String get taskSubmitted => '作业已提交';
 
 	/// zh-CN: '提交作业'
 	String get submitTask => '提交作业';
@@ -6101,11 +6104,11 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '待审核'
 	String get pendingReview => '待审核';
 
-	/// zh-CN: '任务ID缺失，无法查看详情'
-	String get taskIdMissing => '任务ID缺失，无法查看详情';
+	/// zh-CN: '作业ID缺失，无法查看详情'
+	String get taskIdMissing => '作业ID缺失，无法查看详情';
 
-	/// zh-CN: '任务ID缺失，无法提交'
-	String get taskIdMissingSubmit => '任务ID缺失，无法提交';
+	/// zh-CN: '作业ID缺失，无法提交'
+	String get taskIdMissingSubmit => '作业ID缺失，无法提交';
 }
 
 // Path: groupVote
@@ -10992,16 +10995,17 @@ extension on Translations {
 			'groupTag.removeTitle' => '移除标签',
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupTask.title' => '群作业',
-			'groupTask.createTask' => '创建任务',
-			'groupTask.taskTitle' => '任务标题',
-			'groupTask.taskDescription' => '任务描述',
+			'groupTask.createTask' => '创建作业',
+			'groupTask.editTask' => '编辑作业',
+			'groupTask.taskTitle' => '作业标题',
+			'groupTask.taskDescription' => '作业描述',
 			'groupTask.deadline' => '截止时间',
 			'groupTask.noDeadline' => '无截止时间',
-			'groupTask.noTask' => '暂无任务',
+			'groupTask.noTask' => '暂无作业',
 			'groupTask.all' => '全部',
 			'groupTask.pending' => '待完成',
 			'groupTask.completed' => '已完成',
-			'groupTask.taskSubmitted' => '任务已提交',
+			'groupTask.taskSubmitted' => '作业已提交',
 			'groupTask.submitTask' => '提交作业',
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
@@ -11009,8 +11013,8 @@ extension on Translations {
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
 			'groupTask.pendingReview' => '待审核',
-			'groupTask.taskIdMissing' => '任务ID缺失，无法查看详情',
-			'groupTask.taskIdMissingSubmit' => '任务ID缺失，无法提交',
+			'groupTask.taskIdMissing' => '作业ID缺失，无法查看详情',
+			'groupTask.taskIdMissingSubmit' => '作业ID缺失，无法提交',
 			'groupVote.title' => '群投票',
 			'groupVote.createVote' => '创建投票',
 			'groupVote.voteTitle' => '投票标题',
@@ -11083,9 +11087,9 @@ extension on Translations {
 			'main.myLive' => '我的直播',
 			'main.name' => '名称',
 			'main.numUnit' => ({required Object param}) => '${param}个',
-			'main.openInBrowser' => '在浏览器中打开',
 			_ => null,
 		} ?? switch (path) {
+			'main.openInBrowser' => '在浏览器中打开',
 			'main.or' => '或者',
 			'main.otherParty' => '对方',
 			'main.packageSize' => '包大小',
@@ -11597,9 +11601,9 @@ extension on Translations {
 			'organization.chart.fit' => '适应窗口',
 			'organization.chart.expand' => '展开下级部门',
 			'organization.chart.collapse' => '收起下级部门',
-			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
 			'organization.chart.directMembers' => ({required Object count}) => '本级 ${count} 人',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',

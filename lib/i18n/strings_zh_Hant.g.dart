@@ -2050,16 +2050,17 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 
 	// Translations
 	@override String get title => '群作業';
-	@override String get createTask => '建立任務';
-	@override String get taskTitle => '任務標題';
-	@override String get taskDescription => '任務描述';
+	@override String get createTask => '建立作業';
+	@override String get editTask => '編輯作業';
+	@override String get taskTitle => '作業標題';
+	@override String get taskDescription => '作業描述';
 	@override String get deadline => '截止時間';
 	@override String get noDeadline => '無截止時間';
-	@override String get noTask => '暫無任務';
+	@override String get noTask => '暫無作業';
 	@override String get all => '所有';
 	@override String get pending => '待處理';
 	@override String get completed => '已結案';
-	@override String get taskSubmitted => '任務已提交';
+	@override String get taskSubmitted => '作業已提交';
 	@override String get submitTask => '提交作業';
 	@override String get overdue => '已過期';
 	@override String daysLeft({required Object days}) => '${days} 天後截止';
@@ -2067,8 +2068,8 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 	@override String get dueSoon => '即將截止';
 	@override String get submitFailed => '提交失敗，請稍後重試';
 	@override String get pendingReview => '待稽核';
-	@override String get taskIdMissing => '任務ID缺失，無法檢視詳情';
-	@override String get taskIdMissingSubmit => '任務ID缺失，無法提交';
+	@override String get taskIdMissing => '作業ID缺失，無法檢視詳情';
+	@override String get taskIdMissingSubmit => '作業ID缺失，無法提交';
 }
 
 // Path: groupVote
@@ -4976,16 +4977,17 @@ extension on TranslationsZhHant {
 			'groupTag.removeTitle' => '移除標籤',
 			'groupTag.removeConfirm' => '確定要移除這個標籤嗎？',
 			'groupTask.title' => '群作業',
-			'groupTask.createTask' => '建立任務',
-			'groupTask.taskTitle' => '任務標題',
-			'groupTask.taskDescription' => '任務描述',
+			'groupTask.createTask' => '建立作業',
+			'groupTask.editTask' => '編輯作業',
+			'groupTask.taskTitle' => '作業標題',
+			'groupTask.taskDescription' => '作業描述',
 			'groupTask.deadline' => '截止時間',
 			'groupTask.noDeadline' => '無截止時間',
-			'groupTask.noTask' => '暫無任務',
+			'groupTask.noTask' => '暫無作業',
 			'groupTask.all' => '所有',
 			'groupTask.pending' => '待處理',
 			'groupTask.completed' => '已結案',
-			'groupTask.taskSubmitted' => '任務已提交',
+			'groupTask.taskSubmitted' => '作業已提交',
 			'groupTask.submitTask' => '提交作業',
 			'groupTask.overdue' => '已過期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天後截止',
@@ -4993,8 +4995,8 @@ extension on TranslationsZhHant {
 			'groupTask.dueSoon' => '即將截止',
 			'groupTask.submitFailed' => '提交失敗，請稍後重試',
 			'groupTask.pendingReview' => '待稽核',
-			'groupTask.taskIdMissing' => '任務ID缺失，無法檢視詳情',
-			'groupTask.taskIdMissingSubmit' => '任務ID缺失，無法提交',
+			'groupTask.taskIdMissing' => '作業ID缺失，無法檢視詳情',
+			'groupTask.taskIdMissingSubmit' => '作業ID缺失，無法提交',
 			'groupVote.title' => '群組投票',
 			'groupVote.createVote' => '建立投票',
 			'groupVote.voteTitle' => '投票標題',
@@ -5240,9 +5242,9 @@ extension on TranslationsZhHant {
 			'organization.common.rename' => '重新命名',
 			'organization.common.close' => '關閉',
 			'organization.common.reload' => '重新載入',
-			'organization.common.createFailed' => '建立失敗',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.createFailed' => '建立失敗',
 			'organization.common.addFailed' => '新增失敗',
 			'organization.common.confirmArchive' => '確認封存',
 			'organization.common.forbidden403' => '無權執行該操作（403）',
@@ -5754,9 +5756,9 @@ extension on TranslationsZhHant {
 			'workspace.taskFormEditTitle' => '編輯任務',
 			'workspace.taskTitleLabel' => '任務標題',
 			'workspace.taskTitleRequired' => '任務標題不能為空',
-			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
 			'workspace.taskAssigneeNone' => '暫不指派',
 			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',
 			'workspace.taskSubmitCreate' => '建立任務',

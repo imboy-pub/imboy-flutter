@@ -1,15 +1,16 @@
 ---
-title: مهام المجموعة
-createTask: إنشاء مهمة
-taskTitle: عنوان المهمة
-taskDescription: وصف المهمة
+title: واجبات المجموعة
+createTask: إنشاء واجب
+editTask: تعديل الواجب
+taskTitle: عنوان الواجب
+taskDescription: وصف الواجب
 deadline: الموعد النهائي
 noDeadline: بلا موعد نهائي
-noTask: لا توجد مهام
+noTask: لا توجد واجبات
 all: الكل
 pending: قيد التنفيذ
 completed: مكتملة
-taskSubmitted: تم إرسال المهمة
+taskSubmitted: تم إرسال الواجب
 submitTask: "إرسال الواجب"
 overdue: متأخرة
 daysLeft: الموعد النهائي بعد $days يوماً
@@ -17,5 +18,5 @@ hoursLeft: الموعد النهائي بعد $hours ساعة
 dueSoon: الموعد قريب
 submitFailed: تعذّر الإرسال، حاول لاحقاً
 pendingReview: قيد المراجعة
-taskIdMissing: معرّف المهمة مفقود، لا يمكن عرض التفاصيل
-taskIdMissingSubmit: معرّف المهمة مفقود، لا يمكن الإرسال
+taskIdMissing: معرّف الواجب مفقود، لا يمكن عرض التفاصيل
+taskIdMissingSubmit: معرّف الواجب مفقود، لا يمكن الإرسال

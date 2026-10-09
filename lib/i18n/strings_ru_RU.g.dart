@@ -2057,17 +2057,18 @@ class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Задачи группы';
-	@override String get createTask => 'Создать задачу';
-	@override String get taskTitle => 'Название задачи';
-	@override String get taskDescription => 'Описание задачи';
+	@override String get title => 'Задания группы';
+	@override String get createTask => 'Создать задание';
+	@override String get editTask => 'Редактировать задание';
+	@override String get taskTitle => 'Название задания';
+	@override String get taskDescription => 'Описание задания';
 	@override String get deadline => 'Срок';
 	@override String get noDeadline => 'Без срока';
-	@override String get noTask => 'Нет задач';
+	@override String get noTask => 'Нет заданий';
 	@override String get all => 'Все';
 	@override String get pending => 'В работе';
 	@override String get completed => 'Завершено';
-	@override String get taskSubmitted => 'Задача отправлена';
+	@override String get taskSubmitted => 'Задание отправлено';
 	@override String get submitTask => 'Отправить задание';
 	@override String get overdue => 'Просрочено';
 	@override String daysLeft({required Object days}) => 'Срок через ${days} дн.';
@@ -2075,8 +2076,8 @@ class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
 	@override String get dueSoon => 'Скоро срок';
 	@override String get submitFailed => 'Не удалось отправить, попробуйте позже';
 	@override String get pendingReview => 'На проверке';
-	@override String get taskIdMissing => 'ID задачи отсутствует, нельзя открыть детали';
-	@override String get taskIdMissingSubmit => 'ID задачи отсутствует, нельзя отправить';
+	@override String get taskIdMissing => 'ID задания отсутствует, нельзя открыть детали';
+	@override String get taskIdMissingSubmit => 'ID задания отсутствует, нельзя отправить';
 }
 
 // Path: groupVote
@@ -4982,17 +4983,18 @@ extension on TranslationsRuRu {
 			'groupTag.noTag' => 'Нет меток',
 			'groupTag.removeTitle' => 'Удалить метку',
 			'groupTag.removeConfirm' => 'Удалить эту метку?',
-			'groupTask.title' => 'Задачи группы',
-			'groupTask.createTask' => 'Создать задачу',
-			'groupTask.taskTitle' => 'Название задачи',
-			'groupTask.taskDescription' => 'Описание задачи',
+			'groupTask.title' => 'Задания группы',
+			'groupTask.createTask' => 'Создать задание',
+			'groupTask.editTask' => 'Редактировать задание',
+			'groupTask.taskTitle' => 'Название задания',
+			'groupTask.taskDescription' => 'Описание задания',
 			'groupTask.deadline' => 'Срок',
 			'groupTask.noDeadline' => 'Без срока',
-			'groupTask.noTask' => 'Нет задач',
+			'groupTask.noTask' => 'Нет заданий',
 			'groupTask.all' => 'Все',
 			'groupTask.pending' => 'В работе',
 			'groupTask.completed' => 'Завершено',
-			'groupTask.taskSubmitted' => 'Задача отправлена',
+			'groupTask.taskSubmitted' => 'Задание отправлено',
 			'groupTask.submitTask' => 'Отправить задание',
 			'groupTask.overdue' => 'Просрочено',
 			'groupTask.daysLeft' => ({required Object days}) => 'Срок через ${days} дн.',
@@ -5000,8 +5002,8 @@ extension on TranslationsRuRu {
 			'groupTask.dueSoon' => 'Скоро срок',
 			'groupTask.submitFailed' => 'Не удалось отправить, попробуйте позже',
 			'groupTask.pendingReview' => 'На проверке',
-			'groupTask.taskIdMissing' => 'ID задачи отсутствует, нельзя открыть детали',
-			'groupTask.taskIdMissingSubmit' => 'ID задачи отсутствует, нельзя отправить',
+			'groupTask.taskIdMissing' => 'ID задания отсутствует, нельзя открыть детали',
+			'groupTask.taskIdMissingSubmit' => 'ID задания отсутствует, нельзя отправить',
 			'groupVote.title' => 'Опросы группы',
 			'groupVote.createVote' => 'Создать опрос',
 			'groupVote.voteTitle' => 'Вопрос опроса',
@@ -5248,9 +5250,9 @@ extension on TranslationsRuRu {
 			'organization.common.close' => 'Закрыть',
 			'organization.common.reload' => 'Обновить',
 			'organization.common.createFailed' => 'Не удалось создать',
-			'organization.common.addFailed' => 'Не удалось добавить',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => 'Не удалось добавить',
 			'organization.common.confirmArchive' => 'Подтвердить архивацию',
 			'organization.common.forbidden403' => 'Нет прав на это действие (403)',
 			'organization.common.noMembers' => 'Пока нет участников',
@@ -5762,9 +5764,9 @@ extension on TranslationsRuRu {
 			'workspace.taskTitleLabel' => 'Название задачи',
 			'workspace.taskTitleRequired' => 'Название задачи не может быть пустым',
 			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
-			'workspace.taskAssigneeNone' => 'Пока не назначать',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeNone' => 'Пока не назначать',
 			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
 			'workspace.taskSubmitCreate' => 'Создать задачу',
 			'workspace.taskSubmitSave' => _root.common.buttonSave,

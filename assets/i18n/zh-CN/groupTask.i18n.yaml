@@ -1,14 +1,15 @@
 title: 群作业
-createTask: 创建任务
-taskTitle: 任务标题
-taskDescription: 任务描述
+createTask: 创建作业
+editTask: 编辑作业
+taskTitle: 作业标题
+taskDescription: 作业描述
 deadline: 截止时间
 noDeadline: 无截止时间
-noTask: 暂无任务
+noTask: 暂无作业
 all: 全部
 pending: 待完成
 completed: 已完成
-taskSubmitted: 任务已提交
+taskSubmitted: 作业已提交
 submitTask: "提交作业"
 overdue: 已过期
 daysLeft: $days 天后截止
@@ -16,5 +17,5 @@ hoursLeft: $hours 小时后截止
 dueSoon: 即将截止
 submitFailed: 提交失败，请稍后重试
 pendingReview: 待审核
-taskIdMissing: 任务ID缺失，无法查看详情
-taskIdMissingSubmit: 任务ID缺失，无法提交
+taskIdMissing: 作业ID缺失，无法查看详情
+taskIdMissingSubmit: 作业ID缺失，无法提交

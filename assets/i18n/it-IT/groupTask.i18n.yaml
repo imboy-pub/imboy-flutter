@@ -1,21 +1,22 @@
 ---
-title: Attività di gruppo
-createTask: Crea attività
-taskTitle: Titolo attività
+title: Compiti di gruppo
+createTask: Crea compito
+editTask: Modifica compito
+taskTitle: Titolo del compito
 taskDescription: Descrizione
 deadline: Scadenza
 noDeadline: Senza scadenza
-noTask: Nessuna attività
+noTask: Nessun compito
 all: Tutte
 pending: In corso
 completed: Completate
-taskSubmitted: Attività inviata
-submitTask: "Invia attività"
+taskSubmitted: Compito inviato
+submitTask: "Invia compito"
 overdue: In ritardo
 daysLeft: Scadenza tra $days gg
 hoursLeft: Scadenza tra $hours h
 dueSoon: Scadenza vicina
 submitFailed: Invio fallito. Riprova più tardi.
 pendingReview: In attesa di revisione
-taskIdMissing: ID attività mancante, dettagli non disponibili
-taskIdMissingSubmit: ID attività mancante, invio impossibile
+taskIdMissing: ID compito mancante, dettagli non disponibili
+taskIdMissingSubmit: ID compito mancante, invio impossibile

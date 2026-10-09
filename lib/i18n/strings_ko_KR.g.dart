@@ -2048,26 +2048,27 @@ class _Translations$groupTask$ko_KR extends Translations$groupTask$zh_CN {
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '그룹 작업';
-	@override String get createTask => '작업 만들기';
-	@override String get taskTitle => '작업 제목';
-	@override String get taskDescription => '작업 설명';
+	@override String get title => '그룹 과제';
+	@override String get createTask => '과제 만들기';
+	@override String get editTask => '과제 편집';
+	@override String get taskTitle => '과제 제목';
+	@override String get taskDescription => '과제 설명';
 	@override String get deadline => '마감 시간';
 	@override String get noDeadline => '마감 시간 없음';
-	@override String get noTask => '작업이 없습니다';
+	@override String get noTask => '과제가 없습니다';
 	@override String get all => '전체';
 	@override String get pending => '미완료';
 	@override String get completed => '완료';
-	@override String get taskSubmitted => '작업이 제출되었습니다';
-	@override String get submitTask => '작업 제출';
+	@override String get taskSubmitted => '과제가 제출되었습니다';
+	@override String get submitTask => '과제 제출';
 	@override String get overdue => '마감';
 	@override String daysLeft({required Object days}) => '${days}일 후 마감';
 	@override String hoursLeft({required Object hours}) => '${hours}시간 후 마감';
 	@override String get dueSoon => '마감 임박';
 	@override String get submitFailed => '제출 실패, 나중에 다시 시도해주세요';
 	@override String get pendingReview => '검토 대기';
-	@override String get taskIdMissing => '작업 ID가 없어 상세정보를 볼 수 없습니다';
-	@override String get taskIdMissingSubmit => '작업 ID가 없어 제출할 수 없습니다';
+	@override String get taskIdMissing => '과제 ID가 없어 상세정보를 볼 수 없습니다';
+	@override String get taskIdMissingSubmit => '과제 ID가 없어 제출할 수 없습니다';
 }
 
 // Path: groupVote
@@ -4973,26 +4974,27 @@ extension on TranslationsKoKr {
 			'groupTag.noTag' => '태그가 없습니다',
 			'groupTag.removeTitle' => '태그 제거',
 			'groupTag.removeConfirm' => '이 태그를 제거하시겠습니까?',
-			'groupTask.title' => '그룹 작업',
-			'groupTask.createTask' => '작업 만들기',
-			'groupTask.taskTitle' => '작업 제목',
-			'groupTask.taskDescription' => '작업 설명',
+			'groupTask.title' => '그룹 과제',
+			'groupTask.createTask' => '과제 만들기',
+			'groupTask.editTask' => '과제 편집',
+			'groupTask.taskTitle' => '과제 제목',
+			'groupTask.taskDescription' => '과제 설명',
 			'groupTask.deadline' => '마감 시간',
 			'groupTask.noDeadline' => '마감 시간 없음',
-			'groupTask.noTask' => '작업이 없습니다',
+			'groupTask.noTask' => '과제가 없습니다',
 			'groupTask.all' => '전체',
 			'groupTask.pending' => '미완료',
 			'groupTask.completed' => '완료',
-			'groupTask.taskSubmitted' => '작업이 제출되었습니다',
-			'groupTask.submitTask' => '작업 제출',
+			'groupTask.taskSubmitted' => '과제가 제출되었습니다',
+			'groupTask.submitTask' => '과제 제출',
 			'groupTask.overdue' => '마감',
 			'groupTask.daysLeft' => ({required Object days}) => '${days}일 후 마감',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours}시간 후 마감',
 			'groupTask.dueSoon' => '마감 임박',
 			'groupTask.submitFailed' => '제출 실패, 나중에 다시 시도해주세요',
 			'groupTask.pendingReview' => '검토 대기',
-			'groupTask.taskIdMissing' => '작업 ID가 없어 상세정보를 볼 수 없습니다',
-			'groupTask.taskIdMissingSubmit' => '작업 ID가 없어 제출할 수 없습니다',
+			'groupTask.taskIdMissing' => '과제 ID가 없어 상세정보를 볼 수 없습니다',
+			'groupTask.taskIdMissingSubmit' => '과제 ID가 없어 제출할 수 없습니다',
 			'groupVote.title' => '그룹 투표',
 			'groupVote.createVote' => '투표 만들기',
 			'groupVote.voteTitle' => '투표 제목',
@@ -5239,9 +5241,9 @@ extension on TranslationsKoKr {
 			'organization.common.close' => '닫기',
 			'organization.common.reload' => '새로고침',
 			'organization.common.createFailed' => '생성 실패',
-			'organization.common.addFailed' => '추가 실패',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => '추가 실패',
 			'organization.common.confirmArchive' => '보관 확인',
 			'organization.common.forbidden403' => '이 작업을 수행할 권한이 없습니다(403)',
 			'organization.common.noMembers' => '멤버가 없습니다',
@@ -5753,9 +5755,9 @@ extension on TranslationsKoKr {
 			'workspace.taskTitleLabel' => '작업 제목',
 			'workspace.taskTitleRequired' => '작업 제목은 필수입니다',
 			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
-			'workspace.taskAssigneeNone' => '지정 안 함',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeNone' => '지정 안 함',
 			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
 			'workspace.taskSubmitCreate' => '작업 만들기',
 			'workspace.taskSubmitSave' => '저장',

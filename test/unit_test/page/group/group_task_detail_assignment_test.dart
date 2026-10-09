@@ -78,7 +78,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.text('提交作业'), status == 0 ? findsOneWidget : findsNothing);
-      if (status == 2) expect(find.text('任务已提交'), findsOneWidget);
+      if (status == 2) expect(find.text('作业已提交'), findsOneWidget);
     });
   }
 }

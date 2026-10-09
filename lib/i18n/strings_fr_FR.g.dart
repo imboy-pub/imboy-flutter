@@ -2051,26 +2051,27 @@ class _Translations$groupTask$fr_FR extends Translations$groupTask$zh_CN {
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Tâches de groupe';
-	@override String get createTask => 'Créer une tâche';
-	@override String get taskTitle => 'Titre de la tâche';
+	@override String get title => 'Devoirs de groupe';
+	@override String get createTask => 'Créer un devoir';
+	@override String get editTask => 'Modifier le devoir';
+	@override String get taskTitle => 'Titre du devoir';
 	@override String get taskDescription => 'Description';
 	@override String get deadline => 'Échéance';
 	@override String get noDeadline => 'Sans échéance';
-	@override String get noTask => 'Aucune tâche';
+	@override String get noTask => 'Aucun devoir';
 	@override String get all => 'Toutes';
 	@override String get pending => 'En cours';
 	@override String get completed => 'Terminées';
-	@override String get taskSubmitted => 'Tâche soumise';
-	@override String get submitTask => 'Soumettre la tâche';
+	@override String get taskSubmitted => 'Devoir soumis';
+	@override String get submitTask => 'Soumettre le devoir';
 	@override String get overdue => 'En retard';
 	@override String daysLeft({required Object days}) => 'Échéance dans ${days} j';
 	@override String hoursLeft({required Object hours}) => 'Échéance dans ${hours} h';
 	@override String get dueSoon => 'Échéance proche';
 	@override String get submitFailed => 'Échec de l\'envoi. Réessayez plus tard.';
 	@override String get pendingReview => 'En attente de validation';
-	@override String get taskIdMissing => 'ID de tâche manquant, détails indisponibles';
-	@override String get taskIdMissingSubmit => 'ID de tâche manquant, envoi impossible';
+	@override String get taskIdMissing => 'ID de devoir manquant, détails indisponibles';
+	@override String get taskIdMissingSubmit => 'ID de devoir manquant, envoi impossible';
 }
 
 // Path: groupVote
@@ -4976,26 +4977,27 @@ extension on TranslationsFrFr {
 			'groupTag.noTag' => 'Aucune étiquette',
 			'groupTag.removeTitle' => 'Supprimer l\'étiquette',
 			'groupTag.removeConfirm' => 'Supprimer cette étiquette ?',
-			'groupTask.title' => 'Tâches de groupe',
-			'groupTask.createTask' => 'Créer une tâche',
-			'groupTask.taskTitle' => 'Titre de la tâche',
+			'groupTask.title' => 'Devoirs de groupe',
+			'groupTask.createTask' => 'Créer un devoir',
+			'groupTask.editTask' => 'Modifier le devoir',
+			'groupTask.taskTitle' => 'Titre du devoir',
 			'groupTask.taskDescription' => 'Description',
 			'groupTask.deadline' => 'Échéance',
 			'groupTask.noDeadline' => 'Sans échéance',
-			'groupTask.noTask' => 'Aucune tâche',
+			'groupTask.noTask' => 'Aucun devoir',
 			'groupTask.all' => 'Toutes',
 			'groupTask.pending' => 'En cours',
 			'groupTask.completed' => 'Terminées',
-			'groupTask.taskSubmitted' => 'Tâche soumise',
-			'groupTask.submitTask' => 'Soumettre la tâche',
+			'groupTask.taskSubmitted' => 'Devoir soumis',
+			'groupTask.submitTask' => 'Soumettre le devoir',
 			'groupTask.overdue' => 'En retard',
 			'groupTask.daysLeft' => ({required Object days}) => 'Échéance dans ${days} j',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'Échéance dans ${hours} h',
 			'groupTask.dueSoon' => 'Échéance proche',
 			'groupTask.submitFailed' => 'Échec de l\'envoi. Réessayez plus tard.',
 			'groupTask.pendingReview' => 'En attente de validation',
-			'groupTask.taskIdMissing' => 'ID de tâche manquant, détails indisponibles',
-			'groupTask.taskIdMissingSubmit' => 'ID de tâche manquant, envoi impossible',
+			'groupTask.taskIdMissing' => 'ID de devoir manquant, détails indisponibles',
+			'groupTask.taskIdMissingSubmit' => 'ID de devoir manquant, envoi impossible',
 			'groupVote.title' => 'Sondage de groupe',
 			'groupVote.createVote' => 'Créer un sondage',
 			'groupVote.voteTitle' => 'Titre du sondage',
@@ -5242,9 +5244,9 @@ extension on TranslationsFrFr {
 			'organization.common.close' => 'Fermer',
 			'organization.common.reload' => 'Recharger',
 			'organization.common.createFailed' => 'Échec de la création',
-			'organization.common.addFailed' => 'Échec de l\'ajout',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => 'Échec de l\'ajout',
 			'organization.common.confirmArchive' => 'Confirmer l\'archivage',
 			'organization.common.forbidden403' => 'Vous n\'êtes pas autorisé à effectuer cette action (403)',
 			'organization.common.noMembers' => 'Aucun membre pour l\'instant',
@@ -5756,9 +5758,9 @@ extension on TranslationsFrFr {
 			'workspace.taskTitleLabel' => 'Titre de la tâche',
 			'workspace.taskTitleRequired' => 'Le titre de la tâche est requis',
 			'workspace.taskAssigneeLabel' => 'Responsable (membre de l\'espace de travail)',
-			'workspace.taskAssigneeNone' => 'Ne pas affecter pour l\'instant',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeNone' => 'Ne pas affecter pour l\'instant',
 			'workspace.taskAssigneeRefresh' => 'Actualiser les candidats responsables',
 			'workspace.taskSubmitCreate' => 'Créer la tâche',
 			'workspace.taskSubmitSave' => 'Enregistrer',

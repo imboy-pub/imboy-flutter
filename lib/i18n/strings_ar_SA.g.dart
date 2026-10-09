@@ -2060,17 +2060,18 @@ class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'مهام المجموعة';
-	@override String get createTask => 'إنشاء مهمة';
-	@override String get taskTitle => 'عنوان المهمة';
-	@override String get taskDescription => 'وصف المهمة';
+	@override String get title => 'واجبات المجموعة';
+	@override String get createTask => 'إنشاء واجب';
+	@override String get editTask => 'تعديل الواجب';
+	@override String get taskTitle => 'عنوان الواجب';
+	@override String get taskDescription => 'وصف الواجب';
 	@override String get deadline => 'الموعد النهائي';
 	@override String get noDeadline => 'بلا موعد نهائي';
-	@override String get noTask => 'لا توجد مهام';
+	@override String get noTask => 'لا توجد واجبات';
 	@override String get all => 'الكل';
 	@override String get pending => 'قيد التنفيذ';
 	@override String get completed => 'مكتملة';
-	@override String get taskSubmitted => 'تم إرسال المهمة';
+	@override String get taskSubmitted => 'تم إرسال الواجب';
 	@override String get submitTask => 'إرسال الواجب';
 	@override String get overdue => 'متأخرة';
 	@override String daysLeft({required Object days}) => 'الموعد النهائي بعد ${days} يوماً';
@@ -2078,8 +2079,8 @@ class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
 	@override String get dueSoon => 'الموعد قريب';
 	@override String get submitFailed => 'تعذّر الإرسال، حاول لاحقاً';
 	@override String get pendingReview => 'قيد المراجعة';
-	@override String get taskIdMissing => 'معرّف المهمة مفقود، لا يمكن عرض التفاصيل';
-	@override String get taskIdMissingSubmit => 'معرّف المهمة مفقود، لا يمكن الإرسال';
+	@override String get taskIdMissing => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل';
+	@override String get taskIdMissingSubmit => 'معرّف الواجب مفقود، لا يمكن الإرسال';
 }
 
 // Path: groupVote
@@ -4985,17 +4986,18 @@ extension on TranslationsArSa {
 			'groupTag.noTag' => 'لا توجد وسوم',
 			'groupTag.removeTitle' => 'إزالة الوسم',
 			'groupTag.removeConfirm' => 'إزالة هذا الوسم؟',
-			'groupTask.title' => 'مهام المجموعة',
-			'groupTask.createTask' => 'إنشاء مهمة',
-			'groupTask.taskTitle' => 'عنوان المهمة',
-			'groupTask.taskDescription' => 'وصف المهمة',
+			'groupTask.title' => 'واجبات المجموعة',
+			'groupTask.createTask' => 'إنشاء واجب',
+			'groupTask.editTask' => 'تعديل الواجب',
+			'groupTask.taskTitle' => 'عنوان الواجب',
+			'groupTask.taskDescription' => 'وصف الواجب',
 			'groupTask.deadline' => 'الموعد النهائي',
 			'groupTask.noDeadline' => 'بلا موعد نهائي',
-			'groupTask.noTask' => 'لا توجد مهام',
+			'groupTask.noTask' => 'لا توجد واجبات',
 			'groupTask.all' => 'الكل',
 			'groupTask.pending' => 'قيد التنفيذ',
 			'groupTask.completed' => 'مكتملة',
-			'groupTask.taskSubmitted' => 'تم إرسال المهمة',
+			'groupTask.taskSubmitted' => 'تم إرسال الواجب',
 			'groupTask.submitTask' => 'إرسال الواجب',
 			'groupTask.overdue' => 'متأخرة',
 			'groupTask.daysLeft' => ({required Object days}) => 'الموعد النهائي بعد ${days} يوماً',
@@ -5003,8 +5005,8 @@ extension on TranslationsArSa {
 			'groupTask.dueSoon' => 'الموعد قريب',
 			'groupTask.submitFailed' => 'تعذّر الإرسال، حاول لاحقاً',
 			'groupTask.pendingReview' => 'قيد المراجعة',
-			'groupTask.taskIdMissing' => 'معرّف المهمة مفقود، لا يمكن عرض التفاصيل',
-			'groupTask.taskIdMissingSubmit' => 'معرّف المهمة مفقود، لا يمكن الإرسال',
+			'groupTask.taskIdMissing' => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل',
+			'groupTask.taskIdMissingSubmit' => 'معرّف الواجب مفقود، لا يمكن الإرسال',
 			'groupVote.title' => 'استطلاعات المجموعة',
 			'groupVote.createVote' => 'إنشاء استطلاع',
 			'groupVote.voteTitle' => 'سؤال الاستطلاع',
@@ -5251,9 +5253,9 @@ extension on TranslationsArSa {
 			'organization.common.close' => 'إغلاق',
 			'organization.common.reload' => 'إعادة تحميل',
 			'organization.common.createFailed' => 'فشل الإنشاء',
-			'organization.common.addFailed' => 'فشل الإضافة',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.addFailed' => 'فشل الإضافة',
 			'organization.common.confirmArchive' => 'تأكيد الأرشفة',
 			'organization.common.forbidden403' => 'لا تملك صلاحية تنفيذ هذا الإجراء (403)',
 			'organization.common.noMembers' => 'لا يوجد أعضاء',
@@ -5765,9 +5767,9 @@ extension on TranslationsArSa {
 			'workspace.taskTitleLabel' => 'عنوان المهمة',
 			'workspace.taskTitleRequired' => 'لا يمكن أن يكون عنوان المهمة فارغاً',
 			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
-			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
 			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
 			'workspace.taskSubmitSave' => 'حفظ',

@@ -1,21 +1,22 @@
 ---
-title: 그룹 작업
-createTask: 작업 만들기
-taskTitle: 작업 제목
-taskDescription: 작업 설명
+title: 그룹 과제
+createTask: 과제 만들기
+editTask: 과제 편집
+taskTitle: 과제 제목
+taskDescription: 과제 설명
 deadline: 마감 시간
 noDeadline: 마감 시간 없음
-noTask: 작업이 없습니다
+noTask: 과제가 없습니다
 all: 전체
 pending: 미완료
 completed: 완료
-taskSubmitted: 작업이 제출되었습니다
-submitTask: "작업 제출"
+taskSubmitted: 과제가 제출되었습니다
+submitTask: "과제 제출"
 overdue: 마감
 daysLeft: "$days일 후 마감"
 hoursLeft: "$hours시간 후 마감"
 dueSoon: 마감 임박
 submitFailed: 제출 실패, 나중에 다시 시도해주세요
 pendingReview: 검토 대기
-taskIdMissing: 작업 ID가 없어 상세정보를 볼 수 없습니다
-taskIdMissingSubmit: 작업 ID가 없어 제출할 수 없습니다
+taskIdMissing: 과제 ID가 없어 상세정보를 볼 수 없습니다
+taskIdMissingSubmit: 과제 ID가 없어 제출할 수 없습니다
