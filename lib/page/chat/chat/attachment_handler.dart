@@ -318,9 +318,11 @@ class ChatAttachmentHandler {
   ///   [Translatables.common.e2eeErrAttachmentSeal]；
   /// - 其余（网络失败、文件 IO 等）→ 通用 [Translatables.common.uploadFailed]。
   ///
-  /// [log] 按 Finding 014 口径收窄：只含 errType 与稳定上下文标识
-  /// （E2eeSecurityException.reason 是机器可读枚举，不含密钥/明文/PII），
-  /// 不输出完整异常对象。
+  /// [log] 按 Finding 014 口径收窄：E2EE 类只含 errType 与机器可读 reason
+  /// （不含密钥/明文/PII）；非 E2EE 类附 detail=异常全文——这条链路的异常
+  /// 消息是服务端错误码与网络描述，同样无密钥/明文/PII，而只打 errType 时
+  /// 失败完全不可诊断（macOS 冒烟：presign 被拒与网络中断都呈现为
+  /// errType=_Exception，无法定位）。
   static ({String toast, String log}) _attachmentFailurePresentation(Object e) {
     if (e is E2eeSecurityException) {
       final isSealFailure =
@@ -333,7 +335,10 @@ class ChatAttachmentHandler {
         log: 'errType=${e.runtimeType} reason=${e.reason}',
       );
     }
-    return (toast: t.common.uploadFailed, log: 'errType=${e.runtimeType}');
+    return (
+      toast: t.common.uploadFailed,
+      log: 'errType=${e.runtimeType} detail=$e',
+    );
   }
 
   /// 把 descriptor 放进消息 metadata —— 它会被 `getMsgFromTMsg`
