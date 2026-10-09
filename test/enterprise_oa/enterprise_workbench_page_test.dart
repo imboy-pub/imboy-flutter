@@ -4,16 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/web_view.dart';
 import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
+
+class _Routes extends NavigatorObserver {
+  final pushed = <Route<dynamic>>[];
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushed.add(route);
+  }
+}
 
 void main() {
   const channel = MethodChannel('plugins.flutter.io/url_launcher');
   final calls = <MethodCall>[];
   var canOpen = true;
+  late _Routes routes;
 
   setUp(() {
     calls.clear();
+    routes = _Routes();
     canOpen = true;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
@@ -29,6 +40,7 @@ void main() {
 
   Widget host({List<EnterpriseOaRuntimeConfig> entries = const []}) =>
       MaterialApp(
+        navigatorObservers: [routes],
         home: Scaffold(
           body: EnterpriseWorkbenchPage(
             entries: entries,
@@ -39,11 +51,7 @@ void main() {
         ),
       );
 
-  /// 测试环境无 webview_flutter 平台实现，用 macOS 模拟
-  /// 「系统浏览器兜底」分支；Android/iOS 的应用内 WebView 分支
-  /// 需要真机/模拟器验证（与仓内不挂真 WebView 的测试惯例一致）。
-  /// foundation debug 变量必须在 invariant 检查前手动复位（try/finally），
-  /// addTearDown 的执行时机在 _verifyInvariants 之后，不够。
+  // macOS 与移动端共用应用内导航；此处核验路由，不冒充原生页面加载。
   Future<void> runOnMacos(Future<void> Function() body) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     try {
@@ -53,28 +61,32 @@ void main() {
     }
   }
 
-  testWidgets('无 OA 保留资料入口，点击 OA办公走系统浏览器兜底', (tester) async {
+  testWidgets('macOS OA办公进入应用内页面，显式传递 OA 设备权限边界', (tester) async {
     await runOnMacos(() async {
       await tester.pumpWidget(host());
       expect(find.text('资料'), findsOneWidget);
       expect(find.text(t.enterpriseOa.oaOffice), findsOneWidget);
-      expect(calls, isEmpty);
       await tester.tap(find.byKey(const ValueKey('workbench-oa-office')));
-      await tester.pumpAndSettle();
-      expect(calls.map((call) => call.method), ['canLaunch', 'launch']);
-      expect(calls.last.arguments['url'], EnterpriseWorkbenchPage.oaOfficeUrl);
-      expect(calls.last.arguments['useWebView'], isFalse);
+      expect(routes.pushed, hasLength(2));
+      final route = routes.pushed.last as CupertinoPageRoute<void>;
+      final page = route.builder(
+        tester.element(find.byType(EnterpriseWorkbenchPage)),
+      ) as WebViewPage;
+      expect(page.url, EnterpriseWorkbenchPage.oaOfficeUrl);
+      expect(page.allowOaDevicePermissions, isTrue);
+      expect(calls, isEmpty);
+      await tester.pumpWidget(const SizedBox.shrink());
     });
   });
 
-  testWidgets('系统浏览器不可用时显示错误', (tester) async {
+  testWidgets('系统浏览器不可用也不调用外部 launcher，仍发起内部导航', (tester) async {
     await runOnMacos(() async {
       canOpen = false;
       await tester.pumpWidget(host());
       await tester.tap(find.byKey(const ValueKey('workbench-oa-office')));
-      await tester.pumpAndSettle();
-      expect(find.text(t.common.cannotOpenWebpage), findsOneWidget);
-      expect(calls.map((call) => call.method), ['canLaunch']);
+      expect(routes.pushed, hasLength(2));
+      expect(calls, isEmpty);
+      await tester.pumpWidget(const SizedBox.shrink());
     });
   });
 

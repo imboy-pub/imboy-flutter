@@ -585,7 +585,7 @@ groupAlbumPhotoBatchDeleteTooltip: Удалить выбранные
 groupAlbumPhotoExitSelection: Выйти из выбора
 groupAlbumPhotoOpenFailed: Не удаётся открыть ссылку на фото
 groupAlbumPhotoNotFound: Фото не найдено или удалено
-groupAlbumPhotoOpenExternal: Открыть во внешнем приложении
+groupAlbumPhotoOpenExternal: Открыть в приложении
 groupAlbumPhotoCoverUpdated: Обложка установлена
 groupAlbumPhotoCoverFailed: Не удалось установить обложку, попробуйте позже
 groupAlbumPhotoNext: Далее

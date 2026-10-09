@@ -1306,7 +1306,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => 'Auswahl verlassen';
 	@override String get groupAlbumPhotoOpenFailed => 'Bildlink kann nicht geöffnet werden';
 	@override String get groupAlbumPhotoNotFound => 'Bild existiert nicht oder wurde gelöscht';
-	@override String get groupAlbumPhotoOpenExternal => 'Extern öffnen';
+	@override String get groupAlbumPhotoOpenExternal => 'In der App öffnen';
 	@override String get groupAlbumPhotoCoverUpdated => 'Als Album-Cover festgelegt';
 	@override String get groupAlbumPhotoCoverFailed => 'Cover konnte nicht festgelegt werden. Bitte später erneut versuchen.';
 	@override String get groupAlbumPhotoNext => 'Weiter';
@@ -4363,7 +4363,7 @@ extension on TranslationsDeDe {
 			'common.groupAlbumPhotoExitSelection' => 'Auswahl verlassen',
 			'common.groupAlbumPhotoOpenFailed' => 'Bildlink kann nicht geöffnet werden',
 			'common.groupAlbumPhotoNotFound' => 'Bild existiert nicht oder wurde gelöscht',
-			'common.groupAlbumPhotoOpenExternal' => 'Extern öffnen',
+			'common.groupAlbumPhotoOpenExternal' => 'In der App öffnen',
 			'common.groupAlbumPhotoCoverUpdated' => 'Als Album-Cover festgelegt',
 			'common.groupAlbumPhotoCoverFailed' => 'Cover konnte nicht festgelegt werden. Bitte später erneut versuchen.',
 			'common.groupAlbumPhotoNext' => 'Weiter',

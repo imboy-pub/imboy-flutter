@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:imboy/component/helper/safe_launcher.dart';
+
 import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -2197,6 +2199,15 @@ class ChatPageState extends ConsumerState<ChatPage>
               index: index,
               showStatus: false,
               showTime: true,
+              onLinkTap: (url, title) async {
+                final opened = await SafeLauncher.safeLaunchUrlString(
+                  url,
+                  context: context,
+                );
+                if (!opened && context.mounted) {
+                  AppLoading.showToast(t.common.cannotOpenWebpage);
+                }
+              },
             );
           },
       textStreamMessageBuilder:
@@ -2216,6 +2227,15 @@ class ChatPageState extends ConsumerState<ChatPage>
               streamState: streamState,
               showStatus: false,
               showTime: true,
+              onLinkTap: (url, title) async {
+                final opened = await SafeLauncher.safeLaunchUrlString(
+                  url,
+                  context: context,
+                );
+                if (!opened && context.mounted) {
+                  AppLoading.showToast(t.common.cannotOpenWebpage);
+                }
+              },
               loadingText: '...',
             );
           },

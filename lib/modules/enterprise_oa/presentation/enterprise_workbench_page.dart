@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/safe_launcher.dart';
-import 'package:imboy/component/web_view.dart';
 
 import '../enterprise_oa_runtime_config.dart';
 import 'oa_tab_page.dart';
@@ -43,34 +41,12 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
     }
   }
 
-  /// webview_flutter 仅 Android/iOS 有平台实现（macOS/Web 无实现包），
-  /// 其余平台保持系统浏览器兜底。
-  bool get _inAppWebViewSupported =>
-      !kIsWeb &&
-      (defaultTargetPlatform == TargetPlatform.android ||
-          defaultTargetPlatform == TargetPlatform.iOS);
-
   Future<void> _openOaOffice() async {
-    if (_inAppWebViewSupported) {
-      if (!mounted) return;
-      await Navigator.of(context).push(
-        CupertinoPageRoute<dynamic>(
-          builder: (_) => WebViewPage(
-            EnterpriseWorkbenchPage.oaOfficeUrl,
-            t.enterpriseOa.oaOffice,
-          ),
-        ),
-      );
-      return;
-    }
-    var opened = false;
-    try {
-      opened = await SafeLauncher.safeLaunchUrl(
-        Uri.parse(EnterpriseWorkbenchPage.oaOfficeUrl),
-      );
-    } catch (_) {
-      // 系统浏览器不可用时给出与无法打开链接相同的提示。
-    }
+    final opened = await SafeLauncher.safeLaunchUrl(
+      Uri.parse(EnterpriseWorkbenchPage.oaOfficeUrl),
+      context: context,
+      allowOaDevicePermissions: true,
+    );
     if (!opened && mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(t.common.cannotOpenWebpage)));

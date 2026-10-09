@@ -3783,8 +3783,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '图片不存在或已删除'
 	String get groupAlbumPhotoNotFound => '图片不存在或已删除';
 
-	/// zh-CN: '外部打开'
-	String get groupAlbumPhotoOpenExternal => '外部打开';
+	/// zh-CN: '应用内打开'
+	String get groupAlbumPhotoOpenExternal => '应用内打开';
 
 	/// zh-CN: '已设为相册封面'
 	String get groupAlbumPhotoCoverUpdated => '已设为相册封面';
@@ -10327,7 +10327,7 @@ extension on Translations {
 			'common.groupAlbumPhotoExitSelection' => '退出选择',
 			'common.groupAlbumPhotoOpenFailed' => '无法打开图片链接',
 			'common.groupAlbumPhotoNotFound' => '图片不存在或已删除',
-			'common.groupAlbumPhotoOpenExternal' => '外部打开',
+			'common.groupAlbumPhotoOpenExternal' => '应用内打开',
 			'common.groupAlbumPhotoCoverUpdated' => '已设为相册封面',
 			'common.groupAlbumPhotoCoverFailed' => '设置封面失败，请稍后重试',
 			'common.groupAlbumPhotoNext' => '下一张',

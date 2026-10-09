@@ -1312,7 +1312,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => 'Выйти из выбора';
 	@override String get groupAlbumPhotoOpenFailed => 'Не удаётся открыть ссылку на фото';
 	@override String get groupAlbumPhotoNotFound => 'Фото не найдено или удалено';
-	@override String get groupAlbumPhotoOpenExternal => 'Открыть во внешнем приложении';
+	@override String get groupAlbumPhotoOpenExternal => 'Открыть в приложении';
 	@override String get groupAlbumPhotoCoverUpdated => 'Обложка установлена';
 	@override String get groupAlbumPhotoCoverFailed => 'Не удалось установить обложку, попробуйте позже';
 	@override String get groupAlbumPhotoNext => 'Далее';
@@ -4369,7 +4369,7 @@ extension on TranslationsRuRu {
 			'common.groupAlbumPhotoExitSelection' => 'Выйти из выбора',
 			'common.groupAlbumPhotoOpenFailed' => 'Не удаётся открыть ссылку на фото',
 			'common.groupAlbumPhotoNotFound' => 'Фото не найдено или удалено',
-			'common.groupAlbumPhotoOpenExternal' => 'Открыть во внешнем приложении',
+			'common.groupAlbumPhotoOpenExternal' => 'Открыть в приложении',
 			'common.groupAlbumPhotoCoverUpdated' => 'Обложка установлена',
 			'common.groupAlbumPhotoCoverFailed' => 'Не удалось установить обложку, попробуйте позже',
 			'common.groupAlbumPhotoNext' => 'Далее',

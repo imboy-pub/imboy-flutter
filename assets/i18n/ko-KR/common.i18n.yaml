@@ -576,7 +576,7 @@ groupAlbumPhotoBatchDeleteTooltip: 일괄 삭제
 groupAlbumPhotoExitSelection: 선택 취소
 groupAlbumPhotoOpenFailed: 이미지 링크를 열 수 없습니다
 groupAlbumPhotoNotFound: 이미지가 없거나 삭제되었습니다
-groupAlbumPhotoOpenExternal: 외부 앱으로 열기
+groupAlbumPhotoOpenExternal: 앱 내에서 열기
 groupAlbumPhotoCoverUpdated: 앨범 표지로 설정되었습니다
 groupAlbumPhotoCoverFailed: 표지 설정 실패, 나중에 다시 시도해주세요
 groupAlbumPhotoNext: 다음

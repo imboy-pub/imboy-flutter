@@ -579,7 +579,7 @@ groupAlbumPhotoBatchDeleteTooltip: Elimina
 groupAlbumPhotoExitSelection: Esci dalla selezione
 groupAlbumPhotoOpenFailed: Impossibile aprire il link dell'immagine
 groupAlbumPhotoNotFound: Immagine inesistente o eliminata
-groupAlbumPhotoOpenExternal: Apri esterno
+groupAlbumPhotoOpenExternal: Apri nell’app
 groupAlbumPhotoCoverUpdated: Copertina album impostata
 groupAlbumPhotoCoverFailed: Impostazione copertina fallita. Riprova più tardi.
 groupAlbumPhotoNext: Successivo

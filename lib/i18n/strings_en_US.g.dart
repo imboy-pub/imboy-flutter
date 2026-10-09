@@ -1354,7 +1354,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => 'Exit selection';
 	@override String get groupAlbumPhotoOpenFailed => 'Cannot open photo link';
 	@override String get groupAlbumPhotoNotFound => 'Photo not found or deleted';
-	@override String get groupAlbumPhotoOpenExternal => 'Open externally';
+	@override String get groupAlbumPhotoOpenExternal => 'Open in app';
 	@override String get groupAlbumPhotoCoverUpdated => 'Set as album cover';
 	@override String get groupAlbumPhotoCoverFailed => 'Set cover failed, please try again';
 	@override String get groupAlbumPhotoNext => 'Next';
@@ -4604,7 +4604,7 @@ extension on TranslationsEnUs {
 			'common.groupAlbumPhotoExitSelection' => 'Exit selection',
 			'common.groupAlbumPhotoOpenFailed' => 'Cannot open photo link',
 			'common.groupAlbumPhotoNotFound' => 'Photo not found or deleted',
-			'common.groupAlbumPhotoOpenExternal' => 'Open externally',
+			'common.groupAlbumPhotoOpenExternal' => 'Open in app',
 			'common.groupAlbumPhotoCoverUpdated' => 'Set as album cover',
 			'common.groupAlbumPhotoCoverFailed' => 'Set cover failed, please try again',
 			'common.groupAlbumPhotoNext' => 'Next',

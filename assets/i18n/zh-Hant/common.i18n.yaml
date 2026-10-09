@@ -577,7 +577,7 @@ groupAlbumPhotoBatchDeleteTooltip: 批次刪除
 groupAlbumPhotoExitSelection: 退出選擇
 groupAlbumPhotoOpenFailed: 無法開啟圖片連結
 groupAlbumPhotoNotFound: 圖片不存在或已刪除
-groupAlbumPhotoOpenExternal: 外部開啟
+groupAlbumPhotoOpenExternal: 應用程式內開啟
 groupAlbumPhotoCoverUpdated: 已設為相簿封面
 groupAlbumPhotoCoverFailed: 設定封面失敗，請稍後重試
 groupAlbumPhotoNext: 下一張

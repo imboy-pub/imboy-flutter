@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -132,7 +132,7 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
         entityIdOf(row['id']),
       );
       if (!mounted || widget.owner != UserRepoLocal.to.currentUid) return;
-      if (!await launchUrl(uri, mode: LaunchMode.inAppBrowserView)) {
+      if (!await SafeLauncher.safeLaunchUrl(uri, context: context)) {
         throw Exception('Open failed');
       }
     } on Exception {

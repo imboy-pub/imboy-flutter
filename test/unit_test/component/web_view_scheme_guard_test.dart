@@ -40,6 +40,8 @@ void main() {
       expect(WebViewPageState.isSchemeAllowed('mms://h/x'), isFalse);
       expect(WebViewPageState.isSchemeAllowed('://evil'), isFalse);
       expect(WebViewPageState.isSchemeAllowed(''), isFalse);
+      expect(WebViewPageState.isSchemeAllowed('https:/missing-host'), isFalse);
+      expect(WebViewPageState.isSchemeAllowed('http:'), isFalse);
     });
   });
 

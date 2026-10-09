@@ -1303,7 +1303,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => '선택 취소';
 	@override String get groupAlbumPhotoOpenFailed => '이미지 링크를 열 수 없습니다';
 	@override String get groupAlbumPhotoNotFound => '이미지가 없거나 삭제되었습니다';
-	@override String get groupAlbumPhotoOpenExternal => '외부 앱으로 열기';
+	@override String get groupAlbumPhotoOpenExternal => '앱 내에서 열기';
 	@override String get groupAlbumPhotoCoverUpdated => '앨범 표지로 설정되었습니다';
 	@override String get groupAlbumPhotoCoverFailed => '표지 설정 실패, 나중에 다시 시도해주세요';
 	@override String get groupAlbumPhotoNext => '다음';
@@ -4360,7 +4360,7 @@ extension on TranslationsKoKr {
 			'common.groupAlbumPhotoExitSelection' => '선택 취소',
 			'common.groupAlbumPhotoOpenFailed' => '이미지 링크를 열 수 없습니다',
 			'common.groupAlbumPhotoNotFound' => '이미지가 없거나 삭제되었습니다',
-			'common.groupAlbumPhotoOpenExternal' => '외부 앱으로 열기',
+			'common.groupAlbumPhotoOpenExternal' => '앱 내에서 열기',
 			'common.groupAlbumPhotoCoverUpdated' => '앨범 표지로 설정되었습니다',
 			'common.groupAlbumPhotoCoverFailed' => '표지 설정 실패, 나중에 다시 시도해주세요',
 			'common.groupAlbumPhotoNext' => '다음',

@@ -588,7 +588,7 @@ groupAlbumPhotoBatchDeleteTooltip: حذف المحدد
 groupAlbumPhotoExitSelection: إنهاء التحديد
 groupAlbumPhotoOpenFailed: تعذّر فتح رابط الصورة
 groupAlbumPhotoNotFound: الصورة غير موجودة أو محذوفة
-groupAlbumPhotoOpenExternal: فتح خارجي
+groupAlbumPhotoOpenExternal: فتح داخل التطبيق
 groupAlbumPhotoCoverUpdated: تم تعيينها كغلاف للألبوم
 groupAlbumPhotoCoverFailed: تعذّر تعيين الغلاف، حاول لاحقاً
 groupAlbumPhotoNext: التالي

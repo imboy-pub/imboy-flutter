@@ -128,8 +128,15 @@ class WebViewPage extends StatefulWidget {
   final String url;
   final String title;
   final void Function(String url)? errorCallback;
+  final bool allowOaDevicePermissions;
 
-  const WebViewPage(this.url, this.title, {super.key, this.errorCallback});
+  const WebViewPage(
+    this.url,
+    this.title, {
+    super.key,
+    this.errorCallback,
+    this.allowOaDevicePermissions = false,
+  });
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
@@ -163,7 +170,7 @@ class WebViewPageState extends State<WebViewPage> {
 
   static bool isSchemeAllowed(String url) {
     final Uri? uri = Uri.tryParse(url);
-    if (uri == null) return false;
+    if (uri == null || uri.host.isEmpty) return false;
     return allowedSchemes.contains(uri.scheme.toLowerCase());
   }
 
@@ -176,67 +183,88 @@ class WebViewPageState extends State<WebViewPage> {
     return jsBridgeHostSuffixes.any((s) => host == s || host.endsWith('.$s'));
   }
 
+  /// 只有明确的 OA 入口可申请设备能力；不将子域或跳转页面扩展为可信源。
+  static bool allowsOaDevicePermissions({
+    required bool enabled,
+    required String initialUrl,
+    required String? currentUrl,
+    String? requestOrigin,
+  }) {
+    bool trusted(String? value) {
+      final uri = value == null ? null : Uri.tryParse(value);
+      return uri != null &&
+          uri.scheme == 'https' &&
+          uri.host == 'imboy.pub' &&
+          uri.port == 443 &&
+          uri.userInfo.isEmpty;
+    }
+
+    return enabled &&
+        trusted(initialUrl) &&
+        trusted(currentUrl) &&
+        (requestOrigin == null || trusted(requestOrigin));
+  }
+
   @override
   void initState() {
     super.initState();
 
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      // 注意：JavaScriptMode.unrestricted 是 JS bridge（javascriptChannel）
-      // 正常工作的必要条件。非 imboy.pub 域名加载时，NavigationDelegate 的
-      // shouldOverrideUrlLoading / onPageStarted 会拦截外部 URL 并跳转系统浏览器，
-      // 因此不可信站点不会在 WebView 内执行 JS 上下文。
-      // 安全防护：onPageStarted 中 verifyPageHost 会校验当前页面 host，不在
-      // 白名单的页面会被立即终止导航（navigateToSystemBrowser + stopLoading）。
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            if (title.isEmpty) {
-              AppLoading.showProgress(
-                progress / 100,
-                status: t.common.webpageLoading,
-              );
-            }
-            // debugPrint('> WebView is loading (progress : $progress%)');
-          },
-          onPageStarted: (String url) {
-            if (widget.url.contains("weixin.qq.com/r/") ||
-                widget.url.contains("weixin.qq.com/x/")) {
-              widget.errorCallback!(widget.url);
-            }
-          },
-          onPageFinished: (String url) {
-            AppLoading.dismiss();
-            if (title.isEmpty && _controller != null) {
-              _controller!.getTitle().then((fetched) {
-                // getTitle 异步返回时页面可能已 dispose（加载中返回）。
-                if (!mounted) return;
-                if (fetched != null && fetched.isNotEmpty) {
-                  setState(() {
-                    title = fetched;
+    _controller =
+        WebViewController(
+            onPermissionRequest: (request) =>
+                unawaited(_handleDeviceRequest(request)),
+          )
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          // 注意：JavaScriptMode.unrestricted 是 JS bridge（javascriptChannel）
+          // 正常工作的必要条件。第三方 HTTP(S) 页面同样在应用内显示，
+          // 但不会获得自家 H5 桥接能力；桥消息另按当前 origin 复核权限。
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onProgress: (int progress) {
+                if (title.isEmpty) {
+                  AppLoading.showProgress(
+                    progress / 100,
+                    status: t.common.webpageLoading,
+                  );
+                }
+                // debugPrint('> WebView is loading (progress : $progress%)');
+              },
+              onPageStarted: (String url) {
+                if (widget.url.contains("weixin.qq.com/r/") ||
+                    widget.url.contains("weixin.qq.com/x/")) {
+                  widget.errorCallback?.call(widget.url);
+                }
+              },
+              onPageFinished: (String url) {
+                AppLoading.dismiss();
+                if (title.isEmpty && _controller != null) {
+                  _controller!.getTitle().then((fetched) {
+                    // getTitle 异步返回时页面可能已 dispose（加载中返回）。
+                    if (!mounted) return;
+                    if (fetched != null && fetched.isNotEmpty) {
+                      setState(() {
+                        title = fetched;
+                      });
+                    }
                   });
                 }
-              });
-            }
-          },
-          onWebResourceError: (WebResourceError error) {
-            AppLoading.dismiss();
-            if (widget.errorCallback != null) {
-              String msg = "\n${widget.url}\n\nerror: \n${error.description}";
-              widget.errorCallback!(msg);
-            }
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            // 原为一段被注释掉的判断，且逻辑是反的（拦自家域名、放行其余）。
-            // 页内跳转同样必须过 scheme 闸：首屏是 https，但页面可以把用户
-            // 导航到 file:/javascript:/intent: 完成提权。
-            if (!isSchemeAllowed(request.url)) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
-          },
-        ),
-      );
+              },
+              onWebResourceError: (WebResourceError error) {
+                AppLoading.dismiss();
+                final msg = "\n${widget.url}\n\nerror: \n${error.description}";
+                widget.errorCallback?.call(msg);
+              },
+              onNavigationRequest: (NavigationRequest request) {
+                // 原为一段被注释掉的判断，且逻辑是反的（拦自家域名、放行其余）。
+                // 页内跳转同样必须过 scheme 闸：首屏是 https，但页面可以把用户
+                // 导航到 file:/javascript:/intent: 完成提权。
+                if (!isSchemeAllowed(request.url)) {
+                  return NavigationDecision.prevent;
+                }
+                return NavigationDecision.navigate;
+              },
+            ),
+          );
 
     // JS 通道只挂给自家 H5：通道名 imboyJSBridge 是公开可知的，任意第三方
     // 页面都能往里发消息。方法白名单见 ImboyJsBridge 类注释；第三方站点
@@ -259,8 +287,8 @@ class WebViewPageState extends State<WebViewPage> {
     }
 
     // H5 设备能力（定位/相机）授权接线。iOS 的 WKWebView 无回调时默认
-    // prompt 系统权限弹窗（Info.plist 描述已备），无需接线；macOS/Web
-    // 无 webview 实现（走系统浏览器），也不适用。
+    // prompt 系统权限弹窗（Info.plist 描述已备）。macOS 使用 WKWebView，
+    // 不走 Android 的平台回调；不向任意网页增添敏感桥方法。
     final platform = _controller!.platform;
     if (platform is AndroidWebViewController) {
       unawaited(_wireAndroidDevicePermissions(platform));
@@ -321,34 +349,56 @@ class WebViewPageState extends State<WebViewPage> {
   }
 
   /// Android WebView 的定位与相机授权（如 test_oa.html 的 Web 标准定位/
-  /// getUserMedia）。信任模型与系统浏览器一致：仅安全 origin 能发起请求，
-  /// 宿主先确保 App 持有对应系统权限（缺失则向用户请求），再放行 WebView
-  /// 层授权。只放行相机与定位，麦克风等其他资源一律拒绝。
+  /// getUserMedia）。普通浏览拒绝设备能力；明确 OA 入口复验当前来源，
+  /// 仅相机和定位走系统权限流程，其他资源拒绝。
   Future<void> _wireAndroidDevicePermissions(
     AndroidWebViewController controller,
   ) async {
     await controller.setGeolocationEnabled(true);
     await controller.setGeolocationPermissionsPromptCallbacks(
       onShowPrompt: (request) async {
+        if (!await _allowsDeviceRequest(request.origin)) {
+          return const GeolocationPermissionsResponse(
+            allow: false,
+            retain: false,
+          );
+        }
         final status = await Permission.locationWhenInUse.request();
-        // retain：同会话内页内导航免重复弹窗；WebView 销毁即失效。
         return GeolocationPermissionsResponse(
-          allow: status.isGranted,
-          retain: true,
+          allow: status.isGranted && await _allowsDeviceRequest(request.origin),
+          retain: false,
         );
       },
     );
-    await controller.setOnPlatformPermissionRequest((request) async {
-      if (request.types.length == 1 &&
-          request.types.contains(WebViewPermissionResourceType.camera)) {
-        final status = await Permission.camera.request();
-        if (status.isGranted) {
-          await request.grant();
-          return;
-        }
+  }
+
+  Future<bool> _allowsDeviceRequest([String? requestOrigin]) async {
+    if (!mounted || !widget.allowOaDevicePermissions) return false;
+    try {
+      final current = await _controller?.currentUrl();
+      return mounted &&
+          allowsOaDevicePermissions(
+            enabled: widget.allowOaDevicePermissions,
+            initialUrl: widget.url,
+            currentUrl: current,
+            requestOrigin: requestOrigin,
+          );
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _handleDeviceRequest(WebViewPermissionRequest request) async {
+    if (request.types.length == 1 &&
+        request.types.contains(WebViewPermissionResourceType.camera) &&
+        await _allowsDeviceRequest()) {
+      final status = await Permission.camera.request();
+      if (status.isGranted && await _allowsDeviceRequest()) {
+        await request.grant();
+        return;
       }
-      await request.deny();
-    });
+    }
+    await request.deny();
   }
 
   @override

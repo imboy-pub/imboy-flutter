@@ -579,7 +579,7 @@ groupAlbumPhotoBatchDeleteTooltip: Löschen
 groupAlbumPhotoExitSelection: Auswahl verlassen
 groupAlbumPhotoOpenFailed: Bildlink kann nicht geöffnet werden
 groupAlbumPhotoNotFound: Bild existiert nicht oder wurde gelöscht
-groupAlbumPhotoOpenExternal: Extern öffnen
+groupAlbumPhotoOpenExternal: In der App öffnen
 groupAlbumPhotoCoverUpdated: Als Album-Cover festgelegt
 groupAlbumPhotoCoverFailed: Cover konnte nicht festgelegt werden. Bitte später erneut versuchen.
 groupAlbumPhotoNext: Weiter
