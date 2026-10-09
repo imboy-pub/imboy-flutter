@@ -180,7 +180,18 @@ class AssetsService {
     );
   }
 
+  /// S3 查询签名覆盖完整查询串，消费方不能再追加旧授权或缩放参数。
+  static bool isPresignedUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !{'http', 'https'}.contains(uri.scheme)) return false;
+    final query = uri.queryParameters;
+    return query['X-Amz-Algorithm'] == 'AWS4-HMAC-SHA256' &&
+        (query['X-Amz-Credential']?.isNotEmpty ?? false) &&
+        (query['X-Amz-Signature']?.isNotEmpty ?? false);
+  }
+
   static Uri viewUrl(String url) {
+    if (isPresignedUrl(url)) return Uri.parse(url);
     // Garage object_key：同步层不解析，原样透传给 async 下载边界
     // （IMBoyCacheManager / AssetUrlResolver）换取短时 presigned URL。
     if (isObjectKey(url)) {

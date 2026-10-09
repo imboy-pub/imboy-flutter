@@ -381,7 +381,9 @@ ImageProvider<Object> cachedImageProvider(String url, {double w = 400}) {
       return IMBoyCachedImageProvider(url, headers);
     }
     Uri u = AssetsService.viewUrl(url);
-    String finalUrl = w > 0 ? "${u.toString()}&width=$w" : u.toString();
+    String finalUrl = w > 0 && !AssetsService.isPresignedUrl(url)
+        ? "${u.toString()}&width=$w"
+        : u.toString();
     return IMBoyCachedImageProvider(finalUrl, headers);
   } on FormatException {
     return IconImageProvider(CupertinoIcons.photo);

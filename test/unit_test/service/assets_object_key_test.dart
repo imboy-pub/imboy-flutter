@@ -8,6 +8,8 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/assets.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/imboy_cached_image_provider.dart';
 
 void main() {
   group('AssetsService.isObjectKey', () {
@@ -60,6 +62,33 @@ void main() {
   });
 
   group('AssetsService.viewUrl 双模', () {
+    test('不完整签名和非 HTTP 地址不误判为预签名 URL', () {
+      expect(
+        AssetsService.isPresignedUrl(
+          'https://example.invalid/a?X-Amz-Signature=x',
+        ),
+        isFalse,
+      );
+      expect(
+        AssetsService.isPresignedUrl(
+          'file:///a?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=x&X-Amz-Signature=y',
+        ),
+        isFalse,
+      );
+    });
+
+    test('S3 预签名地址保留签名查询串，不追加旧授权参数', () {
+      const url =
+          'https://storage.example.invalid/bucket/a%20b.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test%2Fscope&X-Amz-SignedHeaders=host&X-Amz-Signature=abc123';
+      expect(AssetsService.viewUrl(url).toString(), url);
+      final provider = cachedImageProvider(url) as IMBoyCachedImageProvider;
+      expect(provider.url, url, reason: '默认缩略图宽度不能改动 S3 签名查询串');
+      expect(
+        (cachedImageProvider(url, w: 0) as IMBoyCachedImageProvider).url,
+        url,
+      );
+    });
+
     test('object_key 原样透传（toString 还原为 object_key 本身）', () {
       const key = 'u123/file_1717000000_a1b2c3d4e5f6a7b8/x.png';
       final uri = AssetsService.viewUrl(key);
