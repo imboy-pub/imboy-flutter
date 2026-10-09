@@ -130,13 +130,13 @@ void main() {
     final fakeService = _FakeGroupAlbumService(
       photos: [
         {
-          'id': 'legacy-1',
+          'id': '101',
           'photo_id': 'p1',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
         },
         {
-          'id': 'legacy-2',
+          'id': '102',
           'photo_id': 'p2',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
@@ -186,10 +186,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('detail-page'), findsOneWidget);
-    expect(capturedPhotoId, 'p1');
+    expect(capturedPhotoId, '101');
     expect(capturedExtra, isNotNull);
     expect(capturedExtra!['index'], 0);
-    expect(capturedExtra!['photo_ids'], ['p1', 'p2']);
+    expect(capturedExtra!['photo_ids'], ['101', '102']);
   });
 
   testWidgets('photo delete uses photo_id and refreshes on success', (

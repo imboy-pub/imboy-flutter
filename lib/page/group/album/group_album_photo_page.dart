@@ -316,15 +316,21 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     return (photo['photo_id'] ?? photo['id'])?.toString().trim() ?? '';
   }
 
+  // 详情接口按相册记录主键查找；photo_id 是存储文件标识。
+  String _resolveDetailPhotoId(Map<String, dynamic> photo) {
+    final id = (photo['id'] ?? photo['photo_id'])?.toString().trim() ?? '';
+    return BigInt.tryParse(id) != null ? id : '';
+  }
+
   Future<void> _openPhotoDetail(Map<String, dynamic> photo, int index) async {
-    final photoId = _resolveDeletePhotoId(photo);
+    final photoId = _resolveDetailPhotoId(photo);
     if (photoId.isEmpty) {
       AppLoading.showToast(t.group.groupAlbumPhotoIdMissing);
       return;
     }
 
     final photoIds = _photos
-        .map((item) => _resolveDeletePhotoId(item))
+        .map(_resolveDetailPhotoId)
         .where((id) => id.isNotEmpty)
         .toList();
 
@@ -333,7 +339,7 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
     final encodedAlbumName = Uri.encodeQueryComponent(widget.albumName);
     final result = await context.push<bool>(
       '/group/${widget.groupId}/album/$encodedAlbumId/photo/$encodedPhotoId?album_name=$encodedAlbumName',
-      extra: {'photo_ids': photoIds, 'index': index},
+      extra: {'photo_ids': photoIds, 'index': photoIds.indexOf(photoId)},
     );
     if (result == true && mounted) {
       await _loadPhotos(refresh: true);
