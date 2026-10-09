@@ -39,6 +39,15 @@ abstract interface class IGroupTaskService {
     List<String>? assigneeIds,
   });
 
+  Future<bool> updateTask({
+    required String groupId,
+    required dynamic taskId,
+    String? title,
+    String? description,
+    int? deadline,
+    int? status,
+  });
+
   Future<bool> submitTask({
     required String groupId,
     required dynamic taskId,
@@ -192,6 +201,7 @@ class GroupTaskService implements IGroupTaskService {
   // ==================== 任务操作 ====================
 
   /// 更新任务
+  @override
   Future<bool> updateTask({
     required String groupId,
     required dynamic taskId,

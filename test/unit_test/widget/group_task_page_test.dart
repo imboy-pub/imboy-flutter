@@ -100,6 +100,16 @@ class FakeGroupTaskService implements IGroupTaskService {
     lastSubmittedContent = content;
     return !shouldFailSubmit;
   }
+
+  @override
+  Future<bool> updateTask({
+    required String groupId,
+    required dynamic taskId,
+    String? title,
+    String? description,
+    int? deadline,
+    int? status,
+  }) async => true;
 }
 
 // ---------------------------------------------------------------------------
@@ -370,4 +380,14 @@ class _SlowFakeGroupTaskService implements IGroupTaskService {
   }) async {
     return false;
   }
+
+  @override
+  Future<bool> updateTask({
+    required String groupId,
+    required dynamic taskId,
+    String? title,
+    String? description,
+    int? deadline,
+    int? status,
+  }) async => false;
 }

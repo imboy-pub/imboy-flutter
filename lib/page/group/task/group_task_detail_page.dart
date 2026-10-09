@@ -5,6 +5,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/task/group_task_form.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -32,6 +33,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
   int _pendingReviewCount = 0;
   bool _isLoading = true;
   bool _isSubmitting = false;
+  bool _isSaving = false;
   Object? _error;
 
   bool _isCreator(Map<String, dynamic> task) {
@@ -123,6 +125,51 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
     }
   }
 
+  /// 创建者编辑作业（与后端 update 规则一致：仅创建者、已截止不可改）。
+  ///
+  /// 后端 update 的 task_id 只认内部数字主键（normalize_id），
+  /// 详情接口返回的原始行里带 `id`，优先取它，避免把形如
+  /// task.xxxx 的对外 uid 传过去被解析成 0 而报"作业ID必填"。
+  Future<void> _editTask() async {
+    final task = _task;
+    if (task == null || _isSaving) return;
+    final t = context.t;
+
+    final form = await showGroupTaskFormDialog(
+      context,
+      dialogTitle: t.groupTask.editTask,
+      initialTitle: _toText(task['title']),
+      initialDescription: _toText(task['description']),
+      confirmKey: const Key('edit_task_confirm'),
+      titleFieldKey: const Key('edit_task_title_field'),
+    );
+    if (form == null || !mounted) return;
+
+    setState(() => _isSaving = true);
+    final updateId = _toText(task['id']).isNotEmpty
+        ? _toText(task['id'])
+        : widget.taskId;
+    final success = await GroupTaskService.to.updateTask(
+      groupId: widget.groupId,
+      taskId: updateId,
+      title: form.title,
+      description: form.description,
+    );
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+    AppLoading.showToast(success ? t.common.saveSuccess : t.common.saveFailed);
+    if (success) {
+      await _loadDetail();
+    }
+  }
+
+  /// 是否可编辑：创建者 + 作业未截止（status 枚举 3=已截止）。
+  bool get _canEdit {
+    final task = _task;
+    if (task == null) return false;
+    return _isCreator(task) && _toInt(task['status']) != 3;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.t;
@@ -130,6 +177,15 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
       appBar: GlassAppBar(
         title: t.groupTask.title,
         automaticallyImplyLeading: true,
+        rightDMActions: [
+          if (_canEdit)
+            IconButton(
+              key: const Key('edit_task_action'),
+              icon: const Icon(CupertinoIcons.pencil, size: 22),
+              onPressed: _isSaving ? null : _editTask,
+              tooltip: t.groupTask.editTask,
+            ),
+        ],
       ),
       body: _buildBody(),
     );

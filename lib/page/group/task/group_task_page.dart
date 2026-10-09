@@ -6,6 +6,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/task/group_task_form.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -86,68 +87,26 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   }
 
   Future<void> _createTask() async {
-    final titleController = TextEditingController();
-    final descController = TextEditingController();
-
-    final result = await showCupertinoDialog<bool>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.groupTask.createTask),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            CupertinoTextField(
-              enableSuggestions: true,
-              autocorrect: true,
-              key: const Key('task_title_field'),
-              controller: titleController,
-              placeholder: t.groupTask.taskTitle,
-            ),
-            const SizedBox(height: AppSpacing.regular),
-            CupertinoTextField(
-              enableSuggestions: true,
-              autocorrect: true,
-              controller: descController,
-              maxLines: 3,
-              placeholder: t.groupTask.taskDescription,
-            ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(t.common.cancel),
-          ),
-          CupertinoDialogAction(
-            key: const Key('create_task_confirm'),
-            isDefaultAction: true,
-            onPressed: () {
-              if (titleController.text.isNotEmpty) {
-                Navigator.pop(ctx, true);
-              }
-            },
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
+    final t = context.t;
+    final form = await showGroupTaskFormDialog(
+      context,
+      dialogTitle: t.groupTask.createTask,
     );
 
-    if (result == true && titleController.text.isNotEmpty) {
-      final task = await GroupTaskService.to.createTask(
-        groupId: widget.groupId,
-        title: titleController.text,
-        description: descController.text,
-      );
-      if (!mounted) return;
-      if (task != null) {
-        _loadTasks();
-        if (task['message_status'] == 'failed') {
-          AppLoading.showError(t.common.sendFailed);
-        }
-      } else {
-        AppLoading.showError(t.common.tipFailed);
+    if (form == null || !mounted) return;
+    final task = await GroupTaskService.to.createTask(
+      groupId: widget.groupId,
+      title: form.title,
+      description: form.description,
+    );
+    if (!mounted) return;
+    if (task != null) {
+      _loadTasks();
+      if (task['message_status'] == 'failed') {
+        AppLoading.showError(t.common.sendFailed);
       }
+    } else {
+      AppLoading.showError(t.common.tipFailed);
     }
   }
 
