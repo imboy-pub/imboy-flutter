@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/config/env.dart';
+
 import 'package:flutter/foundation.dart';
 
 import 'package:imboy/config/const.dart';
@@ -262,6 +265,10 @@ class UserRepoLocal extends ChangeNotifier {
       unawaited(StorageService.to.setList(Keys.loginHistory, li));
     }
 
+    AppFeatureRegistry.bindScope(
+      endpoint: Env().apiBaseUrl,
+      uid: (payload['user_id'] ?? payload['uid']).toString(),
+    );
     await SecureTokenStorageService.saveToken(
       IMBoyHttpResponse.payloadStr(payload, 'token') ?? '',
     );
@@ -313,6 +320,7 @@ class UserRepoLocal extends ChangeNotifier {
   Future<bool> _clearLogin() async {
     try {
       final logoutUid = currentUid;
+      AppFeatureRegistry.bindScope(endpoint: Env().apiBaseUrl, uid: '');
       iPrint("> quitLogin: Starting logout process");
       if (to.isLoggedIn) {
         iPrint("> quitLogin: User is logged in");

@@ -647,6 +647,10 @@ class AppInitializer {
       logger.i('✅ Using cached initConfig (apiPublicKey exists)');
     }
 
+    AppFeatureRegistry.bindScope(
+      endpoint: Env().apiBaseUrl,
+      uid: UserRepoLocal.to.currentUid,
+    );
     await AppFeatureRegistry.refresh();
     AppManifestService.loadFromCache();
     await AppManifestService.refresh();

@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_scope.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
@@ -18,6 +20,10 @@ void main() {
   late List<RequestOptions> requests;
 
   setUp(() async {
+    AppFeatureRegistry.bindScope(
+      endpoint: 'http://localhost:29921',
+      uid: 'cache-test',
+    );
     await AppManifestService.clear();
     requests = [];
     client = HttpClient();
@@ -51,14 +57,10 @@ void main() {
   test(
     'invalid cached manifest cannot send an ETag and stay stuck on 304',
     () async {
-      await StorageService.setMap(Keys.appManifest, {
-        ...matchingManifest(),
-        'compiled_features': <String>[],
+      await StorageService.setMap(FeatureScope.cacheKey(Keys.appManifest), {
+        'body': {...matchingManifest(), 'compiled_features': <String>[]},
+        'etag': '"synthetic-manifest"',
       });
-      await StorageService.to.setString(
-        Keys.appManifestEtag,
-        '"synthetic-manifest"',
-      );
       AppManifestService.loadFromCache();
       expect(AppManifestService.manifest, isNull);
       await AppManifestService.refresh();
@@ -71,11 +73,10 @@ void main() {
   );
 
   test('compatible cache retains ETag optimization and survives 304', () async {
-    await StorageService.setMap(Keys.appManifest, matchingManifest());
-    await StorageService.to.setString(
-      Keys.appManifestEtag,
-      '"synthetic-manifest"',
-    );
+    await StorageService.setMap(FeatureScope.cacheKey(Keys.appManifest), {
+      'body': matchingManifest(),
+      'etag': '"synthetic-manifest"',
+    });
     AppManifestService.loadFromCache();
     await AppManifestService.refresh();
     expect(requests.single.headers['if-none-match'], '"synthetic-manifest"');
@@ -88,11 +89,10 @@ void main() {
   test(
     'fresh response without ETag invalidates the old conditional validator',
     () async {
-      await StorageService.setMap(Keys.appManifest, matchingManifest());
-      await StorageService.to.setString(
-        Keys.appManifestEtag,
-        '"synthetic-manifest"',
-      );
+      await StorageService.setMap(FeatureScope.cacheKey(Keys.appManifest), {
+        'body': matchingManifest(),
+        'etag': '"synthetic-manifest"',
+      });
       AppManifestService.loadFromCache();
       client.dio.interceptors.clear();
       client.dio.interceptors.add(
@@ -113,7 +113,10 @@ void main() {
       await AppManifestService.refresh();
       expect(requests.first.headers['if-none-match'], '"synthetic-manifest"');
       expect(requests.last.headers['if-none-match'], isNull);
-      expect(StorageService.to.containsKey(Keys.appManifestEtag), isFalse);
+      expect(
+        StorageService.getMap(FeatureScope.cacheKey(Keys.appManifest))['etag'],
+        isNull,
+      );
     },
   );
 
@@ -122,4 +125,15 @@ void main() {
     AppManifestService.loadFromCache();
     expect(AppManifestService.manifest, isNull);
   });
+  test(
+    'legacy unscoped cache and ETag never become another account cache',
+    () async {
+      await StorageService.setMap(Keys.appManifest, matchingManifest());
+      await StorageService.to.setString(Keys.appManifestEtag, '"legacy"');
+      AppManifestService.loadFromCache();
+      expect(AppManifestService.manifest, isNull);
+      await AppManifestService.refresh();
+      expect(requests.single.headers['if-none-match'], isNull);
+    },
+  );
 }

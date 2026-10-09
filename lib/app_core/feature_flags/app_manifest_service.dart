@@ -6,6 +6,8 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/service/storage.dart';
 
 import 'generated_product_features.dart';
+import 'feature_scope.dart';
+import 'scoped_preference_writer.dart';
 
 class AppManifestMismatchException implements Exception {
   const AppManifestMismatchException(this.message);
@@ -112,26 +114,52 @@ class AppManifest {
 class AppManifestService {
   static AppManifest? _cache;
   static String? _etag;
+  static String? _scope;
+  static int _epoch = -1;
+  static int _latestRequest = 0;
 
-  static AppManifest? get manifest => _cache;
+  static AppManifest? get manifest {
+    _checkScope();
+    return _cache;
+  }
+
+  static void _checkScope() {
+    if (_scope == FeatureScope.key && _epoch == FeatureScope.epoch) return;
+    _scope = FeatureScope.key;
+    _epoch = FeatureScope.epoch;
+    _cache = null;
+    _etag = null;
+  }
 
   /// Load cached manifest from local storage (synchronous).
   static void loadFromCache() {
+    _checkScope();
     _cache = null;
     _etag = null;
-    final raw = StorageService.getMap(Keys.appManifest);
+    if (_scope == null) return;
+    final envelope = StorageService.getMap(
+      FeatureScope.cacheKey(Keys.appManifest),
+    );
+    final body = envelope['body'];
+    if (body is! Map) return;
+    final raw = Map<String, dynamic>.from(body);
     if (raw.isNotEmpty &&
         _useIfCompatible(AppManifest.fromMap(raw), source: 'cache')) {
-      // A conditional request is valid only while its cached body is usable.
-      final cachedEtag = StorageService.to.getString(Keys.appManifestEtag);
-      _etag = cachedEtag.isEmpty ? null : cachedEtag;
+      _etag = envelope['etag'] is String ? envelope['etag'] as String : null;
     }
   }
 
   /// Fetch manifest from server and update cache.
   /// Sends If-None-Match header when a cached etag exists.
   /// Returns early on 304 (content unchanged).
-  static Future<void> refresh() async {
+  static Future<bool> refresh() async {
+    _checkScope();
+    final scope = _scope;
+    final epoch = _epoch;
+    final request = ++_latestRequest;
+    bool current() =>
+        FeatureScope.matches(scope, epoch) && request == _latestRequest;
+    if (scope == null) return false;
     try {
       final options = Options(
         validateStatus: (s) => s == 200 || s == 304,
@@ -146,37 +174,46 @@ class AppManifestService {
         options: options,
       );
 
+      if (!current()) return false;
+
       if (response.statusCode == 304) {
-        return;
+        return _cache != null;
       }
 
       if (response.statusCode != 200 || response.data is! Map) {
-        return;
+        return false;
       }
 
       final raw = Map<String, dynamic>.from(response.data as Map);
       final manifest = AppManifest.fromMap(raw);
-      if (!_useIfCompatible(manifest, source: 'response')) {
-        return;
-      }
-      await _persistCache(raw, response.headers.value('etag'));
+      manifest.ensureBuildCompatible();
+      final etag = response.headers.value('etag');
+      final persisted = await _persistCache(raw, etag, scope, current);
+      if (!persisted) return false;
+      _etag = etag;
+      if (!current()) return false;
+      _cache = manifest;
+      return true;
     } catch (error) {
       debugPrint('[app_manifest_service] setString error: $error');
+      return false;
     }
   }
 
-  static Future<void> _persistCache(
+  static Future<bool> _persistCache(
     Map<String, dynamic> raw,
     String? etag,
-  ) async {
-    await StorageService.setMap(Keys.appManifest, raw);
-    _etag = etag;
-    if (etag != null) {
-      await StorageService.to.setString(Keys.appManifestEtag, etag);
-    } else {
-      await StorageService.to.remove(Keys.appManifestEtag);
-    }
-  }
+    String scope,
+    bool Function() current,
+  ) => ScopedPreferenceWriter.write(
+    isCurrent: current,
+    operation: () => StorageService.to.persistPreference(
+      () => StorageService.setMap(
+        FeatureScope.cacheKey(Keys.appManifest, scope),
+        {'body': raw, 'etag': etag},
+      ),
+    ),
+  );
 
   static bool _useIfCompatible(AppManifest manifest, {required String source}) {
     try {
@@ -195,18 +232,31 @@ class AppManifestService {
 
   /// Replace cache for testing.
   static void replaceForTest(Map<String, dynamic> raw) {
+    _checkScope();
     _cache = AppManifest.fromMap(raw);
   }
 
   @visibleForTesting
   static bool replaceIfCompatibleForTest(Map<String, dynamic> raw) =>
-      _useIfCompatible(AppManifest.fromMap(raw), source: 'test');
+      _replaceCompatible(raw);
+
+  static bool _replaceCompatible(Map<String, dynamic> raw) {
+    _checkScope();
+    return _useIfCompatible(AppManifest.fromMap(raw), source: 'test');
+  }
 
   /// Clear cache.
   static Future<void> clear() async {
+    _checkScope();
     _cache = null;
     _etag = null;
-    await StorageService.to.remove(Keys.appManifest);
-    await StorageService.to.remove(Keys.appManifestEtag);
+    if (_scope == null) return;
+    final key = FeatureScope.cacheKey(Keys.appManifest);
+    await ScopedPreferenceWriter.write(
+      isCurrent: () => true,
+      operation: () async {
+        await StorageService.to.remove(key);
+      },
+    );
   }
 }
