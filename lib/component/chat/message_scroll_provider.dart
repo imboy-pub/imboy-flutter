@@ -42,9 +42,16 @@ class MessageScrollState {
 
 /// 消息滚动管理器
 /// 处理消息列表的滚动、定位和动画效果
+///
+/// 注意：本类不拥有 [ScrollController]。controller 由聊天页 State 创建并在
+/// dispose 时销毁，经 [attachScrollController] 注入。若由本类（autoDispose
+/// provider）持有并在 ref.onDispose 中销毁，页面退出时 provider 回收与
+/// Scrollable unmount 的时序不受控，惯性滚动动画仍会驱动已销毁的
+/// controller，触发 "A ScrollController was used after being disposed"。
 @riverpod
 class MessageScrollManager extends _$MessageScrollManager {
-  final ScrollController scrollController = ScrollController();
+  // 由聊天页注入的消息列表 controller（所有权在页面 State）
+  ScrollController? _scrollController;
 
   // 消息位置缓存 {conversationId: {messageId: offset}}
   final Map<String, Map<String, double>> _messagePositions = {};
@@ -65,48 +72,59 @@ class MessageScrollManager extends _$MessageScrollManager {
     ref.onDispose(() {
       _isDisposed = true;
       _autoScrollTimer?.cancel();
-      scrollController.dispose();
+      // controller 由页面 State 销毁，这里只解除引用
+      _scrollController = null;
     });
-
-    // 初始化滚动监听器
-    _initScrollListener();
 
     return MessageScrollState();
   }
 
-  /// 初始化滚动监听器
-  void _initScrollListener() {
-    scrollController.addListener(() {
-      final maxScroll = scrollController.position.maxScrollExtent;
-      final currentScroll = scrollController.position.pixels;
+  /// 注入聊天页持有的消息列表 controller（幂等）
+  void attachScrollController(ScrollController controller) {
+    if (_isDisposed || identical(_scrollController, controller)) return;
+    _scrollController = controller;
+    controller.removeListener(_onScroll);
+    controller.addListener(_onScroll);
+  }
 
-      state = state.copyWith(
-        scrollPosition: currentScroll,
-        isAtBottom: maxScroll - currentScroll <= _scrollThreshold,
-      );
+  /// 当前注入的 controller（页面已销毁时为 null，调用方需判空）
+  ScrollController? get scrollControllerOrNull => _scrollController;
 
-      // 检测滚动状态
-      if (state.isScrolling && !scrollController.position.hasPixels) {
-        state = state.copyWith(isScrolling: false);
-      }
-    });
+  /// 滚动位置监听
+  void _onScroll() {
+    final controller = _scrollController;
+    if (controller == null || !controller.hasClients) return;
+
+    final maxScroll = controller.position.maxScrollExtent;
+    final currentScroll = controller.position.pixels;
+
+    state = state.copyWith(
+      scrollPosition: currentScroll,
+      isAtBottom: maxScroll - currentScroll <= _scrollThreshold,
+    );
+
+    // 检测滚动状态
+    if (state.isScrolling && !controller.position.hasPixels) {
+      state = state.copyWith(isScrolling: false);
+    }
   }
 
   /// 滚动到底部
   Future<void> scrollToBottom({bool animated = true}) async {
+    final controller = _scrollController;
     // 检查是否已释放或 ScrollController 无效
-    if (_isDisposed || !scrollController.hasClients) return;
+    if (_isDisposed || controller == null || !controller.hasClients) return;
 
     state = state.copyWith(isScrolling: true);
 
     if (animated) {
-      await scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+      await controller.animateTo(
+        controller.position.maxScrollExtent,
         duration: _scrollDuration,
         curve: Curves.easeInOut,
       );
     } else {
-      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+      controller.jumpTo(controller.position.maxScrollExtent);
     }
 
     // 再次检查，防止异步操作期间被释放
@@ -125,7 +143,8 @@ class MessageScrollManager extends _$MessageScrollManager {
     Duration? duration, // 自定义动画时长
   }) async {
     // 检查是否已释放或 ScrollController 无效
-    if (_isDisposed || !scrollController.hasClients) {
+    final controller = _scrollController;
+    if (_isDisposed || controller == null || !controller.hasClients) {
       iPrint('ScrollController无效，无法滚动');
       return;
     }
@@ -149,7 +168,7 @@ class MessageScrollManager extends _$MessageScrollManager {
     }
 
     // 再次检查是否已释放或无效（防止异步操作期间被释放）
-    if (_isDisposed || !scrollController.hasClients) {
+    if (_isDisposed || !controller.hasClients) {
       state = state.copyWith(isScrolling: false);
       iPrint('ScrollController已失效');
       return;
@@ -158,18 +177,18 @@ class MessageScrollManager extends _$MessageScrollManager {
     // 计算目标位置，考虑偏移量
     final targetPosition = (position - offset).clamp(
       0.0,
-      scrollController.position.maxScrollExtent,
+      controller.position.maxScrollExtent,
     );
 
     if (animated) {
       // 使用更平滑的动画曲线
-      await scrollController.animateTo(
+      await controller.animateTo(
         targetPosition,
         duration: scrollDuration,
         curve: Curves.easeOutCubic,
       );
     } else {
-      scrollController.jumpTo(targetPosition);
+      controller.jumpTo(targetPosition);
     }
 
     // 更新滚动状态
@@ -204,19 +223,20 @@ class MessageScrollManager extends _$MessageScrollManager {
 
   /// 滚动到指定位置
   Future<void> scrollToPosition(double position, {bool animated = true}) async {
+    final controller = _scrollController;
     // 检查是否已释放或 ScrollController 无效
-    if (_isDisposed || !scrollController.hasClients) return;
+    if (_isDisposed || controller == null || !controller.hasClients) return;
 
     state = state.copyWith(isScrolling: true);
 
     if (animated) {
-      await scrollController.animateTo(
+      await controller.animateTo(
         position,
         duration: _scrollDuration,
         curve: Curves.easeInOut,
       );
     } else {
-      scrollController.jumpTo(position);
+      controller.jumpTo(position);
     }
 
     // 更新滚动状态
@@ -321,9 +341,10 @@ class MessageScrollManager extends _$MessageScrollManager {
 
     // 缓存新消息位置（优化位置估算）
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
+      final controller = _scrollController;
+      if (controller != null && controller.hasClients) {
         // 更精确的位置估算
-        final maxScroll = scrollController.position.maxScrollExtent;
+        final maxScroll = controller.position.maxScrollExtent;
         final estimatedPosition = maxScroll + 80.0; // 更合理的偏移量
         cacheMessagePosition(conversationId, message.id, estimatedPosition);
 
@@ -360,12 +381,13 @@ class MessageScrollManager extends _$MessageScrollManager {
 
   /// 获取滚动位置信息
   Map<String, dynamic> getScrollInfo() {
+    final controller = _scrollController;
     return {
       'isScrolling': state.isScrolling,
       'isAtBottom': state.isAtBottom,
       'scrollPosition': state.scrollPosition,
-      'maxScrollExtent': scrollController.hasClients
-          ? scrollController.position.maxScrollExtent
+      'maxScrollExtent': controller != null && controller.hasClients
+          ? controller.position.maxScrollExtent
           : 0.0,
     };
   }
@@ -505,7 +527,8 @@ class MessagePositionListener extends ConsumerWidget {
   /// 更新消息位置
   void _updateMessagePositions(WidgetRef ref) {
     final manager = ref.read(messageScrollManagerProvider.notifier);
-    if (!manager.scrollController.hasClients) return;
+    final controller = manager.scrollControllerOrNull;
+    if (controller == null || !controller.hasClients) return;
 
     final positions = <String, double>{};
 

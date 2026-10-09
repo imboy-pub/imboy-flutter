@@ -225,6 +225,12 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 用于定位目标消息的 GlobalKey
   final GlobalKey _targetMessageKey = GlobalKey();
 
+  // 消息列表滚动 controller：由本页 State 创建并销毁。
+  // 不放入 autoDispose 的 MessageScrollManager：provider 回收与列表
+  // Scrollable unmount 时序不受控，惯性滚动中退出页面会触发
+  // "A ScrollController was used after being disposed" 断言。
+  final ScrollController _messageScrollController = ScrollController();
+
   // 保存 ChatNotifier 引用，用于在 dispose 中安全访问
   late final ChatNotifier _chatNotifier;
 
@@ -324,6 +330,12 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 延迟初始化控制器（需要 ref 访问）
   void _initializeControllers() {
+    // 把本页持有的 controller 注入滚动管理器（幂等）；provider 若中途被
+    // 回收重建，_buildChatWidget 会再次补挂，见其开头
+    ref
+        .read(messageScrollManagerProvider.notifier)
+        .attachScrollController(_messageScrollController);
+
     // 在 build 方法中通过 ref.watch 获取 state
     final chatState = ref.read(chatProvider);
     composerHeightNotifier = ValueNotifier<double>(chatState.composerHeight);
@@ -840,6 +852,10 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 清理 composerHeightNotifier
     composerHeightNotifier.dispose();
 
+    // 销毁本页持有的消息列表滚动 controller（此刻子树已 unmount，
+    // ScrollPosition 已 detach，是安全的销毁时机）
+    _messageScrollController.dispose();
+
     // 清理消息ID集合
     msgIds.clear();
 
@@ -981,9 +997,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 假设平均消息高度为100像素（带头像和间距的消息通常更高）
       double estimatedOffset = targetIndex * 100.0;
 
-      final scrollController = ref
-          .read(messageScrollManagerProvider.notifier)
-          .scrollController;
+      final scrollController = _messageScrollController;
       if (scrollController.hasClients) {
         final maxScroll = scrollController.position.maxScrollExtent;
         final targetPosition = estimatedOffset.clamp(0.0, maxScroll);
@@ -1893,6 +1907,12 @@ class ChatPageState extends ConsumerState<ChatPage>
     ThemeData theme,
     ChatState chatState,
   ) {
+    // 滚动管理器是 autoDispose provider，若中途被回收重建，这里补挂本页
+    // controller（attach 为幂等操作）
+    ref
+        .read(messageScrollManagerProvider.notifier)
+        .attachScrollController(_messageScrollController);
+
     // 使用 flutter_chat_ui 的 Chat widget
     // 注意：flutter_chat_ui 内部通过 `Provider.value(value: widget.chatController)` 把
     // controller 注入子 widget，chat_animated_list 在 initState 时 `context.read` 一次性
@@ -1972,9 +1992,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                       ref.read(chatProvider.notifier).chatService?.messages ??
                       [],
                   currentUserId: currentUser.id,
-                  scrollController: ref
-                      .read(messageScrollManagerProvider.notifier)
-                      .scrollController,
+                  scrollController: _messageScrollController,
                   targetMsgId: widget.msgId,
                   targetMessageKey: _targetMessageKey,
                   onMessageLongPress: (msg) => _onMessageLongPress(
@@ -2000,9 +2018,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                   ),
                 )
               : ChatAnimatedList(
-                  scrollController: ref
-                      .read(messageScrollManagerProvider.notifier)
-                      .scrollController,
+                  scrollController: _messageScrollController,
                   reversed: true,
                   itemBuilder: itemBuilder,
                   onEndReached: () async {
