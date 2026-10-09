@@ -379,6 +379,18 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
                       ),
                       const SizedBox(height: AppSpacing.tiny),
                       Text(
+                        row['retention_state'] == 'retained'
+                            ? context.t.attachmentManager.enterpriseRetained
+                            : context.t.attachmentManager.enterpriseUnmanaged,
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: row['retention_state'] == 'retained'
+                              ? AppColors.getIosGreen(brightness)
+                              : AppColors.getIosOrange(brightness),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.tiny),
+                      Text(
                         _metadata(row),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
