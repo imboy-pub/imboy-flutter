@@ -1,5 +1,6 @@
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/group_collaboration_summary.dart';
 import 'package:imboy/service/storage.dart';
@@ -136,8 +137,6 @@ class ConversationModel {
       return "[${t.common.tipDraft}]_color_red_$draft";
     }
 
-    String str = t.common.unknownMessage;
-
     // 方案 D: 优先检查 lastMsgStatus 字段（撤回状态 30-39）
     if (lastMsgStatus != null) {
       if (lastMsgStatus == IMBoyMessageStatus.peerRevoked) {
@@ -165,53 +164,25 @@ class ConversationModel {
       fallbackTitle: subtitle,
     );
     if (collaboration != null) return collaboration;
-    // 普通消息类型
+    // 普通消息类型：全类型收口到共享预览（与工作台会话列表、通知同一条链，
+    // messagePreviewText 内覆盖 expression/textStream/imageMulti/channelCard
+    // 等曾落「[未知消息]」的类型）。text/quote 沿用库内 subtitle——它是
+    // 编辑/撤回后仍被同步维护的权威摘要；subtitle 缺失时 helper 自会
+    // 从 payload 提取并兜底，不再出现「[]」「[未知消息]」。
     if (msgType == MessageType.text || msgType == '') {
       return subtitle;
     } else if (msgType == MessageType.quote) {
       return subtitle;
-    } else if (msgType == MessageType.image) {
-      str = t.chat.image;
-    } else if (msgType == MessageType.file) {
-      str = t.chat.file;
-    } else if (msgType == MessageType.voice) {
-      str = t.chat.voiceMessage;
-    } else if (msgType == MessageType.video) {
-      str = t.chat.video;
-    } else if (msgType == MessageType.webrtcAudio) {
-      str = t.common.voiceCall;
-    } else if (msgType == MessageType.webrtcVideo) {
-      str = t.common.videoCall;
-    } else if (msgType == MessageType.redPacket) {
-      // 会话副标题可能为空（旧版本红包/转账未写 subtitle），
-      // 显式白名单避免落「[未知消息]」；subtitle 非空时追加红包祝福语
-      str = t.common.redPacket;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.transfer) {
-      str = t.common.transfer;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.visitCard) {
-      str = t.common.personalCard;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.location) {
-      str = t.groupSchedule.location;
-      return "[$str]$subtitle";
-    } else if (msgType == MessageType.custom) {
-      str = subtitle;
     } else if (msgType == 'empty') {
       return '';
-    } else if (subtitle.trim().isNotEmpty) {
-      // 上面这串 if/else 是一张**枚举白名单**，任何没列进去的类型
-      // （expression / textStream / imageMulti / redPacket / transfer /
-      // groupSchedule / 群系统通知 / 以后新增的类型…）一律落到「未知消息」。
-      // 生产实测：群 99746135830431744 最后一条是 `expression`，会话列表就显示
-      // 「[未知消息]」，而它的 subtitle 明明是 `👏`。
-      //
-      // subtitle 已经是这条消息的可读摘要，有它就用它 —— 比「未知消息」永远更好，
-      // 且对将来新增的消息类型自动生效，不用每加一种类型就回来补一次白名单。
+    } else if (msgType == MessageType.custom && subtitle.trim().isNotEmpty) {
       return subtitle;
     }
-    return "[$str]";
+    return messagePreviewText(
+      msgType,
+      payload ?? const <String, dynamic>{},
+      fallbackSubtitle: subtitle,
+    );
   }
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {

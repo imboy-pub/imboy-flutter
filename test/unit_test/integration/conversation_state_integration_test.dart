@@ -553,7 +553,7 @@ void main() {
 
         final content = conv.content;
 
-        expect(content, '[地点]北京市朝阳区建国路88号');
+        expect(content, '[位置消息]北京市朝阳区建国路88号');
         expect(content, contains('北京市朝阳区建国路88号'));
       });
 

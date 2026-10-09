@@ -219,7 +219,7 @@ class MessageWebrtc {
       // ⚠️ 通话记录落库后必须同步 upsert 会话元数据：旧实现只写消息表，
       // 会话表 subtitle/msgType 停留在上一条消息的值（甚至为空），
       // 会话列表把通话会话显示成「[未知消息]」（生产实测）。
-      // subtitle 文案与 MessageService._messageTypeLabel 的 webrtc case 保持一致。
+      // subtitle 文案与 messagePreviewText 的 webrtc case 保持一致。
       final conv = ConversationModel(
         peerId: int.tryParse(peerUid) ?? 0,
         avatar: peer.avatar,

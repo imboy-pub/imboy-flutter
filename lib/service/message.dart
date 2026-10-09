@@ -13,7 +13,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/message_conversation_utils.dart';
-import 'package:imboy/service/group_collaboration_summary.dart';
+import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/service/group_notice_config.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/modules/enterprise_app/public.dart'
@@ -1525,61 +1525,13 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
-  /// 根据消息类型生成显示文本（通知/副标题通用）
-  String _messageTypeLabel(
-    String messageType,
-    Map<String, dynamic> payload, {
-    String fallback = '[消息]',
-  }) {
-    switch (messageType) {
-      case 'text':
-        return payload['text']?.toString() ?? '';
-      case 'image':
-        return '[图片]';
-      case 'voice':
-        final duration = (payload['duration']?.toInt() ?? 0) as int;
-        return duration > 0 ? '[语音 $duration"]' : '[语音]';
-      case 'video':
-        return '[视频]';
-      case 'file':
-        final filename = payload['filename']?.toString() ?? '';
-        return filename.isNotEmpty ? '📄 $filename' : '[文件]';
-      case 'quote':
-        return payload['quote_text']?.toString() ?? '[引用]';
-      case 'location':
-        return '[位置] ${payload['title']?.toString() ?? ''}';
-      // ⚠️ 历史脏数据可能用下划线命名持久化，常量是驼峰（MessageType.webrtcAudio）
-      // 双 case 都接住，避免新旧数据都 fallback 成「[消息]」
-      case 'webrtc_audio':
-      case 'webrtcAudio':
-        return '[语音通话]';
-      case 'webrtc_video':
-      case 'webrtcVideo':
-        return '[视频通话]';
-      case 'redPacket':
-        final greeting = payload['greeting']?.toString() ?? '';
-        return greeting.isNotEmpty ? '[红包] $greeting' : '[红包]';
-      case 'transfer':
-        final remark = payload['remark']?.toString() ?? '';
-        return remark.isNotEmpty ? '[转账] $remark' : '[转账]';
-      case 'revoked':
-        return '[消息已撤回]';
-      case 'custom':
-        return '';
-      default:
-        final text = payload['text']?.toString();
-        return (text != null && text.isNotEmpty) ? text : fallback;
-    }
-  }
-
   /// 获取通知内容
   String _getNotificationContent(MessageModel msg) {
-    return groupCollaborationSummary(
-          msg.msgType ?? '',
-          msg.payloadMap,
-          includeLabel: true,
-        ) ??
-        _messageTypeLabel(msg.msgType ?? '', msg.payloadMap, fallback: '[新消息]');
+    return messagePreviewText(
+      msg.msgType ?? '',
+      msg.payloadMap,
+      fallback: '[新消息]',
+    );
   }
 
   /// Handle error codes from server
@@ -1595,9 +1547,13 @@ class MessageService with EventSubscriptionManager {
     }
   }
 
+  /// 消息副标题（聊天页内会话摘要等场景）
+  ///
+  /// 文案收口到 [messagePreviewText]：与个人/工作台会话列表同一条类型链，
+  /// 新增消息类型只补 helper 一处，通知与各列表自动生效
+  ///（原 _messageTypeLabel 是又一份独立白名单，协作卡/名片等类型漏译）。
   String _getMessageSubtitle(String messageType, Map<String, dynamic> payload) {
-    return groupCollaborationSummary(messageType, payload) ??
-        _messageTypeLabel(messageType, payload, fallback: '[消息]');
+    return messagePreviewText(messageType, payload);
   }
 
   // 便捷转发方法

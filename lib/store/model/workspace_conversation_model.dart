@@ -1,5 +1,6 @@
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
@@ -99,15 +100,10 @@ class WorkspaceConversationModel {
     if ((body['burn_after'] ?? 0) != 0 || (envelope['burn_after'] ?? 0) != 0) {
       return '';
     }
-    return switch (msg['msg_type']) {
-      'text' || 'quote' =>
-        body['text'] is String
-            ? body['text'] as String
-            : (body['content'] is String ? body['content'] as String : ''),
-      'image' => t.chat.imageMessage,
-      'video' => t.chat.videoMessage,
-      'file' => t.chat.file,
-      _ => t.chat.invalidMessageType,
-    };
+    // 预览文案全类型收口到 messagePreviewText：聊天页能渲染的类型
+    // （群作业/群投票/群日程/语音/红包/通话等）这里都必须有可读摘要，
+    // 不能再显示「[不支持的消息]」——白名单只写 5 种类型曾让
+    // 企业工作台群聊列表与聊天页能力脱节（EO-20261009）。
+    return messagePreviewText('${msg['msg_type']}', body);
   }
 }

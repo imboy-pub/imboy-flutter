@@ -11,6 +11,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
@@ -599,52 +600,11 @@ class OfflineMessageWriter {
       }
     }
 
-    // 【简化】使用 effectiveMsgType 判断内容类型
-    String subtitle;
-    switch (effectiveMsgType) {
-      case 'text':
-        subtitle = (payload['text'] ?? '').toString();
-        break;
-      case 'quote':
-        subtitle = (payload['quote_text'] ?? '').toString();
-        break;
-      case 'location':
-        subtitle = (payload['title'] ?? '[位置]').toString();
-        break;
-      case 'image':
-        subtitle = '[图片]';
-        break;
-      case 'imageMulti':
-        subtitle = '[多图]';
-        break;
-      case 'voice':
-        subtitle = '[语音]';
-        break;
-      case 'video':
-        subtitle = '[视频]';
-        break;
-      case 'file':
-        final filename = payload['filename']?.toString() ?? '';
-        final name = payload['name']?.toString() ?? '';
-        subtitle = filename.isNotEmpty
-            ? filename
-            : (name.isNotEmpty ? name : '[文件]');
-        break;
-      case 'webrtcAudio':
-      case 'webrtcVideo':
-        subtitle = '[通话]';
-        break;
-      case 'visitCard':
-        subtitle = '[名片]';
-        break;
-      case 'system':
-        subtitle = '[系统消息]';
-        break;
-      default:
-        // 未知类型，尝试从 text 字段获取
-        subtitle = (payload['text'] ?? '[消息]').toString();
-        break;
-    }
+    // 内容摘要全类型收口到 messagePreviewText（与会话列表/通知同一条链）。
+    // 原白名单缺 groupTask/groupVote/groupSchedule/redPacket/transfer/
+    // visitCard/expression/imageMulti/channelCard，这些类型一律落 default
+    // 写成「[消息]」，下游按 subtitle 展示就与消息内容脱节。
+    final subtitle = messagePreviewText(effectiveMsgType, payload);
 
     if (kDebugMode) {
       func_helper.iPrint(

@@ -22,6 +22,10 @@ String messageKindLabel(String msgType) => switch (msgType) {
   MessageType.webrtcAudio => t.common.voiceCall,
   MessageType.webrtcVideo => t.common.videoCall,
   MessageType.groupSchedule => t.groupSchedule.title,
+  // 群协作卡三件套在 CustomMessageBuilder 里都有专属卡片，读屏同样
+  // 要念出类型名，不能落 `_ => customMessage` 念成「自定义消息」
+  MessageType.groupVote => t.groupVote.title,
+  MessageType.groupTask => t.groupTask.title,
   MessageType.unsupported => t.chat.unsupportedMessageType,
   _ => t.chat.customMessage,
 };
