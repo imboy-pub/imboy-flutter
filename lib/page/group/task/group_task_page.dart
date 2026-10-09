@@ -378,7 +378,8 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                     ),
                   ],
                   // 发布人 · 发布时间 meta 行（发布人解析失败时只显示时间）
-                  if (creatorName.isNotEmpty || createdAt != null) ...[
+                  if (creatorName.isNotEmpty ||
+                      (createdAt != null && createdAt > 0)) ...[
                     const SizedBox(height: AppSpacing.tiny),
                     Text(
                       _publishedMeta(creatorName, createdAt),

@@ -2176,6 +2176,22 @@ class _Translations$groupSchedule$en_US extends Translations$groupSchedule$zh_CN
 	@override String get scheduleIdMissing => 'Schedule ID missing, cannot view details';
 	@override String get untitledSchedule => 'Untitled schedule';
 	@override String get cardViewAndAttend => 'View details and RSVP';
+	@override String get cardViewDetail => 'View details';
+	@override String get organizer => 'Organizer';
+	@override String get participantAttending => 'Joined';
+	@override String get participantDeclined => 'Declined';
+	@override String get participantPending => 'Pending';
+	@override String attendSummary({required Object attending, required Object total}) => '${attending}/${total} joined';
+	@override String remindBefore({required Object minutes}) => 'Reminds ${minutes} min before';
+	@override String duration({required Object minutes}) => 'About ${minutes} min';
+	@override String get hintToday => 'today';
+	@override String get hintTomorrow => 'tomorrow';
+	@override String startsHint({required Object hint, required Object time}) => 'Starts ${hint} at ${time}';
+	@override String get sectionToday => 'Today';
+	@override String get sectionThisWeek => 'This Week';
+	@override String get sectionLater => 'Later';
+	@override String allParticipants({required Object count}) => 'All participants (${count})';
+	@override String get collapseParticipants => 'Collapse';
 }
 
 // Path: groupTag
@@ -5323,6 +5339,22 @@ extension on TranslationsEnUs {
 			'groupSchedule.scheduleIdMissing' => 'Schedule ID missing, cannot view details',
 			'groupSchedule.untitledSchedule' => 'Untitled schedule',
 			'groupSchedule.cardViewAndAttend' => 'View details and RSVP',
+			'groupSchedule.cardViewDetail' => 'View details',
+			'groupSchedule.organizer' => 'Organizer',
+			'groupSchedule.participantAttending' => 'Joined',
+			'groupSchedule.participantDeclined' => 'Declined',
+			'groupSchedule.participantPending' => 'Pending',
+			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} joined',
+			'groupSchedule.remindBefore' => ({required Object minutes}) => 'Reminds ${minutes} min before',
+			'groupSchedule.duration' => ({required Object minutes}) => 'About ${minutes} min',
+			'groupSchedule.hintToday' => 'today',
+			'groupSchedule.hintTomorrow' => 'tomorrow',
+			'groupSchedule.startsHint' => ({required Object hint, required Object time}) => 'Starts ${hint} at ${time}',
+			'groupSchedule.sectionToday' => 'Today',
+			'groupSchedule.sectionThisWeek' => 'This Week',
+			'groupSchedule.sectionLater' => 'Later',
+			'groupSchedule.allParticipants' => ({required Object count}) => 'All participants (${count})',
+			'groupSchedule.collapseParticipants' => 'Collapse',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
@@ -5421,6 +5453,8 @@ extension on TranslationsEnUs {
 			'main.markStar' => 'Favorite',
 			'main.multiSelect' => 'Multi-select',
 			'main.myFavorites' => 'My favorites',
+			_ => null,
+		} ?? switch (path) {
 			'main.myLive' => 'My live',
 			'main.name' => 'Name',
 			'main.numUnit' => ({required Object param}) => '${param} items',
@@ -5437,8 +5471,6 @@ extension on TranslationsEnUs {
 			'main.releaseEnd' => 'Release to end',
 			'main.memberDetail' => 'Member Details',
 			'main.replied' => 'Replied',
-			_ => null,
-		} ?? switch (path) {
 			'main.ringing' => 'Ringing...',
 			'main.ruRu' => 'Russian (Russia)',
 			'main.selectedCount' => ({required Object count}) => 'Selected (${count})',
@@ -5935,6 +5967,8 @@ extension on TranslationsEnUs {
 			'organization.tools.moreInWorkspaceShellHint' => 'Open the global workspace switcher (cross-enterprise).',
 			'organization.chart.zoomIn' => 'Zoom in',
 			'organization.chart.zoomOut' => 'Zoom out',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.fit' => 'Fit to window',
 			'organization.chart.expand' => 'Expand departments',
 			'organization.chart.collapse' => 'Collapse departments',
@@ -5951,8 +5985,6 @@ extension on TranslationsEnUs {
 			'passport.qrCodeUsed' => 'This QR code has already been used',
 			'passport.qrConnecting' => 'Connecting...',
 			'passport.qrLoginAction' => 'Confirm Login',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrLoginCancelled' => 'Login cancelled',
 			'passport.qrLoginCancelledByMe' => 'You cancelled this login',
 			'passport.qrLoginConfirming' => 'Signing in...',

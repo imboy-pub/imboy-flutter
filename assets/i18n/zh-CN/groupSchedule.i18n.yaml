@@ -20,3 +20,19 @@ cancelSchedule: 取消日程
 scheduleIdMissing: 日程ID缺失，无法查看详情
 untitledSchedule: "未命名日程"
 cardViewAndAttend: "查看详情并确认参加"
+cardViewDetail: 查看详情
+organizer: 发起人
+participantAttending: 已参加
+participantDeclined: 已拒绝
+participantPending: 待回应
+attendSummary(attending, total): "$attending/$total 人参加"
+remindBefore(minutes): "开始前 $minutes 分钟提醒"
+duration(minutes): "预计 $minutes 分钟"
+hintToday: 今天
+hintTomorrow: 明天
+startsHint(hint, time): "$hint $time 开始"
+sectionToday: 今天
+sectionThisWeek: 本周
+sectionLater: 更晚
+allParticipants(count): "全部参与人（$count）"
+collapseParticipants: 收起

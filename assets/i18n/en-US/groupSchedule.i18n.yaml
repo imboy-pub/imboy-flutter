@@ -20,3 +20,19 @@ cancelSchedule: Cancel Schedule
 scheduleIdMissing: "Schedule ID missing, cannot view details"
 untitledSchedule: "Untitled schedule"
 cardViewAndAttend: "View details and RSVP"
+cardViewDetail: View details
+organizer: Organizer
+participantAttending: Joined
+participantDeclined: Declined
+participantPending: Pending
+attendSummary(attending, total): "$attending/$total joined"
+remindBefore(minutes): "Reminds $minutes min before"
+duration(minutes): "About $minutes min"
+hintToday: today
+hintTomorrow: tomorrow
+startsHint(hint, time): "Starts $hint at $time"
+sectionToday: Today
+sectionThisWeek: This Week
+sectionLater: Later
+allParticipants(count): "All participants ($count)"
+collapseParticipants: Collapse

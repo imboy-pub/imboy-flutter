@@ -6025,6 +6025,54 @@ class Translations$groupSchedule$zh_CN {
 
 	/// zh-CN: '查看详情并确认参加'
 	String get cardViewAndAttend => '查看详情并确认参加';
+
+	/// zh-CN: '查看详情'
+	String get cardViewDetail => '查看详情';
+
+	/// zh-CN: '发起人'
+	String get organizer => '发起人';
+
+	/// zh-CN: '已参加'
+	String get participantAttending => '已参加';
+
+	/// zh-CN: '已拒绝'
+	String get participantDeclined => '已拒绝';
+
+	/// zh-CN: '待回应'
+	String get participantPending => '待回应';
+
+	/// zh-CN: '$attending/$total 人参加'
+	String attendSummary({required Object attending, required Object total}) => '${attending}/${total} 人参加';
+
+	/// zh-CN: '开始前 $minutes 分钟提醒'
+	String remindBefore({required Object minutes}) => '开始前 ${minutes} 分钟提醒';
+
+	/// zh-CN: '预计 $minutes 分钟'
+	String duration({required Object minutes}) => '预计 ${minutes} 分钟';
+
+	/// zh-CN: '今天'
+	String get hintToday => '今天';
+
+	/// zh-CN: '明天'
+	String get hintTomorrow => '明天';
+
+	/// zh-CN: '$hint $time 开始'
+	String startsHint({required Object hint, required Object time}) => '${hint} ${time} 开始';
+
+	/// zh-CN: '今天'
+	String get sectionToday => '今天';
+
+	/// zh-CN: '本周'
+	String get sectionThisWeek => '本周';
+
+	/// zh-CN: '更晚'
+	String get sectionLater => '更晚';
+
+	/// zh-CN: '全部参与人（$count）'
+	String allParticipants({required Object count}) => '全部参与人（${count}）';
+
+	/// zh-CN: '收起'
+	String get collapseParticipants => '收起';
 }
 
 // Path: groupTag
@@ -11014,6 +11062,22 @@ extension on Translations {
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupSchedule.untitledSchedule' => '未命名日程',
 			'groupSchedule.cardViewAndAttend' => '查看详情并确认参加',
+			'groupSchedule.cardViewDetail' => '查看详情',
+			'groupSchedule.organizer' => '发起人',
+			'groupSchedule.participantAttending' => '已参加',
+			'groupSchedule.participantDeclined' => '已拒绝',
+			'groupSchedule.participantPending' => '待回应',
+			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} 人参加',
+			'groupSchedule.remindBefore' => ({required Object minutes}) => '开始前 ${minutes} 分钟提醒',
+			'groupSchedule.duration' => ({required Object minutes}) => '预计 ${minutes} 分钟',
+			'groupSchedule.hintToday' => '今天',
+			'groupSchedule.hintTomorrow' => '明天',
+			'groupSchedule.startsHint' => ({required Object hint, required Object time}) => '${hint} ${time} 开始',
+			'groupSchedule.sectionToday' => '今天',
+			'groupSchedule.sectionThisWeek' => '本周',
+			'groupSchedule.sectionLater' => '更晚',
+			'groupSchedule.allParticipants' => ({required Object count}) => '全部参与人（${count}）',
+			'groupSchedule.collapseParticipants' => '收起',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
 			'groupTag.tagName' => '标签名称',
@@ -11092,6 +11156,8 @@ extension on Translations {
 			'main.followSystem' => '跟随系统',
 			'main.frFr' => '法语（法国）',
 			'main.from' => '来自',
+			_ => null,
+		} ?? switch (path) {
 			'main.good' => '很棒',
 			'main.hangup' => '挂断',
 			'main.iAm' => '我是',
@@ -11108,8 +11174,6 @@ extension on Translations {
 			'main.makeYourselfInvisible' => '让自己不可见',
 			'main.makeYourselfVisible' => '让自己可见',
 			'main.male' => '男',
-			_ => null,
-		} ?? switch (path) {
 			'main.manage' => '管理',
 			'main.markStar' => '收藏',
 			'main.multiSelect' => '多选',
@@ -11606,6 +11670,8 @@ extension on Translations {
 			'organization.wsMembers.changeRole' => '更改角色',
 			'organization.wsMembers.setRoleMember' => '设为成员',
 			'organization.wsMembers.setRoleGuest' => '设为访客',
+			_ => null,
+		} ?? switch (path) {
 			'organization.wsMembers.transferOwner' => '转让所有者',
 			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => '转让「${name}」的所有者？',
 			'organization.wsMembers.transferOwnerBody' => '转让后你不再是该工作区所有者，写治理权限随之移交给对方；新所有者可再转回。',
@@ -11622,8 +11688,6 @@ extension on Translations {
 			'organization.tools.projectCount' => ({required Object count}) => '项目 ${count}',
 			'organization.tools.projectsEmpty' => '暂无项目',
 			'organization.tools.projectsError' => ({required Object err}) => '项目加载失败：${err}',
-			_ => null,
-		} ?? switch (path) {
 			'organization.tools.moreInWorkspaceShell' => '浏览全部工作区',
 			'organization.tools.moreInWorkspaceShellHint' => '打开全局工作区切换器（跨企业）。',
 			'organization.chart.zoomIn' => '放大',
