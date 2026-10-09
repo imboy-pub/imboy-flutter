@@ -496,6 +496,11 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Canale "${name}" creato';
 	@override String startGrowing({required Object name}) => 'Fai crescere "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}';
+	@override String get discussion => 'Discussione';
+	@override String get joinDiscussion => 'Partecipa alla discussione';
+	@override String get essence => 'In evidenza';
+	@override String get allPosts => 'Tutti i post';
+	@override String get editPostTags => 'Modifica tag';
 }
 
 // Path: chat
@@ -3569,6 +3574,11 @@ extension on TranslationsItIt {
 			'channel.channelCreated' => ({required Object name}) => 'Canale "${name}" creato',
 			'channel.startGrowing' => ({required Object name}) => 'Fai crescere "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}',
+			'channel.discussion' => 'Discussione',
+			'channel.joinDiscussion' => 'Partecipa alla discussione',
+			'channel.essence' => 'In evidenza',
+			'channel.allPosts' => 'Tutti i post',
+			'channel.editPostTags' => 'Modifica tag',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3697,13 +3707,13 @@ extension on TranslationsItIt {
 			'chat.markRead' => 'Segna come letto',
 			'chat.markUnread' => 'Segna come non letto',
 			'chat.pleaseEnterSignature' => 'Inserisci la tua firma',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'Esporta profilo',
 			'chat.setSignature' => 'Imposta firma',
 			'chat.setAvatar' => 'Imposta avatar',
 			'chat.fastForward' => ({required Object seconds}) => 'Avanti veloce ${seconds} secondi',
 			'chat.messageId' => 'ID messaggio',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'Tipo di chat',
 			'chat.deletingMessage' => 'Eliminazione in corso...',
 			'chat.deletingLocalMessage' => 'Eliminazione messaggio locale in corso...',
@@ -4211,13 +4221,13 @@ extension on TranslationsItIt {
 			'common.noMoreInfo' => 'Nessun\'altra informazione',
 			'common.verificationMessage' => 'Messaggio di verifica',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'Dopo l\'attivazione: I messaggi verranno distrutti automaticamente ${duration} dopo essere stati letti',
+			_ => null,
+		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'Dopo la disattivazione: I messaggi non verranno distrutti automaticamente',
 			'common.noGroupAnnouncement' => 'Nessun annuncio di gruppo',
 			'common.featureComingSoon' => 'Funzionalità prossimamente',
 			'common.understood' => 'Capito',
 			'common.noProblem' => 'Nessun problema',
-			_ => null,
-		} ?? switch (path) {
 			'common.onMyWay' => 'Sto arrivando',
 			'common.operationOptions' => 'Opzioni operazione',
 			'common.copyTextContent' => 'Copia contenuto testo',
@@ -4725,13 +4735,13 @@ extension on TranslationsItIt {
 			'discovery.findNearbyPeople' => 'Trova persone nelle vicinanze',
 			'discovery.moment' => 'Momenti',
 			'discovery.nearbyPeopleExplain' => 'Gli utenti nelle vicinanze possono visualizzare il tuo profilo e inviarti messaggi. Questo potrebbe aiutarti a trovare nuovi amici, ma potrebbe anche attirare troppa attenzione. Puoi smettere di condividere il tuo profilo in qualsiasi momento.\nIl tuo numero di telefono verrà nascosto.',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Persone nelle vicinanze',
 			'discovery.scanResult' => 'Risultato scansione',
 			'discovery.myChannels' => 'I miei canali',
 			'discovery.otherUsersCanFindMe' => 'Altri utenti possono trovarmi tramite ricerca',
 			'discovery.momentsDenyUidsLabel' => 'UID esclusi (separati da virgola)',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => 'Momenti',
 			'discovery.momentsWriteComment' => 'Scrivi un commento...',
 			'discovery.momentsVisibility' => 'Visibilità',
@@ -5239,13 +5249,13 @@ extension on TranslationsItIt {
 			'momentNotify.cancel' => 'Annulla',
 			'momentNotify.delete' => 'Elimina',
 			'momentNotify.loadFailed' => 'Caricamento fallito. Riprova più tardi.',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.moreActions' => 'Altre azioni',
 			'organization.common.rename' => 'Rinomina',
 			'organization.common.close' => 'Chiudi',
 			'organization.common.reload' => 'Ricarica',
 			'organization.common.createFailed' => 'Creazione non riuscita',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.addFailed' => 'Aggiunta non riuscita',
 			'organization.common.confirmArchive' => 'Conferma archiviazione',
 			'organization.common.forbidden403' => 'Non sei autorizzato a eseguire questa azione (403)',
@@ -5753,13 +5763,13 @@ extension on TranslationsItIt {
 			'workspace.projectMemberInviteSuccess' => 'Aggiunto ai membri del progetto',
 			'workspace.projectMemberInviteTitle' => 'Invita membri nel progetto',
 			'workspace.projectMemberRemoveConfirmDesc' => 'Dopo la rimozione l\'utente perderà l\'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Rimuovi il membro del progetto ${name}',
 			'workspace.projectMemberRemoveSubmit' => 'Rimuovi',
 			'workspace.projectMemberRemovedToast' => 'Rimosso',
 			'workspace.projectMemberTransferConfirm' => 'Conferma trasferimento',
 			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
 			'workspace.projectMembersEntry' => 'Membri',

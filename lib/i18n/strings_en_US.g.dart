@@ -543,6 +543,11 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Channel "${name}" created';
 	@override String startGrowing({required Object name}) => 'Start growing "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}';
+	@override String get discussion => 'Discussion';
+	@override String get joinDiscussion => 'Join discussion';
+	@override String get essence => 'Highlights';
+	@override String get allPosts => 'All posts';
+	@override String get editPostTags => 'Edit tags';
 }
 
 // Path: chat
@@ -3791,6 +3796,11 @@ extension on TranslationsEnUs {
 			'channel.channelCreated' => ({required Object name}) => 'Channel "${name}" created',
 			'channel.startGrowing' => ({required Object name}) => 'Start growing "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}',
+			'channel.discussion' => 'Discussion',
+			'channel.joinDiscussion' => 'Join discussion',
+			'channel.essence' => 'Highlights',
+			'channel.allPosts' => 'All posts',
+			'channel.editPostTags' => 'Edit tags',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -3883,13 +3893,13 @@ extension on TranslationsEnUs {
 			'chat.videoMessage' => '[Video]',
 			'chat.viewAttachments' => 'View attachments',
 			'chat.viewLargeImage' => 'View large image',
+			_ => null,
+		} ?? switch (path) {
 			'chat.voice' => 'Voice',
 			'chat.voiceMessage' => 'Voice message',
 			'chat.youWithdrewAMessage' => 'You recalled a message',
 			'chat.formatCheck' => 'Format check',
 			'chat.featureRequest' => 'Feature request',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatResend' => 'Resend',
 			'chat.profileExportProfile' => 'Export profile',
 			'chat.momentsSend' => 'Send',
@@ -4397,13 +4407,13 @@ extension on TranslationsEnUs {
 			'common.solidColorBackground' => 'Solid Color Background',
 			'common.selectImageFailed' => 'Failed to select image',
 			'common.locationSelectNotImplemented' => 'Location selection feature not implemented',
+			_ => null,
+		} ?? switch (path) {
 			'common.selectLocationFailed' => 'Failed to select location',
 			'common.sendCardNotImplemented' => 'Card sending feature not implemented',
 			'common.voiceSendFailed' => 'Failed to send voice',
 			'common.featureNotImplemented' => 'Feature not implemented',
 			'common.sendCollectionNotImplemented' => 'Collection sending feature not implemented',
-			_ => null,
-		} ?? switch (path) {
 			'common.fileOpenNotImplemented' => 'File opening feature not implemented',
 			'common.fileShareNotImplemented' => 'File sharing feature not implemented',
 			'common.retrySuccess' => 'Resent successfully',
@@ -4911,13 +4921,13 @@ extension on TranslationsEnUs {
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Unsupported video format, the video could not be found',
 			'common.retry' => 'Retry',
 			'common.retrying' => 'Retrying…',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
 			'complaint.e2eeConsentSubmit' => 'Consent & submit evidence',
 			'complaint.e2eeConsentDecline' => 'Report only (no content)',
-			_ => null,
-		} ?? switch (path) {
 			'complaintReason.spam' => 'Spam',
 			'complaintReason.harassment' => 'Harassment',
 			'complaintReason.inappropriate' => 'Inappropriate content',
@@ -5425,13 +5435,13 @@ extension on TranslationsEnUs {
 			'main.replied' => 'Replied',
 			'main.ringing' => 'Ringing...',
 			'main.ruRu' => 'Russian (Russia)',
+			_ => null,
+		} ?? switch (path) {
 			'main.selectedCount' => ({required Object count}) => 'Selected (${count})',
 			'main.selected' => 'Selected',
 			'main.sent' => 'Sent',
 			'main.sentByMe' => 'Sent by me',
 			'main.setParam' => ({required Object param}) => 'Set ${param}',
-			_ => null,
-		} ?? switch (path) {
 			'main.setting' => 'Settings',
 			'main.siginQ' => 'Already have an account?',
 			'main.source' => 'Source',
@@ -5939,13 +5949,13 @@ extension on TranslationsEnUs {
 			'passport.qrLoginAction' => 'Confirm Login',
 			'passport.qrLoginCancelled' => 'Login cancelled',
 			'passport.qrLoginCancelledByMe' => 'You cancelled this login',
+			_ => null,
+		} ?? switch (path) {
 			'passport.qrLoginConfirming' => 'Signing in...',
 			'passport.qrLoginSuccess' => 'Login successful',
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
 			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
 			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
-			_ => null,
-		} ?? switch (path) {
 			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',
 			'passport.oneKeyInitFailed' => 'Failed to initialize one-tap login, please try again later',
 			'passport.oneKeyNoSimCard' => 'The current network is not supported, or the phone has no SIM card',

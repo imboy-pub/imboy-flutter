@@ -206,3 +206,10 @@ addDescription: "Beschreibung hinzufügen"
 channelCreated(name): "Kanal „$name“ erstellt"
 startGrowing(name): "Wachse mit „$name“"
 shareInviteText(name, url): "Folgt gerne meinem Kanal \"$name\": $url"
+
+# Micro-community content and explicit discussion membership.
+discussion: "Diskussion"
+joinDiscussion: "Diskussion beitreten"
+essence: "Highlights"
+allPosts: "Alle Beiträge"
+editPostTags: "Tags bearbeiten"

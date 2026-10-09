@@ -496,6 +496,11 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'تم إنشاء القناة "${name}"';
 	@override String startGrowing({required Object name}) => 'نمِّ القناة "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}';
+	@override String get discussion => 'المناقشة';
+	@override String get joinDiscussion => 'الانضمام إلى المناقشة';
+	@override String get essence => 'المنشورات المميزة';
+	@override String get allPosts => 'كل المنشورات';
+	@override String get editPostTags => 'تعديل الوسوم';
 }
 
 // Path: chat
@@ -3578,6 +3583,11 @@ extension on TranslationsArSa {
 			'channel.channelCreated' => ({required Object name}) => 'تم إنشاء القناة "${name}"',
 			'channel.startGrowing' => ({required Object name}) => 'نمِّ القناة "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}',
+			'channel.discussion' => 'المناقشة',
+			'channel.joinDiscussion' => 'الانضمام إلى المناقشة',
+			'channel.essence' => 'المنشورات المميزة',
+			'channel.allPosts' => 'كل المنشورات',
+			'channel.editPostTags' => 'تعديل الوسوم',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3706,13 +3716,13 @@ extension on TranslationsArSa {
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
 			'chat.pleaseEnterSignature' => 'أدخل توقيعك الشخصي',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'تصدير الملف الشخصي',
 			'chat.setSignature' => 'تعيين التوقيع الشخصي',
 			'chat.setAvatar' => 'تعيين الصورة الرمزية',
 			'chat.fastForward' => ({required Object seconds}) => 'تقديم سريع ${seconds} ثانية',
 			'chat.messageId' => 'معرف الرسالة',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'نوع الدردشة',
 			'chat.deletingMessage' => 'جارٍ حذف الرسالة...',
 			'chat.deletingLocalMessage' => 'جارٍ حذف الرسائل المحلية...',
@@ -4220,13 +4230,13 @@ extension on TranslationsArSa {
 			'common.noMoreInfo' => 'لا توجد معلومات إضافية',
 			'common.verificationMessage' => 'رسالة التحقق',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'عند التمكين: تُدمّر الرسالة تلقائياً بعد قراءتها ${duration}',
+			_ => null,
+		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'عند التعطيل: لن تُدمّر الرسالة تلقائياً',
 			'common.noGroupAnnouncement' => 'لا يوجد إعلان مجموعة',
 			'common.featureComingSoon' => 'الميزة قادمة قريباً',
 			'common.understood' => 'فهمت',
 			'common.noProblem' => 'لا مشكلة',
-			_ => null,
-		} ?? switch (path) {
 			'common.onMyWay' => 'قادم الآن',
 			'common.operationOptions' => 'خيارات العملية',
 			'common.copyTextContent' => 'نسخ محتوى النص',
@@ -4734,13 +4744,13 @@ extension on TranslationsArSa {
 			'discovery.findNearbyPeople' => 'البحث عن أشخاص قريبين',
 			'discovery.moment' => 'اللحظات',
 			'discovery.nearbyPeopleExplain' => 'يمكن للمستخدمين القريبين عرض ملفك الشخصي وإرسال رسائل إليك. قد يساعدك هذا في العثور على أصدقاء جدد، لكنه قد يجذب أيضاً الكثير من الاهتمام. يمكنك إيقاف مشاركة ملفك الشخصي في أي وقت.\nرقم هاتفك سيتم إخفاؤه.',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => 'أشخاص قريبون',
 			'discovery.scanResult' => 'نتيجة المسح',
 			'discovery.myChannels' => 'قنواتي',
 			'discovery.otherUsersCanFindMe' => 'يمكن للمستخدمين الآخرين العثور علي من خلال البحث',
 			'discovery.momentsDenyUidsLabel' => 'قائمة UID المخفي عنهم (مفصولة بفواصل)',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => 'اللحظات',
 			'discovery.momentsWriteComment' => 'اكتب تعليقاً...',
 			'discovery.momentsVisibility' => 'الظهور',
@@ -5248,13 +5258,13 @@ extension on TranslationsArSa {
 			'momentNotify.cancel' => 'إلغاء',
 			'momentNotify.delete' => 'حذف',
 			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.moreActions' => 'المزيد من الإجراءات',
 			'organization.common.rename' => 'إعادة تسمية',
 			'organization.common.close' => 'إغلاق',
 			'organization.common.reload' => 'إعادة تحميل',
 			'organization.common.createFailed' => 'فشل الإنشاء',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.addFailed' => 'فشل الإضافة',
 			'organization.common.confirmArchive' => 'تأكيد الأرشفة',
 			'organization.common.forbidden403' => 'لا تملك صلاحية تنفيذ هذا الإجراء (403)',
@@ -5762,13 +5772,13 @@ extension on TranslationsArSa {
 			'workspace.projectStatusChanged' => 'تم تحديث حالة المشروع',
 			'workspace.projectTasksSection' => 'المهام',
 			'workspace.taskNewEntry' => 'مهمة جديدة',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFormCreateTitle' => 'مهمة جديدة',
 			'workspace.taskFormEditTitle' => 'تعديل المهمة',
 			'workspace.taskTitleLabel' => 'عنوان المهمة',
 			'workspace.taskTitleRequired' => 'لا يمكن أن يكون عنوان المهمة فارغاً',
 			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
 			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',

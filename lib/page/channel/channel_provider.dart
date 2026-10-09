@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/http/http_response.dart';
@@ -19,6 +20,8 @@ import 'package:imboy/service/websocket_events.dart'
 import 'channel_di_provider.dart';
 
 part 'channel_provider.g.dart';
+part 'channel_detail_state.dart';
+part 'channel_post_search_provider.dart';
 
 /// 频道未读总数缓存（进程内）
 ///
@@ -318,48 +321,10 @@ class ChannelListNotifier extends _$ChannelListNotifier {
   }
 }
 
-/// 频道详情状态
-class ChannelDetailState {
-  final ChannelModel? channel;
-  final List<ChannelMessageModel> messages;
-  final bool isLoading;
-  final bool isPublishing;
-  final bool hasMore;
-  final String? error;
-
-  const ChannelDetailState({
-    this.channel,
-    this.messages = const [],
-    this.isLoading = false,
-    this.isPublishing = false,
-    this.hasMore = true,
-    this.error,
-  });
-
-  ChannelDetailState copyWith({
-    ChannelModel? channel,
-    List<ChannelMessageModel>? messages,
-    bool? isLoading,
-    bool? isPublishing,
-    bool? hasMore,
-    String? error,
-    bool clearChannel = false,
-  }) {
-    return ChannelDetailState(
-      channel: clearChannel ? null : (channel ?? this.channel),
-      messages: messages ?? this.messages,
-      isLoading: isLoading ?? this.isLoading,
-      isPublishing: isPublishing ?? this.isPublishing,
-      hasMore: hasMore ?? this.hasMore,
-      error: error,
-    );
-  }
-}
-
 /// 频道详情 Notifier
 @riverpod
 class ChannelDetailNotifier extends _$ChannelDetailNotifier {
-  final ChannelApi _api = ChannelApi();
+  ChannelApi get _api => ref.read(channelApiProvider);
   String? _channelId;
   @visibleForTesting
   void debugSetChannelId(String? channelId) => _channelId = channelId;

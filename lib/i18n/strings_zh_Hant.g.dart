@@ -496,6 +496,11 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => '頻道 “${name}” 已建立';
 	@override String startGrowing({required Object name}) => '開始發展壯大 “${name}”';
 	@override String shareInviteText({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}';
+	@override String get discussion => '討論區';
+	@override String get joinDiscussion => '加入討論';
+	@override String get essence => '精華';
+	@override String get allPosts => '全部內容';
+	@override String get editPostTags => '編輯標籤';
 }
 
 // Path: chat
@@ -3567,6 +3572,11 @@ extension on TranslationsZhHant {
 			'channel.channelCreated' => ({required Object name}) => '頻道 “${name}” 已建立',
 			'channel.startGrowing' => ({required Object name}) => '開始發展壯大 “${name}”',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}',
+			'channel.discussion' => '討論區',
+			'channel.joinDiscussion' => '加入討論',
+			'channel.essence' => '精華',
+			'channel.allPosts' => '全部內容',
+			'channel.editPostTags' => '編輯標籤',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3695,13 +3705,13 @@ extension on TranslationsZhHant {
 			'chat.momentsMediaTooManyImages' => '最多隻能選擇 9 張圖片',
 			'chat.momentsMediaTooManyVideos' => '最多隻能選擇 1 個影片',
 			'chat.momentsMediaMixedImageAndVideo' => '圖片和影片不能同時釋出',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplyPrefix' => '回覆 @',
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '正在回覆 @{name}',
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
-			_ => null,
-		} ?? switch (path) {
 			'chat.markUnread' => '標記未讀',
 			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			'chat.exportProfile' => '匯出資料',
@@ -4209,13 +4219,13 @@ extension on TranslationsZhHant {
 			'common.unknownRegion' => '未知地區',
 			'common.noCommonGroups' => '暫無共同群組',
 			'common.noMoreInfo' => '暫無更多資訊',
+			_ => null,
+		} ?? switch (path) {
 			'common.verificationMessage' => '驗證訊息',
 			'common.burnEnabledMessage' => ({required Object duration}) => '開啟後：訊息在被閱讀後 ${duration} 自動銷毀',
 			'common.burnDisabledMessage' => '關閉後：訊息不會自動銷毀',
 			'common.noGroupAnnouncement' => '暫無群組公告',
 			'common.featureComingSoon' => '功能暫未實現',
-			_ => null,
-		} ?? switch (path) {
 			'common.understood' => '我懂了',
 			'common.noProblem' => '沒問題',
 			'common.onMyWay' => '馬上到',
@@ -4723,13 +4733,13 @@ extension on TranslationsZhHant {
 			'discovery.findNearbyPeople' => '搜尋附近的人',
 			'discovery.moment' => '動態',
 			'discovery.nearbyPeopleExplain' => '附近的使用者可以檢視你的個人資料並給你發送訊息。這可能會幫助你找到新朋友，但也可能會引起過多的關注。你可以隨時停止分享你的個人資料。\n你的電話號碼將會被隱藏。',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => '附近的朋友',
 			'discovery.scanResult' => '掃描結果',
 			'discovery.myChannels' => '我的頻道',
 			'discovery.otherUsersCanFindMe' => '其他使用者可以通過搜尋找到我',
 			'discovery.momentsDenyUidsLabel' => '不給誰看 UID 列表（逗號分隔）',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => '動態',
 			'discovery.momentsWriteComment' => '寫評論...',
 			'discovery.momentsVisibility' => '可見性',
@@ -5237,13 +5247,13 @@ extension on TranslationsZhHant {
 			'momentNotify.confirm' => '確定',
 			'momentNotify.cancel' => '關閉',
 			'momentNotify.delete' => '刪除',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
 			'organization.common.moreActions' => '更多操作',
 			'organization.common.rename' => '重新命名',
 			'organization.common.close' => '關閉',
 			'organization.common.reload' => '重新載入',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.createFailed' => '建立失敗',
 			'organization.common.addFailed' => '新增失敗',
 			'organization.common.confirmArchive' => '確認封存',
@@ -5751,13 +5761,13 @@ extension on TranslationsZhHant {
 			'workspace.projectReopen' => '重新開啟專案',
 			'workspace.projectStatusChanged' => '專案狀態已更新',
 			'workspace.projectTasksSection' => '任務',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskNewEntry' => '新增任務',
 			'workspace.taskFormCreateTitle' => '新增任務',
 			'workspace.taskFormEditTitle' => '編輯任務',
 			'workspace.taskTitleLabel' => '任務標題',
 			'workspace.taskTitleRequired' => '任務標題不能為空',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
 			'workspace.taskAssigneeNone' => '暫不指派',
 			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',

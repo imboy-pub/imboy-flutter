@@ -213,3 +213,10 @@ addDescription: "添加描述"
 channelCreated(name): "频道 “$name” 已创建"
 startGrowing(name): "开始发展壮大 “$name”"
 shareInviteText(name, url): "大家快来关注我的频道【$name】吧！$url"
+
+# Micro-community content and explicit discussion membership.
+discussion: "讨论区"
+joinDiscussion: "加入讨论"
+essence: "精华"
+allPosts: "全部内容"
+editPostTags: "编辑标签"

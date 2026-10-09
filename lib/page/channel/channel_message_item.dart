@@ -25,12 +25,20 @@ import 'package:imboy/page/moment/moment_utils.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
+import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'channel_detail_rules.dart';
 
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+
+import 'widgets/channel_post_tags_dialog.dart';
+
+export 'widgets/channel_post_tags_dialog.dart';
+
+part 'channel_message_metadata_actions.dart';
 
 /// 频道消息内容卡片
 ///
@@ -47,6 +55,8 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
   final VoidCallback? onReactionChanged;
   final ValueChanged<bool>? onPinned;
   final VoidCallback? onDeleted;
+  final VoidCallback? onMetadataChanged;
+  final ValueChanged<String>? onTagSelected;
 
   /// R-01 频道消息举报入口：长按消息触发（由 feed 层注入）。
   final VoidCallback? onLongPress;
@@ -59,6 +69,8 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
     this.onReactionChanged,
     this.onPinned,
     this.onDeleted,
+    this.onMetadataChanged,
+    this.onTagSelected,
     this.onLongPress,
   });
 
@@ -67,7 +79,7 @@ class ChannelMessageItem extends ConsumerStatefulWidget {
 }
 
 class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, _ChannelMessageMetadataActions {
   bool _liked = false;
   // 订阅号预览卡折叠阈值：超限则截断为摘要，点进 B1 阅读页看全文。
   static const int _textSummaryMaxChars = 120;
@@ -324,6 +336,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildMetaBar(context, secondaryColor),
+                if (ChannelApi.microCommunityEnabled)
+                  _buildPostMetadata(context),
                 _buildContentArea(textColor, secondaryColor, isText),
                 _buildBottomBar(context, textColor, secondaryColor),
               ],
@@ -942,110 +956,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
   }
 
-  // ---- 管理菜单 ----
-
-  void _showManageMenu(BuildContext context) {
-    final t = context.t;
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-    final position = renderBox.localToGlobal(Offset.zero);
-
-    showMenu<String>(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        position.dx + renderBox.size.width - 120,
-        position.dy,
-        position.dx + renderBox.size.width,
-        position.dy + renderBox.size.height,
-      ),
-      items: [
-        PopupMenuItem(
-          value: widget.message.isPinned ? 'unpin' : 'pin',
-          child: ListTile(
-            leading: Icon(
-              widget.message.isPinned
-                  ? CupertinoIcons.pin
-                  : CupertinoIcons.pin_fill,
-              size: 20,
-            ),
-            title: Text(
-              widget.message.isPinned
-                  ? t.channel.unpinMessage
-                  : t.channel.pinMessage,
-            ),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-        PopupMenuItem(
-          value: 'delete',
-          child: ListTile(
-            leading: const Icon(
-              CupertinoIcons.delete,
-              size: 20,
-              color: AppColors.iosRed,
-            ),
-            title: Text(
-              t.channel.deleteMessage,
-              style: const TextStyle(color: AppColors.iosRed),
-            ),
-            contentPadding: EdgeInsets.zero,
-          ),
-        ),
-      ],
-    ).then((value) {
-      if (value != null && context.mounted) _handleMessageAction(value);
-    });
-  }
-
-  void _showMoreMenu(BuildContext context) {
-    final t = context.t;
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (ctx) => CupertinoModalSurface(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(CupertinoIcons.doc_on_doc),
-              title: Text(t.common.copy),
-              onTap: () {
-                Navigator.pop(ctx);
-                if (widget.message.msgType == ChannelMessageType.text) {
-                  Clipboard.setData(
-                    ClipboardData(text: widget.message.content),
-                  );
-                  AppLoading.showToast(t.main.copiedToClipboard);
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(CupertinoIcons.share),
-              title: Text(t.channel.share),
-              onTap: () {
-                Navigator.pop(ctx);
-                _shareMessage();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _handleMessageAction(String action) async {
-    switch (action) {
-      case 'pin':
-        await _setPinned(true);
-        break;
-      case 'unpin':
-        await _setPinned(false);
-        break;
-      case 'delete':
-        _showDeleteMessageDialog();
-        break;
-    }
-  }
-
+  @override
   Future<void> _setPinned(bool pinned) async {
     final channelService = ref.read(channelServiceProvider);
     final success = await channelService.setMessagePinned(
@@ -1064,6 +975,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     }
   }
 
+  @override
   void _showDeleteMessageDialog() {
     final t = context.t;
     final deletedMsg = t.channel.messageDeleted;
@@ -1099,6 +1011,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     );
   }
 
+  @override
   void _shareMessage() {
     final t = context.t;
     showCupertinoModalPopup<void>(

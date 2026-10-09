@@ -496,6 +496,11 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => '채널 "${name}"이(가) 생성되었습니다';
 	@override String startGrowing({required Object name}) => '"${name}" 성장시키기';
 	@override String shareInviteText({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}';
+	@override String get discussion => '토론';
+	@override String get joinDiscussion => '토론 참여';
+	@override String get essence => '추천 게시물';
+	@override String get allPosts => '모든 게시물';
+	@override String get editPostTags => '태그 편집';
 }
 
 // Path: chat
@@ -3566,6 +3571,11 @@ extension on TranslationsKoKr {
 			'channel.channelCreated' => ({required Object name}) => '채널 "${name}"이(가) 생성되었습니다',
 			'channel.startGrowing' => ({required Object name}) => '"${name}" 성장시키기',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}',
+			'channel.discussion' => '토론',
+			'channel.joinDiscussion' => '토론 참여',
+			'channel.essence' => '추천 게시물',
+			'channel.allPosts' => '모든 게시물',
+			'channel.editPostTags' => '태그 편집',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3694,13 +3704,13 @@ extension on TranslationsKoKr {
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
 			'chat.pleaseEnterSignature' => '한 줄 소개를 입력하세요',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => '프로필 내보내기',
 			'chat.setSignature' => '서명 설정',
 			'chat.setAvatar' => '프로필 사진 설정',
 			'chat.fastForward' => ({required Object seconds}) => '${seconds}초 빨리감기',
 			'chat.messageId' => '메시지 ID',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => '채팅 유형',
 			'chat.deletingMessage' => '삭제 중...',
 			'chat.deletingLocalMessage' => '로컬 메시지 삭제 중...',
@@ -4208,13 +4218,13 @@ extension on TranslationsKoKr {
 			'common.noMoreInfo' => '더 이상 정보 없음',
 			'common.verificationMessage' => '확인 메시지',
 			'common.burnEnabledMessage' => ({required Object duration}) => '활성화 후: 메시지가 읽힌 후 ${duration} 후 자동으로 삭제됩니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.burnDisabledMessage' => '비활성화 후: 메시지가 자동으로 삭제되지 않습니다',
 			'common.noGroupAnnouncement' => '그룹 공지 없음',
 			'common.featureComingSoon' => '기능 출시 예정',
 			'common.understood' => '이해함',
 			'common.noProblem' => '문제 없음',
-			_ => null,
-		} ?? switch (path) {
 			'common.onMyWay' => '곧 도착합니다',
 			'common.operationOptions' => '작업 옵션',
 			'common.copyTextContent' => '텍스트 내용 복사',
@@ -4722,13 +4732,13 @@ extension on TranslationsKoKr {
 			'discovery.findNearbyPeople' => '주변 사람 찾기',
 			'discovery.moment' => '모멘트',
 			'discovery.nearbyPeopleExplain' => '주변 사용자가 귀하의 프로필을 보고 메시지를 보낼 수 있습니다. 이는 새 친구를 찾는 데 도움이 될 수 있지만 과도한 주의를 끌 수도 있습니다. 언제든지 프로필 공유를 중단할 수 있습니다.\n전화번호는 숨겨집니다.',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => '주변 사람',
 			'discovery.scanResult' => '스캔 결과',
 			'discovery.myChannels' => '내 채널',
 			'discovery.otherUsersCanFindMe' => '다른 사용자가 검색을 통해 찾을 수 있습니다',
 			'discovery.momentsDenyUidsLabel' => '제외할 UID 목록 (쉼표로 구분)',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => '모멘트',
 			'discovery.momentsWriteComment' => '댓글을 입력하세요...',
 			'discovery.momentsVisibility' => '공개 범위',
@@ -5236,13 +5246,13 @@ extension on TranslationsKoKr {
 			'momentNotify.cancel' => '취소',
 			'momentNotify.delete' => '삭제',
 			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.moreActions' => '더보기',
 			'organization.common.rename' => '이름 바꾸기',
 			'organization.common.close' => '닫기',
 			'organization.common.reload' => '새로고침',
 			'organization.common.createFailed' => '생성 실패',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.addFailed' => '추가 실패',
 			'organization.common.confirmArchive' => '보관 확인',
 			'organization.common.forbidden403' => '이 작업을 수행할 권한이 없습니다(403)',
@@ -5750,13 +5760,13 @@ extension on TranslationsKoKr {
 			'workspace.projectStatusChanged' => '프로젝트 상태가 업데이트되었습니다',
 			'workspace.projectTasksSection' => '작업',
 			'workspace.taskNewEntry' => '새 작업',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFormCreateTitle' => '새 작업',
 			'workspace.taskFormEditTitle' => '작업 편집',
 			'workspace.taskTitleLabel' => '작업 제목',
 			'workspace.taskTitleRequired' => '작업 제목은 필수입니다',
 			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => '지정 안 함',
 			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
 			'workspace.taskSubmitCreate' => '작업 만들기',

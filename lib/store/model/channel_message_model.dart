@@ -19,6 +19,13 @@ class ChannelMessageModel {
   final Map<String, dynamic>? payload;
   final DateTime createdAt;
   final bool isPinned;
+  final bool isEssence;
+
+  List<String> get tags => List<String>.unmodifiable(
+    (payload?['tags'] is List)
+        ? (payload!['tags'] as List).whereType<String>()
+        : const <String>[],
+  );
   final int viewCount;
   final Map<String, int>? reactionSummary;
 
@@ -37,6 +44,7 @@ class ChannelMessageModel {
     this.payload,
     required this.createdAt,
     this.isPinned = false,
+    this.isEssence = false,
     this.viewCount = 0,
     this.reactionSummary,
     this.myReactions = const [],
@@ -58,6 +66,7 @@ class ChannelMessageModel {
       payload: payloadData,
       createdAt: parseModelDateTime(json['created_at']),
       isPinned: parseModelBool(json['is_pinned']),
+      isEssence: parseModelBool(json['is_essence']),
       viewCount: parseModelInt(json['view_count']),
       reactionSummary: reactions,
       myReactions: myReactions,
@@ -76,6 +85,7 @@ class ChannelMessageModel {
       'payload': payload != null ? jsonEncode(payload) : null,
       'created_at': createdAt.millisecondsSinceEpoch,
       'is_pinned': isPinned ? 1 : 0,
+      'is_essence': isEssence,
       'view_count': viewCount,
       'reaction_summary': reactionSummary != null
           ? jsonEncode(reactionSummary)
@@ -101,6 +111,7 @@ class ChannelMessageModel {
       payload: payloadData,
       createdAt: parseModelDateTime(map['created_at']),
       isPinned: parseModelBool(map['is_pinned']),
+      isEssence: parseModelBool(map['is_essence']),
       viewCount: parseModelInt(map['view_count']),
       reactionSummary: reactions,
       myReactions: myReactions,
@@ -218,6 +229,7 @@ class ChannelMessageModel {
     Map<String, dynamic>? payload,
     DateTime? createdAt,
     bool? isPinned,
+    bool? isEssence,
     int? viewCount,
     Map<String, int>? reactionSummary,
     List<String>? myReactions,
@@ -233,6 +245,7 @@ class ChannelMessageModel {
       payload: payload ?? this.payload,
       createdAt: createdAt ?? this.createdAt,
       isPinned: isPinned ?? this.isPinned,
+      isEssence: isEssence ?? this.isEssence,
       viewCount: viewCount ?? this.viewCount,
       reactionSummary: reactionSummary ?? this.reactionSummary,
       myReactions: myReactions ?? this.myReactions,

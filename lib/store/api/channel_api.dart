@@ -8,22 +8,19 @@ import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
-class ChannelPageResult<T> {
-  final List<T> list;
-  final String? nextCursor;
-  final bool hasMore;
+import 'channel_micro_community_api.dart';
+import 'channel_micro_community_policy.dart';
+import 'channel_results.dart';
 
-  const ChannelPageResult({
-    required this.list,
-    required this.nextCursor,
-    required this.hasMore,
-  });
-}
+export 'channel_results.dart';
 
 /// 频道 API 客户端
 ///
 /// 负责与后端 API 通信，处理频道相关的网络请求
-class ChannelApi extends HttpClient {
+class ChannelApi extends HttpClient with ChannelMicroCommunityApi {
+  /// Fail closed for stale manifests, delivery profiles and disabled channel flags.
+  static bool get microCommunityEnabled => ChannelMicroCommunityPolicy.enabled;
+
   // ==================== 频道 CRUD ====================
 
   /// 创建频道

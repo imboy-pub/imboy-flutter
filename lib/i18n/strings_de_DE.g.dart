@@ -496,6 +496,11 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Kanal „${name}“ erstellt';
 	@override String startGrowing({required Object name}) => 'Wachse mit „${name}“';
 	@override String shareInviteText({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}';
+	@override String get discussion => 'Diskussion';
+	@override String get joinDiscussion => 'Diskussion beitreten';
+	@override String get essence => 'Highlights';
+	@override String get allPosts => 'Alle Beiträge';
+	@override String get editPostTags => 'Tags bearbeiten';
 }
 
 // Path: chat
@@ -3569,6 +3574,11 @@ extension on TranslationsDeDe {
 			'channel.channelCreated' => ({required Object name}) => 'Kanal „${name}“ erstellt',
 			'channel.startGrowing' => ({required Object name}) => 'Wachse mit „${name}“',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}',
+			'channel.discussion' => 'Diskussion',
+			'channel.joinDiscussion' => 'Diskussion beitreten',
+			'channel.essence' => 'Highlights',
+			'channel.allPosts' => 'Alle Beiträge',
+			'channel.editPostTags' => 'Tags bearbeiten',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3697,13 +3707,13 @@ extension on TranslationsDeDe {
 			'chat.markRead' => 'Als gelesen markieren',
 			'chat.markUnread' => 'Als ungelesen markieren',
 			'chat.pleaseEnterSignature' => 'Persönliche Signatur eingeben',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'Profil exportieren',
 			'chat.setSignature' => 'Signatur festlegen',
 			'chat.setAvatar' => 'Avatar festlegen',
 			'chat.fastForward' => ({required Object seconds}) => 'Schnell vor ${seconds} Sekunden',
 			'chat.messageId' => 'Nachrichten-ID',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'Chat-Typ',
 			'chat.deletingMessage' => 'Wird gelöscht...',
 			'chat.deletingLocalMessage' => 'Lokale Nachricht wird gelöscht...',
@@ -4211,13 +4221,13 @@ extension on TranslationsDeDe {
 			'common.noMoreInfo' => 'Keine weiteren Informationen',
 			'common.verificationMessage' => 'Bestätigungsnachricht',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'Nach Aktivierung: Nachrichten werden ${duration} nach dem Lesen automatisch zerstört',
+			_ => null,
+		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'Nach Deaktivierung: Nachrichten werden nicht automatisch zerstört',
 			'common.noGroupAnnouncement' => 'Keine Gruppenankündigung',
 			'common.featureComingSoon' => 'Funktion demnächst verfügbar',
 			'common.understood' => 'Verstanden',
 			'common.noProblem' => 'Kein Problem',
-			_ => null,
-		} ?? switch (path) {
 			'common.onMyWay' => 'Bin unterwegs',
 			'common.operationOptions' => 'Optionen',
 			'common.copyTextContent' => 'Textinhalt kopieren',
@@ -4725,13 +4735,13 @@ extension on TranslationsDeDe {
 			'discovery.findNearbyPeople' => 'Personen in der Nähe finden',
 			'discovery.moment' => 'Momente',
 			'discovery.nearbyPeopleExplain' => 'Benutzer in Ihrer Nähe können Ihr Profil sehen und Ihnen Nachrichten senden. Finden Sie neue Freunde oder beenden Sie das Teilen jederzeit.\nIhre Telefonnummer bleibt verborgen.',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Personen in der Nähe',
 			'discovery.scanResult' => 'Scan-Ergebnis',
 			'discovery.myChannels' => 'Meine Kanäle',
 			'discovery.otherUsersCanFindMe' => 'Andere Benutzer können mich durch Suche finden',
 			'discovery.momentsDenyUidsLabel' => 'Ausgeschlossen UIDs (kommagetrennt)',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => 'Momente',
 			'discovery.momentsWriteComment' => 'Kommentar schreiben...',
 			'discovery.momentsVisibility' => 'Sichtbarkeit',
@@ -5239,13 +5249,13 @@ extension on TranslationsDeDe {
 			'momentNotify.cancel' => 'Abbrechen',
 			'momentNotify.delete' => 'Löschen',
 			'momentNotify.loadFailed' => 'Laden fehlgeschlagen. Bitte später erneut versuchen.',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.moreActions' => 'Weitere Aktionen',
 			'organization.common.rename' => 'Umbenennen',
 			'organization.common.close' => 'Schließen',
 			'organization.common.reload' => 'Neu laden',
 			'organization.common.createFailed' => 'Erstellen fehlgeschlagen',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.addFailed' => 'Hinzufügen fehlgeschlagen',
 			'organization.common.confirmArchive' => 'Archivieren bestätigen',
 			'organization.common.forbidden403' => 'Keine Berechtigung für diese Aktion (403)',
@@ -5753,13 +5763,13 @@ extension on TranslationsDeDe {
 			'workspace.projectStatusChanged' => 'Projektstatus aktualisiert',
 			'workspace.projectTasksSection' => 'Aufgaben',
 			'workspace.taskNewEntry' => 'Neue Aufgabe',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFormCreateTitle' => 'Neue Aufgabe',
 			'workspace.taskFormEditTitle' => 'Aufgabe bearbeiten',
 			'workspace.taskTitleLabel' => 'Aufgabentitel',
 			'workspace.taskTitleRequired' => 'Aufgabentitel darf nicht leer sein',
 			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
 			'workspace.taskAssigneeRefresh' => 'Kandidaten aktualisieren',
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',

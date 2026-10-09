@@ -496,6 +496,11 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'Канал "${name}" создан';
 	@override String startGrowing({required Object name}) => 'Развивайте "${name}"';
 	@override String shareInviteText({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}';
+	@override String get discussion => 'Обсуждение';
+	@override String get joinDiscussion => 'Присоединиться к обсуждению';
+	@override String get essence => 'Избранные публикации';
+	@override String get allPosts => 'Все публикации';
+	@override String get editPostTags => 'Изменить теги';
 }
 
 // Path: chat
@@ -3575,6 +3580,11 @@ extension on TranslationsRuRu {
 			'channel.channelCreated' => ({required Object name}) => 'Канал "${name}" создан',
 			'channel.startGrowing' => ({required Object name}) => 'Развивайте "${name}"',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}',
+			'channel.discussion' => 'Обсуждение',
+			'channel.joinDiscussion' => 'Присоединиться к обсуждению',
+			'channel.essence' => 'Избранные публикации',
+			'channel.allPosts' => 'Все публикации',
+			'channel.editPostTags' => 'Изменить теги',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3703,13 +3713,13 @@ extension on TranslationsRuRu {
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
 			'chat.pleaseEnterSignature' => 'Введите подпись',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'Экспортировать профиль',
 			'chat.setSignature' => 'Установить подпись',
 			'chat.setAvatar' => 'Установить аватар',
 			'chat.fastForward' => ({required Object seconds}) => 'Быстрая перемотка вперёд ${seconds} сек',
 			'chat.messageId' => 'ID сообщения',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'Тип чата',
 			'chat.deletingMessage' => 'Удаление...',
 			'chat.deletingLocalMessage' => 'Удаление локального сообщения...',
@@ -4217,13 +4227,13 @@ extension on TranslationsRuRu {
 			'common.noMoreInfo' => 'Нет больше информации',
 			'common.verificationMessage' => 'Сообщение подтверждения',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'После включения: Сообщения будут автоматически удалены через ${duration} после прочтения',
+			_ => null,
+		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'После отключения: Сообщения не будут автоматически удалены',
 			'common.noGroupAnnouncement' => 'Нет объявления группы',
 			'common.featureComingSoon' => 'Функция скоро будет доступна',
 			'common.understood' => 'Понятно',
 			'common.noProblem' => 'Без проблем',
-			_ => null,
-		} ?? switch (path) {
 			'common.onMyWay' => 'Уже в пути',
 			'common.operationOptions' => 'Операции',
 			'common.copyTextContent' => 'Копировать текстовое содержание',
@@ -4731,13 +4741,13 @@ extension on TranslationsRuRu {
 			'discovery.findNearbyPeople' => 'Найти людей рядом',
 			'discovery.moment' => 'Моменты',
 			'discovery.nearbyPeopleExplain' => 'Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля.\nВаш номер телефона будет скрыт.',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Люди рядом',
 			'discovery.scanResult' => 'Результат сканирования',
 			'discovery.myChannels' => 'Мои каналы',
 			'discovery.otherUsersCanFindMe' => 'Другие пользователи могут найти меня через поиск',
 			'discovery.momentsDenyUidsLabel' => 'Скрыть от UID (через запятую)',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => 'Моменты',
 			'discovery.momentsWriteComment' => 'Написать комментарий...',
 			'discovery.momentsVisibility' => 'Видимость',
@@ -5245,13 +5255,13 @@ extension on TranslationsRuRu {
 			'momentNotify.cancel' => 'Отмена',
 			'momentNotify.delete' => 'Удалить',
 			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.moreActions' => 'Ещё действия',
 			'organization.common.rename' => 'Переименовать',
 			'organization.common.close' => 'Закрыть',
 			'organization.common.reload' => 'Обновить',
 			'organization.common.createFailed' => 'Не удалось создать',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.addFailed' => 'Не удалось добавить',
 			'organization.common.confirmArchive' => 'Подтвердить архивацию',
 			'organization.common.forbidden403' => 'Нет прав на это действие (403)',
@@ -5759,13 +5769,13 @@ extension on TranslationsRuRu {
 			'workspace.projectStatusChanged' => 'Статус проекта обновлён',
 			'workspace.projectTasksSection' => 'Задачи',
 			'workspace.taskNewEntry' => 'Новая задача',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFormCreateTitle' => 'Новая задача',
 			'workspace.taskFormEditTitle' => 'Редактировать задачу',
 			'workspace.taskTitleLabel' => 'Название задачи',
 			'workspace.taskTitleRequired' => 'Название задачи не может быть пустым',
 			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => 'Пока не назначать',
 			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
 			'workspace.taskSubmitCreate' => 'Создать задачу',

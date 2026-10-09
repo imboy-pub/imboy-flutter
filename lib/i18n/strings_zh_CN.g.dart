@@ -1358,6 +1358,21 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '大家快来关注我的频道【$name】吧！$url'
 	String shareInviteText({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}';
+
+	/// zh-CN: '讨论区'
+	String get discussion => '讨论区';
+
+	/// zh-CN: '加入讨论'
+	String get joinDiscussion => '加入讨论';
+
+	/// zh-CN: '精华'
+	String get essence => '精华';
+
+	/// zh-CN: '全部内容'
+	String get allPosts => '全部内容';
+
+	/// zh-CN: '编辑标签'
+	String get editPostTags => '编辑标签';
 }
 
 // Path: chat
@@ -9448,6 +9463,11 @@ extension on Translations {
 			'channel.channelCreated' => ({required Object name}) => '频道 “${name}” 已创建',
 			'channel.startGrowing' => ({required Object name}) => '开始发展壮大 “${name}”',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}',
+			'channel.discussion' => '讨论区',
+			'channel.joinDiscussion' => '加入讨论',
+			'channel.essence' => '精华',
+			'channel.allPosts' => '全部内容',
+			'channel.editPostTags' => '编辑标签',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -9540,13 +9560,13 @@ extension on Translations {
 			'chat.voiceReleaseCancelSend' => '松开 取消发送',
 			'chat.voiceReleaseCancel' => '松开 取消',
 			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
+			_ => null,
+		} ?? switch (path) {
 			'chat.convertToText' => '转文字',
 			'chat.sending' => '正在发送...',
 			'chat.socialProfile' => '社交资料',
 			'chat.sureOpenTheFile' => '确定要打开文件吗？',
 			'chat.titleMessage' => '消息',
-			_ => null,
-		} ?? switch (path) {
 			'chat.unpin' => '取消置顶',
 			'chat.userData' => '用户数据',
 			'chat.video' => '视频',
@@ -10054,13 +10074,13 @@ extension on Translations {
 			'common.backgroundOnlySolidColor' => '仅适用于纯色背景',
 			'common.backgroundSelectColor' => '选择颜色',
 			'common.profileShareProfile' => '分享资料',
+			_ => null,
+		} ?? switch (path) {
 			'common.tagClearAllConfirm' => '确定要清空所有标签吗？',
 			'common.tagClearAll' => '确认清空',
 			'common.audioPlayFailed' => '播放失败',
 			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被设备【${device}】强制下线',
 			'common.loadingTagDataFailed' => '加载标签数据失败',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => '请输入内容',
 			'common.comingSoon' => '敬请期待',
 			'common.backgroundTransparency' => '背景透明度',
@@ -10568,13 +10588,13 @@ extension on Translations {
 			'common.pauseScan' => '暂停扫描',
 			'common.resumeScan' => '继续扫描',
 			'common.enterFullscreen' => '进入全屏',
+			_ => null,
+		} ?? switch (path) {
 			'common.exitFullscreen' => '退出全屏',
 			'common.me' => '我',
 			'common.justNow' => '刚刚',
 			'common.minutesAgo' => '分钟前',
 			'common.hoursAgo' => '小时前',
-			_ => null,
-		} ?? switch (path) {
 			'common.collapse' => '收起',
 			'common.expandFull' => '展开',
 			'common.fontSizeOptionSmall' => '小',
@@ -11082,13 +11102,13 @@ extension on Translations {
 			'main.male' => '男',
 			'main.manage' => '管理',
 			'main.markStar' => '收藏',
+			_ => null,
+		} ?? switch (path) {
 			'main.multiSelect' => '多选',
 			'main.myFavorites' => '我的收藏',
 			'main.myLive' => '我的直播',
 			'main.name' => '名称',
 			'main.numUnit' => ({required Object param}) => '${param}个',
-			_ => null,
-		} ?? switch (path) {
 			'main.openInBrowser' => '在浏览器中打开',
 			'main.or' => '或者',
 			'main.otherParty' => '对方',
@@ -11596,13 +11616,13 @@ extension on Translations {
 			'organization.tools.projectsError' => ({required Object err}) => '项目加载失败：${err}',
 			'organization.tools.moreInWorkspaceShell' => '浏览全部工作区',
 			'organization.tools.moreInWorkspaceShellHint' => '打开全局工作区切换器（跨企业）。',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.zoomIn' => '放大',
 			'organization.chart.zoomOut' => '缩小',
 			'organization.chart.fit' => '适应窗口',
 			'organization.chart.expand' => '展开下级部门',
 			'organization.chart.collapse' => '收起下级部门',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
 			'organization.chart.directMembers' => ({required Object count}) => '本级 ${count} 人',
 			'passport.loginHistoryToggle' => '展开历史登录记录',

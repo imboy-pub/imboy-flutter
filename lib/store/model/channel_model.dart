@@ -120,6 +120,9 @@ class ChannelModel {
 
   final String? customId;
   final int creatorId;
+
+  /// Server-authoritative nullable binding; never inferred from an old cached group.
+  final int? discussionGroupId;
   final int subscriberCount;
   final bool isVerified;
   final List<String>? tags;
@@ -149,6 +152,7 @@ class ChannelModel {
     this.joinPolicy = unknownAccessPolicy,
     this.customId,
     required this.creatorId,
+    this.discussionGroupId,
     this.subscriberCount = 0,
     this.isVerified = false,
     this.tags,
@@ -218,6 +222,7 @@ class ChannelModel {
       customId: parsedCustomId,
       // 后端返回 creator_uid 或 creator_id
       creatorId: parseModelInt(json['creator_uid'] ?? json['creator_id']),
+      discussionGroupId: _discussionId(json['discussion_group_id']),
       subscriberCount: parseModelInt(json['subscriber_count']),
       isVerified: parseModelBool(json['is_verified']),
       tags: parseModelStringList(json['tags']),
@@ -246,6 +251,7 @@ class ChannelModel {
       'join_policy': joinPolicy,
       'custom_id': customId,
       'creator_id': creatorId,
+      'discussion_group_id': discussionGroupId,
       'subscriber_count': subscriberCount,
       'is_verified': isVerified ? 1 : 0,
       'tags': tags,
@@ -282,6 +288,7 @@ class ChannelModel {
       ),
       customId: parsedCustomId,
       creatorId: parseModelInt(map['creator_id']),
+      discussionGroupId: _discussionId(map['discussion_group_id']),
       subscriberCount: parseModelInt(map['subscriber_count']),
       isVerified: parseModelBool(map['is_verified']),
       tags: parseModelStringList(map['tags']),
@@ -331,6 +338,8 @@ class ChannelModel {
     int? joinPolicy,
     String? customId,
     int? creatorId,
+    int? discussionGroupId,
+    bool clearDiscussionGroup = false,
     int? subscriberCount,
     bool? isVerified,
     List<String>? tags,
@@ -352,6 +361,9 @@ class ChannelModel {
       joinPolicy: joinPolicy ?? this.joinPolicy,
       customId: customId ?? this.customId,
       creatorId: creatorId ?? this.creatorId,
+      discussionGroupId: clearDiscussionGroup
+          ? null
+          : (discussionGroupId ?? this.discussionGroupId),
       subscriberCount: subscriberCount ?? this.subscriberCount,
       isVerified: isVerified ?? this.isVerified,
       tags: tags ?? this.tags,
@@ -363,6 +375,11 @@ class ChannelModel {
       price: price ?? this.price,
       currency: currency ?? this.currency,
     );
+  }
+
+  static int? _discussionId(dynamic raw) {
+    final value = raw is int ? raw : (raw is String ? int.tryParse(raw) : null);
+    return value != null && value > 0 ? value : null;
   }
 
   @override

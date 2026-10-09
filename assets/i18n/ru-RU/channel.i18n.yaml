@@ -206,3 +206,10 @@ addDescription: "Добавить описание"
 channelCreated(name): "Канал \"$name\" создан"
 startGrowing(name): "Развивайте \"$name\""
 shareInviteText(name, url): "Подписывайтесь на мой канал \"$name\": $url"
+
+# Micro-community content and explicit discussion membership.
+discussion: "Обсуждение"
+joinDiscussion: "Присоединиться к обсуждению"
+essence: "Избранные публикации"
+allPosts: "Все публикации"
+editPostTags: "Изменить теги"

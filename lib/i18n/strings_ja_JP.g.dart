@@ -496,6 +496,11 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String channelCreated({required Object name}) => 'チャンネル「${name}」を作成しました';
 	@override String startGrowing({required Object name}) => '「${name}」を育てよう';
 	@override String shareInviteText({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}';
+	@override String get discussion => 'ディスカッション';
+	@override String get joinDiscussion => '議論に参加';
+	@override String get essence => '注目の投稿';
+	@override String get allPosts => 'すべての投稿';
+	@override String get editPostTags => 'タグを編集';
 }
 
 // Path: chat
@@ -3566,6 +3571,11 @@ extension on TranslationsJaJp {
 			'channel.channelCreated' => ({required Object name}) => 'チャンネル「${name}」を作成しました',
 			'channel.startGrowing' => ({required Object name}) => '「${name}」を育てよう',
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}',
+			'channel.discussion' => 'ディスカッション',
+			'channel.joinDiscussion' => '議論に参加',
+			'channel.essence' => '注目の投稿',
+			'channel.allPosts' => 'すべての投稿',
+			'channel.editPostTags' => 'タグを編集',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3694,13 +3704,13 @@ extension on TranslationsJaJp {
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
 			'chat.pleaseEnterSignature' => 'ひとことを入力してください',
+			_ => null,
+		} ?? switch (path) {
 			'chat.exportProfile' => 'プロフィールをエクスポート',
 			'chat.setSignature' => '署名を設定',
 			'chat.setAvatar' => 'アバターを設定',
 			'chat.fastForward' => ({required Object seconds}) => '早送り ${seconds}秒',
 			'chat.messageId' => 'メッセージID',
-			_ => null,
-		} ?? switch (path) {
 			'chat.chatType' => 'チャットタイプ',
 			'chat.deletingMessage' => '削除中...',
 			'chat.deletingLocalMessage' => 'ローカルメッセージ削除中...',
@@ -4208,13 +4218,13 @@ extension on TranslationsJaJp {
 			'common.noMoreInfo' => 'これ以上の情報はありません',
 			'common.verificationMessage' => '認証メッセージ',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'オンにした後：メッセージは閲覧後 ${duration} で自動削除されます',
+			_ => null,
+		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'オフにした後：メッセージは自動削除されません',
 			'common.noGroupAnnouncement' => 'グループ公告はありません',
 			'common.featureComingSoon' => '近日公開',
 			'common.understood' => '了解しました',
 			'common.noProblem' => '問題ありません',
-			_ => null,
-		} ?? switch (path) {
 			'common.onMyWay' => 'すぐに向かいます',
 			'common.operationOptions' => '操作オプション',
 			'common.copyTextContent' => 'テキストをコピー',
@@ -4722,13 +4732,13 @@ extension on TranslationsJaJp {
 			'discovery.findNearbyPeople' => '近くの人を探す',
 			'discovery.moment' => 'モーメンツ',
 			'discovery.nearbyPeopleExplain' => '近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。\n電話番号は非表示になります。',
+			_ => null,
+		} ?? switch (path) {
 			'discovery.peopleNearby' => '近くの人',
 			'discovery.scanResult' => 'スキャン結果',
 			'discovery.myChannels' => 'マイチャンネル',
 			'discovery.otherUsersCanFindMe' => '他のユーザーが検索で私を見つけることができます',
 			'discovery.momentsDenyUidsLabel' => '除外対象 UID リスト（カンマ区切り）',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.moments' => 'モーメンツ',
 			'discovery.momentsWriteComment' => 'コメントを書く...',
 			'discovery.momentsVisibility' => '公開範囲',
@@ -5236,13 +5246,13 @@ extension on TranslationsJaJp {
 			'momentNotify.cancel' => 'キャンセル',
 			'momentNotify.delete' => '削除',
 			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.moreActions' => 'その他の操作',
 			'organization.common.rename' => '名前を変更',
 			'organization.common.close' => '閉じる',
 			'organization.common.reload' => '再読み込み',
 			'organization.common.createFailed' => '作成に失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.addFailed' => '追加に失敗しました',
 			'organization.common.confirmArchive' => 'アーカイブを確認',
 			'organization.common.forbidden403' => 'この操作を実行する権限がありません（403）',
@@ -5750,13 +5760,13 @@ extension on TranslationsJaJp {
 			'workspace.projectStatusChanged' => 'プロジェクトのステータスを更新しました',
 			'workspace.projectTasksSection' => 'タスク',
 			'workspace.taskNewEntry' => '新規タスク',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskFormCreateTitle' => '新規タスク',
 			'workspace.taskFormEditTitle' => 'タスクを編集',
 			'workspace.taskTitleLabel' => 'タスクのタイトル',
 			'workspace.taskTitleRequired' => 'タスクのタイトルは空にできません',
 			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => '担当者を未指定',
 			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
 			'workspace.taskSubmitCreate' => 'タスクを作成',
