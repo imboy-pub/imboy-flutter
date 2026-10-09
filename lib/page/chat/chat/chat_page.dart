@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:imboy/component/helper/safe_launcher.dart';
+import 'package:imboy/component/chat/chat_web_links.dart';
 
 import 'package:imboy/component/ui/bot_badge.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -2178,7 +2178,9 @@ class ChatPageState extends ConsumerState<ChatPage>
                 .userIdToName
                 .values
                 .toSet();
-            final projected = MentionTextReducer.applyTo(message, activeNames);
+            final projected = ChatWebLinks.project(
+              MentionTextReducer.applyTo(message, activeNames),
+            );
             // 纯 emoji 消息去掉气泡、放大到 48px（FlyerChatTextMessage 读
             // metadata.isOnlyEmoji 决定）。这是"发个大表情"的唯一实现路径——
             // 不再有第二个伪贴图消息类型，见 sticker_picker 删除记录。
@@ -2199,15 +2201,7 @@ class ChatPageState extends ConsumerState<ChatPage>
               index: index,
               showStatus: false,
               showTime: true,
-              onLinkTap: (url, title) async {
-                final opened = await SafeLauncher.safeLaunchUrlString(
-                  url,
-                  context: context,
-                );
-                if (!opened && context.mounted) {
-                  AppLoading.showToast(t.common.cannotOpenWebpage);
-                }
-              },
+              onLinkTap: ChatWebLinks.onTap(context),
             );
           },
       textStreamMessageBuilder:
@@ -2224,18 +2218,10 @@ class ChatPageState extends ConsumerState<ChatPage>
             return FlyerChatTextStreamMessage(
               message: message,
               index: index,
-              streamState: streamState,
+              streamState: ChatWebLinks.projectStream(streamState),
               showStatus: false,
               showTime: true,
-              onLinkTap: (url, title) async {
-                final opened = await SafeLauncher.safeLaunchUrlString(
-                  url,
-                  context: context,
-                );
-                if (!opened && context.mounted) {
-                  AppLoading.showToast(t.common.cannotOpenWebpage);
-                }
-              },
+              onLinkTap: ChatWebLinks.onTap(context),
               loadingText: '...',
             );
           },
