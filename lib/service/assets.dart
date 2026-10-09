@@ -146,6 +146,7 @@ class AssetsService {
   /// 异步版本：当 uploadKey 可能为空时使用
   /// 先确保 uploadKey 已加载，再生成带签名的 URL
   static Future<Uri> viewUrlAsync(String url) async {
+    if (isPresignedUrl(url)) return Uri.parse(url);
     if (isObjectKey(url)) {
       return Uri(path: url);
     }

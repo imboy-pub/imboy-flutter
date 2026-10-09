@@ -221,7 +221,9 @@ class IMBoyCacheManager {
       // （?s&a&v，s/a 为空）Garage 不认 → GET 404。host 属 publicBaseUrl
       // 时提取 object_key（剥掉 bucket 段）走后端 view_url 签发 presign GET。
       extSource = rawUri.path;
-      if (_isGarageHost(rawUri.host)) {
+      if (AssetsService.isPresignedUrl(url)) {
+        downloadUrl = url;
+      } else if (_isGarageHost(rawUri.host)) {
         downloadUrl = await AssetUrlResolver.instance.resolve(
           _objectKeyFromUrl(rawUri),
         );

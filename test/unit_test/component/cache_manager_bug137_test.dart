@@ -21,6 +21,24 @@ void main() {
   });
 
   group('IMBoyCacheManager - BUG#137 Garage 完整 URL', () {
+    test('已经签发的 Garage URL 不再次请求 object_key 授权', () async {
+      var fetched = false;
+      AssetUrlResolver.instance.fetcherOverride = (_) async {
+        fetched = true;
+        throw StateError('signed URL must not be reauthorized');
+      };
+      addTearDown(() => AssetUrlResolver.instance.fetcherOverride = null);
+      await expectLater(
+        IMBoyCacheManager().getSingleFile(
+          'https://s3.example.test/imboy/file_123_abc/signed.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test&X-Amz-Signature=x',
+          maxRetries: 1,
+          validateImageData: false,
+        ),
+        throwsA(anything),
+      );
+      expect(fetched, isFalse);
+    });
+
     test('Garage 合成域完整 URL 提取 object_key 并走 presign', () async {
       String? capturedKey;
       AssetUrlResolver.instance.fetcherOverride = (objectKey) {

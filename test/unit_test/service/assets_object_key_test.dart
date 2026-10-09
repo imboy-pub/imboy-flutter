@@ -77,10 +77,11 @@ void main() {
       );
     });
 
-    test('S3 预签名地址保留签名查询串，不追加旧授权参数', () {
+    test('S3 预签名地址保留签名查询串，不追加旧授权参数', () async {
       const url =
           'https://storage.example.invalid/bucket/a%20b.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=test%2Fscope&X-Amz-SignedHeaders=host&X-Amz-Signature=abc123';
       expect(AssetsService.viewUrl(url).toString(), url);
+      expect((await AssetsService.viewUrlAsync(url)).toString(), url);
       final provider = cachedImageProvider(url) as IMBoyCachedImageProvider;
       expect(provider.url, url, reason: '默认缩略图宽度不能改动 S3 签名查询串');
       expect(
