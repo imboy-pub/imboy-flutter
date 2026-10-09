@@ -73,8 +73,9 @@ void main() {
   });
 
   group('payloadHash / verifyPayloadHash', () {
-    test('hash 一致时校验通过', () async {
-      final bytes = await packBytes();
+    // Hash validation accepts opaque bytes and does not derive encryption keys.
+    final bytes = Uint8List.fromList(List.generate(96, (index) => index));
+    test('hash 一致时校验通过', () {
       final payload = base64.encode(bytes);
       final hash = E2EEServerBackupService.payloadHash(payload);
       expect(
@@ -91,11 +92,16 @@ void main() {
       );
     });
 
-    test('密文被篡改时校验抛 ArgumentError', () async {
-      final bytes = await packBytes();
+    test('密文被篡改时校验抛 ArgumentError', () {
       final payload = base64.encode(bytes);
       final hash = E2EEServerBackupService.payloadHash(payload);
-      final tampered = '${payload.substring(0, payload.length - 4)}AAAA';
+      final tampered = base64.encode(
+        Uint8List.fromList([
+          for (var i = 0; i < bytes.length; i++)
+            i == 80 ? bytes[i] ^ 1 : bytes[i],
+        ]),
+      );
+      expect(tampered, isNot(payload));
       expect(
         () => E2EEServerBackupService.verifyPayloadHash(tampered, hash),
         throwsArgumentError,
