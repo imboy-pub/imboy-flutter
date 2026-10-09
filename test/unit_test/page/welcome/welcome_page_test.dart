@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/service/storage.dart';
@@ -52,6 +53,41 @@ Future<void> _pumpWelcome(WidgetTester tester) async {
 }
 
 void main() {
+  setUp(() => AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true}));
+  tearDown(() => AppFeatureRegistry.replaceSnapshotForTest({}));
+
+  for (final flags in <Map<String, dynamic>>[
+    {},
+    {'e2ee': false},
+    {'e2ee': 'false'},
+    {'e2ee': 'unknown'},
+  ]) {
+    testWidgets('unconfirmed encryption does not advertise E2EE: $flags', (
+      tester,
+    ) async {
+      AppFeatureRegistry.replaceSnapshotForTest(flags);
+      await _pumpWelcome(tester);
+      await tester.tap(find.text('下一步'));
+      await tester.pumpAndSettle();
+      expect(find.text('安全私密'), findsNothing);
+      expect(find.text('准备探索？'), findsOneWidget);
+      expect(find.text('开始使用'), findsOneWidget);
+      expect(find.bySemanticsLabel('2/2'), findsOneWidget);
+      await tester.tap(find.text('开始使用'));
+      await tester.pumpAndSettle();
+      expect(find.text('sign in stub'), findsOneWidget);
+    });
+  }
+
+  testWidgets('confirmed encryption retains its translated welcome step', (
+    tester,
+  ) async {
+    await _pumpWelcome(tester);
+    await tester.tap(find.text('下一步'));
+    await tester.pumpAndSettle();
+    expect(find.text('安全私密'), findsOneWidget);
+    expect(find.bySemanticsLabel('2/3'), findsOneWidget);
+  });
   group('WelcomePage brand anchors', () {
     testWidgets('renders top brand logo (28×28) + "ImBoy" wordmark', (
       tester,

@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/splash/splash_page.dart'
     show kBrandLogoHeroTag, kBrandWordmarkHeroTag;
@@ -44,6 +46,7 @@ class WelcomePage extends ConsumerStatefulWidget {
 class _WelcomePageState extends ConsumerState<WelcomePage> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  late final bool _showEncryptedWelcome;
   StreamSubscription<AppLocale>? _localeSubscription;
 
   /// 引导页任一出口（跳过/走完）置位「已看过」标记：
@@ -55,6 +58,14 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
   @override
   void initState() {
     super.initState();
+    // 未登录时能力可能尚未拉取；仅在明确启用后展示加密宣传。
+    // 固定本次引导页数，避免配置更新使当前页索引越界。
+    _showEncryptedWelcome =
+        AppFeatureRegistry.isEnabled(FeatureKeys.e2ee) &&
+        AppFeatureRegistry.normalizeFlags(
+              AppFeatureRegistry.snapshot,
+            )[FeatureKeys.e2ee] ==
+            true;
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       // 语言变化时触发重建
@@ -77,11 +88,12 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
       'desc': ctx.t.welcome.step1Desc,
       'svg': _svgStep1,
     },
-    {
-      'title': ctx.t.welcome.step2Title,
-      'desc': ctx.t.welcome.step2Desc,
-      'svg': _svgStep2,
-    },
+    if (_showEncryptedWelcome)
+      {
+        'title': ctx.t.welcome.step2Title,
+        'desc': ctx.t.welcome.step2Desc,
+        'svg': _svgStep2,
+      },
     {
       'title': ctx.t.welcome.step3Title,
       'desc': ctx.t.welcome.step3Desc,

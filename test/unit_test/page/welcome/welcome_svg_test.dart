@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/page/welcome/welcome_page.dart';
 
 /// WelcomePage 引导插画 SVG widget 渲染契约测试
@@ -47,6 +48,8 @@ Future<void> _pumpWelcome(WidgetTester tester) async {
 }
 
 void main() {
+  setUp(() => AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true}));
+  tearDown(() => AppFeatureRegistry.replaceSnapshotForTest({}));
   group('WelcomePage SVG illustrations', () {
     testWidgets('renders SvgPicture in PageView for current step', (
       tester,
