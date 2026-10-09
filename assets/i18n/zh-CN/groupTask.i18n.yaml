@@ -19,3 +19,5 @@ submitFailed: 提交失败，请稍后重试
 pendingReview: 待审核
 taskIdMissing: 作业ID缺失，无法查看详情
 taskIdMissingSubmit: 作业ID缺失，无法提交
+publishedAt: "$time 发布"
+completedAt: "完成于 $time"

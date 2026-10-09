@@ -2078,6 +2078,8 @@ class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'На проверке';
 	@override String get taskIdMissing => 'ID задания отсутствует, нельзя открыть детали';
 	@override String get taskIdMissingSubmit => 'ID задания отсутствует, нельзя отправить';
+	@override String publishedAt({required Object time}) => 'Опубликовано ${time}';
+	@override String completedAt({required Object time}) => 'Завершено ${time}';
 }
 
 // Path: groupVote
@@ -5004,6 +5006,8 @@ extension on TranslationsRuRu {
 			'groupTask.pendingReview' => 'На проверке',
 			'groupTask.taskIdMissing' => 'ID задания отсутствует, нельзя открыть детали',
 			'groupTask.taskIdMissingSubmit' => 'ID задания отсутствует, нельзя отправить',
+			'groupTask.publishedAt' => ({required Object time}) => 'Опубликовано ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Завершено ${time}',
 			'groupVote.title' => 'Опросы группы',
 			'groupVote.createVote' => 'Создать опрос',
 			'groupVote.voteTitle' => 'Вопрос опроса',
@@ -5248,10 +5252,10 @@ extension on TranslationsRuRu {
 			'organization.common.moreActions' => 'Ещё действия',
 			'organization.common.rename' => 'Переименовать',
 			'organization.common.close' => 'Закрыть',
-			'organization.common.reload' => 'Обновить',
-			'organization.common.createFailed' => 'Не удалось создать',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => 'Обновить',
+			'organization.common.createFailed' => 'Не удалось создать',
 			'organization.common.addFailed' => 'Не удалось добавить',
 			'organization.common.confirmArchive' => 'Подтвердить архивацию',
 			'organization.common.forbidden403' => 'Нет прав на это действие (403)',
@@ -5762,10 +5766,10 @@ extension on TranslationsRuRu {
 			'workspace.taskFormCreateTitle' => 'Новая задача',
 			'workspace.taskFormEditTitle' => 'Редактировать задачу',
 			'workspace.taskTitleLabel' => 'Название задачи',
-			'workspace.taskTitleRequired' => 'Название задачи не может быть пустым',
-			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleRequired' => 'Название задачи не может быть пустым',
+			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
 			'workspace.taskAssigneeNone' => 'Пока не назначать',
 			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
 			'workspace.taskSubmitCreate' => 'Создать задачу',

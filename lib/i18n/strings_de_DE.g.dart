@@ -2072,6 +2072,8 @@ class _Translations$groupTask$de_DE extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'Prüfung ausstehend';
 	@override String get taskIdMissing => 'Aufgaben-ID fehlt, Details können nicht angezeigt werden';
 	@override String get taskIdMissingSubmit => 'Aufgaben-ID fehlt, Einreichen nicht möglich';
+	@override String publishedAt({required Object time}) => 'Veröffentlicht ${time}';
+	@override String completedAt({required Object time}) => 'Abgeschlossen ${time}';
 }
 
 // Path: groupVote
@@ -4998,6 +5000,8 @@ extension on TranslationsDeDe {
 			'groupTask.pendingReview' => 'Prüfung ausstehend',
 			'groupTask.taskIdMissing' => 'Aufgaben-ID fehlt, Details können nicht angezeigt werden',
 			'groupTask.taskIdMissingSubmit' => 'Aufgaben-ID fehlt, Einreichen nicht möglich',
+			'groupTask.publishedAt' => ({required Object time}) => 'Veröffentlicht ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Abgeschlossen ${time}',
 			'groupVote.title' => 'Gruppen-Umfrage',
 			'groupVote.createVote' => 'Umfrage erstellen',
 			'groupVote.voteTitle' => 'Umfrage-Titel',
@@ -5242,10 +5246,10 @@ extension on TranslationsDeDe {
 			'organization.common.moreActions' => 'Weitere Aktionen',
 			'organization.common.rename' => 'Umbenennen',
 			'organization.common.close' => 'Schließen',
-			'organization.common.reload' => 'Neu laden',
-			'organization.common.createFailed' => 'Erstellen fehlgeschlagen',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => 'Neu laden',
+			'organization.common.createFailed' => 'Erstellen fehlgeschlagen',
 			'organization.common.addFailed' => 'Hinzufügen fehlgeschlagen',
 			'organization.common.confirmArchive' => 'Archivieren bestätigen',
 			'organization.common.forbidden403' => 'Keine Berechtigung für diese Aktion (403)',
@@ -5756,10 +5760,10 @@ extension on TranslationsDeDe {
 			'workspace.taskFormCreateTitle' => 'Neue Aufgabe',
 			'workspace.taskFormEditTitle' => 'Aufgabe bearbeiten',
 			'workspace.taskTitleLabel' => 'Aufgabentitel',
-			'workspace.taskTitleRequired' => 'Aufgabentitel darf nicht leer sein',
-			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleRequired' => 'Aufgabentitel darf nicht leer sein',
+			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
 			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
 			'workspace.taskAssigneeRefresh' => 'Kandidaten aktualisieren',
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',

@@ -2216,6 +2216,8 @@ class _Translations$groupTask$en_US extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'Pending Review';
 	@override String get taskIdMissing => 'Assignment ID missing, cannot view details';
 	@override String get taskIdMissingSubmit => 'Assignment ID missing, cannot submit';
+	@override String publishedAt({required Object time}) => 'Published ${time}';
+	@override String completedAt({required Object time}) => 'Completed ${time}';
 }
 
 // Path: groupVote
@@ -5338,6 +5340,8 @@ extension on TranslationsEnUs {
 			'groupTask.pendingReview' => 'Pending Review',
 			'groupTask.taskIdMissing' => 'Assignment ID missing, cannot view details',
 			'groupTask.taskIdMissingSubmit' => 'Assignment ID missing, cannot submit',
+			'groupTask.publishedAt' => ({required Object time}) => 'Published ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Completed ${time}',
 			'groupVote.title' => 'Group Votes',
 			'groupVote.createVote' => 'Create Vote',
 			'groupVote.voteTitle' => 'Vote Title',
@@ -5428,10 +5432,10 @@ extension on TranslationsEnUs {
 			'main.selectedCount' => ({required Object count}) => 'Selected (${count})',
 			'main.selected' => 'Selected',
 			'main.sent' => 'Sent',
-			'main.sentByMe' => 'Sent by me',
-			'main.setParam' => ({required Object param}) => 'Set ${param}',
 			_ => null,
 		} ?? switch (path) {
+			'main.sentByMe' => 'Sent by me',
+			'main.setParam' => ({required Object param}) => 'Set ${param}',
 			'main.setting' => 'Settings',
 			'main.siginQ' => 'Already have an account?',
 			'main.source' => 'Source',
@@ -5942,10 +5946,10 @@ extension on TranslationsEnUs {
 			'passport.qrLoginConfirming' => 'Signing in...',
 			'passport.qrLoginSuccess' => 'Login successful',
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
-			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
-			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
+			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
 			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',
 			'passport.oneKeyInitFailed' => 'Failed to initialize one-tap login, please try again later',
 			'passport.oneKeyNoSimCard' => 'The current network is not supported, or the phone has no SIM card',

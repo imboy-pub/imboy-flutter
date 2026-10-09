@@ -2,12 +2,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/task/group_task_form.dart';
 import 'package:imboy/service/group_task_service.dart';
+import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -35,6 +37,10 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   bool _isLoading = true;
   Object? _error;
   int _currentFilter = 0; // 0: 全部, 1: 待完成, 2: 已完成
+
+  /// 发布人显示名（alias 优先，nickname 兜底），key 为 creator_id。
+  /// 本地群成员缓存缺失或查询失败时留空，meta 行退化为只显示时间。
+  Map<String, String> _creatorNames = {};
 
   @override
   void initState() {
@@ -75,6 +81,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           _tasks = tasks;
           _isLoading = false;
         });
+        await _resolveCreatorNames(tasks);
       }
     } on Exception catch (e) {
       if (mounted) {
@@ -83,6 +90,32 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  /// 解析列表中发布人的群内显示名（alias 优先，nickname 兜底，
+  /// 与 group_member_page 的显示惯例一致）。查询失败静默降级。
+  Future<void> _resolveCreatorNames(List<Map<String, dynamic>> tasks) async {
+    final names = <String, String>{};
+    for (final task in tasks) {
+      final creatorId = _toText(task['creator_id']);
+      if (creatorId.isEmpty || names.containsKey(creatorId)) continue;
+      String name = '';
+      try {
+        final member = await GroupMemberRepo().findByUserId(
+          widget.groupId,
+          creatorId,
+        );
+        final alias = member?.alias.trim() ?? '';
+        final nickname = member?.nickname.trim() ?? '';
+        name = alias.isNotEmpty ? alias : nickname;
+      } catch (_) {
+        // 本地库未就绪（如 widget 测试环境）：不阻塞列表渲染
+      }
+      names[creatorId] = name;
+    }
+    if (mounted) {
+      setState(() => _creatorNames = names);
     }
   }
 
@@ -243,6 +276,17 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final isDone = status == 3;
     final deadline = task['deadline'] is int ? task['deadline'] as int : null;
     final taskId = _resolveTaskRouteId(task);
+    final createdAt = task['created_at'] is int
+        ? task['created_at'] as int
+        : null;
+    final myAssignment = task['my_assignment'];
+    // assignment.status 枚举：2 已提交、3 已批改，都算"我已完成"
+    final myStatus = myAssignment is Map ? _toInt(myAssignment['status']) : 0;
+    final submittedAt =
+        myAssignment is Map && myAssignment['submitted_at'] is int
+        ? myAssignment['submitted_at'] as int
+        : null;
+    final creatorName = _creatorNames[_toText(task['creator_id'])] ?? '';
 
     return GestureDetector(
       onTap: () async {
@@ -333,6 +377,19 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
+                  // 发布人 · 发布时间 meta 行（发布人解析失败时只显示时间）
+                  if (creatorName.isNotEmpty || createdAt != null) ...[
+                    const SizedBox(height: AppSpacing.tiny),
+                    Text(
+                      _publishedMeta(creatorName, createdAt),
+                      style: context.textStyle(
+                        FontSizeType.caption2,
+                        color: AppColors.iosGray,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                   if (deadline != null) ...[
                     const SizedBox(height: AppSpacing.tiny),
                     Row(
@@ -348,6 +405,41 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                           style: context.textStyle(
                             FontSizeType.caption2,
                             color: _getDeadlineColor(context, deadline),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  // 我已提交（含已批改）→ 显示完成时间
+                  if (myStatus >= 2 &&
+                      submittedAt != null &&
+                      submittedAt > 0) ...[
+                    const SizedBox(height: AppSpacing.tiny),
+                    Row(
+                      children: [
+                        Icon(
+                          CupertinoIcons.checkmark_circle_fill,
+                          size: 14,
+                          color: AppColors.getIosGreen(
+                            Theme.of(context).brightness,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            t.groupTask.completedAt(
+                              time: DateTimeHelper.lastTimeFmt(
+                                submittedAt * 1000,
+                              ),
+                            ),
+                            style: context.textStyle(
+                              FontSizeType.caption2,
+                              color: AppColors.getIosGreen(
+                                Theme.of(context).brightness,
+                              ),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
@@ -396,6 +488,24 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   String _toText(dynamic value) {
     if (value == null) return '';
     return value.toString().trim();
+  }
+
+  int _toInt(dynamic value) {
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  /// 发布人 · 发布时间 meta 行；发布人缺失时只显示时间，两者都缺则空串。
+  String _publishedMeta(String name, int? createdAt) {
+    final parts = <String>[
+      if (name.isNotEmpty) name,
+      if (createdAt != null && createdAt > 0)
+        t.groupTask.publishedAt(
+          time: DateTimeHelper.lastTimeFmt(createdAt * 1000),
+        ),
+    ];
+    return parts.join(' · ');
   }
 
   String _resolveTaskRouteId(Map<String, dynamic> task) {

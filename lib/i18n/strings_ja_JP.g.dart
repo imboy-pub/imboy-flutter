@@ -2069,6 +2069,8 @@ class _Translations$groupTask$ja_JP extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => '審査待ち';
 	@override String get taskIdMissing => '課題IDがありません。詳細を表示できません';
 	@override String get taskIdMissingSubmit => '課題IDがありません。提出できません';
+	@override String publishedAt({required Object time}) => '${time} に公開';
+	@override String completedAt({required Object time}) => '${time} に完了';
 }
 
 // Path: groupVote
@@ -4995,6 +4997,8 @@ extension on TranslationsJaJp {
 			'groupTask.pendingReview' => '審査待ち',
 			'groupTask.taskIdMissing' => '課題IDがありません。詳細を表示できません',
 			'groupTask.taskIdMissingSubmit' => '課題IDがありません。提出できません',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} に公開',
+			'groupTask.completedAt' => ({required Object time}) => '${time} に完了',
 			'groupVote.title' => 'グループ投票',
 			'groupVote.createVote' => '投票を作成',
 			'groupVote.voteTitle' => '投票タイトル',
@@ -5239,10 +5243,10 @@ extension on TranslationsJaJp {
 			'organization.common.moreActions' => 'その他の操作',
 			'organization.common.rename' => '名前を変更',
 			'organization.common.close' => '閉じる',
-			'organization.common.reload' => '再読み込み',
-			'organization.common.createFailed' => '作成に失敗しました',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => '再読み込み',
+			'organization.common.createFailed' => '作成に失敗しました',
 			'organization.common.addFailed' => '追加に失敗しました',
 			'organization.common.confirmArchive' => 'アーカイブを確認',
 			'organization.common.forbidden403' => 'この操作を実行する権限がありません（403）',
@@ -5753,10 +5757,10 @@ extension on TranslationsJaJp {
 			'workspace.taskFormCreateTitle' => '新規タスク',
 			'workspace.taskFormEditTitle' => 'タスクを編集',
 			'workspace.taskTitleLabel' => 'タスクのタイトル',
-			'workspace.taskTitleRequired' => 'タスクのタイトルは空にできません',
-			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleRequired' => 'タスクのタイトルは空にできません',
+			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
 			'workspace.taskAssigneeNone' => '担当者を未指定',
 			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
 			'workspace.taskSubmitCreate' => 'タスクを作成',

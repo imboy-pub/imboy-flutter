@@ -2069,6 +2069,8 @@ class _Translations$groupTask$ko_KR extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => '검토 대기';
 	@override String get taskIdMissing => '과제 ID가 없어 상세정보를 볼 수 없습니다';
 	@override String get taskIdMissingSubmit => '과제 ID가 없어 제출할 수 없습니다';
+	@override String publishedAt({required Object time}) => '${time} 게시';
+	@override String completedAt({required Object time}) => '${time} 완료';
 }
 
 // Path: groupVote
@@ -4995,6 +4997,8 @@ extension on TranslationsKoKr {
 			'groupTask.pendingReview' => '검토 대기',
 			'groupTask.taskIdMissing' => '과제 ID가 없어 상세정보를 볼 수 없습니다',
 			'groupTask.taskIdMissingSubmit' => '과제 ID가 없어 제출할 수 없습니다',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} 게시',
+			'groupTask.completedAt' => ({required Object time}) => '${time} 완료',
 			'groupVote.title' => '그룹 투표',
 			'groupVote.createVote' => '투표 만들기',
 			'groupVote.voteTitle' => '투표 제목',
@@ -5239,10 +5243,10 @@ extension on TranslationsKoKr {
 			'organization.common.moreActions' => '더보기',
 			'organization.common.rename' => '이름 바꾸기',
 			'organization.common.close' => '닫기',
-			'organization.common.reload' => '새로고침',
-			'organization.common.createFailed' => '생성 실패',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => '새로고침',
+			'organization.common.createFailed' => '생성 실패',
 			'organization.common.addFailed' => '추가 실패',
 			'organization.common.confirmArchive' => '보관 확인',
 			'organization.common.forbidden403' => '이 작업을 수행할 권한이 없습니다(403)',
@@ -5753,10 +5757,10 @@ extension on TranslationsKoKr {
 			'workspace.taskFormCreateTitle' => '새 작업',
 			'workspace.taskFormEditTitle' => '작업 편집',
 			'workspace.taskTitleLabel' => '작업 제목',
-			'workspace.taskTitleRequired' => '작업 제목은 필수입니다',
-			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleRequired' => '작업 제목은 필수입니다',
+			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
 			'workspace.taskAssigneeNone' => '지정 안 함',
 			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
 			'workspace.taskSubmitCreate' => '작업 만들기',

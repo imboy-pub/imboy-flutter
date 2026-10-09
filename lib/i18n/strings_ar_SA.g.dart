@@ -2081,6 +2081,8 @@ class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'قيد المراجعة';
 	@override String get taskIdMissing => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل';
 	@override String get taskIdMissingSubmit => 'معرّف الواجب مفقود، لا يمكن الإرسال';
+	@override String publishedAt({required Object time}) => 'نُشر ${time}';
+	@override String completedAt({required Object time}) => 'اكتمل في ${time}';
 }
 
 // Path: groupVote
@@ -5007,6 +5009,8 @@ extension on TranslationsArSa {
 			'groupTask.pendingReview' => 'قيد المراجعة',
 			'groupTask.taskIdMissing' => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل',
 			'groupTask.taskIdMissingSubmit' => 'معرّف الواجب مفقود، لا يمكن الإرسال',
+			'groupTask.publishedAt' => ({required Object time}) => 'نُشر ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'اكتمل في ${time}',
 			'groupVote.title' => 'استطلاعات المجموعة',
 			'groupVote.createVote' => 'إنشاء استطلاع',
 			'groupVote.voteTitle' => 'سؤال الاستطلاع',
@@ -5251,10 +5255,10 @@ extension on TranslationsArSa {
 			'organization.common.moreActions' => 'المزيد من الإجراءات',
 			'organization.common.rename' => 'إعادة تسمية',
 			'organization.common.close' => 'إغلاق',
-			'organization.common.reload' => 'إعادة تحميل',
-			'organization.common.createFailed' => 'فشل الإنشاء',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => 'إعادة تحميل',
+			'organization.common.createFailed' => 'فشل الإنشاء',
 			'organization.common.addFailed' => 'فشل الإضافة',
 			'organization.common.confirmArchive' => 'تأكيد الأرشفة',
 			'organization.common.forbidden403' => 'لا تملك صلاحية تنفيذ هذا الإجراء (403)',
@@ -5765,10 +5769,10 @@ extension on TranslationsArSa {
 			'workspace.taskFormCreateTitle' => 'مهمة جديدة',
 			'workspace.taskFormEditTitle' => 'تعديل المهمة',
 			'workspace.taskTitleLabel' => 'عنوان المهمة',
-			'workspace.taskTitleRequired' => 'لا يمكن أن يكون عنوان المهمة فارغاً',
-			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleRequired' => 'لا يمكن أن يكون عنوان المهمة فارغاً',
+			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
 			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
 			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',

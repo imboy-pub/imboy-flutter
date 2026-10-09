@@ -126,6 +126,10 @@ const _kFakeTasks = [
     'status': 1,
     'group_id': '200',
     'deadline': null,
+    // 列表 meta 行：发布人 + 发布时间 + 完成时间
+    'creator_id': 777,
+    'created_at': 1760000000,
+    'my_assignment': {'status': 2, 'submitted_at': 1760100000},
   },
   {
     'id': 1002,
@@ -135,6 +139,8 @@ const _kFakeTasks = [
     'status': 2,
     'group_id': '200',
     'deadline': '2099-06-30',
+    'creator_id': 888,
+    'created_at': 1760000000,
   },
 ];
 
@@ -171,6 +177,25 @@ void main() {
 
       expect(find.text('第一章练习题'), findsOneWidget);
       expect(find.text('期中作业'), findsOneWidget);
+    });
+
+    testWidgets('列表项显示发布时间与完成时间 / item shows published & completed time', (
+      tester,
+    ) async {
+      final fake = FakeGroupTaskService(
+        tasksToReturn: List<Map<String, dynamic>>.from(_kFakeTasks),
+      );
+      GroupTaskService.testInstance = fake;
+
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
+      await tester.pumpAndSettle();
+
+      // 发布人本地缓存缺失（测试环境无 sqlite）→ meta 行退化为只显示时间；
+      // "已提交"（my_assignment.status=2）的作业显示完成时间行。
+      expect(find.textContaining('发布'), findsWidgets);
+      expect(find.textContaining('完成于'), findsOneWidget);
     });
 
     testWidgets('空列表时显示无数据视图 / shows empty state when no tasks', (

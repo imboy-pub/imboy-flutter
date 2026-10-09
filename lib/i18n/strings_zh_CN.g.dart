@@ -6109,6 +6109,12 @@ class Translations$groupTask$zh_CN {
 
 	/// zh-CN: '作业ID缺失，无法提交'
 	String get taskIdMissingSubmit => '作业ID缺失，无法提交';
+
+	/// zh-CN: '$time 发布'
+	String publishedAt({required Object time}) => '${time} 发布';
+
+	/// zh-CN: '完成于 $time'
+	String completedAt({required Object time}) => '完成于 ${time}';
 }
 
 // Path: groupVote
@@ -11015,6 +11021,8 @@ extension on Translations {
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '作业ID缺失，无法查看详情',
 			'groupTask.taskIdMissingSubmit' => '作业ID缺失，无法提交',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} 发布',
+			'groupTask.completedAt' => ({required Object time}) => '完成于 ${time}',
 			'groupVote.title' => '群投票',
 			'groupVote.createVote' => '创建投票',
 			'groupVote.voteTitle' => '投票标题',
@@ -11085,10 +11093,10 @@ extension on Translations {
 			'main.multiSelect' => '多选',
 			'main.myFavorites' => '我的收藏',
 			'main.myLive' => '我的直播',
-			'main.name' => '名称',
-			'main.numUnit' => ({required Object param}) => '${param}个',
 			_ => null,
 		} ?? switch (path) {
+			'main.name' => '名称',
+			'main.numUnit' => ({required Object param}) => '${param}个',
 			'main.openInBrowser' => '在浏览器中打开',
 			'main.or' => '或者',
 			'main.otherParty' => '对方',
@@ -11599,10 +11607,10 @@ extension on Translations {
 			'organization.chart.zoomIn' => '放大',
 			'organization.chart.zoomOut' => '缩小',
 			'organization.chart.fit' => '适应窗口',
-			'organization.chart.expand' => '展开下级部门',
-			'organization.chart.collapse' => '收起下级部门',
 			_ => null,
 		} ?? switch (path) {
+			'organization.chart.expand' => '展开下级部门',
+			'organization.chart.collapse' => '收起下级部门',
 			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
 			'organization.chart.directMembers' => ({required Object count}) => '本级 ${count} 人',
 			'passport.loginHistoryToggle' => '展开历史登录记录',

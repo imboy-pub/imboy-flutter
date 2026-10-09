@@ -2072,6 +2072,8 @@ class _Translations$groupTask$fr_FR extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'En attente de validation';
 	@override String get taskIdMissing => 'ID de devoir manquant, détails indisponibles';
 	@override String get taskIdMissingSubmit => 'ID de devoir manquant, envoi impossible';
+	@override String publishedAt({required Object time}) => 'Publié ${time}';
+	@override String completedAt({required Object time}) => 'Terminé ${time}';
 }
 
 // Path: groupVote
@@ -4998,6 +5000,8 @@ extension on TranslationsFrFr {
 			'groupTask.pendingReview' => 'En attente de validation',
 			'groupTask.taskIdMissing' => 'ID de devoir manquant, détails indisponibles',
 			'groupTask.taskIdMissingSubmit' => 'ID de devoir manquant, envoi impossible',
+			'groupTask.publishedAt' => ({required Object time}) => 'Publié ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Terminé ${time}',
 			'groupVote.title' => 'Sondage de groupe',
 			'groupVote.createVote' => 'Créer un sondage',
 			'groupVote.voteTitle' => 'Titre du sondage',
@@ -5242,10 +5246,10 @@ extension on TranslationsFrFr {
 			'organization.common.moreActions' => 'Plus d\'actions',
 			'organization.common.rename' => 'Renommer',
 			'organization.common.close' => 'Fermer',
-			'organization.common.reload' => 'Recharger',
-			'organization.common.createFailed' => 'Échec de la création',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => 'Recharger',
+			'organization.common.createFailed' => 'Échec de la création',
 			'organization.common.addFailed' => 'Échec de l\'ajout',
 			'organization.common.confirmArchive' => 'Confirmer l\'archivage',
 			'organization.common.forbidden403' => 'Vous n\'êtes pas autorisé à effectuer cette action (403)',
@@ -5756,10 +5760,10 @@ extension on TranslationsFrFr {
 			'workspace.taskFormCreateTitle' => 'Nouvelle tâche',
 			'workspace.taskFormEditTitle' => 'Modifier la tâche',
 			'workspace.taskTitleLabel' => 'Titre de la tâche',
-			'workspace.taskTitleRequired' => 'Le titre de la tâche est requis',
-			'workspace.taskAssigneeLabel' => 'Responsable (membre de l\'espace de travail)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleRequired' => 'Le titre de la tâche est requis',
+			'workspace.taskAssigneeLabel' => 'Responsable (membre de l\'espace de travail)',
 			'workspace.taskAssigneeNone' => 'Ne pas affecter pour l\'instant',
 			'workspace.taskAssigneeRefresh' => 'Actualiser les candidats responsables',
 			'workspace.taskSubmitCreate' => 'Créer la tâche',

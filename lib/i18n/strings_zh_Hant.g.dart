@@ -2070,6 +2070,8 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => '待稽核';
 	@override String get taskIdMissing => '作業ID缺失，無法檢視詳情';
 	@override String get taskIdMissingSubmit => '作業ID缺失，無法提交';
+	@override String publishedAt({required Object time}) => '${time} 發佈';
+	@override String completedAt({required Object time}) => '完成於 ${time}';
 }
 
 // Path: groupVote
@@ -4997,6 +4999,8 @@ extension on TranslationsZhHant {
 			'groupTask.pendingReview' => '待稽核',
 			'groupTask.taskIdMissing' => '作業ID缺失，無法檢視詳情',
 			'groupTask.taskIdMissingSubmit' => '作業ID缺失，無法提交',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} 發佈',
+			'groupTask.completedAt' => ({required Object time}) => '完成於 ${time}',
 			'groupVote.title' => '群組投票',
 			'groupVote.createVote' => '建立投票',
 			'groupVote.voteTitle' => '投票標題',
@@ -5240,10 +5244,10 @@ extension on TranslationsZhHant {
 			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
 			'organization.common.moreActions' => '更多操作',
 			'organization.common.rename' => '重新命名',
-			'organization.common.close' => '關閉',
-			'organization.common.reload' => '重新載入',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.close' => '關閉',
+			'organization.common.reload' => '重新載入',
 			'organization.common.createFailed' => '建立失敗',
 			'organization.common.addFailed' => '新增失敗',
 			'organization.common.confirmArchive' => '確認封存',
@@ -5754,10 +5758,10 @@ extension on TranslationsZhHant {
 			'workspace.taskNewEntry' => '新增任務',
 			'workspace.taskFormCreateTitle' => '新增任務',
 			'workspace.taskFormEditTitle' => '編輯任務',
-			'workspace.taskTitleLabel' => '任務標題',
-			'workspace.taskTitleRequired' => '任務標題不能為空',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.taskTitleLabel' => '任務標題',
+			'workspace.taskTitleRequired' => '任務標題不能為空',
 			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
 			'workspace.taskAssigneeNone' => '暫不指派',
 			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',

@@ -25,17 +25,32 @@ class GroupTaskApi extends HttpClient {
 
   Map<String, dynamic> _normalizeTask(Map<dynamic, dynamic> raw) {
     final task = Map<String, dynamic>.from(raw);
-    final deadline = task['deadline'];
-    if (deadline is String) {
-      final parsed = DateTime.tryParse(deadline);
-      if (parsed != null) {
-        task['deadline'] = parsed.millisecondsSinceEpoch ~/ 1000;
-      }
-    } else if (deadline is num) {
-      final value = deadline.toInt();
-      task['deadline'] = value > 1000000000000 ? value ~/ 1000 : value;
+    task['deadline'] = _normalizeTime(task['deadline']);
+    // 列表 meta 行需要创建时间；my_assignment.submitted_at 是"完成时间"
+    task['created_at'] = _normalizeTime(task['created_at']);
+    final myAssignment = task['my_assignment'];
+    if (myAssignment is Map) {
+      final assignment = Map<String, dynamic>.from(myAssignment);
+      assignment['submitted_at'] = _normalizeTime(assignment['submitted_at']);
+      task['my_assignment'] = assignment;
     }
     return task;
+  }
+
+  /// RFC3339 字符串或毫秒时间戳归一化为秒级时间戳，无效值原样返回。
+  dynamic _normalizeTime(dynamic value) {
+    if (value is String) {
+      final parsed = DateTime.tryParse(value);
+      if (parsed != null) {
+        return parsed.millisecondsSinceEpoch ~/ 1000;
+      }
+      return value;
+    }
+    if (value is num) {
+      final v = value.toInt();
+      return v > 1000000000000 ? v ~/ 1000 : v;
+    }
+    return value;
   }
 
   List<Map<String, dynamic>> _parseListPayload(dynamic raw) {

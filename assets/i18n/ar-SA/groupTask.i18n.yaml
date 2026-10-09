@@ -20,3 +20,5 @@ submitFailed: تعذّر الإرسال، حاول لاحقاً
 pendingReview: قيد المراجعة
 taskIdMissing: معرّف الواجب مفقود، لا يمكن عرض التفاصيل
 taskIdMissingSubmit: معرّف الواجب مفقود، لا يمكن الإرسال
+publishedAt: "نُشر $time"
+completedAt: "اكتمل في $time"

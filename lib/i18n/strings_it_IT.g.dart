@@ -2072,6 +2072,8 @@ class _Translations$groupTask$it_IT extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'In attesa di revisione';
 	@override String get taskIdMissing => 'ID compito mancante, dettagli non disponibili';
 	@override String get taskIdMissingSubmit => 'ID compito mancante, invio impossibile';
+	@override String publishedAt({required Object time}) => 'Pubblicato ${time}';
+	@override String completedAt({required Object time}) => 'Completato ${time}';
 }
 
 // Path: groupVote
@@ -4998,6 +5000,8 @@ extension on TranslationsItIt {
 			'groupTask.pendingReview' => 'In attesa di revisione',
 			'groupTask.taskIdMissing' => 'ID compito mancante, dettagli non disponibili',
 			'groupTask.taskIdMissingSubmit' => 'ID compito mancante, invio impossibile',
+			'groupTask.publishedAt' => ({required Object time}) => 'Pubblicato ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Completato ${time}',
 			'groupVote.title' => 'Sondaggio di gruppo',
 			'groupVote.createVote' => 'Crea sondaggio',
 			'groupVote.voteTitle' => 'Titolo sondaggio',
@@ -5242,10 +5246,10 @@ extension on TranslationsItIt {
 			'organization.common.moreActions' => 'Altre azioni',
 			'organization.common.rename' => 'Rinomina',
 			'organization.common.close' => 'Chiudi',
-			'organization.common.reload' => 'Ricarica',
-			'organization.common.createFailed' => 'Creazione non riuscita',
 			_ => null,
 		} ?? switch (path) {
+			'organization.common.reload' => 'Ricarica',
+			'organization.common.createFailed' => 'Creazione non riuscita',
 			'organization.common.addFailed' => 'Aggiunta non riuscita',
 			'organization.common.confirmArchive' => 'Conferma archiviazione',
 			'organization.common.forbidden403' => 'Non sei autorizzato a eseguire questa azione (403)',
@@ -5756,10 +5760,10 @@ extension on TranslationsItIt {
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Rimuovi il membro del progetto ${name}',
 			'workspace.projectMemberRemoveSubmit' => 'Rimuovi',
 			'workspace.projectMemberRemovedToast' => 'Rimosso',
-			'workspace.projectMemberTransferConfirm' => 'Conferma trasferimento',
-			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberTransferConfirm' => 'Conferma trasferimento',
+			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
 			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
 			'workspace.projectMembersEntry' => 'Membri',
