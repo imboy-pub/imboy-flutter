@@ -145,7 +145,32 @@ void main() {
       expect(entry['payload'], equals('{"e2ee":{},"payload":"ct"}'));
     });
 
-    test('confirmOutbox 标记已发送', () async {
+    test('明文 ACK 缺可选 outbox 表时不建表、不抛异常', () async {
+      await db.execute('DROP TABLE crypto_outbox');
+      final before = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+      );
+      await store.confirmOutbox('plaintext-only-message');
+      expect(
+        await db.rawQuery(
+          "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+        ),
+        before,
+      );
+    });
+
+    test('outbox 已存在但缺必需列时保持真实 SQL 故障', () async {
+      await db.execute('DROP TABLE crypto_outbox');
+      await db.execute(
+        'CREATE TABLE crypto_outbox (id TEXT PRIMARY KEY, status TEXT)',
+      );
+      await expectLater(
+        store.confirmOutbox('message'),
+        throwsA(isA<DatabaseException>()),
+      );
+    });
+
+    test('confirmOutbox 标记已发送并允许重复 ACK', () async {
       await store.persistSessionWithOutbox(
         peerUid: '200',
         peerDeviceId: 'dev-A',
@@ -158,6 +183,11 @@ void main() {
       final entry = await store.getOutboxEntry('msg-002');
       expect(entry!['status'], equals('sent'));
       expect(entry['sent_at'], isNotNull);
+      await store.confirmOutbox('msg-002');
+      expect((await store.getOutboxEntry('msg-002'))!['status'], 'sent');
+      expect((await store.getOutboxEntry('msg-002'))!['payload'], 'x');
+      await store.confirmOutbox('unknown-plaintext-message');
+      expect(await store.getOutboxEntry('unknown-plaintext-message'), isNull);
     });
 
     test('pendingOutbox 返回所有未确认条目（崩溃恢复）', () async {
