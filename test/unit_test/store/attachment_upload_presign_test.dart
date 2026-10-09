@@ -321,4 +321,59 @@ void main() {
       expect(confirmBody?.containsKey('anchor_msg_id'), isFalse);
     });
   });
+
+  group('uploadViaPresign - mime 归一', () {
+    // 本组内联成功 presign 响应（okPresign 局部于编排组）
+    IMBoyHttpResponse okPresign() =>
+        IMBoyHttpResponse.success(<String, dynamic>{
+          'put_url': 'https://garage.local/put?sig=x',
+          'object_key': 'u1/file_1_a/a.jpg',
+        });
+
+    test('image/jpg（.jpg 扩展名拼出的非标准别名）→ 全链路归一为 image/jpeg', () async {
+      // 服务端附件白名单是精确清单（elib_oss ?ALLOWED_TYPES），只有标准的
+      // image/jpeg；桌面拍摄/file_picker 的 .jpg 按扩展名拼出 image/jpg，
+      // 曾被 presign 以 invalid_file_type 拒绝（macOS 冒烟实证）。
+      String? presignMime;
+      String? putMime;
+      Map<String, dynamic>? confirmBody;
+      final String objectKey = await AttachmentApi.uploadViaPresign(
+        bytes,
+        'a.jpg',
+        'image/jpg',
+        presignFn: (String f, String m) async {
+          presignMime = m;
+          return okPresign();
+        },
+        putFn: (String u, Uint8List b, String m, bool p) async {
+          putMime = m;
+        },
+        confirmFn: (Map<String, dynamic> body) async {
+          confirmBody = body;
+          return IMBoyHttpResponse.success(<String, dynamic>{});
+        },
+      );
+      expect(objectKey, isNotEmpty);
+      expect(presignMime, 'image/jpeg');
+      expect(putMime, 'image/jpeg');
+      expect(confirmBody?['mime_type'], 'image/jpeg');
+    });
+
+    test('标准 mime 原样透传（image/jpeg 不被改动）', () async {
+      String? presignMime;
+      await AttachmentApi.uploadViaPresign(
+        bytes,
+        'a.jpg',
+        'image/jpeg',
+        presignFn: (String f, String m) async {
+          presignMime = m;
+          return okPresign();
+        },
+        putFn: (String u, Uint8List b, String m, bool p) async {},
+        confirmFn: (Map<String, dynamic> body) async =>
+            IMBoyHttpResponse.success(<String, dynamic>{}),
+      );
+      expect(presignMime, 'image/jpeg');
+    });
+  });
 }

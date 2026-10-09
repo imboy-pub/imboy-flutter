@@ -186,6 +186,12 @@ class AttachmentApi {
     /// 为 null 时行为**逐字节不变**——这是本刀零风险接线的前提。
     AttachmentSealRequest? seal,
   }) async {
+    // image/jpg 是 image/jpeg 的非标准别名：客户端 _isAllowedMime 按前缀
+    // 放行，但服务端附件白名单是精确清单（elib_oss ?ALLOWED_TYPES）只认
+    // 标准值——按扩展名拼 mime 的调用方（桌面拍摄/file_picker 的 .jpg）
+    // 会被 presign 以 invalid_file_type 拒绝（冒烟实证）。在唯一出口归一。
+    if (mime == 'image/jpg') mime = 'image/jpeg';
+
     // 1. 前置校验（系统边界，快速失败）
     final String? validationError = validateUpload(bytes.length, mime);
     if (validationError != null) {
