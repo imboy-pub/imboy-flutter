@@ -4,6 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/contact_card.dart';
 import 'package:imboy/component/webrtc/func.dart';
@@ -282,7 +284,9 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                     ),
                     onTap: () => _goToChat(context, state),
                   ),
-                if (state.isFriend == 1 && !isSelf) ...[
+                if (state.isFriend == 1 &&
+                    !isSelf &&
+                    AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) ...[
                   ImBoySettingsTile(
                     title: Text(t.common.voiceCall),
                     leading: Icon(
@@ -401,6 +405,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
   }
 
   void _startCall(BuildContext context, PeopleInfoState state, String mode) {
+    if (!AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) return;
     openCallScreen(
       context,
       ContactModel.fromMap({
