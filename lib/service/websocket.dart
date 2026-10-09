@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -438,6 +440,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       }
 
       _updateStatus(SocketStatus.connected);
+      unawaited(RuntimeFeatureRecovery.refreshNow());
       _backoff.reset();
       _cancelReconnectTimer();
       await _flushMessageQueue();

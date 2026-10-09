@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'dart:async';
 
 import 'package:go_router/go_router.dart';
@@ -538,6 +540,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,

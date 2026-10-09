@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -22,7 +24,7 @@ class RouteFeatureGuard {
     if (_manifestRetryInFlight) return;
     _manifestRetryInFlight = true;
     unawaited(
-      AppManifestService.refresh().whenComplete(
+      RuntimeFeatureRecovery.refreshNow().whenComplete(
         () => _manifestRetryInFlight = false,
       ),
     );

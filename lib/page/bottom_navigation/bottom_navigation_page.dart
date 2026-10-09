@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -160,6 +161,7 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     // channelEnabled 控制会话列表顶部频道置顶区显示（Slice-5 接线）
     final channelEnabled = AppFeatureRegistry.isEnabled(FeatureKeys.channel);

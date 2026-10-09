@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
+
 import 'dart:async';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -269,6 +271,7 @@ class UserRepoLocal extends ChangeNotifier {
       endpoint: Env().apiBaseUrl,
       uid: (payload['user_id'] ?? payload['uid']).toString(),
     );
+    RuntimeFeatureRecovery.dispose();
     await SecureTokenStorageService.saveToken(
       IMBoyHttpResponse.payloadStr(payload, 'token') ?? '',
     );
@@ -286,6 +289,7 @@ class UserRepoLocal extends ChangeNotifier {
       (payload['user_id'] ?? payload['uid']).toString(),
     );
 
+    unawaited(RuntimeFeatureRecovery.refreshNow());
     notifyListeners();
     SqliteService.to.db;
     // 初始化 WebSocket 链接
@@ -321,6 +325,7 @@ class UserRepoLocal extends ChangeNotifier {
     try {
       final logoutUid = currentUid;
       AppFeatureRegistry.bindScope(endpoint: Env().apiBaseUrl, uid: '');
+      RuntimeFeatureRecovery.dispose();
       iPrint("> quitLogin: Starting logout process");
       if (to.isLoggedIn) {
         iPrint("> quitLogin: User is logged in");

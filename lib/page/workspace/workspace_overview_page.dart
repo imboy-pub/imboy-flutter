@@ -8,6 +8,8 @@
 /// - 成员预览：member_preview（头像 + 昵称 + 角色徽标）
 library;
 
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +33,7 @@ class WorkspaceOverviewPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     final ws = ref.watch(currentWorkspaceProvider);
     final wsId = ws?.id ?? '';
     if (wsId.isEmpty) {
@@ -60,6 +63,7 @@ class _OverviewBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     final theme = Theme.of(context);
     final ws = ref.watch(currentWorkspaceProvider);
     return ListView(

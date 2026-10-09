@@ -115,13 +115,15 @@ class ContactNotifier extends _$ContactNotifier {
     // 朋友圈（首位，社交动态入口）
     // 视觉装饰（bgColor/iconData）由 presentation 层 contactMenuDecorationOf
     // 按 peerId 派生，模型仅保留纯数据。
-    topItems.add(
-      ContactModel(
-        peerId: kPeerIdMomentFeed,
-        nickname: t.discovery.moments,
-        nameIndex: '↑',
-      ),
-    );
+    if (AppFeatureRegistry.isEnabled(FeatureKeys.moment)) {
+      topItems.add(
+        ContactModel(
+          peerId: kPeerIdMomentFeed,
+          nickname: t.discovery.moments,
+          nameIndex: '↑',
+        ),
+      );
+    }
 
     if (AppFeatureRegistry.isEnabled(FeatureKeys.location)) {
       topItems.add(
@@ -159,6 +161,11 @@ class ContactNotifier extends _$ContactNotifier {
     ]);
 
     return topItems;
+  }
+
+  void refreshFeatureItems() {
+    final friends = state.contactList.where((entry) => entry.nameIndex != '↑');
+    state = state.copyWith(contactList: [..._buildTopItems(), ...friends]);
   }
 
   // 获取好友列表

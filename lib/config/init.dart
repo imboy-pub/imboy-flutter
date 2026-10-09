@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
@@ -38,7 +40,6 @@ import 'package:imboy/service/websocket.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/jpush_flutter_binding.dart';
-import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -651,12 +652,8 @@ class AppInitializer {
       endpoint: Env().apiBaseUrl,
       uid: UserRepoLocal.to.currentUid,
     );
-    await AppFeatureRegistry.refresh();
     AppManifestService.loadFromCache();
-    await AppManifestService.refresh();
-
-    // 从后端 policy 刷新加密模式（决定消息是否强制加密）
-    await EncryptionModeService.refresh();
+    await RuntimeFeatureRecovery.refreshNow();
 
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
@@ -836,6 +833,7 @@ class AppInitializer {
 
   static Future<void> _onAppResume() async {
     logger.i("App resumed");
+    unawaited(RuntimeFeatureRecovery.refreshNow());
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (UserRepoLocal.to.isLoggedIn) {
@@ -901,6 +899,9 @@ class AppInitializer {
     List<ConnectivityResult> results,
   ) async {
     logger.i("Connectivity changed: $results");
+    if (!results.contains(ConnectivityResult.none)) {
+      unawaited(RuntimeFeatureRecovery.refreshNow());
+    }
 
     // 检查WebSocket服务是否已注册
     if (!serviceContainer.isRegistered<WebSocketService>()) {
@@ -930,6 +931,7 @@ class AppInitializer {
   static Future<void> dispose() async {
     logger.i('Disposing AppInitializer resources...');
     _isAppDisposing = true;
+    RuntimeFeatureRecovery.dispose();
     await GroupAvatarMemberCache.instance.suspendAndDrain();
 
     // 取消网络监听器

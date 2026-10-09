@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,30 @@ void main() {
     await StorageService.init();
     AppFeatureRegistry.bindScope(endpoint: 'http://localhost:29921', uid: 'A');
     await AppFeatureRegistry.clear();
+  });
+
+  test('partial snapshot is accepted but not complete recovery', () async {
+    expect(
+      await AppFeatureRegistry.refresh(
+        fetch: () async => {
+          FeatureKeys.moment: true,
+          FeatureKeys.project: false,
+        },
+      ),
+      isTrue,
+    );
+    expect(AppFeatureRegistry.isComplete, isFalse);
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.moment), isTrue);
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.location), isFalse);
+    await AppFeatureRegistry.refresh(
+      fetch: () async => {
+        for (final key in compiledProductFeatures) key: true,
+        FeatureKeys.project: false,
+      },
+    );
+    expect(AppFeatureRegistry.isComplete, isTrue);
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.location), isTrue);
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.project), isFalse);
   });
 
   test('unknown optional features are hidden but core remains offline', () {

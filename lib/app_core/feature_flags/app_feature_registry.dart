@@ -15,6 +15,13 @@ class AppFeatureRegistry {
   static int _latestRequest = 0;
   static final ValueNotifier<int> revision = ValueNotifier(0);
 
+  /// Accepted partial flags are useful, but cannot stop recovery retries.
+  static bool get isComplete =>
+      FeatureScope.key != null &&
+      compiledProductFeatures.every((key) => snapshot.containsKey(key));
+
+  static void configurationChanged() => revision.value++;
+
   static void bindScope({required String endpoint, required String uid}) {
     if (!FeatureScope.bind(endpoint: endpoint, uid: uid)) return;
     _cache = normalizeFlags(

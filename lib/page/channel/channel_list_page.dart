@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -65,6 +66,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     final state = ref.watch(channelListProvider);
     final brightness = Theme.of(context).brightness;

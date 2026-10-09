@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -188,6 +190,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final t = context.t; // 获取翻译实例
     final colorScheme = Theme.of(context).colorScheme;
     const double iconSize = 28; // 调整图标大小

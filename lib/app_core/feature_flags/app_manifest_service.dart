@@ -7,6 +7,7 @@ import 'package:imboy/service/storage.dart';
 
 import 'generated_product_features.dart';
 import 'feature_scope.dart';
+import 'app_feature_registry.dart';
 import 'scoped_preference_writer.dart';
 
 class AppManifestMismatchException implements Exception {
@@ -193,6 +194,7 @@ class AppManifestService {
       _etag = etag;
       if (!current()) return false;
       _cache = manifest;
+      AppFeatureRegistry.configurationChanged();
       return true;
     } catch (error) {
       debugPrint('[app_manifest_service] setString error: $error');
@@ -219,6 +221,7 @@ class AppManifestService {
     try {
       manifest.ensureBuildCompatible();
       _cache = manifest;
+      AppFeatureRegistry.configurationChanged();
       return true;
     } on AppManifestMismatchException catch (error) {
       _cache = null;

@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 
 import 'dart:async';
@@ -257,6 +258,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final state = ref.watch(conversationProvider);
     final notifier = ref.read(conversationProvider.notifier);
     final t = context.t;

@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -65,6 +67,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final id = widget.id;
     final scene = widget.scene;
     final state = ref.watch(peopleInfoProvider);

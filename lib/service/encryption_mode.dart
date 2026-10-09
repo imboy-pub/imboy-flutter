@@ -15,6 +15,8 @@
 /// 真源：imboyadmin policy.ts ENCRYPTION_TIERS / imboy_policy_catalog.erl 注释。
 library;
 
+import 'package:imboy/app_core/feature_flags/feature_scope.dart';
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -131,12 +133,30 @@ class EncryptionModeService {
   static int _consecutiveFailures = 0;
   static DateTime? _nextAttemptAt;
   static Future<void>? _inFlight;
+  static String? _scope;
+  static int _epoch = -1;
+
+  static void _ensureScope() {
+    if (_scope == FeatureScope.key && _epoch == FeatureScope.epoch) return;
+    _scope = FeatureScope.key;
+    _epoch = FeatureScope.epoch;
+    _initialized = false;
+    _consecutiveFailures = 0;
+    _nextAttemptAt = null;
+    _inFlight = null;
+  }
 
   /// 当前生效的加密模式
-  static EncryptionMode get current => _current;
+  static EncryptionMode get current {
+    _ensureScope();
+    return _current;
+  }
 
   /// 是否已初始化
-  static bool get isInitialized => _initialized;
+  static bool get isInitialized {
+    _ensureScope();
+    return _initialized;
+  }
 
   /// 从后端 policy API 刷新加密模式。
   ///
@@ -148,16 +168,17 @@ class EncryptionModeService {
   ///
   /// 并发去重：同一时刻只有一个请求在飞，其余调用共享同一个 Future。
   static Future<void> refresh({bool force = true}) async {
+    _ensureScope();
     final Future<void>? inFlight = _inFlight;
     if (inFlight != null) return inFlight;
     if (!force && !_backoffElapsed()) return;
 
-    final Future<void> future = _doRefresh();
+    final Future<void> future = _doRefresh(_scope, _epoch);
     _inFlight = future;
     try {
       await future;
     } finally {
-      _inFlight = null;
+      if (identical(_inFlight, future)) _inFlight = null;
     }
   }
 
@@ -176,9 +197,12 @@ class EncryptionModeService {
     return next == null || !DateTime.now().isBefore(next);
   }
 
-  static Future<void> _doRefresh() async {
+  static Future<void> _doRefresh(String? scope, int epoch) async {
+    bool currentScope() =>
+        scope == FeatureScope.key && epoch == FeatureScope.epoch;
     try {
       final Map<String, dynamic> capabilities = await _fetchCapabilities();
+      if (!currentScope()) return;
       final storageMode = capabilities['storage_mode']?.toString() ?? '';
       final e2eeMode = capabilities['e2ee_mode']?.toString() ?? '';
 
@@ -202,6 +226,7 @@ class EncryptionModeService {
       _consecutiveFailures = 0;
       _nextAttemptAt = null;
     } on Object catch (_) {
+      if (!currentScope()) return;
       // 拉取失败一律不动 _current / _initialized：
       // - 从未成功过 → _initialized 仍为 false，PolicyGate 继续 fail-closed
       //   拒发 C2C/C2G（ADR 14 §S1.1）。绝不因为"拉不到"就按 plaintext 放行。
@@ -245,6 +270,8 @@ class EncryptionModeService {
     required EncryptionMode mode,
     required bool initialized,
   }) {
+    _scope = FeatureScope.key;
+    _epoch = FeatureScope.epoch;
     _current = mode;
     _initialized = initialized;
     _consecutiveFailures = 0;

@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -249,6 +250,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 

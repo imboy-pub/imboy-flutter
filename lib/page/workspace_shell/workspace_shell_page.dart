@@ -14,6 +14,8 @@
 /// - archived：顶部归档横幅（写操作禁用由各视图按状态自行落实）
 library;
 
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,6 +44,7 @@ class WorkspaceShellPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     final shell = ref.watch(workspaceShellProvider);
     final uid = ref.watch(currentUserProvider)?.uid ?? '';
@@ -155,6 +158,7 @@ class _ShellTopBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     final destination = ref.watch(
       workspaceShellProvider.select((s) => s.destination),
@@ -212,6 +216,7 @@ class _ShellRail extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     final current = shell.current;
     return Column(
@@ -286,6 +291,7 @@ class _ShellBottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     return NavigationBar(
       key: const ValueKey('workspace-shell-bottom-nav'),
       selectedIndex: selectedIndex,

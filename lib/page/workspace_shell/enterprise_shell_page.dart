@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +94,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final entries = _entries();
     final configs =
         entries is AsyncData<List<EnterpriseOaRuntimeConfig>> &&
