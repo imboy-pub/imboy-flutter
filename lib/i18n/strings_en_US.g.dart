@@ -2171,6 +2171,22 @@ class _Translations$groupSchedule$en_US extends Translations$groupSchedule$zh_CN
 	@override String get scheduleIdMissing => 'Schedule ID missing, cannot view details';
 	@override String get untitledSchedule => 'Untitled schedule';
 	@override String get cardViewAndAttend => 'View details and RSVP';
+	@override String get cardViewDetail => 'View details';
+	@override String get organizer => 'Organizer';
+	@override String get participantAttending => 'Joined';
+	@override String get participantDeclined => 'Declined';
+	@override String get participantPending => 'Pending';
+	@override String attendSummary({required Object attending, required Object total}) => '${attending}/${total} joined';
+	@override String remindBefore({required Object minutes}) => 'Reminds ${minutes} min before';
+	@override String duration({required Object minutes}) => 'About ${minutes} min';
+	@override String get hintToday => 'today';
+	@override String get hintTomorrow => 'tomorrow';
+	@override String startsHint({required Object hint, required Object time}) => 'Starts ${hint} at ${time}';
+	@override String get sectionToday => 'Today';
+	@override String get sectionThisWeek => 'This Week';
+	@override String get sectionLater => 'Later';
+	@override String allParticipants({required Object count}) => 'All participants (${count})';
+	@override String get collapseParticipants => 'Collapse';
 }
 
 // Path: groupTag
@@ -5313,6 +5329,22 @@ extension on TranslationsEnUs {
 			'groupSchedule.scheduleIdMissing' => 'Schedule ID missing, cannot view details',
 			'groupSchedule.untitledSchedule' => 'Untitled schedule',
 			'groupSchedule.cardViewAndAttend' => 'View details and RSVP',
+			'groupSchedule.cardViewDetail' => 'View details',
+			'groupSchedule.organizer' => 'Organizer',
+			'groupSchedule.participantAttending' => 'Joined',
+			'groupSchedule.participantDeclined' => 'Declined',
+			'groupSchedule.participantPending' => 'Pending',
+			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} joined',
+			'groupSchedule.remindBefore' => ({required Object minutes}) => 'Reminds ${minutes} min before',
+			'groupSchedule.duration' => ({required Object minutes}) => 'About ${minutes} min',
+			'groupSchedule.hintToday' => 'today',
+			'groupSchedule.hintTomorrow' => 'tomorrow',
+			'groupSchedule.startsHint' => ({required Object hint, required Object time}) => 'Starts ${hint} at ${time}',
+			'groupSchedule.sectionToday' => 'Today',
+			'groupSchedule.sectionThisWeek' => 'This Week',
+			'groupSchedule.sectionLater' => 'Later',
+			'groupSchedule.allParticipants' => ({required Object count}) => 'All participants (${count})',
+			'groupSchedule.collapseParticipants' => 'Collapse',
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
@@ -5416,6 +5448,8 @@ extension on TranslationsEnUs {
 			'main.numUnit' => ({required Object param}) => '${param} items',
 			'main.openInBrowser' => 'Open in browser',
 			'main.or' => 'Or',
+			_ => null,
+		} ?? switch (path) {
 			'main.otherParty' => 'Other party',
 			'main.packageSize' => 'Package size',
 			'main.peerHasHungUp' => 'Other party hung up',
@@ -5432,8 +5466,6 @@ extension on TranslationsEnUs {
 			'main.selectedCount' => ({required Object count}) => 'Selected (${count})',
 			'main.selected' => 'Selected',
 			'main.sent' => 'Sent',
-			_ => null,
-		} ?? switch (path) {
 			'main.sentByMe' => 'Sent by me',
 			'main.setParam' => ({required Object param}) => 'Set ${param}',
 			'main.setting' => 'Settings',
@@ -5930,6 +5962,8 @@ extension on TranslationsEnUs {
 			'organization.chart.collapse' => 'Collapse departments',
 			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			_ => null,
+		} ?? switch (path) {
 			'passport.loginHistoryToggle' => 'Show login history',
 			'passport.hintEmail' => 'Please enter email',
 			'passport.hintMobile' => 'Please enter mobile number',
@@ -5946,8 +5980,6 @@ extension on TranslationsEnUs {
 			'passport.qrLoginConfirming' => 'Signing in...',
 			'passport.qrLoginSuccess' => 'Login successful',
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',
-			_ => null,
-		} ?? switch (path) {
 			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
 			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
 			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',

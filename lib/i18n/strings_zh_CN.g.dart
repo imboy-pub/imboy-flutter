@@ -6010,6 +6010,54 @@ class Translations$groupSchedule$zh_CN {
 
 	/// zh-CN: '查看详情并确认参加'
 	String get cardViewAndAttend => '查看详情并确认参加';
+
+	/// zh-CN: '查看详情'
+	String get cardViewDetail => '查看详情';
+
+	/// zh-CN: '发起人'
+	String get organizer => '发起人';
+
+	/// zh-CN: '已参加'
+	String get participantAttending => '已参加';
+
+	/// zh-CN: '已拒绝'
+	String get participantDeclined => '已拒绝';
+
+	/// zh-CN: '待回应'
+	String get participantPending => '待回应';
+
+	/// zh-CN: '$attending/$total 人参加'
+	String attendSummary({required Object attending, required Object total}) => '${attending}/${total} 人参加';
+
+	/// zh-CN: '开始前 $minutes 分钟提醒'
+	String remindBefore({required Object minutes}) => '开始前 ${minutes} 分钟提醒';
+
+	/// zh-CN: '预计 $minutes 分钟'
+	String duration({required Object minutes}) => '预计 ${minutes} 分钟';
+
+	/// zh-CN: '今天'
+	String get hintToday => '今天';
+
+	/// zh-CN: '明天'
+	String get hintTomorrow => '明天';
+
+	/// zh-CN: '$hint $time 开始'
+	String startsHint({required Object hint, required Object time}) => '${hint} ${time} 开始';
+
+	/// zh-CN: '今天'
+	String get sectionToday => '今天';
+
+	/// zh-CN: '本周'
+	String get sectionThisWeek => '本周';
+
+	/// zh-CN: '更晚'
+	String get sectionLater => '更晚';
+
+	/// zh-CN: '全部参与人（$count）'
+	String allParticipants({required Object count}) => '全部参与人（${count}）';
+
+	/// zh-CN: '收起'
+	String get collapseParticipants => '收起';
 }
 
 // Path: groupTag
@@ -10994,6 +11042,22 @@ extension on Translations {
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupSchedule.untitledSchedule' => '未命名日程',
 			'groupSchedule.cardViewAndAttend' => '查看详情并确认参加',
+			'groupSchedule.cardViewDetail' => '查看详情',
+			'groupSchedule.organizer' => '发起人',
+			'groupSchedule.participantAttending' => '已参加',
+			'groupSchedule.participantDeclined' => '已拒绝',
+			'groupSchedule.participantPending' => '待回应',
+			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} 人参加',
+			'groupSchedule.remindBefore' => ({required Object minutes}) => '开始前 ${minutes} 分钟提醒',
+			'groupSchedule.duration' => ({required Object minutes}) => '预计 ${minutes} 分钟',
+			'groupSchedule.hintToday' => '今天',
+			'groupSchedule.hintTomorrow' => '明天',
+			'groupSchedule.startsHint' => ({required Object hint, required Object time}) => '${hint} ${time} 开始',
+			'groupSchedule.sectionToday' => '今天',
+			'groupSchedule.sectionThisWeek' => '本周',
+			'groupSchedule.sectionLater' => '更晚',
+			'groupSchedule.allParticipants' => ({required Object count}) => '全部参与人（${count}）',
+			'groupSchedule.collapseParticipants' => '收起',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
 			'groupTag.tagName' => '标签名称',
@@ -11077,6 +11141,8 @@ extension on Translations {
 			'main.iAm' => '我是',
 			'main.itIt' => '意大利语（意大利）',
 			'main.jaJp' => '日语（日本）',
+			_ => null,
+		} ?? switch (path) {
 			'main.keepSecret' => '保密',
 			'main.lastActiveTime' => '最近活跃时间',
 			'main.lastSeenHide' => '隐藏在线状态',
@@ -11093,8 +11159,6 @@ extension on Translations {
 			'main.multiSelect' => '多选',
 			'main.myFavorites' => '我的收藏',
 			'main.myLive' => '我的直播',
-			_ => null,
-		} ?? switch (path) {
 			'main.name' => '名称',
 			'main.numUnit' => ({required Object param}) => '${param}个',
 			'main.openInBrowser' => '在浏览器中打开',
@@ -11591,6 +11655,8 @@ extension on Translations {
 			'organization.wsMembers.transferOwnerBody' => '转让后你不再是该工作区所有者，写治理权限随之移交给对方；新所有者可再转回。',
 			'organization.wsMembers.removeMember' => '移除成员',
 			'organization.wsMembers.removeTitle' => ({required Object name}) => '移除「${name}」？',
+			_ => null,
+		} ?? switch (path) {
 			'organization.wsMembers.removeBody' => '移除后对方退出该工作区；若对方仍是项目所有者或有未完成任务，服务端会拒绝并列出冲突。',
 			'organization.wsMembers.archivedReadOnly' => '工作区已归档：成员治理写操作已被服务端停用。',
 			'organization.tools.title' => '企业工具',
@@ -11607,8 +11673,6 @@ extension on Translations {
 			'organization.chart.zoomIn' => '放大',
 			'organization.chart.zoomOut' => '缩小',
 			'organization.chart.fit' => '适应窗口',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.expand' => '展开下级部门',
 			'organization.chart.collapse' => '收起下级部门',
 			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',

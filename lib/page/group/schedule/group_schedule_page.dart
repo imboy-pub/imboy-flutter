@@ -1,4 +1,5 @@
 import 'group_schedule_create_dialog.dart';
+import 'group_schedule_ui.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -132,149 +133,153 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
       child: CustomScrollView(
         slivers: [
           CupertinoSliverRefreshControl(onRefresh: _loadSchedules),
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final schedule = _schedules[index];
-              return _buildScheduleItem(schedule);
-            }, childCount: _schedules.length),
-          ),
+          ..._buildGroupedSections(),
         ],
       ),
     );
   }
 
+  /// 按今天 / 本周 / 更晚 分组渲染（Apple Calendar 分组惯例），
+  /// 每组内按开始时间升序。已取消的日程跟随其原时间归组但整条灰化。
+  List<Widget> _buildGroupedSections() {
+    final todayStart = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+    final tomorrowStart = todayStart.add(const Duration(days: 1));
+    final weekEnd = todayStart.add(const Duration(days: 7));
+
+    final groups = <_ScheduleSection, List<Map<String, dynamic>>>{};
+    for (final schedule in _schedules) {
+      final startAt = _toInt(schedule['start_time'] ?? schedule['start_at']);
+      final start = DateTime.fromMillisecondsSinceEpoch(startAt * 1000);
+      // 今天（含已开始/进行中）→ 明天起一周内 → 更晚。
+      final section = start.isBefore(tomorrowStart)
+          ? _ScheduleSection.today
+          : start.isBefore(weekEnd)
+          ? _ScheduleSection.tomorrowToWeek
+          : _ScheduleSection.later;
+      (groups[section] ??= []).add(schedule);
+    }
+    for (final list in groups.values) {
+      list.sort(
+        (a, b) =>
+            _toInt(a['start_time'] ?? a['start_at'])
+                .compareTo(_toInt(b['start_time'] ?? b['start_at'])),
+      );
+    }
+
+    final sections = _ScheduleSection.values;
+    final widgets = <Widget>[];
+    for (final section in sections) {
+      final items = groups[section];
+      if (items == null || items.isEmpty) continue;
+      widgets.add(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.regular,
+              AppSpacing.regular,
+              AppSpacing.tiny,
+            ),
+            child: Text(
+              _sectionLabel(section),
+              style: context.textStyle(
+                FontSizeType.footnote,
+                fontWeight: FontWeight.w600,
+                color: AppColors.iosGray,
+              ),
+            ),
+          ),
+        ),
+      );
+      for (final item in items) {
+        widgets.add(SliverToBoxAdapter(child: _buildScheduleItem(item)));
+      }
+    }
+    return widgets;
+  }
+
+  String _sectionLabel(_ScheduleSection section) {
+    final t = context.t;
+    return switch (section) {
+      _ScheduleSection.today => t.groupSchedule.sectionToday,
+      // 明天起 7 天内统称"本周"。
+      _ScheduleSection.tomorrowToWeek => t.groupSchedule.sectionThisWeek,
+      _ScheduleSection.later => t.groupSchedule.sectionLater,
+    };
+  }
+
   Widget _buildScheduleItem(Map<String, dynamic> schedule) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final startTime = _toInt(schedule['start_time'] ?? schedule['start_at']);
-    final dt = DateTime.fromMillisecondsSinceEpoch(startTime * 1000);
+    final startAt = _toInt(schedule['start_time'] ?? schedule['start_at']);
+    final endAt = _toInt(schedule['end_time'] ?? schedule['end_at']);
+    final dt = DateTime.fromMillisecondsSinceEpoch(startAt * 1000);
     final scheduleId = _resolveScheduleRouteId(schedule);
+    final state = resolveScheduleTimeState(
+      status: _toInt(schedule['status']),
+      startAtSec: startAt,
+      endAtSec: endAt,
+      nowSec: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    );
+    final isCancelled = state == GroupScheduleTimeState.cancelled;
+    final title = _toText(schedule['title']);
 
     return GestureDetector(
-      onTap: () async {
-        if (scheduleId.isEmpty) {
-          AppLoading.showToast(t.groupSchedule.scheduleIdMissing);
-          return;
-        }
-        final encodedId = Uri.encodeComponent(scheduleId);
-        await context.push('/group/${widget.groupId}/schedule/$encodedId');
-        if (mounted) {
-          _loadSchedules();
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.small,
-        ),
-        padding: const EdgeInsets.all(AppSpacing.regular),
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkSurfaceGroupedTertiary
-              : AppColors.lightSurface,
-          borderRadius: AppRadius.borderRadiusRegular,
-        ),
-        child: Row(
-          children: [
-            // 日期块（iOS 风格圆角方块）
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: AppColors.iosRed.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
+      onTap: () => _openScheduleDetail(scheduleId),
+      child: Opacity(
+        opacity: isCancelled ? 0.6 : 1,
+        child: Container(
+          margin: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.small,
+          ),
+          padding: const EdgeInsets.all(AppSpacing.regular),
+          decoration: BoxDecoration(
+            color: isDark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.lightSurface,
+            borderRadius: AppRadius.borderRadiusRegular,
+          ),
+          child: Row(
+            children: [
+              ScheduleDateBlock(dateTime: dt, muted: isCancelled),
+              const SizedBox(width: AppSpacing.regular),
+              Expanded(
+                child: _ScheduleItemBody(
+                  title: title,
+                  start: dt,
+                  end: endAt > startAt
+                      ? DateTime.fromMillisecondsSinceEpoch(endAt * 1000)
+                      : null,
+                  location: _toText(schedule['location']),
+                  state: state,
+                ),
               ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '${dt.day}',
-                    style: context.textStyle(
-                      FontSizeType.large,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.iosRed,
-                    ),
-                  ),
-                  Text(
-                    _getMonthName(dt.month),
-                    style: context.textStyle(
-                      FontSizeType.caption2,
-                      color: AppColors.iosRed,
-                    ),
-                  ),
-                ],
+              const Icon(
+                CupertinoIcons.chevron_right,
+                size: 14,
+                color: AppColors.iosGray3,
               ),
-            ),
-            const SizedBox(width: AppSpacing.regular),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    schedule['title'] as String? ?? '',
-                    style: context.textStyle(
-                      FontSizeType.body,
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: AppSpacing.tiny),
-                  Row(
-                    children: [
-                      const Icon(
-                        CupertinoIcons.clock,
-                        size: 14,
-                        color: AppColors.iosGray,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}',
-                        style: context.textStyle(
-                          FontSizeType.footnote,
-                          color: AppColors.iosGray,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (schedule['location'] != null) ...[
-                    const SizedBox(height: AppSpacing.tiny),
-                    Row(
-                      children: [
-                        const Icon(
-                          CupertinoIcons.location_solid,
-                          size: 14,
-                          color: AppColors.iosGray,
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            schedule['location'] as String,
-                            style: context.textStyle(
-                              FontSizeType.footnote,
-                              color: AppColors.iosGray,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const Icon(
-              CupertinoIcons.chevron_right,
-              size: 14,
-              color: AppColors.iosGray3,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _openScheduleDetail(String scheduleId) async {
+    if (scheduleId.isEmpty) {
+      AppLoading.showToast(t.groupSchedule.scheduleIdMissing);
+      return;
+    }
+    final encodedId = Uri.encodeComponent(scheduleId);
+    await context.push('/group/${widget.groupId}/schedule/$encodedId');
+    if (mounted) {
+      _loadSchedules();
+    }
   }
 
   int _toInt(dynamic value) {
@@ -295,22 +300,113 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     }
     return _toText(schedule['id']);
   }
+}
 
-  String _getMonthName(int month) {
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return months[month - 1];
+/// 列表分组：今天 / 明天（至本周） / 更晚。
+enum _ScheduleSection { today, tomorrowToWeek, later }
+
+/// 列表条目正文：标题（已取消删除线）+ 时间范围 + 地点，附状态徽章。
+class _ScheduleItemBody extends StatelessWidget {
+  const _ScheduleItemBody({
+    required this.title,
+    required this.start,
+    required this.end,
+    required this.location,
+    required this.state,
+  });
+
+  final String title;
+  final DateTime start;
+  final DateTime? end;
+  final String location;
+  final GroupScheduleTimeState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isCancelled = state == GroupScheduleTimeState.cancelled;
+    // 局部变量才能类型提升；字段 `end` 非 private 不可提升。
+    final endAt = end;
+    final titleColor = isCancelled
+        ? AppColors.iosGray
+        : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                title,
+                style: context
+                    .textStyle(
+                      FontSizeType.body,
+                      fontWeight: FontWeight.w600,
+                      color: titleColor,
+                    )
+                    .copyWith(
+                      decoration: isCancelled
+                          ? TextDecoration.lineThrough
+                          : null,
+                    ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.tiny),
+            ScheduleStatusBadge(state: state),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.tiny),
+        Row(
+          children: [
+            const Icon(
+              CupertinoIcons.clock,
+              size: 14,
+              color: AppColors.iosGray,
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: Text(
+                // 缺结束时间只展示开始，避免"11:23 – 11:23"。
+                endAt == null
+                    ? formatScheduleStartTime(context, start)
+                    : formatScheduleTimeRange(context, start, endAt),
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.iosGray,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        if (location.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.tiny),
+          Row(
+            children: [
+              const Icon(
+                CupertinoIcons.location_solid,
+                size: 14,
+                color: AppColors.iosGray,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  location,
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    color: AppColors.iosGray,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
   }
 }
