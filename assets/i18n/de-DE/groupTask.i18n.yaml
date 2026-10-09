@@ -20,3 +20,5 @@ submitFailed: Einreichen fehlgeschlagen. Bitte später erneut versuchen.
 pendingReview: Prüfung ausstehend
 taskIdMissing: Aufgaben-ID fehlt, Details können nicht angezeigt werden
 taskIdMissingSubmit: Aufgaben-ID fehlt, Einreichen nicht möglich
+publishedAt: "Veröffentlicht $time"
+completedAt: "Abgeschlossen $time"

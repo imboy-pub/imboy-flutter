@@ -20,3 +20,5 @@ submitFailed: 제출 실패, 나중에 다시 시도해주세요
 pendingReview: 검토 대기
 taskIdMissing: 과제 ID가 없어 상세정보를 볼 수 없습니다
 taskIdMissingSubmit: 과제 ID가 없어 제출할 수 없습니다
+publishedAt: "$time 게시"
+completedAt: "$time 완료"

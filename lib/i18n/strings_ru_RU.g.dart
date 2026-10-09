@@ -2083,6 +2083,8 @@ class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'На проверке';
 	@override String get taskIdMissing => 'ID задания отсутствует, нельзя открыть детали';
 	@override String get taskIdMissingSubmit => 'ID задания отсутствует, нельзя отправить';
+	@override String publishedAt({required Object time}) => 'Опубликовано ${time}';
+	@override String completedAt({required Object time}) => 'Завершено ${time}';
 }
 
 // Path: groupVote
@@ -5014,6 +5016,8 @@ extension on TranslationsRuRu {
 			'groupTask.pendingReview' => 'На проверке',
 			'groupTask.taskIdMissing' => 'ID задания отсутствует, нельзя открыть детали',
 			'groupTask.taskIdMissingSubmit' => 'ID задания отсутствует, нельзя отправить',
+			'groupTask.publishedAt' => ({required Object time}) => 'Опубликовано ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Завершено ${time}',
 			'groupVote.title' => 'Опросы группы',
 			'groupVote.createVote' => 'Создать опрос',
 			'groupVote.voteTitle' => 'Вопрос опроса',
@@ -5253,10 +5257,10 @@ extension on TranslationsRuRu {
 			'momentNotify.clearConfirmMessage' => 'Это действие нельзя отменить',
 			'momentNotify.confirm' => 'ОК',
 			'momentNotify.cancel' => 'Отмена',
-			'momentNotify.delete' => 'Удалить',
-			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => 'Удалить',
+			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
 			'organization.common.moreActions' => 'Ещё действия',
 			'organization.common.rename' => 'Переименовать',
 			'organization.common.close' => 'Закрыть',
@@ -5767,10 +5771,10 @@ extension on TranslationsRuRu {
 			'workspace.projectMarkDone' => 'Отметить как завершённый',
 			'workspace.projectReopen' => 'Открыть проект заново',
 			'workspace.projectStatusChanged' => 'Статус проекта обновлён',
-			'workspace.projectTasksSection' => 'Задачи',
-			'workspace.taskNewEntry' => 'Новая задача',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectTasksSection' => 'Задачи',
+			'workspace.taskNewEntry' => 'Новая задача',
 			'workspace.taskFormCreateTitle' => 'Новая задача',
 			'workspace.taskFormEditTitle' => 'Редактировать задачу',
 			'workspace.taskTitleLabel' => 'Название задачи',

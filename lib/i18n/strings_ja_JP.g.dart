@@ -2074,6 +2074,8 @@ class _Translations$groupTask$ja_JP extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => '審査待ち';
 	@override String get taskIdMissing => '課題IDがありません。詳細を表示できません';
 	@override String get taskIdMissingSubmit => '課題IDがありません。提出できません';
+	@override String publishedAt({required Object time}) => '${time} に公開';
+	@override String completedAt({required Object time}) => '${time} に完了';
 }
 
 // Path: groupVote
@@ -5005,6 +5007,8 @@ extension on TranslationsJaJp {
 			'groupTask.pendingReview' => '審査待ち',
 			'groupTask.taskIdMissing' => '課題IDがありません。詳細を表示できません',
 			'groupTask.taskIdMissingSubmit' => '課題IDがありません。提出できません',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} に公開',
+			'groupTask.completedAt' => ({required Object time}) => '${time} に完了',
 			'groupVote.title' => 'グループ投票',
 			'groupVote.createVote' => '投票を作成',
 			'groupVote.voteTitle' => '投票タイトル',
@@ -5244,10 +5248,10 @@ extension on TranslationsJaJp {
 			'momentNotify.clearConfirmMessage' => '削除後は復元できません',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'キャンセル',
-			'momentNotify.delete' => '削除',
-			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => '削除',
+			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
 			'organization.common.moreActions' => 'その他の操作',
 			'organization.common.rename' => '名前を変更',
 			'organization.common.close' => '閉じる',
@@ -5758,10 +5762,10 @@ extension on TranslationsJaJp {
 			'workspace.projectMarkDone' => '完了としてマーク',
 			'workspace.projectReopen' => 'プロジェクトを再オープン',
 			'workspace.projectStatusChanged' => 'プロジェクトのステータスを更新しました',
-			'workspace.projectTasksSection' => 'タスク',
-			'workspace.taskNewEntry' => '新規タスク',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectTasksSection' => 'タスク',
+			'workspace.taskNewEntry' => '新規タスク',
 			'workspace.taskFormCreateTitle' => '新規タスク',
 			'workspace.taskFormEditTitle' => 'タスクを編集',
 			'workspace.taskTitleLabel' => 'タスクのタイトル',

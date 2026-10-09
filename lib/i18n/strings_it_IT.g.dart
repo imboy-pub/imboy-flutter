@@ -2077,6 +2077,8 @@ class _Translations$groupTask$it_IT extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'In attesa di revisione';
 	@override String get taskIdMissing => 'ID compito mancante, dettagli non disponibili';
 	@override String get taskIdMissingSubmit => 'ID compito mancante, invio impossibile';
+	@override String publishedAt({required Object time}) => 'Pubblicato ${time}';
+	@override String completedAt({required Object time}) => 'Completato ${time}';
 }
 
 // Path: groupVote
@@ -5008,6 +5010,8 @@ extension on TranslationsItIt {
 			'groupTask.pendingReview' => 'In attesa di revisione',
 			'groupTask.taskIdMissing' => 'ID compito mancante, dettagli non disponibili',
 			'groupTask.taskIdMissingSubmit' => 'ID compito mancante, invio impossibile',
+			'groupTask.publishedAt' => ({required Object time}) => 'Pubblicato ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Completato ${time}',
 			'groupVote.title' => 'Sondaggio di gruppo',
 			'groupVote.createVote' => 'Crea sondaggio',
 			'groupVote.voteTitle' => 'Titolo sondaggio',
@@ -5247,10 +5251,10 @@ extension on TranslationsItIt {
 			'momentNotify.clearConfirmMessage' => 'Operazione irreversibile',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Annulla',
-			'momentNotify.delete' => 'Elimina',
-			'momentNotify.loadFailed' => 'Caricamento fallito. Riprova più tardi.',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => 'Elimina',
+			'momentNotify.loadFailed' => 'Caricamento fallito. Riprova più tardi.',
 			'organization.common.moreActions' => 'Altre azioni',
 			'organization.common.rename' => 'Rinomina',
 			'organization.common.close' => 'Chiudi',
@@ -5761,10 +5765,10 @@ extension on TranslationsItIt {
 			'workspace.projectMemberInviteInvalidUid' => 'Inserisci un ID utente valido',
 			'workspace.projectMemberInviteSubmit' => 'Invita',
 			'workspace.projectMemberInviteSuccess' => 'Aggiunto ai membri del progetto',
-			'workspace.projectMemberInviteTitle' => 'Invita membri nel progetto',
-			'workspace.projectMemberRemoveConfirmDesc' => 'Dopo la rimozione l\'utente perderà l\'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectMemberInviteTitle' => 'Invita membri nel progetto',
+			'workspace.projectMemberRemoveConfirmDesc' => 'Dopo la rimozione l\'utente perderà l\'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Rimuovi il membro del progetto ${name}',
 			'workspace.projectMemberRemoveSubmit' => 'Rimuovi',
 			'workspace.projectMemberRemovedToast' => 'Rimosso',

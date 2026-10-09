@@ -2221,6 +2221,8 @@ class _Translations$groupTask$en_US extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'Pending Review';
 	@override String get taskIdMissing => 'Assignment ID missing, cannot view details';
 	@override String get taskIdMissingSubmit => 'Assignment ID missing, cannot submit';
+	@override String publishedAt({required Object time}) => 'Published ${time}';
+	@override String completedAt({required Object time}) => 'Completed ${time}';
 }
 
 // Path: groupVote
@@ -5348,6 +5350,8 @@ extension on TranslationsEnUs {
 			'groupTask.pendingReview' => 'Pending Review',
 			'groupTask.taskIdMissing' => 'Assignment ID missing, cannot view details',
 			'groupTask.taskIdMissingSubmit' => 'Assignment ID missing, cannot submit',
+			'groupTask.publishedAt' => ({required Object time}) => 'Published ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Completed ${time}',
 			'groupVote.title' => 'Group Votes',
 			'groupVote.createVote' => 'Create Vote',
 			'groupVote.voteTitle' => 'Vote Title',
@@ -5433,10 +5437,10 @@ extension on TranslationsEnUs {
 			'main.releaseEnd' => 'Release to end',
 			'main.memberDetail' => 'Member Details',
 			'main.replied' => 'Replied',
-			'main.ringing' => 'Ringing...',
-			'main.ruRu' => 'Russian (Russia)',
 			_ => null,
 		} ?? switch (path) {
+			'main.ringing' => 'Ringing...',
+			'main.ruRu' => 'Russian (Russia)',
 			'main.selectedCount' => ({required Object count}) => 'Selected (${count})',
 			'main.selected' => 'Selected',
 			'main.sent' => 'Sent',
@@ -5947,10 +5951,10 @@ extension on TranslationsEnUs {
 			'passport.qrCodeUsed' => 'This QR code has already been used',
 			'passport.qrConnecting' => 'Connecting...',
 			'passport.qrLoginAction' => 'Confirm Login',
-			'passport.qrLoginCancelled' => 'Login cancelled',
-			'passport.qrLoginCancelledByMe' => 'You cancelled this login',
 			_ => null,
 		} ?? switch (path) {
+			'passport.qrLoginCancelled' => 'Login cancelled',
+			'passport.qrLoginCancelledByMe' => 'You cancelled this login',
 			'passport.qrLoginConfirming' => 'Signing in...',
 			'passport.qrLoginSuccess' => 'Login successful',
 			'passport.qrWebLoginTitle' => 'Web Login Confirmation',

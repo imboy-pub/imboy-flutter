@@ -2077,6 +2077,8 @@ class _Translations$groupTask$de_DE extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'Prüfung ausstehend';
 	@override String get taskIdMissing => 'Aufgaben-ID fehlt, Details können nicht angezeigt werden';
 	@override String get taskIdMissingSubmit => 'Aufgaben-ID fehlt, Einreichen nicht möglich';
+	@override String publishedAt({required Object time}) => 'Veröffentlicht ${time}';
+	@override String completedAt({required Object time}) => 'Abgeschlossen ${time}';
 }
 
 // Path: groupVote
@@ -5008,6 +5010,8 @@ extension on TranslationsDeDe {
 			'groupTask.pendingReview' => 'Prüfung ausstehend',
 			'groupTask.taskIdMissing' => 'Aufgaben-ID fehlt, Details können nicht angezeigt werden',
 			'groupTask.taskIdMissingSubmit' => 'Aufgaben-ID fehlt, Einreichen nicht möglich',
+			'groupTask.publishedAt' => ({required Object time}) => 'Veröffentlicht ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Abgeschlossen ${time}',
 			'groupVote.title' => 'Gruppen-Umfrage',
 			'groupVote.createVote' => 'Umfrage erstellen',
 			'groupVote.voteTitle' => 'Umfrage-Titel',
@@ -5247,10 +5251,10 @@ extension on TranslationsDeDe {
 			'momentNotify.clearConfirmMessage' => 'Kann nicht rückgängig gemacht werden',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Abbrechen',
-			'momentNotify.delete' => 'Löschen',
-			'momentNotify.loadFailed' => 'Laden fehlgeschlagen. Bitte später erneut versuchen.',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => 'Löschen',
+			'momentNotify.loadFailed' => 'Laden fehlgeschlagen. Bitte später erneut versuchen.',
 			'organization.common.moreActions' => 'Weitere Aktionen',
 			'organization.common.rename' => 'Umbenennen',
 			'organization.common.close' => 'Schließen',
@@ -5761,10 +5765,10 @@ extension on TranslationsDeDe {
 			'workspace.projectMarkDone' => 'Als abgeschlossen markieren',
 			'workspace.projectReopen' => 'Projekt erneut öffnen',
 			'workspace.projectStatusChanged' => 'Projektstatus aktualisiert',
-			'workspace.projectTasksSection' => 'Aufgaben',
-			'workspace.taskNewEntry' => 'Neue Aufgabe',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectTasksSection' => 'Aufgaben',
+			'workspace.taskNewEntry' => 'Neue Aufgabe',
 			'workspace.taskFormCreateTitle' => 'Neue Aufgabe',
 			'workspace.taskFormEditTitle' => 'Aufgabe bearbeiten',
 			'workspace.taskTitleLabel' => 'Aufgabentitel',

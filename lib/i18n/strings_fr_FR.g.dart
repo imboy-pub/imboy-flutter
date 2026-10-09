@@ -2077,6 +2077,8 @@ class _Translations$groupTask$fr_FR extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'En attente de validation';
 	@override String get taskIdMissing => 'ID de devoir manquant, détails indisponibles';
 	@override String get taskIdMissingSubmit => 'ID de devoir manquant, envoi impossible';
+	@override String publishedAt({required Object time}) => 'Publié ${time}';
+	@override String completedAt({required Object time}) => 'Terminé ${time}';
 }
 
 // Path: groupVote
@@ -5008,6 +5010,8 @@ extension on TranslationsFrFr {
 			'groupTask.pendingReview' => 'En attente de validation',
 			'groupTask.taskIdMissing' => 'ID de devoir manquant, détails indisponibles',
 			'groupTask.taskIdMissingSubmit' => 'ID de devoir manquant, envoi impossible',
+			'groupTask.publishedAt' => ({required Object time}) => 'Publié ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'Terminé ${time}',
 			'groupVote.title' => 'Sondage de groupe',
 			'groupVote.createVote' => 'Créer un sondage',
 			'groupVote.voteTitle' => 'Titre du sondage',
@@ -5247,10 +5251,10 @@ extension on TranslationsFrFr {
 			'momentNotify.clearConfirmMessage' => 'Action irréversible',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Annuler',
-			'momentNotify.delete' => 'Supprimer',
-			'momentNotify.loadFailed' => 'Échec du chargement. Réessayez plus tard.',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => 'Supprimer',
+			'momentNotify.loadFailed' => 'Échec du chargement. Réessayez plus tard.',
 			'organization.common.moreActions' => 'Plus d\'actions',
 			'organization.common.rename' => 'Renommer',
 			'organization.common.close' => 'Fermer',
@@ -5761,10 +5765,10 @@ extension on TranslationsFrFr {
 			'workspace.projectMarkDone' => 'Marquer comme terminé',
 			'workspace.projectReopen' => 'Rouvrir le projet',
 			'workspace.projectStatusChanged' => 'Statut du projet mis à jour',
-			'workspace.projectTasksSection' => 'Tâches',
-			'workspace.taskNewEntry' => 'Nouvelle tâche',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectTasksSection' => 'Tâches',
+			'workspace.taskNewEntry' => 'Nouvelle tâche',
 			'workspace.taskFormCreateTitle' => 'Nouvelle tâche',
 			'workspace.taskFormEditTitle' => 'Modifier la tâche',
 			'workspace.taskTitleLabel' => 'Titre de la tâche',

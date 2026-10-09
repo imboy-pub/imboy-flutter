@@ -19,3 +19,5 @@ submitFailed: "Submit failed, please try again"
 pendingReview: Pending Review
 taskIdMissing: "Assignment ID missing, cannot view details"
 taskIdMissingSubmit: "Assignment ID missing, cannot submit"
+publishedAt: "Published $time"
+completedAt: "Completed $time"

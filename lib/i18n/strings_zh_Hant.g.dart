@@ -2075,6 +2075,8 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => '待稽核';
 	@override String get taskIdMissing => '作業ID缺失，無法檢視詳情';
 	@override String get taskIdMissingSubmit => '作業ID缺失，無法提交';
+	@override String publishedAt({required Object time}) => '${time} 發佈';
+	@override String completedAt({required Object time}) => '完成於 ${time}';
 }
 
 // Path: groupVote
@@ -5007,6 +5009,8 @@ extension on TranslationsZhHant {
 			'groupTask.pendingReview' => '待稽核',
 			'groupTask.taskIdMissing' => '作業ID缺失，無法檢視詳情',
 			'groupTask.taskIdMissingSubmit' => '作業ID缺失，無法提交',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} 發佈',
+			'groupTask.completedAt' => ({required Object time}) => '完成於 ${time}',
 			'groupVote.title' => '群組投票',
 			'groupVote.createVote' => '建立投票',
 			'groupVote.voteTitle' => '投票標題',
@@ -5245,10 +5249,10 @@ extension on TranslationsZhHant {
 			'momentNotify.clearConfirmTitle' => '清空所有通知？',
 			'momentNotify.clearConfirmMessage' => '清空後無法恢復',
 			'momentNotify.confirm' => '確定',
-			'momentNotify.cancel' => '關閉',
-			'momentNotify.delete' => '刪除',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.cancel' => '關閉',
+			'momentNotify.delete' => '刪除',
 			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
 			'organization.common.moreActions' => '更多操作',
 			'organization.common.rename' => '重新命名',
@@ -5759,10 +5763,10 @@ extension on TranslationsZhHant {
 			'workspace.projectStatusDone' => '已結案',
 			'workspace.projectMarkDone' => '標記為已結案',
 			'workspace.projectReopen' => '重新開啟專案',
-			'workspace.projectStatusChanged' => '專案狀態已更新',
-			'workspace.projectTasksSection' => '任務',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectStatusChanged' => '專案狀態已更新',
+			'workspace.projectTasksSection' => '任務',
 			'workspace.taskNewEntry' => '新增任務',
 			'workspace.taskFormCreateTitle' => '新增任務',
 			'workspace.taskFormEditTitle' => '編輯任務',

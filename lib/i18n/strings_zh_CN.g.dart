@@ -6124,6 +6124,12 @@ class Translations$groupTask$zh_CN {
 
 	/// zh-CN: '作业ID缺失，无法提交'
 	String get taskIdMissingSubmit => '作业ID缺失，无法提交';
+
+	/// zh-CN: '$time 发布'
+	String publishedAt({required Object time}) => '${time} 发布';
+
+	/// zh-CN: '完成于 $time'
+	String completedAt({required Object time}) => '完成于 ${time}';
 }
 
 // Path: groupVote
@@ -11035,6 +11041,8 @@ extension on Translations {
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '作业ID缺失，无法查看详情',
 			'groupTask.taskIdMissingSubmit' => '作业ID缺失，无法提交',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} 发布',
+			'groupTask.completedAt' => ({required Object time}) => '完成于 ${time}',
 			'groupVote.title' => '群投票',
 			'groupVote.createVote' => '创建投票',
 			'groupVote.voteTitle' => '投票标题',
@@ -11100,10 +11108,10 @@ extension on Translations {
 			'main.makeYourselfInvisible' => '让自己不可见',
 			'main.makeYourselfVisible' => '让自己可见',
 			'main.male' => '男',
-			'main.manage' => '管理',
-			'main.markStar' => '收藏',
 			_ => null,
 		} ?? switch (path) {
+			'main.manage' => '管理',
+			'main.markStar' => '收藏',
 			'main.multiSelect' => '多选',
 			'main.myFavorites' => '我的收藏',
 			'main.myLive' => '我的直播',
@@ -11614,10 +11622,10 @@ extension on Translations {
 			'organization.tools.projectCount' => ({required Object count}) => '项目 ${count}',
 			'organization.tools.projectsEmpty' => '暂无项目',
 			'organization.tools.projectsError' => ({required Object err}) => '项目加载失败：${err}',
-			'organization.tools.moreInWorkspaceShell' => '浏览全部工作区',
-			'organization.tools.moreInWorkspaceShellHint' => '打开全局工作区切换器（跨企业）。',
 			_ => null,
 		} ?? switch (path) {
+			'organization.tools.moreInWorkspaceShell' => '浏览全部工作区',
+			'organization.tools.moreInWorkspaceShellHint' => '打开全局工作区切换器（跨企业）。',
 			'organization.chart.zoomIn' => '放大',
 			'organization.chart.zoomOut' => '缩小',
 			'organization.chart.fit' => '适应窗口',

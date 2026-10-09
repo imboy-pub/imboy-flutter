@@ -20,3 +20,5 @@ submitFailed: Échec de l'envoi. Réessayez plus tard.
 pendingReview: En attente de validation
 taskIdMissing: ID de devoir manquant, détails indisponibles
 taskIdMissingSubmit: ID de devoir manquant, envoi impossible
+publishedAt: "Publié $time"
+completedAt: "Terminé $time"

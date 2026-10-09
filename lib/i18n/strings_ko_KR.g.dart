@@ -2074,6 +2074,8 @@ class _Translations$groupTask$ko_KR extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => '검토 대기';
 	@override String get taskIdMissing => '과제 ID가 없어 상세정보를 볼 수 없습니다';
 	@override String get taskIdMissingSubmit => '과제 ID가 없어 제출할 수 없습니다';
+	@override String publishedAt({required Object time}) => '${time} 게시';
+	@override String completedAt({required Object time}) => '${time} 완료';
 }
 
 // Path: groupVote
@@ -5005,6 +5007,8 @@ extension on TranslationsKoKr {
 			'groupTask.pendingReview' => '검토 대기',
 			'groupTask.taskIdMissing' => '과제 ID가 없어 상세정보를 볼 수 없습니다',
 			'groupTask.taskIdMissingSubmit' => '과제 ID가 없어 제출할 수 없습니다',
+			'groupTask.publishedAt' => ({required Object time}) => '${time} 게시',
+			'groupTask.completedAt' => ({required Object time}) => '${time} 완료',
 			'groupVote.title' => '그룹 투표',
 			'groupVote.createVote' => '투표 만들기',
 			'groupVote.voteTitle' => '투표 제목',
@@ -5244,10 +5248,10 @@ extension on TranslationsKoKr {
 			'momentNotify.clearConfirmMessage' => '삭제 후에는 복구할 수 없습니다',
 			'momentNotify.confirm' => '확인',
 			'momentNotify.cancel' => '취소',
-			'momentNotify.delete' => '삭제',
-			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => '삭제',
+			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
 			'organization.common.moreActions' => '더보기',
 			'organization.common.rename' => '이름 바꾸기',
 			'organization.common.close' => '닫기',
@@ -5758,10 +5762,10 @@ extension on TranslationsKoKr {
 			'workspace.projectMarkDone' => '완료로 표시',
 			'workspace.projectReopen' => '프로젝트 다시 열기',
 			'workspace.projectStatusChanged' => '프로젝트 상태가 업데이트되었습니다',
-			'workspace.projectTasksSection' => '작업',
-			'workspace.taskNewEntry' => '새 작업',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectTasksSection' => '작업',
+			'workspace.taskNewEntry' => '새 작업',
 			'workspace.taskFormCreateTitle' => '새 작업',
 			'workspace.taskFormEditTitle' => '작업 편집',
 			'workspace.taskTitleLabel' => '작업 제목',

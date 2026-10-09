@@ -20,3 +20,5 @@ submitFailed: Не удалось отправить, попробуйте по�
 pendingReview: На проверке
 taskIdMissing: ID задания отсутствует, нельзя открыть детали
 taskIdMissingSubmit: ID задания отсутствует, нельзя отправить
+publishedAt: "Опубликовано $time"
+completedAt: "Завершено $time"

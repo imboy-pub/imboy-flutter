@@ -20,3 +20,5 @@ submitFailed: 提出に失敗しました。後でもう一度お試しくださ
 pendingReview: 審査待ち
 taskIdMissing: 課題IDがありません。詳細を表示できません
 taskIdMissingSubmit: 課題IDがありません。提出できません
+publishedAt: "$time に公開"
+completedAt: "$time に完了"

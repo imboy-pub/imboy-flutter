@@ -20,3 +20,5 @@ submitFailed: Invio fallito. Riprova più tardi.
 pendingReview: In attesa di revisione
 taskIdMissing: ID compito mancante, dettagli non disponibili
 taskIdMissingSubmit: ID compito mancante, invio impossibile
+publishedAt: "Pubblicato $time"
+completedAt: "Completato $time"

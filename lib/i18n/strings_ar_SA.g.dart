@@ -2086,6 +2086,8 @@ class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
 	@override String get pendingReview => 'قيد المراجعة';
 	@override String get taskIdMissing => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل';
 	@override String get taskIdMissingSubmit => 'معرّف الواجب مفقود، لا يمكن الإرسال';
+	@override String publishedAt({required Object time}) => 'نُشر ${time}';
+	@override String completedAt({required Object time}) => 'اكتمل في ${time}';
 }
 
 // Path: groupVote
@@ -5017,6 +5019,8 @@ extension on TranslationsArSa {
 			'groupTask.pendingReview' => 'قيد المراجعة',
 			'groupTask.taskIdMissing' => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل',
 			'groupTask.taskIdMissingSubmit' => 'معرّف الواجب مفقود، لا يمكن الإرسال',
+			'groupTask.publishedAt' => ({required Object time}) => 'نُشر ${time}',
+			'groupTask.completedAt' => ({required Object time}) => 'اكتمل في ${time}',
 			'groupVote.title' => 'استطلاعات المجموعة',
 			'groupVote.createVote' => 'إنشاء استطلاع',
 			'groupVote.voteTitle' => 'سؤال الاستطلاع',
@@ -5256,10 +5260,10 @@ extension on TranslationsArSa {
 			'momentNotify.clearConfirmMessage' => 'لا يمكن التراجع عن هذا الإجراء',
 			'momentNotify.confirm' => 'موافق',
 			'momentNotify.cancel' => 'إلغاء',
-			'momentNotify.delete' => 'حذف',
-			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.delete' => 'حذف',
+			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
 			'organization.common.moreActions' => 'المزيد من الإجراءات',
 			'organization.common.rename' => 'إعادة تسمية',
 			'organization.common.close' => 'إغلاق',
@@ -5770,10 +5774,10 @@ extension on TranslationsArSa {
 			'workspace.projectMarkDone' => 'وضع علامة مكتمل',
 			'workspace.projectReopen' => 'إعادة فتح المشروع',
 			'workspace.projectStatusChanged' => 'تم تحديث حالة المشروع',
-			'workspace.projectTasksSection' => 'المهام',
-			'workspace.taskNewEntry' => 'مهمة جديدة',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectTasksSection' => 'المهام',
+			'workspace.taskNewEntry' => 'مهمة جديدة',
 			'workspace.taskFormCreateTitle' => 'مهمة جديدة',
 			'workspace.taskFormEditTitle' => 'تعديل المهمة',
 			'workspace.taskTitleLabel' => 'عنوان المهمة',
