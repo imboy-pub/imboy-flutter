@@ -142,8 +142,11 @@ class ConversationRepo {
       txn: txn,
     );
     if (oldObj == null) {
-      obj.id = await insert(obj, txn: txn);
-      return obj;
+      final initial = autoIncrement
+          ? obj
+          : obj.copyWith(unreadNum: 0, mentionUnread: 0);
+      initial.id = await insert(initial, txn: txn);
+      return initial;
     }
     // 存在旧会话，合并更新
     // 核心安全点 [C1]：未读计数和艾特计数走 SQL-level 自增相加，由 SQLite 在事务锁线程中原子计算，绝不在 Dart 内存中进行绝对值覆写！
