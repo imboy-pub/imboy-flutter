@@ -209,7 +209,42 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     // 失败分支不再叠兜底文案：后端中文原因已由 GroupVoteApi 透出
   }
 
-  Widget _buildOptionItem(
+  /// 选项合并为一张 InsetGrouped 卡片（iOS 原生质感），行间细分隔线
+  Widget _buildOptionsCard(
+    List<Map<String, dynamic>> options,
+    bool multiple, {
+    required int totalVotes,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.darkSurfaceGroupedTertiary
+            : AppColors.lightSurface,
+        borderRadius: AppRadius.borderRadiusMedium,
+        border: Border.all(
+          color: AppColors.iosGray5.withValues(alpha: isDark ? 0.2 : 1),
+          width: 0.5,
+        ),
+      ),
+      child: Column(
+        children: [
+          for (var i = 0; i < options.length; i++) ...[
+            if (i > 0)
+              // 分隔线与选项文本左对齐（内边距16 + 图标22 + 间距10）
+              Container(
+                height: 0.5,
+                margin: const EdgeInsets.only(left: 48),
+                color: isDark ? AppColors.iosSeparatorDark : AppColors.iosGray5,
+              ),
+            _buildOptionRow(options[i], multiple, totalVotes: totalVotes),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOptionRow(
     Map<String, dynamic> option,
     bool multiple, {
     required int totalVotes,
@@ -219,113 +254,126 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     final canEdit = _voteStatus == 1;
     final voteCount = _toInt(option['vote_count']);
     final percent = totalVotes > 0 ? (voteCount / totalVotes) : 0.0;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = selected
-        ? AppColors.getIosBlue(Theme.of(context).brightness)
-        : AppColors.iosGray;
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final accent = AppColors.getIosBlue(brightness);
+    final optionText = _toText(option['option_text']);
 
-    return GestureDetector(
-      onTap: canEdit
-          ? () {
-              setState(() {
-                if (multiple) {
-                  if (selected) {
-                    _selectedOptionIds.remove(optionId);
+    return Semantics(
+      selected: selected,
+      enabled: canEdit,
+      button: canEdit,
+      label:
+          '$optionText ${(percent * 100).toInt()}%，'
+          '${context.t.groupVote.voteCount(count: voteCount)}',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: canEdit
+            ? () {
+                setState(() {
+                  if (multiple) {
+                    if (selected) {
+                      _selectedOptionIds.remove(optionId);
+                    } else {
+                      _selectedOptionIds.add(optionId);
+                    }
                   } else {
-                    _selectedOptionIds.add(optionId);
+                    _selectedOptionIds = {optionId};
                   }
-                } else {
-                  _selectedOptionIds = {optionId};
-                }
-              });
-            }
-          : null,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.small),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.medium,
-        ),
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkSurfaceGroupedTertiary
-              : AppColors.lightSurface,
-          borderRadius: AppRadius.borderRadiusRegular,
-          border: Border.all(
-            color: selected
-                ? accent.withValues(alpha: 0.5)
-                : AppColors.iosGray5.withValues(alpha: isDark ? 0.2 : 1),
-            width: selected ? 1.5 : 0.5,
+                });
+              }
+            : null,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.regular,
+            vertical: AppSpacing.medium,
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 选项文本 + 勾选标记 + 票数百分比
-            Row(
-              children: [
-                Icon(
-                  selected
-                      ? (multiple
-                            ? CupertinoIcons.checkmark_square_fill
-                            : CupertinoIcons.checkmark_alt_circle_fill)
-                      : (multiple
-                            ? CupertinoIcons.square
-                            : CupertinoIcons.circle),
-                  color: accent,
-                  size: 22,
-                ),
-                const SizedBox(width: AppSpacing.small),
-                Expanded(
-                  child: Text(
-                    _toText(option['option_text']),
-                    style: context.textStyle(
-                      FontSizeType.body,
-                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                      color: Theme.of(context).colorScheme.onSurface,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 选项文本 + 勾选标记 + 得票占比
+              Row(
+                children: [
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 160),
+                    child: Icon(
+                      selected
+                          ? (multiple
+                                ? CupertinoIcons.checkmark_square_fill
+                                : CupertinoIcons.checkmark_alt_circle_fill)
+                          : (multiple
+                                ? CupertinoIcons.square
+                                : CupertinoIcons.circle),
+                      key: ValueKey('$optionId-$selected'),
+                      color: selected ? accent : AppColors.iosGray3,
+                      size: 22,
                     ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                const SizedBox(width: AppSpacing.small),
-                Text(
-                  '${(percent * 100).toInt()}%',
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    fontWeight: FontWeight.w600,
-                    color: accent,
+                  const SizedBox(width: AppSpacing.small),
+                  Expanded(
+                    child: Text(
+                      optionText,
+                      style: context.textStyle(
+                        FontSizeType.body,
+                        fontWeight: selected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            // 进度条（Cupertino 风格）
-            const SizedBox(height: AppSpacing.small),
-            ClipRRect(
-              borderRadius: AppRadius.borderRadiusTiny,
-              child: Container(
-                height: 6,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  borderRadius: AppRadius.borderRadiusTiny,
-                ),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: percent.clamp(0.0, 1.0),
-                  child: Container(decoration: BoxDecoration(color: accent)),
+                  const SizedBox(width: AppSpacing.small),
+                  Text(
+                    '${(percent * 100).toInt()}%',
+                    style: context.textStyle(
+                      FontSizeType.subheadline,
+                      fontWeight: FontWeight.w600,
+                      color: selected ? accent : AppColors.iosGray,
+                    ),
+                  ),
+                ],
+              ),
+              // 进度条与票数同行（对齐选项文本起点），压紧行高
+              const SizedBox(height: AppSpacing.small),
+              Padding(
+                padding: const EdgeInsets.only(left: 32),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: AppRadius.borderRadiusTiny,
+                        child: Container(
+                          height: 4,
+                          color: isDark
+                              ? AppColors.overlayWhite10
+                              : AppColors.iosGray5,
+                          child: FractionallySizedBox(
+                            alignment: Alignment.centerLeft,
+                            widthFactor: percent.clamp(0.0, 1.0),
+                            child: Container(
+                              color: selected
+                                  ? accent
+                                  : accent.withValues(alpha: 0.45),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.small),
+                    Text(
+                      context.t.groupVote.voteCount(count: voteCount),
+                      style: context.textStyle(
+                        FontSizeType.caption2,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.tiny),
-            // 票数文案
-            Text(
-              context.t.groupVote.totalVotes(count: voteCount),
-              style: context.textStyle(
-                FontSizeType.caption2,
-                color: AppColors.iosGray,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -370,114 +418,253 @@ class _GroupVoteDetailPageState extends ConsumerState<GroupVoteDetailPage> {
     final isMultiple = voteType == 2;
     final totalVotes = _toInt(_vote!['total_votes']);
 
-    return CustomScrollView(
-      slivers: [
-        CupertinoSliverRefreshControl(onRefresh: _loadVoteDetail),
-        SliverList(
-          delegate: SliverChildListDelegate([
-            Text(
-              _toText(_vote!['title']),
-              style: context.textStyle(
-                FontSizeType.extraLarge,
-                fontWeight: FontWeight.w700,
+    // 宽屏（桌面端）下内容居中限宽，避免卡片被拉满整窗
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: CustomScrollView(
+          slivers: [
+            CupertinoSliverRefreshControl(onRefresh: _loadVoteDetail),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.large,
+                AppSpacing.regular,
+                AppSpacing.large,
+                AppSpacing.xxxLarge,
               ),
-            ),
-            const SizedBox(height: AppSpacing.small),
-            if (_toText(_vote!['description']).isNotEmpty)
-              Text(_toText(_vote!['description'])),
-            const SizedBox(height: AppSpacing.small),
-            Wrap(
-              spacing: AppSpacing.small,
-              children: [
-                _iosChip(
-                  _voteStatus == 1
-                      ? context.t.groupVote.statusInProgress
-                      : context.t.groupVote.voteEnded,
-                  isDark: Theme.of(context).brightness == Brightness.dark,
-                ),
-                _iosChip(
-                  context.t.groupVote.totalVotes(count: totalVotes),
-                  isDark: Theme.of(context).brightness == Brightness.dark,
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.regular),
-            ...options.map(
-              (option) =>
-                  _buildOptionItem(option, isMultiple, totalVotes: totalVotes),
-            ),
-            const SizedBox(height: AppSpacing.regular),
-            if (_voteStatus == 1)
-              SizedBox(
-                child: CupertinoButton.filled(
-                  minimumSize: const Size(0, 44),
-                  padding: EdgeInsets.zero,
-                  onPressed: (_selectedOptionIds.isEmpty || _isSubmitting)
-                      ? null
-                      : _submitVote,
-                  child: _isSubmitting
-                      ? const CupertinoActivityIndicator()
-                      : Text(
-                          _hasVoted
-                              ? context.t.groupVote.updateVote
-                              : context.t.common.confirm,
-                        ),
-                ),
-              ),
-            if (_voteStatus == 1) const SizedBox(height: AppSpacing.medium),
-            if (_voteStatus == 1)
-              Row(
-                children: [
-                  Expanded(
-                    child: CupertinoButton(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      borderRadius: BorderRadius.circular(12),
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.darkSurface
-                          : AppColors.lightSurfaceContainer,
-                      onPressed: _isSubmitting ? null : _cancelVote,
-                      child: Text(context.t.groupVote.cancelMyVote),
-                    ),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _buildHeader(isMultiple, totalVotes),
+                  const SizedBox(height: AppSpacing.regular),
+                  _buildOptionsCard(
+                    options,
+                    isMultiple,
+                    totalVotes: totalVotes,
                   ),
-                  // SR-4：结束投票仅发起人 / 管理员 / 群主可见（隐藏而非报错）
-                  if (_canCloseVote) ...[
-                    const SizedBox(width: AppSpacing.medium),
-                    Expanded(
-                      child: CupertinoButton(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? AppColors.darkSurface
-                            : AppColors.lightSurfaceContainer,
-                        onPressed: _isSubmitting ? null : _closeVote,
-                        child: Text(context.t.groupVote.voteEnded),
-                      ),
-                    ),
+                  if (_voteStatus == 1) ...[
+                    const SizedBox(height: AppSpacing.xLarge),
+                    ..._buildVoteActions(),
                   ],
-                ],
+                ]),
               ),
-          ]),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 头部信息区：标题 + 描述 + 一行克制的元信息（状态点 + 状态/类型/票数/已投票）
+  /// 行业标杆（微信/Telegram）均用安静的元信息行而非彩色标签堆砌
+  Widget _buildHeader(bool isMultiple, int totalVotes) {
+    final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final active = _voteStatus == 1;
+    final description = _toText(_vote!['description']);
+    final statusColor = active
+        ? AppColors.getIosGreen(brightness)
+        : AppColors.iosGray;
+    final secondaryStyle = context.textStyle(
+      FontSizeType.footnote,
+      color: AppColors.getTextSecondary(brightness),
+    );
+    Widget dot() => Text(
+      '·',
+      style: context.textStyle(
+        FontSizeType.footnote,
+        fontWeight: FontWeight.w600,
+        color: AppColors.getTextSecondary(brightness),
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _toText(_vote!['title']),
+          style: context.textStyle(
+            FontSizeType.title,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        if (description.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.tiny),
+          Text(
+            description,
+            style: context.textStyle(
+              FontSizeType.normal,
+              color: AppColors.getTextSecondary(brightness),
+            ),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.small),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpacing.tiny,
+          runSpacing: AppSpacing.tiny,
+          children: [
+            Container(
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                color: statusColor,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.tiny),
+            Text(
+              active ? t.groupVote.statusInProgress : t.groupVote.voteEnded,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+            dot(),
+            Text(
+              isMultiple
+                  ? t.groupVote.multipleChoice
+                  : t.groupVote.singleChoice,
+              style: secondaryStyle,
+            ),
+            dot(),
+            Text(
+              t.groupVote.totalVotes(count: totalVotes),
+              style: secondaryStyle,
+            ),
+            if (_hasVoted) ...[
+              dot(),
+              Icon(
+                CupertinoIcons.checkmark_alt_circle_fill,
+                size: 13,
+                color: AppColors.getIosBlue(brightness),
+              ),
+              const SizedBox(width: AppSpacing.tiny),
+              Text(
+                t.groupVote.alreadyVoted,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.getIosBlue(brightness),
+                ),
+              ),
+            ],
+          ],
         ),
       ],
     );
   }
-}
 
-/// iOS 风格信息标签
-Widget _iosChip(String label, {required bool isDark}) {
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-    decoration: BoxDecoration(
-      color: isDark ? AppColors.darkSurface : AppColors.lightSurfaceContainer,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Text(
-      label,
-      style: TextStyle(
-        fontSize: FontSizeType.footnote.size,
-        color: isDark
-            ? AppColors.darkTextSecondary
-            : AppColors.lightTextSecondary,
+  /// 投票操作区：已选提示 + 主按钮（品牌蓝，禁用态淡化）+ 次要操作
+  List<Widget> _buildVoteActions() {
+    final t = context.t;
+    final brightness = Theme.of(context).brightness;
+    final accent = AppColors.getIosBlue(brightness);
+    final surface = brightness == Brightness.dark
+        ? AppColors.darkSurface
+        : AppColors.lightSurfaceContainer;
+    final selectedCount = _selectedOptionIds.length;
+    final canSubmit = selectedCount > 0 && !_isSubmitting;
+
+    return [
+      if (selectedCount > 0)
+        Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.small),
+          child: Text(
+            t.groupVote.selectedCount(count: selectedCount),
+            textAlign: TextAlign.center,
+            style: context.textStyle(
+              FontSizeType.footnote,
+              fontWeight: FontWeight.w500,
+              color: accent,
+            ),
+          ),
+        ),
+      // 主按钮：禁用态用品牌蓝 40% 淡化（微信式），而非灰色板
+      CupertinoButton(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(0, 50),
+        borderRadius: AppRadius.borderRadiusMedium,
+        color: accent,
+        disabledColor: accent.withValues(alpha: 0.4),
+        onPressed: canSubmit ? _submitVote : null,
+        child: _isSubmitting
+            ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
+            : Text(
+                _hasVoted ? t.groupVote.updateVote : t.common.confirm,
+                style: TextStyle(
+                  fontSize: FontSizeType.body.size,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onPrimary,
+                ),
+              ),
       ),
-    ),
-  );
+      if (_hasVoted) ...[
+        const SizedBox(height: AppSpacing.medium),
+        Row(
+          children: [
+            // 已投票才有"取消"可言；非管理员时单独占满整行
+            Expanded(
+              child: CupertinoButton(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                borderRadius: AppRadius.borderRadiusMedium,
+                color: surface,
+                onPressed: _isSubmitting ? null : _cancelVote,
+                child: Text(
+                  t.groupVote.cancelMyVote,
+                  style: context.textStyle(
+                    FontSizeType.subheadline,
+                    fontWeight: FontWeight.w500,
+                    color: accent,
+                  ),
+                ),
+              ),
+            ),
+            // SR-4：结束投票仅发起人 / 管理员 / 群主可见（隐藏而非报错）
+            if (_canCloseVote) ...[
+              const SizedBox(width: AppSpacing.medium),
+              Expanded(
+                child: CupertinoButton(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  borderRadius: AppRadius.borderRadiusMedium,
+                  color: surface,
+                  onPressed: _isSubmitting ? null : _closeVote,
+                  child: Text(
+                    t.groupVote.endVote,
+                    style: context.textStyle(
+                      FontSizeType.subheadline,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.getIosRed(brightness),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ] else if (_canCloseVote) ...[
+        // 未投票时结束投票降级为居中的次要文字操作，不与主按钮抢视觉
+        const SizedBox(height: AppSpacing.small),
+        Center(
+          child: CupertinoButton(
+            minimumSize: Size.zero,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.small,
+            ),
+            onPressed: _isSubmitting ? null : _closeVote,
+            child: Text(
+              t.groupVote.endVote,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: AppColors.getIosRed(brightness),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ];
+  }
 }

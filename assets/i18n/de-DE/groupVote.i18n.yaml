@@ -13,3 +13,10 @@ updateVote: Umfrage aktualisieren
 cancelMyVote: Meine Abstimmung zurückziehen
 voteIdMissing: Umfrage-ID fehlt, Details können nicht angezeigt werden
 participantCount: 'Teilnehmer: $count'
+
+singleChoice: Einfachauswahl
+multipleChoice: Mehrfachauswahl
+endVote: Abstimmung beenden
+alreadyVoted: Abgestimmt
+selectedCount: "$count ausgewählt"
+voteCount: "$count Stimmen"

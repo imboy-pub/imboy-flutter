@@ -2103,6 +2103,12 @@ class _Translations$groupVote$ar_SA extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => 'إلغاء تصويتي';
 	@override String get voteIdMissing => 'معرّف الاستطلاع مفقود، لا يمكن عرض التفاصيل';
 	@override String participantCount({required Object count}) => 'المشاركون: ${count}';
+	@override String get singleChoice => 'خيار واحد';
+	@override String get multipleChoice => 'خيارات متعددة';
+	@override String get endVote => 'إنهاء التصويت';
+	@override String get alreadyVoted => 'تم التصويت';
+	@override String selectedCount({required Object count}) => 'تم اختيار ${count}';
+	@override String voteCount({required Object count}) => '${count} صوت';
 }
 
 // Path: main
@@ -5013,6 +5019,12 @@ extension on TranslationsArSa {
 			'groupVote.cancelMyVote' => 'إلغاء تصويتي',
 			'groupVote.voteIdMissing' => 'معرّف الاستطلاع مفقود، لا يمكن عرض التفاصيل',
 			'groupVote.participantCount' => ({required Object count}) => 'المشاركون: ${count}',
+			'groupVote.singleChoice' => 'خيار واحد',
+			'groupVote.multipleChoice' => 'خيارات متعددة',
+			'groupVote.endVote' => 'إنهاء التصويت',
+			'groupVote.alreadyVoted' => 'تم التصويت',
+			'groupVote.selectedCount' => ({required Object count}) => 'تم اختيار ${count}',
+			'groupVote.voteCount' => ({required Object count}) => '${count} صوت',
 			'main.totalAssets' => 'إجمالي الأصول',
 			'main.album' => 'ألبوم',
 			'main.appSize' => 'حجم التطبيق',
@@ -5240,14 +5252,14 @@ extension on TranslationsArSa {
 			'organization.common.reload' => 'إعادة تحميل',
 			'organization.common.createFailed' => 'فشل الإنشاء',
 			'organization.common.addFailed' => 'فشل الإضافة',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => 'تأكيد الأرشفة',
 			'organization.common.forbidden403' => 'لا تملك صلاحية تنفيذ هذا الإجراء (403)',
 			'organization.common.noMembers' => 'لا يوجد أعضاء',
 			'organization.common.targetUidHint' => 'UID المستخدم الآخر (رقم)',
 			'organization.common.uidMustBePositive' => 'يجب أن يكون UID المستخدم عدداً صحيحاً موجباً',
 			'organization.common.loading' => 'جارٍ التحميل…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => 'تحميل المزيد',
 			'organization.common.orgStatusPending' => 'قيد المراجعة',
 			'organization.common.orgStatusRejected' => 'لم تجتز المراجعة',
@@ -5754,14 +5766,14 @@ extension on TranslationsArSa {
 			'workspace.taskTitleRequired' => 'لا يمكن أن يكون عنوان المهمة فارغاً',
 			'workspace.taskAssigneeLabel' => 'المسؤول (عضو مساحة العمل)',
 			'workspace.taskAssigneeNone' => 'بدون تعيين حالياً',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeRefresh' => 'تحديث قائمة المرشحين للمسؤولية',
 			'workspace.taskSubmitCreate' => 'إنشاء المهمة',
 			'workspace.taskSubmitSave' => 'حفظ',
 			'workspace.taskCreatedToast' => 'تم إنشاء المهمة',
 			'workspace.taskExistingToast' => 'توجد مهمة بنفس العنوان بالفعل، وسيتم استخدام المهمة الموجودة مباشرة',
 			'workspace.taskUpdatedToast' => 'تم حفظ المهمة',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'الكل',
 			'workspace.taskStatusTodo' => 'قيد الانتظار',
 			'workspace.taskStatusDoing' => 'قيد التنفيذ',

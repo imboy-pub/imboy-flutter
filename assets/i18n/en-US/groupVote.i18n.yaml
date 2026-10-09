@@ -12,3 +12,10 @@ updateVote: Update Vote
 cancelMyVote: Cancel my vote
 voteIdMissing: "Vote ID missing, cannot view details"
 participantCount: $count participants
+
+singleChoice: Single choice
+multipleChoice: Multiple choice
+endVote: End vote
+alreadyVoted: Voted
+selectedCount: "$count selected"
+voteCount: "$count votes"

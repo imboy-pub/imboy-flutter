@@ -13,3 +13,10 @@ updateVote: Изменить опрос
 cancelMyVote: Отменить мой голос
 voteIdMissing: ID опроса отсутствует, нельзя открыть детали
 participantCount: 'Участников: $count'
+
+singleChoice: Один вариант
+multipleChoice: Несколько вариантов
+endVote: Завершить голосование
+alreadyVoted: Проголосовано
+selectedCount: "Выбрано: $count"
+voteCount: "$count голосов"

@@ -2091,6 +2091,12 @@ class _Translations$groupVote$ja_JP extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => '自分の投票を取り消す';
 	@override String get voteIdMissing => '投票IDがありません。詳細を表示できません';
 	@override String participantCount({required Object count}) => '参加者数: ${count}';
+	@override String get singleChoice => '単一選択';
+	@override String get multipleChoice => '複数選択';
+	@override String get endVote => '投票を終了';
+	@override String get alreadyVoted => '投票済み';
+	@override String selectedCount({required Object count}) => '${count} 件を選択中';
+	@override String voteCount({required Object count}) => '${count} 票';
 }
 
 // Path: main
@@ -5001,6 +5007,12 @@ extension on TranslationsJaJp {
 			'groupVote.cancelMyVote' => '自分の投票を取り消す',
 			'groupVote.voteIdMissing' => '投票IDがありません。詳細を表示できません',
 			'groupVote.participantCount' => ({required Object count}) => '参加者数: ${count}',
+			'groupVote.singleChoice' => '単一選択',
+			'groupVote.multipleChoice' => '複数選択',
+			'groupVote.endVote' => '投票を終了',
+			'groupVote.alreadyVoted' => '投票済み',
+			'groupVote.selectedCount' => ({required Object count}) => '${count} 件を選択中',
+			'groupVote.voteCount' => ({required Object count}) => '${count} 票',
 			'main.totalAssets' => '総資産',
 			'main.album' => 'フォト',
 			'main.appSize' => 'アプリサイズ',
@@ -5228,14 +5240,14 @@ extension on TranslationsJaJp {
 			'organization.common.reload' => '再読み込み',
 			'organization.common.createFailed' => '作成に失敗しました',
 			'organization.common.addFailed' => '追加に失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => 'アーカイブを確認',
 			'organization.common.forbidden403' => 'この操作を実行する権限がありません（403）',
 			'organization.common.noMembers' => 'メンバーがいません',
 			'organization.common.targetUidHint' => '相手ユーザーの UID（数値）',
 			'organization.common.uidMustBePositive' => 'ユーザー UID は正の整数である必要があります',
 			'organization.common.loading' => '読み込み中…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => 'さらに読み込む',
 			'organization.common.orgStatusPending' => '審査中',
 			'organization.common.orgStatusRejected' => '審査不合格',
@@ -5742,14 +5754,14 @@ extension on TranslationsJaJp {
 			'workspace.taskTitleRequired' => 'タスクのタイトルは空にできません',
 			'workspace.taskAssigneeLabel' => '担当者（ワークスペースメンバー）',
 			'workspace.taskAssigneeNone' => '担当者を未指定',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeRefresh' => '担当者候補を更新',
 			'workspace.taskSubmitCreate' => 'タスクを作成',
 			'workspace.taskSubmitSave' => '保存する',
 			'workspace.taskCreatedToast' => 'タスクを作成しました',
 			'workspace.taskExistingToast' => '同じタイトルのタスクが既に存在するため、既存のタスクを使用します',
 			'workspace.taskUpdatedToast' => 'タスクを保存しました',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'すべて',
 			'workspace.taskStatusTodo' => '未着手',
 			'workspace.taskStatusDoing' => '進行中',

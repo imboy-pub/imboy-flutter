@@ -2238,6 +2238,12 @@ class _Translations$groupVote$en_US extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => 'Cancel my vote';
 	@override String get voteIdMissing => 'Vote ID missing, cannot view details';
 	@override String participantCount({required Object count}) => '${count} participants';
+	@override String get singleChoice => 'Single choice';
+	@override String get multipleChoice => 'Multiple choice';
+	@override String get endVote => 'End vote';
+	@override String get alreadyVoted => 'Voted';
+	@override String selectedCount({required Object count}) => '${count} selected';
+	@override String voteCount({required Object count}) => '${count} votes';
 }
 
 // Path: main
@@ -5344,6 +5350,12 @@ extension on TranslationsEnUs {
 			'groupVote.cancelMyVote' => 'Cancel my vote',
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
+			'groupVote.singleChoice' => 'Single choice',
+			'groupVote.multipleChoice' => 'Multiple choice',
+			'groupVote.endVote' => 'End vote',
+			'groupVote.alreadyVoted' => 'Voted',
+			'groupVote.selectedCount' => ({required Object count}) => '${count} selected',
+			'groupVote.voteCount' => ({required Object count}) => '${count} votes',
 			'main.totalAssets' => 'Total Assets',
 			'main.album' => 'Photos',
 			'main.appSize' => 'App size',
@@ -5417,14 +5429,14 @@ extension on TranslationsEnUs {
 			'main.sentByMe' => 'Sent by me',
 			'main.setParam' => ({required Object param}) => 'Set ${param}',
 			'main.setting' => 'Settings',
+			_ => null,
+		} ?? switch (path) {
 			'main.siginQ' => 'Already have an account?',
 			'main.source' => 'Source',
 			'main.speakingTooShort' => 'Speaking time too short',
 			'main.speed' => 'Speed',
 			'main.stillNeeded' => 'Still need',
 			'main.storageSpace' => 'Storage space',
-			_ => null,
-		} ?? switch (path) {
 			'main.text' => 'Text',
 			'main.thisWeek' => 'This week',
 			'main.titleMine' => 'Me',
@@ -5931,14 +5943,14 @@ extension on TranslationsEnUs {
 			'passport.qrWebLoginDesc' => 'Confirm whether to log in to this account on the web',
 			'passport.alipayNotSupportedWeb' => 'Alipay login is not supported on web',
 			'passport.oneKeyNotSupportedWeb' => 'One-tap login is not supported on web',
+			_ => null,
+		} ?? switch (path) {
 			'passport.oneKeyInitFailed' => 'Failed to initialize one-tap login, please try again later',
 			'passport.oneKeyNoSimCard' => 'The current network is not supported, or the phone has no SIM card',
 			'passport.cannotGetScreenSize' => 'Unable to get screen size',
 			'passport.oneKeyFailedRetry' => 'One-tap login failed, check your network and try again',
 			'splash.slogan' => 'Connect Freely, Communicate Anywhere',
 			'welcome.step1Title' => 'Simple Connection',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
 			'welcome.step2Title' => 'Secure & Private',
 			'welcome.step2Desc' => 'End-to-end encryption Keeps your personal moments strictly yours.',

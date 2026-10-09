@@ -2094,6 +2094,12 @@ class _Translations$groupVote$it_IT extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => 'Ritira il mio voto';
 	@override String get voteIdMissing => 'ID sondaggio mancante, dettagli non disponibili';
 	@override String participantCount({required Object count}) => 'Partecipanti: ${count}';
+	@override String get singleChoice => 'Scelta singola';
+	@override String get multipleChoice => 'Scelta multipla';
+	@override String get endVote => 'Chiudi il voto';
+	@override String get alreadyVoted => 'Votato';
+	@override String selectedCount({required Object count}) => '${count} selezionati';
+	@override String voteCount({required Object count}) => '${count} voti';
 }
 
 // Path: main
@@ -5004,6 +5010,12 @@ extension on TranslationsItIt {
 			'groupVote.cancelMyVote' => 'Ritira il mio voto',
 			'groupVote.voteIdMissing' => 'ID sondaggio mancante, dettagli non disponibili',
 			'groupVote.participantCount' => ({required Object count}) => 'Partecipanti: ${count}',
+			'groupVote.singleChoice' => 'Scelta singola',
+			'groupVote.multipleChoice' => 'Scelta multipla',
+			'groupVote.endVote' => 'Chiudi il voto',
+			'groupVote.alreadyVoted' => 'Votato',
+			'groupVote.selectedCount' => ({required Object count}) => '${count} selezionati',
+			'groupVote.voteCount' => ({required Object count}) => '${count} voti',
 			'main.totalAssets' => 'Attivi totali',
 			'main.album' => 'Foto',
 			'main.appSize' => 'Dimensione app',
@@ -5231,14 +5243,14 @@ extension on TranslationsItIt {
 			'organization.common.reload' => 'Ricarica',
 			'organization.common.createFailed' => 'Creazione non riuscita',
 			'organization.common.addFailed' => 'Aggiunta non riuscita',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => 'Conferma archiviazione',
 			'organization.common.forbidden403' => 'Non sei autorizzato a eseguire questa azione (403)',
 			'organization.common.noMembers' => 'Nessun membro',
 			'organization.common.targetUidHint' => 'UID dell\'altro utente (numerico)',
 			'organization.common.uidMustBePositive' => 'L\'UID utente deve essere un intero positivo',
 			'organization.common.loading' => 'Caricamento…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => 'Carica altri',
 			'organization.common.orgStatusPending' => 'In revisione',
 			'organization.common.orgStatusRejected' => 'Revisione non superata',
@@ -5745,14 +5757,14 @@ extension on TranslationsItIt {
 			'workspace.projectMemberTransferConfirm' => 'Conferma trasferimento',
 			'workspace.projectMemberTransferDesc' => 'Dopo il trasferimento l\'altro otterrà il pieno controllo di gestione di questo progetto',
 			'workspace.projectMemberTransferDoneToast' => 'Responsabilità del progetto trasferita',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectMemberTransferTitle' => ({required Object name}) => 'Trasferisci la responsabilità del progetto a ${name}',
 			'workspace.projectMembersEntry' => 'Membri',
 			'workspace.projectMembersTitle' => 'Membri del progetto',
 			'workspace.projectMilestoneAlreadyReachedToast' => 'Questa milestone è già stata raggiunta',
 			'workspace.projectMilestoneCreateSubmit' => 'Crea',
 			'workspace.projectMilestoneCreateTitle' => 'Nuova milestone',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMilestoneCreatedToast' => 'Milestone creata',
 			'workspace.projectMilestoneDueDateInvalid' => 'Il formato della data deve essere YYYY-MM-DD',
 			'workspace.projectMilestoneDueDateLabel' => 'Data di scadenza (YYYY-MM-DD, opzionale)',

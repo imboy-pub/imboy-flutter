@@ -2091,6 +2091,12 @@ class _Translations$groupVote$ko_KR extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => '내 투표 취소';
 	@override String get voteIdMissing => '투표 ID가 없어 상세정보를 볼 수 없습니다';
 	@override String participantCount({required Object count}) => '참여 인원: ${count}';
+	@override String get singleChoice => '단일 선택';
+	@override String get multipleChoice => '복수 선택';
+	@override String get endVote => '투표 종료';
+	@override String get alreadyVoted => '투표 완료';
+	@override String selectedCount({required Object count}) => '${count}개 선택됨';
+	@override String voteCount({required Object count}) => '${count}표';
 }
 
 // Path: main
@@ -5001,6 +5007,12 @@ extension on TranslationsKoKr {
 			'groupVote.cancelMyVote' => '내 투표 취소',
 			'groupVote.voteIdMissing' => '투표 ID가 없어 상세정보를 볼 수 없습니다',
 			'groupVote.participantCount' => ({required Object count}) => '참여 인원: ${count}',
+			'groupVote.singleChoice' => '단일 선택',
+			'groupVote.multipleChoice' => '복수 선택',
+			'groupVote.endVote' => '투표 종료',
+			'groupVote.alreadyVoted' => '투표 완료',
+			'groupVote.selectedCount' => ({required Object count}) => '${count}개 선택됨',
+			'groupVote.voteCount' => ({required Object count}) => '${count}표',
 			'main.totalAssets' => '총 자산',
 			'main.album' => '사진',
 			'main.appSize' => '앱 크기',
@@ -5228,14 +5240,14 @@ extension on TranslationsKoKr {
 			'organization.common.reload' => '새로고침',
 			'organization.common.createFailed' => '생성 실패',
 			'organization.common.addFailed' => '추가 실패',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => '보관 확인',
 			'organization.common.forbidden403' => '이 작업을 수행할 권한이 없습니다(403)',
 			'organization.common.noMembers' => '멤버가 없습니다',
 			'organization.common.targetUidHint' => '상대 사용자 UID(숫자)',
 			'organization.common.uidMustBePositive' => '사용자 UID는 양의 정수여야 합니다',
 			'organization.common.loading' => '불러오는 중…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => '더 불러오기',
 			'organization.common.orgStatusPending' => '심사 중',
 			'organization.common.orgStatusRejected' => '심사 미통과',
@@ -5742,14 +5754,14 @@ extension on TranslationsKoKr {
 			'workspace.taskTitleRequired' => '작업 제목은 필수입니다',
 			'workspace.taskAssigneeLabel' => '담당자(워크스페이스 구성원)',
 			'workspace.taskAssigneeNone' => '지정 안 함',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeRefresh' => '담당자 후보 새로 고침',
 			'workspace.taskSubmitCreate' => '작업 만들기',
 			'workspace.taskSubmitSave' => '저장',
 			'workspace.taskCreatedToast' => '작업이 생성되었습니다',
 			'workspace.taskExistingToast' => '같은 제목의 작업이 이미 있습니다. 기존 작업을 그대로 사용합니다',
 			'workspace.taskUpdatedToast' => '작업이 저장되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFilterAll' => '전체',
 			'workspace.taskStatusTodo' => '할 일',
 			'workspace.taskStatusDoing' => '진행 중',

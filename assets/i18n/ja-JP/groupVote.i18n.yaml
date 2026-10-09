@@ -13,3 +13,10 @@ updateVote: 投票を更新
 cancelMyVote: 自分の投票を取り消す
 voteIdMissing: 投票IDがありません。詳細を表示できません
 participantCount: '参加者数: $count'
+
+singleChoice: 単一選択
+multipleChoice: 複数選択
+endVote: 投票を終了
+alreadyVoted: 投票済み
+selectedCount: "$count 件を選択中"
+voteCount: "$count 票"

@@ -2100,6 +2100,12 @@ class _Translations$groupVote$ru_RU extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => 'Отменить мой голос';
 	@override String get voteIdMissing => 'ID опроса отсутствует, нельзя открыть детали';
 	@override String participantCount({required Object count}) => 'Участников: ${count}';
+	@override String get singleChoice => 'Один вариант';
+	@override String get multipleChoice => 'Несколько вариантов';
+	@override String get endVote => 'Завершить голосование';
+	@override String get alreadyVoted => 'Проголосовано';
+	@override String selectedCount({required Object count}) => 'Выбрано: ${count}';
+	@override String voteCount({required Object count}) => '${count} голосов';
 }
 
 // Path: main
@@ -5010,6 +5016,12 @@ extension on TranslationsRuRu {
 			'groupVote.cancelMyVote' => 'Отменить мой голос',
 			'groupVote.voteIdMissing' => 'ID опроса отсутствует, нельзя открыть детали',
 			'groupVote.participantCount' => ({required Object count}) => 'Участников: ${count}',
+			'groupVote.singleChoice' => 'Один вариант',
+			'groupVote.multipleChoice' => 'Несколько вариантов',
+			'groupVote.endVote' => 'Завершить голосование',
+			'groupVote.alreadyVoted' => 'Проголосовано',
+			'groupVote.selectedCount' => ({required Object count}) => 'Выбрано: ${count}',
+			'groupVote.voteCount' => ({required Object count}) => '${count} голосов',
 			'main.totalAssets' => 'Общие активы',
 			'main.album' => 'Фото',
 			'main.appSize' => 'Размер приложения',
@@ -5237,14 +5249,14 @@ extension on TranslationsRuRu {
 			'organization.common.reload' => 'Обновить',
 			'organization.common.createFailed' => 'Не удалось создать',
 			'organization.common.addFailed' => 'Не удалось добавить',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => 'Подтвердить архивацию',
 			'organization.common.forbidden403' => 'Нет прав на это действие (403)',
 			'organization.common.noMembers' => 'Пока нет участников',
 			'organization.common.targetUidHint' => 'UID другого пользователя (число)',
 			'organization.common.uidMustBePositive' => 'UID пользователя должен быть положительным целым числом',
 			'organization.common.loading' => 'Загрузка…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => 'Загрузить ещё',
 			'organization.common.orgStatusPending' => 'На проверке',
 			'organization.common.orgStatusRejected' => 'Проверка не пройдена',
@@ -5751,14 +5763,14 @@ extension on TranslationsRuRu {
 			'workspace.taskTitleRequired' => 'Название задачи не может быть пустым',
 			'workspace.taskAssigneeLabel' => 'Ответственный (участник рабочего пространства)',
 			'workspace.taskAssigneeNone' => 'Пока не назначать',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeRefresh' => 'Обновить список кандидатов',
 			'workspace.taskSubmitCreate' => 'Создать задачу',
 			'workspace.taskSubmitSave' => _root.common.buttonSave,
 			'workspace.taskCreatedToast' => 'Задача создана',
 			'workspace.taskExistingToast' => 'Задача с таким названием уже существует, используется она',
 			'workspace.taskUpdatedToast' => 'Задача сохранена',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'Все',
 			'workspace.taskStatusTodo' => 'К выполнению',
 			'workspace.taskStatusDoing' => 'В процессе',

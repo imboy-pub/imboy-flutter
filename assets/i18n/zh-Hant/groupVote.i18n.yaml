@@ -12,3 +12,10 @@ updateVote: 變更投票
 cancelMyVote: 撤銷我的投票
 voteIdMissing: 投票ID缺失，無法檢視詳情
 participantCount: '參與人數: $count'
+
+singleChoice: 單選
+multipleChoice: 多選
+endVote: 結束投票
+alreadyVoted: 已投票
+selectedCount: "已選 $count 項"
+voteCount: "$count 票"

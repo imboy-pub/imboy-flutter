@@ -13,3 +13,10 @@ updateVote: تعديل الاستطلاع
 cancelMyVote: إلغاء تصويتي
 voteIdMissing: معرّف الاستطلاع مفقود، لا يمكن عرض التفاصيل
 participantCount: 'المشاركون: $count'
+
+singleChoice: خيار واحد
+multipleChoice: خيارات متعددة
+endVote: إنهاء التصويت
+alreadyVoted: تم التصويت
+selectedCount: "تم اختيار $count"
+voteCount: "$count صوت"

@@ -2094,6 +2094,12 @@ class _Translations$groupVote$de_DE extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => 'Meine Abstimmung zurückziehen';
 	@override String get voteIdMissing => 'Umfrage-ID fehlt, Details können nicht angezeigt werden';
 	@override String participantCount({required Object count}) => 'Teilnehmer: ${count}';
+	@override String get singleChoice => 'Einfachauswahl';
+	@override String get multipleChoice => 'Mehrfachauswahl';
+	@override String get endVote => 'Abstimmung beenden';
+	@override String get alreadyVoted => 'Abgestimmt';
+	@override String selectedCount({required Object count}) => '${count} ausgewählt';
+	@override String voteCount({required Object count}) => '${count} Stimmen';
 }
 
 // Path: main
@@ -5004,6 +5010,12 @@ extension on TranslationsDeDe {
 			'groupVote.cancelMyVote' => 'Meine Abstimmung zurückziehen',
 			'groupVote.voteIdMissing' => 'Umfrage-ID fehlt, Details können nicht angezeigt werden',
 			'groupVote.participantCount' => ({required Object count}) => 'Teilnehmer: ${count}',
+			'groupVote.singleChoice' => 'Einfachauswahl',
+			'groupVote.multipleChoice' => 'Mehrfachauswahl',
+			'groupVote.endVote' => 'Abstimmung beenden',
+			'groupVote.alreadyVoted' => 'Abgestimmt',
+			'groupVote.selectedCount' => ({required Object count}) => '${count} ausgewählt',
+			'groupVote.voteCount' => ({required Object count}) => '${count} Stimmen',
 			'main.totalAssets' => 'Gesamtvermögen',
 			'main.album' => 'Fotos',
 			'main.appSize' => 'App-Größe',
@@ -5231,14 +5243,14 @@ extension on TranslationsDeDe {
 			'organization.common.reload' => 'Neu laden',
 			'organization.common.createFailed' => 'Erstellen fehlgeschlagen',
 			'organization.common.addFailed' => 'Hinzufügen fehlgeschlagen',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => 'Archivieren bestätigen',
 			'organization.common.forbidden403' => 'Keine Berechtigung für diese Aktion (403)',
 			'organization.common.noMembers' => 'Noch keine Mitglieder',
 			'organization.common.targetUidHint' => 'UID des anderen Nutzers (numerisch)',
 			'organization.common.uidMustBePositive' => 'Die Nutzer-UID muss eine positive Ganzzahl sein',
 			'organization.common.loading' => 'Wird geladen…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => 'Mehr laden',
 			'organization.common.orgStatusPending' => 'In Prüfung',
 			'organization.common.orgStatusRejected' => 'Prüfung nicht bestanden',
@@ -5745,14 +5757,14 @@ extension on TranslationsDeDe {
 			'workspace.taskTitleRequired' => 'Aufgabentitel darf nicht leer sein',
 			'workspace.taskAssigneeLabel' => 'Verantwortlich (Arbeitsbereich-Mitglied)',
 			'workspace.taskAssigneeNone' => 'Vorerst nicht zuweisen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeRefresh' => 'Kandidaten aktualisieren',
 			'workspace.taskSubmitCreate' => 'Aufgabe erstellen',
 			'workspace.taskSubmitSave' => 'Speichern',
 			'workspace.taskCreatedToast' => 'Aufgabe erstellt',
 			'workspace.taskExistingToast' => 'Aufgabe mit gleichem Titel existiert bereits, vorhandene Aufgabe wird verwendet',
 			'workspace.taskUpdatedToast' => 'Aufgabe gespeichert',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'Alle',
 			'workspace.taskStatusTodo' => 'Offen',
 			'workspace.taskStatusDoing' => 'In Bearbeitung',

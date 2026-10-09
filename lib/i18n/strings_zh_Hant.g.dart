@@ -2092,6 +2092,12 @@ class Translations$groupVote$zh_Hant extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => '撤銷我的投票';
 	@override String get voteIdMissing => '投票ID缺失，無法檢視詳情';
 	@override String participantCount({required Object count}) => '參與人數: ${count}';
+	@override String get singleChoice => '單選';
+	@override String get multipleChoice => '多選';
+	@override String get endVote => '結束投票';
+	@override String get alreadyVoted => '已投票';
+	@override String selectedCount({required Object count}) => '已選 ${count} 項';
+	@override String voteCount({required Object count}) => '${count} 票';
 }
 
 // Path: main
@@ -5003,6 +5009,12 @@ extension on TranslationsZhHant {
 			'groupVote.cancelMyVote' => '撤銷我的投票',
 			'groupVote.voteIdMissing' => '投票ID缺失，無法檢視詳情',
 			'groupVote.participantCount' => ({required Object count}) => '參與人數: ${count}',
+			'groupVote.singleChoice' => '單選',
+			'groupVote.multipleChoice' => '多選',
+			'groupVote.endVote' => '結束投票',
+			'groupVote.alreadyVoted' => '已投票',
+			'groupVote.selectedCount' => ({required Object count}) => '已選 ${count} 項',
+			'groupVote.voteCount' => ({required Object count}) => '${count} 票',
 			'main.totalAssets' => '總資產',
 			'main.album' => '相簿',
 			'main.appSize' => '應用大小',
@@ -5229,14 +5241,14 @@ extension on TranslationsZhHant {
 			'organization.common.close' => '關閉',
 			'organization.common.reload' => '重新載入',
 			'organization.common.createFailed' => '建立失敗',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.addFailed' => '新增失敗',
 			'organization.common.confirmArchive' => '確認封存',
 			'organization.common.forbidden403' => '無權執行該操作（403）',
 			'organization.common.noMembers' => '尚無成員',
 			'organization.common.targetUidHint' => '對方使用者 UID（數字）',
 			'organization.common.uidMustBePositive' => '使用者 UID 必須是正整數',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loading' => '載入中…',
 			'organization.common.loadMore' => '載入更多',
 			'organization.common.orgStatusPending' => '審核中',
@@ -5743,14 +5755,14 @@ extension on TranslationsZhHant {
 			'workspace.taskTitleLabel' => '任務標題',
 			'workspace.taskTitleRequired' => '任務標題不能為空',
 			'workspace.taskAssigneeLabel' => '負責人（工作區成員）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeNone' => '暫不指派',
 			'workspace.taskAssigneeRefresh' => '重新整理負責人候選',
 			'workspace.taskSubmitCreate' => '建立任務',
 			'workspace.taskSubmitSave' => '儲存',
 			'workspace.taskCreatedToast' => '任務已建立',
 			'workspace.taskExistingToast' => '相同標題的任務已存在，直接使用既有任務',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskUpdatedToast' => '任務已儲存',
 			'workspace.taskFilterAll' => '所有',
 			'workspace.taskStatusTodo' => '待辦',

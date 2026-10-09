@@ -13,3 +13,10 @@ updateVote: 투표 수정
 cancelMyVote: 내 투표 취소
 voteIdMissing: 투표 ID가 없어 상세정보를 볼 수 없습니다
 participantCount: '참여 인원: $count'
+
+singleChoice: 단일 선택
+multipleChoice: 복수 선택
+endVote: 투표 종료
+alreadyVoted: 투표 완료
+selectedCount: "$count개 선택됨"
+voteCount: "$count표"

@@ -2094,6 +2094,12 @@ class _Translations$groupVote$fr_FR extends Translations$groupVote$zh_CN {
 	@override String get cancelMyVote => 'Retirer mon vote';
 	@override String get voteIdMissing => 'ID du sondage manquant, détails indisponibles';
 	@override String participantCount({required Object count}) => 'Participants : ${count}';
+	@override String get singleChoice => 'Choix unique';
+	@override String get multipleChoice => 'Choix multiple';
+	@override String get endVote => 'Clôturer le vote';
+	@override String get alreadyVoted => 'Voté';
+	@override String selectedCount({required Object count}) => '${count} sélectionnés';
+	@override String voteCount({required Object count}) => '${count} voix';
 }
 
 // Path: main
@@ -5004,6 +5010,12 @@ extension on TranslationsFrFr {
 			'groupVote.cancelMyVote' => 'Retirer mon vote',
 			'groupVote.voteIdMissing' => 'ID du sondage manquant, détails indisponibles',
 			'groupVote.participantCount' => ({required Object count}) => 'Participants : ${count}',
+			'groupVote.singleChoice' => 'Choix unique',
+			'groupVote.multipleChoice' => 'Choix multiple',
+			'groupVote.endVote' => 'Clôturer le vote',
+			'groupVote.alreadyVoted' => 'Voté',
+			'groupVote.selectedCount' => ({required Object count}) => '${count} sélectionnés',
+			'groupVote.voteCount' => ({required Object count}) => '${count} voix',
 			'main.totalAssets' => 'Actifs totaux',
 			'main.album' => 'Album photo',
 			'main.appSize' => 'Taille de l\'application',
@@ -5231,14 +5243,14 @@ extension on TranslationsFrFr {
 			'organization.common.reload' => 'Recharger',
 			'organization.common.createFailed' => 'Échec de la création',
 			'organization.common.addFailed' => 'Échec de l\'ajout',
+			_ => null,
+		} ?? switch (path) {
 			'organization.common.confirmArchive' => 'Confirmer l\'archivage',
 			'organization.common.forbidden403' => 'Vous n\'êtes pas autorisé à effectuer cette action (403)',
 			'organization.common.noMembers' => 'Aucun membre pour l\'instant',
 			'organization.common.targetUidHint' => 'UID de l\'utilisateur cible (nombre)',
 			'organization.common.uidMustBePositive' => 'L\'UID utilisateur doit être un entier positif',
 			'organization.common.loading' => 'Chargement…',
-			_ => null,
-		} ?? switch (path) {
 			'organization.common.loadMore' => 'Charger plus',
 			'organization.common.orgStatusPending' => 'En cours d\'examen',
 			'organization.common.orgStatusRejected' => 'Examen non validé',
@@ -5745,14 +5757,14 @@ extension on TranslationsFrFr {
 			'workspace.taskTitleRequired' => 'Le titre de la tâche est requis',
 			'workspace.taskAssigneeLabel' => 'Responsable (membre de l\'espace de travail)',
 			'workspace.taskAssigneeNone' => 'Ne pas affecter pour l\'instant',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.taskAssigneeRefresh' => 'Actualiser les candidats responsables',
 			'workspace.taskSubmitCreate' => 'Créer la tâche',
 			'workspace.taskSubmitSave' => 'Enregistrer',
 			'workspace.taskCreatedToast' => 'Tâche créée',
 			'workspace.taskExistingToast' => 'Une tâche du même titre existe déjà, la tâche existante est utilisée directement',
 			'workspace.taskUpdatedToast' => 'Tâche enregistrée',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.taskFilterAll' => 'Tout',
 			'workspace.taskStatusTodo' => 'À faire',
 			'workspace.taskStatusDoing' => 'En cours',

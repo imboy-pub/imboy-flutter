@@ -6157,6 +6157,24 @@ class Translations$groupVote$zh_CN {
 
 	/// zh-CN: '参与人数: $count'
 	String participantCount({required Object count}) => '参与人数: ${count}';
+
+	/// zh-CN: '单选'
+	String get singleChoice => '单选';
+
+	/// zh-CN: '多选'
+	String get multipleChoice => '多选';
+
+	/// zh-CN: '结束投票'
+	String get endVote => '结束投票';
+
+	/// zh-CN: '已投票'
+	String get alreadyVoted => '已投票';
+
+	/// zh-CN: '已选 $count 项'
+	String selectedCount({required Object count}) => '已选 ${count} 项';
+
+	/// zh-CN: '$count 票'
+	String voteCount({required Object count}) => '${count} 票';
 }
 
 // Path: main
@@ -11007,6 +11025,12 @@ extension on Translations {
 			'groupVote.cancelMyVote' => '取消我的投票',
 			'groupVote.voteIdMissing' => '投票ID缺失，无法查看详情',
 			'groupVote.participantCount' => ({required Object count}) => '参与人数: ${count}',
+			'groupVote.singleChoice' => '单选',
+			'groupVote.multipleChoice' => '多选',
+			'groupVote.endVote' => '结束投票',
+			'groupVote.alreadyVoted' => '已投票',
+			'groupVote.selectedCount' => ({required Object count}) => '已选 ${count} 项',
+			'groupVote.voteCount' => ({required Object count}) => '${count} 票',
 			'main.totalAssets' => '总资产',
 			'main.album' => '照片',
 			'main.appSize' => '应用大小',
@@ -11060,14 +11084,14 @@ extension on Translations {
 			'main.name' => '名称',
 			'main.numUnit' => ({required Object param}) => '${param}个',
 			'main.openInBrowser' => '在浏览器中打开',
+			_ => null,
+		} ?? switch (path) {
 			'main.or' => '或者',
 			'main.otherParty' => '对方',
 			'main.packageSize' => '包大小',
 			'main.peerHasHungUp' => '对方已挂断',
 			'main.play' => '播放',
 			'main.pleaseInputParam' => ({required Object param}) => '请输入${param}',
-			_ => null,
-		} ?? switch (path) {
 			'main.pleaseSelect' => '请选择',
 			'main.quote' => '引用',
 			'main.recentlyUsed' => '最近使用',
@@ -11574,14 +11598,14 @@ extension on Translations {
 			'organization.chart.expand' => '展开下级部门',
 			'organization.chart.collapse' => '收起下级部门',
 			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
+			_ => null,
+		} ?? switch (path) {
 			'organization.chart.directMembers' => ({required Object count}) => '本级 ${count} 人',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
 			'passport.hintPassword' => '请输入密码',
 			'passport.hintVerifyCode' => '请输入验证码',
-			_ => null,
-		} ?? switch (path) {
 			'passport.getVerifyCode' => '获取验证码',
 			'passport.oneKeyLogin' => '一键登录',
 			'passport.qrCodeExpired' => '二维码已过期，请重新扫码',

@@ -13,3 +13,10 @@ updateVote: Modifica sondaggio
 cancelMyVote: Ritira il mio voto
 voteIdMissing: ID sondaggio mancante, dettagli non disponibili
 participantCount: 'Partecipanti: $count'
+
+singleChoice: Scelta singola
+multipleChoice: Scelta multipla
+endVote: Chiudi il voto
+alreadyVoted: Votato
+selectedCount: "$count selezionati"
+voteCount: "$count voti"
