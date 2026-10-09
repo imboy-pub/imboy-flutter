@@ -663,36 +663,86 @@ class ChatAttachmentHandler {
     String? messageId,
     AttachmentSealRequest? seal,
   }) async {
-    final thumb = (resp['thumb'] as EntityImage).toJson();
-    final video = resp['video'] as EntityVideo;
+    final message = _videoMessageFromUploadResp(
+      resp,
+      messageId: messageId,
+      seal: seal,
+    );
+    await _sendMessage(message);
+  }
 
-    final message = VideoMessage(
+  /// 上传响应 → 视频消息，按返回形状分流（明文会话对扁平形状强转
+  /// EntityImage 直接 _TypeError，冒烟实证）：
+  ///   - 封装（seal 非 null）：{thumb: EntityImage, video: EntityVideo}
+  ///   - 明文（seal 为 null 的合法路径）：扁平
+  ///     {video_uri, thumb_uri, size, duration, width, height}
+  ///     （见 AttachmentApi.uploadVideoViaPresign / uploadVideoFileViaPresign）
+  VideoMessage _videoMessageFromUploadResp(
+    Map<String, dynamic> resp, {
+    String? messageId,
+    AttachmentSealRequest? seal,
+  }) {
+    final dynamic thumb = resp['thumb'];
+    if (thumb is EntityImage) {
+      final video = resp['video'] as EntityVideo;
+      return VideoMessage(
+        authorId: _currentUser.id,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          DateTimeHelper.millisecond(),
+          isUtc: true,
+        ),
+        id: messageId ?? Xid().toString(),
+        source: video.uri,
+        text: video.name,
+        name: video.name,
+        size: video.size ?? 0,
+        width: video.width.toDouble(),
+        height: video.height.toDouble(),
+        // ⚠️ thumb 仍是明文对象（Slice 7）：视频本体加密不掩盖缩略图泄漏预览。
+        metadata: _withBurnMetadata(
+          _withDescriptor({
+            'peer_id': peerId,
+            'file_hash256': video.fileHash256,
+            'thumb': thumb.toJson(),
+            // MediaInfo.duration 本身就是**毫秒**，此前又乘了一次 1000，
+            // 3 秒的视频会显示成 52:34（BUG#67）。此前视频压根发不出去
+            // （BUG#64），所以这个错误一直没暴露。
+            if (video.duration != null) 'duration_ms': video.duration!.round(),
+          }, seal),
+        ),
+      );
+    }
+    // 扁平形状（明文会话）：无 file_hash256（不加密即无封装元数据）；
+    // thumb 只需 uri（气泡端 message_video_builder 只读 thumb['uri']）。
+    final String videoUri = resp['video_uri'] as String? ?? '';
+    if (videoUri.isEmpty) {
+      throw Exception('uploadVideo: 响应缺少 thumb/video（形状不符）');
+    }
+    final String name = videoUri.split('/').last;
+    return VideoMessage(
       authorId: _currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
         DateTimeHelper.millisecond(),
         isUtc: true,
       ),
       id: messageId ?? Xid().toString(),
-      source: video.uri,
-      text: video.name,
-      name: video.name,
-      size: video.size ?? 0,
-      width: video.width.toDouble(),
-      height: video.height.toDouble(),
-      // ⚠️ thumb 仍是明文对象（Slice 7）：视频本体加密不掩盖缩略图泄漏预览。
+      source: videoUri,
+      text: name,
+      name: name,
+      size: (resp['size'] as num?)?.toInt() ?? 0,
+      width: (resp['width'] as num?)?.toDouble() ?? 0,
+      height: (resp['height'] as num?)?.toDouble() ?? 0,
       metadata: _withBurnMetadata(
-        _withDescriptor({
+        _withDescriptor(<String, dynamic>{
           'peer_id': peerId,
-          'file_hash256': video.fileHash256,
-          'thumb': thumb,
-          // MediaInfo.duration 本身就是**毫秒**，此前又乘了一次 1000，
-          // 3 秒的视频会显示成 52:34（BUG#67）。此前视频压根发不出去
-          // （BUG#64），所以这个错误一直没暴露。
-          if (video.duration != null) 'duration_ms': video.duration!.round(),
+          'thumb': <String, dynamic>{'uri': resp['thumb_uri'] ?? ''},
+          // 扁平形状的 duration 单位是毫秒（uploadVideoFileViaPresign 透传
+          // durationMs），与封装路径的 duration_ms 同单位。
+          if (resp['duration'] != null)
+            'duration_ms': (resp['duration'] as num).round(),
         }, seal),
       ),
     );
-    await _sendMessage(message);
   }
 
   /// 通过 FilePicker 选择图片并上传（Android/macOS fallback 方案）。
@@ -898,34 +948,10 @@ class ChatAttachmentHandler {
     String? messageId,
     AttachmentSealRequest? seal,
   }) async {
-    final thumb = (resp['thumb'] as EntityImage).toJson();
-    final video = resp['video'] as EntityVideo;
-
-    final message = VideoMessage(
-      authorId: _currentUser.id,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(
-        DateTimeHelper.millisecond(),
-        isUtc: true,
-      ),
-      id: messageId ?? Xid().toString(),
-      source: video.uri,
-      text: video.name,
-      name: video.name,
-      size: video.size ?? 0,
-      width: video.width.toDouble(),
-      height: video.height.toDouble(),
-      // ⚠️ thumb 仍是明文对象（Slice 7）
-      metadata: _withBurnMetadata(
-        _withDescriptor({
-          'peer_id': peerId,
-          'file_hash256': video.fileHash256,
-          'thumb': thumb,
-          // MediaInfo.duration 本身就是**毫秒**，此前又乘了一次 1000，
-          // 3 秒的视频会显示成 52:34（BUG#67）。此前视频压根发不出去
-          // （BUG#64），所以这个错误一直没暴露。
-          if (video.duration != null) 'duration_ms': video.duration!.round(),
-        }, seal),
-      ),
+    final message = _videoMessageFromUploadResp(
+      resp,
+      messageId: messageId,
+      seal: seal,
     );
     await _sendMessage(message);
   }

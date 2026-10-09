@@ -177,4 +177,63 @@ void main() {
       expect(im.metadata?['file_hash256'], 'image-md5');
     });
   });
+
+  group('视频上传扁平形状（明文会话，seal=null 是合法路径）', () {
+    // AttachmentApi.uploadVideoViaPresign / uploadVideoFileViaPresign 在
+    // seal 为 null 时返回的扁平形状。此前 handleVideoUpload 对它强转
+    // EntityImage 直接 _TypeError（macOS 冒烟实证，图库路径同隐患）。
+    final Map<String, dynamic> flatResp = <String, dynamic>{
+      'video_uri': 'u9/file_3_c/db457a8q98qfvv675a3g.mp4',
+      'thumb_uri': 'u9/file_3_d/db457a0q98qfvv675a30.jpg',
+      'size': 4096,
+      'duration': 2500,
+      'width': 1080,
+      'height': 1920,
+    };
+
+    test('handleVideoUpload：扁平形状构造消息，字段来自扁平键', () async {
+      await buildHandler().handleVideoUpload(flatResp);
+
+      expect(captured.length, 1);
+      final VideoMessage vm = captured.single as VideoMessage;
+      expect(vm.source, 'u9/file_3_c/db457a8q98qfvv675a3g.mp4');
+      expect(vm.name, 'db457a8q98qfvv675a3g.mp4');
+      expect(vm.text, vm.name);
+      expect(vm.size, 4096);
+      expect(vm.width, 1080.0);
+      expect(vm.height, 1920.0);
+
+      final Map<String, dynamic>? md = vm.metadata;
+      expect(md?['peer_id'], peerId);
+      // 气泡端 message_video_builder 只读 thumb['uri']
+      expect(md?['thumb'], <String, dynamic>{
+        'uri': 'u9/file_3_d/db457a0q98qfvv675a30.jpg',
+      });
+      // 扁平形状 duration 单位毫秒，与封装路径 duration_ms 同单位
+      expect(md?['duration_ms'], 2500);
+      expect(
+        md?.containsKey('file_hash256'),
+        isFalse,
+        reason: '明文上传无封装，无密文哈希元数据',
+      );
+      expect(md?.containsKey('burn'), isFalse);
+    });
+
+    test('handleSelectedVideoUpload：同一扁平形状不再崩溃', () async {
+      await buildHandler().handleSelectedVideoUpload(flatResp);
+
+      expect(captured.length, 1);
+      final VideoMessage vm = captured.single as VideoMessage;
+      expect(vm.source, flatResp['video_uri']);
+      expect(vm.metadata?['duration_ms'], 2500);
+    });
+
+    test('形状不符（无 thumb 又无 video_uri）→ 抛异常且不产消息', () async {
+      await expectLater(
+        buildHandler().handleVideoUpload(<String, dynamic>{}),
+        throwsException,
+      );
+      expect(captured, isEmpty);
+    });
+  });
 }
