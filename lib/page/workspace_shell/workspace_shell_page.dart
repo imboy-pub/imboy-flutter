@@ -1,11 +1,12 @@
 /// T8 (WP5) — Workspace 体验壳页面（§4.2 IA 唯一权威导航结构）
 ///
-/// 结构（2026-08-31 UX 收敛四轮：左上工作区 chip 常驻 + 右上账户归位）：
+/// 结构（2026-08-31 UX 收敛四轮：左上工作区 chip 常驻 + 右上账户归位；
+/// APP-M02：右上角不再展示当前用户头像，账户按钮换中性图标）：
 /// - 顶栏（仅移动端且非会话目的地）：左 = 工作区切换 chip（恢复切换入口
-///   可见性），中 = 当前页面标题（居中），右 = 头像菜单；
+///   可见性），中 = 当前页面标题（居中），右 = 账户按钮；
 ///   Slack / Notion 惯例：左上工作区上下文、右上账户
 /// - 会话目的地：WorkspaceConversationsPage 自带标题栏（左上 = 切换 chip、
-///   右上 = 头像，搜索在本工作区列表内），壳顶栏不叠加
+///   右上 = 账户按钮，搜索在本工作区列表内），壳顶栏不叠加
 /// - 内容区：五项导航 IndexedStack（Conversations / Overview / Channels /
 ///   Groups / Projects；工作区群会话排第一）
 /// - 导航形态：移动端底部 NavigationBar / 桌面端 NavigationRail
@@ -87,8 +88,8 @@ class WorkspaceShellPage extends ConsumerWidget {
 
     final body = Column(
       children: [
-        // 移动端全局区：左上工作区切换 chip + 右上头像菜单（会话目的地
-        // 自带导航栏且已含 chip/头像，不叠加壳顶栏）
+        // 移动端全局区：左上工作区切换 chip + 右上账户按钮（会话目的地
+        // 自带导航栏且已含 chip/账户按钮，不叠加壳顶栏）
         if (layout == WorkspaceShellLayout.mobile &&
             effectiveDestination != WorkspaceShellDestination.conversations)
           const _ShellTopBar(),
@@ -125,7 +126,7 @@ class WorkspaceShellPage extends ConsumerWidget {
 
 /// 五项内容区（IndexedStack 保活各视图滚动位置；顺序 = 枚举声明顺序）。
 /// 会话页导航栏：左上 = 工作区切换 chip（切换入口全页常驻可见），
-/// 右上 = 头像，搜索在本工作区列表内。
+/// 右上 = 账户按钮，搜索在本工作区列表内。
 class _DestinationStack extends StatelessWidget {
   final int index;
 
@@ -148,8 +149,8 @@ class _DestinationStack extends StatelessWidget {
 }
 
 /// 移动端全局区顶栏（仅非会话目的地渲染）：左 = 工作区切换 chip，
-/// 中 = 当前页面标题（居中），右 = 头像菜单。Slack / Notion 惯例布局：
-/// 左上 = 工作区上下文，右上 = 账户入口。
+/// 中 = 当前页面标题（居中），右 = 账户按钮。Slack / Notion 惯例布局：
+/// 左上 = 工作区上下文，右上 = 账户入口（APP-M02 起不再展示用户头像）。
 class _ShellTopBar extends ConsumerWidget {
   const _ShellTopBar();
 
@@ -167,26 +168,31 @@ class _ShellTopBar extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surfaceContainer,
         child: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left: AppSpacing.small),
-              child: const WorkspaceSwitcherChip(),
-            ),
+            // 右侧 Expanded 与左侧对称，保证标题绝对居中
+            //（镜像 WorkspaceTopBar 的三段布局）
             Expanded(
-              child: Center(
-                child: Text(
-                  workspaceShellDestinationTitle(t, destination),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w600),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: AppSpacing.small),
+                  child: const WorkspaceSwitcherChip(),
                 ),
               ),
             ),
-            Padding(
-              // 头像 44px 按钮盒自带 8px 内缩：外层只留 4px，图标观感
-              // 与消息页导航栏（trailing 零边距 + 11px 内缩）对齐
-              padding: const EdgeInsets.only(right: AppSpacing.tiny),
-              child: const WorkspaceAccountButton(),
+            Text(
+              workspaceShellDestinationTitle(t, destination),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleSmall
+                  ?.copyWith(fontWeight: FontWeight.w600),
+            ),
+            Expanded(
+              child: Align(
+                alignment: AlignmentDirectional.centerEnd,
+                // APP-M02：账户按钮已去头像化（中性图标），仍是本壳
+                // 移动端设置/退出登录唯一入口，不可删
+                child: const WorkspaceAccountButton(),
+              ),
             ),
           ],
         ),

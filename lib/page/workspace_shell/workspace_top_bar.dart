@@ -25,7 +25,7 @@ class WorkspaceTopBar extends StatelessWidget {
   /// 左侧元素（企业壳挂 WorkspaceSwitcherChip）。
   final Widget? leading;
 
-  /// 右侧动作（企业壳挂 WorkspaceAccountButton；为空时标题仍绝对居中）。
+  /// 右侧动作（如通讯录 Tab 挂「邀请同事」入口；为空时标题仍绝对居中）。
   final List<Widget>? actions;
 
   @override

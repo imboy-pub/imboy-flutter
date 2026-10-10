@@ -1,4 +1,4 @@
-/// T8 (WP5) — Workspace 壳全局区「账户 Sheet」（顶栏右侧 / 侧栏底部头像入口）
+/// T8 (WP5) — Workspace 壳全局区「账户 Sheet」（顶栏右侧 / 侧栏底部账户入口）
 ///
 /// 形态（2026-08-31 UX 收敛二轮，用户拍板 T1+A1）：
 /// 半屏 modal sheet 而非路由页面——上滑即返回，根除「个人资料无返回键」
@@ -37,37 +37,29 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
 
-/// 全局区头像按钮：点击弹出账户 Sheet（顶栏右侧 / 侧栏底部复用）。
+/// 全局区账户按钮：点击弹出账户 Sheet（顶栏右侧 / 侧栏底部复用）。
 class WorkspaceAccountButton extends ConsumerWidget {
   const WorkspaceAccountButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
-    final avatar = user?.avatar ?? '';
-    final initial = _initialOf(user?.nickname, user?.account);
-    // CupertinoButton(padding: zero)：与右侧导航工具按钮同款解剖，44px 热区
+    // APP-M02：右上角不再展示当前用户头像，统一换中性账户图标；
+    // 普通工作区壳无「我」tab，本按钮仍是设置/退出登录唯一入口，
+    // 故保留入口只去头像化（key 不变，测试与语义均不受影响）。
     return CupertinoButton(
       key: const ValueKey('workspace-shell-account-entry'),
       padding: EdgeInsets.zero,
       minimumSize: const Size(44, 44),
       onPressed: () => _openAccountSheet(context, ref),
-      child: CircleAvatar(
-        radius: 14,
-        // avatar 可能是 Garage object_key（非完整 URL），必须经
-        // avatarImageProvider 分流解析；裸 NetworkImage 对 object_key
-        // 必然加载失败（显示为空底色圆）。
-        backgroundImage: avatar.isNotEmpty ? avatarImageProvider(avatar) : null,
-        child: avatar.isEmpty
-            ? Text(
-                initial,
-                // 头像占位字：注释档 caption2（11px）
-                style: TextStyle(fontSize: FontSizeType.caption2.size),
-              )
-            : null,
+      child: Icon(
+        CupertinoIcons.person_crop_circle,
+        size: 24,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? AppColors.darkTextPrimary
+            : AppColors.lightTextPrimary,
       ),
     );
   }
