@@ -104,18 +104,6 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
         children: [
           if (widget.resourceEntries.isNotEmpty)
             CupertinoListSection.insetGrouped(children: widget.resourceEntries),
-          if (available.isEmpty)
-            CupertinoListSection.insetGrouped(
-              children: [
-                CupertinoListTile(
-                  key: const ValueKey('workbench-apps-entry'),
-                  title: Text(t.enterpriseOa.apps),
-                  subtitle: const Text(EnterpriseWorkbenchPage.appsUrl),
-                  trailing: const CupertinoListTileChevron(),
-                  onTap: _openApps,
-                ),
-              ],
-            ),
           if (available.isNotEmpty)
             CupertinoListSection.insetGrouped(
               children: [
@@ -135,6 +123,20 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
                   ),
               ],
             ),
+          // 联调入口常驻：按需免登（桥 getAuthCode）依赖已登记 OA 应用，
+          // 而上方应用入口走的是无桥 redirect 容器（OaTabPage）——联调页
+          // 若只在"无配置"时可见，配置完成后反而永远取不到码。
+          CupertinoListSection.insetGrouped(
+            children: [
+              CupertinoListTile(
+                key: const ValueKey('workbench-apps-entry'),
+                title: Text(t.enterpriseOa.apps),
+                subtitle: const Text(EnterpriseWorkbenchPage.appsUrl),
+                trailing: const CupertinoListTileChevron(),
+                onTap: _openApps,
+              ),
+            ],
+          ),
         ],
       );
     }
