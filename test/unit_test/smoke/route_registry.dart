@@ -542,6 +542,12 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     name: 'organization_departments',
     location: '/organization/9001/departments',
   ),
+  // APP-M02：邀请同事（?name= 可省略，分享文案回落通用文案；页内
+  // 邀请码/企业详情异步加载失败走各自错误态，无头烟雾可渲染）。
+  const SmokeRoute(
+    name: 'organization_invite_colleagues',
+    location: '/organization/9001/invite_colleagues',
+  ),
 
   // ==================== 客服治理 / 企业工具（CS-APP-03 / ENT-APP-06） ====================
   // location 按 router.namedLocation 形态补登（orgId/wsId 假参沿用 9001 惯例）。
