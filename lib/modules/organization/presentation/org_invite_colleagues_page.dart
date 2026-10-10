@@ -463,10 +463,16 @@ class _OrgInviteColleaguesPageState extends State<OrgInviteColleaguesPage> {
       padding: EdgeInsets.zero,
       minimumSize: const Size(44, 44),
       onPressed: _openMoreSheet,
-      child: Icon(
-        CupertinoIcons.ellipsis,
-        size: 20,
-        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+      child: Semantics(
+        label: context.t.organization.common.moreActions,
+        button: true,
+        child: Icon(
+          CupertinoIcons.ellipsis,
+          size: 20,
+          color: isDark
+              ? AppColors.darkTextPrimary
+              : AppColors.lightTextPrimary,
+        ),
       ),
     );
   }

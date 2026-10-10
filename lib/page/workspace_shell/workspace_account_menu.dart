@@ -54,12 +54,16 @@ class WorkspaceAccountButton extends ConsumerWidget {
       padding: EdgeInsets.zero,
       minimumSize: const Size(44, 44),
       onPressed: () => _openAccountSheet(context, ref),
-      child: Icon(
-        CupertinoIcons.person_crop_circle,
-        size: 24,
-        color: Theme.of(context).brightness == Brightness.dark
-            ? AppColors.darkTextPrimary
-            : AppColors.lightTextPrimary,
+      child: Semantics(
+        label: context.t.account.account,
+        button: true,
+        child: Icon(
+          CupertinoIcons.person_crop_circle,
+          size: 24,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.darkTextPrimary
+              : AppColors.lightTextPrimary,
+        ),
       ),
     );
   }
