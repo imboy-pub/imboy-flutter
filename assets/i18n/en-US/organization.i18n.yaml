@@ -200,6 +200,41 @@ picker:
   joinQrInvalid: "Not a valid enterprise invite QR code"
 # ==================== GZAPP-04 G10: directory (all-member view) ====================
 # ==================== GZAPP-J11: enterprise invite QR (issuer side) ====================
+# ==================== APP-M02: Invite colleagues ====================
+inviteColleagues:
+  title: Invite colleagues
+  tabInvite: Invite
+  tabPossible: Possible colleagues
+  wechatInvite: Invite via WeChat
+  wechatInviteHint: Send the invite code to WeChat friends; they join via imboy
+  faceToFace: Invite face to face
+  faceToFaceHint: Colleagues scan the QR code or enter the invite code
+  fromWechatGroup: Add from WeChat groups
+  fromWechatGroupHint: Share the invite code to a WeChat group for colleagues to join
+  shareText: "${orgName} invites you to join imboy\nInvite code: ${code} (valid for 7 days)\nOpen the imboy app and enter the code under Directory > Join organization"
+  shareToWechat: Share invite to WeChat
+  copyInviteCode: "Copy invite code"
+  codeValidityHint: "The invite code is valid for 7 days; regenerating invalidates the old code immediately"
+  possibleLoadFailed: "Failed to load possible colleagues, please retry"
+  revokeFailed: "Failed to revoke, please retry later"
+  guideCodeMissing: "No active invite code yet; ask an enterprise admin to generate one first"
+  possibleEmptyCta: "Invite colleagues"
+  codeLoadFailed: "Failed to load the invite code, please retry"
+  codeMissingHint: No active invite code yet; generate one to share
+  generateCode: Generate code
+  generateForbidden: Only enterprise admins can generate the invite code
+  possibleEmpty: No pending colleagues
+  possibleEmptyHint: Invite your colleagues to join
+  invitedBy: "Invited by ${name}"
+  invitedAt: "Invited at ${time}"
+  revoke: Revoke
+  revokeTitle: Revoke invitation
+  revokeBody: "Revoke the invitation for \"${name}\"?"
+  revoked: Invitation revoked
+  groupStep1: Share the invite code to your WeChat group
+  groupStep2: Colleagues copy the code and open the imboy app
+  groupStep3: Enter the code under Directory > Join organization
+  codeLabelWith: "Invite code: ${code}"
 inviteQr:
   title: "Invite members"
   entryHint: "Show the QR code or share the invite code; others join by scanning or typing"
@@ -235,6 +270,8 @@ directory:
   emptySearch: No matches
   switchVerifyFailed: Target organization unavailable or you are no longer a member
   switchShellFailed: Failed to load workspaces of the new organization
+  inviteColleaguesRow: "Invite colleagues..."
+  memberTotal: "${count} members in total"
 memberDetail:
   roleLabel: Enterprise role
   roleRestricted: Visible to enterprise admins only

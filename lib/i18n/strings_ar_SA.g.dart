@@ -2390,6 +2390,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ar_SA invitations = _Translations$organization$invitations$ar_SA._(_root);
 	@override late final _Translations$organization$departments$ar_SA departments = _Translations$organization$departments$ar_SA._(_root);
 	@override late final _Translations$organization$picker$ar_SA picker = _Translations$organization$picker$ar_SA._(_root);
+	@override late final _Translations$organization$inviteColleagues$ar_SA inviteColleagues = _Translations$organization$inviteColleagues$ar_SA._(_root);
 	@override late final _Translations$organization$inviteQr$ar_SA inviteQr = _Translations$organization$inviteQr$ar_SA._(_root);
 	@override late final _Translations$organization$directory$ar_SA directory = _Translations$organization$directory$ar_SA._(_root);
 	@override late final _Translations$organization$memberDetail$ar_SA memberDetail = _Translations$organization$memberDetail$ar_SA._(_root);
@@ -2961,6 +2962,48 @@ class _Translations$organization$picker$ar_SA extends Translations$organization$
 	@override String get joinQrInvalid => 'رمز QR ليس دعوة مؤسسة صالحة';
 }
 
+// Path: organization.inviteColleagues
+class _Translations$organization$inviteColleagues$ar_SA extends Translations$organization$inviteColleagues$zh_CN {
+	_Translations$organization$inviteColleagues$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'دعوة الزملاء';
+	@override String get tabInvite => 'دعوة';
+	@override String get tabPossible => 'زملاء محتملون';
+	@override String get wechatInvite => 'دعوة عبر WeChat';
+	@override String get wechatInviteHint => 'أرسل رمز الدعوة إلى أصدقاء WeChat؛ ينضمون عبر imboy';
+	@override String get faceToFace => 'دعوة وجهاً لوجه';
+	@override String get faceToFaceHint => 'امسح رمز QR أو أدخل رمز الدعوة';
+	@override String get fromWechatGroup => 'إضافة من مجموعات WeChat';
+	@override String get fromWechatGroupHint => 'شارك رمز الدعوة في مجموعة WeChat';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة';
+	@override String get shareToWechat => 'مشاركة الدعوة إلى WeChat';
+	@override String get copyInviteCode => 'نسخ رمز الدعوة';
+	@override String get codeValidityHint => 'رمز الدعوة صالح لمدة 7 أيام؛ إعادة التوليد تلغي الرمز القديم فوراً';
+	@override String get possibleLoadFailed => 'فشل تحميل الزملاء المحتملين، يرجى إعادة المحاولة';
+	@override String get revokeFailed => 'فشل الإلغاء، يرجى المحاولة لاحقاً';
+	@override String get guideCodeMissing => 'لا يوجد رمز دعوة نشط؛ اطلب أولاً من مسؤول المؤسسة إنشاء رمز';
+	@override String get possibleEmptyCta => 'دعوة الزملاء';
+	@override String get codeLoadFailed => 'فشل تحميل رمز الدعوة، يرجى إعادة المحاولة';
+	@override String get codeMissingHint => 'لا يوجد رمز دعوة نشط؛ أنشئ رمزاً للمشاركة';
+	@override String get generateCode => 'إنشاء رمز';
+	@override String get generateForbidden => 'يمكن لمسؤولي المؤسسة فقط إنشاء رمز الدعوة';
+	@override String get possibleEmpty => 'لا يوجد زملاء في انتظار';
+	@override String get possibleEmptyHint => 'ادعُ زملاءك للانضمام';
+	@override String invitedBy({required Object name}) => 'دعوة من ${name}';
+	@override String invitedAt({required Object time}) => 'دُعي في ${time}';
+	@override String get revoke => 'إلغاء';
+	@override String get revokeTitle => 'إلغاء الدعوة';
+	@override String revokeBody({required Object name}) => 'إلغاء دعوة "${name}"؟';
+	@override String get revoked => 'تم إلغاء الدعوة';
+	@override String get groupStep1 => 'شارك رمز الدعوة في مجموعة WeChat الخاصة بك';
+	@override String get groupStep2 => 'ينسخ الزملاء الرمز ويفتحون تطبيق imboy';
+	@override String get groupStep3 => 'أدخل الرمز في الدليل > الانضمام إلى المؤسسة';
+	@override String codeLabelWith({required Object code}) => 'رمز الدعوة: ${code}';
+}
+
 // Path: organization.inviteQr
 class _Translations$organization$inviteQr$ar_SA extends Translations$organization$inviteQr$zh_CN {
 	_Translations$organization$inviteQr$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
@@ -3009,6 +3052,8 @@ class _Translations$organization$directory$ar_SA extends Translations$organizati
 	@override String get emptySearch => 'لا توجد نتائج';
 	@override String get switchVerifyFailed => 'المؤسسة المستهدفة غير متاحة أو لم تعد عضوًا فيها';
 	@override String get switchShellFailed => 'فشل تحميل مساحات العمل للمؤسسة الجديدة';
+	@override String get inviteColleaguesRow => 'دعوة الزملاء...';
+	@override String memberTotal({required Object count}) => '${count} أعضاء في المجموع';
 }
 
 // Path: organization.memberDetail
@@ -5451,6 +5496,39 @@ extension on TranslationsArSa {
 			'organization.picker.joinBack' => 'رجوع',
 			'organization.picker.joinQrHint' => 'وجّه الكاميرا نحو رمز QR لدعوة المؤسسة',
 			'organization.picker.joinQrInvalid' => 'رمز QR ليس دعوة مؤسسة صالحة',
+			'organization.inviteColleagues.title' => 'دعوة الزملاء',
+			'organization.inviteColleagues.tabInvite' => 'دعوة',
+			'organization.inviteColleagues.tabPossible' => 'زملاء محتملون',
+			'organization.inviteColleagues.wechatInvite' => 'دعوة عبر WeChat',
+			'organization.inviteColleagues.wechatInviteHint' => 'أرسل رمز الدعوة إلى أصدقاء WeChat؛ ينضمون عبر imboy',
+			'organization.inviteColleagues.faceToFace' => 'دعوة وجهاً لوجه',
+			'organization.inviteColleagues.faceToFaceHint' => 'امسح رمز QR أو أدخل رمز الدعوة',
+			'organization.inviteColleagues.fromWechatGroup' => 'إضافة من مجموعات WeChat',
+			'organization.inviteColleagues.fromWechatGroupHint' => 'شارك رمز الدعوة في مجموعة WeChat',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة',
+			'organization.inviteColleagues.shareToWechat' => 'مشاركة الدعوة إلى WeChat',
+			'organization.inviteColleagues.copyInviteCode' => 'نسخ رمز الدعوة',
+			'organization.inviteColleagues.codeValidityHint' => 'رمز الدعوة صالح لمدة 7 أيام؛ إعادة التوليد تلغي الرمز القديم فوراً',
+			'organization.inviteColleagues.possibleLoadFailed' => 'فشل تحميل الزملاء المحتملين، يرجى إعادة المحاولة',
+			'organization.inviteColleagues.revokeFailed' => 'فشل الإلغاء، يرجى المحاولة لاحقاً',
+			'organization.inviteColleagues.guideCodeMissing' => 'لا يوجد رمز دعوة نشط؛ اطلب أولاً من مسؤول المؤسسة إنشاء رمز',
+			'organization.inviteColleagues.possibleEmptyCta' => 'دعوة الزملاء',
+			'organization.inviteColleagues.codeLoadFailed' => 'فشل تحميل رمز الدعوة، يرجى إعادة المحاولة',
+			'organization.inviteColleagues.codeMissingHint' => 'لا يوجد رمز دعوة نشط؛ أنشئ رمزاً للمشاركة',
+			'organization.inviteColleagues.generateCode' => 'إنشاء رمز',
+			'organization.inviteColleagues.generateForbidden' => 'يمكن لمسؤولي المؤسسة فقط إنشاء رمز الدعوة',
+			'organization.inviteColleagues.possibleEmpty' => 'لا يوجد زملاء في انتظار',
+			'organization.inviteColleagues.possibleEmptyHint' => 'ادعُ زملاءك للانضمام',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'دعوة من ${name}',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'دُعي في ${time}',
+			'organization.inviteColleagues.revoke' => 'إلغاء',
+			'organization.inviteColleagues.revokeTitle' => 'إلغاء الدعوة',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => 'إلغاء دعوة "${name}"؟',
+			'organization.inviteColleagues.revoked' => 'تم إلغاء الدعوة',
+			'organization.inviteColleagues.groupStep1' => 'شارك رمز الدعوة في مجموعة WeChat الخاصة بك',
+			'organization.inviteColleagues.groupStep2' => 'ينسخ الزملاء الرمز ويفتحون تطبيق imboy',
+			'organization.inviteColleagues.groupStep3' => 'أدخل الرمز في الدليل > الانضمام إلى المؤسسة',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'رمز الدعوة: ${code}',
 			'organization.inviteQr.title' => 'دعوة الأعضاء',
 			'organization.inviteQr.entryHint' => 'اعرض رمز QR أو شارك رمز الدعوة؛ ينضم الآخرون بالمسح أو الإدخال',
 			'organization.inviteQr.scanHint' => 'يمكن للآخرين مسح هذا الرمز بماسح imboy الضوئي للانضمام إلى المؤسسة',
@@ -5483,6 +5561,8 @@ extension on TranslationsArSa {
 			'organization.directory.emptySearch' => 'لا توجد نتائج',
 			'organization.directory.switchVerifyFailed' => 'المؤسسة المستهدفة غير متاحة أو لم تعد عضوًا فيها',
 			'organization.directory.switchShellFailed' => 'فشل تحميل مساحات العمل للمؤسسة الجديدة',
+			'organization.directory.inviteColleaguesRow' => 'دعوة الزملاء...',
+			'organization.directory.memberTotal' => ({required Object count}) => '${count} أعضاء في المجموع',
 			'organization.memberDetail.roleLabel' => 'دور المؤسسة',
 			'organization.memberDetail.roleRestricted' => 'مرئي لمسؤولي المؤسسة فقط',
 			'organization.memberDetail.accountLabel' => 'حساب الدخول',
@@ -5739,6 +5819,8 @@ extension on TranslationsArSa {
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',
 			'workspace.restoreTitle' => 'استعادة مساحة العمل',
@@ -5774,8 +5856,6 @@ extension on TranslationsArSa {
 			'workspace.projectMarkDone' => 'وضع علامة مكتمل',
 			'workspace.projectReopen' => 'إعادة فتح المشروع',
 			'workspace.projectStatusChanged' => 'تم تحديث حالة المشروع',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectTasksSection' => 'المهام',
 			'workspace.taskNewEntry' => 'مهمة جديدة',
 			'workspace.taskFormCreateTitle' => 'مهمة جديدة',

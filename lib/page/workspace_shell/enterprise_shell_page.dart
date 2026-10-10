@@ -22,6 +22,8 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 
+// WorkspaceSwitcherChip 定义于此（账号 Sheet 文件）；顶栏左侧切换 chip
+// 仍需要它，APP-M02 只移除了右上角 WorkspaceAccountButton 的引用。
 import 'workspace_account_menu.dart';
 import 'workspace_shell_breakpoint.dart';
 import 'workspace_segment_switcher.dart';
@@ -150,6 +152,35 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         EnterpriseShellDestination.mine => CupertinoIcons.person_circle,
       };
 
+  /// 通讯录 Tab 右上角「邀请同事」入口（APP-M02）。
+  Widget _inviteColleaguesAction() {
+    final orgName =
+        ref.watch(_mineOrganizationProvider(_scope)).asData?.value.name ?? '';
+    final query = orgName.isEmpty
+        ? ''
+        : '?name=${Uri.encodeComponent(orgName)}';
+    return CupertinoButton(
+      key: const ValueKey('enterprise-topbar-invite-colleagues'),
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, 44),
+      onPressed: () => context.push(
+        '$kOrganizationHomePath/${widget.organizationId}'
+        '/invite_colleagues$query',
+      ),
+      child: Semantics(
+        label: context.t.organization.inviteColleagues.title,
+        button: true,
+        child: Icon(
+          CupertinoIcons.person_add,
+          size: 22,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.darkTextPrimary
+              : AppColors.lightTextPrimary,
+        ),
+      ),
+    );
+  }
+
   Widget _content(
     List<EnterpriseShellDestination> destinations,
     List<EnterpriseOaRuntimeConfig> configs,
@@ -162,9 +193,11 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         WorkspaceTopBar(
           title: title,
           leading: const WorkspaceSwitcherChip(),
-          actions: _selected == EnterpriseShellDestination.mine
-              ? null
-              : const [WorkspaceAccountButton()],
+          // APP-M02 邀请同事：右上角不再展示当前用户头像（账号/退出入口
+          // 收敛在「我」页 → 设置）；通讯录 Tab 右上角挂「邀请同事」入口。
+          actions: _selected == EnterpriseShellDestination.contacts
+              ? [_inviteColleaguesAction()]
+              : null,
         ),
         if (ref.watch(currentWorkspaceProvider)?.isArchived ?? false)
           const WorkspaceArchivedBanner(),

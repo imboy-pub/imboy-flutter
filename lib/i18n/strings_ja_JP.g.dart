@@ -2378,6 +2378,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ja_JP invitations = _Translations$organization$invitations$ja_JP._(_root);
 	@override late final _Translations$organization$departments$ja_JP departments = _Translations$organization$departments$ja_JP._(_root);
 	@override late final _Translations$organization$picker$ja_JP picker = _Translations$organization$picker$ja_JP._(_root);
+	@override late final _Translations$organization$inviteColleagues$ja_JP inviteColleagues = _Translations$organization$inviteColleagues$ja_JP._(_root);
 	@override late final _Translations$organization$inviteQr$ja_JP inviteQr = _Translations$organization$inviteQr$ja_JP._(_root);
 	@override late final _Translations$organization$directory$ja_JP directory = _Translations$organization$directory$ja_JP._(_root);
 	@override late final _Translations$organization$memberDetail$ja_JP memberDetail = _Translations$organization$memberDetail$ja_JP._(_root);
@@ -2949,6 +2950,48 @@ class _Translations$organization$picker$ja_JP extends Translations$organization$
 	@override String get joinQrInvalid => '有効な企業招待 QR コードではありません';
 }
 
+// Path: organization.inviteColleagues
+class _Translations$organization$inviteColleagues$ja_JP extends Translations$organization$inviteColleagues$zh_CN {
+	_Translations$organization$inviteColleagues$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '同僚を招待';
+	@override String get tabInvite => '招待';
+	@override String get tabPossible => '可能な同僚';
+	@override String get wechatInvite => 'WeChat で同僚を招待';
+	@override String get wechatInviteHint => '招待コードを WeChat の友達に送信し、imboy で参加';
+	@override String get faceToFace => '対面で同僚を招待';
+	@override String get faceToFaceHint => 'QR コードのスキャンまたは招待コードの入力で参加';
+	@override String get fromWechatGroup => 'WeChat グループから追加';
+	@override String get fromWechatGroupHint => '招待コードを WeChat グループに送信して同僚を招待';
+	@override String shareText({required Object orgName, required Object code}) => '【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください';
+	@override String get shareToWechat => 'WeChat に招待を共有';
+	@override String get copyInviteCode => '招待コードをコピー';
+	@override String get codeValidityHint => '招待コードは 7 日間有効。再生成すると旧コードは直ちに無効になります';
+	@override String get possibleLoadFailed => '可能な同僚の読み込みに失敗しました。再試行してください';
+	@override String get revokeFailed => '取り消しに失敗しました。しばらくしてから再試行してください';
+	@override String get guideCodeMissing => '有効な招待コードがまだありません。先に企業管理者に生成を依頼してください';
+	@override String get possibleEmptyCta => '同僚を招待';
+	@override String get codeLoadFailed => '招待コードの読み込みに失敗しました。再試行してください';
+	@override String get codeMissingHint => '有効な招待コードがまだありません。生成して共有してください';
+	@override String get generateCode => '招待コードを生成';
+	@override String get generateForbidden => '招待コードを生成できるのは企業管理者のみです';
+	@override String get possibleEmpty => '参加待ちの同僚はいません';
+	@override String get possibleEmptyHint => '同僚を招待しましょう';
+	@override String invitedBy({required Object name}) => '${name} が招待';
+	@override String invitedAt({required Object time}) => '${time} に招待';
+	@override String get revoke => '取り消す';
+	@override String get revokeTitle => '招待を取り消す';
+	@override String revokeBody({required Object name}) => '「${name}」への招待を取り消しますか？';
+	@override String get revoked => '招待を取り消しました';
+	@override String get groupStep1 => '招待コードを WeChat グループに共有';
+	@override String get groupStep2 => '同僚がコードをコピーして imboy アプリを開く';
+	@override String get groupStep3 => '「連絡先 → 企業に参加」でコードを入力して参加';
+	@override String codeLabelWith({required Object code}) => '招待コード：${code}';
+}
+
 // Path: organization.inviteQr
 class _Translations$organization$inviteQr$ja_JP extends Translations$organization$inviteQr$zh_CN {
 	_Translations$organization$inviteQr$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
@@ -2997,6 +3040,8 @@ class _Translations$organization$directory$ja_JP extends Translations$organizati
 	@override String get emptySearch => '該当なし';
 	@override String get switchVerifyFailed => '対象の組織は利用できないか、すでにメンバーではありません';
 	@override String get switchShellFailed => '新しい組織のワークスペース読み込みに失敗しました';
+	@override String get inviteColleaguesRow => '同僚を招待...';
+	@override String memberTotal({required Object count}) => '合計${count}人';
 }
 
 // Path: organization.memberDetail
@@ -5439,6 +5484,39 @@ extension on TranslationsJaJp {
 			'organization.picker.joinBack' => '戻る',
 			'organization.picker.joinQrHint' => '企業招待 QR コードにかざしてください',
 			'organization.picker.joinQrInvalid' => '有効な企業招待 QR コードではありません',
+			'organization.inviteColleagues.title' => '同僚を招待',
+			'organization.inviteColleagues.tabInvite' => '招待',
+			'organization.inviteColleagues.tabPossible' => '可能な同僚',
+			'organization.inviteColleagues.wechatInvite' => 'WeChat で同僚を招待',
+			'organization.inviteColleagues.wechatInviteHint' => '招待コードを WeChat の友達に送信し、imboy で参加',
+			'organization.inviteColleagues.faceToFace' => '対面で同僚を招待',
+			'organization.inviteColleagues.faceToFaceHint' => 'QR コードのスキャンまたは招待コードの入力で参加',
+			'organization.inviteColleagues.fromWechatGroup' => 'WeChat グループから追加',
+			'organization.inviteColleagues.fromWechatGroupHint' => '招待コードを WeChat グループに送信して同僚を招待',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください',
+			'organization.inviteColleagues.shareToWechat' => 'WeChat に招待を共有',
+			'organization.inviteColleagues.copyInviteCode' => '招待コードをコピー',
+			'organization.inviteColleagues.codeValidityHint' => '招待コードは 7 日間有効。再生成すると旧コードは直ちに無効になります',
+			'organization.inviteColleagues.possibleLoadFailed' => '可能な同僚の読み込みに失敗しました。再試行してください',
+			'organization.inviteColleagues.revokeFailed' => '取り消しに失敗しました。しばらくしてから再試行してください',
+			'organization.inviteColleagues.guideCodeMissing' => '有効な招待コードがまだありません。先に企業管理者に生成を依頼してください',
+			'organization.inviteColleagues.possibleEmptyCta' => '同僚を招待',
+			'organization.inviteColleagues.codeLoadFailed' => '招待コードの読み込みに失敗しました。再試行してください',
+			'organization.inviteColleagues.codeMissingHint' => '有効な招待コードがまだありません。生成して共有してください',
+			'organization.inviteColleagues.generateCode' => '招待コードを生成',
+			'organization.inviteColleagues.generateForbidden' => '招待コードを生成できるのは企業管理者のみです',
+			'organization.inviteColleagues.possibleEmpty' => '参加待ちの同僚はいません',
+			'organization.inviteColleagues.possibleEmptyHint' => '同僚を招待しましょう',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => '${name} が招待',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => '${time} に招待',
+			'organization.inviteColleagues.revoke' => '取り消す',
+			'organization.inviteColleagues.revokeTitle' => '招待を取り消す',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => '「${name}」への招待を取り消しますか？',
+			'organization.inviteColleagues.revoked' => '招待を取り消しました',
+			'organization.inviteColleagues.groupStep1' => '招待コードを WeChat グループに共有',
+			'organization.inviteColleagues.groupStep2' => '同僚がコードをコピーして imboy アプリを開く',
+			'organization.inviteColleagues.groupStep3' => '「連絡先 → 企業に参加」でコードを入力して参加',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '招待コード：${code}',
 			'organization.inviteQr.title' => 'メンバーを招待',
 			'organization.inviteQr.entryHint' => 'QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます',
 			'organization.inviteQr.scanHint' => '相手が imboy のスキャナーでこのコードを読み取ると企業に参加します',
@@ -5471,6 +5549,8 @@ extension on TranslationsJaJp {
 			'organization.directory.emptySearch' => '該当なし',
 			'organization.directory.switchVerifyFailed' => '対象の組織は利用できないか、すでにメンバーではありません',
 			'organization.directory.switchShellFailed' => '新しい組織のワークスペース読み込みに失敗しました',
+			'organization.directory.inviteColleaguesRow' => '同僚を招待...',
+			'organization.directory.memberTotal' => ({required Object count}) => '合計${count}人',
 			'organization.memberDetail.roleLabel' => '企業での役割',
 			'organization.memberDetail.roleRestricted' => '企業管理者のみ閲覧できます',
 			'organization.memberDetail.accountLabel' => 'ログインアカウント',
@@ -5727,6 +5807,8 @@ extension on TranslationsJaJp {
 			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
 			'workspace.archiveConfirm' => 'アーカイブを確認',
 			'workspace.restoreTitle' => 'ワークスペースを復元',
@@ -5762,8 +5844,6 @@ extension on TranslationsJaJp {
 			'workspace.projectMarkDone' => '完了としてマーク',
 			'workspace.projectReopen' => 'プロジェクトを再オープン',
 			'workspace.projectStatusChanged' => 'プロジェクトのステータスを更新しました',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectTasksSection' => 'タスク',
 			'workspace.taskNewEntry' => '新規タスク',
 			'workspace.taskFormCreateTitle' => '新規タスク',

@@ -6962,6 +6962,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$invitations$zh_CN invitations = Translations$organization$invitations$zh_CN.internal(_root);
 	late final Translations$organization$departments$zh_CN departments = Translations$organization$departments$zh_CN.internal(_root);
 	late final Translations$organization$picker$zh_CN picker = Translations$organization$picker$zh_CN.internal(_root);
+	late final Translations$organization$inviteColleagues$zh_CN inviteColleagues = Translations$organization$inviteColleagues$zh_CN.internal(_root);
 	late final Translations$organization$inviteQr$zh_CN inviteQr = Translations$organization$inviteQr$zh_CN.internal(_root);
 	late final Translations$organization$directory$zh_CN directory = Translations$organization$directory$zh_CN.internal(_root);
 	late final Translations$organization$memberDetail$zh_CN memberDetail = Translations$organization$memberDetail$zh_CN.internal(_root);
@@ -8539,6 +8540,114 @@ class Translations$organization$picker$zh_CN {
 	String get joinQrInvalid => '不是有效的企业邀请二维码';
 }
 
+// Path: organization.inviteColleagues
+class Translations$organization$inviteColleagues$zh_CN {
+	Translations$organization$inviteColleagues$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '邀请同事'
+	String get title => '邀请同事';
+
+	/// zh-CN: '邀请同事'
+	String get tabInvite => '邀请同事';
+
+	/// zh-CN: '可能的同事'
+	String get tabPossible => '可能的同事';
+
+	/// zh-CN: '微信邀请同事'
+	String get wechatInvite => '微信邀请同事';
+
+	/// zh-CN: '把邀请码发给微信好友，对方打开 imboy 加入'
+	String get wechatInviteHint => '把邀请码发给微信好友，对方打开 imboy 加入';
+
+	/// zh-CN: '面对面邀请同事'
+	String get faceToFace => '面对面邀请同事';
+
+	/// zh-CN: '同事扫码或输入邀请码即可加入'
+	String get faceToFaceHint => '同事扫码或输入邀请码即可加入';
+
+	/// zh-CN: '从微信群中添加'
+	String get fromWechatGroup => '从微信群中添加';
+
+	/// zh-CN: '把邀请码发到微信群，同事复制后即可加入'
+	String get fromWechatGroupHint => '把邀请码发到微信群，同事复制后即可加入';
+
+	/// zh-CN: '【${orgName}】邀请你加入 imboy 邀请码：${code}（7 天内有效） 打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入'
+	String shareText({required Object orgName, required Object code}) => '【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入';
+
+	/// zh-CN: '分享邀请到微信'
+	String get shareToWechat => '分享邀请到微信';
+
+	/// zh-CN: '复制邀请码'
+	String get copyInviteCode => '复制邀请码';
+
+	/// zh-CN: '邀请码 7 天内有效；重新生成后旧码立即失效'
+	String get codeValidityHint => '邀请码 7 天内有效；重新生成后旧码立即失效';
+
+	/// zh-CN: '可能的同事加载失败，请重试'
+	String get possibleLoadFailed => '可能的同事加载失败，请重试';
+
+	/// zh-CN: '撤销失败，请稍后重试'
+	String get revokeFailed => '撤销失败，请稍后重试';
+
+	/// zh-CN: '暂无有效邀请码，请先联系企业管理员生成'
+	String get guideCodeMissing => '暂无有效邀请码，请先联系企业管理员生成';
+
+	/// zh-CN: '去邀请同事'
+	String get possibleEmptyCta => '去邀请同事';
+
+	/// zh-CN: '邀请码加载失败，请重试'
+	String get codeLoadFailed => '邀请码加载失败，请重试';
+
+	/// zh-CN: '暂无有效邀请码，生成后即可分享'
+	String get codeMissingHint => '暂无有效邀请码，生成后即可分享';
+
+	/// zh-CN: '生成邀请码'
+	String get generateCode => '生成邀请码';
+
+	/// zh-CN: '仅企业管理员可生成邀请码，请联系管理员'
+	String get generateForbidden => '仅企业管理员可生成邀请码，请联系管理员';
+
+	/// zh-CN: '暂无待加入的同事'
+	String get possibleEmpty => '暂无待加入的同事';
+
+	/// zh-CN: '去邀请你的同事加入吧'
+	String get possibleEmptyHint => '去邀请你的同事加入吧';
+
+	/// zh-CN: '${name} 邀请'
+	String invitedBy({required Object name}) => '${name} 邀请';
+
+	/// zh-CN: '邀请于 ${time}'
+	String invitedAt({required Object time}) => '邀请于 ${time}';
+
+	/// zh-CN: '撤销'
+	String get revoke => '撤销';
+
+	/// zh-CN: '撤销邀请'
+	String get revokeTitle => '撤销邀请';
+
+	/// zh-CN: '撤销对「${name}」的邀请？'
+	String revokeBody({required Object name}) => '撤销对「${name}」的邀请？';
+
+	/// zh-CN: '已撤销邀请'
+	String get revoked => '已撤销邀请';
+
+	/// zh-CN: '把邀请码分享到你的微信群'
+	String get groupStep1 => '把邀请码分享到你的微信群';
+
+	/// zh-CN: '同事复制邀请码，打开 imboy App'
+	String get groupStep2 => '同事复制邀请码，打开 imboy App';
+
+	/// zh-CN: '在「通讯录 → 加入企业」输入邀请码即可加入'
+	String get groupStep3 => '在「通讯录 → 加入企业」输入邀请码即可加入';
+
+	/// zh-CN: '邀请码：${code}'
+	String codeLabelWith({required Object code}) => '邀请码：${code}';
+}
+
 // Path: organization.inviteQr
 class Translations$organization$inviteQr$zh_CN {
 	Translations$organization$inviteQr$zh_CN.internal(this._root);
@@ -8651,6 +8760,12 @@ class Translations$organization$directory$zh_CN {
 
 	/// zh-CN: '新企业工作区加载失败'
 	String get switchShellFailed => '新企业工作区加载失败';
+
+	/// zh-CN: '邀请同事...'
+	String get inviteColleaguesRow => '邀请同事...';
+
+	/// zh-CN: '共${count}人'
+	String memberTotal({required Object count}) => '共${count}人';
 }
 
 // Path: organization.memberDetail
@@ -11537,6 +11652,39 @@ extension on Translations {
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '对准企业邀请二维码即可自动加入',
 			'organization.picker.joinQrInvalid' => '不是有效的企业邀请二维码',
+			'organization.inviteColleagues.title' => '邀请同事',
+			'organization.inviteColleagues.tabInvite' => '邀请同事',
+			'organization.inviteColleagues.tabPossible' => '可能的同事',
+			'organization.inviteColleagues.wechatInvite' => '微信邀请同事',
+			'organization.inviteColleagues.wechatInviteHint' => '把邀请码发给微信好友，对方打开 imboy 加入',
+			'organization.inviteColleagues.faceToFace' => '面对面邀请同事',
+			'organization.inviteColleagues.faceToFaceHint' => '同事扫码或输入邀请码即可加入',
+			'organization.inviteColleagues.fromWechatGroup' => '从微信群中添加',
+			'organization.inviteColleagues.fromWechatGroupHint' => '把邀请码发到微信群，同事复制后即可加入',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入',
+			'organization.inviteColleagues.shareToWechat' => '分享邀请到微信',
+			'organization.inviteColleagues.copyInviteCode' => '复制邀请码',
+			'organization.inviteColleagues.codeValidityHint' => '邀请码 7 天内有效；重新生成后旧码立即失效',
+			'organization.inviteColleagues.possibleLoadFailed' => '可能的同事加载失败，请重试',
+			'organization.inviteColleagues.revokeFailed' => '撤销失败，请稍后重试',
+			'organization.inviteColleagues.guideCodeMissing' => '暂无有效邀请码，请先联系企业管理员生成',
+			'organization.inviteColleagues.possibleEmptyCta' => '去邀请同事',
+			'organization.inviteColleagues.codeLoadFailed' => '邀请码加载失败，请重试',
+			'organization.inviteColleagues.codeMissingHint' => '暂无有效邀请码，生成后即可分享',
+			'organization.inviteColleagues.generateCode' => '生成邀请码',
+			'organization.inviteColleagues.generateForbidden' => '仅企业管理员可生成邀请码，请联系管理员',
+			'organization.inviteColleagues.possibleEmpty' => '暂无待加入的同事',
+			'organization.inviteColleagues.possibleEmptyHint' => '去邀请你的同事加入吧',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => '${name} 邀请',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => '邀请于 ${time}',
+			'organization.inviteColleagues.revoke' => '撤销',
+			'organization.inviteColleagues.revokeTitle' => '撤销邀请',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => '撤销对「${name}」的邀请？',
+			'organization.inviteColleagues.revoked' => '已撤销邀请',
+			'organization.inviteColleagues.groupStep1' => '把邀请码分享到你的微信群',
+			'organization.inviteColleagues.groupStep2' => '同事复制邀请码，打开 imboy App',
+			'organization.inviteColleagues.groupStep3' => '在「通讯录 → 加入企业」输入邀请码即可加入',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀请码：${code}',
 			'organization.inviteQr.title' => '邀请成员',
 			'organization.inviteQr.entryHint' => '出示二维码或邀请码，对方扫码 / 输码即可加入',
 			'organization.inviteQr.scanHint' => '对方用 imboy「扫一扫」扫描本码即可加入本企业',
@@ -11569,6 +11717,8 @@ extension on Translations {
 			'organization.directory.emptySearch' => '无匹配结果',
 			'organization.directory.switchVerifyFailed' => '目标企业不可用或你已不是其成员',
 			'organization.directory.switchShellFailed' => '新企业工作区加载失败',
+			'organization.directory.inviteColleaguesRow' => '邀请同事...',
+			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
@@ -11635,6 +11785,8 @@ extension on Translations {
 			'organization.manage.restoreChannel' => '恢复',
 			'organization.manage.archivedChannelSection' => '已归档频道',
 			'organization.contactEntry.browserEntry' => '进入通讯录',
+			_ => null,
+		} ?? switch (path) {
 			'organization.contactEntry.loadFailed' => '企业信息加载失败',
 			'organization.hub.sectionResources' => '企业资源',
 			'organization.hub.sectionAdmin' => '管理员区',
@@ -11670,8 +11822,6 @@ extension on Translations {
 			'organization.wsMembers.changeRole' => '更改角色',
 			'organization.wsMembers.setRoleMember' => '设为成员',
 			'organization.wsMembers.setRoleGuest' => '设为访客',
-			_ => null,
-		} ?? switch (path) {
 			'organization.wsMembers.transferOwner' => '转让所有者',
 			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => '转让「${name}」的所有者？',
 			'organization.wsMembers.transferOwnerBody' => '转让后你不再是该工作区所有者，写治理权限随之移交给对方；新所有者可再转回。',

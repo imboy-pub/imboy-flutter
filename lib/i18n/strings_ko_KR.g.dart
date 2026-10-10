@@ -2378,6 +2378,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ko_KR invitations = _Translations$organization$invitations$ko_KR._(_root);
 	@override late final _Translations$organization$departments$ko_KR departments = _Translations$organization$departments$ko_KR._(_root);
 	@override late final _Translations$organization$picker$ko_KR picker = _Translations$organization$picker$ko_KR._(_root);
+	@override late final _Translations$organization$inviteColleagues$ko_KR inviteColleagues = _Translations$organization$inviteColleagues$ko_KR._(_root);
 	@override late final _Translations$organization$inviteQr$ko_KR inviteQr = _Translations$organization$inviteQr$ko_KR._(_root);
 	@override late final _Translations$organization$directory$ko_KR directory = _Translations$organization$directory$ko_KR._(_root);
 	@override late final _Translations$organization$memberDetail$ko_KR memberDetail = _Translations$organization$memberDetail$ko_KR._(_root);
@@ -2949,6 +2950,48 @@ class _Translations$organization$picker$ko_KR extends Translations$organization$
 	@override String get joinQrInvalid => '유효한 기업 초대 QR코드가 아닙니다';
 }
 
+// Path: organization.inviteColleagues
+class _Translations$organization$inviteColleagues$ko_KR extends Translations$organization$inviteColleagues$zh_CN {
+	_Translations$organization$inviteColleagues$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '동료 초대';
+	@override String get tabInvite => '초대';
+	@override String get tabPossible => '가능한 동료';
+	@override String get wechatInvite => '위챗으로 동료 초대';
+	@override String get wechatInviteHint => '초대 코드를 위챗 친구에게 보내고 imboy에서 참여';
+	@override String get faceToFace => '대면으로 동료 초대';
+	@override String get faceToFaceHint => 'QR 코드 스캔 또는 초대 코드 입력으로 참여';
+	@override String get fromWechatGroup => '위챗 그룹에서 추가';
+	@override String get fromWechatGroupHint => '위챗 그룹에 초대 코드를 공유하여 동료 초대';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}]에서 imboy로 초대합니다\n초대 코드: ${code} (7일간 유효)\nimboy 앱에서 \'주소록 → 기업 참여\'에 코드를 입력하세요';
+	@override String get shareToWechat => '위챗에 초대 공유';
+	@override String get copyInviteCode => '초대 코드 복사';
+	@override String get codeValidityHint => '초대 코드는 7일간 유효하며, 재생성하면 기존 코드는 즉시 만료됩니다';
+	@override String get possibleLoadFailed => '가능한 동료를 불러오지 못했습니다. 다시 시도하세요';
+	@override String get revokeFailed => '철회에 실패했습니다. 잠시 후 다시 시도하세요';
+	@override String get guideCodeMissing => '유효한 초대 코드가 없습니다. 먼저 기업 관리자에게 생성을 요청하세요';
+	@override String get possibleEmptyCta => '동료 초대하러 가기';
+	@override String get codeLoadFailed => '초대 코드를 불러오지 못했습니다. 다시 시도하세요';
+	@override String get codeMissingHint => '유효한 초대 코드가 없습니다. 생성 후 공유하세요';
+	@override String get generateCode => '초대 코드 생성';
+	@override String get generateForbidden => '기업 관리자만 초대 코드를 생성할 수 있습니다';
+	@override String get possibleEmpty => '참여 대기 중인 동료가 없습니다';
+	@override String get possibleEmptyHint => '동료를 초대해 보세요';
+	@override String invitedBy({required Object name}) => '${name} 초대';
+	@override String invitedAt({required Object time}) => '${time}에 초대';
+	@override String get revoke => '철회';
+	@override String get revokeTitle => '초대 철회';
+	@override String revokeBody({required Object name}) => '"${name}"님의 초대를 철회하시겠습니까?';
+	@override String get revoked => '초대가 철회되었습니다';
+	@override String get groupStep1 => '위챗 그룹에 초대 코드 공유';
+	@override String get groupStep2 => '동료가 코드를 복사하고 imboy 앱을 엽니다';
+	@override String get groupStep3 => '\'주소록 → 기업 참여\'에 코드를 입력하여 참여';
+	@override String codeLabelWith({required Object code}) => '초대 코드: ${code}';
+}
+
 // Path: organization.inviteQr
 class _Translations$organization$inviteQr$ko_KR extends Translations$organization$inviteQr$zh_CN {
 	_Translations$organization$inviteQr$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
@@ -2997,6 +3040,8 @@ class _Translations$organization$directory$ko_KR extends Translations$organizati
 	@override String get emptySearch => '일치하는 결과 없음';
 	@override String get switchVerifyFailed => '대상 조직을 사용할 수 없거나 이미 멤버가 아닙니다';
 	@override String get switchShellFailed => '새 조직의 워크스페이스를 불러오지 못했습니다';
+	@override String get inviteColleaguesRow => '동료 초대...';
+	@override String memberTotal({required Object count}) => '총 ${count}명';
 }
 
 // Path: organization.memberDetail
@@ -5439,6 +5484,39 @@ extension on TranslationsKoKr {
 			'organization.picker.joinBack' => '뒤로',
 			'organization.picker.joinQrHint' => '기업 초대 QR코드를 비춰주세요',
 			'organization.picker.joinQrInvalid' => '유효한 기업 초대 QR코드가 아닙니다',
+			'organization.inviteColleagues.title' => '동료 초대',
+			'organization.inviteColleagues.tabInvite' => '초대',
+			'organization.inviteColleagues.tabPossible' => '가능한 동료',
+			'organization.inviteColleagues.wechatInvite' => '위챗으로 동료 초대',
+			'organization.inviteColleagues.wechatInviteHint' => '초대 코드를 위챗 친구에게 보내고 imboy에서 참여',
+			'organization.inviteColleagues.faceToFace' => '대면으로 동료 초대',
+			'organization.inviteColleagues.faceToFaceHint' => 'QR 코드 스캔 또는 초대 코드 입력으로 참여',
+			'organization.inviteColleagues.fromWechatGroup' => '위챗 그룹에서 추가',
+			'organization.inviteColleagues.fromWechatGroupHint' => '위챗 그룹에 초대 코드를 공유하여 동료 초대',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}]에서 imboy로 초대합니다\n초대 코드: ${code} (7일간 유효)\nimboy 앱에서 \'주소록 → 기업 참여\'에 코드를 입력하세요',
+			'organization.inviteColleagues.shareToWechat' => '위챗에 초대 공유',
+			'organization.inviteColleagues.copyInviteCode' => '초대 코드 복사',
+			'organization.inviteColleagues.codeValidityHint' => '초대 코드는 7일간 유효하며, 재생성하면 기존 코드는 즉시 만료됩니다',
+			'organization.inviteColleagues.possibleLoadFailed' => '가능한 동료를 불러오지 못했습니다. 다시 시도하세요',
+			'organization.inviteColleagues.revokeFailed' => '철회에 실패했습니다. 잠시 후 다시 시도하세요',
+			'organization.inviteColleagues.guideCodeMissing' => '유효한 초대 코드가 없습니다. 먼저 기업 관리자에게 생성을 요청하세요',
+			'organization.inviteColleagues.possibleEmptyCta' => '동료 초대하러 가기',
+			'organization.inviteColleagues.codeLoadFailed' => '초대 코드를 불러오지 못했습니다. 다시 시도하세요',
+			'organization.inviteColleagues.codeMissingHint' => '유효한 초대 코드가 없습니다. 생성 후 공유하세요',
+			'organization.inviteColleagues.generateCode' => '초대 코드 생성',
+			'organization.inviteColleagues.generateForbidden' => '기업 관리자만 초대 코드를 생성할 수 있습니다',
+			'organization.inviteColleagues.possibleEmpty' => '참여 대기 중인 동료가 없습니다',
+			'organization.inviteColleagues.possibleEmptyHint' => '동료를 초대해 보세요',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => '${name} 초대',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => '${time}에 초대',
+			'organization.inviteColleagues.revoke' => '철회',
+			'organization.inviteColleagues.revokeTitle' => '초대 철회',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => '"${name}"님의 초대를 철회하시겠습니까?',
+			'organization.inviteColleagues.revoked' => '초대가 철회되었습니다',
+			'organization.inviteColleagues.groupStep1' => '위챗 그룹에 초대 코드 공유',
+			'organization.inviteColleagues.groupStep2' => '동료가 코드를 복사하고 imboy 앱을 엽니다',
+			'organization.inviteColleagues.groupStep3' => '\'주소록 → 기업 참여\'에 코드를 입력하여 참여',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '초대 코드: ${code}',
 			'organization.inviteQr.title' => '멤버 초대',
 			'organization.inviteQr.entryHint' => 'QR코드 또는 초대 코드를 보여주면 상대방이 스캔/입력으로 참여합니다',
 			'organization.inviteQr.scanHint' => '상대방이 imboy 스캐너로 이 코드를 스캔하면 기업에 참여합니다',
@@ -5471,6 +5549,8 @@ extension on TranslationsKoKr {
 			'organization.directory.emptySearch' => '일치하는 결과 없음',
 			'organization.directory.switchVerifyFailed' => '대상 조직을 사용할 수 없거나 이미 멤버가 아닙니다',
 			'organization.directory.switchShellFailed' => '새 조직의 워크스페이스를 불러오지 못했습니다',
+			'organization.directory.inviteColleaguesRow' => '동료 초대...',
+			'organization.directory.memberTotal' => ({required Object count}) => '총 ${count}명',
 			'organization.memberDetail.roleLabel' => '기업 역할',
 			'organization.memberDetail.roleRestricted' => '기업 관리자만 볼 수 있습니다',
 			'organization.memberDetail.accountLabel' => '로그인 계정',
@@ -5727,6 +5807,8 @@ extension on TranslationsKoKr {
 			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
 			'workspace.archiveTitle' => '워크스페이스 보관',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
 			'workspace.archiveConfirm' => '보관 확인',
 			'workspace.restoreTitle' => '워크스페이스 복원',
@@ -5762,8 +5844,6 @@ extension on TranslationsKoKr {
 			'workspace.projectMarkDone' => '완료로 표시',
 			'workspace.projectReopen' => '프로젝트 다시 열기',
 			'workspace.projectStatusChanged' => '프로젝트 상태가 업데이트되었습니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectTasksSection' => '작업',
 			'workspace.taskNewEntry' => '새 작업',
 			'workspace.taskFormCreateTitle' => '새 작업',

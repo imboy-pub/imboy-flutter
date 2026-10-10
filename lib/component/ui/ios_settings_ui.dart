@@ -17,6 +17,7 @@ class IosPageTemplate extends StatelessWidget {
     this.body,
     this.actions,
     this.leading,
+    this.middle,
     this.controller,
     this.useLargeTitle = false, // 默认改为紧凑模式
     this.backgroundColor,
@@ -39,6 +40,10 @@ class IosPageTemplate extends StatelessWidget {
   /// 自定义导航栏 leading（宿主壳挂账户头像等入口用）；不传时保持
   /// 原行为（可返回页显示 GlassBackButton，tab 根页不显示）。
   final Widget? leading;
+
+  /// 自定义导航栏中央元素（如分段控件，APP-M02 邀请同事页）；不传时
+  /// 保持原行为渲染 [title] 文本。
+  final Widget? middle;
   final bool useLargeTitle;
   final Color? backgroundColor;
   final Widget? bottomWidget;
@@ -71,20 +76,22 @@ class IosPageTemplate extends StatelessWidget {
       leading:
           leading ??
           (Navigator.of(context).canPop() ? const GlassBackButton() : null),
-      middle: Text(
-        title,
-        style: context
-            .textStyle(
-              useLargeTitle ? FontSizeType.largeTitle : FontSizeType.body,
-              fontWeight: useLargeTitle ? FontWeight.w700 : FontWeight.w600,
-              color: isDark
-                  ? AppColors.darkTextPrimary
-                  : AppColors.lightTextPrimary,
-            )
-            .copyWith(letterSpacing: -0.4),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+      middle:
+          middle ??
+          Text(
+            title,
+            style: context
+                .textStyle(
+                  useLargeTitle ? FontSizeType.largeTitle : FontSizeType.body,
+                  fontWeight: useLargeTitle ? FontWeight.w700 : FontWeight.w600,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                )
+                .copyWith(letterSpacing: -0.4),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
       backgroundColor: navBarColor,
       border: Border(
         bottom: BorderSide(

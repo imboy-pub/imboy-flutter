@@ -200,6 +200,41 @@ picker:
   joinQrInvalid: "有効な企業招待 QR コードではありません"
 # ==================== GZAPP-04 G10：ディレクトリ（全メンビュー） ====================
 # ==================== GZAPP-J11：企業招待 QR（発行側） ====================
+# ==================== APP-M02：同僚を招待 ====================
+inviteColleagues:
+  title: 同僚を招待
+  tabInvite: 招待
+  tabPossible: 可能な同僚
+  wechatInvite: WeChat で同僚を招待
+  wechatInviteHint: 招待コードを WeChat の友達に送信し、imboy で参加
+  faceToFace: 対面で同僚を招待
+  faceToFaceHint: QR コードのスキャンまたは招待コードの入力で参加
+  fromWechatGroup: WeChat グループから追加
+  fromWechatGroupHint: 招待コードを WeChat グループに送信して同僚を招待
+  shareText: "【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください"
+  shareToWechat: WeChat に招待を共有
+  copyInviteCode: 招待コードをコピー
+  codeValidityHint: 招待コードは 7 日間有効。再生成すると旧コードは直ちに無効になります
+  possibleLoadFailed: 可能な同僚の読み込みに失敗しました。再試行してください
+  revokeFailed: 取り消しに失敗しました。しばらくしてから再試行してください
+  guideCodeMissing: 有効な招待コードがまだありません。先に企業管理者に生成を依頼してください
+  possibleEmptyCta: 同僚を招待
+  codeLoadFailed: 招待コードの読み込みに失敗しました。再試行してください
+  codeMissingHint: 有効な招待コードがまだありません。生成して共有してください
+  generateCode: 招待コードを生成
+  generateForbidden: 招待コードを生成できるのは企業管理者のみです
+  possibleEmpty: 参加待ちの同僚はいません
+  possibleEmptyHint: 同僚を招待しましょう
+  invitedBy: "${name} が招待"
+  invitedAt: "${time} に招待"
+  revoke: 取り消す
+  revokeTitle: 招待を取り消す
+  revokeBody: "「${name}」への招待を取り消しますか？"
+  revoked: 招待を取り消しました
+  groupStep1: 招待コードを WeChat グループに共有
+  groupStep2: 同僚がコードをコピーして imboy アプリを開く
+  groupStep3: 「連絡先 → 企業に参加」でコードを入力して参加
+  codeLabelWith: "招待コード：${code}"
 inviteQr:
   title: "メンバーを招待"
   entryHint: "QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます"
@@ -235,6 +270,8 @@ directory:
   emptySearch: 該当なし
   switchVerifyFailed: 対象の組織は利用できないか、すでにメンバーではありません
   switchShellFailed: 新しい組織のワークスペース読み込みに失敗しました
+  inviteColleaguesRow: "同僚を招待..."
+  memberTotal: "合計${count}人"
 memberDetail:
   roleLabel: 企業での役割
   roleRestricted: 企業管理者のみ閲覧できます

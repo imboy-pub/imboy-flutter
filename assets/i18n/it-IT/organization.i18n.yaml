@@ -200,6 +200,41 @@ picker:
   joinQrInvalid: "QR code di invito azienda non valido"
 # ==================== GZAPP-04 G10: rubrica (vista tutti i membri) ====================
 # ==================== GZAPP-J11: QR di invito azienda (lato emittente) ====================
+# ==================== APP-M02: Invita colleghi ====================
+inviteColleagues:
+  title: Invita colleghi
+  tabInvite: Invita
+  tabPossible: Possibili colleghi
+  wechatInvite: Invita via WeChat
+  wechatInviteHint: Invia il codice invito agli amici WeChat; entrano via imboy
+  faceToFace: Invita di persona
+  faceToFaceHint: Scansiona il QR code o inserisci il codice invito
+  fromWechatGroup: Aggiungi da gruppi WeChat
+  fromWechatGroupHint: Condividi il codice invito in un gruppo WeChat
+  shareText: "[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nApri l'app imboy e inserisci il codice in Rubrica > Unisciti all'organizzazione"
+  shareToWechat: Condividi l'invito su WeChat
+  copyInviteCode: "Copia codice invito"
+  codeValidityHint: "Il codice invito è valido 7 giorni; rigenerarlo invalida subito il vecchio"
+  possibleLoadFailed: "Caricamento dei possibili colleghi non riuscito, riprova"
+  revokeFailed: "Revoca non riuscita, riprova più tardi"
+  guideCodeMissing: "Nessun codice invito attivo; chiedi prima a un amministratore di generarne uno"
+  possibleEmptyCta: "Invita colleghi"
+  codeLoadFailed: "Caricamento del codice invito non riuscito, riprova"
+  codeMissingHint: Nessun codice invito attivo; generalo per condividere
+  generateCode: Genera codice
+  generateForbidden: Solo gli amministratori possono generare il codice invito
+  possibleEmpty: Nessun collega in attesa
+  possibleEmptyHint: Invita i tuoi colleghi a unirsi
+  invitedBy: "Invitato da ${name}"
+  invitedAt: "Invitato il ${time}"
+  revoke: Revoca
+  revokeTitle: Revoca invito
+  revokeBody: "Revocare l'invito di \"${name}\"?"
+  revoked: Invito revocato
+  groupStep1: Condividi il codice invito nel tuo gruppo WeChat
+  groupStep2: I colleghi copiano il codice e aprono l'app imboy
+  groupStep3: Inserisci il codice in Rubrica > Unisciti all'organizzazione
+  codeLabelWith: "Codice invito: ${code}"
 inviteQr:
   title: "Invita membri"
   entryHint: "Mostra il QR code o condividi il codice; gli altri entrano scansionando o digitando"
@@ -235,6 +270,8 @@ directory:
   emptySearch: Nessun risultato
   switchVerifyFailed: Organizzazione di destinazione non disponibile o non più membro
   switchShellFailed: Caricamento degli spazi di lavoro della nuova organizzazione non riuscito
+  inviteColleaguesRow: "Invita colleghi..."
+  memberTotal: "${count} membri in totale"
 memberDetail:
   roleLabel: Ruolo aziendale
   roleRestricted: Visibile solo agli amministratori aziendali

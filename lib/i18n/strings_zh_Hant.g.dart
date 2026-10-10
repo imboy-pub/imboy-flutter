@@ -2379,6 +2379,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$invitations$zh_Hant invitations = Translations$organization$invitations$zh_Hant.internal(_root);
 	@override late final Translations$organization$departments$zh_Hant departments = Translations$organization$departments$zh_Hant.internal(_root);
 	@override late final Translations$organization$picker$zh_Hant picker = Translations$organization$picker$zh_Hant.internal(_root);
+	@override late final Translations$organization$inviteColleagues$zh_Hant inviteColleagues = Translations$organization$inviteColleagues$zh_Hant.internal(_root);
 	@override late final Translations$organization$inviteQr$zh_Hant inviteQr = Translations$organization$inviteQr$zh_Hant.internal(_root);
 	@override late final Translations$organization$directory$zh_Hant directory = Translations$organization$directory$zh_Hant.internal(_root);
 	@override late final Translations$organization$memberDetail$zh_Hant memberDetail = Translations$organization$memberDetail$zh_Hant.internal(_root);
@@ -2950,6 +2951,48 @@ class Translations$organization$picker$zh_Hant extends Translations$organization
 	@override String get joinQrInvalid => '不是有效的企業邀請 QR 碼';
 }
 
+// Path: organization.inviteColleagues
+class Translations$organization$inviteColleagues$zh_Hant extends Translations$organization$inviteColleagues$zh_CN {
+	Translations$organization$inviteColleagues$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '邀請同事';
+	@override String get tabInvite => '邀請同事';
+	@override String get tabPossible => '可能的同事';
+	@override String get wechatInvite => '微信邀請同事';
+	@override String get wechatInviteHint => '把邀請碼發給微信好友，對方打開 imboy 加入';
+	@override String get faceToFace => '面對面邀請同事';
+	@override String get faceToFaceHint => '同事掃碼或輸入邀請碼即可加入';
+	@override String get fromWechatGroup => '從微信群組中加入';
+	@override String get fromWechatGroupHint => '把邀請碼發到微信群組，同事複製後即可加入';
+	@override String shareText({required Object orgName, required Object code}) => '【${orgName}】邀請你加入 imboy\n邀請碼：${code}（7 天內有效）\n打開 imboy App，在「通訊錄 → 加入企業」輸入邀請碼即可加入';
+	@override String get shareToWechat => '分享邀請到微信';
+	@override String get copyInviteCode => '複製邀請碼';
+	@override String get codeValidityHint => '邀請碼 7 天內有效；重新生成後舊碼立即失效';
+	@override String get possibleLoadFailed => '可能的同事載入失敗，請重試';
+	@override String get revokeFailed => '撤銷失敗，請稍後重試';
+	@override String get guideCodeMissing => '尚無有效邀請碼，請先聯絡企業管理員產生';
+	@override String get possibleEmptyCta => '去邀請同事';
+	@override String get codeLoadFailed => '邀請碼載入失敗，請重試';
+	@override String get codeMissingHint => '尚無有效邀請碼，生成後即可分享';
+	@override String get generateCode => '產生邀請碼';
+	@override String get generateForbidden => '僅企業管理員可產生邀請碼，請聯絡管理員';
+	@override String get possibleEmpty => '暫無待加入的同事';
+	@override String get possibleEmptyHint => '去邀請你的同事加入吧';
+	@override String invitedBy({required Object name}) => '${name} 邀請';
+	@override String invitedAt({required Object time}) => '邀請於 ${time}';
+	@override String get revoke => '撤銷';
+	@override String get revokeTitle => '撤銷邀請';
+	@override String revokeBody({required Object name}) => '撤銷對「${name}」的邀請？';
+	@override String get revoked => '已撤銷邀請';
+	@override String get groupStep1 => '把邀請碼分享到你的微信群組';
+	@override String get groupStep2 => '同事複製邀請碼，打開 imboy App';
+	@override String get groupStep3 => '在「通訊錄 → 加入企業」輸入邀請碼即可加入';
+	@override String codeLabelWith({required Object code}) => '邀請碼：${code}';
+}
+
 // Path: organization.inviteQr
 class Translations$organization$inviteQr$zh_Hant extends Translations$organization$inviteQr$zh_CN {
 	Translations$organization$inviteQr$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
@@ -2998,6 +3041,8 @@ class Translations$organization$directory$zh_Hant extends Translations$organizat
 	@override String get emptySearch => '無符合結果';
 	@override String get switchVerifyFailed => '目標企業不可用或你已不是其成員';
 	@override String get switchShellFailed => '新企業工作區載入失敗';
+	@override String get inviteColleaguesRow => '邀請同事...';
+	@override String memberTotal({required Object count}) => '共${count}人';
 }
 
 // Path: organization.memberDetail
@@ -5441,6 +5486,39 @@ extension on TranslationsZhHant {
 			'organization.picker.joinBack' => '返回修改',
 			'organization.picker.joinQrHint' => '對準企業邀請 QR 碼即可自動加入',
 			'organization.picker.joinQrInvalid' => '不是有效的企業邀請 QR 碼',
+			'organization.inviteColleagues.title' => '邀請同事',
+			'organization.inviteColleagues.tabInvite' => '邀請同事',
+			'organization.inviteColleagues.tabPossible' => '可能的同事',
+			'organization.inviteColleagues.wechatInvite' => '微信邀請同事',
+			'organization.inviteColleagues.wechatInviteHint' => '把邀請碼發給微信好友，對方打開 imboy 加入',
+			'organization.inviteColleagues.faceToFace' => '面對面邀請同事',
+			'organization.inviteColleagues.faceToFaceHint' => '同事掃碼或輸入邀請碼即可加入',
+			'organization.inviteColleagues.fromWechatGroup' => '從微信群組中加入',
+			'organization.inviteColleagues.fromWechatGroupHint' => '把邀請碼發到微信群組，同事複製後即可加入',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】邀請你加入 imboy\n邀請碼：${code}（7 天內有效）\n打開 imboy App，在「通訊錄 → 加入企業」輸入邀請碼即可加入',
+			'organization.inviteColleagues.shareToWechat' => '分享邀請到微信',
+			'organization.inviteColleagues.copyInviteCode' => '複製邀請碼',
+			'organization.inviteColleagues.codeValidityHint' => '邀請碼 7 天內有效；重新生成後舊碼立即失效',
+			'organization.inviteColleagues.possibleLoadFailed' => '可能的同事載入失敗，請重試',
+			'organization.inviteColleagues.revokeFailed' => '撤銷失敗，請稍後重試',
+			'organization.inviteColleagues.guideCodeMissing' => '尚無有效邀請碼，請先聯絡企業管理員產生',
+			'organization.inviteColleagues.possibleEmptyCta' => '去邀請同事',
+			'organization.inviteColleagues.codeLoadFailed' => '邀請碼載入失敗，請重試',
+			'organization.inviteColleagues.codeMissingHint' => '尚無有效邀請碼，生成後即可分享',
+			'organization.inviteColleagues.generateCode' => '產生邀請碼',
+			'organization.inviteColleagues.generateForbidden' => '僅企業管理員可產生邀請碼，請聯絡管理員',
+			'organization.inviteColleagues.possibleEmpty' => '暫無待加入的同事',
+			'organization.inviteColleagues.possibleEmptyHint' => '去邀請你的同事加入吧',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => '${name} 邀請',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => '邀請於 ${time}',
+			'organization.inviteColleagues.revoke' => '撤銷',
+			'organization.inviteColleagues.revokeTitle' => '撤銷邀請',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => '撤銷對「${name}」的邀請？',
+			'organization.inviteColleagues.revoked' => '已撤銷邀請',
+			'organization.inviteColleagues.groupStep1' => '把邀請碼分享到你的微信群組',
+			'organization.inviteColleagues.groupStep2' => '同事複製邀請碼，打開 imboy App',
+			'organization.inviteColleagues.groupStep3' => '在「通訊錄 → 加入企業」輸入邀請碼即可加入',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀請碼：${code}',
 			'organization.inviteQr.title' => '邀請成員',
 			'organization.inviteQr.entryHint' => '出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入',
 			'organization.inviteQr.scanHint' => '對方用 imboy「掃一掃」掃描本碼即可加入本企業',
@@ -5473,6 +5551,8 @@ extension on TranslationsZhHant {
 			'organization.directory.emptySearch' => '無符合結果',
 			'organization.directory.switchVerifyFailed' => '目標企業不可用或你已不是其成員',
 			'organization.directory.switchShellFailed' => '新企業工作區載入失敗',
+			'organization.directory.inviteColleaguesRow' => '邀請同事...',
+			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			'organization.memberDetail.roleLabel' => '企業角色',
 			'organization.memberDetail.roleRestricted' => '僅企業管理員可查看',
 			'organization.memberDetail.accountLabel' => '登入帳號',
@@ -5728,6 +5808,8 @@ extension on TranslationsZhHant {
 			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
 			'workspace.archiveEntry' => '封存工作區',
 			'workspace.restoreEntry' => '還原工作區',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => '封存工作區',
 			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',
 			'workspace.archiveConfirm' => '確認封存',
@@ -5763,8 +5845,6 @@ extension on TranslationsZhHant {
 			'workspace.projectStatusDone' => '已結案',
 			'workspace.projectMarkDone' => '標記為已結案',
 			'workspace.projectReopen' => '重新開啟專案',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectStatusChanged' => '專案狀態已更新',
 			'workspace.projectTasksSection' => '任務',
 			'workspace.taskNewEntry' => '新增任務',

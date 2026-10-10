@@ -200,6 +200,41 @@ picker:
   joinQrInvalid: "QR code d'invitation d'entreprise invalide"
 # ==================== GZAPP-04 G10 : annuaire (vue tous membres) ====================
 # ==================== GZAPP-J11 : QR d'invitation d'entreprise (émission) ====================
+# ==================== APP-M02 : Inviter des collègues ====================
+inviteColleagues:
+  title: Inviter des collègues
+  tabInvite: Inviter
+  tabPossible: Collègues possibles
+  wechatInvite: Inviter via WeChat
+  wechatInviteHint: Envoyez le code d'invitation à vos amis WeChat ; ils rejoignent via imboy
+  faceToFace: Inviter en personne
+  faceToFaceHint: Scannez le QR code ou saisissez le code d'invitation
+  fromWechatGroup: Ajouter depuis des groupes WeChat
+  fromWechatGroupHint: Partagez le code d'invitation dans un groupe WeChat
+  shareText: "[${orgName}] vous invite à rejoindre imboy\nCode d'invitation : ${code} (valable 7 jours)\nOuvrez l'app imboy et saisissez le code dans Annuaire > Rejoindre l'organisation"
+  shareToWechat: Partager l'invitation sur WeChat
+  copyInviteCode: "Copier le code d'invitation"
+  codeValidityHint: "Le code d'invitation est valable 7 jours ; le régénérer invalide immédiatement l'ancien"
+  possibleLoadFailed: "Échec du chargement des collègues possibles, veuillez réessayer"
+  revokeFailed: "Échec de la révocation, veuillez réessayer plus tard"
+  guideCodeMissing: "Aucun code d'invitation actif ; demandez d'abord à un administrateur d'en générer un"
+  possibleEmptyCta: "Inviter des collègues"
+  codeLoadFailed: "Échec du chargement du code d'invitation, veuillez réessayer"
+  codeMissingHint: Aucun code d'invitation actif ; générez-en un pour partager
+  generateCode: Générer un code
+  generateForbidden: Seuls les administrateurs peuvent générer le code d'invitation
+  possibleEmpty: Aucun collègue en attente
+  possibleEmptyHint: Invitez vos collègues à rejoindre
+  invitedBy: "Invité par ${name}"
+  invitedAt: "Invité le ${time}"
+  revoke: Révoquer
+  revokeTitle: Révoquer l'invitation
+  revokeBody: "Révoquer l'invitation de \"${name}\" ?"
+  revoked: Invitation révoquée
+  groupStep1: Partagez le code d'invitation dans votre groupe WeChat
+  groupStep2: Les collègues copient le code et ouvrent l'app imboy
+  groupStep3: Saisissez le code dans Annuaire > Rejoindre l'organisation
+  codeLabelWith: "Code d'invitation : ${code}"
 inviteQr:
   title: "Inviter des membres"
   entryHint: "Montrez le QR code ou partagez le code ; l'autre personne rejoint en scannant ou en saisissant"
@@ -235,6 +270,8 @@ directory:
   emptySearch: Aucun résultat
   switchVerifyFailed: Organisation cible indisponible ou vous n’en êtes plus membre
   switchShellFailed: Échec du chargement des espaces de la nouvelle organisation
+  inviteColleaguesRow: "Inviter des collègues..."
+  memberTotal: "${count} membres au total"
 memberDetail:
   roleLabel: Rôle dans l'entreprise
   roleRestricted: Visible uniquement par les administrateurs

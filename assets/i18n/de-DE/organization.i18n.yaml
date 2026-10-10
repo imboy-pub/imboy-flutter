@@ -200,6 +200,41 @@ picker:
   joinQrInvalid: "Kein gültiger Unternehmens-Einladungs-QR-Code"
 # ==================== GZAPP-04 G10: Verzeichnis (Ansicht für alle Mitglieder) ====================
 # ==================== GZAPP-J11: Unternehmens-Einladungs-QR (Ausstellerseite) ====================
+# ==================== APP-M02: Kollegen einladen ====================
+inviteColleagues:
+  title: Kollegen einladen
+  tabInvite: Einladen
+  tabPossible: Mögliche Kollegen
+  wechatInvite: Per WeChat einladen
+  wechatInviteHint: Einladungscode an WeChat-Freunde senden; Beitritt über imboy
+  faceToFace: Persönlich einladen
+  faceToFaceHint: QR-Code scannen oder Einladungscode eingeben
+  fromWechatGroup: Aus WeChat-Gruppen hinzufügen
+  fromWechatGroupHint: Einladungscode in eine WeChat-Gruppe teilen
+  shareText: "[${orgName}] lädt dich zu imboy ein\nEinladungscode: ${code} (7 Tage gültig)\nimboy-App öffnen und den Code unter Kontakte > Organisation beitreten eingeben"
+  shareToWechat: Einladung an WeChat teilen
+  copyInviteCode: "Einladungscode kopieren"
+  codeValidityHint: "Der Einladungscode ist 7 Tage gültig; bei Neugenerierung verfällt der alte Code sofort"
+  possibleLoadFailed: "Mögliche Kollegen konnten nicht geladen werden, bitte erneut versuchen"
+  revokeFailed: "Widerruf fehlgeschlagen, bitte später erneut versuchen"
+  guideCodeMissing: "Noch kein aktiver Einladungscode; bitte zuerst einen Unternehmensadmin generieren lassen"
+  possibleEmptyCta: "Kollegen einladen"
+  codeLoadFailed: "Einladungscode konnte nicht geladen werden, bitte erneut versuchen"
+  codeMissingHint: Noch kein aktiver Einladungscode; erst generieren, dann teilen
+  generateCode: Code generieren
+  generateForbidden: Nur Unternehmensadmins können den Einladungscode generieren
+  possibleEmpty: Keine ausstehenden Kollegen
+  possibleEmptyHint: Lade deine Kollegen ein
+  invitedBy: "Von ${name} eingeladen"
+  invitedAt: "Eingeladen am ${time}"
+  revoke: Widerrufen
+  revokeTitle: Einladung widerrufen
+  revokeBody: "Einladung für \"${name}\" widerrufen?"
+  revoked: Einladung widerrufen
+  groupStep1: Einladungscode in deine WeChat-Gruppe teilen
+  groupStep2: Kollegen kopieren den Code und öffnen die imboy-App
+  groupStep3: Code unter Kontakte > Organisation beitreten eingeben
+  codeLabelWith: "Einladungscode: ${code}"
 inviteQr:
   title: "Mitglieder einladen"
   entryHint: "QR-Code zeigen oder Code teilen – Beitritt per Scan oder Eingabe"
@@ -235,6 +270,8 @@ directory:
   emptySearch: Keine Treffer
   switchVerifyFailed: Zielorganisation nicht verfügbar oder du bist kein Mitglied mehr
   switchShellFailed: Workspaces der neuen Organisation konnten nicht geladen werden
+  inviteColleaguesRow: "Kollegen einladen..."
+  memberTotal: "${count} Mitglieder insgesamt"
 memberDetail:
   roleLabel: Unternehmensrolle
   roleRestricted: Nur für Unternehmensadministratoren sichtbar

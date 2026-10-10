@@ -476,7 +476,7 @@ class _HumanDirectoryBrowserPageState
         onAncestor: _openLevel,
         showBackButton: widget.embedded,
         departments: _departmentWidgets(context, isRoot),
-        members: _memberWidgets(context),
+        members: _memberWidgets(context, isRoot: isRoot),
       );
 
   List<Widget> _departmentWidgets(BuildContext context, bool isRoot) {
@@ -517,7 +517,7 @@ class _HumanDirectoryBrowserPageState
     ];
   }
 
-  List<Widget> _memberWidgets(BuildContext context) {
+  List<Widget> _memberWidgets(BuildContext context, {required bool isRoot}) {
     final t = context.t;
     final c = _controller;
     final members = c.members;
@@ -538,8 +538,75 @@ class _HumanDirectoryBrowserPageState
         onRetry: () => c.retrySection(HumanDirectorySectionKind.members),
         showEmptyText: false,
       ),
+      // APP-M02：企业根页脚——「+ 邀请同事」入口行 + 「共X人」总数。
+      // memberCount 0 = /me 未提供或失败（捷径与总数同源 best-effort），
+      // 此时页脚只保留入口行，不渲染误导性的「共0人」。
+      if (isRoot) ...[
+        AppSpacing.verticalSmall,
+        _inviteColleaguesRow(context),
+        if (c.memberCount > 0) _memberTotalFooter(context),
+      ],
       AppSpacing.verticalSmall,
     ];
+  }
+
+  // ---- APP-M02：企业根页脚（邀请同事入口行 + 成员总数） ----
+
+  void _openInviteColleagues() {
+    final orgId = _controller.identity?.organizationId ?? widget.orgId;
+    final query = _orgName.isEmpty
+        ? ''
+        : '?name=${Uri.encodeComponent(_orgName)}';
+    context.push('$kOrganizationHomePath/$orgId/invite_colleagues$query');
+  }
+
+  /// 「+ 邀请同事」入口行（企业微信式：蓝色 + 图标 + 蓝字，无 chevron）。
+  Widget _inviteColleaguesRow(BuildContext context) {
+    return ImBoyListTile(
+      key: const ValueKey('org-directory-invite-colleagues'),
+      onTap: _openInviteColleagues,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
+      leading: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppRadius.cell),
+          color: AppColors.primaryAlpha10,
+        ),
+        child: const Icon(
+          CupertinoIcons.add,
+          size: 24,
+          color: AppColors.primary,
+        ),
+      ),
+      title: Text(
+        context.t.organization.directory.inviteColleaguesRow,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(color: AppColors.primary),
+      ),
+    );
+  }
+
+  /// 「共X人」页脚：居中次级灰（企业微信式）。
+  Widget _memberTotalFooter(BuildContext context) {
+    return Padding(
+      key: const ValueKey('org-directory-member-total'),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.regular),
+      child: Text(
+        context.t.organization.directory.memberTotal(
+          count: _controller.memberCount,
+        ),
+        textAlign: TextAlign.center,
+        style: context.textStyle(
+          FontSizeType.footnote,
+          color: AppColors.iosGray,
+        ),
+      ),
+    );
   }
 
   // ---- 组织架构入口行 + 二级页（企业微信式信息架构） ----

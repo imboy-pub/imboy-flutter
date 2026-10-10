@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
@@ -149,8 +150,11 @@ class _OrgInviteQrPageState extends State<OrgInviteQrPage> {
   Widget build(BuildContext context) {
     final t = context.t;
     final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(t.organization.inviteQr.title)),
+    // 顶栏走 IosPageTemplate（毛玻璃 + 0.33pt 分隔线 + 17pt w600 标题，
+    // DESIGN.md 8.1）——与邀请同事页/组织架构页保持同一导航形态，
+    // 不再用 Material AppBar 突兀切风格。
+    return IosPageTemplate(
+      title: t.organization.inviteQr.title,
       body: OrgStateView(
         loading: _loading,
         error: _permissionDenied ? null : _error,

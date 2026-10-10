@@ -153,6 +153,10 @@ class HumanDirectoryController extends ChangeNotifier {
       HumanDirectorySection.empty();
 
   List<HumanDirectoryDepartment> _myDepartments = const [];
+
+  /// 组织 active 成员总数（/me member_count；通讯录根页脚「共X人」）。
+  /// /me 失败时保持 0 → 页脚不渲染（与「我的部门」捷径同 best-effort）。
+  int _memberCount = 0;
   bool _meLoading = false;
   String? _meError;
 
@@ -173,6 +177,9 @@ class HumanDirectoryController extends ChangeNotifier {
   HumanDirectorySection<HumanDirectoryMember> get members => _members;
   HumanDirectorySection<HumanDirectorySearchItem> get search => _search;
   List<HumanDirectoryDepartment> get myDepartments => _myDepartments;
+
+  /// 组织 active 成员总数（0 = 未知/未加载，调用方据此隐藏页脚）。
+  int get memberCount => _memberCount;
   bool get meLoading => _meLoading;
   String? get meError => _meError;
   HumanDirectoryPhase get phase => _phase;
@@ -425,6 +432,7 @@ class HumanDirectoryController extends ChangeNotifier {
     _members = HumanDirectorySection.empty();
     _search = HumanDirectorySection.empty();
     _myDepartments = const [];
+    _memberCount = 0;
     _meError = null;
     _meLoading = false;
     _switching = false;
@@ -577,6 +585,7 @@ class HumanDirectoryController extends ChangeNotifier {
       final me = await _source.directoryMe(organizationId: id.organizationId);
       if (!_accept(gen, key)) return;
       _myDepartments = me.list;
+      _memberCount = me.memberCount;
     } on Object catch (e) {
       if (!_accept(gen, key)) return;
       if (_rejectAccess(e)) return;
@@ -697,6 +706,7 @@ class HumanDirectoryController extends ChangeNotifier {
     _members = HumanDirectorySection.empty();
     _search = HumanDirectorySection.empty();
     _myDepartments = const [];
+    _memberCount = 0;
     _meLoading = false;
     _meError = null;
     _refreshing = false;

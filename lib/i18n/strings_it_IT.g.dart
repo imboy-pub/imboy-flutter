@@ -2381,6 +2381,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$it_IT invitations = _Translations$organization$invitations$it_IT._(_root);
 	@override late final _Translations$organization$departments$it_IT departments = _Translations$organization$departments$it_IT._(_root);
 	@override late final _Translations$organization$picker$it_IT picker = _Translations$organization$picker$it_IT._(_root);
+	@override late final _Translations$organization$inviteColleagues$it_IT inviteColleagues = _Translations$organization$inviteColleagues$it_IT._(_root);
 	@override late final _Translations$organization$inviteQr$it_IT inviteQr = _Translations$organization$inviteQr$it_IT._(_root);
 	@override late final _Translations$organization$directory$it_IT directory = _Translations$organization$directory$it_IT._(_root);
 	@override late final _Translations$organization$memberDetail$it_IT memberDetail = _Translations$organization$memberDetail$it_IT._(_root);
@@ -2952,6 +2953,48 @@ class _Translations$organization$picker$it_IT extends Translations$organization$
 	@override String get joinQrInvalid => 'QR code di invito azienda non valido';
 }
 
+// Path: organization.inviteColleagues
+class _Translations$organization$inviteColleagues$it_IT extends Translations$organization$inviteColleagues$zh_CN {
+	_Translations$organization$inviteColleagues$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Invita colleghi';
+	@override String get tabInvite => 'Invita';
+	@override String get tabPossible => 'Possibili colleghi';
+	@override String get wechatInvite => 'Invita via WeChat';
+	@override String get wechatInviteHint => 'Invia il codice invito agli amici WeChat; entrano via imboy';
+	@override String get faceToFace => 'Invita di persona';
+	@override String get faceToFaceHint => 'Scansiona il QR code o inserisci il codice invito';
+	@override String get fromWechatGroup => 'Aggiungi da gruppi WeChat';
+	@override String get fromWechatGroupHint => 'Condividi il codice invito in un gruppo WeChat';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nApri l\'app imboy e inserisci il codice in Rubrica > Unisciti all\'organizzazione';
+	@override String get shareToWechat => 'Condividi l\'invito su WeChat';
+	@override String get copyInviteCode => 'Copia codice invito';
+	@override String get codeValidityHint => 'Il codice invito è valido 7 giorni; rigenerarlo invalida subito il vecchio';
+	@override String get possibleLoadFailed => 'Caricamento dei possibili colleghi non riuscito, riprova';
+	@override String get revokeFailed => 'Revoca non riuscita, riprova più tardi';
+	@override String get guideCodeMissing => 'Nessun codice invito attivo; chiedi prima a un amministratore di generarne uno';
+	@override String get possibleEmptyCta => 'Invita colleghi';
+	@override String get codeLoadFailed => 'Caricamento del codice invito non riuscito, riprova';
+	@override String get codeMissingHint => 'Nessun codice invito attivo; generalo per condividere';
+	@override String get generateCode => 'Genera codice';
+	@override String get generateForbidden => 'Solo gli amministratori possono generare il codice invito';
+	@override String get possibleEmpty => 'Nessun collega in attesa';
+	@override String get possibleEmptyHint => 'Invita i tuoi colleghi a unirsi';
+	@override String invitedBy({required Object name}) => 'Invitato da ${name}';
+	@override String invitedAt({required Object time}) => 'Invitato il ${time}';
+	@override String get revoke => 'Revoca';
+	@override String get revokeTitle => 'Revoca invito';
+	@override String revokeBody({required Object name}) => 'Revocare l\'invito di "${name}"?';
+	@override String get revoked => 'Invito revocato';
+	@override String get groupStep1 => 'Condividi il codice invito nel tuo gruppo WeChat';
+	@override String get groupStep2 => 'I colleghi copiano il codice e aprono l\'app imboy';
+	@override String get groupStep3 => 'Inserisci il codice in Rubrica > Unisciti all\'organizzazione';
+	@override String codeLabelWith({required Object code}) => 'Codice invito: ${code}';
+}
+
 // Path: organization.inviteQr
 class _Translations$organization$inviteQr$it_IT extends Translations$organization$inviteQr$zh_CN {
 	_Translations$organization$inviteQr$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
@@ -3000,6 +3043,8 @@ class _Translations$organization$directory$it_IT extends Translations$organizati
 	@override String get emptySearch => 'Nessun risultato';
 	@override String get switchVerifyFailed => 'Organizzazione di destinazione non disponibile o non più membro';
 	@override String get switchShellFailed => 'Caricamento degli spazi di lavoro della nuova organizzazione non riuscito';
+	@override String get inviteColleaguesRow => 'Invita colleghi...';
+	@override String memberTotal({required Object count}) => '${count} membri in totale';
 }
 
 // Path: organization.memberDetail
@@ -5442,6 +5487,39 @@ extension on TranslationsItIt {
 			'organization.picker.joinBack' => 'Indietro',
 			'organization.picker.joinQrHint' => 'Inquadra il QR code di invito dell\'azienda',
 			'organization.picker.joinQrInvalid' => 'QR code di invito azienda non valido',
+			'organization.inviteColleagues.title' => 'Invita colleghi',
+			'organization.inviteColleagues.tabInvite' => 'Invita',
+			'organization.inviteColleagues.tabPossible' => 'Possibili colleghi',
+			'organization.inviteColleagues.wechatInvite' => 'Invita via WeChat',
+			'organization.inviteColleagues.wechatInviteHint' => 'Invia il codice invito agli amici WeChat; entrano via imboy',
+			'organization.inviteColleagues.faceToFace' => 'Invita di persona',
+			'organization.inviteColleagues.faceToFaceHint' => 'Scansiona il QR code o inserisci il codice invito',
+			'organization.inviteColleagues.fromWechatGroup' => 'Aggiungi da gruppi WeChat',
+			'organization.inviteColleagues.fromWechatGroupHint' => 'Condividi il codice invito in un gruppo WeChat',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nApri l\'app imboy e inserisci il codice in Rubrica > Unisciti all\'organizzazione',
+			'organization.inviteColleagues.shareToWechat' => 'Condividi l\'invito su WeChat',
+			'organization.inviteColleagues.copyInviteCode' => 'Copia codice invito',
+			'organization.inviteColleagues.codeValidityHint' => 'Il codice invito è valido 7 giorni; rigenerarlo invalida subito il vecchio',
+			'organization.inviteColleagues.possibleLoadFailed' => 'Caricamento dei possibili colleghi non riuscito, riprova',
+			'organization.inviteColleagues.revokeFailed' => 'Revoca non riuscita, riprova più tardi',
+			'organization.inviteColleagues.guideCodeMissing' => 'Nessun codice invito attivo; chiedi prima a un amministratore di generarne uno',
+			'organization.inviteColleagues.possibleEmptyCta' => 'Invita colleghi',
+			'organization.inviteColleagues.codeLoadFailed' => 'Caricamento del codice invito non riuscito, riprova',
+			'organization.inviteColleagues.codeMissingHint' => 'Nessun codice invito attivo; generalo per condividere',
+			'organization.inviteColleagues.generateCode' => 'Genera codice',
+			'organization.inviteColleagues.generateForbidden' => 'Solo gli amministratori possono generare il codice invito',
+			'organization.inviteColleagues.possibleEmpty' => 'Nessun collega in attesa',
+			'organization.inviteColleagues.possibleEmptyHint' => 'Invita i tuoi colleghi a unirsi',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invitato da ${name}',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'Invitato il ${time}',
+			'organization.inviteColleagues.revoke' => 'Revoca',
+			'organization.inviteColleagues.revokeTitle' => 'Revoca invito',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => 'Revocare l\'invito di "${name}"?',
+			'organization.inviteColleagues.revoked' => 'Invito revocato',
+			'organization.inviteColleagues.groupStep1' => 'Condividi il codice invito nel tuo gruppo WeChat',
+			'organization.inviteColleagues.groupStep2' => 'I colleghi copiano il codice e aprono l\'app imboy',
+			'organization.inviteColleagues.groupStep3' => 'Inserisci il codice in Rubrica > Unisciti all\'organizzazione',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Codice invito: ${code}',
 			'organization.inviteQr.title' => 'Invita membri',
 			'organization.inviteQr.entryHint' => 'Mostra il QR code o condividi il codice; gli altri entrano scansionando o digitando',
 			'organization.inviteQr.scanHint' => 'Gli altri scansionano questo codice con lo scanner imboy per entrare nell\'azienda',
@@ -5474,6 +5552,8 @@ extension on TranslationsItIt {
 			'organization.directory.emptySearch' => 'Nessun risultato',
 			'organization.directory.switchVerifyFailed' => 'Organizzazione di destinazione non disponibile o non più membro',
 			'organization.directory.switchShellFailed' => 'Caricamento degli spazi di lavoro della nuova organizzazione non riuscito',
+			'organization.directory.inviteColleaguesRow' => 'Invita colleghi...',
+			'organization.directory.memberTotal' => ({required Object count}) => '${count} membri in totale',
 			'organization.memberDetail.roleLabel' => 'Ruolo aziendale',
 			'organization.memberDetail.roleRestricted' => 'Visibile solo agli amministratori aziendali',
 			'organization.memberDetail.accountLabel' => 'Account di accesso',
@@ -5730,6 +5810,8 @@ extension on TranslationsItIt {
 			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectChannelLinkedToast' => 'Canale collegato',
 			'workspace.projectChannelNoCandidate' => 'Nessun canale candidato collegabile',
 			'workspace.projectChannelUnlinkDesc' => 'Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto',
@@ -5765,8 +5847,6 @@ extension on TranslationsItIt {
 			'workspace.projectMemberInviteInvalidUid' => 'Inserisci un ID utente valido',
 			'workspace.projectMemberInviteSubmit' => 'Invita',
 			'workspace.projectMemberInviteSuccess' => 'Aggiunto ai membri del progetto',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectMemberInviteTitle' => 'Invita membri nel progetto',
 			'workspace.projectMemberRemoveConfirmDesc' => 'Dopo la rimozione l\'utente perderà l\'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)',
 			'workspace.projectMemberRemoveConfirmTitle' => ({required Object name}) => 'Rimuovi il membro del progetto ${name}',

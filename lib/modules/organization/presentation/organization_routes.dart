@@ -14,6 +14,8 @@
 ///   内的有权工作区，§5.2；全员可见）
 /// - /organization/:orgId/manage         → 企业管理（GZAPP-05：工作区/群/频道
 ///   治理；非 owner/admin 直达时页内给只读 + 无权限态）
+/// - /organization/:orgId/invite_colleagues → 邀请同事（APP-M02：通讯录
+///   右上角 / 列表底部入口；?name= 供分享文案使用）
 /// - /organization/:orgId/tools           → 企业工具聚合（ENT-APP-06：本企业
 ///   已授权的工作区项目/任务入口，只读聚合）
 /// - /organization/:orgId/ws/:wsId/members → 工作区成员治理（ENT-APP-06：
@@ -36,6 +38,7 @@ import 'organization_members_page.dart';
 import 'organization_picker_page.dart';
 import 'organization_session_scope.dart';
 import 'organization_tools_page.dart';
+import 'org_invite_colleagues_page.dart';
 import 'org_workspace_members_page.dart';
 
 const String kOrganizationHomePath = '/organization';
@@ -174,6 +177,19 @@ List<RouteBase> organizationRoutes() => [
               key: state.pageKey,
               child: OrganizationToolsPage(
                 orgId: state.pathParameters['orgId'] ?? '',
+              ),
+            ),
+          ),
+          // APP-M02 邀请同事（通讯录右上角 / 列表底部入口；?name= 供
+          // 分享文案使用，缺省回落通用文案）。
+          GoRoute(
+            path: 'invite_colleagues',
+            name: 'organization_invite_colleagues',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: OrgInviteColleaguesPage(
+                orgId: state.pathParameters['orgId'] ?? '',
+                orgName: state.uri.queryParameters['name'] ?? '',
               ),
             ),
           ),

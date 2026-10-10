@@ -2387,6 +2387,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$ru_RU invitations = _Translations$organization$invitations$ru_RU._(_root);
 	@override late final _Translations$organization$departments$ru_RU departments = _Translations$organization$departments$ru_RU._(_root);
 	@override late final _Translations$organization$picker$ru_RU picker = _Translations$organization$picker$ru_RU._(_root);
+	@override late final _Translations$organization$inviteColleagues$ru_RU inviteColleagues = _Translations$organization$inviteColleagues$ru_RU._(_root);
 	@override late final _Translations$organization$inviteQr$ru_RU inviteQr = _Translations$organization$inviteQr$ru_RU._(_root);
 	@override late final _Translations$organization$directory$ru_RU directory = _Translations$organization$directory$ru_RU._(_root);
 	@override late final _Translations$organization$memberDetail$ru_RU memberDetail = _Translations$organization$memberDetail$ru_RU._(_root);
@@ -2958,6 +2959,48 @@ class _Translations$organization$picker$ru_RU extends Translations$organization$
 	@override String get joinQrInvalid => 'Это не QR-код приглашения в организацию';
 }
 
+// Path: organization.inviteColleagues
+class _Translations$organization$inviteColleagues$ru_RU extends Translations$organization$inviteColleagues$zh_CN {
+	_Translations$organization$inviteColleagues$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Пригласить коллег';
+	@override String get tabInvite => 'Пригласить';
+	@override String get tabPossible => 'Возможные коллеги';
+	@override String get wechatInvite => 'Пригласить через WeChat';
+	@override String get wechatInviteHint => 'Отправьте код приглашения друзьям в WeChat; вход через imboy';
+	@override String get faceToFace => 'Пригласить лично';
+	@override String get faceToFaceHint => 'Отсканируйте QR-код или введите код приглашения';
+	@override String get fromWechatGroup => 'Добавить из групп WeChat';
+	@override String get fromWechatGroupHint => 'Поделитесь кодом приглашения в группе WeChat';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] приглашает вас в imboy\nКод приглашения: ${code} (действует 7 дней)\nОткройте приложение imboy и введите код в разделе «Контакты → Присоединиться к организации»';
+	@override String get shareToWechat => 'Поделиться приглашением в WeChat';
+	@override String get copyInviteCode => 'Скопировать код приглашения';
+	@override String get codeValidityHint => 'Код приглашения действует 7 дней; при перевыпуске старый код отзывается сразу';
+	@override String get possibleLoadFailed => 'Не удалось загрузить возможных коллег, повторите попытку';
+	@override String get revokeFailed => 'Не удалось отозвать, повторите позже';
+	@override String get guideCodeMissing => 'Активного кода приглашения нет; сначала попросите администратора его создать';
+	@override String get possibleEmptyCta => 'Пригласить коллег';
+	@override String get codeLoadFailed => 'Не удалось загрузить код приглашения, повторите попытку';
+	@override String get codeMissingHint => 'Активного кода приглашения нет; сгенерируйте его';
+	@override String get generateCode => 'Сгенерировать код';
+	@override String get generateForbidden => 'Только администраторы могут создавать код приглашения';
+	@override String get possibleEmpty => 'Нет ожидающих коллег';
+	@override String get possibleEmptyHint => 'Пригласите своих коллег';
+	@override String invitedBy({required Object name}) => 'Приглашение от ${name}';
+	@override String invitedAt({required Object time}) => 'Приглашение: ${time}';
+	@override String get revoke => 'Отозвать';
+	@override String get revokeTitle => 'Отозвать приглашение';
+	@override String revokeBody({required Object name}) => 'Отозвать приглашение для «${name}»?';
+	@override String get revoked => 'Приглашение отозвано';
+	@override String get groupStep1 => 'Поделитесь кодом приглашения в вашей группе WeChat';
+	@override String get groupStep2 => 'Коллеги копируют код и открывают приложение imboy';
+	@override String get groupStep3 => 'Введите код в разделе «Контакты → Присоединиться к организации»';
+	@override String codeLabelWith({required Object code}) => 'Код приглашения: ${code}';
+}
+
 // Path: organization.inviteQr
 class _Translations$organization$inviteQr$ru_RU extends Translations$organization$inviteQr$zh_CN {
 	_Translations$organization$inviteQr$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
@@ -3006,6 +3049,8 @@ class _Translations$organization$directory$ru_RU extends Translations$organizati
 	@override String get emptySearch => 'Ничего не найдено';
 	@override String get switchVerifyFailed => 'Целевая организация недоступна, либо вы больше не её участник';
 	@override String get switchShellFailed => 'Не удалось загрузить рабочие пространства новой организации';
+	@override String get inviteColleaguesRow => 'Пригласить коллег...';
+	@override String memberTotal({required Object count}) => 'Всего участников: ${count}';
 }
 
 // Path: organization.memberDetail
@@ -5448,6 +5493,39 @@ extension on TranslationsRuRu {
 			'organization.picker.joinBack' => 'Назад',
 			'organization.picker.joinQrHint' => 'Наведите на QR-код приглашения в организацию',
 			'organization.picker.joinQrInvalid' => 'Это не QR-код приглашения в организацию',
+			'organization.inviteColleagues.title' => 'Пригласить коллег',
+			'organization.inviteColleagues.tabInvite' => 'Пригласить',
+			'organization.inviteColleagues.tabPossible' => 'Возможные коллеги',
+			'organization.inviteColleagues.wechatInvite' => 'Пригласить через WeChat',
+			'organization.inviteColleagues.wechatInviteHint' => 'Отправьте код приглашения друзьям в WeChat; вход через imboy',
+			'organization.inviteColleagues.faceToFace' => 'Пригласить лично',
+			'organization.inviteColleagues.faceToFaceHint' => 'Отсканируйте QR-код или введите код приглашения',
+			'organization.inviteColleagues.fromWechatGroup' => 'Добавить из групп WeChat',
+			'organization.inviteColleagues.fromWechatGroupHint' => 'Поделитесь кодом приглашения в группе WeChat',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] приглашает вас в imboy\nКод приглашения: ${code} (действует 7 дней)\nОткройте приложение imboy и введите код в разделе «Контакты → Присоединиться к организации»',
+			'organization.inviteColleagues.shareToWechat' => 'Поделиться приглашением в WeChat',
+			'organization.inviteColleagues.copyInviteCode' => 'Скопировать код приглашения',
+			'organization.inviteColleagues.codeValidityHint' => 'Код приглашения действует 7 дней; при перевыпуске старый код отзывается сразу',
+			'organization.inviteColleagues.possibleLoadFailed' => 'Не удалось загрузить возможных коллег, повторите попытку',
+			'organization.inviteColleagues.revokeFailed' => 'Не удалось отозвать, повторите позже',
+			'organization.inviteColleagues.guideCodeMissing' => 'Активного кода приглашения нет; сначала попросите администратора его создать',
+			'organization.inviteColleagues.possibleEmptyCta' => 'Пригласить коллег',
+			'organization.inviteColleagues.codeLoadFailed' => 'Не удалось загрузить код приглашения, повторите попытку',
+			'organization.inviteColleagues.codeMissingHint' => 'Активного кода приглашения нет; сгенерируйте его',
+			'organization.inviteColleagues.generateCode' => 'Сгенерировать код',
+			'organization.inviteColleagues.generateForbidden' => 'Только администраторы могут создавать код приглашения',
+			'organization.inviteColleagues.possibleEmpty' => 'Нет ожидающих коллег',
+			'organization.inviteColleagues.possibleEmptyHint' => 'Пригласите своих коллег',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Приглашение от ${name}',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'Приглашение: ${time}',
+			'organization.inviteColleagues.revoke' => 'Отозвать',
+			'organization.inviteColleagues.revokeTitle' => 'Отозвать приглашение',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => 'Отозвать приглашение для «${name}»?',
+			'organization.inviteColleagues.revoked' => 'Приглашение отозвано',
+			'organization.inviteColleagues.groupStep1' => 'Поделитесь кодом приглашения в вашей группе WeChat',
+			'organization.inviteColleagues.groupStep2' => 'Коллеги копируют код и открывают приложение imboy',
+			'organization.inviteColleagues.groupStep3' => 'Введите код в разделе «Контакты → Присоединиться к организации»',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Код приглашения: ${code}',
 			'organization.inviteQr.title' => 'Пригласить участников',
 			'organization.inviteQr.entryHint' => 'Покажите QR-код или поделитесь кодом — другие присоединятся сканированием или вводом',
 			'organization.inviteQr.scanHint' => 'Другие сканируют этот код сканером imboy, чтобы присоединиться к организации',
@@ -5480,6 +5558,8 @@ extension on TranslationsRuRu {
 			'organization.directory.emptySearch' => 'Ничего не найдено',
 			'organization.directory.switchVerifyFailed' => 'Целевая организация недоступна, либо вы больше не её участник',
 			'organization.directory.switchShellFailed' => 'Не удалось загрузить рабочие пространства новой организации',
+			'organization.directory.inviteColleaguesRow' => 'Пригласить коллег...',
+			'organization.directory.memberTotal' => ({required Object count}) => 'Всего участников: ${count}',
 			'organization.memberDetail.roleLabel' => 'Роль в компании',
 			'organization.memberDetail.roleRestricted' => 'Доступно только администраторам компании',
 			'organization.memberDetail.accountLabel' => 'Учётная запись',
@@ -5736,6 +5816,8 @@ extension on TranslationsRuRu {
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',
 			'workspace.restoreTitle' => 'Восстановить рабочее пространство',
@@ -5771,8 +5853,6 @@ extension on TranslationsRuRu {
 			'workspace.projectMarkDone' => 'Отметить как завершённый',
 			'workspace.projectReopen' => 'Открыть проект заново',
 			'workspace.projectStatusChanged' => 'Статус проекта обновлён',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectTasksSection' => 'Задачи',
 			'workspace.taskNewEntry' => 'Новая задача',
 			'workspace.taskFormCreateTitle' => 'Новая задача',

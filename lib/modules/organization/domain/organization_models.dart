@@ -190,6 +190,13 @@ class OrgInvitation {
   /// 投影不含该字段（解析为空串）。App 只做转场展示，不持久化。
   final String token;
 
+  /// Org 视角富化列（APP-M02「可能的同事」；list_for_org 的 LEFT JOIN
+  /// "user" 投影，target/mine 视角不含这些字段 → 空串）。
+  final String targetNickname;
+  final String targetAccount;
+  final String targetAvatar;
+  final String inviterName;
+
   const OrgInvitation({
     required this.invitationId,
     required this.organizationId,
@@ -202,6 +209,10 @@ class OrgInvitation {
     this.alreadyAccepted = false,
     this.alreadyTerminal = false,
     this.token = '',
+    this.targetNickname = '',
+    this.targetAccount = '',
+    this.targetAvatar = '',
+    this.inviterName = '',
   });
 
   factory OrgInvitation.fromJson(Map<String, dynamic> json) {
@@ -217,11 +228,23 @@ class OrgInvitation {
       alreadyAccepted: json['already_accepted'] == true,
       alreadyTerminal: json['already_terminal'] == true,
       token: parseModelString(json['token']),
+      targetNickname: parseModelString(json['target_nickname']),
+      targetAccount: parseModelString(json['target_account']),
+      targetAvatar: parseModelString(json['target_avatar']),
+      inviterName: parseModelString(json['inviter_name']),
     );
   }
 
   bool get isPending => status == 'pending';
   bool get isExpired => status == 'expired';
+
+  /// 展示名：target 昵称 → 账号 → 「用户 #id」（富化列缺失时的兜底口径，
+  /// 与目录 display_name 的 nickname→account 降级一致）。
+  String get targetDisplayName {
+    if (targetNickname.isNotEmpty) return targetNickname;
+    if (targetAccount.isNotEmpty) return targetAccount;
+    return targetUserId.isEmpty ? '' : '用户#$targetUserId';
+  }
 }
 
 /// 部门（organization_department 出站白名单行，含 version 乐观并发标记）。

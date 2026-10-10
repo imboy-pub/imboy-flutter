@@ -199,6 +199,41 @@ picker:
   joinQrInvalid: 不是有效的企业邀请二维码
 # ==================== GZAPP-04 G10：通讯录（全员视角） ====================
 # ==================== GZAPP-J11：企业邀请二维码（出码侧） ====================
+# ==================== APP-M02：邀请同事 ====================
+inviteColleagues:
+  title: 邀请同事
+  tabInvite: 邀请同事
+  tabPossible: 可能的同事
+  wechatInvite: 微信邀请同事
+  wechatInviteHint: 把邀请码发给微信好友，对方打开 imboy 加入
+  faceToFace: 面对面邀请同事
+  faceToFaceHint: 同事扫码或输入邀请码即可加入
+  fromWechatGroup: 从微信群中添加
+  fromWechatGroupHint: 把邀请码发到微信群，同事复制后即可加入
+  shareText: "【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入"
+  shareToWechat: 分享邀请到微信
+  copyInviteCode: 复制邀请码
+  codeValidityHint: 邀请码 7 天内有效；重新生成后旧码立即失效
+  possibleLoadFailed: 可能的同事加载失败，请重试
+  revokeFailed: 撤销失败，请稍后重试
+  guideCodeMissing: 暂无有效邀请码，请先联系企业管理员生成
+  possibleEmptyCta: 去邀请同事
+  codeLoadFailed: 邀请码加载失败，请重试
+  codeMissingHint: 暂无有效邀请码，生成后即可分享
+  generateCode: 生成邀请码
+  generateForbidden: 仅企业管理员可生成邀请码，请联系管理员
+  possibleEmpty: 暂无待加入的同事
+  possibleEmptyHint: 去邀请你的同事加入吧
+  invitedBy: "${name} 邀请"
+  invitedAt: 邀请于 ${time}
+  revoke: 撤销
+  revokeTitle: 撤销邀请
+  revokeBody: "撤销对「${name}」的邀请？"
+  revoked: 已撤销邀请
+  groupStep1: 把邀请码分享到你的微信群
+  groupStep2: 同事复制邀请码，打开 imboy App
+  groupStep3: 在「通讯录 → 加入企业」输入邀请码即可加入
+  codeLabelWith: "邀请码：${code}"
 inviteQr:
   title: 邀请成员
   entryHint: 出示二维码或邀请码，对方扫码 / 输码即可加入
@@ -235,6 +270,8 @@ directory:
   emptySearch: 无匹配结果
   switchVerifyFailed: 目标企业不可用或你已不是其成员
   switchShellFailed: 新企业工作区加载失败
+  inviteColleaguesRow: "邀请同事..."
+  memberTotal: "共${count}人"
 # GZAPP-C3（计划 §5.2）：成员详情——含该成员在本企业内的有权工作区
 memberDetail:
   roleLabel: 企业角色

@@ -131,18 +131,25 @@ class HumanDirectorySearchItem {
       '$type:${isDepartment ? department?.id : member?.userId}';
 }
 
-/// `GET /directory/me` payload：`{organization_id, list}`（我的 active 部门
-/// 捷径；无部门返回空数组，不报错）。
+/// `GET /directory/me` payload：`{organization_id, list, member_count}`
+/// （我的 active 部门捷径；无部门返回空数组，不报错。member_count =
+/// 组织 active 成员总数，APP-M02 通讯录页脚「共X人」；0 = 未提供/失败）。
 class HumanDirectoryMe {
   final EntityId organizationId;
   final List<HumanDirectoryDepartment> list;
+  final int memberCount;
 
-  const HumanDirectoryMe({required this.organizationId, required this.list});
+  const HumanDirectoryMe({
+    required this.organizationId,
+    required this.list,
+    this.memberCount = 0,
+  });
 
   factory HumanDirectoryMe.fromJson(Map<String, dynamic> json) {
     return HumanDirectoryMe(
       organizationId: entityIdOf(json['organization_id']),
       list: _deptList(json['list']),
+      memberCount: parseModelInt(json['member_count']),
     );
   }
 }

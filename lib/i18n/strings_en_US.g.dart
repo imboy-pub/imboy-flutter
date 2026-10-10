@@ -2541,6 +2541,7 @@ class _Translations$organization$en_US extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$invitations$en_US invitations = _Translations$organization$invitations$en_US._(_root);
 	@override late final _Translations$organization$departments$en_US departments = _Translations$organization$departments$en_US._(_root);
 	@override late final _Translations$organization$picker$en_US picker = _Translations$organization$picker$en_US._(_root);
+	@override late final _Translations$organization$inviteColleagues$en_US inviteColleagues = _Translations$organization$inviteColleagues$en_US._(_root);
 	@override late final _Translations$organization$inviteQr$en_US inviteQr = _Translations$organization$inviteQr$en_US._(_root);
 	@override late final _Translations$organization$directory$en_US directory = _Translations$organization$directory$en_US._(_root);
 	@override late final _Translations$organization$memberDetail$en_US memberDetail = _Translations$organization$memberDetail$en_US._(_root);
@@ -3152,6 +3153,48 @@ class _Translations$organization$picker$en_US extends Translations$organization$
 	@override String get joinQrInvalid => 'Not a valid enterprise invite QR code';
 }
 
+// Path: organization.inviteColleagues
+class _Translations$organization$inviteColleagues$en_US extends Translations$organization$inviteColleagues$zh_CN {
+	_Translations$organization$inviteColleagues$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Invite colleagues';
+	@override String get tabInvite => 'Invite';
+	@override String get tabPossible => 'Possible colleagues';
+	@override String get wechatInvite => 'Invite via WeChat';
+	@override String get wechatInviteHint => 'Send the invite code to WeChat friends; they join via imboy';
+	@override String get faceToFace => 'Invite face to face';
+	@override String get faceToFaceHint => 'Colleagues scan the QR code or enter the invite code';
+	@override String get fromWechatGroup => 'Add from WeChat groups';
+	@override String get fromWechatGroupHint => 'Share the invite code to a WeChat group for colleagues to join';
+	@override String shareText({required Object orgName, required Object code}) => '${orgName} invites you to join imboy\nInvite code: ${code} (valid for 7 days)\nOpen the imboy app and enter the code under Directory > Join organization';
+	@override String get shareToWechat => 'Share invite to WeChat';
+	@override String get copyInviteCode => 'Copy invite code';
+	@override String get codeValidityHint => 'The invite code is valid for 7 days; regenerating invalidates the old code immediately';
+	@override String get possibleLoadFailed => 'Failed to load possible colleagues, please retry';
+	@override String get revokeFailed => 'Failed to revoke, please retry later';
+	@override String get guideCodeMissing => 'No active invite code yet; ask an enterprise admin to generate one first';
+	@override String get possibleEmptyCta => 'Invite colleagues';
+	@override String get codeLoadFailed => 'Failed to load the invite code, please retry';
+	@override String get codeMissingHint => 'No active invite code yet; generate one to share';
+	@override String get generateCode => 'Generate code';
+	@override String get generateForbidden => 'Only enterprise admins can generate the invite code';
+	@override String get possibleEmpty => 'No pending colleagues';
+	@override String get possibleEmptyHint => 'Invite your colleagues to join';
+	@override String invitedBy({required Object name}) => 'Invited by ${name}';
+	@override String invitedAt({required Object time}) => 'Invited at ${time}';
+	@override String get revoke => 'Revoke';
+	@override String get revokeTitle => 'Revoke invitation';
+	@override String revokeBody({required Object name}) => 'Revoke the invitation for "${name}"?';
+	@override String get revoked => 'Invitation revoked';
+	@override String get groupStep1 => 'Share the invite code to your WeChat group';
+	@override String get groupStep2 => 'Colleagues copy the code and open the imboy app';
+	@override String get groupStep3 => 'Enter the code under Directory > Join organization';
+	@override String codeLabelWith({required Object code}) => 'Invite code: ${code}';
+}
+
 // Path: organization.inviteQr
 class _Translations$organization$inviteQr$en_US extends Translations$organization$inviteQr$zh_CN {
 	_Translations$organization$inviteQr$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -3200,6 +3243,8 @@ class _Translations$organization$directory$en_US extends Translations$organizati
 	@override String get emptySearch => 'No matches';
 	@override String get switchVerifyFailed => 'Target organization unavailable or you are no longer a member';
 	@override String get switchShellFailed => 'Failed to load workspaces of the new organization';
+	@override String get inviteColleaguesRow => 'Invite colleagues...';
+	@override String memberTotal({required Object count}) => '${count} members in total';
 }
 
 // Path: organization.memberDetail
@@ -5814,6 +5859,39 @@ extension on TranslationsEnUs {
 			'organization.picker.joinBack' => 'Back',
 			'organization.picker.joinQrHint' => 'Aim at the enterprise invite QR code to join',
 			'organization.picker.joinQrInvalid' => 'Not a valid enterprise invite QR code',
+			'organization.inviteColleagues.title' => 'Invite colleagues',
+			'organization.inviteColleagues.tabInvite' => 'Invite',
+			'organization.inviteColleagues.tabPossible' => 'Possible colleagues',
+			'organization.inviteColleagues.wechatInvite' => 'Invite via WeChat',
+			'organization.inviteColleagues.wechatInviteHint' => 'Send the invite code to WeChat friends; they join via imboy',
+			'organization.inviteColleagues.faceToFace' => 'Invite face to face',
+			'organization.inviteColleagues.faceToFaceHint' => 'Colleagues scan the QR code or enter the invite code',
+			'organization.inviteColleagues.fromWechatGroup' => 'Add from WeChat groups',
+			'organization.inviteColleagues.fromWechatGroupHint' => 'Share the invite code to a WeChat group for colleagues to join',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '${orgName} invites you to join imboy\nInvite code: ${code} (valid for 7 days)\nOpen the imboy app and enter the code under Directory > Join organization',
+			'organization.inviteColleagues.shareToWechat' => 'Share invite to WeChat',
+			'organization.inviteColleagues.copyInviteCode' => 'Copy invite code',
+			'organization.inviteColleagues.codeValidityHint' => 'The invite code is valid for 7 days; regenerating invalidates the old code immediately',
+			'organization.inviteColleagues.possibleLoadFailed' => 'Failed to load possible colleagues, please retry',
+			'organization.inviteColleagues.revokeFailed' => 'Failed to revoke, please retry later',
+			'organization.inviteColleagues.guideCodeMissing' => 'No active invite code yet; ask an enterprise admin to generate one first',
+			'organization.inviteColleagues.possibleEmptyCta' => 'Invite colleagues',
+			'organization.inviteColleagues.codeLoadFailed' => 'Failed to load the invite code, please retry',
+			'organization.inviteColleagues.codeMissingHint' => 'No active invite code yet; generate one to share',
+			'organization.inviteColleagues.generateCode' => 'Generate code',
+			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
+			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
+			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
+			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
+			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'Invited at ${time}',
+			'organization.inviteColleagues.revoke' => 'Revoke',
+			'organization.inviteColleagues.revokeTitle' => 'Revoke invitation',
+			'organization.inviteColleagues.revokeBody' => ({required Object name}) => 'Revoke the invitation for "${name}"?',
+			'organization.inviteColleagues.revoked' => 'Invitation revoked',
+			'organization.inviteColleagues.groupStep1' => 'Share the invite code to your WeChat group',
+			'organization.inviteColleagues.groupStep2' => 'Colleagues copy the code and open the imboy app',
+			'organization.inviteColleagues.groupStep3' => 'Enter the code under Directory > Join organization',
+			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Invite code: ${code}',
 			'organization.inviteQr.title' => 'Invite members',
 			'organization.inviteQr.entryHint' => 'Show the QR code or share the invite code; others join by scanning or typing',
 			'organization.inviteQr.scanHint' => 'Others scan this code with the imboy scanner to join this enterprise',
@@ -5846,6 +5924,8 @@ extension on TranslationsEnUs {
 			'organization.directory.emptySearch' => 'No matches',
 			'organization.directory.switchVerifyFailed' => 'Target organization unavailable or you are no longer a member',
 			'organization.directory.switchShellFailed' => 'Failed to load workspaces of the new organization',
+			'organization.directory.inviteColleaguesRow' => 'Invite colleagues...',
+			'organization.directory.memberTotal' => ({required Object count}) => '${count} members in total',
 			'organization.memberDetail.roleLabel' => 'Enterprise role',
 			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
 			'organization.memberDetail.accountLabel' => 'Login account',
@@ -5932,6 +6012,8 @@ extension on TranslationsEnUs {
 			'organization.hub.adminInvitations' => 'Invitation management',
 			'organization.hub.adminInvitationsDesc' => 'Create and revoke invitations',
 			'organization.hub.adminManage' => 'Organization admin',
+			_ => null,
+		} ?? switch (path) {
 			'organization.hub.adminManageDesc' => 'Workspaces · groups · channels',
 			'organization.hub.adminCsGovernance' => 'Support governance',
 			'organization.hub.adminCsGovernanceDesc' => 'Seat quota · seat suspend/resume',
@@ -5967,8 +6049,6 @@ extension on TranslationsEnUs {
 			'organization.tools.moreInWorkspaceShellHint' => 'Open the global workspace switcher (cross-enterprise).',
 			'organization.chart.zoomIn' => 'Zoom in',
 			'organization.chart.zoomOut' => 'Zoom out',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.fit' => 'Fit to window',
 			'organization.chart.expand' => 'Expand departments',
 			'organization.chart.collapse' => 'Collapse departments',
