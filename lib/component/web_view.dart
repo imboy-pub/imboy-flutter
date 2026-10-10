@@ -14,6 +14,48 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
+/// `getAuthCode` 注入实现的协议面结果（OA 免登按需取码）。
+///
+/// 放在 component 层供 WebViewPage 的注入回调使用：桥只认识协议字段，
+/// OA 应用选择、签发与错误映射由注入方（modules/enterprise_oa）完成，
+/// 避免 component 反向依赖业务模块。
+class ImboyBridgeAuthCode {
+  const ImboyBridgeAuthCode.success({
+    required this.code,
+    required this.state,
+    required this.expiresInSeconds,
+    required this.redirectUri,
+    required this.applicationKey,
+  }) : errorCode = null;
+
+  const ImboyBridgeAuthCode.failure(this.errorCode)
+    : code = null,
+      state = null,
+      expiresInSeconds = null,
+      redirectUri = null,
+      applicationKey = null;
+
+  /// 一次性 opaque code（`oa_sso_` 前缀；60s 有效期，不持久化）。
+  final String? code;
+
+  /// 签发 nonce 原值（即 OA 侧 state；exchange 绑定校验必需回传）。
+  final String? state;
+
+  /// 恒 60（服务端合同钉死）。
+  final int? expiresInSeconds;
+
+  /// 服务端回显的登记 redirect_uri（exact）。
+  final String? redirectUri;
+
+  /// 实际使用的 OA 应用标识（公开值，等同 OAuth client_id）。
+  final String? applicationKey;
+
+  /// 失败稳定码（busy / oa_not_available / network / …，见桥协议文档）。
+  final String? errorCode;
+
+  bool get ok => errorCode == null;
+}
+
 /// `imboyJSBridge` 的双向消息协议。
 ///
 /// H5 → 原生：`imboyJSBridge.postMessage(JSON.stringify({id?, type, data?}))`
@@ -25,17 +67,47 @@ import 'package:imboy/theme/default/app_colors.dart';
 /// 当前方法：
 /// - `ping` / `echo`：无副作用，供 OA 联调页（test_oa.html 等）验证通道；
 /// - `openChat`：H5 传 `{to: '<纯数字 uid>'}`，原生打开与该用户的聊天页，
-///   由用户亲手输入发送——不代发、不透传内容，无消息面副作用。
+///   由用户亲手输入发送——不代发、不透传内容，无消息面副作用；
+/// - `getAuthCode`：H5 按需申请 OA 免登一次性 code（不预取、不缓存）。
+///   动作由 [onGetAuthCode] 注入（null = 本容器无 OA 免登能力，回
+///   `oa_not_available`）；H5 可选传 `application_key` 选择应用，用户/
+///   企业身份由 App 当前登录态与后端校验决定，H5 不能指定。同一桥实例
+///   （= 同一 WebView 容器）同一时刻只允许一个取码在途，并发第二请求
+///   立即回 `busy`——code 一次性且单一消费者（H5 侧另行防重复整条
+///   登录流程）。
 /// 未知方法回 `unsupported` 错误回执，便于 H5 侧联调定位；
 /// 坏 JSON 无法构造回执，静默忽略。
 class ImboyJsBridge {
-  ImboyJsBridge({required this.onOpenChat});
+  ImboyJsBridge({required this.onOpenChat, this.onGetAuthCode});
 
   /// `openChat` 的导航动作（WebViewPage 注入）；返回 true = 已发起导航。
   final Future<bool> Function(String peerId) onOpenChat;
 
+  /// `getAuthCode` 的取码动作（WebViewPage 注入）。入参为 H5 可选指定的
+  /// `application_key`（null = 未指定，由注入方按配置裁决）。
+  final Future<ImboyBridgeAuthCode> Function(String? applicationKey)?
+  onGetAuthCode;
+
   /// C2C peerId 形态：纯数字 uid（EntityId 数字字符串）。
   static final RegExp _peerIdPattern = RegExp(r'^\d{1,18}$');
+
+  /// getAuthCode 单飞标志（每桥实例 = 每容器；异常/完成后由 finally 复位）。
+  bool _authCodeInFlight = false;
+
+  /// application_key 合法形态（A5 合同 8..128 可打印非空白）。
+  static bool isValidApplicationKey(String value) {
+    if (value.length < 8 || value.length > 128) return false;
+    return !value.contains(RegExp(r'\s'));
+  }
+
+  /// 本实例实际支持的方法（ping 回执 `methods` 声明用；getAuthCode
+  /// 仅在注入取码动作时声明，避免无能力容器误导 H5）。
+  List<String> get supportedMethods => List.unmodifiable([
+    'ping',
+    'echo',
+    'openChat',
+    if (onGetAuthCode != null) 'getAuthCode',
+  ]);
 
   /// 处理一条 H5 → 原生消息，返回应回推给页面的 JavaScript 语句；
   /// 无需回推（坏 JSON）时返回 null。
@@ -50,7 +122,54 @@ class ImboyJsBridge {
     if (decoded['type'] == 'openChat') {
       return _handleOpenChat(decoded);
     }
-    return buildReply(raw);
+    if (decoded['type'] == 'getAuthCode') {
+      return _handleGetAuthCode(decoded);
+    }
+    return buildReply(raw, supportedMethods: supportedMethods);
+  }
+
+  Future<String?> _handleGetAuthCode(Map<String, dynamic> decoded) async {
+    final payload = _basePayload(decoded, decoded['type']);
+    final handler = onGetAuthCode;
+    if (handler == null) {
+      payload['error'] = 'oa_not_available';
+      return _replyJs(payload);
+    }
+    if (_authCodeInFlight) {
+      payload['error'] = 'busy';
+      return _replyJs(payload);
+    }
+    final data = decoded['data'];
+    final String? key = data is Map<String, dynamic>
+        ? data['application_key']?.toString()
+        : null;
+    if (key != null && !isValidApplicationKey(key)) {
+      payload['error'] = 'badRequest';
+      return _replyJs(payload);
+    }
+    _authCodeInFlight = true;
+    try {
+      final outcome = await handler(key);
+      if (outcome.ok) {
+        payload
+          ..['ok'] = true
+          ..['data'] = {
+            'code': outcome.code,
+            'state': outcome.state,
+            'expires_in': outcome.expiresInSeconds,
+            'redirect_uri': outcome.redirectUri,
+            'application_key': outcome.applicationKey,
+          };
+      } else {
+        payload['error'] = outcome.errorCode ?? 'unknown';
+      }
+    } catch (e) {
+      iPrint('[ImboyJsBridge] getAuthCode failed: ${e.runtimeType}');
+      payload['error'] = 'unknown';
+    } finally {
+      _authCodeInFlight = false;
+    }
+    return _replyJs(payload);
   }
 
   Future<String?> _handleOpenChat(Map<String, dynamic> decoded) async {
@@ -77,9 +196,12 @@ class ImboyJsBridge {
   }
 
   /// 处理同步协议方法（ping/echo/未知），返回回推 JS；坏 JSON 返回 null。
-  /// 公开保留：纯函数便于单测，异步分发入口 [handle] 对非 openChat 消息
-  /// 委托到这里。
-  static String? buildReply(String raw) {
+  /// 公开保留：纯函数便于单测，异步分发入口 [handle] 对非 openChat /
+  /// getAuthCode 消息委托到这里。
+  ///
+  /// [supportedMethods] 非空时 ping 回执附带 `methods` 声明（H5 能力
+  /// 检测用，不发码、不登录）；缺省不带字段（旧调用方/旧测试兼容）。
+  static String? buildReply(String raw, {List<String>? supportedMethods}) {
     final Object? decoded;
     try {
       decoded = jsonDecode(raw);
@@ -96,6 +218,8 @@ class ImboyJsBridge {
           ..['data'] = {
             'pong': true,
             'ts': DateTime.now().millisecondsSinceEpoch,
+            if (supportedMethods != null)
+              'methods': List<String>.unmodifiable(supportedMethods),
           };
       case 'echo':
         payload
@@ -129,7 +253,20 @@ class WebViewPage extends StatefulWidget {
   final String title;
   final void Function(String url)? errorCallback;
 
-  const WebViewPage(this.url, this.title, {super.key, this.errorCallback});
+  /// OA 免登按需取码动作（可选；工作台等持有 OA 上下文的调用方注入）。
+  /// null = 本容器无 OA 免登能力（getAuthCode 回 `oa_not_available`）。
+  /// 签名与 [ImboyJsBridge.onGetAuthCode] 一致；实现不得向 H5 返回
+  /// IMBoy Token/JWT/刷新凭证（只回一次性 code 信封）。
+  final Future<ImboyBridgeAuthCode> Function(String? applicationKey)?
+  oaAuthCodeHandler;
+
+  const WebViewPage(
+    this.url,
+    this.title, {
+    super.key,
+    this.errorCallback,
+    this.oaAuthCodeHandler,
+  });
 
   @override
   State<StatefulWidget> createState() => WebViewPageState();
@@ -137,7 +274,11 @@ class WebViewPage extends StatefulWidget {
 
 class WebViewPageState extends State<WebViewPage> {
   /// H5 桥（openChat 导航动作由本 State 提供 context）。
-  late final ImboyJsBridge _bridge = ImboyJsBridge(onOpenChat: _openNativeChat);
+  /// getAuthCode 的并发单飞（busy）由桥实例内部保证（每桥 = 每容器）。
+  late final ImboyJsBridge _bridge = ImboyJsBridge(
+    onOpenChat: _openNativeChat,
+    onGetAuthCode: widget.oaAuthCodeHandler,
+  );
 
   /// controller/title 归 State 持有：上层 rebuild 会向路由页传入新的
   /// widget 实例，若可变状态挂 widget 上，新实例字段为空会导致 build
@@ -288,12 +429,18 @@ class WebViewPageState extends State<WebViewPage> {
   /// 用户带到第三方站点后，对方页面仍能向通道发消息。这里按当前页 URL
   /// 复核域名，非 imboy.pub 一律静默丢弃（fail-closed）；取 URL 或回推
   /// 失败（导航中、已销毁）同样安全丢弃。
+  ///
+  /// 慢方法（getAuthCode 含网络请求，秒级）在途期间页面可能已离开
+  /// imboy.pub：回执投递前**再次**复核当前页 URL，fail-closed 丢弃，
+  /// 不把取码结果交给已导航走的页面。
   Future<void> _handleBridgeMessage(String raw) async {
     try {
       final String? current = await _controller?.currentUrl();
       if (current == null || !isJsBridgeHost(current)) return;
       final String? reply = await _bridge.handle(raw);
       if (reply == null) return;
+      final String? atReply = await _controller?.currentUrl();
+      if (atReply == null || !isJsBridgeHost(atReply)) return;
       await _controller?.runJavaScript(reply);
     } catch (_) {}
   }

@@ -5,6 +5,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/helper/safe_launcher.dart';
 import 'package:imboy/component/web_view.dart';
 
+import '../data/oa_bridge_auth_code.dart';
 import '../enterprise_oa_runtime_config.dart';
 import 'oa_tab_page.dart';
 
@@ -50,13 +51,27 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS);
 
+  /// 桥 getAuthCode 注入实现：用当前企业上下文与已登记 OA 应用按需签发
+  /// 一次性 code（仅 H5 主动调用时发生；打开页面不预取）。组织/应用在
+  /// 调用时现读 `widget`（State.widget 恒指向最新配置），无过期闭包捕获，
+  /// 取码始终使用当时登录身份对应的企业上下文。
+  Future<ImboyBridgeAuthCode> _issueBridgeAuthCode(String? applicationKey) {
+    return OaBridgeAuthCodeService(
+      issue: ApiOaSsoIssueLauncher(organizationId: widget.organizationId)
+          .launch,
+    ).getAuthCode(entries: widget.entries, applicationKey: applicationKey);
+  }
+
   Future<void> _openApps() async {
     if (_inAppWebViewSupported) {
       if (!mounted) return;
       await Navigator.of(context).push(
         CupertinoPageRoute<dynamic>(
-          builder: (_) =>
-              WebViewPage(EnterpriseWorkbenchPage.appsUrl, t.enterpriseOa.apps),
+          builder: (_) => WebViewPage(
+            EnterpriseWorkbenchPage.appsUrl,
+            t.enterpriseOa.apps,
+            oaAuthCodeHandler: _issueBridgeAuthCode,
+          ),
         ),
       );
       return;
