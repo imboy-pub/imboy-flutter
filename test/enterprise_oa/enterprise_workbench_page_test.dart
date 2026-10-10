@@ -53,16 +53,16 @@ void main() {
     }
   }
 
-  testWidgets('无 OA 保留资料入口，点击 OA办公走系统浏览器兜底', (tester) async {
+  testWidgets('无 OA 保留资料入口，点击应用走系统浏览器兜底', (tester) async {
     await runOnMacos(() async {
       await tester.pumpWidget(host());
       expect(find.text('资料'), findsOneWidget);
-      expect(find.text(t.enterpriseOa.oaOffice), findsOneWidget);
+      expect(find.text(t.enterpriseOa.apps), findsOneWidget);
       expect(calls, isEmpty);
-      await tester.tap(find.byKey(const ValueKey('workbench-oa-office')));
+      await tester.tap(find.byKey(const ValueKey('workbench-apps-entry')));
       await tester.pumpAndSettle();
       expect(calls.map((call) => call.method), ['canLaunch', 'launch']);
-      expect(calls.last.arguments['url'], EnterpriseWorkbenchPage.oaOfficeUrl);
+      expect(calls.last.arguments['url'], EnterpriseWorkbenchPage.appsUrl);
       expect(calls.last.arguments['useWebView'], isFalse);
     });
   });
@@ -71,7 +71,7 @@ void main() {
     await runOnMacos(() async {
       canOpen = false;
       await tester.pumpWidget(host());
-      await tester.tap(find.byKey(const ValueKey('workbench-oa-office')));
+      await tester.tap(find.byKey(const ValueKey('workbench-apps-entry')));
       await tester.pumpAndSettle();
       expect(find.text(t.common.cannotOpenWebpage), findsOneWidget);
       expect(calls.map((call) => call.method), ['canLaunch']);
@@ -90,7 +90,7 @@ void main() {
       expect(config.runtimeEntryEnabled, isTrue);
       await tester.pumpWidget(host(entries: [config]));
       expect(find.text('办公'), findsOneWidget);
-      expect(find.byKey(const ValueKey('workbench-oa-office')), findsNothing);
+      expect(find.byKey(const ValueKey('workbench-apps-entry')), findsNothing);
       expect(calls, isEmpty);
     });
   });

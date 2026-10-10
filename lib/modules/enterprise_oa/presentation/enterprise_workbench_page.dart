@@ -22,9 +22,9 @@ class EnterpriseWorkbenchPage extends StatefulWidget {
   final String organizationId;
   final List<Widget> resourceEntries;
 
-  /// OA 办公联调页，应用内 WebView 打开；imboy.pub 域名会自动挂
+  /// 应用入口联调页，点击后经应用内 WebView 打开；imboy.pub 域名会自动挂
   /// imboyJSBridge 通道（见 component/web_view.dart）。
-  static const String oaOfficeUrl = 'https://imboy.pub/test_oa.html';
+  static const String appsUrl = 'https://imboy.pub/test_oa.html';
 
   @override
   State<EnterpriseWorkbenchPage> createState() =>
@@ -50,15 +50,13 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
       (defaultTargetPlatform == TargetPlatform.android ||
           defaultTargetPlatform == TargetPlatform.iOS);
 
-  Future<void> _openOaOffice() async {
+  Future<void> _openApps() async {
     if (_inAppWebViewSupported) {
       if (!mounted) return;
       await Navigator.of(context).push(
         CupertinoPageRoute<dynamic>(
-          builder: (_) => WebViewPage(
-            EnterpriseWorkbenchPage.oaOfficeUrl,
-            t.enterpriseOa.oaOffice,
-          ),
+          builder: (_) =>
+              WebViewPage(EnterpriseWorkbenchPage.appsUrl, t.enterpriseOa.apps),
         ),
       );
       return;
@@ -66,7 +64,7 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
     var opened = false;
     try {
       opened = await SafeLauncher.safeLaunchUrl(
-        Uri.parse(EnterpriseWorkbenchPage.oaOfficeUrl),
+        Uri.parse(EnterpriseWorkbenchPage.appsUrl),
       );
     } catch (_) {
       // 系统浏览器不可用时给出与无法打开链接相同的提示。
@@ -95,11 +93,11 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
             CupertinoListSection.insetGrouped(
               children: [
                 CupertinoListTile(
-                  key: const ValueKey('workbench-oa-office'),
-                  title: Text(t.enterpriseOa.oaOffice),
-                  subtitle: const Text(EnterpriseWorkbenchPage.oaOfficeUrl),
+                  key: const ValueKey('workbench-apps-entry'),
+                  title: Text(t.enterpriseOa.apps),
+                  subtitle: const Text(EnterpriseWorkbenchPage.appsUrl),
                   trailing: const CupertinoListTileChevron(),
-                  onTap: _openOaOffice,
+                  onTap: _openApps,
                 ),
               ],
             ),

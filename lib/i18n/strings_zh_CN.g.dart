@@ -5660,8 +5660,8 @@ class Translations$enterpriseOa$zh_CN {
 	/// zh-CN: '工作台'
 	String get workbenchTitle => '工作台';
 
-	/// zh-CN: 'OA办公'
-	String get oaOffice => 'OA办公';
+	/// zh-CN: '应用'
+	String get apps => '应用';
 }
 
 // Path: error
@@ -10958,7 +10958,7 @@ extension on Translations {
 			'enterpriseOa.ssoIssuing' => '正在获取单点登录凭证…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '凭证 ${seconds} 秒内有效，请尽快完成登录',
 			'enterpriseOa.workbenchTitle' => '工作台',
-			'enterpriseOa.oaOffice' => 'OA办公',
+			'enterpriseOa.apps' => '应用',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',

@@ -2018,7 +2018,7 @@ class _Translations$enterpriseOa$en_US extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'Requesting single sign-on code…';
 	@override String ssoCountdown({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.';
 	@override String get workbenchTitle => 'Workbench';
-	@override String get oaOffice => 'OA Office';
+	@override String get apps => 'Apps';
 }
 
 // Path: error
@@ -5235,7 +5235,7 @@ extension on TranslationsEnUs {
 			'enterpriseOa.ssoIssuing' => 'Requesting single sign-on code…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.',
 			'enterpriseOa.workbenchTitle' => 'Workbench',
-			'enterpriseOa.oaOffice' => 'OA Office',
+			'enterpriseOa.apps' => 'Apps',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
