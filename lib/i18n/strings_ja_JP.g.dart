@@ -2966,7 +2966,7 @@ class _Translations$organization$inviteColleagues$ja_JP extends Translations$org
 	@override String get faceToFaceHint => 'QR コードのスキャンまたは招待コードの入力で参加';
 	@override String get fromWechatGroup => 'WeChat グループから追加';
 	@override String get fromWechatGroupHint => '招待コードを WeChat グループに送信して同僚を招待';
-	@override String shareText({required Object orgName, required Object code}) => '【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください';
+	@override String shareText({required Object orgName, required Object code}) => '【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nこちらから参加：https://imboy.pub/invite/org/${code}\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください';
 	@override String get shareToWechat => 'WeChat に招待を共有';
 	@override String get copyInviteCode => '招待コードをコピー';
 	@override String get codeValidityHint => '招待コードは 7 日間有効。再生成すると旧コードは直ちに無効になります';
@@ -5493,7 +5493,7 @@ extension on TranslationsJaJp {
 			'organization.inviteColleagues.faceToFaceHint' => 'QR コードのスキャンまたは招待コードの入力で参加',
 			'organization.inviteColleagues.fromWechatGroup' => 'WeChat グループから追加',
 			'organization.inviteColleagues.fromWechatGroupHint' => '招待コードを WeChat グループに送信して同僚を招待',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nこちらから参加：https://imboy.pub/invite/org/${code}\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください',
 			'organization.inviteColleagues.shareToWechat' => 'WeChat に招待を共有',
 			'organization.inviteColleagues.copyInviteCode' => '招待コードをコピー',
 			'organization.inviteColleagues.codeValidityHint' => '招待コードは 7 日間有効。再生成すると旧コードは直ちに無効になります',

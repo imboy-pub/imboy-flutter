@@ -2969,7 +2969,7 @@ class _Translations$organization$inviteColleagues$de_DE extends Translations$org
 	@override String get faceToFaceHint => 'QR-Code scannen oder Einladungscode eingeben';
 	@override String get fromWechatGroup => 'Aus WeChat-Gruppen hinzufügen';
 	@override String get fromWechatGroupHint => 'Einladungscode in eine WeChat-Gruppe teilen';
-	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] lädt dich zu imboy ein\nEinladungscode: ${code} (7 Tage gültig)\nimboy-App öffnen und den Code unter Kontakte > Organisation beitreten eingeben';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] lädt dich zu imboy ein\nEinladungscode: ${code} (7 Tage gültig)\nBeitreten über den Link: https://imboy.pub/invite/org/${code}\nimboy-App öffnen und den Code unter Kontakte > Organisation beitreten eingeben';
 	@override String get shareToWechat => 'Einladung an WeChat teilen';
 	@override String get copyInviteCode => 'Einladungscode kopieren';
 	@override String get codeValidityHint => 'Der Einladungscode ist 7 Tage gültig; bei Neugenerierung verfällt der alte Code sofort';
@@ -5496,7 +5496,7 @@ extension on TranslationsDeDe {
 			'organization.inviteColleagues.faceToFaceHint' => 'QR-Code scannen oder Einladungscode eingeben',
 			'organization.inviteColleagues.fromWechatGroup' => 'Aus WeChat-Gruppen hinzufügen',
 			'organization.inviteColleagues.fromWechatGroupHint' => 'Einladungscode in eine WeChat-Gruppe teilen',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] lädt dich zu imboy ein\nEinladungscode: ${code} (7 Tage gültig)\nimboy-App öffnen und den Code unter Kontakte > Organisation beitreten eingeben',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] lädt dich zu imboy ein\nEinladungscode: ${code} (7 Tage gültig)\nBeitreten über den Link: https://imboy.pub/invite/org/${code}\nimboy-App öffnen und den Code unter Kontakte > Organisation beitreten eingeben',
 			'organization.inviteColleagues.shareToWechat' => 'Einladung an WeChat teilen',
 			'organization.inviteColleagues.copyInviteCode' => 'Einladungscode kopieren',
 			'organization.inviteColleagues.codeValidityHint' => 'Der Einladungscode ist 7 Tage gültig; bei Neugenerierung verfällt der alte Code sofort',

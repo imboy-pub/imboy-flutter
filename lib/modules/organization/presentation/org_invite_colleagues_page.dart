@@ -40,8 +40,10 @@ import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// 组装微信/系统分享的邀请文案（邀请码即加入凭证：imboy 加入企业流程
-/// 支持手输 8 位码；深链由后端后续 H5 落地页承接，此处文本即全量凭据）。
+/// 组装微信/系统分享的邀请文案（邀请码即加入凭证）。第三段是 H5 落地页
+/// 链接（imboy 后端 GET /invite/org/:code；微信聊天内 imboy:// 私有
+/// scheme 不可点，https 链接是唯一「点一下」路径），落地页负责展示/复制
+/// 邀请码并尝试拉起 App。
 String buildInviteShareText(String orgName, String code) {
   final name = orgName.isEmpty ? 'imboy' : orgName;
   return t.organization.inviteColleagues.shareText(orgName: name, code: code);

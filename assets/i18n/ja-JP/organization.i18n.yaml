@@ -211,7 +211,7 @@ inviteColleagues:
   faceToFaceHint: QR コードのスキャンまたは招待コードの入力で参加
   fromWechatGroup: WeChat グループから追加
   fromWechatGroupHint: 招待コードを WeChat グループに送信して同僚を招待
-  shareText: "【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください"
+  shareText: "【${orgName}】から imboy への招待\n招待コード：${code}（7 日間有効）\nこちらから参加：https://imboy.pub/invite/org/${code}\nimboy アプリを開き、「連絡先 → 企業に参加」でコードを入力してください"
   shareToWechat: WeChat に招待を共有
   copyInviteCode: 招待コードをコピー
   codeValidityHint: 招待コードは 7 日間有効。再生成すると旧コードは直ちに無効になります

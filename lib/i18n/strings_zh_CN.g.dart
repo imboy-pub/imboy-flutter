@@ -8575,8 +8575,8 @@ class Translations$organization$inviteColleagues$zh_CN {
 	/// zh-CN: '把邀请码发到微信群，同事复制后即可加入'
 	String get fromWechatGroupHint => '把邀请码发到微信群，同事复制后即可加入';
 
-	/// zh-CN: '【${orgName}】邀请你加入 imboy 邀请码：${code}（7 天内有效） 打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入'
-	String shareText({required Object orgName, required Object code}) => '【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入';
+	/// zh-CN: '【${orgName}】邀请你加入 imboy 邀请码：${code}（7 天内有效） 点击加入：https://imboy.pub/invite/org/${code} 打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入'
+	String shareText({required Object orgName, required Object code}) => '【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n点击加入：https://imboy.pub/invite/org/${code}\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入';
 
 	/// zh-CN: '分享邀请到微信'
 	String get shareToWechat => '分享邀请到微信';
@@ -11661,7 +11661,7 @@ extension on Translations {
 			'organization.inviteColleagues.faceToFaceHint' => '同事扫码或输入邀请码即可加入',
 			'organization.inviteColleagues.fromWechatGroup' => '从微信群中添加',
 			'organization.inviteColleagues.fromWechatGroupHint' => '把邀请码发到微信群，同事复制后即可加入',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】邀请你加入 imboy\n邀请码：${code}（7 天内有效）\n点击加入：https://imboy.pub/invite/org/${code}\n打开 imboy App，在「通讯录 → 加入企业」输入邀请码即可加入',
 			'organization.inviteColleagues.shareToWechat' => '分享邀请到微信',
 			'organization.inviteColleagues.copyInviteCode' => '复制邀请码',
 			'organization.inviteColleagues.codeValidityHint' => '邀请码 7 天内有效；重新生成后旧码立即失效',

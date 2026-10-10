@@ -211,7 +211,7 @@ inviteColleagues:
   faceToFaceHint: امسح رمز QR أو أدخل رمز الدعوة
   fromWechatGroup: إضافة من مجموعات WeChat
   fromWechatGroupHint: شارك رمز الدعوة في مجموعة WeChat
-  shareText: "[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة"
+  shareText: "[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nللانضمام عبر الرابط: https://imboy.pub/invite/org/${code}\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة"
   shareToWechat: مشاركة الدعوة إلى WeChat
   copyInviteCode: "نسخ رمز الدعوة"
   codeValidityHint: "رمز الدعوة صالح لمدة 7 أيام؛ إعادة التوليد تلغي الرمز القديم فوراً"

@@ -2975,7 +2975,7 @@ class _Translations$organization$inviteColleagues$ru_RU extends Translations$org
 	@override String get faceToFaceHint => 'Отсканируйте QR-код или введите код приглашения';
 	@override String get fromWechatGroup => 'Добавить из групп WeChat';
 	@override String get fromWechatGroupHint => 'Поделитесь кодом приглашения в группе WeChat';
-	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] приглашает вас в imboy\nКод приглашения: ${code} (действует 7 дней)\nОткройте приложение imboy и введите код в разделе «Контакты → Присоединиться к организации»';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] приглашает вас в imboy\nКод приглашения: ${code} (действует 7 дней)\nПрисоединиться по ссылке: https://imboy.pub/invite/org/${code}\nОткройте приложение imboy и введите код в разделе «Контакты → Присоединиться к организации»';
 	@override String get shareToWechat => 'Поделиться приглашением в WeChat';
 	@override String get copyInviteCode => 'Скопировать код приглашения';
 	@override String get codeValidityHint => 'Код приглашения действует 7 дней; при перевыпуске старый код отзывается сразу';
@@ -5502,7 +5502,7 @@ extension on TranslationsRuRu {
 			'organization.inviteColleagues.faceToFaceHint' => 'Отсканируйте QR-код или введите код приглашения',
 			'organization.inviteColleagues.fromWechatGroup' => 'Добавить из групп WeChat',
 			'organization.inviteColleagues.fromWechatGroupHint' => 'Поделитесь кодом приглашения в группе WeChat',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] приглашает вас в imboy\nКод приглашения: ${code} (действует 7 дней)\nОткройте приложение imboy и введите код в разделе «Контакты → Присоединиться к организации»',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] приглашает вас в imboy\nКод приглашения: ${code} (действует 7 дней)\nПрисоединиться по ссылке: https://imboy.pub/invite/org/${code}\nОткройте приложение imboy и введите код в разделе «Контакты → Присоединиться к организации»',
 			'organization.inviteColleagues.shareToWechat' => 'Поделиться приглашением в WeChat',
 			'organization.inviteColleagues.copyInviteCode' => 'Скопировать код приглашения',
 			'organization.inviteColleagues.codeValidityHint' => 'Код приглашения действует 7 дней; при перевыпуске старый код отзывается сразу',

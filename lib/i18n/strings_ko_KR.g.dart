@@ -2966,7 +2966,7 @@ class _Translations$organization$inviteColleagues$ko_KR extends Translations$org
 	@override String get faceToFaceHint => 'QR 코드 스캔 또는 초대 코드 입력으로 참여';
 	@override String get fromWechatGroup => '위챗 그룹에서 추가';
 	@override String get fromWechatGroupHint => '위챗 그룹에 초대 코드를 공유하여 동료 초대';
-	@override String shareText({required Object orgName, required Object code}) => '[${orgName}]에서 imboy로 초대합니다\n초대 코드: ${code} (7일간 유효)\nimboy 앱에서 \'주소록 → 기업 참여\'에 코드를 입력하세요';
+	@override String shareText({required Object orgName, required Object code}) => '[${orgName}]에서 imboy로 초대합니다\n초대 코드: ${code} (7일간 유효)\n링크로 참여: https://imboy.pub/invite/org/${code}\nimboy 앱에서 \'주소록 → 기업 참여\'에 코드를 입력하세요';
 	@override String get shareToWechat => '위챗에 초대 공유';
 	@override String get copyInviteCode => '초대 코드 복사';
 	@override String get codeValidityHint => '초대 코드는 7일간 유효하며, 재생성하면 기존 코드는 즉시 만료됩니다';
@@ -5493,7 +5493,7 @@ extension on TranslationsKoKr {
 			'organization.inviteColleagues.faceToFaceHint' => 'QR 코드 스캔 또는 초대 코드 입력으로 참여',
 			'organization.inviteColleagues.fromWechatGroup' => '위챗 그룹에서 추가',
 			'organization.inviteColleagues.fromWechatGroupHint' => '위챗 그룹에 초대 코드를 공유하여 동료 초대',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}]에서 imboy로 초대합니다\n초대 코드: ${code} (7일간 유효)\nimboy 앱에서 \'주소록 → 기업 참여\'에 코드를 입력하세요',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}]에서 imboy로 초대합니다\n초대 코드: ${code} (7일간 유효)\n링크로 참여: https://imboy.pub/invite/org/${code}\nimboy 앱에서 \'주소록 → 기업 참여\'에 코드를 입력하세요',
 			'organization.inviteColleagues.shareToWechat' => '위챗에 초대 공유',
 			'organization.inviteColleagues.copyInviteCode' => '초대 코드 복사',
 			'organization.inviteColleagues.codeValidityHint' => '초대 코드는 7일간 유효하며, 재생성하면 기존 코드는 즉시 만료됩니다',

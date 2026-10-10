@@ -211,7 +211,7 @@ inviteColleagues:
   faceToFaceHint: Scannez le QR code ou saisissez le code d'invitation
   fromWechatGroup: Ajouter depuis des groupes WeChat
   fromWechatGroupHint: Partagez le code d'invitation dans un groupe WeChat
-  shareText: "[${orgName}] vous invite à rejoindre imboy\nCode d'invitation : ${code} (valable 7 jours)\nOuvrez l'app imboy et saisissez le code dans Annuaire > Rejoindre l'organisation"
+  shareText: "[${orgName}] vous invite à rejoindre imboy\nCode d'invitation : ${code} (valable 7 jours)\nRejoindre via le lien : https://imboy.pub/invite/org/${code}\nOuvrez l'app imboy et saisissez le code dans Annuaire > Rejoindre l'organisation"
   shareToWechat: Partager l'invitation sur WeChat
   copyInviteCode: "Copier le code d'invitation"
   codeValidityHint: "Le code d'invitation est valable 7 jours ; le régénérer invalide immédiatement l'ancien"
