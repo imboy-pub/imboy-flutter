@@ -437,6 +437,8 @@ def page_inventory() -> list[dict]:
     """Reusable declarations determine coverage; historical results do not."""
     return [{
         'path': ROOT / page['ordering_key'],
+        'module': page['module'],
+        'label': page['ordering_key'].removeprefix('test/auto_test/'),
         'source': page['page'],
         'rows': len(page['requirements']),
     } for page in inventory.load_page_requirements(ROOT)]
@@ -481,10 +483,10 @@ def write_coverage_matrix(specs: list[tuple[Path, dict]]) -> None:
             status = '源码映射缺失'
         else:
             status = '待分级并补规格'
-        relative = page['path'].relative_to(AUTO).as_posix()
+        relative = page['label']
         case_text = '<br>'.join(f'`{case}`' for case in cases) if cases else '—'
         lines.append('| %s | %s（%s） | `%s` | %d | %s | %s |' % (
-            page['path'].parent.name, page['path'].stem, relative, source or '—',
+            page['module'], page['path'].stem, relative, source or '—',
             page['rows'], status, case_text))
     (REPORTS / 'AI_COVERAGE_MATRIX.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
 
@@ -496,7 +498,7 @@ def spec_backlog(specs: list[tuple[Path, dict]]) -> list[dict]:
         if page['source'] not in covered_sources and page['source'] and (ROOT / page['source']).is_file()
     ]
     return sorted(candidates, key=lambda page: (
-        CORE_MODULE_PRIORITY.get(page['path'].parent.name, 99),
+        CORE_MODULE_PRIORITY.get(page['module'], 99),
         -page['rows'],
         page['path'].as_posix(),
     ))
@@ -517,9 +519,9 @@ def write_spec_backlog(specs: list[tuple[Path, dict]]) -> None:
         '|---:|---|---|---|---|---:|---|',
     ]
     for index, page in enumerate(candidates, 1):
-        module = page['path'].parent.name
+        module = page['module']
         suggested = 'P0 候选' if module in CORE_MODULE_PRIORITY else 'P1 候选'
-        relative = page['path'].relative_to(AUTO).as_posix()
+        relative = page['label']
         next_step = '定义只读/夹具流程、风险门禁和截图检查点'
         lines.append('| %d | %s | %s | %s（%s） | `%s` | %d | %s |' % (
             index, suggested, module, page['path'].stem, relative, page['source'],
@@ -530,7 +532,7 @@ def write_spec_backlog(specs: list[tuple[Path, dict]]) -> None:
 def print_next_batch(specs: list[tuple[Path, dict]], limit: int) -> None:
     candidates = spec_backlog(specs)
     for index, page in enumerate(candidates[:limit], 1):
-        module = page['path'].parent.name
+        module = page['module']
         suggested = 'P0 候选' if module in CORE_MODULE_PRIORITY else 'P1 候选'
         print(f'{index}. [{suggested}] {page["source"]} — {page["rows"]} 功能点')
     if not candidates:

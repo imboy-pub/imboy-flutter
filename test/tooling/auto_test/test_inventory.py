@@ -152,6 +152,9 @@ class ReportDestinationTest(unittest.TestCase):
                 module.write_coverage_matrix(specs)
                 module.write_spec_backlog(specs)
             self.assertEqual(len(list(Path(directory).glob('AI_*.md'))), 3)
+            matrix = (Path(directory) / 'AI_COVERAGE_MATRIX.md').read_text()
+            self.assertIn('| enterprise_oa |', matrix)
+            self.assertIn('declaration:lib/modules/enterprise_oa/', matrix)
 
 
 class InventoryGenerationTest(unittest.TestCase):
