@@ -52,6 +52,10 @@ void main() {
     Env.uploadScene = 'test_scene';
     IMBoyCacheManager.debugLogEnabled = false;
     await StorageService.to.setString(Keys.currentUid, 'tsid_uid_001');
+    // ccc47b60 起 AppFeatureRegistry.snapshot 按账号 scope 隔离：scope 未
+    // 绑定时 snapshot 为空，e2ee 等编译特性缺省判 false（仅 core 例外）。
+    // 「完整编译集合下入口可见」的既有断言需要显式给出远程 snapshot。
+    AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true});
   });
 
   tearDownAll(() async {
@@ -126,8 +130,10 @@ void main() {
 
   group('ChatSettingPage E2EE 功能位隐藏', () {
     tearDown(() {
-      // 恢复缺省远程 snapshot；最终可用性仍受编译功能集合约束。
-      AppFeatureRegistry.replaceSnapshotForTest(const {});
+      // 恢复 setUpAll 基线 snapshot（scope 隔离语义下「缺省」即空表 →
+      // 编译特性全部 false；本组用例验证的是远程缺省不扩大入口，故恢复
+      // 到显式开启基线，由各用例自行覆盖关闭态）。
+      AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true});
     });
 
     testWidgets('features.e2ee=false：加密模式项与安全码项均不渲染', (tester) async {

@@ -26,6 +26,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 
 import 'package:imboy/service/group_schedule_service.dart';
@@ -90,6 +91,11 @@ void main() {
     // A missing plugin must not replace the intended response-shape oracle
     // with session cleanup and a 409 transport error.
     FlutterSecureStorage.setMockInitialValues({});
+    // ccc47b60 起 snapshot 按账号 FeatureScope 隔离：scope 未绑定时为空表，
+    // E2EEApi.reportDeviceKey 的 isEnabled(e2ee) 缺省 false → 成功路径契约
+    // 用例拿到 ok:false。「编译含 e2ee 即成功上报」的既有断言需要显式
+    // 远程快照。
+    AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true});
   });
 
   setUpAll(() {

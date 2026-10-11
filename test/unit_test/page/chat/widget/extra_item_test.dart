@@ -14,8 +14,18 @@ import 'package:imboy/page/chat/widget/extra_item.dart';
 /// （openCallScreen / context.push / 各 handler）在 pump 期间不会触发，故重依赖
 /// （location/webrtc）不进入执行路径，可在 host 层稳定渲染其分组/过滤逻辑。
 void main() {
-  setUp(() => AppFeatureRegistry.replaceSnapshotForTest({}));
-  tearDown(() => AppFeatureRegistry.replaceSnapshotForTest({}));
+  // ccc47b60 scope 隔离后空 snapshot 使编译特性全部判 false；本组断言的
+  // 语义是「远程缺省 → 按编译功能集合收口」，故注入编译全集开启基线。
+  setUp(
+    () => AppFeatureRegistry.replaceSnapshotForTest({
+      for (final f in compiledProductFeatures) f: true,
+    }),
+  );
+  tearDown(
+    () => AppFeatureRegistry.replaceSnapshotForTest({
+      for (final f in compiledProductFeatures) f: true,
+    }),
+  );
   Future<void> pump(
     WidgetTester tester, {
     required String title,
