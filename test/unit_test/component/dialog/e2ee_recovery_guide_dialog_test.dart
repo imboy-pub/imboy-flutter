@@ -4,6 +4,7 @@ import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -48,9 +49,11 @@ void main() {
     AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: false});
     var dismissed = false;
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: E2EERecoveryBanner(onDismiss: () => dismissed = true),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: E2EERecoveryBanner(onDismiss: () => dismissed = true),
+          ),
         ),
       ),
     );
@@ -59,9 +62,11 @@ void main() {
     expect(dismissed, isFalse);
     AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: true});
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: E2EERecoveryBanner(onDismiss: () => dismissed = true),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: E2EERecoveryBanner(onDismiss: () => dismissed = true),
+          ),
         ),
       ),
     );
@@ -93,9 +98,11 @@ void main() {
   testWidgets('E2EERecoveryBanner 渲染文案并触发关闭回调', (tester) async {
     var dismissed = false;
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: E2EERecoveryBanner(onDismiss: () => dismissed = true),
+      ProviderScope(
+        child: MaterialApp(
+          home: Scaffold(
+            body: E2EERecoveryBanner(onDismiss: () => dismissed = true),
+          ),
         ),
       ),
     );
