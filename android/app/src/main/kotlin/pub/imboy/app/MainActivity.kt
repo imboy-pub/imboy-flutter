@@ -15,8 +15,15 @@ class MainActivity : FlutterActivity() {
   /// Flutter 侧通过 imboy/backup_intent channel 读取此 URI，消费后置 null。
   private var initialViewFileUri: Uri? = null
 
+  /// 冷启动时缓存的 imboy:// 深链 URI（MC-AC-22）。
+  /// 与备份文件 VIEW 分流：scheme=imboy 走深链，其余按文件处理。
+  private var initialDeepLinkUri: Uri? = null
+
   /// 热启动时通过此 channel 主动通知 Flutter 侧有新文件到达。
   private var backupIntentChannel: MethodChannel? = null
+
+  /// 热启动时通过此 channel 主动推送 imboy:// 深链。
+  private var deepLinkChannel: MethodChannel? = null
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
@@ -64,6 +71,22 @@ class MainActivity : FlutterActivity() {
         else -> result.notImplemented()
       }
     }
+
+    // imboy:// 深链（MC-AC-22）：冷启动 pull（getInitialLink，消费后置 null）。
+    // 热启动走 onNewIntent → onDeepLink push。
+    deepLinkChannel = MethodChannel(
+      flutterEngine.dartExecutor.binaryMessenger, "imboy/deep_link"
+    )
+    deepLinkChannel?.setMethodCallHandler { call, result ->
+      when (call.method) {
+        "getInitialLink" -> {
+          val link = initialDeepLinkUri?.toString()
+          initialDeepLinkUri = null
+          result.success(link)
+        }
+        else -> result.notImplemented()
+      }
+    }
   }
 
   override fun onNewIntent(intent: Intent) {
@@ -74,6 +97,10 @@ class MainActivity : FlutterActivity() {
     cacheViewIntent(intent)
     if (initialViewFileUri != null) {
       backupIntentChannel?.invokeMethod("onNewViewFile", null)
+    }
+    val deepLink = consumeDeepLinkUri(intent)
+    if (deepLink != null) {
+      deepLinkChannel?.invokeMethod("onDeepLink", deepLink)
     }
   }
 
@@ -87,9 +114,21 @@ class MainActivity : FlutterActivity() {
     if (intent != null && intent.action == Intent.ACTION_VIEW) {
       val uri = intent.data
       if (uri != null) {
-        initialViewFileUri = uri
+        if (uri.scheme == "imboy") {
+          initialDeepLinkUri = uri
+        } else {
+          initialViewFileUri = uri
+        }
       }
     }
+  }
+
+  /// 从 VIEW intent 提取 imboy:// 深链（热启动路径用，不缓存）。
+  private fun consumeDeepLinkUri(intent: Intent?): String? {
+    if (intent == null || intent.action != Intent.ACTION_VIEW) return null
+    val uri = intent.data ?: return null
+    if (uri.scheme != "imboy") return null
+    return uri.toString()
   }
 
   /// 把 content:// 或 file:// URI 复制到 cacheDir，返回本地文件路径。

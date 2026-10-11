@@ -31,6 +31,7 @@ import 'package:imboy/theme/theme_manager.dart';
 import 'config/init.dart';
 import 'config/router/app_router.dart';
 import 'service/incoming_backup_handler.dart';
+import 'service/deep_link_router_bridge.dart';
 import 'service/message.dart';
 
 /// 应用级共享 ProviderContainer
@@ -213,6 +214,10 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
   void initState() {
     super.initState();
     _router = ref.read(goRouterProvider);
+    // Android imboy:// 深链桥接（MC-AC-22）：热启动 push + 冷启动 pull。
+    // 登录态守卫由 GoRouter.redirect 统一承担，这里只做 URI→location 转换。
+    DeepLinkRouterBridge.watchIncomingLinks(_router);
+    DeepLinkRouterBridge.consumeInitialLink(_router);
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((locale) {
       if (mounted && _currentLocale != locale) {
