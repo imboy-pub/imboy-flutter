@@ -2,12 +2,12 @@
   "schema_version": 1,
   "generated_from": {
     "app_head": "see-catalog",
-    "ledger_count": 164,
-    "ledger_row_count": 1849,
-    "lib_page_count": 166,
-    "module_page_count": 22,
-    "route_page_component_count": 147,
-    "function_count": 1982,
+    "ledger_count": 168,
+    "ledger_row_count": 1872,
+    "lib_page_count": 167,
+    "module_page_count": 23,
+    "route_page_component_count": 148,
+    "function_count": 2016,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -413,6 +413,144 @@
       "action": "切换语言后标签文案同步刷新",
       "expected_oracle": "见台账断言",
       "details": "",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:camera:camera_capture_page:001",
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:camera:camera_capture_page:002",
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:camera:camera_capture_page:003",
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:camera:camera_capture_page:004",
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:camera:camera_capture_page:005",
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:camera:camera_capture_page:006",
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
         "android",
         "macos"
@@ -10091,11 +10229,11 @@
       "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "control": "button",
-      "action": "触发「https://imboy.pub/」button 交互",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "打开官方网站",
+      "expected_oracle": "原官网入口必须可达且打开原合同URL；当前源码入口缺失，维持未验收",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -10114,11 +10252,11 @@
       "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "control": "button",
-      "action": "触发第 2 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "打开已启用OA应用",
+      "expected_oracle": "点击指定应用显示对应 applicationKey 的 OA 容器",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -10137,11 +10275,34 @@
       "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "control": "button",
-      "action": "触发第 3 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "返回OA应用列表",
+      "expected_oracle": "点击返回清除所选应用并显示应用列表",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:enterprise_oa:enterprise_workbench_page:004",
+      "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+      "control": "button",
+      "action": "打开OA联调应用页",
+      "expected_oracle": "联调入口进入 appsUrl 页面并按登记应用执行授权桥接",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -18256,11 +18417,11 @@
       "page": "lib/page/mine/appeal/appeal_page.dart",
       "route_or_entry": "AppealPage",
       "route_registered": true,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/mine/appeal/appeal_page.dart",
       "control": "button",
-      "action": "触发第 1 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "取消申诉提交",
+      "expected_oracle": "取消关闭提交对话框，不发起申诉请求",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -18279,11 +18440,11 @@
       "page": "lib/page/mine/appeal/appeal_page.dart",
       "route_or_entry": "AppealPage",
       "route_registered": true,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/mine/appeal/appeal_page.dart",
       "control": "button",
-      "action": "触发第 2 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "提交申诉",
+      "expected_oracle": "提交中禁用重复提交；成功后刷新申诉记录",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -18302,11 +18463,11 @@
       "page": "lib/page/mine/appeal/appeal_page.dart",
       "route_or_entry": "AppealPage",
       "route_registered": true,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/mine/appeal/appeal_page.dart",
       "control": "button",
-      "action": "触发第 3 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "申诉加载失败后重试",
+      "expected_oracle": "点击 NoDataView 重试调用 _load，恢复加载并显示响应结果",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -18325,11 +18486,11 @@
       "page": "lib/page/mine/appeal/appeal_page.dart",
       "route_or_entry": "AppealPage",
       "route_registered": true,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/mine/appeal/appeal_page.dart",
       "control": "button",
-      "action": "触发第 4 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "对处置记录发起申诉",
+      "expected_oracle": "点击处置记录的申诉入口打开该记录的提交对话框",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -25593,6 +25754,236 @@
       "page": "lib/modules/organization/presentation/human_directory_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "button",
+      "action": "切换企业目录",
+      "expected_oracle": "企业根入口打开企业切换器，切换后目录身份与数据一致",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:002",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "text_field",
+      "action": "搜索企业人员和部门",
+      "expected_oracle": "输入查询后显示当前企业内匹配结果",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:003",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "menu_item",
+      "action": "显示部门目录行",
+      "expected_oracle": "部门名称和成员数正确显示；点击进入该部门",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:004",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "button",
+      "action": "打开部门目录",
+      "expected_oracle": "点击部门行后下钻对应部门",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:005",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "menu_item",
+      "action": "显示企业成员行",
+      "expected_oracle": "显示成员名称和头像；点击打开该成员详情",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:006",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "button",
+      "action": "打开企业成员详情",
+      "expected_oracle": "成员详情身份与所点成员一致",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:007",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "button",
+      "action": "目录分区失败后重试",
+      "expected_oracle": "点击重试重新加载失败分区",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:008",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "menu_item",
+      "action": "显示未知类型搜索结果",
+      "expected_oracle": "未知类型按原类型文本显示，不生成可点击的虚假成员或部门",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:009",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "button",
+      "action": "邀请同事",
+      "expected_oracle": "点击邀请入口进入同一企业的邀请同事页面",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:human_directory_page:010",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "control": "button",
+      "action": "打开组织架构",
+      "expected_oracle": "企业根点击组织架构进入二级页，点击部门回到目录并下钻",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:001",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
       "control": "button",
       "action": "触发第 1 处 button 交互入口",
@@ -25612,13 +26003,13 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:002",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:002",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
-      "control": "text_field",
-      "action": "触发第 2 处 text_field 交互入口",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -25635,10 +26026,10 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:003",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:003",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
       "control": "menu_item",
       "action": "触发第 3 处 menu_item 交互入口",
@@ -25658,10 +26049,10 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:004",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:004",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
       "control": "button",
       "action": "触发第 4 处 button 交互入口",
@@ -25681,10 +26072,10 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:005",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:005",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
       "control": "menu_item",
       "action": "触发第 5 处 menu_item 交互入口",
@@ -25704,10 +26095,10 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:006",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:006",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
       "control": "button",
       "action": "触发第 6 处 button 交互入口",
@@ -25727,13 +26118,13 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:007",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:007",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 7 处 button 交互入口",
+      "control": "menu_item",
+      "action": "触发第 7 处 menu_item 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -25750,13 +26141,289 @@
       "exclusion_code": null
     },
     {
-      "function_id": "fn:organization:human_directory_page:008",
-      "page": "lib/modules/organization/presentation/human_directory_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "function_id": "fn:organization:org_invite_colleagues_page:008",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
       "source": "generated:module_page",
-      "control": "menu_item",
-      "action": "触发第 8 处 menu_item 交互入口",
+      "control": "button",
+      "action": "触发第 8 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:009",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 9 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:010",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 10 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:011",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 11 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:012",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 12 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:013",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 13 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:014",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 14 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:015",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 15 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:016",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 16 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:017",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 17 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:018",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 18 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:019",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 19 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:org_invite_colleagues_page:020",
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "route_or_entry": "OrgInviteColleaguesPage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 20 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -43414,6 +44081,75 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:workspace:workspace_conversations_page:003",
+      "page": "lib/page/workspace/workspace_conversations_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace:workspace_conversations_page:004",
+      "page": "lib/page/workspace/workspace_conversations_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace:workspace_conversations_page:005",
+      "page": "lib/page/workspace/workspace_conversations_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:workspace:workspace_create_page:001",
       "page": "lib/page/workspace/workspace_create_page.dart",
       "route_or_entry": "WorkspaceCreatePage",
@@ -45511,11 +46247,11 @@
       "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
       "control": "button",
-      "action": "触发第 1 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "OA应用目录加载失败后重试",
+      "expected_oracle": "点击重试使当前账号和企业的 oaWorkbenchEntriesProvider 失效并重新加载",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -45534,11 +46270,11 @@
       "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
       "control": "button",
-      "action": "触发第 2 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "打开企业组织管理",
+      "expected_oracle": "组织管理路由中的企业ID与当前企业一致",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -45557,11 +46293,57 @@
       "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
       "route_or_entry": "in_page_control",
       "route_registered": false,
-      "source": "generated:lib_page",
+      "source": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
       "control": "button",
-      "action": "触发第 3 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "action": "打开企业工作台资源入口",
+      "expected_oracle": "逐一点击当前可见的项目、群、频道和 Workspace 附件入口，进入相应资源页面并保持当前企业作用域；原群文件功能须按附件迁移关系独立复验",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace_shell:enterprise_shell_page:004",
+      "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
+      "control": "button",
+      "action": "企业通讯录顶栏邀请同事",
+      "expected_oracle": "点击邀请同事进入当前企业 invite_colleagues 路由，并传递企业名称",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace_shell:enterprise_shell_page:005",
+      "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
+      "control": "text_field",
+      "action": "搜索企业资源",
+      "expected_oracle": "查询仅过滤当前企业资源，清空后恢复当前企业完整资源",
+      "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
         "macos"
@@ -45659,7 +46441,7 @@
     {
       "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
       "module": "enterprise_oa",
-      "function_count": 3,
+      "function_count": 4,
       "route_registered": false,
       "has_ledger": false,
       "ledger_generated": false
@@ -45675,8 +46457,16 @@
     {
       "page": "lib/modules/organization/presentation/human_directory_page.dart",
       "module": "organization",
-      "function_count": 8,
+      "function_count": 10,
       "route_registered": false,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "module": "organization",
+      "function_count": 20,
+      "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
     },
@@ -45790,6 +46580,14 @@
       "function_count": 12,
       "route_registered": false,
       "has_ledger": true,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "module": "camera",
+      "function_count": 6,
+      "route_registered": false,
+      "has_ledger": false,
       "ledger_generated": false
     },
     {
@@ -47019,7 +47817,7 @@
     {
       "page": "lib/page/workspace/workspace_conversations_page.dart",
       "module": "workspace",
-      "function_count": 2,
+      "function_count": 5,
       "route_registered": false,
       "has_ledger": false,
       "ledger_generated": false
@@ -47091,7 +47889,7 @@
     {
       "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
       "module": "workspace_shell",
-      "function_count": 3,
+      "function_count": 5,
       "route_registered": false,
       "has_ledger": false,
       "ledger_generated": false

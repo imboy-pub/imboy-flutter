@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "28e52969063b776f71b7e587ff96ef524696e3b3",
-    "backend_head": "e55a19086238491bc891756e78fcb3e46d9e4aad",
-    "integration_test_count": 155,
-    "lib_page_count": 166,
-    "module_page_count": 22,
-    "route_page_component_count": 147,
+    "app_head": "8802e3839d8d32d9238b675f33b17f0a9fdd5a55",
+    "backend_head": "NOT_A_GIT_REPO",
+    "integration_test_count": 159,
+    "lib_page_count": 167,
+    "module_page_count": 23,
+    "route_page_component_count": 148,
     "spec_count": 28
   },
   "entries": [
@@ -1102,7 +1102,7 @@
     {
       "id": "test:integration_test/enterprise/enterprise_nav_perm_nonoa_macos_test.dart",
       "target": "integration_test/enterprise/enterprise_nav_perm_nonoa_macos_test.dart",
-      "target_sha256": "8d0d45d594d0bea9a805c608fd9d10f052d8a952124a7cbea483603cc2a6ceba",
+      "target_sha256": "55eacb5b32039fc5a27b9491178f611292028e4038ab0cd95af3d437bdbd24ce",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1158,7 +1158,7 @@
     {
       "id": "test:integration_test/enterprise/organization_chart_nonoa_macos_test.dart",
       "target": "integration_test/enterprise/organization_chart_nonoa_macos_test.dart",
-      "target_sha256": "cfd6173305244504f51c28ba47ca3f31420607ee2fed46af68a90f903cd93287",
+      "target_sha256": "1d7dd8c0511201b625002c3f9bae514d19584eb8410049f491921f3298556f94",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1505,6 +1505,48 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/micro_community_flow_test.dart",
+      "target": "integration_test/micro_community_flow_test.dart",
+      "target_sha256": "de28d64a03478ed08630ceb5eb52efc999b00bd809dd6d706e80f8783247cba0",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "micro_community_flow_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/micro_community_owned_android_negative_test.dart",
+      "target": "integration_test/micro_community_owned_android_negative_test.dart",
+      "target_sha256": "1837bfd207b750ea61c5c5ebac99d3aaf643347a39b21005ea5550622aec6a3a",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "micro_community_owned_android_negative_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/micro_community_owned_android_test.dart",
+      "target": "integration_test/micro_community_owned_android_test.dart",
+      "target_sha256": "31f5003232a080905ecaa7d1f863dceae373d9e461fe788814509ee3709c3c17",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "micro_community_owned_android_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": false
+    },
+    {
       "id": "test:integration_test/mine/account_security_lifecycle_test.dart",
       "target": "integration_test/mine/account_security_lifecycle_test.dart",
       "target_sha256": "67986e68d694896c6048b935ccc464861af7e9a8e34c538d2b8adb10013ea4d0",
@@ -1689,7 +1731,7 @@
     {
       "id": "test:integration_test/personal_info/personal_info_acceptance_test.dart",
       "target": "integration_test/personal_info/personal_info_acceptance_test.dart",
-      "target_sha256": "cb455ef39917b77514eda409b6968b3aa03e4c56aba554ab8b072a9ef0481aa5",
+      "target_sha256": "7471336feb0a33883967fde504b02e74b1057f4c0e5a10cc57cc9cb552f18d7e",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1972,6 +2014,20 @@
       "requirements": [],
       "tags": [
         "single"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/smoke/camera_capture_real_smoke_test.dart",
+      "target": "integration_test/smoke/camera_capture_real_smoke_test.dart",
+      "target_sha256": "be4c3e0ccdad57634bb3003cf1a1b0f905c9d3723dcf4976fbbdf50d5931d972",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "smoke"
       ],
       "enabled": false,
       "oracle_hint": true
@@ -2507,6 +2563,16 @@
       "details": ""
     },
     {
+      "page": "lib/modules/organization/presentation/org_invite_colleagues_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
       "page": "lib/modules/organization/presentation/org_invite_qr_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
@@ -2648,6 +2714,16 @@
       ],
       "route_registered": false,
       "in_spec_sources": true,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/camera/camera_capture_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
       "excluded": false,
       "exclusion_code": null,
       "details": ""

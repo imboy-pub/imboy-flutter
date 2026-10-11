@@ -14256,6 +14256,199 @@
           "details": ""
         }
       ]
+    },
+    {
+      "module": "enterprise_oa",
+      "ordering_key": "declaration:lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+      "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+      "generated": false,
+      "requirements": [
+        {
+          "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+          "action": "打开官方网站",
+          "control": "button",
+          "expected_oracle": "原官网入口必须可达且打开原合同URL；当前源码入口缺失，维持未验收",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+          "action": "打开已启用OA应用",
+          "control": "button",
+          "expected_oracle": "点击指定应用显示对应 applicationKey 的 OA 容器",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+          "action": "返回OA应用列表",
+          "control": "button",
+          "expected_oracle": "点击返回清除所选应用并显示应用列表",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+          "action": "打开OA联调应用页",
+          "control": "button",
+          "expected_oracle": "联调入口进入 appsUrl 页面并按登记应用执行授权桥接",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        }
+      ]
+    },
+    {
+      "module": "organization",
+      "ordering_key": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
+      "page": "lib/modules/organization/presentation/human_directory_page.dart",
+      "generated": false,
+      "requirements": [
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "切换企业目录",
+          "control": "button",
+          "expected_oracle": "企业根入口打开企业切换器，切换后目录身份与数据一致",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "搜索企业人员和部门",
+          "control": "text_field",
+          "expected_oracle": "输入查询后显示当前企业内匹配结果",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "显示部门目录行",
+          "control": "menu_item",
+          "expected_oracle": "部门名称和成员数正确显示；点击进入该部门",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "打开部门目录",
+          "control": "button",
+          "expected_oracle": "点击部门行后下钻对应部门",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "显示企业成员行",
+          "control": "menu_item",
+          "expected_oracle": "显示成员名称和头像；点击打开该成员详情",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "打开企业成员详情",
+          "control": "button",
+          "expected_oracle": "成员详情身份与所点成员一致",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "目录分区失败后重试",
+          "control": "button",
+          "expected_oracle": "点击重试重新加载失败分区",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "显示未知类型搜索结果",
+          "control": "menu_item",
+          "expected_oracle": "未知类型按原类型文本显示，不生成可点击的虚假成员或部门",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "邀请同事",
+          "control": "button",
+          "expected_oracle": "点击邀请入口进入同一企业的邀请同事页面",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/modules/organization/presentation/human_directory_page.dart",
+          "action": "打开组织架构",
+          "control": "button",
+          "expected_oracle": "企业根点击组织架构进入二级页，点击部门回到目录并下钻",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        }
+      ]
+    },
+    {
+      "module": "mine",
+      "ordering_key": "declaration:lib/page/mine/appeal/appeal_page.dart",
+      "page": "lib/page/mine/appeal/appeal_page.dart",
+      "generated": false,
+      "requirements": [
+        {
+          "page": "lib/page/mine/appeal/appeal_page.dart",
+          "action": "取消申诉提交",
+          "control": "button",
+          "expected_oracle": "取消关闭提交对话框，不发起申诉请求",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/mine/appeal/appeal_page.dart",
+          "action": "提交申诉",
+          "control": "button",
+          "expected_oracle": "提交中禁用重复提交；成功后刷新申诉记录",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/mine/appeal/appeal_page.dart",
+          "action": "申诉加载失败后重试",
+          "control": "button",
+          "expected_oracle": "点击 NoDataView 重试调用 _load，恢复加载并显示响应结果",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/mine/appeal/appeal_page.dart",
+          "action": "对处置记录发起申诉",
+          "control": "button",
+          "expected_oracle": "点击处置记录的申诉入口打开该记录的提交对话框",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        }
+      ]
+    },
+    {
+      "module": "workspace_shell",
+      "ordering_key": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
+      "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+      "generated": false,
+      "requirements": [
+        {
+          "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+          "action": "OA应用目录加载失败后重试",
+          "control": "button",
+          "expected_oracle": "点击重试使当前账号和企业的 oaWorkbenchEntriesProvider 失效并重新加载",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+          "action": "打开企业组织管理",
+          "control": "button",
+          "expected_oracle": "组织管理路由中的企业ID与当前企业一致",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+          "action": "打开企业工作台资源入口",
+          "control": "button",
+          "expected_oracle": "逐一点击当前可见的项目、群、频道和 Workspace 附件入口，进入相应资源页面并保持当前企业作用域；原群文件功能须按附件迁移关系独立复验",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+          "action": "企业通讯录顶栏邀请同事",
+          "control": "button",
+          "expected_oracle": "点击邀请同事进入当前企业 invite_colleagues 路由，并传递企业名称",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+          "action": "搜索企业资源",
+          "control": "text_field",
+          "expected_oracle": "查询仅过滤当前企业资源，清空后恢复当前企业完整资源",
+          "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        }
+      ]
     }
   ]
 }
