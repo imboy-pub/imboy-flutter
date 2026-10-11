@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -136,9 +137,13 @@ class TestCaptureScript(unittest.TestCase):
         module = load_capture_module()
         tmp_root_holder = {}
         events = iter([
-            '[AI_SCREENSHOT] first checkpoint\n',
-            'some log line\n',
-            '[AI_SCREENSHOT] second checkpoint\n',
+            json.dumps({'type': 'start'}) + '\n',
+            json.dumps({'type': 'testStart', 'test': {'id': 1, 'name': 'capture fixture'}}) + '\n',
+            json.dumps({'type': 'print', 'message': '[AI_SCREENSHOT] first checkpoint'}) + '\n',
+            json.dumps({'type': 'print', 'message': '[AI_SCREENSHOT] second checkpoint'}) + '\n',
+            json.dumps({'type': 'testDone', 'testID': 1, 'result': 'success',
+                        'hidden': False, 'skipped': False}) + '\n',
+            json.dumps({'type': 'done', 'success': True}) + '\n',
         ])
         env = {
             'IMBOY_APP_ENV': 'local',
@@ -174,13 +179,16 @@ class TestCaptureScript(unittest.TestCase):
                 'capture_integration_screenshots.py',
                 '--target', 'integration_test/unit_test/anon_test.dart',
                 '--device', 'anon-device',
-                '--output', tmp,
+                '--output', str(Path(tmp) / 'shots'),
                 '--hold-ms', '1500',
                 '--app-env', 'local',
             ]
             with unittest.mock.patch.object(module.sys, 'argv', argv_out), \
                  unittest.mock.patch.object(module, 'ROOT', tmp_root_holder['path']), \
                  unittest.mock.patch.dict(module.os.environ, env, clear=True), \
+                 unittest.mock.patch.object(module, 'discover_devices', return_value=(
+                     [{'id': 'anon-device', 'targetPlatform': 'android-arm',
+                       'isSupported': True, 'emulator': False}], None)), \
                  unittest.mock.patch.object(module.subprocess, 'Popen', return_value=FakeProcess()), \
                  unittest.mock.patch.object(module, 'capture_android', side_effect=fake_capture_android), \
                  unittest.mock.patch.object(module.subprocess, 'run') as fake_run:

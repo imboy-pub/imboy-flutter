@@ -188,6 +188,11 @@ def _valid_test_done(event: dict) -> bool:
     return event['result'] == 'success' and not event.get('skipped', False)
 
 
+def valid_event_protocol(lines: List[str]) -> bool:
+    """Public complete-run protocol gate shared by acceptance and capture."""
+    return _valid_event_protocol(lines)
+
+
 def _valid_event_protocol(lines: List[str]) -> bool:
     """Require one complete run and one completion for every started test."""
     try:

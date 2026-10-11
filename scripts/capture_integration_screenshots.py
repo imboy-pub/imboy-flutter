@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import shlex
@@ -21,8 +22,46 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'scripts'))
 from auto_test_lib.target_config import build_flutter_test_command, effective_target_config  # noqa: E402
+from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
+from auto_test_lib.acceptance import valid_event_protocol  # noqa: E402
+from auto_test import discover_devices, qualify_device  # noqa: E402
 
 MARKER = re.compile(r'\[AI_SCREENSHOT\]\s+(.+)$')
+
+
+def capture_exit_code(lines: list[str], process_code: int, captured: int) -> int:
+    """A zero exit alone cannot prove a finished, non-skipped capture journey."""
+    parsed = parse_machine_events(lines, process_code, None)
+    if parsed.test_status == 'FAIL':
+        return 1
+    if not valid_event_protocol(lines):
+        return 2
+    if process_code != 0 or parsed.test_status != 'PASS' or captured == 0:
+        return 2
+    return 0
+
+
+def screenshot_marker(line: str) -> re.Match[str] | None:
+    """Read screenshot names from machine print events, excluding JSON syntax."""
+    try:
+        event = json.loads(line)
+    except (ValueError, TypeError):
+        return None
+    if not isinstance(event, dict) or event.get('type') != 'print':
+        return None
+    message = event.get('message')
+    return MARKER.search(message) if isinstance(message, str) else None
+
+
+def capture_device_errors(device: str, platform: str) -> list[str]:
+    """The direct capture CLI must enforce the same physical-device gate."""
+    devices, error = discover_devices()
+    if error:
+        return [error]
+    qualified_platform, errors = qualify_device(device, devices)
+    if not errors and platform != qualified_platform:
+        errors = ['CAPTURE_PLATFORM_MISMATCH']
+    return errors
 
 
 def capture_android(device: str, destination: Path) -> bool:
@@ -56,7 +95,7 @@ def capture_ios(device: str, destination: Path) -> bool:
     return completed.returncode == 0 and destination.is_file() and destination.stat().st_size > 0
 
 
-def main() -> int:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--target', required=True, help='integration_test 下的测试文件')
     parser.add_argument('--device', required=True, help='真实 Android adb device ID')
@@ -70,6 +109,11 @@ def main() -> int:
         parser.error('--target 必须是存在的 integration_test 文件')
     if args.hold_ms < 1000:
         parser.error('--hold-ms 至少 1000，保证 ADB 有抓屏窗口')
+    return args
+
+
+def main() -> int:
+    args = parse_args()
     # preflight：在启动任何子进程前校验最终生效配置（远程/缺凭证/不一致一律 BLOCKED）
     env = dict(os.environ)
     env['IMBOY_APP_ENV'] = args.app_env
@@ -88,33 +132,46 @@ def main() -> int:
     if blocked:
         print(f'BLOCKED: {"; ".join(sorted(set(blocked)))}；不启动测试子进程。', file=sys.stderr)
         return 2
+    device_errors = capture_device_errors(args.device, args.platform)
+    if device_errors:
+        print(f'BLOCKED: {"; ".join(device_errors)}；不启动采集子进程。', file=sys.stderr)
+        return 2
     output = Path(args.output)
     output.mkdir(parents=True, exist_ok=True)
-    command = build_flutter_test_command(cfg)
+    if any(output.iterdir()):
+        print('BLOCKED: 截图输出目录必须为空，禁止复用历史采集证据。', file=sys.stderr)
+        return 2
+    return run_capture(cfg, args.device, args.platform, output)
+
+
+def run_capture(cfg, device: str, platform: str, output: Path) -> int:
+    command = build_flutter_test_command(cfg) + ['--machine']
     process = subprocess.Popen(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
     captured = 0
+    lines: list[str] = []
     assert process.stdout is not None
     for line in process.stdout:
+        lines.append(line)
         print(line, end='')
-        match = MARKER.search(line)
+        match = screenshot_marker(line)
         if not match:
             continue
         name = re.sub(r'[^A-Za-z0-9_.-]+', '_', match.group(1)).strip('_')
         destination = output / f'{captured + 1:02d}_{name}.png'
         try:
-            saved = capture_android(args.device, destination) if args.platform == 'android' else capture_ios(args.device, destination)
+            saved = capture_android(device, destination) if platform == 'android' else capture_ios(device, destination)
         except ValueError as exc:
             print(f'\nBLOCKED: {exc}', file=sys.stderr)
             process.terminate()
             return 2
         if not saved:
-            print(f'\nWARN: {args.platform} 截图失败: {name}', file=sys.stderr)
+            print(f'\nWARN: {platform} 截图失败: {name}', file=sys.stderr)
             continue
         captured += 1
         print(f'AI_SCREENSHOT_SAVED: {destination}')
     code = process.wait()
     print(f'截图数: {captured}')
-    return code
+    return capture_exit_code(lines, code, captured)
 
 
 if __name__ == '__main__':
