@@ -39,6 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          submodules: recursive
           fetch-depth: 0
 
       - name: Setup Flutter
@@ -88,6 +89,8 @@ jobs:
     needs: analyze
     steps:
       - uses: actions/checkout@v7
+        with:
+          submodules: recursive
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -137,6 +140,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          submodules: recursive
           fetch-depth: 0
 
       - name: Setup Flutter
