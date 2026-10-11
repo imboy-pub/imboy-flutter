@@ -1,3 +1,4 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -54,6 +55,7 @@ class MinePage extends ConsumerStatefulWidget {
 class _MinePageState extends ConsumerState<MinePage> {
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     // 响应式当前用户：资料变更（上传头像等）后即时重建
     final user = ref.watch(currentUserProvider);
     final brightness = Theme.of(context).brightness;

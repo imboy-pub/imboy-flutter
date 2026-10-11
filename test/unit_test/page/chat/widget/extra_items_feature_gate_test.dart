@@ -53,4 +53,34 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'mounted composer restores location and group tools after recovery',
+    (tester) async {
+      AppFeatureRegistry.replaceSnapshotForTest({});
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ExtraItems(type: 'C2G', options: const {'to': '3001'}),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text(t.groupSchedule.location), findsNothing);
+      expect(find.text(t.groupVote.title), findsNothing);
+      AppFeatureRegistry.replaceSnapshotForTest({
+        FeatureKeys.location: true,
+        FeatureKeys.groupVote: true,
+      });
+      await tester.pump();
+      expect(find.text(t.groupSchedule.location), findsOneWidget);
+      expect(find.text(t.groupVote.title), findsOneWidget);
+      expect(find.text(t.main.album), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

@@ -7,9 +7,28 @@ import 'package:imboy/service/storage.dart';
 import 'generated_product_features.dart';
 
 import 'feature_keys.dart';
+import 'feature_scope.dart';
+import 'scoped_preference_writer.dart';
 
 class AppFeatureRegistry {
   static Map<String, dynamic>? _cache;
+  static int _latestRequest = 0;
+  static final ValueNotifier<int> revision = ValueNotifier(0);
+
+  /// Accepted partial flags are useful, but cannot stop recovery retries.
+  static bool get isComplete =>
+      FeatureScope.key != null &&
+      compiledProductFeatures.every((key) => snapshot.containsKey(key));
+
+  static void configurationChanged() => revision.value++;
+
+  static void bindScope({required String endpoint, required String uid}) {
+    if (!FeatureScope.bind(endpoint: endpoint, uid: uid)) return;
+    _cache = normalizeFlags(
+      StorageService.getMap(FeatureScope.cacheKey(Keys.appFeatures)),
+    );
+    revision.value++;
+  }
 
   static const Map<String, String> _parentFeatures = {
     FeatureKeys.channelDiscover: FeatureKeys.channel,
@@ -30,33 +49,67 @@ class AppFeatureRegistry {
 
   static Map<String, dynamic> get snapshot {
     _cache ??= Map<String, dynamic>.from(
-      StorageService.getMap(Keys.appFeatures),
+      FeatureScope.key == null
+          ? const <String, dynamic>{}
+          : StorageService.getMap(FeatureScope.cacheKey(Keys.appFeatures)),
     );
     return _cache!;
   }
 
   static Future<void> clear() async {
+    FeatureScope.invalidate();
     _cache = {};
-    await StorageService.to.remove(Keys.appFeatures);
+    revision.value++;
+    if (FeatureScope.key != null) {
+      final key = FeatureScope.cacheKey(Keys.appFeatures);
+      await ScopedPreferenceWriter.write(
+        isCurrent: () => true,
+        operation: () async {
+          await StorageService.to.remove(key);
+        },
+      );
+    }
   }
 
-  static Future<void> refresh() async {
+  static Future<bool> refresh({
+    @visibleForTesting Future<Map<String, dynamic>?> Function()? fetch,
+  }) async {
+    final scope = FeatureScope.key;
+    final epoch = FeatureScope.epoch;
+    final request = ++_latestRequest;
+    bool current() =>
+        FeatureScope.matches(scope, epoch) && request == _latestRequest;
+    if (scope == null) return false;
     try {
-      final IMBoyHttpResponse response = await HttpClient.client.get(
-        API.appFeatures,
+      final raw = await (fetch ?? _fetchFlags)();
+      if (!current() || raw == null) return false;
+      final normalized = normalizeFlags(raw);
+      if (normalized.isEmpty || normalized.length != raw.length) return false;
+      final persisted = await ScopedPreferenceWriter.write(
+        isCurrent: current,
+        operation: () => StorageService.to.persistPreference(
+          () => StorageService.setMap(
+            FeatureScope.cacheKey(Keys.appFeatures, scope),
+            normalized,
+          ),
+        ),
       );
-      if (!response.ok || response.payload is! Map) {
-        return;
-      }
-
-      final normalized = normalizeFlags(
-        Map<String, dynamic>.from(response.payload as Map),
-      );
+      if (!persisted || !current()) return false;
       _cache = normalized;
-      await StorageService.setMap(Keys.appFeatures, normalized);
+      revision.value++;
+      return true;
     } catch (error) {
       debugPrint('[app_feature_registry] setMap error: $error');
+      return false;
     }
+  }
+
+  static Future<Map<String, dynamic>?> _fetchFlags() async {
+    final IMBoyHttpResponse response = await HttpClient.client.get(
+      API.appFeatures,
+    );
+    if (!response.ok || response.payload is! Map) return null;
+    return Map<String, dynamic>.from(response.payload as Map);
   }
 
   static bool isEnabled(String featureKey) {
@@ -97,11 +150,12 @@ class AppFeatureRegistry {
 
   static void replaceSnapshotForTest(Map<String, dynamic> raw) {
     _cache = Map<String, dynamic>.from(raw);
+    revision.value++;
   }
 
   static bool _readFlag(Map<String, dynamic> flags, String featureKey) {
     final value = _toBool(flags[featureKey]);
-    return value ?? true;
+    return value ?? featureKey == 'core';
   }
 
   static bool? _toBool(dynamic value) {

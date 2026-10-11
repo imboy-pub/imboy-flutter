@@ -1315,7 +1315,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => 'إنهاء التحديد';
 	@override String get groupAlbumPhotoOpenFailed => 'تعذّر فتح رابط الصورة';
 	@override String get groupAlbumPhotoNotFound => 'الصورة غير موجودة أو محذوفة';
-	@override String get groupAlbumPhotoOpenExternal => 'فتح خارجي';
+	@override String get groupAlbumPhotoOpenExternal => 'فتح داخل التطبيق';
 	@override String get groupAlbumPhotoCoverUpdated => 'تم تعيينها كغلاف للألبوم';
 	@override String get groupAlbumPhotoCoverFailed => 'تعذّر تعيين الغلاف، حاول لاحقاً';
 	@override String get groupAlbumPhotoNext => 'التالي';
@@ -4417,7 +4417,7 @@ extension on TranslationsArSa {
 			'common.groupAlbumPhotoExitSelection' => 'إنهاء التحديد',
 			'common.groupAlbumPhotoOpenFailed' => 'تعذّر فتح رابط الصورة',
 			'common.groupAlbumPhotoNotFound' => 'الصورة غير موجودة أو محذوفة',
-			'common.groupAlbumPhotoOpenExternal' => 'فتح خارجي',
+			'common.groupAlbumPhotoOpenExternal' => 'فتح داخل التطبيق',
 			'common.groupAlbumPhotoCoverUpdated' => 'تم تعيينها كغلاف للألبوم',
 			'common.groupAlbumPhotoCoverFailed' => 'تعذّر تعيين الغلاف، حاول لاحقاً',
 			'common.groupAlbumPhotoNext' => 'التالي',

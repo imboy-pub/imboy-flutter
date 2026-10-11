@@ -491,9 +491,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('外部打开'), 120);
+    await tester.scrollUntilVisible(find.text('应用内打开'), 120);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('外部打开'));
+    await tester.tap(find.text('应用内打开'));
     await tester.pump();
 
     expect(find.text('图片地址缺失，无法打开'), findsOneWidget);
@@ -531,9 +531,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('外部打开'), 120);
+    await tester.scrollUntilVisible(find.text('应用内打开'), 120);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('外部打开'));
+    await tester.tap(find.text('应用内打开'));
     await tester.pump();
 
     expect(find.text('图片地址无效'), findsOneWidget);

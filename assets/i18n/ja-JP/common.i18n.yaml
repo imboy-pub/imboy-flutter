@@ -576,7 +576,7 @@ groupAlbumPhotoBatchDeleteTooltip: 一括削除
 groupAlbumPhotoExitSelection: 選択を終了
 groupAlbumPhotoOpenFailed: 画像リンクを開けません
 groupAlbumPhotoNotFound: 画像が存在しないか、削除されています
-groupAlbumPhotoOpenExternal: 外部アプリで開く
+groupAlbumPhotoOpenExternal: アプリ内で開く
 groupAlbumPhotoCoverUpdated: アルバムの表紙に設定しました
 groupAlbumPhotoCoverFailed: 表紙の設定に失敗しました。後でもう一度お試しください
 groupAlbumPhotoNext: 次へ

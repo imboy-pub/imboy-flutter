@@ -109,6 +109,7 @@ GoRouter createAppRouter({
   String? pendingLocation;
   const loginLandings = {'/bottom_navigation', '/web_shell', '/chat_shell'};
   return GoRouter(
+    refreshListenable: AppFeatureRegistry.revision,
     navigatorKey: navigatorKeyOverride ?? navigatorKey,
     initialLocation: initialLocation,
     debugLogDiagnostics: kDebugMode, // 仅开发环境开启路由日志

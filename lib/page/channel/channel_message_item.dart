@@ -1063,7 +1063,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       AppLoading.showToast(context.t.chat.fileUrlInvalid);
       return;
     }
-    final opened = await SafeLauncher.safeLaunchUrl(parsed);
+    final opened = await SafeLauncher.safeLaunchUrl(parsed, context: context);
     if (!opened && mounted) {
       AppLoading.showToast(context.t.common.fileOpenFailed);
     }

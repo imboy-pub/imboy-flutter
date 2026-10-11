@@ -81,21 +81,21 @@ Widget channelMarkdownBody(
     data: data,
     selectable: selectable,
     styleSheet: channelMarkdownStyle(context),
-    onTapLink: (text, href, title) => _openLink(href),
+    onTapLink: (text, href, title) => _openLink(context, href),
     imageBuilder: _markdownImage,
   );
 }
 
-Future<void> _openLink(String? href) async {
+Future<void> _openLink(BuildContext context, String? href) async {
   if (href == null || href.isEmpty) return;
   final uri = Uri.tryParse(href);
   if (uri == null) {
-    iPrint('[channel_markdown] 无效链接: $href');
+    iPrint('[channel_markdown] 无效链接');
     return;
   }
-  final opened = await SafeLauncher.safeLaunchUrl(uri);
+  final opened = await SafeLauncher.safeLaunchUrl(uri, context: context);
   if (!opened) {
-    iPrint('[channel_markdown] 无法打开链接: $href');
+    iPrint('[channel_markdown] 无法打开链接');
   }
 }
 

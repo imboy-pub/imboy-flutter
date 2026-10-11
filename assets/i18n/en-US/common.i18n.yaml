@@ -578,7 +578,7 @@ groupAlbumPhotoBatchDeleteTooltip: Bulk delete
 groupAlbumPhotoExitSelection: Exit selection
 groupAlbumPhotoOpenFailed: Cannot open photo link
 groupAlbumPhotoNotFound: Photo not found or deleted
-groupAlbumPhotoOpenExternal: Open externally
+groupAlbumPhotoOpenExternal: Open in app
 groupAlbumPhotoCoverUpdated: Set as album cover
 groupAlbumPhotoCoverFailed: "Set cover failed, please try again"
 groupAlbumPhotoNext: Next

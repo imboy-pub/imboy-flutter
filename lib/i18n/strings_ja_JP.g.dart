@@ -1303,7 +1303,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => '選択を終了';
 	@override String get groupAlbumPhotoOpenFailed => '画像リンクを開けません';
 	@override String get groupAlbumPhotoNotFound => '画像が存在しないか、削除されています';
-	@override String get groupAlbumPhotoOpenExternal => '外部アプリで開く';
+	@override String get groupAlbumPhotoOpenExternal => 'アプリ内で開く';
 	@override String get groupAlbumPhotoCoverUpdated => 'アルバムの表紙に設定しました';
 	@override String get groupAlbumPhotoCoverFailed => '表紙の設定に失敗しました。後でもう一度お試しください';
 	@override String get groupAlbumPhotoNext => '次へ';
@@ -4405,7 +4405,7 @@ extension on TranslationsJaJp {
 			'common.groupAlbumPhotoExitSelection' => '選択を終了',
 			'common.groupAlbumPhotoOpenFailed' => '画像リンクを開けません',
 			'common.groupAlbumPhotoNotFound' => '画像が存在しないか、削除されています',
-			'common.groupAlbumPhotoOpenExternal' => '外部アプリで開く',
+			'common.groupAlbumPhotoOpenExternal' => 'アプリ内で開く',
 			'common.groupAlbumPhotoCoverUpdated' => 'アルバムの表紙に設定しました',
 			'common.groupAlbumPhotoCoverFailed' => '表紙の設定に失敗しました。後でもう一度お試しください',
 			'common.groupAlbumPhotoNext' => '次へ',

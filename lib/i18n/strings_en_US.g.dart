@@ -282,7 +282,7 @@ class _Translations$attachmentManager$en_US extends Translations$attachmentManag
 	@override String get personalBoundary => 'Local availability is not a cloud backup. Clearing cache keeps the message index; deleted chat history is not automatically restored. Encrypted content still requires available keys.';
 	@override String get groupSource => 'Group attachments';
 	@override String get enterpriseHint => 'Choose a group in the current workspace to browse its cloud files.';
-	@override String get enterpriseBoundary => 'Group files are not yet covered by enterprise retention governance. Long-term retention is not guaranteed.';
+	@override String get enterpriseBoundary => 'Attachments marked enterprise retained remain in enterprise cloud storage after local cache or chat history cleanup. Group and channel permissions still control access.';
 	@override String get searchHint => 'Search attachment names';
 	@override String get searchGroupsHint => 'Search groups';
 	@override String get emptyLocal => 'No locally viewable attachments';
@@ -304,6 +304,8 @@ class _Translations$attachmentManager$en_US extends Translations$attachmentManag
 	@override String get retryAction => 'Retry';
 	@override String get selectGroupTitle => 'Select a group';
 	@override String get selectChannelTitle => 'Select a channel';
+	@override String get enterpriseRetained => 'Enterprise retained';
+	@override String get enterpriseUnmanaged => 'Retention not registered';
 }
 
 // Path: billing
@@ -1352,7 +1354,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => 'Exit selection';
 	@override String get groupAlbumPhotoOpenFailed => 'Cannot open photo link';
 	@override String get groupAlbumPhotoNotFound => 'Photo not found or deleted';
-	@override String get groupAlbumPhotoOpenExternal => 'Open externally';
+	@override String get groupAlbumPhotoOpenExternal => 'Open in app';
 	@override String get groupAlbumPhotoCoverUpdated => 'Set as album cover';
 	@override String get groupAlbumPhotoCoverFailed => 'Set cover failed, please try again';
 	@override String get groupAlbumPhotoNext => 'Next';
@@ -3616,7 +3618,7 @@ extension on TranslationsEnUs {
 			'attachmentManager.personalBoundary' => 'Local availability is not a cloud backup. Clearing cache keeps the message index; deleted chat history is not automatically restored. Encrypted content still requires available keys.',
 			'attachmentManager.groupSource' => 'Group attachments',
 			'attachmentManager.enterpriseHint' => 'Choose a group in the current workspace to browse its cloud files.',
-			'attachmentManager.enterpriseBoundary' => 'Group files are not yet covered by enterprise retention governance. Long-term retention is not guaranteed.',
+			'attachmentManager.enterpriseBoundary' => 'Attachments marked enterprise retained remain in enterprise cloud storage after local cache or chat history cleanup. Group and channel permissions still control access.',
 			'attachmentManager.searchHint' => 'Search attachment names',
 			'attachmentManager.searchGroupsHint' => 'Search groups',
 			'attachmentManager.emptyLocal' => 'No locally viewable attachments',
@@ -3638,6 +3640,8 @@ extension on TranslationsEnUs {
 			'attachmentManager.retryAction' => 'Retry',
 			'attachmentManager.selectGroupTitle' => 'Select a group',
 			'attachmentManager.selectChannelTitle' => 'Select a channel',
+			'attachmentManager.enterpriseRetained' => 'Enterprise retained',
+			'attachmentManager.enterpriseUnmanaged' => 'Retention not registered',
 			'billing.title' => 'Subscriptions',
 			'billing.planPeriodMonthly' => 'Monthly',
 			'billing.planPeriodYearly' => 'Yearly',
@@ -3954,10 +3958,10 @@ extension on TranslationsEnUs {
 			'chat.userData' => 'User data',
 			'chat.video' => 'Video',
 			'chat.videoMessage' => '[Video]',
-			'chat.viewAttachments' => 'View attachments',
-			'chat.viewLargeImage' => 'View large image',
 			_ => null,
 		} ?? switch (path) {
+			'chat.viewAttachments' => 'View attachments',
+			'chat.viewLargeImage' => 'View large image',
 			'chat.voice' => 'Voice',
 			'chat.voiceMessage' => 'Voice message',
 			'chat.youWithdrewAMessage' => 'You recalled a message',
@@ -4468,10 +4472,10 @@ extension on TranslationsEnUs {
 			'common.backgroundTransparency' => 'Background Transparency',
 			'common.defaultBackground' => 'Default Background',
 			'common.solidColorBackground' => 'Solid Color Background',
-			'common.selectImageFailed' => 'Failed to select image',
-			'common.locationSelectNotImplemented' => 'Location selection feature not implemented',
 			_ => null,
 		} ?? switch (path) {
+			'common.selectImageFailed' => 'Failed to select image',
+			'common.locationSelectNotImplemented' => 'Location selection feature not implemented',
 			'common.selectLocationFailed' => 'Failed to select location',
 			'common.sendCardNotImplemented' => 'Card sending feature not implemented',
 			'common.voiceSendFailed' => 'Failed to send voice',
@@ -4645,7 +4649,7 @@ extension on TranslationsEnUs {
 			'common.groupAlbumPhotoExitSelection' => 'Exit selection',
 			'common.groupAlbumPhotoOpenFailed' => 'Cannot open photo link',
 			'common.groupAlbumPhotoNotFound' => 'Photo not found or deleted',
-			'common.groupAlbumPhotoOpenExternal' => 'Open externally',
+			'common.groupAlbumPhotoOpenExternal' => 'Open in app',
 			'common.groupAlbumPhotoCoverUpdated' => 'Set as album cover',
 			'common.groupAlbumPhotoCoverFailed' => 'Set cover failed, please try again',
 			'common.groupAlbumPhotoNext' => 'Next',
@@ -4982,10 +4986,10 @@ extension on TranslationsEnUs {
 			'common.voiceSttNotConfigured' => 'Voice-to-text is not configured yet',
 			'common.voiceSttPreviewTitle' => 'Voice-to-Text Preview',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Unsupported video format, the video could not be found',
-			'common.retry' => 'Retry',
-			'common.retrying' => 'Retrying…',
 			_ => null,
 		} ?? switch (path) {
+			'common.retry' => 'Retry',
+			'common.retrying' => 'Retrying…',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -5496,10 +5500,10 @@ extension on TranslationsEnUs {
 			'main.male' => 'Male',
 			'main.manage' => 'Manage',
 			'main.markStar' => 'Favorite',
-			'main.multiSelect' => 'Multi-select',
-			'main.myFavorites' => 'My favorites',
 			_ => null,
 		} ?? switch (path) {
+			'main.multiSelect' => 'Multi-select',
+			'main.myFavorites' => 'My favorites',
 			'main.myLive' => 'My live',
 			'main.name' => 'Name',
 			'main.numUnit' => ({required Object param}) => '${param} items',
@@ -6010,10 +6014,10 @@ extension on TranslationsEnUs {
 			'organization.hub.adminMembers' => 'Member governance',
 			'organization.hub.adminMembersDesc' => 'Roles · remove members',
 			'organization.hub.adminInvitations' => 'Invitation management',
-			'organization.hub.adminInvitationsDesc' => 'Create and revoke invitations',
-			'organization.hub.adminManage' => 'Organization admin',
 			_ => null,
 		} ?? switch (path) {
+			'organization.hub.adminInvitationsDesc' => 'Create and revoke invitations',
+			'organization.hub.adminManage' => 'Organization admin',
 			'organization.hub.adminManageDesc' => 'Workspaces · groups · channels',
 			'organization.hub.adminCsGovernance' => 'Support governance',
 			'organization.hub.adminCsGovernanceDesc' => 'Seat quota · seat suspend/resume',

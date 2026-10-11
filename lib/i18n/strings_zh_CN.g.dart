@@ -612,8 +612,8 @@ class Translations$attachmentManager$zh_CN {
 	/// zh-CN: '选择当前工作区内的群组查看云端文件。'
 	String get enterpriseHint => '选择当前工作区内的群组查看云端文件。';
 
-	/// zh-CN: '当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。'
-	String get enterpriseBoundary => '当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。';
+	/// zh-CN: '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。'
+	String get enterpriseBoundary => '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。';
 
 	/// zh-CN: '搜索附件名称'
 	String get searchHint => '搜索附件名称';
@@ -677,6 +677,12 @@ class Translations$attachmentManager$zh_CN {
 
 	/// zh-CN: '选择频道'
 	String get selectChannelTitle => '选择频道';
+
+	/// zh-CN: '企业留存'
+	String get enterpriseRetained => '企业留存';
+
+	/// zh-CN: '未纳入留存'
+	String get enterpriseUnmanaged => '未纳入留存';
 }
 
 // Path: billing
@@ -3777,8 +3783,8 @@ class Translations$common$zh_CN {
 	/// zh-CN: '图片不存在或已删除'
 	String get groupAlbumPhotoNotFound => '图片不存在或已删除';
 
-	/// zh-CN: '外部打开'
-	String get groupAlbumPhotoOpenExternal => '外部打开';
+	/// zh-CN: '应用内打开'
+	String get groupAlbumPhotoOpenExternal => '应用内打开';
 
 	/// zh-CN: '已设为相册封面'
 	String get groupAlbumPhotoCoverUpdated => '已设为相册封面';
@@ -9389,7 +9395,7 @@ extension on Translations {
 			'attachmentManager.personalBoundary' => '本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。',
 			'attachmentManager.groupSource' => '群组附件',
 			'attachmentManager.enterpriseHint' => '选择当前工作区内的群组查看云端文件。',
-			'attachmentManager.enterpriseBoundary' => '当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。',
+			'attachmentManager.enterpriseBoundary' => '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。',
 			'attachmentManager.searchHint' => '搜索附件名称',
 			'attachmentManager.searchGroupsHint' => '搜索群组',
 			'attachmentManager.emptyLocal' => '暂无本机可查看附件',
@@ -9411,6 +9417,8 @@ extension on Translations {
 			'attachmentManager.retryAction' => '重试',
 			'attachmentManager.selectGroupTitle' => '选择群组',
 			'attachmentManager.selectChannelTitle' => '选择频道',
+			'attachmentManager.enterpriseRetained' => '企业留存',
+			'attachmentManager.enterpriseUnmanaged' => '未纳入留存',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -9727,10 +9735,10 @@ extension on Translations {
 			'chat.send' => _root.common.buttonSend,
 			'chat.releaseConvertToText' => '松开 转文字',
 			'chat.voiceReleaseCancelSend' => '松开 取消发送',
-			'chat.voiceReleaseCancel' => '松开 取消',
-			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
 			_ => null,
 		} ?? switch (path) {
+			'chat.voiceReleaseCancel' => '松开 取消',
+			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
 			'chat.convertToText' => '转文字',
 			'chat.sending' => '正在发送...',
 			'chat.socialProfile' => '社交资料',
@@ -10241,10 +10249,10 @@ extension on Translations {
 			'common.avatarEditAvatar' => '编辑头像',
 			'common.backgroundUseCustomColor' => '使用自定义颜色',
 			'common.backgroundOnlySolidColor' => '仅适用于纯色背景',
-			'common.backgroundSelectColor' => '选择颜色',
-			'common.profileShareProfile' => '分享资料',
 			_ => null,
 		} ?? switch (path) {
+			'common.backgroundSelectColor' => '选择颜色',
+			'common.profileShareProfile' => '分享资料',
 			'common.tagClearAllConfirm' => '确定要清空所有标签吗？',
 			'common.tagClearAll' => '确认清空',
 			'common.audioPlayFailed' => '播放失败',
@@ -10434,7 +10442,7 @@ extension on Translations {
 			'common.groupAlbumPhotoExitSelection' => '退出选择',
 			'common.groupAlbumPhotoOpenFailed' => '无法打开图片链接',
 			'common.groupAlbumPhotoNotFound' => '图片不存在或已删除',
-			'common.groupAlbumPhotoOpenExternal' => '外部打开',
+			'common.groupAlbumPhotoOpenExternal' => '应用内打开',
 			'common.groupAlbumPhotoCoverUpdated' => '已设为相册封面',
 			'common.groupAlbumPhotoCoverFailed' => '设置封面失败，请稍后重试',
 			'common.groupAlbumPhotoNext' => '下一张',
@@ -10755,10 +10763,10 @@ extension on Translations {
 			'common.turnOnFlashlight' => '打开闪光灯',
 			'common.turnOffFlashlight' => '关闭闪光灯',
 			'common.pauseScan' => '暂停扫描',
-			'common.resumeScan' => '继续扫描',
-			'common.enterFullscreen' => '进入全屏',
 			_ => null,
 		} ?? switch (path) {
+			'common.resumeScan' => '继续扫描',
+			'common.enterFullscreen' => '进入全屏',
 			'common.exitFullscreen' => '退出全屏',
 			'common.me' => '我',
 			'common.justNow' => '刚刚',
@@ -11269,10 +11277,10 @@ extension on Translations {
 			'main.favorites' => '收藏',
 			'main.female' => '女',
 			'main.followSystem' => '跟随系统',
-			'main.frFr' => '法语（法国）',
-			'main.from' => '来自',
 			_ => null,
 		} ?? switch (path) {
+			'main.frFr' => '法语（法国）',
+			'main.from' => '来自',
 			'main.good' => '很棒',
 			'main.hangup' => '挂断',
 			'main.iAm' => '我是',
@@ -11783,10 +11791,10 @@ extension on Translations {
 			'organization.manage.archiveChannelTitle' => ({required Object name}) => '归档「${name}」？',
 			'organization.manage.archiveChannelBody' => '归档后频道退出公开面，成员不再看到；归档可恢复。',
 			'organization.manage.restoreChannel' => '恢复',
-			'organization.manage.archivedChannelSection' => '已归档频道',
-			'organization.contactEntry.browserEntry' => '进入通讯录',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.archivedChannelSection' => '已归档频道',
+			'organization.contactEntry.browserEntry' => '进入通讯录',
 			'organization.contactEntry.loadFailed' => '企业信息加载失败',
 			'organization.hub.sectionResources' => '企业资源',
 			'organization.hub.sectionAdmin' => '管理员区',

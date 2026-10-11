@@ -35,7 +35,7 @@ import 'package:imboy/store/repository/moment_notify_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/config/routes.dart';
 
-import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_read_sync_plan.dart';
@@ -435,7 +435,7 @@ class MessageS2CService {
           await _handleMomentAction(action, payloadMap);
           break;
         case 'manifest_updated':
-          await AppManifestService.refresh();
+          await RuntimeFeatureRecovery.refreshNow();
           break;
         default:
           break;

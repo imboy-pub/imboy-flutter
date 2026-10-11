@@ -28,7 +28,7 @@ import 'package:mime/mime.dart';
 import 'group_file_audio_preview_page.dart';
 import 'group_attachment_tile.dart';
 
-import 'package:url_launcher/url_launcher.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
 
 enum _MediaPreviewType { video, audio }
 
@@ -461,11 +461,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     if (GroupFilePage.openExternalForTest != null) {
       return GroupFilePage.openExternalForTest!(context, uri.toString());
     }
-    if (!await canLaunchUrl(uri)) {
-      return false;
-    }
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-    return true;
+    return SafeLauncher.safeLaunchUrl(uri, context: context);
   }
 
   Future<String?> _authorizeFileUrl(Map<String, dynamic> file) async {

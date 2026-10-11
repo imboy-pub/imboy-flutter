@@ -689,4 +689,28 @@ void main() {
     }
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'mounted enterprise workbench reacts to validated project flags',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
+      await StorageService.init();
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: false});
+      final api = _OaApi();
+      await _pump(tester, api);
+      api.pending['10']!.complete([]);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('工作台'));
+      await tester.pumpAndSettle();
+      expect(find.text(t.workspace.navProjects), findsNothing);
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: true});
+      await tester.pumpAndSettle();
+      expect(find.text(t.workspace.navProjects), findsOneWidget);
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: false});
+      await tester.pumpAndSettle();
+      expect(find.text(t.workspace.navProjects), findsNothing);
+      expect(find.text('工作台'), findsWidgets);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'dart:async';
 
 import 'package:azlistview/azlistview.dart';
@@ -398,6 +400,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<int>(featureRevisionProvider, (_, _) {
+      ref.read(contactProvider.notifier).refreshFeatureItems();
+    });
     final state = ref.watch(contactProvider);
     final brightness = Theme.of(context).brightness;
     final newFriendUnreadCount = ref.watch(newFriendRemindProvider).length;

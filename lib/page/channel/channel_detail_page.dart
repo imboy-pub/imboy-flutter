@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -130,6 +132,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final t = context.t;
     final state = ref.watch(channelDetailProvider);
     final channel = state.channel;

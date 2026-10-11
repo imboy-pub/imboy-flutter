@@ -1305,7 +1305,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => '退出選擇';
 	@override String get groupAlbumPhotoOpenFailed => '無法開啟圖片連結';
 	@override String get groupAlbumPhotoNotFound => '圖片不存在或已刪除';
-	@override String get groupAlbumPhotoOpenExternal => '外部開啟';
+	@override String get groupAlbumPhotoOpenExternal => '應用程式內開啟';
 	@override String get groupAlbumPhotoCoverUpdated => '已設為相簿封面';
 	@override String get groupAlbumPhotoCoverFailed => '設定封面失敗，請稍後重試';
 	@override String get groupAlbumPhotoNext => '下一張';
@@ -4408,7 +4408,7 @@ extension on TranslationsZhHant {
 			'common.groupAlbumPhotoExitSelection' => '退出選擇',
 			'common.groupAlbumPhotoOpenFailed' => '無法開啟圖片連結',
 			'common.groupAlbumPhotoNotFound' => '圖片不存在或已刪除',
-			'common.groupAlbumPhotoOpenExternal' => '外部開啟',
+			'common.groupAlbumPhotoOpenExternal' => '應用程式內開啟',
 			'common.groupAlbumPhotoCoverUpdated' => '已設為相簿封面',
 			'common.groupAlbumPhotoCoverFailed' => '設定封面失敗，請稍後重試',
 			'common.groupAlbumPhotoNext' => '下一張',

@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -114,6 +116,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
+    ref.watch(featureRevisionProvider);
     final allowSearch = ref.watch(allowSearchProvider);
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);

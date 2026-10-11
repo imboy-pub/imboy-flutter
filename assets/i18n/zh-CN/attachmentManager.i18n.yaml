@@ -12,7 +12,7 @@ personalHint: 按本机聊天记录查找附件，点按文件返回来源消息
 personalBoundary: 本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。
 groupSource: 群组附件
 enterpriseHint: 选择当前工作区内的群组查看云端文件。
-enterpriseBoundary: 当前群文件尚未接入企业附件留存治理，不能据此保证长期保留。
+enterpriseBoundary: 已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。
 searchHint: 搜索附件名称
 searchGroupsHint: 搜索群组
 emptyLocal: 暂无本机可查看附件
@@ -34,3 +34,5 @@ clearFiltersAction: 清除筛选
 retryAction: 重试
 selectGroupTitle: 选择群组
 selectChannelTitle: 选择频道
+enterpriseRetained: 企业留存
+enterpriseUnmanaged: 未纳入留存

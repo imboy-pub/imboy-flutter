@@ -120,7 +120,7 @@ ssh -p <SSH_PORT> root@<PROD_HOST> "docker exec prod_imboy_pg18 psql -U imboy_us
 
 ## 2. 换一个极光账号（JPush 推送 + JVerify 一键登录）
 
-> 现状提醒：JVerify（一键登录）已接线并实测通过；**JPush 后端从未集成**，换 AppKey 只影响客户端 SDK 初始化。
+> JVerify 一键登录和 JPush 推送是不同的服务合同。JPush 已有客户端接线与后端适配器；配置变更后仍须独立验证真实渠道。详见 [JPush 客户端集成](./reference/jpush-client-integration.md)。
 
 ### 第 1 步：极光开发者控制台
 
@@ -138,10 +138,9 @@ ssh -p <SSH_PORT> root@<PROD_HOST> "docker exec prod_imboy_pg18 psql -U imboy_us
 
    ```
    jpush.appKey=新AppKey
-   jpush.masterSecret=新MasterSecret
    ```
 
-2. `.env` 系列全部文件改：`JPUSH_APPKEY=新AppKey`
+2. 仅在目标构建环境配置 AppKey，并按交付渠道设置 `IMBOY_JPUSH_ENABLED`。MasterSecret 只留在服务端，不能进入客户端环境文件或安装包。
 3. 重新生成 + 构建：
 
    ```bash
@@ -173,9 +172,8 @@ openssl rsa -pubin -in login_rsa_pub.pem -outform DER | base64
 
 ### 第 4 步：验证
 
-- **JVerify**：真机退出登录 → 登录页点「本机号码一键登录」→ 能进 App = 通。
-  ✅ 服务端日志出现 jverify 验证成功记录。
-- **JPush**：目前仅客户端 SDK 初始化（可看启动日志无 1005/1011 报错）；推送收发需后端集成（未做）。
+- **JVerify**：在独立测试账号上验证 token 交换、会话建立及失败反馈；不能只用进入主页或一条日志证明服务端验证正确。
+- **JPush**：验证 RegistrationID 获取、后端注册、真实通知到达与点击路由；前台、后台和杀进程分别验证。启动日志没有 SDK 错误不等于推送成功。
 
 ### 常见坑
 

@@ -1,3 +1,5 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
@@ -82,14 +84,15 @@ Future<void> showE2EERecoveryGuide(
 ///
 /// 在 [kE2eeRecoveryNeededKey] 为真时常驻显示，填补"用户点了弹窗的『稍后』
 /// 后便再无提醒"的空窗：点击主体前往恢复中心，点 × 关闭则视为用户知悉。
-class E2EERecoveryBanner extends StatelessWidget {
+class E2EERecoveryBanner extends ConsumerWidget {
   const E2EERecoveryBanner({super.key, required this.onDismiss});
 
   /// 用户点击关闭（×）的回调——调用方负责清除 [kE2eeRecoveryNeededKey] 并刷新。
   final VoidCallback onDismiss;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(featureRevisionProvider);
     if (!AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) {
       return const SizedBox.shrink();
     }

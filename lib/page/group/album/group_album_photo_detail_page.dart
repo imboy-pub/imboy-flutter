@@ -9,11 +9,13 @@ import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/service/asset_url_resolver.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:imboy/component/helper/safe_launcher.dart';
 
 /// 群相册图片详情页
 class GroupAlbumPhotoDetailPage extends ConsumerStatefulWidget {
@@ -101,17 +103,29 @@ class _GroupAlbumPhotoDetailPageState
       AppLoading.showToast(t.group.groupAlbumPhotoUrlMissing);
       return;
     }
-    final uri = Uri.tryParse(url);
+    if (Uri.tryParse(url) == null) {
+      AppLoading.showToast(t.group.groupAlbumPhotoUrlInvalid);
+      return;
+    }
+    final owner = UserRepoLocal.to.currentUid;
+    String authorized;
+    try {
+      authorized = await AssetUrlResolver.instance.resolveForDisplay(url);
+    } catch (_) {
+      if (mounted) AppLoading.showToast(t.common.groupAlbumPhotoOpenFailed);
+      return;
+    }
+    if (!mounted || owner != UserRepoLocal.to.currentUid) return;
+    final uri = Uri.tryParse(authorized);
     if (uri == null) {
       AppLoading.showToast(t.group.groupAlbumPhotoUrlInvalid);
       return;
     }
-    if (!await canLaunchUrl(uri)) {
+    if (!await SafeLauncher.safeLaunchUrl(uri, context: context)) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupAlbumPhotoOpenFailed);
       return;
     }
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _deletePhoto() async {

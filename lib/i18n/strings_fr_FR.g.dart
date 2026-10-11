@@ -1306,7 +1306,7 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoExitSelection => 'Quitter la sélection';
 	@override String get groupAlbumPhotoOpenFailed => 'Impossible d\'ouvrir le lien de l\'image';
 	@override String get groupAlbumPhotoNotFound => 'Image introuvable ou supprimée';
-	@override String get groupAlbumPhotoOpenExternal => 'Ouvrir externe';
+	@override String get groupAlbumPhotoOpenExternal => 'Ouvrir dans l’application';
 	@override String get groupAlbumPhotoCoverUpdated => 'Couverture de l\'album définie';
 	@override String get groupAlbumPhotoCoverFailed => 'Échec de la couverture. Réessayez plus tard.';
 	@override String get groupAlbumPhotoNext => 'Suivant';
@@ -4408,7 +4408,7 @@ extension on TranslationsFrFr {
 			'common.groupAlbumPhotoExitSelection' => 'Quitter la sélection',
 			'common.groupAlbumPhotoOpenFailed' => 'Impossible d\'ouvrir le lien de l\'image',
 			'common.groupAlbumPhotoNotFound' => 'Image introuvable ou supprimée',
-			'common.groupAlbumPhotoOpenExternal' => 'Ouvrir externe',
+			'common.groupAlbumPhotoOpenExternal' => 'Ouvrir dans l’application',
 			'common.groupAlbumPhotoCoverUpdated' => 'Couverture de l\'album définie',
 			'common.groupAlbumPhotoCoverFailed' => 'Échec de la couverture. Réessayez plus tard.',
 			'common.groupAlbumPhotoNext' => 'Suivant',
