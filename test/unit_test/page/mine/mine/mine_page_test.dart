@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
@@ -142,6 +144,11 @@ void main() {
 
   setUp(() async {
     await _setUser();
+    // ccc47b60 scope 隔离后空 snapshot 使编译特性判 false，「我的频道」等
+    // flag 门控入口会消失；注入编译全集开启基线恢复既有契约。
+    AppFeatureRegistry.replaceSnapshotForTest({
+      for (final f in compiledProductFeatures) f: true,
+    });
   });
 
   tearDown(() async {

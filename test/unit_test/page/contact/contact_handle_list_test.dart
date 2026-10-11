@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/page/contact/contact/contact_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -21,6 +23,11 @@ void main() {
     // StorageService snapshot，测试环境必须先初始化。
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    // ccc47b60 scope 隔离后缺省 snapshot 为空，moment 等编译特性判 false，
+    // 顶部功能入口会被吞掉；显式开启编译全集恢复既有契约。
+    AppFeatureRegistry.replaceSnapshotForTest({
+      for (final f in compiledProductFeatures) f: true,
+    });
   });
 
   group('ContactNotifier.handleList', () {
