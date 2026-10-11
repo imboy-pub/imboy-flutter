@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show serviceContainer;
@@ -93,6 +94,12 @@ void main() {
       'user_id': '90001',
       'nickname': '矩阵测试用户',
     });
+
+    // ccc47b60 起 AppFeatureRegistry.snapshot 按账号 FeatureScope 隔离：
+    // scope 未绑定时 snapshot 为空表，e2ee 等编译特性缺省判 false（仅
+    // core 例外）→ 群详情 E2EE tile 整项隐藏，矩阵4 的三个用例失败。
+    // 矩阵4 的既有断言假设「编译集合内即远程可见」，显式注入远程快照。
+    AppFeatureRegistry.replaceSnapshotForTest({'e2ee': true});
 
     // --- flutter_secure_storage：GroupSessionService.isGroupE2EE 读此处 ---
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

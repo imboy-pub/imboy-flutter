@@ -63,6 +63,14 @@ Future<void> _pumpShell(
 }
 
 void main() {
+  // ccc47b60 起 AppFeatureRegistry.snapshot 按账号 FeatureScope 隔离：scope
+  // 未绑定时 snapshot 为空表，project 等编译特性缺省判 false（仅 core 例外）
+  // → 「遵循编译功能」的基线断言（compiled 含 project 即 findsWidgets）失败。
+  // 这些用例的语义是「远程全开、由编译集收口」，显式注入全开快照。
+  AppFeatureRegistry.replaceSnapshotForTest({
+    for (final feature in compiledProductFeatures) feature: true,
+  });
+
   testWidgets('移动端：底部导航遵循编译功能 + 顶栏 [切换 chip | 标题 | 头像]', (tester) async {
     final container = await _seededContainer();
     addTearDown(container.dispose);

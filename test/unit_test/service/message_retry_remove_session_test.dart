@@ -38,7 +38,20 @@ class _Database implements Database {
   Future<List<Map<String, Object?>>> rawQuery(
     String sql, [
     List<Object?>? arguments,
-  ]) async => [];
+  ]) async {
+    // 45019020 起 CryptoStore.confirmOutbox 先查 sqlite_master 里
+    // crypto_outbox 表是否存在（明文 ACK 跳过可选表确认）。探测是参数化
+    // SQL（表名在绑定参数里），mock 库需按参数应答该探测，ACK 移除才能
+    // 走到 UPDATE（confirmations 计数）。
+    if (sql.contains('sqlite_master') &&
+        arguments?.contains('crypto_outbox') == true) {
+      return [
+        <String, Object?>{'name': 'crypto_outbox'},
+      ];
+    }
+    return [];
+  }
+
   @override
   Future<List<Map<String, Object?>>> query(
     String table, {

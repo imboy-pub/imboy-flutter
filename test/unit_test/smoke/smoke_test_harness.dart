@@ -31,6 +31,7 @@ import 'package:imboy/page/contact/people_nearby/people_nearby_page.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/feature_scope.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/http/http_client.dart' as api;
@@ -57,19 +58,61 @@ void installSmokeHttpOverrides() {
 
 /// 在 setUp 中调用：mock 登录态 + 原生 channel。
 /// StorageService 已由 test/flutter_test_config.dart 全局初始化。
+/// 烟雾测试会话令牌钉：WebSocketService.openSocket → _getValidToken 在
+/// 惰性空存储下拿到空 token，走 _refreshAccessToken（mock HTTP 抛异常）
+/// → quitLoginAndNavigateToSignIn，把 /moment 等受守卫路由重定向回
+/// /bottom_navigation（route_smoke 5 例稳定复现）。这里在 prepare 阶段
+/// 覆盖 secure_storage handler，提供一枚远期过期的哑 JWT，使
+/// tokenExpired() 为 false、直接返回 token，不触发刷新/登出链。
+void pinSmokeSessionToken() {
+  const smokeJwt =
+      'eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9'
+      '.eyJzdWIiOiAic21va2VfdGVzdF91aWQiLCAiZXhwIjogOTk5OTk5OTk5OX0'
+      '.smoke_sig';
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(secureStorageChannel, (call) async {
+        switch (call.method) {
+          case 'read':
+            return switch (call.arguments['key'] as String?) {
+              'secure_token' || 'secure_refresh_token' => smokeJwt,
+              _ => null,
+            };
+          case 'readAll':
+            return const <String, String>{
+              'secure_token': smokeJwt,
+              'secure_refresh_token': smokeJwt,
+            };
+          case 'containsKey':
+            return true;
+          default:
+            return null;
+        }
+      });
+}
+
 Future<void> prepareSmokeEnv() async {
   mockSqfliteSqlcipher();
   pinInertSecureStorage();
+  pinSmokeSessionToken();
   if (!serviceContainer.isRegistered<api.HttpClient>()) {
     serviceContainer.put(api.HttpClient());
   }
   await StorageService.to.setString(Keys.currentUid, 'smoke_test_uid');
-  await StorageService.setMap(Keys.appManifest, {
-    'manifest_hash': productFeatureManifestHash,
-    'manifest_schema_version': productFeatureSchemaVersion,
-    'compiled_features': compiledProductFeatures.toList(),
-    'features': {'moment': true, 'location': true},
-    'app_entries': ['moment_tab', 'people_nearby_page'],
+  // FeatureScope 未绑定时 AppManifestService.loadFromCache 在 _checkScope
+  // 早退（_scope=null → manifest=null → RouteFeatureGuard 保守拦截受
+  // app_entries 守卫的 moment/people_nearby 路由）。绑定 smoke scope 后
+  // 按 scope cacheKey 写入再加载，守卫读到 entries 才放行。
+  FeatureScope.bind(endpoint: 'http://smoke.test', uid: 'smoke_test_uid');
+  await StorageService.setMap(FeatureScope.cacheKey(Keys.appManifest), {
+    // loadFromCache 读 envelope{body, etag} 两层结构
+    'body': {
+      'manifest_hash': productFeatureManifestHash,
+      'manifest_schema_version': productFeatureSchemaVersion,
+      'compiled_features': compiledProductFeatures.toList(),
+      'features': {'moment': true, 'location': true},
+      'app_entries': ['moment_tab', 'people_nearby_page'],
+    },
+    'etag': null,
   });
   AppManifestService.loadFromCache();
   AppFeatureRegistry.replaceSnapshotForTest({'moment': true, 'location': true});
