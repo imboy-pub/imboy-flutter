@@ -45,14 +45,17 @@ jobs:
 
       - name: Setup Dart
         # 生成器纯 dart:io 标准库（无 package: 依赖、无需 pub get、
-        # 无需 Flutter SDK），固定 3.8.0 对齐 pubspec sdk: ^3.8.0 下限
+        # 无需 Flutter SDK），使用满足项目 SDK 下限的 Dart 3.13.4
         uses: dart-lang/setup-dart@v1
         with:
-          sdk-version: '3.8.0'
+          sdk-version: '3.13.4'
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py --dart-only
 
       - name: Verify generated error_code.dart matches error_code.hrl
         # 退出码 0 = 生成物与真源一致；1 = 漂移（红门禁，无 continue-on-error）
-        run: dart run scripts/generate_error_code.dart --check --source=backend-imboy/include/error_code.hrl
+        run: dart scripts/generate_error_code.dart --check --source=backend-imboy/include/error_code.hrl
 
   # ----------------------------------------------------------------
   # CI-01：proto regen 漂移门（imboy.proto ↔ imboyapp 生成物）
@@ -84,7 +87,10 @@ jobs:
       - name: Setup Dart + protoc_plugin
         uses: dart-lang/setup-dart@v1
         with:
-          sdk-version: '3.8.0'
+          sdk-version: '3.13.4'
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py --dart-only
+
       - run: dart pub global activate protoc_plugin
 
       - name: Regen and verify no drift

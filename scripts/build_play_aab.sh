@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$ROOT_DIR/scripts/check_sdk_compatibility.py"
 BACKEND_ROOT="$(cd "$ROOT_DIR/../imboy" && pwd)"
 python3 "$BACKEND_ROOT/scripts/generate_product_features.py" \
   --check --require-profile full-selected || {

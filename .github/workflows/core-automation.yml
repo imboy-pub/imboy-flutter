@@ -65,6 +65,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
+
       - name: Get dependencies
         run: flutter pub get
 
@@ -100,6 +103,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
         run: flutter pub get

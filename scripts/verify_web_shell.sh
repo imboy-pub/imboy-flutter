@@ -23,6 +23,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+python3 "$PROJECT_DIR/scripts/check_sdk_compatibility.py"
 
 QUICK=false
 START_SERVER=true

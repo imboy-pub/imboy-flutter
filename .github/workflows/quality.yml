@@ -66,6 +66,9 @@ jobs:
       - name: Install sqlite3 for sqflite_common_ffi
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
 
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
+
       - name: Get dependencies
         run: flutter pub get
 
@@ -101,6 +104,9 @@ jobs:
           flutter-version: '3.47.5'
           channel: 'stable'
           cache: true
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
         run: flutter pub get

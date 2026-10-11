@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$ROOT_DIR/scripts/check_sdk_compatibility.py"
 BACKEND_ROOT="$(cd "$ROOT_DIR/../imboy" && pwd)"
 cd "$ROOT_DIR"
 

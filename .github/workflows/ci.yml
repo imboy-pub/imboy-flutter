@@ -37,6 +37,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
+
       - name: Get dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
@@ -122,6 +125,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
+
       - name: Get dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
@@ -160,6 +166,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
         run: |
@@ -213,6 +222,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
+
       - name: Get dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
@@ -264,6 +276,9 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
+
       - name: Get dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
@@ -302,6 +317,9 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
         run: |
@@ -347,6 +365,9 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
         run: |
@@ -408,6 +429,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+
+      - name: Verify SDK compatibility
+        run: python3 scripts/check_sdk_compatibility.py
 
       - name: Get dependencies
         run: |
