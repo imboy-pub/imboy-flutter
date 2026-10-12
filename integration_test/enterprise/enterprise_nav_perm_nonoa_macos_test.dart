@@ -152,6 +152,8 @@ void main() {
     final back2 = find.byType(GlassBackButton).hitTestable();
     await tester.tap(back2.first);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
+    // pop 过渡期 AbsorbPointer 仍在吸点击（r10 实证）：落定后再点结构区。
+    await tester.pump(const Duration(milliseconds: 500));
     await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 800));
