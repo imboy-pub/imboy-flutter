@@ -146,7 +146,8 @@ void main() {
     expect(find.text(_orgAName), findsNothing);
     // 互切检查不能代替上述重新读取（组织架构现为二级页：返回目录再进入；
     // pageBack() 不认 GlassBackButton，显式 tap）。
-    await tester.tap(find.byType(GlassBackButton));
+    final back2 = find.byType(GlassBackButton).hitTestable();
+    await tester.tap(back2.first);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
     await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
@@ -274,7 +275,8 @@ void main() {
       expect(find.text(_orgAOnlyDept), findsNothing);
       // 切回成员视图再回图：旧数据不因视图切换而复活（组织架构现为
       // 二级页：返回目录再进入；重进重新拉取，等待 403 落定再断言）。
-      await tester.tap(find.byType(GlassBackButton));
+      final back3 = find.byType(GlassBackButton).hitTestable();
+      await tester.tap(back3.first);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.tap(
         find.text(t.organization.directory.structureSection).last,
@@ -453,17 +455,23 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
   if (find.byKey(const Key('login_phone_input')).evaluate().isNotEmpty) {
     return; // 已在登录页（首段无需登出）
   }
-  // APP-M02 后企业壳整壳无账户入口（消息页为 embedded 无顶栏，退出收敛
-  // 我页→设置）：切回个人壳走 rail 底部账户 Sheet（r3 实证企业壳 0 widgets）。
+  // APP-M02 后企业壳整壳无账户入口（r3）；个人壳迁 ChatShellPage 形态后
+  // workspace-shell-account-entry 也不可命中（r5 实证，MinePage 在场）。
+  // 登出统一走：我 tab → 设置 → 退出登录 → 确认。
   if (enterpriseNavigation().evaluate().isNotEmpty) {
     await selectPersonal(tester);
   }
-  final entry = find.byKey(const ValueKey('workspace-shell-account-entry'));
-  await waitFor(tester, entry.hitTestable());
-  await tester.tap(entry);
-  await tester.pump(const Duration(milliseconds: 600));
-  final logout = find.text(t.account.logOut).hitTestable();
-  await waitFor(tester, logout);
+  final mine = personalTab('tab_mine');
+  await waitFor(tester, mine.hitTestable());
+  await tester.tap(mine);
+  final settingTile = find.descendant(
+    of: find.byType(MinePage),
+    matching: find.text(t.main.setting),
+  );
+  await waitFor(tester, settingTile.hitTestable());
+  await tester.tap(settingTile);
+  final logout = find.text(t.account.logOut);
+  await waitFor(tester, logout.hitTestable());
   await tester.tap(logout);
   await tester.pump(const Duration(milliseconds: 500));
   final dialogConfirm = find.byType(CupertinoAlertDialog);
@@ -475,13 +483,6 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
           matching: find.byType(CupertinoDialogAction),
         )
         .last,
-  );
-  await waitFor(
-    tester,
-    find.byWidgetPredicate(
-      (widget) =>
-          widget is WelcomePage || widget.key == const Key('login_phone_input'),
-    ),
   );
   await tester.pump(const Duration(milliseconds: 800));
 }
