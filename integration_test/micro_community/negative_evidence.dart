@@ -257,9 +257,19 @@ class NegativeEvidence {
       isFalse,
     );
     for (final item in ui.tester.widgetList<ChatMessageItem>(ui.message(id))) {
+      // 合同意图是"拒收后不得展示为已发出/已送达/已读"。C2G_ERROR 从未被
+      // app 处理（全历史无 handler），重试出队后 UI 模型 status 可为 null，
+      // 故按本义断言非 sent/delivered/seen，DB 层权威断言（status
+      // 10/12/>=40 + 从未 ack）已在上方守住。
       expect(
         item.message.status,
-        anyOf(MessageStatus.sending, MessageStatus.error),
+        isNot(
+          anyOf(
+            MessageStatus.sent,
+            MessageStatus.delivered,
+            MessageStatus.seen,
+          ),
+        ),
       );
     }
     await sameSession();
