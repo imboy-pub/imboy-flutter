@@ -27,6 +27,8 @@ import 'package:imboy/service/sqlite.dart' show SqliteService;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
+import 'package:imboy/modules/organization/presentation/human_directory_page.dart'
+    show OrganizationChartPage;
 import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -579,9 +581,13 @@ Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
-  // 组织架构为二级页（push 路由覆盖壳顶栏，switcher chip 不可见）：
-  // 在图页先显式返回目录，再找切换入口（r1 实证 0 widgets 根因）。
-  if (find.byKey(const ValueKey('org-chart-canvas')).evaluate().isNotEmpty) {
+  // 组织架构为二级页（push 路由覆盖壳顶栏；403 错误态无 canvas 但页仍在
+  // 栈上）：图页在场就先 GlassBackButton 回目录，再找切换入口。
+  for (
+    var i = 0;
+    i < 3 && find.byType(OrganizationChartPage).evaluate().isNotEmpty;
+    i++
+  ) {
     await tester.tap(find.byType(GlassBackButton));
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
   }
@@ -597,7 +603,12 @@ Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
   final mine = personalTab('tab_mine');
   await waitFor(tester, mine.hitTestable());
   await tester.tap(mine);
-  final switcher = find.text(t.organization.picker.switchEnterprise);
+  // 我页与（栈内残留的）企业选择页都会出现「切换企业」文案：按 MinePage
+  // 收窄（r4 实证 2 widgets 歧义）。
+  final switcher = find.descendant(
+    of: find.byType(MinePage),
+    matching: find.text(t.organization.picker.switchEnterprise),
+  );
   await waitFor(tester, switcher.hitTestable());
   await tester.tap(switcher);
 }
