@@ -26,7 +26,10 @@ import 'package:imboy/config/init.dart' show AppInitializer;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart'
+    show kOrganizationPickerPath;
 import 'package:imboy/modules/organization/presentation/human_directory_page.dart'
     show OrganizationChartPage;
 import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
@@ -603,7 +606,10 @@ Future<void> selectPersonal(WidgetTester tester) async {
     await tester.tap(back.first);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
   }
-  await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
+  // chip 在任意覆盖路由下不可命中（r6-r8 反复实证）：直接按路由打开
+  // 企业选择器，产物路径与 chip 一致（picker → personal entry）。
+  final navCtx = tester.element(find.byType(Navigator).first);
+  GoRouter.of(navCtx).push(kOrganizationPickerPath);
   final personal = find.byKey(const Key('org-picker-personal-entry'));
   await waitFor(tester, personal);
   await tester.tap(personal);
