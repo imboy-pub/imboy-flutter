@@ -110,7 +110,7 @@ void main() {
     // 回通讯录进图（为 A02 做数据在场）。
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text(_orgAName), findsWidgets, reason: '企业A根节点在场');
@@ -125,7 +125,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await tester.pump(const Duration(milliseconds: 900));
     // C 的图只有根节点（C 名称），A 的部门与 A 企业名不出现。
     expect(find.text(_orgCName), findsWidgets);
@@ -146,7 +146,7 @@ void main() {
     // pageBack() 不认 GlassBackButton，显式 tap）。
     await tester.tap(find.byType(GlassBackButton));
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 800));
     expect(find.text(_orgAOnlyDept), findsNothing);
@@ -243,7 +243,7 @@ void main() {
     }
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text(_orgAName), findsWidgets, reason: '撤权前图可读');
@@ -274,7 +274,9 @@ void main() {
       // 二级页：返回目录再进入；重进重新拉取，等待 403 落定再断言）。
       await tester.tap(find.byType(GlassBackButton));
       await tester.pump(const Duration(milliseconds: 500));
-      await tester.tap(find.text(t.organization.directory.structureSection));
+      await tester.tap(
+        find.text(t.organization.directory.structureSection).last,
+      );
       await waitForChartIdle(tester);
       expect(
         find.byKey(const ValueKey('org-chart-canvas')),
@@ -317,7 +319,7 @@ void main() {
     }
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await waitFor(tester, find.text('销售中心'));
     expect(find.text(_orgAName), findsWidgets);
@@ -462,7 +464,9 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
     await waitFor(tester, enterpriseNavigation());
     await tester.pump(const Duration(milliseconds: 600));
   }
-  await selectEnterpriseTab(tester, t.organization.directory.title);
+  // APP-M02 后企业壳通讯录顶栏为「邀请同事」，账户入口挂消息页顶栏 actions
+  // （workspace_conversations_page.dart:156）。
+  await selectEnterpriseTab(tester, t.chat.titleMessage);
   final entry = find.byKey(const ValueKey('workspace-shell-account-entry'));
   await waitFor(tester, entry.hitTestable());
   await tester.tap(entry);
