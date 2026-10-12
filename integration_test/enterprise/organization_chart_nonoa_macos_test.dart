@@ -37,6 +37,7 @@ import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
 import 'package:imboy/theme/default/font_types.dart' show FontSizeOption;
 
 import 'macos_storage_isolation.dart';
@@ -282,6 +283,10 @@ void main() {
 
     // ============================ N2-A02 ============================
     // A01 点图中部门已 pop 回目录页；重新进入组织架构二级页。
+    // 点图中部门会 pop 回传路径令目录页下钻（isRoot=false，架构入口行仅
+    // 根态展示）——先经面包屑回企业根再重进架构页。
+    await tester.tap(find.byKey(const ValueKey('org-directory-path-0')));
+    await tester.pump(const Duration(milliseconds: 400));
     await tester.tap(find.text(t.organization.directory.structureSection));
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 400));
@@ -462,6 +467,11 @@ void main() {
     await markShot(tester, 'n2_a04_wide_and_deep');
 
     // 空企业C：明确的空态，不出现图。
+    // A04 结束时仍在架构二级页（全屏路由盖住 shell 侧栏，切换器不可达）——
+    // 图页顶栏是 IosPageTemplate，返回键为自定义 GlassBackButton（非 SDK
+    // CupertinoNavigationBarBackButton）。先返回目录根，再切个人侧。
+    await tester.tap(find.byType(GlassBackButton));
+    await tester.pump(const Duration(milliseconds: 500));
     await selectPersonal(tester);
     await openPersonalEnterprisePicker(tester);
     final orgCTile = find.byKey(Key('org-picker-tile-${ids['orgC']}'));
