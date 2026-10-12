@@ -18,7 +18,7 @@ import 'package:imboy/modules/enterprise_oa/domain/oa_sso_issue.dart';
 import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 
 /// 签发出口签名（与 OaSsoIssueLauncher.launch 同构；生产传
-/// `ApiOaSsoIssueLauncher(organizationId: …).launch` 的 tear-off，
+/// `ApiOaSsoIssueLauncher().launch` 的 tear-off，
 /// 测试注入 fake——与 OaTabPage 的注入形态一致）。
 typedef OaBridgeIssueFn = Future<OaSsoIssueResult> Function({
   required String applicationKey,

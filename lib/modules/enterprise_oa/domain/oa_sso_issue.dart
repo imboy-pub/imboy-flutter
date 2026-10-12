@@ -20,8 +20,8 @@
 /// |---|---|---|
 /// | 网络不可达/超时 | network | error（可重试） |
 /// | 400 invalid_param | badRequest | error（配置/编程错误，仅日志） |
-/// | 403 forbidden（非 active 成员/无 mapping） | forbidden | error |
-/// | 404 not_found（key 不可解析/app 停用/org 非 active/多义） | notFound | error |
+/// | 403 forbidden（目标账号非 active 人类用户，免登 kill-switch） | forbidden | error |
+/// | 404 not_found（key 不可解析/应用停用/实例未登记应用） | notFound | error |
 /// | 500 | server | error |
 /// | 401（无/坏 Human JWT） | unauthorized | sessionExpired |
 ///

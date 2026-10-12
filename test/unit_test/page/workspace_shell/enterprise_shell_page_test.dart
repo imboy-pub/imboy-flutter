@@ -151,11 +151,28 @@ class _DirectoryTransport implements HttpClientAdapter {
 
 class _OaApi extends OaWorkbenchApi {
   final calls = <String>[];
-  final pending = <String, Completer<List<EnterpriseOaRuntimeConfig>>>{};
+  // initState watch + postFrame invalidate 会双触发请求：按队列缓存
+  // completer，completeFirst 消费最早一个（键控单 completer 会被二次
+  // complete 打爆）。
+  final pending = <String, List<Completer<List<EnterpriseOaRuntimeConfig>>>>{};
   @override
-  Future<List<EnterpriseOaRuntimeConfig>> entries(String organizationId) {
-    calls.add(organizationId);
-    return pending.putIfAbsent(organizationId, Completer.new).future;
+  Future<List<EnterpriseOaRuntimeConfig>> entries() {
+    calls.add('entries');
+    final c = Completer<List<EnterpriseOaRuntimeConfig>>();
+    pending.putIfAbsent('entries', () => []).add(c);
+    return c.future;
+  }
+
+  void completeFirst(List<EnterpriseOaRuntimeConfig> value) {
+    pending['entries']!.removeAt(0).complete(value);
+  }
+
+  void failFirst(Object error) {
+    pending['entries']!.removeAt(0).completeError(error);
+  }
+
+  void resetPending() {
+    pending['entries'] = [];
   }
 }
 
@@ -170,7 +187,7 @@ List<EnterpriseOaRuntimeConfig> _entries(String org) =>
           'redirect_uri': 'https://oa.example.com/$org',
         },
       ],
-    }, org);
+    });
 
 Future<ProviderContainer> _pump(
   WidgetTester tester,
@@ -304,7 +321,7 @@ void main() {
   testWidgets('工作区负责人保留企业管理入口', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.tap(find.text('我').last);
     await tester.pumpAndSettle();
     expect(find.text('企业管理'), findsOneWidget);
@@ -313,7 +330,7 @@ void main() {
   testWidgets('企业标签在重挂载后恢复，各企业的频道选择独立', (tester) async {
     final api = _OaApi();
     final container = await _pump(tester, api);
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.pumpAndSettle();
     await tester.tap(find.text('通讯录').last);
     await tester.pumpAndSettle();
@@ -341,7 +358,7 @@ void main() {
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
     shell.organization('20');
     await tester.pump();
-    api.pending['20']?.complete([]);
+    api.completeFirst([]);
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
     await tester.tap(find.text('频道').last);
@@ -387,7 +404,7 @@ void main() {
   testWidgets('恢复工作台先重新校验配置，撤权后保留空工作台', (tester) async {
     final api = _OaApi();
     final container = await _pump(tester, api);
-    api.pending['10']!.complete(_entries('10'));
+    api.completeFirst(_entries('10'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('工作台').last);
     await tester.pumpAndSettle();
@@ -406,7 +423,7 @@ void main() {
     await tester.pump();
     expect(find.text('合成办公 10'), findsNothing);
     expect(find.byType(OaTabPage), findsNothing);
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.pumpAndSettle();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(find.byType(EnterpriseWorkbenchPage), findsOneWidget);
@@ -417,7 +434,7 @@ void main() {
     testWidgets('无工作区企业 $mode 仍可从首页进入组织架构', (tester) async {
       final api = _OaApi();
       await _pump(tester, api, emptyMode: mode);
-      api.pending['10']?.complete([]);
+      api.completeFirst([]);
       await tester.pump();
       expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
       expect(
@@ -501,7 +518,7 @@ void main() {
   testWidgets('无 OA：四项导航默认消息，通讯录按需加载', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.pump();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(find.byType(WorkspaceConversationsPage), findsOneWidget);
@@ -531,7 +548,7 @@ void main() {
         GroupModel.fromJson({'id': 301, 'title': '合成资料群'}),
       ],
     );
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.pumpAndSettle();
     await tester.tap(find.text('工作台'));
     await tester.pumpAndSettle();
@@ -550,7 +567,7 @@ void main() {
   testWidgets('授权 OA 出现工作台，但未选应用前不创建 SSO 页面', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
-    api.pending['10']!.complete(_entries('10'));
+    api.completeFirst(_entries('10'));
     await tester.pump();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(find.byType(OaTabPage), findsNothing);
@@ -561,30 +578,35 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
-  testWidgets('企业切换销毁旧工作台，旧响应不能补回旧应用', (tester) async {
+  testWidgets('企业切换重建 shell 后配置仍是账号级结果，无按企业分叉的旧缓存（定位修订）', (tester) async {
     final api = _OaApi();
     final container = await _pump(tester, api);
+    api.completeFirst(_entries('10'));
+    await tester.pump();
+    await tester.pump();
     (container.read(workspaceShellProvider.notifier) as _Shell).organization(
       '20',
     );
     await tester.pump();
     await tester.pump();
-    api.pending['20']!.complete(_entries('20'));
-    await tester.pump();
-    api.pending['10']!.complete(_entries('10'));
-    await tester.pump();
+    // 切企业会重建 shell（保持各企业导航的既有机制），initState 的
+    // postFrame invalidate 重新拉取——发现键只绑 accountKey（组织是
+    // 业务对象不参与），不存在 (account, org) 分叉缓存，重建后由最新
+    // 请求结果驱动 UI。
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
+    api.completeFirst(_entries('10'));
+    await tester.pump();
     await tester.tap(find.text('工作台'));
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('合成办公 20'), findsOneWidget);
-    expect(find.text('合成办公 10'), findsNothing);
+    expect(find.text('合成办公 10'), findsOneWidget);
+    expect(find.text('合成办公 20'), findsNothing);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
   testWidgets('频道从消息内进入，不占企业底栏', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.pump();
     await tester.tap(find.text('频道'));
     await tester.pump(const Duration(milliseconds: 100));
@@ -595,17 +617,15 @@ void main() {
   testWidgets('企业配置读取失败有重试入口，旧工作台立即撤下', (tester) async {
     final api = _OaApi();
     final container = await _pump(tester, api);
-    api.pending['10']!.complete(_entries('10'));
+    api.completeFirst(_entries('10'));
     await tester.pump();
     await tester.tap(find.text('工作台'));
     await tester.pump();
     api.pending.remove('10');
-    container.invalidate(
-      oaWorkbenchEntriesProvider((accountKey: '1', organizationId: '10')),
-    );
+    container.invalidate(oaWorkbenchEntriesProvider('1'));
     await tester.pump();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
-    api.pending['10']!.completeError(StateError('synthetic denied'));
+    api.failFirst(StateError('synthetic denied'));
     await tester.pump();
     expect(find.text(t.enterpriseOa.actionRetry), findsOneWidget);
     expect(find.text('合成办公 10'), findsNothing);
@@ -660,7 +680,7 @@ void main() {
     });
     final api = _OaApi();
     await _pump(tester, api);
-    api.pending['10']!.complete([]);
+    api.completeFirst([]);
     await tester.pumpAndSettle();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     await tester.tap(find.text('工作台'));
@@ -698,7 +718,7 @@ void main() {
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: false});
       final api = _OaApi();
       await _pump(tester, api);
-      api.pending['10']!.complete([]);
+      api.completeFirst([]);
       await tester.pumpAndSettle();
       await tester.tap(find.text('工作台'));
       await tester.pumpAndSettle();

@@ -69,7 +69,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     _visited.add(_selected);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.invalidate(oaWorkbenchEntriesProvider(_scope));
+      ref.invalidate(oaWorkbenchEntriesProvider(widget.accountKey));
       setState(() => _configurationReady = true);
     });
   }
@@ -90,7 +90,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
             defaultTargetPlatform == TargetPlatform.iOS);
     if (!supported) return const AsyncData<List<EnterpriseOaRuntimeConfig>>([]);
     return _configurationReady
-        ? ref.watch(oaWorkbenchEntriesProvider(_scope))
+        ? ref.watch(oaWorkbenchEntriesProvider(widget.accountKey))
         : const AsyncLoading<List<EnterpriseOaRuntimeConfig>>();
   }
 
@@ -208,7 +208,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
             title: Text(t.enterpriseOa.statusErrorTitle),
             trailing: CupertinoButton(
               onPressed: () =>
-                  ref.invalidate(oaWorkbenchEntriesProvider(_scope)),
+                  ref.invalidate(oaWorkbenchEntriesProvider(widget.accountKey)),
               child: Text(t.enterpriseOa.actionRetry),
             ),
           ),

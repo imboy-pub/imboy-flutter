@@ -9,21 +9,33 @@ import 'package:imboy/modules/enterprise_oa/oa_workbench_provider.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
+/// 定位修订（2026-10-12）：发现键只有 accountKey（organization 不参与）。
 class _DelayedApi extends OaWorkbenchApi {
   final calls = <String>[];
   final pending = <String, Completer<List<EnterpriseOaRuntimeConfig>>>{};
   @override
-  Future<List<EnterpriseOaRuntimeConfig>> entries(String organizationId) {
-    calls.add(organizationId);
-    return pending.putIfAbsent(organizationId, Completer.new).future;
+  Future<List<EnterpriseOaRuntimeConfig>> entries() {
+    calls.add('entries');
+    return pending.putIfAbsent('entries', Completer.new).future;
   }
 }
 
+List<EnterpriseOaRuntimeConfig> result(String redirect) =>
+    parseOaWorkbenchEntries({
+      'entries': [
+        {
+          'kind': 'oa',
+          'organization_id': 10,
+          'application_key': 'shared-oa-key',
+          'redirect_uri': redirect,
+        },
+      ],
+    });
+
 void main() {
-  testWidgets('企业切换后旧配置结果不能替换当前企业', (tester) async {
+  testWidgets('账号切换后旧账号的配置结果不能回填', (tester) async {
     final api = _DelayedApi();
-    final user = UserModel(uid: 'account-a', account: 'synthetic-account');
-    Widget host(String orgId) => ProviderScope(
+    Widget host(UserModel? user) => ProviderScope(
       overrides: [
         currentUserProvider.overrideWithValue(user),
         oaWorkbenchApiProvider.overrideWithValue(api),
@@ -31,42 +43,26 @@ void main() {
       child: MaterialApp(
         home: Consumer(
           builder: (_, ref, _) {
-            final state = ref.watch(
-              oaWorkbenchEntriesProvider((
-                accountKey: 'account-a',
-                organizationId: orgId,
-              )),
-            );
+            final state = ref.watch(oaWorkbenchEntriesProvider('account-a'));
             return Text(state.value?.firstOrNull?.redirectUri ?? 'loading');
           },
         ),
       ),
     );
-    await tester.pumpWidget(host('10'));
+    final userA = UserModel(uid: 'account-a', account: 'synthetic-account');
+    final userB = UserModel(uid: 'account-b', account: 'synthetic-account');
+    await tester.pumpWidget(host(userA));
     await tester.pump();
-    await tester.pumpWidget(host('20'));
+    // 在途请求完成前账号切换：旧账号结果不得回填新账号的观察。
+    await tester.pumpWidget(host(userB));
     await tester.pump();
-    List<EnterpriseOaRuntimeConfig> result(int org) => parseOaWorkbenchEntries({
-      'entries': [
-        {
-          'kind': 'oa',
-          'organization_id': org,
-          'application_key': 'shared-oa-key',
-          'redirect_uri': 'https://oa.example.com/$org',
-        },
-      ],
-    }, '$org');
-    api.pending['20']!.complete(result(20));
+    api.pending['entries']!.complete(result('https://oa.example.com/a'));
     await tester.pumpAndSettle();
-    expect(find.text('https://oa.example.com/20'), findsOneWidget);
-    api.pending['10']!.complete(result(10));
-    await tester.pumpAndSettle();
-    expect(find.text('https://oa.example.com/20'), findsOneWidget);
-    expect(find.text('https://oa.example.com/10'), findsNothing);
-    expect(api.calls, ['10', '20']);
+    expect(find.text('https://oa.example.com/a'), findsNothing);
+    expect(api.calls, ['entries']);
   });
 
-  test('未登录或账号不匹配不读取企业配置', () async {
+  test('未登录或账号不匹配不读取配置', () async {
     final api = _DelayedApi();
     final container = ProviderContainer.test(
       overrides: [
@@ -74,10 +70,7 @@ void main() {
         oaWorkbenchApiProvider.overrideWithValue(api),
       ],
     );
-    final provider = oaWorkbenchEntriesProvider((
-      accountKey: 'account-a',
-      organizationId: '10',
-    ));
+    final provider = oaWorkbenchEntriesProvider('account-a');
     final sub = container.listen(provider, (_, _) {});
     addTearDown(sub.close);
     expect(await container.read(provider.future), isEmpty);

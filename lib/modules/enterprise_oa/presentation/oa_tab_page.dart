@@ -49,10 +49,10 @@ abstract interface class OaSsoIssueLauncher {
 }
 
 /// 生产签发出口：OaSsoApi 直连。
+/// 定位修订（2026-10-12）：organization 不再是授权参数，签发请求不携带
+/// 企业字段（application_key 实例内全局唯一）。
 class ApiOaSsoIssueLauncher implements OaSsoIssueLauncher {
-  ApiOaSsoIssueLauncher({this.organizationId});
-
-  final EntityId? organizationId;
+  ApiOaSsoIssueLauncher();
 
   final OaSsoApi _api = OaSsoApi();
 
@@ -66,7 +66,6 @@ class ApiOaSsoIssueLauncher implements OaSsoIssueLauncher {
       applicationKey: applicationKey,
       redirectUri: redirectUri,
       nonce: nonce,
-      organizationId: organizationId,
     );
   }
 }
@@ -245,8 +244,7 @@ class _OaTabPageState extends State<OaTabPage>
 
     final String nonce = widget.nonceGenerator?.call() ?? generateOaSsoNonce();
     final OaSsoIssueResult result =
-        await (widget.ssoLauncher ??
-                ApiOaSsoIssueLauncher(organizationId: widget.organizationId))
+        await (widget.ssoLauncher ?? ApiOaSsoIssueLauncher())
             .launch(
               applicationKey: _config.applicationKey,
               redirectUri: _config.redirectUri,

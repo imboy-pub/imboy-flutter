@@ -183,7 +183,7 @@ void main() {
       });
     }
 
-    test('配置发现实际请求携带当前企业且过滤响应中的其他企业', () async {
+    test('配置发现实例级返回全部条目（定位修订：不再按企业过滤/传参）', () async {
       final adapter = _RecordingAdapter(
         200,
         okEnvelope(
@@ -206,15 +206,17 @@ void main() {
         ),
       );
       await prepareEnv(adapter);
-      final configs = await OaWorkbenchApi().entries('10');
+      final configs = await OaWorkbenchApi().entries();
       expect(adapter.requests.single.$1, 'GET');
       expect(adapter.requests.single.$2, '/api/v1/workbench/entries');
-      expect(adapter.queries.single, 'organization_id=10');
-      expect(configs, hasLength(1));
-      expect(configs.single.redirectUri, 'https://oa.example.com/a');
+      expect(adapter.queries.single, '');
+      expect(adapter.queries.single, isNot(contains('organization_id')));
+      expect(configs, hasLength(2));
+      expect(configs.first.redirectUri, 'https://oa.example.com/a');
+      expect(configs.last.redirectUri, 'https://oa.example.com/b');
     });
 
-    test('生产 launcher 将企业 ID 无损编码为 JSON integer', () async {
+    test('签发请求体不含 organization_id（定位修订：仅三字段）', () async {
       final adapter = _RecordingAdapter(
         200,
         okEnvelope(
@@ -226,50 +228,18 @@ void main() {
         ),
       );
       await prepareEnv(adapter);
-      final result =
-          await ApiOaSsoIssueLauncher(organizationId: '9223372036854775807')
-              .launch(
-                applicationKey: 'ak_gz_customer_01',
-                redirectUri: 'https://oa.example.com/landing',
-                nonce: 'nonce-0123456789abcdef',
-              );
+      final result = await ApiOaSsoIssueLauncher().launch(
+        applicationKey: 'ak_gz_customer_01',
+        redirectUri: 'https://oa.example.com/landing',
+        nonce: 'nonce-0123456789abcdef',
+      );
       expect(result, isA<OaSsoCodeIssued>());
       expect(adapter.requests, hasLength(1));
-      expect(
-        adapter.wireBodies.single,
-        contains('"organization_id":9223372036854775807,'),
-      );
+      expect(adapter.wireBodies.single, isNot(contains('organization_id')));
       expect(
         adapter.wireBodies.single,
         contains('"nonce":"nonce-0123456789abcdef"'),
       );
-    });
-
-    test('非法企业 ID 在网络请求前拒绝', () async {
-      final adapter = _RecordingAdapter(200, okEnvelope());
-      await prepareEnv(adapter);
-      final api = OaSsoApi();
-      for (final id in [
-        '',
-        '0',
-        '-1',
-        '01',
-        '1.0',
-        '9223372036854775808',
-        '1,"x":2',
-      ]) {
-        final result = await api.issueCode(
-          applicationKey: 'ak_gz_customer_01',
-          redirectUri: 'https://oa.example.com/landing',
-          nonce: 'nonce-0123456789abcdef',
-          organizationId: id,
-        );
-        expect(
-          (result as OaSsoIssueFailed).kind,
-          OaSsoIssueFailureKind.badRequest,
-        );
-      }
-      expect(adapter.requests, isEmpty);
     });
 
     test('POST /api/v1/oa/sso/code，body 仅三字段且无 secret', () async {

@@ -42,15 +42,13 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
     }
   }
 
-  /// 桥 getAuthCode 注入实现：用当前企业上下文与已登记 OA 应用按需签发
-  /// 一次性 code（仅 H5 主动调用时发生；打开页面不预取）。组织/应用在
-  /// 调用时现读 `widget`（State.widget 恒指向最新配置），无过期闭包捕获，
-  /// 取码始终使用当时登录身份对应的企业上下文。
+  /// 桥 getAuthCode 注入实现：用实例内已登记 OA 应用按需签发一次性
+  /// code（仅 H5 主动调用时发生；打开页面不预取）。定位修订（2026-10-12）：
+  /// organization 不参与授权，签发不携带企业字段。应用在调用时现读
+  /// `widget`（State.widget 恒指向最新配置），无过期闭包捕获。
   Future<ImboyBridgeAuthCode> _issueBridgeAuthCode(String? applicationKey) {
-    return OaBridgeAuthCodeService(
-      issue: ApiOaSsoIssueLauncher(organizationId: widget.organizationId)
-          .launch,
-    ).getAuthCode(entries: widget.entries, applicationKey: applicationKey);
+    return OaBridgeAuthCodeService(issue: ApiOaSsoIssueLauncher().launch)
+        .getAuthCode(entries: widget.entries, applicationKey: applicationKey);
   }
 
   Future<void> _openApps() async {

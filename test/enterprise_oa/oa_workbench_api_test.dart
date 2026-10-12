@@ -10,20 +10,21 @@ void main() {
     'label': '办公',
     'redirect_uri': redirect,
   };
-  test('配置只来自当前企业；HTTPS 同源配置复用现有模型', () {
+  test('实例级返回全部条目（定位修订：organization 不参与过滤）；HTTPS 同源配置复用现有模型', () {
     final configs = parseOaWorkbenchEntries({
       'entries': [
         entry(10, 'https://oa.example.com/a'),
         entry(20, 'https://oa.example.com/b'),
       ],
-    }, '10');
-    expect(configs, hasLength(1));
-    expect(configs.single.redirectUri, 'https://oa.example.com/a');
-    expect(configs.single.brand.oaOrigin, 'https://oa.example.com');
-    expect(configs.single.runtimeEntryEnabled, isTrue);
-    expect(configs.single.oaTabLabel, '办公');
+    });
+    expect(configs, hasLength(2));
+    expect(configs.first.redirectUri, 'https://oa.example.com/a');
+    expect(configs.first.brand.oaOrigin, 'https://oa.example.com');
+    expect(configs.first.runtimeEntryEnabled, isTrue);
+    expect(configs.first.oaTabLabel, '办公');
+    expect(configs.last.redirectUri, 'https://oa.example.com/b');
   });
-  test('坏条目和无企业配置不能打开 OA', () {
+  test('坏条目不能打开 OA（形态校验保留）', () {
     for (final redirect in [
       'http://oa.example.com/a',
       'javascript:alert(1)',
@@ -33,20 +34,14 @@ void main() {
       expect(
         parseOaWorkbenchEntries({
           'entries': [entry(10, redirect)],
-        }, '10'),
+        }),
         isEmpty,
       );
     }
     expect(
       parseOaWorkbenchEntries({
         'entries': [null, <String, dynamic>{}],
-      }, '10'),
-      isEmpty,
-    );
-    expect(
-      parseOaWorkbenchEntries({
-        'entries': [entry(10, 'https://oa.example.com/a')],
-      }, ''),
+      }),
       isEmpty,
     );
   });
@@ -57,7 +52,7 @@ void main() {
           25,
           (_) => entry(10, 'https://oa.example.com/a'),
         ),
-      }, '10'),
+      }),
       hasLength(20),
     );
   });

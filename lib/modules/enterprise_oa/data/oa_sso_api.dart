@@ -1,4 +1,4 @@
-/// OA SSO code 签发 API 客户端（EPGZ-06 W3 / plan §7.2）。
+/// OA SSO 签发 API 客户端（EPGZ-06 W3 / plan §7.2；2026-10-12 定位修订 M3）。
 ///
 /// `POST /api/v1/oa/sso/code`（Human JWT 走既有认证基建——HttpClient
 /// 默认注入 token/refresh/401 重登录链路，本模块零额外认证代码）。
@@ -8,18 +8,16 @@
 /// 直测映射矩阵，也可经 [HttpClient.adapterForTest] 捕获真实请求。
 ///
 /// 秘密边界：请求体只有 application_key（应用标识，非 secret）、
-/// redirect_uri、nonce，以及当前宿主的 organization_id；一次性 code
-/// 只在内存中流转，不落盘。无宿主的旧客户端可省略企业字段。
+/// redirect_uri、nonce；一次性 code 只在内存中流转，不落盘。
+/// 定位修订（organization 是业务对象，非租户）：application_key 实例内
+/// 全局唯一，请求不再携带 organization_id（服务端兼容期容忍并忽略）。
 library;
-
-import 'dart:convert';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_exceptions.dart'
     show NetworkException;
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/modules/enterprise_oa/domain/oa_sso_issue.dart';
-import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 /// 签发端点（模块自有路径，A5 合同冻结）。
 const String oaSsoCodePath = '/api/v1/oa/sso/code';
@@ -95,26 +93,15 @@ class OaSsoApi extends HttpClient {
     required String applicationKey,
     required String redirectUri,
     required String nonce,
-    EntityId? organizationId,
   }) async {
-    final body = <String, dynamic>{
-      'application_key': applicationKey,
-      'redirect_uri': redirectUri,
-      'nonce': nonce,
-    };
-    Object data = body;
-    if (organizationId != null) {
-      final id = BigInt.tryParse(organizationId);
-      if (!RegExp(r'^[1-9][0-9]{0,18}$').hasMatch(organizationId) ||
-          id == null ||
-          id > BigInt.parse('9223372036854775807')) {
-        return const OaSsoIssueFailed(OaSsoIssueFailureKind.badRequest);
-      }
-      // 保持 EntityId 字符串，直接编码 JSON integer，避免 Web number 丢精度。
-      data =
-          '{"organization_id":$organizationId,${jsonEncode(body).substring(1)}';
-    }
-    final IMBoyHttpResponse resp = await post(oaSsoCodePath, data: data);
+    final resp = await post(
+      oaSsoCodePath,
+      data: {
+        'application_key': applicationKey,
+        'redirect_uri': redirectUri,
+        'nonce': nonce,
+      },
+    );
     return parseOaSsoIssueResponse(resp, fallbackRedirectUri: redirectUri);
   }
 }
