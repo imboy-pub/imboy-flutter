@@ -3,9 +3,10 @@
 /// 把 H5 经 imboyJSBridge 的 `getAuthCode` 请求接到既有 OA SSO 签发链路
 /// （`POST /api/v1/oa/sso/code`，Human JWT 由 HttpClient 认证基建注入）：
 /// - 应用裁决：H5 可选传 `application_key`（公开标识，等同 OAuth
-///   client_id）；未传且当前企业恰有一个已登记 OA 应用时用它；多候选回
-///   `ambiguous_application`，无候选回 `app_not_configured`。用户/企业
-///   身份不来自 H5——后端按 JWT 校验 active member 与 identity mapping。
+///   client_id）；未传且当前部署实例恰有一个已登记 OA 应用时用它；多候选回
+///   `ambiguous_application`，无候选回 `app_not_configured`。用户身份
+///   不来自 H5——后端按 JWT 校验；identity mapping 可选，未登记回退
+///   `user_id` 字符串（ADR 2026-10-12：授权边界为部署实例）。
 /// - nonce：复用 domain/oa_sso_issue.dart 的 CSPRNG 生成（即 OA 侧
 ///   state 原值；INT-14 exchange 的绑定校验必需回传，故随 code 交还 H5）。
 /// - 秘密边界：只回一次性 code 信封（code/state/expires_in/redirect_uri/
