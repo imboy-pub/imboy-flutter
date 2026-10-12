@@ -105,7 +105,14 @@ void main() {
       ),
     );
     if (find.byType(WelcomePage).evaluate().isNotEmpty) {
-      await tester.tap(find.text(t.welcome.skip));
+      // 真机 r1 实证：启动动画未落定时直 tap 会 miss（落在插图上）且与
+      // route 过渡竞态触发 LiveTest 指针断言；先 settle 再 tap hit-testable。
+      await tester.pump(const Duration(milliseconds: 900));
+      final skip = find.text(t.welcome.skip).hitTestable();
+      if (skip.evaluate().isNotEmpty) {
+        await tester.tap(skip);
+        await tester.pump(const Duration(milliseconds: 700));
+      }
     }
     await waitFor(tester, find.byKey(const Key('login_phone_input')));
     expect(find.byType(InitErrorPage), findsNothing);
