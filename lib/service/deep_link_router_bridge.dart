@@ -21,7 +21,7 @@ class DeepLinkRouterBridge {
     try {
       final link = await _channel.invokeMethod<String>('getInitialLink');
       if (link != null && link.isNotEmpty) {
-        _navigate(router, link);
+        await _navigate(router, link);
       }
     } on MissingPluginException {
       // 原生侧未注册（旧构建/非 Android 壳）：no-op。
@@ -37,7 +37,7 @@ class DeepLinkRouterBridge {
       if (call.method == 'onDeepLink') {
         final link = call.arguments;
         if (link is String && link.isNotEmpty) {
-          _navigate(router, link);
+          await _navigate(router, link);
         }
       }
       return null;
@@ -48,7 +48,7 @@ class DeepLinkRouterBridge {
   ///
   /// 仅接受 `/` 开头的相对路径（host 部分丢弃），拒绝 `//`（协议相对）
   /// 与非路径形态，避免把外部输入直接当绝对 URL 导航。
-  static void _navigate(GoRouter router, String link) {
+  static Future<void> _navigate(GoRouter router, String link) async {
     Uri? uri;
     try {
       uri = Uri.parse(link);
@@ -67,7 +67,15 @@ class DeepLinkRouterBridge {
     }
     final location = uri.hasQuery ? '$path?${uri.query}' : path;
     _debugLog('navigating to $location');
-    router.go(location);
+    // push 而非 go：深链内容页要叠在当前栈上（GlassBackButton 依赖
+    // Navigator.canPop；go 重置整栈会让深链页成根路由，页内无返回键）。
+    // push 抛错（匹配/守卫失败）时回退 go 保持重定向语义。
+    try {
+      await router.push(location);
+    } on Object catch (e) {
+      _debugLog('push failed ($e), falling back to go');
+      router.go(location);
+    }
   }
 
   static void _debugLog(String message) {
