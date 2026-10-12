@@ -127,14 +127,14 @@ void main() {
       );
     });
 
-    test('403 → forbidden（非 active 成员 / 无 active mapping）', () {
+    test('403 → forbidden（目标账号非 active 人类用户，免登 kill-switch）', () {
       expect(
         oaSsoIssueFailureFromCode(failedResp(403)),
         OaSsoIssueFailureKind.forbidden,
       );
     });
 
-    test('404 → notFound（key 不可解析/app 停用/org 非 active/多义）', () {
+    test('404 → notFound（key 不可解析/应用停用/实例未登记应用/多义）', () {
       expect(
         oaSsoIssueFailureFromCode(failedResp(404)),
         OaSsoIssueFailureKind.notFound,

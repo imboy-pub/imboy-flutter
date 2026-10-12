@@ -411,7 +411,7 @@ void main() {
     expect(find.text('合成办公 10'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
-    api.pending.remove('10');
+    api.resetPending();
     await tester.pumpWidget(
       TranslationProvider(
         child: UncontrolledProviderScope(
@@ -621,7 +621,7 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('工作台'));
     await tester.pump();
-    api.pending.remove('10');
+    api.resetPending();
     container.invalidate(oaWorkbenchEntriesProvider('1'));
     await tester.pump();
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
