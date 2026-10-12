@@ -451,22 +451,11 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
   if (find.byKey(const Key('login_phone_input')).evaluate().isNotEmpty) {
     return; // 已在登录页（首段无需登出）
   }
-  if (enterpriseNavigation().evaluate().isEmpty) {
-    // 个人壳：经 我→切换企业 进入任一企业（合成账号必有企业）再登出。
-    await openPersonalEnterprisePicker(tester);
-    final anyTile = find.byWidgetPredicate(
-      (widget) =>
-          widget.key is ValueKey<String> &&
-          (widget.key as ValueKey<String>).value.startsWith('org-picker-tile-'),
-    );
-    await waitFor(tester, anyTile);
-    await tester.tap(anyTile.first);
-    await waitFor(tester, enterpriseNavigation());
-    await tester.pump(const Duration(milliseconds: 600));
+  // APP-M02 后企业壳整壳无账户入口（消息页为 embedded 无顶栏，退出收敛
+  // 我页→设置）：切回个人壳走 rail 底部账户 Sheet（r3 实证企业壳 0 widgets）。
+  if (enterpriseNavigation().evaluate().isNotEmpty) {
+    await selectPersonal(tester);
   }
-  // APP-M02 后企业壳通讯录顶栏为「邀请同事」，账户入口挂消息页顶栏 actions
-  // （workspace_conversations_page.dart:156）。
-  await selectEnterpriseTab(tester, t.chat.titleMessage);
   final entry = find.byKey(const ValueKey('workspace-shell-account-entry'));
   await waitFor(tester, entry.hitTestable());
   await tester.tap(entry);
