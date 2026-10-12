@@ -614,6 +614,18 @@ Future<void> selectPersonal(WidgetTester tester) async {
   await waitFor(tester, personal);
   await tester.tap(personal);
   await waitFor(tester, find.byType(BottomNavigationPage));
+  // 个人切换后选择页可能仍驻留栈顶（r9 实证：覆盖后续目录 tap）：
+  // 路由可弹则弹出一层。
+  if (find
+      .byKey(const Key('org-picker-personal-entry'))
+      .evaluate()
+      .isNotEmpty) {
+    final navCtx2 = tester.element(find.byType(Navigator).first);
+    if (GoRouter.of(navCtx2).canPop()) {
+      GoRouter.of(navCtx2).pop();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+  }
   await waitFor(tester, personalTab('tab_conversations'));
 }
 
