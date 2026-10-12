@@ -845,6 +845,15 @@ Finder personalTab(String key) {
 }
 
 Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
+  // 选择页已在栈顶时直接用（r3/r4 实证：重复打开时 MinePage 被盖，
+  // 切换入口 hitTestable 永假）。
+  if (find.byKey(const Key('org-picker-join-entry')).evaluate().isNotEmpty ||
+      find
+          .byKey(const Key('org-picker-personal-entry'))
+          .evaluate()
+          .isNotEmpty) {
+    return;
+  }
   final mine = personalTab('tab_mine');
   await waitFor(tester, mine.hitTestable());
   await tester.tap(mine);
