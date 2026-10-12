@@ -57,15 +57,31 @@ class ChannelRepo {
     }
 
     final map = finalChannel.toMap();
-    if (txn != null) {
-      await txn.insert(
-        tableName,
-        map,
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+    if (local != null) {
+      // 已有行走 UPDATE：INSERT OR REPLACE 是「先 DELETE 再 INSERT」，会触发
+      // channel_subscription.channel_id 的 ON DELETE CASCADE，把订阅关系连带
+      // 清掉（MC22-live 预热阶段实测：订阅保存后再次 saveChannel 即丢订阅行）。
+      if (txn != null) {
+        await txn.update(
+          tableName,
+          map,
+          where: '$id = ?',
+          whereArgs: [finalChannel.id],
+        );
+      } else {
+        await _db.update(
+          tableName,
+          map,
+          where: '$id = ?',
+          whereArgs: [finalChannel.id],
+        );
+      }
     } else {
-      // SqliteService.insert 内部已使用 ConflictAlgorithm.replace
-      await _db.insert(tableName, map);
+      if (txn != null) {
+        await txn.insert(tableName, map);
+      } else {
+        await _db.insert(tableName, map);
+      }
     }
     iPrint(
       'ChannelRepo: 保存频道 ${finalChannel.id} - ${finalChannel.name} (Role: ${finalChannel.userRole.displayName})',
