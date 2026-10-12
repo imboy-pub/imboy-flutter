@@ -471,6 +471,10 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
   await waitFor(tester, settingTile.hitTestable());
   await tester.tap(settingTile);
   final logout = find.text(t.account.logOut);
+  await waitFor(tester, logout);
+  // 设置页为长 sliver 列表：退出磁贴在折叠区外（r6 实证 hitTestable 永假），
+  // 先滚动到可视区。
+  await tester.ensureVisible(logout);
   await waitFor(tester, logout.hitTestable());
   await tester.tap(logout);
   await tester.pump(const Duration(milliseconds: 500));
@@ -584,12 +588,16 @@ Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
 Future<void> selectPersonal(WidgetTester tester) async {
   // 组织架构为二级页（push 路由覆盖壳顶栏；403 错误态无 canvas 但页仍在
   // 栈上）：图页在场就先 GlassBackButton 回目录，再找切换入口。
-  for (
-    var i = 0;
-    i < 3 && find.byType(OrganizationChartPage).evaluate().isNotEmpty;
-    i++
-  ) {
-    await tester.tap(find.byType(GlassBackButton));
+  for (var i = 0; i < 3; i++) {
+    if (find.byType(OrganizationChartPage).evaluate().isEmpty) {
+      break;
+    }
+    // 图页可能在 offstage/被盖栈层（r6 实证）：只点当前可命中的返回键。
+    final back = find.byType(GlassBackButton).hitTestable();
+    if (back.evaluate().isEmpty) {
+      break;
+    }
+    await tester.tap(back.first);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
   }
   await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
