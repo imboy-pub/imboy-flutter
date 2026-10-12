@@ -2967,7 +2967,7 @@ class Translations$organization$inviteColleagues$zh_Hant extends Translations$or
 	@override String get faceToFaceHint => '同事掃碼或輸入邀請碼即可加入';
 	@override String get fromWechatGroup => '從微信群組中加入';
 	@override String get fromWechatGroupHint => '把邀請碼發到微信群組，同事複製後即可加入';
-	@override String shareText({required Object orgName, required Object code}) => '【${orgName}】邀請你加入 imboy\n邀請碼：${code}（7 天內有效）\n點擊加入：https://imboy.pub/invite/org/${code}\n打開 imboy App，在「通訊錄 → 加入企業」輸入邀請碼即可加入';
+	@override String shareText({required Object orgName, required Object code, required Object inviteUrl}) => '【${orgName}】邀請你加入 imboy\n邀請碼：${code}（7 天內有效）\n點擊加入：${inviteUrl}\n打開 imboy App，在「通訊錄 → 加入企業」輸入邀請碼即可加入';
 	@override String get shareToWechat => '分享邀請到微信';
 	@override String get copyInviteCode => '複製邀請碼';
 	@override String get codeValidityHint => '邀請碼 7 天內有效；重新生成後舊碼立即失效';
@@ -5495,7 +5495,7 @@ extension on TranslationsZhHant {
 			'organization.inviteColleagues.faceToFaceHint' => '同事掃碼或輸入邀請碼即可加入',
 			'organization.inviteColleagues.fromWechatGroup' => '從微信群組中加入',
 			'organization.inviteColleagues.fromWechatGroupHint' => '把邀請碼發到微信群組，同事複製後即可加入',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '【${orgName}】邀請你加入 imboy\n邀請碼：${code}（7 天內有效）\n點擊加入：https://imboy.pub/invite/org/${code}\n打開 imboy App，在「通訊錄 → 加入企業」輸入邀請碼即可加入',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code, required Object inviteUrl}) => '【${orgName}】邀請你加入 imboy\n邀請碼：${code}（7 天內有效）\n點擊加入：${inviteUrl}\n打開 imboy App，在「通訊錄 → 加入企業」輸入邀請碼即可加入',
 			'organization.inviteColleagues.shareToWechat' => '分享邀請到微信',
 			'organization.inviteColleagues.copyInviteCode' => '複製邀請碼',
 			'organization.inviteColleagues.codeValidityHint' => '邀請碼 7 天內有效；重新生成後舊碼立即失效',

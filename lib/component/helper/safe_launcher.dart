@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:go_router/go_router.dart';
+import 'package:imboy/app_core/routing/organization_invite_link.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/web_view.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -43,6 +45,14 @@ class SafeLauncher {
     LaunchMode mode = LaunchMode.externalApplication,
     void Function(String scheme)? onBlocked,
   }) async {
+    final invite = organizationInviteLocation(uri.toString());
+    if (invite != null) {
+      if (context == null || !context.mounted) return false;
+      final router = GoRouter.maybeOf(context);
+      if (router == null) return false;
+      unawaited(router.push<void>(invite));
+      return true;
+    }
     if (!isSchemeAllowed(uri.scheme)) {
       onBlocked?.call(uri.scheme);
       return false;

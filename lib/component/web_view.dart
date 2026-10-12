@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:go_router/go_router.dart';
+import 'package:imboy/app_core/routing/organization_invite_link.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
@@ -391,6 +393,15 @@ class WebViewPageState extends State<WebViewPage> {
                 widget.errorCallback?.call(msg);
               },
               onNavigationRequest: (NavigationRequest request) {
+                final invite = organizationInviteLocation(request.url);
+                if (request.isMainFrame && invite != null) {
+                  final router = GoRouter.maybeOf(context);
+                  if (router != null && mounted) {
+                    AppLoading.dismiss();
+                    unawaited(router.push<void>(invite));
+                  }
+                  return NavigationDecision.prevent;
+                }
                 // 原为一段被注释掉的判断，且逻辑是反的（拦自家域名、放行其余）。
                 // 页内跳转同样必须过 scheme 闸：首屏是 https，但页面可以把用户
                 // 导航到 file:/javascript:/intent: 完成提权。

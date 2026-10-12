@@ -11,6 +11,8 @@ library;
 
 import 'dart:async';
 
+import 'package:imboy/app_core/routing/organization_invite_link.dart';
+
 import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -240,46 +242,12 @@ class _OrgJoinScannerPageState extends State<OrgJoinScannerPage> {
   }
 }
 
-/// 解析企业邀请 deep link（仅认 `imboy://org/join?c=CODE` 契约格式，
+/// 解析企业邀请 deep link（支持本站 HTTPS 邀请链接及 `imboy://org/join?c=CODE`，
 /// 容忍 `code=` 键名或带额外参数的 payload 变体；裸明码不算 deep link）。
 /// 通用扫一扫（ScannerPage）用它分发加入企业流程——通用场景里任意
 /// 8 位文本可能是订单号/序列号，不能当邀请码。
-String? parseOrgJoinDeepLink(String? raw) {
-  if (raw == null) return null;
-  final s = raw.trim().toUpperCase();
-  if (!s.contains('IMBOY://ORG/JOIN')) return null;
-  // 容忍 `code=` 键名或带额外参数的 payload 变体：query 按 ?& 切分取首个
-  // c=/code= 值（不能按前缀截断——`?c=CODE&src=x` 会把尾巴带进码里）。
-  for (final part in s.split(RegExp(r'[?&]'))) {
-    final idx = part.indexOf('=');
-    if (idx <= 0) continue;
-    final key = part.substring(0, idx);
-    if (key == 'C' || key == 'CODE') {
-      return _validCode(part.substring(idx + 1));
-    }
-  }
-  return null;
-}
+String? parseOrgJoinDeepLink(String? raw) => organizationInviteCode(raw);
 
-/// 解析企业邀请码：
-/// - QR payload 契约 `imboy://org/join?c=CODE`（容忍 `code=` 键名）；
-/// - 裸 8 位明码（A-Z2-9 排除 0/O/1/I；大小写不敏感）——口令被系统
-///   相机/其他扫码器识别后粘贴的场景；
-/// - 其余文本（群二维码、链接、任意内容）→ null（扫码端继续扫）。
-String? parseOrgJoinCode(String? raw) {
-  if (raw == null) return null;
-  final s = raw.trim().toUpperCase();
-  if (s.isEmpty) return null;
-  final viaLink = parseOrgJoinDeepLink(s);
-  if (viaLink != null) return viaLink;
-  if (s.contains('IMBOY://ORG/JOIN')) return null;
-  return _validCode(s);
-}
-
-String? _validCode(String value) {
-  final t = value.trim().toUpperCase();
-  if (t.length != 8) return null;
-  // 字符集 A-H J-N P-Z 2-9（32 字符，排除 0/O/1/I 手抄混淆位）
-  if (!RegExp(r'^[A-HJ-NP-Z2-9]{8}$').hasMatch(t)) return null;
-  return t;
-}
+/// Accept a supported invitation URL or a manually entered code.
+String? parseOrgJoinCode(String? raw) =>
+    organizationInviteCode(raw) ?? normalizeOrganizationInviteCode(raw ?? '');

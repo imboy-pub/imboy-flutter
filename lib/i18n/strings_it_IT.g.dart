@@ -2969,7 +2969,7 @@ class _Translations$organization$inviteColleagues$it_IT extends Translations$org
 	@override String get faceToFaceHint => 'Scansiona il QR code o inserisci il codice invito';
 	@override String get fromWechatGroup => 'Aggiungi da gruppi WeChat';
 	@override String get fromWechatGroupHint => 'Condividi il codice invito in un gruppo WeChat';
-	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nUnisciti tramite il link: https://imboy.pub/invite/org/${code}\nApri l\'app imboy e inserisci il codice in Rubrica > Unisciti all\'organizzazione';
+	@override String shareText({required Object orgName, required Object code, required Object inviteUrl}) => '[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nUnisciti tramite il link: ${inviteUrl}\nApri l\'app imboy e inserisci il codice in Rubrica > Unisciti all\'organizzazione';
 	@override String get shareToWechat => 'Condividi l\'invito su WeChat';
 	@override String get copyInviteCode => 'Copia codice invito';
 	@override String get codeValidityHint => 'Il codice invito è valido 7 giorni; rigenerarlo invalida subito il vecchio';
@@ -5496,7 +5496,7 @@ extension on TranslationsItIt {
 			'organization.inviteColleagues.faceToFaceHint' => 'Scansiona il QR code o inserisci il codice invito',
 			'organization.inviteColleagues.fromWechatGroup' => 'Aggiungi da gruppi WeChat',
 			'organization.inviteColleagues.fromWechatGroupHint' => 'Condividi il codice invito in un gruppo WeChat',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nUnisciti tramite il link: https://imboy.pub/invite/org/${code}\nApri l\'app imboy e inserisci il codice in Rubrica > Unisciti all\'organizzazione',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code, required Object inviteUrl}) => '[${orgName}] ti invita a unirti a imboy\nCodice invito: ${code} (valido 7 giorni)\nUnisciti tramite il link: ${inviteUrl}\nApri l\'app imboy e inserisci il codice in Rubrica > Unisciti all\'organizzazione',
 			'organization.inviteColleagues.shareToWechat' => 'Condividi l\'invito su WeChat',
 			'organization.inviteColleagues.copyInviteCode' => 'Copia codice invito',
 			'organization.inviteColleagues.codeValidityHint' => 'Il codice invito è valido 7 giorni; rigenerarlo invalida subito il vecchio',

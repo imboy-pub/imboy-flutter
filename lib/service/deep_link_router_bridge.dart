@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:imboy/app_core/routing/organization_invite_link.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -49,6 +50,11 @@ class DeepLinkRouterBridge {
   /// 仅接受 `/` 开头的相对路径（host 部分丢弃），拒绝 `//`（协议相对）
   /// 与非路径形态，避免把外部输入直接当绝对 URL 导航。
   static void _navigate(GoRouter router, String link) {
+    final invite = organizationInviteLocation(link);
+    if (invite != null) {
+      router.go(invite);
+      return;
+    }
     Uri? uri;
     try {
       uri = Uri.parse(link);

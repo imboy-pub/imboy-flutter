@@ -2978,7 +2978,7 @@ class _Translations$organization$inviteColleagues$ar_SA extends Translations$org
 	@override String get faceToFaceHint => 'امسح رمز QR أو أدخل رمز الدعوة';
 	@override String get fromWechatGroup => 'إضافة من مجموعات WeChat';
 	@override String get fromWechatGroupHint => 'شارك رمز الدعوة في مجموعة WeChat';
-	@override String shareText({required Object orgName, required Object code}) => '[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nللانضمام عبر الرابط: https://imboy.pub/invite/org/${code}\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة';
+	@override String shareText({required Object orgName, required Object code, required Object inviteUrl}) => '[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nللانضمام عبر الرابط: ${inviteUrl}\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة';
 	@override String get shareToWechat => 'مشاركة الدعوة إلى WeChat';
 	@override String get copyInviteCode => 'نسخ رمز الدعوة';
 	@override String get codeValidityHint => 'رمز الدعوة صالح لمدة 7 أيام؛ إعادة التوليد تلغي الرمز القديم فوراً';
@@ -5505,7 +5505,7 @@ extension on TranslationsArSa {
 			'organization.inviteColleagues.faceToFaceHint' => 'امسح رمز QR أو أدخل رمز الدعوة',
 			'organization.inviteColleagues.fromWechatGroup' => 'إضافة من مجموعات WeChat',
 			'organization.inviteColleagues.fromWechatGroupHint' => 'شارك رمز الدعوة في مجموعة WeChat',
-			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code}) => '[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nللانضمام عبر الرابط: https://imboy.pub/invite/org/${code}\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة',
+			'organization.inviteColleagues.shareText' => ({required Object orgName, required Object code, required Object inviteUrl}) => '[${orgName}] يدعوك للانضمام إلى imboy\nرمز الدعوة: ${code} (صالح لمدة 7 أيام)\nللانضمام عبر الرابط: ${inviteUrl}\nافتح تطبيق imboy وأدخل الرمز في الدليل > الانضمام إلى المؤسسة',
 			'organization.inviteColleagues.shareToWechat' => 'مشاركة الدعوة إلى WeChat',
 			'organization.inviteColleagues.copyInviteCode' => 'نسخ رمز الدعوة',
 			'organization.inviteColleagues.codeValidityHint' => 'رمز الدعوة صالح لمدة 7 أيام؛ إعادة التوليد تلغي الرمز القديم فوراً',

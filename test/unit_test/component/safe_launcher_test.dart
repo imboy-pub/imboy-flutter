@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/safe_launcher.dart';
 import 'package:imboy/component/web_view.dart';
@@ -32,6 +33,36 @@ class _Routes extends NavigatorObserver {
 }
 
 void main() {
+  testWidgets('邀请链接直接进入原生确认路由，不加载网页', (tester) async {
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => CupertinoButton(
+            onPressed: () => SafeLauncher.safeLaunchUrlString(
+              'https://imboy.pub/invite/org/ABCD2345',
+              context: context,
+            ),
+            child: const Text('invite'),
+          ),
+        ),
+        GoRoute(
+          path: '/organization/picker',
+          builder: (context, state) => Text(
+            'confirm:${state.uri.queryParameters['code']}:'
+            '${state.uri.queryParameters['autoJoin']}',
+          ),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(CupertinoApp.router(routerConfig: router));
+    await tester.tap(find.text('invite'));
+    await tester.pumpAndSettle();
+    expect(find.text('confirm:ABCD2345:1'), findsOneWidget);
+    expect(find.byType(WebViewPage), findsNothing);
+  });
+
   late UrlLauncherPlatform previous;
   late _Launcher launcher;
   setUp(() {

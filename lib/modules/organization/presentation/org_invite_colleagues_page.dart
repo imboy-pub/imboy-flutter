@@ -20,6 +20,7 @@
 library;
 
 import 'package:fluwx/fluwx.dart';
+import 'package:imboy/app_core/routing/organization_invite_link.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -46,7 +47,11 @@ import 'package:imboy/theme/default/font_types.dart';
 /// 邀请码并尝试拉起 App。
 String buildInviteShareText(String orgName, String code) {
   final name = orgName.isEmpty ? 'imboy' : orgName;
-  return t.organization.inviteColleagues.shareText(orgName: name, code: code);
+  return t.organization.inviteColleagues.shareText(
+    orgName: name,
+    code: code,
+    inviteUrl: organizationInviteUrl(code),
+  );
 }
 
 /// 分享邀请文案：fluwx 直发微信会话优先，未配置/未安装/异常回落系统面板。
