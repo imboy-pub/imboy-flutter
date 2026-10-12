@@ -66,4 +66,28 @@ void main() {
     expect(find.textContaining('invalid'), findsNothing);
     expect(find.textContaining('已发送'), findsNothing);
   });
+  testWidgets('only server receipt marks seat message as read', (tester) async {
+    LocaleSettings.setLocale(AppLocale.zhCn);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MaterialApp(
+          home: CsMessageBubble(
+            message: const EnterpriseMessage(
+              id: '123',
+              conversationId: '456',
+              organizationId: '789',
+              content: 'body',
+            ),
+            isSeat: true,
+            actorLabel: '坐席',
+            assets: const [],
+            bytesLoader: (_) async => null,
+            onView: (_) {},
+            serverReadAt: DateTime.utc(2026, 10, 12),
+          ),
+        ),
+      ),
+    );
+    expect(find.textContaining('已读'), findsOneWidget);
+  });
 }

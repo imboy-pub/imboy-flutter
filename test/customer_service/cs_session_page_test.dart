@@ -11,6 +11,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui' show ViewFocusEvent, ViewFocusState, ViewFocusDirection;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -24,6 +25,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+
+// Synthetic unsigned fixture assembled in memory, never an issued credential.
+String _syntheticToken() {
+  String part(Object value) =>
+      base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+  final header = part({'alg': 'none'});
+  final payload = part({'exp': 4102444800});
+  final signature = base64Url
+      .encode(utf8.encode('synthetic'))
+      .replaceAll('=', '');
+  return '$header.$payload.$signature';
+}
 
 const sessionId = '7266418340025468940';
 
@@ -35,6 +50,9 @@ class _SeqAdapter implements HttpClientAdapter {
   final List<(String fragment, Uint8List bytes)> rawRoutes;
   final Map<String, int> _cursor = {};
   int requestCount = 0;
+  final requests = <RequestOptions>[];
+  Future<ResponseBody>? heldSend;
+  int? cursorWriteStatus;
 
   _SeqAdapter(this.routes, {this.rawRoutes = const []});
 
@@ -63,6 +81,23 @@ class _SeqAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requestCount++;
+    requests.add(options);
+    if (options.method == 'POST' &&
+        options.path.endsWith('/read-cursor') &&
+        cursorWriteStatus != null) {
+      return ResponseBody.fromString(
+        jsonEncode({'code': 403, 'msg': 'synthetic refused'}),
+        cursorWriteStatus!,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
+    }
+    if (options.method == 'POST' &&
+        options.path.endsWith('/messages') &&
+        heldSend != null) {
+      return heldSend!;
+    }
     final raw = _matchRaw(options.uri.path);
     if (raw != null) {
       return ResponseBody.fromBytes(
@@ -188,7 +223,11 @@ final _tinyPng = Uint8List.fromList([
   0x82,
 ]);
 
-Future<void> _pumpPage(WidgetTester tester, _SeqAdapter adapter) async {
+Future<void> _pumpPage(
+  WidgetTester tester,
+  _SeqAdapter adapter, {
+  CsSessionPage? page,
+}) async {
   HttpClient.adapterForTest = adapter;
   addTearDown(() => HttpClient.adapterForTest = null);
   await tester.pumpWidget(
@@ -197,14 +236,16 @@ Future<void> _pumpPage(WidgetTester tester, _SeqAdapter adapter) async {
     MaterialApp(
       builder: (context, child) =>
           TranslationProvider(child: AppLoading.init()(context, child)),
-      home: const CsSessionPage(
-        orgId: '7266418340025468901',
-        sessionId: sessionId,
-        conversationId: '7266418340025468950',
-        identityId: '7266418340025468902',
-        contactName: '张三',
-        workspaceId: '7266418340025468921',
-      ),
+      home:
+          page ??
+          const CsSessionPage(
+            orgId: '7266418340025468901',
+            sessionId: sessionId,
+            conversationId: '7266418340025468950',
+            identityId: '7266418340025468902',
+            contactName: '张三',
+            workspaceId: '7266418340025468921',
+          ),
     ),
   );
   await _settleRealAsync(tester);
@@ -224,22 +265,106 @@ Future<void> _settleRealAsync(WidgetTester tester) async {
 TextField _inputField(WidgetTester tester) =>
     tester.widgetList<TextField>(find.byType(TextField)).first;
 
+_SeqAdapter _previewAdapter(String change) {
+  final previewHistory = {
+    'code': 0,
+    'payload': [
+      {
+        ...((_historyOk['payload'] as List).first as Map<String, dynamic>),
+        'assets': [
+          {
+            'id': '7266418340025468971',
+            'mime': 'text/plain',
+            'file_name': 'owned.txt',
+            'status': 'active',
+          },
+        ],
+      },
+    ],
+  };
+  final readState = {
+    'code': 0,
+    'payload': {
+      'session_id': sessionId,
+      'last_read_message_id': '1',
+      'unread_count': 1,
+    },
+  };
+  return _SeqAdapter(
+    [
+      ('/read-cursor', [(200, readState)]),
+      ('/messages', [(200, previewHistory)]),
+      (
+        '/sessions/$sessionId',
+        [
+          (200, _detailOk),
+          if (change == 'revoke')
+            (403, {'code': 403, 'msg': 'synthetic revoked'}),
+        ],
+      ),
+    ],
+    rawRoutes: [
+      (
+        '/assets/7266418340025468971/content',
+        Uint8List.fromList(utf8.encode('SYNTHETIC_OWNED_PREVIEW')),
+      ),
+    ],
+  );
+}
+
 void main() {
+  test('initial host focus is single-view only; explicit events dominate', () {
+    bool focus(bool? event, List<int> views, {bool resumed = true}) =>
+        csHostViewFocused(
+          eventFocused: event,
+          currentViewId: 1,
+          viewIds: views,
+          resumed: resumed,
+        );
+    expect(focus(null, [1]), isTrue);
+    expect(focus(null, [1, 2]), isFalse);
+    expect(focus(null, [2]), isFalse);
+    expect(focus(null, [1], resumed: false), isFalse);
+    expect(focus(false, [1]), isFalse);
+    expect(focus(true, [1, 2]), isTrue);
+  });
+  testWidgets('single-view initial reading ACKs without a focus event', (
+    tester,
+  ) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    final adapter = _SeqAdapter([
+      ('/messages', [(200, _historyOk)]),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
+    ]);
+    await _pumpPage(tester, adapter);
+    expect(
+      adapter.requests.any(
+        (r) => r.method == 'POST' && r.path.endsWith('/read-cursor'),
+      ),
+      isTrue,
+    );
+  });
+
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     // bootstrap 链路会读 flutter_secure_storage（平台通道）：无 mock 时
     // fakeAsync 下 MethodChannel 永不完成，页面 bootstrap 挂起。mock 为
-    // 「无 token」即可（未登录读路径直通）。
+    // 使用合成未过期 token 与下方合成 UID，保持真实会话代际守卫。
     const secureChannel = MethodChannel(
       'plugins.it_nomads.com/flutter_secure_storage',
     );
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(secureChannel, (call) async {
           if (call.method == 'readAll') return <String, String>{};
+          if (call.method == 'read' &&
+              (call.arguments as Map)['key'] == 'secure_token') {
+            return _syntheticToken();
+          }
           return null;
         });
     await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, '7266418340025468999');
   });
 
   testWidgets('正常态：detail + 历史 → 消息渲染、输入可用', (tester) async {
@@ -425,5 +550,250 @@ void main() {
     expect(find.text('1.0MB'), findsOneWidget);
     // 图片缩略：经授权字节 + Image.memory 渲染（真实 PNG 解码成功）。
     expect(find.byType(Image), findsOneWidget);
+  });
+  testWidgets(
+    'account logout notification withdraws previously displayed body',
+    (tester) async {
+      final adapter = _SeqAdapter([
+        ('/sessions/$sessionId', [(200, _detailOk)]),
+        ('/messages', [(200, _historyOk)]),
+      ]);
+      await _pumpPage(tester, adapter);
+      expect(find.text('订单还没收到'), findsOneWidget);
+      await tester.runAsync(() async {
+        await StorageService.to.remove(Keys.currentUid);
+        await UserRepoLocal.to.changeInfo({});
+      });
+      await tester.pump();
+      expect(find.text('订单还没收到'), findsNothing);
+    },
+  );
+  for (final status in ['active', 'closed', 'rated']) {
+    testWidgets('host-focused $status reading ACKs without editing input', (
+      tester,
+    ) async {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      final detail = {
+        ..._detailOk,
+        'payload': {..._detailOk['payload'] as Map, 'status': status},
+      };
+      final adapter = _SeqAdapter([
+        ('/messages', [(200, _historyOk)]),
+        ('/sessions/$sessionId', [(200, detail)]),
+      ]);
+      await _pumpPage(tester, adapter);
+      Iterable<RequestOptions> writes() => adapter.requests.where(
+        (r) => r.path.endsWith('/read-cursor') && r.method == 'POST',
+      );
+      expect(writes(), isEmpty);
+      tester.binding.handleViewFocusChanged(
+        ViewFocusEvent(
+          viewId: tester.view.viewId,
+          state: ViewFocusState.focused,
+          direction: ViewFocusDirection.undefined,
+        ),
+      );
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await _settleRealAsync(tester);
+      expect(writes().length, 1);
+    });
+  }
+  testWidgets('host unfocus and covered route prevent visible ACK', (
+    tester,
+  ) async {
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    final adapter = _SeqAdapter([
+      ('/messages', [(200, _historyOk)]),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
+    ]);
+    await _pumpPage(tester, adapter);
+    final page = tester.element(find.byType(CsSessionPage));
+    tester.binding.handleViewFocusChanged(
+      ViewFocusEvent(
+        viewId: tester.view.viewId,
+        state: ViewFocusState.unfocused,
+        direction: ViewFocusDirection.undefined,
+      ),
+    );
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await _settleRealAsync(tester);
+    bool noWrites() => !adapter.requests.any(
+      (r) => r.path.endsWith('/read-cursor') && r.method == 'POST',
+    );
+    expect(noWrites(), isTrue);
+    tester.binding.handleViewFocusChanged(
+      ViewFocusEvent(
+        viewId: tester.view.viewId + 1,
+        state: ViewFocusState.focused,
+        direction: ViewFocusDirection.undefined,
+      ),
+    );
+    await _settleRealAsync(tester);
+    expect(noWrites(), isTrue);
+    unawaited(
+      showDialog<void>(
+        context: page,
+        builder: (_) => const AlertDialog(content: Text('covered route')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    tester.binding.handleViewFocusChanged(
+      ViewFocusEvent(
+        viewId: tester.view.viewId,
+        state: ViewFocusState.focused,
+        direction: ViewFocusDirection.undefined,
+      ),
+    );
+    await _settleRealAsync(tester);
+    expect(noWrites(), isTrue);
+  });
+  testWidgets('late send from route A cannot clear route B input', (
+    tester,
+  ) async {
+    const otherSession = '7266418340025468942';
+    const otherConversation = '7266418340025468952';
+    final otherDetail = {
+      ..._detailOk,
+      'payload': {
+        ...(_detailOk['payload'] as Map<String, dynamic>),
+        'session_id': otherSession,
+        'conversation_id': otherConversation,
+      },
+    };
+    final adapter = _SeqAdapter([
+      ('/sessions/$otherSession', [(200, otherDetail)]),
+      (
+        '/conversations/$otherConversation/messages',
+        [
+          (200, {'code': 0, 'payload': <Map<String, dynamic>>[]}),
+        ],
+      ),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
+      ('/messages', [(200, _historyOk)]),
+    ]);
+    final response = Completer<ResponseBody>();
+    adapter.heldSend = response.future;
+    await _pumpPage(tester, adapter);
+    await tester.enterText(find.byType(TextField).first, 'A text');
+    await tester.tap(find.byIcon(CupertinoIcons.paperplane_fill));
+    await _settleRealAsync(tester);
+    await _pumpPage(
+      tester,
+      adapter,
+      page: const CsSessionPage(
+        orgId: '7266418340025468901',
+        sessionId: otherSession,
+        conversationId: otherConversation,
+        identityId: '7266418340025468902',
+        workspaceId: '7266418340025468921',
+      ),
+    );
+    await tester.enterText(find.byType(TextField).first, 'B draft');
+    response.complete(
+      ResponseBody.fromString(
+        jsonEncode({
+          'code': 0,
+          'payload': {
+            'id': '7266418340025468962',
+            'conversation_id': '7266418340025468950',
+            'organization_id': '7266418340025468901',
+            'sender_type': 'business_identity',
+            'body': 'A text',
+          },
+        }),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      ),
+    );
+    await _settleRealAsync(tester);
+    expect(_inputField(tester).controller!.text, 'B draft');
+    expect(find.text('A text'), findsNothing);
+  });
+  testWidgets(
+    'viewport ACK 403 immediately withdraws rendered body without SSE',
+    (tester) async {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      final adapter = _SeqAdapter([
+        ('/messages', [(200, _historyOk)]),
+        ('/sessions/$sessionId', [(200, _detailOk)]),
+      ]);
+      adapter.cursorWriteStatus = 403;
+      await _pumpPage(tester, adapter);
+      expect(find.text('订单还没收到'), findsOneWidget);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await _settleRealAsync(tester);
+      expect(
+        adapter.requests.any(
+          (r) => r.method == 'POST' && r.path.endsWith('/read-cursor'),
+        ),
+        isTrue,
+      );
+      expect(find.text('订单还没收到'), findsNothing);
+    },
+  );
+  for (final change in ['logout', 'route', 'revoke', 'unmount']) {
+    testWidgets('owned preview is withdrawn on $change', (tester) async {
+      final adapter = _previewAdapter(change);
+      await _pumpPage(tester, adapter);
+      await tester.tap(find.text('owned.txt'));
+      await _settleRealAsync(tester);
+      expect(find.text('SYNTHETIC_OWNED_PREVIEW'), findsOneWidget);
+      if (change == 'logout') {
+        await tester.runAsync(() async {
+          await StorageService.to.remove(Keys.currentUid);
+          await UserRepoLocal.to.changeInfo({});
+        });
+      } else if (change == 'route') {
+        await _pumpPage(
+          tester,
+          adapter,
+          page: const CsSessionPage(
+            orgId: '7266418340025468901',
+            sessionId: '7266418340025468942',
+            conversationId: '7266418340025468952',
+            workspaceId: '7266418340025468921',
+            identityId: '7266418340025468902',
+          ),
+        );
+      } else if (change == 'revoke') {
+        for (final state in [
+          AppLifecycleState.inactive,
+          AppLifecycleState.resumed,
+        ]) {
+          tester.binding.handleAppLifecycleStateChanged(state);
+        }
+        await _settleRealAsync(tester);
+      } else {
+        await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+      }
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('SYNTHETIC_OWNED_PREVIEW'), findsNothing);
+    });
+  }
+
+  testWidgets('route scope change isolates unsent input immediately', (
+    tester,
+  ) async {
+    final adapter = _SeqAdapter([
+      ('/messages', [(200, _historyOk)]),
+      ('/sessions/$sessionId', [(200, _detailOk)]),
+    ]);
+    await _pumpPage(tester, adapter);
+    await tester.enterText(find.byType(TextField).first, 'A unsent draft');
+    await _pumpPage(
+      tester,
+      adapter,
+      page: const CsSessionPage(
+        orgId: '7266418340025468901',
+        sessionId: '7266418340025468942',
+        conversationId: '7266418340025468952',
+        workspaceId: '7266418340025468921',
+        identityId: '7266418340025468902',
+      ),
+    );
+    expect(_inputField(tester).controller!.text, isEmpty);
   });
 }
