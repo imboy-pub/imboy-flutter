@@ -586,6 +586,12 @@ Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
+  // 组织架构为二级页（push 路由覆盖壳顶栏，switcher chip 不可见）：
+  // 在图页先显式返回目录，再找切换入口（r1 实证 0 widgets 根因）。
+  if (find.byKey(const ValueKey('org-chart-canvas')).evaluate().isNotEmpty) {
+    await tester.tap(find.byType(GlassBackButton));
+    await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
+  }
   await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
   final personal = find.byKey(const Key('org-picker-personal-entry'));
   await waitFor(tester, personal);
