@@ -67,6 +67,7 @@ source scripts/test.env && bash scripts/setup_test_data.sh   # 幂等准备测�
 
 - 提交信息遵循 **Conventional Commits**：`<type>(<scope>)!?: <subject>`，type 取 `feat|fix|refactor|docs|test|chore|perf|ci|style|build|revert`，subject ≤ 90 字符（lefthook commit-msg 强制校验）。
 - pre-commit 钩子（[lefthook.yml](./lefthook.yml)）并行运行：`dart format`、`dart analyze`、`gitleaks`（防密钥入库）、`error-code-sync`、`design-tokens`。
+- pre-push 钩子串行运行：`scripts/quality/check_analyzer_ratchet.sh`（analyze 基线棘轮）、`error-code-sync`（`IMBOY_SKIP_PRE_PUSH=1` 可跳过；独立 clone 无并排 imboy 仓时自动跳过）、`scripts/pre_push_gate.sh`（Tier 1 API 契约测试，后端不可达时优雅跳过）。
 - **不要提交**：`.env*` 真实配置（已 gitignore）、构建产物、含生产数据（PII）的任何文件。
 
 ## PR 清单

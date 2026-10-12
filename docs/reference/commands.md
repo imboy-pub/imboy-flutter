@@ -5,9 +5,9 @@
 <!-- AUTO-GENERATED: 本文件由命令参考表自动维护，请勿手工编辑本标记与各表格内容；
      手工补充请写在「备注」节。真源：
      - pubspec.yaml（依赖 / SDK 约束 / slang / patrol 配置）
-     - scripts/*.sh、scripts/*.dart（脚本头注释中的用法）
+     - scripts/*.sh、scripts/*.dart、scripts/*.py（脚本头注释中的用法）
      - README.md、CLAUDE.md、integration_test/README.md 中已有命令
-     Last updated: 2026-09-30 -->
+     Last updated: 2026-10-12 -->
 
 ## 日常开发
 
@@ -68,6 +68,10 @@ macOS 桌面（无需真机）：同一套 integration_test 用 `-d macos`，并
 | `bash scripts/oneclick_login_e2e.sh` | 一键登录全链路自动化验证（Android 真机） | scripts/oneclick_login_e2e.sh |
 | `DEMO_FLOW_SCOPE=p1 DEMO_FLOW_MODEL=<model> bash scripts/run_demo_flows.sh` | 串行执行 test/demo_flow 流程计划（默认只跑 P0） | scripts/run_demo_flows.sh |
 | `./scripts/verify_web_shell.sh`（`--quick` 跳过 build web） | Web Shell 模块健康度一键验证 | scripts/verify_web_shell.sh |
+| `python3 scripts/check_sdk_compatibility.py` | 依赖解析前校验仓内 SDK 钉版与本机已装 SDK 兼容（CI 接线） | scripts/check_sdk_compatibility.py |
+| `python3 scripts/oa_native_sso_gate.py --device-file <设备serial文件> --backend-fixture-script <后端造数脚本> --deps-root <依赖根> --base-defines <dart-define JSON 文件>` | 企业 OA 门：真机 Android 企业 UI → 真实后端 SSO → 合成 HTTPS OA（四参数均必填；`--device-file` 内容为单个 adb 设备 serial，`--base-defines` 为 JSON） | scripts/oa_native_sso_gate.py |
+| `python3 scripts/oa_webview_native_session_gate.py --device-file <设备serial文件>` | 物理 Android WebView 会话门（回环 TLS、合成状态、debug-only 信任） | scripts/oa_webview_native_session_gate.py |
+| `python3 scripts/oa_webview_macos_session_gate.py` | macOS OA 会话门（隔离 bundle + 钉版回环 TLS，无需参数） | scripts/oa_webview_macos_session_gate.py |
 
 ## 构建
 
@@ -81,6 +85,7 @@ macOS 桌面（无需真机）：同一套 integration_test 用 `-d macos`，并
 | `./scripts/build_play_aab.sh <build_number> [build_name]` | Google Play AAB（`--flavor standard`，注入 `ALIPAY_APP_ID`；build_name 缺省取 pubspec.yaml `version`） | scripts/build_play_aab.sh |
 | `./scripts/build_ios.sh <build_number> [build_name]` | iOS 构建（同 full-selected 前置检查） | scripts/build_ios.sh |
 | `./scripts/check_play_release.sh` | Play 发布产物校验（可配 `PLAY_BASE_URL`、`SKIP_URL_CHECK=1`） | scripts/check_play_release.sh |
+| `bash scripts/sbom_check.sh`（`SBOM_OUT_DIR=<目录>` 可选） | SBOM 生成 + CVE 扫描；默认输出到系统临时目录（仓外，不入仓） | scripts/sbom_check.sh |
 
 ## 备注（手工区）
 
