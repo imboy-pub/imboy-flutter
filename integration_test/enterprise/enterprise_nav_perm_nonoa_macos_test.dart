@@ -471,10 +471,13 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
   await waitFor(tester, settingTile.hitTestable());
   await tester.tap(settingTile);
   final logout = find.text(t.account.logOut);
-  await waitFor(tester, logout);
-  // 设置页为长 sliver 列表：退出磁贴在折叠区外（r6 实证 hitTestable 永假），
-  // 先滚动到可视区。
-  await tester.ensureVisible(logout);
+  // 设置页为懒构建长 sliver：未滚动到的区块根本不在树里（r7 实证 0 in
+  // tree）。逐屏滚动探查直到磁贴可命中。
+  for (var i = 0; i < 12; i++) {
+    if (logout.hitTestable().evaluate().isNotEmpty) break;
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -300));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
   await waitFor(tester, logout.hitTestable());
   await tester.tap(logout);
   await tester.pump(const Duration(milliseconds: 500));
