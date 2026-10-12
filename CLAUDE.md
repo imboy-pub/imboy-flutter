@@ -206,3 +206,11 @@ flutter test integration_test/smoke/smoke_test.dart -d macos \
 Patrol 是 integration_test 的**超集**——现有 24 个测试文件与 83 个 `Key` 可直接沿用，额外获得原生权限弹窗、通知、WebView、生物识别的操作能力。步骤：加 `patrol` 依赖 + Android androidTest 接入 → 迁 smoke 用例（验证华为 EMUI 权限弹窗）→ 可选接 `patrol_mcp`（AI 驱动，产物仍是可提交、可重放的 Dart 测试）→ iOS 待 `ios/*` 保留区解禁。
 
 **分工原则**：AI（mobile-mcp / patrol_mcp）负责探索、生成、诊断；**发版门禁只认可提交、可重复执行的 Dart 测试**——agent 的概率性操作不作为唯一回归依据。
+
+## 工程交付边界 / Engineering delivery boundaries
+
+代码优先复用，保持简洁，避免无需求抽象、重复实现、调试残留和假通过。优先更新权威文档，完成总结放对话，不为每次测试或讨论生成报告。临时日志、截图、覆盖率、缓存、数据和调试脚本默认不提交；必要的脱敏 fixtures、回归测试、生成物、验收证据按项目要求保留。禁止提交秘密或真实用户数据。
+
+开发阶段定向验证，最终集成候选统一执行适用全量检查；不跳过强制门禁，证据失效必须重验。测试/文档可选不代表免验证。仅在任务授权 commit 时提交，push/合并/部署另按授权；一次提交是完整可评审可回滚的功能或 fix，捆绑必要测试/迁移/文档，独立 docs/test/refactor 可单独提交。不按每步或每个小测试提交。审查 diff、明确路径/块暂存、审查最终暂存区，禁止盲目 git add . 或 -A。保护既有 WIP，多 agent 由主集成者控制共享分支提交，不绕过 hooks/CI。
+
+Keep code simple and reuse existing capabilities. Update authoritative docs; summarize in conversation instead of creating routine reports. Exclude temporary artifacts, but retain required sanitized fixtures, regression tests, generated deliverables and acceptance evidence. Never commit secrets or real user data. Use focused validation during development and applicable full gates on the final integration candidate; revalidate stale evidence. Commit only when authorized, with one reviewable, reversible logical change; review explicit staging and preserve existing WIP. The integrator controls shared-branch commits. Do not bypass hooks or CI.
