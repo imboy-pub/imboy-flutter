@@ -203,9 +203,10 @@ class NegativeUi {
     final input = find.byKey(const Key('chat_message_input'));
     expect(input, findsOneWidget);
     await tester.enterText(input, marker);
-    await tester.pump();
+    // 发送按钮显隐走 300ms debounce Timer（chat_input.dart
+    // _handleTextControllerChange），单次 pump 不等定时器，必须轮询等待。
     final send = find.byKey(const ValueKey('send_button'));
-    expect(send, findsOneWidget);
+    await waitVisible(send);
     await tester.tap(send);
     await settle(tester);
   }
