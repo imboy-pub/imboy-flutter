@@ -905,6 +905,10 @@ Future<void> leaveEnterprise(WidgetTester tester) async {
   // 入口 tile 对所有成员恒在，但标签按角色门控（canManage 才显示
   // 「企业管理」，普通成员显示企业 tab 文案）——按 key 定位，不断言文案。
   final manage = find.byKey(const Key('enterprise-mine-organization-entry'));
+  // join 刚落地的导航过渡期入口暂不可命中（r8/r9 实证）：settle 重试窗口。
+  for (var i = 0; i < 8 && manage.hitTestable().evaluate().isEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 400));
+  }
   await waitFor(tester, manage.hitTestable());
   await tester.tap(manage);
   final leave = find.byKey(const Key('organization-detail-leave'));
