@@ -84,10 +84,14 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       (accountKey: widget.accountKey, organizationId: widget.organizationId);
 
   AsyncValue<List<EnterpriseOaRuntimeConfig>> _entries() {
+    // macOS 桌面端同样支持（WebView JSChannel/WKWebView 桥齐备，检测能列出
+    // getAuthCode 即为实证）；此前仅放行 Android/iOS，macOS 上 entries 恒为
+    // 空列表 → 本地裁决 app_not_configured（不发任何请求）。
     final supported =
         !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS);
+            defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS);
     if (!supported) return const AsyncData<List<EnterpriseOaRuntimeConfig>>([]);
     return _configurationReady
         ? ref.watch(oaWorkbenchEntriesProvider(widget.accountKey))

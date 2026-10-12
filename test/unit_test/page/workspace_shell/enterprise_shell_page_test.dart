@@ -632,7 +632,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
-  testWidgets('桌面复用四项侧栏，不读取不支持的 OA', (tester) async {
+  testWidgets('桌面复用四项侧栏，同样读取 OA entries（macOS 平台门已放开）', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     final api = _OaApi();
@@ -646,7 +646,7 @@ void main() {
       '工作台',
       '我',
     ]);
-    expect(api.calls, isEmpty);
+    expect(api.calls, isNotEmpty); // macOS 桥齐备，须照常拉取
     expect(tester.takeException(), isNull);
     debugDefaultTargetPlatformOverride = null;
   });
