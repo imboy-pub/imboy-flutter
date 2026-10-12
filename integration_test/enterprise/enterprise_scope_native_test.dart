@@ -873,10 +873,20 @@ Future<void> joinEnterprise(WidgetTester tester) async {
   await waitFor(tester, join);
   // 手机屏折叠区外的底部入口：先滚动进可视区再要求 hit-testable
   // （r3 实证 hitTestable 永假 → waitFor 超时）。
+  debugPrint(
+    'N3_JOIN_DEBUG inTree=${join.evaluate().length} '
+    'hit=${join.hitTestable().evaluate().length}',
+  );
   await tester.ensureVisible(join);
+  debugPrint(
+    'N3_JOIN_DEBUG afterEnsure inTree=${join.evaluate().length} '
+    'hit=${join.hitTestable().evaluate().length} '
+    'center=${join.evaluate().isNotEmpty ? tester.getCenter(join) : 'n/a'}',
+  );
   await waitFor(tester, join.hitTestable());
   expect(find.byKey(const Key('org-picker-tile-995102')), findsNothing);
-  await tester.tap(join);
+  // 诊断轮：默认 warnIfMissed=true，若仍有遮挡，框架会打印覆盖者清单。
+  await tester.tap(join, warnIfMissed: true);
   final input = find.byKey(const Key('org-join-code-field'));
   await waitFor(tester, input.hitTestable());
   await tester.enterText(input, code);
