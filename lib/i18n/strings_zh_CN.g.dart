@@ -5263,6 +5263,9 @@ class Translations$customerService$zh_CN {
 
 	/// zh-CN: '附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。'
 	String get attachUploadStopped => '附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。';
+
+	/// zh-CN: '有新消息 · 查看最新'
+	String get newMessagesJump => '有新消息 · 查看最新';
 }
 
 // Path: discovery
@@ -10898,6 +10901,7 @@ extension on Translations {
 			'customerService.attachPreviewTruncated' => '只显示部分文本；保存文件仍包含完整内容。',
 			'customerService.attachUploadedNotSent' => '附件已上传，但消息发送结果尚未确认。请核对发送结果，不要重新上传。',
 			'customerService.attachUploadStopped' => '附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。',
+			'customerService.newMessagesJump' => '有新消息 · 查看最新',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -11218,9 +11222,9 @@ extension on Translations {
 			'main.audio' => '音频',
 			'main.barcodeFound' => '已识别二维码',
 			'main.botQianFan' => '千帆机器人',
-			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
 			_ => null,
 		} ?? switch (path) {
+			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
 			'main.liveRoomWhepLabel' => 'WHEP 拉流地址',
 			'main.cache' => '缓存',
 			'main.camera' => '拍摄',
@@ -11732,9 +11736,9 @@ extension on Translations {
 			'organization.hub.zoneChannelsDesc' => '企业频道 · 经企业管理查看',
 			'organization.hub.zoneTools' => '工具',
 			'organization.hub.zoneToolsDesc' => '工作区 · 项目与协作',
-			'organization.hub.zoneOrgTools' => '企业协作工具',
 			_ => null,
 		} ?? switch (path) {
+			'organization.hub.zoneOrgTools' => '企业协作工具',
 			'organization.hub.zoneOrgToolsDesc' => '本企业已授权的工作区项目与任务',
 			'organization.hub.adminMembers' => '成员治理',
 			'organization.hub.adminMembersDesc' => '角色调整 · 移除成员',

@@ -164,3 +164,5 @@ attachTooLarge: "附件须非空且不超过 25 MiB。"
 attachPreviewTruncated: "只显示部分文本；保存文件仍包含完整内容。"
 attachUploadedNotSent: "附件已上传，但消息发送结果尚未确认。请核对发送结果，不要重新上传。"
 attachUploadStopped: "附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。"
+
+newMessagesJump: "有新消息 · 查看最新"

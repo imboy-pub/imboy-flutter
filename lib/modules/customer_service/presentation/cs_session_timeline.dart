@@ -50,11 +50,13 @@ class _CsSessionTimelineState extends State<CsSessionTimeline> {
   final _scroll = ScrollController();
   final _viewport = GlobalKey();
   final _center = GlobalKey();
+  final _jumpButton = GlobalKey();
   String? _pivot;
   final _boxes = <String, GlobalKey>{};
   bool _scheduled = false;
   bool _loading = false;
   bool _positioning = false;
+  bool _newMessages = false;
 
   @override
   void initState() {
@@ -84,11 +86,25 @@ class _CsSessionTimelineState extends State<CsSessionTimeline> {
     final anchor = _visibleAnchor();
     final ids = oldWidget.messages.map((m) => m.id).toList();
     final changed = ids.join('/') != widget.messages.map((m) => m.id).join('/');
+    final scopeChanged = _scope(oldWidget.messages) != _scope(widget.messages);
+    if (!widget.readAllowed ||
+        !widget.canAcknowledge() ||
+        widget.messages.isEmpty ||
+        scopeChanged) {
+      _newMessages = false;
+      if (scopeChanged || widget.messages.isEmpty) _pivot = null;
+    } else if (!wasBottom && _hasNewer(oldWidget.messages)) {
+      _newMessages = true;
+    }
     if (!changed || _loading) return;
     _positioning = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted || !_scroll.hasClients) return;
-      if (wasBottom) {
+      if (!mounted) return;
+      if (!_scroll.hasClients) {
+        _positioning = false;
+        return;
+      }
+      if (wasBottom || scopeChanged) {
         _scroll.jumpTo(_scroll.position.maxScrollExtent);
       } else {
         _restoreAnchor(anchor);
@@ -96,6 +112,48 @@ class _CsSessionTimelineState extends State<CsSessionTimeline> {
       _positionSettled();
     });
   }
+
+  String? _scope(List<EnterpriseMessage> messages) => messages.isEmpty
+      ? null
+      : '${messages.first.organizationId}/${messages.first.conversationId}';
+
+  bool _hasNewer(List<EnterpriseMessage> previous) {
+    if (previous.isEmpty) return false;
+    final maximum = previous
+        .map((m) => BigInt.parse(m.id))
+        .reduce((a, b) => a > b ? a : b);
+    return widget.messages.any((m) => BigInt.parse(m.id) > maximum);
+  }
+
+  void _jumpToLatest() {
+    if (!widget.readAllowed ||
+        !widget.canAcknowledge() ||
+        !_scroll.hasClients) {
+      return;
+    }
+    _positioning = true;
+    setState(() => _newMessages = false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !widget.readAllowed || !_scroll.hasClients) return;
+      _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      _positionSettled();
+    });
+  }
+
+  Widget _newMessageButton(BuildContext context) => Padding(
+    key: _jumpButton,
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+    child: TextButton.icon(
+      key: const ValueKey('cs-jump-to-latest'),
+      onPressed: _jumpToLatest,
+      style: TextButton.styleFrom(
+        minimumSize: const Size(AppSizes.touchTarget, AppSizes.touchTarget),
+        foregroundColor: AppColors.getIosBlue(Theme.of(context).brightness),
+      ),
+      icon: const Icon(Icons.arrow_downward),
+      label: Text(context.t.customerService.newMessagesJump),
+    ),
+  );
 
   void _positionSettled() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -149,7 +207,21 @@ class _CsSessionTimelineState extends State<CsSessionTimeline> {
           !widget.canAcknowledge()) {
         return;
       }
-      final viewport = _rect(_viewport);
+      if (_newMessages &&
+          _scroll.hasClients &&
+          _scroll.position.extentAfter < AppSizes.touchTarget) {
+        setState(() => _newMessages = false);
+      }
+      var viewport = _rect(_viewport);
+      final button = _rect(_jumpButton);
+      if (viewport != null && button != null) {
+        viewport = Rect.fromLTRB(
+          viewport.left,
+          viewport.top,
+          viewport.right,
+          button.top.clamp(viewport.top, viewport.bottom),
+        );
+      }
       if (viewport == null || viewport.isEmpty) return;
       final visible = <String>[];
       for (final message in widget.messages) {
@@ -244,9 +316,27 @@ class _CsSessionTimelineState extends State<CsSessionTimeline> {
           );
     final pivot = split < 0 ? messages.length : split;
     _observeAfterLayout();
-    return SizedBox(
-      key: _viewport,
-      child: CustomScrollView(
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: SizedBox(key: _viewport, child: _scrollView(messages, pivot)),
+        ),
+        if (_newMessages && widget.canAcknowledge())
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Material(
+              color: Theme.of(context).colorScheme.surface,
+              child: _newMessageButton(context),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _scrollView(List<EnterpriseMessage> messages, int pivot) =>
+      CustomScrollView(
         controller: _scroll,
         center: _center,
         anchor: 1.0,
@@ -257,9 +347,7 @@ class _CsSessionTimelineState extends State<CsSessionTimeline> {
           _messageSliver(messages.skip(pivot).toList(), key: _center),
           if (messages.isEmpty) SliverToBoxAdapter(child: widget.empty),
         ],
-      ),
-    );
-  }
+      );
 }
 
 /// Adapts the existing flow projection; the timeline never derives read facts.

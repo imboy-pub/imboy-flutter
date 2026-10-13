@@ -163,3 +163,5 @@ attachTooLarge: "Attachment must be nonempty and at most 25 MiB."
 attachPreviewTruncated: "Only part of the text is shown. Saving keeps the complete file."
 attachUploadedNotSent: "The file is uploaded, but message delivery is not confirmed. Check the send outcome rather than uploading again."
 attachUploadStopped: "Upload did not complete. Further steps are stopped. Check permissions and session state before choosing a file again."
+
+newMessagesJump: "New messages · Jump to latest"

@@ -1868,6 +1868,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get attachPreviewTruncated => 'Only part of the text is shown. Saving keeps the complete file.';
 	@override String get attachUploadedNotSent => 'The file is uploaded, but message delivery is not confirmed. Check the send outcome rather than uploading again.';
 	@override String get attachUploadStopped => 'Upload did not complete. Further steps are stopped. Check permissions and session state before choosing a file again.';
+	@override String get newMessagesJump => 'New messages · Jump to latest';
 }
 
 // Path: discovery
@@ -5133,6 +5134,7 @@ extension on TranslationsEnUs {
 			'customerService.attachPreviewTruncated' => 'Only part of the text is shown. Saving keeps the complete file.',
 			'customerService.attachUploadedNotSent' => 'The file is uploaded, but message delivery is not confirmed. Check the send outcome rather than uploading again.',
 			'customerService.attachUploadStopped' => 'Upload did not complete. Further steps are stopped. Check permissions and session state before choosing a file again.',
+			'customerService.newMessagesJump' => 'New messages · Jump to latest',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -5473,9 +5475,9 @@ extension on TranslationsEnUs {
 			'main.favorites' => 'Favorite',
 			'main.female' => 'Female',
 			'main.followSystem' => 'Follow system',
-			'main.frFr' => 'French (France)',
 			_ => null,
 		} ?? switch (path) {
+			'main.frFr' => 'French (France)',
 			'main.from' => 'From',
 			'main.good' => 'Great',
 			'main.hangup' => 'Hang up',
@@ -5987,9 +5989,9 @@ extension on TranslationsEnUs {
 			'organization.wsMembers.roleMember' => 'Member',
 			'organization.wsMembers.roleGuest' => 'Guest',
 			'organization.wsMembers.changeRole' => 'Change role',
-			'organization.wsMembers.setRoleMember' => 'Set as member',
 			_ => null,
 		} ?? switch (path) {
+			'organization.wsMembers.setRoleMember' => 'Set as member',
 			'organization.wsMembers.setRoleGuest' => 'Set as guest',
 			'organization.wsMembers.transferOwner' => 'Transfer owner',
 			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'Transfer owner of "${name}"?',
