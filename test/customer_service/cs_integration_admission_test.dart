@@ -1,5 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart';
+import 'package:imboy/component/http/http_client.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../integration_test/customer_service/cs_integration_fixture.dart';
 import '../../integration_test/customer_service/cs_integration_runtime.dart';
@@ -42,6 +45,88 @@ Map<String, String> validFixture() => {
   'RATING_SCORE': '4',
 };
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final previousPackage = packageName;
+  final previousVersion = appVsn;
+  final previousMajor = appVsnMajor;
+  tearDown(() {
+    packageName = previousPackage;
+    appVsn = previousVersion;
+    appVsnMajor = previousMajor;
+  });
+  test(
+    'real entry loads package metadata before owned path and HTTP consumers',
+    () async {
+      PackageInfo.setMockInitialValues(
+        appName: 'CS metadata test',
+        packageName: 'pub.synthetic.native',
+        version: '2.3.4-alpha.1',
+        buildNumber: '1',
+        buildSignature: '',
+      );
+      packageName = '';
+      appVsn = '';
+      appVsnMajor = '';
+      final runtime = CsIntegrationRuntime(
+        CsIntegrationFixture.parse(validFixture()),
+      );
+      await expectLater(
+        runtime.initialize(),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'preserved binary admission gate',
+            'CS_REAL_BINARY_FILE_FIXTURE_REQUIRED',
+          ),
+        ),
+      );
+      expect(packageName, 'pub.synthetic.native');
+      expect(appVsn, '2.3.4-alpha.1');
+      expect(appVsnMajor, '2');
+      final headers = await defaultHeaders();
+      expect(headers['pkg'], 'pub.synthetic.native');
+      expect(headers['vsn'], '2.3.4-alpha.1');
+    },
+  );
+  test(
+    'bad plugin metadata rejects without borrowing previous global values',
+    () async {
+      for (final metadata in [
+        ('', '1.2.3'),
+        ('pub.synthetic.native', ''),
+        ('bad package', '1.2.3'),
+        ('pub.synthetic.native', 'invalid'),
+      ]) {
+        PackageInfo.setMockInitialValues(
+          appName: 'CS metadata test',
+          packageName: metadata.$1,
+          version: metadata.$2,
+          buildNumber: '1',
+          buildSignature: '',
+        );
+        packageName = 'previous.package';
+        appVsn = '9.9.9';
+        appVsnMajor = '9';
+        final runtime = CsIntegrationRuntime(
+          CsIntegrationFixture.parse(validFixture()),
+        );
+        await expectLater(
+          runtime.initialize(),
+          throwsA(
+            isA<StateError>().having(
+              (e) => e.message,
+              'metadata admission',
+              'CS_NATIVE_PACKAGE_METADATA_REQUIRED',
+            ),
+          ),
+        );
+        expect(packageName, 'previous.package');
+        expect(appVsn, '9.9.9');
+        expect(appVsnMajor, '9');
+      }
+    },
+  );
+
   test('owned runtime uses the registered WebSocket route and run port', () {
     for (final origin in [
       'https://run.invalid:8444',

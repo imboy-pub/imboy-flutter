@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_attachment_preparation.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_attachment_save.dart';
 
@@ -70,6 +71,7 @@ class CsIntegrationRuntime {
   String? _previousEnvironment;
 
   Future<void> initialize() async {
+    await _initializePackageMetadata();
     if (fixture.assetMime != 'application/octet-stream') {
       throw StateError('CS_REAL_BINARY_FILE_FIXTURE_REQUIRED');
     }
@@ -87,6 +89,20 @@ class CsIntegrationRuntime {
     currentEnv = fixture.environment;
     envMap[fixture.environment] = CsRunEnvironment(original, fixture.apiBase);
     deviceId = actualDid;
+  }
+
+  Future<void> _initializePackageMetadata() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!RegExp(r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$')
+            .hasMatch(info.packageName) ||
+        !RegExp(
+          r'^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$',
+        ).hasMatch(info.version)) {
+      throw StateError('CS_NATIVE_PACKAGE_METADATA_REQUIRED');
+    }
+    packageName = info.packageName;
+    appVsn = info.version;
+    appVsnMajor = appVsn.split(RegExp(r'(\.)')).first;
   }
 
   Future<String> _requireDeviceProfile() async {
