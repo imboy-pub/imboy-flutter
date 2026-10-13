@@ -33,6 +33,7 @@ import 'dart:typed_data';
 import 'cs_conversation_history.dart';
 
 import 'package:xid/xid.dart';
+import 'package:dio/dio.dart' show DioException;
 import 'package:imboy/modules/customer_service/domain/cs_presence_controller.dart'
     show nextAckTarget;
 import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.dart';
@@ -68,7 +69,7 @@ class CsSessionFlow {
   bool get _current => !_disposed && (scopeCurrent?.call() ?? true);
   String _scope() =>
       '$orgId/$workspaceId/$sessionId/$conversationId/$identityId';
-  bool _same(String scope) => _current && _scope() == scope;
+  bool _same(String scope) => _current && !readRevoked && _scope() == scope;
   bool hasOlder = false;
   bool loadingOlder = false;
   bool readRevoked = false;
@@ -165,7 +166,7 @@ class CsSessionFlow {
   /// 同步：closed → 输入禁用；rating 回显 → rated（坐席端只展示状态）。
   /// 403/offboarding → 状态机降级。
   Future<CsSessionDetail?> refreshSessionState() async {
-    if (!_current) return null;
+    if (!_current || readRevoked) return null;
     final scope = _scope();
     try {
       final d = await _csApi.sessionDetail(
@@ -320,7 +321,7 @@ class CsSessionFlow {
   }) async {
     if (!_current || readRevoked || conversationId.isEmpty) return const [];
     await resolveWorkspaceId();
-    if (!_current || workspaceId.isEmpty) return const [];
+    if (!_current || readRevoked || workspaceId.isEmpty) return const [];
     final scope = _scope();
     final generation = _historyGeneration;
     try {
@@ -398,6 +399,8 @@ class CsSessionFlow {
   /// Invalidates only this flow's obsolete read projection, including auth loss.
   void invalidateReadScope() {
     readRevoked = true;
+    machine.revokeReadAuthority();
+    _events?.dispose();
     assetOperation?.cancel();
     detail = null;
     messages = const [];
@@ -604,6 +607,7 @@ class CsSessionFlow {
       lastFailureKind = null;
       final sentMessage = sent.message;
       await _store.saveMessage(sentMessage);
+      if (!_same(scope)) return false;
       if (ids.isNotEmpty) {
         // 服务端 POST 回显同形状 assets 投影（CS-BE-01）；本地兜底：回显
         // 未携带投影时用提交的 id 组成最小投影（文件名/mime 待历史刷新）。
@@ -666,15 +670,29 @@ class CsSessionFlow {
   void bindEvents(CsSeatEventsStream stream) {
     _events?.dispose();
     _events = stream;
-    stream.start(onEvent: _onSeatEvent);
+    stream.start(
+      onEvent: _onSeatEvent,
+      onError: (error) {
+        if (identical(_events, stream) &&
+            stream.orgId == orgId &&
+            stream.boundWorkspaceId == workspaceId) {
+          _onSeatStreamError(error);
+        }
+      },
+    );
   }
 
   Future<void> _onSeatEvent(CsSseEnvelope e) async {
-    // 降级/只读终态后停止消费（不再发任何刷新请求；撤权降级由权威
-    // 请求的 403/409 驱动，服务端也会在撤权后关闭流）。
-    if (!_current || !machine.shouldPoll) return;
+    // Closed/rated retains authorized reading, including revocation hints.
+    if (!_current ||
+        readRevoked ||
+        !machine.canDownload ||
+        !_seatEventInScope(e)) {
+      return;
+    }
     switch (e.type) {
       case CsSseEnvelope.typeMessageAppended:
+        if (!machine.shouldPoll) return;
         // 事件仅触发权威刷新；阅读 ACK 由实际可见消息入口推进。
         await refreshLoadedHistory();
 
@@ -703,6 +721,40 @@ class CsSessionFlow {
         return;
     }
     if (_current) onChanged?.call();
+  }
+
+  bool _seatEventInScope(CsSseEnvelope e) {
+    if (e.organizationId != orgId || e.workspaceId != workspaceId) return false;
+    if (e.resourceId.isEmpty) {
+      // The production resync envelope deliberately has no resource ID.
+      return e.type == CsSseEnvelope.typeResyncRequired;
+    }
+    return switch (e.type) {
+      CsSseEnvelope.typeSeatChanged => e.resourceId == identityId,
+      // Ordinary assignments reference a session; the server's revocation
+      // close frame references the authenticated business identity.
+      CsSseEnvelope.typeAssignmentChanged =>
+        e.resourceId == sessionId || e.resourceId == identityId,
+      CsSseEnvelope.typeSessionChanged => e.resourceId == sessionId,
+      _ => true,
+    };
+  }
+
+  void _onSeatStreamError(Object error) {
+    if (!_current || readRevoked) return;
+    final status = error is CsSseOpenException
+        ? error.statusCode
+        : error is CsApiException
+        ? error.code
+        : error is DioException
+        ? error.response?.statusCode
+        : null;
+    if (status == 401 || status == 403) {
+      _historyFailure(
+        CsApiException(status!, 'seat stream authorization refused'),
+      );
+      onChanged?.call();
+    }
   }
 
   /// 释放事件流（页面 dispose 时调用；重连定时器/订阅一并取消）。

@@ -1050,7 +1050,13 @@ void main() {
       'organization_id': kOrgId,
       'workspace_id': kWsId,
       'resource_type': 'message',
-      'resource_id': resourceId,
+      'resource_id': resourceId.isNotEmpty
+          ? resourceId
+          : type == 'resync.required'
+          ? ''
+          : type == 'message.appended'
+          ? '7266418340025468961'
+          : kSessionId,
       'resource_version': 1,
       'occurred_at': '2026-09-20T05:14:47Z',
       'reason': 'created',
