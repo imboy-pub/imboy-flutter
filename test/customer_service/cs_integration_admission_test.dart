@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/env.dart';
 
 import '../../integration_test/customer_service/cs_integration_fixture.dart';
+import '../../integration_test/customer_service/cs_integration_runtime.dart';
 
 Map<String, String> validFixture() => {
   'RUN_ID': 'cx-owned-native-20261013',
@@ -40,6 +42,19 @@ Map<String, String> validFixture() => {
   'RATING_SCORE': '4',
 };
 void main() {
+  test('owned runtime uses the registered WebSocket route and run port', () {
+    for (final origin in [
+      'https://run.invalid:8444',
+      'https://127.0.0.1:8445',
+    ]) {
+      final runtime = CsRunEnvironment(envMap['local']!, Uri.parse(origin));
+      expect(
+        runtime.wsUrl,
+        '${origin.replaceFirst('https:', 'wss:')}/api/v1/ws',
+      );
+      expect(runtime.apiBaseUrl, origin);
+    }
+  });
   test(
     'admission pins distinct sessions, two principals and all 200 history IDs',
     () {

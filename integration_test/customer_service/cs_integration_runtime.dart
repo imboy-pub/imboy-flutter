@@ -33,7 +33,8 @@ class CsRunEnvironment implements Env {
   @override
   String get apiBaseUrl => origin.toString();
   @override
-  String? get wsUrl => origin.replace(scheme: 'wss', path: '/ws').toString();
+  String? get wsUrl =>
+      origin.replace(scheme: 'wss', path: '/api/v1/ws').toString();
   @override
   String get solidifiedKey => original.solidifiedKey;
   @override
