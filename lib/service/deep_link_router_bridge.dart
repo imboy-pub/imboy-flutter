@@ -71,7 +71,12 @@ class DeepLinkRouterBridge {
     // Navigator.canPop；go 重置整栈会让深链页成根路由，页内无返回键）。
     // push 抛错（匹配/守卫失败）时回退 go 保持重定向语义。
     try {
-      await router.push(location);
+      final Future<dynamic> pushing = router.push(location);
+      _debugLog(
+        'after push: canPop=${router.canPop()} '
+        'matches=${router.routerDelegate.currentConfiguration.matches.length}',
+      );
+      await pushing;
     } on Object catch (e) {
       _debugLog('push failed ($e), falling back to go');
       router.go(location);
