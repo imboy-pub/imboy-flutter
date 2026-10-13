@@ -27,10 +27,13 @@
 ///   （[lastFailureKind]），失败/重试状态不伪成功。
 library;
 
+import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:xid/xid.dart';
+import 'cs_conversation_history.dart';
 
+import 'package:xid/xid.dart';
+import 'package:dio/dio.dart' show DioException;
 import 'package:imboy/modules/customer_service/domain/cs_presence_controller.dart'
     show nextAckTarget;
 import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.dart';
@@ -39,6 +42,9 @@ import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_str
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_store.dart';
+
+part 'cs_session_mutations.dart';
+part 'cs_session_assets.dart';
 
 /// 坐席失败分类（A05：403 / 普通 409 / offboarding 409 各自语义分离）。
 enum CsSeatFailureKind { suspended, offboarding, conflict, other }
@@ -56,7 +62,26 @@ class CsSessionFlow {
   final EnterpriseStore _store;
   final void Function()? onChanged;
   bool _disposed = false;
-
+  bool _actionPending = false;
+  int _writesInFlight = 0;
+  CsAssetUploadOperation? assetOperation;
+  final bool Function()? scopeCurrent;
+  bool get _current => !_disposed && (scopeCurrent?.call() ?? true);
+  String _scope() =>
+      '$orgId/$workspaceId/$sessionId/$conversationId/$identityId';
+  bool _same(String scope) => _current && !readRevoked && _scope() == scope;
+  bool hasOlder = false;
+  bool loadingOlder = false;
+  bool readRevoked = false;
+  Map<String, DateTime> messageReadAt = const {};
+  String? _olderCursor;
+  bool _ackPending = false;
+  int _historyGeneration = 0;
+  CsApiException? historyError;
+  CsApiException? olderError;
+  Completer<void>? _historyRefresh;
+  bool _refreshAgain = false;
+  Timer? _refreshTimer;
   final String orgId;
   final String sessionId;
 
@@ -127,6 +152,7 @@ class CsSessionFlow {
     CsApi? csApi,
     EnterpriseStore? store,
     this.onChanged,
+    this.scopeCurrent,
   }) : _csApi = csApi ?? CsApi(),
        _store = store ?? EnterpriseStoreHolder.instance;
 
@@ -140,6 +166,8 @@ class CsSessionFlow {
   /// 同步：closed → 输入禁用；rating 回显 → rated（坐席端只展示状态）。
   /// 403/offboarding → 状态机降级。
   Future<CsSessionDetail?> refreshSessionState() async {
+    if (!_current || readRevoked) return null;
+    final scope = _scope();
     try {
       final d = await _csApi.sessionDetail(
         orgId,
@@ -148,6 +176,7 @@ class CsSessionFlow {
         // 必 422——真机转接 CAS 拿不到 version 的根因，2026-09-30 实证）。
         workspaceId: workspaceId,
       );
+      if (!_same(scope)) return null;
       detail = d;
       if (d.conversationId.isNotEmpty) {
         conversationId = d.conversationId;
@@ -160,7 +189,7 @@ class CsSessionFlow {
         // 服务端权威：经办人已非当前坐席（被转接/接管）→ 立即只读。
         machine.markTransferredAway();
       }
-      if (d.hasRating) {
+      if (d.isClosed && d.evaluationState == CsEvaluationState.rated) {
         machine.markRated();
       } else if (d.isClosed) {
         machine.markClosed();
@@ -171,7 +200,7 @@ class CsSessionFlow {
       _invalidateStaleUnread();
       return d;
     } on CsApiException catch (e) {
-      applyFailure(e);
+      if (_same(scope)) _historyFailure(e);
       return null;
     }
   }
@@ -193,6 +222,18 @@ class CsSessionFlow {
     return kind;
   }
 
+  /// Current action/target refusal shares the fail-closed read authority boundary.
+  CsSeatFailureKind applyActionFailure(CsApiException e) {
+    if (!_current) return CsSeatFailureKind.other;
+    if (e.isUnauthorized || e.isForbidden) {
+      _historyFailure(e);
+      machine.markSuspended();
+      onChanged?.call();
+      return lastFailureKind ?? CsSeatFailureKind.other;
+    }
+    return applyFailure(e);
+  }
+
   /// 只读终态（转接/撤权/关闭/评分）后未读已无意义：陈旧化（null =
   /// 不渲染）——转接/撤权后不得残留旧坐席视角的未读（CS-RUNTIME-04）。
   void _invalidateStaleUnread() {
@@ -206,84 +247,266 @@ class CsSessionFlow {
   ///
   /// 失败 fail-closed：未读置 null（不渲染陈旧值），本地水位不倒退。
   Future<void> resyncReadState() async {
+    if (!_current || readRevoked) return;
+    final scope = _scope();
     try {
-      final s = await _csApi.seatReadState(orgId, sessionId);
-      ackedCursor = s.lastReadMessageId;
+      final s = await fetchCsReadState(_csApi, orgId, workspaceId, sessionId);
+      if (!_same(scope)) return;
+      if (nextAckTarget(current: ackedCursor, seen: s.lastReadMessageId) !=
+          null) {
+        ackedCursor = s.lastReadMessageId;
+      }
       unreadCount = s.unreadCount;
-    } on CsApiException {
-      unreadCount = null;
+    } on CsApiException catch (e) {
+      if (_same(scope)) {
+        unreadCount = null;
+        _historyFailure(e);
+      }
     }
   }
 
-  /// 「权威展示完成」时 ACK（CS-RUNTIME-04）：把已加载最大消息 id 推进
-  /// 读游标。单调裁决（[nextAckTarget]）：无新消息/旧值不发（服务端本就
-  /// no-op，本地也不发）；成功后未读清零（本端刚读完）。失败保留水位与
-  /// 未读——不本地伪读，下次展示完成重试。
-  Future<void> ackReadSeen() async {
-    if (messages.isEmpty) return;
-    final target = nextAckTarget(current: ackedCursor, seen: messages.last.id);
+  /// 兼容旧调用；获取消息不证明可见，不推进阅读游标。
+  Future<void> ackReadSeen() async {}
+
+  Future<void> ackVisibleMessages(Iterable<String> visibleIds) async {
+    if (!_current || readRevoked || _ackPending) return;
+    final loaded = messages.map((m) => m.id).toSet();
+    final visible = visibleIds.where(loaded.contains).toList();
+    if (visible.isEmpty) return;
+    visible.sort((a, b) => csMessageId(a).compareTo(csMessageId(b)));
+    final target = nextAckTarget(current: ackedCursor, seen: visible.last);
     if (target == null) return;
+    final scope = _scope();
+    _ackPending = true;
     try {
-      await _csApi.seatAckRead(orgId, sessionId, target);
-      ackedCursor = target;
-      unreadCount = 0;
-    } on CsApiException {
-      // 保留水位：不推进、不清未读（诚实——ACK 未被服务端确认）。
+      await acknowledgeCsVisible(_csApi, orgId, workspaceId, sessionId, target);
+      if (_same(scope)) {
+        if (nextAckTarget(current: ackedCursor, seen: target) != null) {
+          ackedCursor = target;
+        }
+        await resyncReadState();
+      }
+    } on CsApiException catch (e) {
+      if (_same(scope)) _historyFailure(e);
+    } finally {
+      _ackPending = false;
     }
   }
 
-  // ==================== 消息通道 ====================
+  Future<List<EnterpriseMessage>> loadLatest() {
+    _historyGeneration++;
+    return _loadHistory(latest: true);
+  }
 
-  /// after_id 增量拉取：游标之后的新消息入库 + 追加（按 id 去重），
-  /// 随后对入站未投递消息 delivery ACK（delivery-only，不删真源）。
-  ///
-  /// [poll] 为 true 时受 [machine.shouldPoll] 门控：降级后停止后台拉取。
+  Future<List<EnterpriseMessage>> loadOlder() async {
+    if (loadingOlder || !hasOlder || _olderCursor == null) return const [];
+    olderError = null;
+    loadingOlder = true;
+    try {
+      return await _loadHistory(latest: true, before: _olderCursor);
+    } finally {
+      loadingOlder = false;
+    }
+  }
+
   Future<List<EnterpriseMessage>> loadIncremental({bool poll = false}) async {
     if (poll && !machine.shouldPoll) return const [];
-    if (conversationId.isEmpty) return const [];
+    return _loadHistory(after: cursor);
+  }
+
+  Future<List<EnterpriseMessage>> _loadHistory({
+    bool latest = false,
+    String? before,
+    String? after,
+  }) async {
+    if (!_current || readRevoked || conversationId.isEmpty) return const [];
+    await resolveWorkspaceId();
+    if (!_current || readRevoked || workspaceId.isEmpty) return const [];
+    final scope = _scope();
+    final generation = _historyGeneration;
     try {
-      await resolveWorkspaceId();
-      final fresh = await _csApi.conversationMessages(
-        conversationId,
+      final page = await fetchCsHistoryPage(
+        _csApi,
         orgId: orgId,
         workspaceId: workspaceId,
-        afterId: cursor,
+        conversationId: conversationId,
+        latest: latest,
+        beforeId: before,
+        afterId: after,
       );
-      final assets = Map<String, List<CsMessageAsset>>.from(messageAssets);
-      final inbound = <EnterpriseMessage>[];
-      for (final m in fresh) {
-        await _store.saveMessage(m.message);
-        if (m.assets.isNotEmpty) {
-          assets[m.message.id] = m.assets;
+      if (!_same(scope) || generation != _historyGeneration) return const [];
+      final result = await _mergeHistory(page, scope, generation);
+      if (!_same(scope) || generation != _historyGeneration) return const [];
+      if (latest && (before != null || _olderCursor == null)) {
+        hasOlder = page.messages.length == csHistoryPageLimit;
+        if (page.messages.isNotEmpty) {
+          _olderCursor = page.messages.last.message.id;
         }
-        inbound.add(m.message);
       }
-      messageAssets = assets;
-      final known = messages.map((m) => m.id).toSet();
-      final merged = [
-        ...messages,
-        ...inbound.where((m) => !known.contains(m.id)),
-      ]..sort((a, b) => a.id.compareTo(b.id));
-      messages = merged;
-      if (inbound.isNotEmpty) {
-        cursor = inbound
-            .map((m) => m.id)
-            .reduce((a, b) => a.compareTo(b) >= 0 ? a : b);
-      }
-      await _ackInbound(inbound);
-      // 降级读成功（suspend 只读）：允许恢复（服务端权威）。
-      if (machine.phase == CsSeatSessionPhase.readOnlySuspended) {
-        machine.restoreFromSuspension();
-      }
-      return inbound;
+      if (before == null) historyError = null;
+      return result;
     } on CsApiException catch (e) {
-      applyFailure(e);
+      if (_same(scope) && generation == _historyGeneration) {
+        if (before != null) olderError = e;
+        _historyFailure(e);
+      }
       return const [];
-    } on EnterpriseApiException catch (e) {
-      // 企业面 403/409 同样触发降级（同 Org 事实）。
-      if (e.isForbidden) machine.markSuspended();
-      if (e.isOffboardingRequired) machine.markOffboarding();
+    }
+  }
+
+  Future<List<EnterpriseMessage>> _mergeHistory(
+    CsConversationHistoryPage page,
+    String scope,
+    int generation, {
+    bool delivery = true,
+  }) async {
+    for (final row in page.messages) {
+      if (!_same(scope) || generation != _historyGeneration) return const [];
+      await _store.saveMessage(row.message);
+    }
+    if (!_same(scope) || generation != _historyGeneration || readRevoked) {
       return const [];
+    }
+    final byId = {for (final m in messages) m.id: m};
+    final reads = Map<String, DateTime>.from(messageReadAt);
+    final assets = Map<String, List<CsMessageAsset>>.from(messageAssets);
+    for (final row in page.messages) {
+      byId[row.message.id] = row.message;
+      if (row.assets.isEmpty) {
+        assets.remove(row.message.id);
+      } else {
+        assets[row.message.id] = row.assets;
+      }
+      reads.remove(row.message.id);
+    }
+    reads.addAll(page.readAt);
+    messages = byId.values.toList()
+      ..sort((a, b) => csMessageId(a.id).compareTo(csMessageId(b.id)));
+    messageAssets = Map.unmodifiable(assets);
+    messageReadAt = Map.unmodifiable(reads);
+    if (messages.isNotEmpty) cursor = messages.last.id;
+    final fresh = page.messages.map((r) => r.message).toList();
+    if (delivery) await _ackInbound(fresh);
+    return _same(scope) && generation == _historyGeneration ? fresh : const [];
+  }
+
+  void _historyFailure(CsApiException e) {
+    historyError = e;
+    if (e.isUnauthorized || e.isForbidden) invalidateReadScope();
+    applyFailure(e);
+  }
+
+  /// Invalidates only this flow's obsolete read projection, including auth loss.
+  void invalidateReadScope() {
+    readRevoked = true;
+    machine.revokeReadAuthority();
+    _events?.dispose();
+    assetOperation?.cancel();
+    detail = null;
+    messages = const [];
+    messageAssets = const {};
+    messageReadAt = const {};
+    unreadCount = null;
+    hasOlder = false;
+  }
+
+  /// Coalesce hints; each pass reads at most twenty existing fifty-row pages.
+  Future<void> refreshLoadedHistory() {
+    if (!_current || readRevoked) return Future.value();
+    if (_historyRefresh != null) {
+      _refreshAgain = true;
+      return _historyRefresh!.future;
+    }
+    _refreshTimer?.cancel();
+    final done = Completer<void>();
+    _historyRefresh = done;
+    unawaited(_drainHistoryRefresh(done, _scope()));
+    return done.future;
+  }
+
+  Future<void> _drainHistoryRefresh(Completer<void> done, String scope) async {
+    try {
+      for (var round = 0; round < 2; round++) {
+        _refreshAgain = false;
+        await _refreshLoadedOnce();
+        if (!_same(scope) || readRevoked || !_refreshAgain) break;
+      }
+    } on CsApiException catch (e) {
+      if (_same(scope)) _historyFailure(e);
+    } catch (_) {
+      if (_same(scope)) {
+        _historyFailure(const CsApiException(0, 'history-refresh-failed'));
+      }
+    } finally {
+      _historyRefresh = null;
+      done.complete();
+      if (_refreshAgain && _same(scope) && !readRevoked) {
+        _refreshTimer = Timer(const Duration(milliseconds: 100), () {
+          if (_same(scope)) unawaited(refreshLoadedHistory());
+        });
+      }
+    }
+  }
+
+  Future<void> _refreshLoadedOnce() async {
+    if (!_current ||
+        readRevoked ||
+        workspaceId.isEmpty ||
+        conversationId.isEmpty) {
+      return;
+    }
+    final scope = _scope();
+    final generation = ++_historyGeneration;
+    final oldest = messages.isEmpty ? null : csMessageId(messages.first.id);
+    final rows = <CsConversationMessage>[];
+    final reads = <String, DateTime>{};
+    String? before;
+    for (var count = 0; count < 20; count++) {
+      if (!_same(scope) || generation != _historyGeneration) return;
+      final page = await fetchCsHistoryPage(
+        _csApi,
+        orgId: orgId,
+        workspaceId: workspaceId,
+        conversationId: conversationId,
+        latest: true,
+        beforeId: before,
+      );
+      if (!_same(scope) || generation != _historyGeneration) return;
+      rows.addAll(page.messages);
+      reads.addAll(page.readAt);
+      final last = page.messages.isEmpty ? null : page.messages.last.message.id;
+      if (last == null ||
+          page.messages.length < csHistoryPageLimit ||
+          oldest == null ||
+          csMessageId(last) <= oldest) {
+        await _finishRefresh(
+          CsConversationHistoryPage(rows, reads),
+          scope,
+          generation,
+        );
+        return;
+      }
+      before = last;
+    }
+    await _finishRefresh(
+      CsConversationHistoryPage(rows, reads),
+      scope,
+      generation,
+      bounded: true,
+    );
+  }
+
+  Future<void> _finishRefresh(
+    CsConversationHistoryPage page,
+    String scope,
+    int generation, {
+    bool bounded = false,
+  }) async {
+    await _mergeHistory(page, scope, generation, delivery: false);
+    if (_same(scope) && generation == _historyGeneration) {
+      historyError = bounded
+          ? const CsApiException(0, 'history-refresh-bounded')
+          : null;
     }
   }
 
@@ -294,6 +517,8 @@ class CsSessionFlow {
   /// （服务端 ACK 面唯一合法形状；`seat:` 前缀为后端 400 契约，客户端
   /// 绝不产生）。只写 delivery，不删真源。
   Future<void> _ackInbound(List<EnterpriseMessage> fresh) async {
+    if (!_current || readRevoked) return;
+    final scope = _scope();
     final undelivered = fresh
         .where((m) => !m.delivered)
         .map((m) => m.id)
@@ -302,6 +527,7 @@ class CsSessionFlow {
     await resolveWorkspaceId();
     if (workspaceId.isEmpty) return;
     for (final mid in undelivered) {
+      if (!_same(scope) || readRevoked) return;
       await _csApi.ackDelivery(
         orgId,
         conversationId,
@@ -310,6 +536,7 @@ class CsSessionFlow {
         recipientRef: 'identity:$identityId',
       );
     }
+    if (!_same(scope)) return;
     await _store.markDelivered(orgId, conversationId, undelivered);
     final marked = undelivered.toSet();
     messages = messages
@@ -325,6 +552,22 @@ class CsSessionFlow {
   /// [lastFailureKind] 给出分类）。失败不产生文件名文本附件——附件消息
   /// 与文本消息同面提交，无文本兜底伪成功。
   Future<bool> send(String text, {List<String> assetIds = const []}) async {
+    if (!_current || readRevoked || _actionPending || _writesInFlight > 0) {
+      return false;
+    }
+    _writesInFlight++;
+    try {
+      return await _sendMessage(text, assetIds: assetIds);
+    } finally {
+      _writesInFlight--;
+    }
+  }
+
+  Future<bool> _sendMessage(
+    String text, {
+    List<String> assetIds = const [],
+  }) async {
+    if (!_current) return false;
     final body = text.trim();
     if (body.isEmpty && assetIds.isEmpty) return false;
     if (!machine.canSend) return false;
@@ -337,6 +580,10 @@ class CsSessionFlow {
     // 解析失败保持空 = fail-closed（不构造注定失败的请求）。
     await resolveWorkspaceId();
     if (workspaceId.isEmpty) return false;
+    if (!_current || readRevoked || _actionPending || !machine.canSend) {
+      return false;
+    }
+    final scope = _scope();
     final clientMsgId = pendingClientMsgId ?? Xid().toString();
     pendingClientMsgId = clientMsgId;
     // 重试稳定性：已有 pending 附件组必须原样复用（A03 同键同附件）。
@@ -354,11 +601,13 @@ class CsSessionFlow {
         identityId: identityId,
         assetIds: ids,
       );
+      if (!_same(scope)) return false;
       pendingClientMsgId = null;
       pendingAssetIds = null;
       lastFailureKind = null;
       final sentMessage = sent.message;
       await _store.saveMessage(sentMessage);
+      if (!_same(scope)) return false;
       if (ids.isNotEmpty) {
         // 服务端 POST 回显同形状 assets 投影（CS-BE-01）；本地兜底：回显
         // 未携带投影时用提交的 id 组成最小投影（文件名/mime 待历史刷新）。
@@ -379,7 +628,7 @@ class CsSessionFlow {
       }
       return true;
     } on CsApiException catch (e) {
-      applyFailure(e);
+      if (_same(scope)) applyActionFailure(e);
       return false;
     }
   }
@@ -390,10 +639,13 @@ class CsSessionFlow {
   /// workspace（会话页路由种子只是展示值）。每个 flow 实例只尝试一次
   /// （失败保持空 = 请求面 422 fail-closed，不做本地默认值）。
   Future<String> resolveWorkspaceId() async {
+    if (!_current) return '';
     if (workspaceId.isNotEmpty || _workspaceResolveTried) return workspaceId;
+    final scope = _scope();
     _workspaceResolveTried = true;
     try {
       final contexts = await _csApi.seatContexts();
+      if (!_same(scope)) return '';
       for (final c in contexts.contexts) {
         if (c.organizationId == orgId && c.workspaces.isNotEmpty) {
           workspaceId = c.workspaces.first.id;
@@ -408,122 +660,6 @@ class CsSessionFlow {
 
   bool _workspaceResolveTried = false;
 
-  /// 附件上传三步：presign（object_hash = SHA-256(bytes)）→ 裸 PUT
-  /// （嵌套 upload.url，缺失 fail-closed）→ confirm（upload_ref）；
-  /// 成功后返回 assetId（confirmed_unbound，等待与消息原子绑定）。
-  /// `upload_url` / `upload_ref` 不出本方法作用域（不持久化、不进
-  /// store、不进 UI）。
-  Future<String> uploadAsset({
-    required String mime,
-    required Uint8List bytes,
-    String fileName = '',
-  }) async {
-    if (!machine.canSend) return '';
-    if (conversationId.isEmpty) return '';
-    await resolveWorkspaceId();
-    final asset = await _csApi.uploadEnterpriseAsset(
-      orgId,
-      workspaceId: workspaceId,
-      conversationId: conversationId,
-      mime: mime,
-      bytes: bytes,
-      fileName: fileName,
-    );
-    return asset.id;
-  }
-
-  /// 附件内容字节：仅经企业 content 鉴权代理（每次请求重新鉴权）。
-  ///
-  /// 门控（A04 读写分离）：closed/rated 只读态仍可查看（服务端代理仍
-  /// 是唯一权威）；suspend / offboarding / transferredAway 不再发请求
-  /// （旧凭证已被拒 / 经办权已离开）。请求侧 403 / offboarding 409 同样
-  /// 触发降级。返回 null = 已降级/通道缺失（UI 不渲染内容）。
-  ///
-  /// 图片气泡（Image.memory）与文件文本预览（utf8 解码）共用本入口；
-  /// **禁止** Image.network/CachedNetworkImage 裸 URL（EB-D06）。
-  Future<Uint8List?> fetchAssetBytes(String assetId) async {
-    if (!machine.canDownload) return null;
-    if (conversationId.isEmpty) return null;
-    // 与 uploadAsset 同门：content 门查询串必带 workspace_id（缺即 422）。
-    await resolveWorkspaceId();
-    try {
-      return await _csApi.fetchAssetBytes(
-        orgId,
-        assetId,
-        workspaceId: workspaceId,
-      );
-    } on EnterpriseApiException catch (e) {
-      if (e.isForbidden) machine.markSuspended();
-      if (e.isOffboardingRequired) machine.markOffboarding();
-      return null;
-    }
-  }
-
-  // ==================== 会话动作 ====================
-
-  /// 转接（CAS）。409 冲突：刷新真实状态（detail + 消息面不受影响），
-  /// 返回 [CsSeatFailureKind.conflict] 供 UI 提示；成功 → 旧坐席**立即
-  /// 只读**（A04 transferredAway，目标坐席经其自身权威回显接管）。
-  Future<CsSeatFailureKind?> transferTo(String toIdentityId) async {
-    final version = detail?.version ?? 0;
-    if (version <= 0) {
-      // 无可信版本：先刷新拿真实 version（不盲发 CAS）。
-      await refreshSessionState();
-      return CsSeatFailureKind.conflict;
-    }
-    try {
-      await _csApi.transfer(
-        orgId,
-        sessionId,
-        toIdentityId: toIdentityId,
-        expectedVersion: version,
-        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
-        workspaceId: workspaceId,
-      );
-      machine.markTransferredAway();
-      unreadCount = null;
-      lastFailureKind = null;
-      return null;
-    } on CsApiException catch (e) {
-      final kind = applyFailure(e);
-      // CAS 冲突：刷新真实状态再提示（不做乐观伪成功）。
-      if (kind == CsSeatFailureKind.conflict) {
-        await refreshSessionState();
-      }
-      return kind;
-    }
-  }
-
-  /// 关闭（CAS + 可选 reason）。成功 → 状态机 closed（所有写入口禁用，
-  /// 等待访客评分）。409：刷新真实状态（可能已被关闭/转走）。
-  Future<CsSeatFailureKind?> closeSession({String? reason}) async {
-    final version = detail?.version ?? 0;
-    if (version <= 0) {
-      await refreshSessionState();
-      return CsSeatFailureKind.conflict;
-    }
-    try {
-      await _csApi.close(
-        orgId,
-        sessionId,
-        expectedVersion: version,
-        reason: reason,
-        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
-        workspaceId: workspaceId,
-      );
-      machine.markClosed();
-      unreadCount = null;
-      lastFailureKind = null;
-      return null;
-    } on CsApiException catch (e) {
-      final kind = applyFailure(e);
-      if (kind == CsSeatFailureKind.conflict) {
-        await refreshSessionState();
-      }
-      return kind;
-    }
-  }
-
   // ==================== 坐席事件流（APP-M02-A02） ====================
 
   CsSeatEventsStream? _events;
@@ -534,19 +670,32 @@ class CsSessionFlow {
   void bindEvents(CsSeatEventsStream stream) {
     _events?.dispose();
     _events = stream;
-    stream.start(onEvent: _onSeatEvent);
+    stream.start(
+      onEvent: _onSeatEvent,
+      onError: (error) {
+        if (identical(_events, stream) &&
+            stream.orgId == orgId &&
+            stream.boundWorkspaceId == workspaceId) {
+          _onSeatStreamError(error);
+        }
+      },
+    );
   }
 
   Future<void> _onSeatEvent(CsSseEnvelope e) async {
-    // 降级/只读终态后停止消费（不再发任何刷新请求；撤权降级由权威
-    // 请求的 403/409 驱动，服务端也会在撤权后关闭流）。
-    if (_disposed || !machine.shouldPoll) return;
+    // Closed/rated retains authorized reading, including revocation hints.
+    if (!_current ||
+        readRevoked ||
+        !machine.canDownload ||
+        !_seatEventInScope(e)) {
+      return;
+    }
     switch (e.type) {
       case CsSseEnvelope.typeMessageAppended:
-        // 访客新消息：增量权威拉取（游标防重，事件重复无害）→ 页面在场
-        // 消费即「展示完成」→ ACK 推进读游标（CS-APP-02）。
-        await loadIncremental();
-        await ackReadSeen();
+        if (!machine.shouldPoll) return;
+        // 事件仅触发权威刷新；阅读 ACK 由实际可见消息入口推进。
+        await refreshLoadedHistory();
+
       case CsSseEnvelope.typeSessionChanged:
         if (e.resourceId.isEmpty || e.resourceId == sessionId) {
           await refreshSessionState();
@@ -557,26 +706,63 @@ class CsSessionFlow {
         await refreshSessionState();
       case CsSseEnvelope.typeResyncRequired:
         // 游标缺失/过期/不连续：清消息游标 + **未读陈旧化**（null——重连后
-        // 不得渲染陈旧未读），先重同步读状态（游标/未读权威值）再增量
-        // 拉取渲染，展示完成后 ACK 推进（CS-RUNTIME-04 重连顺序）。
+        // 不得渲染陈旧未读），重同步读状态后有界刷新最新与已载历史。
+        // 重连仅刷新权威数据，不推断消息可见或推进阅读 ACK。
         cursor = '';
         unreadCount = null;
         await refreshSessionState();
         await resyncReadState();
-        await loadIncremental();
-        await ackReadSeen();
+        await refreshLoadedHistory();
+
       case CsSseEnvelope.typeQueueChanged:
         // 队列事件由工作台页面级流消费；会话页不响应。
         return;
       default:
         return;
     }
-    if (!_disposed) onChanged?.call();
+    if (_current) onChanged?.call();
+  }
+
+  bool _seatEventInScope(CsSseEnvelope e) {
+    if (e.organizationId != orgId || e.workspaceId != workspaceId) return false;
+    if (e.resourceId.isEmpty) {
+      // The production resync envelope deliberately has no resource ID.
+      return e.type == CsSseEnvelope.typeResyncRequired;
+    }
+    return switch (e.type) {
+      CsSseEnvelope.typeSeatChanged => e.resourceId == identityId,
+      // Ordinary assignments reference a session; the server's revocation
+      // close frame references the authenticated business identity.
+      CsSseEnvelope.typeAssignmentChanged =>
+        e.resourceId == sessionId || e.resourceId == identityId,
+      CsSseEnvelope.typeSessionChanged => e.resourceId == sessionId,
+      _ => true,
+    };
+  }
+
+  void _onSeatStreamError(Object error) {
+    if (!_current || readRevoked) return;
+    final status = error is CsSseOpenException
+        ? error.statusCode
+        : error is CsApiException
+        ? error.code
+        : error is DioException
+        ? error.response?.statusCode
+        : null;
+    if (status == 401 || status == 403) {
+      _historyFailure(
+        CsApiException(status!, 'seat stream authorization refused'),
+      );
+      onChanged?.call();
+    }
   }
 
   /// 释放事件流（页面 dispose 时调用；重连定时器/订阅一并取消）。
   void dispose() {
     _disposed = true;
+    assetOperation?.cancel();
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
     _events?.dispose();
     _events = null;
   }

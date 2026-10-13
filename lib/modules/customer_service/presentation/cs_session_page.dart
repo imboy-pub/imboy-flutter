@@ -1,40 +1,48 @@
-/// 坐席会话页（§12.5.1 / CSM-02）
-///
-/// claimed/active 会话的企业会话通道：
-/// - 历史 after_id 增量 + 下拉刷新；发送（幂等 client_msg_id）；delivery
-///   ACK（delivery-only，不删真源）；企业附件 presign→PUT→confirm 上传与
-///   content 代理预览（EB-D06，禁止个人 C2C/attachment fallback）；
-/// - transfer：目标只列同 Org active customer_service identity；CAS +
-///   409 冲突刷新（不做乐观伪成功）；
-/// - close：确认弹层 + 可选 reason（白名单/限长）；关闭后输入禁用 →
-///   评分等待状态展示（评分是访客侧动作，坐席端只显示 rating 状态）；
-/// - suspend / assignment 结束 / seat disabled / offboarding：下一个失败
-///   请求即清写入口、停后台发送、显示可解释只读态（cs_seat_gate 语义扩展）。
+/// CS seat session: scoped history, visible reading acknowledgements and
+/// authorized enterprise attachments. SSE is an invalidation hint; delivery
+/// acknowledgements and visitor read receipts remain separate facts.
 library;
 
-import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' show ViewFocusEvent, ViewFocusState;
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
-import 'package:mime/mime.dart' as mime;
 
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_session_machine.dart';
-import 'package:imboy/modules/customer_service/domain/cs_session_actions.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_session_action_confirmation.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_session_attachment_preparation.dart';
 import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
-import 'package:imboy/modules/customer_service/presentation/cs_message_bubble.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_session_timeline.dart';
+
+import 'cs_session_rating_banner.dart';
+import 'cs_attachment_save.dart';
+import 'cs_attachment_upload_panel.dart';
+import 'cs_verified_asset_cache.dart';
+
+import 'package:imboy/modules/customer_service/presentation/cs_session_preview_scope.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
+/// A resumed single-view host supplies the initial input-focus fact.
+/// Once a view event exists, it takes precedence over the initial inference.
+bool csHostViewFocused({
+  required bool? eventFocused,
+  required int currentViewId,
+  required List<int> viewIds,
+  required bool resumed,
+}) =>
+    resumed &&
+    (eventFocused ?? (viewIds.length == 1 && viewIds.single == currentViewId));
 
 class CsSessionPage extends StatefulWidget {
   final String orgId;
@@ -49,6 +57,10 @@ class CsSessionPage extends StatefulWidget {
   /// 缺省由事件流经 seat-contexts 权威解析）。
   final String workspaceId;
   final String contactName;
+  final CsApi? csApi;
+  final AuthSessionReader? authReader;
+  final CsSessionAttachmentPreparation? attachmentPreparation;
+  final CsAttachmentSave? attachmentSave;
 
   const CsSessionPage({
     super.key,
@@ -58,6 +70,10 @@ class CsSessionPage extends StatefulWidget {
     this.identityId = '',
     this.workspaceId = '',
     this.contactName = '',
+    this.csApi,
+    this.authReader,
+    this.attachmentPreparation,
+    this.attachmentSave,
   });
 
   @override
@@ -66,32 +82,104 @@ class CsSessionPage extends StatefulWidget {
 
 class _CsSessionPageState extends State<CsSessionPage>
     with WidgetsBindingObserver {
-  late final CsSessionFlow _flow;
-  late final CsSeatEventsStream _events;
+  late CsSessionFlow _flow;
+  late CsSeatEventsStream _events;
   final TextEditingController _input = TextEditingController();
-  final CsApi _csApi = CsApi();
-  final ScrollController _messageScroll = ScrollController();
-  String? _lastMessageId;
+  final _inputFocus = FocusNode();
+  late final AuthSessionReader _auth;
+  int _binding = 0;
+  AuthSessionScope _authScope = (uid: '', generation: 0, transitioning: true);
+  String _draftScope = '';
+  late final CsSessionPreviewScope _previews;
+  AppLifecycleState? _lifecycle;
+  bool? _viewFocused;
 
   bool _busy = false;
   bool _sending = false;
+  bool _uploading = false;
+  final _actions = CsSessionActionConfirmation();
+  late final CsSessionAttachmentPreparation _attachmentPreparation;
+  CsPreparedSeatAttachment? _preparedAttachment;
+  CsAssetUploadOperation? _attachmentOperation;
   String? _error;
 
-  /// 附件字节 future 缓存（每 asset 只发一次授权代理请求；重建不重拉）。
-  final Map<String, Future<Uint8List?>> _assetBytesFutures =
-      <String, Future<Uint8List?>>{};
-
-  Future<Uint8List?> _cachedAssetBytes(String assetId) {
-    return _assetBytesFutures.putIfAbsent(
-      assetId,
-      () => _flow.fetchAssetBytes(assetId),
-    );
+  final _assetCache = CsVerifiedAssetCache();
+  Future<CsVerifiedAssetContent?> _cachedAssetContent(String id) =>
+      _assetCache.get(id, () => _flow.fetchAssetContent(id));
+  Future<Uint8List?> _cachedAssetBytes(String id) async {
+    final flow = _flow, binding = _binding;
+    final content = await _cachedAssetContent(id);
+    return _scopeAlive(flow, binding) && !flow.readRevoked
+        ? content?.bytes
+        : null;
   }
 
   @override
   void initState() {
     super.initState();
+    _previews = CsSessionPreviewScope(save: widget.attachmentSave);
+    _attachmentPreparation =
+        widget.attachmentPreparation ?? CsSessionAttachmentPreparation();
     WidgetsBinding.instance.addObserver(this);
+    _auth = widget.authReader ?? authSessionReader;
+    _auth.addListener(_authChanged);
+    _actions.addListener(_actionChanged);
+    _inputFocus.addListener(_focusChanged);
+    _lifecycle = WidgetsBinding.instance.lifecycleState;
+    _bind();
+  }
+
+  String _routeScope(CsSessionPage page) =>
+      '${page.orgId}/${page.workspaceId}/${page.sessionId}/${page.conversationId}/${page.identityId}';
+
+  bool _authCurrent() => _auth.isCurrent(_authScope);
+
+  bool _scopeAlive(CsSessionFlow flow, int binding) =>
+      mounted &&
+      binding == _binding &&
+      identical(flow, _flow) &&
+      _authCurrent();
+
+  void _focusChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _authChanged() {
+    if (!mounted) return;
+    final now = _auth.current;
+    if (now.transitioning || now.uid.isEmpty) {
+      _refreshCurrent(_flow, _binding);
+      return;
+    }
+    if (now == _authScope) return;
+    _flow.dispose();
+    _bind();
+    setState(() {});
+  }
+
+  @override
+  void didUpdateWidget(CsSessionPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_routeScope(oldWidget) != _routeScope(widget)) {
+      _flow.dispose();
+      _bind();
+    }
+  }
+
+  void _bind() {
+    _actions.invalidate();
+    _previews.invalidate();
+    final now = _auth.current;
+    final draftScope = '${now.uid}/${_routeScope(widget)}';
+    if (_draftScope != draftScope) _input.clear();
+    _draftScope = draftScope;
+    final binding = ++_binding, route = _routeScope(widget);
+    _authScope = now;
+    _clearAttachmentScope();
+    _busy = false;
+    _sending = false;
+    _uploading = false;
+    _error = null;
     _flow = CsSessionFlow(
       orgId: widget.orgId,
       sessionId: widget.sessionId,
@@ -99,64 +187,109 @@ class _CsSessionPageState extends State<CsSessionPage>
       identityId: widget.identityId,
       workspaceId: widget.workspaceId,
       contactMaskedName: csMaskContactName(widget.contactName),
+      csApi: widget.csApi,
+      scopeCurrent: () =>
+          binding == _binding && route == _routeScope(widget) && _authCurrent(),
       onChanged: () {
-        if (mounted) setState(() {});
+        if (mounted && binding == _binding) _repaint(_flow, binding);
       },
     );
-    // A02：坐席事件流（org 作用域 + workspace 作用域）。事件只触发权威
-    // 刷新；访客新消息由 message.appended 驱动增量拉取自动出现。
     _events = CsSeatEventsStream(
       orgId: widget.orgId,
       workspaceId: widget.workspaceId,
     );
-    _flow.bindEvents(_events);
-    _bootstrap();
+    if (_authCurrent()) {
+      _flow.bindEvents(_events);
+      _bootstrap();
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _actions.removeListener(_actionChanged);
+    _actions.dispose();
+    _previews.dispose();
+    _clearAttachmentScope();
     _flow.dispose();
     _input.dispose();
-    _messageScroll.dispose();
+    _auth.removeListener(_authChanged);
+    _inputFocus.dispose();
     super.dispose();
   }
 
-  /// CS-RUNTIME-04：resume 重同步——回前台后重拉权威状态（detail + 读
-  /// 状态 + 消息），展示完成再 ACK；后台期间（paused）不做任何事
-  /// （presence 心跳由工作台层控制器门控）。
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _refresh();
-    }
+    _lifecycle = state;
+    if (mounted) setState(() {});
+    if (state == AppLifecycleState.resumed && _authCurrent()) _refresh();
+  }
+
+  @override
+  void didChangeViewFocus(ViewFocusEvent event) {
+    if (!mounted || event.viewId != View.of(context).viewId) return;
+    setState(() => _viewFocused = event.state == ViewFocusState.focused);
   }
 
   Future<void> _bootstrap() async {
+    final flow = _flow, binding = _binding;
     setState(() => _busy = true);
-    await _flow.refreshSessionState();
-    // 进入会话：先重同步读状态（游标/未读权威值），再拉消息——展示完成
-    // 后 ACK 推进游标（CS-APP-02「权威展示完成时 ACK」）。
-    await _flow.resyncReadState();
-    await _flow.loadIncremental();
-    await _flow.ackReadSeen();
-    if (!mounted) return;
-    setState(() => _busy = false);
+    await flow.refreshSessionState();
+    if (!mounted || !_scopeAlive(flow, binding)) return;
+    await flow.resyncReadState();
+    if (!mounted || !_scopeAlive(flow, binding)) return;
+    await flow.loadLatest();
+    if (_scopeAlive(flow, binding)) {
+      _busy = false;
+      _repaint(flow, binding);
+    }
   }
 
   Future<void> _refresh() async {
-    await _flow.refreshSessionState();
-    await _flow.resyncReadState();
-    await _flow.loadIncremental();
-    await _flow.ackReadSeen();
-    if (mounted) {
+    final flow = _flow, binding = _binding;
+    await flow.refreshSessionState();
+    if (!_refreshCurrent(flow, binding)) return;
+    await flow.resyncReadState();
+    if (!_refreshCurrent(flow, binding)) return;
+    await flow.refreshLoadedHistory();
+    if (_refreshCurrent(flow, binding)) _repaint(flow, binding);
+  }
+
+  bool _refreshCurrent(CsSessionFlow flow, int binding) {
+    if (mounted &&
+        binding == _binding &&
+        identical(flow, _flow) &&
+        !_authCurrent()) {
+      flow.invalidateReadScope();
+      flow.dispose();
+      _actions.invalidate();
+      _input.clear();
+      _previews.invalidate();
+      _clearAttachmentScope();
       setState(() {});
     }
+    return _scopeAlive(flow, binding);
+  }
+
+  void _clearAttachmentScope() {
+    _assetCache.clear();
+    _preparedAttachment = null;
+    _attachmentOperation?.cancel();
+    _attachmentOperation = null;
+  }
+
+  void _repaint(CsSessionFlow flow, int binding) {
+    if (!_scopeAlive(flow, binding)) return;
+    if (flow.readRevoked) {
+      _previews.invalidate();
+      _clearAttachmentScope();
+    }
+    _actions.refresh();
+    setState(() {});
   }
 
   void _toast(String msg) => AppLoading.showToast(msg);
 
-  /// 失败分类 → 文案（仅 conflict 在 flow 内已刷新真实状态）。
   void _toastFailure(CsSeatFailureKind kind) {
     final t = context.t.customerService;
     switch (kind) {
@@ -172,24 +305,25 @@ class _CsSessionPageState extends State<CsSessionPage>
   }
 
   Future<void> _send() async {
+    final flow = _flow, binding = _binding;
     final text = _input.text.trim();
-    if (text.isEmpty || _busy) return;
+    if (text.isEmpty || _busy || _actions.busy) return;
     setState(() {
       _busy = true;
       _sending = true;
     });
-    final ok = await _flow.send(text);
-    if (!mounted) return;
+    _actions.refresh();
+    final ok = await flow.send(text);
+    if (!mounted || !_scopeAlive(flow, binding)) return;
     setState(() {
       _busy = false;
       _sending = false;
     });
+    _actions.refresh();
     if (ok) {
       _input.clear();
-      _scrollToLatest();
+      _actions.refresh();
     } else {
-      // A05：失败按类分流（不伪成功）。降级类失败页面横幅已给可解释
-      // 只读态，toast 只补充非降级类。
       final t = context.t.customerService;
       switch (_flow.lastFailureKind) {
         case CsSeatFailureKind.conflict:
@@ -207,306 +341,206 @@ class _CsSessionPageState extends State<CsSessionPage>
     }
   }
 
+  void _setUploadBusy(bool value) {
+    setState(() {
+      _busy = value;
+      _uploading = value;
+    });
+    _actions.refresh();
+  }
+
+  bool _canAttach(CsSessionFlow flow, int binding, {bool ownsUpload = false}) =>
+      _scopeAlive(flow, binding) &&
+      !flow.readRevoked &&
+      (!ownsUpload ||
+          _attachmentOperation?.stage != CsAssetUploadStage.cancelled) &&
+      _attachmentOperation?.stage != CsAssetUploadStage.unknown &&
+      flow.machine.canSend &&
+      !_actions.busy &&
+      flow.pendingClientMsgId == null &&
+      (!_busy || (ownsUpload && _uploading));
+
+  CsAssetUploadOperation _newAttachmentOperation(
+    CsSessionFlow flow,
+    int binding,
+  ) => CsAssetUploadOperation(
+    isCurrent: () =>
+        _scopeAlive(flow, binding) &&
+        !flow.readRevoked &&
+        flow.machine.canSend &&
+        !_actions.busy,
+    onChanged: () {
+      if (_scopeAlive(flow, binding)) setState(() {});
+    },
+  );
+
   Future<void> _attach() async {
-    if (_busy || !_flow.machine.canSend) return;
-    final files = await FilePicker.pickFiles(type: FileType.any);
-    if (files.isEmpty) return;
-    if (!mounted) return;
-    final picked = files.single;
-    final path = picked.path;
-    if (path == null) return;
-    final file = File(path);
-    final name = picked.name;
-    // mime 探测：扩展名 + 魔数头部（后端按白名单校验，octet-stream 必 422）。
-    final header = await _readFileHead(file);
-    if (!mounted) return;
-    final detected = mime.lookupMimeType(path, headerBytes: header);
-    if (detected == null || detected.isEmpty) {
-      _toast(context.t.customerService.attachUnsupportedType);
-      return;
-    }
-    setState(() => _busy = true);
+    final flow = _flow, binding = _binding;
+    if (!_canAttach(flow, binding)) return;
+    _preparedAttachment = null;
+    _attachmentOperation = _newAttachmentOperation(flow, binding);
+    final operation = _attachmentOperation!;
+    _setUploadBusy(true);
     try {
-      // A03：presign（object_hash=SHA-256）→ 裸 PUT → confirm
-      // （confirmed_unbound）→ 消息带 asset_ids 原子绑定。不发送「文件名
-      // 文本」伪附件；上传失败不产生任何消息（不伪成功），幂等键与附件组
-      // 保留到确认为止。
-      final bytes = await file.readAsBytes();
-      final assetId = await _flow.uploadAsset(
-        mime: detected,
-        bytes: bytes,
-        fileName: name,
+      final prepared = await _attachmentPreparation.prepare(
+        canWrite: () => _canAttach(flow, binding, ownsUpload: true),
       );
-      if (!mounted) return;
-      if (assetId.isEmpty) {
-        setState(() => _busy = false);
-        _toast(context.t.customerService.attachUploadFailed);
+      if (prepared == null) {
+        operation.cancel();
         return;
       }
-      final ok = await _flow.send('', assetIds: [assetId]);
-      if (!mounted) return;
-      setState(() => _busy = false);
-      if (ok) {
-        _toast(context.t.customerService.attachUploaded);
-      } else {
-        final t = context.t.customerService;
-        if (_flow.lastFailureKind == CsSeatFailureKind.conflict) {
-          _toast(t.sendConflict);
-        } else if (_flow.lastFailureKind == null) {
-          _toast(t.attachUploadFailed);
-        }
-        // suspended/offboarding：降级横幅为权威可解释态。
-        if (mounted) {
-          setState(() {});
-        }
+      if (!_canAttach(flow, binding, ownsUpload: true)) return;
+      _preparedAttachment = prepared;
+      await _uploadPrepared(flow, binding, prepared);
+    } on CsUnsupportedSeatAttachment {
+      if (_scopeAlive(flow, binding)) {
+        _attachmentOperation = null;
+        setState(
+          () => _error = context.t.customerService.attachUnsupportedType,
+        );
       }
     } on Object {
-      if (!mounted) return;
-      setState(() => _busy = false);
-      _toast(context.t.customerService.attachUploadFailed);
-    }
-  }
-
-  /// 读文件头部若干字节供魔数探测（不足则整读）。
-  Future<Uint8List> _readFileHead(File file) async {
-    final len = await file.length();
-    final take = len > 64 ? 64 : len;
-    if (take <= 0) return Uint8List(0);
-    final raf = await file.open(mode: FileMode.read);
-    try {
-      final data = await raf.read(take);
-      return data;
+      if (_scopeAlive(flow, binding)) {
+        _attachmentOperation = null;
+        setState(() => _error = context.t.customerService.attachUploadFailed);
+      }
     } finally {
-      await raf.close();
+      if (_scopeAlive(flow, binding)) _setUploadBusy(false);
     }
   }
 
-  /// 附件查看：只经授权 content 代理取字节（EB-D06）；closed/rated 只读
-  /// 态仍可查看。图片弹层（InteractiveViewer 缩放）与文本预览分型。
-  Future<void> _viewAsset(CsMessageAsset asset) async {
+  Future<void> _uploadPrepared(
+    CsSessionFlow flow,
+    int binding,
+    CsPreparedSeatAttachment prepared,
+  ) async {
+    final operation = _attachmentOperation!;
+    final id = await flow.uploadAsset(
+      mime: prepared.mime,
+      bytes: prepared.bytes,
+      fileName: prepared.fileName,
+      operation: operation,
+    );
+    if (!_canAttach(flow, binding, ownsUpload: true) || id.isEmpty) return;
+    final ok = await flow.send('', assetIds: [id]);
+    if (!mounted || !_refreshCurrent(flow, binding)) return;
+    _toast(
+      ok
+          ? context.t.customerService.attachUploaded
+          : context.t.customerService.sendFailed,
+    );
+    if (ok) _preparedAttachment = null;
+  }
+
+  Future<void> _retryAttachment() async {
+    final flow = _flow, binding = _binding, prepared = _preparedAttachment;
+    if (prepared == null ||
+        _busy ||
+        _actions.busy ||
+        !_scopeAlive(flow, binding) ||
+        !flow.machine.canSend ||
+        flow.readRevoked ||
+        !(_attachmentOperation?.canRetry ?? false)) {
+      return;
+    }
+    _attachmentOperation = _newAttachmentOperation(flow, binding);
+    _setUploadBusy(true);
     try {
-      final bytes = await _cachedAssetBytes(asset.id);
-      if (!mounted) return;
-      // null = 已降级（flow 已同步状态机）：刷新 UI 呈现只读态，不弹预览
-      if (bytes == null) {
-        setState(() {});
-        return;
-      }
-      final t = context.t.customerService;
-      if (asset.isImage) {
-        showDialog<void>(
-          context: context,
-          builder: (_) => Dialog(
-            insetPadding: const EdgeInsets.all(AppSpacing.medium),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(AppSpacing.small),
-                  child: Text(
-                    asset.fileName.isNotEmpty
-                        ? asset.fileName
-                        : t.attachPreviewTitle,
-                    style: context.textStyle(FontSizeType.footnote),
-                  ),
-                ),
-                Flexible(
-                  child: InteractiveViewer(
-                    maxScale: 4,
-                    child: Image.memory(
-                      bytes,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, _, _) => Padding(
-                        padding: const EdgeInsets.all(AppSpacing.medium),
-                        child: Text(t.attachBinaryNoPreview),
-                      ),
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(context.t.common.buttonOk),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-        return;
-      }
-      final text = utf8.decode(bytes, allowMalformed: true);
-      final printable = text.replaceAll(RegExp(r'[\x00-\x08\x0E-\x1F]'), '');
-      showDialog<void>(
+      await _uploadPrepared(flow, binding, prepared);
+    } finally {
+      if (_scopeAlive(flow, binding)) _setUploadBusy(false);
+    }
+  }
+
+  void _cancelAttachment() {
+    _attachmentOperation?.cancel();
+    if (mounted) setState(() {});
+  }
+
+  /// Attachments always use the authorized content proxy, including closed sessions.
+  Future<void> _viewAsset(CsMessageAsset asset) async {
+    final flow = _flow, binding = _binding;
+    try {
+      await _previews.show(
         context: context,
-        builder: (_) => AlertDialog(
-          title: Text(
-            asset.fileName.isNotEmpty ? asset.fileName : t.attachPreviewTitle,
-          ),
-          content: SingleChildScrollView(
-            child: Text(
-              printable.isEmpty ? t.attachBinaryNoPreview : printable,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(context.t.common.buttonOk),
-            ),
-          ],
-        ),
+        asset: asset,
+        loadContent: () => flow.fetchAssetContent(asset.id),
+        isCurrent: () => _scopeAlive(flow, binding) && !flow.readRevoked,
       );
+      if (_scopeAlive(flow, binding)) _repaint(flow, binding);
     } on EnterpriseApiException catch (e) {
-      if (!mounted) return;
+      if (!mounted || !_scopeAlive(flow, binding)) return;
       setState(() => _error = '${e.message} (code=${e.code})');
       if (e.isForbidden) _flow.machine.markSuspended();
       if (e.isOffboardingRequired) _flow.machine.markOffboarding();
     }
   }
 
-  // ==================== 转接 ====================
+  void _actionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  CsActionRisks _actionRisks() => CsActionRisks(
+    draft: _input.text.trim().isNotEmpty,
+    sending: _sending,
+    uploading: _uploading,
+    unconfirmed:
+        (_flow.pendingClientMsgId != null ||
+            _attachmentOperation?.stage == CsAssetUploadStage.unknown) &&
+        !_sending &&
+        !_uploading,
+  );
 
   Future<void> _openTransfer() async {
-    final t = context.t.customerService;
+    final flow = _flow, binding = _binding;
     try {
-      // 转接目标 = api-surface-freeze 权威端点（同 Org 坐席最小投影，
-      // 服务端排除调用者本人；不复用治理 identity 列表）。
-      final page = await _csApi.transferTargets(
-        widget.orgId,
-        limit: kCsQueuePageSize,
-      );
-      if (!mounted) return;
-      final targets = csTransferTargetOptions(
-        page.items,
-        excludeIdentityId: _flow.identityId,
-      );
-      if (targets.isEmpty) {
-        _toast(t.transferEmpty);
-        return;
-      }
-      final picked = await showDialog<CsTransferTarget>(
+      final result = await _actions.transfer(
         context: context,
-        builder: (_) => SimpleDialog(
-          title: Text(t.transferTitle),
-          children: [
-            for (final target in targets)
-              SimpleDialogOption(
-                onPressed: () => Navigator.of(context).pop(target),
-                child: ListTile(
-                  leading: const Icon(CupertinoIcons.person_2),
-                  title: Text(
-                    target.displayName.isEmpty
-                        ? target.identityId
-                        : target.displayName,
-                  ),
-                  subtitle: Text(
-                    target.available ? t.targetAvailable : t.targetBusy,
-                  ),
-                ),
-              ),
-          ],
-        ),
+        flow: flow,
+        isCurrent: () => _scopeAlive(flow, binding),
+        risks: _actionRisks,
       );
-      if (picked == null || !mounted) return;
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(t.transferConfirmTitle),
-          content: Text(
-            t.transferConfirmBody(
-              name: picked.displayName.isEmpty
-                  ? picked.identityId
-                  : picked.displayName,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(dialogContext.t.common.buttonCancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(t.transferAction),
-            ),
-          ],
-        ),
-      );
-      if (confirmed != true || !mounted) return;
-      setState(() => _busy = true);
-      final failure = await _flow.transferTo(picked.identityId);
-      if (!mounted) return;
-      setState(() => _busy = false);
-      if (failure == null) {
-        _toast(t.transferSuccess);
-        if (context.mounted && Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
-      } else if (failure != CsSeatFailureKind.conflict) {
-        _toastFailure(failure);
+      if (!mounted || !_scopeAlive(flow, binding) || result == null) return;
+      _repaint(flow, binding);
+      if (result.failure == null) {
+        _toast(context.t.customerService.transferSuccess);
       } else {
-        _toastFailure(CsSeatFailureKind.conflict);
+        _toastFailure(result.failure!);
       }
     } on CsApiException catch (e) {
-      if (!mounted) return;
-      setState(() => _error = '${e.message} (code=${e.code})');
-      if (e.isForbidden) _flow.machine.markSuspended();
-      if (e.isOffboardingRequired) _flow.machine.markOffboarding();
+      if (!_scopeAlive(flow, binding)) return;
+      _toastFailure(flow.applyActionFailure(e));
+      _repaint(flow, binding);
+    } on Object {
+      if (_scopeAlive(flow, binding)) _toastFailure(CsSeatFailureKind.other);
     }
   }
-
-  // ==================== 关闭 ====================
 
   Future<void> _openClose() async {
-    final t = context.t.customerService;
-    final reasonController = TextEditingController();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(t.closeTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(t.closeBody),
-            const SizedBox(height: AppSpacing.medium),
-            TextField(
-              controller: reasonController,
-              maxLength: 200,
-              decoration: InputDecoration(
-                hintText: t.closeReasonLabel,
-                counterText: '',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: Text(dialogContext.t.common.buttonCancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: Text(t.closeAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    final reason = csSanitizeCloseReason(reasonController.text);
-    setState(() => _busy = true);
-    final failure = await _flow.closeSession(reason: reason);
-    if (!mounted) return;
-    setState(() => _busy = false);
-    if (failure == null) {
-      _toast(t.closeSuccess);
-    } else {
-      _toast(
-        failure == CsSeatFailureKind.conflict ? t.closeConflict : t.closeFailed,
+    final flow = _flow, binding = _binding;
+    try {
+      final result = await _actions.close(
+        context: context,
+        flow: flow,
+        isCurrent: () => _scopeAlive(flow, binding),
+        risks: _actionRisks,
       );
+      if (!mounted || !_scopeAlive(flow, binding) || result == null) return;
+      _repaint(flow, binding);
+      final t = context.t.customerService;
+      _toast(
+        result.failure == null
+            ? t.closeSuccess
+            : result.failure == CsSeatFailureKind.conflict
+            ? t.closeConflict
+            : t.closeFailed,
+      );
+    } on Object {
+      if (mounted && _scopeAlive(flow, binding)) {
+        _toast(context.t.customerService.closeFailed);
+      }
     }
   }
-
-  // ==================== UI ====================
 
   String? _explainText() {
     final t = context.t.customerService;
@@ -520,39 +554,23 @@ class _CsSessionPageState extends State<CsSessionPage>
       case CsSeatSessionPhase.closed:
         return t.closedReadonly;
       case CsSeatSessionPhase.rated:
-        return t.ratedReadonly;
+        return _authCurrent() &&
+                !_flow.readRevoked &&
+                _flow.detail?.isClosed == true &&
+                _flow.detail?.evaluationState == CsEvaluationState.rated
+            ? t.ratedReadonly
+            : t.closedReadonly;
       case CsSeatSessionPhase.writable:
         return null;
     }
   }
 
-  /// 未读 badge（CS-APP-02）：只渲染服务端 read-state 的非空快照——
-  /// null（重连同步中/读面失败/只读终态）不渲染（fail-closed：无陈旧
-  /// 未读）。进入会话展示完成后 ACK 会把它清零；仅 ACK 失败（离线）时
-  /// 保留。
+  /// Only server read-state supplies the badge; unknown state is hidden.
   Widget _unreadBadge() {
     final unread = _flow.unreadCount;
-    if (!_flow.machine.shouldPoll || unread == null || unread <= 0) {
-      return const SizedBox.shrink();
-    }
-    return Semantics(
-      label: context.t.customerService.unreadBadgeLabel(n: unread),
-      child: Container(
-        margin: const EdgeInsets.only(left: AppSpacing.small),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-        decoration: BoxDecoration(
-          color: AppColors.iosRed,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Text(
-          unread > 99 ? '99+' : '$unread',
-          style: context.textStyle(
-            FontSizeType.caption2,
-            color: AppColors.onPrimary,
-          ),
-        ),
-      ),
-    );
+    return _flow.machine.shouldPoll && unread != null && unread > 0
+        ? CsUnreadBadge(count: unread)
+        : const SizedBox.shrink();
   }
 
   @override
@@ -560,7 +578,11 @@ class _CsSessionPageState extends State<CsSessionPage>
     final t = context.t.customerService;
     final machine = _flow.machine;
     final explain = _explainText();
-    final canWrite = machine.canSend;
+    final canWrite =
+        _authCurrent() &&
+        !_flow.readRevoked &&
+        machine.canSend &&
+        _attachmentOperation?.stage != CsAssetUploadStage.unknown;
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -581,12 +603,18 @@ class _CsSessionPageState extends State<CsSessionPage>
         actions: [
           if (canWrite) ...[
             IconButton(
-              onPressed: _busy ? null : _openTransfer,
+              onPressed: _actions.busy || _flow.detail?.status != 'active'
+                  ? null
+                  : _openTransfer,
               tooltip: t.transferAction,
               icon: const Icon(CupertinoIcons.arrow_2_squarepath),
             ),
             IconButton(
-              onPressed: _busy ? null : _openClose,
+              onPressed:
+                  _actions.busy ||
+                      !['queued', 'active'].contains(_flow.detail?.status)
+                  ? null
+                  : _openClose,
               tooltip: t.closeAction,
               icon: const Icon(CupertinoIcons.xmark_circle),
             ),
@@ -621,7 +649,10 @@ class _CsSessionPageState extends State<CsSessionPage>
               title: Text(t.channelUnavailable),
             ),
           // 评分状态（访客侧动作；坐席端只展示状态，不代评）
-          _buildRatingBanner(),
+          CsSessionRatingBanner(
+            detail: _authCurrent() && !_flow.readRevoked ? _flow.detail : null,
+            phase: _flow.machine.phase,
+          ),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.all(AppSpacing.small),
@@ -634,6 +665,17 @@ class _CsSessionPageState extends State<CsSessionPage>
                 ),
               ),
             ),
+          if (_attachmentOperation != null &&
+              !_flow.readRevoked &&
+              (_uploading ||
+                  _preparedAttachment != null ||
+                  _attachmentOperation!.stage != CsAssetUploadStage.complete))
+            CsAttachmentUploadPanel(
+              operation: _attachmentOperation!,
+              messageUnconfirmed: _preparedAttachment != null && !_uploading,
+              onCancel: _cancelAttachment,
+              onRetry: _preparedAttachment == null ? null : _retryAttachment,
+            ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: _refresh,
@@ -644,7 +686,9 @@ class _CsSessionPageState extends State<CsSessionPage>
             child: Row(
               children: [
                 IconButton(
-                  onPressed: canWrite && !_busy ? _attach : null,
+                  onPressed: canWrite && !_busy && !_actions.busy
+                      ? _attach
+                      : null,
                   tooltip: t.attachAction,
                   icon: const Icon(CupertinoIcons.paperclip),
                 ),
@@ -655,7 +699,8 @@ class _CsSessionPageState extends State<CsSessionPage>
                     ),
                     child: TextField(
                       controller: _input,
-                      enabled: canWrite && !_busy,
+                      focusNode: _inputFocus,
+                      enabled: canWrite && !_busy && !_actions.busy,
                       minLines: 1,
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
@@ -664,7 +709,9 @@ class _CsSessionPageState extends State<CsSessionPage>
                   ),
                 ),
                 IconButton(
-                  onPressed: canWrite && !_busy ? _send : null,
+                  onPressed: canWrite && !_busy && !_actions.busy
+                      ? _send
+                      : null,
                   tooltip: _sending
                       ? context.t.chat.sending
                       : context.t.chat.send,
@@ -683,106 +730,66 @@ class _CsSessionPageState extends State<CsSessionPage>
     );
   }
 
-  Widget _buildRatingBanner() {
-    final machine = _flow.machine;
-    final rating = _flow.detail?.rating ?? 0;
-    if (machine.phase == CsSeatSessionPhase.rated && rating > 0) {
-      return ListTile(
-        dense: true,
-        leading: const Icon(
-          CupertinoIcons.star_fill,
-          color: AppColors.iosOrange,
-        ),
-        title: Text(
-          context.t.customerService.ratingScoreLabel(score: rating),
-          style: context.textStyle(FontSizeType.footnote),
-        ),
-        subtitle: Text(
-          context.t.customerService.ratedTitle,
-          style: context.textStyle(
-            FontSizeType.caption2,
-            color: AppColors.iosGray,
-          ),
-        ),
+  bool _canAcknowledge() =>
+      _authCurrent() &&
+      _lifecycle == AppLifecycleState.resumed &&
+      ModalRoute.of(context)?.isCurrent == true &&
+      csHostViewFocused(
+        eventFocused: _viewFocused,
+        currentViewId: View.of(context).viewId,
+        viewIds: WidgetsBinding.instance.platformDispatcher.views
+            .map((view) => view.viewId)
+            .toList(),
+        resumed: _lifecycle == AppLifecycleState.resumed,
       );
-    }
-    if (machine.phase == CsSeatSessionPhase.closed ||
-        machine.phase == CsSeatSessionPhase.rated) {
-      return ListTile(
-        dense: true,
-        leading: const Icon(CupertinoIcons.hourglass, color: AppColors.iosGray),
-        title: Text(
-          context.t.customerService.waitingRatingTitle,
-          style: context.textStyle(FontSizeType.footnote),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  }
 
-  void _scrollToLatest() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _messageScroll.hasClients) {
-        _messageScroll.jumpTo(_messageScroll.position.maxScrollExtent);
+  Future<void> _ackVisible(
+    CsSessionFlow flow,
+    int binding,
+    List<String> ids,
+  ) async {
+    if (!_scopeAlive(flow, binding) || !_canAcknowledge()) return;
+    final before = (
+      flow.readRevoked,
+      flow.ackedCursor,
+      flow.unreadCount,
+      _error,
+    );
+    try {
+      await flow.ackVisibleMessages(ids);
+    } on Object {
+      if (mounted && _scopeAlive(flow, binding)) {
+        _error = context.t.customerService.loadFailedTitle;
       }
-    });
+    }
+    final after = (
+      flow.readRevoked,
+      flow.ackedCursor,
+      flow.unreadCount,
+      _error,
+    );
+    if (_scopeAlive(flow, binding) && before != after) _repaint(flow, binding);
   }
 
   Widget _messagesList() {
-    if (_busy && _flow.messages.isEmpty) {
+    final flow = _flow, binding = _binding;
+    if (_busy && flow.messages.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_flow.messages.isEmpty) {
-      return ListView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 96),
-            child: Center(
-              child: Text(
-                context.t.customerService.queuedEmptyTitle,
-                style: context.textStyle(
-                  FontSizeType.footnote,
-                  color: AppColors.iosGray,
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-    final lastId = _flow.messages.last.id;
-    if (_lastMessageId != lastId) {
-      final shouldScroll =
-          _lastMessageId == null ||
-          !_messageScroll.hasClients ||
-          _messageScroll.position.extentAfter < AppSizes.touchTarget;
-      _lastMessageId = lastId;
-      if (shouldScroll) _scrollToLatest();
-    }
-    return ListView.builder(
-      controller: _messageScroll,
-      physics: const AlwaysScrollableScrollPhysics(),
-      itemCount: _flow.messages.length,
-      itemBuilder: (context, index) {
-        final m = _flow.messages[index];
-        final actor = csSenderActorView(
-          m,
-          contactMaskedName: csMaskContactName(widget.contactName),
-        );
-        // CSX-01 冻结投影：assets 五键白名单（空 = 纯文本）；图片缩略与
-        // 文件行分型渲染，查看只经授权 content 代理。
-        final assets = _flow.messageAssets[m.id] ?? const <CsMessageAsset>[];
-        return CsMessageBubble(
-          key: ValueKey(m.id),
-          message: m,
-          isSeat: actor.isSeat,
-          actorLabel: actor.label,
-          assets: assets,
-          bytesLoader: _cachedAssetBytes,
-          onView: _viewAsset,
-        );
+    return CsFlowTimeline(
+      key: ValueKey(binding),
+      flow: flow,
+      readAllowed: _authCurrent(),
+      canAcknowledge: _canAcknowledge,
+      onVisible: (ids) => _ackVisible(flow, binding, ids),
+      loadOlder: () async {
+        await flow.loadOlder();
+        if (_scopeAlive(flow, binding)) _repaint(flow, binding);
       },
+      retryHistory: _refresh,
+      bytesLoader: _cachedAssetBytes,
+      onView: _viewAsset,
+      contactName: widget.contactName,
     );
   }
 }

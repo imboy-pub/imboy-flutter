@@ -5109,8 +5109,8 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '转接成功'
 	String get transferSuccess => '转接成功';
 
-	/// zh-CN: '会话状态已变化（可能已被转接或关闭），已为你刷新最新状态'
-	String get transferConflict => '会话状态已变化（可能已被转接或关闭），已为你刷新最新状态';
+	/// zh-CN: '会话状态已变化，请刷新并核对后重新确认。'
+	String get transferConflict => '会话状态已变化，请刷新并核对后重新确认。';
 
 	/// zh-CN: '转接失败，请稍后重试'
 	String get transferFailed => '转接失败，请稍后重试';
@@ -5133,8 +5133,8 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '会话已关闭'
 	String get closeSuccess => '会话已关闭';
 
-	/// zh-CN: '会话状态已变化（可能已被关闭或转接），已为你刷新最新状态'
-	String get closeConflict => '会话状态已变化（可能已被关闭或转接），已为你刷新最新状态';
+	/// zh-CN: '会话状态已变化，请刷新并核对后重新确认。'
+	String get closeConflict => '会话状态已变化，请刷新并核对后重新确认。';
 
 	/// zh-CN: '关闭失败，请稍后重试'
 	String get closeFailed => '关闭失败，请稍后重试';
@@ -5206,6 +5206,72 @@ class Translations$customerService$zh_CN {
 	String unreadBadgeLabel({required Object n}) => '未读 ${n} 条';
 
 	late final Translations$customerService$governance$zh_CN governance = Translations$customerService$governance$zh_CN.internal(_root);
+
+	/// zh-CN: '当前有未发送草稿；确认此操作不会发送草稿。'
+	String get actionDraftWarning => '当前有未发送草稿；确认此操作不会发送草稿。';
+
+	/// zh-CN: '消息正在发送；请等待终态并核对后确认。'
+	String get actionSendingWarning => '消息正在发送；请等待终态并核对后确认。';
+
+	/// zh-CN: '附件正在上传；请等待终态并核对后确认。'
+	String get actionUploadingWarning => '附件正在上传；请等待终态并核对后确认。';
+
+	/// zh-CN: '仍有消息尚未确认；请先核对结果，当前不能提交会话操作。'
+	String get actionUnconfirmedWarning => '仍有消息尚未确认；请先核对结果，当前不能提交会话操作。';
+
+	/// zh-CN: '评价状态未知'
+	String get ratingUnknownTitle => '评价状态未知';
+
+	/// zh-CN: '评分时间：$time'
+	String ratingTimeLabel({required Object time}) => '评分时间：${time}';
+
+	/// zh-CN: '保存文件'
+	String get attachSave => '保存文件';
+
+	/// zh-CN: '文件已保存'
+	String get attachSaved => '文件已保存';
+
+	/// zh-CN: '保存失败，可以重试。'
+	String get attachSaveFailed => '保存失败，可以重试。';
+
+	/// zh-CN: '正在准备附件'
+	String get attachPreparing => '正在准备附件';
+
+	/// zh-CN: '正在申请上传权限'
+	String get attachPresigning => '正在申请上传权限';
+
+	/// zh-CN: '正在上传字节：$sent / $total'
+	String attachUploading({required Object sent, required Object total}) => '正在上传字节：${sent} / ${total}';
+
+	/// zh-CN: '正在确认已上传文件'
+	String get attachConfirming => '正在确认已上传文件';
+
+	/// zh-CN: '附件在上传开始前已取消'
+	String get attachCancelled => '附件在上传开始前已取消';
+
+	/// zh-CN: '上传结果尚未完整确认，未自动重试或发送消息。'
+	String get attachUnknown => '上传结果尚未完整确认，未自动重试或发送消息。';
+
+	/// zh-CN: '重试附件上传'
+	String get attachRetry => '重试附件上传';
+
+	/// zh-CN: '停止后续上传步骤'
+	String get attachCancel => '停止后续上传步骤';
+
+	/// zh-CN: '附件须非空且不超过 25 MiB。'
+	String get attachTooLarge => '附件须非空且不超过 25 MiB。';
+
+	/// zh-CN: '只显示部分文本；保存文件仍包含完整内容。'
+	String get attachPreviewTruncated => '只显示部分文本；保存文件仍包含完整内容。';
+
+	/// zh-CN: '附件已上传，但消息发送结果尚未确认。请核对发送结果，不要重新上传。'
+	String get attachUploadedNotSent => '附件已上传，但消息发送结果尚未确认。请核对发送结果，不要重新上传。';
+
+	/// zh-CN: '附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。'
+	String get attachUploadStopped => '附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。';
+
+	/// zh-CN: '有新消息 · 查看最新'
+	String get newMessagesJump => '有新消息 · 查看最新';
 }
 
 // Path: discovery
@@ -10874,7 +10940,7 @@ extension on Translations {
 			'customerService.transferConfirmTitle' => '确认转接',
 			'customerService.transferConfirmBody' => ({required Object name}) => '将当前会话转交给 ${name}？转接后你将不再经办此会话。',
 			'customerService.transferSuccess' => '转接成功',
-			'customerService.transferConflict' => '会话状态已变化（可能已被转接或关闭），已为你刷新最新状态',
+			'customerService.transferConflict' => '会话状态已变化，请刷新并核对后重新确认。',
 			'customerService.transferFailed' => '转接失败，请稍后重试',
 			'customerService.closeAction' => '关闭会话',
 			'customerService.closeTitle' => '确认关闭会话',
@@ -10882,7 +10948,7 @@ extension on Translations {
 			'customerService.closeReasonLabel' => '关闭原因（可选）',
 			'customerService.closeReasonTooLong' => ({required Object max}) => '关闭原因不能超过 ${max} 字',
 			'customerService.closeSuccess' => '会话已关闭',
-			'customerService.closeConflict' => '会话状态已变化（可能已被关闭或转接），已为你刷新最新状态',
+			'customerService.closeConflict' => '会话状态已变化，请刷新并核对后重新确认。',
 			'customerService.closeFailed' => '关闭失败，请稍后重试',
 			'customerService.waitingRatingTitle' => '会话已关闭，等待客户评分',
 			'customerService.ratedTitle' => '客户已完成评分',
@@ -10937,6 +11003,28 @@ extension on Translations {
 			'customerService.governance.errorWithCode' => ({required Object msg, required Object code}) => '${msg}（${code}）',
 			'customerService.governance.seatLimitExceededHint' => ({required Object used, required Object limit}) => '席位额度已满：已用 ${used}/${limit}，无法新增坐席（seat_limit_exceeded）',
 			'customerService.governance.retry' => '重试',
+			'customerService.actionDraftWarning' => '当前有未发送草稿；确认此操作不会发送草稿。',
+			'customerService.actionSendingWarning' => '消息正在发送；请等待终态并核对后确认。',
+			'customerService.actionUploadingWarning' => '附件正在上传；请等待终态并核对后确认。',
+			'customerService.actionUnconfirmedWarning' => '仍有消息尚未确认；请先核对结果，当前不能提交会话操作。',
+			'customerService.ratingUnknownTitle' => '评价状态未知',
+			'customerService.ratingTimeLabel' => ({required Object time}) => '评分时间：${time}',
+			'customerService.attachSave' => '保存文件',
+			'customerService.attachSaved' => '文件已保存',
+			'customerService.attachSaveFailed' => '保存失败，可以重试。',
+			'customerService.attachPreparing' => '正在准备附件',
+			'customerService.attachPresigning' => '正在申请上传权限',
+			'customerService.attachUploading' => ({required Object sent, required Object total}) => '正在上传字节：${sent} / ${total}',
+			'customerService.attachConfirming' => '正在确认已上传文件',
+			'customerService.attachCancelled' => '附件在上传开始前已取消',
+			'customerService.attachUnknown' => '上传结果尚未完整确认，未自动重试或发送消息。',
+			'customerService.attachRetry' => '重试附件上传',
+			'customerService.attachCancel' => '停止后续上传步骤',
+			'customerService.attachTooLarge' => '附件须非空且不超过 25 MiB。',
+			'customerService.attachPreviewTruncated' => '只显示部分文本；保存文件仍包含完整内容。',
+			'customerService.attachUploadedNotSent' => '附件已上传，但消息发送结果尚未确认。请核对发送结果，不要重新上传。',
+			'customerService.attachUploadStopped' => '附件上传未完成，已停止后续操作。请核对权限和会话状态后重新选择文件。',
+			'customerService.newMessagesJump' => '有新消息 · 查看最新',
 			'discovery.findNearbyPeople' => '找附近的人',
 			'discovery.moment' => '朋友圈',
 			'discovery.nearbyPeopleExplain' => '附近的用户可以查看你的个人资料并给你发送信息。这可能会帮助你找到新朋友，但也可能会引起过多的关注。你可以随时停止分享你的个人资料。\n你的电话号码将会被隐藏。',
@@ -11255,6 +11343,8 @@ extension on Translations {
 			'main.appSize' => '应用大小',
 			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
 			'main.audio' => '音频',
+			_ => null,
+		} ?? switch (path) {
 			'main.barcodeFound' => '已识别二维码',
 			'main.botQianFan' => '千帆机器人',
 			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
@@ -11277,8 +11367,6 @@ extension on Translations {
 			'main.favorites' => '收藏',
 			'main.female' => '女',
 			'main.followSystem' => '跟随系统',
-			_ => null,
-		} ?? switch (path) {
 			'main.frFr' => '法语（法国）',
 			'main.from' => '来自',
 			'main.good' => '很棒',
@@ -11769,6 +11857,8 @@ extension on Translations {
 			'organization.manage.archiveWorkspaceBody' => '归档后该工作区进入只读，其群与频道一并停写；若它是企业默认工作区，请先指定替代工作区。归档可恢复。',
 			'organization.manage.restoreWorkspace' => '恢复工作区',
 			'organization.manage.resourceSection' => '群与频道',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.resourceNeedsWorkspace' => '需要先有工作区，才能治理群与频道。',
 			'organization.manage.resourceLoadFailed' => ({required Object err}) => '加载失败：${err}',
 			'organization.manage.retry' => '重试',
@@ -11791,8 +11881,6 @@ extension on Translations {
 			'organization.manage.archiveChannelTitle' => ({required Object name}) => '归档「${name}」？',
 			'organization.manage.archiveChannelBody' => '归档后频道退出公开面，成员不再看到；归档可恢复。',
 			'organization.manage.restoreChannel' => '恢复',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.archivedChannelSection' => '已归档频道',
 			'organization.contactEntry.browserEntry' => '进入通讯录',
 			'organization.contactEntry.loadFailed' => '企业信息加载失败',

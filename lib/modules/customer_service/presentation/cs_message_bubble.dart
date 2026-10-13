@@ -24,8 +24,10 @@ class CsMessageBubble extends StatelessWidget {
     required this.assets,
     required this.bytesLoader,
     required this.onView,
+    this.serverReadAt,
   });
   final EnterpriseMessage message;
+  final DateTime? serverReadAt;
   final bool isSeat;
   final String actorLabel;
   final List<CsMessageAsset> assets;
@@ -93,7 +95,10 @@ class CsMessageBubble extends StatelessWidget {
                     : context.t.customerService.visitorLabel,
                 if (DateTime.tryParse(m.createdAt) case final time?)
                   DateFormat('MM/dd HH:mm').format(time.toLocal()),
-                if (isSeat && m.id.isNotEmpty) context.t.main.sent,
+                if (isSeat && m.id.isNotEmpty)
+                  serverReadAt == null
+                      ? context.t.main.sent
+                      : context.t.chat.chatStatusSeen,
               ].join(' · '),
               style: context.textStyle(
                 FontSizeType.caption2,

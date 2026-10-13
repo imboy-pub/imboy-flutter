@@ -45,6 +45,7 @@ import 'package:imboy/service/storage.dart';
 const orgId = '7266418340025468901';
 const sessionId = '7266418340025468940';
 const conversationId = '7266418340025468950';
+const workspaceId = '7266418340025468951';
 const seatA = '7266418340025468902';
 const seatB = '7266418340025468903';
 
@@ -54,6 +55,7 @@ class _SeqAdapter implements HttpClientAdapter {
   final List<(String fragment, List<(int, Map<String, dynamic>)>)> routes;
   final Map<String, int> _cursor = {};
   final List<(String, String)> requests = [];
+  final List<Map<String, dynamic>> queries = [];
 
   _SeqAdapter(this.routes);
 
@@ -75,6 +77,7 @@ class _SeqAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     requests.add((options.method, options.uri.path));
+    queries.add(Map<String, dynamic>.from(options.queryParameters));
     final (status, body) = _match(options.uri.path);
     return ResponseBody.fromString(
       jsonEncode(body),
@@ -114,6 +117,7 @@ CsSessionFlow newFlow(EnterpriseStore store, HttpClientAdapter adapter) {
     sessionId: sessionId,
     identityId: seatA,
     conversationId: conversationId,
+    workspaceId: workspaceId,
     contactMaskedName: '张**',
     store: store,
   );
@@ -271,7 +275,14 @@ void main() {
         (
           '/conversations/$conversationId/messages',
           [
-            (200, {'code': 0, 'msg': 'success', 'payload': history}),
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': history.reversed.toList(),
+              },
+            ),
           ],
         ),
         (
@@ -283,7 +294,7 @@ void main() {
       ]);
       final flowA = newFlow(store, adapterA);
       await flowA.refreshSessionState();
-      await flowA.loadIncremental();
+      await flowA.loadLatest();
       expect(flowA.messages.map((m) => m.id).toList(), [
         '7266418340025468961',
         '7266418340025468962',
@@ -302,7 +313,14 @@ void main() {
         (
           '/conversations/$conversationId/messages',
           [
-            (200, {'code': 0, 'msg': 'success', 'payload': history}),
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': history.reversed.toList(),
+              },
+            ),
           ],
         ),
       ]);
@@ -313,12 +331,13 @@ void main() {
         sessionId: sessionId,
         identityId: seatB,
         conversationId: conversationId,
+        workspaceId: workspaceId,
         contactMaskedName: '张**',
         store: store,
       );
 
       final detailB = await flowB.refreshSessionState();
-      await flowB.loadIncremental();
+      await flowB.loadLatest();
 
       // 资源 ID 不变（同 session / 同 conversation）
       expect(detailB?.sessionId, sessionId);
@@ -341,6 +360,14 @@ void main() {
       expect(bSeat.senderType, EnterpriseSenderType.businessIdentity);
       expect(bSeat.senderBusinessIdentityId, seatA);
       expect(bSeat.senderBusinessIdentityName, '售后小张');
+      for (final adapter in [adapterA, adapterB]) {
+        final historyIndex = adapter.requests.indexWhere(
+          (request) => request.$2.endsWith('/messages'),
+        );
+        expect(historyIndex, greaterThanOrEqualTo(0));
+        expect(adapter.queries[historyIndex]['workspace_id'], workspaceId);
+        expect(adapter.queries[historyIndex]['order'], 'desc');
+      }
     });
   });
 

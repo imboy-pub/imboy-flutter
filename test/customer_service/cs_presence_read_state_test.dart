@@ -285,7 +285,14 @@ void main() {
     _RouteAdapter bootstrapAdapter({
       required (int, Map<String, dynamic>) ackResponse,
     }) => _RouteAdapter([
-      ('/read-cursor', [(200, readStateBody(kMsg1, 2)), ackResponse]),
+      (
+        '/read-cursor',
+        [
+          (200, readStateBody(kMsg1, 2)),
+          ackResponse,
+          (200, readStateBody(kMsg2, 0)),
+        ],
+      ),
       ('/sessions/$kSessionId', [(200, detailBody())]),
       ('conversations/$kConvId/messages', [(200, historyBody())]),
     ]);
@@ -315,7 +322,7 @@ void main() {
       await flow.resyncReadState();
       expect(flow.unreadCount, 2, reason: '进入会话先取服务端权威未读');
       await flow.loadIncremental();
-      await flow.ackReadSeen();
+      await flow.ackVisibleMessages([kMsg2]);
 
       final ackPosts = adapter.requests
           .where((r) => r.$1 == 'POST' && r.$2.contains('/read-cursor'))
@@ -341,7 +348,7 @@ void main() {
 
       // 无新消息：再次「展示完成」不重发 ACK（单调裁决吞旧值）。
       await flow.loadIncremental();
-      await flow.ackReadSeen();
+      await flow.ackVisibleMessages([kMsg2]);
       final ackCount2 = adapter.requests
           .where((r) => r.$1 == 'POST' && r.$2.contains('/read-cursor'))
           .length;
@@ -358,7 +365,7 @@ void main() {
       await flow.refreshSessionState();
       await flow.resyncReadState();
       await flow.loadIncremental();
-      await flow.ackReadSeen();
+      await flow.ackVisibleMessages([kMsg2]);
 
       expect(flow.ackedCursor, kMsg1, reason: 'ACK 失败：本地水位不推进');
       expect(flow.unreadCount, 2, reason: 'ACK 失败：未读不清零（不伪读）');
@@ -369,6 +376,7 @@ void main() {
       final adapter = _GateAdapter(
         firstReadState: readStateBody(kMsg1, 5),
         secondReadState: readStateBody(kMsg1, 3),
+        thirdReadState: readStateBody(kMsg2, 0),
         detailDelay: const Duration(milliseconds: 100),
         detail: detailBody(),
         history: historyBody(),
@@ -430,8 +438,14 @@ void main() {
       await resyncCompleted.future.timeout(const Duration(seconds: 5));
 
       expect(adapter.messagesFetched, isTrue);
+      expect(
+        adapter.methodPathLog.where((p) => p == 'POST /read-cursor'),
+        isEmpty,
+        reason: 'SSE fetch completion alone does not prove visibility',
+      );
+      await flow.ackVisibleMessages([kMsg2]);
       final order = adapter.methodPathLog;
-      final secondReadIdx = order.lastIndexOf('GET /read-cursor');
+      final secondReadIdx = order.indexOf('GET /read-cursor', 1);
       final msgIdx = order.indexOf('GET /messages');
       final ackIdx = order.indexOf('POST /read-cursor');
       expect(secondReadIdx, lessThan(msgIdx), reason: '先重同步 cursor 再拉消息渲染');
@@ -530,6 +544,7 @@ class _GateAdapter implements HttpClientAdapter {
   _GateAdapter({
     required this.firstReadState,
     required this.secondReadState,
+    required this.thirdReadState,
     required this.detail,
     required this.history,
     this.detailDelay = Duration.zero,
@@ -537,6 +552,7 @@ class _GateAdapter implements HttpClientAdapter {
 
   final Map<String, dynamic> firstReadState;
   final Map<String, dynamic> secondReadState;
+  final Map<String, dynamic> thirdReadState;
   final Map<String, dynamic> detail;
   final Map<String, dynamic> history;
   final Completer<void> gate;
@@ -564,7 +580,13 @@ class _GateAdapter implements HttpClientAdapter {
           secondReadRequested.complete();
           await gate.future;
         }
-        return _json(readStateGets == 1 ? firstReadState : secondReadState);
+        return _json(
+          readStateGets == 1
+              ? firstReadState
+              : readStateGets == 2
+              ? secondReadState
+              : thirdReadState,
+        );
       }
       ackBody = options.data;
       methodPathLog.add('POST /read-cursor');
@@ -578,6 +600,12 @@ class _GateAdapter implements HttpClientAdapter {
     if (path.contains('conversations/$kConvId/messages')) {
       messagesFetched = true;
       methodPathLog.add('GET /messages');
+      if (options.queryParameters['order'] == 'desc') {
+        return _json({
+          ...history,
+          'payload': (history['payload'] as List).reversed.toList(),
+        });
+      }
       return _json(history);
     }
     methodPathLog.add('$method other');

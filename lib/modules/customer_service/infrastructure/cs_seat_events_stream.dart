@@ -193,6 +193,9 @@ class CsSeatEventsStream {
     );
   }
 
+  /// Actual workspace used by the most recent connection, after resolution.
+  String get boundWorkspaceId => _resolvedWorkspaceId;
+
   /// 最后收到的 event_id（重连 Last-Event-ID 游标；测试/持久化可读）。
   String get lastEventId => _lastEventId;
 

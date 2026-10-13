@@ -103,6 +103,12 @@ class CsSeatSessionMachine {
     return true;
   }
 
+  /// Reading authority can end even after a conversation closes or is rated.
+  /// No server closure/rating fact survives a revoked read projection.
+  void revokeReadAuthority() {
+    _phase = CsSeatSessionPhase.readOnlySuspended;
+  }
+
   /// HTTP 409 offboarding_required：清写入口、停后台发送；本机终态。
   bool markOffboarding() {
     if (_phase == CsSeatSessionPhase.offboardingRequired ||

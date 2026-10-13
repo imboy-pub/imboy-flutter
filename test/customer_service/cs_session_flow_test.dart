@@ -20,6 +20,9 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/services.dart' show MethodChannel;
+import 'package:imboy/config/const.dart' show Keys;
+import 'package:imboy/modules/customer_service/infrastructure/cs_asset_put_transport.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -28,6 +31,7 @@ import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_store.dart';
+import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/service/storage.dart';
 
 const kOrgId = '7266418340025468901';
@@ -74,8 +78,28 @@ class _RouteAdapter implements HttpClientAdapter {
       Map<String, dynamic>.from(options.queryParameters),
     ));
     final (status, body) = _match(options.uri.toString());
+    if (status == 200 && options.uri.path.endsWith('/content')) {
+      final bytes = utf8.encode(body['payload'] as String);
+      return ResponseBody.fromBytes(
+        bytes,
+        200,
+        headers: {
+          'x-asset-id': [options.uri.path.split('/').reversed.elementAt(1)],
+          'x-asset-sha256': [sha256.convert(bytes).toString()],
+          'content-length': ['${bytes.length}'],
+          'content-type': ['application/octet-stream'],
+        },
+      );
+    }
+    final payload = body['payload'];
+    final response = options.method == 'PUT' && payload is Map
+        ? {
+            'code': 0,
+            'payload': {...payload, 'status': 'pending_confirm'},
+          }
+        : body;
     return ResponseBody.fromString(
-      jsonEncode(body),
+      jsonEncode(response),
       status,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
@@ -127,6 +151,11 @@ CsSessionFlow newFlow({
     contactMaskedName: '张**',
     store: store ?? EnterpriseMemoryStore(),
     onChanged: onChanged,
+    csApi: CsApi(
+      assetApiFactory: () =>
+          EnterpriseApi()..dio.options.baseUrl = 'https://member.invalid',
+      putTransportFactory: () => CsAssetPutTransport(adapter: adapter),
+    ),
   );
 }
 
@@ -135,6 +164,23 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, '7266418340025468999');
+    String part(Object value) =>
+        base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+    final token =
+        '${part({'alg': 'none'})}.${part({'exp': 4102444800})}.${part('synthetic')}';
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (call) async {
+            if (call.method == 'readAll') return <String, String>{};
+            if (call.method == 'read' &&
+                (call.arguments as Map)['key'] == 'secure_token') {
+              return token;
+            }
+            return null;
+          },
+        );
   });
 
   group('CSM-02 发送幂等（client_msg_id）', () {
@@ -432,111 +478,118 @@ void main() {
       },
     };
 
-    test(
-      '顺序正确；presign 请求体冻结契约（object_hash=SHA-256）；upload_url 不落 store',
-      () async {
-        final store = EnterpriseMemoryStore();
-        final adapter = _RouteAdapter([
-          (
-            'assets/presign',
-            [
-              (
-                200,
-                {
-                  'code': 0,
-                  'msg': 'success',
-                  'payload': presignView(
-                    uploadUrl: 'https://upload.example.internal/put?ref=xyz',
-                  ),
+    test('顺序正确；presign 请求体冻结契约（object_hash=SHA-256）；upload_url 不落 store', () async {
+      final store = EnterpriseMemoryStore();
+      final adapter = _RouteAdapter([
+        (
+          'assets/presign',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': presignView(
+                  uploadUrl:
+                      'https://member.invalid/api/v1/enterprise/organizations/$kOrgId/assets/presign?workspace_id=$kWsId&upload_ref=opaque-upload-ref',
+                ),
+              },
+            ),
+          ],
+        ),
+        (
+          'assets/confirm',
+          [
+            (
+              200,
+              {
+                'code': 0,
+                'msg': 'success',
+                'payload': {
+                  'asset_id': '7266418340025468970',
+                  'status': 'active',
+                  'object_hash': demoHash,
+                  'conversation_id': kConvId,
+                  'mime': 'text/plain',
+                  'size_bytes': 4,
+                  'file_name': 'a.txt',
                 },
-              ),
-            ],
-          ),
-          (
-            'assets/confirm',
-            [
-              (
-                200,
-                {
-                  'code': 0,
-                  'msg': 'success',
-                  'payload': {
-                    'asset_id': '7266418340025468970',
-                    'status': 'active',
-                    'mime': 'text/plain',
-                    'size_bytes': 4,
-                    'file_name': 'a.txt',
-                  },
-                },
-              ),
-            ],
-          ),
-        ]);
-        final flow = newFlow(adapter: adapter, store: store);
+              },
+            ),
+          ],
+        ),
+      ]);
+      final flow = newFlow(adapter: adapter, store: store);
 
-        final assetId = await flow.uploadAsset(
-          mime: 'text/plain',
-          bytes: demoBytes,
-          fileName: 'a.txt',
-        );
+      final assetId = await flow.uploadAsset(
+        mime: 'text/plain',
+        bytes: demoBytes,
+        fileName: 'a.txt',
+      );
 
-        expect(assetId, '7266418340025468970');
-        final uris = adapter.requests.map((r) => r.$2).toList();
-        expect(uris.where((p) => p.contains('/assets/presign')), hasLength(1));
-        expect(
-          uris.where((p) => p.contains('upload.example.internal')),
-          hasLength(1),
-          reason: '裸 PUT 直传一次（嵌套 upload.url 目标）',
-        );
-        expect(uris.where((p) => p.contains('/assets/confirm')), hasLength(1));
-        final putIndex = uris.indexWhere((p) => p.contains('upload.example'));
-        expect(
-          putIndex,
-          greaterThan(uris.indexWhere((p) => p.contains('/presign'))),
-        );
-        expect(
-          putIndex,
-          lessThan(uris.indexWhere((p) => p.contains('/confirm'))),
-        );
+      expect(assetId, '7266418340025468970');
+      final uris = adapter.requests.map((r) => r.$2).toList();
+      expect(
+        adapter.requests.where(
+          (r) => r.$1 == 'POST' && r.$2.contains('/assets/presign'),
+        ),
+        hasLength(1),
+      );
+      expect(
+        adapter.requests.where(
+          (r) => r.$1 == 'PUT' && r.$2.contains('member.invalid'),
+        ),
+        hasLength(1),
+        reason: '裸 PUT 直传一次（嵌套 upload.url 目标）',
+      );
+      expect(uris.where((p) => p.contains('/assets/confirm')), hasLength(1));
+      final putIndex = adapter.requests.indexWhere((r) => r.$1 == 'PUT');
+      expect(
+        putIndex,
+        greaterThan(uris.indexWhere((p) => p.contains('/presign'))),
+      );
+      expect(
+        putIndex,
+        lessThan(uris.indexWhere((p) => p.contains('/confirm'))),
+      );
 
-        // presign 请求体冻结契约：{workspace_id, conversation_id, mime,
-        // size_bytes, object_hash, file_name}；object_hash 是字节 SHA-256。
-        final presignReq = adapter.requests.firstWhere(
-          (r) => r.$2.contains('/assets/presign'),
-        );
-        final presignBody = Map<String, dynamic>.from(presignReq.$3 as Map);
-        expect(presignBody.keys.toSet(), {
-          'workspace_id',
-          'conversation_id',
-          'mime',
-          'size_bytes',
-          'object_hash',
-          'file_name',
-        });
-        expect(presignBody['workspace_id'], kWsId);
-        expect(presignBody['conversation_id'], kConvId);
-        expect(presignBody['object_hash'], demoHash);
-        // confirm 请求体：upload_ref（非 asset_id）。
-        final confirmReq = adapter.requests.firstWhere(
-          (r) => r.$2.contains('/assets/confirm'),
-        );
-        final confirmBody = Map<String, dynamic>.from(confirmReq.$3 as Map);
-        expect(confirmBody.keys.toSet(), {'workspace_id', 'upload_ref'});
-        expect(confirmBody['upload_ref'], 'opaque-upload-ref');
+      // presign 请求体冻结契约：{workspace_id, conversation_id, mime,
+      // size_bytes, object_hash, file_name}；object_hash 是字节 SHA-256。
+      final presignReq = adapter.requests.firstWhere(
+        (r) => r.$2.contains('/assets/presign'),
+      );
+      final presignBody = Map<String, dynamic>.from(presignReq.$3 as Map);
+      expect(presignBody.keys.toSet(), {
+        'workspace_id',
+        'conversation_id',
+        'mime',
+        'size_bytes',
+        'object_hash',
+        'file_name',
+      });
+      expect(presignBody['workspace_id'], kWsId);
+      expect(presignBody['conversation_id'], kConvId);
+      expect(presignBody['object_hash'], demoHash);
+      // confirm 请求体：upload_ref（非 asset_id）。
+      final confirmReq = adapter.requests.firstWhere(
+        (r) => r.$2.contains('/assets/confirm'),
+      );
+      final confirmBody = Map<String, dynamic>.from(confirmReq.$3 as Map);
+      expect(confirmBody.keys.toSet(), {'workspace_id', 'upload_ref'});
+      expect(confirmBody['upload_ref'], 'opaque-upload-ref');
 
-        // EB-D06：presigned URL / object key 不得落 store（store 只存键以
-        // enterprise_ 前缀的元信息）
-        expect(
-          store.debugKeys().any(
-            (k) =>
-                k.contains('upload') ||
-                k.contains('upload.example') ||
-                k.contains('ref='),
-          ),
-          isFalse,
-        );
-      },
-    );
+      // EB-D06：presigned URL / object key 不得落 store（store 只存键以
+      // enterprise_ 前缀的元信息）
+      expect(
+        store.debugKeys().any(
+          (k) =>
+              k.contains('upload') ||
+              k.contains('upload.example') ||
+              k.contains('ref='),
+        ),
+        isFalse,
+      );
+    });
 
     test(
       'fail-closed：presign 无 upload.url（企业面合同形状）→ 抛出且不 PUT/不 confirm/不发消息',
@@ -724,7 +777,11 @@ void main() {
         ),
       ]);
       final flow = newFlow(adapter: adapter);
-      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+      flow.detail = const CsSessionDetail(
+        sessionId: kSessionId,
+        status: 'active',
+        version: 3,
+      );
 
       final kind = await flow.closeSession();
       expect(kind, CsSeatFailureKind.conflict);
@@ -825,7 +882,11 @@ void main() {
         ),
       ]);
       final flow = newFlow(adapter: adapter);
-      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+      flow.detail = const CsSessionDetail(
+        sessionId: kSessionId,
+        status: 'active',
+        version: 3,
+      );
 
       expect(await flow.send('   '), isFalse, reason: '空正文+无附件不发送');
       final before = adapter.requests.length;
@@ -915,7 +976,11 @@ void main() {
         ),
       ]);
       final flow = newFlow(adapter: adapter);
-      flow.detail = const CsSessionDetail(sessionId: kSessionId, version: 3);
+      flow.detail = const CsSessionDetail(
+        sessionId: kSessionId,
+        status: 'active',
+        version: 3,
+      );
 
       final kind = await flow.transferTo('7266418340025468943');
       expect(kind, isNull);
@@ -985,7 +1050,13 @@ void main() {
       'organization_id': kOrgId,
       'workspace_id': kWsId,
       'resource_type': 'message',
-      'resource_id': resourceId,
+      'resource_id': resourceId.isNotEmpty
+          ? resourceId
+          : type == 'resync.required'
+          ? ''
+          : type == 'message.appended'
+          ? '7266418340025468961'
+          : kSessionId,
       'resource_version': 1,
       'occurred_at': '2026-09-20T05:14:47Z',
       'reason': 'created',
