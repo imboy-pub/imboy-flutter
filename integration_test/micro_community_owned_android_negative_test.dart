@@ -165,7 +165,11 @@ Future<void> _reconnect(
   await evidence.sameSession();
   await phase.ack('disconnected');
   await phase.wait(ui.tester, 'offline_prepared');
-  expect(WebSocketService.to.status, SocketStatus.disconnected);
+  // 服务端踢线后生产语义即自动重连：reverse 未恢复期间 connect 尝试必
+  // 失败，但状态机可已推进到 connecting（r6 实证竞态，r5 重连慢则侥幸
+  // 停留 disconnected）。排队语义只要求未送达（queuedState），不断言
+  // 停留在 disconnected，只排除已连接。
+  expect(WebSocketService.to.status, isNot(SocketStatus.connected));
   await ui.sendMarker(phase.rejectedMarker);
   final queuedId = await evidence.queuedState(ui, phase.rejectedMarker);
   await phase.ack('queue_ready');

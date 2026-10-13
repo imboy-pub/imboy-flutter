@@ -415,17 +415,22 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
     }
   }
 
+  /// dispose 时 ref.read 已不安全（unmount 期 BuildContext 断言）：
+  /// build 期缓存 notifier，退出时用字段清理轮询 timer/SSE。
+  QRLogin? _qrLogin;
+
   @override
   void dispose() {
     _accountController.dispose();
     _passwordController.dispose();
-    ref.read(qRLoginProvider.notifier).dispose();
+    _qrLogin?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final qrState = ref.watch(qRLoginProvider);
+    _qrLogin = ref.read(qRLoginProvider.notifier);
     final passportState = ref.watch(passportProvider);
     final passportNotifier = ref.read(passportProvider.notifier);
 

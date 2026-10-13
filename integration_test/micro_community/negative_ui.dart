@@ -163,7 +163,19 @@ class NegativeUi {
     await backFrom(find.byType(ChatPage));
     var path = 'chat_back';
     if (!tester.any(find.byType(ChannelDetailPage))) {
-      expect(await waitForMainShell(tester), isTrue);
+      // 断链-重连后 AppBar 首帧可能未就绪，back tap 偶发 miss（live 轮
+      // 单次足够；reconnect r5 实证单次后主壳未现）：8s 未回主壳则重试
+      // 一次返回，仍失败时打印两页在树状态供下一轮定位。
+      if (!await waitForMainShell(tester, maxAttempts: 8)) {
+        debugPrint(
+          'MC22_RETURN_RETRY chat=${find.byType(ChatPage).evaluate().length} '
+          'detail=${find.byType(ChannelDetailPage).evaluate().length}',
+        );
+        if (tester.any(find.byType(ChatPage))) {
+          await backFrom(find.byType(ChatPage));
+        }
+        expect(await waitForMainShell(tester), isTrue);
+      }
       await openDiscoveredContent();
       path = 'chat_back_then_tab_discover';
     }
