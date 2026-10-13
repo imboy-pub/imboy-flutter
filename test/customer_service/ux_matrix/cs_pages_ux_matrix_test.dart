@@ -23,14 +23,17 @@
 /// TranslationProvider（zh 默认语言族）。harness 见 test/ux_matrix/。
 library;
 
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_page.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_page.dart';
+import 'package:imboy/service/storage.dart';
 
 import '../../ux_matrix/ux_harness.dart';
 
@@ -39,6 +42,31 @@ const String kOrgName = '示例组织';
 const String kSessionId = '7266418340025468940';
 const String kConversationId = '7266418340025468950';
 const String kIdentityId = '7266418340025468902';
+const String kWorkspaceId = '7266418340025468951';
+
+Future<void> _installSessionIdentity() async {
+  String part(Object value) =>
+      base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+  // Unsigned runtime fixture; never an issued credential.
+  final token = [
+    part({'alg': 'none'}),
+    part({'exp': 4102444800}),
+    base64Url.encode(utf8.encode('synthetic-cs-ux')).replaceAll('=', ''),
+  ].join('.');
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (call) async {
+          if (call.method == 'readAll') return <String, String>{};
+          if (call.method == 'read' &&
+              (call.arguments as Map)['key'] == 'secure_token') {
+            return token;
+          }
+          return null;
+        },
+      );
+  await StorageService.to.setString(Keys.currentUid, '7266418340025468999');
+}
 
 /// 会话页桩（APP-M02）：detail（权威 active）+ 历史（入站/出站各一）。
 /// SSE 端点未桩（未命中 → 200 空 payload）：事件流解析空帧后按 retry
@@ -90,7 +118,7 @@ RouteStubAdapter _sessionStub() => RouteStubAdapter([
               'content': '您好，正在为您加急核实',
               'delivered': true,
             },
-          ],
+          ].reversed.toList(),
         ),
       ),
     ],
@@ -304,6 +332,7 @@ void main() {
   testWidgets('CsSessionPage：消息气泡 + 输入行矩阵（APP-M02 扩展；无 danger 入口 → N/A）', (
     tester,
   ) async {
+    await _installSessionIdentity();
     uxInstallStub(_sessionStub());
 
     await _runMatrix(
@@ -313,6 +342,7 @@ void main() {
         sessionId: kSessionId,
         conversationId: kConversationId,
         identityId: kIdentityId,
+        workspaceId: kWorkspaceId,
         contactName: '张三',
       ),
       'cs_session',

@@ -28,6 +28,9 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/services.dart' show MethodChannel;
+import 'package:imboy/config/const.dart' show Keys;
+import 'package:imboy/modules/customer_service/infrastructure/cs_asset_put_transport.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -67,8 +70,22 @@ class _RecordingAdapter implements HttpClientAdapter {
       Map<String, dynamic>.from(options.queryParameters),
     ));
     uris.add(options.uri.toString());
+    final payload = body['payload'];
+    final response =
+        payload is Map &&
+            payload.containsKey('upload_ref') &&
+            (options.method == 'PUT' || options.path.endsWith('/confirm'))
+        ? {
+            'code': 0,
+            'payload': {
+              ...payload,
+              'status': options.method == 'PUT' ? 'pending_confirm' : 'active',
+              'conversation_id': '7266418340025468950',
+            },
+          }
+        : body;
     return ResponseBody.fromString(
-      jsonEncode(body),
+      jsonEncode(response),
       statusCode,
       headers: {
         Headers.contentTypeHeader: [Headers.jsonContentType],
@@ -91,6 +108,23 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, '7266418340025468999');
+    String part(Object value) =>
+        base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+    final token =
+        '${part({'alg': 'none'})}.${part({'exp': 4102444800})}.${part('synthetic')}';
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (call) async {
+            if (call.method == 'readAll') return <String, String>{};
+            if (call.method == 'read' &&
+                (call.arguments as Map)['key'] == 'secure_token') {
+              return token;
+            }
+            return null;
+          },
+        );
   });
 
   _RecordingAdapter useAdapter(int statusCode, Map<String, dynamic> body) {
@@ -730,44 +764,46 @@ void main() {
       );
     });
 
-    test(
-      '三步顺序：presign → 裸 PUT（嵌套 upload.url，octet-stream）→ confirm（upload_ref）',
-      () async {
-        final adapter = useAdapter(
-          200,
-          okEnvelope(
-            payload: presignPayload(
-              uploadUrl: 'https://upload.example.internal/put?ref=abc',
-            ),
+    test('三步顺序：presign → 裸 PUT（嵌套 upload.url，octet-stream）→ confirm（upload_ref）', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: presignPayload(
+            uploadUrl:
+                'https://member.invalid/api/v1/enterprise/organizations/$orgId/assets/presign?workspace_id=$wsId&upload_ref=opaque-upload-ref',
           ),
-        );
-        final api = CsApi();
+        ),
+      );
+      final api = CsApi(
+        assetApiFactory: () =>
+            EnterpriseApi()..dio.options.baseUrl = 'https://member.invalid',
+        putTransportFactory: () => CsAssetPutTransport(adapter: adapter),
+      );
 
-        final asset = await api.uploadEnterpriseAsset(
-          orgId,
-          workspaceId: '7266418340025468921',
-          conversationId: '7266418340025468950',
-          mime: 'text/plain',
-          bytes: Uint8List.fromList(bytes),
-          fileName: 'a.txt',
-        );
+      final asset = await api.uploadEnterpriseAsset(
+        orgId,
+        workspaceId: '7266418340025468921',
+        conversationId: '7266418340025468950',
+        mime: 'text/plain',
+        bytes: Uint8List.fromList(bytes),
+        fileName: 'a.txt',
+      );
 
-        expect(asset.id, '7266418340025468970');
-        final reqs = adapter.requests;
-        expect(reqs, hasLength(3));
-        expect(reqs[0].$1, 'POST');
-        expect(reqs[0].$2, contains('/assets/presign'));
-        // 裸 PUT：目标是 presign 嵌套 upload.url（非 flat upload_url 键）。
-        expect(reqs[1].$1, 'PUT');
-        expect(adapter.uris[1], contains('upload.example.internal'));
-        // confirm：独立请求重新鉴权，入参 upload_ref（非 asset_id）。
-        expect(reqs[2].$1, 'POST');
-        expect(reqs[2].$2, contains('/assets/confirm'));
-        final confirmBody = Map<String, dynamic>.from(reqs[2].$3 as Map);
-        expect(confirmBody.keys.toSet(), {'workspace_id', 'upload_ref'});
-        expect(confirmBody['upload_ref'], 'opaque-upload-ref');
-      },
-    );
+      expect(asset.id, '7266418340025468970');
+      final reqs = adapter.requests;
+      expect(reqs, hasLength(3));
+      expect(reqs[0].$1, 'POST');
+      expect(reqs[0].$2, contains('/assets/presign'));
+      // 裸 PUT：目标是 presign 嵌套 upload.url（非 flat upload_url 键）。
+      expect(reqs[1].$1, 'PUT');
+      expect(adapter.uris[1], contains('member.invalid'));
+      // confirm：独立请求重新鉴权，入参 upload_ref（非 asset_id）。
+      expect(reqs[2].$1, 'POST');
+      expect(reqs[2].$2, contains('/assets/confirm'));
+      final confirmBody = Map<String, dynamic>.from(reqs[2].$3 as Map);
+      expect(confirmBody.keys.toSet(), {'workspace_id', 'upload_ref'});
+      expect(confirmBody['upload_ref'], 'opaque-upload-ref');
+    });
 
     test(
       'fail-closed：presign 无 upload.url（企业面合同形状）→ 不 PUT、不 confirm',

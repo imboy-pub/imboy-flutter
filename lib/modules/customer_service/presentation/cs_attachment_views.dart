@@ -81,7 +81,8 @@ class CsAssetImageThumb extends StatelessWidget {
       future: bytesLoader(asset.id),
       builder: (context, snapshot) {
         final bytes = snapshot.data;
-        if (bytes == null) {
+        if (snapshot.connectionState == ConnectionState.waiting ||
+            bytes == null) {
           return _imagePlaceholder(
             context,
             snapshot.connectionState == ConnectionState.waiting,
@@ -96,7 +97,7 @@ class CsAssetImageThumb extends StatelessWidget {
               width: _thumbSize,
               height: _thumbSize,
               fit: BoxFit.cover,
-              gaplessPlayback: true,
+              gaplessPlayback: false,
               errorBuilder: (_, _, _) => _imagePlaceholder(context, false),
             ),
           ),

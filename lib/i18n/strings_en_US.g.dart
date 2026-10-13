@@ -1814,7 +1814,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get transferConfirmTitle => 'Confirm transfer';
 	@override String transferConfirmBody({required Object name}) => 'Transfer this conversation to ${name}? You will no longer handle it.';
 	@override String get transferSuccess => 'Transferred';
-	@override String get transferConflict => 'Conversation state changed (transferred or closed elsewhere). Refreshed to the latest state';
+	@override String get transferConflict => 'Conversation state changed. Refresh, review, and confirm again.';
 	@override String get transferFailed => 'Transfer failed, please try again later';
 	@override String get closeAction => 'Close conversation';
 	@override String get closeTitle => 'Confirm close';
@@ -1822,7 +1822,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String get closeReasonLabel => 'Reason (optional)';
 	@override String closeReasonTooLong({required Object max}) => 'Reason must be at most ${max} characters';
 	@override String get closeSuccess => 'Conversation closed';
-	@override String get closeConflict => 'Conversation state changed (closed or transferred elsewhere). Refreshed to the latest state';
+	@override String get closeConflict => 'Conversation state changed. Refresh, review, and confirm again.';
 	@override String get closeFailed => 'Close failed, please try again later';
 	@override String get waitingRatingTitle => 'Closed — waiting for the customer to rate';
 	@override String get ratedTitle => 'The customer has rated this conversation';
@@ -1847,6 +1847,27 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String presenceCapacityLabel({required Object active, required Object max}) => '${active}/${max} sessions';
 	@override String unreadBadgeLabel({required Object n}) => '${n} unread';
 	@override late final _Translations$customerService$governance$en_US governance = _Translations$customerService$governance$en_US._(_root);
+	@override String get actionDraftWarning => 'There is an unsent draft. Confirming this action will not send it.';
+	@override String get actionSendingWarning => 'A message is being sent. Wait for completion and review before confirming.';
+	@override String get actionUploadingWarning => 'An attachment is uploading. Wait for completion and review before confirming.';
+	@override String get actionUnconfirmedWarning => 'A message remains unconfirmed. Review its outcome before submitting a session action.';
+	@override String get ratingUnknownTitle => 'Rating status unknown';
+	@override String ratingTimeLabel({required Object time}) => 'Rated at: ${time}';
+	@override String get attachSave => 'Save file';
+	@override String get attachSaved => 'File saved';
+	@override String get attachSaveFailed => 'Save failed. You can retry.';
+	@override String get attachPreparing => 'Preparing attachment';
+	@override String get attachPresigning => 'Requesting upload permission';
+	@override String attachUploading({required Object sent, required Object total}) => 'Uploading bytes: ${sent} / ${total}';
+	@override String get attachConfirming => 'Confirming uploaded file';
+	@override String get attachCancelled => 'Attachment cancelled before upload';
+	@override String get attachUnknown => 'The upload outcome is not fully confirmed. No automatic retry or message was sent.';
+	@override String get attachRetry => 'Retry attachment upload';
+	@override String get attachCancel => 'Stop subsequent upload steps';
+	@override String get attachTooLarge => 'Attachment must be nonempty and at most 25 MiB.';
+	@override String get attachPreviewTruncated => 'Only part of the text is shown. Saving keeps the complete file.';
+	@override String get attachUploadedNotSent => 'The file is uploaded, but message delivery is not confirmed. Check the send outcome rather than uploading again.';
+	@override String get attachUploadStopped => 'Upload did not complete. Further steps are stopped. Check permissions and session state before choosing a file again.';
 }
 
 // Path: discovery
@@ -5028,7 +5049,7 @@ extension on TranslationsEnUs {
 			'customerService.transferConfirmTitle' => 'Confirm transfer',
 			'customerService.transferConfirmBody' => ({required Object name}) => 'Transfer this conversation to ${name}? You will no longer handle it.',
 			'customerService.transferSuccess' => 'Transferred',
-			'customerService.transferConflict' => 'Conversation state changed (transferred or closed elsewhere). Refreshed to the latest state',
+			'customerService.transferConflict' => 'Conversation state changed. Refresh, review, and confirm again.',
 			'customerService.transferFailed' => 'Transfer failed, please try again later',
 			'customerService.closeAction' => 'Close conversation',
 			'customerService.closeTitle' => 'Confirm close',
@@ -5036,7 +5057,7 @@ extension on TranslationsEnUs {
 			'customerService.closeReasonLabel' => 'Reason (optional)',
 			'customerService.closeReasonTooLong' => ({required Object max}) => 'Reason must be at most ${max} characters',
 			'customerService.closeSuccess' => 'Conversation closed',
-			'customerService.closeConflict' => 'Conversation state changed (closed or transferred elsewhere). Refreshed to the latest state',
+			'customerService.closeConflict' => 'Conversation state changed. Refresh, review, and confirm again.',
 			'customerService.closeFailed' => 'Close failed, please try again later',
 			'customerService.waitingRatingTitle' => 'Closed — waiting for the customer to rate',
 			'customerService.ratedTitle' => 'The customer has rated this conversation',
@@ -5091,6 +5112,27 @@ extension on TranslationsEnUs {
 			'customerService.governance.errorWithCode' => ({required Object msg, required Object code}) => '${msg} (${code})',
 			'customerService.governance.seatLimitExceededHint' => ({required Object used, required Object limit}) => 'Seat quota exceeded: ${used}/${limit} in use, cannot add seats (seat_limit_exceeded)',
 			'customerService.governance.retry' => 'Retry',
+			'customerService.actionDraftWarning' => 'There is an unsent draft. Confirming this action will not send it.',
+			'customerService.actionSendingWarning' => 'A message is being sent. Wait for completion and review before confirming.',
+			'customerService.actionUploadingWarning' => 'An attachment is uploading. Wait for completion and review before confirming.',
+			'customerService.actionUnconfirmedWarning' => 'A message remains unconfirmed. Review its outcome before submitting a session action.',
+			'customerService.ratingUnknownTitle' => 'Rating status unknown',
+			'customerService.ratingTimeLabel' => ({required Object time}) => 'Rated at: ${time}',
+			'customerService.attachSave' => 'Save file',
+			'customerService.attachSaved' => 'File saved',
+			'customerService.attachSaveFailed' => 'Save failed. You can retry.',
+			'customerService.attachPreparing' => 'Preparing attachment',
+			'customerService.attachPresigning' => 'Requesting upload permission',
+			'customerService.attachUploading' => ({required Object sent, required Object total}) => 'Uploading bytes: ${sent} / ${total}',
+			'customerService.attachConfirming' => 'Confirming uploaded file',
+			'customerService.attachCancelled' => 'Attachment cancelled before upload',
+			'customerService.attachUnknown' => 'The upload outcome is not fully confirmed. No automatic retry or message was sent.',
+			'customerService.attachRetry' => 'Retry attachment upload',
+			'customerService.attachCancel' => 'Stop subsequent upload steps',
+			'customerService.attachTooLarge' => 'Attachment must be nonempty and at most 25 MiB.',
+			'customerService.attachPreviewTruncated' => 'Only part of the text is shown. Saving keeps the complete file.',
+			'customerService.attachUploadedNotSent' => 'The file is uploaded, but message delivery is not confirmed. Check the send outcome rather than uploading again.',
+			'customerService.attachUploadStopped' => 'Upload did not complete. Further steps are stopped. Check permissions and session state before choosing a file again.',
 			'discovery.findNearbyPeople' => 'Find nearby people',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Nearby users can view your profile and send you messages. This may help you find new friends, but may also attract unwanted attention. You can stop sharing at any time.\nYour phone number stays hidden.',
@@ -5432,6 +5474,8 @@ extension on TranslationsEnUs {
 			'main.female' => 'Female',
 			'main.followSystem' => 'Follow system',
 			'main.frFr' => 'French (France)',
+			_ => null,
+		} ?? switch (path) {
 			'main.from' => 'From',
 			'main.good' => 'Great',
 			'main.hangup' => 'Hang up',
@@ -5453,8 +5497,6 @@ extension on TranslationsEnUs {
 			'main.markStar' => 'Favorite',
 			'main.multiSelect' => 'Multi-select',
 			'main.myFavorites' => 'My favorites',
-			_ => null,
-		} ?? switch (path) {
 			'main.myLive' => 'My live',
 			'main.name' => 'Name',
 			'main.numUnit' => ({required Object param}) => '${param} items',
@@ -5946,6 +5988,8 @@ extension on TranslationsEnUs {
 			'organization.wsMembers.roleGuest' => 'Guest',
 			'organization.wsMembers.changeRole' => 'Change role',
 			'organization.wsMembers.setRoleMember' => 'Set as member',
+			_ => null,
+		} ?? switch (path) {
 			'organization.wsMembers.setRoleGuest' => 'Set as guest',
 			'organization.wsMembers.transferOwner' => 'Transfer owner',
 			'organization.wsMembers.transferOwnerTitle' => ({required Object name}) => 'Transfer owner of "${name}"?',
@@ -5967,8 +6011,6 @@ extension on TranslationsEnUs {
 			'organization.tools.moreInWorkspaceShellHint' => 'Open the global workspace switcher (cross-enterprise).',
 			'organization.chart.zoomIn' => 'Zoom in',
 			'organization.chart.zoomOut' => 'Zoom out',
-			_ => null,
-		} ?? switch (path) {
 			'organization.chart.fit' => 'Fit to window',
 			'organization.chart.expand' => 'Expand departments',
 			'organization.chart.collapse' => 'Collapse departments',

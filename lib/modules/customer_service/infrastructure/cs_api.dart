@@ -22,7 +22,14 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:crypto/crypto.dart';
+import '../domain/cs_session_detail.dart';
+import 'cs_asset_put_transport.dart';
+import 'cs_asset_content.dart';
+export 'cs_asset_content.dart';
+import 'cs_asset_upload_operation.dart';
+export 'cs_asset_upload_operation.dart';
+export '../domain/cs_session_detail.dart';
+
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -44,17 +51,7 @@ class _StreamPassthroughTransformer extends HttpTransformer {
   }
 }
 
-/// 附件字节透传 transformer（与 EnterpriseApi 的 bytes passthrough 同款：
-/// 对象字节本体不是 JSON envelope，原样交付）。
-class _CsBytesPassthroughTransformer extends HttpTransformer {
-  @override
-  IMBoyHttpResponse parse(Response<dynamic> response, String uri) {
-    return IMBoyHttpResponse.success(response.data);
-  }
-}
-
 final _streamPassthroughTransformer = _StreamPassthroughTransformer();
-final _csBytesPassthroughTransformer = _CsBytesPassthroughTransformer();
 
 /// queue 键集分页默认每页条数（与服务端 page_view limit 语义一致）。
 const int kCsQueuePageSize = 20;
@@ -362,52 +359,6 @@ class CsClaimResult {
   }
 }
 
-/// 坐席会话详情（CSB-03：GET /api/v1/cs/sessions/:id 回显投影，宽容解析）。
-class CsSessionDetail {
-  final String sessionId;
-  final String organizationId;
-
-  /// 会话绑定的企业会话（消息通道的必要输入；服务端缺省为空——缺失时
-  /// 消息通道显示可解释不可用态，禁止任何个人 IM fallback）。
-  final String conversationId;
-  final String status;
-  final int version;
-
-  /// 访客评分（0 = 未评分；坐席端只展示评分状态，不代访客评分）。
-  final int rating;
-  final String contactId;
-  final String assigneeIdentityId;
-
-  const CsSessionDetail({
-    required this.sessionId,
-    this.organizationId = '',
-    this.conversationId = '',
-    this.status = '',
-    this.version = 0,
-    this.rating = 0,
-    this.contactId = '',
-    this.assigneeIdentityId = '',
-  });
-
-  bool get isClosed => status == 'closed';
-
-  bool get hasRating => rating > 0;
-
-  factory CsSessionDetail.fromJson(dynamic payload) {
-    final map = payload is Map ? payload : const <String, dynamic>{};
-    return CsSessionDetail(
-      sessionId: entityIdOf(map['session_id'] ?? map['id']),
-      organizationId: entityIdOf(map['organization_id']),
-      conversationId: entityIdOf(map['conversation_id']),
-      status: parseModelString(map['status']),
-      version: parseModelInt(map['version']),
-      rating: parseModelInt(map['rating']),
-      contactId: entityIdOf(map['contact_id']),
-      assigneeIdentityId: entityIdOf(map['business_identity_id']),
-    );
-  }
-}
-
 /// 坐席上下文内的 Workspace 引用（BE-S01a 投影 `#{id, name}`）。
 class CsSeatWorkspaceRef {
   final String id;
@@ -637,6 +588,14 @@ class CsTransferTargetPage {
 
 /// 客服（坐席侧）API 客户端。
 class CsApi extends HttpClient {
+  CsApi({
+    CsAssetPutTransport Function()? putTransportFactory,
+    EnterpriseApi Function()? assetApiFactory,
+  }) : _putTransportFactory = putTransportFactory ?? CsAssetPutTransport.new,
+       _assetApiFactory = assetApiFactory ?? EnterpriseApi.new;
+  final CsAssetPutTransport Function() _putTransportFactory;
+  final EnterpriseApi Function() _assetApiFactory;
+
   /// 坐席上下文清单（主体作用域，无 org 键；api-surface-freeze 坐席面入口）：
   /// GET /api/v1/cs/me/seat-contexts。一次返回当前用户全部 active member
   /// Org 的坐席事实（workspace / active customer_service identity /
@@ -935,23 +894,12 @@ class CsApi extends HttpClient {
     _ensureOk(resp);
   }
 
-  /// 企业附件三步上传（presign → 裸 PUT → confirm；CSX-01 冻结契约）。
-  ///
-  /// - presign 请求体键白名单 `{workspace_id, conversation_id, mime,
-  ///   size_bytes, object_hash, file_name?}`（旧 `{file_name, mime, size}`
-  /// 缺必填必 422——历史断链形状，已废）；[objectHash] 是 [bytes] 的
-  /// SHA-256 小写 hex（对齐 imboyadmin widget uploader 的同款算法）；
-  /// - 裸 PUT：只带 `Content-Type: application/octet-stream`，不带
-  ///   IMBoy 鉴权头（upload_ref 是唯一凭证）。PUT 目标取嵌套
-  ///   `upload.url`——企业面 presign_view 恒不携带（合同形状
-  ///   `opaque_token_no_url_no_object_key`）→ 本方法 fail-closed 抛出
-  ///   （绝不自造端点、绝不 PUT 到非 http(s) 目标、绝不 confirm 未上传
-  ///   完成的资产）；
-  /// - confirm 独立请求重新鉴权，入参 `upload_ref`（非 asset_id）。
-  ///
-  /// EB-D06 纪律：`upload.url` / `upload_ref` 仅在内存中使用到 PUT/confirm
-  /// 完成为止，本方法不返回、不记录、不持久化；只允许企业附件通道，
-  /// 禁止个人 attachment fallback。
+  /// Member attachment upload: authenticated presign → bound member PUT → confirm.
+  /// The HTTP producer adds its own API PUT URL to the opaque facade view.
+  /// The PUT uses authorization captured from this authenticated presign instance;
+  /// it never inherits this CsApi instance's stale headers or follows redirects.
+  /// URL/ref/headers remain operation memory only. Missing or unbound targets
+  /// stop before PUT; object-storage producers require a separate trusted origin.
   Future<EnterpriseAsset> uploadEnterpriseAsset(
     String orgId, {
     required String workspaceId,
@@ -959,71 +907,64 @@ class CsApi extends HttpClient {
     required String mime,
     required Uint8List bytes,
     String fileName = '',
+    CsAssetUploadOperation? operation,
   }) async {
-    final enterpriseApi = EnterpriseApi();
-    final presign = await enterpriseApi.presignAsset(
-      orgId,
-      workspaceId: workspaceId,
-      conversationId: conversationId,
-      mime: mime,
-      sizeBytes: bytes.length,
-      objectHash: sha256.convert(bytes).toString(),
-      fileName: fileName,
-    );
-    if (!presign.hasUploadTarget) {
-      // fail-closed：本面未开放字节 PUT 目标（部署阶段未挂上传代理）。
-      throw CsApiException(
-        0,
-        'upload target unavailable (opaque_token_no_url_no_object_key)',
+    final ownedApi = _assetApiFactory();
+    try {
+      return await (operation ?? CsAssetUploadOperation()).upload(
+        api: ownedApi,
+        transportFactory: _putTransportFactory,
+        org: orgId,
+        workspace: workspaceId,
+        conversation: conversationId,
+        mime: mime,
+        bytes: bytes,
+        fileName: fileName,
       );
+    } on CsAssetOperationException catch (e) {
+      if (operation != null) rethrow;
+      throw CsApiException(e.status ?? 0, 'asset ${e.failure.name}');
+    } finally {
+      ownedApi.dio.close(force: true);
     }
-    // 短期裸 PUT：直传上传代理端点，走裸 dio（不叠 IMBoy 鉴权头；
-    // 失败 fail-closed 抛出，upload_url 随请求结束即弃）。
-    final putResp = await dio.put<Object>(
-      presign.uploadUrl,
-      data: Stream<List<int>>.value(bytes),
-      options: Options(headers: {'Content-Type': 'application/octet-stream'}),
-    );
-    final status = putResp.statusCode;
-    if (status == null || status < 200 || status >= 300) {
-      throw CsApiException(status ?? 0, 'asset PUT failed');
-    }
-    return enterpriseApi.confirmAsset(
-      orgId,
-      workspaceId: workspaceId,
-      uploadRef: presign.uploadRef,
-    );
   }
 
-  /// 坐席附件内容字节（授权 content 代理；图片渲染与文本预览共用入口，
-  /// 禁止裸 URL 渲染——EB-D06）。
-  ///
-  /// 契约（PR-W2-C01 / V1.2 D3e）：enterprise content 门要求查询串必带
-  /// `workspace_id`（缺即 422）。[workspaceId] 非空时按冻结契约携带；
-  /// 空时**透传旧形状发出**（不本地拦截）——调用方 [CsSessionFlow] 的
-  /// 既有语义就是把缺失裁决留给服务端（其 workspaceId 注释：解析失败
-  /// 保持空 = 服务端 422 fail-closed，降级路径已就绪）。错误保持抛
-  /// [EnterpriseApiException]（flow 的降级 catch 面向该类型）。
+  /// Authorized content bytes, accepted only with matching server ID, SHA-256
+  /// and content length. Workspace is mandatory; errors retain the enterprise
+  /// exception contract. The returned bytes are immutable and contain no URL.
   Future<Uint8List> fetchAssetBytes(
     String orgId,
     String assetId, {
     String workspaceId = '',
+  }) async =>
+      (await fetchAssetContent(orgId, assetId, workspaceId: workspaceId)).bytes;
+
+  Future<CsVerifiedAssetContent> fetchAssetContent(
+    String orgId,
+    String assetId, {
+    required String workspaceId,
   }) async {
+    if (workspaceId.isEmpty) {
+      throw const EnterpriseApiException(422, 'missing_workspace_id');
+    }
+    if (!CsVerifiedAssetContent.isAssetId(assetId)) {
+      throw const EnterpriseApiException(0, 'asset content ID refused');
+    }
     final resp = await get(
       EnterpriseApi().assetContentPath(orgId, assetId),
-      queryParameters: workspaceId.isEmpty
-          ? null
-          : {'workspace_id': workspaceId},
-      options: Options(responseType: ResponseType.bytes),
-      httpTransformer: _csBytesPassthroughTransformer,
+      queryParameters: {'workspace_id': workspaceId},
+      options: Options(
+        responseType: ResponseType.bytes,
+        followRedirects: false,
+        maxRedirects: 0,
+      ),
+      httpTransformer: CsAssetContentTransformer(assetId),
     );
-    if (!resp.ok) {
-      throw EnterpriseApiException(resp.code, resp.msg);
+    if (!resp.ok) throw EnterpriseApiException(resp.code, resp.msg);
+    if (resp.payload is CsVerifiedAssetContent) {
+      return resp.payload as CsVerifiedAssetContent;
     }
-    final payload = resp.payload;
-    if (payload is Uint8List) return payload;
-    if (payload is List<int>) return Uint8List.fromList(payload);
-    throw const EnterpriseApiException(0, 'asset content: unexpected payload');
+    throw const EnterpriseApiException(0, 'asset content integrity refused');
   }
 
   /// 打开坐席事件 SSE 流（底层；由 [CsSeatEventsStream] 驱动重连/游标/

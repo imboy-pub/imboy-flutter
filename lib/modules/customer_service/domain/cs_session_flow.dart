@@ -42,6 +42,9 @@ import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_store.dart';
 
+part 'cs_session_mutations.dart';
+part 'cs_session_assets.dart';
+
 /// 坐席失败分类（A05：403 / 普通 409 / offboarding 409 各自语义分离）。
 enum CsSeatFailureKind { suspended, offboarding, conflict, other }
 
@@ -58,6 +61,9 @@ class CsSessionFlow {
   final EnterpriseStore _store;
   final void Function()? onChanged;
   bool _disposed = false;
+  bool _actionPending = false;
+  int _writesInFlight = 0;
+  CsAssetUploadOperation? assetOperation;
   final bool Function()? scopeCurrent;
   bool get _current => !_disposed && (scopeCurrent?.call() ?? true);
   String _scope() =>
@@ -182,7 +188,7 @@ class CsSessionFlow {
         // 服务端权威：经办人已非当前坐席（被转接/接管）→ 立即只读。
         machine.markTransferredAway();
       }
-      if (d.hasRating) {
+      if (d.isClosed && d.evaluationState == CsEvaluationState.rated) {
         machine.markRated();
       } else if (d.isClosed) {
         machine.markClosed();
@@ -213,6 +219,18 @@ class CsSessionFlow {
     }
     _invalidateStaleUnread();
     return kind;
+  }
+
+  /// Current action/target refusal shares the fail-closed read authority boundary.
+  CsSeatFailureKind applyActionFailure(CsApiException e) {
+    if (!_current) return CsSeatFailureKind.other;
+    if (e.isUnauthorized || e.isForbidden) {
+      _historyFailure(e);
+      machine.markSuspended();
+      onChanged?.call();
+      return lastFailureKind ?? CsSeatFailureKind.other;
+    }
+    return applyFailure(e);
   }
 
   /// 只读终态（转接/撤权/关闭/评分）后未读已无意义：陈旧化（null =
@@ -373,15 +391,20 @@ class CsSessionFlow {
 
   void _historyFailure(CsApiException e) {
     historyError = e;
-    if (e.isUnauthorized || e.isForbidden) {
-      readRevoked = true;
-      messages = const [];
-      messageAssets = const {};
-      messageReadAt = const {};
-      unreadCount = null;
-      hasOlder = false;
-    }
+    if (e.isUnauthorized || e.isForbidden) invalidateReadScope();
     applyFailure(e);
+  }
+
+  /// Invalidates only this flow's obsolete read projection, including auth loss.
+  void invalidateReadScope() {
+    readRevoked = true;
+    assetOperation?.cancel();
+    detail = null;
+    messages = const [];
+    messageAssets = const {};
+    messageReadAt = const {};
+    unreadCount = null;
+    hasOlder = false;
   }
 
   /// Coalesce hints; each pass reads at most twenty existing fifty-row pages.
@@ -526,6 +549,21 @@ class CsSessionFlow {
   /// [lastFailureKind] 给出分类）。失败不产生文件名文本附件——附件消息
   /// 与文本消息同面提交，无文本兜底伪成功。
   Future<bool> send(String text, {List<String> assetIds = const []}) async {
+    if (!_current || readRevoked || _actionPending || _writesInFlight > 0) {
+      return false;
+    }
+    _writesInFlight++;
+    try {
+      return await _sendMessage(text, assetIds: assetIds);
+    } finally {
+      _writesInFlight--;
+    }
+  }
+
+  Future<bool> _sendMessage(
+    String text, {
+    List<String> assetIds = const [],
+  }) async {
     if (!_current) return false;
     final body = text.trim();
     if (body.isEmpty && assetIds.isEmpty) return false;
@@ -539,7 +577,9 @@ class CsSessionFlow {
     // 解析失败保持空 = fail-closed（不构造注定失败的请求）。
     await resolveWorkspaceId();
     if (workspaceId.isEmpty) return false;
-    if (!_current) return false;
+    if (!_current || readRevoked || _actionPending || !machine.canSend) {
+      return false;
+    }
     final scope = _scope();
     final clientMsgId = pendingClientMsgId ?? Xid().toString();
     pendingClientMsgId = clientMsgId;
@@ -584,7 +624,7 @@ class CsSessionFlow {
       }
       return true;
     } on CsApiException catch (e) {
-      if (_same(scope)) applyFailure(e);
+      if (_same(scope)) applyActionFailure(e);
       return false;
     }
   }
@@ -615,130 +655,6 @@ class CsSessionFlow {
   }
 
   bool _workspaceResolveTried = false;
-
-  /// 附件上传三步：presign（object_hash = SHA-256(bytes)）→ 裸 PUT
-  /// （嵌套 upload.url，缺失 fail-closed）→ confirm（upload_ref）；
-  /// 成功后返回 assetId（confirmed_unbound，等待与消息原子绑定）。
-  /// `upload_url` / `upload_ref` 不出本方法作用域（不持久化、不进
-  /// store、不进 UI）。
-  Future<String> uploadAsset({
-    required String mime,
-    required Uint8List bytes,
-    String fileName = '',
-  }) async {
-    if (!machine.canSend) return '';
-    if (conversationId.isEmpty) return '';
-    await resolveWorkspaceId();
-    final asset = await _csApi.uploadEnterpriseAsset(
-      orgId,
-      workspaceId: workspaceId,
-      conversationId: conversationId,
-      mime: mime,
-      bytes: bytes,
-      fileName: fileName,
-    );
-    return asset.id;
-  }
-
-  /// 附件内容字节：仅经企业 content 鉴权代理（每次请求重新鉴权）。
-  ///
-  /// 门控（A04 读写分离）：closed/rated 只读态仍可查看（服务端代理仍
-  /// 是唯一权威）；suspend / offboarding / transferredAway 不再发请求
-  /// （旧凭证已被拒 / 经办权已离开）。请求侧 403 / offboarding 409 同样
-  /// 触发降级。返回 null = 已降级/通道缺失（UI 不渲染内容）。
-  ///
-  /// 图片气泡（Image.memory）与文件文本预览（utf8 解码）共用本入口；
-  /// **禁止** Image.network/CachedNetworkImage 裸 URL（EB-D06）。
-  Future<Uint8List?> fetchAssetBytes(String assetId) async {
-    if (!machine.canDownload) return null;
-    if (conversationId.isEmpty) return null;
-    // 与 uploadAsset 同门：content 门查询串必带 workspace_id（缺即 422）。
-    await resolveWorkspaceId();
-    try {
-      return await _csApi.fetchAssetBytes(
-        orgId,
-        assetId,
-        workspaceId: workspaceId,
-      );
-    } on EnterpriseApiException catch (e) {
-      if (e.isForbidden) machine.markSuspended();
-      if (e.isOffboardingRequired) machine.markOffboarding();
-      return null;
-    }
-  }
-
-  // ==================== 会话动作 ====================
-
-  /// 转接（CAS）。409 冲突：刷新真实状态（detail + 消息面不受影响），
-  /// 返回 [CsSeatFailureKind.conflict] 供 UI 提示；成功 → 旧坐席**立即
-  /// 只读**（A04 transferredAway，目标坐席经其自身权威回显接管）。
-  Future<CsSeatFailureKind?> transferTo(String toIdentityId) async {
-    if (!_current) return CsSeatFailureKind.other;
-    final scope = _scope();
-    final version = detail?.version ?? 0;
-    if (version <= 0) {
-      // 无可信版本：先刷新拿真实 version（不盲发 CAS）。
-      await refreshSessionState();
-      return CsSeatFailureKind.conflict;
-    }
-    try {
-      await _csApi.transfer(
-        orgId,
-        sessionId,
-        toIdentityId: toIdentityId,
-        expectedVersion: version,
-        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
-        workspaceId: workspaceId,
-      );
-      if (!_same(scope)) return CsSeatFailureKind.other;
-      machine.markTransferredAway();
-      unreadCount = null;
-      lastFailureKind = null;
-      return null;
-    } on CsApiException catch (e) {
-      if (!_same(scope)) return CsSeatFailureKind.other;
-      final kind = applyFailure(e);
-      // CAS 冲突：刷新真实状态再提示（不做乐观伪成功）。
-      if (kind == CsSeatFailureKind.conflict) {
-        await refreshSessionState();
-      }
-      return kind;
-    }
-  }
-
-  /// 关闭（CAS + 可选 reason）。成功 → 状态机 closed（所有写入口禁用，
-  /// 等待访客评分）。409：刷新真实状态（可能已被关闭/转走）。
-  Future<CsSeatFailureKind?> closeSession({String? reason}) async {
-    if (!_current) return CsSeatFailureKind.other;
-    final scope = _scope();
-    final version = detail?.version ?? 0;
-    if (version <= 0) {
-      await refreshSessionState();
-      return CsSeatFailureKind.conflict;
-    }
-    try {
-      await _csApi.close(
-        orgId,
-        sessionId,
-        expectedVersion: version,
-        reason: reason,
-        // CSB-02R workspace 门必填（缺省必 422）；空时透传由服务端裁决。
-        workspaceId: workspaceId,
-      );
-      if (!_same(scope)) return CsSeatFailureKind.other;
-      machine.markClosed();
-      unreadCount = null;
-      lastFailureKind = null;
-      return null;
-    } on CsApiException catch (e) {
-      if (!_same(scope)) return CsSeatFailureKind.other;
-      final kind = applyFailure(e);
-      if (kind == CsSeatFailureKind.conflict) {
-        await refreshSessionState();
-      }
-      return kind;
-    }
-  }
 
   // ==================== 坐席事件流（APP-M02-A02） ====================
 
@@ -792,6 +708,7 @@ class CsSessionFlow {
   /// 释放事件流（页面 dispose 时调用；重连定时器/订阅一并取消）。
   void dispose() {
     _disposed = true;
+    assetOperation?.cancel();
     _refreshTimer?.cancel();
     _refreshTimer = null;
     _events?.dispose();

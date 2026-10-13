@@ -1,19 +1,14 @@
-/// CSM-03（§12.5.1 / A05）— 坐席会话页降级行为 widget 测试
-///
-/// 把上卡状态机的降级语义落成**可验收的页面行为**（真 pump
-/// [CsSessionPage]，fake HTTP 桩）：
-///
-/// 1. 正常态：detail(active) + 历史 → 消息渲染、输入可用；
-/// 2. 发送遇 403（suspend / seat disabled / assignment ended / removed
-///    的统一表现）→ 页面出现 explainKey 对应只读条 + 输入禁用；
-/// 3. 关闭成功 → 输入禁用 + 评分等待横幅（坐席端只展示评分状态）。
 library;
 
 import 'dart:async';
+
+import 'cs_auth_fixture.dart';
+
 import 'dart:convert';
 import 'dart:ui' show ViewFocusEvent, ViewFocusState, ViewFocusDirection;
 
 import 'package:dio/dio.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +20,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 // Synthetic unsigned fixture assembled in memory, never an issued credential.
@@ -42,9 +36,6 @@ String _syntheticToken() {
 
 const sessionId = '7266418340025468940';
 
-/// 按注册顺序返回响应的桩（fragment 首个命中；响应按序消费，耗尽停留
-/// 最后一个；未命中 → 200 空 envelope）。[rawRoutes] 命中时返回原始字节
-/// （附件 content 代理是对象字节本体，非 JSON envelope）。
 class _SeqAdapter implements HttpClientAdapter {
   final List<(String fragment, List<(int, Map<String, dynamic>)>)> routes;
   final List<(String fragment, Uint8List bytes)> rawRoutes;
@@ -104,7 +95,10 @@ class _SeqAdapter implements HttpClientAdapter {
         raw,
         200,
         headers: {
-          Headers.contentTypeHeader: ['application/octet-stream'],
+          Headers.contentTypeHeader: ['text/plain'],
+          'x-asset-id': [options.uri.path.split('/').reversed.elementAt(1)],
+          'x-asset-sha256': [sha256.convert(raw).toString()],
+          'content-length': ['${raw.length}'],
         },
       );
     }
@@ -152,7 +146,6 @@ final _historyOk = {
   ],
 };
 
-/// 1x1 透明 PNG（图片缩略渲染的最小真实字节）。
 final _tinyPng = Uint8List.fromList([
   0x89,
   0x50,
@@ -228,6 +221,11 @@ Future<void> _pumpPage(
   _SeqAdapter adapter, {
   CsSessionPage? page,
 }) async {
+  if (!fixtureAuthEstablished) {
+    await establishCsWidgetAuthFixture(tester);
+    fixtureAuthEstablished = true;
+  }
+
   HttpClient.adapterForTest = adapter;
   addTearDown(() => HttpClient.adapterForTest = null);
   await tester.pumpWidget(
@@ -251,8 +249,6 @@ Future<void> _pumpPage(
   await _settleRealAsync(tester);
 }
 
-/// bootstrap 里 token/ dio 链路含真实异步（fakeAsync pump 推不动），
-/// 用 runAsync 放行真实时间，再 pump 反映状态。
 Future<void> _settleRealAsync(WidgetTester tester) async {
   await tester.runAsync(() async {
     await Future<void>.delayed(const Duration(milliseconds: 400));
@@ -312,6 +308,8 @@ _SeqAdapter _previewAdapter(String change) {
   );
 }
 
+bool fixtureAuthEstablished = false;
+
 void main() {
   test('initial host focus is single-view only; explicit events dominate', () {
     bool focus(bool? event, List<int> views, {bool resumed = true}) =>
@@ -364,7 +362,7 @@ void main() {
           return null;
         });
     await StorageService.init();
-    await StorageService.to.setString(Keys.currentUid, '7266418340025468999');
+    fixtureAuthEstablished = false;
   });
 
   testWidgets('正常态：detail + 历史 → 消息渲染、输入可用', (tester) async {
@@ -426,7 +424,7 @@ void main() {
     );
   });
 
-  testWidgets('关闭成功 → 输入禁用 + 评分等待横幅（不代访客评分）', (tester) async {
+  testWidgets('关闭成功且detail仍旧 → 输入禁用 + 评价未知（不代访客评分）', (tester) async {
     final adapter = _SeqAdapter([
       ('/sessions/$sessionId', [(200, _detailOk)]),
       ('/conversations/7266418340025468950/messages', [(200, _historyOk)]),
@@ -447,9 +445,9 @@ void main() {
     await _settleRealAsync(tester);
 
     expect(
-      find.textContaining('等待客户评分'),
+      find.textContaining('评价状态未知'),
       findsOneWidget,
-      reason: '关闭后进入评分等待状态展示',
+      reason: '关闭成功不把旧active详情推断为真实未评',
     );
     expect(_inputField(tester).enabled, isFalse, reason: '关闭后输入禁用');
     // 坐席端不代评：页面不出现任何「提交评分」入口
@@ -561,8 +559,7 @@ void main() {
       await _pumpPage(tester, adapter);
       expect(find.text('订单还没收到'), findsOneWidget);
       await tester.runAsync(() async {
-        await StorageService.to.remove(Keys.currentUid);
-        await UserRepoLocal.to.changeInfo({});
+        await UserRepoLocal.to.quitLogin();
       });
       await tester.pump();
       expect(find.text('订单还没收到'), findsNothing);
@@ -742,8 +739,7 @@ void main() {
       expect(find.text('SYNTHETIC_OWNED_PREVIEW'), findsOneWidget);
       if (change == 'logout') {
         await tester.runAsync(() async {
-          await StorageService.to.remove(Keys.currentUid);
-          await UserRepoLocal.to.changeInfo({});
+          await UserRepoLocal.to.quitLogin();
         });
       } else if (change == 'route') {
         await _pumpPage(

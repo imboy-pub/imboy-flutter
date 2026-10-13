@@ -40,6 +40,37 @@ class UserRepoLocal extends ChangeNotifier {
   bool _isClearingSession = false;
   bool get isClearingSession => _isClearingSession;
   Future<void> _sessionWrites = Future<void>.value();
+  final _authChanges = ChangeNotifier();
+  int _pendingAuthTransitions = 0;
+  bool _authTransitionFailed = false;
+
+  // Lifecycle state only: UID/generation remain authoritative above.
+  bool get isAuthTransitioning =>
+      _pendingAuthTransitions > 0 || _authTransitionFailed || isClearingSession;
+  void addAuthListener(VoidCallback listener) =>
+      _authChanges.addListener(listener);
+  void removeAuthListener(VoidCallback listener) =>
+      _authChanges.removeListener(listener);
+
+  void _beginAuthTransition() {
+    _pendingAuthTransitions++;
+  }
+
+  void _endAuthTransition(bool? successful) {
+    _pendingAuthTransitions--;
+    if (successful != null) _authTransitionFailed = !successful;
+    _authChanges.notifyListeners();
+  }
+
+  Future<bool> _finishAuthTransition(Future<bool?> Function() operation) async {
+    bool? successful = false;
+    try {
+      successful = await operation();
+      return successful ?? false;
+    } finally {
+      _endAuthTransition(successful);
+    }
+  }
 
   int get sessionGeneration => _sessionGeneration;
   bool isCurrentSession(int generation) => generation == _sessionGeneration;
@@ -232,7 +263,12 @@ class UserRepoLocal extends ChangeNotifier {
   Future<bool> loginAfter(String account, Map<String, dynamic> payload) {
     validateLoginPayload(payload);
     _sessionGeneration++;
-    return _serializeSessionWrite(() => _commitLogin(account, Map.of(payload)));
+    _beginAuthTransition();
+    final result = _serializeSessionWrite(
+      () => _finishAuthTransition(() => _commitLogin(account, Map.of(payload))),
+    );
+    _authChanges.notifyListeners();
+    return result;
   }
 
   Future<bool> _commitLogin(
@@ -295,20 +331,31 @@ class UserRepoLocal extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> quitLogin({int? expectedGeneration}) => _serializeSessionWrite(
-    () async {
-      if (expectedGeneration != null && !isCurrentSession(expectedGeneration)) {
-        return false;
-      }
-      _sessionGeneration++;
-      _isClearingSession = true;
-      try {
-        return await _clearLogin();
-      } finally {
-        _isClearingSession = false;
-      }
-    },
-  );
+  Future<bool> quitLogin({int? expectedGeneration}) {
+    if (expectedGeneration != null && !isCurrentSession(expectedGeneration)) {
+      return Future<bool>.value(false);
+    }
+    // Revoke at accepted intent time, including time waiting in the write queue.
+    _beginAuthTransition();
+    final result = _serializeSessionWrite(
+      () => _finishAuthTransition(() async {
+        if (expectedGeneration != null &&
+            !isCurrentSession(expectedGeneration)) {
+          // Balance a now-stale intent without changing the prior failure latch.
+          return null;
+        }
+        _sessionGeneration++;
+        _isClearingSession = true;
+        try {
+          return await _clearLogin();
+        } finally {
+          _isClearingSession = false;
+        }
+      }),
+    );
+    _authChanges.notifyListeners();
+    return result;
+  }
 
   Future<bool> _clearLogin() async {
     try {
