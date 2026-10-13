@@ -71,6 +71,15 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+            <!-- 引擎内建深链（VIEW intent → Router route information）会以 go 语义
+                 重置路由栈，与 DeepLinkRouterBridge 的 push 语义双通路冲突
+                 （MC-AC-22 实证：push 后 4 matches 被覆盖为 1，页内返回键消失）。
+                 深链统一走 imboy/deep_link MethodChannel（冷启动 getInitialLink /
+                 热启动 onDeepLink），此处关闭引擎通路。 -->
+            <meta-data
+              android:name="flutterDeepLinkingEnabled"
+              android:value="false"
+              />
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues

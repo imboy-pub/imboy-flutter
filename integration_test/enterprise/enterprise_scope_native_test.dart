@@ -105,7 +105,14 @@ void main() {
       ),
     );
     if (find.byType(WelcomePage).evaluate().isNotEmpty) {
-      await tester.tap(find.text(t.welcome.skip));
+      // 真机 r1 实证：启动动画未落定时直 tap 会 miss（落在插图上）且与
+      // route 过渡竞态触发 LiveTest 指针断言；先 settle 再 tap hit-testable。
+      await tester.pump(const Duration(milliseconds: 900));
+      final skip = find.text(t.welcome.skip).hitTestable();
+      if (skip.evaluate().isNotEmpty) {
+        await tester.tap(skip);
+        await tester.pump(const Duration(milliseconds: 700));
+      }
     }
     await waitFor(tester, find.byKey(const Key('login_phone_input')));
     expect(find.byType(InitErrorPage), findsNothing);
@@ -838,6 +845,15 @@ Finder personalTab(String key) {
 }
 
 Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
+  // 选择页已在栈顶时直接用（r3/r4 实证：重复打开时 MinePage 被盖，
+  // 切换入口 hitTestable 永假）。
+  if (find.byKey(const Key('org-picker-join-entry')).evaluate().isNotEmpty ||
+      find
+          .byKey(const Key('org-picker-personal-entry'))
+          .evaluate()
+          .isNotEmpty) {
+    return;
+  }
   final mine = personalTab('tab_mine');
   await waitFor(tester, mine.hitTestable());
   await tester.tap(mine);
@@ -854,9 +870,26 @@ Future<void> joinEnterprise(WidgetTester tester) async {
   expect(code, matches(RegExp(r'^[A-Z0-9]{8}$')));
   await openPersonalEnterprisePicker(tester);
   final join = find.byKey(const Key('org-picker-join-entry'));
+  await waitFor(tester, join);
+  // 手机屏折叠区外的底部入口：先滚动进可视区再要求 hit-testable
+  // （r3 实证 hitTestable 永假 → waitFor 超时）。
+  debugPrint(
+    'N3_JOIN_DEBUG inTree=${join.evaluate().length} '
+    'hit=${join.hitTestable().evaluate().length}',
+  );
+  await tester.ensureVisible(join);
+  debugPrint(
+    'N3_JOIN_DEBUG afterEnsure inTree=${join.evaluate().length} '
+    'hit=${join.hitTestable().evaluate().length} '
+    'center=${join.evaluate().isNotEmpty ? tester.getCenter(join) : 'n/a'}',
+  );
   await waitFor(tester, join.hitTestable());
-  expect(find.byKey(const Key('org-picker-tile-995102')), findsNothing);
-  await tester.tap(join);
+  // org-B fixture 当前为 995301（intbe02-org-b，邀请码 EOJOIN99）；
+  // 995102 是 995101 的根部门 id，不能作为组织断言目标（r11 实证
+  // GET /organizations/995102 即源于本地残留的旧种子成员行）。
+  expect(find.byKey(const Key('org-picker-tile-995301')), findsNothing);
+  // 诊断轮：默认 warnIfMissed=true，若仍有遮挡，框架会打印覆盖者清单。
+  await tester.tap(join, warnIfMissed: true);
   final input = find.byKey(const Key('org-join-code-field'));
   await waitFor(tester, input.hitTestable());
   await tester.enterText(input, code);
@@ -875,6 +908,10 @@ Future<void> leaveEnterprise(WidgetTester tester) async {
   // 入口 tile 对所有成员恒在，但标签按角色门控（canManage 才显示
   // 「企业管理」，普通成员显示企业 tab 文案）——按 key 定位，不断言文案。
   final manage = find.byKey(const Key('enterprise-mine-organization-entry'));
+  // join 刚落地的导航过渡期入口暂不可命中（r8/r9 实证）：settle 重试窗口。
+  for (var i = 0; i < 8 && manage.hitTestable().evaluate().isEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 400));
+  }
   await waitFor(tester, manage.hitTestable());
   await tester.tap(manage);
   final leave = find.byKey(const Key('organization-detail-leave'));
@@ -902,9 +939,11 @@ Future<void> assertDeparture(WidgetTester tester) async {
     final api = OrganizationApi();
     final mine = await api.allMine();
     expect(mine.map((org) => org.id), contains('995101'));
-    expect(mine.map((org) => org.id), isNot(contains('995102')));
+    // 离开 org-B（995301，intbe02-org-b）后：成员列表不再含它，
+    // detail 403（995102 是 995101 的部门 id，不能当组织探针）。
+    expect(mine.map((org) => org.id), isNot(contains('995301')));
     await expectLater(
-      api.detail('995102'),
+      api.detail('995301'),
       throwsA(
         isA<OrganizationApiException>().having(
           (e) => e.code,

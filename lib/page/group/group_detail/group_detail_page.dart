@@ -168,7 +168,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     }
 
     service.detail(gid: widget.groupId, sync: connected).then((g) async {
-      if (g != null) {
+      // 撤权旅程会在详情页挂载期间踢出/卸载本页；异步续体必须先过 mounted 闸，
+      // 否则 ref 在卸载后读取即抛（MC22-live 实测）。
+      if (g == null || !mounted) return;
+      {
         // 服务端是权威，有效值直接采信——**可升可降**，群解散成员后要能减下来。
         // 只有 memberCount==0 才拒绝：群必有成员，0 只可能是存量字段没维护住，
         // 拿它覆盖会让头部显示「0 群成员」而下面明明渲染着 2 个人。
@@ -185,6 +188,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
             sync: true,
             limit: 1000,
           );
+          if (!mounted) return;
           if (memberList.length > 18) memberList = memberList.sublist(0, 18);
           notifier.setMemberList(
             _withActionSlots(

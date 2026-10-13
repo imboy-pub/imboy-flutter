@@ -660,8 +660,14 @@ Future<bool> autoLoginOrSkip(WidgetTester tester) async {
 /// 欢迎页的“跳过”是 GestureDetector，最后一页则只有 ElevatedButton。
 /// 语义节点和按钮都保留兜底，避免桌面端/不同语言下只靠可见文案失效。
 Future<bool> leaveWelcomePage(WidgetTester tester) async {
-  for (var i = 0; i < 4; i++) {
+  // splash→welcome 路由过渡期框架会在旧路由上装 AbsorbPointer：过渡未
+  // 完成时 tap 全部落空（真机 r1 实证命中 Overlay→AbsorbPointer，甚至
+  // 触发 LiveTest 指针断言）。重试窗口放宽到 8 轮，每轮先等过渡落定。
+  for (var i = 0; i < 8; i++) {
     if (!isOnWelcomePage(tester)) return isOnLoginPage(tester);
+    await dismissUpgradeDialog(tester);
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await tester.pump(const Duration(milliseconds: 200));
 
     final tapped = await tapAny(tester, [
       find.text('跳过'),
@@ -671,7 +677,7 @@ Future<bool> leaveWelcomePage(WidgetTester tester) async {
       if (tester.any(find.byType(ElevatedButton)))
         find.byType(ElevatedButton).last,
     ]);
-    if (!tapped) return false;
+    if (!tapped) continue;
 
     await settle(tester, maxSeconds: 1);
     if (isOnLoginPage(tester) && !isOnWelcomePage(tester)) return true;

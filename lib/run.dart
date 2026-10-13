@@ -218,6 +218,16 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
     // 登录态守卫由 GoRouter.redirect 统一承担，这里只做 URI→location 转换。
     DeepLinkRouterBridge.watchIncomingLinks(_router);
     DeepLinkRouterBridge.consumeInitialLink(_router);
+    // 深链统一走 imboy/deep_link MethodChannel（bridge push 语义，返回键可用）。
+    // 引擎的 pushRoute/pushRouteInformation 会以 go 语义重置整栈（页内返回键
+    // 消失，MC-AC-22 栈仪表实证：push 后 4 matches 被覆盖为 1）；manifest
+    // flutterDeepLinkingEnabled=false 在当前引擎不生效，这里直接摘掉
+    // routeInformationProvider 的 WidgetsBindingObserver 订阅，屏蔽平台路由
+    // 报告通道。注意时机：provider 在 Router 首帧订阅时才注册 observer，
+    // initState 阶段 removeObserver 是空操作（r8 实证），必须 post-frame。
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.removeObserver(_router.routeInformationProvider);
+    });
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((locale) {
       if (mounted && _currentLocale != locale) {

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -114,6 +115,17 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
                       Navigator.canPop(context)) ...[
                     _buildDefaultLeading(context),
                     const SizedBox(width: AppSpacing.medium),
+                  ] else if (automaticallyImplyLeading) ...[
+                    // MC22 栈诊断（独立诊断轮临时，定位后移除）
+                    Builder(
+                      builder: (context) {
+                        debugPrint(
+                          'MC22_STACK_DIAG canPop=false '
+                          'matches=${GoRouter.of(context).routerDelegate.currentConfiguration.matches.length}',
+                        );
+                        return const SizedBox(width: AppSpacing.medium);
+                      },
+                    ),
                   ],
                   // Title
                   Expanded(

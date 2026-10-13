@@ -26,7 +26,12 @@ import 'package:imboy/config/init.dart' show AppInitializer;
 import 'package:imboy/service/sqlite.dart' show SqliteService;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart'
+    show kOrganizationPickerPath;
+import 'package:imboy/modules/organization/presentation/human_directory_page.dart'
+    show OrganizationChartPage;
 import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
 
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -110,7 +115,7 @@ void main() {
     // 回通讯录进图（为 A02 做数据在场）。
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text(_orgAName), findsWidgets, reason: '企业A根节点在场');
@@ -125,7 +130,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await tester.pump(const Duration(milliseconds: 900));
     // C 的图只有根节点（C 名称），A 的部门与 A 企业名不出现。
     expect(find.text(_orgCName), findsWidgets);
@@ -144,9 +149,12 @@ void main() {
     expect(find.text(_orgAName), findsNothing);
     // 互切检查不能代替上述重新读取（组织架构现为二级页：返回目录再进入；
     // pageBack() 不认 GlassBackButton，显式 tap）。
-    await tester.tap(find.byType(GlassBackButton));
+    final back2 = find.byType(GlassBackButton).hitTestable();
+    await tester.tap(back2.first);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    // pop 过渡期 AbsorbPointer 仍在吸点击（r10 实证）：落定后再点结构区。
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 800));
     expect(find.text(_orgAOnlyDept), findsNothing);
@@ -243,7 +251,7 @@ void main() {
     }
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text(_orgAName), findsWidgets, reason: '撤权前图可读');
@@ -272,9 +280,12 @@ void main() {
       expect(find.text(_orgAOnlyDept), findsNothing);
       // 切回成员视图再回图：旧数据不因视图切换而复活（组织架构现为
       // 二级页：返回目录再进入；重进重新拉取，等待 403 落定再断言）。
-      await tester.tap(find.byType(GlassBackButton));
+      final back3 = find.byType(GlassBackButton).hitTestable();
+      await tester.tap(back3.first);
       await tester.pump(const Duration(milliseconds: 500));
-      await tester.tap(find.text(t.organization.directory.structureSection));
+      await tester.tap(
+        find.text(t.organization.directory.structureSection).last,
+      );
       await waitForChartIdle(tester);
       expect(
         find.byKey(const ValueKey('org-chart-canvas')),
@@ -317,7 +328,7 @@ void main() {
     }
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
-    await tester.tap(find.text(t.organization.directory.structureSection));
+    await tester.tap(find.text(t.organization.directory.structureSection).last);
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
     await waitFor(tester, find.text('销售中心'));
     expect(find.text(_orgAName), findsWidgets);
@@ -449,26 +460,30 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
   if (find.byKey(const Key('login_phone_input')).evaluate().isNotEmpty) {
     return; // 已在登录页（首段无需登出）
   }
-  if (enterpriseNavigation().evaluate().isEmpty) {
-    // 个人壳：经 我→切换企业 进入任一企业（合成账号必有企业）再登出。
-    await openPersonalEnterprisePicker(tester);
-    final anyTile = find.byWidgetPredicate(
-      (widget) =>
-          widget.key is ValueKey<String> &&
-          (widget.key as ValueKey<String>).value.startsWith('org-picker-tile-'),
-    );
-    await waitFor(tester, anyTile);
-    await tester.tap(anyTile.first);
-    await waitFor(tester, enterpriseNavigation());
-    await tester.pump(const Duration(milliseconds: 600));
+  // APP-M02 后企业壳整壳无账户入口（r3）；个人壳迁 ChatShellPage 形态后
+  // workspace-shell-account-entry 也不可命中（r5 实证，MinePage 在场）。
+  // 登出统一走：我 tab → 设置 → 退出登录 → 确认。
+  if (enterpriseNavigation().evaluate().isNotEmpty) {
+    await selectPersonal(tester);
   }
-  await selectEnterpriseTab(tester, t.organization.directory.title);
-  final entry = find.byKey(const ValueKey('workspace-shell-account-entry'));
-  await waitFor(tester, entry.hitTestable());
-  await tester.tap(entry);
-  await tester.pump(const Duration(milliseconds: 600));
-  final logout = find.text(t.account.logOut).hitTestable();
-  await waitFor(tester, logout);
+  final mine = personalTab('tab_mine');
+  await waitFor(tester, mine.hitTestable());
+  await tester.tap(mine);
+  final settingTile = find.descendant(
+    of: find.byType(MinePage),
+    matching: find.text(t.main.setting),
+  );
+  await waitFor(tester, settingTile.hitTestable());
+  await tester.tap(settingTile);
+  final logout = find.text(t.account.logOut);
+  // 设置页为懒构建长 sliver：未滚动到的区块根本不在树里（r7 实证 0 in
+  // tree）。逐屏滚动探查直到磁贴可命中。
+  for (var i = 0; i < 12; i++) {
+    if (logout.hitTestable().evaluate().isNotEmpty) break;
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -300));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+  await waitFor(tester, logout.hitTestable());
   await tester.tap(logout);
   await tester.pump(const Duration(milliseconds: 500));
   final dialogConfirm = find.byType(CupertinoAlertDialog);
@@ -480,13 +495,6 @@ Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
           matching: find.byType(CupertinoDialogAction),
         )
         .last,
-  );
-  await waitFor(
-    tester,
-    find.byWidgetPredicate(
-      (widget) =>
-          widget is WelcomePage || widget.key == const Key('login_phone_input'),
-    ),
   );
   await tester.pump(const Duration(milliseconds: 800));
 }
@@ -586,11 +594,40 @@ Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
-  await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
+  // 组织架构为二级页（push 路由覆盖壳顶栏；403 错误态无 canvas 但页仍在
+  // 栈上）：图页在场就先 GlassBackButton 回目录，再找切换入口。
+  for (var i = 0; i < 3; i++) {
+    if (find.byType(OrganizationChartPage).evaluate().isEmpty) {
+      break;
+    }
+    // 图页可能在 offstage/被盖栈层（r6 实证）：只点当前可命中的返回键。
+    final back = find.byType(GlassBackButton).hitTestable();
+    if (back.evaluate().isEmpty) {
+      break;
+    }
+    await tester.tap(back.first);
+    await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
+  }
+  // chip 在任意覆盖路由下不可命中（r6-r8 反复实证）：直接按路由打开
+  // 企业选择器，产物路径与 chip 一致（picker → personal entry）。
+  final navCtx = tester.element(find.byType(Navigator).first);
+  GoRouter.of(navCtx).push(kOrganizationPickerPath);
   final personal = find.byKey(const Key('org-picker-personal-entry'));
   await waitFor(tester, personal);
   await tester.tap(personal);
   await waitFor(tester, find.byType(BottomNavigationPage));
+  // 个人切换后选择页可能仍驻留栈顶（r9 实证：覆盖后续目录 tap）：
+  // 路由可弹则弹出一层。
+  if (find
+      .byKey(const Key('org-picker-personal-entry'))
+      .evaluate()
+      .isNotEmpty) {
+    final navCtx2 = tester.element(find.byType(Navigator).first);
+    if (GoRouter.of(navCtx2).canPop()) {
+      GoRouter.of(navCtx2).pop();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+  }
   await waitFor(tester, personalTab('tab_conversations'));
 }
 
@@ -598,7 +635,12 @@ Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
   final mine = personalTab('tab_mine');
   await waitFor(tester, mine.hitTestable());
   await tester.tap(mine);
-  final switcher = find.text(t.organization.picker.switchEnterprise);
+  // 我页与（栈内残留的）企业选择页都会出现「切换企业」文案：按 MinePage
+  // 收窄（r4 实证 2 widgets 歧义）。
+  final switcher = find.descendant(
+    of: find.byType(MinePage),
+    matching: find.text(t.organization.picker.switchEnterprise),
+  );
   await waitFor(tester, switcher.hitTestable());
   await tester.tap(switcher);
 }

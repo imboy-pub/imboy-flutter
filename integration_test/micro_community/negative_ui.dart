@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show IconButton;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
+import 'package:imboy/component/ui/common_bar.dart'
+    show GlassAppBar, GlassBackButton;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/channel/channel_discover_page.dart';
@@ -143,6 +144,16 @@ class NegativeUi {
       of: page,
       matching: find.byType(GlassBackButton),
     );
+    if (back.evaluate().isEmpty) {
+      // MC22 backFrom 壁诊断仪表（独立诊断轮用，后续可移除）：
+      // pageFound=0 → 页面不在树；appBar=0 → _showAppBar=false；
+      // appBar>0 而 back=0 → canPop=false（路由栈问题）。
+      debugPrint(
+        'MC22_BACKFROM_DIAG page=${page.evaluate().length} '
+        'appBar=${find.descendant(of: page, matching: find.byType(GlassAppBar)).evaluate().length} '
+        'back=${back.evaluate().length}',
+      );
+    }
     expect(back, findsOneWidget, reason: 'real back control required');
     await tester.tap(back);
     await settle(tester);
@@ -203,9 +214,10 @@ class NegativeUi {
     final input = find.byKey(const Key('chat_message_input'));
     expect(input, findsOneWidget);
     await tester.enterText(input, marker);
-    await tester.pump();
+    // 发送按钮显隐走 300ms debounce Timer（chat_input.dart
+    // _handleTextControllerChange），单次 pump 不等定时器，必须轮询等待。
     final send = find.byKey(const ValueKey('send_button'));
-    expect(send, findsOneWidget);
+    await waitVisible(send);
     await tester.tap(send);
     await settle(tester);
   }
