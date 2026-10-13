@@ -29,6 +29,28 @@ class NegativeUi {
       await negativePump(tester);
       if (tester.any(finder)) break;
     }
+    if (!tester.any(finder)) {
+      // r8/r9 实证 discover 请求已发但目标文本未渲染：失败时打印两级
+      // 页面在树状态，区分"页未开"与"页开列表空"。
+      debugPrint(
+        'MC22_WAITVIS_DIAG target=${finder.evaluate().length} '
+        'discoverPage=${find.byType(ChannelDiscoverPage).evaluate().length} '
+        'listPage=${find.byType(ChannelListPage).evaluate().length}',
+      );
+      if (tester.any(find.byType(ChannelDiscoverPage))) {
+        final texts = tester
+            .widgetList<Text>(
+              find.descendant(
+                of: find.byType(ChannelDiscoverPage),
+                matching: find.byType(Text),
+              ),
+            )
+            .take(10)
+            .map((w) => w.data ?? w.textSpan?.toPlainText() ?? '<span>')
+            .toList();
+        debugPrint('MC22_DISCOVER_TEXTS=$texts');
+      }
+    }
     expect(finder, findsOneWidget, reason: 'required real UI control absent');
   }
 
@@ -164,16 +186,24 @@ class NegativeUi {
     var path = 'chat_back';
     if (!tester.any(find.byType(ChannelDetailPage))) {
       // 断链-重连后 AppBar 首帧可能未就绪，back tap 偶发 miss（live 轮
-      // 单次足够；reconnect r5 实证单次后主壳未现）：8s 未回主壳则重试
-      // 一次返回，仍失败时打印两页在树状态供下一轮定位。
+      // 单次足够；reconnect r5 实证单次后主壳未现；r27 实证重连 timer
+      // pending 下单次再 back 仍 miss，246s 断言 false）：循环点 back
+      // 直到 ChatPage 离树（pump 推帧不等 pending timer），再等主壳。
       if (!await waitForMainShell(tester, maxAttempts: 8)) {
         debugPrint(
           'MC22_RETURN_RETRY chat=${find.byType(ChatPage).evaluate().length} '
           'detail=${find.byType(ChannelDetailPage).evaluate().length}',
         );
-        if (tester.any(find.byType(ChatPage))) {
-          await backFrom(find.byType(ChatPage));
+        for (var i = 0; i < 4 && tester.any(find.byType(ChatPage)); i++) {
+          final back = find.descendant(
+            of: find.byType(ChatPage),
+            matching: find.byType(GlassBackButton),
+          );
+          if (back.evaluate().isEmpty) break;
+          await tester.tap(back, warnIfMissed: false);
+          await tester.pump(const Duration(milliseconds: 600));
         }
+        await settle(tester);
         expect(await waitForMainShell(tester), isTrue);
       }
       await openDiscoveredContent();
