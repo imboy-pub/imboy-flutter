@@ -345,6 +345,12 @@ Future<void> _loginAs(WidgetTester tester, String acc, String pwd) async {
   expect(Platform.isMacOS, isTrue);
   expect(app.appEnv, 'local');
   expect(Uri.parse(_api).host, '127.0.0.1');
+  // 登录阶段保持默认窄视口（LoginPage 形态，与 r1-r12 同流程；1440 宽会
+  // 触发 AppBreakpoints.isWide 走 WebLoginPage，r13/r14 实证）。登录完成、
+  // 主壳就绪后再对齐桌面断点 1440x900——585 下桌面 shell 布局宽于 root，
+  // picker tile 中心落出 hit-test root（r5-r12 实证 "would not receive
+  // pointer"）。
+  await tester.binding.setSurfaceSize(const Size(585, 700));
   // testWidgets 之间框架会清空 UI 树：每段按需重建 App（登录态在隔离
   // Keychain 中持续，重建后已登录则直接落在主壳）。
   final appAlive =
@@ -453,6 +459,9 @@ Future<void> _loginAs(WidgetTester tester, String acc, String pwd) async {
     expectedUid,
     reason: 'Production login must select the exact synthetic account',
   );
+  // 主壳就绪后切桌面断点：shell 响应式切 rail 形态，picker 布局收进
+  // hit-test root。
+  await tester.binding.setSurfaceSize(const Size(1440, 900));
 }
 
 Future<void> _logoutViaAccountSheet(WidgetTester tester) async {
