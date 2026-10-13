@@ -884,7 +884,10 @@ Future<void> joinEnterprise(WidgetTester tester) async {
     'center=${join.evaluate().isNotEmpty ? tester.getCenter(join) : 'n/a'}',
   );
   await waitFor(tester, join.hitTestable());
-  expect(find.byKey(const Key('org-picker-tile-995102')), findsNothing);
+  // org-B fixture 当前为 995301（intbe02-org-b，邀请码 EOJOIN99）；
+  // 995102 是 995101 的根部门 id，不能作为组织断言目标（r11 实证
+  // GET /organizations/995102 即源于本地残留的旧种子成员行）。
+  expect(find.byKey(const Key('org-picker-tile-995301')), findsNothing);
   // 诊断轮：默认 warnIfMissed=true，若仍有遮挡，框架会打印覆盖者清单。
   await tester.tap(join, warnIfMissed: true);
   final input = find.byKey(const Key('org-join-code-field'));
@@ -936,9 +939,11 @@ Future<void> assertDeparture(WidgetTester tester) async {
     final api = OrganizationApi();
     final mine = await api.allMine();
     expect(mine.map((org) => org.id), contains('995101'));
-    expect(mine.map((org) => org.id), isNot(contains('995102')));
+    // 离开 org-B（995301，intbe02-org-b）后：成员列表不再含它，
+    // detail 403（995102 是 995101 的部门 id，不能当组织探针）。
+    expect(mine.map((org) => org.id), isNot(contains('995301')));
     await expectLater(
-      api.detail('995102'),
+      api.detail('995301'),
       throwsA(
         isA<OrganizationApiException>().having(
           (e) => e.code,
