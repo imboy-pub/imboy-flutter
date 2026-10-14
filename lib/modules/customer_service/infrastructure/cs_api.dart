@@ -1074,7 +1074,7 @@ class CsApi extends HttpClient {
       '/api/v1/cs/organizations/$orgId/seats/me/presence',
       data: <String, dynamic>{
         if (workspaceId.isNotEmpty) 'workspace_id': workspaceId,
-        ?manualStatus: manualStatus,
+        'manual_status': ?manualStatus,
       },
     );
     _ensureOk(resp);

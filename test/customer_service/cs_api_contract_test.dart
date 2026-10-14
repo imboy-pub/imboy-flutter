@@ -134,6 +134,38 @@ void main() {
     return adapter;
   }
 
+  for (final manual in <String?>['away', null]) {
+    test('setSeatPresence wire whitelist manual=$manual', () async {
+      final adapter = useAdapter(
+        200,
+        okEnvelope(
+          payload: {
+            'status': manual == null ? 'online' : 'away',
+            'manual_status': manual,
+            'enabled': true,
+          },
+        ),
+      );
+      final presence = await CsApi().setSeatPresence(
+        orgId,
+        manual,
+        workspaceId: wsId,
+      );
+      expect(adapter.requests, hasLength(1));
+      final request = adapter.requests.single;
+      expect(request.$1, 'PUT');
+      expect(request.$2, '/api/v1/cs/organizations/$orgId/seats/me/presence');
+      expect(
+        request.$3,
+        manual == null
+            ? {'workspace_id': wsId}
+            : {'workspace_id': wsId, 'manual_status': 'away'},
+      );
+      expect(request.$4, isEmpty);
+      expect(presence.manualStatus, manual);
+    });
+  }
+
   group('APP-M01 坐席上下文（seat-contexts，主体作用域）', () {
     test('seatContexts：GET 无 org 键路径 + 无 query；解析每 Org 投影', () async {
       final adapter = useAdapter(
