@@ -313,7 +313,15 @@ class _GroupAlbumPhotoPageState extends ConsumerState<GroupAlbumPhotoPage> {
   }
 
   String _resolveDeletePhotoId(Map<String, dynamic> photo) {
-    return (photo['photo_id'] ?? photo['id'])?.toString().trim() ?? '';
+    final id = photo['id']?.toString().trim() ?? '';
+    if (!RegExp(r'^[0-9]{1,19}$').hasMatch(id)) return '';
+    final primaryId = BigInt.tryParse(id);
+    if (primaryId == null ||
+        primaryId <= BigInt.zero ||
+        primaryId > BigInt.parse('9223372036854775807')) {
+      return '';
+    }
+    return primaryId.toString();
   }
 
   // 详情接口按相册记录主键查找；photo_id 是存储文件标识。

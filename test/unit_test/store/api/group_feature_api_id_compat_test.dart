@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
+import 'package:imboy/service/group_album_service.dart';
 import 'package:imboy/store/api/group_album_api.dart';
 import 'package:imboy/store/api/group_file_api.dart';
 import 'package:imboy/store/api/group_schedule_api.dart';
@@ -673,6 +674,21 @@ void main() {
       expect(api.lastUri, '/api/v1/group_album/photo/delete');
       expect(api.lastData['photo_id'], '101');
     });
+
+    test(
+      'album service preserves large record ids through delete API',
+      () async {
+        final api = _FakeGroupAlbumApi();
+        final service = GroupAlbumService.withApi(api);
+        for (final photoId in [9007199254740993, '9223372036854775807']) {
+          expect(await service.deletePhoto(photoId), isTrue);
+          expect(api.lastMethod, 'POST');
+          expect(api.lastUri, '/api/v1/group_album/photo/delete');
+          expect(api.lastData['photo_id'], photoId.toString());
+        }
+        expect(api.requestCount, 2);
+      },
+    );
 
     test('updateAlbumCover should post album_id and photo_id', () async {
       final api = _FakeGroupAlbumApi();

@@ -192,13 +192,52 @@ void main() {
     expect(capturedExtra!['photo_ids'], ['101', '102']);
   });
 
-  testWidgets('photo delete uses photo_id and refreshes on success', (
+  for (final invalidId in [null, 'file_1', 0, -1, 1.5, '9223372036854775808']) {
+    testWidgets('invalid record id $invalidId cannot delete or select', (
+      tester,
+    ) async {
+      final fakeService = _FakeGroupAlbumService(
+        photos: [
+          {
+            'id': ?invalidId,
+            'photo_id': '101',
+            'thumbnail_url': '',
+            'uploader_id': _currentUid,
+          },
+        ],
+        photoDetails: const {},
+      );
+      GroupAlbumService.instanceForTest = fakeService;
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: GroupAlbumPhotoPage(groupId: 'g1', albumId: 'a1'),
+            builder: AppLoading.init(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('group_album_photo_delete_0')));
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+      await tester.longPress(find.byKey(const Key('group_album_photo_cell_0')));
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('group_album_photo_batch_delete')),
+        findsNothing,
+      );
+      expect(fakeService.deleteCalls, isEmpty);
+      expect(fakeService.getPhotosCallCount, 1);
+    });
+  }
+
+  testWidgets('photo delete uses record id and refreshes on success', (
     tester,
   ) async {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
         {
-          'id': 'legacy-1',
+          'id': 9007199254740993,
           'photo_id': 'p1',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
@@ -233,7 +272,7 @@ void main() {
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
 
-    expect(fakeService.deleteCalls, ['p1']);
+    expect(fakeService.deleteCalls, ['9007199254740993']);
     expect(find.text('图片已删除'), findsOneWidget);
     expect(fakeService.getPhotosCallCount, 2);
   });
@@ -244,7 +283,7 @@ void main() {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
         {
-          'id': 'legacy-1',
+          'id': '101',
           'photo_id': 'p1',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
@@ -279,7 +318,7 @@ void main() {
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
 
-    expect(fakeService.deleteCalls, ['p1']);
+    expect(fakeService.deleteCalls, ['101']);
     expect(find.text('删除失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getPhotosCallCount, 1);
   });
@@ -290,13 +329,13 @@ void main() {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
         {
-          'id': 'legacy-1',
+          'id': 9007199254740993,
           'photo_id': 'p1',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
         },
         {
-          'id': 'legacy-2',
+          'id': '9223372036854775807',
           'photo_id': 'p2',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
@@ -323,12 +362,11 @@ void main() {
     expect(fakeService.getPhotosCallCount, 1);
 
     final firstPhotoCell = find.byKey(const Key('group_album_photo_cell_0'));
-    final secondPhotoCell = find.byKey(const Key('group_album_photo_cell_1'));
     await tester.longPress(firstPhotoCell);
     await tester.pumpAndSettle();
     expect(find.text('已选择 1 项'), findsOneWidget);
 
-    await tester.tap(secondPhotoCell);
+    await tester.tap(find.byKey(const Key('group_album_photo_select_all')));
     await tester.pumpAndSettle();
     expect(find.text('已选择 2 项'), findsOneWidget);
 
@@ -341,7 +379,10 @@ void main() {
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
 
-    expect(fakeService.deleteCalls, unorderedEquals(['p1', 'p2']));
+    expect(
+      fakeService.deleteCalls,
+      unorderedEquals(['9007199254740993', '9223372036854775807']),
+    );
     expect(find.text('已删除2张图片'), findsOneWidget);
     expect(fakeService.getPhotosCallCount, 2);
   });
@@ -352,13 +393,13 @@ void main() {
     final fakeService = _FakeGroupAlbumService(
       photos: const [
         {
-          'id': 'legacy-1',
+          'id': '101',
           'photo_id': 'p1',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
         },
         {
-          'id': 'legacy-2',
+          'id': '102',
           'photo_id': 'p2',
           'thumbnail_url': '',
           'uploader_id': _currentUid,
@@ -400,7 +441,7 @@ void main() {
     await tester.tap(actionButtons.last);
     await tester.pumpAndSettle();
 
-    expect(fakeService.deleteCalls, unorderedEquals(['p1', 'p2']));
+    expect(fakeService.deleteCalls, unorderedEquals(['101', '102']));
     expect(find.text('删除失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getPhotosCallCount, 1);
   });
