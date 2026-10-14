@@ -27,6 +27,7 @@ import 'cs_verified_asset_cache.dart';
 
 import 'package:imboy/modules/customer_service/presentation/cs_session_preview_scope.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/modules/customer_service/domain/cs_delivery_ack_ledger.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -181,6 +182,8 @@ class _CsSessionPageState extends State<CsSessionPage>
     _uploading = false;
     _error = null;
     _flow = CsSessionFlow(
+      deliveryLedger: CsDeliveryAckLedger.forAuth(_auth),
+      deliveryAuthScope: now,
       orgId: widget.orgId,
       sessionId: widget.sessionId,
       conversationId: widget.conversationId,

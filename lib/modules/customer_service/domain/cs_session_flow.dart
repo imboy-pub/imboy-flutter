@@ -31,6 +31,9 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'cs_conversation_history.dart';
+import 'cs_delivery_ack_ledger.dart';
+
+import 'package:imboy/service/auth_session_scope.dart';
 
 import 'package:xid/xid.dart';
 import 'package:dio/dio.dart' show DioException;
@@ -66,6 +69,8 @@ class CsSessionFlow {
   int _writesInFlight = 0;
   CsAssetUploadOperation? assetOperation;
   final bool Function()? scopeCurrent;
+  final CsDeliveryAckLedger? deliveryLedger;
+  final AuthSessionScope? deliveryAuthScope;
   bool get _current => !_disposed && (scopeCurrent?.call() ?? true);
   String _scope() =>
       '$orgId/$workspaceId/$sessionId/$conversationId/$identityId';
@@ -153,6 +158,8 @@ class CsSessionFlow {
     EnterpriseStore? store,
     this.onChanged,
     this.scopeCurrent,
+    this.deliveryLedger,
+    this.deliveryAuthScope,
   }) : _csApi = csApi ?? CsApi(),
        _store = store ?? EnterpriseStoreHolder.instance;
 
@@ -360,7 +367,22 @@ class CsSessionFlow {
     int generation, {
     bool delivery = true,
   }) async {
-    for (final row in page.messages) {
+    final delivered = messages
+        .where((m) => m.delivered)
+        .map((m) => m.id)
+        .toSet();
+    final auth = deliveryAuthScope;
+    final rows = page.messages.map((row) {
+      final acknowledged =
+          delivered.contains(row.message.id) ||
+          (auth != null &&
+              deliveryLedger?.contains(auth, scope, row.message.id) == true);
+      return CsConversationMessage(
+        message: acknowledged ? row.message.withDelivered() : row.message,
+        assets: row.assets,
+      );
+    }).toList();
+    for (final row in rows) {
       if (!_same(scope) || generation != _historyGeneration) return const [];
       await _store.saveMessage(row.message);
     }
@@ -370,7 +392,7 @@ class CsSessionFlow {
     final byId = {for (final m in messages) m.id: m};
     final reads = Map<String, DateTime>.from(messageReadAt);
     final assets = Map<String, List<CsMessageAsset>>.from(messageAssets);
-    for (final row in page.messages) {
+    for (final row in rows) {
       byId[row.message.id] = row.message;
       if (row.assets.isEmpty) {
         assets.remove(row.message.id);
@@ -385,7 +407,7 @@ class CsSessionFlow {
     messageAssets = Map.unmodifiable(assets);
     messageReadAt = Map.unmodifiable(reads);
     if (messages.isNotEmpty) cursor = messages.last.id;
-    final fresh = page.messages.map((r) => r.message).toList();
+    final fresh = rows.map((r) => r.message).toList();
     if (delivery) await _ackInbound(fresh);
     return _same(scope) && generation == _historyGeneration ? fresh : const [];
   }
@@ -398,6 +420,7 @@ class CsSessionFlow {
 
   /// Invalidates only this flow's obsolete read projection, including auth loss.
   void invalidateReadScope() {
+    deliveryLedger?.invalidateScope(_scope());
     readRevoked = true;
     machine.revokeReadAuthority();
     _events?.dispose();
@@ -535,13 +558,16 @@ class CsSessionFlow {
         workspaceId: workspaceId,
         recipientRef: 'identity:$identityId',
       );
+      if (!_same(scope)) return;
+      if (deliveryAuthScope != null) {
+        deliveryLedger?.record(deliveryAuthScope!, scope, mid);
+      }
+      await _store.markDelivered(orgId, conversationId, [mid]);
+      if (!_same(scope)) return;
+      messages = messages
+          .map((m) => m.id == mid ? m.withDelivered() : m)
+          .toList(growable: false);
     }
-    if (!_same(scope)) return;
-    await _store.markDelivered(orgId, conversationId, undelivered);
-    final marked = undelivered.toSet();
-    messages = messages
-        .map((m) => marked.contains(m.id) ? m.withDelivered() : m)
-        .toList(growable: false);
   }
 
   /// 发送坐席消息（幂等）：未确认前重试复用同一 `client_msg_id`；

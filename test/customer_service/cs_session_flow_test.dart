@@ -20,6 +20,9 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier;
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/modules/customer_service/domain/cs_delivery_ack_ledger.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/modules/customer_service/infrastructure/cs_asset_put_transport.dart';
@@ -40,6 +43,22 @@ const kConvId = '7266418340025468950';
 const kSessionId = '7266418340025468940';
 const kIdentityId = '7266418340025468902';
 
+class _DeliveryAuth extends ChangeNotifier implements AuthSessionReader {
+  @override
+  AuthSessionScope current = (
+    uid: 'synthetic-seat',
+    generation: 1,
+    transitioning: false,
+  );
+  void publish(AuthSessionScope scope) {
+    current = scope;
+    notifyListeners();
+  }
+
+  @override
+  bool isCurrent(AuthSessionScope captured) => captured == current;
+}
+
 /// 按路径路由响应的桩：fragment 按**注册顺序**取第一个命中（因此更长的
 /// / 更特殊的 fragment 应先注册）；每条路由的响应按序消费，耗尽后停留在
 /// 最后一个。未命中 → 200 空 envelope。
@@ -53,6 +72,8 @@ class _RouteAdapter implements HttpClientAdapter {
   final List<(String, String, Object?, Map<String, dynamic>)> requests = [];
 
   _RouteAdapter(this.routes);
+  Future<ResponseBody>? heldAck;
+  final ackStarted = Completer<void>();
 
   (int, Map<String, dynamic>) _match(String path) {
     for (final (fragment, responses) in routes) {
@@ -77,6 +98,10 @@ class _RouteAdapter implements HttpClientAdapter {
       options.data,
       Map<String, dynamic>.from(options.queryParameters),
     ));
+    if (options.uri.path.endsWith('/ack') && heldAck != null) {
+      if (!ackStarted.isCompleted) ackStarted.complete();
+      return heldAck!;
+    }
     final (status, body) = _match(options.uri.toString());
     if (status == 200 && options.uri.path.endsWith('/content')) {
       final bytes = utf8.encode(body['payload'] as String);
@@ -139,10 +164,16 @@ CsSessionFlow newFlow({
   String workspaceId = '7266418340025468921',
   EnterpriseStore? store,
   void Function()? onChanged,
+  CsDeliveryAckLedger? deliveryLedger,
+  AuthSessionScope? deliveryAuthScope,
+  bool Function()? scopeCurrent,
 }) {
   HttpClient.adapterForTest = adapter;
   addTearDown(() => HttpClient.adapterForTest = null);
   return CsSessionFlow(
+    deliveryLedger: deliveryLedger,
+    deliveryAuthScope: deliveryAuthScope,
+    scopeCurrent: scopeCurrent,
     orgId: '7266418340025468901',
     sessionId: '7266418340025468940',
     identityId: '7266418340025468902',
@@ -400,6 +431,12 @@ void main() {
 
   group('CSM-02 delivery ACK 不删真源', () {
     test('入站未投递消息：ACK 逐条发出；本地只置标记，消息仍在列表与 store', () async {
+      final auth = _DeliveryAuth();
+      final ledger = CsDeliveryAckLedger.forAuth(auth);
+      addTearDown(() {
+        ledger.dispose();
+        auth.dispose();
+      });
       final store = EnterpriseMemoryStore();
       final adapter = _RouteAdapter([
         (
@@ -428,7 +465,12 @@ void main() {
           ],
         ),
       ]);
-      final flow = newFlow(adapter: adapter, store: store);
+      final flow = newFlow(
+        adapter: adapter,
+        store: store,
+        deliveryLedger: ledger,
+        deliveryAuthScope: auth.current,
+      );
 
       await flow.loadIncremental();
 
@@ -452,7 +494,258 @@ void main() {
       );
       expect(stored, hasLength(1));
       expect(stored.single.delivered, isTrue);
+
+      await flow.loadLatest();
+      await flow.refreshLoadedHistory();
+      await flow.loadIncremental();
+      expect(
+        adapter.requests.where((r) => r.$2.contains('/ack')),
+        hasLength(1),
+      );
+      expect(flow.messages.single.delivered, isTrue);
+      expect((await store.messages(kOrgId, kConvId)).single.delivered, isTrue);
+      flow.dispose();
+      final reopened = newFlow(
+        adapter: adapter,
+        store: EnterpriseMemoryStore(),
+        deliveryLedger: ledger,
+        deliveryAuthScope: auth.current,
+      );
+      addTearDown(reopened.dispose);
+      await reopened.loadLatest();
+      expect(
+        adapter.requests.where((r) => r.$2.contains('/ack')),
+        hasLength(1),
+      );
+      expect(reopened.messages.single.delivered, isTrue);
     });
+  });
+
+  group('delivery ACK partial failure and obsolete scope', () {
+    const deliveryScope = '$kOrgId/$kWsId/$kSessionId/$kConvId/$kIdentityId';
+    const high = '7266418340025468962', low = '7266418340025468961';
+    test(
+      'partial ACK failure retains first success across page reentry',
+      () async {
+        final auth = _DeliveryAuth();
+        final ledger = CsDeliveryAckLedger.forAuth(auth);
+        addTearDown(() {
+          ledger.dispose();
+          auth.dispose();
+        });
+        final adapter = _RouteAdapter([
+          (
+            '/ack',
+            [
+              (200, {'code': 0}),
+              (500, {'code': 500}),
+              (200, {'code': 0}),
+            ],
+          ),
+          (
+            '/messages',
+            [
+              (
+                200,
+                {
+                  'code': 0,
+                  'payload': [
+                    msgJson(id: high, senderType: 'contact'),
+                    msgJson(id: low, senderType: 'contact'),
+                  ],
+                },
+              ),
+            ],
+          ),
+        ]);
+        final store = EnterpriseMemoryStore();
+        final flow = newFlow(
+          adapter: adapter,
+          store: store,
+          deliveryLedger: ledger,
+          deliveryAuthScope: auth.current,
+        );
+        await flow.loadLatest();
+        expect(ledger.contains(auth.current, deliveryScope, high), isTrue);
+        expect(ledger.contains(auth.current, deliveryScope, low), isFalse);
+        expect(
+          flow.messages.singleWhere((m) => m.id == high).delivered,
+          isTrue,
+        );
+        expect(
+          flow.messages.singleWhere((m) => m.id == low).delivered,
+          isFalse,
+        );
+        flow.dispose();
+        final reopened = newFlow(
+          adapter: adapter,
+          store: EnterpriseMemoryStore(),
+          deliveryLedger: ledger,
+          deliveryAuthScope: auth.current,
+        );
+        addTearDown(reopened.dispose);
+        await reopened.loadLatest();
+        final acks = adapter.requests
+            .where((r) => r.$2.contains('/ack'))
+            .toList();
+        expect(acks, hasLength(3));
+        expect(
+          acks.map(
+            (r) => Uri.parse(r.$2).path.split('/').reversed.elementAt(1),
+          ),
+          [high, low, low],
+        );
+        expect(reopened.messages.every((m) => m.delivered), isTrue);
+        expect(ledger.contains(auth.current, deliveryScope, low), isTrue);
+      },
+    );
+    test(
+      'five page entries with fifty messages send only fifty ACKs',
+      () async {
+        final auth = _DeliveryAuth();
+        final ledger = CsDeliveryAckLedger.forAuth(auth);
+        addTearDown(() {
+          ledger.dispose();
+          auth.dispose();
+        });
+        final base = BigInt.parse('7266418340025468961');
+        final adapter = _RouteAdapter([
+          (
+            '/ack',
+            [
+              (200, {'code': 0}),
+            ],
+          ),
+          (
+            '/messages',
+            [
+              (
+                200,
+                {
+                  'code': 0,
+                  'payload': [
+                    for (var i = 49; i >= 0; i--)
+                      msgJson(
+                        id: '${base + BigInt.from(i)}',
+                        senderType: 'contact',
+                      ),
+                  ],
+                },
+              ),
+            ],
+          ),
+        ]);
+        for (var entry = 0; entry < 5; entry++) {
+          final store = EnterpriseMemoryStore();
+          final flow = newFlow(
+            adapter: adapter,
+            store: store,
+            deliveryLedger: ledger,
+            deliveryAuthScope: auth.current,
+          );
+          try {
+            await flow.loadLatest();
+            expect(flow.messages, hasLength(50));
+            expect(flow.messages.every((m) => m.delivered), isTrue);
+            expect(
+              (await store.messages(kOrgId, kConvId)).every((m) => m.delivered),
+              isTrue,
+            );
+            expect(
+              adapter.requests.where((r) => r.$2.contains('/ack')),
+              hasLength(50),
+              reason: 'page entry $entry',
+            );
+          } finally {
+            flow.dispose();
+          }
+        }
+        final ids = adapter.requests
+            .where((r) => r.$2.contains('/ack'))
+            .map((r) => Uri.parse(r.$2).path.split('/').reversed.elementAt(1))
+            .toSet();
+        expect(ids, hasLength(50));
+      },
+    );
+
+    for (final change in ['dispose', 'revoke', 'auth-transition']) {
+      test(
+        'late ACK success after $change never restores delivery authority',
+        () async {
+          final auth = _DeliveryAuth();
+          final captured = auth.current;
+          final ledger = CsDeliveryAckLedger.forAuth(auth);
+          addTearDown(() {
+            ledger.dispose();
+            auth.dispose();
+          });
+          final pending = Completer<ResponseBody>();
+          final adapter = _RouteAdapter([
+            (
+              '/messages',
+              [
+                (
+                  200,
+                  {
+                    'code': 0,
+                    'payload': [msgJson(id: low, senderType: 'contact')],
+                  },
+                ),
+              ],
+            ),
+          ])..heldAck = pending.future;
+          var current = true;
+          final store = EnterpriseMemoryStore();
+          final flow = newFlow(
+            adapter: adapter,
+            store: store,
+            deliveryLedger: ledger,
+            deliveryAuthScope: captured,
+            scopeCurrent: () => current,
+          );
+          addTearDown(flow.dispose);
+          final loading = flow.loadLatest();
+          await adapter.ackStarted.future;
+          switch (change) {
+            case 'dispose':
+              flow.dispose();
+            case 'revoke':
+              flow.invalidateReadScope();
+            case 'auth-transition':
+              current = false;
+              auth.publish((
+                uid: captured.uid,
+                generation: captured.generation + 1,
+                transitioning: true,
+              ));
+          }
+          pending.complete(
+            ResponseBody.fromString(
+              jsonEncode({'code': 0}),
+              200,
+              headers: {
+                Headers.contentTypeHeader: [Headers.jsonContentType],
+              },
+            ),
+          );
+          await loading;
+          expect(ledger.contains(captured, deliveryScope, low), isFalse);
+          expect(
+            (await store.messages(kOrgId, kConvId)).single.delivered,
+            isFalse,
+          );
+          expect(flow.messages.any((m) => m.delivered), isFalse);
+          if (change == 'revoke') {
+            expect(flow.messages, isEmpty);
+            expect(flow.readRevoked, isTrue);
+          }
+          expect(
+            adapter.requests.where((r) => r.$2.contains('/ack')),
+            hasLength(1),
+          );
+        },
+      );
+    }
   });
 
   group('CSM-02 附件三步（presign→PUT→confirm）不泄露存储 URL', () {
