@@ -377,6 +377,51 @@ void main() {
       expect(sent.senderType, EnterpriseSenderType.businessIdentity);
     });
 
+    for (final replayed in [false, true]) {
+      test(
+        'sendMessage nested accepted reply preserves canonical message (replayed=$replayed)',
+        () async {
+          final adapter = useAdapter(
+            200,
+            okEnvelope(
+              payload: {
+                'accepted': true,
+                'message_id': 7266418340025468934,
+                'replayed': replayed,
+                'message': {
+                  'id': 7266418340025468934,
+                  'conversation_id': 7266418340025468933,
+                  'organization_id': 7266418340025468930,
+                  'sender_type': 'business_identity',
+                  'sender_business_identity_id': 7266418340025468931,
+                  'sender_business_identity_name': '客服甲',
+                  'body': '收到',
+                  'created_at': '2026-10-14T08:00:00Z',
+                  'assets': <Map<String, dynamic>>[],
+                },
+              },
+            ),
+          );
+          final sent = await EnterpriseApi().sendMessage(
+            orgId,
+            convId,
+            content: '收到',
+            workspaceId: workspaceId,
+            clientMsgId: 'nested-cmid',
+          );
+          expect(sent.id, '7266418340025468934');
+          expect(sent.organizationId, orgId);
+          expect(sent.conversationId, convId);
+          expect(sent.content, '收到');
+          expect(sent.senderType, EnterpriseSenderType.businessIdentity);
+          expect(sent.senderBusinessIdentityId, workspaceId);
+          expect(sent.senderBusinessIdentityName, '客服甲');
+          expect(sent.createdAt, '2026-10-14T08:00:00Z');
+          expect(adapter.requests, hasLength(1));
+        },
+      );
+    }
+
     test('sendMessage：缺 workspace_id 前置 422 不发网络请求（PR-W2-C01 门镜像）', () async {
       final adapter = useAdapter(
         200,

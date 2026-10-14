@@ -231,7 +231,12 @@ class EnterpriseApi extends HttpClient {
     );
     return _unwrap(
       resp,
-      EnterpriseMessage.fromJson,
+      (payload) {
+        final message = payload['message'];
+        return EnterpriseMessage.fromJson(
+          message is Map ? Map<String, dynamic>.from(message) : payload,
+        );
+      },
       fallback: EnterpriseMessage(
         id: '',
         conversationId: conversationId,
