@@ -864,7 +864,10 @@ class CsApi extends HttpClient {
     );
     _ensureOk(resp);
     final map = IMBoyHttpResponse.payloadAsMap(resp.payload);
-    return CsConversationMessage.fromJson(map);
+    final message = map['message'];
+    return CsConversationMessage.fromJson(
+      message is Map ? Map<String, dynamic>.from(message) : map,
+    );
   }
 
   /// delivery ACK（幂等，delivery-only；EB 合同 `recipient_ref` 必填）。

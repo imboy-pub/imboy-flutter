@@ -594,13 +594,18 @@ void main() {
         200,
         okEnvelope(
           payload: {
-            'id': 7266418340025468961,
-            'conversation_id': 7266418340025468950,
-            'organization_id': 7266418340025468901,
-            'sender_type': 'business_identity',
-            'sender_contact_id': null,
-            'sender_business_identity_id': 7266418340025468902,
-            'content': '您好，正在为您核实',
+            'accepted': true,
+            'message_id': '7266418340025468961',
+            'replayed': false,
+            'message': {
+              'id': 7266418340025468961,
+              'conversation_id': 7266418340025468950,
+              'organization_id': 7266418340025468901,
+              'sender_type': 'business_identity',
+              'sender_contact_id': null,
+              'sender_business_identity_id': 7266418340025468902,
+              'content': '您好，正在为您核实',
+            },
           },
         ),
       );

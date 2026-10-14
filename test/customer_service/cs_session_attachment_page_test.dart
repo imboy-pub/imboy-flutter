@@ -20,6 +20,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_asset_put_transport.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_page.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_message_bubble.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_attachment_preparation.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_attachment_save.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
@@ -44,6 +45,8 @@ class AttachmentPageAdapter implements HttpClientAdapter {
   String? hold;
   final held = Completer<ResponseBody>();
   int sendStatus = 200;
+  bool emptyHistory = false;
+  Map<String, dynamic>? sentPayload;
   bool silentLogout = false;
   Map<String, dynamic> declared = {};
   ResponseBody json(Object payload, {int status = 200}) =>
@@ -95,7 +98,7 @@ class AttachmentPageAdapter implements HttpClientAdapter {
       if (hold == 'send') return held.future;
       if (silentLogout) await StorageService.to.remove(Keys.currentUid);
       return sendStatus == 200
-          ? json(message(body: '', sender: 'business_identity'))
+          ? json(sentPayload ?? message(body: '', sender: 'business_identity'))
           : json({}, status: sendStatus);
     }
     if (o.path.endsWith('/events')) {
@@ -114,7 +117,9 @@ class AttachmentPageAdapter implements HttpClientAdapter {
         'unread_count': 0,
       });
     }
-    if (o.path.endsWith('/messages')) return json([message()]);
+    if (o.path.endsWith('/messages')) {
+      return json(emptyHistory ? [] : [message()]);
+    }
     if (o.path.endsWith('/content')) return contentResponse();
     return json({
       'session_id': sid,
@@ -296,6 +301,54 @@ void main() {
     HttpClient.adapterForTest = null;
     HttpClient.onAuthExpired = null;
   });
+  testWidgets(
+    'same page attachment success renders canonical message immediately',
+    (tester) async {
+      const messageId = '7266418340025468962';
+      final adapter = AttachmentPageAdapter()..emptyHistory = true;
+      adapter.sentPayload = {
+        'accepted': true,
+        'message_id': messageId,
+        'replayed': false,
+        'message': {
+          ...adapter.message(body: '', sender: 'business_identity'),
+          'id': messageId,
+          'created_at': '2026-10-14T08:00:00Z',
+        },
+      };
+      await mount(tester, adapter);
+      final originalState = tester.state(find.byType(CsSessionPage));
+      expect(find.text('../sample.pdf'), findsNothing);
+      await tester.tap(find.byIcon(CupertinoIcons.paperclip));
+      await settle(tester);
+      expect(tester.takeException(), isNull);
+      expect(tester.state(find.byType(CsSessionPage)), same(originalState));
+      expect(adapter.uploadSteps, ['presign', 'put', 'confirm']);
+      expect(adapter.uploadedBytes, [65]);
+      final sends = adapter.requests
+          .where((r) => r.method == 'POST' && r.path.endsWith('/messages'))
+          .toList();
+      expect(sends, hasLength(1));
+      expect((sends.single.data as Map)['asset_ids'], [aid]);
+      final bubble = tester.widget<CsMessageBubble>(
+        find.byWidgetPredicate(
+          (w) => w is CsMessageBubble && w.message.id == messageId,
+        ),
+      );
+      expect(bubble.isSeat, isTrue);
+      expect(bubble.message.content, isEmpty);
+      expect(bubble.assets.single.id, aid);
+      expect(find.text('../sample.pdf'), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField).first).enabled,
+        isTrue,
+      );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final status in [401, 403]) {
     testWidgets(
       'attachment message $status withdraws current body and writes',

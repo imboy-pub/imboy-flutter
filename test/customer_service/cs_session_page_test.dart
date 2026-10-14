@@ -16,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_page.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_message_bubble.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -379,6 +380,69 @@ void main() {
     // 无只读条
     expect(find.textContaining('只读'), findsNothing);
   });
+
+  testWidgets(
+    'same page short text success renders canonical message immediately',
+    (tester) async {
+      const body = '收到';
+      const messageId = '7266418340025468962';
+      final adapter = _SeqAdapter([
+        ('/sessions/$sessionId', [(200, _detailOk)]),
+        ('/messages', [(200, _historyOk)]),
+      ]);
+      adapter.heldSend = Future.value(
+        ResponseBody.fromString(
+          jsonEncode({
+            'code': 0,
+            'payload': {
+              'accepted': true,
+              'message_id': messageId,
+              'replayed': false,
+              'message': {
+                'id': messageId,
+                'organization_id': '7266418340025468901',
+                'conversation_id': '7266418340025468950',
+                'sender_type': 'business_identity',
+                'sender_business_identity_id': '7266418340025468902',
+                'body': body,
+                'created_at': '2026-10-14T08:00:00Z',
+                'assets': <Map<String, dynamic>>[],
+              },
+            },
+          }),
+          200,
+          headers: {
+            Headers.contentTypeHeader: [Headers.jsonContentType],
+          },
+        ),
+      );
+      await _pumpPage(tester, adapter);
+      final originalState = tester.state(find.byType(CsSessionPage));
+      await tester.enterText(find.byType(TextField), body);
+      await tester.tap(find.byIcon(CupertinoIcons.paperplane_fill));
+      await _settleRealAsync(tester);
+      expect(tester.takeException(), isNull);
+      expect(tester.state(find.byType(CsSessionPage)), same(originalState));
+      final bubble = tester.widget<CsMessageBubble>(
+        find.byWidgetPredicate(
+          (w) => w is CsMessageBubble && w.message.id == messageId,
+        ),
+      );
+      expect(bubble.message.content, body);
+      expect(bubble.isSeat, isTrue);
+      expect(find.text(body), findsOneWidget);
+      expect(_inputField(tester).controller!.text, isEmpty);
+      expect(_inputField(tester).enabled, isTrue);
+      final sends = adapter.requests
+          .where((r) => r.method == 'POST' && r.path.endsWith('/messages'))
+          .toList();
+      expect(sends, hasLength(1));
+      expect((sends.single.data as Map)['body'], body);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('发送遇 403 → explainKey 只读条 + 输入禁用（清写入口）', (tester) async {
     final adapter = _SeqAdapter([
