@@ -1082,9 +1082,14 @@ class CsApi extends HttpClient {
   }
 
   /// GET sessions/:id/read-cursor：游标 + 未读数（未读 badge 数据源）。
-  Future<CsReadState> seatReadState(String orgId, String sessionId) async {
+  Future<CsReadState> seatReadState(
+    String orgId,
+    String sessionId, {
+    required String workspaceId,
+  }) async {
     final resp = await get(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId/read-cursor',
+      queryParameters: {'workspace_id': workspaceId},
     );
     _ensureOk(resp);
     final payload = resp.payload;
@@ -1110,11 +1115,15 @@ class CsApi extends HttpClient {
   Future<void> seatAckRead(
     String orgId,
     String sessionId,
-    String lastReadMessageId,
-  ) async {
+    String lastReadMessageId, {
+    required String workspaceId,
+  }) async {
     final resp = await post(
       '/api/v1/cs/organizations/$orgId/sessions/$sessionId/read-cursor',
-      data: <String, dynamic>{'last_read_message_id': lastReadMessageId},
+      data: <String, dynamic>{
+        'workspace_id': workspaceId,
+        'last_read_message_id': lastReadMessageId,
+      },
     );
     _ensureOk(resp);
   }

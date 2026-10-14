@@ -166,6 +166,55 @@ void main() {
     });
   }
 
+  test('seatReadState exact workspace GET contract and read state', () async {
+    final adapter = useAdapter(
+      200,
+      okEnvelope(
+        payload: {
+          'session_id': sessionId,
+          'last_read_message_id': '7266418340025468961',
+          'unread_count': 2,
+        },
+      ),
+    );
+    final read = await CsApi().seatReadState(
+      orgId,
+      sessionId,
+      workspaceId: wsId,
+    );
+    final request = adapter.requests.single;
+    expect(request.$1, 'GET');
+    expect(
+      request.$2,
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/read-cursor',
+    );
+    expect(request.$3, isNull);
+    expect(request.$4, {'workspace_id': wsId});
+    expect(read.sessionId, sessionId);
+    expect(read.lastReadMessageId, '7266418340025468961');
+    expect(read.unreadCount, 2);
+  });
+  test('seatAckRead exact workspace POST whitelist', () async {
+    final adapter = useAdapter(200, okEnvelope());
+    await CsApi().seatAckRead(
+      orgId,
+      sessionId,
+      '7266418340025468961',
+      workspaceId: wsId,
+    );
+    final request = adapter.requests.single;
+    expect(request.$1, 'POST');
+    expect(
+      request.$2,
+      '/api/v1/cs/organizations/$orgId/sessions/$sessionId/read-cursor',
+    );
+    expect(request.$3, {
+      'workspace_id': wsId,
+      'last_read_message_id': '7266418340025468961',
+    });
+    expect(request.$4, isEmpty);
+  });
+
   group('APP-M01 坐席上下文（seat-contexts，主体作用域）', () {
     test('seatContexts：GET 无 org 键路径 + 无 query；解析每 Org 投影', () async {
       final adapter = useAdapter(
