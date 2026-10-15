@@ -1872,6 +1872,12 @@ class _Translations$enterpriseOa$ja_JP extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'シングルサインオンコードを取得中…';
 	@override String ssoCountdown({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。';
 	@override String get workbenchTitle => 'ワークベンチ';
+	@override String get inboundTitle => 'OA ID でログイン';
+	@override String get startInbound => 'OA で本人確認';
+	@override String get accountChoice => '既存の IMBoy アカウントを連携するか、新規作成を明示的に選択してください。';
+	@override String get confirmLink => '現在のアカウントとの連携を確認';
+	@override String get useExistingAccount => '既存の IMBoy アカウントにログイン';
+	@override String get confirmCreate => '新しい IMBoy アカウントの作成を確認';
 }
 
 // Path: error
@@ -4922,6 +4928,12 @@ extension on TranslationsJaJp {
 			'enterpriseOa.ssoIssuing' => 'シングルサインオンコードを取得中…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'コードの有効期限は残り ${seconds} 秒です。早めにログインしてください。',
 			'enterpriseOa.workbenchTitle' => 'ワークベンチ',
+			'enterpriseOa.inboundTitle' => 'OA ID でログイン',
+			'enterpriseOa.startInbound' => 'OA で本人確認',
+			'enterpriseOa.accountChoice' => '既存の IMBoy アカウントを連携するか、新規作成を明示的に選択してください。',
+			'enterpriseOa.confirmLink' => '現在のアカウントとの連携を確認',
+			'enterpriseOa.useExistingAccount' => '既存の IMBoy アカウントにログイン',
+			'enterpriseOa.confirmCreate' => '新しい IMBoy アカウントの作成を確認',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
@@ -5287,14 +5299,14 @@ extension on TranslationsJaJp {
 			'momentNotify.emptyHint' => '友達からの「いいね」やコメントはここに表示されます',
 			'momentNotify.actionLike' => 'があなたのモーメントに「いいね」しました',
 			'momentNotify.actionComment' => 'がコメントしました',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => 'すべて既読にする',
 			'momentNotify.clearAll' => 'すべて削除',
 			'momentNotify.clearConfirmTitle' => 'すべての通知を削除しますか？',
 			'momentNotify.clearConfirmMessage' => '削除後は復元できません',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'キャンセル',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => '削除',
 			'momentNotify.loadFailed' => '読み込みに失敗しました。後でもう一度お試しください',
 			'organization.common.moreActions' => 'その他の操作',
@@ -5801,14 +5813,14 @@ extension on TranslationsJaJp {
 			'workspace.changeRoleTitle' => ({required Object name}) => '${name} のワークスペースロールを変更',
 			'workspace.transferTitle' => ({required Object name}) => 'メインOwnerを ${name} に移譲',
 			'workspace.transferDesc' => '移譲後、あなたは通常のワークスペースメンバー（Member）になり、相手が全ての管理権を取得します',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferConfirm' => '移譲を確認',
 			'workspace.governanceTitle' => 'ワークスペース管理',
 			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
 			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
 			'workspace.archiveConfirm' => 'アーカイブを確認',
 			'workspace.restoreTitle' => 'ワークスペースを復元',

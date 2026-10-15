@@ -31,3 +31,10 @@ ssoCountdown: "憑證 $seconds 秒內有效，請盡快完成登入"
 workbenchTitle: "工作台"
 
 apps: "應用"
+
+inboundTitle: "OA 身分登入"
+startInbound: "透過 OA 驗證身分"
+accountChoice: "請選擇關聯現有 IMBoy 帳號，或明確建立新帳號。"
+confirmLink: "確認關聯目前帳號"
+useExistingAccount: "登入現有 IMBoy 帳號"
+confirmCreate: "確認建立新的 IMBoy 帳號"

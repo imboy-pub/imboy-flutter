@@ -1872,6 +1872,12 @@ class _Translations$enterpriseOa$ko_KR extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => '단일 로그인 코드 요청 중…';
 	@override String ssoCountdown({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.';
 	@override String get workbenchTitle => '워크벤치';
+	@override String get inboundTitle => 'OA 계정으로 로그인';
+	@override String get startInbound => 'OA에서 본인 확인';
+	@override String get accountChoice => '기존 IMBoy 계정을 연결하거나 새 계정 생성을 명시적으로 선택하세요.';
+	@override String get confirmLink => '현재 계정 연결 확인';
+	@override String get useExistingAccount => '기존 IMBoy 계정에 로그인';
+	@override String get confirmCreate => '새 IMBoy 계정 생성 확인';
 }
 
 // Path: error
@@ -4922,6 +4928,12 @@ extension on TranslationsKoKr {
 			'enterpriseOa.ssoIssuing' => '단일 로그인 코드 요청 중…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '코드가 ${seconds}초 후 만료됩니다. 빠르게 로그인해 주세요.',
 			'enterpriseOa.workbenchTitle' => '워크벤치',
+			'enterpriseOa.inboundTitle' => 'OA 계정으로 로그인',
+			'enterpriseOa.startInbound' => 'OA에서 본인 확인',
+			'enterpriseOa.accountChoice' => '기존 IMBoy 계정을 연결하거나 새 계정 생성을 명시적으로 선택하세요.',
+			'enterpriseOa.confirmLink' => '현재 계정 연결 확인',
+			'enterpriseOa.useExistingAccount' => '기존 IMBoy 계정에 로그인',
+			'enterpriseOa.confirmCreate' => '새 IMBoy 계정 생성 확인',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
@@ -5287,14 +5299,14 @@ extension on TranslationsKoKr {
 			'momentNotify.emptyHint' => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다',
 			'momentNotify.actionLike' => '님이 회원님의 모멘트를 좋아합니다',
 			'momentNotify.actionComment' => '님이 댓글을 남겼습니다',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => '모두 읽음',
 			'momentNotify.clearAll' => '전체 삭제',
 			'momentNotify.clearConfirmTitle' => '모든 알림을 삭제하시겠습니까?',
 			'momentNotify.clearConfirmMessage' => '삭제 후에는 복구할 수 없습니다',
 			'momentNotify.confirm' => '확인',
 			'momentNotify.cancel' => '취소',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => '삭제',
 			'momentNotify.loadFailed' => '불러오기 실패, 나중에 다시 시도해주세요',
 			'organization.common.moreActions' => '더보기',
@@ -5801,14 +5813,14 @@ extension on TranslationsKoKr {
 			'workspace.changeRoleTitle' => ({required Object name}) => '${name}의 워크스페이스 역할 변경',
 			'workspace.transferTitle' => ({required Object name}) => '메인 Owner를 ${name}에게 이전',
 			'workspace.transferDesc' => '이전 후 본인은 일반 워크스페이스 구성원(Member)이 되고 상대방이 전체 거버넌스 권한을 갖습니다',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferConfirm' => '이전 확인',
 			'workspace.governanceTitle' => '워크스페이스 거버넌스',
 			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
 			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
 			'workspace.archiveTitle' => '워크스페이스 보관',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
 			'workspace.archiveConfirm' => '보관 확인',
 			'workspace.restoreTitle' => '워크스페이스 복원',

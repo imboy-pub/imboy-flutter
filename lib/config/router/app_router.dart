@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
@@ -17,6 +16,9 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
+import 'package:imboy/modules/enterprise_oa/presentation/oa_login_page.dart';
+import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 
 import 'generated_product_feature_routes.dart';
 
@@ -54,6 +56,7 @@ bool _isPublicPath(String currentPath) {
     AppRoutes.signIn,
     AppRoutes.signUp,
     '/welcome',
+    '/oa/login',
     AppRoutes.forgotPassword,
     AppRoutes.termsOfService,
   ];
@@ -112,7 +115,8 @@ GoRouter createAppRouter({
     refreshListenable: AppFeatureRegistry.revision,
     navigatorKey: navigatorKeyOverride ?? navigatorKey,
     initialLocation: initialLocation,
-    debugLogDiagnostics: kDebugMode, // 仅开发环境开启路由日志
+    // Callback locations contain one-time login proofs, including in debug builds.
+    debugLogDiagnostics: false,
     // 路由重定向（认证守卫）
     redirect: (context, state) {
       final isLogin = UserRepoLocal.to.isLoggedIn;
@@ -166,6 +170,19 @@ GoRouter createAppRouter({
     },
 
     routes: [
+      for (final path in ['/oa/login', '/oa/link'])
+        GoRoute(
+          path: path,
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: OaLoginPage(
+              callback: state.uri,
+              config: state.extra is EnterpriseOaRuntimeConfig
+                  ? state.extra as EnterpriseOaRuntimeConfig
+                  : null,
+            ),
+          ),
+        ),
       // ==================== 认证和启动页面 ====================
       GoRoute(
         path: AppRoutes.initial,

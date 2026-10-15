@@ -29,3 +29,10 @@ ssoIssuing: "シングルサインオンコードを取得中…"
 ssoCountdown: "コードの有効期限は残り $seconds 秒です。早めにログインしてください。"
 
 workbenchTitle: "ワークベンチ"
+
+inboundTitle: "OA ID でログイン"
+startInbound: "OA で本人確認"
+accountChoice: "既存の IMBoy アカウントを連携するか、新規作成を明示的に選択してください。"
+confirmLink: "現在のアカウントとの連携を確認"
+useExistingAccount: "既存の IMBoy アカウントにログイン"
+confirmCreate: "新しい IMBoy アカウントの作成を確認"

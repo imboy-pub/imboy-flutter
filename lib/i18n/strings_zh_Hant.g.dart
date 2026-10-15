@@ -1873,6 +1873,12 @@ class Translations$enterpriseOa$zh_Hant extends Translations$enterpriseOa$zh_CN 
 	@override String ssoCountdown({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入';
 	@override String get workbenchTitle => '工作台';
 	@override String get apps => '應用';
+	@override String get inboundTitle => 'OA 身分登入';
+	@override String get startInbound => '透過 OA 驗證身分';
+	@override String get accountChoice => '請選擇關聯現有 IMBoy 帳號，或明確建立新帳號。';
+	@override String get confirmLink => '確認關聯目前帳號';
+	@override String get useExistingAccount => '登入現有 IMBoy 帳號';
+	@override String get confirmCreate => '確認建立新的 IMBoy 帳號';
 }
 
 // Path: error
@@ -4924,6 +4930,12 @@ extension on TranslationsZhHant {
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '憑證 ${seconds} 秒內有效，請盡快完成登入',
 			'enterpriseOa.workbenchTitle' => '工作台',
 			'enterpriseOa.apps' => '應用',
+			'enterpriseOa.inboundTitle' => 'OA 身分登入',
+			'enterpriseOa.startInbound' => '透過 OA 驗證身分',
+			'enterpriseOa.accountChoice' => '請選擇關聯現有 IMBoy 帳號，或明確建立新帳號。',
+			'enterpriseOa.confirmLink' => '確認關聯目前帳號',
+			'enterpriseOa.useExistingAccount' => '登入現有 IMBoy 帳號',
+			'enterpriseOa.confirmCreate' => '確認建立新的 IMBoy 帳號',
 			'error.restartRequired' => '需要重新啟動應用',
 			'error.pleaseCheckNetwork' => '請檢查你的網路設定。',
 			'error.networkTroubleshootingStep1' => '1.開啟手機設定並把 Wi-Fi 開關保持開啟狀態。',
@@ -5288,14 +5300,14 @@ extension on TranslationsZhHant {
 			'momentNotify.emptyTitle' => '暫無新訊息',
 			'momentNotify.emptyHint' => '好友點贊或評論你的朋友圈後，會出現在這裡',
 			'momentNotify.actionLike' => '讚了你的朋友圈',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.actionComment' => '評論了你',
 			'momentNotify.markAllRead' => '全部已讀',
 			'momentNotify.clearAll' => '全部清空',
 			'momentNotify.clearConfirmTitle' => '清空所有通知？',
 			'momentNotify.clearConfirmMessage' => '清空後無法恢復',
 			'momentNotify.confirm' => '確定',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.cancel' => '關閉',
 			'momentNotify.delete' => '刪除',
 			'momentNotify.loadFailed' => '載入失敗，請稍後重試',
@@ -5802,14 +5814,14 @@ extension on TranslationsZhHant {
 			'workspace.removeMemberConfirm' => '確認移除',
 			'workspace.changeRoleTitle' => ({required Object name}) => '修改 ${name} 的工作區角色',
 			'workspace.transferTitle' => ({required Object name}) => '轉移主 Owner 給 ${name}',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferDesc' => '轉移後你成為一般工作區成員（Member），對方獲得全部治理權',
 			'workspace.transferConfirm' => '確認轉移',
 			'workspace.governanceTitle' => '工作區治理',
 			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
 			'workspace.archiveEntry' => '封存工作區',
 			'workspace.restoreEntry' => '還原工作區',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveTitle' => '封存工作區',
 			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',
 			'workspace.archiveConfirm' => '確認封存',

@@ -1875,6 +1875,12 @@ class _Translations$enterpriseOa$it_IT extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'Richiesta del codice SSO…';
 	@override String ssoCountdown({required Object seconds}) => 'Codice valido per ${seconds} secondi. Accedi presto.';
 	@override String get workbenchTitle => 'Area di lavoro';
+	@override String get inboundTitle => 'Accesso con identità OA';
+	@override String get startInbound => 'Verifica identità con OA';
+	@override String get accountChoice => 'Collega un account IMBoy esistente o crea esplicitamente un nuovo account.';
+	@override String get confirmLink => 'Conferma il collegamento di questo account';
+	@override String get useExistingAccount => 'Accedi a un account IMBoy esistente';
+	@override String get confirmCreate => 'Conferma la creazione di un account IMBoy';
 }
 
 // Path: error
@@ -4925,6 +4931,12 @@ extension on TranslationsItIt {
 			'enterpriseOa.ssoIssuing' => 'Richiesta del codice SSO…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Codice valido per ${seconds} secondi. Accedi presto.',
 			'enterpriseOa.workbenchTitle' => 'Area di lavoro',
+			'enterpriseOa.inboundTitle' => 'Accesso con identità OA',
+			'enterpriseOa.startInbound' => 'Verifica identità con OA',
+			'enterpriseOa.accountChoice' => 'Collega un account IMBoy esistente o crea esplicitamente un nuovo account.',
+			'enterpriseOa.confirmLink' => 'Conferma il collegamento di questo account',
+			'enterpriseOa.useExistingAccount' => 'Accedi a un account IMBoy esistente',
+			'enterpriseOa.confirmCreate' => 'Conferma la creazione di un account IMBoy',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
 			'error.networkTroubleshootingStep1' => '1. Apri impostazioni telefono e mantieni l\'interruttore Wi-Fi attivo.',
@@ -5290,14 +5302,14 @@ extension on TranslationsItIt {
 			'momentNotify.emptyHint' => 'I « Mi piace » e i commenti degli amici appaiono qui',
 			'momentNotify.actionLike' => 'ha messo mi piace al tuo momento',
 			'momentNotify.actionComment' => 'ha commentato',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => 'Segna tutto letto',
 			'momentNotify.clearAll' => 'Cancella tutto',
 			'momentNotify.clearConfirmTitle' => 'Cancellare tutte le notifiche ?',
 			'momentNotify.clearConfirmMessage' => 'Operazione irreversibile',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Annulla',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => 'Elimina',
 			'momentNotify.loadFailed' => 'Caricamento fallito. Riprova più tardi.',
 			'organization.common.moreActions' => 'Altre azioni',
@@ -5804,14 +5816,14 @@ extension on TranslationsItIt {
 			'workspace.overviewResources' => 'Riepilogo risorse',
 			'workspace.overviewTitle' => 'Panoramica',
 			'workspace.pickerEmptySubtitle' => 'Crea un\'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.pickerEmptyTitle' => 'Nessuna area di lavoro per ora',
 			'workspace.pickerTitle' => 'Le mie aree di lavoro',
 			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
 			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectChannelLinkedToast' => 'Canale collegato',
 			'workspace.projectChannelNoCandidate' => 'Nessun canale candidato collegabile',
 			'workspace.projectChannelUnlinkDesc' => 'Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto',

@@ -2043,6 +2043,12 @@ class _Translations$enterpriseOa$en_US extends Translations$enterpriseOa$zh_CN {
 	@override String ssoCountdown({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.';
 	@override String get workbenchTitle => 'Workbench';
 	@override String get apps => 'Apps';
+	@override String get inboundTitle => 'OA identity login';
+	@override String get startInbound => 'Verify identity with OA';
+	@override String get accountChoice => 'Link an existing IMBoy account or explicitly create a new account.';
+	@override String get confirmLink => 'Confirm linking this account';
+	@override String get useExistingAccount => 'Sign in to an existing IMBoy account';
+	@override String get confirmCreate => 'Confirm creating a new IMBoy account';
 }
 
 // Path: error
@@ -5329,6 +5335,12 @@ extension on TranslationsEnUs {
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valid for ${seconds} seconds. Please sign in soon.',
 			'enterpriseOa.workbenchTitle' => 'Workbench',
 			'enterpriseOa.apps' => 'Apps',
+			'enterpriseOa.inboundTitle' => 'OA identity login',
+			'enterpriseOa.startInbound' => 'Verify identity with OA',
+			'enterpriseOa.accountChoice' => 'Link an existing IMBoy account or explicitly create a new account.',
+			'enterpriseOa.confirmLink' => 'Confirm linking this account',
+			'enterpriseOa.useExistingAccount' => 'Sign in to an existing IMBoy account',
+			'enterpriseOa.confirmCreate' => 'Confirm creating a new IMBoy account',
 			'error.restartRequired' => 'Restart Required',
 			'error.pleaseCheckNetwork' => 'Please check your network settings.',
 			'error.networkTroubleshootingStep1' => '1. Open phone \'Settings\' and keep \'Wi-Fi\' switch on.',
@@ -5516,14 +5528,14 @@ extension on TranslationsEnUs {
 			'main.completed' => 'Completed',
 			'main.copied' => 'Copied',
 			'main.darkModel' => 'Dark mode',
+			_ => null,
+		} ?? switch (path) {
 			'main.deDd' => 'German (Germany)',
 			'main.disable' => 'Disable',
 			'main.enUs' => 'English (US)',
 			'main.enable' => 'Enable',
 			'main.expired' => 'Expired',
 			'main.favorites' => 'Favorite',
-			_ => null,
-		} ?? switch (path) {
 			'main.female' => 'Female',
 			'main.followSystem' => 'Follow system',
 			'main.frFr' => 'French (France)',
@@ -6030,14 +6042,14 @@ extension on TranslationsEnUs {
 			'organization.manage.channelSection' => 'Enterprise channels',
 			'organization.manage.createChannel' => 'New channel',
 			'organization.manage.channelNameHint' => 'Channel name',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.channelPolicyNote' => 'Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace.',
 			'organization.manage.channelEmpty' => 'No enterprise channels yet',
 			'organization.manage.channelSubscribers' => ({required Object count}) => '${count} subscribers',
 			'organization.manage.createChannelFailed' => 'Failed to create the channel',
 			'organization.manage.archiveChannel' => 'Archive channel',
 			'organization.manage.archiveChannelTitle' => ({required Object name}) => 'Archive 「${name}」?',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.archiveChannelBody' => 'An archived channel leaves all public surfaces and members no longer see it. Archiving can be undone.',
 			'organization.manage.restoreChannel' => 'Restore',
 			'organization.manage.archivedChannelSection' => 'Archived channels',

@@ -1,3 +1,7 @@
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform, kIsWeb;
+
+import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -79,6 +83,18 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
         children: [
           if (widget.resourceEntries.isNotEmpty)
             CupertinoListSection.insetGrouped(children: widget.resourceEntries),
+          if ((!kIsWeb && defaultTargetPlatform == TargetPlatform.android))
+            for (final entry in widget.entries.where(
+              (entry) => entry.inboundLoginEnabled,
+            ))
+              CupertinoListSection.insetGrouped(
+                children: [
+                  CupertinoListTile(
+                    title: Text(t.enterpriseOa.confirmLink),
+                    onTap: () => context.push('/oa/login', extra: entry),
+                  ),
+                ],
+              ),
           if (available.isNotEmpty)
             CupertinoListSection.insetGrouped(
               children: [

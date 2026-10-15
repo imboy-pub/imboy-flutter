@@ -29,3 +29,10 @@ ssoIssuing: "Richiesta del codice SSO…"
 ssoCountdown: "Codice valido per $seconds secondi. Accedi presto."
 
 workbenchTitle: "Area di lavoro"
+
+inboundTitle: "Accesso con identità OA"
+startInbound: "Verifica identità con OA"
+accountChoice: "Collega un account IMBoy esistente o crea esplicitamente un nuovo account."
+confirmLink: "Conferma il collegamento di questo account"
+useExistingAccount: "Accedi a un account IMBoy esistente"
+confirmCreate: "Conferma la creazione di un account IMBoy"

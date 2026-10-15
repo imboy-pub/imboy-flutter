@@ -29,3 +29,10 @@ ssoIssuing: "جارٍ طلب رمز تسجيل الدخول الموحد…"
 ssoCountdown: "الرمز صالح لمدة $seconds ثانية. يرجى تسجيل الدخول قريبًا."
 
 workbenchTitle: "مساحة العمل"
+
+inboundTitle: "تسجيل الدخول بهوية OA"
+startInbound: "التحقق من الهوية عبر OA"
+accountChoice: "اربط حساب IMBoy موجوداً أو اختر صراحة إنشاء حساب جديد."
+confirmLink: "تأكيد ربط الحساب الحالي"
+useExistingAccount: "الدخول إلى حساب IMBoy موجود"
+confirmCreate: "تأكيد إنشاء حساب IMBoy جديد"

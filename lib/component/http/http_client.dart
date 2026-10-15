@@ -106,13 +106,19 @@ class HttpClient {
     API.getCode,
     API.quickLogin,
     API.findPassword,
+    "/api/v1/oa/login/exchange",
+    "/api/v1/oa/login/register",
   };
   late Dio _dio;
 
   /// Expose the underlying Dio instance for advanced usage (e.g. 304 handling).
   Dio get dio => _dio;
 
-  HttpClient({BaseOptions? options, HttpConfig? conf}) {
+  HttpClient({
+    BaseOptions? options,
+    HttpConfig? conf,
+    bool retryEnabled = true,
+  }) {
     options ??= BaseOptions(
       baseUrl: conf?.baseUrl ?? "",
       contentType: 'application/json',
@@ -134,12 +140,14 @@ class HttpClient {
     _dio = Dio(options);
 
     // 添加重试拦截器（在日志拦截器之前添加，优先级更高）
-    final retryConfig = currentEnv == 'dev'
-        ? HttpRetryConfig.devConfig
-        : HttpRetryConfig.prodConfig;
-    final retryInterceptor = createRetryInterceptor(retryConfig);
-    retryInterceptor.bindDio(_dio);
-    _dio.interceptors.add(retryInterceptor);
+    if (retryEnabled) {
+      final retryConfig = currentEnv == 'dev'
+          ? HttpRetryConfig.devConfig
+          : HttpRetryConfig.prodConfig;
+      final retryInterceptor = createRetryInterceptor(retryConfig);
+      retryInterceptor.bindDio(_dio);
+      _dio.interceptors.add(retryInterceptor);
+    }
 
     if (recordLog) {
       _dio.interceptors.add(

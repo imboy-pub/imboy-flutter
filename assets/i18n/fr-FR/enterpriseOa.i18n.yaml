@@ -29,3 +29,10 @@ ssoIssuing: "Demande du code d'authentification unique…"
 ssoCountdown: "Code valide $seconds secondes. Connectez-vous rapidement."
 
 workbenchTitle: "Espace de travail"
+
+inboundTitle: "Connexion avec identité OA"
+startInbound: "Vérifier votre identité avec OA"
+accountChoice: "Associez un compte IMBoy existant ou créez explicitement un nouveau compte."
+confirmLink: "Confirmer l’association de ce compte"
+useExistingAccount: "Se connecter à un compte IMBoy existant"
+confirmCreate: "Confirmer la création d’un compte IMBoy"

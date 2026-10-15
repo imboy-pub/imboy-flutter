@@ -39,6 +39,7 @@ class EnterpriseOaRuntimeConfig {
     required this.brand,
     required this.applicationKey,
     required this.redirectUri,
+    this.loginStartUri = '',
   });
 
   /// 白标/OA 构建期品牌配置（W1 模型）。
@@ -49,6 +50,17 @@ class EnterpriseOaRuntimeConfig {
 
   /// OA 预注册 redirect_uri（exact；空 = 未配置）。
   final String redirectUri;
+  final String loginStartUri;
+  bool get inboundLoginEnabled {
+    final uri = Uri.tryParse(loginStartUri);
+    return isValidApplicationKey(applicationKey) &&
+        uri != null &&
+        uri.scheme == 'https' &&
+        uri.userInfo.isEmpty &&
+        !uri.hasFragment &&
+        loginStartUri.length <= 2048 &&
+        evaluateOrigin(brand.oaOrigin, loginStartUri) == OaOriginVerdict.allow;
+  }
 
   /// 未配置 OA 的标准形态（imboy 原生 standard：无 OA Tab）。
   static const EnterpriseOaRuntimeConfig fallback = EnterpriseOaRuntimeConfig(
@@ -103,12 +115,17 @@ class EnterpriseOaRuntimeConfig {
       brand: brand,
       applicationKey: applicationKey,
       redirectUri: redirectUri,
+      loginStartUri:
+          defines['IMBOY_WL_OA_LOGIN_START_URI']?.toString().trim() ?? '',
     );
   }
 }
 
 /// 构建环境（dart-define）原始值（编译期常量；空字符串 = 未注入）。
 const Map<String, String> _buildDefines = <String, String>{
+  'IMBOY_WL_OA_LOGIN_START_URI': String.fromEnvironment(
+    'IMBOY_WL_OA_LOGIN_START_URI',
+  ),
   'IMBOY_WL_FLAVOR': String.fromEnvironment('IMBOY_WL_FLAVOR'),
   'IMBOY_WL_APPLICATION_ID': String.fromEnvironment('IMBOY_WL_APPLICATION_ID'),
   'IMBOY_WL_DISPLAY_NAME': String.fromEnvironment('IMBOY_WL_DISPLAY_NAME'),

@@ -1881,6 +1881,12 @@ class _Translations$enterpriseOa$ru_RU extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'Запрос кода единого входа…';
 	@override String ssoCountdown({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.';
 	@override String get workbenchTitle => 'Рабочая панель';
+	@override String get inboundTitle => 'Вход с учётной записью OA';
+	@override String get startInbound => 'Подтвердить личность через OA';
+	@override String get accountChoice => 'Свяжите существующую учётную запись IMBoy или явно создайте новую.';
+	@override String get confirmLink => 'Подтвердить привязку текущей учётной записи';
+	@override String get useExistingAccount => 'Войти в существующую учётную запись IMBoy';
+	@override String get confirmCreate => 'Подтвердить создание учётной записи IMBoy';
 }
 
 // Path: error
@@ -4931,6 +4937,12 @@ extension on TranslationsRuRu {
 			'enterpriseOa.ssoIssuing' => 'Запрос кода единого входа…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Код действует ${seconds} сек. Войдите как можно скорее.',
 			'enterpriseOa.workbenchTitle' => 'Рабочая панель',
+			'enterpriseOa.inboundTitle' => 'Вход с учётной записью OA',
+			'enterpriseOa.startInbound' => 'Подтвердить личность через OA',
+			'enterpriseOa.accountChoice' => 'Свяжите существующую учётную запись IMBoy или явно создайте новую.',
+			'enterpriseOa.confirmLink' => 'Подтвердить привязку текущей учётной записи',
+			'enterpriseOa.useExistingAccount' => 'Войти в существующую учётную запись IMBoy',
+			'enterpriseOa.confirmCreate' => 'Подтвердить создание учётной записи IMBoy',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
@@ -5296,14 +5308,14 @@ extension on TranslationsRuRu {
 			'momentNotify.emptyHint' => 'Здесь появятся лайки и комментарии друзей к вашим Моментам',
 			'momentNotify.actionLike' => 'оценил(а) ваш Момент',
 			'momentNotify.actionComment' => 'оставил(а) комментарий',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => 'Прочитать все',
 			'momentNotify.clearAll' => 'Очистить всё',
 			'momentNotify.clearConfirmTitle' => 'Очистить все уведомления?',
 			'momentNotify.clearConfirmMessage' => 'Это действие нельзя отменить',
 			'momentNotify.confirm' => 'ОК',
 			'momentNotify.cancel' => 'Отмена',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => 'Удалить',
 			'momentNotify.loadFailed' => 'Не удалось загрузить, попробуйте позже',
 			'organization.common.moreActions' => 'Ещё действия',
@@ -5810,14 +5822,14 @@ extension on TranslationsRuRu {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Изменить роль в рабочем пространстве: ${name}',
 			'workspace.transferTitle' => ({required Object name}) => 'Передать роль главного Owner: ${name}',
 			'workspace.transferDesc' => 'После передачи вы станете обычным участником рабочего пространства (Member), а получатель получит все права управления',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferConfirm' => 'Подтвердить передачу',
 			'workspace.governanceTitle' => 'Управление рабочим пространством',
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',
 			'workspace.restoreTitle' => 'Восстановить рабочее пространство',

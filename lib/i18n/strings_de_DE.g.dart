@@ -1875,6 +1875,12 @@ class _Translations$enterpriseOa$de_DE extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'SSO-Code wird angefordert…';
 	@override String ssoCountdown({required Object seconds}) => 'Code ist ${seconds} Sekunden gültig. Bitte bald anmelden.';
 	@override String get workbenchTitle => 'Arbeitsbereich';
+	@override String get inboundTitle => 'Anmeldung mit OA-Identität';
+	@override String get startInbound => 'Identität mit OA bestätigen';
+	@override String get accountChoice => 'Verknüpfen Sie ein bestehendes IMBoy-Konto oder erstellen Sie ausdrücklich ein neues.';
+	@override String get confirmLink => 'Verknüpfung dieses Kontos bestätigen';
+	@override String get useExistingAccount => 'Bei bestehendem IMBoy-Konto anmelden';
+	@override String get confirmCreate => 'Erstellung eines neuen IMBoy-Kontos bestätigen';
 }
 
 // Path: error
@@ -4925,6 +4931,12 @@ extension on TranslationsDeDe {
 			'enterpriseOa.ssoIssuing' => 'SSO-Code wird angefordert…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code ist ${seconds} Sekunden gültig. Bitte bald anmelden.',
 			'enterpriseOa.workbenchTitle' => 'Arbeitsbereich',
+			'enterpriseOa.inboundTitle' => 'Anmeldung mit OA-Identität',
+			'enterpriseOa.startInbound' => 'Identität mit OA bestätigen',
+			'enterpriseOa.accountChoice' => 'Verknüpfen Sie ein bestehendes IMBoy-Konto oder erstellen Sie ausdrücklich ein neues.',
+			'enterpriseOa.confirmLink' => 'Verknüpfung dieses Kontos bestätigen',
+			'enterpriseOa.useExistingAccount' => 'Bei bestehendem IMBoy-Konto anmelden',
+			'enterpriseOa.confirmCreate' => 'Erstellung eines neuen IMBoy-Kontos bestätigen',
 			'error.restartRequired' => 'App-Neustart erforderlich',
 			'error.pleaseCheckNetwork' => 'Bitte überprüfen Sie Ihre Netzwerkeinstellungen.',
 			'error.networkTroubleshootingStep1' => '1. Telefoneinstellungen öffnen, WLAN eingeschaltet lassen.',
@@ -5290,14 +5302,14 @@ extension on TranslationsDeDe {
 			'momentNotify.emptyHint' => '„Gefällt mir" und Kommentare von Freunden erscheinen hier',
 			'momentNotify.actionLike' => 'hat Ihren Moment gelikt',
 			'momentNotify.actionComment' => 'hat kommentiert',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => 'Alle gelesen',
 			'momentNotify.clearAll' => 'Alle löschen',
 			'momentNotify.clearConfirmTitle' => 'Alle Benachrichtigungen löschen?',
 			'momentNotify.clearConfirmMessage' => 'Kann nicht rückgängig gemacht werden',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Abbrechen',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => 'Löschen',
 			'momentNotify.loadFailed' => 'Laden fehlgeschlagen. Bitte später erneut versuchen.',
 			'organization.common.moreActions' => 'Weitere Aktionen',
@@ -5804,14 +5816,14 @@ extension on TranslationsDeDe {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Arbeitsbereich-Rolle von ${name} ändern',
 			'workspace.transferTitle' => ({required Object name}) => 'Haupt-Owner an ${name} übertragen',
 			'workspace.transferDesc' => 'Nach der Übertragung werden Sie normales Arbeitsbereich-Mitglied (Member), die andere Person erhält die volle Kontrolle',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferConfirm' => 'Übertragung bestätigen',
 			'workspace.governanceTitle' => 'Arbeitsbereich-Governance',
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
 			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
 			'workspace.archiveConfirm' => 'Archivierung bestätigen',
 			'workspace.restoreTitle' => 'Arbeitsbereich wiederherstellen',

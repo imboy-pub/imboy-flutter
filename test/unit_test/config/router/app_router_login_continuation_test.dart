@@ -54,6 +54,26 @@ Future<void> _login() =>
     StorageService.to.setString(Keys.currentUid, 'synthetic').then((_) {});
 
 void main() {
+  testWidgets(
+    'OA callback is public, existing-account choice restores protected association page',
+    (tester) async {
+      final router = await _setup(tester);
+      expect(
+        await _redirect(
+          tester,
+          router,
+          '/oa/login?ticket=synthetic&state=synthetic',
+        ),
+        isNull,
+      );
+      expect(await _redirect(tester, router, '/oa/link'), '/sign_in');
+      await _login();
+      expect(await _redirect(tester, router, '/bottom_navigation'), '/oa/link');
+      expect(await _redirect(tester, router, '/oa/link'), isNull);
+      expect(await _redirect(tester, router, '/bottom_navigation'), isNull);
+    },
+  );
+
   for (final landing in ['/bottom_navigation', '/web_shell']) {
     testWidgets('企业直达链接登录后经$landing恢复一次且保留query/fragment', (tester) async {
       final router = await _setup(tester);

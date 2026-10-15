@@ -34,6 +34,7 @@ List<EnterpriseOaRuntimeConfig> parseOaWorkbenchEntries(Object? payload) {
       'IMBOY_WL_OA_ENTRY_ENABLED': true,
       'IMBOY_WL_OA_APPLICATION_KEY': key,
       'IMBOY_WL_OA_REDIRECT_URI': redirect,
+      'IMBOY_WL_OA_LOGIN_START_URI': entry['login_start_uri'],
     });
     if (config.runtimeEntryEnabled) configs.add(config);
   }

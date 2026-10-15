@@ -59,7 +59,7 @@ class DeepLinkRouterBridge {
     try {
       uri = Uri.parse(link);
     } on FormatException {
-      _debugLog('invalid deep link: $link');
+      _debugLog('invalid deep link');
       return;
     }
     if (uri.scheme != 'imboy') {
@@ -71,8 +71,9 @@ class DeepLinkRouterBridge {
       _debugLog('unsupported path: $path');
       return;
     }
+    if (path == '/oa/login' && uri.host != 'imboy.pub') return;
     final location = uri.hasQuery ? '$path?${uri.query}' : path;
-    _debugLog('navigating to $location');
+    _debugLog('navigating to $path');
     // push 而非 go：深链内容页要叠在当前栈上（GlassBackButton 依赖
     // Navigator.canPop；go 重置整栈会让深链页成根路由，页内无返回键）。
     // push 抛错（匹配/守卫失败）时回退 go 保持重定向语义。
@@ -84,7 +85,11 @@ class DeepLinkRouterBridge {
       );
       await pushing;
     } on Object catch (e) {
-      _debugLog('push failed ($e), falling back to go');
+      _debugLog(
+        path == '/oa/login'
+            ? 'OA callback navigation failed'
+            : 'push failed ($e), falling back to go',
+      );
       router.go(location);
     }
   }

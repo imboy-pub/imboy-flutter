@@ -16,6 +16,7 @@ import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -99,6 +100,38 @@ class UserRepoLocal extends ChangeNotifier {
         await SecureTokenStorageService.saveToken(token);
         return isCurrentSession(generation);
       });
+
+  static const oaLoginAttemptKey = 'oa_inbound_login_attempt';
+  static const _oaLoginRevokedKey = 'oa_inbound_login_revoked';
+
+  Future<String?> readOaLoginAttempt() async {
+    if (StorageService.to.getBool(_oaLoginRevokedKey) == true) return null;
+    final raw = await StorageSecureService.to.read(key: oaLoginAttemptKey);
+    return StorageService.to.getBool(_oaLoginRevokedKey) == true ? null : raw;
+  }
+
+  Future<void> writeOaLoginAttemptForSession(
+    int generation,
+    String uid,
+    String? value,
+  ) => _serializeSessionWrite(() async {
+    void requireSession() {
+      if (!isCurrentSession(generation) ||
+          isAuthTransitioning ||
+          currentUid != uid) {
+        throw const FormatException('OA session changed');
+      }
+    }
+
+    requireSession();
+    await StorageSecureService.to.write(key: oaLoginAttemptKey, value: value);
+    requireSession();
+    if (value != null) {
+      await StorageService.to.persistPreference(
+        () => StorageService.to.setBool(_oaLoginRevokedKey, false),
+      );
+    }
+  });
 
   String get currentUid => StorageService.to.getString(Keys.currentUid);
 
@@ -370,6 +403,9 @@ class UserRepoLocal extends ChangeNotifier {
 
   Future<bool> _clearLogin() async {
     try {
+      await StorageService.to.persistPreference(
+        () => StorageService.to.setBool(_oaLoginRevokedKey, true),
+      );
       final logoutUid = currentUid;
       AppFeatureRegistry.bindScope(endpoint: Env().apiBaseUrl, uid: '');
       RuntimeFeatureRecovery.dispose();
@@ -417,6 +453,16 @@ class UserRepoLocal extends ChangeNotifier {
       // 否则旧账号 SQLCipher 句柄仍打开，换号后 SqliteService 会按 isOpen 复用
       // 旧库句柄致跨账号数据串号（安全审查 CRITICAL）。
       var purgeFailed = false;
+      try {
+        await StorageSecureService.to.delete(key: oaLoginAttemptKey);
+      } on Object catch (error, stack) {
+        AppLogger.error(
+          '[user_repo_local] OA proof cleanup failed',
+          error,
+          stack,
+        );
+        purgeFailed = true;
+      }
       try {
         await E2eeSecretInventory.production().purgeAll();
         await StorageService.to.remove(Keys.e2eePurgePending);

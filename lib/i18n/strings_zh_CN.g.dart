@@ -5734,6 +5734,24 @@ class Translations$enterpriseOa$zh_CN {
 
 	/// zh-CN: '应用'
 	String get apps => '应用';
+
+	/// zh-CN: 'OA 身份登录'
+	String get inboundTitle => 'OA 身份登录';
+
+	/// zh-CN: '通过 OA 验证身份'
+	String get startInbound => '通过 OA 验证身份';
+
+	/// zh-CN: '请选择关联已有 IMBoy 账号，或明确创建新账号。'
+	String get accountChoice => '请选择关联已有 IMBoy 账号，或明确创建新账号。';
+
+	/// zh-CN: '确认关联当前账号'
+	String get confirmLink => '确认关联当前账号';
+
+	/// zh-CN: '登录已有 IMBoy 账号'
+	String get useExistingAccount => '登录已有 IMBoy 账号';
+
+	/// zh-CN: '确认创建新的 IMBoy 账号'
+	String get confirmCreate => '确认创建新的 IMBoy 账号';
 }
 
 // Path: error
@@ -11170,6 +11188,12 @@ extension on Translations {
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => '凭证 ${seconds} 秒内有效，请尽快完成登录',
 			'enterpriseOa.workbenchTitle' => '工作台',
 			'enterpriseOa.apps' => '应用',
+			'enterpriseOa.inboundTitle' => 'OA 身份登录',
+			'enterpriseOa.startInbound' => '通过 OA 验证身份',
+			'enterpriseOa.accountChoice' => '请选择关联已有 IMBoy 账号，或明确创建新账号。',
+			'enterpriseOa.confirmLink' => '确认关联当前账号',
+			'enterpriseOa.useExistingAccount' => '登录已有 IMBoy 账号',
+			'enterpriseOa.confirmCreate' => '确认创建新的 IMBoy 账号',
 			'error.restartRequired' => '需要重启应用',
 			'error.pleaseCheckNetwork' => '请检查你的网络设置。',
 			'error.networkTroubleshootingStep1' => '1.打开手机设置并把Wi-Fi开关保持开启状态。',
@@ -11337,14 +11361,14 @@ extension on Translations {
 			'groupVote.endVote' => '结束投票',
 			'groupVote.alreadyVoted' => '已投票',
 			'groupVote.selectedCount' => ({required Object count}) => '已选 ${count} 项',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.voteCount' => ({required Object count}) => '${count} 票',
 			'main.totalAssets' => '总资产',
 			'main.album' => '照片',
 			'main.appSize' => '应用大小',
 			'main.arSa' => '阿拉伯语（沙特阿拉伯）',
 			'main.audio' => '音频',
-			_ => null,
-		} ?? switch (path) {
 			'main.barcodeFound' => '已识别二维码',
 			'main.botQianFan' => '千帆机器人',
 			'main.liveRoomWhipLabel' => 'WHIP 推流地址',
@@ -11851,14 +11875,14 @@ extension on Translations {
 			'organization.manage.archivedBadge' => '已归档',
 			'organization.manage.ownerBadge' => '我是所有者',
 			'organization.manage.memberBadge' => '我是成员',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.setDefault' => '设为默认工作区',
 			'organization.manage.archiveWorkspace' => '归档工作区',
 			'organization.manage.archiveWorkspaceTitle' => ({required Object name}) => '归档「${name}」？',
 			'organization.manage.archiveWorkspaceBody' => '归档后该工作区进入只读，其群与频道一并停写；若它是企业默认工作区，请先指定替代工作区。归档可恢复。',
 			'organization.manage.restoreWorkspace' => '恢复工作区',
 			'organization.manage.resourceSection' => '群与频道',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.resourceNeedsWorkspace' => '需要先有工作区，才能治理群与频道。',
 			'organization.manage.resourceLoadFailed' => ({required Object err}) => '加载失败：${err}',
 			'organization.manage.retry' => '重试',

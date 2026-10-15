@@ -1875,6 +1875,12 @@ class _Translations$enterpriseOa$fr_FR extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'Demande du code d\'authentification unique…';
 	@override String ssoCountdown({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.';
 	@override String get workbenchTitle => 'Espace de travail';
+	@override String get inboundTitle => 'Connexion avec identité OA';
+	@override String get startInbound => 'Vérifier votre identité avec OA';
+	@override String get accountChoice => 'Associez un compte IMBoy existant ou créez explicitement un nouveau compte.';
+	@override String get confirmLink => 'Confirmer l’association de ce compte';
+	@override String get useExistingAccount => 'Se connecter à un compte IMBoy existant';
+	@override String get confirmCreate => 'Confirmer la création d’un compte IMBoy';
 }
 
 // Path: error
@@ -4925,6 +4931,12 @@ extension on TranslationsFrFr {
 			'enterpriseOa.ssoIssuing' => 'Demande du code d\'authentification unique…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'Code valide ${seconds} secondes. Connectez-vous rapidement.',
 			'enterpriseOa.workbenchTitle' => 'Espace de travail',
+			'enterpriseOa.inboundTitle' => 'Connexion avec identité OA',
+			'enterpriseOa.startInbound' => 'Vérifier votre identité avec OA',
+			'enterpriseOa.accountChoice' => 'Associez un compte IMBoy existant ou créez explicitement un nouveau compte.',
+			'enterpriseOa.confirmLink' => 'Confirmer l’association de ce compte',
+			'enterpriseOa.useExistingAccount' => 'Se connecter à un compte IMBoy existant',
+			'enterpriseOa.confirmCreate' => 'Confirmer la création d’un compte IMBoy',
 			'error.restartRequired' => 'Redémarrage requis',
 			'error.pleaseCheckNetwork' => 'Vérifiez vos paramètres réseau.',
 			'error.networkTroubleshootingStep1' => '1. Ouvrez les paramètres du téléphone et gardez le Wi-Fi activé.',
@@ -5290,14 +5302,14 @@ extension on TranslationsFrFr {
 			'momentNotify.emptyHint' => 'Les « J\'aime » et commentaires de vos amis s\'affichent ici',
 			'momentNotify.actionLike' => 'a aimé votre moment',
 			'momentNotify.actionComment' => 'a commenté',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => 'Tout marquer lu',
 			'momentNotify.clearAll' => 'Tout effacer',
 			'momentNotify.clearConfirmTitle' => 'Effacer toutes les notifications ?',
 			'momentNotify.clearConfirmMessage' => 'Action irréversible',
 			'momentNotify.confirm' => 'OK',
 			'momentNotify.cancel' => 'Annuler',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => 'Supprimer',
 			'momentNotify.loadFailed' => 'Échec du chargement. Réessayez plus tard.',
 			'organization.common.moreActions' => 'Plus d\'actions',
@@ -5804,14 +5816,14 @@ extension on TranslationsFrFr {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Modifier le rôle d\'espace de travail de ${name}',
 			'workspace.transferTitle' => ({required Object name}) => 'Transférer le rôle d\'Owner principal à ${name}',
 			'workspace.transferDesc' => 'Après le transfert, vous deviendrez un membre ordinaire de l\'espace de travail (Member) et il obtiendra tous les droits de gouvernance',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferConfirm' => 'Confirmer le transfert',
 			'workspace.governanceTitle' => 'Gouvernance de l\'espace de travail',
 			'workspace.brandingEntry' => 'Paramètres de marque (nom / Logo / couleur principale)',
 			'workspace.archiveEntry' => 'Archiver l\'espace de travail',
 			'workspace.restoreEntry' => 'Restaurer l\'espace de travail',
 			'workspace.archiveTitle' => 'Archiver l\'espace de travail',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveDesc' => 'Après archivage, tous les membres passent en lecture seule (les écritures sont refusées par le serveur) ; restauration possible à tout moment',
 			'workspace.archiveConfirm' => 'Confirmer l\'archivage',
 			'workspace.restoreTitle' => 'Restaurer l\'espace de travail',

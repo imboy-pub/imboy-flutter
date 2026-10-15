@@ -1884,6 +1884,12 @@ class _Translations$enterpriseOa$ar_SA extends Translations$enterpriseOa$zh_CN {
 	@override String get ssoIssuing => 'جارٍ طلب رمز تسجيل الدخول الموحد…';
 	@override String ssoCountdown({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.';
 	@override String get workbenchTitle => 'مساحة العمل';
+	@override String get inboundTitle => 'تسجيل الدخول بهوية OA';
+	@override String get startInbound => 'التحقق من الهوية عبر OA';
+	@override String get accountChoice => 'اربط حساب IMBoy موجوداً أو اختر صراحة إنشاء حساب جديد.';
+	@override String get confirmLink => 'تأكيد ربط الحساب الحالي';
+	@override String get useExistingAccount => 'الدخول إلى حساب IMBoy موجود';
+	@override String get confirmCreate => 'تأكيد إنشاء حساب IMBoy جديد';
 }
 
 // Path: error
@@ -4934,6 +4940,12 @@ extension on TranslationsArSa {
 			'enterpriseOa.ssoIssuing' => 'جارٍ طلب رمز تسجيل الدخول الموحد…',
 			'enterpriseOa.ssoCountdown' => ({required Object seconds}) => 'الرمز صالح لمدة ${seconds} ثانية. يرجى تسجيل الدخول قريبًا.',
 			'enterpriseOa.workbenchTitle' => 'مساحة العمل',
+			'enterpriseOa.inboundTitle' => 'تسجيل الدخول بهوية OA',
+			'enterpriseOa.startInbound' => 'التحقق من الهوية عبر OA',
+			'enterpriseOa.accountChoice' => 'اربط حساب IMBoy موجوداً أو اختر صراحة إنشاء حساب جديد.',
+			'enterpriseOa.confirmLink' => 'تأكيد ربط الحساب الحالي',
+			'enterpriseOa.useExistingAccount' => 'الدخول إلى حساب IMBoy موجود',
+			'enterpriseOa.confirmCreate' => 'تأكيد إنشاء حساب IMBoy جديد',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
@@ -5299,14 +5311,14 @@ extension on TranslationsArSa {
 			'momentNotify.emptyHint' => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك',
 			'momentNotify.actionLike' => 'أعجب بلحظتك',
 			'momentNotify.actionComment' => 'علّق',
+			_ => null,
+		} ?? switch (path) {
 			'momentNotify.markAllRead' => 'قراءة الكل',
 			'momentNotify.clearAll' => 'مسح الكل',
 			'momentNotify.clearConfirmTitle' => 'مسح كل الإشعارات؟',
 			'momentNotify.clearConfirmMessage' => 'لا يمكن التراجع عن هذا الإجراء',
 			'momentNotify.confirm' => 'موافق',
 			'momentNotify.cancel' => 'إلغاء',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.delete' => 'حذف',
 			'momentNotify.loadFailed' => 'تعذّر التحميل، حاول لاحقاً',
 			'organization.common.moreActions' => 'المزيد من الإجراءات',
@@ -5813,14 +5825,14 @@ extension on TranslationsArSa {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'تعديل دور ${name} في مساحة العمل',
 			'workspace.transferTitle' => ({required Object name}) => 'نقل دور Owner الرئيسي إلى ${name}',
 			'workspace.transferDesc' => 'بعد النقل تصبح عضو مساحة عمل عادياً (Member)، ويحصل الطرف الآخر على كامل صلاحيات الحوكمة',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.transferConfirm' => 'تأكيد النقل',
 			'workspace.governanceTitle' => 'حوكمة مساحة العمل',
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',
 			'workspace.restoreTitle' => 'استعادة مساحة العمل',

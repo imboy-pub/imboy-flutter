@@ -31,3 +31,10 @@ ssoCountdown: "Code valid for $seconds seconds. Please sign in soon."
 workbenchTitle: "Workbench"
 
 apps: "Apps"
+
+inboundTitle: "OA identity login"
+startInbound: "Verify identity with OA"
+accountChoice: "Link an existing IMBoy account or explicitly create a new account."
+confirmLink: "Confirm linking this account"
+useExistingAccount: "Sign in to an existing IMBoy account"
+confirmCreate: "Confirm creating a new IMBoy account"

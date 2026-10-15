@@ -29,3 +29,10 @@ ssoIssuing: "단일 로그인 코드 요청 중…"
 ssoCountdown: "코드가 $seconds초 후 만료됩니다. 빠르게 로그인해 주세요."
 
 workbenchTitle: "워크벤치"
+
+inboundTitle: "OA 계정으로 로그인"
+startInbound: "OA에서 본인 확인"
+accountChoice: "기존 IMBoy 계정을 연결하거나 새 계정 생성을 명시적으로 선택하세요."
+confirmLink: "현재 계정 연결 확인"
+useExistingAccount: "기존 IMBoy 계정에 로그인"
+confirmCreate: "새 IMBoy 계정 생성 확인"

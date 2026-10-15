@@ -1,3 +1,7 @@
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform, kIsWeb;
+
+import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -191,6 +195,13 @@ class _LoginPageState extends ConsumerState<LoginPage>
                     ),
 
                     AppSpacing.verticalLarge,
+                    if ((!kIsWeb &&
+                            defaultTargetPlatform == TargetPlatform.android) &&
+                        resolveEnterpriseOaRuntimeConfig().inboundLoginEnabled)
+                      CupertinoButton(
+                        onPressed: () => context.push('/oa/login'),
+                        child: Text(t.enterpriseOa.startInbound),
+                      ),
                     OtherLoginSection(
                       notifier: notifier,
                       isDark: isDark,

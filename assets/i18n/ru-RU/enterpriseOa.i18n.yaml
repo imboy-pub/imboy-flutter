@@ -29,3 +29,10 @@ ssoIssuing: "Запрос кода единого входа…"
 ssoCountdown: "Код действует $seconds сек. Войдите как можно скорее."
 
 workbenchTitle: "Рабочая панель"
+
+inboundTitle: "Вход с учётной записью OA"
+startInbound: "Подтвердить личность через OA"
+accountChoice: "Свяжите существующую учётную запись IMBoy или явно создайте новую."
+confirmLink: "Подтвердить привязку текущей учётной записи"
+useExistingAccount: "Войти в существующую учётную запись IMBoy"
+confirmCreate: "Подтвердить создание учётной записи IMBoy"
