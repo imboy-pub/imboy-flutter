@@ -229,8 +229,16 @@ class OfflineMessageWriter {
           // （decrypt-on-read），此刻不存 = v3 消息永久不可读。
           // 缺失时**不写空串**：让 context binding 如实失配（fail-closed），
           // 运维据 context_mismatch_sender_did 可区分「旧行」与「真篡改」。
-          // 仅 C2C：C2G 当前走 Megolm v2（非 PFv3），msg_c2g 表无该列。
+          // C2G 无独立列，仅由认证顶层身份生成本地保留字段。
           final senderDid = msgData[MessageColumns.senderDid]?.toString() ?? '';
+          if (e2ee is Map) {
+            final localMetadata = Map<String, dynamic>.from(e2ee)
+              ..remove(MessageModel.localSenderDidKey);
+            if (type == 'C2G' && senderDid.isNotEmpty) {
+              localMetadata[MessageModel.localSenderDidKey] = senderDid;
+            }
+            insertData[MessageColumns.e2ee] = jsonEncode(localMetadata);
+          }
           if (type == 'C2C' && senderDid.isNotEmpty) {
             insertData[MessageColumns.senderDid] = senderDid;
           }

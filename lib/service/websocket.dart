@@ -12,6 +12,7 @@ import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/protocol/imboy_pb_codec.dart';
 import 'package:web_socket_channel/io.dart';
@@ -528,12 +529,20 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     'S2C': FrameType.msgS2C,
   };
 
+  dynamic _outboundPayload(String message) {
+    final sanitized = MessageModel.outboundJson(message);
+    return _framing == FramingMode.v2
+        ? _encodeV2BusinessFrame(sanitized)
+        : sanitized;
+  }
+
   /// 将待发送的字符串消息编码为 v2 frame bytes（仅在 framing=v2 时使用）
   ///
   /// 对于业务消息（JSON 字符串），从 payload 中提取 type 字段决定 FrameType：
   ///   C2C → msgC2C, C2G → msgC2G, C2S → msgC2S, 其它 → msgC2S
   /// 对于 CLIENT_ACK 纯文本 ACK，使用 msgC2S。
   Uint8List _encodeV2BusinessFrame(String message) {
+    message = MessageModel.outboundJson(message);
     final payload = Uint8List.fromList(utf8.encode(message));
     int type = FrameType.msgC2S;
     if (message.startsWith('{')) {
@@ -996,9 +1005,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
         try {
           try {
-            final payload = _framing == FramingMode.v2
-                ? _encodeV2BusinessFrame(queued.data)
-                : queued.data;
+            final payload = _outboundPayload(queued.data);
             _channel!.sink.add(payload);
             _messageQueue.removeAccepted(queued);
           } finally {
@@ -1167,9 +1174,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
     if (_status == SocketStatus.connected) {
       try {
-        final payload = _framing == FramingMode.v2
-            ? _encodeV2BusinessFrame(message)
-            : message;
+        final payload = _outboundPayload(message);
         _channel?.sink.add(payload);
         _logMessageSent(message, messageId);
         // 出站确认/重发由 MessageRetry 状态机负责（调用方 addToRetryQueue），
@@ -1216,9 +1221,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       try {
         dynamic payload;
         if (message is String) {
-          payload = _framing == FramingMode.v2
-              ? _encodeV2BusinessFrame(message)
-              : message;
+          payload = _outboundPayload(message);
         } else {
           // 二进制数据直接发送
           payload = message;

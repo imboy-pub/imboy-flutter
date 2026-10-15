@@ -65,7 +65,7 @@ class MessageQueryReader {
 
     List<MessageModel> messages = [];
     for (var map in maps) {
-      messages.add(MessageModel.fromJson(map));
+      messages.add(MessageModel.fromJson(map, fromLocalStore: true));
     }
     // Select the nearest older window, then preserve ascending UI order.
     return nextAutoId > 0 ? messages.reversed.toList() : messages;
@@ -105,7 +105,7 @@ class MessageQueryReader {
 
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
-      messages.add(MessageModel.fromJson(maps[i]));
+      messages.add(MessageModel.fromJson(maps[i], fromLocalStore: true));
     }
     return messages;
   }
@@ -186,7 +186,7 @@ class MessageQueryReader {
 
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
-      messages.add(MessageModel.fromJson(maps[i]));
+      messages.add(MessageModel.fromJson(maps[i], fromLocalStore: true));
     }
     return messages;
   }
@@ -217,7 +217,9 @@ class MessageQueryReader {
           '${MessageColumns.createdAt} DESC, ${MessageColumns.autoId} DESC',
       limit: limit,
     );
-    return rows.map(MessageModel.fromJson).toList(growable: false);
+    return rows
+        .map((row) => MessageModel.fromJson(row, fromLocalStore: true))
+        .toList(growable: false);
   }
 
   Future<MessageModel?> find(String id, {Transaction? txn}) async {
@@ -239,7 +241,7 @@ class MessageQueryReader {
     }
     // func_helper.iPrint("> on MessageRepo/find tb $tableName, id $id, len ${maps.length}; ${maps.toList().toString()}");
     if (maps.isNotEmpty) {
-      return MessageModel.fromJson(maps.first);
+      return MessageModel.fromJson(maps.first, fromLocalStore: true);
     }
     return null;
   }
@@ -261,7 +263,7 @@ class MessageQueryReader {
 
     List<MessageModel> messages = [];
     for (int i = 0; i < maps.length; i++) {
-      messages.add(MessageModel.fromJson(maps[i]));
+      messages.add(MessageModel.fromJson(maps[i], fromLocalStore: true));
     }
     return messages;
   }
@@ -276,7 +278,7 @@ class MessageQueryReader {
       limit: 1,
     );
     if (maps.isNotEmpty) {
-      return MessageModel.fromJson(maps.first);
+      return MessageModel.fromJson(maps.first, fromLocalStore: true);
     }
     return null;
   }
@@ -329,7 +331,9 @@ class MessageQueryReader {
       'LIMIT ? OFFSET ?',
       [...arguments, limit, offset < 0 ? 0 : offset],
     );
-    return rows.map(MessageModel.fromJson).toList(growable: false);
+    return rows
+        .map((row) => MessageModel.fromJson(row, fromLocalStore: true))
+        .toList(growable: false);
   }
 
   /// 计算与某个用户的消息数量

@@ -18,6 +18,9 @@ import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
@@ -330,6 +333,7 @@ class ChatNetworkService {
     required String chatType,
     required String toId,
     required String action,
+    bool interactiveConfirm = true,
   }) async {
     // 编辑动作携带正文，必须与普通内容消息使用同一套 E2EE 策略。
     // 其它 action（已读、撤回、输入状态、ACK）仍是非内容控制帧。
@@ -340,7 +344,7 @@ class ChatNetworkService {
     return E2EEService.shouldEncryptOutgoingPayload(
       chatType,
       toId: toId,
-      interactiveConfirm: true,
+      interactiveConfirm: interactiveConfirm,
     );
   }
 
@@ -350,6 +354,102 @@ class ChatNetworkService {
     required String toId,
     required String action,
   }) => _shouldEncryptOutbound(chatType: chatType, toId: toId, action: action);
+
+  /// Prepare immutable existing-outbox bytes without a Ref, chat page or send.
+  Future<MessageModel> prepareAttachmentOutboxMessage({
+    required String type,
+    required String conversationUk3,
+    required Message message,
+  }) async {
+    final owner = UserRepoLocal.to;
+    final uid = owner.currentUid;
+    final generation = owner.sessionGeneration;
+    if (message.authorId != uid) {
+      throw const E2eeSecurityException('outbound_session_changed');
+    }
+    final obj = getMsgFromTMsg(type, conversationUk3, message);
+    final required = await _shouldEncryptOutbound(
+      chatType: type,
+      toId: obj.toId.toString(),
+      action: '',
+      interactiveConfirm: false,
+    );
+    _requireOutboundSession(uid, generation);
+    if (!required) {
+      if (AttachmentSealPolicy.carriesContentKey(obj.payload)) {
+        throw const E2eeSecurityException('encryption_required_not_applied');
+      }
+      return obj;
+    }
+    final db = await SqliteService.to.db;
+    if (db == null) throw StateError('outbox database unavailable');
+    final store = CryptoStore(db);
+    await store.ensureSchema();
+    final cached = await store.getOutboxEntry(obj.id);
+    if (cached != null && cached['status'] != 'pending') {
+      throw StateError('outbox already acknowledged');
+    }
+    final encrypted = _requireEncryptedResult(
+      cached == null
+          ? await encryptPayload(
+              chatType: type,
+              toId: obj.toId.toString(),
+              plaintextMap: obj.payloadMap,
+              action: '',
+              messageId: obj.id,
+              messageType: obj.msgType ?? '',
+            )
+          : jsonDecode(cached['payload'] as String) as Map<String, dynamic>,
+    );
+    _requireOutboundSession(uid, generation);
+    final metadata = Map<String, dynamic>.from(encrypted['e2ee'] as Map);
+    if (metadata.isEmpty ||
+        metadata['meta_version'] != 3 ||
+        isDowngradedCipherRetryBlocked(
+          encryptionRequired: true,
+          chatType: type,
+          e2ee: metadata,
+        ) ||
+        encrypted['payload'] != '') {
+      throw const E2eeSecurityException('encryption_required_not_applied');
+    }
+    _validateAttachmentOutboxIdentity(obj, metadata, uid);
+    if (cached == null) {
+      await store.insertOutbox(id: obj.id, payload: jsonEncode(encrypted));
+    }
+    _requireOutboundSession(uid, generation);
+    obj.payload = encrypted['payload'];
+    obj.e2ee = metadata;
+    obj.senderDid = deviceId;
+    return obj;
+  }
+
+  void _validateAttachmentOutboxIdentity(
+    MessageModel message,
+    Map<String, dynamic> metadata,
+    String uid,
+  ) {
+    final envelopes = metadata['fan_out'] == 'per_device'
+        ? (metadata['devices'] as Map).values
+        : [metadata];
+    if (envelopes.isEmpty) throw StateError('outbox envelope missing');
+    for (final envelope in envelopes) {
+      final result = ProtectedFrameV3.verifyOuterEnvelope({
+        'meta_version': 3,
+        ...Map<String, dynamic>.from(envelope as Map),
+      });
+      final header = result.decodedHeader;
+      if (!result.isValid ||
+          header == null ||
+          header['message_id'] != message.id ||
+          header['sender_uid'] != uid ||
+          header['sender_did'] != deviceId ||
+          header['destination'] != message.toId.toString() ||
+          header['message_type'] != message.msgType) {
+        throw const E2eeSecurityException('outbox_context_mismatch');
+      }
+    }
+  }
 
   /// 通过 WebSocket 发送消息（含 E2EE 加密）
   Future<bool> sendWsMsg(MessageModel obj) async {

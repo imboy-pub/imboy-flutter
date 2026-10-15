@@ -189,6 +189,23 @@ class ReEditMessage {
 }
 
 class MessageModel {
+  static const localSenderDidKey = '_local_sender_did';
+
+  static String outboundJson(String message) {
+    try {
+      final decoded = jsonDecode(message);
+      if (decoded is! Map<String, dynamic> || decoded['e2ee'] is! Map) {
+        return message;
+      }
+      final metadata = Map<String, dynamic>.from(decoded['e2ee'] as Map);
+      if (!metadata.containsKey(localSenderDidKey)) return message;
+      metadata.remove(localSenderDidKey);
+      return jsonEncode({...decoded, 'e2ee': metadata});
+    } on FormatException {
+      return message; // Existing frame validation owns non-JSON control messages.
+    }
+  }
+
   int autoId;
   // String 类型对齐 backend `binary()` msg_id 契约（imboy/src/ds/message_ds.erl:566
   // is_non_empty_binary 校验）。Xid 等 base32hex 字符串 ID 在 SQLite INTEGER 列上
@@ -250,7 +267,10 @@ class MessageModel {
     this.senderDid,
   });
 
-  factory MessageModel.fromJson(Map<String, dynamic> data) {
+  factory MessageModel.fromJson(
+    Map<String, dynamic> data, {
+    bool fromLocalStore = false,
+  }) {
     // 解析 type
     final type = parseModelString(
       data[MessageColumns.type],
@@ -280,6 +300,11 @@ class MessageModel {
       } else if (data['e2ee'] is Map) {
         e2eeData = parseModelJsonMap(data['e2ee']);
       }
+    }
+
+    final localSenderDid = e2eeData?[localSenderDidKey];
+    if (e2eeData != null && e2eeData.containsKey(localSenderDidKey)) {
+      e2eeData = Map<String, dynamic>.from(e2eeData)..remove(localSenderDidKey);
     }
 
     // 解析 payload - 支持 Map 或 String。
@@ -326,7 +351,9 @@ class MessageModel {
       msgType: msgType,
       action: action,
       e2ee: e2eeData,
-      senderDid: parseModelNullableString(data[MessageColumns.senderDid]),
+      senderDid:
+          parseModelNullableString(data[MessageColumns.senderDid]) ??
+          (fromLocalStore ? parseModelNullableString(localSenderDid) : null),
     );
   }
 

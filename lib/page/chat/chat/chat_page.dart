@@ -530,6 +530,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
       // 初始化附件处理器（在 _burnEnabled 和 _burnAfterMs 设置后）
       _attachmentHandler = ChatAttachmentHandler(
+        ownerGeneration: UserRepoLocal.to.sessionGeneration,
         peerId: widget.peerId,
         conversationUk3: _conversationUk3,
         type: _chatType,
@@ -538,6 +539,8 @@ class ChatPageState extends ConsumerState<ChatPage>
         onMessageCreated: _addMessage,
         isMutedCheck: () => _isMuted,
       );
+
+      await _attachmentHandler.recoverPendingMessages();
 
       // 初始化消息操作处理器
       _messageActionHandler = MessageActionHandler(

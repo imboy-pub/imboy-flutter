@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/init.dart';
+import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +18,15 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+class _OwnedCachePaths extends PathProviderPlatform {
+  _OwnedCachePaths(this.path);
+  final String path;
+  @override
+  Future<String?> getApplicationCachePath() async => path;
+  @override
+  Future<String?> getTemporaryPath() async => path;
+}
 
 class _ResponseAdapter implements HttpClientAdapter {
   _ResponseAdapter(this.response, {this.onRequest});
@@ -55,7 +68,12 @@ void main() {
     'refreshtoken': 'synthetic-refresh',
     'nickname': 'Synthetic',
   };
+  late Directory cache;
+  late PathProviderPlatform previousPaths;
   setUp(() async {
+    previousPaths = PathProviderPlatform.instance;
+    cache = await Directory.systemTemp.createTemp('imboy-auth-owned-');
+    PathProviderPlatform.instance = _OwnedCachePaths(cache.path);
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
     secure = {};
@@ -107,7 +125,9 @@ void main() {
           return null;
         });
   });
-  tearDown(() {
+  tearDown(() async {
+    PathProviderPlatform.instance = previousPaths;
+    await cache.delete(recursive: true);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('com.davidmartos96.sqflite_sqlcipher'),
@@ -118,6 +138,56 @@ void main() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
   });
+  test(
+    'upload secret write and logout purge serialize without late recreation',
+    () async {
+      await StorageService.to.setString(Keys.currentUid, '1001');
+      secure['utk_legacy-task'] = 'legacy-material';
+      final store = SecureUploadKeyStore();
+      await store.write('namespace-probe', {
+        'content_key': 'probe-key',
+        'base_nonce': 'probe-nonce',
+      });
+      expect(
+        secure['utk_${Uri.encodeComponent(currentEnv)}:1001:namespace-probe'],
+        isNotNull,
+      );
+      expect(secure.containsKey('utk_namespace-probe'), isFalse);
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      var writes = 0;
+      beforeWrite = () async {
+        writes++;
+        entered.complete();
+        await release.future;
+      };
+      final writing = store.write('task-uuid', {
+        'content_key': 'key',
+        'base_nonce': 'nonce',
+      });
+      final rejected = expectLater(writing, throwsStateError);
+      await entered.future;
+      final logout = repo.quitLogin();
+      expect(
+        secure.containsKey(
+          'utk_${Uri.encodeComponent(currentEnv)}:1001:task-uuid',
+        ),
+        isFalse,
+      );
+      release.complete();
+      await rejected;
+      await logout.timeout(const Duration(seconds: 10));
+      expect(writes, 1);
+      expect(secure.keys.where((k) => k.startsWith('utk_')), isEmpty);
+      await expectLater(
+        store.write('late-task', {'content_key': 'late'}),
+        throwsStateError,
+      );
+      expect(writes, 1, reason: 'old epoch cannot write after purge');
+      expect(secure.keys.where((k) => k.startsWith('utk_')), isEmpty);
+    },
+  );
+
   test(
     'UID remains unpublished while token persistence is pending/fails',
     () async {

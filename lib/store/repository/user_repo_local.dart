@@ -16,6 +16,7 @@ import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/service/push_notification_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -273,7 +274,10 @@ class UserRepoLocal extends ChangeNotifier {
       () => _finishAuthTransition(() => _commitLogin(account, Map.of(payload))),
     );
     _authChanges.notifyListeners();
-    return result;
+    return result.then((ok) {
+      if (ok) unawaited(ResumableAttachmentUploader.recoverCurrentSession());
+      return ok;
+    });
   }
 
   Future<bool> _commitLogin(
@@ -341,6 +345,33 @@ class UserRepoLocal extends ChangeNotifier {
 
     return true;
   }
+
+  /// 与 login/logout 同队列：清理必须排在所有旧会话秘密写入之后。
+  Future<void> writeSessionSecret({
+    required String uid,
+    required int generation,
+    required Future<void> Function() write,
+    required Future<void> Function() discard,
+  }) => _serializeSessionWrite(() async {
+    bool active() =>
+        uid.isNotEmpty &&
+        currentUid == uid &&
+        isCurrentSession(generation) &&
+        !isAuthTransitioning;
+    if (!active()) throw StateError('secret write session changed');
+    try {
+      await write();
+      if (!active()) throw StateError('secret write session changed');
+    } on Object {
+      try {
+        await discard();
+      } on Object {
+        await StorageService.to.setBool(Keys.e2eePurgePending, true);
+        rethrow;
+      }
+      rethrow;
+    }
+  });
 
   Future<bool> quitLogin({int? expectedGeneration}) {
     if (expectedGeneration != null && !isCurrentSession(expectedGeneration)) {

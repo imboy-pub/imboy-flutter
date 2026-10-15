@@ -32,6 +32,7 @@ import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/observer/lifecycle.dart';
 
 import 'package:imboy/service/message_offline.dart';
+import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/storage.dart';
@@ -657,6 +658,7 @@ class AppInitializer {
 
     // 初始化WebSocket和相关服务
     await _initializeWebSocketServices();
+    unawaited(ResumableAttachmentUploader.recoverCurrentSession());
 
     // 初始化推送通知服务（FCM token 注册 + 前台消息监听）
     await PushNotificationService.instance.initialize();

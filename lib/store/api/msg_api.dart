@@ -7,6 +7,28 @@ import 'package:imboy/config/const.dart';
 /// 负责消息相关的 HTTP REST 请求（历史查询、离线同步等）。
 /// WebSocket 消息投递由 service/websocket.dart 负责，不在此处处理。
 class MsgApi extends HttpClient {
+  /// 仅服务端正面证据可确认；unknown、失败或身份错配均不得触发重发。
+  Future<bool> isCommitted({
+    required String chatType,
+    required String peerId,
+    required String messageId,
+  }) async {
+    final response = await get(
+      '/api/v1/msg/result',
+      queryParameters: {
+        'chat_type': chatType,
+        'peer_id': peerId,
+        'message_id': messageId,
+      },
+    );
+    if (!response.ok) return false;
+    final payload = IMBoyHttpResponse.payloadAsMap(response.payload);
+    return payload['message_id'] == messageId &&
+        payload['chat_type'] == chatType &&
+        payload['peer_id'].toString() == peerId &&
+        payload['state'] == 'committed';
+  }
+
   /// 查询会话消息历史（conv_seq 游标分页）
   ///
   /// 后端接口：GET /api/v1/msg/history

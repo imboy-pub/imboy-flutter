@@ -46,6 +46,7 @@ void main() {
     '_lastFallbackRotationKey': const {'prefix': 'olm_'},
     '_pickleKeyStorageKey': const {'prefix': 'olm_'},
     '_storageKey(uid': const {'prefix': 'db_cipher_key_'},
+    '_storageKey(ref': const {'prefix': 'utk_'},
     '_tokenKey': const {'exempt': 'secure_token'},
     '_refreshTokenKey': const {'exempt': 'secure_refresh_token'},
     '_pinStorageKey': const {'exempt': 'compliance_key_pin_v1'},

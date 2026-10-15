@@ -7,6 +7,7 @@ import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/capability_guard.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
@@ -14,6 +15,8 @@ import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/api/msg_api.dart';
+import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
@@ -46,7 +49,14 @@ bool isDowngradedCipherRetryBlocked({
     chatType.toUpperCase() == 'C2G' ? 'c2g' : 'c2c',
   );
 
-  final protocol = e2ee['protocol']?.toString() ?? '';
+  var protocol = e2ee['protocol']?.toString() ?? '';
+  if (protocol.isEmpty &&
+      (e2ee['e2ee_suite']?.toString() ?? '').isEmpty &&
+      e2ee['meta_version'] == 3) {
+    final verified = ProtectedFrameV3.verifyOuterEnvelope(e2ee);
+    if (!verified.isValid) return true;
+    protocol = verified.decodedHeader?['protocol']?.toString() ?? '';
+  }
   if (protocol.isNotEmpty) {
     return protocol != required;
   }
@@ -602,6 +612,84 @@ class MessageRetry with EventSubscriptionManager {
   ///
   /// 【修复 H3】使用数据库事务防止竞态条件
   /// 确保消息状态检查和更新的原子性
+  // A missing server result is not proof that an attachment message was unsent.
+  bool _isAttachmentMessage(MessageModel message) => {
+    'file',
+    'image',
+    'image_multi',
+    'video',
+    'audio',
+    'voice',
+    'location',
+    'custom',
+  }.contains(message.msgType);
+
+  Future<bool> _claimAttachmentDispatch(
+    MessageModel message,
+    bool Function() isCurrent,
+  ) => !_isAttachmentMessage(message)
+      ? Future.value(true)
+      : AttachmentUploadTaskRepo().claimOutboxDispatch(
+          message.id,
+          UserRepoLocal.to.currentUid,
+          isCurrent: isCurrent,
+        );
+
+  Future<bool> _attachmentRetryBlocked(
+    MessageModel message,
+    bool Function() sessionValid, {
+    MsgApi? api,
+  }) async {
+    if (!_isAttachmentMessage(message)) return false;
+    final actor = UserRepoLocal.to;
+    final uid = actor.currentUid;
+    final uploads = AttachmentUploadTaskRepo();
+    final rows = await uploads.findByAnchor(message.id, uid);
+    if (!sessionValid()) return true;
+    if (rows.isEmpty) {
+      return false; // Historical attachments have no V5 journal.
+    }
+    if (rows.every(
+      (row) =>
+          row.stage == AttachmentUploadStage.confirmed &&
+          row.businessIntent != null &&
+          (jsonDecode(row.businessIntent!) as Map)['state'] == 'outbox_ready',
+    )) {
+      return false;
+    }
+    final committed = await (api ?? MsgApi()).isCommitted(
+      chatType: _normalizeMessageType(message.type ?? '').toLowerCase(),
+      peerId: message.toId.toString(),
+      messageId: message.id,
+    );
+    if (!sessionValid() || actor.currentUid != uid) return true;
+    for (final row in rows) {
+      final intent = row.businessIntent == null
+          ? <String, dynamic>{}
+          : jsonDecode(row.businessIntent!) as Map<String, dynamic>;
+      await uploads.saveBusinessIntent(
+        message.id,
+        uid,
+        jsonEncode({
+          ...intent,
+          'state': committed ? 'committed' : 'commit_unknown',
+        }),
+      );
+    }
+    if (!sessionValid()) return true;
+    final messages = getMessageRepo(message.type ?? '');
+    await messages.update({
+      'id': message.id,
+      'status': committed ? IMBoyMessageStatus.sent : IMBoyMessageStatus.error,
+    });
+    if (!sessionValid()) return true;
+    final updated = await messages.find(message.id);
+    if (updated != null && sessionValid()) {
+      AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
+    }
+    return true;
+  }
+
   Future<void> _retryMessage(MessageRetryInfo info) async {
     if (!_isCurrentRetry(info)) return;
     try {
@@ -620,6 +708,10 @@ class MessageRetry with EventSubscriptionManager {
       if (!_isCurrentRetry(info)) return;
       if (msg == null) {
         iPrint('⚠️ [RETRY] 消息被删除，取消重试: ${info.messageId}');
+        _removeRetryIfSame(info);
+        return;
+      }
+      if (await _attachmentRetryBlocked(msg, () => _isCurrentRetry(info))) {
         _removeRetryIfSame(info);
         return;
       }
@@ -685,6 +777,11 @@ class MessageRetry with EventSubscriptionManager {
         'created_at': msg.createdAt,
       };
 
+      if (!await _claimAttachmentDispatch(msg, () => _isCurrentRetry(info)) ||
+          !_isCurrentRetry(info)) {
+        _removeRetryIfSame(info);
+        return;
+      }
       // 【解耦】通过事件总线发送消息重试请求，而不是直接调用 WebSocketService
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(
@@ -755,6 +852,10 @@ class MessageRetry with EventSubscriptionManager {
       // 聊天页的重试按钮直接读取本地 payload，不会经过 ChatNetworkService
       // 的 encryptPayload；群级 E2EE 开启且本地行没有 e2ee 元数据时，
       // 必须拒发，否则用户点击“重试”即可把明文重新送出。
+      if (await _attachmentRetryBlocked(msg, sessionValid)) {
+        _retryQueue.remove(messageId);
+        return false;
+      }
       final blocked = await _isPlaintextRetryBlocked(msg);
       if (!sessionValid()) return false;
       if (blocked) {
@@ -795,6 +896,11 @@ class MessageRetry with EventSubscriptionManager {
         'created_at': msg.createdAt,
       };
 
+      if (!await _claimAttachmentDispatch(msg, sessionValid) ||
+          !sessionValid()) {
+        _retryQueue.remove(messageId);
+        return false;
+      }
       // 【解耦】通过事件总线发送消息重试请求，而不是直接调用 WebSocketService
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(
@@ -881,6 +987,9 @@ class MessageRetry with EventSubscriptionManager {
   }
 
   // ---- 仅用于测试/调试 ----
+
+  Future<bool> debugAttachmentRetryBlocked(MessageModel message, MsgApi api) =>
+      _attachmentRetryBlocked(message, () => true, api: api);
 
   /// 测试专用：驱动一次启动时的失败消息扫描。
   ///

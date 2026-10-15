@@ -45,6 +45,35 @@ void main() {
     );
   }
 
+  test('all_attachment_templates_round_trip_without_upload_secrets', () {
+    final handler = buildHandler();
+    for (final kind in ['file', 'image', 'video', 'voice', 'location']) {
+      final intent = handler.pendingMessageIntent(
+        'stable-$kind',
+        kind,
+        name: '原文件名',
+        size: 123,
+        width: 640,
+        height: 480,
+        duration: const Duration(milliseconds: 3154),
+        waveform: [0.1, 0.5],
+        extra: {'title': '位置', 'latitude': '23', 'longitude': '113'},
+      );
+      final template = intent['message_template'] as Map<String, dynamic>;
+      final message = ChatAttachmentHandler.messageFromPendingTemplate(
+        template,
+      );
+      expect(message.id, 'stable-$kind');
+      expect(message.authorId, 'u-self');
+      expect(template.toString(), isNot(contains('attachment_descriptor')));
+      expect(intent['expected_objects'], kind == 'video' ? 2 : 1);
+      if (message is AudioMessage) {
+        expect(message.duration.inMilliseconds, 3154);
+        expect(message.waveform, [0.1, 0.5]);
+      }
+    }
+  });
+
   EntityImage buildThumb() => EntityImage(
     fileHash256: 'thumb-md5',
     name: 't.jpg',

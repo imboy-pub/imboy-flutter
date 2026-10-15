@@ -108,6 +108,7 @@ class E2eeSecretInventory {
       // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
       OlmSessionService.to.clearAll,
       _purgeLocalBackupTempFiles,
+      _purgeUploadCacheFiles,
     ],
   );
 
@@ -135,6 +136,7 @@ class E2eeSecretInventory {
     //（前缀同时覆盖 safety_number_devset_baseline_* 子族）
     'safety_number_devset_',
     'db_cipher_key_', // SQLCipher DB key（按 uid）
+    'utk_', // 附件上传 content key / nonce / descriptor（兼容清除旧全局键）
     'mls_', // MLS 预留
   ];
 
@@ -266,6 +268,16 @@ class E2eeSecretInventory {
           '双清除；明文库在 iOS 备份中的残留见 C05 矩阵（密文，无密钥不可解）',
     ),
     SecretCategory(
+      id: 'attachment-upload-material',
+      keyPrefix: 'utk_',
+      storageLocation: 'secure storage，按 env/uid/task 命名',
+      derivation: 'Random.secure content key / nonce 与原 descriptor',
+      inOsBackup: false,
+      clearedOnLogout: true,
+      clearedOnAccountSwitch: true,
+      note: '与认证队列串行写入；logout purge 覆盖旧全局及新隔离键',
+    ),
+    SecretCategory(
       id: 'mls-reserved',
       keyPrefix: 'mls_',
       storageLocation: 'secure storage（预留，尚无写入方）',
@@ -349,5 +361,11 @@ class E2eeSecretInventory {
         await entry.delete();
       }
     }
+  }
+
+  static Future<void> _purgeUploadCacheFiles() async {
+    final root = await getApplicationCacheDirectory();
+    final directory = Directory('${root.path}/attachment_uploads');
+    if (await directory.exists()) await directory.delete(recursive: true);
   }
 }

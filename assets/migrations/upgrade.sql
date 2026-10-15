@@ -1536,3 +1536,38 @@ ALTER TABLE "group_v32" RENAME TO "group";
 -- ============================================================
 PRAGMA user_version = 32;
 
+-- ============================================================
+-- VERSION: 33
+-- DESC: 新增 attachment_upload_task（附件上传任务持久化检查点）。
+--       每个远程阶段边界（presign/put/confirm）await 落一行检查点，
+--       进程被杀后按 stage 续传：密钥材料经 key_ref 从安全存储取回，
+--       同 key 同密文恢复；材料缺失则显式 abandoned 并新建任务新 key。
+--       不持久化 URL；服务端只收密文 hash。
+--       降级可逆：down 边直接 DROP（未完成任务由升级端显式新建）。
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS "attachment_upload_task" (
+    "id" TEXT PRIMARY KEY,
+    "user_id" TEXT NOT NULL,
+    "scope" TEXT NOT NULL,
+    "scope_ref" TEXT,
+    "file_name" TEXT NOT NULL,
+    "mime" TEXT NOT NULL,
+    "plain_size" INTEGER NOT NULL,
+    "plain_sha256" TEXT NOT NULL,
+    "object_key" TEXT,
+    "upload_path" TEXT,
+    "business_intent" TEXT,
+    "stage" TEXT NOT NULL,
+    "cipher" TEXT,
+    "binding_hash" TEXT,
+    "key_ref" TEXT,
+    "ciphertext_sha256" TEXT,
+    "anchor_msg_id" TEXT,
+    "last_error" TEXT,
+    "created_at" INTEGER NOT NULL,
+    "updated_at" INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS "idx_attachment_upload_task_user_stage"
+    ON "attachment_upload_task"("user_id", "stage");
+PRAGMA user_version = 33;
