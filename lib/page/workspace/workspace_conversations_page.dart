@@ -17,6 +17,7 @@ import 'package:imboy/page/workspace/workspace_groups_page.dart'
     show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_account_menu.dart';
+import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -35,9 +36,14 @@ class WorkspaceConversationsPage extends ConsumerStatefulWidget {
     super.key,
     this.embedded = false,
     this.active = true,
+    this.filter = WorkspaceMessageFilter.all,
   });
   final bool embedded;
   final bool active;
+
+  /// 消息筛选（企业壳消息 tab 的下拉菜单，见 workspace_message_filter）。
+  /// 快照无对应字段的筛选项按「无匹配」空态展示。
+  final WorkspaceMessageFilter filter;
   @override
   ConsumerState<WorkspaceConversationsPage> createState() =>
       _WorkspaceConversationsPageState();
@@ -181,11 +187,21 @@ class _WorkspaceConversationsPageState
     List<WorkspaceConversationModel> rows,
   ) {
     final query = _search.text.trim().toLowerCase();
+    bool matchesFilter(WorkspaceConversationModel row) =>
+        switch (widget.filter) {
+          WorkspaceMessageFilter.all => true,
+          // 快照只有群维度行；快照无字段支撑的筛选项一律无匹配（空态展示，
+          // 待服务端补 mention/内外部/标记/单聊字段后逐项点亮）。
+          WorkspaceMessageFilter.unread => row.unreadCount > 0,
+          WorkspaceMessageFilter.group => true,
+          _ => false,
+        };
     return rows
         .where(
           (row) =>
-              row.group.displayTitle.toLowerCase().contains(query) ||
-              row.previewText.toLowerCase().contains(query),
+              matchesFilter(row) &&
+              (row.group.displayTitle.toLowerCase().contains(query) ||
+                  row.previewText.toLowerCase().contains(query)),
         )
         .toList()
       ..sort((a, b) {
@@ -251,6 +267,16 @@ class _WorkspaceConversationsPageState
 
   Widget _emptyMessages() {
     final searching = _search.text.trim().isNotEmpty;
+    final filtered = widget.filter != WorkspaceMessageFilter.all;
+    if (searching || filtered) {
+      return WorkspaceEmptyView(
+        icon: CupertinoIcons.chat_bubble,
+        title: searching
+            ? t.common.searchNoResults
+            : t.workspace.filterEmptyTitle,
+        subtitle: '',
+      );
+    }
     return WorkspaceEmptyView(
       icon: CupertinoIcons.chat_bubble,
       title: searching

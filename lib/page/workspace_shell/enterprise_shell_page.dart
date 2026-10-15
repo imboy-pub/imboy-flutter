@@ -11,7 +11,6 @@ import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
-import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -19,15 +18,19 @@ import 'package:imboy/page/workspace/workspace_groups_page.dart';
 import 'package:imboy/modules/attachments/workspace_attachments_page.dart';
 import 'package:imboy/page/workspace/workspace_projects_page.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
+import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
+import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
+import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
+import 'package:imboy/page/workspace_shell/workspace_message_toolbar.dart';
+import 'package:imboy/page/workspace_shell/workspace_plus_menu.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 
-// WorkspaceSwitcherChip 定义于此（账号 Sheet 文件）；顶栏左侧切换 chip
-// 仍需要它，APP-M02 只移除了右上角 WorkspaceAccountButton 的引用。
-import 'workspace_account_menu.dart';
+// WorkspaceSwitcherChip 定义于此（账号 Sheet 文件）；会话页 standalone
+// 模式仍在使用。
 import 'workspace_shell_breakpoint.dart';
-import 'workspace_segment_switcher.dart';
 import 'workspace_shell_provider.dart';
 import 'workspace_top_bar.dart';
 
@@ -38,6 +41,11 @@ final _mineOrganizationProvider = FutureProvider.autoDispose
     );
 
 /// 企业主导航。Key 由宿主绑定账号、企业及工作区，切换时销毁旧页面。
+///
+/// 2026-10 飞书风格改版：底栏维持四栏（消息/通讯录/工作台/我，用户
+/// 拍板）；左上汉堡按钮唤起深蓝抽屉（身份/我的名片/企业带/高级功能/
+/// 创建加入企业/设置/切换到个人/退出登录）；消息 tab 顶部挂内容态
+/// tab（筛选/日程/待办），日程·待办聚合企业群数据。
 class EnterpriseShellPage extends ConsumerStatefulWidget {
   const EnterpriseShellPage({
     super.key,
@@ -57,7 +65,8 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   final _visited = <EnterpriseShellDestination>{
     EnterpriseShellDestination.messages,
   };
-  bool _channels = false;
+  WorkspaceMessageTab _messageTab = WorkspaceMessageTab.message;
+  WorkspaceMessageFilter _filter = WorkspaceMessageFilter.all;
   bool _configurationReady = false;
 
   @override
@@ -65,7 +74,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     super.initState();
     final navigation = ref.read(workspaceShellProvider).enterpriseNavigation;
     _selected = navigation.destination;
-    _channels = navigation.channels;
+    _filter = navigation.filter;
     _visited.add(_selected);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -74,11 +83,9 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     });
   }
 
-  void _rememberNavigation() =>
-      ref.read(workspaceShellProvider.notifier).rememberEnterpriseNavigation((
-        destination: _selected,
-        channels: _channels,
-      ));
+  void _rememberNavigation() => ref
+      .read(workspaceShellProvider.notifier)
+      .rememberEnterpriseNavigation((destination: _selected, filter: _filter));
 
   ({String accountKey, String organizationId}) get _scope =>
       (accountKey: widget.accountKey, organizationId: widget.organizationId);
@@ -154,7 +161,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       switch (destination) {
         EnterpriseShellDestination.messages => CupertinoIcons.chat_bubble,
         EnterpriseShellDestination.contacts => CupertinoIcons.person_2,
-        EnterpriseShellDestination.workbench => CupertinoIcons.briefcase,
+        EnterpriseShellDestination.workbench => CupertinoIcons.square_grid_2x2,
         EnterpriseShellDestination.mine => CupertinoIcons.person_circle,
       };
 
@@ -198,12 +205,14 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       children: [
         WorkspaceTopBar(
           title: title,
-          leading: const WorkspaceSwitcherChip(),
-          // APP-M02 邀请同事：右上角不再展示当前用户头像（账号/退出入口
-          // 收敛在「我」页 → 设置）；通讯录 Tab 右上角挂「邀请同事」入口。
-          actions: _selected == EnterpriseShellDestination.contacts
-              ? [_inviteColleaguesAction()]
-              : null,
+          leading: const _ShellMenuButton(),
+          actions: switch (_selected) {
+            EnterpriseShellDestination.messages => const [
+              WorkspacePlusButton(),
+            ],
+            EnterpriseShellDestination.contacts => [_inviteColleaguesAction()],
+            _ => null,
+          },
         ),
         if (ref.watch(currentWorkspaceProvider)?.isArchived ?? false)
           const WorkspaceArchivedBanner(),
@@ -248,6 +257,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     Widget content,
   ) {
     return Scaffold(
+      drawer: WorkspaceDrawerMenu(organizationId: widget.organizationId),
       body: Row(
         children: [
           if (desktop)
@@ -321,14 +331,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     switch (destination) {
       case EnterpriseShellDestination.messages:
         return _messages(active);
-      case EnterpriseShellDestination.contacts:
-        return HumanDirectoryBrowserPage(
-          orgId: widget.organizationId,
-          orgName:
-              ref.watch(_mineOrganizationProvider(_scope)).asData?.value.name ??
-              '',
-          embedded: true,
-        );
+
       case EnterpriseShellDestination.workbench:
         return EnterpriseWorkbenchPage(
           entries: configs,
@@ -354,57 +357,18 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
             ],
           ],
         );
+      case EnterpriseShellDestination.contacts:
+        return HumanDirectoryBrowserPage(
+          orgId: widget.organizationId,
+          orgName:
+              ref.watch(_mineOrganizationProvider(_scope)).asData?.value.name ??
+              '',
+          embedded: true,
+        );
       case EnterpriseShellDestination.mine:
         return _mine();
     }
   }
-
-  Widget _messages(bool active) {
-    final shell = ref.watch(workspaceShellProvider);
-    if (!shell.hasWorkspace && shell.isLoading) {
-      return const WorkspaceLoadingView();
-    }
-    if (!shell.hasWorkspace && shell.error != null) {
-      return WorkspaceErrorView(
-        message: shell.error!,
-        onRetry: () => ref.read(workspaceShellProvider.notifier).loadMine(),
-      );
-    }
-    return Column(
-      children: [
-        _messageFilter(),
-        Expanded(
-          child: IndexedStack(
-            index: _channels ? 1 : 0,
-            children: [
-              WorkspaceConversationsPage(
-                embedded: true,
-                active: active && !_channels,
-              ),
-              if (_channels)
-                const WorkspaceChannelsPage()
-              else
-                const SizedBox.shrink(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _messageFilter() => WorkspaceSegmentSwitcher(
-    value: _channels,
-    offLabel: t.chat.groupChat,
-    onLabel: t.channel.title,
-    onChanged: (value) {
-      setState(() => _channels = value);
-      _rememberNavigation();
-      final id = ref.read(currentWorkspaceProvider)?.id ?? '';
-      if (value && id.isNotEmpty) {
-        ref.invalidate(workspaceChannelsProvider(id));
-      }
-    },
-  );
 
   Widget _mine() {
     final organization = ref.watch(_mineOrganizationProvider(_scope));
@@ -431,6 +395,63 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     );
   }
 
+  Widget _messages(bool active) {
+    final shell = ref.watch(workspaceShellProvider);
+    if (!shell.hasWorkspace && shell.isLoading) {
+      return const WorkspaceLoadingView();
+    }
+    if (!shell.hasWorkspace && shell.error != null) {
+      return WorkspaceErrorView(
+        message: shell.error!,
+        onRetry: () => ref.read(workspaceShellProvider.notifier).loadMine(),
+      );
+    }
+    return Column(
+      children: [
+        WorkspaceMessageFilterBar(
+          tab: _messageTab,
+          filter: _filter,
+          onTabChanged: (tab) => setState(() => _messageTab = tab),
+          onFilterChanged: (filter) {
+            setState(() => _filter = filter);
+            _rememberNavigation();
+            if (filter == WorkspaceMessageFilter.channel) {
+              final id = ref.read(currentWorkspaceProvider)?.id ?? '';
+              if (id.isNotEmpty) ref.invalidate(workspaceChannelsProvider(id));
+            }
+          },
+        ),
+        Expanded(child: _messageTabContent(active)),
+      ],
+    );
+  }
+
+  Widget _messageTabContent(bool active) => switch (_messageTab) {
+    WorkspaceMessageTab.message => IndexedStack(
+      index: _filter == WorkspaceMessageFilter.channel ? 1 : 0,
+      children: [
+        WorkspaceConversationsPage(
+          embedded: true,
+          active: active && _filter != WorkspaceMessageFilter.channel,
+          filter: _filter == WorkspaceMessageFilter.channel
+              ? WorkspaceMessageFilter.all
+              : _filter,
+        ),
+        if (_filter == WorkspaceMessageFilter.channel)
+          const WorkspaceChannelsPage()
+        else
+          const SizedBox.shrink(),
+      ],
+    ),
+    // 日程/待办聚合当前工作区内企业群的群日程与群作业。
+    WorkspaceMessageTab.schedule => const WorkspaceGroupAgendaView(
+      kind: WorkspaceAgendaKind.schedule,
+    ),
+    WorkspaceMessageTab.todo => const WorkspaceGroupAgendaView(
+      kind: WorkspaceAgendaKind.todo,
+    ),
+  };
+
   Widget _resourceEntry(String title, Widget page) => CupertinoListTile(
     title: Text(title),
     trailing: const CupertinoListTileChevron(),
@@ -443,4 +464,57 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       ),
     ),
   );
+}
+
+/// 左上角汉堡按钮：唤起企业抽屉（参考稿①）。
+///
+/// 图标为参考稿的两杠不等长样式（上长下短），比三点/三杠更轻盈；
+/// Scaffold.of 依赖本按钮元素位于 Scaffold 子树内。
+class _ShellMenuButton extends StatelessWidget {
+  const _ShellMenuButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final tint = isDark
+        ? AppColors.darkTextPrimary
+        : AppColors.lightTextPrimary;
+    return CupertinoButton(
+      key: const ValueKey('enterprise-shell-menu-button'),
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(44, 44),
+      onPressed: () => Scaffold.of(context).openDrawer(),
+      child: Semantics(
+        label: t.common.buttonMore,
+        button: true,
+        child: SizedBox(
+          width: 22,
+          height: 22,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 18,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: tint,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+              const SizedBox(height: 5),
+              Container(
+                width: 12,
+                height: 2,
+                decoration: BoxDecoration(
+                  color: tint,
+                  borderRadius: BorderRadius.circular(1),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

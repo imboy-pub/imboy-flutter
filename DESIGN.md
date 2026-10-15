@@ -134,7 +134,22 @@ Text
   labelPlaceholder    #EBEBF5   (opacity 0.30)
 ```
 
-### 2.4 颜色使用规则（Do / Don't）
+### 2.4 企业深蓝（Enterprise Navy，2026-10）
+
+企业模式深蓝抽屉专用色板（`AppColors.enterpriseNavy` 族，见 8.8）。
+固定品牌色，**不随工作区 branding.primaryColor 联动**——branding 只覆盖
+`ColorScheme.primary`（见 workspace_branding_theme.dart 的作用域约束）：
+
+```
+enterpriseNavy        #22436E   抽屉渐变浅端（左上）
+enterpriseNavyDeep    #152A47   抽屉渐变深端（右下）
+enterpriseNavyLight   #2E5180   选中带 / 高亮面（当前企业行）
+enterpriseOnNavy      #FFFFFF   深蓝底前景
+enterpriseOnNavyMuted #AEBFD8   深蓝底次级前景
+enterpriseNavyDivider #FFFFFF 10%  深蓝底分隔线
+```
+
+### 2.5 颜色使用规则（Do / Don't）
 
 - ✅ 主按钮文字 on `brand` 永远用 `#FFFFFF`
 - ✅ Cell 里可点击的次级动作（如「查看全部 >」）用 `iosBlue`，不用 `brand`
@@ -450,6 +465,50 @@ Layout:
 - 按钮文字 Body 17pt，默认 iosBlue；破坏性 iosRed；默认态 w600
 - 宽度 270pt，毛玻璃背景
 
+### 8.8 企业壳深蓝抽屉 | Enterprise Drawer（2026-10）
+
+企业模式左上汉堡按钮（上长下短两杠图标）唤起的左侧抽屉，文件
+`lib/page/workspace_shell/workspace_drawer_menu.dart`：
+
+```
+- 面板宽 min(屏宽×0.84, 360pt)，深蓝对角渐变 enterpriseNavy → enterpriseNavyDeep
+- 身份区：68pt 圆角 14 头像 + 昵称 Title 22 w700 白 + chevron（→ 个人资料）
+  + 「智能助理」胶囊（白 12% 底、蓝渐变圆点）；次行企业名 + 「未认证」徽标
+- 分隔线白 10%（enterpriseNavyDivider）
+- 功能行高 52pt：图标 24pt + 文字 Medium 16 w500 白；次级行 onNavyMuted、
+  退出登录 #FF8A80
+- 当前企业带：通栏 enterpriseNavyLight 高亮，44pt 白底圆角 10 logo 位
+  + 企业名 ExtraLarge 20 w700 + check_mark；点击 → 企业主页
+- 无企业名/无工作区时不渲染企业带（不出现空名字入口）
+```
+
+### 8.9 消息筛选条 | Message Filter Bar（2026-10）
+
+企业壳消息 tab 顶部的工具条
+（`lib/page/workspace_shell/workspace_message_toolbar.dart`）：
+
+```
+- 高 48pt，surface 背景，底部 0.33pt separator
+- 档位：筛选(当前筛选名 + chevron_down) | 日程 | 待办，档间 0.5pt 竖 hairline
+- 选中档 brand 蓝（图标+文字 w600），未选中档文字主色/图标 iosGray
+- 点筛选档弹出 topLeft 锚定气泡菜单（见 8.10）：九档筛选 + 「编辑」动作，
+  全部/未读行尾计数胶囊（PopoverCountBadge：灰底胶囊、Footnote w600）
+```
+
+### 8.10 锚定气泡菜单 | Popover Menu（2026-10）
+
+通用组件 `lib/component/ui/popover_menu.dart`（`showPopoverMenu`）：
+
+```
+- PopupRoute：遮罩 overlayBlack10 点按关闭，180ms scale(0.72→1)+fade 入场
+- 面板 surface 底、圆角 20pt、单层柔光投影（blur 12 / offset(0,4)）
+- 行高 ≥44pt：图标区 24pt + 12pt 间距 + 文字 Medium 16；行间 0.5pt 渐隐 hairline
+- 行尾可挂 trailing（计数胶囊）与 8pt 红点；`showArrow: true` 时顶部
+  12pt 45° 旋转方块箭头（右上锚定「+」按钮场景）
+- 宽度自适应：最长文案单行实测 + 固定元素，封顶 0.618 屏宽
+- 动作必须先 pop 菜单再执行（防止 pop 反手弹掉刚 push 的页面）
+```
+
 ---
 
 ## 9. 聊天气泡规范 | Chat Bubbles
@@ -705,6 +764,7 @@ Scaffold(
 |------|------|------|
 | 0.1 | 2026-04-10 | 初版，确立 iOS 原生感方向 + 双蓝策略 |
 | 0.2 | 2026-04-24 | Slice-10~18 排版 / 色彩 / 数字等宽批量落地 |
+| 0.3 | 2026-10-15 | 企业壳飞书风格改版：新增 2.4 企业深蓝色板、8.8 深蓝抽屉、8.9 消息筛选条、8.10 锚定气泡菜单；底栏维持四栏 |
 
 
 **未来演进约束**：

@@ -7231,6 +7231,66 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '全部消息'
 	String get dmEntry => '全部消息';
 
+	/// zh-CN: '日程'
+	String get tabSchedule => '日程';
+
+	/// zh-CN: '待办'
+	String get tabTodo => '待办';
+
+	/// zh-CN: '即将上线'
+	String get comingSoon => '即将上线';
+
+	/// zh-CN: '智能助理'
+	String get assistantEntry => '智能助理';
+
+	/// zh-CN: '未认证'
+	String get orgUnverified => '未认证';
+
+	/// zh-CN: '我的名片'
+	String get myCard => '我的名片';
+
+	/// zh-CN: '高级功能'
+	String get advancedFeatures => '高级功能';
+
+	/// zh-CN: '创建 / 加入企业'
+	String get createOrJoinEnterprise => '创建 / 加入企业';
+
+	/// zh-CN: '未读'
+	String get filterUnread => '未读';
+
+	/// zh-CN: '@我'
+	String get filterMentions => '@我';
+
+	/// zh-CN: '单聊'
+	String get filterDm => '单聊';
+
+	/// zh-CN: '内部聊天'
+	String get filterInternalChat => '内部聊天';
+
+	/// zh-CN: '外部聊天'
+	String get filterExternalChat => '外部聊天';
+
+	/// zh-CN: '标记'
+	String get filterFlagged => '标记';
+
+	/// zh-CN: '编辑'
+	String get filterEdit => '编辑';
+
+	/// zh-CN: '暂无符合条件的会话'
+	String get filterEmptyTitle => '暂无符合条件的会话';
+
+	/// zh-CN: '功能开发中'
+	String get featureComingSoon => '功能开发中';
+
+	/// zh-CN: '记录面聊'
+	String get recordFaceChat => '记录面聊';
+
+	/// zh-CN: '智能总结'
+	String get smartSummary => '智能总结';
+
+	/// zh-CN: '休息一下'
+	String get takeABreak => '休息一下';
+
 	/// zh-CN: '个人'
 	String get experienceModePersonal => '个人';
 
@@ -11996,6 +12056,26 @@ extension on Translations {
 			'workspace.archivedBadge' => '已归档',
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
 			'workspace.dmEntry' => '全部消息',
+			'workspace.tabSchedule' => '日程',
+			'workspace.tabTodo' => '待办',
+			'workspace.comingSoon' => '即将上线',
+			'workspace.assistantEntry' => '智能助理',
+			'workspace.orgUnverified' => '未认证',
+			'workspace.myCard' => '我的名片',
+			'workspace.advancedFeatures' => '高级功能',
+			'workspace.createOrJoinEnterprise' => '创建 / 加入企业',
+			'workspace.filterUnread' => '未读',
+			'workspace.filterMentions' => '@我',
+			'workspace.filterDm' => '单聊',
+			'workspace.filterInternalChat' => '内部聊天',
+			'workspace.filterExternalChat' => '外部聊天',
+			'workspace.filterFlagged' => '标记',
+			'workspace.filterEdit' => '编辑',
+			'workspace.filterEmptyTitle' => '暂无符合条件的会话',
+			'workspace.featureComingSoon' => '功能开发中',
+			'workspace.recordFaceChat' => '记录面聊',
+			'workspace.smartSummary' => '智能总结',
+			'workspace.takeABreak' => '休息一下',
 			'workspace.experienceModePersonal' => '个人',
 			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',

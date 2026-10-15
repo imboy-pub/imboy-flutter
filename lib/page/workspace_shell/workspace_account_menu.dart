@@ -83,7 +83,7 @@ class WorkspaceAccountButton extends ConsumerWidget {
 ///
 /// 本地企业指针（当前登录账号）。无存储环境（widget 测试）返回 null；
 /// 调用方各自回落：chip 回落工作区名，账户 Sheet 的企业区整块不渲染。
-Organization? _currentOrgOrNull() {
+Organization? currentOrgOrNull() {
   try {
     final uid = UserRepoLocal.to.currentUid;
     if (uid.isEmpty) return null;
@@ -119,7 +119,7 @@ class WorkspaceSwitcherChip extends ConsumerWidget {
     final current = personal
         ? null
         : ref.watch(workspaceShellProvider.select((s) => s.current));
-    final org = personal ? null : _currentOrgOrNull();
+    final org = personal ? null : currentOrgOrNull();
     final label = personal
         ? t.workspace.experienceModePersonal
         : (org != null && org.name.isNotEmpty)
@@ -212,7 +212,7 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
             _WorkspaceList(
               workspaces: _scopedWorkspaces(
                 shell.workspaces,
-                _currentOrgOrNull(),
+                currentOrgOrNull(),
               ),
               currentId: shell.currentWorkspaceId,
               onSelect: (wsId) {
@@ -222,7 +222,7 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
             ),
             AppSpacing.verticalSmall,
             _OrganizationEntries(
-              org: _currentOrgOrNull(),
+              org: currentOrgOrNull(),
               workspaceRole: myRole,
             ),
             _SheetActionTile(

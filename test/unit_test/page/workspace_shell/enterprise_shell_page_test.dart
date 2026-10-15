@@ -23,10 +23,10 @@ import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
 import 'package:imboy/modules/organization/public.dart';
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
@@ -269,62 +269,62 @@ void main() {
     HttpClient.adapterForTest = _DirectoryTransport();
   });
   tearDown(() => HttpClient.adapterForTest = null);
-  for (final role in ['member', 'admin', 'error']) {
-    testWidgets('企业我页身份在前、角色 $role 入口正确且窄屏可滚动', (tester) async {
+  for (final role in ['member', 'admin']) {
+    testWidgets('企业抽屉承载身份与快捷入口，角色 $role', (tester) async {
       final api = _OaApi();
-      await _pump(
-        tester,
-        api,
-        emptyMode: 'normal',
-        orgRole: role,
-        size: const Size(320, 640),
+      await _pump(tester, api, orgRole: role, size: const Size(320, 640));
+      // 底栏回四栏：消息/通讯录/工作台/我。
+      expect(find.text('我'), findsOneWidget);
+      // 左上汉堡按钮唤起深蓝抽屉：身份 + 名片/高级功能/创建加入企业/设置
+      // + 切换到个人/退出登录。
+      await tester.tap(
+        find.byKey(const ValueKey('enterprise-shell-menu-button')),
       );
-      await tester.tap(find.text('我').last);
       await tester.pumpAndSettle();
-      expect(find.byType(MinePage), findsOneWidget);
+      expect(find.text('合成员工'), findsOneWidget);
+      // 企业名两处：身份行次级文本 + 企业带主名。
+      expect(find.text('合成企业'), findsWidgets);
+      expect(find.text('我的名片'), findsOneWidget);
+      expect(find.text('高级功能'), findsOneWidget);
+      expect(find.text('创建 / 加入企业'), findsOneWidget);
+      expect(find.text('设置'), findsOneWidget);
+      expect(find.text('切换到个人'), findsOneWidget);
+      expect(find.text('退出登录'), findsOneWidget);
+      expect(find.byType(MinePage), findsNothing);
       expect(
         find.byKey(const ValueKey('workspace-shell-account-entry')),
         findsNothing,
       );
-      expect(find.text('我的频道'), findsNothing);
-      expect(find.text('ID: synthetic-account'), findsNothing);
-      expect(find.text('工作区成员'), findsNothing);
-      expect(
-        find.text('企业管理'),
-        role == 'admin' ? findsOneWidget : findsNothing,
-      );
-      final entry = find.byKey(
-        const ValueKey('enterprise-mine-organization-entry'),
-      );
-      expect(
-        tester.getTopLeft(find.text('合成员工')).dy,
-        lessThan(tester.getTopLeft(entry).dy),
-      );
-      // 顶栏对齐 IosPageTemplate 导航栏边距策略：leading start 8
-      // （旧壳顶栏是 32pt 自拼边距，违反 DESIGN.md 4.2 的 16pt 页面
-      // padding 约定，已随 WorkspaceTopBar 统一）。
-      expect(
-        tester
-            .getTopLeft(find.byKey(const ValueKey('workspace-shell-switcher')))
-            .dx,
-        AppSpacing.small,
-      );
-      await tester.scrollUntilVisible(
-        find.text('反馈建议'),
-        200,
-        scrollable: find.byType(Scrollable).last,
-      );
-      expect(find.text('反馈建议').hitTestable(), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
-  testWidgets('工作区负责人保留企业管理入口', (tester) async {
+  testWidgets('消息页挂筛选 tab 与右上角加号按钮', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
-    api.completeFirst([]);
-    await tester.tap(find.text('我').last);
+    expect(find.text('日程'), findsOneWidget);
+    expect(find.text('待办'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('workspace-message-filter-tab')),
+      findsOneWidget,
+    );
+    // 点筛选 tab 弹出九项筛选下拉（+ 编辑动作）。
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-message-filter-tab')),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('企业管理'), findsOneWidget);
+    expect(find.text('未读'), findsOneWidget);
+    expect(find.text('@我'), findsOneWidget);
+    expect(find.text('单聊'), findsOneWidget);
+    expect(find.text('群聊'), findsOneWidget);
+    expect(find.text('内部聊天'), findsOneWidget);
+    expect(find.text('外部聊天'), findsOneWidget);
+    expect(find.text('标记'), findsOneWidget);
+    expect(find.text('编辑'), findsOneWidget);
+    // 选中「未读」：下拉收起，筛选 tab 标签同步切换（空快照 → 空态）。
+    await tester.tap(find.text('未读'));
+    await tester.pumpAndSettle();
+    expect(find.text('编辑'), findsNothing);
+    expect(find.text('暂无符合条件的会话'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业标签在重挂载后恢复，各企业的频道选择独立', (tester) async {
@@ -361,7 +361,12 @@ void main() {
     api.completeFirst([]);
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsNothing);
-    await tester.tap(find.text('频道').last);
+    // 频道改为筛选下拉内的一档：选择后消息 tab 切到频道列表。
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-message-filter-tab')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('频道'));
     await tester.pumpAndSettle();
     shell.organization('10');
     await tester.pumpAndSettle();
@@ -382,7 +387,7 @@ void main() {
     await shell.selectOrganization('10', () async => '');
     shell.rememberEnterpriseNavigation((
       destination: EnterpriseShellDestination.contacts,
-      channels: false,
+      filter: WorkspaceMessageFilter.all,
     ));
     shell.forgetOrganization('10');
     await shell.selectOrganization('10', () async => '');
@@ -391,14 +396,14 @@ void main() {
       EnterpriseShellDestination.messages,
     );
     shell.rememberEnterpriseNavigation((
-      destination: EnterpriseShellDestination.mine,
-      channels: true,
+      destination: EnterpriseShellDestination.workbench,
+      filter: WorkspaceMessageFilter.channel,
     ));
     container.read(_account.notifier).select('2');
     await container.pump();
     expect(container.read(workspaceShellProvider).enterpriseNavigation, (
       destination: EnterpriseShellDestination.messages,
-      channels: false,
+      filter: WorkspaceMessageFilter.all,
     ));
   });
   testWidgets('恢复工作台先重新校验配置，撤权后保留空工作台', (tester) async {
@@ -457,7 +462,7 @@ void main() {
       }
       expect(find.text('合成研发部'), findsOneWidget);
       expect(
-        find.byKey(const ValueKey('workspace-shell-switcher')),
+        find.byKey(const ValueKey('enterprise-shell-menu-button')),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
@@ -532,7 +537,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
     expect(
-      find.byKey(const ValueKey('workspace-shell-switcher')),
+      find.byKey(const ValueKey('enterprise-shell-menu-button')),
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
@@ -603,13 +608,17 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
-  testWidgets('频道从消息内进入，不占企业底栏', (tester) async {
+  testWidgets('频道经筛选下拉进入，不占企业底栏', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
     api.completeFirst([]);
     await tester.pump();
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-message-filter-tab')),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('频道'));
-    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pumpAndSettle();
     expect(find.byType(WorkspaceChannelsPage), findsOneWidget);
     expect(_labels(tester), ['消息', '通讯录', '工作台', '我']);
     expect(tester.takeException(), isNull);

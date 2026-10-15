@@ -145,6 +145,28 @@ class AppColors {
   static const Color messageRead = primary;
   static const Color messageFailed = Color(0xFFE53E3E);
 
+  // ============ 企业模式外壳（深蓝抽屉，飞书风格） ============
+  /// 抽屉渐变浅端（左上）。对齐参考稿的海军蓝底色。
+  static const Color enterpriseNavy = Color(0xFF22436E);
+
+  /// 抽屉渐变深端（右下）/ 面板基色。
+  static const Color enterpriseNavyDeep = Color(0xFF152A47);
+
+  /// 抽屉选中带（当前企业行）与高亮面。
+  static const Color enterpriseNavyLight = Color(0xFF2E5180);
+
+  /// 深蓝底上的前景色（白）。
+  static const Color enterpriseOnNavy = Color(0xFFFFFFFF);
+
+  /// 深蓝底上的次级前景（灰蓝）。
+  static const Color enterpriseOnNavyMuted = Color(0xFFAEBFD8);
+
+  /// 深蓝底上的分隔线（白 10%）。
+  static const Color enterpriseNavyDivider = Color(0x1AFFFFFF);
+
+  /// 深蓝底上的强调高光（智能助理胶囊渐变浅端）。
+  static const Color enterpriseSkyBlue = Color(0xFF7FB5FF);
+
   // ============ iOS 语义色 ============
   static const Color iosBlue = Color(0xFF007AFF);
   static const Color iosBlueDark = Color(0xFF0A84FF);

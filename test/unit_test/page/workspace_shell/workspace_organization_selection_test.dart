@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -51,7 +52,7 @@ void main() {
   test('切到新企业默认显示消息，默认工作区读取失败不改变导航', () async {
     notifier.rememberEnterpriseNavigation((
       destination: EnterpriseShellDestination.contacts,
-      channels: false,
+      filter: WorkspaceMessageFilter.all,
     ));
     final pending = Completer<EntityId>();
     final switching = notifier.selectOrganization(
@@ -74,7 +75,7 @@ void main() {
     await notifier.selectOrganization('org-a', () async => 'a');
     notifier.rememberEnterpriseNavigation((
       destination: EnterpriseShellDestination.contacts,
-      channels: false,
+      filter: WorkspaceMessageFilter.all,
     ));
     notifier.selectWorkspace('a');
     notifier.selectWorkspace('unknown');
@@ -89,7 +90,7 @@ void main() {
     await notifier.selectOrganization('org-a', () async => 'a');
     notifier.rememberEnterpriseNavigation((
       destination: EnterpriseShellDestination.contacts,
-      channels: false,
+      filter: WorkspaceMessageFilter.all,
     ));
     notifier.applyJoined(_workspaces[1]);
     final state = container.read(workspaceShellProvider);

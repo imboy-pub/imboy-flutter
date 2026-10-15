@@ -22,12 +22,16 @@ import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 
+/// 企业壳底部导航（2026-10 用户拍板）：维持四栏 消息/通讯录/工作台/我。
+/// 左上汉堡按钮唤起深蓝抽屉（身份/我的名片/企业带/高级功能/创建加入
+/// 企业/设置等快捷入口），消息 tab 顶部挂 内容态（筛选/日程/待办）。
 enum EnterpriseShellDestination { messages, contacts, workbench, mine }
 
 typedef EnterpriseNavigation = ({
   EnterpriseShellDestination destination,
-  bool channels,
+  WorkspaceMessageFilter filter,
 });
 
 /// Workspace 壳状态。
@@ -56,7 +60,10 @@ class WorkspaceShellState {
 
   EnterpriseNavigation get enterpriseNavigation =>
       _enterpriseNavigation[(organizationId, currentWorkspaceId)] ??
-      (destination: EnterpriseShellDestination.messages, channels: false);
+      (
+        destination: EnterpriseShellDestination.messages,
+        filter: WorkspaceMessageFilter.all,
+      );
 
   /// 当前工作区（无效 id / 未加载 → null）。
   WorkspaceModel? get current {
