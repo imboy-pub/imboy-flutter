@@ -12,6 +12,11 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+
+import 'dart:convert';
+
+import 'package:imboy/store/api/msg_api.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
@@ -120,6 +125,23 @@ void _makeDue(MessageRetry retry, String id) {
   if (info == null) return;
   info.lastRetryTime -=
       RetryPolicy.messageSendIntervalAt(info.retryCount) + 1000;
+}
+
+class _CommitResult extends MsgApi {
+  _CommitResult(this.committed);
+  final bool committed;
+  int queries = 0;
+  @override
+  Future<bool> isCommitted({
+    required String chatType,
+    required String peerId,
+    required String messageId,
+  }) async {
+    queries++;
+    expect(chatType, 'c2c');
+    expect(peerId, '2002');
+    return committed;
+  }
 }
 
 void main() {
@@ -394,5 +416,59 @@ void main() {
       expect(await _statusOf(id), IMBoyMessageStatus.error);
       expect(retry.getRetryInfo(id), isNull);
     });
+  });
+  test('附件未知提交不重投，服务端正证才调和', () async {
+    final db = (await SqliteService.to.db)!;
+    await db.execute(
+      'CREATE TABLE IF NOT EXISTS attachment_upload_task ('
+      'id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, business_intent TEXT,'
+      'scope TEXT, scope_ref TEXT, file_name TEXT, mime TEXT, plain_size INTEGER,'
+      'plain_sha256 TEXT, object_key TEXT, stage TEXT, cipher TEXT, binding_hash TEXT,'
+      'key_ref TEXT, ciphertext_sha256 TEXT, last_error TEXT, created_at INTEGER,'
+      'updated_at INTEGER, upload_path TEXT)',
+    );
+    const id = 'sm00000000000000t099';
+    await _insertMsg(id, status: IMBoyMessageStatus.sending);
+    await db.update(
+      'msg_c2c',
+      {'msg_type': 'file'},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    await db.insert('attachment_upload_task', {
+      'id': 'upload-retry-guard',
+      'user_id': UserRepoLocal.to.currentUid,
+      'anchor_msg_id': id,
+      'business_intent': jsonEncode({'state': 'dispatch_intent'}),
+      'scope': 'private',
+      'file_name': 'file.bin',
+      'mime': 'application/octet-stream',
+      'plain_size': 1,
+      'plain_sha256': 'hash',
+      'stage': 'confirmed',
+      'created_at': 1,
+      'updated_at': 1,
+    });
+    final msg = (await MessageRepo(tableName: MessageRepo.c2cTable).find(id))!;
+    final unknown = _CommitResult(false);
+    expect(await retry.debugAttachmentRetryBlocked(msg, unknown), isTrue);
+    expect(unknown.queries, 1);
+    expect(await _statusOf(id), IMBoyMessageStatus.error);
+    final row = (await db.query(
+      'attachment_upload_task',
+      where: 'id = ?',
+      whereArgs: ['upload-retry-guard'],
+    )).single;
+    expect(
+      jsonDecode(row['business_intent'] as String)['state'],
+      'commit_unknown',
+    );
+    expect(sendRequests.where((e) => e.messageId == id), isEmpty);
+    expect(
+      await retry.debugAttachmentRetryBlocked(msg, _CommitResult(true)),
+      isTrue,
+    );
+    expect(await _statusOf(id), IMBoyMessageStatus.sent);
+    expect(sendRequests.where((e) => e.messageId == id), isEmpty);
   });
 }

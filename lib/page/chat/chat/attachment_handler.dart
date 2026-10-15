@@ -28,6 +28,9 @@ import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/store/api/msg_api.dart';
+import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
+import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -78,6 +81,7 @@ class ChatAttachmentHandler {
     this.burnEnabled = false,
     this.burnAfterMs = 0,
     this.currentUserOverride,
+    this.ownerGeneration,
     this.isMutedCheck,
     this.sealRollout = kAttachmentSealRolloutEnabled,
   });
@@ -108,6 +112,7 @@ class ChatAttachmentHandler {
   /// 测试注入 fake 以脱离 StorageService 单例（`current` 在无数据时抛 StateError）。
   @visibleForTesting
   final User? currentUserOverride;
+  final int? ownerGeneration;
 
   /// 是否已进入 E2EE-061 附件封装的推出阶段，默认 [kAttachmentSealRolloutEnabled]。
   /// 关闭时上传路径逐字节维持今天的明文行为。
@@ -119,7 +124,209 @@ class ChatAttachmentHandler {
       AppLoading.showError(t.chat.youAreMuted);
       return false;
     }
+    if (currentUserOverride == null && (type == 'C2C' || type == 'C2G')) {
+      final actor = UserRepoLocal.to;
+      final generation = actor.sessionGeneration;
+      final uid = actor.currentUid;
+      if (message.authorId != uid ||
+          actor.isAuthTransitioning ||
+          (ownerGeneration != null &&
+              !actor.isCurrentSession(ownerGeneration!))) {
+        return false;
+      }
+      final repo = MessageRepo(tableName: MessageRepo.getTableName(type));
+      final existing = await repo.find(message.id);
+      final tasks = await AttachmentUploadTaskRepo().findByAnchor(
+        message.id,
+        uid,
+      );
+      final uncertain = tasks.any(
+        (row) =>
+            row.businessIntent != null &&
+            (jsonDecode(row.businessIntent!) as Map)['state'] != 'uploading',
+      );
+      final ready =
+          tasks.isNotEmpty &&
+          tasks.every(
+            (row) =>
+                (jsonDecode(row.businessIntent!) as Map)['state'] ==
+                'outbox_ready',
+          );
+      if (ready) return true;
+      if (existing != null || uncertain) {
+        final committed = await MsgApi().isCommitted(
+          chatType: type.toLowerCase(),
+          peerId: peerId,
+          messageId: message.id,
+        );
+        if (!actor.isCurrentSession(generation) ||
+            actor.currentUid != uid ||
+            !committed) {
+          return false;
+        }
+        if (existing != null) {
+          await repo.update({
+            'id': message.id,
+            'status': IMBoyMessageStatus.sent,
+          });
+        }
+        return true;
+      }
+      if (tasks.isNotEmpty) {
+        final uploader = ResumableAttachmentUploader();
+        await uploader.recoverBusinessOutbox(uid);
+        final refreshed = await uploader.repo.findByAnchor(message.id, uid);
+        return actor.isCurrentSession(generation) &&
+            refreshed.every(
+              (r) =>
+                  (jsonDecode(r.businessIntent!) as Map)['state'] ==
+                  'outbox_ready',
+            );
+      }
+    }
     return await onMessageCreated(message);
+  }
+
+  Map<String, dynamic> _safeMessageJson(Message message) {
+    final result = message.toJson();
+    final metadata = Map<String, dynamic>.from(message.metadata ?? {});
+    metadata.remove(AttachmentSealPolicy.descriptorPayloadKey);
+    if (message is AudioMessage) {
+      metadata['duration_ms'] = message.duration.inMilliseconds;
+    }
+    result['metadata'] = metadata;
+    return result;
+  }
+
+  Map<String, dynamic> pendingMessageIntent(
+    String id,
+    String kind, {
+    String name = '',
+    int size = 0,
+    double width = 0,
+    double height = 0,
+    Duration duration = Duration.zero,
+    List<double>? waveform,
+    Map<String, dynamic> extra = const {},
+  }) {
+    final created = DateTime.now().toUtc();
+    final metadata = _withBurnMetadata({'peer_id': peerId, ...extra});
+    final Message template = switch (kind) {
+      'file' => FileMessage(
+        id: id,
+        authorId: _currentUser.id,
+        createdAt: created,
+        source: '',
+        mimeType: extra['mime_type'] as String?,
+        name: name,
+        size: size,
+        metadata: metadata,
+      ),
+      'image' => ImageMessage(
+        id: id,
+        authorId: _currentUser.id,
+        createdAt: created,
+        source: '',
+        text: name,
+        size: size,
+        width: width,
+        height: height,
+        metadata: metadata,
+      ),
+      'video' => VideoMessage(
+        id: id,
+        authorId: _currentUser.id,
+        createdAt: created,
+        source: '',
+        text: name,
+        name: name,
+        size: size,
+        width: width,
+        height: height,
+        metadata: {...metadata, 'duration_ms': duration.inMilliseconds},
+      ),
+      'voice' => AudioMessage(
+        id: id,
+        authorId: _currentUser.id,
+        createdAt: created,
+        source: '',
+        text: '',
+        size: size,
+        duration: duration,
+        waveform: waveform,
+        metadata: metadata,
+      ),
+      'location' => CustomMessage(
+        id: id,
+        authorId: _currentUser.id,
+        createdAt: created,
+        metadata: {...metadata, 'msg_type': 'location'},
+      ),
+      _ => throw StateError('unsupported attachment template'),
+    };
+    return {
+      ..._businessIntent(id),
+      'message_template': _safeMessageJson(template),
+      'attachment_kind': kind,
+      'expected_objects': kind == 'video' ? 2 : 1,
+    };
+  }
+
+  /// Recovery uses the original conversation, template and sending callback.
+  Future<void> recoverPendingMessages() async {
+    final actor = UserRepoLocal.to;
+    final uid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    await ResumableAttachmentUploader.recoverCurrentSession();
+    if (!actor.isCurrentSession(generation)) return;
+    final uploader = ResumableAttachmentUploader();
+    final seen = <String>{};
+    for (final row in await uploader.repo.listBusinessPending(uid)) {
+      if (!actor.isCurrentSession(generation)) return;
+      if (row.anchorMsgId == null || !seen.add(row.anchorMsgId!)) continue;
+      final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
+      if (intent['peer_id'] != peerId ||
+          intent['chat_type'] != type.toLowerCase()) {
+        continue;
+      }
+      if (intent['state'] == 'committed' || intent['state'] == 'outbox_ready') {
+        continue;
+      }
+      final group = await uploader.repo.findByAnchor(row.anchorMsgId!, uid);
+      if (group.any((r) => r.stage != AttachmentUploadStage.confirmed)) {
+        AppLoading.showError('附件恢复未完成，原上传记录已保留；请保留原文件，联网后重新打开会话恢复');
+        continue;
+      }
+      if (intent['state'] != 'uploading' ||
+          intent['message_template'] == null) {
+        AppLoading.showError('附件消息提交结果未知，已保留原消息，请联网后重新打开会话核对；不会重复发送');
+        continue;
+      }
+      if (intent['state'] == 'uploading') {
+        AppLoading.showError('附件消息暂未进入发送队列，上传记录已保留；请联网后重试恢复');
+      }
+    }
+  }
+
+  static Message messageFromPendingTemplate(Map<String, dynamic> json) =>
+      ResumableAttachmentUploader.messageFromPendingTemplate(json);
+
+  Map<String, dynamic> _businessIntent(String messageId) {
+    if (ownerGeneration != null &&
+        !UserRepoLocal.to.isCurrentSession(ownerGeneration!)) {
+      throw StateError('attachment owner session changed');
+    }
+    return {
+      'message_id': messageId,
+      'author_id': _currentUser.id,
+      'peer_id': peerId,
+      'chat_type': type.toLowerCase(),
+      'conversation_uk3': conversationUk3,
+      'state': 'uploading',
+      'created_at': DateTime.now().toUtc().millisecondsSinceEpoch,
+      'burn': burnEnabled,
+      'burn_after_ms': burnAfterMs,
+    };
   }
 
   /// 获取当前用户
@@ -422,6 +629,13 @@ class ChatAttachmentHandler {
         scopeRef: s.scopeRef,
         // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
         anchorMsgId: messageId,
+        messageIntent: pendingMessageIntent(
+          messageId,
+          'file',
+          name: file.name,
+          size: fileSize,
+          extra: {'mime_type': mime},
+        ),
         seal: seal,
       );
       final message = FileMessage(
@@ -525,6 +739,13 @@ class ChatAttachmentHandler {
           // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
           // （group 校验必需，c2c/private 忽略）
           anchorMsgId: messageId,
+          messageIntent: pendingMessageIntent(
+            messageId,
+            'image',
+            name: await entity.titleAsync,
+            width: entity.width.toDouble(),
+            height: entity.height.toDouble(),
+          ),
           seal: seal,
         );
         await handleImageUploadPresign(
@@ -554,6 +775,14 @@ class ChatAttachmentHandler {
           scopeRef: s.scopeRef,
           // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
           anchorMsgId: messageId,
+          messageIntent: pendingMessageIntent(
+            messageId,
+            'video',
+            name: await entity.titleAsync,
+            width: entity.width.toDouble(),
+            height: entity.height.toDouble(),
+            duration: Duration(milliseconds: entity.duration),
+          ),
           videoSeal: seal,
           // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
           thumbSeal: await _sealFor(messageId, 'video_thumb'),
@@ -600,6 +829,15 @@ class ChatAttachmentHandler {
           scope: s.scope,
           scopeRef: s.scopeRef,
           anchorMsgId: messageId,
+          messageIntent: pendingMessageIntent(
+            messageId,
+            'video',
+            name: file.path.split('/').last,
+            size: await file.length(),
+            width: (info?.width ?? 0).toDouble(),
+            height: (info?.height ?? 0).toDouble(),
+            duration: Duration(milliseconds: info?.duration?.round() ?? 0),
+          ),
           videoSeal: seal,
           thumbSeal: await _sealFor(messageId, 'video_thumb'),
         );
@@ -832,6 +1070,14 @@ class ChatAttachmentHandler {
         scope: s.scope,
         scopeRef: s.scopeRef,
         anchorMsgId: messageId,
+        messageIntent: pendingMessageIntent(
+          messageId,
+          'image',
+          name: name,
+          size: bytes.length,
+          width: width.toDouble(),
+          height: height.toDouble(),
+        ),
         seal: seal,
       );
 
@@ -905,6 +1151,13 @@ class ChatAttachmentHandler {
           // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
           // （group 校验必需，c2c/private 忽略）
           anchorMsgId: messageId,
+          messageIntent: pendingMessageIntent(
+            messageId,
+            'image',
+            name: await entity.titleAsync,
+            width: entity.width.toDouble(),
+            height: entity.height.toDouble(),
+          ),
           seal: seal,
         );
         await handleImageUploadPresign(
@@ -934,6 +1187,14 @@ class ChatAttachmentHandler {
           scopeRef: s.scopeRef,
           // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
           anchorMsgId: messageId,
+          messageIntent: pendingMessageIntent(
+            messageId,
+            'video',
+            name: await entity.titleAsync,
+            width: entity.width.toDouble(),
+            height: entity.height.toDouble(),
+            duration: Duration(milliseconds: entity.duration),
+          ),
           videoSeal: seal,
           // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
           thumbSeal: await _sealFor(messageId, 'video_thumb'),
@@ -985,6 +1246,14 @@ class ChatAttachmentHandler {
         scope: s.scope,
         scopeRef: s.scopeRef,
         anchorMsgId: messageId,
+        messageIntent: pendingMessageIntent(
+          messageId,
+          'voice',
+          size: bytes.length,
+          duration: obj.duration,
+          waveform: obj.waveform,
+          extra: {'mime_type': mime},
+        ),
         seal: seal,
       );
       final message = AudioMessage(
@@ -1072,6 +1341,17 @@ class ChatAttachmentHandler {
         scopeRef: s.scopeRef,
         // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
         anchorMsgId: messageId,
+        messageIntent: pendingMessageIntent(
+          messageId,
+          'location',
+          size: result.length,
+          extra: {
+            'title': title,
+            'address': address,
+            'latitude': latitude,
+            'longitude': longitude,
+          },
+        ),
         seal: seal,
       );
     } on Object catch (e) {

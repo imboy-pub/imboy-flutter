@@ -9,6 +9,48 @@ import 'package:imboy/service/migration_manifest.dart';
 
 const List<MigrationEdge> kDowngradeEdgesAll = [
   MigrationEdge(
+    id: 'downgrade_v33_删除_attachment_upload_task_表',
+    fromVersion: 33,
+    toVersion: 32,
+    description: '从 v33 降级到 v32（删除 attachment_upload_task 上传任务检查点表）。',
+    reversible: false,
+    dataLoss: true,
+    requiresResync: false,
+    preconditions: [
+      'downgrade 前 v33 schema 处于一致状态（integrity/foreign_key check 通过）',
+      'attachment_upload_task 无未完成或未知状态任务，且所有业务提交意图已获 committed 正证，否则拒绝降级',
+    ],
+    postconditions: ['v32 结构生效：PRAGMA user_version = 32'],
+    affectedObjects: ['attachment_upload_task'],
+    headerComment:
+        r"""-- ============================================================
+-- VERSION: 33
+-- DESC: 从 v33 降级到 v32（DROP attachment_upload_task）。
+--       存在未完成或未知状态任务时拒绝降级，防丢失恢复身份。
+-- ============================================================
+
+""",
+    sql: r"""CREATE TEMP TABLE "attachment_upload_downgrade_guard" (
+    "active_tasks" INTEGER NOT NULL CHECK ("active_tasks" = 0)
+);
+INSERT INTO "attachment_upload_downgrade_guard"("active_tasks")
+SELECT COUNT(*) FROM "attachment_upload_task"
+WHERE "stage" NOT IN ('confirmed', 'abandoned')
+   OR ("business_intent" IS NOT NULL AND
+       CASE WHEN json_valid("business_intent") = 0 THEN 1
+            ELSE COALESCE(json_extract("business_intent", '$.state') != 'committed', 1)
+       END);
+DROP TABLE "attachment_upload_downgrade_guard";
+DROP TABLE IF EXISTS "attachment_upload_task";
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 32;
+
+""",
+  ),
+  MigrationEdge(
     id: 'downgrade_v32_恢复_group_user_id_sum_列',
     fromVersion: 32,
     toVersion: 31,

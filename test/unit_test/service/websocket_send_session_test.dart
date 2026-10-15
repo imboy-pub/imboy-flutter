@@ -1,3 +1,5 @@
+import 'package:imboy/service/protocol/imboy_frame.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -752,5 +754,48 @@ void main() {
       }
       expect(queue.messages, hasLength(200));
     });
+  }
+  for (final framing in [FramingMode.none, FramingMode.v2]) {
+    test(
+      'local_sender_metadata_stripped_all_actual_ws_exits_$framing',
+      () async {
+        final svc = WebSocketService.to;
+        final channel = _FakeChannel();
+        svc.channelForTest = channel;
+        svc.statusForTest = SocketStatus.connected;
+        svc.framingForTest = framing;
+        final raw = jsonEncode({
+          'id': 'owned-wire-id',
+          'type': 'C2G',
+          'from': '100',
+          'to': '202',
+          'msg_type': 'file',
+          'payload': '',
+          'e2ee': {
+            'protocol': 'megolm',
+            MessageModel.localSenderDidKey: 'local-device',
+          },
+        });
+        expect(await svc.sendMessage(raw, 'owned-wire-id'), isTrue);
+        expect(svc.sendDirect(raw), isTrue);
+        PersistentMessageQueue.to.enqueue(
+          'owned-queue-id',
+          raw,
+          ownerUid: '100',
+          sessionGeneration: UserRepoLocal.to.sessionGeneration,
+        );
+        await svc.flushMessageQueueForTest();
+        expect(channel._sink.sent, hasLength(3));
+        for (final bytes in channel._sink.sent) {
+          final wire = bytes is String
+              ? bytes
+              : utf8.decode(
+                  ImboyFrame.tryDecode(bytes as Uint8List)!.frame.payload,
+                );
+          expect(wire, isNot(contains(MessageModel.localSenderDidKey)));
+          expect((jsonDecode(wire) as Map)['e2ee']['protocol'], 'megolm');
+        }
+      },
+    );
   }
 }

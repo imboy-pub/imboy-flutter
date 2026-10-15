@@ -108,6 +108,7 @@ class E2eeSecretInventory {
       // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
       OlmSessionService.to.clearAll,
       _purgeLocalBackupTempFiles,
+      _purgeUploadCacheFiles,
     ],
   );
 
@@ -135,6 +136,7 @@ class E2eeSecretInventory {
     //（前缀同时覆盖 safety_number_devset_baseline_* 子族）
     'safety_number_devset_',
     'db_cipher_key_', // SQLCipher DB key（按 uid）
+    'utk_', // 附件上传 content key / nonce / descriptor（兼容清除旧全局键）
     'mls_', // MLS 预留
   ];
 
@@ -149,6 +151,7 @@ class E2eeSecretInventory {
     // JWT：由 SecureTokenStorageService 在 quitLogin 单独 clear
     'secure_token': 'JWT，SecureTokenStorageService.logout 专责清理',
     'secure_refresh_token': 'JWT refresh，SecureTokenStorageService.logout 专责清理',
+    'oa_inbound_login_attempt': 'OA 登录恢复凭据，由 UserRepoLocal.quitLogin 吊销并清理',
     // 服务端合规公钥 pin：设备级信任锚（pin 的是服务端密钥，不随账号变）
     'compliance_key_pin_v1': '服务端合规密钥 TOFU pin，设备级信任锚，跨账号复用',
     // 上传凭据：per-login 下发，loginAfter → initConfig 每次登录覆盖写；
@@ -266,6 +269,16 @@ class E2eeSecretInventory {
           '双清除；明文库在 iOS 备份中的残留见 C05 矩阵（密文，无密钥不可解）',
     ),
     SecretCategory(
+      id: 'attachment-upload-material',
+      keyPrefix: 'utk_',
+      storageLocation: 'secure storage，按 env/uid/task 命名',
+      derivation: 'Random.secure content key / nonce 与原 descriptor',
+      inOsBackup: false,
+      clearedOnLogout: true,
+      clearedOnAccountSwitch: true,
+      note: '与认证队列串行写入；logout purge 覆盖旧全局及新隔离键',
+    ),
+    SecretCategory(
       id: 'mls-reserved',
       keyPrefix: 'mls_',
       storageLocation: 'secure storage（预留，尚无写入方）',
@@ -349,5 +362,11 @@ class E2eeSecretInventory {
         await entry.delete();
       }
     }
+  }
+
+  static Future<void> _purgeUploadCacheFiles() async {
+    final root = await getApplicationCacheDirectory();
+    final directory = Directory('${root.path}/attachment_uploads');
+    if (await directory.exists()) await directory.delete(recursive: true);
   }
 }

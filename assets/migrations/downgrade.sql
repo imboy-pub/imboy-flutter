@@ -34,6 +34,30 @@
 -- PRAGMA user_version = 9;
 
 -- ============================================================
+-- VERSION: 33
+-- DESC: 从 v33 降级到 v32（DROP attachment_upload_task）。
+--       存在未完成或未知状态任务时拒绝降级，防丢失恢复身份。
+-- ============================================================
+
+CREATE TEMP TABLE "attachment_upload_downgrade_guard" (
+    "active_tasks" INTEGER NOT NULL CHECK ("active_tasks" = 0)
+);
+INSERT INTO "attachment_upload_downgrade_guard"("active_tasks")
+SELECT COUNT(*) FROM "attachment_upload_task"
+WHERE "stage" NOT IN ('confirmed', 'abandoned')
+   OR ("business_intent" IS NOT NULL AND
+       CASE WHEN json_valid("business_intent") = 0 THEN 1
+            ELSE COALESCE(json_extract("business_intent", '$.state') != 'committed', 1)
+       END);
+DROP TABLE "attachment_upload_downgrade_guard";
+DROP TABLE IF EXISTS "attachment_upload_task";
+
+-- ============================================================
+-- 更新版本号
+-- ============================================================
+PRAGMA user_version = 32;
+
+-- ============================================================
 -- VERSION: 32
 -- DESC: 从 v32 降级到 v31（group 恢复 user_id_sum 列）。
 --       降级配对边：恢复列结构（ADD COLUMN 带 DEFAULT，无需重建表），

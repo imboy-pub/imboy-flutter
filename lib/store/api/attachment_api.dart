@@ -2,6 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -25,6 +28,10 @@ import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 /// presign 请求注入 seam（默认走 [HttpClient]，测试可注入 fake）。
+typedef UploadSessionFn = Future<IMBoyHttpResponse> Function(
+  Map<String, dynamic> query,
+);
+
 typedef PresignFn = Future<IMBoyHttpResponse> Function(
   String filename,
   String mime,
@@ -53,6 +60,81 @@ typedef SinglePutFn = Future<void> Function(
 
 /// 退避延时注入 seam（默认真实 [Future.delayed]，测试可注入零延时避免真实等待）。
 typedef DelayFn = Future<void> Function(Duration d);
+
+/// W5-01 上传阶段检查点枚举（与 attachment_upload_task.stage 对齐）。
+enum UploadCheckpointStage { presigned, sealed, putDone, confirmed }
+
+/// W5-01：单个远程阶段边界的检查点事件。
+class UploadCheckpoint {
+  final UploadCheckpointStage stage;
+
+  /// presigned 边界携带（持久化到任务行）。
+  final String? objectKey;
+
+  /// sealed 边界携带（contentKey/baseNonce 需立即进安全存储，
+  /// ciphertextSha256 回填任务行）；恢复路径回放时为空串。
+  final Uint8List? contentKey;
+  final Uint8List? baseNonce;
+  final String? ciphertextSha256;
+  final Uint8List? uploadBytes;
+  final AttachmentDescriptor? descriptor;
+
+  const UploadCheckpoint(
+    this.stage, {
+    this.objectKey,
+    this.contentKey,
+    this.baseNonce,
+    this.ciphertextSha256,
+    this.uploadBytes,
+    this.descriptor,
+  });
+
+  const UploadCheckpoint.presigned({required String objectKey})
+    : this(UploadCheckpointStage.presigned, objectKey: objectKey);
+  const UploadCheckpoint.sealed({
+    required Uint8List contentKey,
+    required Uint8List baseNonce,
+    required String ciphertextSha256,
+    Uint8List? uploadBytes,
+    AttachmentDescriptor? descriptor,
+  }) : this(
+         UploadCheckpointStage.sealed,
+         contentKey: contentKey,
+         baseNonce: baseNonce,
+         ciphertextSha256: ciphertextSha256,
+         uploadBytes: uploadBytes,
+         descriptor: descriptor,
+       );
+  const UploadCheckpoint.putDone({String? ciphertextSha256})
+    : this(UploadCheckpointStage.putDone, ciphertextSha256: ciphertextSha256);
+  const UploadCheckpoint.confirmed() : this(UploadCheckpointStage.confirmed);
+}
+
+/// W5-01：恢复上传的既有检查点状态（来自任务行 + 安全存储材料）。
+class ResumableUploadState {
+  /// 任务检查点里的 object_key（skipPut 直通 confirm 时沿用它）。
+  final String objectKey;
+
+  /// 安全存储取回的既有密钥材料（非空 → 复用，不重新随机 seal）。
+  final Uint8List? contentKey;
+  final Uint8List? baseNonce;
+
+  /// true：密文已 PUT（put_done 检查点）→ 重建原 descriptor，跳过 PUT 并重试 confirm。
+  final bool skipPut;
+
+  /// put_done 检查点记录的密文 hash（直通 confirm 时上报同值）。
+  final String? ciphertextSha256;
+  final SealedAttachment? sealedAttachment;
+
+  const ResumableUploadState({
+    required this.objectKey,
+    this.contentKey,
+    this.baseNonce,
+    this.skipPut = false,
+    this.ciphertextSha256,
+    this.sealedAttachment,
+  });
+}
 
 /// E2EE-061 Slice 4：附件加密上传的输入与产物承载。
 ///
@@ -174,6 +256,7 @@ class AttachmentApi {
     /// group scope 缺失时 confirm 会 400「群附件缺少消息锚点」。
     /// 非 group scope 服务端忽略该字段；缺省 null 保持既有调用方零改动。
     String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
     // 以下三个为 @visibleForTesting 注入 seam：默认 null 走真实实现，
     // 调用方零改动；测试注入 fake 以脱离 HttpClient/Dio/网络验证编排逻辑。
     PresignFn? presignFn,
@@ -185,6 +268,20 @@ class AttachmentApi {
     /// 并带上 `cipher` 判别位（后端迁移 00000052）。
     /// 为 null 时行为**逐字节不变**——这是本刀零风险接线的前提。
     AttachmentSealRequest? seal,
+
+    /// W5-01（AC08 恢复）：非 null 时按任务检查点跳过已完成阶段——
+    /// objectKey 已有则跳过 presign 网络调用；contentKey/baseNonce 由
+    /// 安全存储取回复用（同 key 同密文，绝不重新随机 seal）；skipPut
+    /// 为 true 时跳过 PUT 直传（put_done 检查点后的续传）。
+    ResumableUploadState? resume,
+    String? clientUploadId,
+    bool persistTask = true,
+    UploadSessionFn? sessionFn,
+
+    /// W5-01：远程阶段边界的持久化检查点。每个边界 await 一次；抛错即
+    /// 中止上传推进（durable checkpoint fail-closed：材料未落盘不上网络）。
+    /// 测试以抛错模拟进程被杀。
+    Future<void> Function(UploadCheckpoint event)? checkpoint,
   }) async {
     // image/jpg 是 image/jpeg 的非标准别名：客户端 _isAllowedMime 按前缀
     // 放行，但服务端附件白名单是精确清单（elib_oss ?ALLOWED_TYPES）只认
@@ -192,44 +289,153 @@ class AttachmentApi {
     // 会被 presign 以 invalid_file_type 拒绝（冒烟实证）。在唯一出口归一。
     if (mime == 'image/jpg') mime = 'image/jpeg';
 
+    if (persistTask &&
+        presignFn == null &&
+        putFn == null &&
+        confirmFn == null &&
+        checkpoint == null &&
+        resume == null) {
+      return ResumableAttachmentUploader(
+        sealRequest: seal,
+        encrypt: seal != null,
+        process: process,
+      ).uploadProduction(
+        userId: UserRepoLocal.to.currentUid,
+        bytes: bytes,
+        fileName: fileName,
+        mime: mime,
+        scope: scope,
+        scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
+        messageIntent: messageIntent,
+        clientUploadId: clientUploadId,
+      );
+    }
+
     // 1. 前置校验（系统边界，快速失败）
     final String? validationError = validateUpload(bytes.length, mime);
     if (validationError != null) {
       throw Exception(validationError);
     }
 
-    // 2. presign（JWT，走 HttpClient；可注入）
-    final IMBoyHttpResponse presignResp = presignFn != null
-        ? await presignFn(fileName, mime)
-        : await HttpClient.client.get(
-            API.attachmentPresign,
-            queryParameters: <String, dynamic>{
-              'filename': fileName,
-              'mime_type': mime,
-              'scope': scope,
-              if (scopeRef != null && scopeRef.isNotEmpty)
-                'scope_ref': scopeRef,
-            },
-          );
-    if (!presignResp.ok) {
-      throw Exception(
-        'presign 失败: code=${presignResp.code} msg=${presignResp.msg}',
+    // 2. presign（JWT，走 HttpClient；可注入）。
+    // W5-01 恢复分两态：put_done 行（skipPut）密文已落在旧 object_key 上，
+    // 直通 confirm（跳过 presign/seal/put，object_key 沿用检查点值）；
+    // presigned 行按 client_upload_id 先 status 再 renew；签名 URL 不落盘，
+    // 响应 object_key 必须与原登记相同，禁止把旧密文材料移到新 key。
+    // 同 key 同 nonce 重放 AES-GCM 密文逐字节不变，服务端只认密文 hash。
+    String? putUrl;
+    String objectKey;
+    bool fastConfirm = resume != null && resume.skipPut;
+    Future<IMBoyHttpResponse> session(Map<String, dynamic> query) =>
+        sessionFn != null
+        ? sessionFn(query)
+        : HttpClient.client.get(API.attachmentPresign, queryParameters: query);
+    IMBoyHttpResponse? renewed;
+    if (resume != null &&
+        resume.objectKey.isNotEmpty &&
+        clientUploadId != null &&
+        (presignFn == null || sessionFn != null)) {
+      final status = await session({
+        'operation': 'status',
+        'client_upload_id': clientUploadId,
+      });
+      if (!status.ok) {
+        throw StateError('upload status rejected: ${status.code}');
+      }
+      final remoteKey = IMBoyHttpResponse.payloadStr(
+        status.payload,
+        'object_key',
       );
+      if (remoteKey != resume.objectKey) {
+        throw StateError('upload object identity changed');
+      }
+      final state = IMBoyHttpResponse.payloadStr(
+        status.payload,
+        'session_state',
+      );
+      if (state == 'confirmed') {
+        fastConfirm = true;
+      } else if (state == 'registered') {
+        if (!fastConfirm) {
+          renewed = await session({
+            'operation': 'renew',
+            'client_upload_id': clientUploadId,
+          });
+        }
+      } else {
+        throw StateError('upload session terminal: $state');
+      }
     }
-    final dynamic pp = presignResp.payload;
-    final String? putUrl = IMBoyHttpResponse.payloadStr(pp, 'put_url');
-    final String? objectKey = IMBoyHttpResponse.payloadStr(pp, 'object_key');
-    if (putUrl == null ||
-        putUrl.isEmpty ||
-        objectKey == null ||
-        objectKey.isEmpty) {
-      throw Exception('presign 响应缺少 put_url/object_key');
+    if (fastConfirm) {
+      objectKey = resume!.objectKey;
+    } else {
+      final IMBoyHttpResponse presignResp =
+          renewed ??
+          (presignFn != null
+              ? await presignFn(fileName, mime)
+              : await HttpClient.client.get(
+                  API.attachmentPresign,
+                  queryParameters: <String, dynamic>{
+                    'operation': 'register',
+                    'client_upload_id': ?clientUploadId,
+                    'filename': fileName,
+                    'mime_type': mime,
+                    'scope': scope,
+                    if (scopeRef != null && scopeRef.isNotEmpty)
+                      'scope_ref': scopeRef,
+                  },
+                ));
+      if (!presignResp.ok) {
+        throw Exception(
+          'presign 失败: code=${presignResp.code} msg=${presignResp.msg}',
+        );
+      }
+      final dynamic pp = presignResp.payload;
+      putUrl = IMBoyHttpResponse.payloadStr(pp, 'put_url');
+      final String? okFromResp = IMBoyHttpResponse.payloadStr(pp, 'object_key');
+      if (putUrl == null ||
+          putUrl.isEmpty ||
+          okFromResp == null ||
+          okFromResp.isEmpty) {
+        throw Exception('presign 响应缺少 put_url/object_key');
+      }
+      objectKey = okFromResp;
+      if (resume != null &&
+          resume.objectKey.isNotEmpty &&
+          objectKey != resume.objectKey) {
+        throw StateError('upload object identity changed');
+      }
+      await checkpoint?.call(UploadCheckpoint.presigned(objectKey: objectKey));
     }
 
     // 2.5 E2EE-061：按需封装。**必须在 presign 之后**——descriptor 要带 object_key。
     // MIME 按拍板保持真实值（不隐藏），因此 presign 契约无需任何改动。
-    SealedAttachment? sealed;
-    if (seal != null) {
+    // W5-01：resume 携带安全存储取回的既有材料——同 key 同 nonce 重放
+    // AES-GCM 得到逐字节相同密文（same_key_same_ciphertext_after_restart）。
+    SealedAttachment? sealed = resume?.sealedAttachment;
+    if (sealed != null) {
+      seal?.descriptor = sealed.descriptor;
+      await checkpoint?.call(
+        UploadCheckpoint.sealed(
+          contentKey: sealed.descriptor.contentKey,
+          baseNonce: sealed.descriptor.baseNonce,
+          ciphertextSha256: sealed.ciphertextSha256Hex,
+          uploadBytes: sealed.ciphertext,
+          descriptor: sealed.descriptor,
+        ),
+      );
+    } else if (seal != null) {
+      if (fastConfirm &&
+          (resume?.contentKey == null || resume?.baseNonce == null)) {
+        throw StateError(
+          'confirmed encrypted upload requires original material',
+        );
+      }
+      final Uint8List ck =
+          resume?.contentKey ?? AttachmentEncryptor.randomContentKey();
+      final Uint8List bn =
+          resume?.baseNonce ?? AttachmentEncryptor.randomBaseNonce();
       sealed = AttachmentEncryptor.seal(
         plaintext: bytes,
         bindingHash: seal.bindingHash,
@@ -237,28 +443,65 @@ class AttachmentApi {
         objectKey: objectKey,
         mime: mime,
         name: fileName,
-        contentKey: AttachmentEncryptor.randomContentKey(),
-        baseNonce: AttachmentEncryptor.randomBaseNonce(),
+        contentKey: ck,
+        baseNonce: bn,
         chunkSize: seal.chunkSize,
         thumb: seal.thumbDescriptor,
       );
       seal.descriptor = sealed.descriptor;
+      await checkpoint?.call(
+        UploadCheckpoint.sealed(
+          contentKey: ck,
+          baseNonce: bn,
+          ciphertextSha256: sealed.ciphertextSha256Hex,
+          uploadBytes: sealed.ciphertext,
+          descriptor: sealed.descriptor,
+        ),
+      );
+    } else if (checkpoint != null) {
+      // 明文路径也封检查点（无材料可持久化，仅阶段推进）
+      await checkpoint.call(
+        UploadCheckpoint(
+          UploadCheckpointStage.sealed,
+          uploadBytes: bytes,
+          ciphertextSha256: sha256.convert(bytes).toString(),
+        ),
+      );
     }
     // 实际上传的字节：加密时是密文，否则是原明文
     final Uint8List bodyBytes = sealed?.ciphertext ?? bytes;
 
-    // 3. PUT 直传 Garage（裸 Dio，不注 JWT；指数退避重试；可注入）
-    if (putFn != null) {
-      await putFn(putUrl, bodyBytes, mime, process);
-    } else {
-      await _putToGarage(putUrl, bodyBytes, mime, process: process);
+    // 3. PUT 直传 Garage（裸 Dio，不注 JWT；指数退避重试；可注入）。
+    // W5-01：put_done 检查点后的恢复（resume.skipPut）跳过重传。
+    if (!fastConfirm) {
+      if (putFn != null) {
+        await putFn(putUrl!, bodyBytes, mime, process);
+      } else {
+        final target = Uri.parse(putUrl!);
+        final uploadUrl = target.hasScheme
+            ? putUrl
+            : Uri.parse(Env().apiBaseUrl).resolveUri(target).toString();
+        await _putToGarage(uploadUrl, bodyBytes, mime, process: process);
+      }
+      await checkpoint?.call(
+        UploadCheckpoint.putDone(ciphertextSha256: sealed?.ciphertextSha256Hex),
+      );
+    }
+
+    if (fastConfirm && !(resume?.skipPut ?? false)) {
+      // status 已证明远端 confirmed；调和丢失的本地 PUT 检查点。
+      await checkpoint?.call(
+        UploadCheckpoint.putDone(ciphertextSha256: sealed?.ciphertextSha256Hex),
+      );
     }
 
     // 4. confirm 落库（JWT，走 HttpClient；可注入）
     // ⚠️ 拍板 ①：加密上传只上报**密文**哈希。明文 SHA-256 只进加密的 descriptor，
     // 永不到达服务端——否则服务端仍可与已知文件库比对，内容加密的收益被抵消大半。
     final String fileHash256 =
-        sealed?.ciphertextSha256Hex ?? sha256.convert(bytes).toString();
+        sealed?.ciphertextSha256Hex ??
+        resume?.ciphertextSha256 ??
+        sha256.convert(bytes).toString();
     seal?.uploadedFileHash256 = fileHash256;
     final Map<String, dynamic> confirmBody = <String, dynamic>{
       'object_key': objectKey,
@@ -283,6 +526,9 @@ class AttachmentApi {
         'confirm 失败: code=${confirmResp.code} msg=${confirmResp.msg}',
       );
     }
+    await checkpoint?.call(
+      const UploadCheckpoint(UploadCheckpointStage.confirmed),
+    );
 
     return objectKey;
   }
@@ -357,6 +603,7 @@ class AttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? seal,
   }) async {
     try {
@@ -374,6 +621,7 @@ class AttachmentApi {
         scope: scope,
         scopeRef: scopeRef,
         anchorMsgId: anchorMsgId,
+        messageIntent: messageIntent,
         seal: seal,
       );
       await callback(
@@ -413,6 +661,7 @@ class AttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? seal,
     // 与 [uploadViaPresign] 同一组注入 seam：默认 null 走真实实现。
     // 这里透传是为了让「meta 里的 file_hash256 与服务端同值」这条不变量
@@ -429,6 +678,7 @@ class AttachmentApi {
       scope: scope,
       scopeRef: scopeRef,
       anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
       seal: seal,
       presignFn: presignFn,
       putFn: putFn,
@@ -452,6 +702,7 @@ class AttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? seal,
   }) async {
     final Uint8List? bytes = await entity.originBytes;
@@ -473,6 +724,7 @@ class AttachmentApi {
       scope: scope,
       scopeRef: scopeRef,
       anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
       seal: seal,
     );
     return <String, dynamic>{
@@ -504,6 +756,7 @@ class AttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? videoSeal,
     AttachmentSealRequest? thumbSeal,
   }) async {
@@ -536,19 +789,6 @@ class AttachmentApi {
     );
     final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
     final String thumbName = '${Xid().toString()}.jpg';
-    final thumbMeta = await uploadBytesViaPresignMeta(
-      thumbBytes,
-      thumbName,
-      'image/jpeg',
-      process: false,
-      scope: scope,
-      scopeRef: scopeRef,
-      anchorMsgId: anchorMsgId,
-      seal: thumbSeal,
-    );
-    // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
-    // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
-    videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
 
     // 2. 压缩视频 → presign
     //
@@ -581,6 +821,33 @@ class AttachmentApi {
     final File videoFile = info?.file ?? file;
     final Uint8List videoBytes = await videoFile.readAsBytes();
     final String videoName = '${Xid().toString()}.mp4';
+    await _prepareVideoPair(
+      thumbBytes: thumbBytes,
+      thumbName: thumbName,
+      videoBytes: videoBytes,
+      videoName: videoName,
+      scope: scope,
+      scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
+      thumbSeal: thumbSeal,
+      videoSeal: videoSeal,
+    );
+    final thumbMeta = await uploadBytesViaPresignMeta(
+      thumbBytes,
+      thumbName,
+      'image/jpeg',
+      process: false,
+      scope: scope,
+      scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
+      seal: thumbSeal,
+    );
+    // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
+    // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
+    videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
+
     final String videoObjKey = await uploadViaPresign(
       videoBytes,
       videoName,
@@ -588,6 +855,7 @@ class AttachmentApi {
       scope: scope,
       scopeRef: scopeRef,
       anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
       seal: videoSeal,
     );
 
@@ -619,6 +887,51 @@ class AttachmentApi {
     return <String, dynamic>{'thumb': thumb, 'video': video};
   }
 
+  static Future<void> _prepareVideoPair({
+    required Uint8List thumbBytes,
+    required String thumbName,
+    required Uint8List videoBytes,
+    required String videoName,
+    required String scope,
+    String? scopeRef,
+    String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
+    AttachmentSealRequest? thumbSeal,
+    AttachmentSealRequest? videoSeal,
+  }) async {
+    if (messageIntent == null || anchorMsgId == null) return;
+    final uid = UserRepoLocal.to.currentUid;
+    await ResumableAttachmentUploader(
+      sealRequest: thumbSeal,
+      encrypt: thumbSeal != null,
+      process: false,
+    ).uploadProduction(
+      userId: uid,
+      bytes: thumbBytes,
+      fileName: thumbName,
+      mime: 'image/jpeg',
+      scope: scope,
+      scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
+      prepareOnly: true,
+    );
+    await ResumableAttachmentUploader(
+      sealRequest: videoSeal,
+      encrypt: videoSeal != null,
+    ).uploadProduction(
+      userId: uid,
+      bytes: videoBytes,
+      fileName: videoName,
+      mime: 'video/mp4',
+      scope: scope,
+      scopeRef: scopeRef,
+      anchorMsgId: anchorMsgId,
+      messageIntent: messageIntent,
+      prepareOnly: true,
+    );
+  }
+
   /// File 版视频上传（压缩+缩略图+上传三件套），供已持有 File 与元数据
   /// （时长/宽高）、无 AssetEntity 的场景使用：频道发布（明文）与桌面拍摄
   /// （聊天，带 E2EE 封装）共用。
@@ -645,6 +958,7 @@ class AttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? anchorMsgId,
+    Map<String, dynamic>? messageIntent,
     AttachmentSealRequest? videoSeal,
     AttachmentSealRequest? thumbSeal,
   }) async {
@@ -667,19 +981,6 @@ class AttachmentApi {
       );
       final Uint8List thumbBytes = await thumbnailFile.readAsBytes();
       final String thumbName = '${Xid().toString()}.jpg';
-      final thumbMeta = await uploadBytesViaPresignMeta(
-        thumbBytes,
-        thumbName,
-        'image/jpeg',
-        process: false,
-        scope: scope,
-        scopeRef: scopeRef,
-        anchorMsgId: anchorMsgId,
-        seal: thumbSeal,
-      );
-      // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
-      // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
-      videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
 
       // 2. 压缩视频 → presign（同上：压缩失败退回原视频，不放弃整次上传）
       MediaInfo? info;
@@ -695,6 +996,33 @@ class AttachmentApi {
       final File videoFile = info?.file ?? File(path);
       final Uint8List videoBytes = await videoFile.readAsBytes();
       final String videoName = '${Xid().toString()}.mp4';
+      await _prepareVideoPair(
+        thumbBytes: thumbBytes,
+        thumbName: thumbName,
+        videoBytes: videoBytes,
+        videoName: videoName,
+        scope: scope,
+        scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
+        messageIntent: messageIntent,
+        thumbSeal: thumbSeal,
+        videoSeal: videoSeal,
+      );
+      final thumbMeta = await uploadBytesViaPresignMeta(
+        thumbBytes,
+        thumbName,
+        'image/jpeg',
+        process: false,
+        scope: scope,
+        scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
+        messageIntent: messageIntent,
+        seal: thumbSeal,
+      );
+      // 缩略图先封装完，它的 descriptor 才能挂进视频的 descriptor
+      // （接收侧由 AttachmentOpenRegistry 一并登记两个 object_key）。
+      videoSeal?.thumbDescriptor = thumbSeal?.descriptor;
+
       final String videoObjKey = await uploadViaPresign(
         videoBytes,
         videoName,
@@ -702,6 +1030,7 @@ class AttachmentApi {
         scope: scope,
         scopeRef: scopeRef,
         anchorMsgId: anchorMsgId,
+        messageIntent: messageIntent,
         seal: videoSeal,
       );
 

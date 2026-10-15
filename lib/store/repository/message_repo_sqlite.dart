@@ -326,6 +326,15 @@ class MessageRepo implements MessageRepository {
         MessageRepo.action: msg.action,
         MessageRepo.e2ee: msg.e2ee != null ? json.encode(msg.e2ee) : '',
       };
+      if (targetTableName == MessageRepo.c2gTable &&
+          msg.e2ee != null &&
+          msg.senderDid != null &&
+          msg.senderDid!.isNotEmpty) {
+        insert[MessageRepo.e2ee] = jsonEncode({
+          ...msg.e2ee!,
+          MessageModel.localSenderDidKey: msg.senderDid,
+        });
+      }
       if (targetTableName == MessageRepo.c2cTable &&
           msg.senderDid != null &&
           msg.senderDid!.isNotEmpty) {

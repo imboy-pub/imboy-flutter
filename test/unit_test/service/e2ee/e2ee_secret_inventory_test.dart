@@ -33,6 +33,8 @@ void main() {
     'safety_number_devset_baseline_9001': '["d1"]',
     'db_cipher_key_uid5': 'sqlcipher',
     'mls_reserved_future': 'mls',
+    'utk_legacy-task-uuid': 'legacy-upload-material',
+    'utk_dev:uid5:upload-uuid': 'scoped-upload-material',
   };
 
   test('purgeAll 删除全部秘密类别且不动非秘密键', () async {
