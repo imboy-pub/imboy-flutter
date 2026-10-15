@@ -2477,12 +2477,7 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'Archiviert';
 	@override String get emptyNoWorkspace => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen';
 	@override String get dmEntry => 'Alle Nachrichten';
-	@override String get experienceModeEntry => 'Start-Layout';
-	@override String get experienceModeHint => 'Wählen Sie das Nutzungserlebnis für dieses Gerät; ändert nur das Start-Layout, weder Berechtigungen noch Arbeitsbereich-Mitgliedschaft';
 	@override String get experienceModePersonal => 'Persönlich';
-	@override String get experienceModeWorkspace => 'Arbeitsbereich';
-	@override String get experienceModeReset => 'Deployment-Standard wiederherstellen';
-	@override String get switchToWorkspace => 'Zum Arbeitsbereich wechseln';
 	@override String get switchToPersonal => 'Zum persönlichen Modus wechseln';
 	@override String get createTitle => 'Arbeitsbereich erstellen';
 	@override String get createDesc => 'Mit einer Erstellung wird alles automatisch angelegt: Arbeitsbereich, Sie (Owner als Arbeitsbereich-Mitglied), Announcements-Kanal und General-Gruppe. Alles erfolgreich oder vollständiger Rollback.';
@@ -5734,12 +5729,7 @@ extension on TranslationsDeDe {
 			'workspace.archivedBadge' => 'Archiviert',
 			'workspace.emptyNoWorkspace' => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen',
 			'workspace.dmEntry' => 'Alle Nachrichten',
-			'workspace.experienceModeEntry' => 'Start-Layout',
-			'workspace.experienceModeHint' => 'Wählen Sie das Nutzungserlebnis für dieses Gerät; ändert nur das Start-Layout, weder Berechtigungen noch Arbeitsbereich-Mitgliedschaft',
 			'workspace.experienceModePersonal' => 'Persönlich',
-			'workspace.experienceModeWorkspace' => 'Arbeitsbereich',
-			'workspace.experienceModeReset' => 'Deployment-Standard wiederherstellen',
-			'workspace.switchToWorkspace' => 'Zum Arbeitsbereich wechseln',
 			'workspace.switchToPersonal' => 'Zum persönlichen Modus wechseln',
 			'workspace.createTitle' => 'Arbeitsbereich erstellen',
 			'workspace.createDesc' => 'Mit einer Erstellung wird alles automatisch angelegt: Arbeitsbereich, Sie (Owner als Arbeitsbereich-Mitglied), Announcements-Kanal und General-Gruppe. Alles erfolgreich oder vollständiger Rollback.',
@@ -5816,13 +5806,13 @@ extension on TranslationsDeDe {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Arbeitsbereich-Rolle von ${name} ändern',
 			'workspace.transferTitle' => ({required Object name}) => 'Haupt-Owner an ${name} übertragen',
 			'workspace.transferDesc' => 'Nach der Übertragung werden Sie normales Arbeitsbereich-Mitglied (Member), die andere Person erhält die volle Kontrolle',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferConfirm' => 'Übertragung bestätigen',
 			'workspace.governanceTitle' => 'Arbeitsbereich-Governance',
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
 			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
 			'workspace.archiveConfirm' => 'Archivierung bestätigen',

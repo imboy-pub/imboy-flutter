@@ -28,11 +28,14 @@ void main() {
   group('chat_shell.dart barrel — experience 消费层 API', () {
     test('exports ProductExperience enum + 解析函数 + provider', () {
       expect(ProductExperience.values, hasLength(2));
-      expect(ProductExperience.chat.wireName, 'chat');
+      expect(ProductExperience.personal.wireName, 'personal');
       expect(ProductExperience.workspace.wireName, 'workspace');
 
-      expect(parseProductExperience(null), ProductExperience.chat);
-      expect(resolveProductExperienceFromPayload(null), ProductExperience.chat);
+      expect(parseProductExperience(null), ProductExperience.personal);
+      expect(
+        resolveProductExperienceFromPayload(null),
+        ProductExperience.personal,
+      );
       expect(productExperienceProvider, isNotNull);
     });
   });
@@ -60,7 +63,7 @@ void main() {
       // §4.1 术语约束：product_experience 与既有 product_profile（版本/销售
       // 档位）是两个概念，wire 值不得混用
       expect(ProductExperience.values.map((e) => e.wireName).toSet(), {
-        'chat',
+        'personal',
         'workspace',
       });
     });

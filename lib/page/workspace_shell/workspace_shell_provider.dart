@@ -22,7 +22,6 @@ import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 
 enum EnterpriseShellDestination { messages, contacts, workbench, mine }
 
@@ -36,7 +35,6 @@ class WorkspaceShellState {
   final List<WorkspaceModel> _workspaces;
   final EntityId organizationId;
   final EntityId currentWorkspaceId;
-  final WorkspaceShellDestination destination;
   final bool isLoading;
   final String? error;
   final Map<(EntityId, EntityId), EnterpriseNavigation> _enterpriseNavigation;
@@ -45,7 +43,6 @@ class WorkspaceShellState {
     List<WorkspaceModel> workspaces = const [],
     this.organizationId = '',
     this.currentWorkspaceId = '',
-    this.destination = WorkspaceShellDestination.conversations,
     this.isLoading = false,
     this.error,
     Map<(EntityId, EntityId), EnterpriseNavigation> enterpriseNavigation =
@@ -81,7 +78,6 @@ class WorkspaceShellState {
     EntityId? organizationId,
     String? currentWorkspaceId,
     bool clearCurrent = false,
-    WorkspaceShellDestination? destination,
     bool? isLoading,
     String? error,
     bool clearError = false,
@@ -93,7 +89,6 @@ class WorkspaceShellState {
       currentWorkspaceId: clearCurrent
           ? ''
           : (currentWorkspaceId ?? this.currentWorkspaceId),
-      destination: destination ?? this.destination,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : error,
       enterpriseNavigation: enterpriseNavigation ?? _enterpriseNavigation,
@@ -236,7 +231,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     );
   }
 
-  /// 切换当前工作区（消息页重新开始；Brand 主题随之切换，T12）。
+  /// 切换当前工作区；企业导航按工作区恢复，品牌主题随之切换。
   void selectWorkspace(EntityId workspaceId) {
     if (workspaceId.isEmpty ||
         !state.workspaces.any((ws) => ws.id == workspaceId)) {
@@ -244,10 +239,7 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     }
     _selectionGeneration++;
     if (workspaceId == state.currentWorkspaceId) return;
-    state = state.copyWith(
-      currentWorkspaceId: workspaceId,
-      destination: WorkspaceShellDestination.conversations,
-    );
+    state = state.copyWith(currentWorkspaceId: workspaceId);
     // mine 列表行不带 branding：切换后为新当前工作区补拉（T12 主题切换）
     unawaited(ensureCurrentBranding());
   }
@@ -264,7 +256,6 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     final available = scoped.workspaces;
     state = scoped.copyWith(
       currentWorkspaceId: available.isEmpty ? '' : available.first.id,
-      destination: WorkspaceShellDestination.conversations,
     );
     unawaited(ensureCurrentBranding());
     try {
@@ -298,12 +289,6 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     }
   }
 
-  /// 切换导航目的地（§4.2 五项之一）。
-  void selectDestination(WorkspaceShellDestination destination) {
-    if (destination == state.destination) return;
-    state = state.copyWith(destination: destination);
-  }
-
   /// 创建成功后回填（Template 原子结果）；仅同企业工作区自动选中。
   void applyCreated(WorkspaceCreateResult result) {
     _prependAndSelect(result.workspace);
@@ -311,13 +296,12 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
 
   /// 团队码加入成功后回填（joined / unchanged 均走此路径）。
   ///
-  /// 与 [applyCreated] 同构：新加入置顶，同企业才切当前 +
-  /// 回消息页；已在列表中的工作区 id 不重复插入（置顶去重）。
+  /// 与 [applyCreated] 同构：新加入置顶，同企业才切当前；已在列表中的工作区 id 不重复插入（置顶去重）。
   void applyJoined(WorkspaceModel ws) {
     _prependAndSelect(ws);
   }
 
-  /// 置顶 + 设当前 + destination=conversations（创建/加入共用回填）。
+  /// 置顶 + 设当前（创建/加入共用回填）。
   void _prependAndSelect(WorkspaceModel ws) {
     if (ws.id.isEmpty) return;
     // 最新加入置顶（服务端列表按 created_at DESC，回填顺序与之一致）
@@ -328,9 +312,6 @@ class WorkspaceShellNotifier extends Notifier<WorkspaceShellState> {
     state = state.copyWith(
       workspaces: list,
       currentWorkspaceId: canSelect ? ws.id : state.currentWorkspaceId,
-      destination: canSelect
-          ? WorkspaceShellDestination.conversations
-          : state.destination,
     );
   }
 

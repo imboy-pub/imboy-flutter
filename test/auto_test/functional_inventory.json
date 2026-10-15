@@ -3,11 +3,11 @@
   "generated_from": {
     "app_head": "see-catalog",
     "ledger_count": 168,
-    "ledger_row_count": 1872,
+    "ledger_row_count": 1873,
     "lib_page_count": 167,
-    "module_page_count": 23,
-    "route_page_component_count": 148,
-    "function_count": 2016,
+    "module_page_count": 24,
+    "route_page_component_count": 149,
+    "function_count": 2021,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -10303,6 +10303,98 @@
       "action": "打开OA联调应用页",
       "expected_oracle": "联调入口进入 appsUrl 页面并按登记应用执行授权桥接",
       "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:enterprise_oa:oa_login_page:001",
+      "page": "lib/modules/enterprise_oa/presentation/oa_login_page.dart",
+      "route_or_entry": "OaLoginPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:enterprise_oa:oa_login_page:002",
+      "page": "lib/modules/enterprise_oa/presentation/oa_login_page.dart",
+      "route_or_entry": "OaLoginPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:enterprise_oa:oa_login_page:003",
+      "page": "lib/modules/enterprise_oa/presentation/oa_login_page.dart",
+      "route_or_entry": "OaLoginPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:enterprise_oa:oa_login_page:004",
+      "page": "lib/modules/enterprise_oa/presentation/oa_login_page.dart",
+      "route_or_entry": "OaLoginPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
         "android",
         "macos"
@@ -22493,6 +22585,29 @@
       "action": "注销账号入口用 iosRed 破坏色",
       "expected_oracle": "见台账断言",
       "details": "",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:setting_page:018",
+      "page": "lib/page/mine/setting/setting_page.dart",
+      "route_or_entry": "SettingPage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/setting_page.md",
+      "control": "menu_item",
+      "action": "切换 personal / workspace（企业）模式",
+      "expected_oracle": "点击切换企业进入企业选择器；未选择企业时保留 personal；明确选择企业后进入 workspace 四项企业导航；不出现旧五项工作区布局或恢复部署默认值入口",
+      "details": "单元与组件回归：setting_page_test、workspace_dispatch_test、experience_provider_test；真机冷启动另行验收",
       "platforms": [
         "android",
         "macos"
@@ -46363,8 +46478,8 @@
       "route_or_entry": "in_page_control",
       "route_registered": false,
       "source": "generated:lib_page",
-      "control": "button",
-      "action": "触发第 1 处 button 交互入口",
+      "control": "unknown",
+      "action": "页面可进入（无静态可识别控件，待人工细化）",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
@@ -46443,6 +46558,14 @@
       "module": "enterprise_oa",
       "function_count": 4,
       "route_registered": false,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/enterprise_oa/presentation/oa_login_page.dart",
+      "module": "enterprise_oa",
+      "function_count": 4,
+      "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
     },
@@ -47241,7 +47364,7 @@
     {
       "page": "lib/page/mine/setting/setting_page.dart",
       "module": "mine",
-      "function_count": 17,
+      "function_count": 18,
       "route_registered": true,
       "has_ledger": true,
       "ledger_generated": false

@@ -7160,6 +7160,13 @@
           "control": "unknown",
           "expected_oracle": "见台账断言",
           "details": ""
+        },
+        {
+          "page": "lib/page/mine/setting/setting_page.dart",
+          "action": "切换 personal / workspace（企业）模式",
+          "control": "menu_item",
+          "expected_oracle": "点击切换企业进入企业选择器；未选择企业时保留 personal；明确选择企业后进入 workspace 四项企业导航；不出现旧五项工作区布局或恢复部署默认值入口",
+          "details": "单元与组件回归：setting_page_test、workspace_dispatch_test、experience_provider_test；真机冷启动另行验收"
         }
       ]
     },

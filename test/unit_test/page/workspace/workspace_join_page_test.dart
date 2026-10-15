@@ -24,7 +24,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_join_controller.dart';
 import 'package:imboy/page/workspace/workspace_join_page.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -166,7 +165,6 @@ void main() {
     expect(state.workspaces.length, 2);
     expect(state.workspaces.first.id, '9005');
     expect(state.currentWorkspaceId, '9005');
-    expect(state.destination, WorkspaceShellDestination.conversations);
     // API 收到的码已大写化
     expect(api.receivedCodes, ['AB12CD34']);
     // 清理 EasyLoading 自动消失 Timer，避免 pending timers

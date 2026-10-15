@@ -1,133 +1,123 @@
-/// T2 (WP1) — Product Experience 消费层
-///
-/// 链路（计划 §4.1，服务端唯一真相源）：
-///
-/// ```text
-/// 服务端安装级 IMBOY_PRODUCT_EXPERIENCE
-///   → /api/v1/init 下发 { effective_product_experience, config_version }
-///   → initConfig（config/init.dart）解密后写入 StorageService 缓存
-///   → 本 provider 读取缓存作为默认值
-///   → 用户在「设置 → 首页布局」选择时，以本机偏好覆盖默认值
-///   → 路由与壳（ChatShellBootstrap）只消费该值
-/// ```
-///
-/// 兼容规则（fail-safe，与后端 T1 约定一致）：
-/// - 字段缺失（T1 未就绪 / 旧后端）、值为空、未知值、离线无缓存
-///   → 一律按 [ProductExperience.chat] 渲染；
-/// - 旧客户端继续按 chat；
-/// - 未选择本机偏好时，服务端安装级配置仍是默认值；
-/// - 本机偏好仅决定当前设备的首页壳，绝不改变 Workspace Member、Group
-///   Member、Channel Subscriber 等权限边界。
-///
-/// 镜像 `config/env.dart` `publicBaseUrl` 的「服务端下发 → StorageService
-/// 缓存 → 内置默认回落」三段式。
+/// 首页仅有 personal 和 workspace（企业）两种模式。
+/// 安装级默认值保留解析兼容，但不能替用户选择企业或首页模式。
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 /// /api/v1/init 下发的 experience 字段名（与后端 T1 约定一致）。
 const String kEffectiveProductExperienceField = 'effective_product_experience';
 
-/// 产品体验枚举。
-///
-/// - [chat]：现有 IM 聊天体验（ChatShell，T2 现状包壳）
-/// - [workspace]：工作区体验（WorkspaceShell，WP5/T8 的扩展点，
-///   本期仅保留枚举值，不包含任何 workspace UI）
+/// workspace 仅表示已选择企业的企业布局。
 enum ProductExperience {
-  /// 聊天体验：移动端底部导航 + 桌面端三栏壳（现状）
-  chat('chat'),
-
-  /// 工作区体验：WP5 (T8) WorkspaceShell 落地后启用
+  personal('personal'),
   workspace('workspace');
 
-  /// 与服务端 /api/v1/init 传输的 wire 值。
   final String wireName;
-
   const ProductExperience(this.wireName);
 }
 
-/// 解析服务端下发的原始 experience 字符串。
-///
-/// fail-safe：仅显式识别 `workspace`；`null`、空串、未知值一律降级
-/// [ProductExperience.chat]（§4.1「缺字段/未知值/离线无缓存时按 chat 渲染」）。
+/// 兼容服务端旧值；chat、缺失和未知值均按 personal 解析。
 ProductExperience parseProductExperience(String? raw) {
   if (raw == ProductExperience.workspace.wireName) {
     return ProductExperience.workspace;
   }
-  return ProductExperience.chat;
+  return ProductExperience.personal;
 }
 
-/// 从 /api/v1/init 解密后的 payload 解析 experience（T1 未就绪时字段缺失
-/// → chat）。
-///
-/// 独立为纯函数以便单测固化「字段缺失降级」契约；运行时主链路走
-/// StorageService 缓存（[readCachedProductExperience]），本函数供
-/// initConfig 接线期与测试消费。
+/// 解析旧安装配置，仅用于兼容，不决定用户首页。
 ProductExperience resolveProductExperienceFromPayload(
   Map<String, dynamic>? payload,
 ) {
-  if (payload == null) return ProductExperience.chat;
+  if (payload == null) return ProductExperience.personal;
   final dynamic raw = payload[kEffectiveProductExperienceField];
   return parseProductExperience(raw is String ? raw : null);
 }
 
-/// 同步读取 StorageService 缓存的服务端默认 experience（离线回落 chat）。
-///
-/// 缓存由 initConfig 在每次启动拉取 /api/v1/init 后覆盖写入；离线无缓存
-/// 时 getString 返回空串 → [parseProductExperience] 降级 chat。
+/// 读取旧安装配置缓存，不作为首页模式的默认值。
 ProductExperience readCachedProductExperience() {
   return parseProductExperience(
     StorageService.to.getString(Keys.effectiveProductExperience),
   );
 }
 
-/// 读取用户在当前设备主动选择的体验；无有效选择返回 null。
-ProductExperience? readLocalProductExperience() {
-  final raw = StorageService.to.getString(Keys.localProductExperience);
+/// 账号隔离的本机模式；兼容旧版本保存的 chat/全局偏好。
+ProductExperience? readLocalProductExperience(String accountId) {
+  final scoped = StorageService.to.getString(
+    '${Keys.localProductExperience}_$accountId',
+  );
+  final raw = scoped.isEmpty
+      ? StorageService.to.getString(Keys.localProductExperience)
+      : scoped;
+  if (raw == 'chat') return ProductExperience.personal;
   for (final experience in ProductExperience.values) {
     if (raw == experience.wireName) return experience;
   }
   return null;
 }
 
-/// 当前生效体验：用户本机选择优先，未选择时回落服务端默认值。
-ProductExperience resolveCurrentProductExperience() {
-  return readLocalProductExperience() ?? readCachedProductExperience();
+/// 未选择企业时始终进入个人模式；旧 workspace 偏好不能打开第三套布局。
+ProductExperience resolveCurrentProductExperience({
+  required String accountId,
+  required String organizationId,
+}) {
+  if (accountId.isEmpty || organizationId.isEmpty) {
+    return ProductExperience.personal;
+  }
+  return readLocalProductExperience(accountId) ?? ProductExperience.personal;
 }
 
-/// 当前生效的产品体验。
-///
-/// 消费方：ChatShellBootstrap（experience=chat → ChatShell）。本 Provider
-/// 是唯一可写入口，保存当前设备偏好成功后切壳。
 class ProductExperienceNotifier extends Notifier<ProductExperience> {
   Future<void> _pending = Future.value();
+
   @override
-  ProductExperience build() => resolveCurrentProductExperience();
+  ProductExperience build() {
+    final accountId = ref.watch(
+      currentUserProvider.select((user) => user?.uid ?? ''),
+    );
+    final organizationId = ref.watch(
+      workspaceShellProvider.select((shell) => shell.organizationId),
+    );
+    return resolveCurrentProductExperience(
+      accountId: accountId,
+      organizationId: organizationId,
+    );
+  }
 
   /// 保存成功后才切换界面；连续操作共用同一写入顺序。
-  Future<void> select(ProductExperience experience) => _enqueue(() async {
-    if (experience == state && readLocalProductExperience() == experience) {
-      return;
-    }
-    await StorageService.to.persistPreference(
-      () => StorageService.to.setString(
-        Keys.localProductExperience,
-        experience.wireName,
-      ),
-    );
-    if (ref.mounted) state = experience;
-  });
-
-  /// 删除当前设备的覆盖值，恢复服务端部署默认的首页布局。
-  Future<void> resetToDefault() => _enqueue(() async {
-    await StorageService.to.persistPreference(
-      () => StorageService.to.remove(Keys.localProductExperience),
-    );
-    if (ref.mounted) state = readCachedProductExperience();
-  });
+  Future<void> select(ProductExperience experience) {
+    final accountId = ref.read(currentUserProvider)?.uid ?? '';
+    return _enqueue(() async {
+      if (!ref.mounted ||
+          (ref.read(currentUserProvider)?.uid ?? '') != accountId) {
+        throw StateError('Account changed before selecting mode');
+      }
+      if (experience == ProductExperience.workspace &&
+          (accountId.isEmpty ||
+              ref.read(workspaceShellProvider).organizationId.isEmpty)) {
+        throw StateError(
+          'Select an organization before entering workspace mode',
+        );
+      }
+      await StorageService.to.persistPreference(
+        () => StorageService.to.setString(
+          '${Keys.localProductExperience}_$accountId',
+          experience.wireName,
+        ),
+      );
+      if (ref.mounted &&
+          (ref.read(currentUserProvider)?.uid ?? '') == accountId) {
+        state = resolveCurrentProductExperience(
+          accountId: accountId,
+          organizationId: ref.read(workspaceShellProvider).organizationId,
+        );
+      }
+    });
+  }
 
   Future<void> _enqueue(Future<void> Function() change) {
     final next = _pending.then((_) => change());

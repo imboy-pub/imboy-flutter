@@ -31,13 +31,14 @@ import 'dart:io' as io show HttpClient;
 
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/main.dart' as app;
+import 'package:imboy/page/workspace/workspace_overview_page.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
@@ -165,21 +166,24 @@ void main() {
     addTearDown(() {
       container
           .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
+          .select(ProductExperience.personal);
     });
 
     // 归位 chat 体验 → 重置常驻壳 state → 注入下切 workspace 触发
     // overview 拉取（被拦截为空 payload）
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await _pump(tester, seconds: 2);
     container.invalidate(workspaceShellProvider);
     adapter.emptyOverview = true;
-    await container
-        .read(productExperienceProvider.notifier)
-        .select(ProductExperience.workspace);
+    await container.read(workspaceShellProvider.notifier).loadMine();
     await _pump(tester, seconds: 4);
+
+    Navigator.of(tester.element(find.byType(Navigator).first)).push(
+      CupertinoPageRoute<void>(builder: (_) => const WorkspaceOverviewPage()),
+    );
+    await _pump(tester, seconds: 2);
 
     // 成员预览空态：t.workspace.membersEmpty 文案出现
     final emptyTextShown = await _waitFor(

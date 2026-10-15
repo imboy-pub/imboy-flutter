@@ -127,7 +127,7 @@ void main() {
     );
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await _pump(tester, seconds: 2);
 
     // API 断言客户端：复用 App 主会话 token（独立 login 会触发「另一设备登录」

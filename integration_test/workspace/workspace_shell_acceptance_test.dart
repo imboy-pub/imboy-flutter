@@ -28,10 +28,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/main.dart' as app;
 import 'package:imboy/page/chat_shell/experience_provider.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart';
+import 'package:imboy/page/workspace/workspace_channels_page.dart';
+import 'package:imboy/page/workspace/workspace_projects_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
+
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -126,18 +128,8 @@ void main() {
     // adapterForTest 打不到已构造实例的 Dio（run4 教训：invalidate 后仍
     // AsyncData([])——拦截未命中真实请求）
     final failover = _FailoverAdapter();
-    final container0 = ProviderScope.containerOf(
-      tester.element(find.byType(Navigator).first),
-      listen: false,
-    );
     HttpClient.adapterForTest = failover;
-    addTearDown(() {
-      HttpClient.adapterForTest = null;
-      // 还原体验持久化，避免污染后续测试（启动进壳而非 chat 首页）
-      container0
-          .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
-    });
+    addTearDown(() => HttpClient.adapterForTest = null);
 
     app.main();
     await _pump(tester, seconds: 12);
@@ -150,26 +142,30 @@ void main() {
       tester.element(find.byType(Navigator).first),
     );
 
-    // 切到工作区体验 → 壳挂载（loadMine 首帧后触发）
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.workspace);
-    final shellReady = await _waitFor(
-      tester,
-      () => tester.any(find.byType(WorkspaceShellPage)),
-      seconds: 20,
+        .select(ProductExperience.personal);
+    await container.read(workspaceShellProvider.notifier).loadMine();
+    final navigator = Navigator.of(
+      tester.element(find.byType(Navigator).first),
     );
-    expect(shellReady, isTrue, reason: '切换体验后工作区壳应挂载');
-    flowLog('[WS] 工作区壳已挂载');
+    var opened = false;
+    Future<void> openPage(Widget page) async {
+      if (opened) {
+        navigator.pop();
+        await _pump(tester, seconds: 1);
+      }
+      navigator.push(CupertinoPageRoute<void>(builder: (_) => page));
+      opened = true;
+      await _pump(tester, seconds: 2);
+    }
 
     // 明确选中主区（BobWS-T27）
     container.read(workspaceShellProvider.notifier).selectWorkspace(_wsMain);
     await _pump(tester, seconds: 4);
 
     // ---- AT-WG1 群列表他区反例 ----
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.groups);
+    await openPage(const WorkspaceGroupsPage());
     final mainGroup = await _waitFor(
       tester,
       () => tester.any(find.text('General')),
@@ -185,9 +181,7 @@ void main() {
     flowLog('[AT-WG1] scope 严格分区：本区 General 在、他区 AT-WS2-General 不在');
 
     // ---- AT-WC1 频道列表他区反例 ----
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.channels);
+    await openPage(const WorkspaceChannelsPage());
     final mainChannel = await _waitFor(
       tester,
       () => tester.any(find.text('Announcements')),
@@ -205,9 +199,7 @@ void main() {
     // ---- AT-WG2/WC2 空工作区空态 ----
     container.read(workspaceShellProvider.notifier).selectWorkspace(_wsEmpty);
     await _pump(tester, seconds: 4);
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.groups);
+    await openPage(const WorkspaceGroupsPage());
     final groupsEmpty = await _waitFor(
       tester,
       () => tester.any(find.text('还没有工作区群组')),
@@ -221,9 +213,7 @@ void main() {
     );
     flowLog('[AT-WG2] 空区群列表空态（标题+副标题）');
 
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.channels);
+    await openPage(const WorkspaceChannelsPage());
     final channelsEmpty = await _waitFor(
       tester,
       () => tester.any(find.text('还没有工作区频道')),
@@ -237,9 +227,7 @@ void main() {
     // 离开 groups→开注入→切回 groups 触发重拉→注入失败→错误态。
     // 先切到群组目的地：IndexedStack 下错误视图渲染在 offstage 子树时
     // onstage finder 不可见（run6 教训）
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.groups);
+    await openPage(const WorkspaceGroupsPage());
     await _pump(tester, seconds: 2);
     failover.failWsApi = true;
     // 显式 invalidate 触发重拉（不依赖壳 destination 切换的隐式失效）
@@ -276,9 +264,7 @@ void main() {
     flowLog('[AT-WF] 解除注入后重试恢复空列表态');
 
     // ---- AT-WP 项目页下拉刷新 ----
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.projects);
+    await openPage(const WorkspaceProjectsPage());
     await _pump(tester, seconds: 4);
     final listFinder = find.byType(Scrollable);
     if (tester.any(listFinder)) {

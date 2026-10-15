@@ -2475,12 +2475,7 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => '已封存';
 	@override String get emptyNoWorkspace => '請先選擇或建立一個工作區';
 	@override String get dmEntry => '全部訊息';
-	@override String get experienceModeEntry => '首頁版面配置';
-	@override String get experienceModeHint => '選擇目前裝置的使用體驗；僅改變首頁版面配置，不改變權限或工作區成員身分';
 	@override String get experienceModePersonal => '個人';
-	@override String get experienceModeWorkspace => '工作區';
-	@override String get experienceModeReset => '還原部署預設值';
-	@override String get switchToWorkspace => '切換到工作區';
 	@override String get switchToPersonal => '切換到個人';
 	@override String get createTitle => '建立工作區';
 	@override String get createDesc => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。';
@@ -5733,12 +5728,7 @@ extension on TranslationsZhHant {
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
 			'workspace.dmEntry' => '全部訊息',
-			'workspace.experienceModeEntry' => '首頁版面配置',
-			'workspace.experienceModeHint' => '選擇目前裝置的使用體驗；僅改變首頁版面配置，不改變權限或工作區成員身分',
 			'workspace.experienceModePersonal' => '個人',
-			'workspace.experienceModeWorkspace' => '工作區',
-			'workspace.experienceModeReset' => '還原部署預設值',
-			'workspace.switchToWorkspace' => '切換到工作區',
 			'workspace.switchToPersonal' => '切換到個人',
 			'workspace.createTitle' => '建立工作區',
 			'workspace.createDesc' => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。',
@@ -5814,13 +5804,13 @@ extension on TranslationsZhHant {
 			'workspace.removeMemberConfirm' => '確認移除',
 			'workspace.changeRoleTitle' => ({required Object name}) => '修改 ${name} 的工作區角色',
 			'workspace.transferTitle' => ({required Object name}) => '轉移主 Owner 給 ${name}',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferDesc' => '轉移後你成為一般工作區成員（Member），對方獲得全部治理權',
 			'workspace.transferConfirm' => '確認轉移',
 			'workspace.governanceTitle' => '工作區治理',
 			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
 			'workspace.archiveEntry' => '封存工作區',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.restoreEntry' => '還原工作區',
 			'workspace.archiveTitle' => '封存工作區',
 			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',

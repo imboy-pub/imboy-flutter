@@ -14,12 +14,7 @@ archivedBadge: "Archiviert"
 emptyNoWorkspace: "Bitte zuerst einen Arbeitsbereich auswählen oder erstellen"
 dmEntry: "Alle Nachrichten"
 # ==================== Persönlicher Modus / Arbeitsbereich-Modus ====================
-experienceModeEntry: "Start-Layout"
-experienceModeHint: "Wählen Sie das Nutzungserlebnis für dieses Gerät; ändert nur das Start-Layout, weder Berechtigungen noch Arbeitsbereich-Mitgliedschaft"
 experienceModePersonal: "Persönlich"
-experienceModeWorkspace: "Arbeitsbereich"
-experienceModeReset: "Deployment-Standard wiederherstellen"
-switchToWorkspace: "Zum Arbeitsbereich wechseln"
 switchToPersonal: "Zum persönlichen Modus wechseln"
 # ==================== Erstellungsprozess (Arbeitsbereich in 3 Minuten) ====================
 createTitle: "Arbeitsbereich erstellen"

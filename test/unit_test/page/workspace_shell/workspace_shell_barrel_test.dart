@@ -18,7 +18,6 @@ void main() {
       // barrel 文件自身 import 成功即导出链可用；这里固化关键符号可解析
       expect(WorkspaceShellBootstrap, isNotNull);
       expect(workspaceShellProvider, isNotNull);
-      expect(buildWorkspaceShellNavItems, isNotNull);
       expect(resolveWorkspaceShellLayout, isNotNull);
       expect(WorkspaceBrandingScope, isNotNull);
     });

@@ -13,12 +13,7 @@ archivedBadge: "已封存"
 emptyNoWorkspace: "請先選擇或建立一個工作區"
 dmEntry: "全部訊息"
 # ==================== 個人 / 工作區體驗切換 ====================
-experienceModeEntry: "首頁版面配置"
-experienceModeHint: "選擇目前裝置的使用體驗；僅改變首頁版面配置，不改變權限或工作區成員身分"
 experienceModePersonal: "個人"
-experienceModeWorkspace: "工作區"
-experienceModeReset: "還原部署預設值"
-switchToWorkspace: "切換到工作區"
 switchToPersonal: "切換到個人"
 # ==================== 建立流程（3 分鐘建站） ====================
 createTitle: "建立工作區"

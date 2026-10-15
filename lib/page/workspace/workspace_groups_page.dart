@@ -16,8 +16,6 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart'
-    show WorkspaceShellDestination;
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -30,19 +28,6 @@ class WorkspaceGroupsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ws = ref.watch(currentWorkspaceProvider);
     final wsId = ws?.id ?? '';
-    // IndexedStack 保活各目的地：本页 offstage 时仍是 autoDispose provider
-    // 的活跃 listener，provider 不会销毁，切回不重拉。监听壳目的地变化，
-    // 重新进入「群组」导航时失效重拉（与 Channels 页同款修法）。
-    ref.listen(workspaceShellProvider.select((s) => s.destination), (
-      prev,
-      next,
-    ) {
-      if (prev != next &&
-          next == WorkspaceShellDestination.groups &&
-          wsId.isNotEmpty) {
-        ref.invalidate(workspaceGroupsProvider(wsId));
-      }
-    });
     if (wsId.isEmpty) {
       return WorkspaceEmptyView(
         icon: CupertinoIcons.person_2,

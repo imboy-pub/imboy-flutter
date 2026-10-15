@@ -21,12 +21,11 @@ class Keys {
   static const String uploadScene = "upload_scene";
   // 公开资源（scope=public，如头像/表情）直读基址，由 /api/v1/init 下发
   static const String publicBaseUrl = "public_base_url";
-  // 产品体验（chat|workspace），由 /api/v1/init 的 effective_product_experience
-  // 字段下发（T1）；缺失/未知值由消费方 experience_provider 降级 chat
+  // 旧安装级体验缓存（chat|workspace）；仅保留兼容，不决定个人/企业首页。
   static const String effectiveProductExperience =
       "effective_product_experience";
 
-  /// 用户在当前设备主动选择的首页体验（chat|workspace）。
+  /// 本机首页模式键前缀（personal|workspace），新写入追加账号 UID。
   ///
   /// 它只覆盖客户端首页入口，不会修改服务端安装级配置或任何资源权限。
   static const String localProductExperience = "local_product_experience";

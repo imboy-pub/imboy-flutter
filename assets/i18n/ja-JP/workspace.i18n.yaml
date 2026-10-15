@@ -13,12 +13,7 @@ archivedBadge: "アーカイブ済み"
 emptyNoWorkspace: "まずワークスペースを選択または作成してください"
 dmEntry: "すべてのメッセージ"
 # ==================== 個人 / ワークスペース体験の切り替え ====================
-experienceModeEntry: "ホームレイアウト"
-experienceModeHint: "この端末での使用体験を選択します。ホームレイアウトのみが変わり、権限やワークスペースメンバーとしての身分は変わりません"
 experienceModePersonal: "個人"
-experienceModeWorkspace: "ワークスペース"
-experienceModeReset: "デプロイのデフォルトに戻す"
-switchToWorkspace: "ワークスペースに切り替え"
 switchToPersonal: "個人に切り替え"
 # ==================== 作成フロー（3分でセットアップ） ====================
 createTitle: "ワークスペースを作成"

@@ -2483,12 +2483,7 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'В архиве';
 	@override String get emptyNoWorkspace => 'Сначала выберите или создайте рабочее пространство';
 	@override String get dmEntry => 'Все сообщения';
-	@override String get experienceModeEntry => 'Макет главного экрана';
-	@override String get experienceModeHint => 'Выберите режим использования на этом устройстве; меняется только макет главного экрана, права и участие в рабочем пространстве не затрагиваются';
 	@override String get experienceModePersonal => 'Личный';
-	@override String get experienceModeWorkspace => 'Рабочее пространство';
-	@override String get experienceModeReset => 'Восстановить значения по умолчанию';
-	@override String get switchToWorkspace => 'Переключиться на рабочее пространство';
 	@override String get switchToPersonal => 'Переключиться на личный';
 	@override String get createTitle => 'Создать рабочее пространство';
 	@override String get createDesc => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.';
@@ -5740,12 +5735,7 @@ extension on TranslationsRuRu {
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
 			'workspace.dmEntry' => 'Все сообщения',
-			'workspace.experienceModeEntry' => 'Макет главного экрана',
-			'workspace.experienceModeHint' => 'Выберите режим использования на этом устройстве; меняется только макет главного экрана, права и участие в рабочем пространстве не затрагиваются',
 			'workspace.experienceModePersonal' => 'Личный',
-			'workspace.experienceModeWorkspace' => 'Рабочее пространство',
-			'workspace.experienceModeReset' => 'Восстановить значения по умолчанию',
-			'workspace.switchToWorkspace' => 'Переключиться на рабочее пространство',
 			'workspace.switchToPersonal' => 'Переключиться на личный',
 			'workspace.createTitle' => 'Создать рабочее пространство',
 			'workspace.createDesc' => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.',
@@ -5822,13 +5812,13 @@ extension on TranslationsRuRu {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Изменить роль в рабочем пространстве: ${name}',
 			'workspace.transferTitle' => ({required Object name}) => 'Передать роль главного Owner: ${name}',
 			'workspace.transferDesc' => 'После передачи вы станете обычным участником рабочего пространства (Member), а получатель получит все права управления',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferConfirm' => 'Подтвердить передачу',
 			'workspace.governanceTitle' => 'Управление рабочим пространством',
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',

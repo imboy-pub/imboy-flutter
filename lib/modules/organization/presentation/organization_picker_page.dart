@@ -284,7 +284,6 @@ class _OrganizationPickerPageState
           : '',
     );
     if (!_acceptSwitch(account, epoch)) return recoveryError;
-    shell.selectDestination(snapshot.destination);
     return recoveryError;
   }
 
@@ -314,7 +313,7 @@ class _OrganizationPickerPageState
     try {
       await ref
           .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
+          .select(ProductExperience.personal);
     } on Object {
       if (_acceptSwitch(account, epoch)) {
         setState(() {

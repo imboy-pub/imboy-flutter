@@ -185,14 +185,14 @@ void main() {
     addTearDown(() {
       container
           .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
+          .select(ProductExperience.personal);
     });
 
     // 构造「error 非空 + hasWorkspace=false」：
     // ①登录后先归位 chat 体验（清持久化体验，避免启动恢复期抢先首载）
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await _pump(tester, seconds: 2);
     // ②WorkspaceShellNotifier 常驻（keepAlive），启动期成功首载过的
     //   workspaces 会一直保留（hasWorkspace=true 永走列表分支）——
@@ -200,9 +200,7 @@ void main() {
     // ③failMine=true 下切回 workspace 触发壳首载 → 拦截 → error+空列表。
     container.invalidate(workspaceShellProvider);
     adapter.failMine = true;
-    await container
-        .read(productExperienceProvider.notifier)
-        .select(ProductExperience.workspace);
+    await container.read(workspaceShellProvider.notifier).loadMine();
     await _pump(tester, seconds: 4);
     // 兜底：若壳首载发生在拦截切换前，手动再触发一次必被拦截的 loadMine
     await container.read(workspaceShellProvider.notifier).loadMine();

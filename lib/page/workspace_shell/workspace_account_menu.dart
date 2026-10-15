@@ -264,7 +264,7 @@ class _WorkspaceAccountSheet extends ConsumerWidget {
               icon: CupertinoIcons.person_circle,
               label: t.workspace.switchToPersonal,
               onTap: () => unawaited(
-                _switchExperience(ProductExperience.chat, context, ref),
+                _switchExperience(ProductExperience.personal, context, ref),
               ),
             ),
             _SheetActionTile(

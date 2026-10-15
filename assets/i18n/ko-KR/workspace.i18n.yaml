@@ -12,12 +12,7 @@ archivedBadge: "보관됨"
 emptyNoWorkspace: "먼저 워크스페이스를 선택하거나 만들어 주세요"
 dmEntry: "전체 메시지"
 # ==================== 개인 / 워크스페이스 경험 전환 ====================
-experienceModeEntry: "홈 레이아웃"
-experienceModeHint: "현재 기기의 사용 환경을 선택합니다. 홈 레이아웃만 변경되며 권한이나 워크스페이스 구성원 신분은 변경되지 않습니다"
 experienceModePersonal: "개인"
-experienceModeWorkspace: "워크스페이스"
-experienceModeReset: "배포 기본값으로 복원"
-switchToWorkspace: "워크스페이스로 전환"
 switchToPersonal: "개인으로 전환"
 # ==================== 생성 플로우 ====================
 createTitle: "워크스페이스 만들기"

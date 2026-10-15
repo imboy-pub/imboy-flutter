@@ -39,11 +39,7 @@ createTitle: Crea area di lavoro
 discussInGroupGuide: "I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →"
 dmEntry: Tutti i messaggi
 emptyNoWorkspace: Seleziona o crea prima un'area di lavoro
-experienceModeEntry: Layout home
-experienceModeHint: "Scegli l'esperienza d'uso per questo dispositivo; modifica solo il layout della home, non i permessi né l'appartenenza all'area di lavoro"
 experienceModePersonal: Personale
-experienceModeReset: Ripristina valori predefiniti del deployment
-experienceModeWorkspace: Area di lavoro
 governanceTitle: Governance dell'area di lavoro
 groupTileSubtitle(count): "$count membri del gruppo"
 groupsEmptySubtitle: "I gruppi sono gli spazi di discussione in tempo reale dell'area di lavoro (unico punto d'accesso alla chat)"
@@ -194,7 +190,6 @@ roleGuest: Guest
 roleMember: Member
 roleOwner: Owner
 switchToPersonal: Passa a personale
-switchToWorkspace: Passa ad area di lavoro
 switchWorkspace: Cambia area di lavoro
 taskAdvanceTo(status): "Avanza a «$status»"
 taskAssigneeLabel: "Responsabile (membro dell'area di lavoro)"

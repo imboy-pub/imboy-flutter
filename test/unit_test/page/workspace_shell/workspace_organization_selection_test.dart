@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
@@ -49,45 +48,57 @@ void main() {
   });
   tearDown(() => container.dispose());
 
-  test('切企业即显示消息，默认工作区读取失败不回概览', () async {
-    notifier.selectDestination(WorkspaceShellDestination.overview);
+  test('切到新企业默认显示消息，默认工作区读取失败不改变导航', () async {
+    notifier.rememberEnterpriseNavigation((
+      destination: EnterpriseShellDestination.contacts,
+      channels: false,
+    ));
     final pending = Completer<EntityId>();
     final switching = notifier.selectOrganization(
       'org-b',
       () => pending.future,
     );
     expect(
-      container.read(workspaceShellProvider).destination,
-      WorkspaceShellDestination.conversations,
+      container.read(workspaceShellProvider).enterpriseNavigation.destination,
+      EnterpriseShellDestination.messages,
     );
     pending.completeError(WorkspaceApiException(503, '暂不可用'));
     await switching;
     expect(
-      container.read(workspaceShellProvider).destination,
-      WorkspaceShellDestination.conversations,
+      container.read(workspaceShellProvider).enterpriseNavigation.destination,
+      EnterpriseShellDestination.messages,
     );
   });
 
   test('显式页面选择保留，同工作区或无效工作区选择不改变页面', () async {
     await notifier.selectOrganization('org-a', () async => 'a');
-    notifier.selectDestination(WorkspaceShellDestination.overview);
+    notifier.rememberEnterpriseNavigation((
+      destination: EnterpriseShellDestination.contacts,
+      channels: false,
+    ));
     notifier.selectWorkspace('a');
     notifier.selectWorkspace('unknown');
     await notifier.loadMine();
     expect(
-      container.read(workspaceShellProvider).destination,
-      WorkspaceShellDestination.overview,
+      container.read(workspaceShellProvider).enterpriseNavigation.destination,
+      EnterpriseShellDestination.contacts,
     );
   });
 
   test('另一企业加入回填不改变当前企业页面', () async {
     await notifier.selectOrganization('org-a', () async => 'a');
-    notifier.selectDestination(WorkspaceShellDestination.overview);
+    notifier.rememberEnterpriseNavigation((
+      destination: EnterpriseShellDestination.contacts,
+      channels: false,
+    ));
     notifier.applyJoined(_workspaces[1]);
     final state = container.read(workspaceShellProvider);
     expect(state.organizationId, 'org-a');
     expect(state.currentWorkspaceId, 'a');
-    expect(state.destination, WorkspaceShellDestination.overview);
+    expect(
+      state.enterpriseNavigation.destination,
+      EnterpriseShellDestination.contacts,
+    );
   });
 
   test('退出前发出的 mine 响应不能重新写回已退出工作区', () async {
