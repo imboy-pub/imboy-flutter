@@ -31,16 +31,21 @@ jobs:
     name: Error code contract (hrl ↔ generated dart)
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: imboyapp
     steps:
       - name: Checkout imboyapp（生成物所在仓）
         uses: actions/checkout@v7
+        with:
+          path: imboyapp
 
       - name: Checkout imboy backend（错误码真源仓）
         uses: actions/checkout@v7
         with:
           # 同 owner 跨仓：owner 从运行上下文剥离，不硬编码
           repository: ${{ github.repository_owner }}/imboy
-          path: backend-imboy
+          path: imboy
           fetch-depth: 1
 
       - name: Setup Dart
@@ -48,14 +53,14 @@ jobs:
         # 无需 Flutter SDK），使用满足项目 SDK 下限的 Dart 3.13.4
         uses: dart-lang/setup-dart@v1
         with:
-          sdk-version: '3.13.4'
+          sdk: '3.13.4'
 
       - name: Verify SDK compatibility
         run: python3 scripts/check_sdk_compatibility.py --dart-only
 
       - name: Verify generated error_code.dart matches error_code.hrl
         # 退出码 0 = 生成物与真源一致；1 = 漂移（红门禁，无 continue-on-error）
-        run: dart scripts/generate_error_code.dart --check --source=backend-imboy/include/error_code.hrl
+        run: dart scripts/generate_error_code.dart --check --source=../imboy/include/error_code.hrl
 
   # ----------------------------------------------------------------
   # CI-01：proto regen 漂移门（imboy.proto ↔ imboyapp 生成物）
@@ -66,9 +71,14 @@ jobs:
     name: Proto regen drift (imboy.proto ↔ lib/service/protocol)
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: imboyapp
     steps:
       - name: Checkout imboyapp（生成物所在仓）
         uses: actions/checkout@v7
+        with:
+          path: imboyapp
 
       - name: Checkout imboy backend（proto 真源仓）
         uses: actions/checkout@v7
@@ -87,15 +97,13 @@ jobs:
       - name: Setup Dart + protoc_plugin
         uses: dart-lang/setup-dart@v1
         with:
-          sdk-version: '3.13.4'
+          sdk: '3.13.4'
       - name: Verify SDK compatibility
         run: python3 scripts/check_sdk_compatibility.py --dart-only
 
-      - run: dart pub global activate protoc_plugin
+      - run: dart pub global activate protoc_plugin 25.1.0
 
       - name: Regen and verify no drift
-        env:
-          PATH: ${{ env.PATH }}:/home/runner/.pub-cache/bin
         run: |
           bash scripts/regen_protobuf.sh
           if ! git diff --exit-code -- lib/service/protocol/; then

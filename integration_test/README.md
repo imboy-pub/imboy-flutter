@@ -150,3 +150,27 @@ flutter test integration_test/auth/password_change_test.dart \
 | `tab_contacts` | 联系人 | 索引 1 |
 | `tab_channel` | 频道 | 索引 2，功能开关控制 |
 | `tab_mine` | 我 | 最后索引 |
+
+### MC22 owned negative coordinator
+
+`micro_community_owned_android_negative_test.dart` waits for **real OS VIEW**
+intents and independent fixture control actions; launching Flutter alone cannot
+complete it. After explicit physical-device authorization, start the existing
+owned negative fixture in a unique private run directory, then run:
+
+```sh
+python3 scripts/mc22_owned_coordinator.py \
+  --context /absolute/private/android-negative-live-context-r1.json \
+  --device <authorized-device-id> --events /absolute/run/mc22-coordinator-attempt-1.jsonl
+```
+
+Run the existing Flutter negative test alongside it with that lease's defines,
+`--flavor gzCustomer`, and the same device. Repeat with a **new lease and new log
+names** for `reconnect`. The coordinator requires an existing owned API reverse
+mapping, preserves the independent phase-control connection, sends the same VIEW
+URI before/after revocation, and restores only its API mapping after interruption.
+It does not uninstall apps, create databases, or acquire device authorization.
+
+Coordinator success is only transport evidence: require Flutter exit 0, fixture
+final DB assertions/exit 0, physical-device/build identity, and all MC22 leaf
+oracles together. A timeout/error remains failure. Never overwrite earlier logs.
