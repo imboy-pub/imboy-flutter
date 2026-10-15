@@ -47,7 +47,7 @@ Future<void> _softSelectChatExperienceOnce(WidgetTester tester) async {
     final container = ProviderScope.containerOf(tester.element(shell));
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await settle(tester, maxSeconds: 2);
   } catch (_) {}
 }

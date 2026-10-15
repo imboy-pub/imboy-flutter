@@ -38,6 +38,8 @@ import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
@@ -57,13 +59,13 @@ class _FailedExperience extends ProductExperienceNotifier {
 
 class _FailedPersonalExperience extends _FailedExperience {
   @override
-  ProductExperience build() => ProductExperience.chat;
+  ProductExperience build() => ProductExperience.personal;
 }
 
 class _RecoverableExperience extends ProductExperienceNotifier {
   bool failed = false;
   @override
-  ProductExperience build() => ProductExperience.chat;
+  ProductExperience build() => ProductExperience.personal;
   @override
   Future<void> select(ProductExperience experience) async {
     if (!failed) {
@@ -319,7 +321,12 @@ void main() {
 
   ProviderContainer makeContainer(_WsFakeApi api) {
     final container = ProviderContainer(
-      overrides: [workspaceApiProvider.overrideWith((ref) => api)],
+      overrides: [
+        currentUserProvider.overrideWithValue(
+          UserModel(uid: _accountKey, account: 'synthetic'),
+        ),
+        workspaceApiProvider.overrideWith((ref) => api),
+      ],
     );
     addTearDown(container.dispose);
     return container;
@@ -491,7 +498,10 @@ void main() {
     expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
     await tester.tap(personal);
     await pumpUntilFound(tester, find.text('probe'));
-    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
     expect(find.text('probe'), findsOneWidget);
     expect(store.value?.id, _orgA);
     expect(tester.takeException(), isNull);
@@ -503,6 +513,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        currentUserProvider.overrideWithValue(
+          UserModel(uid: _accountKey, account: 'synthetic'),
+        ),
         workspaceApiProvider.overrideWithValue(_WsFakeApi(const [])),
         productExperienceProvider.overrideWith(_FailedExperience.new),
       ],
@@ -660,6 +673,9 @@ void main() {
       ]);
       final container = ProviderContainer(
         overrides: [
+          currentUserProvider.overrideWithValue(
+            UserModel(uid: _accountKey, account: 'synthetic'),
+          ),
           workspaceApiProvider.overrideWithValue(api),
           if (mode == 'preference-failure' || restoreFailure)
             productExperienceProvider.overrideWith(
@@ -695,7 +711,7 @@ void main() {
       );
       expect(
         container.read(productExperienceProvider),
-        failed ? ProductExperience.chat : ProductExperience.workspace,
+        failed ? ProductExperience.personal : ProductExperience.workspace,
       );
       expect(
         find.byKey(const ValueKey('org-picker-switch-error')),

@@ -2474,12 +2474,7 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => '보관됨';
 	@override String get emptyNoWorkspace => '먼저 워크스페이스를 선택하거나 만들어 주세요';
 	@override String get dmEntry => '전체 메시지';
-	@override String get experienceModeEntry => '홈 레이아웃';
-	@override String get experienceModeHint => '현재 기기의 사용 환경을 선택합니다. 홈 레이아웃만 변경되며 권한이나 워크스페이스 구성원 신분은 변경되지 않습니다';
 	@override String get experienceModePersonal => '개인';
-	@override String get experienceModeWorkspace => '워크스페이스';
-	@override String get experienceModeReset => '배포 기본값으로 복원';
-	@override String get switchToWorkspace => '워크스페이스로 전환';
 	@override String get switchToPersonal => '개인으로 전환';
 	@override String get createTitle => '워크스페이스 만들기';
 	@override String get createDesc => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.';
@@ -5731,12 +5726,7 @@ extension on TranslationsKoKr {
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
 			'workspace.dmEntry' => '전체 메시지',
-			'workspace.experienceModeEntry' => '홈 레이아웃',
-			'workspace.experienceModeHint' => '현재 기기의 사용 환경을 선택합니다. 홈 레이아웃만 변경되며 권한이나 워크스페이스 구성원 신분은 변경되지 않습니다',
 			'workspace.experienceModePersonal' => '개인',
-			'workspace.experienceModeWorkspace' => '워크스페이스',
-			'workspace.experienceModeReset' => '배포 기본값으로 복원',
-			'workspace.switchToWorkspace' => '워크스페이스로 전환',
 			'workspace.switchToPersonal' => '개인으로 전환',
 			'workspace.createTitle' => '워크스페이스 만들기',
 			'workspace.createDesc' => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.',
@@ -5813,13 +5803,13 @@ extension on TranslationsKoKr {
 			'workspace.changeRoleTitle' => ({required Object name}) => '${name}의 워크스페이스 역할 변경',
 			'workspace.transferTitle' => ({required Object name}) => '메인 Owner를 ${name}에게 이전',
 			'workspace.transferDesc' => '이전 후 본인은 일반 워크스페이스 구성원(Member)이 되고 상대방이 전체 거버넌스 권한을 갖습니다',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferConfirm' => '이전 확인',
 			'workspace.governanceTitle' => '워크스페이스 거버넌스',
 			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
 			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => '워크스페이스 보관',
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
 			'workspace.archiveConfirm' => '보관 확인',

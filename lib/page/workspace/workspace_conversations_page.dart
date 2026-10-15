@@ -17,7 +17,6 @@ import 'package:imboy/page/workspace/workspace_groups_page.dart'
     show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_account_menu.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
@@ -77,10 +76,7 @@ class _WorkspaceConversationsPageState
     // ponytail: 30s active-page reconciliation covers worker lag/missed events;
     // replace with a scoped authority event once that server contract exists.
     _poll = Timer.periodic(const Duration(seconds: 30), (_) {
-      if (ref.read(workspaceShellProvider).destination ==
-          WorkspaceShellDestination.conversations) {
-        _reload();
-      }
+      _reload();
     });
   }
 
@@ -167,14 +163,6 @@ class _WorkspaceConversationsPageState
   }
 
   Widget _body(String id) {
-    ref.listen(workspaceShellProvider.select((state) => state.destination), (
-      before,
-      after,
-    ) {
-      if (before != after && after == WorkspaceShellDestination.conversations) {
-        _reload();
-      }
-    });
     return ref
         .watch(workspaceConversationsProvider(id))
         .when(

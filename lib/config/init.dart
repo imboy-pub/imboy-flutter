@@ -587,10 +587,8 @@ class AppInitializer {
         IMBoyHttpResponse.payloadStr(payload, 'public_base_url') ?? '',
       );
 
-      // 产品体验（chat|workspace，T1 安装级配置经 /api/v1/init 下发）：
-      // 缺失（T1 未就绪）/未知值时存空串，消费方 experience_provider 的
-      // readCachedProductExperience 按 chat 降级（fail-safe，镜像 publicBaseUrl
-      // 的「服务端下发→缓存→回落」模式）。
+      // 保留旧安装级体验字段的缓存兼容；首页模式由账号本机选择决定，
+      // 不再用服务端默认值代替用户选择企业。
       await StorageService.to.setString(
         Keys.effectiveProductExperience,
         IMBoyHttpResponse.payloadStr(payload, 'effective_product_experience') ??

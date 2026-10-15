@@ -1,3 +1,4 @@
+import 'dart:async';
 // integration_test/workspace/workspace_picker_loading_test.dart
 //
 // Workspace Picker「首屏 loading→列表」验收（批次129）：解除台账阻塞行
@@ -154,21 +155,19 @@ void main() {
     addTearDown(() {
       container
           .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
+          .select(ProductExperience.personal);
     });
 
     // 归位 chat 体验（清持久化），重置常驻 Notifier 的 state
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await _pump(tester, seconds: 2);
     container.invalidate(workspaceShellProvider);
 
     // delayMine 挂住首载：切 workspace → 壳 loadMine 在途（isLoading=true）
     adapter.delayMineSeconds = 6;
-    await container
-        .read(productExperienceProvider.notifier)
-        .select(ProductExperience.workspace);
+    unawaited(container.read(workspaceShellProvider.notifier).loadMine());
     await _pump(tester, seconds: 1);
 
     // 在途窗口内深链进 picker：isLoading && 空列表 → 首屏 loading 视图

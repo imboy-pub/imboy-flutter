@@ -1,15 +1,3 @@
-/// T2 (WP1) — Product Experience 消费层测试
-///
-/// 覆盖（任务卡要求的三个降级场景 + 缓存链路）：
-/// - 默认 experience=chat（无缓存 / 字段缺失）
-/// - 未知值降级 chat（空串 / 未知字符串 / 非字符串类型）
-/// - init payload 字段缺失降级（T1 未就绪）
-/// - workspace 已知值识别
-/// - StorageService 缓存 → provider 读取全链路
-/// - wire 字段名与 StorageService key 一致性（防漂移）
-///
-/// StorageService 由 test/unit_test/flutter_test_config.dart 全局以
-/// SharedPreferences mock 初始化，可直接读写。
 library;
 
 import 'dart:async';
@@ -17,6 +5,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -74,367 +66,268 @@ Future<_PreferenceStore> _installStore() async {
   return store;
 }
 
+class _Account extends Notifier<UserModel?> {
+  @override
+  UserModel? build() => UserModel(uid: 'mode-a', account: 'synthetic');
+  void select(String uid) =>
+      state = uid.isEmpty ? null : UserModel(uid: uid, account: 'synthetic');
+}
+
+final _account = NotifierProvider<_Account, UserModel?>(_Account.new);
+
+ProviderContainer _container() => ProviderContainer(
+  overrides: [currentUserProvider.overrideWith((ref) => ref.watch(_account))],
+);
+
 void main() {
+  late ProviderContainer container;
   setUp(() async {
-    // 每个用例从「无缓存」状态出发（离线首启等价态）
-    await StorageService.to.remove(Keys.effectiveProductExperience);
     await StorageService.to.remove(Keys.localProductExperience);
+    await StorageService.to.remove(Keys.effectiveProductExperience);
+    for (final uid in ['mode-a', 'mode-b']) {
+      CurrentOrganizationStore.disposeAccount(uid);
+      await StorageService.to.remove('${Keys.localProductExperience}_$uid');
+    }
+    container = _container();
+  });
+  tearDown(() => container.dispose());
+
+  Future<void> chooseOrganization() async {
+    final uid = container.read(currentUserProvider)!.uid;
+    await CurrentOrganizationStore.forAccount(uid)
+        .set(const Organization(id: 'org-a', name: 'synthetic'));
+    await container
+        .read(workspaceShellProvider.notifier)
+        .selectOrganization('org-a', () async => '');
+  }
+
+  test('只有 personal/workspace；旧 chat 值兼容为 personal', () {
+    expect(ProductExperience.values.map((e) => e.wireName), [
+      'personal',
+      'workspace',
+    ]);
+    for (final raw in [null, '', 'chat', 'personal', 'unknown']) {
+      expect(parseProductExperience(raw), ProductExperience.personal);
+    }
+    expect(parseProductExperience('workspace'), ProductExperience.workspace);
+    expect(
+      resolveProductExperienceFromPayload({'effective_product_experience': 42}),
+      ProductExperience.personal,
+    );
+    expect(kEffectiveProductExperienceField, Keys.effectiveProductExperience);
+  });
+
+  for (final legacy in ['', 'workspace', 'chat']) {
+    test('未选企业：服务端 workspace 与旧偏好 $legacy 均不能改变个人默认模式', () async {
+      await StorageService.to.setString(
+        Keys.effectiveProductExperience,
+        'workspace',
+      );
+      await StorageService.to.setString(Keys.localProductExperience, legacy);
+      expect(readCachedProductExperience(), ProductExperience.workspace);
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.personal,
+      );
+      expect(container.read(workspaceShellProvider).organizationId, isEmpty);
+      await expectLater(
+        container
+            .read(productExperienceProvider.notifier)
+            .select(ProductExperience.workspace),
+        throwsStateError,
+      );
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.personal,
+      );
+    });
+  }
+
+  test('已加入工作区但未选企业仍为 personal', () {
+    container
+        .read(workspaceShellProvider.notifier)
+        .applyJoined(
+          const WorkspaceModel(
+            id: 'workspace-a',
+            name: 'synthetic',
+            ownerId: 'mode-a',
+            organizationId: 'org-a',
+          ),
+        );
+    expect(container.read(workspaceShellProvider).hasWorkspace, isTrue);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+  });
+
+  test('明确选择企业后可进入 workspace，重启恢复，切回个人后也能恢复', () async {
+    await chooseOrganization();
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.workspace);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.workspace,
+    );
+    final restarted = _container();
+    addTearDown(restarted.dispose);
+    expect(
+      restarted.read(productExperienceProvider),
+      ProductExperience.workspace,
+    );
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.personal);
+    final personalRestart = _container();
+    addTearDown(personalRestart.dispose);
+    expect(
+      personalRestart.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+  });
+
+  test('旧 workspace 偏好只有已明确选择过企业才可恢复', () async {
+    await StorageService.to.setString(Keys.localProductExperience, 'workspace');
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+    await chooseOrganization();
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.workspace,
+    );
+  });
+
+  test('换账号、登出、退出当前企业立即回到个人模式', () async {
+    await chooseOrganization();
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.workspace);
+    container.read(_account.notifier).select('mode-b');
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+    await chooseOrganization();
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+      reason: '账号 B 不能继承账号 A 的模式，即使企业相同',
+    );
+    await container
+        .read(productExperienceProvider.notifier)
+        .select(ProductExperience.workspace);
+    container.read(workspaceShellProvider.notifier).forgetOrganization('org-a');
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+    container.read(_account.notifier).select('');
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
   });
 
   for (final failure in ['false', 'throw']) {
+    test('偏好保存 $failure：失败不切布局、不污染缓存，支持重试', () async {
+      final store = await _installStore();
+      await chooseOrganization();
+      final notifier = container.read(productExperienceProvider.notifier);
+      await notifier.select(ProductExperience.personal);
+      store.failure = failure;
+      await expectLater(
+        notifier.select(ProductExperience.workspace),
+        throwsStateError,
+      );
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.personal,
+      );
+      expect(
+        StorageService.to.getString('${Keys.localProductExperience}_mode-a'),
+        'personal',
+      );
+      store.failure = '';
+      await notifier.select(ProductExperience.workspace);
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.workspace,
+      );
+    });
     test('企业指针保存 $failure：不发布未持久化企业', () async {
       final native = await _installStore();
-      const account = 'synthetic-pointer-account';
-      final pointer = CurrentOrganizationStore.forAccount(account);
-      addTearDown(() => CurrentOrganizationStore.disposeAccount(account));
+      final pointer = CurrentOrganizationStore.forAccount('mode-a');
       await pointer.set(const Organization(id: '10', name: 'synthetic old'));
       native.failure = failure;
       await expectLater(
         pointer.set(const Organization(id: '20', name: 'synthetic new')),
-        throwsA(isA<StateError>()),
+        throwsStateError,
       );
       expect(pointer.value?.id, '10');
       expect(
-        StorageService.to.getString('$kCurrentOrgStoragePrefix$account'),
+        StorageService.to.getString('${kCurrentOrgStoragePrefix}mode-a'),
         contains('synthetic old'),
       );
       native.failure = '';
     });
-    for (final reset in [false, true]) {
-      test('原生偏好 ${reset ? '删除' : '保存'} $failure：失败不切布局也不污染读取缓存', () async {
-        final store = await _installStore();
-        await StorageService.to.setString(Keys.localProductExperience, 'chat');
-        await StorageService.to.setString(
-          Keys.effectiveProductExperience,
-          'workspace',
-        );
-        final container = ProviderContainer();
-        addTearDown(container.dispose);
-        final notifier = container.read(productExperienceProvider.notifier);
-        final published = <ProductExperience>[];
-        container.listen(
-          productExperienceProvider,
-          (_, next) => published.add(next),
-        );
-        store.failure = failure;
-        final change = reset
-            ? notifier.resetToDefault()
-            : notifier.select(ProductExperience.workspace);
-        await expectLater(change, throwsA(isA<StateError>()));
-        expect(
-          container.read(productExperienceProvider),
-          ProductExperience.chat,
-        );
-        expect(
-          StorageService.to.getString(Keys.localProductExperience),
-          'chat',
-        );
-        expect(store.values['flutter.${Keys.localProductExperience}'], 'chat');
-        expect(published, isEmpty);
-        store.failure = '';
-        await notifier.select(ProductExperience.workspace);
-        expect(
-          container.read(productExperienceProvider),
-          ProductExperience.workspace,
-        );
-      });
-    }
   }
 
-  test('保存完成前不发布布局，连续切换按顺序写入', () async {
+  test('连续选择先保存后切换，并保持写入顺序', () async {
     final store = await _installStore();
+    await chooseOrganization();
+    store.writes.clear();
     final gate = Completer<void>();
     store.pending = gate;
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
     final notifier = container.read(productExperienceProvider.notifier);
     final first = notifier.select(ProductExperience.workspace);
     await Future<void>.delayed(Duration.zero);
-    final second = notifier.select(ProductExperience.chat);
-    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    final second = notifier.select(ProductExperience.personal);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
     expect(store.writes, ['workspace']);
     gate.complete();
     await Future.wait([first, second]);
-    expect(store.writes, ['workspace', 'chat']);
-    expect(container.read(productExperienceProvider), ProductExperience.chat);
-    expect(store.values['flutter.${Keys.localProductExperience}'], 'chat');
+    expect(store.writes, ['workspace', 'personal']);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
   });
 
-  test('恢复默认值与保存共用顺序，不被迟到的保存覆盖', () async {
+  test('保存期间换账号：旧保存不能切换新账号的首页，排队操作不能写入新账号', () async {
     final store = await _installStore();
+    await chooseOrganization();
     final gate = Completer<void>();
     store.pending = gate;
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
     final notifier = container.read(productExperienceProvider.notifier);
     final first = notifier.select(ProductExperience.workspace);
     await Future<void>.delayed(Duration.zero);
-    final reset = notifier.resetToDefault();
-    gate.complete();
-    await Future.wait([first, reset]);
-    expect(store.writes, ['workspace', 'remove']);
-    expect(container.read(productExperienceProvider), ProductExperience.chat);
+    final queued = notifier.select(ProductExperience.personal);
+    final rejected = expectLater(queued, throwsStateError);
+    container.read(_account.notifier).select('mode-b');
     expect(
-      store.values.containsKey('flutter.${Keys.localProductExperience}'),
-      isFalse,
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
     );
-  });
-
-  test('选择当前默认布局也保存明确偏好，后续部署默认值不能覆盖', () async {
-    final store = await _installStore();
-    final container = ProviderContainer();
-    addTearDown(container.dispose);
-    await container
-        .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
-    expect(store.writes, ['chat']);
-    await StorageService.to.setString(
-      Keys.effectiveProductExperience,
-      'workspace',
+    gate.complete();
+    await first;
+    await rejected;
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
     );
-    final restarted = ProviderContainer();
-    addTearDown(restarted.dispose);
-    expect(restarted.read(productExperienceProvider), ProductExperience.chat);
-  });
-
-  group('parseProductExperience — fail-safe 解析', () {
-    test('null → chat（字段缺失）', () {
-      expect(parseProductExperience(null), ProductExperience.chat);
-    });
-
-    test('空串 → chat（T1 未就绪时 initConfig 写入空串）', () {
-      expect(parseProductExperience(''), ProductExperience.chat);
-    });
-
-    test('未知值 → chat（大小写敏感 + 无前后空格容忍）', () {
-      expect(parseProductExperience('enterprise'), ProductExperience.chat);
-      expect(parseProductExperience('CHAT'), ProductExperience.chat);
-      expect(parseProductExperience(' workspace'), ProductExperience.chat);
-      expect(parseProductExperience('workspace '), ProductExperience.chat);
-      expect(parseProductExperience('community'), ProductExperience.chat);
-    });
-
-    test('chat → chat（显式已知值）', () {
-      expect(parseProductExperience('chat'), ProductExperience.chat);
-    });
-
-    test('workspace → workspace（唯一非 chat 已知值）', () {
-      expect(parseProductExperience('workspace'), ProductExperience.workspace);
-    });
-  });
-
-  group('resolveProductExperienceFromPayload — /api/v1/init 字段解析', () {
-    test('null payload → chat', () {
-      expect(resolveProductExperienceFromPayload(null), ProductExperience.chat);
-    });
-
-    test('字段缺失（T1 未就绪的旧后端响应）→ chat', () {
-      expect(
-        resolveProductExperienceFromPayload({
-          'ws_url': 'wss://example',
-          'public_base_url': 'https://s3.example',
-        }),
-        ProductExperience.chat,
-      );
-    });
-
-    test('字段为非字符串（number / bool / null 显式存在）→ chat', () {
-      expect(
-        resolveProductExperienceFromPayload({
-          kEffectiveProductExperienceField: 42,
-        }),
-        ProductExperience.chat,
-      );
-      expect(
-        resolveProductExperienceFromPayload({
-          kEffectiveProductExperienceField: true,
-        }),
-        ProductExperience.chat,
-      );
-      expect(
-        resolveProductExperienceFromPayload({
-          kEffectiveProductExperienceField: null,
-        }),
-        ProductExperience.chat,
-      );
-    });
-
-    test('effective_product_experience=chat → chat', () {
-      expect(
-        resolveProductExperienceFromPayload({
-          kEffectiveProductExperienceField: 'chat',
-        }),
-        ProductExperience.chat,
-      );
-    });
-
-    test('effective_product_experience=workspace → workspace', () {
-      expect(
-        resolveProductExperienceFromPayload({
-          kEffectiveProductExperienceField: 'workspace',
-        }),
-        ProductExperience.workspace,
-      );
-    });
-
-    test('effective_product_experience=未知字符串 → chat', () {
-      expect(
-        resolveProductExperienceFromPayload({
-          kEffectiveProductExperienceField: 'galaxy',
-        }),
-        ProductExperience.chat,
-      );
-    });
-  });
-
-  group('readCachedProductExperience — StorageService 缓存链路', () {
-    test('无缓存（离线首启）→ chat（离线回落）', () {
-      expect(readCachedProductExperience(), ProductExperience.chat);
-    });
-
-    test('缓存空串（T1 未就绪时 initConfig 已写空值）→ chat', () async {
-      await StorageService.to.setString(Keys.effectiveProductExperience, '');
-      expect(readCachedProductExperience(), ProductExperience.chat);
-    });
-
-    test('缓存未知值 → chat', () async {
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        'beta-verse',
-      );
-      expect(readCachedProductExperience(), ProductExperience.chat);
-    });
-
-    test('缓存 workspace → workspace（服务端有效值优先）', () async {
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        'workspace',
-      );
-      expect(readCachedProductExperience(), ProductExperience.workspace);
-    });
-  });
-
-  group('productExperienceProvider — 消费方唯一入口', () {
-    test('默认（无缓存）experience=chat → 渲染 ChatShell 的前提', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      expect(container.read(productExperienceProvider), ProductExperience.chat);
-    });
-
-    test('缓存 workspace → provider 读到 workspace', () async {
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        'workspace',
-      );
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      expect(
-        container.read(productExperienceProvider),
-        ProductExperience.workspace,
-      );
-    });
-
-    test('缓存未知值 → provider 降级 chat', () async {
-      await StorageService.to.setString(Keys.effectiveProductExperience, '???');
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      expect(container.read(productExperienceProvider), ProductExperience.chat);
-    });
-
-    test('initConfig 覆盖缓存后（模拟下次启动）provider 生效值同步变化', () async {
-      final container1 = ProviderContainer();
-      addTearDown(container1.dispose);
-      expect(
-        container1.read(productExperienceProvider),
-        ProductExperience.chat,
-      );
-
-      // 安装级切换：受控重启后 initConfig 覆盖缓存（§4.1 切换语义）
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        'workspace',
-      );
-
-      // 新的 ProviderContainer 等价于下次启动的新 provider 实例
-      final container2 = ProviderContainer();
-      addTearDown(container2.dispose);
-      expect(
-        container2.read(productExperienceProvider),
-        ProductExperience.workspace,
-      );
-    });
-
-    test('用户本机选择优先于服务端默认值，并在新的 ProviderContainer 中保留', () async {
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        ProductExperience.workspace.wireName,
-      );
-      final container1 = ProviderContainer();
-      addTearDown(container1.dispose);
-      expect(
-        container1.read(productExperienceProvider),
-        ProductExperience.workspace,
-      );
-
-      await container1
-          .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
-      expect(
-        container1.read(productExperienceProvider),
-        ProductExperience.chat,
-      );
-      expect(
-        StorageService.to.getString(Keys.localProductExperience),
-        ProductExperience.chat.wireName,
-      );
-
-      final container2 = ProviderContainer();
-      addTearDown(container2.dispose);
-      expect(
-        container2.read(productExperienceProvider),
-        ProductExperience.chat,
-      );
-    });
-
-    test('恢复部署默认值会删除本机覆盖并立即更新状态', () async {
-      await StorageService.to.setString(
-        Keys.effectiveProductExperience,
-        ProductExperience.workspace.wireName,
-      );
-      await StorageService.to.setString(
-        Keys.localProductExperience,
-        ProductExperience.chat.wireName,
-      );
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      await container.read(productExperienceProvider.notifier).resetToDefault();
-
-      expect(
-        container.read(productExperienceProvider),
-        ProductExperience.workspace,
-      );
-      expect(StorageService.to.getString(Keys.localProductExperience), isEmpty);
-    });
-  });
-
-  group('命名契约（防漂移）', () {
-    test('init wire 字段名与 StorageService key 同值（镜像 public_base_url 模式）', () {
-      expect(
-        kEffectiveProductExperienceField,
-        Keys.effectiveProductExperience,
-        reason:
-            'initConfig 用字面量写入、experience_provider 用 Keys 读取，'
-            '两处必须同值，否则缓存永远读不到',
-      );
-    });
-
-    test('ProductExperience wireName 契约', () {
-      expect(ProductExperience.chat.wireName, 'chat');
-      expect(ProductExperience.workspace.wireName, 'workspace');
-    });
+    expect(
+      StorageService.to.getString('${Keys.localProductExperience}_mode-b'),
+      isEmpty,
+    );
   });
 }

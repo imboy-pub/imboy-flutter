@@ -2506,11 +2506,7 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get discussInGroupGuide => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →';
 	@override String get dmEntry => 'Tutti i messaggi';
 	@override String get emptyNoWorkspace => 'Seleziona o crea prima un\'area di lavoro';
-	@override String get experienceModeEntry => 'Layout home';
-	@override String get experienceModeHint => 'Scegli l\'esperienza d\'uso per questo dispositivo; modifica solo il layout della home, non i permessi né l\'appartenenza all\'area di lavoro';
 	@override String get experienceModePersonal => 'Personale';
-	@override String get experienceModeReset => 'Ripristina valori predefiniti del deployment';
-	@override String get experienceModeWorkspace => 'Area di lavoro';
 	@override String get governanceTitle => 'Governance dell\'area di lavoro';
 	@override String groupTileSubtitle({required Object count}) => '${count} membri del gruppo';
 	@override String get groupsEmptySubtitle => 'I gruppi sono gli spazi di discussione in tempo reale dell\'area di lavoro (unico punto d\'accesso alla chat)';
@@ -2661,7 +2657,6 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get roleMember => 'Member';
 	@override String get roleOwner => 'Owner';
 	@override String get switchToPersonal => 'Passa a personale';
-	@override String get switchToWorkspace => 'Passa ad area di lavoro';
 	@override String get switchWorkspace => 'Cambia area di lavoro';
 	@override String taskAdvanceTo({required Object status}) => 'Avanza a «${status}»';
 	@override String get taskAssigneeLabel => 'Responsabile (membro dell\'area di lavoro)';
@@ -5763,11 +5758,7 @@ extension on TranslationsItIt {
 			'workspace.discussInGroupGuide' => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →',
 			'workspace.dmEntry' => 'Tutti i messaggi',
 			'workspace.emptyNoWorkspace' => 'Seleziona o crea prima un\'area di lavoro',
-			'workspace.experienceModeEntry' => 'Layout home',
-			'workspace.experienceModeHint' => 'Scegli l\'esperienza d\'uso per questo dispositivo; modifica solo il layout della home, non i permessi né l\'appartenenza all\'area di lavoro',
 			'workspace.experienceModePersonal' => 'Personale',
-			'workspace.experienceModeReset' => 'Ripristina valori predefiniti del deployment',
-			'workspace.experienceModeWorkspace' => 'Area di lavoro',
 			'workspace.governanceTitle' => 'Governance dell\'area di lavoro',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} membri del gruppo',
 			'workspace.groupsEmptySubtitle' => 'I gruppi sono gli spazi di discussione in tempo reale dell\'area di lavoro (unico punto d\'accesso alla chat)',
@@ -5816,12 +5807,12 @@ extension on TranslationsItIt {
 			'workspace.overviewResources' => 'Riepilogo risorse',
 			'workspace.overviewTitle' => 'Panoramica',
 			'workspace.pickerEmptySubtitle' => 'Crea un\'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerEmptyTitle' => 'Nessuna area di lavoro per ora',
 			'workspace.pickerTitle' => 'Le mie aree di lavoro',
 			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
 			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
 			'workspace.projectChannelLinkedToast' => 'Canale collegato',
@@ -5920,7 +5911,6 @@ extension on TranslationsItIt {
 			'workspace.roleMember' => 'Member',
 			'workspace.roleOwner' => 'Owner',
 			'workspace.switchToPersonal' => 'Passa a personale',
-			'workspace.switchToWorkspace' => 'Passa ad area di lavoro',
 			'workspace.switchWorkspace' => 'Cambia area di lavoro',
 			'workspace.taskAdvanceTo' => ({required Object status}) => 'Avanza a «${status}»',
 			'workspace.taskAssigneeLabel' => 'Responsabile (membro dell\'area di lavoro)',

@@ -166,20 +166,18 @@ void main() {
     addTearDown(() {
       container
           .read(productExperienceProvider.notifier)
-          .select(ProductExperience.chat);
+          .select(ProductExperience.personal);
     });
 
     // 归位 chat 体验 → 重置常驻壳 state → 注入下切 workspace 触发
     // overview 拉取（被拦截为空 payload）
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await _pump(tester, seconds: 2);
     container.invalidate(workspaceShellProvider);
     adapter.emptyMembers = true;
-    await container
-        .read(productExperienceProvider.notifier)
-        .select(ProductExperience.workspace);
+    await container.read(workspaceShellProvider.notifier).loadMine();
     await _pump(tester, seconds: 4);
     final wsId = container.read(
       workspaceShellProvider.select((s) => s.currentWorkspaceId),

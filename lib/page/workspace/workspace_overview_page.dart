@@ -22,11 +22,13 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
+import 'package:imboy/page/workspace/workspace_projects_page.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart';
+import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 
 class WorkspaceOverviewPage extends ConsumerWidget {
   const WorkspaceOverviewPage({super.key});
@@ -61,6 +63,17 @@ class _OverviewBody extends ConsumerWidget {
 
   const _OverviewBody({required this.wsId, required this.data});
 
+  void _openResource(BuildContext context, String title, Widget page) {
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: Text(title)),
+          body: page,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(featureRevisionProvider);
@@ -85,9 +98,11 @@ class _OverviewBody extends ConsumerWidget {
                     icon: CupertinoIcons.folder,
                     count: data.projectCount,
                     label: t.workspace.navProjects,
-                    onTap: () => ref
-                        .read(workspaceShellProvider.notifier)
-                        .selectDestination(WorkspaceShellDestination.projects),
+                    onTap: () => _openResource(
+                      context,
+                      t.workspace.navProjects,
+                      const WorkspaceProjectsPage(),
+                    ),
                   ),
                 ),
               Expanded(
@@ -96,9 +111,11 @@ class _OverviewBody extends ConsumerWidget {
                   icon: CupertinoIcons.person_2,
                   count: data.groupCount,
                   label: t.workspace.navGroups,
-                  onTap: () => ref
-                      .read(workspaceShellProvider.notifier)
-                      .selectDestination(WorkspaceShellDestination.groups),
+                  onTap: () => _openResource(
+                    context,
+                    t.workspace.navGroups,
+                    const WorkspaceGroupsPage(),
+                  ),
                 ),
               ),
               Expanded(
@@ -107,9 +124,11 @@ class _OverviewBody extends ConsumerWidget {
                   icon: CupertinoIcons.antenna_radiowaves_left_right,
                   count: data.channelCount,
                   label: t.workspace.navChannels,
-                  onTap: () => ref
-                      .read(workspaceShellProvider.notifier)
-                      .selectDestination(WorkspaceShellDestination.channels),
+                  onTap: () => _openResource(
+                    context,
+                    t.workspace.navChannels,
+                    const WorkspaceChannelsPage(),
+                  ),
                 ),
               ),
             ],

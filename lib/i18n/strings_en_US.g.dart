@@ -2661,12 +2661,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'Archived';
 	@override String get emptyNoWorkspace => 'Select or create a workspace first';
 	@override String get dmEntry => 'All messages';
-	@override String get experienceModeEntry => 'Home layout';
-	@override String get experienceModeHint => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership';
 	@override String get experienceModePersonal => 'Personal';
-	@override String get experienceModeWorkspace => 'Workspace';
-	@override String get experienceModeReset => 'Restore deployment default';
-	@override String get switchToWorkspace => 'Switch to workspace';
 	@override String get switchToPersonal => 'Switch to personal';
 	@override String get createTitle => 'Create Workspace';
 	@override String get createDesc => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.';
@@ -6158,12 +6153,7 @@ extension on TranslationsEnUs {
 			'workspace.archivedBadge' => 'Archived',
 			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
 			'workspace.dmEntry' => 'All messages',
-			'workspace.experienceModeEntry' => 'Home layout',
-			'workspace.experienceModeHint' => 'Choose this device\'s experience; only the home layout changes, not permissions or workspace membership',
 			'workspace.experienceModePersonal' => 'Personal',
-			'workspace.experienceModeWorkspace' => 'Workspace',
-			'workspace.experienceModeReset' => 'Restore deployment default',
-			'workspace.switchToWorkspace' => 'Switch to workspace',
 			'workspace.switchToPersonal' => 'Switch to personal',
 			'workspace.createTitle' => 'Create Workspace',
 			'workspace.createDesc' => 'One shot creates: the workspace, you as Owner (Workspace Member), an Announcements channel and a General group. All or nothing.',

@@ -2477,12 +2477,7 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'Archivé';
 	@override String get emptyNoWorkspace => 'Sélectionnez ou créez d\'abord un espace de travail';
 	@override String get dmEntry => 'Tous les messages';
-	@override String get experienceModeEntry => 'Disposition de l\'accueil';
-	@override String get experienceModeHint => 'Choisissez l\'expérience d\'utilisation sur cet appareil ; cela ne change que la disposition de l\'accueil, sans affecter les droits ni l\'adhésion à l\'espace de travail';
 	@override String get experienceModePersonal => 'Personnel';
-	@override String get experienceModeWorkspace => 'Espace de travail';
-	@override String get experienceModeReset => 'Restaurer les valeurs par défaut du déploiement';
-	@override String get switchToWorkspace => 'Passer en mode espace de travail';
 	@override String get switchToPersonal => 'Passer en mode personnel';
 	@override String get createTitle => 'Créer un espace de travail';
 	@override String get createDesc => 'Une seule création automatise tout : l\'espace de travail, votre adhésion en tant que membre Owner, le canal Announcements et le groupe General. Tout réussit ou tout est annulé.';
@@ -5734,12 +5729,7 @@ extension on TranslationsFrFr {
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
 			'workspace.dmEntry' => 'Tous les messages',
-			'workspace.experienceModeEntry' => 'Disposition de l\'accueil',
-			'workspace.experienceModeHint' => 'Choisissez l\'expérience d\'utilisation sur cet appareil ; cela ne change que la disposition de l\'accueil, sans affecter les droits ni l\'adhésion à l\'espace de travail',
 			'workspace.experienceModePersonal' => 'Personnel',
-			'workspace.experienceModeWorkspace' => 'Espace de travail',
-			'workspace.experienceModeReset' => 'Restaurer les valeurs par défaut du déploiement',
-			'workspace.switchToWorkspace' => 'Passer en mode espace de travail',
 			'workspace.switchToPersonal' => 'Passer en mode personnel',
 			'workspace.createTitle' => 'Créer un espace de travail',
 			'workspace.createDesc' => 'Une seule création automatise tout : l\'espace de travail, votre adhésion en tant que membre Owner, le canal Announcements et le groupe General. Tout réussit ou tout est annulé.',
@@ -5816,13 +5806,13 @@ extension on TranslationsFrFr {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Modifier le rôle d\'espace de travail de ${name}',
 			'workspace.transferTitle' => ({required Object name}) => 'Transférer le rôle d\'Owner principal à ${name}',
 			'workspace.transferDesc' => 'Après le transfert, vous deviendrez un membre ordinaire de l\'espace de travail (Member) et il obtiendra tous les droits de gouvernance',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferConfirm' => 'Confirmer le transfert',
 			'workspace.governanceTitle' => 'Gouvernance de l\'espace de travail',
 			'workspace.brandingEntry' => 'Paramètres de marque (nom / Logo / couleur principale)',
 			'workspace.archiveEntry' => 'Archiver l\'espace de travail',
 			'workspace.restoreEntry' => 'Restaurer l\'espace de travail',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'Archiver l\'espace de travail',
 			'workspace.archiveDesc' => 'Après archivage, tous les membres passent en lecture seule (les écritures sont refusées par le serveur) ; restauration possible à tout moment',
 			'workspace.archiveConfirm' => 'Confirmer l\'archivage',

@@ -49,7 +49,10 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      expect(container.read(productExperienceProvider), ProductExperience.chat);
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.personal,
+      );
     });
 
     test('ChatShellPage 可被 bootstrap 的 chat 分支构造（const 组合）', () {

@@ -15,7 +15,7 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/init.dart';
-import 'package:imboy/page/chat_shell/experience_provider.dart';
+import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/single/markdown_page.dart';
 import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/modules/security_privacy/public.dart';
@@ -121,7 +121,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     final userRepo = ref.watch(userRepoProvider);
     final themeState = ref.watch(themeProvider);
     final brightness = Theme.of(context).brightness;
-    final experience = ref.watch(productExperienceProvider);
 
     return IosPageTemplate(
       title: t.main.setting,
@@ -162,14 +161,12 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 onTap: () => context.push('/font_size'),
               ),
               ImBoySettingsTile(
-                title: Text(t.workspace.experienceModeEntry),
-                subtitle: Text(t.workspace.experienceModeHint),
+                title: Text(t.organization.picker.switchEnterprise),
                 leading: _buildIcon(
                   CupertinoIcons.rectangle_3_offgrid,
                   AppColors.iosBlue,
                 ),
-                trailing: _buildValueTrailing(_experienceModeLabel(experience)),
-                onTap: () => _selectExperienceMode(experience),
+                onTap: () => context.push(kOrganizationPickerPath),
               ),
             ],
           ),
@@ -345,71 +342,6 @@ class _SettingPageState extends ConsumerState<SettingPage> {
       ),
       child: Icon(icon, color: AppColors.onPrimary, size: 20),
     );
-  }
-
-  String _experienceModeLabel(ProductExperience experience) {
-    return switch (experience) {
-      ProductExperience.chat => t.workspace.experienceModePersonal,
-      ProductExperience.workspace => t.workspace.experienceModeWorkspace,
-    };
-  }
-
-  Future<void> _selectExperienceMode(ProductExperience current) async {
-    final selected = await showCupertinoModalPopup<_ExperienceSelection>(
-      context: context,
-      builder: (sheetContext) => CupertinoActionSheet(
-        title: Text(t.workspace.experienceModeEntry),
-        message: Text(t.workspace.experienceModeHint),
-        actions: [
-          CupertinoActionSheetAction(
-            isDefaultAction: current == ProductExperience.chat,
-            onPressed: () =>
-                Navigator.pop(sheetContext, _ExperienceSelection.personal),
-            child: Text(t.workspace.experienceModePersonal),
-          ),
-          CupertinoActionSheetAction(
-            isDefaultAction: current == ProductExperience.workspace,
-            onPressed: () =>
-                Navigator.pop(sheetContext, _ExperienceSelection.workspace),
-            child: Text(t.workspace.experienceModeWorkspace),
-          ),
-          CupertinoActionSheetAction(
-            onPressed: () => Navigator.pop(
-              sheetContext,
-              _ExperienceSelection.deploymentDefault,
-            ),
-            child: Text(t.workspace.experienceModeReset),
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.pop(sheetContext),
-          child: Text(t.common.buttonCancel),
-        ),
-      ),
-    );
-    if (selected == null) return;
-    if ((selected == _ExperienceSelection.personal &&
-            current == ProductExperience.chat) ||
-        (selected == _ExperienceSelection.workspace &&
-            current == ProductExperience.workspace)) {
-      return;
-    }
-
-    try {
-      final notifier = ref.read(productExperienceProvider.notifier);
-      switch (selected) {
-        case _ExperienceSelection.personal:
-          await notifier.select(ProductExperience.chat);
-        case _ExperienceSelection.workspace:
-          await notifier.select(ProductExperience.workspace);
-        case _ExperienceSelection.deploymentDefault:
-          await notifier.resetToDefault();
-      }
-      if (!mounted) return;
-      context.go('/bottom_navigation');
-    } catch (_) {
-      if (mounted) AppLoading.showError(t.common.settingFailedPleaseTryAgain);
-    }
   }
 
   Widget _buildValueTrailing(String value) {
@@ -623,5 +555,3 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 }
-
-enum _ExperienceSelection { personal, workspace, deploymentDefault }

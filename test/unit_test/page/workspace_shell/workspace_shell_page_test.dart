@@ -1,298 +1,81 @@
-/// WP5 (T8) — WorkspaceShellPage widget 测试
-///
-/// 覆盖：五项导航渲染（移动端底部导航 / 桌面端侧栏）、T1 页面标题制顶栏
-/// （头像菜单、切换器退出移动端顶栏）、会话目的地不叠加壳顶栏（头像经
-/// WorkspaceConversationsPage extraActions 呈现）、archived 横幅（T9 归档规则）。
-/// 数据 Provider 在无头测试环境下由 flutter_test_config 全局禁网 →
-/// 各视图渲染错误/空态（Day-1 Bar 的可见状态设计本身就是断言对象）。
-library;
-
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
-import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
-import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
+import 'package:imboy/page/chat_shell/chat_shell_page.dart';
+import 'package:imboy/page/web_shell/web_shell_bootstrap.dart';
+import 'package:imboy/page/workspace_shell/enterprise_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
-Future<ProviderContainer> _seededContainer({
-  WorkspaceStatus status = WorkspaceStatus.active,
-}) async {
-  final container = ProviderContainer();
-  container
-      .read(workspaceShellProvider.notifier)
-      .applyCreated(
-        WorkspaceCreateResult(
-          workspace: WorkspaceModel(
-            id: '9001',
-            name: '官网改版',
-            ownerId: '1001',
-            status: status,
-          ),
-          channelId: '9002',
-          groupId: '9003',
-          status: 'created',
-        ),
-      );
-  return container;
-}
-
-Future<void> _pumpShell(
-  WidgetTester tester,
-  ProviderContainer container, {
-  Size size = const Size(430, 900),
-}) async {
-  tester.view.physicalSize = size;
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.reset);
-
-  await tester.pumpWidget(
-    TranslationProvider(
-      child: UncontrolledProviderScope(
-        container: container,
-        child: const MaterialApp(home: WorkspaceShellPage()),
-      ),
-    ),
-  );
-  // 固定帧推进（页面异步加载在无头禁网环境会落错误/空态，不 pumpAndSettle）
-  await tester.pump(const Duration(milliseconds: 100));
+class _Shell extends WorkspaceShellNotifier {
+  _Shell(this.initial);
+  final WorkspaceShellState initial;
+  @override
+  WorkspaceShellState build() => initial;
 }
 
 void main() {
-  // ccc47b60 起 AppFeatureRegistry.snapshot 按账号 FeatureScope 隔离：scope
-  // 未绑定时 snapshot 为空表，project 等编译特性缺省判 false（仅 core 例外）
-  // → 「遵循编译功能」的基线断言（compiled 含 project 即 findsWidgets）失败。
-  // 这些用例的语义是「远程全开、由编译集收口」，显式注入全开快照。
-  AppFeatureRegistry.replaceSnapshotForTest({
-    for (final feature in compiledProductFeatures) feature: true,
-  });
-
-  testWidgets('移动端：底部导航遵循编译功能 + 顶栏 [切换 chip | 标题 | 头像]', (tester) async {
-    final container = await _seededContainer();
-    addTearDown(container.dispose);
-
-    await _pumpShell(tester, container);
-
-    expect(
-      find.byKey(const ValueKey('workspace-shell-bottom-nav')),
-      findsOneWidget,
-    );
-    expect(find.text('群聊'), findsWidgets);
-    expect(find.text('概览'), findsWidgets);
-    expect(find.text('频道'), findsWidgets);
-    expect(find.text('群组'), findsWidgets);
-    expect(
-      find.text('项目'),
-      compiledProductFeatures.contains('project') ? findsWidgets : findsNothing,
-    );
-    // Members 退出五项导航（入口收敛进 Overview 成员卡片）
-    expect(find.text('成员'), findsNothing);
-    // 切换 chip 恢复移动端常驻（壳顶栏 + WorkspaceConversationsPage leading 各一，
-    // IndexedStack 保活两实例均在树中）
-    expect(
-      find.byKey(const ValueKey('workspace-shell-switcher')),
-      findsWidgets,
-    );
-    // 头像：壳顶栏右侧 + WorkspaceConversationsPage trailingActions 各一
-    expect(
-      find.byKey(const ValueKey('workspace-shell-account-entry')),
-      findsWidgets,
-    );
-    // DM/设置图标退出全局区（收进账户 Sheet）
-    expect(
-      find.byKey(const ValueKey('workspace-shell-dm-entry')),
-      findsNothing,
-    );
-    expect(
-      find.byKey(const ValueKey('workspace-shell-setting-entry')),
-      findsNothing,
-    );
-  });
-
-  testWidgets('会话目的地：自带导航栏 [chip | 群聊 | 头像]，壳顶栏隐藏', (tester) async {
-    final container = await _seededContainer();
-    addTearDown(container.dispose);
-
-    await _pumpShell(tester, container);
-
-    container
-        .read(workspaceShellProvider.notifier)
-        .selectDestination(WorkspaceShellDestination.conversations);
-    await tester.pump(const Duration(milliseconds: 100));
-
-    expect(
-      find.byKey(const ValueKey('workspace-shell-bottom-nav')),
-      findsOneWidget,
-    );
-    // 会话页自带 chip 与头像（壳顶栏隐藏后两者依旧可达）
-    expect(
-      find.byKey(const ValueKey('workspace-shell-switcher')),
-      findsWidgets,
-    );
-    expect(
-      find.byKey(const ValueKey('workspace-shell-account-entry')),
-      findsWidgets,
-    );
-    expect(find.text('群聊'), findsWidgets);
-  });
-
-  testWidgets('桌面端：NavigationRail 遵循编译功能 + 顶部切换器 + 头像沉底', (tester) async {
-    final container = await _seededContainer();
-    addTearDown(container.dispose);
-
-    await _pumpShell(tester, container, size: const Size(1440, 900));
-
-    expect(find.byKey(const ValueKey('workspace-shell-rail')), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('workspace-shell-bottom-nav')),
-      findsNothing,
-    );
-    // 桌面惯例：rail 顶部保留工作区切换器（含 WorkspaceConversationsPage leading 实例）
-    expect(
-      find.byKey(const ValueKey('workspace-shell-switcher')),
-      findsWidgets,
-    );
-    expect(
-      find.byKey(const ValueKey('workspace-shell-account-entry')),
-      findsWidgets,
-    );
-    expect(find.text('群聊'), findsWidgets);
-    expect(
-      find.text('项目'),
-      compiledProductFeatures.contains('project') ? findsWidgets : findsNothing,
-    );
-    expect(find.text('成员'), findsNothing);
-  });
-
-  testWidgets('archived workspace：显示归档横幅（T9 归档规则）', (tester) async {
-    final container = await _seededContainer(status: WorkspaceStatus.archived);
-    addTearDown(container.dispose);
-
-    await _pumpShell(tester, container);
-
-    expect(
-      find.byKey(const ValueKey('workspace-archived-banner')),
-      findsOneWidget,
-    );
-    expect(find.textContaining('已归档'), findsOneWidget);
-  });
-
-  testWidgets('active workspace：无归档横幅', (tester) async {
-    final container = await _seededContainer();
-    addTearDown(container.dispose);
-
-    await _pumpShell(tester, container);
-
-    expect(
-      find.byKey(const ValueKey('workspace-archived-banner')),
-      findsNothing,
-    );
-  });
-
-  testWidgets('账户 Sheet：单工作区也常驻列表 + 创建/加入双入口（T1.1）', (tester) async {
-    final container = await _seededContainer();
-    addTearDown(container.dispose);
-
-    await _pumpShell(tester, container);
-
-    // 头像入口壳顶栏与会话页各一（IndexedStack 保活），点第一个即可
-    await tester.tap(
-      find.byKey(const ValueKey('workspace-shell-account-entry')).first,
-    );
-    // bottom sheet 过场动画：固定帧推进（无头禁网环境不 pumpAndSettle）
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
-    // 单工作区列表常驻：自身 tile 渲染且带选中 check
-    expect(
-      find.byKey(const ValueKey('workspace-account-sheet-ws-9001')),
-      findsOneWidget,
-    );
-    // 创建/加入双入口常驻（「创建更多 + 团队码加入」断头修复）
-    expect(
-      find.byKey(const ValueKey('workspace-account-sheet-create-entry')),
-      findsOneWidget,
-    );
-    expect(
-      find.byKey(const ValueKey('workspace-account-sheet-join-entry')),
-      findsOneWidget,
-    );
-    // §5.1：「加入工作区」改为真正的「加入企业」——文案与行为同换
-    // （禁止只替换文案后仍走工作区码加入）。
-    expect(find.text('加入企业'), findsOneWidget);
-    expect(find.text('加入工作区'), findsNothing);
-  });
-
-  group('project 功能隐藏（计划 §5.3）', () {
-    setUp(() {
-      // 显式远程关闭；编译关闭的配置同样不得展示项目入口。
-      AppFeatureRegistry.replaceSnapshotForTest({'project': false});
-    });
-    tearDown(() {
-      AppFeatureRegistry.replaceSnapshotForTest(<String, dynamic>{});
-    });
-
-    testWidgets('移动端：底部导航少一项；已选中项目时回落消息且不越界', (tester) async {
-      final container = await _seededContainer();
-      addTearDown(container.dispose);
-      // 模拟「上一刻已选中项目」后开关关闭 → 不得停在项目页、不得下标越界
-      container
-          .read(workspaceShellProvider.notifier)
-          .selectDestination(WorkspaceShellDestination.projects);
-
-      await _pumpShell(tester, container);
-
-      final nav = tester.widget<NavigationBar>(
-        find.byKey(const ValueKey('workspace-shell-bottom-nav')),
-      );
-      expect(nav.destinations.length, kWorkspaceShellDestinationCount - 1);
-      // 可见项顺序 [conversations, overview, channels, groups] → 回落 conversations=0
-      expect(nav.selectedIndex, 0);
-      expect(
-        find.byKey(const ValueKey('workspace-shell-destination-stack')),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('桌面端：NavigationRail 同步少一项且不越界', (tester) async {
-      final container = await _seededContainer();
-      addTearDown(container.dispose);
-
-      await _pumpShell(tester, container, size: const Size(1200, 900));
-
-      final rail = tester.widget<NavigationRail>(
-        find.byKey(const ValueKey('workspace-shell-rail')),
-      );
-      expect(rail.destinations.length, kWorkspaceShellDestinationCount - 1);
-      expect(rail.selectedIndex, 0);
-    });
-
-    testWidgets('远程 project=true：不能重新打开编译关闭的项目入口', (tester) async {
-      AppFeatureRegistry.replaceSnapshotForTest({'project': true});
-      final container = await _seededContainer();
-      addTearDown(container.dispose);
-
-      await _pumpShell(tester, container);
-
-      final nav = tester.widget<NavigationBar>(
-        find.byKey(const ValueKey('workspace-shell-bottom-nav')),
-      );
-      expect(
-        nav.destinations.length,
-        compiledProductFeatures.contains('project')
-            ? kWorkspaceShellDestinationCount
-            : kWorkspaceShellDestinationCount - 1,
-      );
-      expect(
-        find.text('项目'),
-        compiledProductFeatures.contains('project')
-            ? findsWidgets
-            : findsNothing,
-      );
-    });
-  });
+  for (final organizationId in ['', 'org-a']) {
+    for (final hasWorkspace in [false, true]) {
+      testWidgets('企业=$organizationId，工作区=$hasWorkspace：只分发个人或企业布局', (
+        tester,
+      ) async {
+        final container = ProviderContainer(
+          overrides: [
+            currentUserProvider.overrideWithValue(
+              UserModel(uid: 'mode-a', account: 'synthetic'),
+            ),
+            workspaceShellProvider.overrideWith(
+              () => _Shell(
+                WorkspaceShellState(
+                  organizationId: organizationId,
+                  currentWorkspaceId: hasWorkspace ? 'ws-a' : '',
+                  workspaces: hasWorkspace
+                      ? const [
+                          WorkspaceModel(
+                            id: 'ws-a',
+                            name: 'synthetic',
+                            ownerId: 'mode-a',
+                            organizationId: 'org-a',
+                          ),
+                        ]
+                      : const [],
+                ),
+              ),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+        late Widget result;
+        // 执行真实分发，子页的网络/SQLite 挂载由企业布局组件测试覆盖。
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: Consumer(
+              builder: (context, ref, _) {
+                result = const WorkspaceShellPage().build(context, ref);
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        if (organizationId.isEmpty) {
+          expect(result, isA<ChatShellPage>());
+          final personal = result as ChatShellPage;
+          expect(personal.mobileEntry, isA<BottomNavigationPage>());
+          expect(personal.desktopEntry, isA<WebShellBootstrap>());
+        } else {
+          expect(result, isA<EnterpriseShellPage>());
+          expect(
+            (result as EnterpriseShellPage).organizationId,
+            organizationId,
+          );
+        }
+      });
+    }
+  }
 }

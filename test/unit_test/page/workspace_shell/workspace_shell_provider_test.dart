@@ -11,7 +11,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_branding_theme.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_breakpoint.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_nav_items.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -63,46 +62,6 @@ class _NoBrandingFakeApi extends WorkspaceApi {
 }
 
 void main() {
-  group('WorkspaceShellNavItems（§4.2 IA + 频率分层收敛）', () {
-    final items = buildWorkspaceShellNavItems(
-      conversationsLabel: '全部消息',
-      overviewLabel: '概览',
-      projectsLabel: '项目',
-      channelsLabel: '频道',
-      groupsLabel: '群组',
-    );
-
-    test('五项导航：Conversations/Overview/Channels/Groups/Projects（固定顺序）', () {
-      expect(items.length, kWorkspaceShellDestinationCount);
-      expect(
-        items.map((i) => i.destination).toList(),
-        WorkspaceShellDestination.values,
-      );
-    });
-
-    test('频率分层：会话（全局 DM）排第一；Members 退出一级导航', () {
-      // 2026-08-31 UX 收敛：DM 进一级导航且排第一；Files 不做一级导航；
-      // Members 退出（治理低频，入口收敛进 Overview 成员卡片）
-      expect(items.first.destination, WorkspaceShellDestination.conversations);
-      expect(items.first.label, '全部消息');
-      expect(items.last.destination, WorkspaceShellDestination.projects);
-      expect(items.map((i) => i.destination).toSet(), {
-        WorkspaceShellDestination.conversations,
-        WorkspaceShellDestination.overview,
-        WorkspaceShellDestination.channels,
-        WorkspaceShellDestination.groups,
-        WorkspaceShellDestination.projects,
-      });
-    });
-
-    test('每一项均有图标与文案', () {
-      for (final item in items) {
-        expect(item.label, isNotEmpty);
-        expect(item.icon, isNotNull);
-      }
-    });
-  });
-
   group('WorkspaceShellBreakpoint', () {
     test('< 900 → mobile；>= 900 → desktop（与 ChatShell 一致）', () {
       expect(resolveWorkspaceShellLayout(899.9), WorkspaceShellLayout.mobile);
@@ -119,7 +78,6 @@ void main() {
       final state = container.read(workspaceShellProvider);
       expect(state.hasWorkspace, isFalse);
       expect(state.current, isNull);
-      expect(state.destination, WorkspaceShellDestination.conversations);
     });
 
     test('applyCreated 回填 Template 结果并选中消息页', () {
@@ -127,7 +85,6 @@ void main() {
       addTearDown(container.dispose);
 
       final notifier = container.read(workspaceShellProvider.notifier);
-      notifier.selectDestination(WorkspaceShellDestination.projects);
       notifier.applyCreated(
         WorkspaceCreateResult(
           workspace: const WorkspaceModel(
@@ -144,7 +101,6 @@ void main() {
       final state = container.read(workspaceShellProvider);
       expect(state.workspaces.length, 1);
       expect(state.currentWorkspaceId, '9001');
-      expect(state.destination, WorkspaceShellDestination.conversations);
     });
 
     test('selectWorkspace 切换工作区并回到消息页', () {
@@ -176,12 +132,10 @@ void main() {
           status: 'created',
         ),
       );
-      notifier.selectDestination(WorkspaceShellDestination.channels);
       notifier.selectWorkspace('9001');
 
       final state = container.read(workspaceShellProvider);
       expect(state.currentWorkspaceId, '9001');
-      expect(state.destination, WorkspaceShellDestination.conversations);
       expect(state.workspaces.length, 2);
     });
 
@@ -232,7 +186,6 @@ void main() {
           status: 'created',
         ),
       );
-      notifier.selectDestination(WorkspaceShellDestination.projects);
 
       notifier.applyJoined(
         const WorkspaceModel(id: '9005', name: '团队码加入', ownerId: '1002'),
@@ -243,7 +196,6 @@ void main() {
       // 新加入置顶（回填顺序与服务端 created_at DESC 一致）
       expect(state.workspaces.first.id, '9005');
       expect(state.currentWorkspaceId, '9005');
-      expect(state.destination, WorkspaceShellDestination.conversations);
     });
 
     test('applyJoined 已存在的工作区 id 不重复插入（去重同 applyCreated）', () {
@@ -291,7 +243,6 @@ void main() {
       );
       expect(state.workspaces.first.id, '9001');
       expect(state.currentWorkspaceId, '9001');
-      expect(state.destination, WorkspaceShellDestination.conversations);
     });
 
     test('applyJoined 空 id（异常兜底）不产生任何状态变更', () {

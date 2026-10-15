@@ -2486,12 +2486,7 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'مؤرشفة';
 	@override String get emptyNoWorkspace => 'يرجى أولاً اختيار مساحة عمل أو إنشائها';
 	@override String get dmEntry => 'كل الرسائل';
-	@override String get experienceModeEntry => 'تخطيط الصفحة الرئيسية';
-	@override String get experienceModeHint => 'اختر تجربة الاستخدام على هذا الجهاز؛ يغيّر تخطيط الصفحة الرئيسية فقط، دون تغيير الأذونات أو عضوية مساحة العمل';
 	@override String get experienceModePersonal => 'شخصي';
-	@override String get experienceModeWorkspace => 'مساحة عمل';
-	@override String get experienceModeReset => 'استعادة القيمة الافتراضية للنشر';
-	@override String get switchToWorkspace => 'التبديل إلى مساحة العمل';
 	@override String get switchToPersonal => 'التبديل إلى الشخصي';
 	@override String get createTitle => 'إنشاء مساحة عمل';
 	@override String get createDesc => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.';
@@ -5743,12 +5738,7 @@ extension on TranslationsArSa {
 			'workspace.archivedBadge' => 'مؤرشفة',
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
 			'workspace.dmEntry' => 'كل الرسائل',
-			'workspace.experienceModeEntry' => 'تخطيط الصفحة الرئيسية',
-			'workspace.experienceModeHint' => 'اختر تجربة الاستخدام على هذا الجهاز؛ يغيّر تخطيط الصفحة الرئيسية فقط، دون تغيير الأذونات أو عضوية مساحة العمل',
 			'workspace.experienceModePersonal' => 'شخصي',
-			'workspace.experienceModeWorkspace' => 'مساحة عمل',
-			'workspace.experienceModeReset' => 'استعادة القيمة الافتراضية للنشر',
-			'workspace.switchToWorkspace' => 'التبديل إلى مساحة العمل',
 			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
 			'workspace.createTitle' => 'إنشاء مساحة عمل',
 			'workspace.createDesc' => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.',
@@ -5825,13 +5815,13 @@ extension on TranslationsArSa {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'تعديل دور ${name} في مساحة العمل',
 			'workspace.transferTitle' => ({required Object name}) => 'نقل دور Owner الرئيسي إلى ${name}',
 			'workspace.transferDesc' => 'بعد النقل تصبح عضو مساحة عمل عادياً (Member)، ويحصل الطرف الآخر على كامل صلاحيات الحوكمة',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferConfirm' => 'تأكيد النقل',
 			'workspace.governanceTitle' => 'حوكمة مساحة العمل',
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',

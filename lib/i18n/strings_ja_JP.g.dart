@@ -2474,12 +2474,7 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get archivedBadge => 'アーカイブ済み';
 	@override String get emptyNoWorkspace => 'まずワークスペースを選択または作成してください';
 	@override String get dmEntry => 'すべてのメッセージ';
-	@override String get experienceModeEntry => 'ホームレイアウト';
-	@override String get experienceModeHint => 'この端末での使用体験を選択します。ホームレイアウトのみが変わり、権限やワークスペースメンバーとしての身分は変わりません';
 	@override String get experienceModePersonal => '個人';
-	@override String get experienceModeWorkspace => 'ワークスペース';
-	@override String get experienceModeReset => 'デプロイのデフォルトに戻す';
-	@override String get switchToWorkspace => 'ワークスペースに切り替え';
 	@override String get switchToPersonal => '個人に切り替え';
 	@override String get createTitle => 'ワークスペースを作成';
 	@override String get createDesc => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。';
@@ -5731,12 +5726,7 @@ extension on TranslationsJaJp {
 			'workspace.archivedBadge' => 'アーカイブ済み',
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
 			'workspace.dmEntry' => 'すべてのメッセージ',
-			'workspace.experienceModeEntry' => 'ホームレイアウト',
-			'workspace.experienceModeHint' => 'この端末での使用体験を選択します。ホームレイアウトのみが変わり、権限やワークスペースメンバーとしての身分は変わりません',
 			'workspace.experienceModePersonal' => '個人',
-			'workspace.experienceModeWorkspace' => 'ワークスペース',
-			'workspace.experienceModeReset' => 'デプロイのデフォルトに戻す',
-			'workspace.switchToWorkspace' => 'ワークスペースに切り替え',
 			'workspace.switchToPersonal' => '個人に切り替え',
 			'workspace.createTitle' => 'ワークスペースを作成',
 			'workspace.createDesc' => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。',
@@ -5813,13 +5803,13 @@ extension on TranslationsJaJp {
 			'workspace.changeRoleTitle' => ({required Object name}) => '${name} のワークスペースロールを変更',
 			'workspace.transferTitle' => ({required Object name}) => 'メインOwnerを ${name} に移譲',
 			'workspace.transferDesc' => '移譲後、あなたは通常のワークスペースメンバー（Member）になり、相手が全ての管理権を取得します',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.transferConfirm' => '移譲を確認',
 			'workspace.governanceTitle' => 'ワークスペース管理',
 			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
 			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
 			'workspace.archiveConfirm' => 'アーカイブを確認',

@@ -98,7 +98,7 @@ void main() {
     );
     await container
         .read(productExperienceProvider.notifier)
-        .select(ProductExperience.chat);
+        .select(ProductExperience.personal);
     await _pump(tester, seconds: 2);
 
     final router = GoRouter.of(tester.element(find.byType(Navigator).first));

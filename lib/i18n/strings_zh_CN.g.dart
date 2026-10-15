@@ -7231,23 +7231,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '全部消息'
 	String get dmEntry => '全部消息';
 
-	/// zh-CN: '首页布局'
-	String get experienceModeEntry => '首页布局';
-
-	/// zh-CN: '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份'
-	String get experienceModeHint => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份';
-
 	/// zh-CN: '个人'
 	String get experienceModePersonal => '个人';
-
-	/// zh-CN: '工作区'
-	String get experienceModeWorkspace => '工作区';
-
-	/// zh-CN: '恢复部署默认值'
-	String get experienceModeReset => '恢复部署默认值';
-
-	/// zh-CN: '切换到工作区'
-	String get switchToWorkspace => '切换到工作区';
 
 	/// zh-CN: '切换到个人'
 	String get switchToPersonal => '切换到个人';
@@ -12011,12 +11996,7 @@ extension on Translations {
 			'workspace.archivedBadge' => '已归档',
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
 			'workspace.dmEntry' => '全部消息',
-			'workspace.experienceModeEntry' => '首页布局',
-			'workspace.experienceModeHint' => '选择当前设备的使用体验；仅改变首页布局，不改变权限或工作区成员身份',
 			'workspace.experienceModePersonal' => '个人',
-			'workspace.experienceModeWorkspace' => '工作区',
-			'workspace.experienceModeReset' => '恢复部署默认值',
-			'workspace.switchToWorkspace' => '切换到工作区',
 			'workspace.switchToPersonal' => '切换到个人',
 			'workspace.createTitle' => '创建工作区',
 			'workspace.createDesc' => '一次创建，自动完成：工作区、你（Owner 工作区成员身份）、Announcements 频道与 General 群。全部成功或全部回滚。',
