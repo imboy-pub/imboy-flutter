@@ -16,6 +16,7 @@ import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
+import 'package:imboy/service/message.dart';
 
 import 'route_registry.dart';
 import 'smoke_test_harness.dart';
@@ -23,7 +24,11 @@ import 'smoke_test_harness.dart';
 void main() {
   setUpAll(() {
     installSmokeHttpOverrides();
+    // 应用级单例归套件所有，页面卸载不应销毁它。
+    MessageService.instance;
   });
+
+  tearDownAll(() => MessageService.instance.dispose());
 
   setUp(() async {
     await prepareSmokeEnv();
@@ -31,11 +36,12 @@ void main() {
 
   group('路由烟雾测试 / Route smoke test', () {
     for (final route in smokeRoutes) {
-      if (isQuarantined(route)) {
+      if (isQuarantined(route) &&
+          !const bool.fromEnvironment('SMOKE_INCLUDE_QUARANTINED')) {
         final reason =
             route.skipReason ??
-            '异步泄漏名单：留 pending timer，与无头烟雾测试不兼容，'
-                '应由 integration_test 覆盖';
+            '尚未恢复：平台依赖或生命周期缺陷，'
+                '见 docs/reference/route-smoke-coverage.md';
         testWidgets(
           '[quarantine] ${route.name} — $reason',
           (tester) async {},
@@ -55,24 +61,37 @@ void main() {
     }
   });
 
-  testWidgets('disabled social entry cannot certify target rendering', (
-    tester,
-  ) async {
-    addTearDown(() => PersistentMessageQueue.to.dispose());
-    final manifest = AppManifestService.manifest!;
-    AppManifestService.replaceForTest({
-      ...manifest.toMap(),
-      'app_entries': <String>[],
+  for (final name in ['moment_feed', 'channel_detail']) {
+    testWidgets('disabled $name entry cannot certify target rendering', (
+      tester,
+    ) async {
+      addTearDown(() => PersistentMessageQueue.to.dispose());
+      final manifest = AppManifestService.manifest!;
+      AppManifestService.replaceForTest({
+        ...manifest.toMap(),
+        'app_entries': <String>[],
+      });
+      addTearDown(() => AppManifestService.replaceForTest(manifest.toMap()));
+      final route = smokeRoutes.singleWhere((route) => route.name == name);
+      final error = await renderRoute(tester, route);
+      PersistentMessageQueue.to.dispose();
+      expect(error, isA<StateError>());
+      expect(error.toString(), contains('got /bottom_navigation'));
     });
-    addTearDown(() => AppManifestService.replaceForTest(manifest.toMap()));
-    final route = smokeRoutes.singleWhere(
-      (route) => route.name == 'moment_feed',
-    );
-    final error = await renderRoute(tester, route);
-    PersistentMessageQueue.to.dispose();
-    expect(error, isA<StateError>());
-    expect(error.toString(), contains('got /bottom_navigation'));
-  });
+  }
+
+  for (final name in ['qrcode_group', 'qrcode_channel', 'feedback_detail']) {
+    testWidgets('missing $name extra cannot certify placeholder rendering', (
+      tester,
+    ) async {
+      final route = smokeRoutes.singleWhere((route) => route.name == name);
+      final error = await renderRoute(
+        tester,
+        SmokeRoute(name: route.name, location: route.location),
+      );
+      expect(error, isA<StateError>());
+    });
+  }
 
   group('注册表完整性 / Registry integrity', () {
     testWidgets('注册表覆盖 router 全部路由 / registry covers all routes', (

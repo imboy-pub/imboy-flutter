@@ -10,6 +10,9 @@
 //     在此补一条 SmokeRoute；route_smoke_test.dart 的完整性守卫会强制不漏登记。
 //   - 渲染会崩溃且短期无法 mock 的路由 → status: quarantine 并填 skipReason。
 
+import 'package:imboy/store/model/feedback_model.dart';
+import 'package:imboy/store/model/group_model.dart';
+
 /// 路由状态 / Route status
 enum RouteStatus { active, quarantine }
 
@@ -42,97 +45,14 @@ class SmokeRoute {
   final String? skipReason;
 }
 
-/// 「异步泄漏」隔离名单 / Async-leaky quarantine set。
-///
-/// 这些页面在 initState 经 loadData() 发起异步（Dio 超时 Timer / Future.delayed），
-/// 在无头 widget 测试中页面 dispose 后仍留 pending Timer，触发 Flutter teardown
-/// 严格不变量（binding.dart:2542「A Timer is still pending」）而失败——
-/// **这不是渲染崩溃**，是无头 render 烟雾测试与异步页面的固有不兼容
-/// （pending-timer 检查与 FakeAsync 均为 Flutter 私有，无法干净容忍/取消）。
-///
-/// 由 `run_smoke_isolated.sh` 进程隔离实测得出（2026-05-30，PASS=52/FAIL=54）。
-/// 这些页面应由 **integration_test（真机，无此严格检查）** 覆盖，
-/// 或修页面 State.dispose() 取消其定时器后移出本名单。
-///
-/// 维护：定期用 `bash test/smoke/run_smoke_isolated.sh` 复核，能渲染干净的移出。
+/// 尚未恢复的隔离名单；2026-10-16 已逐条执行原 81 条隔离路由。
+/// 原始分类、现有测试对应与恢复证据见 docs/reference/route-smoke-coverage.md。
 const Set<String> leakyRoutesQuarantine = {
-  // 以下 5 条不是渲染崩溃，是无头环境产物：
-  //   - moment_create / account_security / map_location_picker：页面
-  //     initState 的异步链触发 token 过期 → quitLogin → PersistentMessageQueue
-  //     周期清理 Timer + WS/dio socket Timer 泄漏，teardown 撞 pending-timer 不变量
-  //   - group_add_member / group_remove_member：页面依赖的异步 provider 在
-  //     无头环境下于 build 期内就完成，Riverpod 抛
-  //     "Tried to modify a provider while the widget tree was building"；
-  //     真机上异步间隙是真实的，不会触发
-  // 三者都由 integration_test 覆盖真实渲染。
-  'account_security',
-  'add_friend',
-  'assistant_plaza',
-  'bottom_navigation',
-  'channel_admins',
-  'channel_article',
-  'channel_comments',
-  'channel_compose',
-  'channel_create',
-  'channel_detail',
-  'channel_discover',
-  'channel_edit',
-  'channel_invitations',
-  'channel_list',
-  'channel_orders',
-  'channel_order_detail',
-  'channel_subscribers',
-  'chat',
-  'favorites',
-  'forgot_password',
-  'forgot_password_pin',
-  'group_album',
-  'group_album_photo_detail',
-  'group_album_photos',
-  'group_add_member',
-  'group_category',
-  'group_detail',
-  'group_discovery',
-  'group_file',
-  'group_launch_chat',
-  'group_remove_member',
-  'group_schedule',
-  'group_schedule_detail',
-  'group_tag',
-  'group_task',
-  'group_task_detail',
-  'group_vote',
-  'group_vote_detail',
-  'launch_chat',
-  'live_room',
+  // 无头环境未安装 WebViewPlatform；需平台夹具或真机地图交互验证。
+  'map_location_picker',
+  // 两页均在 dispose 中读取 ref，当前 SDK 实际抛错；直播入口仍为产品硬关闭。
   'live_room_publisher',
   'live_room_subscriber',
-  'manage_account',
-  'map_location_picker',
-  'mention_list',
-  'message_search',
-  'more',
-  'personal_info',
-  'privacy_settings',
-  'profile',
-  'qrcode',
-  'qrcode_user',
-  'red_packet_detail',
-  'red_packet_send',
-  'search_chat',
-  'select_region',
-  'set_gender',
-  'set_nickname',
-  'set_region',
-  'sign_up',
-  'sign_up_continue',
-  'transfer_send',
-  'update',
-  'video_viewer',
-  'wallet',
-  'wallet_withdraw',
-  'web_search',
-  'web_shell',
 };
 
 /// 路由是否应被跳过（显式 quarantine 状态 或 异步泄漏名单）。
@@ -140,7 +60,7 @@ bool isQuarantined(SmokeRoute r) =>
     r.status == RouteStatus.quarantine ||
     leakyRoutesQuarantine.contains(r.name);
 
-/// 全部 126 条路由（与 extract_routes.dart 输出一一对应；WP5 新增 5 条工作区路由）
+/// 全部命名路由（与 extract_routes.dart 输出对应）。
 final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   // ==================== 认证 / 启动 ====================
   const SmokeRoute(name: 'splash', location: '/'),
@@ -177,10 +97,14 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(
     name: 'send_to',
     location: '/chat/send_to',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'SendToPage 需非空 Message extra（app_router.dart:258 强转），'
-        '构造成本高，留待 E2E 覆盖',
+    extra: {
+      'msg': {
+        'id': 'smoke_message',
+        'authorId': 'smoke_test_uid',
+        'type': 'text',
+        'text': 'Smoke fixture',
+      },
+    },
   ),
   const SmokeRoute(name: 'launch_chat', location: '/launch_chat'),
 
@@ -224,7 +148,11 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
     name: 'group_remove_member',
     location: '/group/remove_member',
   ),
-  const SmokeRoute(name: 'group_announcement', location: '/group/announcement'),
+  const SmokeRoute(
+    name: 'group_announcement',
+    location: '/group/announcement',
+    extra: {'groupId': '2001'},
+  ),
   const SmokeRoute(name: 'group_launch_chat', location: '/group/launch_chat'),
   const SmokeRoute(name: 'group_select', location: '/group/select'),
   const SmokeRoute(name: 'face_to_face', location: '/group/face_to_face'),
@@ -293,7 +221,20 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
 
   // ==================== 反馈 ====================
   const SmokeRoute(name: 'feedback', location: '/feedback'),
-  const SmokeRoute(name: 'feedback_detail', location: '/feedback/detail/9001'),
+  SmokeRoute(
+    name: 'feedback_detail',
+    location: '/feedback/detail/9001',
+    extra: {
+      'model': FeedbackModel.fromJson({
+        'feedback_id': 9001,
+        'body': 'Smoke fixture',
+        'rating': 3,
+        'status': 1,
+        'created_at': 0,
+        'updated_at': 0,
+      }),
+    },
+  ),
 
   // ==================== Single / 工具页 ====================
   const SmokeRoute(name: 'select_region', location: '/select_region'),
@@ -328,8 +269,18 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'scanner_result', location: '/scanner/result'),
   const SmokeRoute(name: 'qrcode', location: '/qrcode'),
   const SmokeRoute(name: 'qrcode_user', location: '/qrcode/user'),
-  const SmokeRoute(name: 'qrcode_group', location: '/qrcode/group'),
-  const SmokeRoute(name: 'qrcode_channel', location: '/qrcode/channel'),
+  SmokeRoute(
+    name: 'qrcode_group',
+    location: '/qrcode/group',
+    extra: {
+      'group': GroupModel.fromJson({'group_id': 2001, 'title': 'Smoke group'}),
+    },
+  ),
+  const SmokeRoute(
+    name: 'qrcode_channel',
+    location: '/qrcode/channel',
+    extra: {'id': '5001', 'name': 'Smoke channel'},
+  ),
 
   // ==================== 个人资料（嵌套） ====================
   const SmokeRoute(name: 'personal_info', location: '/personal_info'),
@@ -385,44 +336,17 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'mention_list', location: '/mention'),
 
   // ==================== 工作区（WP5/T8，双体验 v2.5.2） ====================
-  const SmokeRoute(
-    name: 'workspace_picker',
-    location: '/workspace',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'WP5/T8：页面经 workspaceShellProvider.loadMine 发起异步网络'
-        '请求，无头烟雾测试留 pending timer（与 bottom_navigation 同类），'
-        '由 test/unit_test/page/workspace_shell/* 与真机覆盖',
-  ),
+  const SmokeRoute(name: 'workspace_picker', location: '/workspace'),
   const SmokeRoute(name: 'workspace_create', location: '/workspace/create'),
   const SmokeRoute(name: 'workspace_join', location: '/workspace/join'),
-  const SmokeRoute(
-    name: 'workspace_members',
-    location: '/workspace/members',
-    status: RouteStatus.quarantine,
-    skipReason:
-        '2026-08-31 UX 收敛：Members 退出五项导航，入口收敛进 Overview'
-        '「工作区成员」卡片；页面读 currentWorkspaceProvider 异步加载成员'
-        '分页，无头环境留 pending timer；权限/幂等契约由'
-        ' workspace_members 相关 page test 断言',
-  ),
+  const SmokeRoute(name: 'workspace_members', location: '/workspace/members'),
   const SmokeRoute(
     name: 'workspace_channel_detail',
     location: '/workspace/9001/channels/9002',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'WP5/T9：内嵌 ChannelDetailPage 发起异步加载'
-        '（channelDetailProvider），无头环境留 pending timer；'
-        '结构契约由 workspace_channel_detail_page_test 断言',
   ),
   const SmokeRoute(
     name: 'workspace_invite',
     location: '/workspace/9001/members/invite',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'WP5/T9：initState 定位 Template 资源 + 搜索均为异步网络'
-        '请求，无头环境留 pending timer；三条独立结果状态机由'
-        ' workspace_invite_controller_test 纯逻辑覆盖',
   ),
   const SmokeRoute(
     name: 'workspace_branding',
@@ -437,11 +361,6 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(
     name: 'workspace_project_detail',
     location: '/workspace/9001/projects/9101',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'WP6/T10a：ProjectDetailPage 经 projectDetailProvider 异步加载'
-        '（与 workspace_channel_detail 同类），无头环境留 pending timer；'
-        '结构契约由 project detail page 测试断言',
   ),
   const SmokeRoute(
     name: 'workspace_task_create',
@@ -450,70 +369,34 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(
     name: 'workspace_task_edit',
     location: '/workspace/9001/projects/9101/tasks/9102/edit',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'WP6/T10b：edit 模式经 projectTaskDetailProvider 加载既有行，'
-        '无头环境留 pending timer；四态状态机由 task controller 测试覆盖',
   ),
 
   // ==================== 工作区 Project W2 协作（ZC-06，成员/里程碑/频道/聚合） ====================
   const SmokeRoute(
     name: 'workspace_project_members',
     location: '/workspace/9001/projects/9101/members',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'W2/ZC-06：成员页经 projectMemberPageProvider 异步加载，'
-        '无头环境留 pending timer；权限/幂等/分页契约由 '
-        'project_w2_members_page_test 断言',
   ),
   const SmokeRoute(
     name: 'workspace_project_milestones',
     location: '/workspace/9001/projects/9101/milestones',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'W2/ZC-06：里程碑页经 projectMilestonePageProvider 异步加载，'
-        '无头环境留 pending timer；状态机/幂等/筛选契约由 '
-        'project_w2_milestones_page_test 断言',
   ),
   const SmokeRoute(
     name: 'workspace_project_channels',
     location: '/workspace/9001/projects/9101/channels',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'W2/ZC-06：关联频道页经 projectChannelPageProvider 异步加载，'
-        '无头环境留 pending timer；link/unlink 幂等契约由 '
-        'project_w2_channels_page_test 断言',
   ),
   const SmokeRoute(
     name: 'workspace_project_insights',
     location: '/workspace/9001/projects/9101/insights',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'W2/ZC-06：四聚合页各 Tab 独立异步加载，无头环境留 pending '
-        'timer；三态契约由 project_w2_insights_page_test 断言',
   ),
 
   // ==================== 兼容旧路径 ====================
   const SmokeRoute(name: 'people_info_top', location: '/people_info/1001'),
 
   // ==================== 企业（app-amendment-001：A4 纵切） ====================
-  // 两页 initState 均发起企业 API 异步加载（与 workspace_overview 同类），
-  // 无头环境留 pending timer；结构契约由 test/enterprise 单测断言。
-  const SmokeRoute(
-    name: 'enterprise_home',
-    location: '/enterprise',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'app-amendment-001：EnterpriseHomePage initState 企业 API 异步加载，'
-        '无头环境留 pending timer；企业纵切契约由 test/enterprise 断言',
-  ),
+  const SmokeRoute(name: 'enterprise_home', location: '/enterprise'),
   const SmokeRoute(
     name: 'enterprise_conversation',
     location: '/enterprise/7001/conversations/7002?contact_name=e2e',
-    status: RouteStatus.quarantine,
-    skipReason:
-        'app-amendment-001：EnterpriseConversationPage after_id 异步拉取，'
-        '无头环境留 pending timer；企业会话契约由 test/enterprise 断言',
   ),
 
   // ==================== 客服工作台（CSM-01/02） ====================

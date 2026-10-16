@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Route smoke runner: each selected route gets its own Flutter test process.
-# Usage: bash test/unit_test/smoke/run_smoke_isolated.sh [--quiet] [--route NAME]...
+# Usage: bash test/unit_test/smoke/run_smoke_isolated.sh [--quiet] [--include-quarantined] [--route NAME]...
 # Exit: 0 all selected routes executed/passed; 1 failure; 2 incomplete (skips).
 set -uo pipefail
 cd "$(dirname "$0")/../../.." || exit 1
@@ -8,9 +8,12 @@ TEST_FILE="test/unit_test/smoke/route_smoke_test.dart"
 REGISTRY="test/unit_test/smoke/route_registry.dart"
 QUIET=false
 SELECTED=()
+FLUTTER_ARGS=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --quiet) QUIET=true; shift ;;
+    --include-quarantined)
+      FLUTTER_ARGS+=(--dart-define=SMOKE_INCLUDE_QUARANTINED=true); shift ;;
     --route)
       [ "$#" -ge 2 ] || { echo "ERROR: --route requires a name" >&2; exit 1; }
       SELECTED+=("$2"); shift 2 ;;
@@ -21,7 +24,7 @@ command -v python3 >/dev/null || { echo "ERROR: python3 is required" >&2; exit 1
 ROUTES=()
 while IFS= read -r name; do
   [ -n "$name" ] && ROUTES+=("$name")
-done < <(grep -oE "name: '[a-z_]+'" "$REGISTRY" | sed "s/name: '//;s/'//" | sort -u)
+done < <(grep -oE "name: '[a-z_][a-z0-9_]*'" "$REGISTRY" | sed "s/name: '//;s/'//" | sort -u)
 [ "${#ROUTES[@]}" -gt 0 ] || { echo "ERROR: registry contains no routes" >&2; exit 1; }
 if [ "${#SELECTED[@]}" -gt 0 ]; then
   for name in "${SELECTED[@]}"; do
@@ -58,7 +61,7 @@ for name in "${ROUTES[@]}"; do
   out="$OUTPUT_DIR/$name.jsonl"
   # Match both real rendering tests and explicit quarantine cases. Unmatched
   # tests are errors, never inferred to be quarantine from an English log line.
-  flutter test "$TEST_FILE" --machine --name "(^| )$name \(|\[quarantine\] $name —" > "$out" 2>&1
+  flutter test "$TEST_FILE" ${FLUTTER_ARGS[@]+"${FLUTTER_ARGS[@]}"} --machine --name "(^| )$name \(|\[quarantine\] $name —" > "$out" 2>&1
   code=$?
   result="$(python3 - "$out" "$name" "$code" <<'PYREPORT'
 import json, sys

@@ -11,7 +11,7 @@ REPO = RUNNER.parents[3]
 
 
 class IsolatedRunnerTests(unittest.TestCase):
-    def run_case(self, mode, names=("welcome",), exit_code=0):
+    def run_case(self, mode, names=("welcome",), exit_code=0, include_quarantined=False):
         with tempfile.TemporaryDirectory(prefix="imboy-runner-contract-") as tmp:
             root = Path(tmp)
             executable = root / "flutter"
@@ -19,6 +19,7 @@ class IsolatedRunnerTests(unittest.TestCase):
 import json, os, sys
 assert os.getcwd() == os.environ['EXPECTED_REPO']
 assert sys.argv[1:3] == ['test', 'test/unit_test/smoke/route_smoke_test.dart']
+assert ('--dart-define=SMOKE_INCLUDE_QUARANTINED=true' in sys.argv) == (os.environ['INCLUDE_QUARANTINED'] == 'True')
 print(json.dumps([]))  # Flutter/dependency log lines can contain valid non-event JSON.
 mode = os.environ['FAKE_MODE']
 name = os.environ.get('FAKE_NAME', 'welcome')
@@ -33,8 +34,10 @@ sys.exit(int(os.environ['FAKE_EXIT']))
             executable.chmod(0o755)
             env = dict(os.environ, PATH=str(root) + os.pathsep + os.environ['PATH'],
                        EXPECTED_REPO=str(REPO), FAKE_MODE=mode, FAKE_NAME=names[0],
-                       FAKE_EXIT=str(exit_code), SMOKE_OUTPUT_DIR=str(root / 'evidence'))
+                       FAKE_EXIT=str(exit_code), INCLUDE_QUARANTINED=str(include_quarantined), SMOKE_OUTPUT_DIR=str(root / 'evidence'))
             args = ['bash', str(RUNNER), '--quiet']
+            if include_quarantined:
+                args += ['--include-quarantined']
             for name in names:
                 args += ['--route', name]
             return subprocess.run(args, cwd=tmp, env=env, capture_output=True, text=True)
@@ -61,6 +64,18 @@ sys.exit(int(os.environ['FAKE_EXIT']))
 
     def test_nonzero_process_cannot_certify_success(self):
         self.assertEqual(1, self.run_case('pass', exit_code=1).returncode)
+
+    def test_digit_route_names_are_selected(self):
+        result = self.run_case('pass', names=('e2ee_key_recovery',))
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+
+    def test_quarantine_probe_executes_instead_of_certifying_a_skip(self):
+        result = self.run_case('pass', names=('chat',), include_quarantined=True)
+        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+        result = self.run_case('skip', names=('chat',), include_quarantined=True)
+        self.assertEqual(2, result.returncode, result.stdout + result.stderr)
+        result = self.run_case('fail', names=('chat',), exit_code=1, include_quarantined=True)
+        self.assertEqual(1, result.returncode, result.stdout + result.stderr)
 
     def test_unknown_route_fails_before_flutter(self):
         result = self.run_case('pass', names=('not_a_registered_route',))

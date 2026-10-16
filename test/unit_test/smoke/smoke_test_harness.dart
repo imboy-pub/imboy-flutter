@@ -22,6 +22,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/page/mine/setting/setting_page.dart';
+import 'package:imboy/page/chat/send_to/send_to_page.dart';
+import 'package:imboy/theme/theme_manager.dart';
+import 'package:imboy/app_core/routing/route_feature_guard.dart';
+import 'package:imboy/page/mine/account_security/account_security_page.dart';
+import 'package:imboy/page/qrcode/user_qrcode_page.dart';
+import 'package:imboy/page/qrcode/group_qrcode_page.dart';
+import 'package:imboy/page/qrcode/channel_qrcode_page.dart';
+import 'package:imboy/page/mine/feedback/feedback_detail_page.dart';
+import 'package:imboy/page/group/announcement/group_announcement_page.dart';
+import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/group/group_detail/group_detail_page.dart';
+import 'package:imboy/page/group/file/group_file_page.dart';
+import 'package:imboy/page/workspace/workspace_members_page.dart';
+import 'package:imboy/page/personal_info/profile/profile_page.dart';
+import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/page/passport/login_page.dart';
 import 'package:imboy/page/passport/web_login_page.dart';
 import 'package:imboy/page/moment/moment_feed_page.dart';
@@ -98,6 +113,14 @@ Future<void> prepareSmokeEnv() async {
     serviceContainer.put(api.HttpClient());
   }
   await StorageService.to.setString(Keys.currentUid, 'smoke_test_uid');
+  // 登录守卫与页面必须读取同一份完整合成会话。
+  await StorageService.setMap(Keys.currentUser, {
+    'uid': 'smoke_test_uid',
+    'account': 'smoke_fixture',
+    'nickname': 'Smoke Fixture',
+    'avatar': '',
+    'setting': <String, dynamic>{},
+  });
   // FeatureScope 未绑定时 AppManifestService.loadFromCache 在 _checkScope
   // 早退（_scope=null → manifest=null → RouteFeatureGuard 保守拦截受
   // app_entries 守卫的 moment/people_nearby 路由）。绑定 smoke scope 后
@@ -109,13 +132,21 @@ Future<void> prepareSmokeEnv() async {
       'manifest_hash': productFeatureManifestHash,
       'manifest_schema_version': productFeatureSchemaVersion,
       'compiled_features': compiledProductFeatures.toList(),
-      'features': {'moment': true, 'location': true},
-      'app_entries': ['moment_tab', 'people_nearby_page'],
+      'features': {
+        for (final feature in compiledProductFeatures) feature: true,
+      },
+      'app_entries': smokeRoutes
+          .map((route) => RouteFeatureGuard.appEntryForPath(route.location))
+          .nonNulls
+          .toSet()
+          .toList(),
     },
     'etag': null,
   });
   AppManifestService.loadFromCache();
-  AppFeatureRegistry.replaceSnapshotForTest({'moment': true, 'location': true});
+  AppFeatureRegistry.replaceSnapshotForTest({
+    for (final feature in compiledProductFeatures) feature: true,
+  });
 }
 
 /// 构建带真实 GoRouter 的测试 App（镜像 lib/run.dart 的 IMBoyApp 关键结构）。
@@ -158,9 +189,12 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
 
   // 每个用例独立 navigatorKey + 直接落在目标路由（无 splash）
   final router = createAppRouter(
-    initialLocation: route.location,
+    initialLocation: route.extra == null ? route.location : '/welcome',
     navigatorKeyOverride: GlobalKey<NavigatorState>(),
   );
+
+  if (route.extra != null) router.go(route.location, extra: route.extra);
+  ThemeManager.instance.setProviderContainer(container);
 
   Object? captured;
 
@@ -186,6 +220,7 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
   try {
     container.dispose();
   } finally {
+    ThemeManager.instance.dispose();
     router.dispose();
   }
 
@@ -205,6 +240,19 @@ Object? _targetRenderError(
   GoRouter router,
 ) {
   final targets = switch (route.name) {
+    'group_announcement' => <Type>[GroupAnnouncementPage],
+    'feedback_detail' => <Type>[FeedbackDetailPage],
+    'qrcode_group' => <Type>[GroupQrCodePage],
+    'qrcode_channel' => <Type>[ChannelQrCodePage],
+    'account_security' => <Type>[AccountSecurityPage],
+    'qrcode' || 'qrcode_user' => <Type>[UserQrCodePage],
+    'chat' => <Type>[ChatPage],
+    'send_to' => <Type>[SendToPage],
+    'group_detail' => <Type>[GroupDetailPage],
+    'group_file' => <Type>[GroupFilePage],
+    'workspace_members' => <Type>[WorkspaceMembersPage],
+    'profile' => <Type>[ProfilePage],
+    'bottom_navigation' => <Type>[BottomNavigationPage],
     'sign_in' => <Type>[LoginPage, WebLoginPage],
     'settings' => <Type>[SettingPage],
     'moment_feed' => <Type>[MomentFeedPage],
@@ -213,14 +261,26 @@ Object? _targetRenderError(
     'people_nearby' => <Type>[PeopleNearbyPage],
     _ => <Type>[],
   };
-  if (targets.isEmpty) return null;
   final actualPath = router.routeInformationProvider.value.uri.path;
-  final expectedPath = Uri.parse(route.location).path;
+  final expectedPath = route.name == 'qrcode'
+      ? '/qrcode/user'
+      : Uri.parse(route.location).path;
+  final expectedName = route.name == 'qrcode' ? 'qrcode_user' : route.name;
   final targetCount = targets.fold<int>(
     0,
     (count, type) => count + find.byType(type).evaluate().length,
   );
-  if (targetCount == 1 && actualPath == expectedPath) return null;
+  final matches = router.routerDelegate.currentConfiguration.matches;
+  final matchedName = matches.isEmpty
+      ? null
+      : (matches.last.route as GoRoute).name;
+  if ((targets.isEmpty || targetCount == 1) &&
+      (route.name == 'splash' ||
+          (actualPath == expectedPath && matchedName == expectedName)) &&
+      find.byType(ErrorWidget).evaluate().isEmpty &&
+      find.text('Page not found').evaluate().isEmpty) {
+    return null;
+  }
   return StateError(
     '${route.name}: expected $targets at $expectedPath, got $actualPath',
   );
