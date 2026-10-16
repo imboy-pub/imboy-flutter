@@ -2060,27 +2060,27 @@ class Translations$groupTask$zh_Hant extends Translations$groupTask$zh_CN {
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => '群作業';
-	@override String get createTask => '建立作業';
-	@override String get editTask => '編輯作業';
-	@override String get taskTitle => '作業標題';
-	@override String get taskDescription => '作業描述';
+	@override String get title => '待辦';
+	@override String get createTask => '建立待辦';
+	@override String get editTask => '編輯待辦';
+	@override String get taskTitle => '待辦標題';
+	@override String get taskDescription => '待辦描述';
 	@override String get deadline => '截止時間';
 	@override String get noDeadline => '無截止時間';
-	@override String get noTask => '暫無作業';
+	@override String get noTask => '暫無待辦';
 	@override String get all => '所有';
 	@override String get pending => '待處理';
 	@override String get completed => '已結案';
-	@override String get taskSubmitted => '作業已提交';
-	@override String get submitTask => '提交作業';
+	@override String get taskSubmitted => '待辦已提交';
+	@override String get submitTask => '提交待辦';
 	@override String get overdue => '已過期';
 	@override String daysLeft({required Object days}) => '${days} 天後截止';
 	@override String hoursLeft({required Object hours}) => '${hours} 小時後截止';
 	@override String get dueSoon => '即將截止';
 	@override String get submitFailed => '提交失敗，請稍後重試';
 	@override String get pendingReview => '待稽核';
-	@override String get taskIdMissing => '作業ID缺失，無法檢視詳情';
-	@override String get taskIdMissingSubmit => '作業ID缺失，無法提交';
+	@override String get taskIdMissing => '待辦ID缺失，無法檢視詳情';
+	@override String get taskIdMissingSubmit => '待辦ID缺失，無法提交';
 	@override String publishedAt({required Object time}) => '${time} 發佈';
 	@override String completedAt({required Object time}) => '完成於 ${time}';
 }
@@ -5040,27 +5040,27 @@ extension on TranslationsZhHant {
 			'groupTag.noTag' => '暫無標籤',
 			'groupTag.removeTitle' => '移除標籤',
 			'groupTag.removeConfirm' => '確定要移除這個標籤嗎？',
-			'groupTask.title' => '群作業',
-			'groupTask.createTask' => '建立作業',
-			'groupTask.editTask' => '編輯作業',
-			'groupTask.taskTitle' => '作業標題',
-			'groupTask.taskDescription' => '作業描述',
+			'groupTask.title' => '待辦',
+			'groupTask.createTask' => '建立待辦',
+			'groupTask.editTask' => '編輯待辦',
+			'groupTask.taskTitle' => '待辦標題',
+			'groupTask.taskDescription' => '待辦描述',
 			'groupTask.deadline' => '截止時間',
 			'groupTask.noDeadline' => '無截止時間',
-			'groupTask.noTask' => '暫無作業',
+			'groupTask.noTask' => '暫無待辦',
 			'groupTask.all' => '所有',
 			'groupTask.pending' => '待處理',
 			'groupTask.completed' => '已結案',
-			'groupTask.taskSubmitted' => '作業已提交',
-			'groupTask.submitTask' => '提交作業',
+			'groupTask.taskSubmitted' => '待辦已提交',
+			'groupTask.submitTask' => '提交待辦',
 			'groupTask.overdue' => '已過期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天後截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小時後截止',
 			'groupTask.dueSoon' => '即將截止',
 			'groupTask.submitFailed' => '提交失敗，請稍後重試',
 			'groupTask.pendingReview' => '待稽核',
-			'groupTask.taskIdMissing' => '作業ID缺失，無法檢視詳情',
-			'groupTask.taskIdMissingSubmit' => '作業ID缺失，無法提交',
+			'groupTask.taskIdMissing' => '待辦ID缺失，無法檢視詳情',
+			'groupTask.taskIdMissingSubmit' => '待辦ID缺失，無法提交',
 			'groupTask.publishedAt' => ({required Object time}) => '${time} 發佈',
 			'groupTask.completedAt' => ({required Object time}) => '完成於 ${time}',
 			'groupVote.title' => '群組投票',

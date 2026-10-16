@@ -1,23 +1,23 @@
-title: 群作業
-createTask: 建立作業
-editTask: 編輯作業
-taskTitle: 作業標題
-taskDescription: 作業描述
+title: 待辦
+createTask: 建立待辦
+editTask: 編輯待辦
+taskTitle: 待辦標題
+taskDescription: 待辦描述
 deadline: 截止時間
 noDeadline: 無截止時間
-noTask: 暫無作業
+noTask: 暫無待辦
 all: 所有
 pending: 待處理
 completed: 已結案
-taskSubmitted: 作業已提交
-submitTask: "提交作業"
+taskSubmitted: 待辦已提交
+submitTask: "提交待辦"
 overdue: 已過期
 daysLeft: $days 天後截止
 hoursLeft: $hours 小時後截止
 dueSoon: 即將截止
 submitFailed: 提交失敗，請稍後重試
 pendingReview: 待稽核
-taskIdMissing: 作業ID缺失，無法檢視詳情
-taskIdMissingSubmit: 作業ID缺失，無法提交
+taskIdMissing: 待辦ID缺失，無法檢視詳情
+taskIdMissingSubmit: 待辦ID缺失，無法提交
 publishedAt: "$time 發佈"
 completedAt: "完成於 $time"

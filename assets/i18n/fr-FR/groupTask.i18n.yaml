@@ -1,24 +1,24 @@
 ---
-title: Devoirs de groupe
-createTask: Créer un devoir
-editTask: Modifier le devoir
-taskTitle: Titre du devoir
+title: Tâches
+createTask: Créer une tâche
+editTask: Modifier la tâche
+taskTitle: Titre de la tâche
 taskDescription: Description
 deadline: Échéance
 noDeadline: Sans échéance
-noTask: Aucun devoir
+noTask: Aucune tâche
 all: Toutes
 pending: En cours
 completed: Terminées
-taskSubmitted: Devoir soumis
-submitTask: "Soumettre le devoir"
+taskSubmitted: Tâche soumise
+submitTask: "Soumettre la tâche"
 overdue: En retard
 daysLeft: Échéance dans $days j
 hoursLeft: Échéance dans $hours h
 dueSoon: Échéance proche
 submitFailed: Échec de l'envoi. Réessayez plus tard.
 pendingReview: En attente de validation
-taskIdMissing: ID de devoir manquant, détails indisponibles
-taskIdMissingSubmit: ID de devoir manquant, envoi impossible
+taskIdMissing: ID de tâche manquant, détails indisponibles
+taskIdMissingSubmit: ID de tâche manquant, envoi impossible
 publishedAt: "Publié $time"
 completedAt: "Terminé $time"

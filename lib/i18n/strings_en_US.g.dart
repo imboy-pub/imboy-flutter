@@ -2246,27 +2246,27 @@ class _Translations$groupTask$en_US extends Translations$groupTask$zh_CN {
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Group Assignments';
-	@override String get createTask => 'Create Assignment';
-	@override String get editTask => 'Edit Assignment';
-	@override String get taskTitle => 'Assignment Title';
+	@override String get title => 'To-dos';
+	@override String get createTask => 'Create To-do';
+	@override String get editTask => 'Edit To-do';
+	@override String get taskTitle => 'To-do Title';
 	@override String get taskDescription => 'Description';
 	@override String get deadline => 'Deadline';
 	@override String get noDeadline => 'No deadline';
-	@override String get noTask => 'No assignments yet';
+	@override String get noTask => 'No to-dos yet';
 	@override String get all => 'All';
 	@override String get pending => 'Pending';
 	@override String get completed => 'Completed';
-	@override String get taskSubmitted => 'Assignment submitted';
-	@override String get submitTask => 'Submit Assignment';
+	@override String get taskSubmitted => 'To-do submitted';
+	@override String get submitTask => 'Submit To-do';
 	@override String get overdue => 'Overdue';
 	@override String daysLeft({required Object days}) => '${days} days left';
 	@override String hoursLeft({required Object hours}) => '${hours} hours left';
 	@override String get dueSoon => 'Due soon';
 	@override String get submitFailed => 'Submit failed, please try again';
 	@override String get pendingReview => 'Pending Review';
-	@override String get taskIdMissing => 'Assignment ID missing, cannot view details';
-	@override String get taskIdMissingSubmit => 'Assignment ID missing, cannot submit';
+	@override String get taskIdMissing => 'To-do ID missing, cannot view details';
+	@override String get taskIdMissingSubmit => 'To-do ID missing, cannot submit';
 	@override String publishedAt({required Object time}) => 'Published ${time}';
 	@override String completedAt({required Object time}) => 'Completed ${time}';
 }
@@ -5461,27 +5461,27 @@ extension on TranslationsEnUs {
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.removeTitle' => 'Remove Tag',
 			'groupTag.removeConfirm' => 'Remove this tag?',
-			'groupTask.title' => 'Group Assignments',
-			'groupTask.createTask' => 'Create Assignment',
-			'groupTask.editTask' => 'Edit Assignment',
-			'groupTask.taskTitle' => 'Assignment Title',
+			'groupTask.title' => 'To-dos',
+			'groupTask.createTask' => 'Create To-do',
+			'groupTask.editTask' => 'Edit To-do',
+			'groupTask.taskTitle' => 'To-do Title',
 			'groupTask.taskDescription' => 'Description',
 			'groupTask.deadline' => 'Deadline',
 			'groupTask.noDeadline' => 'No deadline',
-			'groupTask.noTask' => 'No assignments yet',
+			'groupTask.noTask' => 'No to-dos yet',
 			'groupTask.all' => 'All',
 			'groupTask.pending' => 'Pending',
 			'groupTask.completed' => 'Completed',
-			'groupTask.taskSubmitted' => 'Assignment submitted',
-			'groupTask.submitTask' => 'Submit Assignment',
+			'groupTask.taskSubmitted' => 'To-do submitted',
+			'groupTask.submitTask' => 'Submit To-do',
 			'groupTask.overdue' => 'Overdue',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} hours left',
 			'groupTask.dueSoon' => 'Due soon',
 			'groupTask.submitFailed' => 'Submit failed, please try again',
 			'groupTask.pendingReview' => 'Pending Review',
-			'groupTask.taskIdMissing' => 'Assignment ID missing, cannot view details',
-			'groupTask.taskIdMissingSubmit' => 'Assignment ID missing, cannot submit',
+			'groupTask.taskIdMissing' => 'To-do ID missing, cannot view details',
+			'groupTask.taskIdMissingSubmit' => 'To-do ID missing, cannot submit',
 			'groupTask.publishedAt' => ({required Object time}) => 'Published ${time}',
 			'groupTask.completedAt' => ({required Object time}) => 'Completed ${time}',
 			'groupVote.title' => 'Group Votes',

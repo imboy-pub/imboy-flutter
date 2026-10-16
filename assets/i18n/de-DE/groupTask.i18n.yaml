@@ -1,24 +1,24 @@
 ---
-title: Gruppen-Aufgaben
-createTask: Aufgabe erstellen
-editTask: Aufgabe bearbeiten
-taskTitle: Aufgaben-Titel
+title: To-dos
+createTask: To-do erstellen
+editTask: To-do bearbeiten
+taskTitle: To-don-Titel
 taskDescription: Beschreibung
 deadline: Frist
 noDeadline: Keine Frist
-noTask: Keine Aufgaben
+noTask: Keine To-don
 all: Alle
 pending: Offen
 completed: Erledigt
-taskSubmitted: Aufgabe eingereicht
-submitTask: "Aufgabe einreichen"
+taskSubmitted: To-do eingereicht
+submitTask: "To-do einreichen"
 overdue: Überfällig
 daysLeft: Frist in $days Tagen
 hoursLeft: Frist in $hours Std.
 dueSoon: Frist bald
 submitFailed: Einreichen fehlgeschlagen. Bitte später erneut versuchen.
 pendingReview: Prüfung ausstehend
-taskIdMissing: Aufgaben-ID fehlt, Details können nicht angezeigt werden
-taskIdMissingSubmit: Aufgaben-ID fehlt, Einreichen nicht möglich
+taskIdMissing: To-don-ID fehlt, Details können nicht angezeigt werden
+taskIdMissingSubmit: To-don-ID fehlt, Einreichen nicht möglich
 publishedAt: "Veröffentlicht $time"
 completedAt: "Abgeschlossen $time"

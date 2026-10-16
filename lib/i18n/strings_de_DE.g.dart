@@ -2062,27 +2062,27 @@ class _Translations$groupTask$de_DE extends Translations$groupTask$zh_CN {
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Gruppen-Aufgaben';
-	@override String get createTask => 'Aufgabe erstellen';
-	@override String get editTask => 'Aufgabe bearbeiten';
-	@override String get taskTitle => 'Aufgaben-Titel';
+	@override String get title => 'To-dos';
+	@override String get createTask => 'To-do erstellen';
+	@override String get editTask => 'To-do bearbeiten';
+	@override String get taskTitle => 'To-don-Titel';
 	@override String get taskDescription => 'Beschreibung';
 	@override String get deadline => 'Frist';
 	@override String get noDeadline => 'Keine Frist';
-	@override String get noTask => 'Keine Aufgaben';
+	@override String get noTask => 'Keine To-don';
 	@override String get all => 'Alle';
 	@override String get pending => 'Offen';
 	@override String get completed => 'Erledigt';
-	@override String get taskSubmitted => 'Aufgabe eingereicht';
-	@override String get submitTask => 'Aufgabe einreichen';
+	@override String get taskSubmitted => 'To-do eingereicht';
+	@override String get submitTask => 'To-do einreichen';
 	@override String get overdue => 'Überfällig';
 	@override String daysLeft({required Object days}) => 'Frist in ${days} Tagen';
 	@override String hoursLeft({required Object hours}) => 'Frist in ${hours} Std.';
 	@override String get dueSoon => 'Frist bald';
 	@override String get submitFailed => 'Einreichen fehlgeschlagen. Bitte später erneut versuchen.';
 	@override String get pendingReview => 'Prüfung ausstehend';
-	@override String get taskIdMissing => 'Aufgaben-ID fehlt, Details können nicht angezeigt werden';
-	@override String get taskIdMissingSubmit => 'Aufgaben-ID fehlt, Einreichen nicht möglich';
+	@override String get taskIdMissing => 'To-don-ID fehlt, Details können nicht angezeigt werden';
+	@override String get taskIdMissingSubmit => 'To-don-ID fehlt, Einreichen nicht möglich';
 	@override String publishedAt({required Object time}) => 'Veröffentlicht ${time}';
 	@override String completedAt({required Object time}) => 'Abgeschlossen ${time}';
 }
@@ -5041,27 +5041,27 @@ extension on TranslationsDeDe {
 			'groupTag.noTag' => 'Keine Tags',
 			'groupTag.removeTitle' => 'Tag entfernen',
 			'groupTag.removeConfirm' => 'Dieses Tag wirklich entfernen?',
-			'groupTask.title' => 'Gruppen-Aufgaben',
-			'groupTask.createTask' => 'Aufgabe erstellen',
-			'groupTask.editTask' => 'Aufgabe bearbeiten',
-			'groupTask.taskTitle' => 'Aufgaben-Titel',
+			'groupTask.title' => 'To-dos',
+			'groupTask.createTask' => 'To-do erstellen',
+			'groupTask.editTask' => 'To-do bearbeiten',
+			'groupTask.taskTitle' => 'To-don-Titel',
 			'groupTask.taskDescription' => 'Beschreibung',
 			'groupTask.deadline' => 'Frist',
 			'groupTask.noDeadline' => 'Keine Frist',
-			'groupTask.noTask' => 'Keine Aufgaben',
+			'groupTask.noTask' => 'Keine To-don',
 			'groupTask.all' => 'Alle',
 			'groupTask.pending' => 'Offen',
 			'groupTask.completed' => 'Erledigt',
-			'groupTask.taskSubmitted' => 'Aufgabe eingereicht',
-			'groupTask.submitTask' => 'Aufgabe einreichen',
+			'groupTask.taskSubmitted' => 'To-do eingereicht',
+			'groupTask.submitTask' => 'To-do einreichen',
 			'groupTask.overdue' => 'Überfällig',
 			'groupTask.daysLeft' => ({required Object days}) => 'Frist in ${days} Tagen',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'Frist in ${hours} Std.',
 			'groupTask.dueSoon' => 'Frist bald',
 			'groupTask.submitFailed' => 'Einreichen fehlgeschlagen. Bitte später erneut versuchen.',
 			'groupTask.pendingReview' => 'Prüfung ausstehend',
-			'groupTask.taskIdMissing' => 'Aufgaben-ID fehlt, Details können nicht angezeigt werden',
-			'groupTask.taskIdMissingSubmit' => 'Aufgaben-ID fehlt, Einreichen nicht möglich',
+			'groupTask.taskIdMissing' => 'To-don-ID fehlt, Details können nicht angezeigt werden',
+			'groupTask.taskIdMissingSubmit' => 'To-don-ID fehlt, Einreichen nicht möglich',
 			'groupTask.publishedAt' => ({required Object time}) => 'Veröffentlicht ${time}',
 			'groupTask.completedAt' => ({required Object time}) => 'Abgeschlossen ${time}',
 			'groupVote.title' => 'Gruppen-Umfrage',

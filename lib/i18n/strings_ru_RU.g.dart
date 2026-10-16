@@ -2068,27 +2068,27 @@ class _Translations$groupTask$ru_RU extends Translations$groupTask$zh_CN {
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Задания группы';
-	@override String get createTask => 'Создать задание';
-	@override String get editTask => 'Редактировать задание';
-	@override String get taskTitle => 'Название задания';
-	@override String get taskDescription => 'Описание задания';
+	@override String get title => 'Задачи';
+	@override String get createTask => 'Создать задачу';
+	@override String get editTask => 'Редактировать задачу';
+	@override String get taskTitle => 'Название задачи';
+	@override String get taskDescription => 'Описание задачи';
 	@override String get deadline => 'Срок';
 	@override String get noDeadline => 'Без срока';
-	@override String get noTask => 'Нет заданий';
+	@override String get noTask => 'Нет задач';
 	@override String get all => 'Все';
 	@override String get pending => 'В работе';
 	@override String get completed => 'Завершено';
-	@override String get taskSubmitted => 'Задание отправлено';
-	@override String get submitTask => 'Отправить задание';
+	@override String get taskSubmitted => 'Задача отправлена';
+	@override String get submitTask => 'Отправить задачу';
 	@override String get overdue => 'Просрочено';
 	@override String daysLeft({required Object days}) => 'Срок через ${days} дн.';
 	@override String hoursLeft({required Object hours}) => 'Срок через ${hours} ч';
 	@override String get dueSoon => 'Скоро срок';
 	@override String get submitFailed => 'Не удалось отправить, попробуйте позже';
 	@override String get pendingReview => 'На проверке';
-	@override String get taskIdMissing => 'ID задания отсутствует, нельзя открыть детали';
-	@override String get taskIdMissingSubmit => 'ID задания отсутствует, нельзя отправить';
+	@override String get taskIdMissing => 'ID задачи отсутствует, нельзя открыть детали';
+	@override String get taskIdMissingSubmit => 'ID задачи отсутствует, нельзя отправить';
 	@override String publishedAt({required Object time}) => 'Опубликовано ${time}';
 	@override String completedAt({required Object time}) => 'Завершено ${time}';
 }
@@ -5047,27 +5047,27 @@ extension on TranslationsRuRu {
 			'groupTag.noTag' => 'Нет меток',
 			'groupTag.removeTitle' => 'Удалить метку',
 			'groupTag.removeConfirm' => 'Удалить эту метку?',
-			'groupTask.title' => 'Задания группы',
-			'groupTask.createTask' => 'Создать задание',
-			'groupTask.editTask' => 'Редактировать задание',
-			'groupTask.taskTitle' => 'Название задания',
-			'groupTask.taskDescription' => 'Описание задания',
+			'groupTask.title' => 'Задачи',
+			'groupTask.createTask' => 'Создать задачу',
+			'groupTask.editTask' => 'Редактировать задачу',
+			'groupTask.taskTitle' => 'Название задачи',
+			'groupTask.taskDescription' => 'Описание задачи',
 			'groupTask.deadline' => 'Срок',
 			'groupTask.noDeadline' => 'Без срока',
-			'groupTask.noTask' => 'Нет заданий',
+			'groupTask.noTask' => 'Нет задач',
 			'groupTask.all' => 'Все',
 			'groupTask.pending' => 'В работе',
 			'groupTask.completed' => 'Завершено',
-			'groupTask.taskSubmitted' => 'Задание отправлено',
-			'groupTask.submitTask' => 'Отправить задание',
+			'groupTask.taskSubmitted' => 'Задача отправлена',
+			'groupTask.submitTask' => 'Отправить задачу',
 			'groupTask.overdue' => 'Просрочено',
 			'groupTask.daysLeft' => ({required Object days}) => 'Срок через ${days} дн.',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'Срок через ${hours} ч',
 			'groupTask.dueSoon' => 'Скоро срок',
 			'groupTask.submitFailed' => 'Не удалось отправить, попробуйте позже',
 			'groupTask.pendingReview' => 'На проверке',
-			'groupTask.taskIdMissing' => 'ID задания отсутствует, нельзя открыть детали',
-			'groupTask.taskIdMissingSubmit' => 'ID задания отсутствует, нельзя отправить',
+			'groupTask.taskIdMissing' => 'ID задачи отсутствует, нельзя открыть детали',
+			'groupTask.taskIdMissingSubmit' => 'ID задачи отсутствует, нельзя отправить',
 			'groupTask.publishedAt' => ({required Object time}) => 'Опубликовано ${time}',
 			'groupTask.completedAt' => ({required Object time}) => 'Завершено ${time}',
 			'groupVote.title' => 'Опросы группы',

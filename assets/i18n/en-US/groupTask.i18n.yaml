@@ -1,23 +1,23 @@
-title: Group Assignments
-createTask: Create Assignment
-editTask: Edit Assignment
-taskTitle: Assignment Title
+title: To-dos
+createTask: Create To-do
+editTask: Edit To-do
+taskTitle: To-do Title
 taskDescription: Description
 deadline: Deadline
 noDeadline: No deadline
-noTask: No assignments yet
+noTask: No to-dos yet
 all: All
 pending: Pending
 completed: Completed
-taskSubmitted: Assignment submitted
-submitTask: "Submit Assignment"
+taskSubmitted: To-do submitted
+submitTask: "Submit To-do"
 overdue: Overdue
 daysLeft: $days days left
 hoursLeft: $hours hours left
 dueSoon: Due soon
 submitFailed: "Submit failed, please try again"
 pendingReview: Pending Review
-taskIdMissing: "Assignment ID missing, cannot view details"
-taskIdMissingSubmit: "Assignment ID missing, cannot submit"
+taskIdMissing: "To-do ID missing, cannot view details"
+taskIdMissingSubmit: "To-do ID missing, cannot submit"
 publishedAt: "Published $time"
 completedAt: "Completed $time"

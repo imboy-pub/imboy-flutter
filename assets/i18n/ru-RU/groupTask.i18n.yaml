@@ -1,24 +1,24 @@
 ---
-title: Задания группы
-createTask: Создать задание
-editTask: Редактировать задание
-taskTitle: Название задания
-taskDescription: Описание задания
+title: Задачи
+createTask: Создать задачу
+editTask: Редактировать задачу
+taskTitle: Название задачи
+taskDescription: Описание задачи
 deadline: Срок
 noDeadline: Без срока
-noTask: Нет заданий
+noTask: Нет задач
 all: Все
 pending: В работе
 completed: Завершено
-taskSubmitted: Задание отправлено
-submitTask: "Отправить задание"
+taskSubmitted: Задача отправлена
+submitTask: "Отправить задачу"
 overdue: Просрочено
 daysLeft: Срок через $days дн.
 hoursLeft: Срок через $hours ч
 dueSoon: Скоро срок
 submitFailed: Не удалось отправить, попробуйте позже
 pendingReview: На проверке
-taskIdMissing: ID задания отсутствует, нельзя открыть детали
-taskIdMissingSubmit: ID задания отсутствует, нельзя отправить
+taskIdMissing: ID задачи отсутствует, нельзя открыть детали
+taskIdMissingSubmit: ID задачи отсутствует, нельзя отправить
 publishedAt: "Опубликовано $time"
 completedAt: "Завершено $time"

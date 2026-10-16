@@ -2062,27 +2062,27 @@ class _Translations$groupTask$fr_FR extends Translations$groupTask$zh_CN {
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'Devoirs de groupe';
-	@override String get createTask => 'Créer un devoir';
-	@override String get editTask => 'Modifier le devoir';
-	@override String get taskTitle => 'Titre du devoir';
+	@override String get title => 'Tâches';
+	@override String get createTask => 'Créer une tâche';
+	@override String get editTask => 'Modifier la tâche';
+	@override String get taskTitle => 'Titre de la tâche';
 	@override String get taskDescription => 'Description';
 	@override String get deadline => 'Échéance';
 	@override String get noDeadline => 'Sans échéance';
-	@override String get noTask => 'Aucun devoir';
+	@override String get noTask => 'Aucune tâche';
 	@override String get all => 'Toutes';
 	@override String get pending => 'En cours';
 	@override String get completed => 'Terminées';
-	@override String get taskSubmitted => 'Devoir soumis';
-	@override String get submitTask => 'Soumettre le devoir';
+	@override String get taskSubmitted => 'Tâche soumise';
+	@override String get submitTask => 'Soumettre la tâche';
 	@override String get overdue => 'En retard';
 	@override String daysLeft({required Object days}) => 'Échéance dans ${days} j';
 	@override String hoursLeft({required Object hours}) => 'Échéance dans ${hours} h';
 	@override String get dueSoon => 'Échéance proche';
 	@override String get submitFailed => 'Échec de l\'envoi. Réessayez plus tard.';
 	@override String get pendingReview => 'En attente de validation';
-	@override String get taskIdMissing => 'ID de devoir manquant, détails indisponibles';
-	@override String get taskIdMissingSubmit => 'ID de devoir manquant, envoi impossible';
+	@override String get taskIdMissing => 'ID de tâche manquant, détails indisponibles';
+	@override String get taskIdMissingSubmit => 'ID de tâche manquant, envoi impossible';
 	@override String publishedAt({required Object time}) => 'Publié ${time}';
 	@override String completedAt({required Object time}) => 'Terminé ${time}';
 }
@@ -5041,27 +5041,27 @@ extension on TranslationsFrFr {
 			'groupTag.noTag' => 'Aucune étiquette',
 			'groupTag.removeTitle' => 'Supprimer l\'étiquette',
 			'groupTag.removeConfirm' => 'Supprimer cette étiquette ?',
-			'groupTask.title' => 'Devoirs de groupe',
-			'groupTask.createTask' => 'Créer un devoir',
-			'groupTask.editTask' => 'Modifier le devoir',
-			'groupTask.taskTitle' => 'Titre du devoir',
+			'groupTask.title' => 'Tâches',
+			'groupTask.createTask' => 'Créer une tâche',
+			'groupTask.editTask' => 'Modifier la tâche',
+			'groupTask.taskTitle' => 'Titre de la tâche',
 			'groupTask.taskDescription' => 'Description',
 			'groupTask.deadline' => 'Échéance',
 			'groupTask.noDeadline' => 'Sans échéance',
-			'groupTask.noTask' => 'Aucun devoir',
+			'groupTask.noTask' => 'Aucune tâche',
 			'groupTask.all' => 'Toutes',
 			'groupTask.pending' => 'En cours',
 			'groupTask.completed' => 'Terminées',
-			'groupTask.taskSubmitted' => 'Devoir soumis',
-			'groupTask.submitTask' => 'Soumettre le devoir',
+			'groupTask.taskSubmitted' => 'Tâche soumise',
+			'groupTask.submitTask' => 'Soumettre la tâche',
 			'groupTask.overdue' => 'En retard',
 			'groupTask.daysLeft' => ({required Object days}) => 'Échéance dans ${days} j',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'Échéance dans ${hours} h',
 			'groupTask.dueSoon' => 'Échéance proche',
 			'groupTask.submitFailed' => 'Échec de l\'envoi. Réessayez plus tard.',
 			'groupTask.pendingReview' => 'En attente de validation',
-			'groupTask.taskIdMissing' => 'ID de devoir manquant, détails indisponibles',
-			'groupTask.taskIdMissingSubmit' => 'ID de devoir manquant, envoi impossible',
+			'groupTask.taskIdMissing' => 'ID de tâche manquant, détails indisponibles',
+			'groupTask.taskIdMissingSubmit' => 'ID de tâche manquant, envoi impossible',
 			'groupTask.publishedAt' => ({required Object time}) => 'Publié ${time}',
 			'groupTask.completedAt' => ({required Object time}) => 'Terminé ${time}',
 			'groupVote.title' => 'Sondage de groupe',

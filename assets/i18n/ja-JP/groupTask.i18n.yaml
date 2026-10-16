@@ -1,24 +1,24 @@
 ---
-title: グループ課題
-createTask: 課題を作成
-editTask: 課題を編集
-taskTitle: 課題名
-taskDescription: 課題の説明
+title: ToDo
+createTask: ToDoを作成
+editTask: ToDoを編集
+taskTitle: ToDo名
+taskDescription: ToDoの説明
 deadline: 期限
 noDeadline: 期限なし
-noTask: 課題はありません
+noTask: ToDoはありません
 all: すべて
 pending: 未完了
 completed: 完了
-taskSubmitted: 課題を提出しました
-submitTask: "課題を提出"
+taskSubmitted: ToDoを提出しました
+submitTask: "ToDoを提出"
 overdue: 期限切れ
 daysLeft: あと $days 日
 hoursLeft: あと $hours 時間
 dueSoon: 期限が迫っています
 submitFailed: 提出に失敗しました。後でもう一度お試しください
 pendingReview: 審査待ち
-taskIdMissing: 課題IDがありません。詳細を表示できません
-taskIdMissingSubmit: 課題IDがありません。提出できません
+taskIdMissing: ToDoIDがありません。詳細を表示できません
+taskIdMissingSubmit: ToDoIDがありません。提出できません
 publishedAt: "$time に公開"
 completedAt: "$time に完了"

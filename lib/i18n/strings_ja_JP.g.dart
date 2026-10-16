@@ -2059,27 +2059,27 @@ class _Translations$groupTask$ja_JP extends Translations$groupTask$zh_CN {
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'グループ課題';
-	@override String get createTask => '課題を作成';
-	@override String get editTask => '課題を編集';
-	@override String get taskTitle => '課題名';
-	@override String get taskDescription => '課題の説明';
+	@override String get title => 'ToDo';
+	@override String get createTask => 'ToDoを作成';
+	@override String get editTask => 'ToDoを編集';
+	@override String get taskTitle => 'ToDo名';
+	@override String get taskDescription => 'ToDoの説明';
 	@override String get deadline => '期限';
 	@override String get noDeadline => '期限なし';
-	@override String get noTask => '課題はありません';
+	@override String get noTask => 'ToDoはありません';
 	@override String get all => 'すべて';
 	@override String get pending => '未完了';
 	@override String get completed => '完了';
-	@override String get taskSubmitted => '課題を提出しました';
-	@override String get submitTask => '課題を提出';
+	@override String get taskSubmitted => 'ToDoを提出しました';
+	@override String get submitTask => 'ToDoを提出';
 	@override String get overdue => '期限切れ';
 	@override String daysLeft({required Object days}) => 'あと ${days} 日';
 	@override String hoursLeft({required Object hours}) => 'あと ${hours} 時間';
 	@override String get dueSoon => '期限が迫っています';
 	@override String get submitFailed => '提出に失敗しました。後でもう一度お試しください';
 	@override String get pendingReview => '審査待ち';
-	@override String get taskIdMissing => '課題IDがありません。詳細を表示できません';
-	@override String get taskIdMissingSubmit => '課題IDがありません。提出できません';
+	@override String get taskIdMissing => 'ToDoIDがありません。詳細を表示できません';
+	@override String get taskIdMissingSubmit => 'ToDoIDがありません。提出できません';
 	@override String publishedAt({required Object time}) => '${time} に公開';
 	@override String completedAt({required Object time}) => '${time} に完了';
 }
@@ -5038,27 +5038,27 @@ extension on TranslationsJaJp {
 			'groupTag.noTag' => 'タグはありません',
 			'groupTag.removeTitle' => 'タグを削除',
 			'groupTag.removeConfirm' => 'このタグを削除しますか？',
-			'groupTask.title' => 'グループ課題',
-			'groupTask.createTask' => '課題を作成',
-			'groupTask.editTask' => '課題を編集',
-			'groupTask.taskTitle' => '課題名',
-			'groupTask.taskDescription' => '課題の説明',
+			'groupTask.title' => 'ToDo',
+			'groupTask.createTask' => 'ToDoを作成',
+			'groupTask.editTask' => 'ToDoを編集',
+			'groupTask.taskTitle' => 'ToDo名',
+			'groupTask.taskDescription' => 'ToDoの説明',
 			'groupTask.deadline' => '期限',
 			'groupTask.noDeadline' => '期限なし',
-			'groupTask.noTask' => '課題はありません',
+			'groupTask.noTask' => 'ToDoはありません',
 			'groupTask.all' => 'すべて',
 			'groupTask.pending' => '未完了',
 			'groupTask.completed' => '完了',
-			'groupTask.taskSubmitted' => '課題を提出しました',
-			'groupTask.submitTask' => '課題を提出',
+			'groupTask.taskSubmitted' => 'ToDoを提出しました',
+			'groupTask.submitTask' => 'ToDoを提出',
 			'groupTask.overdue' => '期限切れ',
 			'groupTask.daysLeft' => ({required Object days}) => 'あと ${days} 日',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'あと ${hours} 時間',
 			'groupTask.dueSoon' => '期限が迫っています',
 			'groupTask.submitFailed' => '提出に失敗しました。後でもう一度お試しください',
 			'groupTask.pendingReview' => '審査待ち',
-			'groupTask.taskIdMissing' => '課題IDがありません。詳細を表示できません',
-			'groupTask.taskIdMissingSubmit' => '課題IDがありません。提出できません',
+			'groupTask.taskIdMissing' => 'ToDoIDがありません。詳細を表示できません',
+			'groupTask.taskIdMissingSubmit' => 'ToDoIDがありません。提出できません',
 			'groupTask.publishedAt' => ({required Object time}) => '${time} に公開',
 			'groupTask.completedAt' => ({required Object time}) => '${time} に完了',
 			'groupVote.title' => 'グループ投票',

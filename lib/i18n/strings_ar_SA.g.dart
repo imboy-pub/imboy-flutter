@@ -2071,27 +2071,27 @@ class _Translations$groupTask$ar_SA extends Translations$groupTask$zh_CN {
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get title => 'واجبات المجموعة';
-	@override String get createTask => 'إنشاء واجب';
-	@override String get editTask => 'تعديل الواجب';
-	@override String get taskTitle => 'عنوان الواجب';
-	@override String get taskDescription => 'وصف الواجب';
+	@override String get title => 'المهام';
+	@override String get createTask => 'إنشاء مهمة';
+	@override String get editTask => 'تعديل المهمة';
+	@override String get taskTitle => 'عنوان المهمة';
+	@override String get taskDescription => 'وصف المهمة';
 	@override String get deadline => 'الموعد النهائي';
 	@override String get noDeadline => 'بلا موعد نهائي';
-	@override String get noTask => 'لا توجد واجبات';
+	@override String get noTask => 'لا توجد مهام';
 	@override String get all => 'الكل';
 	@override String get pending => 'قيد التنفيذ';
 	@override String get completed => 'مكتملة';
-	@override String get taskSubmitted => 'تم إرسال الواجب';
-	@override String get submitTask => 'إرسال الواجب';
+	@override String get taskSubmitted => 'تم إرسال المهمة';
+	@override String get submitTask => 'إرسال المهمة';
 	@override String get overdue => 'متأخرة';
 	@override String daysLeft({required Object days}) => 'الموعد النهائي بعد ${days} يوماً';
 	@override String hoursLeft({required Object hours}) => 'الموعد النهائي بعد ${hours} ساعة';
 	@override String get dueSoon => 'الموعد قريب';
 	@override String get submitFailed => 'تعذّر الإرسال، حاول لاحقاً';
 	@override String get pendingReview => 'قيد المراجعة';
-	@override String get taskIdMissing => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل';
-	@override String get taskIdMissingSubmit => 'معرّف الواجب مفقود، لا يمكن الإرسال';
+	@override String get taskIdMissing => 'معرّف المهمة مفقود، لا يمكن عرض التفاصيل';
+	@override String get taskIdMissingSubmit => 'معرّف المهمة مفقود، لا يمكن الإرسال';
 	@override String publishedAt({required Object time}) => 'نُشر ${time}';
 	@override String completedAt({required Object time}) => 'اكتمل في ${time}';
 }
@@ -5050,27 +5050,27 @@ extension on TranslationsArSa {
 			'groupTag.noTag' => 'لا توجد وسوم',
 			'groupTag.removeTitle' => 'إزالة الوسم',
 			'groupTag.removeConfirm' => 'إزالة هذا الوسم؟',
-			'groupTask.title' => 'واجبات المجموعة',
-			'groupTask.createTask' => 'إنشاء واجب',
-			'groupTask.editTask' => 'تعديل الواجب',
-			'groupTask.taskTitle' => 'عنوان الواجب',
-			'groupTask.taskDescription' => 'وصف الواجب',
+			'groupTask.title' => 'المهام',
+			'groupTask.createTask' => 'إنشاء مهمة',
+			'groupTask.editTask' => 'تعديل المهمة',
+			'groupTask.taskTitle' => 'عنوان المهمة',
+			'groupTask.taskDescription' => 'وصف المهمة',
 			'groupTask.deadline' => 'الموعد النهائي',
 			'groupTask.noDeadline' => 'بلا موعد نهائي',
-			'groupTask.noTask' => 'لا توجد واجبات',
+			'groupTask.noTask' => 'لا توجد مهام',
 			'groupTask.all' => 'الكل',
 			'groupTask.pending' => 'قيد التنفيذ',
 			'groupTask.completed' => 'مكتملة',
-			'groupTask.taskSubmitted' => 'تم إرسال الواجب',
-			'groupTask.submitTask' => 'إرسال الواجب',
+			'groupTask.taskSubmitted' => 'تم إرسال المهمة',
+			'groupTask.submitTask' => 'إرسال المهمة',
 			'groupTask.overdue' => 'متأخرة',
 			'groupTask.daysLeft' => ({required Object days}) => 'الموعد النهائي بعد ${days} يوماً',
 			'groupTask.hoursLeft' => ({required Object hours}) => 'الموعد النهائي بعد ${hours} ساعة',
 			'groupTask.dueSoon' => 'الموعد قريب',
 			'groupTask.submitFailed' => 'تعذّر الإرسال، حاول لاحقاً',
 			'groupTask.pendingReview' => 'قيد المراجعة',
-			'groupTask.taskIdMissing' => 'معرّف الواجب مفقود، لا يمكن عرض التفاصيل',
-			'groupTask.taskIdMissingSubmit' => 'معرّف الواجب مفقود، لا يمكن الإرسال',
+			'groupTask.taskIdMissing' => 'معرّف المهمة مفقود، لا يمكن عرض التفاصيل',
+			'groupTask.taskIdMissingSubmit' => 'معرّف المهمة مفقود، لا يمكن الإرسال',
 			'groupTask.publishedAt' => ({required Object time}) => 'نُشر ${time}',
 			'groupTask.completedAt' => ({required Object time}) => 'اكتمل في ${time}',
 			'groupVote.title' => 'استطلاعات المجموعة',
