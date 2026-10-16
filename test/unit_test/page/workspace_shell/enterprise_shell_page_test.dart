@@ -26,6 +26,7 @@ import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
@@ -307,24 +308,59 @@ void main() {
       find.byKey(const ValueKey('workspace-message-filter-tab')),
       findsOneWidget,
     );
-    // 点筛选 tab 弹出九项筛选下拉（+ 编辑动作）。
+    // 点筛选 chip 弹出「视图 + 筛选」统一菜单。
     await tester.tap(
       find.byKey(const ValueKey('workspace-message-filter-tab')),
     );
     await tester.pumpAndSettle();
+    // 视图段：日程/待办与顶栏 tab 同文案，各出现两处（tab + 菜单项）。
+    expect(find.text('日程'), findsWidgets);
+    expect(find.text('待办'), findsWidgets);
+    // 筛选段：全部/未读/群聊/频道（真实可用项）。
     expect(find.text('未读'), findsOneWidget);
-    expect(find.text('@我'), findsOneWidget);
-    expect(find.text('单聊'), findsOneWidget);
     expect(find.text('群聊'), findsOneWidget);
-    expect(find.text('内部聊天'), findsOneWidget);
-    expect(find.text('外部聊天'), findsOneWidget);
-    expect(find.text('标记'), findsOneWidget);
-    expect(find.text('编辑'), findsOneWidget);
-    // 选中「未读」：下拉收起，筛选 tab 标签同步切换（空快照 → 空态）。
+    expect(find.text('频道'), findsOneWidget);
+    // 「功能开发中」项不展示：@我/单聊/内部聊天/外部聊天/标记/编辑
+    // （TODO 广州第一期交付后实现）。
+    for (final hidden in ['@我', '单聊', '内部聊天', '外部聊天', '标记', '编辑']) {
+      expect(find.text(hidden), findsNothing, reason: hidden);
+    }
+    // 选中「未读」：下拉收起，chip 同步切「未读」，空态单独措辞。
     await tester.tap(find.text('未读'));
     await tester.pumpAndSettle();
     expect(find.text('编辑'), findsNothing);
-    expect(find.text('暂无符合条件的会话'), findsOneWidget);
+    expect(find.text('暂无未读会话'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('弹窗可切日程/待办视图并同步顶栏 chip', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.completeFirst([]);
+    await tester.pumpAndSettle();
+    // 从弹窗进入日程视图（顶栏 tab 与菜单项同文案，取菜单项后者）。
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-message-filter-tab')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('日程').last);
+    await tester.pumpAndSettle();
+    expect(find.byType(WorkspaceGroupAgendaView), findsOneWidget);
+    // chip 跟随当前视图显示「日程」。
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('workspace-message-filter-tab')),
+        matching: find.text('日程'),
+      ),
+      findsOneWidget,
+    );
+    // 再从弹窗切回「全部」→ 消息视图回归。
+    await tester.tap(
+      find.byKey(const ValueKey('workspace-message-filter-tab')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('全部').last);
+    await tester.pumpAndSettle();
+    expect(find.byType(WorkspaceConversationsPage), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets('企业标签在重挂载后恢复，各企业的频道选择独立', (tester) async {
@@ -461,9 +497,10 @@ void main() {
         if (find.text('合成研发部').evaluate().isNotEmpty) break;
       }
       expect(find.text('合成研发部'), findsOneWidget);
+      // 左上汉堡只在「消息」页展示；通讯录/工作台/我不挂。
       expect(
         find.byKey(const ValueKey('enterprise-shell-menu-button')),
-        findsOneWidget,
+        findsNothing,
       );
       expect(tester.takeException(), isNull);
     });
@@ -536,9 +573,10 @@ void main() {
     await tester.tap(find.text('通讯录'));
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+    // 左上汉堡只在「消息」页展示；通讯录/工作台/我不挂。
     expect(
       find.byKey(const ValueKey('enterprise-shell-menu-button')),
-      findsOneWidget,
+      findsNothing,
     );
     expect(tester.takeException(), isNull);
   });

@@ -63,7 +63,15 @@ void main() {
           child: TranslationProvider(
             child: MaterialApp(
               home: Scaffold(
-                body: ExtraItems(type: 'C2G', options: const {'to': '3001'}),
+                body: ExtraItems(
+                  type: 'C2G',
+                  // 2026-10-16 占位收口：null onPressed 的入口不再渲染，
+                  // 注入 no-op handlers 模拟生产契约（chat_page.dart 恒传）。
+                  handleImageSelection: () {},
+                  handleFileSelection: () {},
+                  handleCollectSelection: () {},
+                  options: const {'to': '3001'},
+                ),
               ),
             ),
           ),

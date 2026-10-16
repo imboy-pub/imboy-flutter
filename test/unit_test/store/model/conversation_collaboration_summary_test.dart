@@ -18,6 +18,7 @@ void main() {
     MessageType.groupVote,
     MessageType.groupTask,
     MessageType.groupSchedule,
+    MessageType.groupNotice,
   ]) {
     test('$type 通知有类型标签，会话摘要只保存标题', () {
       final payload = {'title': '  团队协作  '};
@@ -39,6 +40,7 @@ void main() {
         final label = switch (type) {
           MessageType.groupVote => t.groupVote.title,
           MessageType.groupTask => t.groupTask.title,
+          MessageType.groupNotice => t.common.groupAnnouncement,
           _ => t.groupSchedule.title,
         };
         expect(model.content, '[$label]$subtitle');
@@ -55,6 +57,7 @@ void main() {
       final label = switch (type) {
         MessageType.groupVote => t.groupVote.title,
         MessageType.groupTask => t.groupTask.title,
+        MessageType.groupNotice => t.common.groupAnnouncement,
         _ => t.groupSchedule.title,
       };
       expect(model.content, '[$label]周五团队协作');

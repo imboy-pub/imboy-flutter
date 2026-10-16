@@ -23,7 +23,7 @@ void main() {
     test('群协作卡优先卡片标题并带类型标签', () {
       expect(
         messagePreviewText(MessageType.groupTask, {'title': '第三章练习'}),
-        '[群作业]第三章练习',
+        '[待办]第三章练习',
       );
       expect(
         messagePreviewText(MessageType.groupVote, {'title': '午饭吃什么'}),
@@ -34,7 +34,7 @@ void main() {
         '[群日程]周五例会',
       );
       // 无标题时不得出现「[不支持的消息]」，退化为类型标签
-      expect(messagePreviewText(MessageType.groupTask, {}), '[群作业]');
+      expect(messagePreviewText(MessageType.groupTask, {}), '[待办]');
     });
 
     test('媒体与业务卡类型给出类型标签', () {
@@ -114,7 +114,7 @@ void main() {
       );
       expect(
         messagePreviewText(MessageType.groupTask, {}, fallbackSubtitle: '[消息]'),
-        '[群作业]',
+        '[待办]',
       );
       // 非标签型 subtitle 作为可读兜底保留
       expect(
@@ -147,11 +147,12 @@ void main() {
       });
     }
 
-    test('群作业/群投票/群日程不再显示「[不支持的消息]」', () {
+    test('群协作卡（待办/群投票/群日程/群公告）不再显示「[不支持的消息]」', () {
       for (final entry in {
-        MessageType.groupTask: '[群作业]第三章练习',
+        MessageType.groupTask: '[待办]第三章练习',
         MessageType.groupVote: '[群投票]午饭吃什么',
         MessageType.groupSchedule: '[群日程]周五例会',
+        MessageType.groupNotice: '[群公告]周日闭馆通知',
       }.entries) {
         final preview = rowOfType(entry.key, {
           'title': entry.value.substring(entry.value.indexOf(']') + 1),

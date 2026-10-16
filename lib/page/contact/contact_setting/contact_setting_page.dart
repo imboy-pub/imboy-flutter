@@ -104,11 +104,17 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
                   ),
                 ),
               ),
-              ImBoySettingsTile(
-                title: Text(t.contact.recommendToFriend),
-                leading: _buildIcon(CupertinoIcons.share, AppColors.iosPurple),
-                onTap: () => AppLoading.showInfo(t.common.featureInDevelopment),
-              ),
+              // TODO 广州第一期交付后实现：「推荐给朋友」入口（后端未实现，
+              // 原点击提示「功能开发中」），恢复时取消注释。
+              // ImBoySettingsTile(
+              //   title: Text(t.contact.recommendToFriend),
+              //   leading: _buildIcon(
+              //     CupertinoIcons.share,
+              //     AppColors.iosPurple,
+              //   ),
+              //   onTap: () =>
+              //       AppLoading.showInfo(t.common.featureInDevelopment),
+              // ),
             ],
           ),
 

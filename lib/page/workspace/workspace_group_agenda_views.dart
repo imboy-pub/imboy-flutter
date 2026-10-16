@@ -1,9 +1,13 @@
 /// 企业壳「消息」页 日程 / 待办 内容态（2026-10 改版）：
 /// 聚合当前工作区内企业群的群日程与群作业。
 ///
-/// 数据面：GroupScheduleApi.getMySchedules / GroupTaskApi.getMyTasks
-/// 是账号级跨群列表，本视图用 workspaceGroupsProvider（本工作区群全集）
-/// 做 group_id 交集聚合——只展示企业群里的日程/待办，个人群不混入。
+/// 口径（2026-10-16 用户拍板）：
+/// - 日程 = 群级：我所在企业群的日程（GroupScheduleApi.getMySchedules，
+///   后端 my_list 即群级）；
+/// - 待办 = 企业维度全群作业：本工作区（企业）下各企业群的群作业全量
+///   列表，不再只看「指派给我」——原实现走 GroupTaskApi.getMyTasks
+///   （后端 group_task_logic:my_tasks → assignment_list_by_user_id），
+///   老师/未被指派者恒为空，被判定为「查不出东西」。
 /// 条目点击跳既有群维度详情路由（日程/作业详情页归属群上下文）。
 library;
 
@@ -48,22 +52,60 @@ final workspaceGroupSchedulesProvider = FutureProvider.autoDispose
         );
     });
 
-/// 企业群待办聚合（我的作业 ∩ 本工作区群；未提交且未截止才算待办）。
+/// 企业群待办聚合（企业维度：本工作区各企业群的群作业全量列表）。
+///
+/// 实现：按 workspaceGroupsProvider（企业内我加入的群）逐群并发
+/// GroupTaskApi.getTasks（成员可读，后端会为每行注入 my_assignment
+/// 供展示「我的状态」）。
+/// 边界：/group/task/list 要求 viewer 是该群成员（group_task_logic:list/6），
+/// 因此覆盖 = 企业内我加入的群；单群失败（已退群/权限变更）只跳过该群。
+// TODO 广州第一期交付后实现：后端补「企业级作业聚合端点」，替代前端
+// 逐群扇出，并覆盖企业内未加入的群。
 final workspaceGroupTodosProvider = FutureProvider.autoDispose
     .family<List<Map<String, dynamic>>, String>((ref, wsId) async {
-      final names = await ref.watch(_workspaceGroupNamesProvider(wsId).future);
-      final rows = await GroupTaskApi().getMyTasks();
-      return rows.where((row) {
-          if (!names.containsKey(_text(row['group_id']))) return false;
-          // 同群作业页语义：3 = 已截止；my_assignment.status 2 已提交 /
-          // 3 已批改都算「我已完成」，均不入待办。
-          if (_int(row['status']) == 3) return false;
-          final assignment = row['my_assignment'];
-          final myStatus = assignment is Map ? _int(assignment['status']) : 0;
-          return myStatus != 2 && myStatus != 3;
-        }).toList()
-        ..sort((a, b) => _int(a['deadline']).compareTo(_int(b['deadline'])));
+      final groups = await ref.watch(workspaceGroupsProvider(wsId).future);
+      if (groups.isEmpty) return const <Map<String, dynamic>>[];
+      final api = GroupTaskApi();
+      final pages = await Future.wait([
+        for (final group in groups) _groupTasks(api, group.groupId.toString()),
+      ]);
+      final rows = <Map<String, dynamic>>[for (final page in pages) ...page];
+      // 「待办」视图的组织方式（对标飞书待办的进行中/已完成分区习惯）：
+      // 待完成在前（按截止时间升序，无截止排最后），已完成/已截止沉底。
+      bool doneOf(Map<String, dynamic> row) {
+        if (_int(row['status']) == 3) return true;
+        final assignment = row['my_assignment'];
+        return assignment is Map && _int(assignment['status']) >= 2;
+      }
+
+      int byDeadline(Map<String, dynamic> a, Map<String, dynamic> b) {
+        final da = _int(a['deadline']);
+        final db = _int(b['deadline']);
+        if (da == 0) return db == 0 ? 0 : 1;
+        if (db == 0) return -1;
+        return da.compareTo(db);
+      }
+
+      rows.sort((a, b) {
+        final doneA = doneOf(a);
+        final doneB = doneOf(b);
+        if (doneA != doneB) return doneA ? 1 : -1;
+        return byDeadline(a, b);
+      });
+      return rows;
     });
+
+/// 单群作业列表；失败只跳过该群，不拖垮整个聚合（见上 provider 注释）。
+Future<List<Map<String, dynamic>>> _groupTasks(
+  GroupTaskApi api,
+  String groupId,
+) async {
+  try {
+    return await api.getTasks(groupId: groupId, size: 50);
+  } catch (_) {
+    return const <Map<String, dynamic>>[];
+  }
+}
 
 String _text(dynamic value) => value?.toString().trim() ?? '';
 
@@ -109,9 +151,10 @@ class WorkspaceGroupAgendaView extends ConsumerWidget {
                 icon: kind == WorkspaceAgendaKind.schedule
                     ? CupertinoIcons.calendar
                     : CupertinoIcons.checkmark_circle,
+                // 待办视图与详情页全量统一「待办」措辞。
                 title: kind == WorkspaceAgendaKind.schedule
                     ? t.groupSchedule.noSchedule
-                    : t.groupTask.noTask,
+                    : t.workspace.todoEmptyTitle,
                 subtitle: '',
               );
             }
@@ -255,7 +298,9 @@ class _ScheduleCard extends ConsumerWidget {
       '${dt.minute.toString().padLeft(2, '0')}';
 }
 
-/// 待办卡：作业标题 + 截止时间 + 群名；点击进作业详情（可提交）。
+/// 待办卡（企业群作业）：标题 + 我的状态 + 截止时间 + 群名；点击进作业
+/// 详情（可提交/可批改）。状态口径同群作业页：作业 1待完成/2进行中/
+/// 3已截止；我的 assignment 2已提交/3已批改。
 class _TodoCard extends ConsumerWidget {
   const _TodoCard({required this.row});
 
@@ -281,6 +326,17 @@ class _TodoCard extends ConsumerWidget {
         ? DateTime.fromMillisecondsSinceEpoch(deadlineAt * 1000)
         : null;
     final overdue = deadline != null && deadline.isBefore(DateTime.now());
+    // 作业已截止（status=3）→ 已过期；否则我的提交态（2已提交/3已批改）
+    // → 已完成；未指派/未提交 → 待完成。
+    final expired = _int(row['status']) == 3;
+    final assignment = row['my_assignment'];
+    final myStatus = assignment is Map ? _int(assignment['status']) : 0;
+    final myLabel = expired
+        ? t.groupTask.overdue
+        : myStatus >= 2
+        ? t.groupTask.completed
+        : t.groupTask.pending;
+    final done = expired || myStatus >= 2;
 
     return GestureDetector(
       onTap: () {
@@ -304,9 +360,11 @@ class _TodoCard extends ConsumerWidget {
         child: Row(
           children: [
             Icon(
-              CupertinoIcons.circle,
+              done ? CupertinoIcons.checkmark_circle : CupertinoIcons.circle,
               size: 20,
-              color: Theme.of(context).colorScheme.primary,
+              color: done
+                  ? AppColors.iosGray
+                  : Theme.of(context).colorScheme.primary,
             ),
             AppSpacing.horizontalRegular,
             Expanded(
@@ -329,17 +387,16 @@ class _TodoCard extends ConsumerWidget {
                   ),
                   AppSpacing.verticalTiny,
                   Text(
-                    '${deadline == null
-                        ? t.groupTask.noDeadline
-                        : overdue
-                        ? '${t.groupTask.overdue} · ${_fmt(deadline)}'
-                        : '${t.groupTask.deadline} ${_fmt(deadline)}'}'
+                    '$myLabel'
+                    '${deadline == null ? ' · ${t.groupTask.noDeadline}' : ' · ${overdue ? t.groupTask.overdue : t.groupTask.deadline} ${_fmt(deadline)}'}'
                     '${groupName == null ? '' : ' · $groupName'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: context.textStyle(
                       FontSizeType.footnote,
-                      color: overdue ? AppColors.iosRed : AppColors.iosGray,
+                      color: overdue && !done
+                          ? AppColors.iosRed
+                          : AppColors.iosGray,
                     ),
                   ),
                 ],

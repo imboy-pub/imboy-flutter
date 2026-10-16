@@ -341,6 +341,9 @@ abstract class MessageType {
   static const String groupVote = 'groupVote';
   static const String groupTask = 'groupTask';
 
+  /// 群公告卡片消息（服务端在公告发布时创建，客户端只渲染不发送）
+  static const String groupNotice = 'groupNotice';
+
   /// 自定义消息
   ///
   /// 作为通用兜底类型使用。
@@ -389,6 +392,7 @@ abstract class MessageType {
     groupSchedule,
     groupVote,
     groupTask,
+    groupNotice,
   ];
 
   /// 判断是否为有效的消息类型

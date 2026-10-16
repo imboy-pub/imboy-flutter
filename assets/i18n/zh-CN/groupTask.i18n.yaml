@@ -1,23 +1,23 @@
-title: 群作业
-createTask: 创建作业
-editTask: 编辑作业
-taskTitle: 作业标题
-taskDescription: 作业描述
+title: 待办
+createTask: 创建待办
+editTask: 编辑待办
+taskTitle: 待办标题
+taskDescription: 待办描述
 deadline: 截止时间
 noDeadline: 无截止时间
-noTask: 暂无作业
+noTask: 暂无待办
 all: 全部
 pending: 待完成
 completed: 已完成
-taskSubmitted: 作业已提交
-submitTask: "提交作业"
+taskSubmitted: 待办已提交
+submitTask: "提交待办"
 overdue: 已过期
 daysLeft: $days 天后截止
 hoursLeft: $hours 小时后截止
 dueSoon: 即将截止
 submitFailed: 提交失败，请稍后重试
 pendingReview: 待审核
-taskIdMissing: 作业ID缺失，无法查看详情
-taskIdMissingSubmit: 作业ID缺失，无法提交
+taskIdMissing: 待办ID缺失，无法查看详情
+taskIdMissingSubmit: 待办ID缺失，无法提交
 publishedAt: "$time 发布"
 completedAt: "完成于 $time"

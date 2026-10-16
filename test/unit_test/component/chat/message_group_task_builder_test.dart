@@ -7,7 +7,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 
 void main() {
-  testWidgets('群作业消息保留类型、显示标题并打开正确详情', (tester) async {
+  testWidgets('待办消息保留类型、显示标题并打开正确详情', (tester) async {
     expect(
       MessageTypeNormalizer.normalize(msgType: 'groupTask', payload: {}),
       'groupTask',

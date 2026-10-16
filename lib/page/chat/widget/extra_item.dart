@@ -45,11 +45,17 @@ class ExtraItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // 「功能开发中」占位不展示：没有真实动作（onPressed == null）的项
+    // 直接隐藏，不进「+」面板网格。
+    // TODO 广州第一期交付后实现：恢复原 comingSoon 兜底并改回显示：
+    // onTap: onPressed ?? () => AppLoading.showToast(t.common.featureComingSoon),
+    if (onPressed == null) return const SizedBox.shrink();
+
     return Material(
       color: AppColors.transparent,
       child: GestureDetector(
-        onTap:
-            onPressed ?? () => AppLoading.showToast(t.common.featureComingSoon),
+        // ExtraItem 保证 onPressed 非 null（null 已在 build 顶部短路隐藏）。
+        onTap: onPressed,
         child: Container(
           width: width ?? 64,
           padding: const EdgeInsets.symmetric(

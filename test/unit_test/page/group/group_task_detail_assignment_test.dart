@@ -61,7 +61,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('团队作业'), findsOneWidget);
-    expect(find.text('提交作业'), findsOneWidget);
+    expect(find.text('提交待办'), findsOneWidget);
     expect(service.pendingRequests, 0);
   });
   for (final status in [0, 2, 3]) {
@@ -77,8 +77,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('提交作业'), status == 0 ? findsOneWidget : findsNothing);
-      if (status == 2) expect(find.text('作业已提交'), findsOneWidget);
+      expect(find.text('提交待办'), status == 0 ? findsOneWidget : findsNothing);
+      if (status == 2) expect(find.text('待办已提交'), findsOneWidget);
     });
   }
 }

@@ -115,7 +115,10 @@ class WebShellBootstrap extends ConsumerWidget {
               .selectItem(ChatSelection(peerId: sel.uid, chatType: 'C2C'));
         },
       ),
-      channelBuilder: (sel) => PlaceholderPanel('Channel: ${sel.channelId}'),
+      // TODO 广州第一期交付后实现：频道详情面板。Phase 2/3 前的占位面板
+      // （PlaceholderPanel）不展示，选中频道时右栏留空；恢复时用下行替换：
+      // channelBuilder: (sel) => PlaceholderPanel('Channel: ${sel.channelId}'),
+      channelBuilder: (sel) => const SizedBox.shrink(),
       // Phase 3.2-min: 最小可用 Mine 面板（用户简介 + 登出）
       // 真实 Mine 子页面（设置 / 个人信息 / 收藏 等）留待 Phase 3.2.b 渐进接入
       mineBuilder: (sel) => WebMineMinPanel(

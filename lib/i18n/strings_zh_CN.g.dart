@@ -6200,20 +6200,20 @@ class Translations$groupTask$zh_CN {
 
 	// Translations
 
-	/// zh-CN: '群作业'
-	String get title => '群作业';
+	/// zh-CN: '待办'
+	String get title => '待办';
 
-	/// zh-CN: '创建作业'
-	String get createTask => '创建作业';
+	/// zh-CN: '创建待办'
+	String get createTask => '创建待办';
 
-	/// zh-CN: '编辑作业'
-	String get editTask => '编辑作业';
+	/// zh-CN: '编辑待办'
+	String get editTask => '编辑待办';
 
-	/// zh-CN: '作业标题'
-	String get taskTitle => '作业标题';
+	/// zh-CN: '待办标题'
+	String get taskTitle => '待办标题';
 
-	/// zh-CN: '作业描述'
-	String get taskDescription => '作业描述';
+	/// zh-CN: '待办描述'
+	String get taskDescription => '待办描述';
 
 	/// zh-CN: '截止时间'
 	String get deadline => '截止时间';
@@ -6221,8 +6221,8 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '无截止时间'
 	String get noDeadline => '无截止时间';
 
-	/// zh-CN: '暂无作业'
-	String get noTask => '暂无作业';
+	/// zh-CN: '暂无待办'
+	String get noTask => '暂无待办';
 
 	/// zh-CN: '全部'
 	String get all => '全部';
@@ -6233,11 +6233,11 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '已完成'
 	String get completed => '已完成';
 
-	/// zh-CN: '作业已提交'
-	String get taskSubmitted => '作业已提交';
+	/// zh-CN: '待办已提交'
+	String get taskSubmitted => '待办已提交';
 
-	/// zh-CN: '提交作业'
-	String get submitTask => '提交作业';
+	/// zh-CN: '提交待办'
+	String get submitTask => '提交待办';
 
 	/// zh-CN: '已过期'
 	String get overdue => '已过期';
@@ -6257,11 +6257,11 @@ class Translations$groupTask$zh_CN {
 	/// zh-CN: '待审核'
 	String get pendingReview => '待审核';
 
-	/// zh-CN: '作业ID缺失，无法查看详情'
-	String get taskIdMissing => '作业ID缺失，无法查看详情';
+	/// zh-CN: '待办ID缺失，无法查看详情'
+	String get taskIdMissing => '待办ID缺失，无法查看详情';
 
-	/// zh-CN: '作业ID缺失，无法提交'
-	String get taskIdMissingSubmit => '作业ID缺失，无法提交';
+	/// zh-CN: '待办ID缺失，无法提交'
+	String get taskIdMissingSubmit => '待办ID缺失，无法提交';
 
 	/// zh-CN: '$time 发布'
 	String publishedAt({required Object time}) => '${time} 发布';
@@ -7278,6 +7278,12 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '暂无符合条件的会话'
 	String get filterEmptyTitle => '暂无符合条件的会话';
+
+	/// zh-CN: '暂无未读会话'
+	String get filterUnreadEmptyTitle => '暂无未读会话';
+
+	/// zh-CN: '暂无待办'
+	String get todoEmptyTitle => '暂无待办';
 
 	/// zh-CN: '功能开发中'
 	String get featureComingSoon => '功能开发中';
@@ -11364,27 +11370,27 @@ extension on Translations {
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.removeTitle' => '移除标签',
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
-			'groupTask.title' => '群作业',
-			'groupTask.createTask' => '创建作业',
-			'groupTask.editTask' => '编辑作业',
-			'groupTask.taskTitle' => '作业标题',
-			'groupTask.taskDescription' => '作业描述',
+			'groupTask.title' => '待办',
+			'groupTask.createTask' => '创建待办',
+			'groupTask.editTask' => '编辑待办',
+			'groupTask.taskTitle' => '待办标题',
+			'groupTask.taskDescription' => '待办描述',
 			'groupTask.deadline' => '截止时间',
 			'groupTask.noDeadline' => '无截止时间',
-			'groupTask.noTask' => '暂无作业',
+			'groupTask.noTask' => '暂无待办',
 			'groupTask.all' => '全部',
 			'groupTask.pending' => '待完成',
 			'groupTask.completed' => '已完成',
-			'groupTask.taskSubmitted' => '作业已提交',
-			'groupTask.submitTask' => '提交作业',
+			'groupTask.taskSubmitted' => '待办已提交',
+			'groupTask.submitTask' => '提交待办',
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
 			'groupTask.pendingReview' => '待审核',
-			'groupTask.taskIdMissing' => '作业ID缺失，无法查看详情',
-			'groupTask.taskIdMissingSubmit' => '作业ID缺失，无法提交',
+			'groupTask.taskIdMissing' => '待办ID缺失，无法查看详情',
+			'groupTask.taskIdMissingSubmit' => '待办ID缺失，无法提交',
 			'groupTask.publishedAt' => ({required Object time}) => '${time} 发布',
 			'groupTask.completedAt' => ({required Object time}) => '完成于 ${time}',
 			'groupVote.title' => '群投票',
@@ -12072,6 +12078,8 @@ extension on Translations {
 			'workspace.filterFlagged' => '标记',
 			'workspace.filterEdit' => '编辑',
 			'workspace.filterEmptyTitle' => '暂无符合条件的会话',
+			'workspace.filterUnreadEmptyTitle' => '暂无未读会话',
+			'workspace.todoEmptyTitle' => '暂无待办',
 			'workspace.featureComingSoon' => '功能开发中',
 			'workspace.recordFaceChat' => '记录面聊',
 			'workspace.smartSummary' => '智能总结',

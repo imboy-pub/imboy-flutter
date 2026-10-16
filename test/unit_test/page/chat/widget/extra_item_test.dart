@@ -59,7 +59,13 @@ void main() {
     expect(tapped, isTrue);
   });
 
-  Future<void> pumpItems(WidgetTester tester, {required String type}) async {
+  Future<void> pumpItems(
+    WidgetTester tester, {
+    required String type,
+    // 生产路径（chat_page.dart）恒传全部 handlers；null 仅出现在测试里。
+    // 默认注入 no-op 模拟生产契约，传 false 验证「无真实动作即隐藏」。
+    bool withHandlers = true,
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         child: TranslationProvider(
@@ -67,6 +73,9 @@ void main() {
             home: Scaffold(
               body: ExtraItems(
                 type: type,
+                handleImageSelection: withHandlers ? () {} : null,
+                handleFileSelection: withHandlers ? () {} : null,
+                handleCollectSelection: withHandlers ? () {} : null,
                 options: const {
                   'to': '10001',
                   'title': '测试群',
@@ -109,6 +118,17 @@ void main() {
       expect(find.text(t.chat.file), findsOneWidget);
       final titles = await visiblePageTitles(tester);
       expect(titles, isNot(contains(t.common.expression)));
+      expect(tester.takeException(), isNull);
+    });
+
+    // 2026-10-16 功能开发中占位收口：没有真实动作（onPressed == null）的
+    // 入口直接隐藏，不再渲染 comingSoon 兜底。
+    testWidgets('$type 无真实动作的入口不渲染（隐藏功能开发中占位）', (tester) async {
+      await pumpItems(tester, type: type, withHandlers: false);
+      expect(find.text(t.main.album), findsNothing);
+      expect(find.text(t.chat.file), findsNothing);
+      // 拍摄入口自带闭包，仍渲染
+      expect(find.text(t.main.camera), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
 

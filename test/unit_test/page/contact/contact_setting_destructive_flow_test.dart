@@ -241,17 +241,15 @@ void main() {
     expect(spy.deleteCalls, 0);
   });
 
-  testWidgets('流程C 「推荐给朋友」提示功能开发中', (tester) async {
+  testWidgets('流程C 「推荐给朋友」占位入口不展示（功能开发中）', (tester) async {
     await _pump(tester);
 
-    await tester.tap(find.text(t.contact.recommendToFriend));
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
-
+    // TODO 广州第一期交付后实现：入口经 contact_setting_page 注释隐藏，
+    // 恢复入口后本用例应改回「点击 → 提示功能开发中」断言。
     expect(
-      find.text(t.common.featureInDevelopment),
-      findsOneWidget,
-      reason: 'fn:contact:people_info_more_page:002 推荐入口应提示功能开发中',
+      find.text(t.contact.recommendToFriend),
+      findsNothing,
+      reason: 'fn:contact:people_info_more_page:002 占位入口交付前不展示',
     );
   });
 

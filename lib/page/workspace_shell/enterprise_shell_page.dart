@@ -43,9 +43,9 @@ final _mineOrganizationProvider = FutureProvider.autoDispose
 /// 企业主导航。Key 由宿主绑定账号、企业及工作区，切换时销毁旧页面。
 ///
 /// 2026-10 飞书风格改版：底栏维持四栏（消息/通讯录/工作台/我，用户
-/// 拍板）；左上汉堡按钮唤起深蓝抽屉（身份/我的名片/企业带/高级功能/
-/// 创建加入企业/设置/切换到个人/退出登录）；消息 tab 顶部挂内容态
-/// tab（筛选/日程/待办），日程·待办聚合企业群数据。
+/// 拍板）；左上汉堡按钮仅「消息」页展示，唤起深蓝抽屉（身份/我的名片/
+/// 企业带/高级功能/创建加入企业/设置/切换到个人/退出登录）；消息 tab
+/// 顶部挂内容态 tab（筛选/日程/待办），日程·待办聚合企业群数据。
 class EnterpriseShellPage extends ConsumerStatefulWidget {
   const EnterpriseShellPage({
     super.key,
@@ -205,7 +205,11 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       children: [
         WorkspaceTopBar(
           title: title,
-          leading: const _ShellMenuButton(),
+          // 左上汉堡（企业抽屉入口）只在「消息」页展示；通讯录/工作台/我
+          // 三个 tab 不挂，需要抽屉时切回消息页。
+          leading: _selected == EnterpriseShellDestination.messages
+              ? const _ShellMenuButton()
+              : null,
           actions: switch (_selected) {
             EnterpriseShellDestination.messages => const [
               WorkspacePlusButton(),
@@ -411,7 +415,11 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         WorkspaceMessageFilterBar(
           tab: _messageTab,
           filter: _filter,
-          onTabChanged: (tab) => setState(() => _messageTab = tab),
+          // 弹窗/顶栏切换视图与筛选都记忆导航（重挂载恢复，见 initState）。
+          onTabChanged: (tab) => setState(() {
+            _messageTab = tab;
+            _rememberNavigation();
+          }),
           onFilterChanged: (filter) {
             setState(() => _filter = filter);
             _rememberNavigation();

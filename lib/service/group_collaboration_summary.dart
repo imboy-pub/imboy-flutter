@@ -12,6 +12,7 @@ String? groupCollaborationSummary(
     MessageType.groupVote => t.groupVote.title,
     MessageType.groupTask => t.groupTask.title,
     MessageType.groupSchedule => t.groupSchedule.title,
+    MessageType.groupNotice => t.common.groupAnnouncement,
     _ => null,
   };
   if (label == null) return null;

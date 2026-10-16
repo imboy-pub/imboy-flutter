@@ -1,11 +1,16 @@
 /// 企业壳「消息」页顶部工具条（2026-10 飞书风格改版）：
 ///
-/// 行 1 —— 内容态 tab：筛选(全部⌄) | 日程 | 待办 | 会议，竖 hairline
-/// 分隔；第一项展示当前筛选并负责唤起下拉菜单（参考稿②③）。
+/// 行 1 —— 内容态 tab：筛选chip | 日程 | 待办，竖 hairline 分隔。
 ///
-/// 下拉菜单为通用 [showPopoverMenu] 气泡：九项筛选 + 「编辑」动作；
-/// 全部/未读行尾带计数胶囊（数据来自 workspaceConversationsProvider，
-/// 加载中/失败时胶囊隐藏，不阻塞筛选本身）。
+/// 筛选 chip 的下拉是「视图 + 筛选」统一菜单（2026-10-16 用户拍板）：
+/// - 视图段：全部 / 日程 / 待办——选中即切内容态视图，弹窗成为与顶栏
+///   tab 等价的第二入口；
+/// - 筛选段：真实可用的会话筛选（见 [kVisibleWorkspaceMessageFilters]），
+///   选中先切回「消息」视图再落筛选——此前筛选只在消息内容态内生效，
+///   停在日程/待办时点筛选项毫无可见变化，被判定为「筛选不可用」。
+/// - 顶部 chip 文案/图标始终反映当前所在视图（全部/日程/待办/未读/…）。
+/// - 计数胶囊：全部/未读来自会话快照；日程/待办来自聚合 provider
+///   （build 侧 eager watch 预热，弹窗打开时读快照）。
 library;
 
 import 'dart:async' show unawaited;
@@ -14,10 +19,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/popover_menu.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -99,16 +104,71 @@ class _WorkspaceMessageFilterBarState
     WorkspaceMessageFilter.flagged => (icon: CupertinoIcons.star, glyph: null),
   };
 
+  /// 当前选择（视图 + 筛选）的文案与图标口径：菜单项与顶部 chip 共用，
+  /// 保证 chip 始终反映用户所在视图（2026-10-16 用户反馈：停在日程/
+  /// 待办视图时 chip 仍显示「全部」，让筛选显得不可用）。
+  String _selectionLabel() => switch (widget.tab) {
+    WorkspaceMessageTab.message => _filterLabel(widget.filter),
+    WorkspaceMessageTab.schedule => t.workspace.tabSchedule,
+    WorkspaceMessageTab.todo => t.workspace.tabTodo,
+  };
+
+  ({IconData? icon, String? glyph}) _selectionIconSpec() =>
+      switch (widget.tab) {
+        WorkspaceMessageTab.message => _filterIcon(widget.filter),
+        WorkspaceMessageTab.schedule => (
+          icon: CupertinoIcons.calendar,
+          glyph: null,
+        ),
+        WorkspaceMessageTab.todo => (
+          icon: CupertinoIcons.checkmark_circle,
+          glyph: null,
+        ),
+      };
+
   void _openFilterDropdown() {
     final renderBox =
         _filterTabKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null || !renderBox.hasSize) return;
     // 文案与计数在弹出时快照（瞬时浮层）；动作捕获页面级 context。
     final pageContext = context;
+    final primary = Theme.of(pageContext).colorScheme.primary;
+    final idle = Theme.of(pageContext).colorScheme.onSurfaceVariant;
     final (allCount, unreadCount) = _counts();
-    Future<void> onEdit() async {
-      await AppLoading.showToast(t.workspace.featureComingSoon);
+    final (scheduleCount, todoCount) = _agendaSnapshotCounts();
+    // TODO 广州第一期交付后实现：筛选下拉的「编辑」动作（批量整理会话）。
+    // 恢复时取消下方注释与 app_loading.dart import。
+    // Future<void> onEdit() async {
+    //   await AppLoading.showToast(t.workspace.featureComingSoon);
+    // }
+
+    // 点任一菜单项 = 同时落定「视图 + 筛选」两个维度；筛选项会先把
+    // 视图切回「消息」，保证点哪个都有可见变化（见文件头注释）。
+    void select(WorkspaceMessageTab tab, WorkspaceMessageFilter filter) {
+      if (filter != widget.filter) widget.onFilterChanged(filter);
+      if (tab != widget.tab) widget.onTabChanged(tab);
     }
+
+    bool isCurrent(WorkspaceMessageTab tab, WorkspaceMessageFilter filter) =>
+        widget.tab == tab &&
+        (tab != WorkspaceMessageTab.message || widget.filter == filter);
+
+    Widget? badge(int count) => count > 0 ? PopoverCountBadge(count) : null;
+
+    PopoverMenuEntry entry({
+      required String title,
+      required IconData icon,
+      required bool selected,
+      required VoidCallback action,
+      Widget? trailing,
+    }) => PopoverMenuEntry(
+      icon: Icon(icon, size: 20, color: selected ? primary : idle),
+      title: title,
+      foreground: selected ? primary : null,
+      selected: selected,
+      trailing: trailing,
+      action: action,
+    );
 
     unawaited(
       showPopoverMenu(
@@ -116,45 +176,91 @@ class _WorkspaceMessageFilterBarState
         anchor: renderBox.localToGlobal(Offset.zero) & renderBox.size,
         side: PopoverMenuSide.topLeft,
         entries: [
-          for (final filter in WorkspaceMessageFilter.values)
-            PopoverMenuEntry(
-              icon: _filterIconBody(filter, primary: filter == widget.filter),
-              title: _filterLabel(filter),
-              foreground: filter == widget.filter
-                  ? Theme.of(pageContext).colorScheme.primary
-                  : null,
-              selected: filter == widget.filter,
-              trailing: filter == WorkspaceMessageFilter.all && allCount > 0
-                  ? PopoverCountBadge(allCount)
-                  : filter == WorkspaceMessageFilter.unread && unreadCount > 0
-                  ? PopoverCountBadge(unreadCount)
-                  : null,
-              action: () {
-                if (filter != widget.filter) widget.onFilterChanged(filter);
-              },
+          // —— 视图段（内容态）：全部 / 日程 / 待办。——
+          entry(
+            title: t.common.all,
+            icon: CupertinoIcons.chat_bubble,
+            selected: isCurrent(
+              WorkspaceMessageTab.message,
+              WorkspaceMessageFilter.all,
             ),
-          PopoverMenuEntry(
-            icon: Icon(
-              CupertinoIcons.slider_horizontal_3,
-              size: 20,
-              color: Theme.of(pageContext).colorScheme.onSurface,
-            ),
-            title: t.workspace.filterEdit,
-            action: onEdit,
+            trailing: badge(allCount),
+            action: () =>
+                select(WorkspaceMessageTab.message, WorkspaceMessageFilter.all),
           ),
+          entry(
+            title: t.workspace.tabSchedule,
+            icon: CupertinoIcons.calendar,
+            selected: isCurrent(
+              WorkspaceMessageTab.schedule,
+              WorkspaceMessageFilter.all,
+            ),
+            trailing: badge(scheduleCount),
+            action: () => select(
+              WorkspaceMessageTab.schedule,
+              WorkspaceMessageFilter.all,
+            ),
+          ),
+          entry(
+            title: t.workspace.tabTodo,
+            icon: CupertinoIcons.checkmark_circle,
+            selected: isCurrent(
+              WorkspaceMessageTab.todo,
+              WorkspaceMessageFilter.all,
+            ),
+            trailing: badge(todoCount),
+            action: () =>
+                select(WorkspaceMessageTab.todo, WorkspaceMessageFilter.all),
+          ),
+          // —— 筛选段（消息内容态内的会话筛选）。——
+          // 只展示真实可用的筛选项；@我/单聊/内部/外部/标记为「功能开发中」，
+          // 枚举值先保留、待服务端补字段后经 kVisibleWorkspaceMessageFilters 点亮。
+          for (final filter in kVisibleWorkspaceMessageFilters)
+            if (filter != WorkspaceMessageFilter.all)
+              entry(
+                title: _filterLabel(filter),
+                icon: _filterIcon(filter).icon ?? CupertinoIcons.circle,
+                selected: isCurrent(WorkspaceMessageTab.message, filter),
+                trailing: filter == WorkspaceMessageFilter.unread
+                    ? badge(unreadCount)
+                    : null,
+                action: () => select(WorkspaceMessageTab.message, filter),
+              ),
+          // TODO 广州第一期交付后实现：「编辑」动作入口，恢复时取消注释。
+          // PopoverMenuEntry(
+          //   icon: Icon(
+          //     CupertinoIcons.slider_horizontal_3,
+          //     size: 20,
+          //     color: Theme.of(pageContext).colorScheme.onSurface,
+          //   ),
+          //   title: t.workspace.filterEdit,
+          //   action: onEdit,
+          // ),
         ],
       ),
     );
   }
 
-  Widget _filterIconBody(
-    WorkspaceMessageFilter filter, {
+  /// 日程/待办计数快照（弹窗胶囊）：build 侧已 watch 预热，这里只读
+  /// 缓存；加载中/失败不显示胶囊（不阻塞菜单）。
+  (int, int) _agendaSnapshotCounts() {
+    final wsId = ref.read(currentWorkspaceProvider)?.id ?? '';
+    if (wsId.isEmpty) return (0, 0);
+    final schedules =
+        ref.read(workspaceGroupSchedulesProvider(wsId)).asData?.value ??
+        const [];
+    final todos =
+        ref.read(workspaceGroupTodosProvider(wsId)).asData?.value ?? const [];
+    return (schedules.length, todos.length);
+  }
+
+  Widget _iconBody(
+    ({IconData? icon, String? glyph}) spec, {
     required bool primary,
   }) {
     final color = primary
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.onSurfaceVariant;
-    final spec = _filterIcon(filter);
     if (spec.icon != null) {
       return Icon(spec.icon, size: 20, color: color);
     }
@@ -190,6 +296,14 @@ class _WorkspaceMessageFilterBarState
         : AppColors.lightTextPrimary;
     final idleIconColor = AppColors.iosGray;
     final filterActive = widget.tab == WorkspaceMessageTab.message;
+    // 预热日程/待办聚合（弹窗胶囊常备 + 视图秒开）；失败静默，胶囊隐藏。
+    final wsId = ref.watch(
+      currentWorkspaceProvider.select((ws) => ws?.id ?? ''),
+    );
+    if (wsId.isNotEmpty) {
+      ref.watch(workspaceGroupSchedulesProvider(wsId));
+      ref.watch(workspaceGroupTodosProvider(wsId));
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -210,8 +324,9 @@ class _WorkspaceMessageFilterBarState
               child: _BarItem(
                 key: _filterTabKey,
                 itemKey: kWorkspaceMessageFilterTabKey,
-                icon: _filterIconBody(widget.filter, primary: filterActive),
-                label: _filterLabel(widget.filter),
+                // chip 文案/图标跟随当前视图（消息视图下跟随当前筛选）。
+                icon: _iconBody(_selectionIconSpec(), primary: filterActive),
+                label: _selectionLabel(),
                 showChevron: true,
                 chevronUp: false,
                 active: filterActive,

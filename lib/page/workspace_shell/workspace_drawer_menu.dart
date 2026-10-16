@@ -311,14 +311,16 @@ class WorkspaceDrawerMenu extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      AppSpacing.horizontalRegular,
-                      _AssistantPill(
-                        onTap: () async {
-                          await AppLoading.showToast(
-                            t.workspace.featureComingSoon,
-                          );
-                        },
-                      ),
+                      // TODO 广州第一期交付后实现：「智能助理」胶囊入口，
+                      // 恢复时取消下面注释（连同文件尾部 _AssistantPill 类）。
+                      // AppSpacing.horizontalRegular,
+                      // _AssistantPill(
+                      //   onTap: () async {
+                      //     await AppLoading.showToast(
+                      //       t.workspace.featureComingSoon,
+                      //     );
+                      //   },
+                      // ),
                     ],
                   ),
                   AppSpacing.verticalTiny,
@@ -431,55 +433,56 @@ class _EnterpriseBand extends StatelessWidget {
   }
 }
 
-/// 「智能助理」胶囊：半透明白底 + 蓝渐变圆点。
-class _AssistantPill extends StatelessWidget {
-  const _AssistantPill({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsetsDirectional.symmetric(
-          horizontal: 10,
-          vertical: 5,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.overlayLightStrong,
-          borderRadius: BorderRadius.circular(999),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 14,
-              height: 14,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: AlignmentDirectional.topStart,
-                  end: AlignmentDirectional.bottomEnd,
-                  colors: [AppColors.enterpriseSkyBlue, AppColors.primary],
-                ),
-              ),
-            ),
-            AppSpacing.horizontalTiny,
-            Text(
-              t.workspace.assistantEntry,
-              style: context.textStyle(
-                FontSizeType.tiny,
-                fontWeight: FontWeight.w600,
-                color: AppColors.enterpriseOnNavy,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// TODO 广州第一期交付后实现：「智能助理」胶囊：半透明白底 + 蓝渐变圆点。
+// 恢复时取消注释（连同身份行的调用点）。
+// class _AssistantPill extends StatelessWidget {
+//   const _AssistantPill({required this.onTap});
+//
+//   final VoidCallback onTap;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         padding: const EdgeInsetsDirectional.symmetric(
+//           horizontal: 10,
+//           vertical: 5,
+//         ),
+//         decoration: BoxDecoration(
+//           color: AppColors.overlayLightStrong,
+//           borderRadius: BorderRadius.circular(999),
+//         ),
+//         child: Row(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             Container(
+//               width: 14,
+//               height: 14,
+//               decoration: const BoxDecoration(
+//                 shape: BoxShape.circle,
+//                 gradient: LinearGradient(
+//                   begin: AlignmentDirectional.topStart,
+//                   end: AlignmentDirectional.bottomEnd,
+//                   colors: [AppColors.enterpriseSkyBlue, AppColors.primary],
+//                 ),
+//               ),
+//             ),
+//             AppSpacing.horizontalTiny,
+//             Text(
+//               t.workspace.assistantEntry,
+//               style: context.textStyle(
+//                 FontSizeType.tiny,
+//                 fontWeight: FontWeight.w600,
+//                 color: AppColors.enterpriseOnNavy,
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 /// 「未认证」徽标：问号 + 灰蓝胶囊。
 class _UnverifiedBadge extends StatelessWidget {

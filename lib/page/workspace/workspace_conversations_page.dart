@@ -269,10 +269,16 @@ class _WorkspaceConversationsPageState
     final searching = _search.text.trim().isNotEmpty;
     final filtered = widget.filter != WorkspaceMessageFilter.all;
     if (searching || filtered) {
+      // 「未读」空态单独措辞：明确反馈筛选生效只是没有未读（2026-10-16
+      // 用户反馈 R2c：通用空态让筛选显得不可用）。
+      final unreadOnly =
+          !searching && widget.filter == WorkspaceMessageFilter.unread;
       return WorkspaceEmptyView(
         icon: CupertinoIcons.chat_bubble,
         title: searching
             ? t.common.searchNoResults
+            : unreadOnly
+            ? t.workspace.filterUnreadEmptyTitle
             : t.workspace.filterEmptyTitle,
         subtitle: '',
       );

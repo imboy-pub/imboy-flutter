@@ -6,7 +6,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
-/// 作业消息由服务端创建，与作业详情共用权限边界。
+/// 待办消息由服务端创建，与待办详情共用权限边界。
 class GroupTaskMessageTypePlugin implements MessageTypePlugin {
   const GroupTaskMessageTypePlugin();
   @override
