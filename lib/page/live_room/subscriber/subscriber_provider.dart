@@ -52,6 +52,7 @@ class SubscriberNotifier extends _$SubscriberNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!ref.mounted) return;
     final url = prefs.getString('pullServer') ?? '';
     state = state.copyWith(serverUrl: url, preferences: prefs);
   }
@@ -165,7 +166,9 @@ class SubscriberNotifier extends _$SubscriberNotifier {
       _resourceUrl = null;
     }
     await _cleanup(remoteRenderer);
-    state = state.copyWith(stateStr: 'idle', isConnecting: false);
+    if (ref.mounted) {
+      state = state.copyWith(stateStr: 'idle', isConnecting: false);
+    }
   }
 
   Future<void> _cleanup(RTCVideoRenderer remoteRenderer) async {
@@ -173,7 +176,9 @@ class SubscriberNotifier extends _$SubscriberNotifier {
     // srcObject 会抛异常，若不捕获会导致下面 pc.close() 被跳过，造成 WHEP
     // 拉流会话未正确关闭。
     try {
-      remoteRenderer.srcObject = null;
+      if (remoteRenderer.textureId != null) {
+        remoteRenderer.srcObject = null;
+      }
     } on Exception catch (e) {
       if (kDebugMode) {
         debugPrint('[WHEP Subscriber] renderer 已释放，跳过 srcObject 清理: $e');

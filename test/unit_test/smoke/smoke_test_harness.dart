@@ -14,6 +14,17 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/services.dart';
+// 原生边界测试复用 webview_flutter 已锁定的平台接口。
+// ignore: depend_on_referenced_packages
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart'
+    show WebViewPlatform;
+import 'package:imboy/component/location/widget.dart';
+import 'package:imboy/page/live_room/publisher/publisher_page.dart';
+import 'package:imboy/page/live_room/subscriber/subscriber_page.dart';
+
+import '../helper/fake_webview_platform.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -105,6 +116,37 @@ void pinSmokeSessionToken() {
       });
 }
 
+List<String> mockSmokeVideoRenderer({Future<void>? createRendererGate}) {
+  final calls = <String>[];
+  final messenger =
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('FlutterWebRTC.Method'),
+    (call) async {
+      calls.add(call.method);
+      if (call.method == 'createVideoRenderer' && createRendererGate != null) {
+        await createRendererGate;
+      }
+      return switch (call.method) {
+        'initialize' ||
+        'videoRendererSetSrcObject' ||
+        'videoRendererDispose' => null,
+        'createVideoRenderer' => {'textureId': 42},
+        _ => throw UnsupportedError('Unexpected WebRTC call: ${call.method}'),
+      };
+    },
+  );
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('FlutterWebRTC/Texture42'),
+    (_) async => null,
+  );
+  messenger.setMockMethodCallHandler(
+    const MethodChannel('FlutterWebRTC.Event'),
+    (_) async => null,
+  );
+  return calls;
+}
+
 Future<void> prepareSmokeEnv() async {
   mockSqfliteSqlcipher();
   pinInertSecureStorage();
@@ -183,6 +225,13 @@ Widget buildRouterApp(GoRouter router) {
 /// 结尾 pumpWidget(SizedBox) 卸载页面，触发各 State.dispose() 取消其
 /// 订阅/定时器，规避 teardown 的 `Timer still pending` 不变量失败。
 Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
+  if (route.name == 'map_location_picker') {
+    final previous = WebViewPlatform.instance;
+    WebViewPlatform.instance = FakeWebViewPlatform();
+    if (previous != null) {
+      addTearDown(() => WebViewPlatform.instance = previous);
+    }
+  }
   final container = ProviderContainer(
     overrides: [billingProvider.overrideWith(_SmokeBillingNotifier.new)],
   );
@@ -231,6 +280,13 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
   // 冲刷本页遗留的一次性定时器（Future.delayed 等），把泄漏限制在本用例内。
   await tester.pump(const Duration(seconds: 5));
 
+  if (route.name.startsWith('live_room_')) {
+    // EventChannel 取消订阅需要宿主事件循环完成原生释放回调。
+    await tester.runAsync(() async {
+      await Future<void>.delayed(Duration.zero);
+    });
+    await tester.pump();
+  }
   return captured;
 }
 
@@ -240,6 +296,9 @@ Object? _targetRenderError(
   GoRouter router,
 ) {
   final targets = switch (route.name) {
+    'map_location_picker' => <Type>[MapLocationPicker],
+    'live_room_publisher' => <Type>[PublisherPage],
+    'live_room_subscriber' => <Type>[SubscriberPage],
     'group_announcement' => <Type>[GroupAnnouncementPage],
     'feedback_detail' => <Type>[FeedbackDetailPage],
     'qrcode_group' => <Type>[GroupQrCodePage],
@@ -417,7 +476,12 @@ class _SmokeHttpClientRequest implements HttpClientRequest {
 
   @override
   Future<HttpClientResponse> close() async => _SmokeHttpClientResponse(
-    body: _isImageUri(uri) ? _kOnePxTransparentPng : const <int>[],
+    body: uri.host == 'restapi.amap.com'
+        ? utf8.encode('{"status":"1","pois":[]}')
+        : _isImageUri(uri)
+        ? _kOnePxTransparentPng
+        : const <int>[],
+    contentType: uri.host == 'restapi.amap.com' ? 'application/json' : null,
   );
   @override
   Future<HttpClientResponse> get done async => close();
@@ -543,7 +607,8 @@ bool _isImageUri(Uri url) {
 
 class _SmokeHttpClientResponse extends Stream<List<int>>
     implements HttpClientResponse {
-  _SmokeHttpClientResponse({this.body = const <int>[]});
+  _SmokeHttpClientResponse({this.body = const <int>[], String? contentType})
+    : headers = _SmokeHttpHeaders(contentType: contentType);
   final List<int> body;
   @override
   int statusCode = 200;
@@ -552,7 +617,7 @@ class _SmokeHttpClientResponse extends Stream<List<int>>
   @override
   int get contentLength => body.length;
   @override
-  final HttpHeaders headers = _SmokeHttpHeaders();
+  final HttpHeaders headers;
   @override
   HttpClientResponseCompressionState get compressionState =>
       HttpClientResponseCompressionState.notCompressed;
@@ -606,6 +671,12 @@ class _SmokeHttpClientResponse extends Stream<List<int>>
 // utf8 来自 dart:convert
 
 class _SmokeHttpHeaders implements HttpHeaders {
+  _SmokeHttpHeaders({String? contentType}) {
+    if (contentType != null) {
+      set(HttpHeaders.contentTypeHeader, contentType);
+      this.contentType = ContentType.parse(contentType);
+    }
+  }
   final Map<String, List<String>> _h = {};
   @override
   bool chunkedTransferEncoding = false;

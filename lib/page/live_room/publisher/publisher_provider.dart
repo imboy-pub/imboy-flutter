@@ -60,6 +60,7 @@ class PublisherNotifier extends _$PublisherNotifier {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!ref.mounted) return;
     final url = prefs.getString('pushServer') ?? '';
     state = state.copyWith(serverUrl: url, preferences: prefs);
   }
@@ -79,13 +80,6 @@ class PublisherNotifier extends _$PublisherNotifier {
   Future<void> _notifyServerStart() async {
     if (state.roomId.isNotEmpty) {
       await _api.start(state.roomId);
-    }
-  }
-
-  /// 通知后端更新直播状态为"已结束"
-  Future<void> _notifyServerStop() async {
-    if (state.roomId.isNotEmpty) {
-      await _api.stop(state.roomId);
     }
   }
 
@@ -185,6 +179,7 @@ class PublisherNotifier extends _$PublisherNotifier {
 
   /// 停止推流
   Future<void> stopPublish(RTCVideoRenderer localRenderer) async {
+    final roomId = state.roomId;
     // 发送 DELETE 请求通知服务器关闭推流会话
     if (_resourceUrl != null) {
       try {
@@ -195,9 +190,10 @@ class PublisherNotifier extends _$PublisherNotifier {
       _resourceUrl = null;
     }
     await _cleanup(localRenderer);
-    // 通知后端更新直播状态
-    await _notifyServerStop();
-    state = state.copyWith(stateStr: 'idle', isConnecting: false);
+    if (roomId.isNotEmpty) await _api.stop(roomId);
+    if (ref.mounted) {
+      state = state.copyWith(stateStr: 'idle', isConnecting: false);
+    }
   }
 
   Future<void> _cleanup(RTCVideoRenderer localRenderer) async {
@@ -205,16 +201,24 @@ class PublisherNotifier extends _$PublisherNotifier {
     // srcObject 会抛异常，若不捕获会导致下面 track.stop()/pc.close() 被跳过，
     // 造成摄像头/麦克风指示灯不熄灭。
     try {
-      localRenderer.srcObject = null;
+      if (localRenderer.textureId != null) {
+        localRenderer.srcObject = null;
+      }
     } on Exception catch (e) {
       if (kDebugMode) {
         debugPrint('[WHIP Publisher] renderer 已释放，跳过 srcObject 清理: $e');
       }
     }
-    _localStream?.getTracks().forEach((t) => t.stop());
-    _localStream = null;
-    await _pc?.close();
-    _pc = null;
+    try {
+      await Future.wait([
+        for (final track in _localStream?.getTracks() ?? <MediaStreamTrack>[])
+          track.stop(),
+      ]);
+    } finally {
+      _localStream = null;
+      await _pc?.close();
+      _pc = null;
+    }
   }
 
   /// 等待 ICE 候选收集完成（最长 5 秒）

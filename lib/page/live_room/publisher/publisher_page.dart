@@ -7,7 +7,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/publisher/publisher_provider.dart'
-    show publisherProvider;
+    show publisherProvider, PublisherNotifier;
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -28,16 +28,19 @@ class PublisherPage extends ConsumerStatefulWidget {
 
 class _PublisherPageState extends ConsumerState<PublisherPage> {
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  late final PublisherNotifier _notifier;
+  late final Future<void> _rendererReady;
   final TextEditingController _serverController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    unawaited(_initRenderers());
+    _notifier = ref.read(publisherProvider.notifier);
+    _rendererReady = _initRenderers();
     // 若传入了 room，将 roomId 注入到 provider
     if (widget.room != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(publisherProvider.notifier).setRoom(widget.room!);
+        if (mounted) _notifier.setRoom(widget.room!);
       });
     }
   }
@@ -46,22 +49,20 @@ class _PublisherPageState extends ConsumerState<PublisherPage> {
     await _localRenderer.initialize();
   }
 
+  Future<void> _disposeRenderer() async {
+    try {
+      await _rendererReady;
+    } finally {
+      await _localRenderer.dispose();
+    }
+  }
+
   @override
   void dispose() {
     _serverController.dispose();
-    // 先等 stopPublish 完成 track.stop()/pc.close()，再释放 renderer；
-    // 旧顺序先 dispose renderer 会导致 stopPublish 内 _cleanup 对已释放
-    // renderer 操作而跳过后续清理，摄像头/麦克风指示灯可能延迟熄灭甚至
-    // 不熄灭（建议真机验证）。
+    // 清理可能跨过 Provider 卸载，不能在这里再次读取 WidgetRef。
     unawaited(
-      ref.read(publisherProvider.notifier).stopPublish(_localRenderer).then((
-        _,
-      ) {
-        if (_localRenderer.textureId != null) {
-          _localRenderer.srcObject = null;
-          _localRenderer.dispose();
-        }
-      }),
+      _notifier.stopPublish(_localRenderer).whenComplete(_disposeRenderer),
     );
     super.dispose();
   }

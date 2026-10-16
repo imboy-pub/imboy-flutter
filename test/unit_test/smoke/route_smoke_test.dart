@@ -51,6 +51,7 @@ void main() {
       }
 
       testWidgets('${route.name} (${route.location}) 可渲染不崩溃', (tester) async {
+        if (route.name.startsWith('live_room_')) mockSmokeVideoRenderer();
         final error = await renderRoute(tester, route);
         expect(
           error,

@@ -7,7 +7,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/live_room/subscriber/subscriber_provider.dart'
-    show subscriberProvider;
+    show subscriberProvider, SubscriberNotifier;
 import 'package:imboy/store/model/live_room_model.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -28,31 +28,35 @@ class SubscriberPage extends ConsumerStatefulWidget {
 
 class _SubscriberPageState extends ConsumerState<SubscriberPage> {
   final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  late final SubscriberNotifier _notifier;
+  late final Future<void> _rendererReady;
   final TextEditingController _serverController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    unawaited(_initRenderers());
+    _notifier = ref.read(subscriberProvider.notifier);
+    _rendererReady = _initRenderers();
   }
 
   Future<void> _initRenderers() async {
     await _remoteRenderer.initialize();
   }
 
+  Future<void> _disposeRenderer() async {
+    try {
+      await _rendererReady;
+    } finally {
+      await _remoteRenderer.dispose();
+    }
+  }
+
   @override
   void dispose() {
     _serverController.dispose();
-    // 先等 stopSubscribe 完成 pc.close()，再释放 renderer；旧顺序先 dispose
-    // renderer 会导致 stopSubscribe 内 _cleanup 对已释放 renderer 操作而跳过
-    // 后续清理，WHEP 拉流会话可能未正确关闭（建议真机验证）。
+    // 清理可能跨过 Provider 卸载，不能在这里再次读取 WidgetRef。
     unawaited(
-      ref.read(subscriberProvider.notifier).stopSubscribe(_remoteRenderer).then(
-        (_) {
-          _remoteRenderer.srcObject = null;
-          _remoteRenderer.dispose();
-        },
-      ),
+      _notifier.stopSubscribe(_remoteRenderer).whenComplete(_disposeRenderer),
     );
     super.dispose();
   }

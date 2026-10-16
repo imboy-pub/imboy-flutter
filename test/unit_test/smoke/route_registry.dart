@@ -45,15 +45,8 @@ class SmokeRoute {
   final String? skipReason;
 }
 
-/// 尚未恢复的隔离名单；2026-10-16 已逐条执行原 81 条隔离路由。
-/// 原始分类、现有测试对应与恢复证据见 docs/reference/route-smoke-coverage.md。
-const Set<String> leakyRoutesQuarantine = {
-  // 无头环境未安装 WebViewPlatform；需平台夹具或真机地图交互验证。
-  'map_location_picker',
-  // 两页均在 dispose 中读取 ref，当前 SDK 实际抛错；直播入口仍为产品硬关闭。
-  'live_room_publisher',
-  'live_room_subscriber',
-};
+/// 2026-10-16 已恢复历史隔离项；新增隔离须附当前复现与替代验证说明。
+const Set<String> leakyRoutesQuarantine = {};
 
 /// 路由是否应被跳过（显式 quarantine 状态 或 异步泄漏名单）。
 bool isQuarantined(SmokeRoute r) =>
