@@ -33,6 +33,7 @@ class RouteFeatureGuard {
   static String? featureForPath(String path) {
     if (path == AppRoutes.momentFeed ||
         path == AppRoutes.momentCreate ||
+        path == '/moment_notify' ||
         path.startsWith('${AppRoutes.momentRoot}/')) {
       return FeatureKeys.moment;
     }
@@ -83,6 +84,7 @@ class RouteFeatureGuard {
   static String? appEntryForPath(String path) {
     if (path == AppRoutes.momentFeed ||
         path == AppRoutes.momentCreate ||
+        path == '/moment_notify' ||
         path.startsWith('${AppRoutes.momentRoot}/')) {
       return 'moment_tab';
     }

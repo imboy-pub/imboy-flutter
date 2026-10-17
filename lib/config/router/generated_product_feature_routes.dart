@@ -12,32 +12,23 @@ import 'package:imboy/page/conversation/subscribed_channel_strip_provider.dart';
 import 'package:imboy/page/conversation/widget/subscribed_channel_strip.dart';
 
 import 'routes/channel_routes.dart';
-import 'routes/channel_discover_routes.dart';
-import 'routes/channel_invitation_routes.dart';
-import 'routes/channel_order_routes.dart';
 import 'routes/group_vote_routes.dart';
 import 'routes/group_schedule_routes.dart';
 import 'routes/group_task_routes.dart';
 
 const productFeatureRouteManifestHash =
-    "sha256:ecf552c01018513a34e445b49cedbb985962758542c9b64a93951185dc8f0ca8";
+    "sha256:022090cbdac05698250905a34bad19b5be2b4c397b54cd5604ec880e6f8a9ebf";
 const productFeatureRouteSchemaVersion = 1;
 const productFeatureRouteFeatures = <String>[
-  "bot_webhook",
   "channel",
-  "channel_discover",
-  "channel_invitation",
-  "channel_order",
   "core",
   "customer_service",
-  "e2ee",
   "enterprise_business",
   "group_schedule",
   "group_task",
   "group_vote",
   "location",
   "moment",
-  "project",
 ];
 
 List<RouteBase> compiledProductFeatureRoutes() => <RouteBase>[
@@ -94,13 +85,7 @@ List<RouteBase> compiledProductFeatureRoutes() => <RouteBase>[
   ...groupVoteRoutes(),
   ...groupScheduleRoutes(),
   ...groupTaskRoutes(),
-  ...channelRoutes(
-    featureRoutes: <RouteBase>[
-      ...channelDiscoverRoutes(),
-      ...channelInvitationRoutes(),
-      ...channelOrderRoutes(),
-    ],
-  ),
+  ...channelRoutes(featureRoutes: <RouteBase>[]),
 ];
 
 Widget? compiledChannelListPage() => const ChannelListPage();

@@ -14454,6 +14454,13 @@
           "control": "text_field",
           "expected_oracle": "查询仅过滤当前企业资源，清空后恢复当前企业完整资源",
           "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
+        },
+        {
+          "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+          "action": "从消息页打开企业抽屉",
+          "control": "button",
+          "expected_oracle": "仅消息页显示左上抽屉入口，通讯录、工作台、我隐藏；切回消息后入口恢复且可打开企业抽屉",
+          "details": "Widget regression: test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart — 仅消息页显示左上抽屉入口，切回消息恢复入口。声明本身不代表真机验收。"
         }
       ]
     }
