@@ -620,6 +620,173 @@ void main() {
       },
     );
   }
+  for (final scenario in [
+    ('exchange', false),
+    ('exchange', true),
+    ('link', true),
+    ('register', true),
+  ]) {
+    final action = scenario.$1;
+    testWidgets(
+      'saved callback source for $action with injected key ${scenario.$2}',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({});
+        await StorageService.init();
+        final boundUid = action == 'link' ? 'synthetic' : '';
+        if (boundUid.isNotEmpty) {
+          await StorageService.to.setString(Keys.currentUid, boundUid);
+        }
+        final attempt = OaLoginAttempt.create(
+          action == 'link' ? 'link' : 'login',
+          backend: Env().apiBaseUrl,
+          deviceId: 'device',
+          applicationKey: 'oa-local-source-a',
+        );
+        String b64(String value) =>
+            base64UrlEncode(utf8.encode(value)).replaceAll('=', '');
+        // Link uses the existing authenticated client; retain its own session.
+        final sessionToken = boundUid.isEmpty
+            ? null
+            : '${b64('{"alg":"HS256"}')}.${b64('{"exp":9999999999}')}.${b64('test-signature')}';
+        FlutterSecureStorage.setMockInitialValues({
+          if (sessionToken != null) 'secure_token': sessionToken,
+          if (sessionToken != null) 'secure_refresh_token': sessionToken,
+          'oa_inbound_login_attempt': jsonEncode({
+            'backend': attempt.backend,
+            'bound_uid': boundUid,
+            'attempt': attempt.toJson(),
+          }),
+        });
+        final generation = sessionRepo.sessionGeneration;
+        final adapter = _RecordingAdapter(200, {
+          'code': 0,
+          'payload': {
+            'requires_account_choice': true,
+            'pending_token': 'p' * 43,
+            'expires_in': 300,
+          },
+        });
+        HttpClient.adapterForTest = adapter;
+        addTearDown(() => HttpClient.adapterForTest = null);
+        final callback = Uri(
+          path: '/oa/login',
+          queryParameters: {
+            'state': attempt.state,
+            'ticket': 't' * 43,
+            // The callback is untrusted; this valid key must never own the proof.
+            if (scenario.$2) 'application_key': 'oa-callback-source-b',
+          },
+        );
+        await _pumpSessionWidget(
+          tester,
+          TranslationProvider(
+            child: CupertinoApp(
+              home: OaLoginPage(
+                callback: callback,
+                deviceInfo: () async => {'did': 'device'},
+              ),
+            ),
+          ),
+        );
+        await _settleSessionWrites(tester);
+        expect(adapter.requests.single.$2, '/api/v1/oa/login/exchange');
+        expect(
+          jsonDecode(adapter.wireBodies.single)['application_key'],
+          attempt.applicationKey,
+        );
+        final pendingRaw = await StorageSecureService.to.read(
+          key: 'oa_inbound_login_attempt',
+        );
+        final restored = OaLoginAttempt.fromJson(
+          (jsonDecode(pendingRaw!) as Map<String, dynamic>)['attempt']
+              as Map<String, dynamic>,
+        );
+        expect(restored.applicationKey, attempt.applicationKey);
+        expect(restored.state, attempt.state);
+        expect(restored.verifier, attempt.verifier);
+        expect(restored.pendingToken, 'p' * 43);
+        if (action != 'exchange') {
+          // Preserve pending proof on rejection; never commit a synthetic session.
+          adapter.body = {'code': 409, 'payload': <String, dynamic>{}};
+          await tester.runAsync(
+            () => tester.tap(
+              find.text(
+                action == 'link'
+                    ? t.enterpriseOa.confirmLink
+                    : t.enterpriseOa.confirmCreate,
+              ),
+            ),
+          );
+          await _settleSessionWrites(tester);
+          expect(adapter.requests.length, 2);
+          expect(adapter.requests.last.$2, '/api/v1/oa/login/$action');
+          final body = jsonDecode(adapter.wireBodies.last);
+          expect(body['application_key'], attempt.applicationKey);
+          expect(body['pending_token'], restored.pendingToken);
+          expect(body['code_verifier'], attempt.verifier);
+          expect(
+            await StorageSecureService.to.read(key: 'oa_inbound_login_attempt'),
+            pendingRaw,
+          );
+        }
+        expect(sessionRepo.currentUid, boundUid);
+        expect(sessionRepo.sessionGeneration, generation);
+        expect(
+          await StorageSecureService.to.read(key: 'secure_token'),
+          sessionToken,
+        );
+        expect(
+          await StorageSecureService.to.read(key: 'secure_refresh_token'),
+          sessionToken,
+        );
+        await _pumpSessionWidget(tester, const SizedBox.shrink());
+      },
+    );
+  }
+
+  testWidgets('callback key without local proof sends no request or session', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    FlutterSecureStorage.setMockInitialValues({});
+    final adapter = _RecordingAdapter(200, {'code': 0, 'payload': {}});
+    HttpClient.adapterForTest = adapter;
+    addTearDown(() => HttpClient.adapterForTest = null);
+    final generation = sessionRepo.sessionGeneration;
+    await _pumpSessionWidget(
+      tester,
+      TranslationProvider(
+        child: CupertinoApp(
+          home: OaLoginPage(
+            callback: Uri(
+              path: '/oa/login',
+              queryParameters: {
+                'state': 'unowned-state',
+                'ticket': 't' * 43,
+                'application_key': 'oa-callback-source-b',
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await _settleSessionWrites(tester);
+    expect(adapter.requests, isEmpty);
+    expect(
+      await StorageSecureService.to.read(key: 'oa_inbound_login_attempt'),
+      isNull,
+    );
+    expect(await StorageSecureService.to.read(key: 'secure_token'), isNull);
+    expect(
+      await StorageSecureService.to.read(key: 'secure_refresh_token'),
+      isNull,
+    );
+    expect(sessionRepo.currentUid, isEmpty);
+    expect(sessionRepo.sessionGeneration, generation);
+    await _pumpSessionWidget(tester, const SizedBox.shrink());
+  });
+
   final now = DateTime.utc(2026, 10, 14);
   final ticket = 't' * 43;
   OaLoginAttempt attempt() => OaLoginAttempt(
