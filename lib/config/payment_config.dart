@@ -5,7 +5,8 @@ import 'env.dart';
 /// 第三方支付（微信 / 支付宝）配置。
 /// **支付宝**走 env 配置体系（`.env.pro` 的 `ALIPAY_APP_ID` /
 /// `ALIPAY_UNIVERSAL_LINK`，公开值非密钥），`--dart-define` 同名注入仅作
-/// 显式覆盖（测试用）。配置缺失时返回空串，由 [PaymentLauncher] 降级为
+/// 显式覆盖；Android 也可在 `android/local.properties` 设置 `alipay.appId`，
+/// 显式构建参数优先于该本地属性。配置缺失时返回空串，由 [PaymentLauncher] 降级为
 /// "即将开通"提示，不崩溃。
 ///
 /// **微信**尚未接入，暂仅支持 `--dart-define` 注入：
