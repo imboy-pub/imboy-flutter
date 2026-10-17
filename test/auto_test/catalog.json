@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "a392995acac28f9c281026f8ac4449948a535ec3",
-    "backend_head": "4c48e666e97217a6966455d986b20362a3070dcc",
-    "integration_test_count": 159,
+    "app_head": "3e4f77d6ec2c72bc25d51d21104d4f011fbfb000",
+    "backend_head": "3f6507012a797b5b3343fa66210f48475daeed2e",
+    "integration_test_count": 160,
     "lib_page_count": 167,
     "module_page_count": 24,
     "route_page_component_count": 149,
@@ -556,7 +556,7 @@
     {
       "id": "test:integration_test/customer_service/cs_workbench_e2e_test.dart",
       "target": "integration_test/customer_service/cs_workbench_e2e_test.dart",
-      "target_sha256": "75c566ff2ae567937bc0820ab35f48e69114ec1407fa072debbece46d5351407",
+      "target_sha256": "556d3559187009c5d098ca98026da695370a877c1a463f70bfe12cd5812e9d2c",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -565,7 +565,7 @@
         "customer_service"
       ],
       "enabled": false,
-      "oracle_hint": false
+      "oracle_hint": true
     },
     {
       "id": "test:integration_test/d04_account_deletion_flow_test.dart",
@@ -1131,6 +1131,20 @@
       "id": "test:integration_test/enterprise/macos_storage_isolation_test.dart",
       "target": "integration_test/enterprise/macos_storage_isolation_test.dart",
       "target_sha256": "0507bab7a53a7f53a18519ad4f0e03df84ed1fc1be5d0ec59746127f9c0f06ed",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "enterprise"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/enterprise/oa_login_real_backend_test.dart",
+      "target": "integration_test/enterprise/oa_login_real_backend_test.dart",
+      "target_sha256": "71fba5d064c947b2030c44a1914e1a808f9833f49b174495e4354f7cf814e3cb",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
