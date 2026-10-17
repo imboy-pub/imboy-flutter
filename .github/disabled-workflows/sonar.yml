@@ -1,3 +1,9 @@
+# 2026-10-17: 按维护者要求停用 Sonar，保留配置供恢复。
+# Disabled at the maintainer's request; GitHub only loads .github/workflows/.
+# 恢复 / Restore: move this file back to .github/workflows/sonar.yml after
+# verifying Sonar project/token access and host-native test prerequisites.
+# Required-check / branch-protection settings are intentionally unchanged.
+#
 # imboyapp SonarCloud scan workflow
 #
 # 关联：.claude/plans/quality-loop.md v1.3 T4.3（v1.1 §302 + §332）

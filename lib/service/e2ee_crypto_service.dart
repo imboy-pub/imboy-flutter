@@ -104,21 +104,12 @@ class E2EECryptoService {
     // 创建 PBKDF2 密钥派生器
     final derivator = PBKDF2KeyDerivator(hmac);
 
-    // 创建参数（keySize in bits）
-    final params = Pbkdf2Parameters(
-      salt,
-      iterations,
-      derivedKeyLength * 8, // 32 bytes * 8 = 256 bits
-    );
-
-    derivator.init(params);
-
-    // 派生密钥并截取到所需长度
-    final derivedKeyFull = derivator.process(passwordBytes);
-    final derivedKey = Uint8List(derivedKeyLength);
-    derivedKey.setRange(0, derivedKeyLength, derivedKeyFull);
-
-    return derivedKey;
+    // PointyCastle expects bytes, not bits. Deriving 256 bytes and truncating
+    // to 32 computed eight PBKDF2 blocks while retaining only the first one.
+    // PBKDF2's prefix is independent of output length, so existing keys and
+    // backups remain byte-identical without changing the iteration count.
+    derivator.init(Pbkdf2Parameters(salt, iterations, derivedKeyLength));
+    return derivator.process(passwordBytes);
   }
 
   // ================================================================
@@ -194,7 +185,7 @@ class E2EECryptoService {
   ///     iv,
   ///   );
   /// } catch (e) {
-  ///   print('解密失败: $e');
+  ///   // Handle authentication failure without logging sensitive data.
   /// }
   /// ```
   static Future<Uint8List> decryptAesGcm(
@@ -268,7 +259,7 @@ class E2EECryptoService {
   /// @example
   /// ```dart
   /// final checksum = E2EECryptoService.calculateChecksum(plaintext);
-  /// print(checksum); // "a1b2c3d4..."
+  /// // checksum is a hexadecimal string, e.g. "a1b2c3d4...".
   /// ```
   static String calculateChecksum(Uint8List data) {
     final digest = sha256.convert(data);

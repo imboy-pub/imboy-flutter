@@ -84,6 +84,33 @@ class TestGateCiParity(unittest.TestCase):
         self.assertNotIn('adb', job)
         self.assertNotIn('magick', job)
 
+    def test_ci_checks_out_sibling_backend_sources_for_domain_tests(self):
+        text = QUALITY_YML.read_text(encoding='utf-8')
+        job = text[text.index('auto-test-framework:'):text.index('sqlite-migration-gate:')]
+        self.assertIn('working-directory: imboyapp', job)
+        self.assertIn('path: imboyapp\n', job)
+        backend = job[job.index('- name: Checkout backend contract sources'):]
+        backend = backend[:backend.index('- name: Run unified framework gate')]
+        self.assertIn('repository: ${{ github.repository_owner }}/imboy', backend)
+        self.assertIn('path: imboy\n', backend)
+        # A manifest-only checkout cannot validate backend targets/Makefile.
+        self.assertNotIn('sparse-checkout:', backend)
+
+    def test_ci_retains_per_run_gate_logs_even_on_failure(self):
+        text = QUALITY_YML.read_text(encoding='utf-8')
+        job = text[text.index('auto-test-framework:'):text.index('sqlite-migration-gate:')]
+        self.assertIn('AUTO_TEST_REPORT_ROOT: ${{ runner.temp }}/auto-test-framework', job)
+        upload = job[job.index('- name: Upload framework gate diagnostics'):]
+        self.assertIn('if: always()', upload)
+        self.assertIn('actions/upload-artifact@', upload)
+        self.assertIn('/auto-test-framework/gate_*.log', upload)
+        self.assertIn('/auto-test-framework/gate_summary.json', upload)
+        gate = GATE.read_text(encoding='utf-8')
+        self.assertNotIn('/tmp/atf_gate_', gate)
+        for check in ('unittest', 'catalog', 'validate', 'report', 'diffcheck',
+                      'pycompile', 'selfcheck', 'drift'):
+            self.assertIn('$AUTO_TEST_REPORT_ROOT/gate_%s.log' % check, gate)
+
     def test_retired_runner_delegates_without_defaults(self):
         retired = (ROOT / 'scripts' / 'run_all_integration_tests.sh').read_text(
             encoding='utf-8'

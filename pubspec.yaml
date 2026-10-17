@@ -367,6 +367,7 @@ dev_dependencies:
   cross_file: any
   file_picker_platform_interface: ^4.0.0
   path_provider_platform_interface: any
+  device_info_plus_platform_interface: ^8.1.0
   flutter_secure_storage_platform_interface: ^2.1.0
   postgres: ^3.5.15
 flutter:

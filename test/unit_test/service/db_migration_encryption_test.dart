@@ -53,16 +53,11 @@ void main() {
   });
 
   group('isEncryptionSupported', () {
-    test('returns bool value on current platform', () {
-      // macOS test runner: isEncryptionSupported should be true
-      // This validates the platform detection logic works
-      final supported = isEncryptionSupported;
-      expect(supported, isA<bool>());
-    });
-
-    test('returns true on macOS (test environment)', () {
-      // Tests run on macOS which supports SQLCipher via sqflite_sqlcipher
-      expect(isEncryptionSupported, isTrue);
+    test('matches SQLCipher support on the host platform', () {
+      expect(
+        isEncryptionSupported,
+        Platform.isAndroid || Platform.isIOS || Platform.isMacOS,
+      );
     });
   });
 

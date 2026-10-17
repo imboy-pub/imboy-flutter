@@ -32,6 +32,7 @@ BACKEND_ROOT="${IMBOY_BACKEND_ROOT:-$APP_ROOT/../imboy}"
 NEGATIVE="${AUTO_TEST_FRAMEWORK_NEGATIVE:-}"
 AUTO_TEST_REPORT_ROOT="${AUTO_TEST_REPORT_ROOT:-$(mktemp -d "${TMPDIR:-/tmp}/imboyapp-auto-test.XXXXXX")}"
 export AUTO_TEST_REPORT_ROOT
+mkdir -p "$AUTO_TEST_REPORT_ROOT"
 SUMMARY_PATH="${AUTO_TEST_FRAMEWORK_GATE_SUMMARY:-$AUTO_TEST_REPORT_ROOT/gate_summary.json}"
 export AUTO_TEST_FRAMEWORK_NEGATIVE  # heredoc python 读取同一注入开关
 
@@ -187,33 +188,33 @@ fi
 cd "$APP_ROOT"
 
 # 1. tooling 单元测试（含凭证负向测试）
-if (cd "$APP_ROOT" && PYTHONPATH="$APP_ROOT/test/tooling/auto_test${PYTHONPATH:+:$PYTHONPATH}" python3 -m unittest discover -s test/tooling -p 'test_*.py' >/tmp/atf_gate_unittest.log 2>&1); then
-  record "tooling_unittest" 0 "$(tail -1 /tmp/atf_gate_unittest.log)"
+if (cd "$APP_ROOT" && PYTHONPATH="$APP_ROOT/test/tooling/auto_test${PYTHONPATH:+:$PYTHONPATH}" python3 -m unittest discover -s test/tooling -p 'test_*.py' >"$AUTO_TEST_REPORT_ROOT/gate_unittest.log" 2>&1); then
+  record "tooling_unittest" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_unittest.log")"
 else
   code=$?
-  record "tooling_unittest" "$code" "log: /tmp/atf_gate_unittest.log"
+  record "tooling_unittest" "$code" "log: $AUTO_TEST_REPORT_ROOT/gate_unittest.log"
 fi
 
 # 2. validate --strict
-if python3 scripts/auto_test.py validate --strict >/tmp/atf_gate_validate.log 2>&1; then
-  record "validate_strict" 0 "$(tail -1 /tmp/atf_gate_validate.log)"
+if python3 scripts/auto_test.py validate --strict >"$AUTO_TEST_REPORT_ROOT/gate_validate.log" 2>&1; then
+  record "validate_strict" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_validate.log")"
 else
-  record "validate_strict" "$?" "log: /tmp/atf_gate_validate.log"
+  record "validate_strict" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_validate.log"
 fi
 
 # 3. catalog --check
-if python3 scripts/auto_test.py catalog --check >/tmp/atf_gate_catalog.log 2>&1; then
-  record "catalog_check" 0 "$(tail -1 /tmp/atf_gate_catalog.log)"
+if python3 scripts/auto_test.py catalog --check >"$AUTO_TEST_REPORT_ROOT/gate_catalog.log" 2>&1; then
+  record "catalog_check" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_catalog.log")"
 else
-  record "catalog_check" "$?" "log: /tmp/atf_gate_catalog.log"
+  record "catalog_check" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_catalog.log"
 fi
 
 # 4. report 生成物一致（regeneration 必须与磁盘字节一致）+ git diff --check
-python3 scripts/auto_test.py report >/tmp/atf_gate_report.log 2>&1
+python3 scripts/auto_test.py report >"$AUTO_TEST_REPORT_ROOT/gate_report.log" 2>&1
 report_code=$?
 before="$(sha_list "${GENERATED_DOCS[@]}")"
 if [ "$report_code" -eq 0 ]; then
-  python3 scripts/auto_test.py report >>/tmp/atf_gate_report.log 2>&1
+  python3 scripts/auto_test.py report >>"$AUTO_TEST_REPORT_ROOT/gate_report.log" 2>&1
   report_code=$?
 fi
 after="$(sha_list "${GENERATED_DOCS[@]}")"
@@ -221,7 +222,7 @@ if [ "$report_code" -ne 0 ]; then
   record "generated_docs_check" "$report_code" "report 退出码 $report_code"
 elif [ "$before" != "$after" ]; then
   record "generated_docs_check" 1 "仓外报告连续生成不一致"
-elif git diff --check >/tmp/atf_gate_diffcheck.log 2>&1; then
+elif git diff --check >"$AUTO_TEST_REPORT_ROOT/gate_diffcheck.log" 2>&1; then
   record "generated_docs_check" 0 "仓外报告生成一致; git diff --check 干净"
 else
   record "generated_docs_check" "$?" "git diff --check 报告问题"
@@ -229,17 +230,17 @@ fi
 
 # 5. py_compile
 py_files=(scripts/auto_test.py scripts/capture_integration_screenshots.py scripts/auto_test_lib/*.py)
-if python3 -m py_compile "${py_files[@]}" >/tmp/atf_gate_pycompile.log 2>&1; then
+if python3 -m py_compile "${py_files[@]}" >"$AUTO_TEST_REPORT_ROOT/gate_pycompile.log" 2>&1; then
   record "py_compile" 0 "$(printf '%s 个控制面文件' "${#py_files[@]}")"
 else
-  record "py_compile" "$?" "log: /tmp/atf_gate_pycompile.log"
+  record "py_compile" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_pycompile.log"
 fi
 
 # 6. 框架自检（无注入 => 全部正向用例）
-if framework_selfcheck >/tmp/atf_gate_selfcheck.log 2>&1; then
-  record "framework_selfcheck" 0 "$(tail -1 /tmp/atf_gate_selfcheck.log)"
+if framework_selfcheck >"$AUTO_TEST_REPORT_ROOT/gate_selfcheck.log" 2>&1; then
+  record "framework_selfcheck" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_selfcheck.log")"
 else
-  record "framework_selfcheck" "$?" "log: /tmp/atf_gate_selfcheck.log"
+  record "framework_selfcheck" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_selfcheck.log"
 fi
 
 # 7. product-feature-manifest 漂移（只读；非致命，建模为环境 BLOCKED 项）
@@ -248,14 +249,14 @@ if [ ! -f "$BACKEND_ROOT/scripts/generate_product_features.py" ]; then
   DRIFT_DETAIL="backend repo not available at $BACKEND_ROOT（CI 环境无 ../imboy；无法只读核对 profile 漂移）"
   printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
   printf '[gate] %-26s ENV(-) %s（不阻断 gate）\n' "product_drift" "$DRIFT_DETAIL"
-elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --require-profile full-selected) >/tmp/atf_gate_drift.log 2>&1; then
+elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --require-profile full-selected) >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
   DRIFT_STATUS="OK"
   DRIFT_DETAIL="product feature manifest 与 full-selected 生成物一致"
   printf '[gate] %-26s OK %s\n' "product_drift" "$DRIFT_DETAIL"
 else
   drift_code=$?
   DRIFT_STATUS="BLOCKED_PRODUCT_DRIFT"
-  DRIFT_DETAIL="$(head -1 /tmp/atf_gate_drift.log | tr -d '\r')"
+  DRIFT_DETAIL="$(head -1 "$AUTO_TEST_REPORT_ROOT/gate_drift.log" | tr -d '\r')"
   printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
   printf '[gate] %-26s ENV(%s) %s（不阻断 gate；不得重生成产品路由）\n' "product_drift" "$drift_code" "$DRIFT_DETAIL"
 fi

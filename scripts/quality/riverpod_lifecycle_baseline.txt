@@ -1,7 +1,6 @@
 # Implicit autoDispose @riverpod declaration baseline; entries may only be removed.
 lib/component/chat/message_scroll_provider.dart:class:MessageScrollManager
 lib/component/image_gallery/image_gallery.dart:class:ImageGalleryNotifier
-lib/page/bottom_navigation/bottom_navigation_provider.dart:class:BottomNavigationNotifier
 lib/page/bottom_navigation/bottom_navigation_provider.dart:class:NewFriendRemindNotifier
 lib/page/channel/channel_provider.dart:class:ChannelDetailNotifier
 lib/page/channel/channel_provider.dart:class:ChannelListNotifier
