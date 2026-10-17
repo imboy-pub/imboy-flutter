@@ -649,8 +649,8 @@ void main() {
             ? null
             : '${b64('{"alg":"HS256"}')}.${b64('{"exp":9999999999}')}.${b64('test-signature')}';
         FlutterSecureStorage.setMockInitialValues({
-          if (sessionToken != null) 'secure_token': sessionToken,
-          if (sessionToken != null) 'secure_refresh_token': sessionToken,
+          'secure_token': ?sessionToken,
+          'secure_refresh_token': ?sessionToken,
           'oa_inbound_login_attempt': jsonEncode({
             'backend': attempt.backend,
             'bound_uid': boundUid,
@@ -750,7 +750,10 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
     FlutterSecureStorage.setMockInitialValues({});
-    final adapter = _RecordingAdapter(200, {'code': 0, 'payload': {}});
+    final adapter = _RecordingAdapter(200, {
+      'code': 0,
+      'payload': <String, dynamic>{},
+    });
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
     final generation = sessionRepo.sessionGeneration;
