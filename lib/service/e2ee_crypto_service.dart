@@ -185,7 +185,7 @@ class E2EECryptoService {
   ///     iv,
   ///   );
   /// } catch (e) {
-  ///   print('解密失败: $e');
+  ///   // Handle authentication failure without logging sensitive data.
   /// }
   /// ```
   static Future<Uint8List> decryptAesGcm(
@@ -259,7 +259,7 @@ class E2EECryptoService {
   /// @example
   /// ```dart
   /// final checksum = E2EECryptoService.calculateChecksum(plaintext);
-  /// print(checksum); // "a1b2c3d4..."
+  /// // checksum is a hexadecimal string, e.g. "a1b2c3d4...".
   /// ```
   static String calculateChecksum(Uint8List data) {
     final digest = sha256.convert(data);

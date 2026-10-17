@@ -84,6 +84,18 @@ class TestGateCiParity(unittest.TestCase):
         self.assertNotIn('adb', job)
         self.assertNotIn('magick', job)
 
+    def test_ci_checks_out_sibling_backend_sources_for_domain_tests(self):
+        text = QUALITY_YML.read_text(encoding='utf-8')
+        job = text[text.index('auto-test-framework:'):text.index('sqlite-migration-gate:')]
+        self.assertIn('working-directory: imboyapp', job)
+        self.assertIn('path: imboyapp\n', job)
+        backend = job[job.index('- name: Checkout backend contract sources'):]
+        backend = backend[:backend.index('- name: Run unified framework gate')]
+        self.assertIn('repository: ${{ github.repository_owner }}/imboy', backend)
+        self.assertIn('path: imboy\n', backend)
+        # A manifest-only checkout cannot validate backend targets/Makefile.
+        self.assertNotIn('sparse-checkout:', backend)
+
     def test_ci_retains_per_run_gate_logs_even_on_failure(self):
         text = QUALITY_YML.read_text(encoding='utf-8')
         job = text[text.index('auto-test-framework:'):text.index('sqlite-migration-gate:')]

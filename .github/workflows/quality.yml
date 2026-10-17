@@ -33,14 +33,27 @@ jobs:
   # ----------------------------------------------------------------
   # 0.2) Auto-test 框架统一验收 gate（Step 7, 2026-09-18）
   # 与本地完全同一入口命令；无设备、无网络后端、无视觉模型。
-  # product-feature-manifest 漂移检查需要 ../imboy（不在 GitHub 托管）；
-  # 缺席时 gate 把它记为 BLOCKED_PRODUCT_DRIFT 环境项并继续（不重生成路由）。
+  # domain 工具测试依赖 ../imboy 的 manifest、test 源码与 Makefile。
+  # 双 checkout 保持本地并排布局；仅做源码检查，不启动后端或重生成产品路由。
   # ----------------------------------------------------------------
   auto-test-framework:
     name: Auto-test framework gate
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: imboyapp
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout imboyapp
+        uses: actions/checkout@v7
+        with:
+          path: imboyapp
+
+      - name: Checkout backend contract sources
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy
+          path: imboy
+          fetch-depth: 1
 
       - name: Run unified framework gate (same entry as local)
         env:
