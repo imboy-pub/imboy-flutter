@@ -135,12 +135,9 @@ void main() {
           final section = tester.widget<CupertinoListSection>(
             find.byType(CupertinoListSection).first,
           );
-          expect(
-            section.type,
-            _before
-                ? CupertinoListSectionType.insetGrouped
-                : CupertinoListSectionType.base,
-          );
+          // 2026-10-17 产品裁决：工作台恢复 insetGrouped 统一卡片（base
+          // 通栏与下方「应用」卡片混用导致白灰断裂，用户不接受）。
+          expect(section.type, CupertinoListSectionType.insetGrouped);
           for (var index = 0; index < _resources.length; index++) {
             expect(find.text(_resources[index]), findsOneWidget);
             if (index > 0) {

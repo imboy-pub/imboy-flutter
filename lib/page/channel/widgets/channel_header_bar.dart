@@ -164,16 +164,16 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                         children: [
                           if (widget.channel.isManaged)
                             ChannelRoleBadge(role: widget.channel.userRole),
-                          if (widget.stats == null)
-                            _buildStatsSkeleton(context, secondaryColor)
-                          else
-                            Text(
-                              '${formatChannelNumber(subscriberCount)} ${t.channel.subscribers}',
-                              style: context.textStyle(
-                                FontSizeType.small,
-                                color: secondaryColor,
-                              ),
+                          // 统计未加载（含 embedded 模式 autoLoadStats=false）
+                          // 时用频道自带订阅数兜底直显——骨架条在统计永不加载
+                          // 的场景会成为永久占位灰条（2026-10-17 修复）。
+                          Text(
+                            '${formatChannelNumber(subscriberCount)} ${t.channel.subscribers}',
+                            style: context.textStyle(
+                              FontSizeType.small,
+                              color: secondaryColor,
                             ),
+                          ),
                         ],
                       ),
                     ],
@@ -358,6 +358,12 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final themePrimary = AppColors.primary;
+    // 默认图标色用次级文本色（overlayBlack5 对比度不达标，灰底上近乎
+    // 不可见——2026-10-17 a11y 修复）。
+    final defaultIconColor = AppColors.getTextColor(
+      Theme.of(context).brightness,
+      isSecondary: true,
+    );
 
     // 纯图标按钮必须有语义标签（DESIGN.md 11.4 / a11y 门）：label 即
     // 该动作的可读名（调用方传入）。
@@ -398,11 +404,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                           size: 20,
                           color:
                               iconColor ??
-                              (isActive
-                                  ? themePrimary
-                                  : (isDark
-                                        ? AppColors.overlayWhite70
-                                        : AppColors.overlayBlack5)),
+                              (isActive ? themePrimary : defaultIconColor),
                         ),
                 ),
               ),
@@ -421,14 +423,6 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildStatsSkeleton(BuildContext context, Color color) {
-    return Container(
-      width: 80,
-      height: AppSpacing.medium,
-      color: color.withValues(alpha: 0.12),
     );
   }
 }

@@ -3,16 +3,19 @@ import 'package:flutter/foundation.dart'
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/web_view.dart';
 
 import '../data/oa_bridge_auth_code.dart';
 import '../enterprise_oa_runtime_config.dart';
-import 'oa_tab_page.dart';
+// ApiOaSsoIssueLauncher（SSO 签发出口）定义于 oa_tab_page.dart。
+import 'oa_tab_page.dart' show ApiOaSsoIssueLauncher;
 
-/// 只在用户选择应用后启动 SSO，不在后台自动加载 WebView。
-class EnterpriseWorkbenchPage extends StatefulWidget {
+/// 企业工作台页：资源入口 + 应用联调入口。
+///
+/// 产品裁决（2026-10-17）：不再展示 OA 应用列表（「办公」入口），工作台
+/// 只保留「应用」联调入口；已登记 OA 应用仍服务于桥 getAuthCode 按需签发。
+class EnterpriseWorkbenchPage extends StatelessWidget {
   const EnterpriseWorkbenchPage({
     super.key,
     required this.entries,
@@ -29,38 +32,19 @@ class EnterpriseWorkbenchPage extends StatefulWidget {
   /// imboyJSBridge 通道（见 component/web_view.dart）。
   static const String appsUrl = 'https://imboy.pub/test_oa.html';
 
-  @override
-  State<EnterpriseWorkbenchPage> createState() =>
-      _EnterpriseWorkbenchPageState();
-}
-
-class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
-  String? _applicationKey;
-
-  @override
-  void didUpdateWidget(covariant EnterpriseWorkbenchPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.accountKey != widget.accountKey ||
-        oldWidget.organizationId != widget.organizationId) {
-      _applicationKey = null;
-    }
-  }
-
   /// 桥 getAuthCode 注入实现：用实例内已登记 OA 应用按需签发一次性
   /// code（仅 H5 主动调用时发生；打开页面不预取）。定位修订（2026-10-12）：
-  /// organization 不参与授权，签发不携带企业字段。应用在调用时现读
-  /// `widget`（State.widget 恒指向最新配置），无过期闭包捕获。
+  /// organization 不参与授权，签发不携带企业字段。
   Future<ImboyBridgeAuthCode> _issueBridgeAuthCode(String? applicationKey) {
     return OaBridgeAuthCodeService(issue: ApiOaSsoIssueLauncher().launch)
-        .getAuthCode(entries: widget.entries, applicationKey: applicationKey);
+        .getAuthCode(entries: entries, applicationKey: applicationKey);
   }
 
-  Future<void> _openApps() async {
-    if (!mounted) return;
+  Future<void> _openApps(BuildContext context) async {
     await Navigator.of(context).push(
       CupertinoPageRoute<dynamic>(
         builder: (_) => WebViewPage(
-          EnterpriseWorkbenchPage.appsUrl,
+          appsUrl,
           t.enterpriseOa.apps,
           allowOaDevicePermissions: true,
           oaAuthCodeHandler: _issueBridgeAuthCode,
@@ -71,89 +55,36 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final available = widget.entries
-        .where((entry) => entry.runtimeEntryEnabled)
-        .toList();
-    final selected = available
-        .where((entry) => entry.applicationKey == _applicationKey)
-        .firstOrNull;
-    if (selected == null) {
-      _applicationKey = null;
-      return ListView(
-        children: [
-          if (widget.resourceEntries.isNotEmpty)
-            CupertinoListSection(children: widget.resourceEntries),
-          if ((!kIsWeb && defaultTargetPlatform == TargetPlatform.android))
-            for (final entry in widget.entries.where(
-              (entry) => entry.inboundLoginEnabled,
-            ))
-              CupertinoListSection.insetGrouped(
-                children: [
-                  CupertinoListTile(
-                    title: Text(t.enterpriseOa.confirmLink),
-                    onTap: () => context.push('/oa/login', extra: entry),
-                  ),
-                ],
-              ),
-          if (available.isNotEmpty)
+    return ListView(
+      children: [
+        if (resourceEntries.isNotEmpty)
+          CupertinoListSection.insetGrouped(children: resourceEntries),
+        if ((!kIsWeb && defaultTargetPlatform == TargetPlatform.android))
+          for (final entry in entries.where(
+            (entry) => entry.inboundLoginEnabled,
+          ))
             CupertinoListSection.insetGrouped(
               children: [
-                for (final entry in available)
-                  CupertinoListTile(
-                    key: ValueKey(
-                      'workbench-application-${entry.applicationKey}',
-                    ),
-                    title: Text(
-                      entry.oaTabLabel.isEmpty
-                          ? t.enterpriseOa.title
-                          : entry.oaTabLabel,
-                    ),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () =>
-                        setState(() => _applicationKey = entry.applicationKey),
-                  ),
+                CupertinoListTile(
+                  title: Text(t.enterpriseOa.confirmLink),
+                  onTap: () => context.push('/oa/login', extra: entry),
+                ),
               ],
             ),
-          // 联调入口常驻：按需免登（桥 getAuthCode）依赖已登记 OA 应用，
-          // 而上方应用入口走的是无桥 redirect 容器（OaTabPage）——联调页
-          // 若只在"无配置"时可见，配置完成后反而永远取不到码。
-          CupertinoListSection.insetGrouped(
-            children: [
-              CupertinoListTile(
-                key: const ValueKey('workbench-apps-entry'),
-                title: Text(t.enterpriseOa.apps),
-                subtitle: const Text(EnterpriseWorkbenchPage.appsUrl),
-                trailing: const CupertinoListTileChevron(),
-                onTap: _openApps,
-              ),
-            ],
-          ),
-        ],
-      );
-    }
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        leading: BackButton(
-          onPressed: () => setState(() => _applicationKey = null),
+        // 联调入口常驻：按需免登（桥 getAuthCode）依赖已登记 OA 应用——
+        // 联调页若只在"无配置"时可见，配置完成后反而永远取不到码。
+        CupertinoListSection.insetGrouped(
+          children: [
+            CupertinoListTile(
+              key: const ValueKey('workbench-apps-entry'),
+              leading: const Icon(CupertinoIcons.square_grid_2x2),
+              title: Text(t.enterpriseOa.apps),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () => _openApps(context),
+            ),
+          ],
         ),
-        title: Text(
-          selected.oaTabLabel.isEmpty
-              ? t.enterpriseOa.title
-              : selected.oaTabLabel,
-        ),
-      ),
-      body: OaTabPage(
-        key: ValueKey((
-          widget.accountKey,
-          widget.organizationId,
-          selected.applicationKey,
-          selected.redirectUri,
-        )),
-        config: selected,
-        accountKey: widget.accountKey,
-        organizationId: widget.organizationId,
-      ),
+      ],
     );
   }
 }

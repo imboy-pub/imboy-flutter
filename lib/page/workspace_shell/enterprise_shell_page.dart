@@ -366,15 +366,22 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
                 _resourceEntry(
                   t.workspace.navProjects,
                   const WorkspaceProjectsPage(),
+                  icon: CupertinoIcons.folder,
                 ),
               _resourceEntry(
                 t.workspace.navGroups,
                 const WorkspaceGroupsPage(),
+                icon: CupertinoIcons.person_2,
               ),
-              _resourceEntry(t.channel.title, const WorkspaceChannelsPage()),
+              _resourceEntry(
+                t.channel.title,
+                const WorkspaceChannelsPage(),
+                icon: CupertinoIcons.speaker_2,
+              ),
               _resourceEntry(
                 t.attachmentManager.title,
                 const WorkspaceAttachmentsPage(),
+                icon: CupertinoIcons.paperclip,
               ),
             ],
           ],
@@ -478,18 +485,20 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     ),
   };
 
-  Widget _resourceEntry(String title, Widget page) => CupertinoListTile(
-    title: Text(title),
-    trailing: const CupertinoListTileChevron(),
-    onTap: () => Navigator.of(context).push(
-      CupertinoPageRoute<void>(
-        builder: (_) => Scaffold(
-          appBar: AppBar(title: Text(title)),
-          body: page,
+  Widget _resourceEntry(String title, Widget page, {IconData? icon}) =>
+      CupertinoListTile(
+        leading: icon == null ? null : Icon(icon),
+        title: Text(title),
+        trailing: const CupertinoListTileChevron(),
+        onTap: () => Navigator.of(context).push(
+          CupertinoPageRoute<void>(
+            builder: (_) => Scaffold(
+              appBar: AppBar(title: Text(title)),
+              body: page,
+            ),
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }
 
 /// 左上角汉堡按钮：唤起企业抽屉（参考稿①）。
