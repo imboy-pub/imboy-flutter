@@ -21,12 +21,16 @@ import 'package:imboy/store/model/workspace_model.dart';
 
 void main() {
   Future<void> pumpPage(WidgetTester tester, {Widget? detailEntry}) async {
+    // WorkspaceChannelDetailPage 为 ConsumerWidget（外层顶栏 watch 频道
+    // provider），必须置于 ProviderScope 内。
     await tester.pumpWidget(
-      TranslationProvider(
-        child: MaterialApp(
-          home: WorkspaceChannelDetailPage(
-            channelId: '9002',
-            detailEntry: detailEntry ?? const SizedBox.shrink(),
+      ProviderScope(
+        child: TranslationProvider(
+          child: MaterialApp(
+            home: WorkspaceChannelDetailPage(
+              channelId: '9002',
+              detailEntry: detailEntry ?? const SizedBox.shrink(),
+            ),
           ),
         ),
       ),

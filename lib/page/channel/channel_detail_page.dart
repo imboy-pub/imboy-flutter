@@ -4,31 +4,22 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/generated_channel_order_widget.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/common_bar.dart';
-import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
-import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/component/helper/func.dart';
 
 import 'channel_detail_rules.dart';
-import 'channel_share_payload.dart';
 import 'channel_provider.dart';
 import 'widgets/channel_header_bar.dart';
-
-import 'package:imboy/theme/default/app_spacing.dart';
+import 'widgets/channel_overflow_menu.dart';
 
 import 'widgets/channel_discussion_entry.dart';
 import 'widgets/channel_message_feed.dart';
@@ -48,10 +39,15 @@ class ChannelDetailPage extends ConsumerStatefulWidget {
   final String channelId;
   final bool autoLoadStats;
 
+  /// 嵌套模式（如工作区频道详情）：不渲染自身 GlassAppBar，标题/返回/⋮
+  /// 菜单由宿主页顶栏接管（⋮ 用公共的 [ChannelOverflowMenu]），避免双层头部。
+  final bool embedded;
+
   const ChannelDetailPage({
     super.key,
     required this.channelId,
     this.autoLoadStats = true,
+    this.embedded = false,
   });
 
   @override
@@ -162,11 +158,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
     return Scaffold(
       backgroundColor: scaffoldBgColor, // 设置背景色以拉开层次
-      appBar: GlassAppBar(
-        title: channel?.name ?? t.channel.loading,
-        automaticallyImplyLeading: true,
-        rightDMActions: _buildAppBarActions(channel),
-      ),
+      // embedded 模式由宿主（如 WorkspaceChannelDetailPage）提供 AppBar。
+      appBar: widget.embedded
+          ? null
+          : GlassAppBar(
+              title: channel?.name ?? t.channel.loading,
+              automaticallyImplyLeading: true,
+              rightDMActions: _buildAppBarActions(channel),
+            ),
       // 发布栏必须在 body 内（而非 bottomNavigationBar）：Flutter 的
       // _ScaffoldLayout 把 bottomNavigationBar 定位在整屏底部（bottom =
       // size.height），只有 body 会按 minInsets 内缩，键盘一弹发布栏就被压在
@@ -200,143 +199,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (channel == null) return [];
 
     return [
-      PopupMenuButton<String>(
-        icon: const Icon(CupertinoIcons.ellipsis_vertical),
-        tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-        shape: RoundedRectangleBorder(),
-        color: Theme.of(context).brightness == Brightness.dark
-            ? AppColors.darkSurfaceContainerHighest
-            : AppColors.lightSurface,
-        elevation: 8.0,
-        offset: const Offset(0, 48), // Float elegantly below the app bar
-        onSelected: (value) => _handleMenuAction(value, channel),
-        itemBuilder: (context) => _buildMenuItems(channel),
+      ChannelOverflowMenu(
+        channel: channel,
+        subscriberCount: _stats?.subscriberCount,
       ),
     ];
-  }
-
-  PopupMenuItem<String> _buildPopupMenuItem({
-    required String value,
-    required IconData icon,
-    required String text,
-    Color? iconColor,
-    Color? textColor,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveIconColor =
-        iconColor ??
-        (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
-    final effectiveTextColor =
-        textColor ??
-        (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
-
-    return PopupMenuItem<String>(
-      value: value,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      height: 48,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 22, color: effectiveIconColor),
-          const SizedBox(width: 16),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: FontSizeType.medium.size,
-              fontWeight: FontWeight.w400,
-              color: effectiveTextColor,
-              fontFamily: 'PingFang SC',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<PopupMenuEntry<String>> _buildMenuItems(ChannelModel channel) {
-    final t = context.t;
-    final items = <PopupMenuEntry<String>>[];
-    if (channel.isManaged) {
-      // 1. Channel Info / 频道信息
-      items.add(
-        _buildPopupMenuItem(
-          value: 'show_channel_info',
-          icon: CupertinoIcons.info_circle,
-          text: t.channel.info,
-        ),
-      );
-
-      // 2. Share / 分享
-      items.add(
-        _buildPopupMenuItem(
-          value: 'share',
-          icon: CupertinoIcons.share,
-          text: t.channel.share,
-        ),
-      );
-
-      // 3. Invite Admins / 邀请管理员
-      items.add(
-        _buildPopupMenuItem(
-          value: 'manage_admins',
-          icon: CupertinoIcons.add,
-          text: t.channel.inviteAdmins,
-        ),
-      );
-
-      // 4. Channel Settings / 频道设置
-      items.add(
-        _buildPopupMenuItem(
-          value: 'edit_channel',
-          icon: CupertinoIcons.gear,
-          text: t.channel.settings,
-        ),
-      );
-    } else {
-      // Normal subscriber / visitor view
-      // 1. Channel Info
-      items.add(
-        _buildPopupMenuItem(
-          value: 'show_channel_info',
-          icon: CupertinoIcons.info_circle,
-          text: t.channel.info,
-        ),
-      );
-
-      // 2. Share
-      items.add(
-        _buildPopupMenuItem(
-          value: 'share',
-          icon: CupertinoIcons.share,
-          text: t.channel.share,
-        ),
-      );
-
-      // 3. Unsubscribe
-      if (channel.isSubscribed) {
-        items.add(
-          _buildPopupMenuItem(
-            value: 'unsubscribe',
-            icon: CupertinoIcons.bell_slash,
-            text: t.channel.unsubscribe,
-          ),
-        );
-      }
-
-      // 4. My Orders
-      if (channel.isPaid &&
-          AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder)) {
-        items.add(
-          _buildPopupMenuItem(
-            value: 'my_orders',
-            icon: CupertinoIcons.doc_plaintext,
-            text: t.main.myOrders,
-          ),
-        );
-      }
-    }
-
-    return items;
   }
 
   // ---- Body（角色路由）----
@@ -367,7 +234,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               stats: _stats,
               isActionPending: _subscribeActionBusy,
               onActionTap: () => _handleSubscribeAction(state.channel!),
-              onShareTap: () => _shareChannel(state.channel),
+              onShareTap: () => showChannelShareSheet(context, state.channel!),
               onForwardTap: () {
                 if (state.channel != null) {
                   context.push(
@@ -527,125 +394,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     }
   }
 
-  // ---- 菜单动作 ----
-
-  void _handleMenuAction(String action, ChannelModel? channel) {
-    final channelId = _resolveChannelId(channel);
-
-    switch (action) {
-      case 'unsubscribe':
-        if (channel != null) {
-          _handleSubscribeAction(channel);
-        }
-        break;
-      case 'share':
-        _shareChannel(channel);
-        break;
-      case 'invitation_center':
-        if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation)) {
-          context.push('/channel/invitations');
-        }
-        break;
-      case 'my_orders':
-        // 委托给付费视图内的订单 sheet 不适用，这里直接跳订单页
-        context.push('/channel/orders');
-        break;
-      case 'edit_channel':
-        if (channel != null) _openChannelEdit(channel);
-        break;
-      case 'show_channel_info':
-        if (channel != null) _showChannelInfoDialog(channel);
-        break;
-      case 'publish_article':
-        context.push('/channel/$channelId/compose');
-        break;
-      case 'manage_admins':
-        context.push('/channel/$channelId/admins');
-        break;
-      case 'manage_subscribers':
-        final invitationEnabled = AppFeatureRegistry.isEnabled(
-          FeatureKeys.channelInvitation,
-        );
-        final canInvite =
-            channel?.isPrivate == true &&
-            (channel?.joinPolicy == 1 || channel?.joinPolicy == 3);
-        context.push(
-          '/channel/$channelId/subscribers',
-          extra: {'canInvite': invitationEnabled && canInvite},
-        );
-        break;
-    }
-  }
-
-  void _showChannelInfoDialog(ChannelModel channel) {
-    final desc = channel.description;
-    final descText = (desc != null && desc.isNotEmpty) ? desc : '暂无介绍';
-    final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
-    final subscriberCount = _stats?.subscriberCount ?? channel.subscriberCount;
-
-    showCupertinoDialog<void>(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: Row(
-          children: [
-            if (hasAvatar)
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: cachedImageProvider(channel.avatar!),
-              )
-            else
-              const CircleAvatar(
-                radius: 20,
-                child: Icon(CupertinoIcons.speaker_2),
-              ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                channel.name,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              descText,
-              style: TextStyle(fontSize: FontSizeType.subheadline.size),
-            ),
-            if (channel.tags?.isNotEmpty ?? false) ...[
-              AppSpacing.verticalSmall,
-              Text(
-                channel.tags!.map((tag) => '#$tag').join(' · '),
-                style: context.textStyle(FontSizeType.small),
-              ),
-            ],
-            AppSpacing.verticalSmall,
-            Text(
-              '${context.t.channel.privacyTitle} · ${context.t.channel.privacyDesc}',
-              style: context.textStyle(FontSizeType.small),
-            ),
-            AppSpacing.verticalRegular,
-            Text(
-              '${context.t.channel.subscribers}: $subscriberCount',
-              style: TextStyle(
-                fontSize: FontSizeType.footnote.size,
-                color: AppColors.iosGray,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(context),
-            child: Text(context.t.common.ok),
-          ),
-        ],
-      ),
-    );
-  }
+  // ---- 菜单动作已抽至 widgets/channel_overflow_menu.dart（embedded 复用） ----
 
   Future<void> _openChannelEdit(ChannelModel channel) async {
     final channelId = _resolveChannelId(channel);
@@ -662,68 +411,5 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     await ref.read(channelDetailProvider.notifier).loadChannel(reloadId);
     _statsRequestedChannelId = null;
     await _loadStats(reloadId);
-  }
-
-  void _shareChannel(ChannelModel? channel) {
-    if (channel == null) return;
-    final t = context.t;
-    final shareLink = '$webBaseUrl/channel/${channel.id}';
-
-    showCupertinoModalPopup<void>(
-      context: context,
-      builder: (context) => CupertinoModalSurface(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Text(
-                channel.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(CupertinoIcons.link),
-              title: Text(t.channel.share),
-              subtitle: Text(shareLink),
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: shareLink));
-                Navigator.pop(context);
-                AppLoading.showToast(t.main.copiedToClipboard);
-              },
-            ),
-            ListTile(
-              leading: const Icon(CupertinoIcons.qrcode),
-              title: Text(t.account.myQrcode),
-              onTap: () {
-                Navigator.pop(context);
-                context.push(
-                  '/qrcode/channel',
-                  extra: {
-                    'id': channel.id,
-                    'name': channel.name,
-                    'avatar': channel.avatar,
-                  },
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(CupertinoIcons.paperplane),
-              title: Text(t.channel.shareToChat),
-              onTap: () {
-                Navigator.pop(context);
-                context.push(
-                  '/chat/send_to',
-                  extra: channelCardShareExtra(channel),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

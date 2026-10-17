@@ -91,7 +91,7 @@ void main() {
     });
   });
 
-  testWidgets('有效 OA 配置显示 OA 入口，联调入口常驻', (tester) async {
+  testWidgets('OA 应用列表不再展示（产品裁决 2026-10-17），联调入口常驻', (tester) async {
     await runOnMacos(() async {
       final config = EnterpriseOaRuntimeConfig.fromMap({
         'IMBOY_WL_OA_ENTRY_ENABLED': 'true',
@@ -102,10 +102,10 @@ void main() {
       });
       expect(config.runtimeEntryEnabled, isTrue);
       await tester.pumpWidget(host(entries: [config]));
-      expect(find.text('办公'), findsOneWidget);
-      // 联调入口常驻：按需免登取码依赖已登记 OA 应用，而应用入口走无桥
-      // redirect 容器——联调页必须在有配置时仍可进入，否则配置完成后
-      // 反而永远取不到码。
+      // 工作台只保留「应用」入口，「办公」应用列表不再渲染。
+      expect(find.text('办公'), findsNothing);
+      // 联调入口常驻：按需免登取码依赖已登记 OA 应用，必须在有配置时
+      // 仍可进入，否则配置完成后反而永远取不到码。
       expect(
         find.byKey(const ValueKey('workbench-apps-entry')),
         findsOneWidget,

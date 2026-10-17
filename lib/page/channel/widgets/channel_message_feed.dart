@@ -262,6 +262,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       skipLoadingOnRefresh: false,
       loading: () => const Center(child: CupertinoActivityIndicator()),
       error: (_, _) => NoDataView(
+        icon: CupertinoIcons.exclamationmark_circle,
         text: context.t.common.loadError,
         onTop: () => ref.invalidate(channelPostSearchProvider(_filter)),
         retryLabel: context.t.common.retry,
@@ -271,7 +272,10 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           children: [
             Expanded(
               child: page.list.isEmpty
-                  ? NoDataView(text: context.t.channel.noResults)
+                  ? NoDataView(
+                      icon: CupertinoIcons.search,
+                      text: context.t.channel.noResults,
+                    )
                   : ListView.builder(
                       itemCount: page.list.length,
                       itemBuilder: (context, index) => ChannelMessageItem(
@@ -513,9 +517,13 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   Widget _buildErrorView(BuildContext context, String error, Translations t) {
     // 与同 build 里的 NoDataView 空态统一，避免失败态自成一套视觉。
+    // 错误正文为空（服务端无 message）时用通用失败文案兜底，杜绝只显示
+    // 一个孤立「重试」按钮（2026-10-17 截图问题）。
+    final detail = error.trim();
     return NoDataView(
       icon: CupertinoIcons.exclamationmark_circle,
-      text: error,
+      text: detail.isEmpty ? t.common.loadError : detail,
+      retryLabel: t.common.retry,
       onTop: () => ref
           .read(channelDetailProvider.notifier)
           .loadChannel(widget.channelId),

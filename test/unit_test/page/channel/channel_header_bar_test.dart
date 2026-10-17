@@ -44,14 +44,17 @@ Finder statsLine() => find.byWidgetPredicate(
 );
 
 void main() {
-  testWidgets('统计加载时显示等高 skeleton，不渲染伪造的 0 统计', (tester) async {
+  testWidgets('统计未返回时回退频道自带订阅数，不渲染永久骨架条', (tester) async {
+    // 2026-10-17 修复：embedded 模式 autoLoadStats=false，统计永不加载，
+    // 原 skeleton 会变成永久灰色占位条；改为直显 channel.subscriberCount。
     await tester.pumpWidget(
       _app(ChannelHeaderBar(channel: _channel(), onActionTap: () {})),
     );
 
     expect(find.byType(CupertinoActivityIndicator), findsNothing);
     expect(find.textContaining('0'), findsNothing);
-    expect(statsLine(), findsNothing);
+    expect(statsLine(), findsOneWidget);
+    expect(find.text('12 ${t.channel.subscribers}'), findsOneWidget);
   });
 
   testWidgets('操作 pending 时按钮禁用并显示 spinner', (tester) async {

@@ -184,10 +184,12 @@ class _CsQueueViewState extends State<CsQueueView> {
   }
 }
 
-/// 队列预览文案（产品裁决 2026-10-02：不再展示「[加密消息]」占位）。
+/// 队列/会话预览文案（产品裁决 2026-10-02：不再展示「[加密消息]」占位）。
 /// 服务端 preview 非空 → 真实摘要；摘要不可用（附件-only/解密降级）→
 /// 不渲染文本；无末条消息 → 沿用 dataNotFound 兜底。
-Widget _queuePreviewText(BuildContext context, CsQueueItem item) {
+///
+/// 待接队列与处理中/已关闭会话列表共用（信息密度口径一致）。
+Widget csQueuePreviewText(BuildContext context, CsQueueItem item) {
   if (item.lastMessagePreview.isNotEmpty) {
     return Text(
       item.lastMessagePreview,
@@ -259,7 +261,7 @@ class _QueueTile extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.tiny),
-                _queuePreviewText(context, item),
+                csQueuePreviewText(context, item),
                 if (item.source.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.tiny),
