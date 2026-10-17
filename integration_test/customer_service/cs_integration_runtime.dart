@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -16,6 +17,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/http/http_retry_interceptor.dart';
+import 'package:imboy/component/http/http_config.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/auth_session_scope.dart';
@@ -69,8 +71,16 @@ class CsIntegrationRuntime {
   final requestCounts = <String, int>{};
   Env? _original;
   String? _previousEnvironment;
+  HttpOverrides? _previousHttpOverrides;
 
   Future<void> initialize() async {
+    if (_original != null) throw StateError('CS_RUNTIME_ALREADY_INITIALIZED');
+    final previous = Zone.root.run(() => HttpOverrides.current);
+    try {
+      _installHttpOverrides();
+    } finally {
+      HttpOverrides.global = previous;
+    }
     await _initializePackageMetadata();
     if (fixture.assetMime != 'application/octet-stream') {
       throw StateError('CS_REAL_BINARY_FILE_FIXTURE_REQUIRED');
@@ -84,11 +94,27 @@ class CsIntegrationRuntime {
     }
     final actualDid = await _requireDeviceProfile();
     await ownedFiles.readInput();
+    _previousHttpOverrides = _installHttpOverrides();
     _original = original;
     _previousEnvironment = currentEnv;
     currentEnv = fixture.environment;
     envMap[fixture.environment] = CsRunEnvironment(original, fixture.apiBase);
     deviceId = actualDid;
+  }
+
+  HttpOverrides? _installHttpOverrides() {
+    final previous = Zone.root.run(() => HttpOverrides.current);
+    if (!identical(HttpOverrides.current, previous)) {
+      throw StateError('CS_RUNTIME_HTTP_OVERRIDE_ZONE_REFUSED');
+    }
+    final owned = GlobalHttpOverrides();
+    HttpOverrides.global = owned;
+    // A zone can shadow global with the very same previous object.
+    if (!identical(HttpOverrides.current, owned)) {
+      HttpOverrides.global = previous;
+      throw StateError('CS_RUNTIME_HTTP_OVERRIDE_ZONE_REFUSED');
+    }
+    return previous;
   }
 
   Future<void> _initializePackageMetadata() async {
@@ -218,7 +244,12 @@ class CsIntegrationRuntime {
   }
 
   void restoreEnvironment() {
-    if (_original != null) envMap[fixture.environment] = _original!;
-    if (_previousEnvironment != null) currentEnv = _previousEnvironment!;
+    if (_original == null) return;
+    envMap[fixture.environment] = _original!;
+    currentEnv = _previousEnvironment!;
+    HttpOverrides.global = _previousHttpOverrides;
+    _original = null;
+    _previousEnvironment = null;
+    _previousHttpOverrides = null;
   }
 }

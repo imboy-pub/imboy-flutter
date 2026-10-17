@@ -3,7 +3,11 @@
 /// No automatic fixture selection, adapter mocks, synthetic device ID or skips.
 library;
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/http/http_config.dart';
 import 'package:integration_test/integration_test.dart';
 
 import 'cs_integration_fixture.dart';
@@ -19,8 +23,21 @@ void main() {
       final fixture = CsIntegrationFixture.fromBuild();
       final runtime = CsIntegrationRuntime(fixture);
       final probe = CsWorkbenchProbe(runtime);
+      final previousHttpOverrides = Zone.root.run(() => HttpOverrides.current);
+      final previousEffectiveHttpOverrides = HttpOverrides.current;
       try {
         await runtime.initialize();
+        expect(HttpOverrides.current, isA<GlobalHttpOverrides>());
+        await expectLater(
+          runtime.initialize(),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'runtime reentry',
+              'CS_RUNTIME_ALREADY_INITIALIZED',
+            ),
+          ),
+        );
         await probe.run();
         await CsWorkbenchPageJourney(tester, runtime).run();
       } on CsIntegrationAdmissionRefused {
@@ -31,6 +48,17 @@ void main() {
       } finally {
         probe.dispose();
         runtime.restoreEnvironment();
+        expect(HttpOverrides.current, same(previousEffectiveHttpOverrides));
+        expect(
+          Zone.root.run(() => HttpOverrides.current),
+          same(previousHttpOverrides),
+        );
+        runtime.restoreEnvironment();
+        expect(HttpOverrides.current, same(previousEffectiveHttpOverrides));
+        expect(
+          Zone.root.run(() => HttpOverrides.current),
+          same(previousHttpOverrides),
+        );
       }
     },
     timeout: const Timeout(Duration(minutes: 10)),
