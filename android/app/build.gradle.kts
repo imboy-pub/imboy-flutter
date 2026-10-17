@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import java.util.Properties
+import java.util.Base64
 
 plugins {
     id("com.android.application")
@@ -13,6 +14,18 @@ if (file("google-services.json").isFile) {
     apply(plugin = "com.google.gms.google-services")
 }
 val localProperties = gradleLocalProperties(rootDir, providers)
+// 本地公开 appId 复用 Dart 配置入口；显式 --dart-define 优先，商户密钥不下发。
+val alipayAppId = localProperties.getProperty("alipay.appId")?.trim().orEmpty()
+if (alipayAppId.isNotEmpty()) {
+    val dartDefines = project.findProperty("dart-defines")?.toString()
+        ?.split(",")?.filter { it.isNotBlank() }.orEmpty()
+    if (dartDefines.none {
+        String(Base64.getDecoder().decode(it), Charsets.UTF_8).startsWith("ALIPAY_APP_ID=")
+    }) {
+        val encoded = Base64.getEncoder().encodeToString("ALIPAY_APP_ID=$alipayAppId".toByteArray(Charsets.UTF_8))
+        project.extensions.extraProperties.set("dart-defines", (dartDefines + encoded).joinToString(","))
+    }
+}
 val flutterVersionCode = localProperties.getProperty("flutter.versionCode")?.toIntOrNull() ?: 1
 val flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 val localNdkVersion = localProperties.getProperty("flutter.ndkVersion") ?: "28.2.13676358"
