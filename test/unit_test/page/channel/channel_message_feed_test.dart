@@ -98,16 +98,18 @@ void main() {
     expect(find.text(t.channel.noMessagesVisitor), findsNothing);
   });
 
-  testWidgets('管理者空态只给发布第一条内容 CTA', (tester) async {
+  testWidgets('管理者空态只有一个设置主按钮，保留分享和邀请', (tester) async {
     await tester.pumpWidget(
       _app(_channel(role: ChannelUserRole.admin, subscribed: true)),
     );
 
-    // Verify the premium "Start Growing" welcome card components.
-    // 文案已 i18n 化：断言走 t 键而非写死某语言字面量
     expect(find.text(t.channel.channelCreated(name: '测试频道')), findsOneWidget);
     expect(find.text(t.channel.startGrowing(name: '测试频道')), findsOneWidget);
     expect(find.text(t.channel.shareToMyStatus), findsOneWidget);
     expect(find.text(t.channel.inviteAdmins), findsOneWidget);
+    expect(find.byType(FilledButton), findsOneWidget);
+    expect(find.text(t.channel.settings), findsOneWidget);
+    expect(find.text(t.channel.addPhoto), findsNothing);
+    expect(find.text(t.channel.addDescription), findsNothing);
   });
 }

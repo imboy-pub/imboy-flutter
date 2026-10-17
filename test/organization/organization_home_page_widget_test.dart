@@ -1,4 +1,4 @@
-/// ORG-13 — 组织入口页 focused widget 测试（状态矩阵抽样）
+/// ORG-13 — 企业入口页 focused widget 测试（状态矩阵抽样）
 ///
 /// 覆盖：loading → 空态、archived 徽标、error 态重试入口、
 /// TSID 超长 ID 文本不溢出（maxLines+ellipsis 存在性）。
@@ -163,18 +163,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(adapter.requests.length, 2);
-    adapter.complete(1, '新账号组织');
-    await pumpUntilFound(tester, find.text('新账号组织'));
-    adapter.complete(0, '旧账号组织');
+    adapter.complete(1, '新账号企业');
+    await pumpUntilFound(tester, find.text('新账号企业'));
+    adapter.complete(0, '旧账号企业');
     await tester.pumpAndSettle();
-    expect(find.text('新账号组织'), findsOneWidget);
-    expect(find.text('旧账号组织'), findsNothing);
-    expect(OrganizationCache.forAccount('1002').org('7001')?.name, '新账号组织');
+    expect(find.text('新账号企业'), findsOneWidget);
+    expect(find.text('旧账号企业'), findsNothing);
+    expect(OrganizationCache.forAccount('1002').org('7001')?.name, '新账号企业');
     expect(OrganizationCache.forAccount('1001').org('7001'), isNull);
   });
 
   for (final staleFailure in [false, true]) {
-    testWidgets('迟到的旧刷新${staleFailure ? '失败' : '成功'}不得覆盖新组织列表及缓存', (
+    testWidgets('迟到的旧刷新${staleFailure ? '失败' : '成功'}不得覆盖新企业列表及缓存', (
       tester,
     ) async {
       OrganizationCache.disposeAccount('1001');
@@ -193,21 +193,21 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
       expect(adapter.requests.length, 2);
-      adapter.complete(1, '新组织事实');
-      await pumpUntilFound(tester, find.text('新组织事实'));
+      adapter.complete(1, '新企业事实');
+      await pumpUntilFound(tester, find.text('新企业事实'));
       if (staleFailure) {
         adapter.requests[0].completeError(
           StateError('synthetic stale failure'),
         );
       } else {
-        adapter.complete(0, '过时组织事实');
+        adapter.complete(0, '过时企业事实');
       }
       await tester.pumpAndSettle();
       await refreshing;
-      expect(find.text('新组织事实'), findsOneWidget);
-      expect(find.text('过时组织事实'), findsNothing);
+      expect(find.text('新企业事实'), findsOneWidget);
+      expect(find.text('过时企业事实'), findsNothing);
       expect(find.textContaining('synthetic stale failure'), findsNothing);
-      expect(OrganizationCache.forAccount('1001').org('7001')?.name, '新组织事实');
+      expect(OrganizationCache.forAccount('1001').org('7001')?.name, '新企业事实');
     });
   }
 
@@ -222,7 +222,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
       expect(adapter.requests.length, 1);
-      adapter.complete(0, '组织');
+      adapter.complete(0, '企业');
       for (var i = 0; i < 30 && adapter.badges.isEmpty; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -234,7 +234,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
       expect(adapter.requests.length, 2);
-      adapter.complete(1, '组织');
+      adapter.complete(1, '企业');
       for (var i = 0; i < 30 && adapter.badges.length < 2; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -261,9 +261,9 @@ void main() {
     });
   }
 
-  testWidgets('空态：未加入任何组织时展示引导文案', (tester) async {
+  testWidgets('空态：未加入任何企业时展示引导文案', (tester) async {
     final cache = OrganizationCache.forAccount('1001');
-    cache.saveOrgs([const Organization(id: '7001', name: '已移除组织')]);
+    cache.saveOrgs([const Organization(id: '7001', name: '已移除企业')]);
     addTearDown(() => OrganizationCache.disposeAccount('1001'));
 
     HttpClient.adapterForTest = _StaticAdapter(
@@ -281,13 +281,13 @@ void main() {
 
     await tester.pumpWidget(buildHost());
     // 空态文案是含换行的整体字符串，用 textContaining 匹配前缀。
-    await pumpUntilFound(tester, find.textContaining('尚未加入任何组织'));
+    await pumpUntilFound(tester, find.textContaining('尚未加入任何企业'));
 
-    expect(find.textContaining('尚未加入任何组织'), findsOneWidget);
+    expect(find.textContaining('尚未加入任何企业'), findsOneWidget);
     expect(cache.orgs, isEmpty);
   });
 
-  testWidgets('列表：archived 组织打标 + 成员角色展示', (tester) async {
+  testWidgets('列表：archived 企业打标 + 成员角色展示', (tester) async {
     HttpClient.adapterForTest = _StaticAdapter(
       200,
       okEnvelope(
@@ -295,7 +295,7 @@ void main() {
           'list': [
             {
               'id': 7266418340025468930,
-              'name': '甲组织',
+              'name': '甲企业',
               'status': 'archived',
               'member_role': 'admin',
             },
@@ -309,9 +309,9 @@ void main() {
     );
 
     await tester.pumpWidget(buildHost());
-    await pumpUntilFound(tester, find.text('甲组织'));
+    await pumpUntilFound(tester, find.text('甲企业'));
 
-    expect(find.text('甲组织'), findsOneWidget);
+    expect(find.text('甲企业'), findsOneWidget);
     expect(find.textContaining('管理员'), findsOneWidget);
     expect(find.textContaining('已归档'), findsOneWidget);
   });

@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_header_bar.dart';
+import 'package:imboy/page/channel/widgets/channel_role_badge.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 
@@ -82,7 +87,8 @@ void main() {
     );
 
     expect(statsLine(), findsOneWidget);
-    expect(find.textContaining(t.channel.messages), findsOneWidget);
+    expect(find.text('12 ${t.channel.subscribers}'), findsOneWidget);
+    expect(find.text(t.chat.chatSettingMute), findsOneWidget);
   });
 
   testWidgets('暗色主题和动态字号下仍保留订阅语义', (tester) async {
@@ -125,5 +131,81 @@ void main() {
 
     expect(en.channel.subscribe, 'Subscribe');
     expect(en.channel.writeArticle, 'Write Post');
+  });
+
+  for (final role in ChannelUserRole.values) {
+    testWidgets('角色 $role 保留分享、转发和原主动作', (tester) async {
+      final channel = _channel().copyWith(userRole: role);
+      final calls = <String>[];
+      await tester.pumpWidget(
+        _app(
+          ChannelHeaderBar(
+            channel: channel,
+            onShareTap: () => calls.add('share'),
+            onForwardTap: () => calls.add('forward'),
+            onManageTap: () => calls.add('manage'),
+            onActionTap: () => calls.add('action'),
+          ),
+        ),
+      );
+      expect(
+        find.byType(ChannelRoleBadge),
+        channel.isManaged ? findsOneWidget : findsNothing,
+      );
+      await tester.tap(find.text(t.channel.share));
+      await tester.tap(find.text(t.channel.shareToChat));
+      if (channel.isManaged) {
+        await tester.tap(find.text(t.main.manage));
+      }
+      await tester.tap(find.text(t.channel.subscribe));
+      expect(calls, [
+        'share',
+        'forward',
+        if (channel.isManaged) 'manage',
+        'action',
+      ]);
+    });
+  }
+
+  testWidgets('统计优先于模型人数且不改取值口径', (tester) async {
+    await tester.pumpWidget(
+      _app(
+        ChannelHeaderBar(
+          channel: _channel(),
+          stats: ChannelStatsModel(
+            channelId: 1001,
+            subscriberCount: 42,
+            totalMessages: 0,
+            totalViews: 0,
+            totalReactions: 0,
+          ),
+        ),
+      ),
+    );
+    expect(find.text('42 ${t.channel.subscribers}'), findsOneWidget);
+    expect(find.text('12 ${t.channel.subscribers}'), findsNothing);
+  });
+
+  testWidgets('头像解码失败仍显示名称占位，无网络请求', (tester) async {
+    final image = cachedImageProvider('def_avatar.png', w: 256);
+    final key = await image.obtainKey(ImageConfiguration.empty);
+    final decoding = Completer<ImageInfo>();
+    PaintingBinding.instance.imageCache.putIfAbsent(
+      key,
+      () => OneFrameImageStreamCompleter(decoding.future),
+    );
+    addTearDown(() => PaintingBinding.instance.imageCache.evict(key));
+    await tester.pumpWidget(
+      _app(
+        ChannelHeaderBar(
+          channel: _channel().copyWith(avatar: 'def_avatar.png'),
+        ),
+      ),
+    );
+    decoding.completeError(StateError('fixture decode failure'));
+    await tester.pump();
+    expect(find.byType(AvatarFallbackContent), findsOneWidget);
+    expect(find.text('测'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

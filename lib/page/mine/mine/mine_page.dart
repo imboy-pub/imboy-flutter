@@ -312,17 +312,16 @@ class _MinePageState extends ConsumerState<MinePage> {
                           )
                           .copyWith(letterSpacing: -0.6),
                     ),
-                    const SizedBox(height: AppSpacing.tiny),
-                    Text(
-                      widget.enterprise
-                          ? (widget.enterpriseName ??
-                                t.organization.home.tabOrg)
-                          : 'ID: ${user?.account ?? '-'}',
-                      style: context.textStyle(
-                        FontSizeType.normal,
-                        color: AppColors.iosGray,
+                    if (!widget.enterprise) ...[
+                      const SizedBox(height: AppSpacing.tiny),
+                      Text(
+                        'ID: ${user?.account ?? '-'}',
+                        style: context.textStyle(
+                          FontSizeType.normal,
+                          color: AppColors.iosGray,
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

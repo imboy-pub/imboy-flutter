@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -997,4 +998,345 @@ void main() {
     expect(find.byKey(const ValueKey('org-join-code-field')), findsNothing);
     expect(find.byKey(const ValueKey('org-picker-join-entry')), findsOneWidget);
   });
+
+  group('T07 选择器与模式切换反馈', () {
+    testWidgets('个人模式：勾选唯一落在「个人模式」行，保留的上次企业不亮勾', (tester) async {
+      await CurrentOrganizationStore.forAccount(_accountKey)
+          .set(const Organization(id: _orgA, name: '组织$_orgA'));
+      HttpClient.adapterForTest = _RoutingAdapter(
+        (path) => path.endsWith('/organizations/mine')
+            ? _mineOf([_orgA, _orgB])
+            : _ok(null),
+      );
+      await _pump(tester, makeContainer(_WsFakeApi(const [])));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-tile-$_orgA')),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('org-picker-personal-entry')),
+          matching: find.byIcon(CupertinoIcons.check_mark),
+        ),
+        findsOneWidget,
+        reason: '个人模式下「个人模式」行是唯一当前项',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('org-picker-tile-$_orgA')),
+          matching: find.byIcon(CupertinoIcons.check_mark),
+        ),
+        findsNothing,
+        reason: '指针保留的上次企业在个人模式下不得亮勾（选中语义唯一）',
+      );
+    });
+
+    testWidgets('企业模式：当前企业行亮勾，个人模式行不亮勾', (tester) async {
+      await CurrentOrganizationStore.forAccount(_accountKey)
+          .set(const Organization(id: _orgA, name: '组织$_orgA'));
+      HttpClient.adapterForTest = _RoutingAdapter(
+        (path) => path.endsWith('/organizations/mine')
+            ? _mineOf([_orgA, _orgB])
+            : _ok(null),
+      );
+      final container = ProviderContainer(
+        overrides: [
+          currentUserProvider.overrideWithValue(
+            UserModel(uid: _accountKey, account: 'synthetic'),
+          ),
+          workspaceApiProvider.overrideWith((ref) => _WsFakeApi(const [])),
+          productExperienceProvider.overrideWith(_WorkspaceExperience.new),
+        ],
+      );
+      addTearDown(container.dispose);
+      await _pump(tester, container);
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-tile-$_orgA')),
+      );
+
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('org-picker-tile-$_orgA')),
+          matching: find.byIcon(CupertinoIcons.check_mark),
+        ),
+        findsOneWidget,
+        reason: '企业模式下当前企业行是唯一当前项',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('org-picker-personal-entry')),
+          matching: find.byIcon(CupertinoIcons.check_mark),
+        ),
+        findsNothing,
+        reason: '企业模式下个人模式行不得亮勾（选中语义唯一）',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+          matching: find.byIcon(CupertinoIcons.check_mark),
+        ),
+        findsNothing,
+        reason: '非当前企业不得亮勾',
+      );
+    });
+
+    testWidgets('切换进行中：目标行行内 spinner，不提前亮勾，重复点击不重入', (tester) async {
+      await CurrentOrganizationStore.forAccount(_accountKey)
+          .set(const Organization(id: _orgA, name: '组织$_orgA'));
+      final adapter = _T07SlowSwitchAdapter();
+      HttpClient.adapterForTest = adapter;
+      await _pump(tester, makeContainer(_WsFakeApi(const [])));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final orgBTile = find.byKey(const ValueKey('org-picker-tile-$_orgB'));
+      expect(
+        find.descendant(
+          of: orgBTile,
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+        reason: '正在切换的目标行须有行内 spinner（正常路径不静默冻结）',
+      );
+      expect(
+        find.descendant(
+          of: orgBTile,
+          matching: find.byIcon(CupertinoIcons.check_mark),
+        ),
+        findsNothing,
+        reason: '切换完成前不得提前显示成功勾选',
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('org-picker-tile-$_orgA')),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsNothing,
+        reason: 'spinner 只出现在真实切换目标行',
+      );
+
+      // 忙碌期间重复点击：进行中门防重入（detail 仅一次调用）。
+      await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(adapter.detailCalls, 1, reason: '进行中门防重复提交');
+
+      // 挂起请求完成 → 两阶段继续 → 切换成功离开。
+      adapter.detail.complete(
+        adapter.response(
+          _ok({
+            'id': int.parse(_orgB),
+            'name': '组织$_orgB',
+            'member_role': 'member',
+          }),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(CurrentOrganizationStore.forAccount(_accountKey).value?.id, _orgB);
+    });
+
+    testWidgets('切换失败 403：文案为无权限，不暴露 code= 技术原文', (tester) async {
+      await CurrentOrganizationStore.forAccount(_accountKey)
+          .set(const Organization(id: _orgA, name: '组织$_orgA'));
+      HttpClient.adapterForTest = _RoutingAdapter((path) {
+        if (path.endsWith('/organizations/mine')) {
+          return _mineOf([_orgA, _orgB]);
+        }
+        if (path.endsWith('/organizations/$_orgB')) {
+          return {'code': 403, 'msg': 'insufficient scope'};
+        }
+        return _ok(null);
+      });
+      await _pump(tester, makeContainer(_WsFakeApi(const [])));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-switch-error')),
+      );
+
+      expect(
+        find.textContaining(t.common.noPermission),
+        findsOneWidget,
+        reason: '403 按术语表映射为无权限文案',
+      );
+      expect(
+        find.textContaining('code='),
+        findsNothing,
+        reason: '红线：不得出现 code= 原文',
+      );
+      expect(
+        find.textContaining('insufficient scope'),
+        findsNothing,
+        reason: '服务端技术 msg 不得透出',
+      );
+      expect(
+        CurrentOrganizationStore.forAccount(_accountKey).value?.id,
+        _orgA,
+        reason: '失败留在原选择',
+      );
+    });
+
+    testWidgets('Phase 2 提交失败回滚成功：显示「已恢复原选择」完整文案', (tester) async {
+      await CurrentOrganizationStore.forAccount(_accountKey)
+          .set(const Organization(id: _orgA, name: '组织$_orgA'));
+      HttpClient.adapterForTest = _RoutingAdapter((path) {
+        if (path.endsWith('/organizations/mine')) {
+          return _mineOf([_orgA, _orgB]);
+        }
+        if (path.endsWith('/organizations/$_orgB')) {
+          return _ok({
+            'id': int.parse(_orgB),
+            'name': '组织$_orgB',
+            'member_role': 'member',
+          });
+        }
+        if (path.endsWith('/organizations/$_orgB/default-workspace')) {
+          return _ok({
+            'organization_id': int.parse(_orgB),
+            'default_workspace_id': 9002,
+          });
+        }
+        return _ok(null);
+      });
+      final container = ProviderContainer(
+        overrides: [
+          currentUserProvider.overrideWithValue(
+            UserModel(uid: _accountKey, account: 'synthetic'),
+          ),
+          workspaceApiProvider.overrideWith((ref) => _WsFakeApi(const [])),
+          // 偏好写入失败 = Phase 2 提交失败 → 触发回滚（恢复旧指针成功）。
+          productExperienceProvider.overrideWith(_FailedPersonalExperience.new),
+        ],
+      );
+      addTearDown(container.dispose);
+      await _pump(tester, container);
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-tile-$_orgB')),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('org-picker-tile-$_orgB')));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-switch-error')),
+      );
+
+      expect(
+        find.text(t.organization.picker.switchFailedRecovered),
+        findsOneWidget,
+        reason: '回滚成功使用 vocabulary 冻结文案',
+      );
+      expect(find.textContaining('code='), findsNothing);
+      expect(
+        CurrentOrganizationStore.forAccount(_accountKey).value?.id,
+        _orgA,
+        reason: '回滚恢复原选择',
+      );
+    });
+
+    testWidgets('加入企业透传失败：错误文案不带 code= 技术值', (tester) async {
+      HttpClient.adapterForTest = _RoutingAdapter((path) {
+        if (path.endsWith('/organizations/mine')) return _mineOf([_orgA]);
+        if (path.endsWith('/invite_code/preview')) {
+          return _ok({'organization_id': int.parse(_orgC), 'name': '组织$_orgC'});
+        }
+        if (path.endsWith('/invite_code/join')) {
+          return {'code': 500, 'msg': 'boom'};
+        }
+        return _ok(null);
+      });
+      await _pump(tester, makeContainer(_WsFakeApi(const [])));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-picker-join-entry')),
+      );
+
+      await tester.tap(find.byKey(const ValueKey('org-picker-join-entry')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('org-join-code-field')),
+        'ABCD2345',
+      );
+      await tester.tap(find.byKey(const ValueKey('org-join-submit')));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-join-org-name')),
+      );
+      // confirm 态再点提交 = code-only join → 500 透传失败。
+      await tester.tap(find.byKey(const ValueKey('org-join-submit')));
+      await pumpUntilFound(
+        tester,
+        find.byKey(const ValueKey('org-join-error')),
+      );
+
+      expect(
+        find.text(t.organization.picker.joinFailed(msg: 'boom')),
+        findsOneWidget,
+        reason: '透传失败显示服务端人话 msg',
+      );
+      expect(
+        find.textContaining('code='),
+        findsNothing,
+        reason: '红线：不得出现 code= 原文',
+      );
+    });
+  });
+}
+
+/// T07 专用：企业模式固定体验（勾选语义唯一性用例）。
+class _WorkspaceExperience extends ProductExperienceNotifier {
+  @override
+  ProductExperience build() => ProductExperience.workspace;
+}
+
+/// T07 专用：detail 挂起（慢请求）+ default-workspace 正常返回的 adapter。
+class _T07SlowSwitchAdapter implements HttpClientAdapter {
+  final detail = Completer<ResponseBody>();
+  int detailCalls = 0;
+
+  ResponseBody response(dynamic body) => ResponseBody.fromString(
+    jsonEncode(body),
+    200,
+    headers: {
+      Headers.contentTypeHeader: [Headers.jsonContentType],
+    },
+  );
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) {
+    final path = options.uri.path;
+    if (path.endsWith('/organizations/mine')) {
+      return Future.value(response(_mineOf([_orgA, _orgB])));
+    }
+    if (path.endsWith('/organizations/$_orgB/default-workspace')) {
+      return Future.value(
+        response(
+          _ok({
+            'organization_id': int.parse(_orgB),
+            'default_workspace_id': 9002,
+          }),
+        ),
+      );
+    }
+    detailCalls++;
+    return detail.future;
+  }
+
+  @override
+  void close({bool force = false}) {}
 }

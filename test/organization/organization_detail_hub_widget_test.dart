@@ -1,4 +1,4 @@
-/// ENT-APP-01 — 组织聚合页（/organization/:orgId）focused widget 测试。
+/// ENT-APP-01 — 企业聚合页（/organization/:orgId）focused widget 测试。
 ///
 /// 覆盖（验收口径）：
 /// - 聚合渲染：企业头信息卡（名称/角色徽标/默认 WS）+ 五域入口
@@ -33,7 +33,7 @@ Map<String, dynamic> _orgJson({
   String status = 'active',
 }) => {
   'id': kOrgId,
-  'name': '聚合组织甲',
+  'name': '聚合企业甲',
   'status': status,
   'owner_id': kAccountKey,
   'member_role': role,
@@ -126,11 +126,11 @@ void main() {
     _installOrgStub(_orgJson(role: 'owner'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('聚合组织甲'));
+    await pumpUntilUxFound(tester, find.text('聚合企业甲'));
     await settleUx(tester);
 
     // 企业头：名称、角色徽标（owner → 所有者）、角色状态行、默认 WS。
-    expect(find.text('聚合组织甲'), findsWidgets);
+    expect(find.text('聚合企业甲'), findsWidgets);
     expect(find.text('所有者'), findsOneWidget, reason: '角色徽标 wire→标签映射');
     expect(find.textContaining('我的角色'), findsOneWidget);
     expect(find.textContaining(kDefaultWsId), findsOneWidget);
@@ -162,7 +162,7 @@ void main() {
 
     // danger zone（全员只读动作）仍在。
     expect(find.text('账号删除预检'), findsOneWidget);
-    expect(find.text('归档组织'), findsOneWidget);
+    expect(find.text('归档企业'), findsOneWidget);
   });
 
   testWidgets('member 权限分层：管理员动作整区隐藏，五域与只读动作保留', (tester) async {
@@ -170,7 +170,7 @@ void main() {
     _installOrgStub(_orgJson(role: 'member'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('聚合组织甲'));
+    await pumpUntilUxFound(tester, find.text('聚合企业甲'));
     await settleUx(tester);
 
     // 五域入口对全员开放。
@@ -202,7 +202,7 @@ void main() {
     // member 角色徽标 + danger 只读动作保留；治理类危险动作隐藏。
     expect(find.textContaining('我的角色：成员'), findsOneWidget);
     expect(find.text('账号删除预检'), findsOneWidget);
-    expect(find.text('归档组织'), findsNothing, reason: '归档仅 owner/admin');
+    expect(find.text('归档企业'), findsNothing, reason: '归档仅 owner/admin');
   });
 
   testWidgets('四态-loading：首帧渲染加载指示器', (tester) async {
@@ -212,7 +212,7 @@ void main() {
     await tester.pumpWidget(_host());
     // 不 settle：首帧即 loading 态。
     expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
-    expect(find.text('聚合组织甲'), findsNothing);
+    expect(find.text('聚合企业甲'), findsNothing);
     await settleUx(tester);
   });
 
@@ -266,7 +266,7 @@ void main() {
           body: OrgAsyncAdapter(
             loading: false,
             empty: true,
-            emptyText: '组织不存在',
+            emptyText: '企业不存在',
             child: Text('hub-content'),
           ),
         ),
@@ -274,7 +274,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('组织不存在'), findsOneWidget);
+    expect(find.text('企业不存在'), findsOneWidget);
     expect(find.text('hub-content'), findsNothing);
   });
 
@@ -283,7 +283,7 @@ void main() {
     _installOrgStub(_orgJson(role: 'owner'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('聚合组织甲'));
+    await pumpUntilUxFound(tester, find.text('聚合企业甲'));
     await settleUx(tester);
 
     // 依次 tap → 哨兵出现 → back 回聚合页继续（context.push 不销毁页面态）。
@@ -306,7 +306,7 @@ void main() {
       );
       await tester.tap(find.byType(BackButton).last);
       await settleUx(tester);
-      expect(find.text('聚合组织甲'), findsWidgets, reason: '返回聚合页');
+      expect(find.text('聚合企业甲'), findsWidgets, reason: '返回聚合页');
     }
   });
 
@@ -337,11 +337,11 @@ void main() {
     _installOrgStub(_orgJson(role: 'owner', status: 'archived'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('聚合组织甲'));
+    await pumpUntilUxFound(tester, find.text('聚合企业甲'));
     await settleUx(tester);
 
     // 企业头展示归档事实（C16 整页只读）。
-    expect(find.textContaining('组织已归档'), findsOneWidget);
+    expect(find.textContaining('企业已归档'), findsOneWidget);
     expect(find.textContaining('状态：已归档'), findsOneWidget);
 
     // 五域与管理员区都不渲染（archived 无入口语义）。
@@ -353,7 +353,7 @@ void main() {
     expect(find.text('管理员区'), findsNothing);
 
     // restore 是唯一放行写入口（owner 视角）。
-    expect(find.text('恢复组织'), findsOneWidget);
-    expect(find.text('归档组织'), findsNothing, reason: '已归档不再出现归档入口');
+    expect(find.text('恢复企业'), findsOneWidget);
+    expect(find.text('归档企业'), findsNothing, reason: '已归档不再出现归档入口');
   });
 }

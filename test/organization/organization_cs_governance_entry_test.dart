@@ -1,4 +1,4 @@
-/// CS-APP-03 — 组织详情页「客服治理」入口可见性与导航 focused 测试。
+/// CS-APP-03 — 企业详情页「客服治理」入口可见性与导航 focused 测试。
 ///
 /// 验收口径（CS-GOV-02B 权限负例的入口侧）：
 /// - owner/admin：管理员区渲染「客服治理」入口（key 锚点），点击落到
@@ -28,7 +28,7 @@ Map<String, dynamic> _orgJson({
   String status = 'active',
 }) => {
   'id': kOrgId,
-  'name': '治理入口组织',
+  'name': '治理入口企业',
   'status': status,
   'owner_id': kAccountKey,
   'member_role': role,
@@ -110,7 +110,7 @@ void main() {
     _installOrgStub(_orgJson(role: 'owner'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('治理入口组织'));
+    await pumpUntilUxFound(tester, find.text('治理入口企业'));
     await settleUx(tester);
 
     final entry = find.byKey(
@@ -135,7 +135,7 @@ void main() {
     _installOrgStub(_orgJson(role: 'admin'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('治理入口组织'));
+    await pumpUntilUxFound(tester, find.text('治理入口企业'));
     await settleUx(tester);
 
     expect(
@@ -150,7 +150,7 @@ void main() {
     _installOrgStub(_orgJson(role: 'member'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('治理入口组织'));
+    await pumpUntilUxFound(tester, find.text('治理入口企业'));
     await settleUx(tester);
 
     expect(
@@ -166,13 +166,13 @@ void main() {
     _installOrgStub(_orgJson(role: 'owner', status: 'archived'));
 
     await tester.pumpWidget(_host());
-    await pumpUntilUxFound(tester, find.text('治理入口组织'));
+    await pumpUntilUxFound(tester, find.text('治理入口企业'));
     await settleUx(tester);
 
     expect(
       find.byKey(const ValueKey('organization-detail-zone-cs-governance')),
       findsNothing,
-      reason: '归档组织治理入口不渲染',
+      reason: '归档企业治理入口不渲染',
     );
   });
 }

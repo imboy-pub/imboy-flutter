@@ -369,68 +369,10 @@ class _ChannelPaywallViewState extends ConsumerState<ChannelPaywallView> {
     );
   }
 
+  /// 0025：订单详情统一页面版（/channel/order/:orderNo 已注册），
+  /// 原 paywall 内 CupertinoAlertDialog 版删除。
   Future<void> _showOrderDetail(String orderNo) async {
-    final t = context.t;
-    final order = await _channelService.getOrder(orderNo);
-    if (!mounted) return;
-
-    if (order == null) {
-      AppLoading.showToast(t.common.orderDetailLoadFailed);
-      return;
-    }
-
-    showCupertinoDialog<void>(
-      context: context,
-      builder: (ctx) => CupertinoAlertDialog(
-        title: Text(t.main.orderDetail),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t.common.orderNoLabel(no: order.orderNo)),
-            const SizedBox(height: 6),
-            Text(
-              t.chat.orderStatusLabel(status: _orderStatusLabel(order.status)),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              t.main.orderAmountLabel(
-                currency: order.currency,
-                amount: order.amount.toStringAsFixed(2),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              t.chat.orderCreatedAtLabel(
-                time: DateTimeHelper.dateTimeFmt(
-                  order.createdAt,
-                  pattern: 'yyyy-MM-dd HH:mm:ss',
-                  relative: false,
-                ),
-              ),
-            ),
-            if (order.paymentAt != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                t.chat.orderPaymentAtLabel(
-                  time: DateTimeHelper.dateTimeFmt(
-                    order.paymentAt!,
-                    pattern: 'yyyy-MM-dd HH:mm:ss',
-                    relative: false,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-        actions: [
-          CupertinoButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
-    );
+    await context.push('/channel/order/$orderNo');
   }
 
   String _orderStatusLabel(int status) {

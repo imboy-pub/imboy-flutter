@@ -2,10 +2,10 @@
 ///
 /// Organization 4 个代表页面的 UI/UX 力学矩阵测试：
 ///
-/// 1. OrganizationHomePage（组织入口/列表）
+/// 1. OrganizationHomePage（企业入口/列表）
 /// 2. OrganizationMembersPage（成员列表 + danger：移除成员确认）
 /// 3. OrganizationDepartmentsPage（部门目录）
-/// 4. OrganizationDetailPage（组织详情 + danger：归档组织确认）
+/// 4. OrganizationDetailPage（企业详情 + danger：归档企业确认）
 ///
 /// 每页矩阵（单 testWidgets 内合并多泵，避免组合爆炸）：
 /// - viewport sweep：320x568 / 390x844 / 430x932 @1.0 light
@@ -38,7 +38,7 @@ const String kAccountKey = '1001';
 
 Map<String, dynamic> _orgOwner() => {
   'id': kOrgId,
-  'name': '矩阵组织甲',
+  'name': '矩阵企业甲',
   'status': 'active',
   'owner_id': kAccountKey,
   'member_role': 'owner',
@@ -122,10 +122,10 @@ void main() {
         tester,
         const OrganizationHomePage(accountKey: kAccountKey),
         'org_home',
-        darkVisibleText: find.text('矩阵组织甲'),
+        darkVisibleText: find.text('矩阵企业甲'),
       );
 
-      // semantics（机械 find）：组织列表行文本可见即主内容可达。
+      // semantics（机械 find）：企业列表行文本可见即主内容可达。
       expect(
         find.textContaining('所有者'),
         findsWidgets,
@@ -189,7 +189,7 @@ void main() {
     await tester.tap(find.text('移除成员').last);
     await settleUx(tester);
     expect(
-      find.textContaining('移出本组织'),
+      find.textContaining('移出本企业'),
       findsOneWidget,
       reason: 'danger 确认弹层展示后果说明',
     );
@@ -265,7 +265,7 @@ void main() {
     expect(find.text('前端组'), findsOneWidget);
   });
 
-  testWidgets('OrganizationDetailPage：矩阵 + 归档组织 danger 确认弹层', (tester) async {
+  testWidgets('OrganizationDetailPage：矩阵 + 归档企业 danger 确认弹层', (tester) async {
     uxInstallStub(
       RouteStubAdapter([
         // 顺序敏感：具体片段在前，detail 兜底在后。
@@ -284,23 +284,23 @@ void main() {
       'org_detail',
       // ENT-APP-01 聚合增量：五域入口 + 管理员区使 danger zone 下移出
       // 首屏 build 区（ListView 懒构建），dark 关键文本改用首屏稳定
-      // 锚点（企业头组织名）；danger 语义断言仍由下方 scrollUntilVisible
+      // 锚点（企业头企业名）；danger 语义断言仍由下方 scrollUntilVisible
       // 的归档确认链覆盖。
-      darkVisibleText: find.text('矩阵组织甲'),
+      darkVisibleText: find.text('矩阵企业甲'),
     );
 
     // semantics（机械 find）：治理角色下 AppBar 出现带 Semantics label
     // 的改名按钮。
     expect(
       find.byWidgetPredicate(
-        (w) => w is Semantics && w.properties.label == '修改组织名称',
+        (w) => w is Semantics && w.properties.label == '修改企业名称',
       ),
       findsOneWidget,
       reason: '主操作（改名）存在 Semantics label',
     );
 
-    // danger confirm：danger zone 在 ListView 尾部，滚动到「归档组织」。
-    final archiveTile = find.text('归档组织');
+    // danger confirm：danger zone 在 ListView 尾部，滚动到「归档企业」。
+    final archiveTile = find.text('归档企业');
     await tester.scrollUntilVisible(
       archiveTile,
       160,

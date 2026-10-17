@@ -3,10 +3,31 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/group/group_detail/change_info_page.dart';
+import 'package:imboy/store/model/group_model.dart';
+
 import '../barrel/pages_barrel.dart';
 
 List<RouteBase> groupFeatureRoutes() => [
   // ==================== 群功能增强 ====================
+  // 群资料编辑（0017：原 CupertinoPageRoute 直 push，迁 go_router 统一）
+  GoRoute(
+    path: '/group/change-info',
+    name: 'group_change_info',
+    pageBuilder: (context, state) {
+      // 唯一调用点（群详情信息卡）经 extra 传 GroupModel。
+      final group = state.extra! as GroupModel;
+      return CupertinoPage(
+        key: state.pageKey,
+        child: ChangeInfoPage(
+          group: group,
+          title: t.group.groupName,
+          subtitle: t.common.pleaseEnterContent,
+        ),
+      );
+    },
+  ),
   // 群分组
   GoRoute(
     path: '/group/category',

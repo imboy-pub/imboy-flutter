@@ -82,7 +82,7 @@ class _EnterpriseWorkbenchPageState extends State<EnterpriseWorkbenchPage> {
       return ListView(
         children: [
           if (widget.resourceEntries.isNotEmpty)
-            CupertinoListSection.insetGrouped(children: widget.resourceEntries),
+            CupertinoListSection(children: widget.resourceEntries),
           if ((!kIsWeb && defaultTargetPlatform == TargetPlatform.android))
             for (final entry in widget.entries.where(
               (entry) => entry.inboundLoginEnabled,

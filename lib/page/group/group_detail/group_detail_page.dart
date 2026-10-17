@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -28,7 +29,6 @@ import 'package:imboy/page/group/group_detail/widgets/group_info_card.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_member_section.dart';
 import 'package:imboy/page/group/group_detail/widgets/group_preferences_section.dart';
 
-import 'change_info_page.dart';
 import 'group_detail_provider.dart';
 import 'group_detail_service.dart';
 
@@ -226,19 +226,10 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     });
   }
 
-  /// 编辑群信息（群名/头像/简介）。
+  /// 编辑群信息（群名/头像/简介）。0017：迁 go_router 统一导航。
   Future<void> _editGroupInfo(GroupModel? group) async {
     if (group == null || !context.mounted) return;
-    await Navigator.push(
-      context,
-      CupertinoPageRoute<void>(
-        builder: (_) => ChangeInfoPage(
-          group: group,
-          title: t.group.groupName,
-          subtitle: t.common.pleaseEnterContent,
-        ),
-      ),
-    );
+    await context.push('/group/change-info', extra: group);
   }
 
   /// 免打扰开关变化（GroupPreferencesSection 上抛）：setState + KV 落库

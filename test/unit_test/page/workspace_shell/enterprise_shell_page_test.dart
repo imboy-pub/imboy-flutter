@@ -299,6 +299,42 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+  testWidgets('顶栏显示企业·工作区两级上下文（T06 spec D1）', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    // org detail(合成企业资料) + currentWorkspace(合成企业) 组成两级
+    // 副行；消息 tab 标题仍为 tab 名，汉堡与加号按钮原样保留。
+    expect(find.text('合成企业资料 · 合成企业'), findsOneWidget);
+    expect(find.text('消息'), findsWidgets);
+    expect(
+      find.byKey(const ValueKey('enterprise-shell-menu-button')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+
+    // 切到通讯录 tab：上下文副行仍在（0005：非消息 tab 无抽屉，但
+    // 上下文不得消失），邀请同事按钮照常。
+    await tester.tap(find.text('通讯录'));
+    await tester.pumpAndSettle();
+    expect(find.text('合成企业资料 · 合成企业'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('enterprise-topbar-invite-colleagues')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('无工作区上下文时顶栏降级为单段（不产生孤立分隔符）', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api, emptyMode: 'ok');
+    await tester.pumpAndSettle();
+    // empty('ok') 起步时工作区列表为空 → 副行只剩 org 名单段，无 ' · '。
+    final joined = tester
+        .widgetList<Text>(find.byType(Text))
+        .where((node) => (node.data ?? '').contains(' · '))
+        .toList();
+    expect(joined, isEmpty);
+    expect(find.text('合成企业资料'), findsOneWidget);
+  });
   testWidgets('消息页挂筛选 tab 与右上角加号按钮', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);

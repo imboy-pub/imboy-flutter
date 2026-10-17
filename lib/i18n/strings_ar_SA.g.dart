@@ -2939,6 +2939,7 @@ class _Translations$organization$picker$ar_SA extends Translations$organization$
 	@override String get title => 'تبديل المؤسسة';
 	@override String get switchEnterprise => 'تبديل المؤسسة';
 	@override String get switchFailed => 'فشل التبديل';
+	@override String get switchFailedRecovered => 'فشل التبديل، تمت استعادة الاختيار السابق';
 	@override String get noneSelected => 'لم يتم اختيار مؤسسة';
 	@override String get emptyHint => 'لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة';
 	@override String get joinEnterprise => 'الانضمام إلى مؤسسة';
@@ -2949,7 +2950,7 @@ class _Translations$organization$picker$ar_SA extends Translations$organization$
 	@override String get joinSubmit => 'انضمام';
 	@override String get joinInvalidCode => 'رمز دعوة المؤسسة غير صالح أو ملغى';
 	@override String get joinExpiredCode => 'انتهت صلاحية رمز دعوة المؤسسة';
-	@override String joinFailedWith({required Object msg, required Object code}) => 'فشل الانضمام: ${msg} (${code})';
+	@override String joinFailed({required Object msg}) => 'فشل الانضمام: ${msg}';
 	@override String get joinScanQr => 'الانضمام بمسح رمز QR';
 	@override String get joinCodeOnlyHint => 'أدخل رمز الدعوة المكوّن من 8 أحرف';
 	@override String get joinConfirmTitle => 'تأكيد الانضمام';
@@ -5481,6 +5482,7 @@ extension on TranslationsArSa {
 			'organization.picker.title' => 'تبديل المؤسسة',
 			'organization.picker.switchEnterprise' => 'تبديل المؤسسة',
 			'organization.picker.switchFailed' => 'فشل التبديل',
+			'organization.picker.switchFailedRecovered' => 'فشل التبديل، تمت استعادة الاختيار السابق',
 			'organization.picker.noneSelected' => 'لم يتم اختيار مؤسسة',
 			'organization.picker.emptyHint' => 'لم تنضم إلى أي مؤسسة بعد.\nاضغط «الانضمام إلى مؤسسة» أدناه وأدخل رمز الدعوة',
 			'organization.picker.joinEnterprise' => 'الانضمام إلى مؤسسة',
@@ -5491,7 +5493,7 @@ extension on TranslationsArSa {
 			'organization.picker.joinSubmit' => 'انضمام',
 			'organization.picker.joinInvalidCode' => 'رمز دعوة المؤسسة غير صالح أو ملغى',
 			'organization.picker.joinExpiredCode' => 'انتهت صلاحية رمز دعوة المؤسسة',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'فشل الانضمام: ${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => 'فشل الانضمام: ${msg}',
 			'organization.picker.joinScanQr' => 'الانضمام بمسح رمز QR',
 			'organization.picker.joinCodeOnlyHint' => 'أدخل رمز الدعوة المكوّن من 8 أحرف',
 			'organization.picker.joinConfirmTitle' => 'تأكيد الانضمام',
@@ -5819,9 +5821,9 @@ extension on TranslationsArSa {
 			'workspace.governanceTitle' => 'حوكمة مساحة العمل',
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
-			'workspace.restoreEntry' => 'استعادة مساحة العمل',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.restoreEntry' => 'استعادة مساحة العمل',
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
 			'workspace.archiveConfirm' => 'تأكيد الأرشفة',

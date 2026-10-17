@@ -18,6 +18,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 
 import 'channel_provider.dart';
+import 'widgets/channel_role_badge.dart';
 
 /// 频道列表页面
 ///
@@ -102,73 +103,66 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       ],
       body: Column(
         children: [
-          // 行业顶级精品：悬浮胶囊卡片分段选择器 (Floating Pill TabBar)
-          Container(
-            width: double.infinity,
-            color: AppColors.getSurfaceGrouped(
-              brightness,
-            ), // 使用大底座灰色背景，与 AppBar 的纯白色形成完美的立体分层
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 340),
-                decoration: BoxDecoration(
-                  color: brightness == Brightness.dark
-                      ? AppColors
-                            .darkSurfaceGroupedTertiary // 悬浮框深色：高级碳灰
-                      : AppColors.lightSurface, // 悬浮框浅色：洁白卡片
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: AppColors.getIosSeparator(brightness)
-                        .withValues(alpha: 0.15),
-                    width: 0.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: brightness == Brightness.dark
-                          ? AppColors.lightTextPrimary.withValues(alpha: 0.3)
-                          : AppColors.lightTextPrimary.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                padding: const EdgeInsets.all(4),
-                child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                    color: AppColors.primary, // 选中项采用高对比度的主色蓝，彰显尊贵品牌基因
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.25),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.small,
+              AppSpacing.regular,
+              AppSpacing.tiny,
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              child: CupertinoSlidingSegmentedControl<int>(
+                groupValue: _tabController.index,
+                thumbColor: AppColors.primary,
+                padding: const EdgeInsets.all(AppSpacing.tiny),
+                children: {
+                  0: SizedBox(
+                    height: AppSpacing.xxxLarge,
+                    child: Center(
+                      child: Text(
+                        t.channel.subscribed,
+                        style: context.textStyle(
+                          FontSizeType.normal,
+                          fontWeight: _tabController.index == 0
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                          color: _tabController.index == 0
+                              ? AppColors.onPrimary
+                              : AppColors.getTextColor(
+                                  brightness,
+                                  isSecondary: true,
+                                ),
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  labelColor: AppColors.onPrimary, // 选中文字纯白，保证最严苛的对比度与可读性
-                  unselectedLabelColor: AppColors.getTextColor(
-                    brightness,
-                    isSecondary: true,
+                  1: SizedBox(
+                    height: AppSpacing.xxxLarge,
+                    child: Center(
+                      child: Text(
+                        t.channel.managed,
+                        style: context.textStyle(
+                          FontSizeType.normal,
+                          fontWeight: _tabController.index == 1
+                              ? FontWeight.w600
+                              : FontWeight.normal,
+                          color: _tabController.index == 1
+                              ? AppColors.onPrimary
+                              : AppColors.getTextColor(
+                                  brightness,
+                                  isSecondary: true,
+                                ),
+                        ),
+                      ),
+                    ),
                   ),
-                  labelStyle: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  unselectedLabelStyle: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  dividerColor: AppColors.transparent,
-                  splashBorderRadius: BorderRadius.circular(20),
-                  tabs: [
-                    Tab(height: 36, child: Text(t.channel.subscribed)),
-                    Tab(height: 36, child: Text(t.channel.managed)),
-                  ],
-                ),
+                },
+                onValueChanged: (index) {
+                  if (index != null && index != _tabController.index) {
+                    _tabController.animateTo(index);
+                  }
+                },
               ),
             ),
           ),
@@ -344,36 +338,6 @@ class _ChannelListItem extends StatelessWidget {
     return channel.id.toString();
   }
 
-  /// 获取角色颜色
-  Color _getRoleColor(ChannelUserRole role) {
-    switch (role) {
-      case ChannelUserRole.creator:
-        return AppColors.primary;
-      case ChannelUserRole.admin:
-        return AppColors.iosOrange;
-      case ChannelUserRole.editor:
-        return AppColors.iosBlue;
-      case ChannelUserRole.subscriber:
-      case ChannelUserRole.none:
-        return AppColors.iosGray;
-    }
-  }
-
-  /// 获取角色标签文本
-  String _getRoleLabel(ChannelUserRole role, dynamic t) {
-    switch (role) {
-      case ChannelUserRole.creator:
-        return t.channel.roleCreator as String;
-      case ChannelUserRole.admin:
-        return t.channel.roleAdmin as String;
-      case ChannelUserRole.editor:
-        return t.channel.roleEditor as String;
-      case ChannelUserRole.subscriber:
-      case ChannelUserRole.none:
-        return '';
-    }
-  }
-
   /// 频道可见性图标（公开/私有）
   IconData _getVisibilityIcon() {
     return channel.isPublic ? CupertinoIcons.globe : CupertinoIcons.lock;
@@ -491,22 +455,10 @@ class _ChannelListItem extends StatelessWidget {
                 ),
               ),
             // 角色标签（仅"我管理的"标签页显示）
-            if (showRole && channel.userRole != ChannelUserRole.none) ...[
-              Container(
-                margin: const EdgeInsets.only(left: 6),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: _getRoleColor(channel.userRole).withValues(alpha: 0.1),
-                  borderRadius: AppRadius.borderRadiusTiny,
-                ),
-                child: Text(
-                  _getRoleLabel(channel.userRole, t),
-                  style: context.textStyle(
-                    FontSizeType.tiny,
-                    fontWeight: FontWeight.w600,
-                    color: _getRoleColor(channel.userRole),
-                  ),
-                ),
+            if (showRole && channelRoleLabel(channel.userRole).isNotEmpty) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: AppSpacing.tiny),
+                child: ChannelRoleBadge(role: channel.userRole),
               ),
             ],
             if (channel.isVerified)
@@ -528,11 +480,13 @@ class _ChannelListItem extends StatelessWidget {
               color: AppColors.getTextColor(brightness, isSecondary: true),
             ),
             AppSpacing.horizontalTiny,
-            Text(
-              '${channel.subscriberCount} ${t.channel.subscribers}',
-              style: context.textStyle(
-                FontSizeType.small,
-                color: AppColors.getTextColor(brightness, isSecondary: true),
+            Flexible(
+              child: Text(
+                '${channel.subscriberCount} ${t.channel.subscribers}',
+                style: context.textStyle(
+                  FontSizeType.small,
+                  color: AppColors.getTextColor(brightness, isSecondary: true),
+                ),
               ),
             ),
             // 最后活跃时间
@@ -544,27 +498,16 @@ class _ChannelListItem extends StatelessWidget {
                 color: AppColors.getTextColor(brightness, isSecondary: true),
               ),
               AppSpacing.horizontalTiny,
-              Text(
-                _formatRelativeTime(channel.updatedAt, t),
-                style: context.textStyle(
-                  FontSizeType.tiny,
-                  color: AppColors.getTextColor(brightness, isSecondary: true),
-                ),
-              ),
-            ],
-            if (channel.tags != null && channel.tags!.isNotEmpty) ...[
-              AppSpacing.horizontalSmall,
-              Expanded(
+              Flexible(
                 child: Text(
-                  channel.tags!.take(2).join(' · '),
+                  _formatRelativeTime(channel.updatedAt, t),
                   style: context.textStyle(
-                    FontSizeType.small,
+                    FontSizeType.tiny,
                     color: AppColors.getTextColor(
                       brightness,
                       isSecondary: true,
                     ),
                   ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],

@@ -1,7 +1,7 @@
-/// APP-M01-A02/A03 — 坐席工作台组织切换与三列表计数 widget 测试
+/// APP-M01-A02/A03 — 坐席工作台企业切换与三列表计数 widget 测试
 ///
 /// 覆盖：
-/// - A01：工作台组织选择器由 seat-contexts 列表驱动（两个 Org 可选，
+/// - A01：工作台企业选择器由 seat-contexts 列表驱动（两个 Org 可选，
 ///   默认选中列表首项；切换后选择器反映新 Org）；
 /// - A02：徽标计数只取服务端键（total），服务端未给时显示占位符 `--`，
 ///   不用行数推断；
@@ -42,7 +42,7 @@ Map<String, dynamic> _contextsPayload({bool withWorkspace = false}) =>
         'contexts': [
           {
             'organization_id': orgA,
-            'organization_name': '组织甲',
+            'organization_name': '企业甲',
             'workspaces': [
               if (withWorkspace) {'id': '7266418340025468921', 'name': '甲客服'},
             ],
@@ -52,7 +52,7 @@ Map<String, dynamic> _contextsPayload({bool withWorkspace = false}) =>
           },
           {
             'organization_id': orgB,
-            'organization_name': '组织乙',
+            'organization_name': '企业乙',
             'workspaces': [
               if (withWorkspace) {'id': '7266418340025468922', 'name': '乙客服'},
             ],
@@ -366,7 +366,7 @@ void main() {
     addTearDown(() => HttpClient.adapterForTest = null);
     await _pumpWorkspace(tester);
     expect(find.byTooltip('坐席状态'), findsNothing);
-    expect(find.byTooltip('组织'), findsNothing);
+    expect(find.byTooltip('企业'), findsNothing);
     expect(find.text('甲**'), findsNothing);
     expect(find.text('重试'), findsOneWidget);
     adapter.forbidden = false;
@@ -382,7 +382,7 @@ void main() {
     'assignment.changed',
     'resync.required',
   ]) {
-    testWidgets('$type 撤权重拉上下文并移除旧组织', (tester) async {
+    testWidgets('$type 撤权重拉上下文并移除旧企业', (tester) async {
       final adapter = _SeatEventsAdapter();
       HttpClient.adapterForTest = adapter;
       addTearDown(() => HttpClient.adapterForTest = null);
@@ -397,22 +397,22 @@ void main() {
       expect(find.text('甲**'), findsNothing);
       expect(find.text('乙**'), findsOneWidget);
       expect(adapter.cancelledOrgs, contains(orgA));
-      await tester.tap(find.byTooltip('组织'));
+      await tester.tap(find.byTooltip('企业'));
       await _settle(tester);
-      expect(find.text('组织甲'), findsNothing);
-      expect(find.text('组织乙'), findsWidgets);
+      expect(find.text('企业甲'), findsNothing);
+      expect(find.text('企业乙'), findsWidgets);
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
 
-  testWidgets('回前台重查坐席资格并保留仍有效的当前组织', (tester) async {
+  testWidgets('回前台重查坐席资格并保留仍有效的当前企业', (tester) async {
     final adapter = _SeatEventsAdapter();
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
     await _pumpWorkspace(tester);
-    await tester.tap(find.byTooltip('组织'));
+    await tester.tap(find.byTooltip('企业'));
     await _settle(tester);
-    await tester.tap(find.text('组织乙').last);
+    await tester.tap(find.text('企业乙').last);
     await _settle(tester);
     final contextPath = '/api/v1/cs/me/seat-contexts';
     final before = adapter.requests.where((r) => r.$1 == contextPath).length;
@@ -438,7 +438,7 @@ void main() {
     await _settle(tester);
     expect(find.text('乙**'), findsNothing);
     expect(find.byTooltip('坐席状态'), findsNothing);
-    expect(find.byTooltip('组织'), findsNothing);
+    expect(find.byTooltip('企业'), findsNothing);
     adapter.routes[contextPath] = (200, _contextsPayload(withWorkspace: true));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
@@ -447,7 +447,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('切组织后独立操作状态，旧请求不能阻塞或解锁新请求', (tester) async {
+  testWidgets('切企业后独立操作状态，旧请求不能阻塞或解锁新请求', (tester) async {
     final adapter = _PendingPresenceAdapter();
     HttpClient.adapterForTest = adapter;
     addTearDown(() {
@@ -462,9 +462,9 @@ void main() {
     await _settle(tester);
     expect(adapter.manualOrgs, [orgA]);
 
-    await tester.tap(find.byTooltip('组织'));
+    await tester.tap(find.byTooltip('企业'));
     await _settle(tester);
-    await tester.tap(find.text('组织乙').last);
+    await tester.tap(find.text('企业乙').last);
     await _settle(tester);
     await tester.tap(find.byTooltip('坐席状态'));
     await _settle(tester);
@@ -485,15 +485,15 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('A01+A02：seat-contexts 驱动组织选择器；徽标计数只取服务端键', (tester) async {
+  testWidgets('A01+A02：seat-contexts 驱动企业选择器；徽标计数只取服务端键', (tester) async {
     final adapter = _buildAdapter();
     HttpClient.adapterForTest = adapter;
     addTearDown(() => HttpClient.adapterForTest = null);
 
     await _pumpWorkspace(tester);
 
-    // 组织选择器默认选中 seat-contexts 首个可用上下文。
-    expect(find.text('组织甲'), findsWidgets);
+    // 企业选择器默认选中 seat-contexts 首个可用上下文。
+    expect(find.text('企业甲'), findsWidgets);
     // 徽标 = 服务端 total（5），不是行数。
     expect(find.text('5'), findsWidgets);
     // 队列项来自 org A。
@@ -516,17 +516,17 @@ void main() {
     expect(find.text('甲**'), findsOneWidget);
     expect(find.text('5'), findsWidgets);
 
-    // 打开组织选择器并切换到组织乙。
-    await tester.tap(find.byTooltip('组织'));
+    // 打开企业选择器并切换到企业乙。
+    await tester.tap(find.byTooltip('企业'));
     await _settle(tester);
-    await tester.tap(find.text('组织乙').last);
+    await tester.tap(find.text('企业乙').last);
     await _settle(tester);
 
     // 旧 Org 列表项清空，新 Org 列表渲染。
     expect(find.text('甲**'), findsNothing, reason: 'A03：旧 Org 列表清空');
     expect(find.text('乙**'), findsOneWidget, reason: '新 Org 列表重载');
     // 选择器反映新 Org；计数重置为新 Org 服务端值（7），不残留 org A 的 5。
-    expect(find.text('组织乙'), findsWidgets);
+    expect(find.text('企业乙'), findsWidgets);
     expect(find.text('7'), findsWidgets);
     expect(
       find.text('5'),

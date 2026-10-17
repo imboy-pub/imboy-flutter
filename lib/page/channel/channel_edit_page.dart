@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/capabilities/capability_locator.dart';
@@ -323,6 +324,23 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           automaticallyImplyLeading: true,
         ),
         body: const Center(child: CupertinoActivityIndicator()),
+      );
+    }
+
+    // 0016：管理权限前置校验（UI-only）。数据源用已持有的模型
+    //（widget.channel 或加载结果），不新增请求；非管理角色不渲染任何
+    // 表单字段（服务端合同不变，此处只是不展示）。
+    final roleSource = widget.channel ?? _channel;
+    if (roleSource != null && !roleSource.isManaged) {
+      return Scaffold(
+        appBar: GlassAppBar(
+          title: t.channel.editChannel,
+          automaticallyImplyLeading: true,
+        ),
+        body: NoDataView(
+          icon: CupertinoIcons.lock_fill,
+          text: t.common.noPermission,
+        ),
       );
     }
 

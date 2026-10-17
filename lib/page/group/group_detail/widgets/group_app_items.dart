@@ -64,12 +64,6 @@ List<GroupAppItem> buildGroupAppItems(
       onTap: () => context.push('/group/$gid/tag'),
     ),
     GroupAppItem(
-      icon: CupertinoIcons.folder_open,
-      label: t.groupCategory.title,
-      color: AppColors.iosYellow,
-      onTap: () => context.push('/group/category'),
-    ),
-    GroupAppItem(
       icon: CupertinoIcons.qrcode,
       label: t.account.groupQrcode,
       color: AppColors.iosGray,
