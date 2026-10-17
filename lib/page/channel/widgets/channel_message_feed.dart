@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -58,6 +60,9 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
 }
 
 class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
+  /// 收缩态下仍给消息列表保留的最小高度（约一条列表项）。
+  static const double _minListHeight = 48;
+
   late ScrollController _scrollController;
   bool _showScrollTop = false;
   bool _isSubscribingFromEmpty = false;
@@ -160,15 +165,33 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   Widget build(BuildContext context) {
     final channel = ref.watch(channelDetailProvider.select((s) => s.channel));
     final enabled = ChannelMessageFeed.contentToolsAvailable(channel);
-    return Column(
-      children: [
-        if (enabled) _buildPostFilters(context),
-        Expanded(
-          child: enabled && _searchActive
-              ? _buildSearchResults(context)
-              : _buildRegularFeed(context),
-        ),
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        children: [
+          // 外层 SliverFillRemaining 按「视口 − 头部条/讨论区」的剩余空间下发
+          // 紧约束：页首未收起头部或键盘压缩视口时，剩余高度可能小于筛选区
+          // 自然高度（约 114px），固定高度筛选区 + Expanded 列表会底部溢出
+          // （实测 360×99.7 溢出 14px）。这里把筛选区压到剩余高度内并允许
+          // 内部滚动；空间充足时仍取自然高度，布局不变。筛选区必须始终留在
+          // 树里——集成测试靠 ensureVisible 滚出它后再操作。
+          if (enabled)
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: math.max(0, constraints.maxHeight - _minListHeight),
+              ),
+              child: SingleChildScrollView(
+                primary: false,
+                physics: const ClampingScrollPhysics(),
+                child: _buildPostFilters(context),
+              ),
+            ),
+          Expanded(
+            child: enabled && _searchActive
+                ? _buildSearchResults(context)
+                : _buildRegularFeed(context),
+          ),
+        ],
+      ),
     );
   }
 
@@ -243,53 +266,60 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
         onTop: () => ref.invalidate(channelPostSearchProvider(_filter)),
         retryLabel: context.t.common.retry,
       ),
-      data: (page) => Column(
-        children: [
-          Expanded(
-            child: page.list.isEmpty
-                ? NoDataView(text: context.t.channel.noResults)
-                : ListView.builder(
-                    itemCount: page.list.length,
-                    itemBuilder: (context, index) => ChannelMessageItem(
-                      key: ValueKey(page.list[index].id),
-                      message: page.list[index],
-                      channelId: widget.channelId,
-                      isManaged: widget.isManaged,
-                      onTagSelected: _selectTag,
-                      onPinned: (_) =>
-                          ref.invalidate(channelPostSearchProvider(_filter)),
-                      onMetadataChanged: () =>
-                          ref.invalidate(channelPostSearchProvider(_filter)),
-                      onDeleted: () =>
-                          ref.invalidate(channelPostSearchProvider(_filter)),
+      data: (page) => LayoutBuilder(
+        builder: (context, constraints) => Column(
+          children: [
+            Expanded(
+              child: page.list.isEmpty
+                  ? NoDataView(text: context.t.channel.noResults)
+                  : ListView.builder(
+                      itemCount: page.list.length,
+                      itemBuilder: (context, index) => ChannelMessageItem(
+                        key: ValueKey(page.list[index].id),
+                        message: page.list[index],
+                        channelId: widget.channelId,
+                        isManaged: widget.isManaged,
+                        onTagSelected: _selectTag,
+                        onPinned: (_) =>
+                            ref.invalidate(channelPostSearchProvider(_filter)),
+                        onMetadataChanged: () =>
+                            ref.invalidate(channelPostSearchProvider(_filter)),
+                        onDeleted: () =>
+                            ref.invalidate(channelPostSearchProvider(_filter)),
+                      ),
+                    ),
+            ),
+            // 结果区高度不足以同时容纳列表与分页条（小屏细条预览、键盘
+            // 压缩视口）时隐藏分页条避免溢出，展开后自动恢复。
+            if (constraints.maxHeight >= 96)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CupertinoButton(
+                    key: const Key('mc_posts_previous'),
+                    onPressed: _page > 1 ? () => setState(() => _page--) : null,
+                    child: Icon(
+                      CupertinoIcons.chevron_left,
+                      semanticLabel: MaterialLocalizations.of(context)
+                          .previousPageTooltip,
                     ),
                   ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CupertinoButton(
-                key: const Key('mc_posts_previous'),
-                onPressed: _page > 1 ? () => setState(() => _page--) : null,
-                child: Icon(
-                  CupertinoIcons.chevron_left,
-                  semanticLabel: MaterialLocalizations.of(context)
-                      .previousPageTooltip,
-                ),
+                  Text('${page.page}'),
+                  CupertinoButton(
+                    key: const Key('mc_posts_next'),
+                    onPressed: page.hasMore
+                        ? () => setState(() => _page++)
+                        : null,
+                    child: Icon(
+                      CupertinoIcons.chevron_right,
+                      semanticLabel: MaterialLocalizations.of(context)
+                          .nextPageTooltip,
+                    ),
+                  ),
+                ],
               ),
-              Text('${page.page}'),
-              CupertinoButton(
-                key: const Key('mc_posts_next'),
-                onPressed: page.hasMore ? () => setState(() => _page++) : null,
-                child: Icon(
-                  CupertinoIcons.chevron_right,
-                  semanticLabel: MaterialLocalizations.of(context)
-                      .nextPageTooltip,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
