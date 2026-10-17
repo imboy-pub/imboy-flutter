@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
@@ -298,6 +299,28 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+  testWidgets('仅消息页显示左上抽屉入口，切回消息恢复入口', (tester) async {
+    final api = _OaApi();
+    await _pump(tester, api);
+    api.completeFirst([]);
+    await tester.pumpAndSettle();
+    final menu = find.byKey(const ValueKey('enterprise-shell-menu-button'));
+    final navigation = find.byKey(
+      const ValueKey('enterprise-shell-bottom-nav'),
+    );
+    expect(menu, findsOneWidget);
+    for (final label in ['通讯录', '工作台', '我', '消息']) {
+      await tester.tap(
+        find.descendant(of: navigation, matching: find.text(label)),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(menu, label == '消息' ? findsOneWidget : findsNothing);
+      expect(tester.takeException(), isNull);
+    }
+    await tester.tap(menu);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('我的名片'), findsOneWidget);
+  });
   testWidgets('消息页挂筛选 tab 与右上角加号按钮', (tester) async {
     final api = _OaApi();
     await _pump(tester, api);
@@ -463,7 +486,7 @@ void main() {
       expect(find.text('合成研发部'), findsOneWidget);
       expect(
         find.byKey(const ValueKey('enterprise-shell-menu-button')),
-        findsOneWidget,
+        findsNothing,
       );
       expect(tester.takeException(), isNull);
     });
@@ -538,7 +561,7 @@ void main() {
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
     expect(
       find.byKey(const ValueKey('enterprise-shell-menu-button')),
-      findsOneWidget,
+      findsNothing,
     );
     expect(tester.takeException(), isNull);
   });
@@ -734,10 +757,59 @@ void main() {
       expect(find.text(t.workspace.navProjects), findsNothing);
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: true});
       await tester.pumpAndSettle();
-      expect(find.text(t.workspace.navProjects), findsOneWidget);
+      expect(
+        find.text(t.workspace.navProjects),
+        compiledProductFeatures.contains(FeatureKeys.project)
+            ? findsOneWidget
+            : findsNothing,
+      );
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: false});
       await tester.pumpAndSettle();
       expect(find.text(t.workspace.navProjects), findsNothing);
+      expect(find.text('工作台'), findsWidgets);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'remote project flag respects compiled lock in workbench and deep link',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
+      await StorageService.init();
+      final previousFlags = Map<String, dynamic>.from(
+        AppFeatureRegistry.snapshot,
+      );
+      addTearDown(
+        () => AppFeatureRegistry.replaceSnapshotForTest(previousFlags),
+      );
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: true});
+      final projectCompiled = compiledProductFeatures.contains(
+        FeatureKeys.project,
+      );
+      // Phase1 rejects remote enablement; full-selected retains the positive.
+      expect(
+        AppFeatureRegistry.isEnabled(FeatureKeys.project),
+        projectCompiled,
+      );
+      final api = _OaApi();
+      await _pump(tester, api);
+      api.completeFirst([]);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('工作台'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(t.workspace.navProjects),
+        projectCompiled ? findsOneWidget : findsNothing,
+      );
+      final blocked = RouteFeatureGuard.checkBlocked(
+        isLoggedIn: true,
+        currentPath: '/workspace/100/projects/200',
+      );
+      if (projectCompiled) {
+        expect(blocked, isNull);
+      } else {
+        expect(blocked?.reason, RouteBlockReason.featureFlag);
+        expect(blocked?.redirect, '/bottom_navigation');
+      }
       expect(find.text('工作台'), findsWidgets);
       expect(tester.takeException(), isNull);
     },

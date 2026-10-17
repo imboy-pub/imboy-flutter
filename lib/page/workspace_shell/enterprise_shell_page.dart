@@ -205,7 +205,9 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       children: [
         WorkspaceTopBar(
           title: title,
-          leading: const _ShellMenuButton(),
+          leading: _selected == EnterpriseShellDestination.messages
+              ? const _ShellMenuButton()
+              : null,
           actions: switch (_selected) {
             EnterpriseShellDestination.messages => const [
               WorkspacePlusButton(),

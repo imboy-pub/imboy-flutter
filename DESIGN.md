@@ -467,7 +467,7 @@ Layout:
 
 ### 8.8 企业壳深蓝抽屉 | Enterprise Drawer（2026-10）
 
-企业模式左上汉堡按钮（上长下短两杠图标）唤起的左侧抽屉，文件
+企业模式仅“消息”页显示左上汉堡按钮（上长下短两杠图标），通讯录、工作台、我不显示；按钮唤起的左侧抽屉，文件
 `lib/page/workspace_shell/workspace_drawer_menu.dart`：
 
 ```

@@ -157,6 +157,7 @@ void main() {
   test(
     'manifest event while real HTTP policy waits closes revoked entry',
     () async {
+      expect(compiledProductFeatures, contains('moment'));
       final entered = Completer<void>();
       final release = Completer<void>();
       var enabled = true;
@@ -181,7 +182,7 @@ void main() {
                         'code': 0,
                         'msg': 'success',
                         'payload': path.endsWith('/features')
-                            ? {...flags(false), 'project': enabled}
+                            ? {...flags(false), 'moment': enabled}
                             : {
                                 'capabilities': {
                                   'storage_mode': 'archived',
@@ -196,14 +197,14 @@ void main() {
       );
       final first = RuntimeFeatureRecovery.refreshNow();
       await entered.future;
-      expect(AppFeatureRegistry.isEnabled('project'), isTrue);
+      expect(AppFeatureRegistry.isEnabled('moment'), isTrue);
       enabled = false;
       for (var i = 0; i < 100; i++) {
         RuntimeFeatureRecovery.refreshNow();
       }
       release.complete();
       expect(await first, isTrue);
-      expect(AppFeatureRegistry.isEnabled('project'), isFalse);
+      expect(AppFeatureRegistry.isEnabled('moment'), isFalse);
       expect(featureCount, 2);
       expect(policyCount, 2);
     },

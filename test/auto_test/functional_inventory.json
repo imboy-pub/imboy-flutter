@@ -3,11 +3,11 @@
   "generated_from": {
     "app_head": "see-catalog",
     "ledger_count": 168,
-    "ledger_row_count": 1873,
+    "ledger_row_count": 1874,
     "lib_page_count": 167,
     "module_page_count": 24,
     "route_page_component_count": 149,
-    "function_count": 2021,
+    "function_count": 2022,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -46473,6 +46473,29 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:workspace_shell:enterprise_shell_page:006",
+      "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "declaration:lib/page/workspace_shell/enterprise_shell_page.dart",
+      "control": "button",
+      "action": "从消息页打开企业抽屉",
+      "expected_oracle": "仅消息页显示左上抽屉入口，通讯录、工作台、我隐藏；切回消息后入口恢复且可打开企业抽屉",
+      "details": "Widget regression: test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart — 仅消息页显示左上抽屉入口，切回消息恢复入口。声明本身不代表真机验收。",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:workspace_shell:workspace_shell_page:001",
       "page": "lib/page/workspace_shell/workspace_shell_page.dart",
       "route_or_entry": "in_page_control",
@@ -48012,7 +48035,7 @@
     {
       "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
       "module": "workspace_shell",
-      "function_count": 5,
+      "function_count": 6,
       "route_registered": false,
       "has_ledger": false,
       "ledger_generated": false
