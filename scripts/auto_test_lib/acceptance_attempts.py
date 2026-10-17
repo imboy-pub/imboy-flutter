@@ -13,8 +13,12 @@ _HASH = re.compile(r'^[0-9a-f]{64}$')
 
 def _record_hash(record: Any) -> Optional[str]:
     try:
-        data = json.dumps(record, sort_keys=True, allow_nan=False,
-                          ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+        # Streaming Python encoder enforces the recursion guard consistently
+        # across Python versions; the C one-shot encoder's limit differs.
+        data = ''.join(json.JSONEncoder(
+            sort_keys=True, allow_nan=False, ensure_ascii=False,
+            separators=(',', ':'),
+        ).iterencode(record)).encode('utf-8')
     except (TypeError, ValueError, RecursionError, UnicodeError):
         return None
     return hashlib.sha256(data).hexdigest()

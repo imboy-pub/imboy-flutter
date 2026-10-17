@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -29,6 +30,8 @@ class _PagedAdapter implements HttpClientAdapter {
   final groupCursors = <String?>[];
   String? rejectAckId;
   void Function()? onTwentiethAck;
+  Completer<void>? finalAckObserved;
+  Completer<void>? releaseFinalAck;
 
   @override
   Future<ResponseBody> fetch(
@@ -44,6 +47,10 @@ class _PagedAdapter implements HttpClientAdapter {
       }
       acknowledged.addAll(ids);
       if (acknowledged.length == 20) onTwentiethAck?.call();
+      if (acknowledged.length == 23 && finalAckObserved != null) {
+        finalAckObserved!.complete();
+        await releaseFinalAck!.future;
+      }
       return response({'code': 0, 'payload': <String, dynamic>{}});
     }
     if (options.path != API.msgOffline) throw StateError('Unexpected request');
@@ -118,6 +125,22 @@ class _PagedAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+// requestPull completes one bounded cycle. Its continuation must finish ACK
+// processing and cursor persistence before assertions or disposal are safe.
+Future<void> _waitForPullIdle(MessageOfflineService service) async {
+  final elapsed = Stopwatch()..start();
+  while (elapsed.elapsed < const Duration(seconds: 10)) {
+    final stats = service.getPullStats();
+    if (stats['in_flight'] == false && stats['pending_pull_request'] == false) {
+      return;
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+  }
+  throw TimeoutException(
+    'Offline pull did not finish: ${service.getPullStats()}',
+  );
+}
+
 String _encode(Object value) =>
     base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
 
@@ -169,9 +192,7 @@ void main() {
           await service.requestPull(source: 'pagination_test', force: true),
           isTrue,
         );
-        for (var i = 0; i < 150 && adapter.acknowledged.length < 23; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-        }
+        await _waitForPullIdle(service);
         expect(adapter.acknowledged, hasLength(23));
         expect(await db.query('msg_c2c'), hasLength(23));
         expect((await db.query('conversation')).single['unread_num'], 23);
@@ -199,13 +220,27 @@ void main() {
         MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
       );
       await tester.runAsync(() async {
+        // Construct barriers in the real-async zone used by the HTTP adapter.
+        adapter.finalAckObserved = Completer<void>();
+        adapter.releaseFinalAck = Completer<void>();
         expect(
           await service.requestPull(source: 'c2g_cursor', force: true),
           isTrue,
         );
-        for (var i = 0; i < 150 && adapter.acknowledged.length < 23; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
+        final key = '${Keys.offlineCursorC2gPage}_${currentEnv}_995011';
+        try {
+          await adapter.finalAckObserved!.future.timeout(
+            const Duration(seconds: 10),
+          );
+          // Reproduce the former race deterministically: all 23 ACKs are
+          // observed, but the last response has not reached cursor persistence.
+          expect(adapter.acknowledged, hasLength(23));
+          expect(service.getPullStats()['in_flight'], isTrue);
+          expect(StorageService.to.getString(key), 'g20');
+        } finally {
+          adapter.releaseFinalAck!.complete();
         }
+        await _waitForPullIdle(service);
         expect(adapter.acknowledged, hasLength(23));
         expect(await db.query('msg_c2g'), hasLength(23));
         expect((await db.query('conversation')).single['unread_num'], 23);
@@ -213,7 +248,6 @@ void main() {
           adapter.groupCursors,
           orderedEquals([null, ...List.generate(22, (i) => 'g${i + 1}')]),
         );
-        final key = '${Keys.offlineCursorC2gPage}_${currentEnv}_995011';
         expect(StorageService.to.getString(key), 'g23');
         expect(
           StorageService.to.getString(
@@ -254,9 +288,7 @@ void main() {
         await service.requestPull(source: 'c2g_retry', force: true),
         isTrue,
       );
-      for (var i = 0; i < 150 && adapter.acknowledged.length < 23; i++) {
-        await Future<void>.delayed(const Duration(milliseconds: 20));
-      }
+      await _waitForPullIdle(service);
       expect(adapter.acknowledged, hasLength(23));
       expect(await db.query('msg_c2g'), hasLength(23));
       expect((await db.query('conversation')).single['unread_num'], 23);
@@ -331,9 +363,7 @@ void main() {
           await service.requestPull(source: 'ack_recovery', force: true),
           isTrue,
         );
-        for (var i = 0; i < 150 && adapter.acknowledged.length < 23; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-        }
+        await _waitForPullIdle(service);
         expect(adapter.cursors[3], 0);
         expect(adapter.acknowledged, hasLength(23));
         expect(await db.query('msg_c2c'), hasLength(23));

@@ -21,6 +21,7 @@ import 'package:flutter_vodozemac/flutter_vodozemac.dart' as fvod;
 import 'package:vodozemac/vodozemac.dart' as vod;
 
 const List<String> _libDirCandidates = <String>[
+  '../spikes/e2ee-group/rust/target/release/',
   'spikes/e2ee-group/rust/target/release/',
 ];
 

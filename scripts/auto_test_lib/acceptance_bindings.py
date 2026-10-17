@@ -29,7 +29,10 @@ def _index(rows: Any) -> Optional[Dict[str, str]]:
                 or set(artifact) != {'path', 'sha256'}):
             return None
         try:
-            result[identifier] = json.dumps(row, sort_keys=True, allow_nan=False)
+            # Match the Python recursion guard on every supported interpreter.
+            result[identifier] = ''.join(json.JSONEncoder(
+                sort_keys=True, allow_nan=False,
+            ).iterencode(row))
         except (TypeError, ValueError, RecursionError):
             return None
     return result

@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +13,16 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+
+class _OwnedAuthPaths extends PathProviderPlatform {
+  _OwnedAuthPaths(this.path);
+  final String path;
+
+  @override
+  Future<String?> getApplicationCachePath() async => path;
+  @override
+  Future<String?> getTemporaryPath() async => path;
+}
 
 class SyntheticAuthDatabase implements Database {
   @override
@@ -38,7 +51,12 @@ void main() {
     return repo.loginAfter('synthetic', payload());
   }
 
+  late Directory cache;
+  late PathProviderPlatform previousPaths;
   setUp(() async {
+    previousPaths = PathProviderPlatform.instance;
+    cache = await Directory.systemTemp.createTemp('imboy-auth-scope-');
+    PathProviderPlatform.instance = _OwnedAuthPaths(cache.path);
     SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
     await StorageService.init();
     secure.clear();
@@ -85,7 +103,9 @@ void main() {
     expect(await login(), isTrue);
     expect(reader.isCurrent(reader.current), isTrue);
   });
-  tearDown(() {
+  tearDown(() async {
+    PathProviderPlatform.instance = previousPaths;
+    await cache.delete(recursive: true);
     SqliteService.setDbForTest(null);
     PersistentMessageQueue.to.dispose();
   });

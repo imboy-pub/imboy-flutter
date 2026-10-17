@@ -384,6 +384,9 @@ class ErrorCode {
   /// 错误码 5064
   static const int E2EE_RECOVERY_KEY_MISMATCH = 5064;
 
+  /// 错误码 5070
+  static const int E2EE_APP_VERSION_TOO_LOW = 5070;
+
   /// 错误码 5100
   static const int DEVICE_SESSION_INVALID = 5100;
 
@@ -661,6 +664,7 @@ class ErrorCode {
     5062: '密钥恢复失败',
     5063: '恢复操作超时',
     5064: '密钥不匹配，请重新获取',
+    5070: '客户端版本过低，请升级后再使用加密功能',
     5100: '设备会话无效',
     5101: '设备会话已被踢出，请重新登录',
     5102: '同类型设备已登录，请确认是否踢出旧设备',

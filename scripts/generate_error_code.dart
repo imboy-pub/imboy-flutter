@@ -212,10 +212,10 @@ void main(List<String> args) async {
   buffer.writeln();
 
   // 写入文件
-  final newContent = buffer.toString();
+  final newContent = '${buffer.toString().trimRight()}\n';
 
   // 检查是否有变化
-  if (newContent.trim() == existingContent.trim()) {
+  if (newContent == existingContent) {
     stdout.writeln('错误码文件已是最新，无需更新\n');
     exit(0);
   }

@@ -1,4 +1,7 @@
-import 'package:flutter/services.dart';
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus_platform_interface/device_info_plus_platform_interface.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -14,16 +17,19 @@ import 'package:imboy/service/e2ee/megolm_protocol.dart';
 import 'package:imboy/service/e2ee/olm_protocol.dart';
 import 'package:imboy/service/e2ee/rsa_legacy_protocol.dart';
 
-Future<TestDefaultBinaryMessenger> _installDeviceFixture() async {
-  const channel = MethodChannel('dev.fluttercommunity.plus/device_info');
-  SharedPreferences.setMockInitialValues({});
-  await StorageService.init();
-  await StorageService.to.setString(Keys.currentUid, 'synthetic-user');
-  final messenger =
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-  messenger.setMockMethodCallHandler(
-    channel,
-    (_) async => {
+class _SyntheticDeviceInfo extends DeviceInfoPlatform {
+  @override
+  Future<BaseDeviceInfo> deviceInfo() async {
+    // Linux uses a typed platform implementation, not a MethodChannel map.
+    if (Platform.isLinux) {
+      return LinuxDeviceInfo(
+        name: 'test',
+        id: 'synthetic-device',
+        prettyName: 'test',
+        machineId: 'synthetic-machine',
+      );
+    }
+    return BaseDeviceInfo({
       'computerName': 'test',
       'hostName': 'test',
       'arch': 'arm64',
@@ -38,9 +44,15 @@ Future<TestDefaultBinaryMessenger> _installDeviceFixture() async {
       'memorySize': 1,
       'cpuFrequency': 1,
       'systemGUID': 'synthetic-device',
-    },
-  );
-  return messenger;
+    });
+  }
+}
+
+Future<void> _installDeviceFixture() async {
+  SharedPreferences.setMockInitialValues({});
+  await StorageService.init();
+  await StorageService.to.setString(Keys.currentUid, 'synthetic-user');
+  DeviceInfoPlatform.instance = _SyntheticDeviceInfo();
 }
 
 void main() {
@@ -71,8 +83,8 @@ void main() {
 
   test('ensureReady 调用注册套件并隔离失败日志', () async {
     const canary = 'synthetic-private-initialize-key';
-    const channel = MethodChannel('dev.fluttercommunity.plus/device_info');
-    final messenger = await _installDeviceFixture();
+    final previousDeviceInfo = DeviceInfoPlatform.instance;
+    await _installDeviceFixture();
     E2eeBootstrap.resetForTest();
     E2eeBootstrap.ensureRegistered();
     E2eeProtocolRegistry.resetForTest();
@@ -98,7 +110,7 @@ void main() {
       expect(logs.join('\n'), isNot(contains(canary)));
     } finally {
       debugPrint = previousDebugPrint;
-      messenger.setMockMethodCallHandler(channel, null);
+      DeviceInfoPlatform.instance = previousDeviceInfo;
       E2eeBootstrap.resetForTest();
     }
   });

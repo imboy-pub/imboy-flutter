@@ -14,10 +14,10 @@ if [ ! -f "$PROTO_SRC" ]; then
 fi
 
 # Ensure protoc-gen-dart is on PATH
-export PATH="$PATH:$HOME/.pub-cache/bin"
+export PATH="$PATH:${PUB_CACHE:-$HOME/.pub-cache}/bin"
 
 if ! command -v protoc-gen-dart &>/dev/null; then
-  echo "ERROR: protoc-gen-dart not found. Run: dart pub global activate protoc_plugin" >&2
+  echo "ERROR: protoc-gen-dart not found. Run: dart pub global activate protoc_plugin 25.1.0" >&2
   exit 1
 fi
 
