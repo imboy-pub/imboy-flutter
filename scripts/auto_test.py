@@ -35,9 +35,13 @@ VALID_RISK_MODES = {'pure-local', 'device-readonly', 'local-write', 'external-im
 VALID_RUNNERS = {'flutter', 'patrol'}
 VALID_VISUAL_RESULTS = {'PASS', 'FAIL', 'REVIEW', 'BLOCKED'}
 sys.path.insert(0, str(ROOT / 'scripts'))
-from auto_test_lib.devices import discover_devices, qualify_device  # noqa: E402
 from auto_test_lib.requirements import REQUIREMENTS  # noqa: E402
 from auto_test_lib import discovery, inventory  # noqa: E402
+from auto_test_lib.device_discovery import (  # noqa: E402
+    discover_devices,
+    platform_for_device,
+    qualify_device,
+)
 from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
 from auto_test_lib.result import overall_exit_code, plan_unique_targets  # noqa: E402
 from auto_test_lib.target_config import effective_target_config  # noqa: E402
@@ -192,17 +196,6 @@ def _flutter_env_defines() -> list[str]:
         if value:
             defines.append(f'--dart-define={define}={value}')
     return defines
-
-
-def platform_for_device(device: str) -> str:
-    """离线 dry-run 的平台推断（非资格）：macos/darwin 记为 macos，其余显示为 android。
-
-    仅用于 dry-run 输出与指纹草稿；--execute 的真实资格一律走
-    qualify_device(flutter devices --machine)，未发现/不支持/模拟器会被拒绝。
-    """
-    if device in ('macos', 'darwin') or device.startswith('darwin-'):
-        return 'macos'
-    return 'android'
 
 
 def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir: Path) -> int:

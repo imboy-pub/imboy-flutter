@@ -24,7 +24,8 @@ sys.path.insert(0, str(ROOT / 'scripts'))
 from auto_test_lib.target_config import build_flutter_test_command, effective_target_config  # noqa: E402
 from auto_test_lib.machine_events import parse_machine_events  # noqa: E402
 from auto_test_lib.acceptance import valid_event_protocol  # noqa: E402
-from auto_test_lib.devices import discover_devices, qualify_device  # noqa: E402
+# 经包路径导入：unittest 上下文中顶层名 auto_test 被 test/tooling/auto_test 包遮蔽。
+from auto_test_lib.device_discovery import discover_devices, qualify_device  # noqa: E402
 
 MARKER = re.compile(r'\[AI_SCREENSHOT\]\s+(.+)$')
 

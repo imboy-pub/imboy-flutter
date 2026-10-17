@@ -79,15 +79,23 @@ class DomainValidationTest(unittest.TestCase):
     def _mutated(self):
         return json.loads(json.dumps(self.matrix))
 
+    def _mapped_feature(self) -> str:
+        """取当前 profile 实际启用的 feature 做变异（feature_mapping 只含 selected）。"""
+        feature = next(iter(self.matrix['feature_mapping']), None)
+        self.assertIsNotNone(feature, '当前 profile 的 feature_mapping 为空，无法做映射变异')
+        return feature
+
     def test_feature_without_mapping(self):
         matrix = self._mutated()
-        del matrix['feature_mapping']['e2ee']
+        feature = self._mapped_feature()
+        del matrix['feature_mapping'][feature]
         errors = domain.validate_domain(ROOT, matrix)
-        self.assertTrue(any('无 capability 映射' in e and 'e2ee' in e for e in errors), errors)
+        self.assertTrue(any('无 capability 映射' in e and feature in e for e in errors), errors)
 
     def test_feature_mapping_dangling_capability(self):
         matrix = self._mutated()
-        matrix['feature_mapping']['e2ee']['capabilities'] = ['e2ee.ghost']
+        feature = self._mapped_feature()
+        matrix['feature_mapping'][feature]['capabilities'] = ['ghost.no_such_capability']
         errors = domain.validate_domain(ROOT, matrix)
         self.assertTrue(any('指向不存在 capability' in e for e in errors), errors)
 
@@ -147,8 +155,9 @@ class DomainValidationTest(unittest.TestCase):
 
 class FeatureManifestMappingTest(unittest.TestCase):
     def test_selected_features_all_mapped(self):
+        # profile 可裁剪（如 phase1_delivery 无 project/e2ee），只要求当前启用集全映射。
         selected = domain.load_selected_features(ROOT)
-        self.assertIn('project', selected)
+        self.assertTrue(selected, '当前 profile selected_features 为空')
         for feature in selected:
             self.assertIn(feature, domain.FEATURE_CAPABILITY_MAP, feature)
             self.assertTrue(domain.FEATURE_CAPABILITY_MAP[feature], feature)
@@ -167,9 +176,11 @@ class FeatureManifestMappingTest(unittest.TestCase):
         self.assertTrue(all(s['feature_key'] == 'project' for s in specs))
 
     def test_feature_key_values_are_manifest_or_core(self):
-        selected = set(domain.load_selected_features(ROOT))
+        # CAPABILITY_SPECS 是跨 profile 全集：feature_key 只需属于已知 feature 全集或 core，
+        # 不得要求每个 spec 的 feature 都在当前 profile 的 selected 中（profile 可裁剪）。
+        known_features = set(domain.FEATURE_CAPABILITY_MAP)
         for spec in domain.CAPABILITY_SPECS:
-            self.assertIn(spec['feature_key'], selected | {'core'}, spec['capability_id'])
+            self.assertIn(spec['feature_key'], known_features | {'core'}, spec['capability_id'])
 
 
 class FixturesContractTest(unittest.TestCase):

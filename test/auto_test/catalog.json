@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "efb9c6ebd14792b509ef1cf37b29912141388096",
-    "backend_head": "75b7c38249fd33dc7f5ea6e57d04fd0b271f8ada",
+    "app_head": "3e4f77d6ec2c72bc25d51d21104d4f011fbfb000",
+    "backend_head": "3f6507012a797b5b3343fa66210f48475daeed2e",
     "integration_test_count": 160,
     "lib_page_count": 167,
     "module_page_count": 24,
@@ -556,7 +556,7 @@
     {
       "id": "test:integration_test/customer_service/cs_workbench_e2e_test.dart",
       "target": "integration_test/customer_service/cs_workbench_e2e_test.dart",
-      "target_sha256": "75c566ff2ae567937bc0820ab35f48e69114ec1407fa072debbece46d5351407",
+      "target_sha256": "556d3559187009c5d098ca98026da695370a877c1a463f70bfe12cd5812e9d2c",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -565,7 +565,7 @@
         "customer_service"
       ],
       "enabled": false,
-      "oracle_hint": false
+      "oracle_hint": true
     },
     {
       "id": "test:integration_test/d04_account_deletion_flow_test.dart",
