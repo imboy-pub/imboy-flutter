@@ -61,6 +61,7 @@ void main() {
       expect(RouteFeatureGuard.appEntryForPath('/moment/feed'), 'moment_tab');
       expect(RouteFeatureGuard.appEntryForPath('/moment/create'), 'moment_tab');
       expect(RouteFeatureGuard.appEntryForPath('/moment/abc123'), 'moment_tab');
+      expect(RouteFeatureGuard.appEntryForPath('/moment_notify'), 'moment_tab');
     });
 
     test('returns channel for channel routes', () {
@@ -111,11 +112,13 @@ void main() {
         'generated_at': 0,
       });
 
-      final result = RouteFeatureGuard.checkBlocked(
-        isLoggedIn: true,
-        currentPath: '/moment/feed',
-      );
-      expect(result, isNull);
+      for (final path in ['/moment/feed', '/moment_notify']) {
+        final result = RouteFeatureGuard.checkBlocked(
+          isLoggedIn: true,
+          currentPath: path,
+        );
+        expect(result, isNull);
+      }
     });
 
     test('blocks when manifest lacks app entry', () {
@@ -128,14 +131,16 @@ void main() {
         'generated_at': 0,
       });
 
-      final result = RouteFeatureGuard.checkBlocked(
-        isLoggedIn: true,
-        currentPath: '/moment/feed',
-      );
-      expect(result, isNotNull);
-      expect(result!.redirect, '/bottom_navigation');
-      expect(result.reason, RouteBlockReason.appEntry);
-      expect(result.name, isNotEmpty);
+      for (final path in ['/moment/feed', '/moment_notify']) {
+        final result = RouteFeatureGuard.checkBlocked(
+          isLoggedIn: true,
+          currentPath: path,
+        );
+        expect(result, isNotNull);
+        expect(result!.redirect, '/bottom_navigation');
+        expect(result.reason, RouteBlockReason.appEntry);
+        expect(result.name, isNotEmpty);
+      }
     });
 
     test('blocks when feature flag disabled', () {
@@ -152,12 +157,14 @@ void main() {
         'channel': true,
       });
 
-      final result = RouteFeatureGuard.checkBlocked(
-        isLoggedIn: true,
-        currentPath: '/moment/feed',
-      );
-      expect(result, isNotNull);
-      expect(result!.reason, RouteBlockReason.featureFlag);
+      for (final path in ['/moment/feed', '/moment_notify']) {
+        final result = RouteFeatureGuard.checkBlocked(
+          isLoggedIn: true,
+          currentPath: path,
+        );
+        expect(result, isNotNull);
+        expect(result!.reason, RouteBlockReason.featureFlag);
+      }
     });
 
     test('manifest check takes priority over feature flag', () {

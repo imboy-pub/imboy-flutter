@@ -5,20 +5,14 @@
     "backend_head": "see-catalog",
     "manifest_profile": "full-selected",
     "selected_features": [
-      "e2ee",
       "channel",
-      "location",
       "moment",
-      "channel_discover",
-      "channel_invitation",
-      "channel_order",
+      "location",
       "group_vote",
       "group_schedule",
       "group_task",
-      "bot_webhook",
       "enterprise_business",
-      "customer_service",
-      "project"
+      "customer_service"
     ],
     "capability_count": 44,
     "backend_target_base": "../imboy（路径相对 imboy 仓；make:* 指 Makefile target）",
@@ -1436,38 +1430,11 @@
     }
   ],
   "feature_mapping": {
-    "e2ee": {
-      "capabilities": [
-        "e2ee.plaintext_rejection",
-        "e2ee.c2c_olm",
-        "e2ee.c2g_megolm_roomkey",
-        "e2ee.multi_device_fanout",
-        "e2ee.otk_fallback_rotation",
-        "e2ee.identity_trust_change",
-        "e2ee.replay_tamper_order",
-        "e2ee.attachment",
-        "e2ee.backup_recovery",
-        "e2ee.history_member_boundary",
-        "e2ee.policy_gate",
-        "e2ee.log_metadata_privacy"
-      ],
-      "disposition": "mapped",
-      "exclusion_code": null,
-      "details": ""
-    },
     "channel": {
       "capabilities": [
         "channel.create_edit_delete",
         "channel.publish_edit_revoke_pin_reaction_comment",
         "channel.workspace_binding"
-      ],
-      "disposition": "mapped",
-      "exclusion_code": null,
-      "details": ""
-    },
-    "location": {
-      "capabilities": [
-        "location.share"
       ],
       "disposition": "mapped",
       "exclusion_code": null,
@@ -1486,25 +1453,9 @@
       "exclusion_code": null,
       "details": ""
     },
-    "channel_discover": {
+    "location": {
       "capabilities": [
-        "channel.discover_search_sync_unread"
-      ],
-      "disposition": "mapped",
-      "exclusion_code": null,
-      "details": ""
-    },
-    "channel_invitation": {
-      "capabilities": [
-        "channel.admin_subscriber_invitation"
-      ],
-      "disposition": "mapped",
-      "exclusion_code": null,
-      "details": ""
-    },
-    "channel_order": {
-      "capabilities": [
-        "channel.paid_order_mock"
+        "location.share"
       ],
       "disposition": "mapped",
       "exclusion_code": null,
@@ -1534,14 +1485,6 @@
       "exclusion_code": null,
       "details": ""
     },
-    "bot_webhook": {
-      "capabilities": [
-        "bot.webhook_delivery"
-      ],
-      "disposition": "mapped",
-      "exclusion_code": null,
-      "details": ""
-    },
     "enterprise_business": {
       "capabilities": [
         "org.lifecycle",
@@ -1557,19 +1500,6 @@
     "customer_service": {
       "capabilities": [
         "cs.queue_claim_transfer_close_rating"
-      ],
-      "disposition": "mapped",
-      "exclusion_code": null,
-      "details": ""
-    },
-    "project": {
-      "capabilities": [
-        "project.create_update_status",
-        "project.member_invite_remove_owner_transfer",
-        "project.task_assign_status",
-        "project.milestone",
-        "project.channel_link",
-        "project.aggregations_workspace_boundary"
       ],
       "disposition": "mapped",
       "exclusion_code": null,

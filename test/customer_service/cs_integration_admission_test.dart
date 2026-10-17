@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
@@ -6,6 +9,8 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../integration_test/customer_service/cs_integration_fixture.dart';
 import '../../integration_test/customer_service/cs_integration_runtime.dart';
+
+class _ExistingHttpOverrides extends HttpOverrides {}
 
 Map<String, String> validFixture() => {
   'RUN_ID': 'cx-owned-native-20261013',
@@ -88,6 +93,76 @@ void main() {
       expect(headers['vsn'], '2.3.4-alpha.1');
     },
   );
+  test(
+    'rejected initialization preserves the existing HTTP overrides',
+    () async {
+      final previous = Zone.root.run(() => HttpOverrides.current);
+      final existing = _ExistingHttpOverrides();
+      HttpOverrides.global = existing;
+      final effective = HttpOverrides.current;
+      final runtime = CsIntegrationRuntime(
+        CsIntegrationFixture.parse(validFixture()),
+      );
+      PackageInfo.setMockInitialValues(
+        appName: 'CS metadata test',
+        packageName: 'pub.synthetic.native',
+        version: '2.3.4',
+        buildNumber: '1',
+        buildSignature: '',
+      );
+      try {
+        await expectLater(runtime.initialize(), throwsA(isA<StateError>()));
+        expect(HttpOverrides.current, same(effective));
+        expect(Zone.root.run(() => HttpOverrides.current), same(existing));
+        runtime.restoreEnvironment();
+        runtime.restoreEnvironment();
+        expect(HttpOverrides.current, same(effective));
+        expect(Zone.root.run(() => HttpOverrides.current), same(existing));
+      } finally {
+        HttpOverrides.global = previous;
+      }
+    },
+  );
+  test('runtime TLS rejects distinct and identical zone shadows', () async {
+    final previous = Zone.root.run(() => HttpOverrides.current);
+    final existing = _ExistingHttpOverrides();
+    final previousEnvironment = currentEnv;
+    final previousEnv = envMap['dev'];
+    HttpOverrides.global = existing;
+    try {
+      for (final shadow in [_ExistingHttpOverrides(), existing]) {
+        final runtime = CsIntegrationRuntime(
+          CsIntegrationFixture.parse(validFixture()),
+        );
+        await HttpOverrides.runWithHttpOverrides(() async {
+          await expectLater(
+            runtime.initialize(),
+            throwsA(
+              isA<StateError>().having(
+                (error) => error.message,
+                'zone admission',
+                'CS_RUNTIME_HTTP_OVERRIDE_ZONE_REFUSED',
+              ),
+            ),
+          );
+          runtime.restoreEnvironment();
+          runtime.restoreEnvironment();
+          expect(HttpOverrides.current, same(shadow));
+          expect(Zone.root.run(() => HttpOverrides.current), same(existing));
+          expect(currentEnv, previousEnvironment);
+          expect(envMap['dev'], same(previousEnv));
+        }, shadow);
+      }
+    } finally {
+      HttpOverrides.global = previous;
+    }
+  });
+  test('production environment refuses before runtime TLS setup', () {
+    expect(
+      () => CsIntegrationFixture.parse(validFixture()..['ENVIRONMENT'] = 'pro'),
+      throwsA(isA<CsIntegrationAdmissionRefused>()),
+    );
+  });
   test(
     'bad plugin metadata rejects without borrowing previous global values',
     () async {
