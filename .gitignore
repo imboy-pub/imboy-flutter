@@ -176,66 +176,10 @@ test/auto_test/credentials.local.json
 /I18N_NATIVE_REVIEW_ru-RU.md
 /I18N_NATIVE_REVIEW_zh-Hant.md
 /docs/sqlite-migration-implementation-plan-2026-08-27.md
-/integration_test/full_acceptance/F00-S02/ambiguity-review-draft.md
-/integration_test/full_acceptance/F00-S02/sample-audit-01.md
-/test/auto_test/HEALTH_CHECK_REPORT_2026-09-01.md
+
 
 # Historical execution snapshots and reports.
-/integration_test/full_acceptance/F00-S01/README.md
-/integration_test/full_acceptance/F00-S01/WRITER-CLAIM.md
-/integration_test/full_acceptance/F00-S01/e2ee-protected-paths.tsv
-/integration_test/full_acceptance/F00-S01/input-snapshot.json
-/integration_test/full_acceptance/F00-S01/maintenance-check-01.md
-/integration_test/full_acceptance/F00-S01/progress-ledger.md
-/integration_test/full_acceptance/F00-S01/proposed-run-root/README.md
-/integration_test/full_acceptance/F00-S01/proposed-run-root/commands-skeleton.json
-/integration_test/full_acceptance/F00-S01/proposed-run-root/resource-registry.json
-/integration_test/full_acceptance/F00-S01/state.json
-/integration_test/full_acceptance/F00-S01/upstream-observation-01.md
-/integration_test/full_acceptance/F00-S02/README.md
-/integration_test/full_acceptance/F00-S02/WRITER-CLAIM.md
-/integration_test/full_acceptance/F00-S02/coverage-gap-draft.md
-/integration_test/full_acceptance/F00-S02/draft-stats.json
-/integration_test/full_acceptance/F00-S02/product-profiles-evidence.json
-/integration_test/full_acceptance/F00-S02/seed-to-subcard-draft.tsv
-/integration_test/full_acceptance/F00-S02/state.json
-/integration_test/full_acceptance/F00-S02/upstream-ac22-23-alignment.md
-/integration_test/full_acceptance/F12-S02/README.md
-/integration_test/full_acceptance/F12-S02/case-map.tsv
-/integration_test/full_acceptance/F12-S02/state.json
-/integration_test/full_acceptance/F12-S03/README.md
-/integration_test/full_acceptance/F12-S03/artifact-manifest.json
-/integration_test/full_acceptance/F12-S03/case-map.tsv
-/integration_test/full_acceptance/F12-S03/state.json
-/integration_test/full_acceptance/F12-S03/target-list.json
-/integration_test/full_acceptance/F15-S01/README.md
-/integration_test/full_acceptance/F15-S01/WRITER-CLAIM.md
-/integration_test/full_acceptance/F15-S01/open-whitelist.tsv
-/integration_test/full_acceptance/F15-S01/route-inventory.tsv
-/integration_test/full_acceptance/F15-S01/state.json
-/integration_test/full_acceptance/F15-S01/stats.json
-/integration_test/full_acceptance/F15-S01/ws-inventory.tsv
-/integration_test/full_acceptance/F15-S02/README.md
-/integration_test/full_acceptance/F15-S02/WRITER-CLAIM.md
-/integration_test/full_acceptance/F15-S02/authz-matrix-draft.tsv
-/integration_test/full_acceptance/F15-S02/rbac-roles.tsv
-/integration_test/full_acceptance/F15-S02/state.json
-/integration_test/full_acceptance/F15-S02/stats.json
-
-# Execution records are retained outside the repository.
-/integration_test/full_acceptance/F01-S06/README.md
-/integration_test/full_acceptance/F01-S06/WRITER-CLAIM.md
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-01-collection-integrity.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-02-coverage-closure.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-03-candidate-binding.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-04-fake-green-execution.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-05-evidence-contamination.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-06-applicability-fraud.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-07-attempt-audit.json
-/integration_test/full_acceptance/F01-S06/bad-samples/BAD-08-report-secret-leak.json
-/integration_test/full_acceptance/F01-S06/bad-samples/GOOD-01-minimal-valid-synthetic.json
-/integration_test/full_acceptance/F01-S06/bad-samples/index.json
-/integration_test/full_acceptance/F01-S06/state.json
+/integration_test/full_acceptance/*
 
 # Execution plans and candidate-specific reports belong outside Git.
 /test/auto_test/LOOP_PROMPT.md
@@ -264,3 +208,21 @@ test/auto_test/credentials.local.json
 
 # Generated test coverage reports belong to execution artifacts.
 /coverage/
+
+# 测试 golden 渲染资产不入库（基线惯例：test/ 零跟踪 PNG；
+# CLAUDE.md 交付边界 + 用户确认 2026-10-17；本地 flutter test --update-goldens 生成）
+test/**/goldens/
+
+# 产品 PNG 资产不入库（用户约定 2026-10-17：274 张 PNG 全部不进 Git——
+# 180 张产品 + 94 张 golden；精确目录范围=evidence/T24/product-png-local-PATHS.txt 白名单。
+# 本地文件保留原路径；新检出需从仓外资源包恢复，见 HANDOFF.md 还原说明）
+assets/images/**/*.png
+android/app/src/main/res/**/*.png
+ios/Runner/Assets.xcassets/**/*.png
+macos/Runner/Assets.xcassets/**/*.png
+web/**/*.png
+macos/Shims/vendor/Sentry/**/*.png
+
+# 计划文档目录（主仓 WIP, 2026-10-17）
+docs/ux-plan
+test/*/*.png

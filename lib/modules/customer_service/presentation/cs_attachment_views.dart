@@ -12,7 +12,7 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
@@ -147,54 +147,60 @@ class CsAssetFileRow extends StatelessWidget {
     final name = asset.fileName.isNotEmpty
         ? asset.fileName
         : t.attachUnnamedFile;
-    return InkWell(
-      onTap: onView,
+    return CupertinoButton(
+      onPressed: onView,
+      padding: EdgeInsets.zero,
+      minimumSize: const Size(AppSizes.touchTarget, AppSizes.touchTarget),
+      alignment: Alignment.centerLeft,
       borderRadius: AppRadius.borderRadiusMedium,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.tiny,
-          vertical: AppSpacing.tiny,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              CupertinoIcons.doc_text,
-              size: AppSizes.iconSizeMedium,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(width: AppSpacing.small),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textStyle(
-                      FontSizeType.footnote,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.tiny),
-                  Text(
-                    asset.isActive
-                        ? csFormatAssetSize(asset.sizeBytes)
-                        : t.attachStatusUnavailable(
-                            size: csFormatAssetSize(asset.sizeBytes),
-                          ),
-                    maxLines: 1,
-                    style: context.textStyle(
-                      FontSizeType.caption2,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-                ],
+      child: DefaultTextStyle(
+        style: DefaultTextStyle.of(context).style,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.tiny,
+            vertical: AppSpacing.tiny,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                CupertinoIcons.doc_text,
+                size: AppSizes.iconSizeMedium,
+                color: Theme.of(context).colorScheme.primary,
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.small),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyle(
+                        FontSizeType.footnote,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.tiny),
+                    Text(
+                      asset.isActive
+                          ? csFormatAssetSize(asset.sizeBytes)
+                          : t.attachStatusUnavailable(
+                              size: csFormatAssetSize(asset.sizeBytes),
+                            ),
+                      maxLines: 1,
+                      style: context.textStyle(
+                        FontSizeType.caption2,
+                        color: AppColors.iosGray,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

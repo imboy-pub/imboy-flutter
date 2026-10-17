@@ -83,6 +83,13 @@ class _OrganizationPickerPageState
   bool _switching = false;
   String? _switchError;
 
+  /// 正在切换的目标（[_kPersonalTarget] 或企业 id）：行内 spinner 与
+  /// 「真实正在切换的项」的唯一真源；null=无进行中切换。
+  Object? _switchingTarget;
+
+  /// 个人模式切换目标哨兵（企业 id 均为 TSID 字符串，不与哨兵冲突）。
+  static const Object _kPersonalTarget = '__personal__';
+
   String get _accountKey => widget.accountKey ?? UserRepoLocal.to.currentUid;
 
   OrganizationCache get _cache => OrganizationCache.forAccount(_accountKey);
@@ -148,12 +155,12 @@ class _OrganizationPickerPageState
     } on OrganizationApiException catch (e) {
       if (!_acceptRefresh(account, generation)) return;
       setState(() {
-        _error = '${e.message} (code=${e.code})';
+        _error = _apiErrorText(e);
       });
-    } on Object catch (e) {
+    } on Object {
       if (!_acceptRefresh(account, generation)) return;
       setState(() {
-        _error = e.toString();
+        _error = t.common.settingFailedPleaseTryAgain;
       });
     } finally {
       if (_acceptRefresh(account, generation)) {
@@ -182,6 +189,7 @@ class _OrganizationPickerPageState
     setState(() {
       _switching = true;
       _switchError = null;
+      _switchingTarget = org.id;
     });
     try {
       final fresh = await _prepareTarget(org, account, epoch);
@@ -196,14 +204,26 @@ class _OrganizationPickerPageState
       if (!_acceptSwitch(account, epoch)) return;
       setState(() {
         _switching = false;
-        _switchError = _switchErrorText(recoveryError ?? e);
+        _switchingTarget = null;
+        _switchError = _switchErrorText(
+          recoveryError ?? e,
+          recovered: committing && recoveryError == null,
+        );
       });
       return;
     } finally {
-      if (mounted) setState(() => _switching = false);
+      if (mounted) {
+        setState(() {
+          _switching = false;
+          _switchingTarget = null;
+        });
+      }
     }
     if (!_acceptSwitch(account, epoch)) return;
-    setState(() => _switching = false);
+    setState(() {
+      _switching = false;
+      _switchingTarget = null;
+    });
     _leave();
   }
 
@@ -287,11 +307,23 @@ class _OrganizationPickerPageState
     return recoveryError;
   }
 
-  String _switchErrorText(Object e) {
+  /// 失败原因文案（列表读取与切换共用）：403→无权限、API message 为
+  /// 服务端人话文案原样展示、其余回落通用重试文案；任何分支都不得
+  /// 拼接 `code=` 等原始技术值（vocabulary 红线 / T07 验收）。
+  String _apiErrorText(Object e) {
     if (e is OrganizationApiException) {
-      return '${e.message} (code=${e.code})';
+      if (e.code == 403) return t.common.noPermission;
+      final msg = e.message.trim();
+      if (msg.isNotEmpty) return msg;
     }
     return t.common.settingFailedPleaseTryAgain;
+  }
+
+  /// 切换失败页内文案：回滚成功=完整句「切换失败，已恢复原选择」
+  /// （vocabulary 冻结文案）；否则「切换失败：<原因>」。
+  String _switchErrorText(Object e, {required bool recovered}) {
+    if (recovered) return t.organization.picker.switchFailedRecovered;
+    return '${t.organization.picker.switchFailed}：${_apiErrorText(e)}';
   }
 
   /// 离开本页：正常从切换 chip/企业行 push 进入 → pop 返回；被 go 挂为
@@ -309,7 +341,10 @@ class _OrganizationPickerPageState
     if (_switching || !_sessionCurrent || _accountKey.isEmpty) return;
     final account = _accountKey;
     final epoch = _accountEpoch;
-    setState(() => _switching = true);
+    setState(() {
+      _switching = true;
+      _switchingTarget = _kPersonalTarget;
+    });
     try {
       await ref
           .read(productExperienceProvider.notifier)
@@ -322,7 +357,12 @@ class _OrganizationPickerPageState
       }
       return;
     } finally {
-      if (mounted) setState(() => _switching = false);
+      if (mounted) {
+        setState(() {
+          _switching = false;
+          _switchingTarget = null;
+        });
+      }
     }
     if (_acceptSwitch(account, epoch)) _leave();
   }
@@ -379,6 +419,18 @@ class _OrganizationPickerPageState
   @override
   Widget build(BuildContext context) {
     final current = _currentOrg;
+    // 当前勾选唯一真源：体验模式（personal/workspace）与指针共同决定，
+    // 个人模式勾「个人模式」行、企业模式勾当前企业行，二者互斥。
+    final experience = ref.watch(productExperienceProvider);
+    const switchingSpinner = SizedBox(
+      width: 18,
+      height: 18,
+      child: CircularProgressIndicator(strokeWidth: 2),
+    );
+    Widget checkMark() => Icon(
+      CupertinoIcons.check_mark,
+      color: Theme.of(context).colorScheme.primary,
+    );
     return Scaffold(
       appBar: AppBar(title: Text(t.organization.picker.title)),
       body: Column(
@@ -387,6 +439,11 @@ class _OrganizationPickerPageState
             key: const ValueKey('org-picker-personal-entry'),
             leading: const Icon(CupertinoIcons.person_circle),
             title: Text(t.workspace.experienceModePersonal),
+            trailing: _switchingTarget == _kPersonalTarget
+                ? switchingSpinner
+                : experience == ProductExperience.personal
+                ? checkMark()
+                : null,
             onTap: _switching ? null : _selectPersonal,
           ),
           if (_switchError != null)
@@ -397,17 +454,11 @@ class _OrganizationPickerPageState
                 color: Theme.of(context).colorScheme.error,
               ),
               title: Text(
-                '${t.organization.picker.switchFailed}：$_switchError',
+                _switchError!,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              trailing: _switching
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : null,
+              trailing: _switching ? switchingSpinner : null,
             ),
           Expanded(
             child: RefreshIndicator(
@@ -439,11 +490,14 @@ class _OrganizationPickerPageState
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: orgListSubtitle(context, o),
-                        trailing: o.id == current?.id
-                            ? Icon(
-                                CupertinoIcons.check_mark,
-                                color: Theme.of(context).colorScheme.primary,
-                              )
+                        // 目标行行内 spinner=「真实正在切换的项」；勾选仅在
+                        // 企业模式且为当前企业时出现（语义唯一），切换完成
+                        // 前绝不提前亮勾。
+                        trailing: _switching && _switchingTarget == o.id
+                            ? switchingSpinner
+                            : o.id == current?.id &&
+                                  experience == ProductExperience.workspace
+                            ? checkMark()
                             : null,
                         // 切换进行中禁点（防重复提交产生竞态切换）。
                         onTap: _switching ? null : () => _switchTo(o),
@@ -453,18 +507,41 @@ class _OrganizationPickerPageState
               ),
             ),
           ),
-          // 底部常驻『加入企业』入口（Slack「Add workspaces」同构）。
-          ListTile(
-            key: const ValueKey('org-picker-join-entry'),
-            leading: const Icon(CupertinoIcons.person_crop_circle_badge_plus),
-            title: Text(t.organization.picker.joinEnterprise),
-            onTap: _joinByCode,
-          ),
-          ListTile(
-            key: const ValueKey('org-picker-create-entry'),
-            leading: const Icon(CupertinoIcons.add_circled),
-            title: Text(t.organization.home.createOrg),
-            onTap: () => context.push(kOrganizationHomePath),
+          // 底部常驻入口（Slack「Add workspaces」同构）：
+          // 加入企业=主操作（FilledButton），创建企业=次操作（OutlinedButton）。
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.small,
+              AppSpacing.regular,
+              AppSpacing.small,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    key: const ValueKey('org-picker-join-entry'),
+                    onPressed: _joinByCode,
+                    icon: const Icon(
+                      CupertinoIcons.person_crop_circle_badge_plus,
+                    ),
+                    label: Text(t.organization.picker.joinEnterprise),
+                  ),
+                ),
+                AppSpacing.verticalSmall,
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    key: const ValueKey('org-picker-create-entry'),
+                    onPressed: () => context.push(kOrganizationHomePath),
+                    icon: const Icon(CupertinoIcons.add_circled),
+                    label: Text(t.organization.home.createOrg),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -605,7 +682,7 @@ class _OrgJoinCodeDialogState extends State<_OrgJoinCodeDialog> {
           ? t.organization.picker.joinInvalidCode
           : e.isInviteExpired
           ? t.organization.picker.joinExpiredCode
-          : t.organization.picker.joinFailedWith(msg: e.message, code: e.code);
+          : t.organization.picker.joinFailed(msg: e.message);
     });
   }
 

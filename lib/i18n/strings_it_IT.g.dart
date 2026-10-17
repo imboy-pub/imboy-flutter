@@ -2930,6 +2930,7 @@ class _Translations$organization$picker$it_IT extends Translations$organization$
 	@override String get title => 'Cambia azienda';
 	@override String get switchEnterprise => 'Cambia azienda';
 	@override String get switchFailed => 'Cambio non riuscito';
+	@override String get switchFailedRecovered => 'Cambio non riuscito; selezione precedente ripristinata';
 	@override String get noneSelected => 'Nessuna azienda selezionata';
 	@override String get emptyHint => 'Non hai ancora aderito ad alcuna azienda.\nTocca «Partecipa a un\'azienda» qui sotto e inserisci il codice invito';
 	@override String get joinEnterprise => 'Partecipa a un\'azienda';
@@ -2940,7 +2941,7 @@ class _Translations$organization$picker$it_IT extends Translations$organization$
 	@override String get joinSubmit => 'Partecipa';
 	@override String get joinInvalidCode => 'Il codice invito dell\'azienda non è valido o è stato revocato';
 	@override String get joinExpiredCode => 'Il codice invito dell\'azienda è scaduto';
-	@override String joinFailedWith({required Object msg, required Object code}) => 'Adesione non riuscita: ${msg} (${code})';
+	@override String joinFailed({required Object msg}) => 'Adesione non riuscita: ${msg}';
 	@override String get joinScanQr => 'Unisciti con QR code';
 	@override String get joinCodeOnlyHint => 'Inserisci il codice di invito a 8 caratteri';
 	@override String get joinConfirmTitle => 'Conferma adesione';
@@ -5472,6 +5473,7 @@ extension on TranslationsItIt {
 			'organization.picker.title' => 'Cambia azienda',
 			'organization.picker.switchEnterprise' => 'Cambia azienda',
 			'organization.picker.switchFailed' => 'Cambio non riuscito',
+			'organization.picker.switchFailedRecovered' => 'Cambio non riuscito; selezione precedente ripristinata',
 			'organization.picker.noneSelected' => 'Nessuna azienda selezionata',
 			'organization.picker.emptyHint' => 'Non hai ancora aderito ad alcuna azienda.\nTocca «Partecipa a un\'azienda» qui sotto e inserisci il codice invito',
 			'organization.picker.joinEnterprise' => 'Partecipa a un\'azienda',
@@ -5482,7 +5484,7 @@ extension on TranslationsItIt {
 			'organization.picker.joinSubmit' => 'Partecipa',
 			'organization.picker.joinInvalidCode' => 'Il codice invito dell\'azienda non è valido o è stato revocato',
 			'organization.picker.joinExpiredCode' => 'Il codice invito dell\'azienda è scaduto',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Adesione non riuscita: ${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => 'Adesione non riuscita: ${msg}',
 			'organization.picker.joinScanQr' => 'Unisciti con QR code',
 			'organization.picker.joinCodeOnlyHint' => 'Inserisci il codice di invito a 8 caratteri',
 			'organization.picker.joinConfirmTitle' => 'Conferma adesione',
@@ -5810,9 +5812,9 @@ extension on TranslationsItIt {
 			'workspace.pickerEmptyTitle' => 'Nessuna area di lavoro per ora',
 			'workspace.pickerTitle' => 'Le mie aree di lavoro',
 			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
-			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
 			'workspace.projectChannelLinkedToast' => 'Canale collegato',

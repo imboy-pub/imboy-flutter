@@ -3154,6 +3154,7 @@ class _Translations$organization$picker$en_US extends Translations$organization$
 	@override String get title => 'Switch enterprise';
 	@override String get switchEnterprise => 'Switch enterprise';
 	@override String get switchFailed => 'Switch failed';
+	@override String get switchFailedRecovered => 'Switch failed; previous selection restored';
 	@override String get noneSelected => 'No enterprise selected';
 	@override String get emptyHint => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code';
 	@override String get joinEnterprise => 'Join enterprise';
@@ -3164,7 +3165,7 @@ class _Translations$organization$picker$en_US extends Translations$organization$
 	@override String get joinSubmit => 'Join';
 	@override String get joinInvalidCode => 'The enterprise invite code is invalid or revoked';
 	@override String get joinExpiredCode => 'The enterprise invite code has expired';
-	@override String joinFailedWith({required Object msg, required Object code}) => 'Join failed: ${msg} (${code})';
+	@override String joinFailed({required Object msg}) => 'Join failed: ${msg}';
 	@override String get joinScanQr => 'Scan QR code';
 	@override String get joinCodeOnlyHint => 'Enter the 8-character invite code';
 	@override String get joinConfirmTitle => 'Confirm joining';
@@ -5892,6 +5893,7 @@ extension on TranslationsEnUs {
 			'organization.picker.title' => 'Switch enterprise',
 			'organization.picker.switchEnterprise' => 'Switch enterprise',
 			'organization.picker.switchFailed' => 'Switch failed',
+			'organization.picker.switchFailedRecovered' => 'Switch failed; previous selection restored',
 			'organization.picker.noneSelected' => 'No enterprise selected',
 			'organization.picker.emptyHint' => 'You have not joined any enterprise yet.\nTap "Join enterprise" below and enter the invite code',
 			'organization.picker.joinEnterprise' => 'Join enterprise',
@@ -5902,7 +5904,7 @@ extension on TranslationsEnUs {
 			'organization.picker.joinSubmit' => 'Join',
 			'organization.picker.joinInvalidCode' => 'The enterprise invite code is invalid or revoked',
 			'organization.picker.joinExpiredCode' => 'The enterprise invite code has expired',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Join failed: ${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => 'Join failed: ${msg}',
 			'organization.picker.joinScanQr' => 'Scan QR code',
 			'organization.picker.joinCodeOnlyHint' => 'Enter the 8-character invite code',
 			'organization.picker.joinConfirmTitle' => 'Confirm joining',
@@ -6036,9 +6038,9 @@ extension on TranslationsEnUs {
 			'organization.manage.dissolveGroupBody' => 'Dissolving cannot be undone. Membership ends, but message history and audit records are kept.',
 			'organization.manage.channelSection' => 'Enterprise channels',
 			'organization.manage.createChannel' => 'New channel',
-			'organization.manage.channelNameHint' => 'Channel name',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.channelNameHint' => 'Channel name',
 			'organization.manage.channelPolicyNote' => 'Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace.',
 			'organization.manage.channelEmpty' => 'No enterprise channels yet',
 			'organization.manage.channelSubscribers' => ({required Object count}) => '${count} subscribers',

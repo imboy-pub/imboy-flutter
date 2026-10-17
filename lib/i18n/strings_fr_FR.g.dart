@@ -2930,6 +2930,7 @@ class _Translations$organization$picker$fr_FR extends Translations$organization$
 	@override String get title => 'Changer d\'entreprise';
 	@override String get switchEnterprise => 'Changer d\'entreprise';
 	@override String get switchFailed => 'Échec du changement';
+	@override String get switchFailedRecovered => 'Échec du changement ; sélection précédente restaurée';
 	@override String get noneSelected => 'Aucune entreprise sélectionnée';
 	@override String get emptyHint => 'Vous n\'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d\'invitation';
 	@override String get joinEnterprise => 'Rejoindre une entreprise';
@@ -2940,7 +2941,7 @@ class _Translations$organization$picker$fr_FR extends Translations$organization$
 	@override String get joinSubmit => 'Rejoindre';
 	@override String get joinInvalidCode => 'Le code d\'invitation de l\'entreprise est invalide ou révoqué';
 	@override String get joinExpiredCode => 'Le code d\'invitation de l\'entreprise a expiré';
-	@override String joinFailedWith({required Object msg, required Object code}) => 'Échec de l\'adhésion : ${msg} (${code})';
+	@override String joinFailed({required Object msg}) => 'Échec de l\'adhésion : ${msg}';
 	@override String get joinScanQr => 'Rejoindre par QR code';
 	@override String get joinCodeOnlyHint => 'Saisir le code d\'invitation à 8 caractères';
 	@override String get joinConfirmTitle => 'Confirmer l\'adhésion';
@@ -5472,6 +5473,7 @@ extension on TranslationsFrFr {
 			'organization.picker.title' => 'Changer d\'entreprise',
 			'organization.picker.switchEnterprise' => 'Changer d\'entreprise',
 			'organization.picker.switchFailed' => 'Échec du changement',
+			'organization.picker.switchFailedRecovered' => 'Échec du changement ; sélection précédente restaurée',
 			'organization.picker.noneSelected' => 'Aucune entreprise sélectionnée',
 			'organization.picker.emptyHint' => 'Vous n\'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d\'invitation',
 			'organization.picker.joinEnterprise' => 'Rejoindre une entreprise',
@@ -5482,7 +5484,7 @@ extension on TranslationsFrFr {
 			'organization.picker.joinSubmit' => 'Rejoindre',
 			'organization.picker.joinInvalidCode' => 'Le code d\'invitation de l\'entreprise est invalide ou révoqué',
 			'organization.picker.joinExpiredCode' => 'Le code d\'invitation de l\'entreprise a expiré',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Échec de l\'adhésion : ${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => 'Échec de l\'adhésion : ${msg}',
 			'organization.picker.joinScanQr' => 'Rejoindre par QR code',
 			'organization.picker.joinCodeOnlyHint' => 'Saisir le code d\'invitation à 8 caractères',
 			'organization.picker.joinConfirmTitle' => 'Confirmer l\'adhésion',
@@ -5810,9 +5812,9 @@ extension on TranslationsFrFr {
 			'workspace.governanceTitle' => 'Gouvernance de l\'espace de travail',
 			'workspace.brandingEntry' => 'Paramètres de marque (nom / Logo / couleur principale)',
 			'workspace.archiveEntry' => 'Archiver l\'espace de travail',
-			'workspace.restoreEntry' => 'Restaurer l\'espace de travail',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.restoreEntry' => 'Restaurer l\'espace de travail',
 			'workspace.archiveTitle' => 'Archiver l\'espace de travail',
 			'workspace.archiveDesc' => 'Après archivage, tous les membres passent en lecture seule (les écritures sont refusées par le serveur) ; restauration possible à tout moment',
 			'workspace.archiveConfirm' => 'Confirmer l\'archivage',

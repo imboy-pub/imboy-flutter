@@ -24,6 +24,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 
@@ -71,7 +72,7 @@ void main() {
       find.byKey(const ValueKey('cs-governance-scope-note')),
       findsOneWidget,
     );
-    expect(find.text('本页为组织治理面（owner/admin）；服务端 403 是最终权限裁决。'), findsOneWidget);
+    expect(find.text(t.customerService.governance.scopeNote), findsOneWidget);
     expect(find.text('启用 · 1/3 会话'), findsOneWidget);
   });
 
@@ -182,7 +183,7 @@ void main() {
     await settleUx(tester);
 
     expect(
-      find.textContaining('组织未设置默认工作区'),
+      find.textContaining(t.customerService.governance.errorNoDefaultWorkspace),
       findsOneWidget,
       reason: 'C05 指针为空 → 诚实终态，不伪装成空列表',
     );

@@ -142,10 +142,12 @@ void main() {
       await tester.tap(personal);
       await tester.pump();
       expect(experience.started, isTrue);
+      // 切换进行中目标行有行内 spinner（无限动画），pumpAndSettle 不会
+      // 收敛——账号往返期间用有界 pump 推进帧（断言语义不变）。
       account.value = '91002';
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       account.value = _accountKey;
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 1));
       expect(tester.widget<ListTile>(personal).onTap, isNull);
       if (staleFailure) {
         experience.pending.completeError(

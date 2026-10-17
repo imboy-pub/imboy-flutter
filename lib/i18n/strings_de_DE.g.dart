@@ -2930,6 +2930,7 @@ class _Translations$organization$picker$de_DE extends Translations$organization$
 	@override String get title => 'Unternehmen wechseln';
 	@override String get switchEnterprise => 'Unternehmen wechseln';
 	@override String get switchFailed => 'Wechsel fehlgeschlagen';
+	@override String get switchFailedRecovered => 'Wechsel fehlgeschlagen; vorherige Auswahl wiederhergestellt';
 	@override String get noneSelected => 'Kein Unternehmen ausgewählt';
 	@override String get emptyHint => 'Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein';
 	@override String get joinEnterprise => 'Unternehmen beitreten';
@@ -2940,7 +2941,7 @@ class _Translations$organization$picker$de_DE extends Translations$organization$
 	@override String get joinSubmit => 'Beitreten';
 	@override String get joinInvalidCode => 'Der Einladungscode des Unternehmens ist ungültig oder wurde widerrufen';
 	@override String get joinExpiredCode => 'Der Einladungscode des Unternehmens ist abgelaufen';
-	@override String joinFailedWith({required Object msg, required Object code}) => 'Beitritt fehlgeschlagen: ${msg} (${code})';
+	@override String joinFailed({required Object msg}) => 'Beitritt fehlgeschlagen: ${msg}';
 	@override String get joinScanQr => 'Per QR-Code beitreten';
 	@override String get joinCodeOnlyHint => '8-stelligen Einladungscode eingeben';
 	@override String get joinConfirmTitle => 'Beitritt bestätigen';
@@ -5472,6 +5473,7 @@ extension on TranslationsDeDe {
 			'organization.picker.title' => 'Unternehmen wechseln',
 			'organization.picker.switchEnterprise' => 'Unternehmen wechseln',
 			'organization.picker.switchFailed' => 'Wechsel fehlgeschlagen',
+			'organization.picker.switchFailedRecovered' => 'Wechsel fehlgeschlagen; vorherige Auswahl wiederhergestellt',
 			'organization.picker.noneSelected' => 'Kein Unternehmen ausgewählt',
 			'organization.picker.emptyHint' => 'Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein',
 			'organization.picker.joinEnterprise' => 'Unternehmen beitreten',
@@ -5482,7 +5484,7 @@ extension on TranslationsDeDe {
 			'organization.picker.joinSubmit' => 'Beitreten',
 			'organization.picker.joinInvalidCode' => 'Der Einladungscode des Unternehmens ist ungültig oder wurde widerrufen',
 			'organization.picker.joinExpiredCode' => 'Der Einladungscode des Unternehmens ist abgelaufen',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Beitritt fehlgeschlagen: ${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => 'Beitritt fehlgeschlagen: ${msg}',
 			'organization.picker.joinScanQr' => 'Per QR-Code beitreten',
 			'organization.picker.joinCodeOnlyHint' => '8-stelligen Einladungscode eingeben',
 			'organization.picker.joinConfirmTitle' => 'Beitritt bestätigen',
@@ -5810,9 +5812,9 @@ extension on TranslationsDeDe {
 			'workspace.governanceTitle' => 'Arbeitsbereich-Governance',
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
 			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
-			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
 			'workspace.archiveConfirm' => 'Archivierung bestätigen',

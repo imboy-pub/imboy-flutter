@@ -236,20 +236,19 @@ class _QueueTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: AppSpacing.tiny,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Flexible(
-                      child: Text(
-                        maskedName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.textStyle(
-                          FontSizeType.subheadline,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    Text(
+                      maskedName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textStyle(
+                        FontSizeType.subheadline,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.tiny),
                     Text(
                       waitingLabel,
                       style: context.textStyle(

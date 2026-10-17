@@ -19,31 +19,31 @@ common:
   orgStatusPending: "심사 중"
   orgStatusRejected: "심사 미통과"
 home:
-  createOrg: "조직 만들기"
-  orgNameLabel: "조직 이름(1-200자)"
+  createOrg: "기업 만들기"
+  orgNameLabel: "기업 이름(1-200자)"
   createFailedWith: "생성 실패: ${msg} (${code})"
   # 생성이 pending(운영 심사 대기)이 될 수 있음: 성공 ≠ 즉시 사용 가능
   createSubmittedPendingReview: "제출되었습니다. 운영 심사 대기 중이며, 심사가 통과되면 기업을 정상적으로 사용할 수 있습니다"
-  tabOrg: "조직"
+  tabOrg: "기업"
   myInvitations: "내 초대"
-  emptyHint: "아직 가입한 조직이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요"
+  emptyHint: "아직 가입한 기업이 없습니다\n아래로 당겨 새로고침하거나 오른쪽 위에서 만들어 보세요"
 detail:
-  leaveOrg: "조직 나가기"
-  leaveOrgBody: "나가면 조직의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 조직 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다."
+  leaveOrg: "기업 나가기"
+  leaveOrgBody: "나가면 기업의 연락처, 그룹, 채널 및 파일에 접근할 수 없습니다. 기업 파일은 유지됩니다. 다시 가입하려면 초대가 필요합니다."
   leaveFailed: "나가기 실패"
-  leaveOwnerHint: "나가기 전에 조직 소유권을 이전하세요"
-  leaveCleanupFailed: "조직에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요"
-  title: "조직 상세"
-  notFound: "조직을 찾을 수 없습니다"
-  archiveOrg: "조직 보관"
-  archiveConfirmBody: "보관하면 조직은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다."
-  restoreOrg: "조직 복원"
-  restoreConfirmBody: "복원하면 조직은 active 상태로 돌아가고 쓰기가 다시 열립니다."
+  leaveOwnerHint: "나가기 전에 기업 소유권을 이전하세요"
+  leaveCleanupFailed: "기업에서 나갔지만 기기 설정을 삭제하지 못했습니다. 다시 시작하고 선택한 공간을 확인하세요"
+  title: "기업 상세"
+  notFound: "기업을 찾을 수 없습니다"
+  archiveOrg: "기업 보관"
+  archiveConfirmBody: "보관하면 기업은 읽기 전용이 되며 모든 쓰기 작업은 fail-closed로 차단됩니다. 복원(restore)으로만 잠금 해제됩니다. 멤버와 데이터는 삭제되지 않습니다."
+  restoreOrg: "기업 복원"
+  restoreConfirmBody: "복원하면 기업은 active 상태로 돌아가고 쓰기가 다시 열립니다."
   confirmRestore: "복원 확인"
   restoreFailed: "복원 실패"
   archiveFailed: "보관 실패"
-  renameOrgTitle: "조직 이름 변경"
-  renameOrgLabel: "조직 이름(1-200자)"
+  renameOrgTitle: "기업 이름 변경"
+  renameOrgLabel: "기업 이름(1-200자)"
   renameAction: "이름 변경"
   renameFailed: "이름 변경 실패"
   deletionPreflight: "계정 삭제 사전 점검"
@@ -55,7 +55,7 @@ detail:
   factUnavailable: "의존 도메인 사실을 사용할 수 없어 삭제 사전 점검이 거부되었습니다(fail-closed)"
   preflightFailed: "사전 점검 실패: ${msg} (${code})"
   myRoleAndStatus: "내 역할: ${role} · 상태: ${status}"
-  archivedBadge: "조직이 보관됨(읽기 전용)"
+  archivedBadge: "기업이 보관됨(읽기 전용)"
   archivedHint: "보관 중에는 모든 쓰기 작업이 거부되며 복원만 가능합니다"
   defaultWsSet: "기본 Workspace: ${id}"
   defaultWsUnset: "기본 Workspace: 미설정"
@@ -77,11 +77,11 @@ members:
   confirmChange: "변경 확인"
   changeRoleFailed: "역할 변경 실패"
   removeMember: "멤버 제거"
-  removeMemberBody: "‘${name}’을(를) 이 조직에서 제거합니다. 계정 자체는 삭제되지 않습니다."
+  removeMemberBody: "‘${name}’을(를) 이 기업에서 제거합니다. 계정 자체는 삭제되지 않습니다."
   confirmRemove: "제거 확인"
   removeFailed: "제거 실패"
   transferOwner: "소유자 이전"
-  transferOwnerBody: "조직에는 owner가 정확히 한 명 있습니다(C04): ‘${name}’을(를) 소유자로 지정합니다.\n당신은 일반 관리자/멤버로 강등됩니다. 이 작업은 조직 통제권에 직접 영향을 줍니다."
+  transferOwnerBody: "기업에는 owner가 정확히 한 명 있습니다(C04): ‘${name}’을(를) 소유자로 지정합니다.\n당신은 일반 관리자/멤버로 강등됩니다. 이 작업은 기업 통제권에 직접 영향을 줍니다."
   confirmTransfer: "이전 확인"
   transferFailed: "이전 실패"
   demoteToMember: "멤버로 강등"
@@ -110,7 +110,7 @@ invitations:
   copyToken: "토큰 복사"
   inviteFailed: "초대 실패: ${msg} (${code})"
   acceptTitle: "초대 수락"
-  acceptBody: "수락하면 조직 ${orgId}에 가입합니다.\n초대는 일회성이며 멤버십은 서버 기준을 따릅니다."
+  acceptBody: "수락하면 기업 ${orgId}에 가입합니다.\n초대는 일회성이며 멤버십은 서버 기준을 따릅니다."
   confirmAccept: "수락"
   acceptFailed: "수락 실패"
   rejectTitle: "초대 거절"
@@ -126,7 +126,7 @@ invitations:
   createInvitation: "초대 만들기"
   empty: "초대가 없습니다"
   emptyRecord: "초대 기록이 없습니다"
-  orgLine: "조직 ${orgId}"
+  orgLine: "기업 ${orgId}"
   invitationLine: "초대 ${invitationId}"
   targetLine: "대상 ${targetUserId} · ${subtitle}"
   acceptNotice: "초대를 탭하면 바로 수락할 수 있습니다(토큰 불필요).\n수락 후 멤버십은 서버 기준을 따릅니다."
@@ -137,8 +137,8 @@ departments:
   title: 부서 관리
   statusLine: "상태: ${status}"
   memberUidLine: "멤버 ${userId}"
-  viewForbiddenDetail: "이 부서를 볼 권한이 없습니다(이 조직의 재직 멤버만 가능)"
-  viewForbidden: "볼 권한이 없습니다(이 조직의 재직 멤버만 가능)"
+  viewForbiddenDetail: "이 부서를 볼 권한이 없습니다(이 기업의 재직 멤버만 가능)"
+  viewForbidden: "볼 권한이 없습니다(이 기업의 재직 멤버만 가능)"
   loadFailedWith: "부서 불러오기 실패: ${msg} (${code})"
   loadFailed: "부서 불러오기 실패: ${err}"
   createSubHere: "이 아래에 하위 부서 만들기"
@@ -152,19 +152,19 @@ departments:
   newNameLabel: "새 이름"
   renameFailed: "이름 바꾸기 실패"
   moveDept: "부서 이동"
-  rootLevel: 조직 최상위
+  rootLevel: 기업 최상위
   moveFailed: "이동 실패"
   addDeptMember: "부서 멤버 추가"
   archiveConfirmBody: "‘${name}’을(를) 보관하면 이 부서는 읽기 전용이 됩니다(멤버십은 유지)."
   archiveFailed: "보관 실패"
   emptyWithHint: "부서가 없습니다. 오른쪽 위에서 만들어 보세요"
   empty: "부서가 없습니다"
-  emptySubtitle: "겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 조직의 멤버여야 합니다."
+  emptySubtitle: "겸직 모델: 한 멤버가 여러 부서에 속할 수 있으며, 부서 멤버는 먼저 이 기업의 멤버여야 합니다."
   casConflictHint: 부서가 동시에 수정되어 최신 부서 트리로 새로고침되었습니다. 다시 시도해 주세요.
   expandNode: "\"${name}\" 펼치기"
   collapseNode: "\"${name}\" 접기"
   removeMemberUid: "멤버 ${userId} 제거"
-  removeMemberConfirm: "멤버 ${userId}를 \"${name}\"에서 제외합니다. 조직 멤버 자격과 다른 부서에서의 신분은 영향을 받지 않습니다(겸직 모델)."
+  removeMemberConfirm: "멤버 ${userId}를 \"${name}\"에서 제외합니다. 기업 멤버 자격과 다른 부서에서의 신분은 영향을 받지 않습니다(겸직 모델)."
   removeMemberFailed: 부서 멤버 제거 실패
   confirmRemoveMember: "제거 확인"
   setDeptAdmin: "${userId}을(를) 부서 관리자로 설정"
@@ -176,6 +176,7 @@ picker:
   title: "기업 전환"
   switchEnterprise: "기업 전환"
   switchFailed: 전환 실패
+  switchFailedRecovered: 전환 실패, 이전 선택이 복원되었습니다
   noneSelected: "선택된 기업 없음"
   emptyHint: "아직 가입한 기업이 없습니다.\n아래 \"기업 가입\"을 눌러 초대 코드를 입력하세요"
   joinEnterprise: "기업 가입"
@@ -186,7 +187,7 @@ picker:
   joinSubmit: "가입"
   joinInvalidCode: "기업 초대 코드가 유효하지 않거나 취소되었습니다"
   joinExpiredCode: "기업 초대 코드가 만료되었습니다"
-  joinFailedWith: "가입 실패: ${msg} (${code})"
+  joinFailed: "가입 실패: ${msg}"
   joinScanQr: "QR코드로 참여"
   joinCodeOnlyHint: "8자리 기업 초대 코드 입력"
   joinConfirmTitle: "참여 확인"
@@ -268,8 +269,8 @@ directory:
   emptyDepartments: 하위 부서 없음
   emptyMembers: 멤버 없음
   emptySearch: 일치하는 결과 없음
-  switchVerifyFailed: 대상 조직을 사용할 수 없거나 이미 멤버가 아닙니다
-  switchShellFailed: 새 조직의 워크스페이스를 불러오지 못했습니다
+  switchVerifyFailed: 대상 기업을 사용할 수 없거나 이미 멤버가 아닙니다
+  switchShellFailed: 새 기업의 워크스페이스를 불러오지 못했습니다
   inviteColleaguesRow: "동료 초대..."
   memberTotal: "총 ${count}명"
 memberDetail:
@@ -297,7 +298,7 @@ manage:
   orgNotFound: 기업이 없거나 볼 권한이 없습니다
   roleLine: "내 역할: ${role}"
   readOnlyHint: 기업 정보는 읽기 전용이며, 관리 작업은 소유자/관리자만 가능합니다
-  workspaceOwnerHint: 여기에는 본인이 소유한 워크스페이스만 표시됩니다. 조직 수준 작업(워크스페이스 생성, 기본 설정)은 조직 소유자 또는 관리자만 가능합니다.
+  workspaceOwnerHint: 여기에는 본인이 소유한 워크스페이스만 표시됩니다. 기업 수준 작업(워크스페이스 생성, 기본 설정)은 기업 소유자 또는 관리자만 가능합니다.
   forbiddenTitle: 관리 권한 없음
   forbiddenBody: 기업 관리는 소유자와 관리자만 사용할 수 있습니다. 필요하면 관리자에게 역할 변경을 요청하세요.
   workspaceSection: 워크스페이스
@@ -343,7 +344,7 @@ manage:
 # ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
 contactEntry:
   browserEntry: 주소록 열기
-  loadFailed: 조직 정보를 불러오지 못했습니다
+  loadFailed: 기업 정보를 불러오지 못했습니다
 # ==================== ENT-APP-01 조직 허브 (/organization/:orgId) ====================
 hub:
   sectionResources: 기업 리소스

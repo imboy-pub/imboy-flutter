@@ -92,6 +92,20 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     }
   }
 
+  /// 0020 统一刷新通道：右上按钮与下拉刷新都走「membership self-heal +
+  /// initData」。原先下拉只 initData，漏掉被移出/被踢群成员阴影的清理，
+  /// 两个入口行为不一致（UX-ISSUE-0020）。
+  Future<void> _refreshWithSelfHeal() async {
+    // 不在外层手动 setLoading(true)：initData 内部已用 try/finally
+    // 统一管理 loading，外层再置一次且无 finally 兜底，一旦 selfHeal
+    // 抛出非 Exception 错误就永久卡在加载态。交给 initData 管理。
+    await AppInitializer.triggerGroupMembershipSelfHeal(
+      force: true,
+      source: 'group_list_refresh',
+    );
+    await initData(onRefresh: true);
+  }
+
   String _attrLabel(String attr) {
     switch (attr) {
       case 'all':
@@ -143,16 +157,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         ),
         CupertinoButton(
           padding: EdgeInsets.zero,
-          onPressed: () async {
-            // 不在外层手动 setLoading(true)：initData 内部已用 try/finally
-            // 统一管理 loading，外层再置一次且无 finally 兜底，一旦 selfHeal
-            // 抛出非 Exception 错误就永久卡在加载态。交给 initData 管理。
-            await AppInitializer.triggerGroupMembershipSelfHeal(
-              force: true,
-              source: 'group_list_refresh',
-            );
-            await initData(onRefresh: true);
-          },
+          onPressed: _refreshWithSelfHeal,
           // 纯图标按钮必须有 semanticLabel（DESIGN.md 11.4）；
           // 不补的话读屏用户在这个位置只听到"按钮"，不知道按下去干什么。
           child: Icon(
@@ -163,10 +168,8 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         ),
       ],
       slivers: [
-        // iOS 原生下拉刷新（与右上角刷新按钮互补）
-        CupertinoSliverRefreshControl(
-          onRefresh: () => initData(onRefresh: true),
-        ),
+        // iOS 原生下拉刷新（与右上角刷新按钮同通道：0020 行为一致）
+        CupertinoSliverRefreshControl(onRefresh: _refreshWithSelfHeal),
         // 搜索框（即时过滤，修复原先 onSubmitted 空实现）
         SliverToBoxAdapter(
           child: Padding(
@@ -196,19 +199,23 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                 thumbColor: AppColors.getIosBlue(brightness),
                 padding: const EdgeInsets.all(3),
                 children: {
+                  // T19 热区冻结值 48：与频道列表分段（AppSpacing.xxxLarge
+                  // 同款）统一，替代旧 37px 高的 vertical-6 Padding。
                   for (final attr in const ['all', 'join', 'manager', 'owner'])
-                    attr: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Text(
-                        _attrLabel(attr),
-                        style: context.textStyle(
-                          FontSizeType.footnote,
-                          fontWeight: state.attr == attr
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          color: state.attr == attr
-                              ? AppColors.onPrimary
-                              : AppColors.iosGray,
+                    attr: SizedBox(
+                      height: AppSpacing.xxxLarge,
+                      child: Center(
+                        child: Text(
+                          _attrLabel(attr),
+                          style: context.textStyle(
+                            FontSizeType.footnote,
+                            fontWeight: state.attr == attr
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                            color: state.attr == attr
+                                ? AppColors.onPrimary
+                                : AppColors.iosGray,
+                          ),
                         ),
                       ),
                     ),
@@ -350,6 +357,15 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
               );
             },
             child: Text(t.chat.chatMessage),
+          ),
+          // 0026：群分类入口从单群详情九宫格迁入列表长按菜单
+          //（动作映射：九宫格项→列表菜单项，步数不变）。
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.push('/group/category');
+            },
+            child: Text(t.groupCategory.title),
           ),
         ],
         cancelButton: CupertinoActionSheetAction(

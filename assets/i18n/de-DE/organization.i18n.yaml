@@ -176,6 +176,7 @@ picker:
   title: "Unternehmen wechseln"
   switchEnterprise: "Unternehmen wechseln"
   switchFailed: Wechsel fehlgeschlagen
+  switchFailedRecovered: "Wechsel fehlgeschlagen; vorherige Auswahl wiederhergestellt"
   noneSelected: "Kein Unternehmen ausgewählt"
   emptyHint: "Du bist noch keinem Unternehmen beigetreten.\nTippe unten auf „Unternehmen beitreten“ und gib den Einladungscode ein"
   joinEnterprise: "Unternehmen beitreten"
@@ -186,7 +187,7 @@ picker:
   joinSubmit: "Beitreten"
   joinInvalidCode: "Der Einladungscode des Unternehmens ist ungültig oder wurde widerrufen"
   joinExpiredCode: "Der Einladungscode des Unternehmens ist abgelaufen"
-  joinFailedWith: "Beitritt fehlgeschlagen: ${msg} (${code})"
+  joinFailed: "Beitritt fehlgeschlagen: ${msg}"
   joinScanQr: "Per QR-Code beitreten"
   joinCodeOnlyHint: "8-stelligen Einladungscode eingeben"
   joinConfirmTitle: "Beitritt bestätigen"

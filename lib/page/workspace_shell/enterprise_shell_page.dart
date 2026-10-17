@@ -122,6 +122,15 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       EnterpriseShellDestination.mine,
     ];
     final labels = destinations.map(_label).toList();
+    // spec D1：顶栏上下文「企业名 · 工作区名」两级，所有 tab 稳定可见；
+    // 真源为 org detail provider + currentWorkspaceProvider，缺失段自然省略。
+    final orgName =
+        ref.watch(_mineOrganizationProvider(_scope)).asData?.value.name ?? '';
+    final wsName = ref.watch(currentWorkspaceProvider)?.name ?? '';
+    final contextSubtitle = [
+      if (orgName.isNotEmpty) orgName,
+      if (wsName.isNotEmpty) wsName,
+    ].join(' · ');
     final icons = destinations.map(_icon).toList();
     // 工作台始终可见，应用入口仍按实时授权配置显示。
     final index = destinations.contains(_selected)
@@ -145,7 +154,14 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       index,
       desktop,
       select,
-      _content(destinations, configs, entries, index, labels[index]),
+      _content(
+        destinations,
+        configs,
+        entries,
+        index,
+        labels[index],
+        contextSubtitle,
+      ),
     );
   }
 
@@ -200,11 +216,13 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     AsyncValue<List<EnterpriseOaRuntimeConfig>> entries,
     int index,
     String title,
+    String contextSubtitle,
   ) {
     return Column(
       children: [
         WorkspaceTopBar(
           title: title,
+          subtitle: contextSubtitle.isEmpty ? null : contextSubtitle,
           // 左上汉堡（企业抽屉入口）只在「消息」页展示；通讯录/工作台/我
           // 三个 tab 不挂，需要抽屉时切回消息页。
           leading: _selected == EnterpriseShellDestination.messages

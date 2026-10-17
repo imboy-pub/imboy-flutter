@@ -40,7 +40,9 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
   Widget build(BuildContext context) {
     final group = widget.group;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final titleText = group.title.isEmpty ? group.computeTitle : group.title;
+    // displayTitle 是群名唯一权威收口（trim + 未命名兜底，见其文档注释）；
+    // 此前的自写 isEmpty 判断对空白名群会渲染出空白标题。
+    final titleText = group.displayTitle;
     final hasIntro = group.introduction.isNotEmpty;
 
     return GestureDetector(
@@ -66,7 +68,8 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
             SmartGroupAvatar(
               avatar: group.avatar,
               groupId: group.groupId.toString(),
-              size: 60,
+              // 048 = 群列表行同款头像尺寸（spec D4 紧凑化：与列表统一）
+              size: 48,
               avatarLoader: widget.avatarLoader,
             ),
             const SizedBox(width: AppSpacing.regular),
@@ -75,7 +78,7 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    titleText.isEmpty ? t.main.unnamed : titleText,
+                    titleText,
                     style: context.textStyle(
                       FontSizeType.large,
                       fontWeight: FontWeight.w600,

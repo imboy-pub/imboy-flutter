@@ -250,6 +250,7 @@ class CsSessionActionConfirmation extends ChangeNotifier {
       (dialogContext) => AnimatedBuilder(
         animation: this,
         builder: (_, _) => AlertDialog(
+          scrollable: true,
           title: Text(labels.title),
           content: _confirmationContent(labels, risks(), reason),
           actions: [

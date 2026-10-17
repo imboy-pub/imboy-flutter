@@ -19,31 +19,31 @@ common:
   orgStatusPending: "審査中"
   orgStatusRejected: "審査不合格"
 home:
-  createOrg: "組織を作成"
-  orgNameLabel: "組織名（1-200 文字）"
+  createOrg: "企業を作成"
+  orgNameLabel: "企業名（1-200 文字）"
   createFailedWith: "作成に失敗しました：${msg} (${code})"
   # 作成が pending（運営審査待ち）になる場合あり：成功 ≠ すぐに利用可能
   createSubmittedPendingReview: "送信しました。運営の審査を待っています。審査に合格すると企業を利用できます"
-  tabOrg: "組織"
+  tabOrg: "企業"
   myInvitations: "自分の招待"
-  emptyHint: "まだどの組織にも参加していません\n下に引っ張って更新するか、右上から作成してください"
+  emptyHint: "まだどの企業にも参加していません\n下に引っ張って更新するか、右上から作成してください"
 detail:
-  leaveOrg: "組織から退出"
-  leaveOrgBody: "退出すると組織の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。組織のファイルは保持されます。再参加には招待が必要です。"
+  leaveOrg: "企業から退出"
+  leaveOrgBody: "退出すると企業の連絡先、グループ、チャンネル、ファイルへのアクセス権を失います。企業のファイルは保持されます。再参加には招待が必要です。"
   leaveFailed: "退出できませんでした"
-  leaveOwnerHint: "退出する前に組織の所有権を移譲してください"
+  leaveOwnerHint: "退出する前に企業の所有権を移譲してください"
   leaveCleanupFailed: "退出済みですが端末の設定を削除できませんでした。再起動して選択中のスペースを確認してください"
-  title: "組織の詳細"
-  notFound: "組織が見つかりません"
-  archiveOrg: "組織をアーカイブ"
-  archiveConfirmBody: "アーカイブ後、組織は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。"
-  restoreOrg: "組織を復元"
-  restoreConfirmBody: "復元後、組織は active 状態に戻り、書き込みが再度可能になります。"
+  title: "企業の詳細"
+  notFound: "企業が見つかりません"
+  archiveOrg: "企業をアーカイブ"
+  archiveConfirmBody: "アーカイブ後、企業は読み取り専用になり、すべての書き込み操作は fail-closed となります。復元（restore）のみが解除できます。メンバーとデータは削除されません。"
+  restoreOrg: "企業を復元"
+  restoreConfirmBody: "復元後、企業は active 状態に戻り、書き込みが再度可能になります。"
   confirmRestore: "復元を確認"
   restoreFailed: "復元に失敗しました"
   archiveFailed: "アーカイブに失敗しました"
-  renameOrgTitle: "組織名を変更"
-  renameOrgLabel: "組織名（1-200 文字）"
+  renameOrgTitle: "企業名を変更"
+  renameOrgLabel: "企業名（1-200 文字）"
   renameAction: "名前を変更"
   renameFailed: "名前の変更に失敗しました"
   deletionPreflight: "アカウント削除の事前チェック"
@@ -55,7 +55,7 @@ detail:
   factUnavailable: "依存ドメインの事実を取得できないため、削除の事前チェックは拒否されました（fail-closed）"
   preflightFailed: "事前チェック失敗：${msg} (${code})"
   myRoleAndStatus: "自分のロール：${role} · 状態：${status}"
-  archivedBadge: "組織はアーカイブ済み（読み取り専用）"
+  archivedBadge: "企業はアーカイブ済み（読み取り専用）"
   archivedHint: "アーカイブ中はすべての書き込み操作が拒否され、復元のみ可能です"
   defaultWsSet: "デフォルト Workspace：${id}"
   defaultWsUnset: "デフォルト Workspace：未設定"
@@ -77,11 +77,11 @@ members:
   confirmChange: "変更を確認"
   changeRoleFailed: "ロールの変更に失敗しました"
   removeMember: "メンバーを削除"
-  removeMemberBody: "「${name}」をこの組織から削除します。アカウント自体は削除されません。"
+  removeMemberBody: "「${name}」をこの企業から削除します。アカウント自体は削除されません。"
   confirmRemove: "削除を確認"
   removeFailed: "削除に失敗しました"
   transferOwner: "オーナーを譲渡"
-  transferOwnerBody: "組織には owner が必ず 1 人です（C04）：「${name}」をオーナーに設定します。\nあなたは通常の管理者/メンバーに降格します。この操作は組織の管理権に直接影響します。"
+  transferOwnerBody: "企業には owner が必ず 1 人です（C04）：「${name}」をオーナーに設定します。\nあなたは通常の管理者/メンバーに降格します。この操作は企業の管理権に直接影響します。"
   confirmTransfer: "譲渡を確認"
   transferFailed: "譲渡に失敗しました"
   demoteToMember: "メンバーに降格"
@@ -90,15 +90,15 @@ members:
   ownerCannotChangeHere: "Owner はここでは変更できません。「オーナーを譲渡」をご利用ください"
   viewDetail: 詳細を表示
   suspendMember: メンバーの一時停止
-  suspendBody: "${name} のこの組織へのアクセスを一時停止します（即時反映。個人アカウントや他の組織には影響しません）。いつでも復元できます。"
+  suspendBody: "${name} のこの企業へのアクセスを一時停止します（即時反映。個人アカウントや他の企業には影響しません）。いつでも復元できます。"
   confirmSuspend: 一時停止する
   suspendFailed: 一時停止に失敗しました
   restoreMember: メンバーの復元
-  restoreBody: "${name} のこの組織へのアクセスを復元します。"
+  restoreBody: "${name} のこの企業へのアクセスを復元します。"
   confirmRestoreMember: 復元する
   restoreFailed: 復元に失敗しました
   offboardMember: 離脱（最終）
-  offboardBody: "${name} をこの組織から離脱させます：removed は最終状態で元に戻せません。再参加には再度の招待が必要です。"
+  offboardBody: "${name} をこの企業から離脱させます：removed は最終状態で元に戻せません。再参加には再度の招待が必要です。"
   confirmOffboard: 離脱する
   offboardFailed: 離脱に失敗しました
   empty: "メンバーがいません"
@@ -110,7 +110,7 @@ invitations:
   copyToken: "トークンをコピー"
   inviteFailed: "招待に失敗しました：${msg} (${code})"
   acceptTitle: "招待を受諾"
-  acceptBody: "受諾すると組織 ${orgId} に参加します。\n招待は一度きり有効で、メンバーシップはサーバーが正となります。"
+  acceptBody: "受諾すると企業 ${orgId} に参加します。\n招待は一度きり有効で、メンバーシップはサーバーが正となります。"
   confirmAccept: "受諾する"
   acceptFailed: "受諾に失敗しました"
   rejectTitle: "招待を拒否"
@@ -126,7 +126,7 @@ invitations:
   createInvitation: "招待を作成"
   empty: "招待がありません"
   emptyRecord: "招待の記録がありません"
-  orgLine: "組織 ${orgId}"
+  orgLine: "企業 ${orgId}"
   invitationLine: "招待 ${invitationId}"
   targetLine: "対象 ${targetUserId} · ${subtitle}"
   acceptNotice: "招待をタップするとそのまま受諾できます（トークン不要）；\n受諾後のメンバーシップはサーバーが正となります。"
@@ -137,8 +137,8 @@ departments:
   title: 部署管理
   statusLine: "状態：${status}"
   memberUidLine: "メンバー ${userId}"
-  viewForbiddenDetail: "この部門を閲覧する権限がありません（本組織の在籍メンバーのみ）"
-  viewForbidden: "閲覧権限がありません（本組織の在籍メンバーのみ）"
+  viewForbiddenDetail: "この部門を閲覧する権限がありません（本企業の在籍メンバーのみ）"
+  viewForbidden: "閲覧権限がありません（本企業の在籍メンバーのみ）"
   loadFailedWith: "部門の読み込みに失敗：${msg} (${code})"
   loadFailed: "部門の読み込みに失敗：${err}"
   createSubHere: "この下に子部門を作成"
@@ -152,19 +152,19 @@ departments:
   newNameLabel: "新しい名前"
   renameFailed: "名前の変更に失敗しました"
   moveDept: "部門を移動"
-  rootLevel: 組織のルート
+  rootLevel: 企業のルート
   moveFailed: "移動に失敗しました"
   addDeptMember: "部門メンバーを追加"
   archiveConfirmBody: "「${name}」をアーカイブすると、この部門は読み取り専用になります（メンバーシップは保持）。"
   archiveFailed: "アーカイブに失敗しました"
   emptyWithHint: "部門がありません。右上から作成してください"
   empty: "部門がありません"
-  emptySubtitle: "兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本組織のメンバーである必要があります。"
+  emptySubtitle: "兼任モデル：同一メンバーは複数の部門に所属できます。部門メンバーはまず本企業のメンバーである必要があります。"
   casConflictHint: 部門が他の操作により変更されたため、最新の部門ツリーを再読み込みしました。もう一度お試しください。
   expandNode: "「${name}」を展開"
   collapseNode: "「${name}」を折りたたむ"
   removeMemberUid: "メンバー ${userId} を削除"
-  removeMemberConfirm: "メンバー ${userId} を「${name}」から外します。組織メンバーシップおよび他部門での身份には影響しません（兼任モデル）。"
+  removeMemberConfirm: "メンバー ${userId} を「${name}」から外します。企業メンバーシップおよび他部門での身份には影響しません（兼任モデル）。"
   removeMemberFailed: 部門メンバーの削除に失敗しました
   confirmRemoveMember: "削除を確認"
   setDeptAdmin: "${userId} を部門管理者に設定"
@@ -176,6 +176,7 @@ picker:
   title: "企業を切り替え"
   switchEnterprise: "企業を切り替え"
   switchFailed: 切り替えに失敗しました
+  switchFailedRecovered: 切り替えに失敗しました。以前の選択に戻しました
   noneSelected: "企業が選択されていません"
   emptyHint: "まだどの企業にも参加していません。\n下の「企業に参加」をタップして招待コードを入力してください"
   joinEnterprise: "企業に参加"
@@ -186,7 +187,7 @@ picker:
   joinSubmit: "参加"
   joinInvalidCode: "企業招待コードが無効または失効しています"
   joinExpiredCode: "企業招待コードの有効期限が切れています"
-  joinFailedWith: "参加に失敗しました：${msg} (${code})"
+  joinFailed: "参加に失敗しました：${msg}"
   joinScanQr: "QRコードで参加"
   joinCodeOnlyHint: "8桁の企業招待コードを入力"
   joinConfirmTitle: "参加の確認"
@@ -268,8 +269,8 @@ directory:
   emptyDepartments: サブ部門はありません
   emptyMembers: メンバーがいません
   emptySearch: 該当なし
-  switchVerifyFailed: 対象の組織は利用できないか、すでにメンバーではありません
-  switchShellFailed: 新しい組織のワークスペース読み込みに失敗しました
+  switchVerifyFailed: 対象の企業は利用できないか、すでにメンバーではありません
+  switchShellFailed: 新しい企業のワークスペース読み込みに失敗しました
   inviteColleaguesRow: "同僚を招待..."
   memberTotal: "合計${count}人"
 memberDetail:
@@ -297,7 +298,7 @@ manage:
   orgNotFound: 企業が存在しないか、表示権限がありません
   roleLine: "自分の役割：${role}"
   readOnlyHint: 企業情報は閲覧のみ。管理操作はオーナー／管理者のみ可能です
-  workspaceOwnerHint: ここにはあなたが所有するワークスペースのみ表示されます。組織レベルの操作（ワークスペース作成・既定設定）は組織のオーナーまたは管理者が必要です。
+  workspaceOwnerHint: ここにはあなたが所有するワークスペースのみ表示されます。企業レベルの操作（ワークスペース作成・既定設定）は企業のオーナーまたは管理者が必要です。
   forbiddenTitle: 管理権限がありません
   forbiddenBody: 企業管理はオーナーと管理者のみが利用できます。必要なら管理者に役割の変更を依頼してください。
   workspaceSection: ワークスペース
@@ -343,7 +344,7 @@ manage:
 # ==================== P0 企业入口（§14.1，ContactPage 顶部） ====================
 contactEntry:
   browserEntry: アドレス帳を開く
-  loadFailed: 組織情報の取得に失敗しました
+  loadFailed: 企業情報の取得に失敗しました
 # ==================== ENT-APP-01 組織ハブ（/organization/:orgId） ====================
 hub:
   sectionResources: 企業リソース

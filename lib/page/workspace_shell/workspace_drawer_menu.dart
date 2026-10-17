@@ -4,9 +4,6 @@
 /// 我的名片、当前企业带（品牌 logo + 企业名 + 选中对勾 → 企业主页）、
 /// 底部功能簇（高级功能 → 企业工具聚合、创建/加入企业 → 企业选择器、
 /// 设置）与「我」tab 移除后的兜底入口（切换到个人 / 退出登录）。
-///
-/// 「未认证」徽标为事实展示：Organization 模型尚无认证字段，所有企业
-/// 均未认证；后端补字段后按真实状态渲染。
 library;
 
 import 'dart:async' show unawaited;
@@ -133,7 +130,6 @@ class WorkspaceDrawerMenu extends ConsumerWidget {
                           nickname: user?.nickname ?? '',
                           account: user?.account ?? '',
                           avatar: user?.avatar ?? '',
-                          orgName: orgName,
                         ),
                       ),
                       Padding(
@@ -162,6 +158,7 @@ class WorkspaceDrawerMenu extends ConsumerWidget {
                       if (organizationId.isNotEmpty && orgName.isNotEmpty)
                         _EnterpriseBand(
                           name: orgName,
+                          workspaceName: workspace?.name ?? '',
                           logo: logo,
                           onTap: () => _closeAndPush(
                             context,
@@ -229,14 +226,12 @@ class WorkspaceDrawerMenu extends ConsumerWidget {
     );
   }
 
-  /// 身份区：头像 + 昵称行（→ 个人资料）+ 智能助理胶囊；第二行企业名
-  /// + 未认证徽标。
+  /// 身份区：头像 + 昵称行（→ 个人资料）。
   Widget _identity(
     BuildContext context, {
     required String nickname,
     required String account,
     required String avatar,
-    required String orgName,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,25 +318,6 @@ class WorkspaceDrawerMenu extends ConsumerWidget {
                       // ),
                     ],
                   ),
-                  AppSpacing.verticalTiny,
-                  if (orgName.isNotEmpty)
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            orgName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textStyle(
-                              FontSizeType.footnote,
-                              color: AppColors.enterpriseOnNavyMuted,
-                            ),
-                          ),
-                        ),
-                        AppSpacing.horizontalSmall,
-                        _UnverifiedBadge(),
-                      ],
-                    ),
                 ],
               ),
             ),
@@ -362,70 +338,95 @@ class WorkspaceDrawerMenu extends ConsumerWidget {
 class _EnterpriseBand extends StatelessWidget {
   const _EnterpriseBand({
     required this.name,
+    required this.workspaceName,
     required this.logo,
     required this.onTap,
   });
 
   final String name;
+  final String workspaceName;
   final String logo;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: ColoredBox(
-        color: AppColors.enterpriseNavyLight,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.regular,
-            vertical: AppSpacing.regular,
-          ),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  width: 44,
-                  height: 44,
-                  child: logo.isNotEmpty
-                      ? Image(
-                          image: avatarImageProvider(logo),
-                          fit: BoxFit.cover,
-                        )
-                      : const ColoredBox(
-                          color: AppColors.enterpriseOnNavy,
-                          child: Center(
-                            child: Icon(
-                              CupertinoIcons.building_2_fill,
-                              size: 24,
-                              color: AppColors.primary,
+    return Semantics(
+      selected: true,
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ColoredBox(
+          color: AppColors.enterpriseNavyLight,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppSpacing.regular,
+              vertical: AppSpacing.medium,
+            ),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                    width: 44,
+                    height: 44,
+                    child: logo.isNotEmpty
+                        ? Image(
+                            image: avatarImageProvider(logo),
+                            fit: BoxFit.cover,
+                          )
+                        : const ColoredBox(
+                            color: AppColors.enterpriseOnNavy,
+                            child: Center(
+                              child: Icon(
+                                CupertinoIcons.building_2_fill,
+                                size: 24,
+                                color: AppColors.primary,
+                              ),
                             ),
                           ),
-                        ),
-                ),
-              ),
-              AppSpacing.horizontalMedium,
-              Expanded(
-                child: Text(
-                  name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyle(
-                    FontSizeType.extraLarge,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.enterpriseOnNavy,
                   ),
                 ),
-              ),
-              AppSpacing.horizontalSmall,
-              const Icon(
-                CupertinoIcons.check_mark,
-                size: 18,
-                color: AppColors.enterpriseOnNavy,
-              ),
-            ],
+                AppSpacing.horizontalMedium,
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textStyle(
+                          FontSizeType.title,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.enterpriseOnNavy,
+                        ),
+                      ),
+                      if (workspaceName.isNotEmpty &&
+                          workspaceName != name) ...[
+                        AppSpacing.verticalTiny,
+                        Text(
+                          '${t.workspace.createNameLabel}：$workspaceName',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.textStyle(
+                            FontSizeType.footnote,
+                            color: AppColors.enterpriseOnNavyMuted,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                AppSpacing.horizontalSmall,
+                const Icon(
+                  CupertinoIcons.check_mark,
+                  size: 18,
+                  color: AppColors.enterpriseOnNavy,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -483,43 +484,6 @@ class _EnterpriseBand extends StatelessWidget {
 //     );
 //   }
 // }
-
-/// 「未认证」徽标：问号 + 灰蓝胶囊。
-class _UnverifiedBadge extends StatelessWidget {
-  const _UnverifiedBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: 7,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.overlayLight,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            CupertinoIcons.question_circle_fill,
-            size: 12,
-            color: AppColors.enterpriseOnNavyMuted,
-          ),
-          AppSpacing.horizontalTiny,
-          Text(
-            t.workspace.orgUnverified,
-            style: context.textStyle(
-              FontSizeType.tiny,
-              color: AppColors.enterpriseOnNavyMuted,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 /// 抽屉功能行。
 class _DrawerRow extends StatelessWidget {

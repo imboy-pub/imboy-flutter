@@ -12,17 +12,25 @@ import 'package:imboy/theme/default/font_types.dart';
 /// 企业壳内容区是 IndexedStack（各 tab 自带滚动体），不能整体套
 /// Scaffold appBar，故以独立 widget 挂在壳 Column 顶部；消息/通讯录/
 /// 工作台/我 四个 tab 共用，保证壳内顶栏形态唯一。
+///
+/// [subtitle] 非空时中央为双行（标题 + caption 副行），行高扩至 52pt，
+/// 用于「企业名 · 工作区名」上下文（spec D1：所有 tab 稳定可见、
+/// 分层两级不拼第三段）；为空时行为与单行版本完全一致。
 class WorkspaceTopBar extends StatelessWidget {
   const WorkspaceTopBar({
     super.key,
     required this.title,
+    this.subtitle,
     this.leading,
     this.actions,
   });
 
   final String title;
 
-  /// 左侧元素（企业壳挂 WorkspaceSwitcherChip）。
+  /// 中央标题下方的一行上下文（如 企业名 · 工作区名）；null/空 = 单行。
+  final String? subtitle;
+
+  /// 左侧元素（企业壳挂汉堡菜单按钮）。
   final Widget? leading;
 
   /// 右侧动作（如通讯录 Tab 挂「邀请同事」入口；为空时标题仍绝对居中）。
@@ -37,6 +45,7 @@ class WorkspaceTopBar extends StatelessWidget {
             .withValues(alpha: 0.8);
     // leading 保留 8px（chip/返回键文字无内缩）；trailing 0 —— 44px 按钮
     // 盒已自带内缩，与 IosPageTemplate 的导航栏边距策略相同。
+    final hasSubtitle = (subtitle ?? '').isNotEmpty;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -48,7 +57,7 @@ class WorkspaceTopBar extends StatelessWidget {
               child: SafeArea(
                 bottom: false,
                 child: SizedBox(
-                  height: 44,
+                  height: hasSubtitle ? 52 : 44,
                   child: Row(
                     children: [
                       Expanded(
@@ -62,19 +71,42 @@ class WorkspaceTopBar extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Text(
-                        title,
-                        style: context
-                            .textStyle(
-                              FontSizeType.body,
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? AppColors.darkTextPrimary
-                                  : AppColors.lightTextPrimary,
-                            )
-                            .copyWith(letterSpacing: -0.4),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      Flexible(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              style: context
+                                  .textStyle(
+                                    FontSizeType.body,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                  )
+                                  .copyWith(letterSpacing: -0.4),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (hasSubtitle)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 1),
+                                child: Text(
+                                  subtitle!,
+                                  style: context.textStyle(
+                                    FontSizeType.caption2,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                       Expanded(
                         child: Align(

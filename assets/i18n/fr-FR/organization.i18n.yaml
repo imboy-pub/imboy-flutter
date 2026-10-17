@@ -176,6 +176,7 @@ picker:
   title: "Changer d'entreprise"
   switchEnterprise: "Changer d'entreprise"
   switchFailed: Échec du changement
+  switchFailedRecovered: "Échec du changement ; sélection précédente restaurée"
   noneSelected: "Aucune entreprise sélectionnée"
   emptyHint: "Vous n'avez encore rejoint aucune entreprise.\nTouchez « Rejoindre une entreprise » ci-dessous et saisissez le code d'invitation"
   joinEnterprise: "Rejoindre une entreprise"
@@ -186,7 +187,7 @@ picker:
   joinSubmit: "Rejoindre"
   joinInvalidCode: "Le code d'invitation de l'entreprise est invalide ou révoqué"
   joinExpiredCode: "Le code d'invitation de l'entreprise a expiré"
-  joinFailedWith: "Échec de l'adhésion : ${msg} (${code})"
+  joinFailed: "Échec de l'adhésion : ${msg}"
   joinScanQr: "Rejoindre par QR code"
   joinCodeOnlyHint: "Saisir le code d'invitation à 8 caractères"
   joinConfirmTitle: "Confirmer l'adhésion"

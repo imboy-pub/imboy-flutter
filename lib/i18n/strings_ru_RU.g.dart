@@ -2936,6 +2936,7 @@ class _Translations$organization$picker$ru_RU extends Translations$organization$
 	@override String get title => 'Переключить предприятие';
 	@override String get switchEnterprise => 'Переключить предприятие';
 	@override String get switchFailed => 'Не удалось переключиться';
+	@override String get switchFailedRecovered => 'Не удалось переключиться; предыдущий выбор восстановлен';
 	@override String get noneSelected => 'Предприятие не выбрано';
 	@override String get emptyHint => 'Вы ещё не вступили ни в одно предприятие.\nНажмите «Вступить в предприятие» ниже и введите код приглашения';
 	@override String get joinEnterprise => 'Вступить в предприятие';
@@ -2946,7 +2947,7 @@ class _Translations$organization$picker$ru_RU extends Translations$organization$
 	@override String get joinSubmit => 'Вступить';
 	@override String get joinInvalidCode => 'Код приглашения предприятия недействителен или отозван';
 	@override String get joinExpiredCode => 'Срок действия кода приглашения предприятия истёк';
-	@override String joinFailedWith({required Object msg, required Object code}) => 'Не удалось вступить: ${msg} (${code})';
+	@override String joinFailed({required Object msg}) => 'Не удалось вступить: ${msg}';
 	@override String get joinScanQr => 'Войти по QR-коду';
 	@override String get joinCodeOnlyHint => 'Введите 8-значный код приглашения';
 	@override String get joinConfirmTitle => 'Подтвердите вход';
@@ -5478,6 +5479,7 @@ extension on TranslationsRuRu {
 			'organization.picker.title' => 'Переключить предприятие',
 			'organization.picker.switchEnterprise' => 'Переключить предприятие',
 			'organization.picker.switchFailed' => 'Не удалось переключиться',
+			'organization.picker.switchFailedRecovered' => 'Не удалось переключиться; предыдущий выбор восстановлен',
 			'organization.picker.noneSelected' => 'Предприятие не выбрано',
 			'organization.picker.emptyHint' => 'Вы ещё не вступили ни в одно предприятие.\nНажмите «Вступить в предприятие» ниже и введите код приглашения',
 			'organization.picker.joinEnterprise' => 'Вступить в предприятие',
@@ -5488,7 +5490,7 @@ extension on TranslationsRuRu {
 			'organization.picker.joinSubmit' => 'Вступить',
 			'organization.picker.joinInvalidCode' => 'Код приглашения предприятия недействителен или отозван',
 			'organization.picker.joinExpiredCode' => 'Срок действия кода приглашения предприятия истёк',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => 'Не удалось вступить: ${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => 'Не удалось вступить: ${msg}',
 			'organization.picker.joinScanQr' => 'Войти по QR-коду',
 			'organization.picker.joinCodeOnlyHint' => 'Введите 8-значный код приглашения',
 			'organization.picker.joinConfirmTitle' => 'Подтвердите вход',
@@ -5816,9 +5818,9 @@ extension on TranslationsRuRu {
 			'workspace.governanceTitle' => 'Управление рабочим пространством',
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
-			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
 			'workspace.archiveConfirm' => 'Подтвердить архивацию',

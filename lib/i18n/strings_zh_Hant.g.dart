@@ -2734,12 +2734,12 @@ class Translations$organization$home$zh_Hant extends Translations$organization$h
 
 	// Translations
 	@override String get createOrg => '建立企業';
-	@override String get orgNameLabel => '組織名稱（1-200 字元）';
+	@override String get orgNameLabel => '企業名稱（1-200 字元）';
 	@override String createFailedWith({required Object msg, required Object code}) => '建立失敗：${msg} (${code})';
 	@override String get createSubmittedPendingReview => '已提交，等待營運審核，審核通過後企業可正常使用';
-	@override String get tabOrg => '組織';
+	@override String get tabOrg => '企業';
 	@override String get myInvitations => '我的邀請';
-	@override String get emptyHint => '尚未加入任何組織\n下拉重新整理或點擊右上角建立';
+	@override String get emptyHint => '尚未加入任何企業\n下拉重新整理或點擊右上角建立';
 }
 
 // Path: organization.detail
@@ -2754,17 +2754,17 @@ class Translations$organization$detail$zh_Hant extends Translations$organization
 	@override String get leaveFailed => '退出失敗';
 	@override String get leaveOwnerHint => '請先移交企業負責人，再退出企業';
 	@override String get leaveCleanupFailed => '已退出企業，但本機偏好清理失敗，請重新啟動後確認空間';
-	@override String get title => '組織詳情';
-	@override String get notFound => '組織不存在';
-	@override String get archiveOrg => '封存組織';
-	@override String get archiveConfirmBody => '封存後組織進入唯讀態，全部寫入操作 fail-closed，僅還原（restore）可解鎖。成員與資料不會被刪除。';
-	@override String get restoreOrg => '還原組織';
-	@override String get restoreConfirmBody => '還原後組織回到 active 態，寫入入口重新開放。';
+	@override String get title => '企業詳情';
+	@override String get notFound => '企業不存在';
+	@override String get archiveOrg => '封存企業';
+	@override String get archiveConfirmBody => '封存後企業進入唯讀態，全部寫入操作 fail-closed，僅還原（restore）可解鎖。成員與資料不會被刪除。';
+	@override String get restoreOrg => '還原企業';
+	@override String get restoreConfirmBody => '還原後企業回到 active 態，寫入入口重新開放。';
 	@override String get confirmRestore => '確認還原';
 	@override String get restoreFailed => '還原失敗';
 	@override String get archiveFailed => '封存失敗';
-	@override String get renameOrgTitle => '修改組織名稱';
-	@override String get renameOrgLabel => '組織名稱（1-200 字元）';
+	@override String get renameOrgTitle => '修改企業名稱';
+	@override String get renameOrgLabel => '企業名稱（1-200 字元）';
 	@override String get renameAction => '修改名稱';
 	@override String get renameFailed => '重新命名失敗';
 	@override String get deletionPreflight => '帳號刪除預檢';
@@ -2776,7 +2776,7 @@ class Translations$organization$detail$zh_Hant extends Translations$organization
 	@override String get factUnavailable => '依賴域事實不可用，刪除預檢被拒絕（fail-closed）';
 	@override String preflightFailed({required Object msg, required Object code}) => '預檢失敗：${msg} (${code})';
 	@override String myRoleAndStatus({required Object role, required Object status}) => '我的角色：${role} · 狀態：${status}';
-	@override String get archivedBadge => '組織已封存（唯讀）';
+	@override String get archivedBadge => '企業已封存（唯讀）';
 	@override String get archivedHint => '封存期間全部寫入操作被拒絕，僅還原操作可用';
 	@override String defaultWsSet({required Object id}) => '預設 Workspace：${id}';
 	@override String get defaultWsUnset => '預設 Workspace：未設定';
@@ -2806,11 +2806,11 @@ class Translations$organization$members$zh_Hant extends Translations$organizatio
 	@override String get confirmChange => '確認變更';
 	@override String get changeRoleFailed => '角色變更失敗';
 	@override String get removeMember => '移除成員';
-	@override String removeMemberBody({required Object name}) => '將「${name}」移出本組織。該操作不會刪除其帳號。';
+	@override String removeMemberBody({required Object name}) => '將「${name}」移出本企業。該操作不會刪除其帳號。';
 	@override String get confirmRemove => '確認移除';
 	@override String get removeFailed => '移除失敗';
 	@override String get transferOwner => '移轉擁有者';
-	@override String transferOwnerBody({required Object name}) => '組織有且僅有一個 owner（C04）：確認將「${name}」設為擁有者，\n你將降級為普通管理員／成員。該操作直接影響組織控制權。';
+	@override String transferOwnerBody({required Object name}) => '企業有且僅有一個 owner（C04）：確認將「${name}」設為擁有者，\n你將降級為普通管理員／成員。該操作直接影響企業控制權。';
 	@override String get confirmTransfer => '確認移轉';
 	@override String get transferFailed => '移轉失敗';
 	@override String get demoteToMember => '降級為成員';
@@ -2847,7 +2847,7 @@ class Translations$organization$invitations$zh_Hant extends Translations$organiz
 	@override String get copyToken => '複製令牌';
 	@override String inviteFailed({required Object msg, required Object code}) => '邀請失敗：${msg} (${code})';
 	@override String get acceptTitle => '接受邀請';
-	@override String acceptBody({required Object orgId}) => '接受後你將加入組織 ${orgId}；\n該邀請一次性生效，成員資格以伺服器為準。';
+	@override String acceptBody({required Object orgId}) => '接受後你將加入企業 ${orgId}；\n該邀請一次性生效，成員資格以伺服器為準。';
 	@override String get confirmAccept => '確認接受';
 	@override String get acceptFailed => '接受失敗';
 	@override String get rejectTitle => '拒絕邀請';
@@ -2863,7 +2863,7 @@ class Translations$organization$invitations$zh_Hant extends Translations$organiz
 	@override String get createInvitation => '建立邀請';
 	@override String get empty => '尚無邀請';
 	@override String get emptyRecord => '尚無邀請記錄';
-	@override String orgLine({required Object orgId}) => '組織 ${orgId}';
+	@override String orgLine({required Object orgId}) => '企業 ${orgId}';
 	@override String invitationLine({required Object invitationId}) => '邀請 ${invitationId}';
 	@override String targetLine({required Object targetUserId, required Object subtitle}) => '目標 ${targetUserId} · ${subtitle}';
 	@override String get acceptNotice => '點擊邀請即可直接接受（無需令牌）；\n接受成功後成員資格以伺服器為準。';
@@ -2882,8 +2882,8 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 	@override String get title => '部門管理';
 	@override String statusLine({required Object status}) => '狀態：${status}';
 	@override String memberUidLine({required Object userId}) => '成員 ${userId}';
-	@override String get viewForbiddenDetail => '無權查看該部門（僅限本組織在職成員）';
-	@override String get viewForbidden => '無權查看（僅限本組織在職成員）';
+	@override String get viewForbiddenDetail => '無權查看該部門（僅限本企業在職成員）';
+	@override String get viewForbidden => '無權查看（僅限本企業在職成員）';
 	@override String loadFailedWith({required Object msg, required Object code}) => '載入部門失敗：${msg} (${code})';
 	@override String loadFailed({required Object err}) => '載入部門失敗：${err}';
 	@override String get createSubHere => '在其下新增子部門';
@@ -2904,12 +2904,12 @@ class Translations$organization$departments$zh_Hant extends Translations$organiz
 	@override String get archiveFailed => '封存失敗';
 	@override String get emptyWithHint => '尚無部門，點擊右上角新增';
 	@override String get empty => '尚無部門';
-	@override String get emptySubtitle => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。';
+	@override String get emptySubtitle => '兼任模型：同一成員可屬多個部門；部門成員須先是本企業成員。';
 	@override String get casConflictHint => '部門已被並發修改，已刷新為最新部門樹，請重試操作';
 	@override String expandNode({required Object name}) => '展開「${name}」';
 	@override String collapseNode({required Object name}) => '收起「${name}」';
 	@override String removeMemberUid({required Object userId}) => '移除成員 ${userId}';
-	@override String removeMemberConfirm({required Object userId, required Object name}) => '將把成員 ${userId} 移出「${name}」。其組織成員資格與在其他部門的身份不受影響（兼任模型）。';
+	@override String removeMemberConfirm({required Object userId, required Object name}) => '將把成員 ${userId} 移出「${name}」。其企業成員資格與在其他部門的身份不受影響（兼任模型）。';
 	@override String get removeMemberFailed => '移除部門成員失敗';
 	@override String get confirmRemoveMember => '確認移除';
 	@override String setDeptAdmin({required Object userId}) => '設 ${userId} 為部門管理員';
@@ -2928,6 +2928,7 @@ class Translations$organization$picker$zh_Hant extends Translations$organization
 	@override String get title => '切換企業';
 	@override String get switchEnterprise => '切換企業';
 	@override String get switchFailed => '切換失敗';
+	@override String get switchFailedRecovered => '切換失敗，已恢復原選擇';
 	@override String get noneSelected => '未選擇企業';
 	@override String get emptyHint => '尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼';
 	@override String get joinEnterprise => '加入企業';
@@ -2938,7 +2939,7 @@ class Translations$organization$picker$zh_Hant extends Translations$organization
 	@override String get joinSubmit => '加入';
 	@override String get joinInvalidCode => '企業邀請碼無效或已失效';
 	@override String get joinExpiredCode => '企業邀請碼已過期';
-	@override String joinFailedWith({required Object msg, required Object code}) => '加入失敗：${msg} (${code})';
+	@override String joinFailed({required Object msg}) => '加入失敗：${msg}';
 	@override String get joinScanQr => '掃碼加入';
 	@override String get joinCodeOnlyHint => '輸入 8 位企業邀請碼';
 	@override String get joinConfirmTitle => '確認加入企業';
@@ -3084,7 +3085,7 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	@override String get orgNotFound => '企業不存在或你無權檢視';
 	@override String roleLine({required Object role}) => '我的角色：${role}';
 	@override String get readOnlyHint => '企業現狀唯讀；管理動作僅企業擁有者／管理員可用';
-	@override String get workspaceOwnerHint => '這裡只顯示你擁有的工作區；組織層級動作（新增工作區、設為預設）需組織擁有者／管理員。';
+	@override String get workspaceOwnerHint => '這裡只顯示你擁有的工作區；企業層級動作（新增工作區、設為預設）需企業擁有者／管理員。';
 	@override String get forbiddenTitle => '無管理權限';
 	@override String get forbiddenBody => '企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。';
 	@override String get workspaceSection => '工作區';
@@ -5322,28 +5323,28 @@ extension on TranslationsZhHant {
 			'organization.common.orgStatusPending' => '審核中',
 			'organization.common.orgStatusRejected' => '未通過審核',
 			'organization.home.createOrg' => '建立企業',
-			'organization.home.orgNameLabel' => '組織名稱（1-200 字元）',
+			'organization.home.orgNameLabel' => '企業名稱（1-200 字元）',
 			'organization.home.createFailedWith' => ({required Object msg, required Object code}) => '建立失敗：${msg} (${code})',
 			'organization.home.createSubmittedPendingReview' => '已提交，等待營運審核，審核通過後企業可正常使用',
-			'organization.home.tabOrg' => '組織',
+			'organization.home.tabOrg' => '企業',
 			'organization.home.myInvitations' => '我的邀請',
-			'organization.home.emptyHint' => '尚未加入任何組織\n下拉重新整理或點擊右上角建立',
+			'organization.home.emptyHint' => '尚未加入任何企業\n下拉重新整理或點擊右上角建立',
 			'organization.detail.leaveOrg' => '退出企業',
 			'organization.detail.leaveOrgBody' => '退出後將失去本企業的通訊錄、群、頻道及資料存取資格；企業資料會保留。重新加入需要邀請。',
 			'organization.detail.leaveFailed' => '退出失敗',
 			'organization.detail.leaveOwnerHint' => '請先移交企業負責人，再退出企業',
 			'organization.detail.leaveCleanupFailed' => '已退出企業，但本機偏好清理失敗，請重新啟動後確認空間',
-			'organization.detail.title' => '組織詳情',
-			'organization.detail.notFound' => '組織不存在',
-			'organization.detail.archiveOrg' => '封存組織',
-			'organization.detail.archiveConfirmBody' => '封存後組織進入唯讀態，全部寫入操作 fail-closed，僅還原（restore）可解鎖。成員與資料不會被刪除。',
-			'organization.detail.restoreOrg' => '還原組織',
-			'organization.detail.restoreConfirmBody' => '還原後組織回到 active 態，寫入入口重新開放。',
+			'organization.detail.title' => '企業詳情',
+			'organization.detail.notFound' => '企業不存在',
+			'organization.detail.archiveOrg' => '封存企業',
+			'organization.detail.archiveConfirmBody' => '封存後企業進入唯讀態，全部寫入操作 fail-closed，僅還原（restore）可解鎖。成員與資料不會被刪除。',
+			'organization.detail.restoreOrg' => '還原企業',
+			'organization.detail.restoreConfirmBody' => '還原後企業回到 active 態，寫入入口重新開放。',
 			'organization.detail.confirmRestore' => '確認還原',
 			'organization.detail.restoreFailed' => '還原失敗',
 			'organization.detail.archiveFailed' => '封存失敗',
-			'organization.detail.renameOrgTitle' => '修改組織名稱',
-			'organization.detail.renameOrgLabel' => '組織名稱（1-200 字元）',
+			'organization.detail.renameOrgTitle' => '修改企業名稱',
+			'organization.detail.renameOrgLabel' => '企業名稱（1-200 字元）',
 			'organization.detail.renameAction' => '修改名稱',
 			'organization.detail.renameFailed' => '重新命名失敗',
 			'organization.detail.deletionPreflight' => '帳號刪除預檢',
@@ -5355,7 +5356,7 @@ extension on TranslationsZhHant {
 			'organization.detail.factUnavailable' => '依賴域事實不可用，刪除預檢被拒絕（fail-closed）',
 			'organization.detail.preflightFailed' => ({required Object msg, required Object code}) => '預檢失敗：${msg} (${code})',
 			'organization.detail.myRoleAndStatus' => ({required Object role, required Object status}) => '我的角色：${role} · 狀態：${status}',
-			'organization.detail.archivedBadge' => '組織已封存（唯讀）',
+			'organization.detail.archivedBadge' => '企業已封存（唯讀）',
 			'organization.detail.archivedHint' => '封存期間全部寫入操作被拒絕，僅還原操作可用',
 			'organization.detail.defaultWsSet' => ({required Object id}) => '預設 Workspace：${id}',
 			'organization.detail.defaultWsUnset' => '預設 Workspace：未設定',
@@ -5376,11 +5377,11 @@ extension on TranslationsZhHant {
 			'organization.members.confirmChange' => '確認變更',
 			'organization.members.changeRoleFailed' => '角色變更失敗',
 			'organization.members.removeMember' => '移除成員',
-			'organization.members.removeMemberBody' => ({required Object name}) => '將「${name}」移出本組織。該操作不會刪除其帳號。',
+			'organization.members.removeMemberBody' => ({required Object name}) => '將「${name}」移出本企業。該操作不會刪除其帳號。',
 			'organization.members.confirmRemove' => '確認移除',
 			'organization.members.removeFailed' => '移除失敗',
 			'organization.members.transferOwner' => '移轉擁有者',
-			'organization.members.transferOwnerBody' => ({required Object name}) => '組織有且僅有一個 owner（C04）：確認將「${name}」設為擁有者，\n你將降級為普通管理員／成員。該操作直接影響組織控制權。',
+			'organization.members.transferOwnerBody' => ({required Object name}) => '企業有且僅有一個 owner（C04）：確認將「${name}」設為擁有者，\n你將降級為普通管理員／成員。該操作直接影響企業控制權。',
 			'organization.members.confirmTransfer' => '確認移轉',
 			'organization.members.transferFailed' => '移轉失敗',
 			'organization.members.demoteToMember' => '降級為成員',
@@ -5408,7 +5409,7 @@ extension on TranslationsZhHant {
 			'organization.invitations.copyToken' => '複製令牌',
 			'organization.invitations.inviteFailed' => ({required Object msg, required Object code}) => '邀請失敗：${msg} (${code})',
 			'organization.invitations.acceptTitle' => '接受邀請',
-			'organization.invitations.acceptBody' => ({required Object orgId}) => '接受後你將加入組織 ${orgId}；\n該邀請一次性生效，成員資格以伺服器為準。',
+			'organization.invitations.acceptBody' => ({required Object orgId}) => '接受後你將加入企業 ${orgId}；\n該邀請一次性生效，成員資格以伺服器為準。',
 			'organization.invitations.confirmAccept' => '確認接受',
 			'organization.invitations.acceptFailed' => '接受失敗',
 			'organization.invitations.rejectTitle' => '拒絕邀請',
@@ -5424,7 +5425,7 @@ extension on TranslationsZhHant {
 			'organization.invitations.createInvitation' => '建立邀請',
 			'organization.invitations.empty' => '尚無邀請',
 			'organization.invitations.emptyRecord' => '尚無邀請記錄',
-			'organization.invitations.orgLine' => ({required Object orgId}) => '組織 ${orgId}',
+			'organization.invitations.orgLine' => ({required Object orgId}) => '企業 ${orgId}',
 			'organization.invitations.invitationLine' => ({required Object invitationId}) => '邀請 ${invitationId}',
 			'organization.invitations.targetLine' => ({required Object targetUserId, required Object subtitle}) => '目標 ${targetUserId} · ${subtitle}',
 			'organization.invitations.acceptNotice' => '點擊邀請即可直接接受（無需令牌）；\n接受成功後成員資格以伺服器為準。',
@@ -5434,8 +5435,8 @@ extension on TranslationsZhHant {
 			'organization.departments.title' => '部門管理',
 			'organization.departments.statusLine' => ({required Object status}) => '狀態：${status}',
 			'organization.departments.memberUidLine' => ({required Object userId}) => '成員 ${userId}',
-			'organization.departments.viewForbiddenDetail' => '無權查看該部門（僅限本組織在職成員）',
-			'organization.departments.viewForbidden' => '無權查看（僅限本組織在職成員）',
+			'organization.departments.viewForbiddenDetail' => '無權查看該部門（僅限本企業在職成員）',
+			'organization.departments.viewForbidden' => '無權查看（僅限本企業在職成員）',
 			'organization.departments.loadFailedWith' => ({required Object msg, required Object code}) => '載入部門失敗：${msg} (${code})',
 			'organization.departments.loadFailed' => ({required Object err}) => '載入部門失敗：${err}',
 			'organization.departments.createSubHere' => '在其下新增子部門',
@@ -5456,12 +5457,12 @@ extension on TranslationsZhHant {
 			'organization.departments.archiveFailed' => '封存失敗',
 			'organization.departments.emptyWithHint' => '尚無部門，點擊右上角新增',
 			'organization.departments.empty' => '尚無部門',
-			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本組織成員。',
+			'organization.departments.emptySubtitle' => '兼任模型：同一成員可屬多個部門；部門成員須先是本企業成員。',
 			'organization.departments.casConflictHint' => '部門已被並發修改，已刷新為最新部門樹，請重試操作',
 			'organization.departments.expandNode' => ({required Object name}) => '展開「${name}」',
 			'organization.departments.collapseNode' => ({required Object name}) => '收起「${name}」',
 			'organization.departments.removeMemberUid' => ({required Object userId}) => '移除成員 ${userId}',
-			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '將把成員 ${userId} 移出「${name}」。其組織成員資格與在其他部門的身份不受影響（兼任模型）。',
+			'organization.departments.removeMemberConfirm' => ({required Object userId, required Object name}) => '將把成員 ${userId} 移出「${name}」。其企業成員資格與在其他部門的身份不受影響（兼任模型）。',
 			'organization.departments.removeMemberFailed' => '移除部門成員失敗',
 			'organization.departments.confirmRemoveMember' => '確認移除',
 			'organization.departments.setDeptAdmin' => ({required Object userId}) => '設 ${userId} 為部門管理員',
@@ -5471,6 +5472,7 @@ extension on TranslationsZhHant {
 			'organization.picker.title' => '切換企業',
 			'organization.picker.switchEnterprise' => '切換企業',
 			'organization.picker.switchFailed' => '切換失敗',
+			'organization.picker.switchFailedRecovered' => '切換失敗，已恢復原選擇',
 			'organization.picker.noneSelected' => '未選擇企業',
 			'organization.picker.emptyHint' => '尚未加入任何企業\n點擊下方「加入企業」輸入企業邀請碼',
 			'organization.picker.joinEnterprise' => '加入企業',
@@ -5481,7 +5483,7 @@ extension on TranslationsZhHant {
 			'organization.picker.joinSubmit' => '加入',
 			'organization.picker.joinInvalidCode' => '企業邀請碼無效或已失效',
 			'organization.picker.joinExpiredCode' => '企業邀請碼已過期',
-			'organization.picker.joinFailedWith' => ({required Object msg, required Object code}) => '加入失敗：${msg} (${code})',
+			'organization.picker.joinFailed' => ({required Object msg}) => '加入失敗：${msg}',
 			'organization.picker.joinScanQr' => '掃碼加入',
 			'organization.picker.joinCodeOnlyHint' => '輸入 8 位企業邀請碼',
 			'organization.picker.joinConfirmTitle' => '確認加入企業',
@@ -5582,7 +5584,7 @@ extension on TranslationsZhHant {
 			'organization.manage.orgNotFound' => '企業不存在或你無權檢視',
 			'organization.manage.roleLine' => ({required Object role}) => '我的角色：${role}',
 			'organization.manage.readOnlyHint' => '企業現狀唯讀；管理動作僅企業擁有者／管理員可用',
-			'organization.manage.workspaceOwnerHint' => '這裡只顯示你擁有的工作區；組織層級動作（新增工作區、設為預設）需組織擁有者／管理員。',
+			'organization.manage.workspaceOwnerHint' => '這裡只顯示你擁有的工作區；企業層級動作（新增工作區、設為預設）需企業擁有者／管理員。',
 			'organization.manage.forbiddenTitle' => '無管理權限',
 			'organization.manage.forbiddenBody' => '企業管理僅對企業擁有者與管理員開放；需要時請聯絡管理員調整你的角色。',
 			'organization.manage.workspaceSection' => '工作區',
@@ -5808,9 +5810,9 @@ extension on TranslationsZhHant {
 			'workspace.transferConfirm' => '確認轉移',
 			'workspace.governanceTitle' => '工作區治理',
 			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
-			'workspace.archiveEntry' => '封存工作區',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archiveEntry' => '封存工作區',
 			'workspace.restoreEntry' => '還原工作區',
 			'workspace.archiveTitle' => '封存工作區',
 			'workspace.archiveDesc' => '封存後全員唯讀（寫入操作會被伺服器端拒絕），可隨時還原',

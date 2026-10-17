@@ -131,6 +131,24 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(name: 'group_list', location: '/group/list'),
   const SmokeRoute(name: 'group_discovery', location: '/group/discover'),
   const SmokeRoute(name: 'group_detail', location: '/group/detail/2001'),
+  // 0017 群资料编辑页：builder 对 extra 做 `as GroupModel` 强转，
+  // 注册表须提供与生产群详情信息卡同构的最小实例。
+  SmokeRoute(
+    name: 'group_change_info',
+    location: '/group/change-info',
+    extra: GroupModel(
+      groupId: 2001,
+      type: 2,
+      joinLimit: 1,
+      contentLimit: 1,
+      ownerUid: 0,
+      creatorUid: 0,
+      memberMax: 0,
+      memberCount: 0,
+      title: 'smoke-change-info',
+      createdAt: 0,
+    ),
+  ),
   const SmokeRoute(name: 'group_member', location: '/group/member'),
   const SmokeRoute(
     name: 'group_member_detail',

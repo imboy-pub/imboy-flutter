@@ -27,6 +27,9 @@ import 'channel_detail_rules.dart';
 import 'channel_share_payload.dart';
 import 'channel_provider.dart';
 import 'widgets/channel_header_bar.dart';
+
+import 'package:imboy/theme/default/app_spacing.dart';
+
 import 'widgets/channel_discussion_entry.dart';
 import 'widgets/channel_message_feed.dart';
 import 'widgets/channel_publish_bar.dart';
@@ -160,58 +163,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     return Scaffold(
       backgroundColor: scaffoldBgColor, // 设置背景色以拉开层次
       appBar: GlassAppBar(
-        titleWidget: channel != null
-            ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      channel.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: FontSizeType.large.size,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (channel.isManaged) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color:
-                            (channel.userRole == ChannelUserRole.creator
-                                    ? AppColors.primary
-                                    : channel.userRole == ChannelUserRole.admin
-                                    ? AppColors.iosOrange
-                                    : AppColors.iosBlue)
-                                .withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        channel.userRole == ChannelUserRole.creator
-                            ? t.channel.creator
-                            : channel.userRole == ChannelUserRole.admin
-                            ? t.channel.admin
-                            : t.channel.editor,
-                        style: TextStyle(
-                          fontSize: FontSizeType.tiny.size,
-                          fontWeight: FontWeight.bold,
-                          color: channel.userRole == ChannelUserRole.creator
-                              ? AppColors.primary
-                              : channel.userRole == ChannelUserRole.admin
-                              ? AppColors.iosOrange
-                              : AppColors.iosBlue,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              )
-            : null,
         title: channel?.name ?? t.channel.loading,
         automaticallyImplyLeading: true,
         rightDMActions: _buildAppBarActions(channel),
@@ -492,41 +443,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     );
   }
 
-  // ---- 删除对话框 ----
-
-  void _showDeleteChannelDialog(ChannelModel channel) {
-    final t = context.t;
-    showCupertinoDialog<void>(
-      context: context,
-      builder: (dialogContext) => CupertinoAlertDialog(
-        title: Text(t.channel.deleteChannel),
-        content: Text(t.channel.deleteChannelConfirm),
-        actions: [
-          CupertinoDialogAction(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: Text(t.common.cancel),
-          ),
-          CupertinoDialogAction(
-            onPressed: () async {
-              Navigator.pop(dialogContext);
-              final success = await _channelService.deleteChannel(
-                channel.id.toString(),
-              );
-              if (success && mounted) {
-                AppLoading.showToast(t.channel.channelDeleted);
-                context.pop();
-              } else if (mounted) {
-                AppLoading.showToast(t.channel.deleteChannelFailed);
-              }
-            },
-            isDestructiveAction: true,
-            child: Text(t.common.confirm),
-          ),
-        ],
-      ),
-    );
-  }
-
   // ---- 订阅/退订（头部按钮入口）----
 
   /// 防重入：快速双击"已订阅"会在首个 dialog route push 完成前二次进入，
@@ -646,9 +562,6 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       case 'manage_admins':
         context.push('/channel/$channelId/admins');
         break;
-      case 'delete_channel':
-        if (channel != null) _showDeleteChannelDialog(channel);
-        break;
       case 'manage_subscribers':
         final invitationEnabled = AppFeatureRegistry.isEnabled(
           FeatureKeys.channelInvitation,
@@ -702,7 +615,19 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
               descText,
               style: TextStyle(fontSize: FontSizeType.subheadline.size),
             ),
-            const SizedBox(height: 16),
+            if (channel.tags?.isNotEmpty ?? false) ...[
+              AppSpacing.verticalSmall,
+              Text(
+                channel.tags!.map((tag) => '#$tag').join(' · '),
+                style: context.textStyle(FontSizeType.small),
+              ),
+            ],
+            AppSpacing.verticalSmall,
+            Text(
+              '${context.t.channel.privacyTitle} · ${context.t.channel.privacyDesc}',
+              style: context.textStyle(FontSizeType.small),
+            ),
+            AppSpacing.verticalRegular,
             Text(
               '${context.t.channel.subscribers}: $subscriberCount',
               style: TextStyle(
