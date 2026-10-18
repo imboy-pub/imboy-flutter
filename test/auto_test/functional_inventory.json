@@ -6,8 +6,8 @@
     "ledger_row_count": 1874,
     "lib_page_count": 167,
     "module_page_count": 24,
-    "route_page_component_count": 149,
-    "function_count": 2022,
+    "route_page_component_count": 150,
+    "function_count": 2020,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -10710,8 +10710,8 @@
     {
       "function_id": "fn:group:change_info_page:001",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "进页回填群名并自动聚焦输入",
@@ -10733,8 +10733,8 @@
     {
       "function_id": "fn:group:change_info_page:002",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "输入群名实时同步到状态",
@@ -10756,8 +10756,8 @@
     {
       "function_id": "fn:group:change_info_page:003",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "点清除图标一键清空输入",
@@ -10779,8 +10779,8 @@
     {
       "function_id": "fn:group:change_info_page:004",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "完成按钮随内容变更切换高亮",
@@ -10802,8 +10802,8 @@
     {
       "function_id": "fn:group:change_info_page:005",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "展示群头像合成九宫格图",
@@ -10825,8 +10825,8 @@
     {
       "function_id": "fn:group:change_info_page:006",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "展示副标题输入引导文案",
@@ -10848,8 +10848,8 @@
     {
       "function_id": "fn:group:change_info_page:007",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "点返回不保存直接退出页面",
@@ -10871,8 +10871,8 @@
     {
       "function_id": "fn:group:change_info_page:008",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "群名输入超 80 字被截断",
@@ -10894,8 +10894,8 @@
     {
       "function_id": "fn:group:change_info_page:009",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "空群名时占位显示「未命名」",
@@ -10917,8 +10917,8 @@
     {
       "function_id": "fn:group:change_info_page:010",
       "page": "lib/page/group/group_detail/change_info_page.dart",
-      "route_or_entry": "in_page_control",
-      "route_registered": false,
+      "route_or_entry": "ChangeInfoPage",
+      "route_registered": true,
       "source": "test/auto_test/group/change_info_page.md",
       "control": "unknown",
       "action": "保存群名成功提示并回传",
@@ -29090,8 +29090,8 @@
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
       "source": "generated:module_page",
-      "control": "menu_item",
-      "action": "触发第 6 处 menu_item 交互入口",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -29136,8 +29136,8 @@
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
       "source": "generated:module_page",
-      "control": "menu_item",
-      "action": "触发第 8 处 menu_item 交互入口",
+      "control": "button",
+      "action": "触发第 8 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -29207,52 +29207,6 @@
       "source": "generated:module_page",
       "control": "button",
       "action": "触发第 11 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
-      "platforms": [
-        "android",
-        "macos"
-      ],
-      "requirements": [
-        "device.android",
-        "device.macos"
-      ],
-      "fixture": "pending:authorized-isolated",
-      "test_target": null,
-      "disposition": "required",
-      "exclusion_code": null
-    },
-    {
-      "function_id": "fn:organization:organization_picker_page:012",
-      "page": "lib/modules/organization/presentation/organization_picker_page.dart",
-      "route_or_entry": "OrganizationPickerPage",
-      "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 12 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
-      "platforms": [
-        "android",
-        "macos"
-      ],
-      "requirements": [
-        "device.android",
-        "device.macos"
-      ],
-      "fixture": "pending:authorized-isolated",
-      "test_target": null,
-      "disposition": "required",
-      "exclusion_code": null
-    },
-    {
-      "function_id": "fn:organization:organization_picker_page:013",
-      "page": "lib/modules/organization/presentation/organization_picker_page.dart",
-      "route_or_entry": "OrganizationPickerPage",
-      "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 13 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -46699,7 +46653,7 @@
     {
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "module": "organization",
-      "function_count": 13,
+      "function_count": 11,
       "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
@@ -47108,7 +47062,7 @@
       "page": "lib/page/group/group_detail/change_info_page.dart",
       "module": "group",
       "function_count": 10,
-      "route_registered": false,
+      "route_registered": true,
       "has_ledger": true,
       "ledger_generated": false
     },

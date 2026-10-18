@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "3e4f77d6ec2c72bc25d51d21104d4f011fbfb000",
-    "backend_head": "3f6507012a797b5b3343fa66210f48475daeed2e",
+    "app_head": "99bd9afb49b1560e38af255efbd6b6f58975760e",
+    "backend_head": "f3ca4fbf16c01094ab126e8ed3b34597e16e6582",
     "integration_test_count": 160,
     "lib_page_count": 167,
     "module_page_count": 24,
-    "route_page_component_count": 149,
+    "route_page_component_count": 150,
     "spec_count": 28
   },
   "entries": [
@@ -3261,7 +3261,7 @@
       "page": "lib/page/group/group_detail/change_info_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
-      "route_registered": false,
+      "route_registered": true,
       "in_spec_sources": false,
       "excluded": false,
       "exclusion_code": null,
