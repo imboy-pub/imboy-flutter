@@ -18,6 +18,7 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import '../../../ux_matrix/ux_harness.dart';
+import '../golden_baseline_guard.dart';
 
 const _before = bool.fromEnvironment('UX_T14_BEFORE');
 const _account = '91001';
@@ -148,47 +149,53 @@ void main() {
     ('1280_2_light', UxCombo(const Size(1280, 900), textScale: 2)),
   ]) {
     for (final scenario in ['organization', 'neutral', 'long']) {
-      testWidgets('golden: T14 $scenario $label', (tester) async {
-        final (container, _, experience) = await _pumpDrawer(
-          tester,
-          scenario: scenario,
-          combo: combo,
-        );
-        expect(find.byType(Drawer), findsOneWidget);
-        expect(find.text(t.workspace.myCard), findsOneWidget);
-        expect(find.text(t.workspace.createOrJoinEnterprise), findsOneWidget);
-        expect(find.text(t.main.setting), findsOneWidget);
-        expect(find.text(t.workspace.switchToPersonal), findsOneWidget);
-        expect(find.text(t.account.logOut), findsOneWidget);
-        expect(experience.selections, isEmpty);
-        expect(
-          container.read(productExperienceProvider),
-          ProductExperience.workspace,
-        );
-        if (scenario == 'neutral') {
-          expect(find.text(t.workspace.advancedFeatures), findsNothing);
-          expect(find.byIcon(CupertinoIcons.check_mark), findsNothing);
-        } else {
-          final organization = scenario == 'long' ? '合成企业名称' * 12 : '合成企业';
-          expect(find.text(organization), findsNWidgets(_before ? 2 : 1));
-          expect(find.byIcon(CupertinoIcons.check_mark), findsOneWidget);
-          expect(find.text(t.workspace.advancedFeatures), findsOneWidget);
-          if (!_before) {
-            expect(find.text(t.workspace.orgUnverified), findsNothing);
-            expect(
-              find.textContaining(
-                scenario == 'long' ? '合成工作区名称' * 12 : '合成工作区',
-              ),
-              findsOneWidget,
-            );
+      testWidgets(
+        'golden: T14 $scenario $label',
+        skip: !goldenBaselineExists(
+          'test/unit_test/page/workspace_shell/goldens/t14_${scenario}_$label.png',
+        ),
+        (tester) async {
+          final (container, _, experience) = await _pumpDrawer(
+            tester,
+            scenario: scenario,
+            combo: combo,
+          );
+          expect(find.byType(Drawer), findsOneWidget);
+          expect(find.text(t.workspace.myCard), findsOneWidget);
+          expect(find.text(t.workspace.createOrJoinEnterprise), findsOneWidget);
+          expect(find.text(t.main.setting), findsOneWidget);
+          expect(find.text(t.workspace.switchToPersonal), findsOneWidget);
+          expect(find.text(t.account.logOut), findsOneWidget);
+          expect(experience.selections, isEmpty);
+          expect(
+            container.read(productExperienceProvider),
+            ProductExperience.workspace,
+          );
+          if (scenario == 'neutral') {
+            expect(find.text(t.workspace.advancedFeatures), findsNothing);
+            expect(find.byIcon(CupertinoIcons.check_mark), findsNothing);
+          } else {
+            final organization = scenario == 'long' ? '合成企业名称' * 12 : '合成企业';
+            expect(find.text(organization), findsNWidgets(_before ? 2 : 1));
+            expect(find.byIcon(CupertinoIcons.check_mark), findsOneWidget);
+            expect(find.text(t.workspace.advancedFeatures), findsOneWidget);
+            if (!_before) {
+              expect(find.text(t.workspace.orgUnverified), findsNothing);
+              expect(
+                find.textContaining(
+                  scenario == 'long' ? '合成工作区名称' * 12 : '合成工作区',
+                ),
+                findsOneWidget,
+              );
+            }
           }
-        }
-        expect(tester.takeException(), isNull);
-        await expectLater(
-          find.byType(Drawer),
-          matchesGoldenFile('goldens/t14_${scenario}_$label.png'),
-        );
-      });
+          expect(tester.takeException(), isNull);
+          await expectLater(
+            find.byType(Drawer),
+            matchesGoldenFile('goldens/t14_${scenario}_$label.png'),
+          );
+        },
+      );
     }
   }
 

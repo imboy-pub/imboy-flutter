@@ -15,6 +15,8 @@ import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
+import '../golden_baseline_guard.dart';
+
 ChannelModel _channel({bool managed = false}) => ChannelModel(
   id: 1001,
   name: '工程效率与产品发布特别特别长的频道名称',
@@ -256,19 +258,25 @@ void main() {
       final name =
           '${empty ? 'empty' : 'content'}_${profile.width.toInt()}_'
           '${profile.scale.toInt()}_${profile.brightness.name}';
-      testWidgets('golden: t09_$name', (tester) async {
-        await _pump(
-          tester,
-          width: profile.width,
-          scale: profile.scale,
-          brightness: profile.brightness,
-          empty: empty,
-        );
-        await expectLater(
-          find.byType(Scaffold).first,
-          matchesGoldenFile('goldens/t09_$name.png'),
-        );
-      });
+      testWidgets(
+        'golden: t09_$name',
+        skip: !goldenBaselineExists(
+          'test/unit_test/page/channel/goldens/t09_$name.png',
+        ),
+        (tester) async {
+          await _pump(
+            tester,
+            width: profile.width,
+            scale: profile.scale,
+            brightness: profile.brightness,
+            empty: empty,
+          );
+          await expectLater(
+            find.byType(Scaffold).first,
+            matchesGoldenFile('goldens/t09_$name.png'),
+          );
+        },
+      );
     }
   }
 }

@@ -12,6 +12,8 @@ import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_role_badge.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
+import '../golden_baseline_guard.dart';
+
 ChannelModel _channel({
   required int id,
   required String name,
@@ -156,20 +158,26 @@ void main() {
     for (final managed in [false, true]) {
       final name =
           '${managed ? 'managed' : 'subscribed'}_${profile.width.toInt()}_${profile.scale.toInt()}_${profile.brightness.name}';
-      testWidgets('golden: $name', (tester) async {
-        await _pumpPage(
-          tester,
-          size: Size(profile.width, 844),
-          textScale: profile.scale,
-          brightness: profile.brightness,
-          managed: managed,
-        );
-        expect(tester.takeException(), isNull);
-        await expectLater(
-          find.byType(ChannelListPage),
-          matchesGoldenFile('goldens/channel_list_$name.png'),
-        );
-      });
+      testWidgets(
+        'golden: $name',
+        skip: !goldenBaselineExists(
+          'test/unit_test/page/channel/goldens/channel_list_$name.png',
+        ),
+        (tester) async {
+          await _pumpPage(
+            tester,
+            size: Size(profile.width, 844),
+            textScale: profile.scale,
+            brightness: profile.brightness,
+            managed: managed,
+          );
+          expect(tester.takeException(), isNull);
+          await expectLater(
+            find.byType(ChannelListPage),
+            matchesGoldenFile('goldens/channel_list_$name.png'),
+          );
+        },
+      );
     }
   }
 

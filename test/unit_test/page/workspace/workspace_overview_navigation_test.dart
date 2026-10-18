@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/project/project_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
@@ -18,6 +19,12 @@ void main() {
     'groups': WorkspaceGroupsPage,
     'channels': WorkspaceChannelsPage,
   }.entries) {
+    // project 受编译期产品清单门禁（phase1_delivery 未编译）：
+    // 快照为 true 也不渲染概览入口，清单编译进该特性时才可直达。
+    if (entry.key == 'projects' &&
+        !compiledProductFeatures.contains('project')) {
+      continue;
+    }
     testWidgets('概览 ${entry.key} 入口直接打开资源页，可返回，不依赖旧五项导航', (tester) async {
       AppFeatureRegistry.replaceSnapshotForTest({'project': true});
       addTearDown(() => AppFeatureRegistry.replaceSnapshotForTest({}));

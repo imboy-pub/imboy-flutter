@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/service/storage.dart';
@@ -85,8 +86,11 @@ void main() {
     await _pumpWelcome(tester);
     await tester.tap(find.text('下一步'));
     await tester.pumpAndSettle();
-    expect(find.text('安全私密'), findsOneWidget);
-    expect(find.bySemanticsLabel('2/3'), findsOneWidget);
+    // 加密宣传步骤受编译期产品清单门禁（phase1_delivery 关闭 e2ee）：
+    // e2ee 未编译时快照即便为 true 也不得展示；编译进清单时保留该步骤。
+    final e2eeCompiled = compiledProductFeatures.contains('e2ee');
+    expect(find.text('安全私密'), e2eeCompiled ? findsOneWidget : findsNothing);
+    expect(find.bySemanticsLabel(e2eeCompiled ? '2/3' : '2/2'), findsOneWidget);
   });
   group('WelcomePage brand anchors', () {
     testWidgets('renders top brand logo (28×28) + "ImBoy" wordmark', (

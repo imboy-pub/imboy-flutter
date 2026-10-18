@@ -508,7 +508,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('工作台').last);
     await tester.pumpAndSettle();
-    expect(find.text('合成办公 10'), findsOneWidget);
+    // UX 重构（a6f6aaa40）后工作台不再按 entry 渲染应用磁贴；
+    // entries 被消费的可见结果 = 工作台页就绪。
+    expect(find.byType(EnterpriseWorkbenchPage), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
     api.resetPending();
@@ -675,7 +677,7 @@ void main() {
     expect(find.byType(OaTabPage), findsNothing);
     await tester.tap(find.text('工作台'));
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('合成办公 10'), findsOneWidget);
+    expect(find.byType(EnterpriseWorkbenchPage), findsOneWidget);
     expect(find.byType(OaTabPage), findsNothing);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -700,7 +702,9 @@ void main() {
     await tester.pump();
     await tester.tap(find.text('工作台'));
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('合成办公 10'), findsOneWidget);
+    // 发现键只绑 accountKey，切企业后由最新请求结果驱动；应用磁贴已随
+    // UX 重构移除，工作台页就绪即代表 entries 消费完成。
+    expect(find.byType(EnterpriseWorkbenchPage), findsOneWidget);
     expect(find.text('合成办公 20'), findsNothing);
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -792,7 +796,9 @@ void main() {
     await tester.tap(find.text('工作台'));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('workbench-apps-entry')), findsOneWidget);
-    expect(find.text('https://imboy.pub/test_oa.html'), findsOneWidget);
+    // 联调入口以 i18n 文案渲染，appsUrl 仅在点击后的 WebView 装配
+    // （_openApps），装配契约由 web_view 相关测试覆盖。
+    expect(find.text(t.enterpriseOa.apps), findsOneWidget);
     for (final (path, reason) in [
       ('/workspace/100/projects/200', RouteBlockReason.featureFlag),
       ('/channel/discover', RouteBlockReason.featureFlag),
