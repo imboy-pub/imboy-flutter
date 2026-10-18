@@ -53,8 +53,10 @@ release.mkdir(parents=True)
                     (destination / f'libvodozemac_bindings_dart.{suffix}').read_text(),
                     'synthetic-library',
                 )
+                # 脚本经 git rev-parse/show-toplevel 输出真实路径；macOS 的
+                # /var 是 /private/var 别名，须按 resolve 后比较。
                 self.assertEqual(env_file.read_text(),
-                                 f'FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR={destination}/\n')
+                                 f'FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR={destination.resolve()}/\n')
 
 
 if __name__ == '__main__':
