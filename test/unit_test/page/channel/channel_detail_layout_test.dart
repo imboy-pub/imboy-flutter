@@ -15,7 +15,7 @@ import 'package:imboy/service/voice_playback_service.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
-import '../golden_baseline_guard.dart';
+import '../../../golden_baseline_guard.dart';
 
 ChannelModel _channel({bool managed = false}) => ChannelModel(
   id: 1001,

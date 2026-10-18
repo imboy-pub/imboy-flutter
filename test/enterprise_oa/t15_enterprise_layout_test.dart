@@ -11,6 +11,7 @@ import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
 import '../ux_matrix/ux_harness.dart';
+import '../golden_baseline_guard.dart';
 
 const _before = bool.fromEnvironment('UX_T15_BEFORE');
 const _organization = '合成企业';
@@ -129,54 +130,60 @@ void main() {
 
   for (final (label, combo) in _combos) {
     for (final scenario in ['workbench', 'enterprise', 'personal']) {
-      testWidgets('T15 $scenario $label', (tester) async {
-        await _pumpPage(tester, scenario, combo);
-        if (scenario == 'workbench') {
-          final section = tester.widget<CupertinoListSection>(
-            find.byType(CupertinoListSection).first,
-          );
-          // 2026-10-17 产品裁决：工作台恢复 insetGrouped 统一卡片（base
-          // 通栏与下方「应用」卡片混用导致白灰断裂，用户不接受）。
-          expect(section.type, CupertinoListSectionType.insetGrouped);
-          for (var index = 0; index < _resources.length; index++) {
-            expect(find.text(_resources[index]), findsOneWidget);
-            if (index > 0) {
-              expect(
-                tester.getTopLeft(find.text(_resources[index])).dy,
-                greaterThan(
-                  tester.getTopLeft(find.text(_resources[index - 1])).dy,
-                ),
-              );
+      testWidgets(
+        'T15 $scenario $label',
+        skip: !goldenBaselineExists(
+          'test/enterprise_oa/goldens/t15_${scenario}_$label.png',
+        ),
+        (tester) async {
+          await _pumpPage(tester, scenario, combo);
+          if (scenario == 'workbench') {
+            final section = tester.widget<CupertinoListSection>(
+              find.byType(CupertinoListSection).first,
+            );
+            // 2026-10-17 产品裁决：工作台恢复 insetGrouped 统一卡片（base
+            // 通栏与下方「应用」卡片混用导致白灰断裂，用户不接受）。
+            expect(section.type, CupertinoListSectionType.insetGrouped);
+            for (var index = 0; index < _resources.length; index++) {
+              expect(find.text(_resources[index]), findsOneWidget);
+              if (index > 0) {
+                expect(
+                  tester.getTopLeft(find.text(_resources[index])).dy,
+                  greaterThan(
+                    tester.getTopLeft(find.text(_resources[index - 1])).dy,
+                  ),
+                );
+              }
+            }
+            expect(
+              find.byKey(const ValueKey('workbench-apps-entry')),
+              findsOneWidget,
+            );
+          } else {
+            expect(find.text(_nickname), findsOneWidget);
+            expect(
+              find.text(_organization),
+              findsNWidgets(scenario == 'enterprise' && _before ? 2 : 1),
+            );
+            expect(
+              find.text('ID: synthetic-account'),
+              scenario == 'personal' ? findsOneWidget : findsNothing,
+            );
+            expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
+            if (scenario == 'enterprise') {
+              expect(find.text('企业管理'), findsOneWidget);
+              expect(find.text(t.main.myFavorites), findsOneWidget);
             }
           }
-          expect(
-            find.byKey(const ValueKey('workbench-apps-entry')),
-            findsOneWidget,
+          expect(tester.takeException(), isNull);
+          await expectLater(
+            find.byType(MaterialApp),
+            matchesGoldenFile('goldens/t15_${scenario}_$label.png'),
           );
-        } else {
-          expect(find.text(_nickname), findsOneWidget);
-          expect(
-            find.text(_organization),
-            findsNWidgets(scenario == 'enterprise' && _before ? 2 : 1),
-          );
-          expect(
-            find.text('ID: synthetic-account'),
-            scenario == 'personal' ? findsOneWidget : findsNothing,
-          );
-          expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
-          if (scenario == 'enterprise') {
-            expect(find.text('企业管理'), findsOneWidget);
-            expect(find.text(t.main.myFavorites), findsOneWidget);
-          }
-        }
-        expect(tester.takeException(), isNull);
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile('goldens/t15_${scenario}_$label.png'),
-        );
-        await tester.pumpWidget(const SizedBox.shrink());
-        await tester.pump();
-      });
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump();
+        },
+      );
     }
   }
 

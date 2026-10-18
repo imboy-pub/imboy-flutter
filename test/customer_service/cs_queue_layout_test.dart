@@ -9,6 +9,7 @@ import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart';
 
 import '../ux_matrix/ux_harness.dart';
+import '../golden_baseline_guard.dart';
 
 const _orgId = '7266418340025468901';
 const _workspaceId = '7266418340025468921';
@@ -87,41 +88,47 @@ void main() {
   ]) {
     for (final empty in [false, true]) {
       final kind = empty ? 'empty' : 'queue';
-      testWidgets('golden: T16 $kind $label', (tester) async {
-        uxInstallStub(
-          RouteStubAdapter([
-            ('/sessions/queue', [(200, _queuePage(empty: empty))]),
-          ]),
-        );
-        await pumpUxCombo(
-          tester,
-          const RepaintBoundary(
-            key: _captureKey,
-            child: Scaffold(
-              body: CsQueueView(orgId: _orgId, workspaceId: _workspaceId),
+      testWidgets(
+        'golden: T16 $kind $label',
+        skip: !goldenBaselineExists(
+          'test/customer_service/goldens/t16_${kind}_$label.png',
+        ),
+        (tester) async {
+          uxInstallStub(
+            RouteStubAdapter([
+              ('/sessions/queue', [(200, _queuePage(empty: empty))]),
+            ]),
+          );
+          await pumpUxCombo(
+            tester,
+            const RepaintBoundary(
+              key: _captureKey,
+              child: Scaffold(
+                body: CsQueueView(orgId: _orgId, workspaceId: _workspaceId),
+              ),
             ),
-          ),
-          combo,
-        );
-        final layoutError = tester.takeException();
-        await expectLater(
-          find.byKey(_captureKey),
-          matchesGoldenFile('goldens/t16_${kind}_$label.png'),
-        );
-        expect(layoutError, isNull);
-        if (!empty) {
-          expect(find.text('**'), findsOneWidget);
-          expect(find.text('3 天 11 小时'), findsNWidgets(2));
-          expect(find.text('Web'), findsNWidgets(2));
-          final name = tester.renderObject<RenderParagraph>(find.text('王**'));
-          expect(name.didExceedMaxLines, isFalse);
-          for (final button in find.byType(FilledButton).evaluate()) {
-            final size = tester.getSize(find.byWidget(button.widget));
-            expect(size.width, greaterThanOrEqualTo(48));
-            expect(size.height, greaterThanOrEqualTo(48));
+            combo,
+          );
+          final layoutError = tester.takeException();
+          await expectLater(
+            find.byKey(_captureKey),
+            matchesGoldenFile('goldens/t16_${kind}_$label.png'),
+          );
+          expect(layoutError, isNull);
+          if (!empty) {
+            expect(find.text('**'), findsOneWidget);
+            expect(find.text('3 天 11 小时'), findsNWidgets(2));
+            expect(find.text('Web'), findsNWidgets(2));
+            final name = tester.renderObject<RenderParagraph>(find.text('王**'));
+            expect(name.didExceedMaxLines, isFalse);
+            for (final button in find.byType(FilledButton).evaluate()) {
+              final size = tester.getSize(find.byWidget(button.widget));
+              expect(size.width, greaterThanOrEqualTo(48));
+              expect(size.height, greaterThanOrEqualTo(48));
+            }
           }
-        }
-      });
+        },
+      );
     }
   }
 

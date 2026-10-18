@@ -18,7 +18,7 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import '../../../ux_matrix/ux_harness.dart';
-import '../golden_baseline_guard.dart';
+import '../../../golden_baseline_guard.dart';
 
 const _before = bool.fromEnvironment('UX_T14_BEFORE');
 const _account = '91001';

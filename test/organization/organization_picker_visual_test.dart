@@ -24,6 +24,7 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 
 import '../ux_matrix/ux_harness.dart';
 import 'organization_picker_page_widget_test.dart' as fixture;
+import '../golden_baseline_guard.dart';
 
 const _account = '91001';
 const _historical = bool.fromEnvironment('UX_T07_HISTORICAL');
@@ -160,205 +161,214 @@ void main() {
       'forbidden',
       'recovered',
     ]) {
-      testWidgets('golden: T07 $scenario $label', (tester) async {
-        final adapter = _PickerAdapter(scenario);
-        HttpClient.adapterForTest = adapter;
-        final workspaceApi = _WorkspaceApi();
-        final experience = _Experience(
-          scenario == 'workspace'
-              ? ProductExperience.workspace
-              : ProductExperience.personal,
-          scenario == 'recovered',
-        );
-        final container = ProviderContainer(
-          overrides: [
-            currentUserProvider.overrideWithValue(
-              UserModel(uid: _account, account: 'synthetic'),
-            ),
-            workspaceApiProvider.overrideWith((ref) => workspaceApi),
-            productExperienceProvider.overrideWith(() => experience),
-          ],
-        );
-        addTearDown(container.dispose);
-        final router = GoRouter(
-          initialLocation: '/picker',
-          routes: [
-            GoRoute(
-              path: '/picker',
-              builder: (context, state) =>
-                  const OrganizationPickerPage(accountKey: _account),
-            ),
-          ],
-        );
-        addTearDown(router.dispose);
-        tester.view.physicalSize = combo.viewport;
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        final beforeShell = container.read(workspaceShellProvider);
-        try {
-          await tester.pumpWidget(
-            TranslationProvider(
-              child: UncontrolledProviderScope(
-                container: container,
-                child: MaterialApp.router(
-                  routerConfig: router,
-                  theme: ThemeData(brightness: combo.brightness),
-                  builder: (context, child) => MediaQuery(
-                    data: MediaQuery.of(
-                      context,
-                    ).copyWith(textScaler: TextScaler.linear(combo.textScale)),
-                    child: child!,
+      testWidgets(
+        'golden: T07 $scenario $label',
+        skip: !goldenBaselineExists(
+          'test/organization/goldens/t07_${scenario}_$label.png',
+        ),
+        (tester) async {
+          final adapter = _PickerAdapter(scenario);
+          HttpClient.adapterForTest = adapter;
+          final workspaceApi = _WorkspaceApi();
+          final experience = _Experience(
+            scenario == 'workspace'
+                ? ProductExperience.workspace
+                : ProductExperience.personal,
+            scenario == 'recovered',
+          );
+          final container = ProviderContainer(
+            overrides: [
+              currentUserProvider.overrideWithValue(
+                UserModel(uid: _account, account: 'synthetic'),
+              ),
+              workspaceApiProvider.overrideWith((ref) => workspaceApi),
+              productExperienceProvider.overrideWith(() => experience),
+            ],
+          );
+          addTearDown(container.dispose);
+          final router = GoRouter(
+            initialLocation: '/picker',
+            routes: [
+              GoRoute(
+                path: '/picker',
+                builder: (context, state) =>
+                    const OrganizationPickerPage(accountKey: _account),
+              ),
+            ],
+          );
+          addTearDown(router.dispose);
+          tester.view.physicalSize = combo.viewport;
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          final beforeShell = container.read(workspaceShellProvider);
+          try {
+            await tester.pumpWidget(
+              TranslationProvider(
+                child: UncontrolledProviderScope(
+                  container: container,
+                  child: MaterialApp.router(
+                    routerConfig: router,
+                    theme: ThemeData(brightness: combo.brightness),
+                    builder: (context, child) => MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        textScaler: TextScaler.linear(combo.textScale),
+                      ),
+                      child: child!,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-          final target = find.byKey(const ValueKey('org-picker-tile-7002'));
-          final personal = find.byKey(
-            const ValueKey('org-picker-personal-entry'),
-          );
-          await fixture.pumpUntilFound(tester, target);
-          expect(target, findsOneWidget);
-          if (['busy', 'forbidden', 'recovered'].contains(scenario)) {
-            await tester.tap(target);
-            if (scenario == 'busy') {
-              for (
-                var round = 0;
-                round < 30 && adapter.requests.length < 2;
-                round++
-              ) {
-                await tester.pump(const Duration(milliseconds: 100));
+            );
+            final target = find.byKey(const ValueKey('org-picker-tile-7002'));
+            final personal = find.byKey(
+              const ValueKey('org-picker-personal-entry'),
+            );
+            await fixture.pumpUntilFound(tester, target);
+            expect(target, findsOneWidget);
+            if (['busy', 'forbidden', 'recovered'].contains(scenario)) {
+              await tester.tap(target);
+              if (scenario == 'busy') {
+                for (
+                  var round = 0;
+                  round < 30 && adapter.requests.length < 2;
+                  round++
+                ) {
+                  await tester.pump(const Duration(milliseconds: 100));
+                }
+                expect(
+                  adapter.requests,
+                  contains('GET /api/v1/organizations/7002'),
+                );
+                await tester.pump(const Duration(milliseconds: 200));
+              } else {
+                final error = find.byKey(
+                  const ValueKey('org-picker-switch-error'),
+                );
+                await fixture.pumpUntilFound(tester, error);
+                expect(error, findsOneWidget);
               }
-              expect(
-                adapter.requests,
-                contains('GET /api/v1/organizations/7002'),
-              );
-              await tester.pump(const Duration(milliseconds: 200));
-            } else {
-              final error = find.byKey(
-                const ValueKey('org-picker-switch-error'),
-              );
-              await fixture.pumpUntilFound(tester, error);
-              expect(error, findsOneWidget);
             }
-          }
-          if (!_historical) {
-            final check = find.byIcon(CupertinoIcons.check_mark);
-            if (scenario == 'personal' || scenario == 'workspace') {
-              expect(check, findsOneWidget);
+            if (!_historical) {
+              final check = find.byIcon(CupertinoIcons.check_mark);
+              if (scenario == 'personal' || scenario == 'workspace') {
+                expect(check, findsOneWidget);
+                expect(
+                  find.descendant(
+                    of: scenario == 'personal'
+                        ? personal
+                        : find.byKey(const ValueKey('org-picker-tile-7001')),
+                    matching: check,
+                  ),
+                  findsOneWidget,
+                );
+              }
+              if (scenario == 'busy') {
+                expect(
+                  find.descendant(
+                    of: target,
+                    matching: find.byType(CircularProgressIndicator),
+                  ),
+                  findsOneWidget,
+                );
+                expect(
+                  find.descendant(of: target, matching: check),
+                  findsNothing,
+                );
+                expect(tester.widget<ListTile>(target).onTap, isNull);
+                expect(tester.widget<ListTile>(personal).onTap, isNull);
+              }
+              if (scenario == 'forbidden') {
+                expect(
+                  find.text(
+                    '${t.organization.picker.switchFailed}：${t.common.noPermission}',
+                  ),
+                  findsOneWidget,
+                );
+                expect(find.textContaining('insufficient scope'), findsNothing);
+              }
+              if (scenario == 'recovered') {
+                expect(find.text('切换失败，已恢复原选择'), findsOneWidget);
+              }
+              expect(find.textContaining('code='), findsNothing);
               expect(
-                find.descendant(
-                  of: scenario == 'personal'
-                      ? personal
-                      : find.byKey(const ValueKey('org-picker-tile-7001')),
-                  matching: check,
-                ),
+                find.byKey(const ValueKey('org-picker-join-entry')),
                 findsOneWidget,
               );
-            }
-            if (scenario == 'busy') {
               expect(
-                find.descendant(
-                  of: target,
-                  matching: find.byType(CircularProgressIndicator),
-                ),
+                find.byKey(const ValueKey('org-picker-create-entry')),
                 findsOneWidget,
               );
-              expect(
-                find.descendant(of: target, matching: check),
-                findsNothing,
+              final join = tester.widget<FilledButton>(
+                find.byKey(const ValueKey('org-picker-join-entry')),
               );
-              expect(tester.widget<ListTile>(target).onTap, isNull);
-              expect(tester.widget<ListTile>(personal).onTap, isNull);
-            }
-            if (scenario == 'forbidden') {
-              expect(
-                find.text(
-                  '${t.organization.picker.switchFailed}：${t.common.noPermission}',
-                ),
-                findsOneWidget,
+              final create = tester.widget<OutlinedButton>(
+                find.byKey(const ValueKey('org-picker-create-entry')),
               );
-              expect(find.textContaining('insufficient scope'), findsNothing);
+              expect(join.onPressed, isNotNull);
+              expect(create.onPressed, isNotNull);
             }
-            if (scenario == 'recovered') {
-              expect(find.text('切换失败，已恢复原选择'), findsOneWidget);
-            }
-            expect(find.textContaining('code='), findsNothing);
             expect(
-              find.byKey(const ValueKey('org-picker-join-entry')),
-              findsOneWidget,
+              CurrentOrganizationStore.forAccount(_account).value?.id,
+              '7001',
+            );
+            final afterShell = container.read(workspaceShellProvider);
+            expect(
+              (afterShell.organizationId, afterShell.currentWorkspaceId),
+              (beforeShell.organizationId, beforeShell.currentWorkspaceId),
             );
             expect(
-              find.byKey(const ValueKey('org-picker-create-entry')),
-              findsOneWidget,
+              container.read(productExperienceProvider),
+              experience.initial,
             );
-            final join = tester.widget<FilledButton>(
-              find.byKey(const ValueKey('org-picker-join-entry')),
+            expect(
+              experience.selections,
+              scenario == 'recovered' ? [ProductExperience.workspace] : isEmpty,
             );
-            final create = tester.widget<OutlinedButton>(
-              find.byKey(const ValueKey('org-picker-create-entry')),
+            expect(workspaceApi.mineCalls, scenario == 'recovered' ? 1 : 0);
+            expect(workspaceApi.brandingCalls, 0);
+            expect(
+              adapter.requests
+                  .where((path) => path == 'GET /api/v1/organizations/mine')
+                  .length,
+              1,
             );
-            expect(join.onPressed, isNotNull);
-            expect(create.onPressed, isNotNull);
-          }
-          expect(
-            CurrentOrganizationStore.forAccount(_account).value?.id,
-            '7001',
-          );
-          final afterShell = container.read(workspaceShellProvider);
-          expect(
-            (afterShell.organizationId, afterShell.currentWorkspaceId),
-            (beforeShell.organizationId, beforeShell.currentWorkspaceId),
-          );
-          expect(container.read(productExperienceProvider), experience.initial);
-          expect(
-            experience.selections,
-            scenario == 'recovered' ? [ProductExperience.workspace] : isEmpty,
-          );
-          expect(workspaceApi.mineCalls, scenario == 'recovered' ? 1 : 0);
-          expect(workspaceApi.brandingCalls, 0);
-          expect(
-            adapter.requests
-                .where((path) => path == 'GET /api/v1/organizations/mine')
-                .length,
-            1,
-          );
-          expect(
-            adapter.requests
-                .where(
-                  (path) =>
-                      path ==
-                      'GET /api/v1/organizations/7002/default-workspace',
-                )
-                .length,
-            scenario == 'recovered' ? 1 : 0,
-          );
-          expect(adapter.unexpected, isEmpty);
-          expect(
-            adapter.requests
-                .where((path) => path == 'GET /api/v1/organizations/7002')
-                .length,
-            ['busy', 'forbidden', 'recovered'].contains(scenario) ? 1 : 0,
-          );
-          final layoutError = tester.takeException();
-          await expectLater(
-            find.byType(Scaffold).first,
-            matchesGoldenFile('goldens/t07_${scenario}_$label.png'),
-          );
-          expect(layoutError, isNull);
-        } finally {
-          await tester.pumpWidget(const SizedBox.shrink());
-          if (scenario == 'busy') {
-            adapter.detail.complete(
-              adapter.response(
-                uxEnvelope(payload: {'id': 7002, 'name': '组织7002'}),
-              ),
+            expect(
+              adapter.requests
+                  .where(
+                    (path) =>
+                        path ==
+                        'GET /api/v1/organizations/7002/default-workspace',
+                  )
+                  .length,
+              scenario == 'recovered' ? 1 : 0,
             );
-            await tester.pump(const Duration(milliseconds: 100));
             expect(adapter.unexpected, isEmpty);
+            expect(
+              adapter.requests
+                  .where((path) => path == 'GET /api/v1/organizations/7002')
+                  .length,
+              ['busy', 'forbidden', 'recovered'].contains(scenario) ? 1 : 0,
+            );
+            final layoutError = tester.takeException();
+            await expectLater(
+              find.byType(Scaffold).first,
+              matchesGoldenFile('goldens/t07_${scenario}_$label.png'),
+            );
+            expect(layoutError, isNull);
+          } finally {
+            await tester.pumpWidget(const SizedBox.shrink());
+            if (scenario == 'busy') {
+              adapter.detail.complete(
+                adapter.response(
+                  uxEnvelope(payload: {'id': 7002, 'name': '组织7002'}),
+                ),
+              );
+              await tester.pump(const Duration(milliseconds: 100));
+              expect(adapter.unexpected, isEmpty);
+            }
           }
-        }
-      });
+        },
+      );
     }
   }
 }

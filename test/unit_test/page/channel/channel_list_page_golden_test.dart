@@ -12,7 +12,7 @@ import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_role_badge.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
-import '../golden_baseline_guard.dart';
+import '../../../golden_baseline_guard.dart';
 
 ChannelModel _channel({
   required int id,

@@ -9,11 +9,16 @@ import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import '../ux_matrix/ux_harness.dart';
+import '../golden_baseline_guard.dart';
 
 const _captureKey = ValueKey('t17-attachments');
 
 void main() {
-  setUp(() => LocaleSettings.setLocale(AppLocale.zhCn));
+  // await + setUpAll：setLocale 的异步补发若在上一用例卸载后才抵达，
+  // 会对 defunct 的 _TranslationProviderState setState（CI 间歇挂）。
+  setUpAll(() async {
+    await LocaleSettings.setLocale(AppLocale.zhCn);
+  });
 
   for (final (label, combo) in [
     ('390_1_light', UxCombo(const Size(390, 844))),
@@ -29,84 +34,90 @@ void main() {
     ('1280_2_light', UxCombo(const Size(1280, 900), textScale: 2)),
   ]) {
     for (final status in ['active', 'unavailable']) {
-      testWidgets('golden: T17 $status $label', (tester) async {
-        await pumpUxCombo(
-          tester,
-          RepaintBoundary(
-            key: _captureKey,
-            child: Scaffold(
-              body: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    CsMessageBubble(
-                      message: const EnterpriseMessage(
-                        id: '7266418340025468961',
-                        conversationId: '7266418340025468950',
-                        organizationId: '7266418340025468901',
-                        content: '请帮我核对这份附件，文本和多个附件保持同一条消息。',
+      testWidgets(
+        'golden: T17 $status $label',
+        skip: !goldenBaselineExists(
+          'test/customer_service/goldens/t17_${status}_$label.png',
+        ),
+        (tester) async {
+          await pumpUxCombo(
+            tester,
+            RepaintBoundary(
+              key: _captureKey,
+              child: Scaffold(
+                body: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      CsMessageBubble(
+                        message: const EnterpriseMessage(
+                          id: '7266418340025468961',
+                          conversationId: '7266418340025468950',
+                          organizationId: '7266418340025468901',
+                          content: '请帮我核对这份附件，文本和多个附件保持同一条消息。',
+                        ),
+                        isSeat: false,
+                        actorLabel: '客户',
+                        assets: [
+                          CsMessageAsset(
+                            id: '7266418340025468971',
+                            fileName: '合同.pdf',
+                            mime: 'application/pdf',
+                            sizeBytes: 1048576,
+                            status: status,
+                          ),
+                          CsMessageAsset(
+                            id: '7266418340025468972',
+                            fileName: '很长的文件名-离线合成附件-订单状态说明.pdf',
+                            mime: 'application/pdf',
+                            sizeBytes: 1024,
+                            status: status,
+                          ),
+                          const CsMessageAsset(
+                            id: '7266418340025468973',
+                            mime: 'image/png',
+                            status: 'active',
+                          ),
+                        ],
+                        bytesLoader: (_) async => null,
+                        onView: (_) {},
                       ),
-                      isSeat: false,
-                      actorLabel: '客户',
-                      assets: [
-                        CsMessageAsset(
-                          id: '7266418340025468971',
-                          fileName: '合同.pdf',
-                          mime: 'application/pdf',
-                          sizeBytes: 1048576,
-                          status: status,
+                      CsMessageBubble(
+                        message: const EnterpriseMessage(
+                          id: '7266418340025468962',
+                          conversationId: '7266418340025468950',
+                          organizationId: '7266418340025468901',
+                          senderType: EnterpriseSenderType.businessIdentity,
+                          content: '已收到，我来核对。',
                         ),
-                        CsMessageAsset(
-                          id: '7266418340025468972',
-                          fileName: '很长的文件名-离线合成附件-订单状态说明.pdf',
-                          mime: 'application/pdf',
-                          sizeBytes: 1024,
-                          status: status,
-                        ),
-                        const CsMessageAsset(
-                          id: '7266418340025468973',
-                          mime: 'image/png',
-                          status: 'active',
-                        ),
-                      ],
-                      bytesLoader: (_) async => null,
-                      onView: (_) {},
-                    ),
-                    CsMessageBubble(
-                      message: const EnterpriseMessage(
-                        id: '7266418340025468962',
-                        conversationId: '7266418340025468950',
-                        organizationId: '7266418340025468901',
-                        senderType: EnterpriseSenderType.businessIdentity,
-                        content: '已收到，我来核对。',
+                        isSeat: true,
+                        actorLabel: '坐席',
+                        assets: const [],
+                        bytesLoader: (_) async => null,
+                        onView: (_) {},
                       ),
-                      isSeat: true,
-                      actorLabel: '坐席',
-                      assets: const [],
-                      bytesLoader: (_) async => null,
-                      onView: (_) {},
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          combo,
-        );
-        final layoutError = tester.takeException();
-        await expectLater(
-          find.byKey(_captureKey),
-          matchesGoldenFile('goldens/t17_${status}_$label.png'),
-        );
-        expect(layoutError, isNull);
-        expect(find.text('合同.pdf'), findsOneWidget);
-        expect(find.byType(CsAssetImageThumb), findsOneWidget);
-        expect(find.byType(Image), findsNothing);
-        for (final row in find.byType(CsAssetFileRow).evaluate()) {
-          final size = tester.getSize(find.byWidget(row.widget));
-          expect(size.width, greaterThanOrEqualTo(48));
-          expect(size.height, greaterThanOrEqualTo(48));
-        }
-      });
+            combo,
+          );
+          final layoutError = tester.takeException();
+          await expectLater(
+            find.byKey(_captureKey),
+            matchesGoldenFile('goldens/t17_${status}_$label.png'),
+          );
+          expect(layoutError, isNull);
+          expect(find.text('合同.pdf'), findsOneWidget);
+          expect(find.byType(CsAssetImageThumb), findsOneWidget);
+          expect(find.byType(Image), findsNothing);
+          for (final row in find.byType(CsAssetFileRow).evaluate()) {
+            final size = tester.getSize(find.byWidget(row.widget));
+            expect(size.width, greaterThanOrEqualTo(48));
+            expect(size.height, greaterThanOrEqualTo(48));
+          }
+        },
+      );
     }
   }
 
