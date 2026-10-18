@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/config/router/app_router.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
 import 'package:imboy/service/message.dart';
 
@@ -53,6 +54,24 @@ void main() {
       testWidgets('${route.name} (${route.location}) 可渲染不崩溃', (tester) async {
         if (route.name.startsWith('live_room_')) mockSmokeVideoRenderer();
         final error = await renderRoute(tester, route);
+        // 编译期清单未收录的特性（如 phase1_delivery 关闭的 channel 子特性）
+        // 会被 RouteFeatureGuard 重定向到兜底页：重定向是受控契约而非崩溃，
+        // 按当前编译清单推导预期；未被门禁拦截的路由仍要求完整渲染。
+        final blocked = RouteFeatureGuard.checkBlocked(
+          isLoggedIn: true,
+          currentPath: route.location,
+        );
+        if (blocked != null) {
+          expect(
+            error,
+            isA<StateError>(),
+            reason:
+                '路由 ${route.name} (${route.location}) 应被门禁重定向: '
+                '$blocked，实际错误: $error',
+          );
+          expect(error.toString(), contains('got /bottom_navigation'));
+          return;
+        }
         expect(
           error,
           isNull,
