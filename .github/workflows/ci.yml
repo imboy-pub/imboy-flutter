@@ -248,6 +248,23 @@ jobs:
       - name: Strip local dev proxy (gradle.properties 内含本机代理 127.0.0.1:7897，CI 无此代理)
         run: sed -i.bak '/systemProp.http.proxy/d;/systemProp.https.proxy/d' android/gradle.properties && rm -f android/gradle.properties.bak
 
+      - name: Prepare release signing fallback (CI 无正式签名材料，用 debug keystore 出可安装产物)
+        run: |
+          if [ ! -f "$HOME/.android/debug.keystore" ]; then
+            mkdir -p "$HOME/.android"
+            keytool -genkeypair -v \
+              -keystore "$HOME/.android/debug.keystore" \
+              -storepass android -keypass android -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          {
+            echo "storeFile=$HOME/.android/debug.keystore"
+            echo "keyAlias=androiddebugkey"
+            echo "keyPassword=android"
+            echo "storePassword=android"
+          } >> android/local.properties
+
       - name: Build APK (Release)
         env:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}

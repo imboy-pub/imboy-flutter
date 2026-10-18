@@ -179,8 +179,8 @@ android {
             pickFirsts.add("**/lib*.so")
             // NDK r28 的 llvm-strip 对 cargo 产物 libvodozemac_bindings_dart.so
             // 报 "program header ... past the end of file"（rust-lld 布局与
-            // strip 的严格校验不匹配），release 打包直接失败。保留符号跳过
-            // 剥离：仅增大体积，装载行为与 debug 构建一致。
+            // strip 的严格校验不匹配）。strip 失败仅告警且产物不确定（保留
+            // 未剥离库），这里显式跳过剥离：仅增大体积，装载行为不变。
             keepDebugSymbols.add("**/libvodozemac_bindings_dart.so")
         }
         resources {
