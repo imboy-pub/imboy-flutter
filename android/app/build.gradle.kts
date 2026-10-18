@@ -160,12 +160,21 @@ android {
         create("release") {
             enableV1Signing = true
             enableV2Signing = true
-            localProperties.getProperty("storeFile")?.let {
-                storeFile = file(it)
+            // 签名材料优先读 key.properties（CI / 发版注入；flutter 工具不会
+            // 重写该文件），兼容旧的 local.properties 注入方式。
+            val keystoreProps = Properties().apply {
+                val f = rootProject.file("key.properties")
+                if (f.exists()) f.inputStream().use { load(it) }
             }
-            keyAlias = localProperties.getProperty("keyAlias")
-            keyPassword = localProperties.getProperty("keyPassword")
-            storePassword = localProperties.getProperty("storePassword")
+            val storeFilePath = keystoreProps.getProperty("storeFile")
+                ?: localProperties.getProperty("storeFile")
+            storeFilePath?.let { storeFile = file(it) }
+            keyAlias = keystoreProps.getProperty("keyAlias")
+                ?: localProperties.getProperty("keyAlias")
+            keyPassword = keystoreProps.getProperty("keyPassword")
+                ?: localProperties.getProperty("keyPassword")
+            storePassword = keystoreProps.getProperty("storePassword")
+                ?: localProperties.getProperty("storePassword")
         }
         getByName("debug") {
             // 使用默认的调试签名配置

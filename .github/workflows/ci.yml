@@ -263,7 +263,7 @@ jobs:
             echo "keyAlias=androiddebugkey"
             echo "keyPassword=android"
             echo "storePassword=android"
-          } >> android/local.properties
+          } > android/key.properties
 
       - name: Build APK (Release)
         env:
