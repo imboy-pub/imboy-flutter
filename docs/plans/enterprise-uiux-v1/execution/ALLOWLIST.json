@@ -17,7 +17,8 @@
   "lib/i18n/*.g.dart（生成物：仅由 dart run slang 再生成）",
   "test/uiux/**（本计划新增测试）",
   "docs/plans/enterprise-uiux-v1/**（任务文档/报告）",
-  "tool/uiux/**（T04.a/b/c 工具）"
+  "tool/uiux/**（T04.a/b/c 工具）",
+  "lib/modules/customer_service/presentation/cs_workspace_entry.dart"
  ],
  "frozen_symbols": [
   "csMaskContactName (domain/cs_seat_gate.dart:80-85) — 只调用不改",
@@ -37,5 +38,15 @@
   "Color(0x…)/Colors.* 新造色、数字 fontSize、全局 Token 修改、文本缩放关闭/clamp",
   "API/DTO/Provider/Service/Domain 业务变更、feature flag 生产配置变更",
   "erlang.mk、ios/*、macos/*、plugin/r_upgrade 等保留区"
+ ],
+ "amendments": [
+  {
+   "date": "2026-10-19",
+   "revision": "T18",
+   "added": [
+    "lib/modules/customer_service/presentation/cs_workspace_entry.dart"
+   ],
+   "reason": "TASKS.json T18 write_paths 明确授权该文件（P2-04 CS 行图标槽统一）；T04 冻结时投影遗漏，此处按原始合同补录，非扩权。"
+  }
  ]
 }

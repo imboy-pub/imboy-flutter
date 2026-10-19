@@ -66,6 +66,15 @@ class EnterpriseWorkbenchPage extends StatelessWidget {
             _GroupedSection(
               children: [
                 CupertinoListTile(
+                  // P2-04/D02：辅助登录行补统一 24×24 图标槽（命中高 ≥48）。
+                  leading: const SizedBox.square(
+                    dimension: 24,
+                    child: Center(
+                      widthFactor: 1,
+                      child: Icon(CupertinoIcons.person_crop_circle, size: 20),
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   title: Text(t.enterpriseOa.confirmLink),
                   onTap: () => context.push('/oa/login', extra: entry),
                 ),
@@ -77,7 +86,14 @@ class EnterpriseWorkbenchPage extends StatelessWidget {
           children: [
             CupertinoListTile(
               key: const ValueKey('workbench-apps-entry'),
-              leading: const Icon(CupertinoIcons.square_grid_2x2),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              leading: const SizedBox.square(
+                dimension: 24,
+                child: Center(
+                  widthFactor: 1,
+                  child: Icon(CupertinoIcons.square_grid_2x2, size: 20),
+                ),
+              ),
               title: Text(t.enterpriseOa.apps),
               trailing: const CupertinoListTileChevron(),
               onTap: () => _openApps(context),

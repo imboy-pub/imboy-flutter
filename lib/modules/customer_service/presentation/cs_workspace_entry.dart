@@ -67,17 +67,20 @@ class _CsWorkspaceEntryTileState extends State<CsWorkspaceEntryTile> {
     return Material(
       type: MaterialType.transparency,
       child: ListTile(
+        // P2-04/D02：统一 24×24 图标槽（原 29×29 自定义槽），文本起点
+        // 与工作台其他可见行一致；可见性与 onTap 不变。
+        // （Material ListTile 默认高 ≥56，命中目标已达标。）
         leading: Container(
-          width: 29,
-          height: 29,
+          width: 24,
+          height: 24,
           decoration: BoxDecoration(
             color: AppColors.iosSkyBlue,
-            borderRadius: BorderRadius.circular(7.2),
+            borderRadius: BorderRadius.circular(6),
           ),
           child: const Icon(
             CupertinoIcons.chat_bubble_2_fill,
             color: AppColors.onPrimary,
-            size: 19,
+            size: 16,
           ),
         ),
         title: Text(

@@ -487,7 +487,15 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
 
   Widget _resourceEntry(String title, Widget page, {IconData? icon}) =>
       CupertinoListTile(
-        leading: icon == null ? null : Icon(icon),
+        // P2-04/D02：统一 24×24 图标槽，各资源行文本起点一致；
+        // 垂直 padding 使命中目标高 ≥48。
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        leading: SizedBox.square(
+          dimension: 24,
+          child: icon == null
+              ? null
+              : Center(widthFactor: 1, child: Icon(icon, size: 20)),
+        ),
         title: Text(title),
         trailing: const CupertinoListTileChevron(),
         onTap: () => Navigator.of(context).push(
