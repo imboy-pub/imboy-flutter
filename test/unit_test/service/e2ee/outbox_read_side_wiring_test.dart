@@ -263,7 +263,10 @@ void main() {
       await pumpEventQueue();
       expect(retry.getRetryInfo('msg-resend-1'), isNull);
       expect(observed.confirmed.isCompleted, isFalse);
-      expect((await store.getOutboxEntry('msg-resend-1'))?['status'], 'pending');
+      expect(
+        (await store.getOutboxEntry('msg-resend-1'))?['status'],
+        'pending',
+      );
     } finally {
       observed.releaseUpdate.complete();
       await observed.confirmed.future;
