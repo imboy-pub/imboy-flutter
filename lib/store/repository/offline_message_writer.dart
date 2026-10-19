@@ -503,7 +503,7 @@ class OfflineMessageWriter {
           subtitle: preview.subtitle,
           type: agg.type,
           msgType: preview.msgType,
-          lastMsgId: parseModelInt(latest.id),
+          lastMsgId: latest.id,
           lastTime: latest.createdAt,
           lastMsgStatus: latest.status, // 传递消息状态
           unreadNum: agg.unreadDelta, // 使用计算出的未读数
@@ -523,7 +523,7 @@ class OfflineMessageWriter {
           ConversationRepo.title: title.isNotEmpty ? title : existing.title,
           ConversationRepo.subtitle: preview.subtitle,
           ConversationRepo.msgType: preview.msgType,
-          ConversationRepo.lastMsgId: parseModelInt(latest.id),
+          ConversationRepo.lastMsgId: latest.id,
           ConversationRepo.lastTime: latest.createdAt,
           ConversationRepo.lastMsgStatus: latest.status, // 传递消息状态
           ConversationRepo.unreadNum: newUnreadNum,

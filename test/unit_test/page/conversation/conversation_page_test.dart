@@ -103,7 +103,7 @@ ConversationModel _conv({
     title: title,
     subtitle: 'last msg $id',
     msgType: 'text',
-    lastMsgId: id, // int 类型
+    lastMsgId: 'msg-$id', // Xid 字符串
     lastTime: DateTime.now().millisecondsSinceEpoch,
     unreadNum: unreadNum,
     payload: const {},

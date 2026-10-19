@@ -667,8 +667,8 @@ class MessageActions {
       }
 
       // 只有当编辑的消息是会话的最后一条消息时才更新会话
-      // conv.lastMsgId 为 int（旧契约），msg.id 为 String（新契约 / Xid base32hex）
-      if (conv.lastMsgId.toString() == msg.id) {
+      // conv.lastMsgId 与 msg.id 均为 Xid 字符串（同契约）
+      if (conv.lastMsgId == msg.id) {
         iPrint(
           '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
         );
@@ -762,8 +762,8 @@ class MessageActions {
       }
 
       // 只有当撤回的消息是会话的最后一条消息时才更新会话
-      // conv.lastMsgId 为 int（旧契约），msg.id 为 String（新契约 / Xid base32hex）
-      if (conv.lastMsgId.toString() == msg.id) {
+      // conv.lastMsgId 与 msg.id 均为 Xid 字符串（同契约）
+      if (conv.lastMsgId == msg.id) {
         iPrint(
           '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
         );

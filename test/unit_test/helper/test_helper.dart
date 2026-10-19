@@ -111,7 +111,7 @@ class ConversationTestHelper {
     String? msgType,
     String? subtitle,
     int? lastMsgStatus,
-    int? lastMsgId,
+    String? lastMsgId,
     int? unreadNum,
     Map<String, dynamic>? payload,
   }) {
@@ -123,7 +123,7 @@ class ConversationTestHelper {
       avatar: avatar ?? 'https://example.com/avatar.png',
       msgType: msgType ?? 'text',
       subtitle: subtitle ?? '这是一条测试消息',
-      lastMsgId: lastMsgId ?? 123,
+      lastMsgId: lastMsgId ?? '123',
       lastTime: DateTime.now().millisecondsSinceEpoch ~/ 1000,
       unreadNum: unreadNum ?? 0,
       lastMsgStatus: lastMsgStatus,

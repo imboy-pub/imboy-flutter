@@ -25,7 +25,7 @@ ConversationModel _row({int peerId = 200}) => ConversationModel(
   type: 'C2C',
   msgType: 'text',
   unreadNum: 0,
-  lastMsgId: 300,
+  lastMsgId: 'cb8b2hc0p9qkx2n8m300',
   lastMsgStatus: IMBoyMessageStatus.seen,
 );
 

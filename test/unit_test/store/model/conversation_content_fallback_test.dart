@@ -17,7 +17,7 @@ ConversationModel _conv({required String msgType, required String subtitle}) {
     type: 'C2G',
     msgType: msgType,
     lastTime: 0,
-    lastMsgId: 0,
+    lastMsgId: '',
     unreadNum: 0,
     isShow: 1,
   );

@@ -39,7 +39,7 @@ void main() {
           subtitle: '第一条消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 1,
         );
 
@@ -64,7 +64,7 @@ void main() {
           subtitle: '群组消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 5,
         );
 
@@ -85,7 +85,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
         );
 
@@ -112,7 +112,7 @@ void main() {
           subtitle: '原始消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 1,
         );
 
@@ -142,7 +142,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 3,
         );
 
@@ -168,7 +168,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 10,
         );
 
@@ -192,7 +192,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
         );
 
@@ -217,7 +217,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
         );
 
@@ -257,14 +257,14 @@ void main() {
           subtitle: '新消息',
           msgType: msg.msgType!,
           lastTime: msg.createdAt,
-          lastMsgId: int.tryParse(msg.id) ?? 0,
+          lastMsgId: msg.id,
           unreadNum: 1,
         );
 
         final id = await conversationRepo.insert(conv);
 
         final saved = await conversationRepo.findById(id);
-        expect(saved!.lastMsgId, 201);
+        expect(saved!.lastMsgId, '201');
         expect(saved.unreadNum, 1);
       });
 
@@ -279,7 +279,7 @@ void main() {
           subtitle: '旧消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 100,
+          lastMsgId: '100',
           unreadNum: 2,
         );
 
@@ -311,7 +311,7 @@ void main() {
 
         final updated = await conversationRepo.findById(convId);
         expect(updated!.subtitle, '新消息内容');
-        expect(updated.lastMsgId, 202);
+        expect(updated.lastMsgId, '202');
         expect(updated.unreadNum, 3); // 2 + 1
       });
     });
@@ -329,7 +329,7 @@ void main() {
             subtitle: '消息1',
             msgType: 'text',
             lastTime: 1234567890,
-            lastMsgId: 1,
+            lastMsgId: '1',
             unreadNum: 1,
           ),
         );
@@ -344,7 +344,7 @@ void main() {
             subtitle: '消息2',
             msgType: 'text',
             lastTime: 1234567891,
-            lastMsgId: 2,
+            lastMsgId: '2',
             unreadNum: 0,
           ),
         );
@@ -364,7 +364,7 @@ void main() {
             subtitle: '消息1',
             msgType: 'text',
             lastTime: 1000,
-            lastMsgId: 1,
+            lastMsgId: '1',
             unreadNum: 0,
           ),
         );
@@ -379,7 +379,7 @@ void main() {
             subtitle: '消息2',
             msgType: 'text',
             lastTime: 2000,
-            lastMsgId: 2,
+            lastMsgId: '2',
             unreadNum: 0,
           ),
         );
@@ -403,7 +403,7 @@ void main() {
           subtitle: '',
           msgType: 'text',
           lastTime: 0,
-          lastMsgId: 0,
+          lastMsgId: '',
           unreadNum: 0,
         );
 
@@ -423,7 +423,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
         );
 
@@ -442,7 +442,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 999999,
         );
 
@@ -465,7 +465,7 @@ void main() {
             subtitle: '消息$i',
             msgType: 'text',
             lastTime: 1234567890 + i,
-            lastMsgId: 3686,
+            lastMsgId: '3686',
             unreadNum: i,
           );
           final id = await conversationRepo.insert(conv);

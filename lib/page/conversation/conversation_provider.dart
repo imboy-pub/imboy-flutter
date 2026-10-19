@@ -595,7 +595,7 @@ class ConversationNotifier extends _$ConversationNotifier {
             type: type,
             msgType: msgType,
             lastTime: serverTs,
-            lastMsgId: int.tryParse(lastMsgId) ?? 0,
+            lastMsgId: lastMsgId,
             unreadNum: 0,
             isShow: 1,
             payload: _mergeAuthoritativePayload(
@@ -825,19 +825,19 @@ class ConversationNotifier extends _$ConversationNotifier {
 
       for (int i = 0; i < conversations.length; i++) {
         final cm = conversations[i];
-        if (cm.lastMsgId == 0) continue;
+        if (cm.lastMsgId.isEmpty) continue;
 
         final tb = MessageRepo.getTableName(cm.type);
         if (tb.isEmpty) continue;
         final mRepo = MessageRepo(tableName: tb);
-        final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId.toString());
+        final MessageModel? lastMsg = await mRepo.find(cm.lastMsgId);
         if (lastMsg == null) continue;
 
         if (!isBurnExpiredPayload(lastMsg.payloadMap)) {
           continue;
         }
 
-        await expireBurnMessage(cm, cm.lastMsgId.toString());
+        await expireBurnMessage(cm, cm.lastMsgId);
         final updated = await repo.findById(cm.id);
         if (updated != null) {
           conversations[i] = updated;
@@ -976,7 +976,7 @@ class ConversationNotifier extends _$ConversationNotifier {
           ConversationRepo.title: title,
           ConversationRepo.subtitle: subtitle,
           ConversationRepo.lastTime: lastTime,
-          ConversationRepo.lastMsgId: 0,
+          ConversationRepo.lastMsgId: '',
           ConversationRepo.lastMsgStatus: 1,
           ConversationRepo.unreadNum: 0,
           ConversationRepo.type: type,

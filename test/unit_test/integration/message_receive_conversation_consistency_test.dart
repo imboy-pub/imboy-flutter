@@ -49,7 +49,7 @@ void main() {
     required String msgType,
     required String from,
     required String to,
-    required int msgId,
+    required String msgId,
     required int lastTime,
     required bool isUserInChat,
   }) async {
@@ -95,7 +95,7 @@ void main() {
         msgType: 'C2C',
         from: peerUid,
         to: currentUid,
-        msgId: 101,
+        msgId: '101',
         lastTime: 1001,
         isUserInChat: false,
       );
@@ -106,14 +106,14 @@ void main() {
         msgType: 'C2C',
         from: currentUid,
         to: peerUid,
-        msgId: 102,
+        msgId: '102',
         lastTime: 1002,
         isUserInChat: false,
       );
 
       expect(savedEcho.peerId, 9002);
       expect(savedEcho.unreadNum, 1); // 自回显 unreadIncrement=0，不应新增未读
-      expect(savedEcho.lastMsgId, 102);
+      expect(savedEcho.lastMsgId, '102');
 
       final peerConv = await conversationRepo.findByPeerId('C2C', peerUid);
       final selfConv = await conversationRepo.findByPeerId('C2C', currentUid);
@@ -127,7 +127,7 @@ void main() {
         msgType: 'C2C',
         from: '9003',
         to: currentUid,
-        msgId: 201,
+        msgId: '201',
         lastTime: 2001,
         isUserInChat: false,
       );
@@ -137,7 +137,7 @@ void main() {
         msgType: 'C2C',
         from: '9003',
         to: currentUid,
-        msgId: 202,
+        msgId: '202',
         lastTime: 2002,
         isUserInChat: true,
       );
@@ -147,7 +147,7 @@ void main() {
       final conv = await conversationRepo.findByPeerId('C2C', '9003');
       expect(conv, isNotNull);
       expect(conv!.unreadNum, 1);
-      expect(conv.lastMsgId, 202);
+      expect(conv.lastMsgId, '202');
     });
 
     test('后台每条消息只增 1，提醒使用内存同步不写回 DB', () async {
@@ -159,7 +159,7 @@ void main() {
         msgType: 'C2C',
         from: '9004',
         to: currentUid,
-        msgId: 301,
+        msgId: '301',
         lastTime: 3001,
         isUserInChat: false,
       );
@@ -176,7 +176,7 @@ void main() {
         msgType: 'C2C',
         from: '9004',
         to: currentUid,
-        msgId: 302,
+        msgId: '302',
         lastTime: 3002,
         isUserInChat: false,
       );

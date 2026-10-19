@@ -57,7 +57,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': 100},
         );
@@ -78,7 +78,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: null,
         );
@@ -98,7 +98,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': '150'}, // 字符串格式
         );
@@ -118,7 +118,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': 'invalid'}, // 无效值
         );
@@ -141,7 +141,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 2,
           payload: {},
         );
@@ -160,7 +160,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579300000,
-          lastMsgId: 2,
+          lastMsgId: '2',
           unreadNum: 3,
           payload: {},
         );
@@ -182,7 +182,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0, // 初始未读数 = 0
           payload: {},
         );
@@ -199,7 +199,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579300000,
-          lastMsgId: 2,
+          lastMsgId: '2',
           unreadNum: 5,
           payload: {},
         );
@@ -220,7 +220,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 1,
           payload: {},
         );
@@ -238,7 +238,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579300000,
-          lastMsgId: 2,
+          lastMsgId: '2',
           unreadNum: 2,
           payload: {},
         );
@@ -256,7 +256,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579400000,
-          lastMsgId: 3,
+          lastMsgId: '3',
           unreadNum: 4,
           payload: {},
         );
@@ -278,7 +278,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 10,
           payload: {},
         );
@@ -307,7 +307,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 5,
           payload: {},
         );
@@ -419,7 +419,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': 100},
         );
@@ -448,7 +448,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': 100},
         );
@@ -478,7 +478,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: null, // 没有已读水位
         );
@@ -640,7 +640,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {},
         );

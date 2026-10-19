@@ -5,7 +5,7 @@
 /// 1. syncHistoryBackfill 对全部会话（C2C/C2G）都打出
 ///    `fetched=0, nextSeq=0, hasMore=false`——服务端 msg_store 归档为空
 ///    （生产未开启 msg_archive_enabled），history 接口正常返回空，不抛异常；
-/// 2. 会话列表却显示摘要（「1 天前 qa-batch25-pin」），会话行 lastMsgId > 0
+/// 2. 会话列表却显示摘要（「1 天前 qa-batch25-pin」），会话行 lastMsgId 非空
 ///    ——消息存在，只是不可取；
 /// 3. 旧逻辑：不抛异常就不置任何标记 → 空态走 `!hasMoreMessage && isEmpty`
 ///    → 「暂无数据」——与「新会话真的没有消息」无法区分，误导用户。
@@ -26,7 +26,7 @@ void main() {
       expect(
         ChatNotifier.shouldMarkHistoryUnavailable(
           anyFetched: false,
-          lastMsgId: 105862178307049472,
+          lastMsgId: 'cb8b2hc0p9qkx2n8m0g0',
         ),
         isTrue,
         reason: '服务端归档为空但会话确认有消息，必须标记「历史不可用」',
@@ -37,29 +37,29 @@ void main() {
       expect(
         ChatNotifier.shouldMarkHistoryUnavailable(
           anyFetched: true,
-          lastMsgId: 105862178307049472,
+          lastMsgId: 'cb8b2hc0p9qkx2n8m0g0',
         ),
         isFalse,
         reason: '归档有数据时历史可取，不得展示「历史不可用」',
       );
     });
 
-    test('新会话 lastMsgId=0（服务端确认无消息）→ 不标记（真·暂无数据）', () {
+    test('新会话 lastMsgId 为空串（服务端确认无消息）→ 不标记（真·暂无数据）', () {
       expect(
         ChatNotifier.shouldMarkHistoryUnavailable(
           anyFetched: false,
-          lastMsgId: 0,
+          lastMsgId: '',
         ),
         isFalse,
         reason: '新会话确实没有消息，「暂无数据」才是正确语义',
       );
     });
 
-    test('归档有消息 + lastMsgId=0（理论不可能组合）→ 不标记', () {
+    test('归档有消息 + lastMsgId 为空串（理论不可能组合）→ 不标记', () {
       expect(
         ChatNotifier.shouldMarkHistoryUnavailable(
           anyFetched: true,
-          lastMsgId: 0,
+          lastMsgId: '',
         ),
         isFalse,
       );
