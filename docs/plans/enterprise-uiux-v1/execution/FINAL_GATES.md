@@ -47,6 +47,16 @@ vodozemac 原生库环境修复后复跑）。e2ee 套件的"失败"根因为**�
 原生库路径缺失**（非产品缺陷）：源仓库已有编译产物，运行时以环境变量
 提供路径即可。
 
+## 3b. Android lane BLOCKED 补充（2026-10-20 深入探测）
+
+自动会话曾尝试推进 Android 原生验收（发现真机 MRD-AL00 在线、本地后端
+节点起至 9801 端口变体、release 组装完成），但节点 strict secret 校验链
+（password_salt → login RSA 文件 → pg 密码非默认 → payment/plugin）
+需要所有者的部署密钥资产——自动会话不得代为生成生产性凭据。T30.a/
+T31.a/T32.a 记 BLOCKED（交接步骤已写入各 P*_MANUAL_android.md），
+Owner 预计 15 分钟可用既有密钥接手。该 BLOCKED 不影响本文件 §1 的
+七门自动证据（143/143 目标门与 312 golden 均为 widget 级，无后端依赖）。
+
 ## 4. 其他核对
 
 - 原仓库（main）/后端/imboyadmin 未被修改（本计划只在集成 worktree 与
