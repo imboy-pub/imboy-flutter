@@ -55,3 +55,14 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
 - T04.c 状态事务（1cee8eb3）：自测 7/7——悬空 PREPARE 不采纳、缺 COMMIT 只补记一次、撕裂尾行隔离+截断、revision 冲突拒绝、example 不可覆盖 live、枚举词表、只读校验不放行缺 COMMIT；真实 runtime check_state valid（rev10）。
 - M0 基线：`flutter analyze --fatal-infos` exit=1 / **72 存量问题**（改动前记录；新 worktree 曾因子模块未初始化解析失败，已按固定 commit 7df955eb 初始化 `plugin/flutter_chat_ui`，pubspec.lock 未动）。Erlang EUnit=N/A。
 - 下一卡：T05（结构 harness）+ T05.a（视觉字体环境，独立记账）；T33 保持可重复报告。
+
+## 9. revision 4 附记（B1 收口 / 夹具·环境·文案就绪）
+
+- T05 结构 harness（bd91a79dd）：C-T05-1 6/6 无 skip——真实 AppTheme 构建器挂载 + TranslationProvider + UiuxViewport(360×800/1280×800)/平台/locale/TextScaler 参数化；平台覆盖 pumpUiux 返回前 try/finally 同步复位（flutter_test foundation invariant 检查早于 dart-test addTearDown，实测踩坑并记入夹具注释）；冻结时钟仅作断言输入；STRUCTURE_ENV.md 契约落盘。
+- T05.a 视觉环境（ff9ba066a）：C-T05-a-1 5/5——Arial Unicode（/Library/Fonts，sha256 876af2cd…，macOS 附带仅本地使用不分发）+ 最小 cmap(3,1) fmt4 解析器验证 28 必需 CJK 码点；Ahem/hash 不匹配/缺失一律 visualBlocked（绝不静默降级）；goldenEnvironmentHash 覆盖字体/SDK/Dart/OS/locale/DPR/emoji 策略；emoji=forbidden-in-golden-fixtures；GOLDEN_ENV.md 落盘。
+- T06 文案（47f02e3b3）：C-T06-1 4/4 + C-I18N 两次 slang 幂等（modulo 'Built on' 时间戳行，如实记账）——discussInGroupGuide 10 locale 去箭头（P1-05）；customerService.sourceWidget（zh-CN/en-US，其余 locale 既有回退现状）；键债补齐 22 workspace 键 + enterpriseOa.apps（9/8 locale）；parity 断言对 slang 参数注解 `key(param)` 归一化。
+- T07 频道夹具（5ef5366a3）：C-T07-1 11/11——真实 WorkspaceChannelDetailPage/ChannelDetailPage/ChannelMessageFeed；替身仅 provider override（channelDetail 带调用 trace、静默语音）；微社区门不 mock（fail-closed 断言）；八场景 + autoLoadStats:false 消测试期出站；StorageService 内存 mock（publish bar 草稿路径）。
+- T08 工作台夹具（f529ddeb6）：C-T08-1 7/7——真实 CsWorkspaceEntryTile（风险项点名覆盖）+ shell 同构 resourceEntries；六输入场景（无工作区/普通成员/有坐席/feature 关闭/有 OA/Android inbound）；HttpClient.adapterForTest 拦截；点击 trace 基线=csWorkspace push。
+- T09 坐席夹具（bada01525）：C-T09-1 8/8——合成 wire DTO 走真实 CsQueueItem.fromJson（DTO 未动）；固定时钟=queued_at 偏移回推；三态摘要（有/缺失/无消息兜底'页面数据不存在或已失效'）+ 同掩码不同摘要 + 来源三态（widget→Web/未知/空隐藏，二次掩码实证）+ claim in-flight 禁用与 CAS body 记录/409 刷新/403 无 crash。
+- 运行真源：rev17（tx-0012..0017）；无 BLOCKED；312 golden 仍未生成（B3 才开始）；K 未冻结。
+- 下一批 B2：T10（P1 频道身份头部收敛，P1-01 修复）等 12 张实现卡，T10/T13/T14 依赖 T07 已 READY。
