@@ -82,3 +82,16 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
 - gate 修复（688a5c8b3，T04.a 追加）：声明正则类型段混入 \s 导致缩进裸调用行误判为声明（T19 实测假阳性）；diff 新增行坐标被同时与 base/HEAD 范围判交（挪动代码假阳性）。双修复 + 新回归用例，自测 6/6。
 - 运行真源：rev30（tx-0019..0030）；无 BLOCKED；312 golden 未生成（B3）；K 未冻结。
 - 下一批 B3：T22（P1 结构矩阵）等 9 卡 + T25—T27 调用回归，deps 全满足。
+
+
+## 11. revision 6 附记（B3 收口 / golden 封存与行为回归全绿）
+
+- T22（12255b9fe）：P1 结构矩阵 16/16 executed 0 skip（2 视口×2 亮度×2 缩放×2 平台）+ 语义/对比度/矮视口几何可达；P1_MATRIX.md。
+- T22.a（f9d83090b）：P1 120 候选金图（5 场景×3 平台含 macOS×2 视口×2 主题×2 缩放）+ manifest（逐张 sha256/env/input/requirement/task，config_id 唯一，before=NEW_SCENARIO 不伪造）；比较模式幂等 120/120。
+- T22.b（eb419705c）：120 张封存 + sha256 清单 + 零 diff 复跑（无 update 参数）；审查身份 SELF_REVIEW_ONLY 诚实标注（无独立审查工具）；封存≠产品通过。
+- T23（da2db0f68）/T23.a/b（86ccbdec7）：P2 矩阵 16/16 + 72 张候选封存零 diff。
+- T24（a879c3474）/T24.a/b（86ccbdec7）：P3 矩阵 120/120 + 120 张候选封存零 diff。
+- T25/T26/T27（1517c2b2f）：三 lane 行为回归各 3/3（调用序列/权限请求面/CAS 参数基线）+ LEGACY P1 45、P2 46、P3 62 pass。
+- **312 golden 全部生成并封存**（P1 120 + P2 72 + P3 120），零 diff 复跑全绿；ALLOWLIST 修订 3 次均有 TASKS.json write_paths 授权依据。
+- 运行真源：rev44（tx-0019..0044）；无 BLOCKED；K 未冻结（T29 最终门待 T28 恢复演练）。
+- 下一批 B4：T28 恢复演练 → T29 最终门 → T30—T32.b 原生流程验收（设备/桌面依赖，manual 记账）→ T33 汇总交付候选。
