@@ -32,6 +32,12 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
   final VoidCallback? onForwardTap;
   final VoidCallback? onManageTap;
 
+  /// 是否渲染频道身份大标题（P1-01/D01）：详情路由的 AppBar（standalone
+  /// 的 GlassAppBar 或 workspace 宿主 AppBar）已承载唯一的频道身份标题，
+  /// 当前详情调用传 false 进入紧凑模式——仅保留头像/认证/角色/订阅数，
+  /// 不再在元信息区重复大标题。默认 true，非详情入口不受影响。
+  final bool showIdentityTitle;
+
   const ChannelHeaderBar({
     super.key,
     required this.channel,
@@ -41,6 +47,7 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
     this.onShareTap,
     this.onForwardTap,
     this.onManageTap,
+    this.showIdentityTitle = true,
   });
 
   @override
@@ -135,28 +142,33 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.channel.name,
-                              style: context.textStyle(
-                                FontSizeType.large,
-                                fontWeight: FontWeight.w600,
+                      // P1-01：详情路由 AppBar 已有唯一频道身份标题，
+                      // 紧凑模式（showIdentityTitle=false）不再重复渲染
+                      // 大标题；认证徽标移入元信息行保留。
+                      if (widget.showIdentityTitle) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                widget.channel.name,
+                                style: context.textStyle(
+                                  FontSizeType.large,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          if (widget.channel.isVerified)
-                            const Icon(
-                              CupertinoIcons.checkmark_seal_fill,
-                              size: AppSpacing.large,
-                              color: AppColors.iosGreen,
-                            ),
-                        ],
-                      ),
-                      AppSpacing.verticalTiny,
+                            if (widget.channel.isVerified)
+                              const Icon(
+                                CupertinoIcons.checkmark_seal_fill,
+                                size: AppSpacing.large,
+                                color: AppColors.iosGreen,
+                              ),
+                          ],
+                        ),
+                        AppSpacing.verticalTiny,
+                      ],
                       Wrap(
                         spacing: AppSpacing.small,
                         runSpacing: AppSpacing.tiny,
@@ -174,6 +186,13 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                               color: secondaryColor,
                             ),
                           ),
+                          if (!widget.showIdentityTitle &&
+                              widget.channel.isVerified)
+                            const Icon(
+                              CupertinoIcons.checkmark_seal_fill,
+                              size: AppSpacing.large,
+                              color: AppColors.iosGreen,
+                            ),
                         ],
                       ),
                     ],

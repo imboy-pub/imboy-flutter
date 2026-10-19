@@ -230,6 +230,9 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
         if (state.channel != null)
           SliverToBoxAdapter(
             child: ChannelHeaderBar(
+              // P1-01：详情路由 AppBar（standalone GlassAppBar / embedded
+              // 宿主 AppBar）承载唯一频道身份标题，元信息区进紧凑模式。
+              showIdentityTitle: false,
               channel: state.channel!,
               stats: _stats,
               isActionPending: _subscribeActionBusy,
