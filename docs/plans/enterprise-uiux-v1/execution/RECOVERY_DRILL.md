@@ -18,9 +18,9 @@
 | RC04 | PASS | exit=1 外来 dirty → BLOCKED |
 | RC21 | PASS | 记录 main 漂移；base 仍指原 SHA，不 rebase |
 | RC24 | PASS | 路径丢失 → BLOCKED（不伪造恢复） |
-| RC01 | PASS | worktree 路径不变；最早可恢复卡=['T29'] |
+| RC01 | PASS | worktree 路径不变；最早可恢复卡=[] |
 | RC02 | PASS | 采纳已创建树一次，不新增随机后缀树 |
-| RC05 | PASS | trailer/parent 验证通过，head=c02f25e0f |
+| RC05 | PASS | trailer/parent 验证通过，head=e9c5dad2e |
 | RC06 | PASS | 登记已有映射（无重复 cherry-pick） |
 | RC08 | PASS | 无退出码 → INCOMPLETE（不得当 PASS） |
 | RC18 | PASS | 输入变化 → STALE 可表达 |
