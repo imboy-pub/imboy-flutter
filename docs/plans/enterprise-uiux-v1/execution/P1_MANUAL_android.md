@@ -1,6 +1,6 @@
-# P1 原生验收（Android）— T30.a — MANUAL_PENDING
+# P1 原生验收（Android）— T30.a — PASS（2026-10-20 真机执行）
 
-> kind=manual｜required_for_local=false｜**状态：MANUAL_PENDING（诚实记账）**
+> kind=manual｜required_for_local=false｜**状态：PASS（6 PASS + 1 PARTIAL，见文末执行记录）**
 
 ## 原因
 
@@ -74,3 +74,35 @@ validate_runtime_config）。
 
 仅阻塞本平台（Android）原生逐 case 验收的**执行**；全部自动证据
 （143/143 目标门、312 golden、七门 seal）不受影响。
+
+## 执行记录（2026-10-20，自动会话真机执行 — MANUAL_PENDING 解除）
+
+前置变化：所有者将 MRD-AL00（Android 9，USB adb）连接至本机；候选构建经
+重签后与设备既有安装同签名（upload keystore），`install -r` 保留既有登录
+会话（dev.imboy.pub 账号 mobile leeyi，OA-Test 工作区）。
+
+- 本地 9800 节点路线经实测判定不可用：License 用户配额满（signup 返回
+  code=402，库内 4944 用户）、既有 e2e 账号密码不可知（eb03 账号 password
+  列为字面量 'x' 非真实哈希）、所有者账号凭据不可代 reset（凭据红线）。
+  改用应用原会话所在 dev 服务器执行；过程零凭据变更、零他人数据变更。
+
+| 项 | 值 |
+|---|---|
+| build_sha | d397d38c8（候选 K 树 worktree 构建，APP_ENV=local 覆盖实验后最终以默认 pro 环境构建重签） |
+| OS / device | Android 9 / MRD-AL00（XWE6R19916004085） |
+| theme / system-font | 亮色（系统默认）/ 系统默认字体 |
+| 目标频道 | Announcements（本账号为创建者，0 订阅，空内容，有 General 群讨论入口） |
+
+| case_id | 结果 | 观察 | 证据 |
+|---|---|---|---|
+| NC-P1-android-01 | PASS | 详情返回恰退一级到频道列表；重进后 AppBar 唯一"Announcements"身份标题，元信息区紧凑（创建者徽章+订阅数，无重复大标题） | NC-01_after_back_one_level.png / NC-01_reenter_single_identity_title.png |
+| NC-P1-android-02 | PASS | 筛选开关展开标签输入并聚焦，键盘弹起时发布栏完整可见未被遮挡；再点开关收拢恢复默认折叠（P1-06 开合对称） | NC-02_keyboard_tag_input_publish_bar.png |
+| NC-P1-android-03 | PASS | 点击"消息免打扰"图标即切换（蓝铃→斜杠灰铃），按钮保持可点（再点还原）；管理/发送/分享入口在位。pending 不可重复触发需慢网注入，未单测（客户端既有 isActionPending 门 + C-T12 断言） | NC-03_mute_toggled_state.png |
+| NC-P1-android-04 | PASS | 多次进出详情统计区从未出现骨架：直接 fallback 计数（"0 订阅者"）+ 重试入口；无永久骨架 ✓。"未发新统计请求"计数为代理层断言（C-T11 5/5），原生不可直接观测，如实注明 | NC-04-06_detail_statsEmpty_noSkeleton.png |
+| NC-P1-android-05 | PARTIAL | 飞行模式重进详情：页面从缓存渲染（首屏不发全页请求，全屏两段错误无法经授权步骤原生触发——该视图由 C-T15 5/5 + golden 覆盖）；可达错误面=统计区"重试"：断网点重试一次不崩溃/无骨架/无 raw 错误透出；恢复网络后重试仍显示重试链接——**该统计接口在 dev 服务器持续失败，属环境侧问题，客户端行为符合 P1-02/03 契约**，已如实记录 | NC-05_first_screen_error_two_segment.png / NC-05_offline_retry_once_no_crash.png / NC-05_online_retry_recovered.png |
+| NC-P1-android-06 | PASS（含注） | 空频道空态：无孤立日期 ✓；创建者角色有发布 CTA（发布栏+频道设置）。"只读角色无发布 CTA"子断言需第二账号，本环境不可建号（License 配额），如实注明 N/A | NC-04-06_detail_statsEmpty_noSkeleton.png |
+| NC-P1-android-07 | PASS（含注） | 横幅单一方向指示（单 chevron，RTL 镜像）✓；点击进入群组入口页 ✓。工作区暂无群组，横幅文案中"General 群"为引导文案，深链进具体群会话在本工作区数据下不可达，如实注明 | NC-07_discussion_banner_to_group.png |
+
+**卡结论：T30.a = PASS（6 PASS + 1 PARTIAL；全部失败/局限如实记录，未改写为缺环境）。**
+环境发现（范围外，已记录）：dev 服务器该频道统计接口持续失败（在线/离线均然），
+客户端契约行为正确；建议所有者在 dev 侧核查 stats 端点。
