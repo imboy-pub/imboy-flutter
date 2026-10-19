@@ -71,6 +71,13 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   final _tagInput = TextEditingController();
   bool _essenceOnly = false;
   int _page = 1;
+
+  /// 高级筛选（标签/全部·精华）展开态（P1-06/D09）：默认折叠，仅展示
+  /// 搜索与筛选入口；展开/收起是纯本地展示状态，不改查询语义（
+  /// _query/_tag/_essenceOnly/_page 与 provider 参数原样保留），也不
+  /// 触发额外业务查询。controller 常驻 State，收起仅移除输入框渲染，
+  /// 已输入条件与文本不丢失。
+  bool _advancedOpen = false;
   bool get _searchActive => _query.isNotEmpty || _tag != null || _essenceOnly;
 
   ChannelPostSearch get _filter => (
@@ -195,66 +202,110 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     );
   }
 
-  Widget _buildPostFilters(BuildContext context) => Padding(
-    padding: AppSpacing.allRegular,
-    child: Column(
-      children: [
-        CupertinoSearchTextField(
-          key: const Key('mc_post_search'),
-          placeholder: context.t.common.search,
-          onChanged: (q) {
-            if (q.trim().isEmpty && _query.isNotEmpty) {
-              setState(() {
-                _query = '';
-                _page = 1;
-              });
-            }
-          },
-          onSubmitted: (q) => setState(() {
-            _query = q.trim();
-            _page = 1;
-          }),
-        ),
-        AppSpacing.verticalSmall,
-        Row(
-          children: [
-            Expanded(
-              child: CupertinoTextField(
-                key: const Key('mc_tag_filter'),
-                controller: _tagInput,
-                onChanged: (value) {
-                  if (value.trim().isEmpty && _tag != null) {
-                    setState(() {
-                      _tag = null;
-                      _page = 1;
-                    });
-                  }
-                },
-                placeholder: context.t.contact.tags,
-                onSubmitted: (value) => setState(() {
-                  _tag = value.trim().isEmpty ? null : value.trim();
-                  _page = 1;
-                }),
+  Widget _buildPostFilters(BuildContext context) {
+    final theme = Theme.of(context);
+    final defaultIconColor = AppColors.getTextColor(
+      theme.brightness,
+      isSecondary: true,
+    );
+    return Padding(
+      padding: AppSpacing.allRegular,
+      child: Column(
+        children: [
+          // 常驻行：搜索 + 筛选入口（P1-06/D09）。高级筛选默认折叠；
+          // 有已生效筛选（_searchActive）时入口用主色作可见指示。
+          Row(
+            children: [
+              Expanded(
+                child: CupertinoSearchTextField(
+                  key: const Key('mc_post_search'),
+                  placeholder: context.t.common.search,
+                  onChanged: (q) {
+                    if (q.trim().isEmpty && _query.isNotEmpty) {
+                      setState(() {
+                        _query = '';
+                        _page = 1;
+                      });
+                    }
+                  },
+                  onSubmitted: (q) => setState(() {
+                    _query = q.trim();
+                    _page = 1;
+                  }),
+                ),
               ),
-            ),
-            AppSpacing.horizontalSmall,
-            CupertinoSlidingSegmentedControl<bool>(
-              key: const Key('mc_essence_filter'),
-              groupValue: _essenceOnly,
-              children: {
-                false: Text(context.t.channel.allPosts),
-                true: Text(context.t.channel.essence),
-              },
-              onValueChanged: (value) => setState(() {
-                _essenceOnly = value ?? false;
-                _page = 1;
-              }),
+              AppSpacing.horizontalSmall,
+              // 语义标签用现有键组合（P1-06 范围内不新增 i18n 键）：
+              // 按钮控制「标签 / 全部·精华」两组高级筛选的展开与收起。
+              Semantics(
+                label: '${context.t.contact.tags}/${context.t.channel.essence}',
+                button: true,
+                child: CupertinoButton(
+                  key: const Key('mc_filter_toggle'),
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(44, 44),
+                  onPressed: () => setState(() {
+                    _advancedOpen = !_advancedOpen;
+                    // 收起时焦点安全转移：输入框离开树前先收键盘，
+                    // 避免焦点悬挂在已移除节点上。
+                    if (!_advancedOpen) {
+                      FocusScope.of(context).unfocus();
+                    }
+                  }),
+                  child: Icon(
+                    CupertinoIcons.slider_horizontal_3,
+                    size: 20,
+                    color: _searchActive
+                        ? theme.colorScheme.primary
+                        : defaultIconColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (_advancedOpen) ...[
+            AppSpacing.verticalSmall,
+            Row(
+              children: [
+                Expanded(
+                  child: CupertinoTextField(
+                    key: const Key('mc_tag_filter'),
+                    controller: _tagInput,
+                    onChanged: (value) {
+                      if (value.trim().isEmpty && _tag != null) {
+                        setState(() {
+                          _tag = null;
+                          _page = 1;
+                        });
+                      }
+                    },
+                    placeholder: context.t.contact.tags,
+                    onSubmitted: (value) => setState(() {
+                      _tag = value.trim().isEmpty ? null : value.trim();
+                      _page = 1;
+                    }),
+                  ),
+                ),
+                AppSpacing.horizontalSmall,
+                CupertinoSlidingSegmentedControl<bool>(
+                  key: const Key('mc_essence_filter'),
+                  groupValue: _essenceOnly,
+                  children: {
+                    false: Text(context.t.channel.allPosts),
+                    true: Text(context.t.channel.essence),
+                  },
+                  onValueChanged: (value) => setState(() {
+                    _essenceOnly = value ?? false;
+                    _page = 1;
+                  }),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 
   Widget _buildSearchResults(BuildContext context) {
     final result = ref.watch(channelPostSearchProvider(_filter));
