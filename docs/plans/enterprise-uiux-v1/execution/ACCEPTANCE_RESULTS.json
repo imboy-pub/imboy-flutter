@@ -1,0 +1,316 @@
+{
+ "schema_version": 1,
+ "plan_id": "imboy-enterprise-uiux-v1",
+ "report_revision": 1,
+ "generated_at": "2026-10-19T11:09:35Z",
+ "candidate_k": null,
+ "candidate_k_status": "NOT_VERIFIED",
+ "report_note": "Initial B0-end report. REPORT_WRITTEN is not a product pass. K not frozen yet (T29 pending). All implementation/verification gates NOT_RUN unless stated.",
+ "summary": {
+  "auto_pass": 0,
+  "auto_total": 29,
+  "manual_pass": 0,
+  "manual_total": 0,
+  "recovery_pass": 3,
+  "recovery_total": 8,
+  "not_run": 33
+ },
+ "results": [
+  {
+   "id": "AC-P1-01",
+   "requirement": "真实企业路由只有一个负责本级返回的导航入口；频道身份标题只出现一次；embedded/standalone都不重复；更多/DM/发布栏未丢。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P1-02",
+   "requirement": "autoLoadStats=false时无永久统计骨架；已有订阅数来自现有字段；不新增请求，不混淆角色与真实创建者姓名。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P1-03",
+   "requirement": "首屏失败有图标、标题、说明、可用重试；一次点击原回调一次；分页失败保留已加载内容。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P1-04",
+   "requirement": "管理/静音或订阅/转发/分享中的原可见动作都可辨识；enabled/selected/disabled/pending分离；无空回调伪可用。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P1-05",
+   "requirement": "讨论文案无箭头字符，尾部只有一个方向图标；一次点击到原群入口；中英文大字无溢出。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P1-06a",
+   "requirement": "默认搜索+筛选入口；高级标签/分段不常驻；展开/收起保留条件且不产生额外请求；原筛选结果/提交语义不变。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P1-06b",
+   "requirement": "空/无结果/首屏错误/初始加载下日期装饰为0；有日期装饰时其后存在真实内容项。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P2-01",
+   "requirement": "资源/应用/辅助登录入口为同一背景和分组容器；无上白下灰断裂、重复标题或空资源卡片。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P2-02",
+   "requirement": "办公分组及OA直列入口为0，应用入口为1；OA entries、免登桥及现有按需签发未被删除。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P2-03",
+   "requirement": "应用行可见文本/tooltip/semantics不显示URL；原打开目标与bridge行为不变；未把隐藏URL宣称为生产化完成。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P2-04",
+   "requirement": "客服/项目/群组/频道/附件/应用的实际可见行均有统一图标槽和文本起点；原权限、顺序、目标保持。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P2-05",
+   "requirement": "Android原条件确认登录入口仍在；空资源/隐藏坐席/feature关闭没有被“修复”为越权展示。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P3-01",
+   "requirement": "有安全摘要时，三个状态都展示；同掩码不同摘要能区分；没有安全摘要时遵守原隐私回退，局限已明确。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P3-02",
+   "requirement": "三态信息顺序一致；只有等待/接入动作按状态不同；大字自然增高，不塞空行假装三行相同。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P3-03",
+   "requirement": "widget→网页咨询，未知→其他渠道，空→来源未知；文字/tooltip/semantics不暴露原枚举；协议原值不变。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-P3-04",
+   "requirement": "原掩码、org/workspace隔离、expected_version、分页游标、SSE、徽标、接单/打开行为全部保持；不推造未读/末条时间。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-01",
+   "requirement": "冻结候选完整diff未越过展示范围；Backend/Admin/数据库/业务模型未变；混合页面文件的业务函数也未被越权修改。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-02",
+   "requirement": "样式取值来自现有Token，无新增Color字面量、Colors.*、数字fontSize；不关闭TextScaler。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-03",
+   "requirement": "MATRIX.json规定312个配置的结构/图像/普通比较/审查分别计数；缺图或漏项不得skip；有环境和封存manifest证据。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-04",
+   "requirement": "无overflow/裁剪/不可达按钮；命中区≥48；正文4.5:1，可操作状态视觉3:1；禁用语义不靠颜色猜。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-05",
+   "requirement": "定向回归通过；最终候选analyze零问题，全量Flutter测试通过；EUnit明确N/A；不把需要设备的integration当成已跑。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-06",
+   "requirement": "所有当前支持语言键完整且生成可复现；i18n无并发生成覆盖。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-07",
+   "requirement": "最终测试绑定冻结候选K；报告R单独白名单验证；记录渲染环境/输入及hash，代码变化证据STALE，报告不冒充新HEAD全量已测。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-01",
+   "requirement": "registry把plan_id唯一映射到原集成与lane worktree；common-dir正确；不能通过随机新路径绕开恢复。",
+   "dimension": "recovery",
+   "status": "PASS",
+   "evidence": "T00 registry/tx-0001; plan_id unique; common-dir verified",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-02",
+   "requirement": "临时Git夹具覆盖活锁、commit未记账、dirty/漂移/证据失效、缺worktree；均有预期结果与退出码。",
+   "dimension": "recovery",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-03",
+   "requirement": "真的结束过一次会话，再用同一个提示词恢复；原worktree/branch/base与下一任务正确，无重复commit。未实做只能待验。",
+   "dimension": "recovery",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-04",
+   "requirement": "累计尝试、进程身份、锁owner/fencing、提交映射、下步动作持久化；没有reset/clean/stash吞改动，没有自动push/merge/部署。",
+   "dimension": "recovery",
+   "status": "PASS-so-far",
+   "evidence": "flock+admission+owner/epoch; events PREPARE/COMMIT tx-0001..0004; no reset/clean/stash",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-05",
+   "requirement": "所有任务可追提交/证据；T33在失败/阻塞时也能报告；报告成功不是产品PASS；原worktree及下一步明确。",
+   "dimension": "recovery",
+   "status": "PASS-so-far",
+   "evidence": "T00-T03 commits+evidence traceable; T33 reporting now; report!=pass stated",
+   "verified_against": null
+  },
+  {
+   "id": "AC-M-P1",
+   "requirement": "P1在iOS/Android真机与macOS窗口分别有平台case证据；前置测试数据已授权，九张原生卡不得互相冒充。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-M-P2",
+   "requirement": "P2在iOS/Android真机与macOS窗口分别有平台case证据；前置测试数据已授权，九张原生卡不得互相冒充。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-M-P3",
+   "requirement": "P3在iOS/Android真机与macOS窗口分别有平台case证据；前置测试数据已授权，九张原生卡不得互相冒充。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-08",
+   "requirement": "启动路径不依赖未来检查器；TASKS.json、TASKS.md、COMMANDS.json不出现空命令或产物前置循环。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-09",
+   "requirement": "测试图目录或manifest缺一项必需baseline则门禁非0，fresh checkout/外置归档恢复不能update后冒充旧图通过。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-Q-10",
+   "requirement": "仅批准的报告路径可形成R；PRD/测试/配置/执行工具/golden变更不能走report-only豁免。",
+   "dimension": "auto",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-06",
+   "requirement": "V1→V1.1迁移保留plan_id/原worktree/任务ID/commit/累计attempt；只对变更义务复验。",
+   "dimension": "recovery",
+   "status": "N/A-first-run",
+   "evidence": "no prior V1 execution registry found; PATHFIX-R1 adopted at bootstrap",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-07",
+   "requirement": "锁与状态案例调用实际运行模块；PREPARE/snapshot/COMMIT、PID复用、半行日志、活worker拒绝均有反例证据。",
+   "dimension": "recovery",
+   "status": "NOT_RUN",
+   "evidence": "",
+   "verified_against": null
+  },
+  {
+   "id": "AC-R-08",
+   "requirement": "一个页面的颜色/字体/设备阻塞不构成无关卡硬依赖；状态调度使用真实依赖而非仅按任务数字递增。",
+   "dimension": "recovery",
+   "status": "NOT_RUN",
+   "evidence": "scheduling deps beyond B0 not yet exercised",
+   "verified_against": null
+  }
+ ]
+}
