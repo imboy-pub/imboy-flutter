@@ -64,3 +64,12 @@ Owner 预计 15 分钟可用既有密钥接手。该 BLOCKED 不影响本文件 
 - 312 golden：candidates + sealed 双目录齐全，比较模式零 diff；
 - T28.m 跨会话：MANUAL_PENDING（未发生真实重启，见
   CROSS_SESSION_RESUME.md）。
+
+## 增补（2026-10-20 T30.a 真机执行后）
+
+- **T30.a 由 MANUAL_PENDING 升为 PASS**：真机 MRD-AL00（Android 9）逐 case
+  执行，6 PASS + 1 PARTIAL（case05 全屏错误视图无法经缓存路径原生触发，
+  由 C-T15 + golden 覆盖；统计接口在 dev 服务器持续失败属环境侧问题）。
+  逐 case 证据见 P1_MANUAL_android.md 执行记录与 evidence/T30.a/。
+- 候选仍为 K=d397d38c8（封存不变，无代码变更）；manual pending 余 8：
+  T28.m + T31/T31.a/T31.b + T32/T32.a/T32.b + T30/T30.b。

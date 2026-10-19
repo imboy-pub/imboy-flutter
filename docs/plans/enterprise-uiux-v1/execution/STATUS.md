@@ -32,7 +32,8 @@
 | B4 | T30—T32.b 原生验收 ×9 | DONE 记账（27807b978）：MANUAL_PENDING×9（无真机/桌面目标与人工操作者；输入就绪清单见各 P*_MANUAL_*.md） |
 | B4 | T33 交付候选 | DONE（PASS，6fd36c488/759e98366）：R7 汇总 + R8 FULL_PASS 更正；候选 K=d397d38c8 |
 
-- base：`c61cd8d46`｜集成 HEAD：`d397d38c8`（drill 动态尾随最终 C-RECOVERY 提交）｜运行真源 events 至 tx-0060（rev60）
+- base：`c61cd8d46`｜集成 HEAD：`543e4256` 后续（T30.a 真机执行 + 收尾增补，见 FINAL_REPORT rev9）｜运行真源 events 至 tx-0083（rev83）｜封存候选 K=d397d38c8 不变
+- 2026-10-20 增补：T30.a 真机执行 PASS（6+1PARTIAL）；T31.a/T32.a 探测后维持 MANUAL_PENDING；T28.m 仍需真实跨会话；manual 余 8
 - B2 提交链：…bada01525(T09)→714f4a481(R4)→c3f98c4f9(T10)→aff8b5ad5(T11)→7c3ffd056(T12)→e53e38248(T13)→fa9e833bf(T14)→995527db5(T15)→d11f87f64(T16)→ae6f90d58(T17)→21cb90401(T18)→688a5c8b3(gate)→285537bb6(T19-21)
 - ALLOWLIST 修订 2 次（T18/T19-21 补录，均按 TASKS.json write_paths 授权，非扩权）
 - 无 BLOCKED；golden 仍未生成（B3 开始）；K 未冻结
