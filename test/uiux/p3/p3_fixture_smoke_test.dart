@@ -41,10 +41,11 @@ void main() {
     expect(find.text('张**'), findsOneWidget);
     expect(find.text('李**'), findsOneWidget);
     expect(find.text('王**'), findsOneWidget);
-    // 摘要渲染（preview 非空态）；来源：widget→Web，phone→来源: phone，空→隐藏
+    // 摘要渲染（preview 非空态）；来源（T21 映射口径）：widget→网页，
+    // phone→未知（通用词不露 wire），空→未知
     expect(find.text('你好，想咨询一下'), findsOneWidget);
-    expect(find.text('Web'), findsOneWidget);
-    expect(find.text('来源: phone'), findsOneWidget);
+    expect(find.text('网页'), findsOneWidget);
+    expect(find.text('未知'), findsWidgets);
   });
 
   testWidgets('同掩码不同摘要：两行并存且摘要各自可见', (tester) async {

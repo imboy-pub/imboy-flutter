@@ -20,6 +20,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_paged_list.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_session_row_content.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_source_label.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_queue_view.dart'
     show csQueuePreviewText;
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart'
@@ -132,17 +134,15 @@ class _SessionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t.customerService;
+    // T19：信息布局抽入共用 CsSessionRowContent（名→摘要→来源）；
+    // 头像与打开动作仍是会话列表行专属，留在本页。
     final maskedName = csMaskContactName(item.contactName);
-    // 信息密度对齐「待接」队列行（名称 → 末条消息摘要 → 来源渠道）：
-    // 旧版只有「掩码名 + 来源:widget」，处理中/已关闭两页无法区分会话。
+    final Widget rowPreview = csQueuePreviewText(context, item);
     return InkWell(
       onTap: onOpen,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.medium,
-        ),
+        // 左缘对齐共用布局的 horizontal padding
+        padding: const EdgeInsets.only(left: AppSpacing.regular),
         child: Row(
           children: [
             Container(
@@ -158,57 +158,42 @@ class _SessionTile extends StatelessWidget {
                 size: 22,
               ),
             ),
-            AppSpacing.horizontalMedium,
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    maskedName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.textStyle(
-                      FontSizeType.subheadline,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.tiny),
-                  csQueuePreviewText(context, item),
-                  if (item.source.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.tiny),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            CupertinoIcons.chat_bubble,
-                            size: AppSpacing.regular,
-                            color: AppColors.iosGray,
-                          ),
-                          const SizedBox(width: AppSpacing.tiny),
-                          Flexible(
-                            child: Text(
-                              item.source == 'widget'
-                                  ? 'Web'
-                                  : '${t.sourceLabel}: ${item.source}',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.textStyle(
-                                FontSizeType.caption2,
-                                color: AppColors.iosGray,
+              child: CsSessionRowContent(
+                maskedName: maskedName,
+                preview: rowPreview,
+                source: item.source.isEmpty
+                    ? const SizedBox.shrink()
+                    : Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.tiny),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.chat_bubble,
+                              size: AppSpacing.regular,
+                              color: AppColors.iosGray,
+                            ),
+                            const SizedBox(width: AppSpacing.tiny),
+                            Flexible(
+                              child: Text(
+                                csSourceDisplayLabel(context, item.source),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: context.textStyle(
+                                  FontSizeType.caption2,
+                                  color: AppColors.iosGray,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                ],
+                trailing: const Icon(
+                  CupertinoIcons.chevron_right,
+                  size: 14,
+                  color: AppColors.iosGray3,
+                ),
               ),
-            ),
-            AppSpacing.horizontalSmall,
-            const Icon(
-              CupertinoIcons.chevron_right,
-              size: 14,
-              color: AppColors.iosGray3,
             ),
           ],
         ),

@@ -22,6 +22,8 @@ import 'package:imboy/modules/customer_service/domain/cs_queue_format.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_paged_list.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_session_row_content.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_source_label.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart'
     show kCsWorkspacePath;
 import 'package:imboy/theme/default/app_colors.dart';
@@ -226,97 +228,73 @@ class _QueueTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = context.t.customerService;
     final maskedName = csMaskContactName(item.contactName);
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.medium,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    // T19：信息布局抽入共用 CsSessionRowContent（名→摘要→来源）；
+    // 等待时长与接单动作仍是队列行专属，留在本页。
+    final Widget rowPreview = csQueuePreviewText(context, item);
+    return CsSessionRowContent(
+      maskedName: maskedName,
+      preview: Wrap(
+        spacing: AppSpacing.tiny,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: AppSpacing.tiny,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      maskedName,
+          rowPreview,
+          Text(
+            waitingLabel,
+            style: context.textStyle(
+              FontSizeType.caption2,
+              color: AppColors.iosOrange,
+            ),
+          ),
+        ],
+      ),
+      source: item.source.isEmpty
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.tiny),
+              child: Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.chat_bubble,
+                    size: AppSpacing.regular,
+                    color: AppColors.iosGray,
+                  ),
+                  const SizedBox(width: AppSpacing.tiny),
+                  Flexible(
+                    child: Text(
+                      csSourceDisplayLabel(context, item.source),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.textStyle(
-                        FontSizeType.subheadline,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      waitingLabel,
-                      style: context.textStyle(
                         FontSizeType.caption2,
-                        color: AppColors.iosOrange,
+                        color: AppColors.iosGray,
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.tiny),
-                csQueuePreviewText(context, item),
-                if (item.source.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.tiny),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          CupertinoIcons.chat_bubble,
-                          size: AppSpacing.regular,
-                          color: AppColors.iosGray,
-                        ),
-                        const SizedBox(width: AppSpacing.tiny),
-                        Flexible(
-                          child: Text(
-                            item.source == 'widget'
-                                ? 'Web'
-                                : '${t.sourceLabel}: ${item.source}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.textStyle(
-                              FontSizeType.caption2,
-                              color: AppColors.iosGray,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.medium),
-          FilledButton(
-            onPressed: claiming ? null : onClaim,
-            style: FilledButton.styleFrom(
-              foregroundColor: AppColors.sentMessageText,
-              backgroundColor: AppColors.primary,
-              minimumSize: const Size(
-                AppSizes.buttonMinWidth,
-                AppSizes.buttonHeightXLarge,
+                ],
               ),
+            ),
+      trailing: FilledButton(
+        onPressed: claiming ? null : onClaim,
+        style: FilledButton.styleFrom(
+          foregroundColor: AppColors.sentMessageText,
+          backgroundColor: AppColors.primary,
+          minimumSize: const Size(
+            AppSizes.buttonMinWidth,
+            AppSizes.buttonHeightXLarge,
+          ),
 
-              textStyle: TextStyle(
-                fontSize: FontSizeType.footnote.size,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            child: claiming
-                ? const SizedBox(
-                    width: 14,
-                    height: 14,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : Text(t.claimAction),
+          textStyle: TextStyle(
+            fontSize: FontSizeType.footnote.size,
+            fontWeight: FontWeight.w600,
           ),
-        ],
+        ),
+        child: claiming
+            ? const SizedBox(
+                width: 14,
+                height: 14,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(t.claimAction),
       ),
     );
   }
