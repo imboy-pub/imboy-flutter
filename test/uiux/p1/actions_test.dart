@@ -12,12 +12,10 @@ import 'dart:async' show Stream;
 import 'dart:math' show pow;
 import 'dart:convert' show jsonEncode;
 import 'dart:typed_data' show Uint8List;
-import 'dart:ui' show Color;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -25,7 +23,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_header_bar.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -126,9 +123,9 @@ double contrastRatio(Color a, Color b) {
           : pow((x + 0.055) / 1.055, 2.4).toDouble();
     }
 
-    return 0.2126 * ch(c.red.toDouble()) +
-        0.7152 * ch(c.green.toDouble()) +
-        0.0722 * ch(c.blue.toDouble());
+    return 0.2126 * ch(c.r * 255.0) +
+        0.7152 * ch(c.g * 255.0) +
+        0.0722 * ch(c.b * 255.0);
   }
 
   final double l1 = lum(a);

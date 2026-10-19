@@ -33,7 +33,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'p1_fixtures.dart';
 
 /// 空成功出口：记录路径供「无统计请求」断言。
-class _T11RecordingAdapter implements HttpClientAdapter {
+class RecordingAdapter implements HttpClientAdapter {
   final List<String> paths = <String>[];
 
   @override
@@ -57,7 +57,7 @@ class _T11RecordingAdapter implements HttpClientAdapter {
 }
 
 /// standalone 详情页（autoLoadStats 可控）+ 真实出口记录。
-Future<_T11RecordingAdapter> pumpT11Detail(
+Future<RecordingAdapter> pumpT11Detail(
   WidgetTester tester, {
   bool autoLoadStats = false,
   int subscriberCount = 12,
@@ -65,7 +65,7 @@ Future<_T11RecordingAdapter> pumpT11Detail(
   SharedPreferences.setMockInitialValues(<String, Object>{});
   await StorageService.init();
 
-  final _T11RecordingAdapter adapter = _T11RecordingAdapter();
+  final RecordingAdapter adapter = RecordingAdapter();
   final HttpClientAdapter? prevAdapter = HttpClient.adapterForTest;
   HttpClient.adapterForTest = adapter;
   addTearDown(() => HttpClient.adapterForTest = prevAdapter);
@@ -121,7 +121,7 @@ void main() {
     'p1_stats_null_uses_existing_count_without_request：stats 缺失用频道订阅数兜底且无统计请求',
     (tester) async {
       // fixture 从不产出 stats（恒 null）→ 兜底 channel.subscriberCount=12
-      final _T11RecordingAdapter adapter = await pumpT11Detail(
+      final RecordingAdapter adapter = await pumpT11Detail(
         tester,
         autoLoadStats: false,
       );
@@ -154,7 +154,7 @@ void main() {
   });
 
   testWidgets('autoLoadStats=false 无新增网络请求（仅静音态既有请求面）', (tester) async {
-    final _T11RecordingAdapter adapter = await pumpT11Detail(
+    final RecordingAdapter adapter = await pumpT11Detail(
       tester,
       autoLoadStats: false,
     );

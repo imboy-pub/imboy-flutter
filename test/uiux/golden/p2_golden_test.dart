@@ -18,7 +18,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
-import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
@@ -76,18 +75,7 @@ final List<GoldenP2Config> kP2GoldenConfigs = <GoldenP2Config>[
         for (final String theme in <String>['light', 'dark'])
           for (final double scale in <double>[1.0, 2.0])
             GoldenP2Config(
-              'p2/' +
-                  scene +
-                  '_' +
-                  platform +
-                  '_' +
-                  (vp[0] as int).toString() +
-                  'x' +
-                  (vp[1] as int).toString() +
-                  '_' +
-                  theme +
-                  '_s' +
-                  (scale == 1.0 ? '1' : scale.toInt().toString()),
+              'p2/${scene}_${platform}_${vp[0] as int}x${vp[1] as int}_${theme}_s${scale == 1.0 ? '1' : scale.toInt().toString()}',
               scene,
               platform == 'ios'
                   ? TargetPlatform.iOS
@@ -120,6 +108,7 @@ class GoldenP2Config {
 Future<void> _pumpP2Golden(WidgetTester tester, GoldenP2Config cfg) async {
   final TargetPlatform? prevPlatform = debugDefaultTargetPlatformOverride;
   debugDefaultTargetPlatformOverride = cfg.platform;
+  // conditional-login 场景以 android 平台形态出图（入口行含图标槽）
   final double prevDpr = tester.view.devicePixelRatio;
   final Size prevPhysical = tester.view.physicalSize;
   tester.view.devicePixelRatio = 1.0;
@@ -132,7 +121,6 @@ Future<void> _pumpP2Golden(WidgetTester tester, GoldenP2Config cfg) async {
     addTearDown(() => HttpClient.adapterForTest = prevAdapter);
 
     final bool withWorkspace = cfg.scene == 'resources-visible';
-    final bool androidInbound = cfg.scene == 'conditional-login';
 
     await tester.pumpWidget(
       TranslationProvider(

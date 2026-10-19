@@ -161,11 +161,11 @@ class P1ChannelDetailFixture extends ChannelDetailNotifier {
   P1ChannelDetailFixture({
     required this.trace,
     this.channel,
-    List<ChannelMessageModel> messages = const [],
+    this._messages = const [],
     this.hasMore = false,
     this.initialError = false,
     this.loadMoreError = false,
-  }) : _messages = messages;
+  });
 
   final P1FixtureTrace trace;
   final ChannelModel? channel;
@@ -254,8 +254,6 @@ Future<P1FixtureHandle> pumpP1ChannelFixture(
 
   final bool initialError = scenario == P1FixtureScenario.initialError;
   final bool readOnly = scenario == P1FixtureScenario.readOnly;
-  final bool statsNotRequested =
-      scenario == P1FixtureScenario.statsNotRequested;
   final bool empty = scenario == P1FixtureScenario.empty;
   final bool loadMoreError = scenario == P1FixtureScenario.loadMoreError;
   final bool longName = scenario == P1FixtureScenario.longName;

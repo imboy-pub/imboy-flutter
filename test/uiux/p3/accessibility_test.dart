@@ -15,7 +15,6 @@ import 'dart:io' show File;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -166,7 +165,7 @@ void main() {
         expect(
           find.text('张**'),
           findsOneWidget,
-          reason: '${scene}/${cfg.id} 行渲染',
+          reason: '$scene/${cfg.id} 行渲染',
         );
         expect(find.text('未知'), findsNothing, reason: 'widget 源显示本地化名而非未知');
         expect(
@@ -174,6 +173,7 @@ void main() {
           isNull,
           reason: '$scene/${cfg.id} 无渲染异常',
         );
+        expect(_sceneItem(scene)['id'], '1');
         executed.add(<String, Object?>{
           'scene': scene,
           'config': cfg.id,

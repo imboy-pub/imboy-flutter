@@ -370,6 +370,12 @@ dev_dependencies:
   device_info_plus_platform_interface: ^8.1.0
   flutter_secure_storage_platform_interface: ^2.1.0
   postgres: ^3.5.15
+  webview_flutter_wkwebview: any
+  shared_preferences_platform_interface: any
+  webview_flutter_platform_interface: any
+  camera_platform_interface: any
+  url_launcher_platform_interface: any
+  provider: any
 flutter:
 
   # ┌─ Material Design ───────────────────────────────────────────────┐

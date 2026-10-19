@@ -25,7 +25,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
-import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/feature_scope.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/http/http_client.dart';

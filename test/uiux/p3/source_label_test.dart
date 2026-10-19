@@ -60,7 +60,7 @@ void main() {
           .getSemanticsData();
       expect(data.label, '未知');
       expect(data.label.contains('telegram'), isFalse);
-      expect(data.tooltip ?? '', isEmpty, reason: '无 tooltip 附加');
+      expect(data.tooltip, isEmpty, reason: '无 tooltip 附加');
       handle.dispose();
     },
   );

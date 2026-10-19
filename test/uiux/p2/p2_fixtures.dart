@@ -35,7 +35,6 @@ import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.
     show kCsWorkspacePath;
 import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
-import 'package:imboy/page/workspace_shell/enterprise_shell_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -231,7 +230,7 @@ Future<P2FixtureHandle> pumpP2WorkbenchFixture(
         ),
       ),
       GoRoute(
-        path: '$kCsWorkspacePath',
+        path: kCsWorkspacePath,
         name: 'csWorkspace',
         builder: (_, _) => const Scaffold(body: Text('cs-workspace-dest')),
       ),

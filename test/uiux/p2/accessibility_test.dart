@@ -14,10 +14,8 @@ import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
 import 'dart:math' show pow;
 import 'dart:typed_data' show Uint8List;
-import 'dart:ui' show Color;
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -26,19 +24,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/storage.dart';
-import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'p2_fixtures.dart';
 
-class _T23NoopAdapter implements HttpClientAdapter {
+class RecordingNoopAdapter implements HttpClientAdapter {
   final List<String> paths = <String>[];
 
   @override
@@ -107,7 +103,7 @@ final List<MatrixConfig> kP2MatrixConfigs = <MatrixConfig>[
 ];
 
 /// 挂载真实工作台（资源入口经 shell 同构表达式 + CS gate 出口拦截）。
-Future<_T23NoopAdapter> pumpT23(
+Future<RecordingNoopAdapter> pumpT23(
   WidgetTester tester,
   MatrixConfig cfg, {
   bool withWorkspace = true,
@@ -116,7 +112,7 @@ Future<_T23NoopAdapter> pumpT23(
 }) async {
   SharedPreferences.setMockInitialValues(<String, Object>{});
   await StorageService.init();
-  final _T23NoopAdapter adapter = _T23NoopAdapter();
+  final RecordingNoopAdapter adapter = RecordingNoopAdapter();
   final HttpClientAdapter? prev = HttpClient.adapterForTest;
   HttpClient.adapterForTest = adapter;
   addTearDown(() => HttpClient.adapterForTest = prev);
@@ -250,9 +246,9 @@ void main() {
               : pow((x + 0.055) / 1.055, 2.4).toDouble();
         }
 
-        return 0.2126 * ch(c.red.toDouble()) +
-            0.7152 * ch(c.green.toDouble()) +
-            0.0722 * ch(c.blue.toDouble());
+        return 0.2126 * ch(c.r * 255.0) +
+            0.7152 * ch(c.g * 255.0) +
+            0.0722 * ch(c.b * 255.0);
       }
 
       // 文字画在 _GroupedSection 分组容器上：背景取实际 DecoratedBox 色
@@ -274,7 +270,7 @@ void main() {
   });
 
   testWidgets('resources-visible 场景：seat-contexts 出站且应用入口在', (tester) async {
-    final _T23NoopAdapter adapter = await pumpT23(
+    final RecordingNoopAdapter adapter = await pumpT23(
       tester,
       kP2MatrixConfigs.first,
       withWorkspace: true,

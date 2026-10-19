@@ -25,7 +25,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/web_view.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
@@ -139,7 +138,7 @@ class _FakeController extends PlatformWebViewController {
   Future<void> setJavaScriptMode(JavaScriptMode mode) async {}
 
   @override
-  Future<void> setNavigationDelegate(
+  Future<void> setPlatformNavigationDelegate(
     PlatformNavigationDelegate handler,
   ) async {}
 
@@ -153,11 +152,6 @@ class _FakeController extends PlatformWebViewController {
 
   @override
   Future<void> loadRequest(LoadRequestParams params) async {}
-
-  @override
-  Future<void> setPlatformNavigationDelegate(
-    PlatformNavigationDelegate handler,
-  ) async {}
 
   @override
   Future<void> clearCache() async {}

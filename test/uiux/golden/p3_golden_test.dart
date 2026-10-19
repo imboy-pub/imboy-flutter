@@ -23,7 +23,6 @@ import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_list_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../p1/p1_fixtures.dart';
 import '../support/golden_font_loader.dart';
 
 class _P3GoldenNoopAdapter implements HttpClientAdapter {
@@ -88,18 +87,7 @@ final List<GoldenP3Config> kP3GoldenConfigs = <GoldenP3Config>[
         for (final String theme in <String>['light', 'dark'])
           for (final double scale in <double>[1.0, 2.0])
             GoldenP3Config(
-              'p3/' +
-                  scene +
-                  '_' +
-                  platform +
-                  '_' +
-                  (vp[0] as int).toString() +
-                  'x' +
-                  (vp[1] as int).toString() +
-                  '_' +
-                  theme +
-                  '_s' +
-                  (scale == 1.0 ? '1' : scale.toInt().toString()),
+              'p3/${scene}_${platform}_${vp[0] as int}x${vp[1] as int}_${theme}_s${scale == 1.0 ? '1' : scale.toInt().toString()}',
               scene,
               platform == 'ios'
                   ? TargetPlatform.iOS

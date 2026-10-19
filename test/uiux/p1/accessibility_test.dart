@@ -15,7 +15,6 @@ import 'dart:convert' show jsonEncode;
 import 'dart:io' show File;
 import 'dart:math' show pow;
 import 'dart:typed_data' show Uint8List;
-import 'dart:ui' show Color;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
@@ -171,9 +170,9 @@ double contrastRatio(Color a, Color b) {
           : pow((x + 0.055) / 1.055, 2.4).toDouble();
     }
 
-    return 0.2126 * ch(c.red.toDouble()) +
-        0.7152 * ch(c.green.toDouble()) +
-        0.0722 * ch(c.blue.toDouble());
+    return 0.2126 * ch(c.r * 255.0) +
+        0.7152 * ch(c.g * 255.0) +
+        0.0722 * ch(c.b * 255.0);
   }
 
   final double l1 = lum(a);

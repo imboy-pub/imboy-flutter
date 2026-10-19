@@ -13,7 +13,6 @@ library;
 
 import 'dart:async' show Stream;
 import 'dart:convert' show jsonEncode;
-import 'dart:io' show Directory, File;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart';
@@ -27,7 +26,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
-import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/feature_scope.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -83,18 +81,7 @@ final List<GoldenConfig> kP1GoldenConfigs = <GoldenConfig>[
         for (final String theme in <String>['light', 'dark'])
           for (final double scale in <double>[1.0, 2.0])
             GoldenConfig(
-              'p1/' +
-                  scene +
-                  '_' +
-                  platform +
-                  '_' +
-                  (vp[0] as int).toString() +
-                  'x' +
-                  (vp[1] as int).toString() +
-                  '_' +
-                  theme +
-                  '_s' +
-                  (scale == 1.0 ? '1' : scale.toInt().toString()),
+              'p1/${scene}_${platform}_${vp[0] as int}x${vp[1] as int}_${theme}_s${scale == 1.0 ? '1' : scale.toInt().toString()}',
               scene,
               platform == 'ios'
                   ? TargetPlatform.iOS
@@ -182,6 +169,7 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
         });
     if (filtersExpanded) {
       await _enableGate();
+      addTearDown(_disableGate);
     }
 
     final HttpClientAdapter? prevAdapter = HttpClient.adapterForTest;
@@ -200,6 +188,7 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
         ),
       ],
     );
+    addTearDown(router.dispose);
 
     await tester.pumpWidget(
       TranslationProvider(
