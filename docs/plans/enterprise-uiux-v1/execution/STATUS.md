@@ -1,6 +1,6 @@
 # 执行状态快照 — imboy-enterprise-uiux-v1
 
-更新：2026-10-19 B3 收口（golden 封存 + 行为回归全绿）｜state revision 44｜状态：ACTIVE（B3 完成；下一批 B4，下一卡 T28）
+更新：2026-10-20 B4 收口（FULL_PASS 封存，交付候选汇总）｜state revision 60｜状态：CHECKPOINTED（51/51 卡 DONE；候选 K=d397d38c8；10 张 manual 性质卡验收待所有者）
 
 | 批 | 卡 | 状态 |
 |---|---|---|
@@ -26,14 +26,20 @@
 | B3 | T24 矩阵 | DONE（PASS，a879c3474）：C-T24-1 3/3；120/120；P3_MATRIX.md |
 | B3 | T24.a/b P3 golden | DONE（PASS，86ccbdec7）：120 张候选+封存+零 diff |
 | B3 | T25/T26/T27 行为回归 | DONE（PASS，1517c2b2f）：各 3/3 + LEGACY 45/46/62 pass；P*_REGRESSION.md |
-| B4 | T28 恢复演练 / T29 最终门 / T30—T32 原生验收 | TODO（**下一卡组**；T30—T32.b 为设备/桌面原生验收 manual 性质） |
+| B4 | T28 恢复演练 | DONE（PASS，04ac6dea4）：recovery_contract_test 25/25（真实 plan_lock/plan_state/check_scope 注入 RC01—RC24） |
+| B4 | T28.m 跨会话 | DONE 记账（cf6c36858）：MANUAL_PENDING（未发生真实重启，触发条件已备） |
+| B4 | T29 最终门 | DONE（PASS，17696aa5/9412e5134）：七门对 K；首轮 PARTIAL_BLOCKED→根因修复（vodozemac 原生库路径）→**FULL_PASS，candidate_seal 写入**（C-FULL 10830/10830） |
+| B4 | T30—T32.b 原生验收 ×9 | DONE 记账（27807b978）：MANUAL_PENDING×9（无真机/桌面目标与人工操作者；输入就绪清单见各 P*_MANUAL_*.md） |
+| B4 | T33 交付候选 | DONE（PASS，6fd36c488/759e98366）：R7 汇总 + R8 FULL_PASS 更正；候选 K=d397d38c8 |
 
-- base：`c61cd8d46`｜集成 HEAD：`1517c2b2f`｜运行真源 events tx-0001..0044（rev44）
+- base：`c61cd8d46`｜集成 HEAD：`d397d38c8`（drill 动态尾随最终 C-RECOVERY 提交）｜运行真源 events 至 tx-0060（rev60）
 - B2 提交链：…bada01525(T09)→714f4a481(R4)→c3f98c4f9(T10)→aff8b5ad5(T11)→7c3ffd056(T12)→e53e38248(T13)→fa9e833bf(T14)→995527db5(T15)→d11f87f64(T16)→ae6f90d58(T17)→21cb90401(T18)→688a5c8b3(gate)→285537bb6(T19-21)
 - ALLOWLIST 修订 2 次（T18/T19-21 补录，均按 TASKS.json write_paths 授权，非扩权）
 - 无 BLOCKED；golden 仍未生成（B3 开始）；K 未冻结
 
 ## 下一卡与下一条命令
 
-- 卡：**T28**（演练中断恢复与证据失效：模拟中断后按 RESUME_PROTOCOL 恢复验证）
-- 注意：T30—T32.b 为 iOS/Android/macOS 原生流程验收（设备/桌面依赖，manual 性质）；T29 最终门 K 冻结需 T28 恢复演练先行
+- 计划内自动任务全部完成。剩余为所有者人工义务：
+  1. T28.m——真实新会话粘贴同一 EXECUTION_PROMPT 的接续验证（流程：CROSS_SESSION_RESUME.md）；
+  2. T30—T32.b——三 lane × iOS/Android/macOS 原生逐 case 验收（就绪清单：各 P*_MANUAL_*.md；候选 K=d397d38c8）。
+- 复跑命令（如需）：`python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1`
