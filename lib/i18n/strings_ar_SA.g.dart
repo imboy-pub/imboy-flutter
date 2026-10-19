@@ -1890,6 +1890,7 @@ class _Translations$enterpriseOa$ar_SA extends Translations$enterpriseOa$zh_CN {
 	@override String get confirmLink => 'تأكيد ربط الحساب الحالي';
 	@override String get useExistingAccount => 'الدخول إلى حساب IMBoy موجود';
 	@override String get confirmCreate => 'تأكيد إنشاء حساب IMBoy جديد';
+	@override String get apps => 'التطبيقات';
 }
 
 // Path: error
@@ -2518,7 +2519,7 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات';
 	@override String channelTileSubtitle({required Object count}) => '${count} مشتركين';
 	@override String get channelDetailTitle => 'القناة';
-	@override String get discussInGroupGuide => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General ←';
+	@override String get discussInGroupGuide => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General.';
 	@override String get groupsEmptyTitle => 'لا توجد مجموعات في مساحة العمل بعد';
 	@override String get groupsEmptySubtitle => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)';
 	@override String groupTileSubtitle({required Object count}) => '${count} أعضاء المجموعة';
@@ -2693,6 +2694,28 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => 'لا يوجد نشاط في المشروع بعد';
 	@override String get projectInsightsPostsEmpty => 'لا توجد منشورات في القنوات المرتبطة';
 	@override String projectInsightsPostAuthor({required Object name}) => 'نشر ${name}';
+	@override String get advancedFeatures => 'ميزات متقدمة';
+	@override String get assistantEntry => 'المساعد الذكي';
+	@override String get comingSoon => 'قريبًا';
+	@override String get createOrJoinEnterprise => 'إنشاء مؤسسة أو الانضمام إليها';
+	@override String get featureComingSoon => 'الميزة قيد التطوير';
+	@override String get filterDm => 'رسائل مباشرة';
+	@override String get filterEdit => 'تعديل';
+	@override String get filterEmptyTitle => 'لا توجد محادثات مطابقة';
+	@override String get filterExternalChat => 'محادثات خارجية';
+	@override String get filterFlagged => 'مُعلَّم';
+	@override String get filterInternalChat => 'محادثات داخلية';
+	@override String get filterMentions => 'إشارات';
+	@override String get filterUnread => 'غير مقروء';
+	@override String get filterUnreadEmptyTitle => 'لا توجد محادثات غير مقروءة';
+	@override String get myCard => 'بطاقتي';
+	@override String get orgUnverified => 'غير موثّق';
+	@override String get recordFaceChat => 'تسجيل الدردشة المباشرة';
+	@override String get smartSummary => 'ملخص ذكي';
+	@override String get tabSchedule => 'الجدول';
+	@override String get tabTodo => 'المهام';
+	@override String get takeABreak => 'خذ قسطًا من الراحة';
+	@override String get todoEmptyTitle => 'لا توجد مهام';
 }
 
 // Path: account.alipaySim
@@ -4942,6 +4965,7 @@ extension on TranslationsArSa {
 			'enterpriseOa.confirmLink' => 'تأكيد ربط الحساب الحالي',
 			'enterpriseOa.useExistingAccount' => 'الدخول إلى حساب IMBoy موجود',
 			'enterpriseOa.confirmCreate' => 'تأكيد إنشاء حساب IMBoy جديد',
+			'enterpriseOa.apps' => 'التطبيقات',
 			'error.restartRequired' => 'إعادة تشغيل مطلوبة',
 			'error.pleaseCheckNetwork' => 'يرجى التحقق من إعدادات الشبكة الخاصة بك.',
 			'error.networkTroubleshootingStep1' => '1. افتح إعدادات الهاتف وقم بإبقاء مفتاح Wi-Fi قيد التشغيل.',
@@ -5306,9 +5330,9 @@ extension on TranslationsArSa {
 			'momentNotify.emptyTitle' => 'لا توجد إشعارات جديدة',
 			'momentNotify.emptyHint' => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك',
 			'momentNotify.actionLike' => 'أعجب بلحظتك',
-			'momentNotify.actionComment' => 'علّق',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.actionComment' => 'علّق',
 			'momentNotify.markAllRead' => 'قراءة الكل',
 			'momentNotify.clearAll' => 'مسح الكل',
 			'momentNotify.clearConfirmTitle' => 'مسح كل الإشعارات؟',
@@ -5772,7 +5796,7 @@ extension on TranslationsArSa {
 			'workspace.channelsEmptySubtitle' => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} مشتركين',
 			'workspace.channelDetailTitle' => 'القناة',
-			'workspace.discussInGroupGuide' => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General ←',
+			'workspace.discussInGroupGuide' => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General.',
 			'workspace.groupsEmptyTitle' => 'لا توجد مجموعات في مساحة العمل بعد',
 			'workspace.groupsEmptySubtitle' => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} أعضاء المجموعة',
@@ -5820,9 +5844,9 @@ extension on TranslationsArSa {
 			'workspace.transferConfirm' => 'تأكيد النقل',
 			'workspace.governanceTitle' => 'حوكمة مساحة العمل',
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
-			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',
 			'workspace.archiveDesc' => 'بعد الأرشفة يصبح الجميع للقراءة فقط (تُرفض عمليات الكتابة من الخادم)، ويمكن الاستعادة في أي وقت',
@@ -5949,6 +5973,28 @@ extension on TranslationsArSa {
 			'workspace.projectInsightsActivityEmpty' => 'لا يوجد نشاط في المشروع بعد',
 			'workspace.projectInsightsPostsEmpty' => 'لا توجد منشورات في القنوات المرتبطة',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'نشر ${name}',
+			'workspace.advancedFeatures' => 'ميزات متقدمة',
+			'workspace.assistantEntry' => 'المساعد الذكي',
+			'workspace.comingSoon' => 'قريبًا',
+			'workspace.createOrJoinEnterprise' => 'إنشاء مؤسسة أو الانضمام إليها',
+			'workspace.featureComingSoon' => 'الميزة قيد التطوير',
+			'workspace.filterDm' => 'رسائل مباشرة',
+			'workspace.filterEdit' => 'تعديل',
+			'workspace.filterEmptyTitle' => 'لا توجد محادثات مطابقة',
+			'workspace.filterExternalChat' => 'محادثات خارجية',
+			'workspace.filterFlagged' => 'مُعلَّم',
+			'workspace.filterInternalChat' => 'محادثات داخلية',
+			'workspace.filterMentions' => 'إشارات',
+			'workspace.filterUnread' => 'غير مقروء',
+			'workspace.filterUnreadEmptyTitle' => 'لا توجد محادثات غير مقروءة',
+			'workspace.myCard' => 'بطاقتي',
+			'workspace.orgUnverified' => 'غير موثّق',
+			'workspace.recordFaceChat' => 'تسجيل الدردشة المباشرة',
+			'workspace.smartSummary' => 'ملخص ذكي',
+			'workspace.tabSchedule' => 'الجدول',
+			'workspace.tabTodo' => 'المهام',
+			'workspace.takeABreak' => 'خذ قسطًا من الراحة',
+			'workspace.todoEmptyTitle' => 'لا توجد مهام',
 			_ => null,
 		};
 	}

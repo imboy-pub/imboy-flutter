@@ -1887,6 +1887,7 @@ class _Translations$enterpriseOa$ru_RU extends Translations$enterpriseOa$zh_CN {
 	@override String get confirmLink => 'Подтвердить привязку текущей учётной записи';
 	@override String get useExistingAccount => 'Войти в существующую учётную запись IMBoy';
 	@override String get confirmCreate => 'Подтвердить создание учётной записи IMBoy';
+	@override String get apps => 'Приложения';
 }
 
 // Path: error
@@ -2515,7 +2516,7 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы';
 	@override String channelTileSubtitle({required Object count}) => 'Подписчиков: ${count}';
 	@override String get channelDetailTitle => 'Канал';
-	@override String get discussInGroupGuide => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General →';
+	@override String get discussInGroupGuide => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General.';
 	@override String get groupsEmptyTitle => 'Пока нет групп в рабочем пространстве';
 	@override String get groupsEmptySubtitle => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)';
 	@override String groupTileSubtitle({required Object count}) => 'Участников группы: ${count}';
@@ -2690,6 +2691,28 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => 'В проекте пока нет событий';
 	@override String get projectInsightsPostsEmpty => 'В привязанных каналах пока нет публикаций';
 	@override String projectInsightsPostAuthor({required Object name}) => 'Опубликовано: ${name}';
+	@override String get advancedFeatures => 'Расширенные функции';
+	@override String get assistantEntry => 'ИИ-ассистент';
+	@override String get comingSoon => 'Скоро';
+	@override String get createOrJoinEnterprise => 'Создать организацию или присоединиться';
+	@override String get featureComingSoon => 'Функция в разработке';
+	@override String get filterDm => 'Личные сообщения';
+	@override String get filterEdit => 'Изменить';
+	@override String get filterEmptyTitle => 'Нет подходящих бесед';
+	@override String get filterExternalChat => 'Внешние чаты';
+	@override String get filterFlagged => 'С флажком';
+	@override String get filterInternalChat => 'Внутренние чаты';
+	@override String get filterMentions => 'Упоминания';
+	@override String get filterUnread => 'Непрочитанные';
+	@override String get filterUnreadEmptyTitle => 'Нет непрочитанных бесед';
+	@override String get myCard => 'Моя карточка';
+	@override String get orgUnverified => 'Не подтверждена';
+	@override String get recordFaceChat => 'Записать личную встречу';
+	@override String get smartSummary => 'Умная сводка';
+	@override String get tabSchedule => 'Расписание';
+	@override String get tabTodo => 'Задачи';
+	@override String get takeABreak => 'Немного отдохните';
+	@override String get todoEmptyTitle => 'Нет задач';
 }
 
 // Path: account.alipaySim
@@ -4939,6 +4962,7 @@ extension on TranslationsRuRu {
 			'enterpriseOa.confirmLink' => 'Подтвердить привязку текущей учётной записи',
 			'enterpriseOa.useExistingAccount' => 'Войти в существующую учётную запись IMBoy',
 			'enterpriseOa.confirmCreate' => 'Подтвердить создание учётной записи IMBoy',
+			'enterpriseOa.apps' => 'Приложения',
 			'error.restartRequired' => 'Требуется перезапуск приложения',
 			'error.pleaseCheckNetwork' => 'Пожалуйста, проверьте настройки сети.',
 			'error.networkTroubleshootingStep1' => '1. Включите Wi-Fi в настройках телефона',
@@ -5303,9 +5327,9 @@ extension on TranslationsRuRu {
 			'momentNotify.emptyTitle' => 'Нет новых уведомлений',
 			'momentNotify.emptyHint' => 'Здесь появятся лайки и комментарии друзей к вашим Моментам',
 			'momentNotify.actionLike' => 'оценил(а) ваш Момент',
-			'momentNotify.actionComment' => 'оставил(а) комментарий',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.actionComment' => 'оставил(а) комментарий',
 			'momentNotify.markAllRead' => 'Прочитать все',
 			'momentNotify.clearAll' => 'Очистить всё',
 			'momentNotify.clearConfirmTitle' => 'Очистить все уведомления?',
@@ -5769,7 +5793,7 @@ extension on TranslationsRuRu {
 			'workspace.channelsEmptySubtitle' => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы',
 			'workspace.channelTileSubtitle' => ({required Object count}) => 'Подписчиков: ${count}',
 			'workspace.channelDetailTitle' => 'Канал',
-			'workspace.discussInGroupGuide' => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General →',
+			'workspace.discussInGroupGuide' => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General.',
 			'workspace.groupsEmptyTitle' => 'Пока нет групп в рабочем пространстве',
 			'workspace.groupsEmptySubtitle' => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'Участников группы: ${count}',
@@ -5817,9 +5841,9 @@ extension on TranslationsRuRu {
 			'workspace.transferConfirm' => 'Подтвердить передачу',
 			'workspace.governanceTitle' => 'Управление рабочим пространством',
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
-			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',
 			'workspace.archiveDesc' => 'После архивации у всех режим только для чтения (операции записи отклоняются сервером); восстановить можно в любой момент',
@@ -5946,6 +5970,28 @@ extension on TranslationsRuRu {
 			'workspace.projectInsightsActivityEmpty' => 'В проекте пока нет событий',
 			'workspace.projectInsightsPostsEmpty' => 'В привязанных каналах пока нет публикаций',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Опубликовано: ${name}',
+			'workspace.advancedFeatures' => 'Расширенные функции',
+			'workspace.assistantEntry' => 'ИИ-ассистент',
+			'workspace.comingSoon' => 'Скоро',
+			'workspace.createOrJoinEnterprise' => 'Создать организацию или присоединиться',
+			'workspace.featureComingSoon' => 'Функция в разработке',
+			'workspace.filterDm' => 'Личные сообщения',
+			'workspace.filterEdit' => 'Изменить',
+			'workspace.filterEmptyTitle' => 'Нет подходящих бесед',
+			'workspace.filterExternalChat' => 'Внешние чаты',
+			'workspace.filterFlagged' => 'С флажком',
+			'workspace.filterInternalChat' => 'Внутренние чаты',
+			'workspace.filterMentions' => 'Упоминания',
+			'workspace.filterUnread' => 'Непрочитанные',
+			'workspace.filterUnreadEmptyTitle' => 'Нет непрочитанных бесед',
+			'workspace.myCard' => 'Моя карточка',
+			'workspace.orgUnverified' => 'Не подтверждена',
+			'workspace.recordFaceChat' => 'Записать личную встречу',
+			'workspace.smartSummary' => 'Умная сводка',
+			'workspace.tabSchedule' => 'Расписание',
+			'workspace.tabTodo' => 'Задачи',
+			'workspace.takeABreak' => 'Немного отдохните',
+			'workspace.todoEmptyTitle' => 'Нет задач',
 			_ => null,
 		};
 	}

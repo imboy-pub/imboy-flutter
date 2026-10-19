@@ -2507,7 +2507,7 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '頻道用於持續發布內容（公告/資料），討論請去群組';
 	@override String channelTileSubtitle({required Object count}) => '${count} 位訂閱者';
 	@override String get channelDetailTitle => '頻道';
-	@override String get discussInGroupGuide => '頻道用於發布內容；想討論？去 General 群聊聊 →';
+	@override String get discussInGroupGuide => '頻道用於發布內容；想討論？去 General 群聊聊。';
 	@override String get groupsEmptyTitle => '還沒有工作區群組';
 	@override String get groupsEmptySubtitle => '群組是工作區裡的即時討論空間（聊天唯一入口）';
 	@override String groupTileSubtitle({required Object count}) => '${count} 位群成員';
@@ -2682,6 +2682,28 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => '專案暫無動態';
 	@override String get projectInsightsPostsEmpty => '關聯頻道暫無貼文';
 	@override String projectInsightsPostAuthor({required Object name}) => '${name} 發布';
+	@override String get advancedFeatures => '進階功能';
+	@override String get assistantEntry => '智能助理';
+	@override String get comingSoon => '即將上線';
+	@override String get createOrJoinEnterprise => '建立 / 加入企業';
+	@override String get featureComingSoon => '功能開發中';
+	@override String get filterDm => '單聊';
+	@override String get filterEdit => '編輯';
+	@override String get filterEmptyTitle => '暫無符合條件的會話';
+	@override String get filterExternalChat => '外部聊天';
+	@override String get filterFlagged => '標記';
+	@override String get filterInternalChat => '內部聊天';
+	@override String get filterMentions => '@我';
+	@override String get filterUnread => '未讀';
+	@override String get filterUnreadEmptyTitle => '暫無未讀會話';
+	@override String get myCard => '我的名片';
+	@override String get orgUnverified => '未認證';
+	@override String get recordFaceChat => '記錄面聊';
+	@override String get smartSummary => '智能總結';
+	@override String get tabSchedule => '日程';
+	@override String get tabTodo => '待辦';
+	@override String get takeABreak => '休息一下';
+	@override String get todoEmptyTitle => '暫無待辦';
 }
 
 // Path: account.alipaySim
@@ -5762,7 +5784,7 @@ extension on TranslationsZhHant {
 			'workspace.channelsEmptySubtitle' => '頻道用於持續發布內容（公告/資料），討論請去群組',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位訂閱者',
 			'workspace.channelDetailTitle' => '頻道',
-			'workspace.discussInGroupGuide' => '頻道用於發布內容；想討論？去 General 群聊聊 →',
+			'workspace.discussInGroupGuide' => '頻道用於發布內容；想討論？去 General 群聊聊。',
 			'workspace.groupsEmptyTitle' => '還沒有工作區群組',
 			'workspace.groupsEmptySubtitle' => '群組是工作區裡的即時討論空間（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成員',
@@ -5939,6 +5961,28 @@ extension on TranslationsZhHant {
 			'workspace.projectInsightsActivityEmpty' => '專案暫無動態',
 			'workspace.projectInsightsPostsEmpty' => '關聯頻道暫無貼文',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 發布',
+			'workspace.advancedFeatures' => '進階功能',
+			'workspace.assistantEntry' => '智能助理',
+			'workspace.comingSoon' => '即將上線',
+			'workspace.createOrJoinEnterprise' => '建立 / 加入企業',
+			'workspace.featureComingSoon' => '功能開發中',
+			'workspace.filterDm' => '單聊',
+			'workspace.filterEdit' => '編輯',
+			'workspace.filterEmptyTitle' => '暫無符合條件的會話',
+			'workspace.filterExternalChat' => '外部聊天',
+			'workspace.filterFlagged' => '標記',
+			'workspace.filterInternalChat' => '內部聊天',
+			'workspace.filterMentions' => '@我',
+			'workspace.filterUnread' => '未讀',
+			'workspace.filterUnreadEmptyTitle' => '暫無未讀會話',
+			'workspace.myCard' => '我的名片',
+			'workspace.orgUnverified' => '未認證',
+			'workspace.recordFaceChat' => '記錄面聊',
+			'workspace.smartSummary' => '智能總結',
+			'workspace.tabSchedule' => '日程',
+			'workspace.tabTodo' => '待辦',
+			'workspace.takeABreak' => '休息一下',
+			'workspace.todoEmptyTitle' => '暫無待辦',
 			_ => null,
 		};
 	}

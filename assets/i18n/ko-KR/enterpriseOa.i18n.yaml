@@ -36,3 +36,6 @@ accountChoice: "기존 IMBoy 계정을 연결하거나 새 계정 생성을 명�
 confirmLink: "현재 계정 연결 확인"
 useExistingAccount: "기존 IMBoy 계정에 로그인"
 confirmCreate: "새 IMBoy 계정 생성 확인"
+
+# T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
+apps: "앱"

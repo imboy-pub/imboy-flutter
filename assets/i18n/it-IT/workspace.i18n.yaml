@@ -36,7 +36,7 @@ createTemplateGroup: "Gruppo General (diventerai membro del gruppo)"
 createTemplateOwner: "Diventerai Owner dell'area di lavoro (membro dell'area di lavoro)"
 createTemplateTitle: Verrà inizializzato automaticamente
 createTitle: Crea area di lavoro
-discussInGroupGuide: "I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →"
+discussInGroupGuide: "I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General."
 dmEntry: Tutti i messaggi
 emptyNoWorkspace: Seleziona o crea prima un'area di lavoro
 experienceModePersonal: Personale
@@ -217,3 +217,27 @@ taskUpdatedToast: Attività salvata
 transferConfirm: Conferma trasferimento
 transferDesc: "Dopo il trasferimento diventerai un normale membro dell'area di lavoro (Member) e l'altro otterrà tutti i poteri di governance"
 transferTitle(name): "Trasferisci il ruolo di Owner principale a $name"
+
+# T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
+advancedFeatures: "Funzioni avanzate"
+assistantEntry: "Assistente IA"
+comingSoon: "In arrivo"
+createOrJoinEnterprise: "Crea o entra in un'organizzazione"
+featureComingSoon: "Funzionalità in sviluppo"
+filterDm: "Messaggi diretti"
+filterEdit: "Modifica"
+filterEmptyTitle: "Nessuna conversazione corrispondente"
+filterExternalChat: "Chat esterni"
+filterFlagged: "Contrassegnati"
+filterInternalChat: "Chat interni"
+filterMentions: "Menzioni"
+filterUnread: "Non letti"
+filterUnreadEmptyTitle: "Nessuna conversazione non letta"
+myCard: "La mia card"
+orgUnverified: "Non verificata"
+recordFaceChat: "Registra chat faccia a faccia"
+smartSummary: "Riepilogo intelligente"
+tabSchedule: "Agenda"
+tabTodo: "Da fare"
+takeABreak: "Fai una pausa"
+todoEmptyTitle: "Nessuna attività"

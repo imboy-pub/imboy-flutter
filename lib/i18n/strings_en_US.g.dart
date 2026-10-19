@@ -1776,6 +1776,7 @@ class _Translations$customerService$en_US extends Translations$customerService$z
 	@override String waitingMinutes({required Object n}) => '${n} min';
 	@override String waitingHoursMinutes({required Object h, required Object m}) => '${h} h ${m} min';
 	@override String waitingDaysHours({required Object d, required Object h}) => '${d} d ${h} h';
+	@override String get sourceWidget => 'Web';
 	@override String get sourceLabel => 'Source';
 	@override String get queuedEmptyTitle => 'No queued conversations';
 	@override String get queuedEmptyHint => 'Pull to refresh — new conversations will appear here';
@@ -2693,7 +2694,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups';
 	@override String channelTileSubtitle({required Object count}) => '${count} subscribers';
 	@override String get channelDetailTitle => 'Channel';
-	@override String get discussInGroupGuide => 'Channels are for publishing; want to discuss? Jump to the General group →';
+	@override String get discussInGroupGuide => 'Channels are for publishing; want to discuss? Jump to the General group.';
 	@override String get groupsEmptyTitle => 'No workspace groups yet';
 	@override String get groupsEmptySubtitle => 'Groups are real-time discussion spaces in the workspace (the only chat entry)';
 	@override String groupTileSubtitle({required Object count}) => '${count} group members';
@@ -2868,6 +2869,28 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => 'No activity yet';
 	@override String get projectInsightsPostsEmpty => 'No posts in linked channels';
 	@override String projectInsightsPostAuthor({required Object name}) => 'Posted by ${name}';
+	@override String get advancedFeatures => 'Advanced features';
+	@override String get assistantEntry => 'AI assistant';
+	@override String get comingSoon => 'Coming soon';
+	@override String get createOrJoinEnterprise => 'Create or join an organization';
+	@override String get featureComingSoon => 'Feature in development';
+	@override String get filterDm => 'Direct messages';
+	@override String get filterEdit => 'Edit';
+	@override String get filterEmptyTitle => 'No matching conversations';
+	@override String get filterExternalChat => 'External chats';
+	@override String get filterFlagged => 'Flagged';
+	@override String get filterInternalChat => 'Internal chats';
+	@override String get filterMentions => 'Mentions';
+	@override String get filterUnread => 'Unread';
+	@override String get filterUnreadEmptyTitle => 'No unread conversations';
+	@override String get myCard => 'My card';
+	@override String get orgUnverified => 'Unverified';
+	@override String get recordFaceChat => 'Log face-to-face chat';
+	@override String get smartSummary => 'Smart summary';
+	@override String get tabSchedule => 'Schedule';
+	@override String get tabTodo => 'To-do';
+	@override String get takeABreak => 'Take a break';
+	@override String get todoEmptyTitle => 'No to-dos';
 }
 
 // Path: account.alipaySim
@@ -5061,6 +5084,7 @@ extension on TranslationsEnUs {
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} min',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} h ${m} min',
 			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} d ${h} h',
+			'customerService.sourceWidget' => 'Web',
 			'customerService.sourceLabel' => 'Source',
 			'customerService.queuedEmptyTitle' => 'No queued conversations',
 			'customerService.queuedEmptyHint' => 'Pull to refresh — new conversations will appear here',
@@ -5523,9 +5547,9 @@ extension on TranslationsEnUs {
 			'main.collected' => 'Favorited',
 			'main.completed' => 'Completed',
 			'main.copied' => 'Copied',
-			'main.darkModel' => 'Dark mode',
 			_ => null,
 		} ?? switch (path) {
+			'main.darkModel' => 'Dark mode',
 			'main.deDd' => 'German (Germany)',
 			'main.disable' => 'Disable',
 			'main.enUs' => 'English (US)',
@@ -6037,9 +6061,9 @@ extension on TranslationsEnUs {
 			'organization.manage.dissolveGroupTitle' => ({required Object name}) => 'Dissolve 「${name}」?',
 			'organization.manage.dissolveGroupBody' => 'Dissolving cannot be undone. Membership ends, but message history and audit records are kept.',
 			'organization.manage.channelSection' => 'Enterprise channels',
-			'organization.manage.createChannel' => 'New channel',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.createChannel' => 'New channel',
 			'organization.manage.channelNameHint' => 'Channel name',
 			'organization.manage.channelPolicyNote' => 'Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace.',
 			'organization.manage.channelEmpty' => 'No enterprise channels yet',
@@ -6187,7 +6211,7 @@ extension on TranslationsEnUs {
 			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',
-			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group →',
+			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group.',
 			'workspace.groupsEmptyTitle' => 'No workspace groups yet',
 			'workspace.groupsEmptySubtitle' => 'Groups are real-time discussion spaces in the workspace (the only chat entry)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
@@ -6362,6 +6386,28 @@ extension on TranslationsEnUs {
 			'workspace.projectInsightsActivityEmpty' => 'No activity yet',
 			'workspace.projectInsightsPostsEmpty' => 'No posts in linked channels',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Posted by ${name}',
+			'workspace.advancedFeatures' => 'Advanced features',
+			'workspace.assistantEntry' => 'AI assistant',
+			'workspace.comingSoon' => 'Coming soon',
+			'workspace.createOrJoinEnterprise' => 'Create or join an organization',
+			'workspace.featureComingSoon' => 'Feature in development',
+			'workspace.filterDm' => 'Direct messages',
+			'workspace.filterEdit' => 'Edit',
+			'workspace.filterEmptyTitle' => 'No matching conversations',
+			'workspace.filterExternalChat' => 'External chats',
+			'workspace.filterFlagged' => 'Flagged',
+			'workspace.filterInternalChat' => 'Internal chats',
+			'workspace.filterMentions' => 'Mentions',
+			'workspace.filterUnread' => 'Unread',
+			'workspace.filterUnreadEmptyTitle' => 'No unread conversations',
+			'workspace.myCard' => 'My card',
+			'workspace.orgUnverified' => 'Unverified',
+			'workspace.recordFaceChat' => 'Log face-to-face chat',
+			'workspace.smartSummary' => 'Smart summary',
+			'workspace.tabSchedule' => 'Schedule',
+			'workspace.tabTodo' => 'To-do',
+			'workspace.takeABreak' => 'Take a break',
+			'workspace.todoEmptyTitle' => 'No to-dos',
 			_ => null,
 		};
 	}

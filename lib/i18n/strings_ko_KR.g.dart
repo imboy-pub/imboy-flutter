@@ -1878,6 +1878,7 @@ class _Translations$enterpriseOa$ko_KR extends Translations$enterpriseOa$zh_CN {
 	@override String get confirmLink => '현재 계정 연결 확인';
 	@override String get useExistingAccount => '기존 IMBoy 계정에 로그인';
 	@override String get confirmCreate => '새 IMBoy 계정 생성 확인';
+	@override String get apps => '앱';
 }
 
 // Path: error
@@ -2506,7 +2507,7 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요';
 	@override String channelTileSubtitle({required Object count}) => '구독자 ${count}명';
 	@override String get channelDetailTitle => '채널';
-	@override String get discussInGroupGuide => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 →';
+	@override String get discussInGroupGuide => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 진행하세요.';
 	@override String get groupsEmptyTitle => '아직 워크스페이스 그룹이 없습니다';
 	@override String get groupsEmptySubtitle => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)';
 	@override String groupTileSubtitle({required Object count}) => '그룹 구성원 ${count}명';
@@ -2681,6 +2682,28 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => '프로젝트에 활동이 없습니다';
 	@override String get projectInsightsPostsEmpty => '연결된 채널에 게시물이 없습니다';
 	@override String projectInsightsPostAuthor({required Object name}) => '${name} 게시';
+	@override String get advancedFeatures => '고급 기능';
+	@override String get assistantEntry => '스마트 어시스턴트';
+	@override String get comingSoon => '곧 출시 예정';
+	@override String get createOrJoinEnterprise => '기업 만들기 / 가입';
+	@override String get featureComingSoon => '기능 개발 중';
+	@override String get filterDm => '다이렉트 메시지';
+	@override String get filterEdit => '편집';
+	@override String get filterEmptyTitle => '일치하는 대화가 없습니다';
+	@override String get filterExternalChat => '외부 채팅';
+	@override String get filterFlagged => '표시됨';
+	@override String get filterInternalChat => '내부 채팅';
+	@override String get filterMentions => '멘션';
+	@override String get filterUnread => '읽지 않음';
+	@override String get filterUnreadEmptyTitle => '읽지 않은 대화가 없습니다';
+	@override String get myCard => '내 명함';
+	@override String get orgUnverified => '미인증';
+	@override String get recordFaceChat => '대면 채팅 기록';
+	@override String get smartSummary => '스마트 요약';
+	@override String get tabSchedule => '일정';
+	@override String get tabTodo => '할 일';
+	@override String get takeABreak => '잠시 쉬어가세요';
+	@override String get todoEmptyTitle => '할 일이 없습니다';
 }
 
 // Path: account.alipaySim
@@ -4930,6 +4953,7 @@ extension on TranslationsKoKr {
 			'enterpriseOa.confirmLink' => '현재 계정 연결 확인',
 			'enterpriseOa.useExistingAccount' => '기존 IMBoy 계정에 로그인',
 			'enterpriseOa.confirmCreate' => '새 IMBoy 계정 생성 확인',
+			'enterpriseOa.apps' => '앱',
 			'error.restartRequired' => '앱 재시작 필요',
 			'error.pleaseCheckNetwork' => '네트워크 설정을 확인해 주세요.',
 			'error.networkTroubleshootingStep1' => '1. 휴대전화 설정을 열고 Wi-Fi 스위치를 켜 주세요.',
@@ -5294,9 +5318,9 @@ extension on TranslationsKoKr {
 			'momentNotify.emptyTitle' => '새 알림이 없습니다',
 			'momentNotify.emptyHint' => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다',
 			'momentNotify.actionLike' => '님이 회원님의 모멘트를 좋아합니다',
-			'momentNotify.actionComment' => '님이 댓글을 남겼습니다',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.actionComment' => '님이 댓글을 남겼습니다',
 			'momentNotify.markAllRead' => '모두 읽음',
 			'momentNotify.clearAll' => '전체 삭제',
 			'momentNotify.clearConfirmTitle' => '모든 알림을 삭제하시겠습니까?',
@@ -5760,7 +5784,7 @@ extension on TranslationsKoKr {
 			'workspace.channelsEmptySubtitle' => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '구독자 ${count}명',
 			'workspace.channelDetailTitle' => '채널',
-			'workspace.discussInGroupGuide' => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 →',
+			'workspace.discussInGroupGuide' => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 진행하세요.',
 			'workspace.groupsEmptyTitle' => '아직 워크스페이스 그룹이 없습니다',
 			'workspace.groupsEmptySubtitle' => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '그룹 구성원 ${count}명',
@@ -5808,9 +5832,9 @@ extension on TranslationsKoKr {
 			'workspace.transferConfirm' => '이전 확인',
 			'workspace.governanceTitle' => '워크스페이스 거버넌스',
 			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
-			'workspace.archiveEntry' => '워크스페이스 보관',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
 			'workspace.archiveTitle' => '워크스페이스 보관',
 			'workspace.archiveDesc' => '보관 후 전원 읽기 전용이 됩니다(쓰기 작업은 서버에서 거부). 언제든지 복원할 수 있습니다',
@@ -5937,6 +5961,28 @@ extension on TranslationsKoKr {
 			'workspace.projectInsightsActivityEmpty' => '프로젝트에 활동이 없습니다',
 			'workspace.projectInsightsPostsEmpty' => '연결된 채널에 게시물이 없습니다',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 게시',
+			'workspace.advancedFeatures' => '고급 기능',
+			'workspace.assistantEntry' => '스마트 어시스턴트',
+			'workspace.comingSoon' => '곧 출시 예정',
+			'workspace.createOrJoinEnterprise' => '기업 만들기 / 가입',
+			'workspace.featureComingSoon' => '기능 개발 중',
+			'workspace.filterDm' => '다이렉트 메시지',
+			'workspace.filterEdit' => '편집',
+			'workspace.filterEmptyTitle' => '일치하는 대화가 없습니다',
+			'workspace.filterExternalChat' => '외부 채팅',
+			'workspace.filterFlagged' => '표시됨',
+			'workspace.filterInternalChat' => '내부 채팅',
+			'workspace.filterMentions' => '멘션',
+			'workspace.filterUnread' => '읽지 않음',
+			'workspace.filterUnreadEmptyTitle' => '읽지 않은 대화가 없습니다',
+			'workspace.myCard' => '내 명함',
+			'workspace.orgUnverified' => '미인증',
+			'workspace.recordFaceChat' => '대면 채팅 기록',
+			'workspace.smartSummary' => '스마트 요약',
+			'workspace.tabSchedule' => '일정',
+			'workspace.tabTodo' => '할 일',
+			'workspace.takeABreak' => '잠시 쉬어가세요',
+			'workspace.todoEmptyTitle' => '할 일이 없습니다',
 			_ => null,
 		};
 	}

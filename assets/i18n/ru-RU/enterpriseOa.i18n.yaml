@@ -36,3 +36,6 @@ accountChoice: "Свяжите существующую учётную запи�
 confirmLink: "Подтвердить привязку текущей учётной записи"
 useExistingAccount: "Войти в существующую учётную запись IMBoy"
 confirmCreate: "Подтвердить создание учётной записи IMBoy"
+
+# T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
+apps: "Приложения"

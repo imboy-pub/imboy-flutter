@@ -1881,6 +1881,7 @@ class _Translations$enterpriseOa$de_DE extends Translations$enterpriseOa$zh_CN {
 	@override String get confirmLink => 'Verknüpfung dieses Kontos bestätigen';
 	@override String get useExistingAccount => 'Bei bestehendem IMBoy-Konto anmelden';
 	@override String get confirmCreate => 'Erstellung eines neuen IMBoy-Kontos bestätigen';
+	@override String get apps => 'Apps';
 }
 
 // Path: error
@@ -2509,7 +2510,7 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Kanäle dienen der laufenden Veröffentlichung von Inhalten (Ankündigungen/Material); für Diskussionen bitte in die Gruppen';
 	@override String channelTileSubtitle({required Object count}) => '${count} Abonnenten';
 	@override String get channelDetailTitle => 'Kanal';
-	@override String get discussInGroupGuide => 'Kanäle sind zum Veröffentlichen gedacht; diskutieren Sie in der General-Gruppe →';
+	@override String get discussInGroupGuide => 'Kanäle sind zum Veröffentlichen gedacht; diskutieren Sie in der General-Gruppe.';
 	@override String get groupsEmptyTitle => 'Noch keine Arbeitsbereich-Gruppen';
 	@override String get groupsEmptySubtitle => 'Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)';
 	@override String groupTileSubtitle({required Object count}) => '${count} Gruppenmitglieder';
@@ -2684,6 +2685,28 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => 'Noch keine Projektaktivität';
 	@override String get projectInsightsPostsEmpty => 'Keine Beiträge im verknüpften Kanal';
 	@override String projectInsightsPostAuthor({required Object name}) => 'Von ${name} veröffentlicht';
+	@override String get advancedFeatures => 'Erweiterte Funktionen';
+	@override String get assistantEntry => 'KI-Assistent';
+	@override String get comingSoon => 'Demnächst';
+	@override String get createOrJoinEnterprise => 'Organisation erstellen oder beitreten';
+	@override String get featureComingSoon => 'Funktion in Entwicklung';
+	@override String get filterDm => 'Direktnachrichten';
+	@override String get filterEdit => 'Bearbeiten';
+	@override String get filterEmptyTitle => 'Keine passenden Unterhaltungen';
+	@override String get filterExternalChat => 'Externe Chats';
+	@override String get filterFlagged => 'Markiert';
+	@override String get filterInternalChat => 'Interne Chats';
+	@override String get filterMentions => 'Erwähnungen';
+	@override String get filterUnread => 'Ungelesen';
+	@override String get filterUnreadEmptyTitle => 'Keine ungelesenen Unterhaltungen';
+	@override String get myCard => 'Meine Karte';
+	@override String get orgUnverified => 'Unverifiziert';
+	@override String get recordFaceChat => 'Face-to-Face-Chat protokollieren';
+	@override String get smartSummary => 'Intelligente Zusammenfassung';
+	@override String get tabSchedule => 'Terminplan';
+	@override String get tabTodo => 'Aufgaben';
+	@override String get takeABreak => 'Kurze Pause machen';
+	@override String get todoEmptyTitle => 'Keine Aufgaben';
 }
 
 // Path: account.alipaySim
@@ -4933,6 +4956,7 @@ extension on TranslationsDeDe {
 			'enterpriseOa.confirmLink' => 'Verknüpfung dieses Kontos bestätigen',
 			'enterpriseOa.useExistingAccount' => 'Bei bestehendem IMBoy-Konto anmelden',
 			'enterpriseOa.confirmCreate' => 'Erstellung eines neuen IMBoy-Kontos bestätigen',
+			'enterpriseOa.apps' => 'Apps',
 			'error.restartRequired' => 'App-Neustart erforderlich',
 			'error.pleaseCheckNetwork' => 'Bitte überprüfen Sie Ihre Netzwerkeinstellungen.',
 			'error.networkTroubleshootingStep1' => '1. Telefoneinstellungen öffnen, WLAN eingeschaltet lassen.',
@@ -5297,9 +5321,9 @@ extension on TranslationsDeDe {
 			'momentNotify.emptyTitle' => 'Keine neuen Benachrichtigungen',
 			'momentNotify.emptyHint' => '„Gefällt mir" und Kommentare von Freunden erscheinen hier',
 			'momentNotify.actionLike' => 'hat Ihren Moment gelikt',
-			'momentNotify.actionComment' => 'hat kommentiert',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.actionComment' => 'hat kommentiert',
 			'momentNotify.markAllRead' => 'Alle gelesen',
 			'momentNotify.clearAll' => 'Alle löschen',
 			'momentNotify.clearConfirmTitle' => 'Alle Benachrichtigungen löschen?',
@@ -5763,7 +5787,7 @@ extension on TranslationsDeDe {
 			'workspace.channelsEmptySubtitle' => 'Kanäle dienen der laufenden Veröffentlichung von Inhalten (Ankündigungen/Material); für Diskussionen bitte in die Gruppen',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} Abonnenten',
 			'workspace.channelDetailTitle' => 'Kanal',
-			'workspace.discussInGroupGuide' => 'Kanäle sind zum Veröffentlichen gedacht; diskutieren Sie in der General-Gruppe →',
+			'workspace.discussInGroupGuide' => 'Kanäle sind zum Veröffentlichen gedacht; diskutieren Sie in der General-Gruppe.',
 			'workspace.groupsEmptyTitle' => 'Noch keine Arbeitsbereich-Gruppen',
 			'workspace.groupsEmptySubtitle' => 'Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} Gruppenmitglieder',
@@ -5811,9 +5835,9 @@ extension on TranslationsDeDe {
 			'workspace.transferConfirm' => 'Übertragung bestätigen',
 			'workspace.governanceTitle' => 'Arbeitsbereich-Governance',
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
-			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',
 			'workspace.archiveDesc' => 'Nach der Archivierung gilt für alle nur Lesen (Schreibzugriffe werden vom Server abgelehnt); jederzeit wiederherstellbar',
@@ -5940,6 +5964,28 @@ extension on TranslationsDeDe {
 			'workspace.projectInsightsActivityEmpty' => 'Noch keine Projektaktivität',
 			'workspace.projectInsightsPostsEmpty' => 'Keine Beiträge im verknüpften Kanal',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => 'Von ${name} veröffentlicht',
+			'workspace.advancedFeatures' => 'Erweiterte Funktionen',
+			'workspace.assistantEntry' => 'KI-Assistent',
+			'workspace.comingSoon' => 'Demnächst',
+			'workspace.createOrJoinEnterprise' => 'Organisation erstellen oder beitreten',
+			'workspace.featureComingSoon' => 'Funktion in Entwicklung',
+			'workspace.filterDm' => 'Direktnachrichten',
+			'workspace.filterEdit' => 'Bearbeiten',
+			'workspace.filterEmptyTitle' => 'Keine passenden Unterhaltungen',
+			'workspace.filterExternalChat' => 'Externe Chats',
+			'workspace.filterFlagged' => 'Markiert',
+			'workspace.filterInternalChat' => 'Interne Chats',
+			'workspace.filterMentions' => 'Erwähnungen',
+			'workspace.filterUnread' => 'Ungelesen',
+			'workspace.filterUnreadEmptyTitle' => 'Keine ungelesenen Unterhaltungen',
+			'workspace.myCard' => 'Meine Karte',
+			'workspace.orgUnverified' => 'Unverifiziert',
+			'workspace.recordFaceChat' => 'Face-to-Face-Chat protokollieren',
+			'workspace.smartSummary' => 'Intelligente Zusammenfassung',
+			'workspace.tabSchedule' => 'Terminplan',
+			'workspace.tabTodo' => 'Aufgaben',
+			'workspace.takeABreak' => 'Kurze Pause machen',
+			'workspace.todoEmptyTitle' => 'Keine Aufgaben',
 			_ => null,
 		};
 	}

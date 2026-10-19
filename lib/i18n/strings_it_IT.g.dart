@@ -1881,6 +1881,7 @@ class _Translations$enterpriseOa$it_IT extends Translations$enterpriseOa$zh_CN {
 	@override String get confirmLink => 'Conferma il collegamento di questo account';
 	@override String get useExistingAccount => 'Accedi a un account IMBoy esistente';
 	@override String get confirmCreate => 'Conferma la creazione di un account IMBoy';
+	@override String get apps => 'App';
 }
 
 // Path: error
@@ -2503,7 +2504,7 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get createTemplateOwner => 'Diventerai Owner dell\'area di lavoro (membro dell\'area di lavoro)';
 	@override String get createTemplateTitle => 'Verrà inizializzato automaticamente';
 	@override String get createTitle => 'Crea area di lavoro';
-	@override String get discussInGroupGuide => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →';
+	@override String get discussInGroupGuide => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General.';
 	@override String get dmEntry => 'Tutti i messaggi';
 	@override String get emptyNoWorkspace => 'Seleziona o crea prima un\'area di lavoro';
 	@override String get experienceModePersonal => 'Personale';
@@ -2684,6 +2685,28 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get transferConfirm => 'Conferma trasferimento';
 	@override String get transferDesc => 'Dopo il trasferimento diventerai un normale membro dell\'area di lavoro (Member) e l\'altro otterrà tutti i poteri di governance';
 	@override String transferTitle({required Object name}) => 'Trasferisci il ruolo di Owner principale a ${name}';
+	@override String get advancedFeatures => 'Funzioni avanzate';
+	@override String get assistantEntry => 'Assistente IA';
+	@override String get comingSoon => 'In arrivo';
+	@override String get createOrJoinEnterprise => 'Crea o entra in un\'organizzazione';
+	@override String get featureComingSoon => 'Funzionalità in sviluppo';
+	@override String get filterDm => 'Messaggi diretti';
+	@override String get filterEdit => 'Modifica';
+	@override String get filterEmptyTitle => 'Nessuna conversazione corrispondente';
+	@override String get filterExternalChat => 'Chat esterni';
+	@override String get filterFlagged => 'Contrassegnati';
+	@override String get filterInternalChat => 'Chat interni';
+	@override String get filterMentions => 'Menzioni';
+	@override String get filterUnread => 'Non letti';
+	@override String get filterUnreadEmptyTitle => 'Nessuna conversazione non letta';
+	@override String get myCard => 'La mia card';
+	@override String get orgUnverified => 'Non verificata';
+	@override String get recordFaceChat => 'Registra chat faccia a faccia';
+	@override String get smartSummary => 'Riepilogo intelligente';
+	@override String get tabSchedule => 'Agenda';
+	@override String get tabTodo => 'Da fare';
+	@override String get takeABreak => 'Fai una pausa';
+	@override String get todoEmptyTitle => 'Nessuna attività';
 }
 
 // Path: account.alipaySim
@@ -4933,6 +4956,7 @@ extension on TranslationsItIt {
 			'enterpriseOa.confirmLink' => 'Conferma il collegamento di questo account',
 			'enterpriseOa.useExistingAccount' => 'Accedi a un account IMBoy esistente',
 			'enterpriseOa.confirmCreate' => 'Conferma la creazione di un account IMBoy',
+			'enterpriseOa.apps' => 'App',
 			'error.restartRequired' => 'Riavvio richiesto',
 			'error.pleaseCheckNetwork' => 'Controlla le impostazioni di rete.',
 			'error.networkTroubleshootingStep1' => '1. Apri impostazioni telefono e mantieni l\'interruttore Wi-Fi attivo.',
@@ -5297,9 +5321,9 @@ extension on TranslationsItIt {
 			'momentNotify.emptyTitle' => 'Nessuna nuova notifica',
 			'momentNotify.emptyHint' => 'I « Mi piace » e i commenti degli amici appaiono qui',
 			'momentNotify.actionLike' => 'ha messo mi piace al tuo momento',
-			'momentNotify.actionComment' => 'ha commentato',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.actionComment' => 'ha commentato',
 			'momentNotify.markAllRead' => 'Segna tutto letto',
 			'momentNotify.clearAll' => 'Cancella tutto',
 			'momentNotify.clearConfirmTitle' => 'Cancellare tutte le notifiche ?',
@@ -5757,7 +5781,7 @@ extension on TranslationsItIt {
 			'workspace.createTemplateOwner' => 'Diventerai Owner dell\'area di lavoro (membro dell\'area di lavoro)',
 			'workspace.createTemplateTitle' => 'Verrà inizializzato automaticamente',
 			'workspace.createTitle' => 'Crea area di lavoro',
-			'workspace.discussInGroupGuide' => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General →',
+			'workspace.discussInGroupGuide' => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General.',
 			'workspace.dmEntry' => 'Tutti i messaggi',
 			'workspace.emptyNoWorkspace' => 'Seleziona o crea prima un\'area di lavoro',
 			'workspace.experienceModePersonal' => 'Personale',
@@ -5811,9 +5835,9 @@ extension on TranslationsItIt {
 			'workspace.pickerEmptySubtitle' => 'Crea un\'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)',
 			'workspace.pickerEmptyTitle' => 'Nessuna area di lavoro per ora',
 			'workspace.pickerTitle' => 'Le mie aree di lavoro',
-			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
 			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',
 			'workspace.projectChannelLinkTitle' => 'Seleziona i canali da collegare',
@@ -5940,6 +5964,28 @@ extension on TranslationsItIt {
 			'workspace.transferConfirm' => 'Conferma trasferimento',
 			'workspace.transferDesc' => 'Dopo il trasferimento diventerai un normale membro dell\'area di lavoro (Member) e l\'altro otterrà tutti i poteri di governance',
 			'workspace.transferTitle' => ({required Object name}) => 'Trasferisci il ruolo di Owner principale a ${name}',
+			'workspace.advancedFeatures' => 'Funzioni avanzate',
+			'workspace.assistantEntry' => 'Assistente IA',
+			'workspace.comingSoon' => 'In arrivo',
+			'workspace.createOrJoinEnterprise' => 'Crea o entra in un\'organizzazione',
+			'workspace.featureComingSoon' => 'Funzionalità in sviluppo',
+			'workspace.filterDm' => 'Messaggi diretti',
+			'workspace.filterEdit' => 'Modifica',
+			'workspace.filterEmptyTitle' => 'Nessuna conversazione corrispondente',
+			'workspace.filterExternalChat' => 'Chat esterni',
+			'workspace.filterFlagged' => 'Contrassegnati',
+			'workspace.filterInternalChat' => 'Chat interni',
+			'workspace.filterMentions' => 'Menzioni',
+			'workspace.filterUnread' => 'Non letti',
+			'workspace.filterUnreadEmptyTitle' => 'Nessuna conversazione non letta',
+			'workspace.myCard' => 'La mia card',
+			'workspace.orgUnverified' => 'Non verificata',
+			'workspace.recordFaceChat' => 'Registra chat faccia a faccia',
+			'workspace.smartSummary' => 'Riepilogo intelligente',
+			'workspace.tabSchedule' => 'Agenda',
+			'workspace.tabTodo' => 'Da fare',
+			'workspace.takeABreak' => 'Fai una pausa',
+			'workspace.todoEmptyTitle' => 'Nessuna attività',
 			_ => null,
 		};
 	}

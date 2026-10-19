@@ -36,3 +36,6 @@ accountChoice: "Collega un account IMBoy esistente o crea esplicitamente un nuov
 confirmLink: "Conferma il collegamento di questo account"
 useExistingAccount: "Accedi a un account IMBoy esistente"
 confirmCreate: "Conferma la creazione di un account IMBoy"
+
+# T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
+apps: "App"

@@ -36,3 +36,6 @@ accountChoice: "اربط حساب IMBoy موجوداً أو اختر صراحة 
 confirmLink: "تأكيد ربط الحساب الحالي"
 useExistingAccount: "الدخول إلى حساب IMBoy موجود"
 confirmCreate: "تأكيد إنشاء حساب IMBoy جديد"
+
+# T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
+apps: "التطبيقات"

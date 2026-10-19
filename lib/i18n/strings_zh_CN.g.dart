@@ -4989,6 +4989,9 @@ class Translations$customerService$zh_CN {
 	/// zh-CN: '$d 天 $h 小时'
 	String waitingDaysHours({required Object d, required Object h}) => '${d} 天 ${h} 小时';
 
+	/// zh-CN: '网页'
+	String get sourceWidget => '网页';
+
 	/// zh-CN: '来源'
 	String get sourceLabel => '来源';
 
@@ -7393,8 +7396,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '频道'
 	String get channelDetailTitle => '频道';
 
-	/// zh-CN: '频道用于发布内容；想讨论？去 General 群聊聊 →'
-	String get discussInGroupGuide => '频道用于发布内容；想讨论？去 General 群聊聊 →';
+	/// zh-CN: '频道用于发布内容；想讨论？去 General 群聊聊。'
+	String get discussInGroupGuide => '频道用于发布内容；想讨论？去 General 群聊聊。';
 
 	/// zh-CN: '还没有工作区群组'
 	String get groupsEmptyTitle => '还没有工作区群组';
@@ -10972,6 +10975,7 @@ extension on Translations {
 			'customerService.waitingMinutes' => ({required Object n}) => '${n} 分钟',
 			'customerService.waitingHoursMinutes' => ({required Object h, required Object m}) => '${h} 小时 ${m} 分',
 			'customerService.waitingDaysHours' => ({required Object d, required Object h}) => '${d} 天 ${h} 小时',
+			'customerService.sourceWidget' => '网页',
 			'customerService.sourceLabel' => '来源',
 			'customerService.queuedEmptyTitle' => '暂无待接会话',
 			'customerService.queuedEmptyHint' => '下拉刷新，新会话会出现在这里',
@@ -11414,9 +11418,9 @@ extension on Translations {
 			'groupVote.multipleChoice' => '多选',
 			'groupVote.endVote' => '结束投票',
 			'groupVote.alreadyVoted' => '已投票',
-			'groupVote.selectedCount' => ({required Object count}) => '已选 ${count} 项',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.selectedCount' => ({required Object count}) => '已选 ${count} 项',
 			'groupVote.voteCount' => ({required Object count}) => '${count} 票',
 			'main.totalAssets' => '总资产',
 			'main.album' => '照片',
@@ -11928,9 +11932,9 @@ extension on Translations {
 			'organization.manage.defaultBadge' => '默认工作区',
 			'organization.manage.notDefaultBadge' => '非默认',
 			'organization.manage.archivedBadge' => '已归档',
-			'organization.manage.ownerBadge' => '我是所有者',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.ownerBadge' => '我是所有者',
 			'organization.manage.memberBadge' => '我是成员',
 			'organization.manage.setDefault' => '设为默认工作区',
 			'organization.manage.archiveWorkspace' => '归档工作区',
@@ -12120,7 +12124,7 @@ extension on Translations {
 			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
 			'workspace.channelDetailTitle' => '频道',
-			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊 →',
+			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊。',
 			'workspace.groupsEmptyTitle' => '还没有工作区群组',
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',

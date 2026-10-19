@@ -36,3 +36,6 @@ accountChoice: "既存の IMBoy アカウントを連携するか、新規作成
 confirmLink: "現在のアカウントとの連携を確認"
 useExistingAccount: "既存の IMBoy アカウントにログイン"
 confirmCreate: "新しい IMBoy アカウントの作成を確認"
+
+# T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
+apps: "アプリ"

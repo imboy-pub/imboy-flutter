@@ -1878,6 +1878,7 @@ class _Translations$enterpriseOa$ja_JP extends Translations$enterpriseOa$zh_CN {
 	@override String get confirmLink => '現在のアカウントとの連携を確認';
 	@override String get useExistingAccount => '既存の IMBoy アカウントにログイン';
 	@override String get confirmCreate => '新しい IMBoy アカウントの作成を確認';
+	@override String get apps => 'アプリ';
 }
 
 // Path: error
@@ -2506,7 +2507,7 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ';
 	@override String channelTileSubtitle({required Object count}) => '購読者${count}人';
 	@override String get channelDetailTitle => 'チャンネル';
-	@override String get discussInGroupGuide => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう →';
+	@override String get discussInGroupGuide => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。';
 	@override String get groupsEmptyTitle => 'ワークスペースのグループはまだありません';
 	@override String get groupsEmptySubtitle => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）';
 	@override String groupTileSubtitle({required Object count}) => 'グループメンバー${count}人';
@@ -2681,6 +2682,28 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get projectInsightsActivityEmpty => 'プロジェクトのアクティビティはまだありません';
 	@override String get projectInsightsPostsEmpty => '関連チャンネルに投稿はまだありません';
 	@override String projectInsightsPostAuthor({required Object name}) => '${name} が投稿';
+	@override String get advancedFeatures => '高度な機能';
+	@override String get assistantEntry => 'スマートアシスタント';
+	@override String get comingSoon => '近日公開';
+	@override String get createOrJoinEnterprise => '企業の作成 / 参加';
+	@override String get featureComingSoon => '機能は開発中です';
+	@override String get filterDm => 'ダイレクトメッセージ';
+	@override String get filterEdit => '編集';
+	@override String get filterEmptyTitle => '該当する会話はありません';
+	@override String get filterExternalChat => '外部チャット';
+	@override String get filterFlagged => 'フラグ付き';
+	@override String get filterInternalChat => '内部チャット';
+	@override String get filterMentions => 'メンション';
+	@override String get filterUnread => '未読';
+	@override String get filterUnreadEmptyTitle => '未読の会話はありません';
+	@override String get myCard => 'マイカード';
+	@override String get orgUnverified => '未認証';
+	@override String get recordFaceChat => '対面チャットを記録';
+	@override String get smartSummary => 'スマート要約';
+	@override String get tabSchedule => 'スケジュール';
+	@override String get tabTodo => 'やること';
+	@override String get takeABreak => 'ひと休み';
+	@override String get todoEmptyTitle => 'やることはありません';
 }
 
 // Path: account.alipaySim
@@ -4930,6 +4953,7 @@ extension on TranslationsJaJp {
 			'enterpriseOa.confirmLink' => '現在のアカウントとの連携を確認',
 			'enterpriseOa.useExistingAccount' => '既存の IMBoy アカウントにログイン',
 			'enterpriseOa.confirmCreate' => '新しい IMBoy アカウントの作成を確認',
+			'enterpriseOa.apps' => 'アプリ',
 			'error.restartRequired' => 'アプリの再起動が必要です',
 			'error.pleaseCheckNetwork' => 'ネットワーク設定を確認してください。',
 			'error.networkTroubleshootingStep1' => '1. スマートフォンの設定を開き、Wi-Fiスイッチをオンにします。',
@@ -5294,9 +5318,9 @@ extension on TranslationsJaJp {
 			'momentNotify.emptyTitle' => '新しい通知はありません',
 			'momentNotify.emptyHint' => '友達からの「いいね」やコメントはここに表示されます',
 			'momentNotify.actionLike' => 'があなたのモーメントに「いいね」しました',
-			'momentNotify.actionComment' => 'がコメントしました',
 			_ => null,
 		} ?? switch (path) {
+			'momentNotify.actionComment' => 'がコメントしました',
 			'momentNotify.markAllRead' => 'すべて既読にする',
 			'momentNotify.clearAll' => 'すべて削除',
 			'momentNotify.clearConfirmTitle' => 'すべての通知を削除しますか？',
@@ -5760,7 +5784,7 @@ extension on TranslationsJaJp {
 			'workspace.channelsEmptySubtitle' => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '購読者${count}人',
 			'workspace.channelDetailTitle' => 'チャンネル',
-			'workspace.discussInGroupGuide' => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう →',
+			'workspace.discussInGroupGuide' => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。',
 			'workspace.groupsEmptyTitle' => 'ワークスペースのグループはまだありません',
 			'workspace.groupsEmptySubtitle' => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'グループメンバー${count}人',
@@ -5808,9 +5832,9 @@ extension on TranslationsJaJp {
 			'workspace.transferConfirm' => '移譲を確認',
 			'workspace.governanceTitle' => 'ワークスペース管理',
 			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
-			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',
 			'workspace.archiveDesc' => 'アーカイブ後は全員が閲覧のみ可能（書き込み操作はサーバーで拒否されます）。いつでも復元できます',
@@ -5937,6 +5961,28 @@ extension on TranslationsJaJp {
 			'workspace.projectInsightsActivityEmpty' => 'プロジェクトのアクティビティはまだありません',
 			'workspace.projectInsightsPostsEmpty' => '関連チャンネルに投稿はまだありません',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} が投稿',
+			'workspace.advancedFeatures' => '高度な機能',
+			'workspace.assistantEntry' => 'スマートアシスタント',
+			'workspace.comingSoon' => '近日公開',
+			'workspace.createOrJoinEnterprise' => '企業の作成 / 参加',
+			'workspace.featureComingSoon' => '機能は開発中です',
+			'workspace.filterDm' => 'ダイレクトメッセージ',
+			'workspace.filterEdit' => '編集',
+			'workspace.filterEmptyTitle' => '該当する会話はありません',
+			'workspace.filterExternalChat' => '外部チャット',
+			'workspace.filterFlagged' => 'フラグ付き',
+			'workspace.filterInternalChat' => '内部チャット',
+			'workspace.filterMentions' => 'メンション',
+			'workspace.filterUnread' => '未読',
+			'workspace.filterUnreadEmptyTitle' => '未読の会話はありません',
+			'workspace.myCard' => 'マイカード',
+			'workspace.orgUnverified' => '未認証',
+			'workspace.recordFaceChat' => '対面チャットを記録',
+			'workspace.smartSummary' => 'スマート要約',
+			'workspace.tabSchedule' => 'スケジュール',
+			'workspace.tabTodo' => 'やること',
+			'workspace.takeABreak' => 'ひと休み',
+			'workspace.todoEmptyTitle' => 'やることはありません',
 			_ => null,
 		};
 	}
