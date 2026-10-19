@@ -95,3 +95,40 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
 - **312 golden 全部生成并封存**（P1 120 + P2 72 + P3 120），零 diff 复跑全绿；ALLOWLIST 修订 3 次均有 TASKS.json write_paths 授权依据。
 - 运行真源：rev44（tx-0019..0044）；无 BLOCKED；K 未冻结（T29 最终门待 T28 恢复演练）。
 - 下一批 B4：T28 恢复演练 → T29 最终门 → T30—T32.b 原生流程验收（设备/桌面依赖，manual 记账）→ T33 汇总交付候选。
+
+## 12. revision 7 附记（B4 收口 / 交付候选汇总 — T33 终版）
+
+### 交付候选
+
+| 项 | 值 |
+|---|---|
+| 候选 K | `571f7aaf7edfd990495fddf9324e7d15d161e1a8`（工作区干净树） |
+| 集成分支 | `ux/imboy-enterprise-uiux-v1-integration`（base `c61cd8d46`，**未 push、未 merge main**） |
+| 自动等级 | **PARTIAL_BLOCKED**（FINAL_GATES.md §2/§3） |
+| candidate_seal | 未写入（C-FULL exit=1：17 个失败全部为范围外 e2ee 加密集成套件 setUpAll 环境初始化，与本计划 write_paths 零交集） |
+
+### 范围完成事实（43/51 卡 DONE PASS）
+
+- B0 工具链与基线：T00—T04.c（scope/lock/state 三层门禁 + 24 案例恢复契约）
+- B1 夹具/环境/文案：T05（结构 harness）、T05.a（GOLDEN_ENV 确定性 CJK 字体）、T06（10 locale 文案冻结+键债清零）、T07—T09（三 lane 真实夹具）
+- B2 实现：T10—T21（P1-01…06、P2-01…05、P3-03/04 全部 NEEDS_FIX 落地，VERIFY_EXISTING 卡测试冻结）
+- B3 golden 与回归：T22—T24.b（**312 golden 生成+封存+零 diff**，矩阵 16/16+16/16+120/120 全 executed）+ T25—T27（行为回归各 3/3 + LEGACY 45/46/62 pass）
+- B4：T28 恢复演练 25/25（真实 plan_lock/plan_state/check_scope 注入）、T28.m MANUAL_PENDING（未发生真实重启）、T29 七门对 K=571f7aaf7（6/7 过，C-FULL 范围外失败→PARTIAL_BLOCKED）、T30—T32.b MANUAL_PENDING×9（无设备）
+
+### 全仓质量现状（对 K）
+
+- `flutter analyze --fatal-infos --fatal-warnings`：**0 issues**（M0 基线 72 + 计划新增 57 全部清零）
+- 目标门：test/uiux/{contract,p1,p2,p3} **143/143 executed, 0 failed, 0 skipped**
+- 全仓 C-FULL：10716 executed / 10699 pass / 17 fail（全部范围外 e2ee）**skip=0**
+
+### 人工待办（解锁 FULL_PASS 的路径）
+
+1. T28.m：真实新会话接续验证（流程已备，CROSS_SESSION_RESUME.md）
+2. T30—T32.b：三 lane × iOS/Android/macOS 原生逐 case 验收（输入就绪清单见各 P*_MANUAL_*.md）
+3. （可选）本机 e2ee 套件环境修复后复跑 C-FULL → candidate_seal 写入 → 等级升 FULL_PASS
+
+### 交付声明
+
+- 集成分支未 push、未 merge main、未部署（合同边界）；候选与全部证据在
+  runtime 区与 worktree 内，供计划所有者裁决接收。
+- 本报告由 T33 在 B4 全门结束后生成（report-only R7）。
