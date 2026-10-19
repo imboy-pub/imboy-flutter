@@ -1,0 +1,94 @@
+{
+ "schema_version": 1,
+ "plan_id": "imboy-enterprise-uiux-v1",
+ "frozen_at": "2026-10-19T11:16:01Z",
+ "frozen_by": "T04",
+ "flutter": {
+  "exe": "/Users/leeyi/dev/flutter/bin/flutter",
+  "wrapper_kind": "direct-script",
+  "fvm": false,
+  "argv_prefix": [
+   "/Users/leeyi/dev/flutter/bin/flutter"
+  ],
+  "version": {
+   "frameworkVersion": "3.47.7",
+   "channel": "stable",
+   "frameworkRevision": "abaf9c523780a608bd46686fd5e53740a07077f8",
+   "engineRevision": "deb287481e3ce9468f3434937ced4240a70539ca",
+   "dartSdkVersion": "3.13.5",
+   "source": "bin/cache/flutter.version.json (read-only static probe; no SDK command run)"
+  },
+  "resource_lock_key": "flutter-sdk:7a1a3c8f08e3eeba…"
+ },
+ "i18n": {
+  "tool": "slang ^4.19.2 (+slang_flutter ^4.18.0)",
+  "config": "slang.yaml",
+  "input": "assets/i18n/<locale>/<ns>.i18n.yaml",
+  "output": "lib/i18n/strings*.g.dart",
+  "argv": [
+   "/Users/leeyi/dev/flutter/bin/dart",
+   "run",
+   "slang"
+  ],
+  "base_locale": "zh-CN",
+  "locales": [
+   "ar-SA",
+   "de-DE",
+   "en-US",
+   "fr-FR",
+   "it-IT",
+   "ja-JP",
+   "ko-KR",
+   "ru-RU",
+   "zh-CN",
+   "zh-Hant"
+  ],
+  "idempotence_rule": "run twice; second run must produce zero diff (T06 evidence)"
+ },
+ "golden": {
+  "mode": "EXTERNAL_PINNED",
+  "frozen_at_W0": "2026-10-19T11:16:01Z",
+  "rationale": ".gitignore test/**/goldens/ untracked by user-confirmed policy (2026-10-17); TRACKED precondition fails",
+  "sealed_roots": {
+   "p1": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p1/sealed",
+   "p2": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p2/sealed",
+   "p3": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p3/sealed"
+  },
+  "assembled_readonly_root": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/assembled-sealed",
+  "env_binding": "UIUX_GOLDEN_BASELINE_ROOT",
+  "missing_behavior": "required golden tests FAIL (never skip) when dir/image/manifest absent"
+ },
+ "feature_fixtures": {
+  "micro_community": {
+   "gate": "ChannelApi.microCommunityEnabled",
+   "fixture_entry": "test/micro_community/micro_community_contract_test.dart (contract)"
+  },
+  "project_feature": {
+   "gate": "AppFeatureRegistry.isEnabled(FeatureKeys.project)",
+   "note": "fixture only in test mechanism; never touch production flags"
+  }
+ },
+ "legacy_targeted_tests": {
+  "P1": [
+   "test/unit_test/page/workspace/workspace_channel_detail_page_test.dart",
+   "test/unit_test/page/channel/channel_header_bar_test.dart",
+   "test/unit_test/page/channel/channel_detail_layout_test.dart",
+   "test/unit_test/page/channel/channel_message_feed_test.dart",
+   "test/micro_community/micro_community_contract_test.dart"
+  ],
+  "P2": [
+   "test/enterprise_oa/enterprise_workbench_page_test.dart",
+   "test/enterprise_oa/t15_enterprise_layout_test.dart",
+   "test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart",
+   "test/customer_service/cs_seat_contexts_test.dart"
+  ],
+  "P3": [
+   "test/customer_service/cs_queue_layout_test.dart",
+   "test/customer_service/cs_seat_gate_test.dart",
+   "test/customer_service/cs_api_contract_test.dart",
+   "test/customer_service/cs_session_preview_scope_test.dart",
+   "test/customer_service/cs_session_page_test.dart"
+  ]
+ },
+ "erlang_eunit": "N/A (Flutter-only scope per PRD §2)"
+}

@@ -1,0 +1,960 @@
+{
+ "schema_version": 1,
+ "plan_id": "imboy-enterprise-uiux-v1",
+ "resolved_at": "2026-10-19T11:14:40Z",
+ "resolved_by": "T04",
+ "variable_bindings": {
+  "PACKAGE_ROOT": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1/docs/plans/enterprise-uiux-v1",
+  "SOURCE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp",
+  "WORKTREE": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+  "FLUTTER_EXE": "/Users/leeyi/dev/flutter/bin/flutter",
+  "SDK_REALPATH_HASH": "7a1a3c8f08e3eeba38ff20cf3afd33cf6d996ced09ee94a7167c88074ce26e60",
+  "UIUX_BASE_SHA": "c61cd8d46e276496b2ddae8b89b17d6fe6856ddc",
+  "GOLDEN_CANDIDATE_ROOT_P1": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p1/candidates",
+  "GOLDEN_CANDIDATE_ROOT_P2": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p2/candidates",
+  "GOLDEN_CANDIDATE_ROOT_P3": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p3/candidates",
+  "GOLDEN_SEALED_ROOT_P1": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p1/sealed",
+  "GOLDEN_SEALED_ROOT_P2": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p2/sealed",
+  "GOLDEN_SEALED_ROOT_P3": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p3/sealed",
+  "GOLDEN_ASSEMBLED_SEALED_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/assembled-sealed",
+  "I18N_ARGV_FROM_T04": "[\"/Users/leeyi/dev/flutter/bin/dart\", \"run\", \"slang\"]",
+  "LEGACY_P1_ARGV_FROM_T04": "[\"test/unit_test/page/workspace/workspace_channel_detail_page_test.dart\", \"test/unit_test/page/channel/channel_header_bar_test.dart\", \"test/unit_test/page/channel/channel_detail_layout_test.dart\", \"test/unit_test/page/channel/channel_message_feed_test.dart\", \"test/micro_community/micro_community_contract_test.dart\"]",
+  "LEGACY_P2_ARGV_FROM_T04": "[\"test/enterprise_oa/enterprise_workbench_page_test.dart\", \"test/enterprise_oa/t15_enterprise_layout_test.dart\", \"test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart\", \"test/customer_service/cs_seat_contexts_test.dart\"]",
+  "LEGACY_P3_ARGV_FROM_T04": "[\"test/customer_service/cs_queue_layout_test.dart\", \"test/customer_service/cs_seat_gate_test.dart\", \"test/customer_service/cs_api_contract_test.dart\", \"test/customer_service/cs_session_preview_scope_test.dart\", \"test/customer_service/cs_session_page_test.dart\"]"
+ },
+ "variable_status": {
+  "PACKAGE_ROOT": "VERIFIED-EXISTS",
+  "SOURCE_ROOT": "VERIFIED-EXISTS",
+  "WORKTREE": "VERIFIED-EXISTS",
+  "FLUTTER_EXE": "VERIFIED-EXISTS",
+  "SDK_REALPATH_HASH": "RESOLVED",
+  "UIUX_BASE_SHA": "VERIFIED-EXISTS",
+  "GOLDEN_CANDIDATE_ROOT_P1": "VERIFIED-EXISTS",
+  "GOLDEN_CANDIDATE_ROOT_P2": "VERIFIED-EXISTS",
+  "GOLDEN_CANDIDATE_ROOT_P3": "VERIFIED-EXISTS",
+  "GOLDEN_SEALED_ROOT_P1": "VERIFIED-EXISTS",
+  "GOLDEN_SEALED_ROOT_P2": "VERIFIED-EXISTS",
+  "GOLDEN_SEALED_ROOT_P3": "VERIFIED-EXISTS",
+  "GOLDEN_ASSEMBLED_SEALED_ROOT": "PATH-RECORDED; produced by T22-24.b seal",
+  "I18N_ARGV_FROM_T04": "RESOLVED",
+  "LEGACY_P1_ARGV_FROM_T04": "RESOLVED",
+  "LEGACY_P2_ARGV_FROM_T04": "RESOLVED",
+  "LEGACY_P3_ARGV_FROM_T04": "RESOLVED"
+ },
+ "producer_gated": [
+  "GOLDEN_ASSEMBLED_SEALED_ROOT"
+ ],
+ "unresolved_placeholders_after_substitution": [],
+ "commands": {
+  "C-PACKAGE": {
+   "argv": [
+    "python3",
+    "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1/docs/plans/enterprise-uiux-v1/tools/plan_audit.py",
+    "--package",
+    "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1/docs/plans/enterprise-uiux-v1"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1/docs/plans/enterprise-uiux-v1",
+   "available": "BUNDLED",
+   "required_files": [
+    "@package/tools/plan_audit.py"
+   ],
+   "producer_task": null,
+   "resource_keys": [],
+   "success": "exit=0；仅包合同静态验证，不验证Flutter结果",
+   "env": {}
+  },
+  "C-BOOT-GIT": {
+   "argv": [
+    "git",
+    "-C",
+    "/Users/leeyi/project/imboy.pub/imboyapp",
+    "status",
+    "--porcelain=v1",
+    "-z"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/imboyapp",
+   "available": "INSTALLED",
+   "required_files": [],
+   "producer_task": null,
+   "resource_keys": [],
+   "success": "exit=0；NUL输出与dirty路径/内容hash保存；GIT_OPTIONAL_LOCKS=0",
+   "env": {}
+  },
+  "C-BOOT-WORKTREES": {
+   "argv": [
+    "git",
+    "-C",
+    "/Users/leeyi/project/imboy.pub/imboyapp",
+    "worktree",
+    "list",
+    "--porcelain",
+    "-z"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/imboyapp",
+   "available": "INSTALLED",
+   "required_files": [],
+   "producer_task": null,
+   "resource_keys": [],
+   "success": "exit=0；真实工作树登记结果保存",
+   "env": {}
+  },
+  "C-SCOPE-SELF": {
+   "argv": [
+    "python3",
+    "tool/uiux/test_scope_contract.py"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "tool/uiux/test_scope_contract.py"
+   ],
+   "producer_task": "T04.a",
+   "resource_keys": [],
+   "success": "exit=0；正反例全部执行",
+   "env": {}
+  },
+  "C-LOCK-SELF": {
+   "argv": [
+    "python3",
+    "tool/uiux/test_lock_contract.py"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "tool/uiux/test_lock_contract.py"
+   ],
+   "producer_task": "T04.b",
+   "resource_keys": [],
+   "success": "exit=0；真实临时子进程锁反例全部执行",
+   "env": {}
+  },
+  "C-STATE-SELF": {
+   "argv": [
+    "python3",
+    "tool/uiux/test_state_contract.py"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "tool/uiux/test_state_contract.py"
+   ],
+   "producer_task": "T04.c",
+   "resource_keys": [],
+   "success": "exit=0；事务断点用例全部执行",
+   "env": {}
+  },
+  "C-SCOPE": {
+   "argv": [
+    "python3",
+    "tool/uiux/check_scope.py",
+    "--base",
+    "c61cd8d46e276496b2ddae8b89b17d6fe6856ddc"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "tool/uiux/check_scope.py"
+   ],
+   "producer_task": "T04.a",
+   "resource_keys": [],
+   "success": "exit=0；base/head/index/worktree/untracked均审查",
+   "env": {}
+  },
+  "C-STATE": {
+   "argv": [
+    "python3",
+    "tool/uiux/check_state.py",
+    "--plan-id",
+    "imboy-enterprise-uiux-v1"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "tool/uiux/check_state.py"
+   ],
+   "producer_task": "T04.c",
+   "resource_keys": [],
+   "success": "exit=0；不是对当前RUNNING任务预先要求ACCEPTED",
+   "env": {}
+  },
+  "C-ANALYZE": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "analyze",
+    "--fatal-infos",
+    "--fatal-warnings"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "RESOLVE_T04",
+   "required_files": [
+    "pubspec.yaml"
+   ],
+   "producer_task": null,
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0、零问题、绑定K或task测试tree",
+   "env": {}
+  },
+  "C-FULL": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "RESOLVE_T04",
+   "required_files": [
+    "pubspec.yaml"
+   ],
+   "producer_task": null,
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "全量真实exit=0；清单/skip与基线对齐；不排除失败套件",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/assembled-sealed"
+   }
+  },
+  "C-I18N": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/dart",
+    "run",
+    "slang"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "RESOLVE_T04",
+   "required_files": [],
+   "producer_task": "T04",
+   "resource_keys": [
+    "i18n-writer",
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "运行已核实生成器两次，第二次生成无变化；不得用字符串eval",
+   "env": {}
+  },
+  "C-LEGACY-P1": {
+   "argv": [
+    "test/unit_test/page/workspace/workspace_channel_detail_page_test.dart",
+    "test/unit_test/page/channel/channel_header_bar_test.dart",
+    "test/unit_test/page/channel/channel_detail_layout_test.dart",
+    "test/unit_test/page/channel/channel_message_feed_test.dart",
+    "test/micro_community/micro_community_contract_test.dart"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "RESOLVE_T04",
+   "required_files": [],
+   "producer_task": "T04",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "既有P1回归真实执行且通过，目录非空",
+   "env": {}
+  },
+  "C-LEGACY-P2": {
+   "argv": [
+    "test/enterprise_oa/enterprise_workbench_page_test.dart",
+    "test/enterprise_oa/t15_enterprise_layout_test.dart",
+    "test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart",
+    "test/customer_service/cs_seat_contexts_test.dart"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "RESOLVE_T04",
+   "required_files": [],
+   "producer_task": "T04",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "既有P2回归真实执行且通过，目录非空",
+   "env": {}
+  },
+  "C-LEGACY-P3": {
+   "argv": [
+    "test/customer_service/cs_queue_layout_test.dart",
+    "test/customer_service/cs_seat_gate_test.dart",
+    "test/customer_service/cs_api_contract_test.dart",
+    "test/customer_service/cs_session_preview_scope_test.dart",
+    "test/customer_service/cs_session_page_test.dart"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "RESOLVE_T04",
+   "required_files": [],
+   "producer_task": "T04",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "既有P3回归真实执行且通过，目录非空",
+   "env": {}
+  },
+  "C-RECOVERY": {
+   "argv": [
+    "python3",
+    "tool/uiux/recovery_contract_test.py"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "tool/uiux/recovery_contract_test.py"
+   ],
+   "producer_task": "T28",
+   "resource_keys": [],
+   "success": "临时Git和真实控制模块集成用例全过；不是实际跨会话证明",
+   "env": {}
+  },
+  "C-DIFF-CHECK": {
+   "argv": [
+    "git",
+    "diff",
+    "--check",
+    "c61cd8d46e276496b2ddae8b89b17d6fe6856ddc",
+    "HEAD"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "INSTALLED",
+   "required_files": [],
+   "producer_task": null,
+   "resource_keys": [],
+   "success": "exit=0；另检查index/worktree未提交差异",
+   "env": {}
+  },
+  "C-T05-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/contract/harness_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/contract/harness_test.dart"
+   ],
+   "producer_task": "T05",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T06-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/contract/copy_contract_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/contract/copy_contract_test.dart"
+   ],
+   "producer_task": "T06",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T07-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/p1_fixture_smoke_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/p1_fixture_smoke_test.dart"
+   ],
+   "producer_task": "T07",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T08-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p2/p2_fixture_smoke_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p2/p2_fixture_smoke_test.dart"
+   ],
+   "producer_task": "T08",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T09-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p3/p3_fixture_smoke_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p3/p3_fixture_smoke_test.dart"
+   ],
+   "producer_task": "T09",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T10-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/header_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/header_test.dart"
+   ],
+   "producer_task": "T10",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T11-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/stats_state_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/stats_state_test.dart"
+   ],
+   "producer_task": "T11",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T12-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/actions_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/actions_test.dart"
+   ],
+   "producer_task": "T12",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T13-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/discuss_banner_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/discuss_banner_test.dart"
+   ],
+   "producer_task": "T13",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T14-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/filter_controls_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/filter_controls_test.dart"
+   ],
+   "producer_task": "T14",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T15-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/content_states_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/content_states_test.dart"
+   ],
+   "producer_task": "T15",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T16-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p2/containers_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p2/containers_test.dart"
+   ],
+   "producer_task": "T16",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T17-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p2/apps_entry_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p2/apps_entry_test.dart"
+   ],
+   "producer_task": "T17",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T18-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p2/entry_rows_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p2/entry_rows_test.dart"
+   ],
+   "producer_task": "T18",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T19-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p3/row_structure_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p3/row_structure_test.dart"
+   ],
+   "producer_task": "T19",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T20-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p3/preview_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p3/preview_test.dart"
+   ],
+   "producer_task": "T20",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T21-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p3/source_label_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p3/source_label_test.dart"
+   ],
+   "producer_task": "T21",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T22-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/accessibility_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/accessibility_test.dart"
+   ],
+   "producer_task": "T22",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T23-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p2/accessibility_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p2/accessibility_test.dart"
+   ],
+   "producer_task": "T23",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T24-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p3/accessibility_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p3/accessibility_test.dart"
+   ],
+   "producer_task": "T24",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T25-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p1/behavior_regression_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p1/behavior_regression_test.dart"
+   ],
+   "producer_task": "T25",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T26-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p2/behavior_regression_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p2/behavior_regression_test.dart"
+   ],
+   "producer_task": "T26",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T27-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/p3/behavior_regression_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/p3/behavior_regression_test.dart"
+   ],
+   "producer_task": "T27",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T05-a-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/contract/font_contract_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/contract/font_contract_test.dart"
+   ],
+   "producer_task": "T05.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {}
+  },
+  "C-T22-a-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/golden/p1_golden_test.dart",
+    "--reporter",
+    "json",
+    "--update-goldens"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/golden/p1_golden_test.dart"
+   ],
+   "producer_task": "T22.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p1/candidates"
+   }
+  },
+  "C-T22-b-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/golden/p1_golden_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/golden/p1_golden_test.dart"
+   ],
+   "producer_task": "T22.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p1/sealed"
+   }
+  },
+  "C-T23-a-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/golden/p2_golden_test.dart",
+    "--reporter",
+    "json",
+    "--update-goldens"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/golden/p2_golden_test.dart"
+   ],
+   "producer_task": "T23.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p2/candidates"
+   }
+  },
+  "C-T23-b-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/golden/p2_golden_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/golden/p2_golden_test.dart"
+   ],
+   "producer_task": "T23.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p2/sealed"
+   }
+  },
+  "C-T24-a-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/golden/p3_golden_test.dart",
+    "--reporter",
+    "json",
+    "--update-goldens"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/golden/p3_golden_test.dart"
+   ],
+   "producer_task": "T24.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p3/candidates"
+   }
+  },
+  "C-T24-b-1": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/golden/p3_golden_test.dart",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_PRODUCER",
+   "required_files": [
+    "test/uiux/golden/p3_golden_test.dart"
+   ],
+   "producer_task": "T24.a",
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/p3/sealed"
+   }
+  },
+  "C-TARGET-ALL": {
+   "argv": [
+    "/Users/leeyi/dev/flutter/bin/flutter",
+    "test",
+    "test/uiux/contract",
+    "test/uiux/p1",
+    "test/uiux/p2",
+    "test/uiux/p3",
+    "--reporter",
+    "json"
+   ],
+   "cwd": "/Users/leeyi/project/imboy.pub/.worktrees/imboy-enterprise-uiux-v1",
+   "available": "AFTER_ALL_TARGET_PRODUCERS",
+   "required_files": [],
+   "producer_task": null,
+   "resource_keys": [
+    "flutter-sdk:${SDK_REALPATH_HASH}"
+   ],
+   "success": "全部目标用例ID按清单实际执行，0新增skip；生产者全部已完成",
+   "env": {
+    "UIUX_GOLDEN_BASELINE_ROOT": "/Users/leeyi/project/imboy.pub/imboyapp/.git/imboy-uiux/imboy-enterprise-uiux-v1/golden/assembled-sealed"
+   }
+  }
+ }
+}

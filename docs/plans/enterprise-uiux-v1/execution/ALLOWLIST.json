@@ -1,0 +1,41 @@
+{
+ "schema_version": 1,
+ "plan_id": "imboy-enterprise-uiux-v1",
+ "frozen_at": "2026-10-19T11:16:01Z",
+ "rule": "展示层白名单：以下文件可改（含配套 i18n 源/生成物、新增 test/uiux/**）；冻结业务符号见 frozen_symbols；越界=scope violation",
+ "writable_paths": [
+  "lib/page/workspace/workspace_channel_detail_page.dart",
+  "lib/page/channel/channel_detail_page.dart",
+  "lib/page/channel/widgets/channel_header_bar.dart",
+  "lib/page/channel/widgets/channel_message_feed.dart",
+  "lib/component/ui/nodata_view.dart (backward-compatible optional params only)",
+  "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+  "lib/page/workspace_shell/enterprise_shell_page.dart",
+  "lib/modules/customer_service/presentation/cs_queue_view.dart",
+  "lib/modules/customer_service/presentation/cs_session_list_view.dart",
+  "assets/i18n/**（文案源；仅新增/修改展示键）",
+  "lib/i18n/*.g.dart（生成物：仅由 dart run slang 再生成）",
+  "test/uiux/**（本计划新增测试）",
+  "docs/plans/enterprise-uiux-v1/**（任务文档/报告）",
+  "tool/uiux/**（T04.a/b/c 工具）"
+ ],
+ "frozen_symbols": [
+  "csMaskContactName (domain/cs_seat_gate.dart:80-85) — 只调用不改",
+  "csWaitingSince (domain/cs_queue_format.dart:32) — 只调用不改",
+  "csQueuePreviewText 语义边界 — 缺摘要不渲染（不得恢复占位/臆测）",
+  "CsApi.claim / seatSessionsPage / queuePage / CsQueueItem 解析 — 请求与DTO不变",
+  "ChannelService.getChannelStats/subscribe/unsubscribe/setMuted/getSubscription — 调用不变",
+  "ChannelApi.microCommunityEnabled / getDiscussion / joinDiscussion — gate与流程不变",
+  "AppFeatureRegistry.isEnabled(FeatureKeys.project) — gate不变",
+  "csEntryVisibleFromContexts — gate不变",
+  "OaBridgeAuthCodeService / ApiOaSsoIssueLauncher / appsUrl 目的地址 — 不变（Q07）",
+  "go_router 路由表（workspace_routes/channel_routes） — 路径/栈/DM目标不变",
+  "channelDetailProvider / channelListProvider 状态机 — 只读watch",
+  "_toggleMute / _claim / _open 业务流程 — 状态机不变（仅展示外观）"
+ ],
+ "prohibited": [
+  "Color(0x…)/Colors.* 新造色、数字 fontSize、全局 Token 修改、文本缩放关闭/clamp",
+  "API/DTO/Provider/Service/Domain 业务变更、feature flag 生产配置变更",
+  "erlang.mk、ios/*、macos/*、plugin/r_upgrade 等保留区"
+ ]
+}
