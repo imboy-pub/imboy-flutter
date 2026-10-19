@@ -113,6 +113,16 @@ class _DiscussInGroupBanner extends StatelessWidget {
                   ),
                 ),
               ),
+              // P1-05：全页唯一方向指示。T06 已把 10 locale 文案的箭头
+              // 字符移除；此处 chevron 在 RTL 下自动镜像；对读屏为纯
+              // 装饰（导航语义由 InkWell 提供），避免「箭头」被朗读。
+              ExcludeSemantics(
+                child: Icon(
+                  CupertinoIcons.chevron_forward,
+                  size: 16,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
             ],
           ),
         ),
