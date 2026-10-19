@@ -16,6 +16,7 @@
 // - 用例 3 证明 outbox 表缺失时移除事件照样生效（卫生动作不阻断 ACK）。
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +25,7 @@ import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// 与 retry_plaintext_guard_integration_test 同一份最小 DDL。
@@ -85,14 +87,59 @@ Map<String, dynamic> _v3Envelope() => {
   'protected_header': {'message_id': 'm-1', 'sender_uid': 1001},
 };
 
+/// Observe the real SQLite UPDATE completion, rather than guessing how many
+/// Dart event turns an FFI database operation needs. Only ACK SQL uses this
+/// handle; fixture setup and assertions use the underlying database directly.
+class _AckDatabase implements Database {
+  _AckDatabase(this.delegate, {this.holdUpdate = false});
+
+  final Database delegate;
+  final bool holdUpdate;
+  final updateStarted = Completer<void>();
+  final releaseUpdate = Completer<void>();
+  final confirmed = Completer<void>();
+  final probed = Completer<void>();
+
+  @override
+  bool get isOpen => delegate.isOpen;
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
+    final rows = await delegate.rawQuery(sql, arguments);
+    if (!probed.isCompleted) probed.complete();
+    return rows;
+  }
+
+  @override
+  Future<int> rawUpdate(String sql, [List<Object?>? arguments]) async {
+    if (!updateStarted.isCompleted) updateStarted.complete();
+    if (holdUpdate) await releaseUpdate.future;
+    try {
+      final changed = await delegate.rawUpdate(sql, arguments);
+      if (!confirmed.isCompleted) confirmed.complete();
+      return changed;
+    } on Object catch (error, stack) {
+      if (!confirmed.isCompleted) confirmed.completeError(error, stack);
+      rethrow;
+    }
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MessageRetry retry;
   final sendRequests = <WebSocketMessageSendRequestEvent>[];
   late Database db;
+  late StreamSubscription<WebSocketMessageSendRequestEvent> sendSubscription;
 
-  setUpAll(() async {
+  setUp(() async {
     sqfliteFfiInit();
     db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
@@ -118,18 +165,18 @@ void main() {
     SqliteService.setDbForTest(db);
     expect(await SqliteService.to.db, isNotNull);
     retry = MessageRetry.instance;
-    await pumpEventQueue(times: 200);
-    AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(sendRequests.add);
+    await retry.debugWaitForIdle();
+    sendSubscription = AppEventBus.on<WebSocketMessageSendRequestEvent>()
+        .listen(sendRequests.add);
   });
 
-  setUp(() {
-    retry.clearRetryQueue();
-    sendRequests.clear();
-  });
-
-  tearDownAll(() {
+  tearDown(() async {
+    await retry.debugWaitForIdle();
     retry.dispose();
+    await sendSubscription.cancel();
+    sendRequests.clear();
     SqliteService.setDbForTest(null);
+    await db.close();
   });
 
   Future<void> insertEncryptedRow(String id, Map<String, dynamic> e2ee) async {
@@ -190,6 +237,8 @@ void main() {
   });
 
   test('ACK 移除事件汇聚时确认 outbox（pending → sent）', () async {
+    final observed = _AckDatabase(db, holdUpdate: true);
+    SqliteService.setDbForTest(observed);
     final store = CryptoStore(db);
     await store.ensureSchema();
     await store.insertOutbox(
@@ -198,6 +247,8 @@ void main() {
     );
     expect((await store.getOutboxEntry('msg-resend-1'))?['status'], 'pending');
 
+    retry.addToRetryQueue('msg-resend-1', 'C2C');
+    expect(retry.getRetryInfo('msg-resend-1'), isNotNull);
     AppEventBus.fire(
       RemoveFromRetryQueueRequestedEvent(
         messageId: 'msg-resend-1',
@@ -205,15 +256,60 @@ void main() {
         reason: 'SERVER_ACK',
       ),
     );
-    await pumpEventQueue();
+    try {
+      await observed.updateStarted.future;
+      // The event was handled, but native SQLite completion is independent of
+      // pumpEventQueue. Force this ordering instead of relying on CI timing.
+      await pumpEventQueue();
+      expect(retry.getRetryInfo('msg-resend-1'), isNull);
+      expect(observed.confirmed.isCompleted, isFalse);
+      expect((await store.getOutboxEntry('msg-resend-1'))?['status'], 'pending');
+    } finally {
+      observed.releaseUpdate.complete();
+      await observed.confirmed.future;
+    }
 
     final entry = await store.getOutboxEntry('msg-resend-1');
     expect(entry?['status'], 'sent', reason: 'ACK 移除未联动确认 outbox');
+    expect(entry?['sent_at'], isA<int>());
+    expect(entry?['payload'], jsonEncode(_v3Envelope()));
   });
+
+  for (final staleField in ['ownerUid', 'sessionGeneration']) {
+    test('过期 ACK 不确认 outbox：$staleField', () async {
+      final observed = _AckDatabase(db);
+      SqliteService.setDbForTest(observed);
+      final store = CryptoStore(db);
+      await store.ensureSchema();
+      await store.insertOutbox(id: 'stale-ack', payload: '{}');
+      retry.addToRetryQueue('stale-ack', 'C2C');
+      final pending = retry.getRetryInfo('stale-ack');
+      expect(pending, isNotNull);
+      final event = RemoveFromRetryQueueRequestedEvent(
+        messageId: 'stale-ack',
+        messageType: 'C2C',
+        reason: 'SERVER_ACK',
+        ownerUid: staleField == 'ownerUid' ? 'stale-owner' : null,
+        sessionGeneration: staleField == 'sessionGeneration'
+            ? UserRepoLocal.to.sessionGeneration - 1
+            : null,
+      );
+      // Registered after MessageRetry: delivery observes its synchronous guard.
+      final delivered = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+          .firstWhere((candidate) => identical(candidate, event));
+      AppEventBus.fire(event);
+      await delivered;
+      expect(retry.getRetryInfo('stale-ack'), same(pending));
+      expect(observed.probed.isCompleted, isFalse);
+      expect(observed.updateStarted.isCompleted, isFalse);
+      expect((await store.getOutboxEntry('stale-ack'))?['status'], 'pending');
+    });
+  }
 
   test('outbox 表缺失时移除事件照样生效（卫生动作不阻断 ACK）', () async {
     // 不建 crypto_outbox 表：_confirmOutboxQuietly 应只记日志
-    await db.execute('DROP TABLE IF EXISTS crypto_outbox');
+    final observed = _AckDatabase(db);
+    SqliteService.setDbForTest(observed);
     retry.addToRetryQueue('msg-ghost', 'C2C');
 
     AppEventBus.fire(
@@ -223,7 +319,8 @@ void main() {
         reason: 'SERVER_ACK',
       ),
     );
-    await pumpEventQueue();
+    await observed.probed.future;
+    expect(observed.updateStarted.isCompleted, isFalse);
 
     // 移除生效即通过（确认失败不得阻断）；队列中不应再有该 id
     expect(retry.getRetryInfo('msg-ghost'), isNull);
