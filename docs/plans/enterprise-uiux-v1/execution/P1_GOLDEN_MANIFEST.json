@@ -1,0 +1,2052 @@
+{
+ "schema_version": 1,
+ "plan_id": "imboy-enterprise-uiux-v1",
+ "lane": "P1",
+ "expected_count": 120,
+ "count": 120,
+ "config_id_unique": true,
+ "generated_by": "flutter test test/uiux/golden/p1_golden_test.dart --update-goldens",
+ "candidates_root": "runtime golden/p1/candidates/p1/",
+ "entries": [
+  {
+   "config_id": "p1/content-long-name_android_1280x800_dark_s1",
+   "baseline_file": "p1/content-long-name_android_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_1280x800_dark_s2",
+   "baseline_file": "p1/content-long-name_android_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_1280x800_light_s1",
+   "baseline_file": "p1/content-long-name_android_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_1280x800_light_s2",
+   "baseline_file": "p1/content-long-name_android_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_360x800_dark_s1",
+   "baseline_file": "p1/content-long-name_android_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_360x800_dark_s2",
+   "baseline_file": "p1/content-long-name_android_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_360x800_light_s1",
+   "baseline_file": "p1/content-long-name_android_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_android_360x800_light_s2",
+   "baseline_file": "p1/content-long-name_android_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_1280x800_dark_s1",
+   "baseline_file": "p1/content-long-name_ios_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_1280x800_dark_s2",
+   "baseline_file": "p1/content-long-name_ios_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_1280x800_light_s1",
+   "baseline_file": "p1/content-long-name_ios_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_1280x800_light_s2",
+   "baseline_file": "p1/content-long-name_ios_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_360x800_dark_s1",
+   "baseline_file": "p1/content-long-name_ios_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_360x800_dark_s2",
+   "baseline_file": "p1/content-long-name_ios_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_360x800_light_s1",
+   "baseline_file": "p1/content-long-name_ios_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_ios_360x800_light_s2",
+   "baseline_file": "p1/content-long-name_ios_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_1280x800_dark_s1",
+   "baseline_file": "p1/content-long-name_macos_1280x800_dark_s1.png",
+   "sha256": "5b44394b8d7ca5db92125f9baa1f4c9fb4c7a7b520c0addf8f33813faa90bc14",
+   "bytes": 18030,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_1280x800_dark_s2",
+   "baseline_file": "p1/content-long-name_macos_1280x800_dark_s2.png",
+   "sha256": "7df1330927e6d1bba47ae039e4a6070106b809307bb18e2af60ce20a9691cd6f",
+   "bytes": 19128,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_1280x800_light_s1",
+   "baseline_file": "p1/content-long-name_macos_1280x800_light_s1.png",
+   "sha256": "94b1656d3bfec2fb62cb3295143d30de0e58c8d7587d4bf355fa173f0ebba8cf",
+   "bytes": 17653,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_1280x800_light_s2",
+   "baseline_file": "p1/content-long-name_macos_1280x800_light_s2.png",
+   "sha256": "b85d3251cfb25267607339447663117e978c8d6559316cf2fcc58f28f7fd69bd",
+   "bytes": 18770,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_360x800_dark_s1",
+   "baseline_file": "p1/content-long-name_macos_360x800_dark_s1.png",
+   "sha256": "b3c42cfa3e753f033c4e6bd3643d44372868b019829fc56960cd076d835b3fc3",
+   "bytes": 14487,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_360x800_dark_s2",
+   "baseline_file": "p1/content-long-name_macos_360x800_dark_s2.png",
+   "sha256": "80be7c276912f998e7058b56e5f635b034c635fc1c87c6fdfc335f538951d1f8",
+   "bytes": 14449,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_360x800_light_s1",
+   "baseline_file": "p1/content-long-name_macos_360x800_light_s1.png",
+   "sha256": "38f33d529337a8b447fc268d6ce874f412a850674301037e50a59bf20f64f5e6",
+   "bytes": 14134,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/content-long-name_macos_360x800_light_s2",
+   "baseline_file": "p1/content-long-name_macos_360x800_light_s2.png",
+   "sha256": "5e6076a1174bd26916f8a793e09f1feb654a1fa3c133b76a3d7cc65bcab5c59a",
+   "bytes": 14083,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_1280x800_dark_s1",
+   "baseline_file": "p1/empty_android_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_1280x800_dark_s2",
+   "baseline_file": "p1/empty_android_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_1280x800_light_s1",
+   "baseline_file": "p1/empty_android_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_1280x800_light_s2",
+   "baseline_file": "p1/empty_android_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_360x800_dark_s1",
+   "baseline_file": "p1/empty_android_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_360x800_dark_s2",
+   "baseline_file": "p1/empty_android_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_360x800_light_s1",
+   "baseline_file": "p1/empty_android_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_android_360x800_light_s2",
+   "baseline_file": "p1/empty_android_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_1280x800_dark_s1",
+   "baseline_file": "p1/empty_ios_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_1280x800_dark_s2",
+   "baseline_file": "p1/empty_ios_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_1280x800_light_s1",
+   "baseline_file": "p1/empty_ios_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_1280x800_light_s2",
+   "baseline_file": "p1/empty_ios_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_360x800_dark_s1",
+   "baseline_file": "p1/empty_ios_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_360x800_dark_s2",
+   "baseline_file": "p1/empty_ios_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_360x800_light_s1",
+   "baseline_file": "p1/empty_ios_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_ios_360x800_light_s2",
+   "baseline_file": "p1/empty_ios_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_1280x800_dark_s1",
+   "baseline_file": "p1/empty_macos_1280x800_dark_s1.png",
+   "sha256": "5b44394b8d7ca5db92125f9baa1f4c9fb4c7a7b520c0addf8f33813faa90bc14",
+   "bytes": 18030,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_1280x800_dark_s2",
+   "baseline_file": "p1/empty_macos_1280x800_dark_s2.png",
+   "sha256": "7df1330927e6d1bba47ae039e4a6070106b809307bb18e2af60ce20a9691cd6f",
+   "bytes": 19128,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_1280x800_light_s1",
+   "baseline_file": "p1/empty_macos_1280x800_light_s1.png",
+   "sha256": "94b1656d3bfec2fb62cb3295143d30de0e58c8d7587d4bf355fa173f0ebba8cf",
+   "bytes": 17653,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_1280x800_light_s2",
+   "baseline_file": "p1/empty_macos_1280x800_light_s2.png",
+   "sha256": "b85d3251cfb25267607339447663117e978c8d6559316cf2fcc58f28f7fd69bd",
+   "bytes": 18770,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_360x800_dark_s1",
+   "baseline_file": "p1/empty_macos_360x800_dark_s1.png",
+   "sha256": "b3c42cfa3e753f033c4e6bd3643d44372868b019829fc56960cd076d835b3fc3",
+   "bytes": 14487,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_360x800_dark_s2",
+   "baseline_file": "p1/empty_macos_360x800_dark_s2.png",
+   "sha256": "80be7c276912f998e7058b56e5f635b034c635fc1c87c6fdfc335f538951d1f8",
+   "bytes": 14449,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_360x800_light_s1",
+   "baseline_file": "p1/empty_macos_360x800_light_s1.png",
+   "sha256": "38f33d529337a8b447fc268d6ce874f412a850674301037e50a59bf20f64f5e6",
+   "bytes": 14134,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/empty_macos_360x800_light_s2",
+   "baseline_file": "p1/empty_macos_360x800_light_s2.png",
+   "sha256": "5e6076a1174bd26916f8a793e09f1feb654a1fa3c133b76a3d7cc65bcab5c59a",
+   "bytes": 14083,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_1280x800_dark_s1",
+   "baseline_file": "p1/filters-expanded_android_1280x800_dark_s1.png",
+   "sha256": "538e72c7917bb80e659304429d391875c5f3de4e758d2bfbed274c584ca14adf",
+   "bytes": 15157,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_1280x800_dark_s2",
+   "baseline_file": "p1/filters-expanded_android_1280x800_dark_s2.png",
+   "sha256": "22fc23496481c789c1009ee964834688861361d32bb5d3a7c47c873632f28925",
+   "bytes": 13465,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_1280x800_light_s1",
+   "baseline_file": "p1/filters-expanded_android_1280x800_light_s1.png",
+   "sha256": "d4db2ad282aa7ccb528dabb0eac7d4d5962d94a0b5da83bcf4ee7818c95bc824",
+   "bytes": 15489,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_1280x800_light_s2",
+   "baseline_file": "p1/filters-expanded_android_1280x800_light_s2.png",
+   "sha256": "6aa3c81b149b0a8643639917857eaff56584310bc4d110878743179a528d9913",
+   "bytes": 13814,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_360x800_dark_s1",
+   "baseline_file": "p1/filters-expanded_android_360x800_dark_s1.png",
+   "sha256": "cf3aeb4a8fe712e9c496acf5aab268f76975728ed1b9c5a3e84768f05654279e",
+   "bytes": 11949,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_360x800_dark_s2",
+   "baseline_file": "p1/filters-expanded_android_360x800_dark_s2.png",
+   "sha256": "b58c8b1997dc66e2db881dba29c8fcc08bdc2de88d766e20d92f4fe3ccc2028b",
+   "bytes": 11344,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_360x800_light_s1",
+   "baseline_file": "p1/filters-expanded_android_360x800_light_s1.png",
+   "sha256": "45ac0f429ba25c0649789eeef8c78ba353b5ace955eb34c3cf669bc736539b7e",
+   "bytes": 12242,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_android_360x800_light_s2",
+   "baseline_file": "p1/filters-expanded_android_360x800_light_s2.png",
+   "sha256": "41f70bc27506f1fe1aecfc1acf094eb74fdef7a9f1a41cd0f92d04ce31d01667",
+   "bytes": 11627,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_1280x800_dark_s1",
+   "baseline_file": "p1/filters-expanded_ios_1280x800_dark_s1.png",
+   "sha256": "538e72c7917bb80e659304429d391875c5f3de4e758d2bfbed274c584ca14adf",
+   "bytes": 15157,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_1280x800_dark_s2",
+   "baseline_file": "p1/filters-expanded_ios_1280x800_dark_s2.png",
+   "sha256": "22fc23496481c789c1009ee964834688861361d32bb5d3a7c47c873632f28925",
+   "bytes": 13465,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_1280x800_light_s1",
+   "baseline_file": "p1/filters-expanded_ios_1280x800_light_s1.png",
+   "sha256": "d4db2ad282aa7ccb528dabb0eac7d4d5962d94a0b5da83bcf4ee7818c95bc824",
+   "bytes": 15489,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_1280x800_light_s2",
+   "baseline_file": "p1/filters-expanded_ios_1280x800_light_s2.png",
+   "sha256": "6aa3c81b149b0a8643639917857eaff56584310bc4d110878743179a528d9913",
+   "bytes": 13814,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_360x800_dark_s1",
+   "baseline_file": "p1/filters-expanded_ios_360x800_dark_s1.png",
+   "sha256": "cf3aeb4a8fe712e9c496acf5aab268f76975728ed1b9c5a3e84768f05654279e",
+   "bytes": 11949,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_360x800_dark_s2",
+   "baseline_file": "p1/filters-expanded_ios_360x800_dark_s2.png",
+   "sha256": "b58c8b1997dc66e2db881dba29c8fcc08bdc2de88d766e20d92f4fe3ccc2028b",
+   "bytes": 11344,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_360x800_light_s1",
+   "baseline_file": "p1/filters-expanded_ios_360x800_light_s1.png",
+   "sha256": "45ac0f429ba25c0649789eeef8c78ba353b5ace955eb34c3cf669bc736539b7e",
+   "bytes": 12242,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_ios_360x800_light_s2",
+   "baseline_file": "p1/filters-expanded_ios_360x800_light_s2.png",
+   "sha256": "41f70bc27506f1fe1aecfc1acf094eb74fdef7a9f1a41cd0f92d04ce31d01667",
+   "bytes": 11627,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_1280x800_dark_s1",
+   "baseline_file": "p1/filters-expanded_macos_1280x800_dark_s1.png",
+   "sha256": "538e72c7917bb80e659304429d391875c5f3de4e758d2bfbed274c584ca14adf",
+   "bytes": 15157,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_1280x800_dark_s2",
+   "baseline_file": "p1/filters-expanded_macos_1280x800_dark_s2.png",
+   "sha256": "22fc23496481c789c1009ee964834688861361d32bb5d3a7c47c873632f28925",
+   "bytes": 13465,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_1280x800_light_s1",
+   "baseline_file": "p1/filters-expanded_macos_1280x800_light_s1.png",
+   "sha256": "d4db2ad282aa7ccb528dabb0eac7d4d5962d94a0b5da83bcf4ee7818c95bc824",
+   "bytes": 15489,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_1280x800_light_s2",
+   "baseline_file": "p1/filters-expanded_macos_1280x800_light_s2.png",
+   "sha256": "6aa3c81b149b0a8643639917857eaff56584310bc4d110878743179a528d9913",
+   "bytes": 13814,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_360x800_dark_s1",
+   "baseline_file": "p1/filters-expanded_macos_360x800_dark_s1.png",
+   "sha256": "cf3aeb4a8fe712e9c496acf5aab268f76975728ed1b9c5a3e84768f05654279e",
+   "bytes": 11949,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_360x800_dark_s2",
+   "baseline_file": "p1/filters-expanded_macos_360x800_dark_s2.png",
+   "sha256": "b58c8b1997dc66e2db881dba29c8fcc08bdc2de88d766e20d92f4fe3ccc2028b",
+   "bytes": 11344,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_360x800_light_s1",
+   "baseline_file": "p1/filters-expanded_macos_360x800_light_s1.png",
+   "sha256": "45ac0f429ba25c0649789eeef8c78ba353b5ace955eb34c3cf669bc736539b7e",
+   "bytes": 12242,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/filters-expanded_macos_360x800_light_s2",
+   "baseline_file": "p1/filters-expanded_macos_360x800_light_s2.png",
+   "sha256": "41f70bc27506f1fe1aecfc1acf094eb74fdef7a9f1a41cd0f92d04ce31d01667",
+   "bytes": 11627,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_1280x800_dark_s1",
+   "baseline_file": "p1/initial-error_android_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_1280x800_dark_s2",
+   "baseline_file": "p1/initial-error_android_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_1280x800_light_s1",
+   "baseline_file": "p1/initial-error_android_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_1280x800_light_s2",
+   "baseline_file": "p1/initial-error_android_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_360x800_dark_s1",
+   "baseline_file": "p1/initial-error_android_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_360x800_dark_s2",
+   "baseline_file": "p1/initial-error_android_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_360x800_light_s1",
+   "baseline_file": "p1/initial-error_android_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_android_360x800_light_s2",
+   "baseline_file": "p1/initial-error_android_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_1280x800_dark_s1",
+   "baseline_file": "p1/initial-error_ios_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_1280x800_dark_s2",
+   "baseline_file": "p1/initial-error_ios_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_1280x800_light_s1",
+   "baseline_file": "p1/initial-error_ios_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_1280x800_light_s2",
+   "baseline_file": "p1/initial-error_ios_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_360x800_dark_s1",
+   "baseline_file": "p1/initial-error_ios_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_360x800_dark_s2",
+   "baseline_file": "p1/initial-error_ios_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_360x800_light_s1",
+   "baseline_file": "p1/initial-error_ios_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_ios_360x800_light_s2",
+   "baseline_file": "p1/initial-error_ios_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_1280x800_dark_s1",
+   "baseline_file": "p1/initial-error_macos_1280x800_dark_s1.png",
+   "sha256": "5b44394b8d7ca5db92125f9baa1f4c9fb4c7a7b520c0addf8f33813faa90bc14",
+   "bytes": 18030,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_1280x800_dark_s2",
+   "baseline_file": "p1/initial-error_macos_1280x800_dark_s2.png",
+   "sha256": "7df1330927e6d1bba47ae039e4a6070106b809307bb18e2af60ce20a9691cd6f",
+   "bytes": 19128,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_1280x800_light_s1",
+   "baseline_file": "p1/initial-error_macos_1280x800_light_s1.png",
+   "sha256": "94b1656d3bfec2fb62cb3295143d30de0e58c8d7587d4bf355fa173f0ebba8cf",
+   "bytes": 17653,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_1280x800_light_s2",
+   "baseline_file": "p1/initial-error_macos_1280x800_light_s2.png",
+   "sha256": "b85d3251cfb25267607339447663117e978c8d6559316cf2fcc58f28f7fd69bd",
+   "bytes": 18770,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_360x800_dark_s1",
+   "baseline_file": "p1/initial-error_macos_360x800_dark_s1.png",
+   "sha256": "b3c42cfa3e753f033c4e6bd3643d44372868b019829fc56960cd076d835b3fc3",
+   "bytes": 14487,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_360x800_dark_s2",
+   "baseline_file": "p1/initial-error_macos_360x800_dark_s2.png",
+   "sha256": "80be7c276912f998e7058b56e5f635b034c635fc1c87c6fdfc335f538951d1f8",
+   "bytes": 14449,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_360x800_light_s1",
+   "baseline_file": "p1/initial-error_macos_360x800_light_s1.png",
+   "sha256": "38f33d529337a8b447fc268d6ce874f412a850674301037e50a59bf20f64f5e6",
+   "bytes": 14134,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/initial-error_macos_360x800_light_s2",
+   "baseline_file": "p1/initial-error_macos_360x800_light_s2.png",
+   "sha256": "5e6076a1174bd26916f8a793e09f1feb654a1fa3c133b76a3d7cc65bcab5c59a",
+   "bytes": 14083,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_1280x800_dark_s1",
+   "baseline_file": "p1/stats-disabled_android_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_1280x800_dark_s2",
+   "baseline_file": "p1/stats-disabled_android_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_1280x800_light_s1",
+   "baseline_file": "p1/stats-disabled_android_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_1280x800_light_s2",
+   "baseline_file": "p1/stats-disabled_android_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_360x800_dark_s1",
+   "baseline_file": "p1/stats-disabled_android_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_360x800_dark_s2",
+   "baseline_file": "p1/stats-disabled_android_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_360x800_light_s1",
+   "baseline_file": "p1/stats-disabled_android_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_android_360x800_light_s2",
+   "baseline_file": "p1/stats-disabled_android_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_1280x800_dark_s1",
+   "baseline_file": "p1/stats-disabled_ios_1280x800_dark_s1.png",
+   "sha256": "f6756d47e3e1a5d0e9918a4df1682835b1cc288181efcd7006dd258f45d935c4",
+   "bytes": 18004,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_1280x800_dark_s2",
+   "baseline_file": "p1/stats-disabled_ios_1280x800_dark_s2.png",
+   "sha256": "086e2ef0bc2d8d6c3b6db4f35d2ccff0915382bd0e0733be1efa73dd149dc864",
+   "bytes": 19037,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_1280x800_light_s1",
+   "baseline_file": "p1/stats-disabled_ios_1280x800_light_s1.png",
+   "sha256": "92be8da9708e285d097a64763320eab0a00babbe5c0659a849e391931593a95f",
+   "bytes": 17639,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_1280x800_light_s2",
+   "baseline_file": "p1/stats-disabled_ios_1280x800_light_s2.png",
+   "sha256": "0f99766b2a31a10e3fa2ca209e3b673f1bbce79365a6d7c5050432d3359cf406",
+   "bytes": 18696,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_360x800_dark_s1",
+   "baseline_file": "p1/stats-disabled_ios_360x800_dark_s1.png",
+   "sha256": "9382f0429e3572aca9f4654ba2b435ef0bf92cc3715e91d1a72d0c5d8e1e24f4",
+   "bytes": 14477,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_360x800_dark_s2",
+   "baseline_file": "p1/stats-disabled_ios_360x800_dark_s2.png",
+   "sha256": "8b33f96bfd4bfb0b9eba2efca78074b102695078508f1dd23a23c4e967581b3d",
+   "bytes": 14310,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_360x800_light_s1",
+   "baseline_file": "p1/stats-disabled_ios_360x800_light_s1.png",
+   "sha256": "9cdfff196e1f4ba5607781a9173a37274f4f8ac9da0d5a883975ddb43e6789ec",
+   "bytes": 14160,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_ios_360x800_light_s2",
+   "baseline_file": "p1/stats-disabled_ios_360x800_light_s2.png",
+   "sha256": "a94f200d34a7ca56ada308bdf02fc029d863f41b817bab6c82391a6d64c5f6c3",
+   "bytes": 13929,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_1280x800_dark_s1",
+   "baseline_file": "p1/stats-disabled_macos_1280x800_dark_s1.png",
+   "sha256": "5b44394b8d7ca5db92125f9baa1f4c9fb4c7a7b520c0addf8f33813faa90bc14",
+   "bytes": 18030,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_1280x800_dark_s2",
+   "baseline_file": "p1/stats-disabled_macos_1280x800_dark_s2.png",
+   "sha256": "7df1330927e6d1bba47ae039e4a6070106b809307bb18e2af60ce20a9691cd6f",
+   "bytes": 19128,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_1280x800_light_s1",
+   "baseline_file": "p1/stats-disabled_macos_1280x800_light_s1.png",
+   "sha256": "94b1656d3bfec2fb62cb3295143d30de0e58c8d7587d4bf355fa173f0ebba8cf",
+   "bytes": 17653,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_1280x800_light_s2",
+   "baseline_file": "p1/stats-disabled_macos_1280x800_light_s2.png",
+   "sha256": "b85d3251cfb25267607339447663117e978c8d6559316cf2fcc58f28f7fd69bd",
+   "bytes": 18770,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_360x800_dark_s1",
+   "baseline_file": "p1/stats-disabled_macos_360x800_dark_s1.png",
+   "sha256": "b3c42cfa3e753f033c4e6bd3643d44372868b019829fc56960cd076d835b3fc3",
+   "bytes": 14487,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_360x800_dark_s2",
+   "baseline_file": "p1/stats-disabled_macos_360x800_dark_s2.png",
+   "sha256": "80be7c276912f998e7058b56e5f635b034c635fc1c87c6fdfc335f538951d1f8",
+   "bytes": 14449,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_360x800_light_s1",
+   "baseline_file": "p1/stats-disabled_macos_360x800_light_s1.png",
+   "sha256": "38f33d529337a8b447fc268d6ce874f412a850674301037e50a59bf20f64f5e6",
+   "bytes": 14134,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  },
+  {
+   "config_id": "p1/stats-disabled_macos_360x800_light_s2",
+   "baseline_file": "p1/stats-disabled_macos_360x800_light_s2.png",
+   "sha256": "5e6076a1174bd26916f8a793e09f1feb654a1fa3c133b76a3d7cc65bcab5c59a",
+   "bytes": 14083,
+   "env": {
+    "font_sha256": "876af2cd4854644e7f3e7feb2f688997fdb3343c6df6693611209c9dfb47ccec",
+    "flutter_version": "3.47.7",
+    "locale": "zh-CN",
+    "device_pixel_ratio": 1.0,
+    "animations": "disabled"
+   },
+   "input": "synthetic fixture (p1_fixtures, no real customer data)",
+   "requirement": "P1 structural golden — see MATRIX.json scene",
+   "task": "T22.a",
+   "before": "NEW_SCENARIO (no W0 baseline for this scene/config; no before image fabricated)"
+  }
+ ]
+}
