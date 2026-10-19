@@ -248,7 +248,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           _buildCircleActionItem(
             icon: CupertinoIcons.gear_solid,
             label: t.main.manage,
-            onTap: widget.onManageTap ?? widget.onActionTap ?? () {},
+            // P1-04：回调缺失即禁用（不再回退空函数造成假有效点击）
+            onTap: widget.onManageTap ?? widget.onActionTap,
           ),
 
           // 2. Subscribe or Mute action for managers
@@ -266,9 +267,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
             _buildCircleActionItem(
               icon: CupertinoIcons.bell,
               label: t.channel.subscribe,
-              onTap: widget.isActionPending
-                  ? () {}
-                  : (widget.onActionTap ?? () {}),
+              // pending 态与回调缺失都走禁用（onPressed=null）
+              onTap: widget.onActionTap,
               isPending: widget.isActionPending,
             ),
 
@@ -276,14 +276,14 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           _buildCircleActionItem(
             icon: CupertinoIcons.arrowshape_turn_up_right_fill,
             label: t.channel.shareToChat,
-            onTap: widget.onForwardTap ?? () {},
+            onTap: widget.onForwardTap,
           ),
 
           // 4. Share
           _buildCircleActionItem(
             icon: CupertinoIcons.share,
             label: t.channel.share,
-            onTap: widget.onShareTap ?? () {},
+            onTap: widget.onShareTap,
           ),
         ] else ...[
           // Non-managed channels (standard visitors / subscribers)
@@ -341,23 +341,21 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
             _buildCircleActionItem(
               icon: CupertinoIcons.arrowshape_turn_up_right_fill,
               label: t.channel.shareToChat,
-              onTap: widget.onForwardTap ?? () {},
+              onTap: widget.onForwardTap,
             ),
 
             // Share Button
             _buildCircleActionItem(
               icon: CupertinoIcons.share,
               label: t.channel.share,
-              onTap: widget.onShareTap ?? () {},
+              onTap: widget.onShareTap,
             ),
 
             // Subscribed / Following button (Dropdown-like grey background)
             _buildCircleActionItem(
               icon: CupertinoIcons.checkmark_seal_fill,
               label: t.channel.subscribed,
-              onTap: widget.isActionPending
-                  ? () {}
-                  : (widget.onActionTap ?? () {}),
+              onTap: widget.onActionTap,
               iconColor: AppColors.iosGreen,
               isPending: widget.isActionPending,
             ),
@@ -370,7 +368,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   Widget _buildCircleActionItem({
     required IconData icon,
     required String label,
-    required VoidCallback onTap,
+    required VoidCallback? onTap,
     Color? iconColor,
     bool isActive = false,
     bool isPending = false,
@@ -383,6 +381,13 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
       Theme.of(context).brightness,
       isSecondary: true,
     );
+    // P1-04：禁用=进行中或回调缺失（onPressed=null 走系统禁用语义），
+    // 图标用次级弱化色区分「不可用」；与「静音已开启」的灰图标
+    //（可点击切换）语义互不混淆——后者仍可点击。
+    final bool disabled = isPending || onTap == null;
+    final Color disabledColor = isDark
+        ? AppColors.iosGray3Dark
+        : AppColors.iosGray3;
 
     // 纯图标按钮必须有语义标签（DESIGN.md 11.4 / a11y 门）：label 即
     // 该动作的可读名（调用方传入）。
@@ -391,7 +396,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
       button: true,
       child: CupertinoButton(
         padding: EdgeInsets.zero,
-        onPressed: isPending ? null : onTap,
+        onPressed: disabled ? null : onTap,
         child: Container(
           width: 64,
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.tiny),
@@ -421,9 +426,12 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                       : Icon(
                           icon,
                           size: 20,
-                          color:
-                              iconColor ??
-                              (isActive ? themePrimary : defaultIconColor),
+                          color: disabled
+                              ? disabledColor
+                              : (iconColor ??
+                                    (isActive
+                                        ? themePrimary
+                                        : defaultIconColor)),
                         ),
                 ),
               ),
