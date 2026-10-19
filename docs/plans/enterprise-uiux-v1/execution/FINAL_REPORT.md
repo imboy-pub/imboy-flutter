@@ -66,3 +66,19 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
 - T09 坐席夹具（bada01525）：C-T09-1 8/8——合成 wire DTO 走真实 CsQueueItem.fromJson（DTO 未动）；固定时钟=queued_at 偏移回推；三态摘要（有/缺失/无消息兜底'页面数据不存在或已失效'）+ 同掩码不同摘要 + 来源三态（widget→Web/未知/空隐藏，二次掩码实证）+ claim in-flight 禁用与 CAS body 记录/409 刷新/403 无 crash。
 - 运行真源：rev17（tx-0012..0017）；无 BLOCKED；312 golden 仍未生成（B3 才开始）；K 未冻结。
 - 下一批 B2：T10（P1 频道身份头部收敛，P1-01 修复）等 12 张实现卡，T10/T13/T14 依赖 T07 已 READY。
+
+## 10. revision 5 附记（B2 收口 / P1·P2·P3 实现与验证全绿）
+
+- T10（c3f98c4f9）：ChannelHeaderBar showIdentityTitle 参数（默认 true，唯一调用方详情页选紧凑），认证徽标并入元信息行；P1-01 双标题消除；standalone GlassAppBar/embedded 宿主 AppBar 均保持唯一标题与一次返回。
+- T11（aff8b5ad5）：P1-02 VERIFY_EXISTING——2026-10-17 兜底修复已正确，按卡 change 仅补 4 断言（无骨架/兜底直显无 /stats 请求/服务端真实值不伪造/无新增请求）。
+- T12（7c3ffd056）：_buildCircleActionItem onTap 可空化——回调缺失与 pending 一律禁用（onPressed=null + iosGray3 弱化色），全部 `?? (){}` 假可用回退删除；可用图标对比度 ≥3:1、命中 ≥48×48、静音保持可切换；静音函数与权限来源未动。
+- T13（e53e38248）：讨论横幅唯一尾部 chevron（RTL 镜像 + ExcludeSemantics）；T06 无箭头文案联动断言；en deferred 库必须经 tester.runAsync 加载（FakeAsync 下永挂）且 setLocale 为异步（setLocaleSync 抛 _DeferredNotLoadedError）——已记入夹具注释。
+- T14（fa9e833bf）：高级筛选默认折叠（常驻搜索+入口，_searchActive 主色指示）；_advancedOpen 纯本地状态不动查询语义与 provider 参数；controller 常驻收起不丢条件；收起先 unfocus；微社区门经真实 FeatureScope/manifest/registry 测试接线开启（不 mock gate）。
+- T15（995527db5）：两处错误视图补两段结构（安全标题 + 固定说明复用 enterpriseOa.statusErrorHint 现有键）+ 既有 loadChannel 重试；空/无结果零孤立日期；只读空态无发布 CTA。
+- T16（d11f87f64）：三组 CupertinoListSection.insetGrouped → _GroupedSection（同 token 同节奏，高度随子项自然收缩）——CS gate 隐藏（shrink）后不再留空壳卡（P2-05）；可见性仍在子 gate 内。
+- T17（ae6f90d58）：P2-02/03 VERIFY_EXISTING 仅补测试：办公入口 0/应用入口 1、URL 不进文本/语义/提示、tap 保留目的地与桥、Android inbound 保持；webview 平台替身按官方 example 模式。
+- T18（21cb90401）：CS 行 29×29→24 槽、shell._resourceEntry 与 workbench 行统一 24 槽 + 垂直 padding 达 ≥48 命中；可见性表达式与 onTap 未动；ALLOWLIST 首次修订（T18 write_paths 授权的 cs_workspace_entry.dart 投影遗漏补录）。
+- T19/T20/T21（285537bb6，单原子提交）：CsSessionRowContent 纯展示提取（名→摘要→来源）；摘要三态与 ≤2 行合同；csSourceDisplayLabel 映射（widget→sourceWidget，未知/空→t.common.unknown，wire 不外露）；两页保留各自 fetchPage/claim/open；DTO/HTTP 未动。三卡解耦回滚=整体 revert（消息内声明）。
+- gate 修复（688a5c8b3，T04.a 追加）：声明正则类型段混入 \s 导致缩进裸调用行误判为声明（T19 实测假阳性）；diff 新增行坐标被同时与 base/HEAD 范围判交（挪动代码假阳性）。双修复 + 新回归用例，自测 6/6。
+- 运行真源：rev30（tx-0019..0030）；无 BLOCKED；312 golden 未生成（B3）；K 未冻结。
+- 下一批 B3：T22（P1 结构矩阵）等 9 卡 + T25—T27 调用回归，deps 全满足。
