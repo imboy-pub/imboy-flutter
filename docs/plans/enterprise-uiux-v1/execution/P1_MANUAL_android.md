@@ -99,7 +99,7 @@ validate_runtime_config）。
 | NC-P1-android-02 | PASS | 筛选开关展开标签输入并聚焦，键盘弹起时发布栏完整可见未被遮挡；再点开关收拢恢复默认折叠（P1-06 开合对称） | NC-02_keyboard_tag_input_publish_bar.png |
 | NC-P1-android-03 | PASS | 点击"消息免打扰"图标即切换（蓝铃→斜杠灰铃），按钮保持可点（再点还原）；管理/发送/分享入口在位。pending 不可重复触发需慢网注入，未单测（客户端既有 isActionPending 门 + C-T12 断言） | NC-03_mute_toggled_state.png |
 | NC-P1-android-04 | PASS | 多次进出详情统计区从未出现骨架：直接 fallback 计数（"0 订阅者"）+ 重试入口；无永久骨架 ✓。"未发新统计请求"计数为代理层断言（C-T11 5/5），原生不可直接观测，如实注明 | NC-04-06_detail_statsEmpty_noSkeleton.png |
-| NC-P1-android-05 | PARTIAL | 飞行模式重进详情：页面从缓存渲染（首屏不发全页请求，全屏两段错误无法经授权步骤原生触发——该视图由 C-T15 5/5 + golden 覆盖）；可达错误面=统计区"重试"：断网点重试一次不崩溃/无骨架/无 raw 错误透出；恢复网络后重试仍显示重试链接——**该统计接口在 dev 服务器持续失败，属环境侧问题，客户端行为符合 P1-02/03 契约**，已如实记录 | NC-05_first_screen_error_two_segment.png / NC-05_offline_retry_once_no_crash.png / NC-05_online_retry_recovered.png |
+| NC-P1-android-05 | PARTIAL | 飞行模式重进详情：页面从缓存渲染（首屏不发全页请求，全屏两段错误无法经授权步骤原生触发——该视图由 C-T15 5/5 + golden 覆盖）；可达错误面=统计区"重试"：断网点重试一次不崩溃/无骨架/无 raw 错误透出；恢复网络后重试仍显示重试链接——**该统计接口在 dev 服务器持续失败，属环境侧问题，客户端行为符合 P1-02/03 契约**，已如实记录 | NC-05_airplane_reentry_cached_render_no_fullscreen_error.png / NC-05_offline_retry_once_no_crash.png / NC-05_online_retry_recovered.png（另见 OBSERVATIONS.md 元素树日志） |
 | NC-P1-android-06 | PASS（含注） | 空频道空态：无孤立日期 ✓；创建者角色有发布 CTA（发布栏+频道设置）。"只读角色无发布 CTA"子断言需第二账号，本环境不可建号（License 配额），如实注明 N/A | NC-04-06_detail_statsEmpty_noSkeleton.png |
 | NC-P1-android-07 | PASS（含注） | 横幅单一方向指示（单 chevron，RTL 镜像）✓；点击进入群组入口页 ✓。工作区暂无群组，横幅文案中"General 群"为引导文案，深链进具体群会话在本工作区数据下不可达，如实注明 | NC-07_discussion_banner_to_group.png |
 
