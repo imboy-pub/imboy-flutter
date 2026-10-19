@@ -26,3 +26,23 @@ case 表逐项进入页面、执行单一交互并保存截图/录屏或读屏�
 
 每 case 有 case_id、build_sha、OS、device、theme、system-font、观察与
 证据路径；失败不可改成缺环境；其他平台不计入本卡。
+
+## 执行环境实测（2026-10-20，自动会话探测）
+
+以下资源已在**本机实测确认**，手工执行时可直接使用（零摸索）：
+
+| 项 | 实测值 |
+|---|---|
+| Android 真机 | MRD-AL00（华为，Android 9，USB 已授权 adb online，id=XWE6R19916004085） |
+| 本地后端 | 另一计划实例占用 **9800**（勿动）；**本计划起后端须改端口**（sys.local.config `{http_port, 9800}` → 如 9801，复制 config 为新 IMBOYENV 变体） |
+| 后端 master code | local 变体为 `123456`（sys.local.config verification_master_code） |
+| PostgreSQL | 127.0.0.1:4323 / imboy_v1 / imboy_user（密码见 imboy/scripts/setup_test_data.sh 头部） |
+| 注册/登录 API | `POST /api/v1/passport/signup`、`POST /api/v1/passport/login`（type=email；MASTER_CODE 参与注册） |
+| **签名契约（关键）** | 所有 API 需 HMAC 头：sign=SHA512(`did\|vsn\|cos\|pkg`, key)，key=后端 config 表 `pkg_cos_vsn` 键（config_ds，加密 kv）；**App 端 key = .env 的 SOLIDIFIED_KEY**。后端 app_version/config 表当前无记录——手工执行前需先把 SOLIDIFIED_KEY 写入后端 config（用后端节点 `config_ds:set/2`，或 imboy_ctl rpc） |
+| fixture 脚本 | `imboy/scripts/customer_service_e2e.sh` 可种全套企业/频道/坐席数据（CS04_BASE_URL 指向自起后端端口；当前会话实测其 HTTP 调用同样需要先解决签名头——同上条） |
+| 构建/install | `flutter build apk --debug` + `adb install` + `adb reverse tcp:<后端端口> tcp:<后端端口>`（真机 127.0.0.1 转发） |
+| iOS 模拟器 | 本机 Xcode 有 iOS 17.5/26.5/27.0 全系列模拟器（含 iPhone 17 Pro 等）——**注意工作区规则禁止模拟器做功能验证**，iOS 卡验收按所有者裁决选择真机或豁免 |
+
+## 自动会话边界声明
+
+逐 case 原生验收需人工执行——自动会话不伪造该验收。
