@@ -138,6 +138,38 @@ def scope_rejects_frozen_symbol_change_in_allowed_file():
         shutil.rmtree(repo, ignore_errors=True)
 
 @case
+def scope_allows_call_site_move_near_frozen_symbol():
+    # 冻结函数真声明不动，仅挪动含缩进裸调用行的周边代码（合法重构）。
+    # 声明正则若把缩进调用行误判为声明（类型字符类混入 \s 的回溯缺陷），
+    # diff 行会落进假范围产生假阳性（T19 实测）。
+    repo, allow = make_repo()
+    try:
+        path = os.path.join(repo, "lib", "page", "p.dart")
+        src = open(path).read()
+        marker = "    return Container(color: AppColors.primary, child: Text(label));\n  }\n}"
+        assert marker in src
+        extended = src.replace(marker, """    return Container(color: AppColors.primary, child: Text(label));
+  }
+
+  Widget csQueuePreviewText(BuildContext context, String item) {
+    return Text(item);
+  }
+
+  Widget build2(BuildContext context) {
+    final a = csQueuePreviewText(context, 'x');
+    return Container(child: a);
+  }
+}""")
+        open(path, "w").write(extended)
+        before = sh(repo, "status", "--porcelain").stdout
+        p = run_checker(repo, allow)
+        assert p.returncode == 0, (
+            "untracked-but-authorized fixture move must not trip the frozen "
+            "symbol gate: " + p.stdout[:400])
+    finally:
+        shutil.rmtree(repo, ignore_errors=True)
+
+@case
 def scope_checks_index_worktree_untracked():
     # staged (index) forbidden change
     repo, allow = make_repo()

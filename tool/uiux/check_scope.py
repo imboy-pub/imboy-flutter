@@ -61,8 +61,11 @@ def find_function_ranges(src: str, symbol: str):
     A declaration matches `<modifiers> <type> symbol(` — call sites (which lack
     a leading type) are not matched.
     """
+    # 类型部分必须是「实词 + 空白」单元链（word 后紧跟空白）：字符类若
+    # 混入 \s，纯缩进即可回溯冒充类型前缀，缩进的裸调用行
+    # （`csQueuePreviewText(ctx, item),`）会被误判为声明（T19 实测）。
     decl = re.compile(
-        r"^\s*(?:@\w+\s+)*[A-Za-z_<>,\?\s\[\]]+?\s+" + re.escape(symbol) + r"\s*(<[^>]*>)?\s*\("
+        r"^\s*(?:@\w+\s+)*(?:[A-Za-z_<>,\?\[\]]+\s+)+" + re.escape(symbol) + r"\s*(<[^>]*>)?\s*\("
     )
     ranges = []
     lines = src.split("\n")
