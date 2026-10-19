@@ -229,7 +229,7 @@ class MessageWebrtc {
             : t.chat.voiceCallPlaceholder,
         type: 'C2C',
         msgType: msgType,
-        lastMsgId: int.tryParse(msgId) ?? 0,
+        lastMsgId: msgId,
         lastTime: DateTimeHelper.millisecond(),
         unreadNum: 0,
         id: 0,

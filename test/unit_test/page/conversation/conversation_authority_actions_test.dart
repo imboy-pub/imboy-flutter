@@ -80,7 +80,7 @@ Future<ConversationModel> _insertConversation({
       type: type,
       msgType: 'text',
       lastTime: lastTime,
-      lastMsgId: peerId + 10000,
+      lastMsgId: 'msg-$peerId',
       unreadNum: 0,
       isShow: isShow ? 1 : 0,
       payload: {
@@ -133,7 +133,7 @@ void main() {
         type: 'C2C',
         msgType: 'text',
         lastTime: 1000,
-        lastMsgId: 1,
+        lastMsgId: 'msg-1',
         unreadNum: 0,
         payload: {
           'authoritative': {'is_pinned': true},
@@ -148,7 +148,7 @@ void main() {
         type: 'C2C',
         msgType: 'text',
         lastTime: 3000,
-        lastMsgId: 2,
+        lastMsgId: 'msg-2',
         unreadNum: 0,
         payload: {
           'authoritative': {'is_pinned': false},

@@ -53,16 +53,16 @@ void main() {
           subtitle: '上一条消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
         );
 
         // 相同的消息ID - 应该更新会话
-        final sameMsgId = 1;
+        final sameMsgId = '1';
         expect(conversation.lastMsgId, sameMsgId);
 
         // 不同的消息ID - 不应该更新会话
-        final differentMsgId = 2;
+        final differentMsgId = '2';
         expect(conversation.lastMsgId == differentMsgId, false);
       });
 
@@ -188,7 +188,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 5,
         );
 
@@ -211,7 +211,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: now,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
         );
 
@@ -268,7 +268,7 @@ void main() {
           subtitle: '',
           msgType: 'text',
           lastTime: 0,
-          lastMsgId: 0,
+          lastMsgId: '',
           unreadNum: 0,
         );
 
@@ -286,7 +286,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 999999, // 最大值
         );
 

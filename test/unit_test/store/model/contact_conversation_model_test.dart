@@ -113,7 +113,7 @@ void main() {
       expect(model.region, 'false');
       expect(model.sign, '5001');
       expect(model.lastTime, 1767225600000);
-      expect(model.lastMsgId, 6001);
+      expect(model.lastMsgId, '');
       expect(model.lastMsgStatus, 20);
       expect(model.unreadNum, 3);
       expect(model.type, '1');

@@ -22,7 +22,7 @@ ConversationModel _conv({required String title, String computeTitle = ''}) {
     type: 'C2G',
     msgType: 'text',
     lastTime: 0,
-    lastMsgId: 0,
+    lastMsgId: '',
     unreadNum: 0,
     isShow: 1,
   );

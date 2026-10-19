@@ -25,7 +25,10 @@ class ConversationModel {
   String region;
   String sign;
   int lastTime;
-  int lastMsgId;
+
+  /// 最后消息 ID（Xid 字符串，与 MessageModel.id 同契约）。
+  /// 空串表示无最后消息；历史 int 值（旧契约）读时归一为 ''。
+  String lastMsgId;
 
   // 消息原数据
   Map<String, dynamic>? payload;
@@ -96,7 +99,7 @@ class ConversationModel {
     this.region = '',
     this.sign = '',
     this.lastTime = 0,
-    this.lastMsgId = 0,
+    this.lastMsgId = '',
     this.lastMsgStatus,
     required this.unreadNum,
     this.mentionUnread = 0,
@@ -214,7 +217,10 @@ class ConversationModel {
       sign: parseModelString(json[ConversationRepo.sign]),
       subtitle: parseModelString(json[ConversationRepo.subtitle]),
       lastTime: lastTime,
-      lastMsgId: parseModelInt(json[ConversationRepo.lastMsgId]),
+      // 兼容历史 int 值（旧契约 0/脏值）：读时归一为 ''，Xid 字符串直通。
+      lastMsgId: json[ConversationRepo.lastMsgId] is int
+          ? ''
+          : parseModelString(json[ConversationRepo.lastMsgId]),
       lastMsgStatus: parseModelInt(
         json[ConversationRepo.lastMsgStatus],
         defaultValue: 11,
@@ -260,7 +266,7 @@ class ConversationModel {
     sign: "",
     subtitle: "",
     lastTime: 0,
-    lastMsgId: 0,
+    lastMsgId: '',
     lastMsgStatus: 11,
     unreadNum: 0,
     mentionUnread: 0,
@@ -280,7 +286,7 @@ class ConversationModel {
     String? region,
     String? sign,
     int? lastTime,
-    int? lastMsgId,
+    String? lastMsgId,
     int? lastMsgStatus,
     int? unreadNum,
     int? mentionUnread,

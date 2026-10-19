@@ -377,7 +377,7 @@ class ChatBurnService {
     required String hiddenMessageId,
   }) async {
     try {
-      if (conversation.lastMsgId.toString() != hiddenMessageId) return;
+      if (conversation.lastMsgId != hiddenMessageId) return;
       final int nowMs = DateTimeHelper.millisecond();
       final ConversationRepo repo = ConversationRepo();
       final MessageModel? latest = await findLatestVisibleMessageModel(
@@ -391,7 +391,7 @@ class ChatBurnService {
             ? conversation.lastTime
             : DateTimeHelper.millisecond();
         await repo.updateById(conversation.id, {
-          ConversationRepo.lastMsgId: 0,
+          ConversationRepo.lastMsgId: '',
           ConversationRepo.lastMsgStatus: 0,
           ConversationRepo.msgType: 'empty',
           ConversationRepo.lastTime: conversationTime,

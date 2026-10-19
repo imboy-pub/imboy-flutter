@@ -27,7 +27,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30, // 撤回状态
           unreadNum: 0,
           payload: {'sys_prompt': 'in_denylist'}, // 系统提示优先级最高
@@ -50,7 +50,7 @@ void main() {
           type: 'C2C',
           msgType: 'text', // 这个也应该被忽略
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30, // peerRevoked 优先
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -73,7 +73,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'text': '这是一条文本消息'},
         );
@@ -94,7 +94,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30, // peerRevoked
           unreadNum: 0,
           payload: {'peer_name': '张三李四王五六七八九十十一十二'},
@@ -119,7 +119,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 31, // myRevoked
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -141,7 +141,7 @@ void main() {
           type: 'C2C',
           msgType: 'image',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
@@ -162,7 +162,7 @@ void main() {
           type: 'C2C',
           msgType: 'voice',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
@@ -183,7 +183,7 @@ void main() {
           type: 'C2C',
           msgType: 'video',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
@@ -204,7 +204,7 @@ void main() {
           type: 'C2C',
           msgType: 'file',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
@@ -225,7 +225,7 @@ void main() {
           type: 'C2C',
           msgType: 'location',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {
             'location_label': '北京市朝阳区建国路88号',
@@ -250,7 +250,7 @@ void main() {
           type: 'C2C',
           msgType: 'quote',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
@@ -271,7 +271,7 @@ void main() {
           type: 'C2C',
           msgType: 'custom',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'sys_prompt': 'not_a_friend'},
         );
@@ -294,7 +294,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 5,
           payload: <String, dynamic>{},
         );
@@ -368,7 +368,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': 100},
         );
@@ -388,7 +388,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'last_read_auto_id': '150'},
         );
@@ -408,7 +408,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: null,
         );
@@ -598,7 +598,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1, // 最后一条消息
+          lastMsgId: '1', // 最后一条消息
           lastMsgStatus: 20, // 已投递
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -618,8 +618,8 @@ void main() {
         );
 
         // 验证：需要更新会话
-        // conv.lastMsgId 为 int（旧契约），msg.id 为 String（新契约）
-        final shouldUpdate = conv.lastMsgId.toString() == revokedMsg.id;
+        // conv.lastMsgId 与 msg.id 均为 Xid 字符串（同契约）
+        final shouldUpdate = conv.lastMsgId == revokedMsg.id;
 
         expect(shouldUpdate, true);
         expect(revokedMsg.status, 30);
@@ -636,7 +636,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 100, // 最后一条消息
+          lastMsgId: '100', // 最后一条消息
           lastMsgStatus: 20,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -656,8 +656,8 @@ void main() {
         );
 
         // 验证：不需要更新会话
-        // conv.lastMsgId 为 int（旧契约），msg.id 为 String（新契约）
-        final shouldUpdate = conv.lastMsgId.toString() == revokedMsg.id;
+        // conv.lastMsgId 与 msg.id 均为 Xid 字符串（同契约）
+        final shouldUpdate = conv.lastMsgId == revokedMsg.id;
 
         expect(shouldUpdate, false);
       });
@@ -672,7 +672,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30, // peerRevoked
           unreadNum: 0,
           payload: {'peer_name': '张三'},
@@ -694,7 +694,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 31, // myRevoked
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -718,14 +718,14 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: {'text': '原始消息'},
         );
 
         // 编辑消息
         const newContent = '编辑后的消息';
-        const editedMsgId = 1;
+        const editedMsgId = '1';
 
         // 验证：需要更新会话
         final shouldUpdate = conv.lastMsgId == editedMsgId;
@@ -744,13 +744,13 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 100,
+          lastMsgId: '100',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
 
         // 编辑更早的消息
-        const editedMsgId = 50;
+        const editedMsgId = '50';
 
         final shouldUpdate = conv.lastMsgId == editedMsgId;
 
@@ -769,13 +769,13 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 100,
+          lastMsgId: '100',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
 
         // 删除最后一条消息，有前一条
-        const deletedMsgId = 100;
+        const deletedMsgId = '100';
         const prevMsgId = 99;
 
         // 验证：需要更新会话
@@ -795,13 +795,13 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 001,
+          lastMsgId: '001',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
 
         // 删除唯一消息
-        const deletedMsgId = 1;
+        const deletedMsgId = '001';
         const hasPrevMsg = false;
 
         // 验证
@@ -821,13 +821,13 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579500000,
-          lastMsgId: 200,
+          lastMsgId: '200',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
 
         // 删除更早的消息
-        const deletedMsgId = 150;
+        const deletedMsgId = '150';
 
         final shouldUpdate = conv.lastMsgId == deletedMsgId;
 
@@ -846,7 +846,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -868,7 +868,7 @@ void main() {
           type: 'C2C',
           msgType: 'image',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -891,7 +891,7 @@ void main() {
           type: 'C2C',
           msgType: 'voice',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 31,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -913,7 +913,7 @@ void main() {
           type: 'C2C',
           msgType: 'video',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -935,7 +935,7 @@ void main() {
           type: 'C2C',
           msgType: 'file',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -957,7 +957,7 @@ void main() {
           type: 'C2C',
           msgType: 'location',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -982,7 +982,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 20,
           unreadNum: 3,
           isShow: 1,
@@ -1043,7 +1043,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 20,
           unreadNum: 3,
           payload: {'text': '原始消息'},
@@ -1077,7 +1077,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: null,
           unreadNum: 0,
           payload: <String, dynamic>{},
@@ -1101,7 +1101,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           lastMsgStatus: 30,
           unreadNum: 0,
           payload: {'peer_name': longTitle},
@@ -1125,7 +1125,7 @@ void main() {
           type: 'C2C',
           msgType: 'text',
           lastTime: 1642579200000,
-          lastMsgId: 1,
+          lastMsgId: '1',
           unreadNum: 0,
           payload: <String, dynamic>{},
         );
@@ -1146,7 +1146,7 @@ void main() {
             type: 'C2C',
             msgType: 'text',
             lastTime: 1642579200000,
-            lastMsgId: 1,
+            lastMsgId: '1',
             unreadNum: 0,
             payload: <String, dynamic>{},
           );

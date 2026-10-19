@@ -83,16 +83,19 @@ class ChatNotifier extends _$ChatNotifier {
   /// 未追平的靠持久化游标下次进会话继续。
   static const int _historyMaxPagesPerOpen = 6;
 
-  /// BUG#119 判定：归档回填「0 条」但会话行确认有消息（lastMsgId > 0）时，
+  /// BUG#119 判定：归档回填「0 条」但会话行确认有消息（lastMsgId 非空）时，
   /// 标记「历史不可用」——服务端归档为空（如未开启 msg_archive_enabled），
   /// 消息存在但不可取，空态应显示「历史消息暂不可用」而非「暂无数据」。
   ///
   /// 反证用例：归档拉到消息（anyFetched=true）或会话确实无消息
-  /// （lastMsgId=0，新会话）都不标记。
+  /// （lastMsgId 为空串，新会话）都不标记。
+  ///
+  /// lastMsgId 是 Xid 字符串（与 MessageModel.id 同契约），
+  /// 旧 int 契约下 parseModelInt 把 Xid 静默归零导致本判定恒 false，已修复。
   static bool shouldMarkHistoryUnavailable({
     required bool anyFetched,
-    required int lastMsgId,
-  }) => !anyFetched && lastMsgId > 0;
+    required String lastMsgId,
+  }) => !anyFetched && lastMsgId.isNotEmpty;
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
@@ -1183,7 +1186,7 @@ class ChatNotifier extends _$ChatNotifier {
       // BUG#119（批次72 真机复现）：回填「成功但 0 条」≠「会话无消息」。
       // 服务端 msg_store 归档为空（生产未开启 msg_archive_enabled）时，
       // history 接口正常返回空，此时不能展示误导性的「暂无数据」——
-      // 会话行 lastMsgId > 0 即服务端确认该会话存在消息，只是历史不可取。
+      // 会话行 lastMsgId 非空即服务端确认该会话存在消息，只是历史不可取。
       // 置 historyUnavailable 让空态显示「历史消息暂不可用」而非「暂无数据」。
       if (shouldMarkHistoryUnavailable(
         anyFetched: anyFetched,

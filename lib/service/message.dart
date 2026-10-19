@@ -769,7 +769,7 @@ class MessageService with EventSubscriptionManager {
         subtitle: subtitle,
         type: chatType,
         msgType: messageType,
-        lastMsgId: parseModelInt(msgId),
+        lastMsgId: msgId,
         lastTime: (data['created_at'] ?? DateTimeHelper.millisecond()) as int,
         unreadNum: 0,
         id: 0,
@@ -1053,7 +1053,7 @@ class MessageService with EventSubscriptionManager {
         subtitle: tempConv.subtitle,
         type: chatType,
         msgType: msgContentType, // 【修复】使用修正后的消息类型
-        lastMsgId: parseModelInt(msgId),
+        lastMsgId: msgId,
         lastTime: tempConv.lastTime,
         unreadNum: unreadIncrement,
         mentionUnread: mentionIncrement, // C7-β

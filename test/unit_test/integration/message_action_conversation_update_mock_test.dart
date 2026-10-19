@@ -40,7 +40,7 @@ void main() {
           subtitle: '这是要撤回的消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 401,
+          lastMsgId: '401',
           unreadNum: 0,
           lastMsgStatus: 11, // 已发送
         );
@@ -64,7 +64,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        final shouldUpdate = currentConv!.lastMsgId.toString() == revokedMsg.id;
+        final shouldUpdate = currentConv!.lastMsgId == revokedMsg.id;
         expect(shouldUpdate, true);
 
         // 更新会话状态
@@ -89,7 +89,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 402,
+          lastMsgId: '402',
           unreadNum: 0,
         );
 
@@ -112,7 +112,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        if (currentConv!.lastMsgId.toString() == myRevokedMsg.id) {
+        if (currentConv!.lastMsgId == myRevokedMsg.id) {
           await conversationRepo.updateById(convId, {
             'last_msg_status': 31,
             'subtitle': '你撤回了一条消息',
@@ -134,7 +134,7 @@ void main() {
           subtitle: '最新消息',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 101,
+          lastMsgId: '101',
           unreadNum: 0,
         );
 
@@ -157,13 +157,12 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        final shouldUpdate =
-            currentConv!.lastMsgId.toString() == oldRevokedMsg.id;
+        final shouldUpdate = currentConv!.lastMsgId == oldRevokedMsg.id;
         expect(shouldUpdate, false);
 
         // 不应该更新会话
         final unchanged = await conversationRepo.findById(convId);
-        expect(unchanged!.lastMsgId, 101);
+        expect(unchanged!.lastMsgId, '101');
         expect(unchanged.subtitle, '最新消息');
       });
 
@@ -180,7 +179,7 @@ void main() {
             subtitle: '消息内容',
             msgType: msgType,
             lastTime: 1234567890,
-            lastMsgId: 9000 + msgType.hashCode % 1000,
+            lastMsgId: 'gen-${msgType.hashCode % 1000}',
             unreadNum: 0,
           );
 
@@ -210,7 +209,7 @@ void main() {
           subtitle: '原始消息内容',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 403,
+          lastMsgId: '403',
           unreadNum: 0,
         );
 
@@ -234,7 +233,7 @@ void main() {
 
         // 检查是否为最后一条消息
         final currentConv = await conversationRepo.findById(convId);
-        if (currentConv!.lastMsgId.toString() == editedMsg.id) {
+        if (currentConv!.lastMsgId == editedMsg.id) {
           await conversationRepo.updateById(convId, {
             'subtitle': editedContent,
           });
@@ -254,14 +253,14 @@ void main() {
           subtitle: '最新消息',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 101,
+          lastMsgId: '101',
           unreadNum: 0,
         );
 
         final convId = await conversationRepo.insert(conv);
 
         // 编辑旧消息
-        const oldMsgId = 9999;
+        const oldMsgId = '9999';
         final shouldUpdate =
             (await conversationRepo.findById(convId))!.lastMsgId == oldMsgId;
         expect(shouldUpdate, false);
@@ -281,7 +280,7 @@ void main() {
           subtitle: '原始引用消息',
           msgType: 'quote',
           lastTime: 1234567890,
-          lastMsgId: 501,
+          lastMsgId: '501',
           unreadNum: 0,
         );
 
@@ -307,7 +306,7 @@ void main() {
           subtitle: '最后一条消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 502,
+          lastMsgId: '502',
           unreadNum: 0,
         );
 
@@ -335,7 +334,7 @@ void main() {
         });
 
         final updated = await conversationRepo.findById(convId);
-        expect(updated!.lastMsgId, 404);
+        expect(updated!.lastMsgId, '404');
         expect(updated.subtitle, '前一条消息');
       });
 
@@ -349,7 +348,7 @@ void main() {
           subtitle: '唯一消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 503,
+          lastMsgId: '503',
           unreadNum: 0,
         );
 
@@ -363,7 +362,7 @@ void main() {
         });
 
         final updated = await conversationRepo.findById(convId);
-        expect(updated!.lastMsgId, 0);
+        expect(updated!.lastMsgId, '');
         expect(updated.subtitle, '');
       });
 
@@ -377,7 +376,7 @@ void main() {
           subtitle: '最新消息',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 101,
+          lastMsgId: '101',
           unreadNum: 0,
         );
 
@@ -385,7 +384,7 @@ void main() {
 
         // 删除旧消息不影响会话
         final unchanged = await conversationRepo.findById(convId);
-        expect(unchanged!.lastMsgId, 101);
+        expect(unchanged!.lastMsgId, '101');
         expect(unchanged.subtitle, '最新消息');
       });
 
@@ -399,7 +398,7 @@ void main() {
           subtitle: '[图片]',
           msgType: 'image',
           lastTime: 1234567890,
-          lastMsgId: 504,
+          lastMsgId: '504',
           unreadNum: 0,
         );
 
@@ -429,7 +428,7 @@ void main() {
           subtitle: '消息3',
           msgType: 'text',
           lastTime: 1234567900,
-          lastMsgId: 3,
+          lastMsgId: '3',
           unreadNum: 0,
         );
 
@@ -437,17 +436,17 @@ void main() {
 
         // 撤回消息1（不是最后一条）
         final shouldUpdate1 =
-            (await conversationRepo.findById(convId))!.lastMsgId == 1;
+            (await conversationRepo.findById(convId))!.lastMsgId == '1';
         expect(shouldUpdate1, false);
 
         // 撤回消息2（不是最后一条）
         final shouldUpdate2 =
-            (await conversationRepo.findById(convId))!.lastMsgId == 2;
+            (await conversationRepo.findById(convId))!.lastMsgId == '2';
         expect(shouldUpdate2, false);
 
         // 撤回消息3（是最后一条）
         final shouldUpdate3 =
-            (await conversationRepo.findById(convId))!.lastMsgId == 3;
+            (await conversationRepo.findById(convId))!.lastMsgId == '3';
         expect(shouldUpdate3, true);
 
         // 只更新一次
@@ -470,7 +469,7 @@ void main() {
           subtitle: '编辑后的消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 505,
+          lastMsgId: '505',
           unreadNum: 0,
         );
 
@@ -502,7 +501,7 @@ void main() {
           subtitle: '消息',
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 0,
+          lastMsgId: '',
           unreadNum: 0,
         );
 
@@ -510,7 +509,7 @@ void main() {
 
         // 空消息ID不应该匹配
         final shouldUpdate =
-            (await conversationRepo.findById(convId))!.lastMsgId == 8888;
+            (await conversationRepo.findById(convId))!.lastMsgId == '8888';
         expect(shouldUpdate, false);
       });
 
@@ -526,7 +525,7 @@ void main() {
           subtitle: specialContent,
           msgType: 'text',
           lastTime: 1234567890,
-          lastMsgId: 506,
+          lastMsgId: '506',
           unreadNum: 0,
         );
 
@@ -561,7 +560,7 @@ void main() {
             subtitle: content,
             msgType: msgType,
             lastTime: 1234567890,
-            lastMsgId: 9000 + msgType.hashCode.abs() % 1000,
+            lastMsgId: 'gen-${msgType.hashCode.abs() % 1000}',
             unreadNum: 0,
           );
 
@@ -595,7 +594,7 @@ void main() {
               subtitle: '消息$i',
               msgType: 'text',
               lastTime: 1234567890 + i,
-              lastMsgId: 9000 + i,
+              lastMsgId: 'gen-$i',
               unreadNum: 0,
             ),
           );
@@ -622,7 +621,7 @@ void main() {
             subtitle: '初始消息',
             msgType: 'text',
             lastTime: 1234567890,
-            lastMsgId: 507,
+            lastMsgId: '507',
             unreadNum: 0,
           ),
         );
