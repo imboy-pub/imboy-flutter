@@ -1,0 +1,1042 @@
+{
+  "schema_version": 1,
+  "plan_id": "imboy-enterprise-uiux-v1",
+  "commands": {
+    "C-PACKAGE": {
+      "argv": [
+        "python3",
+        "${PACKAGE_ROOT}/tools/plan_audit.py",
+        "--package",
+        "${PACKAGE_ROOT}"
+      ],
+      "cwd": "${PACKAGE_ROOT}",
+      "available": "BUNDLED",
+      "required_files": [
+        "@package/tools/plan_audit.py"
+      ],
+      "producer_task": null,
+      "resource_keys": [],
+      "success": "exit=0；仅包合同静态验证，不验证Flutter结果"
+    },
+    "C-BOOT-GIT": {
+      "argv": [
+        "git",
+        "-C",
+        "${SOURCE_ROOT}",
+        "status",
+        "--porcelain=v1",
+        "-z"
+      ],
+      "cwd": "${SOURCE_ROOT}",
+      "available": "INSTALLED",
+      "required_files": [],
+      "producer_task": null,
+      "resource_keys": [],
+      "success": "exit=0；NUL输出与dirty路径/内容hash保存；GIT_OPTIONAL_LOCKS=0"
+    },
+    "C-BOOT-WORKTREES": {
+      "argv": [
+        "git",
+        "-C",
+        "${SOURCE_ROOT}",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "cwd": "${SOURCE_ROOT}",
+      "available": "INSTALLED",
+      "required_files": [],
+      "producer_task": null,
+      "resource_keys": [],
+      "success": "exit=0；真实工作树登记结果保存"
+    },
+    "C-SCOPE-SELF": {
+      "argv": [
+        "python3",
+        "tool/uiux/test_scope_contract.py"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "tool/uiux/test_scope_contract.py"
+      ],
+      "producer_task": "T04.a",
+      "resource_keys": [],
+      "success": "exit=0；正反例全部执行"
+    },
+    "C-LOCK-SELF": {
+      "argv": [
+        "python3",
+        "tool/uiux/test_lock_contract.py"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "tool/uiux/test_lock_contract.py"
+      ],
+      "producer_task": "T04.b",
+      "resource_keys": [],
+      "success": "exit=0；真实临时子进程锁反例全部执行"
+    },
+    "C-STATE-SELF": {
+      "argv": [
+        "python3",
+        "tool/uiux/test_state_contract.py"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "tool/uiux/test_state_contract.py"
+      ],
+      "producer_task": "T04.c",
+      "resource_keys": [],
+      "success": "exit=0；事务断点用例全部执行"
+    },
+    "C-SCOPE": {
+      "argv": [
+        "python3",
+        "tool/uiux/check_scope.py",
+        "--base",
+        "${UIUX_BASE_SHA}"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "tool/uiux/check_scope.py"
+      ],
+      "producer_task": "T04.a",
+      "resource_keys": [],
+      "success": "exit=0；base/head/index/worktree/untracked均审查"
+    },
+    "C-STATE": {
+      "argv": [
+        "python3",
+        "tool/uiux/check_state.py",
+        "--plan-id",
+        "imboy-enterprise-uiux-v1"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "tool/uiux/check_state.py"
+      ],
+      "producer_task": "T04.c",
+      "resource_keys": [],
+      "success": "exit=0；不是对当前RUNNING任务预先要求ACCEPTED"
+    },
+    "C-ANALYZE": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "analyze",
+        "--fatal-infos",
+        "--fatal-warnings"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "RESOLVE_T04",
+      "required_files": [
+        "pubspec.yaml"
+      ],
+      "producer_task": null,
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0、零问题、绑定K或task测试tree"
+    },
+    "C-FULL": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "RESOLVE_T04",
+      "required_files": [
+        "pubspec.yaml"
+      ],
+      "producer_task": null,
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "全量真实exit=0；清单/skip与基线对齐；不排除失败套件",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_ASSEMBLED_SEALED_ROOT}"
+      }
+    },
+    "C-I18N": {
+      "argv": [
+        "${I18N_ARGV_FROM_T04}"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "RESOLVE_T04",
+      "required_files": [],
+      "producer_task": "T04",
+      "resource_keys": [
+        "i18n-writer",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "运行已核实生成器两次，第二次生成无变化；不得用字符串eval"
+    },
+    "C-LEGACY-P1": {
+      "argv": [
+        "${LEGACY_P1_ARGV_FROM_T04}"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "RESOLVE_T04",
+      "required_files": [],
+      "producer_task": "T04",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "既有P1回归真实执行且通过，目录非空"
+    },
+    "C-LEGACY-P2": {
+      "argv": [
+        "${LEGACY_P2_ARGV_FROM_T04}"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "RESOLVE_T04",
+      "required_files": [],
+      "producer_task": "T04",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "既有P2回归真实执行且通过，目录非空"
+    },
+    "C-LEGACY-P3": {
+      "argv": [
+        "${LEGACY_P3_ARGV_FROM_T04}"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "RESOLVE_T04",
+      "required_files": [],
+      "producer_task": "T04",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "既有P3回归真实执行且通过，目录非空"
+    },
+    "C-RECOVERY": {
+      "argv": [
+        "python3",
+        "tool/uiux/recovery_contract_test.py"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "tool/uiux/recovery_contract_test.py"
+      ],
+      "producer_task": "T28",
+      "resource_keys": [],
+      "success": "临时Git和真实控制模块集成用例全过；不是实际跨会话证明"
+    },
+    "C-DIFF-CHECK": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "${UIUX_BASE_SHA}",
+        "HEAD"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "INSTALLED",
+      "required_files": [],
+      "producer_task": null,
+      "resource_keys": [],
+      "success": "exit=0；另检查index/worktree未提交差异"
+    },
+    "C-T05-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/contract/harness_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/contract/harness_test.dart"
+      ],
+      "producer_task": "T05",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T06-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/contract/copy_contract_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/contract/copy_contract_test.dart"
+      ],
+      "producer_task": "T06",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T07-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/p1_fixture_smoke_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/p1_fixture_smoke_test.dart"
+      ],
+      "producer_task": "T07",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T08-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p2/p2_fixture_smoke_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p2/p2_fixture_smoke_test.dart"
+      ],
+      "producer_task": "T08",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T09-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p3/p3_fixture_smoke_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p3/p3_fixture_smoke_test.dart"
+      ],
+      "producer_task": "T09",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T10-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/header_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/header_test.dart"
+      ],
+      "producer_task": "T10",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T11-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/stats_state_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/stats_state_test.dart"
+      ],
+      "producer_task": "T11",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T12-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/actions_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/actions_test.dart"
+      ],
+      "producer_task": "T12",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T13-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/discuss_banner_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/discuss_banner_test.dart"
+      ],
+      "producer_task": "T13",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T14-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/filter_controls_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/filter_controls_test.dart"
+      ],
+      "producer_task": "T14",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T15-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/content_states_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/content_states_test.dart"
+      ],
+      "producer_task": "T15",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T16-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p2/containers_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p2/containers_test.dart"
+      ],
+      "producer_task": "T16",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T17-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p2/apps_entry_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p2/apps_entry_test.dart"
+      ],
+      "producer_task": "T17",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T18-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p2/entry_rows_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p2/entry_rows_test.dart"
+      ],
+      "producer_task": "T18",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T19-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p3/row_structure_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p3/row_structure_test.dart"
+      ],
+      "producer_task": "T19",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T20-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p3/preview_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p3/preview_test.dart"
+      ],
+      "producer_task": "T20",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T21-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p3/source_label_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p3/source_label_test.dart"
+      ],
+      "producer_task": "T21",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T22-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/accessibility_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/accessibility_test.dart"
+      ],
+      "producer_task": "T22",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T23-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p2/accessibility_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p2/accessibility_test.dart"
+      ],
+      "producer_task": "T23",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T24-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p3/accessibility_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p3/accessibility_test.dart"
+      ],
+      "producer_task": "T24",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T25-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p1/behavior_regression_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p1/behavior_regression_test.dart"
+      ],
+      "producer_task": "T25",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T26-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p2/behavior_regression_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p2/behavior_regression_test.dart"
+      ],
+      "producer_task": "T26",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T27-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/p3/behavior_regression_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/p3/behavior_regression_test.dart"
+      ],
+      "producer_task": "T27",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T05-a-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/contract/font_contract_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/contract/font_contract_test.dart"
+      ],
+      "producer_task": "T05.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准"
+    },
+    "C-T22-a-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/golden/p1_golden_test.dart",
+        "--reporter",
+        "json",
+        "--update-goldens"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/golden/p1_golden_test.dart"
+      ],
+      "producer_task": "T22.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_CANDIDATE_ROOT_P1}"
+      }
+    },
+    "C-T22-b-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/golden/p1_golden_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/golden/p1_golden_test.dart"
+      ],
+      "producer_task": "T22.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_SEALED_ROOT_P1}"
+      }
+    },
+    "C-T23-a-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/golden/p2_golden_test.dart",
+        "--reporter",
+        "json",
+        "--update-goldens"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/golden/p2_golden_test.dart"
+      ],
+      "producer_task": "T23.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_CANDIDATE_ROOT_P2}"
+      }
+    },
+    "C-T23-b-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/golden/p2_golden_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/golden/p2_golden_test.dart"
+      ],
+      "producer_task": "T23.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_SEALED_ROOT_P2}"
+      }
+    },
+    "C-T24-a-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/golden/p3_golden_test.dart",
+        "--reporter",
+        "json",
+        "--update-goldens"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/golden/p3_golden_test.dart"
+      ],
+      "producer_task": "T24.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_CANDIDATE_ROOT_P3}"
+      }
+    },
+    "C-T24-b-1": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/golden/p3_golden_test.dart",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_PRODUCER",
+      "required_files": [
+        "test/uiux/golden/p3_golden_test.dart"
+      ],
+      "producer_task": "T24.a",
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "exit=0，必需case执行数等于manifest、不得skip；update成功不是视觉批准",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_SEALED_ROOT_P3}"
+      }
+    },
+    "C-TARGET-ALL": {
+      "argv": [
+        "${FLUTTER_EXE}",
+        "test",
+        "test/uiux/contract",
+        "test/uiux/p1",
+        "test/uiux/p2",
+        "test/uiux/p3",
+        "--reporter",
+        "json"
+      ],
+      "cwd": "${WORKTREE}",
+      "available": "AFTER_ALL_TARGET_PRODUCERS",
+      "required_files": [],
+      "producer_task": null,
+      "resource_keys": [
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "success": "全部目标用例ID按清单实际执行，0新增skip；生产者全部已完成",
+      "env": {
+        "UIUX_GOLDEN_BASELINE_ROOT": "${GOLDEN_ASSEMBLED_SEALED_ROOT}"
+      }
+    }
+  },
+  "gates": {
+    "M0": {
+      "required_tasks": [
+        "T00",
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T04.a",
+        "T04.b",
+        "T04.c"
+      ],
+      "commands": [
+        "C-PACKAGE",
+        "C-SCOPE-SELF",
+        "C-LOCK-SELF",
+        "C-STATE-SELF"
+      ],
+      "goal": "启动合同、范围/状态设施可用；analyze/旧测试另记baseline结果，不把历史失败改PASS"
+    },
+    "M1": {
+      "required_tasks": [
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T09"
+      ],
+      "commands": [
+        "C-T05-1",
+        "C-I18N",
+        "C-T06-1",
+        "C-T07-1",
+        "C-T08-1",
+        "C-T09-1",
+        "C-ANALYZE"
+      ],
+      "goal": "结构/文案/三页夹具可运行；T05.a视觉环境单独状态，不阻塞实现"
+    },
+    "M2": {
+      "required_tasks": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T20",
+        "T21"
+      ],
+      "commands": [
+        "C-T10-1",
+        "C-T11-1",
+        "C-T12-1",
+        "C-T13-1",
+        "C-T14-1",
+        "C-T15-1",
+        "C-T16-1",
+        "C-T17-1",
+        "C-T18-1",
+        "C-T19-1",
+        "C-T20-1",
+        "C-T21-1",
+        "C-SCOPE",
+        "C-ANALYZE"
+      ],
+      "goal": "本页展示断言和混合文件业务保护通过；没有视觉环境不能声称可读性已验"
+    },
+    "M3": {
+      "required_tasks": [
+        "T05.a",
+        "T22",
+        "T22.a",
+        "T22.b",
+        "T23",
+        "T23.a",
+        "T23.b",
+        "T24",
+        "T24.a",
+        "T24.b",
+        "T25",
+        "T26",
+        "T27"
+      ],
+      "commands": [
+        "C-T22-1",
+        "C-T22-b-1",
+        "C-T23-1",
+        "C-T23-b-1",
+        "C-T24-1",
+        "C-T24-b-1",
+        "C-LEGACY-P1",
+        "C-LEGACY-P2",
+        "C-LEGACY-P3",
+        "C-SCOPE",
+        "C-ANALYZE"
+      ],
+      "goal": "312配置及视觉封存普通比较、三页调用回归通过；记录审查身份"
+    },
+    "M4A": {
+      "required_tasks": [
+        "T00",
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T09",
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22",
+        "T23",
+        "T24",
+        "T25",
+        "T26",
+        "T27",
+        "T28",
+        "T04.a",
+        "T04.b",
+        "T04.c",
+        "T05.a",
+        "T22.a",
+        "T22.b",
+        "T23.a",
+        "T23.b",
+        "T24.a",
+        "T24.b"
+      ],
+      "commands": [
+        "C-RECOVERY",
+        "C-STATE",
+        "C-SCOPE",
+        "C-ANALYZE",
+        "C-TARGET-ALL",
+        "C-T22-b-1",
+        "C-T23-b-1",
+        "C-T24-b-1",
+        "C-FULL",
+        "C-DIFF-CHECK"
+      ],
+      "goal": "同一干净候选K通过全部必需门；未run/skip/未知/阻塞不通过",
+      "result_task": "T29"
+    },
+    "M4B": {
+      "required_tasks": [
+        "T30",
+        "T31",
+        "T32",
+        "T30.a",
+        "T30.b",
+        "T31.a",
+        "T31.b",
+        "T32.a",
+        "T32.b"
+      ],
+      "commands": [
+        "C-STATE"
+      ],
+      "goal": "依赖M4A，九张平台人工卡通过才UX_ACCEPTED；跨会话恢复独立状态"
+    }
+  }
+}

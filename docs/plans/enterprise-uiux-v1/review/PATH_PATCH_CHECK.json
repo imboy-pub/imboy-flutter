@@ -1,0 +1,45 @@
+{
+  "status": "PATH_PATCH_DOCUMENT_CHECK_PASS",
+  "scope": "local document package only; no user machine, Flutter or worktree execution",
+  "patch_revision": "PATHFIX-R1",
+  "plan_id": "imboy-enterprise-uiux-v1",
+  "bootstrap_package_dir": "/Users/leeyi/project/imboy.pub/_task_packages/IMBoy_Enterprise_UIUX_V1_1",
+  "original_zip_sha256": "f7015afebdf97e7370416f44b2c83f2978f8b9e9faf4743f34db928c470d3577",
+  "original_core_files_byte_unchanged": [
+    "ACCEPTANCE.json",
+    "ACCEPTANCE.md",
+    "COMMANDS.json",
+    "MATRIX.json",
+    "NATIVE_CASES.json",
+    "PRD.md",
+    "QUALITY_REVIEW.md",
+    "RECOVERY_CASES.json",
+    "RESEARCH.md",
+    "STATE.example.json",
+    "TASKS.json",
+    "TASKS.md",
+    "TEST_CONTRACT.md",
+    "review/V1_TASK_IDS.json",
+    "templates/DEFECT.example.json",
+    "templates/EVIDENCE.example.json",
+    "templates/REPORT_ONLY_ALLOWLIST.json",
+    "templates/STATE.example.json",
+    "templates/STATE.schema.json",
+    "tools/plan_audit.py",
+    "tools/render_plan.py"
+  ],
+  "assertions": {
+    "fixed_bootstrap_path_in_prompt_and_instructions": true,
+    "no_unresolved_package_path_placeholder_in_prompt": true,
+    "registered_active_package_precedence_explicit": true,
+    "bootstrap_source_distinguished_from_worktree_and_runtime": true,
+    "missing_location_block_is_explicit": true,
+    "active_execution_migration_required_before_replacement": true,
+    "original_product_tasks_tests_tools_templates_unchanged": true
+  },
+  "not_run": [
+    "Flutter tests",
+    "actual user worktree discovery/recovery",
+    "native validation"
+  ]
+}

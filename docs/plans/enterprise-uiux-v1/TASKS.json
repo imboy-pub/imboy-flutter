@@ -1,0 +1,2500 @@
+{
+  "schema_version": 2,
+  "plan_id": "imboy-enterprise-uiux-v1",
+  "version": "1.1",
+  "research_sha": "362240ce9a162e31fa2b710fdc06691bea663b48",
+  "research_sha_is_execution_base": false,
+  "max_active_agents": 4,
+  "max_heavy_flutter_jobs": 1,
+  "static_status": "READY_FOR_LOCAL_W0",
+  "source_of_truth": "TASKS.json；TASKS.md由工具生成，不双写",
+  "tasks": [
+    {
+      "id": "T00",
+      "batch": "B0",
+      "workstream": "COORD",
+      "name": "登记现场与原始工作树",
+      "effort_person_days": 0.5,
+      "goal": "建立唯一plan注册表，首次和恢复均能解析同一仓库/工作树。",
+      "references": "R18、RESUME_PROTOCOL §2—4",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/BASELINE.md",
+        "docs/plans/enterprise-uiux-v1/execution/STATUS.md",
+        "@runtime/registry.json",
+        "@runtime/state.json",
+        "@runtime/events.jsonl"
+      ],
+      "dependencies": [],
+      "change": "先发现同plan旧登记/创建意图，再受锁保护登记；源码仓库只读。T00—T03的并行勘察只把报告写入@runtime/inbox/<task>/，由协调器审核后单任务提交到集成树；此时不创建页面lane。",
+      "acceptance_assertions": "包完整性与静态检查通过；真实repo/common-dir/HEAD/dirty哈希及创建意图已记录；已有登记时原worktree数量不增加；无来源工作区文件被改动。",
+      "test_command": "C-PACKAGE；C-BOOT-GIT；C-BOOT-WORKTREES。本卡只用已提供的包校验器和已安装Git，不调用T04后才产生的工具。",
+      "manual_steps": [
+        "打开原项目与注册的候选目录。",
+        "核对两者HEAD、分支和git status记录。",
+        "确认没有改动原项目或占用设备。"
+      ],
+      "risk": "误认目录、将linked .git当目录、把别的计划工作树接管。",
+      "rollback": "只revert本卡文档提交；保留注册表/工作树供恢复，不自动删除，不把清理运行态当回滚。",
+      "initial_status": "TODO",
+      "kind": "bootstrap",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-PACKAGE",
+        "C-BOOT-GIT",
+        "C-BOOT-WORKTREES"
+      ],
+      "artifact_outputs": [
+        "@runtime/registry.json",
+        "@runtime/state.json",
+        "docs/plans/enterprise-uiux-v1/execution/BASELINE.md"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-01",
+        "AC-R-04",
+        "AC-Q-08",
+        "AC-R-06"
+      ]
+    },
+    {
+      "id": "T01",
+      "batch": "B0",
+      "workstream": "P1",
+      "name": "核验频道现状与调用入口",
+      "effort_person_days": 0.25,
+      "goal": "把每个P1问题关联到实际路由、代码区块、既有测试和待修判定。",
+      "references": "R01—R05、R15/R16、C01—C04",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_INVENTORY.md"
+      ],
+      "dependencies": [
+        "T00"
+      ],
+      "change": "只读C01—C04及现有路由/测试；记录stats=null、contentToolsAvailable及发布权限，不改代码。 首次执行不依赖尚不存在的PATHS/commands.json/check_state。缺设备只记观察未验，不阻塞源码inventory。报告先写本任务独占inbox，协调器逐卡提交。",
+      "acceptance_assertions": "P1-01—07均有NEEDS_FIX/VERIFY_EXISTING/BLOCKED_EVIDENCE、具体符号和来源SHA；列出embedded、standalone及真正父shell。",
+      "test_command": "C-PACKAGE；C-BOOT-GIT。逐项核对inventory中的实际文件/符号/只读命令结果；T04以后再运行加固检查，不作为本卡首次完成前置。",
+      "manual_steps": [
+        "打开企业频道详情。",
+        "核对头部、统计、筛选与错误入口的记录。",
+        "对照当前页面确认哪些已修复。"
+      ],
+      "risk": "拿注释或旧截图代替现状；只看假detailEntry漏掉嵌套头部。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "inventory",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-PACKAGE",
+        "C-BOOT-GIT"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_INVENTORY.md"
+      ],
+      "resource_keys": [
+        "inbox:T01"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04",
+        "AC-Q-08"
+      ]
+    },
+    {
+      "id": "T02",
+      "batch": "B0",
+      "workstream": "P2",
+      "name": "核验工作台入口与免登边界",
+      "effort_person_days": 0.25,
+      "goal": "列明所有实际入口的来源、可见条件、目标和既有测试。",
+      "references": "R06—R09、C05/C06",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_INVENTORY.md"
+      ],
+      "dependencies": [
+        "T00"
+      ],
+      "change": "只读EnterpriseWorkbenchPage、shell._page/_resourceEntry和CsWorkspaceEntryTile，不修改桥/权限。 首次执行不依赖尚不存在的PATHS/commands.json/check_state。缺设备只记观察未验，不阻塞源码inventory。报告先写本任务独占inbox，协调器逐卡提交。",
+      "acceptance_assertions": "记录办公是否已删、URL是否仅目的地址、每行icon、Android确认登录、CS gate与空资源实际渲染；无假设路由。",
+      "test_command": "C-PACKAGE；C-BOOT-GIT。逐项核对inventory中的实际文件/符号/只读命令结果；T04以后再运行加固检查，不作为本卡首次完成前置。",
+      "manual_steps": [
+        "进入工作台。",
+        "核对当前显示的每个入口与平台条件。",
+        "打开应用后核对目的页未被本次勘察改变。"
+      ],
+      "risk": "误删除OA entries或Android确认入口；用List<Widget>.length当真实可见行数。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "inventory",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-PACKAGE",
+        "C-BOOT-GIT"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_INVENTORY.md"
+      ],
+      "resource_keys": [
+        "inbox:T02"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04",
+        "AC-Q-08"
+      ]
+    },
+    {
+      "id": "T03",
+      "batch": "B0",
+      "workstream": "P3",
+      "name": "核验坐席字段与隐私口径",
+      "effort_person_days": 0.25,
+      "goal": "建立三态现有可用字段、摘要和掩码的展示合同。",
+      "references": "R10—R14、C07—C09",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_INVENTORY.md"
+      ],
+      "dependencies": [
+        "T00"
+      ],
+      "change": "只读CsQueueItem解析、csMaskContactName、CsPagedSessionList与三态构建区；保留现有缺摘要隐私裁决。 首次执行不依赖尚不存在的PATHS/commands.json/check_state。缺设备只记观察未验，不阻塞源码inventory。报告先写本任务独占inbox，协调器逐卡提交。",
+      "acceptance_assertions": "逐字段记录安全摘要/hasLastMessage/source/waitingSince与掩码调用；未读/末条时间标已核验或不在本版；不得推造字段。",
+      "test_command": "C-PACKAGE；C-BOOT-GIT。逐项核对inventory中的实际文件/符号/只读命令结果；T04以后再运行加固检查，不作为本卡首次完成前置。",
+      "manual_steps": [
+        "切换待接/处理中/已关闭。",
+        "对照合成同名会话检查摘要及来源差异。",
+        "确认记录中无真实姓名、Token或消息原文。"
+      ],
+      "risk": "将等待时长当末条时间；将既有域函数“顺手修复”。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "inventory",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-PACKAGE",
+        "C-BOOT-GIT"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_INVENTORY.md"
+      ],
+      "resource_keys": [
+        "inbox:T03"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04",
+        "AC-Q-08"
+      ]
+    },
+    {
+      "id": "T04",
+      "batch": "B0",
+      "workstream": "COORD",
+      "name": "冻结路径、命令和能力清单",
+      "effort_person_days": 0.5,
+      "goal": "将动态路径、测试入口及允许改动符号逐项解析，不能留空命令或隐式前置。",
+      "references": "R17/R18、C10/C11、PRD §1/7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/PATHS.md",
+        "docs/plans/enterprise-uiux-v1/execution/commands.resolved.json",
+        "docs/plans/enterprise-uiux-v1/execution/ALLOWLIST.json",
+        "docs/plans/enterprise-uiux-v1/execution/CAPABILITIES.json",
+        "docs/plans/enterprise-uiux-v1/execution/TASKS.resolved.json"
+      ],
+      "dependencies": [
+        "T01",
+        "T02",
+        "T03"
+      ],
+      "change": "只冻结合同，不在本卡开发全部恢复工具；结合现有设施选择复用或薄适配。解析flutter/FVM为argv数组，P2旧测试目录、所有生效locale、生成文件与资源锁身份必须有实证。 发行包本体保持不变；路径解析和后续拆卡形成execution/TASKS.resolved.json及追加overlay，由运行检查器验证有效DAG与父卡义务继承，不修改包校验器的固定发行计数。",
+      "acceptance_assertions": "运行命令均有argv/cwd/资源/前置产物/成功条件；动态项不得留TODO或空串；源码路径old→new有唯一映射；不可用能力标局部BLOCKED而非伪造可用。",
+      "test_command": "C-PACKAGE；核对commands.resolved.json与CAPABILITIES.json的逐项证据；禁止调用尚未创建的运行检查器。",
+      "manual_steps": [
+        "打开PATHS与当前项目树。",
+        "核对3页文件及i18n真实命令。",
+        "查看guard正反例退出码记录。"
+      ],
+      "risk": "只靠正则误判token或漏改业务；生成器路径漂移；guard被放宽。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "contract",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-PACKAGE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/commands.resolved.json",
+        "docs/plans/enterprise-uiux-v1/execution/ALLOWLIST.json",
+        "docs/plans/enterprise-uiux-v1/execution/CAPABILITIES.json",
+        "docs/plans/enterprise-uiux-v1/execution/TASKS.resolved.json"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04",
+        "AC-Q-08",
+        "AC-R-08"
+      ]
+    },
+    {
+      "id": "T04.a",
+      "name": "建立范围与禁止符号门",
+      "batch": "B0",
+      "workstream": "COORD",
+      "dependencies": [
+        "T04"
+      ],
+      "write_paths": [
+        "tool/uiux/check_scope.py",
+        "tool/uiux/test_scope_contract.py"
+      ],
+      "goal": "识别文件白名单内偷改业务，以及未提交、未跟踪和测试绕过变更。",
+      "change": "优先复用仓库已有检查器并加薄适配；检查base→HEAD、index、worktree及本任务未跟踪文件。只对白名单展示符号放行；domain/provider/service、scope参数、claim等函数摘要不可变；不依赖扫描器自行猜授权。",
+      "acceptance_assertions": "scope_rejects_forbidden_file；scope_rejects_frozen_symbol_change_in_allowed_file；scope_checks_index_worktree_untracked；scope_rejects_skip_tolerance_textscale_bypass；scope_accepts_existing_tokens；反例必须非0。",
+      "test_command": "python3 tool/uiux/test_scope_contract.py；python3 tool/uiux/check_scope.py --base \"$UIUX_BASE_SHA\"",
+      "manual_steps": [
+        "查看合法Token正例结果。",
+        "查看允许文件内改claim参数的拒绝结果。",
+        "核对检查器没有改动被测仓库。"
+      ],
+      "risk": "只检查新增行或目录白名单会漏业务；规则不确定必须记录待审，不放宽整文件。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-SCOPE-SELF",
+        "C-SCOPE"
+      ],
+      "artifact_outputs": [
+        "tool/uiux/check_scope.py",
+        "tool/uiux/test_scope_contract.py"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-01",
+        "AC-Q-02",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T04.b",
+      "name": "建立进程身份与短事务锁",
+      "batch": "B0",
+      "workstream": "COORD",
+      "dependencies": [
+        "T04"
+      ],
+      "write_paths": [
+        "tool/uiux/plan_lock.py",
+        "tool/uiux/test_lock_contract.py"
+      ],
+      "goal": "同机协调器和worker具有可验证所有权，旧owner不能恢复后写入新状态。",
+      "change": "复用已有可靠资源协议优先；缺失时仅做本机POSIX短事务锁薄层，不建后台服务/远端调度器。固定锁文件不删除重建，owner=(host,boot/process-start,pid,session,epoch)。短事务OS锁保护校验owner→变更同一临界区；长任务受admission记录约束。",
+      "acceptance_assertions": "lock_live_owner_rejected；lock_pid_reuse_rejected；lock_timeout_is_not_takeover；lock_release_old_epoch_rejected；lock_child_alive_blocks_takeover；lock_owner_unknown_fails_closed；测试临时目录与子进程中执行。",
+      "test_command": "python3 tool/uiux/test_lock_contract.py",
+      "manual_steps": [
+        "在测试目录启动一个锁owner。",
+        "用第二个进程尝试写入，确认被拒。",
+        "结束第一个测试进程后验证按规则接管，原工程不受影响。"
+      ],
+      "risk": "执行器只提供短命shell PID时不能当会话身份；无法验证根进程时只允许串行且歧义接管阻塞。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-LOCK-SELF"
+      ],
+      "artifact_outputs": [
+        "tool/uiux/plan_lock.py",
+        "tool/uiux/test_lock_contract.py"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-R-01",
+        "AC-R-04",
+        "AC-R-07"
+      ]
+    },
+    {
+      "id": "T04.c",
+      "name": "建立持久化事务与状态校验",
+      "batch": "B0",
+      "workstream": "COORD",
+      "dependencies": [
+        "T04.b"
+      ],
+      "write_paths": [
+        "tool/uiux/plan_state.py",
+        "tool/uiux/check_state.py",
+        "tool/uiux/test_state_contract.py"
+      ],
+      "goal": "状态快照与事件日志有确定恢复顺序，不以时间戳猜最新状态。",
+      "change": "在锁薄层内做PREPARE事件→快照原子替换→COMMIT事件；snapshot记录last_txid/revision/prev_hash，提交事实仍以Git与证据为准。check_state只读验证；不得实现另一个任务调度平台。模块目标限本计划状态/登记/恢复，不运行Git修改命令。",
+      "acceptance_assertions": "state_prepare_without_snapshot_not_accepted；state_snapshot_without_commit_reconciled_once；state_torn_last_event_quarantined；state_revision_conflict_rejected；state_example_cannot_replace_live；state_status_enum_complete；state_commit_missing_not_pass。",
+      "test_command": "python3 tool/uiux/test_state_contract.py；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1",
+      "manual_steps": [
+        "运行临时状态目录故障用例。",
+        "检查恢复后的revision和txid一致。",
+        "确认实际原worktree没有被该测试创建、删除或改写。"
+      ],
+      "risk": "快照与JSONL两个文件不可能靠一次rename共同原子提交；必须按指定事务恢复，不能仅写“原子更新”。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-STATE-SELF",
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "tool/uiux/plan_state.py",
+        "tool/uiux/check_state.py",
+        "tool/uiux/test_state_contract.py"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-R-01",
+        "AC-R-04",
+        "AC-R-06",
+        "AC-R-07"
+      ]
+    },
+    {
+      "id": "T05",
+      "batch": "B1",
+      "workstream": "COORD",
+      "name": "建立不依赖视觉字体的结构夹具框架",
+      "effort_person_days": 0.5,
+      "goal": "为三页面提供同一SDK/字体/时钟/平台/尺寸主题的真实Widget挂载能力。",
+      "references": "R17/R18、PRD §7",
+      "write_paths": [
+        "test/uiux/support/uiux_harness.dart",
+        "test/uiux/contract/harness_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/STRUCTURE_ENV.md"
+      ],
+      "dependencies": [
+        "T04"
+      ],
+      "change": "复用真实Widget harness；结构/交互测试不等待视觉字体资产。缺确定性CJK字体只阻塞T05.a及视觉验证，不阻塞i18n、实现、调用回归。无真实字体的截图标STRUCTURE_ONLY，不冒充中文可读性或精确文本几何验收。",
+      "acceptance_assertions": "harness_real_shell_mounts；harness_restores_platform_locale_clock；harness_fails_render_exceptions；harness_font_missing_does_not_disable_nonvisual_tests；结构环境的判定与视觉环境分开。",
+      "test_command": "flutter test test/uiux/contract/harness_test.dart --reporter expanded",
+      "manual_steps": [
+        "打开合成fixture测试截图。",
+        "切换360/1280与scale2。",
+        "确认汉字真实可读、未缩放规避。"
+      ],
+      "risk": "金图使用系统不固定字体导致漂移；只挂假页误报通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T05-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/support/uiux_harness.dart",
+        "test/uiux/contract/harness_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/STRUCTURE_ENV.md"
+      ],
+      "resource_keys": [
+        "integration-writer",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04",
+        "AC-R-08"
+      ]
+    },
+    {
+      "id": "T05.a",
+      "name": "冻结视觉字体与栅格环境",
+      "batch": "B1",
+      "workstream": "COORD",
+      "dependencies": [
+        "T05"
+      ],
+      "write_paths": [
+        "test/uiux/support/golden_font_loader.dart",
+        "test/uiux/contract/font_contract_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/GOLDEN_ENV.md"
+      ],
+      "goal": "固定可复现的CJK/图标/emoji fallback与Flutter环境，图像比较有确定输入。",
+      "change": "优先读取已有授权字体资产；仅登记资产路径/hash/来源许可，不分发系统字体。固定SDK/engine/OS版本/locale/DPR/时钟/图片/动画；所有选择写环境清单，黄金图只在相同环境比较。",
+      "acceptance_assertions": "golden_font_has_required_cjk_glyphs；golden_rejects_ahem_or_missing_font；golden_environment_hash_changes_on_font_sdk_change；fixture_emojis_have_explicit_policy；缺字体仅VISUAL_BLOCKED。",
+      "test_command": "flutter test test/uiux/contract/font_contract_test.dart --reporter expanded",
+      "manual_steps": [
+        "查看中文长姓名和标点样张。",
+        "核对字体来源与hash登记。",
+        "检查同环境重跑不发生文字方块或栅格漂移。"
+      ],
+      "risk": "字体license/emoji fallback/异平台渲染漂移；不能用扩大容差解决。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T05-a-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/support/golden_font_loader.dart",
+        "test/uiux/contract/font_contract_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/GOLDEN_ENV.md"
+      ],
+      "resource_keys": [
+        "integration-writer",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T06",
+      "batch": "B1",
+      "workstream": "COORD",
+      "name": "冻结并生成本地化展示文案",
+      "effort_person_days": 0.5,
+      "goal": "全部新增标签、来源和错误文案均由既有本地化系统输出。",
+      "references": "R12/R16/R17、PRD §4—6",
+      "write_paths": [
+        "assets/i18n/<生效locale>/workspace.i18n.yaml",
+        "assets/i18n/<生效locale>/channel.i18n.yaml",
+        "assets/i18n/<生效locale>/enterpriseOa.i18n.yaml",
+        "assets/i18n/<生效locale>/customerService.i18n.yaml",
+        "@resolved/i18n-generated-files",
+        "test/uiux/contract/copy_contract_test.dart"
+      ],
+      "dependencies": [
+        "T04"
+      ],
+      "change": "优先复用已有等义键；只新增局部键/改本页键；统一生成一次，其他lane只读；存在同名文件漂移必须先更新PATHS，不猜目录。 本卡只依赖路径/生成器合同，不依赖视觉字体；T05.a缺字体不阻塞本卡。",
+      "acceptance_assertions": "uiux_copy_has_no_debug_url_or_raw_source；uiux_discuss_copy_has_no_arrow；所有当前受支持locale键一致，生成器再次运行无diff；新文案不含真实客户信息。",
+      "test_command": "<commands.json中冻结的现有i18n命令>；flutter test test/uiux/contract/copy_contract_test.dart",
+      "manual_steps": [
+        "切换中文及英语。",
+        "查看讨论引导/来源/错误fixture。",
+        "确认不是键名、原枚举或地址。"
+      ],
+      "risk": "多个worker覆盖strings.g.dart；只翻译一种语言；改动全站通用重试语义。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-I18N",
+        "C-T06-1"
+      ],
+      "artifact_outputs": [
+        "assets/i18n/<生效locale>/workspace.i18n.yaml",
+        "assets/i18n/<生效locale>/channel.i18n.yaml",
+        "assets/i18n/<生效locale>/enterpriseOa.i18n.yaml",
+        "assets/i18n/<生效locale>/customerService.i18n.yaml",
+        "@resolved/i18n-generated-files",
+        "test/uiux/contract/copy_contract_test.dart"
+      ],
+      "resource_keys": [
+        "integration-writer",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-Q-06",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T07",
+      "batch": "B1",
+      "workstream": "P1",
+      "name": "建立频道真实路由夹具",
+      "effort_person_days": 0.5,
+      "goal": "覆盖真实频道宿主及内容页，不以测试标记组件替代被测内容。",
+      "references": "R01/R15/R16、C01—C04",
+      "write_paths": [
+        "test/uiux/p1/p1_fixtures.dart",
+        "test/uiux/p1/p1_fixture_smoke_test.dart"
+      ],
+      "dependencies": [
+        "T05",
+        "T06",
+        "T04.a",
+        "T04.c"
+      ],
+      "change": "仅注入既有依赖替身，使用合成数据；对不编入当前构建的路由测试原重定向，不修改生产manifest。",
+      "acceptance_assertions": "p1_fixture_uses_real_embedded_content；p1_fixture_respects_feature_gate；构造有内容/统计未请求/初始错误/分页错误/空/无结果/长名/只读；初始业务调用trace保存。",
+      "test_command": "flutter test test/uiux/p1/p1_fixture_smoke_test.dart",
+      "manual_steps": [
+        "用测试环境打开对应频道fixture。",
+        "确认能看见真实内容组件而非“测试页面”标记。",
+        "查看原返回、发布栏与筛选仍存在。"
+      ],
+      "risk": "全局provider残留导致跨case污染；fixture绕开真实feature gate。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T07-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p1/p1_fixtures.dart",
+        "test/uiux/p1/p1_fixture_smoke_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T08",
+      "batch": "B1",
+      "workstream": "P2",
+      "name": "建立工作台入口夹具",
+      "effort_person_days": 0.5,
+      "goal": "可确定性验证资源有无、CS gate及Android辅助入口。",
+      "references": "R06—R09、C05/C06",
+      "write_paths": [
+        "test/uiux/p2/p2_fixtures.dart",
+        "test/uiux/p2/p2_fixture_smoke_test.dart"
+      ],
+      "dependencies": [
+        "T05",
+        "T06",
+        "T04.a",
+        "T04.c"
+      ],
+      "change": "挂载真实EnterpriseWorkbenchPage与shell资源构建；必要的测试seam只允许透传已有输入，不新增权限逻辑。",
+      "acceptance_assertions": "p2_fixture_uses_real_shell_entries；记录无工作区/普通成员/有坐席/feature关闭/有OA配置/Android inbound开启输入；应用点击trace为基线值。",
+      "test_command": "flutter test test/uiux/p2/p2_fixture_smoke_test.dart",
+      "manual_steps": [
+        "进入有资源与无资源测试工作台。",
+        "核对客服与项目条件显示。",
+        "查看Android确认登录入口仍可达。"
+      ],
+      "risk": "只传几个普通ListTile漏测实际CsWorkspaceEntryTile隐藏状态。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T08-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p2/p2_fixtures.dart",
+        "test/uiux/p2/p2_fixture_smoke_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T09",
+      "batch": "B1",
+      "workstream": "P3",
+      "name": "建立坐席三态字段夹具",
+      "effort_person_days": 0.5,
+      "goal": "使用相同合成DTO验证三态摘要、来源与业务trace。",
+      "references": "R10—R13、C07—C09",
+      "write_paths": [
+        "test/uiux/p3/p3_fixtures.dart",
+        "test/uiux/p3/p3_fixture_smoke_test.dart"
+      ],
+      "dependencies": [
+        "T05",
+        "T06",
+        "T04.a",
+        "T04.c"
+      ],
+      "change": "测试时钟固定；复用现有API模拟层记录参数与调用次数，不改变真实DTO解析。",
+      "acceptance_assertions": "p3_fixture_covers_preview_missing_and_unknown_source；含同掩码不同摘要、hasLastMessage=true但无摘要、无消息、widget/未知/空、claim中、409、无权限；禁真实数据。",
+      "test_command": "flutter test test/uiux/p3/p3_fixture_smoke_test.dart",
+      "manual_steps": [
+        "打开三态合成会话。",
+        "比对同名不同摘要与无摘要场景。",
+        "查看接入中与冲突场景的原行为记录。"
+      ],
+      "risk": "测试为展示补数据掩盖真实缺字段；偶发时间导致golden漂移。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T09-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p3/p3_fixtures.dart",
+        "test/uiux/p3/p3_fixture_smoke_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T10",
+      "batch": "B2",
+      "workstream": "P1",
+      "name": "收敛频道身份头部",
+      "effort_person_days": 0.5,
+      "goal": "完整详情路由只有一个返回职责和一个频道身份标题。",
+      "references": "P1-01、D01/D03、R01/R02",
+      "write_paths": [
+        "lib/page/workspace/workspace_channel_detail_page.dart",
+        "lib/page/channel/channel_detail_page.dart",
+        "lib/page/channel/widgets/channel_header_bar.dart",
+        "test/uiux/p1/header_test.dart"
+      ],
+      "dependencies": [
+        "T07"
+      ],
+      "change": "宿主继续拥有AppBar；HeaderBar以展示参数隐藏重复身份标题，保留头像/角色/订阅数；仅当前详情调用选择紧凑模式；不改路由栈。",
+      "acceptance_assertions": "p1_embedded_has_one_navigation_back_and_identity_title；p1_standalone_back_pops_once；p1_metadata_keeps_role_count；大字标题无overflow。",
+      "test_command": "flutter test test/uiux/p1/header_test.dart",
+      "manual_steps": [
+        "从频道列表进入详情。",
+        "观察顶部与元信息区不重复频道大标题。",
+        "返回一次回到原列表。"
+      ],
+      "risk": "删除父shell导航、丢更多/DM、HeaderBar默认参数影响非企业入口。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T10-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/workspace/workspace_channel_detail_page.dart",
+        "lib/page/channel/channel_detail_page.dart",
+        "lib/page/channel/widgets/channel_header_bar.dart",
+        "test/uiux/p1/header_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-01",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T11",
+      "batch": "B2",
+      "workstream": "P1",
+      "name": "验证统计非加载占位",
+      "effort_person_days": 0.25,
+      "goal": "统计不请求或已终止时不显示永久骨架。",
+      "references": "P1-02、R15、C03",
+      "write_paths": [
+        "lib/page/channel/widgets/channel_header_bar.dart",
+        "test/uiux/p1/stats_state_test.dart"
+      ],
+      "dependencies": [
+        "T10"
+      ],
+      "change": "源码已正确时只补测试；需要改时仅改HeaderBar显示分支，不动_loadStats/autoLoadStats的加载语义。",
+      "acceptance_assertions": "p1_stats_disabled_has_no_skeleton；p1_stats_null_uses_existing_count_without_request；p1_unknown_count_is_not_fabricated；autoLoadStats=false无新增网络请求。",
+      "test_command": "flutter test test/uiux/p1/stats_state_test.dart",
+      "manual_steps": [
+        "进入企业频道详情。",
+        "观察创建者角色旁的统计信息。",
+        "刷新/重进后确认无一直闪烁的灰条。"
+      ],
+      "risk": "把未知值显示0；为了消失骨架增加后台请求或计时器。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T11-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/channel/widgets/channel_header_bar.dart",
+        "test/uiux/p1/stats_state_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-02",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T12",
+      "batch": "B2",
+      "workstream": "P1",
+      "name": "区分频道动作可用状态",
+      "effort_person_days": 0.5,
+      "goal": "动作图标可识别，静音/禁用/进行中状态互不混淆。",
+      "references": "P1-04、D02/D08、R05/R17",
+      "write_paths": [
+        "lib/page/channel/widgets/channel_header_bar.dart",
+        "test/uiux/p1/actions_test.dart"
+      ],
+      "dependencies": [
+        "T11"
+      ],
+      "change": "仅调整_buildCircleActionItem及调用的展示参数、null处理和语义；用既有Token实测组合；原静音函数和权限来源不改。",
+      "acceptance_assertions": "p1_action_enabled_contrast_at_least_3；p1_action_targets_at_least_48；p1_missing_callback_is_disabled_not_noop；p1_muted_is_toggleable_not_disabled；pending不重复回调。",
+      "test_command": "flutter test test/uiux/p1/actions_test.dart",
+      "manual_steps": [
+        "以原允许角色进入频道。",
+        "查看并点击管理/静音/转发/分享中可用动作。",
+        "对照禁用/执行中fixture确认状态及读屏名称不同。"
+      ],
+      "risk": "改成新权限判断；用灰色表示“静音已开启”却被误当不可操作。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T12-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/channel/widgets/channel_header_bar.dart",
+        "test/uiux/p1/actions_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-04",
+        "AC-Q-02",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T13",
+      "batch": "B2",
+      "workstream": "P1",
+      "name": "统一讨论横幅方向指示",
+      "effort_person_days": 0.25,
+      "goal": "横幅只有一个方向指示且保持原讨论目标。",
+      "references": "P1-05、R03、C01",
+      "write_paths": [
+        "lib/page/workspace/workspace_channel_detail_page.dart",
+        "test/uiux/p1/discuss_banner_test.dart"
+      ],
+      "dependencies": [
+        "T07"
+      ],
+      "change": "使用T06已冻结文案并保留一个尾部chevron；已有正确实现则test-only；合并装饰图标语义。",
+      "acceptance_assertions": "p1_discuss_has_exactly_one_direction_indicator；p1_discuss_tap_opens_original_group_target_once；scale2中英文均可读；文案无箭头。",
+      "test_command": "flutter test test/uiux/p1/discuss_banner_test.dart",
+      "manual_steps": [
+        "打开频道详情。",
+        "观察横幅只有一处箭头。",
+        "点击横幅进入原群入口。"
+      ],
+      "risk": "文案已含箭头再加chevron；更改General群相关业务。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T13-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/workspace/workspace_channel_detail_page.dart",
+        "test/uiux/p1/discuss_banner_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-05",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T14",
+      "batch": "B2",
+      "workstream": "P1",
+      "name": "折叠频道高级筛选",
+      "effort_person_days": 0.5,
+      "goal": "默认只展示搜索和筛选入口，展开不触发额外业务查询。",
+      "references": "P1-06、D09、R01/R11、C04",
+      "write_paths": [
+        "lib/page/channel/widgets/channel_message_feed.dart",
+        "test/uiux/p1/filter_controls_test.dart"
+      ],
+      "dependencies": [
+        "T07"
+      ],
+      "change": "仅_buildPostFilters/展示布局新增本地展开状态；保留_query/_tag/_essenceOnly/_page语义和provider参数；不新增筛选业务。",
+      "acceptance_assertions": "p1_advanced_filters_collapsed_by_default；p1_toggle_filters_preserves_values_and_request_count；p1_submit_filter_matches_baseline_query；p1_collapse_moves_focus_safely；mc_*现有key保持可访问。",
+      "test_command": "flutter test test/uiux/p1/filter_controls_test.dart",
+      "manual_steps": [
+        "进入有内容的频道。",
+        "点筛选，输入标签并使用全部/精华。",
+        "收起再展开，确认条件保留且结果仍正确。"
+      ],
+      "risk": "收起销毁输入controller导致条件丢失；改变提交时机/分页；键盘小高度overflow。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T14-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/channel/widgets/channel_message_feed.dart",
+        "test/uiux/p1/filter_controls_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-06a",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T15",
+      "batch": "B2",
+      "workstream": "P1",
+      "name": "补齐错误空态与日期装饰",
+      "effort_person_days": 0.5,
+      "goal": "失败有说明与真实恢复入口，空内容不渲染孤立日期。",
+      "references": "P1-03/P1-07、D10、R16",
+      "write_paths": [
+        "lib/page/channel/widgets/channel_message_feed.dart",
+        "lib/page/channel/channel_detail_page.dart",
+        "test/uiux/p1/content_states_test.dart"
+      ],
+      "dependencies": [
+        "T14"
+      ],
+      "change": "只调整错误/空态构建及日期装饰条件，复用现有重试；不改变加载状态转换；若现有分页无单独重试回调，保留原恢复入口并记录。",
+      "acceptance_assertions": "p1_initial_error_has_icon_title_hint_retry；p1_retry_calls_existing_action_once；p1_empty_and_no_results_have_zero_date_separators；p1_pagination_error_keeps_loaded_items；p1_readonly_empty_has_no_publish_cta。",
+      "test_command": "flutter test test/uiux/p1/content_states_test.dart",
+      "manual_steps": [
+        "打开失败/无内容的测试频道。",
+        "核对错误说明、无孤立日期、只读空态无发布按钮。",
+        "恢复网络并点原重试，确认内容恢复。"
+      ],
+      "risk": "原错误被吞成空态；分页失败清空已有列表；日期分组/排序被改变。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T15-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/channel/widgets/channel_message_feed.dart",
+        "lib/page/channel/channel_detail_page.dart",
+        "test/uiux/p1/content_states_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-03",
+        "AC-P1-06b",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T16",
+      "batch": "B2",
+      "workstream": "P2",
+      "name": "统一工作台分组容器",
+      "effort_person_days": 0.5,
+      "goal": "资源、应用、辅助登录入口具有同一背景和分组节奏。",
+      "references": "P2-01/P2-05、D04、R06—R09",
+      "write_paths": [
+        "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+        "test/uiux/p2/containers_test.dart"
+      ],
+      "dependencies": [
+        "T08"
+      ],
+      "change": "复用现有insetGrouped，设置局部Token背景/边距，避免重复标题和空壳；隐藏子widget的可见性问题按PRD P2-05处理，不改gate。",
+      "acceptance_assertions": "p2_groups_share_surface_and_insets；p2_empty_resources_leave_no_empty_container；p2_single_apps_has_no_duplicate_section_title；真实隐藏CS行场景无空卡；scale2自然增高。",
+      "test_command": "flutter test test/uiux/p2/containers_test.dart",
+      "manual_steps": [
+        "进入资源完整工作台。",
+        "切换无资源/单应用场景。",
+        "亮暗切换确认无断裂或空白卡片。"
+      ],
+      "risk": "通过复制CS权限逻辑解决空组；随手改全局Cupertino主题。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T16-1"
+      ],
+      "artifact_outputs": [
+        "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+        "test/uiux/p2/containers_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P2-01",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T17",
+      "batch": "B2",
+      "workstream": "P2",
+      "name": "复验办公删除与地址隐藏",
+      "effort_person_days": 0.25,
+      "goal": "办公入口为0，应用入口为1且不展示URL，原免登链不变。",
+      "references": "P2-02/P2-03、C05、R06/R09",
+      "write_paths": [
+        "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+        "test/uiux/p2/apps_entry_test.dart"
+      ],
+      "dependencies": [
+        "T16"
+      ],
+      "change": "优先保留当前已删的实现并只补测试；不得修改appsUrl/_openApps/_issueBridgeAuthCode及业务参数。",
+      "acceptance_assertions": "p2_office_absent_apps_single；p2_apps_url_absent_from_text_semantics_tooltip；p2_app_tap_preserves_destination_and_bridge；p2_android_inbound_entry_remains；配置OA后应用入口仍可用。",
+      "test_command": "flutter test test/uiux/p2/apps_entry_test.dart",
+      "manual_steps": [
+        "打开已配置OA的工作台。",
+        "确认无办公列表和URL副标题。",
+        "点击应用，确认进入原页面且原免登按需调用不变。"
+      ],
+      "risk": "删掉entries/_issueBridgeAuthCode；把隐藏test_oa地址误写为生产化完成。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T17-1"
+      ],
+      "artifact_outputs": [
+        "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+        "test/uiux/p2/apps_entry_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P2-02",
+        "AC-P2-03",
+        "AC-P2-05",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T18",
+      "batch": "B2",
+      "workstream": "P2",
+      "name": "对齐资源入口图标与文本",
+      "effort_person_days": 0.5,
+      "goal": "所有实际可见导航行采用统一图标槽和文本起点。",
+      "references": "P2-04、D02/D04、R09、C06",
+      "write_paths": [
+        "lib/page/workspace_shell/enterprise_shell_page.dart",
+        "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+        "lib/modules/customer_service/presentation/cs_workspace_entry.dart",
+        "test/uiux/p2/entry_rows_test.dart"
+      ],
+      "dependencies": [
+        "T17"
+      ],
+      "change": "仅shell._page工作台分支及_resourceEntry外观；cs_workspace_entry属于P2独占，不在P3写集合；保留全部可见性表达式和onTap。",
+      "acceptance_assertions": "p2_visible_rows_have_uniform_icon_slot_and_text_start；p2_all_entry_hit_targets_at_least_48；p2_resource_gates_order_and_routes_equal_baseline；P2外其他Tab快照/行为不变。",
+      "test_command": "flutter test test/uiux/p2/entry_rows_test.dart",
+      "manual_steps": [
+        "进入有权限的资源工作台。",
+        "查看客服/项目/群组/频道/附件/应用文字对齐。",
+        "逐个打开可见入口核对原目标。"
+      ],
+      "risk": "修改shell共享方法影响其他Tab；与P3误抢cs_workspace_entry文件。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T18-1"
+      ],
+      "artifact_outputs": [
+        "lib/page/workspace_shell/enterprise_shell_page.dart",
+        "lib/modules/enterprise_oa/presentation/enterprise_workbench_page.dart",
+        "lib/modules/customer_service/presentation/cs_workspace_entry.dart",
+        "test/uiux/p2/entry_rows_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P2-04",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T19",
+      "batch": "B2",
+      "workstream": "P3",
+      "name": "提取会话行共用信息布局",
+      "effort_person_days": 0.5,
+      "goal": "三态使用同一纯展示信息组件，状态动作仍由原页面持有。",
+      "references": "P3-01/P3-04、D05、R10/R11",
+      "write_paths": [
+        "lib/modules/customer_service/presentation/cs_queue_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_list_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_row_content.dart",
+        "test/uiux/p3/row_structure_test.dart"
+      ],
+      "dependencies": [
+        "T09"
+      ],
+      "change": "新增纯展示CsSessionRowContent，接收已可用的显示输入/内容widget；页面保留_fetchPage/_claim/_open及全部作用域；只抽重复布局。",
+      "acceptance_assertions": "p3_all_statuses_share_information_order；p3_name_is_existing_mask_result；p3_queue_keeps_claim_action_other_views_keep_open_action；组件无API/provider/权限依赖；最小88自然增高。",
+      "test_command": "flutter test test/uiux/p3/row_structure_test.dart",
+      "manual_steps": [
+        "依次进入待接/处理中/已关闭。",
+        "对照名称、摘要、来源的位置。",
+        "核对待接接入按钮与其他状态打开动作未混淆。"
+      ],
+      "risk": "抽组件时迁移claim/分页业务；强制固定三行导致空摘要留空白。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T19-1"
+      ],
+      "artifact_outputs": [
+        "lib/modules/customer_service/presentation/cs_queue_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_list_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_row_content.dart",
+        "test/uiux/p3/row_structure_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P3-01",
+        "AC-P3-02",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T20",
+      "batch": "B2",
+      "workstream": "P3",
+      "name": "统一安全摘要与缺失回退",
+      "effort_person_days": 0.25,
+      "goal": "已有摘要三态一致显示，缺失时遵守原隐私回退。",
+      "references": "P3-01/P3-02、R13、C07/C08",
+      "write_paths": [
+        "lib/modules/customer_service/presentation/cs_queue_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_row_content.dart",
+        "test/uiux/p3/preview_test.dart"
+      ],
+      "dependencies": [
+        "T19"
+      ],
+      "change": "复用csQueuePreviewText，不改变数据判断；只能调整显示行数/语义与容器；若当前一致则只补测试。",
+      "acceptance_assertions": "p3_same_safe_preview_in_all_statuses；p3_has_message_without_preview_renders_no_placeholder；p3_no_message_keeps_documented_fallback；p3_preview_never_fetches_message_body；scale2最多2行。",
+      "test_command": "flutter test test/uiux/p3/preview_test.dart",
+      "manual_steps": [
+        "查看同掩码但不同安全摘要的两条会话。",
+        "查看有消息无摘要及完全无消息的fixture。",
+        "切换三态确认显示规则一致。"
+      ],
+      "risk": "用真实姓名/原消息补足区分度；重新引入“加密消息”或猜测附件。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T20-1"
+      ],
+      "artifact_outputs": [
+        "lib/modules/customer_service/presentation/cs_queue_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_row_content.dart",
+        "test/uiux/p3/preview_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P3-01",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T21",
+      "batch": "B2",
+      "workstream": "P3",
+      "name": "转换可读来源并隐藏原枚举",
+      "effort_person_days": 0.5,
+      "goal": "来源显示名称在三态一致，未知wire不泄漏。",
+      "references": "P3-03、R12、C07/C08",
+      "write_paths": [
+        "lib/modules/customer_service/presentation/cs_queue_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_list_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_row_content.dart",
+        "lib/modules/customer_service/presentation/cs_source_label.dart",
+        "test/uiux/p3/source_label_test.dart"
+      ],
+      "dependencies": [
+        "T20"
+      ],
+      "change": "新增纯展示来源映射；默认仅widget→网页咨询、未知→其他渠道、空→来源未知；i18n来自T06；不改cs_api解析或数据模型。",
+      "acceptance_assertions": "p3_widget_source_is_localized_web_chat；p3_unknown_source_is_generic_not_raw；p3_empty_source_is_unknown；p3_semantics_and_tooltips_never_expose_wire_or_raw_name；DTO与HTTP请求原值不变。",
+      "test_command": "flutter test test/uiux/p3/source_label_test.dart",
+      "manual_steps": [
+        "查看网页来源会话。",
+        "查看未知/空来源合成会话。",
+        "使用读屏或语义检查确认没有内部枚举和原姓名。"
+      ],
+      "risk": "全局替换widget破坏协议；给未知值猜具体渠道名。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "implementation",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T21-1"
+      ],
+      "artifact_outputs": [
+        "lib/modules/customer_service/presentation/cs_queue_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_list_view.dart",
+        "lib/modules/customer_service/presentation/cs_session_row_content.dart",
+        "lib/modules/customer_service/presentation/cs_source_label.dart",
+        "test/uiux/p3/source_label_test.dart"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P3-03",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T22",
+      "batch": "B3",
+      "workstream": "P1",
+      "name": "验证P1结构矩阵与无障碍",
+      "effort_person_days": 0.5,
+      "goal": "P1全部平台、宽度、主题及scale1/2结构断言有准确执行计数。",
+      "references": "P1-01—07、D01—D10、R17",
+      "write_paths": [
+        "test/uiux/p1/accessibility_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P1_MATRIX.md"
+      ],
+      "dependencies": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T15",
+        "T05.a"
+      ],
+      "change": "本卡只完成结构/语义/尺寸/对比度与键盘边界断言；golden生成与视觉审查拆至后两张卡。使用真实字体后才签精确文字几何；无取巧clamp/缩小字号。",
+      "acceptance_assertions": "p1_matrix_all_expected_configs_executed；p1_semantics_labels_and_targets_valid；p1_text_and_enabled_icon_contrast_valid；p1_short_viewport_keyboard_focus_reachable；expected=executed、必需case无skip。",
+      "test_command": "flutter test test/uiux/p1/accessibility_test.dart --reporter expanded",
+      "manual_steps": [
+        "查看本页结构矩阵计数。",
+        "打开360宽大字和1280真实shell样张。",
+        "核对不可达按钮、溢出及隐私语义反例均能失败。"
+      ],
+      "risk": "盲目更新golden；Ahem掩盖汉字宽度；大字固定头高溢出。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T22-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p1/accessibility_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P1_MATRIX.md"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "结构矩阵记录配置ID及实际执行计数；golden生成/审查不在本卡冒充完成。",
+      "acceptance_ids": [
+        "AC-P1-01",
+        "AC-Q-02",
+        "AC-Q-03",
+        "AC-Q-04",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T22.a",
+      "name": "生成P1候选golden与差异包",
+      "batch": "B3",
+      "workstream": "P1",
+      "dependencies": [
+        "T22"
+      ],
+      "write_paths": [
+        "test/uiux/golden/p1_golden_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P1_GOLDEN_MANIFEST.json",
+        "@runtime/golden/p1/candidates/"
+      ],
+      "goal": "产生120个准确配置及before/after/diff，更新不是自动批准。",
+      "change": "复用已存在golden优先；新测试必需baseline不存在即失败。仅运行本页update命令，候选输出写versioned目录，不覆盖已封存baseline。before取W0原场景截图；新控件无旧图必须标NEW_SCENARIO及设计断言，不用新图伪造before。",
+      "acceptance_assertions": "p1_golden_manifest_count_is_120；matrix_config_id唯一；每图sha256/env/input/requirement/task齐全；missing_baseline_fails；image_update_does_not_approve；before只取原SHA。",
+      "test_command": "flutter test test/uiux/golden/p1_golden_test.dart --update-goldens --reporter expanded；核对本页manifest；不得把退出0叫已批准。",
+      "manual_steps": [
+        "查看本页manifest配置数量。",
+        "打开本页before/after/diff样张。",
+        "确认已封存旧图hash未被更新操作覆盖。"
+      ],
+      "risk": "整仓update抹掉回归；只比较新图与自身；ignored PNG未保留。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T22-a-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/golden/p1_golden_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P1_GOLDEN_MANIFEST.json",
+        "@runtime/golden/p1/candidates/"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-03",
+        "AC-R-04",
+        "AC-Q-09"
+      ]
+    },
+    {
+      "id": "T22.b",
+      "name": "审查并封存P1视觉基线",
+      "batch": "B3",
+      "workstream": "P1",
+      "dependencies": [
+        "T22.a"
+      ],
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_GOLDEN_REVIEW.md",
+        "@runtime/golden/p1/sealed/"
+      ],
+      "goal": "按需求逐图或可证明等价的图组审查，再只读普通比较。",
+      "change": "每张图必须有review结果与差异理由；完全相同像素且语义断言一致可组审但manifest仍逐配置。记录reviewer身份/SELF_REVIEW_ONLY或INDEPENDENT；没有独立审查工具不伪造。封存工程基线不等于产品UX人工通过。",
+      "acceptance_assertions": "p1_every_golden_has_review_entry；p1_sealed_baseline_is_immutable；p1_normal_compare_zero_diff；p1_missing_or_changed_sealed_file_fails；恢复后不自动update；review失败回原页修复。",
+      "test_command": "flutter test test/uiux/golden/p1_golden_test.dart --reporter expanded；核对manifest与sealed目录hash一致。",
+      "manual_steps": [
+        "按需求核对本页全部图或已证明等价组。",
+        "登记每张图结论、审查身份及hash。",
+        "不带update参数重跑比较并确认无diff。"
+      ],
+      "risk": "自审冒充独立审批；大批review超粒度；达到上限仍未完成时拆本页批次子卡，不草率全PASS。",
+      "effort_person_days": 0.5,
+      "kind": "visual_review",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T22-b-1"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_GOLDEN_REVIEW.md",
+        "@runtime/golden/p1/sealed/"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-03",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T23",
+      "batch": "B3",
+      "workstream": "P2",
+      "name": "验证P2结构矩阵与无障碍",
+      "effort_person_days": 0.5,
+      "goal": "P2全部平台、宽度、主题及scale1/2结构断言有准确执行计数。",
+      "references": "P2-01—05、D02/D04/D07/D08",
+      "write_paths": [
+        "test/uiux/p2/accessibility_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P2_MATRIX.md"
+      ],
+      "dependencies": [
+        "T18",
+        "T05.a"
+      ],
+      "change": "本卡只完成结构/语义/尺寸/对比度与键盘边界断言；golden生成与视觉审查拆至后两张卡。使用真实字体后才签精确文字几何；无取巧clamp/缩小字号。",
+      "acceptance_assertions": "p2_matrix_all_expected_configs_executed；p2_semantics_labels_and_targets_valid；p2_text_and_enabled_icon_contrast_valid；p2_short_viewport_keyboard_focus_reachable；expected=executed、必需case无skip。",
+      "test_command": "flutter test test/uiux/p2/accessibility_test.dart --reporter expanded",
+      "manual_steps": [
+        "查看本页结构矩阵计数。",
+        "打开360宽大字和1280真实shell样张。",
+        "核对不可达按钮、溢出及隐私语义反例均能失败。"
+      ],
+      "risk": "只测理想有资源忽略CS全部隐藏；只测裸工作台漏shell错误条。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T23-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p2/accessibility_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P2_MATRIX.md"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "结构矩阵记录配置ID及实际执行计数；golden生成/审查不在本卡冒充完成。",
+      "acceptance_ids": [
+        "AC-P2-01",
+        "AC-Q-02",
+        "AC-Q-03",
+        "AC-Q-04",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T23.a",
+      "name": "生成P2候选golden与差异包",
+      "batch": "B3",
+      "workstream": "P2",
+      "dependencies": [
+        "T23"
+      ],
+      "write_paths": [
+        "test/uiux/golden/p2_golden_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P2_GOLDEN_MANIFEST.json",
+        "@runtime/golden/p2/candidates/"
+      ],
+      "goal": "产生72个准确配置及before/after/diff，更新不是自动批准。",
+      "change": "复用已存在golden优先；新测试必需baseline不存在即失败。仅运行本页update命令，候选输出写versioned目录，不覆盖已封存baseline。before取W0原场景截图；新控件无旧图必须标NEW_SCENARIO及设计断言，不用新图伪造before。",
+      "acceptance_assertions": "p2_golden_manifest_count_is_72；matrix_config_id唯一；每图sha256/env/input/requirement/task齐全；missing_baseline_fails；image_update_does_not_approve；before只取原SHA。",
+      "test_command": "flutter test test/uiux/golden/p2_golden_test.dart --update-goldens --reporter expanded；核对本页manifest；不得把退出0叫已批准。",
+      "manual_steps": [
+        "查看本页manifest配置数量。",
+        "打开本页before/after/diff样张。",
+        "确认已封存旧图hash未被更新操作覆盖。"
+      ],
+      "risk": "整仓update抹掉回归；只比较新图与自身；ignored PNG未保留。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T23-a-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/golden/p2_golden_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P2_GOLDEN_MANIFEST.json",
+        "@runtime/golden/p2/candidates/"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-03",
+        "AC-R-04",
+        "AC-Q-09"
+      ]
+    },
+    {
+      "id": "T23.b",
+      "name": "审查并封存P2视觉基线",
+      "batch": "B3",
+      "workstream": "P2",
+      "dependencies": [
+        "T23.a"
+      ],
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_GOLDEN_REVIEW.md",
+        "@runtime/golden/p2/sealed/"
+      ],
+      "goal": "按需求逐图或可证明等价的图组审查，再只读普通比较。",
+      "change": "每张图必须有review结果与差异理由；完全相同像素且语义断言一致可组审但manifest仍逐配置。记录reviewer身份/SELF_REVIEW_ONLY或INDEPENDENT；没有独立审查工具不伪造。封存工程基线不等于产品UX人工通过。",
+      "acceptance_assertions": "p2_every_golden_has_review_entry；p2_sealed_baseline_is_immutable；p2_normal_compare_zero_diff；p2_missing_or_changed_sealed_file_fails；恢复后不自动update；review失败回原页修复。",
+      "test_command": "flutter test test/uiux/golden/p2_golden_test.dart --reporter expanded；核对manifest与sealed目录hash一致。",
+      "manual_steps": [
+        "按需求核对本页全部图或已证明等价组。",
+        "登记每张图结论、审查身份及hash。",
+        "不带update参数重跑比较并确认无diff。"
+      ],
+      "risk": "自审冒充独立审批；大批review超粒度；达到上限仍未完成时拆本页批次子卡，不草率全PASS。",
+      "effort_person_days": 0.5,
+      "kind": "visual_review",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T23-b-1"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_GOLDEN_REVIEW.md",
+        "@runtime/golden/p2/sealed/"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-03",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T24",
+      "batch": "B3",
+      "workstream": "P3",
+      "name": "验证P3结构矩阵与无障碍",
+      "effort_person_days": 0.5,
+      "goal": "P3全部平台、宽度、主题及scale1/2结构断言有准确执行计数。",
+      "references": "P3-01—05、D05/D06、R17",
+      "write_paths": [
+        "test/uiux/p3/accessibility_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P3_MATRIX.md"
+      ],
+      "dependencies": [
+        "T21",
+        "T05.a"
+      ],
+      "change": "本卡只完成结构/语义/尺寸/对比度与键盘边界断言；golden生成与视觉审查拆至后两张卡。使用真实字体后才签精确文字几何；无取巧clamp/缩小字号。",
+      "acceptance_assertions": "p3_matrix_all_expected_configs_executed；p3_semantics_labels_and_targets_valid；p3_text_and_enabled_icon_contrast_valid；p3_short_viewport_keyboard_focus_reachable；expected=executed、必需case无skip。",
+      "test_command": "flutter test test/uiux/p3/accessibility_test.dart --reporter expanded",
+      "manual_steps": [
+        "查看本页结构矩阵计数。",
+        "打开360宽大字和1280真实shell样张。",
+        "核对不可达按钮、溢出及隐私语义反例均能失败。"
+      ],
+      "risk": "按钮挤出屏幕；Semantics恢复原始姓名；静态时间与真实格式不一致。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T24-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p3/accessibility_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P3_MATRIX.md"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "结构矩阵记录配置ID及实际执行计数；golden生成/审查不在本卡冒充完成。",
+      "acceptance_ids": [
+        "AC-P3-02",
+        "AC-Q-02",
+        "AC-Q-03",
+        "AC-Q-04",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T24.a",
+      "name": "生成P3候选golden与差异包",
+      "batch": "B3",
+      "workstream": "P3",
+      "dependencies": [
+        "T24"
+      ],
+      "write_paths": [
+        "test/uiux/golden/p3_golden_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P3_GOLDEN_MANIFEST.json",
+        "@runtime/golden/p3/candidates/"
+      ],
+      "goal": "产生120个准确配置及before/after/diff，更新不是自动批准。",
+      "change": "复用已存在golden优先；新测试必需baseline不存在即失败。仅运行本页update命令，候选输出写versioned目录，不覆盖已封存baseline。before取W0原场景截图；新控件无旧图必须标NEW_SCENARIO及设计断言，不用新图伪造before。",
+      "acceptance_assertions": "p3_golden_manifest_count_is_120；matrix_config_id唯一；每图sha256/env/input/requirement/task齐全；missing_baseline_fails；image_update_does_not_approve；before只取原SHA。",
+      "test_command": "flutter test test/uiux/golden/p3_golden_test.dart --update-goldens --reporter expanded；核对本页manifest；不得把退出0叫已批准。",
+      "manual_steps": [
+        "查看本页manifest配置数量。",
+        "打开本页before/after/diff样张。",
+        "确认已封存旧图hash未被更新操作覆盖。"
+      ],
+      "risk": "整仓update抹掉回归；只比较新图与自身；ignored PNG未保留。",
+      "effort_person_days": 0.5,
+      "kind": "verification",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T24-a-1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/golden/p3_golden_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P3_GOLDEN_MANIFEST.json",
+        "@runtime/golden/p3/candidates/"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-03",
+        "AC-R-04",
+        "AC-Q-09"
+      ]
+    },
+    {
+      "id": "T24.b",
+      "name": "审查并封存P3视觉基线",
+      "batch": "B3",
+      "workstream": "P3",
+      "dependencies": [
+        "T24.a"
+      ],
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_GOLDEN_REVIEW.md",
+        "@runtime/golden/p3/sealed/"
+      ],
+      "goal": "按需求逐图或可证明等价的图组审查，再只读普通比较。",
+      "change": "每张图必须有review结果与差异理由；完全相同像素且语义断言一致可组审但manifest仍逐配置。记录reviewer身份/SELF_REVIEW_ONLY或INDEPENDENT；没有独立审查工具不伪造。封存工程基线不等于产品UX人工通过。",
+      "acceptance_assertions": "p3_every_golden_has_review_entry；p3_sealed_baseline_is_immutable；p3_normal_compare_zero_diff；p3_missing_or_changed_sealed_file_fails；恢复后不自动update；review失败回原页修复。",
+      "test_command": "flutter test test/uiux/golden/p3_golden_test.dart --reporter expanded；核对manifest与sealed目录hash一致。",
+      "manual_steps": [
+        "按需求核对本页全部图或已证明等价组。",
+        "登记每张图结论、审查身份及hash。",
+        "不带update参数重跑比较并确认无diff。"
+      ],
+      "risk": "自审冒充独立审批；大批review超粒度；达到上限仍未完成时拆本页批次子卡，不草率全PASS。",
+      "effort_person_days": 0.5,
+      "kind": "visual_review",
+      "required_for_local": true,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-T24-b-1"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_GOLDEN_REVIEW.md",
+        "@runtime/golden/p3/sealed/"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-Q-03",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T25",
+      "batch": "B3",
+      "workstream": "P1",
+      "name": "回归频道原业务调用",
+      "effort_person_days": 0.5,
+      "goal": "P1展示重排前后的关键请求和导航trace一致。",
+      "references": "PRD §1、P1全部、C02/C04",
+      "write_paths": [
+        "test/uiux/p1/behavior_regression_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P1_REGRESSION.md"
+      ],
+      "dependencies": [
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T15"
+      ],
+      "change": "不新增业务实现；若发现业务缺陷记录OUT_OF_SCOPE，不能以本卡修后端/分页规则。",
+      "acceptance_assertions": "p1_search_submit_trace_equals_baseline；p1_filter_toggle_has_zero_network_delta；p1_publish_visibility_and_callback_unchanged；p1_stats_disabled_request_count_unchanged；既有channel定向测试全通过。",
+      "test_command": "flutter test test/uiux/p1/behavior_regression_test.dart；flutter test test/unit_test/page/channel",
+      "manual_steps": [
+        "进入可发布与只读频道。",
+        "分别搜索、筛选、滚动加载。",
+        "核对发布入口和返回行为仍按原权限工作。"
+      ],
+      "risk": "基线trace本身有bug被固化；把预期展示变化当业务变化。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T25-1",
+        "C-LEGACY-P1"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p1/behavior_regression_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P1_REGRESSION.md"
+      ],
+      "resource_keys": [
+        "lane:P1",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P1-01",
+        "AC-Q-05",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T26",
+      "batch": "B3",
+      "workstream": "P2",
+      "name": "回归工作台权限与免登调用",
+      "effort_person_days": 0.5,
+      "goal": "入口外观变化不改变原可见性、目的地和免登时机。",
+      "references": "PRD §1、P2全部、C05/C06",
+      "write_paths": [
+        "test/uiux/p2/behavior_regression_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P2_REGRESSION.md"
+      ],
+      "dependencies": [
+        "T18"
+      ],
+      "change": "采用W0冻结的既有OA/enterprise测试入口；网络/外部OA缺失单独BLOCKED_ENV，不改客户端鉴权解决。",
+      "acceptance_assertions": "p2_gate_truth_table_unchanged；p2_app_open_does_not_prefetch_auth_code；p2_bridge_callback_preserved；p2_inbound_login_route_preserved；URL隐藏断言和点击目标断言同时通过。",
+      "test_command": "flutter test test/uiux/p2/behavior_regression_test.dart；运行commands.json中已核实的P2既有定向测试",
+      "manual_steps": [
+        "普通成员和合格坐席分别进入工作台。",
+        "点击应用及Android确认登录入口。",
+        "核对权限、目的页及现有免登成功/失败表现未变化。"
+      ],
+      "risk": "误把本地模拟免登PASS说成真实OA联调PASS。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T26-1",
+        "C-LEGACY-P2"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p2/behavior_regression_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P2_REGRESSION.md"
+      ],
+      "resource_keys": [
+        "lane:P2",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P2-03",
+        "AC-P2-05",
+        "AC-Q-05",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T27",
+      "batch": "B3",
+      "workstream": "P3",
+      "name": "回归坐席接单分页与隔离",
+      "effort_person_days": 0.5,
+      "goal": "三态展示修改不改变作用域/CAS/分页/SSE/打开会话行为。",
+      "references": "PRD §1、P3-05、C07—C09",
+      "write_paths": [
+        "test/uiux/p3/behavior_regression_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P3_REGRESSION.md"
+      ],
+      "dependencies": [
+        "T21"
+      ],
+      "change": "仅测试/证据；CAS/权限缺陷必须登记越界，不能更改_csApi/_claim相关逻辑。",
+      "acceptance_assertions": "p3_claim_sends_original_expected_version_and_scope；p3_double_tap_claim_once；p3_409_capacity_forbidden_branches_unchanged；p3_tab_counts_server_only；p3_cursor_and_sse_refresh_unchanged；原customer_service目录通过。",
+      "test_command": "flutter test test/uiux/p3/behavior_regression_test.dart；flutter test test/customer_service",
+      "manual_steps": [
+        "在测试环境接入一条待接会话。",
+        "切换处理中并打开该会话。",
+        "观察已有冲突/无权限fixture不显示伪成功。"
+      ],
+      "risk": "UI测试改变原API调用顺序；刷新计数被客户端重新推算。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-T27-1",
+        "C-LEGACY-P3"
+      ],
+      "artifact_outputs": [
+        "test/uiux/p3/behavior_regression_test.dart",
+        "docs/plans/enterprise-uiux-v1/execution/P3_REGRESSION.md"
+      ],
+      "resource_keys": [
+        "lane:P3",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-P3-04",
+        "AC-Q-05",
+        "AC-R-04"
+      ]
+    },
+    {
+      "id": "T28",
+      "batch": "B4",
+      "workstream": "COORD",
+      "name": "演练中断恢复与证据失效",
+      "effort_person_days": 0.5,
+      "goal": "协议模拟通过，真实跨会话恢复是否完成有独立证据。",
+      "references": "R18、RESUME_PROTOCOL §6/8",
+      "write_paths": [
+        "tool/uiux/recovery_contract_test.py",
+        "docs/plans/enterprise-uiux-v1/execution/RECOVERY_DRILL.md"
+      ],
+      "dependencies": [
+        "T04.a",
+        "T04.c"
+      ],
+      "change": "导入并调用T04.a/b/c实际实现的范围、锁与状态模块，在临时Git仓库/子进程执行故障注入；禁止复制第二套“预期行为”模拟器来证明自己正确。真实跨会话证据独立在T28.m，不是本卡自动PASS前置。",
+      "acceptance_assertions": "recovery_reuses_registered_worktree；recovery_adopts_committed_unrecorded_task；recovery_rejects_live_lock；recovery_marks_changed_tree_stale；recovery_preserves_foreign_dirty；原工程演练无破坏；跨会话未实做则MANUAL_PENDING。；至少覆盖RECOVERY_CASES.json的全部案例；每个用例记录实际repo/worktree列表、HEAD、state txid与exitcode；失败返回非0。",
+      "test_command": "python3 tool/uiux/recovery_contract_test.py；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1",
+      "manual_steps": [
+        "运行临时Git故障注入套件。",
+        "核对各预期拒绝/恢复结果及退出码。",
+        "确认真实仓库worktree和dirty哈希未变化。"
+      ],
+      "risk": "为了模拟崩溃破坏真实dirty文件；锁超时即抢占；把模拟演练当真实恢复。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "verification",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-RECOVERY",
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "tool/uiux/recovery_contract_test.py",
+        "docs/plans/enterprise-uiux-v1/execution/RECOVERY_DRILL.md"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-02",
+        "AC-R-04",
+        "AC-R-07"
+      ]
+    },
+    {
+      "id": "T28.m",
+      "name": "验证真实新会话接续原工作树",
+      "batch": "B4",
+      "workstream": "COORD",
+      "dependencies": [
+        "T04.c",
+        "T28"
+      ],
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/CROSS_SESSION_RESUME.md"
+      ],
+      "goal": "在真实执行器新会话中确认原路径、分支、基线及下一任务全部正确。",
+      "change": "原会话先checkpoint并释放已确认无活worker的admission；用户或执行器实际发起新会话并粘贴同一提示词。此卡可在任一安全checkpoint触发，不要求等所有页面完成；未发生重启时MANUAL_PENDING。",
+      "acceptance_assertions": "before/after session_id不同；repo/common-dir/integration与lane路径/base_sha相同；未额外新建工作树；未重复提交；next_task根据持久状态正确。",
+      "test_command": "python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1；记录真实两次会话checkpoint的证据。",
+      "manual_steps": [
+        "保存checkpoint并结束当前执行会话。",
+        "在新会话粘贴同一EXECUTION_PROMPT全文。",
+        "核对原worktree与下一卡，保存两次会话证据。"
+      ],
+      "risk": "同进程调用两次函数不是跨会话；缺原工作树不能保证找回未提交内容。",
+      "effort_person_days": 0.25,
+      "kind": "manual",
+      "required_for_local": false,
+      "references": "RESUME_PROTOCOL.md / TEST_CONTRACT.md",
+      "rollback": "revert本任务提交；有消费该产物的下游时先回滚下游或阻塞；保留运行态证据，不回滚用户基线。",
+      "initial_status": "TODO",
+      "completion_rule": "自动/人工义务按kind分别记账；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/CROSS_SESSION_RESUME.md"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "只阻塞真正依赖此产物或资源的任务；不扩大权限，不清零重试预算。",
+      "evidence_rule": "证据绑定被验证对象、命令退出码、hash与环境；自检报告不等于真实产品运行。",
+      "acceptance_ids": [
+        "AC-R-03"
+      ]
+    },
+    {
+      "id": "T29",
+      "batch": "B4",
+      "workstream": "COORD",
+      "name": "验证最终集成候选门禁",
+      "effort_person_days": 0.5,
+      "goal": "对同一冻结候选树完成所有自动门，无旧证据冒用。",
+      "references": "PRD §2/7、TASKS §6",
+      "write_paths": [
+        "@runtime/evidence/final/",
+        "@runtime/candidate_seal.json",
+        "docs/plans/enterprise-uiux-v1/execution/FINAL_GATES.md"
+      ],
+      "dependencies": [
+        "T22.b",
+        "T23.b",
+        "T24.b",
+        "T25",
+        "T26",
+        "T27",
+        "T28"
+      ],
+      "change": "冻结干净集成候选K与tree，所有门只对K运行；日志/结果写外置runtime，不改K。报告提交R只能在门结束后由T33生成；K与R明确区分。历史失败可保留范围完成事实，但自动等级必须PARTIAL_BLOCKED。 所有门结束后可为T29单独提交report-only FINAL_GATES记录（R_gate），候选证书仍指K；不得在门执行中写此记录。",
+      "acceptance_assertions": "candidate_K_clean；all_required_gates_same_K_and_environment；target_suite_expected_tests_executed_no_skip；full_flutter_exit_0_no_unexplained_new_skips；golden_baselines_present_and_hashed；scope/frozen-symbol/check_state通过；任何测试中源输入变化=STALE；candidate_seal在所有门通过后写入。",
+      "test_command": "按TEST_CONTRACT §5执行最终门；所有命令在K上，报告不在测试中写入Git树。",
+      "manual_steps": [
+        "打开最终候选测试记录。",
+        "核对所有记录对应相同候选树和SDK。",
+        "核对原仓库/后端/Admin未被修改。"
+      ],
+      "risk": "修改golden后未普通比对；全量失败被记为历史忽略；多个worktree日志混用。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "candidate_gate",
+      "required_for_local": true,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-RECOVERY",
+        "C-STATE",
+        "C-SCOPE",
+        "C-ANALYZE",
+        "C-TARGET-ALL",
+        "C-FULL",
+        "C-DIFF-CHECK"
+      ],
+      "artifact_outputs": [
+        "@runtime/evidence/final/",
+        "@runtime/candidate_seal.json",
+        "docs/plans/enterprise-uiux-v1/execution/FINAL_GATES.md"
+      ],
+      "resource_keys": [
+        "integration-writer",
+        "flutter-sdk:${SDK_REALPATH_HASH}"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-Q-01",
+        "AC-Q-05",
+        "AC-Q-07",
+        "AC-R-04",
+        "AC-Q-09",
+        "AC-Q-10"
+      ]
+    },
+    {
+      "id": "T30",
+      "batch": "B4",
+      "workstream": "P1",
+      "name": "验收P1的iOS原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P1在iOS上的原生UI；不把其他平台混入同卡。",
+      "references": "P1-01—07、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_ios.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P1/iOS所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "抢占其他任务真机；系统最大字体不等于精确TextScaler2，混淆两类证据。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_ios.md"
+      ],
+      "resource_keys": [
+        "device:iOS"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P1"
+      ]
+    },
+    {
+      "id": "T30.a",
+      "batch": "B4",
+      "workstream": "P1",
+      "name": "验收P1的Android原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P1在Android上的原生UI；不把其他平台混入同卡。",
+      "references": "P1-01—07、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_android.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P1/Android所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "抢占其他任务真机；系统最大字体不等于精确TextScaler2，混淆两类证据。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_android.md"
+      ],
+      "resource_keys": [
+        "device:Android"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P1"
+      ]
+    },
+    {
+      "id": "T30.b",
+      "batch": "B4",
+      "workstream": "P1",
+      "name": "验收P1的macOS原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P1在macOS上的原生UI；不把其他平台混入同卡。",
+      "references": "P1-01—07、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_macos.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P1/macOS所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "抢占其他任务真机；系统最大字体不等于精确TextScaler2，混淆两类证据。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_macos.md"
+      ],
+      "resource_keys": [
+        "device:macOS"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P1"
+      ]
+    },
+    {
+      "id": "T31",
+      "batch": "B4",
+      "workstream": "P2",
+      "name": "验收P2的iOS原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P2在iOS上的原生UI；不把其他平台混入同卡。",
+      "references": "P2-01—05、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_ios.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P2/iOS所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "把隐藏地址理解为生产OA验收；权限角色只有一种就宣称全通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_ios.md"
+      ],
+      "resource_keys": [
+        "device:iOS"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P2"
+      ]
+    },
+    {
+      "id": "T31.a",
+      "batch": "B4",
+      "workstream": "P2",
+      "name": "验收P2的Android原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P2在Android上的原生UI；不把其他平台混入同卡。",
+      "references": "P2-01—05、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_android.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P2/Android所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "把隐藏地址理解为生产OA验收；权限角色只有一种就宣称全通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_android.md"
+      ],
+      "resource_keys": [
+        "device:Android"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P2"
+      ]
+    },
+    {
+      "id": "T31.b",
+      "batch": "B4",
+      "workstream": "P2",
+      "name": "验收P2的macOS原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P2在macOS上的原生UI；不把其他平台混入同卡。",
+      "references": "P2-01—05、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_macos.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P2/macOS所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "把隐藏地址理解为生产OA验收；权限角色只有一种就宣称全通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_macos.md"
+      ],
+      "resource_keys": [
+        "device:macOS"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P2"
+      ]
+    },
+    {
+      "id": "T32",
+      "batch": "B4",
+      "workstream": "P3",
+      "name": "验收P3的iOS原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P3在iOS上的原生UI；不把其他平台混入同卡。",
+      "references": "P3-01—05、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_ios.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P3/iOS所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "测试证据包含原始客户数据；后台无数据而伪造运行通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_ios.md"
+      ],
+      "resource_keys": [
+        "device:iOS"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P3"
+      ]
+    },
+    {
+      "id": "T32.a",
+      "batch": "B4",
+      "workstream": "P3",
+      "name": "验收P3的Android原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P3在Android上的原生UI；不把其他平台混入同卡。",
+      "references": "P3-01—05、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_android.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P3/Android所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "测试证据包含原始客户数据；后台无数据而伪造运行通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_android.md"
+      ],
+      "resource_keys": [
+        "device:Android"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P3"
+      ]
+    },
+    {
+      "id": "T32.b",
+      "batch": "B4",
+      "workstream": "P3",
+      "name": "验收P3的macOS原生流程",
+      "effort_person_days": 0.25,
+      "goal": "只验证P3在macOS上的原生UI；不把其他平台混入同卡。",
+      "references": "P3-01—05、PRD §7",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_macos.md"
+      ],
+      "dependencies": [
+        "T29"
+      ],
+      "change": "采用NATIVE_CASES.json预置单场景脚本，每个场景观察动作≤3步；数据/账号/设备准备单列前置，不藏在步骤内。测试只在已授权环境；缺条件MANUAL_PENDING。",
+      "acceptance_assertions": "P3/macOS所有必需case有case_id、build_sha、OS、device、theme、system-font、观察及证据路径；只验证此平台；其他平台不计入本卡；失败不可改成缺环境。",
+      "test_command": "记录NATIVE_CASES.json中本页本平台case结果；python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1仅校验记录，不能代替真实观察。",
+      "manual_steps": [
+        "按本平台case表进入指定页面或状态。",
+        "只执行该case指定的一项交互。",
+        "核对断言并保存截图/录屏或读屏记录。"
+      ],
+      "risk": "测试证据包含原始客户数据；后台无数据而伪造运行通过。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "manual",
+      "required_for_local": false,
+      "completion_rule": "全部自动断言有当前输入的成功证据；缺证据不通过。",
+      "command_ids": [
+        "C-STATE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_macos.md"
+      ],
+      "resource_keys": [
+        "device:macOS"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-M-P3"
+      ]
+    },
+    {
+      "id": "T33",
+      "batch": "B4",
+      "workstream": "COORD",
+      "name": "汇总验收与交付候选",
+      "effort_person_days": 0.25,
+      "goal": "无论成功、失败或阻塞，都输出带证据的当前报告；报告成功不代表产品成功。",
+      "references": "PRD §2/8/9、全部验收项",
+      "write_paths": [
+        "docs/plans/enterprise-uiux-v1/execution/FINAL_REPORT.md",
+        "docs/plans/enterprise-uiux-v1/execution/STATUS.md",
+        "docs/plans/enterprise-uiux-v1/execution/ACCEPTANCE_RESULTS.json",
+        "docs/plans/enterprise-uiux-v1/execution/ACCEPTANCE_RESULTS.md"
+      ],
+      "dependencies": [
+        "T00"
+      ],
+      "change": "调度器每批末、暂停前、无READY任务时均可触发；只依赖已登记现场。先写外置报告；需要提交时单独report-only提交R，指向已验证候选K。初始报告无K时明确NOT_VERIFIED；保留每次report revision。 报告只由明确事件触发，非报告输入hash未变时不重复写/提交；自身report_revision、heartbeat、R提交不触发下一轮报告，避免无READY时无限汇报。",
+      "acceptance_assertions": "report_runs_when_T29_failed_or_blocked；每项AC有auto/manual/recovery状态；LOCAL等级由gate结果计算，不能由报告exitcode决定；R只改REPORT_ONLY_ALLOWLIST；记录K与R不同，不宣称R全量已测。；report_same_input_is_idempotent；report_written_event_does_not_requeue_itself。",
+      "test_command": "C-PACKAGE；工具可用后运行check_state；报告提交执行git diff --name-status \"$UIUX_CANDIDATE_SHA\" HEAD与报告白名单校验。",
+      "manual_steps": [
+        "打开FINAL_REPORT和验收清单。",
+        "抽取P1/P2/P3各一项核对commit、日志、截图。",
+        "确认交接写明原worktree和所有待验/阻塞项。"
+      ],
+      "risk": "把未验勾成完成；将外部计划问题吞入本任务；交付只留聊天历史。",
+      "rollback": "revert本卡单个功能提交（含测试）；已有下游依赖先回滚下游或将其BLOCKED。禁止回滚用户基线提交。",
+      "initial_status": "TODO",
+      "kind": "report",
+      "required_for_local": false,
+      "completion_rule": "REPORT_WRITTEN表示已汇报；当前report snapshot不是任务永久完结或LOCAL_CANDIDATE_PASS。",
+      "command_ids": [
+        "C-PACKAGE"
+      ],
+      "artifact_outputs": [
+        "docs/plans/enterprise-uiux-v1/execution/FINAL_REPORT.md",
+        "docs/plans/enterprise-uiux-v1/execution/STATUS.md",
+        "docs/plans/enterprise-uiux-v1/execution/ACCEPTANCE_RESULTS.json",
+        "docs/plans/enterprise-uiux-v1/execution/ACCEPTANCE_RESULTS.md"
+      ],
+      "resource_keys": [
+        "integration-writer"
+      ],
+      "failure_route": "范围内缺陷→同页修复卡并回归；范围外缺陷→关联受影响AC且局部阻塞；继续其他READY卡。",
+      "evidence_rule": "精确记录candidate/lane SHA、待提交tree、输入清单hash、环境hash、argv/cwd/退出码与日志hash；无退出码=INCOMPLETE。",
+      "acceptance_ids": [
+        "AC-R-04",
+        "AC-R-05",
+        "AC-Q-10",
+        "AC-R-08"
+      ],
+      "report_policy": {
+        "trigger_mode": "EVENT_DRIVEN",
+        "events": [
+          "batch_end",
+          "block_change",
+          "checkpoint",
+          "manual_evidence_change",
+          "final"
+        ],
+        "deduplicate": "non_report_input_hash",
+        "exclude_from_default_ready_queue": true
+      }
+    }
+  ]
+}

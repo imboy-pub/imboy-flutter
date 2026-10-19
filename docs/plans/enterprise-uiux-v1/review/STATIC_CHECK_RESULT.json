@@ -1,0 +1,41 @@
+{
+  "status": "PLAN_STATIC_CHECK_PASS",
+  "scope": "document package only; NOT Flutter, NOT actual worktree recovery",
+  "counts": {
+    "tasks": 51,
+    "required_automatic_tasks": 40,
+    "manual_tasks": 10,
+    "report_tasks": 1,
+    "commands": 47,
+    "acceptance_items": 37,
+    "golden_configs": 312,
+    "native_cases": 51,
+    "recovery_cases_defined": 24
+  },
+  "local_links_checked": 32,
+  "negative_contract_tests_rejected": 21,
+  "negative_cases": [
+    "duplicate_task_id",
+    "unknown_dependency",
+    "hidden_dependency_cycle",
+    "future_tool_at_bootstrap",
+    "empty_task_command",
+    "empty_command_argv",
+    "report_waits_for_success",
+    "font_blocks_i18n",
+    "manual_blocks_local",
+    "final_gate_self_cycle",
+    "missing_golden_config",
+    "mandatory_golden_downgraded",
+    "golden_generation_as_approval",
+    "native_four_steps",
+    "mixed_page_task",
+    "scope_domain_write",
+    "report_whole_docs_exemption",
+    "invented_recovery_pass",
+    "source_file_not_produced",
+    "lost_original_task",
+    "unbounded_report_loop"
+  ],
+  "checksum_checked": true
+}

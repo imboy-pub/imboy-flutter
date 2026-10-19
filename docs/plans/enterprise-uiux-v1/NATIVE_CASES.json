@@ -1,0 +1,975 @@
+{
+  "schema_version": 1,
+  "plan_id": "imboy-enterprise-uiux-v1",
+  "cases": [
+    {
+      "id": "NC-P1-ios-01",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "navigation",
+      "preconditions": [
+        "已进入有返回栈的企业频道详情",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击返回一次。",
+        "核对：仅退原1级，重入详情只一个频道身份标题；保存证据。"
+      ],
+      "expected": "仅退原1级，重入详情只一个频道身份标题",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-ios-02",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "keyboard",
+      "preconditions": [
+        "长频道名、可发布角色，360窗口或原生手机大字",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "聚焦标签输入。",
+        "核对：键盘出现时控件可达，发布栏不被遮挡；保存证据。"
+      ],
+      "expected": "键盘出现时控件可达，发布栏不被遮挡",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-ios-03",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "actions",
+      "preconditions": [
+        "已准备允许/禁用/pending动作fixture",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "触发指定可用动作一次。",
+        "核对：原回调一次；pending不能重复触发，静音仍可切换；保存证据。"
+      ],
+      "expected": "原回调一次；pending不能重复触发，静音仍可切换",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-ios-04",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "stats",
+      "preconditions": [
+        "autoLoadStats=false的测试频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开详情。",
+        "核对：没有永久统计骨架且未发新统计请求；保存证据。"
+      ],
+      "expected": "没有永久统计骨架且未发新统计请求",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-ios-05",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "error",
+      "preconditions": [
+        "首屏错误fixture或已授权测试网络故障已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击重试。",
+        "核对：有图标标题说明，原重试一次；不能混成空态；保存证据。"
+      ],
+      "expected": "有图标标题说明，原重试一次；不能混成空态",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-ios-06",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "empty",
+      "preconditions": [
+        "真正无内容频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "进入详情内容区。",
+        "核对：无孤立日期，原只读角色无发布CTA；保存证据。"
+      ],
+      "expected": "无孤立日期，原只读角色无发布CTA",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-ios-07",
+      "task_id": "T30",
+      "page": "P1",
+      "platform": "ios",
+      "scene": "discussion",
+      "preconditions": [
+        "有现有群入口的频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击讨论横幅。",
+        "核对：一个方向提示并到原群入口；保存证据。"
+      ],
+      "expected": "一个方向提示并到原群入口",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-01",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "navigation",
+      "preconditions": [
+        "已进入有返回栈的企业频道详情",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击返回一次。",
+        "核对：仅退原1级，重入详情只一个频道身份标题；保存证据。"
+      ],
+      "expected": "仅退原1级，重入详情只一个频道身份标题",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-02",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "keyboard",
+      "preconditions": [
+        "长频道名、可发布角色，360窗口或原生手机大字",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "聚焦标签输入。",
+        "核对：键盘出现时控件可达，发布栏不被遮挡；保存证据。"
+      ],
+      "expected": "键盘出现时控件可达，发布栏不被遮挡",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-03",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "actions",
+      "preconditions": [
+        "已准备允许/禁用/pending动作fixture",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "触发指定可用动作一次。",
+        "核对：原回调一次；pending不能重复触发，静音仍可切换；保存证据。"
+      ],
+      "expected": "原回调一次；pending不能重复触发，静音仍可切换",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-04",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "stats",
+      "preconditions": [
+        "autoLoadStats=false的测试频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开详情。",
+        "核对：没有永久统计骨架且未发新统计请求；保存证据。"
+      ],
+      "expected": "没有永久统计骨架且未发新统计请求",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-05",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "error",
+      "preconditions": [
+        "首屏错误fixture或已授权测试网络故障已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击重试。",
+        "核对：有图标标题说明，原重试一次；不能混成空态；保存证据。"
+      ],
+      "expected": "有图标标题说明，原重试一次；不能混成空态",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-06",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "empty",
+      "preconditions": [
+        "真正无内容频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "进入详情内容区。",
+        "核对：无孤立日期，原只读角色无发布CTA；保存证据。"
+      ],
+      "expected": "无孤立日期，原只读角色无发布CTA",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-android-07",
+      "task_id": "T30.a",
+      "page": "P1",
+      "platform": "android",
+      "scene": "discussion",
+      "preconditions": [
+        "有现有群入口的频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击讨论横幅。",
+        "核对：一个方向提示并到原群入口；保存证据。"
+      ],
+      "expected": "一个方向提示并到原群入口",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-01",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "navigation",
+      "preconditions": [
+        "已进入有返回栈的企业频道详情",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击返回一次。",
+        "核对：仅退原1级，重入详情只一个频道身份标题；保存证据。"
+      ],
+      "expected": "仅退原1级，重入详情只一个频道身份标题",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-02",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "keyboard",
+      "preconditions": [
+        "长频道名、可发布角色，360窗口或原生手机大字",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "聚焦标签输入。",
+        "核对：键盘出现时控件可达，发布栏不被遮挡；保存证据。"
+      ],
+      "expected": "键盘出现时控件可达，发布栏不被遮挡",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-03",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "actions",
+      "preconditions": [
+        "已准备允许/禁用/pending动作fixture",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "触发指定可用动作一次。",
+        "核对：原回调一次；pending不能重复触发，静音仍可切换；保存证据。"
+      ],
+      "expected": "原回调一次；pending不能重复触发，静音仍可切换",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-04",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "stats",
+      "preconditions": [
+        "autoLoadStats=false的测试频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开详情。",
+        "核对：没有永久统计骨架且未发新统计请求；保存证据。"
+      ],
+      "expected": "没有永久统计骨架且未发新统计请求",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-05",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "error",
+      "preconditions": [
+        "首屏错误fixture或已授权测试网络故障已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击重试。",
+        "核对：有图标标题说明，原重试一次；不能混成空态；保存证据。"
+      ],
+      "expected": "有图标标题说明，原重试一次；不能混成空态",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-06",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "empty",
+      "preconditions": [
+        "真正无内容频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "进入详情内容区。",
+        "核对：无孤立日期，原只读角色无发布CTA；保存证据。"
+      ],
+      "expected": "无孤立日期，原只读角色无发布CTA",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P1-macos-07",
+      "task_id": "T30.b",
+      "page": "P1",
+      "platform": "macos",
+      "scene": "discussion",
+      "preconditions": [
+        "有现有群入口的频道已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击讨论横幅。",
+        "核对：一个方向提示并到原群入口；保存证据。"
+      ],
+      "expected": "一个方向提示并到原群入口",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-ios-01",
+      "task_id": "T31",
+      "page": "P2",
+      "platform": "ios",
+      "scene": "containers",
+      "preconditions": [
+        "资源完整/仅应用两个预置页面状态已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "进入指定状态。",
+        "核对：统一背景/图标槽，无办公/空资源壳/重复应用标题；保存证据。"
+      ],
+      "expected": "统一背景/图标槽，无办公/空资源壳/重复应用标题",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-ios-02",
+      "task_id": "T31",
+      "page": "P2",
+      "platform": "ios",
+      "scene": "apps",
+      "preconditions": [
+        "已授权OA测试站及桥mock/测试配置已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击应用入口。",
+        "核对：进入原地址，行/tooltip/semantics无URL；签发按原行为；保存证据。"
+      ],
+      "expected": "进入原地址，行/tooltip/semantics无URL；签发按原行为",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-ios-03",
+      "task_id": "T31",
+      "page": "P2",
+      "platform": "ios",
+      "scene": "gates",
+      "preconditions": [
+        "普通成员/坐席/feature关闭的测试身份已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开指定身份工作台。",
+        "核对：原权限可见性不变，不为显示图标放开权限；保存证据。"
+      ],
+      "expected": "原权限可见性不变，不为显示图标放开权限",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-ios-04",
+      "task_id": "T31",
+      "page": "P2",
+      "platform": "ios",
+      "scene": "font",
+      "preconditions": [
+        "本平台系统大字且长入口文案已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "滚动到应用行。",
+        "核对：无裁剪，入口目标可触控且读屏名称可读；保存证据。"
+      ],
+      "expected": "无裁剪，入口目标可触控且读屏名称可读",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-ios-05",
+      "task_id": "T31",
+      "page": "P2",
+      "platform": "ios",
+      "scene": "inbound",
+      "preconditions": [
+        "Android inboundLoginEnabled测试条目已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击确认登录入口。",
+        "核对：Android仍走原流程；非Android验证该入口按原条件不出现；保存证据。"
+      ],
+      "expected": "Android仍走原流程；非Android验证该入口按原条件不出现",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-android-01",
+      "task_id": "T31.a",
+      "page": "P2",
+      "platform": "android",
+      "scene": "containers",
+      "preconditions": [
+        "资源完整/仅应用两个预置页面状态已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "进入指定状态。",
+        "核对：统一背景/图标槽，无办公/空资源壳/重复应用标题；保存证据。"
+      ],
+      "expected": "统一背景/图标槽，无办公/空资源壳/重复应用标题",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-android-02",
+      "task_id": "T31.a",
+      "page": "P2",
+      "platform": "android",
+      "scene": "apps",
+      "preconditions": [
+        "已授权OA测试站及桥mock/测试配置已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击应用入口。",
+        "核对：进入原地址，行/tooltip/semantics无URL；签发按原行为；保存证据。"
+      ],
+      "expected": "进入原地址，行/tooltip/semantics无URL；签发按原行为",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-android-03",
+      "task_id": "T31.a",
+      "page": "P2",
+      "platform": "android",
+      "scene": "gates",
+      "preconditions": [
+        "普通成员/坐席/feature关闭的测试身份已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开指定身份工作台。",
+        "核对：原权限可见性不变，不为显示图标放开权限；保存证据。"
+      ],
+      "expected": "原权限可见性不变，不为显示图标放开权限",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-android-04",
+      "task_id": "T31.a",
+      "page": "P2",
+      "platform": "android",
+      "scene": "font",
+      "preconditions": [
+        "本平台系统大字且长入口文案已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "滚动到应用行。",
+        "核对：无裁剪，入口目标可触控且读屏名称可读；保存证据。"
+      ],
+      "expected": "无裁剪，入口目标可触控且读屏名称可读",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-android-05",
+      "task_id": "T31.a",
+      "page": "P2",
+      "platform": "android",
+      "scene": "inbound",
+      "preconditions": [
+        "Android inboundLoginEnabled测试条目已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击确认登录入口。",
+        "核对：Android仍走原流程；非Android验证该入口按原条件不出现；保存证据。"
+      ],
+      "expected": "Android仍走原流程；非Android验证该入口按原条件不出现",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-macos-01",
+      "task_id": "T31.b",
+      "page": "P2",
+      "platform": "macos",
+      "scene": "containers",
+      "preconditions": [
+        "资源完整/仅应用两个预置页面状态已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "进入指定状态。",
+        "核对：统一背景/图标槽，无办公/空资源壳/重复应用标题；保存证据。"
+      ],
+      "expected": "统一背景/图标槽，无办公/空资源壳/重复应用标题",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-macos-02",
+      "task_id": "T31.b",
+      "page": "P2",
+      "platform": "macos",
+      "scene": "apps",
+      "preconditions": [
+        "已授权OA测试站及桥mock/测试配置已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击应用入口。",
+        "核对：进入原地址，行/tooltip/semantics无URL；签发按原行为；保存证据。"
+      ],
+      "expected": "进入原地址，行/tooltip/semantics无URL；签发按原行为",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-macos-03",
+      "task_id": "T31.b",
+      "page": "P2",
+      "platform": "macos",
+      "scene": "gates",
+      "preconditions": [
+        "普通成员/坐席/feature关闭的测试身份已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开指定身份工作台。",
+        "核对：原权限可见性不变，不为显示图标放开权限；保存证据。"
+      ],
+      "expected": "原权限可见性不变，不为显示图标放开权限",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-macos-04",
+      "task_id": "T31.b",
+      "page": "P2",
+      "platform": "macos",
+      "scene": "font",
+      "preconditions": [
+        "本平台系统大字且长入口文案已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "滚动到应用行。",
+        "核对：无裁剪，入口目标可触控且读屏名称可读；保存证据。"
+      ],
+      "expected": "无裁剪，入口目标可触控且读屏名称可读",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P2-macos-05",
+      "task_id": "T31.b",
+      "page": "P2",
+      "platform": "macos",
+      "scene": "inbound",
+      "preconditions": [
+        "Android inboundLoginEnabled测试条目已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击确认登录入口。",
+        "核对：Android仍走原流程；非Android验证该入口按原条件不出现；保存证据。"
+      ],
+      "expected": "Android仍走原流程；非Android验证该入口按原条件不出现",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-ios-01",
+      "task_id": "T32",
+      "page": "P3",
+      "platform": "ios",
+      "scene": "rows",
+      "preconditions": [
+        "三态各有同掩码不同摘要的合成记录",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "切到指定状态。",
+        "核对：name→安全摘要→来源顺序相同，等待/接入只在待接；保存证据。"
+      ],
+      "expected": "name→安全摘要→来源顺序相同，等待/接入只在待接",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-ios-02",
+      "task_id": "T32",
+      "page": "P3",
+      "platform": "ios",
+      "scene": "privacy",
+      "preconditions": [
+        "有消息无摘要、无消息、未知来源合成记录已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "用读屏聚焦指定会话行。",
+        "核对：不读出原姓名/wire/猜测类型；缺摘要按原规则；保存证据。"
+      ],
+      "expected": "不读出原姓名/wire/猜测类型；缺摘要按原规则",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-ios-03",
+      "task_id": "T32",
+      "page": "P3",
+      "platform": "ios",
+      "scene": "claim",
+      "preconditions": [
+        "已授权待接测试会话及version已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击接入一次。",
+        "核对：按原行为接入/冲突；不重复调用，不绕过容量及组织隔离；保存证据。"
+      ],
+      "expected": "按原行为接入/冲突；不重复调用，不绕过容量及组织隔离",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-ios-04",
+      "task_id": "T32",
+      "page": "P3",
+      "platform": "ios",
+      "scene": "open",
+      "preconditions": [
+        "已授权active/closed合成会话已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开指定会话。",
+        "核对：原路由/作用域不变，行摘要可辨识；保存证据。"
+      ],
+      "expected": "原路由/作用域不变，行摘要可辨识",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-ios-05",
+      "task_id": "T32",
+      "page": "P3",
+      "platform": "ios",
+      "scene": "font",
+      "preconditions": [
+        "本平台系统大字与最长等待文案已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "滚动指定会话列表。",
+        "核对：动作区可达，无文本遮挡/截断，来源本地化；保存证据。"
+      ],
+      "expected": "动作区可达，无文本遮挡/截断，来源本地化",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-android-01",
+      "task_id": "T32.a",
+      "page": "P3",
+      "platform": "android",
+      "scene": "rows",
+      "preconditions": [
+        "三态各有同掩码不同摘要的合成记录",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "切到指定状态。",
+        "核对：name→安全摘要→来源顺序相同，等待/接入只在待接；保存证据。"
+      ],
+      "expected": "name→安全摘要→来源顺序相同，等待/接入只在待接",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-android-02",
+      "task_id": "T32.a",
+      "page": "P3",
+      "platform": "android",
+      "scene": "privacy",
+      "preconditions": [
+        "有消息无摘要、无消息、未知来源合成记录已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "用读屏聚焦指定会话行。",
+        "核对：不读出原姓名/wire/猜测类型；缺摘要按原规则；保存证据。"
+      ],
+      "expected": "不读出原姓名/wire/猜测类型；缺摘要按原规则",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-android-03",
+      "task_id": "T32.a",
+      "page": "P3",
+      "platform": "android",
+      "scene": "claim",
+      "preconditions": [
+        "已授权待接测试会话及version已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击接入一次。",
+        "核对：按原行为接入/冲突；不重复调用，不绕过容量及组织隔离；保存证据。"
+      ],
+      "expected": "按原行为接入/冲突；不重复调用，不绕过容量及组织隔离",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-android-04",
+      "task_id": "T32.a",
+      "page": "P3",
+      "platform": "android",
+      "scene": "open",
+      "preconditions": [
+        "已授权active/closed合成会话已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开指定会话。",
+        "核对：原路由/作用域不变，行摘要可辨识；保存证据。"
+      ],
+      "expected": "原路由/作用域不变，行摘要可辨识",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-android-05",
+      "task_id": "T32.a",
+      "page": "P3",
+      "platform": "android",
+      "scene": "font",
+      "preconditions": [
+        "本平台系统大字与最长等待文案已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "滚动指定会话列表。",
+        "核对：动作区可达，无文本遮挡/截断，来源本地化；保存证据。"
+      ],
+      "expected": "动作区可达，无文本遮挡/截断，来源本地化",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-macos-01",
+      "task_id": "T32.b",
+      "page": "P3",
+      "platform": "macos",
+      "scene": "rows",
+      "preconditions": [
+        "三态各有同掩码不同摘要的合成记录",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "切到指定状态。",
+        "核对：name→安全摘要→来源顺序相同，等待/接入只在待接；保存证据。"
+      ],
+      "expected": "name→安全摘要→来源顺序相同，等待/接入只在待接",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-macos-02",
+      "task_id": "T32.b",
+      "page": "P3",
+      "platform": "macos",
+      "scene": "privacy",
+      "preconditions": [
+        "有消息无摘要、无消息、未知来源合成记录已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "用读屏聚焦指定会话行。",
+        "核对：不读出原姓名/wire/猜测类型；缺摘要按原规则；保存证据。"
+      ],
+      "expected": "不读出原姓名/wire/猜测类型；缺摘要按原规则",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-macos-03",
+      "task_id": "T32.b",
+      "page": "P3",
+      "platform": "macos",
+      "scene": "claim",
+      "preconditions": [
+        "已授权待接测试会话及version已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "点击接入一次。",
+        "核对：按原行为接入/冲突；不重复调用，不绕过容量及组织隔离；保存证据。"
+      ],
+      "expected": "按原行为接入/冲突；不重复调用，不绕过容量及组织隔离",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-macos-04",
+      "task_id": "T32.b",
+      "page": "P3",
+      "platform": "macos",
+      "scene": "open",
+      "preconditions": [
+        "已授权active/closed合成会话已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "打开指定会话。",
+        "核对：原路由/作用域不变，行摘要可辨识；保存证据。"
+      ],
+      "expected": "原路由/作用域不变，行摘要可辨识",
+      "status": "MANUAL_PENDING"
+    },
+    {
+      "id": "NC-P3-macos-05",
+      "task_id": "T32.b",
+      "page": "P3",
+      "platform": "macos",
+      "scene": "font",
+      "preconditions": [
+        "本平台系统大字与最长等待文案已准备",
+        "设备/账号/端口已授权且无其他任务占用；build对应候选K",
+        "主题与系统字体设置按该case报告逐次记录；准备动作不算观察步骤"
+      ],
+      "steps": [
+        "打开本case指定页面/状态。",
+        "滚动指定会话列表。",
+        "核对：动作区可达，无文本遮挡/截断，来源本地化；保存证据。"
+      ],
+      "expected": "动作区可达，无文本遮挡/截断，来源本地化",
+      "status": "MANUAL_PENDING"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "plan_id": "imboy-enterprise-uiux-v1",
+  "implementation_modules": [
+    "tool/uiux/plan_lock.py",
+    "tool/uiux/plan_state.py",
+    "tool/uiux/check_scope.py"
+  ],
+  "test_owner": "T28",
+  "real_cross_session_owner": "T28.m",
+  "cases": [
+    {
+      "id": "RC01",
+      "precondition": "registry已有唯一集成/三lane",
+      "action": "重新执行同提示词发现逻辑",
+      "expected": "工作树数与路径不变，返回最早可恢复卡",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC02",
+      "precondition": "创建意图已落盘且Git已创建，registry未写",
+      "action": "中断后恢复",
+      "expected": "采纳已创建树一次，不新增随机后缀树",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC03",
+      "precondition": "本卡owner相符且有未提交修改",
+      "action": "恢复任务",
+      "expected": "保留dirty并读后续做，不reset/clean",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC04",
+      "precondition": "源/候选有外来dirty",
+      "action": "恢复对应lane",
+      "expected": "BLOCKED_OWNER且其他READY lane仍可调度",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC05",
+      "precondition": "Git任务提交已存在，state旧",
+      "action": "恢复记账",
+      "expected": "验证trailer/parent/tree后采纳一次",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC06",
+      "precondition": "集成提交存在，映射尚未写",
+      "action": "恢复集成意图",
+      "expected": "登记已有映射，不重复cherry-pick",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC07",
+      "precondition": "state写已提交但Git缺失",
+      "action": "状态检查",
+      "expected": "BLOCKED_RECOVERY，不改PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC08",
+      "precondition": "测试有passed日志，无进程退出码",
+      "action": "恢复验证",
+      "expected": "INCOMPLETE，确认旧进程结束后重跑",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC09",
+      "precondition": "原根进程仍活跃",
+      "action": "第二协调器启动",
+      "expected": "ALREADY_RUNNING，只读，不发第二worker",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC10",
+      "precondition": "相同PID但process-start不同",
+      "action": "旧owner凭证写state",
+      "expected": "拒绝PID复用凭证",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC11",
+      "precondition": "heartbeat超时但owner活跃",
+      "action": "尝试接管",
+      "expected": "拒绝，不以时间抢锁",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC12",
+      "precondition": "协调器已死但worker仍写lane",
+      "action": "恢复派发",
+      "expected": "拒绝同lane第二写者，不擅自kill",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC13",
+      "precondition": "owner身份未知或另一host",
+      "action": "恢复自动接管",
+      "expected": "BLOCKED_LOCK_IDENTITY/异机锁阻塞",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC14",
+      "precondition": "epoch已更新",
+      "action": "旧owner写state或释放锁",
+      "expected": "拒绝陈旧写/释放",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC15",
+      "precondition": "PREPARE已写但snapshot仍旧",
+      "action": "恢复事务",
+      "expected": "核对外部效果后处理，不直接认定通过",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC16",
+      "precondition": "snapshot已换但COMMIT未写",
+      "action": "恢复事务",
+      "expected": "校验next_hash后仅补COMMIT一次",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC17",
+      "precondition": "末尾JSONL半行或中段损坏",
+      "action": "读取日志",
+      "expected": "尾部隔离并保留；中段损坏必须阻塞",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC18",
+      "precondition": "code/test/font/SDK输入变化",
+      "action": "证据检查",
+      "expected": "对应测试STALE；最终候选不可借旧PASS",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC19",
+      "precondition": "仅精确报告白名单形成R",
+      "action": "证书检查",
+      "expected": "K仍是已验证对象；R只获report-only验证",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC20",
+      "precondition": "sealed baseline缺图",
+      "action": "恢复视觉验证",
+      "expected": "按原hash归档恢复；无归档则失败，不skip/update",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC21",
+      "precondition": "main前进但原base不变",
+      "action": "恢复任务",
+      "expected": "原工作树/base继续，只记录漂移",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC22",
+      "precondition": "V1状态已有accepted/attempt与commit",
+      "action": "安装V1.1",
+      "expected": "保留记录，差异义务复验，不用example覆盖",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC23",
+      "precondition": "T29失败且无其他READY卡",
+      "action": "触发T33",
+      "expected": "成功写阻塞报告，产品等级仍PARTIAL_BLOCKED",
+      "status": "NOT_RUN"
+    },
+    {
+      "id": "RC24",
+      "precondition": "worktree路径已丢失或多候选",
+      "action": "恢复定位",
+      "expected": "保留证据并阻塞，不伪造恢复未提交数据",
+      "status": "NOT_RUN"
+    }
+  ]
+}

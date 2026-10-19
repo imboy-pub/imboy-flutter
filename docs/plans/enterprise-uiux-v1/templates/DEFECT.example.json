@@ -1,0 +1,15 @@
+{
+  "example_only": true,
+  "id": null,
+  "scope": "UNCLASSIFIED",
+  "page": null,
+  "requirement_ids": [],
+  "repro_command": null,
+  "baseline_reproduces": null,
+  "candidate_sha": null,
+  "owner": null,
+  "status": "OPEN",
+  "blocks_local": null,
+  "repair_task_id": null,
+  "evidence": []
+}

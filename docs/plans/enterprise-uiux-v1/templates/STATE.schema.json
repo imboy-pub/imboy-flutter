@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "IMBoy UIUX live state v2 (examples cannot replace live)",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "example_only",
+    "plan_id",
+    "revision",
+    "tasks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "example_only": {
+      "const": false
+    },
+    "plan_id": {
+      "const": "imboy-enterprise-uiux-v1"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tasks": {
+      "type": "object",
+      "patternProperties": {
+        "^T[0-9]{2}(\\.[a-z0-9]+)*$": {
+          "$ref": "#/$defs/task"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "task": {
+      "type": "object",
+      "required": [
+        "work_state",
+        "verification_state",
+        "manual_state",
+        "implementation_attempts_total",
+        "verification_attempts_total",
+        "environment_probes_total",
+        "resource_waits_total",
+        "budget_epoch"
+      ],
+      "properties": {
+        "work_state": {
+          "enum": [
+            "TODO",
+            "READY",
+            "RUNNING",
+            "IMPLEMENTED",
+            "COMMITTED",
+            "INTEGRATED",
+            "DONE",
+            "BLOCKED",
+            "SUPERSEDED_AGGREGATE",
+            "REVERTED"
+          ]
+        },
+        "verification_state": {
+          "enum": [
+            "NOT_RUN",
+            "RUNNING",
+            "PASS",
+            "FAIL",
+            "STALE",
+            "INCOMPLETE",
+            "BLOCKED"
+          ]
+        },
+        "manual_state": {
+          "enum": [
+            "NOT_APPLICABLE",
+            "MANUAL_PENDING",
+            "PASS",
+            "FAIL"
+          ]
+        },
+        "block_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "implementation_mode": {
+          "enum": [
+            "MODIFY",
+            "VERIFY_EXISTING"
+          ]
+        },
+        "implementation_attempts_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verification_attempts_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "environment_probes_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resource_waits_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "budget_epoch": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "description": "schema validates shapes/enums only; check_state additionally validates Git, evidence, lifecycle transitions, ownership, and cumulative budgets."
+}

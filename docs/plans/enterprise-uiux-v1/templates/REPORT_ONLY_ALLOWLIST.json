@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "plan_id": "imboy-enterprise-uiux-v1",
+  "paths": [
+    "docs/plans/enterprise-uiux-v1/execution/FINAL_REPORT.md",
+    "docs/plans/enterprise-uiux-v1/execution/STATUS.md",
+    "docs/plans/enterprise-uiux-v1/execution/FINAL_GATES.md",
+    "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_ios.md",
+    "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_android.md",
+    "docs/plans/enterprise-uiux-v1/execution/P1_MANUAL_macos.md",
+    "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_ios.md",
+    "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_android.md",
+    "docs/plans/enterprise-uiux-v1/execution/P2_MANUAL_macos.md",
+    "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_ios.md",
+    "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_android.md",
+    "docs/plans/enterprise-uiux-v1/execution/P3_MANUAL_macos.md",
+    "docs/plans/enterprise-uiux-v1/execution/CROSS_SESSION_RESUME.md",
+    "docs/plans/enterprise-uiux-v1/execution/ACCEPTANCE_RESULTS.json",
+    "docs/plans/enterprise-uiux-v1/execution/ACCEPTANCE_RESULTS.md"
+  ],
+  "rule": "仅精确报告路径；PRD/TASKS/ACCEPTANCE合同、测试、工具、配置、golden不豁免；验证K与报告R分开"
+}
