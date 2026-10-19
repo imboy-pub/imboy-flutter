@@ -132,3 +132,22 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
 - 集成分支未 push、未 merge main、未部署（合同边界）；候选与全部证据在
   runtime 区与 worktree 内，供计划所有者裁决接收。
 - 本报告由 T33 在 B4 全门结束后生成（report-only R7）。
+
+
+## 13. revision 8 附记（B4 终版更正 — FULL_PASS 封存）
+
+- T29 首轮 C-FULL exit=1 的 17 个 e2ee 套件失败根因定位：**vodozemac
+  Rust 原生库未在 worktree 可见路径**（`spikes/e2ee-group/rust/target/
+  release/libvodozemac_bindings_dart.dylib` 存在于源仓库，worktree 视图
+  缺路径）。以
+  `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` 指向源仓库编译产物后
+  复跑：**exit=0，10830/10830 executed，0 failed，0 skipped**（含此前
+  setUpAll 失败未执行的 114 个用例——全部真实跑过）。
+- 等级由 PARTIAL_BLOCKED 更正为 **FULL_PASS**，`candidate_seal.json`
+  已按合同写入（K=`d397d38c8`，七门全过，环境含 vodozemac 路径声明）。
+  PARTIAL_BLOCKED 的首轮定级与根因证据保留在 FINAL_GATES.md（审计链）。
+- T30—T32.b（9 卡）与 T28.m 仍为 MANUAL_PENDING：原生逐 case 验收与
+  真实跨会话接续需要真机/桌面与人工操作者/真实重启——这些是**产品
+  验收义务**，不是本自动会话可代为完成的义务；输入（候选 K、矩阵、
+  封存 golden、回归文档、就绪清单）已全部备妥。
+- 交付声明不变：未 push、未 merge main、未部署。
