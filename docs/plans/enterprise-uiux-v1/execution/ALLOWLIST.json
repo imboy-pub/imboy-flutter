@@ -20,7 +20,9 @@
   "tool/uiux/**（T04.a/b/c 工具）",
   "lib/modules/customer_service/presentation/cs_workspace_entry.dart",
   "lib/modules/customer_service/presentation/cs_session_row_content.dart",
-  "lib/modules/customer_service/presentation/cs_source_label.dart"
+  "lib/modules/customer_service/presentation/cs_source_label.dart",
+  "pubspec.yaml",
+  "pubspec.lock"
  ],
  "frozen_symbols": [
   "csMaskContactName (domain/cs_seat_gate.dart:80-85) — 只调用不改",
@@ -58,6 +60,15 @@
     "lib/modules/customer_service/presentation/cs_source_label.dart"
    ],
    "reason": "TASKS.json T19/T21 artifact_outputs 明确列出的新增展示组件；T04 投影遗漏，按原始合同补录。"
+  },
+  {
+   "date": "2026-10-20",
+   "revision": "T29",
+   "added": [
+    "pubspec.yaml",
+    "pubspec.lock"
+   ],
+   "reason": "dart fix depend_on_referenced_packages 修复为测试已 import 的 6 个平台接口包声明 direct dev 依赖（any）+ pub 重排 lock；T29 门禁要求全部树内变更在白名单内，按修复事实补录。"
   }
  ]
 }
