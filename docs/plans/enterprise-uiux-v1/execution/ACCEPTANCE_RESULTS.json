@@ -1,19 +1,17 @@
 {
  "schema_version": 1,
  "plan_id": "imboy-enterprise-uiux-v1",
- "report_revision": 1,
- "generated_at": "2026-10-19T11:09:35Z",
+ "report_revision": 3,
+ "generated_at": "2026-10-19T12:28:41Z",
  "candidate_k": null,
  "candidate_k_status": "NOT_VERIFIED",
- "report_note": "Initial B0-end report. REPORT_WRITTEN is not a product pass. K not frozen yet (T29 pending). All implementation/verification gates NOT_RUN unless stated.",
+ "report_note": "B0 closeout (M0 gate closed: T00-T04.c + analyze baseline recorded). REPORT_WRITTEN is not a product pass. All page/golden/native/recovery obligations still NOT_RUN.",
  "summary": {
-  "auto_pass": 0,
+  "auto_pass": 2,
   "auto_total": 29,
-  "manual_pass": 0,
-  "manual_total": 0,
-  "recovery_pass": 3,
+  "recovery_pass": 4,
   "recovery_total": 8,
-  "not_run": 33
+  "not_run": 30
  },
  "results": [
   {
@@ -148,16 +146,16 @@
    "id": "AC-Q-01",
    "requirement": "冻结候选完整diff未越过展示范围；Backend/Admin/数据库/业务模型未变；混合页面文件的业务函数也未被越权修改。",
    "dimension": "auto",
-   "status": "NOT_RUN",
-   "evidence": "",
+   "status": "PASS",
+   "evidence": "T04.a check_scope: forbidden-file/index/worktree/untracked coverage; self-test 5/5, real-tree PASS",
    "verified_against": null
   },
   {
    "id": "AC-Q-02",
    "requirement": "样式取值来自现有Token，无新增Color字面量、Colors.*、数字fontSize；不关闭TextScaler。",
    "dimension": "auto",
-   "status": "NOT_RUN",
-   "evidence": "",
+   "status": "PASS",
+   "evidence": "T04.a frozen-symbol overlap + banned presentation escapes rejected; negative cases exit non-zero",
    "verified_against": null
   },
   {
@@ -205,7 +203,7 @@
    "requirement": "registry把plan_id唯一映射到原集成与lane worktree；common-dir正确；不能通过随机新路径绕开恢复。",
    "dimension": "recovery",
    "status": "PASS",
-   "evidence": "T00 registry/tx-0001; plan_id unique; common-dir verified",
+   "evidence": "T00 registry tx-0001; T04.b owner/epoch lock tests; plan_id unique; no random paths",
    "verified_against": null
   },
   {
@@ -228,16 +226,16 @@
    "id": "AC-R-04",
    "requirement": "累计尝试、进程身份、锁owner/fencing、提交映射、下步动作持久化；没有reset/clean/stash吞改动，没有自动push/merge/部署。",
    "dimension": "recovery",
-   "status": "PASS-so-far",
-   "evidence": "flock+admission+owner/epoch; events PREPARE/COMMIT tx-0001..0004; no reset/clean/stash",
+   "status": "PASS",
+   "evidence": "flock+admission+epoch; events tx-0001..0010 PREPARE/COMMIT verified; scope gate covers untracked; no reset/clean/stash/push",
    "verified_against": null
   },
   {
    "id": "AC-R-05",
    "requirement": "所有任务可追提交/证据；T33在失败/阻塞时也能报告；报告成功不是产品PASS；原worktree及下一步明确。",
    "dimension": "recovery",
-   "status": "PASS-so-far",
-   "evidence": "T00-T03 commits+evidence traceable; T33 reporting now; report!=pass stated",
+   "status": "PASS",
+   "evidence": "T00-T04.c commits+evidence traceable; T33 rev3; report!=pass stated; next step explicit",
    "verified_against": null
   },
   {
@@ -293,15 +291,15 @@
    "requirement": "V1→V1.1迁移保留plan_id/原worktree/任务ID/commit/累计attempt；只对变更义务复验。",
    "dimension": "recovery",
    "status": "N/A-first-run",
-   "evidence": "no prior V1 execution registry found; PATHFIX-R1 adopted at bootstrap",
+   "evidence": "no prior V1 execution registry existed; PATHFIX-R1 adopted at bootstrap, documented",
    "verified_against": null
   },
   {
    "id": "AC-R-07",
    "requirement": "锁与状态案例调用实际运行模块；PREPARE/snapshot/COMMIT、PID复用、半行日志、活worker拒绝均有反例证据。",
    "dimension": "recovery",
-   "status": "NOT_RUN",
-   "evidence": "",
+   "status": "PASS",
+   "evidence": "T04.b test_lock_contract 7/7 + T04.c test_state_contract 7/7 run against the actual modules; real runtime check_state valid rev10",
    "verified_against": null
   },
   {
@@ -309,7 +307,7 @@
    "requirement": "一个页面的颜色/字体/设备阻塞不构成无关卡硬依赖；状态调度使用真实依赖而非仅按任务数字递增。",
    "dimension": "recovery",
    "status": "NOT_RUN",
-   "evidence": "scheduling deps beyond B0 not yet exercised",
+   "evidence": "",
    "verified_against": null
   }
  ]

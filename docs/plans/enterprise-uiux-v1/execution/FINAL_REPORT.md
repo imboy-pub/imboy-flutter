@@ -1,6 +1,6 @@
 # FINAL REPORT（首轮 / B0 收口）— imboy-enterprise-uiux-v1
 
-报告时间：2026-10-19（checkpoint 更新）｜report_revision：2｜触发事件：checkpoint/暂停（T00—T04 完成后收口）
+报告时间：2026-10-19（B0 收口更新）｜report_revision：3｜触发事件：batch_end（B0 完成，M0 门关闭）
 **候选 K：NOT_VERIFIED**（T29 未执行；本报告不构成任何产品通过等级）
 
 ## 1. 计划身份与现场
@@ -47,3 +47,11 @@ T04 已完成（3f9c2a46：47 命令零未解析、EXTERNAL_PINNED、白名单�
 ## 7. revision 2 附记
 
 T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直连 wrapper（无 FVM）、i18n=dart run slang（10 locale）、golden=EXTERNAL_PINNED（.gitignore test/**/goldens/ 既有策略）。M0 门剩余 T04.a/b/c。
+
+## 8. revision 3 附记（B0 收口 / M0 门关闭）
+
+- T04.a scope 门（233bfa2d）：自测 5/5（负例非 0）；真实树 PASS（45 路径，committed+untracked）。
+- T04.b 进程锁（bbb53562）：自测 7/7——活 owner 拒绝、PID 复用拒绝、超时≠接管、旧 epoch 释放拒绝、子进程存活阻断接管、未知身份 fail-closed、实弹 kill -9 后接管 epoch+1。
+- T04.c 状态事务（1cee8eb3）：自测 7/7——悬空 PREPARE 不采纳、缺 COMMIT 只补记一次、撕裂尾行隔离+截断、revision 冲突拒绝、example 不可覆盖 live、枚举词表、只读校验不放行缺 COMMIT；真实 runtime check_state valid（rev10）。
+- M0 基线：`flutter analyze --fatal-infos` exit=1 / **72 存量问题**（改动前记录；新 worktree 曾因子模块未初始化解析失败，已按固定 commit 7df955eb 初始化 `plugin/flutter_chat_ui`，pubspec.lock 未动）。Erlang EUnit=N/A。
+- 下一卡：T05（结构 harness）+ T05.a（视觉字体环境，独立记账）；T33 保持可重复报告。
