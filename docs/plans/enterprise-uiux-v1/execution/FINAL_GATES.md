@@ -1,11 +1,16 @@
 # FINAL GATES — T29（最终集成候选门禁记录）
 
-> **K（冻结候选）= `571f7aaf7edfd990495fddf9324e7d15d161e1a8`**（工作区干净树）
+> **K（冻结候选）= `d397d38c80911bfdd60934bb5417cfdaec2821e0`**（工作区干净树）
 > 执行日期：2026-10-20｜SDK：Flutter 3.47.7 stable（`/Users/leeyi/dev/flutter/bin`）
-> **自动等级：PARTIAL_BLOCKED**（C-FULL 存在范围外失败套件，见 §3；
-> 按 T29 change「历史失败可保留范围完成事实，但自动等级必须
-> PARTIAL_BLOCKED」如实定级——**candidate_seal.json 未写入**，K 不构成
-> 全自动通过候选。）
+> **自动等级：FULL_PASS（candidate_seal.json 已写入）**
+>
+> 首轮 C-FULL 曾 exit=1（17 个 e2ee 套件 setUpAll 失败）并如实定级
+> PARTIAL_BLOCKED。随后根因定位为 vodozemac Rust 原生库未编译进
+> worktree 可见路径——设置
+> `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` 指向源仓库已编译的
+> `spikes/e2ee-group/rust/target/release/` 后复跑：**exit=0，
+> 10830/10830 全过、0 failed、0 skipped**（此前因 setUpAll 失败未执行
+> 的 114 个用例全部实际跑过）。七门全绿，候选按合同封存。
 
 ## 1. 逐门结果（全部对同一 K 运行；证据在 runtime evidence/final/）
 
@@ -16,7 +21,7 @@
 | 3 | C-SCOPE | `python3 tool/uiux/check_scope.py --base c61cd8d46…` | 0 | 零违规（base 起全量树审查） |
 | 4 | C-ANALYZE | `flutter analyze --fatal-infos --fatal-warnings` | 0 | **0 issues**（M0 基线 72 + 本计划新增 57 已全部清零） |
 | 5 | C-TARGET-ALL | `flutter test test/uiux/contract test/uiux/p{1,2,3} --reporter json`（GOLDEN_BASELINE_ROOT=assembled-sealed） | 0 | **executed=143 success=143 failed=0 skipped=0** |
-| 6 | C-FULL | `flutter test --reporter json`（全仓） | **1** | executed=10716 success=10699 **failed=17** skipped=0 |
+| 6 | C-FULL | `flutter test --reporter json`（全仓；vodozemac env） | 0 | **executed=10830 success=10830 failed=0 skipped=0** |
 | 7 | C-DIFF-CHECK | `git diff --check c61cd8d46… HEAD` + index/worktree | 0 | 无空白/冲突标记 |
 
 ## 2. C-FULL 17 失败的范围外证明
@@ -36,10 +41,11 @@
 
 ## 3. candidate_seal
 
-**未写入**（`candidate_seal.json` 不存在）：C-FULL 未达 exit=0。
-K 的树与证据已归档（`runtime evidence/final/`）；如需继续冲击全自动
-通过，须先让 e2ee 套件在本机可运行（环境事项，范围外）或由计划所有者
-裁决按 PARTIAL_BLOCKED 交付（T33 汇总时决定）。
+**已写入** `runtime candidate_seal.json`（level=FULL_PASS，
+K=`d397d38c80911bfdd60934bb5417cfdaec2821e0`）：七门全过（含 C-FULL 在
+vodozemac 原生库环境修复后复跑）。e2ee 套件的"失败"根因为**测试环境
+原生库路径缺失**（非产品缺陷）：源仓库已有编译产物，运行时以环境变量
+提供路径即可。
 
 ## 4. 其他核对
 
