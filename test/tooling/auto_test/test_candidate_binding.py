@@ -74,6 +74,7 @@ class CandidateBindingTests(unittest.TestCase):
         self.git(root, 'replace', '--graft', frozen['imboy']['head'], unrelated)
         self.assertTrue(self.audit(frozen=frozen, observed=frozen))
         self.git(root, 'replace', '-d', frozen['imboy']['head'])
+        (root / '.git' / 'info').mkdir(exist_ok=True)
         (root / '.git' / 'info' / 'grafts').write_text(
             frozen['imboy']['head'] + ' ' + unrelated + '\n')
         self.assertTrue(self.audit(frozen=frozen, observed=frozen))
