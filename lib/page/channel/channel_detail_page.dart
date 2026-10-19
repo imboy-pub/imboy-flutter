@@ -304,9 +304,14 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
 
   Widget _buildErrorView(String error) {
     // 与空态统一走 NoDataView，避免同一 App 内失败态样式各写一套。
+    // P1-03/D10：标题 + 固定安全说明两段（说明复用 enterpriseOa 的
+    // 通用网络错误提示键），重试走既有 loadChannel。
+    final detail = error.trim();
     return NoDataView(
       icon: CupertinoIcons.exclamationmark_circle,
-      text: error,
+      text: detail.isEmpty ? t.common.loadError : detail,
+      description: t.enterpriseOa.statusErrorHint,
+      retryLabel: t.common.retry,
       onTop: () => ref
           .read(channelDetailProvider.notifier)
           .loadChannel(_resolveChannelId()),

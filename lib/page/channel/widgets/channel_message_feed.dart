@@ -573,7 +573,11 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     final detail = error.trim();
     return NoDataView(
       icon: CupertinoIcons.exclamationmark_circle,
+      // P1-03/D10 两段结构：标题（服务端安全 message，空则通用兜底）
+      // + 固定安全说明（不透出 raw exception/URL/Token）。说明复用
+      // enterpriseOa 的通用网络错误提示键（现有键，语义一致）。
       text: detail.isEmpty ? t.common.loadError : detail,
+      description: t.enterpriseOa.statusErrorHint,
       retryLabel: t.common.retry,
       onTop: () => ref
           .read(channelDetailProvider.notifier)
