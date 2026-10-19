@@ -58,12 +58,12 @@ class EnterpriseWorkbenchPage extends StatelessWidget {
     return ListView(
       children: [
         if (resourceEntries.isNotEmpty)
-          CupertinoListSection.insetGrouped(children: resourceEntries),
+          _GroupedSection(children: resourceEntries),
         if ((!kIsWeb && defaultTargetPlatform == TargetPlatform.android))
           for (final entry in entries.where(
             (entry) => entry.inboundLoginEnabled,
           ))
-            CupertinoListSection.insetGrouped(
+            _GroupedSection(
               children: [
                 CupertinoListTile(
                   title: Text(t.enterpriseOa.confirmLink),
@@ -73,7 +73,7 @@ class EnterpriseWorkbenchPage extends StatelessWidget {
             ),
         // 联调入口常驻：按需免登（桥 getAuthCode）依赖已登记 OA 应用——
         // 联调页若只在"无配置"时可见，配置完成后反而永远取不到码。
-        CupertinoListSection.insetGrouped(
+        _GroupedSection(
           children: [
             CupertinoListTile(
               key: const ValueKey('workbench-apps-entry'),
@@ -85,6 +85,35 @@ class EnterpriseWorkbenchPage extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// P2-01/P2-05/D04 统一分组容器：背景/圆角/边距与
+/// `CupertinoListSection.insetGrouped` 同 token 同节奏，但**高度由子项
+/// 自然收缩**——insetGrouped 的固定 margin/divider 会把全不可见的子项
+///（如 CS 入口 gate 隐藏后的 SizedBox.shrink）仍撑出一个空壳卡；此处
+/// Column 在全 shrink 子项下高度为 0，容器无视觉残留。
+/// 可见性判定仍留在子 widget 的既有 gate 内，本容器不复制权限规则。
+class _GroupedSection extends StatelessWidget {
+  const _GroupedSection({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      // insetGrouped 的同款组间距节奏。
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: CupertinoColors.tertiarySystemGroupedBackground.resolveFrom(
+            context,
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(children: children),
+      ),
     );
   }
 }
