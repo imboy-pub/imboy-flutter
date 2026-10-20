@@ -2395,6 +2395,7 @@ class Translations$organization$zh_Hant extends Translations$organization$zh_CN 
 	@override late final Translations$organization$wsMembers$zh_Hant wsMembers = Translations$organization$wsMembers$zh_Hant.internal(_root);
 	@override late final Translations$organization$tools$zh_Hant tools = Translations$organization$tools$zh_Hant.internal(_root);
 	@override late final Translations$organization$chart$zh_Hant chart = Translations$organization$chart$zh_Hant.internal(_root);
+	@override late final Translations$organization$experienceUi$zh_Hant experienceUi = Translations$organization$experienceUi$zh_Hant.internal(_root);
 }
 
 // Path: passport
@@ -3254,6 +3255,30 @@ class Translations$organization$chart$zh_Hant extends Translations$organization$
 	@override String get collapse => '收起下級部門';
 	@override String get gestureHint => '拖曳查看 · 雙指縮放';
 	@override String directMembers({required Object count}) => '本級 ${count} 人';
+}
+
+// Path: organization.experienceUi
+class Translations$organization$experienceUi$zh_Hant extends Translations$organization$experienceUi$zh_CN {
+	Translations$organization$experienceUi$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => '切換空間';
+	@override String get personalSpace => '個人空間';
+	@override String get enterpriseSpaces => '企業空間';
+	@override String get currentSpace => '目前空間';
+	@override String get enterpriseInfo => '企業資料';
+	@override String get collaborationSpace => '協作空間';
+	@override String get groupContent => '群内容';
+	@override String get groupCollaboration => '群协作';
+	@override String get defaultWorkspace => '默认工作区';
+	@override String get defaultAvailable => '已设置';
+	@override String get defaultUnknown => '暂时无法获取';
+	@override String get defaultHint => '加入相应工作区后可进入，默认设置不会自动授予访问权限。';
+	@override String get accountCheck => '注销前检查';
+	@override String workspaceContext({required Object name}) => '工作区：${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5708,6 +5733,21 @@ extension on TranslationsZhHant {
 			'organization.chart.collapse' => '收起下級部門',
 			'organization.chart.gestureHint' => '拖曳查看 · 雙指縮放',
 			'organization.chart.directMembers' => ({required Object count}) => '本級 ${count} 人',
+			'organization.experienceUi.switchSpace' => '切換空間',
+			'organization.experienceUi.personalSpace' => '個人空間',
+			'organization.experienceUi.enterpriseSpaces' => '企業空間',
+			'organization.experienceUi.currentSpace' => '目前空間',
+			'organization.experienceUi.enterpriseInfo' => '企業資料',
+			'organization.experienceUi.collaborationSpace' => '協作空間',
+			'organization.experienceUi.groupContent' => '群内容',
+			'organization.experienceUi.groupCollaboration' => '群协作',
+			'organization.experienceUi.defaultWorkspace' => '默认工作区',
+			'organization.experienceUi.defaultAvailable' => '已设置',
+			'organization.experienceUi.defaultUnknown' => '暂时无法获取',
+			'organization.experienceUi.defaultHint' => '加入相应工作区后可进入，默认设置不会自动授予访问权限。',
+			'organization.experienceUi.accountCheck' => '注销前检查',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => '工作区：${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',
@@ -5817,6 +5857,8 @@ extension on TranslationsZhHant {
 			'workspace.joinExpiredCode' => '團隊碼已過期',
 			'workspace.inviteCodeSectionTitle' => '團隊碼邀請',
 			'workspace.inviteCodeGenerate' => '產生團隊碼',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => '複製',
 			'workspace.inviteCodeRevoke' => '撤銷',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '效期至 ${expiresAt}',
@@ -5832,8 +5874,6 @@ extension on TranslationsZhHant {
 			'workspace.transferConfirm' => '確認轉移',
 			'workspace.governanceTitle' => '工作區治理',
 			'workspace.brandingEntry' => '品牌設定（名稱 / Logo / 主色）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveEntry' => '封存工作區',
 			'workspace.restoreEntry' => '還原工作區',
 			'workspace.archiveTitle' => '封存工作區',

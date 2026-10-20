@@ -261,6 +261,30 @@ class ChannelMessageRepo {
     return null;
   }
 
+  /// Read cached previews in batches; never issue one query per visible row.
+  Future<Map<int, ChannelMessageModel>> getLastMessages(
+    List<String> channels,
+  ) async {
+    final unique = channels.toSet().toList(growable: false);
+    final result = <int, ChannelMessageModel>{};
+    for (var offset = 0; offset < unique.length; offset += 400) {
+      final batch = unique.skip(offset).take(400).toList(growable: false);
+      final marks = List.filled(batch.length, '?').join(',');
+      final rows = await _db.rawQuery(
+        'SELECT m.* FROM $tableName m WHERE m.$channelId IN ($marks) '
+        'AND m.$id = (SELECT latest.$id FROM $tableName latest '
+        'WHERE latest.$channelId = m.$channelId '
+        'ORDER BY latest.$createdAt DESC, latest.$id DESC LIMIT 1)',
+        batch,
+      );
+      for (final row in rows) {
+        final message = ChannelMessageModel.fromMap(row);
+        result[message.channelId] = message;
+      }
+    }
+    return result;
+  }
+
   /// 获取频道消息总数
   Future<int> getMessageCount(String channelId) async {
     final result = await _db.rawQuery(

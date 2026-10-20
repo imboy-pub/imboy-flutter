@@ -2395,6 +2395,7 @@ class _Translations$organization$ko_KR extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$wsMembers$ko_KR wsMembers = _Translations$organization$wsMembers$ko_KR._(_root);
 	@override late final _Translations$organization$tools$ko_KR tools = _Translations$organization$tools$ko_KR._(_root);
 	@override late final _Translations$organization$chart$ko_KR chart = _Translations$organization$chart$ko_KR._(_root);
+	@override late final _Translations$organization$experienceUi$ko_KR experienceUi = _Translations$organization$experienceUi$ko_KR._(_root);
 }
 
 // Path: passport
@@ -3254,6 +3255,30 @@ class _Translations$organization$chart$ko_KR extends Translations$organization$c
 	@override String get collapse => '하위 부서 접기';
 	@override String get gestureHint => '드래그하여 이동 · 핀치로 확대/축소';
 	@override String directMembers({required Object count}) => '직속 ${count}명';
+}
+
+// Path: organization.experienceUi
+class _Translations$organization$experienceUi$ko_KR extends Translations$organization$experienceUi$zh_CN {
+	_Translations$organization$experienceUi$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => 'Switch space';
+	@override String get personalSpace => 'Personal space';
+	@override String get enterpriseSpaces => 'Enterprise spaces';
+	@override String get currentSpace => 'Current space';
+	@override String get enterpriseInfo => 'Enterprise info';
+	@override String get collaborationSpace => 'Collaboration spaces';
+	@override String get groupContent => 'Group content';
+	@override String get groupCollaboration => 'Group collaboration';
+	@override String get defaultWorkspace => 'Default workspace';
+	@override String get defaultAvailable => 'Configured';
+	@override String get defaultUnknown => 'Temporarily unavailable';
+	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
+	@override String get accountCheck => 'Account deletion checks';
+	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5708,6 +5733,21 @@ extension on TranslationsKoKr {
 			'organization.chart.collapse' => '하위 부서 접기',
 			'organization.chart.gestureHint' => '드래그하여 이동 · 핀치로 확대/축소',
 			'organization.chart.directMembers' => ({required Object count}) => '직속 ${count}명',
+			'organization.experienceUi.switchSpace' => 'Switch space',
+			'organization.experienceUi.personalSpace' => 'Personal space',
+			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
+			'organization.experienceUi.currentSpace' => 'Current space',
+			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
+			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
+			'organization.experienceUi.groupContent' => 'Group content',
+			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
+			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
+			'organization.experienceUi.defaultAvailable' => 'Configured',
+			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
+			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
+			'organization.experienceUi.accountCheck' => 'Account deletion checks',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',
@@ -5817,6 +5857,8 @@ extension on TranslationsKoKr {
 			'workspace.joinExpiredCode' => '팀 코드가 만료되었습니다',
 			'workspace.inviteCodeSectionTitle' => '팀 코드 초대',
 			'workspace.inviteCodeGenerate' => '팀 코드 생성',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => '복사',
 			'workspace.inviteCodeRevoke' => '무효화',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '${expiresAt}까지 유효',
@@ -5832,8 +5874,6 @@ extension on TranslationsKoKr {
 			'workspace.transferConfirm' => '이전 확인',
 			'workspace.governanceTitle' => '워크스페이스 거버넌스',
 			'workspace.brandingEntry' => '브랜드 설정(이름 / Logo / 기본 색상)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveEntry' => '워크스페이스 보관',
 			'workspace.restoreEntry' => '워크스페이스 복원',
 			'workspace.archiveTitle' => '워크스페이스 보관',

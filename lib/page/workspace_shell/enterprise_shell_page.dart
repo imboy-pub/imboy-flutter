@@ -25,6 +25,7 @@ import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_toolbar.dart';
 import 'package:imboy/page/workspace_shell/workspace_plus_menu.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/component/ui/resource_entry_tile.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 
@@ -129,7 +130,8 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     final wsName = ref.watch(currentWorkspaceProvider)?.name ?? '';
     final contextSubtitle = [
       if (orgName.isNotEmpty) orgName,
-      if (wsName.isNotEmpty) wsName,
+      if (wsName.isNotEmpty)
+        t.organization.experienceUi.workspaceContext(name: wsName),
     ].join(' · ');
     final icons = destinations.map(_icon).toList();
     // 工作台始终可见，应用入口仍按实时授权配置显示。
@@ -360,7 +362,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           accountKey: widget.accountKey,
           organizationId: widget.organizationId,
           resourceEntries: [
-            const CsWorkspaceEntryTile(),
+            const CsWorkspaceEntryTile(showDivider: true),
             if (ref.watch(currentWorkspaceProvider) != null) ...[
               if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
                 _resourceEntry(
@@ -486,18 +488,9 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   };
 
   Widget _resourceEntry(String title, Widget page, {IconData? icon}) =>
-      CupertinoListTile(
-        // P2-04/D02：统一 24×24 图标槽，各资源行文本起点一致；
-        // 垂直 padding 使命中目标高 ≥48。
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        leading: SizedBox.square(
-          dimension: 24,
-          child: icon == null
-              ? null
-              : Center(widthFactor: 1, child: Icon(icon, size: 20)),
-        ),
-        title: Text(title),
-        trailing: const CupertinoListTileChevron(),
+      ResourceEntryTile(
+        title: title,
+        icon: icon ?? CupertinoIcons.square_grid_2x2,
         onTap: () => Navigator.of(context).push(
           CupertinoPageRoute<void>(
             builder: (_) => Scaffold(

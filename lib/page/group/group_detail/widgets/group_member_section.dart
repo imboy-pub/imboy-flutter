@@ -46,12 +46,12 @@ class GroupMemberSection extends ConsumerWidget {
         AppSpacing.regular,
         AppSpacing.small,
       ),
-      padding: const EdgeInsets.all(AppSpacing.large),
+      padding: const EdgeInsets.all(AppSpacing.regular),
       decoration: BoxDecoration(
         color: isDark
             ? AppColors.darkSurfaceGroupedTertiary
             : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppSpacing.medium),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +108,7 @@ class GroupMemberSection extends ConsumerWidget {
               }
             },
           ),
-          if (memberCount > 20) ...[
+          if (memberCount > 0) ...[
             const SizedBox(height: AppSpacing.medium),
             Center(
               child: CupertinoButton(

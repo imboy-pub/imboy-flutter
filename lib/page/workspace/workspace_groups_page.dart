@@ -20,14 +20,20 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 class WorkspaceGroupsPage extends ConsumerWidget {
-  const WorkspaceGroupsPage({super.key, this.openFiles = false});
+  const WorkspaceGroupsPage({
+    super.key,
+    this.openFiles = false,
+    this.workspaceId,
+  });
 
   final bool openFiles;
+
+  final String? workspaceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ws = ref.watch(currentWorkspaceProvider);
-    final wsId = ws?.id ?? '';
+    final wsId = workspaceId ?? ws?.id ?? '';
     if (wsId.isEmpty) {
       return WorkspaceEmptyView(
         icon: CupertinoIcons.person_2,

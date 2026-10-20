@@ -132,8 +132,10 @@ void main() {
     );
     await pumpUntilUxFound(
       tester,
-      find.byKey(const ValueKey('organization-detail-leave')),
+      find.byKey(const ValueKey('organization-detail-info')),
     );
+    await settleUx(tester);
+    await tester.tap(find.byKey(const ValueKey('organization-detail-info')));
     await settleUx(tester);
   }
 

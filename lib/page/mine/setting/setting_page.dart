@@ -1,3 +1,4 @@
+import 'package:imboy/modules/organization/presentation/account_deletion_check_page.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 
 import 'dart:convert';
@@ -161,7 +162,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                 onTap: () => context.push('/font_size'),
               ),
               ImBoySettingsTile(
-                title: Text(t.organization.picker.switchEnterprise),
+                title: Text(t.organization.experienceUi.switchSpace),
                 leading: _buildIcon(
                   CupertinoIcons.rectangle_3_offgrid,
                   AppColors.iosBlue,
@@ -319,6 +320,15 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
             children: [
+              ImBoySettingsTile(
+                title: Text(t.organization.experienceUi.accountCheck),
+                leading: const Icon(CupertinoIcons.checkmark_shield),
+                onTap: () => Navigator.of(context).push(
+                  CupertinoPageRoute<void>(
+                    builder: (_) => const AccountDeletionCheckPage(),
+                  ),
+                ),
+              ),
               ImBoySettingsTile(
                 title: Center(child: Text(t.account.logoutAccount)),
                 destructive: true,

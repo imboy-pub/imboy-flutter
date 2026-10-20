@@ -138,7 +138,7 @@ void main() {
       expect(find.text('深色模式'), findsOneWidget);
       // fontSettings = @:fontSizeSetting 别名 → 解析为 "字体大小设置"
       expect(find.byIcon(CupertinoIcons.textformat), findsOneWidget);
-      expect(find.text('切换企业'), findsOneWidget);
+      expect(find.text('切换空间'), findsOneWidget);
 
       await _unmount(tester);
     });
@@ -174,7 +174,7 @@ void main() {
       await _pumpSetting(tester);
       expect(find.text('首页布局'), findsNothing);
       expect(find.text('恢复部署默认值'), findsNothing);
-      await tester.tap(find.text('切换企业'));
+      await tester.tap(find.text('切换空间'));
       await tester.pumpAndSettle();
       expect(find.text('organization picker stub'), findsOneWidget);
       await _unmount(tester);

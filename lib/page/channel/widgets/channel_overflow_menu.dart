@@ -96,7 +96,9 @@ void showChannelInfoDialog(
   int? subscriberCount,
 }) {
   final desc = channel.description;
-  final descText = (desc != null && desc.isNotEmpty) ? desc : '暂无介绍';
+  final descText = (desc != null && desc.isNotEmpty)
+      ? desc
+      : context.t.channel.descriptionHint;
   final hasAvatar = channel.avatar != null && channel.avatar!.isNotEmpty;
   final count = subscriberCount ?? channel.subscriberCount;
 
@@ -141,7 +143,8 @@ void showChannelInfoDialog(
           ],
           AppSpacing.verticalSmall,
           Text(
-            '${context.t.channel.privacyTitle} · ${context.t.channel.privacyDesc}',
+            '${channel.isPublic ? context.t.channel.typePublic : context.t.channel.typePrivate}'
+            ' · ${channel.hasPrice ? context.t.channel.accessTypePaid : context.t.channel.accessTypeFree}',
             style: context.textStyle(FontSizeType.small),
           ),
           AppSpacing.verticalRegular,
@@ -220,11 +223,13 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
     return PopupMenuButton<String>(
       icon: const Icon(CupertinoIcons.ellipsis_vertical),
       tooltip: MaterialLocalizations.of(context).showMenuTooltip,
-      shape: RoundedRectangleBorder(),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppSpacing.medium),
+      ),
       color: Theme.of(context).brightness == Brightness.dark
           ? AppColors.darkSurfaceContainerHighest
           : AppColors.lightSurface,
-      elevation: 8.0,
+      elevation: 2.0,
       offset: const Offset(0, 48), // Float elegantly below the app bar
       onSelected: _handleMenuAction,
       itemBuilder: _buildMenuItems,

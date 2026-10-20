@@ -2398,6 +2398,7 @@ class _Translations$organization$de_DE extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$wsMembers$de_DE wsMembers = _Translations$organization$wsMembers$de_DE._(_root);
 	@override late final _Translations$organization$tools$de_DE tools = _Translations$organization$tools$de_DE._(_root);
 	@override late final _Translations$organization$chart$de_DE chart = _Translations$organization$chart$de_DE._(_root);
+	@override late final _Translations$organization$experienceUi$de_DE experienceUi = _Translations$organization$experienceUi$de_DE._(_root);
 }
 
 // Path: passport
@@ -3257,6 +3258,30 @@ class _Translations$organization$chart$de_DE extends Translations$organization$c
 	@override String get collapse => 'Collapse departments';
 	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
 	@override String directMembers({required Object count}) => '${count} direct members';
+}
+
+// Path: organization.experienceUi
+class _Translations$organization$experienceUi$de_DE extends Translations$organization$experienceUi$zh_CN {
+	_Translations$organization$experienceUi$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => 'Switch space';
+	@override String get personalSpace => 'Personal space';
+	@override String get enterpriseSpaces => 'Enterprise spaces';
+	@override String get currentSpace => 'Current space';
+	@override String get enterpriseInfo => 'Enterprise info';
+	@override String get collaborationSpace => 'Collaboration spaces';
+	@override String get groupContent => 'Group content';
+	@override String get groupCollaboration => 'Group collaboration';
+	@override String get defaultWorkspace => 'Default workspace';
+	@override String get defaultAvailable => 'Configured';
+	@override String get defaultUnknown => 'Temporarily unavailable';
+	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
+	@override String get accountCheck => 'Account deletion checks';
+	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5711,6 +5736,21 @@ extension on TranslationsDeDe {
 			'organization.chart.collapse' => 'Collapse departments',
 			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			'organization.experienceUi.switchSpace' => 'Switch space',
+			'organization.experienceUi.personalSpace' => 'Personal space',
+			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
+			'organization.experienceUi.currentSpace' => 'Current space',
+			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
+			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
+			'organization.experienceUi.groupContent' => 'Group content',
+			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
+			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
+			'organization.experienceUi.defaultAvailable' => 'Configured',
+			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
+			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
+			'organization.experienceUi.accountCheck' => 'Account deletion checks',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',
@@ -5820,6 +5860,8 @@ extension on TranslationsDeDe {
 			'workspace.joinExpiredCode' => 'Team-Code abgelaufen',
 			'workspace.inviteCodeSectionTitle' => 'Einladung per Team-Code',
 			'workspace.inviteCodeGenerate' => 'Team-Code generieren',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'Kopieren',
 			'workspace.inviteCodeRevoke' => 'Widerrufen',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Gültig bis ${expiresAt}',
@@ -5835,8 +5877,6 @@ extension on TranslationsDeDe {
 			'workspace.transferConfirm' => 'Übertragung bestätigen',
 			'workspace.governanceTitle' => 'Arbeitsbereich-Governance',
 			'workspace.brandingEntry' => 'Branding (Name / Logo / Hauptfarbe)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveEntry' => 'Arbeitsbereich archivieren',
 			'workspace.restoreEntry' => 'Arbeitsbereich wiederherstellen',
 			'workspace.archiveTitle' => 'Arbeitsbereich archivieren',

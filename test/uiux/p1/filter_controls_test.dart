@@ -159,6 +159,9 @@ void main() {
     tester,
   ) async {
     await pumpT14Feed(tester);
+    expect(find.byKey(const Key('mc_post_search')), findsNothing);
+    await tester.tap(find.byKey(const Key('channel-content-search-toggle')));
+    await tester.pump();
     expect(
       find.byKey(const Key('mc_post_search')),
       findsOneWidget,
@@ -184,6 +187,9 @@ void main() {
       // 重新挂载以便拿到 adapter 引用（复用 pump 的内置 adapter 即可断言
       // 请求面；此处直接用全局断言窗口）
       await pumpT14Feed(tester);
+      expect(find.byKey(const Key('mc_post_search')), findsNothing);
+      await tester.tap(find.byKey(const Key('channel-content-search-toggle')));
+      await tester.pump();
       // 展开
       await tester.tap(find.byKey(const Key('mc_filter_toggle')));
       await tester.pump();
@@ -219,6 +225,9 @@ void main() {
     tester,
   ) async {
     await pumpT14Feed(tester);
+    expect(find.byKey(const Key('mc_post_search')), findsNothing);
+    await tester.tap(find.byKey(const Key('channel-content-search-toggle')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('mc_filter_toggle')));
     await tester.pump();
     // 精华切换（本地状态，无请求）
@@ -235,6 +244,9 @@ void main() {
 
   testWidgets('p1_collapse_moves_focus_safely：收起时焦点安全转移', (tester) async {
     await pumpT14Feed(tester);
+    expect(find.byKey(const Key('mc_post_search')), findsNothing);
+    await tester.tap(find.byKey(const Key('channel-content-search-toggle')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('mc_filter_toggle')));
     await tester.pump();
     // 焦点进标签输入
@@ -255,6 +267,9 @@ void main() {
 
   testWidgets('mc_* 现有 key 保持可访问：搜索/入口/展开后的标签精华/结果分页', (tester) async {
     await pumpT14Feed(tester);
+    expect(find.byKey(const Key('mc_post_search')), findsNothing);
+    await tester.tap(find.byKey(const Key('channel-content-search-toggle')));
+    await tester.pump();
     expect(find.byKey(const Key('mc_post_search')), findsOneWidget);
     await tester.tap(find.byKey(const Key('mc_filter_toggle')));
     await tester.pump();

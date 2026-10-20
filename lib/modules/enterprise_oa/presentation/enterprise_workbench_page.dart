@@ -3,6 +3,10 @@ import 'package:flutter/foundation.dart'
 
 import 'package:go_router/go_router.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart' show Theme;
+import 'package:imboy/component/ui/resource_entry_tile.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/web_view.dart';
 
@@ -55,52 +59,36 @@ class EnterpriseWorkbenchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        if (resourceEntries.isNotEmpty)
-          _GroupedSection(children: resourceEntries),
-        if ((!kIsWeb && defaultTargetPlatform == TargetPlatform.android))
-          for (final entry in entries.where(
-            (entry) => entry.inboundLoginEnabled,
-          ))
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 680),
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.regular),
+          children: [
             _GroupedSection(
               children: [
-                CupertinoListTile(
-                  // P2-04/D02：辅助登录行补统一 24×24 图标槽（命中高 ≥48）。
-                  leading: const SizedBox.square(
-                    dimension: 24,
-                    child: Center(
-                      widthFactor: 1,
-                      child: Icon(CupertinoIcons.person_crop_circle, size: 20),
+                ...resourceEntries,
+                if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android)
+                  for (final entry in entries.where(
+                    (e) => e.inboundLoginEnabled,
+                  ))
+                    ResourceEntryTile(
+                      title: t.enterpriseOa.confirmLink,
+                      icon: CupertinoIcons.person_crop_circle,
+                      onTap: () => context.push('/oa/login', extra: entry),
                     ),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  title: Text(t.enterpriseOa.confirmLink),
-                  onTap: () => context.push('/oa/login', extra: entry),
+                ResourceEntryTile(
+                  key: const ValueKey('workbench-apps-entry'),
+                  title: t.enterpriseOa.apps,
+                  icon: CupertinoIcons.square_grid_2x2,
+                  onTap: () => _openApps(context),
                 ),
               ],
             ),
-        // 联调入口常驻：按需免登（桥 getAuthCode）依赖已登记 OA 应用——
-        // 联调页若只在"无配置"时可见，配置完成后反而永远取不到码。
-        _GroupedSection(
-          children: [
-            CupertinoListTile(
-              key: const ValueKey('workbench-apps-entry'),
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              leading: const SizedBox.square(
-                dimension: 24,
-                child: Center(
-                  widthFactor: 1,
-                  child: Icon(CupertinoIcons.square_grid_2x2, size: 20),
-                ),
-              ),
-              title: Text(t.enterpriseOa.apps),
-              trailing: const CupertinoListTileChevron(),
-              onTap: () => _openApps(context),
-            ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -120,13 +108,11 @@ class _GroupedSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       // insetGrouped 的同款组间距节奏。
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: CupertinoColors.tertiarySystemGroupedBackground.resolveFrom(
-            context,
-          ),
-          borderRadius: BorderRadius.circular(10),
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: AppRadius.borderRadiusMedium,
         ),
         child: Column(children: children),
       ),

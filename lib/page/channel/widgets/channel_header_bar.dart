@@ -14,6 +14,7 @@ import 'package:imboy/service/channel_service.dart';
 
 import '../channel_detail_rules.dart';
 import 'channel_role_badge.dart';
+import 'channel_overflow_menu.dart';
 
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -128,6 +129,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     );
     final subscriberCount =
         widget.stats?.subscriberCount ?? widget.channel.subscriberCount;
+    if (!widget.showIdentityTitle) return _compactHeader(subscriberCount);
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Padding(
@@ -204,6 +206,76 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
             _buildActionRow(context),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _compactHeader(int subscriberCount) {
+    final channel = widget.channel;
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.tiny,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => showChannelInfoDialog(
+                context,
+                channel,
+                subscriberCount: subscriberCount,
+              ),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Wrap(
+                  spacing: AppSpacing.small,
+                  runSpacing: AppSpacing.tiny,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (channel.isManaged)
+                      ChannelRoleBadge(role: channel.userRole),
+                    Text(
+                      '${channel.isPublic ? context.t.channel.typePublic : context.t.channel.typePrivate}'
+                      ' · $subscriberCount ${context.t.channel.subscribers}',
+                      style: context.textStyle(
+                        FontSizeType.small,
+                        color: AppColors.getTextColor(
+                          Theme.of(context).brightness,
+                          isSecondary: true,
+                        ),
+                      ),
+                    ),
+                    if (channel.isVerified)
+                      const Icon(
+                        CupertinoIcons.checkmark_seal_fill,
+                        size: AppSpacing.regular,
+                        color: AppColors.iosGreen,
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          if (channel.isSubscribed)
+            CupertinoButton(
+              padding: const EdgeInsets.all(AppSpacing.small),
+              onPressed: _isLoadingMute ? null : _toggleMute,
+              child: Icon(
+                _isMuted ? CupertinoIcons.bell_slash : CupertinoIcons.bell,
+                semanticLabel: context.t.chat.chatSettingMute,
+              ),
+            )
+          else
+            CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+              onPressed: widget.isActionPending ? null : widget.onActionTap,
+              child: widget.isActionPending
+                  ? const CupertinoActivityIndicator()
+                  : Text(context.t.channel.subscribe),
+            ),
+        ],
       ),
     );
   }

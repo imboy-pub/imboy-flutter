@@ -273,6 +273,8 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
         tester.element(find.byType(ChannelMessageFeed)),
       ).read(channelDetailProvider.notifier).loadChannel('1001');
       await tester.pump(const Duration(milliseconds: 50));
+      await tester.tap(find.byKey(const Key('channel-content-search-toggle')));
+      await tester.pump();
       await tester.tap(find.byKey(const Key('mc_filter_toggle')));
       await tester.pump();
     }

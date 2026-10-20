@@ -20,6 +20,8 @@
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -432,19 +434,27 @@ class _OrganizationPickerPageState
       color: Theme.of(context).colorScheme.primary,
     );
     return Scaffold(
-      appBar: AppBar(title: Text(t.organization.picker.title)),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
+      appBar: AppBar(title: Text(t.organization.experienceUi.switchSpace)),
       body: Column(
         children: [
-          ListTile(
-            key: const ValueKey('org-picker-personal-entry'),
-            leading: const Icon(CupertinoIcons.person_circle),
-            title: Text(t.workspace.experienceModePersonal),
-            trailing: _switchingTarget == _kPersonalTarget
-                ? switchingSpinner
-                : experience == ProductExperience.personal
-                ? checkMark()
-                : null,
-            onTap: _switching ? null : _selectPersonal,
+          _SpaceSection(
+            header: Text(t.organization.experienceUi.personalSpace),
+            children: [
+              ListTile(
+                key: const ValueKey('org-picker-personal-entry'),
+                leading: const Icon(CupertinoIcons.person_circle),
+                title: Text(t.organization.experienceUi.personalSpace),
+                trailing: _switchingTarget == _kPersonalTarget
+                    ? switchingSpinner
+                    : experience == ProductExperience.personal
+                    ? checkMark()
+                    : null,
+                onTap: _switching ? null : _selectPersonal,
+              ),
+            ],
           ),
           if (_switchError != null)
             ListTile(
@@ -475,33 +485,40 @@ class _OrganizationPickerPageState
                     vertical: AppSpacing.small,
                   ),
                   children: [
-                    for (final o in _orgs)
-                      ListTile(
-                        key: ValueKey('org-picker-tile-${o.id}'),
-                        leading: Icon(
-                          CupertinoIcons.building_2_fill,
-                          color: o.isArchived
-                              ? Theme.of(context).disabledColor
-                              : null,
-                        ),
-                        title: Text(
-                          o.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: orgListSubtitle(context, o),
-                        // 目标行行内 spinner=「真实正在切换的项」；勾选仅在
-                        // 企业模式且为当前企业时出现（语义唯一），切换完成
-                        // 前绝不提前亮勾。
-                        trailing: _switching && _switchingTarget == o.id
-                            ? switchingSpinner
-                            : o.id == current?.id &&
-                                  experience == ProductExperience.workspace
-                            ? checkMark()
-                            : null,
-                        // 切换进行中禁点（防重复提交产生竞态切换）。
-                        onTap: _switching ? null : () => _switchTo(o),
+                    _SpaceSection(
+                      header: Text(
+                        t.organization.experienceUi.enterpriseSpaces,
                       ),
+                      children: [
+                        for (final o in _orgs)
+                          ListTile(
+                            key: ValueKey('org-picker-tile-${o.id}'),
+                            leading: Icon(
+                              CupertinoIcons.building_2_fill,
+                              color: o.isArchived
+                                  ? Theme.of(context).disabledColor
+                                  : null,
+                            ),
+                            title: Text(
+                              o.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: orgListSubtitle(context, o),
+                            // 目标行行内 spinner=「真实正在切换的项」；勾选仅在
+                            // 企业模式且为当前企业时出现（语义唯一），切换完成
+                            // 前绝不提前亮勾。
+                            trailing: _switching && _switchingTarget == o.id
+                                ? switchingSpinner
+                                : o.id == current?.id &&
+                                      experience == ProductExperience.workspace
+                                ? checkMark()
+                                : null,
+                            // 切换进行中禁点（防重复提交产生竞态切换）。
+                            onTap: _switching ? null : () => _switchTo(o),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -516,37 +533,58 @@ class _OrganizationPickerPageState
               AppSpacing.regular,
               AppSpacing.small,
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.icon(
-                    key: const ValueKey('org-picker-join-entry'),
-                    onPressed: _joinByCode,
-                    icon: const Icon(
-                      CupertinoIcons.person_crop_circle_badge_plus,
+            child: SafeArea(
+              top: false,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: AppSpacing.regular,
+                children: [
+                  SizedBox(
+                    child: TextButton.icon(
+                      key: const ValueKey('org-picker-join-entry'),
+                      onPressed: _joinByCode,
+                      icon: const Icon(
+                        CupertinoIcons.person_crop_circle_badge_plus,
+                      ),
+                      label: Text(t.organization.picker.joinEnterprise),
                     ),
-                    label: Text(t.organization.picker.joinEnterprise),
                   ),
-                ),
-                AppSpacing.verticalSmall,
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    key: const ValueKey('org-picker-create-entry'),
-                    onPressed: () => context.push(kOrganizationHomePath),
-                    icon: const Icon(CupertinoIcons.add_circled),
-                    label: Text(t.organization.home.createOrg),
+                  SizedBox(
+                    child: TextButton.icon(
+                      key: const ValueKey('org-picker-create-entry'),
+                      onPressed: () => context.push(kOrganizationHomePath),
+                      icon: const Icon(CupertinoIcons.add_circled),
+                      label: Text(t.organization.home.createOrg),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
       ),
     );
   }
+}
+
+/// Keep rich role/status subtitles and Material focus semantics within native groups.
+class _SpaceSection extends StatelessWidget {
+  const _SpaceSection({required this.header, required this.children});
+  final Widget header;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => ImBoySettingsSection(
+    header: header,
+    children: [
+      for (final child in children)
+        Theme(
+          data: Theme.of(context)
+              .copyWith(splashFactory: NoSplash.splashFactory),
+          child: Material(type: MaterialType.transparency, child: child),
+        ),
+    ],
+  );
 }
 
 /// 加入企业对话框出站结果：preview 阶段拿到的目标企业事实

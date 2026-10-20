@@ -1,3 +1,4 @@
+import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +14,6 @@ import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/modules/attachments/personal_attachments_page.dart';
-import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -119,14 +119,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                 ),
                 children: [
                   if (widget.enterpriseEntry != null) widget.enterpriseEntry!,
-                  ImBoySettingsTile(
-                    title: Text(t.organization.picker.switchEnterprise),
-                    leading: _buildIcon(
-                      CupertinoIcons.square_grid_2x2,
-                      AppColors.iosTeal,
-                    ),
-                    onTap: () => context.push(kOrganizationPickerPath),
-                  ),
+                  const CurrentSpaceTile(),
                   // CSM-01 §12.5.1：客服工作台入口仅个人模式展示——企业模式
                   // 工作台已有同名入口，两处并存属重复披露。坐席可见性判定
                   // 仍在 owned 模块内（普通用户渲染为空占位）。

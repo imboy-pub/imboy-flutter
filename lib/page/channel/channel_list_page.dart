@@ -18,7 +18,13 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 
 import 'channel_provider.dart';
+import 'channel_list_previews.dart';
+
+import 'package:imboy/store/model/channel_message_model.dart';
+
 import 'widgets/channel_role_badge.dart';
+
+import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
 
 /// 频道列表页面
 ///
@@ -33,6 +39,8 @@ class ChannelListPage extends ConsumerStatefulWidget {
 class _ChannelListPageState extends ConsumerState<ChannelListPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String _query = '';
+  bool _searchOpen = false;
 
   @override
   void initState() {
@@ -74,35 +82,20 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
 
     return IosPageTemplate(
       title: t.channel.title,
-      actions: [
-        if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
-          CupertinoButton(
-            padding: EdgeInsets.zero,
-            child: Icon(
-              CupertinoIcons.search,
-              size: 22,
-              semanticLabel: t.channel.discover,
-            ),
-            onPressed: () {
-              context.push('/channel/discover');
-            },
-          ),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: Icon(
-            CupertinoIcons.add,
-            size: 22,
-            semanticLabel: t.channel.create,
-          ),
-          onPressed: () {
-            context.push('/channel/create');
-          },
-        ),
-        ..._buildOverflowMenu(t),
-        AppSpacing.horizontalSmall,
-      ],
+      middle: CurrentSpaceTile(heading: t.channel.title),
+      actions: [..._buildOverflowMenu(t), AppSpacing.horizontalSmall],
       body: Column(
         children: [
+          if (_searchOpen || _query.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.regular),
+              child: CupertinoSearchTextField(
+                key: const Key('channel-list-search'),
+                placeholder: t.channel.searchHint,
+                onChanged: (value) =>
+                    setState(() => _query = value.trim().toLowerCase()),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.regular,
@@ -114,7 +107,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               width: double.infinity,
               child: CupertinoSlidingSegmentedControl<int>(
                 groupValue: _tabController.index,
-                thumbColor: AppColors.primary,
+                thumbColor: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.all(AppSpacing.tiny),
                 children: {
                   0: SizedBox(
@@ -128,7 +121,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                               ? FontWeight.w600
                               : FontWeight.normal,
                           color: _tabController.index == 0
-                              ? AppColors.onPrimary
+                              ? AppColors.getIosBlue(brightness)
                               : AppColors.getTextColor(
                                   brightness,
                                   isSecondary: true,
@@ -148,7 +141,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                               ? FontWeight.w600
                               : FontWeight.normal,
                           color: _tabController.index == 1
-                              ? AppColors.onPrimary
+                              ? AppColors.getIosBlue(brightness)
                               : AppColors.getTextColor(
                                   brightness,
                                   isSecondary: true,
@@ -184,6 +177,13 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   /// 「订单/邀请」低频入口收进 more_vert 溢出菜单；flag 全关时不渲染。
   List<Widget> _buildOverflowMenu(Translations t) {
     final items = <PopupMenuItem<String>>[
+      PopupMenuItem(value: 'search', child: Text(t.common.search)),
+      PopupMenuItem(value: '/channel/create', child: Text(t.channel.create)),
+      if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
+        PopupMenuItem(
+          value: '/channel/discover',
+          child: Text(t.channel.discover),
+        ),
       if (AppFeatureRegistry.isEnabled(FeatureKeys.channelOrder))
         PopupMenuItem(
           value: '/channel/orders',
@@ -208,21 +208,21 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       Material(
         color: Colors.transparent,
         child: PopupMenuButton<String>(
-          // child 模式而非 icon 模式：icon 模式被内部 IconButton 约束在
-          // 48px 盒内居中，竖排三点字形极窄（墨迹 ~6px），居中后墨迹浮在
-          // 距屏缘 ~20px 处，与搜索/加号（~11px）不齐且调 padding 无效
-          // （48px 最小约束优先）。自绘 44px 高热区、右缘仅 2px，墨迹
-          // 观感与相邻图标齐平；颜色与搜索/加号（CupertinoButton 默认
-          // iOS 系统蓝）统一，曾用 getTextColor 黑色两色不一。
-          child: const Padding(
-            padding: EdgeInsets.fromLTRB(10, 11, 2, 11),
+          child: SizedBox.square(
+            dimension: AppSpacing.xxxLarge,
             child: Icon(
-              CupertinoIcons.ellipsis_vertical,
-              size: 22,
-              color: CupertinoColors.activeBlue,
+              CupertinoIcons.add,
+              color: AppColors.getIosBlue(Theme.of(context).brightness),
+              semanticLabel: t.channel.create,
             ),
           ),
-          onSelected: (route) => context.push(route),
+          onSelected: (route) {
+            if (route == 'search') {
+              setState(() => _searchOpen = !_searchOpen);
+            } else {
+              context.push(route);
+            }
+          },
           itemBuilder: (context) => items,
         ),
       ),
@@ -234,6 +234,16 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     required bool isSubscribed,
     bool showRole = false,
   }) {
+    final channels = state.channels
+        .where(
+          (channel) =>
+              channel.name.toLowerCase().contains(_query) ||
+              channel.id.toString().contains(_query) ||
+              (channel.customId ?? '').toLowerCase().contains(_query),
+        )
+        .toList(growable: false);
+    final canLoadMore = isSubscribed && state.hasMore && _query.isEmpty;
+    final previews = ref.watch(channelListPreviewsProvider).asData?.value;
     if (state.isLoading) {
       return const ShimmerList(itemCount: 6);
     }
@@ -267,6 +277,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       );
     }
 
+    if (channels.isEmpty) return NoDataView(text: context.t.channel.noResults);
     return RefreshIndicator(
       onRefresh: () async {
         final notifier = ref.read(channelListProvider.notifier);
@@ -278,7 +289,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       },
       child: NotificationListener<ScrollNotification>(
         onNotification: (notification) {
-          if (!isSubscribed) return false;
+          if (!canLoadMore) return false;
           if (notification.metrics.pixels <
               notification.metrics.maxScrollExtent - 200) {
             return false;
@@ -287,10 +298,9 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           return false;
         },
         child: ListView.separated(
-          itemCount:
-              state.channels.length + (isSubscribed && state.hasMore ? 1 : 0),
+          itemCount: channels.length + (canLoadMore ? 1 : 0),
           separatorBuilder: (context, index) {
-            if (isSubscribed && index >= state.channels.length) {
+            if (isSubscribed && index >= channels.length) {
               return const SizedBox.shrink();
             }
             return Padding(
@@ -303,7 +313,7 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
             );
           },
           itemBuilder: (context, index) {
-            if (isSubscribed && index >= state.channels.length) {
+            if (isSubscribed && index >= channels.length) {
               return const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Center(
@@ -316,8 +326,13 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               );
             }
 
-            final channel = state.channels[index];
-            return _ChannelListItem(channel: channel, showRole: showRole);
+            final channel = channels[index];
+            final preview = previews?[channel.id];
+            return _ChannelListItem(
+              channel: channel,
+              showRole: showRole,
+              preview: preview,
+            );
           },
         ),
       ),
@@ -329,13 +344,29 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
 class _ChannelListItem extends StatelessWidget {
   final ChannelModel channel;
   final bool showRole;
+  final ChannelMessageModel? preview;
 
-  const _ChannelListItem({required this.channel, this.showRole = false});
+  const _ChannelListItem({
+    required this.channel,
+    this.showRole = false,
+    this.preview,
+  });
 
   String _detailRouteId(ChannelModel channel) {
     final customId = channel.customId?.trim() ?? '';
     if (customId.isNotEmpty) return customId;
     return channel.id.toString();
+  }
+
+  String _previewTime() {
+    final time = preview!.createdAt.toLocal();
+    final today = DateTime.now();
+    if (time.year == today.year &&
+        time.month == today.month &&
+        time.day == today.day) {
+      return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
+    }
+    return '${time.month}/${time.day}';
   }
 
   /// 频道可见性图标（公开/私有）
@@ -346,17 +377,6 @@ class _ChannelListItem extends StatelessWidget {
   /// 频道可见性颜色
   Color _getVisibilityColor() {
     return channel.isPublic ? AppColors.primary : AppColors.iosGray;
-  }
-
-  /// 计算相对时间
-  String _formatRelativeTime(DateTime dt, dynamic t) {
-    final now = DateTime.now();
-    final diff = now.difference(dt);
-    if (diff.inMinutes < 1) return t.channel.justNow as String;
-    if (diff.inHours < 1) return '${diff.inMinutes} ${t.channel.minutesAgo}';
-    if (diff.inDays < 1) return '${diff.inHours} ${t.channel.hoursAgo}';
-    if (diff.inDays < 7) return '${diff.inDays} ${t.channel.daysAgo}';
-    return '${diff.inDays ~/ 7} ${t.channel.weeksAgo}';
   }
 
   /// 频道头像。
@@ -404,7 +424,10 @@ class _ChannelListItem extends StatelessWidget {
         onTap: () {
           context.push('/channel/${_detailRouteId(channel)}');
         },
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.medium,
+        ),
         leading: _buildAvatar(),
         title: Row(
           children: [
@@ -419,12 +442,29 @@ class _ChannelListItem extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (preview != null)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: AppSpacing.small,
+                ),
+                child: Text(
+                  _previewTime(),
+                  style: context.textStyle(
+                    FontSizeType.small,
+                    color: AppColors.getTextColor(
+                      brightness,
+                      isSecondary: true,
+                    ),
+                  ),
+                ),
+              ),
             // 频道可见性图标
-            Icon(
-              _getVisibilityIcon(),
-              size: 14,
-              color: _getVisibilityColor().withValues(alpha: 0.7),
-            ),
+            if (!channel.isPublic)
+              Icon(
+                _getVisibilityIcon(),
+                size: 14,
+                color: _getVisibilityColor().withValues(alpha: 0.7),
+              ),
             // 付费标签（独立于可见性）
             if (channel.hasPrice)
               Container(
@@ -472,46 +512,13 @@ class _ChannelListItem extends StatelessWidget {
               ),
           ],
         ),
-        subtitle: Row(
-          children: [
-            Icon(
-              CupertinoIcons.person_2,
-              size: 14,
-              color: AppColors.getTextColor(brightness, isSecondary: true),
-            ),
-            AppSpacing.horizontalTiny,
-            Flexible(
-              child: Text(
-                '${channel.subscriberCount} ${t.channel.subscribers}',
-                style: context.textStyle(
-                  FontSizeType.small,
-                  color: AppColors.getTextColor(brightness, isSecondary: true),
-                ),
-              ),
-            ),
-            // 最后活跃时间
-            if (channel.updatedAt != channel.createdAt) ...[
-              AppSpacing.horizontalSmall,
-              Icon(
-                CupertinoIcons.clock,
-                size: 12,
-                color: AppColors.getTextColor(brightness, isSecondary: true),
-              ),
-              AppSpacing.horizontalTiny,
-              Flexible(
-                child: Text(
-                  _formatRelativeTime(channel.updatedAt, t),
-                  style: context.textStyle(
-                    FontSizeType.tiny,
-                    color: AppColors.getTextColor(
-                      brightness,
-                      isSecondary: true,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ],
+        subtitle: Text(
+          preview?.contentPreview ??
+              (channel.description?.trim().isNotEmpty == true
+                  ? channel.description!.trim()
+                  : t.organization.experienceUi.noIntro),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         trailing: const Icon(
           CupertinoIcons.chevron_right,

@@ -14463,6 +14463,43 @@
           "details": "Widget regression: test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart — 仅消息页显示左上抽屉入口，切回消息恢复入口。声明本身不代表真机验收。"
         }
       ]
+    },
+    {
+      "module": "organization",
+      "ordering_key": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "generated": false,
+      "requirements": [
+        {
+          "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+          "action": "普通企业成员浏览群与频道",
+          "control": "read-only",
+          "expected_oracle": "只展示本企业已加入工作区；点击进入对应工作区只读资源列表，不进入治理页",
+          "details": "UIUX approved redesign; verification remains separate from declaration"
+        },
+        {
+          "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+          "action": "切换账号、权限不足及加载失败",
+          "control": "read-only",
+          "expected_oracle": "账号变更重新读取；无权限不展示资源；失败可重试；不改变当前工作区指针",
+          "details": "UIUX approved redesign; verification remains separate from declaration"
+        }
+      ]
+    },
+    {
+      "module": "organization",
+      "ordering_key": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+      "page": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+      "generated": false,
+      "requirements": [
+        {
+          "page": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+          "action": "从账户设置进入注销前检查",
+          "control": "read-only",
+          "expected_oracle": "读取预检结果，展示阻塞项及失败重试，不执行账号删除，不将读取失败伪装为通过",
+          "details": "UIUX approved redesign; verification remains separate from declaration"
+        }
+      ]
     }
   ]
 }

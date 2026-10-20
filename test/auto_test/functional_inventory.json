@@ -2,12 +2,12 @@
   "schema_version": 1,
   "generated_from": {
     "app_head": "see-catalog",
-    "ledger_count": 168,
-    "ledger_row_count": 1874,
+    "ledger_count": 170,
+    "ledger_row_count": 1877,
     "lib_page_count": 167,
-    "module_page_count": 24,
+    "module_page_count": 26,
     "route_page_component_count": 150,
-    "function_count": 2020,
+    "function_count": 2023,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -25865,6 +25865,29 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:organization:account_deletion_check_page:001",
+      "page": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+      "control": "read-only",
+      "action": "从账户设置进入注销前检查",
+      "expected_oracle": "读取预检结果，展示阻塞项及失败重试，不执行账号删除，不将读取失败伪装为通过",
+      "details": "UIUX approved redesign; verification remains separate from declaration",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:organization:human_directory_page:001",
       "page": "lib/modules/organization/presentation/human_directory_page.dart",
       "route_or_entry": "in_page_control",
@@ -29209,6 +29232,52 @@
       "action": "触发第 11 处 button 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:organization_resources_page:001",
+      "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "control": "read-only",
+      "action": "普通企业成员浏览群与频道",
+      "expected_oracle": "只展示本企业已加入工作区；点击进入对应工作区只读资源列表，不进入治理页",
+      "details": "UIUX approved redesign; verification remains separate from declaration",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:organization_resources_page:002",
+      "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "control": "read-only",
+      "action": "切换账号、权限不足及加载失败",
+      "expected_oracle": "账号变更重新读取；无权限不展示资源；失败可重试；不改变当前工作区指针",
+      "details": "UIUX approved redesign; verification remains separate from declaration",
       "platforms": [
         "android",
         "macos"
@@ -46555,6 +46624,14 @@
       "ledger_generated": false
     },
     {
+      "page": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+      "module": "organization",
+      "function_count": 1,
+      "route_registered": false,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
       "page": "lib/modules/organization/presentation/human_directory_page.dart",
       "module": "organization",
       "function_count": 10,
@@ -46655,6 +46732,14 @@
       "module": "organization",
       "function_count": 11,
       "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "module": "organization",
+      "function_count": 2,
+      "route_registered": false,
       "has_ledger": false,
       "ledger_generated": false
     },

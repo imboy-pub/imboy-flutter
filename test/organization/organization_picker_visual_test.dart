@@ -298,10 +298,10 @@ void main() {
                 find.byKey(const ValueKey('org-picker-create-entry')),
                 findsOneWidget,
               );
-              final join = tester.widget<FilledButton>(
+              final join = tester.widget<TextButton>(
                 find.byKey(const ValueKey('org-picker-join-entry')),
               );
-              final create = tester.widget<OutlinedButton>(
+              final create = tester.widget<TextButton>(
                 find.byKey(const ValueKey('org-picker-create-entry')),
               );
               expect(join.onPressed, isNotNull);

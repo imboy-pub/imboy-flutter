@@ -51,7 +51,7 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
       child: Container(
         margin: const EdgeInsets.fromLTRB(
           AppSpacing.regular,
-          AppSpacing.large,
+          AppSpacing.regular,
           AppSpacing.regular,
           AppSpacing.small,
         ),
@@ -60,7 +60,7 @@ class _GroupInfoCardState extends State<GroupInfoCard> {
           color: isDark
               ? AppColors.darkSurfaceGroupedTertiary
               : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppSpacing.medium),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

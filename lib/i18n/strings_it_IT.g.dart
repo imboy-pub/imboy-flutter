@@ -2398,6 +2398,7 @@ class _Translations$organization$it_IT extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$wsMembers$it_IT wsMembers = _Translations$organization$wsMembers$it_IT._(_root);
 	@override late final _Translations$organization$tools$it_IT tools = _Translations$organization$tools$it_IT._(_root);
 	@override late final _Translations$organization$chart$it_IT chart = _Translations$organization$chart$it_IT._(_root);
+	@override late final _Translations$organization$experienceUi$it_IT experienceUi = _Translations$organization$experienceUi$it_IT._(_root);
 }
 
 // Path: passport
@@ -3257,6 +3258,30 @@ class _Translations$organization$chart$it_IT extends Translations$organization$c
 	@override String get collapse => 'Collapse departments';
 	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
 	@override String directMembers({required Object count}) => '${count} direct members';
+}
+
+// Path: organization.experienceUi
+class _Translations$organization$experienceUi$it_IT extends Translations$organization$experienceUi$zh_CN {
+	_Translations$organization$experienceUi$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => 'Switch space';
+	@override String get personalSpace => 'Personal space';
+	@override String get enterpriseSpaces => 'Enterprise spaces';
+	@override String get currentSpace => 'Current space';
+	@override String get enterpriseInfo => 'Enterprise info';
+	@override String get collaborationSpace => 'Collaboration spaces';
+	@override String get groupContent => 'Group content';
+	@override String get groupCollaboration => 'Group collaboration';
+	@override String get defaultWorkspace => 'Default workspace';
+	@override String get defaultAvailable => 'Configured';
+	@override String get defaultUnknown => 'Temporarily unavailable';
+	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
+	@override String get accountCheck => 'Account deletion checks';
+	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <it-IT>.
@@ -5711,6 +5736,21 @@ extension on TranslationsItIt {
 			'organization.chart.collapse' => 'Collapse departments',
 			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
 			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
+			'organization.experienceUi.switchSpace' => 'Switch space',
+			'organization.experienceUi.personalSpace' => 'Personal space',
+			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
+			'organization.experienceUi.currentSpace' => 'Current space',
+			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
+			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
+			'organization.experienceUi.groupContent' => 'Group content',
+			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
+			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
+			'organization.experienceUi.defaultAvailable' => 'Configured',
+			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
+			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
+			'organization.experienceUi.accountCheck' => 'Account deletion checks',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => 'Mostra cronologia accessi',
 			'passport.hintEmail' => 'Inserisci email',
 			'passport.hintMobile' => 'Inserisci numero di telefono',
@@ -5820,6 +5860,8 @@ extension on TranslationsItIt {
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} membri',
 			'workspace.membersEmpty' => 'Nessun membro dell\'area di lavoro per ora',
 			'workspace.membersEmptySubtitle' => 'Invita utenti registrati a diventare membri dell\'area di lavoro (Owner / Member / Guest)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.membersTitle' => 'Membri dell\'area di lavoro',
 			'workspace.membersViewAll' => 'Vedi tutti',
 			'workspace.navChannels' => 'Canali',
@@ -5835,8 +5877,6 @@ extension on TranslationsItIt {
 			'workspace.pickerEmptySubtitle' => 'Crea un\'area di lavoro e avvia la collaborazione del team in 3 minuti (canale Announcements e gruppo General creati automaticamente)',
 			'workspace.pickerEmptyTitle' => 'Nessuna area di lavoro per ora',
 			'workspace.pickerTitle' => 'Le mie aree di lavoro',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.projectChannelEmptySubtitle' => 'Dopo aver collegato un canale dell\'area di lavoro, i suoi contenuti in evidenza e i post recenti verranno aggregati in questo progetto',
 			'workspace.projectChannelEmptyTitle' => 'Nessun canale collegato per ora',
 			'workspace.projectChannelLinkExistingToast' => 'Questo canale è già collegato',

@@ -2407,6 +2407,7 @@ class _Translations$organization$ar_SA extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$wsMembers$ar_SA wsMembers = _Translations$organization$wsMembers$ar_SA._(_root);
 	@override late final _Translations$organization$tools$ar_SA tools = _Translations$organization$tools$ar_SA._(_root);
 	@override late final _Translations$organization$chart$ar_SA chart = _Translations$organization$chart$ar_SA._(_root);
+	@override late final _Translations$organization$experienceUi$ar_SA experienceUi = _Translations$organization$experienceUi$ar_SA._(_root);
 }
 
 // Path: passport
@@ -3266,6 +3267,30 @@ class _Translations$organization$chart$ar_SA extends Translations$organization$c
 	@override String get collapse => 'طي الأقسام الفرعية';
 	@override String get gestureHint => 'اسحب للتنقل · اقرص للتكبير والتصغير';
 	@override String directMembers({required Object count}) => 'المرتبطون المباشرون: ${count}';
+}
+
+// Path: organization.experienceUi
+class _Translations$organization$experienceUi$ar_SA extends Translations$organization$experienceUi$zh_CN {
+	_Translations$organization$experienceUi$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => 'Switch space';
+	@override String get personalSpace => 'Personal space';
+	@override String get enterpriseSpaces => 'Enterprise spaces';
+	@override String get currentSpace => 'Current space';
+	@override String get enterpriseInfo => 'Enterprise info';
+	@override String get collaborationSpace => 'Collaboration spaces';
+	@override String get groupContent => 'Group content';
+	@override String get groupCollaboration => 'Group collaboration';
+	@override String get defaultWorkspace => 'Default workspace';
+	@override String get defaultAvailable => 'Configured';
+	@override String get defaultUnknown => 'Temporarily unavailable';
+	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
+	@override String get accountCheck => 'Account deletion checks';
+	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5720,6 +5745,21 @@ extension on TranslationsArSa {
 			'organization.chart.collapse' => 'طي الأقسام الفرعية',
 			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
 			'organization.chart.directMembers' => ({required Object count}) => 'المرتبطون المباشرون: ${count}',
+			'organization.experienceUi.switchSpace' => 'Switch space',
+			'organization.experienceUi.personalSpace' => 'Personal space',
+			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
+			'organization.experienceUi.currentSpace' => 'Current space',
+			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
+			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
+			'organization.experienceUi.groupContent' => 'Group content',
+			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
+			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
+			'organization.experienceUi.defaultAvailable' => 'Configured',
+			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
+			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
+			'organization.experienceUi.accountCheck' => 'Account deletion checks',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',
@@ -5829,6 +5869,8 @@ extension on TranslationsArSa {
 			'workspace.joinExpiredCode' => 'انتهت صلاحية رمز الفريق',
 			'workspace.inviteCodeSectionTitle' => 'دعوة برمز الفريق',
 			'workspace.inviteCodeGenerate' => 'إنشاء رمز الفريق',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'نسخ',
 			'workspace.inviteCodeRevoke' => 'إبطال',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'صالح حتى ${expiresAt}',
@@ -5844,8 +5886,6 @@ extension on TranslationsArSa {
 			'workspace.transferConfirm' => 'تأكيد النقل',
 			'workspace.governanceTitle' => 'حوكمة مساحة العمل',
 			'workspace.brandingEntry' => 'إعدادات العلامة (الاسم / Logo / اللون الأساسي)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveEntry' => 'أرشفة مساحة العمل',
 			'workspace.restoreEntry' => 'استعادة مساحة العمل',
 			'workspace.archiveTitle' => 'أرشفة مساحة العمل',

@@ -163,6 +163,18 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
           ? null
           : GlassAppBar(
               title: channel?.name ?? t.channel.loading,
+              titleWidget: channel == null
+                  ? null
+                  : CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () => showChannelInfoDialog(context, channel),
+                      child: Text(
+                        channel.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                    ),
               automaticallyImplyLeading: true,
               rightDMActions: _buildAppBarActions(channel),
             ),

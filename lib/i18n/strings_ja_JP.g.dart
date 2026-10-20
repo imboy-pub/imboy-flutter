@@ -2395,6 +2395,7 @@ class _Translations$organization$ja_JP extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$wsMembers$ja_JP wsMembers = _Translations$organization$wsMembers$ja_JP._(_root);
 	@override late final _Translations$organization$tools$ja_JP tools = _Translations$organization$tools$ja_JP._(_root);
 	@override late final _Translations$organization$chart$ja_JP chart = _Translations$organization$chart$ja_JP._(_root);
+	@override late final _Translations$organization$experienceUi$ja_JP experienceUi = _Translations$organization$experienceUi$ja_JP._(_root);
 }
 
 // Path: passport
@@ -3254,6 +3255,30 @@ class _Translations$organization$chart$ja_JP extends Translations$organization$c
 	@override String get collapse => '下位部門を折りたたむ';
 	@override String get gestureHint => 'ドラッグで移動 · ピンチで拡大縮小';
 	@override String directMembers({required Object count}) => '直属 ${count} 人';
+}
+
+// Path: organization.experienceUi
+class _Translations$organization$experienceUi$ja_JP extends Translations$organization$experienceUi$zh_CN {
+	_Translations$organization$experienceUi$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => 'Switch space';
+	@override String get personalSpace => 'Personal space';
+	@override String get enterpriseSpaces => 'Enterprise spaces';
+	@override String get currentSpace => 'Current space';
+	@override String get enterpriseInfo => 'Enterprise info';
+	@override String get collaborationSpace => 'Collaboration spaces';
+	@override String get groupContent => 'Group content';
+	@override String get groupCollaboration => 'Group collaboration';
+	@override String get defaultWorkspace => 'Default workspace';
+	@override String get defaultAvailable => 'Configured';
+	@override String get defaultUnknown => 'Temporarily unavailable';
+	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
+	@override String get accountCheck => 'Account deletion checks';
+	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5708,6 +5733,21 @@ extension on TranslationsJaJp {
 			'organization.chart.collapse' => '下位部門を折りたたむ',
 			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
 			'organization.chart.directMembers' => ({required Object count}) => '直属 ${count} 人',
+			'organization.experienceUi.switchSpace' => 'Switch space',
+			'organization.experienceUi.personalSpace' => 'Personal space',
+			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
+			'organization.experienceUi.currentSpace' => 'Current space',
+			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
+			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
+			'organization.experienceUi.groupContent' => 'Group content',
+			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
+			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
+			'organization.experienceUi.defaultAvailable' => 'Configured',
+			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
+			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
+			'organization.experienceUi.accountCheck' => 'Account deletion checks',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',
@@ -5817,6 +5857,8 @@ extension on TranslationsJaJp {
 			'workspace.joinExpiredCode' => 'チームコードの有効期限が切れています',
 			'workspace.inviteCodeSectionTitle' => 'チームコードで招待',
 			'workspace.inviteCodeGenerate' => 'チームコードを生成',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'コピー',
 			'workspace.inviteCodeRevoke' => '取り消す',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '有効期限：${expiresAt} まで',
@@ -5832,8 +5874,6 @@ extension on TranslationsJaJp {
 			'workspace.transferConfirm' => '移譲を確認',
 			'workspace.governanceTitle' => 'ワークスペース管理',
 			'workspace.brandingEntry' => 'ブランド設定（名前 / Logo / メインカラー）',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveEntry' => 'ワークスペースをアーカイブ',
 			'workspace.restoreEntry' => 'ワークスペースを復元',
 			'workspace.archiveTitle' => 'ワークスペースをアーカイブ',

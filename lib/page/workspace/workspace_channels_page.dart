@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/ui/flat_list_tile.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -20,12 +21,14 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
 class WorkspaceChannelsPage extends ConsumerWidget {
-  const WorkspaceChannelsPage({super.key});
+  const WorkspaceChannelsPage({super.key, this.workspaceId});
+
+  final String? workspaceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ws = ref.watch(currentWorkspaceProvider);
-    final wsId = ws?.id ?? '';
+    final wsId = workspaceId ?? ws?.id ?? '';
     if (wsId.isEmpty) {
       return WorkspaceEmptyView(
         icon: CupertinoIcons.antenna_radiowaves_left_right,
@@ -153,56 +156,33 @@ class _ChannelTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      key: ValueKey('workspace-channel-tile-${channel.id}'),
-      borderRadius: BorderRadius.circular(AppSpacing.regular),
-      onTap: () => context.push(
-        '/workspace/$wsId/channels/${channel.id}',
-        extra: {'channel_name': channel.name},
-      ),
-      child: Container(
-        padding: AppSpacing.allRegular,
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(AppSpacing.regular),
+    return ColoredBox(
+      color: theme.colorScheme.surface,
+      child: FlatListTile(
+        key: ValueKey('workspace-channel-tile-${channel.id}'),
+        leading: CircleAvatar(
+          radius: AppSpacing.xLarge,
+          backgroundColor: theme.colorScheme.primaryContainer,
+          child: Icon(
+            CupertinoIcons.speaker_2,
+            color: theme.colorScheme.onPrimaryContainer,
+          ),
         ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: theme.colorScheme.primaryContainer,
-              child: Icon(
-                CupertinoIcons.antenna_radiowaves_left_right,
-                size: 18,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-            ),
-            AppSpacing.horizontalRegular,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    channel.name,
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  AppSpacing.verticalTiny,
-                  Text(
-                    t.workspace.channelTileSubtitle(
-                      count: channel.subscriberCount.toString(),
-                    ),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // I6：频道 = 内容（Publish），不是聊天；详情只有发帖/评论入口
-            const Icon(CupertinoIcons.chevron_right, size: 16),
-          ],
+        title: Text(channel.name),
+        subtitle: Text(
+          channel.description?.trim().isNotEmpty == true
+              ? channel.description!.trim()
+              : t.organization.experienceUi.noIntro,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        trailing: const Icon(
+          CupertinoIcons.chevron_right,
+          size: AppSpacing.regular,
+        ),
+        onTap: () => context.push(
+          '/workspace/$wsId/channels/${channel.id}',
+          extra: {'channel_name': channel.name},
         ),
       ),
     );

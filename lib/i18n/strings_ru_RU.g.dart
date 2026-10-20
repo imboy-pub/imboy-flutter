@@ -2404,6 +2404,7 @@ class _Translations$organization$ru_RU extends Translations$organization$zh_CN {
 	@override late final _Translations$organization$wsMembers$ru_RU wsMembers = _Translations$organization$wsMembers$ru_RU._(_root);
 	@override late final _Translations$organization$tools$ru_RU tools = _Translations$organization$tools$ru_RU._(_root);
 	@override late final _Translations$organization$chart$ru_RU chart = _Translations$organization$chart$ru_RU._(_root);
+	@override late final _Translations$organization$experienceUi$ru_RU experienceUi = _Translations$organization$experienceUi$ru_RU._(_root);
 }
 
 // Path: passport
@@ -3263,6 +3264,30 @@ class _Translations$organization$chart$ru_RU extends Translations$organization$c
 	@override String get collapse => 'Свернуть отделы';
 	@override String get gestureHint => 'Перетаскивайте для просмотра · Масштаб щипком';
 	@override String directMembers({required Object count}) => 'Прямые подчинённые: ${count}';
+}
+
+// Path: organization.experienceUi
+class _Translations$organization$experienceUi$ru_RU extends Translations$organization$experienceUi$zh_CN {
+	_Translations$organization$experienceUi$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get switchSpace => 'Switch space';
+	@override String get personalSpace => 'Personal space';
+	@override String get enterpriseSpaces => 'Enterprise spaces';
+	@override String get currentSpace => 'Current space';
+	@override String get enterpriseInfo => 'Enterprise info';
+	@override String get collaborationSpace => 'Collaboration spaces';
+	@override String get groupContent => 'Group content';
+	@override String get groupCollaboration => 'Group collaboration';
+	@override String get defaultWorkspace => 'Default workspace';
+	@override String get defaultAvailable => 'Configured';
+	@override String get defaultUnknown => 'Temporarily unavailable';
+	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
+	@override String get accountCheck => 'Account deletion checks';
+	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
+	@override String get noIntro => 'No description';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5717,6 +5742,21 @@ extension on TranslationsRuRu {
 			'organization.chart.collapse' => 'Свернуть отделы',
 			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
 			'organization.chart.directMembers' => ({required Object count}) => 'Прямые подчинённые: ${count}',
+			'organization.experienceUi.switchSpace' => 'Switch space',
+			'organization.experienceUi.personalSpace' => 'Personal space',
+			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
+			'organization.experienceUi.currentSpace' => 'Current space',
+			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
+			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
+			'organization.experienceUi.groupContent' => 'Group content',
+			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
+			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
+			'organization.experienceUi.defaultAvailable' => 'Configured',
+			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
+			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
+			'organization.experienceUi.accountCheck' => 'Account deletion checks',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
+			'organization.experienceUi.noIntro' => 'No description',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',
@@ -5826,6 +5866,8 @@ extension on TranslationsRuRu {
 			'workspace.joinExpiredCode' => 'Срок действия командного кода истёк',
 			'workspace.inviteCodeSectionTitle' => 'Приглашение командным кодом',
 			'workspace.inviteCodeGenerate' => 'Сгенерировать командный код',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => _root.common.buttonCopy,
 			'workspace.inviteCodeRevoke' => 'Отозвать',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Действует до ${expiresAt}',
@@ -5841,8 +5883,6 @@ extension on TranslationsRuRu {
 			'workspace.transferConfirm' => 'Подтвердить передачу',
 			'workspace.governanceTitle' => 'Управление рабочим пространством',
 			'workspace.brandingEntry' => 'Настройки бренда (название / логотип / основной цвет)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveEntry' => 'Архивировать рабочее пространство',
 			'workspace.restoreEntry' => 'Восстановить рабочее пространство',
 			'workspace.archiveTitle' => 'Архивировать рабочее пространство',

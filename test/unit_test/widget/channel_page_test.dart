@@ -174,9 +174,7 @@ void main() {
       expect(find.text('Dart 语言动态'), findsOneWidget);
     });
 
-    testWidgets('订阅者数量显示在列表项中 / subscriber counts appear in list items', (
-      tester,
-    ) async {
+    testWidgets('订阅数留在资料中，列表使用简介兜底', (tester) async {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
@@ -188,8 +186,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // 订阅者数字出现（3200 / 1500）
-      expect(find.textContaining('3200'), findsWidgets);
+      expect(find.textContaining('3200'), findsNothing);
+      expect(find.text(t.organization.experienceUi.noIntro), findsWidgets);
     });
 
     testWidgets('已认证频道显示认证图标 / verified channel shows verified icon', (

@@ -181,7 +181,10 @@ List<RouteBase> workspaceRoutes() => [
           final channelId = state.pathParameters['channelId'] ?? '';
           return CupertinoPage(
             key: state.pageKey,
-            child: WorkspaceChannelDetailPage(channelId: channelId),
+            child: WorkspaceChannelDetailPage(
+              channelId: channelId,
+              workspaceId: state.pathParameters['workspaceId'],
+            ),
           );
         },
       ),

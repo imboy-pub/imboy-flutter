@@ -84,7 +84,7 @@ void main() {
 
     expect(find.byKey(const Key('org_entry_row')), findsOneWidget);
     expect(find.text('甲企业'), findsOneWidget); // 指针空 → 回落首个 active
-    expect(find.text(t.organization.picker.switchEnterprise), findsOneWidget);
+    expect(find.text(t.organization.experienceUi.switchSpace), findsOneWidget);
     expect(find.byKey(const Key('org_entry_empty')), findsNothing);
   });
 

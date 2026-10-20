@@ -203,7 +203,7 @@ void main() {
     expect(find.text(_channel().description!), findsOneWidget);
     expect(find.textContaining('#第七个标签'), findsOneWidget);
     expect(
-      find.text('${t.channel.privacyTitle} · ${t.channel.privacyDesc}'),
+      find.text('${t.channel.typePublic} · ${t.channel.accessTypeFree}'),
       findsOneWidget,
     );
     expect(find.text('${t.channel.subscribers}: 12'), findsOneWidget);

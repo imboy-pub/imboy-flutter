@@ -317,19 +317,16 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
       child: Stack(
         children: [
           Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.regular,
-              vertical: AppSpacing.tiny + 2,
-            ),
+            margin: const EdgeInsets.symmetric(vertical: AppSpacing.small),
             decoration: BoxDecoration(
               color: cardColor,
-              borderRadius: AppRadius.borderRadiusMedium,
-              border: Border.all(
-                color: message.isPinned
-                    ? AppColors.primary.withValues(alpha: 0.25)
-                    : AppColors.getIosSeparator(Theme.of(context).brightness)
-                          .withValues(alpha: 0.3),
-                width: message.isPinned ? 1.2 : 0.5,
+              border: Border(
+                bottom: BorderSide(
+                  color: message.isPinned
+                      ? AppColors.primary.withValues(alpha: 0.25)
+                      : AppColors.getIosSeparator(Theme.of(context).brightness)
+                            .withValues(alpha: 0.3),
+                ),
               ),
             ),
             child: Column(

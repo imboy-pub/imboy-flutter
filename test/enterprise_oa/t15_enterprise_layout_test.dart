@@ -12,8 +12,21 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 
 import '../ux_matrix/ux_harness.dart';
 import '../golden_baseline_guard.dart';
+import '../uiux/support/golden_font_loader.dart';
 
-const _before = bool.fromEnvironment('UX_T15_BEFORE');
+import 'package:imboy/component/ui/resource_entry_tile.dart';
+import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
+import 'package:imboy/page/chat_shell/experience_provider.dart';
+import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
+
+class _PreviewExperience extends ProductExperienceNotifier {
+  _PreviewExperience(this.value);
+  final ProductExperience value;
+  @override
+  ProductExperience build() => value;
+}
+
 const _organization = '合成企业';
 const _nickname = '合成成员的较长显示名称';
 const _resources = ['客服工作台', '项目', '群组', '频道', '附件'];
@@ -48,6 +61,8 @@ Future<GoRouter> _pumpPage(
     expect(adapter.requestCount, scenario == 'personal' ? 1 : 0);
     HttpClient.adapterForTest = null;
   });
+  await CurrentOrganizationStore.forAccount('91001')
+      .set(Organization(id: '7001', name: _organization));
   final router = GoRouter(
     routes: [
       GoRoute(
@@ -61,9 +76,9 @@ Future<GoRouter> _pumpPage(
                   organizationId: '7001',
                   resourceEntries: [
                     for (var index = 0; index < _resources.length; index++)
-                      CupertinoListTile(
-                        title: Text(_resources[index]),
-                        trailing: const CupertinoListTileChevron(),
+                      ResourceEntryTile(
+                        title: _resources[index],
+                        icon: CupertinoIcons.square_grid_2x2,
                         onTap: () => context.push('/resource/$index'),
                       ),
                   ],
@@ -101,6 +116,13 @@ Future<GoRouter> _pumpPage(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        productExperienceProvider.overrideWith(
+          () => _PreviewExperience(
+            scenario == 'personal'
+                ? ProductExperience.personal
+                : ProductExperience.workspace,
+          ),
+        ),
         currentUserProvider.overrideWithValue(
           UserModel(
             uid: '91001',
@@ -111,7 +133,7 @@ Future<GoRouter> _pumpPage(
       ],
       child: MaterialApp.router(
         routerConfig: router,
-        theme: ThemeData(brightness: combo.brightness),
+        theme: applyGoldenFont(ThemeData(brightness: combo.brightness)),
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context)
               .copyWith(textScaler: TextScaler.linear(combo.textScale)),
@@ -125,7 +147,12 @@ Future<GoRouter> _pumpPage(
 }
 
 void main() {
-  setUpAll(initUxHarness);
+  setUpAll(() async {
+    await initUxHarness();
+    final font = resolveGoldenFont();
+    expect(font.status, GoldenFontStatus.ok, reason: font.reason);
+    await loadGoldenFont(font);
+  });
   tearDownAll(teardownUxHarness);
 
   for (final (label, combo) in _combos) {
@@ -138,12 +165,10 @@ void main() {
         (tester) async {
           await _pumpPage(tester, scenario, combo);
           if (scenario == 'workbench') {
-            final section = tester.widget<CupertinoListSection>(
-              find.byType(CupertinoListSection).first,
+            expect(
+              find.byType(ResourceEntryTile),
+              findsNWidgets(_resources.length + 1),
             );
-            // 2026-10-17 产品裁决：工作台恢复 insetGrouped 统一卡片（base
-            // 通栏与下方「应用」卡片混用导致白灰断裂，用户不接受）。
-            expect(section.type, CupertinoListSectionType.insetGrouped);
             for (var index = 0; index < _resources.length; index++) {
               expect(find.text(_resources[index]), findsOneWidget);
               if (index > 0) {
@@ -163,7 +188,7 @@ void main() {
             expect(find.text(_nickname), findsOneWidget);
             expect(
               find.text(_organization),
-              findsNWidgets(scenario == 'enterprise' && _before ? 2 : 1),
+              findsNWidgets(scenario == 'enterprise' ? 2 : 1),
             );
             expect(
               find.text('ID: synthetic-account'),
@@ -206,12 +231,17 @@ void main() {
   for (final (label, path) in [
     ('企业管理', '/manage'),
     (t.main.myFavorites, '/favorites'),
-    ('切换企业', '/organization/picker'),
+    (_organization, '/organization/picker'),
     (_nickname, '/personal_info/profile'),
   ]) {
     testWidgets('T15 enterprise action $path', (tester) async {
       final router = await _pumpPage(tester, 'enterprise', _combos[1].$2);
-      final action = find.text(label);
+      final action = path == '/organization/picker'
+          ? find.descendant(
+              of: find.byType(CurrentSpaceTile),
+              matching: find.text(label),
+            )
+          : find.text(label);
       await tester.ensureVisible(action);
       await tester.tap(action);
       await tester.pumpAndSettle();

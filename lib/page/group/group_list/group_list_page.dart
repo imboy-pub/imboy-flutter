@@ -57,7 +57,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     final notifier = ref.read(groupListProvider.notifier);
     final service = ref.read(groupListServiceProvider);
     final state = ref.read(groupListProvider);
-    var currentAttr = state.attr;
+    final currentAttr = state.attr;
 
     notifier.setLoading(true);
     try {
@@ -67,19 +67,6 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
         onRefresh: onRefresh,
         attr: currentAttr,
       );
-      if (list.isEmpty && currentAttr != 'all') {
-        final fallback = await service.page(
-          page: 1,
-          size: state.size,
-          onRefresh: true,
-          attr: 'all',
-        );
-        if (fallback.isNotEmpty) {
-          currentAttr = 'all';
-          notifier.setAttr('all');
-          list = fallback;
-        }
-      }
       for (var m in list) {
         if (m.title.isEmpty) {
           m.computeTitle = await service.computeTitle(m.groupId.toString());
@@ -142,17 +129,15 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     final filtered = _filteredList(state.groupList);
 
     return IosPageTemplate(
-      title:
-          '${t.chat.groupChat}${state.groupList.isNotEmpty ? " (${state.groupList.length})" : ""}',
+      title: t.chat.groupChat,
       useLargeTitle: false,
       actions: [
         CupertinoButton(
           padding: EdgeInsets.zero,
           onPressed: () => context.push('/group/discover'),
-          child: Icon(
-            CupertinoIcons.search,
-            size: 22,
-            semanticLabel: t.groupDiscovery.title,
+          child: Text(
+            t.groupDiscovery.title,
+            style: context.textStyle(FontSizeType.small),
           ),
         ),
         CupertinoButton(
@@ -181,7 +166,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
             ),
             child: CupertinoSearchTextField(
               placeholder: t.common.search,
-              suffixMode: OverlayVisibilityMode.always,
+              suffixMode: OverlayVisibilityMode.editing,
               onChanged: (v) => setState(() => _keyword = v),
             ),
           ),
@@ -196,7 +181,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
               width: double.infinity,
               child: CupertinoSlidingSegmentedControl<String>(
                 groupValue: state.attr,
-                thumbColor: AppColors.getIosBlue(brightness),
+                thumbColor: Theme.of(context).colorScheme.surface,
                 padding: const EdgeInsets.all(3),
                 children: {
                   // T19 热区冻结值 48：与频道列表分段（AppSpacing.xxxLarge
@@ -213,7 +198,7 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
                                 ? FontWeight.w600
                                 : FontWeight.normal,
                             color: state.attr == attr
-                                ? AppColors.onPrimary
+                                ? AppColors.getIosBlue(brightness)
                                 : AppColors.iosGray,
                           ),
                         ),

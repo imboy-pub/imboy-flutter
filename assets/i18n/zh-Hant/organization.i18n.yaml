@@ -410,3 +410,21 @@ chart:
   collapse: 收起下級部門
   gestureHint: 拖曳查看 · 雙指縮放
   directMembers: 本級 ${count} 人
+
+# Space and resource navigation / 空间与资源导航
+experienceUi:
+  switchSpace: "切換空間"
+  personalSpace: "個人空間"
+  enterpriseSpaces: "企業空間"
+  currentSpace: "目前空間"
+  enterpriseInfo: "企業資料"
+  collaborationSpace: "協作空間"
+  groupContent: "群内容"
+  groupCollaboration: "群协作"
+  defaultWorkspace: "默认工作区"
+  defaultAvailable: "已设置"
+  defaultUnknown: "暂时无法获取"
+  defaultHint: "加入相应工作区后可进入，默认设置不会自动授予访问权限。"
+  accountCheck: "注销前检查"
+  workspaceContext: "工作区：${name}"
+  noIntro: "No description"

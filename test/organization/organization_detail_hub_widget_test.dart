@@ -131,9 +131,9 @@ void main() {
 
     // 企业头：名称、角色徽标（owner → 所有者）、角色状态行、默认 WS。
     expect(find.text('聚合企业甲'), findsWidgets);
-    expect(find.text('所有者'), findsOneWidget, reason: '角色徽标 wire→标签映射');
+    expect(find.textContaining('我的角色：所有者'), findsOneWidget);
     expect(find.textContaining('我的角色'), findsOneWidget);
-    expect(find.textContaining(kDefaultWsId), findsOneWidget);
+    expect(find.textContaining(kDefaultWsId), findsNothing);
 
     // 五域入口（全员）全部渲染。
     for (final key in const [
@@ -141,7 +141,7 @@ void main() {
       'organization-detail-zone-departments',
       'organization-detail-zone-groups',
       'organization-detail-zone-channels',
-      'organization-detail-zone-tools',
+      'organization-detail-zone-org-tools',
     ]) {
       expect(
         find.byKey(ValueKey(key)),
@@ -161,7 +161,11 @@ void main() {
     );
 
     // danger zone（全员只读动作）仍在。
-    expect(find.text('账号删除预检'), findsOneWidget);
+    expect(find.text('账号删除预检'), findsNothing);
+    expect(find.text('企业资料'), findsOneWidget);
+    expect(find.text('归档企业'), findsNothing);
+    await tester.tap(find.text('企业资料'));
+    await settleUx(tester);
     expect(find.text('归档企业'), findsOneWidget);
   });
 
@@ -178,7 +182,7 @@ void main() {
       'organization-detail-zone-members',
       'organization-detail-zone-groups',
       'organization-detail-zone-channels',
-      'organization-detail-zone-tools',
+      'organization-detail-zone-org-tools',
     ]) {
       expect(find.byKey(ValueKey(key)), findsOneWidget, reason: '五域入口 $key');
     }
@@ -201,7 +205,8 @@ void main() {
 
     // member 角色徽标 + danger 只读动作保留；治理类危险动作隐藏。
     expect(find.textContaining('我的角色：成员'), findsOneWidget);
-    expect(find.text('账号删除预检'), findsOneWidget);
+    expect(find.text('账号删除预检'), findsNothing);
+    expect(find.text('企业资料'), findsOneWidget);
     expect(find.text('归档企业'), findsNothing, reason: '归档仅 owner/admin');
   });
 
@@ -290,9 +295,6 @@ void main() {
     final cases = <(String, String)>[
       ('organization-detail-zone-members', 'SENTINEL-directory'),
       ('organization-detail-zone-departments', 'SENTINEL-departments'),
-      ('organization-detail-zone-groups', 'SENTINEL-manage'),
-      ('organization-detail-zone-channels', 'SENTINEL-manage'),
-      ('organization-detail-zone-tools', 'SENTINEL-workspace'),
       // ENT-APP-06：本企业工具聚合（Org 限定视角）。
       ('organization-detail-zone-org-tools', 'SENTINEL-tools'),
     ];
@@ -353,6 +355,8 @@ void main() {
     expect(find.text('管理员区'), findsNothing);
 
     // restore 是唯一放行写入口（owner 视角）。
+    await tester.tap(find.text('企业资料'));
+    await settleUx(tester);
     expect(find.text('恢复企业'), findsOneWidget);
     expect(find.text('归档企业'), findsNothing, reason: '已归档不再出现归档入口');
   });

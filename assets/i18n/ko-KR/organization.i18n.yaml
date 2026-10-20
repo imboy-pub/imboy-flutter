@@ -410,3 +410,21 @@ chart:
   collapse: 하위 부서 접기
   gestureHint: 드래그하여 이동 · 핀치로 확대/축소
   directMembers: 직속 ${count}명
+
+# Space and resource navigation / 空间与资源导航
+experienceUi:
+  switchSpace: "Switch space"
+  personalSpace: "Personal space"
+  enterpriseSpaces: "Enterprise spaces"
+  currentSpace: "Current space"
+  enterpriseInfo: "Enterprise info"
+  collaborationSpace: "Collaboration spaces"
+  groupContent: "Group content"
+  groupCollaboration: "Group collaboration"
+  defaultWorkspace: "Default workspace"
+  defaultAvailable: "Configured"
+  defaultUnknown: "Temporarily unavailable"
+  defaultHint: "Join the workspace to access it. The default setting does not grant access."
+  accountCheck: "Account deletion checks"
+  workspaceContext: "Workspace: ${name}"
+  noIntro: "No description"

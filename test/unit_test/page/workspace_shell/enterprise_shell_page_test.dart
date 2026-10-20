@@ -305,7 +305,7 @@ void main() {
     await _pump(tester, api);
     // org detail(合成企业资料) + currentWorkspace(合成企业) 组成两级
     // 副行；消息 tab 标题仍为 tab 名，汉堡与加号按钮原样保留。
-    expect(find.text('合成企业资料 · 合成企业'), findsOneWidget);
+    expect(find.text('合成企业资料 · 工作区：合成企业'), findsOneWidget);
     expect(find.text('消息'), findsWidgets);
     expect(
       find.byKey(const ValueKey('enterprise-shell-menu-button')),
@@ -317,7 +317,7 @@ void main() {
     // 上下文不得消失），邀请同事按钮照常。
     await tester.tap(find.text('通讯录'));
     await tester.pumpAndSettle();
-    expect(find.text('合成企业资料 · 合成企业'), findsOneWidget);
+    expect(find.text('合成企业资料 · 工作区：合成企业'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('enterprise-topbar-invite-colleagues')),
       findsOneWidget,

@@ -299,12 +299,14 @@ void main() {
       reason: '主操作（改名）存在 Semantics label',
     );
 
-    // danger confirm：danger zone 在 ListView 尾部，滚动到「归档企业」。
+    // danger confirm：先进入企业资料，再验证归档确认。
+    await tester.tap(find.byKey(const ValueKey('organization-detail-info')));
+    await settleUx(tester);
     final archiveTile = find.text('归档企业');
     await tester.scrollUntilVisible(
       archiveTile,
       160,
-      scrollable: find.byType(Scrollable).first,
+      scrollable: find.byType(Scrollable).last,
     );
     await tester.tap(archiveTile);
     await settleUx(tester);

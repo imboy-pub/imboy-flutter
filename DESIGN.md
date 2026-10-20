@@ -511,6 +511,17 @@ Layout:
 
 ---
 
+### 8.11 资源入口与空间切换（2026-10）
+
+- 工作台、企业资源与群协作入口复用 `ResourceEntryTile`：水平内边距 16pt、图标槽 32pt、图标 24pt、图文间距 12pt、箭头槽 20pt。副标题允许换行，不能改变左右对齐或压低 44pt 触达。
+- 企业与个人共用基础视觉，通过当前空间、资源归属、可见范围与角色区分。个人空间与企业空间分组；全局入口称“切换空间”，仅选择企业通讯录的局部选择器仍称“切换企业”。
+- 频道阅读紧凑显示元信息，标题可进入资料；分享与管理收进更多菜单，搜索按需展开。列表时间来自真实内容，禁止用频道元数据修改时间替代。
+- 破坏性操作保留确认；默认工作区设置不授予成员资格。无权内容、付费锁定与功能开关继续遵循现有策略。
+
+Resource entries share one geometry (16pt padding, 32pt icon slot, 24pt icon, 12pt gap, 20pt chevron slot). Context and permissions distinguish spaces without separate visual systems. Compact channel reading preserves all existing access gates. Timestamps describe content, not channel metadata. Destructive confirmation and independent workspace membership remain mandatory.
+
+---
+
 ## 9. 聊天气泡规范 | Chat Bubbles
 
 **这是 IM App 的核心组件，必须像素级对齐 iMessage 观感。**

@@ -40,7 +40,10 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
     super.key,
     required this.channelId,
     this.detailEntry,
+    this.workspaceId,
   });
+
+  final String? workspaceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -49,7 +52,18 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
     final channel = ref.watch(channelDetailProvider).channel;
     return Scaffold(
       appBar: AppBar(
-        title: Text(channel?.name ?? t.workspace.channelDetailTitle),
+        title: channel == null
+            ? Text(t.workspace.channelDetailTitle)
+            : CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: () => showChannelInfoDialog(context, channel),
+                child: Text(
+                  channel.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
         actions: [
           if (channel != null)
             ChannelOverflowMenu(
@@ -66,7 +80,7 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          const _DiscussInGroupBanner(),
+          _DiscussInGroupBanner(workspaceId: workspaceId),
           Expanded(
             child: detailEntry ?? defaultWorkspaceChannelDetailEntry(channelId),
           ),
@@ -78,7 +92,9 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
 
 /// 讨论引导横幅（I6 文案：文案值走 slang，新值全部加引号）。
 class _DiscussInGroupBanner extends StatelessWidget {
-  const _DiscussInGroupBanner();
+  const _DiscussInGroupBanner({this.workspaceId});
+
+  final String? workspaceId;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +107,7 @@ class _DiscussInGroupBanner extends StatelessWidget {
           CupertinoPageRoute<void>(
             builder: (_) => Scaffold(
               appBar: AppBar(title: Text(t.workspace.navGroups)),
-              body: const WorkspaceGroupsPage(),
+              body: WorkspaceGroupsPage(workspaceId: workspaceId),
             ),
           ),
         ),

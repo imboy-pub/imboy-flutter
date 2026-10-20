@@ -7065,6 +7065,7 @@ class Translations$organization$zh_CN {
 	late final Translations$organization$wsMembers$zh_CN wsMembers = Translations$organization$wsMembers$zh_CN.internal(_root);
 	late final Translations$organization$tools$zh_CN tools = Translations$organization$tools$zh_CN.internal(_root);
 	late final Translations$organization$chart$zh_CN chart = Translations$organization$chart$zh_CN.internal(_root);
+	late final Translations$organization$experienceUi$zh_CN experienceUi = Translations$organization$experienceUi$zh_CN.internal(_root);
 }
 
 // Path: passport
@@ -9354,6 +9355,60 @@ class Translations$organization$chart$zh_CN {
 
 	/// zh-CN: '本级 ${count} 人'
 	String directMembers({required Object count}) => '本级 ${count} 人';
+}
+
+// Path: organization.experienceUi
+class Translations$organization$experienceUi$zh_CN {
+	Translations$organization$experienceUi$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '切换空间'
+	String get switchSpace => '切换空间';
+
+	/// zh-CN: '个人空间'
+	String get personalSpace => '个人空间';
+
+	/// zh-CN: '企业空间'
+	String get enterpriseSpaces => '企业空间';
+
+	/// zh-CN: '当前空间'
+	String get currentSpace => '当前空间';
+
+	/// zh-CN: '企业资料'
+	String get enterpriseInfo => '企业资料';
+
+	/// zh-CN: '协作空间'
+	String get collaborationSpace => '协作空间';
+
+	/// zh-CN: '群内容'
+	String get groupContent => '群内容';
+
+	/// zh-CN: '群协作'
+	String get groupCollaboration => '群协作';
+
+	/// zh-CN: '默认工作区'
+	String get defaultWorkspace => '默认工作区';
+
+	/// zh-CN: '已设置'
+	String get defaultAvailable => '已设置';
+
+	/// zh-CN: '暂时无法获取'
+	String get defaultUnknown => '暂时无法获取';
+
+	/// zh-CN: '加入相应工作区后可进入，默认设置不会自动授予访问权限。'
+	String get defaultHint => '加入相应工作区后可进入，默认设置不会自动授予访问权限。';
+
+	/// zh-CN: '注销前检查'
+	String get accountCheck => '注销前检查';
+
+	/// zh-CN: '工作区：${name}'
+	String workspaceContext({required Object name}) => '工作区：${name}';
+
+	/// zh-CN: '暂无简介'
+	String get noIntro => '暂无简介';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -12026,6 +12081,21 @@ extension on Translations {
 			'organization.chart.collapse' => '收起下级部门',
 			'organization.chart.gestureHint' => '拖动查看 · 双指缩放',
 			'organization.chart.directMembers' => ({required Object count}) => '本级 ${count} 人',
+			'organization.experienceUi.switchSpace' => '切换空间',
+			'organization.experienceUi.personalSpace' => '个人空间',
+			'organization.experienceUi.enterpriseSpaces' => '企业空间',
+			'organization.experienceUi.currentSpace' => '当前空间',
+			'organization.experienceUi.enterpriseInfo' => '企业资料',
+			'organization.experienceUi.collaborationSpace' => '协作空间',
+			'organization.experienceUi.groupContent' => '群内容',
+			'organization.experienceUi.groupCollaboration' => '群协作',
+			'organization.experienceUi.defaultWorkspace' => '默认工作区',
+			'organization.experienceUi.defaultAvailable' => '已设置',
+			'organization.experienceUi.defaultUnknown' => '暂时无法获取',
+			'organization.experienceUi.defaultHint' => '加入相应工作区后可进入，默认设置不会自动授予访问权限。',
+			'organization.experienceUi.accountCheck' => '注销前检查',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => '工作区：${name}',
+			'organization.experienceUi.noIntro' => '暂无简介',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',

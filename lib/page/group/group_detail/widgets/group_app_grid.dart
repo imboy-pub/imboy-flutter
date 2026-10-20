@@ -1,9 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/resource_entry_tile.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
 
 /// 单个群应用入口定义。
 class GroupAppItem {
@@ -31,117 +32,47 @@ class GroupAppItem {
   final Color color;
 }
 
-/// 群应用九宫格（对标 QQ 群应用面板）。
-///
-/// 把原先散落在群详情设置列表各处的协作功能（公告/文件/相册/投票/日程/任务/
-/// 标签/分类/二维码）聚合为一个 3 列网格，每项含图标 + 名称 + 可选红点徽章。
-/// 这是群详情页体验重构的核心：让用户一眼看到群的所有能力，而非在设置列表
-/// 里逐行寻找。
+/// Group existing capabilities by reading and collaboration, without fixed cells.
 class GroupAppGrid extends StatelessWidget {
   const GroupAppGrid({super.key, required this.items});
-
   final List<GroupAppItem> items;
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(
-        AppSpacing.regular,
-        AppSpacing.small,
-        AppSpacing.regular,
-        AppSpacing.small,
-      ),
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.regular,
-        horizontal: AppSpacing.small,
-      ),
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceGroupedTertiary
-            : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: GridView.count(
-        crossAxisCount: 3,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: AppSpacing.medium,
-        crossAxisSpacing: 0,
-        // 九宫格每项固定高度，保证图标+名称垂直居中
-        childAspectRatio: 0.95,
-        children: items.map((item) => _AppGridCell(item: item)).toList(),
-      ),
-    );
-  }
-}
-
-class _AppGridCell extends StatelessWidget {
-  const _AppGridCell({required this.item});
-
-  final GroupAppItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Semantics(
-      button: true,
-      label: item.label,
-      hint: item.badge ? '有新动态' : null,
-      child: GestureDetector(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          item.onTap();
-        },
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    final content = items.take(3).toList();
+    final collaboration = items.skip(3).take(3).toList();
+    final more = items.skip(6).toList();
+    Widget section(String title, List<GroupAppItem> entries) =>
+        ImBoySettingsSection(
+          header: Text(title),
           children: [
-            // 图标圆角方块（对标 QQ 群应用），红点叠在右上角
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 46,
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: item.color.withValues(alpha: isDark ? 0.22 : 0.12),
-                    borderRadius: BorderRadius.circular(13),
-                  ),
-                  child: Icon(item.icon, size: 24, color: item.color),
-                ),
-                if (item.badge)
-                  Positioned(
-                    right: -2,
-                    top: -2,
-                    child: Container(
-                      width: 9,
-                      height: 9,
-                      decoration: const BoxDecoration(
+            for (final item in entries)
+              ResourceEntryTile(
+                showDivider: false,
+                title: item.label,
+                icon: item.icon,
+                trailing: item.badge
+                    ? const Icon(
+                        CupertinoIcons.circle_fill,
+                        size: AppSpacing.small,
                         color: AppColors.iosRed,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.tiny),
-            Text(
-              item.label,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: isDark
-                    ? AppColors.darkTextPrimary
-                    : AppColors.lightTextPrimary,
+                      )
+                    : null,
+                onTap: item.onTap,
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
           ],
-        ),
-      ),
+        );
+    return Column(
+      children: [
+        if (content.isNotEmpty)
+          section(context.t.organization.experienceUi.groupContent, content),
+        if (collaboration.isNotEmpty)
+          section(
+            context.t.organization.experienceUi.groupCollaboration,
+            collaboration,
+          ),
+        if (more.isNotEmpty) section(context.t.main.setting, more),
+      ],
     );
   }
 }

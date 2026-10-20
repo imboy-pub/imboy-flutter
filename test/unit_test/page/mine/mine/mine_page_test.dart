@@ -186,7 +186,7 @@ void main() {
       // QR code icon（mine_page header 用 CupertinoIcons.qrcode）
       expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
       // profile card chevron 使用 CupertinoIcons.chevron_right
-      expect(find.byIcon(CupertinoIcons.chevron_right), findsOneWidget);
+      expect(find.byIcon(CupertinoIcons.chevron_right), findsNWidgets(2));
     });
 
     testWidgets('compact card omits sign (not rendered in redesigned header)', (
@@ -243,8 +243,8 @@ void main() {
       // profile card 用 CupertinoIcons.chevron_right
       expect(
         find.byIcon(CupertinoIcons.chevron_right),
-        findsOneWidget,
-        reason: 'profile card 右侧应有 chevron_right',
+        findsNWidgets(2),
+        reason: '个人资料与当前空间各自保留进入箭头',
       );
       // 7 个 ImBoySettingsTile（switchToWorkspace/personalAttachments/storageSpace/
       // loginDeviceManagement/appeal/setting/feedback）默认 trailing 为
@@ -254,7 +254,7 @@ void main() {
       // SizedBox.shrink（不占位、无 chevron），不影响计数。
       expect(
         find.byIcon(CupertinoIcons.right_chevron),
-        findsNWidgets(7),
+        findsNWidgets(6),
         reason: '7 个设置项每项右侧应有 CupertinoListTileChevron',
       );
     });

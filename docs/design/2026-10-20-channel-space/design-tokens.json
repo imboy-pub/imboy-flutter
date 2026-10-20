@@ -1,0 +1,9 @@
+{
+  "status": "proposal",
+  "authority": "../../../DESIGN.md",
+  "color": {"brand": "#2474E5", "link": "#007AFF", "surface": "#FFFFFF", "grouped": "#F2F2F7", "separator": "#E5E5EA", "darkSurface": "#1C1C1E", "darkBackground": "#000000", "darkBrand": "#3D8BF0"},
+  "spacing": {"tiny": 4, "small": 8, "medium": 12, "regular": 16, "large": 20, "xLarge": 24, "xxLarge": 32, "xxxLarge": 48},
+  "typography": {"navigation": 17, "rowTitle": 16, "body": 16, "secondary": 13, "caption": 12},
+  "layout": {"horizontalPadding": 16, "minTouchTarget": 44, "rowMinHeight": 76, "avatar": 48, "cornerRadius": 12},
+  "implementation": "Map to existing AppColors, AppSpacing, AppRadius and FontSizeType; do not copy literal values into Flutter. New typography remains a proposal pending implementation against global DESIGN.md."
+}

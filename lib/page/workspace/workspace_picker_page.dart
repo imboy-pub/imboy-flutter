@@ -146,7 +146,7 @@ class _OrgContextTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t.organization.picker.switchEnterprise,
+            t.organization.experienceUi.switchSpace,
             style: theme.textTheme.labelMedium?.copyWith(
               color: theme.colorScheme.primary,
             ),

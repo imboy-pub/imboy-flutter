@@ -18,7 +18,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/presentation/organization_tools_page.dart';
+import 'package:imboy/modules/organization/presentation/organization_resources_page.dart';
+import 'package:imboy/page/workspace/workspace_groups_page.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 
@@ -34,10 +37,11 @@ Map<String, dynamic> _orgJson({
   String id = kOrgId,
   String name = '工具企业',
   String role = 'owner',
+  String status = 'active',
 }) => {
   'id': id,
   'name': name,
-  'status': 'active',
+  'status': status,
   'owner_id': kAccountKey,
   'member_role': role,
 };
@@ -98,16 +102,24 @@ List<(String, List<(int, Map<String, dynamic>)>)> _projectsRoutes({
 RouteStubAdapter _adapter({
   String orgId = kOrgId,
   String orgName = '工具企业',
+  String role = 'owner',
+  String status = 'active',
   List<(int, Map<String, dynamic>)>? wsBProjects,
 }) => RouteStubAdapter([
   ..._projectsRoutes(wsBResponses: wsBProjects),
+  ('/workspaces/$kWsA/groups', [(200, uxListPayload([]))]),
   (
     '/organizations/$orgId',
     [
       (
         200,
         uxEnvelope(
-          payload: _orgJson(id: orgId, name: orgName),
+          payload: _orgJson(
+            id: orgId,
+            name: orgName,
+            role: role,
+            status: status,
+          ),
         ),
       ),
     ],
@@ -124,13 +136,14 @@ GoRoute _sentinel(String path, String label) => GoRoute(
   ),
 );
 
-Widget _host({String orgId = kOrgId}) => ProviderScope(
+Widget _host({String orgId = kOrgId, bool? resourceChannels}) => ProviderScope(
   overrides: [
     currentUserProvider.overrideWithValue(
       UserModel(uid: kAccountKey, account: 'synthetic-account'),
     ),
   ],
   child: MaterialApp.router(
+    builder: (context, child) => TranslationProvider(child: child!),
     routerConfig: GoRouter(
       initialLocation: '/tools',
       routes: [
@@ -139,7 +152,12 @@ Widget _host({String orgId = kOrgId}) => ProviderScope(
           pageBuilder: (_, s) => CustomTransitionPage(
             key: s.pageKey,
             transitionsBuilder: (_, _, _, child) => child,
-            child: OrganizationToolsPage(orgId: orgId, accountKey: kAccountKey),
+            child: resourceChannels == null
+                ? OrganizationToolsPage(orgId: orgId, accountKey: kAccountKey)
+                : OrganizationResourcesPage(
+                    organizationId: orgId,
+                    channels: resourceChannels,
+                  ),
           ),
         ),
         _sentinel(
@@ -169,6 +187,62 @@ void main() {
   });
 
   tearDown(teardownUxHarness);
+
+  testWidgets('普通成员从企业资源进入群列表，不需要企业治理权限且保留工作区范围', (tester) async {
+    uxInstallStub(_adapter(role: 'member'));
+    await tester.pumpWidget(_host(resourceChannels: false));
+    await _pumpUntilFound(tester, find.text('工具工作区A'));
+    expect(find.text('工具工作区A'), findsOneWidget);
+    expect(find.text('个人域工作区'), findsNothing);
+    expect(find.text('别家企业工作区'), findsNothing);
+    expect(find.text('企业管理'), findsNothing);
+    await tester.tap(find.text('工具工作区A'));
+    await _pumpUntilFound(tester, find.byType(WorkspaceGroupsPage));
+    expect(
+      tester
+          .widget<WorkspaceGroupsPage>(find.byType(WorkspaceGroupsPage))
+          .workspaceId,
+      kWsA,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('企业频道入口仅列本企业已加入工作区', (tester) async {
+    uxInstallStub(_adapter(role: 'member'));
+    await tester.pumpWidget(_host(resourceChannels: true));
+    await _pumpUntilFound(tester, find.text('工具工作区A'));
+    expect(find.text('工具工作区A'), findsOneWidget);
+    expect(find.text('工具工作区B'), findsOneWidget);
+    expect(find.text('别家企业工作区'), findsNothing);
+  });
+
+  testWidgets('归档企业的资源入口只读，不再读取工作区资源', (tester) async {
+    final adapter = _adapter(status: 'archived');
+    uxInstallStub(adapter);
+    await tester.pumpWidget(_host(resourceChannels: false));
+    await _pumpUntilFound(tester, find.text(t.organization.tools.archivedNote));
+    expect(find.text(t.organization.tools.archivedNote), findsOneWidget);
+    expect(find.text('工具工作区A'), findsNothing);
+    expect(adapter.requestCount, 1);
+  });
+
+  testWidgets('资源入口 403 不展示跨域数据，也不伪装为空列表', (tester) async {
+    uxInstallStub(
+      RouteStubAdapter([
+        (
+          '/organizations/$kOrgId',
+          [
+            (403, {'code': 403, 'msg': 'forbidden'}),
+          ],
+        ),
+      ]),
+    );
+    await tester.pumpWidget(_host(resourceChannels: false));
+    await _pumpUntilFound(tester, find.text('没有权限'));
+    expect(find.text('没有权限'), findsOneWidget);
+    expect(find.text(t.organization.tools.workspaceEmpty), findsNothing);
+    expect(find.text('重试'), findsNothing);
+  });
 
   testWidgets('只列本企业已授权资源：个人域/别家企业不出现', (tester) async {
     tester.view.physicalSize = const Size(800, 6000);

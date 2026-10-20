@@ -16,7 +16,8 @@
 ///   事实不可用即拒，App 原样提示不做降级。
 library;
 
-import 'package:flutter/cupertino.dart' show CupertinoIcons, CupertinoListTile;
+import 'package:flutter/cupertino.dart'
+    show CupertinoIcons, CupertinoListTile, CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,9 +37,11 @@ import 'package:imboy/modules/organization/presentation/org_async_state.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/component/ui/resource_entry_tile.dart';
+
+import 'organization_resources_page.dart';
 
 /// 工作区切换器（工具域入口目标）：承载工作区/项目/任务等协同工具。
 const String kWorkspacePickerPath = '/workspace';
@@ -227,77 +230,44 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     );
   }
 
-  Future<void> _showPreflight() async {
-    try {
-      final report = await _api.deletionPreflight();
-      if (!mounted) return;
-      showDialog<void>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(t.organization.detail.deletionPreflight),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                Text(
-                  t.organization.detail.observedAt(
-                    ts: flexTsLabel(report.observedAt),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.small),
-                Text(
-                  t.organization.detail.factDomains(
-                    domains: report.factDomains.join('、'),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.small),
-                if (report.blockers.isEmpty)
-                  Text(t.organization.detail.noBlockers)
-                else ...[
-                  Text(t.organization.detail.blockers),
-                  for (final b in report.blockers)
-                    ListTile(
-                      dense: true,
-                      leading: const Icon(CupertinoIcons.nosign),
-                      title: Text(
-                        b.code,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        b.resourceType,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                ],
-              ],
+  void _showDetails(Organization org) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => FractionallySizedBox(
+        heightFactor: 0.8,
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpacing.regular),
+          children: [
+            Text(
+              t.organization.experienceUi.enterpriseInfo,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(t.organization.common.close),
+            AppSpacing.verticalRegular,
+            Text(org.name),
+            Text(
+              t.organization.detail.myRoleAndStatus(
+                role: orgRoleLabel(org.memberRole),
+                status: orgStatusLabel(org.status),
+              ),
             ),
+            AppSpacing.verticalRegular,
+            Text(t.organization.experienceUi.defaultWorkspace),
+            Text(
+              _defaultWs == null
+                  ? t.organization.experienceUi.defaultUnknown
+                  : _defaultWs!.isSet
+                  ? t.organization.experienceUi.defaultAvailable
+                  : t.organization.detail.defaultWsUnset,
+            ),
+            Text(t.organization.experienceUi.defaultHint),
+            AppSpacing.verticalRegular,
+            ..._buildDangerZone(org),
           ],
         ),
-      );
-    } on OrganizationApiException catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(
-        SnackBar(
-          content: Text(
-            e.isFactsUnavailable
-                ? t.organization.detail.factUnavailable
-                : t.organization.detail.preflightFailed(
-                    msg: e.message,
-                    code: e.code,
-                  ),
-          ),
-        ),
-      );
-    }
+      ),
+    );
   }
 
   @override
@@ -323,6 +293,9 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             ),
         ],
       ),
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: OrgAsyncAdapter(
@@ -335,10 +308,17 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
             children: [
-              if (org != null) _OrgHeaderCard(org: org, defaultWs: _defaultWs),
+              if (org != null) _OrgHeaderCard(org: org),
               if (org != null && !org.isArchived) ..._buildZoneEntries(org),
               if (org != null && !org.isArchived) _buildAdminSection(org),
-              if (org != null) ..._buildDangerZone(org),
+              if (org != null)
+                _HubTile(
+                  tileKey: const ValueKey('organization-detail-info'),
+                  icon: CupertinoIcons.info_circle,
+                  title: t.organization.experienceUi.enterpriseInfo,
+                  subtitle: orgRoleLabel(org.memberRole),
+                  onTap: () => _showDetails(org),
+                ),
             ],
           ),
         ),
@@ -346,53 +326,58 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
     );
   }
 
-  /// 五域入口区块（全员可见）：成员/部门/群/频道/工具，全部导航到
-  /// 既有页面——本页是聚合入口，不是新业务面。
+  /// 成员可读的资源入口；治理操作在独立管理区。
   List<Widget> _buildZoneEntries(Organization org) {
     final detailBase = '$kOrganizationHomePath/${org.id}';
     return [
       _sectionHeader(t.organization.hub.sectionResources),
-      _HubTile(
-        tileKey: const ValueKey('organization-detail-zone-members'),
-        icon: CupertinoIcons.person_2,
-        title: t.organization.directory.title,
-        subtitle: t.organization.hub.zoneMembersDesc,
-        onTap: () => context.push(
-          '$detailBase/directory?name=${Uri.encodeQueryComponent(org.name)}',
+      _HubSection(
+        children: [
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-members'),
+            icon: CupertinoIcons.person_2,
+            title: t.organization.directory.title,
+            subtitle: t.organization.hub.zoneMembersDesc,
+            onTap: () => context.push(
+              '$detailBase/directory?name=${Uri.encodeQueryComponent(org.name)}',
+            ),
+          ),
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-groups'),
+            icon: CupertinoIcons.person_3,
+            title: t.organization.hub.zoneGroups,
+            subtitle: t.organization.experienceUi.collaborationSpace,
+            onTap: () => _openResources(org, channels: false),
+          ),
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-channels'),
+            icon: CupertinoIcons.dot_radiowaves_left_right,
+            title: t.organization.hub.zoneChannels,
+            subtitle: t.organization.experienceUi.collaborationSpace,
+            onTap: () => _openResources(org, channels: true),
+          ),
+          // 只列当前企业已授权的工作区项目，深链既有页面。
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-org-tools'),
+            icon: CupertinoIcons.square_grid_2x2_fill,
+            title: t.organization.experienceUi.collaborationSpace,
+            subtitle: t.organization.hub.zoneOrgToolsDesc,
+            onTap: () => context.push('$detailBase/tools'),
+          ),
+        ],
+      ),
+    ];
+  }
+
+  void _openResources(Organization org, {required bool channels}) {
+    Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => OrganizationResourcesPage(
+          organizationId: org.id,
+          channels: channels,
         ),
       ),
-      _HubTile(
-        tileKey: const ValueKey('organization-detail-zone-groups'),
-        icon: CupertinoIcons.person_3,
-        title: t.organization.hub.zoneGroups,
-        subtitle: t.organization.hub.zoneGroupsDesc,
-        onTap: () => context.push('$detailBase/manage'),
-      ),
-      _HubTile(
-        tileKey: const ValueKey('organization-detail-zone-channels'),
-        icon: CupertinoIcons.dot_radiowaves_left_right,
-        title: t.organization.hub.zoneChannels,
-        subtitle: t.organization.hub.zoneChannelsDesc,
-        onTap: () => context.push('$detailBase/manage'),
-      ),
-      _HubTile(
-        tileKey: const ValueKey('organization-detail-zone-tools'),
-        icon: CupertinoIcons.rectangle_grid_2x2,
-        title: t.organization.hub.zoneTools,
-        subtitle: t.organization.hub.zoneToolsDesc,
-        onTap: () => context.push(kWorkspacePickerPath),
-      ),
-      // ENT-APP-06：本企业工具聚合（Org 限定视角；上面那个 tile 仍是全局
-      // 工作区切换器）。只列当前企业已授权的工作区项目，深链既有页面。
-      _HubTile(
-        tileKey: const ValueKey('organization-detail-zone-org-tools'),
-        icon: CupertinoIcons.square_grid_2x2_fill,
-        title: t.organization.hub.zoneOrgTools,
-        subtitle: t.organization.hub.zoneOrgToolsDesc,
-        onTap: () => context.push('$detailBase/tools'),
-      ),
-      const Divider(),
-    ];
+    );
   }
 
   /// 管理员区（owner/admin 才见）：治理类入口经 [PermissionGate] hide
@@ -407,46 +392,53 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _sectionHeader(t.organization.hub.sectionAdmin),
-          _HubTile(
-            tileKey: const ValueKey('organization-detail-zone-departments'),
-            icon: CupertinoIcons.tree,
-            title: t.organization.departments.title,
-            subtitle: t.organization.hub.zoneDepartmentsDesc,
-            onTap: () => context.push('$detailBase/departments'),
+          _HubSection(
+            children: [
+              _HubTile(
+                tileKey: const ValueKey('organization-detail-zone-departments'),
+                icon: CupertinoIcons.tree,
+                title: t.organization.departments.title,
+                subtitle: t.organization.hub.zoneDepartmentsDesc,
+                onTap: () => context.push('$detailBase/departments'),
+              ),
+              _HubTile(
+                tileKey: const ValueKey('organization-detail-admin-members'),
+                icon: CupertinoIcons.person_crop_circle_badge_checkmark,
+                title: t.organization.hub.adminMembers,
+                subtitle: t.organization.hub.adminMembersDesc,
+                onTap: () => context.push('$detailBase/members'),
+              ),
+              _HubTile(
+                tileKey: const ValueKey(
+                  'organization-detail-admin-invitations',
+                ),
+                icon: CupertinoIcons.mail,
+                title: t.organization.hub.adminInvitations,
+                subtitle: t.organization.hub.adminInvitationsDesc,
+                onTap: () => context.push('$detailBase/invitations'),
+              ),
+              _HubTile(
+                // 保留 GZAPP-05 既有测试锚点 key。
+                tileKey: const ValueKey('organization-detail-manage-entry'),
+                icon: CupertinoIcons.slider_horizontal_3,
+                title: t.organization.hub.adminManage,
+                subtitle: t.organization.hub.adminManageDesc,
+                onTap: () => context.push('$detailBase/manage'),
+              ),
+              // CS-APP-03（CS-GOV-02B）：企业自助客服治理入口（席位额度/
+              // 坐席启停，租户 Human JWT API）。member 经 PermissionGate 整区
+              // 隐藏；直达路由由治理页内 403 终态兜底（服务端唯一裁决）。
+              _HubTile(
+                tileKey: const ValueKey(
+                  'organization-detail-zone-cs-governance',
+                ),
+                icon: CupertinoIcons.chat_bubble_2,
+                title: t.organization.hub.adminCsGovernance,
+                subtitle: t.organization.hub.adminCsGovernanceDesc,
+                onTap: () => context.push(csGovernancePath(org.id)),
+              ),
+            ],
           ),
-          _HubTile(
-            tileKey: const ValueKey('organization-detail-admin-members'),
-            icon: CupertinoIcons.person_crop_circle_badge_checkmark,
-            title: t.organization.hub.adminMembers,
-            subtitle: t.organization.hub.adminMembersDesc,
-            onTap: () => context.push('$detailBase/members'),
-          ),
-          _HubTile(
-            tileKey: const ValueKey('organization-detail-admin-invitations'),
-            icon: CupertinoIcons.mail,
-            title: t.organization.hub.adminInvitations,
-            subtitle: t.organization.hub.adminInvitationsDesc,
-            onTap: () => context.push('$detailBase/invitations'),
-          ),
-          _HubTile(
-            // 保留 GZAPP-05 既有测试锚点 key。
-            tileKey: const ValueKey('organization-detail-manage-entry'),
-            icon: CupertinoIcons.slider_horizontal_3,
-            title: t.organization.hub.adminManage,
-            subtitle: t.organization.hub.adminManageDesc,
-            onTap: () => context.push('$detailBase/manage'),
-          ),
-          // CS-APP-03（CS-GOV-02B）：企业自助客服治理入口（席位额度/
-          // 坐席启停，租户 Human JWT API）。member 经 PermissionGate 整区
-          // 隐藏；直达路由由治理页内 403 终态兜底（服务端唯一裁决）。
-          _HubTile(
-            tileKey: const ValueKey('organization-detail-zone-cs-governance'),
-            icon: CupertinoIcons.chat_bubble_2,
-            title: t.organization.hub.adminCsGovernance,
-            subtitle: t.organization.hub.adminCsGovernanceDesc,
-            onTap: () => context.push(csGovernancePath(org.id)),
-          ),
-          const Divider(),
         ],
       ),
     );
@@ -486,18 +478,6 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
       ),
       onTap: _leaving || org.memberRole == 'owner' ? null : _leave,
     ),
-    ListTile(
-      title: Text(
-        t.organization.detail.more,
-        style: TextStyle(fontWeight: FontWeight.w600),
-      ),
-    ),
-    ListTile(
-      leading: const Icon(Icons.fact_check_outlined),
-      title: Text(t.organization.detail.deletionPreflight),
-      subtitle: Text(t.organization.detail.deletionPreflightDesc),
-      onTap: _showPreflight,
-    ),
     if (!org.isArchived && org.canGovern)
       ListTile(
         leading: Icon(
@@ -521,6 +501,25 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
   ];
 }
 
+class _HubSection extends StatelessWidget {
+  const _HubSection({required this.children});
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.symmetric(
+      horizontal: AppSpacing.regular,
+      vertical: AppSpacing.small,
+    ),
+    clipBehavior: Clip.antiAlias,
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(AppSpacing.medium),
+    ),
+    child: Column(children: children),
+  );
+}
+
 /// 聚合入口行（ENT-APP-01）：图标 + 标题 + 一句话说明 + chevron。
 class _HubTile extends StatelessWidget {
   const _HubTile({
@@ -539,12 +538,11 @@ class _HubTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return ResourceEntryTile(
       key: tileKey,
-      leading: Icon(icon),
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(subtitle, maxLines: 1, overflow: TextOverflow.ellipsis),
-      trailing: const Icon(CupertinoIcons.chevron_right),
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
       onTap: onTap,
     );
   }
@@ -553,17 +551,17 @@ class _HubTile extends StatelessWidget {
 /// 企业头信息卡（ENT-APP-01）：组织名 + 我的角色/状态 + archived 提示 +
 /// 默认 Workspace 指针。事实内容与旧版 ListTile 完全一致，只改容器形态。
 class _OrgHeaderCard extends StatelessWidget {
-  const _OrgHeaderCard({required this.org, required this.defaultWs});
+  const _OrgHeaderCard({required this.org});
 
   final Organization org;
-  final DefaultWorkspaceRef? defaultWs;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final role = org.memberRole.isEmpty ? 'member' : org.memberRole;
     return Card(
-      margin: AppSpacing.cardMargin,
+      elevation: 0,
+      margin: const EdgeInsets.all(AppSpacing.regular),
       child: Padding(
         padding: AppSpacing.cardPadding,
         child: Column(
@@ -601,8 +599,6 @@ class _OrgHeaderCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                AppSpacing.horizontalSmall,
-                _RoleBadge(role: role),
               ],
             ),
             if (org.isArchived) ...[
@@ -625,60 +621,7 @@ class _OrgHeaderCard extends StatelessWidget {
                 ],
               ),
             ],
-            AppSpacing.verticalSmall,
-            Row(
-              children: [
-                Icon(
-                  CupertinoIcons.square_stack_3d_up,
-                  size: 18,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                AppSpacing.horizontalTiny,
-                Expanded(
-                  child: Text(
-                    defaultWs?.isSet == true
-                        ? t.organization.detail.defaultWsSet(
-                            id: defaultWs!.defaultWorkspaceId,
-                          )
-                        : t.organization.detail.defaultWsUnset,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
-            AppSpacing.verticalTiny,
-            Text(
-              t.organization.detail.defaultWsNote,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 角色徽标：wire 值经 [orgRoleLabel] 机械映射，未知值原样展示。
-class _RoleBadge extends StatelessWidget {
-  const _RoleBadge({required this.role});
-
-  final String role;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: AppSpacing.chipPadding,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(AppRadius.small),
-      ),
-      child: Text(
-        orgRoleLabel(role),
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.onPrimaryContainer,
         ),
       ),
     );

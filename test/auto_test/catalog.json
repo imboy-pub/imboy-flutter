@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "efb9c6ebd14792b509ef1cf37b29912141388096",
-    "backend_head": "75b7c38249fd33dc7f5ea6e57d04fd0b271f8ada",
+    "app_head": "5764688a6f7b9efab76d751c3f78a390dabcba4f",
+    "backend_head": "a5a766339f4303c8122686dfdda60bcae279f5be",
     "integration_test_count": 160,
     "lib_page_count": 167,
-    "module_page_count": 24,
+    "module_page_count": 26,
     "route_page_component_count": 150,
     "spec_count": 28
   },
@@ -2575,6 +2575,16 @@
       "details": ""
     },
     {
+      "page": "lib/modules/organization/presentation/account_deletion_check_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
       "page": "lib/modules/organization/presentation/human_directory_page.dart",
       "mapped_targets": [],
       "dependency_targets": [
@@ -2703,6 +2713,16 @@
       "mapped_targets": [],
       "dependency_targets": [],
       "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/organization/presentation/organization_resources_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
       "in_spec_sources": false,
       "excluded": false,
       "exclusion_code": null,

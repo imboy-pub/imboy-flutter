@@ -663,7 +663,7 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('memberCount<=20 → 查看全部入口不出现', (tester) async {
+    testWidgets('少量成员也能进入完整成员列表', (tester) async {
       await pumpPage(
         tester,
         state: GroupDetailState(
@@ -673,7 +673,7 @@ void main() {
           memberList: [PeopleModel(id: 1, account: 'a1')],
         ),
       );
-      expect(find.text(t.common.viewAllGroupMember), findsNothing);
+      expect(find.text(t.common.viewAllGroupMember), findsOneWidget);
       await unmount(tester);
     });
 

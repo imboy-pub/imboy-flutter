@@ -137,7 +137,9 @@ class _ChannelDiscussionEntryState
       return CupertinoButton(
         key: const Key('mc_discussion_retry'),
         onPressed: _loadBinding,
-        child: Text(context.t.common.retry),
+        child: Text(
+          '${context.t.channel.joinDiscussion} · ${context.t.common.loadError} · ${context.t.common.retry}',
+        ),
       );
     }
     if (_groupId == null || !_eligible) return const SizedBox.shrink();

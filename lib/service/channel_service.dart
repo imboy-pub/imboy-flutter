@@ -289,6 +289,10 @@ class ChannelService {
     }
   }
 
+  Future<Map<int, ChannelMessageModel>> getCachedPreviews(
+    List<String> channelIds,
+  ) => _messageRepo.getLastMessages(channelIds);
+
   /// 获取频道消息列表（优先本地，失败则从服务器获取）
   Future<List<ChannelMessageModel>> getMessages({
     required String channelId,

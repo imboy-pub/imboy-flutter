@@ -254,7 +254,7 @@ void main() {
         subscribed: ChannelListState(channels: channels),
       ),
     );
-    expect(find.byIcon(CupertinoIcons.globe), findsNWidgets(2));
+    expect(find.byIcon(CupertinoIcons.globe), findsNothing);
     expect(find.byIcon(CupertinoIcons.lock), findsNWidgets(2));
     expect(find.text(t.channel.accessTypePaid), findsNWidgets(2));
     expect(find.byIcon(CupertinoIcons.checkmark_seal_fill), findsNWidgets(4));
@@ -362,7 +362,7 @@ void main() {
     });
   }
 
-  testWidgets('窄屏双倍字号保留订阅数与活跃时间，标签移入详情且无溢出', (tester) async {
+  testWidgets('窄屏双倍字号不把频道修改时间误当内容时间，且无溢出', (tester) async {
     await _pumpPage(
       tester,
       size: const Size(360, 844),
@@ -375,8 +375,8 @@ void main() {
         ),
       ),
     );
-    expect(find.byIcon(CupertinoIcons.clock), findsOneWidget);
-    expect(find.textContaining('12034'), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.clock), findsNothing);
+    expect(find.text(t.organization.experienceUi.noIntro), findsOneWidget);
     expect(find.text('保留标签'), findsNothing);
     expect(tester.takeException(), isNull);
   });

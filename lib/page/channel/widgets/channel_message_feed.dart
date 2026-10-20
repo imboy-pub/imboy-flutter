@@ -1,5 +1,7 @@
 import 'dart:math' as math;
 
+import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -15,7 +17,6 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -78,6 +79,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   /// 触发额外业务查询。controller 常驻 State，收起仅移除输入框渲染，
   /// 已输入条件与文本不丢失。
   bool _advancedOpen = false;
+  bool _searchOpen = false;
   bool get _searchActive => _query.isNotEmpty || _tag != null || _essenceOnly;
 
   ChannelPostSearch get _filter => (
@@ -189,7 +191,29 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               child: SingleChildScrollView(
                 primary: false,
                 physics: const ClampingScrollPhysics(),
-                child: _buildPostFilters(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    CupertinoButton(
+                      key: const Key('channel-content-search-toggle'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.regular,
+                      ),
+                      onPressed: () => setState(() {
+                        _searchOpen = !_searchOpen;
+                        if (!_searchOpen) FocusScope.of(context).unfocus();
+                      }),
+                      child: Icon(
+                        _searchOpen
+                            ? CupertinoIcons.chevron_up
+                            : CupertinoIcons.search,
+                        semanticLabel: context.t.common.search,
+                      ),
+                    ),
+                    if (_searchOpen || _searchActive)
+                      _buildPostFilters(context),
+                  ],
+                ),
               ),
             ),
           Expanded(

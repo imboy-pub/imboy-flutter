@@ -23,12 +23,13 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart';
-import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/component/ui/resource_entry_tile.dart';
 
 /// 「客服工作台」入口 Tile：不可见时渲染为空（普通用户零占位）。
 class CsWorkspaceEntryTile extends StatefulWidget {
-  const CsWorkspaceEntryTile({super.key});
+  const CsWorkspaceEntryTile({super.key, this.showDivider = false});
+
+  final bool showDivider;
 
   @override
   State<CsWorkspaceEntryTile> createState() => _CsWorkspaceEntryTileState();
@@ -64,43 +65,12 @@ class _CsWorkspaceEntryTileState extends State<CsWorkspaceEntryTile> {
     if (_visible == null || _visible == false) {
       return const SizedBox.shrink();
     }
-    return Material(
-      type: MaterialType.transparency,
-      child: ListTile(
-        // P2-04/D02：统一 24×24 图标槽（原 29×29 自定义槽），文本起点
-        // 与工作台其他可见行一致；可见性与 onTap 不变。
-        // （Material ListTile 默认高 ≥56，命中目标已达标。）
-        leading: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            color: AppColors.iosSkyBlue,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: const Icon(
-            CupertinoIcons.chat_bubble_2_fill,
-            color: AppColors.onPrimary,
-            size: 16,
-          ),
-        ),
-        title: Text(
-          t.entryTitle,
-          style: context.textStyle(FontSizeType.normal),
-        ),
-        subtitle: Text(
-          t.entrySubtitle,
-          style: context.textStyle(
-            FontSizeType.footnote,
-            color: AppColors.iosGray,
-          ),
-        ),
-        trailing: const Icon(
-          CupertinoIcons.chevron_right,
-          size: 14,
-          color: AppColors.iosGray3,
-        ),
-        onTap: () => context.push(kCsWorkspacePath),
-      ),
+    return ResourceEntryTile(
+      showDivider: widget.showDivider,
+      title: t.entryTitle,
+      subtitle: t.entrySubtitle,
+      icon: CupertinoIcons.chat_bubble_2,
+      onTap: () => context.push(kCsWorkspacePath),
     );
   }
 }

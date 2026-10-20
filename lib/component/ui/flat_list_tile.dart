@@ -20,6 +20,7 @@ class FlatListTile extends StatelessWidget {
   final double? height;
   final EdgeInsetsGeometry? padding;
   final Color? iconColor;
+  final double leadingGap;
 
   const FlatListTile({
     super.key,
@@ -32,6 +33,7 @@ class FlatListTile extends StatelessWidget {
     this.height,
     this.padding,
     this.iconColor,
+    this.leadingGap = AppSpacing.regular,
   });
 
   @override
@@ -53,7 +55,7 @@ class FlatListTile extends StatelessWidget {
         child: Row(
           children: [
             // 前置图标/头像
-            if (leading != null) ...[leading!, const SizedBox(width: 16)],
+            if (leading != null) ...[leading!, SizedBox(width: leadingGap)],
 
             // 中间标题和副标题
             Expanded(

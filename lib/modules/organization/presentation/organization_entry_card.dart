@@ -161,7 +161,7 @@ class _OrganizationEntryBody extends StatelessWidget {
             Flexible(
               child: _EntryTile(
                 icon: CupertinoIcons.arrow_left_right_square,
-                label: t.organization.picker.switchEnterprise,
+                label: t.organization.experienceUi.switchSpace,
                 onTap: () => context.push(kOrganizationPickerPath),
               ),
             ),
