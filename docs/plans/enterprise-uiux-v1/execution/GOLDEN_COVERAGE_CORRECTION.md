@@ -54,3 +54,71 @@ C-FULL 10830 行为验证；T30.a 真机证据。
   unknown-source 未分化）——行为断言由契约测试覆盖，视觉基线待补。
 - 门禁证据：compare 模式复跑零 diff；C-TARGET-ALL 143/143；
   analyze 0 issues；封存哈希重写并复核（120+72+120）。
+
+## 合并后收口（2026-10-20，main 分支多 agent 收口 + 所有者验收反馈）
+
+合并 main（32dd2e919）后残余债务清偿与一项用户验收回归修复。golden 基线已
+随合并迁至主工作树 `test/uiux/golden/goldens/{p1,p2,p3}/`（含 sealed_hashes
+清单；原 runtime truth 封存库随之退役）。
+
+### ① P1/P3 scene 轴修复（此前残余债务②，已清偿）
+
+根因取证推翻「夹具注入相同状态」的单层解释，实为两层叠加：
+
+1. **Element/State 复用**（隐蔽主因）：循环 `pumpWidget` 同类型无 key 根
+   widget 时 Flutter 复用 Element/State，`initState` 不重跑、加载闭包与
+   首拉数据停留在首个场景——后续场景全部消费第 1 个场景的泄漏状态。
+2. 夹具同态（表层）：closed/missing-preview/unknown-source 等场景视图映射
+   与注入数据本就趋同。
+
+修复：P1 `_pumpGolden` 前置 `SizedBox.shrink()` 卸载旧树强制全新 mount，
+并注入各场景语义状态（stats-disabled 走 `autoLoadStats:false` 兜底 12 订阅
+者，其余接口统计 88；initial-error/empty/filters-expanded 各自真实分化，
+filters-expanded 显式 `loadChannel` 注入）；P3 视图按 `ValueKey(cfg.id)`
+强制重建，closed/missing-preview/unknown-source 三态分别以「source 空→渠
+道行隐藏 / preview=null→摘要区不渲染 / source 未映射→未知兜底标签」分化。
+
+实测唯一图：**P1 24→64/120（scene 5/5 分化），P3 24→48/120（跨场景重复
+哈希组 0）**。
+
+### ② 图标 tofu 根因修复（此前「确定性局限」结论作废，已清偿）
+
+多轮对照实验（golden 管线内逐像素取证）推翻既有「机器局限」判断，真因：
+
+- **family 名改写**：`TextStyle(package:)` 构造器把 family 改写为
+  `packages/<pkg>/<family>`，`Icon(CupertinoIcons.*)` 实际按前缀名查找，
+  FontLoader 裸名注册永不命中。
+- **Directionality 依赖**：Icon 组件路径还需 Directionality 祖先才正常
+  布局（MaterialApp golden 环境天然具备；裸 pump 探针缺它时全渲染同一
+  方框，导致早期探针误报「修复无效」）。
+
+修复：`golden_font_loader.dart` 对 cupertino 字体同字节按
+`packages/cupertino_icons/CupertinoIcons` + 裸名双注册；MaterialIcons 保持
+裸名（fontPackage=null 不改写，加前缀反而失效）。管线内实证：
+home/gear/material_add 三图标渲染出互异真实字形（119/154/8 色 vs 方框
+37 色同哈希）。含图标的全部金图随之预期性重渲染。
+
+### ③ 用户验收回归修复：工作台行左右对齐（P2-04/D02 副作用）
+
+用户真机验收发现工作台 item 列表左右对齐不一致：客服行（Material
+ListTile）默认 contentPadding 16/16，与相邻 CupertinoListTile 行（
+`_kPadding` start20/end14 + leadingToTitle 16）在图标起点（16 vs 20）、
+文字起点（56 vs 60）、chevron 内缩（16 vs 14）三处错位。修复：客服行显式
+`contentPadding = EdgeInsetsDirectional.only(start: 20, end: 14)`，与
+Cupertino 行度量逐项对齐（P2 金图随之重生成）。
+
+### 收口后矩阵实测（最终态）
+
+| plan | 张数 | 唯一图 |
+|---|---|---|
+| P1 | 120 | 64 |
+| P2 | 72 | 32 |
+| P3 | 120 | 48 |
+| 合计 | 312 | **144** |
+
+### 残余债务（最终态，归所有者）
+
+- platform 轴 ios/android 字节死（Material 页面对平台不敏感，不造人为
+  差异）；macos 在 P1 部分 GlassAppBar 场景存在自然差异（非注入）。
+- golden 基线为本机钉住（EXTERNAL_PINNED）：字体/图标资产路径是本机
+  SDK/pub 缓存，其他机器需按 GOLDEN_ENV.md 自行满足环境。

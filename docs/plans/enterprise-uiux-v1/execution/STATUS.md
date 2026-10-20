@@ -45,3 +45,23 @@
   1. T28.m——真实新会话粘贴同一 EXECUTION_PROMPT 的接续验证（流程：CROSS_SESSION_RESUME.md）；
   2. T30—T32.b——三 lane × iOS/Android/macOS 原生逐 case 验收（就绪清单：各 P*_MANUAL_*.md；候选 K=d397d38c8）。
 - 复跑命令（如需）：`python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1`
+
+## 合并后收口（2026-10-20 追记）
+
+- 集成分支已合并 main（merge commit 32dd2e919，--no-ff，零冲突；任务分支
+  ux/imboy-enterprise-uiux-v1-integration 与 worktree、runtime truth 已清理；
+  golden 基线 312 张迁至主工作树 test/uiux/golden/goldens/ 并 312/312 复核）。
+- 本计划零数据库迁移/Schema 变化（SQLite schema v21 不变，后端仓零提交）。
+- 多 agent 收口：P1/P3 scene 轴修复（唯一图 P1 24→64、P3 24→48）、图标
+  tofu 根因修复（family 前缀名 + Directionality，见
+  GOLDEN_COVERAGE_CORRECTION.md「合并后收口」）、工作台行对齐回归修复
+  （用户验收反馈，客服行 contentPadding 对齐 Cupertino _kPadding 20/14）。
+  收口后唯一图合计 144/312。
+- macOS debug 构建可行性实证通过（flutter build macos --debug 一次成功，
+  flutter_vodozemac.framework 注入成功）——三张 P*_MANUAL_macos 卡的构建
+  前置已就绪。
+- 更正：2026-10-20 增补所记「manual 余 8」为算术笔误，实为 **9**
+  （T28.m、T30/T30.b、T31/T31.a/T31.b、T32/T32.a/T32.b，与枚举一致）。
+- 复跑命令（如需）：`python3 tool/uiux/check_state.py --plan-id imboy-enterprise-uiux-v1`
+  （runtime truth 已随收尾清理删除，该命令不再适用；状态账本以本目录
+  文档与 git 历史为准。）
