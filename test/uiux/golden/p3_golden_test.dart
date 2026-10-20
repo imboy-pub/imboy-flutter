@@ -2,6 +2,12 @@
 ///
 /// MATRIX.json P3 全部 120 配置（5 场景 × 3 平台 × 2 视口 × 2 主题 ×
 /// 2 缩放）。基线不存在默认失败；候选生成命令见 C-T24-a-1 证据。
+///
+/// 场景轴分化（GOLDEN_COVERAGE_CORRECTION.md 残余债务②）：字节死由两因
+/// 叠加——① closed / missing-preview / unknown-source 注入相同夹具状态；
+/// ② 同型 StatefulWidget 无 key 连续 pump 时 State 复用，后续场景根本
+/// 不重新拉数据（渲染停留在首个同型场景）。现五场景各注入与语义相符的
+/// 可见状态（见 [_p3SceneItems]），并按配置 ValueKey 强制重建。
 library;
 
 import 'dart:async' show Stream;
@@ -23,40 +29,72 @@ import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_list_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../p3/p3_fixtures.dart' show p3OrgId, p3QueueItemWire;
 import '../support/golden_font_loader.dart';
 
+/// P3 五场景的夹具状态分化表（对齐 p2_golden_test 的场景分化模式：
+/// 不同 scene 注入不同可见状态，使渲染真实分化）。
+///
+/// 各场景语义与可见差异（行内容 = 掩码名 → 摘要 → 来源 → 尾部动作）：
+/// - queued：待接队列行（等待时长 + 接单按钮；沿用既有基线形态不改）；
+/// - active：处理中会话行（chevron + 网页渠道 + 真实摘要）；
+/// - closed：已关闭会话行，渠道 wire 缺省为空 → 行内不渲染渠道标识
+///   （结构差异：行高少一行）；
+/// - missing-preview：末条消息存在但摘要不可用（附件-only / 解密降级，
+///   preview=null）→ csQueuePreviewText 中间态，摘要区不渲染文本；
+/// - unknown-source：来源 wire 未映射（非 widget 的 'app'）→ 通用
+///   「未知」展示名（csSourceDisplayLabel 兜底分支）。
+///
+/// 中文样张仅复用既有字符串或由已覆盖汉字与全角标点组合。
+List<Map<String, dynamic>> _p3SceneItems(String scene) {
+  switch (scene) {
+    case 'queued':
+      return <Map<String, dynamic>>[p3QueueItemWire()];
+    case 'active':
+      return <Map<String, dynamic>>[p3QueueItemWire(status: 'active')];
+    case 'closed':
+      return <Map<String, dynamic>>[
+        p3QueueItemWire(
+          status: 'closed',
+          maskedName: '测试姓名',
+          preview: '中文系统消息。',
+          source: '',
+        ),
+      ];
+    case 'missing-preview':
+      return <Map<String, dynamic>>[
+        p3QueueItemWire(status: 'closed', maskedName: '文艺姓名', preview: null),
+      ];
+    default:
+      return <Map<String, dynamic>>[
+        p3QueueItemWire(
+          status: 'closed',
+          maskedName: '消息频道',
+          preview: '频道消息测试！',
+          source: 'app',
+        ),
+      ];
+  }
+}
+
 class _P3GoldenNoopAdapter implements HttpClientAdapter {
+  _P3GoldenNoopAdapter(this.items);
+
+  final List<Map<String, dynamic>> items;
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
-    final Map<String, dynamic> item = <String, dynamic>{
-      'id': '1',
-      'contact_id': '7266418340025500099',
-      'contact': <String, dynamic>{'masked_name': '张三'},
-      'queued_at':
-          (DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000 - 65 * 60)
-              .toString(),
-      'version': 3,
-      'status': 'queued',
-      'source': 'widget',
-      'organization_id': '7266418340025468901',
-      'conversation_id': '7266418340025468950',
-      'business_identity_id': '',
-      'last_message': <String, dynamic>{
-        'id': '7266418340025500777',
-        'preview': '你好，想咨询一下',
-      },
-    };
     return ResponseBody.fromString(
       jsonEncode(<String, dynamic>{
         'code': 0,
         'msg': 'success',
         'payload': <String, dynamic>{
-          'sessions': <Map<String, dynamic>>[item],
-          'list': <Map<String, dynamic>>[item],
+          'sessions': items,
+          'list': items,
           'next_after_id': null,
         },
       }),
@@ -125,17 +163,26 @@ Future<void> _pumpP3Golden(WidgetTester tester, GoldenP3Config cfg) async {
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = cfg.viewport;
   try {
+    final String scene = cfg.scene;
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
     final HttpClientAdapter? prevAdapter = HttpClient.adapterForTest;
-    HttpClient.adapterForTest = _P3GoldenNoopAdapter();
+    HttpClient.adapterForTest = _P3GoldenNoopAdapter(_p3SceneItems(scene));
     addTearDown(() => HttpClient.adapterForTest = prevAdapter);
 
-    final String scene = cfg.scene;
     final Widget view = scene == 'queued'
-        ? const CsQueueView(orgId: '7266418340025468901')
+        ? CsQueueView(
+            // 场景轴字节死的根因：连续 pump 同型 StatefulWidget（无 key）
+            // 时 Flutter 复用 Element/State——initState 不重跑、fetchPage
+            // 闭包与首拉数据停留在上一配置，后续场景渲染的仍是第一个
+            // 同型场景的数据。ValueKey(cfg.id) 强制每配置重建 State，
+            // 场景夹具状态才真正进入渲染。
+            key: ValueKey<String>(cfg.id),
+            orgId: p3OrgId,
+          )
         : CsSessionListView(
-            orgId: '7266418340025468901',
+            key: ValueKey<String>(cfg.id),
+            orgId: p3OrgId,
             status: scene == 'active'
                 ? CsSeatSessionViewStatus.active
                 : CsSeatSessionViewStatus.closed,

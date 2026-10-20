@@ -94,7 +94,10 @@ final List<GoldenConfig> kP1GoldenConfigs = <GoldenConfig>[
             ),
 ];
 
-/// 空成功出口。
+/// 测试 HTTP 适配器：默认空成功出口；对频道统计端点返回合成统计
+/// payload，使 autoLoadStats:true 的场景头部渲染接口统计（88 订阅者），
+/// stats-disabled 场景（autoLoadStats:false）走 channel.subscriberCount
+/// 兜底（12 订阅者）——两态可见分化（C03）。
 class _GoldenNoopAdapter implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(
@@ -102,8 +105,20 @@ class _GoldenNoopAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    final bool isStatsEndpoint = options.uri.path.endsWith('/stats');
     return ResponseBody.fromString(
-      jsonEncode(<String, dynamic>{'code': 0, 'msg': 'success'}),
+      jsonEncode(<String, dynamic>{
+        'code': 0,
+        'msg': 'success',
+        if (isStatsEndpoint)
+          'payload': <String, dynamic>{
+            'channel_id': 1001,
+            'subscriber_count': 88,
+            'total_messages': 2,
+            'total_views': 0,
+            'total_reactions': 0,
+          },
+      }),
       200,
       headers: <String, List<String>>{
         Headers.contentTypeHeader: <String>[Headers.jsonContentType],
@@ -152,9 +167,19 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = cfg.viewport;
 
+  // 场景隔离：pumpWidget 对同类型根 widget 会就地复用 Element/State，
+  // 上一场景的 ChannelDetailPage State（含 initState 里的 loadChannel
+  // microtask）不会被重跑，导致后续场景继续消费首个场景的 provider
+  // 状态、渲染逐字节相同（GOLDEN_COVERAGE_CORRECTION.md scene 轴字节死
+  // 的根因）。这里先卸载旧树，保证每个配置全新 mount。
+  await tester.pumpWidget(const SizedBox.shrink());
+
   final bool initialError = cfg.scene == 'initial-error';
   final bool empty = cfg.scene == 'empty';
   final bool filtersExpanded = cfg.scene == 'filters-expanded';
+  // stats-disabled：统计未请求（autoLoadStats:false），头部走
+  // subscriberCount 兜底；其余场景允许挂载后拉取统计接口（合成 88）。
+  final bool statsDisabled = cfg.scene == 'stats-disabled';
 
   try {
     SharedPreferences.setMockInitialValues(<String, Object>{});
@@ -183,7 +208,7 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
           path: '/',
           builder: (_, _) => ChannelDetailPage(
             channelId: '1001',
-            autoLoadStats: cfg.scene == 'stats-disabled' ? false : false,
+            autoLoadStats: !statsDisabled,
           ),
         ),
       ],
@@ -230,9 +255,9 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
                         isManaged: true,
                       ),
                     )
-                  : const ChannelDetailPage(
+                  : ChannelDetailPage(
                       channelId: '1001',
-                      autoLoadStats: false,
+                      autoLoadStats: !statsDisabled,
                     ),
             ),
           ),
@@ -242,6 +267,12 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
     if (filtersExpanded) {
+      // 纯 feed 宿主没有 ChannelDetailPage.initState 的 loadChannel 触发；
+      // 经 container 显式加载频道后，微社区门开启态的筛选区才渲染。
+      await ProviderScope.containerOf(
+        tester.element(find.byType(ChannelMessageFeed)),
+      ).read(channelDetailProvider.notifier).loadChannel('1001');
+      await tester.pump(const Duration(milliseconds: 50));
       await tester.tap(find.byKey(const Key('mc_filter_toggle')));
       await tester.pump();
     }

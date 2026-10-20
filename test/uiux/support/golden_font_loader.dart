@@ -173,11 +173,24 @@ GoldenFontResolution resolveGoldenFontFromAssets(List<GoldenFontAsset> assets) {
 }
 
 /// 图标字体资产（本机 Flutter SDK / pub 缓存路径；只登记不分发）。
+///
+/// Icon(CupertinoIcons.*) 的 IconData.fontPackage='cupertino_icons'，
+/// TextStyle(package:) 构造器会把 family 改写为
+/// `packages/<pkg>/<family>`（flutter text_style.dart），engine 按前缀名
+/// 查找——裸名 'CupertinoIcons' 永不命中，图标渲染为 tofu（第五轮
+/// 收口探测实证；Icon 组件路径还需 Directionality 祖先，MaterialApp
+/// golden 环境天然具备）。故同份字节按前缀名 + 裸名双注册。Material
+/// 图标 fontPackage=null 不改写，保持裸名（加前缀反而失效）。
 const List<(String, String)> kGoldenIconFontAssets = <(String, String)>[
   (
     '/Users/leeyi/dev/flutter/bin/cache/artifacts/material_fonts/'
         'MaterialIcons-Regular.otf',
     'MaterialIcons',
+  ),
+  (
+    '/Users/leeyi/.pub-cache/hosted/pub.dev/cupertino_icons-2.0.0/assets/'
+        'CupertinoIcons.ttf',
+    'packages/cupertino_icons/CupertinoIcons',
   ),
   (
     '/Users/leeyi/.pub-cache/hosted/pub.dev/cupertino_icons-2.0.0/assets/'
