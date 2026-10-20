@@ -7,6 +7,7 @@ on:
     # 这三个目录在本独立仓里都不存在 → push 永不触发本 workflow。
     # imboy/** 属于另一个仓库，无法在此过滤，已移除。
     paths:
+      - '.github/workflows/integration_test.yml'
       - 'lib/**'
       - 'integration_test/**'
       - 'test/**'
@@ -151,6 +152,16 @@ jobs:
 
       - name: Verify SDK compatibility
         run: python3 scripts/check_sdk_compatibility.py
+
+      # Keep this legacy CocoaPods project on its existing dependency path.
+      # SwiftPM auto-migration currently crashes Xcode before any test starts.
+      - name: Use CocoaPods for macOS integration tests
+        if: env.TEST_DEVICE == 'macos'
+        run: |
+          flutter config --no-enable-swift-package-manager
+          flutter config --list
+          xcodebuild -version
+          pod --version
 
       - name: Install dependencies
         run: |
