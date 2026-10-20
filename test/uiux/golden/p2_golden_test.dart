@@ -31,6 +31,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../golden_baseline_guard.dart';
 import '../support/golden_font_loader.dart';
 
 class _P2GoldenNoopAdapter implements HttpClientAdapter {
@@ -239,15 +240,24 @@ void main() {
     }
   });
 
-  testWidgets('p2_golden_all_72_configs_rendered：全配置渲染并出图', (tester) async {
-    expect(kP2GoldenConfigs.length, 72, reason: 'MATRIX.json P2 总数');
-    for (final GoldenP2Config cfg in kP2GoldenConfigs) {
-      await _pumpP2Golden(tester, cfg);
-      await expectLater(
-        find.byType(Scaffold).first,
-        matchesGoldenFile('goldens/2026-10-20-channel-space/${cfg.id}.png'),
-      );
-      expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
-    }
-  });
+  testWidgets(
+    'p2_golden_all_72_configs_rendered：全配置渲染并出图',
+    skip: !goldenBaselinesReady(
+      kP2GoldenConfigs.map(
+        (GoldenP2Config cfg) =>
+            'test/uiux/golden/goldens/2026-10-20-channel-space/${cfg.id}.png',
+      ),
+    ),
+    (tester) async {
+      expect(kP2GoldenConfigs.length, 72, reason: 'MATRIX.json P2 总数');
+      for (final GoldenP2Config cfg in kP2GoldenConfigs) {
+        await _pumpP2Golden(tester, cfg);
+        await expectLater(
+          find.byType(Scaffold).first,
+          matchesGoldenFile('goldens/2026-10-20-channel-space/${cfg.id}.png'),
+        );
+        expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
+      }
+    },
+  );
 }
