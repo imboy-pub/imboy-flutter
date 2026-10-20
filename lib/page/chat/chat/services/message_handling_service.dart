@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:file_saver/file_saver.dart';
+import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/helper/string.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -329,6 +334,28 @@ class MessageHandlingService {
   void copyMessageText(TextMessage msg) {
     Clipboard.setData(ClipboardData(text: msg.text));
     AppLoading.showToast(t.main.copied);
+  }
+
+  /// 通过授权缓存取得附件，交由系统保存对话框导出。
+  Future<void> saveFile(String name, String uri) async {
+    File? tmpF = await IMBoyCacheManager().getSingleFile(
+      uri,
+      validateImageData: false,
+    );
+
+    final String ext = StringHelper.ext(uri);
+    final MimeType? mt = MimeType.get(ext.toUpperCase());
+
+    final String? path = await FileSaver.instance.saveAs(
+      name: name,
+      file: tmpF,
+      fileExtension: ext,
+      mimeType: mt ?? MimeType.get('Other')!,
+    );
+
+    if (path != null) {
+      AppLoading.showToast(t.common.saveSuccess);
+    }
   }
 
   /// 保存消息内容

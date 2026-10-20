@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 export 'package:imboy/page/chat/chat/chat_stream_state_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -8,21 +7,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/config/const.dart';
-import 'package:imboy/component/ui/app_loading.dart';
 import 'package:xid/xid.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
-import 'package:file_saver/file_saver.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/helper/string.dart';
 import 'package:imboy/component/image_gallery/image_gallery.dart';
 import 'package:imboy/component/chat/message_scroll_provider.dart';
-import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/modules/messaging/public.dart';
@@ -827,24 +822,7 @@ class ChatNotifier extends _$ChatNotifier {
   // ===== 文件操作 =====
 
   Future<void> saveFile(String name, String uri) async {
-    File? tmpF = await IMBoyCacheManager().getSingleFile(
-      uri,
-      validateImageData: false,
-    );
-
-    final String ext = StringHelper.ext(uri);
-    final MimeType? mt = MimeType.get(ext.toUpperCase());
-
-    final String? path = await FileSaver.instance.saveAs(
-      name: name,
-      file: tmpF,
-      fileExtension: ext,
-      mimeType: mt ?? MimeType.get('Other')!,
-    );
-
-    if (path != null) {
-      AppLoading.showToast(t.common.saveSuccess);
-    }
+    await const MessageHandlingService().saveFile(name, uri);
   }
 
   // ===== 群组操作 =====
