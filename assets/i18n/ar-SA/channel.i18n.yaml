@@ -213,3 +213,11 @@ joinDiscussion: "الانضمام إلى المناقشة"
 essence: "المنشورات المميزة"
 allPosts: "كل المنشورات"
 editPostTags: "تعديل الوسوم"
+
+# Channel resource sharing
+linkTitle: "رابط القناة"
+copyLink: "نسخ الرابط"
+shareLink: "مشاركة الرابط"
+linkAccessHint: "يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط."
+personalChannelLabel: "قناة شخصية"
+enterpriseChannelLabel: "قناة داخلية للمؤسسة"

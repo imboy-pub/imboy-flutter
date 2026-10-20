@@ -213,3 +213,11 @@ joinDiscussion: "Partecipa alla discussione"
 essence: "In evidenza"
 allPosts: "Tutti i post"
 editPostTags: "Modifica tag"
+
+# Channel resource sharing
+linkTitle: "Link del canale"
+copyLink: "Copia link"
+shareLink: "Condividi link"
+linkAccessHint: "Il link apre il canale. Accesso e iscrizione restano soggetti alle autorizzazioni del canale. I canali aziendali sono riservati ai membri autorizzati."
+personalChannelLabel: "Canale personale"
+enterpriseChannelLabel: "Canale aziendale interno"

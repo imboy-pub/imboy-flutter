@@ -10,7 +10,7 @@ import 'package:imboy/page/channel/channel_article_page.dart';
 import 'package:imboy/page/channel/channel_comment_page.dart';
 import 'package:imboy/page/channel/channel_compose_page.dart';
 import 'package:imboy/page/channel/channel_create_page.dart';
-import 'package:imboy/page/channel/channel_detail_page.dart';
+import 'package:imboy/page/channel/channel_link_target_page.dart';
 import 'package:imboy/page/channel/channel_edit_page.dart';
 import 'package:imboy/page/channel/channel_list_page.dart';
 import 'package:imboy/page/channel/channel_subscriber_page.dart';
@@ -55,7 +55,7 @@ List<RouteBase> channelRoutes({
           final channelId = state.pathParameters['channelId']!;
           return CupertinoPage(
             key: state.pageKey,
-            child: ChannelDetailPage(channelId: channelId),
+            child: ChannelLinkTargetPage(channelId: channelId),
           );
         },
         routes: [
@@ -123,6 +123,7 @@ List<RouteBase> channelRoutes({
                 key: state.pageKey,
                 child: ChannelArticlePage(
                   channelId: channelId,
+                  messageId: state.pathParameters['messageId'],
                   message: extra is ChannelMessageModel ? extra : null,
                 ),
               );

@@ -215,6 +215,11 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (channel == null) return [];
 
     return [
+      IconButton(
+        tooltip: context.t.channel.linkTitle,
+        icon: const Icon(CupertinoIcons.link),
+        onPressed: () => showChannelShareSheet(context, channel),
+      ),
       if (ChannelMessageFeed.contentToolsAvailable(channel))
         IconButton(
           key: const Key('channel-content-search-toggle'),

@@ -27,6 +27,8 @@ class ChannelQrCodePage extends ConsumerStatefulWidget {
 class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   final GlobalKey globalKey = GlobalKey();
   final int dayNum = 7;
+  late final int expiredAt =
+      DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,6 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
     final channelId = widget.channelData['id']?.toString() ?? '';
     final channelName = widget.channelData['name']?.toString() ?? '';
     final channelAvatar = widget.channelData['avatar']?.toString();
-    int expiredAt = DateTimeHelper.millisecond() + dayNum * 86400 * 1000;
     String qrcodeData = buildChannelQrcodeUrl(
       channelId: channelId,
       expiredAt: expiredAt,
@@ -56,7 +57,10 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
         ),
       ],
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.xxLarge,
+        ),
         child: Column(
           children: [
             RepaintBoundary(
@@ -252,7 +256,8 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
       padding: EdgeInsets.zero,
       onPressed: onTap,
       child: Container(
-        height: 52,
+        constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
+        padding: const EdgeInsets.all(AppSpacing.small),
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(14),
@@ -262,12 +267,14 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
           children: [
             Icon(icon, size: 20, color: AppColors.primary),
             AppSpacing.horizontalSmall,
-            Text(
-              text,
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                fontWeight: FontWeight.w600,
-                color: AppColors.primary,
+            Flexible(
+              child: Text(
+                text,
+                style: context.textStyle(
+                  FontSizeType.subheadline,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ],
@@ -293,7 +300,7 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
               Navigator.pop(ctx);
               _saveChannelQrCode(
                 context,
-                widget.channelData['id'] as String? ?? '',
+                widget.channelData['id']?.toString() ?? '',
               );
             },
             child: Text(t.common.saveQrCode),
@@ -318,14 +325,30 @@ class _ChannelQrCodePageState extends ConsumerState<ChannelQrCodePage> {
   }
 
   Future<void> _shareChannelQrCode(BuildContext context) async {
-    final res = await RepaintBoundaryHelper().image(context, globalKey);
-    if (res != null) {
+    try {
+      final res = await RepaintBoundaryHelper().image(context, globalKey);
+      if (!context.mounted) return;
+      if (res == null) {
+        AppLoading.showError(t.common.operationFailedAgainLater);
+        return;
+      }
+      final box = context.findRenderObject() as RenderBox?;
       await SharePlus.instance.share(
         ShareParams(
-          files: [XFile.fromData(res, mimeType: 'png')],
-          text: t.common.scanQrcodeAddFriend,
+          files: [
+            XFile.fromData(res, mimeType: 'image/png', name: 'channel.png'),
+          ],
+          text:
+              '${widget.channelData['name'] ?? t.channel.defaultName} · ${t.channel.qrcode}',
+          sharePositionOrigin: box == null
+              ? null
+              : box.localToGlobal(Offset.zero) & box.size,
         ),
       );
+    } on Exception {
+      if (context.mounted) {
+        AppLoading.showError(t.common.operationFailedAgainLater);
+      }
     }
   }
 

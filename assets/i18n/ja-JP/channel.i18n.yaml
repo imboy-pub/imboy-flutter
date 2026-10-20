@@ -217,3 +217,11 @@ joinDiscussion: "議論に参加"
 essence: "注目の投稿"
 allPosts: "すべての投稿"
 editPostTags: "タグを編集"
+
+# Channel resource sharing
+linkTitle: "チャンネルリンク"
+copyLink: "リンクをコピー"
+shareLink: "リンクを共有"
+linkAccessHint: "リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。"
+personalChannelLabel: "個人チャンネル"
+enterpriseChannelLabel: "企業内チャンネル"

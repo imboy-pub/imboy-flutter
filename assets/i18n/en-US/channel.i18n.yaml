@@ -216,3 +216,11 @@ joinDiscussion: "Join discussion"
 essence: "Highlights"
 allPosts: "All posts"
 editPostTags: "Edit tags"
+
+# Channel resource sharing
+linkTitle: "Channel link"
+copyLink: "Copy link"
+shareLink: "Share link"
+linkAccessHint: "Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership."
+personalChannelLabel: "Personal channel"
+enterpriseChannelLabel: "Internal enterprise channel"

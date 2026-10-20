@@ -501,6 +501,12 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get essence => '注目の投稿';
 	@override String get allPosts => 'すべての投稿';
 	@override String get editPostTags => 'タグを編集';
+	@override String get linkTitle => 'チャンネルリンク';
+	@override String get copyLink => 'リンクをコピー';
+	@override String get shareLink => 'リンクを共有';
+	@override String get linkAccessHint => 'リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。';
+	@override String get personalChannelLabel => '個人チャンネル';
+	@override String get enterpriseChannelLabel => '企業内チャンネル';
 }
 
 // Path: chat
@@ -3673,6 +3679,12 @@ extension on TranslationsJaJp {
 			'channel.essence' => '注目の投稿',
 			'channel.allPosts' => 'すべての投稿',
 			'channel.editPostTags' => 'タグを編集',
+			'channel.linkTitle' => 'チャンネルリンク',
+			'channel.copyLink' => 'リンクをコピー',
+			'channel.shareLink' => 'リンクを共有',
+			'channel.linkAccessHint' => 'リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。',
+			'channel.personalChannelLabel' => '個人チャンネル',
+			'channel.enterpriseChannelLabel' => '企業内チャンネル',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3795,14 +3807,14 @@ extension on TranslationsJaJp {
 			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
 			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
 			'chat.momentsReplyPrefix' => '返信 @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '@{name}に返信中',
 			'chat.sendNewMessage' => '新しいメッセージを送信',
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
 			'chat.pleaseEnterSignature' => 'ひとことを入力してください',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => 'プロフィールをエクスポート',
 			'chat.setSignature' => '署名を設定',
 			'chat.setAvatar' => 'アバターを設定',
@@ -4309,14 +4321,14 @@ extension on TranslationsJaJp {
 			'common.editTags' => 'タグを編集',
 			'common.quickActions' => 'クイックアクション',
 			'common.noNewFriendRequests' => '現在新しい友達リクエストはありません',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => '認証メッセージを入力してください',
 			'common.unknownRegion' => '未知の地域',
 			'common.noCommonGroups' => '共通のグループはありません',
 			'common.noMoreInfo' => 'これ以上の情報はありません',
 			'common.verificationMessage' => '認証メッセージ',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'オンにした後：メッセージは閲覧後 ${duration} で自動削除されます',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'オフにした後：メッセージは自動削除されません',
 			'common.noGroupAnnouncement' => 'グループ公告はありません',
 			'common.featureComingSoon' => '近日公開',
@@ -4823,14 +4835,14 @@ extension on TranslationsJaJp {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => '送信済み',
 			'contact.channelMaxTagsCount' => 'タグは最大8個まで追加できます',
 			'contact.tagInputHint' => 'タグを入力...',
 			'discovery.findNearbyPeople' => '近くの人を探す',
 			'discovery.moment' => 'モーメンツ',
 			'discovery.nearbyPeopleExplain' => '近くのユーザーがあなたのプロフィールを表示してメッセージを送ることができます。これは新しい友達を見つけるのに役立つかもしれませんが、過度な注意を引く可能性もあります。いつでもプロフィールの共有を停止できます。\n電話番号は非表示になります。',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => '近くの人',
 			'discovery.scanResult' => 'スキャン結果',
 			'discovery.myChannels' => 'マイチャンネル',
@@ -5337,14 +5349,14 @@ extension on TranslationsJaJp {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '完了(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} 人選択中',
 			'momentFriendPicker.emptyFriends' => '友達がいません',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'タグの読み込みに失敗しました',
 			'momentFriendPicker.searchHint' => '友達を検索',
 			'momentNotify.title' => 'アクティビティ',
 			'momentNotify.emptyTitle' => '新しい通知はありません',
 			'momentNotify.emptyHint' => '友達からの「いいね」やコメントはここに表示されます',
 			'momentNotify.actionLike' => 'があなたのモーメントに「いいね」しました',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => 'がコメントしました',
 			'momentNotify.markAllRead' => 'すべて既読にする',
 			'momentNotify.clearAll' => 'すべて削除',
@@ -5851,14 +5863,14 @@ extension on TranslationsJaJp {
 			'workspace.joinCodeLabel' => 'チームコード',
 			'workspace.joinCodeHint' => '8桁の大文字英字または数字',
 			'workspace.joinSubmit' => '参加',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '「${name}」に参加しました',
 			'workspace.joinAlreadyMember' => 'すでにこのワークスペースに参加しています',
 			'workspace.joinInvalidCode' => 'チームコードが無効または期限切れです',
 			'workspace.joinExpiredCode' => 'チームコードの有効期限が切れています',
 			'workspace.inviteCodeSectionTitle' => 'チームコードで招待',
 			'workspace.inviteCodeGenerate' => 'チームコードを生成',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'コピー',
 			'workspace.inviteCodeRevoke' => '取り消す',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '有効期限：${expiresAt} まで',

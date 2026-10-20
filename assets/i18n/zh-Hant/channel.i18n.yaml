@@ -216,3 +216,11 @@ joinDiscussion: "加入討論"
 essence: "精華"
 allPosts: "全部內容"
 editPostTags: "編輯標籤"
+
+# Channel resource sharing
+linkTitle: "頻道連結"
+copyLink: "複製連結"
+shareLink: "分享連結"
+linkAccessHint: "連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。"
+personalChannelLabel: "個人頻道"
+enterpriseChannelLabel: "企業內部頻道"

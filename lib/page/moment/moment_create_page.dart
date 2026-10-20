@@ -38,7 +38,9 @@ import 'moment_utils.dart';
 
 /// 朋友圈发布页 - 沉浸式重构（对标微信朋友圈发布体验）
 class MomentCreatePage extends StatefulWidget {
-  const MomentCreatePage({super.key});
+  const MomentCreatePage({super.key, this.initialText = ''});
+
+  final String initialText;
 
   @override
   State<MomentCreatePage> createState() => _MomentCreatePageState();
@@ -88,6 +90,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   @override
   void initState() {
     super.initState();
+    _contentController.text = widget.initialText;
     _uploads.addListener(_onUploadsChanged);
     // PopScope.canPop 依赖 _hasUnsavedContent，而它读的是 controller 文本。
     // 不监听的话打字不会触发 rebuild，canPop 会停在旧值（这正是本页
@@ -141,7 +144,11 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
     }
     if (!mounted) return;
     setState(() {
-      _contentController.text = draft.content;
+      // 保留未发送草稿及媒体，将待分享链接加入编辑内容，仍由用户确认发布。
+      _contentController.text = [
+        draft.content,
+        widget.initialText,
+      ].where((text) => text.trim().isNotEmpty).join('\n\n');
       _visibility = draft.visibility;
       _allowUidsController.text = draft.allowUids.join(',');
       _denyUidsController.text = draft.denyUids.join(',');

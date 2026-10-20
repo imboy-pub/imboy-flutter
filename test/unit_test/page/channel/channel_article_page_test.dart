@@ -104,6 +104,44 @@ void main() {
     ).thenAnswer((_) async => const []);
   });
 
+  testWidgets('外部链接无需 route extra 即可读取文章', (tester) async {
+    when(() => service.getMessage('1001', '9001'))
+        .thenAnswer((_) async => _fakeMessage(content: '外部文章正文'));
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: const MaterialApp(
+            home: ChannelArticlePage(channelId: '1001', messageId: '9001'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('外部文章正文'), findsWidgets);
+    verify(() => service.getMessage('1001', '9001')).called(1);
+  });
+
+  testWidgets('文章不可访问时可重试，不显示旧正文', (tester) async {
+    when(() => service.getMessage('1001', '9001'))
+        .thenAnswer((_) async => null);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: const MaterialApp(
+            home: ChannelArticlePage(channelId: '1001', messageId: '9001'),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.loadError), findsOneWidget);
+    await tester.tap(find.text(t.common.retry));
+    await tester.pumpAndSettle();
+    verify(() => service.getMessage('1001', '9001')).called(2);
+  });
+
   testWidgets('长正文完整渲染且不折叠 / renders full body without truncation', (
     tester,
   ) async {

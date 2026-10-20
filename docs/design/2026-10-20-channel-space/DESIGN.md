@@ -126,3 +126,81 @@ References: [Slack resources](https://slack.com/help/articles/32562841868307-Add
 建议普通 active 企业成员在其已加入且有创建资格的工作区发起普通协作群；Guest、未加入工作区、企业或工作区归档等情况继续拒绝。正式部门群/全员群与企业频道由相应管理者创建。当前服务端群和频道复用 ensure_can_create_resource，因此频道管理员限制不能只靠 App 隐藏入口；本轮未改动后端权限，也未实现新的企业级开关或自动授予工作区资格。
 
 References: [Feishu directory visibility and display order](https://www.feishu.cn/hc/zh-CN/articles/360049067480-管理员管理组织架构可见范围), [DingTalk department navigation origin](https://open.dingtalk.com/tools/explorer/jsapi?id=10309), [Lark create groups](https://www.larksuite.com/hc/zh-CN/articles/360024343993-创建群组). The proposed IMBoy policy is a product recommendation, not a claim that every referenced product has identical defaults.
+
+## 频道链接、二维码与进入闭环（设计与审查，尚未实施）
+
+本节是对当前源码的静态审查和下一轮设计，不表示这些功能已经补齐。范围为频道分享、二维码、文章与相邻资源入口；不将静态审查当作全站或真机验收。原型：[channel-share-preview.html](./channel-share-preview.html)。所有原型数据为虚构，二维码不可扫描，操作不写入剪贴板或发起外部分享。
+
+### 页面与权限
+
+个人与企业频道共用“频道链接”页：频道名称、归属、可见范围、可换行的地址、访问说明，下接发送给好友、复制链接、系统分享、频道二维码。个人公开频道可增加“分享到动态”；企业内部与个人私密频道默认不提供公开动态入口。详情导航提供链接按钮，资料页保留“频道链接与二维码”，更多菜单作为补充。动作采用同一列表栅格，不恢复大圆形按钮或装饰性卡片。
+
+频道地址负责定位，邀请凭证负责授予加入资格，两者必须分开。普通链接与二维码不能自动加入企业、工作区或频道，不能替代购买权益。企业频道继续由服务端根据真实归属和当前账号校验资格；不根据本机当前空间推断、不自动切换全局工作区。外部分享默认不附企业正文摘要。若需要企业外发开关，须有对应服务端规则，不能虚构一个仅前端有效的开关。
+
+二维码应编码与频道链接一致的资源定位意图。是否将现有七天临时码改为稳定频道码，需要随解析入口和权限一起落实；不要只把现有有效期提示删掉。临时邀请则单独显示有效期、可用状态和管理权限，撤销能力必须由服务端支持，不放置无效的“重置链接”按钮。
+
+打开链接／扫码后的状态至少覆盖：
+
+| 状态 | 期望行为 |
+|---|---|
+| 有访问权限 | 重新读取频道，再进入真实内容页；不根据转发卡片上的名称直接建立权限 |
+| 未登录 | 登录后继续原目标，保留频道／文章标识；不是回无关首页 |
+| 当前账号无权限 | 安全文案与切换账号入口；不先暴露企业内部详情，不自动发起企业加入 |
+| 私密／付费 | 依实际 joinPolicy 和购买权益呈现邀请、审批或付费入口，不把链接当资格 |
+| 临时邀请过期／撤销 | 提示邀请失效并说明获取新邀请的方式，普通频道地址不替代失效凭证 |
+| 已归档 | 现有规则允许时只读；不允许时显示不可用，不一律假定可读或可加入 |
+| 已删除／不可用 | 明确不可用和返回路径，避免无限加载／原始异常 |
+| 取消系统分享／发送 | 不显示“分享成功”；复制成功只代表复制，不代表对方已能访问 |
+
+### 已核实的缺口与落点
+
+P0 为“发得出但进不去／动作承诺不真实”，P1 为状态与一致性缺口，P2 为后续效率提升。以下为当前源码证据，不是对部署环境的全面断言。
+
+| 优先级 | 页面／链路 | 实施前证据（2026-10-20） | 需要补齐 |
+|---|---|---|---|
+| P0 | 频道链接页／分享面板 | [channel_overflow_menu.dart](../../../lib/page/channel/widgets/channel_overflow_menu.dart#L31)：链接行标成“分享”，实际只复制；没有系统文字分享入口 | 独立链接页，复制与系统分享分别命名；个人／企业共用 |
+| P0 | 频道二维码 → 扫码进入 | [scanner_page.dart](../../../lib/page/scanner/scanner_page.dart#L238)：响应分支处理 user/group，没有 channel；服务端实际返回 type=channel | 增加频道解析与正确落地，失败也可返回／重试；跨账号验证 |
+| P0 | 二维码菜单保存 | [channel_qrcode_page.dart](../../../lib/page/qrcode/channel_qrcode_page.dart#L296)：菜单将 id 强制 as String，分享入口传入的是数字 channel.id | ID 统一规范化；覆盖数字／字符串与无效 ID，不能只测字符串夹具 |
+| P0 | 文章分享与独立打开 | [channel_article_page.dart](../../../lib/page/channel/channel_article_page.dart#L371) 的链接图标实际复制 contentPreview；[channel_routes.dart](../../../lib/config/router/routes/channel_routes.dart#L117) 未将 messageId 交给文章页重新加载，仅依赖 extra | 建立频道＋消息标识的文章定位；重启、登录后、收到名片后都能重新加载 |
+| P0，待部署核验 | 对外 HTTPS 链接 | 分享拼接 WEB_BASE_URL/channel/id，但 [deep_link_router_bridge.dart](../../../lib/service/deep_link_router_bridge.dart#L65) 只接 imboy scheme 且桥接只在 Android 初始化；仓内未据此证明完整浏览器／iOS 唤起链路 | 对外落地页、App 唤起、未安装回退和登录继续共同验收；本次网页抓取失败，不能据此宣称线上 404 |
+| P1 | 频道／群／个人二维码分享 | [repaint_boundary.dart](../../../lib/component/helper/repaint_boundary.dart#L21)：生成分享图片也检查存储权限并可能跳设置；频道分享提示为“扫码添加好友” | 图片生成与保存相册权限分离；分享取消／失败反馈一致；改为频道语义并检查同类群码 |
+| P1 | 二维码有效期与状态 | [channel_qrcode_page.dart](../../../lib/page/qrcode/channel_qrcode_page.dart#L38)：每次 build 重新计算七天有效期 | 对临时码固定本次签发时间，明确刷新操作；与稳定资源链接分开，不宣称已有服务端撤销能力 |
+| P1 | 企业名片与资源跳转 | [channel_share_payload.dart](../../../lib/page/channel/channel_share_payload.dart#L4) 无 scope／workspace 上下文，[message_channel_card_builder.dart](../../../lib/component/chat/message_channel_card_builder.dart#L111) 统一跳个人样式的 /channel/id | 以服务端资源归属解析正确展示壳与返回路径；卡片携带的信息不能成为权限证明 |
+| P1 | 通知入口 | [channel_header_bar.dart](../../../lib/page/channel/widgets/channel_header_bar.dart#L77)：读取静音状态失败被吞掉，默认显示未静音 | 将未知／加载／失败与开／关分开；切换成功后回读，失败不伪装成正常状态 |
+| P1 | 企业群创建入口 | [workspace_groups_page.dart](../../../lib/page/workspace/workspace_groups_page.dart#L35) 只有列表；创建主要集中在企业治理入口 | 若采用普通成员可建协作群的建议，应在已加入的工作区补创建入口；需联动真实资格与后端权限，不能自动授予成员身份 |
+
+不把已存在的能力写成缺口：二维码保存失败反馈已集中在 RepaintBoundaryHelper.savePhoto；登录路由已有 pendingLocation；企业频道详情服务端已有成员访问检查。上述建议应复用它们，补上未连接的入口和状态，而不是重造一套。
+
+### 十维静态暂评（仅本节范围，0–10）
+
+分数用于排序改进工作，不是实机测量或上线分。保留现有系统字体、品牌蓝和轻列表，不增加渐变、无用途毛玻璃、装饰性圆角或营销大卡片。
+
+| 维度 | 暂评 | 证据与具体改进 |
+|---|---:|---|
+| 色彩一致性 | 8 | channel_qrcode_page.dart:263 的链接型操作用品牌色；与全局规则统一为系统链接色，导出码保留白底黑字 |
+| 字体层级 | 7 | channel_qrcode_page.dart:265 的固定行内文字；长名称与大字体需要自然换行和可滚动布局 |
+| 间距节奏 | 7 | channel_qrcode_page.dart:59 的页面 24/32 间距与通用页不同；外层复用 16pt 栅格、导出卡单独内边距 |
+| 组件一致性 | 6 | channel_overflow_menu.dart:31 与二维码页、文章面板各自呈现；收敛同一动作列表与准确命名 |
+| 响应式 | 6 | channel_qrcode_page.dart:255 的固定高度横排按钮；补 320pt、2–3 倍字体、长翻译与桌面内容列检查，尚未定向复现 |
+| 深色模式 | 8 | channel_qrcode_page.dart:96 的导出卡固定黑字是有意设计；外围控件随主题，保证码与分享图对比度 |
+| 动效 | 7 | 现有系统路由和弹层可复用；需验证 modal → QR → 返回不丢上下文，未做实机动效验收 |
+| 可访问性 | 6 | channel_qrcode_page.dart:326 的好友语义用于频道；按钮、读屏、长名称、复制反馈一起修正 |
+| 信息密度 | 7 | channel_overflow_menu.dart:31 缺独立链接面；用身份＋访问说明＋分组动作代替更多装饰按钮 |
+| 完整度 | 4 | scanner_page.dart:238、channel_routes.dart:117 的接收端断点；优先完成跨账号、冷启动、登录继续与失效反馈 |
+
+### 参考与验收边界
+
+- [WhatsApp 频道说明](https://faq.whatsapp.com/794229125227200/?cms_platform=web)：同一频道具备链接与二维码，分享至会话、动态或其他应用。参考其动作组织，不照搬品牌颜色和“持链接即可查看”的权限承诺。
+- [Telegram 频道说明](https://www.telegram.org/faq_channels?setln=en)与[邀请链接 API](https://core.telegram.org/api/invites)：公开地址与私密邀请分开，邀请状态单独管理。产品机制不能机械套到 IMBoy 企业内部频道。
+- [Slack 频道说明](https://slack.com/help/articles/360017938993-What-is-a-channel)：公开／私密仍依工作区语境理解；IMBoy 应使用自己的企业与工作区访问规则。
+
+闭环验收以两个不同账号走通“链接／扫码／好友名片／动态 → 打开 → 登录继续 → 权限判定 → 真实频道或文章”为准，并覆盖失败、过期、归档、取消。网页落地和原生关联需独立验证；原型点击、URL 字符串单测、已有页面渲染均不能替代这些证据。本轮只完成审查与可交互设计，没有修改业务权限或宣称分享链路已实现。
+
+
+### 频道分享实施边界
+
+共用频道链接页已接入个人／企业频道详情、资料及菜单入口，区分复制、系统分享、发送给好友和二维码；个人公开频道可预填动态草稿，私有／企业频道不显示动态入口。文章转发复用已注册频道卡片，并携带文章标识；外部打开不再依赖 route extra。扫码识别本站链接及旧频道二维码，旧二维码保留七天有效期且单页内不随重建续期。导出图片不再申请相册权限，保存失败仍由原有相册保存层反馈。
+
+新增单篇读取 API 复用内容权益及工作区边界检查，校验文章属于目标频道。企业资源展示壳由服务端最新频道归属决定，不切换全局空间，也不把转发数据视为授权。通知读取失败显示重试；切换成功后回读。
+
+网页落地页与网站反向代理配置为仓内实现，未部署；Android 桥接增加本站频道 HTTPS 识别。iOS／macOS 保留区未修改，Universal Links、跨账号／未安装／真实扫码与系统分享仍需在部署候选及真机验证。不得据本地组件测试宣称线上链路已验收。企业群创建权限与普通成员创建入口属于独立业务调整，本轮频道分享实现不更改既有授权策略。

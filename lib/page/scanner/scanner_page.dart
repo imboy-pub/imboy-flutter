@@ -1,3 +1,6 @@
+import 'package:imboy/config/env.dart';
+import 'package:imboy/app_core/routing/channel_link.dart';
+
 import 'dart:async';
 
 import 'package:imboy/theme/default/font_types.dart';
@@ -236,8 +239,27 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
       return;
     }
 
+    final channelLocation = channelLinkLocation(barcodeStr);
+    if (channelLocation != null) {
+      if (mounted) context.pushReplacement(channelLocation);
+      return;
+    }
+
     bool isIMBoyQrcode = barcodeStr.endsWith(qrcodeDataSuffix);
-    if (isUrl(barcodeStr) && isIMBoyQrcode) {
+    final scannedUri = Uri.tryParse(barcodeStr);
+    final apiOrigin = Uri.parse(Env().apiBaseUrl);
+    final trustedQr =
+        scannedUri != null &&
+        scannedUri.scheme == apiOrigin.scheme &&
+        scannedUri.host == apiOrigin.host &&
+        scannedUri.port == apiOrigin.port &&
+        scannedUri.userInfo.isEmpty &&
+        const {
+          '/api/v1/user/qrcode',
+          '/api/v1/group/qrcode',
+          '/api/v1/channel/qrcode',
+        }.contains(scannedUri.path);
+    if (isUrl(barcodeStr) && isIMBoyQrcode && trustedQr) {
       IMBoyHttpResponse resp = await HttpClient.client.get(barcodeStr);
       if (!resp.ok) {
         AppLoading.showError(resp.msg);
@@ -285,6 +307,11 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
             'options': {'memberCount': payload['member_count']},
           },
         );
+      } else if (result == '' && type == 'channel') {
+        final id = parseModelString(payload['id']);
+        if (RegExp(r'^[1-9][0-9]*$').hasMatch(id) && mounted) {
+          context.pushReplacement('/channel/$id');
+        }
       } else if (result == 'user_not_exist') {
         await _showResult(t.common.userNotExist);
       } else if (result == 'user_is_disabled_or_deleted') {

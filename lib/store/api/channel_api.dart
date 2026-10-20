@@ -374,6 +374,18 @@ class ChannelApi extends HttpClient with ChannelMicroCommunityApi {
   }
 
   /// 获取频道消息列表
+  /// 按 ID 读取单篇，服务端验证频道归属及内容访问权限。
+  Future<ChannelMessageModel?> getMessage(
+    String channelId,
+    String messageId,
+  ) async {
+    final resp = await get('/api/v1/channel/$channelId/message/$messageId');
+    if (!resp.ok || resp.payload == null) return null;
+    return ChannelMessageModel.fromJson(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
+  }
+
   Future<List<ChannelMessageModel>> getMessages({
     required String channelId,
     int? cursor,

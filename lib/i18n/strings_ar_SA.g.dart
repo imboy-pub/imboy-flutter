@@ -501,6 +501,12 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get essence => 'المنشورات المميزة';
 	@override String get allPosts => 'كل المنشورات';
 	@override String get editPostTags => 'تعديل الوسوم';
+	@override String get linkTitle => 'رابط القناة';
+	@override String get copyLink => 'نسخ الرابط';
+	@override String get shareLink => 'مشاركة الرابط';
+	@override String get linkAccessHint => 'يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط.';
+	@override String get personalChannelLabel => 'قناة شخصية';
+	@override String get enterpriseChannelLabel => 'قناة داخلية للمؤسسة';
 }
 
 // Path: chat
@@ -3685,6 +3691,12 @@ extension on TranslationsArSa {
 			'channel.essence' => 'المنشورات المميزة',
 			'channel.allPosts' => 'كل المنشورات',
 			'channel.editPostTags' => 'تعديل الوسوم',
+			'channel.linkTitle' => 'رابط القناة',
+			'channel.copyLink' => 'نسخ الرابط',
+			'channel.shareLink' => 'مشاركة الرابط',
+			'channel.linkAccessHint' => 'يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط.',
+			'channel.personalChannelLabel' => 'قناة شخصية',
+			'channel.enterpriseChannelLabel' => 'قناة داخلية للمؤسسة',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3807,14 +3819,14 @@ extension on TranslationsArSa {
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
 			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
 			'chat.momentsReplyPrefix' => 'رد @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => 'رد على @{name}',
 			'chat.sendNewMessage' => 'إرسال رسالة جديدة',
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
 			'chat.pleaseEnterSignature' => 'أدخل توقيعك الشخصي',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => 'تصدير الملف الشخصي',
 			'chat.setSignature' => 'تعيين التوقيع الشخصي',
 			'chat.setAvatar' => 'تعيين الصورة الرمزية',
@@ -4321,14 +4333,14 @@ extension on TranslationsArSa {
 			'common.editTags' => 'تعديل العلامات',
 			'common.quickActions' => 'إجراءات سريعة',
 			'common.noNewFriendRequests' => 'لا توجد طلبات صداقة جديدة',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'يرجى إدخال رسالة التحقق',
 			'common.unknownRegion' => 'منطقة غير معروفة',
 			'common.noCommonGroups' => 'لا توجد مجموعات مشتركة',
 			'common.noMoreInfo' => 'لا توجد معلومات إضافية',
 			'common.verificationMessage' => 'رسالة التحقق',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'عند التمكين: تُدمّر الرسالة تلقائياً بعد قراءتها ${duration}',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'عند التعطيل: لن تُدمّر الرسالة تلقائياً',
 			'common.noGroupAnnouncement' => 'لا يوجد إعلان مجموعة',
 			'common.featureComingSoon' => 'الميزة قادمة قريباً',
@@ -4835,14 +4847,14 @@ extension on TranslationsArSa {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => 'تم الإرسال',
 			'contact.channelMaxTagsCount' => 'يمكنك إضافة 8 وسوم كحد أقصى',
 			'contact.tagInputHint' => 'أدخل وسماً...',
 			'discovery.findNearbyPeople' => 'البحث عن أشخاص قريبين',
 			'discovery.moment' => 'اللحظات',
 			'discovery.nearbyPeopleExplain' => 'يمكن للمستخدمين القريبين عرض ملفك الشخصي وإرسال رسائل إليك. قد يساعدك هذا في العثور على أصدقاء جدد، لكنه قد يجذب أيضاً الكثير من الاهتمام. يمكنك إيقاف مشاركة ملفك الشخصي في أي وقت.\nرقم هاتفك سيتم إخفاؤه.',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => 'أشخاص قريبون',
 			'discovery.scanResult' => 'نتيجة المسح',
 			'discovery.myChannels' => 'قنواتي',
@@ -5349,14 +5361,14 @@ extension on TranslationsArSa {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'موافق(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => 'تم اختيار ${count}',
 			'momentFriendPicker.emptyFriends' => 'لا يوجد أصدقاء',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'تعذّر تحميل الوسوم',
 			'momentFriendPicker.searchHint' => 'ابحث عن أصدقاء',
 			'momentNotify.title' => 'التفاعلات',
 			'momentNotify.emptyTitle' => 'لا توجد إشعارات جديدة',
 			'momentNotify.emptyHint' => 'تظهر هنا إعجابات الأصدقاء وتعليقاتهم على لحظاتك',
 			'momentNotify.actionLike' => 'أعجب بلحظتك',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => 'علّق',
 			'momentNotify.markAllRead' => 'قراءة الكل',
 			'momentNotify.clearAll' => 'مسح الكل',
@@ -5863,14 +5875,14 @@ extension on TranslationsArSa {
 			'workspace.joinCodeLabel' => 'رمز الفريق',
 			'workspace.joinCodeHint' => '8 أحرف كبيرة أو أرقام',
 			'workspace.joinSubmit' => 'انضمام',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => 'تم الانضمام إلى «${name}»',
 			'workspace.joinAlreadyMember' => 'أنت في مساحة العمل هذه بالفعل',
 			'workspace.joinInvalidCode' => 'رمز الفريق غير صالح أو منتهي الصلاحية',
 			'workspace.joinExpiredCode' => 'انتهت صلاحية رمز الفريق',
 			'workspace.inviteCodeSectionTitle' => 'دعوة برمز الفريق',
 			'workspace.inviteCodeGenerate' => 'إنشاء رمز الفريق',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'نسخ',
 			'workspace.inviteCodeRevoke' => 'إبطال',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'صالح حتى ${expiresAt}',

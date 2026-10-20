@@ -1,3 +1,6 @@
+import 'channel_share_payload.dart';
+
+import 'package:imboy/app_core/routing/channel_link.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -40,13 +43,15 @@ import 'package:imboy/theme/default/font_types.dart';
 class ChannelArticlePage extends ConsumerStatefulWidget {
   final String channelId;
 
-  /// 经 route extra 传入的消息；深链/重启导致 extra 丢失时为空，页面降级为空态。
+  /// 经 route extra 传入的消息；缺失时按 messageId 从服务端读取。
   final ChannelMessageModel? message;
+  final String? messageId;
 
   const ChannelArticlePage({
     super.key,
     required this.channelId,
-    required this.message,
+    this.message,
+    this.messageId,
   });
 
   @override
@@ -58,6 +63,9 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   final ValueNotifier<bool> _emojiOpen = ValueNotifier(false);
+
+  ChannelMessageModel? _message;
+  bool _loadingArticle = false;
 
   static const int _pageSize = 20;
 
@@ -80,12 +88,34 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   @override
   void initState() {
     super.initState();
-    _liked =
-        widget.message?.myReactions.contains(ChannelReactionType.like) ?? false;
+    _message = widget.message;
+    _liked = _message?.myReactions.contains(ChannelReactionType.like) ?? false;
     _scrollController.addListener(_onScroll);
     _inputController.addListener(_onInputChanged);
-    if (widget.message != null) {
+    if (_message != null) {
       _loadComments();
+    } else if (widget.messageId != null) {
+      _loadArticle();
+    }
+  }
+
+  Future<void> _loadArticle() async {
+    setState(() => _loadingArticle = true);
+    try {
+      final message = await ref
+          .read(channelServiceProvider)
+          .getMessage(widget.channelId, widget.messageId!);
+      if (!mounted) return;
+      setState(() {
+        _message = message;
+        _liked =
+            message?.myReactions.contains(ChannelReactionType.like) ?? false;
+      });
+      if (message != null) await _loadComments();
+    } on Exception {
+      // 保留明确的不可用状态，允许用户主动重试。
+    } finally {
+      if (mounted) setState(() => _loadingArticle = false);
     }
   }
 
@@ -131,7 +161,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           .read(channelServiceProvider)
           .getComments(
             channelId: widget.channelId,
-            messageId: widget.message!.id.toString(),
+            messageId: _message!.id.toString(),
             cursor: 0,
             limit: _pageSize,
           );
@@ -161,7 +191,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           .read(channelServiceProvider)
           .getComments(
             channelId: widget.channelId,
-            messageId: widget.message!.id.toString(),
+            messageId: _message!.id.toString(),
             cursor: _comments.length,
             limit: _pageSize,
           );
@@ -188,7 +218,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           .read(channelServiceProvider)
           .createComment(
             channelId: widget.channelId,
-            messageId: widget.message!.id.toString(),
+            messageId: _message!.id.toString(),
             content: content,
             parentId: _replyToCommentId,
           );
@@ -308,7 +338,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     HapticFeedback.lightImpact();
 
     final service = ref.read(channelServiceProvider);
-    final messageId = widget.message!.id.toString();
+    final messageId = _message!.id.toString();
     final willLike = !_liked;
 
     // 乐观更新
@@ -336,7 +366,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
       if (success && mounted) {
         // 成功！将状态同步给全局 provider
         final totalLikes =
-            widget.message!.reactionSummary?[ChannelReactionType.like] ?? 0;
+            _message!.reactionSummary?[ChannelReactionType.like] ?? 0;
         ref
             .read(channelDetailProvider.notifier)
             .updateMessageReaction(messageId, _liked, totalLikes + _likeDelta);
@@ -370,7 +400,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
 
   void _shareMessage() {
     final t = context.t;
-    final message = widget.message!;
+    final message = _message!;
     showCupertinoModalPopup<void>(
       context: context,
       builder: (ctx) => CupertinoModalSurface(
@@ -379,12 +409,10 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
           children: [
             ListTile(
               leading: const Icon(CupertinoIcons.link),
-              title: Text(t.channel.share),
+              title: Text(t.channel.copyLink),
               onTap: () {
                 Navigator.pop(ctx);
-                Clipboard.setData(ClipboardData(text: message.contentPreview));
-                if (!mounted) return;
-                AppLoading.showToast(t.main.copiedToClipboard);
+                _copyArticleLink();
               },
             ),
             ListTile(
@@ -394,16 +422,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 Navigator.pop(ctx);
                 context.push(
                   '/chat/send_to',
-                  extra: {
-                    'msg': {
-                      'msg_type': 'channel_message',
-                      'content': message.contentPreview,
-                      'payload': {
-                        'channel_id': widget.channelId,
-                        'message_id': message.id,
-                      },
-                    },
-                  },
+                  extra: channelArticleShareExtra(widget.channelId, message),
                 );
               },
             ),
@@ -411,6 +430,22 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _copyArticleLink() async {
+    try {
+      await Clipboard.setData(
+        ClipboardData(
+          text: channelLink(
+            widget.channelId,
+            messageId: _message!.id.toString(),
+          ),
+        ),
+      );
+      if (mounted) AppLoading.showToast(t.main.copiedToClipboard);
+    } on Exception {
+      if (mounted) AppLoading.showError(t.common.operationFailedAgainLater);
+    }
   }
 
   // ---- 构建 ----
@@ -427,13 +462,24 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     // 为 false 时（深链直开、栈底）自动隐藏，不会留下点了没反应的死键。
     // 样式与频道模块其它子页（channel_detail/compose/edit…）同源，均为
     // GlassBackButton，避免返回键跨页不一致。
-    if (widget.message == null) {
+    if (_message == null) {
       return Scaffold(
         appBar: GlassAppBar(title: title, automaticallyImplyLeading: true),
-        body: NoDataView(
-          icon: CupertinoIcons.doc_text,
-          text: t.common.loadError,
-        ),
+        body: _loadingArticle
+            ? const Center(child: CupertinoActivityIndicator())
+            : Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(t.common.loadError),
+                    if (widget.messageId != null)
+                      TextButton(
+                        onPressed: _loadArticle,
+                        child: Text(t.common.retry),
+                      ),
+                  ],
+                ),
+              ),
       );
     }
 
@@ -463,7 +509,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   }
 
   Widget _buildAuthorHeader(String? channelName) {
-    final message = widget.message!;
+    final message = _message!;
     final secondary = AppColors.getTextColor(
       Theme.of(context).brightness,
       isSecondary: true,
@@ -574,7 +620,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   /// imageText：优先 payload['title']（此时 content 即纯正文）；无则退化「首行=标题、
   /// 其余=正文」旧约定。非 imageText：无标题，content 整体作正文（向后兼容）。
   (String, String) _titleAndBody() {
-    final message = widget.message!;
+    final message = _message!;
     final content = _displayBody(message.content);
     final isImageText =
         message.msgType == ChannelMessageType.imageText ||
@@ -608,12 +654,12 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   }
 
   String _payloadString(String key) {
-    final v = widget.message!.payload?[key];
+    final v = _message!.payload?[key];
     return v == null ? '' : v.toString().trim();
   }
 
   Widget _buildMedia() {
-    final message = widget.message!;
+    final message = _message!;
     switch (message.msgType) {
       case ChannelMessageType.imageText:
       case 'imageText':
@@ -630,7 +676,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   }
 
   List<Map<String, dynamic>> _imageTextItems() {
-    final raw = widget.message!.payload?['images'];
+    final raw = _message!.payload?['images'];
     if (raw is! List) return const [];
     return raw
         .whereType<Map<dynamic, dynamic>>()
@@ -718,7 +764,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   }
 
   Widget _buildSingleImage() {
-    final uri = widget.message!.payload?['uri'] as String?;
+    final uri = _message!.payload?['uri'] as String?;
     if (uri == null || uri.isEmpty) return const SizedBox.shrink();
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.small),
@@ -737,7 +783,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   }
 
   Widget _buildVideo() {
-    final payload = widget.message!.payload;
+    final payload = _message!.payload;
     String? thumb;
     final dynamic thumbRaw = payload?['thumb'];
     if (thumbRaw is String) {
@@ -881,7 +927,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
 
   Widget _buildBottomBar() {
     final t = context.t;
-    final message = widget.message!;
+    final message = _message!;
     final secondary = AppColors.getTextColor(
       Theme.of(context).brightness,
       isSecondary: true,

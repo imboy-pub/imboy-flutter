@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>频道链接与二维码 · 交互设计</title>
+<style>
+:root{color-scheme:light;--brand:#2474e5;--link:#007aff;--bg:#f2f2f7;--surface:#fff;--text:#17171a;--secondary:#66666c;--line:#e5e5ea;--r:10px;--pad:16px;--gap:12px}
+*{box-sizing:border-box}body{margin:0;font:16px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;color:var(--text);background:var(--bg)}body.dark{color-scheme:dark;--bg:#000;--surface:#1c1c1e;--text:#f5f5f7;--secondary:#aeaeb2;--line:#38383a;--link:#409cff}button,select,input{font:inherit}button,select{min-height:44px}button{color:inherit;cursor:pointer}button:focus-visible,select:focus-visible{outline:2px solid var(--link);outline-offset:3px}button:disabled{cursor:default;opacity:.45}.shell{max-width:1160px;margin:auto;padding:24px 16px}h1{font-size:24px;margin:0 0 8px}h2{font-size:18px;margin:0 0 12px}p{margin:0 0 12px}.note{color:var(--secondary);font-size:14px;max-width:820px}.controls{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:20px 0}.controls label{display:flex;gap:8px;align-items:center}.controls select,.controls button{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px 12px}.views{display:flex;gap:8px;flex-wrap:wrap}.views button[aria-pressed="true"]{color:var(--link);border-color:var(--link)}.layout{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:32px;align-items:start}.phone{font-size:calc(16px * var(--scale,1));width:100%;max-width:420px;min-width:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--bg)}.nav{min-height:56px;display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:4px;align-items:center;padding:8px;background:var(--surface);border-bottom:1px solid var(--line)}.nav button{border:0;background:none;color:var(--link);font-size:22px}.nav strong{text-align:center;font-size:1.0625em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.screen{padding:var(--pad)}.identity{display:flex;align-items:center;gap:var(--gap);padding:var(--pad);background:var(--surface);border-radius:var(--r)}.avatar{flex:none;display:grid;place-items:center;width:48px;height:48px;color:var(--brand);background:#2474e514;border-radius:12px;font-size:24px}.identity>div:last-child{min-width:0}.name{font-weight:600;overflow-wrap:anywhere}.meta{font-size:.8125em;color:var(--secondary)}.url{margin-top:12px;color:var(--link);font-size:.875em;overflow-wrap:anywhere}.hint{color:var(--secondary);font-size:.8125em;margin:12px 4px 24px}.list{background:var(--surface);border-radius:var(--r);overflow:hidden}.row{display:grid;grid-template-columns:28px minmax(0,1fr) 16px;align-items:center;gap:var(--gap);min-height:52px;width:100%;border:0;background:none;padding:12px 16px;text-align:left;font-size:1em}.row+.row{border-top:1px solid var(--line)}.row .glyph{color:var(--link);text-align:center}.row .arrow{color:var(--secondary);font-size:18px}.row span{overflow-wrap:anywhere}.sub{font-size:.75em;color:var(--secondary);display:block}.quiet{color:var(--secondary);font-size:.8125em;margin:20px 4px}.qr-card{background:#fff;color:#17171a;border-radius:var(--r);padding:24px 16px;text-align:center}.qr-card .avatar{margin:0 auto 12px}.qr-art{width:min(100%,224px);aspect-ratio:1;margin:24px auto 16px;display:grid;place-items:center;border:10px solid #fff;outline:1px solid #e5e5ea}.qr-art svg{width:100%;height:100%}.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}.actions button{flex:1 1 140px;min-height:48px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px;color:var(--link)}.primary{background:var(--brand)!important;color:#fff!important;border-color:var(--brand)!important}.landing{padding-top:32px}.landing .identity{margin-bottom:24px}.status{padding:16px;background:var(--surface);border-radius:var(--r)}.status strong{display:block;margin-bottom:8px}.status p{font-size:.875em;color:var(--secondary);margin:0}.toast{min-height:56px;padding:16px;color:var(--secondary);font-size:.8125em}.spec{padding-top:8px}.spec section{border-bottom:1px solid var(--line);margin-bottom:20px;padding-bottom:12px}.spec ul{padding-left:20px;font-size:14px}.spec li{margin:8px 0}.spec a{color:var(--link)}[hidden]{display:none!important}@media(max-width:760px){.layout{grid-template-columns:minmax(0,1fr)}.phone{margin:auto}.shell{padding-top:16px}.layout{gap:24px}}@media(prefers-reduced-motion:no-preference){button:active{opacity:.65}}
+</style>
+</head>
+<body>
+<main class="shell">
+<h1>频道链接与二维码</h1>
+<p class="note">交互原型，尚未接入客户端。全部为虚构数据；链接使用保留示例域名，二维码仅为布局示意、不可扫描。点击操作仅演示反馈，不会发消息、写入剪贴板或修改账户。</p>
+<div class="controls">
+<label>频道类型 <select id="scope"><option value="public">个人 · 公开频道</option><option value="private">个人 · 私密频道</option><option value="enterprise">企业 · 内部频道</option></select></label>
+<label>打开状态 <select id="state"><option value="ready">已有访问权限</option><option value="login">尚未登录</option><option value="denied">当前账号无权限</option><option value="expired">邀请已过期</option><option value="archived">已归档且允许只读</option><option value="unavailable">已删除或不可用</option></select></label>
+<label>字体 <select id="scale"><option value="1">正常</option><option value="1.5">1.5 倍</option><option value="2">2 倍</option></select></label>
+<button id="theme" aria-pressed="false">深色模式</button>
+<div class="views" aria-label="设计页面"><button data-view="link" aria-pressed="true">频道链接</button><button data-view="qr" aria-pressed="false">二维码</button><button data-view="landing" aria-pressed="false">打开／扫码后</button></div>
+</div>
+<div class="layout">
+<div class="phone" id="phone">
+<header class="nav"><button id="back" aria-label="返回上一页">‹</button><strong id="title">频道链接</strong><span></span></header>
+<div id="link" class="screen">
+<div class="identity"><div class="avatar" aria-hidden="true">◉</div><div><div class="name resource-name">产品更新</div><div class="meta resource-meta">个人空间 · 公开频道</div></div></div>
+<div class="url" id="url">https://imboy.example/channel/demo</div>
+<p class="hint" id="policy"></p>
+<div class="list">
+<button class="row" data-action="send"><span class="glyph" aria-hidden="true">↗</span><span>发送给好友<span class="sub" id="send-hint">以频道名片发送</span></span><span class="arrow" aria-hidden="true">›</span></button>
+<button class="row" data-action="moment" id="moment"><span class="glyph" aria-hidden="true">◎</span><span>分享到动态</span><span class="arrow" aria-hidden="true">›</span></button>
+<button class="row" data-action="copy"><span class="glyph" aria-hidden="true">▱</span><span>复制链接</span><span></span></button>
+<button class="row" data-action="share"><span class="glyph" aria-hidden="true">↑</span><span>分享链接<span class="sub">选择其他应用</span></span><span class="arrow" aria-hidden="true">›</span></button>
+<button class="row" data-action="qr"><span class="glyph" aria-hidden="true">▦</span><span>频道二维码</span><span class="arrow" aria-hidden="true">›</span></button>
+</div>
+<p class="quiet" id="scope-note"></p>
+</div>
+<div id="qr" class="screen" hidden>
+<div class="qr-card"><div class="avatar" aria-hidden="true">◉</div><div class="name resource-name">产品更新</div><div class="meta resource-meta"></div><div class="qr-art" role="img" aria-label="二维码布局示意，不可扫描"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="#17171a"><path fill-rule="evenodd" d="M4 4h28v28H4zM10 10v16h16V10zM68 4h28v28H68zM74 10v16h16V10zM4 68h28v28H4zM10 74v16h16V74z"/><path d="M15 15h6v6h-6zM79 15h6v6h-6zM15 79h6v6h-6zM42 4h8v12h-8zM52 22h8v8h-8zM38 38h12v12H38zM62 38h8v12h-8zM80 40h16v8H80zM4 42h20v8H4zM30 52h10v8H30zM50 55h14v10H50zM72 58h8v8h-8zM88 56h8v18h-8zM42 76h8v20h-8zM58 80h10v8H58zM74 76h8v8h-8zM72 90h24v6H72z"/></g></svg></div><p style="font-size:.8125em;margin:0">扫码打开频道<br>访问资格以当前账号权限为准</p></div>
+<div class="actions"><button data-action="save">保存二维码</button><button class="primary" data-action="share-qr">分享二维码</button></div>
+<p class="quiet">频道二维码用于定位频道，不会自动关注、加入企业或获得私密内容权限。</p>
+</div>
+<div id="landing" class="screen landing" hidden><div class="identity" id="landing-identity"><div class="avatar" aria-hidden="true">◉</div><div><div class="name resource-name"></div><div class="meta resource-meta"></div></div></div><div class="status"><strong id="status-title"></strong><p id="status-copy"></p></div><div class="actions"><button id="entry-action" class="primary"></button><button data-action="return">返回</button></div></div>
+<div class="toast" id="feedback" role="status" aria-live="polite"></div>
+</div>
+<aside class="spec">
+<section><h2>统一入口，按权限说明</h2><p>频道详情顶部提供链接按钮，资料页保留“频道链接与二维码”，更多菜单作为补充入口。个人与企业使用同一套组件。</p></section>
+<section><h2>资源链接 ≠ 邀请资格</h2><ul><li>频道链接和频道码定位同一个频道，打开时重新校验当前账号。</li><li>私密频道的邀请链接另有有效期、撤销和加入资格，不能用普通频道地址代替。</li><li>企业频道显示归属与内部访问说明；不会隐式加入企业或切换当前工作区。</li><li>公开动态入口默认只提供给个人公开频道；企业外发管控如需支持，必须与服务端规则一致。</li></ul></section>
+<section><h2>文章也要能独立打开</h2><p>文章链接需要频道 ID 与消息 ID；经过登录、重启或从聊天名片进入，都应重新加载指定文章。文章删除、付费与访问限制使用明确状态。</p></section>
+<section><h2>如何验收闭环</h2><ul><li>发送端与接收端使用不同账号验证，不以“已复制”提示代替成功。</li><li>覆盖链接、二维码、好友名片、动态四个入口，以及冷启动和登录后继续。</li><li>验证私密、企业、付费、过期、归档和删除场景，取消操作不显示“分享成功”。</li></ul></section>
+</aside>
+</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let view='link';
+const scopes={public:{name:'产品更新',meta:'个人空间 · 公开频道',hint:'链接用于打开此频道。登录后，符合条件的用户可查看并关注。',note:'这是频道地址，关注与消息通知可分别设置。'},private:{name:'设计讨论',meta:'个人空间 · 私密频道',hint:'此链接用于定位频道。查看或加入仍须满足频道的邀请、审批或付费规则。',note:'邀请链接应由有权限的管理者另行管理，普通频道地址不授予加入资格。'},enterprise:{name:'项目公告',meta:'示例企业 · 研发工作区 · 内部频道',hint:'仅有访问权限的成员可打开。转发链接不会自动邀请他人加入企业或工作区。',note:'默认不提供分享到公开动态的入口。企业如限制外发，系统分享和二维码导出须服从同一规则。'}};
+const states={ready:['可以查看频道','已按当前账号校验访问资格。','进入频道'],login:['登录后继续查看','登录成功后回到这个频道，不返回无关首页。','登录并继续'],denied:['当前账号无权查看此频道','请确认使用了正确账号；频道地址本身不授予访问权限。','切换账号'],expired:['邀请已过期','这是一条失效的邀请凭证，请向邀请人获取新邀请。普通频道地址不代替邀请。','返回'],archived:['频道已归档','当现有规则允许查看时，仅提供只读内容；发布和加入操作不可用。','只读查看'],unavailable:['频道已不可用','频道可能已删除或停止提供访问。','返回']};
+function render(){const s=scopes[$('scope').value];document.querySelectorAll('.resource-name').forEach(n=>n.textContent=s.name);document.querySelectorAll('.resource-meta').forEach(n=>n.textContent=s.meta);$('policy').textContent=s.hint;$('scope-note').textContent=s.note;$('moment').hidden=$('scope').value!=='public';$('phone').style.setProperty('--scale',$('scale').value);for(const id of ['link','qr','landing'])$(id).hidden=id!==view;$('title').textContent={link:'频道链接',qr:'频道二维码',landing:'打开频道'}[view];document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));const state=$('state').value,info=states[state];$('status-title').textContent=info[0];$('status-copy').textContent=info[1];$('entry-action').textContent=info[2];$('landing-identity').hidden=['login','denied','expired','unavailable'].includes(state);$('feedback').textContent='';}
+function show(v){view=v;render();}
+$('scope').onchange=render;$('scale').onchange=render;$('state').onchange=()=>show('landing');$('theme').onclick=()=>{$('theme').setAttribute('aria-pressed',String(document.body.classList.toggle('dark')));};$('back').onclick=()=>show('link');document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>show(b.dataset.view));document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{const a=b.dataset.action;if(a==='qr')return show('qr');if(a==='return')return show('link');const labels={send:'演示：进入联系人选择，确认发送后才显示结果。',moment:'演示：进入动态编辑，用户发布后才显示结果。',copy:'演示：复制频道地址，当前原型不写入剪贴板。',share:'演示：打开系统分享；取消不显示分享成功。',save:'演示：保存二维码，失败或权限受限时提供具体反馈。','share-qr':'演示：分享二维码，取消不视为分享成功。'};$('feedback').textContent=labels[a]||'';});$('entry-action').onclick=()=>{$('feedback').textContent='这是落地状态示意，不会登录、切换账号或发起加入请求。';};render();
+</script>
+</body>
+</html>

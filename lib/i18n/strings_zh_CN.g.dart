@@ -1379,6 +1379,24 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '编辑标签'
 	String get editPostTags => '编辑标签';
+
+	/// zh-CN: '频道链接'
+	String get linkTitle => '频道链接';
+
+	/// zh-CN: '复制链接'
+	String get copyLink => '复制链接';
+
+	/// zh-CN: '分享链接'
+	String get shareLink => '分享链接';
+
+	/// zh-CN: '链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。'
+	String get linkAccessHint => '链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。';
+
+	/// zh-CN: '个人频道'
+	String get personalChannelLabel => '个人频道';
+
+	/// zh-CN: '企业内部频道'
+	String get enterpriseChannelLabel => '企业内部频道';
 }
 
 // Path: chat
@@ -9841,6 +9859,12 @@ extension on Translations {
 			'channel.essence' => '精华',
 			'channel.allPosts' => '全部内容',
 			'channel.editPostTags' => '编辑标签',
+			'channel.linkTitle' => '频道链接',
+			'channel.copyLink' => '复制链接',
+			'channel.shareLink' => '分享链接',
+			'channel.linkAccessHint' => '链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。',
+			'channel.personalChannelLabel' => '个人频道',
+			'channel.enterpriseChannelLabel' => '企业内部频道',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -9925,14 +9949,14 @@ extension on Translations {
 			'chat.scanQrCodeBusinessCard' => '扫描二维码名片',
 			'chat.privateChat' => '私聊',
 			'chat.sendFriendRequest' => '发送添加朋友申请',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sendMsgRejected' => '消息已发出，但被对方拒收了。',
 			'chat.sendMessage' => '发消息',
 			'chat.sendTo' => '发送给',
 			'chat.send' => _root.common.buttonSend,
 			'chat.releaseConvertToText' => '松开 转文字',
 			'chat.voiceReleaseCancelSend' => '松开 取消发送',
-			_ => null,
-		} ?? switch (path) {
 			'chat.voiceReleaseCancel' => '松开 取消',
 			'chat.voiceSlideHint' => '上滑 取消 / 转文字',
 			'chat.convertToText' => '转文字',
@@ -10439,14 +10463,14 @@ extension on Translations {
 			'common.cameraCapture' => '拍摄',
 			'common.cameraModePhoto' => '照片',
 			'common.cameraModeVideo' => '视频',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraRetake' => '重拍',
 			'common.cameraUse' => '使用',
 			'common.cameraNoDevice' => '未检测到可用的摄像头',
 			'common.avatarEditAvatar' => '编辑头像',
 			'common.backgroundUseCustomColor' => '使用自定义颜色',
 			'common.backgroundOnlySolidColor' => '仅适用于纯色背景',
-			_ => null,
-		} ?? switch (path) {
 			'common.backgroundSelectColor' => '选择颜色',
 			'common.profileShareProfile' => '分享资料',
 			'common.tagClearAllConfirm' => '确定要清空所有标签吗？',
@@ -10953,14 +10977,14 @@ extension on Translations {
 			'common.timeNowShort' => 'now',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.showPassword' => '显示密码',
 			'common.hidePassword' => '隐藏密码',
 			'common.turnOnFlashlight' => '打开闪光灯',
 			'common.turnOffFlashlight' => '关闭闪光灯',
 			'common.pauseScan' => '暂停扫描',
-			_ => null,
-		} ?? switch (path) {
 			'common.resumeScan' => '继续扫描',
 			'common.enterFullscreen' => '进入全屏',
 			'common.exitFullscreen' => '退出全屏',
@@ -11467,14 +11491,14 @@ extension on Translations {
 			'groupVote.statusInProgress' => '进行中',
 			'groupVote.updateVote' => '更新投票',
 			'groupVote.cancelMyVote' => '取消我的投票',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.voteIdMissing' => '投票ID缺失，无法查看详情',
 			'groupVote.participantCount' => ({required Object count}) => '参与人数: ${count}',
 			'groupVote.singleChoice' => '单选',
 			'groupVote.multipleChoice' => '多选',
 			'groupVote.endVote' => '结束投票',
 			'groupVote.alreadyVoted' => '已投票',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.selectedCount' => ({required Object count}) => '已选 ${count} 项',
 			'groupVote.voteCount' => ({required Object count}) => '${count} 票',
 			'main.totalAssets' => '总资产',
@@ -11981,14 +12005,14 @@ extension on Translations {
 			'organization.manage.workspaceSection' => '工作区',
 			'organization.manage.createWorkspace' => '新建工作区',
 			'organization.manage.workspaceNameHint' => '工作区名称',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.workspaceEmpty' => '暂无工作区',
 			'organization.manage.workspaceEmptyHint' => '当前企业下还没有你加入的工作区，可用右上角新建。',
 			'organization.manage.workspaceScopeNote' => '这里只列出你已加入的工作区；同企业内你未加入的工作区不会出现。',
 			'organization.manage.defaultBadge' => '默认工作区',
 			'organization.manage.notDefaultBadge' => '非默认',
 			'organization.manage.archivedBadge' => '已归档',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.ownerBadge' => '我是所有者',
 			'organization.manage.memberBadge' => '我是成员',
 			'organization.manage.setDefault' => '设为默认工作区',

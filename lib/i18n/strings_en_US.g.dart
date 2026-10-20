@@ -550,6 +550,12 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get essence => 'Highlights';
 	@override String get allPosts => 'All posts';
 	@override String get editPostTags => 'Edit tags';
+	@override String get linkTitle => 'Channel link';
+	@override String get copyLink => 'Copy link';
+	@override String get shareLink => 'Share link';
+	@override String get linkAccessHint => 'Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership.';
+	@override String get personalChannelLabel => 'Personal channel';
+	@override String get enterpriseChannelLabel => 'Internal enterprise channel';
 }
 
 // Path: chat
@@ -3940,6 +3946,12 @@ extension on TranslationsEnUs {
 			'channel.essence' => 'Highlights',
 			'channel.allPosts' => 'All posts',
 			'channel.editPostTags' => 'Edit tags',
+			'channel.linkTitle' => 'Channel link',
+			'channel.copyLink' => 'Copy link',
+			'channel.shareLink' => 'Share link',
+			'channel.linkAccessHint' => 'Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership.',
+			'channel.personalChannelLabel' => 'Personal channel',
+			'channel.enterpriseChannelLabel' => 'Internal enterprise channel',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -4024,14 +4036,14 @@ extension on TranslationsEnUs {
 			'chat.send' => _root.common.buttonSend,
 			'chat.sending' => 'Sending...',
 			'chat.socialProfile' => 'Social profile',
+			_ => null,
+		} ?? switch (path) {
 			'chat.sureOpenTheFile' => 'Are you sure you want to open the file?',
 			'chat.titleMessage' => 'Messages',
 			'chat.unpin' => 'Unpin',
 			'chat.userData' => 'User data',
 			'chat.video' => 'Video',
 			'chat.videoMessage' => '[Video]',
-			_ => null,
-		} ?? switch (path) {
 			'chat.viewAttachments' => 'View attachments',
 			'chat.viewLargeImage' => 'View large image',
 			'chat.voice' => 'Voice',
@@ -4538,14 +4550,14 @@ extension on TranslationsEnUs {
 			'common.tagClearAll' => 'Confirm clear',
 			'common.audioPlayFailed' => 'Playback failed',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'You have been forced offline by device [${device}]',
+			_ => null,
+		} ?? switch (path) {
 			'common.loadingTagDataFailed' => 'Failed to load tag data',
 			'common.pleaseEnterContent' => 'Please enter content',
 			'common.comingSoon' => 'Coming soon',
 			'common.backgroundTransparency' => 'Background Transparency',
 			'common.defaultBackground' => 'Default Background',
 			'common.solidColorBackground' => 'Solid Color Background',
-			_ => null,
-		} ?? switch (path) {
 			'common.selectImageFailed' => 'Failed to select image',
 			'common.locationSelectNotImplemented' => 'Location selection feature not implemented',
 			'common.selectLocationFailed' => 'Failed to select location',
@@ -5052,14 +5064,14 @@ extension on TranslationsEnUs {
 			'common.transferReceiving' => 'Receiving...',
 			'common.transferRefunded' => 'Returned',
 			'common.transferRemarkLabel' => 'Transfer Note',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferTapToReceive' => 'Tap to receive',
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} items failed to upload',
 			'common.voiceSttConverting' => 'Transcribing...',
 			'common.voiceSttNotConfigured' => 'Voice-to-text is not configured yet',
 			'common.voiceSttPreviewTitle' => 'Voice-to-Text Preview',
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Unsupported video format, the video could not be found',
-			_ => null,
-		} ?? switch (path) {
 			'common.retry' => 'Retry',
 			'common.retrying' => 'Retrying…',
 			'complaint.complaint' => 'Complaint',
@@ -5566,14 +5578,14 @@ extension on TranslationsEnUs {
 			'main.cache' => 'Cache',
 			'main.camera' => 'Camera',
 			'main.changeParam' => ({required Object param}) => 'Change ${param}',
+			_ => null,
+		} ?? switch (path) {
 			'main.chooseFromAlbum' => 'Select from album',
 			'main.clean' => 'Clean',
 			'main.codeSentToParam' => ({required Object param}) => 'Verification code sent to ${param}',
 			'main.collected' => 'Favorited',
 			'main.completed' => 'Completed',
 			'main.copied' => 'Copied',
-			_ => null,
-		} ?? switch (path) {
 			'main.darkModel' => 'Dark mode',
 			'main.deDd' => 'German (Germany)',
 			'main.disable' => 'Disable',
@@ -6080,14 +6092,14 @@ extension on TranslationsEnUs {
 			'organization.manage.groupSection' => 'Enterprise groups',
 			'organization.manage.createGroup' => 'New group',
 			'organization.manage.groupNameHint' => 'Group name',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.groupEmpty' => 'No enterprise groups yet',
 			'organization.manage.groupMembers' => ({required Object count}) => '${count} members',
 			'organization.manage.dissolveGroup' => 'Dissolve group',
 			'organization.manage.dissolveGroupTitle' => ({required Object name}) => 'Dissolve 「${name}」?',
 			'organization.manage.dissolveGroupBody' => 'Dissolving cannot be undone. Membership ends, but message history and audit records are kept.',
 			'organization.manage.channelSection' => 'Enterprise channels',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.createChannel' => 'New channel',
 			'organization.manage.channelNameHint' => 'Channel name',
 			'organization.manage.channelPolicyNote' => 'Enterprise channels are always free and non-public: they never appear in public discovery, and members subscribe through the workspace.',

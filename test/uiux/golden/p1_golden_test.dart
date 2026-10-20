@@ -306,7 +306,7 @@ void main() {
       await _pumpGolden(tester, cfg);
       await expectLater(
         find.byType(Scaffold).first,
-        matchesGoldenFile('goldens/2026-10-20-channel-space/${cfg.id}.png'),
+        matchesGoldenFile('goldens/2026-10-20-channel-share/${cfg.id}.png'),
       );
       expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
     }

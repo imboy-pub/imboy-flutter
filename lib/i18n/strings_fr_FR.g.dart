@@ -501,6 +501,12 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get essence => 'À la une';
 	@override String get allPosts => 'Toutes les publications';
 	@override String get editPostTags => 'Modifier les tags';
+	@override String get linkTitle => 'Lien du canal';
+	@override String get copyLink => 'Copier le lien';
+	@override String get shareLink => 'Partager le lien';
+	@override String get linkAccessHint => 'Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés.';
+	@override String get personalChannelLabel => 'Canal personnel';
+	@override String get enterpriseChannelLabel => 'Canal interne de l’entreprise';
 }
 
 // Path: chat
@@ -3676,6 +3682,12 @@ extension on TranslationsFrFr {
 			'channel.essence' => 'À la une',
 			'channel.allPosts' => 'Toutes les publications',
 			'channel.editPostTags' => 'Modifier les tags',
+			'channel.linkTitle' => 'Lien du canal',
+			'channel.copyLink' => 'Copier le lien',
+			'channel.shareLink' => 'Partager le lien',
+			'channel.linkAccessHint' => 'Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés.',
+			'channel.personalChannelLabel' => 'Canal personnel',
+			'channel.enterpriseChannelLabel' => 'Canal interne de l’entreprise',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3798,14 +3810,14 @@ extension on TranslationsFrFr {
 			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
 			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
 			'chat.momentsReplyPrefix' => 'Répondre @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => 'Réponse à @{name}',
 			'chat.sendNewMessage' => 'Envoyer un nouveau message',
 			'chat.markRead' => 'Marquer comme lu',
 			'chat.markUnread' => 'Marquer comme non lu',
 			'chat.pleaseEnterSignature' => 'Saisissez votre signature',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => 'Exporter le profil',
 			'chat.setSignature' => 'Définir la signature',
 			'chat.setAvatar' => 'Définir l\'avatar',
@@ -4312,14 +4324,14 @@ extension on TranslationsFrFr {
 			'common.editTags' => 'Modifier les étiquettes',
 			'common.quickActions' => 'Actions rapides',
 			'common.noNewFriendRequests' => 'Aucune nouvelle demande d\'ami pour le moment.',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'Entrez le message de vérification.',
 			'common.unknownRegion' => 'Région inconnue.',
 			'common.noCommonGroups' => 'Aucun groupe en commun.',
 			'common.noMoreInfo' => 'Aucune autre information.',
 			'common.verificationMessage' => 'Message de vérification',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'Après activation : Les messages seront automatiquement détruits ${duration} après avoir été lus',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'Après désactivation : Les messages ne seront pas automatiquement détruits',
 			'common.noGroupAnnouncement' => 'Aucune annonce de groupe.',
 			'common.featureComingSoon' => 'Fonctionnalité bientôt disponible.',
@@ -4826,14 +4838,14 @@ extension on TranslationsFrFr {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => 'Envoyé',
 			'contact.channelMaxTagsCount' => '8 étiquettes maximum',
 			'contact.tagInputHint' => 'Étiquette...',
 			'discovery.findNearbyPeople' => 'Trouver des personnes à proximité',
 			'discovery.moment' => 'Moments',
 			'discovery.nearbyPeopleExplain' => 'Les utilisateurs à proximité peuvent voir votre profil et vous envoyer des messages. Cela peut vous aider à trouver de nouveaux amis, mais peut aussi attirer trop d\'attention. Vous pouvez cesser de partager votre profil à tout moment.\nVotre numéro de téléphone sera masqué.',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Personnes à proximité',
 			'discovery.scanResult' => 'Résultat du scan',
 			'discovery.myChannels' => 'Mes canaux',
@@ -5340,14 +5352,14 @@ extension on TranslationsFrFr {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Terminé (${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} sélectionnés',
 			'momentFriendPicker.emptyFriends' => 'Aucun ami',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Échec du chargement des étiquettes',
 			'momentFriendPicker.searchHint' => 'Rechercher un ami',
 			'momentNotify.title' => 'Interactions',
 			'momentNotify.emptyTitle' => 'Aucune nouvelle notification',
 			'momentNotify.emptyHint' => 'Les « J\'aime » et commentaires de vos amis s\'affichent ici',
 			'momentNotify.actionLike' => 'a aimé votre moment',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => 'a commenté',
 			'momentNotify.markAllRead' => 'Tout marquer lu',
 			'momentNotify.clearAll' => 'Tout effacer',
@@ -5854,14 +5866,14 @@ extension on TranslationsFrFr {
 			'workspace.joinCodeLabel' => 'Code d\'équipe',
 			'workspace.joinCodeHint' => '8 caractères (lettres majuscules ou chiffres)',
 			'workspace.joinSubmit' => 'Rejoindre',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => 'Vous avez rejoint « ${name} »',
 			'workspace.joinAlreadyMember' => 'Vous êtes déjà dans cet espace de travail',
 			'workspace.joinInvalidCode' => 'Code d\'équipe invalide ou non valable',
 			'workspace.joinExpiredCode' => 'Code d\'équipe expiré',
 			'workspace.inviteCodeSectionTitle' => 'Invitation par code d\'équipe',
 			'workspace.inviteCodeGenerate' => 'Générer un code d\'équipe',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'Copier',
 			'workspace.inviteCodeRevoke' => 'Révoquer',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Valable jusqu\'au ${expiresAt}',

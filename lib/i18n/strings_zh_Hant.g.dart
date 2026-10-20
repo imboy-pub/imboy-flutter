@@ -501,6 +501,12 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get essence => '精華';
 	@override String get allPosts => '全部內容';
 	@override String get editPostTags => '編輯標籤';
+	@override String get linkTitle => '頻道連結';
+	@override String get copyLink => '複製連結';
+	@override String get shareLink => '分享連結';
+	@override String get linkAccessHint => '連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。';
+	@override String get personalChannelLabel => '個人頻道';
+	@override String get enterpriseChannelLabel => '企業內部頻道';
 }
 
 // Path: chat
@@ -3673,6 +3679,12 @@ extension on TranslationsZhHant {
 			'channel.essence' => '精華',
 			'channel.allPosts' => '全部內容',
 			'channel.editPostTags' => '編輯標籤',
+			'channel.linkTitle' => '頻道連結',
+			'channel.copyLink' => '複製連結',
+			'channel.shareLink' => '分享連結',
+			'channel.linkAccessHint' => '連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。',
+			'channel.personalChannelLabel' => '個人頻道',
+			'channel.enterpriseChannelLabel' => '企業內部頻道',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3795,14 +3807,14 @@ extension on TranslationsZhHant {
 			'chat.passwordMismatch' => '兩次密碼不一致',
 			'chat.pleaseTryAgainLater' => '請稍後重試',
 			'chat.historyUnavailable' => '歷史訊息暫不可用',
+			_ => null,
+		} ?? switch (path) {
 			'chat.historyUnavailableHint' => '伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步',
 			'chat.momentsRecordVideo' => '拍攝影片',
 			'chat.momentsVisibilityPrivate' => '僅自己',
 			'chat.momentsMediaTooManyImages' => '最多隻能選擇 9 張圖片',
 			'chat.momentsMediaTooManyVideos' => '最多隻能選擇 1 個影片',
 			'chat.momentsMediaMixedImageAndVideo' => '圖片和影片不能同時釋出',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsReplyPrefix' => '回覆 @',
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '正在回覆 @{name}',
@@ -4309,14 +4321,14 @@ extension on TranslationsZhHant {
 			'common.basicInfo' => '基本資訊',
 			'common.contactInfo' => '聯絡資訊',
 			'common.editTags' => '編輯標籤',
+			_ => null,
+		} ?? switch (path) {
 			'common.quickActions' => '快速操作',
 			'common.noNewFriendRequests' => '暫時沒有新的好友申請',
 			'common.pleaseEnterVerificationMessage' => '請輸入驗證訊息',
 			'common.unknownRegion' => '未知地區',
 			'common.noCommonGroups' => '暫無共同群組',
 			'common.noMoreInfo' => '暫無更多資訊',
-			_ => null,
-		} ?? switch (path) {
 			'common.verificationMessage' => '驗證訊息',
 			'common.burnEnabledMessage' => ({required Object duration}) => '開啟後：訊息在被閱讀後 ${duration} 自動銷毀',
 			'common.burnDisabledMessage' => '關閉後：訊息不會自動銷毀',
@@ -4823,14 +4835,14 @@ extension on TranslationsZhHant {
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => '已傳送',
 			'contact.channelMaxTagsCount' => '最多可新增 8 個標籤',
 			'contact.tagInputHint' => '輸入標籤...',
 			'discovery.findNearbyPeople' => '搜尋附近的人',
 			'discovery.moment' => '動態',
 			'discovery.nearbyPeopleExplain' => '附近的使用者可以檢視你的個人資料並給你發送訊息。這可能會幫助你找到新朋友，但也可能會引起過多的關注。你可以隨時停止分享你的個人資料。\n你的電話號碼將會被隱藏。',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => '附近的朋友',
 			'discovery.scanResult' => '掃描結果',
 			'discovery.myChannels' => '我的頻道',
@@ -5337,14 +5349,14 @@ extension on TranslationsZhHant {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '確定(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '已選 ${count} 人',
 			'momentFriendPicker.emptyFriends' => '暫無好友',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => '標籤載入失敗',
 			'momentFriendPicker.searchHint' => '搜尋好友',
 			'momentNotify.title' => '互動訊息',
 			'momentNotify.emptyTitle' => '暫無新訊息',
 			'momentNotify.emptyHint' => '好友點贊或評論你的朋友圈後，會出現在這裡',
 			'momentNotify.actionLike' => '讚了你的朋友圈',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => '評論了你',
 			'momentNotify.markAllRead' => '全部已讀',
 			'momentNotify.clearAll' => '全部清空',
@@ -5851,14 +5863,14 @@ extension on TranslationsZhHant {
 			'workspace.joinCodeLabel' => '團隊碼',
 			'workspace.joinCodeHint' => '8 位大寫字母或數字',
 			'workspace.joinSubmit' => '送出',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '你已加入「${name}」',
 			'workspace.joinAlreadyMember' => '你已在此工作區中',
 			'workspace.joinInvalidCode' => '團隊碼無效或已失效',
 			'workspace.joinExpiredCode' => '團隊碼已過期',
 			'workspace.inviteCodeSectionTitle' => '團隊碼邀請',
 			'workspace.inviteCodeGenerate' => '產生團隊碼',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => '複製',
 			'workspace.inviteCodeRevoke' => '撤銷',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '效期至 ${expiresAt}',

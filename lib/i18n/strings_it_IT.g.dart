@@ -501,6 +501,12 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get essence => 'In evidenza';
 	@override String get allPosts => 'Tutti i post';
 	@override String get editPostTags => 'Modifica tag';
+	@override String get linkTitle => 'Link del canale';
+	@override String get copyLink => 'Copia link';
+	@override String get shareLink => 'Condividi link';
+	@override String get linkAccessHint => 'Il link apre il canale. Accesso e iscrizione restano soggetti alle autorizzazioni del canale. I canali aziendali sono riservati ai membri autorizzati.';
+	@override String get personalChannelLabel => 'Canale personale';
+	@override String get enterpriseChannelLabel => 'Canale aziendale interno';
 }
 
 // Path: chat
@@ -3676,6 +3682,12 @@ extension on TranslationsItIt {
 			'channel.essence' => 'In evidenza',
 			'channel.allPosts' => 'Tutti i post',
 			'channel.editPostTags' => 'Modifica tag',
+			'channel.linkTitle' => 'Link del canale',
+			'channel.copyLink' => 'Copia link',
+			'channel.shareLink' => 'Condividi link',
+			'channel.linkAccessHint' => 'Il link apre il canale. Accesso e iscrizione restano soggetti alle autorizzazioni del canale. I canali aziendali sono riservati ai membri autorizzati.',
+			'channel.personalChannelLabel' => 'Canale personale',
+			'channel.enterpriseChannelLabel' => 'Canale aziendale interno',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3798,14 +3810,14 @@ extension on TranslationsItIt {
 			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
 			'chat.momentsMediaMixedImageAndVideo' => 'Immagini e video non insieme',
 			'chat.momentsReplyPrefix' => 'Rispondi @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => 'Risposta a @{name}',
 			'chat.sendNewMessage' => 'Invia nuovo messaggio',
 			'chat.markRead' => 'Segna come letto',
 			'chat.markUnread' => 'Segna come non letto',
 			'chat.pleaseEnterSignature' => 'Inserisci la tua firma',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => 'Esporta profilo',
 			'chat.setSignature' => 'Imposta firma',
 			'chat.setAvatar' => 'Imposta avatar',
@@ -4312,14 +4324,14 @@ extension on TranslationsItIt {
 			'common.editTags' => 'Modifica tag',
 			'common.quickActions' => 'Azioni rapide',
 			'common.noNewFriendRequests' => 'Nessuna nuova richiesta di amicizia per ora',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'Inserisci messaggio di verifica',
 			'common.unknownRegion' => 'Regione sconosciuta',
 			'common.noCommonGroups' => 'Nessun gruppo in comune',
 			'common.noMoreInfo' => 'Nessun\'altra informazione',
 			'common.verificationMessage' => 'Messaggio di verifica',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'Dopo l\'attivazione: I messaggi verranno distrutti automaticamente ${duration} dopo essere stati letti',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'Dopo la disattivazione: I messaggi non verranno distrutti automaticamente',
 			'common.noGroupAnnouncement' => 'Nessun annuncio di gruppo',
 			'common.featureComingSoon' => 'Funzionalità prossimamente',
@@ -4826,14 +4838,14 @@ extension on TranslationsItIt {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Massimo ${param} tag consentiti',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Tag selezionati (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => 'Inviato',
 			'contact.channelMaxTagsCount' => 'Massimo 8 tag',
 			'contact.tagInputHint' => 'Tag...',
 			'discovery.findNearbyPeople' => 'Trova persone nelle vicinanze',
 			'discovery.moment' => 'Momenti',
 			'discovery.nearbyPeopleExplain' => 'Gli utenti nelle vicinanze possono visualizzare il tuo profilo e inviarti messaggi. Questo potrebbe aiutarti a trovare nuovi amici, ma potrebbe anche attirare troppa attenzione. Puoi smettere di condividere il tuo profilo in qualsiasi momento.\nIl tuo numero di telefono verrà nascosto.',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Persone nelle vicinanze',
 			'discovery.scanResult' => 'Risultato scansione',
 			'discovery.myChannels' => 'I miei canali',
@@ -5340,14 +5352,14 @@ extension on TranslationsItIt {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Fatto (${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} selezionati',
 			'momentFriendPicker.emptyFriends' => 'Nessun amico',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Caricamento tag fallito',
 			'momentFriendPicker.searchHint' => 'Cerca amico',
 			'momentNotify.title' => 'Interazioni',
 			'momentNotify.emptyTitle' => 'Nessuna nuova notifica',
 			'momentNotify.emptyHint' => 'I « Mi piace » e i commenti degli amici appaiono qui',
 			'momentNotify.actionLike' => 'ha messo mi piace al tuo momento',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => 'ha commentato',
 			'momentNotify.markAllRead' => 'Segna tutto letto',
 			'momentNotify.clearAll' => 'Cancella tutto',
@@ -5854,14 +5866,14 @@ extension on TranslationsItIt {
 			'workspace.joinByTeamCode' => 'Unisciti a uno workspace con codice team',
 			'workspace.joinExpiredCode' => 'Codice team scaduto',
 			'workspace.joinInvalidCode' => 'Codice team non valido o non più utilizzabile',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSubmit' => 'Entra',
 			'workspace.joinSuccess' => ({required Object name}) => 'Sei entrato in «${name}»',
 			'workspace.joinTitle' => 'Entra nell\'area di lavoro',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} membri',
 			'workspace.membersEmpty' => 'Nessun membro dell\'area di lavoro per ora',
 			'workspace.membersEmptySubtitle' => 'Invita utenti registrati a diventare membri dell\'area di lavoro (Owner / Member / Guest)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.membersTitle' => 'Membri dell\'area di lavoro',
 			'workspace.membersViewAll' => 'Vedi tutti',
 			'workspace.navChannels' => 'Canali',

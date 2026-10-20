@@ -109,7 +109,15 @@ class ChannelCardMessageBuilderState extends State<ChannelCardMessageBuilder> {
                 GestureDetector(
                   onTap: () {
                     if (channelId.isEmpty) return;
-                    context.push('/channel/$channelId');
+                    final messageId = msg.metadata?['message_id']?.toString();
+                    final article =
+                        messageId != null &&
+                        RegExp(r'^[1-9][0-9]*$').hasMatch(messageId);
+                    context.push(
+                      article
+                          ? '/channel/$channelId/article/$messageId'
+                          : '/channel/$channelId',
+                    );
                   },
                   child: Row(
                     children: [

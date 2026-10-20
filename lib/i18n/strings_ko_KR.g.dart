@@ -501,6 +501,12 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get essence => '추천 게시물';
 	@override String get allPosts => '모든 게시물';
 	@override String get editPostTags => '태그 편집';
+	@override String get linkTitle => '채널 링크';
+	@override String get copyLink => '링크 복사';
+	@override String get shareLink => '링크 공유';
+	@override String get linkAccessHint => '링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다.';
+	@override String get personalChannelLabel => '개인 채널';
+	@override String get enterpriseChannelLabel => '기업 내부 채널';
 }
 
 // Path: chat
@@ -3673,6 +3679,12 @@ extension on TranslationsKoKr {
 			'channel.essence' => '추천 게시물',
 			'channel.allPosts' => '모든 게시물',
 			'channel.editPostTags' => '태그 편집',
+			'channel.linkTitle' => '채널 링크',
+			'channel.copyLink' => '링크 복사',
+			'channel.shareLink' => '링크 공유',
+			'channel.linkAccessHint' => '링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다.',
+			'channel.personalChannelLabel' => '개인 채널',
+			'channel.enterpriseChannelLabel' => '기업 내부 채널',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3795,14 +3807,14 @@ extension on TranslationsKoKr {
 			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
 			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
 			'chat.momentsReplyPrefix' => '답글 @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => '@{name}님에게 답글 작성 중',
 			'chat.sendNewMessage' => '새 메시지 전송',
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
 			'chat.pleaseEnterSignature' => '한 줄 소개를 입력하세요',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => '프로필 내보내기',
 			'chat.setSignature' => '서명 설정',
 			'chat.setAvatar' => '프로필 사진 설정',
@@ -4309,14 +4321,14 @@ extension on TranslationsKoKr {
 			'common.editTags' => '태그 편집',
 			'common.quickActions' => '빠른 작업',
 			'common.noNewFriendRequests' => '현재 새 친구 요청이 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => '확인 메시지를 입력해 주세요',
 			'common.unknownRegion' => '알 수 없는 지역',
 			'common.noCommonGroups' => '공통 그룹 없음',
 			'common.noMoreInfo' => '더 이상 정보 없음',
 			'common.verificationMessage' => '확인 메시지',
 			'common.burnEnabledMessage' => ({required Object duration}) => '활성화 후: 메시지가 읽힌 후 ${duration} 후 자동으로 삭제됩니다',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => '비활성화 후: 메시지가 자동으로 삭제되지 않습니다',
 			'common.noGroupAnnouncement' => '그룹 공지 없음',
 			'common.featureComingSoon' => '기능 출시 예정',
@@ -4823,14 +4835,14 @@ extension on TranslationsKoKr {
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => '전송됨',
 			'contact.channelMaxTagsCount' => '태그는 최대 8개까지 추가할 수 있습니다',
 			'contact.tagInputHint' => '태그 입력...',
 			'discovery.findNearbyPeople' => '주변 사람 찾기',
 			'discovery.moment' => '모멘트',
 			'discovery.nearbyPeopleExplain' => '주변 사용자가 귀하의 프로필을 보고 메시지를 보낼 수 있습니다. 이는 새 친구를 찾는 데 도움이 될 수 있지만 과도한 주의를 끌 수도 있습니다. 언제든지 프로필 공유를 중단할 수 있습니다.\n전화번호는 숨겨집니다.',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => '주변 사람',
 			'discovery.scanResult' => '스캔 결과',
 			'discovery.myChannels' => '내 채널',
@@ -5337,14 +5349,14 @@ extension on TranslationsKoKr {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '확인(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count}명 선택',
 			'momentFriendPicker.emptyFriends' => '친구가 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => '태그를 불러오지 못했습니다',
 			'momentFriendPicker.searchHint' => '친구 검색',
 			'momentNotify.title' => '활동',
 			'momentNotify.emptyTitle' => '새 알림이 없습니다',
 			'momentNotify.emptyHint' => '친구가 내 모멘트에 좋아요나 댓글을 남기면 여기에 표시됩니다',
 			'momentNotify.actionLike' => '님이 회원님의 모멘트를 좋아합니다',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => '님이 댓글을 남겼습니다',
 			'momentNotify.markAllRead' => '모두 읽음',
 			'momentNotify.clearAll' => '전체 삭제',
@@ -5851,14 +5863,14 @@ extension on TranslationsKoKr {
 			'workspace.joinCodeLabel' => '팀 코드',
 			'workspace.joinCodeHint' => '영문 대문자 또는 숫자 8자',
 			'workspace.joinSubmit' => '가입',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '「${name}」에 가입했습니다',
 			'workspace.joinAlreadyMember' => '이미 이 워크스페이스에 속해 있습니다',
 			'workspace.joinInvalidCode' => '팀 코드가 잘못되었거나 만료되었습니다',
 			'workspace.joinExpiredCode' => '팀 코드가 만료되었습니다',
 			'workspace.inviteCodeSectionTitle' => '팀 코드 초대',
 			'workspace.inviteCodeGenerate' => '팀 코드 생성',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => '복사',
 			'workspace.inviteCodeRevoke' => '무효화',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => '${expiresAt}까지 유효',

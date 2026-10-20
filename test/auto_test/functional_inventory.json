@@ -4,10 +4,10 @@
     "app_head": "see-catalog",
     "ledger_count": 170,
     "ledger_row_count": 1877,
-    "lib_page_count": 167,
+    "lib_page_count": 169,
     "module_page_count": 26,
     "route_page_component_count": 150,
-    "function_count": 2023,
+    "function_count": 2026,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -1901,8 +1901,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:001",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "频道消息图片附件渲染（view_url 授权）",
@@ -1924,8 +1924,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:002",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "频道详情加载、头部渲染与未读清零",
@@ -1947,8 +1947,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:003",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "头部统计加载与发布后权威刷新",
@@ -1970,8 +1970,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:004",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "消息卡片点赞落库与计数回显",
@@ -1993,8 +1993,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:005",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "发布栏文本发布与键盘避让",
@@ -2016,8 +2016,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:006",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "发布栏语音录制发送与发送反馈",
@@ -2039,8 +2039,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:007",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "发布栏附件上传 scope 传参授权",
@@ -2062,8 +2062,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:008",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "头部订阅/退订按钮与确认弹窗防重入",
@@ -2085,8 +2085,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:009",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "消息流首屏加载、下拉刷新与加载更多",
@@ -2108,8 +2108,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:010",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "更多菜单管理项（编辑/写文章/管理员/订阅者）",
@@ -2131,8 +2131,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:011",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "分享面板复制链接、二维码与转发聊天",
@@ -2154,8 +2154,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:012",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "菜单退订与创建者删除频道确认",
@@ -2177,8 +2177,8 @@
     {
       "function_id": "fn:channel:channel_detail_page:013",
       "page": "lib/page/channel/channel_detail_page.dart",
-      "route_or_entry": "ChannelDetailPage",
-      "route_registered": true,
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
       "source": "test/auto_test/channel/channel_detail_page.md",
       "control": "unknown",
       "action": "付费频道 paywall 锁定与购买后刷新",
@@ -2920,6 +2920,75 @@
       "action": "点击条目或打开频道按钮跳详情",
       "expected_oracle": "见台账断言",
       "details": "",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:channel:channel_link_page:001",
+      "page": "lib/page/channel/channel_link_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "menu_item",
+      "action": "触发第 1 处 menu_item 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:channel:channel_link_page:002",
+      "page": "lib/page/channel/channel_link_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:channel:channel_link_target_page:001",
+      "page": "lib/page/channel/channel_link_target_page.dart",
+      "route_or_entry": "ChannelLinkTargetPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
       "platforms": [
         "android",
         "macos"
@@ -46819,7 +46888,7 @@
       "page": "lib/page/channel/channel_detail_page.dart",
       "module": "channel",
       "function_count": 13,
-      "route_registered": true,
+      "route_registered": false,
       "has_ledger": true,
       "ledger_generated": false
     },
@@ -46845,6 +46914,22 @@
       "function_count": 11,
       "route_registered": true,
       "has_ledger": true,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/channel/channel_link_page.dart",
+      "module": "channel",
+      "function_count": 2,
+      "route_registered": false,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/channel/channel_link_target_page.dart",
+      "module": "channel",
+      "function_count": 1,
+      "route_registered": true,
+      "has_ledger": false,
       "ledger_generated": false
     },
     {

@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -10,30 +14,29 @@ import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photo_manager/photo_manager.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class RepaintBoundaryHelper {
   FutureOr<Uint8List?> image(BuildContext ctx, GlobalKey boundaryKey) async {
-    RenderRepaintBoundary? boundary =
-        boundaryKey.currentContext!.findRenderObject()
-            as RenderRepaintBoundary?;
-
-    final dpr = View.of(ctx).devicePixelRatio; // 获取当前设备的像素比
-    final image = await boundary!.toImage(pixelRatio: dpr);
-    // 将image转化成byte
-    final byteData = await image.toByteData(format: ImageByteFormat.png);
-
-    bool permission = true;
-    // Web 平台不需要存储权限
-    if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-      permission = await Permission.storage.isGranted;
+    final boundary = boundaryKey.currentContext?.findRenderObject();
+    if (boundary is! RenderRepaintBoundary || !ctx.mounted) return null;
+    final image = await boundary.toImage(
+      pixelRatio: View.of(ctx).devicePixelRatio,
+    );
+    try {
+      final byteData = await image.toByteData(format: ImageByteFormat.png);
+      return byteData?.buffer.asUint8List();
+    } finally {
+      image.dispose();
     }
-    if (permission) {
-      return byteData!.buffer.asUint8List();
-    } else {
-      await openAppSettings();
-      return null;
-    }
+  }
+
+  /// 新版 Android 通过 MediaStore 写入，不申请读取相册权限。
+  /// iOS 的授权由 photo_manager 原生保存入口处理。
+  Future<bool> _requestLegacyWritePermission() async {
+    if (kIsWeb || !Platform.isAndroid) return true;
+    final sdk = (await DeviceInfoPlugin().androidInfo).version.sdkInt;
+    if (sdk >= 29) return true;
+    return (await Permission.storage.request()).isGranted;
   }
 
   /// for example:{"isSuccess":true, "filePath":String?}
@@ -49,6 +52,14 @@ class RepaintBoundaryHelper {
   ) async {
     final Uint8List? img;
     try {
+      if (!await _requestLegacyWritePermission()) {
+        AppLoading.showError(t.common.storagePermissionNotObtained);
+        return {
+          "isSuccess": false,
+          "errorMessage": t.common.storagePermissionNotObtained,
+        };
+      }
+      if (!ctx.mounted) return {"isSuccess": false};
       img = await image(ctx, boundaryKey);
     } on Exception catch (e) {
       // 截图阶段异常（低内存等）：与保存异常同款反馈，不向上穿透
@@ -58,8 +69,7 @@ class RepaintBoundaryHelper {
       return {"isSuccess": false, "errorMessage": t.common.saveFailedRetry};
     }
     if (img == null) {
-      // image() 返回 null 只有一种情况：相册权限未授予，且已跳去系统设置。
-      // 不再弹 toast —— 用户此刻已经在设置页，弹了也看不见。
+      AppLoading.showError(t.common.saveFailedRetry);
       return {"isSuccess": false, "errorMessage": t.common.saveFailedRetry};
     }
 

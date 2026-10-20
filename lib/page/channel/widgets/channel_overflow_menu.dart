@@ -7,7 +7,6 @@ library;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,8 +14,6 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
-import 'package:imboy/component/ui/cupertino_modal_surface.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -24,68 +21,12 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import '../channel_provider.dart';
-import '../channel_share_payload.dart';
+import '../channel_link_page.dart';
 
 /// 频道分享面板（菜单「分享」与头部「分享」按钮共用）。
 void showChannelShareSheet(BuildContext context, ChannelModel channel) {
-  final t = context.t;
-  final shareLink = '$webBaseUrl/channel/${channel.id}';
-
-  showCupertinoModalPopup<void>(
-    context: context,
-    builder: (context) => CupertinoModalSurface(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Text(
-              channel.name,
-              style: context.textStyle(
-                FontSizeType.large,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(CupertinoIcons.link),
-            title: Text(t.channel.share),
-            subtitle: Text(shareLink),
-            onTap: () {
-              Clipboard.setData(ClipboardData(text: shareLink));
-              Navigator.pop(context);
-              AppLoading.showToast(t.main.copiedToClipboard);
-            },
-          ),
-          ListTile(
-            leading: const Icon(CupertinoIcons.qrcode),
-            title: Text(t.account.myQrcode),
-            onTap: () {
-              Navigator.pop(context);
-              context.push(
-                '/qrcode/channel',
-                extra: {
-                  'id': channel.id,
-                  'name': channel.name,
-                  'avatar': channel.avatar,
-                },
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(CupertinoIcons.paperplane),
-            title: Text(t.channel.shareToChat),
-            onTap: () {
-              Navigator.pop(context);
-              context.push(
-                '/chat/send_to',
-                extra: channelCardShareExtra(channel),
-              );
-            },
-          ),
-        ],
-      ),
-    ),
+  Navigator.of(context).push<void>(
+    CupertinoPageRoute(builder: (_) => ChannelLinkPage(channel: channel)),
   );
 }
 
@@ -158,6 +99,13 @@ void showChannelInfoDialog(
         ],
       ),
       actions: [
+        CupertinoDialogAction(
+          onPressed: () {
+            Navigator.pop(context);
+            showChannelShareSheet(context, channel);
+          },
+          child: Text(context.t.channel.share),
+        ),
         CupertinoDialogAction(
           onPressed: () => Navigator.pop(context),
           child: Text(context.t.common.ok),

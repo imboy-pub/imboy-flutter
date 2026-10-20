@@ -1,3 +1,5 @@
+import 'package:imboy/app_core/routing/channel_link.dart';
+
 import 'dart:io';
 
 import 'package:imboy/app_core/routing/organization_invite_link.dart';
@@ -53,6 +55,11 @@ class DeepLinkRouterBridge {
     final invite = organizationInviteLocation(link);
     if (invite != null) {
       router.go(invite);
+      return;
+    }
+    final channel = channelLinkLocation(link);
+    if (channel != null) {
+      router.go(channel);
       return;
     }
     Uri? uri;

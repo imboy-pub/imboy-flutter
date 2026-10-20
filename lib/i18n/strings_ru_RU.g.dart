@@ -501,6 +501,12 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get essence => 'Избранные публикации';
 	@override String get allPosts => 'Все публикации';
 	@override String get editPostTags => 'Изменить теги';
+	@override String get linkTitle => 'Ссылка на канал';
+	@override String get copyLink => 'Копировать ссылку';
+	@override String get shareLink => 'Поделиться ссылкой';
+	@override String get linkAccessHint => 'Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами.';
+	@override String get personalChannelLabel => 'Личный канал';
+	@override String get enterpriseChannelLabel => 'Внутренний канал компании';
 }
 
 // Path: chat
@@ -3682,6 +3688,12 @@ extension on TranslationsRuRu {
 			'channel.essence' => 'Избранные публикации',
 			'channel.allPosts' => 'Все публикации',
 			'channel.editPostTags' => 'Изменить теги',
+			'channel.linkTitle' => 'Ссылка на канал',
+			'channel.copyLink' => 'Копировать ссылку',
+			'channel.shareLink' => 'Поделиться ссылкой',
+			'channel.linkAccessHint' => 'Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами.',
+			'channel.personalChannelLabel' => 'Личный канал',
+			'channel.enterpriseChannelLabel' => 'Внутренний канал компании',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3804,14 +3816,14 @@ extension on TranslationsRuRu {
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
 			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
 			'chat.momentsReplyPrefix' => 'Ответ @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => 'Ответ @{name}',
 			'chat.sendNewMessage' => 'Отправить новое сообщение',
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
 			'chat.pleaseEnterSignature' => 'Введите подпись',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => 'Экспортировать профиль',
 			'chat.setSignature' => 'Установить подпись',
 			'chat.setAvatar' => 'Установить аватар',
@@ -4318,14 +4330,14 @@ extension on TranslationsRuRu {
 			'common.editTags' => 'Редактировать теги',
 			'common.quickActions' => 'Быстрые действия',
 			'common.noNewFriendRequests' => 'Нет новых запросов дружбы',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'Пожалуйста, введите сообщение подтверждения',
 			'common.unknownRegion' => 'Неизвестный регион',
 			'common.noCommonGroups' => 'Нет общих групп',
 			'common.noMoreInfo' => 'Нет больше информации',
 			'common.verificationMessage' => 'Сообщение подтверждения',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'После включения: Сообщения будут автоматически удалены через ${duration} после прочтения',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'После отключения: Сообщения не будут автоматически удалены',
 			'common.noGroupAnnouncement' => 'Нет объявления группы',
 			'common.featureComingSoon' => 'Функция скоро будет доступна',
@@ -4832,14 +4844,14 @@ extension on TranslationsRuRu {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => 'Отправлено',
 			'contact.channelMaxTagsCount' => 'Можно добавить не более 8 меток',
 			'contact.tagInputHint' => 'Введите метку...',
 			'discovery.findNearbyPeople' => 'Найти людей рядом',
 			'discovery.moment' => 'Моменты',
 			'discovery.nearbyPeopleExplain' => 'Пользователи рядом могут просматривать ваш профиль и отправлять вам сообщения. Это может помочь вам найти новых друзей, но также может привлечь чрезмерное внимание. Вы можете в любое время прекратить публикацию вашего профиля.\nВаш номер телефона будет скрыт.',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Люди рядом',
 			'discovery.scanResult' => 'Результат сканирования',
 			'discovery.myChannels' => 'Мои каналы',
@@ -5346,14 +5358,14 @@ extension on TranslationsRuRu {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'ОК(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => 'Выбрано: ${count}',
 			'momentFriendPicker.emptyFriends' => 'Нет друзей',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Не удалось загрузить метки',
 			'momentFriendPicker.searchHint' => 'Поиск друзей',
 			'momentNotify.title' => 'Взаимодействия',
 			'momentNotify.emptyTitle' => 'Нет новых уведомлений',
 			'momentNotify.emptyHint' => 'Здесь появятся лайки и комментарии друзей к вашим Моментам',
 			'momentNotify.actionLike' => 'оценил(а) ваш Момент',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => 'оставил(а) комментарий',
 			'momentNotify.markAllRead' => 'Прочитать все',
 			'momentNotify.clearAll' => 'Очистить всё',
@@ -5860,14 +5872,14 @@ extension on TranslationsRuRu {
 			'workspace.joinCodeLabel' => 'Командный код',
 			'workspace.joinCodeHint' => '8 символов: заглавные буквы или цифры',
 			'workspace.joinSubmit' => 'Вступить',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => 'Вы вступили в «${name}»',
 			'workspace.joinAlreadyMember' => 'Вы уже состоите в этом рабочем пространстве',
 			'workspace.joinInvalidCode' => 'Командный код недействителен или истёк',
 			'workspace.joinExpiredCode' => 'Срок действия командного кода истёк',
 			'workspace.inviteCodeSectionTitle' => 'Приглашение командным кодом',
 			'workspace.inviteCodeGenerate' => 'Сгенерировать командный код',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => _root.common.buttonCopy,
 			'workspace.inviteCodeRevoke' => 'Отозвать',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Действует до ${expiresAt}',

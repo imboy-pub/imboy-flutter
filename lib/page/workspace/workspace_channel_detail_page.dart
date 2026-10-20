@@ -66,6 +66,12 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
               ),
         actions: [
           if (channel != null)
+            IconButton(
+              tooltip: context.t.channel.linkTitle,
+              icon: const Icon(CupertinoIcons.link),
+              onPressed: () => showChannelShareSheet(context, channel),
+            ),
+          if (channel != null)
             ChannelOverflowMenu(
               key: const ValueKey('workspace-channel-overflow-menu'),
               channel: channel,

@@ -109,6 +109,10 @@ class ChannelModel {
   static const int unknownAccessPolicy = -1;
 
   final int id;
+
+  /// 仅服务端快照携带；旧本地缓存未知时由链接入口重新解析。
+  final String? scope;
+  final String? workspaceId;
   final String name;
   final String? description;
   final String? avatar;
@@ -144,6 +148,8 @@ class ChannelModel {
 
   ChannelModel({
     required this.id,
+    this.scope,
+    this.workspaceId,
     required this.name,
     this.description,
     this.avatar,
@@ -204,6 +210,8 @@ class ChannelModel {
     final parsedId = parseModelInt(json['id']);
     return ChannelModel(
       id: parsedId,
+      scope: parseModelNullableString(json['scope']),
+      workspaceId: parseModelNullableString(json['workspace_id']),
       name: parseModelString(json['name']),
       description: parseModelNullableString(json['description']),
       avatar: parseModelNullableString(json['avatar']),
@@ -243,6 +251,8 @@ class ChannelModel {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'scope': scope,
+      'workspace_id': workspaceId,
       'name': name,
       'description': description,
       'avatar': avatar,
@@ -353,6 +363,8 @@ class ChannelModel {
   }) {
     return ChannelModel(
       id: id ?? this.id,
+      scope: scope,
+      workspaceId: workspaceId,
       name: name ?? this.name,
       description: description ?? this.description,
       avatar: avatar ?? this.avatar,

@@ -501,6 +501,12 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get essence => 'Highlights';
 	@override String get allPosts => 'Alle Beiträge';
 	@override String get editPostTags => 'Tags bearbeiten';
+	@override String get linkTitle => 'Kanal-Link';
+	@override String get copyLink => 'Link kopieren';
+	@override String get shareLink => 'Link teilen';
+	@override String get linkAccessHint => 'Der Link öffnet den Kanal. Zugriff und Abonnements unterliegen weiterhin den Kanalberechtigungen. Unternehmenskanäle erfordern eine berechtigte Mitgliedschaft.';
+	@override String get personalChannelLabel => 'Persönlicher Kanal';
+	@override String get enterpriseChannelLabel => 'Interner Unternehmenskanal';
 }
 
 // Path: chat
@@ -3676,6 +3682,12 @@ extension on TranslationsDeDe {
 			'channel.essence' => 'Highlights',
 			'channel.allPosts' => 'Alle Beiträge',
 			'channel.editPostTags' => 'Tags bearbeiten',
+			'channel.linkTitle' => 'Kanal-Link',
+			'channel.copyLink' => 'Link kopieren',
+			'channel.shareLink' => 'Link teilen',
+			'channel.linkAccessHint' => 'Der Link öffnet den Kanal. Zugriff und Abonnements unterliegen weiterhin den Kanalberechtigungen. Unternehmenskanäle erfordern eine berechtigte Mitgliedschaft.',
+			'channel.personalChannelLabel' => 'Persönlicher Kanal',
+			'channel.enterpriseChannelLabel' => 'Interner Unternehmenskanal',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3798,14 +3810,14 @@ extension on TranslationsDeDe {
 			'chat.momentsMediaTooManyVideos' => 'Max. 1 Video auswählbar',
 			'chat.momentsMediaMixedImageAndVideo' => 'Bilder und Video nicht gleichzeitig',
 			'chat.momentsReplyPrefix' => 'Antwort @',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => 'Antwort an @{name}',
 			'chat.sendNewMessage' => 'Neue Nachricht senden',
 			'chat.markRead' => 'Als gelesen markieren',
 			'chat.markUnread' => 'Als ungelesen markieren',
 			'chat.pleaseEnterSignature' => 'Persönliche Signatur eingeben',
-			_ => null,
-		} ?? switch (path) {
 			'chat.exportProfile' => 'Profil exportieren',
 			'chat.setSignature' => 'Signatur festlegen',
 			'chat.setAvatar' => 'Avatar festlegen',
@@ -4312,14 +4324,14 @@ extension on TranslationsDeDe {
 			'common.editTags' => 'Tags bearbeiten',
 			'common.quickActions' => 'Schnellaktionen',
 			'common.noNewFriendRequests' => 'Derzeit keine neuen Freundschaftsanfragen',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'Bitte Bestätigungsnachricht eingeben',
 			'common.unknownRegion' => 'Unbekannte Region',
 			'common.noCommonGroups' => 'Keine gemeinsamen Gruppen',
 			'common.noMoreInfo' => 'Keine weiteren Informationen',
 			'common.verificationMessage' => 'Bestätigungsnachricht',
 			'common.burnEnabledMessage' => ({required Object duration}) => 'Nach Aktivierung: Nachrichten werden ${duration} nach dem Lesen automatisch zerstört',
-			_ => null,
-		} ?? switch (path) {
 			'common.burnDisabledMessage' => 'Nach Deaktivierung: Nachrichten werden nicht automatisch zerstört',
 			'common.noGroupAnnouncement' => 'Keine Gruppenankündigung',
 			'common.featureComingSoon' => 'Funktion demnächst verfügbar',
@@ -4826,14 +4838,14 @@ extension on TranslationsDeDe {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag-Länge darf ${param} Zeichen nicht überschreiten',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Maximal ${param} Tags erlaubt',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Ausgewählte Tags (${param}/${max})',
+			_ => null,
+		} ?? switch (path) {
 			'contact.friendRequestSent' => 'Gesendet',
 			'contact.channelMaxTagsCount' => 'Max. 8 Tags',
 			'contact.tagInputHint' => 'Tag eingeben...',
 			'discovery.findNearbyPeople' => 'Personen in der Nähe finden',
 			'discovery.moment' => 'Momente',
 			'discovery.nearbyPeopleExplain' => 'Benutzer in Ihrer Nähe können Ihr Profil sehen und Ihnen Nachrichten senden. Finden Sie neue Freunde oder beenden Sie das Teilen jederzeit.\nIhre Telefonnummer bleibt verborgen.',
-			_ => null,
-		} ?? switch (path) {
 			'discovery.peopleNearby' => 'Personen in der Nähe',
 			'discovery.scanResult' => 'Scan-Ergebnis',
 			'discovery.myChannels' => 'Meine Kanäle',
@@ -5340,14 +5352,14 @@ extension on TranslationsDeDe {
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Fertig (${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} ausgewählt',
 			'momentFriendPicker.emptyFriends' => 'Keine Freunde',
+			_ => null,
+		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Tags konnten nicht geladen werden',
 			'momentFriendPicker.searchHint' => 'Freunde durchsuchen',
 			'momentNotify.title' => 'Interaktionen',
 			'momentNotify.emptyTitle' => 'Keine neuen Benachrichtigungen',
 			'momentNotify.emptyHint' => '„Gefällt mir" und Kommentare von Freunden erscheinen hier',
 			'momentNotify.actionLike' => 'hat Ihren Moment gelikt',
-			_ => null,
-		} ?? switch (path) {
 			'momentNotify.actionComment' => 'hat kommentiert',
 			'momentNotify.markAllRead' => 'Alle gelesen',
 			'momentNotify.clearAll' => 'Alle löschen',
@@ -5854,14 +5866,14 @@ extension on TranslationsDeDe {
 			'workspace.joinCodeLabel' => 'Team-Code',
 			'workspace.joinCodeHint' => '8 Zeichen, Großbuchstaben oder Ziffern',
 			'workspace.joinSubmit' => 'Beitreten',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '„${name}“ beigetreten',
 			'workspace.joinAlreadyMember' => 'Sie sind bereits in diesem Arbeitsbereich',
 			'workspace.joinInvalidCode' => 'Team-Code ungültig oder abgelaufen',
 			'workspace.joinExpiredCode' => 'Team-Code abgelaufen',
 			'workspace.inviteCodeSectionTitle' => 'Einladung per Team-Code',
 			'workspace.inviteCodeGenerate' => 'Team-Code generieren',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.inviteCodeCopy' => 'Kopieren',
 			'workspace.inviteCodeRevoke' => 'Widerrufen',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Gültig bis ${expiresAt}',

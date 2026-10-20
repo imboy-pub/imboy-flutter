@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "5764688a6f7b9efab76d751c3f78a390dabcba4f",
-    "backend_head": "a5a766339f4303c8122686dfdda60bcae279f5be",
-    "integration_test_count": 160,
-    "lib_page_count": 167,
+    "app_head": "0d0112a2ce740be284352a967f803c1dc99a57e7",
+    "backend_head": "5941171b673b2167b77db80611d42d36c5d491f5",
+    "integration_test_count": 162,
+    "lib_page_count": 169,
     "module_page_count": 26,
     "route_page_component_count": 150,
     "spec_count": 28
@@ -20,6 +20,20 @@
       "requirements": [],
       "tags": [
         "app_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/auth/local_login_journey_test.dart",
+      "target": "integration_test/auth/local_login_journey_test.dart",
+      "target_sha256": "9f29afa213a3ac9172c09a0a7ce9fa1262664fdeaa56d5e3d34758284804da0a",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "auth"
       ],
       "enabled": false,
       "oracle_hint": true
@@ -640,7 +654,7 @@
     {
       "id": "test:integration_test/demo_flow/dual_account_message_flow_test.dart",
       "target": "integration_test/demo_flow/dual_account_message_flow_test.dart",
-      "target_sha256": "6eba525e5b5f3829dc7eb233854f17ebf4f5cf9d3919d9423d6b063d53b20d08",
+      "target_sha256": "50bd4752ed56d3d1130f5b932f0d2dc92b67a16eecd2dbf71a10ee81eb84215c",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -860,6 +874,20 @@
       ],
       "enabled": false,
       "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/demo_flow/local_dual_account_message_flow_test.dart",
+      "target": "integration_test/demo_flow/local_dual_account_message_flow_test.dart",
+      "target_sha256": "fd51ed0b3f431bb7f2dd66bc5499a3bc921cc2b7106a9fd451900c11cdd73454",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "demo_flow"
+      ],
+      "enabled": false,
+      "oracle_hint": false
     },
     {
       "id": "test:integration_test/demo_flow/local_e2ee_group_fixture_flow_test.dart",
@@ -2834,7 +2862,7 @@
         "integration_test/channel/channel_e2e_test.dart",
         "integration_test/channel/channel_edit_persistence_test.dart"
       ],
-      "route_registered": true,
+      "route_registered": false,
       "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
@@ -2864,6 +2892,26 @@
     },
     {
       "page": "lib/page/channel/channel_invitation_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_link_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/page/channel/channel_link_target_page.dart",
       "mapped_targets": [],
       "dependency_targets": [],
       "route_registered": true,

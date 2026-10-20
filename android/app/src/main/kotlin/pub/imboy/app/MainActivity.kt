@@ -114,7 +114,7 @@ class MainActivity : FlutterActivity() {
     if (intent != null && intent.action == Intent.ACTION_VIEW) {
       val uri = intent.data
       if (uri != null) {
-        if (uri.scheme == "imboy") {
+        if (isAppDeepLink(uri)) {
           initialDeepLinkUri = uri
         } else {
           initialViewFileUri = uri
@@ -127,8 +127,15 @@ class MainActivity : FlutterActivity() {
   private fun consumeDeepLinkUri(intent: Intent?): String? {
     if (intent == null || intent.action != Intent.ACTION_VIEW) return null
     val uri = intent.data ?: return null
-    if (uri.scheme != "imboy") return null
+    if (!isAppDeepLink(uri)) return null
     return uri.toString()
+  }
+
+  private fun isAppDeepLink(uri: Uri): Boolean {
+    if (uri.scheme == "imboy") return true
+    return uri.scheme == "https" && uri.host == "imboy.pub" &&
+      (uri.port == -1 || uri.port == 443) &&
+      uri.userInfo == null && uri.path?.startsWith("/channel/") == true
   }
 
   /// 把 content:// 或 file:// URI 复制到 cacheDir，返回本地文件路径。
