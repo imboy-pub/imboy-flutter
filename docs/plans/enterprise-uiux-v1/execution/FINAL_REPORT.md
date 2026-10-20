@@ -162,3 +162,10 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
 - 事故记录：T31.a 可达性探测误触"切换企业"白标安装流程，设备已恢复原状
   （残留包已清、标准包重装）；残余影响=设备需重新登录（凭据仅所有者持有）。
 - manual 待办余 8：T28.m、T30/T30.b、T31/T31.a/T31.b、T32/T32.a/T32.b。
+
+## 15. revision 10 附记（第四轮 review — golden 覆盖度修正）
+
+- GOLDEN_COVERAGE_CORRECTION.md：312 张 golden 实际仅 64 张唯一图；
+  platform 轴三计划全字节死、P2 scene 轴死（三预置渲染相同）。零 diff
+  回归性质与位级封存不受影响；视觉验收覆盖按修正文档理解。修正基建
+  （新候选 K）归所有者裁决。
