@@ -176,7 +176,7 @@ class DirectAttachmentApi {
         'filename': fileName,
         'scope': scope,
         if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
-        if (clientUploadId != null) 'client_upload_id': clientUploadId,
+        'client_upload_id': ?clientUploadId,
       },
     );
     if (!reg.ok) {
@@ -259,7 +259,7 @@ class DirectAttachmentApi {
         await putting;
       } on DirectUploadCancelled {
         cancelled = true;
-      } catch (_putError) {
+      } catch (_) {
         // 普通 PUT 失败（网络/5xx）：该 attempt 已 dispatch、无 closed 证据，
         // 不得 finalize 它；URL 是单次授权，重放同一 URL 无意义（I05）——
         // 直接 renew 新 attempt。预算由服务端 23514 硬门兜底。
