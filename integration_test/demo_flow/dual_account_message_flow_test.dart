@@ -363,7 +363,14 @@ Future<void> _waitForMarker(WidgetTester tester, String marker) async {
   while (DateTime.now().isBefore(deadline)) {
     // skipOffstage:false——聊天页被临时路由/弹层遮挡时消息气泡仍应可命中；
     // 真机/macOS 桌面端的页面层级不受窗口焦点影响，但路由栈会影响 offstage。
-    if (tester.any(find.textContaining(marker, skipOffstage: false))) {
+    // 只在 ChatPage 子树内匹配：会话列表（IndexedStack 离屏）里的最后一条
+    // 预览文本同样含标记，会让等待提前返回，随后的页内断言落空。
+    if (tester.any(
+      find.descendant(
+        of: find.byType(ChatPage, skipOffstage: false),
+        matching: find.textContaining(marker, skipOffstage: false),
+      ),
+    )) {
       return;
     }
     // 每 20s 转储一次当前可见文本（前 12 条截断），用于判定消息
