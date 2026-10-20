@@ -300,7 +300,13 @@ void main() {
     );
 
     // danger confirm：先进入企业资料，再验证归档确认。
-    await tester.tap(find.byKey(const ValueKey('organization-detail-info')));
+    final info = find.byKey(const ValueKey('organization-detail-info'));
+    await tester.scrollUntilVisible(
+      info,
+      160,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(info);
     await settleUx(tester);
     final archiveTile = find.text('归档企业');
     await tester.scrollUntilVisible(

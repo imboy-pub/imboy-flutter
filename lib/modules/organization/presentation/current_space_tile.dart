@@ -9,6 +9,7 @@ import 'package:imboy/modules/organization/presentation/organization_routes.dart
 import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 /// Display-only context; switching still uses the existing atomic picker flow.
@@ -26,39 +27,40 @@ class CurrentSpaceTile extends ConsumerWidget {
           ? context.t.organization.experienceUi.personalSpace
           : org?.name ?? context.t.organization.picker.noneSelected;
       if (heading != null) {
+        final brightness =
+            CupertinoTheme.of(context).brightness ??
+            MediaQuery.platformBrightnessOf(context);
+        // A compact navigation bar has only 44pt for its middle widget.
+        // Keep context on one line so dynamic type cannot hide a second row.
         return CupertinoButton(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+          minimumSize: const Size(0, kMinInteractiveDimensionCupertino),
           onPressed: () => context.push(kOrganizationPickerPath),
-          child:
-              MediaQuery.textScalerOf(context).scale(
-                    context.textStyle(FontSizeType.body).fontSize ??
-                        FontSizeType.body.size,
-                  ) >
-                  24
-              ? Text(
-                  '$heading · $name',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyle(FontSizeType.body),
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      heading!,
-                      style: context.textStyle(
-                        FontSizeType.body,
-                        fontWeight: FontWeight.w600,
-                      ),
+          child: Text.rich(
+            TextSpan(
+              text: heading,
+              children: [
+                TextSpan(
+                  text: ' · $name ⌄',
+                  style: context.textStyle(
+                    FontSizeType.footnote,
+                    fontWeight: FontWeight.normal,
+                    color: AppColors.getTextColor(
+                      brightness,
+                      isSecondary: true,
                     ),
-                    Text(
-                      '$name ⌄',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.textStyle(FontSizeType.caption2),
-                    ),
-                  ],
+                  ),
                 ),
+              ],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textStyle(
+              FontSizeType.body,
+              fontWeight: FontWeight.w600,
+              color: AppColors.getTextColor(brightness),
+            ),
+          ),
         );
       }
       return ResourceEntryTile(

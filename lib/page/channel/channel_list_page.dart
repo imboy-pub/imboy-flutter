@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -83,93 +84,63 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     return IosPageTemplate(
       title: t.channel.title,
       middle: CurrentSpaceTile(heading: t.channel.title),
-      actions: [..._buildOverflowMenu(t), AppSpacing.horizontalSmall],
-      body: Column(
-        children: [
-          if (_searchOpen || _query.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.regular),
-              child: CupertinoSearchTextField(
-                key: const Key('channel-list-search'),
-                placeholder: t.channel.searchHint,
-                onChanged: (value) =>
-                    setState(() => _query = value.trim().toLowerCase()),
+      actions: [
+        CupertinoButton(
+          key: const Key('channel-list-search-toggle'),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
+          onPressed: () => setState(() => _searchOpen = !_searchOpen),
+          child: Icon(CupertinoIcons.search, semanticLabel: t.common.search),
+        ),
+        ..._buildOverflowMenu(t),
+        AppSpacing.horizontalSmall,
+      ],
+      body: ResourcePageLayout(
+        child: Column(
+          children: [
+            if (_searchOpen || _query.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.regular),
+                child: CupertinoSearchTextField(
+                  key: const Key('channel-list-search'),
+                  placeholder: t.channel.searchHint,
+                  onChanged: (value) =>
+                      setState(() => _query = value.trim().toLowerCase()),
+                ),
               ),
-            ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.regular,
-              AppSpacing.small,
-              AppSpacing.regular,
-              AppSpacing.tiny,
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              child: CupertinoSlidingSegmentedControl<int>(
-                groupValue: _tabController.index,
-                thumbColor: Theme.of(context).colorScheme.surface,
-                padding: const EdgeInsets.all(AppSpacing.tiny),
-                children: {
-                  0: SizedBox(
-                    height: AppSpacing.xxxLarge,
-                    child: Center(
-                      child: Text(
-                        t.channel.subscribed,
-                        style: context.textStyle(
-                          FontSizeType.normal,
-                          fontWeight: _tabController.index == 0
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          color: _tabController.index == 0
-                              ? AppColors.getIosBlue(brightness)
-                              : AppColors.getTextColor(
-                                  brightness,
-                                  isSecondary: true,
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  1: SizedBox(
-                    height: AppSpacing.xxxLarge,
-                    child: Center(
-                      child: Text(
-                        t.channel.managed,
-                        style: context.textStyle(
-                          FontSizeType.normal,
-                          fontWeight: _tabController.index == 1
-                              ? FontWeight.w600
-                              : FontWeight.normal,
-                          color: _tabController.index == 1
-                              ? AppColors.getIosBlue(brightness)
-                              : AppColors.getTextColor(
-                                  brightness,
-                                  isSecondary: true,
-                                ),
-                        ),
-                      ),
-                    ),
-                  ),
-                },
-                onValueChanged: (index) {
-                  if (index != null && index != _tabController.index) {
-                    _tabController.animateTo(index);
-                  }
-                },
-              ),
-            ),
-          ),
-          // TabBarView
-          Expanded(
-            child: TabBarView(
+            TabBar(
               controller: _tabController,
-              children: [
-                _buildChannelList(state, isSubscribed: true, showRole: false),
-                _buildChannelList(state, isSubscribed: false, showRole: true),
+              labelColor: AppColors.getIosBlue(brightness),
+              unselectedLabelColor: AppColors.getTextColor(
+                brightness,
+                isSecondary: true,
+              ),
+              indicatorColor: AppColors.getIosBlue(brightness),
+              indicatorSize: TabBarIndicatorSize.label,
+              dividerHeight: 0.5,
+              dividerColor: AppColors.getIosSeparator(brightness)
+                  .withValues(alpha: 0.3),
+              labelStyle: context.textStyle(
+                FontSizeType.normal,
+                fontWeight: FontWeight.w600,
+              ),
+              unselectedLabelStyle: context.textStyle(FontSizeType.normal),
+              tabs: [
+                Tab(height: AppSpacing.xxxLarge, text: t.channel.subscribed),
+                Tab(height: AppSpacing.xxxLarge, text: t.channel.managed),
               ],
             ),
-          ),
-        ],
+            // TabBarView
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildChannelList(state, isSubscribed: true, showRole: false),
+                  _buildChannelList(state, isSubscribed: false, showRole: true),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -177,7 +148,6 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   /// 「订单/邀请」低频入口收进 more_vert 溢出菜单；flag 全关时不渲染。
   List<Widget> _buildOverflowMenu(Translations t) {
     final items = <PopupMenuItem<String>>[
-      PopupMenuItem(value: 'search', child: Text(t.common.search)),
       PopupMenuItem(value: '/channel/create', child: Text(t.channel.create)),
       if (AppFeatureRegistry.isEnabled(FeatureKeys.channelDiscover))
         PopupMenuItem(
@@ -304,7 +274,10 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
               return const SizedBox.shrink();
             }
             return Padding(
-              padding: const EdgeInsets.only(left: 80),
+              padding: const EdgeInsetsDirectional.only(
+                start: AppSpacing.regular + AppSpacing.xxxLarge,
+                end: AppSpacing.regular,
+              ),
               child: Divider(
                 height: 0.5,
                 color: AppColors.getIosSeparator(Theme.of(context).brightness)
@@ -386,7 +359,7 @@ class _ChannelListItem extends StatelessWidget {
   /// 只剩背景色，表现为一个完全空白的圆。改用 Image + errorBuilder，
   /// 让「加载失败」和「没有 URL」走同一个兜底图标。
   Widget _buildAvatar() {
-    const double size = 48;
+    const double size = AppSpacing.xxxLarge - AppSpacing.small;
     const Widget fallback = Center(
       child: Icon(CupertinoIcons.speaker_2, size: 24, color: AppColors.primary),
     );
@@ -417,6 +390,8 @@ class _ChannelListItem extends StatelessWidget {
     final brightness = Theme.of(context).brightness;
     final isDark = brightness == Brightness.dark;
     final itemBgColor = isDark ? AppColors.darkSurface : AppColors.lightSurface;
+    final summary =
+        preview?.contentPreview.trim() ?? channel.description?.trim() ?? '';
 
     return ColoredBox(
       color: itemBgColor,
@@ -429,6 +404,7 @@ class _ChannelListItem extends StatelessWidget {
           vertical: AppSpacing.medium,
         ),
         leading: _buildAvatar(),
+        leadingGap: AppSpacing.medium,
         title: Row(
           children: [
             Expanded(
@@ -512,19 +488,17 @@ class _ChannelListItem extends StatelessWidget {
               ),
           ],
         ),
-        subtitle: Text(
-          preview?.contentPreview ??
-              (channel.description?.trim().isNotEmpty == true
-                  ? channel.description!.trim()
-                  : t.organization.experienceUi.noIntro),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: const Icon(
-          CupertinoIcons.chevron_right,
-          size: 16,
-          color: AppColors.iosGray,
-        ),
+        subtitle: summary.isEmpty
+            ? null
+            : Text(
+                summary,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.getTextColor(brightness, isSecondary: true),
+                ),
+              ),
       ),
     );
   }

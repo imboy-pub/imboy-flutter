@@ -100,3 +100,29 @@ Workbench shares one row grid across all entries, with identical icon, text, sep
 
 所有示例为虚构数据。完成 HTML 链接目标、重复 ID、文档引用、JSON 格式及 diff 空白检查。浏览器控制连接失败，尚未验证实际渲染、动态字体、触屏或 Flutter 真机；CSS 暗色与窄屏规则只是设计实现，不能视为验收通过。
 Fictional examples only. Static checks cover HTML link targets, unique IDs, document references, JSON and whitespace. Browser control failed; rendered appearance, dynamic type and real-device behavior remain unverified.
+
+## 深层页面 / Deep resource pages
+
+本轮延伸到群文件、任务列表/详情/创建编辑、群成员列表/详情、企业成员/资料/部门/邀请/工作区成员/治理/协作资源，以及频道创建/编辑/管理员/订阅者/邀请/订单。共用 ResourcePageLayout 仅统一内容宽度、列表和表单表现，保留原有权限、数据源、分页、路由、附件授权和危险操作确认。未声明所有业务页完成真机验收。
+
+- 文件：名称优先，类别/大小/时间为次级信息；长文件名允许两行，上传与删除继续遵循原权限。图片预览保留全屏缩放空间，不受列表内容栏宽度限制。
+- 任务：轻分段与分隔列表；底部创建/编辑表单提供清晰字段，键盘避让并支持滚动；无标题不可提交。
+- 成员：弱化角色筛选；资料与管理操作分组，取消多个实心按钮竞争。
+- 企业治理：企业信息、邀请、工作区、资源分组，保留成员与治理权限的独立边界。
+- 频道管理：同宽表单与列表，不更改付费、邀请、管理员和订阅权限合同。
+
+交互布局示意见 [deep-preview.html](./deep-preview.html)；原型样例数据为虚构，不能用来证明真实网络/业务流程通过。
+
+References: [Slack resources](https://slack.com/help/articles/32562841868307-Add-and-manage-tabs-in-channels-and-direct-messages), [Teams files](https://support.microsoft.com/en-gb/teams/teams-channels/add-content-and-notes-to-a-team-in-microsoft-teams), [Telegram profiles](https://telegram.org/blog/new-profiles-people-nearby?setln=ms). These inform resource hierarchy and progressive disclosure, not new product capabilities.
+
+## 个人频道补充收敛 / Personal channel refinement
+
+频道列表改为轻量下划线 Tab（保留 48pt 触达），搜索提升到导航栏、创建仍在加号；头像 40pt、图文距 12pt，去重复箭头；无最新内容和简介时省略空副标题，不逐行重复“暂无简介”。详情页导航栏承接搜索，嵌入场景仍保留可达的内部搜索；阅读列和发布栏统一宽度。讨论失败使用低强调信息行与重试图标，日期去灰色胶囊；署名行的更多操作按真实行宽对齐右侧。图文消息使用正文摘要，继续服从既有内容访问控制。
+
+## 部门与建群权限建议（待产品规则确认） / Department and creation proposal
+
+部门浏览默认采用搜索、可回退路径、本级部门/成员列表；组织图仅辅助概览。现有通讯录已具备逐级下钻，应复用其状态机和权限，不另造全量树查询。deep-preview.html 的部门导航为可交互示意，并非已替换客户端组织图。
+
+建议普通 active 企业成员在其已加入且有创建资格的工作区发起普通协作群；Guest、未加入工作区、企业或工作区归档等情况继续拒绝。正式部门群/全员群与企业频道由相应管理者创建。当前服务端群和频道复用 ensure_can_create_resource，因此频道管理员限制不能只靠 App 隐藏入口；本轮未改动后端权限，也未实现新的企业级开关或自动授予工作区资格。
+
+References: [Feishu directory visibility and display order](https://www.feishu.cn/hc/zh-CN/articles/360049067480-管理员管理组织架构可见范围), [DingTalk department navigation origin](https://open.dingtalk.com/tools/explorer/jsapi?id=10309), [Lark create groups](https://www.larksuite.com/hc/zh-CN/articles/360024343993-创建群组). The proposed IMBoy policy is a product recommendation, not a claim that every referenced product has identical defaults.

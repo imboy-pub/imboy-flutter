@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
+
 import 'dart:async' show unawaited;
 import 'dart:typed_data';
 
@@ -559,7 +561,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
             ),
         ],
       ),
-      body: _buildBody(),
+      body: ResourcePageLayout(child: _buildBody()),
     );
   }
 
@@ -586,7 +588,12 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.medium,
+        AppSpacing.regular,
+        AppSpacing.tiny,
+      ),
       child: CupertinoSearchTextField(
         controller: _searchController,
         placeholder: t.common.groupFileSearch,
@@ -616,7 +623,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
       height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
         itemBuilder: (context, index) => chips[index],
         separatorBuilder: (_, _) => AppSpacing.horizontalSmall,
         itemCount: chips.length,
@@ -639,7 +646,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
           ),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.getIosBlue(brightness)
+                ? Theme.of(context).colorScheme.surfaceContainerHighest
                 : (brightness == Brightness.dark
                       ? AppColors.darkSurface
                       : AppColors.lightSurface),
@@ -655,7 +662,7 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
             style: context.textStyle(
               FontSizeType.footnote,
               color: isSelected
-                  ? AppColors.onPrimary
+                  ? AppColors.getIosBlue(brightness)
                   : (brightness == Brightness.dark
                         ? AppColors.darkTextPrimary
                         : AppColors.lightTextPrimary),

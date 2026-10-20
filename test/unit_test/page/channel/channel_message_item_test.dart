@@ -13,6 +13,7 @@
 //   flutter test test/page/channel/channel_message_item_test.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -61,6 +62,22 @@ Widget _wrap(
 }
 
 void main() {
+  for (final width in [390.0, 900.0]) {
+    testWidgets('署名短名称不会把更多菜单挤到行中部 $width', (tester) async {
+      tester.view.physicalSize = Size(width, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _wrap(_message(content: '正文', msgType: ChannelMessageType.text)),
+      );
+      await tester.pump();
+      final menu = find.byIcon(CupertinoIcons.ellipsis);
+      expect(menu, findsOneWidget);
+      expect(width - tester.getCenter(menu).dx, lessThan(48));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('imageText 卡：标题+摘要拆分、九宫格预览、长正文不内联全文', (tester) async {
     const title = '重磅标题一行';
     final body = '订阅号正文段落。' * 30; // 长摘要

@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -62,33 +63,35 @@ class ChannelOrderListPage extends ConsumerWidget {
         title: t.channel.myOrders,
         automaticallyImplyLeading: true,
       ),
-      body: async.when(
-        loading: () => const ShimmerList(),
-        // BUG#151：失败态文案原与空态共用 noOrders，用户加载失败时看到
-        // 「暂无订单」有误导；改 loadError 明确可重试语义。
-        error: (_, _) => NoDataView(
-          text: t.common.loadError,
-          icon: CupertinoIcons.doc_plaintext,
-          onTop: () => ref.invalidate(channelMyOrdersProvider),
-        ),
-        data: (orders) {
-          if (orders.isEmpty) {
-            return NoDataView(
-              text: t.channel.noOrders,
-              icon: CupertinoIcons.doc_plaintext,
+      body: ResourcePageLayout(
+        child: async.when(
+          loading: () => const ShimmerList(),
+          // BUG#151：失败态文案原与空态共用 noOrders，用户加载失败时看到
+          // 「暂无订单」有误导；改 loadError 明确可重试语义。
+          error: (_, _) => NoDataView(
+            text: t.common.loadError,
+            icon: CupertinoIcons.doc_plaintext,
+            onTop: () => ref.invalidate(channelMyOrdersProvider),
+          ),
+          data: (orders) {
+            if (orders.isEmpty) {
+              return NoDataView(
+                text: t.channel.noOrders,
+                icon: CupertinoIcons.doc_plaintext,
+              );
+            }
+            return RefreshIndicator(
+              onRefresh: () async => ref.invalidate(channelMyOrdersProvider),
+              child: ListView.separated(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                itemCount: orders.length,
+                separatorBuilder: (_, _) => AppSpacing.verticalTiny,
+                itemBuilder: (context, i) => _OrderTile(order: orders[i]),
+              ),
             );
-          }
-          return RefreshIndicator(
-            onRefresh: () async => ref.invalidate(channelMyOrdersProvider),
-            child: ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: orders.length,
-              separatorBuilder: (_, _) => AppSpacing.verticalTiny,
-              itemBuilder: (context, i) => _OrderTile(order: orders[i]),
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }

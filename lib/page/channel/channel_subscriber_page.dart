@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -444,7 +446,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
                   : const Icon(CupertinoIcons.person_badge_plus),
             )
           : null,
-      body: _buildBody(),
+      body: ResourcePageLayout(child: _buildBody()),
     );
   }
 

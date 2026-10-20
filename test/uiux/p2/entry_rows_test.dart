@@ -7,9 +7,9 @@
 ///  4. P2 外其他 Tab 快照/行为不变（本卡只改工作台分支外观与 CS 槽）
 library;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/resource_entry_tile.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
@@ -125,8 +125,8 @@ void main() {
     await tester.pump();
     // 无工作区时资源组自然收缩（P2-05 契约延续），apps 入口仍常驻
     expect(find.byKey(const ValueKey('workbench-apps-entry')), findsOneWidget);
-    // onTap 保留：apps tile 仍是可点击 CupertinoListTile
-    final CupertinoListTile apps = tester.widget<CupertinoListTile>(
+    // onTap 保留：共享资源行仍保留原点击回调
+    final ResourceEntryTile apps = tester.widget<ResourceEntryTile>(
       find.byKey(const ValueKey('workbench-apps-entry')),
     );
     expect(apps.onTap, isNotNull);

@@ -222,10 +222,18 @@ void main() {
     tester,
   ) async {
     await pumpT22(tester, kMatrixConfigs.first);
-    // 静音动作语义（isSubscribed=false → 订阅按钮；管理态含管理按钮）
-    final Finder manage = find.bySemanticsLabel('管理');
-    expect(manage, findsWidgets, reason: '管理动作语义存在（AppBar 菜单 + HeaderBar 圈钮）');
-    final Size hit = tester.getSize(manage.first);
+    // 管理入口收进更多菜单后，仍需从可触达入口找到设置动作。
+    final menu = find.byType(PopupMenuButton<String>);
+    expect(tester.getSize(menu).height, greaterThanOrEqualTo(44));
+    await tester.tap(menu);
+    await tester.pumpAndSettle();
+    final manage = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem<String> && widget.value == 'edit_channel',
+    );
+    expect(manage, findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(t.channel.settings)), findsWidgets);
+    final Size hit = tester.getSize(manage);
     expect(hit.height, greaterThanOrEqualTo(44), reason: '语义节点命中区域有效');
     expect(tester.takeException(), isNull);
   });
@@ -236,12 +244,16 @@ void main() {
     for (final MatrixConfig cfg in kMatrixConfigs) {
       if (cfg.scale != 1.0) continue;
       await pumpT22(tester, cfg);
-      final BuildContext ctx = tester.element(find.byType(ChannelHeaderBar));
-      final Color surface = Theme.of(ctx).colorScheme.surface;
+      await tester.tap(find.byType(PopupMenuButton<String>));
+      await tester.pumpAndSettle();
+      final menu = tester.widget<PopupMenuButton<String>>(
+        find.byType(PopupMenuButton<String>),
+      );
+      final Color surface = menu.color!;
       final Icon shareIcon = tester.widget<Icon>(
         find.descendant(
-          of: find.bySemanticsLabel('发送给好友'),
-          matching: find.byIcon(CupertinoIcons.arrowshape_turn_up_right_fill),
+          of: find.byType(PopupMenuItem<String>),
+          matching: find.byIcon(CupertinoIcons.share),
         ),
       );
       final double ratio = contrastRatio(shareIcon.color!, surface);
@@ -250,6 +262,9 @@ void main() {
         greaterThanOrEqualTo(3.0),
         reason: '${cfg.id} 可用动作图标对比度 ≥3:1',
       );
+      Navigator.of(tester.element(find.byType(PopupMenuItem<String>).first))
+          .pop();
+      await tester.pumpAndSettle();
     }
   });
 
@@ -267,9 +282,13 @@ void main() {
         TargetPlatform.iOS,
       ),
     );
-    // 搜索框在微社区门 fail-closed 下不可见——矮视口边界聚焦对象改为
-    // 可见动作（订阅/管理区）仍可命中，作为可达性基线。
-    final Finder actionable = find.bySemanticsLabel('管理');
+    // 搜索权限关闭时，仍验证导航栏菜单与其中管理动作可达。
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await tester.pumpAndSettle();
+    final actionable = find.byWidgetPredicate(
+      (widget) =>
+          widget is PopupMenuItem<String> && widget.value == 'edit_channel',
+    );
     expect(actionable, findsWidgets);
     await tester.ensureVisible(actionable.first);
     await tester.pump();

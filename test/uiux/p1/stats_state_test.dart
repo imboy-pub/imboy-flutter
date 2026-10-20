@@ -139,9 +139,9 @@ void main() {
   );
 
   testWidgets('p1_unknown_count_is_not_fabricated：服务端真实值直显不伪造', (tester) async {
-    // 服务端真实值 4711 → '4.7K …'（客户端不改写为 0）
+    // 紧凑头部展示服务端真实计数，不改写为 0 或用占位值。
     await pumpT11Detail(tester, subscriberCount: 4711);
-    expect(find.textContaining('4.7K'), findsWidgets);
+    expect(find.textContaining('4711'), findsWidgets);
   });
 
   testWidgets('服务端真实 0 直显不被当作未知隐藏', (tester) async {

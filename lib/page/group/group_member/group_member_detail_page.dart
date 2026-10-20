@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/resource_entry_tile.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -283,9 +285,11 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             ),
           ),
         ),
-        body: _isLoading
-            ? const Center(child: CupertinoActivityIndicator())
-            : _buildBody(colorScheme),
+        body: ResourcePageLayout(
+          child: _isLoading
+              ? const Center(child: CupertinoActivityIndicator())
+              : _buildBody(colorScheme),
+        ),
       ),
     );
   }
@@ -333,6 +337,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
           if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) ...[
             _buildActionButton(
               label: t.main.safetyNumberTitle,
+              icon: CupertinoIcons.shield,
               color: colorScheme.primary,
               isDestructive: false,
               onTap: () => Navigator.push(
@@ -351,12 +356,14 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             if (isMuted)
               _buildActionButton(
                 label: t.chat.unmuteMember,
+                icon: CupertinoIcons.speaker_2,
                 color: colorScheme.primary,
                 onTap: _onUnmuteTap,
               )
             else
               _buildActionButton(
                 label: t.chat.muteMember,
+                icon: CupertinoIcons.speaker_slash,
                 color: AppColors.iosOrange,
                 onTap: _onMuteTap,
               ),
@@ -365,6 +372,7 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
             _buildActionButton(
               // TODO(i18n): t.common.moreActions
               label: t.group.moreActions,
+              icon: CupertinoIcons.ellipsis_circle,
               color: colorScheme.onSurface.withValues(alpha: 0.7),
               isDestructive: false,
               onTap: () => _showManageSheet(member),
@@ -458,42 +466,17 @@ class _GroupMemberDetailPageState extends ConsumerState<GroupMemberDetailPage> {
 
   Widget _buildActionButton({
     required String label,
+    required IconData icon,
     required VoidCallback? onTap,
     required Color color,
     bool isDestructive = false,
   }) {
-    return SizedBox(
-      width: double.infinity,
-      child: isDestructive
-          ? CupertinoButton(
-              minimumSize: const Size(0, 48),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              borderRadius: AppRadius.borderRadiusMedium,
-              color: color.withValues(alpha: 0.1),
-              onPressed: onTap,
-              child: Text(
-                label,
-                style: context.textStyle(
-                  FontSizeType.body,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
-            )
-          : CupertinoButton.filled(
-              minimumSize: const Size(0, 48),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              borderRadius: AppRadius.borderRadiusMedium,
-              onPressed: onTap,
-              child: Text(
-                label,
-                style: context.textStyle(
-                  FontSizeType.body,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onPrimary,
-                ),
-              ),
-            ),
+    return ResourceEntryTile(
+      icon: icon,
+      foregroundColor: isDestructive ? AppColors.iosRed : color,
+      title: label,
+      onTap: onTap,
+      showDivider: false,
     );
   }
 

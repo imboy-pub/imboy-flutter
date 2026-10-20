@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -34,6 +33,9 @@ import '../channel_provider.dart';
 class ChannelMessageFeed extends ConsumerStatefulWidget {
   final String channelId;
   final bool isManaged;
+
+  /// Null keeps the standalone toolbar; a host app bar may own the toggle.
+  final bool? searchOpen;
   final ScrollController? scrollController;
 
   /// 消息反应变化回调（用于刷新上层统计）
@@ -46,6 +48,7 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
     super.key,
     required this.channelId,
     this.isManaged = false,
+    this.searchOpen,
     this.scrollController,
     this.onReactionChanged,
     this.onRefresh,
@@ -174,6 +177,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   Widget build(BuildContext context) {
     final channel = ref.watch(channelDetailProvider.select((s) => s.channel));
     final enabled = ChannelMessageFeed.contentToolsAvailable(channel);
+    final searchOpen = widget.searchOpen ?? _searchOpen;
     return LayoutBuilder(
       builder: (context, constraints) => Column(
         children: [
@@ -183,7 +187,8 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           // （实测 360×99.7 溢出 14px）。这里把筛选区压到剩余高度内并允许
           // 内部滚动；空间充足时仍取自然高度，布局不变。筛选区必须始终留在
           // 树里——集成测试靠 ensureVisible 滚出它后再操作。
-          if (enabled)
+          if (enabled &&
+              (widget.searchOpen == null || searchOpen || _searchActive))
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: math.max(0, constraints.maxHeight - _minListHeight),
@@ -192,26 +197,26 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
                 primary: false,
                 physics: const ClampingScrollPhysics(),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CupertinoButton(
-                      key: const Key('channel-content-search-toggle'),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.regular,
+                    if (widget.searchOpen == null)
+                      CupertinoButton(
+                        key: const Key('channel-content-search-toggle'),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.regular,
+                        ),
+                        onPressed: () => setState(() {
+                          _searchOpen = !_searchOpen;
+                          if (!_searchOpen) FocusScope.of(context).unfocus();
+                        }),
+                        child: Icon(
+                          _searchOpen
+                              ? CupertinoIcons.chevron_up
+                              : CupertinoIcons.search,
+                          semanticLabel: context.t.common.search,
+                        ),
                       ),
-                      onPressed: () => setState(() {
-                        _searchOpen = !_searchOpen;
-                        if (!_searchOpen) FocusScope.of(context).unfocus();
-                      }),
-                      child: Icon(
-                        _searchOpen
-                            ? CupertinoIcons.chevron_up
-                            : CupertinoIcons.search,
-                        semanticLabel: context.t.common.search,
-                      ),
-                    ),
-                    if (_searchOpen || _searchActive)
-                      _buildPostFilters(context),
+                    if (searchOpen || _searchActive) _buildPostFilters(context),
                   ],
                 ),
               ),
@@ -638,23 +643,16 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.getIosSeparator(Theme.of(context).brightness),
-            borderRadius: AppRadius.borderRadiusMedium,
-          ),
-          child: Text(
-            dateText,
-            style: context.textStyle(
-              FontSizeType.small,
-              color: AppColors.getTextColor(
-                Theme.of(context).brightness,
-                isSecondary: true,
-              ),
+        child: Text(
+          dateText,
+          style: context.textStyle(
+            FontSizeType.caption2,
+            color: AppColors.getTextColor(
+              Theme.of(context).brightness,
+              isSecondary: true,
             ),
           ),
         ),

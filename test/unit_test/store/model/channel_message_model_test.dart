@@ -269,6 +269,20 @@ void main() {
       expect(msg.contentPreview, exactly50);
     });
 
+    test(
+      'channel_imageText previews its body rather than a generic message label',
+      () {
+        expect(
+          _msg(msgType: 'channel_imageText', content: '图文正文').contentPreview,
+          '图文正文',
+        );
+        expect(
+          _msg(msgType: 'channel_imageText', content: 'A' * 51).contentPreview,
+          '${'A' * 50}...',
+        );
+      },
+    );
+
     test('channel_image → [图片]', () {
       expect(_msg(msgType: 'channel_image').contentPreview, '[图片]');
     });

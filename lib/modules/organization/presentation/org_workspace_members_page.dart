@@ -16,6 +16,7 @@
 /// 写后一律回到服务端事实（_runGovernance 成功 → _refresh 重读）。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -196,17 +197,19 @@ class _OrgWorkspaceMembersPageState extends State<OrgWorkspaceMembersPage> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgStateView(
-          loading: _loading && ws == null,
-          error: _error,
-          permissionDenied: _permissionDenied,
-          empty:
-              !_loading && _error == null && !_permissionDenied && ws == null,
-          emptyText: t.organization.wsMembers.notFound,
-          onRetry: _refresh,
-          child: _buildBody(),
+      body: ResourcePageLayout(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: OrgStateView(
+            loading: _loading && ws == null,
+            error: _error,
+            permissionDenied: _permissionDenied,
+            empty:
+                !_loading && _error == null && !_permissionDenied && ws == null,
+            emptyText: t.organization.wsMembers.notFound,
+            onRetry: _refresh,
+            child: _buildBody(),
+          ),
         ),
       ),
     );

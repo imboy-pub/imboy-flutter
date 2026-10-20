@@ -184,18 +184,14 @@ void main() {
   testWidgets('分段点击、重复点击和滑动保留原有加载次数', (tester) async {
     final notifier = await _pumpPage(tester);
     expect(notifier.subscribedLoads, 1);
-    expect(find.byType(TabBar), findsNothing);
-    expect(find.byType(CupertinoSlidingSegmentedControl<int>), findsOneWidget);
+    expect(find.byType(TabBar), findsOneWidget);
+    expect(find.byType(CupertinoSlidingSegmentedControl<int>), findsNothing);
     await tester.tap(find.text(t.channel.managed));
     await tester.pumpAndSettle();
     expect(notifier.managedLoads, 1);
     expect(find.text('我创建的频道'), findsOneWidget);
     expect(
-      tester
-          .widget<CupertinoSlidingSegmentedControl<int>>(
-            find.byType(CupertinoSlidingSegmentedControl<int>),
-          )
-          .groupValue,
+      tester.widget<TabBarView>(find.byType(TabBarView)).controller!.index,
       1,
     );
     await tester.tap(find.text(t.channel.managed));
@@ -205,11 +201,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(notifier.subscribedLoads, 2);
     expect(
-      tester
-          .widget<CupertinoSlidingSegmentedControl<int>>(
-            find.byType(CupertinoSlidingSegmentedControl<int>),
-          )
-          .groupValue,
+      tester.widget<TabBarView>(find.byType(TabBarView)).controller!.index,
       0,
     );
   });
@@ -376,7 +368,7 @@ void main() {
       ),
     );
     expect(find.byIcon(CupertinoIcons.clock), findsNothing);
-    expect(find.text(t.organization.experienceUi.noIntro), findsOneWidget);
+    expect(find.text(t.organization.experienceUi.noIntro), findsNothing);
     expect(find.text('保留标签'), findsNothing);
     expect(tester.takeException(), isNull);
   });

@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -187,7 +188,7 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
             ),
         ],
       ),
-      body: _buildBody(),
+      body: ResourcePageLayout(child: _buildBody()),
     );
   }
 

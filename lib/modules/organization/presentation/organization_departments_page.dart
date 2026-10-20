@@ -18,6 +18,7 @@
 /// - 隐藏已知自身/子孙目标；服务端仍裁决 CAS 与成环，错误态透传。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
@@ -379,51 +380,53 @@ class _OrganizationDepartmentsPageState
             ),
         ],
       ),
-      body: _forbidden
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(CupertinoIcons.lock, size: 40),
-                  const SizedBox(height: AppSpacing.small),
-                  Text(t.organization.departments.viewForbidden),
-                  const SizedBox(height: AppSpacing.regular),
-                  TextButton(
-                    onPressed: _refresh,
-                    child: Text(t.organization.common.reload),
-                  ),
-                ],
-              ),
-            )
-          : RefreshIndicator(
-              onRefresh: _refresh,
-              child: OrgStateView(
-                loading: _loading && _depts.isEmpty,
-                error: _error,
-                empty: !_loading && _error == null && _depts.isEmpty,
-                emptyText: _canGovern
-                    ? t.organization.departments.emptyWithHint
-                    : t.organization.departments.empty,
-                onRetry: _refresh,
-                child: ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppSpacing.small,
-                  ),
+      body: ResourcePageLayout(
+        child: _forbidden
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    ..._buildNodes('', 0),
-                    if (_canGovern)
-                      ListTile(
-                        dense: true,
-                        title: Text(
-                          t.organization.departments.emptySubtitle,
-                          style: context.textStyle(FontSizeType.small),
-                        ),
-                      ),
+                    const Icon(CupertinoIcons.lock, size: 40),
+                    const SizedBox(height: AppSpacing.small),
+                    Text(t.organization.departments.viewForbidden),
+                    const SizedBox(height: AppSpacing.regular),
+                    TextButton(
+                      onPressed: _refresh,
+                      child: Text(t.organization.common.reload),
+                    ),
                   ],
                 ),
+              )
+            : RefreshIndicator(
+                onRefresh: _refresh,
+                child: OrgStateView(
+                  loading: _loading && _depts.isEmpty,
+                  error: _error,
+                  empty: !_loading && _error == null && _depts.isEmpty,
+                  emptyText: _canGovern
+                      ? t.organization.departments.emptyWithHint
+                      : t.organization.departments.empty,
+                  onRetry: _refresh,
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.small,
+                    ),
+                    children: [
+                      ..._buildNodes('', 0),
+                      if (_canGovern)
+                        ListTile(
+                          dense: true,
+                          title: Text(
+                            t.organization.departments.emptySubtitle,
+                            style: context.textStyle(FontSizeType.small),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+      ),
     );
   }
 }

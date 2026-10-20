@@ -78,10 +78,16 @@ void _registerExistingOutput() {
   test('existing or symlink save output cannot be reused', () async {
     final output = File('${root.path}/output/owned.txt');
     await output.writeAsString('owned-bytes!');
-    expect(custody.assertOutputAbsent(), throwsA(isA<CsOwnedFileRefused>()));
+    await expectLater(
+      custody.assertOutputAbsent(),
+      throwsA(isA<CsOwnedFileRefused>()),
+    );
     await output.delete();
     await Link(output.path).create('${root.path}/input/owned.txt');
-    expect(custody.assertOutputAbsent(), throwsA(isA<CsOwnedFileRefused>()));
+    await expectLater(
+      custody.assertOutputAbsent(),
+      throwsA(isA<CsOwnedFileRefused>()),
+    );
     expect(custody.readSaved(), throwsA(isA<CsOwnedFileRefused>()));
   });
 }

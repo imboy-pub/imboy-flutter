@@ -17,11 +17,11 @@ import 'dart:convert' show jsonEncode;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart' as dio;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/ui/resource_entry_tile.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/web_view.dart';
@@ -288,6 +288,6 @@ void main() {
     await pumpT17Workbench(tester, withOaConfig: true);
     final Finder apps = find.byKey(const ValueKey('workbench-apps-entry'));
     expect(apps, findsOneWidget);
-    expect(tester.widget<CupertinoListTile>(apps).onTap, isNotNull);
+    expect(tester.widget<ResourceEntryTile>(apps).onTap, isNotNull);
   });
 }

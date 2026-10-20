@@ -13,6 +13,7 @@
 /// 保留通往通用 IM 资料页的次级入口（发消息/加好友等 IM 能力仍在那边）。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -99,33 +100,35 @@ class _OrganizationMemberDetailPageState
       appBar: AppBar(
         title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
-      body: ListView(
-        padding: AppSpacing.allRegular,
-        children: [
-          _ProfileCard(
-            member: m,
-            userId: widget.userId,
-            orgName: widget.orgName,
-          ),
-          AppSpacing.verticalRegular,
-          _WorkspacesCard(
-            loading: _loading,
-            error: _error,
-            workspaces: _workspaces,
-            onRetry: _load,
-          ),
-          AppSpacing.verticalRegular,
-          // 次级入口：IM 侧能力（发消息/加好友/资料）仍在通用联系人页。
-          // 通用资料页路由注册在 /contact 子树：/contact/people/:id，
-          // 裸写 /people/:id 会命中 GoRouter errorPage（Page not found）。
-          ListTile(
-            key: const ValueKey('org-member-detail-im-profile'),
-            leading: const Icon(CupertinoIcons.person_crop_circle),
-            title: Text(t.organization.directory.imProfileEntry),
-            trailing: const Icon(CupertinoIcons.chevron_right, size: 14),
-            onTap: () => context.push('/contact/people/${widget.userId}'),
-          ),
-        ],
+      body: ResourcePageLayout(
+        child: ListView(
+          padding: AppSpacing.allRegular,
+          children: [
+            _ProfileCard(
+              member: m,
+              userId: widget.userId,
+              orgName: widget.orgName,
+            ),
+            AppSpacing.verticalRegular,
+            _WorkspacesCard(
+              loading: _loading,
+              error: _error,
+              workspaces: _workspaces,
+              onRetry: _load,
+            ),
+            AppSpacing.verticalRegular,
+            // 次级入口：IM 侧能力（发消息/加好友/资料）仍在通用联系人页。
+            // 通用资料页路由注册在 /contact 子树：/contact/people/:id，
+            // 裸写 /people/:id 会命中 GoRouter errorPage（Page not found）。
+            ListTile(
+              key: const ValueKey('org-member-detail-im-profile'),
+              leading: const Icon(CupertinoIcons.person_crop_circle),
+              title: Text(t.organization.directory.imProfileEntry),
+              trailing: const Icon(CupertinoIcons.chevron_right, size: 14),
+              onTap: () => context.push('/contact/people/${widget.userId}'),
+            ),
+          ],
+        ),
       ),
     );
   }

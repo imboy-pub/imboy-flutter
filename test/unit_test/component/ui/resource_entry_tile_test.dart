@@ -13,6 +13,32 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
 
 void main() {
+  testWidgets('resource title and subtitle preserve the inherited font', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: DefaultTextStyle(
+            style: const TextStyle(fontFamily: 'ResourceTestFont'),
+            child: ResourceEntryTile(
+              title: '项目 Project',
+              subtitle: '客户会话 Queue',
+              icon: CupertinoIcons.folder,
+              onTap: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    for (final label in ['项目 Project', '客户会话 Queue']) {
+      final richText = tester.widget<RichText>(
+        find.descendant(of: find.text(label), matching: find.byType(RichText)),
+      );
+      expect(richText.text.style?.fontFamily, 'ResourceTestFont');
+    }
+  });
+
   setUpAll(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
     if (const String.fromEnvironment('UIUX_PREVIEW').isNotEmpty) {

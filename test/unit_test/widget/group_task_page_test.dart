@@ -342,6 +342,7 @@ void main() {
         find.byKey(const Key('task_title_field')),
         '新建集成测试作业',
       );
+      await tester.pump(); // Confirm becomes enabled after the title changes.
       await tester.tap(find.byKey(const Key('create_task_confirm')));
       await tester.pumpAndSettle();
 

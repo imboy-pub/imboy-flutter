@@ -81,13 +81,15 @@ void main() {
   testWidgets('p2_empty_resources_leave_no_empty_container：全隐藏子项零高度', (
     tester,
   ) async {
-    // 模拟真实隐藏 CS 行形态：子项为 SizedBox.shrink（gate 隐藏的产物）
+    await pumpWorkbench(tester, resourceEntries: const []);
+    final appsOnlyHeight = _groupHeight(tester);
+    // 应用入口与资源共用一组；隐藏资源不应给常驻应用入口增加空白。
     await pumpWorkbench(
       tester,
       resourceEntries: <Widget>[const SizedBox.shrink()],
     );
-    // 容器高度自然收缩为 0 —— 不再渲染空壳背景卡
-    expect(_groupHeight(tester), 0.0, reason: '全部子项不可见时分组容器高度必须为 0（P2-05）');
+    expect(_groupSurfaces(), findsOneWidget);
+    expect(_groupHeight(tester), appsOnlyHeight, reason: '隐藏资源不增加分组高度');
   });
 
   testWidgets('p2_single_apps_has_no_duplicate_section_title：单应用无重复标题', (
@@ -104,6 +106,8 @@ void main() {
   });
 
   testWidgets('真实隐藏 CS 行场景无空卡：shrink 子项不产生可见残留', (tester) async {
+    await pumpWorkbench(tester, resourceEntries: const []);
+    final appsOnlyHeight = _groupHeight(tester);
     await pumpWorkbench(
       tester,
       resourceEntries: <Widget>[
@@ -111,7 +115,8 @@ void main() {
         const SizedBox.shrink(),
       ],
     );
-    expect(_groupHeight(tester), 0.0);
+    expect(_groupSurfaces(), findsOneWidget);
+    expect(_groupHeight(tester), appsOnlyHeight);
   });
 
   testWidgets('scale2 自然增高：无渲染异常', (tester) async {

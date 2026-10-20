@@ -19,6 +19,7 @@
 ///   准，需要时由用户在工作区壳内查看）。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,15 +116,17 @@ class _OrganizationToolsPageState extends ConsumerState<OrganizationToolsPage> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgAsyncAdapter(
-          loading: _loading && _org == null,
-          error: _errorObj,
-          empty: !_loading && _errorObj == null && _org == null,
-          emptyText: t.organization.manage.orgNotFound,
-          onRetry: _refresh,
-          child: _buildBody(),
+      body: ResourcePageLayout(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: OrgAsyncAdapter(
+            loading: _loading && _org == null,
+            error: _errorObj,
+            empty: !_loading && _errorObj == null && _org == null,
+            emptyText: t.organization.manage.orgNotFound,
+            onRetry: _refresh,
+            child: _buildBody(),
+          ),
         ),
       ),
     );

@@ -14,7 +14,7 @@ import 'dart:io' show File, Platform;
 import 'dart:typed_data' show ByteData, Uint8List;
 
 import 'package:crypto/crypto.dart' show sha256;
-import 'package:flutter/material.dart' show ThemeData;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader;
 
 /// 视觉字体解析结果。
@@ -269,6 +269,7 @@ Map<String, Object> goldenEnvironmentManifest({
 }) {
   return <String, Object>{
     'fontSha256': resolution.asset?.sha256Hex ?? 'none',
+    'fontThemeScope': 'text-and-button-theme-v2',
     'fontFamily': resolution.status == GoldenFontStatus.ok
         ? kGoldenFontFamily
         : 'unavailable',
@@ -423,5 +424,19 @@ ThemeData applyGoldenFont(ThemeData theme) {
     primaryTextTheme: theme.primaryTextTheme.apply(
       fontFamily: kGoldenFontFamily,
     ),
+    textButtonTheme: TextButtonThemeData(
+      style: _goldenButtonStyle(theme.textButtonTheme.style),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: _goldenButtonStyle(theme.elevatedButtonTheme.style),
+    ),
   );
 }
+
+// Component text styles override textTheme; freeze their font family too.
+ButtonStyle? _goldenButtonStyle(ButtonStyle? style) => style?.copyWith(
+  textStyle: WidgetStateProperty.resolveWith(
+    (states) => (style.textStyle?.resolve(states) ?? const TextStyle())
+        .copyWith(fontFamily: kGoldenFontFamily),
+  ),
+);

@@ -63,7 +63,7 @@ class FlatListTile extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DefaultTextStyle(
+                  DefaultTextStyle.merge(
                     style: context
                         .textStyle(
                           FontSizeType.body,
@@ -75,7 +75,7 @@ class FlatListTile extends StatelessWidget {
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 2),
-                    DefaultTextStyle(
+                    DefaultTextStyle.merge(
                       style: context
                           .textStyle(
                             FontSizeType.normal,

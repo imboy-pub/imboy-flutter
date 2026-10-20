@@ -174,7 +174,7 @@ void main() {
       expect(find.text('Dart 语言动态'), findsOneWidget);
     });
 
-    testWidgets('订阅数留在资料中，列表使用简介兜底', (tester) async {
+    testWidgets('订阅数留在资料中，列表不重复空简介', (tester) async {
       await tester.pumpWidget(
         _buildTestApp(
           const ChannelListPage(),
@@ -187,7 +187,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.textContaining('3200'), findsNothing);
-      expect(find.text(t.organization.experienceUi.noIntro), findsWidgets);
+      expect(find.text(t.organization.experienceUi.noIntro), findsNothing);
     });
 
     testWidgets('已认证频道显示认证图标 / verified channel shows verified icon', (

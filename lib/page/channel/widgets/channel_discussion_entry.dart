@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -134,32 +135,64 @@ class _ChannelDiscussionEntryState
   Widget build(BuildContext context) {
     if (!ChannelApi.microCommunityEnabled) return const SizedBox.shrink();
     if (_error != null) {
-      return CupertinoButton(
-        key: const Key('mc_discussion_retry'),
-        onPressed: _loadBinding,
-        child: Text(
-          '${context.t.channel.joinDiscussion} · ${context.t.common.loadError} · ${context.t.common.retry}',
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.chat_bubble_2,
+              size: AppSpacing.large,
+              color: AppColors.getTextColor(
+                CupertinoTheme.of(context).brightness ?? Brightness.light,
+                isSecondary: true,
+              ),
+            ),
+            AppSpacing.horizontalSmall,
+            Expanded(
+              child: Text(
+                _error!,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.iosGray,
+                ),
+              ),
+            ),
+            CupertinoButton(
+              key: const Key('mc_discussion_retry'),
+              padding: const EdgeInsets.all(AppSpacing.small),
+              onPressed: _loadBinding,
+              child: Icon(
+                CupertinoIcons.arrow_clockwise,
+                size: AppSpacing.large,
+                semanticLabel: context.t.common.retry,
+              ),
+            ),
+          ],
         ),
       );
     }
     if (_groupId == null || !_eligible) return const SizedBox.shrink();
     return Padding(
-      padding: AppSpacing.allRegular,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: CupertinoButton(
         key: const Key('mc_discussion_join'),
-        minimumSize: const Size(double.infinity, 44),
+        minimumSize: const Size(double.infinity, AppSpacing.xxxLarge),
         onPressed: _busy ? null : _join,
         child: _busy
             ? const CupertinoActivityIndicator()
             : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(
                     CupertinoIcons.chat_bubble_2,
                     color: AppColors.iosBlue,
                   ),
                   AppSpacing.horizontalSmall,
-                  Text(context.t.channel.joinDiscussion),
+                  Expanded(child: Text(context.t.channel.joinDiscussion)),
+                  const Icon(
+                    CupertinoIcons.chevron_right,
+                    size: AppSpacing.regular,
+                  ),
                 ],
               ),
       ),

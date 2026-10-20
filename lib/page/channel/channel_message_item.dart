@@ -390,12 +390,17 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   Widget _buildMetaBar(BuildContext context, Color secondaryColor) {
     final message = widget.message;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 6, 6),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        AppSpacing.medium,
+        AppSpacing.small,
+        AppSpacing.small,
+      ),
       child: Row(
         children: [
           _buildAuthorAvatar(_authorAvatarSize),
           AppSpacing.horizontalSmall,
-          Flexible(
+          Expanded(
             child: Text(
               message.authorName ?? '',
               style: context.textStyle(
@@ -414,7 +419,6 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
               color: secondaryColor,
             ),
           ),
-          const Spacer(),
           if (message.viewCount > 0) ...[
             Icon(CupertinoIcons.eye, size: 13, color: secondaryColor),
             const SizedBox(width: 2),
@@ -432,8 +436,8 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
             onTap: () => widget.isManaged
                 ? _showManageMenu(context)
                 : _showMoreMenu(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            child: SizedBox.square(
+              dimension: AppSpacing.xxxLarge,
               child: Icon(
                 CupertinoIcons.ellipsis,
                 size: 18,
@@ -470,7 +474,7 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   /// 内容区：按消息类型分发
   Widget _buildContentArea(Color textColor, Color secondaryColor, bool isText) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: _buildMessageContent(textColor, secondaryColor, isText),
     );
   }
@@ -864,7 +868,10 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
     totalReactions = (totalReactions + _likeDelta).clamp(0, 1 << 31);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(10, 6, 14, 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
       child: Row(
         children: [
           // 点赞按钮（主反应）

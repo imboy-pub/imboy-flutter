@@ -9,8 +9,8 @@ import 'dart:convert' show jsonEncode;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart'
-    show CupertinoIcons, CupertinoListTile, CupertinoListTileChevron;
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:imboy/component/ui/resource_entry_tile.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -132,7 +132,7 @@ const EnterpriseOaRuntimeConfig _syntheticInboundEntry =
       loginStartUri: 'https://oa.synthetic.example/oa/login',
     );
 
-/// 资源行合成件：对齐 enterprise_shell 的 24px 图标槽 + ≥48 命中形态。
+/// 资源行合成件：复用正式端共享资源行，避免夹具与产品布局分叉。
 class _SyntheticResourceTile extends StatelessWidget {
   const _SyntheticResourceTile(this.title);
 
@@ -140,17 +140,10 @@ class _SyntheticResourceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoListTile(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      leading: const SizedBox.square(
-        dimension: 24,
-        child: Center(
-          widthFactor: 1,
-          child: Icon(CupertinoIcons.folder_fill, size: 20),
-        ),
-      ),
-      title: Text(title),
-      trailing: const CupertinoListTileChevron(),
+    return ResourceEntryTile(
+      title: title,
+      icon: CupertinoIcons.folder_fill,
+      onTap: () {},
     );
   }
 }
@@ -252,7 +245,7 @@ void main() {
       await _pumpP2Golden(tester, cfg);
       await expectLater(
         find.byType(Scaffold).first,
-        matchesGoldenFile('goldens/${cfg.id}.png'),
+        matchesGoldenFile('goldens/2026-10-20-channel-space/${cfg.id}.png'),
       );
       expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
     }

@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 
 import 'dart:async';
@@ -59,6 +60,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
   final FocusNode _publishFocusNode = FocusNode();
   late final ChannelService _channelService = ChannelService.to;
 
+  bool _searchOpen = false;
   ChannelStatsModel? _stats;
   bool _isLoadingStats = false;
   String? _pendingStatsChannelId;
@@ -182,25 +184,27 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       // _ScaffoldLayout 把 bottomNavigationBar 定位在整屏底部（bottom =
       // size.height），只有 body 会按 minInsets 内缩，键盘一弹发布栏就被压在
       // 键盘下面「消失」。放进 Column 尾部后随 body 一起被顶起，粘在键盘上沿。
-      body: Column(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                FocusScope.of(context).unfocus();
-              },
-              child: _buildBody(state),
+      body: ResourcePageLayout(
+        child: Column(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  FocusScope.of(context).unfocus();
+                },
+                child: _buildBody(state),
+              ),
             ),
-          ),
-          if (channel?.canPublish == true)
-            ChannelPublishBar(
-              key: ValueKey(widget.channelId),
-              channelId: widget.channelId,
-              focusNode: _publishFocusNode,
-              onMessageSent: () => _loadStats(channelId),
-            ),
-        ],
+            if (channel?.canPublish == true)
+              ChannelPublishBar(
+                key: ValueKey(widget.channelId),
+                channelId: widget.channelId,
+                focusNode: _publishFocusNode,
+                onMessageSent: () => _loadStats(channelId),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -211,6 +215,18 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
     if (channel == null) return [];
 
     return [
+      if (ChannelMessageFeed.contentToolsAvailable(channel))
+        IconButton(
+          key: const Key('channel-content-search-toggle'),
+          tooltip: context.t.common.search,
+          icon: Icon(
+            _searchOpen ? CupertinoIcons.xmark : CupertinoIcons.search,
+          ),
+          onPressed: () => setState(() {
+            _searchOpen = !_searchOpen;
+            if (!_searchOpen) FocusScope.of(context).unfocus();
+          }),
+        ),
       ChannelOverflowMenu(
         channel: channel,
         subscriberCount: _stats?.subscriberCount,
@@ -296,6 +312,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
             hasScrollBody: true,
             child: ChannelMessageFeed(
               channelId: channelId,
+              searchOpen: widget.embedded ? null : _searchOpen,
               isManaged: state.channel?.isManaged ?? false,
               // 不共用外层 CustomScrollView 的 controller：同一 ScrollController
               // attach 两个 ScrollPosition 会让 .position getter 抛异常，_onScroll

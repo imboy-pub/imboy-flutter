@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -383,7 +385,6 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final brightness = theme.brightness;
     final filtered = _filteredList;
 
     return Scaffold(
@@ -392,85 +393,88 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         automaticallyImplyLeading: true,
         title: '${t.group.groupMembers} (${_memberList.length})',
       ),
-      body: Column(
-        children: [
-          // 搜索栏
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.regular,
-              AppSpacing.medium,
-              AppSpacing.regular,
-              AppSpacing.small,
-            ),
-            child: CupertinoSearchTextField(
-              placeholder: t.common.search,
-              onChanged: (v) => setState(() => _keyword = v),
-            ),
-          ),
-          // 角色筛选分段控件
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular)
-                .copyWith(bottom: AppSpacing.small),
-            child: SizedBox(
-              width: double.infinity,
-              child: CupertinoSlidingSegmentedControl<int>(
-                groupValue: _roleFilter,
-                thumbColor: AppColors.getIosBlue(brightness),
-                padding: const EdgeInsets.all(3),
-                children: {
-                  0: _segmentLabel(t.groupList.attrAll, _roleFilter == 0),
-                  4: _segmentLabel(t.group.groupOwner, _roleFilter == 4),
-                  3: _segmentLabel(t.group.groupAdmin, _roleFilter == 3),
-                  // TODO(i18n): t.group.memberOrdinary
-                  1: _segmentLabel(
-                    t.group.groupMemberRoleLabel,
-                    _roleFilter == 1,
-                  ),
-                },
-                onValueChanged: (v) {
-                  if (v != null) setState(() => _roleFilter = v);
-                },
+      body: ResourcePageLayout(
+        child: Column(
+          children: [
+            // 搜索栏
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.regular,
+                AppSpacing.medium,
+                AppSpacing.regular,
+                AppSpacing.small,
+              ),
+              child: CupertinoSearchTextField(
+                placeholder: t.common.search,
+                onChanged: (v) => setState(() => _keyword = v),
               ),
             ),
-          ),
-          // 列表
-          Expanded(
-            child: _isLoading && _memberList.isEmpty
-                ? const Center(child: CupertinoActivityIndicator())
-                : _memberList.isEmpty
-                ? NoDataView(text: t.common.noData)
-                : filtered.isEmpty
-                ? _buildFilteredEmpty()
-                : EasyRefresh(
-                    controller: _refreshController,
-                    onRefresh: () async {
-                      await _loadData(refresh: true);
-                    },
-                    onLoad: _hasMore ? _loadMore : null,
-                    child: ListView.builder(
-                      controller: _scrollController,
-                      itemCount: filtered.length,
-                      itemBuilder: (context, index) {
-                        final member = filtered[index];
-                        return Column(
-                          children: [
-                            _buildListItem(context, member),
-                            if (index < filtered.length - 1)
-                              Divider(
-                                height: 1,
-                                indent: 76,
-                                endIndent: 16,
-                                color: colorScheme.outline.withValues(
-                                  alpha: 0.1,
-                                ),
-                              ),
-                          ],
-                        );
-                      },
+            // 角色筛选分段控件
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.regular,
+              ).copyWith(bottom: AppSpacing.small),
+              child: SizedBox(
+                width: double.infinity,
+                child: CupertinoSlidingSegmentedControl<int>(
+                  groupValue: _roleFilter,
+                  thumbColor: colorScheme.surface,
+                  padding: const EdgeInsets.all(3),
+                  children: {
+                    0: _segmentLabel(t.groupList.attrAll, _roleFilter == 0),
+                    4: _segmentLabel(t.group.groupOwner, _roleFilter == 4),
+                    3: _segmentLabel(t.group.groupAdmin, _roleFilter == 3),
+                    // TODO(i18n): t.group.memberOrdinary
+                    1: _segmentLabel(
+                      t.group.groupMemberRoleLabel,
+                      _roleFilter == 1,
                     ),
-                  ),
-          ),
-        ],
+                  },
+                  onValueChanged: (v) {
+                    if (v != null) setState(() => _roleFilter = v);
+                  },
+                ),
+              ),
+            ),
+            // 列表
+            Expanded(
+              child: _isLoading && _memberList.isEmpty
+                  ? const Center(child: CupertinoActivityIndicator())
+                  : _memberList.isEmpty
+                  ? NoDataView(text: t.common.noData)
+                  : filtered.isEmpty
+                  ? _buildFilteredEmpty()
+                  : EasyRefresh(
+                      controller: _refreshController,
+                      onRefresh: () async {
+                        await _loadData(refresh: true);
+                      },
+                      onLoad: _hasMore ? _loadMore : null,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount: filtered.length,
+                        itemBuilder: (context, index) {
+                          final member = filtered[index];
+                          return Column(
+                            children: [
+                              _buildListItem(context, member),
+                              if (index < filtered.length - 1)
+                                Divider(
+                                  height: 1,
+                                  indent: 76,
+                                  endIndent: 16,
+                                  color: colorScheme.outline.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -484,7 +488,9 @@ class _GroupMemberPageState extends ConsumerState<GroupMemberPage> {
         style: context.textStyle(
           FontSizeType.caption2,
           fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-          color: selected ? AppColors.onPrimary : AppColors.iosGray,
+          color: selected
+              ? AppColors.getIosBlue(Theme.of(context).brightness)
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );

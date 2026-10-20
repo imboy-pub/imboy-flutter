@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
+
 import 'dart:async';
 
 import 'package:imboy/theme/default/font_types.dart';
@@ -288,7 +290,7 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
           ),
         ],
       ),
-      body: _buildBody(),
+      body: ResourcePageLayout(child: _buildBody()),
     );
   }
 

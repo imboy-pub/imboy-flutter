@@ -1,3 +1,5 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
+
 import 'dart:async';
 
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -323,7 +325,9 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           title: t.channel.editChannel,
           automaticallyImplyLeading: true,
         ),
-        body: const Center(child: CupertinoActivityIndicator()),
+        body: ResourcePageLayout(
+          child: const Center(child: CupertinoActivityIndicator()),
+        ),
       );
     }
 
@@ -337,9 +341,11 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           title: t.channel.editChannel,
           automaticallyImplyLeading: true,
         ),
-        body: NoDataView(
-          icon: CupertinoIcons.lock_fill,
-          text: t.common.noPermission,
+        body: ResourcePageLayout(
+          child: NoDataView(
+            icon: CupertinoIcons.lock_fill,
+            text: t.common.noPermission,
+          ),
         ),
       );
     }
@@ -369,258 +375,262 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
           ),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: AppSpacing.allRegular,
-          children: [
-            // 频道名称
-            Text(
-              t.account.avatar,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            AppSpacing.verticalSmall,
-            Center(
-              child: GestureDetector(
-                onTap: (_isSaving || _isUploadingAvatar)
-                    ? null
-                    : _showAvatarPicker,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 44,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                      backgroundImage: _avatarFile != null
-                          ? FileImage(_avatarFile!)
-                          : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
-                          ? cachedImageProvider(_avatarUrl!, w: 176)
-                          : null,
-                      child:
-                          (_avatarFile == null &&
-                              (_avatarUrl == null || _avatarUrl!.isEmpty))
-                          ? const Icon(CupertinoIcons.camera, size: 30)
-                          : null,
-                    ),
-                    if (_isUploadingAvatar)
-                      Container(
-                        width: 88,
-                        height: 88,
-                        decoration: BoxDecoration(
-                          color: AppColors.darkBackground.withValues(
-                            alpha: 0.35,
-                          ),
-                          borderRadius: BorderRadius.circular(44),
+      body: ResourcePageLayout(
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: AppSpacing.allRegular,
+            children: [
+              // 频道名称
+              Text(
+                t.account.avatar,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              AppSpacing.verticalSmall,
+              Center(
+                child: GestureDetector(
+                  onTap: (_isSaving || _isUploadingAvatar)
+                      ? null
+                      : _showAvatarPicker,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 44,
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.1,
                         ),
-                        child: const Center(
-                          child: SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CupertinoActivityIndicator(),
+                        backgroundImage: _avatarFile != null
+                            ? FileImage(_avatarFile!)
+                            : (_avatarUrl != null && _avatarUrl!.isNotEmpty)
+                            ? cachedImageProvider(_avatarUrl!, w: 176)
+                            : null,
+                        child:
+                            (_avatarFile == null &&
+                                (_avatarUrl == null || _avatarUrl!.isEmpty))
+                            ? const Icon(CupertinoIcons.camera, size: 30)
+                            : null,
+                      ),
+                      if (_isUploadingAvatar)
+                        Container(
+                          width: 88,
+                          height: 88,
+                          decoration: BoxDecoration(
+                            color: AppColors.darkBackground.withValues(
+                              alpha: 0.35,
+                            ),
+                            borderRadius: BorderRadius.circular(44),
+                          ),
+                          child: const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CupertinoActivityIndicator(),
+                            ),
+                          ),
+                        ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(
+                            CupertinoIcons.pencil,
+                            size: 16,
+                            color: AppColors.onPrimary,
                           ),
                         ),
                       ),
-                    Positioned(
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Icon(
-                          CupertinoIcons.pencil,
-                          size: 16,
-                          color: AppColors.onPrimary,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            AppSpacing.verticalRegular,
-
-            // 频道名称
-            TextFormField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: t.channel.nameLabel,
-                hintText: t.channel.nameHint,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(CupertinoIcons.speaker_2),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return t.channel.nameRequired;
-                }
-                if (value.trim().length > 50) {
-                  return t.channel.nameTooLong;
-                }
-                return null;
-              },
-              maxLength: 50,
-            ),
-            AppSpacing.verticalRegular,
-
-            // 频道描述
-            TextFormField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                labelText: t.channel.descriptionLabel,
-                hintText: t.channel.descriptionHint,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(CupertinoIcons.doc_text),
-                alignLabelWithHint: true,
-              ),
-              maxLines: 3,
-              maxLength: 500,
-            ),
-            AppSpacing.verticalRegular,
-
-            // 自定义 ID
-            TextFormField(
-              enableSuggestions: false,
-              autocorrect: false,
-              controller: _customIdController,
-              decoration: InputDecoration(
-                labelText: t.channel.customIdLabel,
-                hintText: t.channel.customIdHint,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(CupertinoIcons.at),
-                helperText: _isCustomIdEditable
-                    ? t.channel.customIdHelper
-                    : '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
-              ),
-              // 创建时留空的频道允许补设一次；已有值则永久锁定（后端同样校验）。
-              readOnly: !_isCustomIdEditable,
-              enabled: _isCustomIdEditable,
-              maxLength: 32,
-              validator: _validateCustomId,
-            ),
-            AppSpacing.verticalRegular,
-
-            // 标签
-            Text(
-              t.groupTag.addTag,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            AppSpacing.verticalSmall,
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    enableSuggestions: false,
-                    autocorrect: false,
-                    controller: _tagController,
-                    decoration: InputDecoration(
-                      hintText: t.groupTag.tagName,
-                      border: const OutlineInputBorder(),
-                    ),
-                    onSubmitted: _addTag,
+                    ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => _addTag(),
-                  icon: const Icon(CupertinoIcons.add_circled),
-                  tooltip: t.groupTag.addTag,
-                ),
-              ],
-            ),
-            if (_tags.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _tags
-                    .map(
-                      (tag) => InputChip(
-                        label: Text(tag),
-                        onDeleted: () => _removeTag(tag),
-                      ),
-                    )
-                    .toList(),
               ),
-            ],
-            AppSpacing.verticalRegular,
+              AppSpacing.verticalRegular,
 
-            // 频道属性（只读显示）
-            Text(
-              t.channel.visibilityLabel,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            AppSpacing.verticalSmall,
-            Container(
-              padding: AppSpacing.allMedium,
-              decoration: BoxDecoration(
-                color: AppColors.getIosSeparator(Theme.of(context).brightness)
-                    .withValues(alpha: 0.1),
-                borderRadius: AppRadius.borderRadiusSmall,
+              // 频道名称
+              TextFormField(
+                enableSuggestions: false,
+                autocorrect: false,
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: t.channel.nameLabel,
+                  hintText: t.channel.nameHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(CupertinoIcons.speaker_2),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return t.channel.nameRequired;
+                  }
+                  if (value.trim().length > 50) {
+                    return t.channel.nameTooLong;
+                  }
+                  return null;
+                },
+                maxLength: 50,
               ),
-              child: Row(
+              AppSpacing.verticalRegular,
+
+              // 频道描述
+              TextFormField(
+                enableSuggestions: false,
+                autocorrect: false,
+                controller: _descriptionController,
+                decoration: InputDecoration(
+                  labelText: t.channel.descriptionLabel,
+                  hintText: t.channel.descriptionHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(CupertinoIcons.doc_text),
+                  alignLabelWithHint: true,
+                ),
+                maxLines: 3,
+                maxLength: 500,
+              ),
+              AppSpacing.verticalRegular,
+
+              // 自定义 ID
+              TextFormField(
+                enableSuggestions: false,
+                autocorrect: false,
+                controller: _customIdController,
+                decoration: InputDecoration(
+                  labelText: t.channel.customIdLabel,
+                  hintText: t.channel.customIdHint,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(CupertinoIcons.at),
+                  helperText: _isCustomIdEditable
+                      ? t.channel.customIdHelper
+                      : '${t.channel.customIdHelper} · ${t.channel.typeCannotChange}',
+                ),
+                // 创建时留空的频道允许补设一次；已有值则永久锁定（后端同样校验）。
+                readOnly: !_isCustomIdEditable,
+                enabled: _isCustomIdEditable,
+                maxLength: 32,
+                validator: _validateCustomId,
+              ),
+              AppSpacing.verticalRegular,
+
+              // 标签
+              Text(
+                t.groupTag.addTag,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              AppSpacing.verticalSmall,
+              Row(
                 children: [
-                  Icon(
-                    _visibility == 0
-                        ? CupertinoIcons.globe
-                        : CupertinoIcons.lock,
-                    color: AppColors.iosGray,
-                  ),
-                  AppSpacing.horizontalSmall,
-                  Text(
-                    _visibility == 0
-                        ? t.channel.typePublic
-                        : t.channel.typePrivate,
-                    style: const TextStyle(color: AppColors.iosGray),
-                  ),
-                  if (_accessType == 1) ...[
-                    AppSpacing.horizontalSmall,
-                    Icon(
-                      CupertinoIcons.money_dollar,
-                      color: AppColors.iosOrange,
-                      size: 16,
+                  Expanded(
+                    child: TextField(
+                      enableSuggestions: false,
+                      autocorrect: false,
+                      controller: _tagController,
+                      decoration: InputDecoration(
+                        hintText: t.groupTag.tagName,
+                        border: const OutlineInputBorder(),
+                      ),
+                      onSubmitted: _addTag,
                     ),
-                    AppSpacing.horizontalTiny,
-                    Text(
-                      t.channel.accessTypePaid,
-                      style: const TextStyle(color: AppColors.iosOrange),
-                    ),
-                  ],
+                  ),
+                  IconButton(
+                    onPressed: () => _addTag(),
+                    icon: const Icon(CupertinoIcons.add_circled),
+                    tooltip: t.groupTag.addTag,
+                  ),
                 ],
               ),
-            ),
-            AppSpacing.verticalXLarge,
+              if (_tags.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _tags
+                      .map(
+                        (tag) => InputChip(
+                          label: Text(tag),
+                          onDeleted: () => _removeTag(tag),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+              AppSpacing.verticalRegular,
 
-            // 统计信息
-            if (_channel != null) ...[
+              // 频道属性（只读显示）
               Text(
-                t.channel.stats,
+                t.channel.visibilityLabel,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               AppSpacing.verticalSmall,
               Container(
                 padding: AppSpacing.allMedium,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                      .withValues(alpha: 0.1),
                   borderRadius: AppRadius.borderRadiusSmall,
                 ),
-                child: Column(
+                child: Row(
                   children: [
-                    _buildStatRow(
-                      CupertinoIcons.person_2,
-                      t.channel.subscribers,
-                      _channel!.subscriberCount.toString(),
+                    Icon(
+                      _visibility == 0
+                          ? CupertinoIcons.globe
+                          : CupertinoIcons.lock,
+                      color: AppColors.iosGray,
                     ),
+                    AppSpacing.horizontalSmall,
+                    Text(
+                      _visibility == 0
+                          ? t.channel.typePublic
+                          : t.channel.typePrivate,
+                      style: const TextStyle(color: AppColors.iosGray),
+                    ),
+                    if (_accessType == 1) ...[
+                      AppSpacing.horizontalSmall,
+                      Icon(
+                        CupertinoIcons.money_dollar,
+                        color: AppColors.iosOrange,
+                        size: 16,
+                      ),
+                      AppSpacing.horizontalTiny,
+                      Text(
+                        t.channel.accessTypePaid,
+                        style: const TextStyle(color: AppColors.iosOrange),
+                      ),
+                    ],
                   ],
                 ),
               ),
+              AppSpacing.verticalXLarge,
+
+              // 统计信息
+              if (_channel != null) ...[
+                Text(
+                  t.channel.stats,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                AppSpacing.verticalSmall,
+                Container(
+                  padding: AppSpacing.allMedium,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: AppRadius.borderRadiusSmall,
+                  ),
+                  child: Column(
+                    children: [
+                      _buildStatRow(
+                        CupertinoIcons.person_2,
+                        t.channel.subscribers,
+                        _channel!.subscriberCount.toString(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

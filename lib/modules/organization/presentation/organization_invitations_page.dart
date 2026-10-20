@@ -9,6 +9,7 @@
 /// 为准（本页只刷新邀请事实，不本地拼装成员行）。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 
@@ -243,67 +244,69 @@ class _OrganizationInvitationsPageState
             ),
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgStateView(
-          loading: _loading && _items.isEmpty,
-          error: _error,
-          permissionDenied: _permissionDenied,
-          empty:
-              !_loading &&
-              !_permissionDenied &&
-              _error == null &&
-              _items.isEmpty,
-          emptyText: widget.mineMode
-              ? t.organization.invitations.empty
-              : t.organization.invitations.emptyRecord,
-          onRetry: _refresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-            children: [
-              for (final inv in _items)
-                ListTile(
-                  leading: Icon(
-                    inv.isPending
-                        ? CupertinoIcons.mail_solid
-                        : (inv.isExpired
-                              ? CupertinoIcons.clock
-                              : CupertinoIcons.mail),
+      body: ResourcePageLayout(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: OrgStateView(
+            loading: _loading && _items.isEmpty,
+            error: _error,
+            permissionDenied: _permissionDenied,
+            empty:
+                !_loading &&
+                !_permissionDenied &&
+                _error == null &&
+                _items.isEmpty,
+            emptyText: widget.mineMode
+                ? t.organization.invitations.empty
+                : t.organization.invitations.emptyRecord,
+            onRetry: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
+              children: [
+                for (final inv in _items)
+                  ListTile(
+                    leading: Icon(
+                      inv.isPending
+                          ? CupertinoIcons.mail_solid
+                          : (inv.isExpired
+                                ? CupertinoIcons.clock
+                                : CupertinoIcons.mail),
+                    ),
+                    title: Text(
+                      widget.mineMode
+                          ? t.organization.invitations.orgLine(
+                              orgId: inv.organizationId,
+                            )
+                          : t.organization.invitations.invitationLine(
+                              invitationId: inv.invitationId,
+                            ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      widget.mineMode
+                          ? invitationSubtitle(inv)
+                          : t.organization.invitations.targetLine(
+                              targetUserId: inv.targetUserId,
+                              subtitle: invitationSubtitle(inv),
+                            ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: _buildActionChip(inv),
+                    onTap: _buildAction(inv),
                   ),
-                  title: Text(
-                    widget.mineMode
-                        ? t.organization.invitations.orgLine(
-                            orgId: inv.organizationId,
-                          )
-                        : t.organization.invitations.invitationLine(
-                            invitationId: inv.invitationId,
-                          ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                if (widget.mineMode)
+                  ListTile(
+                    dense: true,
+                    title: Text(
+                      t.organization.invitations.acceptNotice,
+                      style: context.textStyle(FontSizeType.small),
+                    ),
                   ),
-                  subtitle: Text(
-                    widget.mineMode
-                        ? invitationSubtitle(inv)
-                        : t.organization.invitations.targetLine(
-                            targetUserId: inv.targetUserId,
-                            subtitle: invitationSubtitle(inv),
-                          ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: _buildActionChip(inv),
-                  onTap: _buildAction(inv),
-                ),
-              if (widget.mineMode)
-                ListTile(
-                  dense: true,
-                  title: Text(
-                    t.organization.invitations.acceptNotice,
-                    style: context.textStyle(FontSizeType.small),
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

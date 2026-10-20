@@ -159,9 +159,11 @@ void main() {
     for (final scenario in ['workbench', 'enterprise', 'personal']) {
       testWidgets(
         'T15 $scenario $label',
-        skip: !goldenBaselineExists(
-          'test/enterprise_oa/goldens/t15_${scenario}_$label.png',
-        ),
+        skip:
+            !autoUpdateGoldenFiles &&
+            !goldenBaselineExists(
+              'test/enterprise_oa/goldens/2026-10-20-channel-space/t15_${scenario}_$label.png',
+            ),
         (tester) async {
           await _pumpPage(tester, scenario, combo);
           if (scenario == 'workbench') {
@@ -203,7 +205,9 @@ void main() {
           expect(tester.takeException(), isNull);
           await expectLater(
             find.byType(MaterialApp),
-            matchesGoldenFile('goldens/t15_${scenario}_$label.png'),
+            matchesGoldenFile(
+              'goldens/2026-10-20-channel-space/t15_${scenario}_$label.png',
+            ),
           );
           await tester.pumpWidget(const SizedBox.shrink());
           await tester.pump();

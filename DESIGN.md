@@ -515,8 +515,16 @@ Layout:
 
 - 工作台、企业资源与群协作入口复用 `ResourceEntryTile`：水平内边距 16pt、图标槽 32pt、图标 24pt、图文间距 12pt、箭头槽 20pt。副标题允许换行，不能改变左右对齐或压低 44pt 触达。
 - 企业与个人共用基础视觉，通过当前空间、资源归属、可见范围与角色区分。个人空间与企业空间分组；全局入口称“切换空间”，仅选择企业通讯录的局部选择器仍称“切换企业”。
+- 紧凑导航栏的标题与空间名使用单行排版（如“频道 · 个人空间”），长名称省略并保留切换入口。禁止在 44pt 的 middle 区域堆叠双行标题；检查大字体下标题边界与相邻内容不重叠。
+- 个人频道列表用轻量下划线 Tab，保持 48pt 点击区域；40pt 头像、12pt 图文间距，无内容/简介时省略空副标题。频道正文的署名行将更多菜单对齐完整行宽；搜索由独立详情导航栏承接，嵌入详情保留内部入口。
 - 频道阅读紧凑显示元信息，标题可进入资料；分享与管理收进更多菜单，搜索按需展开。列表时间来自真实内容，禁止用频道元数据修改时间替代。
 - 破坏性操作保留确认；默认工作区设置不授予成员资格。无权内容、付费锁定与功能开关继续遵循现有策略。
+
+- 深层资源页共用 `ResourcePageLayout`：内容列最大 680pt，窄屏满宽，保留原有滚动体和安全区；列表标题间距 12pt、leading 槽 32pt。仅作用于已接入的资源/治理页，不改变聊天阅读布局。
+- 群任务用分隔列表呈现，状态操作触达不少于 44pt；创建/编辑使用随键盘避让且可滚动的底部表单。成员资料以信息和操作行分组，不堆叠多个实心主按钮。
+- 企业治理按企业资料、邀请、工作区、资源分组；权限受限、归档、空数据和加载失败保持独立语义。频道创建/编辑、管理员、订阅者、邀请与订单页沿用同一内容列与表单基线。
+
+Deep resource pages share a bounded 680pt content column, quiet forms and consistent cells. Task forms avoid the keyboard and remain scrollable. Member actions use rows; governance groups information separately from actions without changing permission or mutation semantics.
 
 Resource entries share one geometry (16pt padding, 32pt icon slot, 24pt icon, 12pt gap, 20pt chevron slot). Context and permissions distinguish spaces without separate visual systems. Compact channel reading preserves all existing access gates. Timestamps describe content, not channel metadata. Destructive confirmation and independent workspace membership remain mandatory.
 

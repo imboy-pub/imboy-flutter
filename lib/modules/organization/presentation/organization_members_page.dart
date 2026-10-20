@@ -16,6 +16,7 @@
 ///   唯一恢复路径 = 重新邀请。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -380,56 +381,58 @@ class _OrganizationMembersPageState extends State<OrganizationMembersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(t.organization.members.title)),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgStateView(
-          loading: _loading && _members.isEmpty,
-          error: _error,
-          permissionDenied: _permissionDenied,
-          empty:
-              !_loading &&
-              !_permissionDenied &&
-              _error == null &&
-              _members.isEmpty,
-          emptyText: t.organization.common.noMembers,
-          onRetry: _refresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-            children: [
-              for (final m in _members)
-                ListTile(
-                  leading: CircleAvatar(
-                    child: Icon(
-                      m.isOwner
-                          ? CupertinoIcons.star_fill
-                          : CupertinoIcons.person_fill,
-                      size: 18,
+      body: ResourcePageLayout(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: OrgStateView(
+            loading: _loading && _members.isEmpty,
+            error: _error,
+            permissionDenied: _permissionDenied,
+            empty:
+                !_loading &&
+                !_permissionDenied &&
+                _error == null &&
+                _members.isEmpty,
+            emptyText: t.organization.common.noMembers,
+            onRetry: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
+              children: [
+                for (final m in _members)
+                  ListTile(
+                    leading: CircleAvatar(
+                      child: Icon(
+                        m.isOwner
+                            ? CupertinoIcons.star_fill
+                            : CupertinoIcons.person_fill,
+                        size: 18,
+                      ),
+                    ),
+                    title: Text(
+                      m.displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    subtitle: Text(
+                      memberSubtitle(m),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    trailing: const Icon(CupertinoIcons.ellipsis),
+                    onTap: () => _openMemberActions(m),
+                  ),
+                if (_page < _totalPage)
+                  TextButton(
+                    onPressed: _loadingMore ? null : _loadMore,
+                    child: Text(
+                      _loadingMore
+                          ? t.organization.common.loading
+                          : t.organization.common.loadMore,
                     ),
                   ),
-                  title: Text(
-                    m.displayName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    memberSubtitle(m),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: const Icon(CupertinoIcons.ellipsis),
-                  onTap: () => _openMemberActions(m),
-                ),
-              if (_page < _totalPage)
-                TextButton(
-                  onPressed: _loadingMore ? null : _loadMore,
-                  child: Text(
-                    _loadingMore
-                        ? t.organization.common.loading
-                        : t.organization.common.loadMore,
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

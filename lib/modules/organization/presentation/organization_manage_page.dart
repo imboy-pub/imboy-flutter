@@ -24,6 +24,7 @@
 ///   频道额外拉一次 `status=archived` 得到归档集合，恢复入口才可达。
 library;
 
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -46,6 +47,7 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_colors.dart';
 
 class OrganizationManagePage extends StatefulWidget {
   const OrganizationManagePage({
@@ -455,6 +457,9 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     final canGovern = _canGovernAnything;
     final canGovernOrg = _canGovernOrg;
     return Scaffold(
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? AppColors.darkSurfaceGrouped
+          : AppColors.lightSurfaceGrouped,
       appBar: AppBar(
         title: Text(
           t.organization.manage.title,
@@ -462,61 +467,80 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
-        child: OrgStateView(
-          loading: _loading && org == null,
-          error: _error,
-          permissionDenied: _permissionDenied,
-          empty:
-              !_loading && _error == null && !_permissionDenied && org == null,
-          emptyText: t.organization.manage.orgNotFound,
-          onRetry: _refresh,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
-            children: [
-              if (org != null)
-                ListTile(
-                  leading: const Icon(CupertinoIcons.building_2_fill),
-                  title: Text(
-                    org.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+      body: ResourcePageLayout(
+        child: RefreshIndicator(
+          onRefresh: _refresh,
+          child: OrgStateView(
+            loading: _loading && org == null,
+            error: _error,
+            permissionDenied: _permissionDenied,
+            empty:
+                !_loading &&
+                _error == null &&
+                !_permissionDenied &&
+                org == null,
+            emptyText: t.organization.manage.orgNotFound,
+            onRetry: _refresh,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: AppSpacing.allRegular,
+              children: [
+                if (org != null)
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(CupertinoIcons.building_2_fill),
+                      title: Text(
+                        org.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        canGovernOrg
+                            ? t.organization.manage.roleLine(
+                                role: orgRoleLabel(
+                                  org.memberRole.isEmpty
+                                      ? 'member'
+                                      : org.memberRole,
+                                ),
+                              )
+                            : canGovern
+                            ? t.organization.manage.workspaceOwnerHint
+                            : t.organization.manage.readOnlyHint,
+                      ),
+                    ),
                   ),
-                  subtitle: Text(
-                    canGovernOrg
-                        ? t.organization.manage.roleLine(
-                            role: orgRoleLabel(
-                              org.memberRole.isEmpty
-                                  ? 'member'
-                                  : org.memberRole,
-                            ),
-                          )
-                        : canGovern
-                        ? t.organization.manage.workspaceOwnerHint
-                        : t.organization.manage.readOnlyHint,
+                if (org != null && !canGovern) const _ManageForbiddenCard(),
+                if (org != null && canGovernOrg) ...[
+                  AppSpacing.verticalRegular,
+                  // GZAPP-J11 出码侧入口：邀请二维码 + 明码口令（owner/admin）。
+                  Card(
+                    child: ListTile(
+                      key: const ValueKey('org-manage-invite-entry'),
+                      leading: const Icon(CupertinoIcons.qrcode_viewfinder),
+                      title: Text(t.organization.inviteQr.title),
+                      subtitle: Text(t.organization.inviteQr.entryHint),
+                      onTap: () => _openInviteQr(org),
+                    ),
                   ),
-                ),
-              if (org != null && !canGovern) const _ManageForbiddenCard(),
-              if (org != null && canGovernOrg) ...[
-                const Divider(),
-                // GZAPP-J11 出码侧入口：邀请二维码 + 明码口令（owner/admin）。
-                ListTile(
-                  key: const ValueKey('org-manage-invite-entry'),
-                  leading: const Icon(CupertinoIcons.qrcode_viewfinder),
-                  title: Text(t.organization.inviteQr.title),
-                  subtitle: Text(t.organization.inviteQr.entryHint),
-                  onTap: () => _openInviteQr(org),
-                ),
+                ],
+                if (org != null && canGovern) ...[
+                  AppSpacing.verticalRegular,
+                  Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: _buildWorkspaceSection(),
+                    ),
+                  ),
+                  AppSpacing.verticalRegular,
+                  Card(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: _buildResourceSection(),
+                    ),
+                  ),
+                ],
               ],
-              if (org != null && canGovern) ...[
-                const Divider(),
-                ..._buildWorkspaceSection(),
-                const Divider(),
-                ..._buildResourceSection(),
-              ],
-            ],
+            ),
           ),
         ),
       ),

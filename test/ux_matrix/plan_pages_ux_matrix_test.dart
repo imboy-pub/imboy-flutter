@@ -272,7 +272,7 @@ void main() {
     );
   });
 
-  testWidgets('T19 热区：频道列表分段控件 ≥48 逻辑像素高', (tester) async {
+  testWidgets('T19 热区：频道列表分类标签 ≥48 逻辑像素高', (tester) async {
     await initUxHarness();
     addTearDown(teardownUxHarness);
     await pumpUxCombo(
@@ -285,13 +285,13 @@ void main() {
       ),
       const UxCombo(Size(390, 844)),
     );
-    final segment = find.byType(CupertinoSlidingSegmentedControl<int>);
+    final segment = find.byType(TabBar);
     expect(segment, findsOneWidget);
     final segRect = tester.getRect(segment);
     expect(
       segRect.height,
       greaterThanOrEqualTo(48),
-      reason: 'T19 热区：频道列表分段高度 ${segRect.height} < 48',
+      reason: 'T19 热区：频道列表分类高度 ${segRect.height} < 48',
     );
   });
 

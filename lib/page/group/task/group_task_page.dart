@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,6 @@ import 'package:imboy/page/group/task/group_task_form.dart';
 import 'package:imboy/service/group_task_service.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -160,11 +160,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          _buildFilterTabs(),
-          Expanded(child: _buildBody()),
-        ],
+      body: ResourcePageLayout(
+        child: Column(
+          children: [
+            _buildFilterTabs(),
+            Expanded(child: _buildBody()),
+          ],
+        ),
       ),
     );
   }
@@ -180,7 +182,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         width: double.infinity,
         child: CupertinoSlidingSegmentedControl<int>(
           groupValue: _currentFilter,
-          thumbColor: AppColors.getIosBlue(Theme.of(context).brightness),
+          thumbColor: Theme.of(context).colorScheme.surface,
           padding: const EdgeInsets.all(3),
           children: {
             // Key 供 widget 测试定位分段，避免断言 i18n 文案（10 语言易漂移）。
@@ -221,20 +223,15 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         style: context.textStyle(
           FontSizeType.footnote,
           fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-          color: selected ? AppColors.onPrimary : AppColors.iosGray,
+          color: selected
+              ? AppColors.getIosBlue(Theme.of(context).brightness)
+              : Theme.of(context).colorScheme.onSurfaceVariant,
         ),
       ),
     );
   }
 
   Widget _buildBody() {
-    // ponytail: 保留 Material CircularProgressIndicator 供既有 widget 测试断言，
-    // 不改用 AsyncStateView（其 loading 态为 CupertinoActivityIndicator）。
-    // 上限：本页 loading 观感与全站 Cupertino 风格不一致，且是测试断言绑死了
-    // 实现——这条债的持有者其实是测试，不是页面。
-    // 升级触发：test/widget/group_task_page_test.dart:197 的断言从
-    // find.byType(CircularProgressIndicator) 改成按 Key/AsyncStateView 查找后，
-    // 本页即可直接切 AsyncStateView，本注释一并删。
     if (_isLoading) {
       return const Center(child: CupertinoActivityIndicator());
     }
@@ -289,6 +286,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     final creatorName = _creatorNames[_toText(task['creator_id'])] ?? '';
 
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () async {
         if (taskId.isEmpty) {
           AppLoading.showToast(t.groupTask.taskIdMissing);
@@ -301,16 +299,18 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
         }
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.small,
-        ),
         padding: const EdgeInsets.all(AppSpacing.regular),
         decoration: BoxDecoration(
           color: isDark
               ? AppColors.darkSurfaceGroupedTertiary
               : AppColors.lightSurface,
-          borderRadius: AppRadius.borderRadiusRegular,
+          border: Border(
+            bottom: BorderSide(
+              color: AppColors.getIosSeparator(Theme.of(context).brightness)
+                  .withValues(alpha: 0.3),
+              width: 0.5,
+            ),
+          ),
         ),
         child: Row(
           children: [
@@ -330,14 +330,18 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                       );
                       if (mounted) _loadTasks();
                     },
-              child: Icon(
-                isDone
-                    ? CupertinoIcons.checkmark_seal_fill
-                    : CupertinoIcons.checkmark_seal,
-                size: 26,
-                color: isDone
-                    ? AppColors.getIosGreen(Theme.of(context).brightness)
-                    : AppColors.iosGray3,
+              behavior: HitTestBehavior.opaque,
+              child: SizedBox.square(
+                dimension: AppSpacing.xxxLarge,
+                child: Icon(
+                  isDone
+                      ? CupertinoIcons.checkmark_seal_fill
+                      : CupertinoIcons.checkmark_seal,
+                  size: 26,
+                  color: isDone
+                      ? AppColors.getIosGreen(Theme.of(context).brightness)
+                      : AppColors.iosGray3,
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.medium),
@@ -401,11 +405,13 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                           color: _getDeadlineColor(context, deadline),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          _formatDeadline(deadline),
-                          style: context.textStyle(
-                            FontSizeType.caption2,
-                            color: _getDeadlineColor(context, deadline),
+                        Flexible(
+                          child: Text(
+                            _formatDeadline(deadline),
+                            style: context.textStyle(
+                              FontSizeType.caption2,
+                              color: _getDeadlineColor(context, deadline),
+                            ),
                           ),
                         ),
                       ],

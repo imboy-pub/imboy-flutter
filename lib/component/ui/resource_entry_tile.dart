@@ -14,6 +14,7 @@ class ResourceEntryTile extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.showDivider = true,
+    this.foregroundColor,
   });
 
   final String title;
@@ -22,6 +23,7 @@ class ResourceEntryTile extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final bool showDivider;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) => ConstrainedBox(
@@ -40,10 +42,17 @@ class ResourceEntryTile extends StatelessWidget {
             child: Icon(
               icon,
               size: AppSpacing.xLarge,
-              color: AppColors.getIosBlue(Theme.of(context).brightness),
+              color:
+                  foregroundColor ??
+                  AppColors.getIosBlue(Theme.of(context).brightness),
             ),
           ),
-          title: Text(title),
+          title: Text(
+            title,
+            style: foregroundColor == null
+                ? null
+                : TextStyle(color: foregroundColor),
+          ),
           subtitle: subtitle == null ? null : Text(subtitle!),
           trailing:
               trailing ??

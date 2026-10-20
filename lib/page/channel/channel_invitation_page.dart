@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -301,7 +302,9 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
           title: t.common.channelInvitations,
           automaticallyImplyLeading: true,
         ),
-        body: const Center(child: CupertinoActivityIndicator()),
+        body: ResourcePageLayout(
+          child: const Center(child: CupertinoActivityIndicator()),
+        ),
       );
     }
 
@@ -313,17 +316,19 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
           title: t.common.channelInvitations,
           automaticallyImplyLeading: true,
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(_error ?? ''),
-              AppSpacing.verticalMedium,
-              CupertinoButton.filled(
-                onPressed: _loadInvitations,
-                child: Text(t.common.buttonRetry),
-              ),
-            ],
+        body: ResourcePageLayout(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(_error ?? ''),
+                AppSpacing.verticalMedium,
+                CupertinoButton.filled(
+                  onPressed: _loadInvitations,
+                  child: Text(t.common.buttonRetry),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -341,31 +346,33 @@ class _ChannelInvitationPageState extends ConsumerState<ChannelInvitationPage>
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Material(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            child: TabBar(
-              controller: _tabController,
-              tabs: [
-                Tab(text: t.chat.myReceivedTab),
-                Tab(text: t.main.mySentTab),
-              ],
+      body: ResourcePageLayout(
+        child: Column(
+          children: [
+            Material(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(text: t.chat.myReceivedTab),
+                  Tab(text: t.main.mySentTab),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildMyInvitationsView(),
-                _buildInvitationList(
-                  invitations: _sentInvitations,
-                  isMyInvitations: false,
-                ),
-              ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildMyInvitationsView(),
+                  _buildInvitationList(
+                    invitations: _sentInvitations,
+                    isMyInvitations: false,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

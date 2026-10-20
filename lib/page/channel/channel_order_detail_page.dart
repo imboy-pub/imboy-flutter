@@ -1,3 +1,4 @@
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -90,22 +91,24 @@ class ChannelOrderDetailPage extends ConsumerWidget {
         title: t.channel.orderDetail,
         automaticallyImplyLeading: true,
       ),
-      body: async.when(
-        loading: () => const ShimmerList(),
-        error: (_, _) => NoDataView(
-          text: t.channel.noOrders,
-          icon: CupertinoIcons.doc_plaintext,
-          onTop: () => ref.invalidate(channelOrderDetailProvider(orderNo)),
+      body: ResourcePageLayout(
+        child: async.when(
+          loading: () => const ShimmerList(),
+          error: (_, _) => NoDataView(
+            text: t.channel.noOrders,
+            icon: CupertinoIcons.doc_plaintext,
+            onTop: () => ref.invalidate(channelOrderDetailProvider(orderNo)),
+          ),
+          data: (order) {
+            if (order == null) {
+              return NoDataView(
+                text: t.channel.noOrders,
+                icon: CupertinoIcons.doc_plaintext,
+              );
+            }
+            return _OrderDetailBody(order: order);
+          },
         ),
-        data: (order) {
-          if (order == null) {
-            return NoDataView(
-              text: t.channel.noOrders,
-              icon: CupertinoIcons.doc_plaintext,
-            );
-          }
-          return _OrderDetailBody(order: order);
-        },
       ),
     );
   }

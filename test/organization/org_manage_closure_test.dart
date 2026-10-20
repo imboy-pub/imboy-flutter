@@ -337,6 +337,10 @@ void main() {
     await _scrollToResources(tester);
 
     // 群菜单
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('org-manage-group-menu-7001')),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('org-manage-group-menu-7001')));
     await tester.pumpAndSettle();
     expect(find.text('成员与角色'), findsOneWidget);
@@ -413,6 +417,10 @@ void main() {
     final groupsBefore = adapter.hits
         .where((h) => h.contains('/workspaces/$kWsId/groups'))
         .length;
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('org-manage-group-menu-7001')),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('org-manage-group-menu-7001')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('org-manage-rename-7001')));
@@ -438,6 +446,10 @@ void main() {
     HttpClient.adapterForTest = _closureAdapter();
     await tester.pumpWidget(_host());
     await _pumpUntilFound(tester, find.text('闭包群'));
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('org-manage-group-menu-7001')),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('org-manage-group-menu-7001')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('成员与角色'));

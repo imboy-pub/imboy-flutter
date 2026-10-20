@@ -194,6 +194,7 @@ class ChannelMessageModel {
   String get contentPreview {
     switch (msgType) {
       case 'channel_text':
+      case 'channel_imageText':
         return content.length > 50 ? '${content.substring(0, 50)}...' : content;
       case 'channel_image':
         return '[图片]';
