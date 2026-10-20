@@ -34,6 +34,7 @@
 
 - base：`c61cd8d46`｜集成 HEAD：`543e4256` 后续（T30.a 真机执行 + 收尾增补，见 FINAL_REPORT rev9）｜运行真源 events 至 tx-0083（rev83）｜封存候选 K=d397d38c8 不变
 - 2026-10-20 增补：T30.a 真机执行 PASS（6+1PARTIAL）；T31.a/T32.a 探测后维持 MANUAL_PENDING；T28.m 仍需真实跨会话；manual 余 8
+- 2026-10-20 增补 2：golden 覆盖修正落地（P2 scene 轴修复 + CJK 字形）——新候选 K=95dc3cddf 重封存，唯一图 80/312；详见 GOLDEN_COVERAGE_CORRECTION.md
 - B2 提交链：…bada01525(T09)→714f4a481(R4)→c3f98c4f9(T10)→aff8b5ad5(T11)→7c3ffd056(T12)→e53e38248(T13)→fa9e833bf(T14)→995527db5(T15)→d11f87f64(T16)→ae6f90d58(T17)→21cb90401(T18)→688a5c8b3(gate)→285537bb6(T19-21)
 - ALLOWLIST 修订 2 次（T18/T19-21 补录，均按 TASKS.json write_paths 授权，非扩权）
 - 无 BLOCKED；golden 仍未生成（B3 开始）；K 未冻结

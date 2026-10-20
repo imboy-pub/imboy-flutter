@@ -169,3 +169,14 @@ T04 完成于 revision 2 前（tx-0006）；命令冻结要点：FLUTTER_EXE 直
   platform 轴三计划全字节死、P2 scene 轴死（三预置渲染相同）。零 diff
   回归性质与位级封存不受影响；视觉验收覆盖按修正文档理解。修正基建
   （新候选 K）归所有者裁决。
+
+## 16. revision 11 附记（golden 覆盖修正落地 — 新候选 K=95dc3cddf）
+
+- 依 GOLDEN_COVERAGE_CORRECTION.md 处置建议执行测试基建修复：P2 三场景
+  差异化注入（P2-04 辅助登录行首次被 golden 捕获）+ 金图字体按命中
+  family 名多名注册（CJK 真实落字形）。312 张重新生成并重封存
+  （P1 120 + P2 72 + P3 120），唯一图 64→80。
+- 门禁：compare 复跑零 diff；C-TARGET-ALL 143/143；analyze 0 issues；
+  C-FULL 证据保留在父候选 d397d38c8（本候选仅测试 delta，复跑归所有者）。
+- 残余债务（记录在案）：platform 轴 Material 不敏感；P1/P3 scene 夹具
+  4/5 场景未分化；图标字形 tofu（本机）。
