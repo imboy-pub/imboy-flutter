@@ -8,6 +8,12 @@
 ///  5. pending 不重复回调
 library;
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/store/model/channel_subscription_model.dart';
+
 import 'dart:async' show Stream;
 import 'dart:math' show pow;
 import 'dart:convert' show jsonEncode;
@@ -27,7 +33,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// 空成功出口（静音态本地 repo 读取在测试环境自行降级，无出站）。
+class _NotificationService extends Mock implements ChannelService {}
+
+/// 其余 HTTP 路径的空成功出口；通知状态由独立依赖夹具提供。
 class _T12NoopAdapter implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(
@@ -84,18 +92,29 @@ Future<void> pumpT12Header(
   await StorageService.init();
   HttpClient.adapterForTest = _T12NoopAdapter();
   addTearDown(() => HttpClient.adapterForTest = null);
+  final service = _NotificationService();
+  when(() => service.getSubscription(any())).thenAnswer(
+    (_) async => ChannelSubscriptionModel(
+      channelId: channel.id,
+      subscribedAt: DateTime(2024),
+      isMuted: false,
+    ),
+  );
   await tester.pumpWidget(
-    TranslationProvider(
-      child: MaterialApp(
-        theme: AppTheme.getLightThemeFromOption(FontSizeOption.normal),
-        home: Scaffold(
-          body: ChannelHeaderBar(
-            channel: channel,
-            onManageTap: onManageTap,
-            onShareTap: onShareTap,
-            onForwardTap: onForwardTap,
-            onActionTap: onActionTap,
-            isActionPending: isActionPending,
+    ProviderScope(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+      child: TranslationProvider(
+        child: MaterialApp(
+          theme: AppTheme.getLightThemeFromOption(FontSizeOption.normal),
+          home: Scaffold(
+            body: ChannelHeaderBar(
+              channel: channel,
+              onManageTap: onManageTap,
+              onShareTap: onShareTap,
+              onForwardTap: onForwardTap,
+              onActionTap: onActionTap,
+              isActionPending: isActionPending,
+            ),
           ),
         ),
       ),

@@ -10,7 +10,8 @@ import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
-import 'package:imboy/service/channel_service.dart';
+
+import '../channel_di_provider.dart';
 
 import '../channel_detail_rules.dart';
 import 'channel_role_badge.dart';
@@ -57,6 +58,8 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
 
 class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   bool _isMuted = false;
+  bool _muteKnown = false;
+  int _muteRequest = 0;
   bool _isLoadingMute = false;
 
   @override
@@ -75,44 +78,67 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   }
 
   Future<void> _loadMuteState() async {
-    if (widget.channel.isSubscribed) {
-      try {
-        final sub = await ChannelService.to.getSubscription(
-          widget.channel.id.toString(),
-        );
-        if (mounted) {
-          setState(() {
-            _isMuted = sub?.isMuted ?? false;
-          });
-        }
-      } catch (_) {}
-    } else {
-      if (mounted) {
+    final request = ++_muteRequest;
+    final id = widget.channel.id.toString();
+    setState(() => _muteKnown = false);
+    if (!widget.channel.isSubscribed) return;
+    try {
+      final sub = await ref.read(channelServiceProvider).getSubscription(id);
+      if (mounted && request == _muteRequest) {
         setState(() {
-          _isMuted = false;
+          _muteKnown = sub != null;
+          _isMuted = sub?.isMuted ?? false;
         });
       }
+    } on Exception {
+      // 未知状态显示重试入口，不冒充已开启通知。
+    }
+  }
+
+  Future<void> _retryMuteState() async {
+    final id = widget.channel.id;
+    setState(() => _isLoadingMute = true);
+    try {
+      final service = ref.read(channelServiceProvider);
+      final fresh = await service.refreshChannel(id.toString());
+      if (!mounted || widget.channel.id != id) return;
+      if (fresh?.isSubscribed != true) {
+        AppLoading.showError(t.common.operationFailedAgainLater);
+        return;
+      }
+      await service.syncSubscribedChannels(fromList: [fresh!]);
+      if (mounted && widget.channel.id == id) await _loadMuteState();
+    } on Exception {
+      if (mounted) AppLoading.showError(t.common.operationFailedAgainLater);
+    } finally {
+      if (mounted) setState(() => _isLoadingMute = false);
     }
   }
 
   Future<void> _toggleMute() async {
     if (_isLoadingMute) return;
+    if (!_muteKnown) {
+      await _retryMuteState();
+      return;
+    }
     setState(() => _isLoadingMute = true);
+    final channelId = widget.channel.id;
     try {
       final nextMute = !_isMuted;
-      final success = await ChannelService.to.setMuted(
-        widget.channel.id.toString(),
-        nextMute,
-      );
-      if (success && mounted) {
-        setState(() {
-          _isMuted = nextMute;
-        });
+      final success = await ref
+          .read(channelServiceProvider)
+          .setMuted(widget.channel.id.toString(), nextMute);
+      if (success && mounted && widget.channel.id == channelId) {
+        await _loadMuteState();
+        if (!mounted || widget.channel.id != channelId || !_muteKnown) return;
         AppLoading.showToast(
           nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
         );
+      } else if (mounted) {
+        AppLoading.showError(t.common.operationFailedAgainLater);
       }
     } catch (_) {
+      AppLoading.showError(t.common.operationFailedAgainLater);
     } finally {
       if (mounted) {
         setState(() => _isLoadingMute = false);
@@ -263,8 +289,14 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
               padding: const EdgeInsets.all(AppSpacing.small),
               onPressed: _isLoadingMute ? null : _toggleMute,
               child: Icon(
-                _isMuted ? CupertinoIcons.bell_slash : CupertinoIcons.bell,
-                semanticLabel: context.t.chat.chatSettingMute,
+                !_muteKnown
+                    ? CupertinoIcons.arrow_clockwise
+                    : (_isMuted
+                          ? CupertinoIcons.bell_slash
+                          : CupertinoIcons.bell),
+                semanticLabel: _muteKnown
+                    ? context.t.chat.chatSettingMute
+                    : context.t.common.retry,
               ),
             )
           else
@@ -327,13 +359,15 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           // 2. Subscribe or Mute action for managers
           if (isSubscribed)
             _buildCircleActionItem(
-              icon: _isMuted
-                  ? CupertinoIcons.bell_slash_fill
-                  : CupertinoIcons.bell_fill,
-              label: t.chat.chatSettingMute,
+              icon: !_muteKnown
+                  ? CupertinoIcons.arrow_clockwise
+                  : (_isMuted
+                        ? CupertinoIcons.bell_slash_fill
+                        : CupertinoIcons.bell_fill),
+              label: _muteKnown ? t.chat.chatSettingMute : t.common.retry,
               onTap: _toggleMute,
               iconColor: _isMuted ? AppColors.iosGray : AppColors.primary,
-              isActive: !_isMuted,
+              isActive: _muteKnown && !_isMuted,
             )
           else
             _buildCircleActionItem(
@@ -400,13 +434,15 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           ] else ...[
             // Mute / Unmute Bell Button
             _buildCircleActionItem(
-              icon: _isMuted
-                  ? CupertinoIcons.bell_slash_fill
-                  : CupertinoIcons.bell_fill,
-              label: t.chat.chatSettingMute,
+              icon: !_muteKnown
+                  ? CupertinoIcons.arrow_clockwise
+                  : (_isMuted
+                        ? CupertinoIcons.bell_slash_fill
+                        : CupertinoIcons.bell_fill),
+              label: _muteKnown ? t.chat.chatSettingMute : t.common.retry,
               onTap: _toggleMute,
               iconColor: _isMuted ? AppColors.iosGray : AppColors.primary,
-              isActive: !_isMuted,
+              isActive: _muteKnown && !_isMuted,
             ),
 
             // Forward Button

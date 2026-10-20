@@ -1,3 +1,9 @@
+import 'package:mocktail/mocktail.dart';
+import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/store/model/channel_subscription_model.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -10,6 +16,8 @@ import 'package:imboy/page/channel/widgets/channel_header_bar.dart';
 import 'package:imboy/page/channel/widgets/channel_role_badge.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
+
+class _NotificationService extends Mock implements ChannelService {}
 
 ChannelModel _channel({bool subscribed = false}) => ChannelModel(
   id: 1001,
@@ -24,15 +32,19 @@ ChannelModel _channel({bool subscribed = false}) => ChannelModel(
 );
 
 Widget _app(Widget child) => TranslationProvider(
-  child: MaterialApp(home: Scaffold(body: child)),
+  child: ProviderScope(
+    child: MaterialApp(home: Scaffold(body: child)),
+  ),
 );
 
 Widget _themedApp(Widget child) => TranslationProvider(
-  child: MaterialApp(
-    theme: ThemeData.dark(useMaterial3: true),
-    home: MediaQuery(
-      data: MediaQueryData(textScaler: TextScaler.linear(1.8)),
-      child: Scaffold(body: SingleChildScrollView(child: child)),
+  child: ProviderScope(
+    child: MaterialApp(
+      theme: ThemeData.dark(useMaterial3: true),
+      home: MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(1.8)),
+        child: Scaffold(body: SingleChildScrollView(child: child)),
+      ),
     ),
   ),
 );
@@ -44,6 +56,46 @@ Finder statsLine() => find.byWidgetPredicate(
 );
 
 void main() {
+  testWidgets('深链冷启动缺本地通知配置时，重试经服务端订阅对账恢复操作', (tester) async {
+    final service = _NotificationService();
+    bool repaired = false;
+    when(() => service.getSubscription('1001')).thenAnswer(
+      (_) async => repaired
+          ? ChannelSubscriptionModel(
+              channelId: 1001,
+              subscribedAt: DateTime(2024),
+            )
+          : null,
+    );
+    when(() => service.refreshChannel('1001'))
+        .thenAnswer((_) async => _channel(subscribed: true));
+    when(() => service.syncSubscribedChannels(fromList: any(named: 'fromList')))
+        .thenAnswer((_) async {
+          repaired = true;
+          return [_channel(subscribed: true)];
+        });
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: ChannelHeaderBar(channel: _channel(subscribed: true)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.common.retry), findsOneWidget);
+    await tester.tap(find.text(t.common.retry));
+    await tester.pumpAndSettle();
+    expect(find.text(t.chat.chatSettingMute), findsOneWidget);
+    verify(
+      () => service.syncSubscribedChannels(fromList: any(named: 'fromList')),
+    ).called(1);
+  });
+
   testWidgets('统计未返回时回退频道自带订阅数，不渲染永久骨架条', (tester) async {
     // 2026-10-17 修复：embedded 模式 autoLoadStats=false，统计永不加载，
     // 原 skeleton 会变成永久灰色占位条；改为直显 channel.subscriberCount。
@@ -91,7 +143,8 @@ void main() {
 
     expect(statsLine(), findsOneWidget);
     expect(find.text('12 ${t.channel.subscribers}'), findsOneWidget);
-    expect(find.text(t.chat.chatSettingMute), findsOneWidget);
+    // 本地订阅配置尚未读取成功时显示重试，不伪装为通知已开启。
+    expect(find.text(t.common.retry), findsOneWidget);
   });
 
   testWidgets('暗色主题和动态字号下仍保留订阅语义', (tester) async {
