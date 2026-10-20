@@ -14,6 +14,7 @@
 /// 是便利构造，用 [Random.secure]）。
 library;
 
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -44,6 +45,28 @@ class SealedAttachment {
 
   /// confirm 上报的**密文**大小（密文大小 ≠ 明文大小）。
   int get ciphertextSize => ciphertext.length;
+}
+
+/// [AttachmentEncryptor.sealToFile] 的产物：密文落盘文件 + descriptor。
+class SealedAttachmentFile {
+  /// 密文文件（写完 .part 原子 rename 后的最终路径；同 session 复用同文件）。
+  final File cipherFile;
+
+  /// 随 PFv3 加密 payload 一起发送的描述符（与内存版同构）。
+  final AttachmentDescriptor descriptor;
+
+  /// confirm 上报的**密文**哈希（连续真实字节的 full SHA-256）。
+  final String ciphertextSha256Hex;
+
+  /// confirm 上报的**密文**大小。
+  final int ciphertextSize;
+
+  const SealedAttachmentFile({
+    required this.cipherFile,
+    required this.descriptor,
+    required this.ciphertextSha256Hex,
+    required this.ciphertextSize,
+  });
 }
 
 class AttachmentEncryptor {
@@ -201,4 +224,187 @@ class AttachmentEncryptor {
     }
     return diff == 0;
   }
+
+  // ===================================================================
+  // 文件化 seal/open（step-9，协议 §5.2 / R04）：
+  //   * 密文一次生成写入受控文件；对连续真实字节流增量 SHA（分块 hash
+  //     不拼接冒充 full hash）；
+  //   * 同 session 复用同密文文件：cipher 路径由调用方确定性给定，本层
+  //     不重随机（key/nonce 由调用方传入，同 key 同 nonce 同输入逐字节
+  //     等价于内存版）；
+  //   * 解密写隔离临时文件，全部 tag/大小/full hash 通过后原子 rename
+  //     暴露；失败前预览器拿不到未认证明文（协议 5.2）。
+  // ===================================================================
+
+  /// [seal] 的文件化版本：逐块流式加密写 [cipherFile]（明文不整读）。
+  /// 输出与 [seal] 同输入下**逐字节等价**（同 chunk codec/块序/nonce 派生）。
+  static Future<SealedAttachmentFile> sealToFile({
+    required File plaintextFile,
+    required File cipherFile,
+    required Uint8List bindingHash,
+    required String attachmentId,
+    required String objectKey,
+    required String mime,
+    required String name,
+    required Uint8List contentKey,
+    required Uint8List baseNonce,
+    int chunkSize = defaultChunkSize,
+    AttachmentDescriptor? thumb,
+  }) async {
+    final int plainSize = plaintextFile.lengthSync();
+    final chunkCount = AttachmentDescriptor.expectedChunkCount(
+      plainSize,
+      chunkSize,
+    );
+    final File tmp = File('${cipherFile.path}.part');
+
+    final IOSink out = tmp.openWrite();
+    // cipher full hash 写完后对流式复算（openRead 有界内存），保证是连续
+    // 真实字节的 hash 而非分块 hash 拼接（协议 5.2）。
+    int written = 0;
+    try {
+      for (var i = 0; i < chunkCount; i++) {
+        final int start = i * chunkSize;
+        final int end = (start + chunkSize) > plainSize
+            ? plainSize
+            : start + chunkSize;
+        final Uint8List slice = _readSlice(plaintextFile, start, end);
+        final Uint8List sealed = AttachmentChunkCodec.encryptChunk(
+          plaintext: slice,
+          contentKey: contentKey,
+          baseNonce: baseNonce,
+          bindingHash: bindingHash,
+          attachmentId: attachmentId,
+          chunkIndex: i,
+          chunkCount: chunkCount,
+        );
+        out.add(sealed);
+        written += sealed.length;
+      }
+      await out.flush();
+      await out.close();
+      final Digest cipherDigest = await _fileDigest(tmp);
+      await tmp.rename(cipherFile.path);
+      final descriptor = AttachmentDescriptor(
+        attachmentId: attachmentId,
+        objectKey: objectKey,
+        contentKey: contentKey,
+        cipher: AttachmentDescriptor.supportedCipher,
+        chunkSize: chunkSize,
+        chunkCount: chunkCount,
+        baseNonce: baseNonce,
+        plainSize: plainSize,
+        plainSha256: Uint8List.fromList(
+          (await _fileDigest(plaintextFile)).bytes,
+        ),
+        mime: mime,
+        name: name,
+        thumb: thumb,
+      );
+      return SealedAttachmentFile(
+        cipherFile: cipherFile,
+        descriptor: descriptor,
+        ciphertextSha256Hex: cipherDigest.toString(),
+        ciphertextSize: written,
+      );
+    } catch (_) {
+      if (tmp.existsSync()) tmp.deleteSync();
+      rethrow;
+    }
+  }
+
+  /// [open] 的文件化版本：流式解密到**隔离临时文件**，全部块 tag、
+  /// 明文大小与 full hash 通过后原子 rename 到 [plaintextOut]。
+  /// 任何一步失败：删除临时文件并抛出——预览器/业务拿不到未认证明文。
+  static Future<void> openToFile({
+    required File cipherFile,
+    required File plaintextOut,
+    required AttachmentDescriptor descriptor,
+    required Uint8List bindingHash,
+  }) async {
+    final d = descriptor;
+    final int sealedChunkLen = d.chunkSize + AttachmentChunkCodec.tagLength;
+    final int fullChunks = d.chunkCount - 1;
+    final int lastPlain = d.plainSize - fullChunks * d.chunkSize;
+    if (lastPlain < 0 || lastPlain > d.chunkSize) {
+      throw AttachmentSealException('descriptor 自身不自洽：末块明文长度 $lastPlain');
+    }
+    final int expectedLen =
+        fullChunks * sealedChunkLen +
+        lastPlain +
+        AttachmentChunkCodec.tagLength;
+    final int cipherLen = cipherFile.lengthSync();
+    if (cipherLen != expectedLen) {
+      throw AttachmentSealException(
+        '密文长度 $cipherLen != 期望 $expectedLen（块被增删或截断）',
+      );
+    }
+
+    final File tmp = File('${plaintextOut.path}.part');
+    final RandomAccessFile raf = cipherFile.openSync();
+    final IOSink out = tmp.openWrite();
+    try {
+      for (var i = 0; i < d.chunkCount; i++) {
+        final int start = i * sealedChunkLen;
+        final bool isLast = i == d.chunkCount - 1;
+        final int end = isLast ? cipherLen : start + sealedChunkLen;
+        raf.setPositionSync(start);
+        final Uint8List sealedChunk = raf.readSync(end - start);
+        final Uint8List plain;
+        try {
+          plain = AttachmentChunkCodec.decryptChunk(
+            sealed: sealedChunk,
+            contentKey: d.contentKey,
+            baseNonce: d.baseNonce,
+            bindingHash: bindingHash,
+            attachmentId: d.attachmentId,
+            chunkIndex: i,
+            chunkCount: d.chunkCount,
+          );
+        } on AttachmentChunkException {
+          // 不区分失败粒度（同 [open] 的对外语义）：哪一块失败不成为 oracle
+          throw AttachmentSealException('第 $i 块认证失败');
+        }
+        out.add(plain);
+      }
+      await out.flush();
+      await out.close();
+      // full hash：对流式落盘的连续明文整体计算（非分块拼接）
+      final Digest actual = await _fileDigest(tmp);
+      if (actual.bytes.length != d.plainSha256.length ||
+          !_constantTimeEquals(
+            Uint8List.fromList(actual.bytes),
+            d.plainSha256,
+          )) {
+        throw AttachmentSealException('明文 SHA-256 与 descriptor 声明不符');
+      }
+      if (tmp.lengthSync() != d.plainSize) {
+        throw AttachmentSealException(
+          '明文大小 ${tmp.lengthSync()} != 声明 ${d.plainSize}',
+        );
+      }
+      tmp.renameSync(plaintextOut.path);
+    } catch (_) {
+      try {
+        await out.close();
+      } catch (_) {}
+      if (tmp.existsSync()) tmp.deleteSync();
+      rethrow;
+    } finally {
+      raf.closeSync();
+    }
+  }
+
+  static Uint8List _readSlice(File f, int start, int end) {
+    final RandomAccessFile raf = f.openSync();
+    try {
+      raf.setPositionSync(start);
+      return raf.readSync(end - start);
+    } finally {
+      raf.closeSync();
+    }
+  }
+
+  /// 连续真实字节的 full SHA-256（openRead 有界内存流式，非分块拼接）。
+  static Future<Digest> _fileDigest(File f) => sha256.bind(f.openRead()).first;
 }

@@ -215,7 +215,8 @@ class AttachmentApi {
   }
 
   /// 上传前置校验（纯函数，系统边界）。返回错误消息，校验通过返回 null。
-  @visibleForTesting
+  /// direct-v1（attachment_direct_api）复用同一校验源——大小/白名单规则
+  /// 双份维护必然漂移，故此处对外可见。
   static String? validateUpload(int size, String mime) {
     if (size <= 0) {
       return 'uploadViaPresign: 文件内容为空';
