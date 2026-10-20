@@ -14,6 +14,7 @@ import 'dart:io' show File, Platform;
 import 'dart:typed_data' show ByteData, Uint8List;
 
 import 'package:crypto/crypto.dart' show sha256;
+import 'package:flutter/material.dart' show ThemeData;
 import 'package:flutter/services.dart' show FontLoader;
 
 /// 视觉字体解析结果。
@@ -171,6 +172,43 @@ GoldenFontResolution resolveGoldenFontFromAssets(List<GoldenFontAsset> assets) {
   );
 }
 
+/// 图标字体资产（本机 Flutter SDK / pub 缓存路径；只登记不分发）。
+const List<(String, String)> kGoldenIconFontAssets = <(String, String)>[
+  (
+    '/Users/leeyi/dev/flutter/bin/cache/artifacts/material_fonts/'
+        'MaterialIcons-Regular.otf',
+    'MaterialIcons',
+  ),
+  (
+    '/Users/leeyi/.pub-cache/hosted/pub.dev/cupertino_icons-2.0.0/assets/'
+        'CupertinoIcons.ttf',
+    'CupertinoIcons',
+  ),
+];
+
+/// 金图字体注册的 family 名清单（第四轮 review 修正）。
+///
+/// 应用文本的实际解析路径是 `ThemeManager._fallbackTextStyle` /
+/// `ThemeNotifier.getTextStyle`：无主 family、`fontFamilyFallback` 为
+/// `PingFang SC / Heiti SC / Microsoft YaHei / sans-serif`；Material 与
+/// Cupertino 默认排版又分别命中 Roboto / CupertinoSystemText(.SF)。
+/// 只注册 `UiuxGoldenFont` 单名时这些路径全部落空 → 测试默认字体
+/// （Ahem）把中文渲染成方块。故同一份字节按命中名单多名注册。
+const List<String> kGoldenFontApplyFamilies = <String>[
+  kGoldenFontFamily,
+  'Roboto',
+  'PingFang SC',
+  'Heiti SC',
+  'Microsoft YaHei',
+  'sans-serif',
+  'CupertinoSystemText',
+  'CupertinoSystemDisplay',
+  '.SF Pro Text',
+  '.SF Pro Display',
+  '.SF UI Text',
+  '.SF UI Display',
+];
+
 /// 把 [resolution] 的字体注册进测试绑定（真实可渲染）。
 /// 仅 status=ok 时调用；否则抛 StateError（调用方契约错误）。
 Future<void> loadGoldenFont(GoldenFontResolution resolution) async {
@@ -180,9 +218,22 @@ Future<void> loadGoldenFont(GoldenFontResolution resolution) async {
       'loadGoldenFont called with non-ok resolution: ${resolution.reason}',
     );
   }
-  final FontLoader loader = FontLoader(kGoldenFontFamily);
-  loader.addFont(Future<ByteData>.value(resolution.fontBytes));
-  await loader.load();
+  for (final String family in kGoldenFontApplyFamilies) {
+    final FontLoader loader = FontLoader(family);
+    loader.addFont(Future<ByteData>.value(resolution.fontBytes));
+    await loader.load();
+  }
+  // 图标字体（本机 SDK/包缓存资产，容错式：缺失时图标退化为方块，
+  // golden 仍确定性）。P1-05 方向指示、P2-04 图标槽的视觉基线需要它。
+  for (final (String path, String family) in kGoldenIconFontAssets) {
+    final File f = File(path);
+    if (!f.existsSync()) continue;
+    final FontLoader loader = FontLoader(family);
+    loader.addFont(
+      Future<ByteData>.value(ByteData.sublistView(f.readAsBytesSync())),
+    );
+    await loader.load();
+  }
 }
 
 /// [resolveGoldenFont] 结果能否进入视觉验收；缺字体的金图测试必须
@@ -345,4 +396,19 @@ Set<int> _coveredCodepoints(Uint8List st) {
 int _i16(Uint8List b, int off) {
   final int v = _u16(b, off);
   return v >= 0x8000 ? v - 0x10000 : v;
+}
+
+/// 把登记字体应用到主题（金图 pump 专用，第四轮 review 修正）。
+///
+/// AppTheme 本体不指定 fontFamily（跟随宿主系统字体），而 Flutter 测试
+/// 环境的默认字体（Ahem）没有 CJK 字形——只 FontLoader 注册而不注入主题
+/// 时，金图中的中文一律渲染为 tofu 方块（GOLDEN_COVERAGE_CORRECTION.md
+/// 记录的缺陷）。金图 pump 必须经由本助手构造主题，确保文本真实落字形。
+ThemeData applyGoldenFont(ThemeData theme) {
+  return theme.copyWith(
+    textTheme: theme.textTheme.apply(fontFamily: kGoldenFontFamily),
+    primaryTextTheme: theme.primaryTextTheme.apply(
+      fontFamily: kGoldenFontFamily,
+    ),
+  );
 }

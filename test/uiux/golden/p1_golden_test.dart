@@ -211,9 +211,11 @@ Future<void> _pumpGolden(WidgetTester tester, GoldenConfig cfg) async {
             voicePlaybackServiceProvider.overrideWith(P1SilentPlayback.new),
           ],
           child: MaterialApp(
-            theme: cfg.theme == 'light'
-                ? AppTheme.getLightThemeFromOption(FontSizeOption.normal)
-                : AppTheme.getDarkThemeFromOption(FontSizeOption.normal),
+            theme: applyGoldenFont(
+              cfg.theme == 'light'
+                  ? AppTheme.getLightThemeFromOption(FontSizeOption.normal)
+                  : AppTheme.getDarkThemeFromOption(FontSizeOption.normal),
+            ),
             builder: (BuildContext context, Widget? child) => MediaQuery(
               data: MediaQuery.of(context)
                   .copyWith(textScaler: TextScaler.linear(cfg.textScale)),

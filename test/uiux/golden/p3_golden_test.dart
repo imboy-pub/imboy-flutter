@@ -144,9 +144,11 @@ Future<void> _pumpP3Golden(WidgetTester tester, GoldenP3Config cfg) async {
     await tester.pumpWidget(
       TranslationProvider(
         child: MaterialApp(
-          theme: cfg.theme == 'light'
-              ? AppTheme.getLightThemeFromOption(FontSizeOption.normal)
-              : AppTheme.getDarkThemeFromOption(FontSizeOption.normal),
+          theme: applyGoldenFont(
+            cfg.theme == 'light'
+                ? AppTheme.getLightThemeFromOption(FontSizeOption.normal)
+                : AppTheme.getDarkThemeFromOption(FontSizeOption.normal),
+          ),
           builder: (BuildContext context, Widget? child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(cfg.textScale)),
