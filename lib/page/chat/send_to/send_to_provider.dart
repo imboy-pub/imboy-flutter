@@ -56,6 +56,8 @@ class SendToNotifier extends Notifier<SendToState> {
     return MessageFlowType.normalize(type);
   }
 
+  void clearSelection() => state = const SendToState();
+
   /// 最近聊天
   ///
   /// 群会话的 `title` 列在库里通常是空的 —— 真实群名是会话页 load 时
@@ -180,8 +182,14 @@ class SendToNotifier extends Notifier<SendToState> {
   }
 
   /// 发送消息
-  Future<bool> sendMsg(ConversationModel conversation, Message msg) async {
+  Future<bool> sendMsg(
+    ConversationModel conversation,
+    Message msg, {
+    void Function(MessageModel)? onQueued,
+    bool Function()? isCurrent,
+  }) async {
     try {
+      if (isCurrent != null && !isCurrent()) return false;
       // 获取并归一化会话类型，历史脏值统一按 C2C 处理
       final chatType = _normalizeConversationType(conversation.type);
 
@@ -273,7 +281,10 @@ class SendToNotifier extends Notifier<SendToState> {
       final msgRepo = MessageRepo(
         tableName: MessageRepo.getTableName(chatType),
       );
+      if (isCurrent != null && !isCurrent()) return false;
       await msgRepo.insert(msgModel);
+      if (isCurrent != null && !isCurrent()) return false;
+      onQueued?.call(msgModel);
 
       // 通过事件总线触发消息发送
       AppEventBus.fire(

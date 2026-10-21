@@ -26,6 +26,7 @@ import 'http_parse.dart';
 import 'http_response.dart';
 import 'http_transformer.dart';
 import 'http_retry_interceptor.dart';
+import 'http_request_policy.dart';
 
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -150,16 +151,7 @@ class HttpClient {
     }
 
     if (recordLog) {
-      _dio.interceptors.add(
-        LogInterceptor(
-          responseBody: false,
-          error: true,
-          requestHeader: false, // 禁止输出 Header（含 Authorization token）
-          responseHeader: false,
-          request: true,
-          requestBody: false, // 禁止输出请求体（可能含密码）
-        ),
-      );
+      _dio.interceptors.add(SafeHttpLogInterceptor());
     }
     if (conf?.interceptors?.isNotEmpty ?? false) {
       _dio.interceptors.addAll(conf!.interceptors!);
@@ -183,6 +175,8 @@ class HttpClient {
     if (adapterForTest != null) {
       _dio.httpClientAdapter = adapterForTest!;
     }
+
+    _dio.interceptors.add(HttpRequestGuardInterceptor());
 
     if (conf?.proxy?.isNotEmpty ?? false) {
       setProxy(conf!.proxy!);
@@ -429,7 +423,7 @@ class HttpClient {
       final response = await requestFn();
       final resp = handleResponse(
         response,
-        uri: uri,
+        uri: safeHttpUri(uri),
         httpTransformer: httpTransformer,
       );
       if (requestUid != UserRepoLocal.to.currentUid ||
@@ -445,7 +439,7 @@ class HttpClient {
       onResponse?.call(resp);
       return resp;
     } on Exception catch (e) {
-      return handleException(uri, e);
+      return handleException(safeHttpUri(uri), e);
     }
   }
 

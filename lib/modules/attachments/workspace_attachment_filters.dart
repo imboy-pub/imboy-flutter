@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:imboy/modules/talk_record/presentation/talk_record_auth.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,10 +24,10 @@ import 'package:imboy/theme/default/font_types.dart';
 class WorkspaceAttachmentFilters extends ConsumerStatefulWidget {
   const WorkspaceAttachmentFilters({
     super.key,
-    required this.workspaceId,
+    this.workspaceId,
     required this.onChanged,
   });
-  final EntityId workspaceId;
+  final EntityId? workspaceId;
   final ValueChanged<Map<String, dynamic>> onChanged;
   @override
   ConsumerState<WorkspaceAttachmentFilters> createState() => _FilterState();
@@ -40,29 +42,71 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
   Object? _error;
   bool _loading = true;
   late final _owner = UserRepoLocal.to.currentUid;
+  late VoidCallback _removeAuth;
+  late int _authEpoch;
+  int _generation = 0;
+  Route<dynamic>? _pickerRoute;
+  bool _current(int generation) =>
+      mounted &&
+      generation == _generation &&
+      _owner == UserRepoLocal.to.currentUid &&
+      UserRepoLocal.to.isCurrentSession(_authEpoch) &&
+      !UserRepoLocal.to.isAuthTransitioning;
+  void _authChanged() {
+    if (!mounted) return;
+    _generation++;
+    _authEpoch = UserRepoLocal.to.sessionGeneration;
+    _debounce?.cancel();
+    final picker = _pickerRoute;
+    if (picker != null && picker.isActive) {
+      picker.navigator?.removeRoute(picker);
+    }
+    _pickerRoute = null;
+    _person.clear();
+    setState(() {
+      _choices.clear();
+      _selection.clear();
+      _dates = null;
+      _loading = false;
+      _error = null;
+    });
+    if (_current(_generation)) unawaited(_loadChoices());
+  }
+
   @override
   void initState() {
     super.initState();
+    _authEpoch = UserRepoLocal.to.sessionGeneration;
+    _removeAuth = ref.read(talkRecordAuthSubscribeProvider)(_authChanged);
     unawaited(_loadChoices());
   }
 
   @override
   void dispose() {
+    _generation++;
+    _removeAuth();
     _debounce?.cancel();
     _person.dispose();
     super.dispose();
   }
 
   Future<void> _loadChoices() async {
+    if (!_current(_generation)) return;
+    final generation = ++_generation;
+    if (widget.workspaceId == null) {
+      setState(() => _loading = false);
+      return;
+    }
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
       final api = ref.read(workspaceApiProvider);
-      final groups = await api.memberGroups(widget.workspaceId);
-      final channels = await api.channels(widget.workspaceId);
-      if (!mounted || _owner != UserRepoLocal.to.currentUid) return;
+      final groups = await api.memberGroups(widget.workspaceId!);
+      if (!_current(generation)) return;
+      final channels = await api.channels(widget.workspaceId!);
+      if (!_current(generation)) return;
       setState(() {
         _choices['group_id'] = {
           for (final group in groups)
@@ -73,9 +117,9 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
         };
       });
     } on Exception catch (error) {
-      if (mounted) setState(() => _error = error);
+      if (_current(generation)) setState(() => _error = error);
     } finally {
-      if (mounted) setState(() => _loading = false);
+      if (_current(generation)) setState(() => _loading = false);
     }
   }
 
@@ -91,6 +135,16 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
           _dates!.end.day + 1,
         ).millisecondsSinceEpoch,
     });
+  }
+
+  Widget _sourceFilter(BuildContext context) {
+    final t = context.t.attachmentManager;
+    _choices['source'] = {
+      'group': t.sourceGroups,
+      'channel': t.sourceChannels,
+      'talk_record': t.sourceTalkRecords,
+    };
+    return _dropdown('source', t.sourceAll, t.sourceAll);
   }
 
   bool get _hasActive =>
@@ -111,21 +165,24 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: _dropdown('group_id', t.allGroups, t.selectGroupTitle),
-            ),
-            const SizedBox(width: AppSpacing.small),
-            Expanded(
-              child: _dropdown(
-                'channel_id',
-                t.allChannels,
-                t.selectChannelTitle,
+        _sourceFilter(context),
+        AppSpacing.verticalSmall,
+        if (widget.workspaceId != null)
+          Row(
+            children: [
+              Expanded(
+                child: _dropdown('group_id', t.allGroups, t.selectGroupTitle),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(width: AppSpacing.small),
+              Expanded(
+                child: _dropdown(
+                  'channel_id',
+                  t.allChannels,
+                  t.selectChannelTitle,
+                ),
+              ),
+            ],
+          ),
         AppSpacing.verticalSmall,
         TextField(
           controller: _person,
@@ -276,6 +333,8 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
     String allLabel,
     String title,
   ) async {
+    final generation = _generation;
+    if (!_current(generation)) return;
     final choices = _choices[key]!;
     final selected = _selection[key];
     final picked = await showModalBottomSheet<EntityId>(
@@ -284,71 +343,80 @@ class _FilterState extends ConsumerState<WorkspaceAttachmentFilters> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (sheetContext) => SafeArea(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.6,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 拖拽指示条。
-              Container(
-                width: 36,
-                height: 5,
-                margin: const EdgeInsets.only(top: AppSpacing.small),
-                decoration: BoxDecoration(
-                  color: Theme.of(sheetContext).brightness == Brightness.dark
-                      ? AppColors.iosGray3Dark
-                      : AppColors.iosGray4,
-                  borderRadius: BorderRadius.circular(2.5),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.medium,
-                ),
-                child: Text(
-                  title,
-                  style: sheetContext.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w600,
+      builder: (sheetContext) {
+        _pickerRoute = ModalRoute.of(sheetContext);
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.6,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 拖拽指示条。
+                Container(
+                  width: 36,
+                  height: 5,
+                  margin: const EdgeInsets.only(top: AppSpacing.small),
+                  decoration: BoxDecoration(
+                    color: Theme.of(sheetContext).brightness == Brightness.dark
+                        ? AppColors.iosGray3Dark
+                        : AppColors.iosGray4,
+                    borderRadius: BorderRadius.circular(2.5),
                   ),
                 ),
-              ),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(bottom: AppSpacing.small),
-                  children: [
-                    _pickerOption(
-                      sheetContext,
-                      label: allLabel,
-                      selected: selected == null,
-                      onPick: () => Navigator.pop(sheetContext, ''),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: AppSpacing.medium,
+                  ),
+                  child: Text(
+                    title,
+                    style: sheetContext.textStyle(
+                      FontSizeType.normal,
+                      fontWeight: FontWeight.w600,
                     ),
-                    for (final choice in choices.entries)
+                  ),
+                ),
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: AppSpacing.small),
+                    children: [
                       _pickerOption(
                         sheetContext,
-                        label: choice.value,
-                        selected: choice.key == selected,
-                        onPick: () => Navigator.pop(sheetContext, choice.key),
+                        label: allLabel,
+                        selected: selected == null,
+                        onPick: () => Navigator.pop(sheetContext, ''),
                       ),
-                  ],
+                      for (final choice in choices.entries)
+                        _pickerOption(
+                          sheetContext,
+                          label: choice.value,
+                          selected: choice.key == selected,
+                          onPick: () => Navigator.pop(sheetContext, choice.key),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
-    if (picked == null || !mounted) return;
+    _pickerRoute = null;
+    if (picked == null || !_current(generation)) return;
     setState(() {
       if (picked.isEmpty) {
         _selection.remove(key);
       } else {
         _selection[key] = picked;
       }
+      if (key == 'source') {
+        _selection.remove('group_id');
+        _selection.remove('channel_id');
+      }
+      if (key == 'group_id' || key == 'channel_id') _selection.remove('source');
       if (key == 'group_id') _selection.remove('channel_id');
       if (key == 'channel_id') _selection.remove('group_id');
     });

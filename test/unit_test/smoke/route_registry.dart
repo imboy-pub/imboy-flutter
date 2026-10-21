@@ -24,7 +24,13 @@ class SmokeRoute {
     this.extra,
     this.status = RouteStatus.active,
     this.skipReason,
+    this.expectedLocation,
+    this.expectedRouteName,
   }) : assert(
+         (expectedLocation == null) == (expectedRouteName == null),
+         'redirect expectation requires both terminal location and route name',
+       ),
+       assert(
          status == RouteStatus.active || skipReason != null,
          'quarantine 路由必须填写 skipReason',
        );
@@ -34,6 +40,10 @@ class SmokeRoute {
 
   /// 已解析的可导航 location（含 fake 参数）
   final String location;
+
+  /// Explicit terminal route for an intentional alias. Defaults remain strict.
+  final String? expectedLocation;
+  final String? expectedRouteName;
 
   /// 需要非空 extra 强转的路由提供 fake 对象；多数路由为 null
   final Object? extra;
@@ -476,5 +486,62 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   const SmokeRoute(
     name: 'organization_manage',
     location: '/organization/9001/manage',
+  ),
+
+  // Talk record routes: active smoke coverage, no quarantine.
+  const SmokeRoute(name: 'talk_record_list', location: '/talk_record'),
+  const SmokeRoute(
+    name: 'talk_record_prepare',
+    location: '/talk_record/prepare',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_save_location',
+    location: '/talk_record/save_location',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_invalid',
+    location: '/talk_record/invalid',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_detail',
+    location: '/talk_record/detail/9001',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_segment_edit',
+    location: '/talk_record/detail/9001/segment/9002',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_speakers',
+    location: '/talk_record/detail/9001/speakers',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_share',
+    location: '/talk_record/detail/9001/share',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_grant_edit',
+    location: '/talk_record/detail/9001/share/grant_edit',
+  ),
+  const SmokeRoute(
+    name: 'organization_attachments',
+    location: '/organization/9001/attachments',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_card_locator',
+    location: '/talk-records/9001',
+    expectedLocation: '/talk_record/detail/9001',
+    expectedRouteName: 'talk_record_detail',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_export',
+    location: '/talk_record/detail/9001/export',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_transfer',
+    location: '/talk_record/detail/9001/transfer',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_cleanup',
+    location: '/talk_record/detail/9001/cleanup',
   ),
 ];

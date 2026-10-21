@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show RenderFlex;
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_recording_host.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -404,7 +405,13 @@ class _IMBoyAppState extends ConsumerState<IMBoyApp> {
           // 恢复全局 DefaultTextStyle/Material 祖先，无视觉影响。
           builder: (context, child) => AppLoading.init()(
             context,
-            Material(type: MaterialType.transparency, child: child),
+            Material(
+              type: MaterialType.transparency,
+              child: TalkRecordRecordingHost(
+                navigatorKey: navigatorKey,
+                child: child ?? const SizedBox.shrink(),
+              ),
+            ),
           ),
           // 使用 Riverpod 主题系统（字体大小变化时会自动重建）
           theme: themeState.isDarkMode

@@ -30,6 +30,7 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _Shell extends WorkspaceShellNotifier {
+  void moveAway() => state = state.copyWith(currentWorkspaceId: '200');
   @override
   Future<void> initialize() async {}
   @override
@@ -103,7 +104,11 @@ Map<String, dynamic> _item(
   'created_at': createdAt,
 };
 
-Future<void> _pump(WidgetTester tester, _Api api) async {
+Future<ProviderContainer> _pump(
+  WidgetTester tester,
+  _Api api, {
+  bool raw = false,
+}) async {
   tester.view.physicalSize = const Size(430, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -126,7 +131,12 @@ Future<void> _pump(WidgetTester tester, _Api api) async {
         child: MaterialApp(
           home: Scaffold(
             appBar: AppBar(title: const Text('附件')),
-            body: const WorkspaceAttachmentsPage(),
+            body: raw
+                ? const EnterpriseAttachmentIndex(
+                    workspaceId: '100',
+                    owner: '1',
+                  )
+                : const WorkspaceAttachmentsPage(),
           ),
         ),
       ),
@@ -134,6 +144,7 @@ Future<void> _pump(WidgetTester tester, _Api api) async {
   );
   await tester.pump();
   await tester.pumpAndSettle();
+  return container;
 }
 
 void main() {
@@ -142,6 +153,19 @@ void main() {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
     await StorageService.init();
   });
+
+  testWidgets(
+    'retained workspace index clears rows when actual workspace changes',
+    (tester) async {
+      final api = _Api(attachmentItems: [_item('old-context.pdf')]);
+      final container = await _pump(tester, api, raw: true);
+      expect(find.text('old-context.pdf'), findsOneWidget);
+      (container.read(workspaceShellProvider.notifier) as _Shell).moveAway();
+      await tester.pumpAndSettle();
+      expect(find.text('old-context.pdf'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('ready：计数行 + 类型化图标 + 人性化大小 + 跨年年份 + 单 AppBar', (tester) async {
     final api = _Api(

@@ -455,6 +455,12 @@ class PreflightBlocker {
   }
 }
 
+/// Owner-only deleted recording identifiers; details require a fresh authorized GET.
+class AccountCleanupResource {
+  final EntityId recordId;
+  const AccountCleanupResource(this.recordId);
+}
+
 /// User 删除预检报告（GET /organizations/deletion-preflight 出站）。
 class DeletionPreflightReport {
   final EntityId subjectUserId;
@@ -463,23 +469,43 @@ class DeletionPreflightReport {
   /// 各依赖域出站事实的 domain 名清单（展示用）。
   final List<String> factDomains;
   final String observedAt;
+  final List<AccountCleanupResource> cleanupResources;
+  final bool cleanupResourcesTruncated;
 
   const DeletionPreflightReport({
     required this.subjectUserId,
     this.blockers = const [],
     this.factDomains = const [],
     this.observedAt = '',
+    this.cleanupResources = const [],
+    this.cleanupResourcesTruncated = false,
   });
 
   factory DeletionPreflightReport.fromJson(Map<String, dynamic> json) {
     final facts = json['facts'];
     final domains = <String>[];
+    final cleanupResources = <AccountCleanupResource>[];
+    var cleanupTruncated = false;
     if (facts is List) {
       for (final f in facts) {
         if (f is Map) {
           final d = f['domain'];
           if (d != null) {
             domains.add(d.toString());
+          }
+          if (d == 'talk_record') {
+            cleanupTruncated = f['cleanup_resources_truncated'] == true;
+            final resources = f['resources'];
+            if (resources is List) {
+              for (final resource in resources.take(20)) {
+                if (resource is! Map) continue;
+                final id = entityIdOf(resource['record_id']);
+                if (RegExp(r'^[1-9][0-9]*$').hasMatch(id)) {
+                  cleanupResources.add(AccountCleanupResource(id));
+                }
+              }
+              cleanupTruncated = cleanupTruncated || resources.length > 20;
+            }
           }
         }
       }
@@ -498,6 +524,8 @@ class DeletionPreflightReport {
       blockers: blockers,
       factDomains: domains,
       observedAt: parseModelString(json['observed_at']),
+      cleanupResources: List.unmodifiable(cleanupResources),
+      cleanupResourcesTruncated: cleanupTruncated,
     );
   }
 

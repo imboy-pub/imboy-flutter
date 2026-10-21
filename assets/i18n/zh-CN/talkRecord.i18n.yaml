@@ -1,0 +1,366 @@
+# 面聊记录 talk_record（T10：入口/列表/准备/保存位置/录音条占位）
+# 契约源：docs/design/2026-10-20-face-to-face-notes/UI-SPEC.md §2/§4 + DESIGN.md §9
+entryTitle: 面聊记录
+entrySubtitlePersonal: 面对面沟通的录音与转写记录
+entrySubtitleOrg: 会议与面谈的团队协作记录
+listTitle: 面聊记录
+contextSectionTitle: 当前空间
+contextPersonal: 个人空间
+contextOrgFallback: 当前企业
+filterAll: 全部
+filterOwned: 我创建
+filterShared: 共享给我
+searchHint: 搜索面聊记录
+untitledRecord: 未命名记录
+visibilityOwnerOnly: 仅自己可见
+visibilityShared: 已共享
+localDraftBadge: 本机草稿
+statusRecording: 录音中
+statusUploading: 上传中
+statusVerifying: 上传校验中
+statusAssembling: 音频合成中
+statusUploadFailed: 上传失败，可重试
+statusTranscribeQueued: 转写排队中
+statusTranscribeRunning: 转写中
+statusTranscribeReady: 已转写
+statusTranscribeFailed: 转写失败，录音仍可回听
+statusNoSpeech: 未检测到可转写语音
+statusRecordOnly: 仅录音
+emptyNeverCreatedTitle: 还没有面聊记录
+emptyNeverCreatedSubtitle: 面对面沟通后，在这里保存录音与转写
+emptyNoMatchTitle: 没有匹配的记录
+emptyNoMatchSubtitle: 当前筛选或搜索词下没有结果，可调整后重试
+createRecord: 新建记录
+loadFailedTitle: 记录加载失败
+loadFailedAction: 重试
+prepareTitle: 新建面聊记录
+fieldTitleLabel: 标题
+fieldTitlePlaceholder: 选填，方便日后查找
+saveToSectionTitle: 保存到
+saveToChangeAction: 更改
+processingSectionTitle: 处理方式
+processingRecordOnly: 仅录音
+processingTranscribe: 转写文字
+processingSummarize: 转写并摘要
+processingRecordOnlyHint: 仅保存录音，可随时回听；会后可在详情页升级转写。
+processingReasonUnavailable: 当前实例未配置转写服务，本次仅保存录音。
+processingReasonQuota: 转写配额暂不可用，本次仅保存录音；录音不受影响。
+processingReasonLoadFailed: 未能获取处理能力，本次按仅录音处理。
+maxDurationHint(minutes): "单条录音最长 $minutes 分钟"
+collabSectionTitle: 协作信息
+collabSectionSubtitle: 选填，仅对企业记录生效
+collabParticipantsLabel: 参与者
+collabParticipantsEmpty: 未选择参与者
+collabParticipantsCount(count): "已选 $count 人"
+collabParticipantsUnavailable: 参与者目录待接入；可创建记录后再授权共享。
+noticeCheckbox: 我已告知现场参与者本次录音及其处理方式
+noticeHint: 开始录音前需先确认已告知
+startRecording: 开始录音
+micDeniedTitle: 需要麦克风权限
+micDeniedMessage: 面聊记录需要使用麦克风录制现场声音。当前权限被拒绝，可重试或在系统设置中开启。
+micRetry: 重试
+micOpenSettings: 去设置
+recordingUnavailableTitle: 暂时无法开始录音
+recordingUnavailableMessage: 请检查是否有未结束的录音、麦克风权限和本机存储空间。草稿及已有分段已保留。
+saveLocationTitle: 保存位置
+saveLocationPersonalSection: 个人
+saveLocationOrgSection: 有权企业
+saveLocationWorkspaceOptional: 不指定工作区
+retentionPolicyLabel: 保存期限
+changeConfirmTitle: 更改保存位置
+changeConfirmTarget(name): "将保存到：$name"
+changeConfirmKeepTitle: 已填写的标题与笔记会保留
+changeConfirmClearParticipants: 不适用于新位置的参与者选择将被清空
+changeConfirmRecheck: 处理方式将按新位置的能力重新校验
+changeConfirmAction: 确认更改
+barRecording: 正在录音 · 本机分段保存
+barPaused: 已暂停，不计入录音时长
+barInterrupted: 录音已中断 · 恢复需手动继续
+barOriginPrefix: 来自
+barExpandHint: 查看录音状态
+barControlsUnavailable: 录音控制由录音模块提供，当前构建为占位展示
+barOriginPersonal: 个人空间
+barOriginOrgFallback: 企业空间
+# ---- T16 详情/原文流/播放器/校对 ----
+roleOwner: 创建者
+roleEditor: 编辑者
+roleViewer: 读者
+roleEditorHint: 你可校对原文与发言人、编辑共享笔记；分享与删除由创建者管理。
+tabSummary: 摘要
+tabTranscript: 原文
+speakersEntry: 发言人校对
+playbackUnavailable: 当前无回放权限
+playbackTicketFailed: 播放会话不可用，可重试
+playbackPlayLabel: 播放
+playbackPauseLabel: 暂停
+playbackProgressLabel(position, duration): "播放进度 $position / $duration"
+returnToPlayback: 回到播放位置
+transcriptSearchHint: 搜索原文关键词
+transcriptHitCount(count): "命中 $count 处，点击时间点回听定位"
+transcriptNoHit: 没有命中片段
+transcriptEmpty: 暂无原文片段
+speakerUnknown: 未知说话人
+speakerAnonymousPill: 匿名
+speakerManualPill: 人工标记
+speakerSelfClaimPill: 本人认领
+markPillPrefix: 重点
+markDefaultText: 手动重点
+segmentHumanEditedPill: 人工修订
+segmentRowSemanticLabel(speaker, time): "$speaker 于 $time 的发言"
+segmentListenLabel(time): "回听 $time"
+detailRecordOnlyTitle: 本次记录仅保存录音
+detailRecordOnlyBody: 未请求转写，暂无原文与摘要；录音可回听，会后可升级转写。
+detailNoSpeechTitle: 未检测到可转写语音
+detailNoSpeechBody: 录音已保留。本次录音中没有可转写的语音内容。
+detailTranscribeFailedTitle: 转写失败
+detailTranscribeFailedBodyEditor: 转写失败，录音仍可回听。你可重试转写。
+detailTranscribeFailedBodyViewer: 转写失败，录音仍可回听。请联系创建者重试。
+detailTranscribingTitle: 转写处理中
+detailTranscribingBody: 原文生成后会在此展示；处理中不显示预计完成时间。
+detailTranscribeRetry: 重试转写
+summarySectionTitle: 摘要
+summaryDraftBadge: AI 整理草稿 · 使用前请核对
+summaryStaleBanner: 原文或署名已更新，摘要可能过时
+summaryDecisionsTitle: 讨论重点
+summaryActionsTitle: 待办草稿
+summaryAssigneeUnset: 负责人未定
+summaryJumpToSource: 查看原文出处
+summaryQueued: 摘要已排队，生成后展示。
+summaryRunning: 摘要整理中，生成后展示。
+summaryNotGenerated: 已生成原文，尚未请求摘要。
+summaryNoSource: 尚无原文，暂不能生成摘要。
+summaryUnavailable: 当前实例未配置摘要服务。
+summaryFailed: 摘要生成失败，可稍后重试。
+notesTitle: 共享补充笔记
+notesSharedHint: 随记录共享，所有可查看本记录的人可见。
+notesReadonlyHint: 随记录共享，当前为只读。
+notesEditAction: 编辑
+notesPlaceholder: 补充会议结论、背景信息等
+notesEmpty: 暂无补充笔记
+notesCancel: 取消
+notesSave: 保存笔记
+notesSavedHint: 笔记已保存
+notesConflictHint: 笔记已被他人更新，请刷新后重试；当前输入已保留。
+notesFailedHint: 保存失败，请稍后重试；当前输入已保留。
+moreActionsTitle: 更多操作
+moreActionsCancel: 取消
+actionShare: 分享管理
+actionExport: 导出文字
+actionDelete: 删除记录
+actionPendingIntegration: 该操作待后续版本接入（分享/导出/删除由对应模块联调后开放），当前构建仅提供入口。
+segmentEditTitle: 片段校对
+segmentTimeLabel(time): "时间点 $time"
+segmentOriginalLabel: 原稿
+segmentEditLabel: 校对文字
+segmentEditPlaceholder: 修改转写文字
+segmentSave: 保存校对
+segmentResubmit: 重新提交
+segmentSaveFailed: 保存失败，请稍后重试；输入已保留。
+segmentConflictTitle: 版本冲突：原文已被他人修改
+segmentConflictBody: 你的输入已保留，可与服务器最新稿对比后重新提交；保存以你的输入为准。
+segmentAdoptServer: 采用服务器稿
+speakersTitle: 发言人校对
+speakersScopeHint: 说话人设置只作用于本记录；人工标记不等于本人认证，也不会建立声纹档案。
+speakerSetName: 设置显示名
+speakerSetNameTitle: 设置显示名
+speakerSetNameConfirm: 保存
+speakerClaimSelf: 认领是我
+speakerClaimConflict: 该说话人已被他人认领，请创建者人工纠正。
+speakerAudition: 试听片段
+speakerMarkColleague: 标记同事
+speakerDirectoryUnavailable: 参与者目录待接入，暂不能选择同事；可先设置显示名。
+speakerSourceHint: 该署名为人工标记或本人认领，不构成身份认证。
+# ---- T18 分享管理/编辑权限/通用失效 ----
+shareManageTitle: 分享管理
+shareVisibilitySectionTitle: 当前可见范围
+shareVisibilityOwnerOnly: 仅自己可见
+shareVisibilityShared(count): "已共享给 $count 人查看"
+shareRosterSectionTitle: 谁可以查看
+shareOwnerRowLabel: 我 · 创建者
+shareOwnerRowHint: 创建者始终可以查看与管理分享
+shareGrantRoleViewer: 可查看与回听
+shareGrantRoleEditor: 可校对与编辑
+shareAllowExportPill: 可导出
+shareExpiresPill(date): "有效期至 $date"
+shareGrantEditAction: 编辑
+shareGrantRevokeAction: 撤销
+shareAddEntryOrg: 添加同事
+shareAddEntryPersonal: 添加联系人
+shareAddHintOrg: 可授权当前企业内符合工作区权限的同事
+shareAddHintPersonal: 可授权已有联系人
+shareEmptyTitle: 尚未授权任何人
+shareEmptyBody: 该记录默认仅自己可见；明确授权后，对方才能查看与回听。
+shareMyPermissionTitle: 我的权限
+shareMyPermissionNone: 你当前没有这条记录的授权信息；分享由创建者管理。
+shareMyPermissionReadonly: 你可以查看与回听本记录；分享权限由创建者管理。
+shareVisibilityOfRecord(visibility): "当前记录可见范围：$visibility"
+shareEditorCannotManageAcl: 编辑者不能管理分享权限或删除记录；如需调整，请联系创建者。
+shareSaveFeedback: 权限已保存
+shareConflictHint: 授权已被他人更新，请刷新后重试。
+shareSendCard: 发送卡片
+shareCardSending: 处理中…
+shareSendCardHint: 生成面聊记录卡片发送给同事；对方打开时按其权限查看。
+shareSendNeedsGrant: 先添加授权，才能发送分享卡片。
+shareCardSent: 卡片已发送（示例）
+shareCardSendFailed: 发送失败，可重试
+shareCardSenderUnavailable: 暂时无法打开会话选择器，请返回后重试。
+shareRevokeConfirmTitle(name): "撤销 $name 的访问权限？"
+shareRevokeConfirmBody: 将无法继续访问原记录。已导出或保存的副本无法收回。
+shareRevokeConfirmAction: 撤销
+shareRevokeFailedTitle: 未能撤销
+shareRevokeFailedBody: 撤销失败，请稍后重试。
+grantEditTitle: 编辑权限
+grantEditTitleNew: 添加授权
+grantEditCandidateSection: 选择要授权的人
+grantEditCandidateSearchHint: 搜索姓名或账号
+grantEditCandidatesUnavailable: 候选目录暂不可用，请稍后重试。
+grantEditCandidateEmpty: 没有可授权的候选人
+grantEditGranteeLabel: 被授权人
+grantEditRoleSectionTitle: 角色
+grantEditRoleViewerHint: 可查看记录与回听音频，不能修改内容。
+grantEditRoleEditorHint: 可校对原文与发言人、编辑共享笔记；不能管理分享或删除。
+grantEditExportSectionTitle: 允许导出
+grantEditExportBlockedOrg: 导出已被企业策略禁用，不能在授权中开启。
+grantEditExportBlockedUnknown: 未能确认当前导出策略，暂不能开启导出。
+grantEditExpiresSectionTitle: 到期时间
+grantEditExpiresOn(date): "$date 到期"
+grantEditExpiresHint: 可选；设置后对方到期自动失去访问。
+grantEditSave: 保存权限
+grantEditSaving: 处理中…
+grantEditConflict: 授权已被他人更新，请返回刷新名单后重试；你的设置已保留。
+grantEditSaveFailed: 保存失败，请稍后重试；你的设置已保留。
+invalidTitle: 暂时无法查看
+invalidBody: 该内容当前无法查看，可能不存在或你没有查看权限。
+invalidBack: 返回
+# ---- T21 导出/责任移交/删除状态（结果域） ----
+resultBack: 返回
+exportTitle: 导出文字
+exportFormatSectionTitle: 导出格式
+exportFormatTxt: 纯文本 .txt
+exportFormatMd: Markdown .md
+exportFormatHint: 导出仅包含文字内容，不包含音频与未授权参与者信息。
+exportCapabilitySectionTitle: 导出能力
+exportBlockedNoGrant: 你当前的角色没有被授予导出权限；导出需创建者授权或策略允许。
+exportBlockedOrgPolicy: 导出已被企业策略禁用，暂不能导出。
+exportBlockedInstancePolicy: 当前实例未开启导出能力，暂不能导出。
+exportBlockedUnknown: 未能确认当前导出策略，暂不能导出。
+exportIndependentCopyTitle: 独立副本提示
+exportIndependentCopyBody: 导出生成的是独立副本；生成后无法通过删除记录或撤销权限收回。
+exportIndependentCopyAck: 我已了解导出的独立副本无法收回
+exportGenerate: 生成导出
+exportGenerating: 生成中…
+exportQueuedTitle: 导出排队中
+exportQueuedBody: 已提交生成请求；排队不代表已生成完成，可稍后刷新状态。
+exportRefreshState: 刷新状态
+exportReadyTitle: 导出已就绪
+exportReadyBody: 可下载导出文件；下载链接短期有效，到期后需重新生成。
+exportExpiresAt(date): "有效期至 $date"
+exportRemaining(minutes): "剩余约 $minutes 分钟"
+exportDownload: 保存导出文件
+exportDownloading: 正在下载并准备保存…
+exportDownloadReady: 文件已保存；这是独立副本，撤销权限不会删除该副本。
+exportDownloadFailed: 下载或保存失败，可重试
+exportExpiredTitle: 导出已到期
+exportExpiredBody: 下载链接已过期，请重新生成导出。
+exportRegenerate: 重新生成
+exportFailedBody: 生成导出失败，可重试。
+exportConflictHint: 记录已被他人更新，请刷新后重试。
+exportFixtureHint: 组件阶段：下载链接为 fixture 示例，不产生真实文件。
+transferTitle: 移交管理责任
+transferScopeHint: 移交仅变更管理责任人；记录归属（企业与工作区）保持不变。
+transferCreatedByHint: 创建者记录保持不变；此动作与分享权限相互独立。
+transferCandidateSectionTitle: 选择新责任人
+transferCandidateEmpty: 没有符合条件的候选同事
+transferCandidateHint: 候选为当前企业内符合工作区权限的同事；最终资格由服务端裁决。
+transferKeepSectionTitle: 原责任人访问
+transferKeepViewer: 移交后保留我的查看权限
+transferKeepDefaultHint: 默认不保留：移交后你将无法继续访问这条记录。
+transferKeepOnHint: 保留后你仍可查看与回听，但分享与删除由新责任人管理。
+transferSubmit: 移交管理责任
+transferSubmitting: 移交中…
+transferConfirmTitle: 确认移交管理责任？
+transferConfirmTarget(name): "将把管理责任移交给：$name"
+transferConfirmKeepOff: 移交后你将不再保留查看权限，也无法再管理这条记录。
+transferConfirmKeepOn: 移交后你保留查看权限，但管理权归新责任人。
+transferConfirmAction: 确认移交
+transferSuccessTitle: 管理责任已移交
+transferSuccessOwner(name): "新责任人：$name"
+transferSuccessKeptAccess: 你仍保留查看权限；分享管理由新责任人负责。
+transferSuccessScopeUnchanged: 记录归属保持不变（企业与工作区不变）。
+transferFailedBody: 移交失败，请稍后重试。
+transferConflictHint: 记录已被他人更新，请刷新后重试。
+transferPersonalUnsupported: 个人记录暂不支持移交管理责任。
+transferOnlyOwner: 只有当前管理责任人可以移交管理责任。
+transferBackToDetail: 返回详情
+deleteTitle: 删除记录
+deleteConfirmTitle: 确认删除这条记录？
+deleteConfirmDialogContent: 删除后不再展示正文；已导出或保存的副本无法收回。
+deleteConfirmBodyPoint1: 删除后不再展示记录正文与摘要。
+deleteConfirmBodyPoint2: 删除会先撤销所有人的访问；已导出或保存的副本无法收回。
+deleteConfirmBodyPoint3: 附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。
+deleteConfirmAction: 删除
+deleteDeleting: 删除中…
+deleteOnlyOwner: 只有创建者可以删除记录。
+deleteFailedBody: 删除失败，请稍后重试。
+deleteConflictHint: 记录已被他人更新，请刷新后重试。
+deleteStatusTitle: 记录已删除
+deleteStatusNoContentHint: 记录内容已不再展示。
+deleteCleanupSectionTitle: 附件清理状态
+cleanupPendingTitle: 清理进行中
+cleanupPendingBody: 已提交清理队列；排队成功不代表附件字节已删除。
+cleanupBlockedRetentionTitle: 留存期未到
+cleanupBlockedRetentionBody: 记录已删除，附件受留存规则保护；留存期结束后继续清理。
+cleanupBlockedHoldTitle: 受 Hold 保护
+cleanupBlockedHoldBody: 记录已删除，附件受合法保留（Hold）保护；Hold 解除后继续清理。
+cleanupRetainedTitle: 附件仍被其他业务引用
+cleanupRetainedBody: 部分附件仍被其他合法业务引用，暂不物理删除。
+cleanupFailedTitle: 清理失败
+cleanupFailedBody: 附件清理失败，由运维人员检查并重试；可刷新查看最新状态。
+cleanupCompleteTitle: 清理完成
+cleanupCompleteBody: 记录与附件均已清理完成。
+cleanupNoneTitle: 未提交清理
+cleanupNoneBody: 记录尚未进入清理流程。
+cleanupUnknownTitle: 清理状态未知
+cleanupUnknownBody: 暂未能获取清理状态，可刷新重试。
+cleanupRetryAction: 重试清理
+cleanupRetrying: 重试中…
+cleanupRetryFailedBody: 重试清理失败，请稍后再次重试。
+deleteRefreshStatus: 刷新清理状态
+deleteBackToList: 返回列表
+deleteStatusFixtureHint: 组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。
+
+microphoneStopUnconfirmed: "录音停止尚未确认，请重试停止；若仍失败，请关闭应用并检查系统麦克风指示。"
+
+cleanupWriteOutcomeUnknown: "附件写入结果尚未确认，清理暂未完成。系统会保留保护状态，由运维人员核查；可刷新查看进度。"
+
+exportDownloadCancelled: 已取消保存，可再次保存。
+
+shareCardSendPending: 已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。
+shareCardSendCancelled: 已取消发送，未发送新的卡片。
+
+# Informational participants; separate from sharing and speaker identity.
+participantsInfoHint: "参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。"
+participantsRemove: "移除参与者"
+participantsGuestLabel: "来宾姓名或标签"
+participantsAddGuest: "添加来宾"
+participantsInvalid: "请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。"
+participantsNoResults: "没有匹配的联系人或同事，请尝试搜索。"
+participantsConflict: "名单已更新，已刷新为最新内容。请检查后重新编辑。"
+participantsSaveFailed: "未能确认保存结果，当前选择已保留；请重试或刷新。"
+
+cleanupProcessorUnconfirmed: "处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。"
+
+uploadNoticeTitle: 上传前确认
+uploadNoticeHint: 请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。
+uploadRecording: 上传录音
+retryRecordingUpload: 重试上传
+
+notificationRequiredTitle: 开启录音通知
+notificationRequiredMessage: 为保持后台录音可见，请允许应用通知，并在系统设置中开启录音通知通道。开启后返回此页重试；本次尚未开始录音。
+openNotificationSettings: 去通知设置
+
+processingRecoveryTitle: '确认录音处理'
+processingRecoveryHint: '处理告知或处理器配置已更新。确认后按下方当前版本上传并执行原先选择的处理方式；不改变录音时的历史告知。'
+processingRecoveryUnavailable: '当前处理器不可用。录音将保留在本机，恢复后可再次上传。'
+keepRecordingLocal: '暂不处理，保留本机'
+confirmProcessingUpload: '同意处理并上传'

@@ -13,11 +13,13 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'send_to_provider.dart';
 
+import 'package:imboy/store/model/conversation_model.dart';
+
 /// 发送给 页面
 class SendToPage extends ConsumerStatefulWidget {
   final Message msg;
-
-  const SendToPage({super.key, required this.msg});
+  final Future<bool> Function(List<ConversationModel>)? onConfirmedSend;
+  const SendToPage({super.key, required this.msg, this.onConfirmedSend});
 
   @override
   ConsumerState<SendToPage> createState() => _SendToPageState();
@@ -25,11 +27,15 @@ class SendToPage extends ConsumerStatefulWidget {
 
 class _SendToPageState extends ConsumerState<SendToPage> {
   final TextEditingController _searchController = TextEditingController();
+  bool _confirming = false;
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
+      if (widget.onConfirmedSend != null) {
+        ref.read(sendToProvider.notifier).clearSelection();
+      }
       await ref.read(sendToProvider.notifier).conversationsList();
     });
   }
@@ -220,12 +226,23 @@ class _SendToPageState extends ConsumerState<SendToPage> {
 
   // 发送消息
   Future<void> _send() async {
+    if (_confirming) return;
     final selectedContacts = ref.read(sendToProvider).selectedContacts;
     if (selectedContacts.isEmpty) {
       context.pop();
       return;
     }
 
+    if (widget.onConfirmedSend case final send?) {
+      _confirming = true;
+      try {
+        final sent = await send(List.of(selectedContacts));
+        if (mounted) context.pop(sent);
+      } finally {
+        _confirming = false;
+      }
+      return;
+    }
     final notifier = ref.read(sendToProvider.notifier);
     final failCount = await notifier.sendToSelected(widget.msg);
     if (!mounted) return;

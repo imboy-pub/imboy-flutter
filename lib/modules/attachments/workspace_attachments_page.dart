@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:imboy/modules/talk_record/presentation/talk_record_auth.dart';
+
+import 'package:imboy/config/env.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +14,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/service/assets.dart';
+import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -20,6 +25,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'workspace_attachment_filters.dart';
+import 'talk_record_attachment_governance_sheet.dart';
 
 class WorkspaceAttachmentsPage extends ConsumerWidget {
   const WorkspaceAttachmentsPage({super.key});
@@ -32,7 +38,7 @@ class WorkspaceAttachmentsPage extends ConsumerWidget {
     // AppBar 会叠出双层标题。
     return ws == null || uid.isEmpty
         ? Center(child: Text(context.t.workspace.emptyNoWorkspace))
-        : _AttachmentIndex(
+        : EnterpriseAttachmentIndex(
             key: ValueKey('${ws.id}:$uid'),
             workspaceId: ws.id,
             owner: uid,
@@ -40,19 +46,22 @@ class WorkspaceAttachmentsPage extends ConsumerWidget {
   }
 }
 
-class _AttachmentIndex extends ConsumerStatefulWidget {
-  const _AttachmentIndex({
+class EnterpriseAttachmentIndex extends ConsumerStatefulWidget {
+  const EnterpriseAttachmentIndex({
     super.key,
-    required this.workspaceId,
+    this.workspaceId,
+    this.organizationId,
     required this.owner,
   });
-  final EntityId workspaceId;
+  final EntityId? workspaceId;
+  final EntityId? organizationId;
   final EntityId owner;
   @override
-  ConsumerState<_AttachmentIndex> createState() => _AttachmentIndexState();
+  ConsumerState<EnterpriseAttachmentIndex> createState() =>
+      _AttachmentIndexState();
 }
 
-class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
+class _AttachmentIndexState extends ConsumerState<EnterpriseAttachmentIndex> {
   final _search = TextEditingController();
   final _rows = <Map<String, dynamic>>[];
   Map<String, dynamic> _filters = {};
@@ -61,22 +70,90 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
   int _generation = 0;
   bool _loading = false;
   Timer? _debounce;
+  late VoidCallback _removeAuth;
+  late int _authEpoch;
+  late String _endpoint;
+  ProviderSubscription<WorkspaceModel?>? _contextSubscription;
+  bool _live(int generation) =>
+      mounted &&
+      generation == _generation &&
+      widget.owner == UserRepoLocal.to.currentUid &&
+      UserRepoLocal.to.isCurrentSession(_authEpoch) &&
+      !UserRepoLocal.to.isAuthTransitioning &&
+      _endpoint == Env().apiBaseUrl &&
+      (widget.workspaceId == null ||
+          ref.read(currentWorkspaceProvider)?.id == widget.workspaceId);
+  void _authChanged() {
+    if (!mounted) return;
+    _generation++;
+    _debounce?.cancel();
+    _authEpoch = UserRepoLocal.to.sessionGeneration;
+    _endpoint = Env().apiBaseUrl;
+    _search.clear();
+    _filters.clear();
+    setState(() {
+      _rows.clear();
+      _cursor = null;
+      _loading = false;
+      _error = null;
+    });
+    if (_live(_generation)) unawaited(_load());
+  }
+
   @override
   void initState() {
     super.initState();
+    _authEpoch = UserRepoLocal.to.sessionGeneration;
+    _endpoint = Env().apiBaseUrl;
+    _removeAuth = ref.read(talkRecordAuthSubscribeProvider)(_authChanged);
+    _bindContext();
     unawaited(_load());
+  }
+
+  void _bindContext() {
+    _contextSubscription?.close();
+    _contextSubscription = null;
+    if (widget.workspaceId != null) {
+      _contextSubscription = ref.listenManual(currentWorkspaceProvider, (
+        _,
+        next,
+      ) {
+        if (next?.id != widget.workspaceId && mounted) {
+          _generation++;
+          _debounce?.cancel();
+          setState(() {
+            _rows.clear();
+            _cursor = null;
+            _loading = false;
+            _error = null;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant EnterpriseAttachmentIndex oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((oldWidget.organizationId, oldWidget.workspaceId, oldWidget.owner) !=
+        (widget.organizationId, widget.workspaceId, widget.owner)) {
+      _bindContext();
+      _authChanged();
+    }
   }
 
   @override
   void dispose() {
     _generation++;
+    _removeAuth();
+    _contextSubscription?.close();
     _debounce?.cancel();
     _search.dispose();
     super.dispose();
   }
 
   Future<void> _load({bool more = false}) async {
-    if (more && (_loading || _cursor == null)) return;
+    if (!_live(_generation) || (more && (_loading || _cursor == null))) return;
     final generation = ++_generation;
     setState(() {
       _loading = true;
@@ -87,19 +164,16 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
       }
     });
     try {
-      final result = await ref.read(workspaceApiProvider).attachments(
-        widget.workspaceId,
-        {
-          ..._filters,
-          'keyword': _search.text.trim(),
-          if (more) 'cursor': _cursor,
-        },
-      );
-      if (!mounted ||
-          generation != _generation ||
-          widget.owner != UserRepoLocal.to.currentUid) {
-        return;
-      }
+      final filters = {
+        ..._filters,
+        'keyword': _search.text.trim(),
+        if (more) 'cursor': _cursor,
+      };
+      final api = ref.read(workspaceApiProvider);
+      final result = widget.organizationId != null
+          ? await api.organizationAttachments(widget.organizationId!, filters)
+          : await api.attachments(widget.workspaceId!, filters);
+      if (!_live(generation)) return;
       final rows = (result['items'] as List).map(
         (row) => Map<String, dynamic>.from(row as Map),
       );
@@ -110,16 +184,37 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
             : entityIdOf(result['next_cursor']);
       });
     } on Exception catch (error) {
-      if (mounted && generation == _generation) setState(() => _error = error);
+      if (_live(generation)) {
+        setState(() {
+          if (error is WorkspaceApiException &&
+              const [401, 403, 404, 410].contains(error.code)) {
+            _rows.clear();
+            _cursor = null;
+          }
+          _error = error;
+        });
+      }
     } finally {
-      if (mounted && generation == _generation) {
+      if (_live(generation)) {
         setState(() => _loading = false);
       }
     }
   }
 
   Future<void> _open(Map<String, dynamic> row) async {
+    final generation = _generation;
+    if (!_live(generation)) return;
     try {
+      if (row['scope'] == 'talk_record') {
+        final record = entityIdOf(row['record_id']);
+        if (record.isEmpty || row['open_kind'] != 'talk_record') {
+          throw const FormatException('Invalid record locator');
+        }
+        await context.push(
+          '/talk_record/detail/${Uri.encodeComponent(record)}',
+        );
+        return;
+      }
       if (row['cipher'] != null && row['scope'] == 'group') {
         await context.push(
           '/chat/${row['scope_ref']}',
@@ -128,15 +223,15 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
         return;
       }
       final uri = await AssetsService.workspaceAttachmentUrl(
-        widget.workspaceId,
+        widget.workspaceId ?? entityIdOf(row['workspace_id']),
         entityIdOf(row['id']),
       );
-      if (!mounted || widget.owner != UserRepoLocal.to.currentUid) return;
+      if (!mounted || !_live(generation)) return;
       if (!await SafeLauncher.safeLaunchUrl(uri, context: context)) {
         throw Exception('Open failed');
       }
     } on Exception {
-      if (mounted) {
+      if (mounted && _live(generation)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(context.t.attachmentManager.unavailableSource),
@@ -166,7 +261,9 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            t.centerHint,
+            widget.organizationId == null
+                ? t.centerHint
+                : t.organizationCenterHint,
             style: context.textStyle(
               FontSizeType.footnote,
               color: AppColors.iosGray,
@@ -402,6 +499,25 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
                     ],
                   ),
                 ),
+                if (row['scope'] == 'talk_record' && row['can_govern'] == true)
+                  IconButton(
+                    tooltip: context.t.attachmentManager.governanceAction,
+                    icon: const Icon(
+                      CupertinoIcons.shield,
+                      size: AppSizes.iconSizeSmall,
+                    ),
+                    onPressed: () => showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      useSafeArea: true,
+                      builder: (_) => TalkAttachmentGovernanceSheet(
+                        organizationId: '${row['organization_id']}',
+                        workspaceId: widget.workspaceId,
+                        recordId: '${row['record_id']}',
+                        attachmentId: '${row['id']}',
+                      ),
+                    ),
+                  ),
                 const SizedBox(width: AppSpacing.small),
                 Icon(
                   CupertinoIcons.chevron_forward,
@@ -452,7 +568,9 @@ class _AttachmentIndexState extends ConsumerState<_AttachmentIndex> {
         : date.year == now.year
         ? DateFormat('MM/dd HH:mm').format(date.toLocal())
         : DateFormat('yyyy/MM/dd HH:mm').format(date.toLocal());
-    final source = row['source_name'];
+    final source = row['scope'] == 'talk_record'
+        ? '${context.t.attachmentManager.sourceTalkRecords} · ${row['source_name'] ?? ''}'
+        : row['source_name'];
     final creator = row['creator_name'] ?? row['creator_user_id'];
     final parts = [
       if (source != null && '$source'.isNotEmpty) '$source',

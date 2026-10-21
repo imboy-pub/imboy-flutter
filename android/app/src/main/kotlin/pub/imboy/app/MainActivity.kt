@@ -10,6 +10,24 @@ import java.io.File
 
 class MainActivity : FlutterActivity() {
 
+  private var talkRecordForeground: TalkRecordForegroundBridge? = null
+
+  override fun onResume() {
+    super.onResume()
+    talkRecordForeground?.setResumed(true)
+  }
+
+  override fun onPause() {
+    talkRecordForeground?.setResumed(false)
+    super.onPause()
+  }
+
+  override fun onDestroy() {
+    talkRecordForeground?.dispose()
+    talkRecordForeground = null
+    super.onDestroy()
+  }
+
   /// 冷启动时缓存的 ACTION_VIEW intent 的文件 URI。
   /// share_handler 只处理 ACTION_SEND，不处理 ACTION_VIEW（文件管理器「打开方式」场景）。
   /// Flutter 侧通过 imboy/backup_intent channel 读取此 URI，消费后置 null。
@@ -27,6 +45,7 @@ class MainActivity : FlutterActivity() {
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
+    talkRecordForeground = TalkRecordForegroundBridge(this, flutterEngine.dartExecutor.binaryMessenger)
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "imboy/secure")
       .setMethodCallHandler { call, result ->
         when (call.method) {

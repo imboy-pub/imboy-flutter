@@ -73,6 +73,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final Translations$organization$zh_CN organization = Translations$organization$zh_CN.internal(_root);
 	late final Translations$passport$zh_CN passport = Translations$passport$zh_CN.internal(_root);
 	late final Translations$splash$zh_CN splash = Translations$splash$zh_CN.internal(_root);
+	late final Translations$talkRecord$zh_CN talkRecord = Translations$talkRecord$zh_CN.internal(_root);
 	late final Translations$welcome$zh_CN welcome = Translations$welcome$zh_CN.internal(_root);
 	late final Translations$workspace$zh_CN workspace = Translations$workspace$zh_CN.internal(_root);
 }
@@ -573,8 +574,8 @@ class Translations$attachmentManager$zh_CN {
 	/// zh-CN: '附件'
 	String get title => '附件';
 
-	/// zh-CN: '检索当前工作区内有权查看的群组和频道附件。'
-	String get centerHint => '检索当前工作区内有权查看的群组和频道附件。';
+	/// zh-CN: '检索当前工作区内有权查看的群组、频道和面聊附件。'
+	String get centerHint => '检索当前工作区内有权查看的群组、频道和面聊附件。';
 
 	/// zh-CN: '全部群组'
 	String get allGroups => '全部群组';
@@ -612,8 +613,8 @@ class Translations$attachmentManager$zh_CN {
 	/// zh-CN: '选择当前工作区内的群组查看云端文件。'
 	String get enterpriseHint => '选择当前工作区内的群组查看云端文件。';
 
-	/// zh-CN: '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。'
-	String get enterpriseBoundary => '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。';
+	/// zh-CN: '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按来源群组、频道或面聊记录的权限控制。'
+	String get enterpriseBoundary => '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按来源群组、频道或面聊记录的权限控制。';
 
 	/// zh-CN: '搜索附件名称'
 	String get searchHint => '搜索附件名称';
@@ -683,6 +684,57 @@ class Translations$attachmentManager$zh_CN {
 
 	/// zh-CN: '未纳入留存'
 	String get enterpriseUnmanaged => '未纳入留存';
+
+	/// zh-CN: '全部来源'
+	String get sourceAll => '全部来源';
+
+	/// zh-CN: '群组'
+	String get sourceGroups => '群组';
+
+	/// zh-CN: '频道'
+	String get sourceChannels => '频道';
+
+	/// zh-CN: '面聊记录'
+	String get sourceTalkRecords => '面聊记录';
+
+	/// zh-CN: '查看面聊记录；播放与导出仍按记录权限控制。'
+	String get talkRecordSourceHint => '查看面聊记录；播放与导出仍按记录权限控制。';
+
+	/// zh-CN: '检索本企业内有权查看的附件，包含未归入工作区的面聊记录。'
+	String get organizationCenterHint => '检索本企业内有权查看的附件，包含未归入工作区的面聊记录。';
+
+	/// zh-CN: '附件治理'
+	String get governanceAction => '附件治理';
+
+	/// zh-CN: '已批准清理'
+	String get governancePurgeApproved => '已批准清理';
+
+	/// zh-CN: '批准清理不代表文件已删除，实际进度以清理状态为准。'
+	String get governancePhysicalPending => '批准清理不代表文件已删除，实际进度以清理状态为准。';
+
+	/// zh-CN: '记录版本已变化，请刷新后核对再提交。'
+	String get governanceRefreshConflict => '记录版本已变化，请刷新后核对再提交。';
+
+	/// zh-CN: '保全原因（最多 200 字）'
+	String get governanceHoldReason => '保全原因（最多 200 字）';
+
+	/// zh-CN: '延长留存至'
+	String get governanceExtendUntil => '延长留存至';
+
+	/// zh-CN: '批准此附件清理？批准后不能恢复治理状态；仍须满足所有引用、上传及处理保护条件，才会进入清理。'
+	String get governancePurgeConfirm => '批准此附件清理？批准后不能恢复治理状态；仍须满足所有引用、上传及处理保护条件，才会进入清理。';
+
+	/// zh-CN: '设置保全'
+	String get governanceHoldAction => '设置保全';
+
+	/// zh-CN: '解除保全'
+	String get governanceReleaseHoldAction => '解除保全';
+
+	/// zh-CN: '延长留存'
+	String get governanceExtendAction => '延长留存';
+
+	/// zh-CN: '批准清理'
+	String get governancePurgeAction => '批准清理';
 }
 
 // Path: billing
@@ -7176,6 +7228,1068 @@ class Translations$splash$zh_CN {
 	String get slogan => '畅所欲言，自在沟通';
 }
 
+// Path: talkRecord
+class Translations$talkRecord$zh_CN {
+	Translations$talkRecord$zh_CN.internal(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// zh-CN: '面聊记录'
+	String get entryTitle => '面聊记录';
+
+	/// zh-CN: '面对面沟通的录音与转写记录'
+	String get entrySubtitlePersonal => '面对面沟通的录音与转写记录';
+
+	/// zh-CN: '会议与面谈的团队协作记录'
+	String get entrySubtitleOrg => '会议与面谈的团队协作记录';
+
+	/// zh-CN: '面聊记录'
+	String get listTitle => '面聊记录';
+
+	/// zh-CN: '当前空间'
+	String get contextSectionTitle => '当前空间';
+
+	/// zh-CN: '个人空间'
+	String get contextPersonal => '个人空间';
+
+	/// zh-CN: '当前企业'
+	String get contextOrgFallback => '当前企业';
+
+	/// zh-CN: '全部'
+	String get filterAll => '全部';
+
+	/// zh-CN: '我创建'
+	String get filterOwned => '我创建';
+
+	/// zh-CN: '共享给我'
+	String get filterShared => '共享给我';
+
+	/// zh-CN: '搜索面聊记录'
+	String get searchHint => '搜索面聊记录';
+
+	/// zh-CN: '未命名记录'
+	String get untitledRecord => '未命名记录';
+
+	/// zh-CN: '仅自己可见'
+	String get visibilityOwnerOnly => '仅自己可见';
+
+	/// zh-CN: '已共享'
+	String get visibilityShared => '已共享';
+
+	/// zh-CN: '本机草稿'
+	String get localDraftBadge => '本机草稿';
+
+	/// zh-CN: '录音中'
+	String get statusRecording => '录音中';
+
+	/// zh-CN: '上传中'
+	String get statusUploading => '上传中';
+
+	/// zh-CN: '上传校验中'
+	String get statusVerifying => '上传校验中';
+
+	/// zh-CN: '音频合成中'
+	String get statusAssembling => '音频合成中';
+
+	/// zh-CN: '上传失败，可重试'
+	String get statusUploadFailed => '上传失败，可重试';
+
+	/// zh-CN: '转写排队中'
+	String get statusTranscribeQueued => '转写排队中';
+
+	/// zh-CN: '转写中'
+	String get statusTranscribeRunning => '转写中';
+
+	/// zh-CN: '已转写'
+	String get statusTranscribeReady => '已转写';
+
+	/// zh-CN: '转写失败，录音仍可回听'
+	String get statusTranscribeFailed => '转写失败，录音仍可回听';
+
+	/// zh-CN: '未检测到可转写语音'
+	String get statusNoSpeech => '未检测到可转写语音';
+
+	/// zh-CN: '仅录音'
+	String get statusRecordOnly => '仅录音';
+
+	/// zh-CN: '还没有面聊记录'
+	String get emptyNeverCreatedTitle => '还没有面聊记录';
+
+	/// zh-CN: '面对面沟通后，在这里保存录音与转写'
+	String get emptyNeverCreatedSubtitle => '面对面沟通后，在这里保存录音与转写';
+
+	/// zh-CN: '没有匹配的记录'
+	String get emptyNoMatchTitle => '没有匹配的记录';
+
+	/// zh-CN: '当前筛选或搜索词下没有结果，可调整后重试'
+	String get emptyNoMatchSubtitle => '当前筛选或搜索词下没有结果，可调整后重试';
+
+	/// zh-CN: '新建记录'
+	String get createRecord => '新建记录';
+
+	/// zh-CN: '记录加载失败'
+	String get loadFailedTitle => '记录加载失败';
+
+	/// zh-CN: '重试'
+	String get loadFailedAction => '重试';
+
+	/// zh-CN: '新建面聊记录'
+	String get prepareTitle => '新建面聊记录';
+
+	/// zh-CN: '标题'
+	String get fieldTitleLabel => '标题';
+
+	/// zh-CN: '选填，方便日后查找'
+	String get fieldTitlePlaceholder => '选填，方便日后查找';
+
+	/// zh-CN: '保存到'
+	String get saveToSectionTitle => '保存到';
+
+	/// zh-CN: '更改'
+	String get saveToChangeAction => '更改';
+
+	/// zh-CN: '处理方式'
+	String get processingSectionTitle => '处理方式';
+
+	/// zh-CN: '仅录音'
+	String get processingRecordOnly => '仅录音';
+
+	/// zh-CN: '转写文字'
+	String get processingTranscribe => '转写文字';
+
+	/// zh-CN: '转写并摘要'
+	String get processingSummarize => '转写并摘要';
+
+	/// zh-CN: '仅保存录音，可随时回听；会后可在详情页升级转写。'
+	String get processingRecordOnlyHint => '仅保存录音，可随时回听；会后可在详情页升级转写。';
+
+	/// zh-CN: '当前实例未配置转写服务，本次仅保存录音。'
+	String get processingReasonUnavailable => '当前实例未配置转写服务，本次仅保存录音。';
+
+	/// zh-CN: '转写配额暂不可用，本次仅保存录音；录音不受影响。'
+	String get processingReasonQuota => '转写配额暂不可用，本次仅保存录音；录音不受影响。';
+
+	/// zh-CN: '未能获取处理能力，本次按仅录音处理。'
+	String get processingReasonLoadFailed => '未能获取处理能力，本次按仅录音处理。';
+
+	/// zh-CN: '单条录音最长 $minutes 分钟'
+	String maxDurationHint({required Object minutes}) => '单条录音最长 ${minutes} 分钟';
+
+	/// zh-CN: '协作信息'
+	String get collabSectionTitle => '协作信息';
+
+	/// zh-CN: '选填，仅对企业记录生效'
+	String get collabSectionSubtitle => '选填，仅对企业记录生效';
+
+	/// zh-CN: '参与者'
+	String get collabParticipantsLabel => '参与者';
+
+	/// zh-CN: '未选择参与者'
+	String get collabParticipantsEmpty => '未选择参与者';
+
+	/// zh-CN: '已选 $count 人'
+	String collabParticipantsCount({required Object count}) => '已选 ${count} 人';
+
+	/// zh-CN: '参与者目录待接入；可创建记录后再授权共享。'
+	String get collabParticipantsUnavailable => '参与者目录待接入；可创建记录后再授权共享。';
+
+	/// zh-CN: '我已告知现场参与者本次录音及其处理方式'
+	String get noticeCheckbox => '我已告知现场参与者本次录音及其处理方式';
+
+	/// zh-CN: '开始录音前需先确认已告知'
+	String get noticeHint => '开始录音前需先确认已告知';
+
+	/// zh-CN: '开始录音'
+	String get startRecording => '开始录音';
+
+	/// zh-CN: '需要麦克风权限'
+	String get micDeniedTitle => '需要麦克风权限';
+
+	/// zh-CN: '面聊记录需要使用麦克风录制现场声音。当前权限被拒绝，可重试或在系统设置中开启。'
+	String get micDeniedMessage => '面聊记录需要使用麦克风录制现场声音。当前权限被拒绝，可重试或在系统设置中开启。';
+
+	/// zh-CN: '重试'
+	String get micRetry => '重试';
+
+	/// zh-CN: '去设置'
+	String get micOpenSettings => '去设置';
+
+	/// zh-CN: '暂时无法开始录音'
+	String get recordingUnavailableTitle => '暂时无法开始录音';
+
+	/// zh-CN: '请检查是否有未结束的录音、麦克风权限和本机存储空间。草稿及已有分段已保留。'
+	String get recordingUnavailableMessage => '请检查是否有未结束的录音、麦克风权限和本机存储空间。草稿及已有分段已保留。';
+
+	/// zh-CN: '保存位置'
+	String get saveLocationTitle => '保存位置';
+
+	/// zh-CN: '个人'
+	String get saveLocationPersonalSection => '个人';
+
+	/// zh-CN: '有权企业'
+	String get saveLocationOrgSection => '有权企业';
+
+	/// zh-CN: '不指定工作区'
+	String get saveLocationWorkspaceOptional => '不指定工作区';
+
+	/// zh-CN: '保存期限'
+	String get retentionPolicyLabel => '保存期限';
+
+	/// zh-CN: '更改保存位置'
+	String get changeConfirmTitle => '更改保存位置';
+
+	/// zh-CN: '将保存到：$name'
+	String changeConfirmTarget({required Object name}) => '将保存到：${name}';
+
+	/// zh-CN: '已填写的标题与笔记会保留'
+	String get changeConfirmKeepTitle => '已填写的标题与笔记会保留';
+
+	/// zh-CN: '不适用于新位置的参与者选择将被清空'
+	String get changeConfirmClearParticipants => '不适用于新位置的参与者选择将被清空';
+
+	/// zh-CN: '处理方式将按新位置的能力重新校验'
+	String get changeConfirmRecheck => '处理方式将按新位置的能力重新校验';
+
+	/// zh-CN: '确认更改'
+	String get changeConfirmAction => '确认更改';
+
+	/// zh-CN: '正在录音 · 本机分段保存'
+	String get barRecording => '正在录音 · 本机分段保存';
+
+	/// zh-CN: '已暂停，不计入录音时长'
+	String get barPaused => '已暂停，不计入录音时长';
+
+	/// zh-CN: '录音已中断 · 恢复需手动继续'
+	String get barInterrupted => '录音已中断 · 恢复需手动继续';
+
+	/// zh-CN: '来自'
+	String get barOriginPrefix => '来自';
+
+	/// zh-CN: '查看录音状态'
+	String get barExpandHint => '查看录音状态';
+
+	/// zh-CN: '录音控制由录音模块提供，当前构建为占位展示'
+	String get barControlsUnavailable => '录音控制由录音模块提供，当前构建为占位展示';
+
+	/// zh-CN: '个人空间'
+	String get barOriginPersonal => '个人空间';
+
+	/// zh-CN: '企业空间'
+	String get barOriginOrgFallback => '企业空间';
+
+	/// zh-CN: '创建者'
+	String get roleOwner => '创建者';
+
+	/// zh-CN: '编辑者'
+	String get roleEditor => '编辑者';
+
+	/// zh-CN: '读者'
+	String get roleViewer => '读者';
+
+	/// zh-CN: '你可校对原文与发言人、编辑共享笔记；分享与删除由创建者管理。'
+	String get roleEditorHint => '你可校对原文与发言人、编辑共享笔记；分享与删除由创建者管理。';
+
+	/// zh-CN: '摘要'
+	String get tabSummary => '摘要';
+
+	/// zh-CN: '原文'
+	String get tabTranscript => '原文';
+
+	/// zh-CN: '发言人校对'
+	String get speakersEntry => '发言人校对';
+
+	/// zh-CN: '当前无回放权限'
+	String get playbackUnavailable => '当前无回放权限';
+
+	/// zh-CN: '播放会话不可用，可重试'
+	String get playbackTicketFailed => '播放会话不可用，可重试';
+
+	/// zh-CN: '播放'
+	String get playbackPlayLabel => '播放';
+
+	/// zh-CN: '暂停'
+	String get playbackPauseLabel => '暂停';
+
+	/// zh-CN: '播放进度 $position / $duration'
+	String playbackProgressLabel({required Object position, required Object duration}) => '播放进度 ${position} / ${duration}';
+
+	/// zh-CN: '回到播放位置'
+	String get returnToPlayback => '回到播放位置';
+
+	/// zh-CN: '搜索原文关键词'
+	String get transcriptSearchHint => '搜索原文关键词';
+
+	/// zh-CN: '命中 $count 处，点击时间点回听定位'
+	String transcriptHitCount({required Object count}) => '命中 ${count} 处，点击时间点回听定位';
+
+	/// zh-CN: '没有命中片段'
+	String get transcriptNoHit => '没有命中片段';
+
+	/// zh-CN: '暂无原文片段'
+	String get transcriptEmpty => '暂无原文片段';
+
+	/// zh-CN: '未知说话人'
+	String get speakerUnknown => '未知说话人';
+
+	/// zh-CN: '匿名'
+	String get speakerAnonymousPill => '匿名';
+
+	/// zh-CN: '人工标记'
+	String get speakerManualPill => '人工标记';
+
+	/// zh-CN: '本人认领'
+	String get speakerSelfClaimPill => '本人认领';
+
+	/// zh-CN: '重点'
+	String get markPillPrefix => '重点';
+
+	/// zh-CN: '手动重点'
+	String get markDefaultText => '手动重点';
+
+	/// zh-CN: '人工修订'
+	String get segmentHumanEditedPill => '人工修订';
+
+	/// zh-CN: '$speaker 于 $time 的发言'
+	String segmentRowSemanticLabel({required Object speaker, required Object time}) => '${speaker} 于 ${time} 的发言';
+
+	/// zh-CN: '回听 $time'
+	String segmentListenLabel({required Object time}) => '回听 ${time}';
+
+	/// zh-CN: '本次记录仅保存录音'
+	String get detailRecordOnlyTitle => '本次记录仅保存录音';
+
+	/// zh-CN: '未请求转写，暂无原文与摘要；录音可回听，会后可升级转写。'
+	String get detailRecordOnlyBody => '未请求转写，暂无原文与摘要；录音可回听，会后可升级转写。';
+
+	/// zh-CN: '未检测到可转写语音'
+	String get detailNoSpeechTitle => '未检测到可转写语音';
+
+	/// zh-CN: '录音已保留。本次录音中没有可转写的语音内容。'
+	String get detailNoSpeechBody => '录音已保留。本次录音中没有可转写的语音内容。';
+
+	/// zh-CN: '转写失败'
+	String get detailTranscribeFailedTitle => '转写失败';
+
+	/// zh-CN: '转写失败，录音仍可回听。你可重试转写。'
+	String get detailTranscribeFailedBodyEditor => '转写失败，录音仍可回听。你可重试转写。';
+
+	/// zh-CN: '转写失败，录音仍可回听。请联系创建者重试。'
+	String get detailTranscribeFailedBodyViewer => '转写失败，录音仍可回听。请联系创建者重试。';
+
+	/// zh-CN: '转写处理中'
+	String get detailTranscribingTitle => '转写处理中';
+
+	/// zh-CN: '原文生成后会在此展示；处理中不显示预计完成时间。'
+	String get detailTranscribingBody => '原文生成后会在此展示；处理中不显示预计完成时间。';
+
+	/// zh-CN: '重试转写'
+	String get detailTranscribeRetry => '重试转写';
+
+	/// zh-CN: '摘要'
+	String get summarySectionTitle => '摘要';
+
+	/// zh-CN: 'AI 整理草稿 · 使用前请核对'
+	String get summaryDraftBadge => 'AI 整理草稿 · 使用前请核对';
+
+	/// zh-CN: '原文或署名已更新，摘要可能过时'
+	String get summaryStaleBanner => '原文或署名已更新，摘要可能过时';
+
+	/// zh-CN: '讨论重点'
+	String get summaryDecisionsTitle => '讨论重点';
+
+	/// zh-CN: '待办草稿'
+	String get summaryActionsTitle => '待办草稿';
+
+	/// zh-CN: '负责人未定'
+	String get summaryAssigneeUnset => '负责人未定';
+
+	/// zh-CN: '查看原文出处'
+	String get summaryJumpToSource => '查看原文出处';
+
+	/// zh-CN: '摘要已排队，生成后展示。'
+	String get summaryQueued => '摘要已排队，生成后展示。';
+
+	/// zh-CN: '摘要整理中，生成后展示。'
+	String get summaryRunning => '摘要整理中，生成后展示。';
+
+	/// zh-CN: '已生成原文，尚未请求摘要。'
+	String get summaryNotGenerated => '已生成原文，尚未请求摘要。';
+
+	/// zh-CN: '尚无原文，暂不能生成摘要。'
+	String get summaryNoSource => '尚无原文，暂不能生成摘要。';
+
+	/// zh-CN: '当前实例未配置摘要服务。'
+	String get summaryUnavailable => '当前实例未配置摘要服务。';
+
+	/// zh-CN: '摘要生成失败，可稍后重试。'
+	String get summaryFailed => '摘要生成失败，可稍后重试。';
+
+	/// zh-CN: '共享补充笔记'
+	String get notesTitle => '共享补充笔记';
+
+	/// zh-CN: '随记录共享，所有可查看本记录的人可见。'
+	String get notesSharedHint => '随记录共享，所有可查看本记录的人可见。';
+
+	/// zh-CN: '随记录共享，当前为只读。'
+	String get notesReadonlyHint => '随记录共享，当前为只读。';
+
+	/// zh-CN: '编辑'
+	String get notesEditAction => '编辑';
+
+	/// zh-CN: '补充会议结论、背景信息等'
+	String get notesPlaceholder => '补充会议结论、背景信息等';
+
+	/// zh-CN: '暂无补充笔记'
+	String get notesEmpty => '暂无补充笔记';
+
+	/// zh-CN: '取消'
+	String get notesCancel => '取消';
+
+	/// zh-CN: '保存笔记'
+	String get notesSave => '保存笔记';
+
+	/// zh-CN: '笔记已保存'
+	String get notesSavedHint => '笔记已保存';
+
+	/// zh-CN: '笔记已被他人更新，请刷新后重试；当前输入已保留。'
+	String get notesConflictHint => '笔记已被他人更新，请刷新后重试；当前输入已保留。';
+
+	/// zh-CN: '保存失败，请稍后重试；当前输入已保留。'
+	String get notesFailedHint => '保存失败，请稍后重试；当前输入已保留。';
+
+	/// zh-CN: '更多操作'
+	String get moreActionsTitle => '更多操作';
+
+	/// zh-CN: '取消'
+	String get moreActionsCancel => '取消';
+
+	/// zh-CN: '分享管理'
+	String get actionShare => '分享管理';
+
+	/// zh-CN: '导出文字'
+	String get actionExport => '导出文字';
+
+	/// zh-CN: '删除记录'
+	String get actionDelete => '删除记录';
+
+	/// zh-CN: '该操作待后续版本接入（分享/导出/删除由对应模块联调后开放），当前构建仅提供入口。'
+	String get actionPendingIntegration => '该操作待后续版本接入（分享/导出/删除由对应模块联调后开放），当前构建仅提供入口。';
+
+	/// zh-CN: '片段校对'
+	String get segmentEditTitle => '片段校对';
+
+	/// zh-CN: '时间点 $time'
+	String segmentTimeLabel({required Object time}) => '时间点 ${time}';
+
+	/// zh-CN: '原稿'
+	String get segmentOriginalLabel => '原稿';
+
+	/// zh-CN: '校对文字'
+	String get segmentEditLabel => '校对文字';
+
+	/// zh-CN: '修改转写文字'
+	String get segmentEditPlaceholder => '修改转写文字';
+
+	/// zh-CN: '保存校对'
+	String get segmentSave => '保存校对';
+
+	/// zh-CN: '重新提交'
+	String get segmentResubmit => '重新提交';
+
+	/// zh-CN: '保存失败，请稍后重试；输入已保留。'
+	String get segmentSaveFailed => '保存失败，请稍后重试；输入已保留。';
+
+	/// zh-CN: '版本冲突：原文已被他人修改'
+	String get segmentConflictTitle => '版本冲突：原文已被他人修改';
+
+	/// zh-CN: '你的输入已保留，可与服务器最新稿对比后重新提交；保存以你的输入为准。'
+	String get segmentConflictBody => '你的输入已保留，可与服务器最新稿对比后重新提交；保存以你的输入为准。';
+
+	/// zh-CN: '采用服务器稿'
+	String get segmentAdoptServer => '采用服务器稿';
+
+	/// zh-CN: '发言人校对'
+	String get speakersTitle => '发言人校对';
+
+	/// zh-CN: '说话人设置只作用于本记录；人工标记不等于本人认证，也不会建立声纹档案。'
+	String get speakersScopeHint => '说话人设置只作用于本记录；人工标记不等于本人认证，也不会建立声纹档案。';
+
+	/// zh-CN: '设置显示名'
+	String get speakerSetName => '设置显示名';
+
+	/// zh-CN: '设置显示名'
+	String get speakerSetNameTitle => '设置显示名';
+
+	/// zh-CN: '保存'
+	String get speakerSetNameConfirm => '保存';
+
+	/// zh-CN: '认领是我'
+	String get speakerClaimSelf => '认领是我';
+
+	/// zh-CN: '该说话人已被他人认领，请创建者人工纠正。'
+	String get speakerClaimConflict => '该说话人已被他人认领，请创建者人工纠正。';
+
+	/// zh-CN: '试听片段'
+	String get speakerAudition => '试听片段';
+
+	/// zh-CN: '标记同事'
+	String get speakerMarkColleague => '标记同事';
+
+	/// zh-CN: '参与者目录待接入，暂不能选择同事；可先设置显示名。'
+	String get speakerDirectoryUnavailable => '参与者目录待接入，暂不能选择同事；可先设置显示名。';
+
+	/// zh-CN: '该署名为人工标记或本人认领，不构成身份认证。'
+	String get speakerSourceHint => '该署名为人工标记或本人认领，不构成身份认证。';
+
+	/// zh-CN: '分享管理'
+	String get shareManageTitle => '分享管理';
+
+	/// zh-CN: '当前可见范围'
+	String get shareVisibilitySectionTitle => '当前可见范围';
+
+	/// zh-CN: '仅自己可见'
+	String get shareVisibilityOwnerOnly => '仅自己可见';
+
+	/// zh-CN: '已共享给 $count 人查看'
+	String shareVisibilityShared({required Object count}) => '已共享给 ${count} 人查看';
+
+	/// zh-CN: '谁可以查看'
+	String get shareRosterSectionTitle => '谁可以查看';
+
+	/// zh-CN: '我 · 创建者'
+	String get shareOwnerRowLabel => '我 · 创建者';
+
+	/// zh-CN: '创建者始终可以查看与管理分享'
+	String get shareOwnerRowHint => '创建者始终可以查看与管理分享';
+
+	/// zh-CN: '可查看与回听'
+	String get shareGrantRoleViewer => '可查看与回听';
+
+	/// zh-CN: '可校对与编辑'
+	String get shareGrantRoleEditor => '可校对与编辑';
+
+	/// zh-CN: '可导出'
+	String get shareAllowExportPill => '可导出';
+
+	/// zh-CN: '有效期至 $date'
+	String shareExpiresPill({required Object date}) => '有效期至 ${date}';
+
+	/// zh-CN: '编辑'
+	String get shareGrantEditAction => '编辑';
+
+	/// zh-CN: '撤销'
+	String get shareGrantRevokeAction => '撤销';
+
+	/// zh-CN: '添加同事'
+	String get shareAddEntryOrg => '添加同事';
+
+	/// zh-CN: '添加联系人'
+	String get shareAddEntryPersonal => '添加联系人';
+
+	/// zh-CN: '可授权当前企业内符合工作区权限的同事'
+	String get shareAddHintOrg => '可授权当前企业内符合工作区权限的同事';
+
+	/// zh-CN: '可授权已有联系人'
+	String get shareAddHintPersonal => '可授权已有联系人';
+
+	/// zh-CN: '尚未授权任何人'
+	String get shareEmptyTitle => '尚未授权任何人';
+
+	/// zh-CN: '该记录默认仅自己可见；明确授权后，对方才能查看与回听。'
+	String get shareEmptyBody => '该记录默认仅自己可见；明确授权后，对方才能查看与回听。';
+
+	/// zh-CN: '我的权限'
+	String get shareMyPermissionTitle => '我的权限';
+
+	/// zh-CN: '你当前没有这条记录的授权信息；分享由创建者管理。'
+	String get shareMyPermissionNone => '你当前没有这条记录的授权信息；分享由创建者管理。';
+
+	/// zh-CN: '你可以查看与回听本记录；分享权限由创建者管理。'
+	String get shareMyPermissionReadonly => '你可以查看与回听本记录；分享权限由创建者管理。';
+
+	/// zh-CN: '当前记录可见范围：$visibility'
+	String shareVisibilityOfRecord({required Object visibility}) => '当前记录可见范围：${visibility}';
+
+	/// zh-CN: '编辑者不能管理分享权限或删除记录；如需调整，请联系创建者。'
+	String get shareEditorCannotManageAcl => '编辑者不能管理分享权限或删除记录；如需调整，请联系创建者。';
+
+	/// zh-CN: '权限已保存'
+	String get shareSaveFeedback => '权限已保存';
+
+	/// zh-CN: '授权已被他人更新，请刷新后重试。'
+	String get shareConflictHint => '授权已被他人更新，请刷新后重试。';
+
+	/// zh-CN: '发送卡片'
+	String get shareSendCard => '发送卡片';
+
+	/// zh-CN: '处理中…'
+	String get shareCardSending => '处理中…';
+
+	/// zh-CN: '生成面聊记录卡片发送给同事；对方打开时按其权限查看。'
+	String get shareSendCardHint => '生成面聊记录卡片发送给同事；对方打开时按其权限查看。';
+
+	/// zh-CN: '先添加授权，才能发送分享卡片。'
+	String get shareSendNeedsGrant => '先添加授权，才能发送分享卡片。';
+
+	/// zh-CN: '卡片已发送（示例）'
+	String get shareCardSent => '卡片已发送（示例）';
+
+	/// zh-CN: '发送失败，可重试'
+	String get shareCardSendFailed => '发送失败，可重试';
+
+	/// zh-CN: '暂时无法打开会话选择器，请返回后重试。'
+	String get shareCardSenderUnavailable => '暂时无法打开会话选择器，请返回后重试。';
+
+	/// zh-CN: '撤销 $name 的访问权限？'
+	String shareRevokeConfirmTitle({required Object name}) => '撤销 ${name} 的访问权限？';
+
+	/// zh-CN: '将无法继续访问原记录。已导出或保存的副本无法收回。'
+	String get shareRevokeConfirmBody => '将无法继续访问原记录。已导出或保存的副本无法收回。';
+
+	/// zh-CN: '撤销'
+	String get shareRevokeConfirmAction => '撤销';
+
+	/// zh-CN: '未能撤销'
+	String get shareRevokeFailedTitle => '未能撤销';
+
+	/// zh-CN: '撤销失败，请稍后重试。'
+	String get shareRevokeFailedBody => '撤销失败，请稍后重试。';
+
+	/// zh-CN: '编辑权限'
+	String get grantEditTitle => '编辑权限';
+
+	/// zh-CN: '添加授权'
+	String get grantEditTitleNew => '添加授权';
+
+	/// zh-CN: '选择要授权的人'
+	String get grantEditCandidateSection => '选择要授权的人';
+
+	/// zh-CN: '搜索姓名或账号'
+	String get grantEditCandidateSearchHint => '搜索姓名或账号';
+
+	/// zh-CN: '候选目录暂不可用，请稍后重试。'
+	String get grantEditCandidatesUnavailable => '候选目录暂不可用，请稍后重试。';
+
+	/// zh-CN: '没有可授权的候选人'
+	String get grantEditCandidateEmpty => '没有可授权的候选人';
+
+	/// zh-CN: '被授权人'
+	String get grantEditGranteeLabel => '被授权人';
+
+	/// zh-CN: '角色'
+	String get grantEditRoleSectionTitle => '角色';
+
+	/// zh-CN: '可查看记录与回听音频，不能修改内容。'
+	String get grantEditRoleViewerHint => '可查看记录与回听音频，不能修改内容。';
+
+	/// zh-CN: '可校对原文与发言人、编辑共享笔记；不能管理分享或删除。'
+	String get grantEditRoleEditorHint => '可校对原文与发言人、编辑共享笔记；不能管理分享或删除。';
+
+	/// zh-CN: '允许导出'
+	String get grantEditExportSectionTitle => '允许导出';
+
+	/// zh-CN: '导出已被企业策略禁用，不能在授权中开启。'
+	String get grantEditExportBlockedOrg => '导出已被企业策略禁用，不能在授权中开启。';
+
+	/// zh-CN: '未能确认当前导出策略，暂不能开启导出。'
+	String get grantEditExportBlockedUnknown => '未能确认当前导出策略，暂不能开启导出。';
+
+	/// zh-CN: '到期时间'
+	String get grantEditExpiresSectionTitle => '到期时间';
+
+	/// zh-CN: '$date 到期'
+	String grantEditExpiresOn({required Object date}) => '${date} 到期';
+
+	/// zh-CN: '可选；设置后对方到期自动失去访问。'
+	String get grantEditExpiresHint => '可选；设置后对方到期自动失去访问。';
+
+	/// zh-CN: '保存权限'
+	String get grantEditSave => '保存权限';
+
+	/// zh-CN: '处理中…'
+	String get grantEditSaving => '处理中…';
+
+	/// zh-CN: '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。'
+	String get grantEditConflict => '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。';
+
+	/// zh-CN: '保存失败，请稍后重试；你的设置已保留。'
+	String get grantEditSaveFailed => '保存失败，请稍后重试；你的设置已保留。';
+
+	/// zh-CN: '暂时无法查看'
+	String get invalidTitle => '暂时无法查看';
+
+	/// zh-CN: '该内容当前无法查看，可能不存在或你没有查看权限。'
+	String get invalidBody => '该内容当前无法查看，可能不存在或你没有查看权限。';
+
+	/// zh-CN: '返回'
+	String get invalidBack => '返回';
+
+	/// zh-CN: '返回'
+	String get resultBack => '返回';
+
+	/// zh-CN: '导出文字'
+	String get exportTitle => '导出文字';
+
+	/// zh-CN: '导出格式'
+	String get exportFormatSectionTitle => '导出格式';
+
+	/// zh-CN: '纯文本 .txt'
+	String get exportFormatTxt => '纯文本 .txt';
+
+	/// zh-CN: 'Markdown .md'
+	String get exportFormatMd => 'Markdown .md';
+
+	/// zh-CN: '导出仅包含文字内容，不包含音频与未授权参与者信息。'
+	String get exportFormatHint => '导出仅包含文字内容，不包含音频与未授权参与者信息。';
+
+	/// zh-CN: '导出能力'
+	String get exportCapabilitySectionTitle => '导出能力';
+
+	/// zh-CN: '你当前的角色没有被授予导出权限；导出需创建者授权或策略允许。'
+	String get exportBlockedNoGrant => '你当前的角色没有被授予导出权限；导出需创建者授权或策略允许。';
+
+	/// zh-CN: '导出已被企业策略禁用，暂不能导出。'
+	String get exportBlockedOrgPolicy => '导出已被企业策略禁用，暂不能导出。';
+
+	/// zh-CN: '当前实例未开启导出能力，暂不能导出。'
+	String get exportBlockedInstancePolicy => '当前实例未开启导出能力，暂不能导出。';
+
+	/// zh-CN: '未能确认当前导出策略，暂不能导出。'
+	String get exportBlockedUnknown => '未能确认当前导出策略，暂不能导出。';
+
+	/// zh-CN: '独立副本提示'
+	String get exportIndependentCopyTitle => '独立副本提示';
+
+	/// zh-CN: '导出生成的是独立副本；生成后无法通过删除记录或撤销权限收回。'
+	String get exportIndependentCopyBody => '导出生成的是独立副本；生成后无法通过删除记录或撤销权限收回。';
+
+	/// zh-CN: '我已了解导出的独立副本无法收回'
+	String get exportIndependentCopyAck => '我已了解导出的独立副本无法收回';
+
+	/// zh-CN: '生成导出'
+	String get exportGenerate => '生成导出';
+
+	/// zh-CN: '生成中…'
+	String get exportGenerating => '生成中…';
+
+	/// zh-CN: '导出排队中'
+	String get exportQueuedTitle => '导出排队中';
+
+	/// zh-CN: '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。'
+	String get exportQueuedBody => '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。';
+
+	/// zh-CN: '刷新状态'
+	String get exportRefreshState => '刷新状态';
+
+	/// zh-CN: '导出已就绪'
+	String get exportReadyTitle => '导出已就绪';
+
+	/// zh-CN: '可下载导出文件；下载链接短期有效，到期后需重新生成。'
+	String get exportReadyBody => '可下载导出文件；下载链接短期有效，到期后需重新生成。';
+
+	/// zh-CN: '有效期至 $date'
+	String exportExpiresAt({required Object date}) => '有效期至 ${date}';
+
+	/// zh-CN: '剩余约 $minutes 分钟'
+	String exportRemaining({required Object minutes}) => '剩余约 ${minutes} 分钟';
+
+	/// zh-CN: '保存导出文件'
+	String get exportDownload => '保存导出文件';
+
+	/// zh-CN: '正在下载并准备保存…'
+	String get exportDownloading => '正在下载并准备保存…';
+
+	/// zh-CN: '文件已保存；这是独立副本，撤销权限不会删除该副本。'
+	String get exportDownloadReady => '文件已保存；这是独立副本，撤销权限不会删除该副本。';
+
+	/// zh-CN: '下载或保存失败，可重试'
+	String get exportDownloadFailed => '下载或保存失败，可重试';
+
+	/// zh-CN: '导出已到期'
+	String get exportExpiredTitle => '导出已到期';
+
+	/// zh-CN: '下载链接已过期，请重新生成导出。'
+	String get exportExpiredBody => '下载链接已过期，请重新生成导出。';
+
+	/// zh-CN: '重新生成'
+	String get exportRegenerate => '重新生成';
+
+	/// zh-CN: '生成导出失败，可重试。'
+	String get exportFailedBody => '生成导出失败，可重试。';
+
+	/// zh-CN: '记录已被他人更新，请刷新后重试。'
+	String get exportConflictHint => '记录已被他人更新，请刷新后重试。';
+
+	/// zh-CN: '组件阶段：下载链接为 fixture 示例，不产生真实文件。'
+	String get exportFixtureHint => '组件阶段：下载链接为 fixture 示例，不产生真实文件。';
+
+	/// zh-CN: '移交管理责任'
+	String get transferTitle => '移交管理责任';
+
+	/// zh-CN: '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。'
+	String get transferScopeHint => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。';
+
+	/// zh-CN: '创建者记录保持不变；此动作与分享权限相互独立。'
+	String get transferCreatedByHint => '创建者记录保持不变；此动作与分享权限相互独立。';
+
+	/// zh-CN: '选择新责任人'
+	String get transferCandidateSectionTitle => '选择新责任人';
+
+	/// zh-CN: '没有符合条件的候选同事'
+	String get transferCandidateEmpty => '没有符合条件的候选同事';
+
+	/// zh-CN: '候选为当前企业内符合工作区权限的同事；最终资格由服务端裁决。'
+	String get transferCandidateHint => '候选为当前企业内符合工作区权限的同事；最终资格由服务端裁决。';
+
+	/// zh-CN: '原责任人访问'
+	String get transferKeepSectionTitle => '原责任人访问';
+
+	/// zh-CN: '移交后保留我的查看权限'
+	String get transferKeepViewer => '移交后保留我的查看权限';
+
+	/// zh-CN: '默认不保留：移交后你将无法继续访问这条记录。'
+	String get transferKeepDefaultHint => '默认不保留：移交后你将无法继续访问这条记录。';
+
+	/// zh-CN: '保留后你仍可查看与回听，但分享与删除由新责任人管理。'
+	String get transferKeepOnHint => '保留后你仍可查看与回听，但分享与删除由新责任人管理。';
+
+	/// zh-CN: '移交管理责任'
+	String get transferSubmit => '移交管理责任';
+
+	/// zh-CN: '移交中…'
+	String get transferSubmitting => '移交中…';
+
+	/// zh-CN: '确认移交管理责任？'
+	String get transferConfirmTitle => '确认移交管理责任？';
+
+	/// zh-CN: '将把管理责任移交给：$name'
+	String transferConfirmTarget({required Object name}) => '将把管理责任移交给：${name}';
+
+	/// zh-CN: '移交后你将不再保留查看权限，也无法再管理这条记录。'
+	String get transferConfirmKeepOff => '移交后你将不再保留查看权限，也无法再管理这条记录。';
+
+	/// zh-CN: '移交后你保留查看权限，但管理权归新责任人。'
+	String get transferConfirmKeepOn => '移交后你保留查看权限，但管理权归新责任人。';
+
+	/// zh-CN: '确认移交'
+	String get transferConfirmAction => '确认移交';
+
+	/// zh-CN: '管理责任已移交'
+	String get transferSuccessTitle => '管理责任已移交';
+
+	/// zh-CN: '新责任人：$name'
+	String transferSuccessOwner({required Object name}) => '新责任人：${name}';
+
+	/// zh-CN: '你仍保留查看权限；分享管理由新责任人负责。'
+	String get transferSuccessKeptAccess => '你仍保留查看权限；分享管理由新责任人负责。';
+
+	/// zh-CN: '记录归属保持不变（企业与工作区不变）。'
+	String get transferSuccessScopeUnchanged => '记录归属保持不变（企业与工作区不变）。';
+
+	/// zh-CN: '移交失败，请稍后重试。'
+	String get transferFailedBody => '移交失败，请稍后重试。';
+
+	/// zh-CN: '记录已被他人更新，请刷新后重试。'
+	String get transferConflictHint => '记录已被他人更新，请刷新后重试。';
+
+	/// zh-CN: '个人记录暂不支持移交管理责任。'
+	String get transferPersonalUnsupported => '个人记录暂不支持移交管理责任。';
+
+	/// zh-CN: '只有当前管理责任人可以移交管理责任。'
+	String get transferOnlyOwner => '只有当前管理责任人可以移交管理责任。';
+
+	/// zh-CN: '返回详情'
+	String get transferBackToDetail => '返回详情';
+
+	/// zh-CN: '删除记录'
+	String get deleteTitle => '删除记录';
+
+	/// zh-CN: '确认删除这条记录？'
+	String get deleteConfirmTitle => '确认删除这条记录？';
+
+	/// zh-CN: '删除后不再展示正文；已导出或保存的副本无法收回。'
+	String get deleteConfirmDialogContent => '删除后不再展示正文；已导出或保存的副本无法收回。';
+
+	/// zh-CN: '删除后不再展示记录正文与摘要。'
+	String get deleteConfirmBodyPoint1 => '删除后不再展示记录正文与摘要。';
+
+	/// zh-CN: '删除会先撤销所有人的访问；已导出或保存的副本无法收回。'
+	String get deleteConfirmBodyPoint2 => '删除会先撤销所有人的访问；已导出或保存的副本无法收回。';
+
+	/// zh-CN: '附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。'
+	String get deleteConfirmBodyPoint3 => '附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。';
+
+	/// zh-CN: '删除'
+	String get deleteConfirmAction => '删除';
+
+	/// zh-CN: '删除中…'
+	String get deleteDeleting => '删除中…';
+
+	/// zh-CN: '只有创建者可以删除记录。'
+	String get deleteOnlyOwner => '只有创建者可以删除记录。';
+
+	/// zh-CN: '删除失败，请稍后重试。'
+	String get deleteFailedBody => '删除失败，请稍后重试。';
+
+	/// zh-CN: '记录已被他人更新，请刷新后重试。'
+	String get deleteConflictHint => '记录已被他人更新，请刷新后重试。';
+
+	/// zh-CN: '记录已删除'
+	String get deleteStatusTitle => '记录已删除';
+
+	/// zh-CN: '记录内容已不再展示。'
+	String get deleteStatusNoContentHint => '记录内容已不再展示。';
+
+	/// zh-CN: '附件清理状态'
+	String get deleteCleanupSectionTitle => '附件清理状态';
+
+	/// zh-CN: '清理进行中'
+	String get cleanupPendingTitle => '清理进行中';
+
+	/// zh-CN: '已提交清理队列；排队成功不代表附件字节已删除。'
+	String get cleanupPendingBody => '已提交清理队列；排队成功不代表附件字节已删除。';
+
+	/// zh-CN: '留存期未到'
+	String get cleanupBlockedRetentionTitle => '留存期未到';
+
+	/// zh-CN: '记录已删除，附件受留存规则保护；留存期结束后继续清理。'
+	String get cleanupBlockedRetentionBody => '记录已删除，附件受留存规则保护；留存期结束后继续清理。';
+
+	/// zh-CN: '受 Hold 保护'
+	String get cleanupBlockedHoldTitle => '受 Hold 保护';
+
+	/// zh-CN: '记录已删除，附件受合法保留（Hold）保护；Hold 解除后继续清理。'
+	String get cleanupBlockedHoldBody => '记录已删除，附件受合法保留（Hold）保护；Hold 解除后继续清理。';
+
+	/// zh-CN: '附件仍被其他业务引用'
+	String get cleanupRetainedTitle => '附件仍被其他业务引用';
+
+	/// zh-CN: '部分附件仍被其他合法业务引用，暂不物理删除。'
+	String get cleanupRetainedBody => '部分附件仍被其他合法业务引用，暂不物理删除。';
+
+	/// zh-CN: '清理失败'
+	String get cleanupFailedTitle => '清理失败';
+
+	/// zh-CN: '附件清理失败，由运维人员检查并重试；可刷新查看最新状态。'
+	String get cleanupFailedBody => '附件清理失败，由运维人员检查并重试；可刷新查看最新状态。';
+
+	/// zh-CN: '清理完成'
+	String get cleanupCompleteTitle => '清理完成';
+
+	/// zh-CN: '记录与附件均已清理完成。'
+	String get cleanupCompleteBody => '记录与附件均已清理完成。';
+
+	/// zh-CN: '未提交清理'
+	String get cleanupNoneTitle => '未提交清理';
+
+	/// zh-CN: '记录尚未进入清理流程。'
+	String get cleanupNoneBody => '记录尚未进入清理流程。';
+
+	/// zh-CN: '清理状态未知'
+	String get cleanupUnknownTitle => '清理状态未知';
+
+	/// zh-CN: '暂未能获取清理状态，可刷新重试。'
+	String get cleanupUnknownBody => '暂未能获取清理状态，可刷新重试。';
+
+	/// zh-CN: '重试清理'
+	String get cleanupRetryAction => '重试清理';
+
+	/// zh-CN: '重试中…'
+	String get cleanupRetrying => '重试中…';
+
+	/// zh-CN: '重试清理失败，请稍后再次重试。'
+	String get cleanupRetryFailedBody => '重试清理失败，请稍后再次重试。';
+
+	/// zh-CN: '刷新清理状态'
+	String get deleteRefreshStatus => '刷新清理状态';
+
+	/// zh-CN: '返回列表'
+	String get deleteBackToList => '返回列表';
+
+	/// zh-CN: '组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。'
+	String get deleteStatusFixtureHint => '组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。';
+
+	/// zh-CN: '录音停止尚未确认，请重试停止；若仍失败，请关闭应用并检查系统麦克风指示。'
+	String get microphoneStopUnconfirmed => '录音停止尚未确认，请重试停止；若仍失败，请关闭应用并检查系统麦克风指示。';
+
+	/// zh-CN: '附件写入结果尚未确认，清理暂未完成。系统会保留保护状态，由运维人员核查；可刷新查看进度。'
+	String get cleanupWriteOutcomeUnknown => '附件写入结果尚未确认，清理暂未完成。系统会保留保护状态，由运维人员核查；可刷新查看进度。';
+
+	/// zh-CN: '已取消保存，可再次保存。'
+	String get exportDownloadCancelled => '已取消保存，可再次保存。';
+
+	/// zh-CN: '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。'
+	String get shareCardSendPending => '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。';
+
+	/// zh-CN: '已取消发送，未发送新的卡片。'
+	String get shareCardSendCancelled => '已取消发送，未发送新的卡片。';
+
+	/// zh-CN: '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。'
+	String get participantsInfoHint => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。';
+
+	/// zh-CN: '移除参与者'
+	String get participantsRemove => '移除参与者';
+
+	/// zh-CN: '来宾姓名或标签'
+	String get participantsGuestLabel => '来宾姓名或标签';
+
+	/// zh-CN: '添加来宾'
+	String get participantsAddGuest => '添加来宾';
+
+	/// zh-CN: '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。'
+	String get participantsInvalid => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。';
+
+	/// zh-CN: '没有匹配的联系人或同事，请尝试搜索。'
+	String get participantsNoResults => '没有匹配的联系人或同事，请尝试搜索。';
+
+	/// zh-CN: '名单已更新，已刷新为最新内容。请检查后重新编辑。'
+	String get participantsConflict => '名单已更新，已刷新为最新内容。请检查后重新编辑。';
+
+	/// zh-CN: '未能确认保存结果，当前选择已保留；请重试或刷新。'
+	String get participantsSaveFailed => '未能确认保存结果，当前选择已保留；请重试或刷新。';
+
+	/// zh-CN: '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。'
+	String get cleanupProcessorUnconfirmed => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。';
+
+	/// zh-CN: '上传前确认'
+	String get uploadNoticeTitle => '上传前确认';
+
+	/// zh-CN: '请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。'
+	String get uploadNoticeHint => '请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。';
+
+	/// zh-CN: '上传录音'
+	String get uploadRecording => '上传录音';
+
+	/// zh-CN: '重试上传'
+	String get retryRecordingUpload => '重试上传';
+
+	/// zh-CN: '开启录音通知'
+	String get notificationRequiredTitle => '开启录音通知';
+
+	/// zh-CN: '为保持后台录音可见，请允许应用通知，并在系统设置中开启录音通知通道。开启后返回此页重试；本次尚未开始录音。'
+	String get notificationRequiredMessage => '为保持后台录音可见，请允许应用通知，并在系统设置中开启录音通知通道。开启后返回此页重试；本次尚未开始录音。';
+
+	/// zh-CN: '去通知设置'
+	String get openNotificationSettings => '去通知设置';
+
+	/// zh-CN: '确认录音处理'
+	String get processingRecoveryTitle => '确认录音处理';
+
+	/// zh-CN: '处理告知或处理器配置已更新。确认后按下方当前版本上传并执行原先选择的处理方式；不改变录音时的历史告知。'
+	String get processingRecoveryHint => '处理告知或处理器配置已更新。确认后按下方当前版本上传并执行原先选择的处理方式；不改变录音时的历史告知。';
+
+	/// zh-CN: '当前处理器不可用。录音将保留在本机，恢复后可再次上传。'
+	String get processingRecoveryUnavailable => '当前处理器不可用。录音将保留在本机，恢复后可再次上传。';
+
+	/// zh-CN: '暂不处理，保留本机'
+	String get keepRecordingLocal => '暂不处理，保留本机';
+
+	/// zh-CN: '同意处理并上传'
+	String get confirmProcessingUpload => '同意处理并上传';
+}
+
 // Path: welcome
 class Translations$welcome$zh_CN {
 	Translations$welcome$zh_CN.internal(this._root);
@@ -9427,6 +10541,45 @@ class Translations$organization$experienceUi$zh_CN {
 
 	/// zh-CN: '暂无简介'
 	String get noIntro => '暂无简介';
+
+	/// zh-CN: '个人面聊记录待处理'
+	String get talkRecordPersonalPendingTitle => '个人面聊记录待处理';
+
+	/// zh-CN: '请先处理个人面聊记录，再重新检查注销条件。'
+	String get talkRecordPersonalPendingBody => '请先处理个人面聊记录，再重新检查注销条件。';
+
+	/// zh-CN: '录音文件仍在清理'
+	String get talkRecordCleanupPendingTitle => '录音文件仍在清理';
+
+	/// zh-CN: '记录已删除，文件清理尚未完成。可查看真实进度；保留规则或处理保护不能被手动跳过。'
+	String get talkRecordCleanupPendingBody => '记录已删除，文件清理尚未完成。可查看真实进度；保留规则或处理保护不能被手动跳过。';
+
+	/// zh-CN: '企业面聊记录尚未移交'
+	String get talkRecordOrganizationOwnerPendingTitle => '企业面聊记录尚未移交';
+
+	/// zh-CN: '请先移交企业面聊记录的管理责任。移交不会自动解除历史身份引用。'
+	String get talkRecordOrganizationOwnerPendingBody => '请先移交企业面聊记录的管理责任。移交不会自动解除历史身份引用。';
+
+	/// zh-CN: '历史身份引用待核查'
+	String get talkRecordRetainedIdentityPendingTitle => '历史身份引用待核查';
+
+	/// zh-CN: '历史记录仍引用此身份，当前无法完成注销。移交记录不保证解除这些引用。'
+	String get talkRecordRetainedIdentityPendingBody => '历史记录仍引用此身份，当前无法完成注销。移交记录不保证解除这些引用。';
+
+	/// zh-CN: '查看个人面聊记录'
+	String get openPersonalTalkRecords => '查看个人面聊记录';
+
+	/// zh-CN: '查看清理进度'
+	String get viewTalkRecordCleanup => '查看清理进度';
+
+	/// zh-CN: '记录'
+	String get cleanupRecordLabel => '记录';
+
+	/// zh-CN: '仅显示前 20 条，处理后请刷新检查剩余项。'
+	String get cleanupResourcesTruncated => '仅显示前 20 条，处理后请刷新检查剩余项。';
+
+	/// zh-CN: '还有待处理事项'
+	String get unknownBlockerTitle => '还有待处理事项';
 }
 
 /// The flat map containing all translations for locale <zh-CN>.
@@ -9596,7 +10749,7 @@ extension on Translations {
 			'appeal.allClearTitle' => '一切正常',
 			'appeal.allClearSubtitle' => '没有针对你的处置，也不需要申诉。',
 			'attachmentManager.title' => '附件',
-			'attachmentManager.centerHint' => '检索当前工作区内有权查看的群组和频道附件。',
+			'attachmentManager.centerHint' => '检索当前工作区内有权查看的群组、频道和面聊附件。',
 			'attachmentManager.allGroups' => '全部群组',
 			'attachmentManager.allChannels' => '全部频道',
 			'attachmentManager.allPeople' => '全部上传人',
@@ -9609,7 +10762,7 @@ extension on Translations {
 			'attachmentManager.personalBoundary' => '本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。',
 			'attachmentManager.groupSource' => '群组附件',
 			'attachmentManager.enterpriseHint' => '选择当前工作区内的群组查看云端文件。',
-			'attachmentManager.enterpriseBoundary' => '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。',
+			'attachmentManager.enterpriseBoundary' => '已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按来源群组、频道或面聊记录的权限控制。',
 			'attachmentManager.searchHint' => '搜索附件名称',
 			'attachmentManager.searchGroupsHint' => '搜索群组',
 			'attachmentManager.emptyLocal' => '暂无本机可查看附件',
@@ -9633,6 +10786,23 @@ extension on Translations {
 			'attachmentManager.selectChannelTitle' => '选择频道',
 			'attachmentManager.enterpriseRetained' => '企业留存',
 			'attachmentManager.enterpriseUnmanaged' => '未纳入留存',
+			'attachmentManager.sourceAll' => '全部来源',
+			'attachmentManager.sourceGroups' => '群组',
+			'attachmentManager.sourceChannels' => '频道',
+			'attachmentManager.sourceTalkRecords' => '面聊记录',
+			'attachmentManager.talkRecordSourceHint' => '查看面聊记录；播放与导出仍按记录权限控制。',
+			'attachmentManager.organizationCenterHint' => '检索本企业内有权查看的附件，包含未归入工作区的面聊记录。',
+			'attachmentManager.governanceAction' => '附件治理',
+			'attachmentManager.governancePurgeApproved' => '已批准清理',
+			'attachmentManager.governancePhysicalPending' => '批准清理不代表文件已删除，实际进度以清理状态为准。',
+			'attachmentManager.governanceRefreshConflict' => '记录版本已变化，请刷新后核对再提交。',
+			'attachmentManager.governanceHoldReason' => '保全原因（最多 200 字）',
+			'attachmentManager.governanceExtendUntil' => '延长留存至',
+			'attachmentManager.governancePurgeConfirm' => '批准此附件清理？批准后不能恢复治理状态；仍须满足所有引用、上传及处理保护条件，才会进入清理。',
+			'attachmentManager.governanceHoldAction' => '设置保全',
+			'attachmentManager.governanceReleaseHoldAction' => '解除保全',
+			'attachmentManager.governanceExtendAction' => '延长留存',
+			'attachmentManager.governancePurgeAction' => '批准清理',
 			'billing.title' => '套餐订阅',
 			'billing.planPeriodMonthly' => '月付',
 			'billing.planPeriodYearly' => '年付',
@@ -9932,6 +11102,8 @@ extension on Translations {
 			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
 			'chat.quickReplyDuplicate' => '内容已存在',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
+			_ => null,
+		} ?? switch (path) {
 			'chat.quickReplyHint' => '输入内容...',
 			'chat.muteMember' => '禁言成员',
 			'chat.unmuteMember' => '取消禁言',
@@ -9949,8 +11121,6 @@ extension on Translations {
 			'chat.scanQrCodeBusinessCard' => '扫描二维码名片',
 			'chat.privateChat' => '私聊',
 			'chat.sendFriendRequest' => '发送添加朋友申请',
-			_ => null,
-		} ?? switch (path) {
 			'chat.sendMsgRejected' => '消息已发出，但被对方拒收了。',
 			'chat.sendMessage' => '发消息',
 			'chat.sendTo' => '发送给',
@@ -10446,6 +11616,8 @@ extension on Translations {
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
 			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteAccountAction' => '注销账号',
 			'common.deleteAccountActionDesc' => '永久删除账号和所有数据，此操作不可恢复',
 			'common.chatHistoryCleared' => '聊天记录已清除',
@@ -10463,8 +11635,6 @@ extension on Translations {
 			'common.cameraCapture' => '拍摄',
 			'common.cameraModePhoto' => '照片',
 			'common.cameraModeVideo' => '视频',
-			_ => null,
-		} ?? switch (path) {
 			'common.cameraRetake' => '重拍',
 			'common.cameraUse' => '使用',
 			'common.cameraNoDevice' => '未检测到可用的摄像头',
@@ -10960,6 +12130,8 @@ extension on Translations {
 			'common.amountMustPositive' => '金额必须大于 0',
 			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
 			'common.transferAmountLabel' => '转账金额',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferRemarkLabel' => '转账备注',
 			'common.transferConfirm' => '确认转账',
 			'common.transferReceiving' => '正在收款...',
@@ -10977,8 +12149,6 @@ extension on Translations {
 			'common.timeNowShort' => 'now',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
-			_ => null,
-		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.showPassword' => '显示密码',
 			'common.hidePassword' => '隐藏密码',
@@ -11474,6 +12644,8 @@ extension on Translations {
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '待办ID缺失，无法查看详情',
 			'groupTask.taskIdMissingSubmit' => '待办ID缺失，无法提交',
@@ -11491,8 +12663,6 @@ extension on Translations {
 			'groupVote.statusInProgress' => '进行中',
 			'groupVote.updateVote' => '更新投票',
 			'groupVote.cancelMyVote' => '取消我的投票',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.voteIdMissing' => '投票ID缺失，无法查看详情',
 			'groupVote.participantCount' => ({required Object count}) => '参与人数: ${count}',
 			'groupVote.singleChoice' => '单选',
@@ -11988,6 +13158,8 @@ extension on Translations {
 			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '重命名「${name}」',
 			'organization.manage.wsMembersEntry' => '成员治理',
 			'organization.manage.renameGroup' => '重命名',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.renameGroupTitle' => ({required Object name}) => '重命名「${name}」',
 			'organization.manage.groupGovernance' => '成员与角色',
 			'organization.manage.renameChannel' => '重命名',
@@ -12005,8 +13177,6 @@ extension on Translations {
 			'organization.manage.workspaceSection' => '工作区',
 			'organization.manage.createWorkspace' => '新建工作区',
 			'organization.manage.workspaceNameHint' => '工作区名称',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.workspaceEmpty' => '暂无工作区',
 			'organization.manage.workspaceEmptyHint' => '当前企业下还没有你加入的工作区，可用右上角新建。',
 			'organization.manage.workspaceScopeNote' => '这里只列出你已加入的工作区；同企业内你未加入的工作区不会出现。',
@@ -12120,6 +13290,19 @@ extension on Translations {
 			'organization.experienceUi.accountCheck' => '注销前检查',
 			'organization.experienceUi.workspaceContext' => ({required Object name}) => '工作区：${name}',
 			'organization.experienceUi.noIntro' => '暂无简介',
+			'organization.experienceUi.talkRecordPersonalPendingTitle' => '个人面聊记录待处理',
+			'organization.experienceUi.talkRecordPersonalPendingBody' => '请先处理个人面聊记录，再重新检查注销条件。',
+			'organization.experienceUi.talkRecordCleanupPendingTitle' => '录音文件仍在清理',
+			'organization.experienceUi.talkRecordCleanupPendingBody' => '记录已删除，文件清理尚未完成。可查看真实进度；保留规则或处理保护不能被手动跳过。',
+			'organization.experienceUi.talkRecordOrganizationOwnerPendingTitle' => '企业面聊记录尚未移交',
+			'organization.experienceUi.talkRecordOrganizationOwnerPendingBody' => '请先移交企业面聊记录的管理责任。移交不会自动解除历史身份引用。',
+			'organization.experienceUi.talkRecordRetainedIdentityPendingTitle' => '历史身份引用待核查',
+			'organization.experienceUi.talkRecordRetainedIdentityPendingBody' => '历史记录仍引用此身份，当前无法完成注销。移交记录不保证解除这些引用。',
+			'organization.experienceUi.openPersonalTalkRecords' => '查看个人面聊记录',
+			'organization.experienceUi.viewTalkRecordCleanup' => '查看清理进度',
+			'organization.experienceUi.cleanupRecordLabel' => '记录',
+			'organization.experienceUi.cleanupResourcesTruncated' => '仅显示前 20 条，处理后请刷新检查剩余项。',
+			'organization.experienceUi.unknownBlockerTitle' => '还有待处理事项',
 			'passport.loginHistoryToggle' => '展开历史登录记录',
 			'passport.hintEmail' => '请输入邮箱',
 			'passport.hintMobile' => '请输入手机号',
@@ -12144,6 +13327,359 @@ extension on Translations {
 			'passport.cannotGetScreenSize' => '无法获取屏幕尺寸',
 			'passport.oneKeyFailedRetry' => '一键登录失败，请检查网络后重试',
 			'splash.slogan' => '畅所欲言，自在沟通',
+			'talkRecord.entryTitle' => '面聊记录',
+			'talkRecord.entrySubtitlePersonal' => '面对面沟通的录音与转写记录',
+			'talkRecord.entrySubtitleOrg' => '会议与面谈的团队协作记录',
+			'talkRecord.listTitle' => '面聊记录',
+			'talkRecord.contextSectionTitle' => '当前空间',
+			'talkRecord.contextPersonal' => '个人空间',
+			'talkRecord.contextOrgFallback' => '当前企业',
+			'talkRecord.filterAll' => '全部',
+			'talkRecord.filterOwned' => '我创建',
+			'talkRecord.filterShared' => '共享给我',
+			'talkRecord.searchHint' => '搜索面聊记录',
+			'talkRecord.untitledRecord' => '未命名记录',
+			'talkRecord.visibilityOwnerOnly' => '仅自己可见',
+			'talkRecord.visibilityShared' => '已共享',
+			'talkRecord.localDraftBadge' => '本机草稿',
+			'talkRecord.statusRecording' => '录音中',
+			'talkRecord.statusUploading' => '上传中',
+			'talkRecord.statusVerifying' => '上传校验中',
+			'talkRecord.statusAssembling' => '音频合成中',
+			'talkRecord.statusUploadFailed' => '上传失败，可重试',
+			'talkRecord.statusTranscribeQueued' => '转写排队中',
+			'talkRecord.statusTranscribeRunning' => '转写中',
+			'talkRecord.statusTranscribeReady' => '已转写',
+			'talkRecord.statusTranscribeFailed' => '转写失败，录音仍可回听',
+			'talkRecord.statusNoSpeech' => '未检测到可转写语音',
+			'talkRecord.statusRecordOnly' => '仅录音',
+			'talkRecord.emptyNeverCreatedTitle' => '还没有面聊记录',
+			'talkRecord.emptyNeverCreatedSubtitle' => '面对面沟通后，在这里保存录音与转写',
+			'talkRecord.emptyNoMatchTitle' => '没有匹配的记录',
+			'talkRecord.emptyNoMatchSubtitle' => '当前筛选或搜索词下没有结果，可调整后重试',
+			'talkRecord.createRecord' => '新建记录',
+			'talkRecord.loadFailedTitle' => '记录加载失败',
+			'talkRecord.loadFailedAction' => '重试',
+			'talkRecord.prepareTitle' => '新建面聊记录',
+			'talkRecord.fieldTitleLabel' => '标题',
+			'talkRecord.fieldTitlePlaceholder' => '选填，方便日后查找',
+			'talkRecord.saveToSectionTitle' => '保存到',
+			'talkRecord.saveToChangeAction' => '更改',
+			'talkRecord.processingSectionTitle' => '处理方式',
+			'talkRecord.processingRecordOnly' => '仅录音',
+			'talkRecord.processingTranscribe' => '转写文字',
+			'talkRecord.processingSummarize' => '转写并摘要',
+			'talkRecord.processingRecordOnlyHint' => '仅保存录音，可随时回听；会后可在详情页升级转写。',
+			'talkRecord.processingReasonUnavailable' => '当前实例未配置转写服务，本次仅保存录音。',
+			'talkRecord.processingReasonQuota' => '转写配额暂不可用，本次仅保存录音；录音不受影响。',
+			'talkRecord.processingReasonLoadFailed' => '未能获取处理能力，本次按仅录音处理。',
+			'talkRecord.maxDurationHint' => ({required Object minutes}) => '单条录音最长 ${minutes} 分钟',
+			'talkRecord.collabSectionTitle' => '协作信息',
+			'talkRecord.collabSectionSubtitle' => '选填，仅对企业记录生效',
+			'talkRecord.collabParticipantsLabel' => '参与者',
+			'talkRecord.collabParticipantsEmpty' => '未选择参与者',
+			'talkRecord.collabParticipantsCount' => ({required Object count}) => '已选 ${count} 人',
+			'talkRecord.collabParticipantsUnavailable' => '参与者目录待接入；可创建记录后再授权共享。',
+			'talkRecord.noticeCheckbox' => '我已告知现场参与者本次录音及其处理方式',
+			'talkRecord.noticeHint' => '开始录音前需先确认已告知',
+			'talkRecord.startRecording' => '开始录音',
+			'talkRecord.micDeniedTitle' => '需要麦克风权限',
+			'talkRecord.micDeniedMessage' => '面聊记录需要使用麦克风录制现场声音。当前权限被拒绝，可重试或在系统设置中开启。',
+			'talkRecord.micRetry' => '重试',
+			'talkRecord.micOpenSettings' => '去设置',
+			'talkRecord.recordingUnavailableTitle' => '暂时无法开始录音',
+			'talkRecord.recordingUnavailableMessage' => '请检查是否有未结束的录音、麦克风权限和本机存储空间。草稿及已有分段已保留。',
+			'talkRecord.saveLocationTitle' => '保存位置',
+			'talkRecord.saveLocationPersonalSection' => '个人',
+			'talkRecord.saveLocationOrgSection' => '有权企业',
+			'talkRecord.saveLocationWorkspaceOptional' => '不指定工作区',
+			'talkRecord.retentionPolicyLabel' => '保存期限',
+			'talkRecord.changeConfirmTitle' => '更改保存位置',
+			'talkRecord.changeConfirmTarget' => ({required Object name}) => '将保存到：${name}',
+			'talkRecord.changeConfirmKeepTitle' => '已填写的标题与笔记会保留',
+			'talkRecord.changeConfirmClearParticipants' => '不适用于新位置的参与者选择将被清空',
+			'talkRecord.changeConfirmRecheck' => '处理方式将按新位置的能力重新校验',
+			'talkRecord.changeConfirmAction' => '确认更改',
+			'talkRecord.barRecording' => '正在录音 · 本机分段保存',
+			'talkRecord.barPaused' => '已暂停，不计入录音时长',
+			'talkRecord.barInterrupted' => '录音已中断 · 恢复需手动继续',
+			'talkRecord.barOriginPrefix' => '来自',
+			'talkRecord.barExpandHint' => '查看录音状态',
+			'talkRecord.barControlsUnavailable' => '录音控制由录音模块提供，当前构建为占位展示',
+			'talkRecord.barOriginPersonal' => '个人空间',
+			'talkRecord.barOriginOrgFallback' => '企业空间',
+			'talkRecord.roleOwner' => '创建者',
+			'talkRecord.roleEditor' => '编辑者',
+			'talkRecord.roleViewer' => '读者',
+			'talkRecord.roleEditorHint' => '你可校对原文与发言人、编辑共享笔记；分享与删除由创建者管理。',
+			'talkRecord.tabSummary' => '摘要',
+			'talkRecord.tabTranscript' => '原文',
+			'talkRecord.speakersEntry' => '发言人校对',
+			'talkRecord.playbackUnavailable' => '当前无回放权限',
+			'talkRecord.playbackTicketFailed' => '播放会话不可用，可重试',
+			'talkRecord.playbackPlayLabel' => '播放',
+			'talkRecord.playbackPauseLabel' => '暂停',
+			'talkRecord.playbackProgressLabel' => ({required Object position, required Object duration}) => '播放进度 ${position} / ${duration}',
+			'talkRecord.returnToPlayback' => '回到播放位置',
+			'talkRecord.transcriptSearchHint' => '搜索原文关键词',
+			'talkRecord.transcriptHitCount' => ({required Object count}) => '命中 ${count} 处，点击时间点回听定位',
+			'talkRecord.transcriptNoHit' => '没有命中片段',
+			'talkRecord.transcriptEmpty' => '暂无原文片段',
+			'talkRecord.speakerUnknown' => '未知说话人',
+			'talkRecord.speakerAnonymousPill' => '匿名',
+			'talkRecord.speakerManualPill' => '人工标记',
+			'talkRecord.speakerSelfClaimPill' => '本人认领',
+			'talkRecord.markPillPrefix' => '重点',
+			'talkRecord.markDefaultText' => '手动重点',
+			'talkRecord.segmentHumanEditedPill' => '人工修订',
+			'talkRecord.segmentRowSemanticLabel' => ({required Object speaker, required Object time}) => '${speaker} 于 ${time} 的发言',
+			'talkRecord.segmentListenLabel' => ({required Object time}) => '回听 ${time}',
+			'talkRecord.detailRecordOnlyTitle' => '本次记录仅保存录音',
+			'talkRecord.detailRecordOnlyBody' => '未请求转写，暂无原文与摘要；录音可回听，会后可升级转写。',
+			'talkRecord.detailNoSpeechTitle' => '未检测到可转写语音',
+			'talkRecord.detailNoSpeechBody' => '录音已保留。本次录音中没有可转写的语音内容。',
+			'talkRecord.detailTranscribeFailedTitle' => '转写失败',
+			'talkRecord.detailTranscribeFailedBodyEditor' => '转写失败，录音仍可回听。你可重试转写。',
+			'talkRecord.detailTranscribeFailedBodyViewer' => '转写失败，录音仍可回听。请联系创建者重试。',
+			'talkRecord.detailTranscribingTitle' => '转写处理中',
+			'talkRecord.detailTranscribingBody' => '原文生成后会在此展示；处理中不显示预计完成时间。',
+			'talkRecord.detailTranscribeRetry' => '重试转写',
+			'talkRecord.summarySectionTitle' => '摘要',
+			'talkRecord.summaryDraftBadge' => 'AI 整理草稿 · 使用前请核对',
+			'talkRecord.summaryStaleBanner' => '原文或署名已更新，摘要可能过时',
+			'talkRecord.summaryDecisionsTitle' => '讨论重点',
+			'talkRecord.summaryActionsTitle' => '待办草稿',
+			'talkRecord.summaryAssigneeUnset' => '负责人未定',
+			'talkRecord.summaryJumpToSource' => '查看原文出处',
+			'talkRecord.summaryQueued' => '摘要已排队，生成后展示。',
+			'talkRecord.summaryRunning' => '摘要整理中，生成后展示。',
+			'talkRecord.summaryNotGenerated' => '已生成原文，尚未请求摘要。',
+			'talkRecord.summaryNoSource' => '尚无原文，暂不能生成摘要。',
+			'talkRecord.summaryUnavailable' => '当前实例未配置摘要服务。',
+			'talkRecord.summaryFailed' => '摘要生成失败，可稍后重试。',
+			'talkRecord.notesTitle' => '共享补充笔记',
+			'talkRecord.notesSharedHint' => '随记录共享，所有可查看本记录的人可见。',
+			'talkRecord.notesReadonlyHint' => '随记录共享，当前为只读。',
+			'talkRecord.notesEditAction' => '编辑',
+			'talkRecord.notesPlaceholder' => '补充会议结论、背景信息等',
+			'talkRecord.notesEmpty' => '暂无补充笔记',
+			'talkRecord.notesCancel' => '取消',
+			'talkRecord.notesSave' => '保存笔记',
+			'talkRecord.notesSavedHint' => '笔记已保存',
+			'talkRecord.notesConflictHint' => '笔记已被他人更新，请刷新后重试；当前输入已保留。',
+			'talkRecord.notesFailedHint' => '保存失败，请稍后重试；当前输入已保留。',
+			'talkRecord.moreActionsTitle' => '更多操作',
+			'talkRecord.moreActionsCancel' => '取消',
+			'talkRecord.actionShare' => '分享管理',
+			'talkRecord.actionExport' => '导出文字',
+			'talkRecord.actionDelete' => '删除记录',
+			'talkRecord.actionPendingIntegration' => '该操作待后续版本接入（分享/导出/删除由对应模块联调后开放），当前构建仅提供入口。',
+			'talkRecord.segmentEditTitle' => '片段校对',
+			'talkRecord.segmentTimeLabel' => ({required Object time}) => '时间点 ${time}',
+			'talkRecord.segmentOriginalLabel' => '原稿',
+			'talkRecord.segmentEditLabel' => '校对文字',
+			'talkRecord.segmentEditPlaceholder' => '修改转写文字',
+			'talkRecord.segmentSave' => '保存校对',
+			'talkRecord.segmentResubmit' => '重新提交',
+			'talkRecord.segmentSaveFailed' => '保存失败，请稍后重试；输入已保留。',
+			'talkRecord.segmentConflictTitle' => '版本冲突：原文已被他人修改',
+			'talkRecord.segmentConflictBody' => '你的输入已保留，可与服务器最新稿对比后重新提交；保存以你的输入为准。',
+			'talkRecord.segmentAdoptServer' => '采用服务器稿',
+			'talkRecord.speakersTitle' => '发言人校对',
+			'talkRecord.speakersScopeHint' => '说话人设置只作用于本记录；人工标记不等于本人认证，也不会建立声纹档案。',
+			'talkRecord.speakerSetName' => '设置显示名',
+			'talkRecord.speakerSetNameTitle' => '设置显示名',
+			'talkRecord.speakerSetNameConfirm' => '保存',
+			'talkRecord.speakerClaimSelf' => '认领是我',
+			'talkRecord.speakerClaimConflict' => '该说话人已被他人认领，请创建者人工纠正。',
+			'talkRecord.speakerAudition' => '试听片段',
+			'talkRecord.speakerMarkColleague' => '标记同事',
+			'talkRecord.speakerDirectoryUnavailable' => '参与者目录待接入，暂不能选择同事；可先设置显示名。',
+			'talkRecord.speakerSourceHint' => '该署名为人工标记或本人认领，不构成身份认证。',
+			'talkRecord.shareManageTitle' => '分享管理',
+			'talkRecord.shareVisibilitySectionTitle' => '当前可见范围',
+			'talkRecord.shareVisibilityOwnerOnly' => '仅自己可见',
+			'talkRecord.shareVisibilityShared' => ({required Object count}) => '已共享给 ${count} 人查看',
+			'talkRecord.shareRosterSectionTitle' => '谁可以查看',
+			'talkRecord.shareOwnerRowLabel' => '我 · 创建者',
+			'talkRecord.shareOwnerRowHint' => '创建者始终可以查看与管理分享',
+			'talkRecord.shareGrantRoleViewer' => '可查看与回听',
+			'talkRecord.shareGrantRoleEditor' => '可校对与编辑',
+			'talkRecord.shareAllowExportPill' => '可导出',
+			'talkRecord.shareExpiresPill' => ({required Object date}) => '有效期至 ${date}',
+			'talkRecord.shareGrantEditAction' => '编辑',
+			'talkRecord.shareGrantRevokeAction' => '撤销',
+			'talkRecord.shareAddEntryOrg' => '添加同事',
+			'talkRecord.shareAddEntryPersonal' => '添加联系人',
+			'talkRecord.shareAddHintOrg' => '可授权当前企业内符合工作区权限的同事',
+			'talkRecord.shareAddHintPersonal' => '可授权已有联系人',
+			'talkRecord.shareEmptyTitle' => '尚未授权任何人',
+			'talkRecord.shareEmptyBody' => '该记录默认仅自己可见；明确授权后，对方才能查看与回听。',
+			'talkRecord.shareMyPermissionTitle' => '我的权限',
+			'talkRecord.shareMyPermissionNone' => '你当前没有这条记录的授权信息；分享由创建者管理。',
+			'talkRecord.shareMyPermissionReadonly' => '你可以查看与回听本记录；分享权限由创建者管理。',
+			'talkRecord.shareVisibilityOfRecord' => ({required Object visibility}) => '当前记录可见范围：${visibility}',
+			'talkRecord.shareEditorCannotManageAcl' => '编辑者不能管理分享权限或删除记录；如需调整，请联系创建者。',
+			'talkRecord.shareSaveFeedback' => '权限已保存',
+			'talkRecord.shareConflictHint' => '授权已被他人更新，请刷新后重试。',
+			'talkRecord.shareSendCard' => '发送卡片',
+			'talkRecord.shareCardSending' => '处理中…',
+			'talkRecord.shareSendCardHint' => '生成面聊记录卡片发送给同事；对方打开时按其权限查看。',
+			'talkRecord.shareSendNeedsGrant' => '先添加授权，才能发送分享卡片。',
+			'talkRecord.shareCardSent' => '卡片已发送（示例）',
+			'talkRecord.shareCardSendFailed' => '发送失败，可重试',
+			'talkRecord.shareCardSenderUnavailable' => '暂时无法打开会话选择器，请返回后重试。',
+			'talkRecord.shareRevokeConfirmTitle' => ({required Object name}) => '撤销 ${name} 的访问权限？',
+			'talkRecord.shareRevokeConfirmBody' => '将无法继续访问原记录。已导出或保存的副本无法收回。',
+			'talkRecord.shareRevokeConfirmAction' => '撤销',
+			'talkRecord.shareRevokeFailedTitle' => '未能撤销',
+			'talkRecord.shareRevokeFailedBody' => '撤销失败，请稍后重试。',
+			'talkRecord.grantEditTitle' => '编辑权限',
+			'talkRecord.grantEditTitleNew' => '添加授权',
+			'talkRecord.grantEditCandidateSection' => '选择要授权的人',
+			'talkRecord.grantEditCandidateSearchHint' => '搜索姓名或账号',
+			'talkRecord.grantEditCandidatesUnavailable' => '候选目录暂不可用，请稍后重试。',
+			'talkRecord.grantEditCandidateEmpty' => '没有可授权的候选人',
+			'talkRecord.grantEditGranteeLabel' => '被授权人',
+			'talkRecord.grantEditRoleSectionTitle' => '角色',
+			'talkRecord.grantEditRoleViewerHint' => '可查看记录与回听音频，不能修改内容。',
+			'talkRecord.grantEditRoleEditorHint' => '可校对原文与发言人、编辑共享笔记；不能管理分享或删除。',
+			'talkRecord.grantEditExportSectionTitle' => '允许导出',
+			'talkRecord.grantEditExportBlockedOrg' => '导出已被企业策略禁用，不能在授权中开启。',
+			'talkRecord.grantEditExportBlockedUnknown' => '未能确认当前导出策略，暂不能开启导出。',
+			'talkRecord.grantEditExpiresSectionTitle' => '到期时间',
+			'talkRecord.grantEditExpiresOn' => ({required Object date}) => '${date} 到期',
+			'talkRecord.grantEditExpiresHint' => '可选；设置后对方到期自动失去访问。',
+			'talkRecord.grantEditSave' => '保存权限',
+			'talkRecord.grantEditSaving' => '处理中…',
+			'talkRecord.grantEditConflict' => '授权已被他人更新，请返回刷新名单后重试；你的设置已保留。',
+			'talkRecord.grantEditSaveFailed' => '保存失败，请稍后重试；你的设置已保留。',
+			'talkRecord.invalidTitle' => '暂时无法查看',
+			'talkRecord.invalidBody' => '该内容当前无法查看，可能不存在或你没有查看权限。',
+			'talkRecord.invalidBack' => '返回',
+			'talkRecord.resultBack' => '返回',
+			'talkRecord.exportTitle' => '导出文字',
+			'talkRecord.exportFormatSectionTitle' => '导出格式',
+			'talkRecord.exportFormatTxt' => '纯文本 .txt',
+			'talkRecord.exportFormatMd' => 'Markdown .md',
+			'talkRecord.exportFormatHint' => '导出仅包含文字内容，不包含音频与未授权参与者信息。',
+			'talkRecord.exportCapabilitySectionTitle' => '导出能力',
+			'talkRecord.exportBlockedNoGrant' => '你当前的角色没有被授予导出权限；导出需创建者授权或策略允许。',
+			'talkRecord.exportBlockedOrgPolicy' => '导出已被企业策略禁用，暂不能导出。',
+			'talkRecord.exportBlockedInstancePolicy' => '当前实例未开启导出能力，暂不能导出。',
+			'talkRecord.exportBlockedUnknown' => '未能确认当前导出策略，暂不能导出。',
+			'talkRecord.exportIndependentCopyTitle' => '独立副本提示',
+			'talkRecord.exportIndependentCopyBody' => '导出生成的是独立副本；生成后无法通过删除记录或撤销权限收回。',
+			'talkRecord.exportIndependentCopyAck' => '我已了解导出的独立副本无法收回',
+			'talkRecord.exportGenerate' => '生成导出',
+			'talkRecord.exportGenerating' => '生成中…',
+			'talkRecord.exportQueuedTitle' => '导出排队中',
+			'talkRecord.exportQueuedBody' => '已提交生成请求；排队不代表已生成完成，可稍后刷新状态。',
+			'talkRecord.exportRefreshState' => '刷新状态',
+			'talkRecord.exportReadyTitle' => '导出已就绪',
+			'talkRecord.exportReadyBody' => '可下载导出文件；下载链接短期有效，到期后需重新生成。',
+			'talkRecord.exportExpiresAt' => ({required Object date}) => '有效期至 ${date}',
+			'talkRecord.exportRemaining' => ({required Object minutes}) => '剩余约 ${minutes} 分钟',
+			'talkRecord.exportDownload' => '保存导出文件',
+			'talkRecord.exportDownloading' => '正在下载并准备保存…',
+			'talkRecord.exportDownloadReady' => '文件已保存；这是独立副本，撤销权限不会删除该副本。',
+			'talkRecord.exportDownloadFailed' => '下载或保存失败，可重试',
+			'talkRecord.exportExpiredTitle' => '导出已到期',
+			'talkRecord.exportExpiredBody' => '下载链接已过期，请重新生成导出。',
+			'talkRecord.exportRegenerate' => '重新生成',
+			'talkRecord.exportFailedBody' => '生成导出失败，可重试。',
+			'talkRecord.exportConflictHint' => '记录已被他人更新，请刷新后重试。',
+			'talkRecord.exportFixtureHint' => '组件阶段：下载链接为 fixture 示例，不产生真实文件。',
+			'talkRecord.transferTitle' => '移交管理责任',
+			'talkRecord.transferScopeHint' => '移交仅变更管理责任人；记录归属（企业与工作区）保持不变。',
+			'talkRecord.transferCreatedByHint' => '创建者记录保持不变；此动作与分享权限相互独立。',
+			'talkRecord.transferCandidateSectionTitle' => '选择新责任人',
+			'talkRecord.transferCandidateEmpty' => '没有符合条件的候选同事',
+			'talkRecord.transferCandidateHint' => '候选为当前企业内符合工作区权限的同事；最终资格由服务端裁决。',
+			'talkRecord.transferKeepSectionTitle' => '原责任人访问',
+			'talkRecord.transferKeepViewer' => '移交后保留我的查看权限',
+			'talkRecord.transferKeepDefaultHint' => '默认不保留：移交后你将无法继续访问这条记录。',
+			'talkRecord.transferKeepOnHint' => '保留后你仍可查看与回听，但分享与删除由新责任人管理。',
+			'talkRecord.transferSubmit' => '移交管理责任',
+			'talkRecord.transferSubmitting' => '移交中…',
+			'talkRecord.transferConfirmTitle' => '确认移交管理责任？',
+			'talkRecord.transferConfirmTarget' => ({required Object name}) => '将把管理责任移交给：${name}',
+			'talkRecord.transferConfirmKeepOff' => '移交后你将不再保留查看权限，也无法再管理这条记录。',
+			'talkRecord.transferConfirmKeepOn' => '移交后你保留查看权限，但管理权归新责任人。',
+			'talkRecord.transferConfirmAction' => '确认移交',
+			'talkRecord.transferSuccessTitle' => '管理责任已移交',
+			'talkRecord.transferSuccessOwner' => ({required Object name}) => '新责任人：${name}',
+			'talkRecord.transferSuccessKeptAccess' => '你仍保留查看权限；分享管理由新责任人负责。',
+			'talkRecord.transferSuccessScopeUnchanged' => '记录归属保持不变（企业与工作区不变）。',
+			'talkRecord.transferFailedBody' => '移交失败，请稍后重试。',
+			'talkRecord.transferConflictHint' => '记录已被他人更新，请刷新后重试。',
+			'talkRecord.transferPersonalUnsupported' => '个人记录暂不支持移交管理责任。',
+			'talkRecord.transferOnlyOwner' => '只有当前管理责任人可以移交管理责任。',
+			'talkRecord.transferBackToDetail' => '返回详情',
+			'talkRecord.deleteTitle' => '删除记录',
+			'talkRecord.deleteConfirmTitle' => '确认删除这条记录？',
+			'talkRecord.deleteConfirmDialogContent' => '删除后不再展示正文；已导出或保存的副本无法收回。',
+			'talkRecord.deleteConfirmBodyPoint1' => '删除后不再展示记录正文与摘要。',
+			'talkRecord.deleteConfirmBodyPoint2' => '删除会先撤销所有人的访问；已导出或保存的副本无法收回。',
+			'talkRecord.deleteConfirmBodyPoint3' => '附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。',
+			'talkRecord.deleteConfirmAction' => '删除',
+			'talkRecord.deleteDeleting' => '删除中…',
+			'talkRecord.deleteOnlyOwner' => '只有创建者可以删除记录。',
+			'talkRecord.deleteFailedBody' => '删除失败，请稍后重试。',
+			'talkRecord.deleteConflictHint' => '记录已被他人更新，请刷新后重试。',
+			'talkRecord.deleteStatusTitle' => '记录已删除',
+			'talkRecord.deleteStatusNoContentHint' => '记录内容已不再展示。',
+			'talkRecord.deleteCleanupSectionTitle' => '附件清理状态',
+			'talkRecord.cleanupPendingTitle' => '清理进行中',
+			'talkRecord.cleanupPendingBody' => '已提交清理队列；排队成功不代表附件字节已删除。',
+			'talkRecord.cleanupBlockedRetentionTitle' => '留存期未到',
+			'talkRecord.cleanupBlockedRetentionBody' => '记录已删除，附件受留存规则保护；留存期结束后继续清理。',
+			'talkRecord.cleanupBlockedHoldTitle' => '受 Hold 保护',
+			'talkRecord.cleanupBlockedHoldBody' => '记录已删除，附件受合法保留（Hold）保护；Hold 解除后继续清理。',
+			'talkRecord.cleanupRetainedTitle' => '附件仍被其他业务引用',
+			'talkRecord.cleanupRetainedBody' => '部分附件仍被其他合法业务引用，暂不物理删除。',
+			'talkRecord.cleanupFailedTitle' => '清理失败',
+			'talkRecord.cleanupFailedBody' => '附件清理失败，由运维人员检查并重试；可刷新查看最新状态。',
+			'talkRecord.cleanupCompleteTitle' => '清理完成',
+			'talkRecord.cleanupCompleteBody' => '记录与附件均已清理完成。',
+			'talkRecord.cleanupNoneTitle' => '未提交清理',
+			'talkRecord.cleanupNoneBody' => '记录尚未进入清理流程。',
+			'talkRecord.cleanupUnknownTitle' => '清理状态未知',
+			'talkRecord.cleanupUnknownBody' => '暂未能获取清理状态，可刷新重试。',
+			'talkRecord.cleanupRetryAction' => '重试清理',
+			'talkRecord.cleanupRetrying' => '重试中…',
+			'talkRecord.cleanupRetryFailedBody' => '重试清理失败，请稍后再次重试。',
+			'talkRecord.deleteRefreshStatus' => '刷新清理状态',
+			'talkRecord.deleteBackToList' => '返回列表',
+			'talkRecord.deleteStatusFixtureHint' => '组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。',
+			'talkRecord.microphoneStopUnconfirmed' => '录音停止尚未确认，请重试停止；若仍失败，请关闭应用并检查系统麦克风指示。',
+			'talkRecord.cleanupWriteOutcomeUnknown' => '附件写入结果尚未确认，清理暂未完成。系统会保留保护状态，由运维人员核查；可刷新查看进度。',
+			'talkRecord.exportDownloadCancelled' => '已取消保存，可再次保存。',
+			'talkRecord.shareCardSendPending' => '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。',
+			'talkRecord.shareCardSendCancelled' => '已取消发送，未发送新的卡片。',
+			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
+			'talkRecord.participantsRemove' => '移除参与者',
+			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
+			'talkRecord.participantsAddGuest' => '添加来宾',
+			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
+			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',
+			'talkRecord.participantsConflict' => '名单已更新，已刷新为最新内容。请检查后重新编辑。',
+			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
+			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
+			'talkRecord.uploadNoticeTitle' => '上传前确认',
+			'talkRecord.uploadNoticeHint' => '请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。',
+			'talkRecord.uploadRecording' => '上传录音',
+			'talkRecord.retryRecordingUpload' => '重试上传',
+			'talkRecord.notificationRequiredTitle' => '开启录音通知',
+			'talkRecord.notificationRequiredMessage' => '为保持后台录音可见，请允许应用通知，并在系统设置中开启录音通知通道。开启后返回此页重试；本次尚未开始录音。',
+			_ => null,
+		} ?? switch (path) {
+			'talkRecord.openNotificationSettings' => '去通知设置',
+			'talkRecord.processingRecoveryTitle' => '确认录音处理',
+			'talkRecord.processingRecoveryHint' => '处理告知或处理器配置已更新。确认后按下方当前版本上传并执行原先选择的处理方式；不改变录音时的历史告知。',
+			'talkRecord.processingRecoveryUnavailable' => '当前处理器不可用。录音将保留在本机，恢复后可再次上传。',
+			'talkRecord.keepRecordingLocal' => '暂不处理，保留本机',
+			'talkRecord.confirmProcessingUpload' => '同意处理并上传',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
 			'welcome.step2Title' => '安全私密',

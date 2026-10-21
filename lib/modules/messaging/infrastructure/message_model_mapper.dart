@@ -460,6 +460,7 @@ extension MessageModelMapper on MessageModel {
       );
     } else if (effectiveMsgType == MessageType.visitCard ||
         effectiveMsgType == MessageType.channelCard ||
+        effectiveMsgType == MessageType.talkRecordCard ||
         effectiveMsgType == MessageType.webrtcAudio ||
         effectiveMsgType == MessageType.webrtcVideo ||
         effectiveMsgType == MessageType.redPacket ||

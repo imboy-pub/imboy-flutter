@@ -1,5 +1,5 @@
 title: 附件
-centerHint: 检索当前工作区内有权查看的群组和频道附件。
+centerHint: 检索当前工作区内有权查看的群组、频道和面聊附件。
 allGroups: 全部群组
 allChannels: 全部频道
 allPeople: 全部上传人
@@ -12,7 +12,7 @@ personalHint: 按本机聊天记录查找附件，点按文件返回来源消息
 personalBoundary: 本机可见不代表云端备份。清缓存保留消息索引；删除聊天记录后不会自动恢复。加密内容仍需要可用密钥。
 groupSource: 群组附件
 enterpriseHint: 选择当前工作区内的群组查看云端文件。
-enterpriseBoundary: 已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按群组和频道权限控制。
+enterpriseBoundary: 已标记“企业留存”的附件由企业云端保留，不随本机缓存或聊天记录清理而删除；查看权限仍按来源群组、频道或面聊记录的权限控制。
 searchHint: 搜索附件名称
 searchGroupsHint: 搜索群组
 emptyLocal: 暂无本机可查看附件
@@ -36,3 +36,20 @@ selectGroupTitle: 选择群组
 selectChannelTitle: 选择频道
 enterpriseRetained: 企业留存
 enterpriseUnmanaged: 未纳入留存
+sourceAll: 全部来源
+sourceGroups: 群组
+sourceChannels: 频道
+sourceTalkRecords: 面聊记录
+talkRecordSourceHint: 查看面聊记录；播放与导出仍按记录权限控制。
+organizationCenterHint: 检索本企业内有权查看的附件，包含未归入工作区的面聊记录。
+governanceAction: 附件治理
+governancePurgeApproved: 已批准清理
+governancePhysicalPending: 批准清理不代表文件已删除，实际进度以清理状态为准。
+governanceRefreshConflict: 记录版本已变化，请刷新后核对再提交。
+governanceHoldReason: 保全原因（最多 200 字）
+governanceExtendUntil: 延长留存至
+governancePurgeConfirm: 批准此附件清理？批准后不能恢复治理状态；仍须满足所有引用、上传及处理保护条件，才会进入清理。
+governanceHoldAction: 设置保全
+governanceReleaseHoldAction: 解除保全
+governanceExtendAction: 延长留存
+governancePurgeAction: 批准清理

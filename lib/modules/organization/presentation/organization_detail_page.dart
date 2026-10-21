@@ -356,6 +356,13 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
             subtitle: t.organization.experienceUi.collaborationSpace,
             onTap: () => _openResources(org, channels: true),
           ),
+          _HubTile(
+            tileKey: const ValueKey('organization-detail-zone-attachments'),
+            icon: CupertinoIcons.paperclip,
+            title: t.attachmentManager.title,
+            subtitle: t.attachmentManager.organizationCenterHint,
+            onTap: () => context.push('$detailBase/attachments'),
+          ),
           // 只列当前企业已授权的工作区项目，深链既有页面。
           _HubTile(
             tileKey: const ValueKey('organization-detail-zone-org-tools'),

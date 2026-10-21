@@ -32,6 +32,7 @@ import 'package:imboy/store/model/live_room_model.dart';
 
 // 分域路由
 import 'routes/group_routes.dart';
+import 'routes/talk_record_routes.dart';
 import 'routes/mine_routes.dart';
 import 'routes/group_feature_routes.dart';
 import 'routes/workspace_routes.dart';
@@ -509,6 +510,7 @@ GoRouter createAppRouter({
 
       // 群组路由
       ...groupRoutes(),
+      ...talkRecordRoutes(),
 
       // 工作区路由（WP5/T8：切换器/创建流/频道详情/邀请/Branding）
       ...workspaceRoutes(),

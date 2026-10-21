@@ -39,6 +39,7 @@ import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 class _Shell extends WorkspaceShellNotifier {
   @override
@@ -642,10 +643,31 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets('无 OA 工作台附件入口进入企业统一检索中心', (tester) async {
+    // Logged-in UID and mock secure storage describe the same synthetic session.
+    // The workbench's CS probe legitimately rejects a UID with no access token.
+    final jwtHeader = base64Url
+        .encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'))
+        .replaceAll('=', '');
+    final jwtPayload = base64Url
+        .encode(utf8.encode('{"exp":4102444800}'))
+        .replaceAll('=', '');
+    FlutterSecureStorage.setMockInitialValues({
+      'secure_token': '$jwtHeader.$jwtPayload.c3ludGhldGlj',
+    });
     SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
     await StorageService.init();
+    expect(
+      UserRepoLocal.to.currentUid,
+      '1',
+      reason: 'attachment entry actor fixture',
+    );
+    expect(
+      UserRepoLocal.to.isAuthTransitioning,
+      false,
+      reason: 'attachment entry auth fixture',
+    );
     final api = _OaApi();
-    await _pump(
+    final attachmentContainer = await _pump(
       tester,
       api,
       groups: [
@@ -656,6 +678,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('工作台'));
     await tester.pumpAndSettle();
+    expect(attachmentContainer.read(currentWorkspaceProvider)?.id, '100');
+    expect(UserRepoLocal.to.currentUid, '1');
+    expect(UserRepoLocal.to.isAuthTransitioning, false);
     await tester.tap(find.text(t.attachmentManager.title));
     await tester.pumpAndSettle();
     expect(find.byType(WorkspaceAttachmentsPage), findsOneWidget);

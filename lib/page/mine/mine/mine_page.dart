@@ -14,6 +14,7 @@ import 'package:imboy/component/ui/quick_action_grid.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/modules/attachments/personal_attachments_page.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_entry_tiles.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -139,6 +140,7 @@ class _MinePageState extends ConsumerState<MinePage> {
                     AppSpacing.none,
                   ),
                   children: [
+                    const TalkRecordPersonalToolEntry(),
                     // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
                     ImBoySettingsTile(
                       title: Text(t.attachmentManager.personalTitle),

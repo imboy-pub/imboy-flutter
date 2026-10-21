@@ -115,6 +115,8 @@ String messagePreviewText(
     case MessageType.visitCard:
       return '[${t.common.personalCard}]';
 
+    case MessageType.talkRecordCard:
+      return '[${t.talkRecord.entryTitle}]';
     case MessageType.channelCard:
       return '[${t.chat.card}]';
 

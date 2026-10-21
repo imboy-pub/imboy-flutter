@@ -518,7 +518,51 @@ class WorkspaceApi extends HttpClient {
       throw const WorkspaceApiException(502, 'Invalid attachment index');
     }
     final items = payload['items'] as List;
-    if (items.length > 100 || items.any((item) => !_validAttachment(item))) {
+    if (items.length > 100 ||
+        items.any(
+          (item) =>
+              !_validAttachment(item) ||
+              (item is Map &&
+                  item['scope'] == 'talk_record' &&
+                  entityIdOf(item['workspace_id']) != workspaceId),
+        )) {
+      throw const WorkspaceApiException(502, 'Invalid attachment metadata');
+    }
+    final cursor = payload['next_cursor'];
+    if (cursor != null) {
+      final next = int.tryParse(entityIdOf(cursor));
+      final previous = int.tryParse('${filters['cursor']}');
+      if (next == null || next <= 0 || (previous != null && next >= previous)) {
+        throw const WorkspaceApiException(502, 'Invalid attachment cursor');
+      }
+    }
+    return payload;
+  }
+
+  Future<Map<String, dynamic>> organizationAttachments(
+    EntityId organizationId,
+    Map<String, dynamic> filters,
+  ) async {
+    final response = await get(
+      '/api/v1/organizations/$organizationId/attachments',
+      queryParameters: filters,
+    );
+    final payload = _ensureOk(response);
+    if (payload['items'] is! List ||
+        entityIdOf(payload['organization_id']) != organizationId ||
+        payload['workspace_id'] != null) {
+      throw const WorkspaceApiException(
+        502,
+        'Invalid organization attachment index',
+      );
+    }
+    final items = payload['items'] as List;
+    if (items.length > 100 ||
+        items.any(
+          (row) =>
+              !_validAttachment(row) ||
+              entityIdOf((row as Map)['organization_id']) != organizationId,
+        )) {
       throw const WorkspaceApiException(502, 'Invalid attachment metadata');
     }
     final cursor = payload['next_cursor'];
@@ -539,8 +583,13 @@ class WorkspaceApi extends HttpClient {
         id > 0 &&
         row['name'] is String &&
         row['size'] is num &&
-        ['group', 'channel'].contains(row['scope']) &&
+        ['group', 'channel', 'talk_record'].contains(row['scope']) &&
         row['scope_ref'] != null &&
+        (row['scope'] != 'talk_record' ||
+            (row['open_kind'] == 'talk_record' &&
+                (int.tryParse(entityIdOf(row['record_id'])) ?? 0) > 0 &&
+                entityIdOf(row['record_id']) ==
+                    entityIdOf(row['scope_ref']))) &&
         !row.containsKey('path') &&
         !row.containsKey('url');
   }

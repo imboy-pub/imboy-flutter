@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/component/ui/ios_settings_ui.dart';
+
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
@@ -27,7 +29,7 @@ import 'package:imboy/service/storage.dart';
 ///   - InsetGrouped Scaffold 背景（surfaceGrouped）
 ///   - 大标题 'titleMine'（"我的"）
 ///   - Profile Card：用户 nickname / 'ImBoy ID: $uid' / QR 入口图标 / chevron
-///   - 7 个 ImBoySettingsTile：switchToWorkspace / personalAttachments / storageSpace /
+///   - 7 个 ImBoySettingsTile：talkRecord / personalAttachments / storageSpace /
 ///     loginDeviceManagement / appeal / setting / feedback
 ///     （钱包 QuickAction 受 feature flag 控制，默认配置不渲染）
 ///   - Section 内菜单 icon 容器使用 10% alpha 背景 + iconColor 应用
@@ -246,7 +248,7 @@ void main() {
         findsNWidgets(2),
         reason: '个人资料与当前空间各自保留进入箭头',
       );
-      // 7 个 ImBoySettingsTile（switchToWorkspace/personalAttachments/storageSpace/
+      // 7 个 ImBoySettingsTile（talkRecord/personalAttachments/storageSpace/
       // loginDeviceManagement/appeal/setting/feedback）默认 trailing 为
       // CupertinoListTileChevron，内部渲染 CupertinoIcons.right_chevron。
       // favorites 已移入 QuickActionGrid，不是 Tile。
@@ -254,8 +256,20 @@ void main() {
       // SizedBox.shrink（不占位、无 chevron），不影响计数。
       expect(
         find.byIcon(CupertinoIcons.right_chevron),
-        findsNWidgets(6),
+        findsNWidgets(7),
         reason: '7 个设置项每项右侧应有 CupertinoListTileChevron',
+      );
+      final recordingTile = find.ancestor(
+        of: find.text(t.talkRecord.entryTitle),
+        matching: find.byType(ImBoySettingsTile),
+      );
+      expect(recordingTile, findsOneWidget);
+      expect(
+        find.descendant(
+          of: recordingTile,
+          matching: find.byIcon(CupertinoIcons.right_chevron),
+        ),
+        findsOneWidget,
       );
     });
   });

@@ -28,6 +28,9 @@
     <!-- Android 11+ Foreground service types -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
+    <!-- 面聊录音使用自有、非导出的 microphone 前台服务。 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <!-- 定位相关权限 -->
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION"/>
@@ -131,6 +134,10 @@
         </activity>
         <!-- Plugin 注册 -->
         <meta-data android:name="flutterEmbedding" android:value="2"/>
+
+        <service android:name=".TalkRecordForegroundService"
+            android:exported="false" android:foregroundServiceType="microphone"
+            android:stopWithTask="true" />
 
         <!-- 高德定位服务 -->
         <service android:name="com.amap.api.location.APSService"/>

@@ -8,6 +8,7 @@ import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/server_ack_receipts.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -1425,8 +1426,23 @@ class MessageService with EventSubscriptionManager {
     );
     iPrint('✅ [SERVER_ACK] 请求从重试队列移除: msgId=$msgId');
 
+    bool current() =>
+        UserRepoLocal.to.currentUid == ownerUid &&
+        UserRepoLocal.to.isCurrentSession(generation) &&
+        !UserRepoLocal.to.isAuthTransitioning;
+    if (!current()) return;
     final repo = getMessageRepo(type);
     final msg = await updateStatus(repo, msgId, IMBoyMessageStatus.sent);
+    if (!current()) return;
+    ServerAckReceipts.record(
+      message: msg,
+      ackId: msgId,
+      ackType: type,
+      ownerUid: ownerUid,
+      generation: generation,
+      isCurrent: current,
+      emit: AppEventBus.fire,
+    );
 
     if (msg != null) {
       // 【改进】确认消息状态已更新

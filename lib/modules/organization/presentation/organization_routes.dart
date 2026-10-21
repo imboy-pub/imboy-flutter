@@ -26,6 +26,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
+import 'package:imboy/modules/attachments/organization_attachments_page.dart';
 
 import 'human_directory_page.dart';
 import 'organization_departments_page.dart';
@@ -92,6 +93,16 @@ List<RouteBase> organizationRoutes() => [
           ),
         ),
         routes: [
+          GoRoute(
+            path: 'attachments',
+            name: 'organization_attachments',
+            pageBuilder: (context, state) => CupertinoPage(
+              key: state.pageKey,
+              child: OrganizationAttachmentsPage(
+                orgId: state.pathParameters['orgId'] ?? '',
+              ),
+            ),
+          ),
           GoRoute(
             path: 'members',
             name: 'organization_members',

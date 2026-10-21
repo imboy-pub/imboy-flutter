@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
+import 'package:go_router/go_router.dart';
+
+import '../domain/organization_models.dart';
+import 'account_deletion_check_provider.dart';
 
 import 'org_async_state.dart';
 
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
-import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-
-final _deletionCheck = FutureProvider.autoDispose((ref) {
-  ref.watch(currentUserProvider.select((user) => user?.uid));
-  return ref.watch(organizationApiProvider).deletionPreflight();
-}, retry: (_, _) => null);
 
 /// Read-only account check. This screen never submits an account deletion.
 class AccountDeletionCheckPage extends ConsumerWidget {
@@ -24,7 +21,7 @@ class AccountDeletionCheckPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => IosPageTemplate(
     title: context.t.organization.experienceUi.accountCheck,
     body: ref
-        .watch(_deletionCheck)
+        .watch(accountDeletionCheckProvider)
         .when(
           loading: () => const WorkspaceLoadingView(),
           error: (e, _) => OrgAsyncAdapter(
@@ -32,7 +29,8 @@ class AccountDeletionCheckPage extends ConsumerWidget {
             empty: false,
             error: e,
             child: const SizedBox.shrink(),
-            onRetry: () => ref.invalidate(_deletionCheck),
+            onRetry: () =>
+                ref.read(accountDeletionCheckProvider.notifier).refresh(),
           ),
           data: (report) => ListView(
             padding: const EdgeInsets.all(AppSpacing.regular),
@@ -44,19 +42,73 @@ class AccountDeletionCheckPage extends ConsumerWidget {
               else ...[
                 Text(context.t.organization.detail.blockers),
                 for (final blocker in report.blockers)
-                  ExpansionTile(
-                    title: Text(blocker.resourceType),
-                    leading: const Icon(CupertinoIcons.nosign),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(AppSpacing.regular),
-                        child: SelectableText(blocker.code),
-                      ),
-                    ],
-                  ),
+                  _BlockerTile(blocker: blocker, report: report),
               ],
             ],
           ),
         ),
   );
+}
+
+class _BlockerTile extends ConsumerWidget {
+  final PreflightBlocker blocker;
+  final DeletionPreflightReport report;
+  const _BlockerTile({required this.blocker, required this.report});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Future<void> open(String route) async {
+      await context.push(route);
+      if (context.mounted) {
+        await ref.read(accountDeletionCheckProvider.notifier).refresh();
+      }
+    }
+
+    final t = context.t.organization.experienceUi;
+    final (title, body) = switch (blocker.code) {
+      'TALK_RECORD_PERSONAL_PENDING' => (
+        t.talkRecordPersonalPendingTitle,
+        t.talkRecordPersonalPendingBody,
+      ),
+      'TALK_RECORD_CLEANUP_PENDING' => (
+        t.talkRecordCleanupPendingTitle,
+        t.talkRecordCleanupPendingBody,
+      ),
+      'TALK_RECORD_ORGANIZATION_OWNER_PENDING' => (
+        t.talkRecordOrganizationOwnerPendingTitle,
+        t.talkRecordOrganizationOwnerPendingBody,
+      ),
+      'TALK_RECORD_RETAINED_IDENTITY_PENDING' => (
+        t.talkRecordRetainedIdentityPendingTitle,
+        t.talkRecordRetainedIdentityPendingBody,
+      ),
+      _ => (t.unknownBlockerTitle, blocker.code),
+    };
+    return ExpansionTile(
+      title: Text(title),
+      leading: const Icon(CupertinoIcons.nosign),
+      childrenPadding: const EdgeInsets.all(AppSpacing.regular),
+      children: [
+        Align(alignment: Alignment.centerLeft, child: Text(body)),
+        if (blocker.code == 'TALK_RECORD_PERSONAL_PENDING')
+          ListTile(
+            title: Text(t.openPersonalTalkRecords),
+            trailing: const Icon(CupertinoIcons.chevron_right),
+            onTap: () => open('/talk_record?scope=personal'),
+          ),
+        if (blocker.code == 'TALK_RECORD_CLEANUP_PENDING') ...[
+          for (final resource in report.cleanupResources)
+            ListTile(
+              title: Text('${t.cleanupRecordLabel} ${resource.recordId}'),
+              subtitle: Text(t.viewTalkRecordCleanup),
+              trailing: const Icon(CupertinoIcons.chevron_right),
+              onTap: () =>
+                  open('/talk_record/detail/${resource.recordId}/cleanup'),
+            ),
+          if (report.cleanupResourcesTruncated)
+            Text(t.cleanupResourcesTruncated),
+        ],
+      ],
+    );
+  }
 }

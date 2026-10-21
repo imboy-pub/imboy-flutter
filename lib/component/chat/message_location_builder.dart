@@ -83,7 +83,8 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
     if (lat == null || lng == null) return;
     final title = msg.metadata?['title']?.toString() ?? '';
 
-    // map_launcher 6.0 采用 per-request 模型：先构建 marker 请求，再查询当前
+    // map_launcher 7 要求显式列出地图，保持原有地图选择范围。
+    // 先构建 marker 请求，再查询当前
     // 设备可用的地图（含已安装原生 app 与支持 universal link 的地图）。
     final request = MapLauncher.marker(LocationCoords(lat, lng, title: title));
 
@@ -92,7 +93,38 @@ class LocationMessageBuilderState extends State<LocationMessageBuilder> {
       builder: (context) => Container(
         color: Theme.of(context).colorScheme.surface,
         child: FutureBuilder<List<SupportedMap>>(
-          future: request.getSupportedMaps(MapApp.all),
+          future: request.getSupportedMaps(const [
+            MapApp.apple,
+            MapApp.google,
+            MapApp.waze,
+            MapApp.yandexMaps,
+            MapApp.doubleGis,
+            MapApp.here,
+            MapApp.mapyCz,
+            MapApp.mappls,
+            MapApp.googleGo,
+            MapApp.amap,
+            MapApp.baidu,
+            MapApp.yandexNavi,
+            MapApp.citymapper,
+            MapApp.mapswithme,
+            MapApp.osmand,
+            MapApp.osmandplus,
+            MapApp.tencent,
+            MapApp.petal,
+            MapApp.tomtomgo,
+            MapApp.tomtomgofleet,
+            MapApp.copilot,
+            MapApp.sygicTruck,
+            MapApp.flitsmeister,
+            MapApp.naver,
+            MapApp.kakao,
+            MapApp.tmap,
+            MapApp.moovit,
+            MapApp.neshan,
+            MapApp.airnavPro,
+            MapApp.magicEarth,
+          ]),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(child: CupertinoActivityIndicator());

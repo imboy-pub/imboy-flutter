@@ -31,9 +31,15 @@ class AssetRetentionPanel extends StatelessWidget {
     this.onHold,
     this.onReleaseHold,
     this.onExtend,
+    this.purgedLabel,
+    this.alreadyPurgedReasonLabel,
   });
 
   final AssetRetentionRecord record;
+
+  /// Optional domain-specific wording; original OA defaults remain unchanged.
+  final String? purgedLabel;
+  final String? alreadyPurgedReasonLabel;
 
   /// 到期判定基准时间（测试注入固定时间；生产缺省用当前时间）。
   final DateTime? now;
@@ -84,7 +90,7 @@ class AssetRetentionPanel extends StatelessWidget {
             context,
             t.enterpriseApp.retentionExtendOnly,
             record.isPurged
-                ? t.enterpriseApp.purgePurged
+                ? (purgedLabel ?? t.enterpriseApp.purgePurged)
                 : t.enterpriseApp.purgeLive,
           ),
           // 不可删除：设计上不存在该操作（不是权限不足）。
@@ -114,7 +120,12 @@ class AssetRetentionPanel extends StatelessWidget {
           if (blocked != PurgeBlockedReason.none)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.small),
-              child: _chip(context, purgeBlockedLabel(blocked)),
+              child: _chip(
+                context,
+                blocked == PurgeBlockedReason.alreadyPurged
+                    ? (alreadyPurgedReasonLabel ?? purgeBlockedLabel(blocked))
+                    : purgeBlockedLabel(blocked),
+              ),
             ),
           AppSpacing.verticalSmall,
           _actions(context, blocked),

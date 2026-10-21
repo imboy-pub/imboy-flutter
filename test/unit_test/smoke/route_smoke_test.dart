@@ -113,6 +113,53 @@ void main() {
     });
   }
 
+  group('controlled alias terminal contract', () {
+    testWidgets('explicit target renders the real detail page', (tester) async {
+      final route = smokeRoutes.singleWhere(
+        (route) => route.name == 'talk_record_card_locator',
+      );
+      expect(await renderRoute(tester, route), isNull);
+    });
+    testWidgets('missing declaration keeps strict entry-path expectation', (
+      tester,
+    ) async {
+      final error = await renderRoute(
+        tester,
+        const SmokeRoute(
+          name: 'talk_record_card_locator',
+          location: '/talk-records/9001',
+        ),
+      );
+      expect(error, isA<StateError>());
+    });
+    testWidgets('wrong terminal name cannot certify redirect', (tester) async {
+      final error = await renderRoute(
+        tester,
+        const SmokeRoute(
+          name: 'talk_record_card_locator',
+          location: '/talk-records/9001',
+          expectedLocation: '/talk_record/detail/9001',
+          expectedRouteName: 'settings',
+        ),
+      );
+      expect(error, isA<StateError>());
+    });
+    testWidgets('matching substitute route still requires the detail widget', (
+      tester,
+    ) async {
+      final error = await renderRoute(
+        tester,
+        const SmokeRoute(
+          name: 'talk_record_card_locator',
+          location: '/settings',
+          expectedLocation: '/settings',
+          expectedRouteName: 'settings',
+        ),
+      );
+      expect(error, isA<StateError>());
+    });
+  });
+
   group('注册表完整性 / Registry integrity', () {
     testWidgets('注册表覆盖 router 全部路由 / registry covers all routes', (
       tester,

@@ -411,4 +411,76 @@ class API {
       '/api/v1/moment/$momentId/comment/$commentId/delete';
   static String momentReport(String id) => '/api/v1/moment/$id/report';
   static String momentsUser(String uid) => '/api/v1/moments/user/$uid';
+
+  // 面聊记录 talk_record（docs/design/2026-10-20-face-to-face-notes/
+  // BACKEND-API.md v3；全部 JWT 保护；游标分页；端点均未实现，fixture
+  // 契约开发）。仅 /api/v1/talk-records 前缀。
+  static const talkRecords = '/api/v1/talk-records';
+  static const talkRecordCapabilities = '/api/v1/talk-records/capabilities';
+  static const talkRecordCreationContexts =
+      '/api/v1/talk-records/creation-contexts';
+  static String talkRecordParticipants(String id) =>
+      '${talkRecordDetail(id)}/participants';
+
+  static String talkRecordDetail(String id) => '/api/v1/talk-records/$id';
+  static String talkRecordCaptures(String id) =>
+      '/api/v1/talk-records/$id/captures';
+  static String talkRecordCaptureDetail(String id, String captureId) =>
+      '/api/v1/talk-records/$id/captures/$captureId';
+  static String talkRecordCaptureRecover(String id, String captureId) =>
+      '/api/v1/talk-records/$id/captures/$captureId/recover';
+  static String talkRecordCaptureAbandon(String id, String captureId) =>
+      '/api/v1/talk-records/$id/captures/$captureId/abandon';
+  static String talkRecordCaptureEvents(String id, String captureId) =>
+      '/api/v1/talk-records/$id/captures/$captureId/events';
+  static String talkRecordCaptureAudioParts(String id, String captureId) =>
+      '/api/v1/talk-records/$id/captures/$captureId/audio-parts';
+  static String talkRecordCaptureAudioPartConfirm(
+    String id,
+    String captureId,
+    String partId,
+  ) =>
+      '/api/v1/talk-records/$id/captures/$captureId/audio-parts/$partId/confirm';
+  static String talkRecordComplete(String id) =>
+      '/api/v1/talk-records/$id/complete';
+  static String talkRecordJobs(String id) => '/api/v1/talk-records/$id/jobs';
+  static String talkRecordJobRetry(String id, String jobId) =>
+      '/api/v1/talk-records/$id/jobs/$jobId/retry';
+  static String talkRecordProcessingRequests(String id) =>
+      '/api/v1/talk-records/$id/processing-requests';
+  static String talkRecordSegments(String id) =>
+      '/api/v1/talk-records/$id/segments';
+  static String talkRecordSegmentDetail(String id, String segmentId) =>
+      '/api/v1/talk-records/$id/segments/$segmentId';
+  static String talkRecordSpeakers(String id) =>
+      '/api/v1/talk-records/$id/speakers';
+  static String talkRecordSpeakerDetail(String id, String speakerId) =>
+      '/api/v1/talk-records/$id/speakers/$speakerId';
+  static String talkRecordSpeakerClaim(String id, String speakerId) =>
+      '/api/v1/talk-records/$id/speakers/$speakerId/claim';
+  static String talkRecordMarks(String id) => '/api/v1/talk-records/$id/marks';
+  static String talkRecordMarkDetail(String id, String markId) =>
+      '/api/v1/talk-records/$id/marks/$markId';
+  static String talkRecordSummary(String id) =>
+      '/api/v1/talk-records/$id/summary';
+  static String talkRecordGrants(String id) =>
+      '/api/v1/talk-records/$id/grants';
+  static String talkRecordGrantDetail(String id, String grantId) =>
+      '/api/v1/talk-records/$id/grants/$grantId';
+  static String talkRecordShareCard(String id) =>
+      '/api/v1/talk-records/$id/share-card';
+  static String talkRecordTransferCandidates(String id) =>
+      '/api/v1/talk-records/$id/transfer-candidates';
+  static String talkRecordShareCandidates(String id) =>
+      '/api/v1/talk-records/$id/share-candidates';
+  static String talkRecordPlayback(String id) =>
+      '/api/v1/talk-records/$id/playback';
+  static String talkRecordExports(String id) =>
+      '/api/v1/talk-records/$id/exports';
+  static String talkRecordExportState(String id, String exportId) =>
+      '/api/v1/talk-records/$id/exports/$exportId';
+  static String talkRecordOwnershipTransfers(String id) =>
+      '/api/v1/talk-records/$id/ownership-transfers';
+  static String talkRecordExportDownload(String id, String exportId) =>
+      '/api/v1/talk-records/$id/exports/$exportId/download';
 }

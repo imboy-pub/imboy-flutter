@@ -10,6 +10,13 @@
 //   - 每条路由独立 ProviderContainer，避免页面间 provider 脏状态串扰
 //   - 登录态仅通过 StorageService 写 currentUid，不 hack UserRepoLocal
 
+import 'package:imboy/modules/talk_record/application/talk_record_local_binding.dart';
+import 'package:imboy/modules/talk_record/application/talk_record_recording_coordinator.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_providers.dart';
+import 'package:imboy/modules/talk_record/presentation/detail/talk_record_detail_page.dart';
+import 'package:imboy/modules/attachments/organization_attachments_page.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_pending_uploads.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -233,7 +240,16 @@ Future<Object?> renderRoute(WidgetTester tester, SmokeRoute route) async {
     }
   }
   final container = ProviderContainer(
-    overrides: [billingProvider.overrideWith(_SmokeBillingNotifier.new)],
+    overrides: [
+      billingProvider.overrideWith(_SmokeBillingNotifier.new),
+      talkRecordRecordingRuntimeProvider.overrideWith(
+        (ref) => Completer<TalkRecordRecordingCoordinator>().future,
+      ),
+      // Route smoke never inspects real local audio or invokes capture runtime.
+      talkRecordPendingAccountProvider.overrideWithValue(
+        const TalkRecordAccount('http://127.0.0.1', ''),
+      ),
+    ],
   );
 
   // 每个用例独立 navigatorKey + 直接落在目标路由（无 splash）
@@ -318,13 +334,17 @@ Object? _targetRenderError(
     'moment_create' => <Type>[MomentCreatePage],
     'moment_detail' => <Type>[MomentDetailPage],
     'people_nearby' => <Type>[PeopleNearbyPage],
+    'talk_record_card_locator' => <Type>[TalkRecordDetailPage],
+    'organization_attachments' => <Type>[OrganizationAttachmentsPage],
     _ => <Type>[],
   };
   final actualPath = router.routeInformationProvider.value.uri.path;
   final expectedPath = route.name == 'qrcode'
       ? '/qrcode/user'
-      : Uri.parse(route.location).path;
-  final expectedName = route.name == 'qrcode' ? 'qrcode_user' : route.name;
+      : Uri.parse(route.expectedLocation ?? route.location).path;
+  final expectedName = route.name == 'qrcode'
+      ? 'qrcode_user'
+      : route.expectedRouteName ?? route.name;
   final targetCount = targets.fold<int>(
     0,
     (count, type) => count + find.byType(type).evaluate().length,

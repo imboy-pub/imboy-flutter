@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'http_request_policy.dart';
+
 import 'package:dio/dio.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/app_logger.dart';
@@ -75,7 +77,7 @@ class HttpRetryInterceptor extends Interceptor {
             'HTTP request failed, retrying... '
             '(${retryCount + 1}/$maxRetries) '
             'after ${delay.inMilliseconds}ms '
-            'url: ${err.requestOptions.uri}',
+            'url: ${safeHttpUri(err.requestOptions.uri)}',
           );
 
           // 触发重试回调
@@ -97,13 +99,13 @@ class HttpRetryInterceptor extends Interceptor {
           return handler.resolve(response);
         } catch (e) {
           // 重试失败，继续传递错误
-          AppLogger.error('HTTP retry failed: $e');
+          AppLogger.error('HTTP retry failed (${e.runtimeType})');
           return handler.next(err);
         }
       } else {
         AppLogger.error(
           'HTTP request failed after $maxRetries retries: '
-          'url: ${err.requestOptions.uri}',
+          'url: ${safeHttpUri(err.requestOptions.uri)}',
         );
       }
     }
@@ -114,6 +116,7 @@ class HttpRetryInterceptor extends Interceptor {
   /// 判断是否应该重试
   /// Determine if the request should be retried
   bool _shouldRetry(DioException err) {
+    if (err.requestOptions.extra[httpNoAutoRetry] == true) return false;
     // 优先使用自定义判断函数
     if (retryEvaluator != null) {
       return retryEvaluator!(err);

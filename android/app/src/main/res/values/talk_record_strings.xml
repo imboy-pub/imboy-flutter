@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="talk_record_channel">Face-to-face recording</string>
+    <string name="talk_record_paused">Recording paused</string>
+    <string name="talk_record_recording">Recording conversation</string>
+    <string name="talk_record_return">Tap to return to IMBoy</string>
+    <string name="talk_record_invalid_owner">Invalid recording owner</string>
+    <string name="talk_record_unavailable">Recording foreground service unavailable</string>
+    <string name="talk_record_rejected">System rejected recording foreground service</string>
+    <string name="talk_record_owner_mismatch">This recording does not own the service</string>
+    <string name="talk_record_cancelled">Recording foreground start cancelled</string>
+    <string name="talk_record_busy">Another recording is active</string>
+    <string name="talk_record_visible">Return to the app to start recording</string>
+    <string name="talk_record_microphone">Allow microphone access before recording</string>
+    <string name="talk_record_notifications">Allow recording notifications and try again</string>
+    <string name="talk_record_lost">Recording foreground service stopped</string>
+    <string name="talk_record_timeout">Recording foreground service start timed out</string>
+</resources>

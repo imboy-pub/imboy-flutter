@@ -1,6 +1,8 @@
 // 成功回调
 import 'dart:io';
 
+import 'http_request_policy.dart';
+
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -28,9 +30,7 @@ IMBoyHttpResponse handleResponse(
   if (_isRequestSuccess(response.statusCode)) {
     return httpTransformer.parse(response, uri);
   } else {
-    iPrint(
-      "handleResponse_response $uri : ${response.toString() == ''} ${response.toString()}; ",
-    );
+    iPrint('HTTP failure ${response.statusCode} ${safeHttpUri(uri)}');
     if (response.toString() == '' || response.data == null) {
       // 当响应体为空时，使用状态码生成错误信息
       return IMBoyHttpResponse.failure(

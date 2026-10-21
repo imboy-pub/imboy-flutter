@@ -11,6 +11,7 @@ import 'package:imboy/modules/enterprise_oa/public.dart';
 import 'package:imboy/modules/organization/public.dart';
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_entry_tiles.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -363,6 +364,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           organizationId: widget.organizationId,
           resourceEntries: [
             const CsWorkspaceEntryTile(showDivider: true),
+            TalkRecordOrgToolEntry(organizationId: widget.organizationId),
             if (ref.watch(currentWorkspaceProvider) != null) ...[
               if (AppFeatureRegistry.isEnabled(FeatureKeys.project))
                 _resourceEntry(

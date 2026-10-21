@@ -1,0 +1,365 @@
+# Face-to-face notes talk_record (T10: entries/list/prepare/save location/recording bar placeholder)
+entryTitle: Face-to-face Notes
+entrySubtitlePersonal: Recordings and transcripts of in-person conversations
+entrySubtitleOrg: Team notes for meetings and interviews
+listTitle: Face-to-face Notes
+contextSectionTitle: Current space
+contextPersonal: Personal space
+contextOrgFallback: Current organization
+filterAll: All
+filterOwned: Created by me
+filterShared: Shared with me
+searchHint: Search notes
+untitledRecord: Untitled note
+visibilityOwnerOnly: Only me
+visibilityShared: Shared
+localDraftBadge: Local draft
+statusRecording: Recording
+statusUploading: Uploading
+statusVerifying: Verifying upload
+statusAssembling: Assembling audio
+statusUploadFailed: Upload failed, retry available
+statusTranscribeQueued: Transcription queued
+statusTranscribeRunning: Transcribing
+statusTranscribeReady: Transcribed
+statusTranscribeFailed: Transcription failed, audio still playable
+statusNoSpeech: No transcribable speech detected
+statusRecordOnly: Audio only
+emptyNeverCreatedTitle: No face-to-face notes yet
+emptyNeverCreatedSubtitle: Save recordings and transcripts here after in-person conversations
+emptyNoMatchTitle: No matching notes
+emptyNoMatchSubtitle: No results under the current filter or search. Try adjusting them.
+createRecord: New Note
+loadFailedTitle: Failed to load notes
+loadFailedAction: Retry
+prepareTitle: New Face-to-face Note
+fieldTitleLabel: Title
+fieldTitlePlaceholder: Optional, helps you find it later
+saveToSectionTitle: Save to
+saveToChangeAction: Change
+processingSectionTitle: Processing
+processingRecordOnly: Audio only
+processingTranscribe: Transcribe
+processingSummarize: Transcribe and summarize
+processingRecordOnlyHint: Saves the recording only; you can upgrade to transcription later on the detail page.
+processingReasonUnavailable: Transcription is not configured on this instance, only the recording will be saved.
+processingReasonQuota: Transcription quota is unavailable, only the recording will be saved; recording is not affected.
+processingReasonLoadFailed: Processing capabilities could not be loaded, falling back to audio only.
+maxDurationHint(minutes): "Up to $minutes minutes per note"
+collabSectionTitle: Collaboration
+collabSectionSubtitle: Optional, applies to organization notes only
+collabParticipantsLabel: Participants
+collabParticipantsEmpty: No participants selected
+collabParticipantsCount(count): "$count selected"
+collabParticipantsUnavailable: Participant directory pending; share the note after creation instead.
+noticeCheckbox: I have informed on-site participants about this recording and how it will be processed
+noticeHint: Confirm that participants were informed before recording
+startRecording: Start Recording
+micDeniedTitle: Microphone access needed
+micDeniedMessage: Face-to-face notes need the microphone to record the conversation. Permission was denied; retry or enable it in system settings.
+micRetry: Retry
+micOpenSettings: Open Settings
+recordingUnavailableTitle: Unable to start recording
+recordingUnavailableMessage: Check for an unfinished recording, microphone permission, and available storage. Your draft and existing audio segments are preserved.
+saveLocationTitle: Save Location
+saveLocationPersonalSection: Personal
+saveLocationOrgSection: Organizations
+saveLocationWorkspaceOptional: No workspace
+retentionPolicyLabel: Retention
+changeConfirmTitle: Change save location
+changeConfirmTarget(name): "Will save to: $name"
+changeConfirmKeepTitle: The title and notes you entered will be kept
+changeConfirmClearParticipants: Participant selections that do not apply to the new location will be cleared
+changeConfirmRecheck: Processing will be rechecked against the new location's capabilities
+changeConfirmAction: Change
+barRecording: Recording · saving segments on device
+barPaused: Paused, not counted as recording time
+barInterrupted: Recording interrupted · resume manually
+barOriginPrefix: From
+barExpandHint: View recording status
+barControlsUnavailable: Recording controls come from the recording engine; this build shows a placeholder
+barOriginPersonal: Personal space
+barOriginOrgFallback: Organization space
+# ---- T16 detail/transcript/player/proofing ----
+roleOwner: Owner
+roleEditor: Editor
+roleViewer: Viewer
+roleEditorHint: You can proofread the transcript and speakers and edit shared notes; sharing and deletion are managed by the owner.
+tabSummary: Summary
+tabTranscript: Transcript
+speakersEntry: Speaker review
+playbackUnavailable: Playback not permitted for you
+playbackTicketFailed: Playback session unavailable, retry available
+playbackPlayLabel: Play
+playbackPauseLabel: Pause
+playbackProgressLabel(position, duration): "Playback progress $position / $duration"
+returnToPlayback: Back to playing position
+transcriptSearchHint: Search transcript keywords
+transcriptHitCount(count): "$count matches; tap a time point to listen from there"
+transcriptNoHit: No matching segments
+transcriptEmpty: No transcript segments yet
+speakerUnknown: Unknown speaker
+speakerAnonymousPill: Anonymous
+speakerManualPill: Manually tagged
+speakerSelfClaimPill: Self-claimed
+markPillPrefix: Highlight
+markDefaultText: Manual highlight
+segmentHumanEditedPill: Human edited
+segmentRowSemanticLabel(speaker, time): "Speech by $speaker at $time"
+segmentListenLabel(time): "Listen from $time"
+detailRecordOnlyTitle: Audio-only recording
+detailRecordOnlyBody: Transcription was not requested; no transcript or summary yet. The recording is playable and can be upgraded later.
+detailNoSpeechTitle: No transcribable speech detected
+detailNoSpeechBody: The recording is kept. No transcribable speech was found in this recording.
+detailTranscribeFailedTitle: Transcription failed
+detailTranscribeFailedBodyEditor: Transcription failed; the recording is still playable. You can retry transcription.
+detailTranscribeFailedBodyViewer: Transcription failed; the recording is still playable. Please contact the owner to retry.
+detailTranscribingTitle: Transcribing
+detailTranscribingBody: The transcript will appear here once ready; no estimated completion time while processing.
+detailTranscribeRetry: Retry transcription
+summarySectionTitle: Summary
+summaryDraftBadge: AI draft · verify before use
+summaryStaleBanner: The transcript or speaker names were updated; this summary may be outdated
+summaryDecisionsTitle: Key decisions
+summaryActionsTitle: Action drafts
+summaryAssigneeUnset: Assignee unset
+summaryJumpToSource: View source segment
+summaryQueued: Summary queued; it will appear once generated.
+summaryRunning: Summarizing; it will appear once generated.
+summaryNotGenerated: Transcript ready, but no summary requested yet.
+summaryNoSource: No transcript yet, so no summary can be generated.
+summaryUnavailable: The summary service is not configured on this instance.
+summaryFailed: Summary generation failed; retry later.
+notesTitle: Shared notes
+notesSharedHint: Shared with the note; visible to everyone who can view this record.
+notesReadonlyHint: Shared with the note; read-only for you.
+notesEditAction: Edit
+notesPlaceholder: Add conclusions, context, and more
+notesEmpty: No shared notes yet
+notesCancel: Cancel
+notesSave: Save notes
+notesSavedHint: Notes saved
+notesConflictHint: Notes were updated by someone else. Refresh and retry; your input is kept.
+notesFailedHint: Save failed, retry later; your input is kept.
+moreActionsTitle: More actions
+moreActionsCancel: Cancel
+actionShare: Sharing
+actionExport: Export text
+actionDelete: Delete note
+actionPendingIntegration: This action arrives in a later release (sharing/export/delete open after the related modules are integrated); this build only provides the entry.
+segmentEditTitle: Segment proofreading
+segmentTimeLabel(time): "Time point $time"
+segmentOriginalLabel: Original
+segmentEditLabel: Proofread text
+segmentEditPlaceholder: Correct the transcribed text
+segmentSave: Save
+segmentResubmit: Resubmit
+segmentSaveFailed: Save failed, retry later; your input is kept.
+segmentConflictTitle: "Version conflict: the segment was changed by someone else"
+segmentConflictBody: Your input is kept. Compare it with the server's latest version and resubmit; saving keeps your input.
+segmentAdoptServer: Use server version
+speakersTitle: Speaker review
+speakersScopeHint: Speaker settings apply to this note only; manual tagging and self-claiming are not identity verification and do not create a voice profile.
+speakerSetName: Set display name
+speakerSetNameTitle: Set display name
+speakerSetNameConfirm: Save
+speakerClaimSelf: Claim as me
+speakerClaimConflict: This speaker is already claimed by someone else; ask the owner to correct it manually.
+speakerAudition: Play sample
+speakerMarkColleague: Tag colleague
+speakerDirectoryUnavailable: The participant directory is pending, so colleagues cannot be selected yet; set a display name instead.
+speakerSourceHint: This name is a manual tag or self-claim, not identity verification.
+# ---- T18 sharing / grant editing / generic invalid ----
+shareManageTitle: Sharing
+shareVisibilitySectionTitle: Current visibility
+shareVisibilityOwnerOnly: Only me
+shareVisibilityShared(count): "Shared with $count people"
+shareRosterSectionTitle: Who can view
+shareOwnerRowLabel: Me · Owner
+shareOwnerRowHint: The owner can always view and manage sharing
+shareGrantRoleViewer: View and play
+shareGrantRoleEditor: Proofread and edit
+shareAllowExportPill: Can export
+shareExpiresPill(date): "Valid until $date"
+shareGrantEditAction: Edit
+shareGrantRevokeAction: Revoke
+shareAddEntryOrg: Add colleague
+shareAddEntryPersonal: Add contact
+shareAddHintOrg: Grant to colleagues in this organization who meet the workspace policy
+shareAddHintPersonal: Grant to existing contacts
+shareEmptyTitle: Nobody has access yet
+shareEmptyBody: This note is visible only to you by default; grant access explicitly so others can view and play it.
+shareMyPermissionTitle: My access
+shareMyPermissionNone: You have no grant for this note; sharing is managed by the owner.
+shareMyPermissionReadonly: You can view and play this note; sharing is managed by the owner.
+shareVisibilityOfRecord(visibility): "Current visibility: $visibility"
+shareEditorCannotManageAcl: Editors cannot manage sharing or delete the note; contact the owner for changes.
+shareSaveFeedback: Permissions saved
+shareConflictHint: Permissions were updated by someone else. Refresh and retry.
+shareSendCard: Send card
+shareCardSending: Working…
+shareSendCardHint: Generate a note card and send it to a colleague; they still need access to view it.
+shareSendNeedsGrant: Add a grant before sending a share card.
+shareCardSent: Card sent (sample)
+shareCardSendFailed: Send failed, retry available
+shareCardSenderUnavailable: Conversation selector unavailable. Go back and try again.
+shareRevokeConfirmTitle(name): "Revoke access for $name?"
+shareRevokeConfirmBody: They will no longer be able to access this note. Copies already exported or saved cannot be taken back.
+shareRevokeConfirmAction: Revoke
+shareRevokeFailedTitle: Could not revoke
+shareRevokeFailedBody: Revoke failed, retry later.
+grantEditTitle: Edit access
+grantEditTitleNew: Grant access
+grantEditCandidateSection: Choose who to grant
+grantEditCandidateSearchHint: Search name or account
+grantEditCandidatesUnavailable: The candidate directory is unavailable, retry later.
+grantEditCandidateEmpty: No candidates to grant
+grantEditGranteeLabel: Grantee
+grantEditRoleSectionTitle: Role
+grantEditRoleViewerHint: Can view the note and play the audio; cannot edit content.
+grantEditRoleEditorHint: Can proofread transcript and speakers and edit shared notes; cannot manage sharing or delete.
+grantEditExportSectionTitle: Allow export
+grantEditExportBlockedOrg: Export is disabled by organization policy and cannot be enabled in grants.
+grantEditExportBlockedUnknown: Current export policy could not be confirmed, so export cannot be enabled.
+grantEditExpiresSectionTitle: Expires
+grantEditExpiresOn(date): "Expires on $date"
+grantEditExpiresHint: Optional; access ends automatically at expiry.
+grantEditSave: Save permissions
+grantEditSaving: Working…
+grantEditConflict: Permissions were updated by someone else. Go back to refresh the list and retry; your choices are kept.
+grantEditSaveFailed: Save failed, retry later; your choices are kept.
+invalidTitle: Temporarily unavailable
+invalidBody: This content cannot be viewed right now. It may not exist, or you may not have permission.
+invalidBack: Back
+# ---- T21 export / ownership transfer / delete status (results domain) ----
+resultBack: Back
+exportTitle: Export text
+exportFormatSectionTitle: Export format
+exportFormatTxt: Plain text .txt
+exportFormatMd: Markdown .md
+exportFormatHint: Export contains text only; no audio or unauthorized participant info.
+exportCapabilitySectionTitle: Export availability
+exportBlockedNoGrant: Your current role has no export permission; export requires an owner grant or policy allowance.
+exportBlockedOrgPolicy: Export is disabled by organization policy.
+exportBlockedInstancePolicy: Export is not enabled on this instance.
+exportBlockedUnknown: Current export policy could not be confirmed; export is unavailable.
+exportIndependentCopyTitle: Independent copy notice
+exportIndependentCopyBody: Exporting creates an independent copy; it cannot be taken back by deleting the note or revoking access.
+exportIndependentCopyAck: I understand the exported copy cannot be taken back
+exportGenerate: Generate export
+exportGenerating: Generating…
+exportQueuedTitle: Export queued
+exportQueuedBody: Request submitted; being queued does not mean the file is ready. Refresh later.
+exportRefreshState: Refresh status
+exportReadyTitle: Export ready
+exportReadyBody: The file is ready to download; the link is short-lived and must be regenerated after expiry.
+exportExpiresAt(date): "Valid until $date"
+exportRemaining(minutes): "About $minutes min left"
+exportDownload: Save export
+exportDownloading: Downloading and preparing to save…
+exportDownloadReady: File saved. This independent copy remains after access is revoked.
+exportDownloadFailed: Could not download or save; try again
+exportExpiredTitle: Export expired
+exportExpiredBody: The download link has expired. Regenerate the export.
+exportRegenerate: Regenerate
+exportFailedBody: Export generation failed, retry available.
+exportConflictHint: The note was updated by someone else. Refresh and retry.
+exportFixtureHint: "Component stage: the download link is a fixture sample; no real file is produced."
+transferTitle: Transfer ownership
+transferScopeHint: Transferring changes only the managing owner; the note's organization and workspace stay unchanged.
+transferCreatedByHint: The creator record stays unchanged; this action is independent of sharing permissions.
+transferCandidateSectionTitle: Choose the new owner
+transferCandidateEmpty: No eligible colleague candidates
+transferCandidateHint: Candidates are colleagues in this organization who meet the workspace policy; eligibility is decided by the server.
+transferKeepSectionTitle: Original owner access
+transferKeepViewer: Keep my view access after transfer
+transferKeepDefaultHint: "Off by default: after transfer you will no longer access this note."
+transferKeepOnHint: If kept, you can still view and play, but sharing and deletion belong to the new owner.
+transferSubmit: Transfer ownership
+transferSubmitting: Transferring…
+transferConfirmTitle: Transfer ownership?
+transferConfirmTarget(name): "Management responsibility will be transferred to: $name"
+transferConfirmKeepOff: After transfer you keep no view access and can no longer manage this note.
+transferConfirmKeepOn: After transfer you keep view access, while management belongs to the new owner.
+transferConfirmAction: Confirm transfer
+transferSuccessTitle: Ownership transferred
+transferSuccessOwner(name): "New owner: $name"
+transferSuccessKeptAccess: You still have view access; sharing is managed by the new owner.
+transferSuccessScopeUnchanged: The note's organization and workspace are unchanged.
+transferFailedBody: Transfer failed, retry later.
+transferConflictHint: The note was updated by someone else. Refresh and retry.
+transferPersonalUnsupported: Personal notes do not support ownership transfer yet.
+transferOnlyOwner: Only the current managing owner can transfer ownership.
+transferBackToDetail: Back to note
+deleteTitle: Delete note
+deleteConfirmTitle: Delete this note?
+deleteConfirmDialogContent: Content will no longer be shown; copies already exported or saved cannot be taken back.
+deleteConfirmBodyPoint1: Content and summary will no longer be shown after deletion.
+deleteConfirmBodyPoint2: Deletion revokes everyone's access first; copies already exported or saved cannot be taken back.
+deleteConfirmBodyPoint3: Attachments are cleaned up per retention rules and references; submitting cleanup does not mean bytes are deleted immediately.
+deleteConfirmAction: Delete
+deleteDeleting: Deleting…
+deleteOnlyOwner: Only the owner can delete this note.
+deleteFailedBody: Delete failed, retry later.
+deleteConflictHint: The note was updated by someone else. Refresh and retry.
+deleteStatusTitle: Note deleted
+deleteStatusNoContentHint: Note content is no longer shown.
+deleteCleanupSectionTitle: Attachment cleanup status
+cleanupPendingTitle: Cleanup in progress
+cleanupPendingBody: Cleanup is queued; a queued job does not mean attachment bytes are deleted.
+cleanupBlockedRetentionTitle: Retention period not reached
+cleanupBlockedRetentionBody: The note is deleted and attachments are protected by retention rules; cleanup continues after retention ends.
+cleanupBlockedHoldTitle: Protected by hold
+cleanupBlockedHoldBody: The note is deleted and attachments are protected by a legal hold; cleanup continues after the hold is released.
+cleanupRetainedTitle: Attachments still referenced
+cleanupRetainedBody: Some attachments are still legally referenced by other business and are not physically deleted yet.
+cleanupFailedTitle: Cleanup failed
+cleanupFailedBody: Attachment cleanup failed. An operator must investigate and retry; refresh to check the latest status.
+cleanupCompleteTitle: Cleanup complete
+cleanupCompleteBody: The note and its attachments have been cleaned up.
+cleanupNoneTitle: Cleanup not submitted
+cleanupNoneBody: The note has not entered the cleanup flow.
+cleanupUnknownTitle: Cleanup status unknown
+cleanupUnknownBody: Cleanup status is unavailable; refresh to retry.
+cleanupRetryAction: Retry cleanup
+cleanupRetrying: Retrying…
+cleanupRetryFailedBody: Cleanup retry failed; try again later.
+deleteRefreshStatus: Refresh cleanup status
+deleteBackToList: Back to list
+deleteStatusFixtureHint: "Component stage: cleanup status comes from a fixture sample; real progress pending integration."
+
+microphoneStopUnconfirmed: "Microphone stop is not confirmed. Retry stopping; if it still fails, close the app and check the system microphone indicator."
+
+cleanupWriteOutcomeUnknown: "The attachment write outcome is not confirmed. Cleanup is incomplete and remains protected pending operator verification. Refresh to check progress."
+
+exportDownloadCancelled: Save cancelled. You can save again.
+
+shareCardSendPending: Queued; server confirmation is pending. Check the conversation. Retrying will not create a duplicate.
+shareCardSendCancelled: Sending cancelled; no new card was sent.
+
+# Informational participants, separate from sharing and speaker identity.
+participantsInfoHint: "Participants describe attendance only. They do not share this record or verify speakers."
+participantsRemove: "Remove participant"
+participantsGuestLabel: "Guest name or label"
+participantsAddGuest: "Add guest"
+participantsInvalid: "Select up to 100 people. Guest labels must be unique and 1\u2013120 characters. Eligibility may have changed; check the list."
+participantsNoResults: "No matching contacts or colleagues. Try searching."
+participantsConflict: "The list changed and has been refreshed. Review it before editing again."
+participantsSaveFailed: "Could not confirm the save. Your selection is retained; retry or refresh."
+
+cleanupProcessorUnconfirmed: "Processing is stopping or being checked. Temporary audio copies have not yet been confirmed as removed. Refresh to check progress."
+
+uploadNoticeTitle: Confirm before uploading
+uploadNoticeHint: Review the current recording notice. This confirms uploading now; it does not rewrite the original recording acknowledgement or change its space.
+uploadRecording: Upload recording
+retryRecordingUpload: Retry upload
+
+notificationRequiredTitle: Enable recording notifications
+notificationRequiredMessage: Allow app notifications and enable the recording notification channel in system settings. Return here and retry after enabling them. Recording has not started.
+openNotificationSettings: Open notification settings
+
+processingRecoveryTitle: 'Confirm recording processing'
+processingRecoveryHint: 'The processing notice or processor configuration changed. Confirm to upload and process using the current versions below. The original recording acknowledgement is preserved.'
+processingRecoveryUnavailable: 'Processing is currently unavailable. Keep the recording on this device and retry later.'
+keepRecordingLocal: 'Keep on this device'
+confirmProcessingUpload: 'Agree and upload'

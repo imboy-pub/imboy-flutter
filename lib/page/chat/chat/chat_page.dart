@@ -1223,7 +1223,11 @@ class ChatPageState extends ConsumerState<ChatPage>
         message.metadata?['effective_msg_type'] ??
             message.metadata?['msg_type'],
       );
-      if (msgType == MessageType.channelCard) {
+      if (msgType == MessageType.talkRecordCard) {
+        final id = parseModelString(message.metadata?['record_id']);
+        if (RegExp(r'^[0-9]+$').hasMatch(id)) context.push('/talk-records/$id');
+        return;
+      } else if (msgType == MessageType.channelCard) {
         final channelId = parseModelString(message.metadata?['channel_id']);
         if (channelId.isNotEmpty) {
           context.push('/channel/$channelId');
@@ -1301,6 +1305,10 @@ class ChatPageState extends ConsumerState<ChatPage>
           );
           return;
         }
+      } else if (msgType == MessageType.talkRecordCard) {
+        final id = parseModelString(message.metadata?['record_id']);
+        if (RegExp(r'^[0-9]+$').hasMatch(id)) context.push('/talk-records/$id');
+        return;
       } else if (msgType == MessageType.channelCard) {
         final channelId = parseModelString(message.metadata?['channel_id']);
         if (channelId.isNotEmpty) {

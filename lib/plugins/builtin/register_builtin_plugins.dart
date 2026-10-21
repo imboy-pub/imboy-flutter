@@ -10,6 +10,7 @@ import 'package:imboy/component/chat/message_unsupported_builder.dart';
 import 'package:imboy/component/chat/message_video_builder.dart';
 import 'package:imboy/component/chat/message_visit_card_builder.dart';
 import 'package:imboy/component/chat/message_channel_card_builder.dart';
+import 'package:imboy/component/chat/message_talk_record_card_builder.dart';
 import 'package:imboy/component/chat/message_webrtc_builder.dart';
 import 'package:imboy/component/chat/message_red_packet_builder.dart';
 import 'package:imboy/component/chat/message_transfer_builder.dart';
@@ -49,6 +50,7 @@ void registerBuiltinPlugins(MessageTypeRegistry registry) {
     WebrtcVideoMessageTypePlugin(),
     _VisitCardMessageTypePlugin(),
     _ChannelCardMessageTypePlugin(),
+    _TalkRecordCardMessageTypePlugin(),
     UnsupportedMessageTypePlugin(),
     RedPacketMessageTypePlugin(),
     TransferMessageTypePlugin(),
@@ -146,4 +148,19 @@ class _ChannelCardMessageTypePlugin implements MessageTypePlugin {
   Widget build(MessageViewModel message, MessageRenderContext context) {
     return ChannelCardMessageBuilder(message: message, user: context.user);
   }
+}
+
+class _TalkRecordCardMessageTypePlugin implements MessageTypePlugin {
+  const _TalkRecordCardMessageTypePlugin();
+  @override
+  String get id => 'builtin:${MessageType.talkRecordCard}';
+  @override
+  bool get isEnabled => true;
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.standalone;
+  @override
+  String get type => MessageType.talkRecordCard;
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) =>
+      TalkRecordCardMessageBuilder(message: message);
 }
