@@ -6,6 +6,13 @@ import 'package:imboy/component/web_view.dart';
 
 /// imboyJSBridge 最小双向协议（component/web_view.dart）的纯逻辑单测。
 /// 通道只挂在 imboy.pub 域名上；协议方法白名单制，未知方法回 unsupported。
+const Map<String, dynamic> _fakePosition = {
+  'latitude': 22.5431,
+  'longitude': 113.9309,
+  'accuracy': 30.0,
+  'timestamp': 1760000000000,
+};
+
 void main() {
   Map<String, dynamic> decodeReply(String js) {
     // buildReply 产出固定形态：
@@ -189,6 +196,20 @@ void main() {
         'openChat',
         'getAuthCode',
       ]);
+
+      final withLocation = ImboyJsBridge(
+        onOpenChat: (_) async => true,
+        onGetLocation: () async => _fakePosition,
+      );
+      final payload3 = decodeReply(
+        (await withLocation.handle(jsonEncode({'type': 'ping'})))!,
+      );
+      expect((payload3['data'] as Map<String, dynamic>)['methods'], [
+        'ping',
+        'echo',
+        'openChat',
+        'getLocation',
+      ]);
     });
   });
 
@@ -360,6 +381,51 @@ void main() {
       final payload = decodeReply(next!);
       expect(payload['ok'], isFalse);
       expect(payload['error'], isNot('busy'));
+    });
+  });
+
+  group('ImboyJsBridge.handle(getLocation)', () {
+    test('成功回传经纬度数据', () async {
+      final bridge = ImboyJsBridge(
+        onOpenChat: (_) async => true,
+        onGetLocation: () async => _fakePosition,
+      );
+      final reply = await bridge.handle(
+        jsonEncode({'id': 9, 'type': 'getLocation'}),
+      );
+      final payload = decodeReply(reply!);
+      expect(payload['id'], 9);
+      expect(payload['type'], 'getLocation');
+      expect(payload['ok'], isTrue);
+      expect(payload['data'], _fakePosition);
+    });
+
+    test('错误码 String 透传给页面', () async {
+      for (final code in [
+        'location_service_disabled',
+        'location_permission_denied',
+        'location_timeout',
+      ]) {
+        final bridge = ImboyJsBridge(
+          onOpenChat: (_) async => true,
+          onGetLocation: () async => throw code,
+        );
+        final reply = await bridge.handle(jsonEncode({'type': 'getLocation'}));
+        final payload = decodeReply(reply!);
+        expect(payload['ok'], isFalse, reason: code);
+        expect(payload['error'], code, reason: code);
+      }
+    });
+
+    test('非 String 异常归为 location_failed，不泄露内部细节', () async {
+      final bridge = ImboyJsBridge(
+        onOpenChat: (_) async => true,
+        onGetLocation: () async => throw StateError('boom'),
+      );
+      final reply = await bridge.handle(jsonEncode({'type': 'getLocation'}));
+      final payload = decodeReply(reply!);
+      expect(payload['ok'], isFalse);
+      expect(payload['error'], 'location_failed');
     });
   });
 }

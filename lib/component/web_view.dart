@@ -6,6 +6,7 @@ import 'package:imboy/app_core/routing/organization_invite_link.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -77,10 +78,18 @@ class ImboyBridgeAuthCode {
 ///   （= 同一 WebView 容器）同一时刻只允许一个取码在途，并发第二请求
 ///   立即回 `busy`——code 一次性且单一消费者（H5 侧另行防重复整条
 ///   登录流程）。
+/// - `getLocation`：返回 App 当前经纬度（geolocator，与「附近的人」同
+///   权限面），只读不外传。macOS 嵌入式 WKWebView 无 WebKit 定位 provider，
+///   `navigator.geolocation` 不弹授权框直接 PERMISSION_DENIED，此桥是 H5
+///   在该平台拿定位的唯一通路；暴露面与 App 自身定位功能一致，无新增敏感面。
 /// 未知方法回 `unsupported` 错误回执，便于 H5 侧联调定位；
 /// 坏 JSON 无法构造回执，静默忽略。
 class ImboyJsBridge {
-  ImboyJsBridge({required this.onOpenChat, this.onGetAuthCode});
+  ImboyJsBridge({
+    required this.onOpenChat,
+    this.onGetAuthCode,
+    this.onGetLocation,
+  });
 
   /// `openChat` 的导航动作（WebViewPage 注入）；返回 true = 已发起导航。
   final Future<bool> Function(String peerId) onOpenChat;
@@ -89,6 +98,12 @@ class ImboyJsBridge {
   /// `application_key`（null = 未指定，由注入方按配置裁决）。
   final Future<ImboyBridgeAuthCode> Function(String? applicationKey)?
   onGetAuthCode;
+
+  /// `getLocation` 的取位动作（WebViewPage 注入）；成功返回
+  /// {latitude, longitude, accuracy, timestamp}，失败抛错误码 String
+  /// （location_service_disabled / location_permission_denied /
+  /// location_timeout），由本类转成错误回执。null = 本容器无定位能力。
+  final Future<Map<String, dynamic>> Function()? onGetLocation;
 
   /// C2C peerId 形态：纯数字 uid（EntityId 数字字符串）。
   static final RegExp _peerIdPattern = RegExp(r'^\d{1,18}$');
@@ -102,13 +117,14 @@ class ImboyJsBridge {
     return !value.contains(RegExp(r'\s'));
   }
 
-  /// 本实例实际支持的方法（ping 回执 `methods` 声明用；getAuthCode
-  /// 仅在注入取码动作时声明，避免无能力容器误导 H5）。
+  /// 本实例实际支持的方法（ping 回执 `methods` 声明用；getAuthCode /
+  /// getLocation 仅在注入对应动作时声明，避免无能力容器误导 H5）。
   List<String> get supportedMethods => List.unmodifiable([
     'ping',
     'echo',
     'openChat',
     if (onGetAuthCode != null) 'getAuthCode',
+    if (onGetLocation != null) 'getLocation',
   ]);
 
   /// 处理一条 H5 → 原生消息，返回应回推给页面的 JavaScript 语句；
@@ -126,6 +142,9 @@ class ImboyJsBridge {
     }
     if (decoded['type'] == 'getAuthCode') {
       return _handleGetAuthCode(decoded);
+    }
+    if (decoded['type'] == 'getLocation') {
+      return _handleGetLocation(decoded);
     }
     return buildReply(raw, supportedMethods: supportedMethods);
   }
@@ -170,6 +189,21 @@ class ImboyJsBridge {
       payload['error'] = 'unknown';
     } finally {
       _authCodeInFlight = false;
+    }
+    return _replyJs(payload);
+  }
+
+  /// `getLocation`：错误码由注入方以 String 抛出并透传；非 String 异常
+  /// 统一归为 location_failed，不把内部异常细节回推给页面。
+  Future<String?> _handleGetLocation(Map<String, dynamic> decoded) async {
+    final payload = _basePayload(decoded, decoded['type']);
+    try {
+      final data = await onGetLocation!();
+      payload
+        ..['ok'] = true
+        ..['data'] = data;
+    } catch (e) {
+      payload['error'] = e is String ? e : 'location_failed';
     }
     return _replyJs(payload);
   }
@@ -277,11 +311,12 @@ class WebViewPage extends StatefulWidget {
 }
 
 class WebViewPageState extends State<WebViewPage> {
-  /// H5 桥（openChat 导航动作由本 State 提供 context）。
+  /// H5 桥（openChat 导航 / getLocation 取位动作由本 State 提供 context）。
   /// getAuthCode 的并发单飞（busy）由桥实例内部保证（每桥 = 每容器）。
   late final ImboyJsBridge _bridge = ImboyJsBridge(
     onOpenChat: _openNativeChat,
     onGetAuthCode: widget.oaAuthCodeHandler,
+    onGetLocation: _getLocation,
   );
 
   /// controller/title 归 State 持有：上层 rebuild 会向路由页传入新的
@@ -499,6 +534,46 @@ class WebViewPageState extends State<WebViewPage> {
       ),
     );
     return true;
+  }
+
+  /// `getLocation` 桥动作：走 App 自身定位（geolocator，与「附近的人」
+  /// 同通道同权限面）。macOS 嵌入式 WKWebView 无 WebKit 定位 provider，
+  /// H5 标准 `navigator.geolocation` 直接 PERMISSION_DENIED 且不弹授权
+  /// 框，此桥是该平台 H5 取位唯一通路。
+  ///
+  /// requestPermission 刻意不加 timeout：macOS 首次定位会弹系统授权框，
+  /// 由用户点击节奏决定耗时；总时长上限由 H5 侧回执超时兜底。
+  /// 失败抛错误码 String：location_service_disabled /
+  /// location_permission_denied / location_timeout。
+  Future<Map<String, dynamic>> _getLocation() async {
+    const checkTimeout = Duration(seconds: 5);
+    try {
+      if (!await Geolocator.isLocationServiceEnabled().timeout(checkTimeout)) {
+        throw 'location_service_disabled';
+      }
+      var permission = await Geolocator.checkPermission().timeout(checkTimeout);
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        throw 'location_permission_denied';
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 15),
+        ),
+      );
+      return {
+        'latitude': position.latitude,
+        'longitude': position.longitude,
+        'accuracy': position.accuracy,
+        'timestamp': position.timestamp.millisecondsSinceEpoch,
+      };
+    } on TimeoutException {
+      throw 'location_timeout';
+    }
   }
 
   /// Android WebView 的定位与相机授权（如 test_oa.html 的 Web 标准定位/
