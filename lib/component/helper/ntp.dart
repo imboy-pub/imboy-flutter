@@ -1,3 +1,5 @@
+import 'package:imboy/config/local_external_services_policy.dart';
+
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -77,6 +79,7 @@ class NtpHelper {
   }
 
   static Future<int> getOffset() async {
+    if (LocalExternalServicesPolicy.suppressed) return _offset;
     // Web 平台跳过 NTP 同步（使用服务器时间戳代替）
     if (_isWeb) {
       if (kDebugMode) debugPrint('🌐 NtpHelper: Web 平台跳过 NTP 同步');

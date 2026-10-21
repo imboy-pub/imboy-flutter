@@ -154,6 +154,9 @@ class MessageRetry with EventSubscriptionManager {
     // 使用 EventSubscriptionManager 管理
     subscribeTo(
       AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().listen((event) {
+        // Inbound receipt confirmation cannot remove an outgoing retry or
+        // confirm its crypto outbox entry, even if a stale producer emits it.
+        if (event.reason == 'client_ack_confirm') return;
         if (!_isRemovalSessionCurrent(event)) return;
         final pending = _retryQueue[event.messageId];
         if (pending != null &&
@@ -161,9 +164,6 @@ class MessageRetry with EventSubscriptionManager {
           return;
         }
         removeFromRetryQueue(event.messageId);
-        if (event.reason == 'client_ack_confirm') {
-          unawaited(_liftStatusOnServerAck(event.messageId));
-        }
         // E2EE-027 outbox 读侧接线：ACK 移除重试时同步确认 outbox 条目
         // （防 crypto_outbox 无限增长；清理失败只记日志，不影响 ACK 主路径）
         unawaited(_confirmOutboxQuietly(event));
@@ -425,38 +425,6 @@ class MessageRetry with EventSubscriptionManager {
       );
     } on Object catch (e) {
       iPrint('⚠️ [RETRY_QUEUE] 置 pendingRetry 失败: $messageId, $e');
-    }
-  }
-
-  /// 服务端确认收据（CLIENT_ACK_CONFIRM）到达时，把仍停留在
-  /// sending/sent/pendingRetry 的本地行抬到 delivered——已确认送达的
-  /// 消息不应再被重试放弃路径标成 error。
-  Future<void> _liftStatusOnServerAck(String messageId) async {
-    try {
-      for (final String tableType in ['C2C', 'C2G', 'C2S']) {
-        final repo = getMessageRepo(tableType);
-        final msg = await repo.find(messageId);
-        if (msg == null) continue;
-        if (msg.status == IMBoyMessageStatus.delivered ||
-            msg.status == IMBoyMessageStatus.seen) {
-          return;
-        }
-        if (msg.status == IMBoyMessageStatus.sending ||
-            msg.status == IMBoyMessageStatus.sent ||
-            msg.status == IMBoyMessageStatus.pendingRetry) {
-          await repo.update({
-            'id': messageId,
-            'status': IMBoyMessageStatus.delivered,
-          });
-          iPrint(
-            '✅ [RETRY_QUEUE] 服务端确认送达，状态抬到 delivered: '
-            'msgId=$messageId (was ${msg.status})',
-          );
-        }
-        return;
-      }
-    } catch (e) {
-      iPrint('⚠️ [RETRY_QUEUE] ack 抬状态失败: ${e.runtimeType}');
     }
   }
 

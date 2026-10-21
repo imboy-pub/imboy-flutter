@@ -22,11 +22,12 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() async {
-    if (!Platform.isMacOS) {
-      flowLog('local dual: non-macOS, fresh install storage');
-      return;
+    if (!Platform.isMacOS && !Platform.isAndroid) {
+      throw StateError(
+        'local dual requires Android or macOS storage isolation',
+      );
     }
-    final root = await isolateMacosStorage();
+    final root = await isolateNativeStorage();
     flowLog('local dual: isolated storage at ${root.path}');
   });
 

@@ -1,3 +1,5 @@
+import 'package:imboy/config/local_external_services_policy.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -45,6 +47,7 @@ class LocationService {
   Future<AMapPosition?> getCurrentPosition({
     bool preferLastKnown = false,
   }) async {
+    if (LocalExternalServicesPolicy.suppressed) return null;
     if (kIsWeb) {
       return _getCurrentPositionGeolocator();
     } else if (Platform.isMacOS) {
@@ -150,6 +153,7 @@ class LocationService {
   ///
   /// 返回 null 表示平台不支持流式定位
   Stream<AMapPosition>? getPositionStream() {
+    if (LocalExternalServicesPolicy.suppressed) return null;
     if (kIsWeb || Platform.isMacOS) {
       return _getPositionStreamGeolocator();
     } else if (Platform.isIOS) {

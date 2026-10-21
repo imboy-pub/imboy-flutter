@@ -16,6 +16,8 @@
 /// 独立，不得混用（历史错位：曾把 device_type 值塞进 platform）。
 library;
 
+import 'package:imboy/config/local_external_services_policy.dart';
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
@@ -91,6 +93,7 @@ class PushNotificationService {
   /// - 有配置：初始化 FCM，获取远程推送 token
   /// - 无配置：graceful skip，仅使用本地通知
   Future<void> initialize() async {
+    if (LocalExternalServicesPolicy.suppressed) return;
     iPrint('[Push] 推送服务初始化...');
 
     // 整体加 15 秒超时：Huawei/中国设备访问 Google FCM 可能无限等待

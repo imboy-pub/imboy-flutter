@@ -12,11 +12,13 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/encryption_mode.dart';
+import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 const String _msgC2cDdl = '''
@@ -195,6 +197,80 @@ void main() {
         reason: 'error 是本状态机自己的终态，扫描把它捞回来就形成闭环自噬',
       );
     });
+  });
+
+  group('Inbound receipt is not outgoing delivery', () {
+    for (final rejectionFirst in [true, false]) {
+      test(
+        'rejectionFirst=$rejectionFirst cannot promote status to delivered',
+        () async {
+          final id = 'receipt-order-$rejectionFirst';
+          await _insertMsg(id, status: IMBoyMessageStatus.sent);
+          retry.addToRetryQueue(id, 'C2C');
+          final db = (await SqliteService.to.db)!;
+
+          Future<void> reject() async {
+            await db.update(
+              'msg_c2c',
+              {'status': IMBoyMessageStatus.error},
+              where: 'id = ?',
+              whereArgs: [id],
+            );
+          }
+
+          Future<void> drainEvents() async {
+            final barrier = AppEventBus.on<WebSocketMessageReceivedEvent>()
+                .firstWhere((event) => event.type == 'RECEIPT_ORDER_BARRIER');
+            AppEventBus.fire(
+              WebSocketMessageReceivedEvent(
+                type: 'RECEIPT_ORDER_BARRIER',
+                data: const {},
+              ),
+            );
+            await barrier.timeout(const Duration(seconds: 1));
+          }
+
+          if (rejectionFirst) await reject();
+          final session = UserRepoLocal.to;
+          AppEventBus.fire(
+            RemoveFromRetryQueueRequestedEvent(
+              messageId: id,
+              messageType: 'C2C',
+              reason: 'client_ack_confirm',
+              ownerUid: session.currentUid,
+              sessionGeneration: session.sessionGeneration,
+            ),
+          );
+          await drainEvents();
+          expect(
+            retry.getRetryInfo(id),
+            isNotNull,
+            reason: 'A receipt must not remove the outgoing retry',
+          );
+          final repo = MessageRepo(tableName: MessageRepo.c2cTable);
+          expect(
+            (await repo.find(id))?.status,
+            rejectionFirst ? IMBoyMessageStatus.error : IMBoyMessageStatus.sent,
+          );
+          if (!rejectionFirst) await reject();
+          expect((await repo.find(id))?.status, IMBoyMessageStatus.error);
+
+          // The actual business rejection still removes the outgoing retry.
+          AppEventBus.fire(
+            RemoveFromRetryQueueRequestedEvent(
+              messageId: id,
+              messageType: 'C2C',
+              reason: 'not_a_friend',
+              ownerUid: session.currentUid,
+              sessionGeneration: session.sessionGeneration,
+            ),
+          );
+          await drainEvents();
+          expect(retry.getRetryInfo(id), isNull);
+          expect((await repo.find(id))?.status, IMBoyMessageStatus.error);
+        },
+      );
+    }
   });
 
   group('达到重试上限后落终态', () {

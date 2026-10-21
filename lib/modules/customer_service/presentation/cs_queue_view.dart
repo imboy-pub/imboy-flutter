@@ -283,10 +283,9 @@ class _QueueTile extends StatelessWidget {
             AppSizes.buttonHeightXLarge,
           ),
 
-          textStyle: TextStyle(
-            fontSize: FontSizeType.footnote.size,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: context
+              .textStyle(FontSizeType.footnote, fontWeight: FontWeight.w600)
+              .copyWith(fontSize: FontSizeType.footnote.size),
         ),
         child: claiming
             ? const SizedBox(

@@ -23,6 +23,32 @@ Future<Directory> isolateMacosStorage() async {
   return root;
 }
 
+/// Isolate Android before app.main without touching the installed user's data.
+/// macOS continues to use the original Keychain-service isolation above.
+Future<Directory> isolateNativeStorage() async {
+  if (Platform.isMacOS) return isolateMacosStorage();
+  if (!Platform.isAndroid) throw StateError('Android or macOS only');
+  final root = await Directory.systemTemp.createTemp(
+    'imboy-enterprise-native-',
+  );
+  final namespace =
+      'imboy-enterprise-native-${root.uri.pathSegments.lastWhere((s) => s.isNotEmpty)}';
+  SharedPreferences.setPrefix('$namespace.');
+  FlutterSecureStoragePlatform.instance = androidScopedSecureStorage(namespace);
+  PathProviderPlatform.instance = _ScopedPaths(root.path);
+  // ignore: deprecated_member_use
+  await databaseFactory.setDatabasesPath(root.path);
+  return root;
+}
+
+/// Uses the plugin's full Android namespace, including KeyStore/config artifacts.
+FlutterSecureStoragePlatform androidScopedSecureStorage(String namespace) {
+  if (!namespace.startsWith('imboy-enterprise-native-')) {
+    throw ArgumentError.value(namespace, 'namespace');
+  }
+  return _ScopedKeychain(namespace, androidNamespace: true);
+}
+
 /// Call after disposing the app and closing its database; keep scope installed.
 Future<void> clearMacosStorage(Directory root) async {
   await const FlutterSecureStorage().deleteAll();
@@ -48,11 +74,16 @@ class _ScopedPaths extends PathProviderPlatform {
 }
 
 class _ScopedKeychain extends MethodChannelFlutterSecureStorage {
-  _ScopedKeychain(this.service);
+  _ScopedKeychain(this.service, {this.androidNamespace = false});
+  final bool androidNamespace;
   final String service;
   Map<String, String> scoped(Map<String, String> options) => {
     ...options,
-    'accountName': service,
+    if (androidNamespace) ...{
+      'storageNamespace': service,
+      'preferencesKeyPrefix': service,
+    } else
+      'accountName': service,
   };
   @override
   Future<void> write({

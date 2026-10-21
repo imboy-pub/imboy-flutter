@@ -1,3 +1,5 @@
+import 'package:imboy/config/local_external_services_policy.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
@@ -26,6 +28,7 @@ class AMapHelper {
   factory AMapHelper() => _to;
 
   static void init() {
+    if (LocalExternalServicesPolicy.suppressed) return;
     // 仅在 iOS/Android 平台初始化高德地图隐私协议
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
@@ -37,6 +40,7 @@ class AMapHelper {
   /// AMapHelper.setApiKey()
   /// 设置Android和iOS的apikey
   static void setApiKey() {
+    if (LocalExternalServicesPolicy.suppressed) return;
     // 仅支持 iOS/Android
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
@@ -52,6 +56,7 @@ class AMapHelper {
 
   // 私有构造函数
   AMapHelper._internal() {
+    if (LocalExternalServicesPolicy.suppressed) return;
     completer = Completer<AMapPosition?>();
 
     // Web 平台不支持高德地图原生插件，跳过初始化
@@ -113,6 +118,7 @@ class AMapHelper {
 
   /// 设置是否已经包含高德隐私政策并弹窗展示显示用户查看，如果未包含或者没有弹窗展示，高德定位SDK将不会工作
   static void updatePrivacyShow(bool hasContains, bool hasShow) {
+    if (LocalExternalServicesPolicy.suppressed) return;
     // 仅支持 iOS/Android 平台
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
@@ -122,6 +128,7 @@ class AMapHelper {
 
   /// 设置是否已经取得用户同意，如果未取得用户同意，高德定位SDK将不会工作
   static void updatePrivacyAgree(bool hasAgree) {
+    if (LocalExternalServicesPolicy.suppressed) return;
     // 仅支持 iOS/Android 平台
     if (kIsWeb || Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
       return;
@@ -162,12 +169,14 @@ class AMapHelper {
 
   /// 设置定位参数
   void setLocationOption(AMapFlutterLocation location) {
+    if (LocalExternalServicesPolicy.suppressed) return;
     if (kIsWeb) return;
     location.setLocationOption(locationOption);
   }
 
   /// 开始定位
   Future<AMapPosition?> startLocation() async {
+    if (LocalExternalServicesPolicy.suppressed) return null;
     // Web 平台不支持高德地图定位
     if (kIsWeb) {
       return null;

@@ -28,6 +28,8 @@
 /// `IMBOY_JPUSH_ENABLED` 缺省 false，standard 构建零行为变化）。
 library;
 
+import 'package:imboy/config/local_external_services_policy.dart';
+
 import 'dart:async';
 import 'dart:io' show Platform;
 
@@ -186,6 +188,7 @@ class JPushSdkWiring {
 
   /// 初始化：setup + 事件挂接 + RegistrationID 预热 + 冷启动点击补投。
   Future<void> initialize() async {
+    if (LocalExternalServicesPolicy.suppressed) return;
     if (_initialized) return;
     _initialized = true;
 

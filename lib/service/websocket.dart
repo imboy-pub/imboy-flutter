@@ -927,18 +927,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       } catch (e) {
         iPrint('⚠️ [WS] AckManager处理失败: ${e.runtimeType}');
       }
-      // 服务端已确认收据：出站重发队列同步出队，并把停留在
-      // sending/sent/pendingRetry 的本地行抬到 delivered——否则已确认
-      // 送达的消息会被重试放弃路径误标 error（AC12 旅程 r3 实证）。
-      AppEventBus.fire(
-        RemoveFromRetryQueueRequestedEvent(
-          messageId: messageId,
-          messageType: 'UNKNOWN',
-          reason: 'client_ack_confirm',
-          ownerUid: ownerUid,
-          sessionGeneration: generation,
-        ),
-      );
+      // This confirms our receipt of an inbound frame, including rejection
+      // notices. It cannot acknowledge or deliver an outgoing message.
     }
 
     // #4: CLIENT_ACK_ERROR 语义是「我方收据被服务端判无效」，不能当成功确认。

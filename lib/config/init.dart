@@ -1,3 +1,4 @@
+import 'package:imboy/config/local_external_services_policy.dart';
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 
 import 'dart:async';
@@ -226,6 +227,7 @@ class AppInitializer {
     required String env,
     required String signKeyVsn,
   }) async {
+    LocalExternalServicesPolicy.validateEnvironment(env);
     if (_initialized) return;
     GroupAvatarMemberCache.instance.resume();
 

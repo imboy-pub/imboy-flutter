@@ -18,6 +18,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/websocket.dart';
@@ -96,6 +97,39 @@ void main() {
   });
 
   group('Xid 出站消息经 JSON *_SERVER_ACK 确认（机制A已删除）', () {
+    test('CLIENT_ACK_CONFIRM only confirms the inbound receipt', () async {
+      final removed = <RemoveFromRetryQueueRequestedEvent>[];
+      final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+          .listen(removed.add);
+      final ack = AckManager.to;
+      addTearDown(subscription.cancel);
+      addTearDown(() => ack.ackConfirmed(xid));
+      ack.sendAck('S2C', xid, overrideDeviceId: 'ack-receipt-regression');
+      expect(ack.pendingAckList, contains(xid));
+      final barrier = AppEventBus.on<WebSocketMessageReceivedEvent>()
+          .firstWhere((event) => event.type == 'C2C_SERVER_ACK');
+
+      svc.handleV2BinaryForTest(
+        _s2cFrame({
+          'id': xid,
+          'type': 'CLIENT_ACK_CONFIRM',
+          'action': 'CLIENT_ACK_CONFIRM',
+        }),
+      );
+      svc.handleV2BinaryForTest(
+        _s2cFrame({'id': 'outgoing-ack-control', 'type': 'C2C_SERVER_ACK'}),
+      );
+
+      final genuineAck = await barrier.timeout(const Duration(seconds: 1));
+      expect(genuineAck.data['id'], 'outgoing-ack-control');
+      expect(ack.pendingAckList, isNot(contains(xid)));
+      expect(
+        removed,
+        isEmpty,
+        reason: 'An inbound receipt must not clear retries or crypto outbox',
+      );
+    });
+
     test('C2C/C2G 内容与 action 不得在 WebSocket 层提前 ACK', () async {
       for (final msg in [
         {
