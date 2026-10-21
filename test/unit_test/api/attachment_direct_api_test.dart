@@ -78,38 +78,40 @@ void main() {
     final List<Map<String, String>> putHeaders = <Map<String, String>>[];
     final List<int> putLengths = <int>[];
 
-    final IMBoyHttpResponse Function(String, Map<String, dynamic>) handler =
-        (String action, Map<String, dynamic> body) {
-          switch (action) {
-            case 'register':
-              return ok(<String, dynamic>{
-                'object_key': 'u1/file/dv1a',
-                'state': 'RESERVED',
-              });
-            case 'declare':
-              return ok(<String, dynamic>{
-                'state': 'DECLARED',
-                'expected_version': 1,
-              });
-            case 'grant':
-              return grantPayload('https://s3.example/put-1', 1, checksumB64);
-            case 'finalize':
-              return ok(<String, dynamic>{
-                'state': 'CONFIRMED',
-                'attempt_id': body['attempt_id'],
-              });
-          }
-          throw StateError('unexpected action $action');
-        };
+    IMBoyHttpResponse handler(String action, Map<String, dynamic> body) {
+      switch (action) {
+        case 'register':
+          return ok(<String, dynamic>{
+            'object_key': 'u1/file/dv1a',
+            'state': 'RESERVED',
+          });
+        case 'declare':
+          return ok(<String, dynamic>{
+            'state': 'DECLARED',
+            'expected_version': 1,
+          });
+        case 'grant':
+          return grantPayload('https://s3.example/put-1', 1, checksumB64);
+        case 'finalize':
+          return ok(<String, dynamic>{
+            'state': 'CONFIRMED',
+            'attempt_id': body['attempt_id'],
+          });
+      }
+      throw StateError('unexpected action $action');
+    }
+
     final List<String> actions = <String>[];
     final List<Map<String, dynamic>> bodies = <Map<String, dynamic>>[];
-    final DirectSessionFn session =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          actions.add(action);
-          bodies.add(body ?? <String, dynamic>{});
-          return handler(action, body ?? <String, dynamic>{});
-        };
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      actions.add(action);
+      bodies.add(body ?? <String, dynamic>{});
+      return handler(action, body ?? <String, dynamic>{});
+    }
 
     final List<DirectCheckpointStage> stages = <DirectCheckpointStage>[];
     final DirectUploadResult r = await DirectAttachmentApi.uploadFile(
@@ -154,32 +156,34 @@ void main() {
     final List<String> urls = <String>[];
     final List<dynamic> finalizeAttemptIds = <dynamic>[];
     int grantRound = 0;
-    final DirectSessionFn session =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          actions.add(action);
-          switch (action) {
-            case 'register':
-              return ok(<String, dynamic>{'object_key': 'u1/file/dv1b'});
-            case 'declare':
-              return ok(<String, dynamic>{'state': 'DECLARED'});
-            case 'grant':
-            case 'renew':
-              grantRound += 1;
-              return grantPayload(
-                'https://s3.example/attempt-$grantRound',
-                grantRound,
-                'YQ==',
-              );
-            case 'finalize':
-              finalizeAttemptIds.add(body?['attempt_id']);
-              return ok(<String, dynamic>{
-                'state': 'CONFIRMED',
-                'attempt_id': body?['attempt_id'],
-              });
-          }
-          throw StateError('unexpected $action');
-        };
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      actions.add(action);
+      switch (action) {
+        case 'register':
+          return ok(<String, dynamic>{'object_key': 'u1/file/dv1b'});
+        case 'declare':
+          return ok(<String, dynamic>{'state': 'DECLARED'});
+        case 'grant':
+        case 'renew':
+          grantRound += 1;
+          return grantPayload(
+            'https://s3.example/attempt-$grantRound',
+            grantRound,
+            'YQ==',
+          );
+        case 'finalize':
+          finalizeAttemptIds.add(body?['attempt_id']);
+          return ok(<String, dynamic>{
+            'state': 'CONFIRMED',
+            'attempt_id': body?['attempt_id'],
+          });
+      }
+      throw StateError('unexpected $action');
+    }
 
     final DirectUploadResult r = await DirectAttachmentApi.uploadFile(
       file,
@@ -204,25 +208,27 @@ void main() {
 
   test('finalize 恒 rejected(409)：三次后按预算上抛，不冒充 CONFIRMED', () async {
     final File file = writeFile('c.png', <int>[2]);
-    final DirectSessionFn session =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          switch (action) {
-            case 'register':
-              return ok(<String, dynamic>{'object_key': 'u1/file/dv1c'});
-            case 'declare':
-              return ok(<String, dynamic>{'state': 'DECLARED'});
-            case 'grant':
-            case 'renew':
-              return grantPayload('https://s3.example/x', 9, 'YQ==');
-            case 'finalize':
-              return IMBoyHttpResponse.failure(
-                errMsg: 'attempt_rejected',
-                errCode: 409,
-              );
-          }
-          throw StateError('unexpected $action');
-        };
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      switch (action) {
+        case 'register':
+          return ok(<String, dynamic>{'object_key': 'u1/file/dv1c'});
+        case 'declare':
+          return ok(<String, dynamic>{'state': 'DECLARED'});
+        case 'grant':
+        case 'renew':
+          return grantPayload('https://s3.example/x', 9, 'YQ==');
+        case 'finalize':
+          return IMBoyHttpResponse.failure(
+            errMsg: 'attempt_rejected',
+            errCode: 409,
+          );
+      }
+      throw StateError('unexpected $action');
+    }
 
     await expectLater(
       DirectAttachmentApi.uploadFile(
@@ -243,26 +249,28 @@ void main() {
 
   test('finalize 返回 FINALIZING：如实上报封存中，不冒充 CONFIRMED', () async {
     final File file = writeFile('d.png', <int>[3]);
-    final DirectSessionFn session =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          switch (action) {
-            case 'register':
-              return ok(<String, dynamic>{'object_key': 'u1/file/dv1d'});
-            case 'declare':
-              return ok(<String, dynamic>{'state': 'DECLARED'});
-            case 'grant':
-              return grantPayload('https://s3.example/x', 1, 'YQ==');
-            case 'finalize':
-              return ok(<String, dynamic>{
-                'state': 'FINALIZING',
-                'outcome': 'UNKNOWN_QUARANTINED',
-                'attempt_id': body?['attempt_id'],
-                'retry_action': 'retry_attempt',
-              });
-          }
-          throw StateError('unexpected $action');
-        };
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      switch (action) {
+        case 'register':
+          return ok(<String, dynamic>{'object_key': 'u1/file/dv1d'});
+        case 'declare':
+          return ok(<String, dynamic>{'state': 'DECLARED'});
+        case 'grant':
+          return grantPayload('https://s3.example/x', 1, 'YQ==');
+        case 'finalize':
+          return ok(<String, dynamic>{
+            'state': 'FINALIZING',
+            'outcome': 'UNKNOWN_QUARANTINED',
+            'attempt_id': body?['attempt_id'],
+            'retry_action': 'retry_attempt',
+          });
+      }
+      throw StateError('unexpected $action');
+    }
 
     final List<DirectCheckpointStage> stages = <DirectCheckpointStage>[];
     final DirectUploadResult r = await DirectAttachmentApi.uploadFile(
@@ -290,20 +298,22 @@ void main() {
   test('本地取消：putFn 抛取消后中断且不发 finalize', () async {
     final File file = writeFile('e.png', <int>[4]);
     final List<String> actions = <String>[];
-    final DirectSessionFn session =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          actions.add(action);
-          switch (action) {
-            case 'register':
-              return ok(<String, dynamic>{'object_key': 'u1/file/dv1e'});
-            case 'declare':
-              return ok(<String, dynamic>{'state': 'DECLARED'});
-            case 'grant':
-              return grantPayload('https://s3.example/x', 1, 'YQ==');
-          }
-          throw StateError('unexpected $action');
-        };
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      actions.add(action);
+      switch (action) {
+        case 'register':
+          return ok(<String, dynamic>{'object_key': 'u1/file/dv1e'});
+        case 'declare':
+          return ok(<String, dynamic>{'state': 'DECLARED'});
+        case 'grant':
+          return grantPayload('https://s3.example/x', 1, 'YQ==');
+      }
+      throw StateError('unexpected $action');
+    }
 
     await expectLater(
       DirectAttachmentApi.uploadFile(
@@ -359,19 +369,22 @@ void main() {
     final File file = writeFile('f.png', <int>[5]);
     // CONFIRMED：幂等直返，无网络 PUT
     List<String> actions = <String>[];
-    final DirectSessionFn confirmedSession =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          actions.add(action);
-          if (action == 'status') {
-            return ok(<String, dynamic>{
-              'state': 'CONFIRMED',
-              'session_state': 'confirmed',
-              'attempts': <dynamic>[],
-            });
-          }
-          throw StateError('unexpected $action');
-        };
+    Future<IMBoyHttpResponse> confirmedSession(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      actions.add(action);
+      if (action == 'status') {
+        return ok(<String, dynamic>{
+          'state': 'CONFIRMED',
+          'session_state': 'confirmed',
+          'attempts': <dynamic>[],
+        });
+      }
+      throw StateError('unexpected $action');
+    }
+
     final DirectUploadResult done = await DirectAttachmentApi.resumeDirect(
       objectKey: 'u1/file/dv1f',
       file: file,
@@ -387,26 +400,29 @@ void main() {
 
     // GRANTED：renew 新 attempt 续传
     actions = <String>[];
-    final DirectSessionFn grantedSession =
-        (String path, {Map<String, dynamic>? body}) async {
-          final String action = path.split('/').last;
-          actions.add(action);
-          switch (action) {
-            case 'status':
-              return ok(<String, dynamic>{
-                'state': 'GRANTED',
-                'attempts': <dynamic>[<String, dynamic>{}],
-              });
-            case 'renew':
-              return grantPayload('https://s3.example/resume-2', 2, 'YQ==');
-            case 'finalize':
-              return ok(<String, dynamic>{
-                'state': 'CONFIRMED',
-                'attempt_id': body?['attempt_id'],
-              });
-          }
-          throw StateError('unexpected $action');
-        };
+    Future<IMBoyHttpResponse> grantedSession(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final String action = path.split('/').last;
+      actions.add(action);
+      switch (action) {
+        case 'status':
+          return ok(<String, dynamic>{
+            'state': 'GRANTED',
+            'attempts': <dynamic>[<String, dynamic>{}],
+          });
+        case 'renew':
+          return grantPayload('https://s3.example/resume-2', 2, 'YQ==');
+        case 'finalize':
+          return ok(<String, dynamic>{
+            'state': 'CONFIRMED',
+            'attempt_id': body?['attempt_id'],
+          });
+      }
+      throw StateError('unexpected $action');
+    }
+
     final DirectUploadResult resumed = await DirectAttachmentApi.resumeDirect(
       objectKey: 'u1/file/dv1g',
       file: file,
@@ -427,29 +443,29 @@ void main() {
     () async {
       final File file = writeFile('resume-q.png', <int>[7]);
       final List<DirectCheckpointStage> stages = <DirectCheckpointStage>[];
-      final DirectSessionFn quarantinedSession =
-          (String path, {Map<String, dynamic>? body}) async {
-            final String action = path.split('/').last;
-            switch (action) {
-              case 'status':
-                return ok(<String, dynamic>{
-                  'state': 'FINALIZING',
-                  'attempts': <dynamic>[
-                    <String, dynamic>{},
-                    <String, dynamic>{},
-                  ],
-                });
-              case 'renew':
-                return grantPayload('https://s3.example/resume-q', 3, 'YQ==');
-              case 'finalize':
-                return ok(<String, dynamic>{
-                  'state': 'FINALIZING',
-                  'outcome': 'UNKNOWN_QUARANTINED',
-                  'attempt_id': body?['attempt_id'],
-                });
-            }
-            throw StateError('unexpected $action');
-          };
+      Future<IMBoyHttpResponse> quarantinedSession(
+        String path, {
+        Map<String, dynamic>? body,
+      }) async {
+        final String action = path.split('/').last;
+        switch (action) {
+          case 'status':
+            return ok(<String, dynamic>{
+              'state': 'FINALIZING',
+              'attempts': <dynamic>[<String, dynamic>{}, <String, dynamic>{}],
+            });
+          case 'renew':
+            return grantPayload('https://s3.example/resume-q', 3, 'YQ==');
+          case 'finalize':
+            return ok(<String, dynamic>{
+              'state': 'FINALIZING',
+              'outcome': 'UNKNOWN_QUARANTINED',
+              'attempt_id': body?['attempt_id'],
+            });
+        }
+        throw StateError('unexpected $action');
+      }
+
       final DirectUploadResult r = await DirectAttachmentApi.resumeDirect(
         objectKey: 'u1/file/dv1q',
         file: file,

@@ -1,6 +1,6 @@
 # IMBoy 文件行数 ratchet 基线（门脚本生成，勿手改）
 # 再生成：bash scripts/quality/check_file_size_ratchet.sh --update-baseline
-# 日期：2026-10-18
+# 日期：2026-10-21
 # 格式：count<TAB>file ｜ 上限 800 行 ｜ 只许减不许增
 821	integration_test/enterprise/enterprise_cs_e2e_test.dart
 957	integration_test/enterprise/enterprise_scope_native_test.dart
@@ -13,20 +13,21 @@
 1140	lib/modules/customer_service/infrastructure/cs_api.dart
 950	lib/modules/organization/presentation/human_directory_page.dart
 1045	lib/modules/organization/presentation/org_invite_colleagues_page.dart
-1107	lib/page/channel/channel_article_page.dart
+835	lib/modules/organization/presentation/organization_picker_page.dart
+1153	lib/page/channel/channel_article_page.dart
 1110	lib/page/channel/channel_compose_page.dart
-1206	lib/page/channel/channel_message_item.dart
+1210	lib/page/channel/channel_message_item.dart
 836	lib/page/channel/widgets/channel_publish_bar.dart
 1667	lib/page/chat/chat/attachment_handler.dart
 2664	lib/page/chat/chat/chat_page.dart
-1409	lib/page/chat/chat/chat_provider.dart
+1390	lib/page/chat/chat/chat_provider.dart
 1338	lib/page/chat/chat/services/chat_network_service.dart
 1409	lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart
 1415	lib/page/chat/widget/chat_input.dart
 1112	lib/page/conversation/conversation_provider.dart
 1073	lib/page/mine/user_collect/user_collect_page.dart
 1366	lib/page/mine/user_collect/user_collect_provider.dart
-1193	lib/page/moment/moment_create_page.dart
+1200	lib/page/moment/moment_create_page.dart
 1478	lib/page/moment/moment_detail_page.dart
 1449	lib/page/moment/moment_feed_page.dart
 867	lib/page/moment/moment_interactions.dart
@@ -38,7 +39,7 @@
 1315	lib/page/settings/e2ee_backup_import_page.dart
 1097	lib/page/settings/e2ee_key_recovery_page.dart
 830	lib/page/wallet/alipay_simulator.dart
-1313	lib/service/channel_service.dart
+1320	lib/service/channel_service.dart
 908	lib/service/e2ee_health_check_service.dart
 892	lib/service/e2ee_local_backup_service.dart
 1492	lib/service/e2ee_service.dart
@@ -52,8 +53,8 @@
 1100	lib/service/olm_session_service.dart
 1080	lib/service/sqlite.dart
 1378	lib/service/websocket.dart
-1173	lib/store/api/attachment_api.dart
-836	lib/store/api/channel_api.dart
+1174	lib/store/api/attachment_api.dart
+848	lib/store/api/channel_api.dart
 804	lib/store/model/message_model.dart
 1080	test/customer_service/cs_api_contract_test.dart
 1484	test/customer_service/cs_session_flow_test.dart

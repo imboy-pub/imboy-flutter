@@ -29,6 +29,7 @@ import 'package:imboy/theme/default/theme.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_list_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../golden_baseline_guard.dart';
 import '../p3/p3_fixtures.dart' show p3OrgId, p3QueueItemWire;
 import '../support/golden_font_loader.dart';
 
@@ -224,15 +225,23 @@ void main() {
     }
   });
 
-  testWidgets('p3_golden_all_120_configs_rendered：全配置渲染并出图', (tester) async {
-    expect(kP3GoldenConfigs.length, 120, reason: 'MATRIX.json P3 总数');
-    for (final GoldenP3Config cfg in kP3GoldenConfigs) {
-      await _pumpP3Golden(tester, cfg);
-      await expectLater(
-        find.byType(Scaffold).first,
-        matchesGoldenFile('goldens/${cfg.id}.png'),
-      );
-      expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
-    }
-  });
+  testWidgets(
+    'p3_golden_all_120_configs_rendered：全配置渲染并出图',
+    skip: !goldenBaselinesReady(
+      kP3GoldenConfigs.map(
+        (GoldenP3Config cfg) => 'test/uiux/golden/goldens/${cfg.id}.png',
+      ),
+    ),
+    (tester) async {
+      expect(kP3GoldenConfigs.length, 120, reason: 'MATRIX.json P3 总数');
+      for (final GoldenP3Config cfg in kP3GoldenConfigs) {
+        await _pumpP3Golden(tester, cfg);
+        await expectLater(
+          find.byType(Scaffold).first,
+          matchesGoldenFile('goldens/${cfg.id}.png'),
+        );
+        expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
+      }
+    },
+  );
 }

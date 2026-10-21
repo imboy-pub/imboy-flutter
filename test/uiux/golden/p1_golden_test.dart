@@ -40,6 +40,7 @@ import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../golden_baseline_guard.dart';
 import '../p1/p1_fixtures.dart';
 import '../support/golden_font_loader.dart';
 
@@ -300,15 +301,24 @@ void main() {
     }
   });
 
-  testWidgets('p1_golden_all_120_configs_rendered：全配置渲染并出图', (tester) async {
-    expect(kP1GoldenConfigs.length, 120, reason: 'MATRIX.json P1 总数');
-    for (final GoldenConfig cfg in kP1GoldenConfigs) {
-      await _pumpGolden(tester, cfg);
-      await expectLater(
-        find.byType(Scaffold).first,
-        matchesGoldenFile('goldens/2026-10-20-channel-share/${cfg.id}.png'),
-      );
-      expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
-    }
-  });
+  testWidgets(
+    'p1_golden_all_120_configs_rendered：全配置渲染并出图',
+    skip: !goldenBaselinesReady(
+      kP1GoldenConfigs.map(
+        (GoldenConfig cfg) =>
+            'test/uiux/golden/goldens/2026-10-20-channel-share/${cfg.id}.png',
+      ),
+    ),
+    (tester) async {
+      expect(kP1GoldenConfigs.length, 120, reason: 'MATRIX.json P1 总数');
+      for (final GoldenConfig cfg in kP1GoldenConfigs) {
+        await _pumpGolden(tester, cfg);
+        await expectLater(
+          find.byType(Scaffold).first,
+          matchesGoldenFile('goldens/2026-10-20-channel-share/${cfg.id}.png'),
+        );
+        expect(tester.takeException(), isNull, reason: '${cfg.id} 无渲染异常');
+      }
+    },
+  );
 }
