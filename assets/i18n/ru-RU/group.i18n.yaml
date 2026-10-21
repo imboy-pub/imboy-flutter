@@ -43,6 +43,6 @@ groupCreatedSuccess: Групповой чат создан. Заполните 
 groupInfo: Информация о группе
 groupMemberRoleLabel: Участник
 moreActions: Другие действия
-noMemberWithRole: "Пока нет: $roleName"
+noMemberWithRole(roleName): "Пока нет: $roleName"
 perfectionGroupInfo: Заполнить информацию о группе
 touchContactAddMember: Нажмите на контакт, чтобы добавить участника в группу

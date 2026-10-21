@@ -100,7 +100,7 @@ alipaySim:
   storeName: "Boutique phare des technologies de l'information"
 logoutCancelRequest: "Retirer la demande de suppression du compte"
 logoutCancelledNote: "Demande de suppression du compte retirée"
-logoutPendingBanner(date): "Demande de suppression soumise ; finalisation prévue le $date"
+logoutPendingBanner: "Demande de suppression soumise ; finalisation prévue le $date"
 logoutPendingHeader: "Statut de la demande de suppression"
 logoutRetainedHeader: "Conservation des données"
 logoutRetainedNote: "Après la suppression : les journaux d'audit et les enregistrements financiers sont conservés puis anonymisés conformément à la loi ; les groupes/espaces de travail/canaux que vous possédez seront transférés en priorité aux membres successeurs"

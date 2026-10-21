@@ -43,6 +43,6 @@ groupCreatedSuccess: Gruppenchat erstellt. Bitte vervollständigen Sie die Grupp
 groupInfo: Gruppenchat-Infos
 groupMemberRoleLabel: Mitglied
 moreActions: Weitere Aktionen
-noMemberWithRole: "Keine $roleName vorhanden"
+noMemberWithRole(roleName): "Keine $roleName vorhanden"
 perfectionGroupInfo: Gruppeninfos vervollständigen
 touchContactAddMember: Kontakt antippen, um als Gruppenmitglied hinzuzufügen

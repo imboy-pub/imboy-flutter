@@ -2851,11 +2851,11 @@ class _Translations$organization$members$de_DE extends Translations$organization
 	@override String get ownerCannotChangeHere => 'Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“';
 	@override String get viewDetail => 'Profil anzeigen';
 	@override String get suspendMember => 'Mitglied sperren';
-	@override String suspendBody({required Object name}) => '${name}s Zugriff auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar.';
+	@override String suspendBody({required Object name}) => 'Zugriff von „${name}“ auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar.';
 	@override String get confirmSuspend => 'Sperren bestätigen';
 	@override String get suspendFailed => 'Sperren fehlgeschlagen';
 	@override String get restoreMember => 'Mitglied entsperren';
-	@override String restoreBody({required Object name}) => '${name}s Zugriff auf diese Organisation wiederherstellen.';
+	@override String restoreBody({required Object name}) => 'Zugriff von „${name}“ auf diese Organisation wiederherstellen.';
 	@override String get confirmRestoreMember => 'Entsperren bestätigen';
 	@override String get restoreFailed => 'Entsperren fehlgeschlagen';
 	@override String get offboardMember => 'Austritt (endgültig)';
@@ -3059,7 +3059,7 @@ class _Translations$organization$directory$de_DE extends Translations$organizati
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get currentMembersSection => 'Direct members';
+	@override String get currentMembersSection => 'Mitglieder dieser Ebene';
 	@override String get structureSection => 'Organisationsstruktur';
 	@override String get title => 'Verzeichnis';
 	@override String get deptSection => 'Abteilungen';
@@ -3257,13 +3257,13 @@ class _Translations$organization$chart$de_DE extends Translations$organization$c
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get zoomIn => 'Zoom in';
-	@override String get zoomOut => 'Zoom out';
-	@override String get fit => 'Fit to window';
-	@override String get expand => 'Expand departments';
-	@override String get collapse => 'Collapse departments';
-	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
-	@override String directMembers({required Object count}) => '${count} direct members';
+	@override String get zoomIn => 'Vergrößern';
+	@override String get zoomOut => 'Verkleinern';
+	@override String get fit => 'An Fenster anpassen';
+	@override String get expand => 'Unterabteilungen ausklappen';
+	@override String get collapse => 'Unterabteilungen einklappen';
+	@override String get gestureHint => 'Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen';
+	@override String directMembers({required Object count}) => '${count} Mitglieder auf dieser Ebene';
 }
 
 // Path: organization.experienceUi
@@ -3273,21 +3273,21 @@ class _Translations$organization$experienceUi$de_DE extends Translations$organiz
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
-	@override String get switchSpace => 'Switch space';
-	@override String get personalSpace => 'Personal space';
-	@override String get enterpriseSpaces => 'Enterprise spaces';
-	@override String get currentSpace => 'Current space';
-	@override String get enterpriseInfo => 'Enterprise info';
-	@override String get collaborationSpace => 'Collaboration spaces';
-	@override String get groupContent => 'Group content';
-	@override String get groupCollaboration => 'Group collaboration';
-	@override String get defaultWorkspace => 'Default workspace';
-	@override String get defaultAvailable => 'Configured';
-	@override String get defaultUnknown => 'Temporarily unavailable';
-	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
-	@override String get accountCheck => 'Account deletion checks';
-	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
-	@override String get noIntro => 'No description';
+	@override String get switchSpace => 'Space wechseln';
+	@override String get personalSpace => 'Persönlicher Space';
+	@override String get enterpriseSpaces => 'Unternehmens-Spaces';
+	@override String get currentSpace => 'Aktueller Space';
+	@override String get enterpriseInfo => 'Unternehmensinfo';
+	@override String get collaborationSpace => 'Kollaborations-Spaces';
+	@override String get groupContent => 'Gruppeninhalte';
+	@override String get groupCollaboration => 'Gruppenzusammenarbeit';
+	@override String get defaultWorkspace => 'Standard-Arbeitsbereich';
+	@override String get defaultAvailable => 'Eingerichtet';
+	@override String get defaultUnknown => 'Vorübergehend nicht verfügbar';
+	@override String get defaultHint => 'Tritt dem entsprechenden Arbeitsbereich bei, um darauf zuzugreifen. Die Standardeinstellung gewährt keinen automatischen Zugriff.';
+	@override String get accountCheck => 'Prüfungen vor der Kontolöschung';
+	@override String workspaceContext({required Object name}) => 'Arbeitsbereich: ${name}';
+	@override String get noIntro => 'Keine Beschreibung';
 }
 
 /// The flat map containing all translations for locale <de-DE>.
@@ -5452,11 +5452,11 @@ extension on TranslationsDeDe {
 			'organization.members.ownerCannotChangeHere' => 'Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“',
 			'organization.members.viewDetail' => 'Profil anzeigen',
 			'organization.members.suspendMember' => 'Mitglied sperren',
-			'organization.members.suspendBody' => ({required Object name}) => '${name}s Zugriff auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar.',
+			'organization.members.suspendBody' => ({required Object name}) => 'Zugriff von „${name}“ auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar.',
 			'organization.members.confirmSuspend' => 'Sperren bestätigen',
 			'organization.members.suspendFailed' => 'Sperren fehlgeschlagen',
 			'organization.members.restoreMember' => 'Mitglied entsperren',
-			'organization.members.restoreBody' => ({required Object name}) => '${name}s Zugriff auf diese Organisation wiederherstellen.',
+			'organization.members.restoreBody' => ({required Object name}) => 'Zugriff von „${name}“ auf diese Organisation wiederherstellen.',
 			'organization.members.confirmRestoreMember' => 'Entsperren bestätigen',
 			'organization.members.restoreFailed' => 'Entsperren fehlgeschlagen',
 			'organization.members.offboardMember' => 'Austritt (endgültig)',
@@ -5606,7 +5606,7 @@ extension on TranslationsDeDe {
 			'organization.inviteQr.copyCode' => 'Code kopieren',
 			'organization.inviteQr.copied' => 'Einladungscode kopiert',
 			'organization.inviteQr.inviteDisabledPending' => 'Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden',
-			'organization.directory.currentMembersSection' => 'Direct members',
+			'organization.directory.currentMembersSection' => 'Mitglieder dieser Ebene',
 			'organization.directory.structureSection' => 'Organisationsstruktur',
 			'organization.directory.title' => 'Verzeichnis',
 			'organization.directory.deptSection' => 'Abteilungen',
@@ -5741,28 +5741,28 @@ extension on TranslationsDeDe {
 			'organization.tools.projectsError' => ({required Object err}) => 'Projekte laden fehlgeschlagen: ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Alle Workspaces durchsuchen',
 			'organization.tools.moreInWorkspaceShellHint' => 'Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).',
-			'organization.chart.zoomIn' => 'Zoom in',
-			'organization.chart.zoomOut' => 'Zoom out',
-			'organization.chart.fit' => 'Fit to window',
-			'organization.chart.expand' => 'Expand departments',
-			'organization.chart.collapse' => 'Collapse departments',
-			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
-			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
-			'organization.experienceUi.switchSpace' => 'Switch space',
-			'organization.experienceUi.personalSpace' => 'Personal space',
-			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
-			'organization.experienceUi.currentSpace' => 'Current space',
-			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
-			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
-			'organization.experienceUi.groupContent' => 'Group content',
-			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
-			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
-			'organization.experienceUi.defaultAvailable' => 'Configured',
-			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
-			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
-			'organization.experienceUi.accountCheck' => 'Account deletion checks',
-			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.chart.zoomIn' => 'Vergrößern',
+			'organization.chart.zoomOut' => 'Verkleinern',
+			'organization.chart.fit' => 'An Fenster anpassen',
+			'organization.chart.expand' => 'Unterabteilungen ausklappen',
+			'organization.chart.collapse' => 'Unterabteilungen einklappen',
+			'organization.chart.gestureHint' => 'Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} Mitglieder auf dieser Ebene',
+			'organization.experienceUi.switchSpace' => 'Space wechseln',
+			'organization.experienceUi.personalSpace' => 'Persönlicher Space',
+			'organization.experienceUi.enterpriseSpaces' => 'Unternehmens-Spaces',
+			'organization.experienceUi.currentSpace' => 'Aktueller Space',
+			'organization.experienceUi.enterpriseInfo' => 'Unternehmensinfo',
+			'organization.experienceUi.collaborationSpace' => 'Kollaborations-Spaces',
+			'organization.experienceUi.groupContent' => 'Gruppeninhalte',
+			'organization.experienceUi.groupCollaboration' => 'Gruppenzusammenarbeit',
+			'organization.experienceUi.defaultWorkspace' => 'Standard-Arbeitsbereich',
+			'organization.experienceUi.defaultAvailable' => 'Eingerichtet',
+			'organization.experienceUi.defaultUnknown' => 'Vorübergehend nicht verfügbar',
+			'organization.experienceUi.defaultHint' => 'Tritt dem entsprechenden Arbeitsbereich bei, um darauf zuzugreifen. Die Standardeinstellung gewährt keinen automatischen Zugriff.',
+			'organization.experienceUi.accountCheck' => 'Prüfungen vor der Kontolöschung',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Arbeitsbereich: ${name}',
+			'organization.experienceUi.noIntro' => 'Keine Beschreibung',
 			'passport.loginHistoryToggle' => 'Anmeldeverlauf anzeigen',
 			'passport.hintEmail' => 'Bitte E-Mail eingeben',
 			'passport.hintMobile' => 'Bitte Mobilfunknummer eingeben',

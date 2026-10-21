@@ -38,9 +38,9 @@ paidChannelLocked: 有料チャンネルの内容はロックされています
 webQRScanned: スキャン済み
 # --- モーメント操作 / @通知 / 位置 ---
 momentActionMore: "その他の操作"
-momentAtCount: "${count}名"
-momentAtReminded: "${name} さんに通知しました"
-momentAtRemindedMore: "${name} 他${count}名に通知しました"
+momentAtCount(count): "${count}名"
+momentAtReminded(name): "${name} さんに通知しました"
+momentAtRemindedMore(name, count): "${name} 他${count}名に通知しました"
 momentAtWho: 誰に通知しますか？
 momentLocation: 位置情報
 momentLocationNone: 位置情報を表示しない

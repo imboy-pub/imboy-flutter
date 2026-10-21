@@ -851,16 +851,16 @@ switchCamera: Kamera wechseln
 reconnecting: "Schlechte Verbindung, wird neu verbunden…"
 amountMustPositive: Betrag muss größer als 0 sein
 enterAmount: Bitte Betrag eingeben
-f2fEnteringGroup: "$count Personen treten gleich dem Gruppenchat bei"
+f2fEnteringGroup(count): "$count Personen treten gleich dem Gruppenchat bei"
 f2fSecretCode: Geheimcode
-uploadPartialFailed: "$count Uploads fehlgeschlagen"
+uploadPartialFailed(count): "$count Uploads fehlgeschlagen"
 momentsHasFailedUploads: Einige Medien wurden nicht hochgeladen. Bitte erneut versuchen oder entfernen und dann veröffentlichen
 payReceiveSuccess: Zahlung empfangen!
 purchaseConfirming: Zahlung wird bestätigt. Bitte später den Bestellstatus prüfen
 timeNowShort: jetzt
-timeMinutesShort: "${count} Min."
-timeHoursShort: "${count} Std."
-timeDaysShort: "${count} T"
+timeMinutesShort(count): "${count} Min."
+timeHoursShort(count): "${count} Std."
+timeDaysShort(count): "${count} T"
 transferAccepted: Empfangen
 transferAmountLabel: Überweisungsbetrag
 transferConfirm: Überweisung bestätigen
@@ -888,7 +888,7 @@ redPacketFetchError: Fehler beim Laden der Geschenk-Details
 redPacketFetchFailed: Geschenk-Details konnten nicht geladen werden
 redPacketGreetingLabel: Nachricht / Glückwünsche
 redPacketNotFound: Geschenk nicht gefunden oder bereits gelöscht
-redPacketReceiverLabel: "Nutzer: $uid"
+redPacketReceiverLabel(uid): "Nutzer: $uid"
 redPacketSingleAmount: Einzelnbetrag
 redPacketStuffLucky: Zufallsbeträge verteilen
 redPacketStuffNormal: Festbetrag senden

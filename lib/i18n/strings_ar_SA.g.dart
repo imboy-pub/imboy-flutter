@@ -3282,21 +3282,21 @@ class _Translations$organization$experienceUi$ar_SA extends Translations$organiz
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
-	@override String get switchSpace => 'Switch space';
-	@override String get personalSpace => 'Personal space';
-	@override String get enterpriseSpaces => 'Enterprise spaces';
-	@override String get currentSpace => 'Current space';
-	@override String get enterpriseInfo => 'Enterprise info';
-	@override String get collaborationSpace => 'Collaboration spaces';
-	@override String get groupContent => 'Group content';
-	@override String get groupCollaboration => 'Group collaboration';
-	@override String get defaultWorkspace => 'Default workspace';
-	@override String get defaultAvailable => 'Configured';
-	@override String get defaultUnknown => 'Temporarily unavailable';
-	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
-	@override String get accountCheck => 'Account deletion checks';
-	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
-	@override String get noIntro => 'No description';
+	@override String get switchSpace => 'تبديل المساحة';
+	@override String get personalSpace => 'المساحة الشخصية';
+	@override String get enterpriseSpaces => 'مساحات المؤسسة';
+	@override String get currentSpace => 'المساحة الحالية';
+	@override String get enterpriseInfo => 'بيانات المؤسسة';
+	@override String get collaborationSpace => 'مساحات التعاون';
+	@override String get groupContent => 'محتوى المجموعات';
+	@override String get groupCollaboration => 'التعاون في المجموعات';
+	@override String get defaultWorkspace => 'مساحة العمل الافتراضية';
+	@override String get defaultAvailable => 'تم الإعداد';
+	@override String get defaultUnknown => 'غير متاح مؤقتًا';
+	@override String get defaultHint => 'انضم إلى مساحة العمل المعنية للدخول إليها؛ الإعداد الافتراضي لا يمنح صلاحية الوصول تلقائيًا.';
+	@override String get accountCheck => 'فحوصات قبل حذف الحساب';
+	@override String workspaceContext({required Object name}) => 'مساحة العمل: ${name}';
+	@override String get noIntro => 'لا يوجد وصف';
 }
 
 /// The flat map containing all translations for locale <ar-SA>.
@@ -5757,21 +5757,21 @@ extension on TranslationsArSa {
 			'organization.chart.collapse' => 'طي الأقسام الفرعية',
 			'organization.chart.gestureHint' => 'اسحب للتنقل · اقرص للتكبير والتصغير',
 			'organization.chart.directMembers' => ({required Object count}) => 'المرتبطون المباشرون: ${count}',
-			'organization.experienceUi.switchSpace' => 'Switch space',
-			'organization.experienceUi.personalSpace' => 'Personal space',
-			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
-			'organization.experienceUi.currentSpace' => 'Current space',
-			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
-			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
-			'organization.experienceUi.groupContent' => 'Group content',
-			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
-			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
-			'organization.experienceUi.defaultAvailable' => 'Configured',
-			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
-			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
-			'organization.experienceUi.accountCheck' => 'Account deletion checks',
-			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.experienceUi.switchSpace' => 'تبديل المساحة',
+			'organization.experienceUi.personalSpace' => 'المساحة الشخصية',
+			'organization.experienceUi.enterpriseSpaces' => 'مساحات المؤسسة',
+			'organization.experienceUi.currentSpace' => 'المساحة الحالية',
+			'organization.experienceUi.enterpriseInfo' => 'بيانات المؤسسة',
+			'organization.experienceUi.collaborationSpace' => 'مساحات التعاون',
+			'organization.experienceUi.groupContent' => 'محتوى المجموعات',
+			'organization.experienceUi.groupCollaboration' => 'التعاون في المجموعات',
+			'organization.experienceUi.defaultWorkspace' => 'مساحة العمل الافتراضية',
+			'organization.experienceUi.defaultAvailable' => 'تم الإعداد',
+			'organization.experienceUi.defaultUnknown' => 'غير متاح مؤقتًا',
+			'organization.experienceUi.defaultHint' => 'انضم إلى مساحة العمل المعنية للدخول إليها؛ الإعداد الافتراضي لا يمنح صلاحية الوصول تلقائيًا.',
+			'organization.experienceUi.accountCheck' => 'فحوصات قبل حذف الحساب',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'مساحة العمل: ${name}',
+			'organization.experienceUi.noIntro' => 'لا يوجد وصف',
 			'passport.loginHistoryToggle' => 'إظهار سجل تسجيل الدخول',
 			'passport.hintEmail' => 'أدخل بريدك الإلكتروني',
 			'passport.hintMobile' => 'أدخل رقم هاتفك',

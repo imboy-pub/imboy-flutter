@@ -885,7 +885,7 @@ redPacketFetchError: 取得紅包詳情時發生異常
 redPacketFetchFailed: 取得紅包詳情失敗
 redPacketGreetingLabel: 留言 / 祝福語
 redPacketNotFound: 紅包不存在或已被刪除
-redPacketReceiverLabel: 使用者：$uid
+redPacketReceiverLabel(uid): 使用者：$uid
 redPacketSingleAmount: 單個金額
 redPacketStuffLucky: 塞錢發紅包
 redPacketStuffNormal: 放入錢包傳送
@@ -894,9 +894,9 @@ redPacketSwitchToNormal: 改為普通紅包
 redPacketTotalAmount: 總金額
 redPacketView: 查看紅包
 switchCamera: 切換鏡頭
-timeDaysShort: ${count}d
-timeHoursShort: ${count}h
-timeMinutesShort: ${count}m
+timeDaysShort(count): ${count}d
+timeHoursShort(count): ${count}h
+timeMinutesShort(count): ${count}m
 timeNowShort: now
 transferAccepted: 已收款
 transferAmountLabel: 轉帳金額
@@ -908,7 +908,7 @@ transferReceiving: 收款中...
 transferRefunded: 已退還
 transferRemarkLabel: 轉帳備註
 transferTapToReceive: 點擊收款
-uploadPartialFailed: $count 項上傳失敗
+uploadPartialFailed(count): $count 項上傳失敗
 voiceSttConverting: 正在辨識中...
 voiceSttNotConfigured: 轉文字功能尚未設定
 voiceSttPreviewTitle: 語音轉文字預覽

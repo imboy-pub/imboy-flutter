@@ -3270,21 +3270,21 @@ class _Translations$organization$experienceUi$ko_KR extends Translations$organiz
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
-	@override String get switchSpace => 'Switch space';
-	@override String get personalSpace => 'Personal space';
-	@override String get enterpriseSpaces => 'Enterprise spaces';
-	@override String get currentSpace => 'Current space';
-	@override String get enterpriseInfo => 'Enterprise info';
-	@override String get collaborationSpace => 'Collaboration spaces';
-	@override String get groupContent => 'Group content';
-	@override String get groupCollaboration => 'Group collaboration';
-	@override String get defaultWorkspace => 'Default workspace';
-	@override String get defaultAvailable => 'Configured';
-	@override String get defaultUnknown => 'Temporarily unavailable';
-	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
-	@override String get accountCheck => 'Account deletion checks';
-	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
-	@override String get noIntro => 'No description';
+	@override String get switchSpace => '스페이스 전환';
+	@override String get personalSpace => '개인 스페이스';
+	@override String get enterpriseSpaces => '기업 스페이스';
+	@override String get currentSpace => '현재 스페이스';
+	@override String get enterpriseInfo => '기업 정보';
+	@override String get collaborationSpace => '협업 스페이스';
+	@override String get groupContent => '그룹 콘텐츠';
+	@override String get groupCollaboration => '그룹 협업';
+	@override String get defaultWorkspace => '기본 워크스페이스';
+	@override String get defaultAvailable => '설정됨';
+	@override String get defaultUnknown => '일시적으로 가져올 수 없음';
+	@override String get defaultHint => '해당 워크스페이스에 가입하면 이용할 수 있습니다. 기본 설정만으로는 접근 권한이 부여되지 않습니다.';
+	@override String get accountCheck => '계정 삭제 전 확인';
+	@override String workspaceContext({required Object name}) => '워크스페이스: ${name}';
+	@override String get noIntro => '소개가 없습니다';
 }
 
 /// The flat map containing all translations for locale <ko-KR>.
@@ -5745,21 +5745,21 @@ extension on TranslationsKoKr {
 			'organization.chart.collapse' => '하위 부서 접기',
 			'organization.chart.gestureHint' => '드래그하여 이동 · 핀치로 확대/축소',
 			'organization.chart.directMembers' => ({required Object count}) => '직속 ${count}명',
-			'organization.experienceUi.switchSpace' => 'Switch space',
-			'organization.experienceUi.personalSpace' => 'Personal space',
-			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
-			'organization.experienceUi.currentSpace' => 'Current space',
-			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
-			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
-			'organization.experienceUi.groupContent' => 'Group content',
-			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
-			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
-			'organization.experienceUi.defaultAvailable' => 'Configured',
-			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
-			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
-			'organization.experienceUi.accountCheck' => 'Account deletion checks',
-			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.experienceUi.switchSpace' => '스페이스 전환',
+			'organization.experienceUi.personalSpace' => '개인 스페이스',
+			'organization.experienceUi.enterpriseSpaces' => '기업 스페이스',
+			'organization.experienceUi.currentSpace' => '현재 스페이스',
+			'organization.experienceUi.enterpriseInfo' => '기업 정보',
+			'organization.experienceUi.collaborationSpace' => '협업 스페이스',
+			'organization.experienceUi.groupContent' => '그룹 콘텐츠',
+			'organization.experienceUi.groupCollaboration' => '그룹 협업',
+			'organization.experienceUi.defaultWorkspace' => '기본 워크스페이스',
+			'organization.experienceUi.defaultAvailable' => '설정됨',
+			'organization.experienceUi.defaultUnknown' => '일시적으로 가져올 수 없음',
+			'organization.experienceUi.defaultHint' => '해당 워크스페이스에 가입하면 이용할 수 있습니다. 기본 설정만으로는 접근 권한이 부여되지 않습니다.',
+			'organization.experienceUi.accountCheck' => '계정 삭제 전 확인',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => '워크스페이스: ${name}',
+			'organization.experienceUi.noIntro' => '소개가 없습니다',
 			'passport.loginHistoryToggle' => '로그인 기록 펼치기',
 			'passport.hintEmail' => '이메일을 입력해 주세요',
 			'passport.hintMobile' => '휴대폰 번호를 입력해 주세요',

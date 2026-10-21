@@ -846,14 +846,14 @@ noHistory: 履歴はありません
 noNewRegisteredUsersTitle: 新規登録ユーザーはいません
 reconnecting: 接続が不安定です。再接続中…
 switchCamera: カメラを切り替え
-timeDaysShort: "${count}日"
-timeHoursShort: "${count}時間"
-timeMinutesShort: "${count}分"
+timeDaysShort(count): "${count}日"
+timeHoursShort(count): "${count}時間"
+timeMinutesShort(count): "${count}分"
 timeNowShort: 今
 hoursAgo: "時間前"
 minutesAgo: "分前"
 # --- 対面グループ（f2f） ---
-f2fEnteringGroup: "$count人がまもなくグループチャットに参加します"
+f2fEnteringGroup(count): "$count人がまもなくグループチャットに参加します"
 f2fSecretCode: 合言葉
 # --- モーメント ---
 momentsHasFailedUploads: アップロードに失敗したメディアがあります。再試行するか削除してから公開してください
@@ -871,7 +871,7 @@ transferTapToReceive: タップして受け取る
 payReceiveSuccess: 受取が完了しました！
 purchaseConfirming: 支払いの確認中です。注文の状態は後ほどご確認ください
 enterAmount: 金額を入力してください
-uploadPartialFailed: "$count件のアップロードに失敗しました"
+uploadPartialFailed(count): "$count件のアップロードに失敗しました"
 # --- お年玉（紅包） ---
 redPacketAmountTooSmall: 合計金額は個数 × 0.01元以上にしてください
 redPacketBrand: IMBoy お年玉
@@ -887,7 +887,7 @@ redPacketFetchError: お年玉の詳細取得でエラーが発生しました
 redPacketFetchFailed: お年玉の詳細を取得できませんでした
 redPacketGreetingLabel: メッセージ / 祝いの言葉
 redPacketNotFound: お年玉が存在しないか、削除されました
-redPacketReceiverLabel: "ユーザー：$uid"
+redPacketReceiverLabel(uid): "ユーザー：$uid"
 redPacketSingleAmount: 1個あたりの金額
 redPacketStuffLucky: お年玉に金額を設定
 redPacketStuffNormal: ウォレットから送る

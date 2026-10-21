@@ -37,9 +37,9 @@ openChannel: Открыть канал
 paidChannelLocked: Содержимое платного канала заблокировано
 webQRScanned: Отсканировано
 momentActionMore: Другие действия
-momentAtCount: "${count} чел."
-momentAtReminded: "Напоминание: ${name}"
-momentAtRemindedMore: "Напоминание: ${name} и ещё ${count} чел."
+momentAtCount(count): "${count} чел."
+momentAtReminded(name): "Напоминание: ${name}"
+momentAtRemindedMore(name, count): "Напоминание: ${name} и ещё ${count} чел."
 momentAtWho: Кого напомнить?
 momentLocation: Местоположение
 momentLocationNone: Не показывать местоположение

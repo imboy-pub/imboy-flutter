@@ -255,7 +255,7 @@ inviteQr:
   # Aide d'entrée de génération désactivée pour les entreprises pending/rejected (preview/join serveur toujours 409)
   inviteDisabledPending: "L'entreprise est en attente d'examen ; les membres pourront être invités une fois celle-ci validée"
 directory:
-  currentMembersSection: Direct members
+  currentMembersSection: Membres de ce niveau
   structureSection: Structure organisationnelle
   title: "Annuaire"
   deptSection: "Départements"
@@ -403,28 +403,28 @@ tools:
   moreInWorkspaceShellHint: Ouvrir le sélecteur global d'espaces (inter-entreprises).
 
 chart:
-  zoomIn: Zoom in
-  zoomOut: Zoom out
-  fit: Fit to window
-  expand: Expand departments
-  collapse: Collapse departments
-  gestureHint: Drag to pan · Pinch to zoom
-  directMembers: ${count} direct members
+  zoomIn: Zoom avant
+  zoomOut: Zoom arrière
+  fit: Ajuster à la fenêtre
+  expand: Développer les sous-services
+  collapse: Réduire les sous-services
+  gestureHint: Glisser pour déplacer · Pincer pour zoomer
+  directMembers: "${count} membres à ce niveau"
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
-  switchSpace: "Switch space"
-  personalSpace: "Personal space"
-  enterpriseSpaces: "Enterprise spaces"
-  currentSpace: "Current space"
-  enterpriseInfo: "Enterprise info"
-  collaborationSpace: "Collaboration spaces"
-  groupContent: "Group content"
-  groupCollaboration: "Group collaboration"
-  defaultWorkspace: "Default workspace"
-  defaultAvailable: "Configured"
-  defaultUnknown: "Temporarily unavailable"
-  defaultHint: "Join the workspace to access it. The default setting does not grant access."
-  accountCheck: "Account deletion checks"
-  workspaceContext: "Workspace: ${name}"
-  noIntro: "No description"
+  switchSpace: "Changer d'espace"
+  personalSpace: "Espace personnel"
+  enterpriseSpaces: "Espaces d'entreprise"
+  currentSpace: "Espace actuel"
+  enterpriseInfo: "Informations sur l'entreprise"
+  collaborationSpace: "Espaces de collaboration"
+  groupContent: "Contenu des groupes"
+  groupCollaboration: "Collaboration de groupe"
+  defaultWorkspace: "Espace de travail par défaut"
+  defaultAvailable: "Configuré"
+  defaultUnknown: "Temporairement indisponible"
+  defaultHint: "Rejoignez l'espace de travail correspondant pour y accéder ; le réglage par défaut n'accorde pas l'accès automatiquement."
+  accountCheck: "Vérifications avant suppression du compte"
+  workspaceContext: "Espace de travail : ${name}"
+  noIntro: "Aucune description"

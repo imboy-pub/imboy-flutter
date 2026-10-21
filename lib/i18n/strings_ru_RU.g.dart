@@ -3279,21 +3279,21 @@ class _Translations$organization$experienceUi$ru_RU extends Translations$organiz
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
-	@override String get switchSpace => 'Switch space';
-	@override String get personalSpace => 'Personal space';
-	@override String get enterpriseSpaces => 'Enterprise spaces';
-	@override String get currentSpace => 'Current space';
-	@override String get enterpriseInfo => 'Enterprise info';
-	@override String get collaborationSpace => 'Collaboration spaces';
-	@override String get groupContent => 'Group content';
-	@override String get groupCollaboration => 'Group collaboration';
-	@override String get defaultWorkspace => 'Default workspace';
-	@override String get defaultAvailable => 'Configured';
-	@override String get defaultUnknown => 'Temporarily unavailable';
-	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
-	@override String get accountCheck => 'Account deletion checks';
-	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
-	@override String get noIntro => 'No description';
+	@override String get switchSpace => 'Переключить пространство';
+	@override String get personalSpace => 'Личное пространство';
+	@override String get enterpriseSpaces => 'Корпоративные пространства';
+	@override String get currentSpace => 'Текущее пространство';
+	@override String get enterpriseInfo => 'Данные организации';
+	@override String get collaborationSpace => 'Пространства для совместной работы';
+	@override String get groupContent => 'Контент групп';
+	@override String get groupCollaboration => 'Совместная работа в группах';
+	@override String get defaultWorkspace => 'Рабочее пространство по умолчанию';
+	@override String get defaultAvailable => 'Настроено';
+	@override String get defaultUnknown => 'Временно недоступно';
+	@override String get defaultHint => 'Чтобы войти, присоединитесь к соответствующему рабочему пространству. Настройка по умолчанию не даёт доступ автоматически.';
+	@override String get accountCheck => 'Проверки перед удалением аккаунта';
+	@override String workspaceContext({required Object name}) => 'Рабочее пространство: ${name}';
+	@override String get noIntro => 'Описание отсутствует';
 }
 
 /// The flat map containing all translations for locale <ru-RU>.
@@ -5754,21 +5754,21 @@ extension on TranslationsRuRu {
 			'organization.chart.collapse' => 'Свернуть отделы',
 			'organization.chart.gestureHint' => 'Перетаскивайте для просмотра · Масштаб щипком',
 			'organization.chart.directMembers' => ({required Object count}) => 'Прямые подчинённые: ${count}',
-			'organization.experienceUi.switchSpace' => 'Switch space',
-			'organization.experienceUi.personalSpace' => 'Personal space',
-			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
-			'organization.experienceUi.currentSpace' => 'Current space',
-			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
-			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
-			'organization.experienceUi.groupContent' => 'Group content',
-			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
-			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
-			'organization.experienceUi.defaultAvailable' => 'Configured',
-			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
-			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
-			'organization.experienceUi.accountCheck' => 'Account deletion checks',
-			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.experienceUi.switchSpace' => 'Переключить пространство',
+			'organization.experienceUi.personalSpace' => 'Личное пространство',
+			'organization.experienceUi.enterpriseSpaces' => 'Корпоративные пространства',
+			'organization.experienceUi.currentSpace' => 'Текущее пространство',
+			'organization.experienceUi.enterpriseInfo' => 'Данные организации',
+			'organization.experienceUi.collaborationSpace' => 'Пространства для совместной работы',
+			'organization.experienceUi.groupContent' => 'Контент групп',
+			'organization.experienceUi.groupCollaboration' => 'Совместная работа в группах',
+			'organization.experienceUi.defaultWorkspace' => 'Рабочее пространство по умолчанию',
+			'organization.experienceUi.defaultAvailable' => 'Настроено',
+			'organization.experienceUi.defaultUnknown' => 'Временно недоступно',
+			'organization.experienceUi.defaultHint' => 'Чтобы войти, присоединитесь к соответствующему рабочему пространству. Настройка по умолчанию не даёт доступ автоматически.',
+			'organization.experienceUi.accountCheck' => 'Проверки перед удалением аккаунта',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Рабочее пространство: ${name}',
+			'organization.experienceUi.noIntro' => 'Описание отсутствует',
 			'passport.loginHistoryToggle' => 'Показать историю входа',
 			'passport.hintEmail' => 'Введите эл. почту',
 			'passport.hintMobile' => 'Введите номер мобильного',

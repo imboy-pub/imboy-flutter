@@ -44,6 +44,6 @@ groupCreatedSuccess: グループチャットを作成しました。グルー�
 groupInfo: グループ情報
 groupMemberRoleLabel: メンバー
 moreActions: その他の操作
-noMemberWithRole: "${roleName}はいません"
+noMemberWithRole(roleName): "${roleName}はいません"
 perfectionGroupInfo: グループ情報を設定
 touchContactAddMember: 連絡先をタップしてグループメンバーに追加

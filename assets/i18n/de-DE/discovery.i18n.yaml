@@ -37,9 +37,9 @@ openChannel: Kanal öffnen
 paidChannelLocked: Inhalt gesperrt (Kostenpflichtig)
 webQRScanned: Gescannt
 momentActionMore: Weitere Aktionen
-momentAtCount: "${count} Personen"
-momentAtReminded: "Benachrichtigt: ${name}"
-momentAtRemindedMore: "Benachrichtigt: ${name} und ${count} weitere"
+momentAtCount(count): "${count} Personen"
+momentAtReminded(name): "Benachrichtigt: ${name}"
+momentAtRemindedMore(name, count): "Benachrichtigt: ${name} und ${count} weitere"
 momentAtWho: Wen benachrichtigen?
 momentLocation: Standort
 momentLocationNone: Standort nicht anzeigen

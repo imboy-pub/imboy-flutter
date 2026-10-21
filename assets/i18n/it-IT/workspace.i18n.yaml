@@ -18,9 +18,9 @@ brandingPreviewApplied: Il colore principale attuale sarà applicato all'interno
 brandingPreviewFallback: Valore non impostato o non valido, uso del colore del tema predefinito
 brandingSaved: Impostazioni del brand salvate
 brandingTitle: Brand dell'area di lavoro
-changeRoleTitle(name): "Modifica il ruolo nell'area di lavoro di $name"
+changeRoleTitle: "Modifica il ruolo nell'area di lavoro di $name"
 channelDetailTitle: Canale
-channelTileSubtitle(count): "$count iscritti"
+channelTileSubtitle: "$count iscritti"
 channelsEmptySubtitle: "I canali servono a pubblicare contenuti in modo continuativo (annunci/materiali); per discutere vai ai gruppi"
 channelsEmptyTitle: Nessun canale nell'area di lavoro per ora
 createDesc: "Con una sola creazione, automaticamente: area di lavoro, tu (come Owner, membro dell'area di lavoro), canale Announcements e gruppo General. Tutto riesce o tutto viene annullato."
@@ -41,7 +41,7 @@ dmEntry: Tutti i messaggi
 emptyNoWorkspace: Seleziona o crea prima un'area di lavoro
 experienceModePersonal: Personale
 governanceTitle: Governance dell'area di lavoro
-groupTileSubtitle(count): "$count membri del gruppo"
+groupTileSubtitle: "$count membri del gruppo"
 groupsEmptySubtitle: "I gruppi sono gli spazi di discussione in tempo reale dell'area di lavoro (unico punto d'accesso alla chat)"
 groupsEmptyTitle: Nessun gruppo nell'area di lavoro per ora
 inviteCodeCopy: Copia
@@ -98,7 +98,7 @@ projectChannelLinkedToast: Canale collegato
 projectChannelNoCandidate: Nessun canale candidato collegabile
 projectChannelUnlinkDesc: "Dopo lo scollegamento i contenuti del canale non verranno più aggregati in questo progetto"
 projectChannelUnlinkSubmit: Scollega
-projectChannelUnlinkTitle(name): "Scollega $name"
+projectChannelUnlinkTitle: "Scollega $name"
 projectChannelUnlinkedToast: Scollegato
 projectChannelsEntry: Canali del progetto
 projectChannelsTitle: Canali del progetto
@@ -112,7 +112,7 @@ projectGuestReadonly: "Come Ospite (Guest) il progetto è in sola lettura"
 projectInsightsActivityEmpty: Nessuna attività per questo progetto
 projectInsightsEntry: Aggregazione contenuti
 projectInsightsPinnedEmpty: I canali collegati non hanno contenuti in evidenza per ora
-projectInsightsPostAuthor(name): Pubblicato da $name
+projectInsightsPostAuthor: Pubblicato da $name
 projectInsightsPostsEmpty: I canali collegati non hanno post per ora
 projectInsightsResourcesEmpty: Nessun link alle risorse per questo progetto
 projectInsightsTabActivity: Attività del progetto
@@ -131,13 +131,13 @@ projectMemberInviteSubmit: Invita
 projectMemberInviteSuccess: Aggiunto ai membri del progetto
 projectMemberInviteTitle: Invita membri nel progetto
 projectMemberRemoveConfirmDesc: "Dopo la rimozione l'utente perderà l'accesso ai contenuti di questo progetto (potrà essere invitato di nuovo)"
-projectMemberRemoveConfirmTitle(name): "Rimuovi il membro del progetto $name"
+projectMemberRemoveConfirmTitle: "Rimuovi il membro del progetto $name"
 projectMemberRemoveSubmit: Rimuovi
 projectMemberRemovedToast: Rimosso
 projectMemberTransferConfirm: Conferma trasferimento
 projectMemberTransferDesc: "Dopo il trasferimento l'altro otterrà il pieno controllo di gestione di questo progetto"
 projectMemberTransferDoneToast: Responsabilità del progetto trasferita
-projectMemberTransferTitle(name): "Trasferisci la responsabilità del progetto a $name"
+projectMemberTransferTitle: "Trasferisci la responsabilità del progetto a $name"
 projectMembersEntry: Membri
 projectMembersTitle: Membri del progetto
 projectMilestoneAlreadyReachedToast: Questa milestone è già stata raggiunta
@@ -177,7 +177,7 @@ projectsEmptyTitle: Nessun progetto per ora
 projectsLoadMore: Carica altro
 removeMemberConfirm: Conferma rimozione
 removeMemberDesc: "Dopo la rimozione perderà subito l'accesso all'area di lavoro; se ha ancora attività non completate o progetti a sua responsabilità, il server restituirà un elenco di conflitti e annullerà la rimozione"
-removeMemberTitle(name): "Rimuovi il membro dell'area di lavoro $name"
+removeMemberTitle: "Rimuovi il membro dell'area di lavoro $name"
 restoreConfirm: Conferma ripristino
 restoreDesc: Dopo il ripristino l'area di lavoro tornerà in lettura e scrittura
 restoreEntry: Ripristina area di lavoro
@@ -191,7 +191,7 @@ roleMember: Member
 roleOwner: Owner
 switchToPersonal: Passa a personale
 switchWorkspace: Cambia area di lavoro
-taskAdvanceTo(status): "Avanza a «$status»"
+taskAdvanceTo: "Avanza a «$status»"
 taskAssigneeLabel: "Responsabile (membro dell'area di lavoro)"
 taskAssigneeNone: Non assegnare per ora
 taskAssigneeRefresh: Aggiorna i candidati responsabili
@@ -199,14 +199,14 @@ taskCreatedToast: Attività creata
 taskEmptySubtitle: "Monitora l'esecuzione con quattro stati: da fare → in corso → in revisione → completata"
 taskEmptyTitle: Nessuna attività per ora
 taskExistingToast: Esiste già un'attività con lo stesso titolo, verrà usata quella esistente
-taskFallbackMenuTitle(title): "Riporta \"$title\" a…"
+taskFallbackMenuTitle: "Riporta \"$title\" a…"
 taskFilterAll: Tutte
 taskFormCreateTitle: Nuova attività
 taskFormEditTitle: Modifica attività
 taskNewEntry: Nuova attività
 taskStatusDoing: In corso
 taskStatusDone: Completata
-taskStatusMovedToast(status): "Spostata a «$status»"
+taskStatusMovedToast: "Spostata a «$status»"
 taskStatusReview: In revisione
 taskStatusTodo: Da fare
 taskSubmitCreate: Crea attività
@@ -216,7 +216,7 @@ taskTitleRequired: Il titolo dell'attività non può essere vuoto
 taskUpdatedToast: Attività salvata
 transferConfirm: Conferma trasferimento
 transferDesc: "Dopo il trasferimento diventerai un normale membro dell'area di lavoro (Member) e l'altro otterrà tutti i poteri di governance"
-transferTitle(name): "Trasferisci il ruolo di Owner principale a $name"
+transferTitle: "Trasferisci il ruolo di Owner principale a $name"
 
 # T06 (imboy-enterprise-uiux-v1) 补齐既有键缺口，保证各 locale 键集一致
 advancedFeatures: "Funzioni avanzate"

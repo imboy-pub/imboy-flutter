@@ -226,3 +226,4 @@ macos/Shims/vendor/Sentry/**/*.png
 # 计划文档目录（主仓 WIP, 2026-10-17）
 docs/ux-plan
 test/*/*.png
+.workbuddy

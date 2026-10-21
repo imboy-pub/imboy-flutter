@@ -99,7 +99,7 @@ alipaySim:
   selectMethod: Seleziona metodo di pagamento
   storeName: Negozio flagship di tecnologia dell'informazione
 logoutCancelledNote: Richiesta di disattivazione ritirata
-logoutPendingBanner(date): "Richiesta di disattivazione inviata, completamento previsto per il $date"
+logoutPendingBanner: "Richiesta di disattivazione inviata, completamento previsto per il $date"
 logoutPendingHeader: Stato della richiesta di disattivazione
 logoutCancelRequest: Annulla richiesta di disattivazione
 logoutRetainedHeader: Informativa sulla conservazione dei dati

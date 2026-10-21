@@ -3270,21 +3270,21 @@ class _Translations$organization$experienceUi$ja_JP extends Translations$organiz
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
-	@override String get switchSpace => 'Switch space';
-	@override String get personalSpace => 'Personal space';
-	@override String get enterpriseSpaces => 'Enterprise spaces';
-	@override String get currentSpace => 'Current space';
-	@override String get enterpriseInfo => 'Enterprise info';
-	@override String get collaborationSpace => 'Collaboration spaces';
-	@override String get groupContent => 'Group content';
-	@override String get groupCollaboration => 'Group collaboration';
-	@override String get defaultWorkspace => 'Default workspace';
-	@override String get defaultAvailable => 'Configured';
-	@override String get defaultUnknown => 'Temporarily unavailable';
-	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
-	@override String get accountCheck => 'Account deletion checks';
-	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
-	@override String get noIntro => 'No description';
+	@override String get switchSpace => 'スペースを切り替え';
+	@override String get personalSpace => '個人スペース';
+	@override String get enterpriseSpaces => '企業スペース';
+	@override String get currentSpace => '現在のスペース';
+	@override String get enterpriseInfo => '企業情報';
+	@override String get collaborationSpace => 'コラボレーションスペース';
+	@override String get groupContent => 'グループコンテンツ';
+	@override String get groupCollaboration => 'グループコラボレーション';
+	@override String get defaultWorkspace => 'デフォルトのワークスペース';
+	@override String get defaultAvailable => '設定済み';
+	@override String get defaultUnknown => '一時的に取得できません';
+	@override String get defaultHint => '該当するワークスペースに参加すると入れます。デフォルト設定ではアクセス権は自動付与されません。';
+	@override String get accountCheck => 'アカウント削除前の確認';
+	@override String workspaceContext({required Object name}) => 'ワークスペース：${name}';
+	@override String get noIntro => '紹介文はまだありません';
 }
 
 /// The flat map containing all translations for locale <ja-JP>.
@@ -5745,21 +5745,21 @@ extension on TranslationsJaJp {
 			'organization.chart.collapse' => '下位部門を折りたたむ',
 			'organization.chart.gestureHint' => 'ドラッグで移動 · ピンチで拡大縮小',
 			'organization.chart.directMembers' => ({required Object count}) => '直属 ${count} 人',
-			'organization.experienceUi.switchSpace' => 'Switch space',
-			'organization.experienceUi.personalSpace' => 'Personal space',
-			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
-			'organization.experienceUi.currentSpace' => 'Current space',
-			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
-			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
-			'organization.experienceUi.groupContent' => 'Group content',
-			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
-			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
-			'organization.experienceUi.defaultAvailable' => 'Configured',
-			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
-			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
-			'organization.experienceUi.accountCheck' => 'Account deletion checks',
-			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.experienceUi.switchSpace' => 'スペースを切り替え',
+			'organization.experienceUi.personalSpace' => '個人スペース',
+			'organization.experienceUi.enterpriseSpaces' => '企業スペース',
+			'organization.experienceUi.currentSpace' => '現在のスペース',
+			'organization.experienceUi.enterpriseInfo' => '企業情報',
+			'organization.experienceUi.collaborationSpace' => 'コラボレーションスペース',
+			'organization.experienceUi.groupContent' => 'グループコンテンツ',
+			'organization.experienceUi.groupCollaboration' => 'グループコラボレーション',
+			'organization.experienceUi.defaultWorkspace' => 'デフォルトのワークスペース',
+			'organization.experienceUi.defaultAvailable' => '設定済み',
+			'organization.experienceUi.defaultUnknown' => '一時的に取得できません',
+			'organization.experienceUi.defaultHint' => '該当するワークスペースに参加すると入れます。デフォルト設定ではアクセス権は自動付与されません。',
+			'organization.experienceUi.accountCheck' => 'アカウント削除前の確認',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'ワークスペース：${name}',
+			'organization.experienceUi.noIntro' => '紹介文はまだありません',
 			'passport.loginHistoryToggle' => 'ログイン履歴を表示',
 			'passport.hintEmail' => 'メールアドレスを入力してください',
 			'passport.hintMobile' => '携帯電話番号を入力してください',

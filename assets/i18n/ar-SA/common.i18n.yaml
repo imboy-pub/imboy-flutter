@@ -856,9 +856,9 @@ me: أنا
 justNow: "الآن"
 minutesAgo: "دقائق مضت"
 hoursAgo: "ساعات مضت"
-timeDaysShort: "${count}ي"
-timeHoursShort: "${count}س"
-timeMinutesShort: "${count}د"
+timeDaysShort(count): "${count}ي"
+timeHoursShort(count): "${count}س"
+timeMinutesShort(count): "${count}د"
 timeNowShort: "الآن"
 reconnecting: الشبكة ضعيفة، جارٍ إعادة الاتصال…
 switchCamera: تبديل الكاميرا
@@ -866,9 +866,9 @@ noHistory: لا يوجد سجل
 noNewRegisteredUsersTitle: لا يوجد مستخدمون مسجلون جدد
 payReceiveSuccess: تم استلام المبلغ بنجاح!
 purchaseConfirming: جارٍ تأكيد الدفع، تحقق من حالة الطلب لاحقاً
-uploadPartialFailed: فشل رفع $count عنصراً
+uploadPartialFailed(count): فشل رفع $count عنصراً
 momentsHasFailedUploads: فشل رفع بعض الوسائط، أعد المحاولة أو أزلها ثم انشر
-f2fEnteringGroup: سيدخل $count أشخاص قريباً إلى الدردشة الجماعية
+f2fEnteringGroup(count): سيدخل $count أشخاص قريباً إلى الدردشة الجماعية
 f2fSecretCode: الرمز السري
 complianceKeyChangedTitle: تم تغيير مفتاح تدقيق الامتثال
 complianceKeyChangedActionConfirm: تأكيد التدوير
@@ -913,7 +913,7 @@ redPacketStuffNormal: إرسال من المحفظة
 redPacketFetchError: خطأ في جلب تفاصيل المغلف
 redPacketFetchFailed: تعذّر جلب تفاصيل المغلف
 redPacketNotFound: المغلف غير موجود أو محذوف
-redPacketReceiverLabel: "المستخدم: $uid"
+redPacketReceiverLabel(uid): "المستخدم: $uid"
 transferAmountLabel: مبلغ التحويل
 transferRemarkLabel: ملاحظة التحويل
 transferDefaultRemark: تحويل إلى صديق

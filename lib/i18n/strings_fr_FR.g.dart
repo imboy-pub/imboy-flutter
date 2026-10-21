@@ -3059,7 +3059,7 @@ class _Translations$organization$directory$fr_FR extends Translations$organizati
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get currentMembersSection => 'Direct members';
+	@override String get currentMembersSection => 'Membres de ce niveau';
 	@override String get structureSection => 'Structure organisationnelle';
 	@override String get title => 'Annuaire';
 	@override String get deptSection => 'Départements';
@@ -3257,13 +3257,13 @@ class _Translations$organization$chart$fr_FR extends Translations$organization$c
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get zoomIn => 'Zoom in';
-	@override String get zoomOut => 'Zoom out';
-	@override String get fit => 'Fit to window';
-	@override String get expand => 'Expand departments';
-	@override String get collapse => 'Collapse departments';
-	@override String get gestureHint => 'Drag to pan · Pinch to zoom';
-	@override String directMembers({required Object count}) => '${count} direct members';
+	@override String get zoomIn => 'Zoom avant';
+	@override String get zoomOut => 'Zoom arrière';
+	@override String get fit => 'Ajuster à la fenêtre';
+	@override String get expand => 'Développer les sous-services';
+	@override String get collapse => 'Réduire les sous-services';
+	@override String get gestureHint => 'Glisser pour déplacer · Pincer pour zoomer';
+	@override String directMembers({required Object count}) => '${count} membres à ce niveau';
 }
 
 // Path: organization.experienceUi
@@ -3273,21 +3273,21 @@ class _Translations$organization$experienceUi$fr_FR extends Translations$organiz
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
-	@override String get switchSpace => 'Switch space';
-	@override String get personalSpace => 'Personal space';
-	@override String get enterpriseSpaces => 'Enterprise spaces';
-	@override String get currentSpace => 'Current space';
-	@override String get enterpriseInfo => 'Enterprise info';
-	@override String get collaborationSpace => 'Collaboration spaces';
-	@override String get groupContent => 'Group content';
-	@override String get groupCollaboration => 'Group collaboration';
-	@override String get defaultWorkspace => 'Default workspace';
-	@override String get defaultAvailable => 'Configured';
-	@override String get defaultUnknown => 'Temporarily unavailable';
-	@override String get defaultHint => 'Join the workspace to access it. The default setting does not grant access.';
-	@override String get accountCheck => 'Account deletion checks';
-	@override String workspaceContext({required Object name}) => 'Workspace: ${name}';
-	@override String get noIntro => 'No description';
+	@override String get switchSpace => 'Changer d\'espace';
+	@override String get personalSpace => 'Espace personnel';
+	@override String get enterpriseSpaces => 'Espaces d\'entreprise';
+	@override String get currentSpace => 'Espace actuel';
+	@override String get enterpriseInfo => 'Informations sur l\'entreprise';
+	@override String get collaborationSpace => 'Espaces de collaboration';
+	@override String get groupContent => 'Contenu des groupes';
+	@override String get groupCollaboration => 'Collaboration de groupe';
+	@override String get defaultWorkspace => 'Espace de travail par défaut';
+	@override String get defaultAvailable => 'Configuré';
+	@override String get defaultUnknown => 'Temporairement indisponible';
+	@override String get defaultHint => 'Rejoignez l\'espace de travail correspondant pour y accéder ; le réglage par défaut n\'accorde pas l\'accès automatiquement.';
+	@override String get accountCheck => 'Vérifications avant suppression du compte';
+	@override String workspaceContext({required Object name}) => 'Espace de travail : ${name}';
+	@override String get noIntro => 'Aucune description';
 }
 
 /// The flat map containing all translations for locale <fr-FR>.
@@ -5606,7 +5606,7 @@ extension on TranslationsFrFr {
 			'organization.inviteQr.copyCode' => 'Copier le code',
 			'organization.inviteQr.copied' => 'Code d\'invitation copié',
 			'organization.inviteQr.inviteDisabledPending' => 'L\'entreprise est en attente d\'examen ; les membres pourront être invités une fois celle-ci validée',
-			'organization.directory.currentMembersSection' => 'Direct members',
+			'organization.directory.currentMembersSection' => 'Membres de ce niveau',
 			'organization.directory.structureSection' => 'Structure organisationnelle',
 			'organization.directory.title' => 'Annuaire',
 			'organization.directory.deptSection' => 'Départements',
@@ -5741,28 +5741,28 @@ extension on TranslationsFrFr {
 			'organization.tools.projectsError' => ({required Object err}) => 'Échec du chargement des projets : ${err}',
 			'organization.tools.moreInWorkspaceShell' => 'Parcourir tous les espaces',
 			'organization.tools.moreInWorkspaceShellHint' => 'Ouvrir le sélecteur global d\'espaces (inter-entreprises).',
-			'organization.chart.zoomIn' => 'Zoom in',
-			'organization.chart.zoomOut' => 'Zoom out',
-			'organization.chart.fit' => 'Fit to window',
-			'organization.chart.expand' => 'Expand departments',
-			'organization.chart.collapse' => 'Collapse departments',
-			'organization.chart.gestureHint' => 'Drag to pan · Pinch to zoom',
-			'organization.chart.directMembers' => ({required Object count}) => '${count} direct members',
-			'organization.experienceUi.switchSpace' => 'Switch space',
-			'organization.experienceUi.personalSpace' => 'Personal space',
-			'organization.experienceUi.enterpriseSpaces' => 'Enterprise spaces',
-			'organization.experienceUi.currentSpace' => 'Current space',
-			'organization.experienceUi.enterpriseInfo' => 'Enterprise info',
-			'organization.experienceUi.collaborationSpace' => 'Collaboration spaces',
-			'organization.experienceUi.groupContent' => 'Group content',
-			'organization.experienceUi.groupCollaboration' => 'Group collaboration',
-			'organization.experienceUi.defaultWorkspace' => 'Default workspace',
-			'organization.experienceUi.defaultAvailable' => 'Configured',
-			'organization.experienceUi.defaultUnknown' => 'Temporarily unavailable',
-			'organization.experienceUi.defaultHint' => 'Join the workspace to access it. The default setting does not grant access.',
-			'organization.experienceUi.accountCheck' => 'Account deletion checks',
-			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Workspace: ${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.chart.zoomIn' => 'Zoom avant',
+			'organization.chart.zoomOut' => 'Zoom arrière',
+			'organization.chart.fit' => 'Ajuster à la fenêtre',
+			'organization.chart.expand' => 'Développer les sous-services',
+			'organization.chart.collapse' => 'Réduire les sous-services',
+			'organization.chart.gestureHint' => 'Glisser pour déplacer · Pincer pour zoomer',
+			'organization.chart.directMembers' => ({required Object count}) => '${count} membres à ce niveau',
+			'organization.experienceUi.switchSpace' => 'Changer d\'espace',
+			'organization.experienceUi.personalSpace' => 'Espace personnel',
+			'organization.experienceUi.enterpriseSpaces' => 'Espaces d\'entreprise',
+			'organization.experienceUi.currentSpace' => 'Espace actuel',
+			'organization.experienceUi.enterpriseInfo' => 'Informations sur l\'entreprise',
+			'organization.experienceUi.collaborationSpace' => 'Espaces de collaboration',
+			'organization.experienceUi.groupContent' => 'Contenu des groupes',
+			'organization.experienceUi.groupCollaboration' => 'Collaboration de groupe',
+			'organization.experienceUi.defaultWorkspace' => 'Espace de travail par défaut',
+			'organization.experienceUi.defaultAvailable' => 'Configuré',
+			'organization.experienceUi.defaultUnknown' => 'Temporairement indisponible',
+			'organization.experienceUi.defaultHint' => 'Rejoignez l\'espace de travail correspondant pour y accéder ; le réglage par défaut n\'accorde pas l\'accès automatiquement.',
+			'organization.experienceUi.accountCheck' => 'Vérifications avant suppression du compte',
+			'organization.experienceUi.workspaceContext' => ({required Object name}) => 'Espace de travail : ${name}',
+			'organization.experienceUi.noIntro' => 'Aucune description',
 			'passport.loginHistoryToggle' => 'Afficher l\'historique de connexion',
 			'passport.hintEmail' => 'Veuillez entrer votre adresse e-mail',
 			'passport.hintMobile' => 'Veuillez entrer votre numéro de téléphone',

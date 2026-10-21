@@ -427,4 +427,4 @@ experienceUi:
   defaultHint: "加入相应工作区后可进入，默认设置不会自动授予访问权限。"
   accountCheck: "注销前检查"
   workspaceContext: "工作区：${name}"
-  noIntro: "No description"
+  noIntro: "暫無簡介"

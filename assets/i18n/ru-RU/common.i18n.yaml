@@ -866,7 +866,7 @@ e2eeRecoveryKeyTitle: Ключ восстановления
 e2eeUseRecoveryKey: Создать ключ восстановления (запасной доступ при забытой парольной фразе)
 enterAmount: Введите сумму
 expandFull: Развернуть
-f2fEnteringGroup: "Скоро в групповой чат войдут: $count чел."
+f2fEnteringGroup(count): "Скоро в групповой чат войдут: $count чел."
 f2fSecretCode: Секретный код
 hoursAgo: ч. назад
 minutesAgo: мин. назад
@@ -894,7 +894,7 @@ redPacketFetchError: Ошибка загрузки деталей конверт
 redPacketFetchFailed: Не удалось загрузить детали конверта
 redPacketGreetingLabel: Подпись / пожелание
 redPacketNotFound: Конверт не существует или удалён
-redPacketReceiverLabel: "Пользователь: $uid"
+redPacketReceiverLabel(uid): "Пользователь: $uid"
 redPacketSingleAmount: Сумма на конверт
 redPacketStuffLucky: Наполнить конверт
 redPacketStuffNormal: Отправить из кошелька
@@ -903,9 +903,9 @@ redPacketSwitchToNormal: Переключить на обычный конвер
 redPacketTotalAmount: Общая сумма
 redPacketView: Просмотреть конверт
 switchCamera: Переключить камеру
-timeDaysShort: "${count} д"
-timeHoursShort: "${count} ч"
-timeMinutesShort: "${count} мин"
+timeDaysShort(count): "${count} д"
+timeHoursShort(count): "${count} ч"
+timeMinutesShort(count): "${count} мин"
 timeNowShort: сейчас
 transferAccepted: Получено
 transferAmountLabel: Сумма перевода
@@ -917,7 +917,7 @@ transferReceiving: Получение платежа...
 transferRefunded: Возвращено
 transferRemarkLabel: Примечание к переводу
 transferTapToReceive: Нажмите, чтобы получить
-uploadPartialFailed: "Не удалось загрузить элементов: $count"
+uploadPartialFailed(count): "Не удалось загрузить элементов: $count"
 voiceSttConverting: Распознавание...
 voiceSttNotConfigured: Функция распознавания речи не настроена
 voiceSttPreviewTitle: Предпросмотр распознанного текста

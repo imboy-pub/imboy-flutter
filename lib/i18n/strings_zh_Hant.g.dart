@@ -3284,7 +3284,7 @@ class Translations$organization$experienceUi$zh_Hant extends Translations$organi
 	@override String get defaultHint => '加入相应工作区后可进入，默认设置不会自动授予访问权限。';
 	@override String get accountCheck => '注销前检查';
 	@override String workspaceContext({required Object name}) => '工作区：${name}';
-	@override String get noIntro => 'No description';
+	@override String get noIntro => '暫無簡介';
 }
 
 /// The flat map containing all translations for locale <zh-Hant>.
@@ -5759,7 +5759,7 @@ extension on TranslationsZhHant {
 			'organization.experienceUi.defaultHint' => '加入相应工作区后可进入，默认设置不会自动授予访问权限。',
 			'organization.experienceUi.accountCheck' => '注销前检查',
 			'organization.experienceUi.workspaceContext' => ({required Object name}) => '工作区：${name}',
-			'organization.experienceUi.noIntro' => 'No description',
+			'organization.experienceUi.noIntro' => '暫無簡介',
 			'passport.loginHistoryToggle' => '展開歷史登入記錄',
 			'passport.hintEmail' => '請輸入郵箱',
 			'passport.hintMobile' => '請輸入手機號碼',

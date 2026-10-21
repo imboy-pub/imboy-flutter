@@ -90,11 +90,11 @@ members:
   ownerCannotChangeHere: "Der Owner kann hier nicht geändert werden; verwende „Eigentümerschaft übertragen“"
   viewDetail: Profil anzeigen
   suspendMember: Mitglied sperren
-  suspendBody: "${name}s Zugriff auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar."
+  suspendBody: "Zugriff von „${name}“ auf diese Organisation sperren (sofort wirksam; persönliches Konto und andere Organisationen bleiben unberührt). Jederzeit wiederherstellbar."
   confirmSuspend: Sperren bestätigen
   suspendFailed: Sperren fehlgeschlagen
   restoreMember: Mitglied entsperren
-  restoreBody: "${name}s Zugriff auf diese Organisation wiederherstellen."
+  restoreBody: "Zugriff von „${name}“ auf diese Organisation wiederherstellen."
   confirmRestoreMember: Entsperren bestätigen
   restoreFailed: Entsperren fehlgeschlagen
   offboardMember: Austritt (endgültig)
@@ -255,7 +255,7 @@ inviteQr:
   # Hinweis bei deaktiviertem Code-Einstieg für pending/rejected-Unternehmen (Server preview/join stets 409)
   inviteDisabledPending: "Das Unternehmen befindet sich in Prüfung; Mitglieder können erst nach Genehmigung eingeladen werden"
 directory:
-  currentMembersSection: Direct members
+  currentMembersSection: Mitglieder dieser Ebene
   structureSection: Organisationsstruktur
   title: "Verzeichnis"
   deptSection: "Abteilungen"
@@ -403,28 +403,28 @@ tools:
   moreInWorkspaceShellHint: Globalen Workspace-Umschalter öffnen (unternehmensübergreifend).
 
 chart:
-  zoomIn: Zoom in
-  zoomOut: Zoom out
-  fit: Fit to window
-  expand: Expand departments
-  collapse: Collapse departments
-  gestureHint: Drag to pan · Pinch to zoom
-  directMembers: ${count} direct members
+  zoomIn: Vergrößern
+  zoomOut: Verkleinern
+  fit: An Fenster anpassen
+  expand: Unterabteilungen ausklappen
+  collapse: Unterabteilungen einklappen
+  gestureHint: Ziehen zum Verschieben · Zusammen-/Auseinanderziehen zum Zoomen
+  directMembers: "${count} Mitglieder auf dieser Ebene"
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
-  switchSpace: "Switch space"
-  personalSpace: "Personal space"
-  enterpriseSpaces: "Enterprise spaces"
-  currentSpace: "Current space"
-  enterpriseInfo: "Enterprise info"
-  collaborationSpace: "Collaboration spaces"
-  groupContent: "Group content"
-  groupCollaboration: "Group collaboration"
-  defaultWorkspace: "Default workspace"
-  defaultAvailable: "Configured"
-  defaultUnknown: "Temporarily unavailable"
-  defaultHint: "Join the workspace to access it. The default setting does not grant access."
-  accountCheck: "Account deletion checks"
-  workspaceContext: "Workspace: ${name}"
-  noIntro: "No description"
+  switchSpace: "Space wechseln"
+  personalSpace: "Persönlicher Space"
+  enterpriseSpaces: "Unternehmens-Spaces"
+  currentSpace: "Aktueller Space"
+  enterpriseInfo: "Unternehmensinfo"
+  collaborationSpace: "Kollaborations-Spaces"
+  groupContent: "Gruppeninhalte"
+  groupCollaboration: "Gruppenzusammenarbeit"
+  defaultWorkspace: "Standard-Arbeitsbereich"
+  defaultAvailable: "Eingerichtet"
+  defaultUnknown: "Vorübergehend nicht verfügbar"
+  defaultHint: "Tritt dem entsprechenden Arbeitsbereich bei, um darauf zuzugreifen. Die Standardeinstellung gewährt keinen automatischen Zugriff."
+  accountCheck: "Prüfungen vor der Kontolöschung"
+  workspaceContext: "Arbeitsbereich: ${name}"
+  noIntro: "Keine Beschreibung"

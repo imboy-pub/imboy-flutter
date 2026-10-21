@@ -255,7 +255,7 @@ inviteQr:
   # Suggerimento di ingresso generazione disabilitato per aziende pending/rejected (preview/join del server sempre 409)
   inviteDisabledPending: "L'azienda è in attesa di revisione; i membri potranno essere invitati solo dopo l'approvazione"
 directory:
-  currentMembersSection: Direct members
+  currentMembersSection: Membri di questo livello
   structureSection: Struttura organizzativa
   title: "Rubrica"
   deptSection: "Dipartimenti"
@@ -403,28 +403,28 @@ tools:
   moreInWorkspaceShellHint: Apri il selettore globale degli workspace (tra aziende).
 
 chart:
-  zoomIn: Zoom in
-  zoomOut: Zoom out
-  fit: Fit to window
-  expand: Expand departments
-  collapse: Collapse departments
-  gestureHint: Drag to pan · Pinch to zoom
-  directMembers: ${count} direct members
+  zoomIn: Ingrandisci
+  zoomOut: Riduci
+  fit: Adatta alla finestra
+  expand: Espandi i reparti subordinati
+  collapse: Comprimi i reparti subordinati
+  gestureHint: Trascina per spostarti · Pizzica per lo zoom
+  directMembers: "${count} membri di questo livello"
 
 # Space and resource navigation / 空间与资源导航
 experienceUi:
-  switchSpace: "Switch space"
-  personalSpace: "Personal space"
-  enterpriseSpaces: "Enterprise spaces"
-  currentSpace: "Current space"
-  enterpriseInfo: "Enterprise info"
-  collaborationSpace: "Collaboration spaces"
-  groupContent: "Group content"
-  groupCollaboration: "Group collaboration"
-  defaultWorkspace: "Default workspace"
-  defaultAvailable: "Configured"
-  defaultUnknown: "Temporarily unavailable"
-  defaultHint: "Join the workspace to access it. The default setting does not grant access."
-  accountCheck: "Account deletion checks"
-  workspaceContext: "Workspace: ${name}"
-  noIntro: "No description"
+  switchSpace: "Cambia spazio"
+  personalSpace: "Spazio personale"
+  enterpriseSpaces: "Spazi aziendali"
+  currentSpace: "Spazio attuale"
+  enterpriseInfo: "Informazioni aziendali"
+  collaborationSpace: "Spazi di collaborazione"
+  groupContent: "Contenuti dei gruppi"
+  groupCollaboration: "Collaborazione di gruppo"
+  defaultWorkspace: "Area di lavoro predefinita"
+  defaultAvailable: "Configurata"
+  defaultUnknown: "Temporaneamente non disponibile"
+  defaultHint: "Potrai accedere dopo essere entrato nell'area di lavoro corrispondente; l'impostazione predefinita non concede l'accesso automaticamente."
+  accountCheck: "Controlli prima dell'eliminazione dell'account"
+  workspaceContext: "Area di lavoro: ${name}"
+  noIntro: "Nessuna descrizione"
