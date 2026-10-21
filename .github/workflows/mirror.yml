@@ -44,4 +44,9 @@ jobs:
           fi
           # 镜像端唯一写者为本 job，--force 安全（本地 rebase 后 force push 不被拒）
           git push --force "https://oauth2:${GITEE_TOKEN}@gitee.com/imboy-pub/imboy-flutter.git" "${SRC}:${DST}"
-          git push --force "https://oauth2:${GITCODE_TOKEN}@gitcode.com/imboy/imboy-flutter.git" "${SRC}:${DST}"
+          # gitcode 可选：未配 GITCODE_TOKEN 时跳过不红（与 nightly.yml 对 GITEE_TOKEN 容错同款）
+          if [ -n "${GITCODE_TOKEN}" ]; then
+            git push --force "https://oauth2:${GITCODE_TOKEN}@gitcode.com/imboy/imboy-flutter.git" "${SRC}:${DST}"
+          else
+            echo "::notice::GITCODE_TOKEN 未配置 —— 跳过 gitcode 镜像（gitee 已完成）"
+          fi
