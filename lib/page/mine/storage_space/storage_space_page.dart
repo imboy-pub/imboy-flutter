@@ -86,6 +86,21 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
     return IosPageTemplate(
       title: t.main.storageSpace,
       useLargeTitle: false,
+      actions: [
+        CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => Navigator.of(context).push(
+            CupertinoPageRoute<void>(
+              builder: (_) => const PersonalAttachmentsPage(),
+            ),
+          ),
+          child: Icon(
+            CupertinoIcons.folder,
+            size: 22,
+            semanticLabel: t.attachmentManager.personalTitle,
+          ),
+        ),
+      ],
       child: AsyncStateView(
         isLoading: storageState.isLoading && storageState.totalDiskSpace == 0,
         error: _error,
@@ -100,20 +115,6 @@ class _StorageSpacePageState extends ConsumerState<StorageSpacePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ImBoySettingsSection(
-                children: [
-                  ImBoySettingsTile(
-                    title: Text(t.attachmentManager.personalTitle),
-                    subtitle: Text(t.attachmentManager.storageHint),
-                    leading: const Icon(CupertinoIcons.folder),
-                    onTap: () => Navigator.of(context).push(
-                      CupertinoPageRoute<void>(
-                        builder: (_) => const PersonalAttachmentsPage(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               _buildStorageOverview(context, storageState, t),
               const SizedBox(height: AppSpacing.xLarge),
               _buildAppUsageSection(context, storageState, t),
