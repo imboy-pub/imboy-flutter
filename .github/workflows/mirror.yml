@@ -1,0 +1,47 @@
+# 镜像同步：github = 唯一 CI 源与推送事实源；push 到 github 后自动镜像 gitee / gitcode。
+# 结构动机：origin=gitee，裸 push 只到 gitee 时 GitHub CI 静默不跑（2026-07 审计根因）。
+# 凭证：GitHub org (imboy-pub) 级 Secrets：GITEE_TOKEN / GITCODE_TOKEN（org 全仓共用，配一次）。
+# 注意：gitee/gitcode 端 main 如设了分支保护拒 force，需放行或去掉 --force。
+
+name: Mirror
+
+on:
+  push:
+    branches: [main, dev]
+    tags: ['*']
+  workflow_dispatch:
+
+concurrency:
+  group: mirror-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  mirror:
+    name: Push to gitee + gitcode
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Push ${{ github.ref_name }} to mirrors
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+          GITCODE_TOKEN: ${{ secrets.GITCODE_TOKEN }}
+        run: |
+          set -eu
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            SRC="refs/tags/${GITHUB_REF_NAME}"
+            DST="refs/tags/${GITHUB_REF_NAME}"
+          else
+            SRC="refs/remotes/origin/${GITHUB_REF_NAME}"
+            DST="refs/heads/${GITHUB_REF_NAME}"
+          fi
+          # 镜像端唯一写者为本 job，--force 安全（本地 rebase 后 force push 不被拒）
+          git push --force "https://oauth2:${GITEE_TOKEN}@gitee.com/imboy-pub/imboy-flutter.git" "${SRC}:${DST}"
+          git push --force "https://oauth2:${GITCODE_TOKEN}@gitcode.com/imboy/imboy-flutter.git" "${SRC}:${DST}"
