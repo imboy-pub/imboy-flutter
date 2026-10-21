@@ -407,6 +407,8 @@ class FixtureTalkRecordResultsService implements TalkRecordResultsService {
     EntityId id, {
     required String ifMatch,
     required String idempotencyKey,
+    int? generation,
+    void Function()? requestGuard,
   }) async {
     final e = _entry(id);
     if (!e.isOwner) {

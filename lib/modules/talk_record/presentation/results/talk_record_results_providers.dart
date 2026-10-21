@@ -26,6 +26,7 @@ import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 import 'talk_record_results_service.dart';
+import 'talk_record_cleanup_retry_control.dart';
 import 'talk_record_export_delivery.dart';
 import '../talk_record_auth.dart';
 part 'talk_record_results_states.dart';
@@ -450,10 +451,12 @@ final talkRecordTransferCenterProvider =
 class TalkRecordDeleteCenterNotifier
     extends Notifier<TalkRecordDeleteCenterState> {
   int _epoch = 0;
+  (String, int, String)? _cleanupIntent;
   @override
   TalkRecordDeleteCenterState build() {
     void changed() {
       _epoch++;
+      _cleanupIntent = null;
       state = const TalkRecordDeleteCenterState();
     }
 
@@ -472,6 +475,7 @@ class TalkRecordDeleteCenterNotifier
       return;
     }
     _epoch++;
+    _cleanupIntent = null;
     state = TalkRecordDeleteCenterState(recordId: recordId);
     await reload();
   }
@@ -481,14 +485,23 @@ class TalkRecordDeleteCenterNotifier
     if (id.isEmpty) return;
     final epoch = ++_epoch;
     state = state.copyWith(phase: TalkRecordDeletePhase.loading);
+    final cleanupIntents = ref.read(talkRecordCleanupRetryIntentsProvider);
+    final cleanupRead = cleanupIntents.beginRead();
     try {
       final record = await ref
           .read(talkRecordResultsServiceProvider)
           .record(id);
       if (epoch != _epoch) return;
+      final session = ref.read(talkRecordCleanupSessionProvider)();
+      if (session != null) {
+        ref
+            .read(talkRecordCleanupRetryIntentsProvider)
+            .reconcileRecord(session, id, cleanupRead);
+      }
       state = state.copyWith(
         phase: TalkRecordDeletePhase.ready,
         record: record.data,
+        recordEtag: record.etag,
         // 已删除记录（深链/回流）：直接进入清理状态视图（白名单数据）。
         cleanupStatus: record.data.cleanupStatus,
         logicalDeleted: record.data.isDeleted,
@@ -542,31 +555,59 @@ class TalkRecordDeleteCenterNotifier
   }
 
   /// 刷新清理状态（owner 白名单读取，§11.3）。
-  Future<void> refreshStatus() async {
+  Future<bool> refreshStatus() async {
     await reload();
+    return state.phase == TalkRecordDeletePhase.ready;
   }
 
   /// 清理失败重试（failed → pending；重试≠清理完成）。
   Future<void> retryCleanup() async {
-    if (state.retryPhase == TalkRecordCleanupRetryPhase.retrying) return;
+    final capability = state.record?.cleanupRetry;
+    if (state.retryPhase == TalkRecordCleanupRetryPhase.retrying ||
+        !state.isDeleted ||
+        capability?.canRetry != true ||
+        !RegExp(r'^"[1-9][0-9]*"$').hasMatch(state.recordEtag)) {
+      return;
+    }
+    final etag = state.recordEtag;
+    final generation = capability!.generation!;
+    if (_cleanupIntent?.$1 != etag || _cleanupIntent?.$2 != generation) {
+      _cleanupIntent = (etag, generation, TalkRecordIds.newUuidV4());
+    }
     state = state.copyWith(retryPhase: TalkRecordCleanupRetryPhase.retrying);
-    final record = state.record;
     final epoch = _epoch;
     try {
       await ref
           .read(talkRecordResultsServiceProvider)
           .retryCleanup(
             state.recordId,
-            ifMatch: talkRecordRecordEtagOf(record?.revision ?? 0),
-            idempotencyKey: 'cleanup-retry-${state.recordId}',
+            ifMatch: etag,
+            generation: generation,
+            idempotencyKey: _cleanupIntent!.$3,
+            requestGuard: () {
+              if (epoch != _epoch) throw StateError('Cleanup session changed');
+            },
           );
       // 重试成功 → 重新读状态（fixture：pending）。
       if (epoch != _epoch) return;
+      _cleanupIntent = null;
       state = state.copyWith(retryPhase: TalkRecordCleanupRetryPhase.idle);
       await reload();
-    } on TalkRecordApiException {
+    } on TalkRecordApiException catch (error) {
       if (epoch != _epoch) return;
+      if (const [401, 403, 404, 410].contains(error.code)) {
+        _cleanupIntent = null;
+        state = TalkRecordDeleteCenterState(
+          recordId: state.recordId,
+          phase: TalkRecordDeletePhase.noAccess,
+        );
+        return;
+      }
       state = state.copyWith(retryPhase: TalkRecordCleanupRetryPhase.failed);
+      if (error.isConflict || error.isRevisionStale) {
+        _cleanupIntent = null;
+        await reload();
+      }
     } on Object {
       if (epoch != _epoch) return;
       state = state.copyWith(retryPhase: TalkRecordCleanupRetryPhase.failed);

@@ -21,6 +21,8 @@ import 'package:imboy/theme/default/font_types.dart';
 
 import 'talk_record_attachment_governance_api.dart';
 
+import 'package:imboy/modules/talk_record/presentation/results/talk_record_cleanup_retry_control.dart';
+
 class TalkAttachmentGovernanceSheet extends ConsumerStatefulWidget {
   const TalkAttachmentGovernanceSheet({
     super.key,
@@ -51,6 +53,7 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
   ProviderSubscription<WorkspaceShellState>? _contextSubscription;
   int _generation = 0;
   bool _busy = true;
+  bool _cleanupBusy = false;
   bool _conflict = false;
   String? _error;
   String? _intentKey;
@@ -147,8 +150,10 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
     _selectedUntil = null;
   }
 
-  Future<void> _load() async {
+  Future<bool> _load() async {
     final generation = ++_generation;
+    final cleanupIntents = ref.read(talkRecordCleanupRetryIntentsProvider);
+    final cleanupRead = cleanupIntents.beginRead();
     setState(() {
       _busy = true;
       _error = null;
@@ -157,13 +162,20 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
       final value = await ref
           .read(talkAttachmentGovernanceApiProvider)
           .read(widget.organizationId, widget.recordId, widget.attachmentId);
-      if (!_live(generation)) return;
+      if (!_live(generation)) return false;
+      final session = ref.read(talkRecordCleanupSessionProvider)();
+      if (session != null) {
+        ref
+            .read(talkRecordCleanupRetryIntentsProvider)
+            .reconcileRecord(session, widget.recordId, cleanupRead);
+      }
       setState(() {
         _snapshot = value;
         _conflict = false;
         _intentKey = null;
         _intent = null;
       });
+      return true;
     } catch (error) {
       if (_live(generation)) {
         setState(() {
@@ -172,8 +184,14 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
         });
       }
     } finally {
-      if (_live(generation)) setState(() => _busy = false);
+      if (_live(generation)) {
+        setState(() {
+          _busy = false;
+          _cleanupBusy = false;
+        });
+      }
     }
+    return false;
   }
 
   Future<bool> _confirm(String label, String op) async {
@@ -224,7 +242,7 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
   }
 
   Future<void> _pickUntil() async {
-    if (_busy) return;
+    if (_busy || _cleanupBusy) return;
     final generation = _generation;
     final now = DateTime.now();
     final old = DateTime.tryParse(_snapshot!.retention.retentionUntil)
@@ -283,7 +301,7 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
   }
 
   Future<void> _submit(String op, String label) async {
-    if (_busy || _snapshot == null || _conflict) return;
+    if (_busy || _cleanupBusy || _snapshot == null || _conflict) return;
     final body = _body(op);
     if (body == null) {
       setState(
@@ -382,7 +400,7 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
                   Text(_error!, key: const ValueKey('governance-error')),
                 if (_busy) const Center(child: CircularProgressIndicator()),
                 TextButton(
-                  onPressed: _busy ? null : _load,
+                  onPressed: _busy || _cleanupBusy ? null : _load,
                   child: Text(tr.retryAction),
                 ),
               ],
@@ -407,16 +425,34 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
           TalkRecordCleanupStatus.parse(snapshot.data['cleanup_status']),
         ),
       ),
+      if (snapshot.data['logical_deleted'] == true &&
+          snapshot.data['cleanup_status'] != 'complete')
+        TalkRecordCleanupRetryControl(
+          key: ValueKey('governance-cleanup-${widget.recordId}'),
+          recordId: widget.recordId,
+          etag: snapshot.etag,
+          capability: snapshot.cleanupRetry,
+          enabled: !_busy,
+          requestGuard: () {
+            if (!_live(_generation)) {
+              throw StateError('Cleanup workspace changed');
+            }
+          },
+          onBusyChanged: (busy) {
+            if (mounted) setState(() => _cleanupBusy = busy);
+          },
+          onRefresh: _load,
+        ),
       AppSpacing.verticalSmall,
       TextField(
         controller: _reason,
-        enabled: !_busy,
+        enabled: !_busy && !_cleanupBusy,
         maxLength: 200,
         decoration: InputDecoration(labelText: tr.governanceHoldReason),
       ),
       TextField(
         controller: _until,
-        enabled: !_busy,
+        enabled: !_busy && !_cleanupBusy,
         readOnly: true,
         onTap: _pickUntil,
         decoration: InputDecoration(
@@ -457,7 +493,7 @@ class _GovernanceState extends ConsumerState<TalkAttachmentGovernanceSheet> {
 
   Widget _action(String op, String label, bool eligible) => OutlinedButton(
     key: ValueKey('governance-$op'),
-    onPressed: !_busy && !_conflict && eligible
+    onPressed: !_busy && !_cleanupBusy && !_conflict && eligible
         ? () => _submit(op, label)
         : null,
     child: Text(label),

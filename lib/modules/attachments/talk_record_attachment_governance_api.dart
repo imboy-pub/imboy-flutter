@@ -8,6 +8,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/modules/enterprise_app/public.dart';
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/talk_record/talk_record_cleanup_retry_model.dart';
 
 final talkAttachmentGovernanceApiProvider = Provider(
   (ref) => TalkAttachmentGovernanceApi(),
@@ -17,6 +18,18 @@ class TalkAttachmentGovernanceSnapshot {
   TalkAttachmentGovernanceSnapshot._(this.data, this.etag);
   final Map<String, dynamic> data;
   final String etag;
+  TalkRecordCleanupRetryCapability? get cleanupRetry {
+    final generation = TalkRecordCleanupRetryCapability.counter(
+      data['cleanup_generation'],
+    );
+    final capability = TalkRecordCleanupRetryCapability.fromJson(
+      data['cleanup_retry'],
+    );
+    return generation != null && capability.generation == generation
+        ? capability
+        : null;
+  }
+
   AssetRetentionRecord get retention => AssetRetentionRecord(
     fileId: entityIdOf(data['attachment_id']),
     retentionUntil: data['retention_until'] as String? ?? '',

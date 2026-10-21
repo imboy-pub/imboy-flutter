@@ -201,13 +201,19 @@ void main() {
     final api = Api()..delayed = gate;
     final listeners = <VoidCallback>[];
     await pump(tester, api, listeners);
-    listeners.single();
+    for (final changed in List<VoidCallback>.of(listeners)) {
+      changed();
+    }
     await tester.pumpAndSettle();
     gate.complete(snap());
     await tester.pumpAndSettle();
     expect(find.byType(TalkAttachmentGovernanceSheet), findsNothing);
-    expect(listeners, isEmpty);
     expect(api.intents, isEmpty);
+    // The session-wide retry registry also subscribes to auth. Its listener is
+    // released when the enclosing provider scope ends, rather than the modal.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
+    expect(listeners, isEmpty);
   });
   testWidgets('cancel confirmation never submits an operation', (tester) async {
     final api = Api();

@@ -29,10 +29,14 @@ import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/config/router/routes/talk_record_routes.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/talk_record/presentation/results/talk_record_result_views.dart';
+
+import 'talk_record_cleanup_retry_control.dart';
+
 import 'package:imboy/modules/talk_record/presentation/results/talk_record_results_providers.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_invalid_view.dart';
 import 'package:imboy/modules/talk_record/presentation/share/talk_record_share_views.dart'
     show talkRecordShareCardDecoration;
+import 'package:imboy/store/model/talk_record/talk_record_enums.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -62,6 +66,16 @@ class _TalkRecordDeletePageState extends ConsumerState<TalkRecordDeletePage> {
           .read(talkRecordDeleteCenterProvider.notifier)
           .bind(widget.recordId, force: true);
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant TalkRecordDeletePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.recordId != widget.recordId) {
+      ref
+          .read(talkRecordDeleteCenterProvider.notifier)
+          .bind(widget.recordId, force: true);
+    }
   }
 
   @override
@@ -341,6 +355,16 @@ class _DeletedStatusBody extends ConsumerWidget {
             )
           else
             TalkRecordCleanupStatusCard(status: center.cleanupStatus),
+          if (center.cleanupStatus != TalkRecordCleanupStatus.complete)
+            TalkRecordCleanupRetryControl(
+              key: ValueKey('delete-cleanup-${center.recordId}'),
+              recordId: center.recordId,
+              etag: center.recordEtag,
+              capability: center.record?.cleanupRetry,
+              onRefresh: () => ref
+                  .read(talkRecordDeleteCenterProvider.notifier)
+                  .refreshStatus(),
+            ),
           if (center.retryPhase == TalkRecordCleanupRetryPhase.failed)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.small),
