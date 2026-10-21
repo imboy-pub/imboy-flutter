@@ -315,7 +315,7 @@ cleanupBlockedHoldBody: 记录已删除，附件受合法保留（Hold）保护�
 cleanupRetainedTitle: 附件仍被其他业务引用
 cleanupRetainedBody: 部分附件仍被其他合法业务引用，暂不物理删除。
 cleanupFailedTitle: 清理失败
-cleanupFailedBody: 附件清理失败，由运维人员检查并重试；可刷新查看最新状态。
+cleanupFailedBody: 附件清理未完成。请刷新查看状态；符合条件时可重试清理。
 cleanupCompleteTitle: 清理完成
 cleanupCompleteBody: 记录与附件均已清理完成。
 cleanupNoneTitle: 未提交清理
@@ -364,3 +364,12 @@ processingRecoveryHint: '处理告知或处理器配置已更新。确认后按�
 processingRecoveryUnavailable: '当前处理器不可用。录音将保留在本机，恢复后可再次上传。'
 keepRecordingLocal: '暂不处理，保留本机'
 confirmProcessingUpload: '同意处理并上传'
+
+cleanupRetryRefreshFailed: 未能读取最新状态，请刷新核对。
+cleanupRetryAccepted: 已提交重试，正在读取最新清理状态；排队不代表附件已删除。
+cleanupRetryUnknown: 提交结果尚未确认。请先刷新核对；再次提交会复用同一请求。
+cleanupRetryPartial: 仅重试已耗尽且允许清理的附件；仍受保护的附件会继续保留。
+cleanupRetryProtected: 附件仍受保全、留存或其他有效引用保护，无法强制清理。
+cleanupRetryWaiting: 尚未达到可重试条件。上传能力或其他引用失效后，请刷新状态。
+cleanupRetryUnavailable: 暂无法确认清理重试权限，请刷新状态。
+cleanupRetryReconcile: 核对同一重试请求

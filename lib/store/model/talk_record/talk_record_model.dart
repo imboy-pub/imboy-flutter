@@ -9,6 +9,7 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
 import 'talk_record_enums.dart';
+import 'talk_record_cleanup_retry_model.dart';
 
 /// 当前主体对单条记录的能力投影（§4 GET /:id capabilities_for_actor、
 /// §4 示例 `{edit, share, export}`、§9 企业详情 permissions
@@ -108,6 +109,8 @@ class TalkRecordModel {
 
   /// Owner-only, allowlisted cleanup blocker; never contains storage identity.
   final String cleanupReason;
+  final int? cleanupGeneration;
+  final TalkRecordCleanupRetryCapability? cleanupRetry;
 
   /// 可见范围概述（§4 示例 `visibility: owner_only`；§11.3 仅自己/已共享）。
   final String visibility;
@@ -143,11 +146,19 @@ class TalkRecordModel {
     this.retentionUntil,
     this.cleanupStatus = TalkRecordCleanupStatus.none,
     this.cleanupReason = '',
+    this.cleanupGeneration,
+    this.cleanupRetry,
     this.visibility = '',
     this.capabilitiesForActor = const TalkRecordCapabilitiesForActor(),
   });
 
   factory TalkRecordModel.fromJson(Map<String, dynamic> json) {
+    final generation = TalkRecordCleanupRetryCapability.counter(
+      json['cleanup_generation'],
+    );
+    final retry = TalkRecordCleanupRetryCapability.fromJson(
+      json['cleanup_retry'],
+    );
     return TalkRecordModel(
       id: entityIdOf(json['id']),
       ownerUserId: entityIdOf(json['owner_user_id']),
@@ -179,6 +190,10 @@ class TalkRecordModel {
       deletedAt: parseModelNullableDateTime(json['deleted_at']),
       retentionUntil: parseModelNullableDateTime(json['retention_until']),
       cleanupStatus: TalkRecordCleanupStatus.parse(json['cleanup_status']),
+      cleanupGeneration: generation,
+      cleanupRetry: generation != null && retry.generation == generation
+          ? retry
+          : null,
       cleanupReason: cleanupReasons.contains(json['cleanup_reason'])
           ? json['cleanup_reason'] as String
           : '',
@@ -217,6 +232,7 @@ class TalkRecordModel {
     'revision': revision,
     'acl_revision': aclRevision,
     'cleanup_status': cleanupStatus.wireName,
+    if (cleanupGeneration != null) 'cleanup_generation': cleanupGeneration,
     if (cleanupReasons.contains(cleanupReason)) 'cleanup_reason': cleanupReason,
     'visibility': visibility,
   };

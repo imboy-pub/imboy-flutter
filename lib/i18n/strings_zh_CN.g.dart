@@ -8172,8 +8172,8 @@ class Translations$talkRecord$zh_CN {
 	/// zh-CN: '清理失败'
 	String get cleanupFailedTitle => '清理失败';
 
-	/// zh-CN: '附件清理失败，由运维人员检查并重试；可刷新查看最新状态。'
-	String get cleanupFailedBody => '附件清理失败，由运维人员检查并重试；可刷新查看最新状态。';
+	/// zh-CN: '附件清理未完成。请刷新查看状态；符合条件时可重试清理。'
+	String get cleanupFailedBody => '附件清理未完成。请刷新查看状态；符合条件时可重试清理。';
 
 	/// zh-CN: '清理完成'
 	String get cleanupCompleteTitle => '清理完成';
@@ -8288,6 +8288,30 @@ class Translations$talkRecord$zh_CN {
 
 	/// zh-CN: '同意处理并上传'
 	String get confirmProcessingUpload => '同意处理并上传';
+
+	/// zh-CN: '未能读取最新状态，请刷新核对。'
+	String get cleanupRetryRefreshFailed => '未能读取最新状态，请刷新核对。';
+
+	/// zh-CN: '已提交重试，正在读取最新清理状态；排队不代表附件已删除。'
+	String get cleanupRetryAccepted => '已提交重试，正在读取最新清理状态；排队不代表附件已删除。';
+
+	/// zh-CN: '提交结果尚未确认。请先刷新核对；再次提交会复用同一请求。'
+	String get cleanupRetryUnknown => '提交结果尚未确认。请先刷新核对；再次提交会复用同一请求。';
+
+	/// zh-CN: '仅重试已耗尽且允许清理的附件；仍受保护的附件会继续保留。'
+	String get cleanupRetryPartial => '仅重试已耗尽且允许清理的附件；仍受保护的附件会继续保留。';
+
+	/// zh-CN: '附件仍受保全、留存或其他有效引用保护，无法强制清理。'
+	String get cleanupRetryProtected => '附件仍受保全、留存或其他有效引用保护，无法强制清理。';
+
+	/// zh-CN: '尚未达到可重试条件。上传能力或其他引用失效后，请刷新状态。'
+	String get cleanupRetryWaiting => '尚未达到可重试条件。上传能力或其他引用失效后，请刷新状态。';
+
+	/// zh-CN: '暂无法确认清理重试权限，请刷新状态。'
+	String get cleanupRetryUnavailable => '暂无法确认清理重试权限，请刷新状态。';
+
+	/// zh-CN: '核对同一重试请求'
+	String get cleanupRetryReconcile => '核对同一重试请求';
 }
 
 // Path: welcome
@@ -13639,7 +13663,7 @@ extension on Translations {
 			'talkRecord.cleanupRetainedTitle' => '附件仍被其他业务引用',
 			'talkRecord.cleanupRetainedBody' => '部分附件仍被其他合法业务引用，暂不物理删除。',
 			'talkRecord.cleanupFailedTitle' => '清理失败',
-			'talkRecord.cleanupFailedBody' => '附件清理失败，由运维人员检查并重试；可刷新查看最新状态。',
+			'talkRecord.cleanupFailedBody' => '附件清理未完成。请刷新查看状态；符合条件时可重试清理。',
 			'talkRecord.cleanupCompleteTitle' => '清理完成',
 			'talkRecord.cleanupCompleteBody' => '记录与附件均已清理完成。',
 			'talkRecord.cleanupNoneTitle' => '未提交清理',
@@ -13680,6 +13704,14 @@ extension on Translations {
 			'talkRecord.processingRecoveryUnavailable' => '当前处理器不可用。录音将保留在本机，恢复后可再次上传。',
 			'talkRecord.keepRecordingLocal' => '暂不处理，保留本机',
 			'talkRecord.confirmProcessingUpload' => '同意处理并上传',
+			'talkRecord.cleanupRetryRefreshFailed' => '未能读取最新状态，请刷新核对。',
+			'talkRecord.cleanupRetryAccepted' => '已提交重试，正在读取最新清理状态；排队不代表附件已删除。',
+			'talkRecord.cleanupRetryUnknown' => '提交结果尚未确认。请先刷新核对；再次提交会复用同一请求。',
+			'talkRecord.cleanupRetryPartial' => '仅重试已耗尽且允许清理的附件；仍受保护的附件会继续保留。',
+			'talkRecord.cleanupRetryProtected' => '附件仍受保全、留存或其他有效引用保护，无法强制清理。',
+			'talkRecord.cleanupRetryWaiting' => '尚未达到可重试条件。上传能力或其他引用失效后，请刷新状态。',
+			'talkRecord.cleanupRetryUnavailable' => '暂无法确认清理重试权限，请刷新状态。',
+			'talkRecord.cleanupRetryReconcile' => '核对同一重试请求',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
 			'welcome.step2Title' => '安全私密',

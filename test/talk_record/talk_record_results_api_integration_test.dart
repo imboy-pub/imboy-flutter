@@ -1,4 +1,8 @@
+import 'dart:typed_data';
+
+import 'package:imboy/component/http/http_parse.dart';
 import 'package:dio/dio.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
@@ -42,6 +46,52 @@ class _Api extends TalkRecordApi {
     body = data;
     this.options = options;
     return response;
+  }
+}
+
+class _Adapter implements HttpClientAdapter {
+  final int status;
+  _Adapter(this.status);
+  final requests = <RequestOptions>[];
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? stream,
+    Future<void>? cancelFuture,
+  ) async {
+    requests.add(options);
+    return ResponseBody.fromString(
+      '{"code":400,"msg":"stale","payload":{}}',
+      status,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
+class _TransportApi extends TalkRecordApi {
+  final _transport = Dio(
+    BaseOptions(baseUrl: 'http://127.0.0.1', validateStatus: (_) => true),
+  );
+  @override
+  Dio get dio => _transport;
+  @override
+  Future<IMBoyHttpResponse> post(
+    String uri, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+    HttpTransformer? httpTransformer,
+  }) async {
+    final result = await dio.post<dynamic>(uri, data: data, options: options);
+    return handleResponse(result, uri: uri);
   }
 }
 
@@ -151,4 +201,96 @@ void main() {
     );
     expect(api.calls, 0);
   });
+  test(
+    'cleanup retry forwards CAS generation, stable key and no-auto-retry',
+    () async {
+      final api = _Api()
+        ..response = IMBoyHttpResponse.success({
+          'job_id': '8',
+          'revision': 4,
+          'cleanup_generation': 3,
+          'reopened_resources': 1,
+        });
+      var guards = 0;
+      await api.retryPhysicalCleanup(
+        '123',
+        etag: '"3"',
+        generation: 2,
+        idempotencyKey: 'stable-key',
+        requestGuard: () {
+          guards++;
+        },
+      );
+      expect(api.uri, '/api/v1/talk-records/123/cleanup/retry');
+      expect(api.body, {'cleanup_generation': 2});
+      expect(api.options!.headers, {
+        'If-Match': '"3"',
+        'Idempotency-Key': 'stable-key',
+      });
+      expect(api.options!.extra![httpNoAutoRetry], true);
+      expect(guards, 1);
+    },
+  );
+  test(
+    'cleanup guard aborts before request and malformed acceptance is unknown',
+    () async {
+      final api = _Api();
+      await expectLater(
+        api.retryPhysicalCleanup(
+          '123',
+          etag: '"3"',
+          generation: 2,
+          idempotencyKey: 'k',
+          requestGuard: () => throw StateError('changed'),
+        ),
+        throwsStateError,
+      );
+      expect(api.calls, 0);
+      await expectLater(
+        api.retryPhysicalCleanup(
+          '123',
+          etag: '"3"',
+          generation: 2,
+          idempotencyKey: 'k',
+        ),
+        throwsFormatException,
+      );
+    },
+  );
+  for (final status in [409, 412]) {
+    test(
+      'Dio adapter HTTP$status survives generic envelope code and isolates interceptor',
+      () async {
+        final api = _TransportApi();
+        final adapter = _Adapter(status);
+        api.dio.httpClientAdapter = adapter;
+        final foreign = Interceptor();
+        api.dio.interceptors.add(foreign);
+        final before = api.dio.interceptors.length;
+        await expectLater(
+          api.retryPhysicalCleanup(
+            '123',
+            etag: '"3"',
+            generation: 2,
+            idempotencyKey: 'same-key',
+          ),
+          throwsA(
+            isA<TalkRecordApiException>().having(
+              (e) => e.code,
+              'actual HTTP status',
+              status,
+            ),
+          ),
+        );
+        expect(adapter.requests.length, 1);
+        final request = adapter.requests.single;
+        expect(request.data, {'cleanup_generation': 2});
+        expect(request.headers['If-Match'], '"3"');
+        expect(request.headers['Idempotency-Key'], 'same-key');
+        expect(request.extra[httpNoAutoRetry], true);
+        expect(api.dio.interceptors.length, before);
+        expect(api.dio.interceptors.contains(foreign), true);
+      },
+    );
+  }
 }

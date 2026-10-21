@@ -22,6 +22,7 @@ import 'package:imboy/store/model/talk_record/talk_record_audio_upload_session.d
 export 'package:imboy/store/model/talk_record/talk_record_audio_upload_session.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/modules/talk_record/talk_record_error.dart';

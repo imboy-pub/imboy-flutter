@@ -314,7 +314,7 @@ cleanupBlockedHoldBody: The note is deleted and attachments are protected by a l
 cleanupRetainedTitle: Attachments still referenced
 cleanupRetainedBody: Some attachments are still legally referenced by other business and are not physically deleted yet.
 cleanupFailedTitle: Cleanup failed
-cleanupFailedBody: Attachment cleanup failed. An operator must investigate and retry; refresh to check the latest status.
+cleanupFailedBody: Attachment cleanup has not completed. Refresh the status; retry is available when eligible.
 cleanupCompleteTitle: Cleanup complete
 cleanupCompleteBody: The note and its attachments have been cleaned up.
 cleanupNoneTitle: Cleanup not submitted
@@ -363,3 +363,12 @@ processingRecoveryHint: 'The processing notice or processor configuration change
 processingRecoveryUnavailable: 'Processing is currently unavailable. Keep the recording on this device and retry later.'
 keepRecordingLocal: 'Keep on this device'
 confirmProcessingUpload: 'Agree and upload'
+
+cleanupRetryRefreshFailed: Could not read the latest status. Refresh to reconcile.
+cleanupRetryAccepted: Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.
+cleanupRetryUnknown: The submission outcome is unknown. Refresh first; submitting again reuses the same request.
+cleanupRetryPartial: Only exhausted, eligible attachments will be retried. Protected attachments remain retained.
+cleanupRetryProtected: Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.
+cleanupRetryWaiting: Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.
+cleanupRetryUnavailable: Cleanup retry permission could not be confirmed. Refresh the status.
+cleanupRetryReconcile: Reconcile the same retry request

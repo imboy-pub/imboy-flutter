@@ -17,7 +17,7 @@
 /// 已删除）+ §11.3（DELETE 后 owner 读取仅返回清理状态白名单，其余 404）。
 ///
 /// Export polling and ownership transfer follow the implemented backend contract.
-/// Purge retry remains operations-only without an owner-facing HTTP route.
+/// Cleanup retry uses the authenticated record-scoped capability and generation CAS.
 library;
 
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -167,12 +167,14 @@ abstract class TalkRecordResultsService {
     required String ifMatch,
   });
 
-  /// 清理失败重试（UI-SPEC §2 删除行「清理失败可重试」；§4 purge 由专用
-  /// 运维能力重试；普通账户无此 HTTP 路由，默认明确拒绝。
+  /// Cleanup recovery requires the server capability, revision and generation.
+  /// A missing generation is rejected before HTTP for legacy callers.
   Future<void> retryCleanup(
     EntityId id, {
     required String ifMatch,
     required String idempotencyKey,
+    int? generation,
+    void Function()? requestGuard,
   });
 }
 
@@ -294,11 +296,18 @@ class ApiTalkRecordResultsService implements TalkRecordResultsService {
     EntityId id, {
     required String ifMatch,
     required String idempotencyKey,
+    int? generation,
+    void Function()? requestGuard,
   }) {
-    // No owner-facing purge retry route exists; never call generic job retry.
-    throw const TalkRecordApiException(
-      403,
-      'Cleanup retry requires operations authorization',
+    if (generation == null) {
+      throw const TalkRecordApiException(422, 'Cleanup generation required');
+    }
+    return _api.retryPhysicalCleanup(
+      id,
+      etag: ifMatch,
+      generation: generation,
+      idempotencyKey: idempotencyKey,
+      requestGuard: requestGuard,
     );
   }
 }

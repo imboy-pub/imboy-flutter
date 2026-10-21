@@ -2970,7 +2970,7 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get cleanupRetainedTitle => 'Attachments still referenced';
 	@override String get cleanupRetainedBody => 'Some attachments are still legally referenced by other business and are not physically deleted yet.';
 	@override String get cleanupFailedTitle => 'Cleanup failed';
-	@override String get cleanupFailedBody => 'Attachment cleanup failed. An operator must investigate and retry; refresh to check the latest status.';
+	@override String get cleanupFailedBody => 'Attachment cleanup has not completed. Refresh the status; retry is available when eligible.';
 	@override String get cleanupCompleteTitle => 'Cleanup complete';
 	@override String get cleanupCompleteBody => 'The note and its attachments have been cleaned up.';
 	@override String get cleanupNoneTitle => 'Cleanup not submitted';
@@ -3009,6 +3009,14 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get processingRecoveryUnavailable => 'Processing is currently unavailable. Keep the recording on this device and retry later.';
 	@override String get keepRecordingLocal => 'Keep on this device';
 	@override String get confirmProcessingUpload => 'Agree and upload';
+	@override String get cleanupRetryRefreshFailed => 'Could not read the latest status. Refresh to reconcile.';
+	@override String get cleanupRetryAccepted => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.';
+	@override String get cleanupRetryUnknown => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.';
+	@override String get cleanupRetryPartial => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.';
+	@override String get cleanupRetryProtected => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.';
+	@override String get cleanupRetryWaiting => 'Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.';
+	@override String get cleanupRetryUnavailable => 'Cleanup retry permission could not be confirmed. Refresh the status.';
+	@override String get cleanupRetryReconcile => 'Reconcile the same retry request';
 }
 
 // Path: welcome
@@ -6944,7 +6952,7 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetainedTitle' => 'Attachments still referenced',
 			'talkRecord.cleanupRetainedBody' => 'Some attachments are still legally referenced by other business and are not physically deleted yet.',
 			'talkRecord.cleanupFailedTitle' => 'Cleanup failed',
-			'talkRecord.cleanupFailedBody' => 'Attachment cleanup failed. An operator must investigate and retry; refresh to check the latest status.',
+			'talkRecord.cleanupFailedBody' => 'Attachment cleanup has not completed. Refresh the status; retry is available when eligible.',
 			'talkRecord.cleanupCompleteTitle' => 'Cleanup complete',
 			'talkRecord.cleanupCompleteBody' => 'The note and its attachments have been cleaned up.',
 			'talkRecord.cleanupNoneTitle' => 'Cleanup not submitted',
@@ -6983,12 +6991,22 @@ extension on TranslationsEnUs {
 			'talkRecord.processingRecoveryUnavailable' => 'Processing is currently unavailable. Keep the recording on this device and retry later.',
 			'talkRecord.keepRecordingLocal' => 'Keep on this device',
 			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
+			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
+			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',
+			'talkRecord.cleanupRetryUnknown' => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.',
+			'talkRecord.cleanupRetryPartial' => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.',
+			'talkRecord.cleanupRetryProtected' => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.',
+			'talkRecord.cleanupRetryWaiting' => 'Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.',
+			'talkRecord.cleanupRetryUnavailable' => 'Cleanup retry permission could not be confirmed. Refresh the status.',
+			'talkRecord.cleanupRetryReconcile' => 'Reconcile the same retry request',
 			'welcome.step1Title' => 'Simple Connection',
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
 			'welcome.step2Title' => 'Secure & Private',
 			'welcome.step2Desc' => 'End-to-end encryption Keeps your personal moments strictly yours.',
 			'welcome.step3Title' => 'Ready to Explore?',
 			'welcome.step3Desc' => 'Join a vibrant community. Let the conversation begin!',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.next' => 'Next',
 			'welcome.getStarted' => 'Get Started',
 			'welcome.skip' => 'Skip',
@@ -6997,8 +7015,6 @@ extension on TranslationsEnUs {
 			'workspace.navChannels' => 'Channels',
 			'workspace.navGroups' => 'Groups',
 			'workspace.pickerTitle' => 'My Workspaces',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.switchWorkspace' => 'Switch workspace',
 			'workspace.pickerEmptyTitle' => 'No workspace yet',
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',

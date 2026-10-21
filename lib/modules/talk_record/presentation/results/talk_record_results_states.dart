@@ -219,6 +219,7 @@ class TalkRecordDeleteCenterState {
   final EntityId recordId;
   final TalkRecordDeletePhase phase;
   final TalkRecordModel? record;
+  final String recordEtag;
 
   /// 删除响应（§4：logical_deleted + cleanup_status 拆分）。
   final bool logicalDeleted;
@@ -230,6 +231,7 @@ class TalkRecordDeleteCenterState {
     this.recordId = '',
     this.phase = TalkRecordDeletePhase.idle,
     this.record,
+    this.recordEtag = '',
     this.logicalDeleted = false,
     this.cleanupStatus = TalkRecordCleanupStatus.none,
     this.submitPhase = TalkRecordDeleteSubmitPhase.idle,
@@ -252,6 +254,7 @@ class TalkRecordDeleteCenterState {
     EntityId? recordId,
     TalkRecordDeletePhase? phase,
     TalkRecordModel? record,
+    String? recordEtag,
     bool? logicalDeleted,
     TalkRecordCleanupStatus? cleanupStatus,
     TalkRecordDeleteSubmitPhase? submitPhase,
@@ -261,6 +264,7 @@ class TalkRecordDeleteCenterState {
       recordId: recordId ?? this.recordId,
       phase: phase ?? this.phase,
       record: record ?? this.record,
+      recordEtag: recordEtag ?? this.recordEtag,
       logicalDeleted: logicalDeleted ?? this.logicalDeleted,
       cleanupStatus: cleanupStatus ?? this.cleanupStatus,
       submitPhase: submitPhase ?? this.submitPhase,
