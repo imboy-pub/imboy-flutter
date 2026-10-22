@@ -7,7 +7,6 @@
 library;
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/config/error_code.dart';
@@ -184,7 +183,7 @@ void main() {
       expect(find.text(t.talkRecord.statusTranscribeFailed), findsNothing);
     });
 
-    testWidgets('转写失败（editor）：可重试，重试走服务并转入排队文案', (tester) async {
+    testWidgets('转写失败（editor）：BYOK 重试先确认，取消不调用旧服务', (tester) async {
       final harness = T16Harness(
         service: TalkRecordFixtureScenarios.transcribeFailed(caps: kEditorCaps),
       );
@@ -204,12 +203,12 @@ void main() {
         find.byKey(const ValueKey('talk_record_transcript_retry')),
       );
       await tester.pumpAndSettle();
-      expect(harness.service.retryCount, 1);
-      // 受理后状态推进 queued → 转入「处理中」降级视图。
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      expect(harness.service.retryCount, 0);
+      await tester.tap(find.text(t.talkRecord.aiCancel));
+      await tester.pumpAndSettle();
       expect(
-        find.byKey(
-          const ValueKey('talk_record_transcript_degraded_processing'),
-        ),
+        find.byKey(const ValueKey('talk_record_transcript_degraded_failed')),
         findsOneWidget,
       );
     });

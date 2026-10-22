@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:imboy/modules/talk_record/application/talk_record_upload_progress.dart';
+
 import 'package:imboy/modules/talk_record/application/talk_record_processing_consent.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capabilities_model.dart';
 
@@ -298,6 +300,79 @@ void main() {
   void expectNoPlaintext() => expect(
     Directory('${recorder.sessionDir!.path}/.upload_plain').existsSync(),
     false,
+  );
+
+  test(
+    'progress follows server receipts and retry resumes confirmed count',
+    () async {
+      final gateway = TalkRecordAttachmentUploadGateway(
+        api: api,
+        transport: transport,
+        confirmAttempts: 1,
+        delay: (_) async {},
+      );
+      final snapshots = <TalkRecordUploadSnapshot>[];
+      final subscription = gateway.uploadUpdates.listen(snapshots.add);
+      Future<void> run() => gateway.upload(
+        binding: binding,
+        manifest: manifest,
+        directory: recorder.sessionDir!,
+        keys: keys,
+        checkAccount: () {
+          if (!accountValid) throw StateError('account changed');
+        },
+      );
+      api.verifyCount = 20;
+      await expectLater(run(), throwsStateError);
+      await Future<void>.delayed(Duration.zero);
+      expect(snapshots.last.phase, TalkRecordUploadPhase.failed);
+      expect(snapshots.last.confirmedParts, 0);
+      expect(snapshots.every((s) => s.matches(binding)), isTrue);
+      expect(
+        snapshots.map((s) => s.phase),
+        containsAllInOrder([
+          TalkRecordUploadPhase.register,
+          TalkRecordUploadPhase.upload,
+          TalkRecordUploadPhase.confirm,
+          TalkRecordUploadPhase.failed,
+        ]),
+      );
+      final failedSnapshot = snapshots.last;
+      expect(
+        failedSnapshot.matches(binding.copyWith(recordId: 'other')),
+        isFalse,
+      );
+      expect(
+        TalkRecordUploadSnapshot(
+          account: const TalkRecordAccount('other-endpoint', '100'),
+          recordId: binding.recordId,
+          sessionId: binding.sessionId,
+          totalParts: 1,
+          confirmedParts: 0,
+          phase: TalkRecordUploadPhase.failed,
+        ).matches(binding),
+        isFalse,
+      );
+      api.verifyCount = 0;
+      await run();
+      await Future<void>.delayed(Duration.zero);
+      expect(transport.puts, 1);
+      expect(snapshots.last.phase, TalkRecordUploadPhase.completed);
+      expect(snapshots.last.confirmedParts, manifest.segments.length);
+      expect(failedSnapshot.confirmedParts, 0);
+      expect(
+        snapshots
+            .where((s) => s.phase == TalkRecordUploadPhase.submitting)
+            .every((s) => s.confirmedParts == s.totalParts),
+        isTrue,
+      );
+      final previousLength = snapshots.length;
+      accountValid = false;
+      await expectLater(run(), throwsStateError);
+      await Future<void>.delayed(Duration.zero);
+      expect(snapshots.length, previousLength);
+      await subscription.cancel();
+    },
   );
 
   test('initial draft epoch zero uploads real decrypted bytes, confirms and submits canonical manifest', () async {

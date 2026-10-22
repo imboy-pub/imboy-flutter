@@ -12,6 +12,7 @@ import 'package:imboy/service/talk_record/talk_record_segment_crypto.dart';
 import '../presentation/talk_record_services.dart';
 import 'talk_record_local_binding.dart';
 import 'talk_record_launch_failure.dart';
+import 'talk_record_upload_progress.dart';
 
 import 'package:imboy/store/model/talk_record/talk_record_participant_model.dart';
 
@@ -55,6 +56,46 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
   final TalkRecordRecorderFactory recorderFactory;
   final TalkRecordCaptureGateway? captureGateway;
   final TalkRecordUploadGateway? uploadGateway;
+  TalkRecordUploadSnapshot? get uploadSnapshot {
+    final source = uploadGateway;
+    final snapshot = source is TalkRecordUploadProgressSource
+        ? (source as TalkRecordUploadProgressSource).uploadSnapshot
+        : null;
+    return snapshot?.account == currentAccount()
+        ? _withPendingBinding(snapshot!)
+        : null;
+  }
+
+  Stream<TalkRecordUploadSnapshot> get uploadUpdates {
+    final source = uploadGateway;
+    return source is TalkRecordUploadProgressSource
+        ? (source as TalkRecordUploadProgressSource).uploadUpdates
+              .where((s) => s.account == currentAccount())
+              .map(_withPendingBinding)
+        : const Stream.empty();
+  }
+
+  TalkRecordLocalBinding? _pendingUploadBinding;
+  TalkRecordUploadSnapshot _withPendingBinding(
+    TalkRecordUploadSnapshot snapshot,
+  ) {
+    final bound = _pendingUploadBinding;
+    if (bound == null ||
+        bound.account != currentAccount() ||
+        !snapshot.matches(bound)) {
+      return snapshot;
+    }
+    return TalkRecordUploadSnapshot(
+      account: snapshot.account,
+      recordId: snapshot.recordId,
+      sessionId: snapshot.sessionId,
+      totalParts: snapshot.totalParts,
+      confirmedParts: snapshot.confirmedParts,
+      phase: snapshot.phase,
+      pendingBinding: bound,
+    );
+  }
+
   final _updates = StreamController<TalkRecordRecorderSnapshot>.broadcast();
   Stream<TalkRecordRecorderSnapshot> get updates => _updates.stream;
   TalkRecordRecorderSnapshot get snapshot => _recorder?.snapshot ?? _snapshot;
@@ -316,6 +357,7 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
   /// Auth transitions interrupt microphone without granting the new account
   /// access to old content. Navigation/disposal must never call this method.
   Future<void> accountChanged() async {
+    _pendingUploadBinding = null;
     if (_binding != null && currentAccount() != _binding!.account) {
       try {
         await _recorder?.markInterrupted('account_changed');
@@ -584,6 +626,8 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
       throw StateError('Capture lease unknown or expired');
     }
     await store.save(bound);
+    check();
+    _pendingUploadBinding = bound;
     await uploader.upload(
       binding: bound,
       manifest: manifest,

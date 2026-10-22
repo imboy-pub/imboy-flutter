@@ -14,6 +14,7 @@ library;
 import 'dart:async';
 
 import 'talk_record_participants_page.dart';
+import '../ai/talk_record_ai_processing_panel.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,7 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
 
   _DetailTab _tab = _DetailTab.summary;
   bool _anchorMismatch = false;
+  final _aiKey = GlobalKey<TalkRecordAiProcessingPanelState>();
   StreamSubscription<dynamic>? _localeSubscription;
   TalkRecordPlayerNotifier? _playerNotifier;
 
@@ -142,6 +144,8 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
     return Column(
       children: [
         _OverviewCard(record: record, role: role),
+        if (canEdit && record.mediaStatus == TalkRecordMediaStatus.available)
+          TalkRecordAiProcessingPanel(key: _aiKey, recordId: record.id),
         _TabBar(current: _tab, onSelect: (tab) => setState(() => _tab = tab)),
         Expanded(
           child: _tab == _DetailTab.transcript
@@ -161,9 +165,8 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
                       ref.read(talkRecordSegmentsProvider.notifier).setQuery(q),
                   onListenFrom: (ms) => _seekPlayer(ms),
                   onEditSegment: (s) => _pushSegmentEdit(s),
-                  onRetryTranscribe: () => ref
-                      .read(talkRecordDetailProvider.notifier)
-                      .retryTranscribe(),
+                  onRetryTranscribe: () =>
+                      _aiKey.currentState?.start('transcribe'),
                   onAnchorMismatchChanged: (m) {
                     if (m != _anchorMismatch) {
                       setState(() => _anchorMismatch = m);

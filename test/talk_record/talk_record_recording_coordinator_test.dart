@@ -1,3 +1,6 @@
+import 'package:imboy/modules/talk_record/application/talk_record_upload_progress.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_pending_uploads.dart';
+
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -84,6 +87,39 @@ class HeldUploader extends TestUploader {
   }) async {
     entered.complete();
     await release.future;
+    await super.upload(
+      binding: binding,
+      manifest: manifest,
+      directory: directory,
+      keys: keys,
+      checkAccount: checkAccount,
+    );
+  }
+}
+
+class ProgressHeldUploader extends HeldUploader
+    implements TalkRecordUploadProgressSource {
+  TalkRecordUploadSnapshot? progress;
+  @override
+  TalkRecordUploadSnapshot? get uploadSnapshot => progress;
+  @override
+  Stream<TalkRecordUploadSnapshot> get uploadUpdates => const Stream.empty();
+  @override
+  Future<void> upload({
+    required TalkRecordLocalBinding binding,
+    required TalkRecordManifest manifest,
+    required Directory directory,
+    required TalkRecordKeyStore keys,
+    required void Function() checkAccount,
+  }) async {
+    progress = TalkRecordUploadSnapshot(
+      account: binding.account,
+      recordId: binding.recordId,
+      sessionId: binding.sessionId,
+      totalParts: manifest.segments.length,
+      confirmedParts: 0,
+      phase: TalkRecordUploadPhase.upload,
+    );
     await super.upload(
       binding: binding,
       manifest: manifest,
@@ -460,6 +496,47 @@ void main() {
       expect((await store.list(local.account)).single.toJson(), local.toJson());
     },
   );
+
+  test('first upload projects persisted binding while real pending mutex remains locked', () async {
+    final uploader = ProgressHeldUploader();
+    final c = coordinator(
+      gateway: LeaseGateway(known: true),
+      uploader: uploader,
+    );
+    await c.launch(request);
+    await tick();
+    await c.end();
+    final original = (await c.pendingEnded()).single;
+    expect(original.binding.recordId, isEmpty);
+    final upload = c.retryPending(original.binding);
+    await uploader.entered.future;
+    await expectLater(c.pendingEnded(), throwsStateError);
+    final snapshot = c.uploadSnapshot!;
+    final projected = talkRecordPendingUploadProjection(original, snapshot);
+    expect(projected.binding.recordId, '1');
+    expect(snapshot.matches(projected.binding), isTrue);
+    expect(
+      projected.binding.toJson(),
+      (await store.list(account)).single.toJson(),
+    );
+    expect(snapshot.matches(original.binding), isFalse);
+    expect(
+      talkRecordPendingUploadProjection(
+        TalkRecordPendingEnded(
+          original.binding.copyWith(recordId: 'different'),
+          original.durationMs,
+          original.segmentCount,
+        ),
+        snapshot,
+      ).binding.recordId,
+      'different',
+    );
+    account = const TalkRecordAccount('https://local.example', 'other-user');
+    expect(c.uploadSnapshot, isNull);
+    account = original.binding.account;
+    uploader.release.complete();
+    await upload;
+  });
 
   test('pending correction shares exclusive lock with uploading', () async {
     final uploader = HeldUploader();

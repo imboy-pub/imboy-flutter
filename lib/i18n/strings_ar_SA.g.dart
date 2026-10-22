@@ -69,6 +69,7 @@ class TranslationsArSa extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$organization$ar_SA organization = _Translations$organization$ar_SA._(_root);
 	@override late final _Translations$passport$ar_SA passport = _Translations$passport$ar_SA._(_root);
 	@override late final _Translations$splash$ar_SA splash = _Translations$splash$ar_SA._(_root);
+	@override late final _Translations$talkRecord$ar_SA talkRecord = _Translations$talkRecord$ar_SA._(_root);
 	@override late final _Translations$welcome$ar_SA welcome = _Translations$welcome$ar_SA._(_root);
 	@override late final _Translations$workspace$ar_SA workspace = _Translations$workspace$ar_SA._(_root);
 }
@@ -2456,6 +2457,54 @@ class _Translations$splash$ar_SA extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => 'تواصل بحرية وبدون قيود';
+}
+
+// Path: talkRecord
+class _Translations$talkRecord$ar_SA extends Translations$talkRecord$zh_CN {
+	_Translations$talkRecord$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => 'جارٍ تحضير الرفع';
+	@override String get uploadProgressUpload => 'جارٍ رفع الصوت';
+	@override String get uploadProgressConfirm => 'جارٍ تأكيد الصوت';
+	@override String get uploadProgressSubmitting => 'جارٍ إرسال الحفظ';
+	@override String get uploadProgressCompleted => 'تم الإرسال؛ معالجة الصوت قيد الانتظار';
+	@override String get uploadProgressFailed => 'الرفع غير مكتمل؛ يمكن إعادة المحاولة';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => 'المقاطع المؤكدة: ${confirmed}/${total}';
+	@override String get aiServicesTitle => 'خدمات الذكاء الاصطناعي';
+	@override String get aiServicesSubtitle => 'استخدم حسابات API الخاصة بك. يفرض المزوّدون رسوم الاستخدام.';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => 'تفريغ الصوت وتسميات مؤقتة للمتحدثين';
+	@override String get aiZhipuPurpose => 'مسودات الملخصات والقرارات والإجراءات';
+	@override String get aiConfigured => 'تم الإعداد على هذا الجهاز';
+	@override String get aiNotConfigured => 'غير مُعدّ';
+	@override String get aiLoading => 'جارٍ قراءة إعدادات الجهاز…';
+	@override String get aiDeviceOnlyNotice => 'تُحفظ المفاتيح مشفّرة لهذا الحساب على هذا الجهاز فقط. لا تُرفع إلى IMBoy ولا تُضمّن في النسخ السحابية أو نقل الجهاز. أعد إدخالها على الجهاز الجديد.';
+	@override String get aiEnterprisePolicyNotice => 'حفظ المفتاح لا يسمح بالمعالجة الخارجية. تحتاج تسجيلات المؤسسة إلى سماح سياسة المؤسسة والموافقة على كل طلب معالجة.';
+	@override String get aiMaxNotice => 'يُستخدم API العام من Zhipu بفوترة منفصلة. لا تغطي خطة Coding Plan Max السنوية هذا الاستخدام تلقائيًا. ستُرسل النصوص المفرّغة إلى Zhipu.';
+	@override String get aiAudioExternalNotice => 'يُرسل الصوت إلى MiniMax للتفريغ وقد تترتب رسوم. الحد لكل طلب 500 ثانية و50 ميغابايت؛ يتحقق مسار المعالجة من الصوت ويقسّمه.';
+	@override String get aiValidationNotice => 'الحفظ لا يتحقق من المفتاح ولا يرسل صوتًا أو نصًا. قد يكون التحقق الفعلي مدفوعًا ويتطلب تأكيدًا منفصلًا.';
+	@override String get aiAccountChanged => 'تغيّر الحساب أو الخادم. ارجع وافتح الصفحة مجددًا. مُسحت المدخلات.';
+	@override String get aiCredentialChanged => 'تغيّرت إعدادات الجهاز أو لم تكتمل. أعد إدخال المفتاح وحفظه، أو ارجع وحاول مجددًا.';
+	@override String get aiInvalidKey => 'أدخل من 16 إلى 4096 حرف ASCII من دون مسافات أو فواصل أسطر أو أحرف تحكم.';
+	@override String get aiStorageFailed => 'تعذّرت قراءة التخزين الآمن أو الكتابة إليه. الإعداد غير مؤكّد. حاول مجددًا؛ لن يُستخدم تخزين بنص صريح.';
+	@override String get aiUnsupportedPlatform => 'لم يتم التحقق من التخزين الآمن على هذه المنصة بعد. حفظ المفاتيح غير متاح.';
+	@override String get aiKeyPlaceholder => 'أدخل مفتاح API';
+	@override String get aiReplacePlaceholder => 'أدخل مفتاح API جديدًا؛ لا تتم تعبئة المفتاح المحفوظ مسبقًا';
+	@override String get aiSaveAction => 'حفظ على هذا الجهاز';
+	@override String get aiReplaceAction => 'استبدال مفتاح الجهاز';
+	@override String get aiDeleteAction => 'حذف مفتاح الجهاز';
+	@override String get aiSaving => 'جارٍ الحفظ…';
+	@override String get aiSaved => 'تم الحفظ على هذا الجهاز. لم يتم التحقق من المفتاح بعد.';
+	@override String get aiDeleted => 'حُذفت إعدادات الجهاز. تبقى التسجيلات والنتائج الحالية محفوظة.';
+	@override String get aiReplaceTitle => 'هل تريد استبدال مفتاح الجهاز؟';
+	@override String get aiReplaceNotice => 'يستبدل إعداد هذا الحساب لهذه الخدمة على هذا الجهاز فقط. لا تتأثر الحسابات الأخرى أو التسجيلات المحفوظة.';
+	@override String get aiDeleteTitle => 'هل تريد حذف مفتاح الجهاز؟';
+	@override String get aiDeleteNotice => 'يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد.';
+	@override String get aiCancel => 'إلغاء';
 }
 
 // Path: welcome
@@ -5796,6 +5845,45 @@ extension on TranslationsArSa {
 			'passport.cannotGetScreenSize' => 'تعذر الحصول على حجم الشاشة',
 			'passport.oneKeyFailedRetry' => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا',
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
+			'talkRecord.uploadProgressRegister' => 'جارٍ تحضير الرفع',
+			'talkRecord.uploadProgressUpload' => 'جارٍ رفع الصوت',
+			'talkRecord.uploadProgressConfirm' => 'جارٍ تأكيد الصوت',
+			'talkRecord.uploadProgressSubmitting' => 'جارٍ إرسال الحفظ',
+			'talkRecord.uploadProgressCompleted' => 'تم الإرسال؛ معالجة الصوت قيد الانتظار',
+			'talkRecord.uploadProgressFailed' => 'الرفع غير مكتمل؛ يمكن إعادة المحاولة',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => 'المقاطع المؤكدة: ${confirmed}/${total}',
+			'talkRecord.aiServicesTitle' => 'خدمات الذكاء الاصطناعي',
+			'talkRecord.aiServicesSubtitle' => 'استخدم حسابات API الخاصة بك. يفرض المزوّدون رسوم الاستخدام.',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => 'تفريغ الصوت وتسميات مؤقتة للمتحدثين',
+			'talkRecord.aiZhipuPurpose' => 'مسودات الملخصات والقرارات والإجراءات',
+			'talkRecord.aiConfigured' => 'تم الإعداد على هذا الجهاز',
+			'talkRecord.aiNotConfigured' => 'غير مُعدّ',
+			'talkRecord.aiLoading' => 'جارٍ قراءة إعدادات الجهاز…',
+			'talkRecord.aiDeviceOnlyNotice' => 'تُحفظ المفاتيح مشفّرة لهذا الحساب على هذا الجهاز فقط. لا تُرفع إلى IMBoy ولا تُضمّن في النسخ السحابية أو نقل الجهاز. أعد إدخالها على الجهاز الجديد.',
+			'talkRecord.aiEnterprisePolicyNotice' => 'حفظ المفتاح لا يسمح بالمعالجة الخارجية. تحتاج تسجيلات المؤسسة إلى سماح سياسة المؤسسة والموافقة على كل طلب معالجة.',
+			'talkRecord.aiMaxNotice' => 'يُستخدم API العام من Zhipu بفوترة منفصلة. لا تغطي خطة Coding Plan Max السنوية هذا الاستخدام تلقائيًا. ستُرسل النصوص المفرّغة إلى Zhipu.',
+			'talkRecord.aiAudioExternalNotice' => 'يُرسل الصوت إلى MiniMax للتفريغ وقد تترتب رسوم. الحد لكل طلب 500 ثانية و50 ميغابايت؛ يتحقق مسار المعالجة من الصوت ويقسّمه.',
+			'talkRecord.aiValidationNotice' => 'الحفظ لا يتحقق من المفتاح ولا يرسل صوتًا أو نصًا. قد يكون التحقق الفعلي مدفوعًا ويتطلب تأكيدًا منفصلًا.',
+			'talkRecord.aiAccountChanged' => 'تغيّر الحساب أو الخادم. ارجع وافتح الصفحة مجددًا. مُسحت المدخلات.',
+			'talkRecord.aiCredentialChanged' => 'تغيّرت إعدادات الجهاز أو لم تكتمل. أعد إدخال المفتاح وحفظه، أو ارجع وحاول مجددًا.',
+			'talkRecord.aiInvalidKey' => 'أدخل من 16 إلى 4096 حرف ASCII من دون مسافات أو فواصل أسطر أو أحرف تحكم.',
+			'talkRecord.aiStorageFailed' => 'تعذّرت قراءة التخزين الآمن أو الكتابة إليه. الإعداد غير مؤكّد. حاول مجددًا؛ لن يُستخدم تخزين بنص صريح.',
+			'talkRecord.aiUnsupportedPlatform' => 'لم يتم التحقق من التخزين الآمن على هذه المنصة بعد. حفظ المفاتيح غير متاح.',
+			'talkRecord.aiKeyPlaceholder' => 'أدخل مفتاح API',
+			'talkRecord.aiReplacePlaceholder' => 'أدخل مفتاح API جديدًا؛ لا تتم تعبئة المفتاح المحفوظ مسبقًا',
+			'talkRecord.aiSaveAction' => 'حفظ على هذا الجهاز',
+			'talkRecord.aiReplaceAction' => 'استبدال مفتاح الجهاز',
+			'talkRecord.aiDeleteAction' => 'حذف مفتاح الجهاز',
+			'talkRecord.aiSaving' => 'جارٍ الحفظ…',
+			'talkRecord.aiSaved' => 'تم الحفظ على هذا الجهاز. لم يتم التحقق من المفتاح بعد.',
+			'talkRecord.aiDeleted' => 'حُذفت إعدادات الجهاز. تبقى التسجيلات والنتائج الحالية محفوظة.',
+			'talkRecord.aiReplaceTitle' => 'هل تريد استبدال مفتاح الجهاز؟',
+			'talkRecord.aiReplaceNotice' => 'يستبدل إعداد هذا الحساب لهذه الخدمة على هذا الجهاز فقط. لا تتأثر الحسابات الأخرى أو التسجيلات المحفوظة.',
+			'talkRecord.aiDeleteTitle' => 'هل تريد حذف مفتاح الجهاز؟',
+			'talkRecord.aiDeleteNotice' => 'يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد.',
+			'talkRecord.aiCancel' => 'إلغاء',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',
 			'welcome.step2Title' => 'آمن وخاص',
@@ -5836,6 +5924,8 @@ extension on TranslationsArSa {
 			'workspace.overviewPinnedContent' => 'المحتوى المثبّت في القنوات',
 			'workspace.overviewPinnedEmpty' => 'لا يوجد محتوى مثبّت في القنوات بعد؛ إعلانات المجموعات لا تُجمَّع هنا (إعلانات المجموعات تخص كل مجموعة)',
 			'workspace.overviewRecentFiles' => 'الملفات الأخيرة',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'ستظهر الملفات المرفوعة حديثاً هنا؛ ويمكنك أيضاً عرض المرفقات داخل كل قناة',
 			'workspace.membersTitle' => 'أعضاء مساحة العمل',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} أعضاء',
@@ -5875,8 +5965,6 @@ extension on TranslationsArSa {
 			'workspace.joinCodeLabel' => 'رمز الفريق',
 			'workspace.joinCodeHint' => '8 أحرف كبيرة أو أرقام',
 			'workspace.joinSubmit' => 'انضمام',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => 'تم الانضمام إلى «${name}»',
 			'workspace.joinAlreadyMember' => 'أنت في مساحة العمل هذه بالفعل',
 			'workspace.joinInvalidCode' => 'رمز الفريق غير صالح أو منتهي الصلاحية',

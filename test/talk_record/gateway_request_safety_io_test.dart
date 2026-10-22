@@ -157,8 +157,9 @@ void main() {
         );
         final owner = UserRepoLocal.to.currentUid;
         void guard() {
-          if (UserRepoLocal.to.currentUid != owner)
+          if (UserRepoLocal.to.currentUid != owner) {
             throw StateError('Account changed');
+          }
         }
 
         final pending = transport.put(ticket, file, guard);

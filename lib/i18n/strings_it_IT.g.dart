@@ -69,6 +69,7 @@ class TranslationsItIt extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$organization$it_IT organization = _Translations$organization$it_IT._(_root);
 	@override late final _Translations$passport$it_IT passport = _Translations$passport$it_IT._(_root);
 	@override late final _Translations$splash$it_IT splash = _Translations$splash$it_IT._(_root);
+	@override late final _Translations$talkRecord$it_IT talkRecord = _Translations$talkRecord$it_IT._(_root);
 	@override late final _Translations$welcome$it_IT welcome = _Translations$welcome$it_IT._(_root);
 	@override late final _Translations$workspace$it_IT workspace = _Translations$workspace$it_IT._(_root);
 }
@@ -2447,6 +2448,54 @@ class _Translations$splash$it_IT extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => 'Parla liberamente, comunica con facilità';
+}
+
+// Path: talkRecord
+class _Translations$talkRecord$it_IT extends Translations$talkRecord$zh_CN {
+	_Translations$talkRecord$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => 'Preparazione del caricamento';
+	@override String get uploadProgressUpload => 'Caricamento audio';
+	@override String get uploadProgressConfirm => 'Conferma audio';
+	@override String get uploadProgressSubmitting => 'Invio del salvataggio';
+	@override String get uploadProgressCompleted => 'Inviato; elaborazione audio in attesa';
+	@override String get uploadProgressFailed => 'Caricamento incompleto; riprova';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => 'Parti confermate: ${confirmed}/${total}';
+	@override String get aiServicesTitle => 'Servizi IA';
+	@override String get aiServicesSubtitle => 'Usa i tuoi account API. I fornitori addebitano i costi di utilizzo.';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => 'Trascrizione audio ed etichette temporanee dei parlanti';
+	@override String get aiZhipuPurpose => 'Bozze di riepiloghi, decisioni e azioni';
+	@override String get aiConfigured => 'Configurato su questo dispositivo';
+	@override String get aiNotConfigured => 'Non configurato';
+	@override String get aiLoading => 'Lettura della configurazione locale…';
+	@override String get aiDeviceOnlyNotice => 'Le chiavi sono cifrate solo per questo account su questo dispositivo. Nessun invio a IMBoy, backup cloud o trasferimento su altri dispositivi. Reinseriscile su un nuovo dispositivo.';
+	@override String get aiEnterprisePolicyNotice => 'Salvare una chiave non autorizza l’elaborazione esterna. Le registrazioni aziendali richiedono l’autorizzazione dei criteri aziendali e il consenso per ogni elaborazione.';
+	@override String get aiMaxNotice => 'Usa l’API generale Zhipu, fatturata separatamente. L’abbonamento annuale Coding Plan Max non copre automaticamente questo utilizzo. Le trascrizioni saranno inviate a Zhipu.';
+	@override String get aiAudioExternalNotice => 'La trascrizione invia l’audio a MiniMax e può comportare costi. Ogni richiesta è limitata a 500 secondi e 50 MB; il processo controlla e suddivide l’audio.';
+	@override String get aiValidationNotice => 'Il salvataggio non verifica la chiave e non invia audio o testo. Una verifica reale può comportare costi e richiede una conferma separata.';
+	@override String get aiAccountChanged => 'L’account o l’installazione è cambiato. Torna indietro e riapri la pagina. Il testo inserito è stato cancellato.';
+	@override String get aiCredentialChanged => 'La configurazione locale è cambiata o è incompleta. Reinserisci e salva la chiave oppure torna indietro e riprova.';
+	@override String get aiInvalidKey => 'Inserisci da 16 a 4096 caratteri ASCII senza spazi, ritorni a capo o caratteri di controllo.';
+	@override String get aiStorageFailed => 'Impossibile leggere o scrivere nell’archivio sicuro. Configurazione non confermata. Riprova; non verrà usato testo in chiaro.';
+	@override String get aiUnsupportedPlatform => 'L’archivio sicuro non è ancora verificato su questa piattaforma. Non è possibile salvare chiavi.';
+	@override String get aiKeyPlaceholder => 'Inserisci la chiave API';
+	@override String get aiReplacePlaceholder => 'Inserisci una nuova chiave API; quella salvata non viene mai precompilata';
+	@override String get aiSaveAction => 'Salva su questo dispositivo';
+	@override String get aiReplaceAction => 'Sostituisci la chiave locale';
+	@override String get aiDeleteAction => 'Elimina la chiave locale';
+	@override String get aiSaving => 'Salvataggio…';
+	@override String get aiSaved => 'Salvato su questo dispositivo. La chiave non è stata verificata.';
+	@override String get aiDeleted => 'Configurazione locale eliminata. Registrazioni e risultati esistenti restano disponibili.';
+	@override String get aiReplaceTitle => 'Sostituire la chiave locale?';
+	@override String get aiReplaceNotice => 'Sostituisce solo la configurazione di questo servizio per l’account corrente su questo dispositivo. Altri account e registrazioni restano invariati.';
+	@override String get aiDeleteTitle => 'Eliminare la chiave locale?';
+	@override String get aiDeleteNotice => 'Interrompe le nuove richieste a questo servizio. Registrazioni e risultati restano disponibili. Le richieste già inviate al fornitore non possono essere richiamate.';
+	@override String get aiCancel => 'Annulla';
 }
 
 // Path: welcome
@@ -5787,6 +5836,45 @@ extension on TranslationsItIt {
 			'passport.cannotGetScreenSize' => 'Impossibile ottenere le dimensioni dello schermo',
 			'passport.oneKeyFailedRetry' => 'Login one-tap non riuscito, controlla la rete e riprova',
 			'splash.slogan' => 'Parla liberamente, comunica con facilità',
+			'talkRecord.uploadProgressRegister' => 'Preparazione del caricamento',
+			'talkRecord.uploadProgressUpload' => 'Caricamento audio',
+			'talkRecord.uploadProgressConfirm' => 'Conferma audio',
+			'talkRecord.uploadProgressSubmitting' => 'Invio del salvataggio',
+			'talkRecord.uploadProgressCompleted' => 'Inviato; elaborazione audio in attesa',
+			'talkRecord.uploadProgressFailed' => 'Caricamento incompleto; riprova',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => 'Parti confermate: ${confirmed}/${total}',
+			'talkRecord.aiServicesTitle' => 'Servizi IA',
+			'talkRecord.aiServicesSubtitle' => 'Usa i tuoi account API. I fornitori addebitano i costi di utilizzo.',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => 'Trascrizione audio ed etichette temporanee dei parlanti',
+			'talkRecord.aiZhipuPurpose' => 'Bozze di riepiloghi, decisioni e azioni',
+			'talkRecord.aiConfigured' => 'Configurato su questo dispositivo',
+			'talkRecord.aiNotConfigured' => 'Non configurato',
+			'talkRecord.aiLoading' => 'Lettura della configurazione locale…',
+			'talkRecord.aiDeviceOnlyNotice' => 'Le chiavi sono cifrate solo per questo account su questo dispositivo. Nessun invio a IMBoy, backup cloud o trasferimento su altri dispositivi. Reinseriscile su un nuovo dispositivo.',
+			'talkRecord.aiEnterprisePolicyNotice' => 'Salvare una chiave non autorizza l’elaborazione esterna. Le registrazioni aziendali richiedono l’autorizzazione dei criteri aziendali e il consenso per ogni elaborazione.',
+			'talkRecord.aiMaxNotice' => 'Usa l’API generale Zhipu, fatturata separatamente. L’abbonamento annuale Coding Plan Max non copre automaticamente questo utilizzo. Le trascrizioni saranno inviate a Zhipu.',
+			'talkRecord.aiAudioExternalNotice' => 'La trascrizione invia l’audio a MiniMax e può comportare costi. Ogni richiesta è limitata a 500 secondi e 50 MB; il processo controlla e suddivide l’audio.',
+			'talkRecord.aiValidationNotice' => 'Il salvataggio non verifica la chiave e non invia audio o testo. Una verifica reale può comportare costi e richiede una conferma separata.',
+			'talkRecord.aiAccountChanged' => 'L’account o l’installazione è cambiato. Torna indietro e riapri la pagina. Il testo inserito è stato cancellato.',
+			'talkRecord.aiCredentialChanged' => 'La configurazione locale è cambiata o è incompleta. Reinserisci e salva la chiave oppure torna indietro e riprova.',
+			'talkRecord.aiInvalidKey' => 'Inserisci da 16 a 4096 caratteri ASCII senza spazi, ritorni a capo o caratteri di controllo.',
+			'talkRecord.aiStorageFailed' => 'Impossibile leggere o scrivere nell’archivio sicuro. Configurazione non confermata. Riprova; non verrà usato testo in chiaro.',
+			'talkRecord.aiUnsupportedPlatform' => 'L’archivio sicuro non è ancora verificato su questa piattaforma. Non è possibile salvare chiavi.',
+			'talkRecord.aiKeyPlaceholder' => 'Inserisci la chiave API',
+			'talkRecord.aiReplacePlaceholder' => 'Inserisci una nuova chiave API; quella salvata non viene mai precompilata',
+			'talkRecord.aiSaveAction' => 'Salva su questo dispositivo',
+			'talkRecord.aiReplaceAction' => 'Sostituisci la chiave locale',
+			'talkRecord.aiDeleteAction' => 'Elimina la chiave locale',
+			'talkRecord.aiSaving' => 'Salvataggio…',
+			'talkRecord.aiSaved' => 'Salvato su questo dispositivo. La chiave non è stata verificata.',
+			'talkRecord.aiDeleted' => 'Configurazione locale eliminata. Registrazioni e risultati esistenti restano disponibili.',
+			'talkRecord.aiReplaceTitle' => 'Sostituire la chiave locale?',
+			'talkRecord.aiReplaceNotice' => 'Sostituisce solo la configurazione di questo servizio per l’account corrente su questo dispositivo. Altri account e registrazioni restano invariati.',
+			'talkRecord.aiDeleteTitle' => 'Eliminare la chiave locale?',
+			'talkRecord.aiDeleteNotice' => 'Interrompe le nuove richieste a questo servizio. Registrazioni e risultati restano disponibili. Le richieste già inviate al fornitore non possono essere richiamate.',
+			'talkRecord.aiCancel' => 'Annulla',
 			'welcome.step1Title' => 'Connessione semplice',
 			'welcome.step1Desc' => 'Sperimenta la gioia di una comunicazione senza intoppi. In qualsiasi momento, ovunque.',
 			'welcome.step2Title' => 'Sicuro e privato',
@@ -5827,6 +5915,8 @@ extension on TranslationsItIt {
 			'workspace.createNameLabel' => 'Nome area di lavoro',
 			'workspace.createNameRequired' => 'Il nome dell\'area di lavoro non può essere vuoto',
 			'workspace.createSubmit' => 'Crea',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createSuccess' => 'Area di lavoro creata con successo',
 			'workspace.createTemplateChannel' => 'Canale Announcements (diventerai editore e iscritto del canale)',
 			'workspace.createTemplateGroup' => 'Gruppo General (diventerai membro del gruppo)',
@@ -5866,8 +5956,6 @@ extension on TranslationsItIt {
 			'workspace.joinByTeamCode' => 'Unisciti a uno workspace con codice team',
 			'workspace.joinExpiredCode' => 'Codice team scaduto',
 			'workspace.joinInvalidCode' => 'Codice team non valido o non più utilizzabile',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSubmit' => 'Entra',
 			'workspace.joinSuccess' => ({required Object name}) => 'Sei entrato in «${name}»',
 			'workspace.joinTitle' => 'Entra nell\'area di lavoro',

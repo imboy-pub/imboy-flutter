@@ -69,6 +69,7 @@ class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$organization$fr_FR organization = _Translations$organization$fr_FR._(_root);
 	@override late final _Translations$passport$fr_FR passport = _Translations$passport$fr_FR._(_root);
 	@override late final _Translations$splash$fr_FR splash = _Translations$splash$fr_FR._(_root);
+	@override late final _Translations$talkRecord$fr_FR talkRecord = _Translations$talkRecord$fr_FR._(_root);
 	@override late final _Translations$welcome$fr_FR welcome = _Translations$welcome$fr_FR._(_root);
 	@override late final _Translations$workspace$fr_FR workspace = _Translations$workspace$fr_FR._(_root);
 }
@@ -2447,6 +2448,54 @@ class _Translations$splash$fr_FR extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => 'Communiquez librement';
+}
+
+// Path: talkRecord
+class _Translations$talkRecord$fr_FR extends Translations$talkRecord$zh_CN {
+	_Translations$talkRecord$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => 'Préparation du transfert';
+	@override String get uploadProgressUpload => 'Transfert audio';
+	@override String get uploadProgressConfirm => 'Confirmation audio';
+	@override String get uploadProgressSubmitting => 'Envoi pour enregistrement';
+	@override String get uploadProgressCompleted => 'Envoyé ; traitement audio en attente';
+	@override String get uploadProgressFailed => 'Transfert incomplet ; réessayez';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => 'Segments confirmés : ${confirmed}/${total}';
+	@override String get aiServicesTitle => 'Services IA';
+	@override String get aiServicesSubtitle => 'Utilisez vos propres comptes API. Les fournisseurs facturent l’utilisation.';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => 'Transcription audio et étiquettes temporaires de locuteurs';
+	@override String get aiZhipuPurpose => 'Brouillons de synthèse, décisions et actions';
+	@override String get aiConfigured => 'Configuré sur cet appareil';
+	@override String get aiNotConfigured => 'Non configuré';
+	@override String get aiLoading => 'Lecture de la configuration locale…';
+	@override String get aiDeviceOnlyNotice => 'Les clés sont chiffrées uniquement pour ce compte sur cet appareil. Aucun envoi à IMBoy, sauvegarde cloud ou transfert vers un autre appareil. Saisissez-les à nouveau sur un nouvel appareil.';
+	@override String get aiEnterprisePolicyNotice => 'Enregistrer une clé n’autorise pas le traitement externe. Les enregistrements d’entreprise nécessitent l’autorisation de la politique d’entreprise et un consentement pour chaque traitement.';
+	@override String get aiMaxNotice => 'Utilise l’API générale Zhipu, facturée séparément. L’abonnement annuel Coding Plan Max ne couvre pas automatiquement cet usage. Les transcriptions seront envoyées à Zhipu.';
+	@override String get aiAudioExternalNotice => 'La transcription envoie l’audio à MiniMax et peut être payante. Chaque requête est limitée à 500 secondes et 50 Mo ; le traitement vérifie et découpe l’audio.';
+	@override String get aiValidationNotice => 'L’enregistrement ne valide pas la clé et n’envoie ni audio ni texte. Une validation réelle peut être payante et nécessite une confirmation distincte.';
+	@override String get aiAccountChanged => 'Votre compte ou déploiement a changé. Revenez en arrière et rouvrez cette page. La saisie a été effacée.';
+	@override String get aiCredentialChanged => 'La configuration locale a changé ou reste incomplète. Ressaisissez et enregistrez la clé, ou revenez en arrière pour réessayer.';
+	@override String get aiInvalidKey => 'Saisissez 16 à 4096 caractères ASCII sans espaces, sauts de ligne ni caractères de contrôle.';
+	@override String get aiStorageFailed => 'Impossible de lire ou d’écrire dans le stockage sécurisé. Configuration non confirmée. Réessayez ; aucun stockage en clair ne sera utilisé.';
+	@override String get aiUnsupportedPlatform => 'Le stockage sécurisé n’est pas encore vérifié sur cette plateforme. L’enregistrement de clés est indisponible.';
+	@override String get aiKeyPlaceholder => 'Saisir la clé API';
+	@override String get aiReplacePlaceholder => 'Saisir une nouvelle clé API ; la clé existante n’est jamais préremplie';
+	@override String get aiSaveAction => 'Enregistrer sur cet appareil';
+	@override String get aiReplaceAction => 'Remplacer la clé locale';
+	@override String get aiDeleteAction => 'Supprimer la clé locale';
+	@override String get aiSaving => 'Enregistrement…';
+	@override String get aiSaved => 'Enregistré sur cet appareil. La clé n’a pas été validée.';
+	@override String get aiDeleted => 'Configuration locale supprimée. Les enregistrements et résultats existants sont conservés.';
+	@override String get aiReplaceTitle => 'Remplacer la clé locale ?';
+	@override String get aiReplaceNotice => 'Remplace uniquement la configuration de ce service pour ce compte sur cet appareil. Les autres comptes et enregistrements ne sont pas modifiés.';
+	@override String get aiDeleteTitle => 'Supprimer la clé locale ?';
+	@override String get aiDeleteNotice => 'Arrête les nouvelles requêtes à ce service. Les enregistrements et résultats sont conservés. Les requêtes déjà envoyées au fournisseur ne peuvent pas être rappelées.';
+	@override String get aiCancel => 'Annuler';
 }
 
 // Path: welcome
@@ -5787,6 +5836,45 @@ extension on TranslationsFrFr {
 			'passport.cannotGetScreenSize' => 'Impossible d\'obtenir la taille de l\'écran',
 			'passport.oneKeyFailedRetry' => 'Échec de la connexion en un clic, vérifiez le réseau et réessayez',
 			'splash.slogan' => 'Communiquez librement',
+			'talkRecord.uploadProgressRegister' => 'Préparation du transfert',
+			'talkRecord.uploadProgressUpload' => 'Transfert audio',
+			'talkRecord.uploadProgressConfirm' => 'Confirmation audio',
+			'talkRecord.uploadProgressSubmitting' => 'Envoi pour enregistrement',
+			'talkRecord.uploadProgressCompleted' => 'Envoyé ; traitement audio en attente',
+			'talkRecord.uploadProgressFailed' => 'Transfert incomplet ; réessayez',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => 'Segments confirmés : ${confirmed}/${total}',
+			'talkRecord.aiServicesTitle' => 'Services IA',
+			'talkRecord.aiServicesSubtitle' => 'Utilisez vos propres comptes API. Les fournisseurs facturent l’utilisation.',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => 'Transcription audio et étiquettes temporaires de locuteurs',
+			'talkRecord.aiZhipuPurpose' => 'Brouillons de synthèse, décisions et actions',
+			'talkRecord.aiConfigured' => 'Configuré sur cet appareil',
+			'talkRecord.aiNotConfigured' => 'Non configuré',
+			'talkRecord.aiLoading' => 'Lecture de la configuration locale…',
+			'talkRecord.aiDeviceOnlyNotice' => 'Les clés sont chiffrées uniquement pour ce compte sur cet appareil. Aucun envoi à IMBoy, sauvegarde cloud ou transfert vers un autre appareil. Saisissez-les à nouveau sur un nouvel appareil.',
+			'talkRecord.aiEnterprisePolicyNotice' => 'Enregistrer une clé n’autorise pas le traitement externe. Les enregistrements d’entreprise nécessitent l’autorisation de la politique d’entreprise et un consentement pour chaque traitement.',
+			'talkRecord.aiMaxNotice' => 'Utilise l’API générale Zhipu, facturée séparément. L’abonnement annuel Coding Plan Max ne couvre pas automatiquement cet usage. Les transcriptions seront envoyées à Zhipu.',
+			'talkRecord.aiAudioExternalNotice' => 'La transcription envoie l’audio à MiniMax et peut être payante. Chaque requête est limitée à 500 secondes et 50 Mo ; le traitement vérifie et découpe l’audio.',
+			'talkRecord.aiValidationNotice' => 'L’enregistrement ne valide pas la clé et n’envoie ni audio ni texte. Une validation réelle peut être payante et nécessite une confirmation distincte.',
+			'talkRecord.aiAccountChanged' => 'Votre compte ou déploiement a changé. Revenez en arrière et rouvrez cette page. La saisie a été effacée.',
+			'talkRecord.aiCredentialChanged' => 'La configuration locale a changé ou reste incomplète. Ressaisissez et enregistrez la clé, ou revenez en arrière pour réessayer.',
+			'talkRecord.aiInvalidKey' => 'Saisissez 16 à 4096 caractères ASCII sans espaces, sauts de ligne ni caractères de contrôle.',
+			'talkRecord.aiStorageFailed' => 'Impossible de lire ou d’écrire dans le stockage sécurisé. Configuration non confirmée. Réessayez ; aucun stockage en clair ne sera utilisé.',
+			'talkRecord.aiUnsupportedPlatform' => 'Le stockage sécurisé n’est pas encore vérifié sur cette plateforme. L’enregistrement de clés est indisponible.',
+			'talkRecord.aiKeyPlaceholder' => 'Saisir la clé API',
+			'talkRecord.aiReplacePlaceholder' => 'Saisir une nouvelle clé API ; la clé existante n’est jamais préremplie',
+			'talkRecord.aiSaveAction' => 'Enregistrer sur cet appareil',
+			'talkRecord.aiReplaceAction' => 'Remplacer la clé locale',
+			'talkRecord.aiDeleteAction' => 'Supprimer la clé locale',
+			'talkRecord.aiSaving' => 'Enregistrement…',
+			'talkRecord.aiSaved' => 'Enregistré sur cet appareil. La clé n’a pas été validée.',
+			'talkRecord.aiDeleted' => 'Configuration locale supprimée. Les enregistrements et résultats existants sont conservés.',
+			'talkRecord.aiReplaceTitle' => 'Remplacer la clé locale ?',
+			'talkRecord.aiReplaceNotice' => 'Remplace uniquement la configuration de ce service pour ce compte sur cet appareil. Les autres comptes et enregistrements ne sont pas modifiés.',
+			'talkRecord.aiDeleteTitle' => 'Supprimer la clé locale ?',
+			'talkRecord.aiDeleteNotice' => 'Arrête les nouvelles requêtes à ce service. Les enregistrements et résultats sont conservés. Les requêtes déjà envoyées au fournisseur ne peuvent pas être rappelées.',
+			'talkRecord.aiCancel' => 'Annuler',
 			'welcome.step1Title' => 'Connexion simple',
 			'welcome.step1Desc' => 'Profitez de la joie d\'une communication fluide. Partout, à tout moment.',
 			'welcome.step2Title' => 'Sécurité et vie privée',
@@ -5827,6 +5915,8 @@ extension on TranslationsFrFr {
 			'workspace.overviewPinnedContent' => 'Contenus épinglés des canaux',
 			'workspace.overviewPinnedEmpty' => 'Aucun contenu épinglé dans les canaux pour le moment ; les annonces de groupe ne sont pas agrégées ici (elles appartiennent à chaque groupe)',
 			'workspace.overviewRecentFiles' => 'Fichiers récents',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'Les fichiers récemment téléversés s\'afficheront ici ; vous pouvez aussi consulter les pièces jointes dans chaque canal',
 			'workspace.membersTitle' => 'Membres de l\'espace de travail',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} membres',
@@ -5866,8 +5956,6 @@ extension on TranslationsFrFr {
 			'workspace.joinCodeLabel' => 'Code d\'équipe',
 			'workspace.joinCodeHint' => '8 caractères (lettres majuscules ou chiffres)',
 			'workspace.joinSubmit' => 'Rejoindre',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => 'Vous avez rejoint « ${name} »',
 			'workspace.joinAlreadyMember' => 'Vous êtes déjà dans cet espace de travail',
 			'workspace.joinInvalidCode' => 'Code d\'équipe invalide ou non valable',

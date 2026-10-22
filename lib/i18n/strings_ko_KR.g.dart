@@ -69,6 +69,7 @@ class TranslationsKoKr extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$organization$ko_KR organization = _Translations$organization$ko_KR._(_root);
 	@override late final _Translations$passport$ko_KR passport = _Translations$passport$ko_KR._(_root);
 	@override late final _Translations$splash$ko_KR splash = _Translations$splash$ko_KR._(_root);
+	@override late final _Translations$talkRecord$ko_KR talkRecord = _Translations$talkRecord$ko_KR._(_root);
 	@override late final _Translations$welcome$ko_KR welcome = _Translations$welcome$ko_KR._(_root);
 	@override late final _Translations$workspace$ko_KR workspace = _Translations$workspace$ko_KR._(_root);
 }
@@ -2444,6 +2445,54 @@ class _Translations$splash$ko_KR extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => '자유롭게 대화하세요';
+}
+
+// Path: talkRecord
+class _Translations$talkRecord$ko_KR extends Translations$talkRecord$zh_CN {
+	_Translations$talkRecord$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => '업로드 준비 중';
+	@override String get uploadProgressUpload => '오디오 업로드 중';
+	@override String get uploadProgressConfirm => '오디오 확인 중';
+	@override String get uploadProgressSubmitting => '저장 제출 중';
+	@override String get uploadProgressCompleted => '제출됨 · 오디오 처리 대기 중';
+	@override String get uploadProgressFailed => '업로드 미완료 · 다시 시도 가능';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => '확인된 구간 ${confirmed}/${total}';
+	@override String get aiServicesTitle => 'AI 서비스';
+	@override String get aiServicesSubtitle => '본인의 API 계정을 사용하며 비용은 제공업체가 청구합니다.';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => '음성 전사 및 임시 화자 레이블';
+	@override String get aiZhipuPurpose => '요약, 결정 사항 및 작업 초안';
+	@override String get aiConfigured => '이 기기에 설정됨';
+	@override String get aiNotConfigured => '설정 안 됨';
+	@override String get aiLoading => '기기 설정을 읽는 중…';
+	@override String get aiDeviceOnlyNotice => '키는 현재 계정의 이 기기에만 암호화하여 저장됩니다. IMBoy 업로드, 클라우드 백업 및 기기 이전에 포함되지 않습니다. 새 기기에서는 다시 입력하세요.';
+	@override String get aiEnterprisePolicyNotice => '키 저장만으로 외부 처리가 허용되지는 않습니다. 기업 녹음은 기업 정책 허용과 매 처리 요청에 대한 동의가 필요합니다.';
+	@override String get aiMaxNotice => '별도 과금되는 Zhipu 일반 API를 사용합니다. 연간 Coding Plan Max가 이 비용을 자동으로 포함하지는 않습니다. 전사문은 Zhipu로 전송됩니다.';
+	@override String get aiAudioExternalNotice => '전사 시 오디오를 MiniMax로 전송하며 비용이 발생할 수 있습니다. 요청당 최대 500초 및 50 MB이며 처리 과정에서 검사하고 분할합니다.';
+	@override String get aiValidationNotice => '저장은 키를 검증하거나 오디오 및 텍스트를 전송하지 않습니다. 실제 검증은 과금될 수 있어 별도 확인이 필요합니다.';
+	@override String get aiAccountChanged => '계정 또는 배포 환경이 변경되었습니다. 뒤로 돌아가 다시 여세요. 입력은 지웠습니다.';
+	@override String get aiCredentialChanged => '기기 설정이 변경되었거나 미완료 상태입니다. 키를 다시 입력해 저장하거나 돌아가서 재시도하세요.';
+	@override String get aiInvalidKey => '공백, 줄 바꿈 및 제어 문자가 없는 ASCII 문자 16~4096자를 입력하세요.';
+	@override String get aiStorageFailed => '기기 보안 저장소를 읽거나 쓸 수 없어 설정을 확인하지 못했습니다. 다시 시도하세요. 평문으로 저장하지 않습니다.';
+	@override String get aiUnsupportedPlatform => '이 플랫폼의 기기 보안 저장소가 검증되지 않아 키를 저장할 수 없습니다.';
+	@override String get aiKeyPlaceholder => 'API 키 입력';
+	@override String get aiReplacePlaceholder => '새 API 키 입력(기존 키는 미리 표시하지 않음)';
+	@override String get aiSaveAction => '이 기기에 저장';
+	@override String get aiReplaceAction => '기기 키 교체';
+	@override String get aiDeleteAction => '기기 키 삭제';
+	@override String get aiSaving => '저장 중…';
+	@override String get aiSaved => '이 기기에 저장했습니다. 키는 아직 검증되지 않았습니다.';
+	@override String get aiDeleted => '기기 설정을 삭제했습니다. 녹음과 기존 결과는 유지됩니다.';
+	@override String get aiReplaceTitle => '기기 키를 교체할까요?';
+	@override String get aiReplaceNotice => '이 기기의 현재 계정에 있는 이 서비스 설정만 교체합니다. 다른 계정과 저장된 녹음에는 영향을 주지 않습니다.';
+	@override String get aiDeleteTitle => '기기 키를 삭제할까요?';
+	@override String get aiDeleteNotice => '이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다.';
+	@override String get aiCancel => '취소';
 }
 
 // Path: welcome
@@ -5784,6 +5833,45 @@ extension on TranslationsKoKr {
 			'passport.cannotGetScreenSize' => '화면 크기를 가져올 수 없습니다',
 			'passport.oneKeyFailedRetry' => '원탭 로그인에 실패했습니다. 네트워크를 확인 후 다시 시도해 주세요',
 			'splash.slogan' => '자유롭게 대화하세요',
+			'talkRecord.uploadProgressRegister' => '업로드 준비 중',
+			'talkRecord.uploadProgressUpload' => '오디오 업로드 중',
+			'talkRecord.uploadProgressConfirm' => '오디오 확인 중',
+			'talkRecord.uploadProgressSubmitting' => '저장 제출 중',
+			'talkRecord.uploadProgressCompleted' => '제출됨 · 오디오 처리 대기 중',
+			'talkRecord.uploadProgressFailed' => '업로드 미완료 · 다시 시도 가능',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => '확인된 구간 ${confirmed}/${total}',
+			'talkRecord.aiServicesTitle' => 'AI 서비스',
+			'talkRecord.aiServicesSubtitle' => '본인의 API 계정을 사용하며 비용은 제공업체가 청구합니다.',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => '음성 전사 및 임시 화자 레이블',
+			'talkRecord.aiZhipuPurpose' => '요약, 결정 사항 및 작업 초안',
+			'talkRecord.aiConfigured' => '이 기기에 설정됨',
+			'talkRecord.aiNotConfigured' => '설정 안 됨',
+			'talkRecord.aiLoading' => '기기 설정을 읽는 중…',
+			'talkRecord.aiDeviceOnlyNotice' => '키는 현재 계정의 이 기기에만 암호화하여 저장됩니다. IMBoy 업로드, 클라우드 백업 및 기기 이전에 포함되지 않습니다. 새 기기에서는 다시 입력하세요.',
+			'talkRecord.aiEnterprisePolicyNotice' => '키 저장만으로 외부 처리가 허용되지는 않습니다. 기업 녹음은 기업 정책 허용과 매 처리 요청에 대한 동의가 필요합니다.',
+			'talkRecord.aiMaxNotice' => '별도 과금되는 Zhipu 일반 API를 사용합니다. 연간 Coding Plan Max가 이 비용을 자동으로 포함하지는 않습니다. 전사문은 Zhipu로 전송됩니다.',
+			'talkRecord.aiAudioExternalNotice' => '전사 시 오디오를 MiniMax로 전송하며 비용이 발생할 수 있습니다. 요청당 최대 500초 및 50 MB이며 처리 과정에서 검사하고 분할합니다.',
+			'talkRecord.aiValidationNotice' => '저장은 키를 검증하거나 오디오 및 텍스트를 전송하지 않습니다. 실제 검증은 과금될 수 있어 별도 확인이 필요합니다.',
+			'talkRecord.aiAccountChanged' => '계정 또는 배포 환경이 변경되었습니다. 뒤로 돌아가 다시 여세요. 입력은 지웠습니다.',
+			'talkRecord.aiCredentialChanged' => '기기 설정이 변경되었거나 미완료 상태입니다. 키를 다시 입력해 저장하거나 돌아가서 재시도하세요.',
+			'talkRecord.aiInvalidKey' => '공백, 줄 바꿈 및 제어 문자가 없는 ASCII 문자 16~4096자를 입력하세요.',
+			'talkRecord.aiStorageFailed' => '기기 보안 저장소를 읽거나 쓸 수 없어 설정을 확인하지 못했습니다. 다시 시도하세요. 평문으로 저장하지 않습니다.',
+			'talkRecord.aiUnsupportedPlatform' => '이 플랫폼의 기기 보안 저장소가 검증되지 않아 키를 저장할 수 없습니다.',
+			'talkRecord.aiKeyPlaceholder' => 'API 키 입력',
+			'talkRecord.aiReplacePlaceholder' => '새 API 키 입력(기존 키는 미리 표시하지 않음)',
+			'talkRecord.aiSaveAction' => '이 기기에 저장',
+			'talkRecord.aiReplaceAction' => '기기 키 교체',
+			'talkRecord.aiDeleteAction' => '기기 키 삭제',
+			'talkRecord.aiSaving' => '저장 중…',
+			'talkRecord.aiSaved' => '이 기기에 저장했습니다. 키는 아직 검증되지 않았습니다.',
+			'talkRecord.aiDeleted' => '기기 설정을 삭제했습니다. 녹음과 기존 결과는 유지됩니다.',
+			'talkRecord.aiReplaceTitle' => '기기 키를 교체할까요?',
+			'talkRecord.aiReplaceNotice' => '이 기기의 현재 계정에 있는 이 서비스 설정만 교체합니다. 다른 계정과 저장된 녹음에는 영향을 주지 않습니다.',
+			'talkRecord.aiDeleteTitle' => '기기 키를 삭제할까요?',
+			'talkRecord.aiDeleteNotice' => '이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다.',
+			'talkRecord.aiCancel' => '취소',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',
 			'welcome.step2Title' => '안전하고 개인적인',
@@ -5824,6 +5912,8 @@ extension on TranslationsKoKr {
 			'workspace.overviewPinnedContent' => '채널 고정 콘텐츠',
 			'workspace.overviewPinnedEmpty' => '채널에 고정된 콘텐츠가 없습니다. 그룹 공지는 여기에 집계되지 않습니다(그룹 공지는 각 그룹에 속함)',
 			'workspace.overviewRecentFiles' => '최근 파일',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '최근 업로드한 파일이 여기에 표시됩니다. 각 채널에서도 첨부파일을 볼 수 있습니다',
 			'workspace.membersTitle' => '워크스페이스 구성원',
 			'workspace.membersCountLabel' => ({required Object count}) => '구성원 ${count}명',
@@ -5863,8 +5953,6 @@ extension on TranslationsKoKr {
 			'workspace.joinCodeLabel' => '팀 코드',
 			'workspace.joinCodeHint' => '영문 대문자 또는 숫자 8자',
 			'workspace.joinSubmit' => '가입',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '「${name}」에 가입했습니다',
 			'workspace.joinAlreadyMember' => '이미 이 워크스페이스에 속해 있습니다',
 			'workspace.joinInvalidCode' => '팀 코드가 잘못되었거나 만료되었습니다',

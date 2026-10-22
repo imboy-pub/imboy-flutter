@@ -21,9 +21,17 @@ import 'talk_record_part_transport.dart';
 import 'talk_record_recording_coordinator.dart';
 import 'talk_record_upload_checkpoint.dart';
 import 'talk_record_upload_manifest.dart';
+import 'talk_record_upload_progress.dart';
 part 'talk_record_upload_parts.dart';
 
-class TalkRecordAttachmentUploadGateway implements TalkRecordUploadGateway {
+class TalkRecordAttachmentUploadGateway
+    implements TalkRecordUploadGateway, TalkRecordUploadProgressSource {
+  final _uploadUpdates = StreamController<TalkRecordUploadSnapshot>.broadcast();
+  @override
+  Stream<TalkRecordUploadSnapshot> get uploadUpdates => _uploadUpdates.stream;
+  @override
+  TalkRecordUploadSnapshot? get uploadSnapshot => _uploadSnapshot;
+  TalkRecordUploadSnapshot? _uploadSnapshot;
   TalkRecordAttachmentUploadGateway({
     required this.api,
     TalkRecordPartTransport? transport,
@@ -44,12 +52,58 @@ class TalkRecordAttachmentUploadGateway implements TalkRecordUploadGateway {
     required TalkRecordKeyStore keys,
     required void Function() checkAccount,
   }) async {
+    void report(TalkRecordUploadPhase phase, int confirmed) {
+      checkAccount();
+      final snapshot = TalkRecordUploadSnapshot(
+        account: binding.account,
+        recordId: binding.recordId,
+        sessionId: binding.sessionId,
+        totalParts: manifest.segments.length,
+        confirmedParts: confirmed,
+        phase: phase,
+      );
+      _uploadSnapshot = snapshot;
+      _uploadUpdates.add(snapshot);
+    }
+
+    var confirmed = 0;
+    void update(TalkRecordUploadPhase phase, int count) {
+      confirmed = count;
+      report(phase, count);
+    }
+
+    try {
+      await _upload(binding, manifest, directory, keys, checkAccount, update);
+      report(TalkRecordUploadPhase.completed, manifest.segments.length);
+    } on Object {
+      // A revoked account must never publish its late progress to a new user.
+      try {
+        report(TalkRecordUploadPhase.failed, confirmed);
+      } on Object {
+        /* fenced */
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _upload(
+    TalkRecordLocalBinding binding,
+    TalkRecordManifest manifest,
+    Directory directory,
+    TalkRecordKeyStore keys,
+    void Function() checkAccount,
+    void Function(TalkRecordUploadPhase, int) report,
+  ) async {
     _validateLocal(binding, manifest);
     checkAccount();
     await _clearPlaintext(Directory('${directory.path}/.upload_plain'));
     final checkpoints = TalkRecordUploadCheckpointStore(directory);
     final source = talkRecordManifestHash(manifest.toJson());
     final checkpoint = await checkpoints.load(binding, source);
+    int confirmed() => checkpoint.parts.values
+        .where((part) => part is Map && part['confirmed'] == true)
+        .length;
+    report(TalkRecordUploadPhase.register, confirmed());
     TalkRecordCaptureModel? capture;
     void guard() {
       checkAccount();
@@ -94,6 +148,7 @@ class TalkRecordAttachmentUploadGateway implements TalkRecordUploadGateway {
       checkpoint,
       checkpoints,
       guard,
+      (phase) => report(phase, confirmed()),
     );
   }
 
@@ -195,6 +250,7 @@ class TalkRecordAttachmentUploadGateway implements TalkRecordUploadGateway {
     TalkRecordUploadCheckpoint checkpoint,
     TalkRecordUploadCheckpointStore checkpoints,
     void Function() guard,
+    void Function(TalkRecordUploadPhase) report,
   ) async {
     final plaintextDir = Directory('${directory.path}/.upload_plain');
     await _clearPlaintext(plaintextDir);
@@ -210,8 +266,10 @@ class TalkRecordAttachmentUploadGateway implements TalkRecordUploadGateway {
           checkpoint,
           checkpoints,
           guard,
+          report,
         );
       }
+      report(TalkRecordUploadPhase.submitting);
       // Server mark bounds use capture.duration_ms, advanced by the end event.
       await _end(binding, manifest, capture, checkpoint, checkpoints, guard);
       await _marks(binding, manifest, checkpoint, checkpoints, guard);

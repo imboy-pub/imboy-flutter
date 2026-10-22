@@ -29,6 +29,7 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/config/router/routes/talk_record_routes.dart';
 import 'package:imboy/theme/providers/theme_provider.dart';
 
 /// 允许搜索状态的 Provider - 使用 Provider 从存储中读取值
@@ -138,6 +139,11 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   AppColors.iosOrange,
                 ),
                 onTap: () => context.push('/account_security'),
+              ),
+              ImBoySettingsTile(
+                title: Text(t.talkRecord.aiServicesTitle),
+                leading: _buildIcon(CupertinoIcons.sparkles, AppColors.iosBlue),
+                onTap: () => context.push(kTalkRecordAiServicesPath),
               ),
               ImBoySettingsTile(
                 title: Text(t.common.languageSetting),
