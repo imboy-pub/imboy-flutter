@@ -1,3 +1,4 @@
+import 'package:imboy/modules/talk_record/application/talk_record_upload_progress.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_capture_api_gateway.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capabilities_model.dart';
 
@@ -38,6 +39,38 @@ class _Directory extends TalkRecordParticipantDirectory {
     String org,
     String q,
   ) async => [];
+}
+
+class _ProgressRuntime extends Fake implements TalkRecordRecordingCoordinator {
+  _ProgressRuntime(this.pending);
+  TalkRecordPendingEnded pending;
+  int reads = 0;
+  bool uploading = false;
+  final progress = StreamController<TalkRecordUploadSnapshot>.broadcast();
+  TalkRecordUploadSnapshot? latest;
+  @override
+  Stream<TalkRecordUploadSnapshot> get uploadUpdates => progress.stream;
+  @override
+  TalkRecordUploadSnapshot? get uploadSnapshot => latest;
+  @override
+  Future<List<TalkRecordPendingEnded>> pendingEnded() async {
+    reads++;
+    if (uploading) throw StateError('Recording operation in progress');
+    return [pending];
+  }
+
+  void publish(TalkRecordUploadPhase phase) {
+    latest = TalkRecordUploadSnapshot(
+      account: pending.binding.account,
+      recordId: pending.binding.recordId,
+      sessionId: pending.binding.sessionId,
+      totalParts: 1,
+      confirmedParts: 0,
+      phase: phase,
+      pendingBinding: pending.binding,
+    );
+    progress.add(latest!);
+  }
 }
 
 void main() {
@@ -104,6 +137,9 @@ void main() {
             edit ?? (_, _) async {},
           ),
           talkRecordPendingUploadsProvider.overrideWith((ref) async => items),
+          talkRecordUploadProgressProvider.overrideWith(
+            (ref) => const Stream.empty(),
+          ),
           talkRecordPendingRetryProvider.overrideWithValue(
             retry ?? (_) async {},
           ),
@@ -171,6 +207,76 @@ void main() {
     expect(find.text('PERSONAL'), findsNothing);
     expect(find.byType(CupertinoButton), findsNothing);
   });
+  testWidgets(
+    'first binding projects progress without re-entering the upload mutex',
+    (tester) async {
+      final unbound = item('FIRST', personal).binding.copyWith(
+        recordId: '',
+        sessionId: 'local-session',
+        uploadAttempted: false,
+      );
+      final runtime = _ProgressRuntime(TalkRecordPendingEnded(unbound, 100, 1));
+      final completion = Completer<void>();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            talkRecordPendingAccountProvider.overrideWithValue(account),
+            talkRecordAuthSubscribeProvider.overrideWithValue((_) => () {}),
+            talkRecordRecordingRuntimeProvider.overrideWith(
+              (ref) async => runtime,
+            ),
+            talkRecordPendingRetryProvider.overrideWithValue((requested) {
+              expect(requested.binding.recordId, isEmpty);
+              runtime.uploading = true;
+              // The bind/store save boundary updates the authoritative pending item
+              // before the upload gateway publishes its first server-bound phase.
+              runtime.pending = TalkRecordPendingEnded(
+                requested.binding.copyWith(recordId: 'new-server-record'),
+                100,
+                1,
+              );
+              runtime.publish(TalkRecordUploadPhase.register);
+              runtime.publish(TalkRecordUploadPhase.upload);
+              return completion.future;
+            }),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: TalkRecordPendingUploads(contextFilter: personal),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(runtime.pending.binding.recordId, isEmpty);
+      final initialReads = runtime.reads;
+      await tester.tap(find.text(t.talkRecord.uploadRecording));
+      await tester.pumpAndSettle();
+      expect(runtime.reads, initialReads);
+      expect(runtime.uploading, isTrue);
+      expect(
+        find.text(talkRecordUploadProgressLabel(runtime.latest!)),
+        findsOneWidget,
+      );
+      expect(runtime.latest!.matches(runtime.pending.binding), isTrue);
+      final boundReads = runtime.reads;
+      runtime.publish(TalkRecordUploadPhase.confirm);
+      await tester.pumpAndSettle();
+      expect(runtime.reads, boundReads);
+      expect(
+        find.text(talkRecordUploadProgressLabel(runtime.latest!)),
+        findsOneWidget,
+      );
+      runtime.uploading = false;
+      completion.completeError(StateError('retryable upload failure'));
+      await tester.pumpAndSettle();
+      expect(find.text('FIRST'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await runtime.progress.close();
+    },
+  );
+
   testWidgets('retry is exclusive and failure never removes local item', (
     tester,
   ) async {
@@ -229,6 +335,9 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
+              talkRecordUploadProgressProvider.overrideWith(
+                (ref) => const Stream.empty(),
+              ),
               talkRecordPendingAccountProvider.overrideWithValue(account),
               talkRecordAuthSubscribeProvider.overrideWithValue((cb) {
                 changed = cb;
@@ -282,6 +391,9 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
+              talkRecordUploadProgressProvider.overrideWith(
+                (ref) => const Stream.empty(),
+              ),
               talkRecordPendingAccountProvider.overrideWithValue(account),
               talkRecordAuthSubscribeProvider.overrideWithValue((_) => () {}),
               talkRecordPendingUploadsProvider.overrideWith(

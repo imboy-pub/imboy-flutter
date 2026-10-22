@@ -46,6 +46,7 @@ part 'talk_record_api_participants.dart';
 part 'talk_record_api_recovery.dart';
 part 'talk_record_api_results.dart';
 part 'talk_record_api_result_operations.dart';
+part 'talk_record_api_client_execution.dart';
 
 /// HTTP 头常量（talk_record 域新引入，集中定义防拼写漂移）。
 class TalkRecordHttpHeaders {

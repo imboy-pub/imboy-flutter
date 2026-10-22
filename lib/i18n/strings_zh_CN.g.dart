@@ -8312,6 +8312,177 @@ class Translations$talkRecord$zh_CN {
 
 	/// zh-CN: '核对同一重试请求'
 	String get cleanupRetryReconcile => '核对同一重试请求';
+
+	/// zh-CN: '准备上传'
+	String get uploadProgressRegister => '准备上传';
+
+	/// zh-CN: '上传音频'
+	String get uploadProgressUpload => '上传音频';
+
+	/// zh-CN: '确认音频'
+	String get uploadProgressConfirm => '确认音频';
+
+	/// zh-CN: '提交保存'
+	String get uploadProgressSubmitting => '提交保存';
+
+	/// zh-CN: '已提交，等待音频处理'
+	String get uploadProgressCompleted => '已提交，等待音频处理';
+
+	/// zh-CN: '上传未完成，可重试'
+	String get uploadProgressFailed => '上传未完成，可重试';
+
+	/// zh-CN: '已确认 $confirmed/$total 段'
+	String uploadProgressParts({required Object confirmed, required Object total}) => '已确认 ${confirmed}/${total} 段';
+
+	/// zh-CN: 'AI 服务'
+	String get aiServicesTitle => 'AI 服务';
+
+	/// zh-CN: '使用你自己的 API 账户，费用由供应商收取。'
+	String get aiServicesSubtitle => '使用你自己的 API 账户，费用由供应商收取。';
+
+	/// zh-CN: 'MiniMax'
+	String get aiMinimaxTitle => 'MiniMax';
+
+	/// zh-CN: '豆包语音识别 2.0'
+	String get aiDoubaoTitle => '豆包语音识别 2.0';
+
+	/// zh-CN: '转写服务'
+	String get aiAsrProvider => '转写服务';
+
+	/// zh-CN: 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。'
+	String get aiAsrOptionalNotice => 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。';
+
+	/// zh-CN: '豆包文件语音识别 2.0 待接入，暂不可执行。可先在本设备保存 Key；不会创建处理任务或发送音频，也不会自动切换到其他服务。'
+	String get aiDoubaoPendingNotice => '豆包文件语音识别 2.0 待接入，暂不可执行。可先在本设备保存 Key；不会创建处理任务或发送音频，也不会自动切换到其他服务。';
+
+	/// zh-CN: '智谱 GLM-5.3-Flash'
+	String get aiZhipuTitle => '智谱 GLM-5.3-Flash';
+
+	/// zh-CN: '音频转文字与临时说话人标签'
+	String get aiMinimaxPurpose => '音频转文字与临时说话人标签';
+
+	/// zh-CN: '摘要草稿、决定与行动项'
+	String get aiZhipuPurpose => '摘要草稿、决定与行动项';
+
+	/// zh-CN: '本设备已配置'
+	String get aiConfigured => '本设备已配置';
+
+	/// zh-CN: '未配置'
+	String get aiNotConfigured => '未配置';
+
+	/// zh-CN: '正在读取本设备配置…'
+	String get aiLoading => '正在读取本设备配置…';
+
+	/// zh-CN: 'Key 仅加密保存在当前账号的本设备，不上传 IMBoy、不参与云备份或换机迁移。换设备需要重新填写。'
+	String get aiDeviceOnlyNotice => 'Key 仅加密保存在当前账号的本设备，不上传 IMBoy、不参与云备份或换机迁移。换设备需要重新填写。';
+
+	/// zh-CN: '配置 Key 不代表已授权外发。企业记录仍需企业策略允许，发送前还需本次处理同意。'
+	String get aiEnterprisePolicyNotice => '配置 Key 不代表已授权外发。企业记录仍需企业策略允许，发送前还需本次处理同意。';
+
+	/// zh-CN: '使用智谱开放平台通用 API，另行计费。Coding Plan 年度 Max 套餐不能默认抵扣此处费用；转写文本会发送至智谱。'
+	String get aiMaxNotice => '使用智谱开放平台通用 API，另行计费。Coding Plan 年度 Max 套餐不能默认抵扣此处费用；转写文本会发送至智谱。';
+
+	/// zh-CN: '转写时音频会发送至 MiniMax，并可能产生费用。单次音频不超过 500 秒且不超过 50 MB，由处理流程检查和分块。'
+	String get aiAudioExternalNotice => '转写时音频会发送至 MiniMax，并可能产生费用。单次音频不超过 500 秒且不超过 50 MB，由处理流程检查和分块。';
+
+	/// zh-CN: '保存不会验证 Key，也不会发送音频或文本。真实验证可能计费，需另行确认后进行。'
+	String get aiValidationNotice => '保存不会验证 Key，也不会发送音频或文本。真实验证可能计费，需另行确认后进行。';
+
+	/// zh-CN: '账号或部署已变化，请返回后重新进入。本页输入已清空。'
+	String get aiAccountChanged => '账号或部署已变化，请返回后重新进入。本页输入已清空。';
+
+	/// zh-CN: '本设备配置已变化或尚未完成，请重新填写并保存，或返回后重试。'
+	String get aiCredentialChanged => '本设备配置已变化或尚未完成，请重新填写并保存，或返回后重试。';
+
+	/// zh-CN: 'Key 格式不正确：请输入 16～4096 个非空白 ASCII 字符，不包含换行或控制字符。'
+	String get aiInvalidKey => 'Key 格式不正确：请输入 16～4096 个非空白 ASCII 字符，不包含换行或控制字符。';
+
+	/// zh-CN: '无法读写本设备安全存储，配置尚未确认。请重试；不会改用明文保存。'
+	String get aiStorageFailed => '无法读写本设备安全存储，配置尚未确认。请重试；不会改用明文保存。';
+
+	/// zh-CN: '当前平台尚未验证本设备安全存储，暂不支持保存 Key。'
+	String get aiUnsupportedPlatform => '当前平台尚未验证本设备安全存储，暂不支持保存 Key。';
+
+	/// zh-CN: '输入 API Key'
+	String get aiKeyPlaceholder => '输入 API Key';
+
+	/// zh-CN: '输入新的 API Key，不回填已有密钥'
+	String get aiReplacePlaceholder => '输入新的 API Key，不回填已有密钥';
+
+	/// zh-CN: '保存在本设备'
+	String get aiSaveAction => '保存在本设备';
+
+	/// zh-CN: '替换本设备密钥'
+	String get aiReplaceAction => '替换本设备密钥';
+
+	/// zh-CN: '删除本设备密钥'
+	String get aiDeleteAction => '删除本设备密钥';
+
+	/// zh-CN: '正在保存…'
+	String get aiSaving => '正在保存…';
+
+	/// zh-CN: '已保存在本设备，尚未验证 Key。'
+	String get aiSaved => '已保存在本设备，尚未验证 Key。';
+
+	/// zh-CN: '已删除本设备配置，录音与已有结果保留。'
+	String get aiDeleted => '已删除本设备配置，录音与已有结果保留。';
+
+	/// zh-CN: '替换本设备密钥？'
+	String get aiReplaceTitle => '替换本设备密钥？';
+
+	/// zh-CN: '仅替换当前账号在本设备的该服务配置，不影响其他账号或已保存记录。'
+	String get aiReplaceNotice => '仅替换当前账号在本设备的该服务配置，不影响其他账号或已保存记录。';
+
+	/// zh-CN: '删除本设备密钥？'
+	String get aiDeleteTitle => '删除本设备密钥？';
+
+	/// zh-CN: '停止该服务的新请求。已有录音和结果保留；已发给供应商的请求无法撤回。'
+	String get aiDeleteNotice => '停止该服务的新请求。已有录音和结果保留；已发给供应商的请求无法撤回。';
+
+	/// zh-CN: '取消'
+	String get aiCancel => '取消';
+
+	/// zh-CN: '仅在本设备前台继续。按确认后逐块外发，费用由供应商收取；本机提示不能保证账户费用上限。每块发送前重验权限与处理同意。已确认块不再调用；结果未知时停止，可能已计费，不自动重发。'
+	String get aiProcessingConsent => '仅在本设备前台继续。按确认后逐块外发，费用由供应商收取；本机提示不能保证账户费用上限。每块发送前重验权限与处理同意。已确认块不再调用；结果未知时停止，可能已计费，不自动重发。';
+
+	/// zh-CN: '本设备转写 / 继续'
+	String get aiProcessTranscribe => '本设备转写 / 继续';
+
+	/// zh-CN: '本设备整理摘要 / 继续'
+	String get aiProcessSummarize => '本设备整理摘要 / 继续';
+
+	/// zh-CN: '正在本设备处理，请保持此页打开。'
+	String get aiProcessingRunning => '正在本设备处理，请保持此页打开。';
+
+	/// zh-CN: '处理结果已提交，请核对原文与摘要草稿。'
+	String get aiProcessingComplete => '处理结果已提交，请核对原文与摘要草稿。';
+
+	/// zh-CN: '供应商拒绝 Key。请在设置 → AI 服务核对本设备配置；已停止，不自动重发。'
+	String get aiProcessingKeyInvalid => '供应商拒绝 Key。请在设置 → AI 服务核对本设备配置；已停止，不自动重发。';
+
+	/// zh-CN: '供应商余额不足。已保留进度并停止，不自动重发。'
+	String get aiProcessingBalance => '供应商余额不足。已保留进度并停止，不自动重发。';
+
+	/// zh-CN: '供应商结果未知，可能已计费。已停止外发；需人工核对费用与原执行，不能直接重发。'
+	String get aiProcessingUnknown => '供应商结果未知，可能已计费。已停止外发；需人工核对费用与原执行，不能直接重发。';
+
+	/// zh-CN: '核对未知执行并重新请求'
+	String get aiUnknownRecoveryTitle => '核对未知执行并重新请求';
+
+	/// zh-CN: '无法核实下列旧请求的结果与费用，可能已经扣费。确认后为同一任务创建新执行，仅重新请求未确认块，可能重复扣费；旧未知事实与结果会保留。取消不会发送恢复请求。'
+	String get aiUnknownRecoveryNotice => '无法核实下列旧请求的结果与费用，可能已经扣费。确认后为同一任务创建新执行，仅重新请求未确认块，可能重复扣费；旧未知事实与结果会保留。取消不会发送恢复请求。';
+
+	/// zh-CN: '原执行'
+	String get aiUnknownRecoveryRun => '原执行';
+
+	/// zh-CN: '块序号 / 未知请求编号'
+	String get aiUnknownRecoveryIntents => '块序号 / 未知请求编号';
+
+	/// zh-CN: '已核对，接受可能重复扣费'
+	String get aiUnknownRecoveryConfirm => '已核对，接受可能重复扣费';
+
+	/// zh-CN: '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。'
+	String get aiProcessingStopped => '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。';
 }
 
 // Path: welcome
@@ -13712,6 +13883,63 @@ extension on Translations {
 			'talkRecord.cleanupRetryWaiting' => '尚未达到可重试条件。上传能力或其他引用失效后，请刷新状态。',
 			'talkRecord.cleanupRetryUnavailable' => '暂无法确认清理重试权限，请刷新状态。',
 			'talkRecord.cleanupRetryReconcile' => '核对同一重试请求',
+			'talkRecord.uploadProgressRegister' => '准备上传',
+			'talkRecord.uploadProgressUpload' => '上传音频',
+			'talkRecord.uploadProgressConfirm' => '确认音频',
+			'talkRecord.uploadProgressSubmitting' => '提交保存',
+			'talkRecord.uploadProgressCompleted' => '已提交，等待音频处理',
+			'talkRecord.uploadProgressFailed' => '上传未完成，可重试',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => '已确认 ${confirmed}/${total} 段',
+			'talkRecord.aiServicesTitle' => 'AI 服务',
+			'talkRecord.aiServicesSubtitle' => '使用你自己的 API 账户，费用由供应商收取。',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiDoubaoTitle' => '豆包语音识别 2.0',
+			'talkRecord.aiAsrProvider' => '转写服务',
+			'talkRecord.aiAsrOptionalNotice' => 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。',
+			'talkRecord.aiDoubaoPendingNotice' => '豆包文件语音识别 2.0 待接入，暂不可执行。可先在本设备保存 Key；不会创建处理任务或发送音频，也不会自动切换到其他服务。',
+			'talkRecord.aiZhipuTitle' => '智谱 GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => '音频转文字与临时说话人标签',
+			'talkRecord.aiZhipuPurpose' => '摘要草稿、决定与行动项',
+			'talkRecord.aiConfigured' => '本设备已配置',
+			'talkRecord.aiNotConfigured' => '未配置',
+			'talkRecord.aiLoading' => '正在读取本设备配置…',
+			'talkRecord.aiDeviceOnlyNotice' => 'Key 仅加密保存在当前账号的本设备，不上传 IMBoy、不参与云备份或换机迁移。换设备需要重新填写。',
+			'talkRecord.aiEnterprisePolicyNotice' => '配置 Key 不代表已授权外发。企业记录仍需企业策略允许，发送前还需本次处理同意。',
+			'talkRecord.aiMaxNotice' => '使用智谱开放平台通用 API，另行计费。Coding Plan 年度 Max 套餐不能默认抵扣此处费用；转写文本会发送至智谱。',
+			'talkRecord.aiAudioExternalNotice' => '转写时音频会发送至 MiniMax，并可能产生费用。单次音频不超过 500 秒且不超过 50 MB，由处理流程检查和分块。',
+			'talkRecord.aiValidationNotice' => '保存不会验证 Key，也不会发送音频或文本。真实验证可能计费，需另行确认后进行。',
+			'talkRecord.aiAccountChanged' => '账号或部署已变化，请返回后重新进入。本页输入已清空。',
+			'talkRecord.aiCredentialChanged' => '本设备配置已变化或尚未完成，请重新填写并保存，或返回后重试。',
+			'talkRecord.aiInvalidKey' => 'Key 格式不正确：请输入 16～4096 个非空白 ASCII 字符，不包含换行或控制字符。',
+			'talkRecord.aiStorageFailed' => '无法读写本设备安全存储，配置尚未确认。请重试；不会改用明文保存。',
+			'talkRecord.aiUnsupportedPlatform' => '当前平台尚未验证本设备安全存储，暂不支持保存 Key。',
+			'talkRecord.aiKeyPlaceholder' => '输入 API Key',
+			'talkRecord.aiReplacePlaceholder' => '输入新的 API Key，不回填已有密钥',
+			'talkRecord.aiSaveAction' => '保存在本设备',
+			'talkRecord.aiReplaceAction' => '替换本设备密钥',
+			'talkRecord.aiDeleteAction' => '删除本设备密钥',
+			'talkRecord.aiSaving' => '正在保存…',
+			'talkRecord.aiSaved' => '已保存在本设备，尚未验证 Key。',
+			'talkRecord.aiDeleted' => '已删除本设备配置，录音与已有结果保留。',
+			'talkRecord.aiReplaceTitle' => '替换本设备密钥？',
+			'talkRecord.aiReplaceNotice' => '仅替换当前账号在本设备的该服务配置，不影响其他账号或已保存记录。',
+			'talkRecord.aiDeleteTitle' => '删除本设备密钥？',
+			'talkRecord.aiDeleteNotice' => '停止该服务的新请求。已有录音和结果保留；已发给供应商的请求无法撤回。',
+			'talkRecord.aiCancel' => '取消',
+			'talkRecord.aiProcessingConsent' => '仅在本设备前台继续。按确认后逐块外发，费用由供应商收取；本机提示不能保证账户费用上限。每块发送前重验权限与处理同意。已确认块不再调用；结果未知时停止，可能已计费，不自动重发。',
+			'talkRecord.aiProcessTranscribe' => '本设备转写 / 继续',
+			'talkRecord.aiProcessSummarize' => '本设备整理摘要 / 继续',
+			'talkRecord.aiProcessingRunning' => '正在本设备处理，请保持此页打开。',
+			'talkRecord.aiProcessingComplete' => '处理结果已提交，请核对原文与摘要草稿。',
+			'talkRecord.aiProcessingKeyInvalid' => '供应商拒绝 Key。请在设置 → AI 服务核对本设备配置；已停止，不自动重发。',
+			'talkRecord.aiProcessingBalance' => '供应商余额不足。已保留进度并停止，不自动重发。',
+			'talkRecord.aiProcessingUnknown' => '供应商结果未知，可能已计费。已停止外发；需人工核对费用与原执行，不能直接重发。',
+			'talkRecord.aiUnknownRecoveryTitle' => '核对未知执行并重新请求',
+			'talkRecord.aiUnknownRecoveryNotice' => '无法核实下列旧请求的结果与费用，可能已经扣费。确认后为同一任务创建新执行，仅重新请求未确认块，可能重复扣费；旧未知事实与结果会保留。取消不会发送恢复请求。',
+			'talkRecord.aiUnknownRecoveryRun' => '原执行',
+			'talkRecord.aiUnknownRecoveryIntents' => '块序号 / 未知请求编号',
+			'talkRecord.aiUnknownRecoveryConfirm' => '已核对，接受可能重复扣费',
+			'talkRecord.aiProcessingStopped' => '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
 			'welcome.step2Title' => '安全私密',

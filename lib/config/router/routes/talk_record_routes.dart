@@ -29,6 +29,9 @@ library;
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/modules/talk_record/application/ai/talk_record_ai_credentials.dart';
+import 'package:imboy/modules/talk_record/presentation/ai/talk_record_ai_services_page.dart';
+import 'package:imboy/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_context.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_list_page.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_prepare_page.dart';
@@ -48,6 +51,8 @@ const String kTalkRecordListPath = '/talk_record';
 
 /// 新建准备页路径。
 const String kTalkRecordPreparePath = '/talk_record/prepare';
+
+const String kTalkRecordAiServicesPath = '/talk_record/ai_services';
 
 /// 保存位置页路径。
 const String kTalkRecordSaveLocationPath = '/talk_record/save_location';
@@ -82,6 +87,25 @@ const String kTalkRecordCleanupRouteName = 'talk_record_cleanup';
 
 /// 面聊记录路由（未挂载进主 router；归并时 spread）。
 List<RouteBase> talkRecordRoutes() => [
+  GoRoute(
+    path: kTalkRecordAiServicesPath,
+    name: 'talk_record_ai_services',
+    pageBuilder: (context, state) => CupertinoPage(
+      key: state.pageKey,
+      child: const TalkRecordAiServicesPage(),
+    ),
+    routes: [
+      for (final provider in TalkRecordAiProvider.values)
+        GoRoute(
+          path: provider.name,
+          name: 'talk_record_ai_${provider.name}',
+          pageBuilder: (context, state) => CupertinoPage(
+            key: state.pageKey,
+            child: TalkRecordAiProviderPage(provider: provider),
+          ),
+        ),
+    ],
+  ),
   GoRoute(
     path: '/talk-records/:id',
     name: 'talk_record_card_locator',

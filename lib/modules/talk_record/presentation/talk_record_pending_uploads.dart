@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../application/talk_record_local_binding.dart';
+import '../application/talk_record_upload_progress.dart';
+
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/font_types.dart';
+
 import '../application/talk_record_capture_api_gateway.dart';
 import '../application/talk_record_processing_consent.dart';
 
@@ -115,6 +122,71 @@ final talkRecordPendingUploadsProvider =
       return runtime.pendingEnded();
     });
 
+/// Account-scoped progress projection; a retry starts from durable receipts.
+final talkRecordUploadProgressProvider =
+    StreamProvider<Map<String, TalkRecordUploadSnapshot>>((ref) async* {
+      final account = ref.watch(talkRecordPendingAccountProvider);
+      final runtime = await ref.watch(
+        talkRecordRecordingRuntimeProvider.future,
+      );
+      final snapshots = <String, TalkRecordUploadSnapshot>{};
+      // Subscribe before yielding initial state, so a fast operation cannot
+      // complete in the gap before the stream starts listening.
+      final updates = StreamController<TalkRecordUploadSnapshot>();
+      final subscription = runtime.uploadUpdates.listen(
+        updates.add,
+        onError: updates.addError,
+      );
+      final initial = runtime.uploadSnapshot;
+      if (initial != null && initial.account == account) {
+        snapshots[initial.sessionId] = initial;
+      }
+      try {
+        yield Map.unmodifiable(snapshots);
+        await for (final snapshot in updates.stream) {
+          if (snapshot.account != account) continue;
+          snapshots[snapshot.sessionId] = snapshot;
+          yield Map.unmodifiable(snapshots);
+        }
+      } finally {
+        await subscription.cancel();
+        unawaited(updates.close());
+      }
+    });
+
+/// Applies only the coordinator's persisted, validated binding; never infers
+/// server identity from a progress record ID or re-enters the upload mutex.
+TalkRecordPendingEnded talkRecordPendingUploadProjection(
+  TalkRecordPendingEnded item,
+  TalkRecordUploadSnapshot? snapshot,
+) {
+  if (snapshot == null) return item;
+  final bound = snapshot.pendingBinding;
+  final local = item.binding;
+  if (bound == null ||
+      !snapshot.matches(bound) ||
+      bound.account != local.account ||
+      bound.sessionId != local.sessionId ||
+      bound.clientRecordingId != local.clientRecordingId ||
+      bound.context != local.context ||
+      (local.recordId.isNotEmpty && local.recordId != bound.recordId)) {
+    return item;
+  }
+  return TalkRecordPendingEnded(bound, item.durationMs, item.segmentCount);
+}
+
+String talkRecordUploadProgressLabel(TalkRecordUploadSnapshot snapshot) {
+  final phase = switch (snapshot.phase) {
+    TalkRecordUploadPhase.register => t.talkRecord.uploadProgressRegister,
+    TalkRecordUploadPhase.upload => t.talkRecord.uploadProgressUpload,
+    TalkRecordUploadPhase.confirm => t.talkRecord.uploadProgressConfirm,
+    TalkRecordUploadPhase.submitting => t.talkRecord.uploadProgressSubmitting,
+    TalkRecordUploadPhase.completed => t.talkRecord.uploadProgressCompleted,
+    TalkRecordUploadPhase.failed => t.talkRecord.uploadProgressFailed,
+  };
+  return '$phase · ${t.talkRecord.uploadProgressParts(confirmed: snapshot.confirmedParts, total: snapshot.totalParts)}';
+}
+
 /// Ended local recordings remain discoverable until server completion succeeds.
 class TalkRecordPendingUploads extends ConsumerStatefulWidget {
   const TalkRecordPendingUploads({super.key, required this.contextFilter});
@@ -127,6 +199,7 @@ class TalkRecordPendingUploads extends ConsumerStatefulWidget {
 
 class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
   bool _busy = false;
+  String? _uploadingSessionId;
   bool _failed = false;
   int _authEpoch = 0;
   void Function()? _removeAuth;
@@ -151,6 +224,7 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
     }
     setState(() {
       _busy = true;
+      _uploadingSessionId = item.binding.sessionId;
       _failed = false;
     });
     final epoch = _authEpoch;
@@ -189,7 +263,10 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
     } finally {
       if (mounted) {
         ref.invalidate(talkRecordPendingUploadsProvider);
-        setState(() => _busy = false);
+        setState(() {
+          _busy = false;
+          _uploadingSessionId = null;
+        });
       }
     }
   }
@@ -310,6 +387,7 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
       if (ref.read(talkRecordPendingAccountProvider) != item.binding.account) {
         return;
       }
+      setState(() => _uploadingSessionId = item.binding.sessionId);
       await ref.read(talkRecordPendingParticipantsEditProvider)(item, selected);
     } on Object {
       if (mounted) {
@@ -318,7 +396,10 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
     } finally {
       if (mounted) {
         ref.invalidate(talkRecordPendingUploadsProvider);
-        setState(() => _busy = false);
+        setState(() {
+          _busy = false;
+          _uploadingSessionId = null;
+        });
       }
     }
   }
@@ -330,6 +411,9 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
       return const SizedBox.shrink();
     }
     final pending = ref.watch(talkRecordPendingUploadsProvider);
+    final progress =
+        ref.watch(talkRecordUploadProgressProvider).asData?.value ??
+        const <String, TalkRecordUploadSnapshot>{};
     return pending.when(
       loading: () => const SizedBox.shrink(),
       error: (_, _) => CupertinoButton(
@@ -337,15 +421,22 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
         child: Text(t.common.retryFailedPleaseCheckNetwork),
       ),
       data: (items) {
-        final visible = items.where(
-          (item) =>
-              item.binding.account == account &&
-              widget.contextFilter.matchesContext(
-                scope: item.binding.context.scope,
-                organizationId: item.binding.context.organizationId,
-                workspaceId: item.binding.context.workspaceId,
+        final visible = items
+            .map(
+              (item) => talkRecordPendingUploadProjection(
+                item,
+                progress[item.binding.sessionId],
               ),
-        );
+            )
+            .where(
+              (item) =>
+                  item.binding.account == account &&
+                  widget.contextFilter.matchesContext(
+                    scope: item.binding.context.scope,
+                    organizationId: item.binding.context.organizationId,
+                    workspaceId: item.binding.context.workspaceId,
+                  ),
+            );
         return Column(
           children: [
             if (_failed) Text(t.common.retryFailedPleaseCheckNetwork),
@@ -363,6 +454,17 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
                           : item.binding.title,
                     ),
                     Text(t.talkRecord.localDraftBadge),
+                    if (progress[item.binding.sessionId] case final snapshot?
+                        when snapshot.matches(item.binding))
+                      Text(
+                        talkRecordUploadProgressLabel(snapshot),
+                        style: context.textStyle(
+                          FontSizeType.footnote,
+                          color: snapshot.phase == TalkRecordUploadPhase.failed
+                              ? AppColors.iosRed
+                              : AppColors.iosBlue,
+                        ),
+                      ),
                     Wrap(
                       children: [
                         CupertinoButton(
@@ -376,7 +478,9 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
                         CupertinoButton(
                           onPressed: _busy ? null : () => _retry(item),
                           child: Text(
-                            _busy
+                            _busy &&
+                                    _uploadingSessionId ==
+                                        item.binding.sessionId
                                 ? t.common.uploading
                                 : item.binding.uploadAttempted
                                 ? t.talkRecord.retryRecordingUpload

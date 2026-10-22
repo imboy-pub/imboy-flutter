@@ -69,6 +69,7 @@ class TranslationsRuRu extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$organization$ru_RU organization = _Translations$organization$ru_RU._(_root);
 	@override late final _Translations$passport$ru_RU passport = _Translations$passport$ru_RU._(_root);
 	@override late final _Translations$splash$ru_RU splash = _Translations$splash$ru_RU._(_root);
+	@override late final _Translations$talkRecord$ru_RU talkRecord = _Translations$talkRecord$ru_RU._(_root);
 	@override late final _Translations$welcome$ru_RU welcome = _Translations$welcome$ru_RU._(_root);
 	@override late final _Translations$workspace$ru_RU workspace = _Translations$workspace$ru_RU._(_root);
 }
@@ -2453,6 +2454,54 @@ class _Translations$splash$ru_RU extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => 'Свободно общайтесь — легко и удобно';
+}
+
+// Path: talkRecord
+class _Translations$talkRecord$ru_RU extends Translations$talkRecord$zh_CN {
+	_Translations$talkRecord$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => 'Подготовка загрузки';
+	@override String get uploadProgressUpload => 'Загрузка аудио';
+	@override String get uploadProgressConfirm => 'Подтверждение аудио';
+	@override String get uploadProgressSubmitting => 'Отправка для сохранения';
+	@override String get uploadProgressCompleted => 'Отправлено; ожидается обработка аудио';
+	@override String get uploadProgressFailed => 'Загрузка не завершена; повторите попытку';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => 'Подтверждено частей: ${confirmed}/${total}';
+	@override String get aiServicesTitle => 'Сервисы ИИ';
+	@override String get aiServicesSubtitle => 'Используются ваши API-аккаунты. Поставщики взимают плату за использование.';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => 'Расшифровка аудио и временные метки говорящих';
+	@override String get aiZhipuPurpose => 'Черновики сводок, решений и действий';
+	@override String get aiConfigured => 'Настроено на этом устройстве';
+	@override String get aiNotConfigured => 'Не настроено';
+	@override String get aiLoading => 'Чтение настроек устройства…';
+	@override String get aiDeviceOnlyNotice => 'Ключи хранятся в зашифрованном виде только для этого аккаунта на этом устройстве. Они не передаются в IMBoy, облачные копии или на другие устройства. На новом устройстве введите их заново.';
+	@override String get aiEnterprisePolicyNotice => 'Сохранение ключа не разрешает внешнюю обработку. Для корпоративных записей нужны разрешение политики организации и согласие на каждую обработку.';
+	@override String get aiMaxNotice => 'Используется общий API Zhipu с отдельной оплатой. Годовой Coding Plan Max не покрывает это использование автоматически. Расшифровки будут отправлены в Zhipu.';
+	@override String get aiAudioExternalNotice => 'При расшифровке аудио отправляется в MiniMax; возможна плата. Лимит запроса — 500 секунд и 50 МБ. Процесс проверяет и разбивает аудио.';
+	@override String get aiValidationNotice => 'Сохранение не проверяет ключ и не отправляет аудио или текст. Реальная проверка может быть платной и требует отдельного подтверждения.';
+	@override String get aiAccountChanged => 'Аккаунт или сервер изменён. Вернитесь и откройте страницу снова. Введённый текст удалён.';
+	@override String get aiCredentialChanged => 'Настройки устройства изменены или не завершены. Введите и сохраните ключ заново либо вернитесь и повторите попытку.';
+	@override String get aiInvalidKey => 'Введите 16–4096 символов ASCII без пробелов, переносов строк и управляющих символов.';
+	@override String get aiStorageFailed => 'Не удалось прочитать или изменить защищённое хранилище. Настройки не подтверждены. Повторите попытку; открытый текст использоваться не будет.';
+	@override String get aiUnsupportedPlatform => 'Защищённое хранилище этой платформы ещё не проверено. Сохранение ключей недоступно.';
+	@override String get aiKeyPlaceholder => 'Введите API-ключ';
+	@override String get aiReplacePlaceholder => 'Введите новый API-ключ; сохранённый ключ не подставляется';
+	@override String get aiSaveAction => 'Сохранить на устройстве';
+	@override String get aiReplaceAction => 'Заменить ключ устройства';
+	@override String get aiDeleteAction => 'Удалить ключ устройства';
+	@override String get aiSaving => 'Сохранение…';
+	@override String get aiSaved => 'Сохранено на устройстве. Ключ ещё не проверен.';
+	@override String get aiDeleted => 'Настройки устройства удалены. Записи и готовые результаты сохранены.';
+	@override String get aiReplaceTitle => 'Заменить ключ устройства?';
+	@override String get aiReplaceNotice => 'Заменяются только настройки этого сервиса для текущего аккаунта на этом устройстве. Другие аккаунты и записи не изменяются.';
+	@override String get aiDeleteTitle => 'Удалить ключ устройства?';
+	@override String get aiDeleteNotice => 'Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать.';
+	@override String get aiCancel => 'Отмена';
 }
 
 // Path: welcome
@@ -5793,6 +5842,45 @@ extension on TranslationsRuRu {
 			'passport.cannotGetScreenSize' => 'Не удалось получить размер экрана',
 			'passport.oneKeyFailedRetry' => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите',
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
+			'talkRecord.uploadProgressRegister' => 'Подготовка загрузки',
+			'talkRecord.uploadProgressUpload' => 'Загрузка аудио',
+			'talkRecord.uploadProgressConfirm' => 'Подтверждение аудио',
+			'talkRecord.uploadProgressSubmitting' => 'Отправка для сохранения',
+			'talkRecord.uploadProgressCompleted' => 'Отправлено; ожидается обработка аудио',
+			'talkRecord.uploadProgressFailed' => 'Загрузка не завершена; повторите попытку',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => 'Подтверждено частей: ${confirmed}/${total}',
+			'talkRecord.aiServicesTitle' => 'Сервисы ИИ',
+			'talkRecord.aiServicesSubtitle' => 'Используются ваши API-аккаунты. Поставщики взимают плату за использование.',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => 'Расшифровка аудио и временные метки говорящих',
+			'talkRecord.aiZhipuPurpose' => 'Черновики сводок, решений и действий',
+			'talkRecord.aiConfigured' => 'Настроено на этом устройстве',
+			'talkRecord.aiNotConfigured' => 'Не настроено',
+			'talkRecord.aiLoading' => 'Чтение настроек устройства…',
+			'talkRecord.aiDeviceOnlyNotice' => 'Ключи хранятся в зашифрованном виде только для этого аккаунта на этом устройстве. Они не передаются в IMBoy, облачные копии или на другие устройства. На новом устройстве введите их заново.',
+			'talkRecord.aiEnterprisePolicyNotice' => 'Сохранение ключа не разрешает внешнюю обработку. Для корпоративных записей нужны разрешение политики организации и согласие на каждую обработку.',
+			'talkRecord.aiMaxNotice' => 'Используется общий API Zhipu с отдельной оплатой. Годовой Coding Plan Max не покрывает это использование автоматически. Расшифровки будут отправлены в Zhipu.',
+			'talkRecord.aiAudioExternalNotice' => 'При расшифровке аудио отправляется в MiniMax; возможна плата. Лимит запроса — 500 секунд и 50 МБ. Процесс проверяет и разбивает аудио.',
+			'talkRecord.aiValidationNotice' => 'Сохранение не проверяет ключ и не отправляет аудио или текст. Реальная проверка может быть платной и требует отдельного подтверждения.',
+			'talkRecord.aiAccountChanged' => 'Аккаунт или сервер изменён. Вернитесь и откройте страницу снова. Введённый текст удалён.',
+			'talkRecord.aiCredentialChanged' => 'Настройки устройства изменены или не завершены. Введите и сохраните ключ заново либо вернитесь и повторите попытку.',
+			'talkRecord.aiInvalidKey' => 'Введите 16–4096 символов ASCII без пробелов, переносов строк и управляющих символов.',
+			'talkRecord.aiStorageFailed' => 'Не удалось прочитать или изменить защищённое хранилище. Настройки не подтверждены. Повторите попытку; открытый текст использоваться не будет.',
+			'talkRecord.aiUnsupportedPlatform' => 'Защищённое хранилище этой платформы ещё не проверено. Сохранение ключей недоступно.',
+			'talkRecord.aiKeyPlaceholder' => 'Введите API-ключ',
+			'talkRecord.aiReplacePlaceholder' => 'Введите новый API-ключ; сохранённый ключ не подставляется',
+			'talkRecord.aiSaveAction' => 'Сохранить на устройстве',
+			'talkRecord.aiReplaceAction' => 'Заменить ключ устройства',
+			'talkRecord.aiDeleteAction' => 'Удалить ключ устройства',
+			'talkRecord.aiSaving' => 'Сохранение…',
+			'talkRecord.aiSaved' => 'Сохранено на устройстве. Ключ ещё не проверен.',
+			'talkRecord.aiDeleted' => 'Настройки устройства удалены. Записи и готовые результаты сохранены.',
+			'talkRecord.aiReplaceTitle' => 'Заменить ключ устройства?',
+			'talkRecord.aiReplaceNotice' => 'Заменяются только настройки этого сервиса для текущего аккаунта на этом устройстве. Другие аккаунты и записи не изменяются.',
+			'talkRecord.aiDeleteTitle' => 'Удалить ключ устройства?',
+			'talkRecord.aiDeleteNotice' => 'Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать.',
+			'talkRecord.aiCancel' => 'Отмена',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',
 			'welcome.step2Title' => 'Безопасно и приватно',
@@ -5833,6 +5921,8 @@ extension on TranslationsRuRu {
 			'workspace.overviewPinnedContent' => 'Закреплённое в каналах',
 			'workspace.overviewPinnedEmpty' => 'В каналах пока нет закреплённого контента; объявления групп здесь не собираются (они находятся в самих группах)',
 			'workspace.overviewRecentFiles' => 'Последние файлы',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'Здесь появятся недавно загруженные файлы; вложения также можно посмотреть в каналах',
 			'workspace.membersTitle' => 'Участники рабочего пространства',
 			'workspace.membersCountLabel' => ({required Object count}) => 'Участников: ${count}',
@@ -5872,8 +5962,6 @@ extension on TranslationsRuRu {
 			'workspace.joinCodeLabel' => 'Командный код',
 			'workspace.joinCodeHint' => '8 символов: заглавные буквы или цифры',
 			'workspace.joinSubmit' => 'Вступить',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => 'Вы вступили в «${name}»',
 			'workspace.joinAlreadyMember' => 'Вы уже состоите в этом рабочем пространстве',
 			'workspace.joinInvalidCode' => 'Командный код недействителен или истёк',

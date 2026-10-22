@@ -69,6 +69,7 @@ class TranslationsJaJp extends Translations with BaseTranslations<AppLocale, Tra
 	@override late final _Translations$organization$ja_JP organization = _Translations$organization$ja_JP._(_root);
 	@override late final _Translations$passport$ja_JP passport = _Translations$passport$ja_JP._(_root);
 	@override late final _Translations$splash$ja_JP splash = _Translations$splash$ja_JP._(_root);
+	@override late final _Translations$talkRecord$ja_JP talkRecord = _Translations$talkRecord$ja_JP._(_root);
 	@override late final _Translations$welcome$ja_JP welcome = _Translations$welcome$ja_JP._(_root);
 	@override late final _Translations$workspace$ja_JP workspace = _Translations$workspace$ja_JP._(_root);
 }
@@ -2444,6 +2445,54 @@ class _Translations$splash$ja_JP extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => '自由に話し、自然に繋がる';
+}
+
+// Path: talkRecord
+class _Translations$talkRecord$ja_JP extends Translations$talkRecord$zh_CN {
+	_Translations$talkRecord$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => 'アップロードを準備中';
+	@override String get uploadProgressUpload => '音声をアップロード中';
+	@override String get uploadProgressConfirm => '音声を確認中';
+	@override String get uploadProgressSubmitting => '保存を送信中';
+	@override String get uploadProgressCompleted => '送信済み・音声処理待ち';
+	@override String get uploadProgressFailed => 'アップロード未完了・再試行できます';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => '確認済み ${confirmed}/${total} セグメント';
+	@override String get aiServicesTitle => 'AI サービス';
+	@override String get aiServicesSubtitle => 'ご自身の API アカウントを使用します。料金は提供元が請求します。';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => '音声の文字起こしと一時的な話者ラベル';
+	@override String get aiZhipuPurpose => '要約、決定事項、アクションの下書き';
+	@override String get aiConfigured => 'この端末に設定済み';
+	@override String get aiNotConfigured => '未設定';
+	@override String get aiLoading => '端末の設定を読み込み中…';
+	@override String get aiDeviceOnlyNotice => 'キーは現在のアカウントのこの端末にのみ暗号化保存されます。IMBoy への送信、クラウドバックアップ、端末移行の対象外です。別の端末では再入力してください。';
+	@override String get aiEnterprisePolicyNotice => 'キーの保存だけでは外部処理は許可されません。企業の録音には企業ポリシーの許可と各処理への同意が必要です。';
+	@override String get aiMaxNotice => '別料金の Zhipu 汎用 API を使用します。年間 Coding Plan Max の対象とは限りません。文字起こし結果は Zhipu に送信されます。';
+	@override String get aiAudioExternalNotice => '文字起こしでは音声を MiniMax に送信し、料金が発生する場合があります。1 回の上限は 500 秒かつ 50 MB で、処理時に確認・分割します。';
+	@override String get aiValidationNotice => '保存ではキーの検証や音声・テキストの送信は行いません。実際の検証には料金が発生する場合があり、別途確認が必要です。';
+	@override String get aiAccountChanged => 'アカウントまたは接続先が変わりました。戻って開き直してください。入力は消去しました。';
+	@override String get aiCredentialChanged => '端末の設定が変更されたか未完了です。キーを再入力して保存するか、戻って再試行してください。';
+	@override String get aiInvalidKey => '空白、改行、制御文字を含まない ASCII 文字を 16～4096 文字入力してください。';
+	@override String get aiStorageFailed => '端末の安全な保存領域を読み書きできず、設定を確認できません。再試行してください。平文では保存しません。';
+	@override String get aiUnsupportedPlatform => 'このプラットフォームの安全な保存機能は未検証のため、キーを保存できません。';
+	@override String get aiKeyPlaceholder => 'API キーを入力';
+	@override String get aiReplacePlaceholder => '新しい API キーを入力（保存済みキーは表示しません）';
+	@override String get aiSaveAction => 'この端末に保存';
+	@override String get aiReplaceAction => '端末のキーを置き換える';
+	@override String get aiDeleteAction => '端末のキーを削除';
+	@override String get aiSaving => '保存中…';
+	@override String get aiSaved => 'この端末に保存しました。キーは未検証です。';
+	@override String get aiDeleted => '端末の設定を削除しました。録音と既存の結果は保持されます。';
+	@override String get aiReplaceTitle => '端末のキーを置き換えますか？';
+	@override String get aiReplaceNotice => 'この端末の現在のアカウントにある、このサービスの設定のみを置き換えます。他のアカウントや録音には影響しません。';
+	@override String get aiDeleteTitle => '端末のキーを削除しますか？';
+	@override String get aiDeleteNotice => 'このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。';
+	@override String get aiCancel => 'キャンセル';
 }
 
 // Path: welcome
@@ -5784,6 +5833,45 @@ extension on TranslationsJaJp {
 			'passport.cannotGetScreenSize' => '画面サイズを取得できません',
 			'passport.oneKeyFailedRetry' => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください',
 			'splash.slogan' => '自由に話し、自然に繋がる',
+			'talkRecord.uploadProgressRegister' => 'アップロードを準備中',
+			'talkRecord.uploadProgressUpload' => '音声をアップロード中',
+			'talkRecord.uploadProgressConfirm' => '音声を確認中',
+			'talkRecord.uploadProgressSubmitting' => '保存を送信中',
+			'talkRecord.uploadProgressCompleted' => '送信済み・音声処理待ち',
+			'talkRecord.uploadProgressFailed' => 'アップロード未完了・再試行できます',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => '確認済み ${confirmed}/${total} セグメント',
+			'talkRecord.aiServicesTitle' => 'AI サービス',
+			'talkRecord.aiServicesSubtitle' => 'ご自身の API アカウントを使用します。料金は提供元が請求します。',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => '音声の文字起こしと一時的な話者ラベル',
+			'talkRecord.aiZhipuPurpose' => '要約、決定事項、アクションの下書き',
+			'talkRecord.aiConfigured' => 'この端末に設定済み',
+			'talkRecord.aiNotConfigured' => '未設定',
+			'talkRecord.aiLoading' => '端末の設定を読み込み中…',
+			'talkRecord.aiDeviceOnlyNotice' => 'キーは現在のアカウントのこの端末にのみ暗号化保存されます。IMBoy への送信、クラウドバックアップ、端末移行の対象外です。別の端末では再入力してください。',
+			'talkRecord.aiEnterprisePolicyNotice' => 'キーの保存だけでは外部処理は許可されません。企業の録音には企業ポリシーの許可と各処理への同意が必要です。',
+			'talkRecord.aiMaxNotice' => '別料金の Zhipu 汎用 API を使用します。年間 Coding Plan Max の対象とは限りません。文字起こし結果は Zhipu に送信されます。',
+			'talkRecord.aiAudioExternalNotice' => '文字起こしでは音声を MiniMax に送信し、料金が発生する場合があります。1 回の上限は 500 秒かつ 50 MB で、処理時に確認・分割します。',
+			'talkRecord.aiValidationNotice' => '保存ではキーの検証や音声・テキストの送信は行いません。実際の検証には料金が発生する場合があり、別途確認が必要です。',
+			'talkRecord.aiAccountChanged' => 'アカウントまたは接続先が変わりました。戻って開き直してください。入力は消去しました。',
+			'talkRecord.aiCredentialChanged' => '端末の設定が変更されたか未完了です。キーを再入力して保存するか、戻って再試行してください。',
+			'talkRecord.aiInvalidKey' => '空白、改行、制御文字を含まない ASCII 文字を 16～4096 文字入力してください。',
+			'talkRecord.aiStorageFailed' => '端末の安全な保存領域を読み書きできず、設定を確認できません。再試行してください。平文では保存しません。',
+			'talkRecord.aiUnsupportedPlatform' => 'このプラットフォームの安全な保存機能は未検証のため、キーを保存できません。',
+			'talkRecord.aiKeyPlaceholder' => 'API キーを入力',
+			'talkRecord.aiReplacePlaceholder' => '新しい API キーを入力（保存済みキーは表示しません）',
+			'talkRecord.aiSaveAction' => 'この端末に保存',
+			'talkRecord.aiReplaceAction' => '端末のキーを置き換える',
+			'talkRecord.aiDeleteAction' => '端末のキーを削除',
+			'talkRecord.aiSaving' => '保存中…',
+			'talkRecord.aiSaved' => 'この端末に保存しました。キーは未検証です。',
+			'talkRecord.aiDeleted' => '端末の設定を削除しました。録音と既存の結果は保持されます。',
+			'talkRecord.aiReplaceTitle' => '端末のキーを置き換えますか？',
+			'talkRecord.aiReplaceNotice' => 'この端末の現在のアカウントにある、このサービスの設定のみを置き換えます。他のアカウントや録音には影響しません。',
+			'talkRecord.aiDeleteTitle' => '端末のキーを削除しますか？',
+			'talkRecord.aiDeleteNotice' => 'このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。',
+			'talkRecord.aiCancel' => 'キャンセル',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',
 			'welcome.step2Title' => '安全でプライベート',
@@ -5824,6 +5912,8 @@ extension on TranslationsJaJp {
 			'workspace.overviewPinnedContent' => 'チャンネルのピン留めコンテンツ',
 			'workspace.overviewPinnedEmpty' => 'チャンネルにピン留めコンテンツはまだありません。グループのお知らせはここに集約されません（お知らせは各グループに属します）',
 			'workspace.overviewRecentFiles' => '最近のファイル',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '最近アップロードしたファイルがここに表示されます。添付ファイルは各チャンネル内でも確認できます',
 			'workspace.membersTitle' => 'ワークスペースメンバー',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count}人のメンバー',
@@ -5863,8 +5953,6 @@ extension on TranslationsJaJp {
 			'workspace.joinCodeLabel' => 'チームコード',
 			'workspace.joinCodeHint' => '8桁の大文字英字または数字',
 			'workspace.joinSubmit' => '参加',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '「${name}」に参加しました',
 			'workspace.joinAlreadyMember' => 'すでにこのワークスペースに参加しています',
 			'workspace.joinInvalidCode' => 'チームコードが無効または期限切れです',

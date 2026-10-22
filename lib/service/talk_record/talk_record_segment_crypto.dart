@@ -153,6 +153,30 @@ class TalkRecordSegmentCrypto {
     }
   }
 
+  static Future<Uint8List> openSegmentBytes({
+    required File cipherFile,
+    required Uint8List recordKey,
+    required String sessionId,
+    required int seq,
+    required TalkRecordSegmentCipherInfo info,
+    required String mime,
+  }) async {
+    if (!await verifySegment(cipherFile: cipherFile, info: info)) {
+      throw TalkRecordSegmentCryptoException('段密文校验失败');
+    }
+    return AttachmentEncryptor.open(
+      ciphertext: await cipherFile.readAsBytes(),
+      bindingHash: bindingHashFor(sessionId),
+      descriptor: _descriptorFor(
+        recordKey: recordKey,
+        sessionId: sessionId,
+        seq: seq,
+        info: info,
+        mime: mime,
+      ),
+    );
+  }
+
   /// 校验一段密文（不写明文）：大小与 full SHA-256 对 manifest 记录。
   static Future<bool> verifySegment({
     required File cipherFile,

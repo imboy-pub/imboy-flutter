@@ -45,6 +45,8 @@ class TalkRecordEncoderSettings {
 
 /// T09 录音会话配置。
 class TalkRecordRecorderConfig {
+  static const progressIntervalMs = 100;
+
   /// 每段目标时长 ms（DESIGN §6：30s；到点滚动封段，允许正负数秒抖动）。
   final int segmentTargetMs;
 

@@ -6,6 +6,9 @@
 /// 真实 API/播放器的联调验收（T13/T15/T22）。
 library;
 
+import 'package:imboy/modules/talk_record/presentation/ai/talk_record_ai_providers.dart';
+import 'package:imboy/modules/talk_record/application/ai/talk_record_ai_credentials.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -157,6 +160,15 @@ class T16Harness {
 ProviderScope harnessScope(T16Harness harness, {required Widget child}) {
   return ProviderScope(
     overrides: [
+      talkRecordAiSessionProvider.overrideWithValue(
+        TalkRecordAiIdentity(
+          TalkRecordAiCredentialScope(
+            deploymentOrigin: 'https://synthetic.invalid',
+            accountId: '100',
+          ),
+          0,
+        ),
+      ),
       talkRecordDetailServiceProvider.overrideWithValue(harness.service),
       talkRecordPlaybackGatewayProvider.overrideWithValue(harness.gateway),
       talkRecordPlayerBackendProvider.overrideWithValue(harness.backend),

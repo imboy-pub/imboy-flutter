@@ -120,7 +120,9 @@ class FlutterSoundTalkRecordEngine implements TalkRecordAudioEngine {
       await _recorder.openRecorder();
       // 电平/时长上报周期（voice_widget 同款 100ms 先例）。
       await _recorder.setSubscriptionDuration(
-        const Duration(milliseconds: 100),
+        const Duration(
+          milliseconds: TalkRecordRecorderConfig.progressIntervalMs,
+        ),
       );
       _opened = true;
     } catch (e) {

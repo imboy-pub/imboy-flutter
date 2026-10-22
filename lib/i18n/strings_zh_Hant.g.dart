@@ -69,6 +69,7 @@ class TranslationsZhHant extends Translations with BaseTranslations<AppLocale, T
 	@override late final Translations$organization$zh_Hant organization = Translations$organization$zh_Hant.internal(_root);
 	@override late final Translations$passport$zh_Hant passport = Translations$passport$zh_Hant.internal(_root);
 	@override late final Translations$splash$zh_Hant splash = Translations$splash$zh_Hant.internal(_root);
+	@override late final Translations$talkRecord$zh_Hant talkRecord = Translations$talkRecord$zh_Hant.internal(_root);
 	@override late final Translations$welcome$zh_Hant welcome = Translations$welcome$zh_Hant.internal(_root);
 	@override late final Translations$workspace$zh_Hant workspace = Translations$workspace$zh_Hant.internal(_root);
 }
@@ -2444,6 +2445,54 @@ class Translations$splash$zh_Hant extends Translations$splash$zh_CN {
 
 	// Translations
 	@override String get slogan => '暢所欲言，自在溝通';
+}
+
+// Path: talkRecord
+class Translations$talkRecord$zh_Hant extends Translations$talkRecord$zh_CN {
+	Translations$talkRecord$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get uploadProgressRegister => '準備上傳';
+	@override String get uploadProgressUpload => '上傳音訊';
+	@override String get uploadProgressConfirm => '確認音訊';
+	@override String get uploadProgressSubmitting => '提交儲存';
+	@override String get uploadProgressCompleted => '已提交，等待音訊處理';
+	@override String get uploadProgressFailed => '上傳未完成，可重試';
+	@override String uploadProgressParts({required Object confirmed, required Object total}) => '已確認 ${confirmed}/${total} 段';
+	@override String get aiServicesTitle => 'AI 服務';
+	@override String get aiServicesSubtitle => '使用你自己的 API 帳戶，費用由供應商收取。';
+	@override String get aiMinimaxTitle => 'MiniMax';
+	@override String get aiZhipuTitle => '智譜 GLM-5.3-Flash';
+	@override String get aiMinimaxPurpose => '音訊轉文字與臨時說話人標籤';
+	@override String get aiZhipuPurpose => '摘要草稿、決定與待辦事項';
+	@override String get aiConfigured => '本裝置已設定';
+	@override String get aiNotConfigured => '尚未設定';
+	@override String get aiLoading => '正在讀取本裝置設定…';
+	@override String get aiDeviceOnlyNotice => 'Key 僅加密儲存在目前帳號的本裝置，不上傳 IMBoy、不參與雲端備份或換機移轉。換裝置需重新輸入。';
+	@override String get aiEnterprisePolicyNotice => '設定 Key 不代表已授權對外處理。企業錄音仍需企業政策允許，傳送前還需本次處理同意。';
+	@override String get aiMaxNotice => '使用另行計費的智譜通用 API。Coding Plan 年度 Max 不保證涵蓋此處費用；轉寫文字會傳送至智譜。';
+	@override String get aiAudioExternalNotice => '轉寫會將音訊傳送至 MiniMax，可能產生費用。每次最多 500 秒及 50 MB，由處理流程檢查及分段。';
+	@override String get aiValidationNotice => '儲存不會驗證 Key 或傳送音訊與文字。實際驗證可能計費，需另行確認。';
+	@override String get aiAccountChanged => '帳號或部署已變更，請返回後重新進入。本頁輸入已清空。';
+	@override String get aiCredentialChanged => '本裝置設定已變更或尚未完成，請重新輸入並儲存，或返回後重試。';
+	@override String get aiInvalidKey => '請輸入 16～4096 個非空白 ASCII 字元，不含換行或控制字元。';
+	@override String get aiStorageFailed => '無法讀寫本裝置安全儲存，設定尚未確認。請重試；不會改用明文儲存。';
+	@override String get aiUnsupportedPlatform => '此平台尚未驗證本裝置安全儲存，暫不支援儲存 Key。';
+	@override String get aiKeyPlaceholder => '輸入 API Key';
+	@override String get aiReplacePlaceholder => '輸入新的 API Key，不回填已有金鑰';
+	@override String get aiSaveAction => '儲存在本裝置';
+	@override String get aiReplaceAction => '替換本裝置金鑰';
+	@override String get aiDeleteAction => '刪除本裝置金鑰';
+	@override String get aiSaving => '正在儲存…';
+	@override String get aiSaved => '已儲存在本裝置，尚未驗證 Key。';
+	@override String get aiDeleted => '已刪除本裝置設定，錄音與既有結果保留。';
+	@override String get aiReplaceTitle => '替換本裝置金鑰？';
+	@override String get aiReplaceNotice => '僅替換目前帳號在本裝置的此服務設定，不影響其他帳號或已儲存記錄。';
+	@override String get aiDeleteTitle => '刪除本裝置金鑰？';
+	@override String get aiDeleteNotice => '停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。';
+	@override String get aiCancel => '取消';
 }
 
 // Path: welcome
@@ -5784,6 +5833,45 @@ extension on TranslationsZhHant {
 			'passport.cannotGetScreenSize' => '無法取得螢幕尺寸',
 			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
 			'splash.slogan' => '暢所欲言，自在溝通',
+			'talkRecord.uploadProgressRegister' => '準備上傳',
+			'talkRecord.uploadProgressUpload' => '上傳音訊',
+			'talkRecord.uploadProgressConfirm' => '確認音訊',
+			'talkRecord.uploadProgressSubmitting' => '提交儲存',
+			'talkRecord.uploadProgressCompleted' => '已提交，等待音訊處理',
+			'talkRecord.uploadProgressFailed' => '上傳未完成，可重試',
+			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => '已確認 ${confirmed}/${total} 段',
+			'talkRecord.aiServicesTitle' => 'AI 服務',
+			'talkRecord.aiServicesSubtitle' => '使用你自己的 API 帳戶，費用由供應商收取。',
+			'talkRecord.aiMinimaxTitle' => 'MiniMax',
+			'talkRecord.aiZhipuTitle' => '智譜 GLM-5.3-Flash',
+			'talkRecord.aiMinimaxPurpose' => '音訊轉文字與臨時說話人標籤',
+			'talkRecord.aiZhipuPurpose' => '摘要草稿、決定與待辦事項',
+			'talkRecord.aiConfigured' => '本裝置已設定',
+			'talkRecord.aiNotConfigured' => '尚未設定',
+			'talkRecord.aiLoading' => '正在讀取本裝置設定…',
+			'talkRecord.aiDeviceOnlyNotice' => 'Key 僅加密儲存在目前帳號的本裝置，不上傳 IMBoy、不參與雲端備份或換機移轉。換裝置需重新輸入。',
+			'talkRecord.aiEnterprisePolicyNotice' => '設定 Key 不代表已授權對外處理。企業錄音仍需企業政策允許，傳送前還需本次處理同意。',
+			'talkRecord.aiMaxNotice' => '使用另行計費的智譜通用 API。Coding Plan 年度 Max 不保證涵蓋此處費用；轉寫文字會傳送至智譜。',
+			'talkRecord.aiAudioExternalNotice' => '轉寫會將音訊傳送至 MiniMax，可能產生費用。每次最多 500 秒及 50 MB，由處理流程檢查及分段。',
+			'talkRecord.aiValidationNotice' => '儲存不會驗證 Key 或傳送音訊與文字。實際驗證可能計費，需另行確認。',
+			'talkRecord.aiAccountChanged' => '帳號或部署已變更，請返回後重新進入。本頁輸入已清空。',
+			'talkRecord.aiCredentialChanged' => '本裝置設定已變更或尚未完成，請重新輸入並儲存，或返回後重試。',
+			'talkRecord.aiInvalidKey' => '請輸入 16～4096 個非空白 ASCII 字元，不含換行或控制字元。',
+			'talkRecord.aiStorageFailed' => '無法讀寫本裝置安全儲存，設定尚未確認。請重試；不會改用明文儲存。',
+			'talkRecord.aiUnsupportedPlatform' => '此平台尚未驗證本裝置安全儲存，暫不支援儲存 Key。',
+			'talkRecord.aiKeyPlaceholder' => '輸入 API Key',
+			'talkRecord.aiReplacePlaceholder' => '輸入新的 API Key，不回填已有金鑰',
+			'talkRecord.aiSaveAction' => '儲存在本裝置',
+			'talkRecord.aiReplaceAction' => '替換本裝置金鑰',
+			'talkRecord.aiDeleteAction' => '刪除本裝置金鑰',
+			'talkRecord.aiSaving' => '正在儲存…',
+			'talkRecord.aiSaved' => '已儲存在本裝置，尚未驗證 Key。',
+			'talkRecord.aiDeleted' => '已刪除本裝置設定，錄音與既有結果保留。',
+			'talkRecord.aiReplaceTitle' => '替換本裝置金鑰？',
+			'talkRecord.aiReplaceNotice' => '僅替換目前帳號在本裝置的此服務設定，不影響其他帳號或已儲存記錄。',
+			'talkRecord.aiDeleteTitle' => '刪除本裝置金鑰？',
+			'talkRecord.aiDeleteNotice' => '停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。',
+			'talkRecord.aiCancel' => '取消',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',
 			'welcome.step2Title' => '安全又私密',
@@ -5824,6 +5912,8 @@ extension on TranslationsZhHant {
 			'workspace.overviewPinnedContent' => '頻道置頂內容',
 			'workspace.overviewPinnedEmpty' => '頻道暫無置頂內容；群組公告不在此聚合（群組公告屬於各個群）',
 			'workspace.overviewRecentFiles' => '最近檔案',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '最近上傳的檔案會在此顯示；也可在各頻道內查看附件',
 			'workspace.membersTitle' => '工作區成員',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成員',
@@ -5863,8 +5953,6 @@ extension on TranslationsZhHant {
 			'workspace.joinCodeLabel' => '團隊碼',
 			'workspace.joinCodeHint' => '8 位大寫字母或數字',
 			'workspace.joinSubmit' => '送出',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.joinSuccess' => ({required Object name}) => '你已加入「${name}」',
 			'workspace.joinAlreadyMember' => '你已在此工作區中',
 			'workspace.joinInvalidCode' => '團隊碼無效或已失效',

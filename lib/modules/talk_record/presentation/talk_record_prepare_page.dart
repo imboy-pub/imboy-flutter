@@ -27,6 +27,10 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
+import 'package:go_router/go_router.dart';
+import 'package:imboy/config/router/routes/talk_record_routes.dart';
+
+import 'ai/talk_record_ai_widgets.dart';
 import 'talk_record_entry_context.dart';
 import 'talk_record_providers.dart';
 import 'talk_record_prepare_sections.dart';
@@ -293,6 +297,15 @@ class _TalkRecordPreparePageState extends ConsumerState<TalkRecordPreparePage> {
                         ),
                       ),
                     ),
+                ],
+              ),
+              TalkRecordPrepareSectionCard(
+                children: [
+                  TalkRecordAiEntryRow(
+                    title: t.talkRecord.aiServicesTitle,
+                    subtitle: t.talkRecord.aiServicesSubtitle,
+                    onTap: () => context.push(kTalkRecordAiServicesPath),
+                  ),
                 ],
               ),
               TalkRecordProcessingSection(

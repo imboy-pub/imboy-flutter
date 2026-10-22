@@ -10,6 +10,7 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
     TalkRecordUploadCheckpoint cp,
     TalkRecordUploadCheckpointStore store,
     void Function() guard,
+    void Function(TalkRecordUploadPhase) report,
   ) async {
     final state = Map<String, dynamic>.from(
       cp.parts['${segment.seq}'] as Map? ?? {},
@@ -19,15 +20,19 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
     cp.parts['${segment.seq}'] = state;
     await store.save(cp);
     if (state['put_done'] != true) {
+      report(TalkRecordUploadPhase.register);
       final session = await _register(b, segment, state, guard);
       cp.parts['${segment.seq}'] = state;
       await store.save(cp);
+      report(TalkRecordUploadPhase.upload);
       await _put(b, segment, directory, plaintextDir, keys, session, guard);
       state['put_done'] = true;
       cp.parts['${segment.seq}'] = state;
       await store.save(cp);
     }
+    report(TalkRecordUploadPhase.confirm);
     await _confirm(b, segment, state, cp, store, guard);
+    report(TalkRecordUploadPhase.confirm);
   }
 
   Future<TalkRecordAudioUploadSession> _register(
