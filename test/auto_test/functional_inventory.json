@@ -3,11 +3,11 @@
   "generated_from": {
     "app_head": "see-catalog",
     "ledger_count": 170,
-    "ledger_row_count": 1877,
+    "ledger_row_count": 1883,
     "lib_page_count": 169,
-    "module_page_count": 26,
-    "route_page_component_count": 150,
-    "function_count": 2026,
+    "module_page_count": 40,
+    "route_page_component_count": 165,
+    "function_count": 2113,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -21524,7 +21524,7 @@
       "route_registered": true,
       "source": "test/auto_test/mine/mine_page.md",
       "control": "unknown",
-      "action": "渲染头像昵称名片卡片",
+      "action": "渲染紧凑头像昵称资料区",
       "expected_oracle": "见台账断言",
       "details": "",
       "platforms": [
@@ -21536,7 +21536,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21559,7 +21559,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21570,7 +21570,7 @@
       "route_registered": true,
       "source": "test/auto_test/mine/mine_page.md",
       "control": "unknown",
-      "action": "展示账号 ID 文本",
+      "action": "个人空间展示账号 ID 文本",
       "expected_oracle": "见台账断言",
       "details": "",
       "platforms": [
@@ -21582,7 +21582,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21605,7 +21605,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21628,7 +21628,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21639,7 +21639,7 @@
       "route_registered": true,
       "source": "test/auto_test/mine/mine_page.md",
       "control": "unknown",
-      "action": "快捷入口跳转钱包页面",
+      "action": "钱包功能启用时保留快捷入口并跳转",
       "expected_oracle": "见台账断言",
       "details": "",
       "platforms": [
@@ -21651,7 +21651,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21662,9 +21662,9 @@
       "route_registered": true,
       "source": "test/auto_test/mine/mine_page.md",
       "control": "unknown",
-      "action": "快捷入口跳转我的频道",
-      "expected_oracle": "见台账断言",
-      "details": "",
+      "action": "个人快捷入口不再展示我的频道",
+      "expected_oracle": "频道特性开启仍不显示我的频道，底部频道导航保持原有路由",
+      "details": "已批准移除我的页重复频道入口；不删除频道业务能力",
       "platforms": [
         "android",
         "macos"
@@ -21674,7 +21674,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21697,7 +21697,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21720,7 +21720,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21743,7 +21743,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21766,7 +21766,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -21789,7 +21789,145 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:mine_page:013",
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "route_or_entry": "MinePage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/mine_page.md",
+      "control": "unknown",
+      "action": "昵称下方紧凑空间切换入口只显示一次上下文",
+      "expected_oracle": "当前空间名称与下拉指示位于昵称下方；不出现独立大卡片或重复当前空间/切换空间文案",
+      "details": "个人模式显示个人空间；企业模式显示当前企业及已确认归属的工作区",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:mine_page:014",
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "route_or_entry": "MinePage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/mine_page.md",
+      "control": "unknown",
+      "action": "点击紧凑空间入口沿用原有空间选择器",
+      "expected_oracle": "mine-space-switch 导航至现有组织选择器，不触发资料页导航",
+      "details": "此入口仅展示当前上下文，不参与授权判断",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:mine_page:015",
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "route_or_entry": "MinePage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/mine_page.md",
+      "control": "unknown",
+      "action": "个人常用工具展示收藏面聊记录与本机附件",
+      "expected_oracle": "三个入口各只出现一次；面聊记录导航携带 scope=personal",
+      "details": "钱包仍按原功能开关显示；客服工作台仍按服务端坐席事实显示",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:mine_page:016",
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "route_or_entry": "MinePage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/mine_page.md",
+      "control": "unknown",
+      "action": "企业常用入口按角色展示企业或企业管理",
+      "expected_oracle": "普通成员显示企业；有治理或工作区拥有者资格显示企业管理；点击均进入当前企业",
+      "details": "须通过真实 EnterpriseShellPage 的角色投影验证，MinePage 注入组件测试不能单独证明权限",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:mine_page:017",
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "route_or_entry": "MinePage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/mine_page.md",
+      "control": "unknown",
+      "action": "企业我的页不重复显示空间及个人工具",
+      "expected_oracle": "企业与工作区上下文只在紧凑切换处出现；不重复出现客服工作台、面聊记录和本机附件",
+      "details": "企业协作工具保留工作台入口",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:mine:mine_page:018",
+      "page": "lib/page/mine/mine/mine_page.dart",
+      "route_or_entry": "MinePage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/mine_page.md",
+      "control": "unknown",
+      "action": "个人与企业布局支持深色窄屏及大字体",
+      "expected_oracle": "无溢出；资料、二维码、空间切换各有独立不小于44pt触达区域",
+      "details": "真机合成组件验证不代表登录与业务全链路验收",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/mine_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -38492,6 +38630,1869 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:talk_record:talk_record_ai_provider_page:001",
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "route_or_entry": "TalkRecordAiProviderPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_ai_provider_page:002",
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "route_or_entry": "TalkRecordAiProviderPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_ai_provider_page:003",
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "route_or_entry": "TalkRecordAiProviderPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 3 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_ai_provider_page:004",
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "route_or_entry": "TalkRecordAiProviderPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_ai_provider_page:005",
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "route_or_entry": "TalkRecordAiProviderPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_ai_services_page:001",
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_services_page.dart",
+      "route_or_entry": "TalkRecordAiServicesPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:001",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:002",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:003",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:004",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:005",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:006",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_delete_page:007",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "route_or_entry": "TalkRecordDeletePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:001",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:002",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:003",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:004",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:005",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:006",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:007",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:008",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 8 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:009",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 9 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:010",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 10 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_detail_page:011",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "route_or_entry": "TalkRecordDetailPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 11 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:001",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:002",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:003",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:004",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:005",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:006",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 6 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_export_page:007",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "route_or_entry": "TalkRecordExportPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_grant_edit_page:001",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_grant_edit_page.dart",
+      "route_or_entry": "TalkRecordGrantEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 1 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_grant_edit_page:002",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_grant_edit_page.dart",
+      "route_or_entry": "TalkRecordGrantEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:001",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 1 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:002",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 2 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:003",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:004",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:005",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_list_page:006",
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "route_or_entry": "TalkRecordListPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_participants_page:001",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_participants_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_participants_page:002",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_participants_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_participants_page:003",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_participants_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "menu_item",
+      "action": "触发第 3 处 menu_item 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_participants_page:004",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_participants_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_prepare_page:001",
+      "page": "lib/modules/talk_record/presentation/talk_record_prepare_page.dart",
+      "route_or_entry": "TalkRecordPreparePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_prepare_page:002",
+      "page": "lib/modules/talk_record/presentation/talk_record_prepare_page.dart",
+      "route_or_entry": "TalkRecordPreparePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 2 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_prepare_page:003",
+      "page": "lib/modules/talk_record/presentation/talk_record_prepare_page.dart",
+      "route_or_entry": "TalkRecordPreparePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:001",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:002",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:003",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:004",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:005",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:006",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_save_location_page:007",
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "route_or_entry": "TalkRecordSaveLocationPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_segment_edit_page:001",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_segment_edit_page.dart",
+      "route_or_entry": "TalkRecordSegmentEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 1 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_segment_edit_page:002",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_segment_edit_page.dart",
+      "route_or_entry": "TalkRecordSegmentEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_segment_edit_page:003",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_segment_edit_page.dart",
+      "route_or_entry": "TalkRecordSegmentEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_segment_edit_page:004",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_segment_edit_page.dart",
+      "route_or_entry": "TalkRecordSegmentEditPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_share_manage_page:001",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "route_or_entry": "TalkRecordShareManagePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_share_manage_page:002",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "route_or_entry": "TalkRecordShareManagePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_share_manage_page:003",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "route_or_entry": "TalkRecordShareManagePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_share_manage_page:004",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "route_or_entry": "TalkRecordShareManagePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_share_manage_page:005",
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "route_or_entry": "TalkRecordShareManagePage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:001",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:002",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:003",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:004",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:005",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 5 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:006",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:007",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:008",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 8 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:009",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 9 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:010",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 10 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_speakers_page:011",
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "route_or_entry": "TalkRecordSpeakersPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 11 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:001",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:002",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:003",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:004",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:005",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 5 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:006",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 6 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:007",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 7 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:talk_record:talk_record_transfer_page:008",
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "route_or_entry": "TalkRecordTransferPage",
+      "route_registered": true,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 8 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:user_tag:contact_tag_detail_page:001",
       "page": "lib/page/user_tag/contact_tag_detail/contact_tag_detail_page.dart",
       "route_or_entry": "in_page_control",
@@ -46821,6 +48822,118 @@
       "ledger_generated": false
     },
     {
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "module": "talk_record",
+      "function_count": 5,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_services_page.dart",
+      "module": "talk_record",
+      "function_count": 1,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "module": "talk_record",
+      "function_count": 11,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_participants_page.dart",
+      "module": "talk_record",
+      "function_count": 4,
+      "route_registered": false,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_segment_edit_page.dart",
+      "module": "talk_record",
+      "function_count": 4,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "module": "talk_record",
+      "function_count": 11,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "module": "talk_record",
+      "function_count": 7,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "module": "talk_record",
+      "function_count": 7,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "module": "talk_record",
+      "function_count": 8,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/share/talk_record_grant_edit_page.dart",
+      "module": "talk_record",
+      "function_count": 2,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "module": "talk_record",
+      "function_count": 5,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "module": "talk_record",
+      "function_count": 6,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/talk_record_prepare_page.dart",
+      "module": "talk_record",
+      "function_count": 3,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "module": "talk_record",
+      "function_count": 7,
+      "route_registered": true,
+      "has_ledger": false,
+      "ledger_generated": false
+    },
+    {
       "page": "lib/page/billing/plan_list_page.dart",
       "module": "billing",
       "function_count": 6,
@@ -47495,7 +49608,7 @@
     {
       "page": "lib/page/mine/mine/mine_page.dart",
       "module": "mine",
-      "function_count": 12,
+      "function_count": 18,
       "route_registered": true,
       "has_ledger": true,
       "ledger_generated": false

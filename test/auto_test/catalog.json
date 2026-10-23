@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "0d0112a2ce740be284352a967f803c1dc99a57e7",
-    "backend_head": "5941171b673b2167b77db80611d42d36c5d491f5",
-    "integration_test_count": 162,
+    "app_head": "f1086336e1c316c6189101e26b2f3f071709c3ee",
+    "backend_head": "9f96b45ff5f864320585d1c74dac514add241893",
+    "integration_test_count": 164,
     "lib_page_count": 169,
-    "module_page_count": 26,
-    "route_page_component_count": 150,
-    "spec_count": 28
+    "module_page_count": 40,
+    "route_page_component_count": 165,
+    "spec_count": 29
   },
   "entries": [
     {
@@ -878,7 +878,7 @@
     {
       "id": "test:integration_test/demo_flow/local_dual_account_message_flow_test.dart",
       "target": "integration_test/demo_flow/local_dual_account_message_flow_test.dart",
-      "target_sha256": "fd51ed0b3f431bb7f2dd66bc5499a3bc921cc2b7106a9fd451900c11cdd73454",
+      "target_sha256": "6cb636593242f5cb26f7800aacb0d54d5d538d89067561973987366a0334419f",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1631,6 +1631,30 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/mine_layout_smoke_test.dart",
+      "target": "integration_test/mine_layout_smoke_test.dart",
+      "target_sha256": "b680e4da8e612b63c870ff94e026fe57b95a0f312bbaebd3e7069371ced7591c",
+      "sources": [
+        "lib/modules/organization/presentation/current_space_tile.dart",
+        "lib/page/mine/mine/mine_page.dart",
+        "lib/page/mine/mine/mine_profile.dart",
+        "lib/page/mine/mine/mine_shortcut.dart"
+      ],
+      "dependencies": [
+        "lib/modules/customer_service/presentation/cs_workspace_entry.dart",
+        "lib/page/workspace_shell/enterprise_shell_page.dart"
+      ],
+      "risk": "local-write",
+      "requirements": [
+        "device.android"
+      ],
+      "tags": [
+        "mine_layout_smoke_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/misc/acceptance_batch157_test.dart",
       "target": "integration_test/misc/acceptance_batch157_test.dart",
       "target_sha256": "bcdfbcd826eb4c832da46b2171e82f374cb827d29afe42bfb8a8a7466ecfe7d5",
@@ -1783,6 +1807,20 @@
       ],
       "enabled": false,
       "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/preview/workspace_messages_preview_macos_test.dart",
+      "target": "integration_test/preview/workspace_messages_preview_macos_test.dart",
+      "target_sha256": "bae9c0715d4f45f7a9e45bb9565106efb233ba613c3b7c879a24d97ffc39c9bf",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "preview"
+      ],
+      "enabled": false,
+      "oracle_hint": false
     },
     {
       "id": "test:integration_test/r01_message_report_realdevice_test.dart",
@@ -2767,6 +2805,146 @@
       "details": ""
     },
     {
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_provider_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/ai/talk_record_ai_services_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_detail_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_participants_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": false,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_segment_edit_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/detail/talk_record_speakers_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/results/talk_record_delete_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/results/talk_record_export_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/results/talk_record_transfer_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/share/talk_record_grant_edit_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/share/talk_record_share_manage_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/talk_record_list_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/talk_record_prepare_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
+      "page": "lib/modules/talk_record/presentation/talk_record_save_location_page.dart",
+      "mapped_targets": [],
+      "dependency_targets": [],
+      "route_registered": true,
+      "in_spec_sources": false,
+      "excluded": false,
+      "exclusion_code": null,
+      "details": ""
+    },
+    {
       "page": "lib/page/billing/plan_list_page.dart",
       "mapped_targets": [
         "integration_test/full_acceptance/billing/plan_list_device_test.dart"
@@ -3669,7 +3847,9 @@
     },
     {
       "page": "lib/page/mine/mine/mine_page.dart",
-      "mapped_targets": [],
+      "mapped_targets": [
+        "integration_test/mine_layout_smoke_test.dart"
+      ],
       "dependency_targets": [
         "integration_test/auth/password_change_test.dart"
       ],
@@ -4516,9 +4696,11 @@
     {
       "page": "lib/page/workspace_shell/enterprise_shell_page.dart",
       "mapped_targets": [],
-      "dependency_targets": [],
+      "dependency_targets": [
+        "integration_test/mine_layout_smoke_test.dart"
+      ],
       "route_registered": false,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""
