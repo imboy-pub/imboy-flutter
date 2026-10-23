@@ -209,4 +209,27 @@ void main() {
     expect(tester.takeException(), isNull);
     semanticsHandle.dispose();
   });
+
+  testWidgets('imageText 纯媒体帖：[media] 占位不渲染，仅九宫格', (tester) async {
+    await tester.pumpWidget(
+      _wrap(
+        _message(
+          content: '[media]',
+          msgType: ChannelMessageType.imageText,
+          payload: {
+            'media_only': true,
+            'images': [
+              {'uri': 'a/def_avatar.png'},
+              {'uri': 'b/def_avatar.png'},
+              {'uri': 'c/def_avatar.png'},
+            ],
+          },
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.textContaining('[media]'), findsNothing);
+    expect(find.byType(Image), findsNWidgets(3));
+  });
 }

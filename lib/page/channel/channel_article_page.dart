@@ -646,8 +646,10 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     switch (content.trim()) {
       case '[voice]':
         return '[${context.t.chat.voice}]';
-      case '[media]':
-        return '';
+      case ChannelMessageType.mediaPlaceholder:
+        return _message?.msgType == ChannelMessageType.imageText
+            ? _message!.displayContent
+            : '';
       default:
         return content;
     }

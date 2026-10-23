@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 频道消息模型
@@ -188,14 +189,30 @@ class ChannelMessageModel {
     };
   }
 
+  /// 渲染/预览用正文。
+  ///
+  /// 发布端为绕过后端「content 不可为空」校验，纯媒体帖（多图聚合等）
+  /// 写入 `[media]` 占位（ChannelMessageType.mediaPlaceholder），
+  /// 带 media_only 标记时读取展示文本视为空，普通正文原样保留。
+  String get displayContent =>
+      msgType == ChannelMessageType.imageText &&
+          payload?['media_only'] == true &&
+          content.trim() == ChannelMessageType.mediaPlaceholder
+      ? ''
+      : content;
+
   /// 获取消息预览文本
   ///
   /// 根据消息类型返回对应格式的预览文本
   String get contentPreview {
     switch (msgType) {
       case 'channel_text':
+        return _truncatePreview(content);
       case 'channel_imageText':
-        return content.length > 50 ? '${content.substring(0, 50)}...' : content;
+        // 纯媒体帖 content 是占位符 → 预览按图片，不漏内部标记
+        return displayContent.isEmpty
+            ? '[图片]'
+            : _truncatePreview(displayContent);
       case 'channel_image':
         return '[图片]';
       case 'channel_video':
@@ -211,12 +228,15 @@ class ChannelMessageModel {
       default:
         // 尝试从 payload 获取文本
         if (payload != null && payload!['text'] != null) {
-          final text = payload!['text'].toString();
-          return text.length > 50 ? '${text.substring(0, 50)}...' : text;
+          return _truncatePreview(payload!['text'].toString());
         }
         return '[消息]';
     }
   }
+
+  /// 预览文本截断（>50 字符截断加省略号），contentPreview 各分支共用。
+  static String _truncatePreview(String text) =>
+      text.length > 50 ? '${text.substring(0, 50)}...' : text;
 
   /// 复制并修改部分字段
   ChannelMessageModel copyWith({

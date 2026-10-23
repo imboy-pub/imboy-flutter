@@ -547,11 +547,11 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
   /// 图文消息（订阅号封面卡）：标题 + 摘要 + 封面大图卡 / 图片九宫格预览。
   ///
   /// 标题优先取 `payload['title']`（新版显式标题）；缺省时退化为「首行=标题、其余=
-  /// 摘要」旧约定（向后兼容旧消息）。有 title 时 content 即纯正文，整体作摘要。
+  /// 摘要」旧约定（向后兼容旧消息）。有 title 时 content 即纯正文；`[media]` 占位（纯媒体帖）视为空。
   /// 有 `payload['cover']` 时用大图封面卡（更接近订阅号大图卡），否则九宫格。
   /// 不再内联展开全文——完整正文交给 B1 阅读页（卡片 onTap）。
   Widget _buildImageTextContent(Color textColor, Color secondaryColor) {
-    final content = widget.message.content.trim();
+    final content = widget.message.displayContent.trim();
     final images = _imageTextItems();
     final explicitTitle = _payloadString('title');
     final cover = _payloadString('cover');

@@ -607,6 +607,11 @@ abstract class ChannelMessageType {
   /// 频道位置消息
   static const String location = 'channel_location';
 
+  /// 纯媒体消息的 content 占位：后端 send_message 拒收空 content
+  /// （channel_handler_message.erl「消息内容不能为空」），发布端以占位符过闸；
+  /// 渲染/预览层须将其视为空正文（见 ChannelMessageModel.displayContent）。
+  static const String mediaPlaceholder = '[media]';
+
   /// 所有有效的频道消息类型
   static const List<String> allTypes = [
     text,

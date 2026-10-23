@@ -26,13 +26,7 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
 
 import '../channel_provider.dart';
-
-/// 单个媒体上传结果：待发布消息的三要素。
-typedef _ChannelMediaUpload = ({
-  String msgType,
-  String content,
-  Map<String, dynamic> payload,
-});
+import '../channel_publish_rules.dart';
 
 /// 频道发布输入栏
 ///
@@ -253,7 +247,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
   }
 
-  /// 选择并发送媒体文件（并行上传，分批限流，保留逐项 payload 组装）
+  /// 选择并发送媒体文件（并行上传，分批限流；多图聚合发布见 channel_publish_rules）
   Future<void> _pickAndSendMedia() async {
     if (ref.read(channelDetailProvider).isPublishing || _isUploadingMedia) {
       return;
@@ -322,7 +316,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
     // 逐项上传控制器：批内并行、批间串行限流（_uploadConcurrency），失败项保留
     // 为可重试态而非整批作废。已发布项记入 publishedIdx，避免重试后重复发布。
-    final controller = BatchUploadController<_ChannelMediaUpload>(
+    final controller = BatchUploadController<ChannelMediaUpload>(
       uploader: _uploadSingleAsset,
       // file_picker 绕行项（macOS）走 File 管道，与相册项同一状态机
       fileUploader: _uploadImageFile,
@@ -344,24 +338,28 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final publishedIdx = <int>{};
     final publishFailedIdx = <int>{};
 
+    // 发布规划：≥2 张图片聚合为单条 imageText（一帖多图，与撰写图文页一致），
+    // 视频/文件/单图仍逐条；部分失败重试时，新成功项按剩余数量再规划。
     Future<void> publishDone() async {
       final items = controller.items;
-      for (var i = 0; i < items.length; i++) {
-        final item = items[i];
-        if (!item.isDone || publishedIdx.contains(i)) continue;
+      final pending = <int, ChannelMediaUpload>{
+        for (var i = 0; i < items.length; i++)
+          if (items[i].isDone && !publishedIdx.contains(i)) i: items[i].result!,
+      };
+      for (final job in planChannelMediaPublish(pending)) {
         final ok = await ref
             .read(channelDetailProvider.notifier)
             .publishMessage(
-              content: item.result!.content,
-              msgType: item.result!.msgType,
-              payload: item.result!.payload,
+              content: job.content,
+              msgType: job.msgType,
+              payload: job.payload,
             );
         if (!mounted) return;
         if (ok) {
-          publishedIdx.add(i);
-          publishFailedIdx.remove(i);
+          publishedIdx.addAll(job.indices);
+          publishFailedIdx.removeAll(job.indices);
         } else {
-          publishFailedIdx.add(i);
+          publishFailedIdx.addAll(job.indices);
         }
       }
     }
@@ -407,7 +405,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   void _showMediaFailureSnackBar({
     required int uploadFailedCount,
     required int publishFailedCount,
-    required BatchUploadController<_ChannelMediaUpload> controller,
+    required BatchUploadController<ChannelMediaUpload> controller,
     required Set<int> publishFailedIdx,
     required Future<void> Function() publishDone,
   }) {
@@ -434,7 +432,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   }
 
   Future<void> _retryFailedMedia(
-    BatchUploadController<_ChannelMediaUpload> controller,
+    BatchUploadController<ChannelMediaUpload> controller,
     Set<int> publishFailedIdx,
     Future<void> Function() publishDone,
   ) async {
@@ -468,7 +466,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
   /// 上传单个已选资源，返回待发布的消息素材；失败（含文件读取失败）返回
   /// null，由调用方计入失败计数并在汇总提示中体现。
-  Future<_ChannelMediaUpload?> _uploadSingleAsset(AssetEntity asset) async {
+  Future<ChannelMediaUpload?> _uploadSingleAsset(AssetEntity asset) async {
     final file = await asset.file;
     if (file == null) return null;
 
@@ -477,6 +475,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     final payload = <String, dynamic>{
       'name': asset.title ?? file.path.split('/').last,
       'size': await file.length(),
+      'w': asset.width, // 宽高随行：聚合 imageText 时与 compose 页 {uri, w, h} 对齐
+      'h': asset.height,
     };
 
     if (asset.type == AssetType.image) {
@@ -509,7 +509,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
 
     final fileName = asset.title ?? file.path.split('/').last;
-    final content = fileName.trim().isEmpty ? '[media]' : fileName;
+    final content = channelMediaContent(fileName);
     return (msgType: msgType, content: content, payload: payload);
   }
 
@@ -558,13 +558,13 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
   /// File 项上传器（file_picker 绕行路径）：与 [_uploadSingleAsset] 的图片
   /// 分支同构。isVideo 预留（绕行仅选图片，视频走授权后的相册路径）。
-  Future<_ChannelMediaUpload?> _uploadImageFile(File file, bool isVideo) async {
+  Future<ChannelMediaUpload?> _uploadImageFile(File file, bool isVideo) async {
     final uploadedUri = await _uploadChannelFile(file, prefix: 'img');
     if (uploadedUri == null || uploadedUri.isEmpty) return null;
     final fileName = file.path.split('/').last;
     return (
       msgType: ChannelMessageType.image,
-      content: fileName.trim().isEmpty ? '[media]' : fileName,
+      content: channelMediaContent(fileName),
       payload: <String, dynamic>{
         'name': fileName,
         'size': await file.length(),

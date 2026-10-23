@@ -1,9 +1,11 @@
-/// ChannelMessageModel 解析、持久化、预览、副本语义契约测试（CM-1 ~ CM-4）
+/// ChannelMessageModel 解析、持久化、预览、副本语义契约测试（CM-1 ~ CM-6）
 ///
 /// CM-1  ChannelMessageModel.fromJson 字段映射
 /// CM-2  ChannelMessageModel.fromMap / toMap SQLite 往返
 /// CM-3  contentPreview getter — 全 8 分支 + 截断
 /// CM-4  copyWith / == / hashCode 语义
+/// CM-5  my_reactions 解析与持久化
+/// CM-6  displayContent — 纯媒体帖 `[media]` 占位过滤
 library;
 
 import 'dart:convert';
@@ -283,6 +285,17 @@ void main() {
       },
     );
 
+    test('channel_imageText 纯媒体帖：[media] 占位 → 预览 [图片]，不漏内部标记', () {
+      expect(
+        _msg(
+          msgType: 'channel_imageText',
+          content: '[media]',
+          payload: {'media_only': true},
+        ).contentPreview,
+        '[图片]',
+      );
+    });
+
     test('channel_image → [图片]', () {
       expect(_msg(msgType: 'channel_image').contentPreview, '[图片]');
     });
@@ -436,6 +449,53 @@ void main() {
         'my_reactions': 'not-json',
       });
       expect(model.myReactions, isEmpty);
+    });
+  });
+
+  // ── CM-6  displayContent（纯媒体帖 `[media]` 占位过滤）───────────────────
+  group('CM-6 displayContent getter', () {
+    test('literal media text without marker is preserved', () {
+      for (final type in ['channel_text', 'channel_imageText']) {
+        final msg = _msg(msgType: type, content: '[media]');
+        expect(msg.displayContent, '[media]');
+        expect(msg.contentPreview, '[media]');
+      }
+    });
+    test('普通正文原样透传', () {
+      expect(_msg(content: '正文', msgType: 'channel_text').displayContent, '正文');
+    });
+
+    test('[media] 占位（含空白）→ 空串', () {
+      expect(
+        _msg(
+          content: '[media]',
+          msgType: 'channel_imageText',
+          payload: {'media_only': true},
+        ).displayContent,
+        '',
+      );
+      expect(
+        _msg(
+          content: ' [media] ',
+          msgType: 'channel_imageText',
+          payload: {'media_only': true},
+        ).displayContent,
+        '',
+      );
+    });
+
+    test('正文内嵌 [media] 子串不过滤（仅整串精确匹配）', () {
+      expect(_msg(content: '看看[media]这个').displayContent, '看看[media]这个');
+    });
+
+    test('imageText 纯媒体帖 displayContent 为空 → contentPreview 回退 [图片]', () {
+      final msg = _msg(
+        msgType: 'channel_imageText',
+        content: '[media]',
+        payload: {'media_only': true},
+      );
+      expect(msg.displayContent, '');
+      expect(msg.contentPreview, '[图片]');
     });
   });
 }
