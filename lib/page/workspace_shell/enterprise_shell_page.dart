@@ -402,6 +402,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
               ref.watch(_mineOrganizationProvider(_scope)).asData?.value.name ??
               '',
           embedded: true,
+          active: active,
         );
       case EnterpriseShellDestination.mine:
         return _mine();

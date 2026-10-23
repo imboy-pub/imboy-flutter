@@ -26,6 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
+import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -69,6 +70,7 @@ class HumanDirectoryBrowserPage extends ConsumerStatefulWidget {
     this.departmentName = '',
     this.dataSource,
     this.embedded = false,
+    this.active = true,
   });
 
   final EntityId orgId;
@@ -81,8 +83,8 @@ class HumanDirectoryBrowserPage extends ConsumerStatefulWidget {
   /// 测试注入口（缺省 [OrganizationApi]，复用既有 Token/HttpClient）。
   final HumanDirectoryDataSource? dataSource;
 
-  /// 企业壳提供唯一空间切换栏；部门内仍保留逐级返回。
-  final bool embedded;
+  /// 企业壳提供导航；隐藏标签保留部门路径但不拦截返回。
+  final bool embedded, active;
 
   @override
   ConsumerState<HumanDirectoryBrowserPage> createState() =>
@@ -214,19 +216,16 @@ class _HumanDirectoryBrowserPageState
     _controller.openDepartment(dept.id);
   }
 
-  void _upOneLevel() {
-    _openLevel(_levels.length - 2);
-  }
+  void _upOneLevel() => _openLevel(_levels.length - 2);
 
   void _openLevel(int index) {
     if (index < 0 || index >= _levels.length - 1) return;
     setState(() => _levels = _levels.sublist(0, index + 1));
-    final target = _levels.last;
     _clearSearch();
-    if (target.departmentId == null) {
+    if (_currentLevel.departmentId == null) {
       _controller.openRoot();
     } else {
-      _controller.openDepartment(target.departmentId!);
+      _controller.openDepartment(_currentLevel.departmentId!);
     }
   }
 
@@ -357,10 +356,11 @@ class _HumanDirectoryBrowserPageState
     final title = isRoot
         ? (_orgName.isEmpty ? t.organization.directory.title : _orgName)
         : _currentLevel.name;
-    return PopScope(
-      canPop: isRoot,
+    return AppBackScope<void>(
+      canPop: !widget.active || isRoot,
+      allowAtRoot: !isRoot,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _upOneLevel();
+        if (!didPop && widget.active) _upOneLevel();
       },
       child: Scaffold(
         appBar: widget.embedded

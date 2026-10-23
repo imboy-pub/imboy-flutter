@@ -450,7 +450,7 @@
           "page": "lib/page/channel/channel_compose_page.dart",
           "action": "已选图返回时拦截确认弹窗",
           "control": "unknown",
-          "expected_oracle": "见台账断言",
+          "expected_oracle": "系统返回与左边缘右滑进入同一草稿确认；取消保留页面，确认后仅返回当前发布页；等待期间只出现一次确认",
           "details": ""
         }
       ]
@@ -1372,6 +1372,13 @@
           "control": "unknown",
           "expected_oracle": "见台账断言",
           "details": ""
+        },
+        {
+          "page": "lib/page/chat/chat/chat_page.dart",
+          "action": "边缘返回先关闭图库或安全收起面板再离开",
+          "control": "unknown",
+          "expected_oracle": "图库只关闭当前预览；面板延迟返回只作用于同一仍可返回的聊天路由；连续手势不重复弹栈，延迟期间打开的新弹窗或图库保持不变",
+          "details": "页面主体图片翻页不触发边缘返回；回归使用真实返回处理函数和组件夹具，不代表已登录聊天业务 E2E"
         }
       ]
     },
@@ -7900,7 +7907,7 @@
           "page": "lib/page/moment/moment_create_page.dart",
           "action": "有未保存内容退出弹确认框",
           "control": "unknown",
-          "expected_oracle": "见台账断言",
+          "expected_oracle": "系统返回与左边缘右滑进入同一离开确认；取消保留草稿，确认后只返回仍为当前的编辑页",
           "details": ""
         }
       ]
@@ -9549,7 +9556,7 @@
           "page": "lib/page/personal_info/personal_info/personal_info_page.dart",
           "action": "点头像打开大图预览页",
           "control": "unknown",
-          "expected_oracle": "见台账断言",
+          "expected_oracle": "使用原生 Cupertino 路由与 Hero 保留头像预览；左边缘右滑关闭预览回到个人信息",
           "details": ""
         },
         {
@@ -14373,7 +14380,7 @@
           "page": "lib/modules/organization/presentation/human_directory_page.dart",
           "action": "打开部门目录",
           "control": "button",
-          "expected_oracle": "点击部门行后下钻对应部门",
+          "expected_oracle": "进入部门后，左边缘右滑与系统返回先回到上级；隐藏 Tab 保持部门栈但不拦截返回，重新激活后仍可逐级返回",
           "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence."
         },
         {

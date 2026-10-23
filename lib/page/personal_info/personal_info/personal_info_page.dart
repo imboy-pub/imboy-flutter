@@ -228,16 +228,9 @@ class _PersonalInfoPageState extends ConsumerState<PersonalInfoPage> {
   Future<void> _openAvatarPreview(BuildContext context) async {
     if (currentUserAvatar.isEmpty) return;
     await Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        opaque: false,
-        barrierColor: AppColors.darkBackground,
-        pageBuilder: (_, animation, _) => FadeTransition(
-          opacity: animation,
-          child: _AvatarPreviewPage(
-            url: currentUserAvatar,
-            heroTag: _avatarHeroTag,
-          ),
-        ),
+      CupertinoPageRoute<void>(
+        builder: (_) =>
+            _AvatarPreviewPage(url: currentUserAvatar, heroTag: _avatarHeroTag),
       ),
     );
   }

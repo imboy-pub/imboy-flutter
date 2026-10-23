@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
@@ -573,7 +574,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     final t = context.t;
     final canPublish = _hasContent && !_isPublishing;
 
-    return PopScope(
+    return AppBackScope<void>(
       // 只在会真丢东西时拦：标题/正文 dispose 时自动存草稿，图片不持久化
       // （见 _persistDraftOnExit 的 ponytail），选了图直接返回就白选了。
       canPop: _images.isEmpty || _isPublishing,
@@ -683,27 +684,26 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   /// 返回前确认：已选图片不会随草稿保存，直接退出等于白选。
   Future<void> _confirmLeave(bool didPop) async {
     if (didPop) return;
-    final t = context.t;
+    final route = ModalRoute.of(context);
     final leave = await showCupertinoDialog<bool>(
       context: context,
       builder: (ctx) => CupertinoAlertDialog(
-        content: Text(t.channel.composeLeaveImagesLost),
+        content: Text(context.t.channel.composeLeaveImagesLost),
         actions: [
           CupertinoButton(
             onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.common.cancel),
+            child: Text(context.t.common.cancel),
           ),
-          CupertinoButton(
+          CupertinoDialogAction(
+            isDestructiveAction: true,
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(
-              t.common.confirm,
-              style: const TextStyle(color: AppColors.iosRed),
-            ),
+            child: Text(context.t.common.confirm),
           ),
         ],
       ),
     );
-    if (leave == true && mounted) Navigator.of(context).pop();
+    if (leave != true || !mounted || route?.isCurrent != true) return;
+    Navigator.of(context).pop();
   }
 
   /// 正文输入框：token 化视觉——聚焦时边框转品牌蓝（原先无边框死灰），

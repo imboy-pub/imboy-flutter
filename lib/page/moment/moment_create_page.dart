@@ -13,6 +13,7 @@ import 'package:imboy/component/chat/composer_field.dart';
 import 'package:imboy/component/location/amap_helper.dart';
 import 'package:imboy/component/location/location_service.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/component/upload/batch_upload_controller.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/moment_social/application/moment_facade.dart';
@@ -243,6 +244,7 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
 
   Future<void> _confirmExit(bool didPop) async {
     if (didPop) return;
+    final route = ModalRoute.of(context);
     if (!_hasUnsavedContent) {
       Navigator.of(context).pop();
       return;
@@ -272,11 +274,9 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
         ],
       ),
     );
-    if (!mounted || keep == null) return;
-    if (keep) {
-      await _saveFailedDraft(_contentController.text.trim());
-    }
-    if (mounted) Navigator.of(context).pop();
+    if (!mounted || route?.isCurrent != true || keep == null) return;
+    if (keep) await _saveFailedDraft(_contentController.text.trim());
+    if (mounted && route?.isCurrent == true) Navigator.of(context).pop();
   }
 
   Future<String?> _uploadFile(String prefix, File file) async {
@@ -755,13 +755,12 @@ class _MomentCreatePageState extends State<MomentCreatePage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    return PopScope(
+    return AppBackScope<void>(
       // 有未保存内容才拦截。_hasUnsavedContent 读 _contentController.text，
       // 必须配合 initState 里的 _onContentChanged 监听才会随打字更新——
       // 不监听就会停在旧值，纯文字场景侧滑直接丢内容（本页原 bug）。
       //
-      // 不写死 canPop: false：那样连"空页面"都拦，而 Flutter 在 canPop 为
-      // false 时会整体禁用 iOS 侧滑返回手势，等于没东西可丢时也不让滑。
+      // 空页面用路由原生侧滑；有草稿时通过边缘返回尝试复用异步确认。
       canPop: !_hasUnsavedContent,
       onPopInvokedWithResult: (didPop, _) => _confirmExit(didPop),
       child: Scaffold(

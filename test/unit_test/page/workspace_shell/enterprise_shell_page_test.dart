@@ -477,6 +477,26 @@ void main() {
     await tester.tap(find.text('通讯录'));
     await tester.pumpAndSettle();
     expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+    expect(
+      tester
+          .widget<HumanDirectoryBrowserPage>(
+            find.byType(HumanDirectoryBrowserPage),
+          )
+          .active,
+      isTrue,
+    );
+    await tester.tap(find.text('我'));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<HumanDirectoryBrowserPage>(
+            find.byType(HumanDirectoryBrowserPage, skipOffstage: false),
+          )
+          .active,
+      isFalse,
+    );
+    await tester.tap(find.text('通讯录'));
+    await tester.pumpAndSettle();
     // 左上汉堡只在「消息」页展示；通讯录/工作台/我不挂。
     expect(
       find.byKey(const ValueKey('enterprise-shell-menu-button')),

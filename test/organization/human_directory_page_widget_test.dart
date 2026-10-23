@@ -244,6 +244,118 @@ void main({bool realTime = false}) {
     expect(tester.takeException(), isNull);
   });
 
+  for (final embedded in [false, true]) {
+    testWidgets('首路由 embedded=$embedded 左缘先回上级，企业根不退出', (tester) async {
+      final src = _FakeSource();
+      await tester.pumpWidget(
+        _plainApp(
+          HumanDirectoryBrowserPage(
+            orgId: orgA,
+            embedded: embedded,
+            dataSource: src,
+          ),
+        ),
+      );
+      src.resolveDepartments(items: _defaultDepts);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('org-dir-dept-list-8001')));
+      await tester.pump();
+      src.resolveDepartments();
+      await tester.pumpAndSettle();
+      await tester.dragFrom(const Offset(3, 300), const Offset(280, 0));
+      await tester.pump();
+      expect(src.deptCalls.last, '$orgA|p=-|c=-');
+      src.resolveDepartments(items: _defaultDepts);
+      await tester.pumpAndSettle();
+      expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+      expect(find.byType(BackButton), findsNothing);
+      final requests = src.deptCalls.length;
+      await tester.dragFrom(const Offset(3, 300), const Offset(280, 0));
+      await tester.pumpAndSettle();
+      expect(find.byType(HumanDirectoryBrowserPage), findsOneWidget);
+      expect(src.deptCalls, hasLength(requests));
+    });
+  }
+
+  testWidgets('inactive目录不拦截可见页面系统返回且不改变部门路径', (tester) async {
+    final src = _FakeSource();
+    late BuildContext rootContext;
+    await tester.pumpWidget(
+      _plainApp(
+        Builder(
+          builder: (context) {
+            rootContext = context;
+            return const Scaffold(body: Text('previous page'));
+          },
+        ),
+      ),
+    );
+    Navigator.of(rootContext).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => IndexedStack(
+          index: 0,
+          children: [
+            const Scaffold(body: Text('visible sibling')),
+            HumanDirectoryBrowserPage(
+              orgId: orgA,
+              embedded: true,
+              dataSource: src,
+              departmentId: dept1,
+              departmentName: '研发部',
+              active: false,
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.pump();
+    src.resolveDepartments();
+    await tester.pumpAndSettle();
+    final requests = src.deptCalls.length;
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('previous page'), findsOneWidget);
+    expect(find.text('visible sibling'), findsNothing);
+    expect(src.deptCalls, hasLength(requests));
+  });
+
+  testWidgets('inactive目录保留部门栈，激活后左缘仍返回上级', (tester) async {
+    final src = _FakeSource();
+    var active = false;
+    late StateSetter update;
+    await tester.pumpWidget(
+      _plainApp(
+        StatefulBuilder(
+          builder: (_, setState) {
+            update = setState;
+            return HumanDirectoryBrowserPage(
+              orgId: orgA,
+              embedded: true,
+              dataSource: src,
+              departmentId: dept1,
+              departmentName: '研发部',
+              active: active,
+            );
+          },
+        ),
+      ),
+    );
+    src.resolveDepartments();
+    await tester.pumpAndSettle();
+    await tester.dragFrom(const Offset(3, 300), const Offset(280, 0));
+    await tester.pump();
+    expect(src.deptCalls.last, '$orgA|p=$dept1|c=-');
+    final requests = src.deptCalls.length;
+    update(() => active = true);
+    await tester.pump();
+    expect(src.deptCalls, hasLength(requests));
+    await tester.dragFrom(const Offset(3, 300), const Offset(280, 0));
+    await tester.pump();
+    expect(src.deptCalls.last, '$orgA|p=-|c=-');
+    src.resolveDepartments(items: _defaultDepts);
+    await tester.pumpAndSettle();
+  });
+
   for (final width in [400.0, 1200.0]) {
     for (final brightness in [Brightness.light, Brightness.dark]) {
       testWidgets('目录 $width $brightness 双倍字号与长组织名无溢出', (tester) async {

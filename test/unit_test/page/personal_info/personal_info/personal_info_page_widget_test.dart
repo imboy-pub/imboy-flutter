@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:photo_view/photo_view.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
 import 'package:imboy/config/const.dart';
@@ -181,6 +182,24 @@ void main() {
           'Empty avatar URL must not open preview page '
           '(_openAvatarPreview guard: currentUserAvatar.isEmpty → return)',
     );
+  });
+
+  testWidgets('头像预览保留Hero并支持原生左缘返回', (tester) async {
+    await _setUserAvatar('def_avatar.png');
+    await pumpPage(tester);
+    await tester.tap(_avatarHeroFinder);
+    await tester.pumpAndSettle();
+    final preview = find.byType(PhotoView);
+    expect(preview, findsOneWidget);
+    expect(
+      ModalRoute.of(tester.element(preview)),
+      isA<CupertinoPageRoute<void>>(),
+    );
+    await tester.dragFrom(const Offset(3, 300), const Offset(650, 0));
+    await tester.pumpAndSettle();
+    expect(find.byType(PhotoView), findsNothing);
+    expect(_avatarHeroFinder, findsOneWidget);
+    expect(find.byType(PersonalInfoPage), findsOneWidget);
   });
 
   testWidgets('e2e: tap avatar with non-empty url pushes preview page '

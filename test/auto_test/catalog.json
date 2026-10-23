@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "f1086336e1c316c6189101e26b2f3f071709c3ee",
-    "backend_head": "9f96b45ff5f864320585d1c74dac514add241893",
-    "integration_test_count": 164,
+    "app_head": "c1addac7397068813b1233d72d8d92b0c503bede",
+    "backend_head": "466d8c7b27effafd0c919127d7adb3524361af8b",
+    "integration_test_count": 165,
     "lib_page_count": 169,
     "module_page_count": 40,
     "route_page_component_count": 165,
-    "spec_count": 29
+    "spec_count": 30
   },
   "entries": [
     {
@@ -1114,6 +1114,25 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/edge_back_smoke_test.dart",
+      "target": "integration_test/edge_back_smoke_test.dart",
+      "target_sha256": "9edd9e6ca4e50f2e84b139f8d080ca568397eb5d6a7fb389850685174a659dc3",
+      "sources": [
+        "lib/component/ui/app_back_scope.dart",
+        "lib/theme/default/theme.dart"
+      ],
+      "dependencies": [],
+      "risk": "local-write",
+      "requirements": [
+        "device.android"
+      ],
+      "tags": [
+        "edge_back_smoke_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/enterprise/enterprise_cs_e2e_test.dart",
       "target": "integration_test/enterprise/enterprise_cs_e2e_test.dart",
       "target_sha256": "ce0233ddd89a3dcbb79552442ec6f5eb77154ab6456578661302320ce14edc65",
@@ -1633,7 +1652,7 @@
     {
       "id": "test:integration_test/mine_layout_smoke_test.dart",
       "target": "integration_test/mine_layout_smoke_test.dart",
-      "target_sha256": "b680e4da8e612b63c870ff94e026fe57b95a0f312bbaebd3e7069371ced7591c",
+      "target_sha256": "db0b7fed4d71f3e35edcaa8091866e37b885e91383f1c86d1fabe75326fa7bc5",
       "sources": [
         "lib/modules/organization/presentation/current_space_tile.dart",
         "lib/page/mine/mine/mine_page.dart",

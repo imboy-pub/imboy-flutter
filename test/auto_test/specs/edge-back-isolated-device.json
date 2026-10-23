@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "EDGE-BACK-ISOLATED-DEVICE-001",
+  "title": "左缘返回：真机隔离导航组件与异步离开确认",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": [
+    "lib/theme/default/theme.dart",
+    "lib/component/ui/app_back_scope.dart"
+  ],
+  "assertions": {
+    "functional": [
+      "真实 AppTheme 下 Android MaterialPageRoute 与 CupertinoPageRoute 左缘完整右滑各只移除一个路由",
+      "短拖取消保留详情路由；NavigatorObserver 栈与 Navigator.canPop 同步",
+      "guard 确认前保留页面；取消后仍保留，明确离开后才移除",
+      "连续左缘手势在异步确认未结束时最多产生一次确认",
+      "根页左缘手势不移除路由、不调用离开确认",
+      "主体 PageView 横滑只切换内容页，不返回、不调用 guard"
+    ],
+    "ui": [
+      "交互拖动中间帧与离开确认弹窗各采集一张合成组件截图",
+      "全部页面与交互为合成夹具；不启动 main.dart，不登录、不读取真实凭据、不访问后端"
+    ]
+  },
+  "visual": {
+    "rubric": [
+      "interactive_back_transition",
+      "guard_dialog",
+      "route_stack_consistency"
+    ],
+    "baseline": "未登记人工确认视觉基线；组件运行证据不等于全 APP 业务验收"
+  },
+  "runner": {
+    "type": "flutter",
+    "target": "integration_test/edge_back_smoke_test.dart",
+    "requires": [
+      "device.android"
+    ]
+  },
+  "safe_to_execute": false,
+  "risk_mode": "local-write",
+  "execution_block_reason": "执行前必须核对真机租用、所选 flavor 的 applicationId 与进程占用。优先既有独立 gzCustomer 包及 standalone build → adb install --no-streaming → flutter drive --use-existing-app；SharedPreferences/SecureStorage 为内存 mock，HTTP 禁止，标准包、SDK、保留区和真实业务数据不在测试范围。"
+}

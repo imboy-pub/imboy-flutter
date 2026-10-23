@@ -307,8 +307,8 @@ iosAccelerate    = Cubic(0.4, 0.0, 1.0, 1.0)       // 离开动画
 
 ### 6.3 转场（Page Transitions）
 
-- **iOS**：`CupertinoPageTransitionsBuilder`（右推入、左滑返回）
-- **Android**：可保留 Material Zoom，但推荐用 `CupertinoPageTransitionsBuilder` 统一体验
+- **iOS / Android**：普通 Push 页面统一使用 Cupertino 转场，从屏幕左边缘向右滑返回；短拖取消，首页无上一页时不退出应用。RTL 语言沿用系统的 leading-edge 方向。
+- **退出保护**：编辑确认与页面内层级复用 `AppBackScope`，边缘返回与系统返回执行同一处理流程；异步确认只处理一次。图片预览先关闭本层，企业目录先返回上级；强制备份、升级、通话和支付模态继续遵守既有退出规则。横向内容区仍保留翻页和侧滑操作。
 - **Modal**：`showCupertinoModalPopup` / 自定义 `showModalBottomSheet` + `borderRadius: top 10pt`
 
 ### 6.4 点击反馈规则

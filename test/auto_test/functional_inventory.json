@@ -3,11 +3,11 @@
   "generated_from": {
     "app_head": "see-catalog",
     "ledger_count": 170,
-    "ledger_row_count": 1883,
+    "ledger_row_count": 1884,
     "lib_page_count": 169,
     "module_page_count": 40,
     "route_page_component_count": 165,
-    "function_count": 2113,
+    "function_count": 2114,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -1630,7 +1630,7 @@
       "source": "test/auto_test/channel/channel_compose_page.md",
       "control": "unknown",
       "action": "已选图返回时拦截确认弹窗",
-      "expected_oracle": "见台账断言",
+      "expected_oracle": "系统返回与左边缘右滑进入同一草稿确认；取消保留页面，确认后仅返回当前发布页；等待期间只出现一次确认",
       "details": "",
       "platforms": [
         "android",
@@ -4461,6 +4461,29 @@
       "action": "E2EE 解密失败引导与密钥重建",
       "expected_oracle": "见台账断言",
       "details": "",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/chat/c2c_e2ee_send_render_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:chat:chat_page:022",
+      "page": "lib/page/chat/chat/chat_page.dart",
+      "route_or_entry": "ChatPage",
+      "route_registered": true,
+      "source": "test/auto_test/chat/chat_page.md",
+      "control": "unknown",
+      "action": "边缘返回先关闭图库或安全收起面板再离开",
+      "expected_oracle": "图库只关闭当前预览；面板延迟返回只作用于同一仍可返回的聊天路由；连续手势不重复弹栈，延迟期间打开的新弹窗或图库保持不变",
+      "details": "页面主体图片翻页不触发边缘返回；回归使用真实返回处理函数和组件夹具，不代表已登录聊天业务 E2E",
       "platforms": [
         "android",
         "macos"
@@ -24906,7 +24929,7 @@
       "source": "test/auto_test/moment/moment_create_page.md",
       "control": "unknown",
       "action": "有未保存内容退出弹确认框",
-      "expected_oracle": "见台账断言",
+      "expected_oracle": "系统返回与左边缘右滑进入同一离开确认；取消保留草稿，确认后只返回仍为当前的编辑页",
       "details": "",
       "platforms": [
         "android",
@@ -26171,7 +26194,7 @@
       "source": "declaration:lib/modules/organization/presentation/human_directory_page.dart",
       "control": "button",
       "action": "打开部门目录",
-      "expected_oracle": "点击部门行后下钻对应部门",
+      "expected_oracle": "进入部门后，左边缘右滑与系统返回先回到上级；隐藏 Tab 保持部门栈但不拦截返回，重新激活后仍可逐级返回",
       "details": "Original requirement IDs retained in historical order; source-control-lineage audit required. Declaration is not execution evidence.",
       "platforms": [
         "android",
@@ -31990,7 +32013,7 @@
       "source": "test/auto_test/personal_info/personal_info_page.md",
       "control": "unknown",
       "action": "点头像打开大图预览页",
-      "expected_oracle": "见台账断言",
+      "expected_oracle": "使用原生 Cupertino 路由与 Hero 保留头像预览；左边缘右滑关闭预览回到个人信息",
       "details": "",
       "platforms": [
         "android",
@@ -49080,7 +49103,7 @@
     {
       "page": "lib/page/chat/chat/chat_page.dart",
       "module": "chat",
-      "function_count": 21,
+      "function_count": 22,
       "route_registered": true,
       "has_ledger": true,
       "ledger_generated": false

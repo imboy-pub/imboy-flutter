@@ -2,7 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'package:photo_view/photo_view.dart';
@@ -53,13 +53,11 @@ class IMBoyImageGallery extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     iPrint("IMBoyImageGallery build ${images.length}");
-    return PopScope(
+    return AppBackScope<Object?>(
       canPop: false,
-      onPopInvokedWithResult: (bool didPop, String? res) async {
-        if (didPop) {
-          return;
-        }
-        SystemNavigator.pop();
+      allowAtRoot: true,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) onClosePressed();
       },
       child: GestureDetector(
         onTap: () => onClosePressed(),

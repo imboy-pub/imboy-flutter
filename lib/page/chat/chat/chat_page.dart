@@ -1,5 +1,9 @@
 import 'dart:async';
 
+import 'package:imboy/component/ui/app_back_scope.dart';
+
+import 'chat_back_handler.dart';
+
 import 'package:imboy/component/chat/chat_web_links.dart';
 
 import 'package:imboy/component/ui/bot_badge.dart';
@@ -1703,9 +1707,10 @@ class ChatPageState extends ConsumerState<ChatPage>
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatProvider);
     final themeNotifier = ref.read(themeProvider.notifier);
-    // state = chatState; // 不再需要本地 state 引用
+    final galleryVisible = ref.watch(
+      imageGalleryProvider.select((s) => s.isImageViewVisible),
+    );
 
-    // 更新 composerHeightNotifier（响应 composerHeight 变化）
     if (composerHeightNotifier.value != chatState.composerHeight) {
       composerHeightNotifier.value = chatState.composerHeight;
     }
@@ -1721,20 +1726,15 @@ class ChatPageState extends ConsumerState<ChatPage>
         tooltip: t.common.chatSettings,
       ),
     ];
-    return PopScope(
-      canPop: !(chatState.composerHeight > 52), // 面板或键盘展开时禁止返回（约定基础高度≈52）
-      onPopInvokedWithResult: (didPop, result) async {
-        // 如果已经执行了返回操作，不需要处理
-        if (didPop) return;
-
-        // 优先收起面板/键盘，避免"返回上一页"
-        if (chatState.composerHeight > 52) {
-          final navigator = Navigator.of(context);
-          _chatInputKey.currentState?.hideAllPanel();
-          await Future<dynamic>.delayed(const Duration(milliseconds: 300));
-          if (!mounted) return;
-          navigator.pop();
-        }
+    return AppBackScope<void>(
+      canPop: !galleryVisible && chatState.composerHeight <= 52,
+      edgeGestureEnabled: !galleryVisible,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop || galleryVisible || chatState.composerHeight <= 52) return;
+        await popChatAfterHidingPanels(
+          context,
+          () => _chatInputKey.currentState?.hideAllPanel(),
+        );
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false, // 禁用系统自动避让，改为手动控制高度以避免抖动

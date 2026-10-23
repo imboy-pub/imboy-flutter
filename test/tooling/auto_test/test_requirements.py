@@ -50,6 +50,7 @@ REQUIRED_SPEC_FILES = frozenset({
     'chat-quick-reply-manage.json',
     'conversation-list.json',
     'e2ee-backup-import.json',
+    'edge-back-isolated-device.json',
     'group-schedule.json',
     'mine-layout-isolated-device.json',
     'organization-home-device-preparation.json',
