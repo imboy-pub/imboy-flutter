@@ -33,13 +33,42 @@ class AttachmentOpenException implements Exception {
 }
 
 class AttachmentOpener {
-  /// 从消息 payload 里取 descriptor。
+  /// 从消息 payload 里取**顶层** descriptor（单附件消息）。
   ///
   /// - 字段不存在 → `null`（明文对象，走今天的直读路径）；
   /// - 字段存在但不是 map / 解析不过 → **抛异常**（见文件头取舍 2）。
+  ///
+  /// 多图消息的 descriptor 嵌套在 `images[i]` 里，本方法**不看**嵌套键；
+  /// 取全量请用 [descriptorsFrom]。
   static AttachmentDescriptor? descriptorFrom(Object? payload) {
-    if (!AttachmentSealPolicy.carriesContentKey(payload)) return null;
-    final raw = (payload as Map)[AttachmentSealPolicy.descriptorPayloadKey];
+    if (payload is! Map) return null;
+    final Object? raw = payload[AttachmentSealPolicy.descriptorPayloadKey];
+    if (raw == null) return null;
+    return _parseDescriptor(raw);
+  }
+
+  /// 取消息 payload 里的**全部** descriptor：顶层单附件 + 多图 `images[i]`。
+  ///
+  /// 任一**在场但非法**（不是 map / 字段不过 parser）→ 抛异常，
+  /// 绝不静默跳过——那正是文件头取舍 2 要堵的「把篡改当明文」开关。
+  /// 返回空列表 = 纯明文消息。
+  static List<AttachmentDescriptor> descriptorsFrom(Object? payload) {
+    final out = <AttachmentDescriptor>[];
+    if (payload is! Map) return out;
+    final Object? top = payload[AttachmentSealPolicy.descriptorPayloadKey];
+    if (top != null) out.add(_parseDescriptor(top));
+    final images = payload[AttachmentSealPolicy.imagesPayloadKey];
+    if (images is List) {
+      for (final e in images) {
+        if (e is! Map) continue;
+        final Object? raw = e[AttachmentSealPolicy.descriptorPayloadKey];
+        if (raw != null) out.add(_parseDescriptor(raw));
+      }
+    }
+    return out;
+  }
+
+  static AttachmentDescriptor _parseDescriptor(Object raw) {
     if (raw is! Map) {
       throw AttachmentOpenException('attachment_descriptor 不是 map');
     }

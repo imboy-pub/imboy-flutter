@@ -36,7 +36,9 @@ mixin MessageEventHandler {
       return true;
     } else if (message is CustomMessage) {
       final msgType = message.metadata?['msg_type'] ?? '';
-      return msgType == MessageType.video || msgType == MessageType.voice;
+      return msgType == MessageType.video ||
+          msgType == MessageType.voice ||
+          msgType == MessageType.imageMulti;
     }
     return false;
   }

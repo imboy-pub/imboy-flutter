@@ -21,6 +21,7 @@ import 'package:imboy/service/e2ee/attachment_encryptor.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
+import 'package:imboy/component/upload/attachment_template_restore.dart';
 
 Uint8List _hexDecode(String hex) => Uint8List.fromList(
   List<int>.generate(
@@ -444,51 +445,21 @@ class ResumableAttachmentUploader {
     return message;
   }
 
+  /// 从模板 + journal 重建消息（实现见 attachment_template_restore.dart；
+  /// 多图 imageMulti 在同一路径回填 images[]）。
   Future<Map<String, dynamic>> restoreMessageTemplate(
     AttachmentUploadTask row,
   ) async {
     _requireSession(row.userId);
     final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
     final rows = await _repo.findByAnchor(row.anchorMsgId!, row.userId);
-    final count = intent['expected_objects'] as int;
-    if (rows.length != count ||
-        rows.any((r) => r.stage != AttachmentUploadStage.confirmed)) {
-      throw StateError('attachment group incomplete');
-    }
-    final kind = intent['attachment_kind'];
-    final main = kind == 'video'
-        ? rows.singleWhere((r) => r.mime.startsWith('video/'))
-        : rows.single;
-    if (main.objectKey == null || main.objectKey!.isEmpty) {
-      throw StateError('confirmed attachment identity missing');
-    }
-    final template = Map<String, dynamic>.from(
-      intent['message_template'] as Map,
+    return restoreAttachmentGroupTemplate(
+      intent: intent,
+      rows: rows,
+      userId: row.userId,
+      loadMaterials: _loadMaterials,
+      requireSession: _requireSession,
     );
-    final metadata = Map<String, dynamic>.from(
-      template['metadata'] as Map? ?? {},
-    );
-    if (main.cipher != null) {
-      final materials = await _loadMaterials(main);
-      _requireSession(row.userId);
-      final descriptor = materials?['descriptor'];
-      if (descriptor == null) throw LostCipherMaterialError(main.id);
-      metadata['attachment_descriptor'] = jsonDecode(descriptor);
-    }
-    metadata['file_hash256'] = main.ciphertextSha256 ?? main.plainSha256;
-    if (kind == 'location') {
-      metadata['thumb'] = main.objectKey;
-      metadata['size'] = main.plainSize;
-    } else {
-      template['source'] = main.objectKey;
-      template['size'] = main.plainSize;
-    }
-    if (kind == 'video') {
-      final thumb = rows.singleWhere((r) => r.id != main.id);
-      metadata['thumb'] = {'uri': thumb.objectKey};
-    }
-    template['metadata'] = metadata;
-    return template;
   }
 
   AttachmentUploadTaskRepo get repo => _repo;

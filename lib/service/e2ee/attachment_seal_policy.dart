@@ -47,6 +47,10 @@ class AttachmentSealPolicy {
   /// 发送侧写入、明文闸门检测、将来 Slice 6 的读取侧都用这一个常量。
   static const String descriptorPayloadKey = 'attachment_descriptor';
 
+  /// 多图（imageMulti）payload 里承载图片元素的键名。每个图片元素是
+  /// `{uri, size, width, height, file_hash256, [descriptorPayloadKey]}`。
+  static const String imagesPayloadKey = 'images';
+
   /// 这份 payload 是否带着 **content key**（即含 descriptor）。
   ///
   /// ⚠️ 用途是**明文出网闸门**：只要带着它，就绝不能以未加密形式发出去。
@@ -57,8 +61,17 @@ class AttachmentSealPolicy {
   /// 入参刻意是 [Object]：库里读出的 payload 常是 `Map<dynamic, dynamic>`
   /// （JSON 解码产物），要求 `Map<String, dynamic>` 会让调用点各写一次强转，
   /// 而**强转失败时静默当成「不带钥匙」正是这道闸门最怕的失效方式**。
-  static bool carriesContentKey(Object? payload) =>
-      payload is Map && payload[descriptorPayloadKey] != null;
+  ///
+  /// 多图消息的 descriptor 随 `images[i]` 嵌套携带（仍整体处于 PFv3 加密
+  /// payload 内），同样绝不能明文出网——漏判嵌套钥匙与漏判顶层钥匙是
+  /// 同级别的失效，故在本闸门内统一检测，不交给调用点各自判断。
+  static bool carriesContentKey(Object? payload) {
+    if (payload is! Map) return false;
+    if (payload[descriptorPayloadKey] != null) return true;
+    final images = payload[imagesPayloadKey];
+    if (images is! List) return false;
+    return images.any((e) => e is Map && e[descriptorPayloadKey] != null);
+  }
 
   /// E2EE-061 Slice 7：主体与缩略图**必须同生同灭**。
   ///

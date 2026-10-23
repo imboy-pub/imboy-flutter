@@ -46,6 +46,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/voice_record/voice_widget.dart' show AudioFile;
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
+part 'attachment_handler_multi_image.dart';
+
 /// 附件上传回调
 typedef AttachmentUploadedCallback = Future<bool> Function(Message message);
 
@@ -198,6 +200,10 @@ class ChatAttachmentHandler {
     return result;
   }
 
+  /// 构造附件上传日志的 businessIntent + 消息模板。
+  ///
+  /// 实现体 [attachmentIntentFor] 在 part 文件（行数门禁 + imageMulti 支持）；
+  /// 本方法只是保持既有调用签名的薄委托。
   Map<String, dynamic> pendingMessageIntent(
     String id,
     String kind, {
@@ -208,69 +214,22 @@ class ChatAttachmentHandler {
     Duration duration = Duration.zero,
     List<double>? waveform,
     Map<String, dynamic> extra = const {},
-  }) {
-    final created = DateTime.now().toUtc();
-    final metadata = _withBurnMetadata({'peer_id': peerId, ...extra});
-    final Message template = switch (kind) {
-      'file' => FileMessage(
-        id: id,
-        authorId: _currentUser.id,
-        createdAt: created,
-        source: '',
-        mimeType: extra['mime_type'] as String?,
-        name: name,
-        size: size,
-        metadata: metadata,
-      ),
-      'image' => ImageMessage(
-        id: id,
-        authorId: _currentUser.id,
-        createdAt: created,
-        source: '',
-        text: name,
-        size: size,
-        width: width,
-        height: height,
-        metadata: metadata,
-      ),
-      'video' => VideoMessage(
-        id: id,
-        authorId: _currentUser.id,
-        createdAt: created,
-        source: '',
-        text: name,
-        name: name,
-        size: size,
-        width: width,
-        height: height,
-        metadata: {...metadata, 'duration_ms': duration.inMilliseconds},
-      ),
-      'voice' => AudioMessage(
-        id: id,
-        authorId: _currentUser.id,
-        createdAt: created,
-        source: '',
-        text: '',
-        size: size,
-        duration: duration,
-        waveform: waveform,
-        metadata: metadata,
-      ),
-      'location' => CustomMessage(
-        id: id,
-        authorId: _currentUser.id,
-        createdAt: created,
-        metadata: {...metadata, 'msg_type': 'location'},
-      ),
-      _ => throw StateError('unsupported attachment template'),
-    };
-    return {
-      ..._businessIntent(id),
-      'message_template': _safeMessageJson(template),
-      'attachment_kind': kind,
-      'expected_objects': kind == 'video' ? 2 : 1,
-    };
-  }
+    int? expectedObjects,
+    Map<String, dynamic> intentExtra = const {},
+  }) => attachmentIntentFor(
+    this,
+    id: id,
+    kind: kind,
+    name: name,
+    size: size,
+    width: width,
+    height: height,
+    duration: duration,
+    waveform: waveform,
+    extra: extra,
+    expectedObjects: expectedObjects,
+    intentExtra: intentExtra,
+  );
 
   /// Recovery uses the original conversation, template and sending callback.
   Future<void> recoverPendingMessages() async {
@@ -1118,9 +1077,8 @@ class ChatAttachmentHandler {
       final result = await onSelect();
       if (!context.mounted) return;
       if (result != null) {
-        for (var entity in result) {
-          await uploadSelectedAsset(context, entity);
-        }
+        // ≥2 张图片聚合为单条 imageMulti，其余逐条（见 part 文件）
+        await uploadPickedImages(this, context, result);
       }
     } on StateError catch (e) {
       debugPrint(

@@ -218,6 +218,20 @@ class MessageActionHandler {
   /// 保存消息内容
   Future<void> saveMessageContent(Message msg) async {
     if (msg is CustomMessage) {
+      final images = msg.metadata?['images'];
+      if (images is List) {
+        // 多图（imageMulti）：逐张保存，uri 为 object_key 走授权下载链路
+        for (final img in images.whereType<Map<dynamic, dynamic>>()) {
+          final name = parseModelString(img['file_hash256']);
+          await ref
+              .read(chatProvider.notifier)
+              .saveFile(
+                name.isEmpty ? Xid().toString() : name,
+                parseModelString(img['uri']),
+              );
+        }
+        return;
+      }
       await ref
           .read(chatProvider.notifier)
           .saveFile(

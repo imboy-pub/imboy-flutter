@@ -365,6 +365,18 @@ class MessageHandlingService {
     required Future<void> Function(String, String) saveFileFn,
   }) async {
     if (msg is CustomMessage) {
+      final images = msg.metadata?['images'];
+      if (images is List) {
+        // 多图（imageMulti）：逐张保存，uri 为 object_key 走授权下载链路
+        for (final img in images.whereType<Map<dynamic, dynamic>>()) {
+          final name = parseModelString(img['file_hash256']);
+          await saveFileFn(
+            name.isEmpty ? Xid().toString() : name,
+            parseModelString(img['uri']),
+          );
+        }
+        return;
+      }
       await saveFileFn(
         parseModelString(msg.metadata?['file_hash256'] ?? msg.metadata?['md5']),
         parseModelString(msg.metadata?['uri']),
@@ -507,7 +519,9 @@ class MessageHandlingService {
       return true;
     } else if (message is CustomMessage) {
       final msgType = message.metadata?['msg_type'] ?? '';
-      return msgType == MessageType.video || msgType == MessageType.voice;
+      return msgType == MessageType.video ||
+          msgType == MessageType.voice ||
+          msgType == MessageType.imageMulti;
     }
     return false;
   }

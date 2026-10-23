@@ -181,6 +181,17 @@ class SendToNotifier extends Notifier<SendToState> {
     return out;
   }
 
+  /// 多图转发：用逐图重封装结果整体改写 `images[]`（纯函数）。
+  /// 元素形状由 [AttachmentForward.reSealImages] 保证（uri / file_hash256 /
+  /// size / descriptor 已替换，明文项原样）。
+  @visibleForTesting
+  static Map<String, dynamic> applyForwardedImages(
+    Map<String, dynamic> base,
+    List<Map<String, dynamic>> images,
+  ) => Map<String, dynamic>.from(base)
+    ..[AttachmentSealPolicy.imagesPayloadKey] = images
+    ..['total'] = images.length;
+
   /// 发送消息
   Future<bool> sendMsg(
     ConversationModel conversation,
@@ -237,28 +248,48 @@ class SendToNotifier extends Notifier<SendToState> {
             peerId: conversation.peerId.toString(),
             type: chatType,
           );
-          final forwarded = await AttachmentForward.reSeal(
-            sourcePayload: Map<String, dynamic>.from(
-              sourceMetadata ?? const {},
-            ),
-            sourceMessageId: msg.id,
-            sourceChatType: sourceChatType,
-            sourceFromUid: msg.authorId,
-            sourceToUid: parseModelString(sourceMetadata?['peer_id']),
-            newMessageId: messageId,
-            targetScope: scope.scope,
-            targetConversationId: scope.scopeRef ?? '',
-            forwarderUid: forwarderUid,
+          final base = buildForwardPayload(
+            sourceMetadata: sourceMetadata,
+            text: msg is TextMessage ? msg.text : '',
+            peerId: conversation.peerId,
+            conversationUk3: conversation.uk3,
           );
-          payload = applyForwardedAttachment(
-            buildForwardPayload(
-              sourceMetadata: sourceMetadata,
-              text: msg is TextMessage ? msg.text : '',
-              peerId: conversation.peerId,
-              conversationUk3: conversation.uk3,
-            ),
-            forwarded,
+          final sourcePayload = Map<String, dynamic>.from(
+            sourceMetadata ?? const {},
           );
+          final sourceToUid = parseModelString(sourceMetadata?['peer_id']);
+          // 多图：images[i] 各自重封装（同一新绑定）；单附件：顶层 descriptor。
+          if (sourcePayload[AttachmentSealPolicy.imagesPayloadKey] is List) {
+            payload = applyForwardedImages(
+              base,
+              await AttachmentForward.reSealImages(
+                sourcePayload: sourcePayload,
+                sourceMessageId: msg.id,
+                sourceChatType: sourceChatType,
+                sourceFromUid: msg.authorId,
+                sourceToUid: sourceToUid,
+                newMessageId: messageId,
+                targetScope: scope.scope,
+                targetConversationId: scope.scopeRef ?? '',
+                forwarderUid: forwarderUid,
+              ),
+            );
+          } else {
+            payload = applyForwardedAttachment(
+              base,
+              await AttachmentForward.reSeal(
+                sourcePayload: sourcePayload,
+                sourceMessageId: msg.id,
+                sourceChatType: sourceChatType,
+                sourceFromUid: msg.authorId,
+                sourceToUid: sourceToUid,
+                newMessageId: messageId,
+                targetScope: scope.scope,
+                targetConversationId: scope.scopeRef ?? '',
+                forwarderUid: forwarderUid,
+              ),
+            );
+          }
       }
       final msgType = resolveForwardMsgType(sourceMetadata);
 

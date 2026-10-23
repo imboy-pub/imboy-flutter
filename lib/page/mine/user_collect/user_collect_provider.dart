@@ -1280,9 +1280,7 @@ class UserCollectNotifier extends _$UserCollectNotifier {
   /// Kind 被收藏的资源种类： 1 文本  2 图片  3 语音  4 视频  5 文件  6 位置消息  7 个人名片
   /// 这个方法被其他文件调用，需要保留
   static int getCollectKind(dynamic message) {
-    if (kDebugMode) debugPrint("getCollectKind type: ${message.runtimeType}");
-    // 由于移除了 flutter_chat_types 依赖，这里简化处理
-    // 根据 message 的 metadata 或其他属性判断类型
+    // 不再依赖 flutter_chat_types：按 runtimeType + metadata 判断类型
     if (message == null) return 0;
 
     try {
@@ -1310,9 +1308,11 @@ class UserCollectNotifier extends _$UserCollectNotifier {
             return 6;
           case 'visitCard':
             return 7;
+          case 'imageMulti':
+            return 2;
           default:
             // 检查payload中的msg_type
-            String msgType = parseModelString(
+            msgType = parseModelString(
               message.metadata?['payload']?['msg_type'],
             );
             switch (msgType) {

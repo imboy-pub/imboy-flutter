@@ -232,7 +232,128 @@ class AttachmentForward {
       );
     }
 
-    // 源绑定值：转发者以参与者身份重算（与原发送/接收侧同一函数）。
+    final bindings = _forwardBindings(
+      sourceMessageId: sourceMessageId,
+      sourceChatType: sourceChatType,
+      sourceFromUid: sourceFromUid,
+      sourceToUid: sourceToUid,
+      newMessageId: newMessageId,
+      targetConversationId: targetConversationId,
+      forwarderUid: forwarderUid,
+    );
+    return _reSealObject(
+      sourceDescriptor: sourceDescriptor,
+      sourceBinding: bindings.source,
+      newBinding: bindings.target,
+      newMessageId: newMessageId,
+      targetScope: targetScope,
+      targetConversationId: targetConversationId,
+      fetcher: fetcher,
+      presignFn: presignFn,
+      putFn: putFn,
+      confirmFn: confirmFn,
+    );
+  }
+
+  /// 多图（imageMulti）逐图重封装。
+  ///
+  /// 返回改写后的 `images[]` 元素列表（顺序与源一致）：带 descriptor 的项
+  /// 下载 → 认证解密 → 按目标会话新绑定/新密钥重封装 → 重上传，并改写
+  /// uri / file_hash256 / size / descriptor（attachmentId 沿用源值，逐图天然
+  /// 互异）；明文项（历史明文多图）原样保留。任一项失败抛
+  /// [AttachmentForwardException]——整条转发不发生，无半转发状态。
+  static Future<List<Map<String, dynamic>>> reSealImages({
+    required Map<String, dynamic> sourcePayload,
+    required String sourceMessageId,
+    required String sourceChatType,
+    required String sourceFromUid,
+    required String sourceToUid,
+    required String newMessageId,
+    required String targetScope,
+    required String targetConversationId,
+    required String forwarderUid,
+    CiphertextFetcher? fetchCiphertext,
+    PresignFn? presignFn,
+    PutFn? putFn,
+    ConfirmFn? confirmFn,
+  }) async {
+    final fetcher = fetchCiphertext ?? defaultFetchCiphertext;
+    final items = sourcePayload[AttachmentSealPolicy.imagesPayloadKey];
+    if (items is! List) {
+      throw const AttachmentForwardException(
+        'attachment_forward_undecryptable',
+      );
+    }
+    final bindings = _forwardBindings(
+      sourceMessageId: sourceMessageId,
+      sourceChatType: sourceChatType,
+      sourceFromUid: sourceFromUid,
+      sourceToUid: sourceToUid,
+      newMessageId: newMessageId,
+      targetConversationId: targetConversationId,
+      forwarderUid: forwarderUid,
+    );
+    final out = <Map<String, dynamic>>[];
+    for (final e in items) {
+      if (e is! Map) {
+        throw const AttachmentForwardException(
+          'attachment_forward_undecryptable',
+        );
+      }
+      final item = Map<String, dynamic>.from(e);
+      final List<AttachmentDescriptor> found;
+      try {
+        found = AttachmentOpener.descriptorsFrom(item);
+      } on AttachmentOpenException catch (err) {
+        throw AttachmentForwardException(
+          'attachment_forward_undecryptable',
+          '${err.runtimeType}',
+        );
+      }
+      if (found.isEmpty) {
+        out.add(item);
+        continue;
+      }
+      final forwarded = await _reSealObject(
+        sourceDescriptor: found.first,
+        sourceBinding: bindings.source,
+        newBinding: bindings.target,
+        newMessageId: newMessageId,
+        targetScope: targetScope,
+        targetConversationId: targetConversationId,
+        fetcher: fetcher,
+        presignFn: presignFn,
+        putFn: putFn,
+        confirmFn: confirmFn,
+      );
+      out.add(
+        item
+          ..['uri'] = forwarded.objectKey
+          ..['file_hash256'] = forwarded.fileHash256
+          ..['size'] = forwarded.plainSize
+          ..[AttachmentSealPolicy.descriptorPayloadKey] = forwarded.descriptor
+              .toMap(),
+      );
+    }
+    return out;
+  }
+
+  /// 源 / 目标绑定值（方案甲）。
+  ///
+  /// 源绑定值由转发者以参与者身份重算（与原发送/接收侧同一函数）；目标
+  /// 三元组全部换成目标会话语境（目标 conversation_id 为空 = 会话类型推不出
+  /// scope_ref 的矛盾态：正常 decide 已在明文域/非标源处拒绝，这里防御性
+  /// 收敛为显式失败，不让 AttachmentOpenException / AttachmentBindingException
+  /// 以裸类型穿透调用方）。
+  static ({Uint8List source, Uint8List target}) _forwardBindings({
+    required String sourceMessageId,
+    required String sourceChatType,
+    required String sourceFromUid,
+    required String sourceToUid,
+    required String newMessageId,
+    required String targetConversationId,
+    required String forwarderUid,
+  }) {
     final Uint8List sourceBinding;
     try {
       sourceBinding = AttachmentOpener.bindingFor(
@@ -247,11 +368,6 @@ class AttachmentForward {
         '${e.runtimeType}',
       );
     }
-
-    // 新绑定值：方案甲三元组全部换成目标会话语境。
-    // （目标 conversation_id 为空 = 会话类型推不出 scope_ref 的矛盾态：
-    // 正常 decide 已在明文域/非标源处拒绝，这里防御性收敛为显式失败，
-    // 不让 AttachmentBindingException 以裸类型穿透调用方。）
     final Uint8List newBinding;
     try {
       newBinding = AttachmentBinding.compute(
@@ -265,7 +381,25 @@ class AttachmentForward {
         '${e.runtimeType}',
       );
     }
+    return (source: sourceBinding, target: newBinding);
+  }
 
+  /// 单个对象（含其缩略图）的解密 → 重封装 → 重上传。
+  ///
+  /// 上传顺序沿用 Slice 7：先缩略图、后主体（主体 seal 时挂入 thumb
+  /// descriptor）。主体与缩略图共用同一新绑定（同一条消息，与发送侧一致）。
+  static Future<ForwardedAttachment> _reSealObject({
+    required AttachmentDescriptor sourceDescriptor,
+    required Uint8List sourceBinding,
+    required Uint8List newBinding,
+    required String newMessageId,
+    required String targetScope,
+    required String targetConversationId,
+    required CiphertextFetcher fetcher,
+    PresignFn? presignFn,
+    PutFn? putFn,
+    ConfirmFn? confirmFn,
+  }) async {
     // ── 缩略图（若在）：先解密重封装上传 ──────────────────────────────
     AttachmentDescriptor? newThumbDescriptor;
     String? newThumbObjectKey;

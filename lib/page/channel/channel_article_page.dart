@@ -637,11 +637,8 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
     );
   }
 
-  /// 发布端为绕过后端「content 不可为空」校验写入的内部占位符
-  /// （见 channel_publish_bar.dart：语音写 `[voice]`、无文件名的图片/视频写 `[media]`）。
-  /// 原样当正文渲染就会把内部标记漏给用户。
-  /// - `[voice]`：阅读页没有音频播放器，给出本地化的类型提示比空白更有信息量
-  /// - `[media]`：媒体本身由 [_buildMedia] 渲染，正文留空
+  /// 发布端为绕过后端空 content 校验写入的占位符（channel_publish_bar）：`[voice]` 给本地化
+  /// 提示；`[media]` 在 imageText 走 displayContent（media_only 帖留空、字面量保留），其余留空。
   String _displayBody(String content) {
     switch (content.trim()) {
       case '[voice]':

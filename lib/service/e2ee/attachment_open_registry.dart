@@ -50,7 +50,10 @@ class AttachmentOpenRegistry {
 
   /// 从一条**已解密**的消息登记（无 descriptor 时静默跳过）。
   ///
-  /// 返回是否登记成功。descriptor 坏掉时 [AttachmentOpener.descriptorFrom]
+  /// 单附件取顶层 descriptor；多图消息逐个登记 `images[i]` 的 descriptor
+  /// （同一绑定值：方案甲绑定不含 attachment_id，N 张图共用同一三元组）。
+  ///
+  /// 返回是否登记成功。descriptor 坏掉时 [AttachmentOpener.descriptorsFrom]
   /// 会抛异常——这里**吞掉并返回 false**：消息转换不该因为一个坏附件整条失败，
   /// 而查不到 spec 的后果只是那张图打不开（fail-closed 的正确方向）。
   static bool registerFromMessage({
@@ -61,18 +64,20 @@ class AttachmentOpenRegistry {
     required String toUid,
   }) {
     try {
-      final descriptor = AttachmentOpener.descriptorFrom(payload);
-      if (descriptor == null) return false;
+      final descriptors = AttachmentOpener.descriptorsFrom(payload);
+      if (descriptors.isEmpty) return false;
       final binding = AttachmentOpener.bindingFor(
         messageId: messageId,
         chatType: chatType,
         fromUid: fromUid,
         toUid: toUid,
       );
-      _put(descriptor.objectKey, AttachmentOpenSpec(descriptor, binding));
-      final thumb = descriptor.thumb;
-      if (thumb != null) {
-        _put(thumb.objectKey, AttachmentOpenSpec(thumb, binding));
+      for (final descriptor in descriptors) {
+        _put(descriptor.objectKey, AttachmentOpenSpec(descriptor, binding));
+        final thumb = descriptor.thumb;
+        if (thumb != null) {
+          _put(thumb.objectKey, AttachmentOpenSpec(thumb, binding));
+        }
       }
       return true;
     } on AttachmentOpenException {
