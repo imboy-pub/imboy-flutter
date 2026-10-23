@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
-import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -52,10 +51,15 @@ GoRouter _stubRouter() {
   );
 }
 
-Future<void> _pumpSetting(WidgetTester tester) async {
+Future<void> _pumpSetting(
+  WidgetTester tester, {
+  double width = 390,
+  double scale = 1,
+  Brightness brightness = Brightness.light,
+}) async {
   tester.view.devicePixelRatio = 1.0;
-  tester.view.physicalSize = const Size(
-    390,
+  tester.view.physicalSize = Size(
+    width,
     1200,
   ); // 大画布让 SingleChildScrollView 内容尽量可见
   addTearDown(() {
@@ -66,7 +70,15 @@ Future<void> _pumpSetting(WidgetTester tester) async {
   await tester.pumpWidget(
     ProviderScope(
       child: TranslationProvider(
-        child: MaterialApp.router(routerConfig: _stubRouter()),
+        child: MaterialApp.router(
+          routerConfig: _stubRouter(),
+          theme: ThemeData(brightness: brightness),
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(scale)),
+            child: child!,
+          ),
+        ),
       ),
     ),
   );
@@ -103,6 +115,35 @@ void main() {
     await StorageService.to.remove(Keys.currentUid);
     await StorageService.to.remove(Keys.currentUser);
   });
+
+  testWidgets('设置图标保持中性，无彩色实心底', (tester) async {
+    await _pumpSetting(tester);
+    expect(
+      tester.widget<Icon>(find.byIcon(CupertinoIcons.lock_shield)).color,
+      AppColors.getTextColor(Brightness.light, isSecondary: true),
+    );
+    await _unmount(tester);
+  });
+  for (final brightness in Brightness.values) {
+    for (final width in [320.0, 390.0]) {
+      testWidgets('设置 $width $brightness 双倍字号不溢出', (tester) async {
+        await _pumpSetting(
+          tester,
+          width: width,
+          scale: 2,
+          brightness: brightness,
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tester.scrollUntilVisible(
+          find.text(t.account.logoutAccount),
+          220,
+        );
+        expect(tester.takeException(), isNull);
+        await _unmount(tester);
+      });
+    }
+  }
 
   group('SettingPage layout', () {
     testWidgets('Scaffold uses iOS surfaceGrouped background', (tester) async {
@@ -143,28 +184,20 @@ void main() {
       await _unmount(tester);
     });
 
-    testWidgets('ImBoySettingsTile 至少 4 个 (覆盖 4 个菜单项)', (tester) async {
+    testWidgets('帮助、账号检查与退出入口仍完整保留', (tester) async {
       await _pumpSetting(tester);
-
-      expect(
-        find.byType(ImBoySettingsTile).evaluate().length,
-        greaterThanOrEqualTo(4),
-        reason: '通用 section 4 项 + 其他 section 应有 ≥4 个 ImBoySettingsTile',
-      );
-      await _unmount(tester);
-    });
-
-    testWidgets('每个菜单项 trailing 含 chevron', (tester) async {
-      await _pumpSetting(tester);
-
-      // ImBoySettingsTile 在 trailing 为空且有 onTap 时自动追加
-      // CupertinoListTileChevron；_buildValueTrailing/_buildAboutTrailing
-      // 也显式包含它。内部图标为 CupertinoIcons.right_chevron。
-      expect(
-        find.byType(CupertinoListTileChevron).evaluate().length,
-        greaterThanOrEqualTo(4),
-        reason: '4+ 菜单项每项右侧应有 chevron',
-      );
+      for (final label in [
+        t.common.helpDocument,
+        t.common.updateLog,
+        t.main.privacyPolicy,
+        t.main.termsOfService,
+        t.common.aboutApp,
+        t.account.logOut,
+        t.organization.experienceUi.accountCheck,
+        t.account.logoutAccount,
+      ]) {
+        expect(find.text(label), findsOneWidget);
+      }
       await _unmount(tester);
     });
   });

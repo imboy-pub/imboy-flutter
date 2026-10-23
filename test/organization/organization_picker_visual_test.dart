@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -298,10 +298,10 @@ void main() {
                 find.byKey(const ValueKey('org-picker-create-entry')),
                 findsOneWidget,
               );
-              final join = tester.widget<TextButton>(
+              final join = tester.widget<CupertinoButton>(
                 find.byKey(const ValueKey('org-picker-join-entry')),
               );
-              final create = tester.widget<TextButton>(
+              final create = tester.widget<CupertinoButton>(
                 find.byKey(const ValueKey('org-picker-create-entry')),
               );
               expect(join.onPressed, isNotNull);

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "REFINED-PAGES-ISOLATED-DEVICE-001",
+  "title": "设置、个人资料、本机附件、空间选择：真机隔离布局与错误恢复",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": [
+    "lib/page/mine/setting/setting_page.dart",
+    "lib/page/personal_info/profile/profile_page.dart",
+    "lib/modules/attachments/personal_attachments_page.dart",
+    "lib/modules/organization/presentation/organization_picker_page.dart"
+  ],
+  "assertions": {
+    "functional": [
+      "设置的语言与空间入口跳到独立目标 stub，注销等危险入口不执行",
+      "真实 ProfilePage 显示紧凑资料头，完整度百分比仅一次；空头像、空背景不发网络",
+      "头像编辑打开真实 sheet 后取消，二维码入口进入 stub；不调用媒体能力或上传",
+      "附件通过 repository DI 返回合成消息，搜索与空结果、错误重试恢复均验证；不访问 SQLite 或打开真实来源",
+      "空间列表仅接受合成 GET organizations/mine，选中标记唯一；加入弹窗只检查后取消，创建入口进入 stub",
+      "空间列表加载失败仍保留操作入口，重试后恢复合成列表；不执行实际企业切换或邀请码提交"
+    ],
+    "ui": [
+      "四个真实页面在 Android 真机原始逻辑宽度、浅色正常字号与深色双倍字号下渲染并检查框架异常",
+      "采集关键布局、长资料字段与两类错误态 PNG，分块带偏移和总长输出，由宿主校验后存仓外",
+      "不启动 main.dart；SharedPreferences/SecureStorage 为内存 mock，Profile/体验/主题 provider 为合成状态，其余 HTTP 与 raw HTTP 显式失败"
+    ]
+  },
+  "visual": {
+    "rubric": [
+      "no_overflow",
+      "compact_identity",
+      "grouped_surfaces",
+      "large_text",
+      "recoverable_error"
+    ],
+    "baseline": "未登记人工视觉基线；真机组件证据不等于登录、业务数据、上传或企业切换全链路验收"
+  },
+  "runner": {
+    "type": "flutter",
+    "target": "integration_test/refined_pages_layout_smoke_test.dart",
+    "requires": [
+      "device.android"
+    ]
+  },
+  "safe_to_execute": false,
+  "risk_mode": "local-write",
+  "execution_block_reason": "执行前必须确认真机与独立 flavor 的 applicationId/进程归属。使用既有 gzCustomer 独立包，standalone build → adb install --no-streaming → flutter drive --use-existing-app；标准包、保留区、SDK 与真实业务数据均不在范围内。",
+  "function_ids": [
+    "fn:mine:setting_page:019",
+    "fn:personal_info:profile_page:013",
+    "fn:organization:organization_picker_page:011"
+  ],
+  "function_oracles": {
+    "fn:mine:setting_page:019": "合成真机设置页浅色正常与深色双倍字号无框架布局异常，语言和空间入口进入stub；危险操作未执行",
+    "fn:personal_info:profile_page:013": "合成真机资料页无背景紧凑摘要，完整度可见百分比一次，长资料字段在深色双倍字号可读；不执行上传和资料保存",
+    "fn:organization:organization_picker_page:011": "合成真机空间列表个人空间不重复组头，加入/创建按钮在深色双倍字号完整可读；未执行真实企业切换或加入"
+  }
+}

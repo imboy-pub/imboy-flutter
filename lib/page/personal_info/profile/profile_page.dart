@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -12,8 +13,8 @@ import 'package:imboy/capabilities/contracts/media_picker_capability.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/ui/avatar.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/detail_settings_tile.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
@@ -21,6 +22,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'profile_provider.dart';
 import 'widgets/profile_completion_widget.dart';
+import 'widgets/profile_identity_header.dart';
 
 /// 个人资料页面 - iOS 17 Premium 风格重构
 class ProfilePage extends ConsumerStatefulWidget {
@@ -67,10 +69,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
     final profileNotifier = ref.read(profileProvider.notifier);
-    final brightness = Theme.of(context).brightness;
 
     return IosPageTemplate(
       title: t.common.personalInfo,
+      useLargeTitle: false,
       actions: [
         IconButton(
           onPressed: profileState.isLoading
@@ -86,11 +88,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       slivers: [
         // 顶部头像卡片
         SliverToBoxAdapter(
-          child: _buildAvatarHeader(
-            context,
-            profileState,
-            profileNotifier,
-            brightness,
+          child: ProfileIdentityHeader(
+            state: profileState,
+            onPreviewAvatar: () => _previewAvatar(context, profileState.avatar),
+            onEditAvatar: () => _editAvatar(context, profileNotifier),
+            onEditBackground: () => _editBackground(context),
           ),
         ),
 
@@ -104,52 +106,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: ImBoySettingsSection(
             header: Text(t.common.basicInfo.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.nickname),
-                trailing: Text(
-                  profileState.nickname.isEmpty
-                      ? t.common.notSet
-                      : profileState.nickname,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.nickname.isEmpty
+                    ? t.common.notSet
+                    : profileState.nickname,
                 onTap: () => _pushThenReload('/personal_info/set_nickname'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.gender),
-                trailing: Text(
-                  profileNotifier.getGenderText(profileState.gender),
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileNotifier.getGenderText(profileState.gender),
                 onTap: () => _pushThenReload('/personal_info/set_gender'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.birthday),
-                trailing: Text(
-                  profileState.birthday.isEmpty
-                      ? t.common.notSet
-                      : profileState.birthday,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.birthday.isEmpty
+                    ? t.common.notSet
+                    : profileState.birthday,
                 onTap: () => _editBirthday(context),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.region),
-                trailing: Text(
-                  profileNotifier.formatRegion(profileState.region),
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileNotifier.formatRegion(profileState.region),
                 onTap: () => _pushThenReload('/personal_info/set_region'),
               ),
             ],
@@ -161,29 +139,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: ImBoySettingsSection(
             header: Text(t.common.contactInfo.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.email),
-                trailing: Text(
-                  profileState.email.isEmpty
-                      ? t.common.notSet
-                      : profileState.email,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.email.isEmpty
+                    ? t.common.notSet
+                    : profileState.email,
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.mobile),
-                trailing: Text(
-                  profileState.mobile.isEmpty
-                      ? t.common.notSet
-                      : profileState.mobile,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.mobile.isEmpty
+                    ? t.common.notSet
+                    : profileState.mobile,
               ),
             ],
           ),
@@ -194,17 +160,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: ImBoySettingsSection(
             header: Text(t.common.personalDisplay.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.personalSignature),
                 subtitle: Text(
                   profileState.signature.isEmpty
                       ? t.common.notSet
                       : profileState.signature,
-                  maxLines: 2,
                 ),
                 onTap: () => _editSignature(context),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.personalBackground),
                 trailing: const Icon(
                   CupertinoIcons.photo,
@@ -222,43 +187,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: ImBoySettingsSection(
             header: Text(t.common.extendedInfo.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.profession),
-                trailing: Text(
-                  profileState.profession.isEmpty
-                      ? t.common.notSet
-                      : profileState.profession,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.profession.isEmpty
+                    ? t.common.notSet
+                    : profileState.profession,
                 onTap: () => _editProfession(context),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.main.school),
-                trailing: Text(
-                  profileState.school.isEmpty
-                      ? t.common.notSet
-                      : profileState.school,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.school.isEmpty
+                    ? t.common.notSet
+                    : profileState.school,
                 onTap: () => _editSchool(context),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.main.hobbiesAndInterests),
-                trailing: Text(
-                  profileState.interests.isEmpty
-                      ? t.common.notSet
-                      : profileState.interests,
-                  style: context.textStyle(
-                    FontSizeType.subheadline,
-                    color: AppColors.iosGray,
-                  ),
-                ),
+                value: profileState.interests.isEmpty
+                    ? t.common.notSet
+                    : profileState.interests,
                 onTap: () => _editInterests(context),
               ),
             ],
@@ -268,23 +215,34 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         // 功能
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
-            margin: const EdgeInsets.fromLTRB(16, 24, 16, 40),
+            margin: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.large,
+              AppSpacing.regular,
+              AppSpacing.xxLarge,
+            ),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.myQRCode),
-                leading: const Icon(
+                leading: Icon(
                   CupertinoIcons.qrcode,
-                  color: AppColors.iosBlue,
-                  size: 22,
+                  color: AppColors.getTextColor(
+                    Theme.of(context).brightness,
+                    isSecondary: true,
+                  ),
+                  size: AppSizes.iconSizeMedium,
                 ),
                 onTap: () => context.push('/qrcode/user'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.privacySettings),
-                leading: const Icon(
-                  CupertinoIcons.shield_fill,
-                  color: AppColors.iosGreen,
-                  size: 22,
+                leading: Icon(
+                  CupertinoIcons.shield,
+                  color: AppColors.getTextColor(
+                    Theme.of(context).brightness,
+                    isSecondary: true,
+                  ),
+                  size: AppSizes.iconSizeMedium,
                 ),
                 onTap: () => _pushThenReload('/personal_info/privacy_settings'),
               ),
@@ -327,170 +285,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildAvatarHeader(
-    BuildContext context,
-    ProfileState state,
-    ProfileNotifier notifier,
-    Brightness brightness,
-  ) {
-    final isDark = brightness == Brightness.dark;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: isDark
-              ? AppColors.darkSurfaceGroupedTertiary
-              : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: [
-            _buildCover(context, state),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-              child: Column(
-                children: [
-                  Text(
-                    'ID: ${UserRepoLocal.to.current.account}',
-                    style: context.textStyle(
-                      FontSizeType.normal,
-                      color: AppColors.iosGray,
-                    ),
-                  ),
-                  AppSpacing.verticalLarge,
-                  CupertinoButton(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 8,
-                    ),
-                    color: AppColors.getIosBlue(brightness)
-                        .withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    onPressed: () => _editAvatar(context, notifier),
-                    child: Text(
-                      t.common.avatarEditAvatar,
-                      style: context.textStyle(
-                        FontSizeType.normal,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.getIosBlue(brightness),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 个人资料封面：背景图 cover + 左下头像/昵称叠加。
-  /// background 为 scope=public 的 object_key，经 cachedImageProvider 授权渲染；
-  /// 为空时用品牌渐变占位。右上角相机图标编辑背景（复用 _editBackground）。
-  Widget _buildCover(BuildContext context, ProfileState state) {
-    return SizedBox(
-      height: 160,
-      width: double.infinity,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 背景图或渐变占位
-          if (state.background.isNotEmpty)
-            Image(
-              image: cachedImageProvider(state.background, w: 800),
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const _CoverPlaceholder(),
-            )
-          else
-            const _CoverPlaceholder(),
-          // 底部暗渐变遮罩，保证白色文字可读
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.center,
-                end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.black54],
-              ),
-            ),
-          ),
-          // 右上角编辑背景入口
-          Positioned(
-            top: 10,
-            right: 10,
-            child: GestureDetector(
-              onTap: () => _editBackground(context),
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: AppColors.mediaScrimBlack.withValues(alpha: 0.35),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  CupertinoIcons.camera,
-                  size: 18,
-                  color: AppColors.onPrimary,
-                ),
-              ),
-            ),
-          ),
-          // 左下角头像 + 昵称
-          Positioned(
-            left: 16,
-            bottom: 12,
-            right: 16,
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => _previewAvatar(context, state.avatar),
-                  child: Stack(
-                    children: [
-                      Avatar(imgUri: state.avatar, width: 64, height: 64),
-                      if (state.isUploading)
-                        Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.lightTextPrimary.withValues(
-                                alpha: 0.45,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: const Center(
-                              child: CupertinoActivityIndicator(
-                                color: AppColors.onPrimary,
-                              ),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    state.nickname.isEmpty
-                        ? t.common.nicknameNotSet
-                        : state.nickname,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context
-                        .textStyle(
-                          FontSizeType.title,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.onPrimary,
-                        )
-                        .copyWith(letterSpacing: -0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -840,24 +634,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     await Clipboard.setData(ClipboardData(text: content));
     AppLoading.showSuccess(
       t.common.exportSuccessThenCopiedToClipboard(param: format),
-    );
-  }
-}
-
-/// 无背景图时的封面占位：品牌蓝渐变。
-class _CoverPlaceholder extends StatelessWidget {
-  const _CoverPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primaryDark],
-        ),
-      ),
     );
   }
 }

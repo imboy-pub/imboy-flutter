@@ -1,18 +1,16 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
-import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/app_sizes.dart';
 
 import 'personal_attachment_repository.dart';
+import 'personal_attachments_view.dart';
 
 class PersonalAttachmentsPage extends StatefulWidget {
   const PersonalAttachmentsPage({super.key, this.repository});
@@ -129,82 +127,31 @@ class _PersonalAttachmentsPageState extends State<PersonalAttachmentsPage> {
     final visible = _items
         .where((item) => item.name.toLowerCase().contains(keyword))
         .toList();
-    return Scaffold(
-      appBar: AppBar(title: Text(t.personalTitle)),
-      body: Column(
-        children: [
-          Padding(padding: AppSpacing.allRegular, child: Text(t.personalHint)),
-          Padding(
-            padding: AppSpacing.allRegular,
-            child: CupertinoSearchTextField(
-              controller: _search,
-              placeholder: t.searchHint,
-              onChanged: (_) {
-                setState(() {});
-                _debounce?.cancel();
-                _debounce = Timer(
-                  const Duration(milliseconds: 300),
-                  () => _load(refresh: true),
-                );
-              },
-            ),
-          ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () => _load(refresh: true),
-              child: ListView(
-                children: [
-                  if (_error != null)
-                    TextButton(
-                      onPressed: () => _load(refresh: true),
-                      child: Text(t.moreFailed),
-                    ),
-                  if (!_loading && visible.isEmpty)
-                    Padding(
-                      padding: AppSpacing.allRegular,
-                      child: Text(
-                        keyword.isEmpty ? t.emptyLocal : t.emptySearch,
-                      ),
-                    ),
-                  for (final item in visible)
-                    _LocalAttachmentTile(item: item, onTap: () => _open(item)),
-                  if (_loading)
-                    const Center(child: CupertinoActivityIndicator()),
-                  if (_hasMore && !_loading)
-                    TextButton(onPressed: _load, child: Text(t.loadMore)),
-                  Padding(
-                    padding: AppSpacing.allRegular,
-                    child: Text(
-                      t.personalBoundary,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+    return IosPageTemplate(
+      title: t.personalTitle,
+      body: SafeArea(
+        top: false,
+        child: PersonalAttachmentsView(
+          search: _search,
+          items: visible,
+          loading: _loading,
+          hasMore: _hasMore,
+          hasError: _error != null,
+          onSearchChanged: _searchChanged,
+          onRefresh: () => _load(refresh: true),
+          onMore: _load,
+          onOpen: _open,
+        ),
       ),
     );
   }
-}
 
-class _LocalAttachmentTile extends StatelessWidget {
-  const _LocalAttachmentTile({required this.item, required this.onTap});
-  final PersonalAttachment item;
-  final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) => CupertinoListTile(
-    padding: AppSpacing.allRegular,
-    leading: const Icon(CupertinoIcons.doc, size: AppSizes.iconSizeMedium),
-    title: Text(
-      item.name.isEmpty ? context.t.chat.file : item.name,
-      maxLines: 2,
-    ),
-    subtitle: Text(
-      '${DateFormat('MM/dd HH:mm').format(DateTime.fromMillisecondsSinceEpoch(item.message.createdAt))} · ${context.t.attachmentManager.openSource}',
-    ),
-    trailing: const CupertinoListTileChevron(),
-    onTap: onTap,
-  );
+  void _searchChanged(String _) {
+    setState(() {});
+    _debounce?.cancel();
+    _debounce = Timer(
+      const Duration(milliseconds: 300),
+      () => _load(refresh: true),
+    );
+  }
 }

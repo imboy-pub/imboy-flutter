@@ -20,7 +20,6 @@
 library;
 
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
-import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -40,6 +39,8 @@ import 'package:imboy/modules/organization/infrastructure/organization_cache.dar
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/modules/organization/presentation/org_join_scanner_page.dart';
+
+import 'space_picker_views.dart';
 
 class OrganizationPickerPage extends ConsumerStatefulWidget {
   const OrganizationPickerPage({
@@ -440,8 +441,7 @@ class _OrganizationPickerPageState
       appBar: AppBar(title: Text(t.organization.experienceUi.switchSpace)),
       body: Column(
         children: [
-          _SpaceSection(
-            header: Text(t.organization.experienceUi.personalSpace),
+          SpacePickerSection(
             children: [
               ListTile(
                 key: const ValueKey('org-picker-personal-entry'),
@@ -485,7 +485,7 @@ class _OrganizationPickerPageState
                     vertical: AppSpacing.small,
                   ),
                   children: [
-                    _SpaceSection(
+                    SpacePickerSection(
                       header: Text(
                         t.organization.experienceUi.enterpriseSpaces,
                       ),
@@ -524,67 +524,14 @@ class _OrganizationPickerPageState
               ),
             ),
           ),
-          // 底部常驻入口（Slack「Add workspaces」同构）：
-          // 加入企业=主操作（FilledButton），创建企业=次操作（OutlinedButton）。
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.regular,
-              AppSpacing.small,
-              AppSpacing.regular,
-              AppSpacing.small,
-            ),
-            child: SafeArea(
-              top: false,
-              child: Wrap(
-                alignment: WrapAlignment.center,
-                spacing: AppSpacing.regular,
-                children: [
-                  SizedBox(
-                    child: TextButton.icon(
-                      key: const ValueKey('org-picker-join-entry'),
-                      onPressed: _joinByCode,
-                      icon: const Icon(
-                        CupertinoIcons.person_crop_circle_badge_plus,
-                      ),
-                      label: Text(t.organization.picker.joinEnterprise),
-                    ),
-                  ),
-                  SizedBox(
-                    child: TextButton.icon(
-                      key: const ValueKey('org-picker-create-entry'),
-                      onPressed: () => context.push(kOrganizationHomePath),
-                      icon: const Icon(CupertinoIcons.add_circled),
-                      label: Text(t.organization.home.createOrg),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          SpacePickerActions(
+            onJoin: _joinByCode,
+            onCreate: () => context.push(kOrganizationHomePath),
           ),
         ],
       ),
     );
   }
-}
-
-/// Keep rich role/status subtitles and Material focus semantics within native groups.
-class _SpaceSection extends StatelessWidget {
-  const _SpaceSection({required this.header, required this.children});
-  final Widget header;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) => ImBoySettingsSection(
-    header: header,
-    children: [
-      for (final child in children)
-        Theme(
-          data: Theme.of(context)
-              .copyWith(splashFactory: NoSplash.splashFactory),
-          child: Material(type: MaterialType.transparency, child: child),
-        ),
-    ],
-  );
 }
 
 /// 加入企业对话框出站结果：preview 阶段拿到的目标企业事实

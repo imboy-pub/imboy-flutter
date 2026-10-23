@@ -15,6 +15,8 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
+import 'package:imboy/component/ui/detail_settings_tile.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/single/markdown_page.dart';
@@ -126,53 +128,43 @@ class _SettingPageState extends ConsumerState<SettingPage> {
 
     return IosPageTemplate(
       title: t.main.setting,
+      useLargeTitle: false,
       slivers: [
         // 常规设置 Section
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
             header: Text(t.common.sectionGeneral.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.account.accountSecurity),
-                leading: _buildIcon(
-                  CupertinoIcons.lock_shield,
-                  AppColors.iosOrange,
-                ),
+                leading: _buildIcon(CupertinoIcons.lock_shield),
                 onTap: () => context.push('/account_security'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.talkRecord.aiServicesTitle),
-                leading: _buildIcon(CupertinoIcons.sparkles, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.sparkles),
                 onTap: () => context.push(kTalkRecordAiServicesPath),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.languageSetting),
-                leading: _buildIcon(CupertinoIcons.globe, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.globe),
                 onTap: () => context.push('/language'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.main.darkModel),
-                leading: _buildIcon(CupertinoIcons.moon, AppColors.iosGray),
-                trailing: _buildValueTrailing(themeTypeTips(ref)),
+                leading: _buildIcon(CupertinoIcons.moon),
+                value: themeTypeTips(ref),
                 onTap: () => context.push('/dark_model'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.fontSettings),
-                leading: _buildIcon(
-                  CupertinoIcons.textformat,
-                  AppColors.iosGreen,
-                ),
-                trailing: _buildValueTrailing(
-                  themeState.fontSizeOption.localizedName,
-                ),
+                leading: _buildIcon(CupertinoIcons.textformat),
+                value: themeState.fontSizeOption.localizedName,
                 onTap: () => context.push('/font_size'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.organization.experienceUi.switchSpace),
-                leading: _buildIcon(
-                  CupertinoIcons.rectangle_3_offgrid,
-                  AppColors.iosBlue,
-                ),
+                leading: _buildIcon(CupertinoIcons.rectangle_3_offgrid),
                 onTap: () => context.push(kOrganizationPickerPath),
               ),
             ],
@@ -184,10 +176,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           child: ImBoySettingsSection(
             header: Text(t.common.sectionPrivacySecurity.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.allowSearchMe),
                 subtitle: Text(t.discovery.otherUsersCanFindMe),
-                leading: _buildIcon(CupertinoIcons.search, AppColors.iosBlue),
+                leading: _buildIcon(CupertinoIcons.search),
                 trailing: CupertinoSwitch(
                   value: allowSearch,
                   activeTrackColor: AppColors.getIosBlue(brightness),
@@ -200,21 +192,16 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               // features.e2ee 强制置 false（imboy_policy:apply_hard_off_feature_overrides/2），
               // 此时这三个入口点进去只会空转/报错，故整组隐藏。
               if (AppFeatureRegistry.isEnabled(FeatureKeys.e2ee)) ...[
-                ImBoySettingsTile(
+                DetailSettingsTile(
                   title: Text(t.account.refreshDeviceKey),
                   subtitle: Text(t.account.refreshDeviceKeyHint),
-                  leading: _buildIcon(
-                    CupertinoIcons.refresh,
-                    AppColors.iosBlue,
-                  ),
+                  leading: _buildIcon(CupertinoIcons.refresh),
                   onTap: _isRefreshingKeys ? null : _handleRefreshDeviceKey,
                 ),
-                ImBoySettingsTile(
+                DetailSettingsTile(
                   title: Text(t.group.e2eeKeyManagement),
                   subtitle: Text(t.group.e2eeKeyManagementSubtitle),
-                  // B3: 与同 section 的「刷新设备密钥」「合规审计密钥」统一为
-                  // iosBlue（密钥/安全类入口同为蓝色），iosGreen 留给非安全项。
-                  leading: _buildIcon(CupertinoIcons.lock, AppColors.iosBlue),
+                  leading: _buildIcon(CupertinoIcons.lock),
                   onTap: () => Navigator.push(
                     context,
                     CupertinoPageRoute<void>(
@@ -223,10 +210,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   ),
                 ),
                 // 合规审计密钥信息（compliance_e2ee 模式锚定核验，审计 P1-1）
-                ImBoySettingsTile(
+                DetailSettingsTile(
                   title: Text(t.main.complianceKeyInfoTitle),
                   subtitle: Text(t.main.complianceKeyInfoHint),
-                  leading: _buildIcon(CupertinoIcons.shield, AppColors.iosBlue),
+                  leading: _buildIcon(CupertinoIcons.shield),
                   onTap: () => Navigator.push(
                     context,
                     CupertinoPageRoute<void>(
@@ -244,32 +231,23 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           child: ImBoySettingsSection(
             header: Text(t.common.sectionHelpAbout.toUpperCase()),
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.updateLog),
-                leading: _buildIcon(
-                  CupertinoIcons.arrow_2_circlepath,
-                  AppColors.iosGreen,
-                ),
+                leading: _buildIcon(CupertinoIcons.arrow_2_circlepath),
                 onTap: () => _openMarkdown(
                   t.common.updateLog,
                   "asset://docs/changelog.md",
                 ),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.helpDocument),
-                leading: _buildIcon(
-                  CupertinoIcons.question_circle,
-                  AppColors.iosBlue,
-                ),
+                leading: _buildIcon(CupertinoIcons.question_circle),
                 onTap: () =>
                     _openMarkdown(t.common.helpDocument, "asset://docs/FAQ.md"),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.main.privacyPolicy),
-                leading: _buildIcon(
-                  CupertinoIcons.exclamationmark_shield,
-                  AppColors.iosOrange,
-                ),
+                leading: _buildIcon(CupertinoIcons.exclamationmark_shield),
                 onTap: () => _openMarkdown(
                   t.main.privacyPolicy,
                   "asset://docs/privacy-policy.md",
@@ -278,14 +256,14 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               // TermsOfServicePage 内容是完整的（6 章正式条款），路由也注册了，
               // 但全项目零跳转点 —— 用户根本看不到服务条款，只能看到隐私政策。
               // 对要对外销售的产品这是合规缺口（QA#58）。
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.main.termsOfService),
-                leading: _buildIcon(CupertinoIcons.doc_text, AppColors.iosGray),
+                leading: _buildIcon(CupertinoIcons.doc_text),
                 onTap: () => context.push('/terms_of_service'),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.common.aboutApp),
-                leading: _buildIcon(CupertinoIcons.info, AppColors.primary),
+                leading: _buildIcon(CupertinoIcons.info),
                 trailing: _buildAboutTrailing(),
                 onTap: _showAboutDialog,
               ),
@@ -299,9 +277,9 @@ class _SettingPageState extends ConsumerState<SettingPage> {
             child: ImBoySettingsSection(
               header: Text(t.common.developer),
               children: [
-                ImBoySettingsTile(
+                DetailSettingsTile(
                   title: Text(t.common.switchEnvironment),
-                  leading: _buildIcon(CupertinoIcons.hammer, AppColors.iosRed),
+                  leading: _buildIcon(CupertinoIcons.hammer),
                   trailing: _buildEnvDropdown(),
                 ),
               ],
@@ -312,7 +290,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Center(child: Text(t.account.logOut)),
                 destructive: true,
                 trailing: const SizedBox.shrink(),
@@ -326,7 +304,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
         SliverToBoxAdapter(
           child: ImBoySettingsSection(
             children: [
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Text(t.organization.experienceUi.accountCheck),
                 leading: const Icon(CupertinoIcons.checkmark_shield),
                 onTap: () => Navigator.of(context).push(
@@ -335,7 +313,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
                   ),
                 ),
               ),
-              ImBoySettingsTile(
+              DetailSettingsTile(
                 title: Center(child: Text(t.account.logoutAccount)),
                 destructive: true,
                 trailing: const SizedBox.shrink(),
@@ -348,90 +326,80 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     );
   }
 
-  Widget _buildIcon(IconData icon, Color color) {
-    return Container(
-      width: 28,
-      height: 28,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(6),
+  Widget _buildIcon(IconData icon) => SizedBox.square(
+    dimension: AppSizes.iconSizeLarge,
+    child: Icon(
+      icon,
+      size: AppSizes.iconSizeMedium,
+      color: AppColors.getTextColor(
+        Theme.of(context).brightness,
+        isSecondary: true,
       ),
-      child: Icon(icon, color: AppColors.onPrimary, size: 20),
-    );
-  }
-
-  Widget _buildValueTrailing(String value) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          value,
-          style: context.textStyle(
-            FontSizeType.subheadline,
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppColors.darkTextSecondary
-                : AppColors.lightTextSecondary,
-          ),
-        ),
-        const SizedBox(width: AppSpacing.small),
-        const CupertinoListTileChevron(),
-      ],
-    );
-  }
+    ),
+  );
 
   Widget _buildAboutTrailing() {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasUpdate = AppUpgradeService.to.hasUpdate;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          "${t.common.version} $appVsn",
-          style: context.textStyle(
-            FontSizeType.subheadline,
-            color: isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.lightTextSecondary,
-          ),
-        ),
-        if (hasUpdate) ...[
-          const SizedBox(width: AppSpacing.small),
-          Container(
-            width: 8,
-            height: 8,
-            decoration: const BoxDecoration(
-              color: AppColors.iosRed,
-              shape: BoxShape.circle,
+    return SizedBox(
+      width: MediaQuery.sizeOf(context).width * .38,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              "${t.common.version} $appVsn",
+              style: context.textStyle(
+                FontSizeType.subheadline,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
+              ),
             ),
           ),
+          if (hasUpdate) ...[
+            const SizedBox(width: AppSpacing.small),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.iosRed,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+          const SizedBox(width: AppSpacing.small),
+          const CupertinoListTileChevron(),
         ],
-        const SizedBox(width: AppSpacing.small),
-        const CupertinoListTileChevron(),
-      ],
+      ),
     );
   }
 
   Widget _buildEnvDropdown() {
     return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: _normalizeEnvValue(currentEnv),
-        isDense: true,
-        style: context.textStyle(
-          FontSizeType.normal,
-          color: AppColors.iosRed,
-          fontWeight: FontWeight.w600,
+      child: SizedBox(
+        width: MediaQuery.sizeOf(context).width * .36,
+        child: DropdownButton<String>(
+          isExpanded: true,
+          value: _normalizeEnvValue(currentEnv),
+          isDense: true,
+          style: context.textStyle(
+            FontSizeType.normal,
+            color: AppColors.iosRed,
+            fontWeight: FontWeight.w600,
+          ),
+          items: const [
+            DropdownMenuItem(value: 'local', child: Text('Local')),
+            DropdownMenuItem(value: 'dev', child: Text('Development')),
+            DropdownMenuItem(value: 'pro', child: Text('Production')),
+          ],
+          onChanged: (value) {
+            if (strNoEmpty(value)) {
+              currentEnv = value!;
+              switchEnvironment(currentEnv);
+            }
+          },
         ),
-        items: const [
-          DropdownMenuItem(value: 'local', child: Text('Local')),
-          DropdownMenuItem(value: 'dev', child: Text('Development')),
-          DropdownMenuItem(value: 'pro', child: Text('Production')),
-        ],
-        onChanged: (value) {
-          if (strNoEmpty(value)) {
-            currentEnv = value!;
-            switchEnvironment(currentEnv);
-          }
-        },
       ),
     );
   }

@@ -1,234 +1,138 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../profile_provider.dart';
-
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
-/// 资料完善度组件 - iOS 17 Premium 风格
+import '../profile_provider.dart';
+
+/// A quiet summary retains the provider's score and all completion actions.
 class ProfileCompletionWidget extends ConsumerWidget {
   const ProfileCompletionWidget({super.key, this.onSuggestionTap});
-
-  /// 点击建议 chip 时回调，入参是 [ProfileSuggestion.key]。
-  /// 跳转由页面持有（部分建议走路由、部分走 modal），组件只负责上报。
   final void Function(String key)? onSuggestionTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileState = ref.watch(profileProvider);
-    final profileNotifier = ref.read(profileProvider.notifier);
-    final brightness = Theme.of(context).brightness;
-    final isDark = brightness == Brightness.dark;
-
+    final state = ref.watch(profileProvider);
+    final suggestions = ref
+        .read(profileProvider.notifier)
+        .getCompletionSuggestions();
     return Container(
+      key: const ValueKey('profile-completion'),
       margin: const EdgeInsets.symmetric(
         horizontal: AppSpacing.regular,
         vertical: AppSpacing.small,
       ),
-      padding: const EdgeInsets.all(AppSpacing.large),
       decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.darkSurfaceGroupedTertiary
-            : AppColors.lightSurface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.lightTextPrimary.withValues(
-              alpha: isDark ? 0.2 : 0.04,
-            ),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: AppColors.getSurfaceColor(Theme.of(context).brightness),
+        borderRadius: AppRadius.borderRadiusCell,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                t.chat.profileCompleteness,
-                style: context.textStyle(
-                  FontSizeType.body,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: AppSpacing.tiny,
-                ),
-                decoration: BoxDecoration(
-                  color: profileState.completenessColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  profileState.completenessLevel,
-                  style: context.textStyle(
-                    FontSizeType.small,
-                    fontWeight: FontWeight.w600,
-                    color: profileState.completenessColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: AppSpacing.regular),
-
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isDark ? AppColors.iosGray4 : AppColors.iosGray5,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: (profileState.completeness / 100).clamp(
-                          0.05,
-                          1.0,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: profileState.completenessColor,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.small),
-                    Text(
-                      t.chat.profileProgress(
-                        percent: profileState.completeness,
-                      ),
-                      style: context.textStyle(
-                        FontSizeType.footnote,
-                        color: AppColors.iosGray,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.regular),
-              Text(
-                '${profileState.completeness}%',
-                style: context
-                    .textStyle(
-                      FontSizeType.largeTitle,
-                      fontWeight: FontWeight.bold,
-                      color: profileState.completenessColor,
-                    )
-                    .copyWith(letterSpacing: -1),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: AppSpacing.regular),
-
-          _buildSuggestions(context, profileNotifier, isDark),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSuggestions(
-    BuildContext context,
-    ProfileNotifier profileNotifier,
-    bool isDark,
-  ) {
-    final suggestions = profileNotifier.getCompletionSuggestions();
-    if (suggestions.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.medium,
-          vertical: AppSpacing.small,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.iosGreen.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
+      child: CupertinoButton(
+        padding: const EdgeInsets.all(AppSpacing.regular),
+        onPressed: suggestions.isEmpty || onSuggestionTap == null
+            ? null
+            : () => _showSuggestions(context, suggestions),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(
-              CupertinoIcons.checkmark_circle,
-              color: AppColors.iosGreen,
-              size: 18,
-            ),
-            const SizedBox(width: AppSpacing.small),
-            Text(
-              t.chat.profileCompleted,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: AppColors.iosGreen,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            _summary(context, state, suggestions),
+            AppSpacing.verticalMedium,
+            _progress(context, state),
           ],
         ),
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          t.common.completionSuggestions,
-          style: context.textStyle(
-            FontSizeType.footnote,
-            fontWeight: FontWeight.w500,
-            color: AppColors.iosGray,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: suggestions
-              .take(3)
-              .map(
-                // InkWell 自带 button 语义，无需再包 Semantics（会重复播报）。
-                (suggestion) => GestureDetector(
-                  onTap: onSuggestionTap == null
-                      ? null
-                      : () => onSuggestionTap!(suggestion.key),
-                  // DESIGN.md §11.5：可点击区域最小 44×44pt，
-                  // chip 视觉高度只有 ~28pt，靠 minHeight 撑出触达区。
-                  child: Container(
-                    constraints: const BoxConstraints(minHeight: 44),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.medium,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      suggestion.label,
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-      ],
+      ),
     );
   }
+
+  Widget _summary(
+    BuildContext context,
+    ProfileState state,
+    List<ProfileSuggestion> suggestions,
+  ) => Row(
+    children: [
+      Expanded(child: _title(context, suggestions)),
+      AppSpacing.horizontalSmall,
+      Text(
+        '${state.completeness}%',
+        style: context.textStyle(
+          FontSizeType.normal,
+          color: AppColors.getTextColor(
+            Theme.of(context).brightness,
+            isSecondary: true,
+          ),
+        ),
+      ),
+      if (suggestions.isNotEmpty && onSuggestionTap != null) ...[
+        AppSpacing.horizontalSmall,
+        const CupertinoListTileChevron(),
+      ],
+    ],
+  );
+
+  Widget _title(BuildContext context, List<ProfileSuggestion> suggestions) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            context.t.chat.profileCompleteness,
+            style: context.textStyle(
+              FontSizeType.body,
+              color: AppColors.getTextColor(Theme.of(context).brightness),
+            ),
+          ),
+          AppSpacing.verticalTiny,
+          Text(
+            suggestions.isEmpty
+                ? context.t.chat.profileCompleted
+                : suggestions.take(2).map((s) => s.label).join(' · '),
+            style: context.textStyle(
+              FontSizeType.footnote,
+              color: AppColors.getTextColor(
+                Theme.of(context).brightness,
+                isSecondary: true,
+              ),
+            ),
+          ),
+        ],
+      );
+
+  Widget _progress(
+    BuildContext context,
+    ProfileState state,
+  ) => LinearProgressIndicator(
+    value: (state.completeness / 100).clamp(0, 1),
+    minHeight: AppSpacing.tiny,
+    color: AppColors.primary,
+    backgroundColor: AppColors.getIosSeparator(Theme.of(context).brightness),
+    semanticsLabel:
+        '${context.t.chat.profileCompleteness} · ${state.completenessLevel}',
+    semanticsValue: '${state.completeness}%',
+  );
+
+  Future<void> _showSuggestions(
+    BuildContext context,
+    List<ProfileSuggestion> suggestions,
+  ) => showCupertinoModalPopup<void>(
+    context: context,
+    builder: (sheet) => CupertinoActionSheet(
+      title: Text(context.t.common.completionSuggestions),
+      actions: [
+        for (final suggestion in suggestions)
+          CupertinoActionSheetAction(
+            onPressed: () {
+              Navigator.pop(sheet);
+              onSuggestionTap!(suggestion.key);
+            },
+            child: Text(suggestion.label),
+          ),
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        onPressed: () => Navigator.pop(sheet),
+        child: Text(context.t.common.cancel),
+      ),
+    ),
+  );
 }

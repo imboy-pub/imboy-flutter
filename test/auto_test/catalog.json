@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "c1addac7397068813b1233d72d8d92b0c503bede",
-    "backend_head": "466d8c7b27effafd0c919127d7adb3524361af8b",
-    "integration_test_count": 165,
+    "app_head": "e37aacffcd02e95d32e1d1422f24e1943c1f75d8",
+    "backend_head": "30b9d332f290f4da3fb49ae615af24e57a6431aa",
+    "integration_test_count": 166,
     "lib_page_count": 169,
     "module_page_count": 40,
     "route_page_component_count": 165,
-    "spec_count": 30
+    "spec_count": 31
   },
   "entries": [
     {
@@ -1856,6 +1856,27 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/refined_pages_layout_smoke_test.dart",
+      "target": "integration_test/refined_pages_layout_smoke_test.dart",
+      "target_sha256": "2c75c2f0c6ae8b18a5e290f8009eae4f33f3a68901f79705d83ef256af29e5df",
+      "sources": [
+        "lib/modules/attachments/personal_attachments_page.dart",
+        "lib/modules/organization/presentation/organization_picker_page.dart",
+        "lib/page/mine/setting/setting_page.dart",
+        "lib/page/personal_info/profile/profile_page.dart"
+      ],
+      "dependencies": [],
+      "risk": "local-write",
+      "requirements": [
+        "device.android"
+      ],
+      "tags": [
+        "refined_pages_layout_smoke_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/rtc/c2c_call_matrix_a_side_test.dart",
       "target": "integration_test/rtc/c2c_call_matrix_a_side_test.dart",
       "target_sha256": "1a3ea3a3c313a8ac2ee9b3f8b240d8407eab25f4526a6a18ba5204b808496718",
@@ -2795,10 +2816,12 @@
     },
     {
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
-      "mapped_targets": [],
+      "mapped_targets": [
+        "integration_test/refined_pages_layout_smoke_test.dart"
+      ],
       "dependency_targets": [],
       "route_registered": true,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""
@@ -3890,10 +3913,12 @@
     },
     {
       "page": "lib/page/mine/setting/setting_page.dart",
-      "mapped_targets": [],
+      "mapped_targets": [
+        "integration_test/refined_pages_layout_smoke_test.dart"
+      ],
       "dependency_targets": [],
       "route_registered": true,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""
@@ -4106,10 +4131,12 @@
     },
     {
       "page": "lib/page/personal_info/profile/profile_page.dart",
-      "mapped_targets": [],
+      "mapped_targets": [
+        "integration_test/refined_pages_layout_smoke_test.dart"
+      ],
       "dependency_targets": [],
       "route_registered": true,
-      "in_spec_sources": false,
+      "in_spec_sources": true,
       "excluded": false,
       "exclusion_code": null,
       "details": ""

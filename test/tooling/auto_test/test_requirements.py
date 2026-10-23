@@ -56,6 +56,7 @@ REQUIRED_SPEC_FILES = frozenset({
     'organization-home-device-preparation.json',
     'passport-login.json',
     'passport-signup.json',
+    'refined-pages-isolated-device.json',
     'wallet-transfer.json',
 })
 

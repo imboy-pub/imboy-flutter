@@ -2,12 +2,12 @@
   "schema_version": 1,
   "generated_from": {
     "app_head": "see-catalog",
-    "ledger_count": 170,
-    "ledger_row_count": 1884,
+    "ledger_count": 171,
+    "ledger_row_count": 1897,
     "lib_page_count": 169,
     "module_page_count": 40,
     "route_page_component_count": 165,
-    "function_count": 2114,
+    "function_count": 2116,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -22852,6 +22852,29 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:mine:setting_page:019",
+      "page": "lib/page/mine/setting/setting_page.dart",
+      "route_or_entry": "SettingPage",
+      "route_registered": true,
+      "source": "test/auto_test/mine/setting_page.md",
+      "control": "adaptive_layout",
+      "action": "分组设置在窄屏、大字号及深色模式保持可读与可操作",
+      "expected_oracle": "合成真机设置页浅色正常与深色双倍字号无框架布局异常，语言和空间入口进入stub；危险操作未执行",
+      "details": "中性图标、账号操作分组；长侧值下置，保留全部入口、开关与确认流程",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/refined_pages_layout_smoke_test.dart",
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:mine:storage_space_page:001",
       "page": "lib/page/mine/storage_space/storage_space_page.dart",
       "route_or_entry": "StorageSpacePage",
@@ -29227,11 +29250,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "menu_item",
-      "action": "触发第 1 处 menu_item 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "显示唯一当前空间标记",
+      "expected_oracle": "当前个人或企业空间仅一处勾选，角色与归档信息保留",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29250,11 +29273,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 2 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "选择个人空间",
+      "expected_oracle": "完成个人模式切换；失败提示并恢复原空间",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29273,11 +29296,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "menu_item",
-      "action": "触发第 3 处 menu_item 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "选择企业空间",
+      "expected_oracle": "通过原子切换流程进入目标企业，失败保持可恢复",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29296,11 +29319,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "menu_item",
-      "action": "触发第 4 处 menu_item 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "切换期间防止重复操作",
+      "expected_oracle": "显示忙碌状态，重复点击不触发并行切换",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29319,11 +29342,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 5 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "加载企业空间列表",
+      "expected_oracle": "成功展示列表；失败保留加入创建入口与重试",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29342,11 +29365,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 6 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "重试失败的企业列表加载",
+      "expected_oracle": "重试成功恢复列表，失败仍可再次操作",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29365,11 +29388,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 7 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "打开加入企业入口",
+      "expected_oracle": "展示原加入对话框，取消不改变当前空间",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29388,11 +29411,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 8 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "校验邀请码并显示目标企业",
+      "expected_oracle": "沿用原预览校验，失败清晰提示且不切换",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29411,11 +29434,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 9 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "确认加入企业",
+      "expected_oracle": "成功后沿用原缓存与切换流程，失败可恢复",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29434,11 +29457,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 10 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "打开创建企业入口",
+      "expected_oracle": "进入原企业页面，返回保持当前选择",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29457,11 +29480,11 @@
       "page": "lib/modules/organization/presentation/organization_picker_page.dart",
       "route_or_entry": "OrganizationPickerPage",
       "route_registered": true,
-      "source": "generated:module_page",
-      "control": "button",
-      "action": "触发第 11 处 button 交互入口",
-      "expected_oracle": "expect(<控件可观察状态>)",
-      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "source": "test/auto_test/organization/organization_picker_page.md",
+      "control": "space_picker",
+      "action": "窄屏与大字号下显示主次操作",
+      "expected_oracle": "合成真机空间列表个人空间不重复组头，加入/创建按钮在深色双倍字号完整可读；未执行真实企业切换或加入",
+      "details": "声明页面要求；真机合成布局覆盖不代表实际加入或切换业务验收",
       "platforms": [
         "android",
         "macos"
@@ -29471,7 +29494,7 @@
         "device.macos"
       ],
       "fixture": "pending:authorized-isolated",
-      "test_target": null,
+      "test_target": "integration_test/refined_pages_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -32669,6 +32692,29 @@
       ],
       "fixture": "pending:authorized-isolated",
       "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:personal_info:profile_page:013",
+      "page": "lib/page/personal_info/profile/profile_page.dart",
+      "route_or_entry": "ProfilePage",
+      "route_registered": true,
+      "source": "test/auto_test/personal_info/profile_page.md",
+      "control": "adaptive_layout",
+      "action": "紧凑资料摘要、真实完善度与长字段自适应布局",
+      "expected_oracle": "合成真机资料页无背景紧凑摘要，完整度可见百分比一次，长资料字段在深色双倍字号可读；不执行上传和资料保存",
+      "details": "无背景时紧凑摘要，有背景保留展示及编辑；百分比仅一次，联系方式仍只读",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": "integration_test/refined_pages_layout_smoke_test.dart",
       "disposition": "required",
       "exclusion_code": null
     },
@@ -48825,7 +48871,7 @@
       "module": "organization",
       "function_count": 11,
       "route_registered": true,
-      "has_ledger": false,
+      "has_ledger": true,
       "ledger_generated": false
     },
     {
@@ -49647,7 +49693,7 @@
     {
       "page": "lib/page/mine/setting/setting_page.dart",
       "module": "mine",
-      "function_count": 18,
+      "function_count": 19,
       "route_registered": true,
       "has_ledger": true,
       "ledger_generated": false
@@ -49815,7 +49861,7 @@
     {
       "page": "lib/page/personal_info/profile/profile_page.dart",
       "module": "personal_info",
-      "function_count": 12,
+      "function_count": 13,
       "route_registered": true,
       "has_ledger": true,
       "ledger_generated": false
