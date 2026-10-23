@@ -40,3 +40,17 @@ aiReplaceNotice: "僅替換目前帳號在本裝置的此服務設定，不影�
 aiDeleteTitle: "刪除本裝置金鑰？"
 aiDeleteNotice: "停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。"
 aiCancel: "取消"
+
+aiDoubaoTitle: "豆包語音 2.0"
+aiDoubaoPurpose: "錄音轉寫與臨時說話人標籤"
+aiDoubaoExternalNotice: "轉寫時音訊會傳送至火山引擎豆包語音，費用由供應商收取。僅設定本裝置 API Key；不會沿用 MiniMax 金鑰。"
+aiDoubaoPendingNotice: "豆包轉寫流程尚未接通，目前僅可儲存裝置設定。儲存不代表連線已驗證或可以開始轉寫。"
+
+aiProviderPending: "供應商仍在處理，進度已儲存。稍後繼續查詢，不會重新提交錄音。"
+aiProviderCancel: "停止此轉寫"
+aiProviderCancelNotice: "將撤銷 IMBoy 的來源與操作授權；無法保證供應商停止處理或退款。"
+aiProviderResubmit: "重新提交錄音"
+aiProviderResubmitNotice: "將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？"
+aiProviderCancelled: "轉寫已停止，已有錄音保留。"
+aiProviderResumePreparation: "繼續準備轉寫"
+aiProviderResumeNotice: "原任務尚未提交至供應商。本次將重新準備音訊來源，確認後依目前權限與處理同意繼續。"

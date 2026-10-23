@@ -59,11 +59,7 @@ class _ProviderRow extends ConsumerWidget {
       loading: () => t.talkRecord.aiLoading,
       error: (error, _) => talkRecordAiError(error),
     );
-    final use = provider == TalkRecordAiProvider.doubao
-        ? t.talkRecord.aiDoubaoPendingNotice
-        : provider.isTranscription
-        ? t.talkRecord.aiMinimaxPurpose
-        : t.talkRecord.aiZhipuPurpose;
+    final use = talkRecordAiProviderPurpose(provider);
     return TalkRecordAiEntryRow(
       key: ValueKey('talk_record_ai_${provider.name}'),
       title: talkRecordAiProviderTitle(provider),

@@ -7,6 +7,9 @@ import 'package:dio/dio.dart';
 
 import 'talk_record_ai_credentials.dart';
 import 'talk_record_minimax_result.dart';
+import 'talk_record_doubao_result.dart';
+
+part 'talk_record_doubao_http.dart';
 
 enum TalkRecordAiFailureCode {
   inputInvalid,
@@ -66,6 +69,7 @@ class TalkRecordAiProviderHttp {
     required this.credentials,
     required this.beforeDispatch,
     required this.verifyCurrent,
+    this.beforeFetch,
     this.adapterFactory,
   });
 
@@ -74,6 +78,7 @@ class TalkRecordAiProviderHttp {
   final TalkRecordAiCredentials credentials;
   final TalkRecordAiBeforeDispatch beforeDispatch;
   final void Function() verifyCurrent;
+  final void Function()? beforeFetch;
   final HttpClientAdapter Function()? adapterFactory;
 
   Future<Map<String, Object?>> transcribe(
@@ -162,10 +167,16 @@ class TalkRecordAiProviderHttp {
   Future<TalkRecordAiDispatchCredential> _prepare(
     TalkRecordAiDispatchIntent intent,
     CancelToken token,
+  ) => _prepareUsing(intent, token, beforeDispatch);
+
+  Future<TalkRecordAiDispatchCredential> _prepareUsing(
+    TalkRecordAiDispatchIntent intent,
+    CancelToken token,
+    TalkRecordAiBeforeDispatch gate,
   ) async {
     try {
       _guard(token);
-      await beforeDispatch(intent);
+      await gate(intent);
       final credential = await credentials.acquireForDispatch(intent.provider);
       _guard(token);
       if (credential == null) {
@@ -213,28 +224,48 @@ class TalkRecordAiProviderHttp {
     CancelToken token,
   ) async {
     final credential = await _prepare(intent, token);
+    final result = await _exchange(
+      data,
+      intent.provider,
+      intent.provider.endpoint,
+      {
+        'Authorization': 'Bearer ${credential.value}',
+        'Accept': 'application/json',
+      },
+      credential,
+      token,
+    );
+    return result.body;
+  }
+
+  Future<({Map<String, Object?> body, Map<String, List<String>> headers})>
+  _exchange(
+    Object data,
+    TalkRecordAiProvider provider,
+    String endpoint,
+    Map<String, Object?> headers,
+    TalkRecordAiDispatchCredential credential,
+    CancelToken token,
+  ) async {
     var attempted = false;
     Dio? dio;
     try {
       dio = _client(() {
         _guard(token);
         credential.verifyCurrent();
+        beforeFetch?.call();
         attempted = true;
       });
       final response = await dio.post<ResponseBody>(
-        intent.provider.endpoint,
+        endpoint,
         data: data,
         cancelToken: token,
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer ${credential.value}',
-            'Accept': 'application/json',
-          },
-        ),
+        options: Options(headers: headers),
       );
       final body = response.data;
       if (body == null) throw _unknown(response.statusCode);
-      return await _receive(body, credential, intent.provider, token);
+      final decoded = await _receive(body, credential, provider, token);
+      return (body: decoded, headers: body.headers);
     } on TalkRecordAiProviderException catch (error) {
       if (attempted &&
           error.outcome == TalkRecordAiRequestOutcome.notDispatched) {

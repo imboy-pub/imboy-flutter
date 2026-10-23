@@ -2496,6 +2496,18 @@ class _Translations$talkRecord$it_IT extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => 'Eliminare la chiave locale?';
 	@override String get aiDeleteNotice => 'Interrompe le nuove richieste a questo servizio. Registrazioni e risultati restano disponibili. Le richieste già inviate al fornitore non possono essere richiamate.';
 	@override String get aiCancel => 'Annulla';
+	@override String get aiDoubaoTitle => 'Doubao Speech 2.0';
+	@override String get aiDoubaoPurpose => 'Trascrizione audio ed etichette temporanee dei parlanti';
+	@override String get aiDoubaoExternalNotice => 'La trascrizione invia audio a Volcengine Doubao Speech e può comportare costi. Configura una chiave API sul dispositivo; le chiavi MiniMax non vengono riutilizzate.';
+	@override String get aiDoubaoPendingNotice => 'La trascrizione Doubao non è ancora collegata. Puoi solo salvare le impostazioni del dispositivo. Il salvataggio non verifica la connessione né abilita la trascrizione.';
+	@override String get aiProviderPending => 'Il fornitore sta elaborando. Avanzamento salvato. Riprendi per consultare il risultato senza reinviare audio.';
+	@override String get aiProviderCancel => 'Interrompi trascrizione';
+	@override String get aiProviderCancelNotice => 'Revoca accesso alla sorgente e operazioni IMBoy. Non garantisce arresto del fornitore o rimborso.';
+	@override String get aiProviderResubmit => 'Invia audio di nuovo';
+	@override String get aiProviderResubmitNotice => 'Crea una nuova trascrizione e può causare costi duplicati. La richiesta originale resta. Reinviare e acconsentire al trattamento?';
+	@override String get aiProviderCancelled => 'Trascrizione interrotta. Audio esistente conservato.';
+	@override String get aiProviderResumePreparation => 'Continua la preparazione';
+	@override String get aiProviderResumeNotice => 'L’attività originale non è stata inviata. Prepara nuovamente la sorgente audio con permessi e consenso attuali.';
 }
 
 // Path: welcome
@@ -5875,6 +5887,18 @@ extension on TranslationsItIt {
 			'talkRecord.aiDeleteTitle' => 'Eliminare la chiave locale?',
 			'talkRecord.aiDeleteNotice' => 'Interrompe le nuove richieste a questo servizio. Registrazioni e risultati restano disponibili. Le richieste già inviate al fornitore non possono essere richiamate.',
 			'talkRecord.aiCancel' => 'Annulla',
+			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
+			'talkRecord.aiDoubaoPurpose' => 'Trascrizione audio ed etichette temporanee dei parlanti',
+			'talkRecord.aiDoubaoExternalNotice' => 'La trascrizione invia audio a Volcengine Doubao Speech e può comportare costi. Configura una chiave API sul dispositivo; le chiavi MiniMax non vengono riutilizzate.',
+			'talkRecord.aiDoubaoPendingNotice' => 'La trascrizione Doubao non è ancora collegata. Puoi solo salvare le impostazioni del dispositivo. Il salvataggio non verifica la connessione né abilita la trascrizione.',
+			'talkRecord.aiProviderPending' => 'Il fornitore sta elaborando. Avanzamento salvato. Riprendi per consultare il risultato senza reinviare audio.',
+			'talkRecord.aiProviderCancel' => 'Interrompi trascrizione',
+			'talkRecord.aiProviderCancelNotice' => 'Revoca accesso alla sorgente e operazioni IMBoy. Non garantisce arresto del fornitore o rimborso.',
+			'talkRecord.aiProviderResubmit' => 'Invia audio di nuovo',
+			'talkRecord.aiProviderResubmitNotice' => 'Crea una nuova trascrizione e può causare costi duplicati. La richiesta originale resta. Reinviare e acconsentire al trattamento?',
+			'talkRecord.aiProviderCancelled' => 'Trascrizione interrotta. Audio esistente conservato.',
+			'talkRecord.aiProviderResumePreparation' => 'Continua la preparazione',
+			'talkRecord.aiProviderResumeNotice' => 'L’attività originale non è stata inviata. Prepara nuovamente la sorgente audio con permessi e consenso attuali.',
 			'welcome.step1Title' => 'Connessione semplice',
 			'welcome.step1Desc' => 'Sperimenta la gioia di una comunicazione senza intoppi. In qualsiasi momento, ovunque.',
 			'welcome.step2Title' => 'Sicuro e privato',
@@ -5903,6 +5927,8 @@ extension on TranslationsItIt {
 			'workspace.brandingPreviewFallback' => 'Valore non impostato o non valido, uso del colore del tema predefinito',
 			'workspace.brandingSaved' => 'Impostazioni del brand salvate',
 			'workspace.brandingTitle' => 'Brand dell\'area di lavoro',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Modifica il ruolo nell\'area di lavoro di ${name}',
 			'workspace.channelDetailTitle' => 'Canale',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} iscritti',
@@ -5915,8 +5941,6 @@ extension on TranslationsItIt {
 			'workspace.createNameLabel' => 'Nome area di lavoro',
 			'workspace.createNameRequired' => 'Il nome dell\'area di lavoro non può essere vuoto',
 			'workspace.createSubmit' => 'Crea',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createSuccess' => 'Area di lavoro creata con successo',
 			'workspace.createTemplateChannel' => 'Canale Announcements (diventerai editore e iscritto del canale)',
 			'workspace.createTemplateGroup' => 'Gruppo General (diventerai membro del gruppo)',

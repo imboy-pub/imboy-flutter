@@ -5,19 +5,45 @@ import 'package:flutter/foundation.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:synchronized/synchronized.dart';
 
+enum TalkRecordAiAuthentication { bearer, apiKey }
+
 enum TalkRecordAiProvider {
-  doubao('', ''),
+  doubao(
+    'volc.seedasr.auc',
+    'https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit',
+    authentication: TalkRecordAiAuthentication.apiKey,
+    resourceId: 'volc.seedasr.auc',
+    queryEndpoint: 'https://openspeech.bytedance.com/api/v3/auc/bigmodel/query',
+  ),
   minimax('asr-1.0', 'https://api.minimax.cn/v1/speech_to_text'),
   zhipu(
     'glm-5.3-flash',
     'https://open.bigmodel.cn/api/paas/v4/chat/completions',
   );
 
-  const TalkRecordAiProvider(this.model, this.endpoint);
+  const TalkRecordAiProvider(
+    this.model,
+    this.endpoint, {
+    this.authentication = TalkRecordAiAuthentication.bearer,
+    this.resourceId,
+    this.queryEndpoint,
+  });
+  static const firstVersion = [doubao, minimax, zhipu];
+  final TalkRecordAiAuthentication authentication;
+  final String? resourceId;
+  final String? queryEndpoint;
+  String get authHeaderName =>
+      authentication == TalkRecordAiAuthentication.apiKey
+      ? 'X-Api-Key'
+      : 'Authorization';
   final String model;
   final String endpoint;
   bool get isTranscription => this != zhipu;
-  bool get executionAvailable => this != doubao;
+  static const doubaoEnabled = bool.fromEnvironment(
+    'TALK_RECORD_DOUBAO_ENABLED',
+    defaultValue: false,
+  );
+  bool get executionAvailable => this != doubao || doubaoEnabled;
 }
 
 /// Deployment and account scope; credentials never cross these boundaries.

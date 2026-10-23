@@ -491,6 +491,22 @@ final List<SmokeRoute> smokeRoutes = <SmokeRoute>[
   // Talk record routes: active smoke coverage, no quarantine.
   const SmokeRoute(name: 'talk_record_list', location: '/talk_record'),
   const SmokeRoute(
+    name: 'talk_record_ai_services',
+    location: '/talk_record/ai_services',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_ai_doubao',
+    location: '/talk_record/ai_services/doubao',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_ai_minimax',
+    location: '/talk_record/ai_services/minimax',
+  ),
+  const SmokeRoute(
+    name: 'talk_record_ai_zhipu',
+    location: '/talk_record/ai_services/zhipu',
+  ),
+  const SmokeRoute(
     name: 'talk_record_prepare',
     location: '/talk_record/prepare',
   ),

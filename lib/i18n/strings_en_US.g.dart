@@ -3027,10 +3027,6 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get aiServicesTitle => 'AI services';
 	@override String get aiServicesSubtitle => 'Use your own API accounts. Providers charge for usage.';
 	@override String get aiMinimaxTitle => 'MiniMax';
-	@override String get aiDoubaoTitle => 'Doubao Speech Recognition 2.0';
-	@override String get aiAsrProvider => 'Transcription service';
-	@override String get aiAsrOptionalNotice => 'AI transcription is optional. A configured MiniMax account is currently supported. Recording alone needs no AI key.';
-	@override String get aiDoubaoPendingNotice => 'Doubao file speech recognition 2.0 is not yet integrated and cannot run. You may save its key on this device. No processing job or audio transfer will start, and no other service will be selected automatically.';
 	@override String get aiZhipuTitle => 'Zhipu GLM-5.3-Flash';
 	@override String get aiMinimaxPurpose => 'Audio transcription and temporary speaker labels';
 	@override String get aiZhipuPurpose => 'Draft summaries, decisions and action items';
@@ -3060,7 +3056,7 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => 'Delete this device key?';
 	@override String get aiDeleteNotice => 'Stops new requests to this service. Existing recordings and results are retained. Requests already sent to the provider cannot be recalled.';
 	@override String get aiCancel => 'Cancel';
-	@override String get aiProcessingConsent => 'Continue in the foreground on this device only. Confirmation sends each chunk to the provider, which charges your account; local notices cannot guarantee an account spending cap. Permissions and consent are rechecked for every chunk. Confirmed chunks are not called again. Unknown outcomes stop processing and may already be charged; no automatic resend.';
+	@override String get aiProcessingConsent => 'The App submits and queries in the foreground only. An accepted provider task may continue processing and incur charges after you leave. Each step rechecks permission and consent. A known provider task ID resumes queries only; an unknown outcome without an ID stops without automatic resubmission. Local prompts cannot guarantee an account spending cap.';
 	@override String get aiProcessTranscribe => 'Transcribe / continue on this device';
 	@override String get aiProcessSummarize => 'Draft summary / continue on this device';
 	@override String get aiProcessingRunning => 'Processing on this device. Keep this page open.';
@@ -3068,12 +3064,26 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get aiProcessingKeyInvalid => 'Provider rejected the key. Check Settings → AI services on this device. Stopped without automatic resend.';
 	@override String get aiProcessingBalance => 'Provider balance is insufficient. Progress saved; stopped without automatic resend.';
 	@override String get aiProcessingUnknown => 'Provider outcome is unknown and may already be charged. Sending stopped. Review the charge and original execution before any resend.';
+	@override String get aiProcessingStopped => 'Processing stopped; recording retained. Check the device key, permissions, configuration and input. Unconfirmed provider requests are not called again automatically.';
+	@override String get aiDoubaoTitle => 'Doubao Speech 2.0';
+	@override String get aiDoubaoPurpose => 'Audio transcription and temporary speaker labels';
+	@override String get aiDoubaoExternalNotice => 'Transcription sends audio to Volcengine Doubao Speech and may incur provider charges. Configure a device API Key; MiniMax keys are never reused.';
+	@override String get aiDoubaoPendingNotice => 'Doubao transcription is not connected yet. You can save device settings only. Saving does not verify connectivity or enable transcription.';
+	@override String get aiProviderPending => 'The provider is still processing. Progress is saved. Continue later to query; audio will not be submitted again.';
+	@override String get aiProviderCancel => 'Stop transcription';
+	@override String get aiProviderCancelNotice => 'This revokes IMBoy source and operation access. It cannot guarantee the provider stops processing or refunds charges.';
+	@override String get aiProviderResubmit => 'Submit audio again';
+	@override String get aiProviderResubmitNotice => 'This creates a new transcription and may cause a duplicate charge. The original request remains. Submit again and consent to this processing?';
+	@override String get aiProviderCancelled => 'Transcription stopped. Existing audio is retained.';
+	@override String get aiProviderResumePreparation => 'Continue transcription preparation';
+	@override String get aiProviderResumeNotice => 'The original task has not been submitted to the provider. Prepare the audio source again and continue with current permissions and consent.';
+	@override String get aiAsrProvider => 'Transcription service';
+	@override String get aiAsrOptionalNotice => 'AI transcription is optional. A configured MiniMax account is currently supported. Recording alone needs no AI key.';
 	@override String get aiUnknownRecoveryTitle => 'Review unknown execution and request again';
 	@override String get aiUnknownRecoveryNotice => 'The results and charges of the requests below cannot be verified and may already have been charged. Confirming creates a new execution for the same job and requests only unconfirmed chunks again. Duplicate charges are possible. Previous unknown facts and results are retained. Cancel sends no recovery request.';
 	@override String get aiUnknownRecoveryRun => 'Previous execution';
 	@override String get aiUnknownRecoveryIntents => 'Chunk sequence / unknown request ID';
 	@override String get aiUnknownRecoveryConfirm => 'Reviewed; accept possible duplicate charges';
-	@override String get aiProcessingStopped => 'Processing stopped; recording retained. Check the device key, permissions, configuration and input. Unconfirmed provider requests are not called again automatically.';
 }
 
 // Path: welcome
@@ -7068,10 +7078,6 @@ extension on TranslationsEnUs {
 			'talkRecord.aiServicesTitle' => 'AI services',
 			'talkRecord.aiServicesSubtitle' => 'Use your own API accounts. Providers charge for usage.',
 			'talkRecord.aiMinimaxTitle' => 'MiniMax',
-			'talkRecord.aiDoubaoTitle' => 'Doubao Speech Recognition 2.0',
-			'talkRecord.aiAsrProvider' => 'Transcription service',
-			'talkRecord.aiAsrOptionalNotice' => 'AI transcription is optional. A configured MiniMax account is currently supported. Recording alone needs no AI key.',
-			'talkRecord.aiDoubaoPendingNotice' => 'Doubao file speech recognition 2.0 is not yet integrated and cannot run. You may save its key on this device. No processing job or audio transfer will start, and no other service will be selected automatically.',
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Audio transcription and temporary speaker labels',
 			'talkRecord.aiZhipuPurpose' => 'Draft summaries, decisions and action items',
@@ -7101,7 +7107,7 @@ extension on TranslationsEnUs {
 			'talkRecord.aiDeleteTitle' => 'Delete this device key?',
 			'talkRecord.aiDeleteNotice' => 'Stops new requests to this service. Existing recordings and results are retained. Requests already sent to the provider cannot be recalled.',
 			'talkRecord.aiCancel' => 'Cancel',
-			'talkRecord.aiProcessingConsent' => 'Continue in the foreground on this device only. Confirmation sends each chunk to the provider, which charges your account; local notices cannot guarantee an account spending cap. Permissions and consent are rechecked for every chunk. Confirmed chunks are not called again. Unknown outcomes stop processing and may already be charged; no automatic resend.',
+			'talkRecord.aiProcessingConsent' => 'The App submits and queries in the foreground only. An accepted provider task may continue processing and incur charges after you leave. Each step rechecks permission and consent. A known provider task ID resumes queries only; an unknown outcome without an ID stops without automatic resubmission. Local prompts cannot guarantee an account spending cap.',
 			'talkRecord.aiProcessTranscribe' => 'Transcribe / continue on this device',
 			'talkRecord.aiProcessSummarize' => 'Draft summary / continue on this device',
 			'talkRecord.aiProcessingRunning' => 'Processing on this device. Keep this page open.',
@@ -7109,12 +7115,26 @@ extension on TranslationsEnUs {
 			'talkRecord.aiProcessingKeyInvalid' => 'Provider rejected the key. Check Settings → AI services on this device. Stopped without automatic resend.',
 			'talkRecord.aiProcessingBalance' => 'Provider balance is insufficient. Progress saved; stopped without automatic resend.',
 			'talkRecord.aiProcessingUnknown' => 'Provider outcome is unknown and may already be charged. Sending stopped. Review the charge and original execution before any resend.',
+			'talkRecord.aiProcessingStopped' => 'Processing stopped; recording retained. Check the device key, permissions, configuration and input. Unconfirmed provider requests are not called again automatically.',
+			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
+			'talkRecord.aiDoubaoPurpose' => 'Audio transcription and temporary speaker labels',
+			'talkRecord.aiDoubaoExternalNotice' => 'Transcription sends audio to Volcengine Doubao Speech and may incur provider charges. Configure a device API Key; MiniMax keys are never reused.',
+			'talkRecord.aiDoubaoPendingNotice' => 'Doubao transcription is not connected yet. You can save device settings only. Saving does not verify connectivity or enable transcription.',
+			'talkRecord.aiProviderPending' => 'The provider is still processing. Progress is saved. Continue later to query; audio will not be submitted again.',
+			'talkRecord.aiProviderCancel' => 'Stop transcription',
+			'talkRecord.aiProviderCancelNotice' => 'This revokes IMBoy source and operation access. It cannot guarantee the provider stops processing or refunds charges.',
+			'talkRecord.aiProviderResubmit' => 'Submit audio again',
+			'talkRecord.aiProviderResubmitNotice' => 'This creates a new transcription and may cause a duplicate charge. The original request remains. Submit again and consent to this processing?',
+			'talkRecord.aiProviderCancelled' => 'Transcription stopped. Existing audio is retained.',
+			'talkRecord.aiProviderResumePreparation' => 'Continue transcription preparation',
+			'talkRecord.aiProviderResumeNotice' => 'The original task has not been submitted to the provider. Prepare the audio source again and continue with current permissions and consent.',
+			'talkRecord.aiAsrProvider' => 'Transcription service',
+			'talkRecord.aiAsrOptionalNotice' => 'AI transcription is optional. A configured MiniMax account is currently supported. Recording alone needs no AI key.',
 			'talkRecord.aiUnknownRecoveryTitle' => 'Review unknown execution and request again',
 			'talkRecord.aiUnknownRecoveryNotice' => 'The results and charges of the requests below cannot be verified and may already have been charged. Confirming creates a new execution for the same job and requests only unconfirmed chunks again. Duplicate charges are possible. Previous unknown facts and results are retained. Cancel sends no recovery request.',
 			'talkRecord.aiUnknownRecoveryRun' => 'Previous execution',
 			'talkRecord.aiUnknownRecoveryIntents' => 'Chunk sequence / unknown request ID',
 			'talkRecord.aiUnknownRecoveryConfirm' => 'Reviewed; accept possible duplicate charges',
-			'talkRecord.aiProcessingStopped' => 'Processing stopped; recording retained. Check the device key, permissions, configuration and input. Unconfirmed provider requests are not called again automatically.',
 			'welcome.step1Title' => 'Simple Connection',
 			'welcome.step1Desc' => 'Experience the joy of seamless communication. Anytime, anywhere.',
 			'welcome.step2Title' => 'Secure & Private',

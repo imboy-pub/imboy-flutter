@@ -2493,6 +2493,18 @@ class _Translations$talkRecord$ja_JP extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => '端末のキーを削除しますか？';
 	@override String get aiDeleteNotice => 'このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。';
 	@override String get aiCancel => 'キャンセル';
+	@override String get aiDoubaoTitle => 'Doubao 音声 2.0';
+	@override String get aiDoubaoPurpose => '音声文字起こしと一時的な話者ラベル';
+	@override String get aiDoubaoExternalNotice => '音声は文字起こしのため Volcengine Doubao Speech に送信され、料金が発生する場合があります。この端末の API Key を設定してください。MiniMax のキーは引き継ぎません。';
+	@override String get aiDoubaoPendingNotice => 'Doubao の文字起こし処理は未接続です。現在は端末の設定のみ保存できます。保存しても接続確認や文字起こしの開始は行いません。';
+	@override String get aiProviderPending => '処理は継続中です。進捗は保存済みです。後で結果を確認でき、音声は再送信しません。';
+	@override String get aiProviderCancel => '文字起こしを停止';
+	@override String get aiProviderCancelNotice => 'IMBoy の音声アクセスと操作権限を取り消します。提供元の処理停止や返金は保証できません。';
+	@override String get aiProviderResubmit => '音声を再送信';
+	@override String get aiProviderResubmitNotice => '新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？';
+	@override String get aiProviderCancelled => '停止しました。既存の録音は保持されます。';
+	@override String get aiProviderResumePreparation => '文字起こしの準備を続行';
+	@override String get aiProviderResumeNotice => '元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。';
 }
 
 // Path: welcome
@@ -5872,6 +5884,18 @@ extension on TranslationsJaJp {
 			'talkRecord.aiDeleteTitle' => '端末のキーを削除しますか？',
 			'talkRecord.aiDeleteNotice' => 'このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。',
 			'talkRecord.aiCancel' => 'キャンセル',
+			'talkRecord.aiDoubaoTitle' => 'Doubao 音声 2.0',
+			'talkRecord.aiDoubaoPurpose' => '音声文字起こしと一時的な話者ラベル',
+			'talkRecord.aiDoubaoExternalNotice' => '音声は文字起こしのため Volcengine Doubao Speech に送信され、料金が発生する場合があります。この端末の API Key を設定してください。MiniMax のキーは引き継ぎません。',
+			'talkRecord.aiDoubaoPendingNotice' => 'Doubao の文字起こし処理は未接続です。現在は端末の設定のみ保存できます。保存しても接続確認や文字起こしの開始は行いません。',
+			'talkRecord.aiProviderPending' => '処理は継続中です。進捗は保存済みです。後で結果を確認でき、音声は再送信しません。',
+			'talkRecord.aiProviderCancel' => '文字起こしを停止',
+			'talkRecord.aiProviderCancelNotice' => 'IMBoy の音声アクセスと操作権限を取り消します。提供元の処理停止や返金は保証できません。',
+			'talkRecord.aiProviderResubmit' => '音声を再送信',
+			'talkRecord.aiProviderResubmitNotice' => '新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？',
+			'talkRecord.aiProviderCancelled' => '停止しました。既存の録音は保持されます。',
+			'talkRecord.aiProviderResumePreparation' => '文字起こしの準備を続行',
+			'talkRecord.aiProviderResumeNotice' => '元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',
 			'welcome.step2Title' => '安全でプライベート',
@@ -5900,6 +5924,8 @@ extension on TranslationsJaJp {
 			'workspace.createNameHint' => '例：サイトリニューアルプロジェクト',
 			'workspace.createNameRequired' => 'ワークスペース名は空にできません',
 			'workspace.createSubmit' => '作成',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => 'ワークスペースを作成',
 			'workspace.createSuccess' => 'ワークスペースを作成しました',
 			'workspace.createIdempotentHit' => '同名のワークスペースが既に存在するため、そのまま開きます',
@@ -5912,8 +5938,6 @@ extension on TranslationsJaJp {
 			'workspace.overviewPinnedContent' => 'チャンネルのピン留めコンテンツ',
 			'workspace.overviewPinnedEmpty' => 'チャンネルにピン留めコンテンツはまだありません。グループのお知らせはここに集約されません（お知らせは各グループに属します）',
 			'workspace.overviewRecentFiles' => '最近のファイル',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '最近アップロードしたファイルがここに表示されます。添付ファイルは各チャンネル内でも確認できます',
 			'workspace.membersTitle' => 'ワークスペースメンバー',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count}人のメンバー',

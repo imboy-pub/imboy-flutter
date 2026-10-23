@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
+import 'talk_record_ai_factcheck.dart';
+
 String talkRecordAiCanonical(Object? value) {
   if (value is Map<String, dynamic>) {
     final keys = value.keys.toList()..sort(_compareKeys);
@@ -156,6 +158,13 @@ Map<String, dynamic> talkRecordAiSummary(
     }
   }
   final wire = Map<String, dynamic>.from(result);
+  // Text-level zero tolerance: every person/amount/date surface the model
+  // emitted must be grounded in the given segment texts, else the summary is
+  // not publishable (same blocking semantics as the citation gate above).
+  final factViolations = talkRecordAiSummaryFactViolations(result, segments);
+  if (factViolations.isNotEmpty) {
+    throw TalkRecordAiFactViolationException(factViolations);
+  }
   if (utf8.encode(jsonEncode(wire)).length > 1048576) {
     throw const FormatException('AI result size');
   }

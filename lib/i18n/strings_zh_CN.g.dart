@@ -8343,18 +8343,6 @@ class Translations$talkRecord$zh_CN {
 	/// zh-CN: 'MiniMax'
 	String get aiMinimaxTitle => 'MiniMax';
 
-	/// zh-CN: '豆包语音识别 2.0'
-	String get aiDoubaoTitle => '豆包语音识别 2.0';
-
-	/// zh-CN: '转写服务'
-	String get aiAsrProvider => '转写服务';
-
-	/// zh-CN: 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。'
-	String get aiAsrOptionalNotice => 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。';
-
-	/// zh-CN: '豆包文件语音识别 2.0 待接入，暂不可执行。可先在本设备保存 Key；不会创建处理任务或发送音频，也不会自动切换到其他服务。'
-	String get aiDoubaoPendingNotice => '豆包文件语音识别 2.0 待接入，暂不可执行。可先在本设备保存 Key；不会创建处理任务或发送音频，也不会自动切换到其他服务。';
-
 	/// zh-CN: '智谱 GLM-5.3-Flash'
 	String get aiZhipuTitle => '智谱 GLM-5.3-Flash';
 
@@ -8442,8 +8430,8 @@ class Translations$talkRecord$zh_CN {
 	/// zh-CN: '取消'
 	String get aiCancel => '取消';
 
-	/// zh-CN: '仅在本设备前台继续。按确认后逐块外发，费用由供应商收取；本机提示不能保证账户费用上限。每块发送前重验权限与处理同意。已确认块不再调用；结果未知时停止，可能已计费，不自动重发。'
-	String get aiProcessingConsent => '仅在本设备前台继续。按确认后逐块外发，费用由供应商收取；本机提示不能保证账户费用上限。每块发送前重验权限与处理同意。已确认块不再调用；结果未知时停止，可能已计费，不自动重发。';
+	/// zh-CN: 'App 仅在前台继续提交和查询。供应商受理后可能在离开 App 后继续处理并计费。每步重验权限和本次同意。已有供应商任务 ID 时只查询；无 ID 且结果未知时停止，不自动重新提交。本机提示不能保证账户费用上限。'
+	String get aiProcessingConsent => 'App 仅在前台继续提交和查询。供应商受理后可能在离开 App 后继续处理并计费。每步重验权限和本次同意。已有供应商任务 ID 时只查询；无 ID 且结果未知时停止，不自动重新提交。本机提示不能保证账户费用上限。';
 
 	/// zh-CN: '本设备转写 / 继续'
 	String get aiProcessTranscribe => '本设备转写 / 继续';
@@ -8466,6 +8454,51 @@ class Translations$talkRecord$zh_CN {
 	/// zh-CN: '供应商结果未知，可能已计费。已停止外发；需人工核对费用与原执行，不能直接重发。'
 	String get aiProcessingUnknown => '供应商结果未知，可能已计费。已停止外发；需人工核对费用与原执行，不能直接重发。';
 
+	/// zh-CN: '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。'
+	String get aiProcessingStopped => '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。';
+
+	/// zh-CN: '豆包语音 2.0'
+	String get aiDoubaoTitle => '豆包语音 2.0';
+
+	/// zh-CN: '录音转写与临时说话人标签'
+	String get aiDoubaoPurpose => '录音转写与临时说话人标签';
+
+	/// zh-CN: '转写时音频会发送至火山引擎豆包语音，费用由供应商收取。仅配置本设备 API Key；不会沿用 MiniMax 密钥。'
+	String get aiDoubaoExternalNotice => '转写时音频会发送至火山引擎豆包语音，费用由供应商收取。仅配置本设备 API Key；不会沿用 MiniMax 密钥。';
+
+	/// zh-CN: '豆包转写流程尚未接通，目前仅可保存设备配置。保存不代表连接已验证或可以开始转写。'
+	String get aiDoubaoPendingNotice => '豆包转写流程尚未接通，目前仅可保存设备配置。保存不代表连接已验证或可以开始转写。';
+
+	/// zh-CN: '供应商仍在处理，进度已保存。稍后点击继续查询，不会重新提交录音。'
+	String get aiProviderPending => '供应商仍在处理，进度已保存。稍后点击继续查询，不会重新提交录音。';
+
+	/// zh-CN: '停止此转写'
+	String get aiProviderCancel => '停止此转写';
+
+	/// zh-CN: '停止后将撤销 IMBoy 的来源与操作授权；不能保证供应商停止处理或退款。'
+	String get aiProviderCancelNotice => '停止后将撤销 IMBoy 的来源与操作授权；不能保证供应商停止处理或退款。';
+
+	/// zh-CN: '重新提交录音'
+	String get aiProviderResubmit => '重新提交录音';
+
+	/// zh-CN: '此操作会新建一次转写，可能重复计费。原请求不会被替换。确认重新提交并同意本次处理？'
+	String get aiProviderResubmitNotice => '此操作会新建一次转写，可能重复计费。原请求不会被替换。确认重新提交并同意本次处理？';
+
+	/// zh-CN: '本次转写已停止，已有录音保留。'
+	String get aiProviderCancelled => '本次转写已停止，已有录音保留。';
+
+	/// zh-CN: '继续准备转写'
+	String get aiProviderResumePreparation => '继续准备转写';
+
+	/// zh-CN: '原任务尚未向供应商提交。本次将重新准备音频来源；确认后按当前权限和处理同意继续。'
+	String get aiProviderResumeNotice => '原任务尚未向供应商提交。本次将重新准备音频来源；确认后按当前权限和处理同意继续。';
+
+	/// zh-CN: '转写服务'
+	String get aiAsrProvider => '转写服务';
+
+	/// zh-CN: 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。'
+	String get aiAsrOptionalNotice => 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。';
+
 	/// zh-CN: '核对未知执行并重新请求'
 	String get aiUnknownRecoveryTitle => '核对未知执行并重新请求';
 
@@ -8480,9 +8513,6 @@ class Translations$talkRecord$zh_CN {
 
 	/// zh-CN: '已核对，接受可能重复扣费'
 	String get aiUnknownRecoveryConfirm => '已核对，接受可能重复扣费';
-
-	/// zh-CN: '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。'
-	String get aiProcessingStopped => '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。';
 }
 
 // Path: welcome
@@ -13893,10 +13923,6 @@ extension on Translations {
 			'talkRecord.aiServicesTitle' => 'AI 服务',
 			'talkRecord.aiServicesSubtitle' => '使用你自己的 API 账户，费用由供应商收取。',
 			'talkRecord.aiMinimaxTitle' => 'MiniMax',
-			'talkRecord.aiDoubaoTitle' => '豆包语音识别 2.0',
-			'talkRecord.aiAsrProvider' => '转写服务',
-			'talkRecord.aiAsrOptionalNotice' => 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。',
-			'talkRecord.aiDoubaoPendingNotice' => '豆包文件语音识别 2.0 待接入，暂不可执行。可先在本设备保存 Key；不会创建处理任务或发送音频，也不会自动切换到其他服务。',
 			'talkRecord.aiZhipuTitle' => '智谱 GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => '音频转文字与临时说话人标签',
 			'talkRecord.aiZhipuPurpose' => '摘要草稿、决定与行动项',
@@ -13926,7 +13952,7 @@ extension on Translations {
 			'talkRecord.aiDeleteTitle' => '删除本设备密钥？',
 			'talkRecord.aiDeleteNotice' => '停止该服务的新请求。已有录音和结果保留；已发给供应商的请求无法撤回。',
 			'talkRecord.aiCancel' => '取消',
-			'talkRecord.aiProcessingConsent' => '仅在本设备前台继续。按确认后逐块外发，费用由供应商收取；本机提示不能保证账户费用上限。每块发送前重验权限与处理同意。已确认块不再调用；结果未知时停止，可能已计费，不自动重发。',
+			'talkRecord.aiProcessingConsent' => 'App 仅在前台继续提交和查询。供应商受理后可能在离开 App 后继续处理并计费。每步重验权限和本次同意。已有供应商任务 ID 时只查询；无 ID 且结果未知时停止，不自动重新提交。本机提示不能保证账户费用上限。',
 			'talkRecord.aiProcessTranscribe' => '本设备转写 / 继续',
 			'talkRecord.aiProcessSummarize' => '本设备整理摘要 / 继续',
 			'talkRecord.aiProcessingRunning' => '正在本设备处理，请保持此页打开。',
@@ -13934,12 +13960,26 @@ extension on Translations {
 			'talkRecord.aiProcessingKeyInvalid' => '供应商拒绝 Key。请在设置 → AI 服务核对本设备配置；已停止，不自动重发。',
 			'talkRecord.aiProcessingBalance' => '供应商余额不足。已保留进度并停止，不自动重发。',
 			'talkRecord.aiProcessingUnknown' => '供应商结果未知，可能已计费。已停止外发；需人工核对费用与原执行，不能直接重发。',
+			'talkRecord.aiProcessingStopped' => '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。',
+			'talkRecord.aiDoubaoTitle' => '豆包语音 2.0',
+			'talkRecord.aiDoubaoPurpose' => '录音转写与临时说话人标签',
+			'talkRecord.aiDoubaoExternalNotice' => '转写时音频会发送至火山引擎豆包语音，费用由供应商收取。仅配置本设备 API Key；不会沿用 MiniMax 密钥。',
+			'talkRecord.aiDoubaoPendingNotice' => '豆包转写流程尚未接通，目前仅可保存设备配置。保存不代表连接已验证或可以开始转写。',
+			'talkRecord.aiProviderPending' => '供应商仍在处理，进度已保存。稍后点击继续查询，不会重新提交录音。',
+			'talkRecord.aiProviderCancel' => '停止此转写',
+			'talkRecord.aiProviderCancelNotice' => '停止后将撤销 IMBoy 的来源与操作授权；不能保证供应商停止处理或退款。',
+			'talkRecord.aiProviderResubmit' => '重新提交录音',
+			'talkRecord.aiProviderResubmitNotice' => '此操作会新建一次转写，可能重复计费。原请求不会被替换。确认重新提交并同意本次处理？',
+			'talkRecord.aiProviderCancelled' => '本次转写已停止，已有录音保留。',
+			'talkRecord.aiProviderResumePreparation' => '继续准备转写',
+			'talkRecord.aiProviderResumeNotice' => '原任务尚未向供应商提交。本次将重新准备音频来源；确认后按当前权限和处理同意继续。',
+			'talkRecord.aiAsrProvider' => '转写服务',
+			'talkRecord.aiAsrOptionalNotice' => 'AI 转写为可选功能，目前可使用已配置的 MiniMax。仅录音无需任何 AI Key。',
 			'talkRecord.aiUnknownRecoveryTitle' => '核对未知执行并重新请求',
 			'talkRecord.aiUnknownRecoveryNotice' => '无法核实下列旧请求的结果与费用，可能已经扣费。确认后为同一任务创建新执行，仅重新请求未确认块，可能重复扣费；旧未知事实与结果会保留。取消不会发送恢复请求。',
 			'talkRecord.aiUnknownRecoveryRun' => '原执行',
 			'talkRecord.aiUnknownRecoveryIntents' => '块序号 / 未知请求编号',
 			'talkRecord.aiUnknownRecoveryConfirm' => '已核对，接受可能重复扣费',
-			'talkRecord.aiProcessingStopped' => '处理已停止，录音保留。请核对本设备 Key、权限、配置和输入；若已外发但结果未确认，不会自动重复调用。',
 			'welcome.step1Title' => '简单连接',
 			'welcome.step1Desc' => '体验无缝沟通的乐趣。 随时随地，畅所欲言。',
 			'welcome.step2Title' => '安全私密',

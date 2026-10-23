@@ -1,0 +1,25 @@
+{
+  "status": "PROPOSED_SHARED_WIRE_FIXTURE_PENDING_BE_CONFIRMATION",
+  "profile": {
+    "audio": {
+      "format": "aac",
+      "rate": 16000,
+      "bits": 16,
+      "channel": 1
+    },
+    "request": {
+      "model_name": "bigmodel",
+      "ssd_version": "300",
+      "enable_speaker_info": true,
+      "show_utterances": true,
+      "enable_itn": true,
+      "enable_punc": true,
+      "enable_ddc": false
+    }
+  },
+  "canonical_utf8": "{\"audio\":{\"bits\":16,\"channel\":1,\"format\":\"aac\",\"rate\":16000},\"request\":{\"enable_ddc\":false,\"enable_itn\":true,\"enable_punc\":true,\"enable_speaker_info\":true,\"model_name\":\"bigmodel\",\"show_utterances\":true,\"ssd_version\":\"300\"}}",
+  "profile_sha256": "d723bf03c21bf27f6d35a38d6134c2cdf33ebe4a6700b35c8bd98ec27fc4cfab",
+  "algorithm": "SHA256 of existing talk_record canonical JSON; all fixture keys/values ASCII, integers/booleans only",
+  "source_time_unit": "unix_seconds",
+  "contains_credentials_or_source_ticket": false
+}

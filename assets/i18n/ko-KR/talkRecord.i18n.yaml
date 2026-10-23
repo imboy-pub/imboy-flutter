@@ -40,3 +40,17 @@ aiReplaceNotice: "이 기기의 현재 계정에 있는 이 서비스 설정만 
 aiDeleteTitle: "기기 키를 삭제할까요?"
 aiDeleteNotice: "이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다."
 aiCancel: "취소"
+
+aiDoubaoTitle: "Doubao 음성 2.0"
+aiDoubaoPurpose: "음성 전사 및 임시 화자 라벨"
+aiDoubaoExternalNotice: "전사 시 음성이 Volcengine Doubao Speech로 전송되며 공급자 요금이 발생할 수 있습니다. 이 기기의 API Key를 설정하세요. MiniMax 키는 재사용하지 않습니다."
+aiDoubaoPendingNotice: "Doubao 전사 기능은 아직 연결되지 않았습니다. 현재는 기기 설정만 저장할 수 있습니다. 저장은 연결 검증이나 전사 활성화를 의미하지 않습니다."
+
+aiProviderPending: "공급자가 처리 중입니다. 진행 상황은 저장됩니다. 나중에 계속하면 결과만 조회하며 음성을 다시 제출하지 않습니다."
+aiProviderCancel: "전사 중지"
+aiProviderCancelNotice: "IMBoy의 음성 접근 및 작업 권한을 취소합니다. 공급자의 처리 중단이나 환불은 보장할 수 없습니다."
+aiProviderResubmit: "음성 다시 제출"
+aiProviderResubmitNotice: "새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?"
+aiProviderCancelled: "전사가 중지되었습니다. 기존 녹음은 유지됩니다."
+aiProviderResumePreparation: "전사 준비 계속"
+aiProviderResumeNotice: "기존 작업은 공급자에게 제출되지 않았습니다. 음성 소스를 다시 준비하고 현재 권한과 동의로 계속합니다."

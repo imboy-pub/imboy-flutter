@@ -16,7 +16,16 @@ class TalkRecordAiIdentity {
 
 TalkRecordAiIdentity? _currentIdentity() {
   final user = UserRepoLocal.to;
-  if (user.isAuthTransitioning || user.currentUid.isEmpty) return null;
+  if (user.isAuthTransitioning) return null;
+  final String uid;
+  try {
+    uid = user.currentUid;
+  } on Exception {
+    // Widget 测试可能未初始化 StorageService；无存储等价于无登录身份，
+    // 静默返回 null（生产 main() 必然先完成初始化，不会走到这里）。
+    return null;
+  }
+  if (uid.isEmpty) return null;
   final uri = Uri.tryParse(Env().apiBaseUrl);
   if (uri == null ||
       uri.host.isEmpty ||

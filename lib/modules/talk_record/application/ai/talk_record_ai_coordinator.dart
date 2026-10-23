@@ -12,12 +12,17 @@ import 'talk_record_ai_provider_http.dart';
 import 'talk_record_ai_wire.dart';
 import 'talk_record_minimax_result.dart';
 
+part 'talk_record_legacy_ai_workflow.dart';
+part 'talk_record_doubao_workflow.dart';
+part 'talk_record_doubao_recovery.dart';
+
 abstract interface class TalkRecordAiExecutionGateway {
   Future<Map<String, dynamic>> context(EntityId id, void Function() guard);
   Future<Map<String, dynamic>> request({
     required EntityId recordId,
     EntityId jobId = '',
     EntityId runId = '',
+    EntityId taskId = '',
     required String action,
     int seq = 0,
     Map<String, dynamic> body = const {},
@@ -39,6 +44,7 @@ class TalkRecordAiApiGateway implements TalkRecordAiExecutionGateway {
     required EntityId recordId,
     EntityId jobId = '',
     EntityId runId = '',
+    EntityId taskId = '',
     required String action,
     int seq = 0,
     Map<String, dynamic> body = const {},
@@ -50,6 +56,7 @@ class TalkRecordAiApiGateway implements TalkRecordAiExecutionGateway {
     recordId: recordId,
     jobId: jobId,
     runId: runId,
+    taskId: taskId,
     action: action,
     seq: seq,
     body: body,
@@ -62,8 +69,8 @@ class TalkRecordAiApiGateway implements TalkRecordAiExecutionGateway {
 
 class TalkRecordAiWorkflowException implements Exception {
   const TalkRecordAiWorkflowException(this.code, {this.recovery});
-  final String code;
   final TalkRecordAiRecovery? recovery;
+  final String code;
   @override
   String toString() => 'TalkRecordAiWorkflowException($code)';
 }
@@ -111,12 +118,15 @@ class TalkRecordAiCoordinator {
     required this.gateway,
     required this.guard,
     required this.audio,
-    this.asrProvider = TalkRecordAiProvider.minimax,
     this.adapterFactory,
+    this.asrProvider = TalkRecordAiProvider.minimax,
+    this.now = DateTime.now,
   });
+  final TalkRecordAiProvider asrProvider;
+  _TalkRecordLegacyAiCoordinator? _legacy;
+  final DateTime Function() now;
   final EntityId recordId;
   final String mode;
-  final TalkRecordAiProvider asrProvider;
   final TalkRecordAiCredentials credentials;
   final TalkRecordAiCheckpointStore checkpoints;
   final TalkRecordAiExecutionGateway gateway;
@@ -125,26 +135,65 @@ class TalkRecordAiCoordinator {
   final HttpClientAdapter Function()? adapterFactory;
   Map<String, dynamic> _checkpoint = {};
   bool _busy = false;
+  bool _providerTaskRead = false;
+  bool _doubaoPreparationReady = false;
   CancelToken cancelToken = CancelToken();
   static final _locks = <String, Lock>{};
   Map<String, dynamic> get _run =>
       Map<String, dynamic>.from(_checkpoint['run'] as Map);
   String get _runId => '${_run['id']}';
   List<dynamic> get _chunks => (_checkpoint['plan'] as Map)['chunks'] as List;
-  TalkRecordAiProvider get _provider =>
-      mode == 'transcribe' ? asrProvider : TalkRecordAiProvider.zhipu;
+  TalkRecordAiProvider get _provider => mode == 'transcribe'
+      ? TalkRecordAiProvider.doubao
+      : TalkRecordAiProvider.zhipu;
 
-  void cancel() => cancelToken.cancel('device_stopped');
+  void cancel() {
+    _legacy?.cancel();
+    cancelToken.cancel('device_stopped');
+  }
+
+  bool get canResumeProviderPreparation => _canResumeProviderPreparation;
+  Future<void> resumeProviderPreparation({required bool consentConfirmed}) =>
+      _newProviderAttempt(
+        consentConfirmed: consentConfirmed,
+        preparation: true,
+      );
+  bool get canResubmitProviderTask => _canResubmitProviderTask;
+  Future<void> cancelProviderTask() => _cancelProviderTask();
+  Future<void> resubmitProviderTask({
+    required bool consentConfirmed,
+    required bool duplicateChargeConfirmed,
+  }) => _resubmitProviderTask(
+    consentConfirmed: consentConfirmed,
+    duplicateChargeConfirmed: duplicateChargeConfirmed,
+  );
 
   Future<void> execute({
     required bool consentConfirmed,
     TalkRecordAiRecovery? recoveryConfirmation,
   }) async {
+    if (mode == 'transcribe' && !asrProvider.executionAvailable) {
+      throw const TalkRecordAiWorkflowException('provider_not_integrated');
+    }
+    if (asrProvider == TalkRecordAiProvider.minimax || mode != 'transcribe') {
+      final legacy = _legacy ??= _TalkRecordLegacyAiCoordinator(
+        recordId: recordId,
+        mode: mode,
+        credentials: credentials,
+        checkpoints: checkpoints,
+        gateway: gateway,
+        guard: guard,
+        audio: audio,
+        asrProvider: asrProvider,
+        adapterFactory: adapterFactory,
+      );
+      return legacy.execute(
+        consentConfirmed: consentConfirmed,
+        recoveryConfirmation: recoveryConfirmation,
+      );
+    }
     if (!consentConfirmed || _busy) {
       throw const TalkRecordAiWorkflowException('consent_required');
-    }
-    if (!_provider.executionAvailable) {
-      throw const TalkRecordAiWorkflowException('provider_not_integrated');
     }
     _busy = true;
     cancelToken = CancelToken();
@@ -152,7 +201,7 @@ class TalkRecordAiCoordinator {
       await _locks.putIfAbsent(checkpoints.file.path, Lock.new).synchronized(
         () async {
           try {
-            await _execute(recoveryConfirmation);
+            await _execute();
           } on TalkRecordAiWorkflowException catch (error) {
             if ({
                   'permission_or_policy_changed',
@@ -177,27 +226,39 @@ class TalkRecordAiCoordinator {
     }
   }
 
-  Future<void> _execute(TalkRecordAiRecovery? recoveryConfirmation) async {
+  Future<void> _execute() async {
     _check();
     _checkpoint = await checkpoints.load() ?? {};
+    _providerTaskRead = false;
+    _doubaoPreparationReady = false;
     _check();
-    if (_checkpoint.isEmpty) {
-      if (recoveryConfirmation != null) {
-        throw const TalkRecordAiWorkflowException('recovery_conflict');
-      }
-      await _initialize();
+    if (_checkpoint.isEmpty) await _initialize();
+    if (mode == 'transcribe' &&
+        _checkpoint['provider_task'] != null &&
+        await _reconcilePublishedProviderTask()) {
+      return;
     }
-    if (_checkpoint['epoch'] != credentials.authSessionEpoch ||
-        _checkpoint['record_id'] != recordId ||
-        _checkpoint['mode'] != mode) {
-      throw const TalkRecordAiWorkflowException('account_changed');
+    if (mode == 'transcribe' &&
+        _checkpoint['job_id'] != null &&
+        _checkpoint['provider_task'] == null) {
+      await _discoverDoubaoExecution();
+      if (_checkpoint['phase'] == 'complete') return;
+    }
+    if (_checkpoint['epoch'] != credentials.authSessionEpoch) {
+      if (mode != 'transcribe') {
+        throw const TalkRecordAiWorkflowException('account_changed');
+      }
+      await _rebindDoubaoSession();
     }
     if (_checkpoint['phase'] == 'complete') return;
-    if (_checkpoint['blocked'] case final String code
-        when code != 'provider_outcome_unknown') {
+    if (_checkpoint['blocked'] case final String code) {
       throw TalkRecordAiWorkflowException(code);
     }
-    await _claim(recoveryConfirmation);
+    if (mode == 'transcribe') {
+      await _executeDoubao();
+      return;
+    }
+    await _claim();
     if (_checkpoint['phase'] == 'complete') return;
     await _live();
     await _freeze();
@@ -238,15 +299,9 @@ class TalkRecordAiCoordinator {
       throw const TalkRecordAiWorkflowException('permission_or_policy_changed');
     }
     final provider = (policy['providers'] as Map?)?[mode];
-    final alternatives = (policy['provider_options'] as Map?)?[mode];
-    final choices = alternatives is List ? alternatives : [provider];
-    if ((mode == 'transcribe' && !asrProvider.isTranscription) ||
-        !choices.any(
-          (choice) =>
-              choice is Map &&
-              choice['provider'] == _provider.name &&
-              choice['model'] == _provider.model,
-        ) ||
+    if (provider is! Map ||
+        provider['provider'] != _provider.name ||
+        provider['model'] != _provider.model ||
         policy['policy_version'] is! String ||
         policy['config_version'] is! String) {
       throw const TalkRecordAiWorkflowException('processing_unavailable');
@@ -280,6 +335,10 @@ class TalkRecordAiCoordinator {
     final policy = record['client_processing'] as Map;
     _checkpoint = {
       'epoch': credentials.authSessionEpoch,
+      'credential_scope': {
+        'origin': credentials.scope.deploymentOrigin,
+        'account_id': credentials.scope.accountId,
+      },
       'pins': _pins(record),
       'record_id': recordId,
       'mode': mode,
@@ -320,7 +379,6 @@ class TalkRecordAiCoordinator {
     Map<String, dynamic> body, {
     required String slot,
     int seq = 0,
-    bool successor = false,
   }) async {
     final operations = _checkpoint['operations'] as Map;
     final saved = operations[slot] as Map?;
@@ -328,40 +386,27 @@ class TalkRecordAiCoordinator {
         talkRecordAiHash(saved['body']) != talkRecordAiHash(body)) {
       throw const FormatException('AI operation changed');
     }
-    final run = _checkpoint['run'] as Map?;
-    final operation =
-        saved ??
-        {
-          'key': TalkRecordIds.newUuidV4(),
-          'body': body,
-          'if_match': action == 'request'
-              ? _checkpoint['record_etag'] as String
-              : (run == null ? '' : '"${run['etag']}"'),
-          'run_id': '${run?['id'] ?? ''}',
-        };
+    final operation = saved ?? {'key': TalkRecordIds.newUuidV4(), 'body': body};
     operations[slot] = operation;
     await _save();
+    final run = _checkpoint['run'] as Map?;
     final result = await gateway.request(
       recordId: recordId,
       jobId: '${_checkpoint['job_id'] ?? ''}',
-      runId: '${operation['run_id'] ?? run?['id'] ?? ''}',
+      runId: '${run?['id'] ?? ''}',
       action: action,
       seq: seq,
       body: body,
       idempotencyKey: operation['key'] as String,
-      ifMatch:
-          operation['if_match'] as String? ??
-          (action == 'request'
-              ? _checkpoint['record_etag'] as String
-              : (run == null ? '' : '"${run['etag']}"')),
+      ifMatch: action == 'request'
+          ? _checkpoint['record_etag'] as String
+          : (run == null ? '' : '"${run['etag']}"'),
       token: '${_checkpoint['run_token'] ?? ''}',
       guard: _check,
     );
     _check();
     if (action == 'request') {
       _checkpoint['job_id'] = result['job_id'];
-    } else if (successor) {
-      _acceptSuccessor(result);
     } else {
       _acceptRun(result);
     }
@@ -369,10 +414,7 @@ class TalkRecordAiCoordinator {
     return result;
   }
 
-  void _acceptRun(
-    Map<String, dynamic> result, {
-    Map<String, dynamic>? predecessor,
-  }) {
+  void _acceptRun(Map<String, dynamic> result) {
     final policy = (_checkpoint['pins'] as Map)['client_processing'] as Map;
     if ('${result['record_id']}' != recordId ||
         '${result['job_id']}' != '${_checkpoint['job_id']}' ||
@@ -385,26 +427,9 @@ class TalkRecordAiCoordinator {
             (_checkpoint['pins'] as Map)['content_revision'] ||
         result['parts'] is! List ||
         result['lease_expires_at_unix'] is! int ||
-        (predecessor == null &&
-            (_checkpoint['run'] as Map?)?['id'] != null &&
+        ((_checkpoint['run'] as Map?)?['id'] != null &&
             '${result['id']}' != _runId)) {
       throw const FormatException('AI run identity');
-    }
-    if (predecessor != null &&
-        ('${result['id']}' == '${predecessor['id']}' ||
-            result['attempt'] != (predecessor['attempt'] as int) + 1 ||
-            result['state'] != 'active' ||
-            result['run_token'] is! String ||
-            (result['run_token'] as String).isEmpty ||
-            result['input_snapshot'] is! Map ||
-            [
-              'input_manifest_hash',
-              'input_content_revision',
-              'input_transcript_version',
-            ].any((key) => result[key] != predecessor[key]) ||
-            talkRecordAiHash(result['input_snapshot']) !=
-                talkRecordAiHash(_checkpoint['snapshot']))) {
-      throw const FormatException('AI successor identity');
     }
     _checkpoint['run'] = result;
     if (result['run_token'] case final String token) {
@@ -415,21 +440,7 @@ class TalkRecordAiCoordinator {
     }
   }
 
-  Future<void> _claim(TalkRecordAiRecovery? confirmation) async {
-    if (_checkpoint['recovery'] case final Map<String, dynamic> pending) {
-      await _live();
-      final expected = TalkRecordAiRecovery.fromRun(
-        Map<String, dynamic>.from(pending['previous_run'] as Map),
-      );
-      if (confirmation != null && !confirmation.matches(expected)) {
-        throw const TalkRecordAiWorkflowException('recovery_conflict');
-      }
-      await _successorClaim(pending);
-      return;
-    }
-    if (confirmation != null && _checkpoint['run'] == null) {
-      throw const TalkRecordAiWorkflowException('recovery_conflict');
-    }
+  Future<void> _claim() async {
     if (_checkpoint['job_id'] == null) {
       await _command(
         'request',
@@ -460,104 +471,9 @@ class TalkRecordAiCoordinator {
       await _save();
       return;
     }
-    if (_run['state'] == 'expired' ||
-        _run['state'] == 'provider_outcome_unknown') {
-      await _live();
-      final unknown = _run['state'] == 'provider_outcome_unknown';
-      final expected = TalkRecordAiRecovery.fromRun(_run);
-      if (unknown && confirmation == null) {
-        throw TalkRecordAiWorkflowException(
-          'provider_outcome_unknown',
-          recovery: expected,
-        );
-      }
-      if (confirmation != null &&
-          (!unknown || !confirmation.matches(expected))) {
-        throw const TalkRecordAiWorkflowException('recovery_conflict');
-      }
-      if (!unknown &&
-          (_run['parts'] as List).any(
-            (part) => !{
-              'confirmed',
-              'not_dispatched',
-            }.contains(part['provider_state']),
-          )) {
-        throw const TalkRecordAiWorkflowException('provider_outcome_unknown');
-      }
-      final pending = {
-        'previous_run': _run,
-        'slot': 'claim-after-$_runId',
-        'body': {
-          'processing_consent':
-              (_checkpoint['request_body'] as Map)['processing_consent'],
-          if (unknown) ...{
-            'previous_run_id': _run['id'],
-            'ack_possible_duplicate_charge': true,
-          },
-        },
-      };
-      _checkpoint['recovery'] = pending;
-      await _save();
-      await _successorClaim(pending);
-      return;
-    }
     if (_run['state'] != 'active') {
       throw const TalkRecordAiWorkflowException('provider_outcome_unknown');
     }
-    if (_checkpoint['blocked'] == 'provider_outcome_unknown') {
-      throw const TalkRecordAiWorkflowException('provider_outcome_unknown');
-    }
-    if (confirmation != null) {
-      throw const TalkRecordAiWorkflowException('recovery_conflict');
-    }
-  }
-
-  Future<void> _successorClaim(Map<String, dynamic> pending) => _command(
-    'claim',
-    Map<String, dynamic>.from(pending['body'] as Map),
-    slot: pending['slot'] as String,
-    successor: true,
-  );
-
-  void _acceptSuccessor(Map<String, dynamic> result) {
-    final previous = jsonDecode(
-      jsonEncode({
-        for (final key in [
-          'run',
-          'snapshot',
-          'plan',
-          'parts',
-          'operations',
-          'blocked',
-        ])
-          if (_checkpoint.containsKey(key)) key: _checkpoint[key],
-      }),
-    ) as Map<String, dynamic>;
-    _acceptRun(result, predecessor: previous['run'] as Map<String, dynamic>);
-    (_checkpoint.putIfAbsent('history', () => <dynamic>[]) as List).add(
-      previous,
-    );
-    final required = _checkpoint.putIfAbsent(
-      'required_confirmed',
-      () => <String, dynamic>{},
-    ) as Map;
-    for (final part in (previous['run'] as Map)['parts'] as List) {
-      if (part['provider_state'] == 'confirmed') {
-        required['${part['seq']}'] = part['result_hash'];
-      }
-    }
-    _checkpoint['parts'] = {
-      for (final entry in (previous['parts'] as Map).entries)
-        if ((entry.value as Map)['result'] != null)
-          entry.key: {
-            'result': entry.value['result'],
-            'result_hash': entry.value['result_hash'],
-          },
-    };
-    _checkpoint['operations'] = <String, dynamic>{};
-    _checkpoint.remove('blocked');
-    _checkpoint.remove('recovery');
-    _checkpoint['phase'] = 'processing';
   }
 
   Future<void> _freeze() async {
@@ -566,7 +482,6 @@ class TalkRecordAiCoordinator {
       Map<String, dynamic>.from(_checkpoint['snapshot'] as Map),
     );
     if (_run['chunk_plan_hash'] == talkRecordAiHash(_checkpoint['plan'])) {
-      _verifyConfirmed();
       return;
     }
     await _command(
@@ -576,22 +491,6 @@ class TalkRecordAiCoordinator {
     );
     if (_run['chunk_plan_hash'] != talkRecordAiHash(_checkpoint['plan'])) {
       throw const FormatException('AI plan hash');
-    }
-    _verifyConfirmed();
-  }
-
-  void _verifyConfirmed() {
-    for (final entry
-        in (_checkpoint['required_confirmed'] as Map? ?? {}).entries) {
-      final matches = (_run['parts'] as List).where(
-        (part) =>
-            '${part['seq']}' == entry.key &&
-            part['provider_state'] == 'confirmed' &&
-            part['result_hash'] == entry.value,
-      );
-      if (matches.length != 1) {
-        throw const TalkRecordAiWorkflowException('confirmed_reuse_missing');
-      }
     }
   }
 
@@ -616,12 +515,6 @@ class TalkRecordAiCoordinator {
       await _block('provider_outcome_unknown');
     }
     if (part['result'] == null) await _dispatch(chunk, part);
-    if (remote['provider_state'] == 'not_dispatched' &&
-        part['dispatch_intent_id'] == null) {
-      part['intent'] = {'reuse_result_hash': part['result_hash']};
-      await _save();
-      await _grant(chunk, part);
-    }
     await _live();
     await _command(
       'result',
@@ -635,17 +528,15 @@ class TalkRecordAiCoordinator {
     Map<String, dynamic> chunk,
     Map<String, dynamic> part,
   ) async {
-    void verifyCurrent() {
-      _check();
-      if ((_run['lease_expires_at_unix'] as int) <=
-          DateTime.now().millisecondsSinceEpoch ~/ 1000) {
-        throw const TalkRecordAiWorkflowException('lease_expired');
-      }
-    }
-
     final http = TalkRecordAiProviderHttp(
       credentials: credentials,
-      verifyCurrent: verifyCurrent,
+      verifyCurrent: () {
+        _check();
+        if ((_run['lease_expires_at_unix'] as int) <=
+            DateTime.now().millisecondsSinceEpoch ~/ 1000) {
+          throw const TalkRecordAiWorkflowException('lease_expired');
+        }
+      },
       beforeDispatch: (intent) => _intent(chunk, part, intent),
       adapterFactory: adapterFactory,
     );
@@ -693,19 +584,6 @@ class TalkRecordAiCoordinator {
     Map<String, dynamic> part,
     TalkRecordAiDispatchIntent intent,
   ) async {
-    part['intent'] = {
-      'request_hash': intent.requestHash,
-      'input_hash': intent.inputHash,
-      'input_bytes': intent.inputBytes,
-    };
-    await _save();
-    await _grant(chunk, part);
-  }
-
-  Future<void> _grant(
-    Map<String, dynamic> chunk,
-    Map<String, dynamic> part,
-  ) async {
     await _live();
     await _command('heartbeat', const {}, slot: TalkRecordIds.newUuidV4());
     final seq = chunk['seq'] as int;
@@ -718,6 +596,12 @@ class TalkRecordAiCoordinator {
       'source_part_manifest_hash':
           chunk['source_part_manifest_hash'] ?? chunk['source_hash'],
     });
+    part['intent'] = {
+      'request_hash': intent.requestHash,
+      'input_hash': intent.inputHash,
+      'input_bytes': intent.inputBytes,
+    };
+    await _save();
     final response = await _command(
       'dispatch',
       {'request_hash': requestHash, 'chunk_plan_hash': _run['chunk_plan_hash']},

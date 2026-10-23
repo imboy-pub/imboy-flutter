@@ -2493,6 +2493,18 @@ class _Translations$talkRecord$ko_KR extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => '기기 키를 삭제할까요?';
 	@override String get aiDeleteNotice => '이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다.';
 	@override String get aiCancel => '취소';
+	@override String get aiDoubaoTitle => 'Doubao 음성 2.0';
+	@override String get aiDoubaoPurpose => '음성 전사 및 임시 화자 라벨';
+	@override String get aiDoubaoExternalNotice => '전사 시 음성이 Volcengine Doubao Speech로 전송되며 공급자 요금이 발생할 수 있습니다. 이 기기의 API Key를 설정하세요. MiniMax 키는 재사용하지 않습니다.';
+	@override String get aiDoubaoPendingNotice => 'Doubao 전사 기능은 아직 연결되지 않았습니다. 현재는 기기 설정만 저장할 수 있습니다. 저장은 연결 검증이나 전사 활성화를 의미하지 않습니다.';
+	@override String get aiProviderPending => '공급자가 처리 중입니다. 진행 상황은 저장됩니다. 나중에 계속하면 결과만 조회하며 음성을 다시 제출하지 않습니다.';
+	@override String get aiProviderCancel => '전사 중지';
+	@override String get aiProviderCancelNotice => 'IMBoy의 음성 접근 및 작업 권한을 취소합니다. 공급자의 처리 중단이나 환불은 보장할 수 없습니다.';
+	@override String get aiProviderResubmit => '음성 다시 제출';
+	@override String get aiProviderResubmitNotice => '새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?';
+	@override String get aiProviderCancelled => '전사가 중지되었습니다. 기존 녹음은 유지됩니다.';
+	@override String get aiProviderResumePreparation => '전사 준비 계속';
+	@override String get aiProviderResumeNotice => '기존 작업은 공급자에게 제출되지 않았습니다. 음성 소스를 다시 준비하고 현재 권한과 동의로 계속합니다.';
 }
 
 // Path: welcome
@@ -5872,6 +5884,18 @@ extension on TranslationsKoKr {
 			'talkRecord.aiDeleteTitle' => '기기 키를 삭제할까요?',
 			'talkRecord.aiDeleteNotice' => '이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다.',
 			'talkRecord.aiCancel' => '취소',
+			'talkRecord.aiDoubaoTitle' => 'Doubao 음성 2.0',
+			'talkRecord.aiDoubaoPurpose' => '음성 전사 및 임시 화자 라벨',
+			'talkRecord.aiDoubaoExternalNotice' => '전사 시 음성이 Volcengine Doubao Speech로 전송되며 공급자 요금이 발생할 수 있습니다. 이 기기의 API Key를 설정하세요. MiniMax 키는 재사용하지 않습니다.',
+			'talkRecord.aiDoubaoPendingNotice' => 'Doubao 전사 기능은 아직 연결되지 않았습니다. 현재는 기기 설정만 저장할 수 있습니다. 저장은 연결 검증이나 전사 활성화를 의미하지 않습니다.',
+			'talkRecord.aiProviderPending' => '공급자가 처리 중입니다. 진행 상황은 저장됩니다. 나중에 계속하면 결과만 조회하며 음성을 다시 제출하지 않습니다.',
+			'talkRecord.aiProviderCancel' => '전사 중지',
+			'talkRecord.aiProviderCancelNotice' => 'IMBoy의 음성 접근 및 작업 권한을 취소합니다. 공급자의 처리 중단이나 환불은 보장할 수 없습니다.',
+			'talkRecord.aiProviderResubmit' => '음성 다시 제출',
+			'talkRecord.aiProviderResubmitNotice' => '새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?',
+			'talkRecord.aiProviderCancelled' => '전사가 중지되었습니다. 기존 녹음은 유지됩니다.',
+			'talkRecord.aiProviderResumePreparation' => '전사 준비 계속',
+			'talkRecord.aiProviderResumeNotice' => '기존 작업은 공급자에게 제출되지 않았습니다. 음성 소스를 다시 준비하고 현재 권한과 동의로 계속합니다.',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',
 			'welcome.step2Title' => '안전하고 개인적인',
@@ -5900,6 +5924,8 @@ extension on TranslationsKoKr {
 			'workspace.createNameHint' => '예: 공식 홈페이지 리뉴얼 팀',
 			'workspace.createNameRequired' => '워크스페이스 이름은 필수입니다',
 			'workspace.createSubmit' => '만들기',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => '워크스페이스 만들기',
 			'workspace.createSuccess' => '워크스페이스가 생성되었습니다',
 			'workspace.createIdempotentHit' => '같은 이름의 워크스페이스가 이미 있습니다. 해당 워크스페이스로 이동합니다',
@@ -5912,8 +5938,6 @@ extension on TranslationsKoKr {
 			'workspace.overviewPinnedContent' => '채널 고정 콘텐츠',
 			'workspace.overviewPinnedEmpty' => '채널에 고정된 콘텐츠가 없습니다. 그룹 공지는 여기에 집계되지 않습니다(그룹 공지는 각 그룹에 속함)',
 			'workspace.overviewRecentFiles' => '최근 파일',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '최근 업로드한 파일이 여기에 표시됩니다. 각 채널에서도 첨부파일을 볼 수 있습니다',
 			'workspace.membersTitle' => '워크스페이스 구성원',
 			'workspace.membersCountLabel' => ({required Object count}) => '구성원 ${count}명',

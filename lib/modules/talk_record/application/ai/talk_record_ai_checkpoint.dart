@@ -58,6 +58,7 @@ class TalkRecordAiCheckpointStore {
   }
 
   Future<void> save(Map<String, dynamic> value) async {
+    _rejectProviderSecrets(value);
     final plain = Uint8List.fromList(utf8.encode(jsonEncode(value)));
     if (plain.length > maxBytes) {
       throw const FormatException('AI checkpoint size');
@@ -83,6 +84,29 @@ class TalkRecordAiCheckpointStore {
     } finally {
       plain.fillRange(0, plain.length, 0);
       key.fillRange(0, key.length, 0);
+    }
+  }
+}
+
+// Provider URLs are ephemeral purpose grants; only encrypted task IDs/tokens and
+// stable pins belong in a checkpoint. Fail closed instead of persisting a ticket.
+void _rejectProviderSecrets(Object? value) {
+  if (value is Map) {
+    for (final entry in value.entries) {
+      if ({
+        'source_url',
+        'ticket',
+        'api_key',
+        'authorization',
+        'x-api-key',
+      }.contains(entry.key.toString().toLowerCase())) {
+        throw const FormatException('Forbidden AI checkpoint field');
+      }
+      _rejectProviderSecrets(entry.value);
+    }
+  } else if (value is List) {
+    for (final child in value) {
+      _rejectProviderSecrets(child);
     }
   }
 }

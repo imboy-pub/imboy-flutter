@@ -169,13 +169,7 @@ class _ProviderPageState extends ConsumerState<TalkRecordAiProviderPage>
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.regular),
           children: [
-            TalkRecordAiText(
-              widget.provider == TalkRecordAiProvider.doubao
-                  ? t.talkRecord.aiDoubaoPendingNotice
-                  : widget.provider.isTranscription
-                  ? t.talkRecord.aiMinimaxPurpose
-                  : t.talkRecord.aiZhipuPurpose,
-            ),
+            TalkRecordAiText(talkRecordAiProviderPurpose(widget.provider)),
             const SizedBox(height: AppSpacing.regular),
             if (_expired || _boundIdentity == null)
               TalkRecordAiText(t.talkRecord.aiAccountChanged, error: true)
@@ -193,7 +187,10 @@ class _ProviderPageState extends ConsumerState<TalkRecordAiProviderPage>
     TalkRecordAiText(t.talkRecord.aiDeviceOnlyNotice),
     const SizedBox(height: AppSpacing.regular),
     TalkRecordAiText(switch (widget.provider) {
-      TalkRecordAiProvider.doubao => t.talkRecord.aiDoubaoPendingNotice,
+      TalkRecordAiProvider.doubao =>
+        widget.provider.executionAvailable
+            ? t.talkRecord.aiDoubaoExternalNotice
+            : t.talkRecord.aiDoubaoPendingNotice,
       TalkRecordAiProvider.zhipu => t.talkRecord.aiMaxNotice,
       TalkRecordAiProvider.minimax => t.talkRecord.aiAudioExternalNotice,
     }),

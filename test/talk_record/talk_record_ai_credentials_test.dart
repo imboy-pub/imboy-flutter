@@ -70,9 +70,15 @@ void main() {
   tearDown(() => debugDefaultTargetPlatformOverride = null);
 
   test('fixed official models and general endpoints', () {
-    expect(TalkRecordAiProvider.doubao.model, isEmpty);
-    expect(TalkRecordAiProvider.doubao.endpoint, isEmpty);
-    expect(TalkRecordAiProvider.doubao.executionAvailable, isFalse);
+    expect(TalkRecordAiProvider.doubao.model, 'volc.seedasr.auc');
+    expect(
+      TalkRecordAiProvider.doubao.endpoint,
+      'https://openspeech.bytedance.com/api/v3/auc/bigmodel/submit',
+    );
+    expect(
+      TalkRecordAiProvider.doubao.executionAvailable,
+      TalkRecordAiProvider.doubaoEnabled,
+    );
     expect(mini.executionAvailable, isTrue);
     expect(glm.executionAvailable, isTrue);
     expect(TalkRecordAiProvider.doubao.isTranscription, isTrue);

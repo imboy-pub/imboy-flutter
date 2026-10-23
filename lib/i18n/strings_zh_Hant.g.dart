@@ -2493,6 +2493,18 @@ class Translations$talkRecord$zh_Hant extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => '刪除本裝置金鑰？';
 	@override String get aiDeleteNotice => '停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。';
 	@override String get aiCancel => '取消';
+	@override String get aiDoubaoTitle => '豆包語音 2.0';
+	@override String get aiDoubaoPurpose => '錄音轉寫與臨時說話人標籤';
+	@override String get aiDoubaoExternalNotice => '轉寫時音訊會傳送至火山引擎豆包語音，費用由供應商收取。僅設定本裝置 API Key；不會沿用 MiniMax 金鑰。';
+	@override String get aiDoubaoPendingNotice => '豆包轉寫流程尚未接通，目前僅可儲存裝置設定。儲存不代表連線已驗證或可以開始轉寫。';
+	@override String get aiProviderPending => '供應商仍在處理，進度已儲存。稍後繼續查詢，不會重新提交錄音。';
+	@override String get aiProviderCancel => '停止此轉寫';
+	@override String get aiProviderCancelNotice => '將撤銷 IMBoy 的來源與操作授權；無法保證供應商停止處理或退款。';
+	@override String get aiProviderResubmit => '重新提交錄音';
+	@override String get aiProviderResubmitNotice => '將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？';
+	@override String get aiProviderCancelled => '轉寫已停止，已有錄音保留。';
+	@override String get aiProviderResumePreparation => '繼續準備轉寫';
+	@override String get aiProviderResumeNotice => '原任務尚未提交至供應商。本次將重新準備音訊來源，確認後依目前權限與處理同意繼續。';
 }
 
 // Path: welcome
@@ -5872,6 +5884,18 @@ extension on TranslationsZhHant {
 			'talkRecord.aiDeleteTitle' => '刪除本裝置金鑰？',
 			'talkRecord.aiDeleteNotice' => '停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。',
 			'talkRecord.aiCancel' => '取消',
+			'talkRecord.aiDoubaoTitle' => '豆包語音 2.0',
+			'talkRecord.aiDoubaoPurpose' => '錄音轉寫與臨時說話人標籤',
+			'talkRecord.aiDoubaoExternalNotice' => '轉寫時音訊會傳送至火山引擎豆包語音，費用由供應商收取。僅設定本裝置 API Key；不會沿用 MiniMax 金鑰。',
+			'talkRecord.aiDoubaoPendingNotice' => '豆包轉寫流程尚未接通，目前僅可儲存裝置設定。儲存不代表連線已驗證或可以開始轉寫。',
+			'talkRecord.aiProviderPending' => '供應商仍在處理，進度已儲存。稍後繼續查詢，不會重新提交錄音。',
+			'talkRecord.aiProviderCancel' => '停止此轉寫',
+			'talkRecord.aiProviderCancelNotice' => '將撤銷 IMBoy 的來源與操作授權；無法保證供應商停止處理或退款。',
+			'talkRecord.aiProviderResubmit' => '重新提交錄音',
+			'talkRecord.aiProviderResubmitNotice' => '將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？',
+			'talkRecord.aiProviderCancelled' => '轉寫已停止，已有錄音保留。',
+			'talkRecord.aiProviderResumePreparation' => '繼續準備轉寫',
+			'talkRecord.aiProviderResumeNotice' => '原任務尚未提交至供應商。本次將重新準備音訊來源，確認後依目前權限與處理同意繼續。',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',
 			'welcome.step2Title' => '安全又私密',
@@ -5900,6 +5924,8 @@ extension on TranslationsZhHant {
 			'workspace.createNameHint' => '例如：官網改版專案小組',
 			'workspace.createNameRequired' => '工作區名稱不能為空',
 			'workspace.createSubmit' => '建立',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => '建立工作區',
 			'workspace.createSuccess' => '工作區建立成功',
 			'workspace.createIdempotentHit' => '已存在同名工作區，直接進入',
@@ -5912,8 +5938,6 @@ extension on TranslationsZhHant {
 			'workspace.overviewPinnedContent' => '頻道置頂內容',
 			'workspace.overviewPinnedEmpty' => '頻道暫無置頂內容；群組公告不在此聚合（群組公告屬於各個群）',
 			'workspace.overviewRecentFiles' => '最近檔案',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => '最近上傳的檔案會在此顯示；也可在各頻道內查看附件',
 			'workspace.membersTitle' => '工作區成員',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} 位成員',

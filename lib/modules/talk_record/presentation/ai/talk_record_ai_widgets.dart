@@ -13,6 +13,16 @@ String talkRecordAiProviderTitle(TalkRecordAiProvider provider) =>
       TalkRecordAiProvider.zhipu => t.talkRecord.aiZhipuTitle,
     };
 
+String talkRecordAiProviderPurpose(TalkRecordAiProvider provider) =>
+    switch (provider) {
+      TalkRecordAiProvider.doubao =>
+        provider.executionAvailable
+            ? t.talkRecord.aiDoubaoPurpose
+            : t.talkRecord.aiDoubaoPendingNotice,
+      TalkRecordAiProvider.minimax => t.talkRecord.aiMinimaxPurpose,
+      TalkRecordAiProvider.zhipu => t.talkRecord.aiZhipuPurpose,
+    };
+
 String talkRecordAiError(Object? error) => switch (error) {
   TalkRecordAiCredentialException(code: 'invalid_key') =>
     t.talkRecord.aiInvalidKey,

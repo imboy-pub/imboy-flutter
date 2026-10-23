@@ -92,6 +92,9 @@ void main() {
               contains('olm_session_service.dart'),
               contains('e2ee_secret_inventory.dart'),
               contains('db_encryption_key_service.dart'),
+              // talk_record AI BYOK 适配层：key 由 _key() 派生
+              // （talk_record_ai_v1_ 前缀），形参透传同上三个已知位置
+              contains('talk_record_ai_credentials.dart'),
             ),
             reason: '${file.path} 出现裸 key: 形参，需在归类表中登记',
           );
@@ -117,6 +120,14 @@ void main() {
             E2eeSecretInventory.matchesSecretKey('db_cipher_key_u1'),
             isTrue,
             reason: '裸 key 形参应落在 db_cipher_key_ 前缀',
+          );
+        } else if (file == 'talk_record_ai_credentials.dart') {
+          expect(
+            E2eeSecretInventory.matchesSecretKey(
+              'talk_record_ai_v1_digest_minimax',
+            ),
+            isTrue,
+            reason: '裸 key 形参应落在 talk_record_ai_v1_ 前缀',
           );
         } else {
           // e2ee_secret_inventory.dart：透传键先经 matchesSecretKey 过滤

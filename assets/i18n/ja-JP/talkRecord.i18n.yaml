@@ -40,3 +40,17 @@ aiReplaceNotice: "この端末の現在のアカウントにある、このサ�
 aiDeleteTitle: "端末のキーを削除しますか？"
 aiDeleteNotice: "このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。"
 aiCancel: "キャンセル"
+
+aiDoubaoTitle: "Doubao 音声 2.0"
+aiDoubaoPurpose: "音声文字起こしと一時的な話者ラベル"
+aiDoubaoExternalNotice: "音声は文字起こしのため Volcengine Doubao Speech に送信され、料金が発生する場合があります。この端末の API Key を設定してください。MiniMax のキーは引き継ぎません。"
+aiDoubaoPendingNotice: "Doubao の文字起こし処理は未接続です。現在は端末の設定のみ保存できます。保存しても接続確認や文字起こしの開始は行いません。"
+
+aiProviderPending: "処理は継続中です。進捗は保存済みです。後で結果を確認でき、音声は再送信しません。"
+aiProviderCancel: "文字起こしを停止"
+aiProviderCancelNotice: "IMBoy の音声アクセスと操作権限を取り消します。提供元の処理停止や返金は保証できません。"
+aiProviderResubmit: "音声を再送信"
+aiProviderResubmitNotice: "新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？"
+aiProviderCancelled: "停止しました。既存の録音は保持されます。"
+aiProviderResumePreparation: "文字起こしの準備を続行"
+aiProviderResumeNotice: "元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。"

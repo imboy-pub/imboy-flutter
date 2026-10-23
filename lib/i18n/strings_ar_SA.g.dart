@@ -2505,6 +2505,18 @@ class _Translations$talkRecord$ar_SA extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => 'هل تريد حذف مفتاح الجهاز؟';
 	@override String get aiDeleteNotice => 'يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد.';
 	@override String get aiCancel => 'إلغاء';
+	@override String get aiDoubaoTitle => 'Doubao Speech 2.0';
+	@override String get aiDoubaoPurpose => 'تحويل الصوت إلى نص وتسميات مؤقتة للمتحدثين';
+	@override String get aiDoubaoExternalNotice => 'يُرسل الصوت إلى Volcengine Doubao Speech للتفريغ وقد تُفرض رسوم من المزوّد. اضبط مفتاح API على هذا الجهاز؛ لا تُستخدم مفاتيح MiniMax مجددًا.';
+	@override String get aiDoubaoPendingNotice => 'لم يتم ربط تفريغ Doubao بعد. يمكن حاليًا حفظ إعدادات الجهاز فقط. الحفظ لا يتحقق من الاتصال ولا يفعّل التفريغ.';
+	@override String get aiProviderPending => 'لا يزال المزوّد يعالج الطلب. حُفظ التقدم. تابع لاحقًا للاستعلام دون إعادة إرسال الصوت.';
+	@override String get aiProviderCancel => 'إيقاف التفريغ';
+	@override String get aiProviderCancelNotice => 'يلغي صلاحيات IMBoy للمصدر والعمليات. لا يضمن إيقاف معالجة المزوّد أو استرداد الرسوم.';
+	@override String get aiProviderResubmit => 'إرسال الصوت مجددًا';
+	@override String get aiProviderResubmitNotice => 'ينشئ تفريغًا جديدًا وقد يسبب رسومًا مكررة. يبقى الطلب الأصلي. هل تؤكد إعادة الإرسال والموافقة على هذه المعالجة؟';
+	@override String get aiProviderCancelled => 'توقف التفريغ. تم الاحتفاظ بالصوت الموجود.';
+	@override String get aiProviderResumePreparation => 'متابعة إعداد التفريغ';
+	@override String get aiProviderResumeNotice => 'لم تُرسل المهمة الأصلية إلى المزوّد. أعد تجهيز مصدر الصوت وفق الأذونات والموافقة الحالية.';
 }
 
 // Path: welcome
@@ -5884,6 +5896,18 @@ extension on TranslationsArSa {
 			'talkRecord.aiDeleteTitle' => 'هل تريد حذف مفتاح الجهاز؟',
 			'talkRecord.aiDeleteNotice' => 'يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد.',
 			'talkRecord.aiCancel' => 'إلغاء',
+			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
+			'talkRecord.aiDoubaoPurpose' => 'تحويل الصوت إلى نص وتسميات مؤقتة للمتحدثين',
+			'talkRecord.aiDoubaoExternalNotice' => 'يُرسل الصوت إلى Volcengine Doubao Speech للتفريغ وقد تُفرض رسوم من المزوّد. اضبط مفتاح API على هذا الجهاز؛ لا تُستخدم مفاتيح MiniMax مجددًا.',
+			'talkRecord.aiDoubaoPendingNotice' => 'لم يتم ربط تفريغ Doubao بعد. يمكن حاليًا حفظ إعدادات الجهاز فقط. الحفظ لا يتحقق من الاتصال ولا يفعّل التفريغ.',
+			'talkRecord.aiProviderPending' => 'لا يزال المزوّد يعالج الطلب. حُفظ التقدم. تابع لاحقًا للاستعلام دون إعادة إرسال الصوت.',
+			'talkRecord.aiProviderCancel' => 'إيقاف التفريغ',
+			'talkRecord.aiProviderCancelNotice' => 'يلغي صلاحيات IMBoy للمصدر والعمليات. لا يضمن إيقاف معالجة المزوّد أو استرداد الرسوم.',
+			'talkRecord.aiProviderResubmit' => 'إرسال الصوت مجددًا',
+			'talkRecord.aiProviderResubmitNotice' => 'ينشئ تفريغًا جديدًا وقد يسبب رسومًا مكررة. يبقى الطلب الأصلي. هل تؤكد إعادة الإرسال والموافقة على هذه المعالجة؟',
+			'talkRecord.aiProviderCancelled' => 'توقف التفريغ. تم الاحتفاظ بالصوت الموجود.',
+			'talkRecord.aiProviderResumePreparation' => 'متابعة إعداد التفريغ',
+			'talkRecord.aiProviderResumeNotice' => 'لم تُرسل المهمة الأصلية إلى المزوّد. أعد تجهيز مصدر الصوت وفق الأذونات والموافقة الحالية.',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',
 			'welcome.step2Title' => 'آمن وخاص',
@@ -5912,6 +5936,8 @@ extension on TranslationsArSa {
 			'workspace.createNameHint' => 'مثال: فريق مشروع إعادة تصميم الموقع',
 			'workspace.createNameRequired' => 'لا يمكن أن يكون اسم مساحة العمل فارغاً',
 			'workspace.createSubmit' => 'إنشاء',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => 'إنشاء مساحة عمل',
 			'workspace.createSuccess' => 'تم إنشاء مساحة العمل بنجاح',
 			'workspace.createIdempotentHit' => 'توجد مساحة عمل بنفس الاسم بالفعل، وسيتم الدخول إليها مباشرة',
@@ -5924,8 +5950,6 @@ extension on TranslationsArSa {
 			'workspace.overviewPinnedContent' => 'المحتوى المثبّت في القنوات',
 			'workspace.overviewPinnedEmpty' => 'لا يوجد محتوى مثبّت في القنوات بعد؛ إعلانات المجموعات لا تُجمَّع هنا (إعلانات المجموعات تخص كل مجموعة)',
 			'workspace.overviewRecentFiles' => 'الملفات الأخيرة',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'ستظهر الملفات المرفوعة حديثاً هنا؛ ويمكنك أيضاً عرض المرفقات داخل كل قناة',
 			'workspace.membersTitle' => 'أعضاء مساحة العمل',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} أعضاء',

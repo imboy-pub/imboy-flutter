@@ -59,8 +59,54 @@ class _Api extends TalkRecordApi {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final cases = <String, (String, String)>{
+    'provider-create': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/4/provider-tasks',
+    ),
+    'provider-get': ('GET', '/api/v1/talk-records/1/provider-tasks/50'),
+    'provider-submit-intent': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/4/provider-tasks/50/submit-intents',
+    ),
+    'provider-submission-receipt': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/4/provider-tasks/50/submission-receipts',
+    ),
+    'provider-reconcile-receipt': (
+      'POST',
+      '/api/v1/talk-records/1/provider-tasks/50/reconcile-receipt',
+    ),
+    'provider-query-execution': (
+      'POST',
+      '/api/v1/talk-records/1/provider-tasks/50/query-executions',
+    ),
+    'provider-query-intent': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/4/provider-tasks/50/query-intents',
+    ),
+    'provider-query-receipt': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/4/provider-tasks/50/query-receipts',
+    ),
+    'provider-complete': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/4/provider-tasks/50/complete',
+    ),
+    'provider-cancel': (
+      'POST',
+      '/api/v1/talk-records/1/provider-tasks/50/cancel',
+    ),
+    'provider-resubmission': (
+      'POST',
+      '/api/v1/talk-records/1/provider-tasks/50/resubmissions',
+    ),
     'request': ('POST', '/api/v1/talk-records/1/processing-requests'),
     'claim': ('POST', '/api/v1/talk-records/1/jobs/3/client-executions'),
+    'latest': ('GET', '/api/v1/talk-records/1/jobs/3/client-executions/latest'),
+    'recover-unprepared': (
+      'POST',
+      '/api/v1/talk-records/1/jobs/3/client-executions/recover-unprepared',
+    ),
     'get': ('GET', '/api/v1/talk-records/1/jobs/3/client-executions/4'),
     'plan': (
       'PUT',
@@ -97,6 +143,7 @@ void main() {
           recordId: '1',
           jobId: '3',
           runId: '4',
+          taskId: '50',
           action: entry.key,
           seq: 2,
           body: {'synthetic': true},

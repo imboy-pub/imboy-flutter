@@ -40,3 +40,17 @@ aiReplaceNotice: "Ersetzt nur die Einstellung dieses Dienstes für das aktuelle 
 aiDeleteTitle: "Geräteschlüssel löschen?"
 aiDeleteNotice: "Stoppt neue Anfragen an diesen Dienst. Aufnahmen und Ergebnisse bleiben erhalten. Bereits an den Anbieter gesendete Anfragen können nicht zurückgerufen werden."
 aiCancel: "Abbrechen"
+
+aiDoubaoTitle: "Doubao Speech 2.0"
+aiDoubaoPurpose: "Audiotranskription und temporäre Sprecherlabels"
+aiDoubaoExternalNotice: "Audio wird zur Transkription an Volcengine Doubao Speech gesendet. Anbietergebühren können anfallen. API-Key nur auf diesem Gerät; MiniMax-Keys werden nicht übernommen."
+aiDoubaoPendingNotice: "Die Doubao-Transkription ist noch nicht angebunden. Nur Geräteeinstellungen können gespeichert werden. Speichern prüft keine Verbindung und aktiviert keine Transkription."
+
+aiProviderPending: "Der Anbieter verarbeitet noch. Fortschritt gespeichert. Später nur abfragen; Audio wird nicht erneut gesendet."
+aiProviderCancel: "Transkription stoppen"
+aiProviderCancelNotice: "Widerruft IMBoy-Zugriff und Vorgangsrechte. Anbieter-Stopp oder Erstattung werden nicht garantiert."
+aiProviderResubmit: "Audio erneut senden"
+aiProviderResubmitNotice: "Erstellt eine neue Transkription; doppelte Gebühren sind möglich. Der ursprüngliche Auftrag bleibt. Erneut senden und dieser Verarbeitung zustimmen?"
+aiProviderCancelled: "Transkription gestoppt. Vorhandenes Audio bleibt erhalten."
+aiProviderResumePreparation: "Transkription weiter vorbereiten"
+aiProviderResumeNotice: "Der ursprüngliche Auftrag wurde noch nicht übermittelt. Audioquelle mit aktuellen Rechten und Einwilligung erneut vorbereiten."

@@ -138,6 +138,7 @@ class E2eeSecretInventory {
     'db_cipher_key_', // SQLCipher DB key（按 uid）
     'utk_', // 附件上传 content key / nonce / descriptor（兼容清除旧全局键）
     'mls_', // MLS 预留
+    'talk_record_ai_v1_', // talk_record AI provider BYOK 凭据（账号 digest 派生）
   ];
 
   /// 有意**不**纳入 purge 清单的 secure storage 键（及其理由）。
@@ -287,6 +288,21 @@ class E2eeSecretInventory {
       clearedOnLogout: true,
       clearedOnAccountSwitch: true,
       note: '前缀预留：未来 MLS 落地时自动纳入清理',
+    ),
+    SecretCategory(
+      id: 'talk-record-ai-byok',
+      keyPrefix: 'talk_record_ai_v1_',
+      storageLocation:
+          'secure storage（iOS Keychain ThisDeviceOnly / Android Keystore）',
+      derivation:
+          '用户在 talk_record AI provider 页录入的第三方 API key；'
+          '键名含账号+部署 origin digest（_key 派生），值经长度/可见字符校验',
+      inOsBackup: false,
+      clearedOnLogout: true,
+      clearedOnAccountSwitch: true,
+      note:
+          'BYOK 凭据为账号级秘密：logout/换号经 purgeAll 前缀清理，'
+          '杜绝跨账号残留；slot 墓碑防删除失败后旧键复活',
     ),
   ];
 

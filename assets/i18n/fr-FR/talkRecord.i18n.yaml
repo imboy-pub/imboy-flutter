@@ -40,3 +40,17 @@ aiReplaceNotice: "Remplace uniquement la configuration de ce service pour ce com
 aiDeleteTitle: "Supprimer la clé locale ?"
 aiDeleteNotice: "Arrête les nouvelles requêtes à ce service. Les enregistrements et résultats sont conservés. Les requêtes déjà envoyées au fournisseur ne peuvent pas être rappelées."
 aiCancel: "Annuler"
+
+aiDoubaoTitle: "Doubao Speech 2.0"
+aiDoubaoPurpose: "Transcription audio et étiquettes temporaires des locuteurs"
+aiDoubaoExternalNotice: "La transcription envoie l’audio à Volcengine Doubao Speech et peut entraîner des frais. Configurez une clé API sur cet appareil ; les clés MiniMax ne sont jamais réutilisées."
+aiDoubaoPendingNotice: "La transcription Doubao n’est pas encore raccordée. Seuls les paramètres locaux peuvent être enregistrés. Cela ne vérifie pas la connexion et n’active pas la transcription."
+
+aiProviderPending: "Le fournisseur traite encore la demande. Progression enregistrée. Reprenez plus tard pour consulter, sans renvoyer l’audio."
+aiProviderCancel: "Arrêter la transcription"
+aiProviderCancelNotice: "Révoque les accès IMBoy à la source et aux opérations. L’arrêt du fournisseur ou le remboursement ne sont pas garantis."
+aiProviderResubmit: "Renvoyer l’audio"
+aiProviderResubmitNotice: "Crée une nouvelle transcription avec un risque de double facturation. La demande initiale reste. Renvoyer et consentir à ce traitement ?"
+aiProviderCancelled: "Transcription arrêtée. L’audio existant est conservé."
+aiProviderResumePreparation: "Continuer la préparation"
+aiProviderResumeNotice: "La tâche initiale n’a pas été envoyée. Préparez à nouveau la source audio avec les autorisations et le consentement actuels."

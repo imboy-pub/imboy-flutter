@@ -2502,6 +2502,18 @@ class _Translations$talkRecord$ru_RU extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => 'Удалить ключ устройства?';
 	@override String get aiDeleteNotice => 'Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать.';
 	@override String get aiCancel => 'Отмена';
+	@override String get aiDoubaoTitle => 'Doubao Speech 2.0';
+	@override String get aiDoubaoPurpose => 'Транскрипция аудио и временные метки говорящих';
+	@override String get aiDoubaoExternalNotice => 'Для транскрипции аудио отправляется в Volcengine Doubao Speech; возможна плата поставщику. Настройте API-ключ на устройстве. Ключи MiniMax не переносятся.';
+	@override String get aiDoubaoPendingNotice => 'Транскрипция Doubao пока не подключена. Можно только сохранить настройки устройства. Сохранение не проверяет подключение и не включает транскрипцию.';
+	@override String get aiProviderPending => 'Поставщик продолжает обработку. Прогресс сохранён. Продолжите позже для запроса результата без повторной отправки аудио.';
+	@override String get aiProviderCancel => 'Остановить транскрипцию';
+	@override String get aiProviderCancelNotice => 'Отзывает доступ IMBoy к источнику и операциям. Остановка у поставщика или возврат оплаты не гарантируются.';
+	@override String get aiProviderResubmit => 'Отправить аудио повторно';
+	@override String get aiProviderResubmitNotice => 'Создаёт новую транскрипцию; возможна повторная оплата. Исходный запрос остаётся. Отправить повторно и согласиться на обработку?';
+	@override String get aiProviderCancelled => 'Транскрипция остановлена. Аудио сохранено.';
+	@override String get aiProviderResumePreparation => 'Продолжить подготовку';
+	@override String get aiProviderResumeNotice => 'Исходная задача ещё не отправлена поставщику. Повторно подготовьте источник аудио с текущими правами и согласием.';
 }
 
 // Path: welcome
@@ -5881,6 +5893,18 @@ extension on TranslationsRuRu {
 			'talkRecord.aiDeleteTitle' => 'Удалить ключ устройства?',
 			'talkRecord.aiDeleteNotice' => 'Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать.',
 			'talkRecord.aiCancel' => 'Отмена',
+			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
+			'talkRecord.aiDoubaoPurpose' => 'Транскрипция аудио и временные метки говорящих',
+			'talkRecord.aiDoubaoExternalNotice' => 'Для транскрипции аудио отправляется в Volcengine Doubao Speech; возможна плата поставщику. Настройте API-ключ на устройстве. Ключи MiniMax не переносятся.',
+			'talkRecord.aiDoubaoPendingNotice' => 'Транскрипция Doubao пока не подключена. Можно только сохранить настройки устройства. Сохранение не проверяет подключение и не включает транскрипцию.',
+			'talkRecord.aiProviderPending' => 'Поставщик продолжает обработку. Прогресс сохранён. Продолжите позже для запроса результата без повторной отправки аудио.',
+			'talkRecord.aiProviderCancel' => 'Остановить транскрипцию',
+			'talkRecord.aiProviderCancelNotice' => 'Отзывает доступ IMBoy к источнику и операциям. Остановка у поставщика или возврат оплаты не гарантируются.',
+			'talkRecord.aiProviderResubmit' => 'Отправить аудио повторно',
+			'talkRecord.aiProviderResubmitNotice' => 'Создаёт новую транскрипцию; возможна повторная оплата. Исходный запрос остаётся. Отправить повторно и согласиться на обработку?',
+			'talkRecord.aiProviderCancelled' => 'Транскрипция остановлена. Аудио сохранено.',
+			'talkRecord.aiProviderResumePreparation' => 'Продолжить подготовку',
+			'talkRecord.aiProviderResumeNotice' => 'Исходная задача ещё не отправлена поставщику. Повторно подготовьте источник аудио с текущими правами и согласием.',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',
 			'welcome.step2Title' => 'Безопасно и приватно',
@@ -5909,6 +5933,8 @@ extension on TranslationsRuRu {
 			'workspace.createNameHint' => 'Например: группа редизайна сайта',
 			'workspace.createNameRequired' => 'Название рабочего пространства не может быть пустым',
 			'workspace.createSubmit' => 'Создать',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => 'Создать рабочее пространство',
 			'workspace.createSuccess' => 'Рабочее пространство создано',
 			'workspace.createIdempotentHit' => 'Рабочее пространство с таким названием уже существует, переходим в него',
@@ -5921,8 +5947,6 @@ extension on TranslationsRuRu {
 			'workspace.overviewPinnedContent' => 'Закреплённое в каналах',
 			'workspace.overviewPinnedEmpty' => 'В каналах пока нет закреплённого контента; объявления групп здесь не собираются (они находятся в самих группах)',
 			'workspace.overviewRecentFiles' => 'Последние файлы',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'Здесь появятся недавно загруженные файлы; вложения также можно посмотреть в каналах',
 			'workspace.membersTitle' => 'Участники рабочего пространства',
 			'workspace.membersCountLabel' => ({required Object count}) => 'Участников: ${count}',

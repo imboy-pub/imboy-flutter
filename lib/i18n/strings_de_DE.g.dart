@@ -2496,6 +2496,18 @@ class _Translations$talkRecord$de_DE extends Translations$talkRecord$zh_CN {
 	@override String get aiDeleteTitle => 'Geräteschlüssel löschen?';
 	@override String get aiDeleteNotice => 'Stoppt neue Anfragen an diesen Dienst. Aufnahmen und Ergebnisse bleiben erhalten. Bereits an den Anbieter gesendete Anfragen können nicht zurückgerufen werden.';
 	@override String get aiCancel => 'Abbrechen';
+	@override String get aiDoubaoTitle => 'Doubao Speech 2.0';
+	@override String get aiDoubaoPurpose => 'Audiotranskription und temporäre Sprecherlabels';
+	@override String get aiDoubaoExternalNotice => 'Audio wird zur Transkription an Volcengine Doubao Speech gesendet. Anbietergebühren können anfallen. API-Key nur auf diesem Gerät; MiniMax-Keys werden nicht übernommen.';
+	@override String get aiDoubaoPendingNotice => 'Die Doubao-Transkription ist noch nicht angebunden. Nur Geräteeinstellungen können gespeichert werden. Speichern prüft keine Verbindung und aktiviert keine Transkription.';
+	@override String get aiProviderPending => 'Der Anbieter verarbeitet noch. Fortschritt gespeichert. Später nur abfragen; Audio wird nicht erneut gesendet.';
+	@override String get aiProviderCancel => 'Transkription stoppen';
+	@override String get aiProviderCancelNotice => 'Widerruft IMBoy-Zugriff und Vorgangsrechte. Anbieter-Stopp oder Erstattung werden nicht garantiert.';
+	@override String get aiProviderResubmit => 'Audio erneut senden';
+	@override String get aiProviderResubmitNotice => 'Erstellt eine neue Transkription; doppelte Gebühren sind möglich. Der ursprüngliche Auftrag bleibt. Erneut senden und dieser Verarbeitung zustimmen?';
+	@override String get aiProviderCancelled => 'Transkription gestoppt. Vorhandenes Audio bleibt erhalten.';
+	@override String get aiProviderResumePreparation => 'Transkription weiter vorbereiten';
+	@override String get aiProviderResumeNotice => 'Der ursprüngliche Auftrag wurde noch nicht übermittelt. Audioquelle mit aktuellen Rechten und Einwilligung erneut vorbereiten.';
 }
 
 // Path: welcome
@@ -5875,6 +5887,18 @@ extension on TranslationsDeDe {
 			'talkRecord.aiDeleteTitle' => 'Geräteschlüssel löschen?',
 			'talkRecord.aiDeleteNotice' => 'Stoppt neue Anfragen an diesen Dienst. Aufnahmen und Ergebnisse bleiben erhalten. Bereits an den Anbieter gesendete Anfragen können nicht zurückgerufen werden.',
 			'talkRecord.aiCancel' => 'Abbrechen',
+			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
+			'talkRecord.aiDoubaoPurpose' => 'Audiotranskription und temporäre Sprecherlabels',
+			'talkRecord.aiDoubaoExternalNotice' => 'Audio wird zur Transkription an Volcengine Doubao Speech gesendet. Anbietergebühren können anfallen. API-Key nur auf diesem Gerät; MiniMax-Keys werden nicht übernommen.',
+			'talkRecord.aiDoubaoPendingNotice' => 'Die Doubao-Transkription ist noch nicht angebunden. Nur Geräteeinstellungen können gespeichert werden. Speichern prüft keine Verbindung und aktiviert keine Transkription.',
+			'talkRecord.aiProviderPending' => 'Der Anbieter verarbeitet noch. Fortschritt gespeichert. Später nur abfragen; Audio wird nicht erneut gesendet.',
+			'talkRecord.aiProviderCancel' => 'Transkription stoppen',
+			'talkRecord.aiProviderCancelNotice' => 'Widerruft IMBoy-Zugriff und Vorgangsrechte. Anbieter-Stopp oder Erstattung werden nicht garantiert.',
+			'talkRecord.aiProviderResubmit' => 'Audio erneut senden',
+			'talkRecord.aiProviderResubmitNotice' => 'Erstellt eine neue Transkription; doppelte Gebühren sind möglich. Der ursprüngliche Auftrag bleibt. Erneut senden und dieser Verarbeitung zustimmen?',
+			'talkRecord.aiProviderCancelled' => 'Transkription gestoppt. Vorhandenes Audio bleibt erhalten.',
+			'talkRecord.aiProviderResumePreparation' => 'Transkription weiter vorbereiten',
+			'talkRecord.aiProviderResumeNotice' => 'Der ursprüngliche Auftrag wurde noch nicht übermittelt. Audioquelle mit aktuellen Rechten und Einwilligung erneut vorbereiten.',
 			'welcome.step1Title' => 'Einfache Verbindung',
 			'welcome.step1Desc' => 'Erleben Sie die Freude nahtloser Kommunikation. Jederzeit, überall.',
 			'welcome.step2Title' => 'Sicher & Privat',
@@ -5903,6 +5927,8 @@ extension on TranslationsDeDe {
 			'workspace.createNameHint' => 'z. B. Website-Relaunch-Team',
 			'workspace.createNameRequired' => 'Arbeitsbereichsname darf nicht leer sein',
 			'workspace.createSubmit' => 'Erstellen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createEntry' => 'Arbeitsbereich erstellen',
 			'workspace.createSuccess' => 'Arbeitsbereich erstellt',
 			'workspace.createIdempotentHit' => 'Arbeitsbereich mit diesem Namen existiert bereits, wird direkt geöffnet',
@@ -5915,8 +5941,6 @@ extension on TranslationsDeDe {
 			'workspace.overviewPinnedContent' => 'Angepinnte Kanalinhalte',
 			'workspace.overviewPinnedEmpty' => 'Noch keine angepinnten Kanalinhalte; Gruppenankündigungen werden hier nicht gebündelt (sie gehören zu den einzelnen Gruppen)',
 			'workspace.overviewRecentFiles' => 'Neueste Dateien',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.overviewRecentFilesEmpty' => 'Zuletzt hochgeladene Dateien erscheinen hier; Anhänge sind auch in den einzelnen Kanälen sichtbar',
 			'workspace.membersTitle' => 'Arbeitsbereich-Mitglieder',
 			'workspace.membersCountLabel' => ({required Object count}) => '${count} Mitglieder',

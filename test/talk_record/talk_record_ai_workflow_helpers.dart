@@ -106,6 +106,7 @@ class AiTestBackend implements TalkRecordAiExecutionGateway {
     required String recordId,
     String jobId = '',
     String runId = '',
+    String taskId = '',
     required String action,
     int seq = 0,
     Map<String, dynamic> body = const {},
