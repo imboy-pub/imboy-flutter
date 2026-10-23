@@ -192,3 +192,8 @@ channelPriceLabel(currency, amount): "Price: $currency $amount"
 lightModel: Light mode
 
 complianceKeyNotConfigured: "No compliance audit key configured for this deployment"
+mineContent: My content
+mineCommonEntries: Quick access
+mineManagementSupport: Management & support
+mineSettingsSupport: Settings & support
+mineStorageUsage: Manage usage

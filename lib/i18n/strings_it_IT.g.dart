@@ -2324,6 +2324,11 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get safetyNumberTitle => 'Verifica del codice di sicurezza';
 	@override String get safetyNumberVerifyFailed => 'Impossibile ottenere il codice di sicurezza, riprova più tardi';
 	@override String get complianceKeyNotConfigured => 'Nessuna chiave di audit di conformità configurata per questo deployment';
+	@override String get mineContent => 'I miei contenuti';
+	@override String get mineCommonEntries => 'Accesso rapido';
+	@override String get mineManagementSupport => 'Gestione e assistenza';
+	@override String get mineSettingsSupport => 'Impostazioni e assistenza';
+	@override String get mineStorageUsage => 'Gestisci spazio';
 }
 
 // Path: mention
@@ -5400,6 +5405,11 @@ extension on TranslationsItIt {
 			'main.safetyNumberTitle' => 'Verifica del codice di sicurezza',
 			'main.safetyNumberVerifyFailed' => 'Impossibile ottenere il codice di sicurezza, riprova più tardi',
 			'main.complianceKeyNotConfigured' => 'Nessuna chiave di audit di conformità configurata per questo deployment',
+			'main.mineContent' => 'I miei contenuti',
+			'main.mineCommonEntries' => 'Accesso rapido',
+			'main.mineManagementSupport' => 'Gestione e assistenza',
+			'main.mineSettingsSupport' => 'Impostazioni e assistenza',
+			'main.mineStorageUsage' => 'Gestisci spazio',
 			'mention.mentionAll' => 'Tutti',
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',
@@ -5408,13 +5418,13 @@ extension on TranslationsItIt {
 			'mention.allRead' => 'Segna tutto letto',
 			'mention.mentionAllDenied' => 'Solo gli amministratori possono @tutti',
 			'mention.navInfoMissing' => 'Posizione messaggio mancante, navigazione impossibile',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => 'Menziona membro',
 			'momentFriendPicker.confirm' => 'Fatto',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Fatto (${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} selezionati',
 			'momentFriendPicker.emptyFriends' => 'Nessun amico',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Caricamento tag fallito',
 			'momentFriendPicker.searchHint' => 'Cerca amico',
 			'momentNotify.title' => 'Interazioni',
@@ -5922,13 +5932,13 @@ extension on TranslationsItIt {
 			'workspace.brandingLogoHint' => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)',
 			'workspace.brandingLogoLabel' => 'URL del logo',
 			'workspace.brandingNameLabel' => 'Nome del brand',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingPreview' => 'Anteprima colore principale',
 			'workspace.brandingPreviewApplied' => 'Il colore principale attuale sarà applicato all\'interno dell\'area di lavoro',
 			'workspace.brandingPreviewFallback' => 'Valore non impostato o non valido, uso del colore del tema predefinito',
 			'workspace.brandingSaved' => 'Impostazioni del brand salvate',
 			'workspace.brandingTitle' => 'Brand dell\'area di lavoro',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.changeRoleTitle' => ({required Object name}) => 'Modifica il ruolo nell\'area di lavoro di ${name}',
 			'workspace.channelDetailTitle' => 'Canale',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} iscritti',

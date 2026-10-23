@@ -2324,6 +2324,11 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get e2eeErrPeerSuiteUnsupported => 'Das Gerät der Gegenseite unterstützt die erforderliche Verschlüsselungssuite nicht, Nachricht nicht gesendet. Bitte die Gegenseite zum App-Update auffordern und erneut versuchen';
 	@override String get e2eeErrSessionExportFailed => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen';
 	@override String get complianceKeyNotConfigured => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert';
+	@override String get mineContent => 'Meine Inhalte';
+	@override String get mineCommonEntries => 'Schnellzugriff';
+	@override String get mineManagementSupport => 'Verwaltung & Hilfe';
+	@override String get mineSettingsSupport => 'Einstellungen & Hilfe';
+	@override String get mineStorageUsage => 'Speichernutzung';
 }
 
 // Path: mention
@@ -5400,6 +5405,11 @@ extension on TranslationsDeDe {
 			'main.e2eeErrPeerSuiteUnsupported' => 'Das Gerät der Gegenseite unterstützt die erforderliche Verschlüsselungssuite nicht, Nachricht nicht gesendet. Bitte die Gegenseite zum App-Update auffordern und erneut versuchen',
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
 			'main.complianceKeyNotConfigured' => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert',
+			'main.mineContent' => 'Meine Inhalte',
+			'main.mineCommonEntries' => 'Schnellzugriff',
+			'main.mineManagementSupport' => 'Verwaltung & Hilfe',
+			'main.mineSettingsSupport' => 'Einstellungen & Hilfe',
+			'main.mineStorageUsage' => 'Speichernutzung',
 			'mention.mentionAll' => 'Alle',
 			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
 			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
@@ -5408,13 +5418,13 @@ extension on TranslationsDeDe {
 			'mention.allRead' => 'Alle gelesen',
 			'mention.mentionAllDenied' => 'Nur Administratoren können @alle verwenden',
 			'mention.navInfoMissing' => 'Nachrichtenposition fehlt, Sprung nicht möglich',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => 'Mitglied erwähnen',
 			'momentFriendPicker.confirm' => 'Fertig',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Fertig (${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} ausgewählt',
 			'momentFriendPicker.emptyFriends' => 'Keine Freunde',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Tags konnten nicht geladen werden',
 			'momentFriendPicker.searchHint' => 'Freunde durchsuchen',
 			'momentNotify.title' => 'Interaktionen',
@@ -5922,13 +5932,13 @@ extension on TranslationsDeDe {
 			'workspace.experienceModePersonal' => 'Persönlich',
 			'workspace.switchToPersonal' => 'Zum persönlichen Modus wechseln',
 			'workspace.createTitle' => 'Arbeitsbereich erstellen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => 'Mit einer Erstellung wird alles automatisch angelegt: Arbeitsbereich, Sie (Owner als Arbeitsbereich-Mitglied), Announcements-Kanal und General-Gruppe. Alles erfolgreich oder vollständiger Rollback.',
 			'workspace.createNameLabel' => 'Arbeitsbereichsname',
 			'workspace.createNameHint' => 'z. B. Website-Relaunch-Team',
 			'workspace.createNameRequired' => 'Arbeitsbereichsname darf nicht leer sein',
 			'workspace.createSubmit' => 'Erstellen',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => 'Arbeitsbereich erstellen',
 			'workspace.createSuccess' => 'Arbeitsbereich erstellt',
 			'workspace.createIdempotentHit' => 'Arbeitsbereich mit diesem Namen existiert bereits, wird direkt geöffnet',

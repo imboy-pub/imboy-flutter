@@ -2321,6 +2321,11 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get safetyNumberTitle => '보안 번호 검증';
 	@override String get safetyNumberVerifyFailed => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요';
 	@override String get complianceKeyNotConfigured => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다';
+	@override String get mineContent => '내 콘텐츠';
+	@override String get mineCommonEntries => '빠른 접근';
+	@override String get mineManagementSupport => '관리 및 지원';
+	@override String get mineSettingsSupport => '설정 및 지원';
+	@override String get mineStorageUsage => '사용량 관리';
 }
 
 // Path: mention
@@ -5397,6 +5402,11 @@ extension on TranslationsKoKr {
 			'main.safetyNumberTitle' => '보안 번호 검증',
 			'main.safetyNumberVerifyFailed' => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
 			'main.complianceKeyNotConfigured' => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다',
+			'main.mineContent' => '내 콘텐츠',
+			'main.mineCommonEntries' => '빠른 접근',
+			'main.mineManagementSupport' => '관리 및 지원',
+			'main.mineSettingsSupport' => '설정 및 지원',
+			'main.mineStorageUsage' => '사용량 관리',
 			'mention.mentionAll' => '전체',
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
@@ -5405,13 +5415,13 @@ extension on TranslationsKoKr {
 			'mention.allRead' => '모두 읽음',
 			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
 			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => '멤버 @멘션',
 			'momentFriendPicker.confirm' => '확인',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '확인(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count}명 선택',
 			'momentFriendPicker.emptyFriends' => '친구가 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => '태그를 불러오지 못했습니다',
 			'momentFriendPicker.searchHint' => '친구 검색',
 			'momentNotify.title' => '활동',
@@ -5919,13 +5929,13 @@ extension on TranslationsKoKr {
 			'workspace.experienceModePersonal' => '개인',
 			'workspace.switchToPersonal' => '개인으로 전환',
 			'workspace.createTitle' => '워크스페이스 만들기',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.',
 			'workspace.createNameLabel' => '워크스페이스 이름',
 			'workspace.createNameHint' => '예: 공식 홈페이지 리뉴얼 팀',
 			'workspace.createNameRequired' => '워크스페이스 이름은 필수입니다',
 			'workspace.createSubmit' => '만들기',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => '워크스페이스 만들기',
 			'workspace.createSuccess' => '워크스페이스가 생성되었습니다',
 			'workspace.createIdempotentHit' => '같은 이름의 워크스페이스가 이미 있습니다. 해당 워크스페이스로 이동합니다',

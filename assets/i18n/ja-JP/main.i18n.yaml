@@ -196,3 +196,8 @@ e2eeErrPeerSuiteUnsupported: 相手のデバイスが要求された暗号スイ
 e2eeErrSessionExportFailed: グループセッションキーの生成に失敗しました。後でもう一度お試しください
 
 complianceKeyNotConfigured: "このデプロイにはコンプライアンス監査キーが設定されていません"
+mineContent: マイコンテンツ
+mineCommonEntries: よく使う機能
+mineManagementSupport: 管理とサポート
+mineSettingsSupport: 設定とサポート
+mineStorageUsage: 使用量の管理

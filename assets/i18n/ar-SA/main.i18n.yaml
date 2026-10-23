@@ -193,3 +193,8 @@ safetyNumberNotVerified: "غير مُتحقق"
 safetyNumberDeviceCount(count): "$count أجهزة"
 
 complianceKeyNotConfigured: "لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر"
+mineContent: المحتوى الخاص بي
+mineCommonEntries: الوصول السريع
+mineManagementSupport: الإدارة والدعم
+mineSettingsSupport: الإعدادات والدعم
+mineStorageUsage: إدارة الاستخدام

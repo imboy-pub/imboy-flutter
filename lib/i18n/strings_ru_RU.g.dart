@@ -2330,6 +2330,11 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get safetyNumberTitle => 'Проверка кода безопасности';
 	@override String get safetyNumberVerifyFailed => 'Не удалось получить код безопасности. Повторите позже';
 	@override String get complianceKeyNotConfigured => 'Для этого развёртывания не настроен ключ комплаенс-аудита';
+	@override String get mineContent => 'Мои материалы';
+	@override String get mineCommonEntries => 'Быстрый доступ';
+	@override String get mineManagementSupport => 'Управление и поддержка';
+	@override String get mineSettingsSupport => 'Настройки и поддержка';
+	@override String get mineStorageUsage => 'Управление памятью';
 }
 
 // Path: mention
@@ -5406,6 +5411,11 @@ extension on TranslationsRuRu {
 			'main.safetyNumberTitle' => 'Проверка кода безопасности',
 			'main.safetyNumberVerifyFailed' => 'Не удалось получить код безопасности. Повторите позже',
 			'main.complianceKeyNotConfigured' => 'Для этого развёртывания не настроен ключ комплаенс-аудита',
+			'main.mineContent' => 'Мои материалы',
+			'main.mineCommonEntries' => 'Быстрый доступ',
+			'main.mineManagementSupport' => 'Управление и поддержка',
+			'main.mineSettingsSupport' => 'Настройки и поддержка',
+			'main.mineStorageUsage' => 'Управление памятью',
 			'mention.mentionAll' => 'Все',
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
@@ -5414,13 +5424,13 @@ extension on TranslationsRuRu {
 			'mention.allRead' => 'Всё прочитано',
 			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
 			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => 'Упомянуть участника',
 			'momentFriendPicker.confirm' => 'ОК',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'ОК(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => 'Выбрано: ${count}',
 			'momentFriendPicker.emptyFriends' => 'Нет друзей',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Не удалось загрузить метки',
 			'momentFriendPicker.searchHint' => 'Поиск друзей',
 			'momentNotify.title' => 'Взаимодействия',
@@ -5928,13 +5938,13 @@ extension on TranslationsRuRu {
 			'workspace.experienceModePersonal' => 'Личный',
 			'workspace.switchToPersonal' => 'Переключиться на личный',
 			'workspace.createTitle' => 'Создать рабочее пространство',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.',
 			'workspace.createNameLabel' => 'Название рабочего пространства',
 			'workspace.createNameHint' => 'Например: группа редизайна сайта',
 			'workspace.createNameRequired' => 'Название рабочего пространства не может быть пустым',
 			'workspace.createSubmit' => 'Создать',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => 'Создать рабочее пространство',
 			'workspace.createSuccess' => 'Рабочее пространство создано',
 			'workspace.createIdempotentHit' => 'Рабочее пространство с таким названием уже существует, переходим в него',

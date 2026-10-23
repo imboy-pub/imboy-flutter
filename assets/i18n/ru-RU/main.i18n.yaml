@@ -193,3 +193,8 @@ safetyNumberTitle: Проверка кода безопасности
 safetyNumberVerifyFailed: Не удалось получить код безопасности. Повторите позже
 
 complianceKeyNotConfigured: "Для этого развёртывания не настроен ключ комплаенс-аудита"
+mineContent: Мои материалы
+mineCommonEntries: Быстрый доступ
+mineManagementSupport: Управление и поддержка
+mineSettingsSupport: Настройки и поддержка
+mineStorageUsage: Управление памятью

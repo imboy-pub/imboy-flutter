@@ -2525,6 +2525,11 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String channelPriceLabel({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}';
 	@override String get lightModel => 'Light mode';
 	@override String get complianceKeyNotConfigured => 'No compliance audit key configured for this deployment';
+	@override String get mineContent => 'My content';
+	@override String get mineCommonEntries => 'Quick access';
+	@override String get mineManagementSupport => 'Management & support';
+	@override String get mineSettingsSupport => 'Settings & support';
+	@override String get mineStorageUsage => 'Manage usage';
 }
 
 // Path: mention
@@ -6244,6 +6249,11 @@ extension on TranslationsEnUs {
 			'main.channelPriceLabel' => ({required Object currency, required Object amount}) => 'Price: ${currency} ${amount}',
 			'main.lightModel' => 'Light mode',
 			'main.complianceKeyNotConfigured' => 'No compliance audit key configured for this deployment',
+			'main.mineContent' => 'My content',
+			'main.mineCommonEntries' => 'Quick access',
+			'main.mineManagementSupport' => 'Management & support',
+			'main.mineSettingsSupport' => 'Settings & support',
+			'main.mineStorageUsage' => 'Manage usage',
 			'mention.mentionAll' => 'Everyone',
 			'mention.mentionAllHint' => 'Notify all group members',
 			'mention.noMatchedMember' => 'No matching members',
@@ -6553,13 +6563,13 @@ extension on TranslationsEnUs {
 			'organization.manage.forbiddenTitle' => 'No management permission',
 			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
 			'organization.manage.workspaceSection' => 'Workspaces',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.createWorkspace' => 'New workspace',
 			'organization.manage.workspaceNameHint' => 'Workspace name',
 			'organization.manage.workspaceEmpty' => 'No workspaces yet',
 			'organization.manage.workspaceEmptyHint' => 'You have not joined a workspace in this enterprise yet. Create one from the top-right action.',
 			'organization.manage.workspaceScopeNote' => 'Only workspaces you have joined are listed; other workspaces in this enterprise do not appear.',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.defaultBadge' => 'Default workspace',
 			'organization.manage.notDefaultBadge' => 'Not default',
 			'organization.manage.archivedBadge' => 'Archived',
@@ -7067,13 +7077,13 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryUnavailable' => 'Cleanup retry permission could not be confirmed. Refresh the status.',
 			'talkRecord.cleanupRetryReconcile' => 'Reconcile the same retry request',
 			'talkRecord.uploadProgressRegister' => 'Preparing upload',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'Uploading audio',
 			'talkRecord.uploadProgressConfirm' => 'Confirming audio',
 			'talkRecord.uploadProgressSubmitting' => 'Submitting recording',
 			'talkRecord.uploadProgressCompleted' => 'Submitted; audio processing pending',
 			'talkRecord.uploadProgressFailed' => 'Upload incomplete; retry available',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.uploadProgressParts' => ({required Object confirmed, required Object total}) => 'Confirmed ${confirmed}/${total} parts',
 			'talkRecord.aiServicesTitle' => 'AI services',
 			'talkRecord.aiServicesSubtitle' => 'Use your own API accounts. Providers charge for usage.',

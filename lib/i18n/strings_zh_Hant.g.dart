@@ -2321,6 +2321,11 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get safetyNumberTitle => '安全碼驗證';
 	@override String get safetyNumberVerifyFailed => '取得安全碼失敗，請稍後重試';
 	@override String get complianceKeyNotConfigured => '目前部署未配置合規審計金鑰';
+	@override String get mineContent => '我的內容';
+	@override String get mineCommonEntries => '常用入口';
+	@override String get mineManagementSupport => '管理與支援';
+	@override String get mineSettingsSupport => '設定與支援';
+	@override String get mineStorageUsage => '管理用量';
 }
 
 // Path: mention
@@ -5397,6 +5402,11 @@ extension on TranslationsZhHant {
 			'main.safetyNumberTitle' => '安全碼驗證',
 			'main.safetyNumberVerifyFailed' => '取得安全碼失敗，請稍後重試',
 			'main.complianceKeyNotConfigured' => '目前部署未配置合規審計金鑰',
+			'main.mineContent' => '我的內容',
+			'main.mineCommonEntries' => '常用入口',
+			'main.mineManagementSupport' => '管理與支援',
+			'main.mineSettingsSupport' => '設定與支援',
+			'main.mineStorageUsage' => '管理用量',
 			'mention.mentionAll' => '全體成員',
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',
@@ -5405,13 +5415,13 @@ extension on TranslationsZhHant {
 			'mention.allRead' => '全部已讀',
 			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
 			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => '@標註成員',
 			'momentFriendPicker.confirm' => '確定',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '確定(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '已選 ${count} 人',
 			'momentFriendPicker.emptyFriends' => '暫無好友',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => '標籤載入失敗',
 			'momentFriendPicker.searchHint' => '搜尋好友',
 			'momentNotify.title' => '互動訊息',
@@ -5919,13 +5929,13 @@ extension on TranslationsZhHant {
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '切換到個人',
 			'workspace.createTitle' => '建立工作區',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。',
 			'workspace.createNameLabel' => '工作區名稱',
 			'workspace.createNameHint' => '例如：官網改版專案小組',
 			'workspace.createNameRequired' => '工作區名稱不能為空',
 			'workspace.createSubmit' => '建立',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => '建立工作區',
 			'workspace.createSuccess' => '工作區建立成功',
 			'workspace.createIdempotentHit' => '已存在同名工作區，直接進入',

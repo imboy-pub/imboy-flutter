@@ -193,3 +193,8 @@ safetyNumberTitle: 보안 번호 검증
 safetyNumberVerifyFailed: 보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요
 
 complianceKeyNotConfigured: "이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다"
+mineContent: 내 콘텐츠
+mineCommonEntries: 빠른 접근
+mineManagementSupport: 관리 및 지원
+mineSettingsSupport: 설정 및 지원
+mineStorageUsage: 사용량 관리

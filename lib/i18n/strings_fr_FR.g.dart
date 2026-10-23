@@ -2324,6 +2324,11 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get safetyNumberTitle => 'Vérification du code de sécurité';
 	@override String get safetyNumberVerifyFailed => 'Échec de la récupération du code de sécurité. Réessayez plus tard';
 	@override String get complianceKeyNotConfigured => 'Aucune clé d\'audit de conformité configurée pour ce déploiement';
+	@override String get mineContent => 'Mes contenus';
+	@override String get mineCommonEntries => 'Accès rapide';
+	@override String get mineManagementSupport => 'Gestion et assistance';
+	@override String get mineSettingsSupport => 'Réglages et assistance';
+	@override String get mineStorageUsage => 'Gérer le stockage';
 }
 
 // Path: mention
@@ -5400,6 +5405,11 @@ extension on TranslationsFrFr {
 			'main.safetyNumberTitle' => 'Vérification du code de sécurité',
 			'main.safetyNumberVerifyFailed' => 'Échec de la récupération du code de sécurité. Réessayez plus tard',
 			'main.complianceKeyNotConfigured' => 'Aucune clé d\'audit de conformité configurée pour ce déploiement',
+			'main.mineContent' => 'Mes contenus',
+			'main.mineCommonEntries' => 'Accès rapide',
+			'main.mineManagementSupport' => 'Gestion et assistance',
+			'main.mineSettingsSupport' => 'Réglages et assistance',
+			'main.mineStorageUsage' => 'Gérer le stockage',
 			'mention.mentionAll' => 'Tout le monde',
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',
@@ -5408,13 +5418,13 @@ extension on TranslationsFrFr {
 			'mention.allRead' => 'Tout marquer lu',
 			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
 			'mention.navInfoMissing' => 'Position du message manquante, navigation impossible',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => 'Mentionner un membre',
 			'momentFriendPicker.confirm' => 'Terminé',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Terminé (${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} sélectionnés',
 			'momentFriendPicker.emptyFriends' => 'Aucun ami',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'Échec du chargement des étiquettes',
 			'momentFriendPicker.searchHint' => 'Rechercher un ami',
 			'momentNotify.title' => 'Interactions',
@@ -5922,13 +5932,13 @@ extension on TranslationsFrFr {
 			'workspace.experienceModePersonal' => 'Personnel',
 			'workspace.switchToPersonal' => 'Passer en mode personnel',
 			'workspace.createTitle' => 'Créer un espace de travail',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => 'Une seule création automatise tout : l\'espace de travail, votre adhésion en tant que membre Owner, le canal Announcements et le groupe General. Tout réussit ou tout est annulé.',
 			'workspace.createNameLabel' => 'Nom de l\'espace de travail',
 			'workspace.createNameHint' => 'Ex. : groupe projet de refonte du site web',
 			'workspace.createNameRequired' => 'Le nom de l\'espace de travail est requis',
 			'workspace.createSubmit' => 'Créer',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => 'Créer un espace de travail',
 			'workspace.createSuccess' => 'Espace de travail créé avec succès',
 			'workspace.createIdempotentHit' => 'Un espace de travail du même nom existe déjà, entrez-y directement',

@@ -21,6 +21,7 @@ import 'package:imboy/page/workspace/workspace_projects_page.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/page/mine/mine/mine_shortcut.dart';
 import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_toolbar.dart';
@@ -225,7 +226,11 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       children: [
         WorkspaceTopBar(
           title: title,
-          subtitle: contextSubtitle.isEmpty ? null : contextSubtitle,
+          subtitle:
+              _selected == EnterpriseShellDestination.mine ||
+                  contextSubtitle.isEmpty
+              ? null
+              : contextSubtitle,
           // 左上汉堡（企业抽屉入口）只在「消息」页展示；通讯录/工作台/我
           // 三个 tab 不挂，需要抽屉时切回消息页。
           leading: _selected == EnterpriseShellDestination.messages
@@ -416,13 +421,16 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     return MinePage(
       enterprise: true,
       enterpriseName: org?.name,
-      enterpriseEntry: CupertinoListTile(
+      enterpriseWorkspaceName:
+          workspace?.belongsToOrg(widget.organizationId) == true
+          ? workspace?.name
+          : null,
+      enterpriseEntry: MineShortcut(
         key: const ValueKey('enterprise-mine-organization-entry'),
-        leading: const Icon(CupertinoIcons.building_2_fill),
-        title: Text(
-          canManage ? t.organization.manage.entry : t.organization.home.tabOrg,
-        ),
-        trailing: const CupertinoListTileChevron(),
+        icon: CupertinoIcons.building_2_fill,
+        label: canManage
+            ? t.organization.manage.entry
+            : t.organization.home.tabOrg,
         onTap: () => context.push('/organization/${widget.organizationId}'),
       ),
     );

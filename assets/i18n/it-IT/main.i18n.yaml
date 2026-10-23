@@ -193,3 +193,8 @@ safetyNumberTitle: Verifica del codice di sicurezza
 safetyNumberVerifyFailed: "Impossibile ottenere il codice di sicurezza, riprova più tardi"
 
 complianceKeyNotConfigured: "Nessuna chiave di audit di conformità configurata per questo deployment"
+mineContent: I miei contenuti
+mineCommonEntries: Accesso rapido
+mineManagementSupport: Gestione e assistenza
+mineSettingsSupport: Impostazioni e assistenza
+mineStorageUsage: Gestisci spazio

@@ -193,3 +193,8 @@ e2eeErrPeerSuiteUnsupported: Das Gerät der Gegenseite unterstützt die erforder
 e2eeErrSessionExportFailed: Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen
 
 complianceKeyNotConfigured: "Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert"
+mineContent: Meine Inhalte
+mineCommonEntries: Schnellzugriff
+mineManagementSupport: Verwaltung & Hilfe
+mineSettingsSupport: Einstellungen & Hilfe
+mineStorageUsage: Speichernutzung

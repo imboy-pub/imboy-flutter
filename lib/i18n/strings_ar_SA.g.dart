@@ -2333,6 +2333,11 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get safetyNumberNotVerified => 'غير مُتحقق';
 	@override String safetyNumberDeviceCount({required Object count}) => '${count} أجهزة';
 	@override String get complianceKeyNotConfigured => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر';
+	@override String get mineContent => 'المحتوى الخاص بي';
+	@override String get mineCommonEntries => 'الوصول السريع';
+	@override String get mineManagementSupport => 'الإدارة والدعم';
+	@override String get mineSettingsSupport => 'الإعدادات والدعم';
+	@override String get mineStorageUsage => 'إدارة الاستخدام';
 }
 
 // Path: mention
@@ -5409,6 +5414,11 @@ extension on TranslationsArSa {
 			'main.safetyNumberNotVerified' => 'غير مُتحقق',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} أجهزة',
 			'main.complianceKeyNotConfigured' => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر',
+			'main.mineContent' => 'المحتوى الخاص بي',
+			'main.mineCommonEntries' => 'الوصول السريع',
+			'main.mineManagementSupport' => 'الإدارة والدعم',
+			'main.mineSettingsSupport' => 'الإعدادات والدعم',
+			'main.mineStorageUsage' => 'إدارة الاستخدام',
 			'mention.mentionAll' => 'الجميع',
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
@@ -5417,13 +5427,13 @@ extension on TranslationsArSa {
 			'mention.allRead' => 'تمت قراءة الكل',
 			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
 			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => '@إشارة إلى عضو',
 			'momentFriendPicker.confirm' => 'موافق',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'موافق(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => 'تم اختيار ${count}',
 			'momentFriendPicker.emptyFriends' => 'لا يوجد أصدقاء',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'تعذّر تحميل الوسوم',
 			'momentFriendPicker.searchHint' => 'ابحث عن أصدقاء',
 			'momentNotify.title' => 'التفاعلات',
@@ -5931,13 +5941,13 @@ extension on TranslationsArSa {
 			'workspace.experienceModePersonal' => 'شخصي',
 			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
 			'workspace.createTitle' => 'إنشاء مساحة عمل',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.',
 			'workspace.createNameLabel' => 'اسم مساحة العمل',
 			'workspace.createNameHint' => 'مثال: فريق مشروع إعادة تصميم الموقع',
 			'workspace.createNameRequired' => 'لا يمكن أن يكون اسم مساحة العمل فارغاً',
 			'workspace.createSubmit' => 'إنشاء',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => 'إنشاء مساحة عمل',
 			'workspace.createSuccess' => 'تم إنشاء مساحة العمل بنجاح',
 			'workspace.createIdempotentHit' => 'توجد مساحة عمل بنفس الاسم بالفعل، وسيتم الدخول إليها مباشرة',

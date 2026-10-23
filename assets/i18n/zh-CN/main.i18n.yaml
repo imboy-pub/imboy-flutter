@@ -192,3 +192,8 @@ liveRoomTitleHint: 请输入直播间标题
 lightModel: 浅色模式
 
 complianceKeyNotConfigured: "当前部署未配置合规审计密钥"
+mineContent: 我的内容
+mineCommonEntries: 常用入口
+mineManagementSupport: 管理与支持
+mineSettingsSupport: 设置与支持
+mineStorageUsage: 管理占用

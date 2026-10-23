@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "id": "MINE-LAYOUT-ISOLATED-DEVICE-001",
+  "title": "我的页紧凑布局：真机合成组件与导航回归",
+  "risk": "P1",
+  "phase": "p1",
+  "sources": [
+    "lib/page/mine/mine/mine_page.dart",
+    "lib/page/mine/mine/mine_profile.dart",
+    "lib/page/mine/mine/mine_shortcut.dart",
+    "lib/modules/organization/presentation/current_space_tile.dart"
+  ],
+  "dependencies": [
+    "lib/page/workspace_shell/enterprise_shell_page.dart",
+    "lib/modules/customer_service/presentation/cs_workspace_entry.dart"
+  ],
+  "assertions": {
+    "functional": [
+      "个人空间只显示一次空间名；我的频道入口已移除",
+      "收藏、面聊记录与本机附件各出现一次；客服卡片仅由合成坐席响应驱动",
+      "点击昵称、二维码与紧凑空间切换分别进入独立路由目标",
+      "个人面聊入口携带 scope=personal",
+      "企业页显示单一企业与工作区上下文，不混入个人工具或客服重复入口",
+      "全部业务目标使用 stub；此测试不证明业务数据、实际空间切换或企业角色授权"
+    ],
+    "ui": [
+      "个人与企业实际 Flutter 组件在浅色和深色真机渲染，无框架异常",
+      "PNG 仅含合成资料，通过带偏移与总长的 stdout 分块输出，由宿主校验后存仓外"
+    ]
+  },
+  "visual": {
+    "rubric": [
+      "no_overflow",
+      "compact_context",
+      "dark_mode",
+      "independent_touch_targets"
+    ],
+    "baseline": "待真实设备采集；合成组件截图不代表业务全链路验收"
+  },
+  "runner": {
+    "type": "flutter",
+    "target": "integration_test/mine_layout_smoke_test.dart",
+    "requires": [
+      "device.android"
+    ]
+  },
+  "safe_to_execute": false,
+  "risk_mode": "local-write",
+  "execution_block_reason": "需确认真机租用及所选 flavor 的真实 applicationId/进程占用；隔离执行优先使用未安装且无占用的既有 flavor，避免覆盖或停止他人调试包。SharedPreferences 与 SecureStorage 均为内存 mock，不读取真实凭据；未启动 main.dart，HTTP adapter 与 raw HTTP 双重隔离。"
+}

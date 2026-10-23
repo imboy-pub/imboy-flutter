@@ -2321,6 +2321,11 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get e2eeErrPeerSuiteUnsupported => '相手のデバイスが要求された暗号スイートに対応していないため、メッセージは送信されませんでした。相手にアプリの更新を依頼してから再試行してください';
 	@override String get e2eeErrSessionExportFailed => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください';
 	@override String get complianceKeyNotConfigured => 'このデプロイにはコンプライアンス監査キーが設定されていません';
+	@override String get mineContent => 'マイコンテンツ';
+	@override String get mineCommonEntries => 'よく使う機能';
+	@override String get mineManagementSupport => '管理とサポート';
+	@override String get mineSettingsSupport => '設定とサポート';
+	@override String get mineStorageUsage => '使用量の管理';
 }
 
 // Path: mention
@@ -5397,6 +5402,11 @@ extension on TranslationsJaJp {
 			'main.e2eeErrPeerSuiteUnsupported' => '相手のデバイスが要求された暗号スイートに対応していないため、メッセージは送信されませんでした。相手にアプリの更新を依頼してから再試行してください',
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyNotConfigured' => 'このデプロイにはコンプライアンス監査キーが設定されていません',
+			'main.mineContent' => 'マイコンテンツ',
+			'main.mineCommonEntries' => 'よく使う機能',
+			'main.mineManagementSupport' => '管理とサポート',
+			'main.mineSettingsSupport' => '設定とサポート',
+			'main.mineStorageUsage' => '使用量の管理',
 			'mention.mentionAll' => '全員',
 			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',
@@ -5405,13 +5415,13 @@ extension on TranslationsJaJp {
 			'mention.allRead' => 'すべて既読にする',
 			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
 			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
+			_ => null,
+		} ?? switch (path) {
 			'mention.pickButtonTooltip' => '@メンバーを指定',
 			'momentFriendPicker.confirm' => '完了',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '完了(${count})',
 			'momentFriendPicker.selectedCount' => ({required Object count}) => '${count} 人選択中',
 			'momentFriendPicker.emptyFriends' => '友達がいません',
-			_ => null,
-		} ?? switch (path) {
 			'momentFriendPicker.tagLoadFailed' => 'タグの読み込みに失敗しました',
 			'momentFriendPicker.searchHint' => '友達を検索',
 			'momentNotify.title' => 'アクティビティ',
@@ -5919,13 +5929,13 @@ extension on TranslationsJaJp {
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '個人に切り替え',
 			'workspace.createTitle' => 'ワークスペースを作成',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.createDesc' => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。',
 			'workspace.createNameLabel' => 'ワークスペース名',
 			'workspace.createNameHint' => '例：サイトリニューアルプロジェクト',
 			'workspace.createNameRequired' => 'ワークスペース名は空にできません',
 			'workspace.createSubmit' => '作成',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.createEntry' => 'ワークスペースを作成',
 			'workspace.createSuccess' => 'ワークスペースを作成しました',
 			'workspace.createIdempotentHit' => '同名のワークスペースが既に存在するため、そのまま開きます',

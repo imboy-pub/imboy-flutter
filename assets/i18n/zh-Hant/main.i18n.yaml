@@ -193,3 +193,8 @@ safetyNumberTitle: 安全碼驗證
 safetyNumberVerifyFailed: 取得安全碼失敗，請稍後重試
 
 complianceKeyNotConfigured: "目前部署未配置合規審計金鑰"
+mineContent: 我的內容
+mineCommonEntries: 常用入口
+mineManagementSupport: 管理與支援
+mineSettingsSupport: 設定與支援
+mineStorageUsage: 管理用量

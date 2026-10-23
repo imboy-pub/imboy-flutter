@@ -51,6 +51,7 @@ REQUIRED_SPEC_FILES = frozenset({
     'conversation-list.json',
     'e2ee-backup-import.json',
     'group-schedule.json',
+    'mine-layout-isolated-device.json',
     'organization-home-device-preparation.json',
     'passport-login.json',
     'passport-signup.json',

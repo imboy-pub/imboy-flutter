@@ -528,6 +528,16 @@ Deep resource pages share a bounded 680pt content column, quiet forms and consis
 
 Resource entries share one geometry (16pt padding, 32pt icon slot, 24pt icon, 12pt gap, 20pt chevron slot). Context and permissions distinguish spaces without separate visual systems. Compact channel reading preserves all existing access gates. Timestamps describe content, not channel metadata. Destructive confirmation and independent workspace membership remain mandatory.
 
+### 8.12 我的页面（个人与企业，2026-10）
+
+- 两种空间共用资料区、轻量空间选择器与中性色管理列表。昵称与二维码分别可操作，避免把空间按钮嵌套进资料按钮；个人保留账号 ID，企业不重复展示“个人资料”提示。
+- 空间选择器放在昵称下方，仅显示空间名称与下拉箭头；企业模式合并企业与当前工作区。取消独立空间卡片及“当前空间 / 切换空间”常驻文案，企业“我”页顶栏不重复空间上下文。完整名称通过语义标签和 Tooltip 保留，选择器触达至少 48pt，继续进入现有空间选择流程。
+- 个人常用卡片为收藏、面聊记录、本机附件；取消“我的频道”，钱包继续遵循既有功能开关。企业常用卡片为收藏与企业入口，后者沿用现有权限判定显示“企业”或“企业管理”，不混入个人工具。
+- 卡片使用浅色 surface / 暗色 surfaceElevated、10pt 圆角、24pt 线性图标与品牌蓝，确保与 grouped 页面底色区分；最多三列，窄屏和大字号自动减少列数，文字允许换行。管理项采用无外卡片的紧凑分隔列表，图标使用次文字色。
+- 客服卡片只在个人模式且坐席授权成立后显示；加载、无权限和失败均不占位。企业客服继续从工作台进入。
+
+The personal and enterprise Me pages share profile geometry, an inline space picker and quiet management rows. Existing routes, feature gates and authorization remain authoritative. Shortcut columns adapt to available width and text scaling; the enterprise shell omits duplicate context only on its Me page.
+
 ---
 
 ## 9. 聊天气泡规范 | Chat Bubbles

@@ -193,3 +193,8 @@ safetyNumberTitle: "Vérification du code de sécurité"
 safetyNumberVerifyFailed: "Échec de la récupération du code de sécurité. Réessayez plus tard"
 
 complianceKeyNotConfigured: "Aucune clé d'audit de conformité configurée pour ce déploiement"
+mineContent: Mes contenus
+mineCommonEntries: Accès rapide
+mineManagementSupport: Gestion et assistance
+mineSettingsSupport: Réglages et assistance
+mineStorageUsage: Gérer le stockage

@@ -1,26 +1,22 @@
-import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
-import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
-import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
-import 'package:imboy/component/helper/func.dart';
-import 'package:imboy/component/ui/avatar_fallback.dart';
-import 'package:imboy/component/ui/ios_settings_ui.dart';
-import 'package:imboy/component/ui/quick_action_grid.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
 import 'package:imboy/modules/attachments/personal_attachments_page.dart';
+import 'package:imboy/modules/customer_service/presentation/cs_workspace_entry.dart';
+import 'package:imboy/modules/talk_record/presentation/talk_record_entry_context.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_tiles.dart';
-import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/page/mine/mine/mine_menu.dart';
+import 'package:imboy/page/mine/mine/mine_profile.dart';
+import 'package:imboy/page/mine/mine/mine_shortcut.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
-import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
-import 'package:imboy/theme/default/font_types.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'mine_page.g.dart';
@@ -36,341 +32,159 @@ class MineNotifier extends _$MineNotifier {
   MineState build() => const MineState();
 }
 
-/// 我的页面 - 像素级对齐 iOS 17 高保真重构
-class MinePage extends ConsumerStatefulWidget {
+/// Personal and enterprise pages share geometry while keeping their entry gates.
+class MinePage extends ConsumerWidget {
   const MinePage({
     super.key,
     this.enterprise = false,
     this.enterpriseName,
+    this.enterpriseWorkspaceName,
     this.enterpriseEntry,
   });
 
   final bool enterprise;
   final String? enterpriseName;
+  final String? enterpriseWorkspaceName;
   final Widget? enterpriseEntry;
 
   @override
-  ConsumerState<MinePage> createState() => _MinePageState();
-}
-
-class _MinePageState extends ConsumerState<MinePage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(featureRevisionProvider);
-    // 响应式当前用户：资料变更（上传头像等）后即时重建
     final user = ref.watch(currentUserProvider);
-    final brightness = Theme.of(context).brightness;
-    final topPadding = widget.enterprise
-        ? AppSpacing.none
-        : MediaQuery.of(context).padding.top + AppSpacing.regular;
-
     return CupertinoPageScaffold(
+      backgroundColor: AppColors.getSurfaceGrouped(
+        Theme.of(context).brightness,
+      ),
       child: SafeArea(
-        top: false, // 顶衬直接渗透到状态栏，实现高奢沉浸式一体化底色
-        bottom: !widget.enterprise,
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
+        top: !enterprise,
+        bottom: !enterprise,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: ResourcePageLayout.maxWidth,
+            ),
+            child: _content(
+              context,
+              MineProfile(
+                user: user,
+                enterprise: enterprise,
+                spaceLabel: _spaceLabel,
+              ),
+            ),
           ),
-          slivers: [
-            // 沉浸式顶部安全间距，像素级避开刘海屏并保持呼吸感
-            SliverToBoxAdapter(child: SizedBox(height: topPadding)),
+        ),
+      ),
+    );
+  }
 
-            // 顶部名片 - 采用 iOS 17 系统级质感
-            SliverToBoxAdapter(
-              child: _buildSystemHeader(context, user, brightness),
+  Widget _content(BuildContext context, Widget profile) =>
+      SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.regular,
+          AppSpacing.none,
+          AppSpacing.regular,
+          AppSpacing.xxxLarge,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            profile,
+            MineSection(
+              title: enterprise ? t.main.mineCommonEntries : t.main.mineContent,
+              child: MineShortcutGrid(children: _shortcuts(context)),
             ),
-
-            // 核心功能宫格
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: AppSpacing.small,
-                  bottom: AppSpacing.tiny,
-                ),
-                child: widget.enterprise
-                    ? ImBoySettingsSection(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.regular,
-                        ),
-                        children: [
-                          ImBoySettingsTile(
-                            title: Text(t.main.myFavorites),
-                            leading: _buildIcon(
-                              CupertinoIcons.bookmark_fill,
-                              AppColors.iosRed,
-                            ),
-                            onTap: () => context.push('/favorites'),
-                          ),
-                        ],
-                      )
-                    : _buildQuickActions(context),
-              ),
-            ),
-
-            // 工作模式直达切换（个人 ↔ 工作区一键互换；本机首页偏好，
-            // 可逆无损，免确认。原路径埋在设置→工作模式四步，太深）
-            SliverToBoxAdapter(
-              child: ImBoySettingsSection(
-                margin: const EdgeInsets.fromLTRB(
-                  AppSpacing.regular,
-                  AppSpacing.small,
-                  AppSpacing.regular,
-                  AppSpacing.none,
-                ),
-                children: [
-                  if (widget.enterpriseEntry != null) widget.enterpriseEntry!,
-                  const CurrentSpaceTile(),
-                  // CSM-01 §12.5.1：客服工作台入口仅个人模式展示——企业模式
-                  // 工作台已有同名入口，两处并存属重复披露。坐席可见性判定
-                  // 仍在 owned 模块内（普通用户渲染为空占位）。
-                  if (!widget.enterprise) const CsWorkspaceEntryTile(),
-                ],
-              ),
-            ),
-
-            // 功能组
-            if (!widget.enterprise)
-              SliverToBoxAdapter(
-                child: ImBoySettingsSection(
-                  margin: const EdgeInsets.fromLTRB(
-                    AppSpacing.regular,
-                    AppSpacing.small,
-                    AppSpacing.regular,
-                    AppSpacing.none,
-                  ),
-                  children: [
-                    const TalkRecordPersonalToolEntry(),
-                    // 「收藏」已由顶部圆形快捷入口提供，此处移除重复项
-                    ImBoySettingsTile(
-                      title: Text(t.attachmentManager.personalTitle),
-                      leading: _buildIcon(
-                        CupertinoIcons.folder,
-                        AppColors.iosBlue,
-                      ),
-                      onTap: () => Navigator.of(context).push(
-                        CupertinoPageRoute<void>(
-                          builder: (_) => const PersonalAttachmentsPage(),
-                        ),
-                      ),
-                    ),
-                    ImBoySettingsTile(
-                      title: Text(t.main.storageSpace),
-                      leading: _buildIcon(
-                        CupertinoIcons.circle_grid_hex_fill,
-                        AppColors.iosSkyBlue,
-                      ),
-                      onTap: () => context.push('/storage_space'),
-                    ),
-                    ImBoySettingsTile(
-                      title: Text(t.account.loginDeviceManagement),
-                      leading: _buildIcon(
-                        CupertinoIcons.device_phone_portrait,
-                        AppColors.iosPurple,
-                      ),
-                      onTap: () => context.push('/devices'),
-                    ),
-                    // R-04.1：处置与申诉入口
-                    ImBoySettingsTile(
-                      title: Text(t.appeal.title),
-                      leading: _buildIcon(
-                        CupertinoIcons.exclamationmark_shield_fill,
-                        AppColors.iosRed,
-                      ),
-                      onTap: () => context.push('/mine/appeal'),
-                    ),
-                  ],
-                ),
-              ),
-
-            // 设置组
-            SliverToBoxAdapter(
-              child: ImBoySettingsSection(
-                margin: const EdgeInsets.fromLTRB(
-                  AppSpacing.regular,
-                  AppSpacing.xLarge,
-                  AppSpacing.regular,
-                  AppSpacing.xxxLarge,
-                ),
-                children: [
-                  ImBoySettingsTile(
-                    title: Text(t.main.setting),
-                    leading: _buildIcon(
-                      CupertinoIcons.settings,
-                      AppColors.iosGray,
-                    ),
-                    onTap: () => context.push('/mine/setting'),
-                  ),
-                  ImBoySettingsTile(
-                    title: Text(t.common.feedback),
-                    leading: _buildIcon(
-                      CupertinoIcons.hand_thumbsup_fill,
-                      AppColors.iosGreen,
-                    ),
-                    onTap: () => context.push('/feedback'),
-                  ),
-                ],
-              ),
-            ),
+            if (!enterprise) const CsWorkspaceEntryTile(asCard: true),
+            _MineManagement(enterprise: enterprise),
           ],
         ),
-      ),
-    );
+      );
+
+  String? get _spaceLabel {
+    if (!enterprise) return t.organization.experienceUi.personalSpace;
+    if (enterpriseName?.trim().isNotEmpty != true) {
+      return t.organization.picker.noneSelected;
+    }
+    return [
+      enterpriseName!,
+      if (enterpriseWorkspaceName?.trim().isNotEmpty == true)
+        enterpriseWorkspaceName!,
+    ].join(' · ');
   }
 
-  /// 标准 iOS 17 设置图标 (7.2pt 园角)
-  Widget _buildIcon(IconData icon, Color color) {
-    return Container(
-      width: 29,
-      height: 29,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(7.2),
+  List<Widget> _shortcuts(BuildContext context) => [
+    MineShortcut(
+      label: t.main.favorites,
+      icon: CupertinoIcons.bookmark,
+      onTap: () => context.push('/favorites'),
+    ),
+    if (enterprise) ...[
+      ?enterpriseEntry,
+    ] else ...[
+      MineShortcut(
+        label: t.talkRecord.entryTitle,
+        icon: CupertinoIcons.mic,
+        onTap: () => context.push(
+          talkRecordListPathFor(const TalkRecordEntryContext.personal()),
+        ),
       ),
-      child: Icon(icon, color: AppColors.onPrimary, size: 19),
-    );
-  }
-
-  /// 系统级 Header
-  Widget _buildSystemHeader(
-    BuildContext context,
-    UserModel? user,
-    Brightness brightness,
-  ) {
-    final hasAvatar = user != null && strNoEmpty(user.avatar);
-    final nickname = user?.nickname ?? t.common.unknown;
-    final isDark = brightness == Brightness.dark;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.regular,
-        AppSpacing.regular,
-        AppSpacing.regular,
-        AppSpacing.small,
-      ),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
-        onPressed: () => context.push('/personal_info/profile'),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.regular,
-            vertical: 18,
-          ),
-          decoration: BoxDecoration(
-            color: isDark
-                ? AppColors.darkSurfaceGroupedTertiary
-                : AppColors.lightSurface,
-            borderRadius: BorderRadius.circular(AppRadius.large),
-          ),
-          child: Row(
-            children: [
-              // 头像
-              Container(
-                width: 68,
-                height: 68,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  image: hasAvatar
-                      ? DecorationImage(
-                          image: avatarImageProvider(user.avatar),
-                          fit: BoxFit.cover,
-                        )
-                      : null,
-                ),
-                child: !hasAvatar
-                    ? Center(
-                        child: AvatarFallbackContent(
-                          name: nickname,
-                          color: AppColors.primary,
-                          iconSize: 32,
-                          textStyle: context.textStyle(
-                            FontSizeType.extraLargeTitle,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      )
-                    : null,
-              ),
-              const SizedBox(width: AppSpacing.regular),
-              // 信息
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      nickname,
-                      style: context
-                          .textStyle(
-                            FontSizeType.title,
-                            fontWeight: FontWeight.w600,
-                          )
-                          .copyWith(letterSpacing: -0.6),
-                    ),
-                    if (!widget.enterprise) ...[
-                      const SizedBox(height: AppSpacing.tiny),
-                      Text(
-                        'ID: ${user?.account ?? '-'}',
-                        style: context.textStyle(
-                          FontSizeType.normal,
-                          color: AppColors.iosGray,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              // 动作
-              CupertinoButton(
-                padding: EdgeInsets.zero,
-                onPressed: () => context.push('/qrcode/user'),
-                child: Semantics(
-                  label: t.account.myQrcode,
-                  button: true,
-                  child: const Icon(
-                    CupertinoIcons.qrcode,
-                    size: 22,
-                    color: AppColors.iosGray,
-                  ),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.tiny),
-              const Icon(
-                CupertinoIcons.chevron_right,
-                size: 14,
-                color: AppColors.iosGray3,
-              ),
-            ],
+      MineShortcut(
+        label: t.attachmentManager.personalTitle,
+        icon: CupertinoIcons.folder,
+        onTap: () => Navigator.of(context).push(
+          CupertinoPageRoute<void>(
+            builder: (_) => const PersonalAttachmentsPage(),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    final List<QuickActionItem> items = [
       if (AppFeatureRegistry.isEnabled(FeatureKeys.wallet))
-        QuickActionItem(
-          icon: const Icon(CupertinoIcons.creditcard_fill),
+        MineShortcut(
           label: t.account.wallet,
+          icon: CupertinoIcons.creditcard,
           onTap: () => context.push('/wallet'),
-          color: AppColors.iosOrange,
         ),
-      if (AppFeatureRegistry.isEnabled(FeatureKeys.channel))
-        QuickActionItem(
-          icon: const Icon(CupertinoIcons.dot_radiowaves_left_right),
-          label: t.discovery.myChannels,
-          onTap: () => context.push('/channel'),
-          color: AppColors.primary,
-        ),
-      QuickActionItem(
-        icon: const Icon(CupertinoIcons.bookmark_fill),
-        label: t.main.favorites,
-        onTap: () => context.push('/favorites'),
-        color: AppColors.iosRed,
-      ),
-    ];
+    ],
+  ];
+}
 
-    return QuickActionGrid(items: items);
+class _MineManagement extends StatelessWidget {
+  const _MineManagement({required this.enterprise});
+
+  final bool enterprise;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      if (!enterprise) ...[
+        (t.main.storageSpace, CupertinoIcons.archivebox, '/storage_space'),
+        (
+          t.account.loginDeviceManagement,
+          CupertinoIcons.device_phone_portrait,
+          '/devices',
+        ),
+        (t.appeal.title, CupertinoIcons.shield, '/mine/appeal'),
+      ],
+      (t.main.setting, CupertinoIcons.settings, '/mine/setting'),
+      (t.common.feedback, CupertinoIcons.chat_bubble, '/feedback'),
+    ];
+    return MineSection(
+      title: enterprise
+          ? t.main.mineSettingsSupport
+          : t.main.mineManagementSupport,
+      child: Column(
+        children: [
+          for (final (index, item) in items.indexed)
+            MineMenuTile(
+              title: item.$1,
+              icon: item.$2,
+              detail: item.$3 == '/storage_space'
+                  ? t.main.mineStorageUsage
+                  : null,
+              showDivider: index < items.length - 1,
+              onTap: () => context.push(item.$3),
+            ),
+        ],
+      ),
+    );
   }
 }

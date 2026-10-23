@@ -24,12 +24,20 @@ import 'package:imboy/modules/customer_service/domain/cs_seat_gate.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_workspace_routes.dart';
 import 'package:imboy/component/ui/resource_entry_tile.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_spacing.dart';
 
 /// 「客服工作台」入口 Tile：不可见时渲染为空（普通用户零占位）。
 class CsWorkspaceEntryTile extends StatefulWidget {
-  const CsWorkspaceEntryTile({super.key, this.showDivider = false});
+  const CsWorkspaceEntryTile({
+    super.key,
+    this.showDivider = false,
+    this.asCard = false,
+  });
 
   final bool showDivider;
+  final bool asCard;
 
   @override
   State<CsWorkspaceEntryTile> createState() => _CsWorkspaceEntryTileState();
@@ -65,12 +73,33 @@ class _CsWorkspaceEntryTileState extends State<CsWorkspaceEntryTile> {
     if (_visible == null || _visible == false) {
       return const SizedBox.shrink();
     }
-    return ResourceEntryTile(
+    final tile = ResourceEntryTile(
       showDivider: widget.showDivider,
       title: t.entryTitle,
       subtitle: t.entrySubtitle,
       icon: CupertinoIcons.chat_bubble_2,
       onTap: () => context.push(kCsWorkspacePath),
+    );
+    if (!widget.asCard) return tile;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xLarge),
+      child: ClipRRect(
+        borderRadius: AppRadius.borderRadiusCell,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkSurfaceGroupedTertiary
+                : AppColors.getSurfaceColor(Theme.of(context).brightness),
+            border: const BorderDirectional(
+              start: BorderSide(
+                color: AppColors.primary,
+                width: AppSpacing.tiny,
+              ),
+            ),
+          ),
+          child: tile,
+        ),
+      ),
     );
   }
 }

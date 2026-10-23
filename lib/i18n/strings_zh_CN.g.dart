@@ -6998,6 +6998,21 @@ class Translations$main$zh_CN {
 
 	/// zh-CN: '当前部署未配置合规审计密钥'
 	String get complianceKeyNotConfigured => '当前部署未配置合规审计密钥';
+
+	/// zh-CN: '我的内容'
+	String get mineContent => '我的内容';
+
+	/// zh-CN: '常用入口'
+	String get mineCommonEntries => '常用入口';
+
+	/// zh-CN: '管理与支持'
+	String get mineManagementSupport => '管理与支持';
+
+	/// zh-CN: '设置与支持'
+	String get mineSettingsSupport => '设置与支持';
+
+	/// zh-CN: '管理占用'
+	String get mineStorageUsage => '管理占用';
 }
 
 // Path: mention
@@ -13089,6 +13104,11 @@ extension on Translations {
 			'main.liveRoomTitleHint' => '请输入直播间标题',
 			'main.lightModel' => '浅色模式',
 			'main.complianceKeyNotConfigured' => '当前部署未配置合规审计密钥',
+			'main.mineContent' => '我的内容',
+			'main.mineCommonEntries' => '常用入口',
+			'main.mineManagementSupport' => '管理与支持',
+			'main.mineSettingsSupport' => '设置与支持',
+			'main.mineStorageUsage' => '管理占用',
 			'mention.mentionAll' => '所有人',
 			'mention.mentionAllHint' => '通知所有群成员',
 			'mention.noMatchedMember' => '没有匹配的成员',
@@ -13378,13 +13398,13 @@ extension on Translations {
 			'organization.memberDetail.joinedLabel' => '加入时间',
 			'organization.memberDetail.workspacesTitle' => '有权工作区',
 			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
+			_ => null,
+		} ?? switch (path) {
 			'organization.memberDetail.workspacesFailed' => '有权工作区加载失败',
 			'organization.manage.renameWorkspace' => '重命名工作区',
 			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '重命名「${name}」',
 			'organization.manage.wsMembersEntry' => '成员治理',
 			'organization.manage.renameGroup' => '重命名',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.renameGroupTitle' => ({required Object name}) => '重命名「${name}」',
 			'organization.manage.groupGovernance' => '成员与角色',
 			'organization.manage.renameChannel' => '重命名',
@@ -13892,13 +13912,13 @@ extension on Translations {
 			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
 			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
 			'talkRecord.uploadNoticeTitle' => '上传前确认',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadNoticeHint' => '请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。',
 			'talkRecord.uploadRecording' => '上传录音',
 			'talkRecord.retryRecordingUpload' => '重试上传',
 			'talkRecord.notificationRequiredTitle' => '开启录音通知',
 			'talkRecord.notificationRequiredMessage' => '为保持后台录音可见，请允许应用通知，并在系统设置中开启录音通知通道。开启后返回此页重试；本次尚未开始录音。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.openNotificationSettings' => '去通知设置',
 			'talkRecord.processingRecoveryTitle' => '确认录音处理',
 			'talkRecord.processingRecoveryHint' => '处理告知或处理器配置已更新。确认后按下方当前版本上传并执行原先选择的处理方式；不改变录音时的历史告知。',
