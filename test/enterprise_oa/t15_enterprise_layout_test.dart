@@ -199,7 +199,7 @@ void main() {
             expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
             if (scenario == 'enterprise') {
               expect(find.text('企业管理'), findsOneWidget);
-              expect(find.text(t.main.myFavorites), findsOneWidget);
+              expect(find.text(t.main.favorites), findsOneWidget);
             }
           }
           expect(tester.takeException(), isNull);
@@ -234,7 +234,7 @@ void main() {
 
   for (final (label, path) in [
     ('企业管理', '/manage'),
-    (t.main.myFavorites, '/favorites'),
+    (t.main.favorites, '/favorites'),
     (_organization, '/organization/picker'),
     (_nickname, '/personal_info/profile'),
   ]) {
