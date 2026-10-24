@@ -3111,6 +3111,7 @@ class _Translations$organization$inviteQr$ar_SA extends Translations$organizatio
 	final TranslationsArSa _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => 'رمز QR للمؤسسة';
 	@override String get title => 'دعوة الأعضاء';
 	@override String get entryHint => 'اعرض رمز QR أو شارك رمز الدعوة؛ ينضم الآخرون بالمسح أو الإدخال';
 	@override String get scanHint => 'يمكن للآخرين مسح هذا الرمز بماسح imboy الضوئي للانضمام إلى المؤسسة';
@@ -5674,6 +5675,7 @@ extension on TranslationsArSa {
 			'organization.inviteColleagues.groupStep2' => 'ينسخ الزملاء الرمز ويفتحون تطبيق imboy',
 			'organization.inviteColleagues.groupStep3' => 'أدخل الرمز في الدليل > الانضمام إلى المؤسسة',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'رمز الدعوة: ${code}',
+			'organization.inviteQr.orgQrcode' => 'رمز QR للمؤسسة',
 			'organization.inviteQr.title' => 'دعوة الأعضاء',
 			'organization.inviteQr.entryHint' => 'اعرض رمز QR أو شارك رمز الدعوة؛ ينضم الآخرون بالمسح أو الإدخال',
 			'organization.inviteQr.scanHint' => 'يمكن للآخرين مسح هذا الرمز بماسح imboy الضوئي للانضمام إلى المؤسسة',
@@ -5942,9 +5944,9 @@ extension on TranslationsArSa {
 			'workspace.archivedBadge' => 'مؤرشفة',
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
 			'workspace.dmEntry' => 'كل الرسائل',
-			'workspace.experienceModePersonal' => 'شخصي',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => 'شخصي',
 			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
 			'workspace.createTitle' => 'إنشاء مساحة عمل',
 			'workspace.createDesc' => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.',

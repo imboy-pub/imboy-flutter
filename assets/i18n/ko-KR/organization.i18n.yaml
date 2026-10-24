@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: "'주소록 → 기업 참여'에 코드를 입력하여 참여"
   codeLabelWith: "초대 코드: ${code}"
 inviteQr:
+  orgQrcode: 기업 QR 코드
   title: "멤버 초대"
   entryHint: "QR코드 또는 초대 코드를 보여주면 상대방이 스캔/입력으로 참여합니다"
   scanHint: "상대방이 imboy 스캐너로 이 코드를 스캔하면 기업에 참여합니다"

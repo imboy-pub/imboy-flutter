@@ -366,7 +366,8 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
             ),
             ListTile(
               leading: const Icon(CupertinoIcons.qrcode),
-              title: Text(t.account.myQrcode),
+              // 这是频道码不是个人名片，标签与 ⋮ 菜单 / 频道链接页统一。
+              title: Text(t.channel.qrcode),
               onTap: () {
                 Navigator.pop(context);
                 context.push(

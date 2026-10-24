@@ -236,6 +236,7 @@ inviteColleagues:
   groupStep3: 在「通讯录 → 加入企业」输入邀请码即可加入
   codeLabelWith: "邀请码：${code}"
 inviteQr:
+  orgQrcode: 企业二维码
   title: 邀请成员
   entryHint: 出示二维码或邀请码，对方扫码 / 输码即可加入
   scanHint: 对方用 imboy「扫一扫」扫描本码即可加入本企业

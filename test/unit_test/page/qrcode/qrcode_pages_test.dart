@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/ui/avatar.dart' show SmartGroupAvatar;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/qrcode/channel_qrcode_page.dart';
 import 'package:imboy/page/qrcode/group_qrcode_page.dart';
@@ -196,9 +197,7 @@ void main() {
       expect(title.style?.color, Colors.black, reason: '群名应为黑字，不随暗色主题');
     });
 
-    testWidgets('GQ-4 有头像时渲染包含 avatarImageProvider 的 QrImageView', (
-      tester,
-    ) async {
+    testWidgets('GQ-4 有头像时头像只嵌在二维码中心，顶部不再重复显示', (tester) async {
       final group = GroupModel(
         groupId: 100,
         type: 1,
@@ -216,8 +215,45 @@ void main() {
       await tester.pumpWidget(wrap(GroupQrCodePage(group: group)));
       await tester.pump();
 
+      // 唯一一处群头像（中心 40pt 叠层）；顶部 64pt 头像已移除。
+      final avatars = tester.widgetList<SmartGroupAvatar>(
+        find.byType(SmartGroupAvatar),
+      );
+      expect(avatars, hasLength(1));
+      expect(avatars.single.size, 40);
+      expect(avatars.single.avatar, 'test_group_avatar.png');
+      // 中心头像走 widget 叠层，不再用 QrImageView.embeddedImage 绘制。
       final qrImage = tester.widget<QrImageView>(find.byType(QrImageView));
-      expect(qrImage.embeddedImage, isNotNull);
+      expect(qrImage.embeddedImage, isNull);
+      // 头像位于二维码 Stack 内（中心），而非标题区。
+      expect(
+        find.descendant(
+          of: find
+              .ancestor(
+                of: find.byType(QrImageView),
+                matching: find.byType(Stack),
+              )
+              .first,
+          matching: find.byType(SmartGroupAvatar),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('GQ-6 无自定义头像时成员合成头像同样嵌在中心，不回落 logo', (tester) async {
+      await tester.pumpWidget(wrap(GroupQrCodePage(group: buildGroup())));
+      await tester.pump();
+
+      final avatars = tester.widgetList<SmartGroupAvatar>(
+        find.byType(SmartGroupAvatar),
+      );
+      expect(avatars, hasLength(1));
+      expect(avatars.single.size, 40);
+      expect(avatars.single.groupId, '100');
+      expect(
+        find.image(const AssetImage('assets/images/imboy_logo0.png')),
+        findsNothing,
+      );
     });
 
     testWidgets('GQ-5 有头像时渲染圆角 Avatar 叠加层', (tester) async {

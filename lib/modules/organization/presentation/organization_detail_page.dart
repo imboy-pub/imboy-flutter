@@ -34,6 +34,7 @@ import 'package:imboy/modules/organization/infrastructure/current_organization_s
 import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/modules/organization/presentation/org_async_state.dart';
+import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -281,6 +282,24 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
+          // 企业二维码（邀请码出码页）：与「我 → 二维码」「群 → 群二维码」同位；
+          // 出码是 owner/admin 治理动作（成员 GET 403），按 canGovern 隐藏。
+          if (org != null && org.canGovern && !org.isArchived)
+            Semantics(
+              button: true,
+              label: t.organization.inviteQr.orgQrcode,
+              child: IconButton(
+                key: const ValueKey('organization-detail-invite-qr'),
+                icon: const Icon(CupertinoIcons.qrcode),
+                tooltip: t.organization.inviteQr.orgQrcode,
+                onPressed: () => Navigator.of(context).push(
+                  CupertinoPageRoute<void>(
+                    builder: (_) =>
+                        OrgInviteQrPage(orgId: org.id, orgName: org.name),
+                  ),
+                ),
+              ),
+            ),
           if (org != null && org.canGovern && !org.isArchived)
             Semantics(
               button: true,

@@ -3099,6 +3099,7 @@ class _Translations$organization$inviteQr$ko_KR extends Translations$organizatio
 	final TranslationsKoKr _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => '기업 QR 코드';
 	@override String get title => '멤버 초대';
 	@override String get entryHint => 'QR코드 또는 초대 코드를 보여주면 상대방이 스캔/입력으로 참여합니다';
 	@override String get scanHint => '상대방이 imboy 스캐너로 이 코드를 스캔하면 기업에 참여합니다';
@@ -5662,6 +5663,7 @@ extension on TranslationsKoKr {
 			'organization.inviteColleagues.groupStep2' => '동료가 코드를 복사하고 imboy 앱을 엽니다',
 			'organization.inviteColleagues.groupStep3' => '\'주소록 → 기업 참여\'에 코드를 입력하여 참여',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '초대 코드: ${code}',
+			'organization.inviteQr.orgQrcode' => '기업 QR 코드',
 			'organization.inviteQr.title' => '멤버 초대',
 			'organization.inviteQr.entryHint' => 'QR코드 또는 초대 코드를 보여주면 상대방이 스캔/입력으로 참여합니다',
 			'organization.inviteQr.scanHint' => '상대방이 imboy 스캐너로 이 코드를 스캔하면 기업에 참여합니다',
@@ -5930,9 +5932,9 @@ extension on TranslationsKoKr {
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
 			'workspace.dmEntry' => '전체 메시지',
-			'workspace.experienceModePersonal' => '개인',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => '개인',
 			'workspace.switchToPersonal' => '개인으로 전환',
 			'workspace.createTitle' => '워크스페이스 만들기',
 			'workspace.createDesc' => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.',

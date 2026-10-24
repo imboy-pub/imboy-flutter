@@ -3099,6 +3099,7 @@ class Translations$organization$inviteQr$zh_Hant extends Translations$organizati
 	final TranslationsZhHant _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => '企業二維碼';
 	@override String get title => '邀請成員';
 	@override String get entryHint => '出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入';
 	@override String get scanHint => '對方用 imboy「掃一掃」掃描本碼即可加入本企業';
@@ -5662,6 +5663,7 @@ extension on TranslationsZhHant {
 			'organization.inviteColleagues.groupStep2' => '同事複製邀請碼，打開 imboy App',
 			'organization.inviteColleagues.groupStep3' => '在「通訊錄 → 加入企業」輸入邀請碼即可加入',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀請碼：${code}',
+			'organization.inviteQr.orgQrcode' => '企業二維碼',
 			'organization.inviteQr.title' => '邀請成員',
 			'organization.inviteQr.entryHint' => '出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入',
 			'organization.inviteQr.scanHint' => '對方用 imboy「掃一掃」掃描本碼即可加入本企業',
@@ -5930,9 +5932,9 @@ extension on TranslationsZhHant {
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
 			'workspace.dmEntry' => '全部訊息',
-			'workspace.experienceModePersonal' => '個人',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '切換到個人',
 			'workspace.createTitle' => '建立工作區',
 			'workspace.createDesc' => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。',

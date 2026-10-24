@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: Saisissez le code dans Annuaire > Rejoindre l'organisation
   codeLabelWith: "Code d'invitation : ${code}"
 inviteQr:
+  orgQrcode: "QR code de l'entreprise"
   title: "Inviter des membres"
   entryHint: "Montrez le QR code ou partagez le code ; l'autre personne rejoint en scannant ou en saisissant"
   scanHint: "L'autre personne scanne ce code avec le scanner imboy pour rejoindre l'entreprise"

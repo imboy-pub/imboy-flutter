@@ -3718,6 +3718,7 @@ class _Translations$organization$inviteQr$en_US extends Translations$organizatio
 	final TranslationsEnUs _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => 'Enterprise QR code';
 	@override String get title => 'Invite members';
 	@override String get entryHint => 'Show the QR code or share the invite code; others join by scanning or typing';
 	@override String get scanHint => 'Others scan this code with the imboy scanner to join this enterprise';
@@ -6507,6 +6508,7 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.groupStep2' => 'Colleagues copy the code and open the imboy app',
 			'organization.inviteColleagues.groupStep3' => 'Enter the code under Directory > Join organization',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Invite code: ${code}',
+			'organization.inviteQr.orgQrcode' => 'Enterprise QR code',
 			'organization.inviteQr.title' => 'Invite members',
 			'organization.inviteQr.entryHint' => 'Show the QR code or share the invite code; others join by scanning or typing',
 			'organization.inviteQr.scanHint' => 'Others scan this code with the imboy scanner to join this enterprise',
@@ -6564,9 +6566,9 @@ extension on TranslationsEnUs {
 			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
 			'organization.manage.workspaceOwnerHint' => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.',
-			'organization.manage.forbiddenTitle' => 'No management permission',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.forbiddenTitle' => 'No management permission',
 			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
 			'organization.manage.workspaceSection' => 'Workspaces',
 			'organization.manage.createWorkspace' => 'New workspace',
@@ -7078,9 +7080,9 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryPartial' => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.',
 			'talkRecord.cleanupRetryProtected' => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.',
 			'talkRecord.cleanupRetryWaiting' => 'Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.',
-			'talkRecord.cleanupRetryUnavailable' => 'Cleanup retry permission could not be confirmed. Refresh the status.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupRetryUnavailable' => 'Cleanup retry permission could not be confirmed. Refresh the status.',
 			'talkRecord.cleanupRetryReconcile' => 'Reconcile the same retry request',
 			'talkRecord.uploadProgressRegister' => 'Preparing upload',
 			'talkRecord.uploadProgressUpload' => 'Uploading audio',

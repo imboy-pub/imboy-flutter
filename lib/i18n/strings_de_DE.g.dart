@@ -3102,6 +3102,7 @@ class _Translations$organization$inviteQr$de_DE extends Translations$organizatio
 	final TranslationsDeDe _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => 'Unternehmens-QR-Code';
 	@override String get title => 'Mitglieder einladen';
 	@override String get entryHint => 'QR-Code zeigen oder Code teilen – Beitritt per Scan oder Eingabe';
 	@override String get scanHint => 'Andere scannen diesen Code mit dem imboy-Scanner, um dem Unternehmen beizutreten';
@@ -5665,6 +5666,7 @@ extension on TranslationsDeDe {
 			'organization.inviteColleagues.groupStep2' => 'Kollegen kopieren den Code und öffnen die imboy-App',
 			'organization.inviteColleagues.groupStep3' => 'Code unter Kontakte > Organisation beitreten eingeben',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Einladungscode: ${code}',
+			'organization.inviteQr.orgQrcode' => 'Unternehmens-QR-Code',
 			'organization.inviteQr.title' => 'Mitglieder einladen',
 			'organization.inviteQr.entryHint' => 'QR-Code zeigen oder Code teilen – Beitritt per Scan oder Eingabe',
 			'organization.inviteQr.scanHint' => 'Andere scannen diesen Code mit dem imboy-Scanner, um dem Unternehmen beizutreten',
@@ -5933,9 +5935,9 @@ extension on TranslationsDeDe {
 			'workspace.archivedBadge' => 'Archiviert',
 			'workspace.emptyNoWorkspace' => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen',
 			'workspace.dmEntry' => 'Alle Nachrichten',
-			'workspace.experienceModePersonal' => 'Persönlich',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => 'Persönlich',
 			'workspace.switchToPersonal' => 'Zum persönlichen Modus wechseln',
 			'workspace.createTitle' => 'Arbeitsbereich erstellen',
 			'workspace.createDesc' => 'Mit einer Erstellung wird alles automatisch angelegt: Arbeitsbereich, Sie (Owner als Arbeitsbereich-Mitglied), Announcements-Kanal und General-Gruppe. Alles erfolgreich oder vollständiger Rollback.',

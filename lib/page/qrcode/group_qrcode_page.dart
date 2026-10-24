@@ -11,7 +11,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/page/qrcode/qrcode_url.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/component/helper/repaint_boundary.dart';
@@ -72,27 +71,23 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
               child: _buildQrCard(
                 context,
                 isDark,
-                avatar: widget.group.avatar,
-                header: Column(
-                  children: [
-                    SmartGroupAvatar(
-                      avatar: widget.group.avatar,
-                      groupId: widget.group.groupId.toString(),
-                      avatarLoader: _loadGroupMemberAvatars,
-                      size: 64,
-                    ),
-                    AppSpacing.verticalRegular,
-                    Text(
-                      "${t.chat.groupChat}: ${widget.group.displayTitle}",
-                      textAlign: TextAlign.center,
-                      style: context.textStyle(
-                        FontSizeType.large,
-                        fontWeight: FontWeight.bold,
-                        // 意图：分享卡白底黑字固定外观，刻意不随主题切换
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
+                // 群头像（自定义图或成员合成图）统一嵌在二维码中心，
+                // 顶部只留群名，避免同一头像上下重复出现。
+                header: Text(
+                  "${t.chat.groupChat}: ${widget.group.displayTitle}",
+                  textAlign: TextAlign.center,
+                  style: context.textStyle(
+                    FontSizeType.large,
+                    fontWeight: FontWeight.bold,
+                    // 意图：分享卡白底黑字固定外观，刻意不随主题切换
+                    color: AppColors.lightTextPrimary,
+                  ),
+                ),
+                centerAvatar: SmartGroupAvatar(
+                  avatar: widget.group.avatar,
+                  groupId: widget.group.groupId.toString(),
+                  avatarLoader: _loadGroupMemberAvatars,
+                  size: 40,
                 ),
                 qrcodeData: qrcodeData,
                 footerText: t.common.groupQrcodeTips(
@@ -114,19 +109,10 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
     BuildContext context,
     bool isDark, {
     required Widget header,
+    required Widget centerAvatar,
     required String qrcodeData,
     required String footerText,
-    String? avatar,
   }) {
-    final ImageProvider embeddedImageProvider;
-    if (avatar != null &&
-        avatar.isNotEmpty &&
-        !avatar.contains("def_avatar.png")) {
-      embeddedImageProvider = avatarImageProvider(avatar, w: 100);
-    } else {
-      embeddedImageProvider = const AssetImage('assets/images/imboy_logo0.png');
-    }
-
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -154,6 +140,8 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
             padding: AppSpacing.allXXLarge,
             child: Column(
               children: [
+                // 中心头像是 widget 叠层（成员合成图没有单一 ImageProvider），
+                // 纠错级别 H 可容忍 44/220 的遮挡；RepaintBoundary 导出时一并带上。
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -171,10 +159,6 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                         dataModuleShape: QrDataModuleShape.square,
                         color: Colors.black,
                       ),
-                      embeddedImage: embeddedImageProvider,
-                      embeddedImageStyle: const QrEmbeddedImageStyle(
-                        size: Size.square(40),
-                      ),
                     ),
                     Container(
                       width: 44,
@@ -186,10 +170,7 @@ class _GroupQrCodePageState extends ConsumerState<GroupQrCodePage> {
                       padding: const EdgeInsets.all(2),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: Image(
-                          image: embeddedImageProvider,
-                          fit: BoxFit.cover,
-                        ),
+                        child: centerAvatar,
                       ),
                     ),
                   ],

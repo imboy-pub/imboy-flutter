@@ -20,7 +20,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:imboy/i18n/strings.g.dart' show TranslationProvider;
 import 'package:imboy/modules/organization/public.dart';
+import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart';
 
 import '../ux_matrix/ux_harness.dart';
 
@@ -79,37 +81,40 @@ void _setTallViewport(WidgetTester tester) {
 
 /// 角色差异由 HTTP 桩注入（_installOrgStub），host 本身与角色无关。
 Widget _host() {
-  return MaterialApp.router(
-    routerConfig: GoRouter(
-      initialLocation: '/organization/$kOrgId',
-      routes: [
-        GoRoute(
-          path: kOrganizationHomePath,
-          pageBuilder: (_, s) =>
-              CupertinoPage(key: s.pageKey, child: const SizedBox.shrink()),
-          routes: [
-            GoRoute(
-              path: ':orgId',
-              pageBuilder: (_, s) => CupertinoPage(
-                key: s.pageKey,
-                child: OrganizationDetailPage(
-                  orgId: kOrgId,
-                  accountKey: kAccountKey,
+  // 出码页等子页用 context.t（需 TranslationProvider）；详情页本体用全局 t。
+  return TranslationProvider(
+    child: MaterialApp.router(
+      routerConfig: GoRouter(
+        initialLocation: '/organization/$kOrgId',
+        routes: [
+          GoRoute(
+            path: kOrganizationHomePath,
+            pageBuilder: (_, s) =>
+                CupertinoPage(key: s.pageKey, child: const SizedBox.shrink()),
+            routes: [
+              GoRoute(
+                path: ':orgId',
+                pageBuilder: (_, s) => CupertinoPage(
+                  key: s.pageKey,
+                  child: OrganizationDetailPage(
+                    orgId: kOrgId,
+                    accountKey: kAccountKey,
+                  ),
                 ),
+                routes: [
+                  _sentinel('directory', 'SENTINEL-directory'),
+                  _sentinel('departments', 'SENTINEL-departments'),
+                  _sentinel('members', 'SENTINEL-members'),
+                  _sentinel('invitations', 'SENTINEL-invitations'),
+                  _sentinel('manage', 'SENTINEL-manage'),
+                  _sentinel('tools', 'SENTINEL-tools'),
+                ],
               ),
-              routes: [
-                _sentinel('directory', 'SENTINEL-directory'),
-                _sentinel('departments', 'SENTINEL-departments'),
-                _sentinel('members', 'SENTINEL-members'),
-                _sentinel('invitations', 'SENTINEL-invitations'),
-                _sentinel('manage', 'SENTINEL-manage'),
-                _sentinel('tools', 'SENTINEL-tools'),
-              ],
-            ),
-          ],
-        ),
-        _sentinel('/workspace', 'SENTINEL-workspace'),
-      ],
+            ],
+          ),
+          _sentinel('/workspace', 'SENTINEL-workspace'),
+        ],
+      ),
     ),
   );
 }
@@ -160,6 +165,12 @@ void main() {
       reason: 'GZAPP-05 既有测试锚点 key 必须保留',
     );
 
+    // 右上角企业二维码入口（出码为治理动作，owner 可见）。
+    expect(
+      find.byKey(const ValueKey('organization-detail-invite-qr')),
+      findsOneWidget,
+    );
+
     // danger zone（全员只读动作）仍在。
     expect(find.text('账号删除预检'), findsNothing);
     expect(find.text('企业资料'), findsOneWidget);
@@ -167,6 +178,22 @@ void main() {
     await tester.tap(find.text('企业资料'));
     await settleUx(tester);
     expect(find.text('归档企业'), findsOneWidget);
+  });
+
+  testWidgets('owner：右上角企业二维码入口直达邀请出码页', (tester) async {
+    _setTallViewport(tester);
+    _installOrgStub(_orgJson(role: 'owner'));
+
+    await tester.pumpWidget(_host());
+    await pumpUntilUxFound(tester, find.text('聚合企业甲'));
+    await settleUx(tester);
+
+    await tester.tap(
+      find.byKey(const ValueKey('organization-detail-invite-qr')),
+    );
+    await settleUx(tester);
+    expect(find.byType(OrgInviteQrPage), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('member 权限分层：管理员动作整区隐藏，五域与只读动作保留', (tester) async {
@@ -200,6 +227,11 @@ void main() {
     expect(find.text('企业管理'), findsNothing);
     expect(
       find.byKey(const ValueKey('organization-detail-manage-entry')),
+      findsNothing,
+    );
+    // 出码是治理动作：member 不见企业二维码入口（避免进页即 403）。
+    expect(
+      find.byKey(const ValueKey('organization-detail-invite-qr')),
       findsNothing,
     );
 

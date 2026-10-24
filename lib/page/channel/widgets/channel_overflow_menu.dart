@@ -245,6 +245,15 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
         ),
       );
 
+      // 2b. Channel QR code / 频道二维码（直达，不必再经分享面板二跳）
+      items.add(
+        _buildPopupMenuItem(
+          value: 'channel_qrcode',
+          icon: CupertinoIcons.qrcode,
+          text: t.channel.qrcode,
+        ),
+      );
+
       // 3. Invite Admins / 邀请管理员
       items.add(
         _buildPopupMenuItem(
@@ -279,6 +288,15 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
           value: 'share',
           icon: CupertinoIcons.share,
           text: t.channel.share,
+        ),
+      );
+
+      // 2b. Channel QR code（订阅者/访客同样可出示频道码）
+      items.add(
+        _buildPopupMenuItem(
+          value: 'channel_qrcode',
+          icon: CupertinoIcons.qrcode,
+          text: t.channel.qrcode,
         ),
       );
 
@@ -319,6 +337,17 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
         break;
       case 'share':
         showChannelShareSheet(context, channel);
+        break;
+      case 'channel_qrcode':
+        // 与频道链接页同一路由契约（id 以字符串传递）。
+        context.push(
+          '/qrcode/channel',
+          extra: {
+            'id': channelId,
+            'name': channel.name,
+            'avatar': channel.avatar,
+          },
+        );
         break;
       case 'invitation_center':
         if (AppFeatureRegistry.isEnabled(FeatureKeys.channelInvitation)) {

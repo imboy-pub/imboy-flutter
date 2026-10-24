@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: 在「通訊錄 → 加入企業」輸入邀請碼即可加入
   codeLabelWith: "邀請碼：${code}"
 inviteQr:
+  orgQrcode: 企業二維碼
   title: 邀請成員
   entryHint: 出示 QR 碼或邀請碼，對方掃碼 / 輸碼即可加入
   scanHint: 對方用 imboy「掃一掃」掃描本碼即可加入本企業
