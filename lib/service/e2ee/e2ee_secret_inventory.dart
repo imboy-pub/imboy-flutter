@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:imboy/service/compliance_key_service.dart';
+import 'package:imboy/service/e2ee/collect_keychain.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -103,6 +104,7 @@ class E2eeSecretInventory {
       E2EEService.clearCache,
       ComplianceKeyService.instance.clearCache,
       GroupSessionService.to.clearMemory,
+      CollectKeychain.to.clearCache,
     ],
     purgeArtifacts: [
       // 清 Olm 内存 Account/Session（其存储键由下方前缀清理兜底复核）
@@ -139,6 +141,7 @@ class E2eeSecretInventory {
     'utk_', // 附件上传 content key / nonce / descriptor（兼容清除旧全局键）
     'mls_', // MLS 预留
     'talk_record_ai_v1_', // talk_record AI provider BYOK 凭据（账号 digest 派生）
+    'collect_ck_', // E2EE 收藏密钥链 CK 版本链（账号级，PLAN 2026-10-24 §6）
   ];
 
   /// 有意**不**纳入 purge 清单的 secure storage 键（及其理由）。
@@ -303,6 +306,22 @@ class E2eeSecretInventory {
       note:
           'BYOK 凭据为账号级秘密：logout/换号经 purgeAll 前缀清理，'
           '杜绝跨账号残留；slot 墓碑防删除失败后旧键复活',
+    ),
+    SecretCategory(
+      id: 'collect-keychain',
+      keyPrefix: 'collect_ck_',
+      storageLocation:
+          'secure storage（iOS Keychain ThisDeviceOnly / Android Keystore）'
+          ' + CollectKeychain 单例内存缓存',
+      derivation:
+          '客户端 Random.secure 生成 32B CK，按 key_version 版本链保存；'
+          '记录密钥 RK 由 HKDF-SHA256(CK) 派生，不落盘',
+      inOsBackup: false,
+      clearedOnLogout: true,
+      clearedOnAccountSwitch: true,
+      note:
+          '账号级秘密：持久键经前缀清理，内存副本经 clearMemoryCaches 丢弃；'
+          '重登后本设备无 CK，须经跨设备同步协议取回（无本地降级）',
     ),
   ];
 

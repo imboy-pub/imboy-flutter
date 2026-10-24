@@ -47,6 +47,8 @@ void main() {
     '_pickleKeyStorageKey': const {'prefix': 'olm_'},
     '_storageKey(uid': const {'prefix': 'db_cipher_key_'},
     '_storageKey(ref': const {'prefix': 'utk_'},
+    // E2EE 收藏 CK 版本链（CollectKeychain，PLAN 2026-10-24 §6）
+    '_kCollectKeychainStorageKey': const {'prefix': 'collect_ck_'},
     '_tokenKey': const {'exempt': 'secure_token'},
     '_refreshTokenKey': const {'exempt': 'secure_refresh_token'},
     'oaLoginAttemptKey': const {'exempt': 'oa_inbound_login_attempt'},

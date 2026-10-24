@@ -216,19 +216,27 @@ class CollectKeychainLogic {
   }
 }
 
-/// 存储包装：单例读写 StorageSecureService（key: imboy/collect-keychain/v1）。
+/// 存储包装：单例读写 StorageSecureService（key: collect_ck_keychain_v1）。
+///
+/// 键落在 C05 秘密清单 `collect_ck_` 前缀下：logout/换号由
+/// E2eeSecretInventory.purgeAll 清理持久键并经 [clearCache] 清内存副本
+///（CK 为账号级秘密，缺任一步都会让下一账号读到前一账号的密钥链）。
+/// 重新登录后本设备无 CK，须经 §6.2 跨设备同步取回。
 class CollectKeychain {
   CollectKeychain._();
   static final CollectKeychain to = CollectKeychain._();
 
-  static const String _storageKey = 'imboy/collect-keychain/v1';
+  static const String _kCollectKeychainStorageKey =
+      'collect_ck_keychain_v1'; // gitleaks:allow
 
   CollectKeychainState? _cached;
 
   /// 读取（缓存）；空链时返回空状态（不自动 bootstrap——bootstrap 显式调用）。
   Future<CollectKeychainState> load() async {
     if (_cached != null) return _cached!;
-    final raw = await StorageSecureService.to.read(key: _storageKey);
+    final raw = await StorageSecureService.to.read(
+      key: _kCollectKeychainStorageKey,
+    );
     if (raw == null || raw.isEmpty) {
       return const CollectKeychainState(keys: []);
     }
@@ -241,10 +249,13 @@ class CollectKeychain {
   Future<void> save(CollectKeychainState s) async {
     _cached = s;
     await StorageSecureService.to.write(
-      key: _storageKey,
+      key: _kCollectKeychainStorageKey,
       value: jsonEncode(s.toJson()),
     );
   }
+
+  /// 丢弃内存副本（logout/换号 purge 接线；持久键由清单前缀清理）。
+  void clearCache() => _cached = null;
 
   /// 确保存在首版本（首次使用收藏加密时调用）。
   Future<CollectKeychainState> ensureBootstrap() async {

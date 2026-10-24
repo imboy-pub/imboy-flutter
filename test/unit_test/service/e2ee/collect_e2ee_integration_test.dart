@@ -93,6 +93,9 @@ class _MemKeychain implements CollectKeychain {
     final s = await load();
     return CollectKeychainLogic.sealAllowed(s) ? s.activeKey : null;
   }
+
+  @override
+  void clearCache() => state = null;
 }
 
 void main() {
