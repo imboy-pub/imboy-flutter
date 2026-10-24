@@ -155,8 +155,9 @@ void main() {
         addTearDown(container.dispose);
         _watchCursorProvider(container);
         final notifier = container.read(channelDetailProvider.notifier);
-        if (lateStage != 'cache')
+        if (lateStage != 'cache') {
           service.cache['41']!.complete(_cursorChannel(41));
+        }
         final a = notifier.loadChannel('41');
         _DeferredCursorRequest? aRequest;
         if (lateStage != 'cache') {
