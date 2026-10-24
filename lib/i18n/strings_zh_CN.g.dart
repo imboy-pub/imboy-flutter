@@ -6492,6 +6492,12 @@ class Translations$main$zh_CN {
 	/// zh-CN: '已过期'
 	String get expired => '已过期';
 
+	/// zh-CN: '密钥轮换进行中，请稍后重试'
+	String get e2eeCollectRotating => '密钥轮换进行中，请稍后重试';
+
+	/// zh-CN: '服务器暂不支持端到端加密收藏，请先升级服务端'
+	String get e2eeCollectUnsupported => '服务器暂不支持端到端加密收藏，请先升级服务端';
+
 	/// zh-CN: '收藏'
 	String get favorites => '收藏';
 
@@ -12935,6 +12941,8 @@ extension on Translations {
 			'main.enUs' => '美国英语',
 			'main.enable' => '启用',
 			'main.expired' => '已过期',
+			'main.e2eeCollectRotating' => '密钥轮换进行中，请稍后重试',
+			'main.e2eeCollectUnsupported' => '服务器暂不支持端到端加密收藏，请先升级服务端',
 			'main.favorites' => '收藏',
 			'main.female' => '女',
 			'main.followSystem' => '跟随系统',
@@ -13396,10 +13404,10 @@ extension on Translations {
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
 			'organization.memberDetail.joinedLabel' => '加入时间',
-			'organization.memberDetail.workspacesTitle' => '有权工作区',
-			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
 			_ => null,
 		} ?? switch (path) {
+			'organization.memberDetail.workspacesTitle' => '有权工作区',
+			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
 			'organization.memberDetail.workspacesFailed' => '有权工作区加载失败',
 			'organization.manage.renameWorkspace' => '重命名工作区',
 			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => '重命名「${name}」',
@@ -13910,10 +13918,10 @@ extension on Translations {
 			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',
 			'talkRecord.participantsConflict' => '名单已更新，已刷新为最新内容。请检查后重新编辑。',
 			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
-			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
-			'talkRecord.uploadNoticeTitle' => '上传前确认',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
+			'talkRecord.uploadNoticeTitle' => '上传前确认',
 			'talkRecord.uploadNoticeHint' => '请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。',
 			'talkRecord.uploadRecording' => '上传录音',
 			'talkRecord.retryRecordingUpload' => '重试上传',

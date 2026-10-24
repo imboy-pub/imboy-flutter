@@ -23,6 +23,8 @@ disable: Désactiver
 enUs: Anglais (États-Unis)
 enable: Activer
 expired: Expiré
+e2eeCollectRotating: Rotation des clés en cours, veuillez réessayer plus tard
+e2eeCollectUnsupported: Le serveur ne prend pas encore en charge les favoris chiffrés de bout en bout, veuillez mettre à jour le serveur
 favorites: Favoris
 female: Femme
 followSystem: Suivre le système

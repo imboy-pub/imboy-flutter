@@ -35,7 +35,7 @@ PODS:
     - Firebase/Messaging (= 12.19.0)
     - firebase_core
     - Flutter
-  - FirebaseCore (12.19.0):
+  - FirebaseCore (12.19.3):
     - FirebaseCoreInternal (~> 12.19.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
@@ -111,7 +111,7 @@ PODS:
     - Flutter
   - integration_test (0.0.1):
     - Flutter
-  - JCore (5.5.3)
+  - JCore (5.6.0)
   - JPush (6.2.6):
     - JCore (> 5.5.0)
   - jpush_flutter (0.0.2):
@@ -131,7 +131,7 @@ PODS:
     - Flutter
     - flutter_webrtc
     - WebRTC-SDK (= 150.7871.01)
-  - map_launcher (0.0.1):
+  - map_launcher (7.0.0):
     - Flutter
   - mobile_scanner (7.0.0):
     - Flutter
@@ -394,7 +394,7 @@ SPEC CHECKSUMS:
   Firebase: 7ca191e43724142f79fae653547b3382c45413cc
   firebase_core: 55de508663ceda7d1dc369a32b327a5655019ae2
   firebase_messaging: df68cb5feefa02766144a50fa5348362a0127008
-  FirebaseCore: c990214798d7c568ad436a15ba7da25c7a278c9a
+  FirebaseCore: ab948de5d99e69aeed3cd6f5ace263ce795b2559
   FirebaseCoreInternal: 656b1c2fd5a1c5976183dc54b73deda78fb26ee3
   FirebaseInstallations: f70a49eed611f5602f373e40974b3b01556ac217
   FirebaseMessaging: c15f48126adbe8b4d3238a5e1fa24bab3ad3e472
@@ -412,14 +412,14 @@ SPEC CHECKSUMS:
   GoogleUtilities: 7dc09b3fa9ecb5c2298b952313d14628b61b9da3
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
-  JCore: 3e14acb18c4dc2615008c5cb385a9ae627688a01
+  JCore: 8917bec456f222197e2c9e7b38c5c9315cd03718
   JPush: 4a7e5df2be0d19f5fbbfab9050f4da9f7a35f1dd
   jpush_flutter: 3c3d98d791f73be50fecee2216b5c2a45e496164
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
   jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
   livekit_client: 8d11d6ce08ea4a817775ebd83353fedabd944205
-  map_launcher: 8051ad5783913cafce93f2414c6858f2904fd8df
+  map_launcher: 5b8cc9cf825f78c691f4eb9007dc289649115fcd
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   open_file_ios: c1143c28b4c65f721cdd58d9fba2f7a1c55206cd

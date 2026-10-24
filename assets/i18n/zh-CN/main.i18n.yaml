@@ -22,6 +22,8 @@ disable: 禁用
 enUs: 美国英语
 enable: 启用
 expired: 已过期
+e2eeCollectRotating: 密钥轮换进行中，请稍后重试
+e2eeCollectUnsupported: 服务器暂不支持端到端加密收藏，请先升级服务端
 favorites: 收藏
 female: 女
 followSystem: 跟随系统

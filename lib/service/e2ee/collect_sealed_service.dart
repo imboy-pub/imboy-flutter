@@ -34,6 +34,35 @@ class CollectSealedException implements Exception {
   String toString() => 'CollectSealedException: $message';
 }
 
+/// v1 密封收藏创建结果（PLAN §5 能力 1 / §9 兼容矩阵）。
+enum CollectCreateStatus {
+  /// 已创建（服务端 generation 落定）。
+  ok,
+
+  /// 本地已有活动 sealed 行——已收藏短接（不产新密文、不发请求）。
+  already,
+
+  /// 拒绝：能力未协商（旧后端）或密钥轮换中；均不回退明文（§9）。
+  refused,
+
+  /// 服务端 5502：他设备已改，需刷新后重试。
+  conflict,
+
+  failed,
+}
+
+class CollectCreateOutcome {
+  const CollectCreateOutcome(this.status, {this.generation = 0, this.tip});
+
+  final CollectCreateStatus status;
+
+  /// ok 时的服务端修订号（本地 CAS 基准）。
+  final int generation;
+
+  /// 非 ok 时的用户提示文案（已收藏短接无提示）。
+  final String? tip;
+}
+
 /// 解码成功的 sealed 行。
 class DecodedCollect {
   const DecodedCollect({
@@ -139,6 +168,133 @@ class CollectSealedService {
   /// 同步检测（§7.3）：仅比 generation——重包裹亦推进，key_version 变化不漏检。
   static bool needsResync(int localGeneration, int serverGeneration) =>
       serverGeneration > localGeneration;
+
+  /// v1 密封收藏创建流（收藏入口唯一委托点，§9 兼容矩阵）：
+  /// - 能力门：manifest 无 `e2ee_collect` → 拒绝创建 + 升级提示
+  ///   （无明文静默回退——落旧后端会丢 GC 引用与防复活保护）；
+  /// - seal 门：轮换进行中拒绝（同样不回退明文）；
+  /// - 本地已有活动 sealed 行 → 已收藏短接；
+  /// - attach 哈希提取与后端 collect_image_attaches 同口径
+  ///   （payload.images[].file_hash256 ?? md5；无多图时取单图字段）；
+  /// - addV1 成功 → onSaved 回写密文行（含 generation 供后续 CAS）。
+  ///
+  /// seal_generation 恒取 1：创建场景本地无从知晓墓碑 G（remove 已删本地行），
+  /// §8.1 头部断言为 ≤（复活后 G+1 仍成立）；内容时效由服务端字节幂等/CAS
+  /// 拦截，不存在旧密文重放（每次都全新 seal）。
+  static Future<CollectCreateOutcome> collectSealed({
+    required UserCollectApi api,
+    required CollectKeychain keychain,
+    required bool Function() capability,
+    required String msgUnsupported,
+    required String msgRotating,
+    required int userId,
+    required int kind,
+    required String kindId,
+    required String source,
+    required Map<String, dynamic> info,
+    required Future<UserCollectModel?> Function(String kindId) findLocal,
+    required Future<void> Function(Map<String, dynamic> row) onSaved,
+  }) async {
+    if (!capability()) {
+      return CollectCreateOutcome(
+        CollectCreateStatus.refused,
+        tip: msgUnsupported,
+      );
+    }
+    final bootstrapped = await keychain.ensureBootstrap();
+    if (!CollectKeychainLogic.sealAllowed(bootstrapped)) {
+      return CollectCreateOutcome(
+        CollectCreateStatus.refused,
+        tip: msgRotating,
+      );
+    }
+    final key = bootstrapped.activeKey!;
+    final local = await findLocal(kindId);
+    if (local != null && local.sealed) {
+      return const CollectCreateOutcome(CollectCreateStatus.already);
+    }
+    final attach = extractAttachHashes(info);
+    // §8.2 双核对②数据源：被密封 payload 自带可见引用声明，
+    // decodeSealedRow 据此与行可见列表交叉核对（缺此键非文本收藏不可解）。
+    final payloadToSeal = <String, dynamic>{
+      ...info,
+      'attach_file_hash256': attach,
+    };
+    final infoSealed = await sealPayload(
+      key: key,
+      userId: userId,
+      kindId: kindId,
+      kind: kind,
+      sealGeneration: 1,
+      payload: payloadToSeal,
+      attachHashes: attach,
+    );
+    final res = await api.addV1(
+      kind: kind,
+      kindId: kindId,
+      infoSealed: infoSealed,
+      keyVersion: key.version,
+      attachHashes: attach,
+    );
+    if (res.ok && res.generation != null) {
+      await onSaved({
+        'user_id': userId,
+        'kind': kind,
+        'kind_id': kindId,
+        'source': source,
+        'generation': res.generation,
+        'key_version': key.version,
+        'info': infoSealed,
+        'attach_file_hash256': attach.join(','),
+      });
+      return CollectCreateOutcome(
+        CollectCreateStatus.ok,
+        generation: res.generation!,
+      );
+    }
+    return CollectCreateOutcome(
+      res.code == 5502
+          ? CollectCreateStatus.conflict
+          : CollectCreateStatus.failed,
+      tip: res.msg,
+    );
+  }
+
+  /// 行可见引用哈希提取（与服务端 add_legacy 各 kind 同口径）：
+  /// - 多图（kind 2 imageMulti）：payload.images[] 每项 file_hash256 ?? md5；
+  /// - 视频（kind 4）：payload.thumb + payload.video 双对象（服务端 [Attach1,
+  ///   Attach2] 同款）；漏报会丢 GC 保留引用（A2/A8）；
+  /// - 其余单附件 kind：payload 顶层 file_hash256 ?? md5。
+  /// 去重后返回（与服务端 attach_file_hash256 逗号列表语义一致）。
+  static List<String> extractAttachHashes(Map<String, dynamic> info) {
+    final payload = info['payload'];
+    final map = payload is Map ? payload : const <String, dynamic>{};
+    final hashes = <String>{};
+    void collectFrom(Map<dynamic, dynamic> m) {
+      final h = _hashOf(m);
+      if (h != null) hashes.add(h);
+    }
+
+    final images = map['images'];
+    if (images is List) {
+      for (final item in images) {
+        if (item is Map) collectFrom(item);
+      }
+    }
+    for (final key in ['thumb', 'video']) {
+      final sub = map[key];
+      if (sub is Map) collectFrom(sub);
+    }
+    if (hashes.isEmpty) {
+      collectFrom(map);
+    }
+    return hashes.toList();
+  }
+
+  static String? _hashOf(Map<dynamic, dynamic> map) {
+    final h = map['file_hash256'] ?? map['md5'];
+    return h is String && h.isNotEmpty ? h : null;
+  }
 
   /// seal 当前编辑内容（generation=sealGeneration；复活=墓碑G+1，§7.3）。
   static Future<String> sealPayload({

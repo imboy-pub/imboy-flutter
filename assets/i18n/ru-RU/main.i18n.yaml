@@ -23,6 +23,8 @@ disable: Отключено
 enUs: Английский (США)
 enable: Включено
 expired: Истёк
+e2eeCollectRotating: Идёт ротация ключей, повторите попытку позже
+e2eeCollectUnsupported: Сервер пока не поддерживает сквозное шифрование избранного, обновите сервер
 favorites: Избранное
 female: Женский
 followSystem: Следовать системе

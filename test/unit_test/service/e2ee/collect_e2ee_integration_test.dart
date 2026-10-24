@@ -26,6 +26,56 @@ class _FakeCollectApi extends UserCollectApi {
   int keyVersion = 0;
   List<String> attach = [];
 
+  // add_v1 服务端状态（语义与 2026-10-24 本地 HTTP 冒烟实测一致）
+  int addCalls = 0;
+  bool legacyRow = false;
+  int tombstoneGen = 0; // >0 = sealed 墓碑行
+
+  @override
+  Future<CollectV1Result> addV1({
+    required int kind,
+    required String kindId,
+    required String infoSealed,
+    required int keyVersion,
+    required List<String> attachHashes,
+  }) async {
+    addCalls++;
+    if (legacyRow) {
+      return const CollectV1Result(ok: false, code: 5506, msg: 'legacy row');
+    }
+    if (generation == 0 && tombstoneGen == 0) {
+      generation = 1;
+      this.infoSealed = infoSealed;
+      this.keyVersion = keyVersion;
+      attach = attachHashes;
+      return CollectV1Result(ok: true, code: 0, msg: 'ok', generation: 1);
+    }
+    if (this.infoSealed == infoSealed && this.keyVersion == keyVersion) {
+      return CollectV1Result(
+        ok: true,
+        code: 0,
+        msg: 'ok',
+        generation: tombstoneGen > 0 ? tombstoneGen : generation,
+        idempotent: true,
+      );
+    }
+    if (tombstoneGen > 0) {
+      // 复活：复用原行，G+1
+      generation = tombstoneGen + 1;
+      tombstoneGen = 0;
+      this.infoSealed = infoSealed;
+      this.keyVersion = keyVersion;
+      attach = attachHashes;
+      return CollectV1Result(
+        ok: true,
+        code: 0,
+        msg: 'ok',
+        generation: generation,
+      );
+    }
+    return const CollectV1Result(ok: false, code: 5502, msg: 'conflict');
+  }
+
   @override
   Future<CollectV1Result> updateV1({
     required String kindId,
@@ -425,5 +475,212 @@ void main() {
     );
     expect(decoded.sealGeneration, 2);
     expect(decoded.generation, 4);
+  });
+
+  group('collectSealed 创建流（§5 能力1 / §9 兼容矩阵）', () {
+    const uid = 100860;
+    const kid = 'cs-create-0001';
+
+    Future<CollectCreateOutcome> run(
+      _FakeCollectApi api,
+      _MemKeychain kc, {
+      required bool capability,
+      required Map<String, dynamic> info,
+      UserCollectModel? local,
+      String kindId = kid,
+      int kind = 1,
+    }) async {
+      return CollectSealedService.collectSealed(
+        api: api,
+        keychain: kc,
+        capability: () => capability,
+        msgUnsupported: 'unsup-tip',
+        msgRotating: 'rot-tip',
+        userId: uid,
+        kind: kind,
+        kindId: kindId,
+        source: 'tester',
+        info: info,
+        findLocal: (_) async => local,
+        onSaved: (_) async {},
+      );
+    }
+
+    setUp(() {
+      _MemKeychain.instance.state = null;
+    });
+
+    test('能力未协商 → 拒绝+升级提示；不发请求、不 bootstrap（无明文回退）', () async {
+      final api = _FakeCollectApi();
+      final out = await run(
+        api,
+        _MemKeychain.instance,
+        capability: false,
+        info: {},
+      );
+      expect(out.status, CollectCreateStatus.refused);
+      expect(out.tip, 'unsup-tip');
+      expect(api.addCalls, 0);
+      expect(_MemKeychain.instance.state, isNull);
+    });
+
+    test('密钥轮换进行中 → 拒绝；不发请求', () async {
+      final api = _FakeCollectApi();
+      final kc = _MemKeychain.instance;
+      await kc.ensureBootstrap();
+      kc.state = kc.state!.copyWith(phase: CollectRotationPhase.rewrapRunning);
+      final out = await run(api, kc, capability: true, info: {});
+      expect(out.status, CollectCreateStatus.refused);
+      expect(out.tip, 'rot-tip');
+      expect(api.addCalls, 0);
+    });
+
+    test('文本收藏：seal→addV1(gen1)→onSaved 密文行；可 decode 往返（§8.2 声明嵌入）', () async {
+      final api = _FakeCollectApi();
+      final kc = _MemKeychain.instance;
+      final info = {
+        'msg_type': 'text',
+        'payload': {'text': '你好收藏'},
+      };
+      final savedRows = <Map<String, dynamic>>[];
+      final out = await CollectSealedService.collectSealed(
+        api: api,
+        keychain: kc,
+        capability: () => true,
+        msgUnsupported: 'u',
+        msgRotating: 'r',
+        userId: uid,
+        kind: 1,
+        kindId: kid,
+        source: 'tester',
+        info: info,
+        findLocal: (_) async => null,
+        onSaved: (row) async => savedRows.add(row),
+      );
+      expect(out.status, CollectCreateStatus.ok);
+      expect(out.generation, 1);
+      expect(api.addCalls, 1);
+      expect(api.keyVersion, 1);
+      expect(api.attach, isEmpty);
+
+      final row = savedRows.single;
+      expect(row['generation'], 1);
+      expect(row['key_version'], 1);
+      expect(row['info'], isNot(equals(jsonEncode(info)))); // 密文非明文
+
+      // 自家客户端能解：行可见列表 == payload 内嵌声明（§8.2 双核对②）
+      final decoded = await CollectSealedService.decodeSealedRow(
+        keychain: kc,
+        userId: uid,
+        row: {
+          'kind': 1,
+          'kind_id': kid,
+          'generation': 1,
+          'key_version': 1,
+          'info': row['info'],
+          'attach_file_hash256': '',
+        },
+      );
+      expect(decoded.payload['payload']['text'], '你好收藏');
+      expect(decoded.sealGeneration, 1);
+    });
+
+    test('视频收藏：thumb+video 双哈希声明（服务端 kind4 [Attach1,Attach2] 同口径）', () async {
+      final api = _FakeCollectApi();
+      final info = {
+        'msg_type': 'video',
+        'payload': {
+          'thumb': {'file_hash256': 'h-thumb'},
+          'video': {'md5': 'm-video'},
+        },
+      };
+      final out = await run(
+        api,
+        _MemKeychain.instance,
+        capability: true,
+        info: info,
+        kind: 4,
+      );
+      expect(out.status, CollectCreateStatus.ok);
+      expect(api.attach, ['h-thumb', 'm-video']);
+    });
+
+    test('多图提取：file_hash256/md5 双读、无效项跳过、去重', () {
+      final hashes = CollectSealedService.extractAttachHashes({
+        'payload': {
+          'images': [
+            {'file_hash256': 'h1'},
+            {'md5': 'm2'},
+            {'uri': 'u'}, // 无哈希 → 跳过
+            {'file_hash256': 'h1'}, // 重复 → 去重
+            'not-a-map',
+          ],
+        },
+      });
+      expect(hashes, ['h1', 'm2']);
+      // 无多图 → 回退 payload 顶层单附件
+      expect(
+        CollectSealedService.extractAttachHashes({
+          'payload': {'file_hash256': 'single-h'},
+        }),
+        ['single-h'],
+      );
+      // 纯文本 → 空
+      expect(
+        CollectSealedService.extractAttachHashes({
+          'payload': {'text': 'hi'},
+        }),
+        isEmpty,
+      );
+    });
+
+    test('服务端 5502 冲突 → conflict，tip=服务端消息，不落本地', () async {
+      final api = _FakeCollectApi()
+        ..generation = 3
+        ..infoSealed = 'other-device-cipher'
+        ..keyVersion = 1;
+      var saved = 0;
+      final out = await CollectSealedService.collectSealed(
+        api: api,
+        keychain: _MemKeychain.instance,
+        capability: () => true,
+        msgUnsupported: 'u',
+        msgRotating: 'r',
+        userId: uid,
+        kind: 1,
+        kindId: kid,
+        source: 's',
+        info: {
+          'payload': {'text': 'x'},
+        },
+        findLocal: (_) async => null,
+        onSaved: (_) async => saved++,
+      );
+      expect(out.status, CollectCreateStatus.conflict);
+      expect(out.tip, 'conflict');
+      expect(api.addCalls, 1);
+      expect(saved, 0);
+    });
+
+    test('本地已有活动 sealed 行 → already 短接（不发请求、不产新密文）', () async {
+      final api = _FakeCollectApi();
+      final local = UserCollectModel.fromJson({
+        'kind': 1,
+        'kind_id': kid,
+        'generation': 2,
+        'key_version': 1,
+        'info': 'RUNPT0w=',
+        'attach_file_hash256': '',
+      });
+      final out = run(
+        api,
+        _MemKeychain.instance,
+        capability: true,
+        info: {},
+        local: local,
+      );
+      expect((await out).status, CollectCreateStatus.already);
+      expect(api.addCalls, 0);
+    });
   });
 }

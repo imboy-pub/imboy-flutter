@@ -22,6 +22,8 @@ disable: Disable
 enUs: English (US)
 enable: Enable
 expired: Expired
+e2eeCollectRotating: Key rotation in progress, please try again later
+e2eeCollectUnsupported: Server does not support end-to-end encrypted favorites yet, please upgrade the server
 favorites: Favorite
 female: Female
 followSystem: Follow system

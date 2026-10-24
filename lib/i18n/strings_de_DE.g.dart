@@ -2155,6 +2155,8 @@ class _Translations$main$de_DE extends Translations$main$zh_CN {
 	@override String get enUs => 'Amerikanisches Englisch';
 	@override String get enable => 'Aktivieren';
 	@override String get expired => 'Abgelaufen';
+	@override String get e2eeCollectRotating => 'Schlüsselrotation läuft, bitte später erneut versuchen';
+	@override String get e2eeCollectUnsupported => 'Server unterstützt Ende-zu-Ende-verschlüsselte Favoriten noch nicht, bitte Server aktualisieren';
 	@override String get favorites => 'Favoriten';
 	@override String get female => 'Weiblich';
 	@override String get followSystem => 'System folgen';
@@ -5236,6 +5238,8 @@ extension on TranslationsDeDe {
 			'main.enUs' => 'Amerikanisches Englisch',
 			'main.enable' => 'Aktivieren',
 			'main.expired' => 'Abgelaufen',
+			'main.e2eeCollectRotating' => 'Schlüsselrotation läuft, bitte später erneut versuchen',
+			'main.e2eeCollectUnsupported' => 'Server unterstützt Ende-zu-Ende-verschlüsselte Favoriten noch nicht, bitte Server aktualisieren',
 			'main.favorites' => 'Favoriten',
 			'main.female' => 'Weiblich',
 			'main.followSystem' => 'System folgen',
@@ -5416,10 +5420,10 @@ extension on TranslationsDeDe {
 			'mention.title' => '@Erwähnungen',
 			'mention.noMention' => 'Keine @Erwähnungen',
 			'mention.allRead' => 'Alle gelesen',
-			'mention.mentionAllDenied' => 'Nur Administratoren können @alle verwenden',
-			'mention.navInfoMissing' => 'Nachrichtenposition fehlt, Sprung nicht möglich',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => 'Nur Administratoren können @alle verwenden',
+			'mention.navInfoMissing' => 'Nachrichtenposition fehlt, Sprung nicht möglich',
 			'mention.pickButtonTooltip' => 'Mitglied erwähnen',
 			'momentFriendPicker.confirm' => 'Fertig',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Fertig (${count})',
@@ -5930,10 +5934,10 @@ extension on TranslationsDeDe {
 			'workspace.emptyNoWorkspace' => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen',
 			'workspace.dmEntry' => 'Alle Nachrichten',
 			'workspace.experienceModePersonal' => 'Persönlich',
-			'workspace.switchToPersonal' => 'Zum persönlichen Modus wechseln',
-			'workspace.createTitle' => 'Arbeitsbereich erstellen',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => 'Zum persönlichen Modus wechseln',
+			'workspace.createTitle' => 'Arbeitsbereich erstellen',
 			'workspace.createDesc' => 'Mit einer Erstellung wird alles automatisch angelegt: Arbeitsbereich, Sie (Owner als Arbeitsbereich-Mitglied), Announcements-Kanal und General-Gruppe. Alles erfolgreich oder vollständiger Rollback.',
 			'workspace.createNameLabel' => 'Arbeitsbereichsname',
 			'workspace.createNameHint' => 'z. B. Website-Relaunch-Team',

@@ -23,6 +23,8 @@ disable: 비활성화
 enUs: 미국 영어
 enable: 활성화
 expired: 만료됨
+e2eeCollectRotating: 키 교체 진행 중입니다. 잠시 후 다시 시도해 주세요
+e2eeCollectUnsupported: 서버가 종단간 암호화 즐겨찾기를 아직 지원하지 않습니다. 서버를 업그레이드해 주세요
 favorites: 즐겨찾기
 female: 여성
 followSystem: 시스템 따르기

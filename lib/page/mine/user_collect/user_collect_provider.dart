@@ -22,6 +22,8 @@ import 'package:imboy/store/model/message_model.dart' show MessageModel;
 import 'package:imboy/store/model/user_collect_model.dart';
 import 'package:imboy/service/e2ee/collect_keychain.dart';
 import 'package:imboy/service/e2ee/collect_sealed_service.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/store/api/user_collect_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart'
@@ -175,7 +177,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       state.hasMore = result.length >= size;
       return result;
     } on Exception {
-      if (kDebugMode) {}
       // 出错返回空列表，外层会显示错误态或重试
       state = state.copyWith(hasMore: false, loadFailed: true);
       return [];
@@ -948,7 +949,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         return false;
       }
     } on Exception {
-      if (kDebugMode) {}
       return false;
     } finally {
       // 无论成功或失败都释放锁
@@ -962,7 +962,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       authorId,
       autoFetch: true,
     );
-    if (kDebugMode) {}
     if (obj == null) {
       return '';
     }
@@ -1028,7 +1027,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     int kind = getCollectKind(msg);
     // 如果消息类型不支持收藏，直接返回失败
     if (kind <= 0) {
-      if (kDebugMode) {}
       return false;
     }
 
@@ -1039,7 +1037,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
 
     // 如果数据库中没有找到消息，尝试从Message对象创建
     if (msg2 == null) {
-      if (kDebugMode) {}
       try {
         // 创建一个基本的MessageModel
         final payload = _extractPayloadFromMessage(msg);
@@ -1062,7 +1059,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           ), // ✅ 修复：从 payload 提取 msg_type
         );
       } on Exception {
-        if (kDebugMode) {}
         return false;
       }
     }
@@ -1073,7 +1069,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       try {
         info['payload'] = jsonDecode(payload);
       } on Exception {
-        if (kDebugMode) {}
         info['payload'] = <String, dynamic>{};
       }
     }
@@ -1095,7 +1090,6 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       if (info['payload'] is Map) {
         final payloadData = info['payload'] as Map<String, dynamic>;
         finalMsgType = payloadData['msg_type']?.toString();
-        if (kDebugMode) {}
       }
     }
 
@@ -1126,47 +1120,47 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         default:
           finalMsgType = 'text';
       }
-      if (kDebugMode) {}
     }
 
     // 强制设置 msg_type 到顶层
     info['msg_type'] = finalMsgType;
 
-    if (kDebugMode) {}
-
     // 显示加载状态
     AppLoading.show(status: t.main.collecting);
 
-    bool res = await UserCollectApi().add(kind, msg.id, source, info);
+    // v1 密封收藏创建（§9）：能力未协商/轮换中 → 拒绝+提示，无明文回退
+    final sealed = await CollectSealedService.collectSealed(
+      api: UserCollectApi(),
+      keychain: CollectKeychain.to,
+      capability: () => AppFeatureRegistry.isEnabled(FeatureKeys.e2eeCollect),
+      msgUnsupported: t.main.e2eeCollectUnsupported,
+      msgRotating: t.main.e2eeCollectRotating,
+      userId: _uidInt(),
+      kind: kind,
+      kindId: msg.id,
+      source: source,
+      info: info,
+      findLocal: (kid) => UserCollectRepo().findByKindId(kid),
+      onSaved: (row) async {
+        // 本地缓存失败不应让整个收藏 uncaught（服务端已成功，
+        // 列表刷新可从服务端拉回）——曾因 UNIQUE 冲突静默炸掉（QA#31）
+        try {
+          await UserCollectRepo().save(row);
+        } on Exception {
+          if (kDebugMode) debugPrint("collect sealed local save failed");
+        }
+      },
+    );
 
     // 隐藏加载状态
     AppLoading.dismiss();
 
-    if (kDebugMode) {}
-
-    if (res) {
-      // 本地缓存失败不应让整个收藏 uncaught（服务端已成功，
-      // 列表刷新可从服务端拉回）——曾因 UNIQUE 冲突静默炸掉（QA#31）
-      try {
-        await UserCollectRepo().save({
-          UserCollectRepo.createdAt: DateTimeHelper.millisecond(),
-          UserCollectRepo.userId: UserRepoLocal.to.currentUid,
-          UserCollectRepo.kind: kind,
-          UserCollectRepo.kindId: msg.id,
-          UserCollectRepo.source: source,
-          UserCollectRepo.info: info,
-        });
-        if (kDebugMode) debugPrint("userCollectLogic/add 本地保存成功");
-      } on Exception catch (e) {
-        if (kDebugMode) {
-          debugPrint("userCollectLogic/add 本地保存失败: ${e.runtimeType}");
-        }
-      }
-    } else {
-      if (kDebugMode) debugPrint("userCollectLogic/add 服务端保存失败");
+    final tip = sealed.tip;
+    if (tip != null) {
+      AppLoading.showError(tip.isNotEmpty ? tip : t.common.tipFailed);
     }
-
-    return res;
+    return sealed.status == CollectCreateStatus.ok ||
+        sealed.status == CollectCreateStatus.already;
   }
 
   /// 从Message对象提取payload

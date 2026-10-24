@@ -2152,6 +2152,8 @@ class _Translations$main$ko_KR extends Translations$main$zh_CN {
 	@override String get enUs => '미국 영어';
 	@override String get enable => '활성화';
 	@override String get expired => '만료됨';
+	@override String get e2eeCollectRotating => '키 교체 진행 중입니다. 잠시 후 다시 시도해 주세요';
+	@override String get e2eeCollectUnsupported => '서버가 종단간 암호화 즐겨찾기를 아직 지원하지 않습니다. 서버를 업그레이드해 주세요';
 	@override String get favorites => '즐겨찾기';
 	@override String get female => '여성';
 	@override String get followSystem => '시스템 따르기';
@@ -5233,6 +5235,8 @@ extension on TranslationsKoKr {
 			'main.enUs' => '미국 영어',
 			'main.enable' => '활성화',
 			'main.expired' => '만료됨',
+			'main.e2eeCollectRotating' => '키 교체 진행 중입니다. 잠시 후 다시 시도해 주세요',
+			'main.e2eeCollectUnsupported' => '서버가 종단간 암호화 즐겨찾기를 아직 지원하지 않습니다. 서버를 업그레이드해 주세요',
 			'main.favorites' => '즐겨찾기',
 			'main.female' => '여성',
 			'main.followSystem' => '시스템 따르기',
@@ -5413,10 +5417,10 @@ extension on TranslationsKoKr {
 			'mention.title' => '@멘션',
 			'mention.noMention' => '멘션이 없습니다',
 			'mention.allRead' => '모두 읽음',
-			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
-			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
+			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
 			'mention.pickButtonTooltip' => '멤버 @멘션',
 			'momentFriendPicker.confirm' => '확인',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '확인(${count})',
@@ -5927,10 +5931,10 @@ extension on TranslationsKoKr {
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
 			'workspace.dmEntry' => '전체 메시지',
 			'workspace.experienceModePersonal' => '개인',
-			'workspace.switchToPersonal' => '개인으로 전환',
-			'workspace.createTitle' => '워크스페이스 만들기',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => '개인으로 전환',
+			'workspace.createTitle' => '워크스페이스 만들기',
 			'workspace.createDesc' => '한 번에 자동 생성: 워크스페이스, 본인(Owner 워크스페이스 구성원 신분), Announcements 채널, General 그룹. 전부 성공하거나 전부 롤백됩니다.',
 			'workspace.createNameLabel' => '워크스페이스 이름',
 			'workspace.createNameHint' => '예: 공식 홈페이지 리뉴얼 팀',

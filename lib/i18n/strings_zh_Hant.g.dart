@@ -2152,6 +2152,8 @@ class Translations$main$zh_Hant extends Translations$main$zh_CN {
 	@override String get enUs => '美國英語';
 	@override String get enable => '啟用';
 	@override String get expired => '已過期';
+	@override String get e2eeCollectRotating => '金鑰輪換進行中，請稍後再試';
+	@override String get e2eeCollectUnsupported => '伺服器暫不支援端對端加密收藏，請先升級伺服器';
 	@override String get favorites => '收藏夾';
 	@override String get female => '女生';
 	@override String get followSystem => '跟隨系統';
@@ -5233,6 +5235,8 @@ extension on TranslationsZhHant {
 			'main.enUs' => '美國英語',
 			'main.enable' => '啟用',
 			'main.expired' => '已過期',
+			'main.e2eeCollectRotating' => '金鑰輪換進行中，請稍後再試',
+			'main.e2eeCollectUnsupported' => '伺服器暫不支援端對端加密收藏，請先升級伺服器',
 			'main.favorites' => '收藏夾',
 			'main.female' => '女生',
 			'main.followSystem' => '跟隨系統',
@@ -5413,10 +5417,10 @@ extension on TranslationsZhHant {
 			'mention.title' => '@標註',
 			'mention.noMention' => '暫無@提及',
 			'mention.allRead' => '全部已讀',
-			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
-			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
+			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
 			'mention.pickButtonTooltip' => '@標註成員',
 			'momentFriendPicker.confirm' => '確定',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '確定(${count})',
@@ -5927,10 +5931,10 @@ extension on TranslationsZhHant {
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
 			'workspace.dmEntry' => '全部訊息',
 			'workspace.experienceModePersonal' => '個人',
-			'workspace.switchToPersonal' => '切換到個人',
-			'workspace.createTitle' => '建立工作區',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => '切換到個人',
+			'workspace.createTitle' => '建立工作區',
 			'workspace.createDesc' => '一次建立，自動完成：工作區、你（Owner 工作區成員身分）、Announcements 頻道與 General 群。全部成功或全部還原。',
 			'workspace.createNameLabel' => '工作區名稱',
 			'workspace.createNameHint' => '例如：官網改版專案小組',

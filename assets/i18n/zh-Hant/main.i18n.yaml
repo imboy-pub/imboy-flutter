@@ -22,6 +22,8 @@ disable: 停用
 enUs: 美國英語
 enable: 啟用
 expired: 已過期
+e2eeCollectRotating: 金鑰輪換進行中，請稍後再試
+e2eeCollectUnsupported: 伺服器暫不支援端對端加密收藏，請先升級伺服器
 favorites: 收藏夾
 female: 女生
 followSystem: 跟隨系統

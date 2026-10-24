@@ -23,6 +23,8 @@ disable: Deaktivieren
 enUs: Amerikanisches Englisch
 enable: Aktivieren
 expired: Abgelaufen
+e2eeCollectRotating: Schlüsselrotation läuft, bitte später erneut versuchen
+e2eeCollectUnsupported: Server unterstützt Ende-zu-Ende-verschlüsselte Favoriten noch nicht, bitte Server aktualisieren
 favorites: Favoriten
 female: Weiblich
 followSystem: System folgen

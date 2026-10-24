@@ -2155,6 +2155,8 @@ class _Translations$main$it_IT extends Translations$main$zh_CN {
 	@override String get enUs => 'Inglese (Stati Uniti)';
 	@override String get enable => 'Abilita';
 	@override String get expired => 'Scaduto';
+	@override String get e2eeCollectRotating => 'Rotazione delle chiavi in corso, riprova più tardi';
+	@override String get e2eeCollectUnsupported => 'Il server non supporta ancora i preferiti crittografati end-to-end, aggiorna il server';
 	@override String get favorites => 'Preferiti';
 	@override String get female => 'Donna';
 	@override String get followSystem => 'Segui sistema';
@@ -5236,6 +5238,8 @@ extension on TranslationsItIt {
 			'main.enUs' => 'Inglese (Stati Uniti)',
 			'main.enable' => 'Abilita',
 			'main.expired' => 'Scaduto',
+			'main.e2eeCollectRotating' => 'Rotazione delle chiavi in corso, riprova più tardi',
+			'main.e2eeCollectUnsupported' => 'Il server non supporta ancora i preferiti crittografati end-to-end, aggiorna il server',
 			'main.favorites' => 'Preferiti',
 			'main.female' => 'Donna',
 			'main.followSystem' => 'Segui sistema',
@@ -5416,10 +5420,10 @@ extension on TranslationsItIt {
 			'mention.title' => '@Menzioni',
 			'mention.noMention' => 'Nessuna @menzione',
 			'mention.allRead' => 'Segna tutto letto',
-			'mention.mentionAllDenied' => 'Solo gli amministratori possono @tutti',
-			'mention.navInfoMissing' => 'Posizione messaggio mancante, navigazione impossibile',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => 'Solo gli amministratori possono @tutti',
+			'mention.navInfoMissing' => 'Posizione messaggio mancante, navigazione impossibile',
 			'mention.pickButtonTooltip' => 'Menziona membro',
 			'momentFriendPicker.confirm' => 'Fatto',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Fatto (${count})',
@@ -5930,10 +5934,10 @@ extension on TranslationsItIt {
 			'workspace.brandingColorLabel' => 'Colore principale (primaryColor)',
 			'workspace.brandingEntry' => 'Impostazioni brand (nome / logo / colore principale)',
 			'workspace.brandingLogoHint' => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)',
-			'workspace.brandingLogoLabel' => 'URL del logo',
-			'workspace.brandingNameLabel' => 'Nome del brand',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingLogoLabel' => 'URL del logo',
+			'workspace.brandingNameLabel' => 'Nome del brand',
 			'workspace.brandingPreview' => 'Anteprima colore principale',
 			'workspace.brandingPreviewApplied' => 'Il colore principale attuale sarà applicato all\'interno dell\'area di lavoro',
 			'workspace.brandingPreviewFallback' => 'Valore non impostato o non valido, uso del colore del tema predefinito',

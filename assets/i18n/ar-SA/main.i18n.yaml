@@ -23,6 +23,8 @@ disable: تعطيل
 enUs: الإنجليزية (الولايات المتحدة)
 enable: تمكين
 expired: منتهية الصلاحية
+e2eeCollectRotating: يجري تدوير المفاتيح، حاول مجددًا لاحقًا
+e2eeCollectUnsupported: الخادم لا يدعم بعد المفضلة المشفرة من الطرف إلى الطرف، يرجى ترقية الخادم
 favorites: المفضلة
 female: أنثى
 followSystem: اتباع النظام

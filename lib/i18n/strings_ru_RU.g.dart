@@ -2161,6 +2161,8 @@ class _Translations$main$ru_RU extends Translations$main$zh_CN {
 	@override String get enUs => 'Английский (США)';
 	@override String get enable => 'Включено';
 	@override String get expired => 'Истёк';
+	@override String get e2eeCollectRotating => 'Идёт ротация ключей, повторите попытку позже';
+	@override String get e2eeCollectUnsupported => 'Сервер пока не поддерживает сквозное шифрование избранного, обновите сервер';
 	@override String get favorites => 'Избранное';
 	@override String get female => 'Женский';
 	@override String get followSystem => 'Следовать системе';
@@ -5242,6 +5244,8 @@ extension on TranslationsRuRu {
 			'main.enUs' => 'Английский (США)',
 			'main.enable' => 'Включено',
 			'main.expired' => 'Истёк',
+			'main.e2eeCollectRotating' => 'Идёт ротация ключей, повторите попытку позже',
+			'main.e2eeCollectUnsupported' => 'Сервер пока не поддерживает сквозное шифрование избранного, обновите сервер',
 			'main.favorites' => 'Избранное',
 			'main.female' => 'Женский',
 			'main.followSystem' => 'Следовать системе',
@@ -5422,10 +5426,10 @@ extension on TranslationsRuRu {
 			'mention.title' => '@Упоминания',
 			'mention.noMention' => 'Нет упоминаний',
 			'mention.allRead' => 'Всё прочитано',
-			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
-			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
+			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
 			'mention.pickButtonTooltip' => 'Упомянуть участника',
 			'momentFriendPicker.confirm' => 'ОК',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'ОК(${count})',
@@ -5936,10 +5940,10 @@ extension on TranslationsRuRu {
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
 			'workspace.dmEntry' => 'Все сообщения',
 			'workspace.experienceModePersonal' => 'Личный',
-			'workspace.switchToPersonal' => 'Переключиться на личный',
-			'workspace.createTitle' => 'Создать рабочее пространство',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => 'Переключиться на личный',
+			'workspace.createTitle' => 'Создать рабочее пространство',
 			'workspace.createDesc' => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.',
 			'workspace.createNameLabel' => 'Название рабочего пространства',
 			'workspace.createNameHint' => 'Например: группа редизайна сайта',

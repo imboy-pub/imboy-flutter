@@ -2164,6 +2164,8 @@ class _Translations$main$ar_SA extends Translations$main$zh_CN {
 	@override String get enUs => 'الإنجليزية (الولايات المتحدة)';
 	@override String get enable => 'تمكين';
 	@override String get expired => 'منتهية الصلاحية';
+	@override String get e2eeCollectRotating => 'يجري تدوير المفاتيح، حاول مجددًا لاحقًا';
+	@override String get e2eeCollectUnsupported => 'الخادم لا يدعم بعد المفضلة المشفرة من الطرف إلى الطرف، يرجى ترقية الخادم';
 	@override String get favorites => 'المفضلة';
 	@override String get female => 'أنثى';
 	@override String get followSystem => 'اتباع النظام';
@@ -5245,6 +5247,8 @@ extension on TranslationsArSa {
 			'main.enUs' => 'الإنجليزية (الولايات المتحدة)',
 			'main.enable' => 'تمكين',
 			'main.expired' => 'منتهية الصلاحية',
+			'main.e2eeCollectRotating' => 'يجري تدوير المفاتيح، حاول مجددًا لاحقًا',
+			'main.e2eeCollectUnsupported' => 'الخادم لا يدعم بعد المفضلة المشفرة من الطرف إلى الطرف، يرجى ترقية الخادم',
 			'main.favorites' => 'المفضلة',
 			'main.female' => 'أنثى',
 			'main.followSystem' => 'اتباع النظام',
@@ -5425,10 +5429,10 @@ extension on TranslationsArSa {
 			'mention.title' => '@إشارات',
 			'mention.noMention' => 'لا توجد إشارات',
 			'mention.allRead' => 'تمت قراءة الكل',
-			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
-			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
+			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
 			'mention.pickButtonTooltip' => '@إشارة إلى عضو',
 			'momentFriendPicker.confirm' => 'موافق',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'موافق(${count})',
@@ -5939,10 +5943,10 @@ extension on TranslationsArSa {
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
 			'workspace.dmEntry' => 'كل الرسائل',
 			'workspace.experienceModePersonal' => 'شخصي',
-			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
-			'workspace.createTitle' => 'إنشاء مساحة عمل',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
+			'workspace.createTitle' => 'إنشاء مساحة عمل',
 			'workspace.createDesc' => 'إنشاء واحد يُنجز تلقائياً: مساحة العمل، وعضويتك فيها (Owner)، وقناة Announcements، ومجموعة General. إما نجاح الكل أو التراجع عن الكل.',
 			'workspace.createNameLabel' => 'اسم مساحة العمل',
 			'workspace.createNameHint' => 'مثال: فريق مشروع إعادة تصميم الموقع',

@@ -2155,6 +2155,8 @@ class _Translations$main$fr_FR extends Translations$main$zh_CN {
 	@override String get enUs => 'Anglais (États-Unis)';
 	@override String get enable => 'Activer';
 	@override String get expired => 'Expiré';
+	@override String get e2eeCollectRotating => 'Rotation des clés en cours, veuillez réessayer plus tard';
+	@override String get e2eeCollectUnsupported => 'Le serveur ne prend pas encore en charge les favoris chiffrés de bout en bout, veuillez mettre à jour le serveur';
 	@override String get favorites => 'Favoris';
 	@override String get female => 'Femme';
 	@override String get followSystem => 'Suivre le système';
@@ -5236,6 +5238,8 @@ extension on TranslationsFrFr {
 			'main.enUs' => 'Anglais (États-Unis)',
 			'main.enable' => 'Activer',
 			'main.expired' => 'Expiré',
+			'main.e2eeCollectRotating' => 'Rotation des clés en cours, veuillez réessayer plus tard',
+			'main.e2eeCollectUnsupported' => 'Le serveur ne prend pas encore en charge les favoris chiffrés de bout en bout, veuillez mettre à jour le serveur',
 			'main.favorites' => 'Favoris',
 			'main.female' => 'Femme',
 			'main.followSystem' => 'Suivre le système',
@@ -5416,10 +5420,10 @@ extension on TranslationsFrFr {
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'Aucune @mention',
 			'mention.allRead' => 'Tout marquer lu',
-			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
-			'mention.navInfoMissing' => 'Position du message manquante, navigation impossible',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
+			'mention.navInfoMissing' => 'Position du message manquante, navigation impossible',
 			'mention.pickButtonTooltip' => 'Mentionner un membre',
 			'momentFriendPicker.confirm' => 'Terminé',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => 'Terminé (${count})',
@@ -5930,10 +5934,10 @@ extension on TranslationsFrFr {
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
 			'workspace.dmEntry' => 'Tous les messages',
 			'workspace.experienceModePersonal' => 'Personnel',
-			'workspace.switchToPersonal' => 'Passer en mode personnel',
-			'workspace.createTitle' => 'Créer un espace de travail',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => 'Passer en mode personnel',
+			'workspace.createTitle' => 'Créer un espace de travail',
 			'workspace.createDesc' => 'Une seule création automatise tout : l\'espace de travail, votre adhésion en tant que membre Owner, le canal Announcements et le groupe General. Tout réussit ou tout est annulé.',
 			'workspace.createNameLabel' => 'Nom de l\'espace de travail',
 			'workspace.createNameHint' => 'Ex. : groupe projet de refonte du site web',

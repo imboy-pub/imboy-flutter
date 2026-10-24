@@ -23,6 +23,8 @@ disable: Disabilita
 enUs: Inglese (Stati Uniti)
 enable: Abilita
 expired: Scaduto
+e2eeCollectRotating: Rotazione delle chiavi in corso, riprova più tardi
+e2eeCollectUnsupported: Il server non supporta ancora i preferiti crittografati end-to-end, aggiorna il server
 favorites: Preferiti
 female: Donna
 followSystem: Segui sistema

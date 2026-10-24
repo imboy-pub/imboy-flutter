@@ -2356,6 +2356,8 @@ class _Translations$main$en_US extends Translations$main$zh_CN {
 	@override String get enUs => 'English (US)';
 	@override String get enable => 'Enable';
 	@override String get expired => 'Expired';
+	@override String get e2eeCollectRotating => 'Key rotation in progress, please try again later';
+	@override String get e2eeCollectUnsupported => 'Server does not support end-to-end encrypted favorites yet, please upgrade the server';
 	@override String get favorites => 'Favorite';
 	@override String get female => 'Female';
 	@override String get followSystem => 'Follow system';
@@ -6080,6 +6082,8 @@ extension on TranslationsEnUs {
 			'main.enUs' => 'English (US)',
 			'main.enable' => 'Enable',
 			'main.expired' => 'Expired',
+			'main.e2eeCollectRotating' => 'Key rotation in progress, please try again later',
+			'main.e2eeCollectUnsupported' => 'Server does not support end-to-end encrypted favorites yet, please upgrade the server',
 			'main.favorites' => 'Favorite',
 			'main.female' => 'Female',
 			'main.followSystem' => 'Follow system',
@@ -6561,10 +6565,10 @@ extension on TranslationsEnUs {
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
 			'organization.manage.workspaceOwnerHint' => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.',
 			'organization.manage.forbiddenTitle' => 'No management permission',
-			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
-			'organization.manage.workspaceSection' => 'Workspaces',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
+			'organization.manage.workspaceSection' => 'Workspaces',
 			'organization.manage.createWorkspace' => 'New workspace',
 			'organization.manage.workspaceNameHint' => 'Workspace name',
 			'organization.manage.workspaceEmpty' => 'No workspaces yet',
@@ -7075,10 +7079,10 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryProtected' => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.',
 			'talkRecord.cleanupRetryWaiting' => 'Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.',
 			'talkRecord.cleanupRetryUnavailable' => 'Cleanup retry permission could not be confirmed. Refresh the status.',
-			'talkRecord.cleanupRetryReconcile' => 'Reconcile the same retry request',
-			'talkRecord.uploadProgressRegister' => 'Preparing upload',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupRetryReconcile' => 'Reconcile the same retry request',
+			'talkRecord.uploadProgressRegister' => 'Preparing upload',
 			'talkRecord.uploadProgressUpload' => 'Uploading audio',
 			'talkRecord.uploadProgressConfirm' => 'Confirming audio',
 			'talkRecord.uploadProgressSubmitting' => 'Submitting recording',

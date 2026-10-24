@@ -2152,6 +2152,8 @@ class _Translations$main$ja_JP extends Translations$main$zh_CN {
 	@override String get enUs => 'アメリカ英語';
 	@override String get enable => '有効';
 	@override String get expired => '期限切れ';
+	@override String get e2eeCollectRotating => '鍵のローテーション中です。しばらくしてからもう一度お試しください';
+	@override String get e2eeCollectUnsupported => 'サーバーがエンドツーエンド暗号化のお気に入りに未対応です。サーバーをアップグレードしてください';
 	@override String get favorites => 'コレクション';
 	@override String get female => '女性';
 	@override String get followSystem => 'システムに従う';
@@ -5233,6 +5235,8 @@ extension on TranslationsJaJp {
 			'main.enUs' => 'アメリカ英語',
 			'main.enable' => '有効',
 			'main.expired' => '期限切れ',
+			'main.e2eeCollectRotating' => '鍵のローテーション中です。しばらくしてからもう一度お試しください',
+			'main.e2eeCollectUnsupported' => 'サーバーがエンドツーエンド暗号化のお気に入りに未対応です。サーバーをアップグレードしてください',
 			'main.favorites' => 'コレクション',
 			'main.female' => '女性',
 			'main.followSystem' => 'システムに従う',
@@ -5413,10 +5417,10 @@ extension on TranslationsJaJp {
 			'mention.title' => '@メンション',
 			'mention.noMention' => '@メンションはありません',
 			'mention.allRead' => 'すべて既読にする',
-			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
-			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
+			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
 			'mention.pickButtonTooltip' => '@メンバーを指定',
 			'momentFriendPicker.confirm' => '完了',
 			'momentFriendPicker.confirmWithCount' => ({required Object count}) => '完了(${count})',
@@ -5927,10 +5931,10 @@ extension on TranslationsJaJp {
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
 			'workspace.dmEntry' => 'すべてのメッセージ',
 			'workspace.experienceModePersonal' => '個人',
-			'workspace.switchToPersonal' => '個人に切り替え',
-			'workspace.createTitle' => 'ワークスペースを作成',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchToPersonal' => '個人に切り替え',
+			'workspace.createTitle' => 'ワークスペースを作成',
 			'workspace.createDesc' => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。',
 			'workspace.createNameLabel' => 'ワークスペース名',
 			'workspace.createNameHint' => '例：サイトリニューアルプロジェクト',

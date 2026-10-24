@@ -18,6 +18,11 @@ class FeatureKeys {
   // 注意判定顺序——加密行为由 EncryptionModeService 决定，本键只管 UI 可见性。
   static const e2ee = 'e2ee';
 
+  // E2EE 收藏 v1 能力键（服务端 manifest features，PLAN 2026-10-24 §9/A7）：
+  // 旧后端/未选 e2ee 域的组合无此键 → isEnabled fail-closed 为 false，
+  // 新端拒绝创建 sealed 收藏（升级提示，无明文静默回退）。
+  static const e2eeCollect = 'e2ee_collect';
+
   // W1.5 稳定化 Sprint 隐藏入口（2026-04-17）：
   // 本地硬关闭，避免不完善功能暴露给 App Store 审核 + 早期用户。
   // 代码保留，待 v2 决策（见 .claude/plans/stabilization-sprint-2026Q2.md 第六节）。

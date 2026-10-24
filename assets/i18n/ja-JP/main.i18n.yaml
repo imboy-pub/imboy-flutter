@@ -23,6 +23,8 @@ disable: 無効
 enUs: アメリカ英語
 enable: 有効
 expired: 期限切れ
+e2eeCollectRotating: 鍵のローテーション中です。しばらくしてからもう一度お試しください
+e2eeCollectUnsupported: サーバーがエンドツーエンド暗号化のお気に入りに未対応です。サーバーをアップグレードしてください
 favorites: コレクション
 female: 女性
 followSystem: システムに従う
