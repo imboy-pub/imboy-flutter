@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
@@ -17,12 +16,15 @@ class MineProfile extends StatelessWidget {
     super.key,
     required this.user,
     required this.enterprise,
-    this.spaceLabel,
+    this.enterpriseName,
   });
 
   final UserModel? user;
   final bool enterprise;
-  final String? spaceLabel;
+
+  /// 企业空间上下文的企业名（纯展示身份提示；空间切换统一在消息页
+  /// 左上角抽屉，本页不再承载切换入口）。
+  final String? enterpriseName;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -32,12 +34,10 @@ class MineProfile extends StatelessWidget {
         _ProfileAvatar(user: user),
         AppSpacing.horizontalMedium,
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ProfileIdentity(user: user, enterprise: enterprise),
-              CurrentSpaceTile(compact: true, compactLabel: spaceLabel),
-            ],
+          child: _ProfileIdentity(
+            user: user,
+            enterprise: enterprise,
+            enterpriseName: enterpriseName,
           ),
         ),
         CupertinoButton(
@@ -107,10 +107,15 @@ class _ProfileAvatar extends StatelessWidget {
 }
 
 class _ProfileIdentity extends StatelessWidget {
-  const _ProfileIdentity({required this.user, required this.enterprise});
+  const _ProfileIdentity({
+    required this.user,
+    required this.enterprise,
+    this.enterpriseName,
+  });
 
   final UserModel? user;
   final bool enterprise;
+  final String? enterpriseName;
 
   @override
   Widget build(BuildContext context) => Semantics(
@@ -153,6 +158,19 @@ class _ProfileIdentity extends StatelessWidget {
       if (!enterprise)
         Text(
           'ID: ${user?.account ?? '-'}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textStyle(
+            FontSizeType.small,
+            color: AppColors.getTextColor(
+              Theme.of(context).brightness,
+              isSecondary: true,
+            ),
+          ),
+        )
+      else if (enterpriseName?.trim().isNotEmpty == true)
+        Text(
+          enterpriseName!.trim(),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: context.textStyle(

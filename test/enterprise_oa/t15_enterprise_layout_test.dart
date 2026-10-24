@@ -18,7 +18,6 @@ import 'package:imboy/component/ui/resource_entry_tile.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
 import 'package:imboy/modules/organization/infrastructure/current_organization_store.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
-import 'package:imboy/modules/organization/presentation/current_space_tile.dart';
 
 class _PreviewExperience extends ProductExperienceNotifier {
   _PreviewExperience(this.value);
@@ -232,20 +231,16 @@ void main() {
     });
   }
 
+  // 空间切换已从「我」页收敛到消息页左上角抽屉：企业名小字纯展示，
+  // 不再作为 /organization/picker 的动作入口（该条目随之删除）。
   for (final (label, path) in [
     ('企业管理', '/manage'),
     (t.main.favorites, '/favorites'),
-    (_organization, '/organization/picker'),
     (_nickname, '/personal_info/profile'),
   ]) {
     testWidgets('T15 enterprise action $path', (tester) async {
       final router = await _pumpPage(tester, 'enterprise', _combos[1].$2);
-      final action = path == '/organization/picker'
-          ? find.descendant(
-              of: find.byType(CurrentSpaceTile),
-              matching: find.text(label),
-            )
-          : find.text(label);
+      final action = find.text(label);
       await tester.ensureVisible(action);
       await tester.tap(action);
       await tester.pumpAndSettle();

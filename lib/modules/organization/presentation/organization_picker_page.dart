@@ -26,9 +26,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/chat_shell/experience_provider.dart';
-import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
@@ -41,6 +39,7 @@ import 'package:imboy/modules/organization/presentation/organization_routes.dart
 import 'package:imboy/modules/organization/presentation/org_join_scanner_page.dart';
 
 import 'space_picker_views.dart';
+import 'organization_switch_controller.dart';
 
 class OrganizationPickerPage extends ConsumerStatefulWidget {
   const OrganizationPickerPage({
@@ -69,6 +68,9 @@ class OrganizationPickerPage extends ConsumerStatefulWidget {
 class _OrganizationPickerPageState
     extends ConsumerState<OrganizationPickerPage> {
   final OrganizationApi _api = OrganizationApi();
+
+  /// 两阶段切换共享控制器（语义见文件头）；账号变化时随 epoch 重建。
+  late OrganizationSwitchController _switcher;
 
   List<Organization> _orgs = const [];
   bool _loading = false;
@@ -100,6 +102,20 @@ class _OrganizationPickerPageState
   CurrentOrganizationStore get _currentStore =>
       CurrentOrganizationStore.forAccount(_accountKey);
 
+  OrganizationSwitchController _createSwitcher() {
+    // isAlive 承接原 _acceptSwitch 的守卫：mounted + 会话当前 + epoch 未变
+    // （didUpdateWidget 换账号 ++epoch，旧切换静默中止）。
+    final epoch = _accountEpoch;
+    return OrganizationSwitchController(
+      ref: ref,
+      accountKey: _accountKey,
+      isAlive: () => mounted && _sessionCurrent && epoch == _accountEpoch,
+      api: _api,
+      cache: _cache,
+      store: _currentStore,
+    );
+  }
+
   Organization? get _currentOrg {
     final pointed = _currentStore.value;
     if (pointed == null) return null;
@@ -113,6 +129,7 @@ class _OrganizationPickerPageState
   @override
   void initState() {
     super.initState();
+    _switcher = _createSwitcher();
     _refresh();
     if (widget.autoJoin) {
       // 等首帧后再弹：对话框依赖已挂载的 Navigator/Overlay。
@@ -131,6 +148,7 @@ class _OrganizationPickerPageState
     ++_accountEpoch;
     _orgs = const [];
     _switchError = null;
+    _switcher = _createSwitcher();
     _refresh();
   }
 
@@ -158,7 +176,7 @@ class _OrganizationPickerPageState
     } on OrganizationApiException catch (e) {
       if (!_acceptRefresh(account, generation)) return;
       setState(() {
-        _error = _apiErrorText(e);
+        _error = OrganizationSwitchController.apiErrorText(e);
       });
     } on Object {
       if (!_acceptRefresh(account, generation)) return;
@@ -184,149 +202,21 @@ class _OrganizationPickerPageState
 
   Future<void> _switchTo(Organization org) async {
     if (_switching || !_sessionCurrent || _accountKey.isEmpty) return;
-    final account = _accountKey;
-    final epoch = _accountEpoch;
-    final prev = _currentOrg;
-    final previousShell = ref.read(workspaceShellProvider);
-    var committing = false;
     setState(() {
       _switching = true;
       _switchError = null;
       _switchingTarget = org.id;
     });
-    try {
-      final fresh = await _prepareTarget(org, account, epoch);
-      if (!_acceptSwitch(account, epoch)) return;
-      committing = true;
-      await _commitTarget(fresh, prev, account, epoch);
-    } on Object catch (e) {
-      if (!_acceptSwitch(account, epoch)) return;
-      final recoveryError = committing
-          ? await _rollbackSwitch(prev, org, previousShell, account, epoch)
-          : null;
-      if (!_acceptSwitch(account, epoch)) return;
-      setState(() {
-        _switching = false;
-        _switchingTarget = null;
-        _switchError = _switchErrorText(
-          recoveryError ?? e,
-          recovered: committing && recoveryError == null,
-        );
-      });
-      return;
-    } finally {
-      if (mounted) {
-        setState(() {
-          _switching = false;
-          _switchingTarget = null;
-        });
-      }
-    }
-    if (!_acceptSwitch(account, epoch)) return;
+    final outcome = await _switcher.switchToOrganization(org);
+    if (!mounted) return;
     setState(() {
       _switching = false;
       _switchingTarget = null;
+      if (outcome.status == SpaceSwitchStatus.failed) {
+        _switchError = outcome.message;
+      }
     });
-    _leave();
-  }
-
-  Future<Organization> _prepareTarget(
-    Organization org,
-    String account,
-    int epoch,
-  ) async {
-    final fresh = await _api.detail(org.id);
-    if (!_acceptSwitch(account, epoch)) {
-      throw StateError('Organization account changed');
-    }
-    await ref
-        .read(workspaceShellProvider.notifier)
-        .loadMine(keepListOnFailure: true);
-    if (!_acceptSwitch(account, epoch)) {
-      throw StateError('Organization account changed');
-    }
-    final error = ref.read(workspaceShellProvider).error;
-    if (error != null && error.isNotEmpty) throw StateError(error);
-    return fresh;
-  }
-
-  Future<void> _commitTarget(
-    Organization fresh,
-    Organization? prev,
-    String account,
-    int epoch,
-  ) async {
-    if (!_acceptSwitch(account, epoch)) return;
-    if (prev != null) _cache.invalidateOrg(prev.id);
-    ref.invalidate(workspaceOverviewProvider);
-    ref.invalidate(workspaceChannelsProvider);
-    ref.invalidate(workspaceGroupsProvider);
-    ref.invalidate(workspaceMembersProvider);
-    ref.invalidate(workspaceProjectsProvider);
-    await _currentStore.set(fresh);
-    if (!_acceptSwitch(account, epoch)) {
-      throw StateError('Organization account changed');
-    }
-    await _landDefaultWorkspace(fresh, account, epoch);
-    if (!_acceptSwitch(account, epoch)) {
-      throw StateError('Organization account changed');
-    }
-    await ref
-        .read(productExperienceProvider.notifier)
-        .select(ProductExperience.workspace);
-  }
-
-  /// Phase 2 失败补偿：指针恢复 prev（[CurrentOrganizationStore.restore]
-  /// 支持 null=清空指针；与 set 同序「先持久化后内存」）；目标企业的
-  /// 缓存播种一并丢弃。补偿保存失败时按实际指针对齐壳，并返回失败供重试。
-  Future<Object?> _rollbackSwitch(
-    Organization? prev,
-    Organization failed,
-    WorkspaceShellState previousShell,
-    String account,
-    int epoch,
-  ) async {
-    if (!_acceptSwitch(account, epoch)) return null;
-    Object? recoveryError;
-    try {
-      await _currentStore.restore(prev);
-    } on Object catch (e) {
-      recoveryError = e;
-    }
-    if (!_acceptSwitch(account, epoch)) return recoveryError;
-    _cache.invalidateOrg(failed.id);
-    final pointed = _currentStore.value;
-    final snapshot = recoveryError == null
-        ? previousShell
-        : ref.read(workspaceShellProvider);
-    final shell = ref.read(workspaceShellProvider.notifier);
-    await shell.selectOrganization(
-      pointed?.id ?? '',
-      () async => snapshot.organizationId == pointed?.id
-          ? snapshot.currentWorkspaceId
-          : '',
-    );
-    if (!_acceptSwitch(account, epoch)) return recoveryError;
-    return recoveryError;
-  }
-
-  /// 失败原因文案（列表读取与切换共用）：403→无权限、API message 为
-  /// 服务端人话文案原样展示、其余回落通用重试文案；任何分支都不得
-  /// 拼接 `code=` 等原始技术值（vocabulary 红线 / T07 验收）。
-  String _apiErrorText(Object e) {
-    if (e is OrganizationApiException) {
-      if (e.code == 403) return t.common.noPermission;
-      final msg = e.message.trim();
-      if (msg.isNotEmpty) return msg;
-    }
-    return t.common.settingFailedPleaseTryAgain;
-  }
-
-  /// 切换失败页内文案：回滚成功=完整句「切换失败，已恢复原选择」
-  /// （vocabulary 冻结文案）；否则「切换失败：<原因>」。
-  String _switchErrorText(Object e, {required bool recovered}) {
-    if (recovered) return t.organization.picker.switchFailedRecovered;
-    return '${t.organization.picker.switchFailed}：${_apiErrorText(e)}';
+    if (outcome.isSuccess) _leave();
   }
 
   /// 离开本页：正常从切换 chip/企业行 push 进入 → pop 返回；被 go 挂为
@@ -342,49 +232,21 @@ class _OrganizationPickerPageState
 
   Future<void> _selectPersonal() async {
     if (_switching || !_sessionCurrent || _accountKey.isEmpty) return;
-    final account = _accountKey;
-    final epoch = _accountEpoch;
     setState(() {
       _switching = true;
+      _switchError = null;
       _switchingTarget = _kPersonalTarget;
     });
-    try {
-      await ref
-          .read(productExperienceProvider.notifier)
-          .select(ProductExperience.personal);
-    } on Object {
-      if (_acceptSwitch(account, epoch)) {
-        setState(() {
-          _switchError = t.common.settingFailedPleaseTryAgain;
-        });
+    final outcome = await _switcher.selectPersonal();
+    if (!mounted) return;
+    setState(() {
+      _switching = false;
+      _switchingTarget = null;
+      if (outcome.status == SpaceSwitchStatus.failed) {
+        _switchError = outcome.message;
       }
-      return;
-    } finally {
-      if (mounted) {
-        setState(() {
-          _switching = false;
-          _switchingTarget = null;
-        });
-      }
-    }
-    if (_acceptSwitch(account, epoch)) _leave();
-  }
-
-  Future<void> _landDefaultWorkspace(
-    Organization org,
-    String account,
-    int epoch,
-  ) async {
-    await ref.read(workspaceShellProvider.notifier).selectOrganization(
-      org.id,
-      () async {
-        final dw = await _api.defaultWorkspace(org.id);
-        if (!_acceptSwitch(account, epoch)) {
-          throw StateError('Organization account changed');
-        }
-        return dw.defaultWorkspaceId;
-      },
-    );
+    });
+    if (outcome.isSuccess) _leave();
   }
 
   Future<void> _joinByCode([String? initialCode]) async {
