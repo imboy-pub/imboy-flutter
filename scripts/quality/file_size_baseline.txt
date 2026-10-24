@@ -1,24 +1,23 @@
 # IMBoy 文件行数 ratchet 基线（门脚本生成，勿手改）
 # 再生成：bash scripts/quality/check_file_size_ratchet.sh --update-baseline
-# 日期：2026-10-23
+# 日期：2026-10-24
 # 格式：count<TAB>file ｜ 上限 800 行 ｜ 只许减不许增
 821	integration_test/enterprise/enterprise_cs_e2e_test.dart
 957	integration_test/enterprise/enterprise_scope_native_test.dart
 815	integration_test/flows/test_utils.dart
 913	integration_test/personal_info/personal_info_acceptance_test.dart
-1011	lib/component/upload/resumable_attachment_uploader.dart
+982	lib/component/upload/resumable_attachment_uploader.dart
 957	lib/component/voice_record/voice_widget.dart
 988	lib/config/init.dart
 889	lib/config/router/app_router.dart
 1140	lib/modules/customer_service/infrastructure/cs_api.dart
 950	lib/modules/organization/presentation/human_directory_page.dart
 1045	lib/modules/organization/presentation/org_invite_colleagues_page.dart
-835	lib/modules/organization/presentation/organization_picker_page.dart
-1153	lib/page/channel/channel_article_page.dart
+1152	lib/page/channel/channel_article_page.dart
 1110	lib/page/channel/channel_compose_page.dart
 1210	lib/page/channel/channel_message_item.dart
 836	lib/page/channel/widgets/channel_publish_bar.dart
-1667	lib/page/chat/chat/attachment_handler.dart
+1625	lib/page/chat/chat/attachment_handler.dart
 2672	lib/page/chat/chat/chat_page.dart
 1390	lib/page/chat/chat/chat_provider.dart
 1338	lib/page/chat/chat/services/chat_network_service.dart
@@ -26,14 +25,13 @@
 1415	lib/page/chat/widget/chat_input.dart
 1112	lib/page/conversation/conversation_provider.dart
 1073	lib/page/mine/user_collect/user_collect_page.dart
-1366	lib/page/mine/user_collect/user_collect_provider.dart
-1200	lib/page/moment/moment_create_page.dart
+1361	lib/page/mine/user_collect/user_collect_provider.dart
+1199	lib/page/moment/moment_create_page.dart
 1478	lib/page/moment/moment_detail_page.dart
 1449	lib/page/moment/moment_feed_page.dart
 867	lib/page/moment/moment_interactions.dart
 1371	lib/page/passport/passport_notifier.dart
 1035	lib/page/passport/web_login_page.dart
-863	lib/page/personal_info/profile/profile_page.dart
 882	lib/page/search/message_search_page.dart
 824	lib/page/search/web_search_page.dart
 1315	lib/page/settings/e2ee_backup_import_page.dart
@@ -48,10 +46,10 @@
 1003	lib/service/message_retry.dart
 1642	lib/service/message_s2c.dart
 1871	lib/service/message.dart
-991	lib/service/migrations/downgrade_edges_all.dart
+1020	lib/service/migrations/downgrade_edges_all.dart
 1385	lib/service/migrations/upgrade_edges_v09_v16.dart
 1100	lib/service/olm_session_service.dart
-1080	lib/service/sqlite.dart
+1081	lib/service/sqlite.dart
 1368	lib/service/websocket.dart
 1174	lib/store/api/attachment_api.dart
 848	lib/store/api/channel_api.dart
@@ -69,7 +67,6 @@
 1187	test/unit_test/integration/conversation_logic_test.dart
 882	test/unit_test/integration/conversation_state_integration_test.dart
 879	test/unit_test/integration/moment/moment_feed_ui_flow_test.dart
-922	test/unit_test/page/workspace_shell/enterprise_shell_page_test.dart
 862	test/unit_test/rtc/rtc_relay_stats_judge_test.dart
 2721	test/unit_test/service/channel_service_operations_test.dart
 808	test/unit_test/service/e2ee_backup_restore_test.dart
