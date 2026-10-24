@@ -94,9 +94,11 @@ CREATE TABLE user_collect (
     created_at INTEGER NOT NULL DEFAULT 0,
     info TEXT DEFAULT '',
     -- E2EE 收藏 v1（v34，迁移 227 服务端对齐）：generation=记录修订号
-    --（同步检测唯一信号）；key_version 非空=sealed 行（info 为客户端密文 base64）
+    --（同步检测唯一信号）；key_version 非空=sealed 行（info 为客户端密文 base64）；
+    -- attach_file_hash256=行可见引用列表（sealed 解密 AAD 参数）
     generation INTEGER NOT NULL DEFAULT 0,
     key_version INTEGER NOT NULL DEFAULT 0,
+    attach_file_hash256 TEXT NOT NULL DEFAULT '',
     CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
 );
 CREATE INDEX i_Source ON user_collect (source);

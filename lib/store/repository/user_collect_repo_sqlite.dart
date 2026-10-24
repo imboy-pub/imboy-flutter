@@ -28,6 +28,9 @@ class UserCollectRepo {
   static String generation = 'generation';
   static String keyVersion = 'key_version';
 
+  /// 行可见引用列表（逗号串；sealed 解密 AAD 参数）。
+  static String attachFileHash256 = 'attach_file_hash256';
+
   // 公共列名列表
   static final List<String> defaultColumns = [
     UserCollectRepo.userId,
@@ -41,6 +44,7 @@ class UserCollectRepo {
     UserCollectRepo.info,
     UserCollectRepo.generation,
     UserCollectRepo.keyVersion,
+    UserCollectRepo.attachFileHash256,
   ];
 
   final SqliteService _db = SqliteService.to;
@@ -113,7 +117,16 @@ class UserCollectRepo {
       UserCollectRepo.tag: tag,
       UserCollectRepo.updatedAt: obj.updatedAt,
       UserCollectRepo.createdAt: obj.createdAt,
-      UserCollectRepo.info: jsonEncode(obj.info),
+      // sealed 行 info 存密文原文（解密材料）；legacy 存 payload JSON
+      UserCollectRepo.info:
+          obj.sealed && obj.infoSealed != null && obj.infoSealed!.isNotEmpty
+          ? obj.infoSealed!
+          : jsonEncode(obj.info),
+      // E2EE 收藏 v1：行级版本元数据与密文（sealed 行 info 为 base64，
+      // fromJson 已保留原文经 toMap 回传；legacy 行为 0/0/空）
+      UserCollectRepo.generation: obj.generation,
+      UserCollectRepo.keyVersion: obj.keyVersion,
+      UserCollectRepo.attachFileHash256: obj.attachFileHash256,
     };
 
     // replace：兼容遗留 kind_id 脏行/重复收藏，避免 UNIQUE 冲突抛
@@ -172,6 +185,19 @@ class UserCollectRepo {
     int updatedAt = json[UserCollectRepo.updatedAt] as int? ?? 0;
     if (updatedAt > 0) {
       data[UserCollectRepo.updatedAt] = updatedAt;
+    }
+    // E2EE 收藏 v1：版本元数据整行覆盖（服务端权威；本地编辑成功后同源回写）
+    if (json.containsKey(UserCollectRepo.generation)) {
+      data[UserCollectRepo.generation] =
+          json[UserCollectRepo.generation] as int? ?? 0;
+    }
+    if (json.containsKey(UserCollectRepo.keyVersion)) {
+      data[UserCollectRepo.keyVersion] =
+          json[UserCollectRepo.keyVersion] as int? ?? 0;
+    }
+    if (json.containsKey(UserCollectRepo.attachFileHash256)) {
+      data[UserCollectRepo.attachFileHash256] =
+          json[UserCollectRepo.attachFileHash256]?.toString() ?? '';
     }
 
     if (strNoEmpty(kid)) {

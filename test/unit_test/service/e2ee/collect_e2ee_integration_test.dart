@@ -14,6 +14,7 @@ import 'package:imboy/service/e2ee/collect_key_sync.dart';
 import 'package:imboy/service/e2ee/collect_keychain.dart';
 import 'package:imboy/service/e2ee/collect_sealed_service.dart';
 import 'package:imboy/store/api/user_collect_api.dart';
+import 'package:imboy/store/model/user_collect_model.dart';
 
 /// fake API：模拟服务端单行状态机（generation CAS）。
 class _FakeCollectApi extends UserCollectApi {
@@ -253,6 +254,145 @@ void main() {
     )!;
     expect(restored.ckB64, msg.ckB64);
     expect(restored.keyVersion, 2);
+  });
+
+  test('C5 decryptModels：sealed 行就地解密回填（remark/source/tag 权威）', () async {
+    final kc = _MemKeychain.instance;
+    final state = await boot();
+    final sealed = await CollectSealedService.sealPayload(
+      key: state.activeKey!,
+      userId: userId,
+      kindId: kindId,
+      kind: kind,
+      sealGeneration: 1,
+      payload: {
+        'remark': '密内备注',
+        'source': 'chat',
+        'tag': 't1,',
+        'attach_file_hash256': hashes,
+      },
+      attachHashes: hashes,
+    );
+    final item = UserCollectModel(
+      userId: userId,
+      kind: kind,
+      kindId: kindId,
+      source: '',
+      remark: '',
+      tag: '',
+      updatedAt: 0,
+      createdAt: 0,
+      info: const {},
+      generation: 1,
+      keyVersion: 1,
+      infoSealed: sealed,
+      attachFileHash256: hashes.join(','),
+    );
+    await CollectSealedService.decryptModels(
+      [item],
+      userId: userId,
+      keychain: kc,
+    );
+    expect(item.remark, '密内备注');
+    expect(item.source, 'chat');
+    expect(item.tag, 't1,');
+    expect(item.info['attach_file_hash256'], isNotNull);
+  });
+
+  test('C5 decryptModels：解密失败保留占位（不抛出）', () async {
+    final kc = _MemKeychain.instance;
+    await boot();
+    final item = UserCollectModel(
+      userId: userId,
+      kind: kind,
+      kindId: kindId,
+      source: '',
+      remark: '',
+      tag: '',
+      updatedAt: 0,
+      createdAt: 0,
+      info: const {},
+      generation: 1,
+      keyVersion: 1,
+      infoSealed: 'bm90LXZhbGlk', // 合法 base64，非法密文
+      attachFileHash256: '',
+    );
+    await CollectSealedService.decryptModels(
+      [item],
+      userId: userId,
+      keychain: kc,
+    );
+    expect(item.remark, '');
+    expect(item.info, isEmpty);
+  });
+
+  test('C5 remark：sealed 行 editFlow 回写新密文；legacy 行走 change', () async {
+    final kc = _MemKeychain.instance;
+    final state = await boot();
+    final sealed = await CollectSealedService.sealPayload(
+      key: state.activeKey!,
+      userId: userId,
+      kindId: kindId,
+      kind: kind,
+      sealGeneration: 1,
+      payload: {'remark': '旧'},
+      attachHashes: const [],
+    );
+    final item = UserCollectModel(
+      userId: userId,
+      kind: kind,
+      kindId: kindId,
+      source: '',
+      remark: '旧',
+      tag: '',
+      updatedAt: 0,
+      createdAt: 0,
+      info: {'remark': '旧'},
+      generation: 1,
+      keyVersion: 1,
+      infoSealed: sealed,
+      attachFileHash256: '',
+    );
+    final api = _FakeCollectApi()..generation = 1;
+    final saved = <Map<String, dynamic>>[];
+    final ok = await CollectSealedService.remark(
+      kindId: kindId,
+      remark: '新',
+      sealedItem: item,
+      userId: userId,
+      nowSec: 100,
+      api: api,
+      keychain: kc,
+      legacyChange: (_) async => false,
+      onSaved: (row) async => saved.add(row),
+    );
+    expect(ok, isTrue);
+    expect(api.generation, 2);
+    expect(saved.single['generation'], 2);
+    expect(saved.single['remark'], '新');
+    // 新密文回写（非旧密文）
+    expect(saved.single['info'], isNot(equals(sealed)));
+
+    // legacy 分支
+    final legacySaved = <Map<String, dynamic>>[];
+    var legacyCalled = false;
+    final okLegacy = await CollectSealedService.remark(
+      kindId: 'legacy-kind',
+      remark: 'r',
+      sealedItem: null,
+      userId: userId,
+      nowSec: 100,
+      api: api,
+      keychain: kc,
+      legacyChange: (_) async {
+        legacyCalled = true;
+        return true;
+      },
+      onSaved: (row) async => legacySaved.add(row),
+    );
+    expect(okLegacy, isTrue);
+    expect(legacyCalled, isTrue);
+    expect(legacySaved.single['remark'], 'r');
   });
 
   test('墓碑后密文仍可解（seal_generation < 行 generation，§8.1）', () async {

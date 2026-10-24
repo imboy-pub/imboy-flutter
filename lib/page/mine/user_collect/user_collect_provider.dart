@@ -20,6 +20,8 @@ import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/service/message_type_constants.dart' show MessageType;
 import 'package:imboy/store/model/message_model.dart' show MessageModel;
 import 'package:imboy/store/model/user_collect_model.dart';
+import 'package:imboy/service/e2ee/collect_keychain.dart';
+import 'package:imboy/service/e2ee/collect_sealed_service.dart';
 import 'package:imboy/store/api/user_collect_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart'
@@ -183,22 +185,16 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     }
   }
 
-  Future<void> _decryptCollectModels(List<UserCollectModel> list) async {
-    for (final item in list) {
-      try {
-        // v2.0: 检查 e2ee 字段是否存在（而不是 msg_type == 'e2ee'）
-        final e2ee = item.info['e2ee'];
-        if (e2ee == null || e2ee == '') continue;
-        final decrypted = await E2EEService.decryptIncomingPayload(
-          payload: item.info,
-        );
-        if (!identical(decrypted, item.info)) {
-          item.info = Map<String, dynamic>.from(decrypted);
-        }
-      } on Exception {
-        if (kDebugMode) {}
-      }
-    }
+  /// AAD user_id 取服务端同一数值；存储不可用时 0（仅影响 sealed 解密）
+  static int _uidInt() => int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
+  Future<void> _decryptCollectModels(List<UserCollectModel> list) {
+    return CollectSealedService.decryptModels(
+      list,
+      userId: _uidInt(),
+      keychain: CollectKeychain.to,
+      e2eeDecryptor: (payload) =>
+          E2EEService.decryptIncomingPayload(payload: payload),
+    );
   }
 
   /// 显示分类标签
@@ -990,23 +986,26 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     return res;
   }
 
-  /// 备注收藏
-  Future<bool> remark(String kindId, String remark) async {
-    bool res = await UserCollectApi().change({
-      'action': 'remark',
-      'kind_id': kindId,
-      'remark': remark,
-    });
-    if (kDebugMode) debugPrint("send_to_view callback after $res");
-    if (res) {
-      await UserCollectRepo().save({
-        UserCollectRepo.updatedAt: DateTimeHelper.millisecond() ~/ 1000,
-        UserCollectRepo.userId: UserRepoLocal.to.currentUid,
-        UserCollectRepo.kindId: kindId,
-        UserCollectRepo.remark: remark,
-      });
+  /// 备注收藏（sealed 行走 v1 编辑流，legacy 走原接口；逻辑在 service）
+  Future<bool> remark(String kindId, String remark) {
+    UserCollectModel? sealedItem;
+    for (final e in state.items) {
+      if (e.kindId == kindId && e.sealed) {
+        sealedItem = e;
+        break;
+      }
     }
-    return res;
+    return CollectSealedService.remark(
+      kindId: kindId,
+      remark: remark,
+      sealedItem: sealedItem,
+      userId: _uidInt(),
+      nowSec: DateTimeHelper.millisecond() ~/ 1000,
+      api: UserCollectApi(),
+      keychain: CollectKeychain.to,
+      legacyChange: (data) => UserCollectApi().change(data),
+      onSaved: (row) => UserCollectRepo().save(row),
+    );
   }
 
   /// 按消息 id 的 in-flight 去重：调用方每次 new UserCollectNotifier，

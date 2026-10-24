@@ -38,6 +38,7 @@
 -- DESC: 删除 user_collect.generation / key_version（E2EE 收藏 v1）。
 -- ============================================================
 
+ALTER TABLE user_collect DROP COLUMN attach_file_hash256;
 ALTER TABLE user_collect DROP COLUMN key_version;
 ALTER TABLE user_collect DROP COLUMN generation;
 PRAGMA user_version = 33;-- ============================================================

@@ -13,11 +13,18 @@
 library;
 
 import 'dart:convert';
-import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:imboy/service/e2ee/collect_crypto.dart';
 import 'package:imboy/service/e2ee/collect_keychain.dart';
 import 'package:imboy/store/api/user_collect_api.dart';
+import 'package:imboy/store/model/user_collect_model.dart';
+
+/// legacy e2ee 字段 payload 解密回调（provider 注入 E2EEService 适配）。
+typedef E2eePayloadDecryptor = Future<Map<String, dynamic>> Function(
+  Map<String, dynamic> payload,
+);
 
 /// sealed 行的解码失败分类（不区分底层原因粒度，防 oracle）。
 class CollectSealedException implements Exception {
@@ -191,6 +198,153 @@ class CollectSealedService {
       keyVersion: key.version,
       attachHashes: attachHashes,
     );
+  }
+
+  /// provider 列表解密钩子（sealed + e2ee 双分支）：
+  /// sealed 行（keyVersion>0）就地解密——payload 回填 info，remark/source/tag
+  /// 覆盖列值（D1：密文内字段为权威）；解密失败（掉队设备/坏行）保留
+  /// 原样，渲染层按空信息占位（A6 行为）。
+  static Future<void> decryptModels(
+    List<UserCollectModel> list, {
+    required int userId,
+    required CollectKeychain keychain,
+    E2eePayloadDecryptor? e2eeDecryptor,
+  }) async {
+    for (final item in list) {
+      if (item.sealed && item.infoSealed != null) {
+        try {
+          final decoded = await decodeSealedRow(
+            keychain: keychain,
+            userId: userId,
+            row: {
+              'kind': item.kind,
+              'kind_id': item.kindId,
+              'generation': item.generation,
+              'key_version': item.keyVersion,
+              'info': item.infoSealed,
+              'attach_file_hash256': item.attachFileHash256,
+            },
+          );
+          item.info = decoded.payload;
+          final remark = decoded.payload['remark'];
+          final source = decoded.payload['source'];
+          final tag = decoded.payload['tag'];
+          if (remark is String && remark.isNotEmpty) item.remark = remark;
+          if (source is String && source.isNotEmpty) item.source = source;
+          if (tag is String && tag.isNotEmpty) item.tag = tag;
+        } on CollectSealedException {
+          if (kDebugMode) {
+            debugPrint('collect sealed decode failed: kindId=\${item.kindId}');
+          }
+        }
+        continue;
+      }
+      // legacy e2ee 字段分支（原 provider 逻辑迁移至此）
+      final decryptor = e2eeDecryptor;
+      if (decryptor == null) continue;
+      try {
+        final e2ee = item.info['e2ee'];
+        if (e2ee == null || e2ee == '') continue;
+        final decrypted = await decryptor(item.info);
+        if (!identical(decrypted, item.info)) {
+          item.info = Map<String, dynamic>.from(decrypted);
+        }
+      } on Exception {
+        if (kDebugMode) {}
+      }
+    }
+  }
+
+  /// D1 remark 编辑流（sealed 行）：payload 内 remark 更新 → 重 seal → CAS；
+  /// 成功后回写本地缓存（新密文 + generation + remark 明文缓存供检索）。
+  static Future<bool> editRemark({
+    required UserCollectApi api,
+    required CollectKeychain keychain,
+    required UserCollectModel item,
+    required String remark,
+    required int userId,
+    required Future<void> Function(Map<String, dynamic> row) onSaved,
+  }) async {
+    final state = await keychain.load();
+    if (!CollectKeychainLogic.sealAllowed(state)) {
+      // 轮换中不产新密文；上层提示稍后重试
+      return false;
+    }
+    final key = state.activeKey!;
+    final payload = {...item.info, 'remark': remark};
+    final attach = item.attachFileHash256.isEmpty
+        ? <String>[]
+        : item.attachFileHash256.split(',').where((h) => h.isNotEmpty).toList();
+    final newGen = item.generation + 1;
+    final infoSealed = await sealPayload(
+      key: key,
+      userId: userId,
+      kindId: item.kindId,
+      kind: item.kind,
+      sealGeneration: newGen,
+      payload: payload,
+      attachHashes: attach,
+    );
+    final res = await api.updateV1(
+      kindId: item.kindId,
+      expectedGeneration: item.generation,
+      newGeneration: newGen,
+      infoSealed: infoSealed,
+      keyVersion: key.version,
+      attachHashes: attach,
+    );
+    if (!res.ok || res.generation == null) return false;
+    await onSaved({
+      'user_id': userId,
+      'kind': item.kind,
+      'kind_id': item.kindId,
+      'generation': res.generation,
+      'key_version': key.version,
+      'info': infoSealed,
+      'remark': remark,
+      'attach_file_hash256': item.attachFileHash256,
+    });
+    return true;
+  }
+
+  /// provider.remark 全量委托：sealed 行走 v1 编辑流（D1，密文内字段），
+  /// legacy 行走原 change 接口 + 本地回写；回调注入避免依赖 UI 层。
+  static Future<bool> remark({
+    required String kindId,
+    required String remark,
+    required UserCollectModel? sealedItem,
+    required int userId,
+    required int nowSec,
+    required UserCollectApi api,
+    required CollectKeychain keychain,
+    required Future<bool> Function(Map<String, dynamic> data) legacyChange,
+    required Future<void> Function(Map<String, dynamic> row) onSaved,
+  }) async {
+    if (sealedItem != null && sealedItem.sealed) {
+      return editRemark(
+        api: api,
+        keychain: keychain,
+        item: sealedItem,
+        remark: remark,
+        userId: userId,
+        onSaved: onSaved,
+      );
+    }
+    final res = await legacyChange({
+      'action': 'remark',
+      'kind_id': kindId,
+      'remark': remark,
+    });
+    if (res) {
+      // legacy 回写行（user_collect 表列名，repo.save 直接可存）
+      await onSaved({
+        'user_id': userId,
+        'kind_id': kindId,
+        'remark': remark,
+        'updated_at': nowSec,
+      });
+    }
+    return res;
   }
 
   static List<String> _declaredHashes(Map<String, dynamic> payload) {

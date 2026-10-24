@@ -54,6 +54,7 @@ const String _userCollectDDL = '''
     -- E2EE 收藏 v1（v34 本地库结构）
     generation INTEGER NOT NULL DEFAULT 0,
     key_version INTEGER NOT NULL DEFAULT 0,
+    attach_file_hash256 TEXT NOT NULL DEFAULT '',
     CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
   )
 ''';

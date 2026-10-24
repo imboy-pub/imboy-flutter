@@ -21,7 +21,7 @@ const List<MigrationEdge> kDowngradeEdgesAll = [
       '无未同步的 sealed 收藏编辑（sealed 行降级后回到 legacy 语义不可再 CAS）',
     ],
     postconditions: [
-      'user_collect 不含 generation/key_version 列：PRAGMA user_version = 33',
+      'user_collect 不含 generation/key_version/attach_file_hash256 列：PRAGMA user_version = 33',
     ],
     affectedObjects: ['user_collect'],
     headerComment:
@@ -31,7 +31,8 @@ const List<MigrationEdge> kDowngradeEdgesAll = [
 -- ============================================================
 
 """,
-    sql: r"""ALTER TABLE user_collect DROP COLUMN key_version;
+    sql: r"""ALTER TABLE user_collect DROP COLUMN attach_file_hash256;
+ALTER TABLE user_collect DROP COLUMN key_version;
 ALTER TABLE user_collect DROP COLUMN generation;
 PRAGMA user_version = 33;""",
   ),

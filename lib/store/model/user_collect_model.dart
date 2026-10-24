@@ -39,10 +39,19 @@ class UserCollectModel {
     required this.info,
     this.generation = 0,
     this.keyVersion = 0,
+    this.infoSealed,
+    this.attachFileHash256 = '',
   });
 
   /// sealed 行判据（与服务端 key_version IS NOT NULL 对齐；本地以 0 表 legacy）。
   bool get sealed => keyVersion > 0;
+
+  /// sealed 行原始密文（服务端/本地缓存的 info 列 base64，未经解密）；
+  /// 解密材料由 [sealed] 行的 keychain open 使用，legacy 行为 null。
+  final String? infoSealed;
+
+  /// 行可见引用列表（逗号串原样；sealed 解密 AAD 参数与 §8.2 双核对源）。
+  final String attachFileHash256;
 
   factory UserCollectModel.fromJson(Map<String, dynamic> data) {
     return UserCollectModel(
@@ -58,6 +67,11 @@ class UserCollectModel {
       info: parseModelJsonMap(data['info']) ?? <String, dynamic>{},
       generation: parseModelInt(data['generation']),
       keyVersion: parseModelInt(data['key_version']),
+      infoSealed:
+          data['info'] is String && parseModelInt(data['key_version']) > 0
+          ? data['info'] as String
+          : null,
+      attachFileHash256: parseModelString(data['attach_file_hash256']),
     );
   }
 
@@ -71,9 +85,14 @@ class UserCollectModel {
     data['tag'] = tag;
     data['updated_at'] = updatedAt;
     data['created_at'] = createdAt;
-    data['info'] = info;
+    // sealed 行 toMap 携带密文原文（本地缓存/回写源），解密后 payload
+    // 仅存在于内存 model（不落明文表）
+    data['info'] = sealed && infoSealed != null && infoSealed!.isNotEmpty
+        ? infoSealed
+        : info;
     data['generation'] = generation;
     data['key_version'] = keyVersion;
+    data['attach_file_hash256'] = attachFileHash256;
     return data;
   }
 }
