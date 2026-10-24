@@ -41,6 +41,15 @@ void main() {
     expect(AppFeatureRegistry.isEnabled(FeatureKeys.liveRoom), isFalse);
   });
 
+  // E2EE 收藏能力门（PLAN 2026-10-24-e2ee-collect §9/A7）：门查 e2ee 域键
+  // （与服务端 enabled(e2ee_collect) -> enabled(e2ee) 同构）。本哨兵锚定
+  // 当前 canonical 组合（phase1_delivery 未选 e2ee 域）——若组合选入 e2ee，
+  // 此测试变红即是提醒：收藏门随组合打开，A7 正向场景须同步验证。
+  test('e2ee collect gate is composition-coupled (A7 fail-closed)', () {
+    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.e2ee: true});
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.e2ee), isFalse);
+  });
+
   test('maps route paths to feature keys', () {
     expect(
       RouteFeatureGuard.featureForPath('/channel/discover'),

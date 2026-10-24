@@ -1128,11 +1128,13 @@ class UserCollectNotifier extends _$UserCollectNotifier {
     // 显示加载状态
     AppLoading.show(status: t.main.collecting);
 
-    // v1 密封收藏创建（§9）：能力未协商/轮换中 → 拒绝+提示，无明文回退
+    // v1 密封收藏创建（§9）：能力未协商/轮换中 → 拒绝+提示，无明文回退。
+    // 门查 e2ee 域键：编译清单联动组合（phase1 未选 e2ee → fail-closed），
+    // 与服务端 enabled(e2ee_collect) -> enabled(e2ee) 同构（A7）。
     final sealed = await CollectSealedService.collectSealed(
       api: UserCollectApi(),
       keychain: CollectKeychain.to,
-      capability: () => AppFeatureRegistry.isEnabled(FeatureKeys.e2eeCollect),
+      capability: () => AppFeatureRegistry.isEnabled(FeatureKeys.e2ee),
       msgUnsupported: t.main.e2eeCollectUnsupported,
       msgRotating: t.main.e2eeCollectRotating,
       userId: _uidInt(),
