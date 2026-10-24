@@ -475,15 +475,52 @@ void main() {
           attachHashes: hashes,
           payloadUtf8: utf8.encode('n'),
         );
-        final bytes = base64.decode(sealed);
-        // 头布局: magic(3) || nonce(12) || seal_generation(8)
-        final nonceHex = _hex(
-          Uint8List.fromList(bytes.sublist(3, 3 + CollectCrypto.nonceLength)),
-        );
-        seen.add(nonceHex);
+        seen.add(CollectCrypto.nonceHexOf(sealed));
       }
       expect(seen.length, 10000);
     }, timeout: const Timeout(Duration(minutes: 2)));
+
+    test('nonceHexOf 与 seal 固定 nonce 往返一致（A10 三元组数据源）', () {
+      final sealed = CollectCrypto.seal(
+        ck: ck,
+        userId: userId,
+        kindId: kindId,
+        kind: kind,
+        ver: ver,
+        keyVersion: kv,
+        sealGeneration: sealGen,
+        attachHashes: hashes,
+        payloadUtf8: utf8.encode('audit'),
+        nonce: fixedNonce,
+      );
+      expect(CollectCrypto.nonceHexOf(sealed), _hex(fixedNonce));
+    });
+
+    test('nonceHexOf 与手工头切片一致 + 坏头拒绝', () {
+      final sealed = CollectCrypto.seal(
+        ck: ck,
+        userId: userId,
+        kindId: kindId,
+        kind: kind,
+        ver: ver,
+        keyVersion: kv,
+        sealGeneration: sealGen,
+        attachHashes: hashes,
+        payloadUtf8: utf8.encode('cmp'),
+      );
+      final bytes = base64.decode(sealed);
+      expect(
+        CollectCrypto.nonceHexOf(sealed),
+        _hex(
+          Uint8List.fromList(bytes.sublist(3, 3 + CollectCrypto.nonceLength)),
+        ),
+      );
+      bytes[0] = 0x00;
+      expect(
+        () => CollectCrypto.nonceHexOf(base64.encode(bytes)),
+        throwsA(isA<CollectCryptoException>()),
+      );
+    });
   });
 
   group('参数边界 fail-closed', () {

@@ -307,7 +307,7 @@ class CollectSealedService {
     required List<String> attachHashes,
   }) async {
     final ck = Uint8List.fromList(base64.decode(key.ckB64));
-    return CollectCrypto.seal(
+    final sealed = CollectCrypto.seal(
       ck: ck,
       userId: userId,
       kindId: kindId,
@@ -318,6 +318,16 @@ class CollectSealedService {
       attachHashes: attachHashes,
       payloadUtf8: utf8.encode(jsonEncode(payload)),
     );
+    // A10 审计锚点：每次 seal（创建/编辑/重包裹/复活都汇聚于此）记录
+    // kind_id/key_version/nonce 三元组——不含密钥与正文，§8.3 密钥域内
+    // 唯一性事后核对用；仅 debug 构建输出，release 不产生审计噪声。
+    if (kDebugMode) {
+      debugPrint(
+        '[A10] seal kind_id=$kindId key_version=${key.version} '
+        'nonce=${CollectCrypto.nonceHexOf(sealed)}',
+      );
+    }
+    return sealed;
   }
 
   /// D1 编辑流（CAS）：成功或冲突（上层决定重读/放弃）。

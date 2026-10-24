@@ -324,6 +324,18 @@ class CollectCrypto {
     return value;
   }
 
+  /// 从密文头读出 nonce 的 hex（不解密；A10 审计三元组 kind_id/key_version/nonce
+  /// 的数据源，§8.3 密钥域内唯一性事后核对用）。
+  static String nonceHexOf(String infoSealed) {
+    final sealed = _decodeB64(infoSealed);
+    if (sealed.length <= headerLength + tagLength ||
+        !_hasPrefix(sealed, headerMagic)) {
+      throw CollectCryptoException('密文头结构不合法');
+    }
+    final nonce = Uint8List.sublistView(sealed, 3, 3 + nonceLength);
+    return nonce.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+  }
+
   static Uint8List randomNonce() =>
       Uint8List.fromList(List.generate(nonceLength, (_) => _rng.nextInt(256)));
 
