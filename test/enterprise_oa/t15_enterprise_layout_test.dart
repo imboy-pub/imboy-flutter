@@ -246,6 +246,7 @@ void main() {
               matching: find.text(label),
             )
           : find.text(label);
+      expect(action, findsOneWidget);
       await tester.ensureVisible(action);
       await tester.tap(action);
       await tester.pumpAndSettle();

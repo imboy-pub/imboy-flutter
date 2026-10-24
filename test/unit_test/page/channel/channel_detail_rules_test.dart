@@ -8,7 +8,10 @@
 ///   CD-5  formatMessageTime     — 消息相对时间格式化
 library;
 
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -47,6 +50,70 @@ ChannelModel _channel({
 );
 
 void main() {
+  group('local calendar day boundaries', () {
+    test('one minute across midnight is yesterday', () {
+      expect(
+        formatChannelDateDivider(
+          DateTime(2026, 10, 22, 23, 59),
+          t,
+          now: DateTime(2026, 10, 23, 0, 0),
+        ),
+        t.channel.yesterday,
+      );
+    });
+    test(
+      'a future calendar date is explicit, not today or negative days ago',
+      () {
+        expect(
+          formatChannelDateDivider(
+            DateTime(2026, 10, 24),
+            t,
+            now: DateTime(2026, 10, 23),
+          ),
+          '2026-10-24',
+        );
+      },
+    );
+    test('equivalent UTC and local representations stay in one date group', () {
+      for (final hour in [0, 23]) {
+        final instant = DateTime(2026, 10, 23, hour, 15);
+        expect(
+          shouldShowDateDivider([_msgAt(instant), _msgAt(instant.toUtc())], 1),
+          isFalse,
+        );
+      }
+    });
+    if (Platform.environment['TZ'] == 'America/New_York') {
+      test('spring forward 23-hour previous day is yesterday', () {
+        final previous = DateTime(2026, 3, 7, 12);
+        final now = DateTime(2026, 3, 8, 12);
+        expect(now.difference(previous).inHours, 23);
+        expect(
+          formatChannelDateDivider(previous, t, now: now),
+          t.channel.yesterday,
+        );
+      });
+      test('fall back 25-hour previous day is yesterday', () {
+        final previous = DateTime(2026, 10, 31, 12);
+        final now = DateTime(2026, 11, 1, 12);
+        expect(now.difference(previous).inHours, 25);
+        expect(
+          formatChannelDateDivider(previous, t, now: now),
+          t.channel.yesterday,
+        );
+      });
+      test('fall back same civil day can exceed 24 hours and stays today', () {
+        final previous = DateTime(2026, 11, 1, 0, 15);
+        final now = DateTime(2026, 11, 1, 23, 45);
+        expect(now.difference(previous).inHours, 24);
+        expect(
+          formatChannelDateDivider(previous, t, now: now),
+          t.channel.today,
+        );
+      });
+    }
+  });
+
   // ─── CD-1  isPaidChannelLocked ────────────────────────────────────────────
   group('CD-1 isPaidChannelLocked', () {
     test('null channel → false（安全默认）', () {

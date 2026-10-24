@@ -13,15 +13,18 @@ class IMBoyHttpResponse {
 
   // IMBoyHttpResponse._internal({this.ok = false});
 
-  IMBoyHttpResponse.success(this.payload) {
+  IMBoyHttpResponse.success(this.payload, {Object? serverTimestamp}) {
     ok = true;
     code = 0;
     msg = 'success';
 
-    // 从服务器响应中提取时间戳并更新时间偏移
-    if (payload is Map && payload.containsKey('sv_ts') == true) {
+    // 当前协议从 envelope 取毫秒时钟；保留旧版 payload 内 sv_ts 的兼容。
+    // 独立传入，避免向业务 payload 注入协议元数据。
+    final timestamp =
+        serverTimestamp ?? (payload is Map ? payload['sv_ts'] : null);
+    if (timestamp != null) {
       try {
-        final serverTs = int.parse('${payload['sv_ts']}');
+        final serverTs = int.parse('$timestamp');
         NtpHelper.updateOffsetFromServer(serverTs);
       } catch (e) {
         // sv_ts 仅用于 NTP 时间偏移校正，解析失败不影响响应本身，

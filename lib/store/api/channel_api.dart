@@ -408,6 +408,49 @@ class ChannelApi extends HttpClient with ChannelMicroCommunityApi {
     return list.map((json) => ChannelMessageModel.fromJson(json)).toList();
   }
 
+  Future<ChannelPageResult<ChannelMessageModel>> getMessagesPage({
+    required String channelId,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    final params = <String, dynamic>{'limit': limit};
+    if (cursor != null) params['cursor'] = cursor;
+    final resp = await get(
+      '/api/v1/channel/$channelId/messages',
+      queryParameters: params,
+    );
+    if (!resp.ok || resp.payload == null) {
+      throw StateError('channel_messages_request_failed');
+    }
+    return messagesPageFromPayload(resp.payload, limit: limit);
+  }
+
+  static ChannelPageResult<ChannelMessageModel> messagesPageFromPayload(
+    dynamic payload, {
+    int limit = 20,
+  }) {
+    final list = IMBoyHttpResponse.payloadList(payload)
+        .map((json) => ChannelMessageModel.fromJson(json))
+        .toList();
+    final map = IMBoyHttpResponse.payloadAsMap(payload);
+    String? next;
+    if (map.containsKey('next_cursor')) {
+      final value = map['next_cursor'];
+      if (value != null && (value is! String || value.isEmpty)) {
+        throw const FormatException('invalid_channel_message_cursor');
+      }
+      next = value as String?; // Explicit null is authoritative end-of-list.
+    } else if (list.isNotEmpty && list.length >= limit) {
+      // Legacy server only: preserve the existing millisecond request contract.
+      next = list.last.createdAt.millisecondsSinceEpoch.toString();
+    }
+    return ChannelPageResult(
+      list: list,
+      nextCursor: next,
+      hasMore: next != null,
+    );
+  }
+
   /// 标记已读
   Future<bool> markAsRead(String channelId, String messageId) async {
     final resp = await post(

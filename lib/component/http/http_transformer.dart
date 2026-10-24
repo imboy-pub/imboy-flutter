@@ -29,7 +29,7 @@ class DefaultHttpTransformer extends HttpTransformer {
           '[HttpTransformer] payload type drift: expected Map, got ${payload.runtimeType} uri=$uri',
         );
       }
-      return IMBoyHttpResponse.success(payload);
+      return IMBoyHttpResponse.success(payload, serverTimestamp: data['sv_ts']);
     }
     return IMBoyHttpResponse.failure(
       errMsg: msg,

@@ -3,14 +3,14 @@ import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 class DateTimeHelper {
-  /// 通用日期时间格式化
+  /// 显示时间统一使用设备本地时区；相对间隔仍按同一瞬间计算。
   static String dateTimeFmt(
     DateTime dt, {
     String pattern = 'y-MM-dd HH:mm',
     bool relative = true,
   }) {
     if (!relative) {
-      return DateFormat(pattern).format(dt);
+      return DateFormat(pattern).format(dt.toLocal());
     }
     // 使用同步后的时间计算 diff（应用 NTP/服务器时间偏移）
     final nowMs = millisecond();
@@ -20,10 +20,10 @@ class DateTimeHelper {
 
     if (diffDays > 7) {
       // 超过 7 天，显示完整日期时间
-      return DateFormat(pattern).format(dt);
+      return DateFormat(pattern).format(dt.toLocal());
     } else if (diffDays > 2) {
       // 超过 2 天，显示"月-日 时:分"（数字格式，避免 EEEE 星期名落回 en_US 显示英文）
-      return DateFormat('MM-dd HH:mm').format(dt);
+      return DateFormat('MM-dd HH:mm').format(dt.toLocal());
     } else {
       // 最近两天，显示相对时间（使用同步后的时间）
       return _formatRelativeTime(dtMs);

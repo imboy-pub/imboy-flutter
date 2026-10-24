@@ -1,7 +1,71 @@
+import 'dart:io';
+
+import 'package:intl/intl.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/datetime.dart';
 
 void main() {
+  group('local display of an instant', () {
+    const expectedByZone = {
+      'UTC': '2020-09-13 12:26',
+      'Asia/Shanghai': '2020-09-13 20:26',
+      'Asia/Kathmandu': '2020-09-13 18:11',
+      'America/New_York': '2020-09-13 08:26',
+    };
+    final expected = expectedByZone[Platform.environment['TZ']];
+    final utc = DateTime.parse('2020-09-13T12:26:40Z');
+
+    test('explicit absolute display uses device local civil time', () {
+      final localExpected =
+          expected ?? DateFormat('yyyy-MM-dd HH:mm').format(utc.toLocal());
+      expect(
+        DateTimeHelper.dateTimeFmt(
+          utc,
+          relative: false,
+          pattern: 'yyyy-MM-dd HH:mm',
+        ),
+        localExpected,
+      );
+      expect(
+        DateTimeHelper.dateTimeFmt(
+          DateTime.parse('2020-09-13T20:26:40+08:00'),
+          relative: false,
+          pattern: 'yyyy-MM-dd HH:mm',
+        ),
+        localExpected,
+      );
+    });
+
+    test(
+      'old relative fallback and chat formatter agree with local display',
+      () {
+        final localExpected =
+            expected ?? DateFormat('y-MM-dd HH:mm').format(utc.toLocal());
+        expect(DateTimeHelper.dateTimeFmt(utc), localExpected);
+        expect(DateTimeHelper.dateTimeFmt(utc.toLocal()), localExpected);
+        expect(RelativeDateFormat().format(utc), localExpected);
+      },
+    );
+
+    test('two-to-seven-day fallback uses local fields', () {
+      final instant = DateTime.now().toUtc().subtract(const Duration(days: 3));
+      expect(
+        DateTimeHelper.dateTimeFmt(instant),
+        DateFormat('MM-dd HH:mm').format(instant.toLocal()),
+      );
+    });
+
+    test('recent elapsed display is representation independent', () {
+      final instant = DateTime.now().toUtc().subtract(
+        const Duration(minutes: 10),
+      );
+      expect(
+        DateTimeHelper.dateTimeFmt(instant),
+        DateTimeHelper.dateTimeFmt(instant.toLocal()),
+      );
+    });
+  });
+
   group('DateTimeHelper.parseTimestamp', () {
     test('returns int value directly', () {
       expect(DateTimeHelper.parseTimestamp(1700000000), 1700000000);

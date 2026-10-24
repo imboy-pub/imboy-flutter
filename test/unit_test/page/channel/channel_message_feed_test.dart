@@ -5,18 +5,21 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_message_feed.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/channel_message_model.dart';
 
 class _EmptyChannelDetailNotifier extends ChannelDetailNotifier {
   final ChannelModel channel;
 
-  _EmptyChannelDetailNotifier(this.channel);
+  final List<ChannelMessageModel> messages;
+
+  _EmptyChannelDetailNotifier(this.channel, [this.messages = const []]);
 
   @override
   ChannelDetailState build() {
     super.build();
     return ChannelDetailState(
       channel: channel,
-      messages: const [],
+      messages: messages,
       isLoading: false,
       hasMore: false,
     );
@@ -46,11 +49,14 @@ ChannelModel _channel({
   updatedAt: DateTime(2024, 1, 1),
 );
 
-Widget _app(ChannelModel channel) => TranslationProvider(
+Widget _app(
+  ChannelModel channel, {
+  List<ChannelMessageModel> messages = const [],
+}) => TranslationProvider(
   child: ProviderScope(
     overrides: [
       channelDetailProvider.overrideWith(
-        () => _EmptyChannelDetailNotifier(channel),
+        () => _EmptyChannelDetailNotifier(channel, messages),
       ),
     ],
     child: const MaterialApp(
@@ -60,6 +66,28 @@ Widget _app(ChannelModel channel) => TranslationProvider(
 );
 
 void main() {
+  testWidgets('内容流按本地日期显示昨天，同一瞬间的UTC表示不重复分组', (tester) async {
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1, 23, 59);
+    ChannelMessageModel message(int id, DateTime time) => ChannelMessageModel(
+      id: id,
+      channelId: 1001,
+      content: 'calendar-boundary-$id',
+      msgType: 'channel_text',
+      createdAt: time,
+    );
+    await tester.pumpWidget(
+      _app(
+        _channel(role: ChannelUserRole.subscriber, subscribed: true),
+        messages: [message(1, yesterday), message(2, yesterday.toUtc())],
+      ),
+    );
+    expect(find.text(t.channel.yesterday), findsOneWidget);
+    expect(find.text(t.channel.today), findsNothing);
+    expect(find.text('calendar-boundary-1'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('访客空态只给订阅主 CTA', (tester) async {
     await tester.pumpWidget(
       _app(_channel(role: ChannelUserRole.none, subscribed: false)),

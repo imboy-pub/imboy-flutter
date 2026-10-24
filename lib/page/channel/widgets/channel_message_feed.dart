@@ -10,7 +10,6 @@ import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/app_loading.dart';
-import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -487,7 +486,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               }
 
               final message = state.messages[index];
-              final showDate = _shouldShowDate(state.messages, index);
+              final showDate = shouldShowDateDivider(state.messages, index);
 
               return Column(
                 // 稳定 Key：发消息头插、置顶/删除会重排列表，缺 Key 时 Flutter
@@ -614,34 +613,8 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
     );
   }
 
-  /// 日期分割判断：首条或与前一条不在同一天
-  bool _shouldShowDate(List<ChannelMessageModel> messages, int index) {
-    if (index == 0) return true;
-    final current = messages[index].createdAt;
-    final previous = messages[index - 1].createdAt;
-    return current.year != previous.year ||
-        current.month != previous.month ||
-        current.day != previous.day;
-  }
-
   Widget _buildDateDivider(ChannelMessageModel message, Translations t) {
-    final now = DateTime.now();
-    final diff = now.difference(message.createdAt);
-
-    String dateText;
-    if (diff.inDays == 0) {
-      dateText = t.channel.today;
-    } else if (diff.inDays == 1) {
-      dateText = t.channel.yesterday;
-    } else if (diff.inDays < 7) {
-      dateText = '${diff.inDays} ${t.channel.daysAgo}';
-    } else {
-      dateText = DateTimeHelper.dateTimeFmt(
-        message.createdAt,
-        pattern: 'yyyy-MM-dd',
-        relative: false,
-      );
-    }
+    final dateText = formatChannelDateDivider(message.createdAt, t);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),

@@ -20,6 +20,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:imboy/service/database_migration_orchestrator.dart';
 import 'package:imboy/service/database_snapshot_service.dart';
 import 'package:imboy/service/migration_service.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v32.dart';
 import 'package:imboy/service/schema_contract.dart';
 import 'package:imboy/service/schema_fingerprint.dart';
 
@@ -155,6 +156,54 @@ Future<(bool, String?)> upgradeViaSqfliteSemantics(
   return (ok, error);
 }
 
+Future<void> seedV31Group(Database db) async {
+  for (final id in [7, 9007199254740993]) {
+    await db.insert('group', {
+      'id': id,
+      'owner_uid': 990001,
+      'creator_uid': 990002,
+      'created_at': -1000,
+      'updated_at': 1790000000123,
+      'title': '合成群🎉$id',
+      'introduction': '边界\n内容',
+      'pinned_msg': id == 7 ? null : '{"id":"synthetic"}',
+      'user_id_sum': 9223372036854775807,
+    });
+    await db.insert('group_member', {
+      'id': id,
+      'group_id': id,
+      'user_id': 990003,
+      'created_at': 1790000000123,
+      'nickname': '合成成员',
+    });
+  }
+}
+
+Future<Map<String, Object?>> v32PreservedRows(Database db) async => {
+  'group': [
+    for (final row in await db.query('group', orderBy: 'id'))
+      Map<String, Object?>.from(row)..remove('user_id_sum'),
+  ],
+  'members': await db.query('group_member', orderBy: 'id'),
+  'messages': await db.query('msg_c2c', orderBy: 'id'),
+  'channels': await db.query('channel', orderBy: 'id'),
+};
+
+Future<void> expectV32GroupSchema(Database db) async {
+  final expected = SchemaContract.decodeGolden(
+    File('test/fixtures/sqlite_migration/schema/v32.json').readAsStringSync(),
+  );
+  final actual = await SchemaContract.capture(db, version: 32);
+  expect(
+    (actual['tables'] as Map)['group'],
+    (expected['tables'] as Map)['group'],
+  );
+  expect(await db.rawQuery('PRAGMA foreign_key_check'), isEmpty);
+  expect(await db.rawQuery('PRAGMA integrity_check'), [
+    {'integrity_check': 'ok'},
+  ]);
+}
+
 void main() {
   setUpAll(() {
     sqfliteFfiInit();
@@ -169,6 +218,128 @@ void main() {
     try {
       await tmp.delete(recursive: true);
     } catch (_) {}
+  });
+
+  group('V3 历史v32升级补验', () {
+    for (final origin in [9, 16, 18, 25, 29, 30, 31]) {
+      for (final shape in Shape.values) {
+        test('v$origin → v32 [${shape.name}]', () async {
+          final path = '${tmp.path}/current_${origin}_${shape.name}.db';
+          final before = await openFixtureDatabaseAtVersion(
+            version: origin,
+            path: path,
+          );
+          await prepareShape(before, shape);
+          final count = await _countMsg(before);
+          await before.close();
+          final (ok, error) = await upgradeViaSqfliteSemantics(
+            path,
+            from: origin,
+            to: 32,
+          );
+          expect(ok, isTrue, reason: error);
+          final after = await ffiOpen(path, null);
+          addTearDown(after.close);
+          expect(await _versionOf(after), 32);
+          expect(await _countMsg(after), count);
+          expect(
+            await SchemaContract.verifyInvariants(after, version: 32),
+            isEmpty,
+          );
+          await expectV32GroupSchema(after);
+        });
+      }
+    }
+
+    test('31→32保留群/成员/消息字段，重复打开与no-op均不改变内容', () async {
+      final path = '${tmp.path}/current_values.db';
+      var db = await openFixtureDatabaseAtVersion(
+        version: 31,
+        path: path,
+        withSyntheticRows: true,
+      );
+      await seedV31Group(db);
+      final before = await v32PreservedRows(db);
+      await db.close();
+      final (ok, error) = await upgradeViaSqfliteSemantics(
+        path,
+        from: 31,
+        to: 32,
+      );
+      expect(ok, isTrue, reason: error);
+      db = await ffiOpen(path, null);
+      expect(await v32PreservedRows(db), before);
+      await expectV32GroupSchema(db);
+      final hash = await SchemaFingerprint.compute(db);
+      await db.close();
+      db = await databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(singleInstance: false, version: 32),
+      );
+      addTearDown(db.close);
+      final replay = await MigrationService.to.migrate(
+        db: db,
+        fromVersion: 32,
+        toVersion: 32,
+      );
+      expect(replay.success, isTrue, reason: replay.error);
+      await db.transaction((txn) async {
+        final repeated = await MigrationService.to.migrate(
+          db: txn,
+          fromVersion: 31,
+          toVersion: 32,
+        );
+        expect(repeated.success, isTrue, reason: repeated.error);
+        if (!repeated.success) throw StateError('v32 replay failed');
+      });
+      expect(await SchemaFingerprint.compute(db), hash);
+      expect(await v32PreservedRows(db), before);
+      expect(await _versionOf(db), 32);
+    });
+
+    test('v32 copy失败回滚原数据与版本；移除合成故障后重试成功', () async {
+      final path = '${tmp.path}/current_failure.db';
+      var db = await openFixtureDatabaseAtVersion(
+        version: 31,
+        path: path,
+        withSyntheticRows: true,
+      );
+      await seedV31Group(db);
+      await db.execute(kUpgradeEdgesV32.single.sql.split('INSERT INTO').first);
+      await db.execute(
+        "CREATE TRIGGER synthetic_copy_failure BEFORE INSERT ON group_v32 BEGIN SELECT RAISE(ABORT, 'synthetic-v32-copy-failure'); END",
+      );
+      final before = await v32PreservedRows(db);
+      final originalGroups = await db.query('group', orderBy: 'id');
+      final hash = await SchemaFingerprint.compute(db);
+      await db.close();
+      final (ok, error) = await upgradeViaSqfliteSemantics(
+        path,
+        from: 31,
+        to: 32,
+      );
+      expect(ok, isFalse);
+      expect(error, contains('synthetic-v32-copy-failure'));
+      db = await ffiOpen(path, null);
+      expect(await _versionOf(db), 31);
+      expect(await v32PreservedRows(db), before);
+      expect(await db.query('group', orderBy: 'id'), originalGroups);
+      expect(await SchemaFingerprint.compute(db), hash);
+      await db.execute('DROP TRIGGER synthetic_copy_failure');
+      await db.execute('DROP TABLE group_v32');
+      await db.close();
+      final (retry, retryError) = await upgradeViaSqfliteSemantics(
+        path,
+        from: 31,
+        to: 32,
+      );
+      expect(retry, isTrue, reason: retryError);
+      db = await ffiOpen(path, null);
+      addTearDown(db.close);
+      expect(await _versionOf(db), 32);
+      expect(await v32PreservedRows(db), before);
+      await expectV32GroupSchema(db);
+    });
   });
 
   group('WP6 升级矩阵：{9,16,18,25,29,30}→31 × 数据形态', () {

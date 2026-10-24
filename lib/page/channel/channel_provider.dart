@@ -334,7 +334,10 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   // 消息分页 in-flight 互斥：state.isLoading 只在 loadChannel 置位，
   // loadMessages/loadMoreMessages 从不置位，故不能用它做并发守卫（会形同
   // 虚设导致快速滚动重复拉取/重复插入）。用独立私有标志。
-  bool _isLoadingMore = false;
+  int? _loadingMoreGeneration;
+  String? _messageCursor;
+  int _messageGeneration = 0;
+  int _channelLoadGeneration = 0;
 
   @override
   ChannelDetailState build() {
@@ -365,30 +368,39 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
   /// 加载频道详情
   Future<void> loadChannel(String channelId) async {
+    final loadGeneration = ++_channelLoadGeneration;
+    final service = ref.read(channelServiceProvider);
     _channelId = null;
+    _messageCursor = null;
+    _messageGeneration++;
 
     // 1. 优先尝试从本地缓存加载并立即渲染（秒开），提前拿到并保留管理员/创建者等角色信息
-    final cached = await ChannelService.to.getChannel(channelId);
+    final cached = await service.getChannel(channelId);
+    if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
     if (cached != null) {
       _channelId = cached.id.toString();
       state = state.copyWith(channel: cached, isLoading: true, error: null);
       // 预先拉取本地缓存的消息
       await loadMessages(cached.id.toString());
+      if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
     } else {
       state = state.copyWith(isLoading: true, error: null, clearChannel: true);
     }
 
     try {
       // 2. 在后台静默/刷新网络最新详情，保证 has_purchased 等权益及消息的最终一致性
-      ChannelModel? channel = await ChannelService.to.refreshChannel(channelId);
+      ChannelModel? channel = await service.refreshChannel(channelId);
+      if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
       if (channel == null && cached == null) {
         // 兼容通过 custom_id 进入详情的场景；该 API 结果同样必须落缓存。
         channel = await _api.getChannelByCustomId(channelId);
+        if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
         if (channel != null) {
-          await ChannelService.to.cacheChannelSnapshot(channel);
+          await service.cacheChannelSnapshot(channel);
+          if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
         }
       }
-      if (!ref.mounted) return;
+      if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
       if (channel != null) {
         final effectiveChannelId = channel.id != 0
             ? channel.id.toString()
@@ -397,6 +409,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
         state = state.copyWith(channel: channel, isLoading: false);
         // 静默刷新并载入最新消息
         await loadMessages(effectiveChannelId);
+        if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
       } else if (cached != null) {
         // 远端加载失败但本地已有缓存时，允许降级走本地缓存（无网络离线进入）
         state = state.copyWith(isLoading: false);
@@ -409,7 +422,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       }
     } catch (e) {
       iPrint('loadChannel failed: $e');
-      if (!ref.mounted) return;
+      if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
       if (cached != null) {
         // 允许降级使用本地缓存，清除 loading 状态
         state = state.copyWith(isLoading: false);
@@ -426,46 +439,54 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     int? cursor,
     int limit = 20,
   }) async {
+    if (cursor == null) {
+      _messageCursor = null;
+      _messageGeneration++;
+    }
+    await _loadMessagePage(channelId, cursor: cursor?.toString(), limit: limit);
+  }
+
+  Future<void> _loadMessagePage(
+    String channelId, {
+    String? cursor,
+    int limit = 20,
+  }) async {
+    final generation = _messageGeneration;
     try {
-      final messages = await _api.getMessages(
+      final page = await _api.getMessagesPage(
         channelId: channelId,
         cursor: cursor,
         limit: limit,
       );
-
-      if (!ref.mounted) return;
-      if (cursor == null) {
-        // 首次加载
-        state = state.copyWith(
-          messages: messages,
-          hasMore: messages.length >= limit,
-        );
-      } else {
-        // 加载更多
-        state = state.copyWith(
-          messages: [...state.messages, ...messages],
-          hasMore: messages.length >= limit,
-        );
-      }
+      if (!ref.mounted || generation != _messageGeneration) return;
+      _messageCursor = page.nextCursor;
+      state = state.copyWith(
+        messages: cursor == null
+            ? page.list
+            : [...state.messages, ...page.list],
+        hasMore: page.hasMore,
+      );
     } catch (e) {
       iPrint('loadMessages failed: $e');
-      if (!ref.mounted) return;
+      if (!ref.mounted || generation != _messageGeneration) return;
       state = state.copyWith(error: t.common.loadError);
     }
   }
 
   /// 加载更多消息
   Future<void> loadMoreMessages() async {
-    if (_channelId == null || _isLoadingMore || !state.hasMore) return;
-
-    final lastMessage = state.messages.isNotEmpty ? state.messages.last : null;
-    final cursor = lastMessage?.createdAt.millisecondsSinceEpoch;
-
-    _isLoadingMore = true;
+    if (_channelId == null ||
+        _loadingMoreGeneration == _messageGeneration ||
+        !state.hasMore ||
+        _messageCursor == null) {
+      return;
+    }
+    final generation = _messageGeneration;
+    _loadingMoreGeneration = generation;
     try {
-      await loadMessages(_channelId!, cursor: cursor);
+      await _loadMessagePage(_channelId!, cursor: _messageCursor);
     } finally {
-      _isLoadingMore = false;
+      if (_loadingMoreGeneration == generation) _loadingMoreGeneration = null;
     }
   }
 

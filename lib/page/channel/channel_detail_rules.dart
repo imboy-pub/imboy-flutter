@@ -7,6 +7,7 @@ library;
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 /// CD-1 付费频道是否处于锁定状态
 ///
@@ -42,18 +43,13 @@ bool hasChannelContentAccess(ChannelModel? channel) {
 bool shouldShowDateDivider(List<ChannelMessageModel> messages, int index) {
   if (index == 0) return true;
 
-  final current = messages[index];
-  final previous = messages[index - 1];
-
-  final currentDate = DateTime(
-    current.createdAt.year,
-    current.createdAt.month,
-    current.createdAt.day,
-  );
-  final previousDate = DateTime(
-    previous.createdAt.year,
-    previous.createdAt.month,
-    previous.createdAt.day,
+  final current = messages[index].createdAt.toLocal();
+  final previous = messages[index - 1].createdAt.toLocal();
+  final currentDate = DateTime.utc(current.year, current.month, current.day);
+  final previousDate = DateTime.utc(
+    previous.year,
+    previous.month,
+    previous.day,
   );
 
   return currentDate != previousDate;
@@ -104,6 +100,28 @@ String formatMessageTime(DateTime time, {DateTime? now}) {
   return DateTimeHelper.dateTimeFmt(
     time,
     pattern: 'MM-dd HH:mm',
+    relative: false,
+  );
+}
+
+/// 频道日期标签；now 可注入以验证跨午夜及夏令时边界。
+String formatChannelDateDivider(
+  DateTime time,
+  Translations t, {
+  DateTime? now,
+}) {
+  final local = time.toLocal();
+  final reference = (now ?? DateTime.now()).toLocal();
+  // UTC 在这里仅承载本地年月日，避免用 23/25 小时的真实日长推算日历差。
+  final day = DateTime.utc(local.year, local.month, local.day);
+  final today = DateTime.utc(reference.year, reference.month, reference.day);
+  final days = today.difference(day).inDays;
+  if (days == 0) return t.channel.today;
+  if (days == 1) return t.channel.yesterday;
+  if (days > 1 && days < 7) return '$days ${t.channel.daysAgo}';
+  return DateTimeHelper.dateTimeFmt(
+    time,
+    pattern: 'yyyy-MM-dd',
     relative: false,
   );
 }

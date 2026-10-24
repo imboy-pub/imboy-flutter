@@ -1,3 +1,8 @@
+import 'dart:async';
+
+import 'package:imboy/service/channel_service.dart';
+import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -18,6 +23,279 @@ ChannelMessageModel _buildMessage({required int id, bool pinned = false}) {
 }
 
 void main() {
+  test(
+    'TZ05 old more lock neither blocks B page2 nor unlocks B in-flight more',
+    () async {
+      final api = _DeferredCursorApi();
+      final service = _DeferredChannelService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(api),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+      notifier.debugSetChannelId('41');
+      final firstA = notifier.loadMessages('41');
+      api.requests[0].result.complete(_cursorPage(41, [1], next: 'A-next'));
+      await firstA;
+      final oldMore = notifier.loadMoreMessages();
+      final oldARequest = await _cursorRequest(
+        api,
+        1,
+        channelId: '41',
+        cursor: 'A-next',
+      );
+      service.cache['42']!.complete(_cursorChannel(42));
+      final loadB = notifier.loadChannel('42');
+      final cachedB = await _cursorRequest(
+        api,
+        2,
+        channelId: '42',
+        cursor: null,
+      );
+      cachedB.result.complete(
+        _cursorPage(42, List.generate(20, (i) => 25 - i), next: 'B-next'),
+      );
+      await _flushCursorFutures();
+      expect(service.detailRequests, ['42']);
+      service.details['42']!.complete(_cursorChannel(42));
+      final refreshedB = await _cursorRequest(
+        api,
+        3,
+        channelId: '42',
+        cursor: null,
+      );
+      refreshedB.result.complete(
+        _cursorPage(42, List.generate(20, (i) => 25 - i), next: 'B-next'),
+      );
+      await loadB;
+      final moreB = notifier.loadMoreMessages();
+      final bPage2 = await _cursorRequest(
+        api,
+        4,
+        channelId: '42',
+        cursor: 'B-next',
+      );
+      expect(
+        oldARequest.result.isCompleted,
+        isFalse,
+        reason:
+            'B page2 must start while A still owns its old in-flight request',
+      );
+      oldARequest.result.complete(_cursorPage(41, [0], next: null));
+      await oldMore; // old finally must leave B page2's lock owned by B
+      expect(bPage2.result.isCompleted, isFalse);
+      await notifier.loadMoreMessages();
+      expect(
+        api.requests.length,
+        5,
+        reason: 'old finally must not release B active lock',
+      );
+      bPage2.result.complete(_cursorPage(42, [5, 4, 3, 2, 1], next: null));
+      await moreB;
+      final ids = container
+          .read(channelDetailProvider)
+          .messages
+          .map((m) => m.id)
+          .toList();
+      expect(ids, List.generate(25, (i) => 25 - i));
+      expect(ids.toSet().length, 25);
+    },
+  );
+
+  test(
+    'TZ05 refresh generation can page while older more remains pending',
+    () async {
+      final api = _DeferredCursorApi();
+      final container = ProviderContainer(
+        overrides: [channelApiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+      notifier.debugSetChannelId('42');
+      final first = notifier.loadMessages('42');
+      api.requests[0].result.complete(_cursorPage(42, [2], next: 'old-next'));
+      await first;
+      final oldMore = notifier.loadMoreMessages();
+      final refresh = notifier.loadMessages('42');
+      api.requests[2].result.complete(_cursorPage(42, [4], next: 'fresh-next'));
+      await refresh;
+      final freshMore = notifier.loadMoreMessages();
+      expect(api.requests.length, 4);
+      expect(api.requests[3].cursor, 'fresh-next');
+      api.requests[1].result.complete(_cursorPage(42, [1], next: null));
+      await oldMore;
+      await notifier.loadMoreMessages();
+      expect(api.requests.length, 4);
+      api.requests[3].result.complete(_cursorPage(42, [3], next: null));
+      await freshMore;
+      expect(container.read(channelDetailProvider).messages.map((m) => m.id), [
+        4,
+        3,
+      ]);
+    },
+  );
+
+  for (final lateStage in ['cache', 'details', 'message']) {
+    test(
+      'TZ05 stale A $lateStage cannot overwrite B or restart A messages',
+      () async {
+        final api = _DeferredCursorApi();
+        final service = _DeferredChannelService();
+        final container = ProviderContainer(
+          overrides: [
+            channelApiProvider.overrideWithValue(api),
+            channelServiceProvider.overrideWithValue(service),
+          ],
+        );
+        addTearDown(container.dispose);
+        _watchCursorProvider(container);
+        final notifier = container.read(channelDetailProvider.notifier);
+        if (lateStage != 'cache')
+          service.cache['41']!.complete(_cursorChannel(41));
+        final a = notifier.loadChannel('41');
+        _DeferredCursorRequest? aRequest;
+        if (lateStage != 'cache') {
+          aRequest = await _cursorRequest(
+            api,
+            0,
+            channelId: '41',
+            cursor: null,
+          );
+        }
+        if (lateStage == 'details') {
+          aRequest!.result.complete(_cursorPage(41, [1], next: null));
+          await _flushCursorFutures();
+          expect(service.detailRequests, ['41']);
+        }
+        service.cache['42']!.complete(_cursorChannel(42));
+        final b = notifier.loadChannel('42');
+        final firstBIndex = lateStage == 'cache' ? 0 : 1;
+        final cachedB = await _cursorRequest(
+          api,
+          firstBIndex,
+          channelId: '42',
+          cursor: null,
+        );
+        cachedB.result.complete(
+          _cursorPage(42, List.generate(20, (i) => 25 - i), next: 'B-next'),
+        );
+        await _flushCursorFutures();
+        expect(
+          service.detailRequests,
+          lateStage == 'details' ? ['41', '42'] : ['42'],
+        );
+        service.details['42']!.complete(_cursorChannel(42));
+        final refreshedB = await _cursorRequest(
+          api,
+          firstBIndex + 1,
+          channelId: '42',
+          cursor: null,
+        );
+        refreshedB.result.complete(
+          _cursorPage(42, List.generate(20, (i) => 25 - i), next: 'B-next'),
+        );
+        await b;
+        final requestCount = api.requests.length;
+        if (lateStage == 'cache') {
+          service.cache['41']!.complete(_cursorChannel(41));
+        } else if (lateStage == 'details') {
+          service.details['41']!.complete(_cursorChannel(41));
+        } else {
+          aRequest!.result.complete(_cursorPage(41, [1], next: 'A-next'));
+        }
+        await a;
+        expect(api.requests.length, requestCount);
+        expect(container.read(channelDetailProvider).channel?.id, 42);
+        expect(
+          service.detailRequests.where((id) => id == '41').length,
+          lateStage == 'details' ? 1 : 0,
+        );
+        final more = notifier.loadMoreMessages();
+        final bPage2 = await _cursorRequest(
+          api,
+          firstBIndex + 2,
+          channelId: '42',
+          cursor: 'B-next',
+        );
+        bPage2.result.complete(_cursorPage(42, [5, 4, 3, 2, 1], next: null));
+        await more;
+        final ids = container
+            .read(channelDetailProvider)
+            .messages
+            .map((m) => m.id)
+            .toList();
+        expect(ids, List.generate(25, (i) => 25 - i));
+        expect(ids.toSet().length, 25);
+        expect(container.read(channelDetailProvider).hasMore, isFalse);
+      },
+    );
+  }
+
+  test('TZ05 concurrent refresh drops older first-page and late load-more responses', () async {
+    final api = _DeferredCursorApi();
+    final container = ProviderContainer(
+      overrides: [channelApiProvider.overrideWithValue(api)],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final notifier = container.read(channelDetailProvider.notifier);
+    notifier.debugSetChannelId('42');
+    final oldRefresh = notifier.loadMessages('42');
+    final newRefresh = notifier.loadMessages('42');
+    api.requests[1].result.complete(
+      _cursorPage(42, [25, 24], next: 'new-next'),
+    );
+    await newRefresh;
+    api.requests[0].result.complete(_cursorPage(42, [99], next: 'old-next'));
+    await oldRefresh;
+    final more = notifier.loadMoreMessages();
+    final refresh = notifier.loadMessages('42');
+    expect(api.requests.last.cursor, isNull);
+    api.requests.last.result.complete(_cursorPage(42, [100], next: null));
+    await refresh;
+    api.requests[2].result.complete(_cursorPage(42, [23], next: null));
+    await more;
+    expect(container.read(channelDetailProvider).messages.map((m) => m.id), [
+      100,
+    ]);
+    expect(container.read(channelDetailProvider).hasMore, isFalse);
+  });
+
+  test(
+    'TZ05 provider uses opaque cursor, terminal null and refresh reset',
+    () async {
+      final api = _CursorChannelApi();
+      final container = ProviderContainer(
+        overrides: [channelApiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+      notifier.debugSetChannelId('42');
+      await notifier.loadMessages('42');
+      await notifier.loadMoreMessages();
+      expect(api.requests.map((r) => r.cursor), [null, 'opaque-boundary']);
+      expect(
+        container.read(channelDetailProvider).messages.map((m) => m.id),
+        List.generate(25, (i) => 25 - i),
+      );
+      expect(container.read(channelDetailProvider).hasMore, isFalse);
+      await notifier.loadMoreMessages();
+      expect(api.requests.length, 2);
+      await notifier.loadMessages('42');
+      expect(api.requests.last.cursor, isNull);
+      notifier.debugSetChannelId('43');
+      await notifier.loadMessages('43');
+      expect(api.requests.last, (channel: '43', cursor: null));
+      expect(container.read(channelDetailProvider).messages.length, 20);
+    },
+  );
+
   group('ChannelDetailNotifier local updates', () {
     late ProviderContainer container;
     late ChannelDetailNotifier notifier;
@@ -264,4 +542,126 @@ void main() {
       );
     });
   });
+}
+
+class _CursorChannelApi extends ChannelApi {
+  final requests = <({String channel, String? cursor})>[];
+  @override
+  Future<ChannelPageResult<ChannelMessageModel>> getMessagesPage({
+    required String channelId,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    requests.add((channel: channelId, cursor: cursor));
+    final first = cursor == null;
+    final count = first ? 20 : 5;
+    return ChannelPageResult(
+      list: List.generate(
+        count,
+        (i) => _buildMessage(id: first ? 25 - i : 5 - i),
+      ),
+      nextCursor: first ? 'opaque-boundary' : null,
+      hasMore: first,
+    );
+  }
+}
+
+Future<void> _flushCursorFutures() => Future<void>.delayed(Duration.zero);
+
+ChannelModel _cursorChannel(int id) => ChannelModel(
+  id: id,
+  name: 'fixture',
+  creatorId: 1,
+  createdAt: DateTime.utc(2026),
+  updatedAt: DateTime.utc(2026),
+);
+ChannelPageResult<ChannelMessageModel> _cursorPage(
+  int channelId,
+  List<int> ids, {
+  required String? next,
+}) => ChannelPageResult(
+  list: ids
+      .map(
+        (id) => ChannelMessageModel(
+          id: id,
+          channelId: channelId,
+          content: 'fixture',
+          msgType: 'channel_text',
+          createdAt: DateTime.utc(2026),
+        ),
+      )
+      .toList(),
+  nextCursor: next,
+  hasMore: next != null,
+);
+
+class _DeferredCursorRequest {
+  _DeferredCursorRequest(this.channelId, this.cursor);
+  final String channelId;
+  final String? cursor;
+  final result = Completer<ChannelPageResult<ChannelMessageModel>>();
+}
+
+class _DeferredCursorApi extends ChannelApi {
+  final requests = <_DeferredCursorRequest>[];
+  @override
+  Future<ChannelPageResult<ChannelMessageModel>> getMessagesPage({
+    required String channelId,
+    String? cursor,
+    int limit = 20,
+  }) {
+    final request = _DeferredCursorRequest(channelId, cursor);
+    requests.add(request);
+    return request.result.future;
+  }
+}
+
+class _DeferredChannelService extends Fake implements ChannelService {
+  final cache = {
+    for (final id in ['41', '42']) id: Completer<ChannelModel?>(),
+  };
+  final details = {
+    for (final id in ['41', '42']) id: Completer<ChannelModel?>(),
+  };
+  final detailRequests = <String>[];
+  @override
+  Future<ChannelModel?> getChannel(String id) => cache[id]!.future;
+  @override
+  Future<ChannelModel?> refreshChannel(String id) {
+    detailRequests.add(id);
+    return details[id]!.future;
+  }
+
+  @override
+  Future<void> cacheChannelSnapshot(ChannelModel channel) async {}
+}
+
+// Match a mounted Consumer's watch: autoDispose must not invalidate this notifier
+// while deliberately delayed requests span event turns. Close before container.
+void _watchCursorProvider(ProviderContainer container) {
+  final subscription = container.listen(channelDetailProvider, (_, _) {});
+  addTearDown(subscription.close);
+}
+
+Future<_DeferredCursorRequest> _cursorRequest(
+  _DeferredCursorApi api,
+  int index, {
+  required String channelId,
+  required String? cursor,
+}) async {
+  await _flushCursorFutures();
+  expect(
+    api.requests,
+    hasLength(index + 1),
+    reason: 'expected next cursor request phase',
+  );
+  final request = api.requests[index];
+  expect(request.channelId, channelId);
+  expect(request.cursor, cursor);
+  expect(
+    request.result.isCompleted,
+    isFalse,
+    reason: 'each phase completes its own future once',
+  );
+  return request;
 }

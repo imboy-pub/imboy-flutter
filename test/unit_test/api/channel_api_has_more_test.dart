@@ -51,4 +51,53 @@ void main() {
       );
     });
   });
+
+  group('TZ05 message page response contract', () {
+    final rows = List.generate(
+      20,
+      (index) => <String, dynamic>{
+        'id': 25 - index,
+        'channel_id': 42,
+        'content': 'fixture',
+        'created_at': '2023-11-14T22:13:20.000Z',
+      },
+    );
+    test('opaque next cursor survives unchanged', () {
+      final page = ChannelApi.messagesPageFromPayload({
+        'list': rows,
+        'next_cursor': 'opaque+/=',
+      });
+      expect(page.nextCursor, 'opaque+/=');
+      expect(page.hasMore, isTrue);
+    });
+    test('explicit null ends even a full page', () {
+      final page = ChannelApi.messagesPageFromPayload({
+        'list': rows,
+        'next_cursor': null,
+      });
+      expect(page.nextCursor, isNull);
+      expect(page.hasMore, isFalse);
+    });
+    test('only missing next_cursor uses legacy millisecond cursor', () {
+      final page = ChannelApi.messagesPageFromPayload({'list': rows});
+      expect(page.nextCursor, '1700000000000');
+      expect(page.hasMore, isTrue);
+      expect(
+        ChannelApi.messagesPageFromPayload({'list': rows.take(5).toList()})
+            .hasMore,
+        isFalse,
+      );
+    });
+    test('malformed present cursor is rejected instead of legacy fallback', () {
+      for (final value in [0, '', false, <String, dynamic>{}]) {
+        expect(
+          () => ChannelApi.messagesPageFromPayload({
+            'list': rows,
+            'next_cursor': value,
+          }),
+          throwsFormatException,
+        );
+      }
+    });
+  });
 }

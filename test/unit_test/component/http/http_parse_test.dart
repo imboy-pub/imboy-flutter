@@ -4,9 +4,145 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/http/http_parse.dart';
+import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 void main() {
+  group('server clock envelope', () {
+    setUp(
+      () => NtpHelper.updateOffsetFromServer(
+        DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
+    tearDown(
+      () => NtpHelper.updateOffsetFromServer(
+        DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
+
+    test(
+      'top-level millisecond clock updates without changing map payload',
+      () {
+        final payload = {'id': 1};
+        final serverTs = DateTime.now().millisecondsSinceEpoch + 120000;
+        final response = handleResponse(
+          Response(
+            requestOptions: RequestOptions(path: '/clock'),
+            statusCode: 200,
+            data: {'code': 0, 'sv_ts': serverTs, 'payload': payload},
+          ),
+          uri: '/clock',
+        );
+        expect(response.ok, isTrue);
+        expect(response.payload, same(payload));
+        expect(NtpHelper.offset, closeTo(120000, 2000));
+      },
+    );
+
+    test('top-level clock wins over legacy nested clock', () {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final payload = {'sv_ts': now - 240000};
+      final response = handleResponse(
+        Response(
+          requestOptions: RequestOptions(path: '/clock'),
+          statusCode: 200,
+          data: {'code': 0, 'sv_ts': now + 120000, 'payload': payload},
+        ),
+        uri: '/clock',
+      );
+      expect(response.payload, same(payload));
+      expect(NtpHelper.offset, closeTo(120000, 2000));
+    });
+
+    test('legacy nested timestamp remains supported', () {
+      final serverTs = DateTime.now().millisecondsSinceEpoch - 120000;
+      handleResponse(
+        Response(
+          requestOptions: RequestOptions(path: '/clock'),
+          statusCode: 200,
+          data: {
+            'code': 0,
+            'payload': {'sv_ts': serverTs},
+          },
+        ),
+        uri: '/clock',
+      );
+      expect(NtpHelper.offset, closeTo(-120000, 2000));
+    });
+
+    test(
+      'top-level clock works with null and list payload without injection',
+      () {
+        for (final payload in [
+          null,
+          [1, 2],
+        ]) {
+          final response = handleResponse(
+            Response(
+              requestOptions: RequestOptions(path: '/clock'),
+              statusCode: 200,
+              data: {
+                'code': 0,
+                'sv_ts': DateTime.now().millisecondsSinceEpoch + 120000,
+                'payload': payload,
+              },
+            ),
+            uri: '/clock',
+          );
+          expect(response.payload, same(payload));
+          expect(NtpHelper.offset, closeTo(120000, 2000));
+        }
+      },
+    );
+
+    test(
+      'invalid, seconds and excessive-skew timestamps retain prior offset',
+      () {
+        final initial = NtpHelper.offset;
+        for (final value in [
+          'invalid',
+          0,
+          -1,
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          DateTime.now().millisecondsSinceEpoch + 48 * 3600000,
+        ]) {
+          final response = handleResponse(
+            Response(
+              requestOptions: RequestOptions(path: '/clock'),
+              statusCode: 200,
+              data: {
+                'code': 0,
+                'sv_ts': value,
+                'payload': {'id': 1},
+              },
+            ),
+            uri: '/clock',
+          );
+          expect(response.ok, isTrue);
+          expect(NtpHelper.offset, initial);
+        }
+      },
+    );
+
+    test('business failure keeps existing success-only clock behavior', () {
+      final initial = NtpHelper.offset;
+      final response = handleResponse(
+        Response(
+          requestOptions: RequestOptions(path: '/clock'),
+          statusCode: 200,
+          data: {
+            'code': 1,
+            'sv_ts': DateTime.now().millisecondsSinceEpoch + 120000,
+            'payload': <String, dynamic>{},
+          },
+        ),
+        uri: '/clock',
+      );
+      expect(response.ok, isFalse);
+      expect(NtpHelper.offset, initial);
+    });
+  });
+
   group('handleResponse', () {
     test('maps successful payload on code 0', () {
       final response = Response(
