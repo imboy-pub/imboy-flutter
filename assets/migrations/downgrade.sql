@@ -34,8 +34,9 @@
 -- PRAGMA user_version = 9;
 
 -- ============================================================
--- VERSION: 34 (down)
--- DESC: 删除 user_collect.generation / key_version（E2EE 收藏 v1）。
+-- VERSION: 34
+-- DESC: 从 v34 降级到 v33（删除 user_collect.generation / key_version /
+--       attach_file_hash256，E2EE 收藏 v1 元数据列）。
 -- ============================================================
 
 ALTER TABLE user_collect DROP COLUMN attach_file_hash256;
