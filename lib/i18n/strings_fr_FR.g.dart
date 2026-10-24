@@ -3102,6 +3102,7 @@ class _Translations$organization$inviteQr$fr_FR extends Translations$organizatio
 	final TranslationsFrFr _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => 'QR code de l\'entreprise';
 	@override String get title => 'Inviter des membres';
 	@override String get entryHint => 'Montrez le QR code ou partagez le code ; l\'autre personne rejoint en scannant ou en saisissant';
 	@override String get scanHint => 'L\'autre personne scanne ce code avec le scanner imboy pour rejoindre l\'entreprise';
@@ -5665,6 +5666,7 @@ extension on TranslationsFrFr {
 			'organization.inviteColleagues.groupStep2' => 'Les collègues copient le code et ouvrent l\'app imboy',
 			'organization.inviteColleagues.groupStep3' => 'Saisissez le code dans Annuaire > Rejoindre l\'organisation',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Code d\'invitation : ${code}',
+			'organization.inviteQr.orgQrcode' => 'QR code de l\'entreprise',
 			'organization.inviteQr.title' => 'Inviter des membres',
 			'organization.inviteQr.entryHint' => 'Montrez le QR code ou partagez le code ; l\'autre personne rejoint en scannant ou en saisissant',
 			'organization.inviteQr.scanHint' => 'L\'autre personne scanne ce code avec le scanner imboy pour rejoindre l\'entreprise',
@@ -5933,9 +5935,9 @@ extension on TranslationsFrFr {
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
 			'workspace.dmEntry' => 'Tous les messages',
-			'workspace.experienceModePersonal' => 'Personnel',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => 'Personnel',
 			'workspace.switchToPersonal' => 'Passer en mode personnel',
 			'workspace.createTitle' => 'Créer un espace de travail',
 			'workspace.createDesc' => 'Une seule création automatise tout : l\'espace de travail, votre adhésion en tant que membre Owner, le canal Announcements et le groupe General. Tout réussit ou tout est annulé.',

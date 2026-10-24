@@ -224,26 +224,35 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
   ) {
     return Column(
       children: [
-        WorkspaceTopBar(
-          title: title,
-          subtitle:
-              _selected == EnterpriseShellDestination.mine ||
-                  contextSubtitle.isEmpty
-              ? null
-              : contextSubtitle,
-          // 左上汉堡（企业抽屉入口）只在「消息」页展示；通讯录/工作台/我
-          // 三个 tab 不挂，需要抽屉时切回消息页。
-          leading: _selected == EnterpriseShellDestination.messages
-              ? const _ShellMenuButton()
-              : null,
-          actions: switch (_selected) {
-            EnterpriseShellDestination.messages => const [
-              WorkspacePlusButton(),
-            ],
-            EnterpriseShellDestination.contacts => [_inviteColleaguesAction()],
-            _ => null,
-          },
-        ),
+        // 「我」tab 不要顶栏标题行（页面自身就是身份区）：只保留与页面同底色
+        // 的状态栏安全区占位，归档横幅/错误条仍落在安全区内。
+        if (_selected == EnterpriseShellDestination.mine)
+          ColoredBox(
+            color: AppColors.getSurfaceGrouped(Theme.of(context).brightness),
+            child: const SafeArea(
+              bottom: false,
+              child: SizedBox(width: double.infinity, height: 0),
+            ),
+          )
+        else
+          WorkspaceTopBar(
+            title: title,
+            subtitle: contextSubtitle.isEmpty ? null : contextSubtitle,
+            // 左上汉堡（企业抽屉入口）只在「消息」页展示；通讯录/工作台
+            // 两个 tab 不挂，需要抽屉时切回消息页。
+            leading: _selected == EnterpriseShellDestination.messages
+                ? const _ShellMenuButton()
+                : null,
+            actions: switch (_selected) {
+              EnterpriseShellDestination.messages => const [
+                WorkspacePlusButton(),
+              ],
+              EnterpriseShellDestination.contacts => [
+                _inviteColleaguesAction(),
+              ],
+              _ => null,
+            },
+          ),
         if (ref.watch(currentWorkspaceProvider)?.isArchived ?? false)
           const WorkspaceArchivedBanner(),
         if (entries.hasError)
@@ -422,10 +431,6 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     return MinePage(
       enterprise: true,
       enterpriseName: org?.name,
-      enterpriseWorkspaceName:
-          workspace?.belongsToOrg(widget.organizationId) == true
-          ? workspace?.name
-          : null,
       enterpriseEntry: MineShortcut(
         key: const ValueKey('enterprise-mine-organization-entry'),
         icon: CupertinoIcons.building_2_fill,

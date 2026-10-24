@@ -9,16 +9,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/func.dart'
+    show strNoEmpty, avatarImageProvider;
+import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/modules/social_graph/public.dart';
 import 'package:imboy/config/router/generated_product_feature_routes.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
 import 'package:imboy/service/websocket_status_provider.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/component/ui/glass_bottom_bar.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
 import 'package:imboy/service/storage.dart';
@@ -59,6 +66,10 @@ class BottomNavigationPage extends ConsumerStatefulWidget {
 class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   late final PageController pageController;
 
+  /// 壳级 Scaffold 钥匙：消息页顶栏头像在嵌套 Scaffold（IosPageTemplate）
+  /// 内，Scaffold.of 命不中壳，须经钥匙直达壳级抽屉。
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   StreamSubscription<dynamic>? _localeSubscription;
 
   /// 是否已根据 GoRouter 的 query 参数初始化过 index
@@ -83,7 +94,12 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
   List<Widget> _buildPageList() {
     final channelPage = compiledChannelListPage();
     return [
-      const ConversationPage(),
+      // 消息页左上角头像 = 空间切换抽屉入口（企业侧为壳级汉堡，同职责）。
+      ConversationPage(
+        leading: PersonalShellDrawerAvatarButton(
+          onTap: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
+      ),
       ContactPage(),
       if (_isTabEnabled('channel_tab') && channelPage != null) channelPage,
       MinePage(),
@@ -237,6 +253,8 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        key: _scaffoldKey,
+        drawer: const WorkspaceDrawerMenu(),
         backgroundColor: Theme.of(context).colorScheme.surface,
         extendBody: true,
         body: Row(
@@ -410,4 +428,54 @@ class _NavigationItemData {
     this.isStatusItem = false,
     this.tabKey,
   });
+}
+
+/// 消息页顶栏左上角头像：打开壳级空间切换抽屉（Slack/飞书式入口）。
+///
+/// onTap 由壳注入（经 GlobalKey 直达壳 Scaffold），不经 Scaffold.of——
+/// 本按钮位于 IosPageTemplate 的嵌套 Scaffold 内，向上最近命中非壳。
+/// 公开仅为可测（整页挂载不在测试 ROI 内，见 bottom_navigation_page_test）。
+class PersonalShellDrawerAvatarButton extends ConsumerWidget {
+  const PersonalShellDrawerAvatarButton({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    final hasAvatar = user != null && strNoEmpty(user.avatar);
+    return CupertinoButton(
+      key: const ValueKey('personal-shell-drawer-avatar'),
+      padding: EdgeInsets.zero,
+      minimumSize: const Size.square(AppSizes.touchTargetCompact),
+      onPressed: onTap,
+      child: Semantics(
+        label: context.t.organization.experienceUi.switchSpace,
+        button: true,
+        child: Container(
+          width: AppSizes.avatarSizeSmall,
+          height: AppSizes.avatarSizeSmall,
+          // 回退内容是裸 Text/Icon，不自带居中。
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: AppRadius.borderRadiusSmall,
+            image: hasAvatar
+                ? DecorationImage(
+                    image: avatarImageProvider(user.avatar),
+                    fit: BoxFit.cover,
+                  )
+                : null,
+          ),
+          child: hasAvatar
+              ? null
+              : AvatarFallbackContent(
+                  name: user?.nickname ?? context.t.common.unknown,
+                  color: AppColors.primary,
+                  textStyle: context.textStyle(FontSizeType.footnote),
+                ),
+        ),
+      ),
+    );
+  }
 }

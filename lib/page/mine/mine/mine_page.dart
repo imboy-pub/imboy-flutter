@@ -38,13 +38,11 @@ class MinePage extends ConsumerWidget {
     super.key,
     this.enterprise = false,
     this.enterpriseName,
-    this.enterpriseWorkspaceName,
     this.enterpriseEntry,
   });
 
   final bool enterprise;
   final String? enterpriseName;
-  final String? enterpriseWorkspaceName;
   final Widget? enterpriseEntry;
 
   @override
@@ -69,7 +67,7 @@ class MinePage extends ConsumerWidget {
               MineProfile(
                 user: user,
                 enterprise: enterprise,
-                spaceLabel: _spaceLabel,
+                enterpriseName: enterpriseName,
               ),
             ),
           ),
@@ -99,18 +97,6 @@ class MinePage extends ConsumerWidget {
           ],
         ),
       );
-
-  String? get _spaceLabel {
-    if (!enterprise) return t.organization.experienceUi.personalSpace;
-    if (enterpriseName?.trim().isNotEmpty != true) {
-      return t.organization.picker.noneSelected;
-    }
-    return [
-      enterpriseName!,
-      if (enterpriseWorkspaceName?.trim().isNotEmpty == true)
-        enterpriseWorkspaceName!,
-    ].join(' · ');
-  }
 
   List<Widget> _shortcuts(BuildContext context) => [
     MineShortcut(

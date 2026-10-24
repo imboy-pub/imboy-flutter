@@ -674,7 +674,7 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           CupertinoButton(
             onPressed: () => ref.read(qRLoginProvider.notifier).refresh(),
             borderRadius: BorderRadius.circular(24),
-            color: AppColors.primary,
+            color: AppColors.primaryDark,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

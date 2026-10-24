@@ -30,6 +30,7 @@ import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_top_bar.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -97,7 +98,9 @@ void main() {
       expect(find.text('高级功能'), findsOneWidget);
       expect(find.text('创建 / 加入企业'), findsOneWidget);
       expect(find.text('设置'), findsOneWidget);
-      expect(find.text('切换到个人'), findsOneWidget);
+      // 空间切换收敛：独立「切换到个人」行由空间区的「个人空间」行取代。
+      expect(find.text('切换到个人'), findsNothing);
+      expect(find.text('个人空间'), findsOneWidget);
       expect(find.text('退出登录'), findsOneWidget);
       expect(find.byType(MinePage), findsNothing);
       expect(
@@ -156,10 +159,16 @@ void main() {
         ),
         findsOneWidget,
       );
+      // 「我」tab 不渲染顶栏（标题行与两级上下文都没有）；资料区只以企业名
+      // 小字提示身份，空间切换已收敛到消息页左上角抽屉。
+      expect(find.byType(WorkspaceTopBar), findsNothing);
       expect(find.text('合成企业资料 · 工作区：合成企业'), findsNothing);
+      expect(find.text('合成企业资料 · 合成企业'), findsNothing);
       if (role != 'error') {
-        expect(find.text('合成企业资料 · 合成企业'), findsOneWidget);
+        expect(find.text('合成企业资料'), findsOneWidget);
       }
+      // 「我」仅剩底栏标签一处。
+      expect(find.text('我'), findsOneWidget);
       expect(find.text('收藏'), findsOneWidget);
       expect(find.text(t.attachmentManager.personalTitle), findsNothing);
       expect(find.text(t.customerService.entryTitle), findsNothing);

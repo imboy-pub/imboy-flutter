@@ -108,7 +108,7 @@ class _ManageAccountPageState extends State<ManageAccountPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: CupertinoButton(
-                color: AppColors.primary,
+                color: AppColors.primaryDark,
                 borderRadius: AppRadius.borderRadiusRegular,
                 padding: const EdgeInsets.symmetric(
                   vertical: AppSpacing.regular,

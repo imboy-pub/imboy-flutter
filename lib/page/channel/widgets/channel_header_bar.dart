@@ -414,7 +414,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.primaryDark,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   minimumSize: const Size(0, 50),
                   shape: RoundedRectangleBorder(),

@@ -277,7 +277,7 @@ class _QueueTile extends StatelessWidget {
         onPressed: claiming ? null : onClaim,
         style: FilledButton.styleFrom(
           foregroundColor: AppColors.sentMessageText,
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.primaryDark,
           minimumSize: const Size(
             AppSizes.buttonMinWidth,
             AppSizes.buttonHeightXLarge,

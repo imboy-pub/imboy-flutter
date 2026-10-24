@@ -90,6 +90,12 @@ class _OrgApi extends OrganizationApi {
     if (role == 'error') throw StateError('synthetic role failure');
     return Organization(id: orgId, name: '合成企业资料', memberRole: role);
   }
+
+  /// 壳级抽屉的空间区从 membership 真源渲染企业行。
+  @override
+  Future<List<Organization>> allMine() async => [
+    Organization(id: '10', name: '合成企业', memberRole: role),
+  ];
 }
 
 class _DirectoryTransport implements HttpClientAdapter {

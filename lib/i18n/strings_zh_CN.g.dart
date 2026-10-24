@@ -10182,6 +10182,9 @@ class Translations$organization$inviteQr$zh_CN {
 
 	// Translations
 
+	/// zh-CN: '企业二维码'
+	String get orgQrcode => '企业二维码';
+
 	/// zh-CN: '邀请成员'
 	String get title => '邀请成员';
 
@@ -13366,6 +13369,7 @@ extension on Translations {
 			'organization.inviteColleagues.groupStep2' => '同事复制邀请码，打开 imboy App',
 			'organization.inviteColleagues.groupStep3' => '在「通讯录 → 加入企业」输入邀请码即可加入',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀请码：${code}',
+			'organization.inviteQr.orgQrcode' => '企业二维码',
 			'organization.inviteQr.title' => '邀请成员',
 			'organization.inviteQr.entryHint' => '出示二维码或邀请码，对方扫码 / 输码即可加入',
 			'organization.inviteQr.scanHint' => '对方用 imboy「扫一扫」扫描本码即可加入本企业',
@@ -13403,9 +13407,9 @@ extension on Translations {
 			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
-			'organization.memberDetail.joinedLabel' => '加入时间',
 			_ => null,
 		} ?? switch (path) {
+			'organization.memberDetail.joinedLabel' => '加入时间',
 			'organization.memberDetail.workspacesTitle' => '有权工作区',
 			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
 			'organization.memberDetail.workspacesFailed' => '有权工作区加载失败',
@@ -13917,9 +13921,9 @@ extension on Translations {
 			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
 			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',
 			'talkRecord.participantsConflict' => '名单已更新，已刷新为最新内容。请检查后重新编辑。',
-			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
 			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
 			'talkRecord.uploadNoticeTitle' => '上传前确认',
 			'talkRecord.uploadNoticeHint' => '请确认当前录音告知。本次确认用于现在上传；不会改写录音开始时的历史确认，也不会更改保存空间。',

@@ -3108,6 +3108,7 @@ class _Translations$organization$inviteQr$ru_RU extends Translations$organizatio
 	final TranslationsRuRu _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => 'QR-код организации';
 	@override String get title => 'Пригласить участников';
 	@override String get entryHint => 'Покажите QR-код или поделитесь кодом — другие присоединятся сканированием или вводом';
 	@override String get scanHint => 'Другие сканируют этот код сканером imboy, чтобы присоединиться к организации';
@@ -5671,6 +5672,7 @@ extension on TranslationsRuRu {
 			'organization.inviteColleagues.groupStep2' => 'Коллеги копируют код и открывают приложение imboy',
 			'organization.inviteColleagues.groupStep3' => 'Введите код в разделе «Контакты → Присоединиться к организации»',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Код приглашения: ${code}',
+			'organization.inviteQr.orgQrcode' => 'QR-код организации',
 			'organization.inviteQr.title' => 'Пригласить участников',
 			'organization.inviteQr.entryHint' => 'Покажите QR-код или поделитесь кодом — другие присоединятся сканированием или вводом',
 			'organization.inviteQr.scanHint' => 'Другие сканируют этот код сканером imboy, чтобы присоединиться к организации',
@@ -5939,9 +5941,9 @@ extension on TranslationsRuRu {
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
 			'workspace.dmEntry' => 'Все сообщения',
-			'workspace.experienceModePersonal' => 'Личный',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => 'Личный',
 			'workspace.switchToPersonal' => 'Переключиться на личный',
 			'workspace.createTitle' => 'Создать рабочее пространство',
 			'workspace.createDesc' => 'Одно действие — и всё готово: рабочее пространство, вы (как Owner — участник рабочего пространства), канал Announcements и группа General. Всё выполняется успешно или полностью откатывается.',

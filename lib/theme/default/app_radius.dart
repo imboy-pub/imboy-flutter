@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 
 /// 应用圆角 Design Tokens
 ///
-/// 定义应用中所有圆角值，使用 4px 基数系统。
-/// 所有圆角值均为 4 的倍数，确保视觉一致性。
+/// 定义应用中所有圆角值，默认使用 4px 基数系统。
+/// iOS Cell、Chip 与主按钮遵循 DESIGN.md 的 10/6/14 语义刻度。
 ///
 /// 使用示例：
 /// ```dart

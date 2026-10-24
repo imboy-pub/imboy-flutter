@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart' show Theme, Tooltip;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/resource_entry_tile.dart';
@@ -12,22 +11,13 @@ import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/app_sizes.dart';
 
 /// Display-only context; switching still uses the existing atomic picker flow.
 class CurrentSpaceTile extends ConsumerWidget {
-  const CurrentSpaceTile({
-    super.key,
-    this.heading,
-    this.compact = false,
-    this.compactLabel,
-  });
+  const CurrentSpaceTile({super.key, this.heading});
 
+  /// 导航栏标题前缀（如频道页「频道 · 企业名 ⌄」）；null 时渲染为入口行。
   final String? heading;
-  final bool compact;
-
-  /// A shell-bound enterprise/workspace label; never used for authorization.
-  final String? compactLabel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,13 +28,6 @@ class CurrentSpaceTile extends ConsumerWidget {
           ? context.t.organization.experienceUi.personalSpace
           : org?.name ?? context.t.organization.picker.noneSelected;
       if (heading != null) return _headingButton(context, name);
-      if (compact) {
-        final label = compactLabel?.trim();
-        return _compactButton(
-          context,
-          label?.isNotEmpty == true ? label! : name,
-        );
-      }
       return ResourceEntryTile(
         showDivider: false,
         icon: experience == ProductExperience.personal
@@ -97,50 +80,4 @@ class CurrentSpaceTile extends ConsumerWidget {
       ),
     );
   }
-
-  Widget _compactButton(BuildContext context, String label) {
-    final color = AppColors.getTextColor(
-      Theme.of(context).brightness,
-      isSecondary: true,
-    );
-    return Tooltip(
-      message: label,
-      excludeFromSemantics: true,
-      child: Semantics(
-        label: context.t.organization.experienceUi.switchSpace,
-        value: label,
-        button: true,
-        excludeSemantics: true,
-        onTap: () => context.push(kOrganizationPickerPath),
-        child: CupertinoButton(
-          key: const ValueKey('mine-space-switch'),
-          padding: EdgeInsets.zero,
-          alignment: AlignmentDirectional.centerStart,
-          minimumSize: const Size.square(AppSizes.touchTarget),
-          onPressed: () => context.push(kOrganizationPickerPath),
-          child: _compactLabel(context, label, color),
-        ),
-      ),
-    );
-  }
-
-  Widget _compactLabel(BuildContext context, String label, Color color) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Flexible(
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textStyle(FontSizeType.normal, color: color),
-        ),
-      ),
-      AppSpacing.horizontalTiny,
-      Icon(
-        CupertinoIcons.chevron_down,
-        size: AppSizes.iconSizeXSmall,
-        color: color,
-      ),
-    ],
-  );
 }

@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: أدخل الرمز في الدليل > الانضمام إلى المؤسسة
   codeLabelWith: "رمز الدعوة: ${code}"
 inviteQr:
+  orgQrcode: رمز QR للمؤسسة
   title: "دعوة الأعضاء"
   entryHint: "اعرض رمز QR أو شارك رمز الدعوة؛ ينضم الآخرون بالمسح أو الإدخال"
   scanHint: "يمكن للآخرين مسح هذا الرمز بماسح imboy الضوئي للانضمام إلى المؤسسة"

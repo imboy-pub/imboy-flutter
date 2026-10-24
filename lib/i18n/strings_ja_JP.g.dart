@@ -3099,6 +3099,7 @@ class _Translations$organization$inviteQr$ja_JP extends Translations$organizatio
 	final TranslationsJaJp _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => '企業QRコード';
 	@override String get title => 'メンバーを招待';
 	@override String get entryHint => 'QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます';
 	@override String get scanHint => '相手が imboy のスキャナーでこのコードを読み取ると企業に参加します';
@@ -5662,6 +5663,7 @@ extension on TranslationsJaJp {
 			'organization.inviteColleagues.groupStep2' => '同僚がコードをコピーして imboy アプリを開く',
 			'organization.inviteColleagues.groupStep3' => '「連絡先 → 企業に参加」でコードを入力して参加',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '招待コード：${code}',
+			'organization.inviteQr.orgQrcode' => '企業QRコード',
 			'organization.inviteQr.title' => 'メンバーを招待',
 			'organization.inviteQr.entryHint' => 'QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます',
 			'organization.inviteQr.scanHint' => '相手が imboy のスキャナーでこのコードを読み取ると企業に参加します',
@@ -5930,9 +5932,9 @@ extension on TranslationsJaJp {
 			'workspace.archivedBadge' => 'アーカイブ済み',
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
 			'workspace.dmEntry' => 'すべてのメッセージ',
-			'workspace.experienceModePersonal' => '個人',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '個人に切り替え',
 			'workspace.createTitle' => 'ワークスペースを作成',
 			'workspace.createDesc' => '一度の作成で自動的に完了します：ワークスペース、あなた（Ownerのワークスペースメンバー）、AnnouncementsチャンネルとGeneralグループ。全て成功、または全てロールバックされます。',

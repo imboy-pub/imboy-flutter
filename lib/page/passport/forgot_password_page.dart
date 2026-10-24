@@ -162,7 +162,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           child: CupertinoButton(
             minimumSize: const Size(0, 50),
             padding: EdgeInsets.zero,
-            color: AppColors.primary,
+            color: AppColors.primaryDark,
             borderRadius: BorderRadius.circular(8),
             onPressed: () async {
               FocusScope.of(context).unfocus();
@@ -233,7 +233,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage>
           child: CupertinoButton(
             minimumSize: const Size(0, 50),
             padding: EdgeInsets.zero,
-            color: AppColors.primary,
+            color: AppColors.primaryDark,
             borderRadius: BorderRadius.circular(8),
             onPressed: () async {
               FocusScope.of(context).unfocus();

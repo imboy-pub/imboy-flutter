@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: Enter the code under Directory > Join organization
   codeLabelWith: "Invite code: ${code}"
 inviteQr:
+  orgQrcode: Enterprise QR code
   title: "Invite members"
   entryHint: "Show the QR code or share the invite code; others join by scanning or typing"
   scanHint: "Others scan this code with the imboy scanner to join this enterprise"

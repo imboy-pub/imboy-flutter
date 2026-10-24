@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: 「連絡先 → 企業に参加」でコードを入力して参加
   codeLabelWith: "招待コード：${code}"
 inviteQr:
+  orgQrcode: 企業QRコード
   title: "メンバーを招待"
   entryHint: "QR コードまたは招待コードを見せるだけで、相手は読み取り / 入力で参加できます"
   scanHint: "相手が imboy のスキャナーでこのコードを読み取ると企業に参加します"

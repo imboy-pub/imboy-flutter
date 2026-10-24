@@ -106,7 +106,6 @@ GoRouter _router({required bool enterprise, String? enterpriseEntry}) {
         builder: (context, _) => MinePage(
           enterprise: enterprise,
           enterpriseName: enterprise ? '示例企业' : null,
-          enterpriseWorkspaceName: enterprise ? '产品工作区' : null,
           enterpriseEntry: enterpriseEntry == null
               ? null
               : MineShortcut(
@@ -286,10 +285,12 @@ void main() {
       await _waitFor(tester, find.text(t.customerService.entryTitle));
       expect(find.text('示例用户'), findsOneWidget);
       expect(find.text('ID: 10001'), findsOneWidget);
+      // 空间切换已收敛到消息页左上角抽屉：「我」页不再有空间胶囊。
       expect(
         find.text(t.organization.experienceUi.personalSpace),
-        findsOneWidget,
+        findsNothing,
       );
+      expect(find.byKey(const ValueKey('mine-space-switch')), findsNothing);
       expect(find.text(t.organization.experienceUi.currentSpace), findsNothing);
       expect(find.text(t.organization.experienceUi.switchSpace), findsNothing);
       expect(find.text(t.discovery.myChannels), findsNothing);
@@ -300,10 +301,6 @@ void main() {
       expect(tester.takeException(), isNull);
       await takeScreenshot(tester, 'mine_personal_${brightness.name}');
       for (final entry in <(Finder, String)>[
-        (
-          find.byKey(const ValueKey('mine-space-switch')),
-          kOrganizationPickerPath,
-        ),
         (find.byKey(const ValueKey('mine-profile')), '/personal_info/profile'),
         (find.byKey(const ValueKey('mine-qrcode')), '/qrcode/user'),
         (find.text(t.main.favorites), '/favorites'),
@@ -329,7 +326,10 @@ void main() {
         enterpriseEntry: t.organization.manage.entry,
         brightness: brightness,
       );
-      expect(find.text('示例企业 · 产品工作区'), findsOneWidget);
+      // 企业名小字纯展示（不可点、不拼工作区名）；切换入口不在本页。
+      expect(find.text('示例企业'), findsOneWidget);
+      expect(find.text('示例企业 · 产品工作区'), findsNothing);
+      expect(find.byKey(const ValueKey('mine-space-switch')), findsNothing);
       expect(find.text(t.organization.experienceUi.currentSpace), findsNothing);
       expect(find.text(t.organization.experienceUi.switchSpace), findsNothing);
       expect(find.text(t.customerService.entryTitle), findsNothing);
@@ -339,12 +339,6 @@ void main() {
       expect(find.text(t.organization.manage.entry), findsOneWidget);
       expect(tester.takeException(), isNull);
       await takeScreenshot(tester, 'mine_enterprise_${brightness.name}');
-      await _tapTarget(
-        tester,
-        router,
-        find.byKey(const ValueKey('mine-space-switch')),
-        'destination:$kOrganizationPickerPath',
-      );
       await _tapTarget(
         tester,
         router,

@@ -3,7 +3,7 @@
 > 本文档是 ImBoy Flutter 客户端（`imboyapp`）的视觉与交互设计规范。
 > **AI Coding Agent 阅读此文档后，生成的 UI 应自动符合下述规范。**
 >
-> 最后更新：2026-04-10
+> 最后更新：2026-10-24
 > 风格方向：**iOS 原生感（Material 3 + iOS Human Interface Guidelines 美学）**
 > 基础参考：[Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines)
 
@@ -57,7 +57,7 @@ ImBoy 采用**双蓝策略**：
 
 | 角色 | Token | 值 | 用途 |
 |------|-------|-----|------|
-| **品牌蓝** `brand` | `AppColors.primary` | `#2474E5` | Logo、启动页、Tab 选中态、主按钮（Primary Button）、发送消息气泡背景、FAB |
+| **品牌蓝** `brand` | `AppColors.primary` | `#2474E5` | Logo、启动页、Tab 选中态、发送消息气泡背景、FAB（主按钮自 2026-10-24 起改用 `primaryDark`，见 §8.4） |
 | **iOS 系统蓝** `systemBlue` | `AppColors.iosBlue` | `#007AFF` | 链接文本、Cell 右侧箭头/时间标签、顶部栏「取消/完成」文字按钮、Date/Time Picker、Switch 开启态 |
 
 > **为什么分两个蓝？** `#2474E5` 是产品已定的品牌色（2026-01-15 决策，替代原 `#059669` 绿），承载识别；`#007AFF` 是 iOS 原生系统蓝，承载「系统语义」。两者色相接近，视觉上和谐共存。
@@ -70,7 +70,7 @@ ImBoy 采用**双蓝策略**：
 Brand / Primary
   brand               #2474E5   品牌蓝（logo、主按钮、发送气泡、Tab 选中）
   brandLight          #E3F2FD   品牌蓝 10% 背景（Chip、Tag 底色）
-  brandDark           #1565C0   品牌蓝按下态
+  brandDark           #1565C0   品牌蓝按下态；主按钮背景（§8.4，2026-10-24 起）
   brandContainer      #BBDEFB   Primary Container
 
 iOS System Semantic
@@ -151,7 +151,7 @@ enterpriseNavyDivider #FFFFFF 10%  深蓝底分隔线
 
 ### 2.5 颜色使用规则（Do / Don't）
 
-- ✅ 主按钮文字 on `brand` 永远用 `#FFFFFF`
+- ✅ 主按钮文字 on `primaryDark` 永远用 `#FFFFFF`；`brand` 底配白字仅限发送气泡等既定场景
 - ✅ Cell 里可点击的次级动作（如「查看全部 >」）用 `iosBlue`，不用 `brand`
 - ✅ 破坏性动作（Delete、Logout）必须用 `iosRed`，不能用自定义红
 - ❌ 不要在同一屏幕同时出现 `brand` 的背景 + `iosBlue` 的大面积色块，会打架
@@ -201,7 +201,21 @@ macOS:
 
 > **与现有 FontSizeType 的映射**：`tiny(10) / small(12) / normal(14) / medium(16) / large(18) / xLarge(20) / xxLarge(24)`
 >
-> 现有系统偏 Material 2dp 刻度，iOS HIG 偏 17pt 基准。**短期策略**：不修改现有 `FontSizeType` 枚举（避免大规模重构），但在新页面使用时，优先把「正文」从 `normal(14)` 升到 `medium(16)` 或 `large(18)`，更接近 iOS 17pt 的阅读观感。
+> **最终决策（2026-10-24，替代原"短期策略"）**：`FontSizeType` 枚举**永久冻结**——不新增、不改值（避免大规模重构）；iOS HIG 对齐通过下面的固定语义映射实现，而不是改刻度：
+>
+> | 语义场景 | 固定用法 | 对应 HIG |
+> |---|---|---|
+> | 页面/卡片/Modal 标题 | `large(18)` 或 `xLarge(20)`，w600 | Title 3 / Title 2 |
+> | Cell 主文字、按钮文字 | `medium(16)`，按钮 w600 | Headline / Body 近似 |
+> | 阅读型正文（频道文章等） | `large(18)`，w400 | Body 17pt 近似 |
+> | 副文本、表单输入 | `normal(14)`，w400 | Callout 近似 |
+> | 辅助信息、时间戳、Chip | `small(12)`，w400 | Caption 1 |
+> | 进度/阶段说明 | `footnote(13)`，w400 | Footnote |
+> | 角标、极简标记 | `tiny(10)` | Caption 2 |
+>
+> - **旧页面不批量改字号**（§13.4）；新页面/新组件必须按上表选语义，不得凭感觉挑字号
+> - 聊天正文例外：由 §9 聊天气泡组件自带 17pt Body，不强行套枚举
+> - 字距保持为 0（中文）；英文/数字场景按 3.4 的等宽数字规则处理
 
 ### 3.3 字重规则
 
@@ -408,16 +422,19 @@ Layout:
 
 **Primary Button**
 ```
-- 背景 brand (#2474E5)
+- 背景 primaryDark (#1565C0)，明暗两态一致
+  【2026-10-24 修订：原为 brand #2474E5，白字对比度仅 4.46:1，
+   不达 §11.1 的 AA ≥4.5:1；primaryDark 底白字 = 5.75:1，修复该矛盾】
 - 文字 #FFFFFF, Headline 17pt w600
-- 高度 50pt, 圆角 14pt
+- 高度 50pt（紧凑行内主按钮可降至 44pt，页面级 ≥48pt）
+- 圆角 14pt（行内小主按钮可用 10pt）
 - 宽度：页面级按钮满宽减 16pt 两侧 padding
 ```
 
 **Secondary Button**
 ```
 - 背景 brandLight (#E3F2FD)
-- 文字 brand, Headline 17pt w600
+- 文字 brand, Headline 17pt w600（brand on brandLight ≥3:1，17pt w600 属大字号，合规）
 - 高度 50pt, 圆角 14pt
 ```
 
@@ -547,6 +564,131 @@ The personal and enterprise Me pages share profile geometry, an inline space pic
 - 本机附件采用紧凑搜索、文件名与次级元信息分层、来源箭头和合并说明；保留加载、空、错误与内容状态。文件仍进入来源消息，本机可见不代表云端备份。
 - 空间列表移除个人空间组头与首行的重复表述；加入操作为主、创建为次，当前勾选与切换忙碌状态保持明确。原有角色、归档提示和原子切换流程不变。
 - 浅色卡片使用 surface，暗色使用 surfaceElevated；颜色、字号、间距沿用现有 token。精简视觉不得移除业务入口、权限、安全说明或确认流程。
+
+---
+
+### 8.14 面聊记录页（2026-10，含 C-F 冻结契约收编）
+
+面聊记录列表/准备/详情页的视觉契约。本节同时收编原先只存在于代码注释中的
+CONTRACT-FREEZE-T02 冻结项（C-F1~C-F4），**后续修改必须维持这些冻结项**：
+
+**C-F 冻结契约（不可回退）：**
+
+| 编号 | 契约 | 原因 |
+|------|------|------|
+| C-F1 | 筛选分段选中态 = `primaryDark`（#1565C0）底 + 白字（对比度 5.75:1） | 白字 on `brand` #2474E5 仅 4.46:1，不达 §11.1 的 AA ≥4.5:1 |
+| C-F2 | 主按钮（新建记录等）= `primaryDark` 底 + 白字 w600 | 同上；已与 §8.4（2026-10-24 修订）全局一致 |
+| C-F3 | 提示/状态文字不设 maxLines 截断，Wrap 自然换行 | 长状态文案（如「转写失败，录音仍可回听」）截断会误导 |
+| C-F4 | 记录行 ≥44pt、页面级主按钮 ≥48pt 触达 | §11.5 / §4.3 硬指标 |
+
+**页面结构（列表页）：**
+
+```
+- 页面底 surfaceGrouped；所有内容块为 surface 卡片，radius 10（§8.3B）
+- 空间上下文：个人空间（默认态）完全不展示（§8.12）；企业上下文用
+  内容区顶部**无卡片说明行**（14pt 图标 + small 次级文字、无底色），
+  完整企业/工作区名自然换行不省略（C-F3）——**禁止放导航栏 trailing**
+  （固定窄槽对长企业名必然截断），也不做常驻卡片
+- 本机草稿卡：32pt 图标槽（primaryLight 底 + primaryDark 波形图标，
+  暗色底 alpha 0.16）+ 标题 medium w600 + 元信息行（时长 small 次级 +
+  「本机草稿」chip，iosOrange 语义、radius 6）
+  - 上传中：3pt LinearProgressIndicator（iosBlue，失败 iosRed）+
+    footnote 阶段文案
+  - 失败横幅：iosRed 8% 浅底（暗色 18%）+ 图标 + small 红字
+  - 操作行右对齐：「参与者·编辑」= iosBlue 文字按钮（§13.2）；
+    「上传录音/重试上传」= primaryDark 底白字小主按钮；按钮触达 ≥44pt
+- 筛选分段：surface 轨道容器（2pt 内边距、radius 10）内嵌分段块
+  （radius 8）；未选中透明底，选中态按 C-F1
+- 空态：Hero = 88pt primaryLight 圆底 + 40pt primaryDark mic 图标 +
+  主/副文案；区分「从未创建」与「筛选/搜索无结果」两种语义
+- 底部主 CTA「新建记录」：满宽、高 48pt、radius 14、C-F2 配色
+```
+
+> **§8.4 矛盾已修复**：§8.4 主按钮原「brand #2474E5 底白字」与 §11.1
+> 「对比度 ≥4.5:1」冲突（4.46:1），2026-10-24 起主按钮默认色已修订为
+> primaryDark（与 C-F2 一致）。面聊记录页的 C-F1/C-F2 是这次全局修订的先例。
+
+### 8.15 分段控件 | Segmented Control（2026-10）
+
+```
+- 高度 44–48pt；轨道 = surface 底（亮 lightSurface / 暗 darkSurface）、
+  radius 10、2pt 内边距
+- 分段块：等宽 Expanded、radius 8；未选中透明底 + 主文字 w400
+- 选中 = primaryDark 底 + 白字 w600（C-F1，5.75:1，明暗两态一致）
+- 文案 normal 14pt、单行省略；整段触达 ≥44pt
+- 禁止回到实心色块贴边拼接（无轨道）的旧形态
+```
+
+### 8.16 异步任务卡 | Async Task Card（2026-10）
+
+适用：本机草稿、上传/下载、同步等带进度与失败重试的任务条目。
+
+```
+- 容器：surface 卡、radius 10、padding 12、水平 margin 16、卡间距 8
+- 头部：32pt 图标槽（primaryLight 底 + primaryDark 图标，暗色底 alpha 0.16）
+  + 12pt 间距 + 标题 medium 16 w600
+  + 元信息行（small 12 次级文字 + Chip，Wrap 自然换行不截断）
+- 进度：3pt LinearProgressIndicator（iosBlue；失败 iosRed）
+  + footnote 阶段文案（含真实进度，如「上传中 · 已确认 2/5 段」）；
+  无确定进度时用 indeterminate
+- 失败横幅：iosRed 浅底（亮 8% / 暗 18%）+ 16pt 警示图标 + small 红字
+- 操作行右对齐：次操作 = iosBlue 文字按钮（§13.2）；
+  主操作 = primaryDark 底白字小主按钮（§8.4）；按钮触达 ≥44pt；
+  忙碌态禁用全部操作，主按钮显示「上传中」等执行文案
+- 原则：状态可感知（进度条）、失败可恢复（重试入口依附任务卡）、
+  不误导（失败≠数据丢失，本机草稿标记仅本机）
+```
+
+### 8.17 Chip / 状态徽标（2026-10）
+
+```
+- 文字 small 12pt；padding 水平 8 / 垂直 2；radius 6（radiusSmall）
+- 配色 = 语义前景色 + 同色浅底（亮 alpha 0.08 / 暗 alpha 0.18）
+- 语义：信息 primaryDark；警告/本机草稿 iosOrange；失败 iosRed；
+  成功 iosGreen；中性 = 次级文字色
+- 仅作状态标记、不可点；可点筛选用分段控件（§8.15）或按钮（§8.4）
+```
+
+### 8.18 空状态 | Empty State（2026-10）
+
+```
+- 结构：88pt primaryLight 圆底（暗色 alpha 0.16）+ 40pt primaryDark 图标
+  + 16pt 间距 + 标题 large 18 w600 + 8pt 间距 + 副文案 normal 14 次级
+- 标题/副文案居中、可换行不截断（C-F3）；副文案说明「为什么空 + 下一步」
+- 主 CTA 置底（页面级主按钮）或紧随副文案；空态只保留一个主操作
+- 语义必须区分：从未创建 / 筛选或搜索无结果 / 加载失败（带重试按钮）；
+  禁止把「无结果」误报为「从未创建」
+- 与 §7.2 的关系：64pt Hero 图标指无圆底场景；带圆底时用本节 88/40 几何
+```
+
+### 8.19 Toast / 轻提示（2026-10）
+
+```
+- 用途：轻量操作反馈（已复制、保存成功、操作失败），不打断当前流程；
+  需要用户决策的错误用 Alert（§8.7），需要持续重试的错误用
+  任务卡失败横幅（§8.16），不得用 Toast 替代
+- 实现：统一走 ToastEvent（事件总线）或 ScaffoldMessenger SnackBar；
+  同时只显示一条（新提示先 removeCurrentSnackBar）
+- 视觉：深色半透明底（黑 75%）+ 白字 normal 14、radius 10；
+  位于底部安全区上方 16pt；左右 16pt 边距
+- 时长：普通反馈 2s，错误反馈 3s；最多带一个动作（如「重试」）
+- 禁止：堆叠多条、用 Toast 展示长文案（>2 行）、阻断式用法
+```
+
+### 8.20 加载态 | Loading（2026-10）
+
+```
+- 列表首载：ShimmerList 骨架屏（component/ui/shimmer_list.dart），
+  骨架几何须贴近真实行（头像 48pt 圆 + 双行文本、itemHeight 72pt）；
+  禁止首屏全屏转菊花
+- 下拉刷新：CupertinoSliverRefreshControl（已有数据时保留旧内容，
+  不清空成骨架屏）
+- 小区域/按钮内：CupertinoActivityIndicator（12–20pt）；
+  按钮忙碌 = 禁用 + 换执行文案（如「上传中」），不只变灰
+- 可量化长任务：3pt LinearProgressIndicator + 真实进度文案（§8.16）；
+  无确定进度才用 indeterminate
+- Reduce Motion：骨架屏扫光动画遵守 §11.3（缩短为 0–100ms 或静态骨架）
+```
 
 ---
 
@@ -692,6 +834,52 @@ The personal and enterprise Me pages share profile geometry, an inline space pic
 ---
 
 
+## 12. 与现有 Token 的兼容映射 | Compatibility
+
+本规范是**语义层**，代码里的 `AppColors` / `AppSpacing` / `AppRadius` 是**实现层**。
+按下表映射，禁止绕过 token 硬编码（§13.2）。
+
+### 12.1 颜色
+
+| 规范语义 | 实现 | 说明 |
+|---|---|---|
+| brand | `AppColors.primary` #2474E5 | 暗色 #3D8BF0（§10.2） |
+| 主按钮背景 | `AppColors.primaryDark` #1565C0 | §8.4，明暗一致 |
+| brandLight | `AppColors.primaryLight` #E3F2FD | 暗色用法：alpha 0.16 |
+| surface | `lightSurface` / `darkSurface` | 按 brightness 取值 |
+| surfaceGrouped | `AppColors.getSurfaceGrouped(b)` | 支持 OLED 参数 |
+| label / 次级文字 | `light(dark)TextPrimary` / `...Secondary` | 成对使用 |
+| iOS 语义色 | `AppColors.getIosBlue/Red/Orange(b)` | 自动取暗色对应值 |
+
+### 12.2 间距（4pt 基数）
+
+`space1..9` ↔ `AppSpacing.tiny(4) / small(8) / medium(12) / regular(16) /
+large(20) / xLarge(24) / xxLarge(32) / xxxLarge(48)`；
+`space8(40)` 无直接 token，用 `AppSpacing.custom(40)` 或取相邻值。
+
+### 12.3 圆角（以 §5.1 数值为准）
+
+| 规范 token | 值 | 实现映射 |
+|---|---|---|
+| radiusSmall | 6（Chip） | `AppRadius` 无 6，组件内 `circular(6)`（已登记差异） |
+| radiusMedium | 10（Cell/卡片） | `AppRadius.cell` |
+| radiusLarge | 14（按钮/卡片） | 无 14 token，组件内 `circular(14)`（已登记差异） |
+| radiusXLarge | 20（气泡） | `AppRadius.large` |
+| radiusSheet | 10（Sheet 顶角） | `AppRadius.cell` |
+| radiusCircle | 999 | `AppRadius.circle` / `circular(999)` |
+
+> 已登记的 token 差异（6 / 14）属于历史刻度不齐，统一方案是向
+> `AppRadius` 增补 `chip(6)`、`button(14)` 两个常量后替换调用点；
+> 未执行前以本节数值为准，禁止用 8/16 近似替代。
+
+### 12.4 其他
+
+- **字号**：枚举冻结 + 语义映射，见 §3.2（2026-10-24 最终决策）
+- **阴影**：只保留 elevation 0/1/2（§5.2），iOS 页面优先分隔线/底色对比
+- **动效**：时长/曲线见 §6，点击反馈用 opacity 不用 Material Ripple
+
+---
+
 ## 13. AI Coding Agent 使用指引 | For Coding Agents
 
 **当你（AI Agent）被要求实现 ImBoy 客户端的任何 UI 时，按以下顺序决策：**
@@ -699,23 +887,26 @@ The personal and enterprise Me pages share profile geometry, an inline space pic
 ### 13.1 决策树
 
 ```
-1. 需要「品牌识别」? (Logo, Tab 选中, 主按钮, 发送气泡)
+1. 需要「品牌识别」? (Logo, Tab 选中, 发送气泡)
    → 使用 AppColors.primary (#2474E5)
 
-2. 需要「iOS 系统语义」? (链接, 取消按钮, Nav 文字按钮, Switch, Picker)
+2. 是主按钮?
+   → 背景 AppColors.primaryDark (#1565C0) + 白字 w600（§8.4，对比度 5.75:1）
+
+3. 需要「iOS 系统语义」? (链接, 取消按钮, Nav 文字按钮, Switch, Picker)
    → 使用 iosBlue (#007AFF)
 
-3. 是破坏性操作? (删除, 退出登录, 解散群)
+4. 是破坏性操作? (删除, 退出登录, 解散群)
    → 使用 iosRed (#FF3B30)
 
-4. 是列表页? 
+5. 是列表页? 
    → 设置/个人中心 → Inset Grouped List (surfaceGrouped 背景 + surface 卡片 + radius 10)
    → 会话/联系人 → Plain List (surface 背景 + 分隔线)
 
-5. 是聊天页? 
+6. 是聊天页? 
    → 参考第 9 章，气泡圆角 20pt，发送用 brand，接收用 surface
 
-6. 是导航栏? 
+7. 是导航栏? 
    → 文字按钮 iosBlue，标题 17pt w600，底部 0.33pt separator
 ```
 
@@ -725,6 +916,7 @@ The personal and enterprise Me pages share profile geometry, an inline space pic
 - ❌ **禁止** 在 Cell / ListTile 中使用 Material Ripple；用 `CupertinoListTile` 或 opacity 反馈
 - ❌ **禁止** 聊天气泡使用除 `brand` / `surface` 之外的背景色
 - ❌ **禁止** 文字按钮使用 `primary`（用 `iosBlue`）
+- ❌ **禁止** 主按钮背景使用 `brand #2474E5`（白字对比度 4.46:1 不达标；用 `primaryDark`，见 §8.4）
 - ❌ **禁止** 硬编码 spacing；使用 `AppSpacing.*`
 - ❌ **禁止** 任何附件 URL 直接使用；必须 `AssetsService.viewUrl()` —— 详见 `imboyapp/CLAUDE.md`
 - ✅ **必须** 新按钮最小高度 50pt（Primary）或 44pt（Text Button）
@@ -804,6 +996,10 @@ Scaffold(
 | 0.1 | 2026-04-10 | 初版，确立 iOS 原生感方向 + 双蓝策略 |
 | 0.2 | 2026-04-24 | Slice-10~18 排版 / 色彩 / 数字等宽批量落地 |
 | 0.3 | 2026-10-15 | 企业壳飞书风格改版：新增 2.4 企业深蓝色板、8.8 深蓝抽屉、8.9 消息筛选条、8.10 锚定气泡菜单；底栏维持四栏 |
+| 0.4 | 2026-10-24 | 新增 8.14 面聊记录页规范：收编 C-F1~C-F4 冻结契约（原仅在代码注释）；记录 §8.4 主按钮对比度矛盾 |
+| 0.5 | 2026-10-24 | 修复 §8.4 对比度硬伤：主按钮默认色 brand → primaryDark（5.75:1），同步修订 §2.1/§2.2/§2.5/§13.1/§13.2；新增组件规范 8.15 分段控件、8.16 异步任务卡、8.17 Chip、8.18 空状态 |
+| 0.6 | 2026-10-24 | §3.2 字号悬案了结：FontSizeType 枚举永久冻结 + 固定语义映射表（替代"短期策略"）；§8.4 代码侧收敛完成（共享按钮组件 + ElevatedButton 主题 + 18 处直接填充主按钮） |
+| 0.7 | 2026-10-24 | 新增 8.19 Toast、8.20 加载态（骨架屏/刷新/进度分级）；补齐目录预留的 §12 Token 兼容映射（颜色/间距/圆角对照，登记 6/14 圆角 token 差异） |
 
 
 **未来演进约束**：

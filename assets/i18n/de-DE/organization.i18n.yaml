@@ -237,6 +237,7 @@ inviteColleagues:
   groupStep3: Code unter Kontakte > Organisation beitreten eingeben
   codeLabelWith: "Einladungscode: ${code}"
 inviteQr:
+  orgQrcode: Unternehmens-QR-Code
   title: "Mitglieder einladen"
   entryHint: "QR-Code zeigen oder Code teilen – Beitritt per Scan oder Eingabe"
   scanHint: "Andere scannen diesen Code mit dem imboy-Scanner, um dem Unternehmen beizutreten"

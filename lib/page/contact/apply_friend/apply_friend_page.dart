@@ -164,7 +164,7 @@ class _ApplyFriendPageState extends ConsumerState<ApplyFriendPage> {
         child: CupertinoButton(
           minimumSize: const Size(0, 50),
           padding: EdgeInsets.zero,
-          color: AppColors.primary,
+          color: AppColors.primaryDark,
           borderRadius: BorderRadius.circular(14),
           onPressed: _isSubmitting
               ? null

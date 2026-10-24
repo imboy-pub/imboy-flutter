@@ -529,7 +529,7 @@ class _CameraCapturePageState extends State<CameraCapturePage> {
               FilledButton(
                 onPressed: _confirm,
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: AppColors.primaryDark,
                   padding: EdgeInsets.symmetric(horizontal: AppSpacing.xLarge),
                 ),
                 child: Text(

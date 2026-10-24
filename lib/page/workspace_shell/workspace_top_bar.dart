@@ -11,10 +11,11 @@ import 'package:imboy/theme/default/font_types.dart';
 ///
 /// 企业壳内容区是 IndexedStack（各 tab 自带滚动体），不能整体套
 /// Scaffold appBar，故以独立 widget 挂在壳 Column 顶部；消息/通讯录/
-/// 工作台/我 四个 tab 共用，保证壳内顶栏形态唯一。
+/// 工作台三个 tab 共用，保证壳内顶栏形态唯一（「我」tab 不挂顶栏——
+/// 页面自身就是身份区，只留状态栏安全区占位）。
 ///
 /// [subtitle] 非空时中央为双行（标题 + caption 副行），行高扩至 52pt，
-/// 用于「企业名 · 工作区名」上下文（spec D1：所有 tab 稳定可见、
+/// 用于「企业名 · 工作区名」上下文（spec D1：挂顶栏的 tab 稳定可见、
 /// 分层两级不拼第三段）；为空时行为与单行版本完全一致。
 class WorkspaceTopBar extends StatelessWidget {
   const WorkspaceTopBar({
@@ -71,12 +72,18 @@ class WorkspaceTopBar extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Flexible(
+                      // 中央标题必须是 tight 槽位：曾用 loose Flexible，其未用满的
+                      // 宽度不会回流给两侧，而是按 mainAxisAlignment.start 堆在 Row
+                      // 末尾——右上角动作离屏缘多出 ~28pt、标题整体左偏（Android
+                      // 字形更窄时更明显）。两侧 1 : 中央 2，标题区可用宽度更大。
+                      Expanded(
+                        flex: 2,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               title,
+                              textAlign: TextAlign.center,
                               style: context
                                   .textStyle(
                                     FontSizeType.body,

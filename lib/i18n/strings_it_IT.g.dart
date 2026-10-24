@@ -3102,6 +3102,7 @@ class _Translations$organization$inviteQr$it_IT extends Translations$organizatio
 	final TranslationsItIt _root; // ignore: unused_field
 
 	// Translations
+	@override String get orgQrcode => 'QR code aziendale';
 	@override String get title => 'Invita membri';
 	@override String get entryHint => 'Mostra il QR code o condividi il codice; gli altri entrano scansionando o digitando';
 	@override String get scanHint => 'Gli altri scansionano questo codice con lo scanner imboy per entrare nell\'azienda';
@@ -5665,6 +5666,7 @@ extension on TranslationsItIt {
 			'organization.inviteColleagues.groupStep2' => 'I colleghi copiano il codice e aprono l\'app imboy',
 			'organization.inviteColleagues.groupStep3' => 'Inserisci il codice in Rubrica > Unisciti all\'organizzazione',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Codice invito: ${code}',
+			'organization.inviteQr.orgQrcode' => 'QR code aziendale',
 			'organization.inviteQr.title' => 'Invita membri',
 			'organization.inviteQr.entryHint' => 'Mostra il QR code o condividi il codice; gli altri entrano scansionando o digitando',
 			'organization.inviteQr.scanHint' => 'Gli altri scansionano questo codice con lo scanner imboy per entrare nell\'azienda',
@@ -5933,9 +5935,9 @@ extension on TranslationsItIt {
 			'workspace.brandingColorInvalid' => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB',
 			'workspace.brandingColorLabel' => 'Colore principale (primaryColor)',
 			'workspace.brandingEntry' => 'Impostazioni brand (nome / logo / colore principale)',
-			'workspace.brandingLogoHint' => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingLogoHint' => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)',
 			'workspace.brandingLogoLabel' => 'URL del logo',
 			'workspace.brandingNameLabel' => 'Nome del brand',
 			'workspace.brandingPreview' => 'Anteprima colore principale',

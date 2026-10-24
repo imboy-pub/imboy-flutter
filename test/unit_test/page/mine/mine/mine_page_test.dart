@@ -87,7 +87,6 @@ GoRouter _stubRouter({
   bool enterprise = false,
   bool enterpriseEntry = false,
   String? enterpriseName,
-  String? enterpriseWorkspaceName,
 }) {
   // 所有菜单跳转目标都用 stub 接住，避免 context.push 抛 'no route' 错
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
@@ -99,7 +98,6 @@ GoRouter _stubRouter({
         builder: (context, _) => MinePage(
           enterprise: enterprise,
           enterpriseName: enterpriseName,
-          enterpriseWorkspaceName: enterpriseWorkspaceName,
           enterpriseEntry: enterpriseEntry
               ? MineShortcut(
                   label: '企业管理',
@@ -163,7 +161,6 @@ Future<void> _pumpMine(
   bool enterprise = false,
   bool enterpriseEntry = false,
   String? enterpriseName,
-  String? enterpriseWorkspaceName,
   double width = 390,
   double textScale = 1,
   Brightness brightness = Brightness.light,
@@ -198,7 +195,6 @@ Future<void> _pumpMine(
             enterprise: enterprise,
             enterpriseEntry: enterpriseEntry,
             enterpriseName: enterpriseName,
-            enterpriseWorkspaceName: enterpriseWorkspaceName,
           ),
         ),
       ),
@@ -233,64 +229,47 @@ void main() {
   });
 
   group('MinePage compact profile', () {
-    testWidgets('个人资料保留昵称、ID和二维码，仅展示一次空间名称', (tester) async {
+    testWidgets('个人资料保留昵称、ID和二维码，不再承载空间切换', (tester) async {
       await _pumpMine(tester);
       expect(find.text('Tester'), findsOneWidget);
       expect(find.text('ID: imboy_user'), findsOneWidget);
       expect(find.byIcon(CupertinoIcons.qrcode), findsOneWidget);
+      // 空间切换收敛到消息页左上角抽屉：本页无空间胶囊/入口行。
+      expect(find.byType(CurrentSpaceTile), findsNothing);
       expect(
         find.text(t.organization.experienceUi.personalSpace),
-        findsOneWidget,
+        findsNothing,
       );
       expect(find.text(t.organization.experienceUi.currentSpace), findsNothing);
       expect(find.text('切换空间'), findsNothing);
-      expect(
-        tester.getBottomLeft(find.text('Tester')).dy,
-        lessThan(tester.getTopLeft(find.byType(CurrentSpaceTile)).dy),
-      );
-      expect(
-        tester.getBottomLeft(find.byType(CurrentSpaceTile)).dy,
-        lessThan(tester.getTopLeft(find.text(t.main.favorites)).dy),
-      );
     });
 
-    testWidgets('昵称下的空间入口仍打开既有空间选择器', (tester) async {
+    testWidgets('点击昵称只进个人资料，不再打开空间选择器', (tester) async {
       await _pumpMine(tester);
-      await tester.tap(find.text(t.organization.experienceUi.personalSpace));
+      await tester.tap(find.text('Tester'));
       await tester.pumpAndSettle();
-      expect(find.text('space picker stub'), findsOneWidget);
-      expect(find.text('personal stub'), findsNothing);
+      expect(find.text('personal stub'), findsOneWidget);
+      expect(find.text('space picker stub'), findsNothing);
     });
 
-    testWidgets('企业名称仅出现一次，无重复的当前空间说明', (tester) async {
+    testWidgets('企业模式昵称下显示企业名小字，不显示 ID', (tester) async {
       await CurrentOrganizationStore.forAccount('tsid_uid_001')
           .set(const Organization(id: '7266418340025468901', name: '示例企业'));
       await _pumpMine(tester, enterprise: true, enterpriseName: '示例企业');
       expect(find.text('示例企业'), findsOneWidget);
-      expect(find.text(t.organization.experienceUi.currentSpace), findsNothing);
-      expect(find.text('切换空间'), findsNothing);
       expect(find.text('ID: imboy_user'), findsNothing);
+      expect(find.byType(CurrentSpaceTile), findsNothing);
+      // 企业名为纯展示：点击资料卡进个人资料，不触发空间选择器。
       await tester.tap(find.text('示例企业'));
       await tester.pumpAndSettle();
-      expect(find.text('space picker stub'), findsOneWidget);
+      expect(find.text('space picker stub'), findsNothing);
     });
 
-    testWidgets('企业和工作区合并展示一次，保持空间切换路径', (tester) async {
-      await CurrentOrganizationStore.forAccount('tsid_uid_001')
-          .set(const Organization(id: '7266418340025468901', name: '示例企业'));
-      await _pumpMine(
-        tester,
-        enterprise: true,
-        enterpriseName: '示例企业',
-        enterpriseWorkspaceName: '研发工作区',
-      );
-      expect(find.text('示例企业 · 研发工作区'), findsOneWidget);
-      expect(find.text('示例企业'), findsNothing);
-      expect(find.text('研发工作区'), findsNothing);
-      expect(find.text(t.organization.experienceUi.currentSpace), findsNothing);
-      await tester.tap(find.text('示例企业 · 研发工作区'));
-      await tester.pumpAndSettle();
-      expect(find.text('space picker stub'), findsOneWidget);
+    testWidgets('企业名缺失时资料区不留空占位行', (tester) async {
+      await _pumpMine(tester, enterprise: true);
+      expect(find.text('ID: imboy_user'), findsNothing);
+      expect(find.text(t.organization.picker.noneSelected), findsNothing);
+      expect(find.byType(CurrentSpaceTile), findsNothing);
     });
 
     testWidgets('精简资料不展示签名或空文本行', (tester) async {
@@ -395,7 +374,6 @@ void main() {
               enterprise: enterprise,
               enterpriseEntry: enterprise,
               enterpriseName: enterprise ? '这是一个需要截断的很长的企业空间名称🙂' : null,
-              enterpriseWorkspaceName: enterprise ? '这是一个很长的工作区名称🙂' : null,
               width: width,
               textScale: 2,
               brightness: brightness,
