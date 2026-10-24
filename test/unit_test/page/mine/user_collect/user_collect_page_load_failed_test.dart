@@ -51,6 +51,9 @@ const String _userCollectDDL = '''
     updated_at INTEGER NOT NULL DEFAULT 0,
     created_at INTEGER NOT NULL DEFAULT 0,
     info TEXT DEFAULT '',
+    -- E2EE 收藏 v1（v34 本地库结构）
+    generation INTEGER NOT NULL DEFAULT 0,
+    key_version INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
   )
 ''';

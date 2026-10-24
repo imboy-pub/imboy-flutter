@@ -59,4 +59,100 @@ class UserCollectApi extends HttpClient {
     AppLoading.dismiss();
     return resp.ok ? true : false;
   }
+
+  // ------------------------------------------------------------------
+  // E2EE 收藏 v1（迁移 227 / PLAN 2026-10-24-e2ee-collect §7）
+  // 能力协商：manifest features["e2ee_collect"] != true 时不允许创建
+  // sealed 收藏（旧后端组合拒绝，A7）；错误码精确保留供上层分流
+  // （5501 升级提示 / 5502 冲突重读 / 5504 密钥同步 / 5505 参数 / 5506 legacy）。
+  // ------------------------------------------------------------------
+
+  /// v1 创建/重新收藏（含墓碑复活：服务端复用原行，客户端重新 seal）。
+  /// 返回 (ok, generation)：ok=false 时 code 为服务端错误码。
+  Future<CollectV1Result> addV1({
+    required int kind,
+    required String kindId,
+    required String infoSealed,
+    required int keyVersion,
+    required List<String> attachHashes,
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.userCollectAdd,
+      data: {
+        'kind': kind,
+        'kind_id': kindId,
+        'info_sealed': infoSealed,
+        'key_version': keyVersion,
+        'attach_file_hash256': attachHashes,
+      },
+      options: Options(
+        sendTimeout: const Duration(minutes: 5),
+        receiveTimeout: const Duration(minutes: 5),
+      ),
+    );
+    return _v1Result(resp);
+  }
+
+  /// v1 编辑（CAS）：expected_generation 匹配才更新。
+  Future<CollectV1Result> updateV1({
+    required String kindId,
+    required int expectedGeneration,
+    required int newGeneration,
+    required String infoSealed,
+    required int keyVersion,
+    required List<String> attachHashes,
+  }) async {
+    IMBoyHttpResponse resp = await post(
+      API.userCollectChange,
+      data: {
+        'action': 'update',
+        'kind_id': kindId,
+        'expected_generation': expectedGeneration,
+        'generation': newGeneration,
+        'info_sealed': infoSealed,
+        'key_version': keyVersion,
+        'attach_file_hash256': attachHashes,
+      },
+    );
+    return _v1Result(resp);
+  }
+
+  CollectV1Result _v1Result(IMBoyHttpResponse resp) {
+    int? gen;
+    if (resp.payload is Map) {
+      final raw = (resp.payload as Map)['generation'];
+      gen = raw is int
+          ? raw
+          : raw is num
+          ? raw.toInt()
+          : null;
+    }
+    return CollectV1Result(
+      ok: resp.ok,
+      code: resp.code,
+      msg: resp.msg,
+      generation: gen,
+      idempotent:
+          resp.payload is Map && (resp.payload as Map)['idempotent'] == true,
+    );
+  }
+}
+
+/// v1 调用结果：错误码语义见 PLAN §9/错误码 5501-5506。
+class CollectV1Result {
+  const CollectV1Result({
+    required this.ok,
+    required this.code,
+    required this.msg,
+    this.generation,
+    this.idempotent = false,
+  });
+
+  final bool ok;
+  final int code;
+  final String msg;
+  final int? generation;
+
+  /// 幂等重放成功（同请求字节，服务端已持久化相同状态）。
+  final bool idempotent;
 }

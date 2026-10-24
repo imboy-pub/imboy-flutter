@@ -1570,4 +1570,14 @@ CREATE TABLE IF NOT EXISTS "attachment_upload_task" (
 );
 CREATE INDEX IF NOT EXISTS "idx_attachment_upload_task_user_stage"
     ON "attachment_upload_task"("user_id", "stage");
-PRAGMA user_version = 33;
+PRAGMA user_version = 33;-- ============================================================
+-- VERSION: 34
+-- DESC: E2EE 收藏 v1（PLAN 2026-10-24-e2ee-collect / 服务端迁移 227）：
+--       user_collect 增加 generation（记录修订号）与 key_version
+--       （0=legacy，>0=sealed）两列。存量行默认 0/0（legacy 语义不变）。
+--       降级可逆：down 边 DROP COLUMN（旧版本客户端不识别 sealed 行）。
+-- ============================================================
+
+ALTER TABLE user_collect ADD COLUMN generation INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE user_collect ADD COLUMN key_version INTEGER NOT NULL DEFAULT 0;
+PRAGMA user_version = 34;

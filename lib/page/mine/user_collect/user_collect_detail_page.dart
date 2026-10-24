@@ -19,8 +19,6 @@ import 'package:imboy/service/message_type_constants.dart' show MessageType;
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
 
-import 'package:xid/xid.dart';
-
 import 'user_collect_provider.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
@@ -166,10 +164,10 @@ class UserCollectDetailPage extends ConsumerWidget {
                 info['msg_type'] = msgType;
                 info['type'] = info['type'] ?? 'C2C';
 
-                // 生成新的消息 ID
-                info['id'] = Xid().toString();
-
-                if (info['payload'] is Map) {}
+                // C6（PLAN 2026-10-24-e2ee-collect）：保留原消息 id 作附件
+                // 源绑定（AttachmentBinding 的 message_id）——发送侧
+                // SendToPage 自行生成新消息 id（send_to_provider.dart 的
+                // messageId），此处覆盖 id 会使加密附件源绑定失配（ATT-01）。
 
                 try {
                   var msg = await MessageModel.fromJson(info).toTypeMessage();

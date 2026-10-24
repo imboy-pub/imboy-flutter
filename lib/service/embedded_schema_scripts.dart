@@ -93,6 +93,10 @@ CREATE TABLE user_collect (
     updated_at INTEGER NOT NULL DEFAULT 0,
     created_at INTEGER NOT NULL DEFAULT 0,
     info TEXT DEFAULT '',
+    -- E2EE 收藏 v1（v34，迁移 227 服务端对齐）：generation=记录修订号
+    --（同步检测唯一信号）；key_version 非空=sealed 行（info 为客户端密文 base64）
+    generation INTEGER NOT NULL DEFAULT 0,
+    key_version INTEGER NOT NULL DEFAULT 0,
     CONSTRAINT i_Uid_KindId UNIQUE (user_id, kind_id)
 );
 CREATE INDEX i_Source ON user_collect (source);

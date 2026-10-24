@@ -34,6 +34,13 @@
 -- PRAGMA user_version = 9;
 
 -- ============================================================
+-- VERSION: 34 (down)
+-- DESC: 删除 user_collect.generation / key_version（E2EE 收藏 v1）。
+-- ============================================================
+
+ALTER TABLE user_collect DROP COLUMN key_version;
+ALTER TABLE user_collect DROP COLUMN generation;
+PRAGMA user_version = 33;-- ============================================================
 -- VERSION: 33
 -- DESC: 从 v33 降级到 v32（DROP attachment_upload_task）。
 --       存在未完成或未知状态任务时拒绝降级，防丢失恢复身份。

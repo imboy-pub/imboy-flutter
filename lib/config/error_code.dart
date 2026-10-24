@@ -76,12 +76,12 @@ class ErrorCode {
   static const int PRECONDITION_FAILED = 412;
 
   /// 错误码 413
-  static const int PAYLOAD_TOO_LARGE = 413;
   static const int FILE_SIZE_EXCEEDED = 413;
+  static const int PAYLOAD_TOO_LARGE = 413;
 
   /// 错误码 415
-  static const int UNSUPPORTED_MEDIA_TYPE = 415;
   static const int FILE_TYPE_INVALID = 415;
+  static const int UNSUPPORTED_MEDIA_TYPE = 415;
 
   /// 错误码 422
   static const int UNPROCESSABLE_ENTITY = 422;
@@ -103,8 +103,8 @@ class ErrorCode {
   /// 服务器内部错误
   static const int INTERNAL_SERVER_ERROR = 500;
   static const int SERVER_ERROR = 500;
-  static const int OPERATION_FAILED = 500;
   static const int BUSINESS_FAILED = 500;
+  static const int OPERATION_FAILED = 500;
 
   /// 错误码 501
   static const int NOT_IMPLEMENTED = 501;
@@ -454,67 +454,7 @@ class ErrorCode {
   static const int WECHAT_CODE_INVALID = 5402;
 
   /// 错误码 5403
-  static const int TEACHING_PROVIDER_UNCONFIGURED = 5403;
-
-  /// 错误码 5404
-  static const int TEACHING_IDENTITY_NONE = 5404;
-
-  /// 错误码 5420
-  static const int TEACHING_CONTEXT_INVALID = 5420;
-
-  /// 错误码 5421
-  static const int TEACHING_CONTEXT_INACTIVE = 5421;
-
-  /// 错误码 5422
-  static const int TEACHING_LEARNER_NOT_GUARDED = 5422;
-
-  /// 错误码 5423
-  static const int TEACHING_NOT_GUARDIAN = 5423;
-
-  /// 错误码 5424
-  static const int TEACHING_NOT_STAFF = 5424;
-
-  /// 错误码 5425
-  static const int TEACHING_STAFF_WRITE_DENIED = 5425;
-
-  /// 错误码 5426
-  static const int TEACHING_CROSS_ORG = 5426;
-
-  /// 错误码 5427
-  static const int TEACHING_BIND_DUPLICATE_IN_ORG = 5427;
-
-  /// 错误码 5428
-  static const int TEACHING_BIND_INVALID_TARGET = 5428;
-
-  /// 错误码 5429
-  static const int TEACHING_BIND_NOT_AUTHORIZED = 5429;
-
-  /// 错误码 5430
-  static const int TEACHING_CLASS_NOT_VISIBLE = 5430;
-
-  /// 错误码 5431
-  static const int TEACHING_LEARNER_NOT_IN_CLASS = 5431;
-
-  /// 错误码 5432
-  static const int TEACHING_GUARDIAN_SETUP_REQUIRED = 5432;
-
-  /// 错误码 5433
-  static const int TEACHING_ORG_OWNER_REQUIRED = 5433;
-
-  /// 错误码 5440
-  static const int ASSIGNMENT_NOT_FOUND = 5440;
-
-  /// 错误码 5441
-  static const int SUBMISSION_ASSETS_INVALID = 5441;
-
-  /// 错误码 5442
-  static const int ASSIGNMENT_CLOSED = 5442;
-
-  /// 错误码 5443
-  static const int SUBMISSION_NOT_FOUND = 5443;
-
-  /// 错误码 5444
-  static const int SUBMISSION_WITHDRAWN = 5444;
+  static const int WECHAT_PROVIDER_UNCONFIGURED = 5403;
 
   /// 错误码 5460
   static const int IDEMPOTENCY_CONFLICT = 5460;
@@ -522,35 +462,23 @@ class ErrorCode {
   /// 错误码 5461
   static const int IDEMPOTENCY_KEY_REQUIRED = 5461;
 
-  /// 错误码 5480
-  static const int REVIEW_DRAFT_NOT_FOUND = 5480;
+  /// 错误码 5501
+  static const int COLLECT_SEALED_READONLY = 5501;
 
-  /// 错误码 5481
-  static const int SUBMISSION_REVIEWED = 5481;
+  /// 错误码 5502
+  static const int COLLECT_GENERATION_CONFLICT = 5502;
 
-  /// 错误码 5482
-  static const int REVIEW_SUBMISSION_WITHDRAWN = 5482;
+  /// 错误码 5503
+  static const int COLLECT_ATTACH_INVALID = 5503;
 
-  /// 错误码 5483
-  static const int REVIEW_CONFIRM_MISMATCH = 5483;
+  /// 错误码 5504
+  static const int COLLECT_KEY_VERSION_REJECTED = 5504;
 
-  /// 错误码 5484
-  static const int REVIEW_FIELD_NOT_ACCEPTED = 5484;
+  /// 错误码 5505
+  static const int COLLECT_BAD_REQUEST = 5505;
 
-  /// 错误码 5485
-  static const int REVIEW_EMPTY_CONTENT = 5485;
-
-  /// 错误码 5486
-  static const int REVIEW_PUBLISHED_DRAFT = 5486;
-
-  /// 错误码 5487
-  static const int REVIEW_CHAR_REVIEWS_INVALID = 5487;
-
-  /// 错误码 5488
-  static const int SUBSCRIBE_TEMPLATES_INVALID = 5488;
-
-  /// 错误码 5489
-  static const int INVITE_CODE_INVALID = 5489;
+  /// 错误码 5506
+  static const int COLLECT_LEGACY_CONFLICT = 5506;
 
   // =====================================================================
   // 错误消息映射
@@ -681,38 +609,14 @@ class ErrorCode {
     5401: '微信登录失败',
     5402: '微信登录凭证无效或已使用',
     5403: '登录服务未配置',
-    5404: '该微信未绑定教学账号，请联系机构',
-    5420: '所选身份不属于当前用户',
-    5421: '所选身份已失效',
-    5422: '未监护该学员',
-    5423: '无监护提交权限',
-    5424: '非本班任课老师',
-    5425: '当前教学角色无操作权限',
-    5426: '跨机构访问被拒绝',
-    5427: '该账号在同机构已绑定其他学员',
-    5428: '目标账号不存在或不可用',
-    5429: '无学员绑定操作权限',
-    5430: '班级不存在或不可见',
-    5431: '学员不在本班或已移出',
-    5432: '监护关系需完善',
-    5433: '仅机构管理员可操作机构设置',
-    5440: '作业不存在',
-    5441: '提交附件不合规',
-    5442: '作业已截止或关闭',
-    5443: '提交不存在',
-    5444: '该提交已撤回',
     5460: '请求与幂等键已绑定内容冲突',
     5461: '缺少幂等键',
-    5480: '无可发布的回评草稿',
-    5481: '该提交已有发布回评，不可撤回',
-    5482: '提交已撤回，无法发布回评',
-    5483: '发布确认学员不一致',
-    5484: '请求包含服务端保留字段',
-    5485: '回评内容为空',
-    5486: '回评已发布，不能再保存草稿',
-    5487: '逐字点评字卡数据不合规',
-    5488: '订阅消息模板列表非法',
-    5489: '邀请码无效或已失效',
+    5501: '该收藏已启用端到端加密，请升级客户端后操作',
+    5502: '收藏已在其他设备修改，请刷新后重试',
+    5503: '收藏附件校验失败（不存在或无权引用）',
+    5504: '加密密钥版本过旧，请先完成密钥同步',
+    5505: '收藏请求参数非法',
+    5506: '该收藏为历史明文记录，请取消收藏后重新收藏以启用加密',
   };
 
   /// 获取错误码对应的默认消息

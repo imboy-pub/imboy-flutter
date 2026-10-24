@@ -21,6 +21,12 @@ class UserCollectModel {
 
   Map<String, dynamic> info;
 
+  /// E2EE 收藏 v1（本地库 v34/服务端迁移 227）：记录修订号（0=legacy 行）。
+  int generation;
+
+  /// E2EE 收藏 v1：>0 = sealed 行（info 为客户端密文 base64 原文，未解密）。
+  int keyVersion;
+
   UserCollectModel({
     required this.userId,
     required this.kind,
@@ -31,7 +37,12 @@ class UserCollectModel {
     required this.updatedAt,
     required this.createdAt,
     required this.info,
+    this.generation = 0,
+    this.keyVersion = 0,
   });
+
+  /// sealed 行判据（与服务端 key_version IS NOT NULL 对齐；本地以 0 表 legacy）。
+  bool get sealed => keyVersion > 0;
 
   factory UserCollectModel.fromJson(Map<String, dynamic> data) {
     return UserCollectModel(
@@ -45,6 +56,8 @@ class UserCollectModel {
       createdAt: DateTimeHelper.parseTimestamp(data['created_at']),
       // parseModelJsonMap 容忍 String/Map/null，避免手写 json.decode 的静默 catch
       info: parseModelJsonMap(data['info']) ?? <String, dynamic>{},
+      generation: parseModelInt(data['generation']),
+      keyVersion: parseModelInt(data['key_version']),
     );
   }
 
@@ -59,6 +72,8 @@ class UserCollectModel {
     data['updated_at'] = updatedAt;
     data['created_at'] = createdAt;
     data['info'] = info;
+    data['generation'] = generation;
+    data['key_version'] = keyVersion;
     return data;
   }
 }

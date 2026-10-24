@@ -9,6 +9,33 @@ import 'package:imboy/service/migration_manifest.dart';
 
 const List<MigrationEdge> kDowngradeEdgesAll = [
   MigrationEdge(
+    id: 'downgrade_v34_删除_user_collect 的 generation 与 key_version 列',
+    fromVersion: 34,
+    toVersion: 33,
+    description: '从 v34 降级到 v33（删除 user_collect 的 E2EE 收藏 v1 元数据列）。',
+    reversible: true,
+    dataLoss: false,
+    requiresResync: true,
+    preconditions: [
+      'downgrade 前 v34 schema 处于一致状态',
+      '无未同步的 sealed 收藏编辑（sealed 行降级后回到 legacy 语义不可再 CAS）',
+    ],
+    postconditions: [
+      'user_collect 不含 generation/key_version 列：PRAGMA user_version = 33',
+    ],
+    affectedObjects: ['user_collect'],
+    headerComment:
+        r"""-- ============================================================
+-- VERSION: 34 (down)
+-- DESC: 删除 user_collect.generation / key_version（E2EE 收藏 v1）。
+-- ============================================================
+
+""",
+    sql: r"""ALTER TABLE user_collect DROP COLUMN key_version;
+ALTER TABLE user_collect DROP COLUMN generation;
+PRAGMA user_version = 33;""",
+  ),
+  MigrationEdge(
     id: 'downgrade_v33_删除_attachment_upload_task_表',
     fromVersion: 33,
     toVersion: 32,

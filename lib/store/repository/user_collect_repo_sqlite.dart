@@ -23,6 +23,11 @@ class UserCollectRepo {
   static String createdAt = 'created_at';
   static String info = 'info';
 
+  /// E2EE 收藏 v1（v34）：generation=记录修订号（同步检测唯一信号）；
+  /// key_version>0 = sealed 行（info 为客户端密文 base64）。
+  static String generation = 'generation';
+  static String keyVersion = 'key_version';
+
   // 公共列名列表
   static final List<String> defaultColumns = [
     UserCollectRepo.userId,
@@ -34,6 +39,8 @@ class UserCollectRepo {
     UserCollectRepo.createdAt,
     UserCollectRepo.tag,
     UserCollectRepo.info,
+    UserCollectRepo.generation,
+    UserCollectRepo.keyVersion,
   ];
 
   final SqliteService _db = SqliteService.to;

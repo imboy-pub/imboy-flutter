@@ -45,8 +45,9 @@ class SqliteService {
   // v28: channel_message_outbox 频道消息可靠本地待同步队列
   // v29: channel_publish_outbox 频道消息发布可靠重试队列
   // v30: channel.has_purchased 付费频道购买权益本地缓存
+  // v34: user_collect.generation/key_version（E2EE 收藏 v1，服务端迁移 227 对齐）
   // v33: attachment_upload_task 附件上传任务持久化检查点（AC08 恢复）
-  static const _dbVersion = 33;
+  static const _dbVersion = 34;
 
   // 单例构造
   SqliteService._privateConstructor();
