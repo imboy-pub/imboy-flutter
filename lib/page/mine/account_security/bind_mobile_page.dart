@@ -276,7 +276,7 @@ class _BindMobilePageState extends ConsumerState<BindMobilePage> {
         child: CupertinoButton(
           minimumSize: const Size(0, 50),
           padding: EdgeInsets.zero,
-          color: AppColors.primary,
+          color: AppColors.primaryDark,
           disabledColor: AppColors.primary.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(14),
           onPressed: state.canSubmit

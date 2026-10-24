@@ -158,7 +158,7 @@ class QrLoginConfirmContent extends StatelessWidget {
           child: CupertinoButton(
             minimumSize: const Size(0, 48),
             padding: EdgeInsets.zero,
-            color: AppColors.primary,
+            color: AppColors.primaryDark,
             borderRadius: BorderRadius.circular(24),
             onPressed: onConfirm,
             child: Text(

@@ -166,7 +166,7 @@ class _ScannerPageState extends ConsumerState<ScannerPage>
             ),
             const SizedBox(height: 24),
             CupertinoButton(
-              color: AppColors.primary,
+              color: AppColors.primaryDark,
               borderRadius: BorderRadius.circular(8),
               onPressed: _permissionDenied
                   ? () => openAppSettings()

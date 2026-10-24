@@ -37,7 +37,8 @@ class RoundedCupertinoButton extends StatelessWidget {
     final radius = borderRadius ?? BorderRadius.circular(25);
     final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
     final bgColor = highlighted
-        ? AppColors.primary
+        // §8.4（2026-10-24）：主按钮背景 primaryDark，白字对比度 5.75:1。
+        ? AppColors.primaryDark
         : (isDark ? AppColors.darkSurface : AppColors.lightSurface);
     // 前景色与背景始终对比：加载指示器/图标/文字同色处理
     final fgColor = highlighted ? AppColors.onPrimary : AppColors.primary;

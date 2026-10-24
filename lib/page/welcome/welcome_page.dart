@@ -258,7 +258,7 @@ class _WelcomePageState extends ConsumerState<WelcomePage> {
                       child: CupertinoButton(
                         minimumSize: const Size(0, 56),
                         padding: EdgeInsets.zero,
-                        color: AppColors.primary,
+                        color: AppColors.primaryDark,
                         onPressed: () {
                           if (_currentPage < _pages(context).length - 1) {
                             _pageController.nextPage(

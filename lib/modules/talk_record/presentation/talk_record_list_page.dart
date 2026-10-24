@@ -111,9 +111,13 @@ class _TalkRecordListPageState extends ConsumerState<TalkRecordListPage> {
         CupertinoSliverRefreshControl(
           onRefresh: () => ref.read(talkRecordListProvider.notifier).reload(),
         ),
-        SliverToBoxAdapter(
-          child: _ContextCard(entryContext: widget.entryContext),
-        ),
+        // 空间上下文（仅企业）：无卡片轻量说明行，完整展示企业/工作区名、
+        // 允许自然换行（C-F3）；个人空间为默认态不展示（§8.12）。
+        // 不放导航栏 trailing —— 固定窄槽对长企业名必然截断。
+        if (widget.entryContext.isOrganization)
+          SliverToBoxAdapter(
+            child: _ContextCaption(entryContext: widget.entryContext),
+          ),
         SliverToBoxAdapter(
           child: TalkRecordPendingUploads(contextFilter: widget.entryContext),
         ),
@@ -191,76 +195,45 @@ class _TalkRecordListPageState extends ConsumerState<TalkRecordListPage> {
 }
 
 // ---------------------------------------------------------------------------
-// 当前空间卡片
+// 空间上下文说明行（仅企业上下文渲染；个人空间不展示）
+// 无卡片、无底色：14pt 图标 + small 次级文字，完整名称自然换行（C-F3），
+// 只承担「这些记录属于哪个空间」的消歧职责，不提供切换。
 // ---------------------------------------------------------------------------
 
-class _ContextCard extends StatelessWidget {
-  const _ContextCard({required this.entryContext});
+class _ContextCaption extends StatelessWidget {
+  const _ContextCaption({required this.entryContext});
 
   final TalkRecordEntryContext entryContext;
 
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
+    final color = brightness == Brightness.dark
+        ? AppColors.darkTextSecondary
+        : AppColors.lightTextSecondary;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.regular,
-        AppSpacing.medium,
+        AppSpacing.small,
         AppSpacing.regular,
         0,
       ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.regular,
-          vertical: AppSpacing.medium,
-        ),
-        decoration: BoxDecoration(
-          color: brightness == Brightness.dark
-              ? AppColors.darkSurface
-              : AppColors.lightSurface,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              entryContext.isOrganization
-                  ? CupertinoIcons.building_2_fill
-                  : CupertinoIcons.person_crop_circle,
-              size: AppSpacing.xLarge,
-              color: AppColors.getIosBlue(brightness),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(CupertinoIcons.building_2_fill, size: 14, color: color),
+          ),
+          const SizedBox(width: AppSpacing.tiny),
+          Expanded(
+            child: Text(
+              _label(),
+              // C-F3：名称不设 maxLines，长企业名自然换行、不省略。
+              style: context.textStyle(FontSizeType.small, color: color),
             ),
-            const SizedBox(width: AppSpacing.medium),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    t.talkRecord.contextSectionTitle,
-                    // C-F3：辅助文字可换行，不做单行截断。
-                    style: context.textStyle(
-                      FontSizeType.small,
-                      color: brightness == Brightness.dark
-                          ? AppColors.darkTextSecondary
-                          : AppColors.lightTextSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _label(),
-                    style: context.textStyle(
-                      FontSizeType.normal,
-                      fontWeight: FontWeight.w600,
-                      color: brightness == Brightness.dark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -289,15 +262,25 @@ class _FilterSegments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    final brightness = Theme.of(context).brightness;
+    // P2：轨道容器 —— surface 底 + 2pt 内边距 + radius 10，分段块浮动其上，
+    // 取代原先实心色块贴边拼接的生硬观感；选中配色仍遵守 C-F1 不动。
+    return Container(
       height: AppSpacing.xxxLarge,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: brightness == Brightness.dark
+            ? AppColors.darkSurface
+            : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Row(
         children: [
-          for (final (i, filter) in [
+          for (final filter in [
             TalkRecordListFilter.all,
             TalkRecordListFilter.owned,
             TalkRecordListFilter.shared,
-          ].indexed)
+          ])
             Expanded(
               child: _Segment(
                 label: switch (filter) {
@@ -306,11 +289,6 @@ class _FilterSegments extends StatelessWidget {
                   _ => t.talkRecord.filterAll,
                 },
                 selected: current == filter,
-                // 首个分段保持圆角左缘，末段右缘。
-                borderRadius: BorderRadius.horizontal(
-                  left: i == 0 ? const Radius.circular(8) : Radius.zero,
-                  right: i == 2 ? const Radius.circular(8) : Radius.zero,
-                ),
                 onTap: () => onSelected(filter),
               ),
             ),
@@ -325,13 +303,11 @@ class _Segment extends StatelessWidget {
     required this.label,
     required this.selected,
     required this.onTap,
-    this.borderRadius = BorderRadius.zero,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -339,9 +315,6 @@ class _Segment extends StatelessWidget {
     // C-F1：选中态对比度 —— 白字 on AppColors.primaryDark(#1565C0) =
     // 5.75:1（≥4.5）；明暗两态一致，不复刻原型 #2474E5-on-#142947 缺陷。
     final selectedColor = AppColors.primaryDark;
-    final unselectedBg = brightness == Brightness.dark
-        ? AppColors.darkSurface
-        : AppColors.lightSurface;
     final unselectedFg = brightness == Brightness.dark
         ? AppColors.darkTextPrimary
         : AppColors.lightTextPrimary;
@@ -350,10 +323,9 @@ class _Segment extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: AppSpacing.xxxLarge,
         decoration: BoxDecoration(
-          color: selected ? selectedColor : unselectedBg,
-          borderRadius: borderRadius,
+          color: selected ? selectedColor : null,
+          borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
@@ -526,12 +498,24 @@ class _EmptyStateView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              CupertinoIcons.mic,
-              size: 44,
-              color: AppColors.getIosBlue(brightness).withValues(alpha: 0.5),
+            // P3：Hero 图标进 tinted 圆底（88pt 圆 + 40pt 图标），
+            // 取代 44pt 半透明裸图标；色板沿用 primaryLight/primaryDark。
+            Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.primaryLight.withValues(
+                  alpha: brightness == Brightness.dark ? 0.16 : 1,
+                ),
+              ),
+              child: Icon(
+                CupertinoIcons.mic,
+                size: 40,
+                color: AppColors.primaryDark,
+              ),
             ),
-            const SizedBox(height: AppSpacing.medium),
+            const SizedBox(height: AppSpacing.regular),
             Text(
               neverCreated
                   ? t.talkRecord.emptyNeverCreatedTitle
@@ -633,7 +617,8 @@ class _CreateButton extends StatelessWidget {
         height: AppSpacing.xxxLarge,
         child: CupertinoButton(
           key: const ValueKey('talk_record_create_button'),
-          borderRadius: BorderRadius.circular(10),
+          // §8.4：Primary Button 圆角 14pt。
+          borderRadius: BorderRadius.circular(14),
           // C-F2：白字 on AppColors.primaryDark(#1565C0) = 5.75:1（≥4.5），
           // 替代原型 #2474E5 底白字 4.46:1 的不足；字重 w600、16pt。
           color: AppColors.primaryDark,

@@ -322,7 +322,7 @@ class _PinCodeVerificationPageState
                                 child: CupertinoButton(
                                   minimumSize: const Size(0, 52),
                                   padding: EdgeInsets.zero,
-                                  color: AppColors.primary,
+                                  color: AppColors.primaryDark,
                                   onPressed: () async {
                                     FocusScope.of(context).unfocus();
                                     if (currentText.length != 6) {

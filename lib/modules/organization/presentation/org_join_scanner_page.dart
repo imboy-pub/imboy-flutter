@@ -223,7 +223,7 @@ class _OrgJoinScannerPageState extends State<OrgJoinScannerPage> {
             ),
             const SizedBox(height: 24),
             CupertinoButton(
-              color: AppColors.primary,
+              color: AppColors.primaryDark,
               borderRadius: BorderRadius.circular(8),
               onPressed: _permissionDenied ? () => openAppSettings() : _start,
               // 实底按钮文字必须显式 onPrimary（同 apply_friend_page）

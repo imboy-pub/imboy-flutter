@@ -169,7 +169,7 @@ class _ConfirmNewFriendPageState extends ConsumerState<ConfirmNewFriendPage> {
         child: CupertinoButton(
           minimumSize: const Size(0, 50),
           padding: EdgeInsets.zero,
-          color: AppColors.primary,
+          color: AppColors.primaryDark,
           borderRadius: BorderRadius.circular(14),
           onPressed: _isSubmitting
               ? null

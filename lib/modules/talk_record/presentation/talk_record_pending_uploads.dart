@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -25,6 +26,7 @@ import '../application/talk_record_recording_coordinator.dart';
 import '../application/talk_record_recording_runtime.dart';
 import 'talk_record_entry_context.dart';
 import 'talk_record_providers.dart';
+import 'talk_record_ui_helpers.dart';
 
 /// Auth changes invalidate the projection; transitions resolve to an empty UID.
 final talkRecordPendingAccountProvider = Provider<TalkRecordAccount>((ref) {
@@ -436,65 +438,289 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
                     organizationId: item.binding.context.organizationId,
                     workspaceId: item.binding.context.workspaceId,
                   ),
-            );
-        return Column(
-          children: [
-            if (_failed) Text(t.common.retryFailedPleaseCheckNetwork),
-            for (final item in visible)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.regular,
+            )
+            .toList(growable: false);
+        if (visible.isEmpty && !_failed) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+          child: Column(
+            children: [
+              if (_failed) const _PendingFailureBanner(),
+              for (final item in visible)
+                _PendingDraftCard(
+                  item: item,
+                  snapshot: switch (progress[item.binding.sessionId]) {
+                    final snapshot? when snapshot.matches(item.binding) =>
+                      snapshot,
+                    _ => null,
+                  },
+                  busy: _busy,
+                  uploading:
+                      _busy && _uploadingSessionId == item.binding.sessionId,
+                  onEditParticipants: () => _editParticipants(item),
+                  onUpload: () => _retry(item),
                 ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 本机草稿卡片（P0：surface 卡片 + 图标槽 + 元信息 + 进度 + 规范化按钮）
+// 视觉契约：DESIGN.md §8.3B（Inset Grouped：surface 卡、radius 10）、
+// §8.4（文字按钮 iosBlue、主操作 primaryDark 底白字，对齐 C-F2）、
+// §8.11（图标槽 32pt、图文间距 12pt）、C-F4（按钮触达 ≥44pt）。
+// ---------------------------------------------------------------------------
+
+/// 上传失败横幅：iosRed 语义（DESIGN.md §2.5），轻量浅底 chip 条。
+class _PendingFailureBanner extends StatelessWidget {
+  const _PendingFailureBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final red = AppColors.getIosRed(brightness);
+    return Container(
+      margin: const EdgeInsets.only(
+        top: AppSpacing.small,
+        bottom: AppSpacing.small,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.small,
+      ),
+      decoration: BoxDecoration(
+        color: red.withValues(
+          alpha: brightness == Brightness.dark ? 0.18 : 0.08,
+        ),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(CupertinoIcons.exclamationmark_circle, size: 16, color: red),
+          const SizedBox(width: AppSpacing.small),
+          Expanded(
+            child: Text(
+              t.common.retryFailedPleaseCheckNetwork,
+              style: context.textStyle(FontSizeType.small, color: red),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 单条待上传本机草稿卡片。
+class _PendingDraftCard extends StatelessWidget {
+  const _PendingDraftCard({
+    required this.item,
+    required this.snapshot,
+    required this.busy,
+    required this.uploading,
+    required this.onEditParticipants,
+    required this.onUpload,
+  });
+
+  final TalkRecordPendingEnded item;
+  final TalkRecordUploadSnapshot? snapshot;
+  final bool busy;
+
+  /// 当前卡片正处于上传执行态（busy 且 sessionId 命中）。
+  final bool uploading;
+  final VoidCallback onEditParticipants;
+  final VoidCallback onUpload;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    final isDark = brightness == Brightness.dark;
+    final failed = snapshot?.phase == TalkRecordUploadPhase.failed;
+    final progressValue = switch (snapshot) {
+      final s? when s.totalParts > 0 => s.confirmedParts / s.totalParts,
+      _ => null,
+    };
+
+    return Container(
+      margin: const EdgeInsets.only(top: AppSpacing.small),
+      padding: const EdgeInsets.all(AppSpacing.medium),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 图标槽 32pt（DESIGN.md §8.11 ResourceEntryTile 几何）。
+              Container(
+                width: AppSpacing.xxLarge,
+                height: AppSpacing.xxLarge,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight.withValues(
+                    alpha: isDark ? 0.16 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  CupertinoIcons.waveform,
+                  size: 20,
+                  color: AppColors.primaryDark,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.medium),
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       item.binding.title.isEmpty
                           ? t.talkRecord.untitledRecord
                           : item.binding.title,
-                    ),
-                    Text(t.talkRecord.localDraftBadge),
-                    if (progress[item.binding.sessionId] case final snapshot?
-                        when snapshot.matches(item.binding))
-                      Text(
-                        talkRecordUploadProgressLabel(snapshot),
-                        style: context.textStyle(
-                          FontSizeType.footnote,
-                          color: snapshot.phase == TalkRecordUploadPhase.failed
-                              ? AppColors.iosRed
-                              : AppColors.iosBlue,
-                        ),
+                      style: context.textStyle(
+                        FontSizeType.medium,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
+                    ),
+                    const SizedBox(height: AppSpacing.tiny),
+                    // C-F3：元信息 Wrap 自然换行，不截断。
                     Wrap(
+                      spacing: AppSpacing.small,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        CupertinoButton(
-                          onPressed: _busy
-                              ? null
-                              : () => _editParticipants(item),
-                          child: Text(
-                            '${t.talkRecord.collabParticipantsLabel} · ${t.common.edit}',
+                        Text(
+                          talkRecordFormatDuration(item.durationMs),
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
-                        CupertinoButton(
-                          onPressed: _busy ? null : () => _retry(item),
-                          child: Text(
-                            _busy &&
-                                    _uploadingSessionId ==
-                                        item.binding.sessionId
-                                ? t.common.uploading
-                                : item.binding.uploadAttempted
-                                ? t.talkRecord.retryRecordingUpload
-                                : t.talkRecord.uploadRecording,
-                          ),
+                        _DraftChip(
+                          text: t.talkRecord.localDraftBadge,
+                          foreground: AppColors.getIosOrange(brightness),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
+            ],
+          ),
+          if (snapshot case final snapshot?) ...[
+            const SizedBox(height: AppSpacing.small),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: progressValue,
+                minHeight: 3,
+                color: failed
+                    ? AppColors.getIosRed(brightness)
+                    : AppColors.getIosBlue(brightness),
+                backgroundColor: isDark
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : AppColors.lightSurfaceGrouped,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.tiny),
+            Text(
+              talkRecordUploadProgressLabel(snapshot),
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: failed
+                    ? AppColors.getIosRed(brightness)
+                    : AppColors.getIosBlue(brightness),
+              ),
+            ),
           ],
-        );
-      },
+          const SizedBox(height: AppSpacing.tiny),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // 文字按钮：iosBlue（DESIGN.md §13.2 硬规则）。
+              CupertinoButton(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.medium,
+                ),
+                onPressed: busy ? null : onEditParticipants,
+                child: Text(
+                  '${t.talkRecord.collabParticipantsLabel} · ${t.common.edit}',
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    color: AppColors.getIosBlue(brightness),
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.small),
+              // 主操作：primaryDark 底 + 白字（对齐 C-F2 对比度冻结）。
+              CupertinoButton(
+                minimumSize: const Size(0, 44),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.regular,
+                ),
+                borderRadius: BorderRadius.circular(10),
+                color: AppColors.primaryDark,
+                onPressed: busy ? null : onUpload,
+                child: Text(
+                  uploading
+                      ? t.common.uploading
+                      : item.binding.uploadAttempted
+                      ? t.talkRecord.retryRecordingUpload
+                      : t.talkRecord.uploadRecording,
+                  style: context.textStyle(
+                    FontSizeType.normal,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.onPrimary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DraftChip extends StatelessWidget {
+  const _DraftChip({required this.text, required this.foreground});
+
+  final String text;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.small,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: foreground.withValues(
+          alpha: brightness == Brightness.dark ? 0.18 : 0.08,
+        ),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: context.textStyle(FontSizeType.small, color: foreground),
+      ),
     );
   }
 }

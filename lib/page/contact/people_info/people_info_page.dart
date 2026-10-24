@@ -328,7 +328,7 @@ class _PeopleInfoPageState extends ConsumerState<PeopleInfoPage> {
                 child: CupertinoButton(
                   minimumSize: const Size(0, 50),
                   padding: EdgeInsets.zero,
-                  color: AppColors.primary,
+                  color: AppColors.primaryDark,
                   disabledColor: AppColors.primary,
                   borderRadius: BorderRadius.circular(14),
                   onPressed: () => Navigator.push(

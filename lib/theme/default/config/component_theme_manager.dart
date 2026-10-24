@@ -32,9 +32,10 @@ class ComponentThemeManager {
   }) {
     return ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary,
+        // §8.4（2026-10-24）：主按钮背景 primaryDark，白字对比度 5.75:1。
+        backgroundColor: AppColors.primaryDark,
         foregroundColor: Colors.white,
-        disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.3),
+        disabledBackgroundColor: AppColors.primaryDark.withValues(alpha: 0.3),
         disabledForegroundColor: Colors.white.withValues(alpha: 0.7),
         elevation: 0,
         minimumSize: const Size(88, 50),
