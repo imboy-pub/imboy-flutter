@@ -89,6 +89,7 @@ run_item "02_dart_analyze" \
   test/unit_test/service/database_snapshot_service_test.dart \
   test/unit_test/service/database_migration_orchestrator_test.dart \
   test/unit_test/integration/sqlite_migration_matrix_test.dart \
+  test/unit_test/integration/sqlite_migration_v34_test.dart \
   test/unit_test/integration/db_multi_version_upgrade_test.dart \
   test/unit_test/integration/db_multi_version_downgrade_test.dart \
   test/unit_test/integration/db_downgrade_v10_to_v9_test.dart \
@@ -122,7 +123,7 @@ run_item "10_orchestrator" \
 
 # ---------- 4. 全矩阵与既有迁移回归 ----------
 run_item "11_migration_matrix" \
-  flutter test test/unit_test/integration/sqlite_migration_matrix_test.dart --reporter compact
+  flutter test test/unit_test/integration/sqlite_migration_matrix_test.dart test/unit_test/integration/sqlite_migration_v34_test.dart --reporter compact
 
 run_item "12_legacy_migration_regression" \
   flutter test \
