@@ -1,32 +1,21 @@
-// RUN: 2026-10-02-enterprise-non-oa-closure N2 | Card: N2-A01..A04
-//
-// 真实 macOS App 的图形组织架构非 OA 原生验收（integration_test on macOS：
-// 完整 .app 进程、真实隔离后端 HTTP、真实 Keychain/SQLite，仅测试存储被
-// 限定到临时命名空间）。凭据与目标通过 --dart-define 注入，不入仓。
-//
-// 运行（host 侧）：
-//   flutter test integration_test/enterprise/organization_chart_nonoa_macos_test.dart \
-//     -d macos --machine \
-//     --dart-define=APP_ENV=local \
-//     --dart-define=API_BASE_URL_OVERRIDE=http://127.0.0.1:9800 \
-//     --dart-define=SOLIDIFIED_KEY_OVERRIDE=<local-office-key> \
-//     --dart-define=SOLIDIFIED_KEY_IV_OVERRIDE=<local-office-iv> \
-//     --dart-define=NONOA_ACC=<synthetic-owner-account> \
-//     --dart-define=NONOA_PWD=<synthetic-password> \
-//     --dart-define=NONOA_UID=<synthetic-owner-uid>
-//
-// 合成数据前置见 run 证据目录 n2_seed.sql（企业A 103根部门/三层深/3成员；
-// 企业B 单部门；空企业C 无部门）。
-
+// Native organization journey: owned backend and synthetic data on macOS/Android.
+// Run with --dart-define-from-file=<restricted external defines.json>.
+// A04_NATIVE_INPUTS=true additionally requires A04_OWNED_BUNDLE and actual host
+// window resizing, key events and chart scroll; printed READY markers are bounded.
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
-    show NavigationBar, NavigationDestination, NavigationRail, Slider, Theme;
+    show
+        IconButton,
+        NavigationBar,
+        NavigationDestination,
+        NavigationRail,
+        Slider,
+        Theme;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:imboy/main.dart' as app;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/init.dart'
@@ -35,34 +24,46 @@ import 'package:imboy/service/sqlite.dart' show SqliteService;
 import 'package:imboy/page/welcome/welcome_page.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_page.dart';
 import 'package:imboy/modules/organization/infrastructure/organization_api.dart';
-
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/ui/common_bar.dart' show GlassBackButton;
 import 'package:imboy/theme/default/font_types.dart' show FontSizeOption;
 
 import 'macos_storage_isolation.dart';
+import 'a04_native_inputs.dart';
+import 'a04_directory_fault_adapter.dart';
+
+import 'package:imboy/component/http/http_client.dart' as app_http;
+import 'package:imboy/modules/enterprise_oa/presentation/enterprise_workbench_page.dart';
 
 const _api = String.fromEnvironment('API_BASE_URL_OVERRIDE');
 const _account = String.fromEnvironment('NONOA_ACC');
 const _password = String.fromEnvironment('NONOA_PWD');
 const _expectedUid = String.fromEnvironment('NONOA_UID');
-
 const _orgAName = '非OA验收企业A';
 const _orgBDept = '乙端产品部';
 const _orgCName = '非OA空企业C';
-
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  testWidgets('N2 图形组织架构真实 macOS 非OA旅程', (tester) async {
-    expect(Platform.isMacOS, isTrue);
+  testWidgets('N2 图形组织架构真实原生非OA旅程', (tester) async {
+    expect(Platform.isMacOS || Platform.isAndroid, isTrue);
     expect(app.appEnv, 'local');
     expect(Uri.parse(_api).host, '127.0.0.1');
     expect(_account, isNotEmpty);
     expect(_password, isNotEmpty);
+    final faults = A04DirectoryFaultAdapter();
+    A04ObservedDirectorySource? observedDirectory;
+    if (a04NativeInputs) {
+      await tester.runAsync(verifyA04Bundle);
+      app_http.HttpClient.adapterForTest = faults;
+      addTearDown(() {
+        app_http.HttpClient.adapterForTest = null;
+        faults.close(force: true);
+      });
+    }
 
-    final root = await tester.runAsync(isolateMacosStorage);
+    final root = await tester.runAsync(isolateNativeStorage);
     expect(root, isNotNull, reason: 'Storage isolation must precede bootstrap');
     addTearDown(() async {
       await tester.pumpWidget(const SizedBox.shrink());
@@ -214,13 +215,24 @@ void main() {
     await markShot(tester, 'n2_a01_personal_four_tabs');
 
     await openPersonalEnterprisePicker(tester);
-    final orgATile = find.byKey(Key('org-picker-tile-${ids['orgA']}'));
+    final orgATile = find.byKey(Key('drawer-space-${ids['orgA']}'));
     await waitFor(tester, orgATile);
     await tester.tap(orgATile);
     await waitFor(tester, enterpriseNavigation());
     await tester.pump(const Duration(milliseconds: 500));
+    if (a04NativeInputs) {
+      await verifyA04Workspace(tester);
+      await selectEnterpriseTab(tester, t.enterpriseOa.workbenchTitle);
+      await waitFor(tester, find.byType(EnterpriseWorkbenchPage));
+    }
     await selectEnterpriseTab(tester, t.organization.directory.title);
     await waitFor(tester, find.byKey(const Key('org_directory_search_input')));
+    if (a04NativeInputs && Platform.isMacOS) {
+      await verifyA04Keyboard(
+        tester,
+        find.byKey(const Key('org_directory_search_input')),
+      );
+    }
     // 企业微信式：组织架构从首屏分段降级为页面级入口行（→ 全屏二级页）。
     expect(find.byKey(const Key('org-directory-chart-entry')), findsOneWidget);
     expect(
@@ -345,9 +357,10 @@ void main() {
 
     // 拖动平移（横纵方向）。
     final beforeDrag = matrix().clone();
-    final drag = await tester.startGesture(canvasCenter);
-    await drag.moveBy(const Offset(120, 80));
-    await drag.up();
+    await tester.drag(
+      find.byKey(const ValueKey('org-chart-canvas')),
+      const Offset(120, 80),
+    );
     await tester.pump(const Duration(milliseconds: 300));
     expect(matrix().storage[12], isNot(beforeDrag.storage[12]));
     expect(matrix().storage[13], isNot(beforeDrag.storage[13]));
@@ -379,9 +392,12 @@ void main() {
     await markShot(tester, 'n2_a02_collapse');
     debugPrint('NATIVE_N2_A02_PASS');
 
-    // ============================ N2-A03 ============================
     // 窄视口（约400逻辑像素）无溢出、工具栏可操作。
-    await tester.binding.setSurfaceSize(const Size(400, 800));
+    if (a04NativeInputs) {
+      await verifyA04Viewport(tester);
+    } else {
+      await tester.binding.setSurfaceSize(const Size(400, 800));
+    }
     await tester.pump(const Duration(milliseconds: 600));
     expect(tester.takeException(), isNull);
     expect(
@@ -392,10 +408,23 @@ void main() {
     await markShot(tester, 'n2_a03_surface_400');
 
     // 宽视口。
-    await tester.binding.setSurfaceSize(const Size(1440, 900));
+    if (a04NativeInputs && Platform.isAndroid) {
+      debugPrint('V32_A04_ANDROID_DESKTOP_INPUTS_WAIVED_NOT_PASS');
+    } else if (a04NativeInputs) {
+      await verifyA04Window(tester, narrow: false);
+      await verifyA04Trackpad(
+        tester,
+        find.byKey(const ValueKey('org-chart-canvas')),
+      );
+    } else {
+      await tester.binding.setSurfaceSize(const Size(1440, 900));
+    }
     await tester.pump(const Duration(milliseconds: 600));
     expect(tester.takeException(), isNull);
-    await markShot(tester, 'n2_a03_surface_1440');
+    await markShot(
+      tester,
+      Platform.isAndroid ? 'n2_a03_phone' : 'n2_a03_surface_1440',
+    );
     await tester.binding.setSurfaceSize(null);
     await tester.pump(const Duration(milliseconds: 400));
 
@@ -447,12 +476,18 @@ void main() {
     GoRouter.of(navigatorKey.currentContext!).pop();
     await tester.pump(const Duration(milliseconds: 400));
     await checkMaximumFontSize(tester);
-    debugPrint(
-      'NATIVE_N2_A03_PARTIAL: application maximum font checked; '
-      'physical window/system maximum and visual review remain',
-    );
+    if (a04NativeInputs) {
+      debugPrint(
+        Platform.isAndroid
+            ? 'V32_A04_ANDROID_VIEWPORT_APP_FONT_PASS macOS=WAIVED_NOT_PASS'
+            : 'V32_A04_WINDOW_FONT_KEYBOARD_SCROLL_PASS',
+      );
+    } else {
+      debugPrint(
+        'NATIVE_N2_A03_PARTIAL: physical window/native inputs not executed',
+      );
+    }
 
-    // ============================ N2-A04 ============================
     // 多页/宽树/深层：根下 60 部门分页加载（图内自动翻页），抽样断言填充部门存在。
     for (final probe in ['专项测试组01', '专项测试组30', '专项测试组52']) {
       await waitFor(tester, find.text(probe));
@@ -466,6 +501,39 @@ void main() {
     await waitFor(tester, find.byKey(Key('org-chart-node-${ids['storage']}')));
     await markShot(tester, 'n2_a04_wide_and_deep');
 
+    if (a04NativeInputs) {
+      faults.failOnce(ids['orgA']!);
+      await tester.tap(find.byIcon(CupertinoIcons.refresh).last);
+      await tester.runAsync(
+        () => faults.observed.timeout(const Duration(seconds: 20)),
+      );
+      final retry = find.byKey(const ValueKey('org-chart-expand-'));
+      await waitFor(tester, retry);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        tester.widget<IconButton>(retry).icon,
+        isA<Icon>().having(
+          (icon) => icon.icon,
+          'retry icon',
+          CupertinoIcons.refresh,
+        ),
+      );
+      expect(find.byKey(Key('org-chart-node-${ids['sales']}')), findsNothing);
+      expect(faults.injectedFailures, 1);
+      await tester.tap(retry);
+      await waitFor(tester, find.byKey(Key('org-chart-node-${ids['sales']}')));
+      debugPrint(
+        'V32_A04_API_FAILURE_RECOVERY_PASS injection=envelope503_over_actual_HTTP200',
+      );
+      observedDirectory = await observeA04ChartSource(tester);
+      observedDirectory.observeNextRoot();
+      faults.holdOnce(ids['orgA']!);
+      await tester.tap(find.byIcon(CupertinoIcons.refresh).last);
+      await tester.runAsync(
+        () => faults.observed.timeout(const Duration(seconds: 20)),
+      );
+    }
+
     // 空企业C：明确的空态，不出现图。
     // A04 结束时仍在架构二级页（全屏路由盖住 shell 侧栏，切换器不可达）——
     // 图页顶栏是 IosPageTemplate，返回键为自定义 GlassBackButton（非 SDK
@@ -474,7 +542,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     await selectPersonal(tester);
     await openPersonalEnterprisePicker(tester);
-    final orgCTile = find.byKey(Key('org-picker-tile-${ids['orgC']}'));
+    final orgCTile = find.byKey(Key('drawer-space-${ids['orgC']}'));
     await waitFor(tester, orgCTile);
     await tester.tap(orgCTile);
     await waitFor(tester, enterpriseNavigation());
@@ -498,12 +566,34 @@ void main() {
     expect(nodeCount, 1, reason: '空企业只应有根节点');
     expect(find.text(_orgCName), findsWidgets);
     await markShot(tester, 'n2_a04_empty_org');
-    debugPrint('NATIVE_N2_A04_PARTIAL');
-    debugPrint(
-      'N2_A04_BOUNDARY: 部门加载失败/恢复的原生注入（后端故障注入）未执行；'
-      '该状态机由widget层deny/retry测试与N3-A04原生撤权(403)路径覆盖',
-    );
-  }, timeout: const Timeout(Duration(minutes: 10)));
+    if (a04NativeInputs) {
+      faults.release();
+      await tester.runAsync(
+        () => observedDirectory!.consumed.timeout(const Duration(seconds: 20)),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(_orgAName), findsNothing);
+      expect(find.byKey(Key('org-chart-node-${ids['sales']}')), findsNothing);
+      expect(find.text(_orgCName), findsWidgets);
+      expect(faults.heldResponses, 1);
+      expect(tester.takeException(), isNull);
+      debugPrint('V32_A04_LATE_RESPONSE_SPACE_ISOLATION_PASS');
+      if (Platform.isAndroid) {
+        if (const bool.fromEnvironment(
+          'A04_ANDROID_TOUCH',
+          defaultValue: true,
+        )) {
+          await verifyA04AndroidTouch(tester);
+        } else {
+          debugPrint('V32_A04_ANDROID_TOUCH_BLOCKED_PRIOR_ATTEMPTS');
+        }
+      }
+    } else {
+      debugPrint(
+        'NATIVE_N2_A04_PARTIAL: native failure/late response not executed',
+      );
+    }
+  }, timeout: const Timeout(Duration(minutes: 18)));
 }
 
 Finder enterpriseNavigation() => find.byWidgetPredicate(
@@ -534,8 +624,13 @@ Future<void> selectEnterpriseTab(WidgetTester tester, String label) async {
 }
 
 Future<void> selectPersonal(WidgetTester tester) async {
-  await tester.tap(find.byKey(const Key('workspace-shell-switcher')));
-  final personal = find.byKey(const Key('org-picker-personal-entry'));
+  await selectEnterpriseTab(tester, t.chat.titleMessage);
+  await waitFor(
+    tester,
+    find.byKey(const ValueKey('enterprise-shell-menu-button')),
+  );
+  await tester.tap(find.byKey(const ValueKey('enterprise-shell-menu-button')));
+  final personal = find.byKey(const ValueKey('drawer-space-personal'));
   await waitFor(tester, personal);
   await tester.tap(personal);
   await waitFor(tester, find.byType(BottomNavigationPage));
@@ -543,29 +638,10 @@ Future<void> selectPersonal(WidgetTester tester) async {
 }
 
 Future<void> openPersonalEnterprisePicker(WidgetTester tester) async {
-  final mine = personalTab('tab_mine');
-  await waitFor(tester, mine.hitTestable());
-  await tester.tap(mine);
-  final switcher = find.text(t.organization.picker.switchEnterprise);
-  await waitFor(tester, switcher.hitTestable());
-  await tester.tap(switcher);
-}
-
-/// macOS 的 integration_test 平台未实现 captureScreenshot；取证截图由 host
-/// 侧脚本监听 [AI_SCREENSHOT] 标记后经 VM 服务协议 ext.flutter.screenshot
-/// 抓取真实渲染帧（与仓内 Android 采集脚本同一标记协议）。
-Future<void> markShot(WidgetTester tester, String name) async {
-  debugPrint('[AI_SCREENSHOT] $name');
-  try {
-    await IntegrationTestWidgetsFlutterBinding.instance.takeScreenshot(name);
-  } on Exception {
-    // `flutter test` 模式 macOS 无 captureScreenshot 平台通道实现；
-    // `flutter drive` 模式经 driver 响应回传，异常仅跳过取证不失败旅程。
-  }
-  await tester.pump(const Duration(milliseconds: 1200));
-  await tester.runAsync(
-    () => Future<void>.delayed(const Duration(milliseconds: 600)),
-  );
+  await tester.tap(personalTab('tab_conversations'));
+  final avatar = find.byKey(const ValueKey('personal-shell-drawer-avatar'));
+  await waitFor(tester, avatar.hitTestable());
+  await tester.tap(avatar);
 }
 
 /// 超宽树 fit 后视口锚定画布中段，前部节点可能在视口外：按目标全局
@@ -694,7 +770,11 @@ Future<void> checkMaximumFontSize(WidgetTester tester) async {
     router.pop();
     onFontPage = false;
     await waitFor(tester, find.byKey(const ValueKey('org-chart-canvas')));
-    await tester.binding.setSurfaceSize(const Size(400, 800));
+    if (a04NativeInputs) {
+      await verifyA04Viewport(tester);
+    } else {
+      await tester.binding.setSurfaceSize(const Size(400, 800));
+    }
     await tester.pump(const Duration(milliseconds: 600));
     expect(tester.takeException(), isNull);
     expect(
