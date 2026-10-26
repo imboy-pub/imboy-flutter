@@ -50,8 +50,12 @@ void main() {
       );
     });
 
-    test('latestVersion == 34 == SqliteService._dbVersion（源码扫描）', () async {
-      expect(kMigrationManifest.latestVersion, equals(34));
+    test('latestVersion == kInventoryCurrentDbVersion == SqliteService._dbVersion（源码扫描）', () async {
+      // 权威版本经 inventory 常量（源码扫描守护）三方比对，不再硬编码字面量
+      expect(
+        kMigrationManifest.latestVersion,
+        equals(kInventoryCurrentDbVersion),
+      );
       final src = File('lib/service/sqlite.dart').readAsStringSync();
       final m = RegExp(r'static\s+const\s+_dbVersion\s*=\s*(\d+)')
           .firstMatch(src);

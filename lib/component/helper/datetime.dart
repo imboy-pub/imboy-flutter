@@ -113,7 +113,11 @@ class DateTimeHelper {
     return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: isUtc);
   }
 
-  /// DateTime -> RFC3339 字符串，支持 UTC 或本地
+  /// DateTime -> RFC3339 字符串，支持 UTC 或本地。
+  ///
+  /// R21-B 修复（W1 登记）：小数秒 6 位必须是 `毫秒*1000 + 微秒`——
+  /// 旧实现只写 `d.microsecond`（0-999，不含毫秒位），209ms 被写成
+  /// `.000209`（=209µs，千倍误差）。现在 209ms 37µs 输出 `.209037`。
   static String toRfc3339(DateTime dt, {bool isUtc = false}) {
     final d = isUtc ? dt.toUtc() : dt.toLocal();
     final tz = d.timeZoneOffset;
@@ -121,8 +125,12 @@ class DateTimeHelper {
     final offsetHours = tz.inHours.abs().toString().padLeft(2, '0');
     final offsetMinutes = (tz.inMinutes.abs() % 60).toString().padLeft(2, '0');
 
+    final subSecond = (d.millisecond * 1000 + d.microsecond).toString().padLeft(
+      6,
+      '0',
+    );
     final formatted =
-        "${DateFormat('yyyy-MM-dd HH:mm:ss').format(d)}.${d.microsecond.toString().padLeft(6, '0')}"
+        "${DateFormat('yyyy-MM-dd HH:mm:ss').format(d)}.$subSecond"
         "${isUtc ? 'Z' : '$offsetSign$offsetHours:$offsetMinutes'}";
     return formatted;
   }
@@ -171,6 +179,103 @@ class DateTimeHelper {
     } else {
       return defaultValue > 0 ? defaultValue : millisecond();
     }
+  }
+}
+
+/// R21-A：API / 历史 / SQLite 时间字段的显式解析入口。
+///
+/// 与 [DateTimeHelper.parseTimestamp] 的 legacy 启发式（int 一律当毫秒、
+/// 任意 String 走 `DateTime.parse`、失败回填 `millisecond()`=now）不同：
+///
+/// - 每个入口只接受合同声明的单位/形态，调用方必须按端点合同选择入口；
+/// - 失败一律返回 `null`，**绝不回填当前时间**；需要 0 哨兵由调用方显式
+///   `?? 0`（R21-1 default0 语义），UI 对未知值自行呈现"未知"或隐藏；
+/// - 需要当前时间必须显式调用 [DateTimeHelper.millisecond]。
+///
+/// B 阶段（R21-B）按调用点逐步迁移，本文件不改变 legacy 入口行为。
+class ApiTime {
+  ApiTime._();
+
+  /// 宽松数字 → int：接受 int、可无损转 int 的 num、十进制整数字符串。
+  ///
+  /// 拒绝 null / bool / 小数（3.5）/ 空串 / 非十进制（0x1、1e3）/ List。
+  /// 注：Dart `int.tryParse` 默认接受 `0x` 前缀（`'0x1f'` → 31），与"十进制
+  /// 整数字符串"合同不符，故字符串先过十进制形态正则再解析（R08-FL 发现）。
+  static int? _parseIntLike(dynamic value) {
+    if (value is int) return value;
+    if (value is num) {
+      if (value != value.truncateToDouble()) return null;
+      return value.toInt();
+    }
+    if (value is String) {
+      final trimmed = value.trim();
+      if (!RegExp(r'^[+-]?\d+$').hasMatch(trimmed)) return null;
+      return int.tryParse(trimmed);
+    }
+    return null;
+  }
+
+  /// epoch 秒 → 毫秒（秒 * 1000）。仅接受 int / 可整转数字。
+  ///
+  /// 0 与负 epoch 是合法瞬间（0=1970-01-01T00:00:00Z）；解析失败返回 null。
+  static int? parseEpochSeconds(dynamic value) {
+    final seconds = _parseIntLike(value);
+    if (seconds == null) return null;
+    // 溢出防护：秒 * 1000 不得超出 64 位 int 表达范围。
+    if (seconds.abs() > 9223372036854775) return null;
+    return seconds * 1000;
+  }
+
+  /// epoch 毫秒直用（不做单位换算）。仅接受 int / 可整转数字。
+  static int? parseEpochMillis(dynamic value) {
+    return _parseIntLike(value);
+  }
+
+  /// 带显式时区（结尾 `Z`/`z` 或 `±HH:MM`/`±HHMM`）的 ISO/RFC3339 → UTC DateTime。
+  ///
+  /// 不带 zone（如 `2026-09-16T23:06:40`）返回 null——不猜本地时区；
+  /// 纯数字/紧凑数字字符串（`1789600000000`、`20260916T230640Z`）返回
+  /// null，不误入 ISO 分支——`DateTime.tryParse` 原生接受紧凑形态，
+  /// 故先用严格形态正则把关（日期必须 `-` 分隔、时间必须 `:` 分隔）。
+  static DateTime? parseIsoZoned(String input) {
+    if (input.isEmpty) return null;
+    final trimmed = input.trim();
+    final wellFormed = RegExp(
+      r'^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2}(\.\d{1,6})?)?)?(Z|z|[+-]\d{2}:?\d{2})$',
+    ).hasMatch(trimmed);
+    if (!wellFormed) return null;
+    final dt = DateTime.tryParse(trimmed);
+    // Dart 对无 zone 输入返回本地时间（isUtc=false）；正则已拦，双保险。
+    if (dt == null || !dt.isUtc) return null;
+    return dt;
+  }
+
+  /// `YYYY-MM-DD` 纯日期 → UTC 零点（无时间语义，展示直接用年月日字段）。
+  ///
+  /// 拒绝带时间/zone 的输入（那是 [parseIsoZoned] 的领域）；
+  /// 拒绝非严格形态（`2026-9-1`）与不存在的日历日（`2026-02-30`）。
+  static DateTime? parseDateOnly(String input) {
+    if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return null;
+    final parts = input.split('-');
+    final y = int.parse(parts[0]);
+    final m = int.parse(parts[1]);
+    final d = int.parse(parts[2]);
+    final dt = DateTime.utc(y, m, d);
+    // Dart 构造函数会 normalize 越界值（2026-02-30 → 2026-03-02），回验拒绝。
+    if (dt.year != y || dt.month != m || dt.day != d) return null;
+    return dt;
+  }
+
+  /// 秒数 duration（按合同单位）。仅接受 int / 可整转数字。
+  static Duration? parseDurationSeconds(dynamic value) {
+    final seconds = _parseIntLike(value);
+    return seconds == null ? null : Duration(seconds: seconds);
+  }
+
+  /// 毫秒数 duration（按合同单位）。仅接受 int / 可整转数字。
+  static Duration? parseDurationMillis(dynamic value) {
+    final millis = _parseIntLike(value);
+    return millis == null ? null : Duration(milliseconds: millis);
   }
 }
 

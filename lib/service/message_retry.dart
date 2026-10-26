@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/capability_guard.dart';
@@ -71,6 +71,11 @@ bool isDowngradedCipherRetryBlocked({
 }
 
 class MessageRetry with EventSubscriptionManager {
+  /// R20-A：进程级单调基准（重试间隔与墙钟解耦，墙钟回拨/前跳
+  /// 不改变重试节奏、不产生忙循环）。
+  final AppClockMark _monotonicEpoch = appClock.mark();
+  int _nowElapsedMs() => appClock.elapsedMs(_monotonicEpoch);
+
   /// 单例实例
   static MessageRetry? _instance;
 
@@ -388,7 +393,7 @@ class MessageRetry with EventSubscriptionManager {
       messageId: messageId,
       type: normalizedType,
       retryCount: 0,
-      lastRetryTime: DateTimeHelper.millisecond(),
+      lastRetryTime: _nowElapsedMs(),
     );
     _ensureTimerRunning();
     // 标记为"待重试"中间态（异步容错；不覆盖已成功/已撤回的终态）
@@ -462,7 +467,7 @@ class MessageRetry with EventSubscriptionManager {
   }
 
   Future<void> _retryFailedMessagesLocked() async {
-    final now = DateTimeHelper.millisecond();
+    final now = _nowElapsedMs();
 
     // 重试间隔：单一真值源 RetryPolicy（与 SDK sendWithAck 对齐）
     final intervals = RetryPolicy.messageSendRetryIntervals;
@@ -726,7 +731,7 @@ class MessageRetry with EventSubscriptionManager {
 
       // 记录一次重试尝试（发送提交即记一次，ACK 到达后由外部移除队列）
       info.retryCount++;
-      info.lastRetryTime = DateTimeHelper.millisecond();
+      info.lastRetryTime = _nowElapsedMs();
       iPrint('重试发送消息: ${info.messageId}, 第${info.retryCount}次重试');
 
       // 构造消息数据（msg 已在 CAS 之前读到；CAS 只改 status，
@@ -778,7 +783,7 @@ class MessageRetry with EventSubscriptionManager {
       if (!_isCurrentRetry(info)) return;
       // 异常也计入一次尝试，避免异常场景无穷重试
       info.retryCount++;
-      info.lastRetryTime = DateTimeHelper.millisecond();
+      info.lastRetryTime = _nowElapsedMs();
       if (info.retryCount >= _maxRetryAttempts) {
         await _markMessageAsError(info);
         _removeRetryIfSame(info);
@@ -883,7 +888,7 @@ class MessageRetry with EventSubscriptionManager {
       final retryInfo = _retryQueue[messageId];
       if (retryInfo != null) {
         retryInfo.retryCount++;
-        retryInfo.lastRetryTime = DateTimeHelper.millisecond();
+        retryInfo.lastRetryTime = _nowElapsedMs();
       }
       iPrint('手动重试已提交，等待确认: $messageId');
 
@@ -990,7 +995,11 @@ class MessageRetryInfo {
   final String type;
   final int sessionGeneration;
   int retryCount;
-  int lastRetryTime; // 毫秒时间戳
+
+  /// 上次重试的单调毫秒（AppClock 单调轴，R20-A；非墙钟时间戳，
+  /// 测试 `-= interval` 模拟流逝仍有效）。持久化 deadline 请用
+  /// `appClock.nowMs()`（epoch 合同）。
+  int lastRetryTime;
 
   MessageRetryInfo({
     required this.messageId,

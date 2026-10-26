@@ -14,9 +14,27 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/helper/app_clock.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/task/group_task_page.dart';
 import 'package:imboy/service/group_task_service.dart';
+
+/// R20-4：固定墙钟 fake（只用到 nowMs 通道）。
+class _FixedClock extends AppClock {
+  _FixedClock(this.ms);
+
+  final int ms;
+
+  @override
+  int nowMs() => ms;
+
+  @override
+  AppClockMark mark() => throw UnimplementedError();
+
+  @override
+  int elapsedMs(AppClockMark mark) => throw UnimplementedError();
+}
 
 // ---------------------------------------------------------------------------
 // Fake 服务实现 / Fake service implementation
@@ -352,6 +370,80 @@ void main() {
       expect(find.byKey(const Key('create_task_confirm')), findsNothing);
       // 新作业出现在列表 / New task appears in list
       expect(find.text('新建集成测试作业'), findsOneWidget);
+    });
+  });
+
+  group('R20-4 提交动作前 deadline 重验', () {
+    testWidgets('deadline 已过的任务点击勾选不提交', (tester) async {
+      final fake = FakeGroupTaskService(
+        tasksToReturn: [
+          {
+            'id': 2001,
+            'task_id': 'task_abc_2001',
+            'title': '已过期作业',
+            'description': '',
+            'status': 1,
+            'group_id': '200',
+            'deadline': 1700000000, // Unix 秒，早于 fake 墙钟
+            'creator_id': 777,
+            'created_at': 1699000000,
+          },
+        ],
+      );
+      GroupTaskService.testInstance = fake;
+      final original = appClock;
+      appClock = _FixedClock(1800000000000); // 2027 年，已过 deadline
+      addTearDown(() => appClock = original);
+
+      // R20-4 过期分支会 AppLoading.showToast 提示，需挂 EasyLoading 宿主。
+      await tester.pumpWidget(
+        TranslationProvider(
+          child: ProviderScope(
+            child: MaterialApp(
+              builder: AppLoading.init(),
+              home: const GroupTaskPage(groupId: '200'),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(CupertinoIcons.checkmark_seal).first);
+      await tester.pumpAndSettle();
+
+      expect(fake.submitCallCount, 0, reason: 'deadline 已过不得再提交（R20-4）');
+    });
+
+    testWidgets('deadline 未过的任务点击勾选正常提交', (tester) async {
+      final fake = FakeGroupTaskService(
+        tasksToReturn: [
+          {
+            'id': 2002,
+            'task_id': 'task_abc_2002',
+            'title': '进行中作业',
+            'description': '',
+            'status': 1,
+            'group_id': '200',
+            'deadline': 1900000000, // Unix 秒，晚于 fake 墙钟
+            'creator_id': 777,
+            'created_at': 1799000000,
+          },
+        ],
+      );
+      GroupTaskService.testInstance = fake;
+      final original = appClock;
+      appClock = _FixedClock(1800000000000);
+      addTearDown(() => appClock = original);
+
+      await tester.pumpWidget(
+        _buildTestApp(const GroupTaskPage(groupId: '200')),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(CupertinoIcons.checkmark_seal).first);
+      await tester.pumpAndSettle();
+
+      expect(fake.submitCallCount, 1, reason: '未过期任务照常提交');
     });
   });
 }

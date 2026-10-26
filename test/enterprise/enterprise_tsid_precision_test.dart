@@ -64,7 +64,9 @@ void main() {
     });
 
     test('EnterpriseMessage.fromJson：sender 字段 + XOR 约束', () {
-      // 入站：sender_type=contact，恰好一个 sender 非空
+      // 入站：sender_type=contact，恰好一个 sender 非空。
+      // 时间字段为后端真实合同形态：Unix 秒（R08-FL；历史 fixture 的
+      // 毫秒字符串是测试虚构，已对齐 wire）。
       final inbound = EnterpriseMessage.fromJson(const {
         'id': bigMessageId,
         'conversation_id': bigConversationId,
@@ -75,9 +77,9 @@ void main() {
         'sender_business_identity_name': '客服甲',
         'content': 'hello',
         'asset_id': null,
-        'retain_until': '1799999999000',
+        'retain_until': 1799999999,
         'policy_snapshot': 'retain=1095d',
-        'created_at': '1789000000000',
+        'created_at': 1789000000,
       });
 
       expect(inbound.id, '7266418340025468934');
@@ -86,8 +88,9 @@ void main() {
       expect(inbound.senderContactId, '7266418340025468932');
       expect(inbound.senderBusinessIdentityId, '');
       expect(inbound.senderBusinessIdentityName, '客服甲');
-      expect(inbound.retainUntil, '1799999999000');
+      expect(inbound.retainUntilMs, 1799999999000);
       expect(inbound.policySnapshot, 'retain=1095d');
+      expect(inbound.createdAtMs, 1789000000000);
       expect(inbound.senderXorValid, isTrue);
 
       // 出站：sender_type=business_identity
@@ -100,12 +103,13 @@ void main() {
         'sender_business_identity_id': bigIdentityId,
         'sender_business_identity_name': '客服甲',
         'content': 'reply',
-        'created_at': '1789000000001',
+        'created_at': 1789000001,
       });
 
       expect(outbound.senderType, EnterpriseSenderType.businessIdentity);
       expect(outbound.senderBusinessIdentityId, '7266418340025468931');
       expect(outbound.senderContactId, '');
+      expect(outbound.createdAtMs, 1789000001000);
       expect(outbound.senderXorValid, isTrue);
     });
 
@@ -155,7 +159,7 @@ void main() {
         'sender_business_identity_id': bigIdentityId,
         'sender_business_identity_name': '客服甲',
         'content': 'reply',
-        'created_at': '1789000000001',
+        'created_at': 1789000001,
       });
 
       final encoded = jsonEncode(msg.toJson());

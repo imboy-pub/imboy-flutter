@@ -276,8 +276,12 @@ class AppInitializer {
     // 禁用 MigrationService 的自动迁移，避免双重迁移冲突导致数据丢失
     // await _autoMigrateDatabase();
 
-    // 初始化NTP时间同步（获取时间偏移量）
-    await NtpHelper.getOffset();
+    // 初始化NTP时间同步（后台补充通道，R20-3：不阻塞必要初始化）
+    //
+    // sv_ts 校正随每个成功 HTTP 响应发生（主通道），NTP 不可达时
+    // 最多白等 2×3s 超时；失败保留 last-good 偏移（NtpHelper 语义），
+    // 启动路径不再 await。
+    unawaited(NtpHelper.getOffset());
 
     // 获取设备信息
     await _setupDeviceInfo();

@@ -11,6 +11,7 @@
 /// 本文件保持纯 Dart（无 flutter import），可被单测直接驱动。
 library;
 
+import 'package:imboy/component/helper/datetime.dart' show ApiTime;
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
@@ -234,11 +235,20 @@ class EnterpriseMessage {
   final EntityId assetId;
 
   /// 保留期（服务端 policy 快照字段，只读展示）。
-  final String retainUntil;
+  ///
+  /// R08-FL：wire 合同为 **epoch 秒**（`eb_pg_store_sql` 的 `ts` 列经
+  /// `to_unix/1` 归一化为 Unix 秒整数出站）；本地持有统一为** epoch 毫秒**，
+  /// `0 = 未知`（缺失/非法不回填当前时间，UI 自行隐藏）。
+  final int retainUntilMs;
 
   /// 保留策略快照（只读展示）。
   final String policySnapshot;
-  final String createdAt;
+
+  /// 消息创建时间（epoch 毫秒；0 = 未知）。
+  ///
+  /// wire 合同为 epoch 秒（见 [retainUntilMs]）；解析走
+  /// [ApiTime.parseEpochSeconds]，失败 → 0（R08-5：旧响应缺字段仍未知）。
+  final int createdAtMs;
 
   /// 本地 delivery ACK 状态（仅本地投递标记，不影响真源）。
   final bool delivered;
@@ -253,9 +263,9 @@ class EnterpriseMessage {
     this.senderBusinessIdentityName = '',
     this.content = '',
     this.assetId = '',
-    this.retainUntil = '',
+    this.retainUntilMs = 0,
     this.policySnapshot = '',
-    this.createdAt = '',
+    this.createdAtMs = 0,
     this.delivered = false,
   });
 
@@ -274,9 +284,10 @@ class EnterpriseMessage {
       // `content` 是本地 store 往返形（toJson）——两形宽容共存。
       content: parseModelString(json['body'] ?? json['content']),
       assetId: entityIdOf(json['asset_id']),
-      retainUntil: parseModelString(json['retain_until']),
+      // R08-FL：合同秒（int/数字字符串）→ 毫秒；非法/缺失 → 0（未知）。
+      retainUntilMs: ApiTime.parseEpochSeconds(json['retain_until']) ?? 0,
       policySnapshot: parseModelString(json['policy_snapshot']),
-      createdAt: parseModelString(json['created_at']),
+      createdAtMs: ApiTime.parseEpochSeconds(json['created_at']) ?? 0,
     );
   }
 
@@ -292,9 +303,9 @@ class EnterpriseMessage {
       'sender_business_identity_name': senderBusinessIdentityName,
     'content': content,
     if (assetId.isNotEmpty) 'asset_id': assetId,
-    if (retainUntil.isNotEmpty) 'retain_until': retainUntil,
+    if (retainUntilMs > 0) 'retain_until': retainUntilMs ~/ 1000,
     if (policySnapshot.isNotEmpty) 'policy_snapshot': policySnapshot,
-    if (createdAt.isNotEmpty) 'created_at': createdAt,
+    if (createdAtMs > 0) 'created_at': createdAtMs ~/ 1000,
     'delivered': delivered,
   };
 
@@ -318,9 +329,9 @@ class EnterpriseMessage {
       senderBusinessIdentityName: senderBusinessIdentityName,
       content: content,
       assetId: assetId,
-      retainUntil: retainUntil,
+      retainUntilMs: retainUntilMs,
       policySnapshot: policySnapshot,
-      createdAt: createdAt,
+      createdAtMs: createdAtMs,
       delivered: true,
     );
   }

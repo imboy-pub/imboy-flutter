@@ -396,7 +396,9 @@ void main() {
                   'sender_business_identity_id': 7266418340025468931,
                   'sender_business_identity_name': '客服甲',
                   'body': '收到',
-                  'created_at': '2026-10-14T08:00:00Z',
+                  // R08-FL：真实 wire 合同为 Unix 秒（eb_pg_store_sql ts→to_unix
+                  // 直通；public_message 白名单原样透出）。2026-10-14T08:00:00Z。
+                  'created_at': 1791964800,
                   'assets': <Map<String, dynamic>>[],
                 },
               },
@@ -416,7 +418,7 @@ void main() {
           expect(sent.senderType, EnterpriseSenderType.businessIdentity);
           expect(sent.senderBusinessIdentityId, workspaceId);
           expect(sent.senderBusinessIdentityName, '客服甲');
-          expect(sent.createdAt, '2026-10-14T08:00:00Z');
+          expect(sent.createdAtMs, 1791964800000);
           expect(adapter.requests, hasLength(1));
         },
       );

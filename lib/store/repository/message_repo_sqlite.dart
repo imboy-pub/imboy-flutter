@@ -1,4 +1,5 @@
 import 'package:imboy/store/repository/message_query_reader.dart';
+import 'package:imboy/store/repository/message_repo_schema.dart';
 import 'package:imboy/store/repository/offline_message_writer.dart';
 
 import 'dart:async';
@@ -26,59 +27,31 @@ class MessageRepo implements MessageRepository {
     }
   }
 
-  // v2.0 表名常量（与服务端保持一致）
-  static const String c2cTable = 'msg_c2c';
-  static const String c2gTable = 'msg_c2g';
-  static const String c2sTable = 'msg_c2s';
-  static const String s2cTable = 'msg_s2c';
+  // 表名/列名常量与 defaultColumns/c2cColumns 已拆至 message_repo_schema.dart；
+  // 此处 static 转发（const 编译期内联，final 引用同一实例），保持既有
+  // `MessageRepo.xxx` 调用面与导入兼容（W6 拆分，行为零变化）。
+  static const String c2cTable = MessageRepoSchema.c2cTable;
+  static const String c2gTable = MessageRepoSchema.c2gTable;
+  static const String c2sTable = MessageRepoSchema.c2sTable;
+  static const String s2cTable = MessageRepoSchema.s2cTable;
 
-  static const String autoId = 'auto_id';
-  static const String id = 'id'; // message_id
+  static const String autoId = MessageRepoSchema.autoId;
+  static const String id = MessageRepoSchema.id;
+  static const String type = MessageRepoSchema.type;
+  static const String from = MessageRepoSchema.from;
+  static const String to = MessageRepoSchema.to;
+  static const String payload = MessageRepoSchema.payload;
+  static const String createdAt = MessageRepoSchema.createdAt;
+  static const String conversationUk3 = MessageRepoSchema.conversationUk3;
+  static const String status = MessageRepoSchema.status;
+  static const String isAuthor = MessageRepoSchema.isAuthor;
+  static const String topicId = MessageRepoSchema.topicId;
+  static const String msgType = MessageRepoSchema.msgType;
+  static const String action = MessageRepoSchema.action;
+  static const String e2ee = MessageRepoSchema.e2ee;
 
-  // C2C C2G C2C_REVOKE_ACK C2G_REVOKE_ACK
-  static const String type = 'type';
-  static const String from = 'from_id';
-  static const String to = 'to_id';
-  static const String payload = 'payload';
-  static const String createdAt = 'created_at';
-
-  // varchar(80)
-  static const String conversationUk3 = 'conversation_uk3';
-  static const String status = 'status';
-
-  // from id is author bool true | false
-  static const String isAuthor = 'is_author';
-  static const String topicId = 'topic_id';
-
-  // v2.0 新增字段（从 payload 中提取到顶层）
-  static const String msgType =
-      'msg_type'; // 消息类型：text, image, voice, video, file 等
-  static const String action = 'action'; // S2C 消息指令
-  static const String e2ee = 'e2ee'; // 端到端加密信息（JSON 字符串）
-
-  static final List<String> defaultColumns = List.unmodifiable([
-    autoId,
-    id,
-    type,
-    from,
-    to,
-    payload,
-    createdAt,
-    isAuthor,
-    status,
-    conversationUk3,
-    topicId,
-    msgType, // v2.0 新增
-    action, // v2.0 新增
-    e2ee, // v2.0 新增
-  ]);
-
-  /// C2C 专用读取列。sender_did 只存在于 msg_c2c，不能放进所有表的
-  /// defaultColumns，否则 C2G/C2S 查询会因列不存在而失败。
-  static final List<String> c2cColumns = List.unmodifiable([
-    ...defaultColumns,
-    MessageColumns.senderDid,
-  ]);
+  static final List<String> defaultColumns = MessageRepoSchema.defaultColumns;
+  static final List<String> c2cColumns = MessageRepoSchema.c2cColumns;
 
   // 共享 ProviderContainer — 必须通过 setProviderContainer 注入，否则 UI 状态不同步
   // 初始值为 null，防止创建与根容器状态不同步的孤立容器
@@ -170,73 +143,13 @@ class MessageRepo implements MessageRepository {
     return true;
   }
 
-  // 允许的表名白名单
-  static final Set<String> _allowedTables = {
-    MessageRepo.c2cTable,
-    MessageRepo.c2gTable,
-    MessageRepo.c2sTable,
-    MessageRepo.s2cTable,
-  };
-
-  // 验证表名是否在白名单中
+  // 验证表名是否在白名单中（白名单与映射逻辑在 MessageRepoSchema）
   static bool _isTableAllowed(String tableName) {
-    return _allowedTables.contains(tableName);
+    return MessageRepoSchema.isTableAllowed(tableName);
   }
 
-  static String getTableName(String type) {
-    String tb = '';
-    // func_helper.iPrint("> rtc msg S_RECEIVED:$res");
-    switch (type.toUpperCase()) {
-      case 'C2C':
-        tb = MessageRepo.c2cTable;
-        break;
-      case 'C2G':
-        tb = MessageRepo.c2gTable;
-        break;
-      case 'C2S':
-        tb = MessageRepo.c2sTable;
-        break;
-      case 'S2C':
-        tb = MessageRepo.s2cTable;
-        break;
-
-      //
-      case 'C2C_SERVER_ACK':
-        tb = MessageRepo.c2cTable;
-        break;
-      case 'C2G_SERVER_ACK':
-        tb = MessageRepo.c2gTable;
-        break;
-      case 'C2S_SERVER_ACK':
-        tb = MessageRepo.c2sTable;
-        break;
-      case 'S2C_SERVER_ACK':
-        tb = MessageRepo.s2cTable;
-        break;
-
-      //
-      case 'C2C_REVOKE':
-        tb = MessageRepo.c2cTable;
-        break;
-      case 'C2G_REVOKE':
-        tb = MessageRepo.c2gTable;
-        break;
-
-      case 'C2C_REVOKE_ACK':
-        tb = MessageRepo.c2cTable;
-        break;
-      case 'C2G_REVOKE_ACK':
-        tb = MessageRepo.c2gTable;
-        break;
-    }
-
-    // 验证返回的表名是否在白名单中
-    if (!_isTableAllowed(tb)) {
-      throw ArgumentError('Invalid table name: $tb');
-    }
-
-    return tb;
-  }
+  static String getTableName(String type) =>
+      MessageRepoSchema.getTableName(type);
 
   /// 跨表更新消息状态（遍历 C2C/C2G/C2S 查找消息并更新）
   ///
@@ -499,6 +412,85 @@ class MessageRepo implements MessageRepository {
     return count;
   }
 
+  /// R07 phase1：按 msg_id 幂等补齐服务端权威排序事实（conv_seq /
+  /// 首次 accepted_at）。
+  ///
+  /// 合同（R07-7 库层验证）：
+  /// - 仅当对应列为 NULL 时写入传入值；已有值（含此前写入的可信接受值）
+  ///   一律不覆盖；
+  /// - 正文/密文（payload/e2ee）、附件引用、原始发送时间（created_at）、
+  ///   status 等其余列**一律不动**；不触碰 conversation 表（**不重复增加
+  ///   未读**）；行数不变（不插行不删行）；
+  /// - 传入值必须来自可信 archive/offline/ACK 数据；本函数不校验来源，
+  ///   也不回填 now（接线属 R07-wire）；
+  /// - 幂等：重复调用结果一致（先读后判无可补字段即返回，不触碰库；
+  ///   需要写入时用 COALESCE 仅补 NULL 列）。
+  ///
+  /// 返回 [ServerOrderBackfillResult]：rowExists=false 表示该 msg_id 在
+  /// 本表无行（调用方应走正常落库路径而非补齐）。
+  Future<ServerOrderBackfillResult> backfillServerOrderFacts({
+    required String msgId,
+    int? convSeq,
+    int? acceptedAt,
+    Transaction? txn,
+  }) async {
+    if (convSeq == null && acceptedAt == null) {
+      throw ArgumentError(
+        'backfillServerOrderFacts: convSeq/acceptedAt 至少提供一个，'
+        '否则无补齐目标（拒绝空操作误用）',
+      );
+    }
+
+    Future<List<Map<String, Object?>>> readRow() {
+      final sel =
+          'SELECT ${MessageColumns.convSeq} AS seq, '
+          '${MessageColumns.acceptedAt} AS accepted '
+          'FROM $tableName WHERE id = ? LIMIT 1';
+      if (txn != null) return txn.rawQuery(sel, [msgId]);
+      // 禁查询缓存：补齐判定必须读最新落库值
+      return _db.rawQuery(sel, [msgId], false);
+    }
+
+    final rows = await readRow();
+    if (rows.isEmpty) {
+      return const ServerOrderBackfillResult(
+        rowExists: false,
+        convSeqApplied: false,
+        acceptedAtApplied: false,
+      );
+    }
+    final currentSeq = rows.first['seq'] as int?;
+    final currentAccepted = rows.first['accepted'] as int?;
+    final applySeq = convSeq != null && currentSeq == null;
+    final applyAccepted = acceptedAt != null && currentAccepted == null;
+    if (!applySeq && !applyAccepted) {
+      // 幂等快速路径：无可补字段，不触碰库
+      return ServerOrderBackfillResult(
+        rowExists: true,
+        convSeqApplied: false,
+        acceptedAtApplied: false,
+      );
+    }
+
+    // COALESCE 原子语义：仅 NULL 列接受新值；未传/已有值列保持不变
+    final updateSql =
+        'UPDATE $tableName SET '
+        '${MessageColumns.convSeq} = COALESCE(${MessageColumns.convSeq}, ?), '
+        '${MessageColumns.acceptedAt} = COALESCE(${MessageColumns.acceptedAt}, ?) '
+        'WHERE id = ?';
+    final updateArgs = [convSeq, acceptedAt, msgId];
+    if (txn != null) {
+      await txn.rawUpdate(updateSql, updateArgs);
+    } else {
+      await _db.execute(updateSql, updateArgs);
+    }
+    return ServerOrderBackfillResult(
+      rowExists: true,
+      convSeqApplied: applySeq,
+      acceptedAtApplied: applyAccepted,
+    );
+  }
+
   @override
   Future<List<MessageModel>> pageForConversation(
     String uk3,
@@ -750,4 +742,27 @@ class MessageRepo implements MessageRepository {
   @override
   Future<int> countMessagesWithUser(String peerId, {int? since}) =>
       _reader.countMessagesWithUser(peerId, since: since);
+}
+
+/// [MessageRepo.backfillServerOrderFacts] 的结果（R07 phase1）。
+class ServerOrderBackfillResult {
+  const ServerOrderBackfillResult({
+    required this.rowExists,
+    required this.convSeqApplied,
+    required this.acceptedAtApplied,
+  });
+
+  /// msg_id 在本表是否有行。
+  final bool rowExists;
+
+  /// 本次调用是否实际写入了 conv_seq（仅当列为 NULL 且传入了值）。
+  final bool convSeqApplied;
+
+  /// 本次调用是否实际写入了 accepted_at（仅当列为 NULL 且传入了值）。
+  final bool acceptedAtApplied;
+
+  @override
+  String toString() =>
+      'ServerOrderBackfillResult(rowExists: $rowExists, '
+      'convSeqApplied: $convSeqApplied, acceptedAtApplied: $acceptedAtApplied)';
 }

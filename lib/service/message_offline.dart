@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/component/helper/func.dart';
@@ -92,8 +94,9 @@ class MessageOfflineService {
   /// 拉取过程中收到新请求时，标记完成后补拉一次
   bool _hasPendingPullRequest = false;
 
-  /// 下次允许拉取的时间点（用于节流和失败退避）
-  DateTime? _nextAllowedPullAt;
+  /// 下次允许拉取的冷却窗口（R20-A 改用单调计时：墙钟回拨/前跳
+  /// ±1 小时不冻结冷却也不立刻放行；进程内状态，不持久化）。
+  final MonotonicCooldown _pullCooldown = MonotonicCooldown();
 
   /// 连续失败次数（指数退避）
   int _consecutivePullFailures = 0;
@@ -146,7 +149,7 @@ class MessageOfflineService {
     _c2gLastMsgAt = _c2gCursor.isEmpty
         ? 0
         : readStoredCursor(Keys.offlineCursorC2g);
-    _nextAllowedPullAt = null;
+    _pullCooldown.clear();
   }
 
   /// 释放资源（取消订阅）
@@ -166,13 +169,14 @@ class MessageOfflineService {
 
   /// 离线消息拉取指标快照（用于排障与监控）
   Map<String, dynamic> getPullStats() {
-    final now = DateTime.now();
-    final nextAllowedAt = _nextAllowedPullAt;
-    final nextAllowedInMs = nextAllowedAt == null
-        ? 0
-        : nextAllowedAt.isAfter(now)
-        ? nextAllowedAt.difference(now).inMilliseconds
-        : 0;
+    // R20-A：冷却剩余为单调时长；展示用的 ISO 时间点由"当前服务器
+    // 时刻估计 + 剩余"推导，仅供排障阅读，不作deadline合同。
+    final nextAllowedInMs = _pullCooldown.remainingMs;
+    final nextAllowedAt = nextAllowedInMs > 0
+        ? DateTime.fromMillisecondsSinceEpoch(
+            appClock.nowMs() + nextAllowedInMs,
+          )
+        : null;
 
     return {
       'requested_total': _requestedTotal,
@@ -216,7 +220,6 @@ class MessageOfflineService {
     bool force = false,
   }) async {
     if (_inFlightPull == null) _restoreC2gCursorScope();
-    final now = DateTime.now();
 
     _requestedTotal++;
     if (force) {
@@ -235,11 +238,9 @@ class MessageOfflineService {
       return _inFlightPull!;
     }
 
-    // 冷却期内：跳过本次请求
-    if (!force &&
-        _nextAllowedPullAt != null &&
-        now.isBefore(_nextAllowedPullAt!)) {
-      final waitMs = _nextAllowedPullAt!.difference(now).inMilliseconds;
+    // 冷却期内：跳过本次请求（单调计时，墙钟调整不影响）
+    if (!force && _pullCooldown.active) {
+      final waitMs = _pullCooldown.remainingMs;
       _skippedCooldownTotal++;
       _lastResult = 'skipped_cooldown';
       _lastPullHttpRequests = 0;
@@ -542,6 +543,30 @@ class MessageOfflineService {
     return null;
   }
 
+  /// 解析 C2G 分页游标 token 的协议版本（R01）。
+  ///
+  /// 服务端 token 形如 base64(JSON)：
+  /// - v1：`{"v":1,"at":"<rfc3339>","id":"<msg_id>"}`（旧，时间戳+尾 id）
+  /// - v2：`{"v":2,"marks":[{"g":<gid>,"s":<seq>},...]}`（per-group
+  ///   服务端投递进度，B 钳制；msg_offline_cursor.erl:13-17）
+  ///
+  /// 客户端对 v1/v2 一律原样透传（兼容解码在服务端 decode_data 分支，
+  /// 滚动部署安全），本地不解析 marks 语义；本方法仅供观测与迁移守护
+  /// （持久化 key 已按 `${env}_${uid}` scope 隔离，见 _currentC2gCursorKey）。
+  /// 返回 null 表示空 token 或非版本化旧格式。
+  @visibleForTesting
+  static int? c2gCursorVersion(String token) {
+    if (token.isEmpty) return null;
+    try {
+      final decoded = utf8.decode(base64.decode(token));
+      final obj = jsonDecode(decoded);
+      if (obj is Map && obj['v'] is int) return obj['v'] as int;
+    } on Object {
+      return null;
+    }
+    return null;
+  }
+
   /// 读取持久化游标；存储未就绪或键不存在时返回 0（全量拉取语义）
   @visibleForTesting
   static int readStoredCursor(String key) {
@@ -568,7 +593,7 @@ class MessageOfflineService {
   void _markPullSuccess({required int totalFetched}) {
     _consecutivePullFailures = 0;
     final cooldown = totalFetched == 0 ? _idlePullCooldown : _minPullInterval;
-    _nextAllowedPullAt = DateTime.now().add(cooldown);
+    _pullCooldown.startFor(cooldown);
   }
 
   void _markPullFailure() {
@@ -582,7 +607,7 @@ class MessageOfflineService {
       backoffSeconds = _maxFailureBackoff.inSeconds;
     }
 
-    _nextAllowedPullAt = DateTime.now().add(Duration(seconds: backoffSeconds));
+    _pullCooldown.startFor(Duration(seconds: backoffSeconds));
   }
 
   String? _toIsoString(DateTime? time) {

@@ -47,7 +47,8 @@ class SqliteService {
   // v30: channel.has_purchased 付费频道购买权益本地缓存
   // v34: user_collect.generation/key_version（E2EE 收藏 v1，服务端迁移 227 对齐）
   // v33: attachment_upload_task 附件上传任务持久化检查点（AC08 恢复）
-  static const _dbVersion = 34;
+  // v35: 消息四表 conv_seq/accepted_at（R07 会话权威排序；可空，NULL=服务端未给出）
+  static const _dbVersion = 35;
 
   // 单例构造
   SqliteService._privateConstructor();

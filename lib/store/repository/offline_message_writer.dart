@@ -25,6 +25,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_types.dart';
 
 /// 离线批量写入：消息/会话事务提交、重投快照恢复与提交后通知。
@@ -130,6 +131,29 @@ class OfflineMessageWriter {
                   existing.single,
                   msgData,
                 );
+            // R07-phase2 去重分支：已有 msg_id 收到带权威序号/接受时间的
+            // 可信 offline/archive/ACK 数据时，调 backfillServerOrderFacts
+            // 补齐缺失的 conv_seq/accepted_at（COALESCE 仅写 NULL 列，
+            // 幂等），不能因去重直接 continue 丢掉权威字段。
+            // SERVER_ACK 复用本分支：只补权威列，绝不覆盖原始 created_at。
+            final facts = parseServerOrderFacts(msgData);
+            if (facts.convSeq != null || facts.acceptedAt != null) {
+              try {
+                await MessageRepo(tableName: tableName)
+                    .backfillServerOrderFacts(
+                      msgId: msgId,
+                      convSeq: facts.convSeq,
+                      acceptedAt: facts.acceptedAt,
+                      txn: txn,
+                    );
+              } on Object catch (e) {
+                // 补齐失败不阻断批量写入主流程（权威字段可在后续批次
+                // 再次补齐）；与 upgraded 失败同样只记录。
+                func_helper.iPrint(
+                  'backfillServerOrderFacts 失败: $msgId, ${e.runtimeType}',
+                );
+              }
+            }
             final snapshot = await _existingOfflineConversation(
               txn,
               existing.single,
@@ -224,6 +248,20 @@ class OfflineMessageWriter {
             MessageColumns.e2ee: e2ee != null ? json.encode(e2ee) : '',
           };
 
+          // R07-phase2 权威顺序事实随插入一并落列（实时 / 离线 / 归档
+          // 三路径共用本写入点）：conv_seq/accepted_at 仅在服务端提供时
+          // 写入；本地待发无序号消息两列保持 NULL，确认（SERVER_ACK）
+          // 后由去重分支的 backfillServerOrderFacts 按 conv_seq 收敛，
+          // 绝不用收到时刻伪造。收敛规则：NULL→补权威值；已有值不覆盖；
+          // created_at（原始发送时间）任何路径都不改写。
+          final facts = parseServerOrderFacts(msgData);
+          if (facts.convSeq != null) {
+            insertData[MessageColumns.convSeq] = facts.convSeq;
+          }
+          if (facts.acceptedAt != null) {
+            insertData[MessageColumns.acceptedAt] = facts.acceptedAt;
+          }
+
           // A2-b：服务端在信封顶层注入的发送方设备 ID（认证态，客户端不可伪造）。
           // PFv3 接收侧 context binding 第 6 项要用；离线行读取时才解密
           // （decrypt-on-read），此刻不存 = v3 消息永久不可读。
@@ -270,7 +308,13 @@ class OfflineMessageWriter {
             "离线消息插入成功: $msgId, type: $type, conversation: $conversationUk3",
           );
         }
-        conversations.addAll(await _persistOfflineConversations(inserted, txn));
+        conversations.addAll(
+          await _persistOfflineConversations(
+            inserted,
+            txn,
+            historyImport: trustedArchive,
+          ),
+        );
       });
 
       if (inserted.isNotEmpty) {
@@ -405,6 +449,56 @@ class OfflineMessageWriter {
     }
   }
 
+  /// R07-phase2：从服务端消息数据顶层提取权威顺序事实。
+  ///
+  /// - `conv_seq`：服务端会话内序号（history 归档行 / 带序号的投递信封），
+  ///   仅接受正整数；无序号的旧消息返回 null（**绝不本地伪造序号**）。
+  /// - `accepted_at`：首次服务端接受时刻，统一归一为毫秒（int 原样、
+  ///   毫秒数字串经 [ApiTime.parseEpochMillis] 直取、带 zone 的 RFC3339
+  ///   经 [ApiTime.parseIsoZoned] 严格归一）。无 zone 串不猜设备本地时区
+  ///   （紧凑形态也不静默接受）——一律返回 null 落 accepted_at=NULL，
+  ///   由下游按低可信降级处理，与 ApiTime 单位合同一致。
+  ///
+  /// 纯函数（公开供测试守护）；返回 null 表示无该事实，调用方不写列。
+  static ({int? convSeq, int? acceptedAt}) parseServerOrderFacts(
+    Map<String, dynamic> msgData,
+  ) {
+    int? convSeq;
+    final rawSeq = msgData['conv_seq'];
+    if (rawSeq is int && rawSeq > 0) {
+      convSeq = rawSeq;
+    } else if (rawSeq is num) {
+      final asInt = rawSeq.toInt();
+      if (asInt > 0) convSeq = asInt;
+    } else if (rawSeq != null) {
+      final asInt = int.tryParse(rawSeq.toString());
+      if (asInt != null && asInt > 0) convSeq = asInt;
+    }
+    int? acceptedAt;
+    final rawAccepted = msgData['accepted_at'];
+    if (rawAccepted != null) {
+      // 毫秒 int / 整数字符串直取；带 zone 的 RFC3339（BE jsone timestamp
+      // 输出形态）经 ApiTime.parseIsoZoned 严格归一为毫秒；无 zone 串不猜
+      // 本地时区、紧凑形态不静默接受——返回 null 落 accepted_at=NULL，
+      // 走低可信降级；无法解析同样返回 null 不落列。
+      if (rawAccepted is int) {
+        acceptedAt = rawAccepted;
+      } else if (rawAccepted is String &&
+          RegExp(r'^\d+$').hasMatch(rawAccepted.trim())) {
+        acceptedAt = int.tryParse(rawAccepted.trim());
+      } else {
+        acceptedAt = ApiTime.parseEpochMillis(rawAccepted);
+        if (acceptedAt == null &&
+            rawAccepted is String &&
+            rawAccepted.isNotEmpty) {
+          acceptedAt = ApiTime.parseIsoZoned(rawAccepted)
+              ?.millisecondsSinceEpoch;
+        }
+      }
+    }
+    return (convSeq: convSeq, acceptedAt: acceptedAt);
+  }
+
   Future<void> _syncOfflineConversationsAndNotify(
     List<InsertedOfflineMessage> inserted,
     List<ConversationModel> conversations,
@@ -421,8 +515,9 @@ class OfflineMessageWriter {
 
   Future<List<ConversationModel>> _persistOfflineConversations(
     List<InsertedOfflineMessage> inserted,
-    Transaction txn,
-  ) async {
+    Transaction txn, {
+    required bool historyImport,
+  }) async {
     final conversations = <ConversationModel>[];
     final conversationRepo = ConversationRepo();
     final contactRepo = ContactRepo();
@@ -513,11 +608,28 @@ class OfflineMessageWriter {
         );
         conv.id = await conversationRepo.insert(conv, txn: txn);
         func_helper.iPrint('创建新会话: type=${conv.type}, 未读数: ${agg.unreadDelta}');
+      } else if (latest.createdAt < existing.lastTime) {
+        // R06：本批最新比会话头更旧——典型为历史回填（trustedArchive）晚于
+        // 实时/更晚批次到达。投影不做时间比较外的猜测：更旧的批次不得把
+        // 会话头拉回过去，直接保持现有头（与去重跳过路径同一保护语义）。
+        // 会话对象照常入列以驱动 UI 刷新，但不写库、不重复计未读。
+        conversations.add(existing);
+        func_helper.iPrint(
+          '历史批次早于会话头，保持会话头不变: type=${existing.type}, '
+          'batchLatest=${latest.createdAt}, headLastTime=${existing.lastTime}',
+        );
+        continue;
       } else {
-        // 更新现有会话，总是更新最后消息信息
-        int newUnreadNum = existing.unreadNum + agg.unreadDelta;
-        int newMentionUnread =
-            existing.mentionUnread + agg.mentionDelta; // C7-β
+        // R06：更新现有会话。投影只在「本批最新不旧于会话头」时推进
+        //（上面分支已拦截更旧批次），不能用"本批最新"无条件覆盖
+        // "整个会话最新"——历史导入与新投递共用这一时间比较，而非用
+        // trustedArchive 标志混控投影。
+        // 未读/mention 语义按批次来源区分：历史导入是补齐过去消息，
+        // 不是新投递，不重复累加（R06）；新投递照旧累加。
+        final unreadDelta = historyImport ? 0 : agg.unreadDelta;
+        final mentionDelta = historyImport ? 0 : agg.mentionDelta;
+        int newUnreadNum = existing.unreadNum + unreadDelta;
+        int newMentionUnread = existing.mentionUnread + mentionDelta; // C7-β
         await conversationRepo.updateById(existing.id, {
           ConversationRepo.avatar: avatar.isNotEmpty ? avatar : existing.avatar,
           ConversationRepo.title: title.isNotEmpty ? title : existing.title,
@@ -537,13 +649,73 @@ class OfflineMessageWriter {
             existing;
         func_helper.iPrint(
           '更新会话: type=${conv.type}, '
-          '新增未读数: ${agg.unreadDelta}, 总未读数: $newUnreadNum',
+          '新增未读数: $unreadDelta, 总未读数: $newUnreadNum',
         );
       }
 
       conversations.add(conv);
     }
     return conversations;
+  }
+
+  /// R06：已回退会话头的有界权威重算。
+  ///
+  /// 历史缺陷可能已把存量会话头写坏（last_msg_id/last_time 被"本批最新"
+  /// 无条件覆盖回旧值）。本方法按会话现有消息集合重算头投影：
+  /// 取该会话最新一条消息（`created_at DESC, auto_id DESC LIMIT 1`，
+  /// 有界查询）重建 lastMsgId/lastTime/lastMsgStatus/msgType/subtitle。
+  ///
+  /// 边界（R06 卡明确）：不做 SQLite schema 迁移；不增加未读/mention；
+  /// 不修改消息行；会话或消息为空时返回现状不伪造头。
+  Future<ConversationModel?> recomputeConversationHead({
+    required String type,
+    required String peerId,
+  }) async {
+    final conversationRepo = ConversationRepo();
+    final conv = await conversationRepo.findByPeerId(type, peerId);
+    if (conv == null) return null;
+    final tableName = resolveTable(type);
+    if (tableName.isEmpty) return conv;
+
+    final rows = await db.rawQuery(
+      'SELECT ${MessageColumns.id}, ${MessageColumns.msgType}, '
+      '${MessageColumns.status}, ${MessageColumns.payload}, '
+      '${MessageColumns.createdAt} FROM $tableName '
+      'WHERE ${MessageColumns.conversationUk3} = ? '
+      'ORDER BY ${MessageColumns.createdAt} DESC, ${MessageColumns.autoId} DESC '
+      'LIMIT 1',
+      [conv.uk3],
+    );
+    if (rows.isEmpty) return conv;
+
+    final row = rows.single;
+    Map<String, dynamic> payload = const <String, dynamic>{};
+    final rawPayload = row[MessageColumns.payload];
+    if (rawPayload is String && rawPayload.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(rawPayload);
+        if (decoded is Map<String, dynamic>) payload = decoded;
+      } on FormatException {
+        // 密文行（rawCipher 直存）：无明文 payload，预览退化为类型兜底。
+      }
+    }
+    final status = row[MessageColumns.status];
+    final preview = _derivePreview(
+      row[MessageColumns.msgType]?.toString() ?? '',
+      status is int ? status : null,
+      payload,
+    );
+    final createdAt = row[MessageColumns.createdAt];
+    await conversationRepo.updateById(conv.id, {
+      ConversationRepo.lastMsgId: row[MessageColumns.id]?.toString() ?? '',
+      ConversationRepo.lastTime: createdAt is int ? createdAt : conv.lastTime,
+      ConversationRepo.lastMsgStatus: status is int
+          ? status
+          : conv.lastMsgStatus,
+      ConversationRepo.msgType: preview.msgType,
+      ConversationRepo.subtitle: preview.subtitle,
+    });
+    return await conversationRepo.findById(conv.id) ?? conv;
   }
 
   Future<void> _publishOfflineConversations(

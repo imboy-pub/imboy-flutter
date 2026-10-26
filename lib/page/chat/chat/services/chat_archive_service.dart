@@ -24,6 +24,24 @@ class HistoryFetchException implements Exception {
   String toString() => 'HistoryFetchException: 归档历史接口请求失败';
 }
 
+/// R01/R02 同步计划（[ChatArchiveService.planHistorySync] 输出）。
+///
+/// - [advanceTo]：本轮允许持久化的游标（已按 safe_head 钳制、只进不退）。
+/// - [backfillRanges]：需要 [ChatArchiveService.backfillMissing] 的区间
+///   列表（gaps 补齐 / 过冲恢复），按 (afterSeq, targetSeq] 语义。
+/// - [blocked]：true=服务端要求等待，游标不动、不补齐。
+class HistorySyncPlan {
+  const HistorySyncPlan({
+    required this.advanceTo,
+    required this.backfillRanges,
+    required this.blocked,
+  });
+
+  final int advanceTo;
+  final List<({int fromSeq, int toSeq})> backfillRanges;
+  final bool blocked;
+}
+
 /// 消息历史 / 定位 / 双向分页服务
 ///
 /// 负责从服务端拉取归档消息、加载指定消息附近的上下文以及
@@ -227,13 +245,106 @@ class ChatArchiveService {
 
   // ===== 服务端归档历史（conv_seq 正向增量同步）=====
 
+  /// history 响应合同字段（R01/R02，字段名以 BE messaging_logic.erl:284-289 为准）：
+  /// - `safe_head`：安全推进边界 B；客户端游标推进不得越过。
+  /// - `blocked`：true=正式表已有高于 B 的行（被非终态 staging 行钳住），
+  ///   客户端应等待下一轮，**禁止自行推断 gap**。
+  /// - `gaps`：`[{from_seq,to_seq,reason}]`，reason ∈
+  ///   terminal_failure / authorization；用 [backfillMissing] 有界补齐。
+  static const _kSafeHead = 'safe_head';
+  static const _kBlocked = 'blocked';
+  static const _kGaps = 'gaps';
+
+  /// 解析服务端 gaps 数组（messaging_logic.erl:270-279 形状）。
+  /// 纯函数，供单测守护字段名与容错。
+  static List<({int fromSeq, int toSeq, String reason})> parseGaps(
+    dynamic raw,
+  ) {
+    if (raw is! List) return const [];
+    final out = <({int fromSeq, int toSeq, String reason})>[];
+    for (final item in raw) {
+      if (item is! Map) continue;
+      final from = (item['from_seq'] as num?)?.toInt();
+      final to = (item['to_seq'] as num?)?.toInt();
+      if (from == null || to == null) continue;
+      out.add((
+        fromSeq: from,
+        toSeq: to,
+        reason: (item['reason'] ?? '').toString(),
+      ));
+    }
+    return out;
+  }
+
+  /// R01/R02 同步决策纯函数：给定当前游标与 history 响应合同字段，
+  /// 输出下一步动作。纯函数（无 IO），供单测覆盖 blocked/gaps/过冲矩阵。
+  ///
+  /// 规则：
+  /// - `blocked=true` → 等待（advance=0），不推进、不补齐。
+  /// - `safeHead > 0` 时持久化游标钳制 `min(nextSeq, safeHead)`（只进不退
+  ///   由调用方保证）。
+  /// - 过冲（`seq > safeHead && safeHead > 0`，存量库游标越过新 B）→
+  ///   不回退游标，从 0 有界补扫至 safeHead（缺失低序号在其中）。
+  /// - `gaps` 非空且未 blocked → 逐段 [backfillMissing]。
+  static HistorySyncPlan planHistorySync({
+    required int currentSeq,
+    required int nextSeq,
+    required int safeHead,
+    required bool blocked,
+    required List<({int fromSeq, int toSeq, String reason})> gaps,
+  }) {
+    if (blocked) {
+      // blocked：等待，禁止自行推断 gap（BE 明确下发 blocked 时不给 gaps 语义）
+      return HistorySyncPlan(
+        advanceTo: currentSeq,
+        backfillRanges: const [],
+        blocked: true,
+      );
+    }
+    final effectiveHead = safeHead > 0 ? safeHead : nextSeq;
+    // 持久化目标：不越过 safe_head；只进不退
+    final advanceTo = currentSeq > effectiveHead
+        ? currentSeq
+        : (nextSeq > effectiveHead
+              ? effectiveHead
+              : (nextSeq > currentSeq ? nextSeq : currentSeq));
+    final ranges = <({int fromSeq, int toSeq})>[];
+    if (currentSeq > effectiveHead && effectiveHead > 0) {
+      // R02-5 过冲恢复：游标已越过新 B，不回退；从 0 有界补扫至 safe_head
+      ranges.add((fromSeq: 0, toSeq: effectiveHead));
+    }
+    for (final g in gaps) {
+      if (g.toSeq >= g.fromSeq) {
+        ranges.add((
+          fromSeq: g.fromSeq - 1 < 0 ? 0 : g.fromSeq - 1,
+          toSeq: g.toSeq,
+        ));
+      }
+    }
+    return HistorySyncPlan(
+      advanceTo: advanceTo,
+      backfillRanges: ranges,
+      blocked: false,
+    );
+  }
+
   /// 拉取一页归档历史并落 SQLite（P1-2 conv_seq 正向增量同步）
   ///
   /// 归档 payload 与离线队列消息形状高度一致，复用已验证的
   /// [MessageRepo.batchInsertOfflineMessages]（内含 id 去重），仅做形状适配，
   /// 不发送 ACK（归档消息不在投递队列里）。
-  /// 返回本页拉取条数、下一游标、是否还有更多。
-  Future<({int fetched, int nextSeq, bool hasMore})>
+  /// 返回本页拉取条数、下一游标、是否还有更多，以及 R01/R02 合同字段
+  /// （safeHead/blocked/gaps，字段名见 BE messaging_logic.erl:284-289）。
+  Future<
+    ({
+      int fetched,
+      int nextSeq,
+      bool hasMore,
+      int safeHead,
+      bool blocked,
+      List<({int fromSeq, int toSeq, String reason})> gaps,
+    })
+  >
   fetchAndPersistHistoryPage({
     required String chatType,
     required String peerId,
@@ -266,9 +377,19 @@ class ChatArchiveService {
         const <Map<String, dynamic>>[];
     final int nextSeq = (result['next_seq'] as num?)?.toInt() ?? afterSeq;
     final bool hasMore = (result['has_more'] as bool?) ?? false;
+    final int safeHead = (result[_kSafeHead] as num?)?.toInt() ?? 0;
+    final bool blocked = (result[_kBlocked] as bool?) ?? false;
+    final gaps = parseGaps(result[_kGaps]);
 
     if (rows.isEmpty) {
-      return (fetched: 0, nextSeq: nextSeq, hasMore: hasMore);
+      return (
+        fetched: 0,
+        nextSeq: nextSeq,
+        hasMore: hasMore,
+        safeHead: safeHead,
+        blocked: blocked,
+        gaps: gaps,
+      );
     }
 
     // c2c/c2g 落不同表，按 type 分组插入
@@ -282,7 +403,73 @@ class ChatArchiveService {
           .batchInsertOfflineMessages(entry.value, trustedArchive: true);
     }
 
-    return (fetched: rows.length, nextSeq: nextSeq, hasMore: hasMore);
+    return (
+      fetched: rows.length,
+      nextSeq: nextSeq,
+      hasMore: hasMore,
+      safeHead: safeHead,
+      blocked: blocked,
+      gaps: gaps,
+    );
+  }
+
+  /// R01/R02：有界范围补取（history_backfill），恢复 (afterSeq, targetSeq]
+  /// 内的晚到低序号 / 过冲缺失行。
+  ///
+  /// - 按 `next_seq`/`has_more` 分批续扫直至 >= targetSeq，尊重服务端
+  ///   range_limit；批次数上限 [maxPages] 兜底（可中断续跑：调用方重入
+  ///   时从持久化游标重新计划，不无限从 0 重拉——补齐按 msg_id 幂等去重）。
+  /// - 落库复用 [MessageRepo.batchInsertOfflineMessages]（msg_id 去重）。
+  /// 返回实际补齐条数。
+  Future<int> backfillMissing({
+    required String chatType,
+    required String peerId,
+    required int afterSeq,
+    required int targetSeq,
+    int limit = 50,
+    int maxPages = 40,
+  }) async {
+    if (targetSeq <= afterSeq) return 0;
+    var cursor = afterSeq;
+    var restored = 0;
+    for (var page = 0; page < maxPages && cursor < targetSeq; page++) {
+      final result = await (api ?? MsgApi()).historyBackfill(
+        chatType: chatType.toLowerCase(),
+        peerId: peerId,
+        afterSeq: cursor,
+        limit: limit,
+        did: deviceId,
+      );
+      if (result == null) {
+        // 单批失败即中断（可续跑）：游标停在已恢复位置，下次重入继续
+        throw const HistoryFetchException();
+      }
+      final rows =
+          (result['messages'] as List?)
+              ?.whereType<Map<String, dynamic>>()
+              .map((m) => Map<String, dynamic>.from(m))
+              .toList(growable: false) ??
+          const <Map<String, dynamic>>[];
+      final int nextSeq = (result['next_seq'] as num?)?.toInt() ?? cursor;
+      final bool hasMore = (result['has_more'] as bool?) ?? false;
+      if (rows.isNotEmpty) {
+        final byType = <String, List<Map<String, dynamic>>>{};
+        for (final row in rows) {
+          final shaped = archiveRowToOfflineShape(row);
+          (byType[shaped['type'] as String] ??= []).add(shaped);
+        }
+        for (final entry in byType.entries) {
+          await MessageRepo(tableName: MessageRepo.getTableName(entry.key))
+              .batchInsertOfflineMessages(entry.value, trustedArchive: true);
+        }
+        restored += rows.length;
+      }
+      // 有界性：next_seq 不前进说明服务端异常，避免死循环
+      if (nextSeq <= cursor) break;
+      cursor = nextSeq;
+      if (!hasMore) break;
+    }
+    return restored;
   }
 
   // ===== 撤回后更新会话 =====

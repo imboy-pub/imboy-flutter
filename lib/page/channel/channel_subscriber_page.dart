@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:imboy/config/const.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/cupertino_modal_surface.dart';
@@ -17,6 +18,7 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_admin_add_rules.dart'
     show searchContactCandidates;
+import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_invitation_rules.dart';
 import 'package:imboy/store/api/channel_api.dart';
@@ -74,7 +76,8 @@ class ChannelSubscriberPage extends ConsumerStatefulWidget {
       _ChannelSubscriberPageState();
 }
 
-class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
+class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
+    with BoundaryRefreshLifecycle<ChannelSubscriberPage> {
   late final ChannelApi _api = ref.read(channelApiProvider);
   final ScrollController _scrollController = ScrollController();
 
@@ -265,20 +268,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
     });
   }
 
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-
-    if (diff.inDays == 0) {
-      return context.t.channel.today;
-    } else if (diff.inDays == 1) {
-      return context.t.channel.yesterday;
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} ${context.t.channel.daysAgo}';
-    } else {
-      return '${time.year}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')}';
-    }
-  }
+  /// R13：日历日标签（今天/昨天/N天前/日期），与频道消息流同源
+  /// [formatChannelDateDivider] —— 按查看者本地年月日比较，
+  /// 不是滚动 24 小时；now 可注入便于测试。
+  String _formatTime(DateTime time) =>
+      formatChannelDateDivider(time, context.t);
 
   Future<void> _showInviteContactPicker() async {
     if (_isSendingInvitation) return;
@@ -409,6 +403,11 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage> {
 
   @override
   Widget build(BuildContext context) {
+    // R20-B：订阅时间标签只在跨本地午夜时变化，调度一次午夜边界 +
+    // resume/zone 兜底刷新即可（R20-5 配合 R13 日历标签重算）。
+    if (!_isLoading && _error == null) {
+      scheduleBoundaryAt(nextLocalMidnight(DateTime.now()));
+    }
     final t = context.t;
 
     return Scaffold(

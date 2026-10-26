@@ -1142,6 +1142,7 @@ class ChatNotifier extends _$ChatNotifier {
       int seq = StorageService.to.getInt(cursorKey) ?? 0;
       bool anyFetched = false;
       int pages = 0;
+      int restoredByBackfill = 0;
       while (pages < _historyMaxPagesPerOpen) {
         final page = await _archiveService.fetchAndPersistHistoryPage(
           chatType: chatType,
@@ -1152,11 +1153,39 @@ class ChatNotifier extends _$ChatNotifier {
         pages++;
         iPrint(
           'syncHistoryBackfill: uk3=${obj.uk3}, afterSeq=$seq, '
-          'fetched=${page.fetched}, nextSeq=${page.nextSeq}, hasMore=${page.hasMore}',
+          'fetched=${page.fetched}, nextSeq=${page.nextSeq}, hasMore=${page.hasMore}, '
+          'safeHead=${page.safeHead}, blocked=${page.blocked}, gaps=${page.gaps.length}',
         );
         if (page.fetched > 0) anyFetched = true;
-        if (page.nextSeq > seq) {
-          seq = page.nextSeq;
+
+        // R01/R02：由决策纯函数统一处理 blocked 等待 / gaps 补齐 /
+        // safe_head 钳制 / 过冲恢复（规则见 planHistorySync 文档与单测）。
+        final plan = ChatArchiveService.planHistorySync(
+          currentSeq: seq,
+          nextSeq: page.nextSeq,
+          safeHead: page.safeHead,
+          blocked: page.blocked,
+          gaps: page.gaps,
+        );
+        if (plan.blocked) {
+          // blocked=true：等待下一轮增量，游标不动、禁止自行推断 gap
+          iPrint('syncHistoryBackfill: blocked=true，本轮等待不推进 seq=$seq');
+          break;
+        }
+        for (final range in plan.backfillRanges) {
+          // gaps / 过冲缺失：有界分批补齐至 target（msg_id 幂等去重，
+          // 失败抛 HistoryFetchException 由外层标记可重试）
+          restoredByBackfill += await _archiveService.backfillMissing(
+            chatType: chatType,
+            peerId: peerId,
+            afterSeq: range.fromSeq,
+            targetSeq: range.toSeq,
+          );
+        }
+        if (restoredByBackfill > 0) anyFetched = true;
+        if (plan.advanceTo > seq) {
+          // 持久化前已由 plan 按 safe_head 钳制（不越过 B、只进不退）
+          seq = plan.advanceTo;
           await StorageService.to.setInt(cursorKey, seq);
         }
         if (!page.hasMore) break;

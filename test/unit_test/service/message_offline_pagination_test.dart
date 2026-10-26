@@ -20,6 +20,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 
+import '../../fixtures/sqlite_migration/migration_inventory.dart';
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 class _PagedAdapter implements HttpClientAdapter {
@@ -160,7 +161,12 @@ void main() {
     });
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    db = await openFixtureDatabaseAtVersion(version: 32);
+    // v35 起消息四表含 conv_seq/accepted_at（R07 phase1）；C2G 离线路径
+    // 在服务端提供 conv_seq 时写入该列，fixture 必须对齐当前库版本，
+    // 否则 INSERT 报 no such column（SqfliteFfiException）。
+    db = await openFixtureDatabaseAtVersion(
+      version: kInventoryCurrentDbVersion,
+    );
     SqliteService.setDbForTest(db);
     container = ProviderContainer();
     MessageRepo.setProviderContainer(container);

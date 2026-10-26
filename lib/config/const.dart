@@ -141,6 +141,10 @@ class API {
   // 查询消息历史（conv_seq 游标分页）
   static const msgHistory = '/api/v1/msg/history';
 
+  /// R02/D05 有界范围补取入口：GET /api/v1/msg?action=history_backfill
+  /// （与 msgOffline 同基路径，msg_handler 按 action 分发）
+  static const msgBackfill = '/api/v1/msg';
+
   static const denylistAdd = '/api/v1/friend/denylist/add';
   static const denylistRemove = '/api/v1/friend/denylist/remove';
   static const denylistPage = '/api/v1/friend/denylist/page';

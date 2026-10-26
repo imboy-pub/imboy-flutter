@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/app_clock.dart';
+import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -32,7 +34,8 @@ class GroupSchedulePage extends ConsumerStatefulWidget {
   ConsumerState<GroupSchedulePage> createState() => _GroupSchedulePageState();
 }
 
-class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
+class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage>
+    with BoundaryRefreshLifecycle<GroupSchedulePage> {
   List<Map<String, dynamic>> _schedules = [];
   bool _isLoading = true;
   Object? _error;
@@ -142,25 +145,25 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
   /// 按今天 / 本周 / 更晚 分组渲染（Apple Calendar 分组惯例），
   /// 每组内按开始时间升序。已取消的日程跟随其原时间归组但整条灰化。
   List<Widget> _buildGroupedSections() {
-    final todayStart = DateTime(
-      DateTime.now().year,
-      DateTime.now().month,
-      DateTime.now().day,
+    // R13：日历日边界（DST 安全）统一由 resolveScheduleListSection 推导，
+    // 不再用 add(Duration(days: n)) 推次日/第 7 日（DST 日会错位）。
+    final now = appClock.nowDateTime();
+    // R20-B：下一有效边界 = 最近的未来日程开始/结束（状态徽章翻转）
+    // 或本地午夜（今天/本周分组标签跨日变化）；resume/zone 变化由
+    // mixin 兜底刷新。触发即 setState 重算，不常驻秒级 timer。
+    final midnight = nextLocalMidnight(now);
+    scheduleBoundaryAt(
+      nextBoundary([
+        for (final schedule in _schedules)
+          ..._scheduleBoundaries(schedule, midnight),
+      ], now),
     );
-    final tomorrowStart = todayStart.add(const Duration(days: 1));
-    final weekEnd = todayStart.add(const Duration(days: 7));
-
-    final groups = <_ScheduleSection, List<Map<String, dynamic>>>{};
+    final groups = <ScheduleListSection, List<Map<String, dynamic>>>{};
     for (final schedule in _schedules) {
       final startAt = _toInt(schedule['start_time'] ?? schedule['start_at']);
       final start = DateTime.fromMillisecondsSinceEpoch(startAt * 1000);
       // 今天（含已开始/进行中）→ 明天起一周内 → 更晚。
-      final section = start.isBefore(tomorrowStart)
-          ? _ScheduleSection.today
-          : start.isBefore(weekEnd)
-          ? _ScheduleSection.tomorrowToWeek
-          : _ScheduleSection.later;
-      (groups[section] ??= []).add(schedule);
+      (groups[resolveScheduleListSection(start, now)] ??= []).add(schedule);
     }
     for (final list in groups.values) {
       list.sort(
@@ -170,7 +173,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
       );
     }
 
-    final sections = _ScheduleSection.values;
+    final sections = ScheduleListSection.values;
     final widgets = <Widget>[];
     for (final section in sections) {
       final items = groups[section];
@@ -202,13 +205,13 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     return widgets;
   }
 
-  String _sectionLabel(_ScheduleSection section) {
+  String _sectionLabel(ScheduleListSection section) {
     final t = context.t;
     return switch (section) {
-      _ScheduleSection.today => t.groupSchedule.sectionToday,
+      ScheduleListSection.today => t.groupSchedule.sectionToday,
       // 明天起 7 天内统称"本周"。
-      _ScheduleSection.tomorrowToWeek => t.groupSchedule.sectionThisWeek,
-      _ScheduleSection.later => t.groupSchedule.sectionLater,
+      ScheduleListSection.tomorrowToWeek => t.groupSchedule.sectionThisWeek,
+      ScheduleListSection.later => t.groupSchedule.sectionLater,
     };
   }
 
@@ -222,7 +225,7 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
       status: _toInt(schedule['status']),
       startAtSec: startAt,
       endAtSec: endAt,
-      nowSec: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      nowSec: appClock.nowMs() ~/ 1000,
     );
     final isCancelled = state == GroupScheduleTimeState.cancelled;
     final title = _toText(schedule['title']);
@@ -282,6 +285,20 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
     }
   }
 
+  /// 条目的未来开始/结束边界（epoch 秒 → DateTime）；always 附带午夜边界。
+  List<DateTime?> _scheduleBoundaries(
+    Map<String, dynamic> schedule,
+    DateTime midnight,
+  ) {
+    final startAt = _toInt(schedule['start_time'] ?? schedule['start_at']);
+    final endAt = _toInt(schedule['end_time'] ?? schedule['end_at']);
+    return [
+      if (startAt > 0) DateTime.fromMillisecondsSinceEpoch(startAt * 1000),
+      if (endAt > startAt) DateTime.fromMillisecondsSinceEpoch(endAt * 1000),
+      midnight,
+    ];
+  }
+
   int _toInt(dynamic value) {
     if (value is int) return value;
     if (value is String) return int.tryParse(value) ?? 0;
@@ -303,8 +320,6 @@ class _GroupSchedulePageState extends ConsumerState<GroupSchedulePage> {
 }
 
 /// 列表分组：今天 / 明天（至本周） / 更晚。
-enum _ScheduleSection { today, tomorrowToWeek, later }
-
 /// 列表条目正文：标题（已取消删除线）+ 时间范围 + 地点，附状态徽章。
 class _ScheduleItemBody extends StatelessWidget {
   const _ScheduleItemBody({

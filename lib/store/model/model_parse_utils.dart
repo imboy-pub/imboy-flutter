@@ -88,6 +88,24 @@ bool parseModelBool(dynamic value, {bool defaultValue = false}) {
   return defaultValue;
 }
 
+/// R21-B 登记说明（勿在未盘点调用方前扩大行为变更）：
+///
+/// 本函数的 `abs(value) < 1e12 ? *1000 : 直用` 是**量级启发式**——按数值
+/// 大小猜秒/毫秒，并非端点合同。它对「本仓 wire 时间几乎都是毫秒或
+/// RFC3339、历史秒值极小」的现存数据大体成立，但存在已知缺陷：
+///
+/// - 1e12 边界附近的秒值（2001-09-09 之后的秒已 >1e9，仍 <1e12 会被 ×1000
+///   正确；但若某端点未来出 13 位秒则误判为毫秒直用）与早期毫秒值
+///   （1970~2001 的毫秒 <1e12，会被误 ×1000）都会猜错；
+/// - 失败回填 `DateTime.now()`（default 未传时）污染旧记录。
+///
+/// **退出路径**：新代码一律用 `ApiTime` 显式单位入口
+/// （`parseEpochSeconds`/`parseEpochMillis`/`parseIsoZoned`，失败返回
+/// null 不回填 now）；已明确单位的调用方按 R21-B 渐进切换——已切换：
+/// `people_model`（R10，zoned RFC3339）、`enterprise_models` 的
+/// EnterpriseMessage（R08-FL，合同秒）、`enterprise_sqflite_store` 的
+/// 时间列编解码（R08-FL DB 往返）。本启发式保留仅为未盘点的存量调用方
+/// 行为不变，每迁走一批调用方，误判面就缩小一批。
 DateTime parseModelDateTime(dynamic value, {DateTime? defaultValue}) {
   final fallback = defaultValue ?? DateTime.now();
 

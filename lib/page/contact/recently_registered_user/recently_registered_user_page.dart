@@ -143,7 +143,9 @@ class _RecentlyRegisteredUserPageState
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (model.createdAt > 0)
+          // R10：注册时间（user.created_at）；0=未知 → 隐藏徽章，
+          // 绝不把缺失值回填成"刚刚"。
+          if (model.registeredAt > 0)
             Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.small,
@@ -154,7 +156,10 @@ class _RecentlyRegisteredUserPageState
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                DateTimeHelper.lastTimeFmt(model.createdAt, pattern: 'MM-dd'),
+                DateTimeHelper.lastTimeFmt(
+                  model.registeredAt,
+                  pattern: 'MM-dd',
+                ),
                 style: context.textStyle(
                   FontSizeType.caption2,
                   fontWeight: FontWeight.w600,
