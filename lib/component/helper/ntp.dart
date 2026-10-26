@@ -166,7 +166,14 @@ class NtpHelper {
           );
         }
         return _offset;
-      } on Object {
+      } on Object catch (e) {
+        // W8-C6：原 on Object 吞掉错误对象，排障时只见"失败"不见原因。
+        if (kDebugMode) {
+          debugPrint(
+            '⚠️ NtpHelper: NTP 查询失败 (${i + 1}/$_maxRetry): '
+            '${e.runtimeType}: $e',
+          );
+        }
         if (i == _maxRetry - 1) {
           if (kDebugMode) {
             debugPrint(

@@ -449,18 +449,19 @@ class MessageService with EventSubscriptionManager {
     }
 
     final msgId = parseModelString(data['id']);
+    // W8-A1：实时接收 created_at 归一仅接受带显式 zone 的 ISO/RFC3339
+    // （ApiTime.parseIsoZoned），无 zone 串不猜设备本地时区——替代裸
+    // DateTime.parse（猜时区 + FormatException 中断整条 action 处理）。
+    // 解析失败落 null，下游归 0 哨兵（无 created_at），不回填 now。
     var createdAt = data['created_at'];
     if (createdAt is String) {
-      createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
+      createdAt = ApiTime.parseIsoZoned(createdAt)?.millisecondsSinceEpoch;
     }
     final decrypted = await _handleE2EEMessage(
       data: data,
       msgId: msgId,
       chatType: type,
-      createdAtMs: parseModelInt(
-        createdAt,
-        defaultValue: DateTimeHelper.millisecond(),
-      ),
+      createdAtMs: parseModelInt(createdAt, defaultValue: 0),
     );
     if (decrypted['_e2ee_failed'] == true) {
       final reason = decrypted['_e2ee_reason']?.toString();
@@ -581,17 +582,17 @@ class MessageService with EventSubscriptionManager {
     Map<String, dynamic>? payload;
     final payloadRaw = data['payload'];
 
-    // 归一化 created_at 时间戳（需要在解密前准备）
-    // Normalize timestamp field
+    // 归一化 created_at 时间戳（需要在解密前准备）。
+    // W8-A1：仅接受带显式 zone 的 ISO/RFC3339（ApiTime.parseIsoZoned），
+    // 无 zone 串不猜设备本地时区；解析失败落 null，下游统一按"无
+    // created_at"处理（0 哨兵，不回填 now 伪造发送时间），与离线写入侧
+    // OfflineMessageWriter.parseCreatedAt 同一口径。
     var createdAt = data['created_at'];
     if (createdAt is String) {
-      createdAt = DateTimeHelper.rfc3339ToMillisecond(createdAt);
+      createdAt = ApiTime.parseIsoZoned(createdAt)?.millisecondsSinceEpoch;
       data['created_at'] = createdAt;
     }
-    final createdAtMs = parseModelInt(
-      data['created_at'],
-      defaultValue: DateTimeHelper.millisecond(),
-    );
+    final createdAtMs = parseModelInt(data['created_at'], defaultValue: 0);
 
     // v2.0: E2EE 解密处理（复用前面解析的 e2ee 变量）
     // 检查是否有 e2ee 字段（表示消息已加密）
@@ -771,7 +772,9 @@ class MessageService with EventSubscriptionManager {
         type: chatType,
         msgType: messageType,
         lastMsgId: msgId,
-        lastTime: (data['created_at'] ?? DateTimeHelper.millisecond()) as int,
+        // W8-A1：created_at 缺失/不可解析落 0（未知时间），不回填 now；
+        // 会话列表对 lastTime<=0 隐藏时间列（conversation_item 既有守卫）。
+        lastTime: parseModelInt(data['created_at'], defaultValue: 0),
         unreadNum: 0,
         id: 0,
       );
@@ -785,10 +788,8 @@ class MessageService with EventSubscriptionManager {
         fromId: parseModelInt(data['from']),
         toId: parseModelInt(data['to']),
         payload: nonNullPayload,
-        createdAt: parseModelInt(
-          data['created_at'],
-          defaultValue: DateTimeHelper.millisecond(),
-        ),
+        // W8-A1：与落库口径一致，缺失归 0（无 created_at 哨兵），不回填 now。
+        createdAt: parseModelInt(data['created_at'], defaultValue: 0),
         isAuthor: isFromCurrentUser ? 1 : 0,
         topicId: parseModelInt(data['topic_id']),
         conversationUk3: tempConv.uk3,
@@ -1069,10 +1070,10 @@ class MessageService with EventSubscriptionManager {
         fromId: parseModelInt(data['from']),
         toId: parseModelInt(data['to']),
         payload: payload,
-        createdAt: parseModelInt(
-          data['created_at'],
-          defaultValue: DateTimeHelper.millisecond(),
-        ),
+        // W8-A1：created_at 缺失/不可解析（如无 zone 串被 parseIsoZoned
+        // 拒绝）落 0 哨兵，绝不回填 now 伪造发送时间；与离线写入侧
+        // OfflineMessageWriter.parseCreatedAt 的"无 created_at=0"语义一致。
+        createdAt: parseModelInt(data['created_at'], defaultValue: 0),
         isAuthor: tempMsg.isAuthor,
         topicId: parseModelInt(data['topic_id'], defaultValue: tempMsg.topicId),
         conversationUk3: conv.uk3,

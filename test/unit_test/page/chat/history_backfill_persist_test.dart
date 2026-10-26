@@ -566,6 +566,15 @@ void main() {
         activeConversation: () => null,
         resolveTable: MessageRepo.getTableName,
         indexMessage: (_) async {},
+        // W8-B4：回调注入（recompute 路径不触去重分支，给真实现即可）
+        backfillServerOrderFacts: (msgId, {convSeq, acceptedAt, txn}) =>
+            MessageRepo(tableName: MessageRepo.c2cTable)
+                .backfillServerOrderFacts(
+                  msgId: msgId,
+                  convSeq: convSeq,
+                  acceptedAt: acceptedAt,
+                  txn: txn,
+                ),
       );
       final fixed = await writer.recomputeConversationHead(
         type: 'C2C',
@@ -580,6 +589,29 @@ void main() {
       expect(fixed.unreadNum, 2);
       final msgCount = await db.rawQuery('SELECT COUNT(*) AS c FROM msg_c2c');
       expect(msgCount.single['c'], 2);
+    });
+
+    test('W8-B2 实时乱序批次：旧 created_at 新消息不回退头但未读 +1', () async {
+      final repo = MessageRepo(tableName: MessageRepo.c2cTable);
+      // 会话头先由历史批次建立（t=200，初始未读摘要 1）
+      await repo.batchInsertOfflineMessages([
+        peerMsg('w8-b2-b', t200, 'msgB'),
+      ], trustedArchive: true);
+      // 实时批次（trustedArchive=false → historyImport=false）乱序投递
+      // 更旧 created_at 的新消息 A（t=100）：消息行必须新落库，会话头
+      // 不回退，但未读必须 +1（修复前 keep-head 分支直接 continue，
+      // 这条未读被永久丢失）。
+      await repo.batchInsertOfflineMessages([peerMsg('w8-b2-a', t100, 'msgA')]);
+
+      final conv = await readSingleConversation();
+      expect(conv['last_msg_id'], 'w8-b2-b', reason: '实时乱序不得回退会话头');
+      expect(conv['last_time'], t200);
+      expect(conv['subtitle'], 'msgB');
+      expect(conv['unread_num'], 2, reason: '历史初始 1 + 实时乱序 1（W8-B2 修复）');
+      final count = await db.rawQuery(
+        "SELECT COUNT(*) AS c FROM msg_c2c WHERE id = 'w8-b2-a'",
+      );
+      expect(count.single['c'], 1, reason: '乱序消息本身正常新落库');
     });
   });
 
@@ -618,6 +650,107 @@ void main() {
         'accepted_at': '2026-10-01T08:00:00+08:00',
       });
       expect(offset.acceptedAt, expected, reason: '+08:00 offset 与 Z 指同一瞬间');
+    });
+  });
+
+  // W8-A2：离线/归档写入侧 created_at（客户端原始发送时间）解析口径。
+  // 修复前 rfc3339ToMillisecond 走裸 DateTime.parse——无 zone 串按设备
+  // 本地时区解读（时区污染，P1 同款缺陷），解析抛异常虽被 catch 但依赖
+  // try 兜底。修复后仅 ApiTime.parseIsoZoned 严格口径：无 zone 拒绝 → 0
+  // （"无 created_at"既有哨兵，不伪造时间），带 zone 归一 UTC 毫秒。
+  group('W8-A2 parseCreatedAt 严格口径（created_at 不猜时区）', () {
+    test('带 Z 串归一为 UTC 毫秒', () {
+      expect(
+        OfflineMessageWriter.parseCreatedAt('2026-09-16T23:06:40.000Z'),
+        DateTime.utc(2026, 9, 16, 23, 6, 40).millisecondsSinceEpoch,
+      );
+    });
+
+    test('带 +08:00 offset 串与 Z 串归一到同一 UTC 毫秒', () {
+      expect(
+        OfflineMessageWriter.parseCreatedAt('2026-09-17T07:06:40+08:00'),
+        DateTime.utc(2026, 9, 16, 23, 6, 40).millisecondsSinceEpoch,
+        reason: '+08:00 offset 与 Z 指同一瞬间，与设备时区无关',
+      );
+    });
+
+    test('无 zone 串拒绝（不猜设备本地时区）→ 0 走无 created_at 路径', () {
+      // legacy DateTime.parse 会把该串按设备本地时区解读出非 0 值；
+      // 修复后必须返回 0（该行走既有"无 created_at"路径，不伪造时间）。
+      expect(OfflineMessageWriter.parseCreatedAt('2026-09-16T23:06:40'), 0);
+    });
+
+    test('null/非法串/紧凑形态 → 0；毫秒 int 与整数字符串直取', () {
+      expect(OfflineMessageWriter.parseCreatedAt(null), 0);
+      expect(OfflineMessageWriter.parseCreatedAt('garbage'), 0);
+      expect(
+        OfflineMessageWriter.parseCreatedAt('20260916T230640Z'),
+        0,
+        reason: '紧凑数字形态不静默接受',
+      );
+      expect(OfflineMessageWriter.parseCreatedAt(1750000000123), 1750000000123);
+      expect(
+        OfflineMessageWriter.parseCreatedAt('1750000000123'),
+        1750000000123,
+      );
+    });
+  });
+
+  // W8-C2/C3：parseServerOrderFacts 权威序号/接受时刻的数值口径守卫。
+  group('W8-C2/C3 parseServerOrderFacts 数值口径', () {
+    test('conv_seq 非整 double 拒绝；可无损转 int 的 num 仍接受', () {
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'conv_seq': 1.5}).convSeq,
+        isNull,
+        reason: '1.5 截断成 1 属于伪造序号，与 ApiTime._parseIntLike 口径一致拒绝',
+      );
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'conv_seq': 2.0}).convSeq,
+        2,
+        reason: '2.0 可无损转 int，仍接受',
+      );
+    });
+
+    test('accepted_at 非正数（0/负值/带符号串）拒绝，与 conv_seq 守卫对称', () {
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'accepted_at': 0})
+            .acceptedAt,
+        isNull,
+        reason: '0=1970-01-01T00:00:00Z 不是合理的服务端接受时刻',
+      );
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'accepted_at': -5})
+            .acceptedAt,
+        isNull,
+      );
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'accepted_at': '0'})
+            .acceptedAt,
+        isNull,
+      );
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'accepted_at': '-5'})
+            .acceptedAt,
+        isNull,
+        reason:
+            '带符号串不匹配纯数字正则，经 parseEpochMillis 兜底解析为 -5，'
+            '由终端兜底拒绝落列',
+      );
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({'accepted_at': 0.0})
+            .acceptedAt,
+        isNull,
+        reason:
+            '0.0 可无损转 int，经 parseEpochMillis 兜底解析为 0，'
+            '同样拒绝落列',
+      );
+      expect(
+        OfflineMessageWriter.parseServerOrderFacts({
+          'accepted_at': 1750000000123,
+        }).acceptedAt,
+        1750000000123,
+        reason: '正常正毫秒不受影响',
+      );
     });
   });
 }

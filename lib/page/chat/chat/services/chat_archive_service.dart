@@ -10,6 +10,7 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:flutter/foundation.dart';
 
 /// 历史回填 API 请求失败（与「服务端确认无数据」严格区分）。
 ///
@@ -52,6 +53,31 @@ class ChatArchiveService {
 
   /// 可注入的 API 客户端（测试用）；为 null 时用默认 [MsgApi]。
   final MsgApi? api;
+
+  // ===== W8-B1 过冲补扫水位（进程内，内存级） =====
+
+  /// convKey（会话 uk3）→ 已过冲补扫到的 seq 上限。
+  ///
+  /// 审查 P2：过冲恢复曾每轮从 0 全量补扫至 safe_head，重复轮询同一
+  /// safe_head 也整段重拉。水位让同 safe_head 的后续轮询直接跳过、
+  /// safe_head 上升只补差量区间；不持久化——进程重启后按 msg_id
+  /// 幂等去重重扫可接受。
+  static final Map<String, int> _overshootBackfilledTo = {};
+
+  /// 当前 [convKey] 的过冲补扫水位（未补扫过为 0）。
+  /// 生产读取入口（syncHistoryBackfill 传入 planHistorySync），非测试专用。
+  static int overshootWatermark(String convKey) =>
+      _overshootBackfilledTo[convKey] ?? 0;
+
+  /// 过冲补扫成功后推进水位（只进不退）。
+  static void markOvershootBackfilled(String convKey, int toSeq) {
+    final prev = _overshootBackfilledTo[convKey] ?? 0;
+    if (toSeq > prev) _overshootBackfilledTo[convKey] = toSeq;
+  }
+
+  /// 测试隔离：清空过冲补扫水位。
+  @visibleForTesting
+  static void debugResetOvershootWatermark() => _overshootBackfilledTo.clear();
 
   // ===== 消息定位 =====
 
@@ -284,7 +310,11 @@ class ChatArchiveService {
   /// - `safeHead > 0` 时持久化游标钳制 `min(nextSeq, safeHead)`（只进不退
   ///   由调用方保证）。
   /// - 过冲（`seq > safeHead && safeHead > 0`，存量库游标越过新 B）→
-  ///   不回退游标，从 0 有界补扫至 safeHead（缺失低序号在其中）。
+  ///   不回退游标，从已补扫水位 [overshootScannedTo] 有界补扫至
+  ///   safe_head（默认 0 即从 0 全量）。W8-B1：调用方传入进程内水位
+  ///   （[overshootWatermark]），重复轮询同 safe_head 不再从 0 全量重扫，
+  ///   safe_head 上升时只补差量区间 `(水位, 新 safe_head]`；水位不低于
+  ///   safe_head 时不产生过冲补扫区间。
   /// - `gaps` 非空且未 blocked → 逐段 [backfillMissing]。
   static HistorySyncPlan planHistorySync({
     required int currentSeq,
@@ -292,6 +322,7 @@ class ChatArchiveService {
     required int safeHead,
     required bool blocked,
     required List<({int fromSeq, int toSeq, String reason})> gaps,
+    int overshootScannedTo = 0,
   }) {
     if (blocked) {
       // blocked：等待，禁止自行推断 gap（BE 明确下发 blocked 时不给 gaps 语义）
@@ -310,8 +341,12 @@ class ChatArchiveService {
               : (nextSeq > currentSeq ? nextSeq : currentSeq));
     final ranges = <({int fromSeq, int toSeq})>[];
     if (currentSeq > effectiveHead && effectiveHead > 0) {
-      // R02-5 过冲恢复：游标已越过新 B，不回退；从 0 有界补扫至 safe_head
-      ranges.add((fromSeq: 0, toSeq: effectiveHead));
+      // R02-5 过冲恢复：游标已越过新 B，不回退；从进程内已补扫水位
+      // （W8-B1，默认 0）有界补扫至 safe_head——同 safe_head 重复轮询
+      // 直接跳过，safe_head 上升只补差量，落库按 msg_id 幂等去重兜底。
+      if (effectiveHead > overshootScannedTo) {
+        ranges.add((fromSeq: overshootScannedTo, toSeq: effectiveHead));
+      }
     }
     for (final g in gaps) {
       if (g.toSeq >= g.fromSeq) {
@@ -420,7 +455,13 @@ class ChatArchiveService {
   ///   range_limit；批次数上限 [maxPages] 兜底（可中断续跑：调用方重入
   ///   时从持久化游标重新计划，不无限从 0 重拉——补齐按 msg_id 幂等去重）。
   /// - 落库复用 [MessageRepo.batchInsertOfflineMessages]（msg_id 去重）。
-  /// 返回实际补齐条数。
+  ///
+  /// 返回值（W8-C4 如实登记）：**本轮回扫拉取并提交的行数**，含服务端
+  /// 重发、落库时被 msg_id 幂等去重跳过的已在库行——不是"新落库行数"。
+  /// 底层 write() 的返回值是 ACK 名单（已存在行同样计入），不提供新行
+  /// 计数；调用方只把返回值当 ">0 拉到了数据"的布尔性信号使用
+  /// （restoredByBackfill → anyFetched），不依赖精确值，故按小改面维持
+  /// 现口径并在此注明。
   Future<int> backfillMissing({
     required String chatType,
     required String peerId,

@@ -289,4 +289,66 @@ void main() {
     expect(f3.convSeq, isNull, reason: '非正 seq 不落列（不伪造序号）');
     expect(f3.acceptedAt, isNull);
   });
+
+  test('W8-B1 过冲补扫水位：同 safe_head 不重扫；safe_head 上升只补差量', () {
+    // 首轮（水位 0）：从 0 全量补扫至 20（与既有行为一致）
+    final first = ChatArchiveService.planHistorySync(
+      currentSeq: 40,
+      nextSeq: 40,
+      safeHead: 20,
+      blocked: false,
+      gaps: const [],
+      overshootScannedTo: 0,
+    );
+    expect(first.backfillRanges, [(fromSeq: 0, toSeq: 20)]);
+
+    // 二次轮询同 safe_head（水位=20）：不产生过冲补扫区间（修复前每轮
+    // 从 0 全量重扫，重复轮询白白重拉整段历史）
+    final again = ChatArchiveService.planHistorySync(
+      currentSeq: 40,
+      nextSeq: 40,
+      safeHead: 20,
+      blocked: false,
+      gaps: const [],
+      overshootScannedTo: 20,
+    );
+    expect(again.backfillRanges, isEmpty, reason: '同 safe_head 已扫过，直接跳过');
+
+    // safe_head 上升至 30（水位 20）：只补差量 (20, 30]
+    final raised = ChatArchiveService.planHistorySync(
+      currentSeq: 40,
+      nextSeq: 40,
+      safeHead: 30,
+      blocked: false,
+      gaps: const [],
+      overshootScannedTo: 20,
+    );
+    expect(raised.backfillRanges, [(fromSeq: 20, toSeq: 30)]);
+
+    // 不传水位（默认 0）保持既有"从 0 全量"行为（调用方兼容）
+    final legacy = ChatArchiveService.planHistorySync(
+      currentSeq: 40,
+      nextSeq: 40,
+      safeHead: 20,
+      blocked: false,
+      gaps: const [],
+    );
+    expect(legacy.backfillRanges, [(fromSeq: 0, toSeq: 20)]);
+  });
+
+  test('W8-B1 水位存取：只进不退、会话间隔离、debugReset 清空', () {
+    ChatArchiveService.debugResetOvershootWatermark();
+    addTearDown(ChatArchiveService.debugResetOvershootWatermark);
+
+    expect(ChatArchiveService.overshootWatermark('conv-x'), 0);
+    ChatArchiveService.markOvershootBackfilled('conv-x', 20);
+    expect(ChatArchiveService.overshootWatermark('conv-x'), 20);
+    // 回退请求被忽略（只进不退）
+    ChatArchiveService.markOvershootBackfilled('conv-x', 15);
+    expect(ChatArchiveService.overshootWatermark('conv-x'), 20);
+    // 会话间互不影响
+    expect(ChatArchiveService.overshootWatermark('conv-y'), 0);
+    ChatArchiveService.debugResetOvershootWatermark();
+    expect(ChatArchiveService.overshootWatermark('conv-x'), 0);
+  });
 }

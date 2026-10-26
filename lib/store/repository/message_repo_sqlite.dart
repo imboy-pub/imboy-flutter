@@ -428,6 +428,18 @@ class MessageRepo implements MessageRepository {
   ///
   /// 返回 [ServerOrderBackfillResult]：rowExists=false 表示该 msg_id 在
   /// 本表无行（调用方应走正常落库路径而非补齐）。
+  ///
+  /// ## txn 语义（W8-B3，审查 P2 如实标注）
+  ///
+  /// - `txn != null`（**生产合同**）：读-判-写三步在调用方事务内原子完成。
+  ///   生产唯一调用方 offline_message_writer 去重分支即此形态。
+  /// - `txn == null`：**best-effort**——三步各自独立执行（读经 `_db`
+  ///   禁缓存直查，写经 `_db.execute` 自动提交），跨连接并发下存在
+  ///   "读到 NULL → 他人已补 → 再 COALESCE 写入"的交错窗口。因写入
+  ///   本身是 COALESCE-only（仅补 NULL 列），并发交错最坏结果是重复
+  ///   尝试同值写入，不会覆盖已有可信值；返回标志按本次读判+执行结果
+  ///   给出，**不保证与并发写者的最终库状态一致**。该形态仅供测试/
+  ///   诊断单点调用，不承担并发正确性。
   Future<ServerOrderBackfillResult> backfillServerOrderFacts({
     required String msgId,
     int? convSeq,
@@ -650,6 +662,15 @@ class MessageRepo implements MessageRepository {
           ? msg.payload as Map<String, dynamic>
           : <String, dynamic>{},
     ),
+    // W8-B4：注入本 repo 的权威顺序事实补齐实现，替代 writer 直接
+    // import message_repo_sqlite（消除 repo 层循环依赖）。
+    backfillServerOrderFacts: (msgId, {convSeq, acceptedAt, txn}) =>
+        backfillServerOrderFacts(
+          msgId: msgId,
+          convSeq: convSeq,
+          acceptedAt: acceptedAt,
+          txn: txn,
+        ),
   ).write(messages, onS2CMessage: onS2CMessage, trustedArchive: trustedArchive);
 
   /// 将消息写入 FTS 索引（fire-and-forget，不阻塞主流程）

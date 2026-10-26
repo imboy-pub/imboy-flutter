@@ -1160,12 +1160,15 @@ class ChatNotifier extends _$ChatNotifier {
 
         // R01/R02：由决策纯函数统一处理 blocked 等待 / gaps 补齐 /
         // safe_head 钳制 / 过冲恢复（规则见 planHistorySync 文档与单测）。
+        // W8-B1：过冲补扫传入进程内水位——同 safe_head 重复轮询不再从 0
+        // 全量重扫，safe_head 上升只补差量区间。
         final plan = ChatArchiveService.planHistorySync(
           currentSeq: seq,
           nextSeq: page.nextSeq,
           safeHead: page.safeHead,
           blocked: page.blocked,
           gaps: page.gaps,
+          overshootScannedTo: ChatArchiveService.overshootWatermark(obj.uk3),
         );
         if (plan.blocked) {
           // blocked=true：等待下一轮增量，游标不动、禁止自行推断 gap
@@ -1181,6 +1184,12 @@ class ChatNotifier extends _$ChatNotifier {
             afterSeq: range.fromSeq,
             targetSeq: range.toSeq,
           );
+        }
+        // 过冲轮补扫完成（未抛异常）才推进水位：失败路径不推进，下轮
+        // 从原水位重扫差量（幂等去重兜底），保证不漏也不重复全量。
+        final effectiveHead = page.safeHead > 0 ? page.safeHead : page.nextSeq;
+        if (seq > effectiveHead && effectiveHead > 0) {
+          ChatArchiveService.markOvershootBackfilled(obj.uk3, effectiveHead);
         }
         if (restoredByBackfill > 0) anyFetched = true;
         if (plan.advanceTo > seq) {

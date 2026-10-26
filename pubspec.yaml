@@ -181,7 +181,6 @@ dependencies:
   path_provider: ^2.1.6              # File system path utilities (updated: 2.1.5 → 2.1.6)
   file_saver: ^0.7.0                  # File saving utilities (updated: 0.3.1 → 0.4.0)
   xid: ^1.2.1                        # Unique ID generation
-  ntp: ^2.0.0                        # Network Time Protocol (time sync)
   equatable: ^2.0.7                  # Object equality comparisons
   synchronized: ^3.4.2               # Synchronization primitives
   share_plus: ^13.2.0                # Sharing functionality (updated: 13.0.0 → 13.2.0)
