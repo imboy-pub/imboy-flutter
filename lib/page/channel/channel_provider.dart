@@ -21,6 +21,7 @@ import 'channel_di_provider.dart';
 
 part 'channel_provider.g.dart';
 part 'channel_detail_state.dart';
+part 'channel_create_state.dart';
 part 'channel_post_search_provider.dart';
 
 /// 频道未读总数缓存（进程内）
@@ -697,34 +698,6 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
         .toList(growable: false);
     if (nextMessages.length == state.messages.length) return;
     state = state.copyWith(messages: nextMessages);
-  }
-}
-
-/// 创建频道状态
-class CreateChannelState {
-  final bool isCreating;
-  final ChannelModel? createdChannel;
-  final String? error;
-
-  const CreateChannelState({
-    this.isCreating = false,
-    this.createdChannel,
-    this.error,
-  });
-
-  CreateChannelState copyWith({
-    bool? isCreating,
-    ChannelModel? createdChannel,
-    String? error,
-    bool clearCreatedChannel = false,
-  }) {
-    return CreateChannelState(
-      isCreating: isCreating ?? this.isCreating,
-      createdChannel: clearCreatedChannel
-          ? null
-          : (createdChannel ?? this.createdChannel),
-      error: error,
-    );
   }
 }
 

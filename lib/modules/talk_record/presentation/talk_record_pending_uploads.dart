@@ -648,48 +648,52 @@ class _PendingDraftCard extends StatelessWidget {
             ),
           ],
           const SizedBox(height: AppSpacing.tiny),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // 文字按钮：iosBlue（DESIGN.md §13.2 硬规则）。
-              CupertinoButton(
-                minimumSize: const Size(0, 44),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.medium,
-                ),
-                onPressed: busy ? null : onEditParticipants,
-                child: Text(
-                  '${t.talkRecord.collabParticipantsLabel} · ${t.common.edit}',
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    color: AppColors.getIosBlue(brightness),
+          SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              alignment: WrapAlignment.end,
+              spacing: AppSpacing.small,
+              runSpacing: AppSpacing.tiny,
+              children: [
+                // 文字按钮：iosBlue（DESIGN.md §13.2 硬规则）。
+                CupertinoButton(
+                  minimumSize: const Size(0, 44),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.medium,
+                  ),
+                  onPressed: busy ? null : onEditParticipants,
+                  child: Text(
+                    '${t.talkRecord.collabParticipantsLabel} · ${t.common.edit}',
+                    style: context.textStyle(
+                      FontSizeType.normal,
+                      color: AppColors.getIosBlue(brightness),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.small),
-              // 主操作：primaryDark 底 + 白字（对齐 C-F2 对比度冻结）。
-              CupertinoButton(
-                minimumSize: const Size(0, 44),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.regular,
-                ),
-                borderRadius: BorderRadius.circular(10),
-                color: AppColors.primaryDark,
-                onPressed: busy ? null : onUpload,
-                child: Text(
-                  uploading
-                      ? t.common.uploading
-                      : item.binding.uploadAttempted
-                      ? t.talkRecord.retryRecordingUpload
-                      : t.talkRecord.uploadRecording,
-                  style: context.textStyle(
-                    FontSizeType.normal,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.onPrimary,
+                // 主操作：primaryDark 底 + 白字（对齐 C-F2 对比度冻结）。
+                CupertinoButton(
+                  minimumSize: const Size(0, 44),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.regular,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppColors.primaryDark,
+                  onPressed: busy ? null : onUpload,
+                  child: Text(
+                    uploading
+                        ? t.common.uploading
+                        : item.binding.uploadAttempted
+                        ? t.talkRecord.retryRecordingUpload
+                        : t.talkRecord.uploadRecording,
+                    style: context.textStyle(
+                      FontSizeType.normal,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.onPrimary,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

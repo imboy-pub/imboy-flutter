@@ -25,6 +25,8 @@ import 'dart:convert';
 
 import 'package:test/test.dart';
 
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
+
 import 'api_test_client.dart';
 
 const _putPath = '/api/v1/e2ee/backup/put';
@@ -51,6 +53,33 @@ Map<String, dynamic> _putBody({
 void main() {
   if (!ApiTestConfig.isConfigured) {
     test('skipped: TEST_PHONE/TEST_PASSWORD 未配置', () {}, skip: true);
+    return;
+  }
+
+  if (!compiledProductFeatures.contains('e2ee')) {
+    // 此 profile 只验证编译裁剪合同，不验证正向云备份能力。
+    test('无 e2ee 编译 profile：manifest 精确一致，备份读路由裁剪为 HTTP 404', () async {
+      final client = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
+      try {
+        final login = await client.login(
+          account: ApiTestConfig.testPhone,
+          password: ApiTestConfig.testPassword,
+        );
+        expect(login['code'], 0, reason: '裁剪合同必须使用真实已认证客户端');
+        final manifest = await client.get(
+          '/api/v1/app/manifest',
+          expectedStatusCode: 200,
+        );
+        expect(manifest['manifest_hash'], productFeatureManifestHash);
+        final features = (manifest['compiled_features'] as List).cast<String>();
+        expect(features, unorderedEquals(compiledProductFeatures));
+        expect(features, isNot(contains('e2ee')));
+        await client.get(_infoPath, expectedStatusCode: 404);
+        await client.get(_getPath, expectedStatusCode: 404);
+      } finally {
+        client.close();
+      }
+    });
     return;
   }
 

@@ -379,9 +379,14 @@ void main() {
       },
     );
   }
-  for (final width in [320.0, 390.0, 1000.0]) {
+  for (final (width, scale) in [
+    (320.0, 2.0),
+    (390.0, 2.0),
+    (1000.0, 2.0),
+    (1000.0, 1.0),
+  ]) {
     testWidgets(
-      'processing consent cancellation keeps local audio at width $width 2x text',
+      'processing consent cancellation keeps local audio at width $width ${scale}x text',
       (tester) async {
         tester.view.physicalSize = Size(width, 1000);
         tester.view.devicePixelRatio = 1;
@@ -426,7 +431,7 @@ void main() {
             child: MaterialApp(
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context)
-                    .copyWith(textScaler: const TextScaler.linear(2)),
+                    .copyWith(textScaler: TextScaler.linear(scale)),
                 child: child!,
               ),
               home: const Scaffold(
@@ -436,6 +441,22 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        if (width == 1000 && scale == 1) {
+          final upload = find.widgetWithText(
+            CupertinoButton,
+            t.talkRecord.retryRecordingUpload,
+          );
+          final actions = find.ancestor(
+            of: upload,
+            matching: find.byType(Wrap),
+          );
+          final actionsRect = tester.getRect(actions);
+          expect(actionsRect.width, greaterThan(width / 2));
+          expect(
+            tester.getRect(upload).right,
+            closeTo(actionsRect.right, 0.01),
+          );
+        }
         await tester.tap(find.text(t.talkRecord.retryRecordingUpload));
         await tester.pumpAndSettle();
         expect(find.text(t.talkRecord.processingRecoveryTitle), findsOneWidget);

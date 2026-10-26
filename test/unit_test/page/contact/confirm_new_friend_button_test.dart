@@ -51,12 +51,17 @@ void main() {
     );
     expect(buttonFinder, findsOneWidget);
     final button = tester.widget<CupertinoButton>(buttonFinder);
-    expect(button.color, AppColors.primary);
+    // CONTRACT-FREEZE-T02 C-F2 requires white primary-button text >= 4.5:1.
+    expect(button.color, AppColors.primaryDark);
     expect(button.padding, EdgeInsets.zero);
 
     final labelFinder = find.text(t.common.buttonAccomplish);
     final label = tester.widget<Text>(labelFinder);
     expect(label.style?.color, AppColors.onPrimary);
+    final contrast =
+        (AppColors.onPrimary.computeLuminance() + 0.05) /
+        (button.color!.computeLuminance() + 0.05);
+    expect(contrast, greaterThanOrEqualTo(4.5));
 
     expectLabelInsideButton(tester);
   });

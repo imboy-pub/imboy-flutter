@@ -48,7 +48,7 @@ void main() {
   });
 
   group('附件 presign 真实后端集成', () {
-    late Dio dio;
+    late ApiTestClient client;
     late Dio storage;
 
     setUp(() {
@@ -62,35 +62,24 @@ void main() {
           validateStatus: (status) => status != null,
         ),
       );
-      dio = Dio(
-        BaseOptions(
-          baseUrl: _apiBase,
-          followRedirects: false,
-          // 后端鉴权头无 Bearer 前缀（见 attach_handler 验证）
-          headers: <String, dynamic>{'Authorization': _token},
-          validateStatus: (s) => s != null,
-        ),
-      );
+      client = ApiTestClient(baseUrl: _apiBase, accessToken: _token);
     });
 
     tearDown(() {
-      dio.close(force: true);
+      client.close();
       storage.close(force: true);
     });
 
     test('presign → PUT → confirm → view_url → 读回一致 → 反向 403', () async {
       // 1. presign
-      final pre = await dio.get<dynamic>(
+      final preBody = await client.get(
         '/api/v1/attachment/presign',
+        expectedStatusCode: 200,
         queryParameters: <String, dynamic>{
           'filename': 'it_test.png',
           'mime_type': 'image/png',
         },
       );
-      expect(pre.statusCode, 200);
-      final preBody = pre.data is String
-          ? json.decode(pre.data as String) as Map<String, dynamic>
-          : pre.data as Map<String, dynamic>;
       expect(preBody['code'], 0);
       final payload = preBody['payload'] as Map<String, dynamic>;
       final String putUrl = payload['put_url'] as String;
@@ -120,7 +109,7 @@ void main() {
       expect(put.statusCode, anyOf(200, 204), reason: 'PUT 直传应成功');
 
       // 3. confirm 落库
-      final confirm = await dio.post<dynamic>(
+      final confirmBody = await client.post(
         '/api/v1/attachment/confirm',
         data: <String, dynamic>{
           'object_key': objectKey,
@@ -129,19 +118,13 @@ void main() {
           'size': bytes.length,
         },
       );
-      final confirmBody = confirm.data is String
-          ? json.decode(confirm.data as String) as Map<String, dynamic>
-          : confirm.data as Map<String, dynamic>;
       expect(confirmBody['code'], 0, reason: 'confirm 应落库成功');
 
       // 4. view_url 签发
-      final view = await dio.get<dynamic>(
+      final viewBody = await client.get(
         '/api/v1/attachment/view_url',
         queryParameters: <String, dynamic>{'object_key': objectKey},
       );
-      final viewBody = view.data is String
-          ? json.decode(view.data as String) as Map<String, dynamic>
-          : view.data as Map<String, dynamic>;
       expect(viewBody['code'], 0);
       final String signedUrl =
           (viewBody['payload'] as Map<String, dynamic>)['url'] as String;

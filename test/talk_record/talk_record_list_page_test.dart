@@ -162,7 +162,7 @@ void main() {
   });
 
   group('空间上下文矩阵', () {
-    testWidgets('个人入口：显示个人空间，不显示工作区行', (tester) async {
+    testWidgets('个人入口：默认空间不重复展示，不显示工作区行', (tester) async {
       final service = FakeListService(records: [_record()]);
       await pumpList(
         tester,
@@ -171,7 +171,8 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text(t.talkRecord.contextPersonal), findsOneWidget);
+      // DESIGN.md §8.14: personal is the default context, with no caption.
+      expect(find.text(t.talkRecord.contextPersonal), findsNothing);
       expect(find.textContaining('·'), findsNothing);
       // 服务按 personal scope 拉取，不带 org/ws。
       expect(service.pageCalls.single['scope'], 'personal');
@@ -449,7 +450,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(router.state.uri.toString(), '/talk_record?scope=personal');
-      expect(find.text(t.talkRecord.contextPersonal), findsOneWidget);
+      // DESIGN.md §8.14: personal is the default context, with no caption.
+      expect(find.text(t.talkRecord.contextPersonal), findsNothing);
 
       router.push('/home');
       await tester.pumpAndSettle();

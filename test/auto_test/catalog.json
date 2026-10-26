@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "e37aacffcd02e95d32e1d1422f24e1943c1f75d8",
-    "backend_head": "30b9d332f290f4da3fb49ae615af24e57a6431aa",
-    "integration_test_count": 166,
+    "app_head": "05d15f67f3db514236615b2458076d233c8a82d7",
+    "backend_head": "c55acfc2eba101da77b24b796333ab1a61fd904d",
+    "integration_test_count": 169,
     "lib_page_count": 169,
     "module_page_count": 40,
     "route_page_component_count": 165,
@@ -1217,9 +1217,23 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/enterprise/organization_chart_nonoa_android_test.dart",
+      "target": "integration_test/enterprise/organization_chart_nonoa_android_test.dart",
+      "target_sha256": "64878348bf52c76bafb65c91a650520721a3b3341228b02791209c3c19b84c19",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "enterprise"
+      ],
+      "enabled": false,
+      "oracle_hint": false
+    },
+    {
       "id": "test:integration_test/enterprise/organization_chart_nonoa_macos_test.dart",
       "target": "integration_test/enterprise/organization_chart_nonoa_macos_test.dart",
-      "target_sha256": "155d1d67b16461faf49f930beeab30b52b0587b0c2c327a0e5468a6014304f15",
+      "target_sha256": "e756b43425d2c4a8762b886775ec541ce26e223266c60f183bffc89ce8e97751",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1652,7 +1666,7 @@
     {
       "id": "test:integration_test/mine_layout_smoke_test.dart",
       "target": "integration_test/mine_layout_smoke_test.dart",
-      "target_sha256": "db0b7fed4d71f3e35edcaa8091866e37b885e91383f1c86d1fabe75326fa7bc5",
+      "target_sha256": "7d124842092bab9e61e4a625eee85dfc2f321755566cd149ab5d9a54c6efb386",
       "sources": [
         "lib/modules/organization/presentation/current_space_tile.dart",
         "lib/page/mine/mine/mine_page.dart",
@@ -2212,6 +2226,34 @@
       "requirements": [],
       "tags": [
         "sqlite_migration"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
+      "id": "test:integration_test/talk_record_owned_capture_test.dart",
+      "target": "integration_test/talk_record_owned_capture_test.dart",
+      "target_sha256": "5b02484fd7b5c354d74c002d6cba4d935da877211ca7661c34d1c607dbd0cf78",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "talk_record_owned_capture_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": false
+    },
+    {
+      "id": "test:integration_test/talk_record_owned_lifecycle_test.dart",
+      "target": "integration_test/talk_record_owned_lifecycle_test.dart",
+      "target_sha256": "368db9c86e999de733d99d90648740dc53b60de82d457227c9ce6f3598749f5e",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "talk_record_owned_lifecycle_test.dart"
       ],
       "enabled": false,
       "oracle_hint": true

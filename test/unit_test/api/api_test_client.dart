@@ -119,6 +119,7 @@ class ApiTestClient {
   final Dio _dio;
   final String baseUrl;
   final String _deviceId;
+  final String? _signingKey;
 
   String? _accessToken;
   String? _refreshToken;
@@ -127,17 +128,34 @@ class ApiTestClient {
   String? get accessToken => _accessToken;
   String? get currentUid => _currentUid;
 
-  ApiTestClient({required this.baseUrl, String? deviceId})
-    : _deviceId = deviceId ?? 'e2e-dart-test-001',
-      _dio = Dio(
-        BaseOptions(
-          baseUrl: baseUrl,
-          contentType: 'application/json',
-          connectTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(seconds: 30),
-          validateStatus: (status) => status != null,
-        ),
+  ApiTestClient({
+    required this.baseUrl,
+    String? deviceId,
+    String? accessToken,
+    Dio? dio,
+    String? signingKey,
+  }) : _signingKey = signingKey?.trim(),
+       _accessToken = accessToken?.trim(),
+       _deviceId = deviceId ?? 'e2e-dart-test-001',
+       _dio =
+           dio ??
+           Dio(
+             BaseOptions(
+               baseUrl: baseUrl,
+               contentType: 'application/json',
+               connectTimeout: const Duration(seconds: 30),
+               receiveTimeout: const Duration(seconds: 30),
+               validateStatus: (status) => status != null,
+             ),
+           ) {
+    if (_dio.options.baseUrl.isNotEmpty && _dio.options.baseUrl != baseUrl) {
+      throw ArgumentError(
+        'Injected Dio baseUrl must match ApiTestClient baseUrl',
       );
+    }
+    _dio.options.baseUrl = baseUrl;
+    _dio.options.followRedirects = false;
+  }
 
   Map<String, String> _defaultHeaders() {
     // 生产验签已 per-pkg 化（auth_ds 按 pkg_cos_sk 查 config 表）：可用
@@ -156,7 +174,7 @@ class ApiTestClient {
     final pkg = env['TEST_SIGN_PKG'] ?? 'pub.imboy.app';
     const vsn = '0.8.0';
     final raw = '$_deviceId|$vsn|$cos|$pkg';
-    final key = utf8.encode(_loadSigningKey());
+    final key = utf8.encode(_signingKey ?? _loadSigningKey());
     final signature = base64.encode(
       crypto.Hmac(crypto.sha512, key).convert(utf8.encode(raw)).bytes,
     );
@@ -223,15 +241,18 @@ class ApiTestClient {
             : 'mobile');
     _log('登录: $account');
     Future<Map<String, dynamic>> postPwd(String pwd) async {
-      final resp = await _dio.post<dynamic>(
-        '/api/v1/passport/login',
-        data: {
-          'account': account,
-          'pwd': pwd,
-          'type': loginType,
-          'rsa_encrypt': '0',
-        },
-        options: Options(headers: _defaultHeaders()),
+      final resp = await requestWithRateLimitRetry(
+        () => _dio.post<dynamic>(
+          '/api/v1/passport/login',
+          data: {
+            'account': account,
+            'pwd': pwd,
+            'type': loginType,
+            'rsa_encrypt': '0',
+          },
+          options: Options(headers: _defaultHeaders()),
+        ),
+        login: true,
       );
       return _parse(resp);
     }
@@ -260,7 +281,7 @@ class ApiTestClient {
   Future<Map<String, dynamic>> refreshToken() async {
     final h = _defaultHeaders();
     if (_refreshToken != null) h['imboy-refreshtoken'] = _refreshToken!;
-    final resp = await _requestWithRateLimitRetry(
+    final resp = await requestWithRateLimitRetry(
       () => _dio.post<dynamic>(
         '/api/v1/refreshtoken',
         options: Options(headers: h),
@@ -278,14 +299,20 @@ class ApiTestClient {
   Future<Map<String, dynamic>> get(
     String path, {
     Map<String, dynamic>? queryParameters,
+    int? expectedStatusCode,
   }) async {
-    final resp = await _requestWithRateLimitRetry(
+    final resp = await requestWithRateLimitRetry(
       () => _dio.get<dynamic>(
         path,
         queryParameters: queryParameters,
         options: Options(headers: _authHeaders()),
       ),
     );
+    if (expectedStatusCode != null && resp.statusCode != expectedStatusCode) {
+      throw StateError(
+        'GET $path expected HTTP $expectedStatusCode, got ${resp.statusCode}',
+      );
+    }
     return _parse(resp);
   }
 
@@ -297,7 +324,7 @@ class ApiTestClient {
     if (!readOnly) {
       ApiTestConfig.ensureBusinessWriteAllowed(path: path, baseUrl: baseUrl);
     }
-    final resp = await _requestWithRateLimitRetry(
+    final resp = await requestWithRateLimitRetry(
       () => _dio.post<dynamic>(
         path,
         data: data,
@@ -306,23 +333,6 @@ class ApiTestClient {
       retryable: readOnly,
     );
     return _parse(resp);
-  }
-
-  Future<Response<dynamic>> _requestWithRateLimitRetry(
-    Future<Response<dynamic>> Function() request, {
-    bool retryable = true,
-  }) async {
-    const maxRetries = 3;
-    for (var attempt = 0; attempt <= maxRetries; attempt++) {
-      final response = await request();
-      if (!retryable || response.statusCode != 429 || attempt == maxRetries) {
-        return response;
-      }
-      final delaySeconds = 1 << attempt;
-      _log('收到 429，${delaySeconds}s 后重试 (${attempt + 1}/$maxRetries)');
-      await Future<void>.delayed(Duration(seconds: delaySeconds));
-    }
-    throw StateError('rate-limit retry loop exhausted');
   }
 
   Map<String, dynamic> _parse(Response<dynamic> resp) {
@@ -341,6 +351,43 @@ class ApiTestClient {
   void close() => _dio.close();
 
   static void _log(String msg) => stderr.writeln('[API-TEST] $msg');
+}
+
+/// Login fixtures must respect the server's IP window across suite isolates.
+/// A login waits at most three 60-second windows; business writes never retry.
+Future<Response<dynamic>> requestWithRateLimitRetry(
+  Future<Response<dynamic>> Function() request, {
+  bool retryable = true,
+  bool login = false,
+  Future<void> Function(Duration)? wait,
+}) async {
+  const maxRetries = 3;
+  for (var attempt = 0; attempt <= maxRetries; attempt++) {
+    final response = await request();
+    if (!retryable || response.statusCode != 429 || attempt == maxRetries) {
+      return response;
+    }
+    var delay = Duration(seconds: login ? 60 : 1 << attempt);
+    final retryAfter = response.headers.value('retry-after');
+    if (retryAfter != null) {
+      final seconds = int.tryParse(retryAfter);
+      if (seconds != null) {
+        delay = Duration(seconds: seconds);
+      } else {
+        try {
+          delay = HttpDate.parse(retryAfter).difference(DateTime.now().toUtc());
+        } on HttpException {
+          // HttpDate rejects malformed HTTP dates with HttpException.
+        } on FormatException {
+          // Retain the bounded fallback for malformed numeric date fields.
+        }
+      }
+    }
+    if (delay > const Duration(minutes: 1)) return response;
+    if (delay < const Duration(seconds: 1)) delay = const Duration(seconds: 1);
+    await (wait ?? Future<void>.delayed)(delay);
+  }
+  throw StateError('rate-limit retry loop exhausted');
 }
 
 // ──────────────────────────────────────────────
