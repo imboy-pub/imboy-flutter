@@ -24,7 +24,10 @@ void main() {
   String wsUrl = '';
 
   setUpAll(() async {
-    apiClient = ApiTestClient(baseUrl: ApiTestConfig.apiBaseUrl);
+    apiClient = ApiTestClient(
+      baseUrl: ApiTestConfig.apiBaseUrl,
+      deviceId: 'dart-test-ws-001',
+    );
 
     if (ApiTestConfig.isConfigured) {
       await apiClient.login(
@@ -33,20 +36,16 @@ void main() {
       );
     }
 
-    // 从 init_config 获取 ws_url，回退为 API URL 推导
-    try {
-      final resp = await apiClient.get('/api/v1/init');
-      if (resp['code'] == 0 && resp['data'] is Map) {
-        wsUrl = ((resp['data'] as Map)['ws_url'] as String?) ?? '';
-      }
-    } catch (_) {}
-
-    if (wsUrl.isEmpty) {
-      wsUrl = ApiTestConfig.apiBaseUrl
-          .replaceFirst('https://', 'wss://')
-          .replaceFirst('http://', 'ws://');
-      if (!wsUrl.endsWith('/ws')) wsUrl = '$wsUrl/ws';
-    }
+    // 与后端唯一 canonical route 一致；init payload 为加密配置，不能读作 data。
+    final base = Uri.parse(ApiTestConfig.apiBaseUrl);
+    wsUrl = base
+        .replace(
+          scheme: base.scheme == 'https' ? 'wss' : 'ws',
+          path: '/api/v1/ws',
+          query: null,
+          fragment: null,
+        )
+        .toString();
   });
 
   tearDownAll(() => apiClient.close());
@@ -60,7 +59,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final ws = await _connect(wsUrl, token: apiClient.accessToken!);
+      final ws = await _connect(wsUrl, headers: apiClient.authenticatedHeaders);
       await Future<void>.delayed(const Duration(seconds: 1));
       await ws.close();
     });
@@ -70,7 +69,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final ws = await _connect(wsUrl, token: apiClient.accessToken!);
+      final ws = await _connect(wsUrl, headers: apiClient.authenticatedHeaders);
       var disconnected = false;
       Object? wsError;
       ws.listen(
@@ -89,7 +88,8 @@ void main() {
     test('1.3 无 token 连接 — 5 秒内被服务端断开或拒绝建立', () async {
       var rejected = false;
       try {
-        final ws = await _connect(wsUrl); // 无 token
+        final headers = apiClient.authenticatedHeaders..remove('authorization');
+        final ws = await _connect(wsUrl, headers: headers); // 有效签名但无 token
         var serverClosed = false;
         ws.listen(
           (_) {},
@@ -103,10 +103,8 @@ void main() {
         await Future<void>.delayed(const Duration(seconds: 5));
         rejected = serverClosed;
         if (!serverClosed) await ws.close();
-      } on WebSocketException {
-        rejected = true;
-      } on SocketException {
-        rejected = true;
+      } on WebSocketException catch (error) {
+        rejected = error.httpStatusCode == HttpStatus.unauthorized;
       }
       expect(
         rejected,
@@ -125,7 +123,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final ws = await _connect(wsUrl, token: apiClient.accessToken!);
+      final ws = await _connect(wsUrl, headers: apiClient.authenticatedHeaders);
       final allMessages = <String>[];
 
       ws.listen(
@@ -141,21 +139,21 @@ void main() {
 
       ws.add('ping');
 
-      // 轮询等待 ping 之后收到新消息（最多 5 秒）
+      // JSON 子协议的应用层文本心跳必须返回精确 pong。
       const deadline = Duration(seconds: 5);
       final start = DateTime.now();
-      while (allMessages.length == countBeforePing) {
+      while (!allMessages.skip(countBeforePing).contains('pong')) {
         if (DateTime.now().difference(start) >= deadline) {
-          fail('ping 后 5 秒内未收到任何响应');
+          fail('ping 后 5 秒内未收到精确 pong');
         }
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
       await ws.close();
       expect(
-        allMessages.length,
-        greaterThan(countBeforePing),
-        reason: 'ping 后应收到服务端响应（pong 或业务消息）',
+        allMessages.skip(countBeforePing),
+        contains('pong'),
+        reason: 'imboy-json 文本 ping 必须收到 pong，业务消息不能替代心跳',
       );
     });
   });
@@ -169,7 +167,7 @@ void main() {
         markTestSkipped('未登录');
         return;
       }
-      final ws = await _connect(wsUrl, token: apiClient.accessToken!);
+      final ws = await _connect(wsUrl, headers: apiClient.authenticatedHeaders);
       final messages = <dynamic>[];
       var disconnected = false;
       Object? wsError;
@@ -201,15 +199,16 @@ void main() {
   });
 }
 
-Future<WebSocket> _connect(String url, {String? token}) {
-  final headers = <String, dynamic>{
-    'cos': Platform.isMacOS ? 'macos' : 'linux',
-    'vsn': '0.8.0',
-    'pkg': 'pub.imboy.app',
-    'did': 'dart-test-ws-001',
-    // backend requires a recognized subprotocol; without it → HTTP 400
-    'sec-websocket-protocol': 'imboy-json',
-  };
-  if (token != null) headers['authorization'] = 'Bearer $token';
-  return WebSocket.connect(url, headers: headers);
+Future<WebSocket> _connect(
+  String url, {
+  required Map<String, String> headers,
+}) async {
+  final ws = await WebSocket.connect(
+    url,
+    headers: headers,
+    protocols: ['imboy-json'],
+  );
+  addTearDown(ws.close);
+  expect(ws.protocol, 'imboy-json', reason: '必须协商真实 JSON 子协议');
+  return ws;
 }

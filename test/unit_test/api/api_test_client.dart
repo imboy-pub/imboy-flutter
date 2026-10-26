@@ -128,6 +128,8 @@ class ApiTestClient {
   String? get accessToken => _accessToken;
   String? get currentUid => _currentUid;
 
+  Map<String, String> get authenticatedHeaders => _authHeaders();
+
   ApiTestClient({
     required this.baseUrl,
     String? deviceId,

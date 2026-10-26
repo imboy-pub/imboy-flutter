@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:dio/dio.dart';
 
 import 'package:test/test.dart';
@@ -5,6 +8,36 @@ import 'package:test/test.dart';
 import 'api_test_client.dart';
 
 void main() {
+  test('握手签名复用相同 DID，header 快照修改不影响 client', () {
+    final client = ApiTestClient(
+      baseUrl: 'http://127.0.0.1',
+      deviceId: 'synthetic-ws-did',
+      accessToken: 'synthetic-token',
+      signingKey: 'synthetic-sign-key',
+    );
+    addTearDown(client.close);
+    final headers = client.authenticatedHeaders;
+    expect(headers['did'], 'synthetic-ws-did');
+    final raw =
+        '${headers['did']}|${headers['vsn']}|${headers['cos']}|${headers['pkg']}';
+    expect(
+      headers['sign'],
+      base64.encode(
+        crypto.Hmac(
+          crypto.sha512,
+          utf8.encode('synthetic-sign-key'),
+        ).convert(utf8.encode(raw)).bytes,
+      ),
+    );
+    headers.remove('authorization');
+    headers['did'] = 'modified-snapshot';
+    expect(
+      client.authenticatedHeaders['authorization'],
+      'Bearer synthetic-token',
+    );
+    expect(client.authenticatedHeaders['did'], 'synthetic-ws-did');
+  });
+
   test('业务 POST 按 client 实际目标地址判断，不能被环境变量误导', () async {
     final client = ApiTestClient(baseUrl: 'https://pro.imboy.pub');
     addTearDown(client.close);
