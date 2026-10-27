@@ -12,6 +12,8 @@ import 'scoped_preference_writer.dart';
 
 // W04.d：合同能力门判定（create_receipt_contract_enabled）。
 import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
+import 'package:imboy/store/api/list_cursor_client.dart'
+    show listCursorContractEnabled;
 
 class AppManifestMismatchException implements Exception {
   const AppManifestMismatchException(this.message);
@@ -40,6 +42,9 @@ class AppManifest {
   final Map<String, dynamic> groupContracts;
   final Map<String, dynamic> channelContracts;
 
+  /// W07.c（C2 清单 cursor 协议）合同。缺失折叠空 map（未启用）。
+  final Map<String, dynamic> listContracts;
+
   const AppManifest({
     required this.manifestHash,
     required this.manifestSchemaVersion,
@@ -52,12 +57,17 @@ class AppManifest {
     required this.generatedAt,
     this.groupContracts = const {},
     this.channelContracts = const {},
+    this.listContracts = const {},
   });
 
   /// 群创建受理合同（`group_contracts.create_request_id`）：恰为整数 1
   /// 才启用；缺失/true/"1"/2 均不启用（J27.d/e 精度）。
   bool get groupCreateReceiptEnabled =>
       createReceiptContractEnabled(groupContracts);
+
+  /// W07.c（C2 清单 cursor 协议）：`list_contracts` 能力门
+  /// （恰为整数 1 才启用，未声明 → legacy 路径零变化）。
+  bool get listCursorGateEnabled => listCursorContractEnabled(listContracts);
 
   /// 频道创建受理合同（`channel_contracts.create_request_id`）。
   bool get channelCreateReceiptEnabled =>
@@ -91,6 +101,9 @@ class AppManifest {
       groupContracts: raw['group_contracts'] is Map
           ? Map<String, dynamic>.from(raw['group_contracts'] as Map)
           : const {},
+      listContracts: raw['list_contracts'] is Map
+          ? Map<String, dynamic>.from(raw['list_contracts'] as Map)
+          : const {},
       channelContracts: raw['channel_contracts'] is Map
           ? Map<String, dynamic>.from(raw['channel_contracts'] as Map)
           : const {},
@@ -109,6 +122,7 @@ class AppManifest {
     'plugins': plugins,
     'generated_at': generatedAt,
     'group_contracts': groupContracts,
+    'list_contracts': listContracts,
     'channel_contracts': channelContracts,
   };
 
