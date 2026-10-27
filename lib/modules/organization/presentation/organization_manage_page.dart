@@ -82,6 +82,17 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   List<ChannelModel> _activeChannels = const [];
   List<ChannelModel> _archivedChannels = const [];
   bool _resourcesLoading = false;
+  ({
+    String gid,
+    String title,
+    String workspaceId,
+    String account,
+    int generation,
+  })?
+  _pendingGroupRename;
+  String? _pendingGroupRenameError;
+  bool _creatingGroup = false;
+  int _groupActionGeneration = 0;
   String? _resourcesError;
 
   bool _loading = false;
@@ -104,7 +115,34 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   @override
   void initState() {
     super.initState();
+    UserRepoLocal.to.addAuthListener(_onGroupAuthChange);
     _refresh();
+  }
+
+  @override
+  void didUpdateWidget(covariant OrganizationManagePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.accountKey != widget.accountKey ||
+        oldWidget.orgId != widget.orgId) {
+      _clearGroupAction();
+    }
+  }
+
+  @override
+  void dispose() {
+    UserRepoLocal.to.removeAuthListener(_onGroupAuthChange);
+    super.dispose();
+  }
+
+  void _clearGroupAction() {
+    _groupActionGeneration++;
+    _creatingGroup = false;
+    _pendingGroupRename = null;
+    _pendingGroupRenameError = null;
+  }
+
+  void _onGroupAuthChange() {
+    if (mounted) setState(_clearGroupAction);
   }
 
   // ==================== 数据加载 ====================
@@ -331,30 +369,103 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   // ==================== 群 / 频道动作 ====================
 
   Future<void> _createGroup() async {
-    if (_activeWsId.isEmpty) return;
+    if (_activeWsId.isEmpty || _creatingGroup || _pendingGroupRename != null) {
+      return;
+    }
+    final actionGeneration = _groupActionGeneration;
+    final account = _accountKey;
+    final generation = UserRepoLocal.to.sessionGeneration;
     final title = await orgPromptInput(
       context,
       title: t.organization.manage.createGroup,
       hint: t.organization.manage.groupNameHint,
     );
-    if (title == null) return;
-    await _runGovernance(() async {
+    if (title == null ||
+        !mounted ||
+        _creatingGroup ||
+        _pendingGroupRename != null ||
+        actionGeneration != _groupActionGeneration ||
+        !_isGroupActionCurrent(account, generation)) {
+      return;
+    }
+    final workspaceId = _activeWsId;
+    setState(() => _creatingGroup = true);
+    try {
       final created = await _groupApi.createWorkspaceGroup(
-        workspaceId: _activeWsId,
+        workspaceId: workspaceId,
         memberUserIds: const [],
       );
-      if (created.error != null) return created.error;
-      // 建群接口不接群名，补一次改名；补名失败不回滚建群（群已存在是事实），
-      // 只把失败说出来。
-      if (title.isNotEmpty) {
-        final renameErr = await _groupApi.editTitle(
+      if (!_isGroupActionCurrent(account, generation) ||
+          actionGeneration != _groupActionGeneration) {
+        return;
+      }
+      if (created.error != null) {
+        if (_isGroupActionCurrent(account, generation)) {
+          _toast('${t.organization.manage.createGroup}：${created.error}');
+        }
+        return;
+      }
+      setState(() {
+        _pendingGroupRename = (
           gid: created.gid,
           title: title,
+          workspaceId: workspaceId,
+          account: account,
+          generation: generation,
         );
-        if (renameErr != null) return renameErr;
+      });
+      if (_isGroupActionCurrent(account, generation)) {
+        await _retryCreatedGroupRename();
       }
-      return null;
-    }, t.organization.manage.createGroup);
+    } on Object catch (e) {
+      if (_isGroupActionCurrent(account, generation)) {
+        _toast('${t.organization.manage.createGroup}：$e');
+      }
+    } finally {
+      if (mounted && actionGeneration == _groupActionGeneration) {
+        setState(() => _creatingGroup = false);
+      }
+    }
+  }
+
+  bool _isGroupActionCurrent(String account, int generation) =>
+      mounted &&
+      _accountKey == account &&
+      UserRepoLocal.to.isCurrentSession(generation) &&
+      !UserRepoLocal.to.isAuthTransitioning;
+
+  Future<void> _retryCreatedGroupRename() async {
+    final pending = _pendingGroupRename;
+    if (pending == null ||
+        !_isGroupActionCurrent(pending.account, pending.generation)) {
+      return;
+    }
+    final actionGeneration = _groupActionGeneration;
+    bool isCurrentPending() =>
+        actionGeneration == _groupActionGeneration &&
+        _pendingGroupRename == pending &&
+        _isGroupActionCurrent(pending.account, pending.generation);
+    // The gid is captured before retry; a rename failure must never create again.
+    try {
+      final error = await _groupApi.editTitle(
+        gid: pending.gid,
+        title: pending.title,
+      );
+      if (!isCurrentPending()) return;
+      if (error != null) {
+        setState(() => _pendingGroupRenameError = error);
+        return;
+      }
+      setState(() {
+        _pendingGroupRename = null;
+        _pendingGroupRenameError = null;
+      });
+      await _refresh();
+    } on Object catch (e) {
+      if (isCurrentPending()) {
+        setState(() => _pendingGroupRenameError = e.toString());
+      }
+    }
   }
 
   Future<void> _dissolveGroup(GroupModel g) async {
@@ -672,6 +783,38 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
       ListTile(title: Text(t.organization.manage.resourceNeedsWorkspace))
     else ...[
       _wsSelector(),
+      if (_pendingGroupRename != null &&
+          _pendingGroupRenameError != null &&
+          _isGroupActionCurrent(
+            _pendingGroupRename!.account,
+            _pendingGroupRename!.generation,
+          ))
+        ListTile(
+          key: const ValueKey('org-manage-group-rename-pending'),
+          title: Text(
+            t.organization.manage.groupCreatedRenamePending(
+              gid: _pendingGroupRename!.gid,
+            ),
+          ),
+          subtitle: Text(_pendingGroupRenameError!),
+          trailing: TextButton(
+            onPressed: _creatingGroup
+                ? null
+                : () async {
+                    final actionGeneration = _groupActionGeneration;
+                    setState(() => _creatingGroup = true);
+                    try {
+                      await _retryCreatedGroupRename();
+                    } finally {
+                      if (mounted &&
+                          actionGeneration == _groupActionGeneration) {
+                        setState(() => _creatingGroup = false);
+                      }
+                    }
+                  },
+            child: Text(t.organization.manage.retry),
+          ),
+        ),
       if (_resourcesError != null)
         ListTile(
           leading: const Icon(CupertinoIcons.exclamationmark_triangle),

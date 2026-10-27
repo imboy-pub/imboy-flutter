@@ -101,6 +101,58 @@ class _RoutingAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
+class _GroupRenameAdapter implements HttpClientAdapter {
+  _GroupRenameAdapter(this.delegate);
+
+  final _RoutingAdapter delegate;
+  int creates = 0;
+  Completer<ResponseBody>? createGate;
+  Completer<ResponseBody>? editGate;
+  final List<Map<String, dynamic>> edits = [];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.path.contains('/api/v1/group/add')) {
+      creates++;
+      if (creates == 1 && createGate != null) return createGate!.future;
+      return ResponseBody.fromString(
+        jsonEncode(
+          _ok({
+            'group': {'id': '777'},
+          }),
+        ),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
+    }
+    if (options.path.contains('/api/v1/group/edit')) {
+      edits.add(Map<String, dynamic>.from(options.data as Map));
+      if (edits.length == 1 && editGate != null) return editGate!.future;
+      return ResponseBody.fromString(
+        jsonEncode(
+          (edits.length == 1 || editGate != null)
+              ? {'code': 1, 'msg': 'rename failed'}
+              : _ok(null),
+        ),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
+    }
+    return delegate.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) => delegate.close(force: force);
+}
+
 Map<String, dynamic> _ok(dynamic payload) => {
   'code': 0,
   'msg': 'success',
@@ -278,6 +330,145 @@ void main() {
   Widget buildHost() => const MaterialApp(
     home: OrganizationManagePage(orgId: kOrgId, accountKey: '1001'),
   );
+
+  testWidgets('已建群改名失败后只重试原群改名', (tester) async {
+    final adapter = _GroupRenameAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-manage-create-group')),
+    );
+    final create = find.byKey(const ValueKey('org-manage-create-group'));
+    await tester.ensureVisible(create);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -100));
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '研发群');
+    await tester.tap(find.text('确定').last);
+    await _pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-manage-group-rename-pending')),
+    );
+    expect(find.textContaining('群已创建（ID：777）'), findsOneWidget);
+    expect(adapter.creates, 1);
+    expect(adapter.edits, hasLength(1));
+    final pending = find.byKey(
+      const ValueKey('org-manage-group-rename-pending'),
+    );
+    await tester.ensureVisible(pending);
+    await tester.tap(find.descendant(of: pending, matching: find.text('重试')));
+    await tester.pumpAndSettle();
+    expect(adapter.creates, 1);
+    expect(adapter.edits, hasLength(2));
+    expect(adapter.edits.map((e) => e['gid']), everyElement('777'));
+    expect(adapter.edits.map((e) => e['title']), everyElement('研发群'));
+    expect(
+      find.byKey(const ValueKey('org-manage-group-rename-pending')),
+      findsNothing,
+    );
+  });
+
+  testWidgets('建群请求跨账号完成不会阻止新账号建群或改旧群', (tester) async {
+    final adapter = _GroupRenameAdapter(_happyAdapter())
+      ..createGate = Completer<ResponseBody>();
+    HttpClient.adapterForTest = adapter;
+    Widget host(String account) => MaterialApp(
+      home: OrganizationManagePage(orgId: kOrgId, accountKey: account),
+    );
+    await tester.pumpWidget(host('1001'));
+    final create = find.byKey(const ValueKey('org-manage-create-group'));
+    await _pumpUntilFound(tester, create);
+    await tester.ensureVisible(create);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -100));
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '旧账号群');
+    await tester.tap(find.text('确定').last);
+    for (var i = 0; i < 40 && adapter.creates == 0; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.creates, 1);
+    await tester.pumpWidget(host('1002'));
+    await tester.pump();
+    adapter.createGate!.complete(
+      ResponseBody.fromString(
+        jsonEncode(
+          _ok({
+            'group': {'id': '777'},
+          }),
+        ),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(adapter.edits, isEmpty);
+    expect(
+      find.byKey(const ValueKey('org-manage-group-rename-pending')),
+      findsNothing,
+    );
+    await tester.ensureVisible(create);
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsOneWidget);
+  });
+
+  testWidgets('旧组织改名迟到不会清除新组织待重试状态', (tester) async {
+    final adapter = _GroupRenameAdapter(_happyAdapter())
+      ..editGate = Completer<ResponseBody>();
+    HttpClient.adapterForTest = adapter;
+    Widget host(String org) => MaterialApp(
+      home: OrganizationManagePage(orgId: org, accountKey: '1001'),
+    );
+    await tester.pumpWidget(host(kOrgId));
+    final create = find.byKey(const ValueKey('org-manage-create-group'));
+    await _pumpUntilFound(tester, create);
+    await tester.ensureVisible(create);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -100));
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '旧组织群');
+    await tester.tap(find.text('确定').last);
+    for (var i = 0; i < 40 && adapter.edits.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(adapter.edits, hasLength(1));
+    await tester.pumpWidget(host('901'));
+    await tester.pump();
+    await tester.ensureVisible(create);
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '新组织群');
+    await tester.tap(find.text('确定').last);
+    final pending = find.byKey(
+      const ValueKey('org-manage-group-rename-pending'),
+    );
+    await _pumpUntilFound(tester, pending);
+    expect(adapter.edits, hasLength(2));
+    expect(pending, findsOneWidget);
+    adapter.editGate!.complete(
+      ResponseBody.fromString(
+        jsonEncode(_ok(null)),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(pending, findsOneWidget);
+  });
 
   testWidgets('角色裁剪：既非管理者也不拥有工作区时全只读', (tester) async {
     HttpClient.adapterForTest = _happyAdapter(
