@@ -212,9 +212,11 @@ class _ChannelDiscussionEntryState
             : Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     CupertinoIcons.chat_bubble_2,
-                    color: AppColors.iosBlue,
+                    color: AppColors.getIosBlue(
+                      CupertinoTheme.of(context).brightness ?? Brightness.light,
+                    ),
                   ),
                   AppSpacing.horizontalSmall,
                   Expanded(child: Text(context.t.channel.joinDiscussion)),

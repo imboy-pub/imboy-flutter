@@ -996,8 +996,9 @@ class ChatPageState extends ConsumerState<ChatPage>
             .chatService
             ?.scrollToMessage(
               msgId,
-              duration: const Duration(milliseconds: 500),
-              offset: 120.0, // 增加偏移量，避开 AppBar
+              // W12：回归组件默认时长（250ms linearToEaseOut），减少动效
+              // 负担；保留偏移避开 AppBar。
+              offset: 120.0,
             );
 
         // 检查目标消息是否已挂载到视图树中

@@ -57,7 +57,10 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     final isSelected = state.selects.any((s) => s.peerId == model.peerId);
 
     return Container(
-      height: _itemHeight.toDouble(),
+      // W12（J22.d）：最小行高而非固定高——大字模式下随 TextScaler 自然
+      // 增高，仍满足 iOS ≥44pt 触达。
+      constraints: BoxConstraints(minHeight: _itemHeight.toDouble()),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
       color: isDark ? colorScheme.surface : AppColors.lightSurface,
       // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
       // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。

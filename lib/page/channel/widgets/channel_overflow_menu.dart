@@ -218,7 +218,6 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
               fontSize: FontSizeType.medium.size,
               fontWeight: FontWeight.w400,
               color: effectiveTextColor,
-              fontFamily: 'PingFang SC',
             ),
           ),
         ],
