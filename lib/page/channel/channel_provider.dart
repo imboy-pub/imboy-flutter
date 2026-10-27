@@ -6,6 +6,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/i18n/strings.g.dart' show t;
+import 'package:imboy/service/creation_receipt/channel_creation_receipt_service.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_flow.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_model.dart';
@@ -1040,6 +1042,40 @@ class CreateChannelNotifier extends _$CreateChannelNotifier {
     );
 
     try {
+      // W04.d.c：受理合同路径（manifest 能力门开启时启用；恢复重放/只查
+      // 一律原键原载荷）。capabilityMissing 且无未知意图 → 回落既有键less
+      // 路径（行为零变化）；已有未知意图时绝不剥键走旧 POST。
+      final receipt = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(
+            account: UserRepoLocal.to.currentUid,
+            name: name,
+            description: description,
+            avatar: avatar,
+            visibility: visibility,
+            accessType: accessType,
+            joinPolicy: joinPolicy,
+            customId: customId,
+            tags: tags,
+          );
+      if (!ref.mounted) return null;
+      if (receipt.ok) {
+        // 成功 payload 即频道对象 + 增量字段（request_id/creation_state）。
+        final channel = ChannelModel.fromJson(receipt.payload);
+        state = CreateChannelState(isCreating: false, createdChannel: channel);
+        return channel;
+      }
+      if (!(receipt.failure == CreationFlowFailure.capabilityMissing &&
+          !receipt.pendingIntentBlocked)) {
+        // conflict/notAccepted/unknownPending：意图保留，重试继续恢复；
+        // expired/unavailable：意图已清，可重新发起（新键）；
+        // capabilityMissing+未知意图：不剥键，展示恢复不可用。
+        state = CreateChannelState(
+          isCreating: false,
+          error: receipt.errorText ?? t.channel.creationRecoveryUnavailable,
+        );
+        return null;
+      }
+      // 能力未启用且无未知意图：既有键less路径（行为零变化）。
       final channel = await _api.createChannel(
         name: name,
         description: description,

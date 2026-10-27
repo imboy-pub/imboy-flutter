@@ -826,6 +826,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '创建频道'
 	String get create => '创建频道';
 
+	/// zh-CN: '创建结果未知，请稍后重试'
+	String get creationRecoveryUnavailable => '创建结果未知，请稍后重试';
+
 	/// zh-CN: '搜索频道名称或ID'
 	String get searchHint => '搜索频道名称或ID';
 
@@ -11088,6 +11091,7 @@ extension on Translations {
 			'channel.managed' => '管理中',
 			'channel.discover' => '发现频道',
 			'channel.create' => '创建频道',
+			'channel.creationRecoveryUnavailable' => '创建结果未知，请稍后重试',
 			'channel.searchHint' => '搜索频道名称或ID',
 			'channel.noResults' => '未找到相关频道',
 			'channel.noRecommendedChannels' => '暂无推荐频道 稍后再来看看吧',
@@ -11362,9 +11366,9 @@ extension on Translations {
 			'chat.readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
 			'chat.remindMeLater' => '下次再说',
 			'chat.quickReplyManage' => '管理快捷回复',
-			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
 			_ => null,
 		} ?? switch (path) {
+			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
 			'chat.quickReplyDuplicate' => '内容已存在',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
 			'chat.quickReplyHint' => '输入内容...',
@@ -11876,9 +11880,9 @@ extension on Translations {
 			'common.showOnlineStatus' => '显示在线状态',
 			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
 			'common.allowNearbyVisible' => '附近的人可见',
-			'common.dataSettings' => '数据设置',
 			_ => null,
 		} ?? switch (path) {
+			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
 			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
 			'common.deleteAccountAction' => '注销账号',
@@ -12390,9 +12394,9 @@ extension on Translations {
 			'common.redPacketGreetingLabel' => '留言 / 祝福语',
 			'common.redPacketStuffLucky' => '塞钱发红包',
 			'common.redPacketStuffNormal' => '放入钱包发送',
-			'common.amountMustPositive' => '金额必须大于 0',
 			_ => null,
 		} ?? switch (path) {
+			'common.amountMustPositive' => '金额必须大于 0',
 			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
 			'common.transferAmountLabel' => '转账金额',
 			'common.transferRemarkLabel' => '转账备注',
@@ -12904,9 +12908,9 @@ extension on Translations {
 			'groupTask.submitTask' => '提交待办',
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
-			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			_ => null,
 		} ?? switch (path) {
+			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
 			'groupTask.pendingReview' => '待审核',
@@ -13418,9 +13422,9 @@ extension on Translations {
 			'organization.directory.switchShellFailed' => '新企业工作区加载失败',
 			'organization.directory.inviteColleaguesRow' => '邀请同事...',
 			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
-			'organization.memberDetail.roleLabel' => '企业角色',
 			_ => null,
 		} ?? switch (path) {
+			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
 			'organization.memberDetail.joinedLabel' => '加入时间',
@@ -13932,9 +13936,9 @@ extension on Translations {
 			'talkRecord.shareCardSendCancelled' => '已取消发送，未发送新的卡片。',
 			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
 			'talkRecord.participantsRemove' => '移除参与者',
-			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
 			'talkRecord.participantsAddGuest' => '添加来宾',
 			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
 			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',

@@ -7,6 +7,7 @@ managed: مُدار
 writeArticle: كتابة منشور
 discover: استكشف
 create: إنشاء قناة
+creationRecoveryUnavailable: نتيجة الإنشاء غير معروفة، يرجى المحاولة لاحقاً
 searchHint: البحث بالاسم أو المعرف
 noResults: لم يتم العثور على قنوات
 noRecommendedChannels: لا توجد قنوات موصى بها تحقق مرة أخرى لاحقاً

@@ -5,6 +5,7 @@ subscribed: Subscribed
 managed: Managed
 discover: Discover
 create: Create Channel
+creationRecoveryUnavailable: Creation result unknown, please try again later
 searchHint: Search channel name or ID
 noResults: No channels found
 noRecommendedChannels: "No recommended channels

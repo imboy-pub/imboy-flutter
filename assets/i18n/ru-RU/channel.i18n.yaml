@@ -7,6 +7,7 @@ managed: Управляемый
 writeArticle: Написать публикацию
 discover: Обзор
 create: Создать канал
+creationRecoveryUnavailable: Результат создания неизвестен, попробуйте позже
 searchHint: Поиск по названию или ID
 noResults: Каналы не найдены
 noRecommendedChannels: Нет рекомендуемых каналов Проверьте позже

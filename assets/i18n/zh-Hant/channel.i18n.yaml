@@ -5,6 +5,7 @@ subscribed: 已訂閱
 managed: 我管理的
 discover: 發現頻道
 create: 建立頻道
+creationRecoveryUnavailable: 建立結果未知，請稍後重試
 searchHint: 搜尋頻道名稱或ID
 noResults: 未找到相關頻道
 noRecommendedChannels: 暫無推薦頻道 稍後再來看看吧

@@ -7,6 +7,7 @@ managed: 運営中
 writeArticle: 投稿を書く
 discover: チャンネルを探す
 create: チャンネル作成
+creationRecoveryUnavailable: 作成結果は不明です。後でもう一度お試しください
 searchHint: チャンネル名またはIDを検索
 noResults: チャンネルが見つかりません
 noRecommendedChannels: おすすめチャンネルはありません また後でチェックしてください

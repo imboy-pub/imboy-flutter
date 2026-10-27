@@ -301,6 +301,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'Écrire une publication';
 	@override String get discover => 'Découvrir';
 	@override String get create => 'Créer un canal';
+	@override String get creationRecoveryUnavailable => 'Résultat de création inconnu, veuillez réessayer plus tard';
 	@override String get searchHint => 'Rechercher par nom ou ID';
 	@override String get noResults => 'Aucun canal trouvé';
 	@override String get noRecommendedChannels => 'Aucune chaîne recommandée Revenez plus tard';
@@ -3554,6 +3555,7 @@ extension on TranslationsFrFr {
 			'channel.writeArticle' => 'Écrire une publication',
 			'channel.discover' => 'Découvrir',
 			'channel.create' => 'Créer un canal',
+			'channel.creationRecoveryUnavailable' => 'Résultat de création inconnu, veuillez réessayer plus tard',
 			'channel.searchHint' => 'Rechercher par nom ou ID',
 			'channel.noResults' => 'Aucun canal trouvé',
 			'channel.noRecommendedChannels' => 'Aucune chaîne recommandée Revenez plus tard',
@@ -3882,9 +3884,9 @@ extension on TranslationsFrFr {
 			'chat.momentsRecordVideo' => 'Filmer une vidéo',
 			'chat.momentsVisibilityPrivate' => 'Privé',
 			'chat.momentsMediaTooManyImages' => '9 images maximum',
-			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
 			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
 			'chat.momentsReplyPrefix' => 'Répondre @',
 			'chat.momentsReplySeparator' => '：',
@@ -4396,9 +4398,9 @@ extension on TranslationsFrFr {
 			'common.nicknameNotSet' => 'Surnom non défini',
 			'common.basicInfo' => 'Informations de base',
 			'common.contactInfo' => 'Coordonnées',
-			'common.editTags' => 'Modifier les étiquettes',
 			_ => null,
 		} ?? switch (path) {
+			'common.editTags' => 'Modifier les étiquettes',
 			'common.quickActions' => 'Actions rapides',
 			'common.noNewFriendRequests' => 'Aucune nouvelle demande d\'ami pour le moment.',
 			'common.pleaseEnterVerificationMessage' => 'Entrez le message de vérification.',
@@ -4910,9 +4912,9 @@ extension on TranslationsFrFr {
 			'contact.enterRemark' => 'Entrez la remarque.',
 			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
 			'contact.momentsVisibilityFriends' => 'Amis seulement',
-			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
 			'contact.friendRequestSent' => 'Envoyé',
@@ -5424,9 +5426,9 @@ extension on TranslationsFrFr {
 			'mention.mentionAll' => 'Tout le monde',
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',
-			'mention.title' => '@Mentions',
 			_ => null,
 		} ?? switch (path) {
+			'mention.title' => '@Mentions',
 			'mention.noMention' => 'Aucune @mention',
 			'mention.allRead' => 'Tout marquer lu',
 			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
@@ -5938,9 +5940,9 @@ extension on TranslationsFrFr {
 			'workspace.navGroups' => 'Groupes',
 			'workspace.pickerTitle' => 'Mes espaces de travail',
 			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
-			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',
 			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',

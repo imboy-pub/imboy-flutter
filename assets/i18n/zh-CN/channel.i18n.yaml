@@ -5,6 +5,7 @@ subscribed: 已订阅
 managed: 管理中
 discover: 发现频道
 create: 创建频道
+creationRecoveryUnavailable: 创建结果未知，请稍后重试
 searchHint: 搜索频道名称或ID
 noResults: 未找到相关频道
 noRecommendedChannels: "暂无推荐频道

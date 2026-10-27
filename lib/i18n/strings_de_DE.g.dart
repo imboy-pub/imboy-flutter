@@ -301,6 +301,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'Beitrag schreiben';
 	@override String get discover => 'Entdecken';
 	@override String get create => 'Kanal erstellen';
+	@override String get creationRecoveryUnavailable => 'Erstellungsergebnis unbekannt, bitte später erneut versuchen';
 	@override String get searchHint => 'Kanalname oder ID suchen';
 	@override String get noResults => 'Keine Kanäle gefunden';
 	@override String get noRecommendedChannels => 'Keine empfohlenen Kanäle Schauen Sie später vorbei';
@@ -3554,6 +3555,7 @@ extension on TranslationsDeDe {
 			'channel.writeArticle' => 'Beitrag schreiben',
 			'channel.discover' => 'Entdecken',
 			'channel.create' => 'Kanal erstellen',
+			'channel.creationRecoveryUnavailable' => 'Erstellungsergebnis unbekannt, bitte später erneut versuchen',
 			'channel.searchHint' => 'Kanalname oder ID suchen',
 			'channel.noResults' => 'Keine Kanäle gefunden',
 			'channel.noRecommendedChannels' => 'Keine empfohlenen Kanäle Schauen Sie später vorbei',
@@ -3882,9 +3884,9 @@ extension on TranslationsDeDe {
 			'chat.momentsRecordVideo' => 'Video aufnehmen',
 			'chat.momentsVisibilityPrivate' => 'Nur ich',
 			'chat.momentsMediaTooManyImages' => 'Max. 9 Bilder auswählbar',
-			'chat.momentsMediaTooManyVideos' => 'Max. 1 Video auswählbar',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyVideos' => 'Max. 1 Video auswählbar',
 			'chat.momentsMediaMixedImageAndVideo' => 'Bilder und Video nicht gleichzeitig',
 			'chat.momentsReplyPrefix' => 'Antwort @',
 			'chat.momentsReplySeparator' => '：',
@@ -4396,9 +4398,9 @@ extension on TranslationsDeDe {
 			'common.nicknameNotSet' => 'Spitzname nicht festgelegt',
 			'common.basicInfo' => 'Grundlegende Informationen',
 			'common.contactInfo' => 'Kontaktinformationen',
-			'common.editTags' => 'Tags bearbeiten',
 			_ => null,
 		} ?? switch (path) {
+			'common.editTags' => 'Tags bearbeiten',
 			'common.quickActions' => 'Schnellaktionen',
 			'common.noNewFriendRequests' => 'Derzeit keine neuen Freundschaftsanfragen',
 			'common.pleaseEnterVerificationMessage' => 'Bitte Bestätigungsnachricht eingeben',
@@ -4910,9 +4912,9 @@ extension on TranslationsDeDe {
 			'contact.enterRemark' => 'Bemerkung eingeben',
 			'contact.pleaseEnterTags' => 'Bitte Tags eingeben',
 			'contact.momentsVisibilityFriends' => 'Nur Freunde',
-			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag-Länge darf ${param} Zeichen nicht überschreiten',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag-Länge darf ${param} Zeichen nicht überschreiten',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Maximal ${param} Tags erlaubt',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Ausgewählte Tags (${param}/${max})',
 			'contact.friendRequestSent' => 'Gesendet',
@@ -5424,9 +5426,9 @@ extension on TranslationsDeDe {
 			'mention.mentionAll' => 'Alle',
 			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
 			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
-			'mention.title' => '@Erwähnungen',
 			_ => null,
 		} ?? switch (path) {
+			'mention.title' => '@Erwähnungen',
 			'mention.noMention' => 'Keine @Erwähnungen',
 			'mention.allRead' => 'Alle gelesen',
 			'mention.mentionAllDenied' => 'Nur Administratoren können @alle verwenden',
@@ -5938,9 +5940,9 @@ extension on TranslationsDeDe {
 			'workspace.navGroups' => 'Gruppen',
 			'workspace.pickerTitle' => 'Mein Arbeitsbereich',
 			'workspace.switchWorkspace' => 'Arbeitsbereich wechseln',
-			'workspace.pickerEmptyTitle' => 'Noch kein Arbeitsbereich',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptyTitle' => 'Noch kein Arbeitsbereich',
 			'workspace.pickerEmptySubtitle' => 'Erstellen Sie einen Arbeitsbereich und starten Sie in 3 Minuten die Teamarbeit (Announcements-Kanal und General-Gruppe werden automatisch erstellt)',
 			'workspace.archivedBadge' => 'Archiviert',
 			'workspace.emptyNoWorkspace' => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen',

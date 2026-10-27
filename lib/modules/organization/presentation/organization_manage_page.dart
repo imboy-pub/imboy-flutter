@@ -40,6 +40,8 @@ import 'package:imboy/modules/organization/presentation/organization_routes.dart
 import 'package:imboy/modules/organization/presentation/organization_manage_sections.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart';
+import 'package:imboy/service/creation_receipt/channel_creation_receipt_service.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_flow.dart';
 import 'package:imboy/service/creation_receipt/group_creation_receipt_service.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_api.dart';
@@ -416,7 +418,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
         }
         return;
       }
-      if (receipt.failure != GroupCreationFailure.capabilityMissing) {
+      if (receipt.failure != CreationFlowFailure.capabilityMissing) {
         // conflict/notAccepted/unknown：意图保留，下次点创建继续恢复；
         // expired/unavailable：意图已清，用户可重新发起（新键）。
         if (_isGroupActionCurrent(account, generation)) {
@@ -602,15 +604,41 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     );
     if (name == null) return;
     await _runGovernance(() async {
-      // 企业频道固定「免费 + 非公开」：内部治理面不该产生付费/公开发现面
-      // （GZ-J07「企业频道免费且不公开发现」）。
-      final created = await _channelApi.createChannel(
-        name: name,
-        visibility: 1,
-        accessType: 0,
-        joinPolicy: 1,
-      );
-      return created == null ? t.organization.manage.createChannelFailed : null;
+      // W04.d.c：受理合同路径（manifest 能力门开启时启用；恢复重放/只查
+      // 一律原键原载荷）。capabilityMissing 且无未知意图 → 回落既有键less
+      // 路径（行为零变化）；已有未知意图时绝不剥键走旧 POST。
+      final receipt = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(
+            account: _accountKey,
+            name: name,
+            visibility: 1,
+            accessType: 0,
+            joinPolicy: 1,
+            workspace: true,
+            workspaceId: _activeWsId,
+          );
+      if (receipt.ok) return null;
+      if (receipt.failure == CreationFlowFailure.capabilityMissing) {
+        if (receipt.pendingIntentBlocked) {
+          // 能力被服务端下线但本机仍有未知意图：绝不剥键走旧 POST。
+          return t.organization.manage.creationRecoveryUnavailable;
+        }
+        // 企业频道固定「免费 + 非公开」：内部治理面不该产生付费/公开发现面
+        // （GZ-J07「企业频道免费且不公开发现」）。
+        final created = await _channelApi.createChannel(
+          name: name,
+          visibility: 1,
+          accessType: 0,
+          joinPolicy: 1,
+        );
+        return created == null
+            ? t.organization.manage.createChannelFailed
+            : null;
+      }
+      // conflict/notAccepted/unknown：意图保留，重试继续恢复；
+      // expired/unavailable：意图已清，可重新发起（新键）。
+      return receipt.errorText ??
+          t.organization.manage.creationRecoveryUnavailable;
     }, t.organization.manage.createChannel);
   }
 

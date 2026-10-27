@@ -14,7 +14,6 @@
 library;
 
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
@@ -26,8 +25,11 @@ import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/creation_receipt/creation_intent_store.dart';
 import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
+import 'package:imboy/service/creation_receipt/channel_creation_receipt_service.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_flow.dart';
 import 'package:imboy/service/creation_receipt/group_creation_receipt_service.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_api.dart';
 
 /// 捕获请求并按回调回应的合成 adapter。
@@ -454,7 +456,7 @@ void main() {
       );
 
       expect(outcome.ok, isFalse);
-      expect(outcome.failure, GroupCreationFailure.capabilityMissing);
+      expect(outcome.failure, CreationFlowFailure.capabilityMissing);
       expect(outcome.pendingIntentBlocked, isFalse);
       expect(adapter.requests, isEmpty);
       expect(
@@ -495,7 +497,7 @@ void main() {
         memberUserIds: const ['880014'],
       );
 
-      expect(outcome.failure, GroupCreationFailure.capabilityMissing);
+      expect(outcome.failure, CreationFlowFailure.capabilityMissing);
       expect(outcome.pendingIntentBlocked, isTrue);
       expect(adapter.requests, isEmpty);
       // 意图保留，不得清除。
@@ -546,7 +548,7 @@ void main() {
 
       expect(outcome.ok, isTrue);
       expect(outcome.replayed, isFalse);
-      expect(outcome.gid, '990077');
+      expect(outcome.createdId, '990077');
       expect(inFlightRequestId, startsWith('cri_'));
       expect(
         await loadCreationIntent(
@@ -595,7 +597,7 @@ void main() {
       );
 
       expect(outcome.ok, isFalse);
-      expect(outcome.failure, GroupCreationFailure.conflict);
+      expect(outcome.failure, CreationFlowFailure.conflict);
       expect(body['request_id'], 'cri_replay_1');
       // 重放用存储载荷，不是调用方新载荷。
       expect(body['member_uids'], ['880014']);
@@ -645,7 +647,7 @@ void main() {
       );
 
       expect(outcome.ok, isFalse);
-      expect(outcome.failure, GroupCreationFailure.recoveryExpired);
+      expect(outcome.failure, CreationFlowFailure.recoveryExpired);
       expect(outcome.resourceId, '9900123');
       expect(body['request_id'], 'cri_old_1');
       expect(body['recover_only'], isTrue);
@@ -656,6 +658,222 @@ void main() {
           scopeId: 'personal',
         ),
         isNull,
+      );
+    });
+  });
+
+  group('ChannelApi.createChannelWithReceipt（W04.d.c 载荷契约）', () {
+    test('键不剥：request_id/name 恒在；recover_only 仅只查时出现', () async {
+      final adapter = _ScriptedAdapter((options) async {
+        final body = Map<String, dynamic>.from(options.data as Map);
+        return _envelope({
+          'code': 0,
+          'msg': 'success',
+          'payload': {
+            ...body,
+            'id': 990188,
+            'request_id': body['request_id'],
+            'creation_state': 'accepted',
+          },
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      final r = await ChannelApi().createChannelWithReceipt(
+        requestId: 'cri_ch_1',
+        fields: {
+          'name': '频道A',
+          'visibility': 1,
+          'access_type': 0,
+          'join_policy': 1,
+          'scope': 'workspace',
+          'workspace_id': 'ws-9',
+        },
+      );
+
+      expect(r.ok, isTrue);
+      expect(r.creationState, 'accepted');
+      expect(r.requestId, 'cri_ch_1');
+      final body = Map<String, dynamic>.from(
+        adapter.requests.single.data as Map,
+      );
+      expect(body['request_id'], 'cri_ch_1');
+      expect(body['name'], '频道A');
+      expect(body['visibility'], 1);
+      expect(body['scope'], 'workspace');
+      expect(body['workspace_id'], 'ws-9');
+      expect(body.containsKey('recover_only'), isFalse);
+      expect(adapter.requests.single.uri.path, '/api/v1/channel/create');
+    });
+
+    test('5464：channel_id 核对键提取 + 信封已交换', () async {
+      final adapter = _ScriptedAdapter(
+        (options) async => _envelope({
+          'code': 5464,
+          'msg': 'recovery expired',
+          'payload': {'request_id': 'cri_ch_2', 'channel_id': 990188},
+        }),
+      );
+      HttpClient.adapterForTest = adapter;
+
+      final r = await ChannelApi().createChannelWithReceipt(
+        requestId: 'cri_ch_2',
+        fields: const {'name': '频道A'},
+        recoverOnly: true,
+      );
+
+      expect(r.ok, isFalse);
+      expect(r.errorSymbol, 'create_recovery_expired');
+      expect(r.resourceId, '990188');
+      expect(r.envelopeRejection, isTrue);
+      final body = Map<String, dynamic>.from(
+        adapter.requests.single.data as Map,
+      );
+      expect(body['recover_only'], isTrue);
+    });
+  });
+
+  group('ChannelCreationReceiptService（W04.d.c 生命周期）', () {
+    test('成功受理：意图键 create_channel 隔离，先存后发，成功后清除', () async {
+      AppManifestService.replaceForTest({
+        'channel_contracts': {'create_request_id': 1},
+      });
+      String? inFlightRequestId;
+      final adapter = _ScriptedAdapter((options) async {
+        final body = Map<String, dynamic>.from(options.data as Map);
+        inFlightRequestId = body['request_id'] as String;
+        final saved = await loadCreationIntent(
+          account: 'acct-ch-ok',
+          operation: 'create_channel',
+          scopeId: 'ws-9',
+        );
+        expect(saved?.requestId, inFlightRequestId);
+        expect(saved?.payload['name'], '频道A');
+        return _envelope({
+          'code': 0,
+          'msg': 'success',
+          'payload': {
+            'id': 990188,
+            'name': '频道A',
+            'scope': 'workspace',
+            'request_id': inFlightRequestId,
+            'creation_state': 'replayed',
+          },
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      final outcome = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(
+            account: 'acct-ch-ok',
+            name: '频道A',
+            visibility: 1,
+            accessType: 0,
+            joinPolicy: 1,
+            workspace: true,
+            workspaceId: 'ws-9',
+          );
+
+      expect(outcome.ok, isTrue);
+      expect(outcome.replayed, isTrue);
+      expect(outcome.createdId, '990188');
+      expect(inFlightRequestId, startsWith('cri_'));
+      // 群路意图不得被频道路波及（operation 隔离）。
+      expect(
+        await loadCreationIntent(
+          account: 'acct-ch-ok',
+          operation: 'create_group',
+          scopeId: 'ws-9',
+        ),
+        isNull,
+      );
+      expect(
+        await loadCreationIntent(
+          account: 'acct-ch-ok',
+          operation: 'create_channel',
+          scopeId: 'ws-9',
+        ),
+        isNull,
+      );
+    });
+
+    test('群能力开启但频道能力关闭 → 频道路 capabilityMissing，零 HTTP', () async {
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+      });
+      final adapter = _ScriptedAdapter(
+        (options) async => _envelope({
+          'code': 0,
+          'msg': 'success',
+          'payload': <String, dynamic>{},
+        }),
+      );
+      HttpClient.adapterForTest = adapter;
+
+      final outcome = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(account: 'acct-ch-gate', name: '频道A');
+
+      expect(outcome.failure, CreationFlowFailure.capabilityMissing);
+      expect(outcome.pendingIntentBlocked, isFalse);
+      expect(adapter.requests, isEmpty);
+    });
+
+    test('工作区频道路 5462 冲突：原键原载荷重放，意图保留', () async {
+      AppManifestService.replaceForTest({
+        'channel_contracts': {'create_request_id': 1},
+      });
+      await saveCreationIntent(
+        account: 'acct-ch-conflict',
+        operation: 'create_channel',
+        scopeId: 'ws-9',
+        intent: CreationIntent(
+          requestId: 'cri_ch_replay',
+          createdAtMs: DateTime.now().millisecondsSinceEpoch,
+          payload: const {
+            'name': '原名',
+            'visibility': 1,
+            'access_type': 0,
+            'join_policy': 1,
+            'scope': 'workspace',
+            'workspace_id': 'ws-9',
+          },
+        ),
+      );
+      late Map<String, dynamic> body;
+      final adapter = _ScriptedAdapter((options) async {
+        body = Map<String, dynamic>.from(options.data as Map);
+        return _envelope({
+          'code': 5462,
+          'msg': 'request id conflict',
+          'payload': {'channel_id': 990188},
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      // 调用方传入不同名称也不得换载荷（同键绝不换载荷）。
+      final outcome = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(
+            account: 'acct-ch-conflict',
+            name: '改名频道',
+            visibility: 1,
+            workspace: true,
+            workspaceId: 'ws-9',
+          );
+
+      expect(outcome.ok, isFalse);
+      expect(outcome.failure, CreationFlowFailure.conflict);
+      expect(body['request_id'], 'cri_ch_replay');
+      expect(body['name'], '原名');
+      expect(body['scope'], 'workspace');
+      expect(body['workspace_id'], 'ws-9');
+      expect(body.containsKey('recover_only'), isFalse);
+      expect(
+        (await loadCreationIntent(
+          account: 'acct-ch-conflict',
+          operation: 'create_channel',
+          scopeId: 'ws-9',
+        ))?.requestId,
+        'cri_ch_replay',
       );
     });
   });

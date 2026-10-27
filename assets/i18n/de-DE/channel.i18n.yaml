@@ -7,6 +7,7 @@ managed: Verwaltet
 writeArticle: Beitrag schreiben
 discover: Entdecken
 create: Kanal erstellen
+creationRecoveryUnavailable: Erstellungsergebnis unbekannt, bitte später erneut versuchen
 searchHint: Kanalname oder ID suchen
 noResults: Keine Kanäle gefunden
 noRecommendedChannels: Keine empfohlenen Kanäle Schauen Sie später vorbei

@@ -3,8 +3,10 @@ import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
@@ -62,6 +64,45 @@ class ChannelApi extends HttpClient
     }
 
     return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
+  }
+
+  /// W04.d.c：创建频道受理合同请求（§6.4 C1）。
+  ///
+  /// [fields] 为创建字段（name/visibility/access_type/join_policy/
+  /// description/avatar/custom_id/tags/scope/workspace_id），重放时由
+  /// 调用方传入存储意图的原载荷（同键绝不换载荷）；本方法只附加
+  /// request_id/recover_only。既有键less [createChannel] 原样保留为
+  /// 能力未启用时的回退路径（回归红线：绝不剥键）。
+  Future<CreationReceiptResult> createChannelWithReceipt({
+    required String requestId,
+    required Map<String, dynamic> fields,
+    bool recoverOnly = false,
+  }) async {
+    final data = <String, dynamic>{
+      ...fields,
+      'request_id': requestId,
+      if (recoverOnly) 'recover_only': true,
+    };
+    final resp = await post('/api/v1/channel/create', data: data);
+    // 传输层失败（网络断连/超时/会话切换等）：结果未知——服务端可能已受理
+    // 也可能未收到；调用方必须保留意图，不得当作"信封已确认拒绝"。
+    // 仅 BadRequestException（envelope 业务错误）与 BadResponseException
+    // （响应形状损坏）代表已完成 HTTP 交换。
+    if (!resp.ok &&
+        resp.error is! BadRequestException &&
+        resp.error is! BadResponseException) {
+      return CreationReceiptResult(ok: false, errorText: resp.msg);
+    }
+    return parseCreationReceiptResponse(
+      ok: resp.ok,
+      code: resp.code,
+      msg: resp.msg,
+      payload: resp.payload,
+      extractResourceId: (payload) {
+        final cid = payload['channel_id'];
+        return cid == null ? null : '$cid';
+      },
+    );
   }
 
   /// 获取频道信息

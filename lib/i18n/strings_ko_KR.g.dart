@@ -301,6 +301,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get writeArticle => '게시물 작성';
 	@override String get discover => '채널 찾기';
 	@override String get create => '채널 만들기';
+	@override String get creationRecoveryUnavailable => '생성 결과를 알 수 없습니다. 나중에 다시 시도해 주세요';
 	@override String get searchHint => '채널 이름 또는 ID 검색';
 	@override String get noResults => '채널을 찾을 수 없습니다';
 	@override String get noRecommendedChannels => '추천 채널이 없습니다 나중에 다시 확인하세요';
@@ -3551,6 +3552,7 @@ extension on TranslationsKoKr {
 			'channel.writeArticle' => '게시물 작성',
 			'channel.discover' => '채널 찾기',
 			'channel.create' => '채널 만들기',
+			'channel.creationRecoveryUnavailable' => '생성 결과를 알 수 없습니다. 나중에 다시 시도해 주세요',
 			'channel.searchHint' => '채널 이름 또는 ID 검색',
 			'channel.noResults' => '채널을 찾을 수 없습니다',
 			'channel.noRecommendedChannels' => '추천 채널이 없습니다 나중에 다시 확인하세요',
@@ -3879,9 +3881,9 @@ extension on TranslationsKoKr {
 			'chat.momentsRecordVideo' => '동영상 촬영',
 			'chat.momentsVisibilityPrivate' => '나만 보기',
 			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
-			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
 			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
 			'chat.momentsReplyPrefix' => '답글 @',
 			'chat.momentsReplySeparator' => ': ',
@@ -4393,9 +4395,9 @@ extension on TranslationsKoKr {
 			'common.nicknameNotSet' => '닉네임이 설정되지 않음',
 			'common.basicInfo' => '기본 정보',
 			'common.contactInfo' => '연락처 정보',
-			'common.editTags' => '태그 편집',
 			_ => null,
 		} ?? switch (path) {
+			'common.editTags' => '태그 편집',
 			'common.quickActions' => '빠른 작업',
 			'common.noNewFriendRequests' => '현재 새 친구 요청이 없습니다',
 			'common.pleaseEnterVerificationMessage' => '확인 메시지를 입력해 주세요',
@@ -4907,9 +4909,9 @@ extension on TranslationsKoKr {
 			'contact.enterRemark' => '메모 이름을 입력해 주세요',
 			'contact.pleaseEnterTags' => '태그를 입력하세요',
 			'contact.momentsVisibilityFriends' => '친구만',
-			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
 			'contact.friendRequestSent' => '전송됨',
@@ -5421,9 +5423,9 @@ extension on TranslationsKoKr {
 			'mention.mentionAll' => '전체',
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
-			'mention.title' => '@멘션',
 			_ => null,
 		} ?? switch (path) {
+			'mention.title' => '@멘션',
 			'mention.noMention' => '멘션이 없습니다',
 			'mention.allRead' => '모두 읽음',
 			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
@@ -5935,9 +5937,9 @@ extension on TranslationsKoKr {
 			'workspace.navGroups' => '그룹',
 			'workspace.pickerTitle' => '내 워크스페이스',
 			'workspace.switchWorkspace' => '워크스페이스 전환',
-			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
 			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',

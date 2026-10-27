@@ -301,6 +301,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'Написать публикацию';
 	@override String get discover => 'Обзор';
 	@override String get create => 'Создать канал';
+	@override String get creationRecoveryUnavailable => 'Результат создания неизвестен, попробуйте позже';
 	@override String get searchHint => 'Поиск по названию или ID';
 	@override String get noResults => 'Каналы не найдены';
 	@override String get noRecommendedChannels => 'Нет рекомендуемых каналов Проверьте позже';
@@ -3560,6 +3561,7 @@ extension on TranslationsRuRu {
 			'channel.writeArticle' => 'Написать публикацию',
 			'channel.discover' => 'Обзор',
 			'channel.create' => 'Создать канал',
+			'channel.creationRecoveryUnavailable' => 'Результат создания неизвестен, попробуйте позже',
 			'channel.searchHint' => 'Поиск по названию или ID',
 			'channel.noResults' => 'Каналы не найдены',
 			'channel.noRecommendedChannels' => 'Нет рекомендуемых каналов Проверьте позже',
@@ -3888,9 +3890,9 @@ extension on TranslationsRuRu {
 			'chat.momentsRecordVideo' => 'Снять видео',
 			'chat.momentsVisibilityPrivate' => 'Только я',
 			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
-			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
 			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
 			'chat.momentsReplyPrefix' => 'Ответ @',
 			'chat.momentsReplySeparator' => ': ',
@@ -4402,9 +4404,9 @@ extension on TranslationsRuRu {
 			'common.nicknameNotSet' => 'Никнейм не установлен',
 			'common.basicInfo' => 'Основная информация',
 			'common.contactInfo' => 'Контактная информация',
-			'common.editTags' => 'Редактировать теги',
 			_ => null,
 		} ?? switch (path) {
+			'common.editTags' => 'Редактировать теги',
 			'common.quickActions' => 'Быстрые действия',
 			'common.noNewFriendRequests' => 'Нет новых запросов дружбы',
 			'common.pleaseEnterVerificationMessage' => 'Пожалуйста, введите сообщение подтверждения',
@@ -4916,9 +4918,9 @@ extension on TranslationsRuRu {
 			'contact.enterRemark' => 'Введите примечание',
 			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
 			'contact.momentsVisibilityFriends' => 'Только друзья',
-			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
 			'contact.friendRequestSent' => 'Отправлено',
@@ -5430,9 +5432,9 @@ extension on TranslationsRuRu {
 			'mention.mentionAll' => 'Все',
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
-			'mention.title' => '@Упоминания',
 			_ => null,
 		} ?? switch (path) {
+			'mention.title' => '@Упоминания',
 			'mention.noMention' => 'Нет упоминаний',
 			'mention.allRead' => 'Всё прочитано',
 			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
@@ -5944,9 +5946,9 @@ extension on TranslationsRuRu {
 			'workspace.navGroups' => 'Группы',
 			'workspace.pickerTitle' => 'Мои рабочие пространства',
 			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
-			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
 			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',

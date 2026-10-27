@@ -300,6 +300,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get managed => '我管理的';
 	@override String get discover => '發現頻道';
 	@override String get create => '建立頻道';
+	@override String get creationRecoveryUnavailable => '建立結果未知，請稍後重試';
 	@override String get searchHint => '搜尋頻道名稱或ID';
 	@override String get noResults => '未找到相關頻道';
 	@override String get noRecommendedChannels => '暫無推薦頻道 稍後再來看看吧';
@@ -3550,6 +3551,7 @@ extension on TranslationsZhHant {
 			'channel.managed' => '我管理的',
 			'channel.discover' => '發現頻道',
 			'channel.create' => '建立頻道',
+			'channel.creationRecoveryUnavailable' => '建立結果未知，請稍後重試',
 			'channel.searchHint' => '搜尋頻道名稱或ID',
 			'channel.noResults' => '未找到相關頻道',
 			'channel.noRecommendedChannels' => '暫無推薦頻道 稍後再來看看吧',
@@ -3879,9 +3881,9 @@ extension on TranslationsZhHant {
 			'chat.profileCompleteness' => '資料完善度',
 			'chat.tagStatistics' => '標籤統計',
 			'chat.unsupportedMessageType' => '不支援的訊息類型',
-			'chat.passwordMismatch' => '兩次密碼不一致',
 			_ => null,
 		} ?? switch (path) {
+			'chat.passwordMismatch' => '兩次密碼不一致',
 			'chat.pleaseTryAgainLater' => '請稍後重試',
 			'chat.historyUnavailable' => '歷史訊息暫不可用',
 			'chat.historyUnavailableHint' => '伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步',
@@ -4393,9 +4395,9 @@ extension on TranslationsZhHant {
 			'common.dragSliderAdjustFontSize' => '拖動滑塊調整字體大小',
 			'common.personalInfo' => '個人資訊',
 			'common.nicknameNotSet' => '未設定暱稱',
-			'common.basicInfo' => '基本資訊',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => '基本資訊',
 			'common.contactInfo' => '聯絡資訊',
 			'common.editTags' => '編輯標籤',
 			'common.quickActions' => '快速操作',
@@ -4907,9 +4909,9 @@ extension on TranslationsZhHant {
 			'contact.enterRemark' => '請輸入備註名',
 			'contact.pleaseEnterTags' => '請輸入標籤',
 			'contact.momentsVisibilityFriends' => '僅好友',
-			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
 			'contact.friendRequestSent' => '已傳送',
@@ -5421,9 +5423,9 @@ extension on TranslationsZhHant {
 			'mention.mentionAll' => '全體成員',
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',
-			'mention.title' => '@標註',
 			_ => null,
 		} ?? switch (path) {
+			'mention.title' => '@標註',
 			'mention.noMention' => '暫無@提及',
 			'mention.allRead' => '全部已讀',
 			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
@@ -5935,9 +5937,9 @@ extension on TranslationsZhHant {
 			'workspace.navGroups' => '群組',
 			'workspace.pickerTitle' => '我的工作區',
 			'workspace.switchWorkspace' => '切換工作區',
-			'workspace.pickerEmptyTitle' => '還沒有工作區',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptyTitle' => '還沒有工作區',
 			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',

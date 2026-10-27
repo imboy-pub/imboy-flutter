@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_flow.dart';
 import 'package:imboy/service/creation_receipt/group_creation_receipt_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
@@ -193,7 +194,7 @@ class LaunchChatService {
     Map<String, dynamic>? payload;
     if (receipt.ok) {
       payload = receipt.payload;
-    } else if (receipt.failure == GroupCreationFailure.capabilityMissing &&
+    } else if (receipt.failure == CreationFlowFailure.capabilityMissing &&
         !receipt.pendingIntentBlocked) {
       payload = await GroupApi().groupAdd(memberUserIds: memberUserIds);
     } else {

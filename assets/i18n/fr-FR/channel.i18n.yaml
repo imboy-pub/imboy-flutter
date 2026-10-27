@@ -7,6 +7,7 @@ managed: Géré
 writeArticle: Écrire une publication
 discover: Découvrir
 create: Créer un canal
+creationRecoveryUnavailable: Résultat de création inconnu, veuillez réessayer plus tard
 searchHint: Rechercher par nom ou ID
 noResults: Aucun canal trouvé
 noRecommendedChannels: Aucune chaîne recommandée Revenez plus tard

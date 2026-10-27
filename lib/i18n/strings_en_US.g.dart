@@ -366,6 +366,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get managed => 'Managed';
 	@override String get discover => 'Discover';
 	@override String get create => 'Create Channel';
+	@override String get creationRecoveryUnavailable => 'Creation result unknown, please try again later';
 	@override String get searchHint => 'Search channel name or ID';
 	@override String get noResults => 'No channels found';
 	@override String get noRecommendedChannels => 'No recommended channels Check back later';
@@ -4239,6 +4240,7 @@ extension on TranslationsEnUs {
 			'channel.managed' => 'Managed',
 			'channel.discover' => 'Discover',
 			'channel.create' => 'Create Channel',
+			'channel.creationRecoveryUnavailable' => 'Creation result unknown, please try again later',
 			'channel.searchHint' => 'Search channel name or ID',
 			'channel.noResults' => 'No channels found',
 			'channel.noRecommendedChannels' => 'No recommended channels Check back later',
@@ -4513,9 +4515,9 @@ extension on TranslationsEnUs {
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'At most ${max} entries',
 			'chat.quickReplyHint' => 'Type your phrase...',
 			'chat.muteMember' => 'Mute Member',
-			'chat.unmuteMember' => 'Unmute',
 			_ => null,
 		} ?? switch (path) {
+			'chat.unmuteMember' => 'Unmute',
 			'chat.muted' => 'Muted',
 			'chat.mutedFor' => ({required Object label}) => 'Muted ${label}',
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} min',
@@ -5027,9 +5029,9 @@ extension on TranslationsEnUs {
 			'common.chatDeleteLocalOnly' => 'Delete local only',
 			'common.chatDeleteFailed' => 'Delete failed',
 			'common.chatNetworkErrorDeleteLocal' => 'Network connection failed. Delete local message only?',
-			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
 			'common.chatDeleteOnlyLocal' => 'Delete only for you, still visible to others',
 			'common.chatDeleteAll' => 'Delete for everyone, cannot be undone',
 			'common.chatInitFailed' => 'Chat initialization failed',
@@ -5541,9 +5543,9 @@ extension on TranslationsEnUs {
 			'common.redPacketSwitchToLucky' => 'Switch to Lucky Red Packet',
 			'common.redPacketSwitchToNormal' => 'Switch to Normal Red Packet',
 			'common.redPacketStuffLucky' => 'Send Lucky Red Packet',
-			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'User: ${uid}',
 			'common.redPacketView' => 'View Red Packet',
 			'common.redPacketFetchError' => 'Error loading red packet details',
@@ -6055,9 +6057,9 @@ extension on TranslationsEnUs {
 			'groupVote.statusInProgress' => 'In Progress',
 			'groupVote.updateVote' => 'Update Vote',
 			'groupVote.cancelMyVote' => 'Cancel my vote',
-			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
 			'groupVote.singleChoice' => 'Single choice',
 			'groupVote.multipleChoice' => 'Multiple choice',
@@ -6569,9 +6571,9 @@ extension on TranslationsEnUs {
 			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
 			'organization.manage.title' => 'Enterprise management',
 			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
-			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
 			'organization.manage.workspaceOwnerHint' => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.',
 			'organization.manage.forbiddenTitle' => 'No management permission',
@@ -7083,9 +7085,9 @@ extension on TranslationsEnUs {
 			'talkRecord.keepRecordingLocal' => 'Keep on this device',
 			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
 			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
-			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',
 			'talkRecord.cleanupRetryUnknown' => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.',
 			'talkRecord.cleanupRetryPartial' => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.',
 			'talkRecord.cleanupRetryProtected' => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.',

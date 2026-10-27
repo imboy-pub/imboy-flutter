@@ -301,6 +301,7 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'Scrivi un post';
 	@override String get discover => 'Scopri';
 	@override String get create => 'Crea canale';
+	@override String get creationRecoveryUnavailable => 'Risultato della creazione sconosciuto, riprova più tardi';
 	@override String get searchHint => 'Cerca per nome o ID';
 	@override String get noResults => 'Nessun canale trovato';
 	@override String get noRecommendedChannels => 'Nessun canale consigliato Controlla più tardi';
@@ -3554,6 +3555,7 @@ extension on TranslationsItIt {
 			'channel.writeArticle' => 'Scrivi un post',
 			'channel.discover' => 'Scopri',
 			'channel.create' => 'Crea canale',
+			'channel.creationRecoveryUnavailable' => 'Risultato della creazione sconosciuto, riprova più tardi',
 			'channel.searchHint' => 'Cerca per nome o ID',
 			'channel.noResults' => 'Nessun canale trovato',
 			'channel.noRecommendedChannels' => 'Nessun canale consigliato Controlla più tardi',
@@ -3882,9 +3884,9 @@ extension on TranslationsItIt {
 			'chat.momentsRecordVideo' => 'Registra video',
 			'chat.momentsVisibilityPrivate' => 'Privato',
 			'chat.momentsMediaTooManyImages' => 'Massimo 9 immagini',
-			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
 			'chat.momentsMediaMixedImageAndVideo' => 'Immagini e video non insieme',
 			'chat.momentsReplyPrefix' => 'Rispondi @',
 			'chat.momentsReplySeparator' => '：',
@@ -4396,9 +4398,9 @@ extension on TranslationsItIt {
 			'common.nicknameNotSet' => 'Nickname non impostato',
 			'common.basicInfo' => 'Informazioni base',
 			'common.contactInfo' => 'Informazioni contatto',
-			'common.editTags' => 'Modifica tag',
 			_ => null,
 		} ?? switch (path) {
+			'common.editTags' => 'Modifica tag',
 			'common.quickActions' => 'Azioni rapide',
 			'common.noNewFriendRequests' => 'Nessuna nuova richiesta di amicizia per ora',
 			'common.pleaseEnterVerificationMessage' => 'Inserisci messaggio di verifica',
@@ -4910,9 +4912,9 @@ extension on TranslationsItIt {
 			'contact.enterRemark' => 'Inserisci nome nota',
 			'contact.pleaseEnterTags' => 'Inserisci tag',
 			'contact.momentsVisibilityFriends' => 'Solo amici',
-			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
 			_ => null,
 		} ?? switch (path) {
+			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Massimo ${param} tag consentiti',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Tag selezionati (${param}/${max})',
 			'contact.friendRequestSent' => 'Inviato',
@@ -5424,9 +5426,9 @@ extension on TranslationsItIt {
 			'mention.mentionAll' => 'Tutti',
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',
-			'mention.title' => '@Menzioni',
 			_ => null,
 		} ?? switch (path) {
+			'mention.title' => '@Menzioni',
 			'mention.noMention' => 'Nessuna @menzione',
 			'mention.allRead' => 'Segna tutto letto',
 			'mention.mentionAllDenied' => 'Solo gli amministratori possono @tutti',
@@ -5938,9 +5940,9 @@ extension on TranslationsItIt {
 			'workspace.archiveTitle' => 'Archivia area di lavoro',
 			'workspace.archivedBadge' => 'Archiviata',
 			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
-			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorInvalid' => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB',
 			'workspace.brandingColorLabel' => 'Colore principale (primaryColor)',
