@@ -1487,10 +1487,13 @@ class ChatAttachmentHandler {
       });
     }
     // 源会话绑定不得跟随收藏转发（与 buildForwardPayload 同一口径）：
-    // getMsgFromTMsg 以 metadata['peer_id'] 为 toId，残留源 peer_id 会串会话
+    // getMsgFromTMsg 以 metadata['peer_id'] 为 toId，残留源 peer_id 会串会话；
+    // burn_read_at 同口径剥离（D01 R05F-2：收藏源数据可能带旧已读时刻，
+    // 再发副本不得以它起算倒计时）
     payload
       ..remove('peer_id')
       ..remove('conversation_uk3')
+      ..remove('burn_read_at')
       ..['msg_type'] = msgType
       ..['peer_id'] = targetPeerId;
     return payload;

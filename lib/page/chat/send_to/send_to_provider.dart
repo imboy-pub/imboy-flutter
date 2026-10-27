@@ -97,7 +97,10 @@ class SendToNotifier extends Notifier<SendToState> {
       'text': text,
       'peer_id': peerId,
       'conversation_uk3': conversationUk3,
-    };
+      // D01 冻结合同 R05F-2：burn_read_at 永不进发送 payload。转发源是
+      // 本地 DB 的 metadata，可能带接收方已读时刻；不剥离则新接收方副本
+      // 以旧已读时刻提前开烧。
+    }..remove('burn_read_at');
   }
 
   /// 推导转发消息的顶层 msg_type。

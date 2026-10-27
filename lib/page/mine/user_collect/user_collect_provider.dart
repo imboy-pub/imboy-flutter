@@ -1073,9 +1073,10 @@ class UserCollectNotifier extends _$UserCollectNotifier {
       }
     }
 
-    // 确保metadata包含在info中
+    // 确保metadata包含在info中；burn_read_at 同口径剥离（D01 R05F-2）
     if (msg.metadata != null) {
-      info['metadata'] = msg.metadata;
+      info['metadata'] = Map<String, dynamic>.from(msg.metadata!)
+        ..remove('burn_read_at');
     }
 
     // ⚠️ 重要：确保 msg_type 在顶层（用于转发时恢复消息）
@@ -1191,8 +1192,10 @@ class UserCollectNotifier extends _$UserCollectNotifier {
         "mime_type": msg.mimeType ?? "",
       };
     } else if (msg is CustomMessage) {
-      // CustomMessage 需要特殊处理
-      payload = Map<String, dynamic>.from(msg.metadata ?? {});
+      // CustomMessage 需要特殊处理；burn_read_at 剥离（D01 R05F-2：
+      // 已读时刻是会话运行时状态，不随内容入收藏，避免未来出口漏剥）
+      payload = Map<String, dynamic>.from(msg.metadata ?? {})
+        ..remove('burn_read_at');
       final msgType = payload['msg_type']?.toString() ?? '';
 
       if (msgType.isEmpty) {

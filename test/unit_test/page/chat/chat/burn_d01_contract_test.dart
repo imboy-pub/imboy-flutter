@@ -11,9 +11,12 @@ library;
 
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/page/chat/chat/attachment_handler.dart';
 import 'package:imboy/page/chat/chat/services/chat_burn_service.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
 import 'package:imboy/page/chat/chat/utils/chat_page_utils.dart';
+import 'package:imboy/page/chat/send_to/send_to_provider.dart';
+import 'package:imboy/store/model/user_collect_model.dart';
 
 void main() {
   const svc = ChatBurnService();
@@ -183,6 +186,65 @@ void main() {
       );
       final payload = model.payload as Map<String, dynamic>;
       expect(payload.containsKey('burn_read_at'), isFalse);
+    });
+  });
+
+  group('R05F-2 转发与收藏再发链路剥离（P1-1 补面）', () {
+    test('转发 payload 剥离 burn_read_at（buildForwardPayload）', () {
+      final payload = SendToNotifier.buildForwardPayload(
+        sourceMetadata: {
+          'msg_type': 'text',
+          'burn': true,
+          'burn_after_ms': burnAfterMs,
+          // 本地 DB 残留的接收方已读时刻（chat_burn_service 写入）
+          'burn_read_at': nowMs,
+        },
+        text: 'fw',
+        peerId: 42,
+        conversationUk3: 'C2C_1_42',
+      );
+      expect(
+        payload.containsKey('burn_read_at'),
+        isFalse,
+        reason:
+            '转发源 metadata 常带接收方已读时刻；不剥离则新接收方副本'
+            '以旧已读时刻提前开烧（R05F-2）',
+      );
+      expect(payload['burn'], isTrue, reason: '内容键不受剥离影响');
+      expect(payload['peer_id'], 42, reason: '目标会话绑定不受影响');
+      expect(payload['conversation_uk3'], 'C2C_1_42');
+    });
+
+    test('收藏再发 payload 剥离 burn_read_at（collectOutboundPayload）', () {
+      final payload = ChatAttachmentHandler.collectOutboundPayload(
+        UserCollectModel(
+          userId: 50,
+          kind: 6,
+          kindId: 'c-burn',
+          source: '',
+          remark: '',
+          tag: '',
+          updatedAt: 0,
+          createdAt: 0,
+          info: {
+            'payload': {
+              'msg_type': 'location',
+              'title': 'x',
+              'burn': true,
+              'burn_after_ms': burnAfterMs,
+              'burn_read_at': nowMs,
+            },
+          },
+        ),
+        targetPeerId: '777',
+      );
+      expect(
+        payload.containsKey('burn_read_at'),
+        isFalse,
+        reason: '收藏源数据可能带旧已读时刻；再发副本不得以它起算（R05F-2）',
+      );
+      expect(payload['title'], 'x', reason: '收藏内容不受剥离影响');
+      expect(payload['peer_id'], '777', reason: '目标会话绑定不受影响');
     });
   });
 }
