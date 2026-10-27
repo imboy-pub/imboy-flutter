@@ -8,6 +8,10 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 class WorkspaceConversationModel {
   final GroupModel group;
   final int memberStartSeq;
+
+  /// W09.b（§6.7/J17）：当前群成员世代 id（服务端 gen.id 投影）。
+  /// 偏好动作的世代身份 descriptor；0/缺失 = 世代未知（旧服务端）。
+  final int memberGenerationId;
   final int unreadCount;
   final Map<String, dynamic>? latest;
   final int serverTs;
@@ -16,6 +20,7 @@ class WorkspaceConversationModel {
   const WorkspaceConversationModel({
     required this.group,
     required this.memberStartSeq,
+    this.memberGenerationId = 0,
     this.unreadCount = 0,
     this.latest,
     this.serverTs = 0,
@@ -34,10 +39,12 @@ class WorkspaceConversationModel {
         !row.containsKey('latest_message')) {
       throw const FormatException('Invalid workspace message snapshot');
     }
+    final generationId = int.tryParse('${row['member_generation_id']}') ?? 0;
     if (raw == null) {
       return WorkspaceConversationModel(
         group: GroupModel.fromJson(row),
         memberStartSeq: start,
+        memberGenerationId: generationId,
         unreadCount: unread,
       );
     }
@@ -63,6 +70,7 @@ class WorkspaceConversationModel {
     return WorkspaceConversationModel(
       group: GroupModel.fromJson(row),
       memberStartSeq: start,
+      memberGenerationId: generationId,
       unreadCount: unread,
       latest: Map.unmodifiable(raw),
       serverTs: time.millisecondsSinceEpoch,
