@@ -292,6 +292,49 @@ class ChannelApi extends HttpClient
     return result.list;
   }
 
+  /// W07.b/c（C2 已订阅频道 cursor 协议）：签名游标分页。
+  /// [token] 为 null/空 = 首页；非空 = 上一页响应的 next_cursor（签名
+  /// 游标，绑定 uid/scope/list_kind/规范 q/排序版本/上界）。服务端对
+  /// 绑定不符/篡改/过期一律 400 invalid_request——调用方**不得回落
+  /// 第 1 页**（J27.c），按错误态处理即可。
+  Future<ChannelPageResult<ChannelModel>> getSubscribedChannelsCursorPage({
+    String? token,
+    int limit = 50,
+    String? q,
+  }) async {
+    final params = <String, dynamic>{'pagination': 'cursor', 'limit': limit};
+    if (token != null && token.isNotEmpty) params['cursor'] = token;
+    if (q != null && q.isNotEmpty) params['q'] = q;
+
+    final resp = await get(
+      '/api/v1/channels/subscribed',
+      queryParameters: params,
+    );
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
+      return const ChannelPageResult(
+        list: [],
+        nextCursor: null,
+        hasMore: false,
+      );
+    }
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
+    final channels = list.map((json) => ChannelModel.fromJson(json)).toList();
+    // 新 envelope 显式回传 has_more（服务端按 keyset 取 limit+1 判定），
+    // 不再按「满一页」推导；终止页 next_cursor 为空串/缺省 → null。
+    final hasMore = resp.payload['has_more'] == true;
+    final dynamic next = resp.payload['next_cursor'];
+    final nextCursor = (next == null || next.toString().isEmpty)
+        ? null
+        : next.toString();
+    return ChannelPageResult(
+      list: channels,
+      nextCursor: nextCursor,
+      hasMore: hasMore && nextCursor != null,
+    );
+  }
+
   /// 获取我订阅的频道列表（带分页信息）
   Future<ChannelPageResult<ChannelModel>> getSubscribedChannelsPage({
     String? cursor,

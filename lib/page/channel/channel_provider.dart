@@ -16,6 +16,7 @@ import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/component/http/http_exceptions.dart' as http;
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/websocket_events.dart'
@@ -295,7 +296,12 @@ class ChannelListNotifier extends _$ChannelListNotifier {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final result = await _api.getSubscribedChannelsPage(limit: 50);
+      // W07.b/c（C2）：manifest 声明 list_contracts（恰为整数 1）时走
+      // 签名游标协议（首页 token=null）；未声明 → legacy page/size 路径
+      // 逐字不变（J27.a/b）。两族 envelope 均为 ChannelPageResult 形状。
+      final result = AppManifestService.manifest?.listCursorGateEnabled ?? false
+          ? await _api.getSubscribedChannelsCursorPage(limit: 50)
+          : await _api.getSubscribedChannelsPage(limit: 50);
       // 检查 provider 是否仍然有效
       if (!ref.mounted ||
           account != UserRepoLocal.to.currentUid ||
@@ -359,10 +365,16 @@ class ChannelListNotifier extends _$ChannelListNotifier {
     final generation = _subscribedGeneration;
 
     try {
-      final result = await _api.getSubscribedChannelsPage(
-        cursor: state.cursor,
-        limit: 50,
-      );
+      final result =
+          (AppManifestService.manifest?.listCursorGateEnabled ?? false)
+          ? await _api.getSubscribedChannelsCursorPage(
+              token: state.cursor,
+              limit: 50,
+            )
+          : await _api.getSubscribedChannelsPage(
+              cursor: state.cursor,
+              limit: 50,
+            );
       if (!ref.mounted ||
           account != UserRepoLocal.to.currentUid ||
           generation != _subscribedGeneration) {
