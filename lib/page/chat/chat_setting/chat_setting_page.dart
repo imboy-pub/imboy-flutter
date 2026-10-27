@@ -20,6 +20,8 @@ import 'package:imboy/page/chat/widget/chat_background_manager.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/service/group_notice_config.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'chat_setting_provider.dart';
@@ -120,10 +122,25 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   }
 
   /// C7-α-2: 持久化 DND 开关到 conversation.is_muted 列
+  ///
+  /// W09.a（§6.7 C2G 群免打扰）：type=C2G 时真源是**账号范围 KV**
+  /// （group_notice_config），conversation.is_muted 只是投影——通用
+  /// 设置页必须复用同一 KV 写入，不得仅写 SQLite 后声称成功。写失败
+  /// 回滚（§5.2）：KV 写失败即报错不动投影；投影失败回滚 KV。
   Future<void> _persistMuteSetting(bool muted) async {
     if (_mutePending || _muteLoadFailed || !_isCurrent) return;
     setState(() => _mutePending = true);
+    final isC2G = widget.type == 'C2G';
+    final gid = int.tryParse(widget.peerId) ?? 0;
     try {
+      if (isC2G) {
+        await setNoticeDisabled(
+          gid,
+          muted,
+          accountUid: UserRepoLocal.to.currentUid,
+          writeBool: (k, val) async => StorageService.to.setBool(k, val),
+        );
+      }
       await ConversationRepo().setMutedForPeer(
         widget.type,
         widget.peerId,
@@ -135,6 +152,18 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       AppLoading.showToast(muted ? t.common.enabled : t.common.disabled);
     } catch (e) {
       debugPrint('[chat_setting_page] ConversationRepo error: $e');
+      if (isC2G) {
+        try {
+          await setNoticeDisabled(
+            gid,
+            !muted,
+            accountUid: UserRepoLocal.to.currentUid,
+            writeBool: (k, val) async => StorageService.to.setBool(k, val),
+          );
+        } catch (rollbackError) {
+          debugPrint('[chat_setting_page] KV rollback error: $rollbackError');
+        }
+      }
       if (_isCurrent) AppLoading.showError(t.common.errorNetwork);
     } finally {
       if (_isCurrent) setState(() => _mutePending = false);
