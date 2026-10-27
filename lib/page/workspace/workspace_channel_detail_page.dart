@@ -24,6 +24,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
+import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_overflow_menu.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart';
@@ -48,8 +49,14 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 频道数据由内嵌 ChannelDetailPage 加载，同一 provider 直接读（单一
-    // 真源）；未加载完成时回退到「频道」标题。
-    final channel = ref.watch(channelDetailProvider).channel;
+    // 真源）；未加载完成时回退到「频道」标题。叠页/其他目标在途时按归属
+    // 过滤回退到本目标快照，避免标题串台（J07）。
+    final channel = ownChannelDetailState(
+      ref.watch(channelDetailProvider),
+      ref.read(channelDetailProvider.notifier).requestedChannelId,
+      channelId,
+      ref.read(channelDetailProvider.notifier).snapshotFor(channelId),
+    ).channel;
     return Scaffold(
       appBar: AppBar(
         title: channel == null

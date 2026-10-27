@@ -70,6 +70,33 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   /// 收缩态下仍给消息列表保留的最小高度（约一条列表项）。
   static const double _minListHeight = 48;
 
+  /// 叠页归属过滤（J07）：共享全局 provider 时只渲染属于本组件目标的
+  /// 状态；其他目标在途时回退到本目标的最近快照，避免串台渲染。
+  ChannelDetailState _ownObservedState(ChannelDetailState observed) {
+    final notifier = ref.read(channelDetailProvider.notifier);
+    return ownChannelDetailState(
+      observed,
+      notifier.requestedChannelId,
+      widget.channelId,
+      notifier.snapshotFor(widget.channelId),
+    );
+  }
+
+  ChannelModel? _ownObservedChannel(ChannelModel? observedChannel) {
+    final observed = ChannelDetailState(channel: observedChannel);
+    if (channelDetailOwnsTarget(
+      observed,
+      ref.read(channelDetailProvider.notifier).requestedChannelId,
+      widget.channelId,
+    )) {
+      return observedChannel;
+    }
+    return notifierSnapshotChannel(widget.channelId);
+  }
+
+  ChannelModel? notifierSnapshotChannel(String channelId) =>
+      ref.read(channelDetailProvider.notifier).snapshotFor(channelId)?.channel;
+
   late ScrollController _scrollController;
   bool _showScrollTop = false;
   bool _isSubscribingFromEmpty = false;
@@ -190,7 +217,9 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   @override
   Widget build(BuildContext context) {
-    final channel = ref.watch(channelDetailProvider.select((s) => s.channel));
+    final channel = _ownObservedChannel(
+      ref.watch(channelDetailProvider.select((s) => s.channel)),
+    );
     final enabled = ChannelMessageFeed.contentToolsAvailable(channel);
     final searchOpen = widget.searchOpen ?? _searchOpen;
     return LayoutBuilder(
@@ -424,7 +453,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   }
 
   Widget _buildRegularFeed(BuildContext context) {
-    final state = ref.watch(channelDetailProvider);
+    final state = _ownObservedState(ref.watch(channelDetailProvider));
     final t = context.t;
 
     if (state.isLoading && state.messages.isEmpty) {

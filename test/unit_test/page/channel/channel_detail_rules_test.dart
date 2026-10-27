@@ -13,6 +13,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_rules.dart';
+import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 
@@ -29,15 +30,18 @@ final _epoch = DateTime(2025, 1, 1);
 
 // ─── 辅助：快速构造 ChannelModel ─────────────────────────────────────────────
 ChannelModel _channel({
+  int id = 1,
   int visibility = 0,
   int accessType = 0,
   int? joinPolicy,
   bool isSubscribed = false,
   bool hasPurchased = false,
   ChannelUserRole userRole = ChannelUserRole.none,
+  String? customId,
 }) => ChannelModel(
-  id: 1,
+  id: id,
   name: 'test',
+  customId: customId,
   visibility: visibility,
   accessType: accessType,
   joinPolicy: joinPolicy ?? (accessType == 1 ? 3 : (visibility == 1 ? 1 : 0)),
@@ -460,6 +464,67 @@ void main() {
 
     test('0 分钟前（刚发送）→ "0m ago"', () {
       expect(formatMessageTime(now, now: now), '0m ago');
+    });
+  });
+
+  group('叠页归属过滤（J07 ownChannelDetailState）', () {
+    ChannelDetailState stateOf(ChannelModel? channel) =>
+        ChannelDetailState(channel: channel);
+
+    test('频道匹配目标 → 属于', () {
+      final channel = _channel();
+      expect(channelDetailOwnsTarget(stateOf(channel), 'other', '1'), isTrue);
+    });
+
+    test('customId 匹配目标 → 属于', () {
+      final channel = _channel(customId: 'alias-9');
+      expect(
+        channelDetailOwnsTarget(stateOf(channel), null, 'alias-9'),
+        isTrue,
+      );
+    });
+
+    test('requested 指向本目标（加载中）→ 属于', () {
+      expect(channelDetailOwnsTarget(stateOf(null), '1', '1'), isTrue);
+    });
+
+    test('requested 指向其他目标 → 不属于（即使频道为空）', () {
+      expect(channelDetailOwnsTarget(stateOf(null), '2', '1'), isFalse);
+    });
+
+    test('requested 为空但频道属于其他目标 → 不属于', () {
+      final other = _channel();
+      expect(channelDetailOwnsTarget(stateOf(other), null, '99'), isFalse);
+    });
+
+    test('初始空态（无频道无请求）→ 属于', () {
+      expect(channelDetailOwnsTarget(stateOf(null), null, '1'), isTrue);
+    });
+
+    test('不属于时回退快照；无快照回退加载态；属于时原样返回', () {
+      // observed 承载频道 id=1（其他目标在途 requested=2），本页目标 id=7。
+      final other = _channel();
+      final observed = stateOf(other);
+      final snapshot = ChannelDetailState(
+        channel: _channel(id: 7),
+        messages: const [],
+      );
+
+      expect(
+        ownChannelDetailState(observed, '2', '7', snapshot).channel?.id,
+        7,
+        reason: '其他目标在途时必须用本目标快照渲染',
+      );
+
+      final fallback = ownChannelDetailState(observed, '2', '7', null);
+      expect(fallback.isLoading, isTrue);
+      expect(fallback.channel, isNull);
+
+      expect(
+        identical(ownChannelDetailState(observed, null, '1', null), observed),
+        isTrue,
+        reason: '属于本目标时原样返回全局状态',
+      );
     });
   });
 }

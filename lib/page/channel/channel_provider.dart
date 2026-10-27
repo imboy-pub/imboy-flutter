@@ -485,6 +485,19 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   String? _requestedChannelId;
   String? get requestedChannelId => _requestedChannelId;
   final Set<String> _deletedChannelIds = {};
+  // 叠页快照：切换目标前保存当前 personal 频道的完整状态，返回原目标时
+  // 立即恢复渲染（J07：不用另一目标/清空态闪现）。受保护（workspace/未知
+  // scope）内容按 C3 不做快照恢复；认证切换与频道删除事件会使快照失效。
+  static const int _maxTargetSnapshots = 8;
+  final Map<String, ChannelDetailState> _targetSnapshots = {};
+  @visibleForTesting
+  ChannelDetailState? debugSnapshotFor(String channelId) =>
+      _targetSnapshots[channelId];
+  @visibleForTesting
+  void debugSeedSnapshot(String channelId, ChannelDetailState state) {
+    _targetSnapshots[channelId] = state;
+  }
+
   @visibleForTesting
   void debugSetChannelId(String? channelId) => _channelId = channelId;
   StreamSubscription<ChannelNewMessageEvent>? _channelNewMessageSub;
@@ -533,11 +546,39 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     _channelId = null;
     _requestedChannelId = null;
     _deletedChannelIds.clear();
+    _targetSnapshots.clear();
     _messageCursor = null;
     _messageGeneration++;
     _channelLoadGeneration++;
     _channelTargetGeneration++;
     state = const ChannelDetailState();
+  }
+
+  /// 读取指定目标的最近快照（叠页返回/页面归属过滤兜底）。
+  ChannelDetailState? snapshotFor(String channelId) =>
+      _targetSnapshots[channelId];
+
+  void _snapshotCurrentTarget() {
+    final id = _channelId;
+    final channel = state.channel;
+    if (id == null || channel == null || channel.scope != 'personal') return;
+    _targetSnapshots[id] = state.copyWith(
+      isPublishing: false,
+      isLoading: false,
+      error: null,
+    );
+    while (_targetSnapshots.length > _maxTargetSnapshots) {
+      _targetSnapshots.remove(_targetSnapshots.keys.first);
+    }
+  }
+
+  /// 切换目标后的初始状态：personal 快照立即恢复，其余走加载态。
+  ChannelDetailState _restoredInitialState(String channelId) {
+    final snapshot = _targetSnapshots[channelId];
+    if (snapshot != null && snapshot.channel?.scope == 'personal') {
+      return snapshot.copyWith(isLoading: false, error: null);
+    }
+    return const ChannelDetailState(isLoading: true);
   }
 
   /// 加载频道详情
@@ -549,13 +590,14 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
     bool isCurrent() => ref.mounted && loadGeneration == _channelLoadGeneration;
     final service = ref.read(channelServiceProvider);
     if (_channelId != channelId) {
+      _snapshotCurrentTarget();
       _channelTargetGeneration++;
       _channelId = null;
-      state = const ChannelDetailState(isLoading: true);
+      state = _restoredInitialState(channelId);
     } else if (state.channel != null && state.channel!.scope != 'personal') {
       _channelTargetGeneration++;
       _channelId = null;
-      state = const ChannelDetailState(isLoading: true);
+      state = _restoredInitialState(channelId);
     }
     _messageCursor = null;
     _messageGeneration++;
@@ -849,6 +891,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
   void _handleChannelStateChanged(ChannelStateChangedEvent event) {
     if (!ref.mounted) return;
     if (event.action == 'channel_deleted') {
+      _targetSnapshots.remove(event.channelId);
       if (_channelId == null && _requestedChannelId != null) {
         _deletedChannelIds.add(event.channelId);
       }

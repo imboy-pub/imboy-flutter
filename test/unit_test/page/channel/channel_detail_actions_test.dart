@@ -981,6 +981,107 @@ void main() {
       );
     });
   });
+
+  group('叠页目标快照（J07 页面归属隔离）', () {
+    test('切换目标前保存快照，返回原目标立即恢复内容', () async {
+      final service = _SnapshotSwitchService();
+      final api = _SnapshotSwitchApi();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(api),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+
+      // 1. 加载 A（personal）：state 达成 A 内容。
+      await notifier.loadChannel('11');
+      expect(container.read(channelDetailProvider).channel?.id, 11);
+
+      // 2. 切到 B：切换瞬间同步保存 A 快照，state 离开 A（B 不存在，
+      //    flush 后会推进到 error 态，故归属断言必须在同步段完成）。
+      final loadB = notifier.loadChannel('22');
+      expect(
+        notifier.debugSnapshotFor('11')?.channel?.id,
+        11,
+        reason: '切换目标前必须保存 A 的完整状态',
+      );
+      // B 无快照 → 恢复加载态而非 A 的内容。
+      expect(container.read(channelDetailProvider).channel, isNull);
+      expect(container.read(channelDetailProvider).isLoading, isTrue);
+      await loadB;
+      await _flushCursorFutures();
+
+      // 3. 返回 A：恢复快照同步生效（首个 await 之前 state 即为 A 内容）。
+      final loadA = notifier.loadChannel('11');
+      expect(
+        container.read(channelDetailProvider).channel?.id,
+        11,
+        reason: '返回原目标必须立即恢复快照，不能闪清空/B 内容',
+      );
+      expect(container.read(channelDetailProvider).isLoading, isFalse);
+      await loadA;
+      expect(container.read(channelDetailProvider).channel?.id, 11);
+    });
+
+    test('workspace 目标不落快照（受保护内容不做离线恢复）', () async {
+      final service = _SnapshotSwitchService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(_SnapshotSwitchApi()),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+
+      await notifier.loadChannel('33');
+      expect(container.read(channelDetailProvider).channel?.id, 33);
+      final loadB = notifier.loadChannel('22');
+      await _flushCursorFutures();
+      expect(
+        notifier.debugSnapshotFor('33'),
+        isNull,
+        reason: 'workspace scope 按 C3 不允许快照恢复',
+      );
+      await loadB;
+      await _flushCursorFutures();
+    });
+
+    test('频道删除事件使对应快照失效', () async {
+      final service = _SnapshotSwitchService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(_SnapshotSwitchApi()),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+
+      await notifier.loadChannel('11');
+      notifier.debugSeedSnapshot('11', container.read(channelDetailProvider));
+      expect(notifier.debugSnapshotFor('11')?.channel?.id, 11);
+
+      AppEventBus.fire(
+        ChannelStateChangedEvent(
+          channelId: '11',
+          action: 'channel_deleted',
+          payload: const {},
+        ),
+      );
+      await _flushCursorFutures();
+      expect(
+        notifier.debugSnapshotFor('11'),
+        isNull,
+        reason: '删除事件后快照不得再恢复已删频道',
+      );
+    });
+  });
 }
 
 class _CursorChannelApi extends ChannelApi {
@@ -1104,6 +1205,66 @@ class _AliasApi extends ChannelApi {
   }) async =>
       const ChannelPageResult(list: [], nextCursor: null, hasMore: false);
 }
+
+/// 叠页快照用：11=personal、33=workspace、22=不存在的目标。
+class _SnapshotSwitchApi extends ChannelApi {
+  @override
+  Future<ChannelModel> getChannelByCustomIdChecked(String id) async =>
+      throw http.BadServiceException(message: 'not found');
+  @override
+  Future<ChannelPageResult<ChannelMessageModel>> getMessagesPage({
+    required String channelId,
+    String? cursor,
+    int limit = 20,
+  }) async =>
+      const ChannelPageResult(list: [], nextCursor: null, hasMore: false);
+}
+
+class _SnapshotSwitchService extends Fake implements ChannelService {
+  @override
+  Future<ChannelModel?> getChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) async => switch (id) {
+    '11' => _snapshotChannel(11, 'personal'),
+    '33' => _snapshotChannel(33, 'workspace'),
+    _ => null,
+  };
+
+  @override
+  Future<ChannelModel?> refreshChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) async => switch (id) {
+    '11' => _snapshotChannel(11, 'personal'),
+    '33' => _snapshotChannel(33, 'workspace'),
+    _ => null,
+  };
+
+  @override
+  Future<ChannelModel?> refreshChannelChecked(
+    String id, {
+    bool Function()? isCurrent,
+  }) async => switch (id) {
+    '11' => _snapshotChannel(11, 'personal'),
+    _ => null,
+  };
+
+  @override
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async {}
+}
+
+ChannelModel _snapshotChannel(int id, String scope) => ChannelModel(
+  id: id,
+  scope: scope,
+  name: 'snapshot-$id',
+  creatorId: 1,
+  createdAt: DateTime.utc(2026),
+  updatedAt: DateTime.utc(2026),
+);
 
 class _AliasService extends Fake implements ChannelService {
   final saved = <ChannelModel>[];

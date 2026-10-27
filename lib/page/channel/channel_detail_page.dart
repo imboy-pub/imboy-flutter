@@ -199,7 +199,10 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage> {
       });
     }
     final state = mismatch
-        ? const ChannelDetailState(isLoading: true)
+        ? (ref
+                  .read(channelDetailProvider.notifier)
+                  .snapshotFor(widget.channelId) ??
+              const ChannelDetailState(isLoading: true))
         : observed;
     final channel = state.channel;
 
