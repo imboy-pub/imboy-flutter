@@ -71,6 +71,111 @@ class SchemaContract {
   /// - 会话权威排序（v35）：消息四表 conv_seq/accepted_at 可空事实列
   ///   （R07；NULL=服务端未给出，存在性是排序基建的最小前提）。
   static const Map<int, Map<String, Set<String>>> requiredColumnsByVersion = {
+    36: {
+      'msg_c2c': {
+        'accepted_at',
+        'action',
+        'auto_id',
+        'conv_seq',
+        'conversation_uk3',
+        'created_at',
+        'e2ee',
+        'from_id',
+        'id',
+        'is_author',
+        'msg_type',
+        'payload',
+        'sender_did',
+        'status',
+        'to_id',
+        'topic_id',
+        'type',
+      },
+      'msg_c2g': {
+        'accepted_at',
+        'action',
+        'auto_id',
+        'conv_seq',
+        'conversation_uk3',
+        'created_at',
+        'e2ee',
+        'from_id',
+        'id',
+        'is_author',
+        'msg_type',
+        'payload',
+        'status',
+        'to_id',
+        'topic_id',
+        'type',
+      },
+      'msg_c2s': {
+        'accepted_at',
+        'action',
+        'auto_id',
+        'conv_seq',
+        'conversation_uk3',
+        'created_at',
+        'e2ee',
+        'from_id',
+        'id',
+        'is_author',
+        'msg_type',
+        'payload',
+        'status',
+        'to_id',
+        'topic_id',
+        'type',
+      },
+      'msg_s2c': {
+        'accepted_at',
+        'action',
+        'auto_id',
+        'conv_seq',
+        'conversation_uk3',
+        'created_at',
+        'e2ee',
+        'from_id',
+        'id',
+        'is_author',
+        'msg_type',
+        'payload',
+        'status',
+        'to_id',
+        'topic_id',
+        'type',
+      },
+      'conversation': {
+        'avatar',
+        'id',
+        'is_muted',
+        'is_show',
+        'last_msg_id',
+        'last_msg_status',
+        'last_time',
+        'mention_unread',
+        'msg_type',
+        'payload',
+        'peer_id',
+        'region',
+        'sign',
+        'subtitle',
+        'title',
+        'type',
+        'unread_num',
+        'user_id',
+      },
+      'channel': {
+        'id',
+        'type',
+        'visibility',
+        'access_type',
+        'join_policy',
+        'has_purchased',
+      },
+      'channel_message_outbox': {'message_id', 'channel_id', 'payload'},
+      'channel_publish_outbox': {'request_id', 'channel_id', 'content'},
+    },
     35: {
       'msg_c2c': {'id', 'conversation_uk3', 'conv_seq', 'accepted_at'},
       'msg_c2g': {'id', 'conversation_uk3', 'conv_seq', 'accepted_at'},
@@ -142,6 +247,23 @@ class SchemaContract {
       final present = info.map((r) => r['name'] as String).toSet();
       for (final col in e.value.difference(present)) {
         violations.add('missing column: $table.$col (v$version)');
+      }
+    }
+    if (version == 36) {
+      for (final table in [
+        'msg_c2c',
+        'msg_c2g',
+        'msg_c2s',
+        'msg_s2c',
+        'conversation',
+      ]) {
+        final column = table == 'conversation' ? 'last_msg_id' : 'id';
+        final info = await db.rawQuery('PRAGMA table_info("$table")');
+        if (!info.any(
+          (row) => row['name'] == column && row['type'] == 'TEXT',
+        )) {
+          violations.add('expected TEXT: $table.$column (v$version)');
+        }
       }
     }
     return violations;

@@ -48,7 +48,6 @@ class _CapturingSink implements WebSocketSink {
   Future<dynamic> addStream(Stream<dynamic> stream) async {}
 }
 
-/// 最小 fake channel：暴露 sink，其它成员抛出
 class _FakeChannel implements WebSocketChannel {
   final _CapturingSink _sink = _CapturingSink();
 
@@ -280,9 +279,9 @@ void main() {
               isAuthor: 1,
             ),
           );
-          expect(await pending, !stale && stage == 'connected');
+          expect(await pending, !stale);
           await pumpEventQueue();
-          expect(requests, isEmpty);
+          expect(requests, stale ? isEmpty : hasLength(1));
           expect(
             fake._sink.sent,
             stale || stage == 'disconnected' ? isEmpty : hasLength(1),

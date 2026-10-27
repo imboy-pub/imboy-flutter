@@ -206,6 +206,7 @@ class ConversationModel {
     final avatarRaw = json[ConversationRepo.avatar];
     final avatarValue = parseModelString(avatarRaw);
     final msgTypeRaw = json[ConversationRepo.msgType];
+    final lastMsgIdRaw = json[ConversationRepo.lastMsgId];
 
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
@@ -217,10 +218,10 @@ class ConversationModel {
       sign: parseModelString(json[ConversationRepo.sign]),
       subtitle: parseModelString(json[ConversationRepo.subtitle]),
       lastTime: lastTime,
-      // 兼容历史 int 值（旧契约 0/脏值）：读时归一为 ''，Xid 字符串直通。
-      lastMsgId: json[ConversationRepo.lastMsgId] is int
+      // 旧数值 0 是空会话哨兵；其它旧整数与所有字符串保留其 ID 值。
+      lastMsgId: lastMsgIdRaw is int && lastMsgIdRaw == 0
           ? ''
-          : parseModelString(json[ConversationRepo.lastMsgId]),
+          : parseModelString(lastMsgIdRaw),
       lastMsgStatus: parseModelInt(
         json[ConversationRepo.lastMsgStatus],
         defaultValue: 11,

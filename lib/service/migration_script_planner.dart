@@ -186,6 +186,85 @@ class MigrationScriptPlanner {
           : b.version.compareTo(a.version), // 降级：降序
     );
 
+    if (isUpgrade && toVersion >= 36 && fromVersion < 16) {
+      return selected
+          .map(
+            (script) => script.version == 16
+                ? _preserveLegacyMessageIds(script)
+                : script,
+          )
+          .toList();
+    }
     return selected;
+  }
+
+  // v16 INTEGER affinity would destroy opaque IDs before v36 can preserve them.
+  // BLOB is only a transaction-local bridge; v22/v36 convert it to TEXT.
+  static MigrationScript _preserveLegacyMessageIds(MigrationScript script) {
+    const replacements = <String, String>{
+      r'''INSERT INTO msg_c2c_new SELECT
+    auto_id, CAST(id AS INTEGER), msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type, action
+FROM msg_c2c;''':
+          'CAST(id AS INTEGER)',
+      r'''INSERT INTO msg_c2g_new SELECT
+    auto_id, CAST(id AS INTEGER), msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type, action
+FROM msg_c2g;''':
+          'CAST(id AS INTEGER)',
+      r'''INSERT INTO msg_c2s_new SELECT
+    auto_id, CAST(id AS INTEGER), msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type, action
+FROM msg_c2s;''':
+          'CAST(id AS INTEGER)',
+      r'''INSERT INTO msg_s2c_new SELECT
+    auto_id, CAST(id AS INTEGER), action, msg_type,
+    CAST(from_id AS INTEGER), CAST(to_id AS INTEGER),
+    conversation_uk3, e2ee, payload, created_at, topic_id,
+    status, is_author, type
+FROM msg_s2c;''':
+          'CAST(id AS INTEGER)',
+      r'''INSERT INTO conversation_new SELECT
+    id, CAST(user_id AS INTEGER), CAST(peer_id AS INTEGER),
+    avatar, title, subtitle, region, sign, unread_num,
+    "type", msg_type, is_show, last_time,
+    CAST(last_msg_id AS INTEGER), last_msg_status, payload
+FROM conversation;''':
+          'CAST(last_msg_id AS INTEGER)',
+      r'''INSERT INTO user_collect_new SELECT
+    auto_id, CAST(user_id AS INTEGER), kind, CAST(kind_id AS INTEGER),
+    source, remark, tag, updated_at, created_at, info
+FROM user_collect;''':
+          'CAST(kind_id AS INTEGER)',
+    };
+    final counts = {for (final sql in replacements.keys) sql: 0};
+    final statements = script.sqlStatements.map((sql) {
+      final cast = replacements[sql];
+      if (cast == null) return sql;
+      counts[sql] = counts[sql]! + 1;
+      if (cast.allMatches(sql).length != 1) {
+        throw StateError('v16 message ID cast is not unique');
+      }
+      // Preserve the old numeric-zero empty pointer before BLOB erases its type.
+      final replacement = cast == 'CAST(last_msg_id AS INTEGER)'
+          ? "CAST(CASE WHEN typeof(last_msg_id) = 'integer' AND last_msg_id = 0 THEN '' ELSE last_msg_id END AS BLOB)"
+          : cast.replaceFirst('INTEGER', 'BLOB');
+      return sql.replaceFirst(cast, replacement);
+    }).toList();
+    if (counts.values.any((count) => count != 1)) {
+      throw StateError('v16 message ID preservation statements changed');
+    }
+    return MigrationScript(
+      version: script.version,
+      targetVersion: script.targetVersion,
+      description: script.description,
+      sqlStatements: statements,
+    );
   }
 }

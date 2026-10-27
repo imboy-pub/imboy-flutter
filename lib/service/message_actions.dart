@@ -6,8 +6,6 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_type_constants.dart';
-import 'package:imboy/service/protocol/imboy_frame.dart';
-import 'package:imboy/service/websocket.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -667,7 +665,7 @@ class MessageActions {
       }
 
       // 只有当编辑的消息是会话的最后一条消息时才更新会话
-      // conv.lastMsgId 与 msg.id 均为 Xid 字符串（同契约）
+      // conv.lastMsgId 与 msg.id 均为不透明字符串（同契约）
       if (conv.lastMsgId == msg.id) {
         iPrint(
           '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
@@ -762,7 +760,7 @@ class MessageActions {
       }
 
       // 只有当撤回的消息是会话的最后一条消息时才更新会话
-      // conv.lastMsgId 与 msg.id 均为 Xid 字符串（同契约）
+      // conv.lastMsgId 与 msg.id 均为不透明字符串（同契约）
       if (conv.lastMsgId == msg.id) {
         iPrint(
           '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
@@ -825,18 +823,6 @@ class MessageActions {
       final String toUid = msg.fromId.toString() == currentUid
           ? msg.toId.toString()
           : msg.fromId.toString();
-
-      if (WebSocketService.to.framing == FramingMode.v2) {
-        final int? numericMsgId = int.tryParse(messageId);
-        if (numericMsgId != null) {
-          final bytes = ImboyFrame.recall(numericMsgId);
-          final accepted = WebSocketService.to.sendDirect(bytes);
-          if (accepted) {
-            iPrint('🔄 发送 v2 二进制撤回请求: msgId=$messageId');
-          }
-          return accepted;
-        }
-      }
 
       // v2.0: msg_type/action 字段提升到顶层
       final revokeMessage = {

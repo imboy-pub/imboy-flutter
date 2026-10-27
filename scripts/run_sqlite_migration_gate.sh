@@ -86,6 +86,7 @@ run_item "02_dart_analyze" \
   test/unit_test/service/sqlite_uid_isolation_test.dart \
   test/unit_test/service/schema_fingerprint_test.dart \
   test/unit_test/service/schema_contract_test.dart \
+  test/unit_test/service/migration_v36_message_id_test.dart \
   test/unit_test/service/database_snapshot_service_test.dart \
   test/unit_test/service/database_migration_orchestrator_test.dart \
   test/unit_test/integration/sqlite_migration_matrix_test.dart \
@@ -113,7 +114,7 @@ run_item "07_schema_fingerprint" \
   flutter test test/unit_test/service/schema_fingerprint_test.dart --reporter compact
 
 run_item "08_schema_contract_golden" \
-  flutter test test/unit_test/service/schema_contract_test.dart --reporter compact
+  flutter test test/unit_test/service/schema_contract_test.dart test/unit_test/service/migration_v36_message_id_test.dart --reporter compact
 
 run_item "09_snapshot_service" \
   flutter test test/unit_test/service/database_snapshot_service_test.dart --reporter compact

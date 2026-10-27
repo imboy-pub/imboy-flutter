@@ -50,7 +50,8 @@ class SqliteService {
   // v34: user_collect.generation/key_version（E2EE 收藏 v1，服务端迁移 227 对齐）
   // v33: attachment_upload_task 附件上传任务持久化检查点（AC08 恢复）
   // v35: 消息四表 conv_seq/accepted_at（R07 会话权威排序；可空，NULL=服务端未给出）
-  static const _dbVersion = 35;
+  // v36: 业务消息 ID 与 conversation.last_msg_id 原值保真 TEXT；不可逆降级。
+  static const _dbVersion = 36;
 
   // 单例构造
   SqliteService._privateConstructor();
