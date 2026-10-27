@@ -649,6 +649,10 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Envoyer un nouveau message';
 	@override String get markRead => 'Marquer comme lu';
 	@override String get markUnread => 'Marquer comme non lu';
+	@override String get manualPendingBadge => 'À traiter';
+	@override String get cancelManualPending => 'Annuler « à traiter »';
+	@override String get manualPendingOff => 'Non à traiter';
+	@override String manualPendingConflict({required Object param}) => 'État actuel du serveur : ${param}';
 	@override String get pleaseEnterSignature => 'Saisissez votre signature';
 	@override String get exportProfile => 'Exporter le profil';
 	@override String get setSignature => 'Définir la signature';
@@ -3900,6 +3904,10 @@ extension on TranslationsFrFr {
 			'chat.sendNewMessage' => 'Envoyer un nouveau message',
 			'chat.markRead' => 'Marquer comme lu',
 			'chat.markUnread' => 'Marquer comme non lu',
+			'chat.manualPendingBadge' => 'À traiter',
+			'chat.cancelManualPending' => 'Annuler « à traiter »',
+			'chat.manualPendingOff' => 'Non à traiter',
+			'chat.manualPendingConflict' => ({required Object param}) => 'État actuel du serveur : ${param}',
 			'chat.pleaseEnterSignature' => 'Saisissez votre signature',
 			'chat.exportProfile' => 'Exporter le profil',
 			'chat.setSignature' => 'Définir la signature',
@@ -4398,12 +4406,12 @@ extension on TranslationsFrFr {
 			'common.disabled' => 'Désactivé',
 			'common.fontSizeSettingUpdated' => 'Paramètre de taille de police mis à jour.',
 			'common.fontSizeSetting' => 'Paramètre de taille de police',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'La police est trop petite et peut affecter la lecture.',
 			'common.dragSliderAdjustFontSize' => 'Faire glisser le curseur pour ajuster la taille de la police.',
 			'common.personalInfo' => 'Informations personnelles',
 			'common.nicknameNotSet' => 'Surnom non défini',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => 'Informations de base',
 			'common.contactInfo' => 'Coordonnées',
 			'common.editTags' => 'Modifier les étiquettes',
@@ -4912,12 +4920,12 @@ extension on TranslationsFrFr {
 			'contact.remarksTags' => 'Remarques et étiquettes',
 			'contact.selectAGroup' => 'Sélectionner un groupe',
 			'contact.selectFriends' => 'Sélectionner des amis.',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => 'Étiquettes',
 			'contact.suggestedTags' => 'Étiquettes suggérées',
 			'contact.pleaseEnterRemark' => 'Veuillez entrer la remarque.',
 			'contact.enterRemark' => 'Entrez la remarque.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
 			'contact.momentsVisibilityFriends' => 'Amis seulement',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
@@ -5426,12 +5434,12 @@ extension on TranslationsFrFr {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} appareil(s)',
 			'main.safetyNumberReporting' => 'Envoi du résultat de vérification...',
 			'main.safetyNumberTitle' => 'Vérification du code de sécurité',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'Échec de la récupération du code de sécurité. Réessayez plus tard',
 			'main.complianceKeyNotConfigured' => 'Aucune clé d\'audit de conformité configurée pour ce déploiement',
 			'main.mineContent' => 'Mes contenus',
 			'main.mineCommonEntries' => 'Accès rapide',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Gestion et assistance',
 			'main.mineSettingsSupport' => 'Réglages et assistance',
 			'main.mineStorageUsage' => 'Gérer le stockage',
@@ -5940,12 +5948,12 @@ extension on TranslationsFrFr {
 			'welcome.step2Title' => 'Sécurité et vie privée',
 			'welcome.step2Desc' => 'Chiffrement de bout en bout Garde vos moments personnels strictement privés.',
 			'welcome.step3Title' => 'Prêt à explorer ?',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => 'Rejoignez une communauté animée. Que la conversation commence !',
 			'welcome.next' => 'Suivant',
 			'welcome.getStarted' => 'Commencer',
 			'welcome.skip' => 'Ignorer',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => 'Vue d\'ensemble',
 			'workspace.navProjects' => 'Projets',
 			'workspace.navChannels' => 'Canaux',

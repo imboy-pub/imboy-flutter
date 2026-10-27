@@ -711,6 +711,10 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Send new message';
 	@override String get markRead => 'Mark as read';
 	@override String get markUnread => 'Mark as unread';
+	@override String get manualPendingBadge => 'Pending';
+	@override String get cancelManualPending => 'Cancel pending';
+	@override String get manualPendingOff => 'Not pending';
+	@override String manualPendingConflict({required Object param}) => 'Server\'s current state: ${param}';
 	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get exportProfile => 'Export Profile';
 	@override String get setSignature => 'Set Signature';
@@ -4582,6 +4586,10 @@ extension on TranslationsEnUs {
 			'chat.sendNewMessage' => 'Send new message',
 			'chat.markRead' => 'Mark as read',
 			'chat.markUnread' => 'Mark as unread',
+			'chat.manualPendingBadge' => 'Pending',
+			'chat.cancelManualPending' => 'Cancel pending',
+			'chat.manualPendingOff' => 'Not pending',
+			'chat.manualPendingConflict' => ({required Object param}) => 'Server\'s current state: ${param}',
 			'chat.pleaseEnterSignature' => 'Please enter signature',
 			'chat.exportProfile' => 'Export Profile',
 			'chat.setSignature' => 'Set Signature',
@@ -5029,12 +5037,12 @@ extension on TranslationsEnUs {
 			'common.deleteAccountAction' => 'Delete account',
 			'common.deleteAccountActionDesc' => 'Permanently delete account and all data, this action cannot be undone',
 			'common.chatHistoryCleared' => 'Chat history cleared',
+			_ => null,
+		} ?? switch (path) {
 			'common.chatDeleteMessage' => 'Delete message',
 			'common.chatCopy' => 'Copy',
 			'common.chatSaveImage' => 'Save image',
 			'common.chatDeleteLocalOnly' => 'Delete local only',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteFailed' => 'Delete failed',
 			'common.chatNetworkErrorDeleteLocal' => 'Network connection failed. Delete local message only?',
 			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
@@ -5543,12 +5551,12 @@ extension on TranslationsEnUs {
 			'common.redPacketCountEmpty' => 'Please enter the number of red packets',
 			'common.redPacketCountMin' => 'The number of red packets must be at least 1',
 			'common.redPacketAmountTooSmall' => 'Total amount must be at least ¥0.01 per red packet',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketGreetingLabel' => 'Message / Greeting',
 			'common.redPacketCurrentLucky' => 'Current mode: Lucky Red Packet',
 			'common.redPacketCurrentNormal' => 'Current mode: Normal Red Packet',
 			'common.redPacketSwitchToLucky' => 'Switch to Lucky Red Packet',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketSwitchToNormal' => 'Switch to Normal Red Packet',
 			'common.redPacketStuffLucky' => 'Send Lucky Red Packet',
 			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
@@ -6057,12 +6065,12 @@ extension on TranslationsEnUs {
 			'groupTask.completedAt' => ({required Object time}) => 'Completed ${time}',
 			'groupVote.title' => 'Group Votes',
 			'groupVote.createVote' => 'Create Vote',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.voteTitle' => 'Vote Title',
 			'groupVote.noVote' => 'No votes yet',
 			'groupVote.voteEnded' => 'Vote ended',
 			'groupVote.totalVotes' => ({required Object count}) => '${count} votes',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.voteSuccess' => 'Voted successfully',
 			'groupVote.cancelVoteSuccess' => 'Vote cancelled',
 			'groupVote.eachOptionPerLine' => 'One option per line',
@@ -6571,12 +6579,12 @@ extension on TranslationsEnUs {
 			'organization.manage.renameWorkspace' => 'Rename workspace',
 			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'Rename "${name}"',
 			'organization.manage.wsMembersEntry' => 'Manage members',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.renameGroup' => 'Rename',
 			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Rename "${name}"',
 			'organization.manage.groupGovernance' => 'Members & roles',
 			'organization.manage.renameChannel' => 'Rename',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.channelAdmins' => 'Admins',
 			'organization.manage.channelSubscribersEntry' => 'Subscribers',
 			'organization.manage.entry' => 'Enterprise management',
@@ -7085,12 +7093,12 @@ extension on TranslationsEnUs {
 			'talkRecord.uploadNoticeTitle' => 'Confirm before uploading',
 			'talkRecord.uploadNoticeHint' => 'Review the current recording notice. This confirms uploading now; it does not rewrite the original recording acknowledgement or change its space.',
 			'talkRecord.uploadRecording' => 'Upload recording',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.retryRecordingUpload' => 'Retry upload',
 			'talkRecord.notificationRequiredTitle' => 'Enable recording notifications',
 			'talkRecord.notificationRequiredMessage' => 'Allow app notifications and enable the recording notification channel in system settings. Return here and retry after enabling them. Recording has not started.',
 			'talkRecord.openNotificationSettings' => 'Open notification settings',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.processingRecoveryTitle' => 'Confirm recording processing',
 			'talkRecord.processingRecoveryHint' => 'The processing notice or processor configuration changed. Confirm to upload and process using the current versions below. The original recording acknowledgement is preserved.',
 			'talkRecord.processingRecoveryUnavailable' => 'Processing is currently unavailable. Keep the recording on this device and retry later.',

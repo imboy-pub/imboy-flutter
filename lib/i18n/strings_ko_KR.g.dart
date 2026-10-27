@@ -649,6 +649,10 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '새 메시지 전송';
 	@override String get markRead => '읽음으로 표시';
 	@override String get markUnread => '읽지 않음으로 표시';
+	@override String get manualPendingBadge => '처리 대기';
+	@override String get cancelManualPending => '처리 대기 취소';
+	@override String get manualPendingOff => '처리 대기 아님';
+	@override String manualPendingConflict({required Object param}) => '서버 현재 상태: ${param}';
 	@override String get pleaseEnterSignature => '한 줄 소개를 입력하세요';
 	@override String get exportProfile => '프로필 내보내기';
 	@override String get setSignature => '서명 설정';
@@ -3897,6 +3901,10 @@ extension on TranslationsKoKr {
 			'chat.sendNewMessage' => '새 메시지 전송',
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
+			'chat.manualPendingBadge' => '처리 대기',
+			'chat.cancelManualPending' => '처리 대기 취소',
+			'chat.manualPendingOff' => '처리 대기 아님',
+			'chat.manualPendingConflict' => ({required Object param}) => '서버 현재 상태: ${param}',
 			'chat.pleaseEnterSignature' => '한 줄 소개를 입력하세요',
 			'chat.exportProfile' => '프로필 내보내기',
 			'chat.setSignature' => '서명 설정',
@@ -4395,12 +4403,12 @@ extension on TranslationsKoKr {
 			'common.disabled' => '비활성화됨',
 			'common.fontSizeSettingUpdated' => '글꼴 크기 설정이 업데이트되었습니다',
 			'common.fontSizeSetting' => '글꼴 크기 설정',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => '글꼴이 너무 작아 읽기에 영향을 줄 수 있습니다',
 			'common.dragSliderAdjustFontSize' => '슬라이더를 드래그하여 글꼴 크기 조정',
 			'common.personalInfo' => '개인 정보',
 			'common.nicknameNotSet' => '닉네임이 설정되지 않음',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => '기본 정보',
 			'common.contactInfo' => '연락처 정보',
 			'common.editTags' => '태그 편집',
@@ -4909,12 +4917,12 @@ extension on TranslationsKoKr {
 			'contact.remarksTags' => '메모 및 태그',
 			'contact.selectAGroup' => '그룹 선택',
 			'contact.selectFriends' => '친구 선택',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => '태그',
 			'contact.suggestedTags' => '제안된 태그',
 			'contact.pleaseEnterRemark' => '메모를 입력해 주세요',
 			'contact.enterRemark' => '메모 이름을 입력해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => '태그를 입력하세요',
 			'contact.momentsVisibilityFriends' => '친구만',
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
@@ -5423,12 +5431,12 @@ extension on TranslationsKoKr {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '기기 ${count}대',
 			'main.safetyNumberReporting' => '검증 결과 보고 중...',
 			'main.safetyNumberTitle' => '보안 번호 검증',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
 			'main.complianceKeyNotConfigured' => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다',
 			'main.mineContent' => '내 콘텐츠',
 			'main.mineCommonEntries' => '빠른 접근',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => '관리 및 지원',
 			'main.mineSettingsSupport' => '설정 및 지원',
 			'main.mineStorageUsage' => '사용량 관리',
@@ -5937,12 +5945,12 @@ extension on TranslationsKoKr {
 			'welcome.step2Title' => '안전하고 개인적인',
 			'welcome.step2Desc' => '엔드투엔드 암호화 당신의 개인 순간을 완벽하게 보호합니다.',
 			'welcome.step3Title' => '탐색할 준비가 되셨나요?',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => '활기찬 커뮤니티에 참여하세요. 대화를 시작해 보세요!',
 			'welcome.next' => '다음',
 			'welcome.getStarted' => '시작하기',
 			'welcome.skip' => '건너뛰기',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => '개요',
 			'workspace.navProjects' => '프로젝트',
 			'workspace.navChannels' => '채널',

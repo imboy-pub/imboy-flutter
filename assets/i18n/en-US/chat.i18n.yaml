@@ -121,6 +121,10 @@ momentsReplyingTo: "Replying to @{name}"
 sendNewMessage: Send new message
 markRead: Mark as read
 markUnread: Mark as unread
+manualPendingBadge: Pending
+cancelManualPending: "Cancel pending"
+manualPendingOff: Not pending
+manualPendingConflict(param): "Server's current state: ${param}"
 pleaseEnterSignature: Please enter signature
 exportProfile: Export Profile
 setSignature: Set Signature

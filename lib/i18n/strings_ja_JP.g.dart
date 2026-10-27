@@ -649,6 +649,10 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '新しいメッセージを送信';
 	@override String get markRead => '既読にする';
 	@override String get markUnread => '未読にする';
+	@override String get manualPendingBadge => '要対応';
+	@override String get cancelManualPending => '要対応を解除';
+	@override String get manualPendingOff => '要対応ではない';
+	@override String manualPendingConflict({required Object param}) => 'サーバー側の現在状態：${param}';
 	@override String get pleaseEnterSignature => 'ひとことを入力してください';
 	@override String get exportProfile => 'プロフィールをエクスポート';
 	@override String get setSignature => '署名を設定';
@@ -3897,6 +3901,10 @@ extension on TranslationsJaJp {
 			'chat.sendNewMessage' => '新しいメッセージを送信',
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
+			'chat.manualPendingBadge' => '要対応',
+			'chat.cancelManualPending' => '要対応を解除',
+			'chat.manualPendingOff' => '要対応ではない',
+			'chat.manualPendingConflict' => ({required Object param}) => 'サーバー側の現在状態：${param}',
 			'chat.pleaseEnterSignature' => 'ひとことを入力してください',
 			'chat.exportProfile' => 'プロフィールをエクスポート',
 			'chat.setSignature' => '署名を設定',
@@ -4395,12 +4403,12 @@ extension on TranslationsJaJp {
 			'common.disabled' => '無効',
 			'common.fontSizeSettingUpdated' => 'フォントサイズ設定を更新しました',
 			'common.fontSizeSetting' => 'フォントサイズ設定',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'フォントが小さすぎて読みやすさに影響する可能性があります',
 			'common.dragSliderAdjustFontSize' => 'スライダーをドラッグしてフォントサイズを調整',
 			'common.personalInfo' => '個人情報',
 			'common.nicknameNotSet' => 'ニックネームが設定されていません',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => '基本情報',
 			'common.contactInfo' => '連絡先情報',
 			'common.editTags' => 'タグを編集',
@@ -4909,12 +4917,12 @@ extension on TranslationsJaJp {
 			'contact.remarksTags' => '備考とタグ',
 			'contact.selectAGroup' => 'グループを選択',
 			'contact.selectFriends' => '友達を選択',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => 'タグ',
 			'contact.suggestedTags' => 'おすすめタグ',
 			'contact.pleaseEnterRemark' => '備考名を入力してください',
 			'contact.enterRemark' => '備考名を入力してください',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'タグを入力してください',
 			'contact.momentsVisibilityFriends' => '友達のみ',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
@@ -5423,12 +5431,12 @@ extension on TranslationsJaJp {
 			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
 			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
 			'main.e2eeErrPeerSuiteUnsupported' => '相手のデバイスが要求された暗号スイートに対応していないため、メッセージは送信されませんでした。相手にアプリの更新を依頼してから再試行してください',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyNotConfigured' => 'このデプロイにはコンプライアンス監査キーが設定されていません',
 			'main.mineContent' => 'マイコンテンツ',
 			'main.mineCommonEntries' => 'よく使う機能',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => '管理とサポート',
 			'main.mineSettingsSupport' => '設定とサポート',
 			'main.mineStorageUsage' => '使用量の管理',
@@ -5937,12 +5945,12 @@ extension on TranslationsJaJp {
 			'welcome.step2Title' => '安全でプライベート',
 			'welcome.step2Desc' => 'エンドツーエンド暗号化 あなたの個人的な瞬間を厳格に保護します。',
 			'welcome.step3Title' => '探索準備はできましたか？',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => '活気あるコミュニティに参加してください。 会話を始めましょう！',
 			'welcome.next' => '次へ',
 			'welcome.getStarted' => '始める',
 			'welcome.skip' => 'スキップ',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => '概要',
 			'workspace.navProjects' => 'プロジェクト',
 			'workspace.navChannels' => 'チャンネル',

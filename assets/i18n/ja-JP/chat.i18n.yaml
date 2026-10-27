@@ -126,6 +126,10 @@ momentsReplyingTo: "@{name}に返信中"
 sendNewMessage: 新しいメッセージを送信
 markRead: 既読にする
 markUnread: 未読にする
+manualPendingBadge: 要対応
+cancelManualPending: "要対応を解除"
+manualPendingOff: 要対応ではない
+manualPendingConflict(param): "サーバー側の現在状態：${param}"
 pleaseEnterSignature: "ひとことを入力してください"
 exportProfile: プロフィールをエクスポート
 setSignature: 署名を設定

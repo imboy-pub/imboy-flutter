@@ -656,6 +656,10 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '傳送新訊息';
 	@override String get markRead => '標記已讀';
 	@override String get markUnread => '標記未讀';
+	@override String get manualPendingBadge => '待處理';
+	@override String get cancelManualPending => '取消待處理';
+	@override String get manualPendingOff => '非待處理';
+	@override String manualPendingConflict({required Object param}) => '伺服器目前狀態：${param}';
 	@override String get pleaseEnterSignature => '請輸入個人簽名';
 	@override String get exportProfile => '匯出資料';
 	@override String get setSignature => '設定個性簽名';
@@ -3904,6 +3908,10 @@ extension on TranslationsZhHant {
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
 			'chat.markUnread' => '標記未讀',
+			'chat.manualPendingBadge' => '待處理',
+			'chat.cancelManualPending' => '取消待處理',
+			'chat.manualPendingOff' => '非待處理',
+			'chat.manualPendingConflict' => ({required Object param}) => '伺服器目前狀態：${param}',
 			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			'chat.exportProfile' => '匯出資料',
 			'chat.setSignature' => '設定個性簽名',
@@ -4395,12 +4403,12 @@ extension on TranslationsZhHant {
 			'common.editSuccess' => '編輯成功',
 			'common.enabled' => '已開啟',
 			'common.disabled' => '已關閉',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontSizeSettingUpdated' => '字體大小設定已更新',
 			'common.fontSizeSetting' => '字體大小設定',
 			'common.fontTooSmallMayAffect' => '字體偏小，可能影響閱讀',
 			'common.dragSliderAdjustFontSize' => '拖動滑塊調整字體大小',
-			_ => null,
-		} ?? switch (path) {
 			'common.personalInfo' => '個人資訊',
 			'common.nicknameNotSet' => '未設定暱稱',
 			'common.basicInfo' => '基本資訊',
@@ -4909,12 +4917,12 @@ extension on TranslationsZhHant {
 			'contact.remarksTags' => '備註和標籤',
 			'contact.selectAGroup' => '選擇一個群組',
 			'contact.selectFriends' => '選擇好友',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => '標籤',
 			'contact.suggestedTags' => '建議標籤',
 			'contact.pleaseEnterRemark' => '請輸入備註名',
 			'contact.enterRemark' => '請輸入備註名',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => '請輸入標籤',
 			'contact.momentsVisibilityFriends' => '僅好友',
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
@@ -5423,12 +5431,12 @@ extension on TranslationsZhHant {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台裝置',
 			'main.safetyNumberReporting' => '正在上報驗證結果...',
 			'main.safetyNumberTitle' => '安全碼驗證',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => '取得安全碼失敗，請稍後重試',
 			'main.complianceKeyNotConfigured' => '目前部署未配置合規審計金鑰',
 			'main.mineContent' => '我的內容',
 			'main.mineCommonEntries' => '常用入口',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => '管理與支援',
 			'main.mineSettingsSupport' => '設定與支援',
 			'main.mineStorageUsage' => '管理用量',
@@ -5937,12 +5945,12 @@ extension on TranslationsZhHant {
 			'welcome.step2Title' => '安全又私密',
 			'welcome.step2Desc' => '端到端加密 保護你的個人時刻只屬於你自己。',
 			'welcome.step3Title' => '準備探索？',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => '加入一個充滿活力的社區。 讓對話開始吧！',
 			'welcome.next' => '下一個步驟',
 			'welcome.getStarted' => '開始使用',
 			'welcome.skip' => '跳過',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => '總覽',
 			'workspace.navProjects' => '專案',
 			'workspace.navChannels' => '頻道',

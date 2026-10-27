@@ -193,10 +193,13 @@ class ConversationApi extends HttpClient {
   }
 
   /// 当前账号全部人工待处理元数据（uk3/value/version 投影）。
-  Future<List<Map<String, dynamic>>> manualPendingList() async {
+  ///
+  /// 返回 null 表示请求失败/结果未知（区别于服务端真实空列表 []），
+  /// 由调用方决定失败时保留本地状态还是重试，不吞错（J16.b）。
+  Future<List<Map<String, dynamic>>?> manualPendingList() async {
     final resp = await get(API.conversationManualPendingList);
     if (!resp.ok || resp.payload == null) {
-      return const [];
+      return null;
     }
     return _parseMapListPayload(resp.payload);
   }

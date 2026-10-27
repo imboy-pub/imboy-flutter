@@ -1879,6 +1879,18 @@ class Translations$chat$zh_CN {
 	/// zh-CN: '标记未读'
 	String get markUnread => '标记未读';
 
+	/// zh-CN: '待处理'
+	String get manualPendingBadge => '待处理';
+
+	/// zh-CN: '取消待处理'
+	String get cancelManualPending => '取消待处理';
+
+	/// zh-CN: '非待处理'
+	String get manualPendingOff => '非待处理';
+
+	/// zh-CN: '服务端当前状态：${param}'
+	String manualPendingConflict({required Object param}) => '服务端当前状态：${param}';
+
 	/// zh-CN: '请输入个性签名'
 	String get pleaseEnterSignature => '请输入个性签名';
 
@@ -11453,6 +11465,10 @@ extension on Translations {
 			'chat.sendNewMessage' => '发送新消息',
 			'chat.markRead' => '标记已读',
 			'chat.markUnread' => '标记未读',
+			'chat.manualPendingBadge' => '待处理',
+			'chat.cancelManualPending' => '取消待处理',
+			'chat.manualPendingOff' => '非待处理',
+			'chat.manualPendingConflict' => ({required Object param}) => '服务端当前状态：${param}',
 			'chat.pleaseEnterSignature' => '请输入个性签名',
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
@@ -11888,12 +11904,12 @@ extension on Translations {
 			'common.allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
 			'common.allowAddByPhone' => '允许通过手机号添加',
 			'common.allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
+			_ => null,
+		} ?? switch (path) {
 			'common.allowAddByQR' => '允许通过二维码添加',
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
 			'common.statusSettings' => '状态设置',
 			'common.showOnlineStatus' => '显示在线状态',
-			_ => null,
-		} ?? switch (path) {
 			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
 			'common.allowNearbyVisible' => '附近的人可见',
 			'common.dataSettings' => '数据设置',
@@ -12402,12 +12418,12 @@ extension on Translations {
 			'common.redPacketCount' => '红包个数',
 			'common.redPacketCountUnit' => '个',
 			'common.redPacketCountEmpty' => '请输入红包个数',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketCountMin' => '红包个数需大于等于 1',
 			'common.redPacketTotalAmount' => '总金额',
 			'common.redPacketSingleAmount' => '单个金额',
 			'common.redPacketGreetingLabel' => '留言 / 祝福语',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketStuffLucky' => '塞钱发红包',
 			'common.redPacketStuffNormal' => '放入钱包发送',
 			'common.amountMustPositive' => '金额必须大于 0',
@@ -12916,12 +12932,12 @@ extension on Translations {
 			'groupTask.editTask' => '编辑待办',
 			'groupTask.taskTitle' => '待办标题',
 			'groupTask.taskDescription' => '待办描述',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.deadline' => '截止时间',
 			'groupTask.noDeadline' => '无截止时间',
 			'groupTask.noTask' => '暂无待办',
 			'groupTask.all' => '全部',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.pending' => '待完成',
 			'groupTask.completed' => '已完成',
 			'groupTask.taskSubmitted' => '待办已提交',
@@ -13430,12 +13446,12 @@ extension on Translations {
 			'organization.directory.membersRestricted' => '全员名单仅企业管理员可见；可展开部门查看部门成员。',
 			'organization.directory.imProfileEntry' => '查看 IM 资料',
 			'organization.directory.myDepartmentsSection' => '我的部门',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.membersSection' => '成员',
 			'organization.directory.memberCountWith' => ({required Object count}) => '${count} 人',
 			'organization.directory.searchHint' => '搜索部门或成员',
 			'organization.directory.emptyDepartments' => '暂无子部门',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.emptyMembers' => '暂无成员',
 			'organization.directory.emptySearch' => '无匹配结果',
 			'organization.directory.switchVerifyFailed' => '目标企业不可用或你已不是其成员',
@@ -13944,12 +13960,12 @@ extension on Translations {
 			'talkRecord.cleanupRetryAction' => '重试清理',
 			'talkRecord.cleanupRetrying' => '重试中…',
 			'talkRecord.cleanupRetryFailedBody' => '重试清理失败，请稍后再次重试。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.deleteRefreshStatus' => '刷新清理状态',
 			'talkRecord.deleteBackToList' => '返回列表',
 			'talkRecord.deleteStatusFixtureHint' => '组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。',
 			'talkRecord.microphoneStopUnconfirmed' => '录音停止尚未确认，请重试停止；若仍失败，请关闭应用并检查系统麦克风指示。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.cleanupWriteOutcomeUnknown' => '附件写入结果尚未确认，清理暂未完成。系统会保留保护状态，由运维人员核查；可刷新查看进度。',
 			'talkRecord.exportDownloadCancelled' => '已取消保存，可再次保存。',
 			'talkRecord.shareCardSendPending' => '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。',

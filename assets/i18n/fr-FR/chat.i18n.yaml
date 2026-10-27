@@ -126,6 +126,10 @@ momentsReplyingTo: Réponse à @{name}
 sendNewMessage: Envoyer un nouveau message
 markRead: Marquer comme lu
 markUnread: Marquer comme non lu
+manualPendingBadge: À traiter
+cancelManualPending: "Annuler « à traiter »"
+manualPendingOff: Non à traiter
+manualPendingConflict(param): "État actuel du serveur : ${param}"
 pleaseEnterSignature: "Saisissez votre signature"
 exportProfile: Exporter le profil
 setSignature: Définir la signature

@@ -126,6 +126,10 @@ momentsReplyingTo: "@{name}님에게 답글 작성 중"
 sendNewMessage: 새 메시지 전송
 markRead: 읽음으로 표시
 markUnread: 읽지 않음으로 표시
+manualPendingBadge: 처리 대기
+cancelManualPending: "처리 대기 취소"
+manualPendingOff: 처리 대기 아님
+manualPendingConflict(param): "서버 현재 상태: ${param}"
 pleaseEnterSignature: "한 줄 소개를 입력하세요"
 exportProfile: 프로필 내보내기
 setSignature: 서명 설정

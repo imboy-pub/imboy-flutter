@@ -649,6 +649,10 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Invia nuovo messaggio';
 	@override String get markRead => 'Segna come letto';
 	@override String get markUnread => 'Segna come non letto';
+	@override String get manualPendingBadge => 'In sospeso';
+	@override String get cancelManualPending => 'Annulla in sospeso';
+	@override String get manualPendingOff => 'Non in sospeso';
+	@override String manualPendingConflict({required Object param}) => 'Stato attuale del server: ${param}';
 	@override String get pleaseEnterSignature => 'Inserisci la tua firma';
 	@override String get exportProfile => 'Esporta profilo';
 	@override String get setSignature => 'Imposta firma';
@@ -3900,6 +3904,10 @@ extension on TranslationsItIt {
 			'chat.sendNewMessage' => 'Invia nuovo messaggio',
 			'chat.markRead' => 'Segna come letto',
 			'chat.markUnread' => 'Segna come non letto',
+			'chat.manualPendingBadge' => 'In sospeso',
+			'chat.cancelManualPending' => 'Annulla in sospeso',
+			'chat.manualPendingOff' => 'Non in sospeso',
+			'chat.manualPendingConflict' => ({required Object param}) => 'Stato attuale del server: ${param}',
 			'chat.pleaseEnterSignature' => 'Inserisci la tua firma',
 			'chat.exportProfile' => 'Esporta profilo',
 			'chat.setSignature' => 'Imposta firma',
@@ -4398,12 +4406,12 @@ extension on TranslationsItIt {
 			'common.disabled' => 'Disattivato',
 			'common.fontSizeSettingUpdated' => 'Impostazione dimensione font aggiornata',
 			'common.fontSizeSetting' => 'Impostazione dimensione font',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Il font è troppo piccolo e potrebbe influire sulla lettura',
 			'common.dragSliderAdjustFontSize' => 'Trascina il cursore per regolare la dimensione del font',
 			'common.personalInfo' => 'Informazioni personali',
 			'common.nicknameNotSet' => 'Nickname non impostato',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => 'Informazioni base',
 			'common.contactInfo' => 'Informazioni contatto',
 			'common.editTags' => 'Modifica tag',
@@ -4912,12 +4920,12 @@ extension on TranslationsItIt {
 			'contact.remarksTags' => 'Note e tag',
 			'contact.selectAGroup' => 'Seleziona un gruppo',
 			'contact.selectFriends' => 'Seleziona amici',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => 'Tag',
 			'contact.suggestedTags' => 'Tag suggeriti',
 			'contact.pleaseEnterRemark' => 'Inserisci nota',
 			'contact.enterRemark' => 'Inserisci nome nota',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'Inserisci tag',
 			'contact.momentsVisibilityFriends' => 'Solo amici',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
@@ -5426,12 +5434,12 @@ extension on TranslationsItIt {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} dispositivo/i',
 			'main.safetyNumberReporting' => 'Invio del risultato della verifica in corso...',
 			'main.safetyNumberTitle' => 'Verifica del codice di sicurezza',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'Impossibile ottenere il codice di sicurezza, riprova più tardi',
 			'main.complianceKeyNotConfigured' => 'Nessuna chiave di audit di conformità configurata per questo deployment',
 			'main.mineContent' => 'I miei contenuti',
 			'main.mineCommonEntries' => 'Accesso rapido',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Gestione e assistenza',
 			'main.mineSettingsSupport' => 'Impostazioni e assistenza',
 			'main.mineStorageUsage' => 'Gestisci spazio',
@@ -5940,12 +5948,12 @@ extension on TranslationsItIt {
 			'welcome.step2Title' => 'Sicuro e privato',
 			'welcome.step2Desc' => 'Crittografia end-to-end Mantiene i tuoi momenti personali strettamente tuoi.',
 			'welcome.step3Title' => 'Pronto a esplorare?',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => 'Unisciti a una comunità vibrante. Iniziamo la conversazione!',
 			'welcome.next' => 'Avanti',
 			'welcome.getStarted' => 'Inizia',
 			'welcome.skip' => 'Salta',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archiveConfirm' => 'Conferma archiviazione',
 			'workspace.archiveDesc' => 'Dopo l\'archiviazione tutti saranno in sola lettura (le operazioni di scrittura saranno rifiutate dal server); è possibile ripristinare in qualsiasi momento',
 			'workspace.archiveEntry' => 'Archivia area di lavoro',

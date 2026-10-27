@@ -649,6 +649,10 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Отправить новое сообщение';
 	@override String get markRead => 'Пометить как прочитанное';
 	@override String get markUnread => 'Пометить как непрочитанное';
+	@override String get manualPendingBadge => 'К обработке';
+	@override String get cancelManualPending => 'Снять отметку к обработке';
+	@override String get manualPendingOff => 'Не отмечено к обработке';
+	@override String manualPendingConflict({required Object param}) => 'Текущее состояние сервера: ${param}';
 	@override String get pleaseEnterSignature => 'Введите подпись';
 	@override String get exportProfile => 'Экспортировать профиль';
 	@override String get setSignature => 'Установить подпись';
@@ -3906,6 +3910,10 @@ extension on TranslationsRuRu {
 			'chat.sendNewMessage' => 'Отправить новое сообщение',
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
+			'chat.manualPendingBadge' => 'К обработке',
+			'chat.cancelManualPending' => 'Снять отметку к обработке',
+			'chat.manualPendingOff' => 'Не отмечено к обработке',
+			'chat.manualPendingConflict' => ({required Object param}) => 'Текущее состояние сервера: ${param}',
 			'chat.pleaseEnterSignature' => 'Введите подпись',
 			'chat.exportProfile' => 'Экспортировать профиль',
 			'chat.setSignature' => 'Установить подпись',
@@ -4404,12 +4412,12 @@ extension on TranslationsRuRu {
 			'common.disabled' => 'Отключено',
 			'common.fontSizeSettingUpdated' => 'Настройка размера шрифта обновлена',
 			'common.fontSizeSetting' => 'Настройка размера шрифта',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Шрифт слишком маленький, может повлиять на чтение',
 			'common.dragSliderAdjustFontSize' => 'Перетащите ползунок для изменения размера шрифта',
 			'common.personalInfo' => 'Личная информация',
 			'common.nicknameNotSet' => 'Никнейм не установлен',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => 'Основная информация',
 			'common.contactInfo' => 'Контактная информация',
 			'common.editTags' => 'Редактировать теги',
@@ -4918,12 +4926,12 @@ extension on TranslationsRuRu {
 			'contact.remarksTags' => 'Примечания и теги',
 			'contact.selectAGroup' => 'Выберите группу',
 			'contact.selectFriends' => 'Выбрать друзей',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => 'Теги',
 			'contact.suggestedTags' => 'Рекомендуемые теги',
 			'contact.pleaseEnterRemark' => 'Пожалуйста, введите примечание',
 			'contact.enterRemark' => 'Введите примечание',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
 			'contact.momentsVisibilityFriends' => 'Только друзья',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
@@ -5432,12 +5440,12 @@ extension on TranslationsRuRu {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => 'Устройств: ${count}',
 			'main.safetyNumberReporting' => 'Отправка результата проверки...',
 			'main.safetyNumberTitle' => 'Проверка кода безопасности',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'Не удалось получить код безопасности. Повторите позже',
 			'main.complianceKeyNotConfigured' => 'Для этого развёртывания не настроен ключ комплаенс-аудита',
 			'main.mineContent' => 'Мои материалы',
 			'main.mineCommonEntries' => 'Быстрый доступ',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Управление и поддержка',
 			'main.mineSettingsSupport' => 'Настройки и поддержка',
 			'main.mineStorageUsage' => 'Управление памятью',
@@ -5946,12 +5954,12 @@ extension on TranslationsRuRu {
 			'welcome.step2Title' => 'Безопасно и приватно',
 			'welcome.step2Desc' => 'Сквозное шифрование Ваши личные моменты остаются только вашими',
 			'welcome.step3Title' => 'Готовы начать?',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => 'Присоединяйтесь к сообществу Начните общение!',
 			'welcome.next' => 'Далее',
 			'welcome.getStarted' => 'Начать',
 			'welcome.skip' => 'Пропустить',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => 'Обзор',
 			'workspace.navProjects' => 'Проекты',
 			'workspace.navChannels' => 'Каналы',

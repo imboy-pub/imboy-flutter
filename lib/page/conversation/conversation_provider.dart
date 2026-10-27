@@ -203,24 +203,70 @@ class ConversationNotifier extends _$ConversationNotifier {
   /// 各会话最近一次服务端权威偏好版本（CAS expected_version 来源）。
   final Map<String, int> _manualPendingVersions = {};
 
+  /// W09.a（J17.c/J28.a）：启动/恢复时从服务端同步人工待处理元数据。
+  ///
+  /// 服务端列表是当前账号的权威集合：成功即**整体替换**本地标记与版本
+  /// 缓存——C2C uk3（C2C_小id_大id）不含账号，跨账号残留版本会污染
+  /// CAS，必须随替换一并清掉。失败/结果未知（null）保留本地状态不清
+  /// 除（不假成功也不误擦），下次启动或重试再同步。uid/会话代次防护
+  /// 与本类 _isCurrentSession 同款：账号切换/清除会话期间的迟到响应
+  /// 一律丢弃。
+  Future<void> syncManualPendingFromServer() async {
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    if (uid.isEmpty || user.isClearingSession) return;
+    List<Map<String, dynamic>>? rows;
+    try {
+      rows = await _conversationApi.manualPendingList();
+    } catch (_) {
+      return; // 请求异常=结果未知，保留现状
+    }
+    if (!ref.mounted ||
+        !user.isCurrentSession(session) ||
+        user.isClearingSession ||
+        uid != user.currentUid) {
+      return;
+    }
+    if (rows == null) return; // 请求失败/结果未知：保留现状（J16.b 不误擦）
+    final map = <String, bool>{};
+    final versions = <String, int>{};
+    for (final row in rows) {
+      final uk3 = '${row['uk3'] ?? ''}';
+      if (uk3.isEmpty) continue;
+      map[uk3] = '${row['value']}' == 'true';
+      final v = int.tryParse('${row['version']}');
+      if (v != null) versions[uk3] = v;
+    }
+    _manualPendingVersions
+      ..clear()
+      ..addAll(versions);
+    state = state.copyWith(manualPending: map);
+  }
+
   /// W09.a（J17.c）+ W09.c（J17.d）：显式目标 true/false 设置人工待处理。
   ///
   /// 服务端 user_setting 元数据（版本化 CAS）；**不写 unreadNum**（人工
   /// 标记不写 unread=1），真实水位零影响。冲突时回读服务端当前值：已达
-  /// 目标即成功；未达目标则冲突可见（返回 false，本地状态与 desired
-  /// 保留，由调用方呈现最新值），不自动取反或无限覆盖（J17.d）。
-  Future<bool> setManualPending(
+  /// 目标即成功；未达目标则冲突可见（applied=false + conflict + 服务端
+  /// 当前值，由调用方呈现最新值），不自动取反或无限覆盖（J17.d）。
+  /// 请求失败/结果未知返回 (applied: false, conflict: false)，由调用方
+  /// 按失败呈现，不与冲突混同。
+  Future<({bool applied, bool conflict, bool? serverValue})> setManualPending(
     ConversationModel conversation,
     bool target,
   ) async {
     final uk3 = conversation.uk3;
-    if (uk3.isEmpty) return false;
+    if (uk3.isEmpty)
+      return (applied: false, conflict: false, serverValue: null);
     final result = await _conversationApi.setManualPending(
       uk3: uk3,
       value: target,
       expectedVersion: _manualPendingVersions[uk3],
     );
-    if (result == null) return false;
+    if (result == null) {
+      return (applied: false, conflict: false, serverValue: null);
+    }
     if (result.conflict) {
       // 回读当前权威版本；已达目标即成功。
       _manualPendingVersions[uk3] = result.currentVersion;
@@ -228,15 +274,22 @@ class ConversationNotifier extends _$ConversationNotifier {
         final newMap = Map<String, bool>.from(state.manualPending);
         newMap[uk3] = target;
         state = state.copyWith(manualPending: newMap);
-        return true;
+        return (
+          applied: true,
+          conflict: true,
+          serverValue: result.currentValue,
+        );
       }
-      return false;
+      final newMap = Map<String, bool>.from(state.manualPending);
+      newMap[uk3] = result.currentValue;
+      state = state.copyWith(manualPending: newMap);
+      return (applied: false, conflict: true, serverValue: result.currentValue);
     }
     _manualPendingVersions[uk3] = result.version;
     final newMap = Map<String, bool>.from(state.manualPending);
     newMap[uk3] = target;
     state = state.copyWith(manualPending: newMap);
-    return true;
+    return (applied: true, conflict: false, serverValue: null);
   }
 
   // Apply a full conversation snapshot from backend/local persistence.

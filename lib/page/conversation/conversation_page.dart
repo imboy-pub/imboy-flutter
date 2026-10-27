@@ -166,6 +166,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
 
   Future<void> initData() async {
     final notifier = ref.read(conversationProvider.notifier);
+    // W09.a（J17.c/J28.a）：启动/恢复同步人工待处理元数据（服务端按当前
+    // 账号范围返回；失败保留现状不阻塞会话功能，下次启动重试）。
+    unawaited(notifier.syncManualPendingFromServer());
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult.contains(ConnectivityResult.none)) {
       notifier.setConnectDesc(
@@ -355,12 +358,18 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 final model = filtered[index];
+                // W09.a（J17.c）：人工待处理状态感知——未读>0 是「标已读」
+                //（不动待处理）；无未读时已待处理则「取消待处理」（显式
+                // false），否则「标未读」=设待处理（显式 true，不写 unread）。
+                final isPending = state.manualPending[model.uk3] == true;
                 // 侧滑三个操作抽成闭包：既给 SlidableAction 用，也挂到
                 // Semantics.customSemanticsActions 上。读屏用户做不出侧滑手势，
                 // 不挂的话「已读 / 置顶 / 删除」对他们完全不可达。
                 final markReadLabel = model.unreadNum > 0
                     ? t.chat.markRead
-                    : t.chat.markUnread;
+                    : (isPending
+                          ? t.chat.cancelManualPending
+                          : t.chat.markUnread);
                 final pinLabel = model.isPinned ? t.chat.unpin : t.chat.pin;
 
                 Future<void> onToggleRead() async {
@@ -390,10 +399,23 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                     );
                   } else {
                     // W09.a：人工待处理走服务端 user_setting 元数据
-                    // （显式目标 true），**不写 unreadNum=1**——人工标记
-                    // 与真实未读水位分离；失败给错误提示不假成功。
-                    final ok = await notifier.setManualPending(model, true);
-                    if (!ok && mounted) {
+                    // （显式目标 true/false），**不写 unreadNum**——人工标记
+                    // 与真实未读水位分离。冲突时展示服务端最新状态（J17.d），
+                    // 失败给错误提示不假成功（J16.b）。
+                    final r = await notifier.setManualPending(
+                      model,
+                      !isPending,
+                    );
+                    if (!mounted) return;
+                    if (r.conflict && r.serverValue != null) {
+                      AppLoading.showToast(
+                        t.chat.manualPendingConflict(
+                          param: r.serverValue!
+                              ? t.chat.manualPendingBadge
+                              : t.chat.manualPendingOff,
+                        ),
+                      );
+                    } else if (!r.applied) {
                       AppLoading.showError(t.common.tipFailed);
                     }
                   }
@@ -447,7 +469,9 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                             label: markReadLabel,
                             icon: model.unreadNum > 0
                                 ? CupertinoIcons.chat_bubble
-                                : CupertinoIcons.chat_bubble_fill,
+                                : (isPending
+                                      ? CupertinoIcons.flag_fill
+                                      : CupertinoIcons.chat_bubble_fill),
                           ),
                           SlidableAction(
                             onPressed: (ctx) => onTogglePin(ctx),

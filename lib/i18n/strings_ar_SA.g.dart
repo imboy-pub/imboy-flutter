@@ -649,6 +649,10 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'إرسال رسالة جديدة';
 	@override String get markRead => 'تعليم كمقروء';
 	@override String get markUnread => 'تعليم كغير مقروء';
+	@override String get manualPendingBadge => 'بانتظار المعالجة';
+	@override String get cancelManualPending => 'إلغاء بانتظار المعالجة';
+	@override String get manualPendingOff => 'ليس بانتظار المعالجة';
+	@override String manualPendingConflict({required Object param}) => 'الحالة الحالية للخادم: ${param}';
 	@override String get pleaseEnterSignature => 'أدخل توقيعك الشخصي';
 	@override String get exportProfile => 'تصدير الملف الشخصي';
 	@override String get setSignature => 'تعيين التوقيع الشخصي';
@@ -3909,6 +3913,10 @@ extension on TranslationsArSa {
 			'chat.sendNewMessage' => 'إرسال رسالة جديدة',
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
+			'chat.manualPendingBadge' => 'بانتظار المعالجة',
+			'chat.cancelManualPending' => 'إلغاء بانتظار المعالجة',
+			'chat.manualPendingOff' => 'ليس بانتظار المعالجة',
+			'chat.manualPendingConflict' => ({required Object param}) => 'الحالة الحالية للخادم: ${param}',
 			'chat.pleaseEnterSignature' => 'أدخل توقيعك الشخصي',
 			'chat.exportProfile' => 'تصدير الملف الشخصي',
 			'chat.setSignature' => 'تعيين التوقيع الشخصي',
@@ -4407,12 +4415,12 @@ extension on TranslationsArSa {
 			'common.disabled' => 'مُعطّل',
 			'common.fontSizeSettingUpdated' => 'تم تحديث إعدادات حجم الخط',
 			'common.fontSizeSetting' => 'إعدادات حجم الخط',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'الخط صغير جداً، قد يؤثر على القراءة',
 			'common.dragSliderAdjustFontSize' => 'اسحب شريط التمرير لضبط حجم الخط',
 			'common.personalInfo' => 'معلومات شخصية',
 			'common.nicknameNotSet' => 'لم يتم تعيين اللقب',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => 'معلومات أساسية',
 			'common.contactInfo' => 'معلومات الاتصال',
 			'common.editTags' => 'تعديل العلامات',
@@ -4921,12 +4929,12 @@ extension on TranslationsArSa {
 			'contact.remarksTags' => 'ملاحظات وعلامات',
 			'contact.selectAGroup' => 'اختيار مجموعة',
 			'contact.selectFriends' => 'اختيار الأصدقاء',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => 'العلامات',
 			'contact.suggestedTags' => 'علامات مقترحة',
 			'contact.pleaseEnterRemark' => 'يرجى إدخال الملاحظة',
 			'contact.enterRemark' => 'يرجى إدخال الملاحظة',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'يرجى إدخال العلامات',
 			'contact.momentsVisibilityFriends' => 'الأصدقاء فقط',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
@@ -5435,12 +5443,12 @@ extension on TranslationsArSa {
 			'main.safetyNumberReportUnavailable' => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ',
 			'main.safetyNumberVerified' => '✓ تم التحقق',
 			'main.safetyNumberNotVerified' => 'غير مُتحقق',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} أجهزة',
 			'main.complianceKeyNotConfigured' => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر',
 			'main.mineContent' => 'المحتوى الخاص بي',
 			'main.mineCommonEntries' => 'الوصول السريع',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => 'الإدارة والدعم',
 			'main.mineSettingsSupport' => 'الإعدادات والدعم',
 			'main.mineStorageUsage' => 'إدارة الاستخدام',
@@ -5949,12 +5957,12 @@ extension on TranslationsArSa {
 			'welcome.step2Title' => 'آمن وخاص',
 			'welcome.step2Desc' => 'التشفير من طرف لآخر يحافظ على خصوصية لحظاتك تماماً',
 			'welcome.step3Title' => 'جاهز للاستكشاف؟',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => 'انضم إلى مجتمع نابض بالحياة. لنبدأ المحادثة!',
 			'welcome.next' => 'التالي',
 			'welcome.getStarted' => 'ابدأ',
 			'welcome.skip' => 'تخطي',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => 'نظرة عامة',
 			'workspace.navProjects' => 'المشاريع',
 			'workspace.navChannels' => 'القنوات',

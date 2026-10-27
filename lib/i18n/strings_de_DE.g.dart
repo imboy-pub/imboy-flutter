@@ -649,6 +649,10 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Neue Nachricht senden';
 	@override String get markRead => 'Als gelesen markieren';
 	@override String get markUnread => 'Als ungelesen markieren';
+	@override String get manualPendingBadge => 'Ausstehend';
+	@override String get cancelManualPending => 'Ausstehend aufheben';
+	@override String get manualPendingOff => 'Nicht ausstehend';
+	@override String manualPendingConflict({required Object param}) => 'Aktueller Serverstatus: ${param}';
 	@override String get pleaseEnterSignature => 'Persönliche Signatur eingeben';
 	@override String get exportProfile => 'Profil exportieren';
 	@override String get setSignature => 'Signatur festlegen';
@@ -3900,6 +3904,10 @@ extension on TranslationsDeDe {
 			'chat.sendNewMessage' => 'Neue Nachricht senden',
 			'chat.markRead' => 'Als gelesen markieren',
 			'chat.markUnread' => 'Als ungelesen markieren',
+			'chat.manualPendingBadge' => 'Ausstehend',
+			'chat.cancelManualPending' => 'Ausstehend aufheben',
+			'chat.manualPendingOff' => 'Nicht ausstehend',
+			'chat.manualPendingConflict' => ({required Object param}) => 'Aktueller Serverstatus: ${param}',
 			'chat.pleaseEnterSignature' => 'Persönliche Signatur eingeben',
 			'chat.exportProfile' => 'Profil exportieren',
 			'chat.setSignature' => 'Signatur festlegen',
@@ -4398,12 +4406,12 @@ extension on TranslationsDeDe {
 			'common.disabled' => 'Deaktiviert',
 			'common.fontSizeSettingUpdated' => 'Schriftgröße-Einstellung aktualisiert',
 			'common.fontSizeSetting' => 'Schriftgröße-Einstellung',
+			_ => null,
+		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Schrift zu klein, kann das Lesen beeinträchtigen',
 			'common.dragSliderAdjustFontSize' => 'Schieberegler ziehen, um Schriftgröße anzupassen',
 			'common.personalInfo' => 'Persönliche Informationen',
 			'common.nicknameNotSet' => 'Spitzname nicht festgelegt',
-			_ => null,
-		} ?? switch (path) {
 			'common.basicInfo' => 'Grundlegende Informationen',
 			'common.contactInfo' => 'Kontaktinformationen',
 			'common.editTags' => 'Tags bearbeiten',
@@ -4912,12 +4920,12 @@ extension on TranslationsDeDe {
 			'contact.remarksTags' => 'Bemerkungen und Tags',
 			'contact.selectAGroup' => 'Eine Gruppe auswählen',
 			'contact.selectFriends' => 'Freunde auswählen',
+			_ => null,
+		} ?? switch (path) {
 			'contact.tags' => 'Tags',
 			'contact.suggestedTags' => 'Vorgeschlagene Tags',
 			'contact.pleaseEnterRemark' => 'Bitte Bemerkung eingeben',
 			'contact.enterRemark' => 'Bemerkung eingeben',
-			_ => null,
-		} ?? switch (path) {
 			'contact.pleaseEnterTags' => 'Bitte Tags eingeben',
 			'contact.momentsVisibilityFriends' => 'Nur Freunde',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag-Länge darf ${param} Zeichen nicht überschreiten',
@@ -5426,12 +5434,12 @@ extension on TranslationsDeDe {
 			'main.e2eeErrDeviceNotReady' => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen',
 			'main.e2eeErrProtocolMismatch' => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen',
 			'main.e2eeErrPeerSuiteUnsupported' => 'Das Gerät der Gegenseite unterstützt die erforderliche Verschlüsselungssuite nicht, Nachricht nicht gesendet. Bitte die Gegenseite zum App-Update auffordern und erneut versuchen',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
 			'main.complianceKeyNotConfigured' => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert',
 			'main.mineContent' => 'Meine Inhalte',
 			'main.mineCommonEntries' => 'Schnellzugriff',
-			_ => null,
-		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Verwaltung & Hilfe',
 			'main.mineSettingsSupport' => 'Einstellungen & Hilfe',
 			'main.mineStorageUsage' => 'Speichernutzung',
@@ -5940,12 +5948,12 @@ extension on TranslationsDeDe {
 			'welcome.step2Title' => 'Sicher & Privat',
 			'welcome.step2Desc' => 'Ende-zu-Ende-Verschlüsselung Hält Ihre persönlichen Momente streng vertraulich.',
 			'welcome.step3Title' => 'Bereit zum Erkunden?',
+			_ => null,
+		} ?? switch (path) {
 			'welcome.step3Desc' => 'Treten Sie einer lebendigen Gemeinschaft bei. Lassen Sie das Gespräch beginnen!',
 			'welcome.next' => 'Weiter',
 			'welcome.getStarted' => 'Loslegen',
 			'welcome.skip' => 'Überspringen',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.navOverview' => 'Übersicht',
 			'workspace.navProjects' => 'Projekte',
 			'workspace.navChannels' => 'Kanäle',
