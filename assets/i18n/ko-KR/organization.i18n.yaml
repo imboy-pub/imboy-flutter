@@ -324,6 +324,7 @@ manage:
   retry: 다시 시도
   groupSection: 기업 그룹
   createGroup: 그룹 만들기
+  creationRecoveryUnavailable: 생성 결과를 알 수 없습니다. 나중에 다시 시도하세요
   groupCreatedRenamePending: "그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다"
   groupNameHint: 그룹 이름
   groupEmpty: 기업 그룹이 없습니다

@@ -3213,6 +3213,7 @@ class _Translations$organization$manage$it_IT extends Translations$organization$
 	@override String get retry => 'Riprova';
 	@override String get groupSection => 'Gruppi dell\'azienda';
 	@override String get createGroup => 'Crea gruppo';
+	@override String get creationRecoveryUnavailable => 'Esito della creazione sconosciuto, riprova più tardi';
 	@override String groupCreatedRenamePending({required Object gid}) => 'Gruppo creato (ID: ${gid}); nome non salvato';
 	@override String get groupNameHint => 'Nome del gruppo';
 	@override String get groupEmpty => 'Nessun gruppo dell\'azienda';
@@ -5753,6 +5754,7 @@ extension on TranslationsItIt {
 			'organization.manage.retry' => 'Riprova',
 			'organization.manage.groupSection' => 'Gruppi dell\'azienda',
 			'organization.manage.createGroup' => 'Crea gruppo',
+			'organization.manage.creationRecoveryUnavailable' => 'Esito della creazione sconosciuto, riprova più tardi',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Gruppo creato (ID: ${gid}); nome non salvato',
 			'organization.manage.groupNameHint' => 'Nome del gruppo',
 			'organization.manage.groupEmpty' => 'Nessun gruppo dell\'azienda',
@@ -5937,9 +5939,9 @@ extension on TranslationsItIt {
 			'workspace.archivedBadge' => 'Archiviata',
 			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
 			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
-			'workspace.brandingColorHint' => '#2474E5',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorInvalid' => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB',
 			'workspace.brandingColorLabel' => 'Colore principale (primaryColor)',
 			'workspace.brandingEntry' => 'Impostazioni brand (nome / logo / colore principale)',

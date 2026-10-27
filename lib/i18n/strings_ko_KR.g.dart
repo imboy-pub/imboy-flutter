@@ -3210,6 +3210,7 @@ class _Translations$organization$manage$ko_KR extends Translations$organization$
 	@override String get retry => '다시 시도';
 	@override String get groupSection => '기업 그룹';
 	@override String get createGroup => '그룹 만들기';
+	@override String get creationRecoveryUnavailable => '생성 결과를 알 수 없습니다. 나중에 다시 시도하세요';
 	@override String groupCreatedRenamePending({required Object gid}) => '그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다';
 	@override String get groupNameHint => '그룹 이름';
 	@override String get groupEmpty => '기업 그룹이 없습니다';
@@ -5750,6 +5751,7 @@ extension on TranslationsKoKr {
 			'organization.manage.retry' => '다시 시도',
 			'organization.manage.groupSection' => '기업 그룹',
 			'organization.manage.createGroup' => '그룹 만들기',
+			'organization.manage.creationRecoveryUnavailable' => '생성 결과를 알 수 없습니다. 나중에 다시 시도하세요',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다',
 			'organization.manage.groupNameHint' => '그룹 이름',
 			'organization.manage.groupEmpty' => '기업 그룹이 없습니다',
@@ -5934,9 +5936,9 @@ extension on TranslationsKoKr {
 			'workspace.pickerTitle' => '내 워크스페이스',
 			'workspace.switchWorkspace' => '워크스페이스 전환',
 			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
-			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
 			'workspace.dmEntry' => '전체 메시지',

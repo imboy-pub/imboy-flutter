@@ -40,6 +40,7 @@ import 'package:imboy/modules/organization/presentation/organization_routes.dart
 import 'package:imboy/modules/organization/presentation/organization_manage_sections.dart';
 import 'package:imboy/modules/organization/presentation/organization_ui.dart';
 import 'package:imboy/modules/organization/presentation/org_invite_qr_page.dart';
+import 'package:imboy/service/creation_receipt/group_creation_receipt_service.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/api/workspace_api.dart';
@@ -71,6 +72,8 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   final WorkspaceApi _wsApi = WorkspaceApi();
   final GroupApi _groupApi = GroupApi();
   final ChannelApi _channelApi = ChannelApi();
+  final GroupCreationReceiptService _groupCreationReceipt =
+      GroupCreationReceiptService();
 
   Organization? _org;
   List<WorkspaceModel> _workspaces = const [];
@@ -393,6 +396,47 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     final workspaceId = _activeWsId;
     setState(() => _creatingGroup = true);
     try {
+      // W04.d.g：受理合同路径（manifest 能力门开启时启用；恢复重放/只查
+      // 一律原键原载荷）。capabilityMissing 且无未知意图 → 回落既有键less
+      // 路径（行为零变化）；已有未知意图时绝不剥键走旧 POST。
+      final receipt = await _groupCreationReceipt.createOrRecoverGroup(
+        account: account,
+        workspaceId: workspaceId,
+        memberUserIds: const [],
+        title: title,
+      );
+      if (!_isGroupActionCurrent(account, generation) ||
+          actionGeneration != _groupActionGeneration) {
+        return;
+      }
+      if (receipt.ok) {
+        // 初始名已随创建受理同事务落库，无需改名流程。
+        if (_isGroupActionCurrent(account, generation)) {
+          await _refresh();
+        }
+        return;
+      }
+      if (receipt.failure != GroupCreationFailure.capabilityMissing) {
+        // conflict/notAccepted/unknown：意图保留，下次点创建继续恢复；
+        // expired/unavailable：意图已清，用户可重新发起（新键）。
+        if (_isGroupActionCurrent(account, generation)) {
+          final reason =
+              receipt.errorText ??
+              t.organization.manage.creationRecoveryUnavailable;
+          _toast('${t.organization.manage.createGroup}：$reason');
+        }
+        return;
+      }
+      if (receipt.pendingIntentBlocked) {
+        // 能力被服务端下线但本机仍有未知意图：绝不剥键走旧 POST。
+        if (_isGroupActionCurrent(account, generation)) {
+          _toast(
+            '${t.organization.manage.createGroup}：'
+            '${t.organization.manage.creationRecoveryUnavailable}',
+          );
+        }
+        return;
+      }
       final created = await _groupApi.createWorkspaceGroup(
         workspaceId: workspaceId,
         memberUserIds: const [],

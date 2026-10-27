@@ -3210,6 +3210,7 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	@override String get retry => '重試';
 	@override String get groupSection => '企業群';
 	@override String get createGroup => '新增群';
+	@override String get creationRecoveryUnavailable => '建立結果未知，請稍後重試';
 	@override String groupCreatedRenamePending({required Object gid}) => '群組已建立（ID：${gid}），名稱未儲存';
 	@override String get groupNameHint => '群名稱';
 	@override String get groupEmpty => '尚無企業群';
@@ -5750,6 +5751,7 @@ extension on TranslationsZhHant {
 			'organization.manage.retry' => '重試',
 			'organization.manage.groupSection' => '企業群',
 			'organization.manage.createGroup' => '新增群',
+			'organization.manage.creationRecoveryUnavailable' => '建立結果未知，請稍後重試',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '群組已建立（ID：${gid}），名稱未儲存',
 			'organization.manage.groupNameHint' => '群名稱',
 			'organization.manage.groupEmpty' => '尚無企業群',
@@ -5934,9 +5936,9 @@ extension on TranslationsZhHant {
 			'workspace.pickerTitle' => '我的工作區',
 			'workspace.switchWorkspace' => '切換工作區',
 			'workspace.pickerEmptyTitle' => '還沒有工作區',
-			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
 			'workspace.dmEntry' => '全部訊息',

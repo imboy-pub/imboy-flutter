@@ -3222,6 +3222,7 @@ class _Translations$organization$manage$ar_SA extends Translations$organization$
 	@override String get retry => 'إعادة المحاولة';
 	@override String get groupSection => 'مجموعات المؤسسة';
 	@override String get createGroup => 'مجموعة جديدة';
+	@override String get creationRecoveryUnavailable => 'نتيجة الإنشاء غير معروفة، حاول لاحقاً';
 	@override String groupCreatedRenamePending({required Object gid}) => 'تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم';
 	@override String get groupNameHint => 'اسم المجموعة';
 	@override String get groupEmpty => 'لا توجد مجموعات مؤسسة بعد';
@@ -5762,6 +5763,7 @@ extension on TranslationsArSa {
 			'organization.manage.retry' => 'إعادة المحاولة',
 			'organization.manage.groupSection' => 'مجموعات المؤسسة',
 			'organization.manage.createGroup' => 'مجموعة جديدة',
+			'organization.manage.creationRecoveryUnavailable' => 'نتيجة الإنشاء غير معروفة، حاول لاحقاً',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم',
 			'organization.manage.groupNameHint' => 'اسم المجموعة',
 			'organization.manage.groupEmpty' => 'لا توجد مجموعات مؤسسة بعد',
@@ -5946,9 +5948,9 @@ extension on TranslationsArSa {
 			'workspace.pickerTitle' => 'مساحات عملي',
 			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
 			'workspace.pickerEmptyTitle' => 'لا توجد مساحات عمل بعد',
-			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',
 			'workspace.archivedBadge' => 'مؤرشفة',
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
 			'workspace.dmEntry' => 'كل الرسائل',

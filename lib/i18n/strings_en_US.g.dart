@@ -3829,6 +3829,7 @@ class _Translations$organization$manage$en_US extends Translations$organization$
 	@override String get retry => 'Retry';
 	@override String get groupSection => 'Enterprise groups';
 	@override String get createGroup => 'New group';
+	@override String get creationRecoveryUnavailable => 'Creation result unknown, retry later';
 	@override String groupCreatedRenamePending({required Object gid}) => 'Group created (ID: ${gid}); name was not saved';
 	@override String get groupNameHint => 'Group name';
 	@override String get groupEmpty => 'No enterprise groups yet';
@@ -6597,6 +6598,7 @@ extension on TranslationsEnUs {
 			'organization.manage.retry' => 'Retry',
 			'organization.manage.groupSection' => 'Enterprise groups',
 			'organization.manage.createGroup' => 'New group',
+			'organization.manage.creationRecoveryUnavailable' => 'Creation result unknown, retry later',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Group created (ID: ${gid}); name was not saved',
 			'organization.manage.groupNameHint' => 'Group name',
 			'organization.manage.groupEmpty' => 'No enterprise groups yet',
@@ -7082,9 +7084,9 @@ extension on TranslationsEnUs {
 			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
 			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
 			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',
-			'talkRecord.cleanupRetryUnknown' => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupRetryUnknown' => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.',
 			'talkRecord.cleanupRetryPartial' => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.',
 			'talkRecord.cleanupRetryProtected' => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.',
 			'talkRecord.cleanupRetryWaiting' => 'Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.',

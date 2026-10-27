@@ -3219,6 +3219,7 @@ class _Translations$organization$manage$ru_RU extends Translations$organization$
 	@override String get retry => 'Повторить';
 	@override String get groupSection => 'Группы предприятия';
 	@override String get createGroup => 'Создать группу';
+	@override String get creationRecoveryUnavailable => 'Результат создания неизвестен, повторите позже';
 	@override String groupCreatedRenamePending({required Object gid}) => 'Группа создана (ID: ${gid}); имя не сохранено';
 	@override String get groupNameHint => 'Название группы';
 	@override String get groupEmpty => 'Групп предприятия пока нет';
@@ -5759,6 +5760,7 @@ extension on TranslationsRuRu {
 			'organization.manage.retry' => 'Повторить',
 			'organization.manage.groupSection' => 'Группы предприятия',
 			'organization.manage.createGroup' => 'Создать группу',
+			'organization.manage.creationRecoveryUnavailable' => 'Результат создания неизвестен, повторите позже',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Группа создана (ID: ${gid}); имя не сохранено',
 			'organization.manage.groupNameHint' => 'Название группы',
 			'organization.manage.groupEmpty' => 'Групп предприятия пока нет',
@@ -5943,9 +5945,9 @@ extension on TranslationsRuRu {
 			'workspace.pickerTitle' => 'Мои рабочие пространства',
 			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
 			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
-			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
 			'workspace.dmEntry' => 'Все сообщения',

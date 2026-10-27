@@ -10461,6 +10461,9 @@ class Translations$organization$manage$zh_CN {
 	/// zh-CN: '新建群'
 	String get createGroup => '新建群';
 
+	/// zh-CN: '创建结果未知，请稍后重试'
+	String get creationRecoveryUnavailable => '创建结果未知，请稍后重试';
+
 	/// zh-CN: '群已创建（ID：${gid}），名称未保存'
 	String groupCreatedRenamePending({required Object gid}) => '群已创建（ID：${gid}），名称未保存';
 
@@ -13464,6 +13467,7 @@ extension on Translations {
 			'organization.manage.retry' => '重试',
 			'organization.manage.groupSection' => '企业群',
 			'organization.manage.createGroup' => '新建群',
+			'organization.manage.creationRecoveryUnavailable' => '创建结果未知，请稍后重试',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '群已创建（ID：${gid}），名称未保存',
 			'organization.manage.groupNameHint' => '群名称',
 			'organization.manage.groupEmpty' => '暂无企业群',
@@ -13929,9 +13933,9 @@ extension on Translations {
 			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
 			'talkRecord.participantsRemove' => '移除参与者',
 			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
-			'talkRecord.participantsAddGuest' => '添加来宾',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsAddGuest' => '添加来宾',
 			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
 			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',
 			'talkRecord.participantsConflict' => '名单已更新，已刷新为最新内容。请检查后重新编辑。',

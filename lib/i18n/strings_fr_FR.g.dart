@@ -3213,6 +3213,7 @@ class _Translations$organization$manage$fr_FR extends Translations$organization$
 	@override String get retry => 'Réessayer';
 	@override String get groupSection => 'Groupes de l\'entreprise';
 	@override String get createGroup => 'Créer un groupe';
+	@override String get creationRecoveryUnavailable => 'Résultat inconnu, réessayez plus tard';
 	@override String groupCreatedRenamePending({required Object gid}) => 'Groupe créé (ID : ${gid}) ; nom non enregistré';
 	@override String get groupNameHint => 'Nom du groupe';
 	@override String get groupEmpty => 'Aucun groupe d\'entreprise';
@@ -5753,6 +5754,7 @@ extension on TranslationsFrFr {
 			'organization.manage.retry' => 'Réessayer',
 			'organization.manage.groupSection' => 'Groupes de l\'entreprise',
 			'organization.manage.createGroup' => 'Créer un groupe',
+			'organization.manage.creationRecoveryUnavailable' => 'Résultat inconnu, réessayez plus tard',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Groupe créé (ID : ${gid}) ; nom non enregistré',
 			'organization.manage.groupNameHint' => 'Nom du groupe',
 			'organization.manage.groupEmpty' => 'Aucun groupe d\'entreprise',
@@ -5937,9 +5939,9 @@ extension on TranslationsFrFr {
 			'workspace.pickerTitle' => 'Mes espaces de travail',
 			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
 			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',
-			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
 			'workspace.dmEntry' => 'Tous les messages',

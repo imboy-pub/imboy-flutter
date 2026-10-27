@@ -3213,6 +3213,7 @@ class _Translations$organization$manage$de_DE extends Translations$organization$
 	@override String get retry => 'Erneut versuchen';
 	@override String get groupSection => 'Unternehmensgruppen';
 	@override String get createGroup => 'Gruppe anlegen';
+	@override String get creationRecoveryUnavailable => 'Ergebnis unbekannt, bitte später erneut versuchen';
 	@override String groupCreatedRenamePending({required Object gid}) => 'Gruppe erstellt (ID: ${gid}); Name nicht gespeichert';
 	@override String get groupNameHint => 'Gruppenname';
 	@override String get groupEmpty => 'Noch keine Unternehmensgruppen';
@@ -5753,6 +5754,7 @@ extension on TranslationsDeDe {
 			'organization.manage.retry' => 'Erneut versuchen',
 			'organization.manage.groupSection' => 'Unternehmensgruppen',
 			'organization.manage.createGroup' => 'Gruppe anlegen',
+			'organization.manage.creationRecoveryUnavailable' => 'Ergebnis unbekannt, bitte später erneut versuchen',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Gruppe erstellt (ID: ${gid}); Name nicht gespeichert',
 			'organization.manage.groupNameHint' => 'Gruppenname',
 			'organization.manage.groupEmpty' => 'Noch keine Unternehmensgruppen',
@@ -5937,9 +5939,9 @@ extension on TranslationsDeDe {
 			'workspace.pickerTitle' => 'Mein Arbeitsbereich',
 			'workspace.switchWorkspace' => 'Arbeitsbereich wechseln',
 			'workspace.pickerEmptyTitle' => 'Noch kein Arbeitsbereich',
-			'workspace.pickerEmptySubtitle' => 'Erstellen Sie einen Arbeitsbereich und starten Sie in 3 Minuten die Teamarbeit (Announcements-Kanal und General-Gruppe werden automatisch erstellt)',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => 'Erstellen Sie einen Arbeitsbereich und starten Sie in 3 Minuten die Teamarbeit (Announcements-Kanal und General-Gruppe werden automatisch erstellt)',
 			'workspace.archivedBadge' => 'Archiviert',
 			'workspace.emptyNoWorkspace' => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen',
 			'workspace.dmEntry' => 'Alle Nachrichten',

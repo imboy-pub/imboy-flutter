@@ -325,6 +325,7 @@ manage:
   retry: Повторить
   groupSection: Группы предприятия
   createGroup: Создать группу
+  creationRecoveryUnavailable: Результат создания неизвестен, повторите позже
   groupCreatedRenamePending: "Группа создана (ID: ${gid}); имя не сохранено"
   groupNameHint: Название группы
   groupEmpty: Групп предприятия пока нет

@@ -3210,6 +3210,7 @@ class _Translations$organization$manage$ja_JP extends Translations$organization$
 	@override String get retry => '再試行';
 	@override String get groupSection => '企業グループ';
 	@override String get createGroup => 'グループを作成';
+	@override String get creationRecoveryUnavailable => '作成結果が不明です。後でもう一度お試しください';
 	@override String groupCreatedRenamePending({required Object gid}) => 'グループを作成しました（ID：${gid}）。名前は保存されていません';
 	@override String get groupNameHint => 'グループ名';
 	@override String get groupEmpty => '企業グループがありません';
@@ -5750,6 +5751,7 @@ extension on TranslationsJaJp {
 			'organization.manage.retry' => '再試行',
 			'organization.manage.groupSection' => '企業グループ',
 			'organization.manage.createGroup' => 'グループを作成',
+			'organization.manage.creationRecoveryUnavailable' => '作成結果が不明です。後でもう一度お試しください',
 			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'グループを作成しました（ID：${gid}）。名前は保存されていません',
 			'organization.manage.groupNameHint' => 'グループ名',
 			'organization.manage.groupEmpty' => '企業グループがありません',
@@ -5934,9 +5936,9 @@ extension on TranslationsJaJp {
 			'workspace.pickerTitle' => 'マイワークスペース',
 			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
 			'workspace.pickerEmptyTitle' => 'ワークスペースはまだありません',
-			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',
 			'workspace.archivedBadge' => 'アーカイブ済み',
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
 			'workspace.dmEntry' => 'すべてのメッセージ',

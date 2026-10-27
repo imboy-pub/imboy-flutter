@@ -3,6 +3,8 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;
@@ -204,6 +206,51 @@ class GroupApi extends HttpClient {
               ? resp.payload as Map<String, dynamic>
               : null)
         : null;
+  }
+
+  /// W04.d.g（channel-group-ux-v2.2 §6.4 C1）：带受理合同的群创建。
+  ///
+  /// 只做传输与响应形状解析；能力门/意图持久化/派发策略由
+  /// GroupCreationReceiptService 编排。`recoverOnly=true` 时服务端绝不
+  /// 创建，仅查受理（>=24h 或时钟不可信）。传输与鉴权重试（HttpRetry
+  /// 链）自动携带同一请求体——同键与 recover_only 不会被中间件剥离。
+  Future<CreationReceiptResult> createGroupWithReceipt({
+    required String requestId,
+    required List<String> memberUserIds,
+    String? title,
+    EntityId? workspaceId,
+    bool recoverOnly = false,
+  }) async {
+    final data = <String, dynamic>{
+      'member_uids': memberUserIds,
+      'request_id': requestId,
+      if (recoverOnly) 'recover_only': true,
+      if (title != null && title.isNotEmpty) 'title': title,
+      if (workspaceId != null) ...{
+        'scope': 'workspace',
+        'workspace_id': workspaceId,
+      },
+    };
+    final resp = await post(API.groupAdd, data: data);
+    // 传输层失败（网络断连/超时/会话切换等）：结果未知——服务端可能已受理
+    // 也可能未收到；调用方必须保留意图，不得当作"信封已确认拒绝"。
+    // 仅 BadRequestException（envelope 业务错误）与 BadResponseException
+    // （响应形状损坏）代表已完成 HTTP 交换。
+    if (!resp.ok &&
+        resp.error is! BadRequestException &&
+        resp.error is! BadResponseException) {
+      return CreationReceiptResult(ok: false, errorText: resp.msg);
+    }
+    return parseCreationReceiptResponse(
+      ok: resp.ok,
+      code: resp.code,
+      msg: resp.msg,
+      payload: resp.payload,
+      extractResourceId: (payload) {
+        final gid = payload['gid'];
+        return gid == null ? null : '$gid';
+      },
+    );
   }
 
   Future<bool> groupEdit({

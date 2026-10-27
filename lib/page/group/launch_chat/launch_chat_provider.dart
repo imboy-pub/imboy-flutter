@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/service/creation_receipt/group_creation_receipt_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/api/group_api.dart';
@@ -7,6 +9,7 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/group/group_list/group_list_service.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:azlistview/azlistview.dart';
@@ -178,8 +181,31 @@ class LaunchChatNotifier extends _$LaunchChatNotifier {
 /// 发起聊天服务
 class LaunchChatService {
   Future<GroupModel?> groupAdd(List<String> memberUserIds) async {
-    final provider = GroupApi();
-    final payload = await provider.groupAdd(memberUserIds: memberUserIds);
+    // W04.d.g：受理合同路径（manifest 能力门开启时启用）。个人域语义
+    // 不变——成员载荷同旧路径，仅按合同附加 request_id/recover_only；
+    // 恢复重放一律原键原载荷。capabilityMissing 且无未知意图时回落既有
+    // 键less调用；已有未知意图绝不剥键走旧 POST。
+    final receipt = await GroupCreationReceiptService().createOrRecoverGroup(
+      account: UserRepoLocal.to.currentUid,
+      workspaceId: null,
+      memberUserIds: memberUserIds,
+    );
+    Map<String, dynamic>? payload;
+    if (receipt.ok) {
+      payload = receipt.payload;
+    } else if (receipt.failure == GroupCreationFailure.capabilityMissing &&
+        !receipt.pendingIntentBlocked) {
+      payload = await GroupApi().groupAdd(memberUserIds: memberUserIds);
+    } else {
+      // conflict/notAccepted/unknownPending：意图保留，重试继续恢复；
+      // expired/unavailable：意图已清，可重新发起（新键）。
+      // capabilityMissing+未知意图：不剥键，返回 null 走既有失败态。
+      iPrint(
+        '[LaunchChatService] groupAdd receipt failure: '
+        '${receipt.failure} ${receipt.errorText ?? ''}',
+      );
+      return null;
+    }
 
     if (payload != null) {
       final groupRepo = GroupRepo();
