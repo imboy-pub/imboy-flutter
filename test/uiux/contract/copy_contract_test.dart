@@ -1,7 +1,7 @@
 /// T06 合同自测 — imboy-enterprise-uiux-v1
 ///
 /// 必需清单（manifest，全部不得 skip）：
-///  1. uiux_discuss_copy_has_no_arrow
+///  1. uiux_discuss_copy_removed（W06/F12：键移除且无 General 字样）
 ///  2. uiux_copy_has_no_debug_url_or_raw_source
 ///  3. uiux_supported_locales_key_parity
 ///  4. uiux_copy_has_no_pii_like_content
@@ -23,12 +23,8 @@ const List<String> kTargetNamespaces = <String>[
   'customerService',
 ];
 
-/// 讨论引导去箭头断言覆盖的键。
+/// W06/F12 收敛后必须移除的讨论引导键（J12：不造 General）。
 const String kDiscussGuideKey = 'discussInGroupGuide';
-
-/// 箭头/指示符字符（含 ASCII 与常见装饰箭头）；RTL 文案混排方向歧义，
-/// 一律禁用。
-final RegExp _arrowPattern = RegExp(r'[→←⟶⟵↔↕➜➤▸▹►▻⇒⇐]|->|<-');
 
 /// 「具体可达的 URL」：schema 后必须紧跟真实 host 首字符（字母/数字）。
 /// `https://…` / `https://...` 这类省略号占位示例是合法输入提示文案，
@@ -82,19 +78,19 @@ Map<String, String> _flatten(YamlMap doc) {
 void main() {
   final List<String> locales = _supportedLocales();
 
-  test('uiux_discuss_copy_has_no_arrow：讨论引导文案（全 locale）无箭头字符', () {
+  test('uiux_discuss_copy_removed：讨论引导键（全 locale）已移除', () {
     expect(locales, isNotEmpty);
     for (final String loc in locales) {
       final File f = File('assets/i18n/$loc/workspace.i18n.yaml');
       final YamlMap doc = loadYaml(f.readAsStringSync()) as YamlMap;
       final Map<String, String> flat = _flatten(doc);
-      final String? guide = flat[kDiscussGuideKey];
-      expect(guide, isNotNull, reason: '$loc 缺 $kDiscussGuideKey');
       expect(
-        _arrowPattern.hasMatch(guide!),
+        flat.containsKey(kDiscussGuideKey),
         isFalse,
-        reason: '$loc 的 $kDiscussGuideKey 含箭头字符: $guide',
+        reason: '$loc 仍保留 $kDiscussGuideKey（W06/F12 收敛后应删除）',
       );
+      // J12「不造 General」指频道讨论面不得伪造 General 目的地；
+      // 工作区创建/邀请文案对真实 General 群的指称不受此约束。
     }
   });
 

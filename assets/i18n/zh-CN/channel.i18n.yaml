@@ -218,6 +218,7 @@ shareInviteText(name, url): "大家快来关注我的频道【$name】吧！$url
 # Micro-community content and explicit discussion membership.
 discussion: "讨论区"
 joinDiscussion: "加入讨论"
+discussionIneligible: 订阅该频道后才能加入其讨论群
 essence: "精华"
 allPosts: "全部内容"
 editPostTags: "编辑标签"

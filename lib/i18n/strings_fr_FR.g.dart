@@ -500,6 +500,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Venez suivre ma chaîne « ${name} » : ${url}';
 	@override String get discussion => 'Discussion';
 	@override String get joinDiscussion => 'Rejoindre la discussion';
+	@override String get discussionIneligible => 'Abonnez-vous à cette chaîne pour rejoindre son groupe de discussion';
 	@override String get essence => 'À la une';
 	@override String get allPosts => 'Toutes les publications';
 	@override String get editPostTags => 'Modifier les tags';
@@ -2555,7 +2556,6 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)';
 	@override String get archivedBadge => 'Archivé';
 	@override String get emptyNoWorkspace => 'Sélectionnez ou créez d\'abord un espace de travail';
-	@override String get dmEntry => 'Tous les messages';
 	@override String get experienceModePersonal => 'Personnel';
 	@override String get switchToPersonal => 'Passer en mode personnel';
 	@override String get createTitle => 'Créer un espace de travail';
@@ -2588,7 +2588,6 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Les canaux servent à publier du contenu en continu (annonces/documents) ; pour discuter, rendez-vous dans les groupes';
 	@override String channelTileSubtitle({required Object count}) => '${count} abonnés';
 	@override String get channelDetailTitle => 'Canal';
-	@override String get discussInGroupGuide => 'Le canal sert à publier du contenu ; envie d\'en discuter ? Rejoignez le groupe General.';
 	@override String get groupsEmptyTitle => 'Aucun groupe d\'espace de travail pour le moment';
 	@override String get groupsEmptySubtitle => 'Les groupes sont l\'espace de discussion en temps réel de l\'espace de travail (seule entrée pour discuter)';
 	@override String groupTileSubtitle({required Object count}) => '${count} membres du groupe';
@@ -3754,6 +3753,7 @@ extension on TranslationsFrFr {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venez suivre ma chaîne « ${name} » : ${url}',
 			'channel.discussion' => 'Discussion',
 			'channel.joinDiscussion' => 'Rejoindre la discussion',
+			'channel.discussionIneligible' => 'Abonnez-vous à cette chaîne pour rejoindre son groupe de discussion',
 			'channel.essence' => 'À la une',
 			'channel.allPosts' => 'Toutes les publications',
 			'channel.editPostTags' => 'Modifier les tags',
@@ -3883,9 +3883,9 @@ extension on TranslationsFrFr {
 			'chat.historyUnavailableHint' => 'L\'archive d\'historique côté serveur est désactivée ou indisponible. Touchez Réessayer pour resynchroniser',
 			'chat.momentsRecordVideo' => 'Filmer une vidéo',
 			'chat.momentsVisibilityPrivate' => 'Privé',
-			'chat.momentsMediaTooManyImages' => '9 images maximum',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => '9 images maximum',
 			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
 			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
 			'chat.momentsReplyPrefix' => 'Répondre @',
@@ -4397,9 +4397,9 @@ extension on TranslationsFrFr {
 			'common.personalInfo' => 'Informations personnelles',
 			'common.nicknameNotSet' => 'Surnom non défini',
 			'common.basicInfo' => 'Informations de base',
-			'common.contactInfo' => 'Coordonnées',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => 'Coordonnées',
 			'common.editTags' => 'Modifier les étiquettes',
 			'common.quickActions' => 'Actions rapides',
 			'common.noNewFriendRequests' => 'Aucune nouvelle demande d\'ami pour le moment.',
@@ -4911,9 +4911,9 @@ extension on TranslationsFrFr {
 			'contact.pleaseEnterRemark' => 'Veuillez entrer la remarque.',
 			'contact.enterRemark' => 'Entrez la remarque.',
 			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
-			'contact.momentsVisibilityFriends' => 'Amis seulement',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => 'Amis seulement',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
@@ -5425,9 +5425,9 @@ extension on TranslationsFrFr {
 			'main.mineStorageUsage' => 'Gérer le stockage',
 			'mention.mentionAll' => 'Tout le monde',
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
-			'mention.noMatchedMember' => 'Aucun membre correspondant',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => 'Aucun membre correspondant',
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'Aucune @mention',
 			'mention.allRead' => 'Tout marquer lu',
@@ -5939,14 +5939,13 @@ extension on TranslationsFrFr {
 			'workspace.navChannels' => 'Canaux',
 			'workspace.navGroups' => 'Groupes',
 			'workspace.pickerTitle' => 'Mes espaces de travail',
-			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
 			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',
 			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
-			'workspace.dmEntry' => 'Tous les messages',
 			'workspace.experienceModePersonal' => 'Personnel',
 			'workspace.switchToPersonal' => 'Passer en mode personnel',
 			'workspace.createTitle' => 'Créer un espace de travail',
@@ -5979,7 +5978,6 @@ extension on TranslationsFrFr {
 			'workspace.channelsEmptySubtitle' => 'Les canaux servent à publier du contenu en continu (annonces/documents) ; pour discuter, rendez-vous dans les groupes',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} abonnés',
 			'workspace.channelDetailTitle' => 'Canal',
-			'workspace.discussInGroupGuide' => 'Le canal sert à publier du contenu ; envie d\'en discuter ? Rejoignez le groupe General.',
 			'workspace.groupsEmptyTitle' => 'Aucun groupe d\'espace de travail pour le moment',
 			'workspace.groupsEmptySubtitle' => 'Les groupes sont l\'espace de discussion en temps réel de l\'espace de travail (seule entrée pour discuter)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} membres du groupe',

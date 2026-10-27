@@ -211,6 +211,7 @@ shareInviteText(name, url): "Venez suivre ma chaîne « $name » : $url"
 # Micro-community content and explicit discussion membership.
 discussion: "Discussion"
 joinDiscussion: "Rejoindre la discussion"
+discussionIneligible: Abonnez-vous à cette chaîne pour rejoindre son groupe de discussion
 essence: "À la une"
 allPosts: "Toutes les publications"
 editPostTags: "Modifier les tags"

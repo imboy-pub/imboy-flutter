@@ -211,6 +211,7 @@ shareInviteText(name, url): "Подписывайтесь на мой канал
 # Micro-community content and explicit discussion membership.
 discussion: "Обсуждение"
 joinDiscussion: "Присоединиться к обсуждению"
+discussionIneligible: Подпишитесь на этот канал, чтобы присоединиться к его обсуждению
 essence: "Избранные публикации"
 allPosts: "Все публикации"
 editPostTags: "Изменить теги"

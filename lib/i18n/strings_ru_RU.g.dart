@@ -500,6 +500,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}';
 	@override String get discussion => 'Обсуждение';
 	@override String get joinDiscussion => 'Присоединиться к обсуждению';
+	@override String get discussionIneligible => 'Подпишитесь на этот канал, чтобы присоединиться к его обсуждению';
 	@override String get essence => 'Избранные публикации';
 	@override String get allPosts => 'Все публикации';
 	@override String get editPostTags => 'Изменить теги';
@@ -2561,7 +2562,6 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)';
 	@override String get archivedBadge => 'В архиве';
 	@override String get emptyNoWorkspace => 'Сначала выберите или создайте рабочее пространство';
-	@override String get dmEntry => 'Все сообщения';
 	@override String get experienceModePersonal => 'Личный';
 	@override String get switchToPersonal => 'Переключиться на личный';
 	@override String get createTitle => 'Создать рабочее пространство';
@@ -2594,7 +2594,6 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы';
 	@override String channelTileSubtitle({required Object count}) => 'Подписчиков: ${count}';
 	@override String get channelDetailTitle => 'Канал';
-	@override String get discussInGroupGuide => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General.';
 	@override String get groupsEmptyTitle => 'Пока нет групп в рабочем пространстве';
 	@override String get groupsEmptySubtitle => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)';
 	@override String groupTileSubtitle({required Object count}) => 'Участников группы: ${count}';
@@ -3760,6 +3759,7 @@ extension on TranslationsRuRu {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}',
 			'channel.discussion' => 'Обсуждение',
 			'channel.joinDiscussion' => 'Присоединиться к обсуждению',
+			'channel.discussionIneligible' => 'Подпишитесь на этот канал, чтобы присоединиться к его обсуждению',
 			'channel.essence' => 'Избранные публикации',
 			'channel.allPosts' => 'Все публикации',
 			'channel.editPostTags' => 'Изменить теги',
@@ -3889,9 +3889,9 @@ extension on TranslationsRuRu {
 			'chat.historyUnavailableHint' => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново',
 			'chat.momentsRecordVideo' => 'Снять видео',
 			'chat.momentsVisibilityPrivate' => 'Только я',
-			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
 			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
 			'chat.momentsReplyPrefix' => 'Ответ @',
@@ -4403,9 +4403,9 @@ extension on TranslationsRuRu {
 			'common.personalInfo' => 'Личная информация',
 			'common.nicknameNotSet' => 'Никнейм не установлен',
 			'common.basicInfo' => 'Основная информация',
-			'common.contactInfo' => 'Контактная информация',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => 'Контактная информация',
 			'common.editTags' => 'Редактировать теги',
 			'common.quickActions' => 'Быстрые действия',
 			'common.noNewFriendRequests' => 'Нет новых запросов дружбы',
@@ -4917,9 +4917,9 @@ extension on TranslationsRuRu {
 			'contact.pleaseEnterRemark' => 'Пожалуйста, введите примечание',
 			'contact.enterRemark' => 'Введите примечание',
 			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
-			'contact.momentsVisibilityFriends' => 'Только друзья',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => 'Только друзья',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
@@ -5431,9 +5431,9 @@ extension on TranslationsRuRu {
 			'main.mineStorageUsage' => 'Управление памятью',
 			'mention.mentionAll' => 'Все',
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
-			'mention.noMatchedMember' => 'Нет подходящих участников',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => 'Нет подходящих участников',
 			'mention.title' => '@Упоминания',
 			'mention.noMention' => 'Нет упоминаний',
 			'mention.allRead' => 'Всё прочитано',
@@ -5945,14 +5945,13 @@ extension on TranslationsRuRu {
 			'workspace.navChannels' => 'Каналы',
 			'workspace.navGroups' => 'Группы',
 			'workspace.pickerTitle' => 'Мои рабочие пространства',
-			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
 			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
 			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
-			'workspace.dmEntry' => 'Все сообщения',
 			'workspace.experienceModePersonal' => 'Личный',
 			'workspace.switchToPersonal' => 'Переключиться на личный',
 			'workspace.createTitle' => 'Создать рабочее пространство',
@@ -5985,7 +5984,6 @@ extension on TranslationsRuRu {
 			'workspace.channelsEmptySubtitle' => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы',
 			'workspace.channelTileSubtitle' => ({required Object count}) => 'Подписчиков: ${count}',
 			'workspace.channelDetailTitle' => 'Канал',
-			'workspace.discussInGroupGuide' => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General.',
 			'workspace.groupsEmptyTitle' => 'Пока нет групп в рабочем пространстве',
 			'workspace.groupsEmptySubtitle' => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'Участников группы: ${count}',

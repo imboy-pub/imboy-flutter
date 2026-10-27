@@ -566,6 +566,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}';
 	@override String get discussion => 'Discussion';
 	@override String get joinDiscussion => 'Join discussion';
+	@override String get discussionIneligible => 'Subscribe to this channel to join its discussion group';
 	@override String get essence => 'Highlights';
 	@override String get allPosts => 'All posts';
 	@override String get editPostTags => 'Edit tags';
@@ -3131,7 +3132,6 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Create one and get started in 3 minutes (Announcements channel and General group included)';
 	@override String get archivedBadge => 'Archived';
 	@override String get emptyNoWorkspace => 'Select or create a workspace first';
-	@override String get dmEntry => 'All messages';
 	@override String get experienceModePersonal => 'Personal';
 	@override String get switchToPersonal => 'Switch to personal';
 	@override String get createTitle => 'Create Workspace';
@@ -3164,7 +3164,6 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups';
 	@override String channelTileSubtitle({required Object count}) => '${count} subscribers';
 	@override String get channelDetailTitle => 'Channel';
-	@override String get discussInGroupGuide => 'Channels are for publishing; want to discuss? Jump to the General group.';
 	@override String get groupsEmptyTitle => 'No workspace groups yet';
 	@override String get groupsEmptySubtitle => 'Groups are real-time discussion spaces in the workspace (the only chat entry)';
 	@override String groupTileSubtitle({required Object count}) => '${count} group members';
@@ -4440,6 +4439,7 @@ extension on TranslationsEnUs {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}',
 			'channel.discussion' => 'Discussion',
 			'channel.joinDiscussion' => 'Join discussion',
+			'channel.discussionIneligible' => 'Subscribe to this channel to join its discussion group',
 			'channel.essence' => 'Highlights',
 			'channel.allPosts' => 'All posts',
 			'channel.editPostTags' => 'Edit tags',
@@ -4514,9 +4514,9 @@ extension on TranslationsEnUs {
 			'chat.quickReplyDuplicate' => 'This phrase already exists',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'At most ${max} entries',
 			'chat.quickReplyHint' => 'Type your phrase...',
-			'chat.muteMember' => 'Mute Member',
 			_ => null,
 		} ?? switch (path) {
+			'chat.muteMember' => 'Mute Member',
 			'chat.unmuteMember' => 'Unmute',
 			'chat.muted' => 'Muted',
 			'chat.mutedFor' => ({required Object label}) => 'Muted ${label}',
@@ -5028,9 +5028,9 @@ extension on TranslationsEnUs {
 			'common.chatSaveImage' => 'Save image',
 			'common.chatDeleteLocalOnly' => 'Delete local only',
 			'common.chatDeleteFailed' => 'Delete failed',
-			'common.chatNetworkErrorDeleteLocal' => 'Network connection failed. Delete local message only?',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatNetworkErrorDeleteLocal' => 'Network connection failed. Delete local message only?',
 			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
 			'common.chatDeleteOnlyLocal' => 'Delete only for you, still visible to others',
 			'common.chatDeleteAll' => 'Delete for everyone, cannot be undone',
@@ -5542,9 +5542,9 @@ extension on TranslationsEnUs {
 			'common.redPacketCurrentNormal' => 'Current mode: Normal Red Packet',
 			'common.redPacketSwitchToLucky' => 'Switch to Lucky Red Packet',
 			'common.redPacketSwitchToNormal' => 'Switch to Normal Red Packet',
-			'common.redPacketStuffLucky' => 'Send Lucky Red Packet',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketStuffLucky' => 'Send Lucky Red Packet',
 			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'User: ${uid}',
 			'common.redPacketView' => 'View Red Packet',
@@ -6056,9 +6056,9 @@ extension on TranslationsEnUs {
 			'groupVote.eachOptionPerLine' => 'One option per line',
 			'groupVote.statusInProgress' => 'In Progress',
 			'groupVote.updateVote' => 'Update Vote',
-			'groupVote.cancelMyVote' => 'Cancel my vote',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.cancelMyVote' => 'Cancel my vote',
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
 			'groupVote.singleChoice' => 'Single choice',
@@ -6570,9 +6570,9 @@ extension on TranslationsEnUs {
 			'organization.manage.entry' => 'Enterprise management',
 			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
 			'organization.manage.title' => 'Enterprise management',
-			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
 			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
 			'organization.manage.workspaceOwnerHint' => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.',
@@ -7084,9 +7084,9 @@ extension on TranslationsEnUs {
 			'talkRecord.processingRecoveryUnavailable' => 'Processing is currently unavailable. Keep the recording on this device and retry later.',
 			'talkRecord.keepRecordingLocal' => 'Keep on this device',
 			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
-			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
 			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',
 			'talkRecord.cleanupRetryUnknown' => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.',
 			'talkRecord.cleanupRetryPartial' => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.',
@@ -7180,7 +7180,6 @@ extension on TranslationsEnUs {
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
 			'workspace.archivedBadge' => 'Archived',
 			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
-			'workspace.dmEntry' => 'All messages',
 			'workspace.experienceModePersonal' => 'Personal',
 			'workspace.switchToPersonal' => 'Switch to personal',
 			'workspace.createTitle' => 'Create Workspace',
@@ -7213,7 +7212,6 @@ extension on TranslationsEnUs {
 			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',
-			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group.',
 			'workspace.groupsEmptyTitle' => 'No workspace groups yet',
 			'workspace.groupsEmptySubtitle' => 'Groups are real-time discussion spaces in the workspace (the only chat entry)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',

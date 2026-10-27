@@ -215,6 +215,7 @@ shareInviteText(name, url): "私のチャンネル「$name」をフォローし�
 # Micro-community content and explicit discussion membership.
 discussion: "ディスカッション"
 joinDiscussion: "議論に参加"
+discussionIneligible: このチャンネルを購読するとディスカッショングループに参加できます
 essence: "注目の投稿"
 allPosts: "すべての投稿"
 editPostTags: "タグを編集"

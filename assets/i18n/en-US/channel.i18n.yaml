@@ -214,6 +214,7 @@ shareInviteText(name, url): "Come and follow my channel \"$name\" at $url"
 # Micro-community content and explicit discussion membership.
 discussion: "Discussion"
 joinDiscussion: "Join discussion"
+discussionIneligible: Subscribe to this channel to join its discussion group
 essence: "Highlights"
 allPosts: "All posts"
 editPostTags: "Edit tags"

@@ -211,6 +211,7 @@ shareInviteText(name, url): "제 채널 \"$name\"에 팔로우해 주세요! $ur
 # Micro-community content and explicit discussion membership.
 discussion: "토론"
 joinDiscussion: "토론 참여"
+discussionIneligible: 이 채널을 구독해야 토론 그룹에 참여할 수 있습니다
 essence: "추천 게시물"
 allPosts: "모든 게시물"
 editPostTags: "태그 편집"

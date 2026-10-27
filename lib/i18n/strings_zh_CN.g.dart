@@ -1426,6 +1426,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '加入讨论'
 	String get joinDiscussion => '加入讨论';
 
+	/// zh-CN: '订阅该频道后才能加入其讨论群'
+	String get discussionIneligible => '订阅该频道后才能加入其讨论群';
+
 	/// zh-CN: '精华'
 	String get essence => '精华';
 
@@ -8619,9 +8622,6 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '请先选择或创建一个工作区'
 	String get emptyNoWorkspace => '请先选择或创建一个工作区';
 
-	/// zh-CN: '全部消息'
-	String get dmEntry => '全部消息';
-
 	/// zh-CN: '日程'
 	String get tabSchedule => '日程';
 
@@ -8783,9 +8783,6 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '频道'
 	String get channelDetailTitle => '频道';
-
-	/// zh-CN: '频道用于发布内容；想讨论？去 General 群聊聊。'
-	String get discussInGroupGuide => '频道用于发布内容；想讨论？去 General 群聊聊。';
 
 	/// zh-CN: '还没有工作区群组'
 	String get groupsEmptyTitle => '还没有工作区群组';
@@ -11291,6 +11288,7 @@ extension on Translations {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}',
 			'channel.discussion' => '讨论区',
 			'channel.joinDiscussion' => '加入讨论',
+			'channel.discussionIneligible' => '订阅该频道后才能加入其讨论群',
 			'channel.essence' => '精华',
 			'channel.allPosts' => '全部内容',
 			'channel.editPostTags' => '编辑标签',
@@ -11365,9 +11363,9 @@ extension on Translations {
 			'chat.rating' => '评级',
 			'chat.readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
 			'chat.remindMeLater' => '下次再说',
-			'chat.quickReplyManage' => '管理快捷回复',
 			_ => null,
 		} ?? switch (path) {
+			'chat.quickReplyManage' => '管理快捷回复',
 			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
 			'chat.quickReplyDuplicate' => '内容已存在',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
@@ -11879,9 +11877,9 @@ extension on Translations {
 			'common.statusSettings' => '状态设置',
 			'common.showOnlineStatus' => '显示在线状态',
 			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
-			'common.allowNearbyVisible' => '附近的人可见',
 			_ => null,
 		} ?? switch (path) {
+			'common.allowNearbyVisible' => '附近的人可见',
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
 			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
@@ -12393,9 +12391,9 @@ extension on Translations {
 			'common.redPacketSingleAmount' => '单个金额',
 			'common.redPacketGreetingLabel' => '留言 / 祝福语',
 			'common.redPacketStuffLucky' => '塞钱发红包',
-			'common.redPacketStuffNormal' => '放入钱包发送',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketStuffNormal' => '放入钱包发送',
 			'common.amountMustPositive' => '金额必须大于 0',
 			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
 			'common.transferAmountLabel' => '转账金额',
@@ -12907,9 +12905,9 @@ extension on Translations {
 			'groupTask.taskSubmitted' => '待办已提交',
 			'groupTask.submitTask' => '提交待办',
 			'groupTask.overdue' => '已过期',
-			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			_ => null,
 		} ?? switch (path) {
+			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
@@ -13421,9 +13419,9 @@ extension on Translations {
 			'organization.directory.switchVerifyFailed' => '目标企业不可用或你已不是其成员',
 			'organization.directory.switchShellFailed' => '新企业工作区加载失败',
 			'organization.directory.inviteColleaguesRow' => '邀请同事...',
-			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			_ => null,
 		} ?? switch (path) {
+			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
@@ -13935,9 +13933,9 @@ extension on Translations {
 			'talkRecord.shareCardSendPending' => '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。',
 			'talkRecord.shareCardSendCancelled' => '已取消发送，未发送新的卡片。',
 			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
-			'talkRecord.participantsRemove' => '移除参与者',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsRemove' => '移除参与者',
 			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
 			'talkRecord.participantsAddGuest' => '添加来宾',
 			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
@@ -14051,7 +14049,6 @@ extension on Translations {
 			'workspace.pickerEmptySubtitle' => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）',
 			'workspace.archivedBadge' => '已归档',
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
-			'workspace.dmEntry' => '全部消息',
 			'workspace.tabSchedule' => '日程',
 			'workspace.tabTodo' => '待办',
 			'workspace.comingSoon' => '即将上线',
@@ -14106,7 +14103,6 @@ extension on Translations {
 			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
 			'workspace.channelDetailTitle' => '频道',
-			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊。',
 			'workspace.groupsEmptyTitle' => '还没有工作区群组',
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',

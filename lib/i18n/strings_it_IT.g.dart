@@ -500,6 +500,7 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}';
 	@override String get discussion => 'Discussione';
 	@override String get joinDiscussion => 'Partecipa alla discussione';
+	@override String get discussionIneligible => 'Iscriviti a questo canale per unirti al suo gruppo di discussione';
 	@override String get essence => 'In evidenza';
 	@override String get allPosts => 'Tutti i post';
 	@override String get editPostTags => 'Modifica tag';
@@ -2582,8 +2583,6 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get createTemplateOwner => 'Diventerai Owner dell\'area di lavoro (membro dell\'area di lavoro)';
 	@override String get createTemplateTitle => 'Verrà inizializzato automaticamente';
 	@override String get createTitle => 'Crea area di lavoro';
-	@override String get discussInGroupGuide => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General.';
-	@override String get dmEntry => 'Tutti i messaggi';
 	@override String get emptyNoWorkspace => 'Seleziona o crea prima un\'area di lavoro';
 	@override String get experienceModePersonal => 'Personale';
 	@override String get governanceTitle => 'Governance dell\'area di lavoro';
@@ -3754,6 +3753,7 @@ extension on TranslationsItIt {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venite a seguire il mio canale "${name}": ${url}',
 			'channel.discussion' => 'Discussione',
 			'channel.joinDiscussion' => 'Partecipa alla discussione',
+			'channel.discussionIneligible' => 'Iscriviti a questo canale per unirti al suo gruppo di discussione',
 			'channel.essence' => 'In evidenza',
 			'channel.allPosts' => 'Tutti i post',
 			'channel.editPostTags' => 'Modifica tag',
@@ -3883,9 +3883,9 @@ extension on TranslationsItIt {
 			'chat.historyUnavailableHint' => 'L\'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare',
 			'chat.momentsRecordVideo' => 'Registra video',
 			'chat.momentsVisibilityPrivate' => 'Privato',
-			'chat.momentsMediaTooManyImages' => 'Massimo 9 immagini',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => 'Massimo 9 immagini',
 			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
 			'chat.momentsMediaMixedImageAndVideo' => 'Immagini e video non insieme',
 			'chat.momentsReplyPrefix' => 'Rispondi @',
@@ -4397,9 +4397,9 @@ extension on TranslationsItIt {
 			'common.personalInfo' => 'Informazioni personali',
 			'common.nicknameNotSet' => 'Nickname non impostato',
 			'common.basicInfo' => 'Informazioni base',
-			'common.contactInfo' => 'Informazioni contatto',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => 'Informazioni contatto',
 			'common.editTags' => 'Modifica tag',
 			'common.quickActions' => 'Azioni rapide',
 			'common.noNewFriendRequests' => 'Nessuna nuova richiesta di amicizia per ora',
@@ -4911,9 +4911,9 @@ extension on TranslationsItIt {
 			'contact.pleaseEnterRemark' => 'Inserisci nota',
 			'contact.enterRemark' => 'Inserisci nome nota',
 			'contact.pleaseEnterTags' => 'Inserisci tag',
-			'contact.momentsVisibilityFriends' => 'Solo amici',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => 'Solo amici',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Massimo ${param} tag consentiti',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Tag selezionati (${param}/${max})',
@@ -5425,9 +5425,9 @@ extension on TranslationsItIt {
 			'main.mineStorageUsage' => 'Gestisci spazio',
 			'mention.mentionAll' => 'Tutti',
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
-			'mention.noMatchedMember' => 'Nessun membro corrispondente',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => 'Nessun membro corrispondente',
 			'mention.title' => '@Menzioni',
 			'mention.noMention' => 'Nessuna @menzione',
 			'mention.allRead' => 'Segna tutto letto',
@@ -5939,9 +5939,9 @@ extension on TranslationsItIt {
 			'workspace.archiveEntry' => 'Archivia area di lavoro',
 			'workspace.archiveTitle' => 'Archivia area di lavoro',
 			'workspace.archivedBadge' => 'Archiviata',
-			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
 			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
 			'workspace.brandingColorHint' => '#2474E5',
 			'workspace.brandingColorInvalid' => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB',
@@ -5973,8 +5973,6 @@ extension on TranslationsItIt {
 			'workspace.createTemplateOwner' => 'Diventerai Owner dell\'area di lavoro (membro dell\'area di lavoro)',
 			'workspace.createTemplateTitle' => 'Verrà inizializzato automaticamente',
 			'workspace.createTitle' => 'Crea area di lavoro',
-			'workspace.discussInGroupGuide' => 'I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General.',
-			'workspace.dmEntry' => 'Tutti i messaggi',
 			'workspace.emptyNoWorkspace' => 'Seleziona o crea prima un\'area di lavoro',
 			'workspace.experienceModePersonal' => 'Personale',
 			'workspace.governanceTitle' => 'Governance dell\'area di lavoro',

@@ -500,6 +500,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}';
 	@override String get discussion => '討論區';
 	@override String get joinDiscussion => '加入討論';
+	@override String get discussionIneligible => '訂閱該頻道後才能加入其討論群';
 	@override String get essence => '精華';
 	@override String get allPosts => '全部內容';
 	@override String get editPostTags => '編輯標籤';
@@ -2552,7 +2553,6 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）';
 	@override String get archivedBadge => '已封存';
 	@override String get emptyNoWorkspace => '請先選擇或建立一個工作區';
-	@override String get dmEntry => '全部訊息';
 	@override String get experienceModePersonal => '個人';
 	@override String get switchToPersonal => '切換到個人';
 	@override String get createTitle => '建立工作區';
@@ -2585,7 +2585,6 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '頻道用於持續發布內容（公告/資料），討論請去群組';
 	@override String channelTileSubtitle({required Object count}) => '${count} 位訂閱者';
 	@override String get channelDetailTitle => '頻道';
-	@override String get discussInGroupGuide => '頻道用於發布內容；想討論？去 General 群聊聊。';
 	@override String get groupsEmptyTitle => '還沒有工作區群組';
 	@override String get groupsEmptySubtitle => '群組是工作區裡的即時討論空間（聊天唯一入口）';
 	@override String groupTileSubtitle({required Object count}) => '${count} 位群成員';
@@ -3751,6 +3750,7 @@ extension on TranslationsZhHant {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}',
 			'channel.discussion' => '討論區',
 			'channel.joinDiscussion' => '加入討論',
+			'channel.discussionIneligible' => '訂閱該頻道後才能加入其討論群',
 			'channel.essence' => '精華',
 			'channel.allPosts' => '全部內容',
 			'channel.editPostTags' => '編輯標籤',
@@ -3880,9 +3880,9 @@ extension on TranslationsZhHant {
 			'chat.goodReadability' => '可讀性良好',
 			'chat.profileCompleteness' => '資料完善度',
 			'chat.tagStatistics' => '標籤統計',
-			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			_ => null,
 		} ?? switch (path) {
+			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			'chat.passwordMismatch' => '兩次密碼不一致',
 			'chat.pleaseTryAgainLater' => '請稍後重試',
 			'chat.historyUnavailable' => '歷史訊息暫不可用',
@@ -4394,9 +4394,9 @@ extension on TranslationsZhHant {
 			'common.fontTooSmallMayAffect' => '字體偏小，可能影響閱讀',
 			'common.dragSliderAdjustFontSize' => '拖動滑塊調整字體大小',
 			'common.personalInfo' => '個人資訊',
-			'common.nicknameNotSet' => '未設定暱稱',
 			_ => null,
 		} ?? switch (path) {
+			'common.nicknameNotSet' => '未設定暱稱',
 			'common.basicInfo' => '基本資訊',
 			'common.contactInfo' => '聯絡資訊',
 			'common.editTags' => '編輯標籤',
@@ -4908,9 +4908,9 @@ extension on TranslationsZhHant {
 			'contact.pleaseEnterRemark' => '請輸入備註名',
 			'contact.enterRemark' => '請輸入備註名',
 			'contact.pleaseEnterTags' => '請輸入標籤',
-			'contact.momentsVisibilityFriends' => '僅好友',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => '僅好友',
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
@@ -5422,9 +5422,9 @@ extension on TranslationsZhHant {
 			'main.mineStorageUsage' => '管理用量',
 			'mention.mentionAll' => '全體成員',
 			'mention.mentionAllHint' => '通知所有群成員',
-			'mention.noMatchedMember' => '沒有匹配的成員',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => '沒有匹配的成員',
 			'mention.title' => '@標註',
 			'mention.noMention' => '暫無@提及',
 			'mention.allRead' => '全部已讀',
@@ -5936,14 +5936,13 @@ extension on TranslationsZhHant {
 			'workspace.navChannels' => '頻道',
 			'workspace.navGroups' => '群組',
 			'workspace.pickerTitle' => '我的工作區',
-			'workspace.switchWorkspace' => '切換工作區',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => '切換工作區',
 			'workspace.pickerEmptyTitle' => '還沒有工作區',
 			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
-			'workspace.dmEntry' => '全部訊息',
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '切換到個人',
 			'workspace.createTitle' => '建立工作區',
@@ -5976,7 +5975,6 @@ extension on TranslationsZhHant {
 			'workspace.channelsEmptySubtitle' => '頻道用於持續發布內容（公告/資料），討論請去群組',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位訂閱者',
 			'workspace.channelDetailTitle' => '頻道',
-			'workspace.discussInGroupGuide' => '頻道用於發布內容；想討論？去 General 群聊聊。',
 			'workspace.groupsEmptyTitle' => '還沒有工作區群組',
 			'workspace.groupsEmptySubtitle' => '群組是工作區裡的即時討論空間（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成員',

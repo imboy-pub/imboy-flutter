@@ -500,6 +500,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}';
 	@override String get discussion => 'Diskussion';
 	@override String get joinDiscussion => 'Diskussion beitreten';
+	@override String get discussionIneligible => 'Abonnieren Sie diesen Kanal, um seiner Diskussionsgruppe beizutreten';
 	@override String get essence => 'Highlights';
 	@override String get allPosts => 'Alle Beiträge';
 	@override String get editPostTags => 'Tags bearbeiten';
@@ -2555,7 +2556,6 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Erstellen Sie einen Arbeitsbereich und starten Sie in 3 Minuten die Teamarbeit (Announcements-Kanal und General-Gruppe werden automatisch erstellt)';
 	@override String get archivedBadge => 'Archiviert';
 	@override String get emptyNoWorkspace => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen';
-	@override String get dmEntry => 'Alle Nachrichten';
 	@override String get experienceModePersonal => 'Persönlich';
 	@override String get switchToPersonal => 'Zum persönlichen Modus wechseln';
 	@override String get createTitle => 'Arbeitsbereich erstellen';
@@ -2588,7 +2588,6 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Kanäle dienen der laufenden Veröffentlichung von Inhalten (Ankündigungen/Material); für Diskussionen bitte in die Gruppen';
 	@override String channelTileSubtitle({required Object count}) => '${count} Abonnenten';
 	@override String get channelDetailTitle => 'Kanal';
-	@override String get discussInGroupGuide => 'Kanäle sind zum Veröffentlichen gedacht; diskutieren Sie in der General-Gruppe.';
 	@override String get groupsEmptyTitle => 'Noch keine Arbeitsbereich-Gruppen';
 	@override String get groupsEmptySubtitle => 'Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)';
 	@override String groupTileSubtitle({required Object count}) => '${count} Gruppenmitglieder';
@@ -3754,6 +3753,7 @@ extension on TranslationsDeDe {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Folgt gerne meinem Kanal "${name}": ${url}',
 			'channel.discussion' => 'Diskussion',
 			'channel.joinDiscussion' => 'Diskussion beitreten',
+			'channel.discussionIneligible' => 'Abonnieren Sie diesen Kanal, um seiner Diskussionsgruppe beizutreten',
 			'channel.essence' => 'Highlights',
 			'channel.allPosts' => 'Alle Beiträge',
 			'channel.editPostTags' => 'Tags bearbeiten',
@@ -3883,9 +3883,9 @@ extension on TranslationsDeDe {
 			'chat.historyUnavailableHint' => 'Serverseitiges Verlaufsarchiv ist deaktiviert oder nicht verfügbar. Tippen Sie auf Erneut versuchen, um die Synchronisierung neu zu starten',
 			'chat.momentsRecordVideo' => 'Video aufnehmen',
 			'chat.momentsVisibilityPrivate' => 'Nur ich',
-			'chat.momentsMediaTooManyImages' => 'Max. 9 Bilder auswählbar',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => 'Max. 9 Bilder auswählbar',
 			'chat.momentsMediaTooManyVideos' => 'Max. 1 Video auswählbar',
 			'chat.momentsMediaMixedImageAndVideo' => 'Bilder und Video nicht gleichzeitig',
 			'chat.momentsReplyPrefix' => 'Antwort @',
@@ -4397,9 +4397,9 @@ extension on TranslationsDeDe {
 			'common.personalInfo' => 'Persönliche Informationen',
 			'common.nicknameNotSet' => 'Spitzname nicht festgelegt',
 			'common.basicInfo' => 'Grundlegende Informationen',
-			'common.contactInfo' => 'Kontaktinformationen',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => 'Kontaktinformationen',
 			'common.editTags' => 'Tags bearbeiten',
 			'common.quickActions' => 'Schnellaktionen',
 			'common.noNewFriendRequests' => 'Derzeit keine neuen Freundschaftsanfragen',
@@ -4911,9 +4911,9 @@ extension on TranslationsDeDe {
 			'contact.pleaseEnterRemark' => 'Bitte Bemerkung eingeben',
 			'contact.enterRemark' => 'Bemerkung eingeben',
 			'contact.pleaseEnterTags' => 'Bitte Tags eingeben',
-			'contact.momentsVisibilityFriends' => 'Nur Freunde',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => 'Nur Freunde',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag-Länge darf ${param} Zeichen nicht überschreiten',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Maximal ${param} Tags erlaubt',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Ausgewählte Tags (${param}/${max})',
@@ -5425,9 +5425,9 @@ extension on TranslationsDeDe {
 			'main.mineStorageUsage' => 'Speichernutzung',
 			'mention.mentionAll' => 'Alle',
 			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
-			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
 			'mention.title' => '@Erwähnungen',
 			'mention.noMention' => 'Keine @Erwähnungen',
 			'mention.allRead' => 'Alle gelesen',
@@ -5939,14 +5939,13 @@ extension on TranslationsDeDe {
 			'workspace.navChannels' => 'Kanäle',
 			'workspace.navGroups' => 'Gruppen',
 			'workspace.pickerTitle' => 'Mein Arbeitsbereich',
-			'workspace.switchWorkspace' => 'Arbeitsbereich wechseln',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => 'Arbeitsbereich wechseln',
 			'workspace.pickerEmptyTitle' => 'Noch kein Arbeitsbereich',
 			'workspace.pickerEmptySubtitle' => 'Erstellen Sie einen Arbeitsbereich und starten Sie in 3 Minuten die Teamarbeit (Announcements-Kanal und General-Gruppe werden automatisch erstellt)',
 			'workspace.archivedBadge' => 'Archiviert',
 			'workspace.emptyNoWorkspace' => 'Bitte zuerst einen Arbeitsbereich auswählen oder erstellen',
-			'workspace.dmEntry' => 'Alle Nachrichten',
 			'workspace.experienceModePersonal' => 'Persönlich',
 			'workspace.switchToPersonal' => 'Zum persönlichen Modus wechseln',
 			'workspace.createTitle' => 'Arbeitsbereich erstellen',
@@ -5979,7 +5978,6 @@ extension on TranslationsDeDe {
 			'workspace.channelsEmptySubtitle' => 'Kanäle dienen der laufenden Veröffentlichung von Inhalten (Ankündigungen/Material); für Diskussionen bitte in die Gruppen',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} Abonnenten',
 			'workspace.channelDetailTitle' => 'Kanal',
-			'workspace.discussInGroupGuide' => 'Kanäle sind zum Veröffentlichen gedacht; diskutieren Sie in der General-Gruppe.',
 			'workspace.groupsEmptyTitle' => 'Noch keine Arbeitsbereich-Gruppen',
 			'workspace.groupsEmptySubtitle' => 'Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} Gruppenmitglieder',

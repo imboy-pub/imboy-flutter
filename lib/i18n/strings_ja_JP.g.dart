@@ -500,6 +500,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}';
 	@override String get discussion => 'ディスカッション';
 	@override String get joinDiscussion => '議論に参加';
+	@override String get discussionIneligible => 'このチャンネルを購読するとディスカッショングループに参加できます';
 	@override String get essence => '注目の投稿';
 	@override String get allPosts => 'すべての投稿';
 	@override String get editPostTags => 'タグを編集';
@@ -2552,7 +2553,6 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）';
 	@override String get archivedBadge => 'アーカイブ済み';
 	@override String get emptyNoWorkspace => 'まずワークスペースを選択または作成してください';
-	@override String get dmEntry => 'すべてのメッセージ';
 	@override String get experienceModePersonal => '個人';
 	@override String get switchToPersonal => '個人に切り替え';
 	@override String get createTitle => 'ワークスペースを作成';
@@ -2585,7 +2585,6 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ';
 	@override String channelTileSubtitle({required Object count}) => '購読者${count}人';
 	@override String get channelDetailTitle => 'チャンネル';
-	@override String get discussInGroupGuide => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。';
 	@override String get groupsEmptyTitle => 'ワークスペースのグループはまだありません';
 	@override String get groupsEmptySubtitle => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）';
 	@override String groupTileSubtitle({required Object count}) => 'グループメンバー${count}人';
@@ -3751,6 +3750,7 @@ extension on TranslationsJaJp {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}',
 			'channel.discussion' => 'ディスカッション',
 			'channel.joinDiscussion' => '議論に参加',
+			'channel.discussionIneligible' => 'このチャンネルを購読するとディスカッショングループに参加できます',
 			'channel.essence' => '注目の投稿',
 			'channel.allPosts' => 'すべての投稿',
 			'channel.editPostTags' => 'タグを編集',
@@ -3880,9 +3880,9 @@ extension on TranslationsJaJp {
 			'chat.historyUnavailableHint' => 'サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください',
 			'chat.momentsRecordVideo' => '動画を撮影',
 			'chat.momentsVisibilityPrivate' => '非公開',
-			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
 			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
 			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
 			'chat.momentsReplyPrefix' => '返信 @',
@@ -4394,9 +4394,9 @@ extension on TranslationsJaJp {
 			'common.personalInfo' => '個人情報',
 			'common.nicknameNotSet' => 'ニックネームが設定されていません',
 			'common.basicInfo' => '基本情報',
-			'common.contactInfo' => '連絡先情報',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => '連絡先情報',
 			'common.editTags' => 'タグを編集',
 			'common.quickActions' => 'クイックアクション',
 			'common.noNewFriendRequests' => '現在新しい友達リクエストはありません',
@@ -4908,9 +4908,9 @@ extension on TranslationsJaJp {
 			'contact.pleaseEnterRemark' => '備考名を入力してください',
 			'contact.enterRemark' => '備考名を入力してください',
 			'contact.pleaseEnterTags' => 'タグを入力してください',
-			'contact.momentsVisibilityFriends' => '友達のみ',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => '友達のみ',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
@@ -5422,9 +5422,9 @@ extension on TranslationsJaJp {
 			'main.mineStorageUsage' => '使用量の管理',
 			'mention.mentionAll' => '全員',
 			'mention.mentionAllHint' => 'グループ全員に通知',
-			'mention.noMatchedMember' => '一致するメンバーがいません',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => '一致するメンバーがいません',
 			'mention.title' => '@メンション',
 			'mention.noMention' => '@メンションはありません',
 			'mention.allRead' => 'すべて既読にする',
@@ -5936,14 +5936,13 @@ extension on TranslationsJaJp {
 			'workspace.navChannels' => 'チャンネル',
 			'workspace.navGroups' => 'グループ',
 			'workspace.pickerTitle' => 'マイワークスペース',
-			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
 			'workspace.pickerEmptyTitle' => 'ワークスペースはまだありません',
 			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',
 			'workspace.archivedBadge' => 'アーカイブ済み',
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
-			'workspace.dmEntry' => 'すべてのメッセージ',
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '個人に切り替え',
 			'workspace.createTitle' => 'ワークスペースを作成',
@@ -5976,7 +5975,6 @@ extension on TranslationsJaJp {
 			'workspace.channelsEmptySubtitle' => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '購読者${count}人',
 			'workspace.channelDetailTitle' => 'チャンネル',
-			'workspace.discussInGroupGuide' => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。',
 			'workspace.groupsEmptyTitle' => 'ワークスペースのグループはまだありません',
 			'workspace.groupsEmptySubtitle' => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'グループメンバー${count}人',

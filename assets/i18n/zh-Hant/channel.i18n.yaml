@@ -214,6 +214,7 @@ shareInviteText(name, url): "大家快來關注我的頻道【$name】吧！$url
 # Micro-community content and explicit discussion membership.
 discussion: "討論區"
 joinDiscussion: "加入討論"
+discussionIneligible: 訂閱該頻道後才能加入其討論群
 essence: "精華"
 allPosts: "全部內容"
 editPostTags: "編輯標籤"

@@ -211,6 +211,7 @@ shareInviteText(name, url): "تابعوا قناتي \"$name\" على $url"
 # Micro-community content and explicit discussion membership.
 discussion: "المناقشة"
 joinDiscussion: "الانضمام إلى المناقشة"
+discussionIneligible: اشترك في هذه القناة للانضمام إلى مجموعة النقاش الخاصة بها
 essence: "المنشورات المميزة"
 allPosts: "كل المنشورات"
 editPostTags: "تعديل الوسوم"

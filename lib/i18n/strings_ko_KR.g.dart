@@ -500,6 +500,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}';
 	@override String get discussion => '토론';
 	@override String get joinDiscussion => '토론 참여';
+	@override String get discussionIneligible => '이 채널을 구독해야 토론 그룹에 참여할 수 있습니다';
 	@override String get essence => '추천 게시물';
 	@override String get allPosts => '모든 게시물';
 	@override String get editPostTags => '태그 편집';
@@ -2552,7 +2553,6 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)';
 	@override String get archivedBadge => '보관됨';
 	@override String get emptyNoWorkspace => '먼저 워크스페이스를 선택하거나 만들어 주세요';
-	@override String get dmEntry => '전체 메시지';
 	@override String get experienceModePersonal => '개인';
 	@override String get switchToPersonal => '개인으로 전환';
 	@override String get createTitle => '워크스페이스 만들기';
@@ -2585,7 +2585,6 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요';
 	@override String channelTileSubtitle({required Object count}) => '구독자 ${count}명';
 	@override String get channelDetailTitle => '채널';
-	@override String get discussInGroupGuide => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 진행하세요.';
 	@override String get groupsEmptyTitle => '아직 워크스페이스 그룹이 없습니다';
 	@override String get groupsEmptySubtitle => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)';
 	@override String groupTileSubtitle({required Object count}) => '그룹 구성원 ${count}명';
@@ -3751,6 +3750,7 @@ extension on TranslationsKoKr {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}',
 			'channel.discussion' => '토론',
 			'channel.joinDiscussion' => '토론 참여',
+			'channel.discussionIneligible' => '이 채널을 구독해야 토론 그룹에 참여할 수 있습니다',
 			'channel.essence' => '추천 게시물',
 			'channel.allPosts' => '모든 게시물',
 			'channel.editPostTags' => '태그 편집',
@@ -3880,9 +3880,9 @@ extension on TranslationsKoKr {
 			'chat.historyUnavailableHint' => '서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요',
 			'chat.momentsRecordVideo' => '동영상 촬영',
 			'chat.momentsVisibilityPrivate' => '나만 보기',
-			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
 			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
 			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
 			'chat.momentsReplyPrefix' => '답글 @',
@@ -4394,9 +4394,9 @@ extension on TranslationsKoKr {
 			'common.personalInfo' => '개인 정보',
 			'common.nicknameNotSet' => '닉네임이 설정되지 않음',
 			'common.basicInfo' => '기본 정보',
-			'common.contactInfo' => '연락처 정보',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => '연락처 정보',
 			'common.editTags' => '태그 편집',
 			'common.quickActions' => '빠른 작업',
 			'common.noNewFriendRequests' => '현재 새 친구 요청이 없습니다',
@@ -4908,9 +4908,9 @@ extension on TranslationsKoKr {
 			'contact.pleaseEnterRemark' => '메모를 입력해 주세요',
 			'contact.enterRemark' => '메모 이름을 입력해 주세요',
 			'contact.pleaseEnterTags' => '태그를 입력하세요',
-			'contact.momentsVisibilityFriends' => '친구만',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => '친구만',
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
@@ -5422,9 +5422,9 @@ extension on TranslationsKoKr {
 			'main.mineStorageUsage' => '사용량 관리',
 			'mention.mentionAll' => '전체',
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
-			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
 			'mention.title' => '@멘션',
 			'mention.noMention' => '멘션이 없습니다',
 			'mention.allRead' => '모두 읽음',
@@ -5936,14 +5936,13 @@ extension on TranslationsKoKr {
 			'workspace.navChannels' => '채널',
 			'workspace.navGroups' => '그룹',
 			'workspace.pickerTitle' => '내 워크스페이스',
-			'workspace.switchWorkspace' => '워크스페이스 전환',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => '워크스페이스 전환',
 			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
 			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
-			'workspace.dmEntry' => '전체 메시지',
 			'workspace.experienceModePersonal' => '개인',
 			'workspace.switchToPersonal' => '개인으로 전환',
 			'workspace.createTitle' => '워크스페이스 만들기',
@@ -5976,7 +5975,6 @@ extension on TranslationsKoKr {
 			'workspace.channelsEmptySubtitle' => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '구독자 ${count}명',
 			'workspace.channelDetailTitle' => '채널',
-			'workspace.discussInGroupGuide' => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 진행하세요.',
 			'workspace.groupsEmptyTitle' => '아직 워크스페이스 그룹이 없습니다',
 			'workspace.groupsEmptySubtitle' => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '그룹 구성원 ${count}명',

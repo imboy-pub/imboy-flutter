@@ -500,6 +500,7 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}';
 	@override String get discussion => 'المناقشة';
 	@override String get joinDiscussion => 'الانضمام إلى المناقشة';
+	@override String get discussionIneligible => 'اشترك في هذه القناة للانضمام إلى مجموعة النقاش الخاصة بها';
 	@override String get essence => 'المنشورات المميزة';
 	@override String get allPosts => 'كل المنشورات';
 	@override String get editPostTags => 'تعديل الوسوم';
@@ -2564,7 +2565,6 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)';
 	@override String get archivedBadge => 'مؤرشفة';
 	@override String get emptyNoWorkspace => 'يرجى أولاً اختيار مساحة عمل أو إنشائها';
-	@override String get dmEntry => 'كل الرسائل';
 	@override String get experienceModePersonal => 'شخصي';
 	@override String get switchToPersonal => 'التبديل إلى الشخصي';
 	@override String get createTitle => 'إنشاء مساحة عمل';
@@ -2597,7 +2597,6 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات';
 	@override String channelTileSubtitle({required Object count}) => '${count} مشتركين';
 	@override String get channelDetailTitle => 'القناة';
-	@override String get discussInGroupGuide => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General.';
 	@override String get groupsEmptyTitle => 'لا توجد مجموعات في مساحة العمل بعد';
 	@override String get groupsEmptySubtitle => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)';
 	@override String groupTileSubtitle({required Object count}) => '${count} أعضاء المجموعة';
@@ -3763,6 +3762,7 @@ extension on TranslationsArSa {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}',
 			'channel.discussion' => 'المناقشة',
 			'channel.joinDiscussion' => 'الانضمام إلى المناقشة',
+			'channel.discussionIneligible' => 'اشترك في هذه القناة للانضمام إلى مجموعة النقاش الخاصة بها',
 			'channel.essence' => 'المنشورات المميزة',
 			'channel.allPosts' => 'كل المنشورات',
 			'channel.editPostTags' => 'تعديل الوسوم',
@@ -3892,9 +3892,9 @@ extension on TranslationsArSa {
 			'chat.historyUnavailableHint' => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة',
 			'chat.momentsRecordVideo' => 'تسجيل فيديو',
 			'chat.momentsVisibilityPrivate' => 'أنا فقط',
-			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
 			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
 			'chat.momentsReplyPrefix' => 'رد @',
@@ -4406,9 +4406,9 @@ extension on TranslationsArSa {
 			'common.personalInfo' => 'معلومات شخصية',
 			'common.nicknameNotSet' => 'لم يتم تعيين اللقب',
 			'common.basicInfo' => 'معلومات أساسية',
-			'common.contactInfo' => 'معلومات الاتصال',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => 'معلومات الاتصال',
 			'common.editTags' => 'تعديل العلامات',
 			'common.quickActions' => 'إجراءات سريعة',
 			'common.noNewFriendRequests' => 'لا توجد طلبات صداقة جديدة',
@@ -4920,9 +4920,9 @@ extension on TranslationsArSa {
 			'contact.pleaseEnterRemark' => 'يرجى إدخال الملاحظة',
 			'contact.enterRemark' => 'يرجى إدخال الملاحظة',
 			'contact.pleaseEnterTags' => 'يرجى إدخال العلامات',
-			'contact.momentsVisibilityFriends' => 'الأصدقاء فقط',
 			_ => null,
 		} ?? switch (path) {
+			'contact.momentsVisibilityFriends' => 'الأصدقاء فقط',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})',
@@ -5434,9 +5434,9 @@ extension on TranslationsArSa {
 			'main.mineStorageUsage' => 'إدارة الاستخدام',
 			'mention.mentionAll' => 'الجميع',
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
-			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
 			'mention.title' => '@إشارات',
 			'mention.noMention' => 'لا توجد إشارات',
 			'mention.allRead' => 'تمت قراءة الكل',
@@ -5948,14 +5948,13 @@ extension on TranslationsArSa {
 			'workspace.navChannels' => 'القنوات',
 			'workspace.navGroups' => 'المجموعات',
 			'workspace.pickerTitle' => 'مساحات عملي',
-			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
 			'workspace.pickerEmptyTitle' => 'لا توجد مساحات عمل بعد',
 			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',
 			'workspace.archivedBadge' => 'مؤرشفة',
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
-			'workspace.dmEntry' => 'كل الرسائل',
 			'workspace.experienceModePersonal' => 'شخصي',
 			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
 			'workspace.createTitle' => 'إنشاء مساحة عمل',
@@ -5988,7 +5987,6 @@ extension on TranslationsArSa {
 			'workspace.channelsEmptySubtitle' => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} مشتركين',
 			'workspace.channelDetailTitle' => 'القناة',
-			'workspace.discussInGroupGuide' => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General.',
 			'workspace.groupsEmptyTitle' => 'لا توجد مجموعات في مساحة العمل بعد',
 			'workspace.groupsEmptySubtitle' => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} أعضاء المجموعة',
