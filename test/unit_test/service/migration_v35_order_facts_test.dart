@@ -91,8 +91,8 @@ void main() {
   });
 
   group('v35 迁移边（manifest 声明）', () {
-    test('manifest 最新版本为 35 且边存在', () {
-      expect(kMigrationManifest.latestVersion, 35);
+    test('manifest 最新版本为 36 且 v35 边存在', () {
+      expect(kMigrationManifest.latestVersion, 36);
       final edge = kMigrationManifest.edge(34, 35);
       expect(edge, isNotNull);
       expect(edge!.reversible, isTrue);

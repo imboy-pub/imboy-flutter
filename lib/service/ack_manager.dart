@@ -5,7 +5,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/events/events.dart';
-import 'package:imboy/service/protocol/imboy_frame.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/websocket.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -372,19 +371,6 @@ class AckManager {
       }
 
       // 【解耦】通过事件总线发送 ACK 消息
-      if (WebSocketService.to.framing == FramingMode.v2) {
-        // V2 模式优先使用二进制帧
-        final int? numericId = int.tryParse(msgId);
-        if (numericId != null) {
-          final bytes = ImboyFrame.ack(
-            numericId,
-            direction: AckDirection.fromType(type),
-          );
-          WebSocketService.to.sendDirect(bytes);
-          iPrint('⚡ [WS_ACK] 直接发送 v2 二进制 ACK 成功: msgId=$msgId');
-          return;
-        }
-      }
 
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(
@@ -413,20 +399,6 @@ class AckManager {
 
     try {
       // 【解耦】通过事件总线发送 ACK 消息
-      if (WebSocketService.to.framing == FramingMode.v2) {
-        final int? numericId = int.tryParse(msgId);
-        if (numericId != null) {
-          final bytes = ImboyFrame.ack(
-            numericId,
-            direction: AckDirection.fromType(ack.type),
-          );
-          WebSocketService.to.sendDirect(bytes);
-          iPrint(
-            '✅ [ACK_MANAGER] v2 二进制 ACK 发送成功: msgId=$msgId, retryCount=${ack.retryCount}',
-          );
-          return;
-        }
-      }
 
       AppEventBus.fire(
         WebSocketMessageSendRequestEvent(

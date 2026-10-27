@@ -194,6 +194,9 @@ class MigrationService {
     bool isUpgrade = true,
   }) async {
     try {
+      if (fromVersion >= 36 && toVersion < 36) {
+        throw StateError('v36 message ID TEXT migration cannot be downgraded');
+      }
       // 确保迁移脚本已加载
       await init();
 

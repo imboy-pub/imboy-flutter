@@ -113,7 +113,7 @@ void main() {
       expect(model.region, 'false');
       expect(model.sign, '5001');
       expect(model.lastTime, 1767225600000);
-      expect(model.lastMsgId, '');
+      expect(model.lastMsgId, '6001');
       expect(model.lastMsgStatus, 20);
       expect(model.unreadNum, 3);
       expect(model.type, '1');
@@ -121,6 +121,25 @@ void main() {
       expect(model.isShow, 0);
       expect(model.payload, {'text': 'hello', 'n': '1'});
     });
+
+    for (final (value, expected) in <(Object?, String)>[
+      (0, ''),
+      (6001, '6001'),
+      ('0', '0'),
+      ('00123', '00123'),
+      ('opaque-id', 'opaque-id'),
+      (null, ''),
+    ]) {
+      test(
+        'last_msg_id preserves $value (${value.runtimeType}) as $expected',
+        () {
+          final model = ConversationModel.fromJson({
+            ConversationRepo.lastMsgId: value,
+          });
+          expect(model.lastMsgId, expected);
+        },
+      );
+    }
 
     test('sets payload to null for non-map non-json payload', () {
       final model = ConversationModel.fromJson({
