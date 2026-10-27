@@ -7,6 +7,7 @@ import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/store/api/list_cursor_client.dart';
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 class GroupApi extends HttpClient {
@@ -26,6 +27,43 @@ class GroupApi extends HttpClient {
     return resp.payload is Map<String, dynamic>
         ? resp.payload as Map<String, dynamic>
         : null;
+  }
+
+  /// W07.c 收尾（C2 个人群 cursor 协议）：签名游标分页。
+  ///
+  /// [attr] 必须 ∈ {owner, join, manager}（服务端 attr_kind 白名单；
+  /// 'all' 是客户端聚合视图，禁止进入游标协议）。[token] null/空 = 首页；
+  /// 非空 = 上一页 next_cursor（签名游标，绑定 uid/list_kind/上界）。
+  /// 绑定不符/篡改/过期 → 服务端 400 invalid_request，此处抛出
+  /// （不回落第 1 页，J27.c），由调用方决定终止或报错。
+  /// 返回原始行（与 legacy `payload['list']` 同形状，消费方落库路径零差异）。
+  Future<CursorPage<Map<String, dynamic>>> pageCursor({
+    required String attr,
+    String? token,
+    int limit = 50,
+  }) async {
+    final params = <String, dynamic>{
+      'pagination': 'cursor',
+      'attr': attr,
+      'limit': limit,
+    };
+    if (token != null && token.isNotEmpty) params['cursor'] = token;
+    final resp = await get(API.groupPage, queryParameters: params);
+    resp.throwIfFailed();
+    if (resp.payload == null) {
+      return const CursorPage(list: [], hasMore: false);
+    }
+    final rows = IMBoyHttpResponse.payloadList(resp.payload);
+    final hasMore = resp.payload['has_more'] == true;
+    final dynamic next = resp.payload['next_cursor'];
+    final nextCursor = (next == null || next.toString().isEmpty)
+        ? null
+        : next.toString();
+    return CursorPage(
+      list: rows,
+      hasMore: hasMore && nextCursor != null,
+      nextCursor: nextCursor,
+    );
   }
 
   Future<Map<String, dynamic>> detail({required String gid}) async {
