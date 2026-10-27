@@ -1028,6 +1028,132 @@ void main() {
     expect(rows.single[ChannelRepo.unreadCount], 0);
   });
 
+  test('W07.d/J26.a：逐页落库——每页先订阅再计数，尾页可见且偏好不重置', () async {
+    // 页 1：两频道落库（先订阅）。
+    expect(
+      await syncChannelSnapshot(
+        repo: ChannelRepo(),
+        channels: [_channel(10), _channel(11)],
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    // CH11 预置本地未读 5（先前状态）：汇总缺席才构成 unknown 而非零未读。
+    await db.update(
+      ChannelRepo.subscriptionTableName,
+      {ChannelRepo.unreadCount: 5},
+      where: '${ChannelRepo.subChannelId} = ?',
+      whereArgs: [11],
+    );
+    // 页 1 未读汇总：CH10=3 显式；CH11 缺席（unknown，不得写 0）。
+    expect(
+      await syncChannelUnreadSnapshot(
+        api: _Api(
+          Future.value({
+            'channels': [
+              {'channel_id': 10, 'unread_count': 3},
+            ],
+          }),
+        ),
+        isCurrent: () => true,
+      ),
+      isFalse, // CH11 未读>0 且缺席 → 待核对
+    );
+    var rows = await db.query(
+      ChannelRepo.subscriptionTableName,
+      orderBy: ChannelRepo.subChannelId,
+    );
+    expect(rows.length, 2);
+    expect(rows[0][ChannelRepo.unreadCount], 3); // 显式值落库
+    expect(rows[1][ChannelRepo.unreadCount], 5); // unknown 不写 0、不清其他范围
+
+    // J26.d：搜索/局部快照只返回 1 项 → 不按缺席清理（CH11 仍在）。
+    expect(
+      await syncChannelSnapshot(
+        repo: ChannelRepo(),
+        channels: [_channel(10)],
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    rows = await db.query(
+      ChannelRepo.subscriptionTableName,
+      orderBy: ChannelRepo.subChannelId,
+    );
+    expect(rows.length, 2);
+
+    // J20.a 尾页：第 2 页两个新频道落库（每页先订阅），其未读随后显式
+    // 到达（尾页可见）；CH10 原偏好（3）被显式新值覆盖是权威更新而非
+    // 偏好重置——此处服务端回 3 保持不变即证未重置。CH11 显式带回
+    // 解决待核对。
+    expect(
+      await syncChannelSnapshot(
+        repo: ChannelRepo(),
+        channels: [_channel(12), _channel(13)],
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    expect(
+      await syncChannelUnreadSnapshot(
+        api: _Api(
+          Future.value({
+            'channels': [
+              {'channel_id': 10, 'unread_count': 3},
+              {'channel_id': 11, 'unread_count': 4},
+              {'channel_id': 12, 'unread_count': 7},
+              {'channel_id': 13, 'unread_count': 1},
+            ],
+          }),
+        ),
+        isCurrent: () => true,
+      ),
+      isTrue, // 全部已知 → 无待核对
+    );
+    rows = await db.query(
+      ChannelRepo.subscriptionTableName,
+      orderBy: ChannelRepo.subChannelId,
+    );
+    expect(rows.length, 4); // 尾页两频道可见 + 原两频道保留
+    expect(rows[0][ChannelRepo.unreadCount], 3); // CH10 偏好未被重置
+    expect(rows[1][ChannelRepo.unreadCount], 4); // CH11 待核对被显式值解决
+    expect(rows[2][ChannelRepo.unreadCount], 7); // 尾页频道未读可见
+    expect(rows[3][ChannelRepo.unreadCount], 1);
+  });
+
+  test('W07.d/J26.b：页同步失败保留已完成部分且错误可见（syncError 路径）', () async {
+    // 页 1 成功落库。
+    expect(
+      await syncChannelSnapshot(
+        repo: ChannelRepo(),
+        channels: [_channel(10)],
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    // 页 2 会话失效（isCurrent=false 中途抛出）→ 整页回滚：CH11 不落，
+    // 但 CH10 已落部分保留（部分失败保留已完成部分）。
+    var calls = 0;
+    expect(
+      await syncChannelSnapshot(
+        repo: ChannelRepo(),
+        channels: [_channel(11), _channel(12)],
+        isCurrent: () {
+          calls++;
+          // 首次调用（进事务前）true 让流程进入事务；事务内再次调用即失效。
+          return calls <= 1;
+        },
+      ),
+      isFalse, // 失败可见（调用方置 syncError）
+    );
+    final rows = await db.query(
+      ChannelRepo.subscriptionTableName,
+      orderBy: ChannelRepo.subChannelId,
+    );
+    expect(rows.single[ChannelRepo.subChannelId], 10); // CH10 保留
+    expect(rows.length, 1); // CH11/CH12 未落（页内原子回滚）
+  });
+
   test('未读请求期间会话失效时不写旧响应', () async {
     expect(
       await syncChannelSnapshot(

@@ -387,6 +387,31 @@ class ChannelListNotifier extends _$ChannelListNotifier {
         hasMore: result.hasMore,
         cursor: result.nextCursor,
       );
+      // W07.d（J26.a/b）：每一页（含尾页）都先落订阅再计数；任一页
+      // 失败保留已完成部分且 syncError 可见，绝不按缺席删除。
+      unawaited(() async {
+        bool isCurrent() =>
+            ref.mounted &&
+            !_authTransitioning &&
+            account != null &&
+            account.isNotEmpty &&
+            account == UserRepoLocal.to.currentUid &&
+            generation == _subscribedGeneration;
+        if (!isCurrent()) return;
+        final repo = ref.read(channelServiceProvider).repo;
+        final stored = await syncChannelSnapshot(
+          repo: repo,
+          channels: result.list,
+          isCurrent: isCurrent,
+        );
+        if (!isCurrent()) return;
+        final synced =
+            stored &&
+            await syncChannelUnreadSnapshot(api: _api, isCurrent: isCurrent);
+        if (isCurrent() && !synced) {
+          state = state.copyWith(syncError: true, error: state.error);
+        }
+      }());
     } catch (e) {
       iPrint('loadMoreSubscribedChannels failed: $e');
       if (!ref.mounted ||
