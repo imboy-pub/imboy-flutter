@@ -2,6 +2,11 @@
 ///
 /// 本账号已加入的 workspace 群列表（完整游标分页，scope 严格分区）；
 /// 点进**复用现有群聊页面**（/chat/:groupId?type=C2G），不新建聊天 UI。
+///
+/// W05/F10：日常入口补齐——客户端搜索（关键词保留）、下拉主动刷新、
+/// 创建入口（空态 CTA + 搜索行常驻按钮，指向真实工作区成员选择器
+/// [WorkspaceGroupCreatePage]）。目录语义不变：仅展示本账号已加入的
+/// 本工作区群，不伪称企业全部群（J14.a 准确空态，不越权补资源）。
 library;
 
 import 'package:flutter/material.dart';
@@ -10,11 +15,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/helper/func.dart' show avatarImageProvider;
+import 'package:imboy/component/ui/button.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/page/group/file/group_file_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_group_create_page.dart';
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -48,7 +55,25 @@ class WorkspaceGroupsPage extends ConsumerWidget {
         message: workspaceErrorMessage(e),
         onRetry: () => ref.invalidate(workspaceGroupsProvider(wsId)),
       ),
-      data: (list) => _GroupList(groups: list, openFiles: openFiles),
+      data: (list) => _GroupList(
+        groups: list,
+        openFiles: openFiles,
+        onRefresh: () async {
+          // 主动刷新：invalidate 后 await 新一次取数；失败由 error 分支
+          // 呈现（J14.b：失败不显示成功空），搜索关键词由本页 state 保留。
+          ref.invalidate(workspaceGroupsProvider(wsId));
+          try {
+            await ref.read(workspaceGroupsProvider(wsId).future);
+          } catch (_) {
+            /* watched provider 呈现失败态 */
+          }
+        },
+        onCreateGroup: () => Navigator.of(context).push(
+          CupertinoPageRoute<void>(
+            builder: (_) => WorkspaceGroupCreatePage(workspaceId: wsId),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -69,31 +94,125 @@ class WorkspaceGroupsStandalonePage extends ConsumerWidget {
   }
 }
 
-class _GroupList extends StatelessWidget {
+class _GroupList extends StatefulWidget {
   final List<GroupModel> groups;
 
   final bool openFiles;
 
-  const _GroupList({required this.groups, required this.openFiles});
+  /// W05/F10：下拉主动刷新（由宿主提供 invalidate+await）。
+  final Future<void> Function() onRefresh;
+
+  /// W05/F10：创建入口（真实工作区成员选择器页）。
+  final VoidCallback onCreateGroup;
+
+  const _GroupList({
+    required this.groups,
+    required this.openFiles,
+    required this.onRefresh,
+    required this.onCreateGroup,
+  });
+
+  @override
+  State<_GroupList> createState() => _GroupListState();
+}
+
+class _GroupListState extends State<_GroupList> {
+  final TextEditingController _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    if (groups.isEmpty) {
-      return WorkspaceEmptyView(
-        icon: CupertinoIcons.person_2,
-        title: t.workspace.groupsEmptyTitle,
-        subtitle: t.workspace.groupsEmptySubtitle,
-      );
-    }
-    return ListView.separated(
-      padding: AppSpacing.allRegular,
-      itemCount: groups.length,
-      separatorBuilder: (_, _) => AppSpacing.verticalSmall,
-      itemBuilder: (context, index) {
-        final g = groups[index];
-        return _GroupTile(group: g, theme: theme, openFiles: openFiles);
-      },
+    final keyword = _search.text.trim().toLowerCase();
+    // 客户端过滤（目录已是本工作区已加入群全量）；关键词保留在 state，
+    // 刷新不影响（J14.b）。
+    final visible = keyword.isEmpty
+        ? widget.groups
+        : widget.groups
+              .where((g) => g.displayTitle.toLowerCase().contains(keyword))
+              .toList();
+    return CustomScrollView(
+      slivers: [
+        CupertinoSliverRefreshControl(onRefresh: widget.onRefresh),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.regular,
+              AppSpacing.regular,
+              AppSpacing.regular,
+              0,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: CupertinoSearchTextField(
+                    controller: _search,
+                    placeholder: t.common.search,
+                    onChanged: (_) => setState(() {}),
+                  ),
+                ),
+                AppSpacing.horizontalSmall,
+                // W05/F10：创建日常入口（常驻，不只在空态出现）。
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(34, 34),
+                  onPressed: widget.onCreateGroup,
+                  child: Icon(
+                    CupertinoIcons.add_circled,
+                    size: 28,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (visible.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: keyword.isNotEmpty
+                ? WorkspaceEmptyView(
+                    icon: CupertinoIcons.search,
+                    title: t.common.searchNoResults,
+                    subtitle: '',
+                  )
+                : WorkspaceEmptyView(
+                    icon: CupertinoIcons.person_2,
+                    title: t.workspace.groupsEmptyTitle,
+                    subtitle: t.workspace.groupsEmptySubtitle,
+                    // J14.a：准确空态给合法下一步（不越权补资源）。
+                    actions: [
+                      RoundedCupertinoButton(
+                        text: t.organization.manage.createGroup,
+                        highlighted: false,
+                        icon: CupertinoIcons.person_2,
+                        onPressed: widget.onCreateGroup,
+                      ),
+                    ],
+                  ),
+          )
+        else
+          SliverPadding(
+            padding: AppSpacing.allRegular,
+            sliver: SliverList.separated(
+              itemCount: visible.length,
+              separatorBuilder: (_, _) => AppSpacing.verticalSmall,
+              itemBuilder: (context, index) {
+                final g = visible[index];
+                return _GroupTile(
+                  group: g,
+                  theme: theme,
+                  openFiles: widget.openFiles,
+                );
+              },
+            ),
+          ),
+      ],
     );
   }
 }

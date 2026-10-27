@@ -25,12 +25,21 @@ class LaunchChatState {
   final List<ContactModel> selects;
   final bool isLoading;
 
+  /// W05/F18：联系人加载失败标记。失败不等同空好友——页面据此区分
+  /// 「真的没有联系人」与「加载失败需重试」，旧列表（可能为空）保留。
+  final bool loadError;
+
+  /// W05/F18：搜索关键词（客户端过滤，不触发网络）。
+  final String query;
+
   const LaunchChatState({
     this.items = const [],
     this.currIndexBarData = const {},
     this.selectsTips = '',
     this.selects = const [],
     this.isLoading = false,
+    this.loadError = false,
+    this.query = '',
   });
 
   LaunchChatState copyWith({
@@ -39,6 +48,8 @@ class LaunchChatState {
     String? selectsTips,
     List<ContactModel>? selects,
     bool? isLoading,
+    bool? loadError,
+    String? query,
   }) {
     return LaunchChatState(
       items: items ?? this.items,
@@ -46,7 +57,21 @@ class LaunchChatState {
       selectsTips: selectsTips ?? this.selectsTips,
       selects: selects ?? this.selects,
       isLoading: isLoading ?? this.isLoading,
+      loadError: loadError ?? this.loadError,
+      query: query ?? this.query,
     );
+  }
+
+  /// W05/F18：按关键词过滤的可见列表（昵称与拼音包含匹配，大小写
+  /// 不敏感）。items 全量保留，搜索只影响视图，已选不受影响（已选保持）。
+  List<ContactModel> get visibleItems {
+    final q = query.trim().toLowerCase();
+    if (q.isEmpty) return items;
+    return items.where((m) {
+      if (m.title.toLowerCase().contains(q)) return true;
+      final pinyin = (m.namePinyin ?? '').toLowerCase();
+      return pinyin.contains(q);
+    }).toList();
   }
 }
 
@@ -173,10 +198,19 @@ class LaunchChatNotifier extends _$LaunchChatNotifier {
       final service = LaunchChatService();
       final contacts = await service.listFriend();
       handleList(contacts);
+      state = state.copyWith(loadError: false);
+    } catch (e) {
+      // W05/F18：加载失败不等同空好友——保留旧列表并置错误态，
+      // 页面据此展示重试入口，而不是显示"暂无数据"成功空态。
+      iPrint('loadContacts failed: $e');
+      state = state.copyWith(loadError: true);
     } finally {
       setLoading(false);
     }
   }
+
+  /// W05/F18：更新搜索关键词（客户端过滤）。
+  void setQuery(String q) => state = state.copyWith(query: q);
 }
 
 /// 发起聊天服务
