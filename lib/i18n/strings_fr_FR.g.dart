@@ -512,6 +512,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => 'Canal interne de l’entreprise';
 	@override String get subscribePending => 'Abonné ; actualisation en cours';
 	@override String get subscribeRefresh => 'Actualiser l’abonnement';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} nouvelles mises à jour';
 }
 
 // Path: chat
@@ -3765,6 +3766,7 @@ extension on TranslationsFrFr {
 			'channel.enterpriseChannelLabel' => 'Canal interne de l’entreprise',
 			'channel.subscribePending' => 'Abonné ; actualisation en cours',
 			'channel.subscribeRefresh' => 'Actualiser l’abonnement',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} nouvelles mises à jour',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3882,9 +3884,9 @@ extension on TranslationsFrFr {
 			'chat.historyUnavailable' => 'Historique des messages temporairement indisponible',
 			'chat.historyUnavailableHint' => 'L\'archive d\'historique côté serveur est désactivée ou indisponible. Touchez Réessayer pour resynchroniser',
 			'chat.momentsRecordVideo' => 'Filmer une vidéo',
-			'chat.momentsVisibilityPrivate' => 'Privé',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => 'Privé',
 			'chat.momentsMediaTooManyImages' => '9 images maximum',
 			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
 			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
@@ -4396,9 +4398,9 @@ extension on TranslationsFrFr {
 			'common.dragSliderAdjustFontSize' => 'Faire glisser le curseur pour ajuster la taille de la police.',
 			'common.personalInfo' => 'Informations personnelles',
 			'common.nicknameNotSet' => 'Surnom non défini',
-			'common.basicInfo' => 'Informations de base',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => 'Informations de base',
 			'common.contactInfo' => 'Coordonnées',
 			'common.editTags' => 'Modifier les étiquettes',
 			'common.quickActions' => 'Actions rapides',
@@ -4910,9 +4912,9 @@ extension on TranslationsFrFr {
 			'contact.suggestedTags' => 'Étiquettes suggérées',
 			'contact.pleaseEnterRemark' => 'Veuillez entrer la remarque.',
 			'contact.enterRemark' => 'Entrez la remarque.',
-			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
 			'contact.momentsVisibilityFriends' => 'Amis seulement',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
@@ -5424,9 +5426,9 @@ extension on TranslationsFrFr {
 			'main.mineSettingsSupport' => 'Réglages et assistance',
 			'main.mineStorageUsage' => 'Gérer le stockage',
 			'mention.mentionAll' => 'Tout le monde',
-			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'Aucune @mention',
@@ -5938,9 +5940,9 @@ extension on TranslationsFrFr {
 			'workspace.navProjects' => 'Projets',
 			'workspace.navChannels' => 'Canaux',
 			'workspace.navGroups' => 'Groupes',
-			'workspace.pickerTitle' => 'Mes espaces de travail',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerTitle' => 'Mes espaces de travail',
 			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
 			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',
 			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',

@@ -512,6 +512,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => 'Внутренний канал компании';
 	@override String get subscribePending => 'Подписка оформлена, обновление';
 	@override String get subscribeRefresh => 'Обновить подписку';
+	@override String unseenUpdatesBanner({required Object count}) => 'Новых обновлений: ${count}';
 }
 
 // Path: chat
@@ -3771,6 +3772,7 @@ extension on TranslationsRuRu {
 			'channel.enterpriseChannelLabel' => 'Внутренний канал компании',
 			'channel.subscribePending' => 'Подписка оформлена, обновление',
 			'channel.subscribeRefresh' => 'Обновить подписку',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => 'Новых обновлений: ${count}',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3888,9 +3890,9 @@ extension on TranslationsRuRu {
 			'chat.historyUnavailable' => 'История сообщений временно недоступна',
 			'chat.historyUnavailableHint' => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново',
 			'chat.momentsRecordVideo' => 'Снять видео',
-			'chat.momentsVisibilityPrivate' => 'Только я',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => 'Только я',
 			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
 			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
@@ -4402,9 +4404,9 @@ extension on TranslationsRuRu {
 			'common.dragSliderAdjustFontSize' => 'Перетащите ползунок для изменения размера шрифта',
 			'common.personalInfo' => 'Личная информация',
 			'common.nicknameNotSet' => 'Никнейм не установлен',
-			'common.basicInfo' => 'Основная информация',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => 'Основная информация',
 			'common.contactInfo' => 'Контактная информация',
 			'common.editTags' => 'Редактировать теги',
 			'common.quickActions' => 'Быстрые действия',
@@ -4916,9 +4918,9 @@ extension on TranslationsRuRu {
 			'contact.suggestedTags' => 'Рекомендуемые теги',
 			'contact.pleaseEnterRemark' => 'Пожалуйста, введите примечание',
 			'contact.enterRemark' => 'Введите примечание',
-			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
 			'contact.momentsVisibilityFriends' => 'Только друзья',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
@@ -5430,9 +5432,9 @@ extension on TranslationsRuRu {
 			'main.mineSettingsSupport' => 'Настройки и поддержка',
 			'main.mineStorageUsage' => 'Управление памятью',
 			'mention.mentionAll' => 'Все',
-			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
 			'mention.title' => '@Упоминания',
 			'mention.noMention' => 'Нет упоминаний',
@@ -5944,9 +5946,9 @@ extension on TranslationsRuRu {
 			'workspace.navProjects' => 'Проекты',
 			'workspace.navChannels' => 'Каналы',
 			'workspace.navGroups' => 'Группы',
-			'workspace.pickerTitle' => 'Мои рабочие пространства',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerTitle' => 'Мои рабочие пространства',
 			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
 			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
 			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',

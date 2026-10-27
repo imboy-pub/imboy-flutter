@@ -512,6 +512,7 @@ class _Translations$channel$de_DE extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => 'Interner Unternehmenskanal';
 	@override String get subscribePending => 'Abonniert; wird aktualisiert';
 	@override String get subscribeRefresh => 'Abonnement aktualisieren';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} neue Updates';
 }
 
 // Path: chat
@@ -3765,6 +3766,7 @@ extension on TranslationsDeDe {
 			'channel.enterpriseChannelLabel' => 'Interner Unternehmenskanal',
 			'channel.subscribePending' => 'Abonniert; wird aktualisiert',
 			'channel.subscribeRefresh' => 'Abonnement aktualisieren',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} neue Updates',
 			'chat.bankCard' => 'Bankkarte',
 			'chat.receivePayment' => 'Empfangen & Zahlen',
 			'chat.alreadyMember' => 'Bereits Mitglied',
@@ -3882,9 +3884,9 @@ extension on TranslationsDeDe {
 			'chat.historyUnavailable' => 'Verlaufsnachrichten vorübergehend nicht verfügbar',
 			'chat.historyUnavailableHint' => 'Serverseitiges Verlaufsarchiv ist deaktiviert oder nicht verfügbar. Tippen Sie auf Erneut versuchen, um die Synchronisierung neu zu starten',
 			'chat.momentsRecordVideo' => 'Video aufnehmen',
-			'chat.momentsVisibilityPrivate' => 'Nur ich',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => 'Nur ich',
 			'chat.momentsMediaTooManyImages' => 'Max. 9 Bilder auswählbar',
 			'chat.momentsMediaTooManyVideos' => 'Max. 1 Video auswählbar',
 			'chat.momentsMediaMixedImageAndVideo' => 'Bilder und Video nicht gleichzeitig',
@@ -4396,9 +4398,9 @@ extension on TranslationsDeDe {
 			'common.dragSliderAdjustFontSize' => 'Schieberegler ziehen, um Schriftgröße anzupassen',
 			'common.personalInfo' => 'Persönliche Informationen',
 			'common.nicknameNotSet' => 'Spitzname nicht festgelegt',
-			'common.basicInfo' => 'Grundlegende Informationen',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => 'Grundlegende Informationen',
 			'common.contactInfo' => 'Kontaktinformationen',
 			'common.editTags' => 'Tags bearbeiten',
 			'common.quickActions' => 'Schnellaktionen',
@@ -4910,9 +4912,9 @@ extension on TranslationsDeDe {
 			'contact.suggestedTags' => 'Vorgeschlagene Tags',
 			'contact.pleaseEnterRemark' => 'Bitte Bemerkung eingeben',
 			'contact.enterRemark' => 'Bemerkung eingeben',
-			'contact.pleaseEnterTags' => 'Bitte Tags eingeben',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => 'Bitte Tags eingeben',
 			'contact.momentsVisibilityFriends' => 'Nur Freunde',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Tag-Länge darf ${param} Zeichen nicht überschreiten',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Maximal ${param} Tags erlaubt',
@@ -5424,9 +5426,9 @@ extension on TranslationsDeDe {
 			'main.mineSettingsSupport' => 'Einstellungen & Hilfe',
 			'main.mineStorageUsage' => 'Speichernutzung',
 			'mention.mentionAll' => 'Alle',
-			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
 			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
 			'mention.title' => '@Erwähnungen',
 			'mention.noMention' => 'Keine @Erwähnungen',
@@ -5938,9 +5940,9 @@ extension on TranslationsDeDe {
 			'workspace.navProjects' => 'Projekte',
 			'workspace.navChannels' => 'Kanäle',
 			'workspace.navGroups' => 'Gruppen',
-			'workspace.pickerTitle' => 'Mein Arbeitsbereich',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerTitle' => 'Mein Arbeitsbereich',
 			'workspace.switchWorkspace' => 'Arbeitsbereich wechseln',
 			'workspace.pickerEmptyTitle' => 'Noch kein Arbeitsbereich',
 			'workspace.pickerEmptySubtitle' => 'Erstellen Sie einen Arbeitsbereich und starten Sie in 3 Minuten die Teamarbeit (Announcements-Kanal und General-Gruppe werden automatisch erstellt)',

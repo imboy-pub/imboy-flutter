@@ -512,6 +512,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => '企業内チャンネル';
 	@override String get subscribePending => '購読済み、更新中';
 	@override String get subscribeRefresh => '購読状態を更新';
+	@override String unseenUpdatesBanner({required Object count}) => '新着更新 ${count} 件';
 }
 
 // Path: chat
@@ -3762,6 +3763,7 @@ extension on TranslationsJaJp {
 			'channel.enterpriseChannelLabel' => '企業内チャンネル',
 			'channel.subscribePending' => '購読済み、更新中',
 			'channel.subscribeRefresh' => '購読状態を更新',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '新着更新 ${count} 件',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3879,9 +3881,9 @@ extension on TranslationsJaJp {
 			'chat.historyUnavailable' => '履歴メッセージは一時的に利用できません',
 			'chat.historyUnavailableHint' => 'サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください',
 			'chat.momentsRecordVideo' => '動画を撮影',
-			'chat.momentsVisibilityPrivate' => '非公開',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => '非公開',
 			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
 			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
 			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
@@ -4393,9 +4395,9 @@ extension on TranslationsJaJp {
 			'common.dragSliderAdjustFontSize' => 'スライダーをドラッグしてフォントサイズを調整',
 			'common.personalInfo' => '個人情報',
 			'common.nicknameNotSet' => 'ニックネームが設定されていません',
-			'common.basicInfo' => '基本情報',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => '基本情報',
 			'common.contactInfo' => '連絡先情報',
 			'common.editTags' => 'タグを編集',
 			'common.quickActions' => 'クイックアクション',
@@ -4907,9 +4909,9 @@ extension on TranslationsJaJp {
 			'contact.suggestedTags' => 'おすすめタグ',
 			'contact.pleaseEnterRemark' => '備考名を入力してください',
 			'contact.enterRemark' => '備考名を入力してください',
-			'contact.pleaseEnterTags' => 'タグを入力してください',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => 'タグを入力してください',
 			'contact.momentsVisibilityFriends' => '友達のみ',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
@@ -5421,9 +5423,9 @@ extension on TranslationsJaJp {
 			'main.mineSettingsSupport' => '設定とサポート',
 			'main.mineStorageUsage' => '使用量の管理',
 			'mention.mentionAll' => '全員',
-			'mention.mentionAllHint' => 'グループ全員に通知',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',
 			'mention.title' => '@メンション',
 			'mention.noMention' => '@メンションはありません',
@@ -5935,9 +5937,9 @@ extension on TranslationsJaJp {
 			'workspace.navProjects' => 'プロジェクト',
 			'workspace.navChannels' => 'チャンネル',
 			'workspace.navGroups' => 'グループ',
-			'workspace.pickerTitle' => 'マイワークスペース',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerTitle' => 'マイワークスペース',
 			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
 			'workspace.pickerEmptyTitle' => 'ワークスペースはまだありません',
 			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',

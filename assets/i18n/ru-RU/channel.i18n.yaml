@@ -226,3 +226,4 @@ enterpriseChannelLabel: "Внутренний канал компании"
 
 subscribePending: Подписка оформлена, обновление
 subscribeRefresh: Обновить подписку
+unseenUpdatesBanner(count): "Новых обновлений: ${count}"

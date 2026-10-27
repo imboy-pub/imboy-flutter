@@ -226,3 +226,4 @@ enterpriseChannelLabel: "Interner Unternehmenskanal"
 
 subscribePending: Abonniert; wird aktualisiert
 subscribeRefresh: Abonnement aktualisieren
+unseenUpdatesBanner(count): "${count} neue Updates"

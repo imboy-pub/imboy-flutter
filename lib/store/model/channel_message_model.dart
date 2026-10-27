@@ -30,6 +30,10 @@ class ChannelMessageModel {
   final int viewCount;
   final Map<String, int>? reactionSummary;
 
+  /// W08（§6.8 查看水位）：发布时服务端分配的单调序号（仅 wire 侧解析；
+  /// 本地 SQLite 表不变，legacy envelope 无此键 → null）。
+  final int? updateSeq;
+
   /// 当前用户对该消息已添加的反应类型列表（如 ["like"]），缺省为空。
   /// 由后端消息列表随行返回（my_reactions），本地 SQLite 同步持久化。
   final List<String> myReactions;
@@ -49,6 +53,7 @@ class ChannelMessageModel {
     this.viewCount = 0,
     this.reactionSummary,
     this.myReactions = const [],
+    this.updateSeq,
   });
 
   factory ChannelMessageModel.fromJson(Map<String, dynamic> json) {
@@ -71,6 +76,7 @@ class ChannelMessageModel {
       viewCount: parseModelInt(json['view_count']),
       reactionSummary: reactions,
       myReactions: myReactions,
+      updateSeq: parseModelNullableInt(json['update_seq']),
     );
   }
 

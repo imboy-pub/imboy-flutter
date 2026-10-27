@@ -47,6 +47,10 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
   /// 下拉刷新回调
   final Future<void> Function()? onRefresh;
 
+  /// W08（§6.8）：未查看更新数（服务端权威，mark_viewed 应答携带）。
+  /// null/0 不显示更新行；由宿主页（详情页）经查看边界判定后下发。
+  final int? unseenUpdates;
+
   const ChannelMessageFeed({
     super.key,
     required this.channelId,
@@ -55,6 +59,7 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
     this.scrollController,
     this.onReactionChanged,
     this.onRefresh,
+    this.unseenUpdates,
   });
 
   static bool contentToolsAvailable(ChannelModel? channel) =>
@@ -511,8 +516,17 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       }
     }
 
+    final unseen = widget.unseenUpdates ?? 0;
     return Stack(
       children: [
+        // W08 更新行：「有 N 条新更新」不称逐帖已读（§6.8 边界语义）。
+        if (unseen > 0)
+          Positioned(
+            top: AppSpacing.small,
+            left: 0,
+            right: 0,
+            child: Center(child: _UnseenUpdatesBanner(count: unseen)),
+          ),
         RefreshIndicator(
           onRefresh: widget.onRefresh ?? _handleRefresh,
           child: ListView.builder(
@@ -748,6 +762,39 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// W08 更新行：只表达「有 N 条新更新」的边界计数（服务端权威），
+/// 不伪装逐帖已读回执（§6.8：界面称"已查看至此更新/有 N 条新更新"）。
+class _UnseenUpdatesBanner extends StatelessWidget {
+  const _UnseenUpdatesBanner({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.iosBlue.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          t.channel.unseenUpdatesBanner(count: count),
+          style: context.textStyle(
+            FontSizeType.caption2,
+            color: AppColors.iosBlue,
+          ),
         ),
       ),
     );

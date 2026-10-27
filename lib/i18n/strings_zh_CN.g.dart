@@ -1461,6 +1461,9 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '刷新订阅状态'
 	String get subscribeRefresh => '刷新订阅状态';
+
+	/// zh-CN: '有 ${count} 条新更新'
+	String unseenUpdatesBanner({required Object count}) => '有 ${count} 条新更新';
 }
 
 // Path: chat
@@ -11300,6 +11303,7 @@ extension on Translations {
 			'channel.enterpriseChannelLabel' => '企业内部频道',
 			'channel.subscribePending' => '已订阅，正在刷新',
 			'channel.subscribeRefresh' => '刷新订阅状态',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 条新更新',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -11362,9 +11366,9 @@ extension on Translations {
 			'chat.pinned' => '已置顶',
 			'chat.rating' => '评级',
 			'chat.readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
-			'chat.remindMeLater' => '下次再说',
 			_ => null,
 		} ?? switch (path) {
+			'chat.remindMeLater' => '下次再说',
 			'chat.quickReplyManage' => '管理快捷回复',
 			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
 			'chat.quickReplyDuplicate' => '内容已存在',
@@ -11876,9 +11880,9 @@ extension on Translations {
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
 			'common.statusSettings' => '状态设置',
 			'common.showOnlineStatus' => '显示在线状态',
-			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
 			_ => null,
 		} ?? switch (path) {
+			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
 			'common.allowNearbyVisible' => '附近的人可见',
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
@@ -12390,9 +12394,9 @@ extension on Translations {
 			'common.redPacketTotalAmount' => '总金额',
 			'common.redPacketSingleAmount' => '单个金额',
 			'common.redPacketGreetingLabel' => '留言 / 祝福语',
-			'common.redPacketStuffLucky' => '塞钱发红包',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketStuffLucky' => '塞钱发红包',
 			'common.redPacketStuffNormal' => '放入钱包发送',
 			'common.amountMustPositive' => '金额必须大于 0',
 			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
@@ -12904,9 +12908,9 @@ extension on Translations {
 			'groupTask.completed' => '已完成',
 			'groupTask.taskSubmitted' => '待办已提交',
 			'groupTask.submitTask' => '提交待办',
-			'groupTask.overdue' => '已过期',
 			_ => null,
 		} ?? switch (path) {
+			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
@@ -13418,9 +13422,9 @@ extension on Translations {
 			'organization.directory.emptySearch' => '无匹配结果',
 			'organization.directory.switchVerifyFailed' => '目标企业不可用或你已不是其成员',
 			'organization.directory.switchShellFailed' => '新企业工作区加载失败',
-			'organization.directory.inviteColleaguesRow' => '邀请同事...',
 			_ => null,
 		} ?? switch (path) {
+			'organization.directory.inviteColleaguesRow' => '邀请同事...',
 			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
@@ -13932,9 +13936,9 @@ extension on Translations {
 			'talkRecord.exportDownloadCancelled' => '已取消保存，可再次保存。',
 			'talkRecord.shareCardSendPending' => '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。',
 			'talkRecord.shareCardSendCancelled' => '已取消发送，未发送新的卡片。',
-			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
 			'talkRecord.participantsRemove' => '移除参与者',
 			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
 			'talkRecord.participantsAddGuest' => '添加来宾',

@@ -512,6 +512,7 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => 'Canale aziendale interno';
 	@override String get subscribePending => 'Iscrizione riuscita; aggiornamento in corso';
 	@override String get subscribeRefresh => 'Aggiorna iscrizione';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} nuovi aggiornamenti';
 }
 
 // Path: chat
@@ -3765,6 +3766,7 @@ extension on TranslationsItIt {
 			'channel.enterpriseChannelLabel' => 'Canale aziendale interno',
 			'channel.subscribePending' => 'Iscrizione riuscita; aggiornamento in corso',
 			'channel.subscribeRefresh' => 'Aggiorna iscrizione',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} nuovi aggiornamenti',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3882,9 +3884,9 @@ extension on TranslationsItIt {
 			'chat.historyUnavailable' => 'Cronologia messaggi temporaneamente non disponibile',
 			'chat.historyUnavailableHint' => 'L\'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare',
 			'chat.momentsRecordVideo' => 'Registra video',
-			'chat.momentsVisibilityPrivate' => 'Privato',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => 'Privato',
 			'chat.momentsMediaTooManyImages' => 'Massimo 9 immagini',
 			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
 			'chat.momentsMediaMixedImageAndVideo' => 'Immagini e video non insieme',
@@ -4396,9 +4398,9 @@ extension on TranslationsItIt {
 			'common.dragSliderAdjustFontSize' => 'Trascina il cursore per regolare la dimensione del font',
 			'common.personalInfo' => 'Informazioni personali',
 			'common.nicknameNotSet' => 'Nickname non impostato',
-			'common.basicInfo' => 'Informazioni base',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => 'Informazioni base',
 			'common.contactInfo' => 'Informazioni contatto',
 			'common.editTags' => 'Modifica tag',
 			'common.quickActions' => 'Azioni rapide',
@@ -4910,9 +4912,9 @@ extension on TranslationsItIt {
 			'contact.suggestedTags' => 'Tag suggeriti',
 			'contact.pleaseEnterRemark' => 'Inserisci nota',
 			'contact.enterRemark' => 'Inserisci nome nota',
-			'contact.pleaseEnterTags' => 'Inserisci tag',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => 'Inserisci tag',
 			'contact.momentsVisibilityFriends' => 'Solo amici',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Massimo ${param} tag consentiti',
@@ -5424,9 +5426,9 @@ extension on TranslationsItIt {
 			'main.mineSettingsSupport' => 'Impostazioni e assistenza',
 			'main.mineStorageUsage' => 'Gestisci spazio',
 			'mention.mentionAll' => 'Tutti',
-			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',
 			'mention.title' => '@Menzioni',
 			'mention.noMention' => 'Nessuna @menzione',
@@ -5938,9 +5940,9 @@ extension on TranslationsItIt {
 			'workspace.archiveDesc' => 'Dopo l\'archiviazione tutti saranno in sola lettura (le operazioni di scrittura saranno rifiutate dal server); è possibile ripristinare in qualsiasi momento',
 			'workspace.archiveEntry' => 'Archivia area di lavoro',
 			'workspace.archiveTitle' => 'Archivia area di lavoro',
-			'workspace.archivedBadge' => 'Archiviata',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.archivedBadge' => 'Archiviata',
 			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
 			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
 			'workspace.brandingColorHint' => '#2474E5',

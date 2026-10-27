@@ -512,6 +512,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => '기업 내부 채널';
 	@override String get subscribePending => '구독 완료, 새로고침 중';
 	@override String get subscribeRefresh => '구독 상태 새로고침';
+	@override String unseenUpdatesBanner({required Object count}) => '새 업데이트 ${count}개';
 }
 
 // Path: chat
@@ -3762,6 +3763,7 @@ extension on TranslationsKoKr {
 			'channel.enterpriseChannelLabel' => '기업 내부 채널',
 			'channel.subscribePending' => '구독 완료, 새로고침 중',
 			'channel.subscribeRefresh' => '구독 상태 새로고침',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '새 업데이트 ${count}개',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3879,9 +3881,9 @@ extension on TranslationsKoKr {
 			'chat.historyUnavailable' => '히스토리 메시지를 일시적으로 사용할 수 없습니다',
 			'chat.historyUnavailableHint' => '서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요',
 			'chat.momentsRecordVideo' => '동영상 촬영',
-			'chat.momentsVisibilityPrivate' => '나만 보기',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => '나만 보기',
 			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
 			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
 			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
@@ -4393,9 +4395,9 @@ extension on TranslationsKoKr {
 			'common.dragSliderAdjustFontSize' => '슬라이더를 드래그하여 글꼴 크기 조정',
 			'common.personalInfo' => '개인 정보',
 			'common.nicknameNotSet' => '닉네임이 설정되지 않음',
-			'common.basicInfo' => '기본 정보',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => '기본 정보',
 			'common.contactInfo' => '연락처 정보',
 			'common.editTags' => '태그 편집',
 			'common.quickActions' => '빠른 작업',
@@ -4907,9 +4909,9 @@ extension on TranslationsKoKr {
 			'contact.suggestedTags' => '제안된 태그',
 			'contact.pleaseEnterRemark' => '메모를 입력해 주세요',
 			'contact.enterRemark' => '메모 이름을 입력해 주세요',
-			'contact.pleaseEnterTags' => '태그를 입력하세요',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => '태그를 입력하세요',
 			'contact.momentsVisibilityFriends' => '친구만',
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
@@ -5421,9 +5423,9 @@ extension on TranslationsKoKr {
 			'main.mineSettingsSupport' => '설정 및 지원',
 			'main.mineStorageUsage' => '사용량 관리',
 			'mention.mentionAll' => '전체',
-			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
 			'mention.title' => '@멘션',
 			'mention.noMention' => '멘션이 없습니다',
@@ -5935,9 +5937,9 @@ extension on TranslationsKoKr {
 			'workspace.navProjects' => '프로젝트',
 			'workspace.navChannels' => '채널',
 			'workspace.navGroups' => '그룹',
-			'workspace.pickerTitle' => '내 워크스페이스',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerTitle' => '내 워크스페이스',
 			'workspace.switchWorkspace' => '워크스페이스 전환',
 			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
 			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',

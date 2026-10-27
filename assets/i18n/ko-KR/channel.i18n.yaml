@@ -226,3 +226,4 @@ enterpriseChannelLabel: "기업 내부 채널"
 
 subscribePending: 구독 완료, 새로고침 중
 subscribeRefresh: 구독 상태 새로고침
+unseenUpdatesBanner(count): "새 업데이트 ${count}개"

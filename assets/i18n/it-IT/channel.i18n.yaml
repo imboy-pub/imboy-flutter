@@ -226,3 +226,4 @@ enterpriseChannelLabel: "Canale aziendale interno"
 
 subscribePending: Iscrizione riuscita; aggiornamento in corso
 subscribeRefresh: Aggiorna iscrizione
+unseenUpdatesBanner(count): "${count} nuovi aggiornamenti"

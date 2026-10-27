@@ -229,3 +229,4 @@ enterpriseChannelLabel: "Internal enterprise channel"
 
 subscribePending: Subscribed; refreshing
 subscribeRefresh: Refresh subscription
+unseenUpdatesBanner(count): "${count} new updates"

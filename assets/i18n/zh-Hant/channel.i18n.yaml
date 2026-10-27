@@ -229,3 +229,4 @@ enterpriseChannelLabel: "企業內部頻道"
 
 subscribePending: 已訂閱，正在重新整理
 subscribeRefresh: 重新整理訂閱狀態
+unseenUpdatesBanner(count): "有 ${count} 條新更新"

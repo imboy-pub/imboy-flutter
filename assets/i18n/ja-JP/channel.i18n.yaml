@@ -230,3 +230,4 @@ enterpriseChannelLabel: "企業内チャンネル"
 
 subscribePending: 購読済み、更新中
 subscribeRefresh: 購読状態を更新
+unseenUpdatesBanner(count): "新着更新 ${count} 件"

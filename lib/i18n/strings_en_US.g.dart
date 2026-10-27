@@ -578,6 +578,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => 'Internal enterprise channel';
 	@override String get subscribePending => 'Subscribed; refreshing';
 	@override String get subscribeRefresh => 'Refresh subscription';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} new updates';
 }
 
 // Path: chat
@@ -4451,6 +4452,7 @@ extension on TranslationsEnUs {
 			'channel.enterpriseChannelLabel' => 'Internal enterprise channel',
 			'channel.subscribePending' => 'Subscribed; refreshing',
 			'channel.subscribeRefresh' => 'Refresh subscription',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} new updates',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -4513,9 +4515,9 @@ extension on TranslationsEnUs {
 			'chat.quickReplyEmpty' => 'No quick replies yet — tap the button below to add one',
 			'chat.quickReplyDuplicate' => 'This phrase already exists',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'At most ${max} entries',
-			'chat.quickReplyHint' => 'Type your phrase...',
 			_ => null,
 		} ?? switch (path) {
+			'chat.quickReplyHint' => 'Type your phrase...',
 			'chat.muteMember' => 'Mute Member',
 			'chat.unmuteMember' => 'Unmute',
 			'chat.muted' => 'Muted',
@@ -5027,9 +5029,9 @@ extension on TranslationsEnUs {
 			'common.chatCopy' => 'Copy',
 			'common.chatSaveImage' => 'Save image',
 			'common.chatDeleteLocalOnly' => 'Delete local only',
-			'common.chatDeleteFailed' => 'Delete failed',
 			_ => null,
 		} ?? switch (path) {
+			'common.chatDeleteFailed' => 'Delete failed',
 			'common.chatNetworkErrorDeleteLocal' => 'Network connection failed. Delete local message only?',
 			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
 			'common.chatDeleteOnlyLocal' => 'Delete only for you, still visible to others',
@@ -5541,9 +5543,9 @@ extension on TranslationsEnUs {
 			'common.redPacketCurrentLucky' => 'Current mode: Lucky Red Packet',
 			'common.redPacketCurrentNormal' => 'Current mode: Normal Red Packet',
 			'common.redPacketSwitchToLucky' => 'Switch to Lucky Red Packet',
-			'common.redPacketSwitchToNormal' => 'Switch to Normal Red Packet',
 			_ => null,
 		} ?? switch (path) {
+			'common.redPacketSwitchToNormal' => 'Switch to Normal Red Packet',
 			'common.redPacketStuffLucky' => 'Send Lucky Red Packet',
 			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'User: ${uid}',
@@ -6055,9 +6057,9 @@ extension on TranslationsEnUs {
 			'groupVote.cancelVoteSuccess' => 'Vote cancelled',
 			'groupVote.eachOptionPerLine' => 'One option per line',
 			'groupVote.statusInProgress' => 'In Progress',
-			'groupVote.updateVote' => 'Update Vote',
 			_ => null,
 		} ?? switch (path) {
+			'groupVote.updateVote' => 'Update Vote',
 			'groupVote.cancelMyVote' => 'Cancel my vote',
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
@@ -6569,9 +6571,9 @@ extension on TranslationsEnUs {
 			'organization.manage.channelSubscribersEntry' => 'Subscribers',
 			'organization.manage.entry' => 'Enterprise management',
 			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
-			'organization.manage.title' => 'Enterprise management',
 			_ => null,
 		} ?? switch (path) {
+			'organization.manage.title' => 'Enterprise management',
 			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
 			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
@@ -7083,9 +7085,9 @@ extension on TranslationsEnUs {
 			'talkRecord.processingRecoveryHint' => 'The processing notice or processor configuration changed. Confirm to upload and process using the current versions below. The original recording acknowledgement is preserved.',
 			'talkRecord.processingRecoveryUnavailable' => 'Processing is currently unavailable. Keep the recording on this device and retry later.',
 			'talkRecord.keepRecordingLocal' => 'Keep on this device',
-			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
 			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
 			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',
 			'talkRecord.cleanupRetryUnknown' => 'The submission outcome is unknown. Refresh first; submitting again reuses the same request.',

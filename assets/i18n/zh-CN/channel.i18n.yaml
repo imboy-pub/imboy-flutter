@@ -233,3 +233,4 @@ enterpriseChannelLabel: "企业内部频道"
 
 subscribePending: 已订阅，正在刷新
 subscribeRefresh: 刷新订阅状态
+unseenUpdatesBanner(count): "有 ${count} 条新更新"

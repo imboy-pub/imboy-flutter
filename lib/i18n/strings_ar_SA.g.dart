@@ -512,6 +512,7 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get enterpriseChannelLabel => 'قناة داخلية للمؤسسة';
 	@override String get subscribePending => 'تم الاشتراك، جارٍ التحديث';
 	@override String get subscribeRefresh => 'تحديث الاشتراك';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} تحديثات جديدة';
 }
 
 // Path: chat
@@ -3774,6 +3775,7 @@ extension on TranslationsArSa {
 			'channel.enterpriseChannelLabel' => 'قناة داخلية للمؤسسة',
 			'channel.subscribePending' => 'تم الاشتراك، جارٍ التحديث',
 			'channel.subscribeRefresh' => 'تحديث الاشتراك',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} تحديثات جديدة',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3891,9 +3893,9 @@ extension on TranslationsArSa {
 			'chat.historyUnavailable' => 'رسائل السجل غير متاحة مؤقتاً',
 			'chat.historyUnavailableHint' => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة',
 			'chat.momentsRecordVideo' => 'تسجيل فيديو',
-			'chat.momentsVisibilityPrivate' => 'أنا فقط',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsVisibilityPrivate' => 'أنا فقط',
 			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
 			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
@@ -4405,9 +4407,9 @@ extension on TranslationsArSa {
 			'common.dragSliderAdjustFontSize' => 'اسحب شريط التمرير لضبط حجم الخط',
 			'common.personalInfo' => 'معلومات شخصية',
 			'common.nicknameNotSet' => 'لم يتم تعيين اللقب',
-			'common.basicInfo' => 'معلومات أساسية',
 			_ => null,
 		} ?? switch (path) {
+			'common.basicInfo' => 'معلومات أساسية',
 			'common.contactInfo' => 'معلومات الاتصال',
 			'common.editTags' => 'تعديل العلامات',
 			'common.quickActions' => 'إجراءات سريعة',
@@ -4919,9 +4921,9 @@ extension on TranslationsArSa {
 			'contact.suggestedTags' => 'علامات مقترحة',
 			'contact.pleaseEnterRemark' => 'يرجى إدخال الملاحظة',
 			'contact.enterRemark' => 'يرجى إدخال الملاحظة',
-			'contact.pleaseEnterTags' => 'يرجى إدخال العلامات',
 			_ => null,
 		} ?? switch (path) {
+			'contact.pleaseEnterTags' => 'يرجى إدخال العلامات',
 			'contact.momentsVisibilityFriends' => 'الأصدقاء فقط',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
@@ -5433,9 +5435,9 @@ extension on TranslationsArSa {
 			'main.mineSettingsSupport' => 'الإعدادات والدعم',
 			'main.mineStorageUsage' => 'إدارة الاستخدام',
 			'mention.mentionAll' => 'الجميع',
-			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			_ => null,
 		} ?? switch (path) {
+			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
 			'mention.title' => '@إشارات',
 			'mention.noMention' => 'لا توجد إشارات',
@@ -5947,9 +5949,9 @@ extension on TranslationsArSa {
 			'workspace.navProjects' => 'المشاريع',
 			'workspace.navChannels' => 'القنوات',
 			'workspace.navGroups' => 'المجموعات',
-			'workspace.pickerTitle' => 'مساحات عملي',
 			_ => null,
 		} ?? switch (path) {
+			'workspace.pickerTitle' => 'مساحات عملي',
 			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
 			'workspace.pickerEmptyTitle' => 'لا توجد مساحات عمل بعد',
 			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',

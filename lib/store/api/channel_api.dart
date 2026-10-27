@@ -610,6 +610,30 @@ class ChannelApi extends HttpClient
     return resp.ok;
   }
 
+  /// W08（§6.8 C4/D3）：显式标记已查看到此更新边界。
+  ///
+  /// 仅 manifest `channel_contracts.view_watermark == 1`（整数 1）时由
+  /// 调用方发起（未知能力不发送新边界）；boundary 为本次成功内容响应
+  /// 持有的更新边界（不从后来未展示的新推送取最大值）。服务端 GREATEST
+  /// 推进并夹到发布上界，晚到旧边界不倒退（J13.d）。
+  /// 返回 (view_seq, unseen_count)；失败返回 null（调用方给重试，不洗成
+  /// 已查看）。
+  Future<({int viewSeq, int unseenCount})?> markViewed(
+    String channelId,
+    String boundary,
+  ) async {
+    final resp = await post(
+      '/api/v1/channel/$channelId/viewed',
+      data: {'boundary': boundary},
+    );
+    if (!resp.ok) return null;
+    final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
+    final viewSeq = int.tryParse('${payload['view_seq']}');
+    final unseen = int.tryParse('${payload['unseen_count']}');
+    if (viewSeq == null || unseen == null) return null;
+    return (viewSeq: viewSeq, unseenCount: unseen);
+  }
+
   // ==================== 搜索和发现 ====================
 
   /// 搜索频道

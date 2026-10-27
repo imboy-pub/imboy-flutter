@@ -73,6 +73,13 @@ class AppManifest {
   bool get channelCreateReceiptEnabled =>
       createReceiptContractEnabled(channelContracts);
 
+  /// W08（C4/D3 查看更新边界）：`channel_contracts.view_watermark`
+  /// 恰为整数 1 才启用（与 J27.b 同款精度，绝不激进解释）；
+  /// 未声明 → 全部 legacy 已读路径零变化，未知能力不发送新边界。
+  bool get viewWatermarkEnabled =>
+      channelContracts['view_watermark'] is int &&
+      channelContracts['view_watermark'] == 1;
+
   factory AppManifest.fromMap(Map<String, dynamic> raw) {
     final rawCompiledFeatures = raw['compiled_features'];
     final rawSchemaVersion = raw['manifest_schema_version'];

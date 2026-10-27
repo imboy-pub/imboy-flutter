@@ -226,3 +226,4 @@ enterpriseChannelLabel: "قناة داخلية للمؤسسة"
 
 subscribePending: تم الاشتراك، جارٍ التحديث
 subscribeRefresh: تحديث الاشتراك
+unseenUpdatesBanner(count): "${count} تحديثات جديدة"
