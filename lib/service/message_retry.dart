@@ -21,6 +21,8 @@ import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
+part 'message_retry_info.dart';
+
 /// MessageRetry
 /// 消息重试机制，处理失败消息的重试逻辑
 /// Message retry mechanism for handling failed message retries
@@ -986,27 +988,4 @@ class MessageRetry with EventSubscriptionManager {
 
   int get retryQueueSize => _retryQueue.length;
   MessageRetryInfo? getRetryInfo(String messageId) => _retryQueue[messageId];
-}
-
-/// 消息重试信息类
-/// Message retry information class.
-class MessageRetryInfo {
-  final String messageId;
-  final String type;
-  final int sessionGeneration;
-  int retryCount;
-
-  /// 上次重试的单调毫秒（AppClock 单调轴，R20-A；非墙钟时间戳，
-  /// 测试 `-= interval` 模拟流逝仍有效）。持久化 deadline 请用
-  /// `appClock.nowMs()`（epoch 合同）。
-  int lastRetryTime;
-
-  MessageRetryInfo({
-    required this.messageId,
-    required this.type,
-    required this.retryCount,
-    required this.lastRetryTime,
-    int? sessionGeneration,
-  }) : sessionGeneration =
-           sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 }

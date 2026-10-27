@@ -6,7 +6,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
-import 'package:imboy/config/const.dart';
 import 'package:xid/xid.dart';
 import 'package:synchronized/synchronized.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
@@ -41,7 +40,6 @@ import 'package:imboy/page/chat/chat/providers/chat_audio_handler.dart';
 // 技术债清理 (#14): 统一 ChatState 来源，避免与 chat_state.dart 双份定义
 import 'package:imboy/page/chat/chat/chat_state.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
-import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/message_type_constants.dart';
 export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
 
@@ -1131,74 +1129,17 @@ class ChatNotifier extends _$ChatNotifier {
     if (chatType != 'c2c' && chatType != 'c2g') return;
 
     _historySyncing = true;
-    final String cursorKey = '${Keys.msgHistorySeqPrefix}${obj.uk3}';
     try {
-      // 新一轮同步开始即清除上次失败/不可用标记，避免上次状态残留误导
       state = state.copyWith(
         historySyncFailed: false,
         historyUnavailable: false,
       );
-      final String peerId = obj.peerId.toString();
-      int seq = StorageService.to.getInt(cursorKey) ?? 0;
-      bool anyFetched = false;
-      int pages = 0;
-      int restoredByBackfill = 0;
-      while (pages < _historyMaxPagesPerOpen) {
-        final page = await _archiveService.fetchAndPersistHistoryPage(
-          chatType: chatType,
-          peerId: peerId,
-          afterSeq: seq,
-          limit: 50,
-        );
-        pages++;
-        iPrint(
-          'syncHistoryBackfill: uk3=${obj.uk3}, afterSeq=$seq, '
-          'fetched=${page.fetched}, nextSeq=${page.nextSeq}, hasMore=${page.hasMore}, '
-          'safeHead=${page.safeHead}, blocked=${page.blocked}, gaps=${page.gaps.length}',
-        );
-        if (page.fetched > 0) anyFetched = true;
-
-        // R01/R02：由决策纯函数统一处理 blocked 等待 / gaps 补齐 /
-        // safe_head 钳制 / 过冲恢复（规则见 planHistorySync 文档与单测）。
-        // W8-B1：过冲补扫传入进程内水位——同 safe_head 重复轮询不再从 0
-        // 全量重扫，safe_head 上升只补差量区间。
-        final plan = ChatArchiveService.planHistorySync(
-          currentSeq: seq,
-          nextSeq: page.nextSeq,
-          safeHead: page.safeHead,
-          blocked: page.blocked,
-          gaps: page.gaps,
-          overshootScannedTo: ChatArchiveService.overshootWatermark(obj.uk3),
-        );
-        if (plan.blocked) {
-          // blocked=true：等待下一轮增量，游标不动、禁止自行推断 gap
-          iPrint('syncHistoryBackfill: blocked=true，本轮等待不推进 seq=$seq');
-          break;
-        }
-        for (final range in plan.backfillRanges) {
-          // gaps / 过冲缺失：有界分批补齐至 target（msg_id 幂等去重，
-          // 失败抛 HistoryFetchException 由外层标记可重试）
-          restoredByBackfill += await _archiveService.backfillMissing(
-            chatType: chatType,
-            peerId: peerId,
-            afterSeq: range.fromSeq,
-            targetSeq: range.toSeq,
-          );
-        }
-        // 过冲轮补扫完成（未抛异常）才推进水位：失败路径不推进，下轮
-        // 从原水位重扫差量（幂等去重兜底），保证不漏也不重复全量。
-        final effectiveHead = page.safeHead > 0 ? page.safeHead : page.nextSeq;
-        if (seq > effectiveHead && effectiveHead > 0) {
-          ChatArchiveService.markOvershootBackfilled(obj.uk3, effectiveHead);
-        }
-        if (restoredByBackfill > 0) anyFetched = true;
-        if (plan.advanceTo > seq) {
-          // 持久化前已由 plan 按 safe_head 钳制（不越过 B、只进不退）
-          seq = plan.advanceTo;
-          await StorageService.to.setInt(cursorKey, seq);
-        }
-        if (!page.hasMore) break;
-      }
+      final anyFetched = await _archiveService.syncHistory(
+        convKey: obj.uk3,
+        chatType: chatType,
+        peerId: obj.peerId.toString(),
+        maxPages: _historyMaxPagesPerOpen,
+      );
       // BUG#119（批次72 真机复现）：回填「成功但 0 条」≠「会话无消息」。
       // 服务端 msg_store 归档为空（生产未开启 msg_archive_enabled）时，
       // history 接口正常返回空，此时不能展示误导性的「暂无数据」——

@@ -18,6 +18,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/chat/chat/services/chat_archive_service.dart';
 import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/config/const.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/store/model/message_order.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/offline_message_writer.dart';
@@ -77,6 +80,8 @@ void main() {
   });
 
   setUp(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '990001'});
+    await StorageService.init();
     db = await openFixtureDatabaseAtVersion(version: 35);
     SqliteService.setDbForTest(db);
     // _syncOfflineConversationsAndNotify 依赖注入的应用级容器（全量插入路径）
@@ -336,19 +341,16 @@ void main() {
     expect(legacy.backfillRanges, [(fromSeq: 0, toSeq: 20)]);
   });
 
-  test('W8-B1 水位存取：只进不退、会话间隔离、debugReset 清空', () {
-    ChatArchiveService.debugResetOvershootWatermark();
-    addTearDown(ChatArchiveService.debugResetOvershootWatermark);
-
+  test('W8-B1 水位存取：只进不退、会话间隔离、重新初始化后保留', () async {
     expect(ChatArchiveService.overshootWatermark('conv-x'), 0);
-    ChatArchiveService.markOvershootBackfilled('conv-x', 20);
+    await ChatArchiveService.markOvershootBackfilled('conv-x', 20);
     expect(ChatArchiveService.overshootWatermark('conv-x'), 20);
     // 回退请求被忽略（只进不退）
-    ChatArchiveService.markOvershootBackfilled('conv-x', 15);
+    await ChatArchiveService.markOvershootBackfilled('conv-x', 15);
     expect(ChatArchiveService.overshootWatermark('conv-x'), 20);
     // 会话间互不影响
     expect(ChatArchiveService.overshootWatermark('conv-y'), 0);
-    ChatArchiveService.debugResetOvershootWatermark();
-    expect(ChatArchiveService.overshootWatermark('conv-x'), 0);
+    await StorageService.init();
+    expect(ChatArchiveService.overshootWatermark('conv-x'), 20);
   });
 }

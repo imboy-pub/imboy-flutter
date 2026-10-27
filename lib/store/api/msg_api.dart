@@ -84,7 +84,7 @@ class MsgApi extends HttpClient {
   ///
   /// 扫描 (afterSeq, 服务端 safe_head] 内已归档行；批次 = limit、
   /// 恢复位置 = 响应 next_seq（has_more 时以 next_seq 续扫直至 >= safe_head）、
-  /// 范围跨度受服务端 range_limit 约束。返回：
+  /// 每次扫描跨度受服务端 range_limit 约束，历史总长度不受此上限拒绝。返回：
   /// ```json
   /// {
   ///   "messages": [...], "next_seq": n, "has_more": b,

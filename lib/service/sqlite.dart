@@ -20,6 +20,8 @@ import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/sqflite_init.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
+part 'sqlite_scalar_query.dart';
+
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// SQLite 本地数据库服务
 /// SQLite local database service
@@ -901,16 +903,6 @@ class SqliteService {
       AppLogger.error('SQL query error: table=$table, error=$e');
       rethrow;
     }
-  }
-
-  /// 执行标量查询，返回首行首列值
-  /// Execute scalar query, return first value of first row
-  Future<T?> _scalarQuery<T>(String sql, [List<Object?>? whereArgs]) async {
-    final db = await this.db;
-    if (db == null) return null;
-    final res = await db.rawQuery(sql, whereArgs);
-    if (res.isEmpty || res.first.isEmpty) return null;
-    return res.first.values.first as T?;
   }
 
   /// 查询某表记录总数

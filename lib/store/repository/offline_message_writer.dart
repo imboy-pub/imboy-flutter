@@ -21,11 +21,15 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/model/message_columns.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/service/app_logger.dart';
 import 'package:imboy/store/repository/message_repo_types.dart';
+
+part 'offline_message_preview.dart';
 
 /// 离线批量写入：消息/会话事务提交、重投快照恢复与提交后通知。
 class OfflineMessageWriter {
@@ -35,10 +39,6 @@ class OfflineMessageWriter {
   final String Function(String) resolveTable;
   final Future<void> Function(InsertedOfflineMessage) indexMessage;
 
-  /// W8-B4：服务端权威顺序事实补齐回调（构造方注入 MessageRepo 的
-  /// backfillServerOrderFacts 实现）。writer 不再 import
-  /// message_repo_sqlite，消除 repo 层 offline_message_writer ↔
-  /// message_repo_sqlite 的循环依赖（依赖单向化为 repo → writer）。
   final Future<void> Function(
     String msgId, {
     int? convSeq,
@@ -63,6 +63,17 @@ class OfflineMessageWriter {
     bool trustedArchive = false,
   }) async {
     if (messages.isEmpty) return null;
+    final session = trustedArchive ? authSessionReader.current : null;
+    final endpoint = trustedArchive ? Env().apiBaseUrl : null;
+    void requireCurrent() {
+      if (session != null &&
+          (!authSessionReader.isCurrent(session) ||
+              Env().apiBaseUrl != endpoint)) {
+        throw StateError('Archive session changed');
+      }
+    }
+
+    requireCurrent();
 
     final List<String> ackMsgIds = [];
     final Set<String> ackIdSet = <String>{};
@@ -83,9 +94,7 @@ class OfflineMessageWriter {
       for (final msgData in messages) {
         final rawMsgId = msgData['msg_id'] ?? msgData['id'];
         final msgId = rawMsgId?.toString() ?? '';
-        // 优化类型处理，确保类型标准化
         String type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
-        // 处理可能的类型别名
         switch (type) {
           case 'C2C_SERVER_ACK':
             type = 'C2C';
@@ -114,7 +123,9 @@ class OfflineMessageWriter {
 
       // 处理普通消息（插入数据库）
       await db.transaction((txn) async {
+        requireCurrent();
         for (final msgData in normalMessages) {
+          requireCurrent();
           final rawMsgId = msgData['msg_id'] ?? msgData['id'];
           final msgId = rawMsgId?.toString() ?? '';
           String type = (msgData['type'] ?? 'C2C').toString().toUpperCase();
@@ -133,6 +144,7 @@ class OfflineMessageWriter {
             'FROM $tableName WHERE id = ?',
             [msgId],
           );
+          requireCurrent();
           if (existing.isNotEmpty) {
             final upgraded =
                 trustedArchive &&
@@ -149,6 +161,7 @@ class OfflineMessageWriter {
             // 幂等），不能因去重直接 continue 丢掉权威字段。
             // SERVER_ACK 复用本分支：只补权威列，绝不覆盖原始 created_at。
             final facts = parseServerOrderFacts(msgData);
+            requireCurrent();
             if (facts.convSeq != null || facts.acceptedAt != null) {
               try {
                 await backfillServerOrderFacts(
@@ -158,6 +171,7 @@ class OfflineMessageWriter {
                   txn: txn,
                 );
               } on Object catch (e) {
+                if (trustedArchive) rethrow;
                 // 补齐失败不阻断批量写入主流程（权威字段可在后续批次
                 // 再次补齐）；与 upgraded 失败同样只记录。
                 func_helper.iPrint(
@@ -170,6 +184,7 @@ class OfflineMessageWriter {
               txn,
               existing.single,
             );
+            requireCurrent();
             if (snapshot != null) conversations.add(snapshot);
             addAckId(msgId);
             func_helper.iPrint(
@@ -214,7 +229,7 @@ class OfflineMessageWriter {
               int.tryParse((msgData['topic_id'] ?? 0).toString()) ?? 0;
 
           // 确定消息方向（是否为作者）
-          String currentUid = UserRepoLocal.to.currentUid;
+          String currentUid = session?.uid ?? UserRepoLocal.to.currentUid;
           bool isAuthor = fromId == currentUid;
 
           // 构建会话UK3
@@ -327,7 +342,9 @@ class OfflineMessageWriter {
             historyImport: trustedArchive,
           ),
         );
+        requireCurrent();
       });
+      requireCurrent();
 
       if (inserted.isNotEmpty) {
         db.clearQueryCache(ConversationRepo.tableName);
@@ -354,17 +371,6 @@ class OfflineMessageWriter {
         }
       }
     } on Object catch (e, s) {
-      // 不再吞成 null（A-24）。
-      //
-      // 返回 null 与"这批本来就没有需要 ACK 的消息"在调用方看来完全一样
-      // （`if (msgIds != null && msgIds.isNotEmpty)`），于是整批写入失败
-      // 被读成"没什么要确认的"：不 ACK、不报错、拉取继续、游标照常推进。
-      // 持久性失败（A-21 的 msg_c2c.sender_did 缺列就是实例）因此变成
-      // 每次拉取都失败、每次都只留一行 print 的静默循环。
-      //
-      // 向上抛之后由 message_offline.dart 的拉取外层 catch 接住 —— 那里
-      // 有失败计数、_markPullFailure()、指标上报和用户可见提示，
-      // 是这条链上唯一有处理能力的一层。异常不会逃逸成未捕获崩溃。
       func_helper.iPrint('批量插入离线消息失败: ${e.runtimeType}');
       Error.throwWithStackTrace(e, s);
     }
@@ -789,53 +795,5 @@ class OfflineMessageWriter {
         }
       }
     }
-  }
-
-  /// WebSocket API v2.0: 根据消息 status 和 payload 生成会话预览
-  ///
-  /// 方案 D: 检查 status 字段（30=peer_revoked, 31=my_revoked）
-  static ({String msgType, String subtitle}) _derivePreview(
-    String msgType,
-    int? status,
-    Map<String, dynamic> payload,
-  ) {
-    // 【重构】使用 MessageTypeNormalizer 做类型合法性校验
-    final effectiveMsgType = MessageTypeNormalizer.normalize(
-      msgType: msgType,
-      payload: payload,
-    );
-
-    if (kDebugMode) {
-      func_helper.iPrint(
-        '🔍 [DEBUG _derivePreview] 输入: msgType="$msgType", effective=$effectiveMsgType',
-      );
-    }
-
-    // 方案 D: 检查 status 字段（撤回状态 30-39）
-    if (IMBoyMessageStatus.isRevokedStatus(status)) {
-      // status = 30 (peer_revoked) 或 31 (my_revoked)
-      // 保留原始 msg_type，让会话列表知道原始内容类型
-      if (status == IMBoyMessageStatus.peerRevoked) {
-        return (
-          msgType: msgType,
-          subtitle: '[${t.common.otherRevokedMessage}]',
-        );
-      } else {
-        return (msgType: msgType, subtitle: '[${t.common.youRevokedMessage}]');
-      }
-    }
-
-    // 内容摘要全类型收口到 messagePreviewText（与会话列表/通知同一条链）。
-    // 原白名单缺 groupTask/groupVote/groupSchedule/redPacket/transfer/
-    // visitCard/expression/imageMulti/channelCard，这些类型一律落 default
-    // 写成「[消息]」，下游按 subtitle 展示就与消息内容脱节。
-    final subtitle = messagePreviewText(effectiveMsgType, payload);
-
-    if (kDebugMode) {
-      func_helper.iPrint(
-        '🔍 [DEBUG _derivePreview] 返回: msgType=$effectiveMsgType',
-      );
-    }
-    return (msgType: effectiveMsgType, subtitle: subtitle);
   }
 }

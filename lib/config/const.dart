@@ -71,7 +71,7 @@ class Keys {
   static const String welcomeSeen = "welcome_seen";
 
   /// 聊天历史回填游标键前缀（`msg_history_seq_<uk3>`，唯一写入点
-  /// chat_provider.dart syncHistoryBackfill）。登出/清数据时必须按此前缀
+  /// ChatArchiveService.syncHistory）。登出/清数据时必须按此前缀
   /// 全量清理，否则残留游标会让换号/重装（SharedPreferences 保留）后
   /// 无新消息的会话持续「暂无数据」——即使服务端归档正常（BUG#119 附带发现）。
   static const String msgHistorySeqPrefix = 'msg_history_seq_';

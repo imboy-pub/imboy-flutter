@@ -14,6 +14,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/page/chat/chat/services/chat_archive_service.dart';
 import 'package:imboy/store/api/msg_api.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// 可控返回的 MsgApi 替身：不发起真实网络请求。
 class _FakeMsgApi extends MsgApi {
@@ -39,6 +42,11 @@ class _FakeMsgApi extends MsgApi {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '990001'});
+    await StorageService.init();
+  });
   group('BUG#119 fetchAndPersistHistoryPage 失败与无数据区分', () {
     test('API 失败（返回 null）抛 HistoryFetchException，不再伪装成无数据', () async {
       final api = _FakeMsgApi(historyResult: null);

@@ -93,40 +93,6 @@ import 'notification_provider.dart';
 /// - `AckManager`: ACK 确认管理
 /// - `MessageOfflineService`: 离线消息处理
 ///
-/// MessageService
-///
-/// 负责消息处理的核心服务，包括可靠传递、状态同步、UI 通知。
-/// Core service for message handling: reliable delivery, state sync, UI updates.
-///
-/// ## 架构说明
-///
-/// 此服务采用**模块化架构**，原有功能已拆分到以下文件：
-/// - `message_actions.dart`: 消息操作，撤回、编辑等功能
-/// - `message_webrtc.dart`: WebRTC 消息处理
-/// - `message_s2c.dart`: 服务端到客户端消息
-/// - `ack_manager.dart`: ACK 确认管理
-///
-/// ## 职责范围
-///
-/// ### 核心职责：
-/// 1. **消息接收与分发**：处理来自 WebSocket 的消息（C2C、C2G、C2S、S2C）
-/// 2. **消息状态管理**：更新消息状态（待发送、已发送、已送达、已读）
-/// 3. **UI 通知**：通过 EventBus 通知 UI 层更新
-/// 4. **消息去重**：防止重复消息显示
-/// 5. **网络状态监控**：监听 WebSocket 连接状态，处理离线/在线切换
-///
-/// ### 委托的职责：
-/// - **撤回/编辑**：委托给 `MessageActions`
-/// - **WebRTC**：委托给 `MessageWebrtc`
-/// - **ACK 发送**：委托给 `AckManager`
-///
-/// ## 相关服务
-///
-/// - `WebSocketService`: WebSocket 连接管理
-/// - `MessageActions`: 消息操作（撤回、编辑）
-/// - `AckManager`: ACK 确认管理
-/// - `MessageOfflineService`: 离线消息处理
-///
 /// ## 使用方式
 ///
 /// ```dart
