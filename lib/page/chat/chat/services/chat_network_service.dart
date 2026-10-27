@@ -262,6 +262,7 @@ class ChatNetworkService {
       payload.remove('msg_type');
       payload.remove('action');
       payload.remove('e2ee');
+      payload.remove('burn_read_at');
     } else if (message is CustomMessage) {
       final customMsgType = message.metadata?['msg_type']?.toString() ?? '';
       msgType = customMsgType.isNotEmpty ? customMsgType : 'custom';
@@ -269,6 +270,7 @@ class ChatNetworkService {
       cleanMetadata.remove('msg_type');
       cleanMetadata.remove('action');
       cleanMetadata.remove('e2ee');
+      cleanMetadata.remove('burn_read_at');
       payload = {...cleanMetadata};
     } else {
       msgType = 'unsupported';
@@ -314,6 +316,9 @@ class ChatNetworkService {
     cleanMetadata.remove('msg_type');
     cleanMetadata.remove('action');
     cleanMetadata.remove('e2ee');
+    // D01 冻结合同：burn_read_at 是接收端本地显示字段（已读起算倒计时起点），
+    // 永不进入发送 payload——否则随重发被对端提前开烧（R05F-2）。
+    cleanMetadata.remove('burn_read_at');
     payload.addAll(cleanMetadata);
   }
 
