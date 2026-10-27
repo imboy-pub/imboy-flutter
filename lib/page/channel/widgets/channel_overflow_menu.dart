@@ -5,6 +5,8 @@
 /// 把本按钮挂到外层 AppBar，避免「外层标题 + 内层 GlassAppBar」双层头部。
 library;
 
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,11 +17,13 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
+import '../channel_di_provider.dart';
 import '../channel_provider.dart';
 import '../channel_link_page.dart';
 
@@ -391,8 +395,31 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
 
   Future<void> _unsubscribe(ChannelModel channel) async {
     if (_busy) return;
+    final target = _channelId;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        mounted &&
+        _channelId == target &&
+        user.currentUid == uid &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
     _busy = true;
     try {
+      final service = ref.read(channelServiceProvider);
+      if (service.hasPendingSubscription(target)) {
+        final result = await ref
+            .read(channelListProvider.notifier)
+            .subscribeChannel(target);
+        if (!isCurrent()) return;
+        if (mounted && result == ChannelSubscribeOutcome.pending) {
+          AppLoading.showToast(context.t.channel.subscribePending);
+        } else if (mounted && result == ChannelSubscribeOutcome.completed) {
+          await ref.read(channelDetailProvider.notifier).loadChannel(target);
+        }
+        return;
+      }
       final confirmed = await confirmChannelUnsubscribe(context);
       if (!confirmed || !mounted) return;
       final success = await ref

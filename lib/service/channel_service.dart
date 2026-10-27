@@ -1,3 +1,4 @@
+import 'package:imboy/config/env.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
@@ -20,6 +21,11 @@ import 'package:imboy/store/repository/channel_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
 import 'package:imboy/store/repository/channel_publish_outbox_repo.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' show Database;
+
+enum ChannelSubscribeOutcome { completed, pending, failed, stale }
 
 /// Channel 服务
 ///
@@ -29,19 +35,26 @@ import 'package:imboy/store/repository/channel_publish_outbox_repo.dart';
 class ChannelService {
   static final ChannelService to = ChannelService._privateConstructor();
   static int _publishRequestSequence = 0;
+  final Set<String> _acceptedSubscriptions = {};
+  final Set<String> _unsubscribingChannels = {};
+  final Map<String, Future<ChannelSubscribeOutcome>> _subscribeRequests = {};
 
   final ChannelApi api;
   final ChannelRepo repo;
   final ChannelMessageRepo _messageRepo;
   final ChannelMessageOutboxRepo _outboxRepo;
   final ChannelPublishOutboxRepo _publishOutboxRepo;
+  final bool bindPublishDatabase;
+  final bool Function()? sessionValidForTest;
 
   ChannelService._privateConstructor()
     : api = ChannelApi(),
       repo = ChannelRepo(),
       _messageRepo = ChannelMessageRepo(),
       _outboxRepo = ChannelMessageOutboxRepo(),
-      _publishOutboxRepo = ChannelPublishOutboxRepo();
+      _publishOutboxRepo = ChannelPublishOutboxRepo(),
+      bindPublishDatabase = true,
+      sessionValidForTest = null;
 
   @visibleForTesting
   ChannelService.forTest({
@@ -50,6 +63,8 @@ class ChannelService {
     ChannelMessageRepo? messageRepo,
     ChannelMessageOutboxRepo? outboxRepo,
     ChannelPublishOutboxRepo? publishOutboxRepo,
+    this.bindPublishDatabase = false,
+    this.sessionValidForTest,
   }) : _messageRepo = messageRepo ?? ChannelMessageRepo(),
        _outboxRepo = outboxRepo ?? ChannelMessageOutboxRepo.noop(),
        _publishOutboxRepo =
@@ -66,6 +81,50 @@ class ChannelService {
   Future<List<ChannelModel>> syncSubscribedChannels({
     List<ChannelModel>? fromList,
   }) async {
+    if (bindPublishDatabase) {
+      final user = UserRepoLocal.to;
+      if (user.isAuthTransitioning) return [];
+      final uid = user.currentUid;
+      final generation = user.sessionGeneration;
+      bool isCurrent() =>
+          uid.isNotEmpty &&
+          user.currentUid == uid &&
+          user.isCurrentSession(generation) &&
+          !user.isAuthTransitioning &&
+          (sessionValidForTest?.call() ?? true);
+      try {
+        final db = await SqliteService.to.db;
+        if (db == null || !isCurrent()) return [];
+        final channels = fromList ?? await api.getSubscribedChannels();
+        if (!isCurrent()) return [];
+        await db.transaction((txn) async {
+          for (final channel in channels) {
+            if (!isCurrent()) throw StateError('stale channel session');
+            await repo.saveChannel(channel, txn: txn);
+            final existing = await txn.query(
+              ChannelRepo.subscriptionTableName,
+              columns: [ChannelRepo.subChannelId],
+              where: '${ChannelRepo.subChannelId} = ?',
+              whereArgs: [channel.id],
+            );
+            if (existing.isEmpty) {
+              await repo.saveSubscription(
+                ChannelSubscriptionModel(
+                  channelId: channel.id,
+                  subscribedAt: DateTime.now(),
+                ),
+                txn: txn,
+              );
+            }
+            if (!isCurrent()) throw StateError('stale channel session');
+          }
+        });
+        return isCurrent() ? channels : [];
+      } catch (e) {
+        iPrint('ChannelService: 同步频道失败 - $e');
+        return [];
+      }
+    }
     try {
       final channels = fromList ?? await api.getSubscribedChannels();
 
@@ -114,6 +173,37 @@ class ChannelService {
     int? cursor,
     int limit = 20,
   }) async {
+    if (bindPublishDatabase) {
+      final user = UserRepoLocal.to;
+      if (user.isAuthTransitioning) return [];
+      final generation = user.sessionGeneration;
+      bool isCurrent() =>
+          user.isCurrentSession(generation) &&
+          !user.isAuthTransitioning &&
+          (sessionValidForTest?.call() ?? true);
+      try {
+        final db = await SqliteService.to.db;
+        if (db == null || !isCurrent()) return [];
+        await _drainPublishOutbox(channelId);
+        if (!isCurrent()) return [];
+        final messages = await api.getMessages(
+          channelId: channelId,
+          cursor: cursor,
+          limit: limit,
+        );
+        if (!isCurrent()) return [];
+        for (final message in messages) {
+          if (!isCurrent()) return [];
+          await _cacheSyncedMessage(db, message, isCurrent);
+        }
+        if (!isCurrent()) return [];
+        await _drainMessageOutbox(channelId);
+        return isCurrent() ? messages : [];
+      } catch (error) {
+        iPrint('ChannelService: 同步消息失败 - $error');
+        return [];
+      }
+    }
     try {
       await _drainPublishOutbox(channelId);
       final messages = await api.getMessages(
@@ -137,34 +227,146 @@ class ChannelService {
     }
   }
 
+  Future<void> _cacheSyncedMessage(
+    Database db,
+    ChannelMessageModel message,
+    bool Function() isCurrent,
+  ) async {
+    try {
+      final channelId = message.channelId.toString();
+      final rows = await db.query(
+        ChannelRepo.tableName,
+        columns: [ChannelRepo.id],
+        where: '${ChannelRepo.id} = ?',
+        whereArgs: [message.channelId],
+        limit: 1,
+      );
+      if (!isCurrent()) return;
+      final remote = rows.isEmpty ? await api.getChannel(channelId) : null;
+      if (!isCurrent()) return;
+      await db.transaction((txn) async {
+        if (!isCurrent()) throw StateError('stale message session');
+        if (remote != null) await repo.saveChannel(remote, txn: txn);
+        if (await repo.getChannel(channelId, txn: txn) == null) {
+          throw StateError('channel not cached');
+        }
+        await _messageRepo.saveMessage(message, txn: txn);
+        await _outboxRepo.remove(message.id, txn: txn);
+        if (!isCurrent()) throw StateError('stale message session');
+      });
+    } catch (error) {
+      if (!isCurrent()) return;
+      try {
+        await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale message session');
+          await _outboxRepo.enqueue(message, error: error.toString(), txn: txn);
+          if (!isCurrent()) throw StateError('stale message session');
+        });
+      } catch (outboxError) {
+        iPrint(
+          'ChannelService: 本地缓存与 outbox 均失败 - ${message.id}: $outboxError',
+        );
+      }
+    }
+  }
+
   // ==================== 订阅管理 ====================
 
-  /// 订阅频道
-  ///
-  /// 同时更新服务器和本地数据
-  Future<bool> subscribeChannel(String channelId) async {
+  String _subscriptionKey(String uid, String channelId) =>
+      '${Env().apiBaseUrl.length}:${Env().apiBaseUrl}:$uid:$channelId';
+
+  bool hasPendingSubscription(String channelId) => _acceptedSubscriptions
+      .contains(_subscriptionKey(UserRepoLocal.to.currentUid, channelId));
+
+  Future<ChannelSubscribeOutcome> subscribeChannelResult(String channelId) {
+    final uid = UserRepoLocal.to.currentUid;
+    final key = _subscriptionKey(uid, channelId);
+    if (_unsubscribingChannels.contains(key)) {
+      return Future.value(ChannelSubscribeOutcome.stale);
+    }
+    final current = _subscribeRequests[key];
+    if (current != null) return current;
+    final request = _subscribeChannelResult(channelId, uid, key);
+    _subscribeRequests[key] = request;
+    return request.whenComplete(() => _subscribeRequests.remove(key));
+  }
+
+  Future<bool> subscribeChannel(String channelId) async =>
+      await subscribeChannelResult(channelId) ==
+      ChannelSubscribeOutcome.completed;
+
+  Future<ChannelSubscribeOutcome> _subscribeChannelResult(
+    String channelId,
+    String uid,
+    String key,
+  ) async {
+    final user = UserRepoLocal.to;
+    final generation = user.sessionGeneration;
+    final source = Env().apiBaseUrl;
+    bool isCurrent() =>
+        !bindPublishDatabase ||
+        (uid.isNotEmpty &&
+            uid == user.currentUid &&
+            Env().apiBaseUrl == source &&
+            user.isCurrentSession(generation) &&
+            !user.isAuthTransitioning &&
+            (sessionValidForTest?.call() ?? true));
+    var accepted = _acceptedSubscriptions.contains(key);
     try {
-      final success = await api.subscribe(channelId);
-      if (!success) return false;
-
-      // 获取频道信息
+      final db = bindPublishDatabase ? await SqliteService.to.db : null;
+      if (!isCurrent() || (bindPublishDatabase && db == null)) {
+        return ChannelSubscribeOutcome.stale;
+      }
+      if (!accepted) {
+        final success = await api.subscribe(channelId);
+        if (!success) {
+          return isCurrent()
+              ? ChannelSubscribeOutcome.failed
+              : ChannelSubscribeOutcome.stale;
+        }
+        accepted = true;
+        _acceptedSubscriptions.add(key);
+      }
+      if (!isCurrent()) return ChannelSubscribeOutcome.stale;
       final channel = await api.getChannel(channelId);
-      if (channel == null) return false;
-
-      // 保存频道和订阅关系
-      await repo.saveChannel(channel);
-      await repo.saveSubscription(
-        ChannelSubscriptionModel(
-          channelId: parseModelInt(channelId),
-          subscribedAt: DateTime.now(),
-        ),
+      if (!isCurrent()) return ChannelSubscribeOutcome.stale;
+      if (channel == null ||
+          (bindPublishDatabase &&
+              (channel.id.toString() != channelId || !channel.isSubscribed))) {
+        return ChannelSubscribeOutcome.pending;
+      }
+      final subscription = ChannelSubscriptionModel(
+        channelId: parseModelInt(channelId),
+        subscribedAt: DateTime.now(),
       );
-
-      iPrint('ChannelService: 订阅频道成功 - $channelId');
-      return true;
+      if (db != null) {
+        await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale channel session');
+          await repo.saveChannel(channel, txn: txn);
+          final existing = await txn.query(
+            ChannelRepo.subscriptionTableName,
+            columns: [ChannelRepo.subChannelId],
+            where: '${ChannelRepo.subChannelId} = ?',
+            whereArgs: [channel.id],
+          );
+          if (existing.isEmpty) {
+            await repo.saveSubscription(subscription, txn: txn);
+          }
+          if (!isCurrent()) throw StateError('stale channel session');
+        });
+      } else {
+        await repo.saveChannel(channel);
+        await repo.saveSubscription(subscription);
+      }
+      if (!isCurrent()) return ChannelSubscribeOutcome.stale;
+      _acceptedSubscriptions.remove(key);
+      return ChannelSubscribeOutcome.completed;
     } catch (e) {
-      iPrint('ChannelService: 订阅频道失败 - $e');
-      return false;
+      iPrint('ChannelService: 订阅频道对账失败 - $e');
+      if (!isCurrent()) return ChannelSubscribeOutcome.stale;
+      return accepted
+          ? ChannelSubscribeOutcome.pending
+          : ChannelSubscribeOutcome.failed;
     }
   }
 
@@ -172,18 +374,49 @@ class ChannelService {
   ///
   /// 同时更新服务器和本地数据
   Future<bool> unsubscribeChannel(String channelId) async {
+    final key = _subscriptionKey(UserRepoLocal.to.currentUid, channelId);
+    if (_acceptedSubscriptions.contains(key) ||
+        _subscribeRequests.containsKey(key) ||
+        !_unsubscribingChannels.add(key)) {
+      return false;
+    }
     try {
+      final user = UserRepoLocal.to;
+      final uid = user.currentUid;
+      final generation = user.sessionGeneration;
+      bool isCurrent() =>
+          !bindPublishDatabase ||
+          (uid.isNotEmpty &&
+              uid == user.currentUid &&
+              user.isCurrentSession(generation) &&
+              !user.isAuthTransitioning &&
+              (sessionValidForTest?.call() ?? true));
+      final db = bindPublishDatabase ? await SqliteService.to.db : null;
+      if (!isCurrent() || (bindPublishDatabase && db == null)) return false;
       final success = await api.unsubscribe(channelId);
-      if (!success) return false;
-
-      // 删除本地订阅关系（保留频道信息和消息）
-      await repo.deleteSubscription(channelId);
+      if (!success || !isCurrent()) return false;
+      if (db != null) {
+        await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale channel session');
+          await txn.delete(
+            ChannelRepo.subscriptionTableName,
+            where: '${ChannelRepo.subChannelId} = ?',
+            whereArgs: [channelId],
+          );
+          if (!isCurrent()) throw StateError('stale channel session');
+        });
+        if (!isCurrent()) return false;
+      } else {
+        await repo.deleteSubscription(channelId);
+      }
 
       iPrint('ChannelService: 取消订阅成功 - $channelId');
       return true;
     } catch (e) {
       iPrint('ChannelService: 取消订阅失败 - $e');
       return false;
+    } finally {
+      _unsubscribingChannels.remove(key);
     }
   }
 
@@ -200,7 +433,30 @@ class ChannelService {
   /// 设置频道免打扰（静音）状态
   Future<bool> setMuted(String channelId, bool muted) async {
     try {
-      final rows = await repo.setMuted(channelId, muted);
+      int rows;
+      if (bindPublishDatabase) {
+        final user = UserRepoLocal.to;
+        if (user.isAuthTransitioning) return false;
+        final uid = user.currentUid;
+        final generation = user.sessionGeneration;
+        bool isCurrent() =>
+            uid.isNotEmpty &&
+            user.currentUid == uid &&
+            user.isCurrentSession(generation) &&
+            !user.isAuthTransitioning &&
+            (sessionValidForTest?.call() ?? true);
+        final db = await SqliteService.to.db;
+        if (db == null || !isCurrent()) return false;
+        rows = await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale channel session');
+          final updated = await repo.setMuted(channelId, muted, txn: txn);
+          if (!isCurrent()) throw StateError('stale channel session');
+          return updated;
+        });
+        if (!isCurrent()) return false;
+      } else {
+        rows = await repo.setMuted(channelId, muted);
+      }
       if (rows > 0) {
         AppEventBus.fire(
           ChannelStateChangedEvent(
@@ -253,7 +509,27 @@ class ChannelService {
     Map<String, dynamic>? payload,
     String? requestId,
   }) async {
+    final user = UserRepoLocal.to;
+    if (user.isAuthTransitioning) return null;
+    final session = user.sessionGeneration;
+    bool isCurrentSession() =>
+        user.isCurrentSession(session) &&
+        !user.isAuthTransitioning &&
+        (sessionValidForTest?.call() ?? true);
     final effectiveRequestId = requestId ?? _issuePublishRequestId();
+    if (bindPublishDatabase) {
+      final db = await SqliteService.to.db;
+      if (db == null || !isCurrentSession()) return null;
+      return _publishBound(
+        db: db,
+        isCurrent: isCurrentSession,
+        requestId: effectiveRequestId,
+        channelId: channelId,
+        content: content,
+        msgType: msgType,
+        payload: payload,
+      );
+    }
     try {
       final message = await api.publishMessage(
         channelId: channelId,
@@ -262,13 +538,18 @@ class ChannelService {
         payload: payload,
         requestId: effectiveRequestId,
       );
+      if (!isCurrentSession()) return null;
       if (message == null) {
         throw StateError('publish response message is null');
       }
       await _publishOutboxRepo.remove(effectiveRequestId);
-      await _cacheOrEnqueue(message);
+      if (!isCurrentSession()) return null;
+      // shortcut: 仓储尚未绑定账号数据库，W02 需完成事务级隔离。
+      await _cacheOrEnqueue(message, isCurrent: isCurrentSession);
+      if (!isCurrentSession()) return null;
       return message;
     } catch (e) {
+      if (!isCurrentSession()) return null;
       try {
         await _publishOutboxRepo.enqueue(
           requestId: effectiveRequestId,
@@ -289,6 +570,94 @@ class ChannelService {
     }
   }
 
+  Future<ChannelMessageModel?> _publishBound({
+    required Database db,
+    required bool Function() isCurrent,
+    required String requestId,
+    required String channelId,
+    required String content,
+    required String msgType,
+    Map<String, dynamic>? payload,
+    bool retryExisting = false,
+  }) async {
+    ChannelMessageModel? message;
+    try {
+      message = await api.publishMessage(
+        channelId: channelId,
+        content: content,
+        msgType: msgType,
+        payload: payload,
+        requestId: requestId,
+      );
+      if (message == null) throw StateError('publish response message is null');
+    } catch (error) {
+      if (!isCurrent()) return null;
+      try {
+        await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale publish session');
+          if (retryExisting) {
+            await _publishOutboxRepo.markRetry(requestId, error, txn: txn);
+          } else {
+            await _publishOutboxRepo.enqueue(
+              requestId: requestId,
+              channelId: channelId,
+              content: content,
+              msgType: msgType,
+              payload: payload,
+              error: error.toString(),
+              txn: txn,
+            );
+          }
+          if (!isCurrent()) throw StateError('stale publish session');
+        });
+      } catch (error) {
+        iPrint('ChannelService: 发布失败且 outbox 写入失败 - $error');
+      }
+      return null;
+    }
+    if (!isCurrent()) return null;
+    try {
+      ChannelModel? remote;
+      final rows = await db.query(
+        ChannelRepo.tableName,
+        columns: [ChannelRepo.id],
+        where: '${ChannelRepo.id} = ?',
+        whereArgs: [message.channelId],
+        limit: 1,
+      );
+      if (!isCurrent()) return null;
+      if (rows.isEmpty) remote = await api.getChannel(channelId);
+      if (!isCurrent()) return null;
+      await db.transaction((txn) async {
+        if (!isCurrent()) throw StateError('stale publish session');
+        if (remote != null) await repo.saveChannel(remote, txn: txn);
+        final existing = await repo.getChannel(channelId, txn: txn);
+        if (existing == null) throw StateError('channel is not cached');
+        await _messageRepo.saveMessage(message!, txn: txn);
+        await _outboxRepo.remove(message!.id, txn: txn);
+        await _publishOutboxRepo.remove(requestId, txn: txn);
+        if (!isCurrent()) throw StateError('stale publish session');
+      });
+    } catch (error) {
+      if (!isCurrent()) return null;
+      try {
+        await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale publish session');
+          await _outboxRepo.enqueue(
+            message!,
+            error: error.toString(),
+            txn: txn,
+          );
+          await _publishOutboxRepo.remove(requestId, txn: txn);
+          if (!isCurrent()) throw StateError('stale publish session');
+        });
+      } catch (outboxError) {
+        iPrint('ChannelService: 本地缓存与 outbox 均失败 - $outboxError');
+      }
+    }
+    return isCurrent() ? message : null;
+  }
+
   Future<Map<int, ChannelMessageModel>> getCachedPreviews(
     List<String> channelIds,
   ) => _messageRepo.getLastMessages(channelIds);
@@ -302,8 +671,17 @@ class ChannelService {
     int? cursor,
     int limit = 20,
   }) async {
+    final user = UserRepoLocal.to;
+    if (user.isAuthTransitioning) return [];
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning &&
+        (sessionValidForTest?.call() ?? true);
     await _drainPublishOutbox(channelId);
+    if (!isCurrent()) return [];
     await _drainMessageOutbox(channelId);
+    if (!isCurrent()) return [];
 
     // 先从本地获取
     final localMessages = await _messageRepo.getMessages(
@@ -311,6 +689,7 @@ class ChannelService {
       cursor: cursor,
       limit: limit,
     );
+    if (!isCurrent()) return [];
 
     // 如果本地有数据，直接返回
     if (localMessages.isNotEmpty) {
@@ -333,6 +712,44 @@ class ChannelService {
 
   /// 重放待发布请求。每条请求使用原 request_id，服务端据此保证幂等。
   Future<void> _drainPublishOutbox(String channelId) async {
+    if (bindPublishDatabase) {
+      final user = UserRepoLocal.to;
+      if (user.isAuthTransitioning) return;
+      final generation = user.sessionGeneration;
+      bool isCurrent() =>
+          user.isCurrentSession(generation) &&
+          !user.isAuthTransitioning &&
+          (sessionValidForTest?.call() ?? true);
+      try {
+        final db = await SqliteService.to.db;
+        if (db == null || !isCurrent()) return;
+        final pending = await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale publish session');
+          final items = await _publishOutboxRepo.pending(
+            channelId: channelId,
+            txn: txn,
+          );
+          if (!isCurrent()) throw StateError('stale publish session');
+          return items;
+        });
+        for (final item in pending) {
+          if (!isCurrent()) return;
+          await _publishBound(
+            db: db,
+            isCurrent: isCurrent,
+            requestId: item.requestId,
+            channelId: item.channelId,
+            content: item.content,
+            msgType: item.msgType,
+            payload: item.payload,
+            retryExisting: true,
+          );
+        }
+      } catch (error) {
+        iPrint('ChannelService: 读取发布 outbox 失败 - $error');
+      }
+      return;
+    }
     try {
       final pending = await _publishOutboxRepo.pending(channelId: channelId);
       for (final item in pending) {
@@ -364,15 +781,28 @@ class ChannelService {
   }
 
   /// 补齐消息父频道后保存；任何本地失败都转入持久化 outbox。
-  Future<void> _cacheOrEnqueue(ChannelMessageModel message) async {
+  Future<void> _cacheOrEnqueue(
+    ChannelMessageModel message, {
+    bool Function()? isCurrent,
+  }) async {
     try {
-      final channel = await getChannel(message.channelId.toString());
+      final channelId = message.channelId.toString();
+      var channel = await repo.getChannel(channelId);
+      if (isCurrent != null && !isCurrent()) return;
+      if (channel == null) {
+        channel = await api.getChannel(channelId);
+        if (isCurrent != null && !isCurrent()) return;
+        if (channel != null) await repo.saveChannel(channel);
+      }
+      if (isCurrent != null && !isCurrent()) return;
       if (channel == null) {
         throw StateError('channel ${message.channelId} is not cached');
       }
       await _messageRepo.saveMessage(message);
+      if (isCurrent != null && !isCurrent()) return;
       await _outboxRepo.remove(message.id);
     } catch (e) {
+      if (isCurrent != null && !isCurrent()) return;
       try {
         await _outboxRepo.enqueue(message, error: e.toString());
         iPrint('ChannelService: 本地缓存失败，已进入消息 outbox - ${message.id}: $e');
@@ -386,6 +816,65 @@ class ChannelService {
 
   /// 重放到期 outbox。单条失败只延迟该条，不阻塞其它消息。
   Future<void> _drainMessageOutbox(String channelId) async {
+    if (bindPublishDatabase) {
+      final user = UserRepoLocal.to;
+      if (user.isAuthTransitioning) return;
+      final generation = user.sessionGeneration;
+      bool isCurrent() =>
+          user.isCurrentSession(generation) &&
+          !user.isAuthTransitioning &&
+          (sessionValidForTest?.call() ?? true);
+      try {
+        final db = await SqliteService.to.db;
+        if (db == null || !isCurrent()) return;
+        final pending = await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale message session');
+          final items = await _outboxRepo.pending(
+            channelId: channelId,
+            txn: txn,
+          );
+          if (!isCurrent()) throw StateError('stale message session');
+          return items;
+        });
+        for (final message in pending) {
+          if (!isCurrent()) return;
+          try {
+            final rows = await db.query(
+              ChannelRepo.tableName,
+              columns: [ChannelRepo.id],
+              where: '${ChannelRepo.id} = ?',
+              whereArgs: [message.channelId],
+              limit: 1,
+            );
+            if (!isCurrent()) return;
+            final remote = rows.isEmpty
+                ? await api.getChannel(channelId)
+                : null;
+            if (!isCurrent()) return;
+            await db.transaction((txn) async {
+              if (!isCurrent()) throw StateError('stale message session');
+              if (remote != null) await repo.saveChannel(remote, txn: txn);
+              if (await repo.getChannel(channelId, txn: txn) == null) {
+                throw StateError('channel $channelId is not cached');
+              }
+              await _messageRepo.saveMessage(message, txn: txn);
+              await _outboxRepo.remove(message.id, txn: txn);
+              if (!isCurrent()) throw StateError('stale message session');
+            });
+          } catch (error) {
+            if (!isCurrent()) return;
+            await db.transaction((txn) async {
+              if (!isCurrent()) throw StateError('stale message session');
+              await _outboxRepo.markRetry(message.id, error, txn: txn);
+              if (!isCurrent()) throw StateError('stale message session');
+            });
+          }
+        }
+      } catch (error) {
+        iPrint('ChannelService: 消息 outbox 重放失败 - $error');
+      }
+      return;
+    }
     try {
       final pending = await _outboxRepo.pending(channelId: channelId);
       for (final message in pending) {
@@ -1171,7 +1660,17 @@ class ChannelService {
   // ==================== 辅助方法 ====================
 
   /// 获取频道信息（优先本地）
-  Future<ChannelModel?> getChannel(String channelId) async {
+  Future<ChannelModel?> getChannel(
+    String channelId, {
+    bool Function()? isCurrent,
+  }) async {
+    if (bindPublishDatabase) {
+      return _loadChannelBound(
+        channelId,
+        localFirst: true,
+        requestCurrent: isCurrent,
+      );
+    }
     // 先从本地获取
     final local = await repo.getChannel(channelId);
     if (local != null) return local;
@@ -1189,16 +1688,109 @@ class ChannelService {
   /// 购买/退款等权益变化不能走 [getChannel] 的本地优先路径，否则旧的
   /// `hasPurchased` 可能遮蔽服务端最新状态。远端没有成功返回时保持 null，
   /// 调用方不得用旧缓存绕过付费权限判断。
-  Future<ChannelModel?> refreshChannel(String channelId) async {
+  Future<ChannelModel?> refreshChannel(
+    String channelId, {
+    bool Function()? isCurrent,
+  }) async {
+    if (bindPublishDatabase) {
+      return _loadChannelBound(
+        channelId,
+        localFirst: false,
+        requestCurrent: isCurrent,
+      );
+    }
     final remote = await api.getChannel(channelId);
     if (remote == null) return null;
     await repo.saveChannel(remote);
     return remote;
   }
 
+  /// 保留拒绝和网络错误，供详情页选择缓存失效或重试。
+  Future<ChannelModel?> refreshChannelChecked(
+    String channelId, {
+    bool Function()? isCurrent,
+  }) async {
+    if (bindPublishDatabase) {
+      return _loadChannelBound(
+        channelId,
+        localFirst: false,
+        checked: true,
+        requestCurrent: isCurrent,
+      );
+    }
+    final remote = await api.getChannelChecked(channelId);
+    await repo.saveChannel(remote);
+    return remote;
+  }
+
   /// 保存已由服务端确认的频道快照（例如 custom_id 详情路径）。
-  Future<void> cacheChannelSnapshot(ChannelModel channel) async {
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async {
+    if (bindPublishDatabase) {
+      final user = UserRepoLocal.to;
+      if (user.isAuthTransitioning) return;
+      final generation = user.sessionGeneration;
+      bool sessionCurrent() =>
+          user.isCurrentSession(generation) &&
+          !user.isAuthTransitioning &&
+          (sessionValidForTest?.call() ?? true) &&
+          (isCurrent?.call() ?? true);
+      final db = await SqliteService.to.db;
+      if (db == null || !sessionCurrent()) return;
+      try {
+        await db.transaction((txn) async {
+          if (!sessionCurrent()) throw StateError('stale channel session');
+          await repo.saveChannel(channel, txn: txn);
+          if (!sessionCurrent()) throw StateError('stale channel session');
+        });
+      } catch (_) {
+        if (sessionCurrent()) rethrow;
+      }
+      return;
+    }
     await repo.saveChannel(channel);
+  }
+
+  Future<ChannelModel?> _loadChannelBound(
+    String channelId, {
+    required bool localFirst,
+    bool checked = false,
+    bool Function()? requestCurrent,
+  }) async {
+    final user = UserRepoLocal.to;
+    if (user.isAuthTransitioning) return null;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning &&
+        (sessionValidForTest?.call() ?? true) &&
+        (requestCurrent?.call() ?? true);
+    final db = await SqliteService.to.db;
+    if (db == null || !isCurrent()) return null;
+    try {
+      if (localFirst) {
+        final local = await db.transaction(
+          (txn) => repo.getChannel(channelId, txn: txn),
+        );
+        if (!isCurrent()) return null;
+        if (local != null) return local;
+      }
+      final remote = checked
+          ? await api.getChannelChecked(channelId)
+          : await api.getChannel(channelId);
+      if (remote == null || !isCurrent()) return null;
+      await db.transaction((txn) async {
+        if (!isCurrent()) throw StateError('stale channel session');
+        await repo.saveChannel(remote, txn: txn);
+        if (!isCurrent()) throw StateError('stale channel session');
+      });
+      return isCurrent() ? remote : null;
+    } catch (_) {
+      if (!isCurrent()) return null;
+      rethrow;
+    }
   }
 
   /// 检查是否已订阅

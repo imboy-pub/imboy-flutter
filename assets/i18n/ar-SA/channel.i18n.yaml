@@ -221,3 +221,6 @@ shareLink: "مشاركة الرابط"
 linkAccessHint: "يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط."
 personalChannelLabel: "قناة شخصية"
 enterpriseChannelLabel: "قناة داخلية للمؤسسة"
+
+subscribePending: تم الاشتراك، جارٍ التحديث
+subscribeRefresh: تحديث الاشتراك

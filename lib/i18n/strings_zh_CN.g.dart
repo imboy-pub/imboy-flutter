@@ -1449,6 +1449,12 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '企业内部频道'
 	String get enterpriseChannelLabel => '企业内部频道';
+
+	/// zh-CN: '已订阅，正在刷新'
+	String get subscribePending => '已订阅，正在刷新';
+
+	/// zh-CN: '刷新订阅状态'
+	String get subscribeRefresh => '刷新订阅状态';
 }
 
 // Path: chat
@@ -10455,6 +10461,9 @@ class Translations$organization$manage$zh_CN {
 	/// zh-CN: '新建群'
 	String get createGroup => '新建群';
 
+	/// zh-CN: '群已创建（ID：${gid}），名称未保存'
+	String groupCreatedRenamePending({required Object gid}) => '群已创建（ID：${gid}），名称未保存';
+
 	/// zh-CN: '群名称'
 	String get groupNameHint => '群名称';
 
@@ -11284,6 +11293,8 @@ extension on Translations {
 			'channel.linkAccessHint' => '链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。',
 			'channel.personalChannelLabel' => '个人频道',
 			'channel.enterpriseChannelLabel' => '企业内部频道',
+			'channel.subscribePending' => '已订阅，正在刷新',
+			'channel.subscribeRefresh' => '刷新订阅状态',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -11349,10 +11360,10 @@ extension on Translations {
 			'chat.remindMeLater' => '下次再说',
 			'chat.quickReplyManage' => '管理快捷回复',
 			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
-			'chat.quickReplyDuplicate' => '内容已存在',
-			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
 			_ => null,
 		} ?? switch (path) {
+			'chat.quickReplyDuplicate' => '内容已存在',
+			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
 			'chat.quickReplyHint' => '输入内容...',
 			'chat.muteMember' => '禁言成员',
 			'chat.unmuteMember' => '取消禁言',
@@ -11863,10 +11874,10 @@ extension on Translations {
 			'common.showOnlineStatusDesc' => '关闭后，好友看不到你的在线状态和最后上线时间；消息投递不受影响',
 			'common.allowNearbyVisible' => '附近的人可见',
 			'common.dataSettings' => '数据设置',
-			'common.clearChatRecords' => '清除聊天记录',
-			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
 			_ => null,
 		} ?? switch (path) {
+			'common.clearChatRecords' => '清除聊天记录',
+			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
 			'common.deleteAccountAction' => '注销账号',
 			'common.deleteAccountActionDesc' => '永久删除账号和所有数据，此操作不可恢复',
 			'common.chatHistoryCleared' => '聊天记录已清除',
@@ -12377,10 +12388,10 @@ extension on Translations {
 			'common.redPacketStuffLucky' => '塞钱发红包',
 			'common.redPacketStuffNormal' => '放入钱包发送',
 			'common.amountMustPositive' => '金额必须大于 0',
-			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
-			'common.transferAmountLabel' => '转账金额',
 			_ => null,
 		} ?? switch (path) {
+			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
+			'common.transferAmountLabel' => '转账金额',
 			'common.transferRemarkLabel' => '转账备注',
 			'common.transferConfirm' => '确认转账',
 			'common.transferReceiving' => '正在收款...',
@@ -12891,10 +12902,10 @@ extension on Translations {
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
-			'groupTask.dueSoon' => '即将截止',
-			'groupTask.submitFailed' => '提交失败，请稍后重试',
 			_ => null,
 		} ?? switch (path) {
+			'groupTask.dueSoon' => '即将截止',
+			'groupTask.submitFailed' => '提交失败，请稍后重试',
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '待办ID缺失，无法查看详情',
 			'groupTask.taskIdMissingSubmit' => '待办ID缺失，无法提交',
@@ -13405,10 +13416,10 @@ extension on Translations {
 			'organization.directory.inviteColleaguesRow' => '邀请同事...',
 			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			'organization.memberDetail.roleLabel' => '企业角色',
-			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
-			'organization.memberDetail.accountLabel' => '登录账号',
 			_ => null,
 		} ?? switch (path) {
+			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
+			'organization.memberDetail.accountLabel' => '登录账号',
 			'organization.memberDetail.joinedLabel' => '加入时间',
 			'organization.memberDetail.workspacesTitle' => '有权工作区',
 			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
@@ -13453,6 +13464,7 @@ extension on Translations {
 			'organization.manage.retry' => '重试',
 			'organization.manage.groupSection' => '企业群',
 			'organization.manage.createGroup' => '新建群',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '群已创建（ID：${gid}），名称未保存',
 			'organization.manage.groupNameHint' => '群名称',
 			'organization.manage.groupEmpty' => '暂无企业群',
 			'organization.manage.groupMembers' => ({required Object count}) => '成员 ${count}',
@@ -13918,11 +13930,11 @@ extension on Translations {
 			'talkRecord.participantsRemove' => '移除参与者',
 			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',
 			'talkRecord.participantsAddGuest' => '添加来宾',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
 			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',
 			'talkRecord.participantsConflict' => '名单已更新，已刷新为最新内容。请检查后重新编辑。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
 			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
 			'talkRecord.uploadNoticeTitle' => '上传前确认',

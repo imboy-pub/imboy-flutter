@@ -508,6 +508,8 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés.';
 	@override String get personalChannelLabel => 'Canal personnel';
 	@override String get enterpriseChannelLabel => 'Canal interne de l’entreprise';
+	@override String get subscribePending => 'Abonné ; actualisation en cours';
+	@override String get subscribeRefresh => 'Actualiser l’abonnement';
 }
 
 // Path: chat
@@ -3211,6 +3213,7 @@ class _Translations$organization$manage$fr_FR extends Translations$organization$
 	@override String get retry => 'Réessayer';
 	@override String get groupSection => 'Groupes de l\'entreprise';
 	@override String get createGroup => 'Créer un groupe';
+	@override String groupCreatedRenamePending({required Object gid}) => 'Groupe créé (ID : ${gid}) ; nom non enregistré';
 	@override String get groupNameHint => 'Nom du groupe';
 	@override String get groupEmpty => 'Aucun groupe d\'entreprise';
 	@override String groupMembers({required Object count}) => '${count} membres';
@@ -3757,6 +3760,8 @@ extension on TranslationsFrFr {
 			'channel.linkAccessHint' => 'Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés.',
 			'channel.personalChannelLabel' => 'Canal personnel',
 			'channel.enterpriseChannelLabel' => 'Canal interne de l’entreprise',
+			'channel.subscribePending' => 'Abonné ; actualisation en cours',
+			'channel.subscribeRefresh' => 'Actualiser l’abonnement',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3877,10 +3882,10 @@ extension on TranslationsFrFr {
 			'chat.momentsVisibilityPrivate' => 'Privé',
 			'chat.momentsMediaTooManyImages' => '9 images maximum',
 			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
-			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
-			'chat.momentsReplyPrefix' => 'Répondre @',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
+			'chat.momentsReplyPrefix' => 'Répondre @',
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => 'Réponse à @{name}',
 			'chat.sendNewMessage' => 'Envoyer un nouveau message',
@@ -4391,10 +4396,10 @@ extension on TranslationsFrFr {
 			'common.basicInfo' => 'Informations de base',
 			'common.contactInfo' => 'Coordonnées',
 			'common.editTags' => 'Modifier les étiquettes',
-			'common.quickActions' => 'Actions rapides',
-			'common.noNewFriendRequests' => 'Aucune nouvelle demande d\'ami pour le moment.',
 			_ => null,
 		} ?? switch (path) {
+			'common.quickActions' => 'Actions rapides',
+			'common.noNewFriendRequests' => 'Aucune nouvelle demande d\'ami pour le moment.',
 			'common.pleaseEnterVerificationMessage' => 'Entrez le message de vérification.',
 			'common.unknownRegion' => 'Région inconnue.',
 			'common.noCommonGroups' => 'Aucun groupe en commun.',
@@ -4905,10 +4910,10 @@ extension on TranslationsFrFr {
 			'contact.pleaseEnterTags' => 'Entrez les étiquettes.',
 			'contact.momentsVisibilityFriends' => 'Amis seulement',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
-			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
-			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
+			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
 			'contact.friendRequestSent' => 'Envoyé',
 			'contact.channelMaxTagsCount' => '8 étiquettes maximum',
 			'contact.tagInputHint' => 'Étiquette...',
@@ -5419,10 +5424,10 @@ extension on TranslationsFrFr {
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',
 			'mention.title' => '@Mentions',
-			'mention.noMention' => 'Aucune @mention',
-			'mention.allRead' => 'Tout marquer lu',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => 'Aucune @mention',
+			'mention.allRead' => 'Tout marquer lu',
 			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
 			'mention.navInfoMissing' => 'Position du message manquante, navigation impossible',
 			'mention.pickButtonTooltip' => 'Mentionner un membre',
@@ -5748,6 +5753,7 @@ extension on TranslationsFrFr {
 			'organization.manage.retry' => 'Réessayer',
 			'organization.manage.groupSection' => 'Groupes de l\'entreprise',
 			'organization.manage.createGroup' => 'Créer un groupe',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Groupe créé (ID : ${gid}) ; nom non enregistré',
 			'organization.manage.groupNameHint' => 'Nom du groupe',
 			'organization.manage.groupEmpty' => 'Aucun groupe d\'entreprise',
 			'organization.manage.groupMembers' => ({required Object count}) => '${count} membres',
@@ -5932,11 +5938,11 @@ extension on TranslationsFrFr {
 			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
 			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',
 			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
 			'workspace.dmEntry' => 'Tous les messages',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'Personnel',
 			'workspace.switchToPersonal' => 'Passer en mode personnel',
 			'workspace.createTitle' => 'Créer un espace de travail',

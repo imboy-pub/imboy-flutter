@@ -224,3 +224,6 @@ shareLink: "Share link"
 linkAccessHint: "Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership."
 personalChannelLabel: "Personal channel"
 enterpriseChannelLabel: "Internal enterprise channel"
+
+subscribePending: Subscribed; refreshing
+subscribeRefresh: Refresh subscription

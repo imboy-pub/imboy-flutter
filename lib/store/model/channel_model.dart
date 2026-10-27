@@ -281,6 +281,8 @@ class ChannelModel {
     final parsedId = parseModelInt(map['id']);
     return ChannelModel(
       id: parsedId,
+      scope: parseModelNullableString(map['scope']),
+      workspaceId: parseModelNullableString(map['workspace_id']),
       name: parseModelString(map['name']),
       description: parseModelNullableString(map['description']),
       avatar: parseModelNullableString(map['avatar']),
@@ -317,6 +319,8 @@ class ChannelModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'scope': scope,
+      'workspace_id': workspaceId,
       'name': name,
       'description': description,
       'avatar': avatar,

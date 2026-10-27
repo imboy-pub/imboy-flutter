@@ -12,17 +12,40 @@ import 'package:imboy/page/channel/channel_compose_page.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/utils/chat_draft_keys.dart';
+import 'package:imboy/store/model/channel_model.dart';
 
 class _PendingPublisher extends ChannelDetailNotifier {
   final result = Completer<bool>();
+  int calls = 0;
+  void switchChannel() => state = ChannelDetailState(
+    channel: ChannelModel(
+      id: 995502,
+      name: 'other',
+      creatorId: 1,
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    ),
+  );
   @override
-  ChannelDetailState build() => const ChannelDetailState();
+  ChannelDetailState build() => ChannelDetailState(
+    channel: ChannelModel(
+      id: 995501,
+      name: 'test',
+      creatorId: 1,
+      createdAt: DateTime.utc(2026),
+      updatedAt: DateTime.utc(2026),
+    ),
+  );
   @override
   Future<bool> publishMessage({
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
-  }) => result.future;
+    String? expectedChannelId,
+  }) {
+    calls++;
+    return result.future;
+  }
 }
 
 void main() {
@@ -143,6 +166,32 @@ void main() {
     expect(StorageService.to.getString(b), contains('B body'));
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('共享详情切到其他频道时图文发布入口不可用', (tester) async {
+    final publisher = _PendingPublisher();
+    await mount(tester, '1001', publisher: publisher);
+    await enter(tester, 'title', 'body');
+    publisher.switchChannel();
+    await tester.pump();
+    final button = tester.widget<CupertinoButton>(
+      find.widgetWithText(CupertinoButton, t.channel.publish),
+    );
+    expect(button.onPressed, isNull);
+    expect(text(tester), ['title', 'body']);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('切换账号后相同频道的旧图文草稿不会发出', (tester) async {
+    final publisher = _PendingPublisher();
+    await mount(tester, '1001', publisher: publisher);
+    await enter(tester, 'title', 'body');
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    await tester.tap(find.widgetWithText(CupertinoButton, t.channel.publish));
+    await tester.pump();
+    expect(publisher.calls, 0);
+    expect(text(tester), ['title', 'body']);
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

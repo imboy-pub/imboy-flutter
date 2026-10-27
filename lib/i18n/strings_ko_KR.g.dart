@@ -508,6 +508,8 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => '링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다.';
 	@override String get personalChannelLabel => '개인 채널';
 	@override String get enterpriseChannelLabel => '기업 내부 채널';
+	@override String get subscribePending => '구독 완료, 새로고침 중';
+	@override String get subscribeRefresh => '구독 상태 새로고침';
 }
 
 // Path: chat
@@ -3208,6 +3210,7 @@ class _Translations$organization$manage$ko_KR extends Translations$organization$
 	@override String get retry => '다시 시도';
 	@override String get groupSection => '기업 그룹';
 	@override String get createGroup => '그룹 만들기';
+	@override String groupCreatedRenamePending({required Object gid}) => '그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다';
 	@override String get groupNameHint => '그룹 이름';
 	@override String get groupEmpty => '기업 그룹이 없습니다';
 	@override String groupMembers({required Object count}) => '멤버 ${count}';
@@ -3754,6 +3757,8 @@ extension on TranslationsKoKr {
 			'channel.linkAccessHint' => '링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다.',
 			'channel.personalChannelLabel' => '개인 채널',
 			'channel.enterpriseChannelLabel' => '기업 내부 채널',
+			'channel.subscribePending' => '구독 완료, 새로고침 중',
+			'channel.subscribeRefresh' => '구독 상태 새로고침',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3874,10 +3879,10 @@ extension on TranslationsKoKr {
 			'chat.momentsVisibilityPrivate' => '나만 보기',
 			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
 			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
-			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
-			'chat.momentsReplyPrefix' => '답글 @',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
+			'chat.momentsReplyPrefix' => '답글 @',
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => '@{name}님에게 답글 작성 중',
 			'chat.sendNewMessage' => '새 메시지 전송',
@@ -4388,10 +4393,10 @@ extension on TranslationsKoKr {
 			'common.basicInfo' => '기본 정보',
 			'common.contactInfo' => '연락처 정보',
 			'common.editTags' => '태그 편집',
-			'common.quickActions' => '빠른 작업',
-			'common.noNewFriendRequests' => '현재 새 친구 요청이 없습니다',
 			_ => null,
 		} ?? switch (path) {
+			'common.quickActions' => '빠른 작업',
+			'common.noNewFriendRequests' => '현재 새 친구 요청이 없습니다',
 			'common.pleaseEnterVerificationMessage' => '확인 메시지를 입력해 주세요',
 			'common.unknownRegion' => '알 수 없는 지역',
 			'common.noCommonGroups' => '공통 그룹 없음',
@@ -4902,10 +4907,10 @@ extension on TranslationsKoKr {
 			'contact.pleaseEnterTags' => '태그를 입력하세요',
 			'contact.momentsVisibilityFriends' => '친구만',
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
-			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
-			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
+			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
 			'contact.friendRequestSent' => '전송됨',
 			'contact.channelMaxTagsCount' => '태그는 최대 8개까지 추가할 수 있습니다',
 			'contact.tagInputHint' => '태그 입력...',
@@ -5416,10 +5421,10 @@ extension on TranslationsKoKr {
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
 			'mention.title' => '@멘션',
-			'mention.noMention' => '멘션이 없습니다',
-			'mention.allRead' => '모두 읽음',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => '멘션이 없습니다',
+			'mention.allRead' => '모두 읽음',
 			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
 			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
 			'mention.pickButtonTooltip' => '멤버 @멘션',
@@ -5745,6 +5750,7 @@ extension on TranslationsKoKr {
 			'organization.manage.retry' => '다시 시도',
 			'organization.manage.groupSection' => '기업 그룹',
 			'organization.manage.createGroup' => '그룹 만들기',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다',
 			'organization.manage.groupNameHint' => '그룹 이름',
 			'organization.manage.groupEmpty' => '기업 그룹이 없습니다',
 			'organization.manage.groupMembers' => ({required Object count}) => '멤버 ${count}',
@@ -5929,11 +5935,11 @@ extension on TranslationsKoKr {
 			'workspace.switchWorkspace' => '워크스페이스 전환',
 			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',
 			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
 			'workspace.dmEntry' => '전체 메시지',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '개인',
 			'workspace.switchToPersonal' => '개인으로 전환',
 			'workspace.createTitle' => '워크스페이스 만들기',

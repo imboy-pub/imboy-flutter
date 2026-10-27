@@ -508,6 +508,8 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。';
 	@override String get personalChannelLabel => '個人チャンネル';
 	@override String get enterpriseChannelLabel => '企業内チャンネル';
+	@override String get subscribePending => '購読済み、更新中';
+	@override String get subscribeRefresh => '購読状態を更新';
 }
 
 // Path: chat
@@ -3208,6 +3210,7 @@ class _Translations$organization$manage$ja_JP extends Translations$organization$
 	@override String get retry => '再試行';
 	@override String get groupSection => '企業グループ';
 	@override String get createGroup => 'グループを作成';
+	@override String groupCreatedRenamePending({required Object gid}) => 'グループを作成しました（ID：${gid}）。名前は保存されていません';
 	@override String get groupNameHint => 'グループ名';
 	@override String get groupEmpty => '企業グループがありません';
 	@override String groupMembers({required Object count}) => 'メンバー ${count}';
@@ -3754,6 +3757,8 @@ extension on TranslationsJaJp {
 			'channel.linkAccessHint' => 'リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。',
 			'channel.personalChannelLabel' => '個人チャンネル',
 			'channel.enterpriseChannelLabel' => '企業内チャンネル',
+			'channel.subscribePending' => '購読済み、更新中',
+			'channel.subscribeRefresh' => '購読状態を更新',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3874,10 +3879,10 @@ extension on TranslationsJaJp {
 			'chat.momentsVisibilityPrivate' => '非公開',
 			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
 			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
-			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
-			'chat.momentsReplyPrefix' => '返信 @',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
+			'chat.momentsReplyPrefix' => '返信 @',
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '@{name}に返信中',
 			'chat.sendNewMessage' => '新しいメッセージを送信',
@@ -4388,10 +4393,10 @@ extension on TranslationsJaJp {
 			'common.basicInfo' => '基本情報',
 			'common.contactInfo' => '連絡先情報',
 			'common.editTags' => 'タグを編集',
-			'common.quickActions' => 'クイックアクション',
-			'common.noNewFriendRequests' => '現在新しい友達リクエストはありません',
 			_ => null,
 		} ?? switch (path) {
+			'common.quickActions' => 'クイックアクション',
+			'common.noNewFriendRequests' => '現在新しい友達リクエストはありません',
 			'common.pleaseEnterVerificationMessage' => '認証メッセージを入力してください',
 			'common.unknownRegion' => '未知の地域',
 			'common.noCommonGroups' => '共通のグループはありません',
@@ -4902,10 +4907,10 @@ extension on TranslationsJaJp {
 			'contact.pleaseEnterTags' => 'タグを入力してください',
 			'contact.momentsVisibilityFriends' => '友達のみ',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
-			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
-			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
+			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
 			'contact.friendRequestSent' => '送信済み',
 			'contact.channelMaxTagsCount' => 'タグは最大8個まで追加できます',
 			'contact.tagInputHint' => 'タグを入力...',
@@ -5416,10 +5421,10 @@ extension on TranslationsJaJp {
 			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',
 			'mention.title' => '@メンション',
-			'mention.noMention' => '@メンションはありません',
-			'mention.allRead' => 'すべて既読にする',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => '@メンションはありません',
+			'mention.allRead' => 'すべて既読にする',
 			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
 			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
 			'mention.pickButtonTooltip' => '@メンバーを指定',
@@ -5745,6 +5750,7 @@ extension on TranslationsJaJp {
 			'organization.manage.retry' => '再試行',
 			'organization.manage.groupSection' => '企業グループ',
 			'organization.manage.createGroup' => 'グループを作成',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'グループを作成しました（ID：${gid}）。名前は保存されていません',
 			'organization.manage.groupNameHint' => 'グループ名',
 			'organization.manage.groupEmpty' => '企業グループがありません',
 			'organization.manage.groupMembers' => ({required Object count}) => 'メンバー ${count}',
@@ -5929,11 +5935,11 @@ extension on TranslationsJaJp {
 			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
 			'workspace.pickerEmptyTitle' => 'ワークスペースはまだありません',
 			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archivedBadge' => 'アーカイブ済み',
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
 			'workspace.dmEntry' => 'すべてのメッセージ',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '個人に切り替え',
 			'workspace.createTitle' => 'ワークスペースを作成',

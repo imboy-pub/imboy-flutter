@@ -1768,3 +1768,9 @@ CREATE INDEX i_cv_UserId_IsShow_LastTime ON conversation (user_id, is_show, last
 CREATE INDEX idx_conversation_user_id_last_time ON conversation (user_id, last_time DESC);
 CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type", user_id, peer_id);
 PRAGMA user_version = 36;
+-- VERSION: 37
+-- DESC: channel scope provenance
+
+ALTER TABLE channel ADD COLUMN scope TEXT;
+ALTER TABLE channel ADD COLUMN workspace_id TEXT;
+PRAGMA user_version = 37;

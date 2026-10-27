@@ -1,3 +1,5 @@
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/page/channel/channel_detail_rules.dart';
@@ -22,6 +25,7 @@ import 'package:imboy/store/api/report_api.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 
+import '../channel_di_provider.dart';
 import '../channel_message_item.dart';
 import '../channel_provider.dart';
 
@@ -147,21 +151,33 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   Future<void> _subscribeFromEmpty(String channelId) async {
     if (_isSubscribingFromEmpty) return;
+    final t = context.t;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        mounted &&
+        widget.channelId == channelId &&
+        user.currentUid == uid &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
     setState(() => _isSubscribingFromEmpty = true);
     try {
       final success = await ref
           .read(channelListProvider.notifier)
           .subscribeChannel(channelId);
-      if (!mounted) return;
-      if (success) {
+      if (!isCurrent()) return;
+      if (success == ChannelSubscribeOutcome.completed) {
         await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
-        widget.onReactionChanged?.call();
+        if (isCurrent()) widget.onReactionChanged?.call();
+      } else if (success == ChannelSubscribeOutcome.pending) {
+        AppLoading.showToast(t.channel.subscribePending);
       }
       // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.subscribe 透出
     } catch (e) {
       iPrint('[ChannelMessageFeed] 订阅失败: $e');
-      if (mounted) {
-        AppLoading.showError(context.t.channel.subscribeFailed);
+      if (isCurrent()) {
+        AppLoading.showError(t.channel.subscribeFailed);
       }
     } finally {
       if (mounted) {
@@ -449,7 +465,13 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           onTop: _isSubscribingFromEmpty
               ? null
               : () => _subscribeFromEmpty(widget.channelId),
-          retryLabel: _isSubscribingFromEmpty ? null : t.channel.subscribe,
+          retryLabel: _isSubscribingFromEmpty
+              ? null
+              : (ref
+                        .read(channelServiceProvider)
+                        .hasPendingSubscription(widget.channelId)
+                    ? t.channel.subscribeRefresh
+                    : t.channel.subscribe),
         );
       } else {
         return NoDataView(

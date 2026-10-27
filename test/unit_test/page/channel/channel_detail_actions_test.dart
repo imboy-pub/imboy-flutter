@@ -10,6 +10,8 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/component/http/http_exceptions.dart' as http;
 
 ChannelMessageModel _buildMessage({required int id, bool pinned = false}) {
   return ChannelMessageModel(
@@ -23,6 +25,428 @@ ChannelMessageModel _buildMessage({required int id, bool pinned = false}) {
 }
 
 void main() {
+  test('自定义地址缓存写入等待期间删除不会恢复页面', () async {
+    final api = _AliasApi();
+    final service = _BlockingAliasService();
+    final container = ProviderContainer(
+      overrides: [
+        channelApiProvider.overrideWithValue(api),
+        channelServiceProvider.overrideWithValue(service),
+      ],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final load = container
+        .read(channelDetailProvider.notifier)
+        .loadChannel('alpha');
+    await _flushCursorFutures();
+    api.responses['alpha']!.complete(_cursorChannel(41));
+    await service.started.future;
+    AppEventBus.fire(
+      ChannelStateChangedEvent(
+        channelId: '41',
+        action: 'channel_deleted',
+        payload: const {},
+      ),
+    );
+    await _flushCursorFutures();
+    service.release.complete();
+    await load;
+    expect(container.read(channelDetailProvider).channel, isNull);
+    expect(container.read(channelDetailProvider).messages, isEmpty);
+    expect(container.read(channelDetailProvider).error, isNotNull);
+  });
+
+  test('自定义地址解析期间收到数值 ID 删除后不缓存旧结果', () async {
+    final api = _AliasApi();
+    final service = _AliasService();
+    final container = ProviderContainer(
+      overrides: [
+        channelApiProvider.overrideWithValue(api),
+        channelServiceProvider.overrideWithValue(service),
+      ],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final load = container
+        .read(channelDetailProvider.notifier)
+        .loadChannel('alpha');
+    await _flushCursorFutures();
+    AppEventBus.fire(
+      ChannelStateChangedEvent(
+        channelId: '41',
+        action: 'channel_deleted',
+        payload: const {},
+      ),
+    );
+    await _flushCursorFutures();
+    api.responses['alpha']!.complete(_cursorChannel(41));
+    await load;
+    expect(container.read(channelDetailProvider).channel, isNull);
+    expect(container.read(channelDetailProvider).error, isNotNull);
+    expect(service.saved, isEmpty);
+  });
+
+  test('删除事件使在途详情和消息响应失效', () async {
+    final api = _DeferredCursorApi();
+    final service = _DeferredChannelService();
+    final container = ProviderContainer(
+      overrides: [
+        channelApiProvider.overrideWithValue(api),
+        channelServiceProvider.overrideWithValue(service),
+      ],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    service.cache['41']!.complete(_cursorChannel(41));
+    final load = container
+        .read(channelDetailProvider.notifier)
+        .loadChannel('41');
+    final request = await _cursorRequest(api, 0, channelId: '41', cursor: null);
+    request.result.complete(_cursorPage(41, [1], next: null));
+    await _flushCursorFutures();
+    AppEventBus.fire(
+      ChannelStateChangedEvent(
+        channelId: '41',
+        action: 'channel_deleted',
+        payload: const {},
+      ),
+    );
+    await _flushCursorFutures();
+    service.details['41']!.complete(_cursorChannel(41));
+    await load;
+    final state = container.read(channelDetailProvider);
+    expect(state.channel, isNull);
+    expect(state.messages, isEmpty);
+    expect(state.error, isNotNull);
+  });
+
+  test('初始缓存尚未返回时删除事件也使请求失效', () async {
+    final service = _DeferredChannelService();
+    final container = ProviderContainer(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final load = container
+        .read(channelDetailProvider.notifier)
+        .loadChannel('41');
+    AppEventBus.fire(
+      ChannelStateChangedEvent(
+        channelId: '41',
+        action: 'channel_deleted',
+        payload: const {},
+      ),
+    );
+    await _flushCursorFutures();
+    service.cache['41']!.complete(_cursorChannel(41));
+    await load;
+    expect(container.read(channelDetailProvider).channel, isNull);
+    expect(container.read(channelDetailProvider).error, isNotNull);
+    expect(service.detailRequests, isEmpty);
+  });
+
+  for (final code in [1, 403, 503]) {
+    test('自定义地址错误 $code 展示失败态', () async {
+      final api = _AliasApi();
+      final service = _AliasService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(api),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final load = container
+          .read(channelDetailProvider.notifier)
+          .loadChannel('alpha');
+      await _flushCursorFutures();
+      api.responses['alpha']!.completeError(
+        http.BadRequestException(code: code, message: 'failure'),
+      );
+      await load;
+      final state = container.read(channelDetailProvider);
+      expect(state.channel, isNull);
+      expect(state.error, isNotNull);
+      expect(service.saved, isEmpty);
+    });
+  }
+
+  test('自定义地址旧响应不能覆盖新频道或写入缓存', () async {
+    final api = _AliasApi();
+    final service = _AliasService();
+    final container = ProviderContainer(
+      overrides: [
+        channelApiProvider.overrideWithValue(api),
+        channelServiceProvider.overrideWithValue(service),
+      ],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final notifier = container.read(channelDetailProvider.notifier);
+    final first = notifier.loadChannel('alpha');
+    await _flushCursorFutures();
+    final second = notifier.loadChannel('beta');
+    await _flushCursorFutures();
+    api.responses['beta']!.complete(_cursorChannel(42));
+    await second;
+    api.responses['alpha']!.complete(_cursorChannel(41));
+    await first;
+    expect(container.read(channelDetailProvider).channel?.id, 42);
+    expect(service.saved.map((channel) => channel.id), [42]);
+  });
+
+  for (final code in [-1, 1, 403, 404, 503]) {
+    test('个人频道刷新状态 $code 区分失效与暂不可用', () async {
+      final api = _DeferredCursorApi();
+      final service = _DeferredChannelService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(api),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      service.cache['41']!.complete(_cursorChannel(41));
+      final load = container
+          .read(channelDetailProvider.notifier)
+          .loadChannel('41');
+      final request = await _cursorRequest(
+        api,
+        0,
+        channelId: '41',
+        cursor: null,
+      );
+      request.result.complete(_cursorPage(41, [1], next: null));
+      await _flushCursorFutures();
+      service.details['41']!.completeError(
+        code == -1
+            ? http.NetworkException(message: 'offline')
+            : http.BadRequestException(code: code, message: 'unavailable'),
+      );
+      await load;
+      final state = container.read(channelDetailProvider);
+      if (code == 503 || code == -1) {
+        expect(state.channel?.id, 41);
+        expect(state.messages, hasLength(1));
+      } else {
+        expect(state.channel, isNull);
+        expect(state.messages, isEmpty);
+        expect(state.error, isNotNull);
+      }
+    });
+  }
+
+  test('同频道刷新读取失败后旧发布结果不能覆盖错误态', () async {
+    final service = _DeferredPublishService();
+    final container = ProviderContainer(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final notifier = container.read(channelDetailProvider.notifier);
+    notifier.debugSetChannelId('41');
+    notifier.state = ChannelDetailState(
+      channel: ChannelModel(
+        id: 41,
+        scope: 'personal',
+        name: 'A',
+        creatorId: 1,
+        userRole: ChannelUserRole.creator,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      ),
+    );
+    final publish = notifier.publishMessage(
+      content: 'old',
+      msgType: 'channel_text',
+    );
+    final load = notifier.loadChannel('41');
+    service.cache['41']!.completeError(StateError('database unavailable'));
+    await load;
+    service.publish.complete(_buildMessage(id: 1));
+    expect(await publish, isFalse);
+    expect(container.read(channelDetailProvider).messages, isEmpty);
+    expect(container.read(channelDetailProvider).error, isNotNull);
+  });
+
+  test('详情本地读取失败时退出加载并显示错误', () async {
+    final service = _DeferredChannelService();
+    final container = ProviderContainer(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final loading = container
+        .read(channelDetailProvider.notifier)
+        .loadChannel('41');
+    service.cache['41']!.completeError(StateError('database unavailable'));
+    await loading;
+    final state = container.read(channelDetailProvider);
+    expect(state.isLoading, isFalse);
+    expect(state.channel, isNull);
+    expect(state.error, isNotNull);
+  });
+
+  test('工作区频道刷新开始时不保留旧受保护内容', () async {
+    final service = _DeferredChannelService();
+    final container = ProviderContainer(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final notifier = container.read(channelDetailProvider.notifier);
+    notifier.debugSetChannelId('41');
+    notifier.state = ChannelDetailState(
+      channel: ChannelModel(
+        id: 41,
+        scope: 'workspace',
+        name: 'private',
+        creatorId: 1,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      ),
+      messages: [_buildMessage(id: 1)],
+    );
+    final load = notifier.loadChannel('41');
+    expect(container.read(channelDetailProvider).channel, isNull);
+    expect(container.read(channelDetailProvider).messages, isEmpty);
+    service.cache['41']!.complete(
+      ChannelModel(
+        id: 41,
+        scope: 'workspace',
+        name: 'private',
+        creatorId: 1,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      ),
+    );
+    await _flushCursorFutures();
+    service.details['41']!.complete(null);
+    await load;
+  });
+
+  for (final scope in [null, 'workspace']) {
+    test('来源为 $scope 的缓存未经校验不展示', () async {
+      final api = _DeferredCursorApi();
+      final service = _DeferredChannelService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(api),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      service.cache['41']!.complete(
+        ChannelModel(
+          id: 41,
+          scope: scope,
+          workspaceId: scope == 'workspace' ? '1' : null,
+          name: 'private',
+          creatorId: 1,
+          createdAt: DateTime.utc(2026),
+          updatedAt: DateTime.utc(2026),
+        ),
+      );
+      final loading = container
+          .read(channelDetailProvider.notifier)
+          .loadChannel('41');
+      await _flushCursorFutures();
+      expect(service.detailRequests, ['41']);
+      expect(container.read(channelDetailProvider).channel, isNull);
+      expect(container.read(channelDetailProvider).messages, isEmpty);
+      expect(api.requests, isEmpty);
+      service.details['41']!.complete(null);
+      await loading;
+      expect(container.read(channelDetailProvider).channel, isNull);
+      expect(container.read(channelDetailProvider).error, isNotNull);
+    });
+  }
+
+  test('自定义频道地址匹配已解析的频道后可发布', () async {
+    final service = _DeferredPublishService();
+    final container = ProviderContainer(
+      overrides: [channelServiceProvider.overrideWithValue(service)],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final notifier = container.read(channelDetailProvider.notifier);
+    notifier.debugSetChannelId('41');
+    notifier.state = ChannelDetailState(
+      channel: ChannelModel(
+        id: 41,
+        customId: 'news',
+        name: 'A',
+        creatorId: 1,
+        userRole: ChannelUserRole.creator,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+      ),
+    );
+    final result = notifier.publishMessage(
+      content: 'post',
+      msgType: 'channel_text',
+      expectedChannelId: 'news',
+    );
+    service.publish.complete(_buildMessage(id: 10));
+    expect(await result, isTrue);
+  });
+
+  test('切换频道立即清除旧内容，旧发布结果不写入新页面', () async {
+    final api = _DeferredCursorApi();
+    final service = _DeferredPublishService();
+    final container = ProviderContainer(
+      overrides: [
+        channelApiProvider.overrideWithValue(api),
+        channelServiceProvider.overrideWithValue(service),
+      ],
+    );
+    addTearDown(container.dispose);
+    _watchCursorProvider(container);
+    final notifier = container.read(channelDetailProvider.notifier);
+    notifier.debugSetChannelId('41');
+    notifier.state = ChannelDetailState(
+      channel: ChannelModel(
+        id: 41,
+        name: 'A',
+        creatorId: 1,
+        createdAt: DateTime.utc(2026),
+        updatedAt: DateTime.utc(2026),
+        userRole: ChannelUserRole.creator,
+      ),
+      messages: [_buildMessage(id: 1)],
+    );
+    final publish = notifier.publishMessage(
+      content: 'old',
+      msgType: 'channel_text',
+    );
+    final loadB = notifier.loadChannel('42');
+    expect(container.read(channelDetailProvider).channel, isNull);
+    expect(container.read(channelDetailProvider).messages, isEmpty);
+    service.publish.complete(_buildMessage(id: 2));
+    expect(await publish, isFalse);
+    service.cache['42']!.complete(_cursorChannel(42));
+    final cached = await _cursorRequest(api, 0, channelId: '42', cursor: null);
+    cached.result.complete(_cursorPage(42, [3], next: null));
+    await _flushCursorFutures();
+    service.details['42']!.complete(_cursorChannel(42));
+    final refreshed = await _cursorRequest(
+      api,
+      1,
+      channelId: '42',
+      cursor: null,
+    );
+    refreshed.result.complete(_cursorPage(42, [3], next: null));
+    await loadB;
+    expect(container.read(channelDetailProvider).channel?.id, 42);
+    expect(container.read(channelDetailProvider).messages.map((m) => m.id), [
+      3,
+    ]);
+  });
+
   test(
     'TZ05 old more lock neither blocks B page2 nor unlocks B in-flight more',
     () async {
@@ -500,6 +924,20 @@ void main() {
       expect(container.read(channelDetailProvider).messages, isEmpty);
     });
 
+    test('页面目标与共享频道不一致时不发布', () async {
+      notifier.debugSetChannelId('1002');
+      notifier.state = notifier.state.copyWith(
+        channel: buildChannel(ChannelUserRole.creator),
+      );
+      final result = await notifier.publishMessage(
+        content: 'draft',
+        msgType: 'channel_text',
+        expectedChannelId: '1001',
+      );
+      expect(result, isFalse);
+      expect(container.read(channelDetailProvider).isPublishing, isFalse);
+    });
+
     test('publishMessage returns false when user role is none', () async {
       notifier.debugSetChannelId('1001');
       notifier.state = notifier.state.copyWith(
@@ -571,6 +1009,7 @@ Future<void> _flushCursorFutures() => Future<void>.delayed(Duration.zero);
 
 ChannelModel _cursorChannel(int id) => ChannelModel(
   id: id,
+  scope: 'personal',
   name: 'fixture',
   creatorId: 1,
   createdAt: DateTime.utc(2026),
@@ -626,15 +1065,88 @@ class _DeferredChannelService extends Fake implements ChannelService {
   };
   final detailRequests = <String>[];
   @override
-  Future<ChannelModel?> getChannel(String id) => cache[id]!.future;
+  Future<ChannelModel?> getChannel(String id, {bool Function()? isCurrent}) =>
+      cache[id]!.future;
   @override
-  Future<ChannelModel?> refreshChannel(String id) {
+  Future<ChannelModel?> refreshChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) {
     detailRequests.add(id);
     return details[id]!.future;
   }
 
   @override
-  Future<void> cacheChannelSnapshot(ChannelModel channel) async {}
+  Future<ChannelModel?> refreshChannelChecked(
+    String id, {
+    bool Function()? isCurrent,
+  }) => refreshChannel(id, isCurrent: isCurrent);
+
+  @override
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async {}
+}
+
+class _AliasApi extends ChannelApi {
+  final responses = {
+    for (final id in ['alpha', 'beta']) id: Completer<ChannelModel>(),
+  };
+  @override
+  Future<ChannelModel> getChannelByCustomIdChecked(String id) =>
+      responses[id]!.future;
+  @override
+  Future<ChannelPageResult<ChannelMessageModel>> getMessagesPage({
+    required String channelId,
+    String? cursor,
+    int limit = 20,
+  }) async =>
+      const ChannelPageResult(list: [], nextCursor: null, hasMore: false);
+}
+
+class _AliasService extends Fake implements ChannelService {
+  final saved = <ChannelModel>[];
+  @override
+  Future<ChannelModel?> getChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) async => null;
+  @override
+  Future<ChannelModel?> refreshChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) async => null;
+  @override
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async => saved.add(channel);
+}
+
+class _BlockingAliasService extends _AliasService {
+  final started = Completer<void>();
+  final release = Completer<void>();
+  @override
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async {
+    started.complete();
+    await release.future;
+  }
+}
+
+class _DeferredPublishService extends _DeferredChannelService {
+  final publish = Completer<ChannelMessageModel?>();
+  @override
+  Future<ChannelMessageModel?> publishMessage({
+    required String channelId,
+    required String content,
+    required String msgType,
+    Map<String, dynamic>? payload,
+    String? requestId,
+  }) => publish.future;
 }
 
 // Match a mounted Consumer's watch: autoDispose must not invalidate this notifier

@@ -324,6 +324,7 @@ manage:
   retry: Réessayer
   groupSection: "Groupes de l'entreprise"
   createGroup: Créer un groupe
+  groupCreatedRenamePending: "Groupe créé (ID : ${gid}) ; nom non enregistré"
   groupNameHint: Nom du groupe
   groupEmpty: "Aucun groupe d'entreprise"
   groupMembers: "${count} membres"

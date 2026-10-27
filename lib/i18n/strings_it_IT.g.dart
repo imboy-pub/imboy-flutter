@@ -508,6 +508,8 @@ class _Translations$channel$it_IT extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'Il link apre il canale. Accesso e iscrizione restano soggetti alle autorizzazioni del canale. I canali aziendali sono riservati ai membri autorizzati.';
 	@override String get personalChannelLabel => 'Canale personale';
 	@override String get enterpriseChannelLabel => 'Canale aziendale interno';
+	@override String get subscribePending => 'Iscrizione riuscita; aggiornamento in corso';
+	@override String get subscribeRefresh => 'Aggiorna iscrizione';
 }
 
 // Path: chat
@@ -3211,6 +3213,7 @@ class _Translations$organization$manage$it_IT extends Translations$organization$
 	@override String get retry => 'Riprova';
 	@override String get groupSection => 'Gruppi dell\'azienda';
 	@override String get createGroup => 'Crea gruppo';
+	@override String groupCreatedRenamePending({required Object gid}) => 'Gruppo creato (ID: ${gid}); nome non salvato';
 	@override String get groupNameHint => 'Nome del gruppo';
 	@override String get groupEmpty => 'Nessun gruppo dell\'azienda';
 	@override String groupMembers({required Object count}) => '${count} membri';
@@ -3757,6 +3760,8 @@ extension on TranslationsItIt {
 			'channel.linkAccessHint' => 'Il link apre il canale. Accesso e iscrizione restano soggetti alle autorizzazioni del canale. I canali aziendali sono riservati ai membri autorizzati.',
 			'channel.personalChannelLabel' => 'Canale personale',
 			'channel.enterpriseChannelLabel' => 'Canale aziendale interno',
+			'channel.subscribePending' => 'Iscrizione riuscita; aggiornamento in corso',
+			'channel.subscribeRefresh' => 'Aggiorna iscrizione',
 			'chat.bankCard' => 'Carta bancaria',
 			'chat.receivePayment' => 'Ricevi & Paga',
 			'chat.alreadyMember' => 'Già membro',
@@ -3877,10 +3882,10 @@ extension on TranslationsItIt {
 			'chat.momentsVisibilityPrivate' => 'Privato',
 			'chat.momentsMediaTooManyImages' => 'Massimo 9 immagini',
 			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
-			'chat.momentsMediaMixedImageAndVideo' => 'Immagini e video non insieme',
-			'chat.momentsReplyPrefix' => 'Rispondi @',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaMixedImageAndVideo' => 'Immagini e video non insieme',
+			'chat.momentsReplyPrefix' => 'Rispondi @',
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => 'Risposta a @{name}',
 			'chat.sendNewMessage' => 'Invia nuovo messaggio',
@@ -4391,10 +4396,10 @@ extension on TranslationsItIt {
 			'common.basicInfo' => 'Informazioni base',
 			'common.contactInfo' => 'Informazioni contatto',
 			'common.editTags' => 'Modifica tag',
-			'common.quickActions' => 'Azioni rapide',
-			'common.noNewFriendRequests' => 'Nessuna nuova richiesta di amicizia per ora',
 			_ => null,
 		} ?? switch (path) {
+			'common.quickActions' => 'Azioni rapide',
+			'common.noNewFriendRequests' => 'Nessuna nuova richiesta di amicizia per ora',
 			'common.pleaseEnterVerificationMessage' => 'Inserisci messaggio di verifica',
 			'common.unknownRegion' => 'Regione sconosciuta',
 			'common.noCommonGroups' => 'Nessun gruppo in comune',
@@ -4905,10 +4910,10 @@ extension on TranslationsItIt {
 			'contact.pleaseEnterTags' => 'Inserisci tag',
 			'contact.momentsVisibilityFriends' => 'Solo amici',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La lunghezza del tag non può superare i ${param} caratteri',
-			'contact.maxTagsExceeded' => ({required Object param}) => 'Massimo ${param} tag consentiti',
-			'contact.selectedTags' => ({required Object param, required Object max}) => 'Tag selezionati (${param}/${max})',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => 'Massimo ${param} tag consentiti',
+			'contact.selectedTags' => ({required Object param, required Object max}) => 'Tag selezionati (${param}/${max})',
 			'contact.friendRequestSent' => 'Inviato',
 			'contact.channelMaxTagsCount' => 'Massimo 8 tag',
 			'contact.tagInputHint' => 'Tag...',
@@ -5419,10 +5424,10 @@ extension on TranslationsItIt {
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',
 			'mention.title' => '@Menzioni',
-			'mention.noMention' => 'Nessuna @menzione',
-			'mention.allRead' => 'Segna tutto letto',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => 'Nessuna @menzione',
+			'mention.allRead' => 'Segna tutto letto',
 			'mention.mentionAllDenied' => 'Solo gli amministratori possono @tutti',
 			'mention.navInfoMissing' => 'Posizione messaggio mancante, navigazione impossibile',
 			'mention.pickButtonTooltip' => 'Menziona membro',
@@ -5748,6 +5753,7 @@ extension on TranslationsItIt {
 			'organization.manage.retry' => 'Riprova',
 			'organization.manage.groupSection' => 'Gruppi dell\'azienda',
 			'organization.manage.createGroup' => 'Crea gruppo',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Gruppo creato (ID: ${gid}); nome non salvato',
 			'organization.manage.groupNameHint' => 'Nome del gruppo',
 			'organization.manage.groupEmpty' => 'Nessun gruppo dell\'azienda',
 			'organization.manage.groupMembers' => ({required Object count}) => '${count} membri',
@@ -5932,11 +5938,11 @@ extension on TranslationsItIt {
 			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
 			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',
 			'workspace.brandingColorHint' => '#2474E5',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.brandingColorInvalid' => 'Formato del colore principale non corretto, sono supportati solo #RRGGBB / #AARRGGBB',
 			'workspace.brandingColorLabel' => 'Colore principale (primaryColor)',
 			'workspace.brandingEntry' => 'Impostazioni brand (nome / logo / colore principale)',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.brandingLogoHint' => 'https://… (URL dell\'immagine del logo dell\'area di lavoro)',
 			'workspace.brandingLogoLabel' => 'URL del logo',
 			'workspace.brandingNameLabel' => 'Nome del brand',

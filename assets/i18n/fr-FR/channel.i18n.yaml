@@ -221,3 +221,6 @@ shareLink: "Partager le lien"
 linkAccessHint: "Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés."
 personalChannelLabel: "Canal personnel"
 enterpriseChannelLabel: "Canal interne de l’entreprise"
+
+subscribePending: Abonné ; actualisation en cours
+subscribeRefresh: Actualiser l’abonnement

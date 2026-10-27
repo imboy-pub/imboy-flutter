@@ -50,6 +50,16 @@ ChannelModel _channel({
 );
 
 void main() {
+  test('页面目标只匹配频道 ID 或自定义地址', () {
+    final channel = _channel().copyWith(customId: 'news');
+    expect(
+      channelTargetId(channel, channel.id.toString()),
+      channel.id.toString(),
+    );
+    expect(channelTargetId(channel, 'news'), channel.id.toString());
+    expect(channelTargetId(channel, 'other'), isNull);
+    expect(channelTargetId(null, 'news'), isNull);
+  });
   group('local calendar day boundaries', () {
     test('one minute across midnight is yesterday', () {
       expect(

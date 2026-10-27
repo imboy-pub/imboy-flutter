@@ -324,6 +324,7 @@ manage:
   retry: 重試
   groupSection: 企業群
   createGroup: 新增群
+  groupCreatedRenamePending: "群組已建立（ID：${gid}），名稱未儲存"
   groupNameHint: 群名稱
   groupEmpty: 尚無企業群
   groupMembers: "成員 ${count}"

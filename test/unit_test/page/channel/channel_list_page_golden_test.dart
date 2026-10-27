@@ -80,18 +80,22 @@ class _FixedChannelListNotifier extends ChannelListNotifier {
   int moreLoads = 0;
 
   @override
-  ChannelListState build() => subscribed;
+  ChannelListState build() =>
+      subscribed.copyWith(managed: managed, error: subscribed.error);
 
   @override
   Future<void> loadSubscribedChannels() async {
     subscribedLoads++;
-    state = subscribed;
+    state = subscribed.copyWith(
+      managed: state.managed,
+      error: subscribed.error,
+    );
   }
 
   @override
   Future<void> loadManagedChannels() async {
     managedLoads++;
-    state = managed;
+    state = state.copyWith(managed: managed, error: state.error);
   }
 
   @override
@@ -417,6 +421,62 @@ void main() {
     expect(notifier.subscribedLoads, 1);
     expect(notifier.managedLoads, 0);
     expect(notifier.moreLoads, 0);
+  });
+
+  testWidgets('切换频道 Tab 时保留各自搜索词和结果', (tester) async {
+    await _pumpPage(tester);
+    await tester.tap(find.byKey(const Key('channel-list-search-toggle')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('channel-list-search')), '工程');
+    await tester.pumpAndSettle();
+    expect(find.text('工程效率双周刊'), findsOneWidget);
+    expect(find.text('内部公告板'), findsNothing);
+
+    await tester.tap(find.text(t.channel.managed));
+    await tester.pumpAndSettle();
+    expect(find.text('我创建的频道'), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('channel-list-search')), '管理员');
+    await tester.pumpAndSettle();
+    expect(find.text('我是管理员的频道'), findsOneWidget);
+    expect(find.text('我创建的频道'), findsNothing);
+
+    await tester.tap(find.text(t.channel.subscribed));
+    await tester.pumpAndSettle();
+    expect(find.text('工程效率双周刊'), findsOneWidget);
+    expect(find.text('内部公告板'), findsNothing);
+    expect(
+      tester
+          .widget<CupertinoSearchTextField>(
+            find.byKey(const Key('channel-list-search')),
+          )
+          .controller!
+          .text,
+      '工程',
+    );
+  });
+
+  testWidgets('订阅对账失败时保留列表并提供重试', (tester) async {
+    final notifier = await _pumpPage(
+      tester,
+      notifier: _FixedChannelListNotifier(
+        subscribed: ChannelListState(
+          channels: _subscribedFixture(),
+          syncError: true,
+        ),
+      ),
+    );
+    expect(find.text('工程效率双周刊'), findsOneWidget);
+    expect(find.text(t.common.loadError), findsOneWidget);
+    await tester.tap(find.byKey(const Key('channel-list-search-toggle')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('channel-list-search')), '无匹配');
+    await tester.pumpAndSettle();
+    expect(find.text(t.channel.noResults), findsOneWidget);
+    expect(find.text(t.common.loadError), findsOneWidget);
+    final before = notifier.subscribedLoads;
+    await tester.tap(find.text(t.common.loadError));
+    await tester.pump();
+    expect(notifier.subscribedLoads, before + 1);
   });
 
   testWidgets('四行 fixture 保留首屏容量', (tester) async {

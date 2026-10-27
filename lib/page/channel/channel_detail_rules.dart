@@ -9,6 +9,12 @@ import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
+String? channelTargetId(ChannelModel? channel, String target) {
+  if (channel == null || channel.id == 0) return null;
+  final id = channel.id.toString();
+  return target == id || target == channel.customId ? id : null;
+}
+
 /// CD-1 付费频道是否处于锁定状态
 ///
 /// 满足全部条件时返回 true：

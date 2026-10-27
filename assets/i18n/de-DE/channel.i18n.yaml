@@ -221,3 +221,6 @@ shareLink: "Link teilen"
 linkAccessHint: "Der Link öffnet den Kanal. Zugriff und Abonnements unterliegen weiterhin den Kanalberechtigungen. Unternehmenskanäle erfordern eine berechtigte Mitgliedschaft."
 personalChannelLabel: "Persönlicher Kanal"
 enterpriseChannelLabel: "Interner Unternehmenskanal"
+
+subscribePending: Abonniert; wird aktualisiert
+subscribeRefresh: Abonnement aktualisieren

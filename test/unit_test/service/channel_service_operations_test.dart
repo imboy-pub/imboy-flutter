@@ -30,6 +30,7 @@ import 'package:imboy/store/repository/channel_message_repo_sqlite.dart';
 import 'package:imboy/store/repository/channel_message_outbox_repo.dart';
 import 'package:imboy/store/repository/channel_publish_outbox_repo.dart';
 import 'package:imboy/store/repository/channel_repo_sqlite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' show Transaction;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Fakes
@@ -456,7 +457,11 @@ class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
   final List<int> retried = <int>[];
 
   @override
-  Future<void> enqueue(ChannelMessageModel message, {String? error}) async {
+  Future<void> enqueue(
+    ChannelMessageModel message, {
+    String? error,
+    Transaction? txn,
+  }) async {
     queued.removeWhere((item) => item.id == message.id);
     queued.add(message);
   }
@@ -465,6 +470,7 @@ class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
   Future<List<ChannelMessageModel>> pending({
     String? channelId,
     int limit = 20,
+    Transaction? txn,
   }) async {
     return queued
         .where(
@@ -476,12 +482,16 @@ class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
   }
 
   @override
-  Future<void> remove(int messageId) async {
+  Future<void> remove(int messageId, {Transaction? txn}) async {
     queued.removeWhere((item) => item.id == messageId);
   }
 
   @override
-  Future<void> markRetry(int messageId, Object error) async {
+  Future<void> markRetry(
+    int messageId,
+    Object error, {
+    Transaction? txn,
+  }) async {
     retried.add(messageId);
   }
 }
@@ -500,6 +510,7 @@ class _FakeChannelPublishOutboxRepo extends ChannelPublishOutboxRepo {
     required String msgType,
     Map<String, dynamic>? payload,
     String? error,
+    Transaction? txn,
   }) async {
     enqueued.add(requestId);
     queued.removeWhere((item) => item.requestId == requestId);
@@ -519,6 +530,7 @@ class _FakeChannelPublishOutboxRepo extends ChannelPublishOutboxRepo {
   Future<List<ChannelPublishOutboxItem>> pending({
     String? channelId,
     int limit = 20,
+    Transaction? txn,
   }) async {
     return queued
         .where((item) => channelId == null || item.channelId == channelId)
@@ -527,13 +539,17 @@ class _FakeChannelPublishOutboxRepo extends ChannelPublishOutboxRepo {
   }
 
   @override
-  Future<void> remove(String requestId) async {
+  Future<void> remove(String requestId, {Transaction? txn}) async {
     removed.add(requestId);
     queued.removeWhere((item) => item.requestId == requestId);
   }
 
   @override
-  Future<void> markRetry(String requestId, Object error) async {
+  Future<void> markRetry(
+    String requestId,
+    Object error, {
+    Transaction? txn,
+  }) async {
     retried.add(requestId);
   }
 }

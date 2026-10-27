@@ -508,6 +508,8 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => '連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。';
 	@override String get personalChannelLabel => '個人頻道';
 	@override String get enterpriseChannelLabel => '企業內部頻道';
+	@override String get subscribePending => '已訂閱，正在重新整理';
+	@override String get subscribeRefresh => '重新整理訂閱狀態';
 }
 
 // Path: chat
@@ -3208,6 +3210,7 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	@override String get retry => '重試';
 	@override String get groupSection => '企業群';
 	@override String get createGroup => '新增群';
+	@override String groupCreatedRenamePending({required Object gid}) => '群組已建立（ID：${gid}），名稱未儲存';
 	@override String get groupNameHint => '群名稱';
 	@override String get groupEmpty => '尚無企業群';
 	@override String groupMembers({required Object count}) => '成員 ${count}';
@@ -3754,6 +3757,8 @@ extension on TranslationsZhHant {
 			'channel.linkAccessHint' => '連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。',
 			'channel.personalChannelLabel' => '個人頻道',
 			'channel.enterpriseChannelLabel' => '企業內部頻道',
+			'channel.subscribePending' => '已訂閱，正在重新整理',
+			'channel.subscribeRefresh' => '重新整理訂閱狀態',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3874,10 +3879,10 @@ extension on TranslationsZhHant {
 			'chat.tagStatistics' => '標籤統計',
 			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			'chat.passwordMismatch' => '兩次密碼不一致',
-			'chat.pleaseTryAgainLater' => '請稍後重試',
-			'chat.historyUnavailable' => '歷史訊息暫不可用',
 			_ => null,
 		} ?? switch (path) {
+			'chat.pleaseTryAgainLater' => '請稍後重試',
+			'chat.historyUnavailable' => '歷史訊息暫不可用',
 			'chat.historyUnavailableHint' => '伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步',
 			'chat.momentsRecordVideo' => '拍攝影片',
 			'chat.momentsVisibilityPrivate' => '僅自己',
@@ -4388,10 +4393,10 @@ extension on TranslationsZhHant {
 			'common.personalInfo' => '個人資訊',
 			'common.nicknameNotSet' => '未設定暱稱',
 			'common.basicInfo' => '基本資訊',
-			'common.contactInfo' => '聯絡資訊',
-			'common.editTags' => '編輯標籤',
 			_ => null,
 		} ?? switch (path) {
+			'common.contactInfo' => '聯絡資訊',
+			'common.editTags' => '編輯標籤',
 			'common.quickActions' => '快速操作',
 			'common.noNewFriendRequests' => '暫時沒有新的好友申請',
 			'common.pleaseEnterVerificationMessage' => '請輸入驗證訊息',
@@ -4902,10 +4907,10 @@ extension on TranslationsZhHant {
 			'contact.pleaseEnterTags' => '請輸入標籤',
 			'contact.momentsVisibilityFriends' => '僅好友',
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
-			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
-			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
+			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
 			'contact.friendRequestSent' => '已傳送',
 			'contact.channelMaxTagsCount' => '最多可新增 8 個標籤',
 			'contact.tagInputHint' => '輸入標籤...',
@@ -5416,10 +5421,10 @@ extension on TranslationsZhHant {
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',
 			'mention.title' => '@標註',
-			'mention.noMention' => '暫無@提及',
-			'mention.allRead' => '全部已讀',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => '暫無@提及',
+			'mention.allRead' => '全部已讀',
 			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
 			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
 			'mention.pickButtonTooltip' => '@標註成員',
@@ -5745,6 +5750,7 @@ extension on TranslationsZhHant {
 			'organization.manage.retry' => '重試',
 			'organization.manage.groupSection' => '企業群',
 			'organization.manage.createGroup' => '新增群',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '群組已建立（ID：${gid}），名稱未儲存',
 			'organization.manage.groupNameHint' => '群名稱',
 			'organization.manage.groupEmpty' => '尚無企業群',
 			'organization.manage.groupMembers' => ({required Object count}) => '成員 ${count}',
@@ -5929,11 +5935,11 @@ extension on TranslationsZhHant {
 			'workspace.switchWorkspace' => '切換工作區',
 			'workspace.pickerEmptyTitle' => '還沒有工作區',
 			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
 			'workspace.dmEntry' => '全部訊息',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '切換到個人',
 			'workspace.createTitle' => '建立工作區',

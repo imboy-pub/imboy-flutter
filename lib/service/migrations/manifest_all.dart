@@ -15,6 +15,7 @@ import 'package:imboy/service/migrations/upgrade_edges_v33.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v34.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v35.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v36.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v37.dart';
 
 /// 全局唯一迁移清单实例（唯一真源）。
 ///
@@ -31,5 +32,6 @@ final MigrationManifest kMigrationManifest = MigrationManifest([
   ...kUpgradeEdgesV34,
   ...kUpgradeEdgesV35,
   ...kUpgradeEdgesV36,
+  ...kUpgradeEdgesV37,
   ...kDowngradeEdgesAll,
 ])..validatePairing();

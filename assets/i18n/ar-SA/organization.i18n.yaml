@@ -324,6 +324,7 @@ manage:
   retry: إعادة المحاولة
   groupSection: مجموعات المؤسسة
   createGroup: مجموعة جديدة
+  groupCreatedRenamePending: "تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم"
   groupNameHint: اسم المجموعة
   groupEmpty: لا توجد مجموعات مؤسسة بعد
   groupMembers: "الأعضاء ${count}"

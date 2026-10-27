@@ -48,7 +48,7 @@ void main() {
   });
 
   test('v36 irreversible manifest edge has no downgrade edge', () {
-    expect(kMigrationManifest.latestVersion, 36);
+    expect(kMigrationManifest.latestVersion, 37);
     expect(kMigrationManifest.edge(35, 36)!.reversible, isFalse);
     expect(kMigrationManifest.edge(36, 35), isNull);
   });

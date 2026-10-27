@@ -324,6 +324,7 @@ manage:
   retry: Riprova
   groupSection: "Gruppi dell'azienda"
   createGroup: Crea gruppo
+  groupCreatedRenamePending: "Gruppo creato (ID: ${gid}); nome non salvato"
   groupNameHint: Nome del gruppo
   groupEmpty: "Nessun gruppo dell'azienda"
   groupMembers: "${count} membri"

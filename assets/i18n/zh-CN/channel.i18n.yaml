@@ -228,3 +228,6 @@ shareLink: "分享链接"
 linkAccessHint: "链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。"
 personalChannelLabel: "个人频道"
 enterpriseChannelLabel: "企业内部频道"
+
+subscribePending: 已订阅，正在刷新
+subscribeRefresh: 刷新订阅状态

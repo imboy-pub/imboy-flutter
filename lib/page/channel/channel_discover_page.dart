@@ -1,3 +1,5 @@
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -364,6 +367,9 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
           return _SearchResultItem(
             channel: channel,
             isSubscribed: _isSubscribed(channel),
+            isPending: ref
+                .read(channelServiceProvider)
+                .hasPendingSubscription(channel.id.toString()),
             onSubscribe: () => _subscribeChannel(channel),
             onUnsubscribe: () => _unsubscribeChannel(channel),
           );
@@ -390,6 +396,9 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         return _SearchResultItem(
           channel: channel,
           isSubscribed: _isSubscribed(channel),
+          isPending: ref
+              .read(channelServiceProvider)
+              .hasPendingSubscription(channel.id.toString()),
           onSubscribe: () => _subscribeChannel(channel),
           onUnsubscribe: () => _unsubscribeChannel(channel),
         );
@@ -401,6 +410,14 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
     if (!mounted) return false;
     final t = context.t;
     final channelIdStr = channel.id.toString();
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        mounted &&
+        user.currentUid == uid &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
 
     // 乐观更新
     setState(() {
@@ -411,17 +428,18 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         .read(channelListProvider.notifier)
         .subscribeChannel(channelIdStr);
 
-    if (!success && mounted) {
-      // 失败回滚
-      setState(() {
-        _subscribedChannelIds.remove(channelIdStr);
-      });
-      AppLoading.showError(t.channel.subscribeFailed);
-    } else if (success && mounted) {
+    if (!isCurrent()) return false;
+    if (success == ChannelSubscribeOutcome.completed) {
       AppLoading.showSuccess(t.channel.subscribeSuccess);
+      return true;
     }
-
-    return success;
+    setState(() => _subscribedChannelIds.remove(channelIdStr));
+    if (success == ChannelSubscribeOutcome.pending) {
+      AppLoading.showToast(t.channel.subscribePending);
+    } else if (success == ChannelSubscribeOutcome.failed) {
+      AppLoading.showError(t.channel.subscribeFailed);
+    }
+    return false;
   }
 
   Future<bool> _unsubscribeChannel(ChannelModel channel) async {
@@ -474,12 +492,14 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 class _SearchResultItem extends ConsumerStatefulWidget {
   final ChannelModel channel;
   final bool isSubscribed;
+  final bool isPending;
   final Future<bool> Function() onSubscribe;
   final Future<bool> Function() onUnsubscribe;
 
   const _SearchResultItem({
     required this.channel,
     required this.isSubscribed,
+    required this.isPending,
     required this.onSubscribe,
     required this.onUnsubscribe,
   });
@@ -627,7 +647,7 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                 ),
                 child: Text(t.main.manage),
               )
-            : (widget.isSubscribed
+            : (widget.isSubscribed && !widget.isPending
                   ? OutlinedButton.icon(
                       onPressed: _isSubmitting
                           ? null
@@ -679,7 +699,11 @@ class _SearchResultItemState extends ConsumerState<_SearchResultItem> {
                                 color: AppColors.onPrimary,
                               ),
                             )
-                          : Text(t.channel.subscribe),
+                          : Text(
+                              widget.isPending
+                                  ? t.channel.subscribeRefresh
+                                  : t.channel.subscribe,
+                            ),
                     )),
         onTap: () {
           context.push('/channel/${_detailRouteId(widget.channel)}');

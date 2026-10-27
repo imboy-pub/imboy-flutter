@@ -1,3 +1,6 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -56,6 +59,106 @@ Finder statsLine() => find.byWidgetPredicate(
 );
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+  });
+
+  setUp(() async {
+    await StorageService.to.setString(Keys.currentUid, 'account-a');
+  });
+
+  testWidgets('切换频道后旧的静音读取不能覆盖新频道', (tester) async {
+    final service = _NotificationService();
+    final oldRead = Completer<ChannelSubscriptionModel?>();
+    when(() => service.getSubscription('1001'))
+        .thenAnswer((_) => oldRead.future);
+    when(() => service.getSubscription('1002')).thenAnswer(
+      (_) async => ChannelSubscriptionModel(
+        channelId: 1002,
+        subscribedAt: DateTime(2024),
+      ),
+    );
+    Widget view(int id) => TranslationProvider(
+      child: ProviderScope(
+        overrides: [channelServiceProvider.overrideWithValue(service)],
+        child: MaterialApp(
+          home: Scaffold(
+            body: ChannelHeaderBar(
+              channel: _channel(subscribed: true).copyWith(id: id),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpWidget(view(1001));
+    await tester.pumpWidget(view(1002));
+    await tester.pump();
+    oldRead.complete(null);
+    await tester.pump();
+    expect(find.text(t.chat.chatSettingMute), findsOneWidget);
+    expect(find.text(t.common.retry), findsNothing);
+  });
+
+  testWidgets('账号变化后重试返回不能对账到新账号', (tester) async {
+    final service = _NotificationService();
+    final refresh = Completer<ChannelModel?>();
+    when(() => service.getSubscription('1001')).thenAnswer((_) async => null);
+    when(() => service.refreshChannel('1001'))
+        .thenAnswer((_) => refresh.future);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: ChannelHeaderBar(channel: _channel(subscribed: true)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text(t.common.retry));
+    await tester.pump();
+    await StorageService.to.setString(Keys.currentUid, 'account-b');
+    refresh.complete(_channel(subscribed: true));
+    await tester.pump();
+    verifyNever(
+      () => service.syncSubscribedChannels(fromList: any(named: 'fromList')),
+    );
+  });
+
+  testWidgets('对账等待中切换账号后不读取新账号配置', (tester) async {
+    final service = _NotificationService();
+    final sync = Completer<List<ChannelModel>>();
+    when(() => service.getSubscription('1001')).thenAnswer((_) async => null);
+    when(() => service.refreshChannel('1001'))
+        .thenAnswer((_) async => _channel(subscribed: true));
+    when(() => service.syncSubscribedChannels(fromList: any(named: 'fromList')))
+        .thenAnswer((_) => sync.future);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: ChannelHeaderBar(channel: _channel(subscribed: true)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text(t.common.retry));
+    await tester.pump();
+    await StorageService.to.setString(Keys.currentUid, 'account-b');
+    sync.complete([_channel(subscribed: true)]);
+    await tester.pump();
+    verify(() => service.getSubscription('1001')).called(1);
+  });
+
   testWidgets('深链冷启动缺本地通知配置时，重试经服务端订阅对账恢复操作', (tester) async {
     final service = _NotificationService();
     bool repaired = false;

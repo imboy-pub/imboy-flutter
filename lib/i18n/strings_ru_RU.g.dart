@@ -508,6 +508,8 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами.';
 	@override String get personalChannelLabel => 'Личный канал';
 	@override String get enterpriseChannelLabel => 'Внутренний канал компании';
+	@override String get subscribePending => 'Подписка оформлена, обновление';
+	@override String get subscribeRefresh => 'Обновить подписку';
 }
 
 // Path: chat
@@ -3217,6 +3219,7 @@ class _Translations$organization$manage$ru_RU extends Translations$organization$
 	@override String get retry => 'Повторить';
 	@override String get groupSection => 'Группы предприятия';
 	@override String get createGroup => 'Создать группу';
+	@override String groupCreatedRenamePending({required Object gid}) => 'Группа создана (ID: ${gid}); имя не сохранено';
 	@override String get groupNameHint => 'Название группы';
 	@override String get groupEmpty => 'Групп предприятия пока нет';
 	@override String groupMembers({required Object count}) => 'Участников: ${count}';
@@ -3763,6 +3766,8 @@ extension on TranslationsRuRu {
 			'channel.linkAccessHint' => 'Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами.',
 			'channel.personalChannelLabel' => 'Личный канал',
 			'channel.enterpriseChannelLabel' => 'Внутренний канал компании',
+			'channel.subscribePending' => 'Подписка оформлена, обновление',
+			'channel.subscribeRefresh' => 'Обновить подписку',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3883,10 +3888,10 @@ extension on TranslationsRuRu {
 			'chat.momentsVisibilityPrivate' => 'Только я',
 			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
-			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
-			'chat.momentsReplyPrefix' => 'Ответ @',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
+			'chat.momentsReplyPrefix' => 'Ответ @',
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => 'Ответ @{name}',
 			'chat.sendNewMessage' => 'Отправить новое сообщение',
@@ -4397,10 +4402,10 @@ extension on TranslationsRuRu {
 			'common.basicInfo' => 'Основная информация',
 			'common.contactInfo' => 'Контактная информация',
 			'common.editTags' => 'Редактировать теги',
-			'common.quickActions' => 'Быстрые действия',
-			'common.noNewFriendRequests' => 'Нет новых запросов дружбы',
 			_ => null,
 		} ?? switch (path) {
+			'common.quickActions' => 'Быстрые действия',
+			'common.noNewFriendRequests' => 'Нет новых запросов дружбы',
 			'common.pleaseEnterVerificationMessage' => 'Пожалуйста, введите сообщение подтверждения',
 			'common.unknownRegion' => 'Неизвестный регион',
 			'common.noCommonGroups' => 'Нет общих групп',
@@ -4911,10 +4916,10 @@ extension on TranslationsRuRu {
 			'contact.pleaseEnterTags' => 'Пожалуйста, введите теги',
 			'contact.momentsVisibilityFriends' => 'Только друзья',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
-			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
-			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
+			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
 			'contact.friendRequestSent' => 'Отправлено',
 			'contact.channelMaxTagsCount' => 'Можно добавить не более 8 меток',
 			'contact.tagInputHint' => 'Введите метку...',
@@ -5425,10 +5430,10 @@ extension on TranslationsRuRu {
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
 			'mention.title' => '@Упоминания',
-			'mention.noMention' => 'Нет упоминаний',
-			'mention.allRead' => 'Всё прочитано',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => 'Нет упоминаний',
+			'mention.allRead' => 'Всё прочитано',
 			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
 			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
 			'mention.pickButtonTooltip' => 'Упомянуть участника',
@@ -5754,6 +5759,7 @@ extension on TranslationsRuRu {
 			'organization.manage.retry' => 'Повторить',
 			'organization.manage.groupSection' => 'Группы предприятия',
 			'organization.manage.createGroup' => 'Создать группу',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Группа создана (ID: ${gid}); имя не сохранено',
 			'organization.manage.groupNameHint' => 'Название группы',
 			'organization.manage.groupEmpty' => 'Групп предприятия пока нет',
 			'organization.manage.groupMembers' => ({required Object count}) => 'Участников: ${count}',
@@ -5938,11 +5944,11 @@ extension on TranslationsRuRu {
 			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
 			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',
 			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
 			'workspace.dmEntry' => 'Все сообщения',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'Личный',
 			'workspace.switchToPersonal' => 'Переключиться на личный',
 			'workspace.createTitle' => 'Создать рабочее пространство',

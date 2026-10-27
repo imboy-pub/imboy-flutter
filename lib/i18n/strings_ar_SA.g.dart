@@ -508,6 +508,8 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط.';
 	@override String get personalChannelLabel => 'قناة شخصية';
 	@override String get enterpriseChannelLabel => 'قناة داخلية للمؤسسة';
+	@override String get subscribePending => 'تم الاشتراك، جارٍ التحديث';
+	@override String get subscribeRefresh => 'تحديث الاشتراك';
 }
 
 // Path: chat
@@ -3220,6 +3222,7 @@ class _Translations$organization$manage$ar_SA extends Translations$organization$
 	@override String get retry => 'إعادة المحاولة';
 	@override String get groupSection => 'مجموعات المؤسسة';
 	@override String get createGroup => 'مجموعة جديدة';
+	@override String groupCreatedRenamePending({required Object gid}) => 'تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم';
 	@override String get groupNameHint => 'اسم المجموعة';
 	@override String get groupEmpty => 'لا توجد مجموعات مؤسسة بعد';
 	@override String groupMembers({required Object count}) => 'الأعضاء ${count}';
@@ -3766,6 +3769,8 @@ extension on TranslationsArSa {
 			'channel.linkAccessHint' => 'يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط.',
 			'channel.personalChannelLabel' => 'قناة شخصية',
 			'channel.enterpriseChannelLabel' => 'قناة داخلية للمؤسسة',
+			'channel.subscribePending' => 'تم الاشتراك، جارٍ التحديث',
+			'channel.subscribeRefresh' => 'تحديث الاشتراك',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3886,10 +3891,10 @@ extension on TranslationsArSa {
 			'chat.momentsVisibilityPrivate' => 'أنا فقط',
 			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
-			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
-			'chat.momentsReplyPrefix' => 'رد @',
 			_ => null,
 		} ?? switch (path) {
+			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
+			'chat.momentsReplyPrefix' => 'رد @',
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => 'رد على @{name}',
 			'chat.sendNewMessage' => 'إرسال رسالة جديدة',
@@ -4400,10 +4405,10 @@ extension on TranslationsArSa {
 			'common.basicInfo' => 'معلومات أساسية',
 			'common.contactInfo' => 'معلومات الاتصال',
 			'common.editTags' => 'تعديل العلامات',
-			'common.quickActions' => 'إجراءات سريعة',
-			'common.noNewFriendRequests' => 'لا توجد طلبات صداقة جديدة',
 			_ => null,
 		} ?? switch (path) {
+			'common.quickActions' => 'إجراءات سريعة',
+			'common.noNewFriendRequests' => 'لا توجد طلبات صداقة جديدة',
 			'common.pleaseEnterVerificationMessage' => 'يرجى إدخال رسالة التحقق',
 			'common.unknownRegion' => 'منطقة غير معروفة',
 			'common.noCommonGroups' => 'لا توجد مجموعات مشتركة',
@@ -4914,10 +4919,10 @@ extension on TranslationsArSa {
 			'contact.pleaseEnterTags' => 'يرجى إدخال العلامات',
 			'contact.momentsVisibilityFriends' => 'الأصدقاء فقط',
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
-			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
-			'contact.selectedTags' => ({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})',
 			_ => null,
 		} ?? switch (path) {
+			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
+			'contact.selectedTags' => ({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})',
 			'contact.friendRequestSent' => 'تم الإرسال',
 			'contact.channelMaxTagsCount' => 'يمكنك إضافة 8 وسوم كحد أقصى',
 			'contact.tagInputHint' => 'أدخل وسماً...',
@@ -5428,10 +5433,10 @@ extension on TranslationsArSa {
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
 			'mention.title' => '@إشارات',
-			'mention.noMention' => 'لا توجد إشارات',
-			'mention.allRead' => 'تمت قراءة الكل',
 			_ => null,
 		} ?? switch (path) {
+			'mention.noMention' => 'لا توجد إشارات',
+			'mention.allRead' => 'تمت قراءة الكل',
 			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
 			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
 			'mention.pickButtonTooltip' => '@إشارة إلى عضو',
@@ -5757,6 +5762,7 @@ extension on TranslationsArSa {
 			'organization.manage.retry' => 'إعادة المحاولة',
 			'organization.manage.groupSection' => 'مجموعات المؤسسة',
 			'organization.manage.createGroup' => 'مجموعة جديدة',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم',
 			'organization.manage.groupNameHint' => 'اسم المجموعة',
 			'organization.manage.groupEmpty' => 'لا توجد مجموعات مؤسسة بعد',
 			'organization.manage.groupMembers' => ({required Object count}) => 'الأعضاء ${count}',
@@ -5941,11 +5947,11 @@ extension on TranslationsArSa {
 			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
 			'workspace.pickerEmptyTitle' => 'لا توجد مساحات عمل بعد',
 			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archivedBadge' => 'مؤرشفة',
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
 			'workspace.dmEntry' => 'كل الرسائل',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'شخصي',
 			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
 			'workspace.createTitle' => 'إنشاء مساحة عمل',

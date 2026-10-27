@@ -1,3 +1,7 @@
+import 'package:dio/dio.dart' show Options;
+import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -71,6 +75,12 @@ class ChannelApi extends HttpClient
     return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
+  /// 保留服务端拒绝、网络异常与无效响应，供具备错误态的详情链使用。
+  Future<ChannelModel> getChannelChecked(String channelId) async {
+    final resp = await get('/api/v1/channel/$channelId');
+    return _parseChannelResponse(resp);
+  }
+
   /// 通过自定义 ID 获取频道
   Future<ChannelModel?> getChannelByCustomId(String customId) async {
     final resp = await get('/api/v1/channel/by_custom_id/$customId');
@@ -80,6 +90,23 @@ class ChannelApi extends HttpClient
     }
 
     return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
+  }
+
+  Future<ChannelModel> getChannelByCustomIdChecked(String customId) async {
+    final resp = await get('/api/v1/channel/by_custom_id/$customId');
+    return _parseChannelResponse(resp);
+  }
+
+  ChannelModel _parseChannelResponse(IMBoyHttpResponse response) {
+    response.throwIfFailed();
+    if (response.payload is! Map<String, dynamic>) {
+      throw const FormatException('invalid channel payload');
+    }
+    final channel = ChannelModel.fromJson(
+      response.payload as Map<String, dynamic>,
+    );
+    if (channel.id <= 0) throw const FormatException('invalid channel id');
+    return channel;
   }
 
   /// 更新频道信息
@@ -151,28 +178,62 @@ class ChannelApi extends HttpClient
 
   // ==================== 订阅管理 ====================
 
+  Options _subscriptionWriteOptions() {
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    final source = Env().apiBaseUrl;
+    return Options(
+      extra: {
+        httpNoAutoRetry: true,
+        httpRequestGuard: () {
+          if (uid.isEmpty ||
+              user.currentUid != uid ||
+              !user.isCurrentSession(generation) ||
+              user.isAuthTransitioning ||
+              Env().apiBaseUrl != source) {
+            throw StateError('stale channel subscription session');
+          }
+        },
+      },
+    );
+  }
+
   /// 订阅频道
   Future<bool> subscribe(String channelId) async {
+    final options = _subscriptionWriteOptions();
     final resp = await post(
       '/api/v1/channel/$channelId/subscribe',
       data: <String, dynamic>{},
+      options: options,
     );
     if (!resp.ok) {
       // 透出后端中文原因（如"私有频道需要邀请"），页面层不再叠兜底文案
-      AppLoading.showBackendError(resp.msg);
+      _showSubscriptionErrorIfCurrent(resp.msg, options);
       return false;
     }
     return true;
   }
 
+  void _showSubscriptionErrorIfCurrent(String message, Options options) {
+    try {
+      (options.extra![httpRequestGuard] as void Function())();
+      AppLoading.showBackendError(message);
+    } catch (_) {
+      // An obsolete request must not show its error in another account.
+    }
+  }
+
   /// 取消订阅
   Future<bool> unsubscribe(String channelId) async {
+    final options = _subscriptionWriteOptions();
     final resp = await post(
       '/api/v1/channel/$channelId/unsubscribe',
       data: <String, dynamic>{},
+      options: options,
     );
     if (!resp.ok) {
-      AppLoading.showBackendError(resp.msg);
+      _showSubscriptionErrorIfCurrent(resp.msg, options);
       return false;
     }
     return true;

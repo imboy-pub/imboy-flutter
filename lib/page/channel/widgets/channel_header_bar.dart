@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../channel_di_provider.dart';
 
@@ -28,6 +29,7 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
   /// 点击订阅/管理/退订按钮回调
   final VoidCallback? onActionTap;
   final bool isActionPending;
+  final bool isReconciliationPending;
 
   /// 额外辅助操作
   final VoidCallback? onShareTap;
@@ -46,6 +48,7 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
     this.stats,
     this.onActionTap,
     this.isActionPending = false,
+    this.isReconciliationPending = false,
     this.onShareTap,
     this.onForwardTap,
     this.onManageTap,
@@ -60,12 +63,33 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   bool _isMuted = false;
   bool _muteKnown = false;
   int _muteRequest = 0;
+  int _operation = 0;
   bool _isLoadingMute = false;
 
   @override
   void initState() {
     super.initState();
+    UserRepoLocal.to.addAuthListener(_authChanged);
     _loadMuteState();
+  }
+
+  @override
+  void dispose() {
+    UserRepoLocal.to.removeAuthListener(_authChanged);
+    super.dispose();
+  }
+
+  void _authChanged() {
+    if (!mounted) return;
+    _invalidateMute();
+    setState(() {});
+  }
+
+  void _invalidateMute() {
+    _muteRequest++;
+    _operation++;
+    _muteKnown = false;
+    _isLoadingMute = false;
   }
 
   @override
@@ -73,18 +97,39 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.channel.isSubscribed != widget.channel.isSubscribed ||
         oldWidget.channel.id != widget.channel.id) {
+      _invalidateMute();
       _loadMuteState();
     }
   }
 
+  ({String uid, int generation, int channelId}) _scope() => (
+    uid: UserRepoLocal.to.currentUid,
+    generation: UserRepoLocal.to.sessionGeneration,
+    channelId: widget.channel.id,
+  );
+
+  bool _isCurrent(({String uid, int generation, int channelId}) scope) {
+    final user = UserRepoLocal.to;
+    return mounted &&
+        widget.channel.id == scope.channelId &&
+        widget.channel.isSubscribed &&
+        user.currentUid == scope.uid &&
+        user.isCurrentSession(scope.generation) &&
+        !user.isAuthTransitioning;
+  }
+
   Future<void> _loadMuteState() async {
     final request = ++_muteRequest;
-    final id = widget.channel.id.toString();
     setState(() => _muteKnown = false);
-    if (!widget.channel.isSubscribed) return;
+    if (!widget.channel.isSubscribed || UserRepoLocal.to.isAuthTransitioning) {
+      return;
+    }
+    final scope = _scope();
     try {
-      final sub = await ref.read(channelServiceProvider).getSubscription(id);
-      if (mounted && request == _muteRequest) {
+      final sub = await ref
+          .read(channelServiceProvider)
+          .getSubscription(scope.channelId.toString());
+      if (_isCurrent(scope) && request == _muteRequest) {
         setState(() {
           _muteKnown = sub != null;
           _isMuted = sub?.isMuted ?? false;
@@ -96,22 +141,25 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   }
 
   Future<void> _retryMuteState() async {
-    final id = widget.channel.id;
+    final scope = _scope();
+    if (!_isCurrent(scope)) return;
+    final operation = ++_operation;
+    bool current() => _operation == operation && _isCurrent(scope);
     setState(() => _isLoadingMute = true);
     try {
       final service = ref.read(channelServiceProvider);
-      final fresh = await service.refreshChannel(id.toString());
-      if (!mounted || widget.channel.id != id) return;
-      if (fresh?.isSubscribed != true) {
+      final fresh = await service.refreshChannel(scope.channelId.toString());
+      if (!current()) return;
+      if (fresh?.isSubscribed != true || fresh?.id != scope.channelId) {
         AppLoading.showError(t.common.operationFailedAgainLater);
         return;
       }
       await service.syncSubscribedChannels(fromList: [fresh!]);
-      if (mounted && widget.channel.id == id) await _loadMuteState();
+      if (current()) await _loadMuteState();
     } on Exception {
-      if (mounted) AppLoading.showError(t.common.operationFailedAgainLater);
+      if (current()) AppLoading.showError(t.common.operationFailedAgainLater);
     } finally {
-      if (mounted) setState(() => _isLoadingMute = false);
+      if (current()) setState(() => _isLoadingMute = false);
     }
   }
 
@@ -121,28 +169,34 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
       await _retryMuteState();
       return;
     }
+    final scope = _scope();
+    if (!_isCurrent(scope)) return;
+    final operation = ++_operation;
+    bool current() => _operation == operation && _isCurrent(scope);
+    final nextMute = !_isMuted;
     setState(() => _isLoadingMute = true);
-    final channelId = widget.channel.id;
     try {
-      final nextMute = !_isMuted;
       final success = await ref
           .read(channelServiceProvider)
-          .setMuted(widget.channel.id.toString(), nextMute);
-      if (success && mounted && widget.channel.id == channelId) {
-        await _loadMuteState();
-        if (!mounted || widget.channel.id != channelId || !_muteKnown) return;
-        AppLoading.showToast(
-          nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
-        );
-      } else if (mounted) {
+          .setMuted(scope.channelId.toString(), nextMute);
+      if (!current()) return;
+      if (!success) {
         AppLoading.showError(t.common.operationFailedAgainLater);
+        return;
       }
+      await _loadMuteState();
+      if (!current()) return;
+      if (!_muteKnown || _isMuted != nextMute) {
+        AppLoading.showError(t.common.operationFailedAgainLater);
+        return;
+      }
+      AppLoading.showToast(
+        nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
+      );
     } catch (_) {
-      AppLoading.showError(t.common.operationFailedAgainLater);
+      if (current()) AppLoading.showError(t.common.operationFailedAgainLater);
     } finally {
-      if (mounted) {
-        setState(() => _isLoadingMute = false);
-      }
+      if (current()) setState(() => _isLoadingMute = false);
     }
   }
 
@@ -284,7 +338,7 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
               ),
             ),
           ),
-          if (channel.isSubscribed)
+          if (channel.isSubscribed && !widget.isReconciliationPending)
             CupertinoButton(
               padding: const EdgeInsets.all(AppSpacing.small),
               onPressed: _isLoadingMute ? null : _toggleMute,
@@ -305,7 +359,11 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
               onPressed: widget.isActionPending ? null : widget.onActionTap,
               child: widget.isActionPending
                   ? const CupertinoActivityIndicator()
-                  : Text(context.t.channel.subscribe),
+                  : Text(
+                      widget.isReconciliationPending
+                          ? context.t.channel.subscribeRefresh
+                          : context.t.channel.subscribe,
+                    ),
             ),
         ],
       ),
@@ -339,7 +397,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
   Widget _buildActionRow(BuildContext context) {
     final t = context.t;
-    final isSubscribed = widget.channel.isSubscribed;
+    final isSubscribed =
+        widget.channel.isSubscribed && !widget.isReconciliationPending;
     final isManaged = widget.channel.isManaged;
 
     return Wrap(
@@ -372,7 +431,9 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           else
             _buildCircleActionItem(
               icon: CupertinoIcons.bell,
-              label: t.channel.subscribe,
+              label: widget.isReconciliationPending
+                  ? t.channel.subscribeRefresh
+                  : t.channel.subscribe,
               // pending 态与回调缺失都走禁用（onPressed=null）
               onTap: widget.onActionTap,
               isPending: widget.isActionPending,
@@ -409,8 +470,12 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                       )
                     : const Icon(CupertinoIcons.add, size: 18),
                 label: Text(
-                  t.channel.subscribe,
-                  semanticsLabel: t.channel.subscribe,
+                  widget.isReconciliationPending
+                      ? t.channel.subscribeRefresh
+                      : t.channel.subscribe,
+                  semanticsLabel: widget.isReconciliationPending
+                      ? t.channel.subscribeRefresh
+                      : t.channel.subscribe,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: FilledButton.styleFrom(

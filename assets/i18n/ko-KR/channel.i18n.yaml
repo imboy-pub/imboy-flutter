@@ -221,3 +221,6 @@ shareLink: "링크 공유"
 linkAccessHint: "링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다."
 personalChannelLabel: "개인 채널"
 enterpriseChannelLabel: "기업 내부 채널"
+
+subscribePending: 구독 완료, 새로고침 중
+subscribeRefresh: 구독 상태 새로고침

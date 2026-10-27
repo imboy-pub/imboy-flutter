@@ -225,3 +225,6 @@ shareLink: "リンクを共有"
 linkAccessHint: "リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。"
 personalChannelLabel: "個人チャンネル"
 enterpriseChannelLabel: "企業内チャンネル"
+
+subscribePending: 購読済み、更新中
+subscribeRefresh: 購読状態を更新

@@ -224,3 +224,6 @@ shareLink: "分享連結"
 linkAccessHint: "連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。"
 personalChannelLabel: "個人頻道"
 enterpriseChannelLabel: "企業內部頻道"
+
+subscribePending: 已訂閱，正在重新整理
+subscribeRefresh: 重新整理訂閱狀態
