@@ -166,6 +166,8 @@ class _GroupListState extends State<_GroupList> {
                     CupertinoIcons.add_circled,
                     size: 28,
                     color: theme.colorScheme.primary,
+                    // 与空态 CTA 同文案：读屏可念出「新建群」。
+                    semanticLabel: t.organization.manage.createGroup,
                   ),
                 ),
               ],

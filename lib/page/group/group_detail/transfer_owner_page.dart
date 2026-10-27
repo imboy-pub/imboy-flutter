@@ -64,7 +64,10 @@ class _TransferOwnerPageState extends State<TransferOwnerPage> {
   Widget build(BuildContext context) {
     final t = context.t;
     return Scaffold(
-      appBar: GlassAppBar(title: t.group.transferAndLeave),
+      appBar: GlassAppBar(
+        title: t.group.transferAndLeave,
+        automaticallyImplyLeading: true,
+      ),
       body: SafeArea(
         child: Column(
           children: [
