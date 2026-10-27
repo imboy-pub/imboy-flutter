@@ -318,9 +318,24 @@ class ResumableAttachmentUploader {
     _recovering = () async {
       try {
         final uploader = ResumableAttachmentUploader();
-        await uploader.resumeAll(uid);
-        await uploader.reconcileMessages(uid);
-        await uploader.recoverBusinessOutbox(uid);
+        // 单阶段故障不阻挡已经确认的业务 outbox；账号切换仍停止整轮。
+        for (final recover in <Future<void> Function()>[
+          () async {
+            await uploader.resumeAll(uid);
+          },
+          () => uploader.reconcileMessages(uid),
+          () => uploader.recoverBusinessOutbox(uid),
+        ]) {
+          uploader._requireSession(uid);
+          try {
+            await recover();
+          } on Object {
+            uploader._requireSession(uid);
+            debugPrint(
+              '[attachment_upload] recovery phase blocked; checkpoints retained',
+            );
+          }
+        }
       } on Object {
         debugPrint(
           '[attachment_upload] recovery blocked; checkpoints retained',
@@ -669,7 +684,17 @@ class ResumableAttachmentUploader {
         if (bytesProvider != null) {
           final bytes = await bytesProvider(row);
           if (bytes == null) continue;
-          ok.add(await _runWithMaterials(row, materials, bytes: bytes));
+          ok.add(
+            await _runWithMaterials(
+              row,
+              materials,
+              bytes: bytes,
+              presignFn: presignFn,
+              putFn: putFn,
+              confirmFn: confirmFn,
+              sessionFn: sessionFn,
+            ),
+          );
           continue;
         }
         if (row.uploadPath == null || !await File(row.uploadPath!).exists()) {
@@ -767,6 +792,29 @@ class ResumableAttachmentUploader {
           userId,
           'cipher material lost; new task and key required',
         );
+      } on UploadSessionRejected {
+        _requireSession(userId);
+        await _repo.abandon(
+          row.id,
+          userId,
+          'upload session rejected; new task required',
+        );
+      } on Object {
+        _requireSession(userId);
+        // 保留原身份、密文和实际已落盘阶段；下一轮重试，不阻塞其它任务。
+        final current = await _repo.find(row.id);
+        _requireSession(userId);
+        if (current != null &&
+            current.userId == userId &&
+            !current.stage.isTerminal) {
+          await _repo.advanceStage(
+            row.id,
+            current.stage,
+            current.stage,
+            userId: userId,
+            lastError: 'upload recovery failed; original checkpoint retained',
+          );
+        }
       }
     }
     return ok;
