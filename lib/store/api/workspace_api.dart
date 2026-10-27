@@ -13,6 +13,7 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/workspace_conversation_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// Workspace API 失败（透传服务端 envelope code 与消息）。
@@ -208,7 +209,12 @@ class WorkspaceApi extends HttpClient {
     EntityId workspaceId, {
     String? status,
   }) async {
+    // W07.b/c（C2 工作区频道目录 cursor 协议）：manifest 声明
+    // list_contracts 时发 pagination=cursor 并线程签名 token（opaque，
+    // 终止页 null）；未声明 → 数值 cursor 旧语义零变化（J27.a/b）。
+    final signed = AppManifestService.manifest?.listCursorGateEnabled ?? false;
     var cursor = 0;
+    String? signedToken;
     // ponytail: keep this workspace in memory for local search; use server search for very large directories.
     final result = <ChannelModel>[];
     while (true) {
@@ -218,19 +224,26 @@ class WorkspaceApi extends HttpClient {
           queryParameters: {
             'paged': 1,
             'limit': 200,
-            'cursor': cursor,
+            if (signed) 'pagination': 'cursor',
+            if (signed && signedToken != null) 'cursor': signedToken,
+            if (!signed) 'cursor': cursor,
             if (status != null && status.isNotEmpty) 'status': status,
           },
         ),
       );
       final rows = payload['list'];
       final more = payload['has_more'];
-      final next = int.tryParse('${payload['next_cursor']}');
+      final next =
+          int.tryParse('${payload['next_cursor']}') ?? (signed ? 0 : -1);
+      final nextDyn = payload['next_cursor'];
+      final nextToken = (nextDyn == null || nextDyn.toString().isEmpty)
+          ? null
+          : nextDyn.toString();
       if (entityIdOf(payload['workspace_id']) != workspaceId ||
           rows is! List ||
           rows.length > 200 ||
           more is! bool ||
-          next == null) {
+          (signed ? false : next < 0)) {
         throw WorkspaceApiException(503, t.common.errorNetwork);
       }
       var lastId = cursor;
@@ -240,13 +253,26 @@ class WorkspaceApi extends HttpClient {
         result.add(channel);
       }
       if (!more) {
-        if (next != 0) throw WorkspaceApiException(503, t.common.errorNetwork);
+        if (!signed && next != 0) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        // 签名协议终止页：next_cursor 为空串/缺省即终止（服务端 ws_next_
+        // cursor(false,…) → <<>>）；数值协议仍强制 next==0 旧契约。
         return result;
       }
-      if (rows.isEmpty || next != lastId) {
-        throw WorkspaceApiException(503, t.common.errorNetwork);
+      if (signed) {
+        // J20.d：并发新增（更高 id）不误入旧扫描；token 为 opaque，
+        // 「前进性/无漏重」由服务端 keyset + J20 PG 向量保证。
+        if (rows.isEmpty || nextToken == null) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        signedToken = nextToken;
+      } else {
+        if (rows.isEmpty || next != lastId) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        cursor = next;
       }
-      cursor = next;
     }
   }
 
@@ -323,7 +349,12 @@ class WorkspaceApi extends HttpClient {
     EntityId workspaceId, {
     bool preview = false,
   }) async {
+    // W07.b/c（C2 成员群子集 cursor 协议）：manifest 声明 list_contracts
+    // 时发 pagination=cursor 并线程签名 token（opaque，终止页 null）；
+    // 未声明 → 数值 cursor 旧契约零变化（J27.a/b）。
+    final signed = AppManifestService.manifest?.listCursorGateEnabled ?? false;
     var cursor = 0;
+    String? signedToken;
     final result = <Map<String, dynamic>>[];
     while (true) {
       final payload = _ensureOk(
@@ -332,7 +363,9 @@ class WorkspaceApi extends HttpClient {
           queryParameters: {
             'member_only': 1,
             'limit': 200,
-            'cursor': cursor,
+            if (signed) 'pagination': 'cursor',
+            if (signed && signedToken != null) 'cursor': signedToken,
+            if (!signed) 'cursor': cursor,
             if (preview) 'preview': 1,
           },
         ),
@@ -340,11 +373,15 @@ class WorkspaceApi extends HttpClient {
       final raw = payload['list'];
       final more = payload['has_more'];
       final next = int.tryParse('${payload['next_cursor']}');
+      final nextDyn = payload['next_cursor'];
+      final nextToken = (nextDyn == null || nextDyn.toString().isEmpty)
+          ? null
+          : nextDyn.toString();
       if (entityIdOf(payload['workspace_id']) != workspaceId ||
           raw is! List ||
           raw.length > 200 ||
           more is! bool ||
-          next == null) {
+          (signed ? false : next == null || next < 0)) {
         throw WorkspaceApiException(503, t.common.errorNetwork);
       }
       var lastId = cursor;
@@ -354,13 +391,23 @@ class WorkspaceApi extends HttpClient {
         result.add(row);
       }
       if (!more) {
-        if (next != 0) throw WorkspaceApiException(503, t.common.errorNetwork);
+        if (!signed && next != 0) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        // 签名协议终止页：next_cursor 空串/缺省即终止。
         return result;
       }
-      if (raw.isEmpty || next != lastId) {
-        throw WorkspaceApiException(503, t.common.errorNetwork);
+      if (signed) {
+        if (raw.isEmpty || nextToken == null) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        signedToken = nextToken;
+      } else {
+        if (raw.isEmpty || next == null || next != lastId) {
+          throw WorkspaceApiException(503, t.common.errorNetwork);
+        }
+        cursor = next;
       }
-      cursor = next;
     }
   }
 
