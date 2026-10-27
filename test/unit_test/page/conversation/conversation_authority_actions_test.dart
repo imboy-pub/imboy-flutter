@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
@@ -19,6 +21,8 @@ class _FakeConversationApi extends ConversationApi {
   bool pinResult = true;
   bool deleteResult = true;
   bool restoreResult = true;
+  Completer<bool>? deleteGate;
+  bool deleteThrows = false;
 
   final List<Map<String, String>> pinCalls = <Map<String, String>>[];
   final List<Map<String, String>> deleteCalls = <Map<String, String>>[];
@@ -44,6 +48,8 @@ class _FakeConversationApi extends ConversationApi {
     required String type,
   }) async {
     deleteCalls.add({'conversation_id': conversationId, 'type': type});
+    if (deleteThrows) throw StateError('transport unavailable');
+    if (deleteGate != null) return deleteGate!.future;
     return deleteResult;
   }
 
@@ -123,6 +129,206 @@ void main() {
   });
 
   group('Conversation authority actions', () {
+    test('免打扰等待数据库事务期间切号，不写入旧账号偏好', () async {
+      final visible = await _insertConversation(
+        peerId: 8007,
+        type: 'C2C',
+        lastTime: 1000,
+      );
+      final entered = Completer<void>();
+      final release = Completer<void>();
+      final held = db.transaction((_) async {
+        entered.complete();
+        await release.future;
+      });
+      await entered.future;
+      final pending = ConversationRepo().setMutedForPeer('C2C', '8006', true);
+      final rejected = expectLater(pending, throwsStateError);
+      final hidden = ConversationRepo().hideForAccount(
+        account: _testUid,
+        kind: 'C2C',
+        peer: visible.peerId,
+      );
+      await Future<void>.delayed(Duration.zero);
+      await StorageService.to.setString(Keys.currentUid, 'another-account');
+      release.complete();
+      try {
+        await held;
+        await rejected;
+        expect(await hidden, isFalse);
+        final original = await db.query(
+          'conversation',
+          where: 'id = ?',
+          whereArgs: [visible.id],
+        );
+        expect(original.single['is_show'], 1);
+        expect(
+          await db.query(
+            'conversation',
+            where: 'peer_id = ?',
+            whereArgs: [8006],
+          ),
+          isEmpty,
+        );
+      } finally {
+        await StorageService.to.setString(Keys.currentUid, _testUid);
+      }
+    });
+
+    test('先保存免打扰再收首消息，补齐身份且保留静音', () async {
+      final repo = ConversationRepo();
+      await repo.setMutedForPeer('C2C', '8004', true);
+      final incoming = ConversationModel(
+        id: 0,
+        peerId: 8004,
+        type: 'C2C',
+        title: 'First sender',
+        avatar: 'authorized-avatar-reference',
+        subtitle: 'First message',
+        msgType: 'text',
+        lastTime: 1000,
+        lastMsgId: 'first-message',
+        unreadNum: 1,
+        payload: const {},
+      );
+      final stored = await repo.save(incoming);
+      expect(stored.title, incoming.title);
+      expect(stored.avatar, incoming.avatar);
+      expect(stored.subtitle, incoming.subtitle);
+      expect(stored.isMuted, 1);
+      expect(stored.isShow, 1);
+      expect(stored.unreadNum, 1);
+    });
+
+    test('隐藏写入按账号和对象寻址，不使用另一账号的本地行号', () async {
+      final row = await _insertConversation(
+        peerId: 8005,
+        type: 'C2C',
+        lastTime: 1000,
+      );
+      await db.update(
+        'conversation',
+        {'user_id': 'another-account'},
+        where: 'id = ?',
+        whereArgs: [row.id],
+      );
+      expect(
+        await ConversationRepo().hideForAccount(
+          account: _testUid,
+          kind: 'C2C',
+          peer: 8005,
+        ),
+        isFalse,
+      );
+      final rows = await db.query(
+        'conversation',
+        where: 'id = ?',
+        whereArgs: [row.id],
+      );
+      expect(rows.single['is_show'], 1);
+      await db.delete('conversation', where: 'id = ?', whereArgs: [row.id]);
+    });
+
+    test('首条消息之前保存免打扰，不新增可见空会话', () async {
+      final repo = ConversationRepo();
+      await repo.setMutedForPeer('C2C', '8001', true);
+      final stored = await repo.findByPeerId('C2C', '8001');
+      expect(stored, isNotNull);
+      expect(stored!.isMuted, 1);
+      expect(stored.isShow, 0);
+      expect(stored.unreadNum, 0);
+      await repo.setMutedForPeer('C2C', '8001', false);
+      expect((await repo.findByPeerId('C2C', '8001'))!.isMuted, 0);
+    });
+
+    test('免打扰保留消息、未读和会话可见性', () async {
+      final row = await _insertConversation(
+        peerId: 8002,
+        type: 'C2G',
+        lastTime: 1000,
+      );
+      final repo = ConversationRepo();
+      await repo.setMutedForPeer('C2G', '8002', true);
+      final stored = (await repo.findById(row.id))!;
+      expect(stored.isMuted, 1);
+      expect(stored.lastTime, row.lastTime);
+      expect(stored.subtitle, row.subtitle);
+      expect(stored.isShow, row.isShow);
+      expect(stored.payload, row.payload);
+    });
+
+    test('免打扰写入失败抛出错误且原状态不变', () async {
+      final repo = ConversationRepo();
+      await repo.setMutedForPeer('C2C', '8003', false);
+      await db.execute(
+        '''CREATE TRIGGER reject_mute BEFORE UPDATE OF is_muted
+        ON conversation BEGIN SELECT RAISE(ABORT, 'test write failure'); END''',
+      );
+      try {
+        await expectLater(
+          repo.setMutedForPeer('C2C', '8003', true),
+          throwsA(isA<DatabaseException>()),
+        );
+        expect((await repo.findByPeerId('C2C', '8003'))!.isMuted, 0);
+      } finally {
+        await db.execute('DROP TRIGGER reject_mute');
+      }
+    });
+
+    test('移除忙态防重且失败后可以重试', () async {
+      final gate = Completer<bool>();
+      final api = _FakeConversationApi()..deleteGate = gate;
+      final conversation = await _insertConversation(
+        peerId: 7001,
+        type: 'C2G',
+        lastTime: 1000,
+      );
+      final container = ProviderContainer(
+        overrides: [
+          conversationProvider.overrideWith(
+            () => _TestConversationNotifier(api: api),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen(conversationProvider, (_, _) {});
+      final notifier = container.read(conversationProvider.notifier);
+      final first = notifier.deleteConversationRemote(conversation);
+      final second = notifier.deleteConversationRemote(conversation);
+      expect(identical(first, second), isTrue);
+      expect(api.deleteCalls, hasLength(1));
+      gate.complete(false);
+      expect(await first, isFalse);
+      expect((await ConversationRepo().findById(conversation.id))!.isShow, 1);
+      api.deleteGate = null;
+      expect(await notifier.deleteConversationRemote(conversation), isTrue);
+      expect(api.deleteCalls, hasLength(2));
+      expect((await ConversationRepo().findById(conversation.id))!.isShow, 0);
+    });
+
+    test('移除请求抛错时保留本地会话并释放忙态', () async {
+      final api = _FakeConversationApi()..deleteThrows = true;
+      final conversation = await _insertConversation(
+        peerId: 7002,
+        type: 'C2C',
+        lastTime: 1000,
+      );
+      final container = ProviderContainer(
+        overrides: [
+          conversationProvider.overrideWith(
+            () => _TestConversationNotifier(api: api),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      container.listen(conversationProvider, (_, _) {});
+      final notifier = container.read(conversationProvider.notifier);
+      expect(await notifier.deleteConversationRemote(conversation), isFalse);
+      expect((await ConversationRepo().findById(conversation.id))!.isShow, 1);
+      api.deleteThrows = false;
+      expect(await notifier.deleteConversationRemote(conversation), isTrue);
+    });
+
     test('ConversationState 应将置顶会话排在更晚时间的未置顶会话前', () {
       final pinned = ConversationModel(
         id: 1,

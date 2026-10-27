@@ -412,8 +412,18 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                   }
                 }
 
-                Future<void> onDelete() =>
-                    notifier.deleteConversationRemote(model);
+                Future<void> onDelete() async {
+                  try {
+                    final ok = await notifier.deleteConversationRemote(model);
+                    if (context.mounted && !ok) {
+                      AppLoading.showError(t.common.errorNetwork);
+                    }
+                  } catch (_) {
+                    if (context.mounted) {
+                      AppLoading.showError(t.common.errorNetwork);
+                    }
+                  }
+                }
 
                 return Column(
                   children: [
@@ -513,8 +523,12 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                               }
                             },
                             onTapAvatar: () => context.push(
-                              '/contact/people/${model.peerId}',
-                              extra: {'scene': ''},
+                              model.type == 'C2G'
+                                  ? '/group/detail/${model.peerId}'
+                                  : '/contact/people/${model.peerId}',
+                              extra: model.type == 'C2G'
+                                  ? {'title': model.title}
+                                  : {'scene': ''},
                             ),
                           ),
                         ),

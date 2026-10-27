@@ -42,6 +42,110 @@ class ConversationRepo {
 
   final SqliteService _db = SqliteService.to;
 
+  Future<bool> hideForAccount({
+    required String account,
+    required String kind,
+    required int peer,
+  }) async {
+    final database = await _db.db;
+    if (database == null || UserRepoLocal.to.currentUid != account) {
+      return false;
+    }
+    return database.transaction((txn) async {
+      if (UserRepoLocal.to.currentUid != account) return false;
+      final changed = await txn.update(
+        tableName,
+        {isShow: 0},
+        where: '$userId = ? AND $type = ? AND $peerId = ?',
+        whereArgs: [account, kind, peer],
+      );
+      return changed == 1;
+    });
+  }
+
+  /// 本机偏好可以先于首条消息存在，不能因此制造可见的空会话。
+  Future<void> setMutedForPeer(String kind, String peer, bool muted) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    final parsedPeer = int.tryParse(peer);
+    if (account.isEmpty ||
+        parsedPeer == null ||
+        parsedPeer <= 0 ||
+        !{'C2C', 'C2G'}.contains(kind)) {
+      throw ArgumentError('Invalid conversation identity');
+    }
+    final database = await _db.db;
+    if (database == null || !isCurrent()) {
+      throw StateError('Conversation account changed or database unavailable');
+    }
+    await database.transaction((txn) async {
+      if (!isCurrent()) {
+        throw StateError('Conversation account changed');
+      }
+      final rows = await txn.query(
+        tableName,
+        columns: [id],
+        where: '$type = ? AND $userId = ? AND $peerId = ?',
+        whereArgs: [kind, account, parsedPeer],
+      );
+      if (rows.isEmpty) {
+        await txn.insert(tableName, {
+          userId: account,
+          peerId: parsedPeer,
+          type: kind,
+          lastTime: 0,
+          lastMsgId: '',
+          lastMsgStatus: 11,
+          unreadNum: 0,
+          mentionUnread: 0,
+          msgType: 'text',
+          isShow: 0,
+          isMuted: muted ? 1 : 0,
+          payload: '{}',
+        });
+      } else {
+        final changed = await txn.update(
+          tableName,
+          {isMuted: muted ? 1 : 0},
+          where: '$id = ?',
+          whereArgs: [rows.single[id]],
+        );
+        if (changed != 1) throw StateError('Conversation preference not saved');
+      }
+      if (!isCurrent()) throw StateError('Conversation account changed');
+    });
+  }
+
+  Future<ConversationModel?> findByPeerIdForSettings(
+    String kind,
+    String peer,
+  ) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    final database = await _db.db;
+    if (database == null || !isCurrent()) {
+      throw StateError('Conversation account changed or database unavailable');
+    }
+    return database.transaction((txn) async {
+      if (!isCurrent()) throw StateError('Conversation account changed');
+      final conversation = await findByPeerId(kind, peer, txn: txn);
+      if (!isCurrent()) throw StateError('Conversation account changed');
+      return conversation;
+    });
+  }
+
   // 插入一条数据
   Future<int> insert(ConversationModel obj, {Transaction? txn}) async {
     Map<String, dynamic> insert = {
@@ -157,6 +261,10 @@ class ConversationRepo {
     // （固定字符串拼接曾在 unreadExpr 为空时产出 "payload = ?, WHERE id = ?"
     // 这种语法错误，见 imboyapp 真机日志 "near WHERE: syntax error"）。
     final setClauses = <String>[
+      if (oldObj.title.isEmpty && obj.title.isNotEmpty)
+        '${ConversationRepo.title} = ?',
+      if (oldObj.avatar.isEmpty && obj.avatar.isNotEmpty)
+        '${ConversationRepo.avatar} = ?',
       '${ConversationRepo.subtitle} = ?',
       '${ConversationRepo.lastTime} = ?',
       '${ConversationRepo.lastMsgId} = ?',
@@ -172,6 +280,8 @@ class ConversationRepo {
     final sql =
         'UPDATE ${ConversationRepo.tableName} SET ${setClauses.join(', ')} WHERE id = ?';
     final args = <dynamic>[
+      if (oldObj.title.isEmpty && obj.title.isNotEmpty) obj.title,
+      if (oldObj.avatar.isEmpty && obj.avatar.isNotEmpty) obj.avatar,
       obj.subtitle,
       obj.lastTime,
       obj.lastMsgId,

@@ -87,6 +87,7 @@ class ConversationState {
 class ConversationNotifier extends _$ConversationNotifier {
   final Map<String, Timer> _debounceTimers = {};
   final ConversationApi _conversationApi;
+  final Map<String, Future<bool>> _pendingDeletes = {};
 
   ConversationNotifier({ConversationApi? conversationApi})
     : _conversationApi = conversationApi ?? ConversationApi();
@@ -697,25 +698,48 @@ class ConversationNotifier extends _$ConversationNotifier {
     return true;
   }
 
-  Future<bool> deleteConversationRemote(ConversationModel conversation) async {
+  Future<bool> deleteConversationRemote(ConversationModel conversation) {
     if (conversation.peerId == 0 || conversation.type.isEmpty) {
+      return Future.value(false);
+    }
+    final account = UserRepoLocal.to.currentUid;
+    // 会话唯一键（非凭据）；变量命名触发 gitleaks generic-api-key 误报
+    final key = conversation.uk3; // gitleaks:allow
+    final pending = _pendingDeletes[key];
+    if (pending != null) return pending;
+    final request = _deleteConversationRemote(conversation, account, key)
+        .whenComplete(() {
+          _pendingDeletes.remove(key);
+        });
+    _pendingDeletes[key] = request;
+    return request;
+  }
+
+  Future<bool> _deleteConversationRemote(
+    ConversationModel conversation,
+    String account,
+    String key,
+  ) async {
+    try {
+      final ok = await _conversationApi.deleteConversation(
+        conversationId: conversation.peerId.toString(),
+        type: conversation.type,
+      );
+      if (!ok || UserRepoLocal.to.currentUid != account) return false;
+      final hidden = await ConversationRepo().hideForAccount(
+        account: account,
+        kind: conversation.type,
+        peer: conversation.peerId,
+      );
+      if (!hidden) return false;
+      if (!ref.mounted || UserRepoLocal.to.currentUid != account) return false;
+      removeConversationFromMap(key);
+      removeConversationRemind(key);
+      return true;
+    } catch (error) {
+      iPrint('deleteConversationRemote failed: $error');
       return false;
     }
-
-    final ok = await _conversationApi.deleteConversation(
-      conversationId: conversation.peerId.toString(),
-      type: conversation.type,
-    );
-    if (!ok) {
-      return false;
-    }
-
-    await ConversationRepo().updateById(conversation.id, {
-      ConversationRepo.isShow: 0,
-    });
-    removeConversationFromMap(conversation.uk3);
-    removeConversationRemind(conversation.uk3);
-    return true;
   }
 
   Future<bool> restoreConversationRemote({

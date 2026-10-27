@@ -925,8 +925,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       _scrollToMessageId(widget.msgId, retry: true);
 
   /// 点击引用块跳回被引用的原消息。
-  /// 原消息可能已滚出已加载窗口（indexWhere == -1），此时静默不动——
-  /// 加载历史再定位是另一个能力，不在本次范围内。
+  /// 未加载的原消息先给出反馈；完整历史上下文定位由历史加载链处理。
   void _onQuoteTap(String quotedMessageId) {
     unawaited(_scrollToMessageId(quotedMessageId, retry: false));
   }
@@ -941,12 +940,18 @@ class ChatPageState extends ConsumerState<ChatPage>
       final messages =
           ref.read(chatProvider.notifier).chatService?.messages ?? [];
       if (messages.isEmpty) {
+        if (!retry && mounted) {
+          AppLoading.showToast(t.common.quoteMessageNotAvailable);
+        }
         return;
       }
 
       // 查找目标消息在列表中的索引
       final targetIndex = messages.indexWhere((m) => m.id == msgId);
       if (targetIndex == -1) {
+        if (!retry && mounted) {
+          AppLoading.showToast(t.common.quoteMessageNotAvailable);
+        }
         return;
       }
       final attempts = retry ? 15 : 1;

@@ -86,7 +86,7 @@ void main() {
     await db.close();
   });
 
-  Future<void> pumpPage(WidgetTester tester) async {
+  Future<void> pumpPage(WidgetTester tester, {String peerId = 'peer_1'}) async {
     await tester.pumpWidget(
       ProviderScope(
         child: TranslationProvider(
@@ -94,7 +94,7 @@ void main() {
             // 与 run.dart 一致的宿主挂载：确认后 AppLoading.showToast 需要
             // EasyLoading.init 的 overlay，否则断言异常。
             builder: AppLoading.init(),
-            home: ChatSettingPage('peer_1', type: 'C2C'),
+            home: ChatSettingPage(peerId, type: 'C2C'),
           ),
         ),
       ),
@@ -116,6 +116,73 @@ void main() {
     );
     return jsonDecode(rows.single['payload'] as String) as Map<String, dynamic>;
   }
+
+  testWidgets('读取失败时免打扰不可写入', (tester) async {
+    await db.execute('DROP TABLE conversation');
+    await pumpPage(tester, peerId: '8101');
+    final toggle = tester.widget<CupertinoSwitch>(
+      find.byType(CupertinoSwitch).first,
+    );
+    expect(toggle.onChanged, isNull);
+    expect(find.text(t.common.errorNetwork), findsWidgets);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('无消息时免打扰可保存，重开仍然开启且没有可见空会话', (tester) async {
+    await pumpPage(tester, peerId: '8101');
+    final toggle = tester.widget<CupertinoSwitch>(
+      find.byType(CupertinoSwitch).first,
+    );
+    toggle.onChanged!(true);
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump();
+    expect(
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
+      isTrue,
+    );
+    final rows = await db.query(
+      'conversation',
+      where: 'peer_id = ?',
+      whereArgs: [8101],
+    );
+    expect(rows.single['is_muted'], 1);
+    expect(rows.single['is_show'], 0);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await pumpPage(tester, peerId: '8101');
+    expect(
+      tester.widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first).value,
+      isTrue,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('免打扰写失败保留原值且开关可重试', (tester) async {
+    await db.insert('conversation', {
+      'user_id': 'tsid_uid_001',
+      'peer_id': 8102,
+      'type': 'C2C',
+      'is_muted': 0,
+      'is_show': 1,
+    });
+    await db.execute('''CREATE TRIGGER reject_mute BEFORE UPDATE OF is_muted
+      ON conversation BEGIN SELECT RAISE(ABORT, 'test write failure'); END''');
+    await pumpPage(tester, peerId: '8102');
+    tester
+        .widget<CupertinoSwitch>(find.byType(CupertinoSwitch).first)
+        .onChanged!(true);
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump();
+    final toggle = tester.widget<CupertinoSwitch>(
+      find.byType(CupertinoSwitch).first,
+    );
+    expect(toggle.value, isFalse);
+    expect(toggle.onChanged, isNotNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('滚轮选新档位点确认后，副标题与 payload 同步更新', (tester) async {
     await pumpPage(tester);

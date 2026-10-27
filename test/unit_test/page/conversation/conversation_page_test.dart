@@ -13,6 +13,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
+import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
@@ -52,6 +53,14 @@ GoRouter _stubRouter() {
       GoRoute(
         path: '/contact/new_friend',
         builder: (_, _) => stub('new_friend stub'),
+      ),
+      GoRoute(
+        path: '/contact/people/:id',
+        builder: (_, state) => stub('person ${state.pathParameters['id']}'),
+      ),
+      GoRoute(
+        path: '/group/detail/:id',
+        builder: (_, state) => stub('group ${state.pathParameters['id']}'),
       ),
     ],
   );
@@ -195,6 +204,33 @@ void main() {
   });
 
   group('ConversationPage interactions', () {
+    for (final type in ['C2C', 'C2G']) {
+      testWidgets('$type avatar opens the matching profile and returns', (
+        tester,
+      ) async {
+        final conversation = _conv(id: 42, title: 'Profile target', type: type);
+        await _pumpConv(
+          tester,
+          state: ConversationState(
+            isLoading: false,
+            conversationMap: {conversation.uk3: conversation},
+          ),
+        );
+        final item = tester.widget<ConversationItem>(
+          find.byType(ConversationItem),
+        );
+        item.onTapAvatar!();
+        await tester.pumpAndSettle();
+        final expected = type == 'C2G' ? 'group 42' : 'person 42';
+        expect(find.text(expected), findsOneWidget);
+        final context = tester.element(find.text(expected));
+        GoRouter.of(context).pop();
+        await tester.pumpAndSettle();
+        expect(find.text('Profile target'), findsOneWidget);
+        await _unmount(tester);
+      });
+    }
+
     testWidgets('non-empty state 列表承载于可滚动 CustomScrollView '
         '(IosPageTemplate slivers)', (tester) async {
       final c1 = _conv(id: 1, title: 'Alice');
