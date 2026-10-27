@@ -21,16 +21,32 @@ import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 class _FakeConversationApi extends ConversationApi {
   bool manualPendingResult = true;
-  final List<({String uk3, bool value})> manualPendingCalls = [];
+
+  /// 冲突脚本：非 null 时返回 conflict（currentValue/currentVersion）。
+  ({bool currentValue, int currentVersion})? conflictScript;
+  final List<({String uk3, bool value, int? expectedVersion})>
+  manualPendingCalls = [];
 
   @override
-  Future<({bool value, int version})?> setManualPending({
+  Future<ManualPendingWrite?> setManualPending({
     required String uk3,
     required bool value,
+    int? expectedVersion,
   }) async {
-    manualPendingCalls.add((uk3: uk3, value: value));
+    manualPendingCalls.add((
+      uk3: uk3,
+      value: value,
+      expectedVersion: expectedVersion,
+    ));
     if (!manualPendingResult) return null;
-    return (value: value, version: 1);
+    final conflict = conflictScript;
+    if (conflict != null) {
+      return ManualPendingWrite.conflict(
+        currentValue: conflict.currentValue,
+        currentVersion: conflict.currentVersion,
+      );
+    }
+    return ManualPendingWrite.applied(value: value, version: 1);
   }
 }
 
@@ -127,6 +143,52 @@ void main() {
       container.read(conversationProvider).manualPending[model.uk3],
       isTrue,
       reason: '清未读后人工待处理独立保留（§5.2）',
+    );
+  });
+
+  test('J17.d：冲突回读已达目标 → 成功；未达目标 → 冲突可见状态不变', () async {
+    final api = _FakeConversationApi()
+      ..conflictScript = (currentValue: true, currentVersion: 4);
+    final container = ProviderContainer(
+      overrides: [
+        conversationProvider.overrideWith(
+          () => _TestConversationNotifier(api: api),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    final notifier = container.read(conversationProvider.notifier);
+
+    final model = _model();
+    // 服务端已是 true（desired 达成）→ 冲突回读后判成功。
+    expect(await notifier.setManualPending(model, true), isTrue);
+    expect(
+      container.read(conversationProvider).manualPending[model.uk3],
+      isTrue,
+    );
+    // 首写即带 expected_version（本地无版本 → 不带键/为 null）。
+    expect(api.manualPendingCalls.single.expectedVersion, isNull);
+
+    // 服务端值与 desired 不一致 → 冲突可见（false），本地不变、不取反。
+    final api2 = _FakeConversationApi()
+      ..conflictScript = (currentValue: false, currentVersion: 7);
+    final container2 = ProviderContainer(
+      overrides: [
+        conversationProvider.overrideWith(
+          () => _TestConversationNotifier(api: api2),
+        ),
+      ],
+    );
+    addTearDown(container2.dispose);
+    final notifier2 = container2.read(conversationProvider.notifier);
+    expect(await notifier2.setManualPending(_model(), true), isFalse);
+    expect(
+      container2
+          .read(conversationProvider)
+          .manualPending
+          .containsKey(model.uk3),
+      isFalse,
+      reason: '冲突未达目标：不假成功、desired 不落本地',
     );
   });
 

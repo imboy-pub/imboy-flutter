@@ -200,16 +200,39 @@ class ConversationNotifier extends _$ConversationNotifier {
   /// 服务端 user_setting 元数据（版本化）；**不写 unreadNum**（人工标记
   /// 不写 unread=1），真实水位零影响。失败上抛给调用方呈现（不假成功，
   /// J16.b），不自动取反重试。
+  /// 各会话最近一次服务端权威偏好版本（CAS expected_version 来源）。
+  final Map<String, int> _manualPendingVersions = {};
+
+  /// W09.a（J17.c）+ W09.c（J17.d）：显式目标 true/false 设置人工待处理。
+  ///
+  /// 服务端 user_setting 元数据（版本化 CAS）；**不写 unreadNum**（人工
+  /// 标记不写 unread=1），真实水位零影响。冲突时回读服务端当前值：已达
+  /// 目标即成功；未达目标则冲突可见（返回 false，本地状态与 desired
+  /// 保留，由调用方呈现最新值），不自动取反或无限覆盖（J17.d）。
   Future<bool> setManualPending(
     ConversationModel conversation,
     bool target,
   ) async {
     final uk3 = conversation.uk3;
     if (uk3.isEmpty) return false;
-    final ok =
-        await _conversationApi.setManualPending(uk3: uk3, value: target) !=
-        null;
-    if (!ok) return false;
+    final result = await _conversationApi.setManualPending(
+      uk3: uk3,
+      value: target,
+      expectedVersion: _manualPendingVersions[uk3],
+    );
+    if (result == null) return false;
+    if (result.conflict) {
+      // 回读当前权威版本；已达目标即成功。
+      _manualPendingVersions[uk3] = result.currentVersion;
+      if (result.currentValue == target) {
+        final newMap = Map<String, bool>.from(state.manualPending);
+        newMap[uk3] = target;
+        state = state.copyWith(manualPending: newMap);
+        return true;
+      }
+      return false;
+    }
+    _manualPendingVersions[uk3] = result.version;
     final newMap = Map<String, bool>.from(state.manualPending);
     newMap[uk3] = target;
     state = state.copyWith(manualPending: newMap);
