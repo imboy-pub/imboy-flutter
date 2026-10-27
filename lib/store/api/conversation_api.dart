@@ -1,4 +1,5 @@
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 
 /// 会话 API 客户端
@@ -122,6 +123,35 @@ class ConversationApi extends HttpClient {
       return const [];
     }
 
+    return _parseMapListPayload(resp.payload);
+  }
+
+  /// W09.a（§6.7/J17.c）：显式目标 true/false 设置会话人工待处理。
+  ///
+  /// 真实未读水位不依赖本元数据；服务端无变化同目标重试返回当前状态
+  /// 不重复副作用。成功返回服务端权威版本；失败返回 null（调用方给
+  /// 重试，不假成功）。
+  Future<({bool value, int version})?> setManualPending({
+    required String uk3,
+    required bool value,
+  }) async {
+    final resp = await post(
+      API.conversationManualPending,
+      data: {'uk3': uk3, 'value': value},
+    );
+    if (!resp.ok) return null;
+    final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
+    final version = int.tryParse('${payload['version']}');
+    if (version == null) return null;
+    return (value: value, version: version);
+  }
+
+  /// 当前账号全部人工待处理元数据（uk3/value/version 投影）。
+  Future<List<Map<String, dynamic>>> manualPendingList() async {
+    final resp = await get(API.conversationManualPendingList);
+    if (!resp.ok || resp.payload == null) {
+      return const [];
+    }
     return _parseMapListPayload(resp.payload);
   }
 }

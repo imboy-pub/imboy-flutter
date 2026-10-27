@@ -364,7 +364,6 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                 final pinLabel = model.isPinned ? t.chat.unpin : t.chat.pin;
 
                 Future<void> onToggleRead() async {
-                  final target = model.unreadNum > 0 ? 0 : 1;
                   if (model.unreadNum > 0) {
                     try {
                       final db = await SqliteService.to.db;
@@ -385,12 +384,19 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                     } catch (_) {}
                     await notifier.advanceWatermarkToLatest(model);
                     await notifier.setConversationRemind(model, 0);
+                    // W09.a（J17.c 彼此不清除）：标已读不动人工待处理。
+                    notifier.applyConversationSnapshot(
+                      model.copyWith(unreadNum: 0),
+                    );
                   } else {
-                    await notifier.setConversationRemind(model, 1);
+                    // W09.a：人工待处理走服务端 user_setting 元数据
+                    // （显式目标 true），**不写 unreadNum=1**——人工标记
+                    // 与真实未读水位分离；失败给错误提示不假成功。
+                    final ok = await notifier.setManualPending(model, true);
+                    if (!ok && mounted) {
+                      AppLoading.showError(t.common.tipFailed);
+                    }
                   }
-                  notifier.applyConversationSnapshot(
-                    model.copyWith(unreadNum: target),
-                  );
                 }
 
                 Future<void> onTogglePin(BuildContext ctx) async {

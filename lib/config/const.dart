@@ -134,6 +134,10 @@ class API {
   static const conversationDelete = '/api/v1/conversation/delete';
   static const conversationRestore = '/api/v1/conversation/restore';
   static const conversationPinned = '/api/v1/conversation/pinned';
+  static const conversationManualPending =
+      '/api/v1/conversation/manual_pending';
+  static const conversationManualPendingList =
+      '/api/v1/conversation/manual_pending/list';
   // 拉取离线
   static const msgOffline = '/api/v1/msg/offline';
   // 确认离线消息已处理

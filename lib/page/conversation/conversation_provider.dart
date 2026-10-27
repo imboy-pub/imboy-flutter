@@ -33,11 +33,16 @@ class ConversationState {
   final String connectDesc;
   final Map<String, int> conversationRemind;
 
+  /// W09.a（§6.7/J17.c）：人工待处理（服务端 user_setting 元数据的
+  /// 本地投影）。独立于真实 unread——「标未读」不再写 unreadNum=1。
+  final Map<String, bool> manualPending;
+
   ConversationState({
     this.isLoading = true,
     this.conversationMap = const {},
     this.connectDesc = '',
     this.conversationRemind = const {},
+    this.manualPending = const {},
   });
 
   ConversationState copyWith({
@@ -45,12 +50,14 @@ class ConversationState {
     Map<String, ConversationModel>? conversationMap,
     String? connectDesc,
     Map<String, int>? conversationRemind,
+    Map<String, bool>? manualPending,
   }) {
     return ConversationState(
       isLoading: isLoading ?? this.isLoading,
       conversationMap: conversationMap ?? this.conversationMap,
       connectDesc: connectDesc ?? this.connectDesc,
       conversationRemind: conversationRemind ?? this.conversationRemind,
+      manualPending: manualPending ?? this.manualPending,
     );
   }
 
@@ -186,6 +193,27 @@ class ConversationNotifier extends _$ConversationNotifier {
     final newRemindMap = Map<String, int>.from(state.conversationRemind);
     newRemindMap[uk3] = val;
     state = state.copyWith(conversationRemind: newRemindMap);
+  }
+
+  /// W09.a（J17.c）：显式目标 true/false 设置人工待处理。
+  ///
+  /// 服务端 user_setting 元数据（版本化）；**不写 unreadNum**（人工标记
+  /// 不写 unread=1），真实水位零影响。失败上抛给调用方呈现（不假成功，
+  /// J16.b），不自动取反重试。
+  Future<bool> setManualPending(
+    ConversationModel conversation,
+    bool target,
+  ) async {
+    final uk3 = conversation.uk3;
+    if (uk3.isEmpty) return false;
+    final ok =
+        await _conversationApi.setManualPending(uk3: uk3, value: target) !=
+        null;
+    if (!ok) return false;
+    final newMap = Map<String, bool>.from(state.manualPending);
+    newMap[uk3] = target;
+    state = state.copyWith(manualPending: newMap);
+    return true;
   }
 
   // Apply a full conversation snapshot from backend/local persistence.
