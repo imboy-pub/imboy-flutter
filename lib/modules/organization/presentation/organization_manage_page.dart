@@ -28,6 +28,7 @@ import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/modules/organization/service/org_group_rename_pending_store.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -175,6 +176,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
       });
       if (_activeWsId.isNotEmpty) {
         await _loadResources(_activeWsId);
+        await _restorePendingGroupRename();
       }
     } on OrganizationApiException catch (e) {
       if (!mounted) return;
@@ -414,6 +416,13 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
           generation: generation,
         );
       });
+      // 立即落盘：页面销毁或应用重启后仍能“只重试改名、绝不重建群”。
+      await saveOrgGroupRenamePending(
+        account: account,
+        workspaceId: workspaceId,
+        gid: created.gid,
+        title: title,
+      );
       if (_isGroupActionCurrent(account, generation)) {
         await _retryCreatedGroupRename();
       }
@@ -460,12 +469,49 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
         _pendingGroupRename = null;
         _pendingGroupRenameError = null;
       });
+      // 改名成功才清持久意图；失败保留，重启后仍可恢复。
+      await clearOrgGroupRenamePending(
+        account: pending.account,
+        workspaceId: pending.workspaceId,
+      );
       await _refresh();
     } on Object catch (e) {
       if (isCurrentPending()) {
         setState(() => _pendingGroupRenameError = e.toString());
       }
     }
+  }
+
+  /// 页面重建/应用重启后，从本机恢复当前账号+工作区的待改名意图；
+  /// 绑定到当前账号与会话世代，避免把旧会话的意图当成当前操作。
+  Future<void> _restorePendingGroupRename() async {
+    if (!mounted || _pendingGroupRename != null) return;
+    final account = _accountKey;
+    final workspaceId = _activeWsId;
+    if (account.isEmpty || workspaceId.isEmpty) return;
+    final generation = UserRepoLocal.to.sessionGeneration;
+    final saved = await loadOrgGroupRenamePending(
+      account: account,
+      workspaceId: workspaceId,
+    );
+    if (!mounted || saved == null) return;
+    if (account != _accountKey ||
+        workspaceId != _activeWsId ||
+        _pendingGroupRename != null ||
+        !_isGroupActionCurrent(account, generation)) {
+      return;
+    }
+    setState(() {
+      _pendingGroupRename = (
+        gid: saved.gid,
+        title: saved.title,
+        workspaceId: workspaceId,
+        account: account,
+        generation: generation,
+      );
+      // 重启后拿不到上次的具体错误文案；用通用“改名失败”说明恢复态。
+      _pendingGroupRenameError = t.organization.detail.renameFailed;
+    });
   }
 
   Future<void> _dissolveGroup(GroupModel g) async {

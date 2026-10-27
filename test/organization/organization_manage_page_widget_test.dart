@@ -26,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/modules/organization/presentation/organization_manage_page.dart';
+import 'package:imboy/modules/organization/service/org_group_rename_pending_store.dart';
 import 'package:imboy/service/storage.dart';
 
 const String kOrgId = '900';
@@ -368,6 +369,68 @@ void main() {
     expect(
       find.byKey(const ValueKey('org-manage-group-rename-pending')),
       findsNothing,
+    );
+  });
+
+  testWidgets('页面重建后从本机恢复待改名意图且不重复建群', (tester) async {
+    // 模拟上一次会话“建群成功、改名失败”后的持久意图。
+    await saveOrgGroupRenamePending(
+      account: '1001',
+      workspaceId: kWsId,
+      gid: '777',
+      title: '重启恢复群',
+    );
+    final adapter = _GroupRenameAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(
+      tester,
+      find.byKey(const ValueKey('org-manage-group-rename-pending')),
+    );
+    expect(find.textContaining('群已创建（ID：777）'), findsOneWidget);
+    // 恢复路径绝不触发新建群请求。
+    expect(adapter.creates, 0);
+    final pending = find.byKey(
+      const ValueKey('org-manage-group-rename-pending'),
+    );
+    await tester.ensureVisible(pending);
+    Future<void> pumpUntil(bool Function() done) async {
+      for (var i = 0; i < 40 && !done(); i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    // 首次重试仍失败（adapter 首次 edit 返回失败）：横幅保留、意图不清除。
+    await tester.ensureVisible(pending);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.descendant(of: pending, matching: find.text('重试')));
+    await pumpUntil(() => adapter.edits.isNotEmpty);
+    expect(
+      find.byKey(const ValueKey('org-manage-group-rename-pending')),
+      findsOneWidget,
+    );
+    // 第二次重试成功：横幅消失、持久意图清除，全程无建群请求。
+    await tester.ensureVisible(pending);
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.descendant(of: pending, matching: find.text('重试')));
+    await pumpUntil(() => adapter.edits.length >= 2);
+    await pumpUntil(
+      () => find
+          .byKey(const ValueKey('org-manage-group-rename-pending'))
+          .evaluate()
+          .isEmpty,
+    );
+    expect(
+      find.byKey(const ValueKey('org-manage-group-rename-pending')),
+      findsNothing,
+    );
+    expect(adapter.creates, 0);
+    expect(adapter.edits.map((e) => e['gid']), everyElement('777'));
+    expect(adapter.edits.map((e) => e['title']), everyElement('重启恢复群'));
+    expect(
+      await loadOrgGroupRenamePending(account: '1001', workspaceId: kWsId),
+      isNull,
     );
   });
 
