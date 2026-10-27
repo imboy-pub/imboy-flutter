@@ -1,4 +1,4 @@
-// 降级边（块 31,29,28,10,17..25；缺口边见 migration_script_planner）
+// 降级边（块 35,31,29,28,10,17..25；缺口边见 migration_script_planner）
 //
 // WP3 bootstrap 从 assets/migrations/*.sql 机械提取（2026-08-27）；
 // headerComment + sql 拼接 == 原块原文（生成器 --check 守护字节级一致）。
@@ -7,36 +7,10 @@ library;
 
 import 'package:imboy/service/migration_manifest.dart';
 
-const List<MigrationEdge> kDowngradeEdgesAll = [
-  MigrationEdge(
-    id: 'downgrade_v34_删除_user_collect_E2EE收藏v1元数据列',
-    fromVersion: 34,
-    toVersion: 33,
-    description: '从 v34 降级到 v33（删除 user_collect 的 E2EE 收藏 v1 元数据列）。',
-    reversible: true,
-    dataLoss: false,
-    requiresResync: true,
-    preconditions: [
-      'downgrade 前 v34 schema 处于一致状态',
-      '无未同步的 sealed 收藏编辑（sealed 行降级后回到 legacy 语义不可再 CAS）',
-    ],
-    postconditions: [
-      'user_collect 不含 generation/key_version/attach_file_hash256 列：PRAGMA user_version = 33',
-    ],
-    affectedObjects: ['user_collect'],
-    headerComment:
-        r"""-- ============================================================
--- VERSION: 34
--- DESC: 从 v34 降级到 v33（删除 user_collect.generation / key_version /
---       attach_file_hash256，E2EE 收藏 v1 元数据列）。
--- ============================================================
+import 'downgrade_edges_v34_v35.dart';
 
-""",
-    sql: r"""ALTER TABLE user_collect DROP COLUMN attach_file_hash256;
-ALTER TABLE user_collect DROP COLUMN key_version;
-ALTER TABLE user_collect DROP COLUMN generation;
-PRAGMA user_version = 33;""",
-  ),
+const List<MigrationEdge> kDowngradeEdgesAll = [
+  ...kDowngradeEdgesV34V35,
   MigrationEdge(
     id: 'downgrade_v33_删除_attachment_upload_task_表',
     fromVersion: 33,

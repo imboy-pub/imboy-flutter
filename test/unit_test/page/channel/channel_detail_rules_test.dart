@@ -83,6 +83,89 @@ void main() {
         );
       }
     });
+
+    // R13-5：当天终点与次日开头无重漏 —— 同一时刻的两种边界表示
+    // （今天 23:59:59.999 / 明天 00:00）各自落组，互不重叠。
+    test(
+      'R13-5 last instant of today is today, first of tomorrow yesterday',
+      () {
+        expect(
+          formatChannelDateDivider(
+            DateTime(2026, 10, 23, 23, 59, 59, 999),
+            t,
+            now: DateTime(2026, 10, 23, 12),
+          ),
+          t.channel.today,
+        );
+        expect(
+          formatChannelDateDivider(
+            DateTime(2026, 10, 23, 23, 59, 59, 999),
+            t,
+            now: DateTime(2026, 10, 24, 0, 0),
+          ),
+          t.channel.yesterday,
+        );
+        expect(
+          formatChannelDateDivider(
+            DateTime(2026, 10, 24, 0, 0),
+            t,
+            now: DateTime(2026, 10, 24, 0, 0),
+          ),
+          t.channel.today,
+        );
+      },
+    );
+
+    // R13-3：跨年日界按日历日计。
+    test('R13-3 across new year boundary is one calendar day', () {
+      expect(
+        formatChannelDateDivider(
+          DateTime(2026, 12, 31, 23, 59),
+          t,
+          now: DateTime(2027, 1, 1, 0, 1),
+        ),
+        t.channel.yesterday,
+      );
+      // 跨年 3 个日历日（非 3×24h 滚动）。
+      expect(
+        formatChannelDateDivider(
+          DateTime(2026, 12, 30, 1),
+          t,
+          now: DateTime(2027, 1, 2, 1),
+        ),
+        contains('3'),
+      );
+    });
+
+    // R13-3：闰日参与日历日差（2024 为闰年）。
+    test('R13-3 leap day boundary counts as calendar days', () {
+      expect(
+        formatChannelDateDivider(
+          DateTime(2024, 2, 29, 12),
+          t,
+          now: DateTime(2024, 3, 1, 12),
+        ),
+        t.channel.yesterday,
+      );
+      // 02-28 → 03-01 在闰年是 2 个日历日（经过 02-29）。
+      expect(
+        formatChannelDateDivider(
+          DateTime(2024, 2, 28),
+          t,
+          now: DateTime(2024, 3, 1),
+        ),
+        contains('2'),
+      );
+      // 非闰年 2026 没有 02-29：02-28 → 03-01 恰为 1 个日历日。
+      expect(
+        formatChannelDateDivider(
+          DateTime(2026, 2, 28, 23, 59),
+          t,
+          now: DateTime(2026, 3, 1, 0, 1),
+        ),
+        t.channel.yesterday,
+      );
+    });
     if (Platform.environment['TZ'] == 'America/New_York') {
       test('spring forward 23-hour previous day is yesterday', () {
         final previous = DateTime(2026, 3, 7, 12);

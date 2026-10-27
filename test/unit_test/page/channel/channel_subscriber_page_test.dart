@@ -87,4 +87,54 @@ void main() {
       expect(find.text('3003'), findsOneWidget);
     },
   );
+
+  // ─── R13：订阅时间标签按本地日历日（非滚动 24 小时）───────────────────────
+  group('R13 calendar day labels', () {
+    DateTime localYesterdayAt(int h, int m) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day - 1, h, m);
+    }
+
+    DateTime localTodayAt(int h, int m) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day, h, m);
+    }
+
+    Future<String> pumpSubtitleText(WidgetTester tester, DateTime at) async {
+      when(
+        () => api.getSubscribers(
+          channelId: any(named: 'channelId'),
+          cursor: any(named: 'cursor'),
+          limit: any(named: 'limit'),
+        ),
+      ).thenAnswer(
+        (_) async => [
+          {
+            'user_id': '3003',
+            'nickname': '日历测试员',
+            'subscribed_at': at.millisecondsSinceEpoch,
+            'is_muted': 0,
+          },
+        ],
+      );
+      await tester.pumpWidget(_buildTestApp(api));
+      await tester.pumpAndSettle();
+      final subtitle =
+          tester.widget<ListTile>(find.byType(ListTile).first).subtitle as Text;
+      return subtitle.data!;
+    }
+
+    testWidgets('R13-1 本地昨天 23:59 显示昨天，不受运行时刻影响', (tester) async {
+      final subtitle = await pumpSubtitleText(tester, localYesterdayAt(23, 59));
+      expect(subtitle, contains(t.channel.yesterday));
+      expect(subtitle, isNot(contains(t.channel.today)));
+    });
+
+    testWidgets('R13-5 本地今天 00:01 与 23:59 都是今天（日界无重漏）', (tester) async {
+      final early = await pumpSubtitleText(tester, localTodayAt(0, 1));
+      expect(early, contains(t.channel.today));
+      final late = await pumpSubtitleText(tester, localTodayAt(23, 59));
+      expect(late, contains(t.channel.today));
+    });
+  });
 }

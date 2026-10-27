@@ -20,7 +20,9 @@ import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/page/channel/channel_admin_add_rules.dart';
+import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
 /// 管理员信息
@@ -60,7 +62,8 @@ class ChannelAdminPage extends ConsumerStatefulWidget {
   ConsumerState<ChannelAdminPage> createState() => _ChannelAdminPageState();
 }
 
-class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
+class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage>
+    with BoundaryRefreshLifecycle<ChannelAdminPage> {
   late final ChannelApi _api = ref.read(channelApiProvider);
   List<_AdminInfo> _admins = [];
   bool _isLoading = true;
@@ -259,23 +262,18 @@ class _ChannelAdminPageState extends ConsumerState<ChannelAdminPage> {
     }
   }
 
-  String _formatTime(DateTime time) {
-    final now = DateTime.now();
-    final diff = now.difference(time);
-
-    if (diff.inDays == 0) {
-      return t.channel.today;
-    } else if (diff.inDays == 1) {
-      return t.channel.yesterday;
-    } else if (diff.inDays < 7) {
-      return '${diff.inDays} ${t.channel.daysAgo}';
-    } else {
-      return '${time.year}-${time.month.toString().padLeft(2, '0')}-${time.day.toString().padLeft(2, '0')}';
-    }
-  }
+  /// R13：日历日标签（今天/昨天/N天前/日期），与频道消息流同源
+  /// [formatChannelDateDivider] —— 按查看者本地年月日比较，
+  /// 不是滚动 24 小时；now 可注入便于测试。
+  String _formatTime(DateTime time) => formatChannelDateDivider(time, t);
 
   @override
   Widget build(BuildContext context) {
+    // R20-B：加入时间标签（今天/昨天/N 天前）只在跨本地午夜时变化，
+    // 调度一次午夜边界 + resume/zone 兜底刷新即可，不逐条常驻 timer。
+    if (!_isLoading && _error == null) {
+      scheduleBoundaryAt(nextLocalMidnight(DateTime.now()));
+    }
     final t = context.t;
 
     return Scaffold(

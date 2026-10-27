@@ -102,6 +102,26 @@ class UserRepoLocal extends ChangeNotifier {
         return isCurrentSession(generation);
       });
 
+  Future<bool> saveHistoryCheckpointForSession({
+    required String uid,
+    required int generation,
+    required String endpoint,
+    required String key,
+    required int sequence,
+  }) => _serializeSessionWrite(() async {
+    bool isCurrent() =>
+        uid.isNotEmpty &&
+        currentUid == uid &&
+        isCurrentSession(generation) &&
+        !isAuthTransitioning &&
+        Env().apiBaseUrl == endpoint;
+    if (!key.startsWith(Keys.msgHistorySeqPrefix) || !isCurrent()) return false;
+    await StorageService.to.persistPreference(
+      () => StorageService.to.setInt(key, sequence),
+    );
+    return isCurrent();
+  });
+
   static const oaLoginAttemptKey = 'oa_inbound_login_attempt';
   static const _oaLoginRevokedKey = 'oa_inbound_login_revoked';
 

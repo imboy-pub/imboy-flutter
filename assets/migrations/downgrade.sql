@@ -34,6 +34,26 @@
 -- PRAGMA user_version = 9;
 
 -- ============================================================
+-- VERSION: 35
+-- DESC: 从 v35 降级到 v34（删除消息四表 conv_seq/accepted_at 列与
+--       (conversation_uk3, conv_seq) 排序索引）。列值丢失后需服务端
+--       重同步方可恢复权威序（requiresResync）；旧版客户端回到
+--       created_at/auto_id 顺序语义（同毫秒乱序窗口重现，属可接受回退）。
+-- ============================================================
+
+DROP INDEX IF EXISTS idx_msg_s2c_conversation_conv_seq;
+DROP INDEX IF EXISTS idx_msg_c2s_conversation_conv_seq;
+DROP INDEX IF EXISTS idx_msg_c2g_conversation_conv_seq;
+DROP INDEX IF EXISTS idx_msg_c2c_conversation_conv_seq;
+ALTER TABLE msg_s2c DROP COLUMN accepted_at;
+ALTER TABLE msg_s2c DROP COLUMN conv_seq;
+ALTER TABLE msg_c2s DROP COLUMN accepted_at;
+ALTER TABLE msg_c2s DROP COLUMN conv_seq;
+ALTER TABLE msg_c2g DROP COLUMN accepted_at;
+ALTER TABLE msg_c2g DROP COLUMN conv_seq;
+ALTER TABLE msg_c2c DROP COLUMN accepted_at;
+ALTER TABLE msg_c2c DROP COLUMN conv_seq;
+PRAGMA user_version = 34;-- ============================================================
 -- VERSION: 34
 -- DESC: 从 v34 降级到 v33（删除 user_collect.generation / key_version /
 --       attach_file_hash256，E2EE 收藏 v1 元数据列）。

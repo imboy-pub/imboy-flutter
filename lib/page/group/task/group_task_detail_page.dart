@@ -2,6 +2,7 @@ import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -107,6 +108,15 @@ class _GroupTaskDetailPageState extends ConsumerState<GroupTaskDetailPage> {
 
   Future<void> _submitTask() async {
     if (_isSubmitting || _task == null || _assignmentStatus >= 2) return;
+    // R20-4：提交动作前即时重验 deadline（秒合同，appClock 服务器时间估计）。
+    // 状态枚举 3=已截止由后端流转，但本地静置跨过 deadline 后按钮可能仍
+    // 可见（stale build）——以当下时刻为准，过期不再提交。
+    final deadlineSec = _toInt(_task!['deadline']);
+    if (deadlineSec > 0 && deadlineSec <= appClock.nowMs() ~/ 1000) {
+      AppLoading.showToast(context.t.groupTask.overdue);
+      await _loadDetail();
+      return;
+    }
     setState(() => _isSubmitting = true);
 
     final success = await GroupTaskService.to.submitTask(

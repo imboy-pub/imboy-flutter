@@ -39,4 +39,13 @@ class MessageColumns {
   // PFv3 接收侧 context binding 第 6 项（ADR 15 §3.3）比对用；
   // 离线 decrypt-on-read 路径必须持久化，否则 v3 消息永久不可读。
   static const String senderDid = 'sender_did';
+
+  // R07 phase1（v35）：服务端权威会话内序号（NULL=服务端尚未给出，
+  // 绝不本地伪造；仅可信 archive/offline/ACK 数据可写，见
+  // MessageRepo.backfillServerOrderFacts）。
+  static const String convSeq = 'conv_seq';
+
+  // R07 phase1（v35）：首次服务端接受时间（毫秒）。只写一次，不覆盖
+  // 已有值；不回填 now。回退排序键用 accepted_at ?? created_at。
+  static const String acceptedAt = 'accepted_at';
 }

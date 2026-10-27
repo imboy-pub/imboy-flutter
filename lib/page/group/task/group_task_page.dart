@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:imboy/component/helper/app_clock.dart';
+import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/common_bar.dart';
@@ -32,7 +34,8 @@ class GroupTaskPage extends ConsumerStatefulWidget {
   ConsumerState<GroupTaskPage> createState() => _GroupTaskPageState();
 }
 
-class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
+class _GroupTaskPageState extends ConsumerState<GroupTaskPage>
+    with BoundaryRefreshLifecycle<GroupTaskPage> {
   List<Map<String, dynamic>> _tasks = [];
   bool _isLoading = true;
   Object? _error;
@@ -231,6 +234,36 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
     );
   }
 
+  /// R20-4：deadline 是否已过（秒合同，appClock 即时取值）。
+  /// deadline 缺失（null/0）视为无截止，恒未过期。
+  bool _taskDeadlinePassed(int? deadlineSec) {
+    final deadline = deadlineSec ?? 0;
+    if (deadline <= 0) return false;
+    return deadline <= appClock.nowMs() ~/ 1000;
+  }
+
+  /// R20-B：下一有效边界——最近的未来 deadline（文案"X 天后截止→已过期"
+  /// 翻转点）或 deadline−86400s（颜色进入 24h 橙色档），无则本地午夜。
+  /// 触发即 setState 重算可见行；resume/zone 变化由 mixin 兜底。
+  void _scheduleNextDeadlineBoundary() {
+    final now = DateTime.now();
+    final midnight = nextLocalMidnight(now);
+    scheduleBoundaryAt(
+      nextBoundary([
+        for (final task in _tasks)
+          if (task['deadline'] is int && (task['deadline'] as int) > 0) ...[
+            DateTime.fromMillisecondsSinceEpoch(
+              (task['deadline'] as int) * 1000,
+            ),
+            DateTime.fromMillisecondsSinceEpoch(
+              ((task['deadline'] as int) - 86400) * 1000,
+            ),
+          ],
+        midnight,
+      ], now),
+    );
+  }
+
   Widget _buildBody() {
     if (_isLoading) {
       return const Center(child: CupertinoActivityIndicator());
@@ -253,6 +286,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
       );
     }
 
+    _scheduleNextDeadlineBoundary();
     return CustomScrollView(
       slivers: [
         CupertinoSliverRefreshControl(onRefresh: _loadTasks),
@@ -322,6 +356,14 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
                       final submitTaskId = _resolveTaskSubmitId(task);
                       if (submitTaskId.isEmpty) {
                         AppLoading.showToast(t.groupTask.taskIdMissingSubmit);
+                        return;
+                      }
+                      // R20-4：提交动作前即时重验 deadline（appClock 服务器
+                      // 时间估计）——后台静置跨过截止时间后勾选仍可见，
+                      // 但不得再提交。
+                      if (_taskDeadlinePassed(deadline)) {
+                        AppLoading.showToast(t.groupTask.overdue);
+                        await _loadTasks();
                         return;
                       }
                       await GroupTaskService.to.submitTask(
@@ -467,7 +509,7 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
   }
 
   Color _getDeadlineColor(BuildContext context, int deadline) {
-    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final now = appClock.nowMs() ~/ 1000;
     if (deadline < now) {
       return AppColors.getIosRed(Theme.of(context).brightness);
     } else if (deadline < now + 86400) {
@@ -478,7 +520,8 @@ class _GroupTaskPageState extends ConsumerState<GroupTaskPage> {
 
   String _formatDeadline(int deadline) {
     final dt = DateTime.fromMillisecondsSinceEpoch(deadline * 1000);
-    final now = DateTime.now();
+    // R20-4：相对文案的参考时刻即时重取（appClock，不缓存 build 旧值）。
+    final now = appClock.nowDateTime();
     final diff = dt.difference(now);
 
     if (diff.isNegative) {

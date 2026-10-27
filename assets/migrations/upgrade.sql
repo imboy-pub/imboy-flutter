@@ -1582,4 +1582,25 @@ PRAGMA user_version = 33;-- ====================================================
 ALTER TABLE user_collect ADD COLUMN generation INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE user_collect ADD COLUMN key_version INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE user_collect ADD COLUMN attach_file_hash256 TEXT NOT NULL DEFAULT '';
-PRAGMA user_version = 34;
+PRAGMA user_version = 34;-- ============================================================
+-- VERSION: 35
+-- DESC: R07 phase1：消息四表增加 conv_seq（服务端权威会话内序号，可空）
+--       与 accepted_at（首次服务端接受毫秒，可空）两列，并各建
+--       (conversation_uk3, conv_seq) 排序/游标索引。存量行为 NULL
+--       （不伪造序号、不清库）；同毫秒/乱序场景以 conv_seq 为权威序。
+--       降级可逆：down 边先 DROP INDEX 再 DROP COLUMN。
+-- ============================================================
+
+ALTER TABLE msg_c2c ADD COLUMN conv_seq INTEGER;
+ALTER TABLE msg_c2c ADD COLUMN accepted_at INTEGER;
+ALTER TABLE msg_c2g ADD COLUMN conv_seq INTEGER;
+ALTER TABLE msg_c2g ADD COLUMN accepted_at INTEGER;
+ALTER TABLE msg_c2s ADD COLUMN conv_seq INTEGER;
+ALTER TABLE msg_c2s ADD COLUMN accepted_at INTEGER;
+ALTER TABLE msg_s2c ADD COLUMN conv_seq INTEGER;
+ALTER TABLE msg_s2c ADD COLUMN accepted_at INTEGER;
+CREATE INDEX IF NOT EXISTS idx_msg_c2c_conversation_conv_seq ON msg_c2c (conversation_uk3, conv_seq);
+CREATE INDEX IF NOT EXISTS idx_msg_c2g_conversation_conv_seq ON msg_c2g (conversation_uk3, conv_seq);
+CREATE INDEX IF NOT EXISTS idx_msg_c2s_conversation_conv_seq ON msg_c2s (conversation_uk3, conv_seq);
+CREATE INDEX IF NOT EXISTS idx_msg_s2c_conversation_conv_seq ON msg_s2c (conversation_uk3, conv_seq);
+PRAGMA user_version = 35;

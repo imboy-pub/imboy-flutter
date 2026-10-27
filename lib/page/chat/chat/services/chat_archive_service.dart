@@ -2,6 +2,11 @@ import 'package:imboy/component/chat/message_scroll_provider.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart' show deviceId;
+import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/public.dart';
 import 'package:imboy/page/chat/chat/sqlite_chat_service.dart';
 import 'package:imboy/service/events/events.dart';
@@ -24,6 +29,24 @@ class HistoryFetchException implements Exception {
   String toString() => 'HistoryFetchException: 归档历史接口请求失败';
 }
 
+/// R01/R02 同步计划（[ChatArchiveService.planHistorySync] 输出）。
+///
+/// - [advanceTo]：本轮允许持久化的游标（已按 safe_head 钳制、只进不退）。
+/// - [backfillRanges]：需要 [ChatArchiveService.backfillMissing] 的区间
+///   列表（gaps 补齐 / 过冲恢复），按 (afterSeq, targetSeq] 语义。
+/// - [blocked]：true=冻结增量游标，仍可修复已安全的历史前缀。
+class HistorySyncPlan {
+  const HistorySyncPlan({
+    required this.advanceTo,
+    required this.backfillRanges,
+    required this.blocked,
+  });
+
+  final int advanceTo;
+  final List<({int fromSeq, int toSeq})> backfillRanges;
+  final bool blocked;
+}
+
 /// 消息历史 / 定位 / 双向分页服务
 ///
 /// 负责从服务端拉取归档消息、加载指定消息附近的上下文以及
@@ -34,6 +57,122 @@ class ChatArchiveService {
 
   /// 可注入的 API 客户端（测试用）；为 null 时用默认 [MsgApi]。
   final MsgApi? api;
+
+  static String _repairKey(String convKey) =>
+      '${Keys.msgHistorySeqPrefix}${convKey}_repair_v2_${UserRepoLocal.to.currentUid}_${Env().apiBaseUrl}';
+
+  static int overshootWatermark(String convKey) =>
+      StorageService.to.getInt(_repairKey(convKey)) ?? 0;
+
+  static Future<void> markOvershootBackfilled(String convKey, int toSeq) async {
+    if (toSeq <= overshootWatermark(convKey)) return;
+    await _saveCheckpoint(
+      _repairKey(convKey),
+      toSeq,
+      authSessionReader.current,
+      Env().apiBaseUrl,
+    );
+  }
+
+  static Future<void> _saveCheckpoint(
+    String key,
+    int sequence,
+    AuthSessionScope session,
+    String endpoint,
+  ) async {
+    if (!await UserRepoLocal.to.saveHistoryCheckpointForSession(
+      uid: session.uid,
+      generation: session.generation,
+      endpoint: endpoint,
+      key: key,
+      sequence: sequence,
+    )) {
+      throw const HistoryFetchException();
+    }
+  }
+
+  static void Function() _sessionGuard() {
+    final session = authSessionReader.current;
+    final endpoint = Env().apiBaseUrl;
+    return () {
+      if (!authSessionReader.isCurrent(session) ||
+          Env().apiBaseUrl != endpoint) {
+        throw const HistoryFetchException();
+      }
+    };
+  }
+
+  Future<bool> syncHistory({
+    required String convKey,
+    required String chatType,
+    required String peerId,
+    int maxPages = 6,
+  }) async {
+    final session = authSessionReader.current;
+    final endpoint = Env().apiBaseUrl;
+    final requireCurrent = _sessionGuard();
+    requireCurrent();
+    final repairKey = _repairKey(convKey);
+    final cursorKey = '${Keys.msgHistorySeqPrefix}$convKey';
+    var seq = StorageService.to.getInt(cursorKey) ?? 0;
+    var pages = 0;
+    var anyFetched = false;
+    while (pages < maxPages) {
+      final page = await fetchAndPersistHistoryPage(
+        chatType: chatType,
+        peerId: peerId,
+        afterSeq: seq,
+        requireCurrent: requireCurrent,
+      );
+      requireCurrent();
+      pages++;
+      anyFetched = anyFetched || page.fetched > 0;
+      final watermark = StorageService.to.getInt(repairKey) ?? 0;
+      final plan = planHistorySync(
+        currentSeq: seq,
+        nextSeq: page.nextSeq,
+        safeHead: page.safeHead,
+        blocked: page.blocked,
+        gaps: page.gaps,
+        overshootScannedTo: watermark,
+      );
+      for (final range in plan.backfillRanges) {
+        final prefix = range.fromSeq == watermark && range.toSeq <= seq;
+        final rangeKey = '${repairKey}_gap_${range.fromSeq}_${range.toSeq}';
+        final saved = prefix
+            ? watermark
+            : StorageService.to.getInt(rangeKey) ?? range.fromSeq;
+        final backfill = await backfillMissing(
+          chatType: chatType,
+          peerId: peerId,
+          afterSeq: saved,
+          targetSeq: range.toSeq,
+          maxPages: maxPages - pages,
+          requireCurrent: requireCurrent,
+          onProgress: (scannedTo) => _saveCheckpoint(
+            prefix ? repairKey : rangeKey,
+            scannedTo,
+            session,
+            endpoint,
+          ),
+        );
+        requireCurrent();
+        pages += backfill.pages;
+        anyFetched = anyFetched || backfill.restored > 0;
+        if (!backfill.complete) return anyFetched;
+      }
+      if (plan.blocked) break;
+      if (plan.advanceTo > seq) {
+        await _saveCheckpoint(cursorKey, plan.advanceTo, session, endpoint);
+        requireCurrent();
+        await _saveCheckpoint(repairKey, plan.advanceTo, session, endpoint);
+        requireCurrent();
+      }
+      if (!page.hasMore || plan.advanceTo <= seq) break;
+      seq = plan.advanceTo;
+    }
+    return anyFetched;
+  }
 
   // ===== 消息定位 =====
 
@@ -227,19 +366,106 @@ class ChatArchiveService {
 
   // ===== 服务端归档历史（conv_seq 正向增量同步）=====
 
+  /// history 响应合同字段（R01/R02，字段名以 BE messaging_logic.erl:284-289 为准）：
+  /// - `safe_head`：安全推进边界 B；客户端游标推进不得越过。
+  /// - `blocked`：true=正式表已有高于 B 的行（被非终态 staging 行钳住），
+  ///   客户端应等待下一轮，**禁止自行推断 gap**。
+  /// - `gaps`：`[{from_seq,to_seq,reason}]`，reason ∈
+  ///   terminal_failure / authorization；用 [backfillMissing] 有界补齐。
+  static const _kSafeHead = 'safe_head';
+  static const _kBlocked = 'blocked';
+  static const _kGaps = 'gaps';
+
+  /// 解析服务端 gaps 数组（messaging_logic.erl:270-279 形状）。
+  /// 纯函数，供单测守护字段名与容错。
+  static List<({int fromSeq, int toSeq, String reason})> parseGaps(
+    dynamic raw,
+  ) {
+    if (raw is! List) return const [];
+    final out = <({int fromSeq, int toSeq, String reason})>[];
+    for (final item in raw) {
+      if (item is! Map) continue;
+      final from = (item['from_seq'] as num?)?.toInt();
+      final to = (item['to_seq'] as num?)?.toInt();
+      if (from == null || to == null) continue;
+      out.add((
+        fromSeq: from,
+        toSeq: to,
+        reason: (item['reason'] ?? '').toString(),
+      ));
+    }
+    return out;
+  }
+
+  /// R01/R02 同步决策纯函数：给定当前游标与 history 响应合同字段，
+  /// 输出下一步动作。纯函数（无 IO），供单测覆盖 blocked/gaps/过冲矩阵。
+  ///
+  /// 缺省 safe_head 兼容旧服务端；显式 0 仍是有效边界。
+  /// 调用方传入持久水位时，也修复旧版本在安全边界内遗漏的前缀。
+  static HistorySyncPlan planHistorySync({
+    required int currentSeq,
+    required int nextSeq,
+    required int? safeHead,
+    required bool blocked,
+    required List<({int fromSeq, int toSeq, String reason})> gaps,
+    int? overshootScannedTo,
+  }) {
+    final effectiveHead = safeHead ?? nextSeq;
+    // 持久化目标：不越过 safe_head；只进不退
+    final advanceTo = blocked || currentSeq > effectiveHead
+        ? currentSeq
+        : (nextSeq > effectiveHead
+              ? effectiveHead
+              : (nextSeq > currentSeq ? nextSeq : currentSeq));
+    final ranges = <({int fromSeq, int toSeq})>[];
+    final prefixEnd = currentSeq < effectiveHead ? currentSeq : effectiveHead;
+    final scannedTo = overshootScannedTo ?? 0;
+    if ((overshootScannedTo != null || currentSeq > effectiveHead) &&
+        prefixEnd > scannedTo) {
+      ranges.add((fromSeq: scannedTo, toSeq: prefixEnd));
+    }
+    for (final g
+        in blocked ? <({int fromSeq, int toSeq, String reason})>[] : gaps) {
+      if (g.fromSeq > 0 && g.toSeq >= g.fromSeq && g.toSeq <= effectiveHead) {
+        ranges.add((
+          fromSeq: g.fromSeq - 1 < 0 ? 0 : g.fromSeq - 1,
+          toSeq: g.toSeq,
+        ));
+      }
+    }
+    return HistorySyncPlan(
+      advanceTo: advanceTo,
+      backfillRanges: ranges,
+      blocked: blocked,
+    );
+  }
+
   /// 拉取一页归档历史并落 SQLite（P1-2 conv_seq 正向增量同步）
   ///
   /// 归档 payload 与离线队列消息形状高度一致，复用已验证的
   /// [MessageRepo.batchInsertOfflineMessages]（内含 id 去重），仅做形状适配，
   /// 不发送 ACK（归档消息不在投递队列里）。
-  /// 返回本页拉取条数、下一游标、是否还有更多。
-  Future<({int fetched, int nextSeq, bool hasMore})>
+  /// 返回本页拉取条数、下一游标、是否还有更多，以及 R01/R02 合同字段
+  /// （safeHead/blocked/gaps，字段名见 BE messaging_logic.erl:284-289）。
+  Future<
+    ({
+      int fetched,
+      int nextSeq,
+      bool hasMore,
+      int? safeHead,
+      bool blocked,
+      List<({int fromSeq, int toSeq, String reason})> gaps,
+    })
+  >
   fetchAndPersistHistoryPage({
     required String chatType,
     required String peerId,
     required int afterSeq,
     int limit = 50,
+    void Function()? requireCurrent,
   }) async {
+    requireCurrent ??= _sessionGuard();
+    requireCurrent();
     final result = await (api ?? MsgApi()).history(
       chatType: chatType.toLowerCase(),
       peerId: peerId,
@@ -250,6 +476,7 @@ class ChatArchiveService {
       // 与 /msg/offline 的 did 同源（config/init.dart 全局，启动时取自 DeviceExt）
       did: deviceId,
     );
+    requireCurrent();
     if (result == null) {
       // BUG#119：API 失败（401/5xx/超时/解析失败）与「服务端确认无数据」
       // 必须区分。返回 (fetched: 0, hasMore: false) 会让上层把失败当成
@@ -258,31 +485,124 @@ class ChatArchiveService {
       throw const HistoryFetchException();
     }
 
-    final rows =
-        (result['messages'] as List?)
-            ?.whereType<Map<String, dynamic>>()
-            .map((m) => Map<String, dynamic>.from(m))
-            .toList(growable: false) ??
-        const <Map<String, dynamic>>[];
+    final rows = (result['messages'] as List)
+        .map((row) => Map<String, dynamic>.from(row as Map))
+        .toList(growable: false);
     final int nextSeq = (result['next_seq'] as num?)?.toInt() ?? afterSeq;
     final bool hasMore = (result['has_more'] as bool?) ?? false;
+    final int? safeHead = (result[_kSafeHead] as num?)?.toInt();
+    final bool blocked = (result[_kBlocked] as bool?) ?? false;
+    final gaps = parseGaps(result[_kGaps]);
 
     if (rows.isEmpty) {
-      return (fetched: 0, nextSeq: nextSeq, hasMore: hasMore);
+      return (
+        fetched: 0,
+        nextSeq: nextSeq,
+        hasMore: hasMore,
+        safeHead: safeHead,
+        blocked: blocked,
+        gaps: gaps,
+      );
     }
 
-    // c2c/c2g 落不同表，按 type 分组插入
+    await _persistHistoryRows(rows, requireCurrent);
+
+    return (
+      fetched: rows.length,
+      nextSeq: nextSeq,
+      hasMore: hasMore,
+      safeHead: safeHead,
+      blocked: blocked,
+      gaps: gaps,
+    );
+  }
+
+  Future<void> _persistHistoryRows(
+    List<Map<String, dynamic>> rows,
+    void Function() requireCurrent,
+  ) async {
     final byType = <String, List<Map<String, dynamic>>>{};
     for (final row in rows) {
+      final id = row['msg_id'];
+      if (id is! String || id.isEmpty) throw const HistoryFetchException();
       final shaped = archiveRowToOfflineShape(row);
       (byType[shaped['type'] as String] ??= []).add(shaped);
     }
     for (final entry in byType.entries) {
-      await MessageRepo(tableName: MessageRepo.getTableName(entry.key))
-          .batchInsertOfflineMessages(entry.value, trustedArchive: true);
+      requireCurrent();
+      final persisted = await MessageRepo(
+        tableName: MessageRepo.getTableName(entry.key),
+      ).batchInsertOfflineMessages(entry.value, trustedArchive: true);
+      requireCurrent();
+      if (persisted == null ||
+          entry.value.any((row) => !persisted.contains(row['msg_id']))) {
+        throw const HistoryFetchException();
+      }
     }
+  }
 
-    return (fetched: rows.length, nextSeq: nextSeq, hasMore: hasMore);
+  /// R01/R02：有界范围补取（history_backfill），恢复 (afterSeq, targetSeq]
+  /// 内的晚到低序号 / 过冲缺失行。
+  ///
+  /// 每页提交成功才保存断点；耗尽预算返回 complete=false。
+  /// restored 包括幂等重发的已提交行，不等于新插入行数。
+  Future<({int restored, int scannedTo, int pages, bool complete})>
+  backfillMissing({
+    required String chatType,
+    required String peerId,
+    required int afterSeq,
+    required int targetSeq,
+    int limit = 50,
+    int maxPages = 40,
+    Future<void> Function(int scannedTo)? onProgress,
+    void Function()? requireCurrent,
+  }) async {
+    requireCurrent ??= _sessionGuard();
+    requireCurrent();
+    var cursor = afterSeq;
+    var restored = 0;
+    var pages = 0;
+    while (pages < maxPages && cursor < targetSeq) {
+      final result = await (api ?? MsgApi()).historyBackfill(
+        chatType: chatType.toLowerCase(),
+        peerId: peerId,
+        afterSeq: cursor,
+        limit: limit,
+        did: deviceId,
+      );
+      requireCurrent();
+      pages++;
+      if (result == null) {
+        // 单批失败即中断（可续跑）：游标停在已恢复位置，下次重入继续
+        throw const HistoryFetchException();
+      }
+      final rawRows = result['messages'];
+      final nextSeq = result['next_seq'];
+      if (rawRows is! List ||
+          rawRows.any((row) => row is! Map<String, dynamic>) ||
+          nextSeq is! int ||
+          nextSeq <= cursor ||
+          result['has_more'] is! bool) {
+        throw const HistoryFetchException();
+      }
+      final rows = rawRows.cast<Map<String, dynamic>>();
+      if (rows.isNotEmpty) {
+        await _persistHistoryRows(rows, requireCurrent);
+        restored += rows.length;
+      }
+      cursor = nextSeq < targetSeq ? nextSeq : targetSeq;
+      await onProgress?.call(cursor);
+      requireCurrent();
+      if (result['has_more'] == false && cursor < targetSeq) {
+        throw const HistoryFetchException();
+      }
+    }
+    return (
+      restored: restored,
+      scannedTo: cursor,
+      pages: pages,
+      complete: cursor >= targetSeq,
+    );
   }
 
   // ===== 撤回后更新会话 =====

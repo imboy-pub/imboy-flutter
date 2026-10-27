@@ -149,4 +149,72 @@ void main() {
       ); // Falls back to user_id string when nickname is null
     },
   );
+
+  // ─── R13：管理员添加时间标签按本地日历日（非滚动 24 小时）─────────────────
+  //
+  // 构造相对真实 now 的本地日历时间：无论测试何时运行、运行在哪个 TZ，
+  // "本地昨天 23:59"永远属于日历意义上的昨天。旧实现（滚动 24h）在
+  // 当天较晚时段会把它显示成"今天"。
+  group('R13 calendar day labels', () {
+    Map<String, dynamic> adminAt(DateTime localTime) => {
+      'user_id': '2002',
+      'nickname': '日历测试员',
+      'role': 2,
+      'created_at': localTime.millisecondsSinceEpoch,
+    };
+
+    DateTime localTodayAt(int h, int m) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day, h, m);
+    }
+
+    DateTime localYesterdayAt(int h, int m) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day - 1, h, m);
+    }
+
+    DateTime localDaysAgoAt(int days) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month, now.day - days);
+    }
+
+    Future<String> pumpSubtitleText(WidgetTester tester, DateTime at) async {
+      when(() => api.getAdmins(any())).thenAnswer((_) async => [adminAt(at)]);
+      await tester.pumpWidget(_buildTestApp(api));
+      await tester.pumpAndSettle();
+      final subtitle =
+          tester.widget<ListTile>(find.byType(ListTile).first).subtitle as Text;
+      return subtitle.data!;
+    }
+
+    testWidgets('R13-1 本地昨天 23:59 显示昨天（00:01 看昨天 23:59 同理）', (tester) async {
+      final subtitle = await pumpSubtitleText(tester, localYesterdayAt(23, 59));
+      expect(subtitle, contains(t.channel.yesterday));
+      expect(subtitle, isNot(contains(t.channel.today)));
+    });
+
+    testWidgets('R13-1b 本地今天 00:01 显示今天（仅隔 2 分钟仍跨日界）', (tester) async {
+      final subtitle = await pumpSubtitleText(tester, localTodayAt(0, 1));
+      expect(subtitle, contains(t.channel.today));
+    });
+
+    testWidgets('R13-5 本地今天 23:59 仍是今天；次日开头不重叠', (tester) async {
+      final subtitle = await pumpSubtitleText(tester, localTodayAt(23, 59));
+      expect(subtitle, contains(t.channel.today));
+    });
+
+    testWidgets('R13-3 日历日差 3 天按日历计（"3 天前"）', (tester) async {
+      final subtitle = await pumpSubtitleText(tester, localDaysAgoAt(3));
+      expect(subtitle, contains('3'));
+      expect(subtitle, contains(t.channel.daysAgo));
+    });
+
+    testWidgets('R13-3b 超过 7 个日历日显示本地 yyyy-MM-dd 日期', (tester) async {
+      final at = localDaysAgoAt(8);
+      final subtitle = await pumpSubtitleText(tester, at);
+      final expected =
+          '${at.year}-${at.month.toString().padLeft(2, '0')}-${at.day.toString().padLeft(2, '0')}';
+      expect(subtitle, contains(expected));
+    });
+  });
 }

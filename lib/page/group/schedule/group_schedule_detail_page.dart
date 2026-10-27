@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/helper/app_clock.dart';
+import 'package:imboy/component/helper/boundary_refresh.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/async_state_view.dart';
 import 'package:imboy/component/ui/avatar.dart';
@@ -54,7 +56,8 @@ class GroupScheduleDetailPage extends ConsumerStatefulWidget {
 }
 
 class _GroupScheduleDetailPageState
-    extends ConsumerState<GroupScheduleDetailPage> {
+    extends ConsumerState<GroupScheduleDetailPage>
+    with BoundaryRefreshLifecycle<GroupScheduleDetailPage> {
   Map<String, dynamic>? _detail;
   bool _isLoading = true;
   bool _isSubmitting = false;
@@ -143,6 +146,14 @@ class _GroupScheduleDetailPageState
 
   Future<void> _confirm(bool confirm) async {
     if (_isSubmitting) return;
+    // R20-4：提交动作前用即时时间重验 deadline——后台静置跨过结束时间
+    // 后按钮虽仍可见（stale build），但不得再提交。
+    final (_, _, _, state) = _resolveSchedule();
+    if (!state.isActionable) {
+      if (mounted) setState(() {});
+      AppLoading.showToast(t.groupSchedule.statusEnded);
+      return;
+    }
     setState(() => _isSubmitting = true);
     try {
       final success = await GroupScheduleService.to.confirmSchedule(
@@ -169,6 +180,13 @@ class _GroupScheduleDetailPageState
 
   Future<void> _cancelSchedule() async {
     if (_isSubmitting) return;
+    // R20-4：同 _confirm——提交动作前即时重验，已结束/已取消不再可操作。
+    final (_, _, _, state) = _resolveSchedule();
+    if (!state.isActionable) {
+      if (mounted) setState(() {});
+      AppLoading.showToast(t.groupSchedule.statusEnded);
+      return;
+    }
     // 破坏性操作先确认：取消日程会影响群里所有参与人，不可误触。
     final confirmed = await showCupertinoModalPopup<bool>(
       context: context,
@@ -243,21 +261,34 @@ class _GroupScheduleDetailPageState
     // 2进行中/3已结束 没有任何流转逻辑 —— 所以时间态必须由客户端按
     // start/end 推导，否则三天前结束的日程会永远显示"进行中"并继续催人报名。
     // start_at/end_at 单位是**秒**不是毫秒。
+    // R20-4：now 每次即时重取（appClock，服务器时间估计），不缓存 build 旧值。
     final state = resolveScheduleTimeState(
       status: _toInt(schedule['status']),
       startAtSec: startAt,
       endAtSec: endAt,
-      nowSec: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      nowSec: appClock.nowMs() ~/ 1000,
     );
     return (schedule, startAt, endAt, state);
   }
 
+  /// R20-B：调度下一有效边界（日程开始/结束、本地午夜）触发一次重建，
+  /// 让状态徽章/操作栏在静置跨边界后自动翻转；dispose 由 mixin 取消 timer。
+  void _scheduleNextBoundary(int startAt, int endAt) {
+    final now = DateTime.now();
+    scheduleBoundaryAt(
+      nextBoundary([
+        if (startAt > 0) DateTime.fromMillisecondsSinceEpoch(startAt * 1000),
+        if (endAt > startAt) DateTime.fromMillisecondsSinceEpoch(endAt * 1000),
+        nextLocalMidnight(now),
+      ], now),
+    );
+  }
+
   Widget _buildDetailContent() {
     final (schedule, startAt, endAt, state) = _resolveSchedule();
+    _scheduleNextBoundary(startAt, endAt);
     final participants = _toMapList(_detail!['participants']);
-    final isActionable =
-        state != GroupScheduleTimeState.cancelled &&
-        state != GroupScheduleTimeState.ended;
+    final isActionable = state.isActionable;
 
     return CustomScrollView(
       slivers: [
@@ -434,10 +465,7 @@ class _GroupScheduleDetailPageState
   /// 已取消/已结束不再出现（见 isActionable）。
   Widget? _buildBottomBar() {
     final (_, _, _, state) = _resolveSchedule();
-    final isActionable =
-        state != GroupScheduleTimeState.cancelled &&
-        state != GroupScheduleTimeState.ended;
-    if (!isActionable) return null;
+    if (!state.isActionable) return null;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final brightness = isDark ? Brightness.dark : Brightness.light;
     return Container(
@@ -543,11 +571,7 @@ class _HeaderCard extends StatelessWidget {
               state != GroupScheduleTimeState.ended) ...[
             const SizedBox(height: AppSpacing.tiny),
             Text(
-              scheduleStartsHint(
-                context,
-                startAt,
-                DateTime.now().millisecondsSinceEpoch ~/ 1000,
-              ),
+              scheduleStartsHint(context, startAt, appClock.nowMs() ~/ 1000),
               style: context.textStyle(
                 FontSizeType.footnote,
                 color: isDark ? AppColors.iosBlueDark : AppColors.iosBlue,

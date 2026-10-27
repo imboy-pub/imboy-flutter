@@ -71,7 +71,7 @@ class Keys {
   static const String welcomeSeen = "welcome_seen";
 
   /// 聊天历史回填游标键前缀（`msg_history_seq_<uk3>`，唯一写入点
-  /// chat_provider.dart syncHistoryBackfill）。登出/清数据时必须按此前缀
+  /// ChatArchiveService.syncHistory）。登出/清数据时必须按此前缀
   /// 全量清理，否则残留游标会让换号/重装（SharedPreferences 保留）后
   /// 无新消息的会话持续「暂无数据」——即使服务端归档正常（BUG#119 附带发现）。
   static const String msgHistorySeqPrefix = 'msg_history_seq_';
@@ -140,6 +140,10 @@ class API {
   static const msgOfflineAck = '/api/v1/msg/offline_ack';
   // 查询消息历史（conv_seq 游标分页）
   static const msgHistory = '/api/v1/msg/history';
+
+  /// R02/D05 有界范围补取入口：GET /api/v1/msg?action=history_backfill
+  /// （与 msgOffline 同基路径，msg_handler 按 action 分发）
+  static const msgBackfill = '/api/v1/msg';
 
   static const denylistAdd = '/api/v1/friend/denylist/add';
   static const denylistRemove = '/api/v1/friend/denylist/remove';

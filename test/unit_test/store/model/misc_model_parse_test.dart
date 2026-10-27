@@ -3,6 +3,7 @@ import 'package:imboy/store/model/denylist_model.dart';
 import 'package:imboy/store/model/feedback_model.dart';
 import 'package:imboy/store/model/feedback_reply_model.dart';
 import 'package:imboy/store/model/group_member_model.dart';
+import 'package:imboy/store/model/user_tag_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/new_friend_model.dart';
 import 'package:imboy/store/model/people_model.dart';
@@ -134,6 +135,66 @@ void main() {
       expect(model.distanceUnit, '1');
       expect(model.isFriend, isTrue);
       expect(model.remark, '66');
+      // 时间值断言：纯数字字符串不是 zoned ISO（后端 rfc3339 codec 合同），
+      // 按未知处理为 0，绝不猜单位、绝不回填 now。
+      expect(model.friendCreatedAt, 0);
+      expect(model.registeredAt, 0);
+    });
+
+    group('PeopleModel 注册时间与好友关系时间分离 (R10)', () {
+      test('R10-1 只有 created_at 时 registeredAt 为真实注册时间', () {
+        final model = PeopleModel.fromJson({
+          'uid': 5001,
+          'account': '6001',
+          'created_at': '2026-09-16T23:06:40.000Z',
+        });
+        expect(
+          model.registeredAt,
+          DateTime.utc(2026, 9, 16, 23, 6, 40).millisecondsSinceEpoch,
+        );
+        expect(model.registeredAt, 1789600000000);
+        expect(model.friendCreatedAt, 0, reason: '无好友关系字段 → 未知');
+      });
+
+      test('R10-2 两个时间不同不串用（注册 vs 好友关系）', () {
+        final model = PeopleModel.fromJson({
+          'uid': 5001,
+          'account': '6001',
+          'created_at': '2026-09-16T23:06:40.000Z',
+          'friend_created_at': '2026-09-20T02:00:00+08:00',
+        });
+        expect(
+          model.registeredAt,
+          DateTime.utc(2026, 9, 16, 23, 6, 40).millisecondsSinceEpoch,
+        );
+        expect(
+          model.friendCreatedAt,
+          DateTime.utc(2026, 9, 19, 18, 0, 0).millisecondsSinceEpoch,
+        );
+        expect(model.registeredAt, isNot(model.friendCreatedAt));
+      });
+
+      test('R10-3 缺失/非法不回填 now，UI 以 0 隐藏不显示"刚刚"', () {
+        // 后端合同：注册时间缺失给空 binary（''）；非好友 friend_created_at
+        // 给整数 0；无 zone 形态与纯数字字符串均按未知处理。
+        final cases = <Map<String, dynamic>>[
+          {'uid': 5001},
+          {'uid': 5001, 'created_at': ''},
+          {'uid': 5001, 'created_at': '2026-09-16T23:06:40'},
+          {'uid': 5001, 'created_at': '1767225600000'},
+          {'uid': 5001, 'friend_created_at': 0},
+          {'uid': 5001, 'friend_created_at': 'garbage'},
+        ];
+        final nowMs = DateTime.now().millisecondsSinceEpoch;
+        for (final json in cases) {
+          final model = PeopleModel.fromJson(json);
+          expect(model.registeredAt, 0, reason: '$json 注册时间缺失/非法 → 0');
+          expect(model.friendCreatedAt, 0, reason: '$json 好友时间缺失/非法 → 0');
+          // 0 即证明未回填 now（now 恒 > 0）；页面显示条件 >0 不成立 → 隐藏
+          expect(model.registeredAt > 0, isFalse);
+          expect(model.registeredAt, isNot(nowMs));
+        }
+      });
     });
 
     test('DenylistModel.fromJson parses mixed primitive values safely', () {
@@ -225,6 +286,43 @@ void main() {
       expect(model.deviceType, '22');
       expect(model.online, isTrue);
       expect(model.deviceVsn['systemVersion'], '17.4');
+    });
+  });
+
+  group('UserTagModel referer_time 是计数不是时间 (R21-B)', () {
+    test('计数按普通整数解析：null→0、数字字符串→int，绝不回填 now', () {
+      // 旧实现 parseTimestamp：null → millisecond()（now 污染）。
+      final fromNull = UserTagModel.fromJson(const {
+        'user_id': 1,
+        'tag_id': 2,
+        'scene': 3,
+        'name': '同事',
+        'subtitle': '',
+      });
+      expect(fromNull.refererTime, 0, reason: '缺失计数为 0，不是当前时间戳');
+
+      final fromStr = UserTagModel.fromJson(const {
+        'user_id': 1,
+        'tag_id': 2,
+        'scene': 3,
+        'name': '同事',
+        'referer_time': '42',
+      });
+      expect(fromStr.refererTime, 42, reason: '数字字符串按整数直取');
+    });
+
+    test('计数值不被时间语义处理：不 ×1000、不做相对格式化输入', () {
+      final model = UserTagModel.fromJson(const {
+        'user_id': 1,
+        'tag_id': 2,
+        'scene': 3,
+        'name': '同事',
+        'referer_time': 1789600000, // 恰似秒值，但语义是"1789600000 个引用"（测试值）
+      });
+      // 原样保留：若被当秒 ×1000 或当毫秒格式化即语义污染。
+      expect(model.refererTime, 1789600000);
+      // toMap 往返稳定（本地 DB 读写同一计数语义）。
+      expect(model.toMap()['referer_time'], 1789600000);
     });
   });
 }

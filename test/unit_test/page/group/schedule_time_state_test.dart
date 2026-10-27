@@ -55,4 +55,98 @@ void main() {
       );
     });
   });
+
+  // ─── R13：列表分组按本地日历日边界（DST 安全）─────────────────────────────
+  group('resolveScheduleListSection (R13 calendar boundaries)', () {
+    // 用本地日历字段构造，断言与运行时区无关；
+    // FL-TZ 四时区进程中 America/New_York 的 DST 用例额外钉住日历构造。
+    ScheduleListSection sectionOf(DateTime start, DateTime now) =>
+        resolveScheduleListSection(start, now);
+
+    test('R13-5 当天最后一刻属今天，次日 00:00 起属本周（无重漏）', () {
+      final now = DateTime(2026, 10, 23, 12);
+      expect(
+        sectionOf(DateTime(2026, 10, 23, 23, 59, 59, 999), now),
+        ScheduleListSection.today,
+      );
+      expect(
+        sectionOf(DateTime(2026, 10, 24, 0, 0), now),
+        ScheduleListSection.tomorrowToWeek,
+      );
+    });
+
+    test('本周窗口末日全天属本周，第 7 天 00:00 起属更晚', () {
+      // 窗口 = [明天 00:00, 今天+7 日历日 00:00)：now=10-23 → 10-24..10-29。
+      final now = DateTime(2026, 10, 23, 12);
+      expect(
+        sectionOf(DateTime(2026, 10, 29, 23, 59, 59), now),
+        ScheduleListSection.tomorrowToWeek,
+      );
+      expect(
+        sectionOf(DateTime(2026, 10, 30, 0, 0), now),
+        ScheduleListSection.later,
+      );
+    });
+
+    test('过去时间保持归入今天组（既有语义不因 R13 改变）', () {
+      final now = DateTime(2026, 10, 23, 12);
+      expect(
+        sectionOf(DateTime(2026, 10, 20, 9), now),
+        ScheduleListSection.today,
+      );
+    });
+
+    test('R13-3 跨年日界按日历日计', () {
+      final now = DateTime(2026, 12, 31, 12);
+      expect(
+        sectionOf(DateTime(2027, 1, 1, 0, 30), now),
+        ScheduleListSection.tomorrowToWeek,
+      );
+      expect(
+        sectionOf(DateTime(2027, 1, 8, 0, 0), now),
+        ScheduleListSection.later,
+      );
+    });
+
+    test('R13-3 闰日边界（2024-02-29）按日历日计', () {
+      final now = DateTime(2024, 2, 29, 12);
+      expect(
+        sectionOf(DateTime(2024, 3, 1, 0, 0), now),
+        ScheduleListSection.tomorrowToWeek,
+      );
+      expect(
+        sectionOf(DateTime(2024, 3, 8, 0, 0), now),
+        ScheduleListSection.later,
+      );
+    });
+
+    test('R13-4 DST 春季前跳日：次日 00:30 不因 23 小时日误入今天组', () {
+      // America/New_York 2026-03-08 春季前跳（当天只有 23 小时）。
+      // 旧实现 todayStart.add(24h) 会把次日边界推到 03-09 01:00，
+      // 03-09 00:30 的日程被误入"今天"；日历构造在四个 TZ 进程下都正确。
+      final now = DateTime(2026, 3, 8, 12);
+      expect(
+        sectionOf(DateTime(2026, 3, 9, 0, 30), now),
+        ScheduleListSection.tomorrowToWeek,
+      );
+      // 春季前跳日当天本身仍完整归今天。
+      expect(
+        sectionOf(DateTime(2026, 3, 8, 23, 59), now),
+        ScheduleListSection.today,
+      );
+    });
+
+    test('R13-4 DST 秋季回拨日：第 7 天边界仍为日历日', () {
+      // America/New_York 2026-11-01 秋季回拨（25 小时日）。
+      final now = DateTime(2026, 10, 31, 12);
+      expect(
+        sectionOf(DateTime(2026, 11, 7, 0, 0), now),
+        ScheduleListSection.later,
+      );
+      expect(
+        sectionOf(DateTime(2026, 11, 6, 23, 59), now),
+        ScheduleListSection.tomorrowToWeek,
+      );
+    });
+  });
 }

@@ -48,7 +48,10 @@ class MsgApi extends HttpClient {
   ///   "messages":  [...],   // 消息列表
   ///   "next_seq":  42,      // 下一页起始 conv_seq（传给 afterSeq）
   ///   "has_more":  true,    // 是否还有更多
-  ///   "conv_key":  "c2c:1:2"
+  ///   "conv_key":  "c2c:1:2",
+  ///   "safe_head": 40,      // 安全推进边界 B（blocked 时 next_seq 不越过）
+  ///   "blocked":   false,   // true=等待下一轮，禁止自行推断 gap
+  ///   "gaps":      []       // [{from_seq,to_seq,reason}] reason∈terminal_failure/authorization
   /// }
   /// ```
   /// 失败时返回 null。
@@ -62,6 +65,44 @@ class MsgApi extends HttpClient {
     final resp = await get(
       API.msgHistory,
       queryParameters: {
+        'chat_type': chatType,
+        'peer_id': peerId,
+        'after_seq': afterSeq,
+        'limit': limit.clamp(1, 100),
+        if (did.isNotEmpty) 'did': did,
+      },
+    );
+    if (!resp.ok || resp.payload == null) return null;
+    return Map<String, dynamic>.from(
+      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    );
+  }
+
+  /// R02/D05 有界范围补取（晚到低序号 / 过冲游标恢复）。
+  ///
+  /// 后端接口：GET /api/v1/msg?action=history_backfill（msg_handler.erl:206）
+  ///
+  /// 扫描 (afterSeq, 服务端 safe_head] 内已归档行；批次 = limit、
+  /// 恢复位置 = 响应 next_seq（has_more 时以 next_seq 续扫直至 >= safe_head）、
+  /// 每次扫描跨度受服务端 range_limit 约束，历史总长度不受此上限拒绝。返回：
+  /// ```json
+  /// {
+  ///   "messages": [...], "next_seq": n, "has_more": b,
+  ///   "conv_key": "...", "range_limit": 1000
+  /// }
+  /// ```
+  /// 失败时返回 null。
+  Future<Map<String, dynamic>?> historyBackfill({
+    required String chatType,
+    required String peerId,
+    required int afterSeq,
+    int limit = 50,
+    String did = '',
+  }) async {
+    final resp = await get(
+      API.msgBackfill,
+      queryParameters: {
+        'action': 'history_backfill',
         'chat_type': chatType,
         'peer_id': peerId,
         'after_seq': afterSeq,

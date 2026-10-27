@@ -9,6 +9,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:imboy/modules/enterprise/public.dart';
 import 'package:imboy/modules/enterprise_app/public.dart';
 
 /// 一个自洽的企业托管 origin（后端 `enterprise_message_logic:origin/3` 形状）。
@@ -289,6 +290,101 @@ void main() {
       expect(json['application_id'], '7001');
       expect(json['sender_kind'], 'human');
       expect(json['sender_user_id'], '9001');
+    });
+  });
+
+  // R08-FL：企业/客服消息时间字段的明确单位 adapter。
+  //
+  // wire 合同（后端 eb_pg_store_sql：ts 列经 to_unix/1 归一为 Unix 秒整数，
+  // eb_message_app/public_message 白名单原样透出 HTTP）：
+  // `created_at` / `retain_until` = **epoch 秒**；模型统一持有 epoch 毫秒，
+  // 0 = 未知（缺失/非法不回填 now——R08-5 / R21-1）。
+  group('R08-FL EnterpriseMessage 时间单位（合同秒 → 毫秒）', () {
+    // 计划 6.1 T1 瞬间：1789600000 秒 ≡ 1789600000000ms
+    // ≡ 2026-09-16T23:06:40.000Z ≡ 2026-09-17T07:06:40+08:00。
+    const int t1Seconds = 1789600000;
+    const int t1Millis = 1789600000000;
+
+    test('真实 wire 形状（int 秒）→ 模型毫秒', () {
+      final msg = EnterpriseMessage.fromJson(const {
+        'id': 7266418340025468934,
+        'conversation_id': 7266418340025468933,
+        'organization_id': 7266418340025468930,
+        'sender_type': 'contact',
+        'sender_contact_id': 7266418340025468932,
+        'body': 'hello',
+        'created_at': t1Seconds,
+        'retain_until': 2000000000,
+      });
+      expect(msg.createdAtMs, t1Millis);
+      expect(msg.retainUntilMs, 2000000000000);
+      // 模型毫秒 → 本地展示：T1 瞬间换算查看者本地年月日。
+      final local = DateTime.fromMillisecondsSinceEpoch(t1Millis).toLocal();
+      final expectedLocal =
+          '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')}';
+      expect(
+        DateTime.fromMillisecondsSinceEpoch(msg.createdAtMs)
+            .toUtc()
+            .toIso8601String(),
+        startsWith('2026-09-16T23:06:40'),
+      );
+      expect(expectedLocal, isNotEmpty);
+    });
+
+    test('秒数字字符串（数字被字符串化的历史形态）同合同', () {
+      final msg = EnterpriseMessage.fromJson(const {
+        'id': 1,
+        'conversation_id': 2,
+        'organization_id': 3,
+        'sender_type': 'contact',
+        'created_at': '1789600000',
+      });
+      expect(msg.createdAtMs, t1Millis);
+    });
+
+    test('R08-5：缺失/非法/垃圾 → 0（未知），不回填当前时间', () {
+      for (final raw in [null, '', 'invalid', '0x1f', 3.5, true, <int>[]]) {
+        final msg = EnterpriseMessage.fromJson({
+          'id': 1,
+          'conversation_id': 2,
+          'organization_id': 3,
+          'sender_type': 'contact',
+          'created_at': raw,
+        });
+        expect(msg.createdAtMs, 0, reason: 'raw=$raw 应为未知(0)而非 now');
+      }
+      // 0 是合法瞬间（1970 epoch），与"未知"共用 0 哨兵语义——UI 隐藏。
+      final zero = EnterpriseMessage.fromJson(const {
+        'id': 1,
+        'conversation_id': 2,
+        'organization_id': 3,
+        'sender_type': 'contact',
+        'created_at': 0,
+      });
+      expect(zero.createdAtMs, 0);
+    });
+
+    test('toJson 出站保持秒合同（fromJson↔toJson 单位一致）', () {
+      final msg = EnterpriseMessage.fromJson(const {
+        'id': 1,
+        'conversation_id': 2,
+        'organization_id': 3,
+        'sender_type': 'contact',
+        'created_at': t1Seconds,
+        'retain_until': 2000000000,
+      });
+      final out = msg.toJson();
+      expect(out['created_at'], t1Seconds);
+      expect(out['retain_until'], 2000000000);
+      // 未知（0）不出站，避免把哨兵当真实 1970 瞬间写回。
+      final unknown = EnterpriseMessage.fromJson(const {
+        'id': 1,
+        'conversation_id': 2,
+        'organization_id': 3,
+        'sender_type': 'contact',
+      });
+      expect(unknown.toJson().containsKey('created_at'), isFalse);
+      expect(unknown.toJson().containsKey('retain_until'), isFalse);
     });
   });
 }

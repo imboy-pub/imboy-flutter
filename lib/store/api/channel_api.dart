@@ -7,6 +7,7 @@ import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
+import 'channel_comment_api.dart';
 import 'channel_micro_community_api.dart';
 import 'channel_message_interaction_api.dart';
 import 'channel_micro_community_policy.dart';
@@ -18,7 +19,10 @@ export 'channel_results.dart';
 ///
 /// 负责与后端 API 通信，处理频道相关的网络请求
 class ChannelApi extends HttpClient
-    with ChannelMicroCommunityApi, ChannelMessageInteractionApi {
+    with
+        ChannelMicroCommunityApi,
+        ChannelCommentApi,
+        ChannelMessageInteractionApi {
   /// Fail closed for stale manifests, delivery profiles and disabled channel flags.
   static bool get microCommunityEnabled => ChannelMicroCommunityPolicy.enabled;
 

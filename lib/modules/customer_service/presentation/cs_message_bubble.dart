@@ -93,8 +93,12 @@ class CsMessageBubble extends StatelessWidget {
                           ? context.t.customerService.seatLabel
                           : actorLabel)
                     : context.t.customerService.visitorLabel,
-                if (DateTime.tryParse(m.createdAt) case final time?)
-                  DateFormat('MM/dd HH:mm').format(time.toLocal()),
+                // R08-FL：epoch 毫秒（0=未知不显示），本地时区展示。
+                if (m.createdAtMs > 0)
+                  DateFormat('MM/dd HH:mm').format(
+                    DateTime.fromMillisecondsSinceEpoch(m.createdAtMs)
+                        .toLocal(),
+                  ),
                 if (isSeat && m.id.isNotEmpty)
                   serverReadAt == null
                       ? context.t.main.sent

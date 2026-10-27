@@ -20,8 +20,8 @@ import 'package:imboy/service/websocket_events.dart'
 import 'channel_di_provider.dart';
 
 part 'channel_provider.g.dart';
+part 'create_channel_state.dart';
 part 'channel_detail_state.dart';
-part 'channel_create_state.dart';
 part 'channel_post_search_provider.dart';
 
 /// 频道未读总数缓存（进程内）

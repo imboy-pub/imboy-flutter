@@ -13,6 +13,14 @@ import 'package:imboy/theme/default/font_types.dart';
 /// start/end 与当前时间推导（见 [resolveScheduleTimeState]）。
 enum GroupScheduleTimeState { notStarted, inProgress, ended, cancelled }
 
+/// 已取消/已结束的日程不再可报名或取消（详情页操作栏可见性与 R20-4
+/// 提交前重验共用的判定）。
+extension GroupScheduleTimeStateActionable on GroupScheduleTimeState {
+  bool get isActionable =>
+      this != GroupScheduleTimeState.cancelled &&
+      this != GroupScheduleTimeState.ended;
+}
+
 /// 按"取消 > 未开始 > 已结束 > 进行中"的优先级推导展示态。
 GroupScheduleTimeState resolveScheduleTimeState({
   required int status,
@@ -41,6 +49,36 @@ Color scheduleStateColor(GroupScheduleTimeState state, bool isDark) =>
       GroupScheduleTimeState.cancelled =>
         isDark ? AppColors.iosRedDark : AppColors.iosRed,
     };
+
+/// 群日程列表分组节：今天 / 明天起一周内（"本周"）/ 更晚。
+enum ScheduleListSection { today, tomorrowToWeek, later }
+
+/// R13：按查看者本地**日历日**把日程归入列表分组。
+///
+/// 边界必须用日历构造 `DateTime(y, m, d + n)`（Dart 按本地时区规则规范化，
+/// DST 切换日自动落到次日真实 00:00），不能用 `add(Duration(days: n))`：
+/// 固定 24h*n 在春季前跳日会把"次日"推到 01:00，次日 00:00~01:00 的日程
+/// 被误入"今天"组（秋季回拨日则反向多出窗口）。
+///
+/// 语义与既有分组保持一致："今天"组包含今天开始及一切更早的开始时间；
+/// "本周"窗口为明天 00:00 起到第 7 个日历日 00:00（未来 7 天范围不变）。
+ScheduleListSection resolveScheduleListSection(DateTime start, DateTime now) {
+  final todayStart = DateTime(now.year, now.month, now.day);
+  final tomorrowStart = DateTime(
+    todayStart.year,
+    todayStart.month,
+    todayStart.day + 1,
+  );
+  // "本周" = 未来 7 天：从明天 00:00 到第 7 个日历日 00:00（不含）。
+  final weekEnd = DateTime(
+    todayStart.year,
+    todayStart.month,
+    todayStart.day + 7,
+  );
+  if (start.isBefore(tomorrowStart)) return ScheduleListSection.today;
+  if (start.isBefore(weekEnd)) return ScheduleListSection.tomorrowToWeek;
+  return ScheduleListSection.later;
+}
 
 /// 状态胶囊徽章：色底 12% + 同色图标与文字，弱背景强语义。
 class ScheduleStatusBadge extends StatelessWidget {

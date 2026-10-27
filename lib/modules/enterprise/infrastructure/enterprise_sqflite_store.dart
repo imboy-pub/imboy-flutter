@@ -11,6 +11,7 @@ library;
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
+import 'package:imboy/component/helper/datetime.dart' show ApiTime;
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_store.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -74,6 +75,38 @@ Future<void> createEnterpriseTables(DatabaseExecutor db) async {
   for (final ddl in kEnterpriseTableDdl) {
     await db.execute(ddl);
   }
+}
+
+/// R08-FL 时间列编码/解码（DB 新写与旧读兼容，不迁 schema）。
+///
+/// `enterprise_message.created_at / retain_until` 为 TEXT 列，历史上写入的是
+/// **wire 原样字符串化的 epoch 秒**（旧模型 `parseModelString(json['created_at'])`
+/// 直通落库，来源已知）。R08 起模型持有 epoch 毫秒，新写改存**带时区的
+/// RFC3339 字符串**（UTC `toIso8601String`，毫秒精度），读回按**形态**分流：
+///
+/// 1. 带 zone 的 RFC3339 → [ApiTime.parseIsoZoned]（新写形态，直取毫秒）；
+/// 2. 纯数字字符串 → [ApiTime.parseEpochSeconds]（旧形态，**已知来源是秒**，
+///    ×1000 归一为毫秒——不是按位数猜任意字段，是该列唯一历史来源）；
+/// 3. 空/其他 → 0（未知）。
+///
+/// 往返不双乘：读→模型（毫秒）→再写（RFC3339）→再读走分支 1，值稳定；
+/// 旧行首次读出即归一为毫秒，后续被覆写后收敛到新形态。
+String encodeEpochMsColumn(int millis) {
+  if (millis <= 0) return '';
+  return DateTime.fromMillisecondsSinceEpoch(
+    millis,
+    isUtc: true,
+  ).toIso8601String();
+}
+
+int decodeEpochMsColumn(dynamic raw) {
+  if (raw is String) {
+    final iso = ApiTime.parseIsoZoned(raw);
+    if (iso != null) return iso.millisecondsSinceEpoch;
+    return ApiTime.parseEpochSeconds(raw) ?? 0;
+  }
+  if (raw is int) return ApiTime.parseEpochMillis(raw) ?? 0;
+  return 0;
 }
 
 /// 企业存储 sqflite 薄实现。
@@ -188,9 +221,9 @@ class EnterpriseSqfliteStore implements EnterpriseStore {
       'sender_business_identity_name': message.senderBusinessIdentityName,
       'content': message.content,
       'asset_id': message.assetId,
-      'retain_until': message.retainUntil,
+      'retain_until': encodeEpochMsColumn(message.retainUntilMs),
       'policy_snapshot': message.policySnapshot,
-      'created_at': message.createdAt,
+      'created_at': encodeEpochMsColumn(message.createdAtMs),
       'delivered': message.delivered ? 1 : 0,
     }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
@@ -273,9 +306,9 @@ class EnterpriseSqfliteStore implements EnterpriseStore {
       ),
       content: parseModelString(row['content']),
       assetId: parseModelString(row['asset_id']),
-      retainUntil: parseModelString(row['retain_until']),
+      retainUntilMs: decodeEpochMsColumn(row['retain_until']),
       policySnapshot: parseModelString(row['policy_snapshot']),
-      createdAt: parseModelString(row['created_at']),
+      createdAtMs: decodeEpochMsColumn(row['created_at']),
       delivered: parseModelInt(row['delivered']) == 1,
     );
   }

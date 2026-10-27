@@ -68,7 +68,15 @@ class SchemaContract {
   /// - outbox：v28+ 的频道消息本地/发布 outbox（未同步数据安全性依赖）。
   /// - 频道访问模型（v31）：type 兼容列 + visibility/access_type/join_policy
   ///   三字段 + has_purchased（v30）。
+  /// - 会话权威排序（v35）：消息四表 conv_seq/accepted_at 可空事实列
+  ///   （R07；NULL=服务端未给出，存在性是排序基建的最小前提）。
   static const Map<int, Map<String, Set<String>>> requiredColumnsByVersion = {
+    35: {
+      'msg_c2c': {'id', 'conversation_uk3', 'conv_seq', 'accepted_at'},
+      'msg_c2g': {'id', 'conversation_uk3', 'conv_seq', 'accepted_at'},
+      'msg_c2s': {'id', 'conversation_uk3', 'conv_seq', 'accepted_at'},
+      'msg_s2c': {'id', 'conversation_uk3', 'conv_seq', 'accepted_at'},
+    },
     9: {
       'message': {'id', 'from_id', 'to_id', 'payload', 'conversation_uk3'},
       'group_message': {'id', 'from_id', 'to_id', 'payload'},
