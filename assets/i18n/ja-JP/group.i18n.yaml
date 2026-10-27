@@ -47,3 +47,7 @@ moreActions: その他の操作
 noMemberWithRole(roleName): "${roleName}はいません"
 perfectionGroupInfo: グループ情報を設定
 touchContactAddMember: 連絡先をタップしてグループメンバーに追加
+transferAndLeave: 譲渡して退出的
+sureToTransferAndLeave: 譲渡するとグループを退出し、オーナー権限を失います。続行しますか？
+transferredButLeaveFailed: オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください
+noEligibleSuccessor: 譲渡できるメンバーがいません

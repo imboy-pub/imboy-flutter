@@ -6029,6 +6029,18 @@ class Translations$group$zh_CN {
 
 	/// zh-CN: '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？'
 	String get e2eeEnableConfirm => '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？';
+
+	/// zh-CN: '转让后退出'
+	String get transferAndLeave => '转让后退出';
+
+	/// zh-CN: '转让后你将退出本群并失去群主权限，确定继续吗？'
+	String get sureToTransferAndLeave => '转让后你将退出本群并失去群主权限，确定继续吗？';
+
+	/// zh-CN: '已转让群主，但退出失败，请重试退出'
+	String get transferredButLeaveFailed => '已转让群主，但退出失败，请重试退出';
+
+	/// zh-CN: '暂无可转让的成员'
+	String get noEligibleSuccessor => '暂无可转让的成员';
 }
 
 // Path: groupCategory
@@ -12827,6 +12839,10 @@ extension on Translations {
 			'group.e2eeKeyManagementSubtitle' => '备份、恢复和管理端到端加密密钥',
 			'group.e2eeTitle' => '端到端加密',
 			'group.e2eeEnableConfirm' => '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？',
+			'group.transferAndLeave' => '转让后退出',
+			'group.sureToTransferAndLeave' => '转让后你将退出本群并失去群主权限，确定继续吗？',
+			'group.transferredButLeaveFailed' => '已转让群主，但退出失败，请重试退出',
+			'group.noEligibleSuccessor' => '暂无可转让的成员',
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
@@ -12904,12 +12920,12 @@ extension on Translations {
 			'groupTask.noDeadline' => '无截止时间',
 			'groupTask.noTask' => '暂无待办',
 			'groupTask.all' => '全部',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.pending' => '待完成',
 			'groupTask.completed' => '已完成',
 			'groupTask.taskSubmitted' => '待办已提交',
 			'groupTask.submitTask' => '提交待办',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.overdue' => '已过期',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} 天后截止',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
@@ -13418,12 +13434,12 @@ extension on Translations {
 			'organization.directory.memberCountWith' => ({required Object count}) => '${count} 人',
 			'organization.directory.searchHint' => '搜索部门或成员',
 			'organization.directory.emptyDepartments' => '暂无子部门',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.emptyMembers' => '暂无成员',
 			'organization.directory.emptySearch' => '无匹配结果',
 			'organization.directory.switchVerifyFailed' => '目标企业不可用或你已不是其成员',
 			'organization.directory.switchShellFailed' => '新企业工作区加载失败',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.inviteColleaguesRow' => '邀请同事...',
 			'organization.directory.memberTotal' => ({required Object count}) => '共${count}人',
 			'organization.memberDetail.roleLabel' => '企业角色',
@@ -13932,12 +13948,12 @@ extension on Translations {
 			'talkRecord.deleteBackToList' => '返回列表',
 			'talkRecord.deleteStatusFixtureHint' => '组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。',
 			'talkRecord.microphoneStopUnconfirmed' => '录音停止尚未确认，请重试停止；若仍失败，请关闭应用并检查系统麦克风指示。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupWriteOutcomeUnknown' => '附件写入结果尚未确认，清理暂未完成。系统会保留保护状态，由运维人员核查；可刷新查看进度。',
 			'talkRecord.exportDownloadCancelled' => '已取消保存，可再次保存。',
 			'talkRecord.shareCardSendPending' => '已加入发送队列，尚未收到服务端确认；请在会话中查看，重试不会重复创建消息。',
 			'talkRecord.shareCardSendCancelled' => '已取消发送，未发送新的卡片。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.participantsInfoHint' => '参与者仅用于记录实际参加人员，不会自动共享记录，也不代表已核实发言人。',
 			'talkRecord.participantsRemove' => '移除参与者',
 			'talkRecord.participantsGuestLabel' => '来宾姓名或标签',

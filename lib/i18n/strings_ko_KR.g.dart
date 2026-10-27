@@ -1966,6 +1966,10 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => '${roleName} 없음';
 	@override String get perfectionGroupInfo => '그룹 정보 완성';
 	@override String get touchContactAddMember => '연락처를 탭하여 그룹 구성원으로 추가';
+	@override String get transferAndLeave => '양도 후 나가기';
+	@override String get sureToTransferAndLeave => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?';
+	@override String get transferredButLeaveFailed => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요';
+	@override String get noEligibleSuccessor => '양도할 수 있는 멤버가 없습니다';
 }
 
 // Path: groupCategory
@@ -5127,6 +5131,10 @@ extension on TranslationsKoKr {
 			'group.noMemberWithRole' => ({required Object roleName}) => '${roleName} 없음',
 			'group.perfectionGroupInfo' => '그룹 정보 완성',
 			'group.touchContactAddMember' => '연락처를 탭하여 그룹 구성원으로 추가',
+			'group.transferAndLeave' => '양도 후 나가기',
+			'group.sureToTransferAndLeave' => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?',
+			'group.transferredButLeaveFailed' => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요',
+			'group.noEligibleSuccessor' => '양도할 수 있는 멤버가 없습니다',
 			'groupCategory.title' => '그룹 폴더',
 			'groupCategory.createCategory' => '폴더 만들기',
 			'groupCategory.categoryName' => '폴더 이름',
@@ -5419,12 +5427,12 @@ extension on TranslationsKoKr {
 			'main.complianceKeyNotConfigured' => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다',
 			'main.mineContent' => '내 콘텐츠',
 			'main.mineCommonEntries' => '빠른 접근',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => '관리 및 지원',
 			'main.mineSettingsSupport' => '설정 및 지원',
 			'main.mineStorageUsage' => '사용량 관리',
 			'mention.mentionAll' => '전체',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => '모든 그룹 구성원에게 알림',
 			'mention.noMatchedMember' => '일치하는 멤버가 없습니다',
 			'mention.title' => '@멘션',
@@ -5933,12 +5941,12 @@ extension on TranslationsKoKr {
 			'welcome.next' => '다음',
 			'welcome.getStarted' => '시작하기',
 			'welcome.skip' => '건너뛰기',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => '개요',
 			'workspace.navProjects' => '프로젝트',
 			'workspace.navChannels' => '채널',
 			'workspace.navGroups' => '그룹',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => '내 워크스페이스',
 			'workspace.switchWorkspace' => '워크스페이스 전환',
 			'workspace.pickerEmptyTitle' => '아직 워크스페이스가 없습니다',

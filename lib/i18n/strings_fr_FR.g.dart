@@ -1969,6 +1969,10 @@ class _Translations$group$fr_FR extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => 'Aucun ${roleName} pour le moment';
 	@override String get perfectionGroupInfo => 'Compléter les informations du groupe';
 	@override String get touchContactAddMember => 'Touchez un contact pour l\'ajouter comme membre du groupe';
+	@override String get transferAndLeave => 'Transférer et quitter';
+	@override String get sureToTransferAndLeave => 'Vous allez transférer la propriété et quitter ce groupe. Continuer ?';
+	@override String get transferredButLeaveFailed => 'Propriété transférée, mais la sortie a échoué. Veuillez réessayer';
+	@override String get noEligibleSuccessor => 'Aucun membre disponible pour le transfert';
 }
 
 // Path: groupCategory
@@ -5130,6 +5134,10 @@ extension on TranslationsFrFr {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'Aucun ${roleName} pour le moment',
 			'group.perfectionGroupInfo' => 'Compléter les informations du groupe',
 			'group.touchContactAddMember' => 'Touchez un contact pour l\'ajouter comme membre du groupe',
+			'group.transferAndLeave' => 'Transférer et quitter',
+			'group.sureToTransferAndLeave' => 'Vous allez transférer la propriété et quitter ce groupe. Continuer ?',
+			'group.transferredButLeaveFailed' => 'Propriété transférée, mais la sortie a échoué. Veuillez réessayer',
+			'group.noEligibleSuccessor' => 'Aucun membre disponible pour le transfert',
 			'groupCategory.title' => 'Catégories de groupe',
 			'groupCategory.createCategory' => 'Créer une catégorie',
 			'groupCategory.categoryName' => 'Nom de la catégorie',
@@ -5422,12 +5430,12 @@ extension on TranslationsFrFr {
 			'main.complianceKeyNotConfigured' => 'Aucune clé d\'audit de conformité configurée pour ce déploiement',
 			'main.mineContent' => 'Mes contenus',
 			'main.mineCommonEntries' => 'Accès rapide',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Gestion et assistance',
 			'main.mineSettingsSupport' => 'Réglages et assistance',
 			'main.mineStorageUsage' => 'Gérer le stockage',
 			'mention.mentionAll' => 'Tout le monde',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => 'Notifier tous les membres du groupe',
 			'mention.noMatchedMember' => 'Aucun membre correspondant',
 			'mention.title' => '@Mentions',
@@ -5936,12 +5944,12 @@ extension on TranslationsFrFr {
 			'welcome.next' => 'Suivant',
 			'welcome.getStarted' => 'Commencer',
 			'welcome.skip' => 'Ignorer',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => 'Vue d\'ensemble',
 			'workspace.navProjects' => 'Projets',
 			'workspace.navChannels' => 'Canaux',
 			'workspace.navGroups' => 'Groupes',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => 'Mes espaces de travail',
 			'workspace.switchWorkspace' => 'Changer d\'espace de travail',
 			'workspace.pickerEmptyTitle' => 'Aucun espace de travail pour le moment',

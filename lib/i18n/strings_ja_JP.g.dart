@@ -1966,6 +1966,10 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => '${roleName}はいません';
 	@override String get perfectionGroupInfo => 'グループ情報を設定';
 	@override String get touchContactAddMember => '連絡先をタップしてグループメンバーに追加';
+	@override String get transferAndLeave => '譲渡して退出的';
+	@override String get sureToTransferAndLeave => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？';
+	@override String get transferredButLeaveFailed => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください';
+	@override String get noEligibleSuccessor => '譲渡できるメンバーがいません';
 }
 
 // Path: groupCategory
@@ -5127,6 +5131,10 @@ extension on TranslationsJaJp {
 			'group.noMemberWithRole' => ({required Object roleName}) => '${roleName}はいません',
 			'group.perfectionGroupInfo' => 'グループ情報を設定',
 			'group.touchContactAddMember' => '連絡先をタップしてグループメンバーに追加',
+			'group.transferAndLeave' => '譲渡して退出的',
+			'group.sureToTransferAndLeave' => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？',
+			'group.transferredButLeaveFailed' => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください',
+			'group.noEligibleSuccessor' => '譲渡できるメンバーがいません',
 			'groupCategory.title' => 'グループカテゴリ',
 			'groupCategory.createCategory' => 'カテゴリを作成',
 			'groupCategory.categoryName' => 'カテゴリ名',
@@ -5419,12 +5427,12 @@ extension on TranslationsJaJp {
 			'main.complianceKeyNotConfigured' => 'このデプロイにはコンプライアンス監査キーが設定されていません',
 			'main.mineContent' => 'マイコンテンツ',
 			'main.mineCommonEntries' => 'よく使う機能',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => '管理とサポート',
 			'main.mineSettingsSupport' => '設定とサポート',
 			'main.mineStorageUsage' => '使用量の管理',
 			'mention.mentionAll' => '全員',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => 'グループ全員に通知',
 			'mention.noMatchedMember' => '一致するメンバーがいません',
 			'mention.title' => '@メンション',
@@ -5933,12 +5941,12 @@ extension on TranslationsJaJp {
 			'welcome.next' => '次へ',
 			'welcome.getStarted' => '始める',
 			'welcome.skip' => 'スキップ',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => '概要',
 			'workspace.navProjects' => 'プロジェクト',
 			'workspace.navChannels' => 'チャンネル',
 			'workspace.navGroups' => 'グループ',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => 'マイワークスペース',
 			'workspace.switchWorkspace' => 'ワークスペースを切り替え',
 			'workspace.pickerEmptyTitle' => 'ワークスペースはまだありません',

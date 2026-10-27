@@ -2154,6 +2154,10 @@ class _Translations$group$en_US extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => 'Backup, restore and manage end-to-end encryption keys';
 	@override String get e2eeTitle => 'End-to-End Encryption';
 	@override String get e2eeEnableConfirm => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?';
+	@override String get transferAndLeave => 'Transfer and leave';
+	@override String get sureToTransferAndLeave => 'You will transfer ownership and leave this group. Continue?';
+	@override String get transferredButLeaveFailed => 'Ownership transferred, but leaving failed. Please retry leaving.';
+	@override String get noEligibleSuccessor => 'No member available to transfer to';
 }
 
 // Path: groupCategory
@@ -5956,6 +5960,10 @@ extension on TranslationsEnUs {
 			'group.e2eeKeyManagementSubtitle' => 'Backup, restore and manage end-to-end encryption keys',
 			'group.e2eeTitle' => 'End-to-End Encryption',
 			'group.e2eeEnableConfirm' => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?',
+			'group.transferAndLeave' => 'Transfer and leave',
+			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
+			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
+			'group.noEligibleSuccessor' => 'No member available to transfer to',
 			'groupCategory.title' => 'Group Categories',
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
@@ -6053,12 +6061,12 @@ extension on TranslationsEnUs {
 			'groupVote.noVote' => 'No votes yet',
 			'groupVote.voteEnded' => 'Vote ended',
 			'groupVote.totalVotes' => ({required Object count}) => '${count} votes',
+			_ => null,
+		} ?? switch (path) {
 			'groupVote.voteSuccess' => 'Voted successfully',
 			'groupVote.cancelVoteSuccess' => 'Vote cancelled',
 			'groupVote.eachOptionPerLine' => 'One option per line',
 			'groupVote.statusInProgress' => 'In Progress',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.updateVote' => 'Update Vote',
 			'groupVote.cancelMyVote' => 'Cancel my vote',
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
@@ -6567,12 +6575,12 @@ extension on TranslationsEnUs {
 			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Rename "${name}"',
 			'organization.manage.groupGovernance' => 'Members & roles',
 			'organization.manage.renameChannel' => 'Rename',
+			_ => null,
+		} ?? switch (path) {
 			'organization.manage.channelAdmins' => 'Admins',
 			'organization.manage.channelSubscribersEntry' => 'Subscribers',
 			'organization.manage.entry' => 'Enterprise management',
 			'organization.manage.entryRestricted' => 'Enterprise management (admins only)',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.title' => 'Enterprise management',
 			'organization.manage.orgNotFound' => 'Enterprise not found, or you cannot view it',
 			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
@@ -7081,12 +7089,12 @@ extension on TranslationsEnUs {
 			'talkRecord.notificationRequiredTitle' => 'Enable recording notifications',
 			'talkRecord.notificationRequiredMessage' => 'Allow app notifications and enable the recording notification channel in system settings. Return here and retry after enabling them. Recording has not started.',
 			'talkRecord.openNotificationSettings' => 'Open notification settings',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.processingRecoveryTitle' => 'Confirm recording processing',
 			'talkRecord.processingRecoveryHint' => 'The processing notice or processor configuration changed. Confirm to upload and process using the current versions below. The original recording acknowledgement is preserved.',
 			'talkRecord.processingRecoveryUnavailable' => 'Processing is currently unavailable. Keep the recording on this device and retry later.',
 			'talkRecord.keepRecordingLocal' => 'Keep on this device',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.confirmProcessingUpload' => 'Agree and upload',
 			'talkRecord.cleanupRetryRefreshFailed' => 'Could not read the latest status. Refresh to reconcile.',
 			'talkRecord.cleanupRetryAccepted' => 'Retry accepted. Reading the latest cleanup status; queued does not mean attachments are deleted.',

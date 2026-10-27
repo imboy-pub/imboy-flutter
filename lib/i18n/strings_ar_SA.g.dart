@@ -1978,6 +1978,10 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get groupCreatedSuccess => 'تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية';
 	@override String get enterGroupChat => 'الدخول إلى الدردشة الجماعية';
 	@override String get perfectionGroupInfo => 'إكمال معلومات المجموعة';
+	@override String get transferAndLeave => 'نقل الملكية والمغادرة';
+	@override String get sureToTransferAndLeave => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟';
+	@override String get transferredButLeaveFailed => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا';
+	@override String get noEligibleSuccessor => 'لا يوجد عضو متاح للنقل';
 }
 
 // Path: groupCategory
@@ -5139,6 +5143,10 @@ extension on TranslationsArSa {
 			'group.groupCreatedSuccess' => 'تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية',
 			'group.enterGroupChat' => 'الدخول إلى الدردشة الجماعية',
 			'group.perfectionGroupInfo' => 'إكمال معلومات المجموعة',
+			'group.transferAndLeave' => 'نقل الملكية والمغادرة',
+			'group.sureToTransferAndLeave' => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟',
+			'group.transferredButLeaveFailed' => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا',
+			'group.noEligibleSuccessor' => 'لا يوجد عضو متاح للنقل',
 			'groupCategory.title' => 'مجلدات المجموعات',
 			'groupCategory.createCategory' => 'إنشاء مجلد',
 			'groupCategory.categoryName' => 'اسم المجلد',
@@ -5431,12 +5439,12 @@ extension on TranslationsArSa {
 			'main.complianceKeyNotConfigured' => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر',
 			'main.mineContent' => 'المحتوى الخاص بي',
 			'main.mineCommonEntries' => 'الوصول السريع',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => 'الإدارة والدعم',
 			'main.mineSettingsSupport' => 'الإعدادات والدعم',
 			'main.mineStorageUsage' => 'إدارة الاستخدام',
 			'mention.mentionAll' => 'الجميع',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => 'إشعار جميع أعضاء المجموعة',
 			'mention.noMatchedMember' => 'لا يوجد أعضاء مطابقون',
 			'mention.title' => '@إشارات',
@@ -5945,12 +5953,12 @@ extension on TranslationsArSa {
 			'welcome.next' => 'التالي',
 			'welcome.getStarted' => 'ابدأ',
 			'welcome.skip' => 'تخطي',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => 'نظرة عامة',
 			'workspace.navProjects' => 'المشاريع',
 			'workspace.navChannels' => 'القنوات',
 			'workspace.navGroups' => 'المجموعات',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => 'مساحات عملي',
 			'workspace.switchWorkspace' => 'تبديل مساحة العمل',
 			'workspace.pickerEmptyTitle' => 'لا توجد مساحات عمل بعد',

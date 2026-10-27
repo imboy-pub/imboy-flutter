@@ -1975,6 +1975,10 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => 'Пока нет: ${roleName}';
 	@override String get perfectionGroupInfo => 'Заполнить информацию о группе';
 	@override String get touchContactAddMember => 'Нажмите на контакт, чтобы добавить участника в группу';
+	@override String get transferAndLeave => 'Передать и выйти';
+	@override String get sureToTransferAndLeave => 'Вы передадите права владельца и покинете группу. Продолжить?';
+	@override String get transferredButLeaveFailed => 'Владелец передан, но выход не удался. Повторите попытку';
+	@override String get noEligibleSuccessor => 'Нет участников для передачи';
 }
 
 // Path: groupCategory
@@ -5136,6 +5140,10 @@ extension on TranslationsRuRu {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'Пока нет: ${roleName}',
 			'group.perfectionGroupInfo' => 'Заполнить информацию о группе',
 			'group.touchContactAddMember' => 'Нажмите на контакт, чтобы добавить участника в группу',
+			'group.transferAndLeave' => 'Передать и выйти',
+			'group.sureToTransferAndLeave' => 'Вы передадите права владельца и покинете группу. Продолжить?',
+			'group.transferredButLeaveFailed' => 'Владелец передан, но выход не удался. Повторите попытку',
+			'group.noEligibleSuccessor' => 'Нет участников для передачи',
 			'groupCategory.title' => 'Папки групп',
 			'groupCategory.createCategory' => 'Создать папку',
 			'groupCategory.categoryName' => 'Название папки',
@@ -5428,12 +5436,12 @@ extension on TranslationsRuRu {
 			'main.complianceKeyNotConfigured' => 'Для этого развёртывания не настроен ключ комплаенс-аудита',
 			'main.mineContent' => 'Мои материалы',
 			'main.mineCommonEntries' => 'Быстрый доступ',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Управление и поддержка',
 			'main.mineSettingsSupport' => 'Настройки и поддержка',
 			'main.mineStorageUsage' => 'Управление памятью',
 			'mention.mentionAll' => 'Все',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => 'Уведомить всех участников группы',
 			'mention.noMatchedMember' => 'Нет подходящих участников',
 			'mention.title' => '@Упоминания',
@@ -5942,12 +5950,12 @@ extension on TranslationsRuRu {
 			'welcome.next' => 'Далее',
 			'welcome.getStarted' => 'Начать',
 			'welcome.skip' => 'Пропустить',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => 'Обзор',
 			'workspace.navProjects' => 'Проекты',
 			'workspace.navChannels' => 'Каналы',
 			'workspace.navGroups' => 'Группы',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => 'Мои рабочие пространства',
 			'workspace.switchWorkspace' => 'Сменить рабочее пространство',
 			'workspace.pickerEmptyTitle' => 'Пока нет рабочих пространств',

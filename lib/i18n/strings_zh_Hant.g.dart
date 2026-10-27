@@ -1966,6 +1966,10 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => '備份、恢復和管理端到端加密金鑰';
 	@override String get e2eeTitle => '端對端加密';
 	@override String get e2eeEnableConfirm => '開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？';
+	@override String get transferAndLeave => '轉讓後退出';
+	@override String get sureToTransferAndLeave => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？';
+	@override String get transferredButLeaveFailed => '已轉讓群主，但退出失敗，請重試退出';
+	@override String get noEligibleSuccessor => '暫無可轉讓的成員';
 }
 
 // Path: groupCategory
@@ -5127,6 +5131,10 @@ extension on TranslationsZhHant {
 			'group.e2eeKeyManagementSubtitle' => '備份、恢復和管理端到端加密金鑰',
 			'group.e2eeTitle' => '端對端加密',
 			'group.e2eeEnableConfirm' => '開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？',
+			'group.transferAndLeave' => '轉讓後退出',
+			'group.sureToTransferAndLeave' => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？',
+			'group.transferredButLeaveFailed' => '已轉讓群主，但退出失敗，請重試退出',
+			'group.noEligibleSuccessor' => '暫無可轉讓的成員',
 			'groupCategory.title' => '群分組',
 			'groupCategory.createCategory' => '建立分組',
 			'groupCategory.categoryName' => '分組名稱',
@@ -5419,12 +5427,12 @@ extension on TranslationsZhHant {
 			'main.complianceKeyNotConfigured' => '目前部署未配置合規審計金鑰',
 			'main.mineContent' => '我的內容',
 			'main.mineCommonEntries' => '常用入口',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => '管理與支援',
 			'main.mineSettingsSupport' => '設定與支援',
 			'main.mineStorageUsage' => '管理用量',
 			'mention.mentionAll' => '全體成員',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => '通知所有群成員',
 			'mention.noMatchedMember' => '沒有匹配的成員',
 			'mention.title' => '@標註',
@@ -5933,12 +5941,12 @@ extension on TranslationsZhHant {
 			'welcome.next' => '下一個步驟',
 			'welcome.getStarted' => '開始使用',
 			'welcome.skip' => '跳過',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => '總覽',
 			'workspace.navProjects' => '專案',
 			'workspace.navChannels' => '頻道',
 			'workspace.navGroups' => '群組',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => '我的工作區',
 			'workspace.switchWorkspace' => '切換工作區',
 			'workspace.pickerEmptyTitle' => '還沒有工作區',

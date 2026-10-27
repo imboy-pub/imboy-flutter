@@ -1969,6 +1969,10 @@ class _Translations$group$it_IT extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => 'Nessun ${roleName} per ora';
 	@override String get perfectionGroupInfo => 'Completa le info del gruppo';
 	@override String get touchContactAddMember => 'Tocca un contatto per aggiungerlo come membro del gruppo';
+	@override String get transferAndLeave => 'Trasferisci e esci';
+	@override String get sureToTransferAndLeave => 'Trasferirai la proprietà e uscirai dal gruppo. Continuare?';
+	@override String get transferredButLeaveFailed => 'Proprietà trasferita, ma uscita non riuscita. Riprova';
+	@override String get noEligibleSuccessor => 'Nessun membro disponibile per il trasferimento';
 }
 
 // Path: groupCategory
@@ -5130,6 +5134,10 @@ extension on TranslationsItIt {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'Nessun ${roleName} per ora',
 			'group.perfectionGroupInfo' => 'Completa le info del gruppo',
 			'group.touchContactAddMember' => 'Tocca un contatto per aggiungerlo come membro del gruppo',
+			'group.transferAndLeave' => 'Trasferisci e esci',
+			'group.sureToTransferAndLeave' => 'Trasferirai la proprietà e uscirai dal gruppo. Continuare?',
+			'group.transferredButLeaveFailed' => 'Proprietà trasferita, ma uscita non riuscita. Riprova',
+			'group.noEligibleSuccessor' => 'Nessun membro disponibile per il trasferimento',
 			'groupCategory.title' => 'Categorie di gruppo',
 			'groupCategory.createCategory' => 'Crea categoria',
 			'groupCategory.categoryName' => 'Nome categoria',
@@ -5422,12 +5430,12 @@ extension on TranslationsItIt {
 			'main.complianceKeyNotConfigured' => 'Nessuna chiave di audit di conformità configurata per questo deployment',
 			'main.mineContent' => 'I miei contenuti',
 			'main.mineCommonEntries' => 'Accesso rapido',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Gestione e assistenza',
 			'main.mineSettingsSupport' => 'Impostazioni e assistenza',
 			'main.mineStorageUsage' => 'Gestisci spazio',
 			'mention.mentionAll' => 'Tutti',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => 'Notifica tutti i membri del gruppo',
 			'mention.noMatchedMember' => 'Nessun membro corrispondente',
 			'mention.title' => '@Menzioni',
@@ -5936,12 +5944,12 @@ extension on TranslationsItIt {
 			'welcome.next' => 'Avanti',
 			'welcome.getStarted' => 'Inizia',
 			'welcome.skip' => 'Salta',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.archiveConfirm' => 'Conferma archiviazione',
 			'workspace.archiveDesc' => 'Dopo l\'archiviazione tutti saranno in sola lettura (le operazioni di scrittura saranno rifiutate dal server); è possibile ripristinare in qualsiasi momento',
 			'workspace.archiveEntry' => 'Archivia area di lavoro',
 			'workspace.archiveTitle' => 'Archivia area di lavoro',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.archivedBadge' => 'Archiviata',
 			'workspace.archivedBanner' => 'Area di lavoro archiviata: i contenuti sono consultabili, le operazioni di scrittura sono disabilitate; l\'Owner può ripristinarla dalla pagina membri',
 			'workspace.brandingColorHelper' => 'Sono supportati solo #RRGGBB / #AARRGGBB; i valori non validi ricadono sul colore del tema predefinito',

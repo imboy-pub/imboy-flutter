@@ -46,3 +46,7 @@ groupCreated: تم إنشاء الدردشة الجماعية
 groupCreatedSuccess: تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية
 enterGroupChat: الدخول إلى الدردشة الجماعية
 perfectionGroupInfo: إكمال معلومات المجموعة
+transferAndLeave: نقل الملكية والمغادرة
+sureToTransferAndLeave: ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟
+transferredButLeaveFailed: تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا
+noEligibleSuccessor: لا يوجد عضو متاح للنقل

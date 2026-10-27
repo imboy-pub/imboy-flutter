@@ -46,3 +46,7 @@ moreActions: Weitere Aktionen
 noMemberWithRole(roleName): "Keine $roleName vorhanden"
 perfectionGroupInfo: Gruppeninfos vervollständigen
 touchContactAddMember: Kontakt antippen, um als Gruppenmitglied hinzuzufügen
+transferAndLeave: Übertragen und verlassen
+sureToTransferAndLeave: Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?
+transferredButLeaveFailed: Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen
+noEligibleSuccessor: Kein Mitglied zum Übertragen verfügbar

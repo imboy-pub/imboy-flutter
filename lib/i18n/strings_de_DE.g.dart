@@ -1969,6 +1969,10 @@ class _Translations$group$de_DE extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => 'Keine ${roleName} vorhanden';
 	@override String get perfectionGroupInfo => 'Gruppeninfos vervollständigen';
 	@override String get touchContactAddMember => 'Kontakt antippen, um als Gruppenmitglied hinzuzufügen';
+	@override String get transferAndLeave => 'Übertragen und verlassen';
+	@override String get sureToTransferAndLeave => 'Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?';
+	@override String get transferredButLeaveFailed => 'Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen';
+	@override String get noEligibleSuccessor => 'Kein Mitglied zum Übertragen verfügbar';
 }
 
 // Path: groupCategory
@@ -5130,6 +5134,10 @@ extension on TranslationsDeDe {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'Keine ${roleName} vorhanden',
 			'group.perfectionGroupInfo' => 'Gruppeninfos vervollständigen',
 			'group.touchContactAddMember' => 'Kontakt antippen, um als Gruppenmitglied hinzuzufügen',
+			'group.transferAndLeave' => 'Übertragen und verlassen',
+			'group.sureToTransferAndLeave' => 'Du überträgst die Eigentümerschaft und verlässt die Gruppe. Fortfahren?',
+			'group.transferredButLeaveFailed' => 'Eigentümerschaft übertragen, aber das Verlassen ist fehlgeschlagen. Bitte erneut versuchen',
+			'group.noEligibleSuccessor' => 'Kein Mitglied zum Übertragen verfügbar',
 			'groupCategory.title' => 'Gruppenkategorien',
 			'groupCategory.createCategory' => 'Kategorie erstellen',
 			'groupCategory.categoryName' => 'Kategorie-Name',
@@ -5422,12 +5430,12 @@ extension on TranslationsDeDe {
 			'main.complianceKeyNotConfigured' => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert',
 			'main.mineContent' => 'Meine Inhalte',
 			'main.mineCommonEntries' => 'Schnellzugriff',
+			_ => null,
+		} ?? switch (path) {
 			'main.mineManagementSupport' => 'Verwaltung & Hilfe',
 			'main.mineSettingsSupport' => 'Einstellungen & Hilfe',
 			'main.mineStorageUsage' => 'Speichernutzung',
 			'mention.mentionAll' => 'Alle',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllHint' => 'Alle Gruppenmitglieder benachrichtigen',
 			'mention.noMatchedMember' => 'Keine passenden Mitglieder',
 			'mention.title' => '@Erwähnungen',
@@ -5936,12 +5944,12 @@ extension on TranslationsDeDe {
 			'welcome.next' => 'Weiter',
 			'welcome.getStarted' => 'Loslegen',
 			'welcome.skip' => 'Überspringen',
+			_ => null,
+		} ?? switch (path) {
 			'workspace.navOverview' => 'Übersicht',
 			'workspace.navProjects' => 'Projekte',
 			'workspace.navChannels' => 'Kanäle',
 			'workspace.navGroups' => 'Gruppen',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.pickerTitle' => 'Mein Arbeitsbereich',
 			'workspace.switchWorkspace' => 'Arbeitsbereich wechseln',
 			'workspace.pickerEmptyTitle' => 'Noch kein Arbeitsbereich',
