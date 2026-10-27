@@ -921,19 +921,39 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 滚动到目标消息
   /// 深链进页时定位到 widget.msgId
-  Future<void> _scrollToTargetMessage() =>
-      _scrollToMessageId(widget.msgId, retry: true);
+  Future<void> _scrollToTargetMessage() async {
+    await _scrollToMessageId(widget.msgId, retry: true);
+  }
 
   /// 点击引用块跳回被引用的原消息。
-  /// 未加载的原消息先给出反馈；完整历史上下文定位由历史加载链处理。
-  void _onQuoteTap(String quotedMessageId) {
-    unawaited(_scrollToMessageId(quotedMessageId, retry: false));
+  ///
+  /// F16/J18.f：已加载 → 滚动定位；未加载 → 在成员世代授权边界内拉取
+  /// 该消息上下文（loadMessagesAround，服务端裁决过期/无权/越界——拉取
+  /// 为空即不可达），随后重试定位；仍不可达给可行动说明，不静默返回。
+  Future<void> _onQuoteTap(String quotedMessageId) async {
+    if (quotedMessageId.isEmpty) return;
+
+    final messages =
+        ref.read(chatProvider.notifier).chatService?.messages ?? [];
+    final isLoaded = messages.any((m) => m.id == quotedMessageId);
+    if (isLoaded) {
+      await _scrollToMessageId(quotedMessageId, retry: false);
+      return;
+    }
+    await ref
+        .read(chatProvider.notifier)
+        .loadMessagesAround(conversation, quotedMessageId);
+    final located = await _scrollToMessageId(quotedMessageId, retry: false);
+    if (!located && mounted) {
+      AppLoading.showToast(t.common.quoteMessageNotAvailable);
+    }
   }
 
   /// 滚动并高亮指定消息。[retry] 为 true 时做渐进式重试（深链进页场景下
   /// 列表可能尚未完成首帧布局）；用户主动点击时列表已就绪，一次即可。
-  Future<void> _scrollToMessageId(String msgId, {required bool retry}) async {
-    if (msgId.isEmpty) return;
+  /// 返回是否定位成功（目标在当前已加载列表中）。
+  Future<bool> _scrollToMessageId(String msgId, {required bool retry}) async {
+    if (msgId.isEmpty) return false;
 
     try {
       // 确保消息列表已加载
@@ -943,7 +963,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (!retry && mounted) {
           AppLoading.showToast(t.common.quoteMessageNotAvailable);
         }
-        return;
+        return false;
       }
 
       // 查找目标消息在列表中的索引
@@ -952,7 +972,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (!retry && mounted) {
           AppLoading.showToast(t.common.quoteMessageNotAvailable);
         }
-        return;
+        return false;
       }
       final attempts = retry ? 15 : 1;
 
@@ -960,7 +980,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       for (var attempt = 0; attempt < attempts; attempt++) {
         // 检查 widget 是否仍然 mounted
         if (!mounted) {
-          return;
+          return false;
         }
 
         // 渐进式等待
@@ -968,7 +988,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           Duration(milliseconds: attempt < 3 ? 100 : 300),
         );
 
-        if (!mounted) return;
+        if (!mounted) return false;
 
         // 尝试触发滚动
         await ref
@@ -990,8 +1010,11 @@ class ChatPageState extends ConsumerState<ChatPage>
       if (mounted) {
         ref.read(messageScrollManagerProvider.notifier).highlightMessage(msgId);
       }
+      return true;
     } catch (e) {
       _fallbackScrollToMessage(msgId);
+      // 降级路径无法确认定位成功与否，按未定位处理（调用方给反馈）。
+      return false;
     }
   }
 
