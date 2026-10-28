@@ -85,32 +85,29 @@ void main() {
       await ws.close();
     });
 
-    test('1.3 无 token 连接 — 5 秒内被服务端断开或拒绝建立', () async {
-      var rejected = false;
-      try {
-        final headers = apiClient.authenticatedHeaders..remove('authorization');
-        final ws = await _connect(wsUrl, headers: headers); // 有效签名但无 token
-        var serverClosed = false;
-        ws.listen(
-          (_) {},
-          onError: (_) {
-            serverClosed = true;
-          },
-          onDone: () {
-            serverClosed = true;
-          },
-        );
-        await Future<void>.delayed(const Duration(seconds: 5));
-        rejected = serverClosed;
-        if (!serverClosed) await ws.close();
-      } on WebSocketException catch (error) {
-        rejected = error.httpStatusCode == HttpStatus.unauthorized;
+    test('1.3 有效签名但无 token 的握手返回 412', () async {
+      if (!ApiTestConfig.isConfigured) {
+        return markTestSkipped('真实 WS 契约需要测试账号、签名密钥和可用后端');
       }
-      expect(
-        rejected,
-        isTrue,
-        reason: '无 token 的 WebSocket 连接应在 5 秒内被服务端拒绝或断开',
-      );
+      expect(apiClient.accessToken, isNotNull, reason: '已配置的测试账号必须登录成功');
+      // 先确认同一签名和服务端可建立认证连接，避免把其他错误当成鉴权拒绝。
+      final authenticated = await _connect(
+        wsUrl,
+        headers: apiClient.authenticatedHeaders,
+      ).timeout(const Duration(seconds: 5));
+      await authenticated.close();
+
+      final headers = apiClient.authenticatedHeaders..remove('authorization');
+      try {
+        final ws = await _connect(
+          wsUrl,
+          headers: headers,
+        ).timeout(const Duration(seconds: 5));
+        await ws.close();
+        fail('无 token 的 WebSocket 握手不应成功');
+      } on WebSocketException catch (error) {
+        expect(error.httpStatusCode, HttpStatus.preconditionFailed);
+      }
     });
   });
 
