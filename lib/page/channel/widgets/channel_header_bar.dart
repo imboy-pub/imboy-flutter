@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -292,80 +293,117 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
   Widget _compactHeader(int subscriberCount) {
     final channel = widget.channel;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.tiny,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => showChannelInfoDialog(
-                context,
-                channel,
-                subscriberCount: subscriberCount,
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Wrap(
-                  spacing: AppSpacing.small,
-                  runSpacing: AppSpacing.tiny,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    if (channel.isManaged)
-                      ChannelRoleBadge(role: channel.userRole),
-                    Text(
-                      '${channel.isPublic ? context.t.channel.typePublic : context.t.channel.typePrivate}'
-                      ' · $subscriberCount ${context.t.channel.subscribers}',
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.tiny,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoButton(
+                minimumSize: const Size.square(AppSpacing.xxxLarge),
+                padding: EdgeInsets.zero,
+                onPressed: () => showChannelInfoDialog(
+                  context,
+                  channel,
+                  subscriberCount: subscriberCount,
+                ),
+                child: Semantics(
+                  label: context.t.channel.info,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Wrap(
+                      spacing: AppSpacing.small,
+                      runSpacing: AppSpacing.tiny,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (channel.isManaged)
+                          ChannelRoleBadge(role: channel.userRole),
+                        Text(
+                          '${channel.isPublic ? context.t.channel.typePublic : context.t.channel.typePrivate}'
+                          ' · $subscriberCount ${context.t.channel.subscribers}',
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: AppColors.getTextColor(
+                              Theme.of(context).brightness,
+                              isSecondary: true,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (channel.isVerified)
+                          const Icon(
+                            CupertinoIcons.checkmark_seal_fill,
+                            size: AppSpacing.regular,
+                            color: AppColors.iosGreen,
+                          ),
+                      ],
                     ),
-                    if (channel.isVerified)
-                      const Icon(
-                        CupertinoIcons.checkmark_seal_fill,
-                        size: AppSpacing.regular,
-                        color: AppColors.iosGreen,
-                      ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-          if (channel.isSubscribed && !widget.isReconciliationPending)
-            CupertinoButton(
-              padding: const EdgeInsets.all(AppSpacing.small),
-              onPressed: _isLoadingMute ? null : _toggleMute,
-              child: Icon(
-                !_muteKnown
-                    ? CupertinoIcons.arrow_clockwise
-                    : (_isMuted
-                          ? CupertinoIcons.bell_slash
-                          : CupertinoIcons.bell),
-                semanticLabel: _muteKnown
+            if (channel.isSubscribed && !widget.isReconciliationPending)
+              _compactAction(
+                label: _muteKnown
                     ? context.t.chat.chatSettingMute
                     : context.t.common.retry,
+                isPending: _isLoadingMute,
+                toggled: _muteKnown ? _isMuted : null,
+                onPressed: _toggleMute,
+                child: Icon(
+                  !_muteKnown
+                      ? CupertinoIcons.arrow_clockwise
+                      : (_isMuted
+                            ? CupertinoIcons.bell_slash
+                            : CupertinoIcons.bell),
+                ),
+              )
+            else
+              _compactAction(
+                label: widget.isReconciliationPending
+                    ? context.t.channel.subscribeRefresh
+                    : context.t.channel.subscribe,
+                isPending: widget.isActionPending,
+                onPressed: widget.onActionTap,
+                child: Text(
+                  widget.isReconciliationPending
+                      ? context.t.channel.subscribeRefresh
+                      : context.t.channel.subscribe,
+                ),
               ),
-            )
-          else
-            CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
-              onPressed: widget.isActionPending ? null : widget.onActionTap,
-              child: widget.isActionPending
-                  ? const CupertinoActivityIndicator()
-                  : Text(
-                      widget.isReconciliationPending
-                          ? context.t.channel.subscribeRefresh
-                          : context.t.channel.subscribe,
-                    ),
-            ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _compactAction({
+    required String label,
+    required bool isPending,
+    required VoidCallback? onPressed,
+    required Widget child,
+    bool? toggled,
+  }) {
+    final action = isPending ? null : onPressed;
+    return Semantics(
+      label: label,
+      value: isPending ? context.t.common.loading : null,
+      button: true,
+      enabled: action != null,
+      toggled: toggled,
+      liveRegion: isPending,
+      onTap: action,
+      excludeSemantics: true,
+      child: CupertinoButton(
+        minimumSize: const Size.square(AppSpacing.xxxLarge),
+        padding: const EdgeInsets.all(AppSpacing.small),
+        onPressed: action,
+        child: isPending ? const CupertinoActivityIndicator() : child,
       ),
     );
   }

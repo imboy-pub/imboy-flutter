@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 /// iOS 风格 Cell 按下反馈 widget
@@ -48,6 +49,7 @@ class CellPressable extends StatefulWidget {
 
 class _CellPressableState extends State<CellPressable> {
   bool _pressed = false;
+  bool _focusVisible = false;
 
   void _setPressed(bool value) {
     if (_pressed == value) return;
@@ -74,19 +76,44 @@ class _CellPressableState extends State<CellPressable> {
     final hasTap = widget.onTap != null;
     final hasLongPress = widget.onLongPress != null;
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.onTap,
-      onTapDown: hasTap ? (_) => _setPressed(true) : null,
-      onTapCancel: hasTap ? () => _setPressed(false) : null,
-      onTapUp: hasTap ? (_) => _setPressed(false) : null,
-      onLongPress: widget.onLongPress,
-      onLongPressDown: hasLongPress ? (_) => _setPressed(true) : null,
-      onLongPressCancel: hasLongPress ? () => _setPressed(false) : null,
-      onLongPressUp: hasLongPress ? () => _setPressed(false) : null,
-      child: ColoredBox(
-        color: _pressed ? highlightColor : AppColors.transparent,
-        child: widget.child,
+    final enabled = hasTap || hasLongPress;
+    return FocusableActionDetector(
+      enabled: enabled,
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+        SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+      },
+      actions: {
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            (widget.onTap ?? widget.onLongPress)?.call();
+            return null;
+          },
+        ),
+      },
+      onShowFocusHighlight: (visible) {
+        if (_focusVisible == visible) return;
+        setState(() => _focusVisible = visible);
+      },
+      child: Semantics(
+        button: enabled ? true : null,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: widget.onTap,
+          onTapDown: hasTap ? (_) => _setPressed(true) : null,
+          onTapCancel: hasTap ? () => _setPressed(false) : null,
+          onTapUp: hasTap ? (_) => _setPressed(false) : null,
+          onLongPress: widget.onLongPress,
+          onLongPressDown: hasLongPress ? (_) => _setPressed(true) : null,
+          onLongPressCancel: hasLongPress ? () => _setPressed(false) : null,
+          onLongPressUp: hasLongPress ? () => _setPressed(false) : null,
+          child: ColoredBox(
+            color: enabled && (_pressed || _focusVisible)
+                ? highlightColor
+                : AppColors.transparent,
+            child: widget.child,
+          ),
+        ),
       ),
     );
   }

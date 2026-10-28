@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsAction, SemanticsFlag;
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
@@ -11,8 +13,10 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/widgets/channel_header_bar.dart';
@@ -67,6 +71,162 @@ void main() {
 
   setUp(() async {
     await StorageService.to.setString(Keys.currentUid, 'account-a');
+  });
+
+  for (final reconcile in [false, true]) {
+    for (final pending in [false, true]) {
+      testWidgets('紧凑订阅头部48触达与动作语义 reconcile=$reconcile pending=$pending', (
+        tester,
+      ) async {
+        var calls = 0;
+        final label = reconcile
+            ? t.channel.subscribeRefresh
+            : t.channel.subscribe;
+        await tester.pumpWidget(
+          _app(
+            ChannelHeaderBar(
+              channel: _channel(),
+              showIdentityTitle: false,
+              isReconciliationPending: reconcile,
+              isActionPending: pending,
+              onActionTap: () => calls++,
+            ),
+          ),
+        );
+        for (final button in [
+          find.byType(CupertinoButton).first,
+          find.byType(CupertinoButton).last,
+        ]) {
+          expect(tester.getSize(button).width, greaterThanOrEqualTo(48));
+          expect(tester.getSize(button).height, greaterThanOrEqualTo(48));
+        }
+        expect(find.bySemanticsLabel(label), findsOneWidget);
+        final data = tester
+            .getSemantics(find.bySemanticsLabel(label))
+            .getSemanticsData();
+        expect(data.hasFlag(SemanticsFlag.isButton), isTrue);
+        expect(data.hasFlag(SemanticsFlag.hasEnabledState), isTrue);
+        expect(data.hasFlag(SemanticsFlag.isEnabled), !pending);
+        expect(data.hasAction(SemanticsAction.tap), !pending);
+        expect(data.value, pending ? t.common.loading : '');
+        expect(data.hasFlag(SemanticsFlag.isLiveRegion), pending);
+        await tester.tap(find.byType(CupertinoButton).last);
+        expect(calls, pending ? 0 : 1);
+      });
+    }
+  }
+
+  testWidgets('紧凑头部支持 Web 的 Enter 和 Space 激活动作', (tester) async {
+    var calls = 0;
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          child: MaterialApp(
+            shortcuts: {
+              ...WidgetsApp.defaultShortcuts,
+              const SingleActivator(LogicalKeyboardKey.enter):
+                  const ButtonActivateIntent(),
+            },
+            home: Scaffold(
+              body: ChannelHeaderBar(
+                channel: _channel(),
+                showIdentityTitle: false,
+                onActionTap: () => calls++,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    expect(calls, 1);
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    expect(calls, 2);
+  });
+
+  testWidgets('紧凑通知按钮暴露未知、开关和在途状态，阻止重复执行', (tester) async {
+    final service = _NotificationService();
+    final initialRead = Completer<ChannelSubscriptionModel?>();
+    final update = Completer<bool>();
+    var muted = false;
+    var reads = 0;
+    when(() => service.getSubscription('1001')).thenAnswer((_) {
+      if (reads++ == 0) return initialRead.future;
+      return Future.value(
+        ChannelSubscriptionModel(
+          channelId: 1001,
+          subscribedAt: DateTime(2024),
+          isMuted: muted,
+        ),
+      );
+    });
+    when(() => service.setMuted('1001', true)).thenAnswer((_) async {
+      final success = await update.future;
+      if (success) muted = true;
+      return success;
+    });
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: MaterialApp(
+            builder: AppLoading.init(),
+            home: Scaffold(
+              body: ChannelHeaderBar(
+                channel: _channel(subscribed: true),
+                showIdentityTitle: false,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    final unknown = tester.getSemantics(find.bySemanticsLabel(t.common.retry));
+    expect(unknown.hasFlag(SemanticsFlag.hasToggledState), isFalse);
+    expect(
+      tester.getSize(find.byType(CupertinoButton).last),
+      const Size(48, 48),
+    );
+    initialRead.complete(
+      ChannelSubscriptionModel(channelId: 1001, subscribedAt: DateTime(2024)),
+    );
+    await tester.pump();
+    final toggle = find.bySemanticsLabel(t.chat.chatSettingMute);
+    expect(
+      tester.getSemantics(toggle).hasFlag(SemanticsFlag.hasToggledState),
+      isTrue,
+    );
+    expect(
+      tester.getSemantics(toggle).hasFlag(SemanticsFlag.isToggled),
+      isFalse,
+    );
+    await tester.tap(find.byType(CupertinoButton).last);
+    await tester.pump();
+    final busy = tester.getSemantics(toggle).getSemanticsData();
+    expect(busy.hasFlag(SemanticsFlag.isEnabled), isFalse);
+    expect(busy.hasAction(SemanticsAction.tap), isFalse);
+    expect(busy.value, t.common.loading);
+    await tester.tap(find.byType(CupertinoButton).last);
+    verify(() => service.setMuted('1001', true)).called(1);
+    update.complete(true);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      tester.getSemantics(toggle).hasFlag(SemanticsFlag.isToggled),
+      isTrue,
+    );
+    expect(
+      tester.getSemantics(toggle).hasFlag(SemanticsFlag.isEnabled),
+      isTrue,
+    );
+    expect(tester.getSemantics(toggle).getSemanticsData().value, isEmpty);
+    final dismissal = AppLoading.dismiss(animation: false);
+    await tester.pumpAndSettle();
+    await dismissal;
   });
 
   testWidgets('切换频道后旧的静音读取不能覆盖新频道', (tester) async {

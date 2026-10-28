@@ -19,7 +19,6 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/channel_model.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -97,7 +96,7 @@ void showChannelInfoDialog(
             '${context.t.channel.subscribers}: $count',
             style: TextStyle(
               fontSize: FontSizeType.footnote.size,
-              color: AppColors.iosGray,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -172,15 +171,16 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return PopupMenuButton<String>(
       icon: const Icon(CupertinoIcons.ellipsis_vertical),
       tooltip: MaterialLocalizations.of(context).showMenuTooltip,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.medium),
       ),
-      color: Theme.of(context).brightness == Brightness.dark
-          ? AppColors.darkSurfaceContainerHighest
-          : AppColors.lightSurface,
+      color: colors.brightness == Brightness.dark
+          ? colors.surfaceContainerHighest
+          : colors.surface,
       elevation: 2.0,
       offset: const Offset(0, 48), // Float elegantly below the app bar
       onSelected: _handleMenuAction,
@@ -195,29 +195,30 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
     Color? iconColor,
     Color? textColor,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveIconColor =
-        iconColor ??
-        (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
-    final effectiveTextColor =
-        textColor ??
-        (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
+    final colors = Theme.of(context).colorScheme;
+    final effectiveIconColor = iconColor ?? colors.onSurfaceVariant;
+    final effectiveTextColor = textColor ?? colors.onSurface;
 
     return PopupMenuItem<String>(
       value: value,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      height: 48,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
+      height: AppSpacing.xxxLarge,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 22, color: effectiveIconColor),
-          const SizedBox(width: 16),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: FontSizeType.medium.size,
-              fontWeight: FontWeight.w400,
-              color: effectiveTextColor,
+          AppSpacing.horizontalRegular,
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                fontWeight: FontWeight.w400,
+                color: effectiveTextColor,
+              ),
             ),
           ),
         ],
