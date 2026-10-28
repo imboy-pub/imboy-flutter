@@ -27,6 +27,11 @@ import 'package:imboy/store/model/entity_image.dart';
 import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
+/// 服务端已明确拒绝原上传身份；恢复队列必须隔离，不能换 key 重试。
+class UploadSessionRejected extends StateError {
+  UploadSessionRejected(super.message);
+}
+
 /// presign 请求注入 seam（默认走 [HttpClient]，测试可注入 fake）。
 typedef UploadSessionFn = Future<IMBoyHttpResponse> Function(
   Map<String, dynamic> query,
@@ -342,14 +347,17 @@ class AttachmentApi {
         'client_upload_id': clientUploadId,
       });
       if (!status.ok) {
-        throw StateError('upload status rejected: ${status.code}');
+        if (status.code == 403 || status.code == 404) {
+          throw UploadSessionRejected('upload status rejected: ${status.code}');
+        }
+        throw StateError('upload status unavailable: ${status.code}');
       }
       final remoteKey = IMBoyHttpResponse.payloadStr(
         status.payload,
         'object_key',
       );
       if (remoteKey != resume.objectKey) {
-        throw StateError('upload object identity changed');
+        throw UploadSessionRejected('upload object identity changed');
       }
       final state = IMBoyHttpResponse.payloadStr(
         status.payload,
@@ -365,7 +373,7 @@ class AttachmentApi {
           });
         }
       } else {
-        throw StateError('upload session terminal: $state');
+        throw UploadSessionRejected('upload session terminal: $state');
       }
     }
     if (fastConfirm) {
@@ -405,7 +413,7 @@ class AttachmentApi {
       if (resume != null &&
           resume.objectKey.isNotEmpty &&
           objectKey != resume.objectKey) {
-        throw StateError('upload object identity changed');
+        throw UploadSessionRejected('upload object identity changed');
       }
       await checkpoint?.call(UploadCheckpoint.presigned(objectKey: objectKey));
     }

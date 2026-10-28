@@ -353,7 +353,7 @@ void main() {
     expect(f.putBodies.length, 1, reason: 'sealed 后被杀未上网络，恢复只 PUT 一次');
   });
 
-  test('expired_capability_resume: 恢复时授权已过期（confirm 403）→ abandon', () async {
+  test('expired_capability_resume: confirm失败保留检查点并记录错误', () async {
     final up = _uploader(repo, keys);
     await repo.insert(
       await _seedRow(
@@ -368,11 +368,18 @@ void main() {
       'base_nonce': base64Encode(Uint8List.fromList(List.filled(12, 9))),
     });
     f.confirmForbidden = true;
-    await expectLater(
-      up.resumeAll(_uidA, bytesProvider: (_) async => _testBytes()),
-      throwsException,
+    expect(
+      await up.resumeAll(
+        _uidA,
+        bytesProvider: (_) async => _testBytes(),
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+      ),
+      isEmpty,
     );
     expect((await repo.find('t8'))!.stage, AttachmentUploadStage.putDone);
+    expect((await repo.find('t8'))!.lastError, isNotEmpty);
   });
 
   test('account_switch_late_callback: 账号切换后旧行回调 CAS 拒绝', () async {
@@ -786,6 +793,98 @@ void main() {
     expect(putUrl, 'https://garage.test/renewed');
     expect(f.confirmBodies.single['object_key'], f.objectKey);
   });
+
+  for (final failure in ['transient', 'terminal', 'account-switch']) {
+    test('resume_queue_isolates_$failure', () async {
+      var active = true;
+      ResumableAttachmentUploader restarted() => ResumableAttachmentUploader(
+        repo: repo,
+        keyStore: keys,
+        sessionGuard: (_) => active,
+        encrypt: false,
+        cacheDirectory: _uploadCache,
+        cacheWriter: (write, _) => write(),
+      );
+      for (final id in ['first-A', 'healthy-B']) {
+        await expectLater(
+          restarted().upload(
+            idempotencyKey: id,
+            userId: _uidA,
+            bytes: _testBytes(),
+            fileName: '$id.bin',
+            mime: 'application/octet-stream',
+            bindingHashHex: '',
+            presignFn: f.presign,
+            putFn: f.put,
+            confirmFn: f.confirm,
+            checkpoint: (event) async {
+              if (event.stage == UploadCheckpointStage.putDone) {
+                throw _KillSignal(id);
+              }
+            },
+          ),
+          throwsA(isA<_KillSignal>()),
+        );
+      }
+      final seen = <String>[];
+      Future<IMBoyHttpResponse> status(Map<String, dynamic> query) async {
+        final id = query['client_upload_id'] as String;
+        seen.add(id);
+        if (id == 'first-A') {
+          if (failure == 'account-switch') active = false;
+          if (failure != 'terminal') {
+            throw StateError('owned temporary failure');
+          }
+        }
+        return IMBoyHttpResponse.success({
+          'object_key': f.objectKey,
+          'session_state': id == 'first-A' ? 'deleted' : 'confirmed',
+        });
+      }
+
+      final recovery = restarted().resumeAll(
+        _uidA,
+        sessionFn: status,
+        confirmFn: f.confirm,
+        putFn: (_, _, _, _) async => fail('must retain put_done checkpoint'),
+      );
+      if (failure == 'account-switch') {
+        await expectLater(recovery, throwsStateError);
+        expect(seen, ['first-A']);
+        expect(
+          (await repo.find('healthy-B'))!.stage,
+          AttachmentUploadStage.putDone,
+        );
+        expect((await repo.find('first-A'))!.lastError, isNull);
+        return;
+      }
+      expect(await recovery, [f.objectKey]);
+      expect(seen, ['first-A', 'healthy-B']);
+      final blocked = (await repo.find('first-A'))!;
+      expect(blocked.lastError, isNotEmpty);
+      expect(
+        blocked.stage,
+        failure == 'terminal'
+            ? AttachmentUploadStage.abandoned
+            : AttachmentUploadStage.putDone,
+      );
+      seen.clear();
+      await restarted().resumeAll(
+        _uidA,
+        sessionFn: (query) async {
+          seen.add(query['client_upload_id'] as String);
+          return IMBoyHttpResponse.success({
+            'object_key': f.objectKey,
+            'session_state': 'confirmed',
+          });
+        },
+        confirmFn: f.confirm,
+        putFn: (_, _, _, _) async => fail('restart must not PUT'),
+      );
+      expect(seen, failure == 'terminal' ? isEmpty : ['first-A']);
+      expect((await repo.find('first-A'))!.objectKey, f.objectKey);
+    });
+  }
 
   test('terminal_status_no_new_capability: 终态回查拒绝续签及PUT', () async {
     final operations = <String>[];
@@ -1480,6 +1579,66 @@ void main() {
       putFn: f.put,
       confirmFn: f.confirm,
     );
+    // A 的授权回查失败不得饿死 B，也不得阻止 C 的 confirmed outbox。
+    for (final id in ['blocked-A', 'healthy-B']) {
+      await expectLater(
+        plain.upload(
+          idempotencyKey: id,
+          userId: _uidA,
+          bytes: _testBytes(),
+          fileName: '$id.bin',
+          mime: 'application/octet-stream',
+          bindingHashHex: '',
+          presignFn: f.presign,
+          putFn: f.put,
+          confirmFn: f.confirm,
+          checkpoint: (event) async {
+            if (event.stage == UploadCheckpointStage.putDone) {
+              throw _KillSignal(id);
+            }
+          },
+        ),
+        throwsA(isA<_KillSignal>()),
+      );
+    }
+    final resumedIds = <String>[];
+    await plain.resumeAll(
+      _uidA,
+      sessionFn: (query) async {
+        final id = query['client_upload_id'] as String;
+        resumedIds.add(id);
+        return id == 'blocked-A'
+            ? IMBoyHttpResponse.failure(errMsg: 'revoked', errCode: 403)
+            : IMBoyHttpResponse.success({
+                'object_key': f.objectKey,
+                'session_state': 'confirmed',
+              });
+      },
+      confirmFn: f.confirm,
+      putFn: (_, _, _, _) async => fail('put_done must not PUT'),
+    );
+    expect(resumedIds, ['blocked-A', 'healthy-B']);
+    expect(
+      (await repo.find('healthy-B'))!.stage,
+      AttachmentUploadStage.confirmed,
+    );
+    expect(
+      (await repo.find('blocked-A'))!.stage,
+      AttachmentUploadStage.abandoned,
+    );
+    expect((await repo.find('blocked-A'))!.lastError, isNotEmpty);
+    // 即使另一行的本地日志写入失败，已确认 C 也必须独立调和。
+    final dbBlocked = (await _seedRow(
+      'global-db-blocker',
+      uid: _uidA,
+      stage: AttachmentUploadStage.pending,
+      objectKey: '',
+    )).toMap()..['cipher'] = null;
+    await db.insert('attachment_upload_task', dbBlocked);
+    await db.execute(
+      "CREATE TRIGGER owned_block_upload_update BEFORE UPDATE ON attachment_upload_task WHEN OLD.id = 'global-db-blocker' BEGIN SELECT RAISE(ABORT, 'owned upload journal failure'); END",
+    );
+    // 新 uploader 使用同一持久检查点：C 仍只入一次 outbox。
     await ResumableAttachmentUploader.recoverCurrentSession();
     await MessageRetry.instance.debugWaitForIdle();
     expect(await db.rawQuery('SELECT id FROM msg_c2c'), [
