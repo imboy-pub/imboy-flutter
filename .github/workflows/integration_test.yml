@@ -181,6 +181,13 @@ jobs:
           bash .github/scripts/ci_build_vod.sh
 
       - name: Run integration tests
+        env:
+          # 托管 runner 无 pub.imboy.app 的开发证书/描述文件，工程 Release 配置
+          # 带 DEVELOPMENT_TEAM + Automatic 签名会在 xcodebuild 阶段失败。
+          # 强制 ad-hoc（identity "-"）替代；arm64 macOS 要求至少 ad-hoc 签名才能启动。
+          # 不修改 macos/ 保留区工程文件。
+          CODE_SIGN_IDENTITY: '-'
+          CODE_SIGNING_REQUIRED: 'NO'
         run: |
           flutter test integration_test/all_tests.dart \
             --dart-define=APP_ENV=${{ env.APP_ENV }} \
