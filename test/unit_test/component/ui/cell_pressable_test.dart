@@ -1,5 +1,3 @@
-import 'dart:ui' show SemanticsFlag;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,8 +37,12 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pump();
       final node = tester.getSemantics(find.text('频道行'));
-      expect(node.hasFlag(SemanticsFlag.isButton), isTrue);
-      expect(node.hasFlag(SemanticsFlag.isFocused), isTrue);
+      expect(node.getSemanticsData().flagsCollection.isButton, isTrue);
+      expect(
+        node.getSemanticsData().flagsCollection.isFocused.toBoolOrNull() ==
+            true,
+        isTrue,
+      );
       expect(_findColoredBox(tester).color, isNot(Colors.transparent));
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       expect(calls, 1);
@@ -50,7 +52,13 @@ void main() {
       await tester.pump();
       expect(_findColoredBox(tester).color, Colors.transparent);
       expect(
-        tester.getSemantics(find.text('下一项')).hasFlag(SemanticsFlag.isFocused),
+        tester
+                .getSemantics(find.text('下一项'))
+                .getSemanticsData()
+                .flagsCollection
+                .isFocused
+                .toBoolOrNull() ==
+            true,
         isTrue,
       );
     });

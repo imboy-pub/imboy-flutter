@@ -1,5 +1,3 @@
-import 'dart:ui' show SemanticsFlag;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,14 +58,16 @@ void main() {
       ),
     );
     expect(
-      tester
-          .getSemantics(find.text('搜索失败'))
-          .hasFlag(SemanticsFlag.isLiveRegion),
+      tester.getSemantics(find.text('搜索失败')).flagsCollection.isLiveRegion,
       isTrue,
     );
     expect(find.bySemanticsLabel('重新加载'), findsOneWidget);
     expect(
-      tester.getSemantics(find.text('重新加载')).hasFlag(SemanticsFlag.isButton),
+      tester
+          .getSemantics(find.text('重新加载'))
+          .getSemanticsData()
+          .flagsCollection
+          .isButton,
       isTrue,
     );
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
