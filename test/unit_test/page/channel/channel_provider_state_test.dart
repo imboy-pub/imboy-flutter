@@ -127,7 +127,7 @@ void main() {
     test('clearChannel=false（默认）+ channel 参数 → 更新 channel', () {
       final state = ChannelDetailState(channel: _channel(1));
       final updated = state.copyWith(channel: _channel(2));
-      expect(updated.channel!.id, 2);
+      expect(updated.channel!.id, '2');
     });
 
     test('clearChannel=true 优先于 channel 参数', () {
@@ -181,7 +181,7 @@ void main() {
     test('clearCreatedChannel=false（默认）+ createdChannel 参数 → 更新', () {
       final state = CreateChannelState(createdChannel: _channel(1));
       final updated = state.copyWith(createdChannel: _channel(2));
-      expect(updated.createdChannel!.id, 2);
+      expect(updated.createdChannel!.id, '2');
     });
 
     test('clearCreatedChannel=true 优先于 createdChannel 参数', () {

@@ -568,7 +568,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     );
     if (!ok) return;
     await _runGovernance(
-      () => _groupApi.dissolveWithReason(gid: '${g.groupId}'),
+      () => _groupApi.dissolveWithReason(gid: g.groupId),
       t.organization.manage.dissolveGroup,
     );
   }
@@ -584,7 +584,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     );
     if (title == null || title == g.displayTitle) return;
     await _runGovernance(
-      () => _groupApi.editTitle(gid: '${g.groupId}', title: title),
+      () => _groupApi.editTitle(gid: g.groupId, title: title),
       t.organization.manage.renameGroup,
     );
   }
@@ -592,7 +592,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   /// ENT-APP-06：群成员与角色治理深链——既有群详情页是这些动作的
   /// 收口面，这里只负责把人送过去（不复制成员治理业务）。
   void _openGroupDetail(GroupModel g) {
-    context.push(orgGroupDetailPath('${g.groupId}'));
+    context.push(orgGroupDetailPath(g.groupId));
   }
 
   Future<void> _createChannel() async {
@@ -650,14 +650,14 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     );
     if (!ok) return;
     await _runGovernance(
-      () => _channelApi.archiveChannel('${c.id}'),
+      () => _channelApi.archiveChannel(c.id),
       t.organization.manage.archiveChannel,
     );
   }
 
   Future<void> _restoreChannel(ChannelModel c) async {
     await _runGovernance(
-      () => _channelApi.restoreChannel('${c.id}'),
+      () => _channelApi.restoreChannel(c.id),
       t.organization.manage.restoreChannel,
     );
   }
@@ -667,15 +667,15 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   // 自治数据与权限（服务端 403 唯一裁决），本页不复制其业务。
 
   void _openChannelEdit(ChannelModel c) {
-    context.push(orgChannelEditPath('${c.id}'));
+    context.push(orgChannelEditPath(c.id));
   }
 
   void _openChannelAdmins(ChannelModel c) {
-    context.push(orgChannelAdminsPath('${c.id}'));
+    context.push(orgChannelAdminsPath(c.id));
   }
 
   void _openChannelSubscribers(ChannelModel c) {
-    context.push(orgChannelSubscribersPath('${c.id}'));
+    context.push(orgChannelSubscribersPath(c.id));
   }
 
   // ==================== 渲染 ====================

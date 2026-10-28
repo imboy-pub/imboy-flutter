@@ -5,6 +5,7 @@ import 'package:xid/xid.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
@@ -89,13 +90,13 @@ class SendToNotifier extends Notifier<SendToState> {
   static Map<String, dynamic> buildForwardPayload({
     required Map<String, dynamic>? sourceMetadata,
     required String text,
-    required int peerId,
+    required Object peerId,
     required String conversationUk3,
   }) {
     return <String, dynamic>{
       ...?sourceMetadata,
       'text': text,
-      'peer_id': peerId,
+      'peer_id': peerId is String ? decimalIdForWire(peerId) : peerId,
       'conversation_uk3': conversationUk3,
       // D01 冻结合同 R05F-2：burn_read_at 永不进发送 payload。转发源是
       // 本地 DB 的 metadata，可能带接收方已读时刻；不剥离则新接收方副本
@@ -302,7 +303,7 @@ class SendToNotifier extends Notifier<SendToState> {
         autoId: 0,
         type: chatType,
         status: 10, // 发送中
-        fromId: int.tryParse(UserRepoLocal.to.currentUid) ?? 0,
+        fromId: UserRepoLocal.to.currentUid,
         toId: conversation.peerId,
         payload: payload,
         createdAt: DateTimeHelper.millisecond(),

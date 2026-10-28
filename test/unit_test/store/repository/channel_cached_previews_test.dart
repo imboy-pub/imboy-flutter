@@ -9,7 +9,7 @@ void main() {
     sqfliteFfiInit();
     db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute('''CREATE TABLE channel_message (
-      id INTEGER PRIMARY KEY, channel_id INTEGER NOT NULL,
+      id INTEGER PRIMARY KEY, channel_id INTEGER NOT NULL, author_id INTEGER,
       content TEXT NOT NULL, msg_type TEXT NOT NULL,
       created_at INTEGER NOT NULL)''');
     SqliteService.setDbForTest(db);
@@ -39,9 +39,9 @@ void main() {
       '20',
       '10',
     ]);
-    expect(previews.keys.toSet(), {10, 20});
-    expect(previews[10]!.content, 'newer');
-    expect(previews[20]!.content, 'tie-new');
+    expect(previews.keys.toSet(), {'10', '20'});
+    expect(previews['10']!.content, 'newer');
+    expect(previews['20']!.content, 'tie-new');
     expect(await ChannelMessageRepo().getLastMessages([]), isEmpty);
     expect(await ChannelMessageRepo().getLastMessages(['404']), isEmpty);
   });
@@ -62,6 +62,26 @@ void main() {
       for (var i = 1; i <= 420; i++) '$i',
     ]);
     expect(previews, hasLength(420));
-    expect(previews[420]!.content, 'cached-420');
+    expect(previews['420']!.content, 'cached-420');
+  });
+
+  test('cleanup retains exact large message IDs', () async {
+    for (final (id, created) in [
+      ('9007199254740993', 1),
+      ('9007199254740995', 2),
+    ]) {
+      await db.insert('channel_message', {
+        'id': id,
+        'channel_id': '10',
+        'created_at': created,
+        'content': 'synthetic',
+        'msg_type': 'channel_text',
+      });
+    }
+    expect(await ChannelMessageRepo().deleteOldMessages('10', 1), 1);
+    final remaining = await db.rawQuery(
+      'SELECT CAST(id AS TEXT) AS id FROM channel_message',
+    );
+    expect(remaining.single['id'], '9007199254740995');
   });
 }

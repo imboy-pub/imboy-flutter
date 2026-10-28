@@ -21,6 +21,16 @@ library;
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
+String trustUid(Object? value) {
+  final id = channelDecimalId(value);
+  if (id == null || !RegExp(r'^[1-9][0-9]*$').hasMatch(value.toString())) {
+    throw FormatException('invalid trust user id');
+  }
+  return id;
+}
+
 /// event_id 格式约束（§3.3.1）：`[0-9a-f-]{1,64}`。该正则天然排除会破坏
 /// canonical 结构的 `\n` / `=`，是防注入的边界校验。
 final RegExp _eventIdPattern = RegExp(r'^[0-9a-f-]{1,64}$');
@@ -60,7 +70,7 @@ class TrustEventCanonicalFields {
   final int actorDeviceGeneration;
 
   /// 决策发起方 uid。
-  final int actorUid;
+  final Object actorUid;
 
   /// 客户端生成的全局唯一幂等键，`[0-9a-f-]{1,64}`。
   final String eventId;
@@ -84,7 +94,7 @@ class TrustEventCanonicalFields {
   final int targetIdentityVersion;
 
   /// 对端 uid。
-  final int targetUid;
+  final Object targetUid;
 
   /// 目标信任态。
   final String toState;
@@ -94,6 +104,8 @@ class TrustEventCanonicalFields {
   /// 抛 [ArgumentError]（fail-closed）当 [eventId] 不匹配 §3.3.1 格式——非法
   /// event_id 会破坏 `key=value\n` 结构或被后端拒签，提前拒绝好过静默产出坏包。
   Uint8List canonicalBytes() {
+    final actor = trustUid(actorUid);
+    final target = trustUid(targetUid);
     if (!_eventIdPattern.hasMatch(eventId)) {
       throw ArgumentError.value(
         eventId,
@@ -111,7 +123,7 @@ class TrustEventCanonicalFields {
     // ASCII 字典序，末字段无尾随换行。顺序须与后端 canonical_payload/1 完全一致。
     final payload =
         'actor_device_generation=$actorDeviceGeneration\n'
-        'actor_uid=$actorUid\n'
+        'actor_uid=$actor\n'
         'event_id=$eventId\n'
         'expires_at=$expiresAt\n'
         'from_state=$fromState\n'
@@ -119,7 +131,7 @@ class TrustEventCanonicalFields {
         'target_device_id=$targetDeviceId\n'
         'target_ed25519=$targetEd25519\n'
         'target_identity_version=$targetIdentityVersion\n'
-        'target_uid=$targetUid\n'
+        'target_uid=$target\n'
         'to_state=$toState';
     return Uint8List.fromList(utf8.encode(payload));
   }

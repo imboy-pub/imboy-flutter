@@ -87,7 +87,7 @@ class GroupDetailNotifier extends _$GroupDetailNotifier {
   }
 
   /// 移除成员
-  void removeMember(int userId) {
+  void removeMember(String userId) {
     final newList = state.memberList.where((m) => m.id != userId).toList();
     final removedCount = state.memberList.length - newList.length;
     state = state.copyWith(

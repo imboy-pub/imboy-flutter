@@ -343,7 +343,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     if (author == null) {
       _loadAndCacheContact(message.authorId);
       author = ContactModel(
-        peerId: parseModelInt(message.authorId),
+        peerId: message.authorId,
         nickname: '...',
         avatar: '',
       );

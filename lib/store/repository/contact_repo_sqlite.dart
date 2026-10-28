@@ -40,7 +40,7 @@ class ContactRepo implements ContactRepository {
 
   // 公共列名列表
   static final List<String> defaultColumns = [
-    ContactRepo.peerId,
+    'CAST(peer_id AS TEXT) AS peer_id',
     ContactRepo.nickname,
     ContactRepo.avatar,
     ContactRepo.account,
@@ -99,11 +99,15 @@ class ContactRepo implements ContactRepository {
 
   // 插入一条数据
   @override
-  Future<ContactModel> insert(ContactModel obj, {Transaction? txn}) async {
+  Future<ContactModel> insert(
+    ContactModel obj, {
+    Transaction? txn,
+    String? account,
+  }) async {
     String tag = _formatTag(obj.tag);
 
     Map<String, dynamic> insert = {
-      ContactRepo.userId: UserRepoLocal.to.currentUid,
+      ContactRepo.userId: account ?? UserRepoLocal.to.currentUid,
       ContactRepo.peerId: obj.peerId,
       ContactRepo.nickname: obj.nickname,
       ContactRepo.avatar: obj.avatar,
@@ -145,7 +149,13 @@ class ContactRepo implements ContactRepository {
     int limit = 10000,
     int offset = 0,
   }) async {
-    columns ??= defaultColumns;
+    columns = (columns ?? defaultColumns)
+        .map(
+          (column) => column == ContactRepo.peerId
+              ? 'CAST(peer_id AS TEXT) AS peer_id'
+              : column,
+        )
+        .toList();
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: columns,
@@ -164,7 +174,13 @@ class ContactRepo implements ContactRepository {
     int limit = 10000,
     int offset = 0,
   }) async {
-    columns ??= defaultColumns;
+    columns = (columns ?? defaultColumns)
+        .map(
+          (column) => column == ContactRepo.peerId
+              ? 'CAST(peer_id AS TEXT) AS peer_id'
+              : column,
+        )
+        .toList();
     List<Map<String, dynamic>> maps = await _db.query(
       ContactRepo.tableName,
       columns: columns,
@@ -192,6 +208,7 @@ class ContactRepo implements ContactRepository {
     String uid, {
     bool autoFetch = true,
     Transaction? txn,
+    String? account,
   }) async {
     if (uid == 'bot_qian_fan') {
       return ContactModel.fromMap({
@@ -208,14 +225,14 @@ class ContactRepo implements ContactRepository {
         ContactRepo.tableName,
         columns: [...defaultColumns, ContactRepo.updatedAt],
         where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, uid],
+        whereArgs: [account ?? UserRepoLocal.to.currentUid, uid],
       );
     } else {
       maps = await _db.query(
         ContactRepo.tableName,
         columns: [...defaultColumns, ContactRepo.updatedAt],
         where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-        whereArgs: [UserRepoLocal.to.currentUid, uid],
+        whereArgs: [account ?? UserRepoLocal.to.currentUid, uid],
       );
     }
     // iPrint("people_info.initData 11 ${DateTime.now()}");
@@ -255,7 +272,11 @@ class ContactRepo implements ContactRepository {
 
   // 更新信息
   @override
-  Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
+  Future<int> update(
+    Map<String, dynamic> json, {
+    Transaction? txn,
+    String? account,
+  }) async {
     String peerId = (json["id"] ?? (json[ContactRepo.peerId] ?? "")).toString();
 
     Map<String, Object?> data = {};
@@ -324,14 +345,14 @@ class ContactRepo implements ContactRepository {
           ContactRepo.tableName,
           data,
           where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-          whereArgs: [UserRepoLocal.to.currentUid, peerId],
+          whereArgs: [account ?? UserRepoLocal.to.currentUid, peerId],
         );
       } else {
         return await _db.update(
           ContactRepo.tableName,
           data,
           where: '${ContactRepo.userId} = ? and ${ContactRepo.peerId} = ?',
-          whereArgs: [UserRepoLocal.to.currentUid, peerId],
+          whereArgs: [account ?? UserRepoLocal.to.currentUid, peerId],
         );
       }
     } else {
@@ -341,7 +362,11 @@ class ContactRepo implements ContactRepository {
 
   /// checkIsFriend = true 的时候，保留旧的 isFriend 值
   @override
-  Future<ContactModel?> save(Map<String, dynamic> json) async {
+  Future<ContactModel?> save(
+    Map<String, dynamic> json, {
+    String? account,
+  }) async {
+    final owner = account ?? UserRepoLocal.to.currentUid;
     // [DIAG #19] 诊断日志：查 Flutter 当前 uid + 入参 JSON
     // json['id'] 兼容 api响应的数据
     String uid = (json['id'] ?? (json[ContactRepo.peerId] ?? "")).toString();
@@ -349,16 +374,26 @@ class ContactRepo implements ContactRepository {
       // peerId 为空，跳过保存
       return null;
     }
-    if (uid == UserRepoLocal.to.currentUid) {
+    if (uid == owner) {
       return null;
       // throw Exception('Add yourself as a friend');
     }
     return await _db.transaction<ContactModel?>((txn) async {
-      ContactModel? old = await findByUid(uid, autoFetch: false, txn: txn);
+      ContactModel? old = await findByUid(
+        uid,
+        autoFetch: false,
+        txn: txn,
+        account: owner,
+      );
       if (old is ContactModel) {
         try {
-          await update(json, txn: txn);
-          return await findByUid(uid, autoFetch: false, txn: txn);
+          await update(json, txn: txn, account: owner);
+          return await findByUid(
+            uid,
+            autoFetch: false,
+            txn: txn,
+            account: owner,
+          );
         } catch (e, s) {
           iPrint('[ContactRepo] save/update failed uid=$uid: $e\n$s');
           return null;
@@ -366,7 +401,7 @@ class ContactRepo implements ContactRepository {
       } else {
         try {
           ContactModel model = ContactModel.fromMap(json);
-          await insert(model, txn: txn);
+          await insert(model, txn: txn, account: owner);
           return model;
         } catch (e, s) {
           iPrint('[ContactRepo] save/insert failed uid=$uid: $e\n$s');

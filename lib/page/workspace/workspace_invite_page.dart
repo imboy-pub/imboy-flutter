@@ -196,7 +196,7 @@ class _WorkspaceInvitePageState extends ConsumerState<WorkspaceInvitePage> {
       if (list != null) {
         for (final row in list) {
           if (row is! Map<String, dynamic>) continue;
-          final id = entityIdOf(row['id']);
+          final id = entityIdOf(row['uid'] ?? row['id']);
           if (id.isEmpty) continue;
           // 排除自己与已是成员的重复目标由服务端幂等处理
           if (id == UserRepoLocal.to.currentUid) continue;

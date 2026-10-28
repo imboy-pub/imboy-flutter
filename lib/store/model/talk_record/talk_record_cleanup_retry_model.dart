@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 /// Read-only server decision. Missing or malformed facts never grant retry.
 class TalkRecordCleanupRetryCapability {
   const TalkRecordCleanupRetryCapability({
@@ -29,7 +31,9 @@ class TalkRecordCleanupRetryCapability {
       const {'eligible', 'partial_protection'}.contains(reason);
 
   static int? counter(dynamic value) =>
-      value is int && value >= 0 && value <= 9223372036854775807 ? value : null;
+      value is int && value >= 0 && (!kIsWeb || value <= 9007199254740991)
+      ? value
+      : null;
 
   factory TalkRecordCleanupRetryCapability.fromJson(dynamic raw) {
     if (raw is! Map) return const TalkRecordCleanupRetryCapability();

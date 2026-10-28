@@ -42,6 +42,42 @@ IMBoyHttpResponse _page(
 });
 
 void main() {
+  test('大 ID 的旧游标以精确十进制推进', () async {
+    final api = _Api([
+      IMBoyHttpResponse.success({
+        'workspace_id': '100',
+        'list': [
+          {..._channel(1), 'id': '9007199254740995'},
+        ],
+        'has_more': true,
+        'next_cursor': '9007199254740995',
+      }),
+      IMBoyHttpResponse.success({
+        'workspace_id': '100',
+        'list': [
+          {..._channel(1), 'id': '9007199254740993'},
+        ],
+        'has_more': false,
+        'next_cursor': '0',
+      }),
+    ]);
+    expect((await api.channels('100')).map((e) => e.id), [
+      '9007199254740995',
+      '9007199254740993',
+    ]);
+    expect(api.calls[1]['cursor'], '9007199254740995');
+  });
+  test('原生频道 ID 支持 signed 64 位上界', () async {
+    final api = _Api([
+      _page([
+        {..._channel(1), 'id': '9223372036854775807'},
+      ]),
+    ]);
+    expect(
+      (await api.channels('100')).single.id.toString(),
+      '9223372036854775807',
+    );
+  });
   test('完整消费三页，传分页模式、游标和限额，不漏第 201 个频道', () async {
     final api = _Api([
       _page(
@@ -54,7 +90,7 @@ void main() {
     ]);
     expect(
       (await api.channels('100')).map((g) => g.id),
-      List.generate(202, (i) => 300 - i),
+      List.generate(202, (i) => '${300 - i}'),
     );
     expect(api.calls, [
       for (final cursor in [0, 101, 100])
@@ -128,7 +164,7 @@ void main() {
           {..._channel(1), 'status': 0},
         ]),
       ]);
-      expect((await api.channels('100', status: status)).single.id, 1);
+      expect((await api.channels('100', status: status)).single.id, '1');
       expect(api.calls.single['status'], status);
     }
   });
@@ -138,8 +174,8 @@ void main() {
       _page([_channel(1)]),
       _page([_channel(2)]),
     ]);
-    expect((await api.channels('100')).single.id, 1);
-    expect((await api.channels('100')).single.id, 2);
+    expect((await api.channels('100')).single.id, '1');
+    expect((await api.channels('100')).single.id, '2');
     expect(api.calls.length, 2);
   });
 }

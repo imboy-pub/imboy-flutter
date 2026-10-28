@@ -1001,7 +1001,7 @@ void main() {
         final restored = ConversationModel.fromJson(json);
 
         expect(restored.id, 1);
-        expect(restored.peerId, 1100);
+        expect(restored.peerId, '1100');
         expect(restored.title, '测试用户');
         expect(restored.unreadNum, 3);
         expect(restored.payload!['text'], '测试消息');

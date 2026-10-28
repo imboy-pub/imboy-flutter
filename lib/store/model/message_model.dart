@@ -5,6 +5,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/message_columns.dart';
 
 // enum MsgType { custom, file, image, text, unsupported }
@@ -212,8 +213,8 @@ class MessageModel {
   // 通过 type affinity 直接落库（接收侧 batchInsertOfflineMessages 已是该模式）。
   String id;
   String? type; // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
-  int fromId; // 等价于数据库的 from
-  int toId; // 等价于数据库的 to
+  String fromId; // 等价于数据库的 from
+  String toId; // 等价于数据库的 to
 
   // WebSocket API v2.0 新增字段
   // 根据 type 决定是否存在：
@@ -254,8 +255,8 @@ class MessageModel {
     required this.autoId,
     required this.type,
     required this.status,
-    required this.fromId,
-    required this.toId,
+    required Object fromId,
+    required Object toId,
     required this.payload,
     required this.isAuthor,
     required this.conversationUk3,
@@ -265,7 +266,8 @@ class MessageModel {
     this.action,
     this.e2ee,
     this.senderDid,
-  });
+  }) : fromId = channelDecimalId(fromId, allowZero: true) ?? '0',
+       toId = channelDecimalId(toId, allowZero: true) ?? '0';
 
   factory MessageModel.fromJson(
     Map<String, dynamic> data, {
@@ -338,8 +340,8 @@ class MessageModel {
       autoId: parseModelInt(data[MessageColumns.autoId]),
       type: type,
       status: parseModelInt(data[MessageColumns.status]),
-      fromId: parseModelInt(fromRaw),
-      toId: parseModelInt(toRaw),
+      fromId: (fromRaw ?? 0) as Object,
+      toId: (toRaw ?? 0) as Object,
       payload: p,
       createdAt: DateTimeHelper.parseTimestamp(
         data[MessageColumns.createdAt],
@@ -785,8 +787,8 @@ class MessageModel {
       message.id,
       autoId: 0,
       type: type as String?,
-      fromId: parseModelInt(message.authorId),
-      toId: parseModelInt(peerId),
+      fromId: message.authorId,
+      toId: peerId as Object,
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
       isAuthor: message.authorId == uid ? 1 : 0,

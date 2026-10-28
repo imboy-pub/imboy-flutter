@@ -77,7 +77,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   bool _isSending = false;
   bool _hasText = false;
   String? _loadError;
-  int _replyToCommentId = 0;
+  String _replyToCommentId = '0';
   String _replyToName = '';
 
   // 点赞本地状态：与 ChannelMessageItem 同一 _likeDelta 模式，
@@ -227,7 +227,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
         HapticFeedback.lightImpact();
         setState(() {
           _comments = [..._comments, comment];
-          _replyToCommentId = 0;
+          _replyToCommentId = '0';
           _replyToName = '';
         });
         _inputController.clear();
@@ -259,7 +259,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
 
   void _cancelReply() {
     setState(() {
-      _replyToCommentId = 0;
+      _replyToCommentId = '0';
       _replyToName = '';
     });
   }
@@ -295,7 +295,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   }
 
   Future<void> _deleteComment(ChannelCommentModel comment) async {
-    final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
+    final currentUid = UserRepoLocal.to.currentUid;
     if (comment.userId != currentUid) {
       AppLoading.showToast(context.t.channel.commentDeleteNoPermission);
       return;
@@ -1009,7 +1009,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
             ],
           ),
           // 回复引用条
-          if (_replyToCommentId > 0)
+          if (_replyToCommentId != '0')
             Container(
               padding: AppSpacing.allSmall,
               margin: const EdgeInsets.only(top: AppSpacing.small),

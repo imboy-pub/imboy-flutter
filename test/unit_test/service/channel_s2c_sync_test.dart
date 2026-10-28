@@ -126,7 +126,7 @@ void main() {
       });
 
       expect(repo.savedChannels, hasLength(1));
-      expect(repo.savedChannels.single.id, 1001);
+      expect(repo.savedChannels.single.id, '1001');
       expect(repo.savedChannels.single.name, 'Updated Channel');
     });
 
@@ -497,9 +497,9 @@ void main() {
       await sub.cancel();
 
       expect(repo.savedChannels, hasLength(1));
-      expect(repo.savedChannels.single.id, 1003);
+      expect(repo.savedChannels.single.id, '1003');
       expect(repo.savedSubscriptions, hasLength(1));
-      expect(repo.savedSubscriptions.single.channelId, 1003);
+      expect(repo.savedSubscriptions.single.channelId, '1003');
       expect(
         events.any(
           (event) =>

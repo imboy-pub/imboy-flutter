@@ -403,7 +403,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
         try {
           final rows = await db.rawQuery(
-            'SELECT from_id, to_id, created_at FROM $tableName WHERE id = ? LIMIT 1',
+            'SELECT CAST(from_id AS TEXT) AS from_id, CAST(to_id AS TEXT) AS to_id, created_at FROM $tableName WHERE id = ? LIMIT 1',
             [fts.id],
           );
           if (rows.isNotEmpty) {

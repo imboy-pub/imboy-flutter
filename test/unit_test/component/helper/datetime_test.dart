@@ -255,6 +255,16 @@ void main() {
     test('overflowing seconds return null instead of wrapping', () {
       expect(ApiTime.parseEpochSeconds(9223372036854775807), isNull);
       expect(ApiTime.parseEpochSeconds(-9223372036854775807), isNull);
+      expect(
+        ApiTime.parseEpochSeconds('9223372036854775'),
+        9223372036854775000,
+      );
+      expect(
+        ApiTime.parseEpochSeconds('-9223372036854775'),
+        -9223372036854775000,
+      );
+      expect(ApiTime.parseEpochSeconds('9223372036854776'), isNull);
+      expect(ApiTime.parseEpochSeconds('-9223372036854776'), isNull);
     });
   });
 

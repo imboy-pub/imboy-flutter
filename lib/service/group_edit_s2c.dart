@@ -17,6 +17,8 @@
 ///     / `SqliteService` 等副作用依赖。
 library;
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
 /// 解析结果（sealed）：
 ///   - `GroupEditPayload`：gid 合法，updates 已剔除 gid
 ///   - `GroupEditParseError`：必需字段非法
@@ -27,7 +29,7 @@ sealed class GroupEditParseResult {
 /// 合法 payload 的结构化视图。
 final class GroupEditPayload extends GroupEditParseResult {
   /// 群 ID（必需，>0）
-  final int gid;
+  final String gid;
 
   /// 本次更新的字段集合（已剔除 gid）。
   /// 独立副本；调用方可自由修改不会影响原始入参。
@@ -46,12 +48,12 @@ final class GroupEditParseError extends GroupEditParseResult {
 /// 解析 S2C `group_edit` payload。
 ///
 /// 契约：
-///   - `gid` 必需，int 或可转 int 的 String，<= 0 视为非法
+///   - `gid` 必需，正整数或其十进制字符串
 ///   - 其它字段整体 passthrough 到 `updates`（不做白名单过滤）
 ///   - `updates` 可为空（仅含 gid 的 payload 合法，视为 no-op）
 GroupEditParseResult parseGroupEditPayload(Map<String, dynamic> payload) {
-  final gid = _asInt(payload['gid']);
-  if (gid == null || gid <= 0) {
+  final gid = channelDecimalId(payload['gid']);
+  if (gid == null) {
     return const GroupEditParseError('invalid_gid');
   }
 
@@ -73,9 +75,9 @@ GroupEditParseResult parseGroupEditPayload(Map<String, dynamic> payload) {
 ///     （本地写失败不应阻塞广播通知）
 Future<void> handleGroupEditS2C({
   required Map<String, dynamic> payload,
-  required Future<void> Function(int gid, Map<String, dynamic> updates)
+  required Future<void> Function(String gid, Map<String, dynamic> updates)
   applyUpdate,
-  required void Function(int gid, Map<String, dynamic> updates) fireEvent,
+  required void Function(String gid, Map<String, dynamic> updates) fireEvent,
   void Function(String message)? log,
 }) async {
   final logFn = log ?? (_) {};
@@ -94,12 +96,4 @@ Future<void> handleGroupEditS2C({
       }
       fireEvent(gid, updates);
   }
-}
-
-int? _asInt(Object? raw) {
-  if (raw == null) return null;
-  if (raw is int) return raw;
-  if (raw is num) return raw.toInt();
-  if (raw is String) return int.tryParse(raw);
-  return null;
 }

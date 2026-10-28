@@ -147,7 +147,7 @@ void main() {
 
     test('gid <= 0 或账号为空 → 拒绝写入，不调 writeBool', () async {
       var called = false;
-      Future<void> write(String _, bool __) async => called = true;
+      Future<void> write(String _, bool ignored) async => called = true;
       await setNoticeDisabled(0, true, accountUid: '1001', writeBool: write);
       await setNoticeDisabled(-5, true, accountUid: '1001', writeBool: write);
       await setNoticeDisabled(10, true, accountUid: '', writeBool: write);
@@ -183,6 +183,31 @@ void main() {
   });
 
   group('集成：读写闭环（内存 Map stub）', () {
+    test('相邻大群 ID 不共享免打扰设置', () async {
+      final kv = <String, bool>{};
+      await setNoticeDisabled(
+        '9007199254740992',
+        true,
+        accountUid: '1001',
+        writeBool: (k, v) async => kv[k] = v,
+      );
+      expect(
+        readNoticeDisabled(
+          '9007199254740992',
+          accountUid: '1001',
+          readBool: (k) => kv[k],
+        ),
+        isTrue,
+      );
+      expect(
+        readNoticeDisabled(
+          '9007199254740993',
+          accountUid: '1001',
+          readBool: (k) => kv[k],
+        ),
+        isFalse,
+      );
+    });
     test('set 后 read 返回同值；不同 gid/账号隔离', () async {
       final kv = <String, bool>{};
       bool? read(String k) => kv[k];

@@ -157,7 +157,7 @@ void main() {
     expect(adapter.requests[1].queryParameters['pagination'], 'cursor');
 
     // 累计返回（终止页收口）且逐页落库。
-    expect(list.map((g) => g.groupId), [1, 2, 3]);
+    expect(list.map((g) => g.groupId), ['1', '2', '3']);
     final rows = await db.query(
       GroupRepo.tableName,
       orderBy: GroupRepo.groupId,
@@ -190,7 +190,7 @@ void main() {
     expect(rejectHits, 1);
     expect(adapter.requests, hasLength(2));
     // 部分已同步保留（无第一页伪全量：既不丢页 1，也不伪造全量）。
-    expect(list.map((g) => g.groupId), [1]);
+    expect(list.map((g) => g.groupId), ['1']);
   });
 
   test('门关闭：legacy page/size query 逐字零变化（J27.a）', () async {
@@ -210,7 +210,7 @@ void main() {
     expect(adapter.requests.single.queryParameters['page'], 1);
     expect(adapter.requests.single.queryParameters['size'], 1000);
     expect(adapter.requests.single.queryParameters['attr'], 'join');
-    expect(list.map((g) => g.groupId), [1, 2]);
+    expect(list.map((g) => g.groupId), ['1', '2']);
   });
 
   test('门开启：self-heal 逐 attr 游标循环，逐页计数与终止页收口', () async {

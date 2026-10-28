@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:xid/xid.dart';
 
@@ -293,8 +294,8 @@ class ChatNetworkService {
       message.id,
       autoId: 0,
       type: type,
-      fromId: int.tryParse(message.authorId) ?? 0,
-      toId: int.tryParse(message.metadata?['peer_id']?.toString() ?? '') ?? 0,
+      fromId: message.authorId,
+      toId: message.metadata?['peer_id']?.toString() ?? '',
       payload: payload,
       createdAt: message.createdAt!.millisecondsSinceEpoch,
       isAuthor: message.authorId == UserRepoLocal.to.currentUid ? 1 : 0,
@@ -568,8 +569,8 @@ class ChatNetworkService {
     final Map<String, dynamic> msg = {
       'id': obj.id,
       'type': obj.type,
-      'from': obj.fromId,
-      'to': obj.toId,
+      'from': decimalIdForWire(obj.fromId),
+      'to': decimalIdForWire(obj.toId),
       'msg_type': msgType,
       'action': action,
       'e2ee': e2ee,

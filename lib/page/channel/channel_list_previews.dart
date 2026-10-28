@@ -10,7 +10,7 @@ import 'channel_provider.dart';
 
 /// Account-bound local cache only. Access-locked channels never reveal previews.
 final channelListPreviewsProvider =
-    FutureProvider.autoDispose<Map<int, ChannelMessageModel>>((ref) {
+    FutureProvider.autoDispose<Map<String, ChannelMessageModel>>((ref) {
       ref.watch(currentUserProvider.select((user) => user?.uid));
       final channels = ref.watch(
         channelListProvider.select((state) => state.channels),

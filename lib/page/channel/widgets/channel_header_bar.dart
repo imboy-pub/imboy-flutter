@@ -103,13 +103,13 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     }
   }
 
-  ({String uid, int generation, int channelId}) _scope() => (
+  ({String uid, int generation, String channelId}) _scope() => (
     uid: UserRepoLocal.to.currentUid,
     generation: UserRepoLocal.to.sessionGeneration,
     channelId: widget.channel.id,
   );
 
-  bool _isCurrent(({String uid, int generation, int channelId}) scope) {
+  bool _isCurrent(({String uid, int generation, String channelId}) scope) {
     final user = UserRepoLocal.to;
     return mounted &&
         widget.channel.id == scope.channelId &&

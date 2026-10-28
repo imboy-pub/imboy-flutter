@@ -49,7 +49,7 @@ void main() {
 
         final saved = await conversationRepo.findById(id);
         expect(saved, isNotNull);
-        expect(saved!.peerId, 1001);
+        expect(saved!.peerId, '1001');
         expect(saved.title, '测试用户');
         expect(saved.unreadNum, 1);
       });
@@ -72,7 +72,7 @@ void main() {
 
         final saved = await conversationRepo.findById(id);
         expect(saved!.type, 'C2G');
-        expect(saved.peerId, 2001);
+        expect(saved.peerId, '2001');
       });
 
       test('应该能够根据peerId查找会话', () async {
@@ -387,8 +387,8 @@ void main() {
         final all = conversationRepo.getAll();
         all.sort((a, b) => b.lastTime.compareTo(a.lastTime));
 
-        expect(all.first.peerId, 8002); // 最新的在前面
-        expect(all.last.peerId, 8001);
+        expect(all.first.peerId, '8002'); // 最新的在前面
+        expect(all.last.peerId, '8001');
       });
     });
 

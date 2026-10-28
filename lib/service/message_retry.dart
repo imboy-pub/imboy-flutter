@@ -15,6 +15,7 @@ import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/api/msg_api.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
@@ -742,8 +743,8 @@ class MessageRetry with EventSubscriptionManager {
       final messageData = {
         'id': msg.id,
         'type': msg.type,
-        'from': msg.fromId,
-        'to': msg.toId,
+        'from': decimalIdForWire(msg.fromId),
+        'to': decimalIdForWire(msg.toId),
         // v2.0: 添加顶层字段
         'msg_type': msg.msgType ?? '',
         'action': msg.action ?? '',
@@ -861,8 +862,8 @@ class MessageRetry with EventSubscriptionManager {
       Map<String, dynamic> messageData = {
         'id': msg.id,
         'type': msg.type,
-        'from': msg.fromId,
-        'to': msg.toId,
+        'from': decimalIdForWire(msg.fromId),
+        'to': decimalIdForWire(msg.toId),
         // v2.0: 添加顶层字段
         'msg_type': msg.msgType ?? '',
         'action': msg.action ?? '',

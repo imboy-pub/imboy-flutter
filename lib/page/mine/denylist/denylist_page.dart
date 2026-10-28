@@ -247,16 +247,21 @@ class _DenylistPageState extends ConsumerState<DenylistPage> {
       ),
       confirmDismiss: (dir) async {
         AppLoading.show(status: t.common.loading);
-        bool res = await ref
+        final result = await ref
             .read(denylistProvider.notifier)
-            .removeDenylist(model.deniedUid.toString());
+            .removeDenylist(model.deniedUid);
         AppLoading.dismiss();
-        if (res) {
-          AppLoading.showSuccess(t.common.removedFromDenylist);
-        } else {
-          AppLoading.showError(t.common.tipFailed);
+        if (!mounted || result == DenylistMutationResult.sessionChanged) {
+          return false;
         }
-        return res;
+        if (result == DenylistMutationResult.success) {
+          AppLoading.showSuccess(t.common.removedFromDenylist);
+        } else if (result == DenylistMutationResult.partial) {
+          AppLoading.showError(t.common.denylistLocalNotSynced);
+        } else {
+          AppLoading.showError(t.common.denylistResultUnknown);
+        }
+        return result == DenylistMutationResult.success;
       },
       child: item,
     );

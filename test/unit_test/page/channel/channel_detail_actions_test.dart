@@ -193,8 +193,8 @@ void main() {
     await second;
     api.responses['alpha']!.complete(_cursorChannel(41));
     await first;
-    expect(container.read(channelDetailProvider).channel?.id, 42);
-    expect(service.saved.map((channel) => channel.id), [42]);
+    expect(container.read(channelDetailProvider).channel?.id, '42');
+    expect(service.saved.map((channel) => channel.id), ['42']);
   });
 
   for (final code in [-1, 1, 403, 404, 503]) {
@@ -229,7 +229,7 @@ void main() {
       await load;
       final state = container.read(channelDetailProvider);
       if (code == 503 || code == -1) {
-        expect(state.channel?.id, 41);
+        expect(state.channel?.id, '41');
         expect(state.messages, hasLength(1));
       } else {
         expect(state.channel, isNull);
@@ -441,10 +441,14 @@ void main() {
     );
     refreshed.result.complete(_cursorPage(42, [3], next: null));
     await loadB;
-    expect(container.read(channelDetailProvider).channel?.id, 42);
-    expect(container.read(channelDetailProvider).messages.map((m) => m.id), [
-      3,
-    ]);
+    expect(container.read(channelDetailProvider).channel?.id, '42');
+    expect(
+      container
+          .read(channelDetailProvider)
+          .messages
+          .map((m) => int.parse(m.id)),
+      [3],
+    );
   });
 
   test(
@@ -523,7 +527,7 @@ void main() {
       final ids = container
           .read(channelDetailProvider)
           .messages
-          .map((m) => m.id)
+          .map((m) => int.parse(m.id))
           .toList();
       expect(ids, List.generate(25, (i) => 25 - i));
       expect(ids.toSet().length, 25);
@@ -557,10 +561,13 @@ void main() {
       expect(api.requests.length, 4);
       api.requests[3].result.complete(_cursorPage(42, [3], next: null));
       await freshMore;
-      expect(container.read(channelDetailProvider).messages.map((m) => m.id), [
-        4,
-        3,
-      ]);
+      expect(
+        container
+            .read(channelDetailProvider)
+            .messages
+            .map((m) => int.parse(m.id)),
+        [4, 3],
+      );
     },
   );
 
@@ -635,7 +642,7 @@ void main() {
         }
         await a;
         expect(api.requests.length, requestCount);
-        expect(container.read(channelDetailProvider).channel?.id, 42);
+        expect(container.read(channelDetailProvider).channel?.id, '42');
         expect(
           service.detailRequests.where((id) => id == '41').length,
           lateStage == 'details' ? 1 : 0,
@@ -652,7 +659,7 @@ void main() {
         final ids = container
             .read(channelDetailProvider)
             .messages
-            .map((m) => m.id)
+            .map((m) => int.parse(m.id))
             .toList();
         expect(ids, List.generate(25, (i) => 25 - i));
         expect(ids.toSet().length, 25);
@@ -685,9 +692,13 @@ void main() {
     await refresh;
     api.requests[2].result.complete(_cursorPage(42, [23], next: null));
     await more;
-    expect(container.read(channelDetailProvider).messages.map((m) => m.id), [
-      100,
-    ]);
+    expect(
+      container
+          .read(channelDetailProvider)
+          .messages
+          .map((m) => int.parse(m.id)),
+      [100],
+    );
     expect(container.read(channelDetailProvider).hasMore, isFalse);
   });
 
@@ -706,7 +717,10 @@ void main() {
       await notifier.loadMoreMessages();
       expect(api.requests.map((r) => r.cursor), [null, 'opaque-boundary']);
       expect(
-        container.read(channelDetailProvider).messages.map((m) => m.id),
+        container
+            .read(channelDetailProvider)
+            .messages
+            .map((m) => int.parse(m.id)),
         List.generate(25, (i) => 25 - i),
       );
       expect(container.read(channelDetailProvider).hasMore, isFalse);
@@ -746,12 +760,12 @@ void main() {
 
       final state = container.read(channelDetailProvider);
       expect(
-        state.messages.firstWhere((msg) => msg.id == 1).isPinned,
+        state.messages.firstWhere((msg) => msg.id == '1').isPinned,
         isTrue,
         reason: '目标消息必须被置顶',
       );
       expect(
-        state.messages.firstWhere((msg) => msg.id == 2).isPinned,
+        state.messages.firstWhere((msg) => msg.id == '2').isPinned,
         isFalse,
         reason: '非目标消息不得被改动（隔离性）',
       );
@@ -766,9 +780,12 @@ void main() {
       notifier.updateMessagePinned('1', false);
 
       final state = container.read(channelDetailProvider);
-      expect(state.messages.firstWhere((msg) => msg.id == 1).isPinned, isFalse);
       expect(
-        state.messages.firstWhere((msg) => msg.id == 2).isPinned,
+        state.messages.firstWhere((msg) => msg.id == '1').isPinned,
+        isFalse,
+      );
+      expect(
+        state.messages.firstWhere((msg) => msg.id == '2').isPinned,
         isTrue,
         reason: '取消置顶只能影响目标消息',
       );
@@ -802,8 +819,8 @@ void main() {
         notifier.updateMessageReaction('1', true, 3);
 
         final state = container.read(channelDetailProvider);
-        final updatedA = state.messages.firstWhere((msg) => msg.id == 1);
-        final unchangedB = state.messages.firstWhere((msg) => msg.id == 2);
+        final updatedA = state.messages.firstWhere((msg) => msg.id == '1');
+        final unchangedB = state.messages.firstWhere((msg) => msg.id == '2');
         expect(updatedA.reactionSummary?[ChannelReactionType.like], 3);
         expect(updatedA.myReactions, contains(ChannelReactionType.like));
         expect(unchangedB.reactionSummary?[ChannelReactionType.like], 7);
@@ -829,8 +846,8 @@ void main() {
         notifier.updateMessageReaction('1', false, 2);
 
         final state = container.read(channelDetailProvider);
-        final updatedA = state.messages.firstWhere((msg) => msg.id == 1);
-        final unchangedB = state.messages.firstWhere((msg) => msg.id == 2);
+        final updatedA = state.messages.firstWhere((msg) => msg.id == '1');
+        final unchangedB = state.messages.firstWhere((msg) => msg.id == '2');
         expect(updatedA.reactionSummary?[ChannelReactionType.like], 2);
         expect(updatedA.myReactions, isNot(contains(ChannelReactionType.like)));
         expect(unchangedB.reactionSummary?[ChannelReactionType.like], 4);
@@ -847,7 +864,7 @@ void main() {
 
       final state = container.read(channelDetailProvider);
       expect(state.messages.length, 1);
-      expect(state.messages.single.id, 2);
+      expect(state.messages.single.id, '2');
     });
 
     test('handleMessageDeletedEvent removes matching channel message', () {
@@ -998,14 +1015,14 @@ void main() {
 
       // 1. 加载 A（personal）：state 达成 A 内容。
       await notifier.loadChannel('11');
-      expect(container.read(channelDetailProvider).channel?.id, 11);
+      expect(container.read(channelDetailProvider).channel?.id, '11');
 
       // 2. 切到 B：切换瞬间同步保存 A 快照，state 离开 A（B 不存在，
       //    flush 后会推进到 error 态，故归属断言必须在同步段完成）。
       final loadB = notifier.loadChannel('22');
       expect(
         notifier.debugSnapshotFor('11')?.channel?.id,
-        11,
+        '11',
         reason: '切换目标前必须保存 A 的完整状态',
       );
       // B 无快照 → 恢复加载态而非 A 的内容。
@@ -1018,12 +1035,12 @@ void main() {
       final loadA = notifier.loadChannel('11');
       expect(
         container.read(channelDetailProvider).channel?.id,
-        11,
+        '11',
         reason: '返回原目标必须立即恢复快照，不能闪清空/B 内容',
       );
       expect(container.read(channelDetailProvider).isLoading, isFalse);
       await loadA;
-      expect(container.read(channelDetailProvider).channel?.id, 11);
+      expect(container.read(channelDetailProvider).channel?.id, '11');
     });
 
     test('workspace 目标不落快照（受保护内容不做离线恢复）', () async {
@@ -1039,7 +1056,7 @@ void main() {
       final notifier = container.read(channelDetailProvider.notifier);
 
       await notifier.loadChannel('33');
-      expect(container.read(channelDetailProvider).channel?.id, 33);
+      expect(container.read(channelDetailProvider).channel?.id, '33');
       final loadB = notifier.loadChannel('22');
       await _flushCursorFutures();
       expect(
@@ -1065,7 +1082,7 @@ void main() {
 
       await notifier.loadChannel('11');
       notifier.debugSeedSnapshot('11', container.read(channelDetailProvider));
-      expect(notifier.debugSnapshotFor('11')?.channel?.id, 11);
+      expect(notifier.debugSnapshotFor('11')?.channel?.id, '11');
 
       AppEventBus.fire(
         ChannelStateChangedEvent(

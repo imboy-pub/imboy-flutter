@@ -2,11 +2,12 @@ import 'dart:convert';
 
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
 
 class NewFriendModel {
   NewFriendModel({
-    this.uid = 0,
+    this.uid = '0',
     required this.to,
     required this.from,
     required this.nickname,
@@ -19,9 +20,9 @@ class NewFriendModel {
     required this.payload,
   });
 
-  final int uid; // 当前用户ID
-  final int from; // 发送中ID
-  final int to; // 接收者ID
+  final String uid; // 当前用户ID
+  final String from; // 发送中ID
+  final String to; // 接收者ID
   final String nickname; // 昵称
   final String source;
   final String? avatar; // 用户头像
@@ -39,9 +40,9 @@ class NewFriendModel {
   factory NewFriendModel.fromJson(Map<String, dynamic> json) {
     return NewFriendModel(
       source: parseModelString(json[NewFriendRepo.source]),
-      uid: parseModelInt(json[NewFriendRepo.uid]),
-      from: parseModelInt(json[NewFriendRepo.from] ?? json['from']),
-      to: parseModelInt(json[NewFriendRepo.to] ?? json['to']),
+      uid: channelDecimalId(json[NewFriendRepo.uid], allowZero: true) ?? '0',
+      from: channelDecimalId(json[NewFriendRepo.from] ?? json['from']) ?? '0',
+      to: channelDecimalId(json[NewFriendRepo.to] ?? json['to']) ?? '0',
       nickname: parseModelString(json[NewFriendRepo.nickname]),
       avatar: parseModelNullableString(json[NewFriendRepo.avatar]),
       status: parseModelInt(json[NewFriendRepo.status]),

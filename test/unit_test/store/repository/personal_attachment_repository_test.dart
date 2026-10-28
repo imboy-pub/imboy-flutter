@@ -21,7 +21,7 @@ void main() {
     for (final table in ['msg_c2c', 'msg_c2g']) {
       await db.execute(
         'CREATE TABLE $table (auto_id INTEGER PRIMARY KEY, '
-        'id TEXT, type TEXT, from_id TEXT, to_id TEXT, payload TEXT, '
+        'id TEXT, type TEXT, from_id INTEGER, to_id INTEGER, payload TEXT, '
         'created_at INTEGER, conversation_uk3 TEXT, is_author INTEGER, '
         'topic_id TEXT, status INTEGER, msg_type TEXT)',
       );
@@ -51,6 +51,16 @@ void main() {
         'msg_type': type,
       })
       .then((_) {});
+  test('attachment index preserves large participant IDs', () async {
+    await insert(7);
+    await db.update('msg_c2c', {
+      'from_id': '9007199254740993',
+      'to_id': '9007199254740995',
+    });
+    final row = (await repository.page()).single.message;
+    expect(row.fromId, '9007199254740993');
+    expect(row.toId, '9007199254740995');
+  });
   test(
     'only readable local attachments survive type and revoked filters',
     () async {

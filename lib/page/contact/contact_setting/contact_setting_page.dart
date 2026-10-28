@@ -12,8 +12,8 @@ import 'package:imboy/store/api/denylist_api.dart';
 import 'package:imboy/store/api/report_api.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/store/model/denylist_model.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'contact_setting_provider.dart';
 import '../contact_setting_tag/contact_setting_tag_page.dart';
@@ -221,17 +221,29 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
   }
 
   Future<void> _handleDenylistToggle(bool val) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool current() =>
+        mounted &&
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    if (!current()) return;
     AppLoading.show(status: t.common.loading);
     final api = DenylistApi();
     final denylistRepo = UserDenylistRepo();
-    bool res;
-
-    if (val) {
-      // P0 修复：先调服务端 API，成功后再写本地 SQLite
-      final apiResult = await api.add(deniedUserUid: widget.peerId);
-      if (apiResult != null) {
+    var serverApplied = false;
+    var succeeded = false;
+    try {
+      if (val) {
+        final result = await api.add(deniedUserUid: widget.peerId);
+        if (!current()) return;
+        if (!result.applied) return;
+        serverApplied = true;
         final model = DenylistModel(
-          deniedUid: parseModelInt(widget.peerId),
+          deniedUid: widget.peerId,
           nickname: widget.peerNickname,
           account: widget.peerAccount,
           remark: widget.peerRemark,
@@ -242,36 +254,39 @@ class _ContactSettingPageState extends ConsumerState<ContactSettingPage> {
           gender: widget.peerGender,
           createdAt: DateTimeHelper.millisecond(),
         );
-        await denylistRepo.insert(model);
-        res = true;
+        await denylistRepo.insert(model, account: account);
       } else {
-        res = false;
+        final result = await api.remove(deniedUserUid: widget.peerId);
+        if (!current()) return;
+        if (!result.applied) return;
+        serverApplied = true;
+        await denylistRepo.delete(widget.peerId, account: account);
       }
-    } else {
-      // P0 修复：先调服务端 API，成功后再删本地 SQLite
-      final apiOk = await api.remove(deniedUserUid: widget.peerId);
-      if (apiOk) {
-        await denylistRepo.delete(widget.peerId);
-        res = true;
-      } else {
-        res = false;
-      }
-    }
-
-    AppLoading.dismiss();
-    if (res) {
-      await ref
+      if (!current()) return;
+      succeeded = await ref
           .read(contactSettingProvider.notifier)
           .toggleDenylist(
             peerId: widget.peerId,
             addToDenylist: val,
             peerData: {},
           );
-      AppLoading.showSuccess(
-        val ? t.common.addedToDenylist : t.common.removedFromDenylist,
+    } catch (error) {
+      debugPrint(
+        '[contact_setting] denylist local update failed: ${error.runtimeType}',
       );
-    } else {
-      AppLoading.showError(t.common.error);
+    } finally {
+      AppLoading.dismiss();
+      if (current()) {
+        if (succeeded) {
+          AppLoading.showSuccess(
+            val ? t.common.addedToDenylist : t.common.removedFromDenylist,
+          );
+        } else if (serverApplied) {
+          AppLoading.showError(t.common.denylistLocalNotSynced);
+        } else {
+          AppLoading.showError(t.common.denylistResultUnknown);
+        }
+      }
     }
   }
 

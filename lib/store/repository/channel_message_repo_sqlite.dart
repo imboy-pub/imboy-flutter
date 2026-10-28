@@ -31,6 +31,12 @@ class ChannelMessageRepo {
   static const String myReactions = 'my_reactions';
 
   final SqliteService _db = SqliteService.to;
+  static const _messageColumns = [
+    '*',
+    'CAST(id AS TEXT) AS id',
+    'CAST(channel_id AS TEXT) AS channel_id',
+    'CAST(author_id AS TEXT) AS author_id',
+  ];
 
   // ==================== 消息 CRUD ====================
 
@@ -77,7 +83,7 @@ class ChannelMessageRepo {
   }
 
   /// 更新消息ID（用于服务器返回ACK时将临时负数ID替换为真实ID）
-  Future<bool> updateMessageId(int oldId, int newId) async {
+  Future<bool> updateMessageId(String oldId, String newId) async {
     final count = await _db.update(
       tableName,
       {id: newId},
@@ -102,6 +108,7 @@ class ChannelMessageRepo {
   Future<ChannelMessageModel?> getMessage(String messageId) async {
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: '$id = ?',
       whereArgs: [messageId],
       limit: 1,
@@ -155,6 +162,7 @@ class ChannelMessageRepo {
 
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: where,
       whereArgs: whereArgs,
       orderBy: '$createdAt DESC',
@@ -182,6 +190,7 @@ class ChannelMessageRepo {
   }) async {
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: '${ChannelMessageRepo.channelId} = ? AND $createdAt < ?',
       whereArgs: [channelId, beforeTime],
       orderBy: '$createdAt DESC',
@@ -201,6 +210,7 @@ class ChannelMessageRepo {
   }) async {
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: '${ChannelMessageRepo.channelId} = ? AND $createdAt > ?',
       whereArgs: [channelId, afterTime],
       orderBy: '$createdAt ASC',
@@ -224,6 +234,7 @@ class ChannelMessageRepo {
     final effectiveLimit = limit > 0 ? limit : 100;
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: '${ChannelMessageRepo.channelId} = ? AND $isPinned = ?',
       whereArgs: [channelId, 1],
       orderBy: '$createdAt DESC',
@@ -249,6 +260,7 @@ class ChannelMessageRepo {
   Future<ChannelMessageModel?> getLastMessage(String channelId) async {
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: '${ChannelMessageRepo.channelId} = ?',
       whereArgs: [channelId],
       orderBy: '$createdAt DESC',
@@ -262,16 +274,16 @@ class ChannelMessageRepo {
   }
 
   /// Read cached previews in batches; never issue one query per visible row.
-  Future<Map<int, ChannelMessageModel>> getLastMessages(
+  Future<Map<String, ChannelMessageModel>> getLastMessages(
     List<String> channels,
   ) async {
     final unique = channels.toSet().toList(growable: false);
-    final result = <int, ChannelMessageModel>{};
+    final result = <String, ChannelMessageModel>{};
     for (var offset = 0; offset < unique.length; offset += 400) {
       final batch = unique.skip(offset).take(400).toList(growable: false);
       final marks = List.filled(batch.length, '?').join(',');
       final rows = await _db.rawQuery(
-        'SELECT m.* FROM $tableName m WHERE m.$channelId IN ($marks) '
+        'SELECT m.*, CAST(m.$id AS TEXT) AS $id, CAST(m.$channelId AS TEXT) AS $channelId, CAST(m.$authorId AS TEXT) AS $authorId, CAST(m.$channelId AS TEXT) AS exact_channel_id FROM $tableName m WHERE m.$channelId IN ($marks) '
         'AND m.$id = (SELECT latest.$id FROM $tableName latest '
         'WHERE latest.$channelId = m.$channelId '
         'ORDER BY latest.$createdAt DESC, latest.$id DESC LIMIT 1)',
@@ -279,7 +291,7 @@ class ChannelMessageRepo {
       );
       for (final row in rows) {
         final message = ChannelMessageModel.fromMap(row);
-        result[message.channelId] = message;
+        result[row['exact_channel_id'] as String] = message;
       }
     }
     return result;
@@ -356,7 +368,7 @@ class ChannelMessageRepo {
   Future<int> deleteOldMessages(String channelId, int keepCount) async {
     // 先获取要保留的消息 ID
     final keepIds = await _db.rawQuery(
-      'SELECT $id FROM $tableName WHERE ${ChannelMessageRepo.channelId} = ? ORDER BY $createdAt DESC LIMIT ?',
+      'SELECT CAST($id AS TEXT) AS $id FROM $tableName WHERE ${ChannelMessageRepo.channelId} = ? ORDER BY $createdAt DESC LIMIT ?',
       [channelId, keepCount],
     );
 
@@ -366,8 +378,7 @@ class ChannelMessageRepo {
     }
 
     // 构建排除列表
-    // v16: id 列从 TEXT 迁移到 INTEGER，用 toString() 兼容 int/String 两种返回，
-    // whereArgs 绑定到 NOT IN 占位符时 SQLite 会做类型亲和转换。
+    // 用文本保留原始 ID，SQLite 按 INTEGER 列亲和性比较。
     final excludeIds = keepIds.map((row) => row[id].toString()).toList();
     final placeholders = List.filled(excludeIds.length, '?').join(',');
 
@@ -407,6 +418,7 @@ class ChannelMessageRepo {
   }) async {
     final maps = await _db.query(
       tableName,
+      columns: _messageColumns,
       where: '${ChannelMessageRepo.channelId} = ? AND $content LIKE ?',
       whereArgs: [channelId, '%$keyword%'],
       orderBy: '$createdAt DESC',

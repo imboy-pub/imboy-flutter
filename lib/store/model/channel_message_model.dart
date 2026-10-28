@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// 频道消息模型
 ///
@@ -10,9 +11,9 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - 消息包含发布者信息（冗余存储）
 /// - 支持阅读量和反应统计
 class ChannelMessageModel {
-  final int id;
-  final int channelId;
-  final int? authorId;
+  final String id;
+  final String channelId;
+  final String? authorId;
   final String? authorName;
   final String? authorAvatar;
   final String content;
@@ -39,9 +40,9 @@ class ChannelMessageModel {
   final List<String> myReactions;
 
   ChannelMessageModel({
-    required this.id,
-    required this.channelId,
-    this.authorId,
+    required Object id,
+    required Object channelId,
+    Object? authorId,
     this.authorName,
     this.authorAvatar,
     required this.content,
@@ -54,7 +55,9 @@ class ChannelMessageModel {
     this.reactionSummary,
     this.myReactions = const [],
     this.updateSeq,
-  });
+  }) : id = id.toString(),
+       channelId = channelId.toString(),
+       authorId = authorId?.toString();
 
   factory ChannelMessageModel.fromJson(Map<String, dynamic> json) {
     final payloadData = _parsePayload(json['payload']);
@@ -62,9 +65,9 @@ class ChannelMessageModel {
     final myReactions = _parseMyReactions(json['my_reactions']);
 
     return ChannelMessageModel(
-      id: parseModelInt(json['id']),
-      channelId: parseModelInt(json['channel_id']),
-      authorId: parseModelNullableInt(json['author_id']),
+      id: channelDecimalId(json['id'], allowNegative: true) ?? '0',
+      channelId: channelDecimalId(json['channel_id']) ?? '0',
+      authorId: channelDecimalId(json['author_id'], allowZero: true),
       authorName: parseModelNullableString(json['author_name']),
       authorAvatar: parseModelNullableString(json['author_avatar']),
       content: parseModelString(json['content']),
@@ -108,9 +111,9 @@ class ChannelMessageModel {
     final myReactions = _parseMyReactions(map['my_reactions']);
 
     return ChannelMessageModel(
-      id: parseModelInt(map['id']),
-      channelId: parseModelInt(map['channel_id']),
-      authorId: parseModelNullableInt(map['author_id']),
+      id: channelDecimalId(map['id'], allowNegative: true) ?? '0',
+      channelId: channelDecimalId(map['channel_id']) ?? '0',
+      authorId: channelDecimalId(map['author_id'], allowZero: true),
       authorName: parseModelNullableString(map['author_name']),
       authorAvatar: parseModelNullableString(map['author_avatar']),
       content: parseModelString(map['content']),
@@ -246,9 +249,9 @@ class ChannelMessageModel {
 
   /// 复制并修改部分字段
   ChannelMessageModel copyWith({
-    int? id,
-    int? channelId,
-    int? authorId,
+    Object? id,
+    Object? channelId,
+    Object? authorId,
     String? authorName,
     String? authorAvatar,
     String? content,

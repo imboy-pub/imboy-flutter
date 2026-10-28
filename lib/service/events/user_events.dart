@@ -165,7 +165,7 @@ final class UserUnmutedEvent extends AppEvent {
 /// 为空串，UI 层应据此跳过单成员定位，仅展示群级 toast。
 final class GroupMemberMuteEvent extends AppEvent {
   /// 群 ID
-  final int gid;
+  final String gid;
 
   /// 被禁言成员的 user_id（TSID 字符串）；老后端 / 解析缺失时为 ''
   final String userId;
@@ -217,7 +217,7 @@ final class GroupMemberMuteEvent extends AppEvent {
 ///   2. `userId` 空 → 仅展示群级 toast
 final class GroupMemberUnmuteEvent extends AppEvent {
   /// 群 ID
-  final int gid;
+  final String gid;
 
   /// 被解禁成员的 user_id（TSID 字符串）；老后端 / 解析缺失时为 ''
   final String userId;
@@ -250,10 +250,10 @@ final class GroupMemberUnmuteEvent extends AppEvent {
 ///   1=普通成员 / 2=嘉宾 / 3=管理员 / 4=群主 / 5=副群主
 final class GroupMemberRoleEvent extends AppEvent {
   /// 群 ID
-  final int gid;
+  final String gid;
 
   /// 被修改角色的成员 ID
-  final int userId;
+  final String userId;
 
   /// 新角色（1..5）
   final int role;
@@ -307,7 +307,7 @@ final class GroupMemberRoleEvent extends AppEvent {
 /// 触发「群被编辑」信号，无实际字段变化，一般不会出现，仅为兼容）。
 final class GroupEditEvent extends AppEvent {
   /// 群 ID
-  final int gid;
+  final String gid;
 
   /// 本次变更的字段集合（不含 gid）
   final Map<String, dynamic> updates;
@@ -330,13 +330,13 @@ final class GroupEditEvent extends AppEvent {
 /// 本切片不写本地 announcement 表（后端 REST-only，公告数据源仍为 REST）。
 final class GroupNoticePublishedEvent extends AppEvent {
   /// 群 ID
-  final int gid;
+  final String gid;
 
   /// 公告 ID
-  final int noticeId;
+  final String noticeId;
 
   /// 发布者用户 ID
-  final int publisherId;
+  final String publisherId;
 
   /// 发布者昵称（可能为空串）
   final String publisherNickname;

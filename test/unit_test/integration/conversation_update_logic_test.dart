@@ -272,7 +272,7 @@ void main() {
           unreadNum: 0,
         );
 
-        expect(conv.peerId, 0);
+        expect(conv.peerId, '0');
         expect(conv.title, '');
       });
 
@@ -394,7 +394,7 @@ void main() {
         final conv = ConversationModel.fromJson(json);
 
         expect(conv.id, 1);
-        expect(conv.peerId, 1100);
+        expect(conv.peerId, '1100');
         expect(conv.title, '测试用户');
         expect(conv.unreadNum, 3);
         expect(conv.msgType, 'text');

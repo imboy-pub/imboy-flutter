@@ -195,8 +195,8 @@ class MessageWebrtc {
         autoId: 0,
         type: 'C2C',
         status: IMBoyMessageStatus.delivered,
-        fromId: int.tryParse(author.id) ?? 0,
-        toId: int.tryParse(author.id == currentUid ? peerUid : currentUid) ?? 0,
+        fromId: author.id,
+        toId: author.id == currentUid ? peerUid : currentUid,
         isAuthor: author.id == currentUid ? 1 : 0,
         msgType: msgType,
         createdAt: DateTimeHelper.millisecond(),
@@ -221,7 +221,7 @@ class MessageWebrtc {
       // 会话列表把通话会话显示成「[未知消息]」（生产实测）。
       // subtitle 文案与 messagePreviewText 的 webrtc case 保持一致。
       final conv = ConversationModel(
-        peerId: int.tryParse(peerUid) ?? 0,
+        peerId: peerUid,
         avatar: peer.avatar,
         title: peer.nickname,
         subtitle: msgType == MessageType.webrtcVideo

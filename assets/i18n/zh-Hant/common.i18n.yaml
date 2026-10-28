@@ -921,3 +921,7 @@ voiceSttPreviewTitle: 語音轉文字預覽
 
 retry: "重試"
 retrying: "重試中…"
+
+denylistResultUnknown: "操作結果未知，請先核對黑名單。"
+denylistLocalNotSynced: "伺服器已處理，本機狀態尚未同步。"
+friendConfirmResultUnknown: "好友確認結果未知，請先核對好友關係。"

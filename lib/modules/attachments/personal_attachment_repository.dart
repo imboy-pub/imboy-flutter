@@ -42,10 +42,10 @@ class PersonalAttachmentRepository {
     final rows = await db.rawQuery(
       '''
       SELECT * FROM (
-        SELECT id,type,from_id,to_id,payload,created_at,conversation_uk3,
+        SELECT id,type,CAST(from_id AS TEXT) AS from_id,CAST(to_id AS TEXT) AS to_id,payload,created_at,conversation_uk3,
                is_author,topic_id,status,msg_type,auto_id FROM msg_c2c
         UNION ALL
-        SELECT id,type,from_id,to_id,payload,created_at,conversation_uk3,
+        SELECT id,type,CAST(from_id AS TEXT) AS from_id,CAST(to_id AS TEXT) AS to_id,payload,created_at,conversation_uk3,
                is_author,topic_id,status,msg_type,auto_id FROM msg_c2g
       ) WHERE msg_type IN ($placeholders)
         AND COALESCE(status, 0) NOT BETWEEN 30 AND 39

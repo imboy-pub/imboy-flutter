@@ -1,4 +1,5 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// 频道订阅关系模型
 ///
@@ -8,34 +9,39 @@ import 'package:imboy/store/model/model_parse_utils.dart';
 /// - 最后阅读位置
 /// - 通知设置
 class ChannelSubscriptionModel {
-  final int channelId;
+  final String channelId;
   final DateTime subscribedAt;
   final DateTime? lastReadAt;
-  final int? lastMessageId;
+  final String? lastMessageId;
   final int unreadCount;
   final bool notificationsEnabled;
   final bool isPinned;
   final bool isMuted;
 
   ChannelSubscriptionModel({
-    required this.channelId,
+    required Object channelId,
     required this.subscribedAt,
     this.lastReadAt,
-    this.lastMessageId,
+    Object? lastMessageId,
     this.unreadCount = 0,
     this.notificationsEnabled = true,
     this.isPinned = false,
     this.isMuted = false,
-  });
+  }) : channelId = channelId.toString(),
+       lastMessageId = lastMessageId?.toString();
 
   factory ChannelSubscriptionModel.fromJson(Map<String, dynamic> json) {
     return ChannelSubscriptionModel(
-      channelId: parseModelInt(json['channel_id']),
+      channelId: channelDecimalId(json['channel_id']) ?? '0',
       subscribedAt: parseModelDateTime(json['subscribed_at']),
       lastReadAt: json['last_read_at'] != null
           ? parseModelDateTime(json['last_read_at'])
           : null,
-      lastMessageId: parseModelNullableInt(json['last_message_id']),
+      lastMessageId: channelDecimalId(
+        json['last_message_id'],
+        allowNegative: true,
+        allowZero: true,
+      ),
       unreadCount: parseModelInt(json['unread_count']),
       notificationsEnabled: parseModelBool(
         json['notifications_enabled'],
@@ -62,12 +68,16 @@ class ChannelSubscriptionModel {
   /// 从 SQLite Map 创建
   factory ChannelSubscriptionModel.fromMap(Map<String, dynamic> map) {
     return ChannelSubscriptionModel(
-      channelId: parseModelInt(map['channel_id']),
+      channelId: channelDecimalId(map['channel_id']) ?? '0',
       subscribedAt: parseModelDateTime(map['subscribed_at']),
       lastReadAt: map['last_read_at'] != null
           ? parseModelDateTime(map['last_read_at'])
           : null,
-      lastMessageId: parseModelNullableInt(map['last_message_id']),
+      lastMessageId: channelDecimalId(
+        map['last_message_id'],
+        allowNegative: true,
+        allowZero: true,
+      ),
       unreadCount: parseModelInt(map['unread_count']),
       notificationsEnabled: parseModelBool(
         map['notifications_enabled'],
@@ -94,10 +104,10 @@ class ChannelSubscriptionModel {
 
   /// 复制并修改部分字段
   ChannelSubscriptionModel copyWith({
-    int? channelId,
+    Object? channelId,
     DateTime? subscribedAt,
     DateTime? lastReadAt,
-    int? lastMessageId,
+    Object? lastMessageId,
     int? unreadCount,
     bool? notificationsEnabled,
     bool? isPinned,

@@ -18,7 +18,7 @@ class ContactMenuDecoration {
 ///
 /// 真实联系人（`peerId > 0`）不是菜单入口，返回 `null`，调用方据此回退到
 /// 头像渲染分支。
-ContactMenuDecoration? contactMenuDecorationOf(int peerId) {
+ContactMenuDecoration? contactMenuDecorationOf(String peerId) {
   switch (peerId) {
     case kPeerIdMomentFeed:
       return const ContactMenuDecoration(

@@ -70,7 +70,7 @@ class AssistantPlazaNotifier extends Notifier<AssistantPlazaState> {
     return [
       for (final json in IMBoyHttpResponse.payloadList(payload))
         PeopleModel(
-          id: IMBoyHttpResponse.payloadInt(json, 'id') ?? 0,
+          id: (json['id'] ?? 0) as Object,
           account: '',
           nickname: IMBoyHttpResponse.payloadStr(json, 'name') ?? '',
           avatar: IMBoyHttpResponse.payloadStr(json, 'avatar') ?? '',

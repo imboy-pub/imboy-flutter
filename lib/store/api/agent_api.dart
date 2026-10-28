@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
@@ -31,6 +33,9 @@ class AgentApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.agentList,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.people),
+      ),
       queryParameters: {'page': page, 'size': size, 'kwd': kwd},
     );
 

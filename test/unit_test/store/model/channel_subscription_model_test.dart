@@ -49,10 +49,10 @@ void main() {
         'is_muted': 0,
       });
 
-      expect(model.channelId, 42);
+      expect(model.channelId, '42');
       expect(model.subscribedAt.millisecondsSinceEpoch, baseMs);
       expect(model.lastReadAt!.millisecondsSinceEpoch, baseMs + 1000);
-      expect(model.lastMessageId, 99);
+      expect(model.lastMessageId, '99');
       expect(model.unreadCount, 5);
       expect(model.notificationsEnabled, isTrue);
       expect(model.isPinned, isTrue);
@@ -188,7 +188,7 @@ void main() {
       final original = _sub(channelId: 5, unreadCount: 0, isMuted: false);
       final updated = original.copyWith(unreadCount: 10, isMuted: true);
 
-      expect(updated.channelId, 5);
+      expect(updated.channelId, '5');
       expect(updated.unreadCount, 10);
       expect(updated.isMuted, isTrue);
     });
@@ -217,7 +217,7 @@ void main() {
 
     test('hashCode — 等于 channelId.hashCode', () {
       final sub = _sub(channelId: 88);
-      expect(sub.hashCode, 88.hashCode);
+      expect(sub.hashCode, '88'.hashCode);
     });
   });
 }

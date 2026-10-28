@@ -16,7 +16,6 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/model/people_model.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_shadows.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -93,8 +92,8 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       bool hasNewMembers = false;
       for (final item in list) {
         if (item is! Map) continue;
-        final uid = parseModelInt(item['user_id']);
-        if (uid == 0 || existingIds.contains(uid)) continue;
+        final uid = (item['user_id'] ?? '').toString();
+        if (uid.isEmpty || uid == '0' || existingIds.contains(uid)) continue;
         memberList.insert(
           0,
           PeopleModel(
@@ -119,14 +118,9 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
       ChatExtendEvent obj,
     ) async {
       if (obj.type == 'join_group') {
-        // S2C 链的 payload['userId'] 是 String（parseModelString 产物），
-        // memberList 的 PeopleModel.id 是 int——`int == String` 恒 false，
-        // 去重恒失效：服务端对同一次加入的重复推送（实测一次 B 加入连推
-        // 3 条不同 msgId）会把对端成员重复插入，人数膨胀（批次127 GF5
-        // 实测 1→4 而非 1→2，且曾被误判为「确认页消失」）。统一转 int 再比。
         final i = memberList.indexWhere(
           (e) =>
-              e.id == parseModelInt(obj.payload['userId']) &&
+              e.id == obj.payload['userId']?.toString() &&
               widget.gid == obj.payload['groupId'],
         );
         if (i == -1) {
@@ -253,7 +247,7 @@ class FaceToFaceConfirmPageState extends ConsumerState<FaceToFaceConfirmPage> {
   }
 
   Widget _buildLiveMemberCount(BuildContext context, Brightness brightness) {
-    final count = memberList.where((m) => m.id != -1).length;
+    final count = memberList.where((m) => m.id != '-1').length;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

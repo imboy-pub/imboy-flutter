@@ -80,13 +80,11 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
   bool _noticeDisabled = false;
   bool _groupE2ee = false;
 
-  int get _gidInt => int.tryParse(widget.groupId) ?? 0;
-
   @override
   void initState() {
     super.initState();
     _noticeDisabled = readNoticeDisabled(
-      _gidInt,
+      widget.groupId,
       accountUid: UserRepoLocal.to.currentUid,
       readBool: StorageService.to.getBool,
     );
@@ -217,9 +215,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
           obj.payload['groupId'] == widget.groupId) {
         await _lock.synchronized(() async {
           final uid = obj.payload['userId'];
-          notifier.removeMember(
-            uid is int ? uid : int.tryParse(uid?.toString() ?? '0') ?? 0,
-          );
+          notifier.removeMember(uid?.toString() ?? '0');
           backDoRefresh = true;
           if (mounted) setState(() {});
         });
@@ -240,7 +236,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     setState(() => _noticeDisabled = v);
     try {
       await setNoticeDisabled(
-        _gidInt,
+        widget.groupId,
         v,
         accountUid: UserRepoLocal.to.currentUid,
         writeBool: (k, val) async => StorageService.to.setBool(k, val),
@@ -320,7 +316,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                   group:
                       state.group ??
                       GroupModel(
-                        groupId: int.tryParse(widget.groupId) ?? 0,
+                        groupId: widget.groupId,
                         type: 2,
                         joinLimit: 1,
                         contentLimit: 1,
@@ -356,7 +352,6 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
                 GroupPreferencesSection(
                   groupId: widget.groupId,
                   title: widget.title,
-                  gidInt: _gidInt,
                   role: state.role,
                   noticeDisabled: _noticeDisabled,
                   groupE2ee: _groupE2ee,

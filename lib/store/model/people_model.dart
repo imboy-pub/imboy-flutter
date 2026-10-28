@@ -1,8 +1,9 @@
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 class PeopleModel {
-  int id;
+  String id;
   String account;
   String nickname;
   String avatar;
@@ -32,7 +33,7 @@ class PeopleModel {
   int accountType;
 
   PeopleModel({
-    required this.id, // userId or other
+    required Object id, // userId or other
     this.distance = -1,
     this.distanceUnit = 'm',
     required this.account,
@@ -46,11 +47,11 @@ class PeopleModel {
     this.registeredAt = 0,
     this.friendCreatedAt = 0,
     this.accountType = 0,
-  });
+  }) : id = channelDecimalId(id, allowZero: true, allowNegative: true) ?? '0';
 
   factory PeopleModel.fromJson(Map<String, dynamic> json) {
     return PeopleModel(
-      id: parseModelInt(json["uid"] ?? json["id"]),
+      id: (json["uid"] ?? json["id"] ?? 0) as Object,
       account: parseModelString(json["account"]),
       nickname: parseModelString(json["nickname"]),
       avatar: parseModelString(json["avatar"]),

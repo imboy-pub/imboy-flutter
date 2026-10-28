@@ -15,7 +15,7 @@ import 'package:imboy/service/group_member_role_s2c.dart';
 
 void main() {
   group('handleGroupMemberRoleS2C — 分派契约', () {
-    late List<(int, int, int, int)> applyCalls;
+    late List<(String, String, int, int)> applyCalls;
     late List<GroupMemberRolePayload> fireCalls;
     late List<String> logs;
 
@@ -27,7 +27,7 @@ void main() {
 
     Future<void> run(
       Map<String, dynamic> payload, {
-      Future<void> Function(int, int, int, int)? applyRoleUpdate,
+      Future<void> Function(String, String, int, int)? applyRoleUpdate,
     }) {
       return handleGroupMemberRoleS2C(
         payload: payload,
@@ -50,10 +50,10 @@ void main() {
         'updated_at': 1760000000,
       });
 
-      expect(applyCalls, [(10, 200, 3, 1760000000)]);
+      expect(applyCalls, [('10', '200', 3, 1760000000)]);
       expect(fireCalls, hasLength(1));
-      expect(fireCalls.first.gid, 10);
-      expect(fireCalls.first.userId, 200);
+      expect(fireCalls.first.gid, '10');
+      expect(fireCalls.first.userId, '200');
       expect(fireCalls.first.role, 3);
       expect(fireCalls.first.roleText, '管理员');
       expect(fireCalls.first.adminNickname, 'Owner');
@@ -87,7 +87,7 @@ void main() {
 
     test('updated_at 为 0（后端未带）→ applyRoleUpdate 仍接收到 0', () async {
       await run({'gid': 1, 'user_id': 2, 'role': 1});
-      expect(applyCalls, [(1, 2, 1, 0)]);
+      expect(applyCalls, [('1', '2', 1, 0)]);
     });
   });
 }

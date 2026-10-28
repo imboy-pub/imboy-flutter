@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' show showDialog;
@@ -40,7 +43,9 @@ import 'package:imboy/service/app_upgrade_service.dart';
 import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_read_sync_plan.dart';
 import 'package:imboy/service/e2ee_service.dart';
+import 'package:imboy/service/safety_number_service.dart';
 import 'package:imboy/service/e2ee/trust_event_client.dart';
+import 'package:imboy/service/e2ee/trust_event_canonical.dart' show trustUid;
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/group_member_mute_s2c.dart';
 import 'package:imboy/service/group_edit_s2c.dart';
@@ -52,6 +57,7 @@ import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// S2C 消息处理服务（WebSocket API v2.0 格式）
 ///
@@ -207,13 +213,41 @@ class MessageS2CService {
 
     try {
       // v2.0: 从顶层读取 action 字段（不再兼容旧格式）
+      final rawPayload = data['payload'];
+      final action = data['action']?.toString() ?? '';
       final payloadMap =
-          parseModelJsonMap(data['payload']) ?? <String, dynamic>{};
+          rawPayload is String &&
+              (action.startsWith('channel_') ||
+                  action.startsWith('group_') ||
+                  action == 'e2ee_trust_changed' ||
+                  action == 'e2ee_device_key_changed')
+          ? (jsonDecode(
+                  rewriteChannelIds(
+                    '{"payload":$rawPayload}',
+                    action == 'e2ee_device_key_changed'
+                        ? ChannelResponseShape.deviceKeySocket
+                        : action == 'e2ee_trust_changed'
+                        ? ChannelResponseShape.trustSocket
+                        : action.startsWith('group_')
+                        ? ChannelResponseShape.groupSocket
+                        : ChannelResponseShape.socket,
+                  ),
+                ) as Map<String, dynamic>)['payload']
+                as Map<String, dynamic>
+          : parseModelJsonMap(rawPayload) ?? <String, dynamic>{};
 
       // v2.0: action 必须在顶层，不存在则报错
-      final action = data['action']?.toString() ?? '';
       if (action.isEmpty) {
         return;
+      }
+
+      if (action == 'e2ee_trust_changed' ||
+          action == 'e2ee_device_key_changed') {
+        final recipient = trustUid(to);
+        if (UserRepoLocal.to.isAuthTransitioning ||
+            recipient != UserRepoLocal.to.currentUid) {
+          throw StateError('security event belongs to a different session');
+        }
       }
 
       // 【S2C 去重层】在 switch 之前用帧 id 做单点去重，杜绝重复投递导致的重复执行。
@@ -674,7 +708,7 @@ class MessageS2CService {
           'userId': userId,
           'isFirst': joinRes?['isFirst'] ?? false,
           'people': PeopleModel(
-            id: parseModelInt(userId),
+            id: userId,
             account: account,
             nickname: nickname,
             avatar: avatar,
@@ -711,8 +745,7 @@ class MessageS2CService {
   ) async {
     // TSID 按 JSON integer 下发（编码规范），硬 `as String` 会 type cast
     // 崩溃并打断整个 S2C 分发（批次W2R6 实证：跨设备退群推送分支失效）；
-    // PeopleModel.id 是 int，同值先 `as String` 后 `as int` 的双重 cast
-    // 必崩一处。统一 parseModel 归一 + 缺字段防御。
+    // 保持十进制字符串并防御缺字段。
     final gid = parseModelString(payload['gid']);
     final userId = parseModelString(payload['leave_uid']);
     if (gid.isEmpty || userId.isEmpty) {
@@ -728,7 +761,7 @@ class MessageS2CService {
         payload: {
           'groupId': gid,
           'userId': userId,
-          'people': PeopleModel(id: parseModelInt(userId), account: ''),
+          'people': PeopleModel(id: userId, account: ''),
         },
       ),
     );
@@ -743,6 +776,14 @@ class MessageS2CService {
     Map<String, dynamic> data,
     Map<String, dynamic> payload,
   ) async {
+    final recipient = channelDecimalId(data['to']);
+    if (recipient == null ||
+        recipient != UserRepoLocal.to.currentUid ||
+        UserRepoLocal.to.isAuthTransitioning) {
+      throw StateError(
+        'Friend confirmation does not belong to current session',
+      );
+    }
     /*
        {
           "id": "afc_jp24wa_pjyv83",
@@ -974,7 +1015,8 @@ class MessageS2CService {
   static Future<void> _handleE2EEDeviceKeyChanged(
     Map<String, dynamic> payload,
   ) async {
-    final uid = payload['uid']?.toString() ?? '';
+    final uid = trustUid(payload['uid']);
+    final identity = SafetyNumberService.snapshot(uid);
     final deviceId = payload['device_id']?.toString() ?? '';
     final deviceType = payload['device_type']?.toString() ?? '';
     final keyId = payload['key_id']?.toString() ?? '';
@@ -986,11 +1028,24 @@ class MessageS2CService {
     // 清除该用户的公钥缓存
     if (uid.isNotEmpty) {
       E2EEService.clearUserKeyCache(uid);
+      await SafetyNumberService.invalidateTrust(
+        uid,
+        'peer_key_changed',
+        identity: identity,
+      );
+      if (!SafetyNumberService.isSameSession(identity)) {
+        throw StateError('session changed during key change');
+      }
       if (deviceId.isNotEmpty) {
         await OlmSessionService.to.invalidatePeerSession(
           peerUid: uid,
           peerDeviceId: deviceId,
+          ownerUid: identity.account,
+          sessionGeneration: identity.generation,
         );
+      }
+      if (!SafetyNumberService.isSameSession(identity)) {
+        throw StateError('session changed during key change');
       }
       iPrint('🔑 E2EE: 已清除用户 $uid 的公钥缓存（密钥已变更）');
       // TOFU 安全告警：通知 UI 层（若正打开与该 uid 的 C2C 会话）提示"对方安全码已变更"。
@@ -1021,11 +1076,27 @@ class MessageS2CService {
     final currentUid = UserRepoLocal.to.currentUid;
 
     if (actorUid == currentUid && targetUid != currentUid) {
+      final identity = SafetyNumberService.snapshot(targetUid);
       E2EEService.clearUserKeyCache(targetUid);
+      if (event.toState != 'verified') {
+        await SafetyNumberService.invalidateTrust(
+          targetUid,
+          'trust_${event.toState}',
+          identity: identity,
+        );
+      }
+      if (!SafetyNumberService.isSameSession(identity)) {
+        throw StateError('session changed during trust change');
+      }
       await OlmSessionService.to.invalidatePeerSession(
         peerUid: targetUid,
         peerDeviceId: event.targetDeviceId,
+        ownerUid: identity.account,
+        sessionGeneration: identity.generation,
       );
+      if (!SafetyNumberService.isSameSession(identity)) {
+        throw StateError('session changed during trust change');
+      }
     }
 
     AppEventBus.fire(
@@ -1279,11 +1350,11 @@ class MessageS2CService {
             updates: {
               // toOwnerUid 未带（0）时不携带 owner_uid 键，避免潜在订阅者
               // 把 owner 误写成 0（对齐 GroupEditEvent.updates 可为空契约）
-              if (p.toOwnerUid > 0) GroupRepo.ownerUid: p.toOwnerUid,
+              if (p.toOwnerUid.isNotEmpty) GroupRepo.ownerUid: p.toOwnerUid,
             },
           ),
         );
-        if (p.fromOwnerUid > 0) {
+        if (p.fromOwnerUid.isNotEmpty) {
           AppEventBus.fire(
             GroupMemberRoleEvent(
               gid: p.gid,
@@ -1296,7 +1367,7 @@ class MessageS2CService {
             ),
           );
         }
-        if (p.toOwnerUid > 0) {
+        if (p.toOwnerUid.isNotEmpty) {
           AppEventBus.fire(
             GroupMemberRoleEvent(
               gid: p.gid,

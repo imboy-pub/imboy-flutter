@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/datetime.dart';
@@ -69,9 +71,16 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     iPrint("CLIENT_ACK,S2C,${data['id']}");
 
     String uid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     // 防御性转换：后端 from/to 可能是 int 或 String
-    String from = (data["from"] ?? "").toString();
-    String to = (data["to"] ?? "").toString();
+    final from = channelDecimalId(data['from']);
+    final to = channelDecimalId(data['to']);
+    if (from == null || to == null) {
+      throw const FormatException('Invalid friend request identity');
+    }
+    if (uid.isEmpty || to != uid || UserRepoLocal.to.isAuthTransitioning) {
+      throw StateError('Friend request does not belong to current session');
+    }
     var payload = data["payload"] ?? <String, dynamic>{};
     if (payload is String) {
       payload = json.decode(payload);
@@ -95,10 +104,16 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     // 不 await 的 Future 抛异常会变成未处理的异步错误被吞掉：申请没落库，
     // UI 却毫无反馈，表现为「退出再进申请就丢了」。必须 await 并让失败可见。
     try {
-      await (NewFriendRepo()).save(saveData);
+      await (NewFriendRepo()).save(saveData, account: uid);
+      if (UserRepoLocal.to.currentUid != uid ||
+          UserRepoLocal.to.sessionGeneration != generation ||
+          UserRepoLocal.to.isAuthTransitioning) {
+        throw StateError('Session changed during friend request save');
+      }
     } catch (e) {
       iPrint("❌ [NEW_FRIEND] 好友申请落库失败 from=$from to=$to error=$e");
       AppLoading.showError(t.common.saveFailedRetry);
+      rethrow;
     }
     replaceItems(NewFriendModel.fromJson(saveData));
 
@@ -118,21 +133,47 @@ class NewFriendNotifier extends Notifier<NewFriendState> {
     Map<String, dynamic> data,
   ) async {
     iPrint("CLIENT_ACK,S2C,${data['id']}");
-    String from = (data["from"] ?? "").toString();
-    String to = (data["to"] ?? "").toString();
+    final from = channelDecimalId(data['from']);
+    final to = channelDecimalId(data['to']);
+    if (from == null || to == null) {
+      throw const FormatException('Invalid friend confirmation identity');
+    }
+    final owner = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
+    if (owner.isEmpty || to != owner || UserRepoLocal.to.isAuthTransitioning) {
+      throw StateError(
+        'Friend confirmation does not belong to current session',
+      );
+    }
+    bool current() =>
+        UserRepoLocal.to.currentUid == owner &&
+        UserRepoLocal.to.sessionGeneration == generation &&
+        !UserRepoLocal.to.isAuthTransitioning;
     NewFriendRepo repo = NewFriendRepo();
-    NewFriendModel? obj = await repo.findByFromTo(to, from);
+    NewFriendModel? obj = await repo.findByFromTo(to, from, account: owner);
+    if (!current()) {
+      throw StateError('Session changed during friend confirmation');
+    }
     iPrint(
       "> on receivedConfirmFriend(s2c) data=${json.encode(data)} obj=${obj?.from}/${obj?.to}/${obj?.status}",
     );
     if (obj != null) {
-      obj.status = NewFriendStatus.added.index;
       try {
-        await repo.update({"from": to, "to": from, "status": obj.status});
+        final updated = await repo.update({
+          "from": to,
+          "to": from,
+          "status": NewFriendStatus.added.index,
+        }, account: owner);
+        if (updated == 0) throw StateError('Friend request was not updated');
+        if (!current()) {
+          throw StateError('Session changed during friend confirmation');
+        }
       } catch (e) {
         iPrint("❌ [NEW_FRIEND] 好友申请状态更新失败 from=$to to=$from error=$e");
         AppLoading.showError(t.common.saveFailedRetry);
+        rethrow;
       }
+      obj.status = NewFriendStatus.added.index;
       replaceItems(obj);
       // 跨设备确认场景：S2C accept 更新成功后同步刷新角标
       ref.read(newFriendRemindProvider.notifier).countReminders();

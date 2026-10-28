@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -9,7 +11,12 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 class ContactApi extends HttpClient {
   Future<List<dynamic>> listFriend() async {
-    IMBoyHttpResponse resp = await get(API.friendList);
+    IMBoyHttpResponse resp = await get(
+      API.friendList,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.contact),
+      ),
+    );
     // 失败必须抛出（fail-open 改造）：HttpClient 从不抛异常，静默 return []
     // 会把网络失败压成「没有好友」。唯一调用方
     // contact_provider._syncFriendFromServer 有 catch 并留日志。
@@ -27,6 +34,9 @@ class ContactApi extends HttpClient {
   Future<ContactModel?> syncByUid(String uid) async {
     IMBoyHttpResponse resp = await get(
       API.userShow,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.contact),
+      ),
       queryParameters: {"id": uid},
     );
     ContactModel? ct;

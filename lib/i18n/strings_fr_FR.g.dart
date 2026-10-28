@@ -1666,6 +1666,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get voiceSttPreviewTitle => 'Aperçu de la conversion voix en texte';
 	@override String get retry => 'Réessayer';
 	@override String get retrying => 'Nouvelle tentative…';
+	@override String get denylistResultUnknown => 'Le résultat est inconnu. Vérifiez d’abord la liste de blocage.';
+	@override String get denylistLocalNotSynced => 'Le serveur a traité la demande, mais l’état local n’est pas synchronisé.';
+	@override String get friendConfirmResultUnknown => 'Le résultat de la confirmation est inconnu. Vérifiez d’abord votre relation.';
 }
 
 // Path: complaint
@@ -4914,6 +4917,9 @@ extension on TranslationsFrFr {
 			'common.voiceSttPreviewTitle' => 'Aperçu de la conversion voix en texte',
 			'common.retry' => 'Réessayer',
 			'common.retrying' => 'Nouvelle tentative…',
+			'common.denylistResultUnknown' => 'Le résultat est inconnu. Vérifiez d’abord la liste de blocage.',
+			'common.denylistLocalNotSynced' => 'Le serveur a traité la demande, mais l’état local n’est pas synchronisé.',
+			'common.friendConfirmResultUnknown' => 'Le résultat de la confirmation est inconnu. Vérifiez d’abord votre relation.',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
 			'complaint.e2eeConsentBody' => 'Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d\'accord ?',
@@ -4926,11 +4932,11 @@ extension on TranslationsFrFr {
 			'contact.blocked' => 'Bloqué',
 			'contact.applyChanges' => 'Redémarrez l\'application pour appliquer les modifications.',
 			'contact.inputNewTag' => 'Saisir une nouvelle étiquette...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => 'Liste de blocage',
 			'contact.denylistEmpty' => 'Liste de blocage vide',
 			'contact.favoriteGroupTagsEtc' => 'Enregistrer les noms, noms de groupe, étiquettes, etc.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => 'Nouvel ami',
 			'contact.recommendToFriend' => 'Recommander à des amis',
 			'contact.remark' => 'Remarque',
@@ -5440,11 +5446,11 @@ extension on TranslationsFrFr {
 			'main.safetyNumberHint' => 'Comparez le code de sécurité avec votre correspondant en personne ou par téléphone. S\'il correspond, vos communications ne sont pas interceptées par un intermédiaire ; dans le cas contraire, arrêtez immédiatement la conversation et vérifiez son identité par un autre canal. L\'état de vérification n\'est conservé que sur cet appareil.',
 			'main.safetyNumberMarkVerified' => 'Marquer comme vérifié',
 			'main.safetyNumberMarkedVerified' => 'Marqué comme vérifié',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'Votre correspondant n\'a pas encore activé le chiffrement de bout en bout',
 			'main.safetyNumberPeerDevice' => 'Appareil du correspondant',
 			'main.safetyNumberReportRejected' => 'Le serveur a rejeté cet événement de vérification (signature ou horodatage incorrect) ; non marqué',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Informations d\'appareil indisponibles ; non signalé',
 			'main.safetyNumberVerified' => '✓ Vérifié',
 			'main.safetyNumberNotVerified' => 'Non vérifié',
@@ -5954,11 +5960,11 @@ extension on TranslationsFrFr {
 			'talkRecord.aiProviderCancel' => 'Arrêter la transcription',
 			'talkRecord.aiProviderCancelNotice' => 'Révoque les accès IMBoy à la source et aux opérations. L’arrêt du fournisseur ou le remboursement ne sont pas garantis.',
 			'talkRecord.aiProviderResubmit' => 'Renvoyer l’audio',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Crée une nouvelle transcription avec un risque de double facturation. La demande initiale reste. Renvoyer et consentir à ce traitement ?',
 			'talkRecord.aiProviderCancelled' => 'Transcription arrêtée. L’audio existant est conservé.',
 			'talkRecord.aiProviderResumePreparation' => 'Continuer la préparation',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'La tâche initiale n’a pas été envoyée. Préparez à nouveau la source audio avec les autorisations et le consentement actuels.',
 			'welcome.step1Title' => 'Connexion simple',
 			'welcome.step1Desc' => 'Profitez de la joie d\'une communication fluide. Partout, à tout moment.',

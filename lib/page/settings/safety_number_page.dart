@@ -41,6 +41,7 @@ class SafetyNumberPage extends StatefulWidget {
 class _SafetyNumberPageState extends State<SafetyNumberPage> {
   bool _isLoading = true;
   SafetyNumberResult? _result;
+  SafetyIdentitySnapshot? _identity;
   bool _verified = false;
   String? _error;
 
@@ -53,7 +54,7 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
     // AC-15 用户可见策略：页面打开期间对端换钥/撤销信任/设备集合漂移，
     // 「已验证」徽章不得停留在陈旧状态——收到事件立即刷新（重算聚合码，
     // 严格相等自动判定需重验）。聊天页的「对方安全码已变更」toast 由
-    // E2EEPeerKeyChangedEvent 既有链路负责（60s 频控），此处只做页面状态。
+    // 信任失效由 S2C 处理并持久化，此处只更新页面状态。
     _ssTrustInvalidated = AppEventBus.on<SafetyNumberTrustInvalidatedEvent>()
         .listen((event) {
           if (event.peerUid == widget.peerUid && mounted) _load();
@@ -81,6 +82,7 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
       _error = null;
     });
     try {
+      final identity = SafetyNumberService.snapshot(widget.peerUid);
       final result = await SafetyNumberService.generateForPeer(
         peerUid: widget.peerUid,
       );
@@ -89,9 +91,10 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
       final verifiedAt = await SafetyNumberService.localVerifiedNumber(
         widget.peerUid,
       );
-      if (!mounted) return;
+      if (!mounted || !SafetyNumberService.isCurrent(identity)) return;
       setState(() {
         _result = result;
+        _identity = identity;
         _verified = SafetyNumberService.isCurrentNumberVerified(
           verifiedAt,
           result.number,
@@ -116,7 +119,12 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
 
   Future<void> _markVerified() async {
     final result = _result;
-    if (result == null) return;
+    final identity = _identity;
+    if (result == null ||
+        identity == null ||
+        !SafetyNumberService.isCurrent(identity)) {
+      return;
+    }
     // 阶段 B：比对一致后，把「已验证」作为签名信任事件上报服务端。
     // peerDeviceId 传首个远程设备 ID——多设备聚合码已验证即信任该用户全部设备，
     // 后端 trust/record 的 device 级粒度是阶段 B 的扩展点。
@@ -124,9 +132,10 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
     final outcome = await TrustRecordService.recordVerified(
       peerUid: widget.peerUid,
       peerDeviceId: result.remoteDeviceId,
+      identity: identity,
     );
     AppLoading.dismiss();
-    if (!mounted) return;
+    if (!mounted || !SafetyNumberService.isCurrent(identity)) return;
     switch (outcome) {
       case TrustRecordOutcome.recorded:
         // AC-15：markVerified 同时绑定当前聚合码与批准设备集合——此后
@@ -135,7 +144,9 @@ class _SafetyNumberPageState extends State<SafetyNumberPage> {
           peerUid: widget.peerUid,
           number: result.number,
           approvedRemoteDeviceIds: result.remoteDeviceIds.toSet(),
+          identity: identity,
         );
+        if (!mounted || !SafetyNumberService.isCurrent(identity)) return;
         setState(() => _verified = true);
         AppLoading.showToast(t.main.safetyNumberMarkedVerified);
       case TrustRecordOutcome.rejected:

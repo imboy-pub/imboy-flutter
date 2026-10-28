@@ -21,6 +21,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart' show defaultHeaders;
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -888,7 +889,38 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   /// 统一消息解析方法
   Map<String, dynamic> _parseMessage(dynamic message) {
     if (message is String) {
-      return jsonDecode(message) as Map<String, dynamic>;
+      final decoded = jsonDecode(message) as Map<String, dynamic>;
+      if (decoded['action'] == 'e2ee_trust_changed' ||
+          decoded['action'] == 'e2ee_device_key_changed') {
+        return jsonDecode(
+          rewriteChannelIds(
+            message,
+            decoded['action'] == 'e2ee_trust_changed'
+                ? ChannelResponseShape.trustSocket
+                : ChannelResponseShape.deviceKeySocket,
+          ),
+        ) as Map<String, dynamic>;
+      }
+      if ((decoded['action']?.toString().toLowerCase() ?? '').startsWith(
+            'group_',
+          ) ||
+          decoded['action'] == 'apply_friend' ||
+          decoded['action'] == 'apply_friend_confirm' ||
+          decoded['type']?.toString().toUpperCase() == 'C2G' ||
+          decoded['type']?.toString().toUpperCase() == 'C2C') {
+        return jsonDecode(
+          rewriteChannelIds(message, ChannelResponseShape.groupSocket),
+        ) as Map<String, dynamic>;
+      }
+      if ((decoded['action']?.toString().toLowerCase() ?? '').startsWith(
+            'channel_',
+          ) ||
+          (decoded['type']?.toString().toUpperCase() == 'C2CH_SERVER_ACK')) {
+        return jsonDecode(
+          rewriteChannelIds(message, ChannelResponseShape.socket),
+        ) as Map<String, dynamic>;
+      }
+      return decoded;
     } else if (message is Map<String, dynamic>) {
       return message;
     } else if (message is Map) {

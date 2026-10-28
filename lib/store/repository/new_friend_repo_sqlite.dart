@@ -25,9 +25,9 @@ class NewFriendRepo {
 
   // 公共列名列表
   static final List<String> defaultColumns = [
-    NewFriendRepo.uid,
-    NewFriendRepo.from,
-    NewFriendRepo.to,
+    'CAST(uid AS TEXT) AS uid',
+    'CAST(from_id AS TEXT) AS from_id',
+    'CAST(to_id AS TEXT) AS to_id',
     NewFriendRepo.nickname,
     NewFriendRepo.avatar,
     NewFriendRepo.status,
@@ -40,9 +40,13 @@ class NewFriendRepo {
   final SqliteService _db = SqliteService.to;
 
   // 插入一条数据
-  Future<NewFriendModel> insert(NewFriendModel obj, {Transaction? txn}) async {
+  Future<NewFriendModel> insert(
+    NewFriendModel obj, {
+    Transaction? txn,
+    String? account,
+  }) async {
     Map<String, dynamic> insert = {
-      NewFriendRepo.uid: UserRepoLocal.to.currentUid,
+      NewFriendRepo.uid: account ?? UserRepoLocal.to.currentUid,
       NewFriendRepo.from: obj.from,
       NewFriendRepo.to: obj.to,
       NewFriendRepo.nickname: obj.nickname,
@@ -91,21 +95,25 @@ class NewFriendRepo {
     String from,
     String to, {
     Transaction? txn,
+    String? account,
   }) async {
+    final owner = account ?? UserRepoLocal.to.currentUid;
     List<Map<String, dynamic>> maps;
     if (txn != null) {
       maps = await txn.query(
         NewFriendRepo.tableName,
         columns: defaultColumns,
-        where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
-        whereArgs: [from, to],
+        where:
+            '${NewFriendRepo.uid} = ? and ${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+        whereArgs: [owner, from, to],
       );
     } else {
       maps = await _db.query(
         NewFriendRepo.tableName,
         columns: defaultColumns,
-        where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
-        whereArgs: [from, to],
+        where:
+            '${NewFriendRepo.uid} = ? and ${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+        whereArgs: [owner, from, to],
       );
     }
     if (maps.isNotEmpty) {
@@ -115,24 +123,31 @@ class NewFriendRepo {
   }
 
   // 根据ID删除信息
-  Future<int> delete(String from, String to) async {
+  Future<int> delete(String from, String to, {String? account}) async {
     return await _db.delete(
       NewFriendRepo.tableName,
-      where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
-      whereArgs: [from, to],
+      where:
+          '${NewFriendRepo.uid} = ? and ${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+      whereArgs: [account ?? UserRepoLocal.to.currentUid, from, to],
     );
   }
 
   Future<int> deleteByUid(String uid) async {
     return await _db.delete(
       NewFriendRepo.tableName,
-      where: '${NewFriendRepo.from} = ? or ${NewFriendRepo.to} = ?',
-      whereArgs: [uid, uid],
+      where:
+          '${NewFriendRepo.uid} = ? and (${NewFriendRepo.from} = ? or ${NewFriendRepo.to} = ?)',
+      whereArgs: [UserRepoLocal.to.currentUid, uid, uid],
     );
   }
 
   // 更新信息
-  Future<int> update(Map<String, dynamic> json, {Transaction? txn}) async {
+  Future<int> update(
+    Map<String, dynamic> json, {
+    Transaction? txn,
+    String? account,
+  }) async {
+    final owner = account ?? UserRepoLocal.to.currentUid;
     String from = (json[NewFriendRepo.from] ?? json['from'] ?? '').toString();
     String to = (json[NewFriendRepo.to] ?? json['to'] ?? '').toString();
     Map<String, Object?> data = {};
@@ -168,15 +183,17 @@ class NewFriendRepo {
         return await txn.update(
           NewFriendRepo.tableName,
           data,
-          where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
-          whereArgs: [from, to],
+          where:
+              '${NewFriendRepo.uid} = ? and ${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+          whereArgs: [owner, from, to],
         );
       } else {
         return await _db.update(
           NewFriendRepo.tableName,
           data,
-          where: '${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
-          whereArgs: [from, to],
+          where:
+              '${NewFriendRepo.uid} = ? and ${NewFriendRepo.from} = ? and ${NewFriendRepo.to} = ?',
+          whereArgs: [owner, from, to],
         );
       }
     } else {
@@ -184,15 +201,21 @@ class NewFriendRepo {
     }
   }
 
-  Future<void> save(Map<String, dynamic> json) async {
+  Future<void> save(Map<String, dynamic> json, {String? account}) async {
+    final owner = account ?? UserRepoLocal.to.currentUid;
     String from = (json[NewFriendRepo.from] ?? json['from'] ?? '').toString();
     String to = (json[NewFriendRepo.to] ?? json['to'] ?? '').toString();
     await _db.transaction<void>((txn) async {
-      NewFriendModel? old = await findByFromTo(from, to, txn: txn);
+      NewFriendModel? old = await findByFromTo(
+        from,
+        to,
+        txn: txn,
+        account: owner,
+      );
       if (old != null) {
-        await update(json, txn: txn);
+        await update(json, txn: txn, account: owner);
       } else {
-        await insert(NewFriendModel.fromJson(json), txn: txn);
+        await insert(NewFriendModel.fromJson(json), txn: txn, account: owner);
       }
     });
   }

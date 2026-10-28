@@ -117,7 +117,7 @@ class _ChannelListState extends ConsumerState<_ChannelList> {
         .where(
           (c) =>
               c.name.toLowerCase().contains(_query) ||
-              '${c.id}'.contains(_query) ||
+              c.id.contains(_query) ||
               (c.customId ?? '').toLowerCase().contains(_query),
         )
         .toList();

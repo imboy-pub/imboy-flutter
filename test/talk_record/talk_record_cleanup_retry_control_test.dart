@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -91,6 +92,17 @@ void main() {
     });
     expect(cap.canRetry, true);
     expect(cap.protectedResources, isNull);
+  });
+
+  test('cleanup counters reject unsafe Web integers', () {
+    expect(
+      TalkRecordCleanupRetryCapability.counter(9007199254740991),
+      9007199254740991,
+    );
+    expect(
+      TalkRecordCleanupRetryCapability.counter(9007199254740992),
+      kIsWeb ? isNull : 9007199254740992,
+    );
   });
 
   test('a read started before acceptance cannot unlock a new retry intent', () {

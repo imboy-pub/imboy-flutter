@@ -103,10 +103,10 @@ class _ProjectChannelsPageState extends ConsumerState<ProjectChannelsPage> {
     );
     if (selected == null) return;
     await _runWrite(() async {
-      // ChannelModel.id 为 int；link 契约按 EntityId（String）传参
+      // ChannelModel.id 与 link 契约均使用十进制字符串。
       final flag = await ref
           .read(projectChannelApiProvider)
-          .link(projectId: projectId, channelId: '${selected.id}');
+          .link(projectId: projectId, channelId: selected.id);
       if (!mounted) return;
       // 幂等反馈：重复 link 不报错、不重复入库
       AppLoading.showSuccess(

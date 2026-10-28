@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -14,6 +16,9 @@ class LocationApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.peopleNearby,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.people),
+      ),
       queryParameters: {
         'radius': radius,
         'unit': unit,

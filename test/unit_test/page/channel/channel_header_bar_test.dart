@@ -1,4 +1,4 @@
-import 'dart:ui' show SemanticsAction, SemanticsFlag;
+import 'dart:ui' show SemanticsAction;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/config/const.dart';
@@ -104,12 +104,12 @@ void main() {
         final data = tester
             .getSemantics(find.bySemanticsLabel(label))
             .getSemanticsData();
-        expect(data.hasFlag(SemanticsFlag.isButton), isTrue);
-        expect(data.hasFlag(SemanticsFlag.hasEnabledState), isTrue);
-        expect(data.hasFlag(SemanticsFlag.isEnabled), !pending);
+        expect(data.flagsCollection.isButton, isTrue);
+        expect(data.flagsCollection.isEnabled.toBoolOrNull() != null, isTrue);
+        expect(data.flagsCollection.isEnabled.toBoolOrNull() == true, !pending);
         expect(data.hasAction(SemanticsAction.tap), !pending);
         expect(data.value, pending ? t.common.loading : '');
-        expect(data.hasFlag(SemanticsFlag.isLiveRegion), pending);
+        expect(data.flagsCollection.isLiveRegion, pending);
         await tester.tap(find.byType(CupertinoButton).last);
         expect(calls, pending ? 0 : 1);
       });
@@ -186,7 +186,11 @@ void main() {
       ),
     );
     final unknown = tester.getSemantics(find.bySemanticsLabel(t.common.retry));
-    expect(unknown.hasFlag(SemanticsFlag.hasToggledState), isFalse);
+    expect(
+      unknown.getSemanticsData().flagsCollection.isToggled.toBoolOrNull() !=
+          null,
+      isFalse,
+    );
     expect(
       tester.getSize(find.byType(CupertinoButton).last),
       const Size(48, 48),
@@ -197,17 +201,29 @@ void main() {
     await tester.pump();
     final toggle = find.bySemanticsLabel(t.chat.chatSettingMute);
     expect(
-      tester.getSemantics(toggle).hasFlag(SemanticsFlag.hasToggledState),
+      tester
+              .getSemantics(toggle)
+              .getSemanticsData()
+              .flagsCollection
+              .isToggled
+              .toBoolOrNull() !=
+          null,
       isTrue,
     );
     expect(
-      tester.getSemantics(toggle).hasFlag(SemanticsFlag.isToggled),
+      tester
+              .getSemantics(toggle)
+              .getSemanticsData()
+              .flagsCollection
+              .isToggled
+              .toBoolOrNull() ==
+          true,
       isFalse,
     );
     await tester.tap(find.byType(CupertinoButton).last);
     await tester.pump();
     final busy = tester.getSemantics(toggle).getSemanticsData();
-    expect(busy.hasFlag(SemanticsFlag.isEnabled), isFalse);
+    expect(busy.flagsCollection.isEnabled.toBoolOrNull() == true, isFalse);
     expect(busy.hasAction(SemanticsAction.tap), isFalse);
     expect(busy.value, t.common.loading);
     await tester.tap(find.byType(CupertinoButton).last);
@@ -216,11 +232,23 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(
-      tester.getSemantics(toggle).hasFlag(SemanticsFlag.isToggled),
+      tester
+              .getSemantics(toggle)
+              .getSemanticsData()
+              .flagsCollection
+              .isToggled
+              .toBoolOrNull() ==
+          true,
       isTrue,
     );
     expect(
-      tester.getSemantics(toggle).hasFlag(SemanticsFlag.isEnabled),
+      tester
+              .getSemantics(toggle)
+              .getSemanticsData()
+              .flagsCollection
+              .isEnabled
+              .toBoolOrNull() ==
+          true,
       isTrue,
     );
     expect(tester.getSemantics(toggle).getSemanticsData().value, isEmpty);

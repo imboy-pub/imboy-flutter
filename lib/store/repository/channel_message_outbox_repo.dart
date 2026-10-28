@@ -88,7 +88,7 @@ class ChannelMessageOutboxRepo {
   }
 
   /// 本地消息成功落库后移除对应 outbox 记录。
-  Future<void> remove(int messageId, {Transaction? txn}) async {
+  Future<void> remove(String messageId, {Transaction? txn}) async {
     if (!_enabled) return;
     if (txn != null) {
       await txn.delete(
@@ -107,7 +107,7 @@ class ChannelMessageOutboxRepo {
 
   /// 本地重放失败时延迟重试，避免每次打开频道都立即打满数据库。
   Future<void> markRetry(
-    int messageId,
+    String messageId,
     Object error, {
     Transaction? txn,
   }) async {

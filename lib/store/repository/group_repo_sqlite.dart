@@ -27,12 +27,12 @@ class GroupRepo implements GroupRepository {
 
   // 公共列名列表
   static final List<String> defaultColumns = [
-    GroupRepo.groupId,
+    'CAST(id AS TEXT) AS id',
     GroupRepo.type,
     GroupRepo.joinLimit,
     GroupRepo.contentLimit,
-    GroupRepo.ownerUid,
-    GroupRepo.creatorUid,
+    'CAST(owner_uid AS TEXT) AS owner_uid',
+    'CAST(creator_uid AS TEXT) AS creator_uid',
     GroupRepo.memberMax,
     GroupRepo.memberCount,
     GroupRepo.introduction,
@@ -126,7 +126,7 @@ class GroupRepo implements GroupRepository {
     if (normalizedAttr == 'join') {
       sql =
           '''
-        SELECT g.*
+        SELECT g.*, CAST(g.id AS TEXT) AS id, CAST(g.owner_uid AS TEXT) AS owner_uid, CAST(g.creator_uid AS TEXT) AS creator_uid
         FROM $groupTable g
         INNER JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
         WHERE g.${GroupRepo.status} = 1
@@ -140,7 +140,7 @@ class GroupRepo implements GroupRepository {
     } else if (normalizedAttr == 'all') {
       sql =
           '''
-        SELECT DISTINCT g.*
+        SELECT DISTINCT g.*, CAST(g.id AS TEXT) AS id, CAST(g.owner_uid AS TEXT) AS owner_uid, CAST(g.creator_uid AS TEXT) AS creator_uid
         FROM $groupTable g
         LEFT JOIN $gmTable gm
           ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
@@ -158,7 +158,7 @@ class GroupRepo implements GroupRepository {
     } else {
       sql =
           '''
-        SELECT DISTINCT g.*
+        SELECT DISTINCT g.*, CAST(g.id AS TEXT) AS id, CAST(g.owner_uid AS TEXT) AS owner_uid, CAST(g.creator_uid AS TEXT) AS creator_uid
         FROM $groupTable g
         LEFT JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
         WHERE g.${GroupRepo.status} = 1
@@ -187,7 +187,7 @@ class GroupRepo implements GroupRepository {
   }) async {
     final sql =
         '''
-      SELECT *
+      SELECT *, CAST(id AS TEXT) AS id, CAST(owner_uid AS TEXT) AS owner_uid, CAST(creator_uid AS TEXT) AS creator_uid
       FROM "${GroupRepo.tableName}"
       WHERE ${GroupRepo.status} = 1
       ORDER BY ${GroupRepo.createdAt} DESC
@@ -309,7 +309,7 @@ class GroupRepo implements GroupRepository {
     if (normalizedAttr == 'join') {
       sql =
           '''
-        SELECT g.*
+        SELECT g.*, CAST(g.id AS TEXT) AS id, CAST(g.owner_uid AS TEXT) AS owner_uid, CAST(g.creator_uid AS TEXT) AS creator_uid
         FROM $groupTable g
         INNER JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
         WHERE g.${GroupRepo.status} = 1
@@ -327,7 +327,7 @@ class GroupRepo implements GroupRepository {
     } else if (normalizedAttr == 'all') {
       sql =
           '''
-        SELECT DISTINCT g.*
+        SELECT DISTINCT g.*, CAST(g.id AS TEXT) AS id, CAST(g.owner_uid AS TEXT) AS owner_uid, CAST(g.creator_uid AS TEXT) AS creator_uid
         FROM $groupTable g
         LEFT JOIN $gmTable gm
           ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
@@ -349,7 +349,7 @@ class GroupRepo implements GroupRepository {
     } else {
       sql =
           '''
-        SELECT DISTINCT g.*
+        SELECT DISTINCT g.*, CAST(g.id AS TEXT) AS id, CAST(g.owner_uid AS TEXT) AS owner_uid, CAST(g.creator_uid AS TEXT) AS creator_uid
         FROM $groupTable g
         LEFT JOIN $gmTable gm ON gm.${GroupMemberRepo.groupId} = g.${GroupRepo.groupId}
         WHERE g.${GroupRepo.status} = 1
@@ -519,14 +519,14 @@ class GroupRepo implements GroupRepository {
     if (txn != null) {
       maps = await txn.query(
         GroupRepo.tableName,
-        columns: [],
+        columns: defaultColumns,
         where: '${GroupRepo.groupId} = ?',
         whereArgs: [gid],
       );
     } else {
       maps = await _db.query(
         GroupRepo.tableName,
-        columns: [],
+        columns: defaultColumns,
         where: '${GroupRepo.groupId} = ?',
         whereArgs: [gid],
       );

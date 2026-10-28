@@ -46,6 +46,7 @@ const String _lastFallbackRotationKey = 'olm_fallback_rotated_at';
 
 /// Session pickle 存储键前缀：`olm_session_<peerUid>:<peerDeviceId>`
 const String _sessionPicklePrefix = 'olm_session_';
+const String _sessionInvalidatedPrefix = 'olm_session_invalidated_';
 
 /// Olm（X3DH + Double Ratchet）单聊 E2EE 服务。
 ///
@@ -191,6 +192,7 @@ class OlmSessionService {
 
   /// 每对端一把锁：串行化 encrypt/decrypt，避免 ratchet 推进竞态
   final Map<String, Lock> _sessionLocks = {};
+  final Map<String, int> _sessionInvalidationVersions = {};
 
   /// Account 操作串行锁（identity 上报、OTK 补传等）
   final Lock _accountLock = Lock();
@@ -536,13 +538,27 @@ class OlmSessionService {
   String _sessionKey(String peerUid, String peerDeviceId) =>
       '$_sessionPicklePrefix$peerUid:$peerDeviceId';
 
+  String _sessionInvalidatedKey(
+    String owner,
+    String peerUid,
+    String peerDeviceId,
+  ) => '$_sessionInvalidatedPrefix$owner:$peerUid:$peerDeviceId';
+
   /// E2EE-030: 取事务存储；不可用时驱逐内存会话副本并 fail-closed。
   ///
   /// 驱逐是必需的：`session.encrypt/decrypt` 会就地推进内存中的 ratchet，若此时
   /// 无法持久化又保留内存副本，就会出现「内存已推进、磁盘未推进」的分叉——进程
   /// 重启后回滚到磁盘状态，重用已消费的 message key（ADR 14 §4.2 不变量 6/7）。
   Future<CryptoStore> _requireStore(String peerUid, String peerDeviceId) async {
-    final store = await cryptoStore;
+    CryptoStore? store;
+    try {
+      store = await cryptoStore;
+    } on Object {
+      _sessions.remove(_sessionKey(peerUid, peerDeviceId));
+      throw OlmStateCommitException(
+        'crypto store unavailable; refusing to advance ratchet',
+      );
+    }
     if (store == null) {
       _sessions.remove(_sessionKey(peerUid, peerDeviceId));
       throw OlmStateCommitException(
@@ -554,30 +570,58 @@ class OlmSessionService {
   }
 
   Future<vod.Session?> _loadSession(String peerUid, String peerDeviceId) async {
+    final user = UserRepoLocal.to;
+    final owner = user.currentUid;
+    final generation = user.sessionGeneration;
+    final versionKey = '$owner:$peerUid:$peerDeviceId';
+    final version = _sessionInvalidationVersions[versionKey] ?? 0;
+    void requireCurrent() {
+      if (owner.isEmpty ||
+          user.isAuthTransitioning ||
+          user.currentUid != owner ||
+          user.sessionGeneration != generation ||
+          (_sessionInvalidationVersions[versionKey] ?? 0) != version) {
+        throw StateError('Olm session identity changed');
+      }
+    }
+
+    requireCurrent();
     final key = _sessionKey(peerUid, peerDeviceId);
     final cached = _sessions[key];
     if (cached != null) return cached;
     final pickleKey = await _pickleKey();
+    requireCurrent();
 
     // E2EE-030: 事务存储（SQLCipher）是 ratchet 状态的唯一权威副本
     final store = await _requireStore(peerUid, peerDeviceId);
+    requireCurrent();
+    final markerKey = _sessionInvalidatedKey(owner, peerUid, peerDeviceId);
+    final marker = await StorageSecureService.to.read(key: markerKey);
+    requireCurrent();
+    if (marker == 'pending') {
+      throw StateError('Olm session invalidation pending');
+    }
     var stored = await store.loadSession(
       peerUid: peerUid,
       peerDeviceId: peerDeviceId,
     );
+    requireCurrent();
 
-    // 升级路径：旧版本把同一份 pickle 双写在 SecureStorage。此处一次性导入并
-    // **立即删除** legacy 副本——两份状态长期并存时，任一侧漏写都会在重启后被
-    // 另一侧的陈旧值覆盖，造成 ratchet 回滚与 message key 重用。
-    if (stored == null || stored.isEmpty) {
+    // 旧副本无账号归属；保留它并以账号标记禁止重复导入，避免跨账号删除。
+    if ((stored == null || stored.isEmpty) && marker == null) {
       final legacy = await StorageSecureService.to.read(key: key);
+      requireCurrent();
       if (legacy != null && legacy.isNotEmpty) {
+        await StorageSecureService.to.write(key: markerKey, value: 'pending');
+        requireCurrent();
         await store.persistSession(
           peerUid: peerUid,
           peerDeviceId: peerDeviceId,
           pickle: legacy,
         );
-        await StorageSecureService.to.delete(key: key);
+        requireCurrent();
+        await StorageSecureService.to.write(key: markerKey, value: 'retired');
+        requireCurrent();
         stored = legacy;
       }
     }
@@ -607,13 +651,61 @@ class OlmSessionService {
   Future<void> invalidatePeerSession({
     required String peerUid,
     required String peerDeviceId,
+    String? ownerUid,
+    int? sessionGeneration,
   }) async {
-    final key = _sessionKey(peerUid, peerDeviceId);
-    _sessions.remove(key);
-    final store = await cryptoStore;
-    await store?.deleteSession(peerUid: peerUid, peerDeviceId: peerDeviceId);
-    await StorageSecureService.to.delete(key: key);
-    iPrint('[olm] invalidated peer session $peerUid:$peerDeviceId');
+    final user = UserRepoLocal.to;
+    final owner = ownerUid ?? user.currentUid;
+    final generation = sessionGeneration ?? user.sessionGeneration;
+    bool current() =>
+        owner.isNotEmpty &&
+        !user.isAuthTransitioning &&
+        user.currentUid == owner &&
+        user.sessionGeneration == generation;
+    if (!current()) throw StateError('session changed before Olm invalidation');
+    final versionKey = '$owner:$peerUid:$peerDeviceId';
+    _sessionInvalidationVersions[versionKey] =
+        (_sessionInvalidationVersions[versionKey] ?? 0) + 1;
+    final lock = _sessionLocks.putIfAbsent(
+      '$peerUid:$peerDeviceId',
+      () => Lock(),
+    );
+    await lock.synchronized(() async {
+      if (!current()) {
+        throw StateError('session changed before Olm invalidation');
+      }
+      _sessions.remove(_sessionKey(peerUid, peerDeviceId));
+      // Prevent re-importing the unscoped legacy pickle after invalidation.
+      await StorageSecureService.to.write(
+        key: _sessionInvalidatedKey(owner, peerUid, peerDeviceId),
+        value: 'pending',
+      );
+      if (!current()) {
+        throw StateError('session changed during Olm invalidation');
+      }
+      final db = await SqliteService.to.db;
+      if (!current()) {
+        throw StateError('session changed during Olm invalidation');
+      }
+      if (db == null) throw StateError('Olm database unavailable');
+      final store = CryptoStore(db);
+      await store.ensureSchema();
+      if (!current()) {
+        throw StateError('session changed during Olm invalidation');
+      }
+      await store.deleteSession(peerUid: peerUid, peerDeviceId: peerDeviceId);
+      if (!current()) {
+        throw StateError('session changed during Olm invalidation');
+      }
+      await StorageSecureService.to.write(
+        key: _sessionInvalidatedKey(owner, peerUid, peerDeviceId),
+        value: 'retired',
+      );
+      if (!current()) {
+        throw StateError('session changed during Olm invalidation');
+      }
+      iPrint('[olm] invalidated peer session $peerUid:$peerDeviceId');
+    });
   }
 
   /// E2EE-030: 只写事务存储；不可提交则 fail-closed（不再双写 SecureStorage）。
@@ -1070,7 +1162,6 @@ class OlmSessionService {
   /// 清除所有内存与持久化的 Olm 状态（退出登录/换设备时调用）。
   Future<void> clearAll() async {
     _sessions.clear();
-    _sessionLocks.clear();
     _account = null;
     // E2EE-030: ratchet 状态只在事务存储中，`olm_` 前缀擦除覆盖不到，须显式清。
     // DB 不可用时不阻断登出——SQLCipher 主钥同时被销毁，残留行不可读。

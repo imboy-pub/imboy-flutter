@@ -45,10 +45,10 @@ class CapabilityGuard {
   final CryptoStore _store;
 
   /// 获取协议在 securityRank 中的等级索引。
-  /// 未知协议返回极大值（视为最低安全等级，fail-closed 保守）。
+  /// 未知协议排在所有已知协议之后（视为最低安全等级）。
   int _rank(String protocol) {
     final idx = CapabilityNegotiator.securityRank.indexOf(protocol);
-    return idx < 0 ? 0x7FFFFFFFFFFFFFFF : idx;
+    return idx < 0 ? CapabilityNegotiator.securityRank.length : idx;
   }
 
   /// 记录 HWM（首次协商或升级时调用）。

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:imboy/service/protocol/imboy.pb.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
 /// Codec for decoding v2 binary WebSocket frame payloads.
 ///
@@ -40,8 +41,28 @@ class ImboyPbCodec {
     final map = <String, dynamic>{
       'id': msg.id,
       'type': msg.type.name,
-      'from': msg.from.toInt(),
-      'to': msg.to.toInt(),
+      'from':
+          (msg.action.startsWith('channel_') ||
+              msg.action.startsWith('group_') ||
+              msg.action == 'apply_friend' ||
+              msg.action == 'apply_friend_confirm' ||
+              msg.action == 'e2ee_trust_changed' ||
+              msg.action == 'e2ee_device_key_changed' ||
+              msg.type == MsgDirection.C2G ||
+              msg.type == MsgDirection.C2C)
+          ? msg.from.toString()
+          : msg.from.toInt(),
+      'to':
+          (msg.action.startsWith('channel_') ||
+              msg.action.startsWith('group_') ||
+              msg.action == 'apply_friend' ||
+              msg.action == 'apply_friend_confirm' ||
+              msg.action == 'e2ee_trust_changed' ||
+              msg.action == 'e2ee_device_key_changed' ||
+              msg.type == MsgDirection.C2G ||
+              msg.type == MsgDirection.C2C)
+          ? msg.to.toString()
+          : msg.to.toInt(),
       'msg_type': _contentTypeToName(msg.msgType),
       'action': msg.action,
       'created_at': msg.createdAt.toInt(),
@@ -79,6 +100,24 @@ class ImboyPbCodec {
     // Fallback: try JSON decode of the inner payload bytes
     try {
       final text = utf8.decode(payloadBytes, allowMalformed: false);
+      if (action.startsWith('channel_') ||
+          action.startsWith('group_') ||
+          action == 'e2ee_trust_changed' ||
+          action == 'e2ee_device_key_changed') {
+        final wrapper = jsonDecode(
+          rewriteChannelIds(
+            '{"payload":$text}',
+            action == 'e2ee_device_key_changed'
+                ? ChannelResponseShape.deviceKeySocket
+                : action == 'e2ee_trust_changed'
+                ? ChannelResponseShape.trustSocket
+                : action.startsWith('group_')
+                ? ChannelResponseShape.groupSocket
+                : ChannelResponseShape.socket,
+          ),
+        );
+        return wrapper['payload'];
+      }
       return jsonDecode(text);
     } catch (_) {
       // Return raw base64 if neither protobuf nor JSON works

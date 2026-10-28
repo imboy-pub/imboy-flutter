@@ -11,17 +11,21 @@
 ///    invalidateTrust（换钥/撤销触发）清除标记并广播
 ///    SafetyNumberTrustInvalidatedEvent——「标记需重验而非静默沿用」。
 /// 3. **换钥联动（C01 identity_version 推进 → 本地信任失效）**：
-///    E2eeBootstrap 常驻订阅 E2EEPeerKeyChangedEvent → invalidateTrust。
+///    S2C 在确认消息之前完成 invalidateTrust。
 library;
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/config/const.dart' show Keys;
-import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
+import 'package:imboy/service/message_s2c.dart';
+import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/safety_number_service.dart';
@@ -34,6 +38,40 @@ void main() {
   const peerUid = '200';
   const localUid = '100';
   const localDid = 'a-1';
+  late Database testDb;
+  bool failSecureDelete = false;
+  Completer<void>? blockWrite;
+  Completer<void>? writeStarted;
+  Completer<void>? blockDelete;
+  Completer<void>? deleteStarted;
+  Completer<void>? blockOlmWrite;
+  Completer<void>? olmWriteStarted;
+
+  Future<void> keyChanged(String id, String uid) =>
+      MessageS2CService.switchS2C({
+        'id': id,
+        'from': uid,
+        'to': localUid,
+        'action': 'e2ee_device_key_changed',
+        'payload': {'uid': uid, 'device_id': '', 'key_id': 'key'},
+      }, propagateErrors: true);
+
+  Future<void> trustChanged(String id, String uid) =>
+      MessageS2CService.switchS2C({
+        'id': id,
+        'from': localUid,
+        'to': localUid,
+        'action': 'e2ee_trust_changed',
+        'payload': {
+          'actor_uid': localUid,
+          'target_uid': uid,
+          'target_device_id': 'b-1',
+          'to_state': 'revoked',
+          'method': 'revoke',
+          'event_id': 'abc',
+          'issued_at': 123,
+        },
+      }, propagateErrors: true);
 
   const peerDevicesV1 = <String, String>{
     '200:b-1': 'Yi0xLWlkZW50aXR5',
@@ -71,6 +109,12 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
     await StorageService.to.setString(Keys.currentUid, localUid);
+    sqfliteFfiInit();
+    testDb = await databaseFactoryFfi.openDatabase(
+      inMemoryDatabasePath,
+      options: OpenDatabaseOptions(singleInstance: false),
+    );
+    SqliteService.setDbForTest(testDb);
 
     const storageChannel = MethodChannel(
       'plugins.it_nomads.com/flutter_secure_storage',
@@ -82,6 +126,20 @@ void main() {
           final key = args?['key'] as String?;
           switch (call.method) {
             case 'write':
+              if (blockOlmWrite != null &&
+                  key?.startsWith('olm_session_invalidated_') == true) {
+                final gate = blockOlmWrite!;
+                blockOlmWrite = null;
+                olmWriteStarted?.complete();
+                await gate.future;
+              }
+              if (blockWrite != null &&
+                  key?.startsWith('safety_number_verified_') == true) {
+                final gate = blockWrite!;
+                blockWrite = null;
+                writeStarted?.complete();
+                await gate.future;
+              }
               if (key != null) {
                 secureStore[key] = args?['value']?.toString() ?? '';
               }
@@ -89,6 +147,17 @@ void main() {
             case 'read':
               return secureStore[key];
             case 'delete':
+              if (blockDelete != null &&
+                  key?.startsWith('safety_number_verified_') == true) {
+                final gate = blockDelete!;
+                blockDelete = null;
+                deleteStarted?.complete();
+                await gate.future;
+              }
+              if (failSecureDelete &&
+                  key?.startsWith('safety_number_verified_') == true) {
+                throw PlatformException(code: 'injected_failure');
+              }
               secureStore.remove(key);
               return null;
             case 'readAll':
@@ -106,10 +175,17 @@ void main() {
   tearDown(() async {
     // 清理信任标记与设备集合记录，隔离用例
     await StorageSecureService.to.delete(
-      key: 'safety_number_verified_$peerUid',
+      key: 'safety_number_verified_$localUid:$peerUid',
     );
-    await StorageSecureService.to.delete(key: 'safety_number_devset_$peerUid');
-    E2eeBootstrap.resetTrustWiringForTest();
+    await StorageSecureService.to.delete(
+      key: 'safety_number_devset_$localUid:$peerUid',
+    );
+    failSecureDelete = false;
+  });
+
+  tearDownAll(() async {
+    SqliteService.setDbForTest(null);
+    await testDb.close();
   });
 
   group('AC-15 设备集合异常检测（刷新 + 告警，不崩溃不静默）', () {
@@ -310,7 +386,175 @@ void main() {
     });
   });
 
-  group('AC-15 换钥联动：bootstrap 常驻订阅 → 信任失效', () {
+  group('AC-15 换钥联动：S2C → 信任失效', () {
+    test('旧账号帧在新账号处理时不清除新账号信任', () async {
+      await StorageService.to.setString(Keys.currentUid, '101');
+      try {
+        await SafetyNumberService.markVerified(
+          peerUid: peerUid,
+          number: '2' * 60,
+          approvedRemoteDeviceIds: const {'c'},
+        );
+        await expectLater(
+          keyChanged('old-recipient-frame', peerUid),
+          throwsStateError,
+        );
+        expect(
+          await SafetyNumberService.localVerifiedNumber(peerUid),
+          '2' * 60,
+        );
+      } finally {
+        await StorageService.to.setString(Keys.currentUid, localUid);
+      }
+    });
+
+    test('Olm 换钥等待期间切账号不删除新账号会话', () async {
+      final oldStore = CryptoStore(testDb);
+      await oldStore.ensureSchema();
+      await oldStore.persistSession(
+        peerUid: peerUid,
+        peerDeviceId: 'b-1',
+        pickle: 'old',
+      );
+      olmWriteStarted = Completer<void>();
+      blockOlmWrite = Completer<void>();
+      final gate = blockOlmWrite!;
+      final event = MessageS2CService.switchS2C({
+        'id': 'olm-account-race',
+        'from': peerUid,
+        'to': localUid,
+        'action': 'e2ee_device_key_changed',
+        'payload': {'uid': peerUid, 'device_id': 'b-1', 'key_id': 'key'},
+      }, propagateErrors: true);
+      final rejected = expectLater(event, throwsStateError);
+      await olmWriteStarted!.future;
+      await StorageService.to.setString(Keys.currentUid, '101');
+      final nextDb = await databaseFactoryFfi.openDatabase(
+        inMemoryDatabasePath,
+        options: OpenDatabaseOptions(singleInstance: false),
+      );
+      try {
+        SqliteService.setDbForTest(nextDb);
+        final nextStore = CryptoStore(nextDb);
+        await nextStore.ensureSchema();
+        await nextStore.persistSession(
+          peerUid: peerUid,
+          peerDeviceId: 'b-1',
+          pickle: 'new',
+        );
+        gate.complete();
+        await rejected;
+        expect(
+          await nextStore.loadSession(peerUid: peerUid, peerDeviceId: 'b-1'),
+          'new',
+        );
+      } finally {
+        if (!gate.isCompleted) gate.complete();
+        await StorageService.to.setString(Keys.currentUid, localUid);
+        SqliteService.setDbForTest(testDb);
+        await nextDb.close();
+      }
+    });
+    test('旧验证写入期间换钥不能写回已失效信任', () async {
+      final identity = SafetyNumberService.snapshot(peerUid);
+      writeStarted = Completer<void>();
+      blockWrite = Completer<void>();
+      final gate = blockWrite!;
+      final verification = SafetyNumberService.markVerified(
+        peerUid: peerUid,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+        identity: identity,
+      );
+      final rejected = expectLater(verification, throwsStateError);
+      await writeStarted!.future;
+      final invalidation = keyChanged('race-old-verify', peerUid);
+      gate.complete();
+      await rejected;
+      await invalidation;
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
+    });
+
+    test('旧账号换钥等待存储期间切号不删除新账号信任', () async {
+      await SafetyNumberService.markVerified(
+        peerUid: peerUid,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      deleteStarted = Completer<void>();
+      blockDelete = Completer<void>();
+      final gate = blockDelete!;
+      final oldEvent = keyChanged('race-account-switch', peerUid);
+      final rejected = expectLater(oldEvent, throwsStateError);
+      await deleteStarted!.future;
+      await StorageService.to.setString(Keys.currentUid, '101');
+      try {
+        await SafetyNumberService.markVerified(
+          peerUid: peerUid,
+          number: '2' * 60,
+          approvedRemoteDeviceIds: const {'c'},
+        );
+        gate.complete();
+        await rejected;
+        expect(
+          await SafetyNumberService.localVerifiedNumber(peerUid),
+          '2' * 60,
+        );
+      } finally {
+        if (!gate.isCompleted) gate.complete();
+        await StorageService.to.setString(Keys.currentUid, localUid);
+      }
+    });
+    test('60 秒内二次换钥在重新验证后仍撤销信任', () async {
+      await SafetyNumberService.markVerified(
+        peerUid: peerUid,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      await keyChanged('key-first-unique', peerUid);
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
+      await SafetyNumberService.markVerified(
+        peerUid: peerUid,
+        number: '2' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      await keyChanged('key-second-unique', peerUid);
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
+    });
+
+    test('安全存储失败时同一换钥消息可重投', () async {
+      await SafetyNumberService.markVerified(
+        peerUid: peerUid,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      failSecureDelete = true;
+      await expectLater(
+        keyChanged('key-retry-unique', peerUid),
+        throwsA(isA<PlatformException>()),
+      );
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), '1' * 60);
+      failSecureDelete = false;
+      await keyChanged('key-retry-unique', peerUid);
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
+    });
+
+    test('信任撤销存储失败后同一消息可重投', () async {
+      await SafetyNumberService.markVerified(
+        peerUid: peerUid,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      failSecureDelete = true;
+      await expectLater(
+        trustChanged('trust-retry-unique', peerUid),
+        throwsA(isA<PlatformException>()),
+      );
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), '1' * 60);
+      failSecureDelete = false;
+      await trustChanged('trust-retry-unique', peerUid);
+      expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
+    });
     test(
       'E2EEPeerKeyChangedEvent（S2C e2ee_key_changed）触发 invalidateTrust',
       () async {
@@ -321,17 +565,7 @@ void main() {
           approvedRemoteDeviceIds: const {'b-1', 'b-2'},
         );
 
-        // 接线常驻订阅（生产由 E2eeBootstrap.ensureReady 安装）
-        await E2eeBootstrap.ensureTrustWiring();
-
-        AppEventBus.fire(
-          const E2EEPeerKeyChangedEvent(
-            uid: peerUid,
-            deviceId: 'b-1',
-            keyId: 'kid-new',
-          ),
-        );
-        await pumpEventQueue();
+        await keyChanged('device-first', peerUid);
 
         expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
         expect(
@@ -348,22 +582,45 @@ void main() {
         number: result.number,
         approvedRemoteDeviceIds: const {'b-1', 'b-2'},
       );
-      await E2eeBootstrap.ensureTrustWiring();
-
-      AppEventBus.fire(
-        E2EETrustChangedEvent(
-          actorUid: localUid,
-          targetUid: peerUid,
-          targetDeviceId: 'b-1',
-          toState: 'revoked',
-          method: 'revoke',
-          eventId: 'evt-1',
-          issuedAt: DateTime.now().millisecondsSinceEpoch,
-        ),
-      );
-      await pumpEventQueue();
+      await trustChanged('trust-first', peerUid);
 
       expect(await SafetyNumberService.localVerifiedNumber(peerUid), isNull);
+    });
+
+    test('撤销仅清除精确匹配的相邻大 UID 信任', () async {
+      const target = '9007199254740993';
+      const other = '9007199254740995';
+      await SafetyNumberService.markVerified(
+        peerUid: target,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'a'},
+      );
+      await SafetyNumberService.markVerified(
+        peerUid: other,
+        number: '2' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      await trustChanged('trust-adjacent', target);
+      expect(await SafetyNumberService.localVerifiedNumber(target), isNull);
+      expect(await SafetyNumberService.localVerifiedNumber(other), '2' * 60);
+    });
+
+    test('设备换钥仅清除精确匹配的相邻大 UID 信任', () async {
+      const target = '9007199254740993';
+      const other = '9007199254740995';
+      await SafetyNumberService.markVerified(
+        peerUid: target,
+        number: '1' * 60,
+        approvedRemoteDeviceIds: const {'a'},
+      );
+      await SafetyNumberService.markVerified(
+        peerUid: other,
+        number: '2' * 60,
+        approvedRemoteDeviceIds: const {'b'},
+      );
+      await keyChanged('device-adjacent', target);
+      expect(await SafetyNumberService.localVerifiedNumber(target), isNull);
+      expect(await SafetyNumberService.localVerifiedNumber(other), '2' * 60);
     });
   });
 
@@ -375,7 +632,7 @@ void main() {
       approvedRemoteDeviceIds: const {'b-2', 'b-1'},
     );
     final raw = await StorageSecureService.to.read(
-      key: 'safety_number_devset_$peerUid',
+      key: 'safety_number_devset_$localUid:$peerUid',
     );
     expect(raw, isNotNull);
     final decoded = jsonDecode(raw!) as List;

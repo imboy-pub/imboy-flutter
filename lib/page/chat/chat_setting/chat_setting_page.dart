@@ -131,7 +131,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
     if (_mutePending || _muteLoadFailed || !_isCurrent) return;
     setState(() => _mutePending = true);
     final isC2G = widget.type == 'C2G';
-    final gid = int.tryParse(widget.peerId) ?? 0;
+    final gid = widget.peerId;
     try {
       if (isC2G) {
         await setNoticeDisabled(

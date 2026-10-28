@@ -81,6 +81,29 @@ void main() {
       await db.close();
     });
 
+    test('adjacent large sender IDs remain separate', () async {
+      await db.insert('msg_c2g', {
+        'id': 1,
+        'from_id': '9007199254740992',
+        'conversation_uk3': _uk3A,
+        'created_at': 1000,
+      });
+      await db.insert('msg_c2g', {
+        'id': 2,
+        'from_id': '9007199254740993',
+        'conversation_uk3': _uk3A,
+        'created_at': 1000,
+      });
+      expect(
+        await MentionFrequencyRepo.queryWith(
+          db,
+          conversationUk3: _uk3A,
+          sinceMs: 0,
+        ),
+        {'9007199254740992': 1, '9007199254740993': 1},
+      );
+    });
+
     test('empty table returns empty map', () async {
       final result = await MentionFrequencyRepo.queryWith(
         db,

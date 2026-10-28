@@ -109,6 +109,11 @@ class ChannelRepo {
     if (txn != null) {
       maps = await txn.query(
         tableName,
+        columns: [
+          '*',
+          'CAST($id AS TEXT) AS $id',
+          'CAST($creatorId AS TEXT) AS $creatorId',
+        ],
         where: '$id = ?',
         whereArgs: [channelId],
         limit: 1,
@@ -116,6 +121,11 @@ class ChannelRepo {
     } else {
       maps = await _db.query(
         tableName,
+        columns: [
+          '*',
+          'CAST($id AS TEXT) AS $id',
+          'CAST($creatorId AS TEXT) AS $creatorId',
+        ],
         where: '$id = ?',
         whereArgs: [channelId],
         limit: 1,
@@ -132,6 +142,11 @@ class ChannelRepo {
   Future<ChannelModel?> getChannelByCustomId(String customIdValue) async {
     final maps = await _db.query(
       tableName,
+      columns: [
+        '*',
+        'CAST($id AS TEXT) AS $id',
+        'CAST($creatorId AS TEXT) AS $creatorId',
+      ],
       where: '$customId = ?',
       whereArgs: [customIdValue],
       limit: 1,
@@ -147,7 +162,7 @@ class ChannelRepo {
   Future<List<Map<String, dynamic>>>
   getSubscribedChannelsWithSubscription() async {
     final results = await _db.rawQuery('''
-      SELECT c.*, s.subscribed_at, s.last_read_at, s.last_message_id,
+      SELECT c.*, CAST(c.$id AS TEXT) AS $id, CAST(c.$creatorId AS TEXT) AS $creatorId, CAST(s.$subChannelId AS TEXT) AS $subChannelId, s.subscribed_at, s.last_read_at, CAST(s.$lastMessageId AS TEXT) AS $lastMessageId,
              s.unread_count, s.notifications_enabled, s.is_pinned, s.is_muted
       FROM $tableName c
       INNER JOIN $subscriptionTableName s ON c.$id = s.$subChannelId
@@ -160,7 +175,7 @@ class ChannelRepo {
   /// 获取所有订阅的频道
   Future<List<ChannelModel>> getSubscribedChannels() async {
     final results = await _db.rawQuery('''
-      SELECT c.*
+      SELECT c.*, CAST(c.$id AS TEXT) AS $id, CAST(c.$creatorId AS TEXT) AS $creatorId
       FROM $tableName c
       INNER JOIN $subscriptionTableName s ON c.$id = s.$subChannelId
       ORDER BY s.$isPinned DESC, s.$subscribedAt DESC
@@ -176,6 +191,11 @@ class ChannelRepo {
   }) async {
     final results = await _db.query(
       tableName,
+      columns: [
+        '*',
+        'CAST($id AS TEXT) AS $id',
+        'CAST($creatorId AS TEXT) AS $creatorId',
+      ],
       where: '$name LIKE ? OR $description LIKE ? OR $customId LIKE ?',
       whereArgs: ['%$keyword%', '%$keyword%', '%$keyword%'],
       limit: limit,
@@ -237,6 +257,11 @@ class ChannelRepo {
   Future<ChannelSubscriptionModel?> getSubscription(String channelId) async {
     final maps = await _db.query(
       subscriptionTableName,
+      columns: [
+        '*',
+        'CAST($subChannelId AS TEXT) AS $subChannelId',
+        'CAST($lastMessageId AS TEXT) AS $lastMessageId',
+      ],
       where: '$subChannelId = ?',
       whereArgs: [channelId],
       limit: 1,
@@ -252,6 +277,11 @@ class ChannelRepo {
   Future<List<ChannelSubscriptionModel>> getAllSubscriptions() async {
     final maps = await _db.query(
       subscriptionTableName,
+      columns: [
+        '*',
+        'CAST($subChannelId AS TEXT) AS $subChannelId',
+        'CAST($lastMessageId AS TEXT) AS $lastMessageId',
+      ],
       orderBy: '$isPinned DESC, $subscribedAt DESC',
     );
 
@@ -374,13 +404,11 @@ class ChannelRepo {
 
   /// 更新最后已读消息 ID
   ///
-  /// [messageId] 为字符串形式（由上层 API/事件透传），写入前归一化为 int
-  /// 以匹配列类型 `INTEGER`。非数字字符串会被视为 null 不写入此字段，避免
-  /// 向整数列写入文本污染读回解析。
+  /// SQLite INTEGER 接受十进制字符串，避免 Web 的 JS 数值转换丢失精度。
   Future<int> updateLastMessageId(String channelId, String messageId) async {
     return await _db.update(
       subscriptionTableName,
-      {lastMessageId: parseModelNullableInt(messageId)},
+      {lastMessageId: _messageIdForStorage(messageId)},
       where: '$subChannelId = ?',
       whereArgs: [channelId],
     );
@@ -393,11 +421,21 @@ class ChannelRepo {
       {
         unreadCount: 0,
         lastReadAt: DateTime.now().millisecondsSinceEpoch,
-        lastMessageId: parseModelNullableInt(messageId),
+        lastMessageId: _messageIdForStorage(messageId),
       },
       where: '$subChannelId = ?',
       whereArgs: [channelId],
     );
+  }
+
+  String? _messageIdForStorage(String messageId) {
+    final value = BigInt.tryParse(messageId);
+    if (value == null ||
+        value < BigInt.parse('-9223372036854775808') ||
+        value > BigInt.parse('9223372036854775807')) {
+      return null;
+    }
+    return value.toString();
   }
 
   // ==================== 清理操作 ====================

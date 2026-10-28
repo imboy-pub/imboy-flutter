@@ -30,7 +30,8 @@ void main() {
       final m2 = m.copyWith(muteUntilMs: 9999, nickname: 'new');
       expect(m2.muteUntilMs, 9999);
       expect(m2.nickname, 'new');
-      expect(m2.userId, 1);
+      // userId 经 channelDecimalId 归一为十进制字符串
+      expect(m2.userId, '1');
       // 原实例不变
       expect(m.muteUntilMs, isNull);
       expect(m.nickname, 'u1');

@@ -13,7 +13,7 @@ extension TalkRecordResultOperations on TalkRecordApi {
     if (!RegExp(r'^[1-9][0-9]*$').hasMatch(id) ||
         !RegExp(r'^"[1-9][0-9]*"$').hasMatch(etag) ||
         generation < 0 ||
-        generation > 9223372036854775807 ||
+        (kIsWeb && generation >= 9007199254740991) ||
         idempotencyKey.isEmpty ||
         idempotencyKey.length > 128) {
       throw const TalkRecordApiException(422, 'Invalid cleanup retry request');

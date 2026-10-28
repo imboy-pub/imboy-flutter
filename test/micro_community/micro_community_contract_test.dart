@@ -107,19 +107,22 @@ void main() {
       'discussion_group_id': largeId + 2,
     });
     final roundTrip = ChannelModel.fromJson(dto.toJson());
-    expect(roundTrip.id, largeId);
-    expect(roundTrip.discussionGroupId, largeId + 2);
+    expect(roundTrip.id, largeId.toString());
+    expect(roundTrip.discussionGroupId, (largeId + 2).toString());
     final message = ChannelMessageModel.fromJson({
       'id': largeId,
       'channel_id': largeId + 2,
       'is_essence': true,
     });
-    expect(ChannelMessageModel.fromJson(message.toJson()).id, largeId);
+    expect(
+      ChannelMessageModel.fromJson(message.toJson()).id,
+      largeId.toString(),
+    );
   });
   test('nullable discussion IDs survive wire snapshots and explicit clearing', () {
     final value = channel();
-    expect(value.discussionGroupId, 3);
-    expect(ChannelModel.fromJson(value.toJson()).discussionGroupId, 3);
+    expect(value.discussionGroupId, '3');
+    expect(ChannelModel.fromJson(value.toJson()).discussionGroupId, '3');
     expect(
       value.copyWith(clearDiscussionGroup: true).discussionGroupId,
       isNull,

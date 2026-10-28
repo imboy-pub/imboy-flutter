@@ -16,6 +16,9 @@
 /// - CH-17: acceptInvitation / rejectInvitation / discoverChannels
 library;
 
+import 'dart:convert';
+
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -454,7 +457,7 @@ class _FakeChannelMessageRepo extends ChannelMessageRepo {
 
 class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
   final List<ChannelMessageModel> queued = <ChannelMessageModel>[];
-  final List<int> retried = <int>[];
+  final List<String> retried = <String>[];
 
   @override
   Future<void> enqueue(
@@ -482,13 +485,13 @@ class _FakeChannelMessageOutboxRepo extends ChannelMessageOutboxRepo {
   }
 
   @override
-  Future<void> remove(int messageId, {Transaction? txn}) async {
+  Future<void> remove(String messageId, {Transaction? txn}) async {
     queued.removeWhere((item) => item.id == messageId);
   }
 
   @override
   Future<void> markRetry(
-    int messageId,
+    String messageId,
     Object error, {
     Transaction? txn,
   }) async {
@@ -616,7 +619,7 @@ void main() {
       await sub.cancel();
 
       expect(messageRepo.savedMessages, hasLength(1), reason: '有效消息必须写本地');
-      expect(messageRepo.savedMessages.single.id, 500);
+      expect(messageRepo.savedMessages.single.id, '500');
       expect(
         channelRepo.incrementedChannels,
         equals(['100']),
@@ -753,7 +756,7 @@ void main() {
         await sub.cancel();
 
         expect(channelRepo.savedChannels, hasLength(1), reason: '邀请接受后应写入频道信息');
-        expect(channelRepo.savedChannels.single.id, 3001);
+        expect(channelRepo.savedChannels.single.id, '3001');
         expect(
           events.any(
             (e) =>
@@ -969,7 +972,7 @@ void main() {
 
       expect(ok, isTrue);
       expect(repo.savedChannels, hasLength(1), reason: '订阅后需写入频道信息');
-      expect(repo.savedChannels.single.id, 1001);
+      expect(repo.savedChannels.single.id, '1001');
       expect(repo.savedSubscriptions, hasLength(1), reason: '订阅后需写入订阅关系');
     });
 
@@ -1282,7 +1285,7 @@ void main() {
 
       expect(result, isNotNull);
       expect(outbox.queued, hasLength(1));
-      expect(outbox.queued.single.id, 9001);
+      expect(outbox.queued.single.id, '9001');
     });
 
     test('进入频道消息列表前 → 重放到期 outbox', () async {
@@ -1305,7 +1308,7 @@ void main() {
       await service.getMessages(channelId: '100');
 
       expect(msgRepo.savedMessages, hasLength(1));
-      expect(msgRepo.savedMessages.single.id, 9002);
+      expect(msgRepo.savedMessages.single.id, '9002');
       expect(outbox.queued, isEmpty);
     });
 
@@ -1386,7 +1389,7 @@ void main() {
       final result = await service.getMessages(channelId: '100');
 
       expect(result, hasLength(1));
-      expect(result.first.id, 1, reason: '应返回本地数据，不是 API 数据');
+      expect(result.first.id, '1', reason: '应返回本地数据，不是 API 数据');
     });
 
     test('本地无数据 → 回退到 API 同步 + 保存本地', () async {
@@ -1407,7 +1410,7 @@ void main() {
       final result = await service.getMessages(channelId: '100');
 
       expect(result, hasLength(1));
-      expect(result.first.id, 5, reason: '本地空时走 API 数据');
+      expect(result.first.id, '5', reason: '本地空时走 API 数据');
       expect(msgRepo.savedMessages, hasLength(1), reason: 'API 数据应落库');
     });
   });
@@ -1511,7 +1514,7 @@ void main() {
       final result = await service.searchChannels('Channel-1');
 
       expect(result, hasLength(1));
-      expect(result.first.id, 1, reason: '应返回本地命中，不是 API 数据');
+      expect(result.first.id, '1', reason: '应返回本地命中，不是 API 数据');
       expect(api.searchChannelCalls, isEmpty, reason: '本地有结果时不应调 API');
     });
 
@@ -1530,7 +1533,7 @@ void main() {
       final result = await service.searchChannels('xyz');
 
       expect(result, hasLength(1));
-      expect(result.first.id, 99, reason: '本地无结果时应走 API');
+      expect(result.first.id, '99', reason: '本地无结果时应走 API');
       expect(api.searchChannelCalls, equals(['xyz']));
     });
 
@@ -1562,7 +1565,7 @@ void main() {
       final result = await service.getChannel('42');
 
       expect(result, isNotNull);
-      expect(result!.id, 42, reason: '本地有数据应返回本地，不是 API 数据');
+      expect(result!.id, '42', reason: '本地有数据应返回本地，不是 API 数据');
       expect(api.getChannelCalls, isEmpty, reason: '本地命中时不应调 API');
     });
 
@@ -1580,10 +1583,10 @@ void main() {
       final result = await service.getChannel('55');
 
       expect(result, isNotNull);
-      expect(result!.id, 55, reason: '本地无数据应返回 API 数据');
+      expect(result!.id, '55', reason: '本地无数据应返回 API 数据');
       expect(api.getChannelCalls, equals(['55']));
       expect(repo.savedChannels, hasLength(1), reason: 'API 命中后应保存到本地');
-      expect(repo.savedChannels.first.id, 55);
+      expect(repo.savedChannels.first.id, '55');
     });
 
     test('本地无数据 + API 返回 null → 返回 null，不写本地', () async {
@@ -2044,7 +2047,7 @@ void main() {
         await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
         expect(repo.savedChannels, hasLength(1));
-        expect(repo.savedChannels.first.id, 99);
+        expect(repo.savedChannels.first.id, '99');
         expect(repo.savedSubscriptions, hasLength(1));
         expect(events.any((e) => e.action == 'channel_subscribed'), isTrue);
       },
@@ -2223,6 +2226,30 @@ void main() {
 
   // ─── CH-15 syncUnreadSummary + invitationCreated / invitationAccepted / orderPaid
   group('CH-15 syncUnreadSummary & invitation/order handlers', () {
+    test('raw 大频道 ID 未读汇总更新精确订阅', () async {
+      final decoded = jsonDecode(
+        rewriteChannelIds(
+          '{"payload":{"channels":[{"channel_id":9007199254740993,"unread_count":7}]}}',
+          ChannelResponseShape.unread,
+        ),
+      );
+      final repo = _FakeChannelRepo();
+      repo.allSubscriptionsList = [
+        ChannelSubscriptionModel(
+          channelId: '9007199254740993',
+          subscribedAt: DateTime(2025),
+          unreadCount: 2,
+        ),
+      ];
+      final svc = ChannelService.forTest(
+        api: _FakeChannelApi(
+          unreadSummaryResult: decoded['payload'] as Map<String, dynamic>,
+        ),
+        repo: repo,
+      );
+      await svc.syncUnreadSummary();
+      expect(repo.unreadCountByChannel['9007199254740993'], 7);
+    });
     // ── syncUnreadSummary ────────────────────────────────────────────────────
     test(
       'syncUnreadSummary — channels 缺失 → 返回空 map，广播 success=false',
@@ -2407,7 +2434,7 @@ void main() {
       await svc.handleChannelInvitationAccepted({'channel_id': '77'});
       await Future<dynamic>.delayed(const Duration(milliseconds: 10));
 
-      expect(repo.savedChannels.any((c) => c.id == 77), isTrue);
+      expect(repo.savedChannels.any((c) => c.id == '77'), isTrue);
       expect(
         events.any((e) => e.action == 'channel_invitation_accepted'),
         isTrue,
@@ -2451,7 +2478,7 @@ void main() {
 
         expect(events.any((e) => e.action == 'channel_order_paid'), isTrue);
         // handleChannelSubscribed 副作用：channel 写库
-        expect(repo.savedChannels.any((c) => c.id == 88), isTrue);
+        expect(repo.savedChannels.any((c) => c.id == '88'), isTrue);
       },
     );
   });

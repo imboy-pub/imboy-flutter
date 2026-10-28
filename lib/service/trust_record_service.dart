@@ -24,6 +24,7 @@ import 'package:imboy/config/init.dart';
 import 'package:imboy/service/e2ee/trust_event_canonical.dart';
 import 'package:imboy/service/e2ee/trust_event_client.dart';
 import 'package:imboy/service/olm_session_service.dart';
+import 'package:imboy/service/safety_number_service.dart';
 import 'package:imboy/store/api/olm_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -54,12 +55,20 @@ class TrustRecordService {
     required String peerUid,
     required String peerDeviceId,
     String? eventId,
+    SafetyIdentitySnapshot? identity,
   }) async {
+    final state = identity ?? SafetyNumberService.snapshot(peerUid);
+    if (state.peerUid != peerUid || !SafetyNumberService.isCurrent(state)) {
+      return TrustRecordOutcome.unavailable;
+    }
     final OlmApi api = OlmApi();
 
     // 1. 本端代数（服务端 actor_device_active 匹配校验）
     final localUid = UserRepoLocal.to.currentUid.toString();
     final myDevices = await api.listDevices(uid: localUid);
+    if (!SafetyNumberService.isCurrent(state)) {
+      return TrustRecordOutcome.unavailable;
+    }
     final myGen = _intField(
       _findDevice(myDevices, deviceId),
       'device_generation',
@@ -75,6 +84,9 @@ class TrustRecordService {
     );
     final targetEd25519 = peerIdentity['ed25519_key'] as String?;
     final peerDevices = await api.listDevices(uid: peerUid);
+    if (!SafetyNumberService.isCurrent(state)) {
+      return TrustRecordOutcome.unavailable;
+    }
     final targetVer = _intField(
       _findDevice(peerDevices, peerDeviceId),
       'identity_version',
@@ -91,7 +103,7 @@ class TrustRecordService {
     // 4. canonical 字段 → 签名 → 请求体
     final fields = TrustEventCanonicalFields(
       actorDeviceGeneration: myGen,
-      actorUid: int.parse(localUid),
+      actorUid: localUid,
       eventId: eventId ?? _randomEventId(),
       expiresAt: expiresAt,
       fromState: 'unverified',
@@ -99,12 +111,15 @@ class TrustRecordService {
       targetDeviceId: peerDeviceId,
       targetEd25519: targetEd25519,
       targetIdentityVersion: targetVer,
-      targetUid: int.parse(peerUid),
+      targetUid: peerUid,
       toState: 'verified',
     );
     final signature = await OlmSessionService.to.signTrustCanonical(
       fields.canonicalBytes(),
     );
+    if (!SafetyNumberService.isCurrent(state)) {
+      return TrustRecordOutcome.unavailable;
+    }
     final body = buildTrustRecordRequest(
       fields: fields,
       actorDeviceId: deviceId,
@@ -113,6 +128,9 @@ class TrustRecordService {
     );
 
     final ok = await api.recordTrust(body);
+    if (!SafetyNumberService.isCurrent(state)) {
+      return TrustRecordOutcome.unavailable;
+    }
     return ok ? TrustRecordOutcome.recorded : TrustRecordOutcome.rejected;
   }
 

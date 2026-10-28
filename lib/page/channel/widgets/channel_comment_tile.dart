@@ -45,7 +45,7 @@ class ChannelCommentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
+    final currentUid = UserRepoLocal.to.currentUid;
     final isMine = comment.userId == currentUid;
     final hasAvatar = comment.userAvatar.isNotEmpty;
 

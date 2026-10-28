@@ -933,3 +933,7 @@ transferTapToReceive: انقر للاستلام
 
 retry: "إعادة المحاولة"
 retrying: "جارٍ إعادة المحاولة…"
+
+denylistResultUnknown: "نتيجة العملية غير معروفة. تحقق أولاً من قائمة الحظر."
+denylistLocalNotSynced: "عالج الخادم الطلب، لكن الحالة المحلية غير متزامنة."
+friendConfirmResultUnknown: "نتيجة تأكيد الصداقة غير معروفة. تحقّق من حالة الصداقة أولاً."

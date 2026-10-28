@@ -40,8 +40,8 @@ void main() {
       });
       expect(r, isA<GroupMemberRolePayload>());
       final p = r as GroupMemberRolePayload;
-      expect(p.gid, 10);
-      expect(p.userId, 200);
+      expect(p.gid, '10');
+      expect(p.userId, '200');
       expect(p.role, 3);
       expect(p.roleText, '管理员');
       expect(p.nickname, 'Alice');
@@ -57,8 +57,8 @@ void main() {
       });
       expect(r, isA<GroupMemberRolePayload>());
       final p = r as GroupMemberRolePayload;
-      expect(p.gid, 10);
-      expect(p.userId, 200);
+      expect(p.gid, '10');
+      expect(p.userId, '200');
     });
 
     test('gid 缺失 → invalid_gid', () {

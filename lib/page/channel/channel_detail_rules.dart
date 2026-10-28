@@ -11,7 +11,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 String? channelTargetId(ChannelModel? channel, String target) {
-  if (channel == null || channel.id == 0) return null;
+  if (channel == null || channel.id == '0') return null;
   final id = channel.id.toString();
   return target == id || target == channel.customId ? id : null;
 }

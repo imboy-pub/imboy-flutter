@@ -9,11 +9,9 @@
 library;
 
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -166,7 +164,7 @@ void main() {
           );
     });
 
-    ResponseBody _respond(Map<String, dynamic> payload, {int code = 0}) =>
+    ResponseBody respond(Map<String, dynamic> payload, {int code = 0}) =>
         ResponseBody.fromString(
           jsonEncode({'code': code, 'msg': 'ok', 'payload': payload}),
           200,
@@ -179,7 +177,7 @@ void main() {
       HttpClient.adapterForTest = _CaptureAdapter(requests, (options) {
         expect(options.uri.path, '/api/v1/channel/880910/viewed');
         expect(options.data['boundary'], '7');
-        return _respond({'view_seq': 7, 'unseen_count': 0});
+        return respond({'view_seq': 7, 'unseen_count': 0});
       });
       final result = await ChannelApi().markViewed('880910', '7');
       expect(result, isNotNull);
@@ -190,7 +188,7 @@ void main() {
 
     test('失败返回 null（调用方给重试，不洗成已查看）', () async {
       HttpClient.adapterForTest = _CaptureAdapter(requests, (options) {
-        return _respond(<String, dynamic>{}, code: 400);
+        return respond(<String, dynamic>{}, code: 400);
       });
       final result = await ChannelApi().markViewed('880910', '7');
       expect(result, isNull);

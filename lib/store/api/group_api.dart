@@ -1,4 +1,6 @@
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
@@ -18,6 +20,11 @@ class GroupApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.groupPage,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupList,
+        ),
+      ),
       queryParameters: {'page': page, 'size': size, 'attr': attr},
     );
 
@@ -48,7 +55,15 @@ class GroupApi extends HttpClient {
       'limit': limit,
     };
     if (token != null && token.isNotEmpty) params['cursor'] = token;
-    final resp = await get(API.groupPage, queryParameters: params);
+    final resp = await get(
+      API.groupPage,
+      queryParameters: params,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupList,
+        ),
+      ),
+    );
     resp.throwIfFailed();
     if (resp.payload == null) {
       return const CursorPage(list: [], hasMore: false);
@@ -69,6 +84,11 @@ class GroupApi extends HttpClient {
   Future<Map<String, dynamic>> detail({required String gid}) async {
     IMBoyHttpResponse resp = await get(
       API.groupDetail,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupDetail,
+        ),
+      ),
       queryParameters: {"gid": gid},
     );
     if (resp.ok == false) {
@@ -153,6 +173,11 @@ class GroupApi extends HttpClient {
   }) async {
     final resp = await post(
       '/api/v1/group/add',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupCreate,
+        ),
+      ),
       data: {
         'member_uids': memberUserIds,
         'scope': 'workspace',
@@ -202,6 +227,11 @@ class GroupApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.groupFace2face,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupCreate,
+        ),
+      ),
       queryParameters: {
         "code": code,
         "longitude": longitude, // 经度
@@ -222,6 +252,11 @@ class GroupApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await post(
       API.groupFace2faceSave,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupCreate,
+        ),
+      ),
       data: {"code": code, "gid": gid},
     );
     if (resp.ok == false) {
@@ -237,6 +272,11 @@ class GroupApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await post(
       API.groupAdd,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupCreate,
+        ),
+      ),
       data: {"member_uids": memberUserIds},
     );
     return resp.ok
@@ -269,7 +309,15 @@ class GroupApi extends HttpClient {
         'workspace_id': workspaceId,
       },
     };
-    final resp = await post(API.groupAdd, data: data);
+    final resp = await post(
+      API.groupAdd,
+      data: data,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupCreate,
+        ),
+      ),
+    );
     // 传输层失败（网络断连/超时/会话切换等）：结果未知——服务端可能已受理
     // 也可能未收到；调用方必须保留意图，不得当作"信封已确认拒绝"。
     // 仅 BadRequestException（envelope 业务错误）与 BadResponseException

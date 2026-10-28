@@ -2,13 +2,14 @@ import 'package:azlistview/azlistview.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/repository/user_denylist_repo_sqlite.dart';
 
 import 'contact_model.dart';
 
 class DenylistModel extends ISuspensionBean {
   DenylistModel({
-    required this.deniedUid,
+    required Object deniedUid,
     required this.nickname,
     required this.account,
     required this.avatar,
@@ -22,9 +23,9 @@ class DenylistModel extends ISuspensionBean {
     //
     this.nameIndex = "",
     this.namePinyin,
-  });
+  }) : deniedUid = channelDecimalId(deniedUid, allowZero: true) ?? '0';
 
-  final int deniedUid; // 被列入名单的用户ID
+  final String deniedUid; // 被列入名单的用户ID
   final String account; // 被列入名单的 用户账号
   final String nickname; // 备注 or 昵称
   final String avatar; // 用户头像
@@ -58,7 +59,8 @@ class DenylistModel extends ISuspensionBean {
   factory DenylistModel.fromJson(Map<String, dynamic> json) {
     final avatar = parseModelString(json[UserDenylistRepo.avatar]);
     return DenylistModel(
-      deniedUid: parseModelInt(json["id"] ?? json[UserDenylistRepo.deniedUid]),
+      deniedUid:
+          (json["id"] ?? json[UserDenylistRepo.deniedUid] ?? 0) as Object,
       account: parseModelString(json[UserDenylistRepo.account]),
       nickname: parseModelString(json[UserDenylistRepo.nickname]),
       avatar: avatar,

@@ -336,7 +336,7 @@ class ChannelService {
         return ChannelSubscribeOutcome.pending;
       }
       final subscription = ChannelSubscriptionModel(
-        channelId: parseModelInt(channelId),
+        channelId: channelId,
         subscribedAt: DateTime.now(),
       );
       if (db != null) {
@@ -658,7 +658,7 @@ class ChannelService {
     return isCurrent() ? message : null;
   }
 
-  Future<Map<int, ChannelMessageModel>> getCachedPreviews(
+  Future<Map<String, ChannelMessageModel>> getCachedPreviews(
     List<String> channelIds,
   ) => _messageRepo.getLastMessages(channelIds);
 
@@ -1342,7 +1342,7 @@ class ChannelService {
   Future<void> handleChannelMessage(Map<String, dynamic> data) async {
     try {
       final message = ChannelMessageModel.fromJson(data);
-      if (message.channelId == 0 || message.id == 0) {
+      if (message.channelId == '0' || message.id == '0') {
         iPrint(
           'ChannelService: 忽略无效频道消息 - '
           'channelId=${message.channelId}, messageId=${message.id}',
@@ -1390,7 +1390,7 @@ class ChannelService {
       // handleChannelUpdated 已有等价守卫：id=0 表示后端载荷异常/sentinel，
       // 写库会污染 channel/channel_subscription 两张表并可能触发 UI 跳转到
       // 无效详情页。
-      if (channel.id == 0) {
+      if (channel.id == '0') {
         iPrint('ChannelService: 忽略 channel.id=0 的订阅通知 - $channelId');
         return;
       }
@@ -1398,7 +1398,7 @@ class ChannelService {
       await repo.saveChannel(channel);
       await repo.saveSubscription(
         ChannelSubscriptionModel(
-          channelId: parseModelInt(channelId),
+          channelId: channelId,
           subscribedAt: DateTime.now(),
         ),
       );
@@ -1449,7 +1449,7 @@ class ChannelService {
         return;
       }
       final channel = ChannelModel.fromJson(channelData);
-      if (channel.id == 0) {
+      if (channel.id == '0') {
         iPrint('ChannelService: 忽略缺少 channel.id 的更新通知');
         return;
       }
@@ -1589,7 +1589,7 @@ class ChannelService {
       final channel = await api.getChannel(channelId);
       // 与 handleChannelSubscribed 对齐：id=0 视为无效载荷，不写库但仍广播
       // 事件让 UI 感知（邀请已接受，但频道详情拉取失败由用户手动重试）。
-      if (channel != null && channel.id != 0) {
+      if (channel != null && channel.id != '0') {
         await repo.saveChannel(channel);
       }
       AppEventBus.fire(
@@ -1848,7 +1848,7 @@ class ChannelService {
     required String channelId,
     required String messageId,
     required String content,
-    int parentId = 0,
+    String parentId = '0',
   }) async {
     try {
       final comment = await api.createComment(

@@ -1,11 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/group_discovery_api.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// 群组发现列表项（group_discovery_handler 返回的公开群卡片）
 class GroupDiscoveryItem {
-  final int id;
+  final String id;
   final String title;
   final String avatar;
   final String introduction;
@@ -21,8 +22,7 @@ class GroupDiscoveryItem {
 
   factory GroupDiscoveryItem.fromJson(Map<String, dynamic> json) {
     return GroupDiscoveryItem(
-      // TSID：http 层大整数已转 String，parseModelInt 兼容两种形态
-      id: parseModelInt(json['id']),
+      id: channelDecimalId(json['id']) ?? '0',
       title: json['title'] as String? ?? '',
       avatar: json['avatar'] as String? ?? '',
       introduction: json['introduction'] as String? ?? '',
@@ -33,14 +33,14 @@ class GroupDiscoveryItem {
 
 /// 公开群分类项
 class GroupDiscoveryCategory {
-  final int id;
+  final String id;
   final String name;
 
   const GroupDiscoveryCategory({required this.id, required this.name});
 
   factory GroupDiscoveryCategory.fromJson(Map<String, dynamic> json) {
     return GroupDiscoveryCategory(
-      id: parseModelInt(json['id']),
+      id: channelDecimalId(json['id']) ?? '0',
       name: json['name'] as String? ?? '',
     );
   }
@@ -52,7 +52,7 @@ class GroupDiscoveryState {
   final int size;
   final List<GroupDiscoveryItem> list;
   final String keyword;
-  final int? categoryId;
+  final String? categoryId;
   final String sort;
   final List<GroupDiscoveryCategory> categories;
   final bool isLoading;
@@ -79,7 +79,7 @@ class GroupDiscoveryState {
     int? size,
     List<GroupDiscoveryItem>? list,
     String? keyword,
-    int? categoryId,
+    String? categoryId,
     bool clearCategory = false,
     String? sort,
     List<GroupDiscoveryCategory>? categories,
@@ -138,7 +138,8 @@ class GroupDiscoveryNotifier extends Notifier<GroupDiscoveryState> {
     }
     return [
       for (final json in IMBoyHttpResponse.payloadList(payload))
-        GroupDiscoveryItem.fromJson(json),
+        if (channelDecimalId(json['id']) != null)
+          GroupDiscoveryItem.fromJson(json),
     ];
   }
 
@@ -152,7 +153,8 @@ class GroupDiscoveryNotifier extends Notifier<GroupDiscoveryState> {
       state = state.copyWith(
         categories: [
           for (final json in rawCategories)
-            GroupDiscoveryCategory.fromJson(json),
+            if (channelDecimalId(json['id']) != null)
+              GroupDiscoveryCategory.fromJson(json),
         ],
       );
     }
@@ -197,7 +199,7 @@ class GroupDiscoveryNotifier extends Notifier<GroupDiscoveryState> {
   }
 
   /// 切换分类（null = 全部）
-  Future<void> selectCategory(int? categoryId) async {
+  Future<void> selectCategory(String? categoryId) async {
     if (categoryId == state.categoryId) return;
     state = state.copyWith(
       categoryId: categoryId,

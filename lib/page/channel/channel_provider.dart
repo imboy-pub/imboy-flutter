@@ -4,13 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
-import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/i18n/strings.g.dart' show t;
 import 'package:imboy/service/creation_receipt/channel_creation_receipt_service.dart';
 import 'package:imboy/service/creation_receipt/creation_receipt_flow.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
 import 'package:imboy/store/api/channel_api.dart';
@@ -707,7 +707,7 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
       }
       if (!ref.mounted || loadGeneration != _channelLoadGeneration) return;
       if (channel != null) {
-        final effectiveChannelId = channel.id != 0
+        final effectiveChannelId = channel.id != '0'
             ? channel.id.toString()
             : channelId;
         _channelId = effectiveChannelId;
@@ -944,8 +944,11 @@ class ChannelDetailNotifier extends _$ChannelDetailNotifier {
 
     switch (event.action) {
       case 'message_ack':
-        final localId = IMBoyHttpResponse.payloadInt(event.payload, 'local_id');
-        final realId = IMBoyHttpResponse.payloadInt(event.payload, 'real_id');
+        final localId = channelDecimalId(
+          event.payload['local_id'],
+          allowNegative: true,
+        );
+        final realId = channelDecimalId(event.payload['real_id']);
         if (localId != null && realId != null) {
           final updated = state.messages
               .map((m) => m.id == localId ? m.copyWith(id: realId) : m)

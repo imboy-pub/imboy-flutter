@@ -50,7 +50,8 @@ void main() {
     ]);
     expect(
       (await api.memberGroups('100')).map((g) => g.groupId),
-      List.generate(202, (i) => i + 1),
+      // GroupModel.groupId 经 channelDecimalId 归一为十进制字符串。
+      [for (final i in List.generate(202, (i) => i + 1)) '$i'],
     );
     expect(api.calls, [
       for (final cursor in [0, 200, 201])
@@ -108,8 +109,8 @@ void main() {
       _page([_group(1)]),
       _page([_group(2)]),
     ]);
-    expect((await api.memberGroups('100')).single.groupId, 1);
-    expect((await api.memberGroups('100')).single.groupId, 2);
+    expect((await api.memberGroups('100')).single.groupId, '1');
+    expect((await api.memberGroups('100')).single.groupId, '2');
     expect(api.calls.length, 2);
   });
 }

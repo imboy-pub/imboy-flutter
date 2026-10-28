@@ -18,7 +18,7 @@ class _List extends ChannelListNotifier {
 class _Cache extends Fake implements ChannelService {
   List<String> requested = [];
   @override
-  Future<Map<int, ChannelMessageModel>> getCachedPreviews(
+  Future<Map<String, ChannelMessageModel>> getCachedPreviews(
     List<String> ids,
   ) async {
     requested = ids;

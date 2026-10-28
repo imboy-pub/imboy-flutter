@@ -73,7 +73,7 @@ class _FixedStateNotifier extends GroupDetailNotifier {
   @override
   void addMember(PeopleModel member) {}
   @override
-  void removeMember(int userId) {}
+  void removeMember(String userId) {}
 }
 
 void main() {

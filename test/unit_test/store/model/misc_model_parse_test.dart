@@ -32,12 +32,12 @@ void main() {
         'created_at': 1767225600,
       });
 
-      expect(model.groupId, 101);
+      expect(model.groupId, '101');
       expect(model.type, 1);
       expect(model.joinLimit, 2);
       expect(model.contentLimit, 0);
-      expect(model.ownerUid, 9001);
-      expect(model.creatorUid, 9002);
+      expect(model.ownerUid, '9001');
+      expect(model.creatorUid, '9002');
       expect(model.memberMax, 500);
       expect(model.memberCount, 12);
       expect(model.introduction, '123');
@@ -66,9 +66,9 @@ void main() {
         GroupMemberRepo.createdAt: 1767225600,
       });
 
-      expect(model.id, 8);
-      expect(model.groupId, 201);
-      expect(model.userId, 3001);
+      expect(model.id, '8');
+      expect(model.groupId, '201');
+      expect(model.userId, '3001');
       expect(model.nickname, 'true');
       expect(model.avatar, '');
       expect(model.sign, 'false');
@@ -98,9 +98,9 @@ void main() {
       });
 
       expect(model.source, '11');
-      expect(model.uid, 7001);
-      expect(model.from, 7002);
-      expect(model.to, 7003);
+      expect(model.uid, '7001');
+      expect(model.from, '7002');
+      expect(model.to, '7003');
       expect(model.nickname, 'true');
       expect(model.avatar, isNull);
       expect(model.status, 1);
@@ -124,7 +124,7 @@ void main() {
         'friend_created_at': '1767225600000',
       });
 
-      expect(model.id, 5001);
+      expect(model.id, '5001');
       expect(model.account, '6001');
       expect(model.nickname, '');
       expect(model.avatar, 'false');
@@ -211,7 +211,7 @@ void main() {
         UserDenylistRepo.source: 4,
       });
 
-      expect(model.deniedUid, 8001);
+      expect(model.deniedUid, '8001');
       expect(model.account, '8002');
       expect(model.nickname, 'true');
       expect(model.avatar, '123');

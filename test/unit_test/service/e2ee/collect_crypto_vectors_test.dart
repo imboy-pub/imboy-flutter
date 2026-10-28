@@ -30,6 +30,63 @@ Uint8List _unhex(String h) => Uint8List.fromList([
 ]);
 
 void main() {
+  test('seal generation header retains native int64 boundary', () {
+    final value = int.parse('9223372036854775807');
+    final sealed = CollectCrypto.seal(
+      ck: ck,
+      userId: userId,
+      kindId: kindId,
+      kind: kind,
+      ver: ver,
+      keyVersion: kv,
+      sealGeneration: value,
+      attachHashes: hashes,
+      payloadUtf8: utf8.encode('x'),
+      nonce: fixedNonce,
+    );
+    expect(CollectCrypto.sealGenerationOf(sealed), value);
+    OpenedCollect open(String input) => CollectCrypto.open(
+      ck: ck,
+      userId: userId,
+      kindId: kindId,
+      kind: kind,
+      ver: ver,
+      keyVersion: kv,
+      attachHashes: hashes,
+      infoSealed: input,
+    );
+    expect(open(sealed).sealGeneration, value);
+    expect(utf8.decode(open(sealed).payload), 'x');
+    final bytes = base64.decode(sealed);
+    bytes[3 + CollectCrypto.nonceLength] = 0x80;
+    expect(
+      () => CollectCrypto.sealGenerationOf(base64.encode(bytes)),
+      throwsA(isA<CollectCryptoException>()),
+    );
+    expect(
+      () => open(base64.encode(bytes)),
+      throwsA(isA<CollectCryptoException>()),
+    );
+  });
+  test('TLV fixed-width integer boundaries retain big-endian encoding', () {
+    expect(_hex(CollectCrypto.tlvUint32(4294967295)), 'ffffffff');
+    expect(
+      _hex(CollectCrypto.tlvUint64(int.parse('9223372036854775807'))),
+      '7fffffffffffffff',
+    );
+    expect(
+      () => CollectCrypto.tlvUint8(-1),
+      throwsA(isA<CollectCryptoException>()),
+    );
+    expect(
+      () => CollectCrypto.tlvUint8(256),
+      throwsA(isA<CollectCryptoException>()),
+    );
+    expect(
+      () => CollectCrypto.tlvUint32(4294967296),
+      throwsA(isA<CollectCryptoException>()),
+    );
+  });
   group('RFC 5869 权威向量（HKDF 实现锚定）', () {
     test('Test Case 1（SHA-256）', () {
       final okm = CollectCrypto.hkdfSha256(

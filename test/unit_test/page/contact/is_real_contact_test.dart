@@ -5,7 +5,7 @@ import 'package:imboy/store/model/contact_model.dart';
 /// `ContactState.contactList` 混着 6 个功能入口的伪 ContactModel（负数 peerId）。
 /// 任何"选人"场景消费整份列表都会把它们渲染出来 —— 真机实测：
 /// 群详情 `+` 加成员，列表里出现「朋友圈」「找附近的人」等菜单项。
-ContactModel _c(int peerId) => ContactModel(peerId: peerId, nickname: 'n');
+ContactModel _c(Object peerId) => ContactModel(peerId: peerId, nickname: 'n');
 
 void main() {
   group('isRealContact', () {
@@ -36,7 +36,7 @@ void main() {
         _c(104603643803863040),
       ];
       final real = list.where(isRealContact).map((c) => c.peerId).toList();
-      expect(real, [51698, 104603643803863040]);
+      expect(real, ['51698', '104603643803863040']);
     });
   });
 }

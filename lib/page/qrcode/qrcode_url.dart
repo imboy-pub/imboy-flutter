@@ -26,7 +26,7 @@ String buildChannelQrcodeUrl({
 }
 
 String buildGroupQrcodeUrl({
-  required int groupId,
+  required Object groupId,
   required int expiredAt,
   String? baseUrl,
 }) {

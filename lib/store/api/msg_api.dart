@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -20,6 +22,11 @@ class MsgApi extends HttpClient {
         'peer_id': peerId,
         'message_id': messageId,
       },
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.messageResult,
+        ),
+      ),
     );
     if (!response.ok) return false;
     final payload = IMBoyHttpResponse.payloadAsMap(response.payload);

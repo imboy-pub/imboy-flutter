@@ -156,6 +156,6 @@ void main() {
     addTearDown(subscription.close);
     await container.read(channelDetailProvider.notifier).loadChannel('11');
     expect(container.read(channelDetailProvider).channel?.scope, 'personal');
-    expect(container.read(channelDetailProvider).channel?.id, 11);
+    expect(container.read(channelDetailProvider).channel?.id, '11');
   });
 }

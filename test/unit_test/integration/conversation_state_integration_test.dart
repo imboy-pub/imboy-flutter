@@ -118,7 +118,7 @@ void main() {
         final found = await conversationRepo.findByPeerId('C2C', '1302');
 
         expect(found, isNotNull);
-        expect(found!.peerId, 1302);
+        expect(found!.peerId, '1302');
         expect(found.title, '测试用户2');
       });
 
@@ -144,7 +144,7 @@ void main() {
         final found = await conversationRepo.findById(insertedId);
 
         expect(found, isNotNull);
-        expect(found!.peerId, 1303);
+        expect(found!.peerId, '1303');
       });
     });
 
@@ -235,7 +235,7 @@ void main() {
         final saved = await conversationRepo.save(conv);
 
         expect(saved.id, greaterThan(0));
-        expect(saved.peerId, 1306);
+        expect(saved.peerId, '1306');
         expect(saved.unreadNum, 1);
       });
 
@@ -708,7 +708,7 @@ void main() {
         final restored = ConversationModel.fromJson(json);
 
         expect(restored.id, 1);
-        expect(restored.peerId, 1401);
+        expect(restored.peerId, '1401');
         expect(restored.title, 'JSON测试用户');
         expect(restored.subtitle, 'JSON测试消息');
         expect(restored.unreadNum, 3);

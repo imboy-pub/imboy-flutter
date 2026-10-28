@@ -16,6 +16,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,6 +27,9 @@ import 'package:vodozemac/vodozemac.dart' as vod;
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/olm_session_service.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/config/const.dart' show Keys;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../vodozemac_native_lib.dart';
 
@@ -67,11 +71,16 @@ void main() {
     'plugins.it_nomads.com/flutter_secure_storage',
   );
   final secureStore = <String, String?>{};
+  Completer<void>? legacyReadStarted;
+  Completer<void>? resumeLegacyRead;
 
   late Database db;
   late CryptoStore store;
 
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    await StorageService.to.setString(Keys.currentUid, '100');
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, (call) async {
           final args = call.arguments as Map?;
@@ -81,7 +90,15 @@ void main() {
               if (key != null) secureStore[key] = args?['value'] as String?;
               return null;
             case 'read':
-              return key == null ? null : secureStore[key];
+              final value = key == null ? null : secureStore[key];
+              if (key == '$_sessionPicklePrefix$_peerUid:$_peerDid' &&
+                  resumeLegacyRead != null) {
+                final gate = resumeLegacyRead!;
+                resumeLegacyRead = null;
+                legacyReadStarted!.complete();
+                await gate.future;
+              }
+              return value;
             case 'delete':
               secureStore.remove(key);
               return null;
@@ -475,7 +492,53 @@ void main() {
   });
 
   group('E2EE-030 legacy SecureStorage session 只读导入', () {
-    test('CryptoStore 无记录时导入 legacy pickle 并清除明面副本，不长期双写', () async {
+    test('读取 legacy 期间失效阻止导入并清除旧 DB 会话', () async {
+      final alice = vod.Account();
+      final bob = vod.Account();
+      bob.generateOneTimeKeys(1);
+      final sender = alice.createOutboundSession(
+        identityKey: bob.identityKeys.curve25519,
+        oneTimeKey: bob.oneTimeKeys.values.first,
+        config: legacyOlmSessionConfig(),
+      );
+      final bootstrap = sender.encrypt('bootstrap');
+      final inbound = bob.createInboundSession(
+        theirIdentityKey: alice.identityKeys.curve25519,
+        preKeyMessageBase64: bootstrap.ciphertext,
+        config: legacyOlmSessionConfig(),
+      );
+      final legacyKey = '$_sessionPicklePrefix$_peerUid:$_peerDid';
+      secureStore[legacyKey] = inbound.session.toPickleEncrypted(_pickleKey);
+      legacyReadStarted = Completer<void>();
+      resumeLegacyRead = Completer<void>();
+      final gate = resumeLegacyRead!;
+      final load = OlmSessionService.to.encryptC2CMessage(
+        peerUid: _peerUid,
+        peerDeviceId: _peerDid,
+        plaintext: 'must-not-send',
+      );
+      final rejected = expectLater(load, throwsStateError);
+      await legacyReadStarted!.future;
+      final invalidation = OlmSessionService.to.invalidatePeerSession(
+        peerUid: _peerUid,
+        peerDeviceId: _peerDid,
+      );
+      await Future<void>.delayed(Duration.zero);
+      gate.complete();
+      await rejected;
+      await invalidation;
+      expect(
+        await store.loadSession(peerUid: _peerUid, peerDeviceId: _peerDid),
+        isNull,
+      );
+      expect(secureStore[legacyKey], isNotNull);
+      expect(
+        secureStore['olm_session_invalidated_100:$_peerUid:$_peerDid'],
+        'retired',
+      );
+    });
+
+    test('CryptoStore 无记录时导入 legacy pickle 并标记禁止再次导入', () async {
       final alice = vod.Account();
       final bobBootstrap = vod.Account();
       bobBootstrap.generateOneTimeKeys(1);
@@ -518,10 +581,10 @@ void main() {
         isNotNull,
         reason: '导入后事务存储成为唯一权威副本',
       );
+      expect(secureStore[legacyKey], isNotNull, reason: '无账号归属的旧副本不能跨账号删除');
       expect(
-        secureStore[legacyKey],
-        isNull,
-        reason: 'legacy 副本必须删除，否则 DB 与 SecureStorage 两份状态会分叉回滚',
+        secureStore['olm_session_invalidated_100:$_peerUid:$_peerDid'],
+        'retired',
       );
     });
   });

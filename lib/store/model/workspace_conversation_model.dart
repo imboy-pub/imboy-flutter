@@ -2,6 +2,7 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 
 /// Ephemeral authorized snapshot. Never read global conversation/draft caches.
@@ -11,7 +12,7 @@ class WorkspaceConversationModel {
 
   /// W09.b（§6.7/J17）：当前群成员世代 id（服务端 gen.id 投影）。
   /// 偏好动作的世代身份 descriptor；0/缺失 = 世代未知（旧服务端）。
-  final int memberGenerationId;
+  final String memberGenerationId;
   final int unreadCount;
   final Map<String, dynamic>? latest;
   final int serverTs;
@@ -20,7 +21,7 @@ class WorkspaceConversationModel {
   const WorkspaceConversationModel({
     required this.group,
     required this.memberStartSeq,
-    this.memberGenerationId = 0,
+    this.memberGenerationId = '0',
     this.unreadCount = 0,
     this.latest,
     this.serverTs = 0,
@@ -39,7 +40,7 @@ class WorkspaceConversationModel {
         !row.containsKey('latest_message')) {
       throw const FormatException('Invalid workspace message snapshot');
     }
-    final generationId = int.tryParse('${row['member_generation_id']}') ?? 0;
+    final generationId = channelDecimalId(row['member_generation_id']) ?? '0';
     if (raw == null) {
       return WorkspaceConversationModel(
         group: GroupModel.fromJson(row),

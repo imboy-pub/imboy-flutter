@@ -194,7 +194,7 @@ void main() {
         'has_purchased': 1,
       });
 
-      expect(model.id, 42);
+      expect(model.id, '42');
       expect(model.name, 'Tech News');
       expect(model.description, 'Daily tech updates');
       expect(model.avatar, 'https://img/a.png');
@@ -202,7 +202,7 @@ void main() {
       expect(model.accessType, 0);
       expect(model.joinPolicy, 0);
       expect(model.customId, 'tech_news');
-      expect(model.creatorId, 7);
+      expect(model.creatorId, '7');
       expect(model.subscriberCount, 500);
       expect(model.isVerified, isTrue);
       expect(model.tags, ['tech', 'news']);
@@ -221,7 +221,17 @@ void main() {
         'created_at': 0,
         'updated_at': 0,
       });
-      expect(model.creatorId, 999);
+      expect(model.creatorId, '999');
+    });
+
+    test('频道 ID 拒绝非法值并保留合法的大整数字符串', () {
+      expect(ChannelModel.fromJson({'id': 'abc'}).id, '0');
+      expect(ChannelModel.fromJson({'id': '-1'}).id, '0');
+      expect(ChannelModel.fromJson({'id': '9223372036854775808'}).id, '0');
+      expect(
+        ChannelModel.fromJson({'id': '9007199254740993'}).id,
+        '9007199254740993',
+      );
     });
 
     test('tags 解析 — 字符串列表', () {

@@ -1732,6 +1732,9 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get collectedVideoFormatIncorrectCannotFindVideoUri => 'Unsupported video format, the video could not be found';
 	@override String get retry => 'Retry';
 	@override String get retrying => 'Retrying…';
+	@override String get denylistResultUnknown => 'The result is unknown. Check the blocklist before trying again.';
+	@override String get denylistLocalNotSynced => 'The server processed the request, but local state is not synced.';
+	@override String get friendConfirmResultUnknown => 'Friend confirmation result is unknown. Check the friendship before trying again.';
 }
 
 // Path: complaint
@@ -5602,6 +5605,9 @@ extension on TranslationsEnUs {
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => 'Unsupported video format, the video could not be found',
 			'common.retry' => 'Retry',
 			'common.retrying' => 'Retrying…',
+			'common.denylistResultUnknown' => 'The result is unknown. Check the blocklist before trying again.',
+			'common.denylistLocalNotSynced' => 'The server processed the request, but local state is not synced.',
+			'common.friendConfirmResultUnknown' => 'Friend confirmation result is unknown. Check the friendship before trying again.',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -6071,11 +6077,11 @@ extension on TranslationsEnUs {
 			'groupTask.overdue' => 'Overdue',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} hours left',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.dueSoon' => 'Due soon',
 			'groupTask.submitFailed' => 'Submit failed, please try again',
 			'groupTask.pendingReview' => 'Pending Review',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.taskIdMissing' => 'To-do ID missing, cannot view details',
 			'groupTask.taskIdMissingSubmit' => 'To-do ID missing, cannot submit',
 			'groupTask.publishedAt' => ({required Object time}) => 'Published ${time}',
@@ -6585,11 +6591,11 @@ extension on TranslationsEnUs {
 			'organization.directory.inviteColleaguesRow' => 'Invite colleagues...',
 			'organization.directory.memberTotal' => ({required Object count}) => '${count} members in total',
 			'organization.memberDetail.roleLabel' => 'Enterprise role',
+			_ => null,
+		} ?? switch (path) {
 			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
 			'organization.memberDetail.accountLabel' => 'Login account',
 			'organization.memberDetail.joinedLabel' => 'Joined',
-			_ => null,
-		} ?? switch (path) {
 			'organization.memberDetail.workspacesTitle' => 'Authorized workspaces',
 			'organization.memberDetail.workspacesEmpty' => 'This member has no workspace in this enterprise yet',
 			'organization.memberDetail.workspacesFailed' => 'Failed to load authorized workspaces',
@@ -7099,11 +7105,11 @@ extension on TranslationsEnUs {
 			'talkRecord.participantsInfoHint' => 'Participants describe attendance only. They do not share this record or verify speakers.',
 			'talkRecord.participantsRemove' => 'Remove participant',
 			'talkRecord.participantsGuestLabel' => 'Guest name or label',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.participantsAddGuest' => 'Add guest',
 			'talkRecord.participantsInvalid' => 'Select up to 100 people. Guest labels must be unique and 1–120 characters. Eligibility may have changed; check the list.',
 			'talkRecord.participantsNoResults' => 'No matching contacts or colleagues. Try searching.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.participantsConflict' => 'The list changed and has been refreshed. Review it before editing again.',
 			'talkRecord.participantsSaveFailed' => 'Could not confirm the save. Your selection is retained; retry or refresh.',
 			'talkRecord.cleanupProcessorUnconfirmed' => 'Processing is stopping or being checked. Temporary audio copies have not yet been confirmed as removed. Refresh to check progress.',

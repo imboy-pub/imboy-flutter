@@ -1,3 +1,6 @@
+import 'package:dio/dio.dart' show Options;
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
@@ -13,17 +16,22 @@ mixin ChannelMicroCommunityApi on HttpClient {
     }
   }
 
-  Future<int?> getDiscussion(String channelId) async {
+  Future<String?> getDiscussion(String channelId) async {
     _requireMicroCommunity();
-    final response = await get('/api/v1/channel/$channelId/discussion');
+    final response = await get(
+      '/api/v1/channel/$channelId/discussion',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
     response.throwIfFailed();
     final payload = IMBoyHttpResponse.payloadAsMap(response.payload);
     if (!payload.containsKey('discussion_group_id')) {
       throw const FormatException('missing discussion binding');
     }
     if (payload['discussion_group_id'] == null) return null;
-    final id = IMBoyHttpResponse.payloadInt(payload, 'discussion_group_id');
-    if (id == null || id <= 0) {
+    final id = channelDecimalId(payload['discussion_group_id']);
+    if (id == null) {
       throw const FormatException('invalid discussion binding');
     }
     return id;
@@ -32,11 +40,15 @@ mixin ChannelMicroCommunityApi on HttpClient {
   /// Explicit user action only; neither subscribe nor getDiscussion calls this.
   Future<Map<String, dynamic>> joinDiscussion(String channelId) async {
     _requireMicroCommunity();
-    final response = await post('/api/v1/channel/$channelId/discussion/join');
+    final response = await post(
+      '/api/v1/channel/$channelId/discussion/join',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
     response.throwIfFailed();
     final payload = IMBoyHttpResponse.payloadAsMap(response.payload);
-    if ((IMBoyHttpResponse.payloadInt(payload, 'discussion_group_id') ?? 0) <=
-        0) {
+    if (channelDecimalId(payload['discussion_group_id']) == null) {
       throw const FormatException('missing discussion_group_id');
     }
     return payload;
@@ -54,6 +66,11 @@ mixin ChannelMicroCommunityApi on HttpClient {
     if (page < 1 || size < 1 || size > 50) throw ArgumentError('page/size');
     final response = await get(
       '/api/v1/channel/$channelId/posts',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: {
         'page': page,
         'size': size,
@@ -88,7 +105,8 @@ mixin ChannelMicroCommunityApi on HttpClient {
     if (entries.length != (payload['list'] as List).length ||
         messages.any(
           (message) =>
-              message.id <= 0 || message.channelId.toString() != channelId,
+              (BigInt.tryParse(message.id) ?? BigInt.zero) <= BigInt.zero ||
+              message.channelId != channelId,
         )) {
       throw const FormatException('invalid scoped posts');
     }

@@ -23,6 +23,8 @@
 ///     单测，绕开 sqflite→win32 传递链
 library;
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
 /// 解析结果（sealed）：
 ///   - `GroupNoticePublishedPayload`：gid/notice_id/publisher_id 合法
 ///   - `GroupNoticeParseError`：必需字段非法（reason 为稳定机器码）
@@ -33,13 +35,13 @@ sealed class GroupNoticeParseResult {
 /// 合法 payload 的结构化视图。
 final class GroupNoticePublishedPayload extends GroupNoticeParseResult {
   /// 群 ID（必需，>0）
-  final int gid;
+  final String gid;
 
   /// 公告 ID（必需，>0）
-  final int noticeId;
+  final String noticeId;
 
   /// 发布者用户 ID（必需，>0）
-  final int publisherId;
+  final String publisherId;
 
   /// 发布者昵称（缺失/null → 空串）
   final String publisherNickname;
@@ -84,18 +86,18 @@ final class GroupNoticeParseError extends GroupNoticeParseResult {
 GroupNoticeParseResult parseGroupNoticePublishedPayload(
   Map<String, dynamic> payload,
 ) {
-  final gid = _asInt(payload['gid']);
-  if (gid == null || gid <= 0) {
+  final gid = channelDecimalId(payload['gid']);
+  if (gid == null) {
     return const GroupNoticeParseError('invalid_gid');
   }
 
-  final noticeId = _asInt(payload['notice_id']);
-  if (noticeId == null || noticeId <= 0) {
+  final noticeId = channelDecimalId(payload['notice_id']);
+  if (noticeId == null) {
     return const GroupNoticeParseError('invalid_notice_id');
   }
 
-  final publisherId = _asInt(payload['publisher_id']);
-  if (publisherId == null || publisherId <= 0) {
+  final publisherId = channelDecimalId(payload['publisher_id']);
+  if (publisherId == null) {
     return const GroupNoticeParseError('invalid_publisher_id');
   }
 

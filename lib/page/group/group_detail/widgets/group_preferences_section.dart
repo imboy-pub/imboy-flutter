@@ -29,7 +29,6 @@ class GroupPreferencesSection extends ConsumerWidget {
     super.key,
     required this.groupId,
     required this.title,
-    required this.gidInt,
     required this.role,
     required this.noticeDisabled,
     required this.groupE2ee,
@@ -42,9 +41,6 @@ class GroupPreferencesSection extends ConsumerWidget {
 
   /// 页面构造参数 title（搜索 extra 的 peerTitle 原取 `widget.title`）。
   final String title;
-
-  /// `int.tryParse(groupId) ?? 0`，由页面预计算（原 `_gidInt`）。
-  final int gidInt;
 
   /// 页面当前 role（原 `state.role`，渲染时同值）。
   final int role;
@@ -151,7 +147,9 @@ class GroupPreferencesSection extends ConsumerWidget {
         GroupNoticeDisabledTile(
           label: t.common.muteNotifications,
           value: noticeDisabled,
-          onChanged: gidInt <= 0 ? null : onNoticeDisabledChanged,
+          onChanged: (BigInt.tryParse(groupId) ?? BigInt.zero) <= BigInt.zero
+              ? null
+              : onNoticeDisabledChanged,
         ),
         // 群级 E2EE：仅群主可开，0→1 单向不可撤销；成员只读展示状态。
         // 服务端关闭 E2EE（features.e2ee=false，硬闸档位）时整项隐藏：
@@ -160,7 +158,10 @@ class GroupPreferencesSection extends ConsumerWidget {
           GroupNoticeDisabledTile(
             label: t.group.e2eeTitle,
             value: groupE2ee,
-            onChanged: groupE2ee || !isGroupOwner(role) || gidInt <= 0
+            onChanged:
+                groupE2ee ||
+                    !isGroupOwner(role) ||
+                    (BigInt.tryParse(groupId) ?? BigInt.zero) <= BigInt.zero
                 ? null
                 : (v) {
                     if (v) onEnableE2ee();

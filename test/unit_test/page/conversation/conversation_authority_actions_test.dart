@@ -216,7 +216,7 @@ void main() {
         await ConversationRepo().hideForAccount(
           account: _testUid,
           kind: 'C2C',
-          peer: 8005,
+          peer: '8005',
         ),
         isFalse,
       );
@@ -368,8 +368,8 @@ void main() {
         },
       );
 
-      expect(state.conversations.first.peerId, 2001);
-      expect(state.conversations.last.peerId, 2002);
+      expect(state.conversations.first.peerId, '2001');
+      expect(state.conversations.last.peerId, '2002');
     });
 
     test('authoritative pull 应隐藏服务端已不存在的本地会话', () async {
@@ -395,7 +395,7 @@ void main() {
 
       expect(hidden, isNotNull);
       expect(hidden!.isShow, 0);
-      expect(visible.where((c) => c.peerId == 3001), isEmpty);
+      expect(visible.where((c) => c.peerId == '3001'), isEmpty);
       expect(container.read(conversationProvider).conversationMap, isEmpty);
 
       keepAlive.close();
@@ -451,7 +451,7 @@ void main() {
       expect(restored!.isShow, 1);
       expect(restored.isPinned, isTrue);
       expect(conversations, hasLength(2));
-      expect(conversations.first.peerId, 4001);
+      expect(conversations.first.peerId, '4001');
       expect(conversations.first.isPinned, isTrue);
 
       keepAlive.close();

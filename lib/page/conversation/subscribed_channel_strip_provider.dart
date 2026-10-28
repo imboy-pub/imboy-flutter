@@ -28,7 +28,7 @@ final class SubscribedChannelSummary {
   /// 最新一条消息时间（毫秒 epoch），用于排序
   final int? lastMessageTime;
 
-  int get channelId => channel.id;
+  String get channelId => channel.id;
   String get name => channel.name;
   String? get avatar => channel.avatar;
   int get unreadCount => subscription.unreadCount;
@@ -84,7 +84,7 @@ class SubscribedChannelStripNotifier
     for (final row in rawRows) {
       final channel = ChannelModel.fromMap(row);
       final sub = ChannelSubscriptionModel.fromMap(row);
-      if (channel.id == 0) continue; // 防卫：id=0 哨兵跳过
+      if (channel.id == '0') continue; // 防卫：id=0 哨兵跳过
 
       String? preview;
       int? msgTime;

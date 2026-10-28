@@ -40,7 +40,7 @@ void main() {
 
       expect(result, isA<GroupMemberMutePayload>());
       final p = result as GroupMemberMutePayload;
-      expect(p.gid, 10086);
+      expect(p.gid, '10086');
       expect(p.muteUntilMs, 1_900_000_000_000);
       expect(p.remainingSeconds, 600);
       expect(p.durationText, '10分钟');
@@ -54,7 +54,7 @@ void main() {
       });
 
       expect(result, isA<GroupMemberMutePayload>());
-      expect((result as GroupMemberMutePayload).gid, 10086);
+      expect((result as GroupMemberMutePayload).gid, '10086');
     });
 
     test('gid 缺失 → invalid_gid', () {
@@ -182,7 +182,7 @@ void main() {
 
       expect(result, isA<GroupMemberUnmutePayload>());
       final p = result as GroupMemberUnmutePayload;
-      expect(p.gid, 10086);
+      expect(p.gid, '10086');
       expect(p.userId, '1838294017982465');
       expect(p.adminNickname, 'Alice');
     });
@@ -243,7 +243,7 @@ void main() {
       expect(
         describe(
           const GroupMemberMutePayload(
-            gid: 1,
+            gid: '1',
             muteUntilMs: 2,
             remainingSeconds: 3,
             durationText: 't',
@@ -255,7 +255,7 @@ void main() {
       expect(
         describe(
           const GroupMemberUnmutePayload(
-            gid: 9,
+            gid: '9',
             userId: 'u',
             adminNickname: 'a',
           ),
