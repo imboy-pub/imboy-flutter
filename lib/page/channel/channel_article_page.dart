@@ -19,6 +19,7 @@ import 'package:imboy/component/ui/cupertino_modal_surface.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/page/channel/channel_detail_rules.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_comment_tile.dart';
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
@@ -453,7 +454,13 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final channel = ref.watch(channelDetailProvider).channel;
+    // 叠页归属过滤（J07）：其他目标在途时回退本目标快照，标题不串台。
+    final channel = ownChannelDetailState(
+      ref.watch(channelDetailProvider),
+      ref.read(channelDetailProvider.notifier).requestedChannelId,
+      widget.channelId,
+      ref.read(channelDetailProvider.notifier).snapshotFor(widget.channelId),
+    ).channel;
     final title = channel?.name ?? t.channel.title;
 
     // 沉浸阅读页是被 push 进来的全屏页（频道内容卡片单击 / 卡片底部「评论」），

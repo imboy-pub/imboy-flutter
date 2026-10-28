@@ -36,8 +36,6 @@ createTemplateGroup: "Gruppo General (diventerai membro del gruppo)"
 createTemplateOwner: "Diventerai Owner dell'area di lavoro (membro dell'area di lavoro)"
 createTemplateTitle: Verrà inizializzato automaticamente
 createTitle: Crea area di lavoro
-discussInGroupGuide: "I canali servono a pubblicare contenuti; vuoi discutere? Vai a chiacchierare nel gruppo General."
-dmEntry: Tutti i messaggi
 emptyNoWorkspace: Seleziona o crea prima un'area di lavoro
 experienceModePersonal: Personale
 governanceTitle: Governance dell'area di lavoro
@@ -241,3 +239,8 @@ tabSchedule: "Agenda"
 tabTodo: "Da fare"
 takeABreak: "Fai una pausa"
 todoEmptyTitle: "Nessuna attività"
+
+# ==================== D6 protezione contenuti (budget di visualizzazione §6.6) ====================
+contentProtectedPending: "Contenuto temporaneamente nascosto, in attesa di riautorizzazione"
+contentProtectedRetry: "Verifica di nuovo"
+contentRevoked: "Non hai più accesso a questo contenuto dell'area di lavoro"

@@ -46,3 +46,7 @@ moreActions: 더 보기
 noMemberWithRole(roleName): "$roleName 없음"
 perfectionGroupInfo: 그룹 정보 완성
 touchContactAddMember: 연락처를 탭하여 그룹 구성원으로 추가
+transferAndLeave: 양도 후 나가기
+sureToTransferAndLeave: 양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?
+transferredButLeaveFailed: 소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요
+noEligibleSuccessor: 양도할 수 있는 멤버가 없습니다

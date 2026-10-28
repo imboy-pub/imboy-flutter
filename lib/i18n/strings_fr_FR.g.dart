@@ -301,6 +301,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'Écrire une publication';
 	@override String get discover => 'Découvrir';
 	@override String get create => 'Créer un canal';
+	@override String get creationRecoveryUnavailable => 'Résultat de création inconnu, veuillez réessayer plus tard';
 	@override String get searchHint => 'Rechercher par nom ou ID';
 	@override String get noResults => 'Aucun canal trouvé';
 	@override String get noRecommendedChannels => 'Aucune chaîne recommandée Revenez plus tard';
@@ -499,6 +500,7 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Venez suivre ma chaîne « ${name} » : ${url}';
 	@override String get discussion => 'Discussion';
 	@override String get joinDiscussion => 'Rejoindre la discussion';
+	@override String get discussionIneligible => 'Abonnez-vous à cette chaîne pour rejoindre son groupe de discussion';
 	@override String get essence => 'À la une';
 	@override String get allPosts => 'Toutes les publications';
 	@override String get editPostTags => 'Modifier les tags';
@@ -508,6 +510,9 @@ class _Translations$channel$fr_FR extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés.';
 	@override String get personalChannelLabel => 'Canal personnel';
 	@override String get enterpriseChannelLabel => 'Canal interne de l’entreprise';
+	@override String get subscribePending => 'Abonné ; actualisation en cours';
+	@override String get subscribeRefresh => 'Actualiser l’abonnement';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} nouvelles mises à jour';
 }
 
 // Path: chat
@@ -644,6 +649,10 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Envoyer un nouveau message';
 	@override String get markRead => 'Marquer comme lu';
 	@override String get markUnread => 'Marquer comme non lu';
+	@override String get manualPendingBadge => 'À traiter';
+	@override String get cancelManualPending => 'Annuler « à traiter »';
+	@override String get manualPendingOff => 'Non à traiter';
+	@override String manualPendingConflict({required Object param}) => 'État actuel du serveur : ${param}';
 	@override String get pleaseEnterSignature => 'Saisissez votre signature';
 	@override String get exportProfile => 'Exporter le profil';
 	@override String get setSignature => 'Définir la signature';
@@ -883,6 +892,12 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get messageContent => 'Contenu du message';
 	@override String get messageRevoked => 'Message retiré';
 	@override String get quoteMessageNotAvailable => 'Le message cité n\'est pas disponible.';
+	@override String get quoteMessageUnavailable => 'Ce message a peut-être expiré ou ne figure pas dans votre historique accessible. Réessayez ou contactez son expéditeur.';
+	@override String get quoteMessageAuthorizationUnavailable => 'L’accès à cet ancien message ne peut pas être vérifié actuellement. Réessayez plus tard ou contactez l’administrateur de la conversation.';
+	@override String get quoteMessageExpired => 'Le message cité a expiré et ne peut pas être restauré. Demandez à l’expéditeur de confirmer son contenu.';
+	@override String get quoteMessageForbidden => 'Vous n’avez pas accès à ce message cité. Contactez l’administrateur de la conversation pour vérifier vos autorisations.';
+	@override String get quoteMessageLoadFailed => 'Le message cité n’a pas pu être chargé. Vérifiez votre connexion, puis appuyez à nouveau pour réessayer.';
+	@override String get quoteMessageUndecryptable => 'Cet appareil ne peut pas déchiffrer le message cité. Réessayez ou demandez à son expéditeur de le renvoyer.';
 	@override String get microphone => 'Micro';
 	@override String get microphonePermissionNotObtained => 'Autorisation de microphone non obtenue.';
 	@override String get moreInfo => 'Plus d\'informations';
@@ -1964,6 +1979,10 @@ class _Translations$group$fr_FR extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => 'Aucun ${roleName} pour le moment';
 	@override String get perfectionGroupInfo => 'Compléter les informations du groupe';
 	@override String get touchContactAddMember => 'Touchez un contact pour l\'ajouter comme membre du groupe';
+	@override String get transferAndLeave => 'Transférer et quitter';
+	@override String get sureToTransferAndLeave => 'Vous allez transférer la propriété et quitter ce groupe. Continuer ?';
+	@override String get transferredButLeaveFailed => 'Propriété transférée, mais la sortie a échoué. Veuillez réessayer';
+	@override String get noEligibleSuccessor => 'Aucun membre disponible pour le transfert';
 }
 
 // Path: groupCategory
@@ -2552,7 +2571,6 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)';
 	@override String get archivedBadge => 'Archivé';
 	@override String get emptyNoWorkspace => 'Sélectionnez ou créez d\'abord un espace de travail';
-	@override String get dmEntry => 'Tous les messages';
 	@override String get experienceModePersonal => 'Personnel';
 	@override String get switchToPersonal => 'Passer en mode personnel';
 	@override String get createTitle => 'Créer un espace de travail';
@@ -2585,7 +2603,6 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Les canaux servent à publier du contenu en continu (annonces/documents) ; pour discuter, rendez-vous dans les groupes';
 	@override String channelTileSubtitle({required Object count}) => '${count} abonnés';
 	@override String get channelDetailTitle => 'Canal';
-	@override String get discussInGroupGuide => 'Le canal sert à publier du contenu ; envie d\'en discuter ? Rejoignez le groupe General.';
 	@override String get groupsEmptyTitle => 'Aucun groupe d\'espace de travail pour le moment';
 	@override String get groupsEmptySubtitle => 'Les groupes sont l\'espace de discussion en temps réel de l\'espace de travail (seule entrée pour discuter)';
 	@override String groupTileSubtitle({required Object count}) => '${count} membres du groupe';
@@ -2782,6 +2799,9 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'À faire';
 	@override String get takeABreak => 'Faites une pause';
 	@override String get todoEmptyTitle => 'Aucune tâche';
+	@override String get contentProtectedPending => 'Contenu temporairement masqué, en attente de réautorisation';
+	@override String get contentProtectedRetry => 'Revérifier';
+	@override String get contentRevoked => 'Vous n\'avez plus accès à ce contenu d\'espace de travail';
 }
 
 // Path: account.alipaySim
@@ -3211,6 +3231,8 @@ class _Translations$organization$manage$fr_FR extends Translations$organization$
 	@override String get retry => 'Réessayer';
 	@override String get groupSection => 'Groupes de l\'entreprise';
 	@override String get createGroup => 'Créer un groupe';
+	@override String get creationRecoveryUnavailable => 'Résultat inconnu, réessayez plus tard';
+	@override String groupCreatedRenamePending({required Object gid}) => 'Groupe créé (ID : ${gid}) ; nom non enregistré';
 	@override String get groupNameHint => 'Nom du groupe';
 	@override String get groupEmpty => 'Aucun groupe d\'entreprise';
 	@override String groupMembers({required Object count}) => '${count} membres';
@@ -3550,6 +3572,7 @@ extension on TranslationsFrFr {
 			'channel.writeArticle' => 'Écrire une publication',
 			'channel.discover' => 'Découvrir',
 			'channel.create' => 'Créer un canal',
+			'channel.creationRecoveryUnavailable' => 'Résultat de création inconnu, veuillez réessayer plus tard',
 			'channel.searchHint' => 'Rechercher par nom ou ID',
 			'channel.noResults' => 'Aucun canal trouvé',
 			'channel.noRecommendedChannels' => 'Aucune chaîne recommandée Revenez plus tard',
@@ -3748,6 +3771,7 @@ extension on TranslationsFrFr {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Venez suivre ma chaîne « ${name} » : ${url}',
 			'channel.discussion' => 'Discussion',
 			'channel.joinDiscussion' => 'Rejoindre la discussion',
+			'channel.discussionIneligible' => 'Abonnez-vous à cette chaîne pour rejoindre son groupe de discussion',
 			'channel.essence' => 'À la une',
 			'channel.allPosts' => 'Toutes les publications',
 			'channel.editPostTags' => 'Modifier les tags',
@@ -3757,6 +3781,9 @@ extension on TranslationsFrFr {
 			'channel.linkAccessHint' => 'Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés.',
 			'channel.personalChannelLabel' => 'Canal personnel',
 			'channel.enterpriseChannelLabel' => 'Canal interne de l’entreprise',
+			'channel.subscribePending' => 'Abonné ; actualisation en cours',
+			'channel.subscribeRefresh' => 'Actualiser l’abonnement',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} nouvelles mises à jour',
 			'chat.bankCard' => 'Carte bancaire',
 			'chat.receivePayment' => 'Paiement et réception',
 			'chat.alreadyMember' => 'Déjà membre',
@@ -3874,18 +3901,22 @@ extension on TranslationsFrFr {
 			'chat.historyUnavailable' => 'Historique des messages temporairement indisponible',
 			'chat.historyUnavailableHint' => 'L\'archive d\'historique côté serveur est désactivée ou indisponible. Touchez Réessayer pour resynchroniser',
 			'chat.momentsRecordVideo' => 'Filmer une vidéo',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Privé',
 			'chat.momentsMediaTooManyImages' => '9 images maximum',
 			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
 			'chat.momentsMediaMixedImageAndVideo' => 'Images et vidéo impossibles ensemble',
 			'chat.momentsReplyPrefix' => 'Répondre @',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => 'Réponse à @{name}',
 			'chat.sendNewMessage' => 'Envoyer un nouveau message',
 			'chat.markRead' => 'Marquer comme lu',
 			'chat.markUnread' => 'Marquer comme non lu',
+			'chat.manualPendingBadge' => 'À traiter',
+			'chat.cancelManualPending' => 'Annuler « à traiter »',
+			'chat.manualPendingOff' => 'Non à traiter',
+			'chat.manualPendingConflict' => ({required Object param}) => 'État actuel du serveur : ${param}',
 			'chat.pleaseEnterSignature' => 'Saisissez votre signature',
 			'chat.exportProfile' => 'Exporter le profil',
 			'chat.setSignature' => 'Définir la signature',
@@ -4116,6 +4147,12 @@ extension on TranslationsFrFr {
 			'common.messageContent' => 'Contenu du message',
 			'common.messageRevoked' => 'Message retiré',
 			'common.quoteMessageNotAvailable' => 'Le message cité n\'est pas disponible.',
+			'common.quoteMessageUnavailable' => 'Ce message a peut-être expiré ou ne figure pas dans votre historique accessible. Réessayez ou contactez son expéditeur.',
+			'common.quoteMessageAuthorizationUnavailable' => 'L’accès à cet ancien message ne peut pas être vérifié actuellement. Réessayez plus tard ou contactez l’administrateur de la conversation.',
+			'common.quoteMessageExpired' => 'Le message cité a expiré et ne peut pas être restauré. Demandez à l’expéditeur de confirmer son contenu.',
+			'common.quoteMessageForbidden' => 'Vous n’avez pas accès à ce message cité. Contactez l’administrateur de la conversation pour vérifier vos autorisations.',
+			'common.quoteMessageLoadFailed' => 'Le message cité n’a pas pu être chargé. Vérifiez votre connexion, puis appuyez à nouveau pour réessayer.',
+			'common.quoteMessageUndecryptable' => 'Cet appareil ne peut pas déchiffrer le message cité. Réessayez ou demandez à son expéditeur de le renvoyer.',
 			'common.microphone' => 'Micro',
 			'common.microphonePermissionNotObtained' => 'Autorisation de microphone non obtenue.',
 			'common.moreInfo' => 'Plus d\'informations',
@@ -4378,6 +4415,8 @@ extension on TranslationsFrFr {
 			'common.localDeleteSuccess' => 'Suppression locale réussie.',
 			'common.localDeleteFailed' => 'Échec de la suppression locale.',
 			'common.revokeSuccess' => 'Révocation réussie.',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'Le contenu de l\'édition ne peut pas être vide.',
 			'common.editSuccess' => 'Édition réussie.',
 			'common.enabled' => 'Activé',
@@ -4393,8 +4432,6 @@ extension on TranslationsFrFr {
 			'common.editTags' => 'Modifier les étiquettes',
 			'common.quickActions' => 'Actions rapides',
 			'common.noNewFriendRequests' => 'Aucune nouvelle demande d\'ami pour le moment.',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'Entrez le message de vérification.',
 			'common.unknownRegion' => 'Région inconnue.',
 			'common.noCommonGroups' => 'Aucun groupe en commun.',
@@ -4892,6 +4929,8 @@ extension on TranslationsFrFr {
 			'contact.denylist' => 'Liste de blocage',
 			'contact.denylistEmpty' => 'Liste de blocage vide',
 			'contact.favoriteGroupTagsEtc' => 'Enregistrer les noms, noms de groupe, étiquettes, etc.',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'Nouvel ami',
 			'contact.recommendToFriend' => 'Recommander à des amis',
 			'contact.remark' => 'Remarque',
@@ -4907,8 +4946,6 @@ extension on TranslationsFrFr {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'La longueur de l\'étiquette ne peut pas dépasser ${param} caractères.',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Au maximum ${param} étiquettes autorisées.',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Étiquettes sélectionnées (${param}/${max}).',
-			_ => null,
-		} ?? switch (path) {
 			'contact.friendRequestSent' => 'Envoyé',
 			'contact.channelMaxTagsCount' => '8 étiquettes maximum',
 			'contact.tagInputHint' => 'Étiquette...',
@@ -5120,6 +5157,10 @@ extension on TranslationsFrFr {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'Aucun ${roleName} pour le moment',
 			'group.perfectionGroupInfo' => 'Compléter les informations du groupe',
 			'group.touchContactAddMember' => 'Touchez un contact pour l\'ajouter comme membre du groupe',
+			'group.transferAndLeave' => 'Transférer et quitter',
+			'group.sureToTransferAndLeave' => 'Vous allez transférer la propriété et quitter ce groupe. Continuer ?',
+			'group.transferredButLeaveFailed' => 'Propriété transférée, mais la sortie a échoué. Veuillez réessayer',
+			'group.noEligibleSuccessor' => 'Aucun membre disponible pour le transfert',
 			'groupCategory.title' => 'Catégories de groupe',
 			'groupCategory.createCategory' => 'Créer une catégorie',
 			'groupCategory.categoryName' => 'Nom de la catégorie',
@@ -5402,6 +5443,8 @@ extension on TranslationsFrFr {
 			'main.safetyNumberNoDevices' => 'Votre correspondant n\'a pas encore activé le chiffrement de bout en bout',
 			'main.safetyNumberPeerDevice' => 'Appareil du correspondant',
 			'main.safetyNumberReportRejected' => 'Le serveur a rejeté cet événement de vérification (signature ou horodatage incorrect) ; non marqué',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Informations d\'appareil indisponibles ; non signalé',
 			'main.safetyNumberVerified' => '✓ Vérifié',
 			'main.safetyNumberNotVerified' => 'Non vérifié',
@@ -5421,8 +5464,6 @@ extension on TranslationsFrFr {
 			'mention.title' => '@Mentions',
 			'mention.noMention' => 'Aucune @mention',
 			'mention.allRead' => 'Tout marquer lu',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllDenied' => 'Seuls les administrateurs peuvent @tout',
 			'mention.navInfoMissing' => 'Position du message manquante, navigation impossible',
 			'mention.pickButtonTooltip' => 'Mentionner un membre',
@@ -5748,6 +5789,8 @@ extension on TranslationsFrFr {
 			'organization.manage.retry' => 'Réessayer',
 			'organization.manage.groupSection' => 'Groupes de l\'entreprise',
 			'organization.manage.createGroup' => 'Créer un groupe',
+			'organization.manage.creationRecoveryUnavailable' => 'Résultat inconnu, réessayez plus tard',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Groupe créé (ID : ${gid}) ; nom non enregistré',
 			'organization.manage.groupNameHint' => 'Nom du groupe',
 			'organization.manage.groupEmpty' => 'Aucun groupe d\'entreprise',
 			'organization.manage.groupMembers' => ({required Object count}) => '${count} membres',
@@ -5914,6 +5957,8 @@ extension on TranslationsFrFr {
 			'talkRecord.aiProviderResubmitNotice' => 'Crée une nouvelle transcription avec un risque de double facturation. La demande initiale reste. Renvoyer et consentir à ce traitement ?',
 			'talkRecord.aiProviderCancelled' => 'Transcription arrêtée. L’audio existant est conservé.',
 			'talkRecord.aiProviderResumePreparation' => 'Continuer la préparation',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'La tâche initiale n’a pas été envoyée. Préparez à nouveau la source audio avec les autorisations et le consentement actuels.',
 			'welcome.step1Title' => 'Connexion simple',
 			'welcome.step1Desc' => 'Profitez de la joie d\'une communication fluide. Partout, à tout moment.',
@@ -5934,9 +5979,6 @@ extension on TranslationsFrFr {
 			'workspace.pickerEmptySubtitle' => 'Créez un espace de travail et lancez la collaboration d\'équipe en 3 minutes (crée automatiquement le canal Announcements et le groupe General)',
 			'workspace.archivedBadge' => 'Archivé',
 			'workspace.emptyNoWorkspace' => 'Sélectionnez ou créez d\'abord un espace de travail',
-			'workspace.dmEntry' => 'Tous les messages',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'Personnel',
 			'workspace.switchToPersonal' => 'Passer en mode personnel',
 			'workspace.createTitle' => 'Créer un espace de travail',
@@ -5969,7 +6011,6 @@ extension on TranslationsFrFr {
 			'workspace.channelsEmptySubtitle' => 'Les canaux servent à publier du contenu en continu (annonces/documents) ; pour discuter, rendez-vous dans les groupes',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} abonnés',
 			'workspace.channelDetailTitle' => 'Canal',
-			'workspace.discussInGroupGuide' => 'Le canal sert à publier du contenu ; envie d\'en discuter ? Rejoignez le groupe General.',
 			'workspace.groupsEmptyTitle' => 'Aucun groupe d\'espace de travail pour le moment',
 			'workspace.groupsEmptySubtitle' => 'Les groupes sont l\'espace de discussion en temps réel de l\'espace de travail (seule entrée pour discuter)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} membres du groupe',
@@ -6166,6 +6207,9 @@ extension on TranslationsFrFr {
 			'workspace.tabTodo' => 'À faire',
 			'workspace.takeABreak' => 'Faites une pause',
 			'workspace.todoEmptyTitle' => 'Aucune tâche',
+			'workspace.contentProtectedPending' => 'Contenu temporairement masqué, en attente de réautorisation',
+			'workspace.contentProtectedRetry' => 'Revérifier',
+			'workspace.contentRevoked' => 'Vous n\'avez plus accès à ce contenu d\'espace de travail',
 			_ => null,
 		};
 	}

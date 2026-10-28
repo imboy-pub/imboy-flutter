@@ -352,7 +352,7 @@ String p1TraceEvidenceDir() {
 }
 
 /// 真实内容组件断言：挂载的是真实 ChannelMessageFeed（非标记页）。
-/// 宿主模式额外断言讨论引导横幅（C01）。
+/// 宿主模式额外断言讨论引导横幅已移除（W06/F12 收敛，C01）。
 void expectRealEmbeddedContent(
   WidgetTester tester, {
   bool hostInWorkspaceShell = false,
@@ -362,7 +362,8 @@ void expectRealEmbeddedContent(
     expect(find.byType(WorkspaceChannelDetailPage), findsOneWidget);
     expect(
       find.byKey(const ValueKey('workspace-channel-discuss-guide')),
-      findsOneWidget,
+      findsNothing,
+      reason: 'W06/F12：常驻讨论引导横幅已移除（J12 不造 General）',
     );
   }
 }

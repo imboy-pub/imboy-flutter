@@ -158,6 +158,12 @@ messageCall: 发消息
 messageContent: 消息内容
 messageRevoked: 消息已撤回
 quoteMessageNotAvailable: 引用的消息不可用
+quoteMessageUnavailable: 无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认
+quoteMessageAuthorizationUnavailable: 暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员
+quoteMessageExpired: 引用的消息已过期，无法恢复；请向发送者确认内容
+quoteMessageForbidden: 你没有权限查看这条引用消息，请联系会话管理员确认权限
+quoteMessageLoadFailed: 引用消息加载失败，请检查网络后重新点击重试
+quoteMessageUndecryptable: 本设备无法解密这条引用消息，请重试或请发送者重新发送
 microphone: 麦克风
 microphonePermissionNotObtained: 未获取到麦克风权限
 moreInfo: 更多信息

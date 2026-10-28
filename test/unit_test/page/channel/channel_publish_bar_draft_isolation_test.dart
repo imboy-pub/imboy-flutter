@@ -39,6 +39,7 @@ class _Publisher extends ChannelDetailNotifier {
     required String content,
     required String msgType,
     Map<String, dynamic>? payload,
+    String? expectedChannelId,
   }) => result.future;
 }
 

@@ -126,6 +126,10 @@ momentsReplyingTo: رد على @{name}
 sendNewMessage: إرسال رسالة جديدة
 markRead: تعليم كمقروء
 markUnread: تعليم كغير مقروء
+manualPendingBadge: بانتظار المعالجة
+cancelManualPending: "إلغاء بانتظار المعالجة"
+manualPendingOff: ليس بانتظار المعالجة
+manualPendingConflict(param): "الحالة الحالية للخادم: ${param}"
 pleaseEnterSignature: "أدخل توقيعك الشخصي"
 exportProfile: تصدير الملف الشخصي
 setSignature: تعيين التوقيع الشخصي

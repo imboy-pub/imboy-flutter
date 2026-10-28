@@ -7,6 +7,7 @@ managed: 관리 중
 writeArticle: 게시물 작성
 discover: 채널 찾기
 create: 채널 만들기
+creationRecoveryUnavailable: 생성 결과를 알 수 없습니다. 나중에 다시 시도해 주세요
 searchHint: 채널 이름 또는 ID 검색
 noResults: 채널을 찾을 수 없습니다
 noRecommendedChannels: 추천 채널이 없습니다 나중에 다시 확인하세요
@@ -210,6 +211,7 @@ shareInviteText(name, url): "제 채널 \"$name\"에 팔로우해 주세요! $ur
 # Micro-community content and explicit discussion membership.
 discussion: "토론"
 joinDiscussion: "토론 참여"
+discussionIneligible: 이 채널을 구독해야 토론 그룹에 참여할 수 있습니다
 essence: "추천 게시물"
 allPosts: "모든 게시물"
 editPostTags: "태그 편집"
@@ -221,3 +223,7 @@ shareLink: "링크 공유"
 linkAccessHint: "링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다."
 personalChannelLabel: "개인 채널"
 enterpriseChannelLabel: "기업 내부 채널"
+
+subscribePending: 구독 완료, 새로고침 중
+subscribeRefresh: 구독 상태 새로고침
+unseenUpdatesBanner(count): "새 업데이트 ${count}개"

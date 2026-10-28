@@ -5,6 +5,8 @@
 /// 把本按钮挂到外层 AppBar，避免「外层标题 + 内层 GlassAppBar」双层头部。
 library;
 
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,11 +17,12 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/store/model/channel_model.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
+import '../channel_di_provider.dart';
 import '../channel_provider.dart';
 import '../channel_link_page.dart';
 
@@ -93,7 +96,7 @@ void showChannelInfoDialog(
             '${context.t.channel.subscribers}: $count',
             style: TextStyle(
               fontSize: FontSizeType.footnote.size,
-              color: AppColors.iosGray,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -168,15 +171,16 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return PopupMenuButton<String>(
       icon: const Icon(CupertinoIcons.ellipsis_vertical),
       tooltip: MaterialLocalizations.of(context).showMenuTooltip,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSpacing.medium),
       ),
-      color: Theme.of(context).brightness == Brightness.dark
-          ? AppColors.darkSurfaceContainerHighest
-          : AppColors.lightSurface,
+      color: colors.brightness == Brightness.dark
+          ? colors.surfaceContainerHighest
+          : colors.surface,
       elevation: 2.0,
       offset: const Offset(0, 48), // Float elegantly below the app bar
       onSelected: _handleMenuAction,
@@ -191,30 +195,30 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
     Color? iconColor,
     Color? textColor,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final effectiveIconColor =
-        iconColor ??
-        (isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary);
-    final effectiveTextColor =
-        textColor ??
-        (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary);
+    final colors = Theme.of(context).colorScheme;
+    final effectiveIconColor = iconColor ?? colors.onSurfaceVariant;
+    final effectiveTextColor = textColor ?? colors.onSurface;
 
     return PopupMenuItem<String>(
       value: value,
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      height: 48,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.small,
+      ),
+      height: AppSpacing.xxxLarge,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 22, color: effectiveIconColor),
-          const SizedBox(width: 16),
-          Text(
-            text,
-            style: TextStyle(
-              fontSize: FontSizeType.medium.size,
-              fontWeight: FontWeight.w400,
-              color: effectiveTextColor,
-              fontFamily: 'PingFang SC',
+          AppSpacing.horizontalRegular,
+          Flexible(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: FontSizeType.medium.size,
+                fontWeight: FontWeight.w400,
+                color: effectiveTextColor,
+              ),
             ),
           ),
         ],
@@ -391,8 +395,31 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
 
   Future<void> _unsubscribe(ChannelModel channel) async {
     if (_busy) return;
+    final target = _channelId;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        mounted &&
+        _channelId == target &&
+        user.currentUid == uid &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
     _busy = true;
     try {
+      final service = ref.read(channelServiceProvider);
+      if (service.hasPendingSubscription(target)) {
+        final result = await ref
+            .read(channelListProvider.notifier)
+            .subscribeChannel(target);
+        if (!isCurrent()) return;
+        if (mounted && result == ChannelSubscribeOutcome.pending) {
+          AppLoading.showToast(context.t.channel.subscribePending);
+        } else if (mounted && result == ChannelSubscribeOutcome.completed) {
+          await ref.read(channelDetailProvider.notifier).loadChannel(target);
+        }
+        return;
+      }
       final confirmed = await confirmChannelUnsubscribe(context);
       if (!confirmed || !mounted) return;
       final success = await ref

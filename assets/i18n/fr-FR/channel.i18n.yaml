@@ -7,6 +7,7 @@ managed: Géré
 writeArticle: Écrire une publication
 discover: Découvrir
 create: Créer un canal
+creationRecoveryUnavailable: Résultat de création inconnu, veuillez réessayer plus tard
 searchHint: Rechercher par nom ou ID
 noResults: Aucun canal trouvé
 noRecommendedChannels: Aucune chaîne recommandée Revenez plus tard
@@ -210,6 +211,7 @@ shareInviteText(name, url): "Venez suivre ma chaîne « $name » : $url"
 # Micro-community content and explicit discussion membership.
 discussion: "Discussion"
 joinDiscussion: "Rejoindre la discussion"
+discussionIneligible: Abonnez-vous à cette chaîne pour rejoindre son groupe de discussion
 essence: "À la une"
 allPosts: "Toutes les publications"
 editPostTags: "Modifier les tags"
@@ -221,3 +223,7 @@ shareLink: "Partager le lien"
 linkAccessHint: "Le lien ouvre le canal. L’accès et l’abonnement restent soumis aux autorisations du canal. Les canaux d’entreprise sont réservés aux membres autorisés."
 personalChannelLabel: "Canal personnel"
 enterpriseChannelLabel: "Canal interne de l’entreprise"
+
+subscribePending: Abonné ; actualisation en cours
+subscribeRefresh: Actualiser l’abonnement
+unseenUpdatesBanner(count): "${count} nouvelles mises à jour"

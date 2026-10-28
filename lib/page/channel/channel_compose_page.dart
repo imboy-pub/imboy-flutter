@@ -31,6 +31,7 @@ import 'package:image/image.dart' as img;
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 import 'channel_provider.dart';
+import 'channel_detail_rules.dart';
 
 /// 单张图片上传结果：object_key + 原始宽高（供 feed 九宫格布局使用）。
 typedef _ImageUpload = ({String uri, int w, int h});
@@ -111,6 +112,13 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   late final String? _draftKey;
+  late final String _ownerUid;
+  late final int _ownerSession;
+
+  bool get _sessionCurrent =>
+      UserRepoLocal.to.currentUid == _ownerUid &&
+      UserRepoLocal.to.isCurrentSession(_ownerSession) &&
+      !UserRepoLocal.to.isAuthTransitioning;
 
   /// 正文焦点：绑定 TextField，用于「格式工具条」随焦点显示 + 插入后回焦。
   final FocusNode _contentFocusNode = FocusNode();
@@ -136,6 +144,8 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   @override
   void initState() {
     super.initState();
+    _ownerUid = UserRepoLocal.to.currentUid;
+    _ownerSession = UserRepoLocal.to.sessionGeneration;
     // Delayed exit/publish cleanup must retain this composer's original owner.
     _draftKey = chatDraftKeys(
       UserRepoLocal.to.currentUid,
@@ -342,6 +352,12 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   }
 
   Future<String?> _uploadChannelFile(File file) async {
+    if (!_sessionCurrent) return null;
+    final scopeRef = channelTargetId(
+      ref.read(channelDetailProvider).channel,
+      widget.channelId,
+    );
+    if (scopeRef == null) return null;
     String? uploadedUrl;
     final completer = Completer<bool>();
     await AttachmentApi.uploadFileViaPresignCompat(
@@ -363,13 +379,22 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
       // 频道附件必须标 channel scope：否则默认 private（仅上传者可读），
       // 订阅者渲染时 view_url 授权失败（"无权访问该附件"）。
       scope: 'channel',
-      scopeRef: widget.channelId,
+      scopeRef: scopeRef,
     );
     return (await completer.future) ? uploadedUrl : null;
   }
 
   Future<void> _publish() async {
     if (_isPublishing || !_hasContent) return;
+    if (!_sessionCurrent) return;
+    if (channelTargetId(
+          ref.read(channelDetailProvider).channel,
+          widget.channelId,
+        ) ==
+        null) {
+      AppLoading.showError(context.t.channel.publishFailed);
+      return;
+    }
     setState(() => _isPublishing = true);
     final t = context.t;
     try {
@@ -387,6 +412,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     List<Map<String, dynamic>> images,
     Translations t,
   ) async {
+    if (!_sessionCurrent) return;
     final title = _titleController.text.trim();
     final coverUri = _resolveCoverUri(images);
     // 向后兼容：title/cover 仅在非空时写入，旧渲染路径（无这两字段）不受影响。
@@ -399,6 +425,7 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
     final ok = await ref
         .read(channelDetailProvider.notifier)
         .publishMessage(
+          expectedChannelId: widget.channelId,
           content: _contentController.text.trim(),
           msgType: ChannelMessageType.imageText,
           payload: payload,
@@ -572,7 +599,12 @@ class _ChannelComposePageState extends ConsumerState<ChannelComposePage> {
   @override
   Widget build(BuildContext context) {
     final t = context.t;
-    final canPublish = _hasContent && !_isPublishing;
+    final target = channelTargetId(
+      ref.watch(channelDetailProvider).channel,
+      widget.channelId,
+    );
+    final canPublish =
+        _hasContent && !_isPublishing && target != null && _sessionCurrent;
 
     return AppBackScope<void>(
       // 只在会真丢东西时拦：标题/正文 dispose 时自动存草稿，图片不持久化

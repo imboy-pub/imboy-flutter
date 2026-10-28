@@ -826,6 +826,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '创建频道'
 	String get create => '创建频道';
 
+	/// zh-CN: '创建结果未知，请稍后重试'
+	String get creationRecoveryUnavailable => '创建结果未知，请稍后重试';
+
 	/// zh-CN: '搜索频道名称或ID'
 	String get searchHint => '搜索频道名称或ID';
 
@@ -1423,6 +1426,9 @@ class Translations$channel$zh_CN {
 	/// zh-CN: '加入讨论'
 	String get joinDiscussion => '加入讨论';
 
+	/// zh-CN: '订阅该频道后才能加入其讨论群'
+	String get discussionIneligible => '订阅该频道后才能加入其讨论群';
+
 	/// zh-CN: '精华'
 	String get essence => '精华';
 
@@ -1449,6 +1455,15 @@ class Translations$channel$zh_CN {
 
 	/// zh-CN: '企业内部频道'
 	String get enterpriseChannelLabel => '企业内部频道';
+
+	/// zh-CN: '已订阅，正在刷新'
+	String get subscribePending => '已订阅，正在刷新';
+
+	/// zh-CN: '刷新订阅状态'
+	String get subscribeRefresh => '刷新订阅状态';
+
+	/// zh-CN: '有 ${count} 条新更新'
+	String unseenUpdatesBanner({required Object count}) => '有 ${count} 条新更新';
 }
 
 // Path: chat
@@ -1863,6 +1878,18 @@ class Translations$chat$zh_CN {
 
 	/// zh-CN: '标记未读'
 	String get markUnread => '标记未读';
+
+	/// zh-CN: '待处理'
+	String get manualPendingBadge => '待处理';
+
+	/// zh-CN: '取消待处理'
+	String get cancelManualPending => '取消待处理';
+
+	/// zh-CN: '非待处理'
+	String get manualPendingOff => '非待处理';
+
+	/// zh-CN: '服务端当前状态：${param}'
+	String manualPendingConflict({required Object param}) => '服务端当前状态：${param}';
 
 	/// zh-CN: '请输入个性签名'
 	String get pleaseEnterSignature => '请输入个性签名';
@@ -2565,6 +2592,24 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '引用的消息不可用'
 	String get quoteMessageNotAvailable => '引用的消息不可用';
+
+	/// zh-CN: '无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认'
+	String get quoteMessageUnavailable => '无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认';
+
+	/// zh-CN: '暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员'
+	String get quoteMessageAuthorizationUnavailable => '暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员';
+
+	/// zh-CN: '引用的消息已过期，无法恢复；请向发送者确认内容'
+	String get quoteMessageExpired => '引用的消息已过期，无法恢复；请向发送者确认内容';
+
+	/// zh-CN: '你没有权限查看这条引用消息，请联系会话管理员确认权限'
+	String get quoteMessageForbidden => '你没有权限查看这条引用消息，请联系会话管理员确认权限';
+
+	/// zh-CN: '引用消息加载失败，请检查网络后重新点击重试'
+	String get quoteMessageLoadFailed => '引用消息加载失败，请检查网络后重新点击重试';
+
+	/// zh-CN: '本设备无法解密这条引用消息，请重试或请发送者重新发送'
+	String get quoteMessageUndecryptable => '本设备无法解密这条引用消息，请重试或请发送者重新发送';
 
 	/// zh-CN: '麦克风'
 	String get microphone => '麦克风';
@@ -6014,6 +6059,18 @@ class Translations$group$zh_CN {
 
 	/// zh-CN: '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？'
 	String get e2eeEnableConfirm => '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？';
+
+	/// zh-CN: '转让后退出'
+	String get transferAndLeave => '转让后退出';
+
+	/// zh-CN: '转让后你将退出本群并失去群主权限，确定继续吗？'
+	String get sureToTransferAndLeave => '转让后你将退出本群并失去群主权限，确定继续吗？';
+
+	/// zh-CN: '已转让群主，但退出失败，请重试退出'
+	String get transferredButLeaveFailed => '已转让群主，但退出失败，请重试退出';
+
+	/// zh-CN: '暂无可转让的成员'
+	String get noEligibleSuccessor => '暂无可转让的成员';
 }
 
 // Path: groupCategory
@@ -8610,9 +8667,6 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '请先选择或创建一个工作区'
 	String get emptyNoWorkspace => '请先选择或创建一个工作区';
 
-	/// zh-CN: '全部消息'
-	String get dmEntry => '全部消息';
-
 	/// zh-CN: '日程'
 	String get tabSchedule => '日程';
 
@@ -8774,9 +8828,6 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '频道'
 	String get channelDetailTitle => '频道';
-
-	/// zh-CN: '频道用于发布内容；想讨论？去 General 群聊聊。'
-	String get discussInGroupGuide => '频道用于发布内容；想讨论？去 General 群聊聊。';
 
 	/// zh-CN: '还没有工作区群组'
 	String get groupsEmptyTitle => '还没有工作区群组';
@@ -9299,6 +9350,15 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '$name 发布'
 	String projectInsightsPostAuthor({required Object name}) => '${name} 发布';
+
+	/// zh-CN: '内容已暂时隐藏，等待重新授权'
+	String get contentProtectedPending => '内容已暂时隐藏，等待重新授权';
+
+	/// zh-CN: '重新验证'
+	String get contentProtectedRetry => '重新验证';
+
+	/// zh-CN: '你已无权查看此工作区内容'
+	String get contentRevoked => '你已无权查看此工作区内容';
 }
 
 // Path: account.alipaySim
@@ -10455,6 +10515,12 @@ class Translations$organization$manage$zh_CN {
 	/// zh-CN: '新建群'
 	String get createGroup => '新建群';
 
+	/// zh-CN: '创建结果未知，请稍后重试'
+	String get creationRecoveryUnavailable => '创建结果未知，请稍后重试';
+
+	/// zh-CN: '群已创建（ID：${gid}），名称未保存'
+	String groupCreatedRenamePending({required Object gid}) => '群已创建（ID：${gid}），名称未保存';
+
 	/// zh-CN: '群名称'
 	String get groupNameHint => '群名称';
 
@@ -11076,6 +11142,7 @@ extension on Translations {
 			'channel.managed' => '管理中',
 			'channel.discover' => '发现频道',
 			'channel.create' => '创建频道',
+			'channel.creationRecoveryUnavailable' => '创建结果未知，请稍后重试',
 			'channel.searchHint' => '搜索频道名称或ID',
 			'channel.noResults' => '未找到相关频道',
 			'channel.noRecommendedChannels' => '暂无推荐频道 稍后再来看看吧',
@@ -11275,6 +11342,7 @@ extension on Translations {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快来关注我的频道【${name}】吧！${url}',
 			'channel.discussion' => '讨论区',
 			'channel.joinDiscussion' => '加入讨论',
+			'channel.discussionIneligible' => '订阅该频道后才能加入其讨论群',
 			'channel.essence' => '精华',
 			'channel.allPosts' => '全部内容',
 			'channel.editPostTags' => '编辑标签',
@@ -11284,6 +11352,9 @@ extension on Translations {
 			'channel.linkAccessHint' => '链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。',
 			'channel.personalChannelLabel' => '个人频道',
 			'channel.enterpriseChannelLabel' => '企业内部频道',
+			'channel.subscribePending' => '已订阅，正在刷新',
+			'channel.subscribeRefresh' => '刷新订阅状态',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 条新更新',
 			'chat.bankCard' => '银行卡',
 			'chat.messageInputHint' => '说点什么...',
 			'chat.receivePayment' => '收付款',
@@ -11346,13 +11417,13 @@ extension on Translations {
 			'chat.pinned' => '已置顶',
 			'chat.rating' => '评级',
 			'chat.readAgreeParam' => ({required Object param}) => '已经阅读并同意${param}',
+			_ => null,
+		} ?? switch (path) {
 			'chat.remindMeLater' => '下次再说',
 			'chat.quickReplyManage' => '管理快捷回复',
 			'chat.quickReplyEmpty' => '暂无快捷回复，点击右下角添加',
 			'chat.quickReplyDuplicate' => '内容已存在',
 			'chat.quickReplyMaxReached' => ({required Object max}) => '最多 ${max} 条',
-			_ => null,
-		} ?? switch (path) {
 			'chat.quickReplyHint' => '输入内容...',
 			'chat.muteMember' => '禁言成员',
 			'chat.unmuteMember' => '取消禁言',
@@ -11421,6 +11492,10 @@ extension on Translations {
 			'chat.sendNewMessage' => '发送新消息',
 			'chat.markRead' => '标记已读',
 			'chat.markUnread' => '标记未读',
+			'chat.manualPendingBadge' => '待处理',
+			'chat.cancelManualPending' => '取消待处理',
+			'chat.manualPendingOff' => '非待处理',
+			'chat.manualPendingConflict' => ({required Object param}) => '服务端当前状态：${param}',
 			'chat.pleaseEnterSignature' => '请输入个性签名',
 			'chat.exportProfile' => '导出资料',
 			'chat.setSignature' => '设置个性签名',
@@ -11652,6 +11727,12 @@ extension on Translations {
 			'common.messageContent' => '消息内容',
 			'common.messageRevoked' => '消息已撤回',
 			'common.quoteMessageNotAvailable' => '引用的消息不可用',
+			'common.quoteMessageUnavailable' => '无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认',
+			'common.quoteMessageAuthorizationUnavailable' => '暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员',
+			'common.quoteMessageExpired' => '引用的消息已过期，无法恢复；请向发送者确认内容',
+			'common.quoteMessageForbidden' => '你没有权限查看这条引用消息，请联系会话管理员确认权限',
+			'common.quoteMessageLoadFailed' => '引用消息加载失败，请检查网络后重新点击重试',
+			'common.quoteMessageUndecryptable' => '本设备无法解密这条引用消息，请重试或请发送者重新发送',
 			'common.microphone' => '麦克风',
 			'common.microphonePermissionNotObtained' => '未获取到麦克风权限',
 			'common.moreInfo' => '更多信息',
@@ -11850,6 +11931,8 @@ extension on Translations {
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
 			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
 			'common.allowSearchByAccount' => '允许通过账号搜索',
@@ -11865,8 +11948,6 @@ extension on Translations {
 			'common.dataSettings' => '数据设置',
 			'common.clearChatRecords' => '清除聊天记录',
 			'common.clearChatRecordsDesc' => '清除所有聊天记录，此操作不可恢复',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteAccountAction' => '注销账号',
 			'common.deleteAccountActionDesc' => '永久删除账号和所有数据，此操作不可恢复',
 			'common.chatHistoryCleared' => '聊天记录已清除',
@@ -12364,6 +12445,8 @@ extension on Translations {
 			'common.transferDefaultRemark' => '转账给好友',
 			'common.transferMinAmountError' => '转账最低金额为 0.01 元',
 			'common.redPacketCurrentLucky' => '当前为：拼手气红包',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketCurrentNormal' => '当前为：普通红包',
 			'common.redPacketSwitchToNormal' => '改为普通红包',
 			'common.redPacketSwitchToLucky' => '改为拼手气红包',
@@ -12379,8 +12462,6 @@ extension on Translations {
 			'common.amountMustPositive' => '金额必须大于 0',
 			'common.walletBalanceLabel' => ({required Object balance}) => '钱包余额 ￥${balance}',
 			'common.transferAmountLabel' => '转账金额',
-			_ => null,
-		} ?? switch (path) {
 			'common.transferRemarkLabel' => '转账备注',
 			'common.transferConfirm' => '确认转账',
 			'common.transferReceiving' => '正在收款...',
@@ -12807,6 +12888,10 @@ extension on Translations {
 			'group.e2eeKeyManagementSubtitle' => '备份、恢复和管理端到端加密密钥',
 			'group.e2eeTitle' => '端到端加密',
 			'group.e2eeEnableConfirm' => '开启后，本群消息将端到端加密，仅群成员设备可解密。此操作不可撤销，确定开启？',
+			'group.transferAndLeave' => '转让后退出',
+			'group.sureToTransferAndLeave' => '转让后你将退出本群并失去群主权限，确定继续吗？',
+			'group.transferredButLeaveFailed' => '已转让群主，但退出失败，请重试退出',
+			'group.noEligibleSuccessor' => '暂无可转让的成员',
 			'groupCategory.title' => '群分组',
 			'groupCategory.createCategory' => '创建分组',
 			'groupCategory.categoryName' => '分组名称',
@@ -12874,6 +12959,8 @@ extension on Translations {
 			'groupTag.tagName' => '标签名称',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.removeTitle' => '移除标签',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupTask.title' => '待办',
 			'groupTask.createTask' => '创建待办',
@@ -12893,8 +12980,6 @@ extension on Translations {
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} 小时后截止',
 			'groupTask.dueSoon' => '即将截止',
 			'groupTask.submitFailed' => '提交失败，请稍后重试',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.pendingReview' => '待审核',
 			'groupTask.taskIdMissing' => '待办ID缺失，无法查看详情',
 			'groupTask.taskIdMissingSubmit' => '待办ID缺失，无法提交',
@@ -13388,6 +13473,8 @@ extension on Translations {
 			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
 			'organization.directory.currentMembersSection' => '本级成员',
 			'organization.directory.structureSection' => '组织架构',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
@@ -13407,8 +13494,6 @@ extension on Translations {
 			'organization.memberDetail.roleLabel' => '企业角色',
 			'organization.memberDetail.roleRestricted' => '仅企业管理员可查看',
 			'organization.memberDetail.accountLabel' => '登录账号',
-			_ => null,
-		} ?? switch (path) {
 			'organization.memberDetail.joinedLabel' => '加入时间',
 			'organization.memberDetail.workspacesTitle' => '有权工作区',
 			'organization.memberDetail.workspacesEmpty' => '该成员在本企业内暂无工作区',
@@ -13453,6 +13538,8 @@ extension on Translations {
 			'organization.manage.retry' => '重试',
 			'organization.manage.groupSection' => '企业群',
 			'organization.manage.createGroup' => '新建群',
+			'organization.manage.creationRecoveryUnavailable' => '创建结果未知，请稍后重试',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '群已创建（ID：${gid}），名称未保存',
 			'organization.manage.groupNameHint' => '群名称',
 			'organization.manage.groupEmpty' => '暂无企业群',
 			'organization.manage.groupMembers' => ({required Object count}) => '成员 ${count}',
@@ -13900,6 +13987,8 @@ extension on Translations {
 			'talkRecord.cleanupCompleteTitle' => '清理完成',
 			'talkRecord.cleanupCompleteBody' => '记录与附件均已清理完成。',
 			'talkRecord.cleanupNoneTitle' => '未提交清理',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupNoneBody' => '记录尚未进入清理流程。',
 			'talkRecord.cleanupUnknownTitle' => '清理状态未知',
 			'talkRecord.cleanupUnknownBody' => '暂未能获取清理状态，可刷新重试。',
@@ -13921,8 +14010,6 @@ extension on Translations {
 			'talkRecord.participantsInvalid' => '请选择最多100人；来宾标签须为1–120字且不重复。人员资格可能已变更，请检查名单。',
 			'talkRecord.participantsNoResults' => '没有匹配的联系人或同事，请尝试搜索。',
 			'talkRecord.participantsConflict' => '名单已更新，已刷新为最新内容。请检查后重新编辑。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.participantsSaveFailed' => '未能确认保存结果，当前选择已保留；请重试或刷新。',
 			'talkRecord.cleanupProcessorUnconfirmed' => '处理任务仍在停止或核查，尚未确认临时音频副本已清理。请刷新查看进度。',
 			'talkRecord.uploadNoticeTitle' => '上传前确认',
@@ -14031,7 +14118,6 @@ extension on Translations {
 			'workspace.pickerEmptySubtitle' => '创建一个工作区，3 分钟开启团队协作（自动创建 Announcements 频道与 General 群）',
 			'workspace.archivedBadge' => '已归档',
 			'workspace.emptyNoWorkspace' => '请先选择或创建一个工作区',
-			'workspace.dmEntry' => '全部消息',
 			'workspace.tabSchedule' => '日程',
 			'workspace.tabTodo' => '待办',
 			'workspace.comingSoon' => '即将上线',
@@ -14086,7 +14172,6 @@ extension on Translations {
 			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
 			'workspace.channelDetailTitle' => '频道',
-			'workspace.discussInGroupGuide' => '频道用于发布内容；想讨论？去 General 群聊聊。',
 			'workspace.groupsEmptyTitle' => '还没有工作区群组',
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',
@@ -14261,6 +14346,9 @@ extension on Translations {
 			'workspace.projectInsightsActivityEmpty' => '项目暂无动态',
 			'workspace.projectInsightsPostsEmpty' => '关联频道暂无帖子',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 发布',
+			'workspace.contentProtectedPending' => '内容已暂时隐藏，等待重新授权',
+			'workspace.contentProtectedRetry' => '重新验证',
+			'workspace.contentRevoked' => '你已无权查看此工作区内容',
 			_ => null,
 		};
 	}

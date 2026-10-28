@@ -1,6 +1,12 @@
+import 'package:dio/dio.dart' show Options;
+import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_exceptions.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
@@ -60,6 +66,45 @@ class ChannelApi extends HttpClient
     return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
+  /// W04.d.c：创建频道受理合同请求（§6.4 C1）。
+  ///
+  /// [fields] 为创建字段（name/visibility/access_type/join_policy/
+  /// description/avatar/custom_id/tags/scope/workspace_id），重放时由
+  /// 调用方传入存储意图的原载荷（同键绝不换载荷）；本方法只附加
+  /// request_id/recover_only。既有键less [createChannel] 原样保留为
+  /// 能力未启用时的回退路径（回归红线：绝不剥键）。
+  Future<CreationReceiptResult> createChannelWithReceipt({
+    required String requestId,
+    required Map<String, dynamic> fields,
+    bool recoverOnly = false,
+  }) async {
+    final data = <String, dynamic>{
+      ...fields,
+      'request_id': requestId,
+      if (recoverOnly) 'recover_only': true,
+    };
+    final resp = await post('/api/v1/channel/create', data: data);
+    // 传输层失败（网络断连/超时/会话切换等）：结果未知——服务端可能已受理
+    // 也可能未收到；调用方必须保留意图，不得当作"信封已确认拒绝"。
+    // 仅 BadRequestException（envelope 业务错误）与 BadResponseException
+    // （响应形状损坏）代表已完成 HTTP 交换。
+    if (!resp.ok &&
+        resp.error is! BadRequestException &&
+        resp.error is! BadResponseException) {
+      return CreationReceiptResult(ok: false, errorText: resp.msg);
+    }
+    return parseCreationReceiptResponse(
+      ok: resp.ok,
+      code: resp.code,
+      msg: resp.msg,
+      payload: resp.payload,
+      extractResourceId: (payload) {
+        final cid = payload['channel_id'];
+        return cid == null ? null : '$cid';
+      },
+    );
+  }
+
   /// 获取频道信息
   Future<ChannelModel?> getChannel(String channelId) async {
     final resp = await get('/api/v1/channel/$channelId');
@@ -71,6 +116,12 @@ class ChannelApi extends HttpClient
     return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
   }
 
+  /// 保留服务端拒绝、网络异常与无效响应，供具备错误态的详情链使用。
+  Future<ChannelModel> getChannelChecked(String channelId) async {
+    final resp = await get('/api/v1/channel/$channelId');
+    return _parseChannelResponse(resp);
+  }
+
   /// 通过自定义 ID 获取频道
   Future<ChannelModel?> getChannelByCustomId(String customId) async {
     final resp = await get('/api/v1/channel/by_custom_id/$customId');
@@ -80,6 +131,23 @@ class ChannelApi extends HttpClient
     }
 
     return ChannelModel.fromJson(IMBoyHttpResponse.payloadAsMap(resp.payload));
+  }
+
+  Future<ChannelModel> getChannelByCustomIdChecked(String customId) async {
+    final resp = await get('/api/v1/channel/by_custom_id/$customId');
+    return _parseChannelResponse(resp);
+  }
+
+  ChannelModel _parseChannelResponse(IMBoyHttpResponse response) {
+    response.throwIfFailed();
+    if (response.payload is! Map<String, dynamic>) {
+      throw const FormatException('invalid channel payload');
+    }
+    final channel = ChannelModel.fromJson(
+      response.payload as Map<String, dynamic>,
+    );
+    if (channel.id <= 0) throw const FormatException('invalid channel id');
+    return channel;
   }
 
   /// 更新频道信息
@@ -151,28 +219,62 @@ class ChannelApi extends HttpClient
 
   // ==================== 订阅管理 ====================
 
+  Options _subscriptionWriteOptions() {
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    final source = Env().apiBaseUrl;
+    return Options(
+      extra: {
+        httpNoAutoRetry: true,
+        httpRequestGuard: () {
+          if (uid.isEmpty ||
+              user.currentUid != uid ||
+              !user.isCurrentSession(generation) ||
+              user.isAuthTransitioning ||
+              Env().apiBaseUrl != source) {
+            throw StateError('stale channel subscription session');
+          }
+        },
+      },
+    );
+  }
+
   /// 订阅频道
   Future<bool> subscribe(String channelId) async {
+    final options = _subscriptionWriteOptions();
     final resp = await post(
       '/api/v1/channel/$channelId/subscribe',
       data: <String, dynamic>{},
+      options: options,
     );
     if (!resp.ok) {
       // 透出后端中文原因（如"私有频道需要邀请"），页面层不再叠兜底文案
-      AppLoading.showBackendError(resp.msg);
+      _showSubscriptionErrorIfCurrent(resp.msg, options);
       return false;
     }
     return true;
   }
 
+  void _showSubscriptionErrorIfCurrent(String message, Options options) {
+    try {
+      (options.extra![httpRequestGuard] as void Function())();
+      AppLoading.showBackendError(message);
+    } catch (_) {
+      // An obsolete request must not show its error in another account.
+    }
+  }
+
   /// 取消订阅
   Future<bool> unsubscribe(String channelId) async {
+    final options = _subscriptionWriteOptions();
     final resp = await post(
       '/api/v1/channel/$channelId/unsubscribe',
       data: <String, dynamic>{},
+      options: options,
     );
     if (!resp.ok) {
-      AppLoading.showBackendError(resp.msg);
+      _showSubscriptionErrorIfCurrent(resp.msg, options);
       return false;
     }
     return true;
@@ -188,6 +290,49 @@ class ChannelApi extends HttpClient
       limit: limit,
     );
     return result.list;
+  }
+
+  /// W07.b/c（C2 已订阅频道 cursor 协议）：签名游标分页。
+  /// [token] 为 null/空 = 首页；非空 = 上一页响应的 next_cursor（签名
+  /// 游标，绑定 uid/scope/list_kind/规范 q/排序版本/上界）。服务端对
+  /// 绑定不符/篡改/过期一律 400 invalid_request——调用方**不得回落
+  /// 第 1 页**（J27.c），按错误态处理即可。
+  Future<ChannelPageResult<ChannelModel>> getSubscribedChannelsCursorPage({
+    String? token,
+    int limit = 50,
+    String? q,
+  }) async {
+    final params = <String, dynamic>{'pagination': 'cursor', 'limit': limit};
+    if (token != null && token.isNotEmpty) params['cursor'] = token;
+    if (q != null && q.isNotEmpty) params['q'] = q;
+
+    final resp = await get(
+      '/api/v1/channels/subscribed',
+      queryParameters: params,
+    );
+    resp.throwIfFailed();
+
+    if (resp.payload == null) {
+      return const ChannelPageResult(
+        list: [],
+        nextCursor: null,
+        hasMore: false,
+      );
+    }
+    final list = IMBoyHttpResponse.payloadList(resp.payload);
+    final channels = list.map((json) => ChannelModel.fromJson(json)).toList();
+    // 新 envelope 显式回传 has_more（服务端按 keyset 取 limit+1 判定），
+    // 不再按「满一页」推导；终止页 next_cursor 为空串/缺省 → null。
+    final hasMore = resp.payload['has_more'] == true;
+    final dynamic next = resp.payload['next_cursor'];
+    final nextCursor = (next == null || next.toString().isEmpty)
+        ? null
+        : next.toString();
+    return ChannelPageResult(
+      list: channels,
+      nextCursor: nextCursor,
+      hasMore: hasMore && nextCursor != null,
+    );
   }
 
   /// 获取我订阅的频道列表（带分页信息）
@@ -463,6 +608,30 @@ class ChannelApi extends HttpClient
       data: {'message_id': messageId},
     );
     return resp.ok;
+  }
+
+  /// W08（§6.8 C4/D3）：显式标记已查看到此更新边界。
+  ///
+  /// 仅 manifest `channel_contracts.view_watermark == 1`（整数 1）时由
+  /// 调用方发起（未知能力不发送新边界）；boundary 为本次成功内容响应
+  /// 持有的更新边界（不从后来未展示的新推送取最大值）。服务端 GREATEST
+  /// 推进并夹到发布上界，晚到旧边界不倒退（J13.d）。
+  /// 返回 (view_seq, unseen_count)；失败返回 null（调用方给重试，不洗成
+  /// 已查看）。
+  Future<({int viewSeq, int unseenCount})?> markViewed(
+    String channelId,
+    String boundary,
+  ) async {
+    final resp = await post(
+      '/api/v1/channel/$channelId/viewed',
+      data: {'boundary': boundary},
+    );
+    if (!resp.ok) return null;
+    final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
+    final viewSeq = int.tryParse('${payload['view_seq']}');
+    final unseen = int.tryParse('${payload['unseen_count']}');
+    if (viewSeq == null || unseen == null) return null;
+    return (viewSeq: viewSeq, unseenCount: unseen);
   }
 
   // ==================== 搜索和发现 ====================

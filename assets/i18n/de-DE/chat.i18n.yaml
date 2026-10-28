@@ -126,6 +126,10 @@ momentsReplyingTo: Antwort an @{name}
 sendNewMessage: Neue Nachricht senden
 markRead: Als gelesen markieren
 markUnread: Als ungelesen markieren
+manualPendingBadge: Ausstehend
+cancelManualPending: "Ausstehend aufheben"
+manualPendingOff: Nicht ausstehend
+manualPendingConflict(param): "Aktueller Serverstatus: ${param}"
 pleaseEnterSignature: "Persönliche Signatur eingeben"
 exportProfile: Profil exportieren
 setSignature: Signatur festlegen

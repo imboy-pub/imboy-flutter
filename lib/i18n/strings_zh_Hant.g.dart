@@ -300,6 +300,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get managed => '我管理的';
 	@override String get discover => '發現頻道';
 	@override String get create => '建立頻道';
+	@override String get creationRecoveryUnavailable => '建立結果未知，請稍後重試';
 	@override String get searchHint => '搜尋頻道名稱或ID';
 	@override String get noResults => '未找到相關頻道';
 	@override String get noRecommendedChannels => '暫無推薦頻道 稍後再來看看吧';
@@ -499,6 +500,7 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}';
 	@override String get discussion => '討論區';
 	@override String get joinDiscussion => '加入討論';
+	@override String get discussionIneligible => '訂閱該頻道後才能加入其討論群';
 	@override String get essence => '精華';
 	@override String get allPosts => '全部內容';
 	@override String get editPostTags => '編輯標籤';
@@ -508,6 +510,9 @@ class Translations$channel$zh_Hant extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => '連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。';
 	@override String get personalChannelLabel => '個人頻道';
 	@override String get enterpriseChannelLabel => '企業內部頻道';
+	@override String get subscribePending => '已訂閱，正在重新整理';
+	@override String get subscribeRefresh => '重新整理訂閱狀態';
+	@override String unseenUpdatesBanner({required Object count}) => '有 ${count} 條新更新';
 }
 
 // Path: chat
@@ -651,6 +656,10 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '傳送新訊息';
 	@override String get markRead => '標記已讀';
 	@override String get markUnread => '標記未讀';
+	@override String get manualPendingBadge => '待處理';
+	@override String get cancelManualPending => '取消待處理';
+	@override String get manualPendingOff => '非待處理';
+	@override String manualPendingConflict({required Object param}) => '伺服器目前狀態：${param}';
 	@override String get pleaseEnterSignature => '請輸入個人簽名';
 	@override String get exportProfile => '匯出資料';
 	@override String get setSignature => '設定個性簽名';
@@ -885,6 +894,12 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get messageContent => '訊息內容';
 	@override String get messageRevoked => '訊息已撤回';
 	@override String get quoteMessageNotAvailable => '引用的訊息不可用';
+	@override String get quoteMessageUnavailable => '無法取得這則引用訊息，可能已過期或不在目前可存取的歷史中，請重試或向傳送者確認';
+	@override String get quoteMessageAuthorizationUnavailable => '暫時無法確認這則歷史訊息的存取權限，請稍後重試或聯絡對話管理員';
+	@override String get quoteMessageExpired => '引用的訊息已過期，無法恢復；請向傳送者確認內容';
+	@override String get quoteMessageForbidden => '你沒有權限檢視這則引用訊息，請聯絡對話管理員確認權限';
+	@override String get quoteMessageLoadFailed => '引用訊息載入失敗，請檢查網路後再次點擊重試';
+	@override String get quoteMessageUndecryptable => '本裝置無法解密這則引用訊息，請重試或請傳送者重新傳送';
 	@override String get microphone => '麥克風';
 	@override String get microphonePermissionNotObtained => '未獲取麥克風權限';
 	@override String get moreInfo => '更多資訊';
@@ -1961,6 +1976,10 @@ class Translations$group$zh_Hant extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => '備份、恢復和管理端到端加密金鑰';
 	@override String get e2eeTitle => '端對端加密';
 	@override String get e2eeEnableConfirm => '開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？';
+	@override String get transferAndLeave => '轉讓後退出';
+	@override String get sureToTransferAndLeave => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？';
+	@override String get transferredButLeaveFailed => '已轉讓群主，但退出失敗，請重試退出';
+	@override String get noEligibleSuccessor => '暫無可轉讓的成員';
 }
 
 // Path: groupCategory
@@ -2549,7 +2568,6 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）';
 	@override String get archivedBadge => '已封存';
 	@override String get emptyNoWorkspace => '請先選擇或建立一個工作區';
-	@override String get dmEntry => '全部訊息';
 	@override String get experienceModePersonal => '個人';
 	@override String get switchToPersonal => '切換到個人';
 	@override String get createTitle => '建立工作區';
@@ -2582,7 +2600,6 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '頻道用於持續發布內容（公告/資料），討論請去群組';
 	@override String channelTileSubtitle({required Object count}) => '${count} 位訂閱者';
 	@override String get channelDetailTitle => '頻道';
-	@override String get discussInGroupGuide => '頻道用於發布內容；想討論？去 General 群聊聊。';
 	@override String get groupsEmptyTitle => '還沒有工作區群組';
 	@override String get groupsEmptySubtitle => '群組是工作區裡的即時討論空間（聊天唯一入口）';
 	@override String groupTileSubtitle({required Object count}) => '${count} 位群成員';
@@ -2779,6 +2796,9 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get tabTodo => '待辦';
 	@override String get takeABreak => '休息一下';
 	@override String get todoEmptyTitle => '暫無待辦';
+	@override String get contentProtectedPending => '內容已暫時隱藏，等待重新授權';
+	@override String get contentProtectedRetry => '重新驗證';
+	@override String get contentRevoked => '你已無權查看此工作區內容';
 }
 
 // Path: account.alipaySim
@@ -3208,6 +3228,8 @@ class Translations$organization$manage$zh_Hant extends Translations$organization
 	@override String get retry => '重試';
 	@override String get groupSection => '企業群';
 	@override String get createGroup => '新增群';
+	@override String get creationRecoveryUnavailable => '建立結果未知，請稍後重試';
+	@override String groupCreatedRenamePending({required Object gid}) => '群組已建立（ID：${gid}），名稱未儲存';
 	@override String get groupNameHint => '群名稱';
 	@override String get groupEmpty => '尚無企業群';
 	@override String groupMembers({required Object count}) => '成員 ${count}';
@@ -3546,6 +3568,7 @@ extension on TranslationsZhHant {
 			'channel.managed' => '我管理的',
 			'channel.discover' => '發現頻道',
 			'channel.create' => '建立頻道',
+			'channel.creationRecoveryUnavailable' => '建立結果未知，請稍後重試',
 			'channel.searchHint' => '搜尋頻道名稱或ID',
 			'channel.noResults' => '未找到相關頻道',
 			'channel.noRecommendedChannels' => '暫無推薦頻道 稍後再來看看吧',
@@ -3745,6 +3768,7 @@ extension on TranslationsZhHant {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '大家快來關注我的頻道【${name}】吧！${url}',
 			'channel.discussion' => '討論區',
 			'channel.joinDiscussion' => '加入討論',
+			'channel.discussionIneligible' => '訂閱該頻道後才能加入其討論群',
 			'channel.essence' => '精華',
 			'channel.allPosts' => '全部內容',
 			'channel.editPostTags' => '編輯標籤',
@@ -3754,6 +3778,9 @@ extension on TranslationsZhHant {
 			'channel.linkAccessHint' => '連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。',
 			'channel.personalChannelLabel' => '個人頻道',
 			'channel.enterpriseChannelLabel' => '企業內部頻道',
+			'channel.subscribePending' => '已訂閱，正在重新整理',
+			'channel.subscribeRefresh' => '重新整理訂閱狀態',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '有 ${count} 條新更新',
 			'chat.bankCard' => '銀行卡',
 			'chat.receivePayment' => '收款與付款',
 			'chat.alreadyMember' => '已經是成員',
@@ -3871,13 +3898,13 @@ extension on TranslationsZhHant {
 			'chat.burnReadBadge' => '閱後',
 			'chat.goodReadability' => '可讀性良好',
 			'chat.profileCompleteness' => '資料完善度',
+			_ => null,
+		} ?? switch (path) {
 			'chat.tagStatistics' => '標籤統計',
 			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			'chat.passwordMismatch' => '兩次密碼不一致',
 			'chat.pleaseTryAgainLater' => '請稍後重試',
 			'chat.historyUnavailable' => '歷史訊息暫不可用',
-			_ => null,
-		} ?? switch (path) {
 			'chat.historyUnavailableHint' => '伺服器端歷史歸檔未開啟或暫不可用，點擊重試重新同步',
 			'chat.momentsRecordVideo' => '拍攝影片',
 			'chat.momentsVisibilityPrivate' => '僅自己',
@@ -3890,6 +3917,10 @@ extension on TranslationsZhHant {
 			'chat.sendNewMessage' => '傳送新訊息',
 			'chat.markRead' => '標記已讀',
 			'chat.markUnread' => '標記未讀',
+			'chat.manualPendingBadge' => '待處理',
+			'chat.cancelManualPending' => '取消待處理',
+			'chat.manualPendingOff' => '非待處理',
+			'chat.manualPendingConflict' => ({required Object param}) => '伺服器目前狀態：${param}',
 			'chat.pleaseEnterSignature' => '請輸入個人簽名',
 			'chat.exportProfile' => '匯出資料',
 			'chat.setSignature' => '設定個性簽名',
@@ -4115,6 +4146,12 @@ extension on TranslationsZhHant {
 			'common.messageContent' => '訊息內容',
 			'common.messageRevoked' => '訊息已撤回',
 			'common.quoteMessageNotAvailable' => '引用的訊息不可用',
+			'common.quoteMessageUnavailable' => '無法取得這則引用訊息，可能已過期或不在目前可存取的歷史中，請重試或向傳送者確認',
+			'common.quoteMessageAuthorizationUnavailable' => '暫時無法確認這則歷史訊息的存取權限，請稍後重試或聯絡對話管理員',
+			'common.quoteMessageExpired' => '引用的訊息已過期，無法恢復；請向傳送者確認內容',
+			'common.quoteMessageForbidden' => '你沒有權限檢視這則引用訊息，請聯絡對話管理員確認權限',
+			'common.quoteMessageLoadFailed' => '引用訊息載入失敗，請檢查網路後再次點擊重試',
+			'common.quoteMessageUndecryptable' => '本裝置無法解密這則引用訊息，請重試或請傳送者重新傳送',
 			'common.microphone' => '麥克風',
 			'common.microphonePermissionNotObtained' => '未獲取麥克風權限',
 			'common.moreInfo' => '更多資訊',
@@ -4375,6 +4412,8 @@ extension on TranslationsZhHant {
 			'common.retrySuccess' => '重試成功',
 			'common.deleteSuccess' => '刪除成功',
 			'common.localDeleteSuccess' => '本地刪除成功',
+			_ => null,
+		} ?? switch (path) {
 			'common.localDeleteFailed' => '本地刪除失敗',
 			'common.revokeSuccess' => '收回成功',
 			'common.editContentCannotBeEmpty' => '編輯內容不能為空',
@@ -4390,8 +4429,6 @@ extension on TranslationsZhHant {
 			'common.basicInfo' => '基本資訊',
 			'common.contactInfo' => '聯絡資訊',
 			'common.editTags' => '編輯標籤',
-			_ => null,
-		} ?? switch (path) {
 			'common.quickActions' => '快速操作',
 			'common.noNewFriendRequests' => '暫時沒有新的好友申請',
 			'common.pleaseEnterVerificationMessage' => '請輸入驗證訊息',
@@ -4889,6 +4926,8 @@ extension on TranslationsZhHant {
 			'contact.denylist' => '黑名單',
 			'contact.denylistEmpty' => '黑名單為空',
 			'contact.favoriteGroupTagsEtc' => '收藏人名、群組名、標籤等',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => '新朋友',
 			'contact.recommendToFriend' => '把他推薦給好友',
 			'contact.remark' => '備註',
@@ -4904,8 +4943,6 @@ extension on TranslationsZhHant {
 			'contact.tagLengthExceeded' => ({required Object param}) => '標籤長度不能超過 ${param} 個字元',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最多只能新增 ${param} 個標籤',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '已選標籤 (${param}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'contact.friendRequestSent' => '已傳送',
 			'contact.channelMaxTagsCount' => '最多可新增 8 個標籤',
 			'contact.tagInputHint' => '輸入標籤...',
@@ -5117,6 +5154,10 @@ extension on TranslationsZhHant {
 			'group.e2eeKeyManagementSubtitle' => '備份、恢復和管理端到端加密金鑰',
 			'group.e2eeTitle' => '端對端加密',
 			'group.e2eeEnableConfirm' => '開啟後，本群訊息將端對端加密，僅群成員裝置可解密。此操作不可撤銷，確定開啟？',
+			'group.transferAndLeave' => '轉讓後退出',
+			'group.sureToTransferAndLeave' => '轉讓後你將退出本群並失去群主權限，確定繼續嗎？',
+			'group.transferredButLeaveFailed' => '已轉讓群主，但退出失敗，請重試退出',
+			'group.noEligibleSuccessor' => '暫無可轉讓的成員',
 			'groupCategory.title' => '群分組',
 			'groupCategory.createCategory' => '建立分組',
 			'groupCategory.categoryName' => '分組名稱',
@@ -5399,6 +5440,8 @@ extension on TranslationsZhHant {
 			'main.safetyNumberNoDevices' => '對方尚未啟用端對端加密',
 			'main.safetyNumberPeerDevice' => '對方裝置',
 			'main.safetyNumberReportRejected' => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => '無法取得裝置資訊，未上報',
 			'main.safetyNumberVerified' => '✓ 已驗證',
 			'main.safetyNumberNotVerified' => '未驗證',
@@ -5418,8 +5461,6 @@ extension on TranslationsZhHant {
 			'mention.title' => '@標註',
 			'mention.noMention' => '暫無@提及',
 			'mention.allRead' => '全部已讀',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllDenied' => '僅管理員可以 @所有人',
 			'mention.navInfoMissing' => '訊息定位資訊缺失，無法跳轉',
 			'mention.pickButtonTooltip' => '@標註成員',
@@ -5745,6 +5786,8 @@ extension on TranslationsZhHant {
 			'organization.manage.retry' => '重試',
 			'organization.manage.groupSection' => '企業群',
 			'organization.manage.createGroup' => '新增群',
+			'organization.manage.creationRecoveryUnavailable' => '建立結果未知，請稍後重試',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '群組已建立（ID：${gid}），名稱未儲存',
 			'organization.manage.groupNameHint' => '群名稱',
 			'organization.manage.groupEmpty' => '尚無企業群',
 			'organization.manage.groupMembers' => ({required Object count}) => '成員 ${count}',
@@ -5911,6 +5954,8 @@ extension on TranslationsZhHant {
 			'talkRecord.aiProviderResubmitNotice' => '將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？',
 			'talkRecord.aiProviderCancelled' => '轉寫已停止，已有錄音保留。',
 			'talkRecord.aiProviderResumePreparation' => '繼續準備轉寫',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '原任務尚未提交至供應商。本次將重新準備音訊來源，確認後依目前權限與處理同意繼續。',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',
@@ -5931,9 +5976,6 @@ extension on TranslationsZhHant {
 			'workspace.pickerEmptySubtitle' => '建立一個工作區，3 分鐘開啟團隊協作（自動建立 Announcements 頻道與 General 群）',
 			'workspace.archivedBadge' => '已封存',
 			'workspace.emptyNoWorkspace' => '請先選擇或建立一個工作區',
-			'workspace.dmEntry' => '全部訊息',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '切換到個人',
 			'workspace.createTitle' => '建立工作區',
@@ -5966,7 +6008,6 @@ extension on TranslationsZhHant {
 			'workspace.channelsEmptySubtitle' => '頻道用於持續發布內容（公告/資料），討論請去群組',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位訂閱者',
 			'workspace.channelDetailTitle' => '頻道',
-			'workspace.discussInGroupGuide' => '頻道用於發布內容；想討論？去 General 群聊聊。',
 			'workspace.groupsEmptyTitle' => '還沒有工作區群組',
 			'workspace.groupsEmptySubtitle' => '群組是工作區裡的即時討論空間（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成員',
@@ -6163,6 +6204,9 @@ extension on TranslationsZhHant {
 			'workspace.tabTodo' => '待辦',
 			'workspace.takeABreak' => '休息一下',
 			'workspace.todoEmptyTitle' => '暫無待辦',
+			'workspace.contentProtectedPending' => '內容已暫時隱藏，等待重新授權',
+			'workspace.contentProtectedRetry' => '重新驗證',
+			'workspace.contentRevoked' => '你已無權查看此工作區內容',
 			_ => null,
 		};
 	}

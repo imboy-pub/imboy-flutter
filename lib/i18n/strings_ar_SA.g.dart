@@ -301,6 +301,7 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'كتابة منشور';
 	@override String get discover => 'استكشف';
 	@override String get create => 'إنشاء قناة';
+	@override String get creationRecoveryUnavailable => 'نتيجة الإنشاء غير معروفة، يرجى المحاولة لاحقاً';
 	@override String get searchHint => 'البحث بالاسم أو المعرف';
 	@override String get noResults => 'لم يتم العثور على قنوات';
 	@override String get noRecommendedChannels => 'لا توجد قنوات موصى بها تحقق مرة أخرى لاحقاً';
@@ -499,6 +500,7 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}';
 	@override String get discussion => 'المناقشة';
 	@override String get joinDiscussion => 'الانضمام إلى المناقشة';
+	@override String get discussionIneligible => 'اشترك في هذه القناة للانضمام إلى مجموعة النقاش الخاصة بها';
 	@override String get essence => 'المنشورات المميزة';
 	@override String get allPosts => 'كل المنشورات';
 	@override String get editPostTags => 'تعديل الوسوم';
@@ -508,6 +510,9 @@ class _Translations$channel$ar_SA extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط.';
 	@override String get personalChannelLabel => 'قناة شخصية';
 	@override String get enterpriseChannelLabel => 'قناة داخلية للمؤسسة';
+	@override String get subscribePending => 'تم الاشتراك، جارٍ التحديث';
+	@override String get subscribeRefresh => 'تحديث الاشتراك';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} تحديثات جديدة';
 }
 
 // Path: chat
@@ -644,6 +649,10 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'إرسال رسالة جديدة';
 	@override String get markRead => 'تعليم كمقروء';
 	@override String get markUnread => 'تعليم كغير مقروء';
+	@override String get manualPendingBadge => 'بانتظار المعالجة';
+	@override String get cancelManualPending => 'إلغاء بانتظار المعالجة';
+	@override String get manualPendingOff => 'ليس بانتظار المعالجة';
+	@override String manualPendingConflict({required Object param}) => 'الحالة الحالية للخادم: ${param}';
 	@override String get pleaseEnterSignature => 'أدخل توقيعك الشخصي';
 	@override String get exportProfile => 'تصدير الملف الشخصي';
 	@override String get setSignature => 'تعيين التوقيع الشخصي';
@@ -883,6 +892,12 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get messageContent => 'محتوى الرسالة';
 	@override String get messageRevoked => 'تم سحب الرسالة';
 	@override String get quoteMessageNotAvailable => 'الرسالة المشار إليها غير متاحة';
+	@override String get quoteMessageUnavailable => 'قد تكون الرسالة المشار إليها منتهية الصلاحية أو خارج السجل المتاح لك. أعد المحاولة أو تحقق مع المرسل.';
+	@override String get quoteMessageAuthorizationUnavailable => 'تعذر التحقق من صلاحية الوصول إلى هذه الرسالة القديمة الآن. حاول لاحقًا أو تواصل مع مسؤول المحادثة.';
+	@override String get quoteMessageExpired => 'انتهت صلاحية الرسالة المشار إليها ولا يمكن استعادتها. اطلب من المرسل تأكيد محتواها.';
+	@override String get quoteMessageForbidden => 'ليس لديك إذن لعرض هذه الرسالة. تواصل مع مسؤول المحادثة للتحقق من صلاحياتك.';
+	@override String get quoteMessageLoadFailed => 'تعذر تحميل الرسالة. تحقق من اتصالك ثم اضغط مجددًا للمحاولة.';
+	@override String get quoteMessageUndecryptable => 'لا يستطيع هذا الجهاز فك تشفير الرسالة المشار إليها. أعد المحاولة أو اطلب من المرسل إعادة إرسالها.';
 	@override String get microphone => 'ميكروفون';
 	@override String get microphonePermissionNotObtained => 'لم يتم الحصول على إذن الميكروفون';
 	@override String get moreInfo => 'المزيد من المعلومات';
@@ -1973,6 +1988,10 @@ class _Translations$group$ar_SA extends Translations$group$zh_CN {
 	@override String get groupCreatedSuccess => 'تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية';
 	@override String get enterGroupChat => 'الدخول إلى الدردشة الجماعية';
 	@override String get perfectionGroupInfo => 'إكمال معلومات المجموعة';
+	@override String get transferAndLeave => 'نقل الملكية والمغادرة';
+	@override String get sureToTransferAndLeave => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟';
+	@override String get transferredButLeaveFailed => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا';
+	@override String get noEligibleSuccessor => 'لا يوجد عضو متاح للنقل';
 }
 
 // Path: groupCategory
@@ -2561,7 +2580,6 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)';
 	@override String get archivedBadge => 'مؤرشفة';
 	@override String get emptyNoWorkspace => 'يرجى أولاً اختيار مساحة عمل أو إنشائها';
-	@override String get dmEntry => 'كل الرسائل';
 	@override String get experienceModePersonal => 'شخصي';
 	@override String get switchToPersonal => 'التبديل إلى الشخصي';
 	@override String get createTitle => 'إنشاء مساحة عمل';
@@ -2594,7 +2612,6 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات';
 	@override String channelTileSubtitle({required Object count}) => '${count} مشتركين';
 	@override String get channelDetailTitle => 'القناة';
-	@override String get discussInGroupGuide => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General.';
 	@override String get groupsEmptyTitle => 'لا توجد مجموعات في مساحة العمل بعد';
 	@override String get groupsEmptySubtitle => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)';
 	@override String groupTileSubtitle({required Object count}) => '${count} أعضاء المجموعة';
@@ -2791,6 +2808,9 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'المهام';
 	@override String get takeABreak => 'خذ قسطًا من الراحة';
 	@override String get todoEmptyTitle => 'لا توجد مهام';
+	@override String get contentProtectedPending => 'تم إخفاء المحتوى مؤقتًا، في انتظار إعادة التفويض';
+	@override String get contentProtectedRetry => 'إعادة التحقق';
+	@override String get contentRevoked => 'لم تعد لديك صلاحية الوصول إلى محتوى مساحة العمل هذا';
 }
 
 // Path: account.alipaySim
@@ -3220,6 +3240,8 @@ class _Translations$organization$manage$ar_SA extends Translations$organization$
 	@override String get retry => 'إعادة المحاولة';
 	@override String get groupSection => 'مجموعات المؤسسة';
 	@override String get createGroup => 'مجموعة جديدة';
+	@override String get creationRecoveryUnavailable => 'نتيجة الإنشاء غير معروفة، حاول لاحقاً';
+	@override String groupCreatedRenamePending({required Object gid}) => 'تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم';
 	@override String get groupNameHint => 'اسم المجموعة';
 	@override String get groupEmpty => 'لا توجد مجموعات مؤسسة بعد';
 	@override String groupMembers({required Object count}) => 'الأعضاء ${count}';
@@ -3559,6 +3581,7 @@ extension on TranslationsArSa {
 			'channel.writeArticle' => 'كتابة منشور',
 			'channel.discover' => 'استكشف',
 			'channel.create' => 'إنشاء قناة',
+			'channel.creationRecoveryUnavailable' => 'نتيجة الإنشاء غير معروفة، يرجى المحاولة لاحقاً',
 			'channel.searchHint' => 'البحث بالاسم أو المعرف',
 			'channel.noResults' => 'لم يتم العثور على قنوات',
 			'channel.noRecommendedChannels' => 'لا توجد قنوات موصى بها تحقق مرة أخرى لاحقاً',
@@ -3757,6 +3780,7 @@ extension on TranslationsArSa {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'تابعوا قناتي "${name}" على ${url}',
 			'channel.discussion' => 'المناقشة',
 			'channel.joinDiscussion' => 'الانضمام إلى المناقشة',
+			'channel.discussionIneligible' => 'اشترك في هذه القناة للانضمام إلى مجموعة النقاش الخاصة بها',
 			'channel.essence' => 'المنشورات المميزة',
 			'channel.allPosts' => 'كل المنشورات',
 			'channel.editPostTags' => 'تعديل الوسوم',
@@ -3766,6 +3790,9 @@ extension on TranslationsArSa {
 			'channel.linkAccessHint' => 'يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط.',
 			'channel.personalChannelLabel' => 'قناة شخصية',
 			'channel.enterpriseChannelLabel' => 'قناة داخلية للمؤسسة',
+			'channel.subscribePending' => 'تم الاشتراك، جارٍ التحديث',
+			'channel.subscribeRefresh' => 'تحديث الاشتراك',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} تحديثات جديدة',
 			'chat.bankCard' => 'بطاقة بنكية',
 			'chat.receivePayment' => 'استلام ودفع',
 			'chat.alreadyMember' => 'عضو بالفعل',
@@ -3883,18 +3910,22 @@ extension on TranslationsArSa {
 			'chat.historyUnavailable' => 'رسائل السجل غير متاحة مؤقتاً',
 			'chat.historyUnavailableHint' => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة',
 			'chat.momentsRecordVideo' => 'تسجيل فيديو',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'أنا فقط',
 			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
 			'chat.momentsMediaMixedImageAndVideo' => 'لا يمكن نشر الصور والفيديو معاً',
 			'chat.momentsReplyPrefix' => 'رد @',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => 'رد على @{name}',
 			'chat.sendNewMessage' => 'إرسال رسالة جديدة',
 			'chat.markRead' => 'تعليم كمقروء',
 			'chat.markUnread' => 'تعليم كغير مقروء',
+			'chat.manualPendingBadge' => 'بانتظار المعالجة',
+			'chat.cancelManualPending' => 'إلغاء بانتظار المعالجة',
+			'chat.manualPendingOff' => 'ليس بانتظار المعالجة',
+			'chat.manualPendingConflict' => ({required Object param}) => 'الحالة الحالية للخادم: ${param}',
 			'chat.pleaseEnterSignature' => 'أدخل توقيعك الشخصي',
 			'chat.exportProfile' => 'تصدير الملف الشخصي',
 			'chat.setSignature' => 'تعيين التوقيع الشخصي',
@@ -4125,6 +4156,12 @@ extension on TranslationsArSa {
 			'common.messageContent' => 'محتوى الرسالة',
 			'common.messageRevoked' => 'تم سحب الرسالة',
 			'common.quoteMessageNotAvailable' => 'الرسالة المشار إليها غير متاحة',
+			'common.quoteMessageUnavailable' => 'قد تكون الرسالة المشار إليها منتهية الصلاحية أو خارج السجل المتاح لك. أعد المحاولة أو تحقق مع المرسل.',
+			'common.quoteMessageAuthorizationUnavailable' => 'تعذر التحقق من صلاحية الوصول إلى هذه الرسالة القديمة الآن. حاول لاحقًا أو تواصل مع مسؤول المحادثة.',
+			'common.quoteMessageExpired' => 'انتهت صلاحية الرسالة المشار إليها ولا يمكن استعادتها. اطلب من المرسل تأكيد محتواها.',
+			'common.quoteMessageForbidden' => 'ليس لديك إذن لعرض هذه الرسالة. تواصل مع مسؤول المحادثة للتحقق من صلاحياتك.',
+			'common.quoteMessageLoadFailed' => 'تعذر تحميل الرسالة. تحقق من اتصالك ثم اضغط مجددًا للمحاولة.',
+			'common.quoteMessageUndecryptable' => 'لا يستطيع هذا الجهاز فك تشفير الرسالة المشار إليها. أعد المحاولة أو اطلب من المرسل إعادة إرسالها.',
 			'common.microphone' => 'ميكروفون',
 			'common.microphonePermissionNotObtained' => 'لم يتم الحصول على إذن الميكروفون',
 			'common.moreInfo' => 'المزيد من المعلومات',
@@ -4387,6 +4424,8 @@ extension on TranslationsArSa {
 			'common.localDeleteSuccess' => 'نجح الحذف المحلي',
 			'common.localDeleteFailed' => 'فشل الحذف المحلي',
 			'common.revokeSuccess' => 'نجح السحب',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'لا يمكن أن يكون محتوى التعديل فارغاً',
 			'common.editSuccess' => 'نجح التعديل',
 			'common.enabled' => 'مُمكَّن',
@@ -4402,8 +4441,6 @@ extension on TranslationsArSa {
 			'common.editTags' => 'تعديل العلامات',
 			'common.quickActions' => 'إجراءات سريعة',
 			'common.noNewFriendRequests' => 'لا توجد طلبات صداقة جديدة',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'يرجى إدخال رسالة التحقق',
 			'common.unknownRegion' => 'منطقة غير معروفة',
 			'common.noCommonGroups' => 'لا توجد مجموعات مشتركة',
@@ -4901,6 +4938,8 @@ extension on TranslationsArSa {
 			'contact.denylist' => 'القائمة السوداء',
 			'contact.denylistEmpty' => 'القائمة السوداء فارغة',
 			'contact.favoriteGroupTagsEtc' => 'الأسماء وأسماء المجموعات والعلامات المفضلة',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'صديق جديد',
 			'contact.recommendToFriend' => 'التوصية به للأصدقاء',
 			'contact.remark' => 'ملاحظة',
@@ -4916,8 +4955,6 @@ extension on TranslationsArSa {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'لا يمكن أن يتجاوز طول العلامة ${param} حرف',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'يمكنك إضافة ${param} علامات كحد أقصى',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'العلامات المحددة (${param}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'contact.friendRequestSent' => 'تم الإرسال',
 			'contact.channelMaxTagsCount' => 'يمكنك إضافة 8 وسوم كحد أقصى',
 			'contact.tagInputHint' => 'أدخل وسماً...',
@@ -5129,6 +5166,10 @@ extension on TranslationsArSa {
 			'group.groupCreatedSuccess' => 'تم إنشاء الدردشة الجماعية بنجاح، ودعوتك إلى إكمال معلومات المجموعة أو الدخول مباشرة إلى الدردشة الجماعية',
 			'group.enterGroupChat' => 'الدخول إلى الدردشة الجماعية',
 			'group.perfectionGroupInfo' => 'إكمال معلومات المجموعة',
+			'group.transferAndLeave' => 'نقل الملكية والمغادرة',
+			'group.sureToTransferAndLeave' => 'ستنقل ملكية المجموعة وتغادرها. هل تريد المتابعة؟',
+			'group.transferredButLeaveFailed' => 'تم نقل الملكية، لكن فشلت المغادرة. حاول مجددًا',
+			'group.noEligibleSuccessor' => 'لا يوجد عضو متاح للنقل',
 			'groupCategory.title' => 'مجلدات المجموعات',
 			'groupCategory.createCategory' => 'إنشاء مجلد',
 			'groupCategory.categoryName' => 'اسم المجلد',
@@ -5411,6 +5452,8 @@ extension on TranslationsArSa {
 			'main.safetyNumberMarkedVerified' => 'تم وضع علامة تم التحقق',
 			'main.safetyNumberPeerDevice' => 'جهاز الطرف الآخر',
 			'main.safetyNumberNoDevices' => 'لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'تعذّر الحصول على رمز الأمان. حاول لاحقاً',
 			'main.safetyNumberReporting' => 'جارٍ الإبلاغ عن نتيجة التحقق...',
 			'main.safetyNumberReportRejected' => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة',
@@ -5430,8 +5473,6 @@ extension on TranslationsArSa {
 			'mention.title' => '@إشارات',
 			'mention.noMention' => 'لا توجد إشارات',
 			'mention.allRead' => 'تمت قراءة الكل',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllDenied' => 'للمشرفين فقط استخدام @الجميع',
 			'mention.navInfoMissing' => 'معلومات موقع الرسالة مفقودة، لا يمكن الانتقال',
 			'mention.pickButtonTooltip' => '@إشارة إلى عضو',
@@ -5757,6 +5798,8 @@ extension on TranslationsArSa {
 			'organization.manage.retry' => 'إعادة المحاولة',
 			'organization.manage.groupSection' => 'مجموعات المؤسسة',
 			'organization.manage.createGroup' => 'مجموعة جديدة',
+			'organization.manage.creationRecoveryUnavailable' => 'نتيجة الإنشاء غير معروفة، حاول لاحقاً',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'تم إنشاء المجموعة (ID: ${gid})، ولكن لم يُحفظ الاسم',
 			'organization.manage.groupNameHint' => 'اسم المجموعة',
 			'organization.manage.groupEmpty' => 'لا توجد مجموعات مؤسسة بعد',
 			'organization.manage.groupMembers' => ({required Object count}) => 'الأعضاء ${count}',
@@ -5923,6 +5966,8 @@ extension on TranslationsArSa {
 			'talkRecord.aiProviderResubmitNotice' => 'ينشئ تفريغًا جديدًا وقد يسبب رسومًا مكررة. يبقى الطلب الأصلي. هل تؤكد إعادة الإرسال والموافقة على هذه المعالجة؟',
 			'talkRecord.aiProviderCancelled' => 'توقف التفريغ. تم الاحتفاظ بالصوت الموجود.',
 			'talkRecord.aiProviderResumePreparation' => 'متابعة إعداد التفريغ',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'لم تُرسل المهمة الأصلية إلى المزوّد. أعد تجهيز مصدر الصوت وفق الأذونات والموافقة الحالية.',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',
@@ -5943,9 +5988,6 @@ extension on TranslationsArSa {
 			'workspace.pickerEmptySubtitle' => 'أنشئ مساحة عمل وابدأ التعاون الجماعي في 3 دقائق (يُنشأ تلقائياً قناة Announcements ومجموعة General)',
 			'workspace.archivedBadge' => 'مؤرشفة',
 			'workspace.emptyNoWorkspace' => 'يرجى أولاً اختيار مساحة عمل أو إنشائها',
-			'workspace.dmEntry' => 'كل الرسائل',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'شخصي',
 			'workspace.switchToPersonal' => 'التبديل إلى الشخصي',
 			'workspace.createTitle' => 'إنشاء مساحة عمل',
@@ -5978,7 +6020,6 @@ extension on TranslationsArSa {
 			'workspace.channelsEmptySubtitle' => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} مشتركين',
 			'workspace.channelDetailTitle' => 'القناة',
-			'workspace.discussInGroupGuide' => 'تُستخدم القناة لنشر المحتوى؛ تريد النقاش؟ انتقل إلى مجموعة General.',
 			'workspace.groupsEmptyTitle' => 'لا توجد مجموعات في مساحة العمل بعد',
 			'workspace.groupsEmptySubtitle' => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} أعضاء المجموعة',
@@ -6175,6 +6216,9 @@ extension on TranslationsArSa {
 			'workspace.tabTodo' => 'المهام',
 			'workspace.takeABreak' => 'خذ قسطًا من الراحة',
 			'workspace.todoEmptyTitle' => 'لا توجد مهام',
+			'workspace.contentProtectedPending' => 'تم إخفاء المحتوى مؤقتًا، في انتظار إعادة التفويض',
+			'workspace.contentProtectedRetry' => 'إعادة التحقق',
+			'workspace.contentRevoked' => 'لم تعد لديك صلاحية الوصول إلى محتوى مساحة العمل هذا',
 			_ => null,
 		};
 	}

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:imboy/service/sqlite.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 频道发布请求的本地持久化队列项。
 class ChannelPublishOutboxItem {
@@ -43,10 +44,11 @@ class ChannelPublishOutboxRepo {
     required String msgType,
     Map<String, dynamic>? payload,
     String? error,
+    Transaction? txn,
   }) async {
     if (!_enabled) return;
     final now = DateTime.now().millisecondsSinceEpoch;
-    await _db.insert(tableName, {
+    final values = <String, Object?>{
       'request_id': requestId,
       'channel_id': channelId,
       'content': content,
@@ -57,12 +59,22 @@ class ChannelPublishOutboxRepo {
       'last_error': error,
       'created_at': now,
       'updated_at': now,
-    });
+    };
+    if (txn != null) {
+      await txn.insert(
+        tableName,
+        values,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } else {
+      await _db.insert(tableName, values);
+    }
   }
 
   Future<List<ChannelPublishOutboxItem>> pending({
     String? channelId,
     int limit = 20,
+    Transaction? txn,
   }) async {
     if (!_enabled) return [];
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -73,13 +85,21 @@ class ChannelPublishOutboxRepo {
       args.add(channelId);
     }
 
-    final rows = await _db.query(
-      tableName,
-      where: whereParts.join(' AND '),
-      whereArgs: args,
-      orderBy: 'next_attempt_at ASC, created_at ASC',
-      limit: limit,
-    );
+    final rows = txn != null
+        ? await txn.query(
+            tableName,
+            where: whereParts.join(' AND '),
+            whereArgs: args,
+            orderBy: 'next_attempt_at ASC, created_at ASC',
+            limit: limit,
+          )
+        : await _db.query(
+            tableName,
+            where: whereParts.join(' AND '),
+            whereArgs: args,
+            orderBy: 'next_attempt_at ASC, created_at ASC',
+            limit: limit,
+          );
     return rows.map((row) {
       final rawPayload = row['payload'] as String?;
       return ChannelPublishOutboxItem(
@@ -95,8 +115,16 @@ class ChannelPublishOutboxRepo {
     }).toList();
   }
 
-  Future<void> remove(String requestId) async {
+  Future<void> remove(String requestId, {Transaction? txn}) async {
     if (!_enabled) return;
+    if (txn != null) {
+      await txn.delete(
+        tableName,
+        where: 'request_id = ?',
+        whereArgs: [requestId],
+      );
+      return;
+    }
     await _db.delete(
       tableName,
       where: 'request_id = ?',
@@ -104,28 +132,49 @@ class ChannelPublishOutboxRepo {
     );
   }
 
-  Future<void> markRetry(String requestId, Object error) async {
+  Future<void> markRetry(
+    String requestId,
+    Object error, {
+    Transaction? txn,
+  }) async {
     if (!_enabled) return;
-    final rows = await _db.query(
-      tableName,
-      where: 'request_id = ?',
-      whereArgs: [requestId],
-      limit: 1,
-    );
+    final rows = txn != null
+        ? await txn.query(
+            tableName,
+            where: 'request_id = ?',
+            whereArgs: [requestId],
+            limit: 1,
+          )
+        : await _db.query(
+            tableName,
+            where: 'request_id = ?',
+            whereArgs: [requestId],
+            limit: 1,
+          );
     if (rows.isEmpty) return;
 
     final attempts = (rows.first['attempts'] as int? ?? 0) + 1;
     final cappedAttempts = attempts > 8 ? 8 : attempts;
     final delaySeconds = 1 << cappedAttempts;
     final now = DateTime.now().millisecondsSinceEpoch;
+    final values = <String, Object?>{
+      'attempts': attempts,
+      'next_attempt_at': now + delaySeconds * 1000,
+      'last_error': error.toString(),
+      'updated_at': now,
+    };
+    if (txn != null) {
+      await txn.update(
+        tableName,
+        values,
+        where: 'request_id = ?',
+        whereArgs: [requestId],
+      );
+      return;
+    }
     await _db.update(
       tableName,
-      {
-        'attempts': attempts,
-        'next_attempt_at': now + delaySeconds * 1000,
-        'last_error': error.toString(),
-        'updated_at': now,
-      },
+      values,
       where: 'request_id = ?',
       whereArgs: [requestId],
     );

@@ -1,3 +1,5 @@
+import 'package:imboy/store/repository/user_repo_local.dart';
+
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
@@ -11,6 +13,7 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/page/channel/channel_detail_rules.dart';
@@ -22,6 +25,7 @@ import 'package:imboy/store/api/report_api.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/page/group/widgets/group_dialogs.dart';
 
+import '../channel_di_provider.dart';
 import '../channel_message_item.dart';
 import '../channel_provider.dart';
 
@@ -43,6 +47,10 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
   /// 下拉刷新回调
   final Future<void> Function()? onRefresh;
 
+  /// W08（§6.8）：未查看更新数（服务端权威，mark_viewed 应答携带）。
+  /// null/0 不显示更新行；由宿主页（详情页）经查看边界判定后下发。
+  final int? unseenUpdates;
+
   const ChannelMessageFeed({
     super.key,
     required this.channelId,
@@ -51,6 +59,7 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
     this.scrollController,
     this.onReactionChanged,
     this.onRefresh,
+    this.unseenUpdates,
   });
 
   static bool contentToolsAvailable(ChannelModel? channel) =>
@@ -65,6 +74,33 @@ class ChannelMessageFeed extends ConsumerStatefulWidget {
 class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   /// 收缩态下仍给消息列表保留的最小高度（约一条列表项）。
   static const double _minListHeight = 48;
+
+  /// 叠页归属过滤（J07）：共享全局 provider 时只渲染属于本组件目标的
+  /// 状态；其他目标在途时回退到本目标的最近快照，避免串台渲染。
+  ChannelDetailState _ownObservedState(ChannelDetailState observed) {
+    final notifier = ref.read(channelDetailProvider.notifier);
+    return ownChannelDetailState(
+      observed,
+      notifier.requestedChannelId,
+      widget.channelId,
+      notifier.snapshotFor(widget.channelId),
+    );
+  }
+
+  ChannelModel? _ownObservedChannel(ChannelModel? observedChannel) {
+    final observed = ChannelDetailState(channel: observedChannel);
+    if (channelDetailOwnsTarget(
+      observed,
+      ref.read(channelDetailProvider.notifier).requestedChannelId,
+      widget.channelId,
+    )) {
+      return observedChannel;
+    }
+    return notifierSnapshotChannel(widget.channelId);
+  }
+
+  ChannelModel? notifierSnapshotChannel(String channelId) =>
+      ref.read(channelDetailProvider.notifier).snapshotFor(channelId)?.channel;
 
   late ScrollController _scrollController;
   bool _showScrollTop = false;
@@ -147,21 +183,33 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   Future<void> _subscribeFromEmpty(String channelId) async {
     if (_isSubscribingFromEmpty) return;
+    final t = context.t;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool isCurrent() =>
+        mounted &&
+        widget.channelId == channelId &&
+        user.currentUid == uid &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
     setState(() => _isSubscribingFromEmpty = true);
     try {
       final success = await ref
           .read(channelListProvider.notifier)
           .subscribeChannel(channelId);
-      if (!mounted) return;
-      if (success) {
+      if (!isCurrent()) return;
+      if (success == ChannelSubscribeOutcome.completed) {
         await ref.read(channelDetailProvider.notifier).loadChannel(channelId);
-        widget.onReactionChanged?.call();
+        if (isCurrent()) widget.onReactionChanged?.call();
+      } else if (success == ChannelSubscribeOutcome.pending) {
+        AppLoading.showToast(t.channel.subscribePending);
       }
       // 失败分支不再叠兜底文案：后端中文原因已由 ChannelApi.subscribe 透出
     } catch (e) {
       iPrint('[ChannelMessageFeed] 订阅失败: $e');
-      if (mounted) {
-        AppLoading.showError(context.t.channel.subscribeFailed);
+      if (isCurrent()) {
+        AppLoading.showError(t.channel.subscribeFailed);
       }
     } finally {
       if (mounted) {
@@ -174,7 +222,9 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
 
   @override
   Widget build(BuildContext context) {
-    final channel = ref.watch(channelDetailProvider.select((s) => s.channel));
+    final channel = _ownObservedChannel(
+      ref.watch(channelDetailProvider.select((s) => s.channel)),
+    );
     final enabled = ChannelMessageFeed.contentToolsAvailable(channel);
     final searchOpen = widget.searchOpen ?? _searchOpen;
     return LayoutBuilder(
@@ -408,7 +458,7 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
   }
 
   Widget _buildRegularFeed(BuildContext context) {
-    final state = ref.watch(channelDetailProvider);
+    final state = _ownObservedState(ref.watch(channelDetailProvider));
     final t = context.t;
 
     if (state.isLoading && state.messages.isEmpty) {
@@ -449,7 +499,13 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
           onTop: _isSubscribingFromEmpty
               ? null
               : () => _subscribeFromEmpty(widget.channelId),
-          retryLabel: _isSubscribingFromEmpty ? null : t.channel.subscribe,
+          retryLabel: _isSubscribingFromEmpty
+              ? null
+              : (ref
+                        .read(channelServiceProvider)
+                        .hasPendingSubscription(widget.channelId)
+                    ? t.channel.subscribeRefresh
+                    : t.channel.subscribe),
         );
       } else {
         return NoDataView(
@@ -460,8 +516,17 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
       }
     }
 
+    final unseen = widget.unseenUpdates ?? 0;
     return Stack(
       children: [
+        // W08 更新行：「有 N 条新更新」不称逐帖已读（§6.8 边界语义）。
+        if (unseen > 0)
+          Positioned(
+            top: AppSpacing.small,
+            left: 0,
+            right: 0,
+            child: Center(child: _UnseenUpdatesBanner(count: unseen)),
+          ),
         RefreshIndicator(
           onRefresh: widget.onRefresh ?? _handleRefresh,
           child: ListView.builder(
@@ -697,6 +762,39 @@ class _ChannelMessageFeedState extends ConsumerState<ChannelMessageFeed> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// W08 更新行：只表达「有 N 条新更新」的边界计数（服务端权威），
+/// 不伪装逐帖已读回执（§6.8：界面称"已查看至此更新/有 N 条新更新"）。
+class _UnseenUpdatesBanner extends StatelessWidget {
+  const _UnseenUpdatesBanner({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    return Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.small,
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.iosBlue.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          t.channel.unseenUpdatesBanner(count: count),
+          style: context.textStyle(
+            FontSizeType.caption2,
+            color: AppColors.iosBlue,
+          ),
         ),
       ),
     );

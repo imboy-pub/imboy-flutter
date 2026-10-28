@@ -1,9 +1,11 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/store/api/list_cursor_client.dart' show CursorPage;
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -21,6 +23,14 @@ import 'package:imboy/service/events/common_events.dart';
 
 /// 群组列表服务类 - 处理业务逻辑
 class GroupListService {
+  /// W07.c 收尾（C2）：manifest 清单合同声明才启用个人群游标协议；
+  /// 未声明 → 全部 legacy page/size 路径逐字节零变化（J27.a/b）。
+  bool get _cursorGateEnabled =>
+      AppManifestService.manifest?.listCursorGateEnabled ?? false;
+
+  /// 服务端游标 limit 上限（group_handler resolve_cursor_limit: 1..200）。
+  static const int _cursorPageCap = 200;
+
   String _normalizeAttr(String attr) {
     switch (attr) {
       case 'all':
@@ -33,6 +43,48 @@ class GroupListService {
     }
   }
 
+  /// W07.c 收尾：manifest 门开启时的个人群游标拉取循环。
+  ///
+  /// token 线程化翻页：取满 [want] 条（null = 至终止页）或 next_cursor
+  /// 为空（终止页契约）即停；每页行即时落库 + 成员阴影同步（部分失败
+  /// 保留已完成部分）。服务端拒绝（绑定不符/篡改/过期 400）**不回落
+  /// 第 1 页**（J27.c）：记录并终止，返回已同步部分——与 legacy
+  /// `payload == null → 终止` 同类，绝无第一页伪全量。
+  Future<List<GroupModel>> _pullAndSyncViaCursor({
+    required String attr,
+    int? want,
+    int maxPages = 20,
+  }) async {
+    final repo = GroupRepo();
+    final acc = <GroupModel>[];
+    String? token;
+    for (var p = 0; p < maxPages; p++) {
+      if (want != null && acc.length >= want) break;
+      final CursorPage<Map<String, dynamic>> page;
+      try {
+        page = await GroupApi().pageCursor(
+          attr: attr,
+          token: token,
+          limit: want == null ? _cursorPageCap : want.clamp(1, _cursorPageCap),
+        );
+      } catch (e, s) {
+        iPrint(
+          "GroupListService cursor pull attr=$attr page=${p + 1} "
+          "rejected: $e\n$s",
+        );
+        break;
+      }
+      for (final item in page.list) {
+        final group = await repo.save('', item);
+        await _syncSelfMembershipShadow(attr: attr, group: group);
+        acc.add(group);
+      }
+      token = page.nextCursor;
+      if (token == null) break; // 终止页契约：空 next_cursor 收口
+    }
+    return acc;
+  }
+
   Future<List<GroupModel>> _pullAndSyncAllViews({
     required int page,
     required int size,
@@ -41,6 +93,15 @@ class GroupListService {
     final repo = GroupRepo();
     final merged = <int, GroupModel>{};
     for (final attr in const ['manager', 'join', 'owner']) {
+      if (_cursorGateEnabled) {
+        for (final group in await _pullAndSyncViaCursor(
+          attr: attr,
+          want: size,
+        )) {
+          merged[group.groupId] = group;
+        }
+        continue;
+      }
       final payload = await GroupApi().page(page: page, size: size, attr: attr);
       if (payload == null) {
         continue;
@@ -155,6 +216,15 @@ class GroupListService {
     final normalizedAttr = _normalizeAttr(attr);
     int syncedCount = 0;
     final repo = GroupRepo();
+
+    // W07.c 收尾：门开启走签名游标循环（终止页契约收口）；失败中断时
+    // 已同步部分保留，与 legacy `payload == null → break` 同类。
+    if (_cursorGateEnabled) {
+      return (await _pullAndSyncViaCursor(
+        attr: normalizedAttr,
+        maxPages: maxPages,
+      )).length;
+    }
 
     for (int p = 1; p <= maxPages; p++) {
       final payload = await GroupApi().page(
@@ -470,6 +540,16 @@ class GroupListService {
     }
     if (normalizedAttr == 'all') {
       return _pullAndSyncAllViews(page: page, size: size, offset: offset);
+    }
+    // W07.c 收尾：门开启走签名游标循环，取满 offset+size 条后按本地
+    // 视图切片返回（legacy 单页请求在游标协议下不可跳页，改由累计
+    // 覆盖——无第一页伪全量）。
+    if (_cursorGateEnabled) {
+      final synced = await _pullAndSyncViaCursor(
+        attr: normalizedAttr,
+        want: offset + size,
+      );
+      return synced.length > offset ? synced.sublist(offset) : <GroupModel>[];
     }
     Map<String, dynamic>? payload = await GroupApi().page(
       page: page,

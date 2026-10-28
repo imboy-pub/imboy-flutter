@@ -5,6 +5,7 @@ subscribed: Subscribed
 managed: Managed
 discover: Discover
 create: Create Channel
+creationRecoveryUnavailable: Creation result unknown, please try again later
 searchHint: Search channel name or ID
 noResults: No channels found
 noRecommendedChannels: "No recommended channels
@@ -213,6 +214,7 @@ shareInviteText(name, url): "Come and follow my channel \"$name\" at $url"
 # Micro-community content and explicit discussion membership.
 discussion: "Discussion"
 joinDiscussion: "Join discussion"
+discussionIneligible: Subscribe to this channel to join its discussion group
 essence: "Highlights"
 allPosts: "All posts"
 editPostTags: "Edit tags"
@@ -224,3 +226,7 @@ shareLink: "Share link"
 linkAccessHint: "Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership."
 personalChannelLabel: "Personal channel"
 enterpriseChannelLabel: "Internal enterprise channel"
+
+subscribePending: Subscribed; refreshing
+subscribeRefresh: Refresh subscription
+unseenUpdatesBanner(count): "${count} new updates"

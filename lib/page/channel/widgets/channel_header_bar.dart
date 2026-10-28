@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -10,6 +11,7 @@ import 'package:imboy/component/ui/avatar_fallback.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../channel_di_provider.dart';
 
@@ -28,6 +30,7 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
   /// 点击订阅/管理/退订按钮回调
   final VoidCallback? onActionTap;
   final bool isActionPending;
+  final bool isReconciliationPending;
 
   /// 额外辅助操作
   final VoidCallback? onShareTap;
@@ -46,6 +49,7 @@ class ChannelHeaderBar extends ConsumerStatefulWidget {
     this.stats,
     this.onActionTap,
     this.isActionPending = false,
+    this.isReconciliationPending = false,
     this.onShareTap,
     this.onForwardTap,
     this.onManageTap,
@@ -60,12 +64,33 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   bool _isMuted = false;
   bool _muteKnown = false;
   int _muteRequest = 0;
+  int _operation = 0;
   bool _isLoadingMute = false;
 
   @override
   void initState() {
     super.initState();
+    UserRepoLocal.to.addAuthListener(_authChanged);
     _loadMuteState();
+  }
+
+  @override
+  void dispose() {
+    UserRepoLocal.to.removeAuthListener(_authChanged);
+    super.dispose();
+  }
+
+  void _authChanged() {
+    if (!mounted) return;
+    _invalidateMute();
+    setState(() {});
+  }
+
+  void _invalidateMute() {
+    _muteRequest++;
+    _operation++;
+    _muteKnown = false;
+    _isLoadingMute = false;
   }
 
   @override
@@ -73,18 +98,39 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.channel.isSubscribed != widget.channel.isSubscribed ||
         oldWidget.channel.id != widget.channel.id) {
+      _invalidateMute();
       _loadMuteState();
     }
   }
 
+  ({String uid, int generation, int channelId}) _scope() => (
+    uid: UserRepoLocal.to.currentUid,
+    generation: UserRepoLocal.to.sessionGeneration,
+    channelId: widget.channel.id,
+  );
+
+  bool _isCurrent(({String uid, int generation, int channelId}) scope) {
+    final user = UserRepoLocal.to;
+    return mounted &&
+        widget.channel.id == scope.channelId &&
+        widget.channel.isSubscribed &&
+        user.currentUid == scope.uid &&
+        user.isCurrentSession(scope.generation) &&
+        !user.isAuthTransitioning;
+  }
+
   Future<void> _loadMuteState() async {
     final request = ++_muteRequest;
-    final id = widget.channel.id.toString();
     setState(() => _muteKnown = false);
-    if (!widget.channel.isSubscribed) return;
+    if (!widget.channel.isSubscribed || UserRepoLocal.to.isAuthTransitioning) {
+      return;
+    }
+    final scope = _scope();
     try {
-      final sub = await ref.read(channelServiceProvider).getSubscription(id);
-      if (mounted && request == _muteRequest) {
+      final sub = await ref
+          .read(channelServiceProvider)
+          .getSubscription(scope.channelId.toString());
+      if (_isCurrent(scope) && request == _muteRequest) {
         setState(() {
           _muteKnown = sub != null;
           _isMuted = sub?.isMuted ?? false;
@@ -96,22 +142,25 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
   }
 
   Future<void> _retryMuteState() async {
-    final id = widget.channel.id;
+    final scope = _scope();
+    if (!_isCurrent(scope)) return;
+    final operation = ++_operation;
+    bool current() => _operation == operation && _isCurrent(scope);
     setState(() => _isLoadingMute = true);
     try {
       final service = ref.read(channelServiceProvider);
-      final fresh = await service.refreshChannel(id.toString());
-      if (!mounted || widget.channel.id != id) return;
-      if (fresh?.isSubscribed != true) {
+      final fresh = await service.refreshChannel(scope.channelId.toString());
+      if (!current()) return;
+      if (fresh?.isSubscribed != true || fresh?.id != scope.channelId) {
         AppLoading.showError(t.common.operationFailedAgainLater);
         return;
       }
       await service.syncSubscribedChannels(fromList: [fresh!]);
-      if (mounted && widget.channel.id == id) await _loadMuteState();
+      if (current()) await _loadMuteState();
     } on Exception {
-      if (mounted) AppLoading.showError(t.common.operationFailedAgainLater);
+      if (current()) AppLoading.showError(t.common.operationFailedAgainLater);
     } finally {
-      if (mounted) setState(() => _isLoadingMute = false);
+      if (current()) setState(() => _isLoadingMute = false);
     }
   }
 
@@ -121,28 +170,34 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
       await _retryMuteState();
       return;
     }
+    final scope = _scope();
+    if (!_isCurrent(scope)) return;
+    final operation = ++_operation;
+    bool current() => _operation == operation && _isCurrent(scope);
+    final nextMute = !_isMuted;
     setState(() => _isLoadingMute = true);
-    final channelId = widget.channel.id;
     try {
-      final nextMute = !_isMuted;
       final success = await ref
           .read(channelServiceProvider)
-          .setMuted(widget.channel.id.toString(), nextMute);
-      if (success && mounted && widget.channel.id == channelId) {
-        await _loadMuteState();
-        if (!mounted || widget.channel.id != channelId || !_muteKnown) return;
-        AppLoading.showToast(
-          nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
-        );
-      } else if (mounted) {
+          .setMuted(scope.channelId.toString(), nextMute);
+      if (!current()) return;
+      if (!success) {
         AppLoading.showError(t.common.operationFailedAgainLater);
+        return;
       }
+      await _loadMuteState();
+      if (!current()) return;
+      if (!_muteKnown || _isMuted != nextMute) {
+        AppLoading.showError(t.common.operationFailedAgainLater);
+        return;
+      }
+      AppLoading.showToast(
+        nextMute ? t.chat.chatSettingMuted : t.chat.chatSettingUnmuted,
+      );
     } catch (_) {
-      AppLoading.showError(t.common.operationFailedAgainLater);
+      if (current()) AppLoading.showError(t.common.operationFailedAgainLater);
     } finally {
-      if (mounted) {
-        setState(() => _isLoadingMute = false);
-      }
+      if (current()) setState(() => _isLoadingMute = false);
     }
   }
 
@@ -238,76 +293,117 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
   Widget _compactHeader(int subscriberCount) {
     final channel = widget.channel;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.regular,
-        vertical: AppSpacing.tiny,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              onPressed: () => showChannelInfoDialog(
-                context,
-                channel,
-                subscriberCount: subscriberCount,
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Wrap(
-                  spacing: AppSpacing.small,
-                  runSpacing: AppSpacing.tiny,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    if (channel.isManaged)
-                      ChannelRoleBadge(role: channel.userRole),
-                    Text(
-                      '${channel.isPublic ? context.t.channel.typePublic : context.t.channel.typePrivate}'
-                      ' · $subscriberCount ${context.t.channel.subscribers}',
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.getTextColor(
-                          Theme.of(context).brightness,
-                          isSecondary: true,
+    return Shortcuts(
+      shortcuts: const {
+        SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.regular,
+          vertical: AppSpacing.tiny,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: CupertinoButton(
+                minimumSize: const Size.square(AppSpacing.xxxLarge),
+                padding: EdgeInsets.zero,
+                onPressed: () => showChannelInfoDialog(
+                  context,
+                  channel,
+                  subscriberCount: subscriberCount,
+                ),
+                child: Semantics(
+                  label: context.t.channel.info,
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Wrap(
+                      spacing: AppSpacing.small,
+                      runSpacing: AppSpacing.tiny,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (channel.isManaged)
+                          ChannelRoleBadge(role: channel.userRole),
+                        Text(
+                          '${channel.isPublic ? context.t.channel.typePublic : context.t.channel.typePrivate}'
+                          ' · $subscriberCount ${context.t.channel.subscribers}',
+                          style: context.textStyle(
+                            FontSizeType.small,
+                            color: AppColors.getTextColor(
+                              Theme.of(context).brightness,
+                              isSecondary: true,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (channel.isVerified)
+                          const Icon(
+                            CupertinoIcons.checkmark_seal_fill,
+                            size: AppSpacing.regular,
+                            color: AppColors.iosGreen,
+                          ),
+                      ],
                     ),
-                    if (channel.isVerified)
-                      const Icon(
-                        CupertinoIcons.checkmark_seal_fill,
-                        size: AppSpacing.regular,
-                        color: AppColors.iosGreen,
-                      ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-          if (channel.isSubscribed)
-            CupertinoButton(
-              padding: const EdgeInsets.all(AppSpacing.small),
-              onPressed: _isLoadingMute ? null : _toggleMute,
-              child: Icon(
-                !_muteKnown
-                    ? CupertinoIcons.arrow_clockwise
-                    : (_isMuted
-                          ? CupertinoIcons.bell_slash
-                          : CupertinoIcons.bell),
-                semanticLabel: _muteKnown
+            if (channel.isSubscribed && !widget.isReconciliationPending)
+              _compactAction(
+                label: _muteKnown
                     ? context.t.chat.chatSettingMute
                     : context.t.common.retry,
+                isPending: _isLoadingMute,
+                toggled: _muteKnown ? _isMuted : null,
+                onPressed: _toggleMute,
+                child: Icon(
+                  !_muteKnown
+                      ? CupertinoIcons.arrow_clockwise
+                      : (_isMuted
+                            ? CupertinoIcons.bell_slash
+                            : CupertinoIcons.bell),
+                ),
+              )
+            else
+              _compactAction(
+                label: widget.isReconciliationPending
+                    ? context.t.channel.subscribeRefresh
+                    : context.t.channel.subscribe,
+                isPending: widget.isActionPending,
+                onPressed: widget.onActionTap,
+                child: Text(
+                  widget.isReconciliationPending
+                      ? context.t.channel.subscribeRefresh
+                      : context.t.channel.subscribe,
+                ),
               ),
-            )
-          else
-            CupertinoButton(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.small),
-              onPressed: widget.isActionPending ? null : widget.onActionTap,
-              child: widget.isActionPending
-                  ? const CupertinoActivityIndicator()
-                  : Text(context.t.channel.subscribe),
-            ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _compactAction({
+    required String label,
+    required bool isPending,
+    required VoidCallback? onPressed,
+    required Widget child,
+    bool? toggled,
+  }) {
+    final action = isPending ? null : onPressed;
+    return Semantics(
+      label: label,
+      value: isPending ? context.t.common.loading : null,
+      button: true,
+      enabled: action != null,
+      toggled: toggled,
+      liveRegion: isPending,
+      onTap: action,
+      excludeSemantics: true,
+      child: CupertinoButton(
+        minimumSize: const Size.square(AppSpacing.xxxLarge),
+        padding: const EdgeInsets.all(AppSpacing.small),
+        onPressed: action,
+        child: isPending ? const CupertinoActivityIndicator() : child,
       ),
     );
   }
@@ -339,7 +435,8 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
 
   Widget _buildActionRow(BuildContext context) {
     final t = context.t;
-    final isSubscribed = widget.channel.isSubscribed;
+    final isSubscribed =
+        widget.channel.isSubscribed && !widget.isReconciliationPending;
     final isManaged = widget.channel.isManaged;
 
     return Wrap(
@@ -372,7 +469,9 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
           else
             _buildCircleActionItem(
               icon: CupertinoIcons.bell,
-              label: t.channel.subscribe,
+              label: widget.isReconciliationPending
+                  ? t.channel.subscribeRefresh
+                  : t.channel.subscribe,
               // pending 态与回调缺失都走禁用（onPressed=null）
               onTap: widget.onActionTap,
               isPending: widget.isActionPending,
@@ -409,8 +508,12 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
                       )
                     : const Icon(CupertinoIcons.add, size: 18),
                 label: Text(
-                  t.channel.subscribe,
-                  semanticsLabel: t.channel.subscribe,
+                  widget.isReconciliationPending
+                      ? t.channel.subscribeRefresh
+                      : t.channel.subscribe,
+                  semanticsLabel: widget.isReconciliationPending
+                      ? t.channel.subscribeRefresh
+                      : t.channel.subscribe,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 style: FilledButton.styleFrom(

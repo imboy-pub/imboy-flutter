@@ -15,10 +15,13 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/page/settings/safety_number_page.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/page/chat/widget/chat_background_manager.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/service/group_notice_config.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'chat_setting_provider.dart';
@@ -51,13 +54,36 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   int _burnPickerIndex = 2;
   // C7-α-2: 本地 DND 开关
   bool _muteEnabled = false;
-  int? _conversationId;
+  bool _mutePending = true;
+  bool _muteLoadFailed = false;
+  late final String _ownerUid;
+  late final int _ownerGeneration;
+  late final String _ownerPeer;
+  late final String _ownerType;
+
+  bool get _isCurrent =>
+      mounted &&
+      _ownerUid.isNotEmpty &&
+      widget.peerId == _ownerPeer &&
+      widget.type == _ownerType &&
+      UserRepoLocal.to.currentUid == _ownerUid &&
+      UserRepoLocal.to.isCurrentSession(_ownerGeneration) &&
+      !UserRepoLocal.to.isAuthTransitioning;
+
+  void _onAuthChanged() {
+    if (mounted) setState(() {});
+  }
 
   StreamSubscription<dynamic>? _localeSubscription;
 
   @override
   void initState() {
     super.initState();
+    _ownerPeer = widget.peerId;
+    _ownerType = widget.type;
+    _ownerUid = UserRepoLocal.to.currentUid;
+    _ownerGeneration = UserRepoLocal.to.sessionGeneration;
+    UserRepoLocal.to.addAuthListener(_onAuthChanged);
     _loadBurnSetting();
     // 监听语言变化
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
@@ -69,12 +95,12 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
 
   Future<void> _loadBurnSetting() async {
     try {
-      final conversation = await ConversationRepo().findByPeerId(
+      final conversation = await ConversationRepo().findByPeerIdForSettings(
         widget.type,
         widget.peerId,
       );
       final payload = conversation?.payload;
-      if (!mounted) return;
+      if (!_isCurrent) return;
       setState(() {
         _burnEnabled = payload?['burn_enabled'] == true;
         final raw = payload?['burn_after_ms'];
@@ -86,23 +112,61 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
         }
         // C7-α-2: 加载 DND 状态
         _muteEnabled = (conversation?.isMuted ?? 0) > 0;
-        _conversationId = conversation?.id;
       });
     } catch (e) {
       debugPrint('[chat_setting_page] block error: $e');
+      if (_isCurrent) setState(() => _muteLoadFailed = true);
+    } finally {
+      if (_isCurrent) setState(() => _mutePending = false);
     }
   }
 
   /// C7-α-2: 持久化 DND 开关到 conversation.is_muted 列
+  ///
+  /// W09.a（§6.7 C2G 群免打扰）：type=C2G 时真源是**账号范围 KV**
+  /// （group_notice_config），conversation.is_muted 只是投影——通用
+  /// 设置页必须复用同一 KV 写入，不得仅写 SQLite 后声称成功。写失败
+  /// 回滚（§5.2）：KV 写失败即报错不动投影；投影失败回滚 KV。
   Future<void> _persistMuteSetting(bool muted) async {
-    if (_conversationId == null || _conversationId == 0) return;
+    if (_mutePending || _muteLoadFailed || !_isCurrent) return;
+    setState(() => _mutePending = true);
+    final isC2G = widget.type == 'C2G';
+    final gid = int.tryParse(widget.peerId) ?? 0;
     try {
-      await ConversationRepo().updateById(_conversationId!, {
-        ConversationRepo.isMuted: muted ? 1 : 0,
-      });
+      if (isC2G) {
+        await setNoticeDisabled(
+          gid,
+          muted,
+          accountUid: UserRepoLocal.to.currentUid,
+          writeBool: (k, val) async => StorageService.to.setBool(k, val),
+        );
+      }
+      await ConversationRepo().setMutedForPeer(
+        widget.type,
+        widget.peerId,
+        muted,
+      );
+      if (!_isCurrent) return;
+      setState(() => _muteEnabled = muted);
       backDoRefresh = true;
+      AppLoading.showToast(muted ? t.common.enabled : t.common.disabled);
     } catch (e) {
       debugPrint('[chat_setting_page] ConversationRepo error: $e');
+      if (isC2G) {
+        try {
+          await setNoticeDisabled(
+            gid,
+            !muted,
+            accountUid: UserRepoLocal.to.currentUid,
+            writeBool: (k, val) async => StorageService.to.setBool(k, val),
+          );
+        } catch (rollbackError) {
+          debugPrint('[chat_setting_page] KV rollback error: $rollbackError');
+        }
+      }
+      if (_isCurrent) AppLoading.showError(t.common.errorNetwork);
+    } finally {
+      if (_isCurrent) setState(() => _mutePending = false);
     }
   }
 
@@ -314,7 +378,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
   Widget _buildSwitchTile(
     String title,
     bool value,
-    ValueChanged<bool> onChanged, {
+    ValueChanged<bool>? onChanged, {
     IconData? icon,
     Color? iconColor,
     String? subtitle,
@@ -334,7 +398,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
           activeTrackColor: Theme.of(context).colorScheme.primary,
         ),
       ),
-      onTap: () => onChanged(!value),
+      onTap: onChanged == null ? null : () => onChanged(!value),
     );
   }
 
@@ -412,15 +476,15 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
       _buildSwitchTile(
         t.common.muteNotifications,
         _muteEnabled,
-        (v) async {
-          setState(() => _muteEnabled = v);
-          await _persistMuteSetting(v);
-          AppLoading.showToast(v ? t.common.enabled : t.common.disabled);
-        },
+        _mutePending || _muteLoadFailed || !_isCurrent
+            ? null
+            : _persistMuteSetting,
         isFirst: !e2eeEnabled,
         icon: CupertinoIcons.bell_slash,
         iconColor: Theme.of(context).colorScheme.primary,
-        subtitle: t.common.muteNotificationsHint,
+        subtitle: _muteLoadFailed
+            ? t.common.errorNetwork
+            : t.common.muteNotificationsHint,
       ),
       _buildSwitchTile(
         t.chat.burnAfterReading,
@@ -580,6 +644,7 @@ class _ChatSettingPageState extends ConsumerState<ChatSettingPage> {
 
   @override
   void dispose() {
+    UserRepoLocal.to.removeAuthListener(_onAuthChanged);
     _localeSubscription?.cancel();
     super.dispose();
   }

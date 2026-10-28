@@ -8,6 +8,7 @@
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
 
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
@@ -49,14 +50,21 @@ final workspaceGroupsProvider = FutureProvider.autoDispose
       return ref.watch(workspaceApiProvider).memberGroups(wsId);
     });
 
-/// Scoped message snapshots follow the current account, never the global cache.
+/// Counts project the live content budget; invalidation never authorizes content.
 final workspaceConversationsProvider = FutureProvider.autoDispose
     .family<List<WorkspaceConversationModel>, EntityId>((ref, wsId) {
-      final uid = ref.watch(
-        currentUserProvider.select((user) => user?.uid ?? ''),
+      final target = (
+        workspaceId: wsId,
+        resource: kWorkspaceAccessContentResource,
       );
-      if (uid.isEmpty) return const <WorkspaceConversationModel>[];
-      return ref.watch(workspaceApiProvider).conversations(wsId);
+      final access = ref.watch(workspaceAccessProvider(target));
+      if (!access.canRenderProtectedContent ||
+          !ref
+              .read(workspaceAccessProvider(target).notifier)
+              .isCurrentContext) {
+        return const <WorkspaceConversationModel>[];
+      }
+      return access.rows;
     }, retry: (_, _) => null);
 
 /// 工作区成员分页列表（第一页，size 50；成员管理页当前规模足够）。

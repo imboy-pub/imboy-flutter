@@ -324,6 +324,8 @@ manage:
   retry: Retry
   groupSection: Enterprise groups
   createGroup: New group
+  creationRecoveryUnavailable: Creation result unknown, retry later
+  groupCreatedRenamePending: "Group created (ID: ${gid}); name was not saved"
   groupNameHint: Group name
   groupEmpty: No enterprise groups yet
   groupMembers: "${count} members"

@@ -33,11 +33,16 @@ class ConversationState {
   final String connectDesc;
   final Map<String, int> conversationRemind;
 
+  /// W09.a（§6.7/J17.c）：人工待处理（服务端 user_setting 元数据的
+  /// 本地投影）。独立于真实 unread——「标未读」不再写 unreadNum=1。
+  final Map<String, bool> manualPending;
+
   ConversationState({
     this.isLoading = true,
     this.conversationMap = const {},
     this.connectDesc = '',
     this.conversationRemind = const {},
+    this.manualPending = const {},
   });
 
   ConversationState copyWith({
@@ -45,12 +50,14 @@ class ConversationState {
     Map<String, ConversationModel>? conversationMap,
     String? connectDesc,
     Map<String, int>? conversationRemind,
+    Map<String, bool>? manualPending,
   }) {
     return ConversationState(
       isLoading: isLoading ?? this.isLoading,
       conversationMap: conversationMap ?? this.conversationMap,
       connectDesc: connectDesc ?? this.connectDesc,
       conversationRemind: conversationRemind ?? this.conversationRemind,
+      manualPending: manualPending ?? this.manualPending,
     );
   }
 
@@ -87,6 +94,7 @@ class ConversationState {
 class ConversationNotifier extends _$ConversationNotifier {
   final Map<String, Timer> _debounceTimers = {};
   final ConversationApi _conversationApi;
+  final Map<String, Future<bool>> _pendingDeletes = {};
 
   ConversationNotifier({ConversationApi? conversationApi})
     : _conversationApi = conversationApi ?? ConversationApi();
@@ -185,6 +193,103 @@ class ConversationNotifier extends _$ConversationNotifier {
     final newRemindMap = Map<String, int>.from(state.conversationRemind);
     newRemindMap[uk3] = val;
     state = state.copyWith(conversationRemind: newRemindMap);
+  }
+
+  /// W09.a（J17.c）：显式目标 true/false 设置人工待处理。
+  ///
+  /// 服务端 user_setting 元数据（版本化）；**不写 unreadNum**（人工标记
+  /// 不写 unread=1），真实水位零影响。失败上抛给调用方呈现（不假成功，
+  /// J16.b），不自动取反重试。
+  /// 各会话最近一次服务端权威偏好版本（CAS expected_version 来源）。
+  final Map<String, int> _manualPendingVersions = {};
+
+  /// W09.a（J17.c/J28.a）：启动/恢复时从服务端同步人工待处理元数据。
+  ///
+  /// 服务端列表是当前账号的权威集合：成功即**整体替换**本地标记与版本
+  /// 缓存——C2C uk3（C2C_小id_大id）不含账号，跨账号残留版本会污染
+  /// CAS，必须随替换一并清掉。失败/结果未知（null）保留本地状态不清
+  /// 除（不假成功也不误擦），下次启动或重试再同步。uid/会话代次防护
+  /// 与本类 _isCurrentSession 同款：账号切换/清除会话期间的迟到响应
+  /// 一律丢弃。
+  Future<void> syncManualPendingFromServer() async {
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    if (uid.isEmpty || user.isClearingSession) return;
+    List<Map<String, dynamic>>? rows;
+    try {
+      rows = await _conversationApi.manualPendingList();
+    } catch (_) {
+      return; // 请求异常=结果未知，保留现状
+    }
+    if (!ref.mounted ||
+        !user.isCurrentSession(session) ||
+        user.isClearingSession ||
+        uid != user.currentUid) {
+      return;
+    }
+    if (rows == null) return; // 请求失败/结果未知：保留现状（J16.b 不误擦）
+    final map = <String, bool>{};
+    final versions = <String, int>{};
+    for (final row in rows) {
+      final uk3 = '${row['uk3'] ?? ''}';
+      if (uk3.isEmpty) continue;
+      map[uk3] = '${row['value']}' == 'true';
+      final v = int.tryParse('${row['version']}');
+      if (v != null) versions[uk3] = v;
+    }
+    _manualPendingVersions
+      ..clear()
+      ..addAll(versions);
+    state = state.copyWith(manualPending: map);
+  }
+
+  /// W09.a（J17.c）+ W09.c（J17.d）：显式目标 true/false 设置人工待处理。
+  ///
+  /// 服务端 user_setting 元数据（版本化 CAS）；**不写 unreadNum**（人工
+  /// 标记不写 unread=1），真实水位零影响。冲突时回读服务端当前值：已达
+  /// 目标即成功；未达目标则冲突可见（applied=false + conflict + 服务端
+  /// 当前值，由调用方呈现最新值），不自动取反或无限覆盖（J17.d）。
+  /// 请求失败/结果未知返回 (applied: false, conflict: false)，由调用方
+  /// 按失败呈现，不与冲突混同。
+  Future<({bool applied, bool conflict, bool? serverValue})> setManualPending(
+    ConversationModel conversation,
+    bool target,
+  ) async {
+    final uk3 = conversation.uk3;
+    if (uk3.isEmpty)
+      return (applied: false, conflict: false, serverValue: null);
+    final result = await _conversationApi.setManualPending(
+      uk3: uk3,
+      value: target,
+      expectedVersion: _manualPendingVersions[uk3],
+    );
+    if (result == null) {
+      return (applied: false, conflict: false, serverValue: null);
+    }
+    if (result.conflict) {
+      // 回读当前权威版本；已达目标即成功。
+      _manualPendingVersions[uk3] = result.currentVersion;
+      if (result.currentValue == target) {
+        final newMap = Map<String, bool>.from(state.manualPending);
+        newMap[uk3] = target;
+        state = state.copyWith(manualPending: newMap);
+        return (
+          applied: true,
+          conflict: true,
+          serverValue: result.currentValue,
+        );
+      }
+      final newMap = Map<String, bool>.from(state.manualPending);
+      newMap[uk3] = result.currentValue;
+      state = state.copyWith(manualPending: newMap);
+      return (applied: false, conflict: true, serverValue: result.currentValue);
+    }
+    _manualPendingVersions[uk3] = result.version;
+    final newMap = Map<String, bool>.from(state.manualPending);
+    newMap[uk3] = target;
+    state = state.copyWith(manualPending: newMap);
+    return (applied: true, conflict: false, serverValue: null);
   }
 
   // Apply a full conversation snapshot from backend/local persistence.
@@ -697,25 +802,48 @@ class ConversationNotifier extends _$ConversationNotifier {
     return true;
   }
 
-  Future<bool> deleteConversationRemote(ConversationModel conversation) async {
+  Future<bool> deleteConversationRemote(ConversationModel conversation) {
     if (conversation.peerId == 0 || conversation.type.isEmpty) {
+      return Future.value(false);
+    }
+    final account = UserRepoLocal.to.currentUid;
+    // 会话唯一键（非凭据）；变量命名触发 gitleaks generic-api-key 误报
+    final key = conversation.uk3; // gitleaks:allow
+    final pending = _pendingDeletes[key];
+    if (pending != null) return pending;
+    final request = _deleteConversationRemote(conversation, account, key)
+        .whenComplete(() {
+          _pendingDeletes.remove(key);
+        });
+    _pendingDeletes[key] = request;
+    return request;
+  }
+
+  Future<bool> _deleteConversationRemote(
+    ConversationModel conversation,
+    String account,
+    String key,
+  ) async {
+    try {
+      final ok = await _conversationApi.deleteConversation(
+        conversationId: conversation.peerId.toString(),
+        type: conversation.type,
+      );
+      if (!ok || UserRepoLocal.to.currentUid != account) return false;
+      final hidden = await ConversationRepo().hideForAccount(
+        account: account,
+        kind: conversation.type,
+        peer: conversation.peerId,
+      );
+      if (!hidden) return false;
+      if (!ref.mounted || UserRepoLocal.to.currentUid != account) return false;
+      removeConversationFromMap(key);
+      removeConversationRemind(key);
+      return true;
+    } catch (error) {
+      iPrint('deleteConversationRemote failed: $error');
       return false;
     }
-
-    final ok = await _conversationApi.deleteConversation(
-      conversationId: conversation.peerId.toString(),
-      type: conversation.type,
-    );
-    if (!ok) {
-      return false;
-    }
-
-    await ConversationRepo().updateById(conversation.id, {
-      ConversationRepo.isShow: 0,
-    });
-    removeConversationFromMap(conversation.uk3);
-    removeConversationRemind(conversation.uk3);
-    return true;
   }
 
   Future<bool> restoreConversationRemote({

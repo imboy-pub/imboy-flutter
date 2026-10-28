@@ -5,6 +5,8 @@
 /// 心智，不引入第三种阈值）。
 library;
 
+import 'package:imboy/theme/default/app_breakpoints.dart';
+
 /// Workspace 壳布局形态。
 enum WorkspaceShellLayout {
   /// 移动端（< 900px）：底部导航 + 单栏
@@ -15,7 +17,8 @@ enum WorkspaceShellLayout {
 }
 
 /// 移动/桌面断点（px），与 ChatShell / WebShell 一致。
-const double kWorkspaceShellBreakpoint = 900;
+/// W12：复用 AppBreakpoints 真源（此前 900 重复声明，漂移即分叉）。
+const double kWorkspaceShellBreakpoint = AppBreakpoints.wide;
 
 /// 按宽度解析布局形态。
 WorkspaceShellLayout resolveWorkspaceShellLayout(double width) {

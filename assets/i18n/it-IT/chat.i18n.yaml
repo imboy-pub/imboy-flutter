@@ -126,6 +126,10 @@ momentsReplyingTo: Risposta a @{name}
 sendNewMessage: Invia nuovo messaggio
 markRead: Segna come letto
 markUnread: Segna come non letto
+manualPendingBadge: In sospeso
+cancelManualPending: "Annulla in sospeso"
+manualPendingOff: Non in sospeso
+manualPendingConflict(param): "Stato attuale del server: ${param}"
 pleaseEnterSignature: "Inserisci la tua firma"
 exportProfile: Esporta profilo
 setSignature: Imposta firma

@@ -301,6 +301,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get writeArticle => '投稿を書く';
 	@override String get discover => 'チャンネルを探す';
 	@override String get create => 'チャンネル作成';
+	@override String get creationRecoveryUnavailable => '作成結果は不明です。後でもう一度お試しください';
 	@override String get searchHint => 'チャンネル名またはIDを検索';
 	@override String get noResults => 'チャンネルが見つかりません';
 	@override String get noRecommendedChannels => 'おすすめチャンネルはありません また後でチェックしてください';
@@ -499,6 +500,7 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}';
 	@override String get discussion => 'ディスカッション';
 	@override String get joinDiscussion => '議論に参加';
+	@override String get discussionIneligible => 'このチャンネルを購読するとディスカッショングループに参加できます';
 	@override String get essence => '注目の投稿';
 	@override String get allPosts => 'すべての投稿';
 	@override String get editPostTags => 'タグを編集';
@@ -508,6 +510,9 @@ class _Translations$channel$ja_JP extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。';
 	@override String get personalChannelLabel => '個人チャンネル';
 	@override String get enterpriseChannelLabel => '企業内チャンネル';
+	@override String get subscribePending => '購読済み、更新中';
+	@override String get subscribeRefresh => '購読状態を更新';
+	@override String unseenUpdatesBanner({required Object count}) => '新着更新 ${count} 件';
 }
 
 // Path: chat
@@ -644,6 +649,10 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '新しいメッセージを送信';
 	@override String get markRead => '既読にする';
 	@override String get markUnread => '未読にする';
+	@override String get manualPendingBadge => '要対応';
+	@override String get cancelManualPending => '要対応を解除';
+	@override String get manualPendingOff => '要対応ではない';
+	@override String manualPendingConflict({required Object param}) => 'サーバー側の現在状態：${param}';
 	@override String get pleaseEnterSignature => 'ひとことを入力してください';
 	@override String get exportProfile => 'プロフィールをエクスポート';
 	@override String get setSignature => '署名を設定';
@@ -883,6 +892,12 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get messageContent => 'メッセージ内容';
 	@override String get messageRevoked => 'メッセージが取り消されました';
 	@override String get quoteMessageNotAvailable => '引用されているメッセージは利用できません';
+	@override String get quoteMessageUnavailable => '引用されたメッセージは期限切れか、アクセス可能な履歴の範囲外の可能性があります。再試行するか送信者に確認してください。';
+	@override String get quoteMessageAuthorizationUnavailable => 'この過去のメッセージへのアクセス権を確認できません。後でもう一度試すか、会話の管理者に確認してください。';
+	@override String get quoteMessageExpired => '引用されたメッセージは期限切れで復元できません。送信者に内容を確認してください。';
+	@override String get quoteMessageForbidden => 'この引用メッセージを表示する権限がありません。会話の管理者に権限を確認してください。';
+	@override String get quoteMessageLoadFailed => '引用メッセージを読み込めませんでした。接続を確認して、もう一度タップしてください。';
+	@override String get quoteMessageUndecryptable => 'この端末では引用メッセージを復号できません。再試行するか、送信者に再送を依頼してください。';
 	@override String get microphone => 'マイク';
 	@override String get microphonePermissionNotObtained => 'マイク権限が取得できませんでした';
 	@override String get moreInfo => '詳細情報';
@@ -1961,6 +1976,10 @@ class _Translations$group$ja_JP extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => '${roleName}はいません';
 	@override String get perfectionGroupInfo => 'グループ情報を設定';
 	@override String get touchContactAddMember => '連絡先をタップしてグループメンバーに追加';
+	@override String get transferAndLeave => '譲渡して退出的';
+	@override String get sureToTransferAndLeave => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？';
+	@override String get transferredButLeaveFailed => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください';
+	@override String get noEligibleSuccessor => '譲渡できるメンバーがいません';
 }
 
 // Path: groupCategory
@@ -2549,7 +2568,6 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）';
 	@override String get archivedBadge => 'アーカイブ済み';
 	@override String get emptyNoWorkspace => 'まずワークスペースを選択または作成してください';
-	@override String get dmEntry => 'すべてのメッセージ';
 	@override String get experienceModePersonal => '個人';
 	@override String get switchToPersonal => '個人に切り替え';
 	@override String get createTitle => 'ワークスペースを作成';
@@ -2582,7 +2600,6 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ';
 	@override String channelTileSubtitle({required Object count}) => '購読者${count}人';
 	@override String get channelDetailTitle => 'チャンネル';
-	@override String get discussInGroupGuide => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。';
 	@override String get groupsEmptyTitle => 'ワークスペースのグループはまだありません';
 	@override String get groupsEmptySubtitle => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）';
 	@override String groupTileSubtitle({required Object count}) => 'グループメンバー${count}人';
@@ -2779,6 +2796,9 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'やること';
 	@override String get takeABreak => 'ひと休み';
 	@override String get todoEmptyTitle => 'やることはありません';
+	@override String get contentProtectedPending => 'コンテンツを一時的に非表示にしています。再認証を待っています';
+	@override String get contentProtectedRetry => '再認証';
+	@override String get contentRevoked => 'このワークスペースのコンテンツへのアクセス権がありません';
 }
 
 // Path: account.alipaySim
@@ -3208,6 +3228,8 @@ class _Translations$organization$manage$ja_JP extends Translations$organization$
 	@override String get retry => '再試行';
 	@override String get groupSection => '企業グループ';
 	@override String get createGroup => 'グループを作成';
+	@override String get creationRecoveryUnavailable => '作成結果が不明です。後でもう一度お試しください';
+	@override String groupCreatedRenamePending({required Object gid}) => 'グループを作成しました（ID：${gid}）。名前は保存されていません';
 	@override String get groupNameHint => 'グループ名';
 	@override String get groupEmpty => '企業グループがありません';
 	@override String groupMembers({required Object count}) => 'メンバー ${count}';
@@ -3547,6 +3569,7 @@ extension on TranslationsJaJp {
 			'channel.writeArticle' => '投稿を書く',
 			'channel.discover' => 'チャンネルを探す',
 			'channel.create' => 'チャンネル作成',
+			'channel.creationRecoveryUnavailable' => '作成結果は不明です。後でもう一度お試しください',
 			'channel.searchHint' => 'チャンネル名またはIDを検索',
 			'channel.noResults' => 'チャンネルが見つかりません',
 			'channel.noRecommendedChannels' => 'おすすめチャンネルはありません また後でチェックしてください',
@@ -3745,6 +3768,7 @@ extension on TranslationsJaJp {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '私のチャンネル「${name}」をフォローしてください！${url}',
 			'channel.discussion' => 'ディスカッション',
 			'channel.joinDiscussion' => '議論に参加',
+			'channel.discussionIneligible' => 'このチャンネルを購読するとディスカッショングループに参加できます',
 			'channel.essence' => '注目の投稿',
 			'channel.allPosts' => 'すべての投稿',
 			'channel.editPostTags' => 'タグを編集',
@@ -3754,6 +3778,9 @@ extension on TranslationsJaJp {
 			'channel.linkAccessHint' => 'リンクを開いても、チャンネルの閲覧と購読にはアクセス権限が必要です。企業チャンネルは権限を持つメンバーのみ閲覧できます。',
 			'channel.personalChannelLabel' => '個人チャンネル',
 			'channel.enterpriseChannelLabel' => '企業内チャンネル',
+			'channel.subscribePending' => '購読済み、更新中',
+			'channel.subscribeRefresh' => '購読状態を更新',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '新着更新 ${count} 件',
 			'chat.bankCard' => '銀行カード',
 			'chat.receivePayment' => '送金・支払い',
 			'chat.alreadyMember' => '既にメンバーです',
@@ -3871,18 +3898,22 @@ extension on TranslationsJaJp {
 			'chat.historyUnavailable' => '履歴メッセージは一時的に利用できません',
 			'chat.historyUnavailableHint' => 'サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください',
 			'chat.momentsRecordVideo' => '動画を撮影',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => '非公開',
 			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
 			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
 			'chat.momentsMediaMixedImageAndVideo' => '画像と動画を同時に公開することはできません',
 			'chat.momentsReplyPrefix' => '返信 @',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsReplySeparator' => '：',
 			'chat.momentsReplyingTo' => '@{name}に返信中',
 			'chat.sendNewMessage' => '新しいメッセージを送信',
 			'chat.markRead' => '既読にする',
 			'chat.markUnread' => '未読にする',
+			'chat.manualPendingBadge' => '要対応',
+			'chat.cancelManualPending' => '要対応を解除',
+			'chat.manualPendingOff' => '要対応ではない',
+			'chat.manualPendingConflict' => ({required Object param}) => 'サーバー側の現在状態：${param}',
 			'chat.pleaseEnterSignature' => 'ひとことを入力してください',
 			'chat.exportProfile' => 'プロフィールをエクスポート',
 			'chat.setSignature' => '署名を設定',
@@ -4113,6 +4144,12 @@ extension on TranslationsJaJp {
 			'common.messageContent' => 'メッセージ内容',
 			'common.messageRevoked' => 'メッセージが取り消されました',
 			'common.quoteMessageNotAvailable' => '引用されているメッセージは利用できません',
+			'common.quoteMessageUnavailable' => '引用されたメッセージは期限切れか、アクセス可能な履歴の範囲外の可能性があります。再試行するか送信者に確認してください。',
+			'common.quoteMessageAuthorizationUnavailable' => 'この過去のメッセージへのアクセス権を確認できません。後でもう一度試すか、会話の管理者に確認してください。',
+			'common.quoteMessageExpired' => '引用されたメッセージは期限切れで復元できません。送信者に内容を確認してください。',
+			'common.quoteMessageForbidden' => 'この引用メッセージを表示する権限がありません。会話の管理者に権限を確認してください。',
+			'common.quoteMessageLoadFailed' => '引用メッセージを読み込めませんでした。接続を確認して、もう一度タップしてください。',
+			'common.quoteMessageUndecryptable' => 'この端末では引用メッセージを復号できません。再試行するか、送信者に再送を依頼してください。',
 			'common.microphone' => 'マイク',
 			'common.microphonePermissionNotObtained' => 'マイク権限が取得できませんでした',
 			'common.moreInfo' => '詳細情報',
@@ -4375,6 +4412,8 @@ extension on TranslationsJaJp {
 			'common.localDeleteSuccess' => 'ローカル削除に成功しました',
 			'common.localDeleteFailed' => 'ローカル削除に失敗しました',
 			'common.revokeSuccess' => '取り消しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => '編集内容を空にすることはできません',
 			'common.editSuccess' => '編集しました',
 			'common.enabled' => '有効',
@@ -4390,8 +4429,6 @@ extension on TranslationsJaJp {
 			'common.editTags' => 'タグを編集',
 			'common.quickActions' => 'クイックアクション',
 			'common.noNewFriendRequests' => '現在新しい友達リクエストはありません',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => '認証メッセージを入力してください',
 			'common.unknownRegion' => '未知の地域',
 			'common.noCommonGroups' => '共通のグループはありません',
@@ -4889,6 +4926,8 @@ extension on TranslationsJaJp {
 			'contact.denylist' => 'ブロックリスト',
 			'contact.denylistEmpty' => 'ブロックリストは空です',
 			'contact.favoriteGroupTagsEtc' => 'コレクション：人名、グループ名、タグなど',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => '新しい友達',
 			'contact.recommendToFriend' => '友達に推薦する',
 			'contact.remark' => '備考',
@@ -4904,8 +4943,6 @@ extension on TranslationsJaJp {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'タグの長さは${param}文字を超えることはできません',
 			'contact.maxTagsExceeded' => ({required Object param}) => '最大${param}個のタグを追加できます',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '選択したタグ (${param}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'contact.friendRequestSent' => '送信済み',
 			'contact.channelMaxTagsCount' => 'タグは最大8個まで追加できます',
 			'contact.tagInputHint' => 'タグを入力...',
@@ -5117,6 +5154,10 @@ extension on TranslationsJaJp {
 			'group.noMemberWithRole' => ({required Object roleName}) => '${roleName}はいません',
 			'group.perfectionGroupInfo' => 'グループ情報を設定',
 			'group.touchContactAddMember' => '連絡先をタップしてグループメンバーに追加',
+			'group.transferAndLeave' => '譲渡して退出的',
+			'group.sureToTransferAndLeave' => '譲渡するとグループを退出し、オーナー権限を失います。続行しますか？',
+			'group.transferredButLeaveFailed' => 'オーナーは譲渡されましたが、退出に失敗しました。もう一度お試しください',
+			'group.noEligibleSuccessor' => '譲渡できるメンバーがいません',
 			'groupCategory.title' => 'グループカテゴリ',
 			'groupCategory.createCategory' => 'カテゴリを作成',
 			'groupCategory.categoryName' => 'カテゴリ名',
@@ -5399,6 +5440,8 @@ extension on TranslationsJaJp {
 			'main.complianceKeyInfoServerKey' => 'サーバーから配信された公開鍵',
 			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
 			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください',
 			'main.complianceKeyRotationConfirmed' => 'コンプライアンスキーのローテーションを確認しました。メッセージを再送信できます',
 			'main.complianceKeyRotationNoPending' => '確認待ちのキー変更はありません',
@@ -5418,8 +5461,6 @@ extension on TranslationsJaJp {
 			'mention.title' => '@メンション',
 			'mention.noMention' => '@メンションはありません',
 			'mention.allRead' => 'すべて既読にする',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllDenied' => '管理者のみ @全員 できます',
 			'mention.navInfoMissing' => 'メッセージの位置情報がありません。移動できません',
 			'mention.pickButtonTooltip' => '@メンバーを指定',
@@ -5745,6 +5786,8 @@ extension on TranslationsJaJp {
 			'organization.manage.retry' => '再試行',
 			'organization.manage.groupSection' => '企業グループ',
 			'organization.manage.createGroup' => 'グループを作成',
+			'organization.manage.creationRecoveryUnavailable' => '作成結果が不明です。後でもう一度お試しください',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'グループを作成しました（ID：${gid}）。名前は保存されていません',
 			'organization.manage.groupNameHint' => 'グループ名',
 			'organization.manage.groupEmpty' => '企業グループがありません',
 			'organization.manage.groupMembers' => ({required Object count}) => 'メンバー ${count}',
@@ -5911,6 +5954,8 @@ extension on TranslationsJaJp {
 			'talkRecord.aiProviderResubmitNotice' => '新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？',
 			'talkRecord.aiProviderCancelled' => '停止しました。既存の録音は保持されます。',
 			'talkRecord.aiProviderResumePreparation' => '文字起こしの準備を続行',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',
@@ -5931,9 +5976,6 @@ extension on TranslationsJaJp {
 			'workspace.pickerEmptySubtitle' => 'ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）',
 			'workspace.archivedBadge' => 'アーカイブ済み',
 			'workspace.emptyNoWorkspace' => 'まずワークスペースを選択または作成してください',
-			'workspace.dmEntry' => 'すべてのメッセージ',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '個人',
 			'workspace.switchToPersonal' => '個人に切り替え',
 			'workspace.createTitle' => 'ワークスペースを作成',
@@ -5966,7 +6008,6 @@ extension on TranslationsJaJp {
 			'workspace.channelsEmptySubtitle' => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '購読者${count}人',
 			'workspace.channelDetailTitle' => 'チャンネル',
-			'workspace.discussInGroupGuide' => 'チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。',
 			'workspace.groupsEmptyTitle' => 'ワークスペースのグループはまだありません',
 			'workspace.groupsEmptySubtitle' => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'グループメンバー${count}人',
@@ -6163,6 +6204,9 @@ extension on TranslationsJaJp {
 			'workspace.tabTodo' => 'やること',
 			'workspace.takeABreak' => 'ひと休み',
 			'workspace.todoEmptyTitle' => 'やることはありません',
+			'workspace.contentProtectedPending' => 'コンテンツを一時的に非表示にしています。再認証を待っています',
+			'workspace.contentProtectedRetry' => '再認証',
+			'workspace.contentRevoked' => 'このワークスペースのコンテンツへのアクセス権がありません',
 			_ => null,
 		};
 	}

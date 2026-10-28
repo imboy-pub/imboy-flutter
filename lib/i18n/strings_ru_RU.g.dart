@@ -301,6 +301,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get writeArticle => 'Написать публикацию';
 	@override String get discover => 'Обзор';
 	@override String get create => 'Создать канал';
+	@override String get creationRecoveryUnavailable => 'Результат создания неизвестен, попробуйте позже';
 	@override String get searchHint => 'Поиск по названию или ID';
 	@override String get noResults => 'Каналы не найдены';
 	@override String get noRecommendedChannels => 'Нет рекомендуемых каналов Проверьте позже';
@@ -499,6 +500,7 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}';
 	@override String get discussion => 'Обсуждение';
 	@override String get joinDiscussion => 'Присоединиться к обсуждению';
+	@override String get discussionIneligible => 'Подпишитесь на этот канал, чтобы присоединиться к его обсуждению';
 	@override String get essence => 'Избранные публикации';
 	@override String get allPosts => 'Все публикации';
 	@override String get editPostTags => 'Изменить теги';
@@ -508,6 +510,9 @@ class _Translations$channel$ru_RU extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами.';
 	@override String get personalChannelLabel => 'Личный канал';
 	@override String get enterpriseChannelLabel => 'Внутренний канал компании';
+	@override String get subscribePending => 'Подписка оформлена, обновление';
+	@override String get subscribeRefresh => 'Обновить подписку';
+	@override String unseenUpdatesBanner({required Object count}) => 'Новых обновлений: ${count}';
 }
 
 // Path: chat
@@ -644,6 +649,10 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Отправить новое сообщение';
 	@override String get markRead => 'Пометить как прочитанное';
 	@override String get markUnread => 'Пометить как непрочитанное';
+	@override String get manualPendingBadge => 'К обработке';
+	@override String get cancelManualPending => 'Снять отметку к обработке';
+	@override String get manualPendingOff => 'Не отмечено к обработке';
+	@override String manualPendingConflict({required Object param}) => 'Текущее состояние сервера: ${param}';
 	@override String get pleaseEnterSignature => 'Введите подпись';
 	@override String get exportProfile => 'Экспортировать профиль';
 	@override String get setSignature => 'Установить подпись';
@@ -883,6 +892,12 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get messageContent => 'Содержание сообщения';
 	@override String get messageRevoked => 'Сообщение отозвано';
 	@override String get quoteMessageNotAvailable => 'Цитируемое сообщение недоступно';
+	@override String get quoteMessageUnavailable => 'Срок хранения сообщения мог истечь, или оно находится вне доступной истории. Повторите попытку или уточните у отправителя.';
+	@override String get quoteMessageAuthorizationUnavailable => 'Сейчас невозможно проверить доступ к этому старому сообщению. Повторите попытку позже или обратитесь к администратору переписки.';
+	@override String get quoteMessageExpired => 'Срок хранения цитируемого сообщения истёк, восстановление невозможно. Уточните его содержание у отправителя.';
+	@override String get quoteMessageForbidden => 'У вас нет доступа к этому цитируемому сообщению. Обратитесь к администратору переписки для проверки прав.';
+	@override String get quoteMessageLoadFailed => 'Не удалось загрузить цитируемое сообщение. Проверьте подключение и нажмите ещё раз.';
+	@override String get quoteMessageUndecryptable => 'Это устройство не может расшифровать сообщение. Повторите попытку или попросите отправителя переслать его.';
 	@override String get microphone => 'Микрофон';
 	@override String get microphonePermissionNotObtained => 'Не получено разрешение на микрофон';
 	@override String get moreInfo => 'Больше информации';
@@ -1970,6 +1985,10 @@ class _Translations$group$ru_RU extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => 'Пока нет: ${roleName}';
 	@override String get perfectionGroupInfo => 'Заполнить информацию о группе';
 	@override String get touchContactAddMember => 'Нажмите на контакт, чтобы добавить участника в группу';
+	@override String get transferAndLeave => 'Передать и выйти';
+	@override String get sureToTransferAndLeave => 'Вы передадите права владельца и покинете группу. Продолжить?';
+	@override String get transferredButLeaveFailed => 'Владелец передан, но выход не удался. Повторите попытку';
+	@override String get noEligibleSuccessor => 'Нет участников для передачи';
 }
 
 // Path: groupCategory
@@ -2558,7 +2577,6 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)';
 	@override String get archivedBadge => 'В архиве';
 	@override String get emptyNoWorkspace => 'Сначала выберите или создайте рабочее пространство';
-	@override String get dmEntry => 'Все сообщения';
 	@override String get experienceModePersonal => 'Личный';
 	@override String get switchToPersonal => 'Переключиться на личный';
 	@override String get createTitle => 'Создать рабочее пространство';
@@ -2591,7 +2609,6 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы';
 	@override String channelTileSubtitle({required Object count}) => 'Подписчиков: ${count}';
 	@override String get channelDetailTitle => 'Канал';
-	@override String get discussInGroupGuide => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General.';
 	@override String get groupsEmptyTitle => 'Пока нет групп в рабочем пространстве';
 	@override String get groupsEmptySubtitle => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)';
 	@override String groupTileSubtitle({required Object count}) => 'Участников группы: ${count}';
@@ -2788,6 +2805,9 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'Задачи';
 	@override String get takeABreak => 'Немного отдохните';
 	@override String get todoEmptyTitle => 'Нет задач';
+	@override String get contentProtectedPending => 'Содержимое временно скрыто, ожидается повторная авторизация';
+	@override String get contentProtectedRetry => 'Проверить снова';
+	@override String get contentRevoked => 'У вас больше нет доступа к этому содержимому рабочего пространства';
 }
 
 // Path: account.alipaySim
@@ -3217,6 +3237,8 @@ class _Translations$organization$manage$ru_RU extends Translations$organization$
 	@override String get retry => 'Повторить';
 	@override String get groupSection => 'Группы предприятия';
 	@override String get createGroup => 'Создать группу';
+	@override String get creationRecoveryUnavailable => 'Результат создания неизвестен, повторите позже';
+	@override String groupCreatedRenamePending({required Object gid}) => 'Группа создана (ID: ${gid}); имя не сохранено';
 	@override String get groupNameHint => 'Название группы';
 	@override String get groupEmpty => 'Групп предприятия пока нет';
 	@override String groupMembers({required Object count}) => 'Участников: ${count}';
@@ -3556,6 +3578,7 @@ extension on TranslationsRuRu {
 			'channel.writeArticle' => 'Написать публикацию',
 			'channel.discover' => 'Обзор',
 			'channel.create' => 'Создать канал',
+			'channel.creationRecoveryUnavailable' => 'Результат создания неизвестен, попробуйте позже',
 			'channel.searchHint' => 'Поиск по названию или ID',
 			'channel.noResults' => 'Каналы не найдены',
 			'channel.noRecommendedChannels' => 'Нет рекомендуемых каналов Проверьте позже',
@@ -3754,6 +3777,7 @@ extension on TranslationsRuRu {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Подписывайтесь на мой канал "${name}": ${url}',
 			'channel.discussion' => 'Обсуждение',
 			'channel.joinDiscussion' => 'Присоединиться к обсуждению',
+			'channel.discussionIneligible' => 'Подпишитесь на этот канал, чтобы присоединиться к его обсуждению',
 			'channel.essence' => 'Избранные публикации',
 			'channel.allPosts' => 'Все публикации',
 			'channel.editPostTags' => 'Изменить теги',
@@ -3763,6 +3787,9 @@ extension on TranslationsRuRu {
 			'channel.linkAccessHint' => 'Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами.',
 			'channel.personalChannelLabel' => 'Личный канал',
 			'channel.enterpriseChannelLabel' => 'Внутренний канал компании',
+			'channel.subscribePending' => 'Подписка оформлена, обновление',
+			'channel.subscribeRefresh' => 'Обновить подписку',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => 'Новых обновлений: ${count}',
 			'chat.bankCard' => 'Банковская карта',
 			'chat.receivePayment' => 'Приём и оплата',
 			'chat.alreadyMember' => 'Уже участник',
@@ -3880,18 +3907,22 @@ extension on TranslationsRuRu {
 			'chat.historyUnavailable' => 'История сообщений временно недоступна',
 			'chat.historyUnavailableHint' => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново',
 			'chat.momentsRecordVideo' => 'Снять видео',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Только я',
 			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
 			'chat.momentsMediaMixedImageAndVideo' => 'Нельзя прикрепить изображения и видео одновременно',
 			'chat.momentsReplyPrefix' => 'Ответ @',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => 'Ответ @{name}',
 			'chat.sendNewMessage' => 'Отправить новое сообщение',
 			'chat.markRead' => 'Пометить как прочитанное',
 			'chat.markUnread' => 'Пометить как непрочитанное',
+			'chat.manualPendingBadge' => 'К обработке',
+			'chat.cancelManualPending' => 'Снять отметку к обработке',
+			'chat.manualPendingOff' => 'Не отмечено к обработке',
+			'chat.manualPendingConflict' => ({required Object param}) => 'Текущее состояние сервера: ${param}',
 			'chat.pleaseEnterSignature' => 'Введите подпись',
 			'chat.exportProfile' => 'Экспортировать профиль',
 			'chat.setSignature' => 'Установить подпись',
@@ -4122,6 +4153,12 @@ extension on TranslationsRuRu {
 			'common.messageContent' => 'Содержание сообщения',
 			'common.messageRevoked' => 'Сообщение отозвано',
 			'common.quoteMessageNotAvailable' => 'Цитируемое сообщение недоступно',
+			'common.quoteMessageUnavailable' => 'Срок хранения сообщения мог истечь, или оно находится вне доступной истории. Повторите попытку или уточните у отправителя.',
+			'common.quoteMessageAuthorizationUnavailable' => 'Сейчас невозможно проверить доступ к этому старому сообщению. Повторите попытку позже или обратитесь к администратору переписки.',
+			'common.quoteMessageExpired' => 'Срок хранения цитируемого сообщения истёк, восстановление невозможно. Уточните его содержание у отправителя.',
+			'common.quoteMessageForbidden' => 'У вас нет доступа к этому цитируемому сообщению. Обратитесь к администратору переписки для проверки прав.',
+			'common.quoteMessageLoadFailed' => 'Не удалось загрузить цитируемое сообщение. Проверьте подключение и нажмите ещё раз.',
+			'common.quoteMessageUndecryptable' => 'Это устройство не может расшифровать сообщение. Повторите попытку или попросите отправителя переслать его.',
 			'common.microphone' => 'Микрофон',
 			'common.microphonePermissionNotObtained' => 'Не получено разрешение на микрофон',
 			'common.moreInfo' => 'Больше информации',
@@ -4384,6 +4421,8 @@ extension on TranslationsRuRu {
 			'common.localDeleteSuccess' => 'Локальное удаление успешно',
 			'common.localDeleteFailed' => 'Локальное удаление не удалось',
 			'common.revokeSuccess' => 'Успешно отозвано',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'Содержание редактирования не может быть пустым',
 			'common.editSuccess' => 'Успешно отредактировано',
 			'common.enabled' => 'Включено',
@@ -4399,8 +4438,6 @@ extension on TranslationsRuRu {
 			'common.editTags' => 'Редактировать теги',
 			'common.quickActions' => 'Быстрые действия',
 			'common.noNewFriendRequests' => 'Нет новых запросов дружбы',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => 'Пожалуйста, введите сообщение подтверждения',
 			'common.unknownRegion' => 'Неизвестный регион',
 			'common.noCommonGroups' => 'Нет общих групп',
@@ -4898,6 +4935,8 @@ extension on TranslationsRuRu {
 			'contact.denylist' => 'Чёрный список',
 			'contact.denylistEmpty' => 'Чёрный список пуст',
 			'contact.favoriteGroupTagsEtc' => 'Сохранённые имена, группы, теги и т.д.',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'Новые друзья',
 			'contact.recommendToFriend' => 'Порекомендовать другу',
 			'contact.remark' => 'Примечание',
@@ -4913,8 +4952,6 @@ extension on TranslationsRuRu {
 			'contact.tagLengthExceeded' => ({required Object param}) => 'Длина тега не может превышать ${param} символов',
 			'contact.maxTagsExceeded' => ({required Object param}) => 'Максимум ${param} тегов',
 			'contact.selectedTags' => ({required Object param, required Object max}) => 'Выбрано тегов (${param}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'contact.friendRequestSent' => 'Отправлено',
 			'contact.channelMaxTagsCount' => 'Можно добавить не более 8 меток',
 			'contact.tagInputHint' => 'Введите метку...',
@@ -5126,6 +5163,10 @@ extension on TranslationsRuRu {
 			'group.noMemberWithRole' => ({required Object roleName}) => 'Пока нет: ${roleName}',
 			'group.perfectionGroupInfo' => 'Заполнить информацию о группе',
 			'group.touchContactAddMember' => 'Нажмите на контакт, чтобы добавить участника в группу',
+			'group.transferAndLeave' => 'Передать и выйти',
+			'group.sureToTransferAndLeave' => 'Вы передадите права владельца и покинете группу. Продолжить?',
+			'group.transferredButLeaveFailed' => 'Владелец передан, но выход не удался. Повторите попытку',
+			'group.noEligibleSuccessor' => 'Нет участников для передачи',
 			'groupCategory.title' => 'Папки групп',
 			'groupCategory.createCategory' => 'Создать папку',
 			'groupCategory.categoryName' => 'Название папки',
@@ -5408,6 +5449,8 @@ extension on TranslationsRuRu {
 			'main.safetyNumberNoDevices' => 'У собеседника не включено сквозное шифрование',
 			'main.safetyNumberPeerDevice' => 'Устройство собеседника',
 			'main.safetyNumberReportRejected' => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Не удалось получить информацию об устройстве, не отправлено',
 			'main.safetyNumberVerified' => '✓ Проверено',
 			'main.safetyNumberNotVerified' => 'Не проверено',
@@ -5427,8 +5470,6 @@ extension on TranslationsRuRu {
 			'mention.title' => '@Упоминания',
 			'mention.noMention' => 'Нет упоминаний',
 			'mention.allRead' => 'Всё прочитано',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllDenied' => 'Только администратор может использовать @все',
 			'mention.navInfoMissing' => 'Нет данных о позиции сообщения, переход невозможен',
 			'mention.pickButtonTooltip' => 'Упомянуть участника',
@@ -5754,6 +5795,8 @@ extension on TranslationsRuRu {
 			'organization.manage.retry' => 'Повторить',
 			'organization.manage.groupSection' => 'Группы предприятия',
 			'organization.manage.createGroup' => 'Создать группу',
+			'organization.manage.creationRecoveryUnavailable' => 'Результат создания неизвестен, повторите позже',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Группа создана (ID: ${gid}); имя не сохранено',
 			'organization.manage.groupNameHint' => 'Название группы',
 			'organization.manage.groupEmpty' => 'Групп предприятия пока нет',
 			'organization.manage.groupMembers' => ({required Object count}) => 'Участников: ${count}',
@@ -5920,6 +5963,8 @@ extension on TranslationsRuRu {
 			'talkRecord.aiProviderResubmitNotice' => 'Создаёт новую транскрипцию; возможна повторная оплата. Исходный запрос остаётся. Отправить повторно и согласиться на обработку?',
 			'talkRecord.aiProviderCancelled' => 'Транскрипция остановлена. Аудио сохранено.',
 			'talkRecord.aiProviderResumePreparation' => 'Продолжить подготовку',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'Исходная задача ещё не отправлена поставщику. Повторно подготовьте источник аудио с текущими правами и согласием.',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',
@@ -5940,9 +5985,6 @@ extension on TranslationsRuRu {
 			'workspace.pickerEmptySubtitle' => 'Создайте рабочее пространство и начните командную работу за 3 минуты (автоматически создаются канал Announcements и группа General)',
 			'workspace.archivedBadge' => 'В архиве',
 			'workspace.emptyNoWorkspace' => 'Сначала выберите или создайте рабочее пространство',
-			'workspace.dmEntry' => 'Все сообщения',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => 'Личный',
 			'workspace.switchToPersonal' => 'Переключиться на личный',
 			'workspace.createTitle' => 'Создать рабочее пространство',
@@ -5975,7 +6017,6 @@ extension on TranslationsRuRu {
 			'workspace.channelsEmptySubtitle' => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы',
 			'workspace.channelTileSubtitle' => ({required Object count}) => 'Подписчиков: ${count}',
 			'workspace.channelDetailTitle' => 'Канал',
-			'workspace.discussInGroupGuide' => 'В каналах публикуют контент; хотите обсудить? Загляните в группу General.',
 			'workspace.groupsEmptyTitle' => 'Пока нет групп в рабочем пространстве',
 			'workspace.groupsEmptySubtitle' => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'Участников группы: ${count}',
@@ -6172,6 +6213,9 @@ extension on TranslationsRuRu {
 			'workspace.tabTodo' => 'Задачи',
 			'workspace.takeABreak' => 'Немного отдохните',
 			'workspace.todoEmptyTitle' => 'Нет задач',
+			'workspace.contentProtectedPending' => 'Содержимое временно скрыто, ожидается повторная авторизация',
+			'workspace.contentProtectedRetry' => 'Проверить снова',
+			'workspace.contentRevoked' => 'У вас больше нет доступа к этому содержимому рабочего пространства',
 			_ => null,
 		};
 	}

@@ -231,7 +231,16 @@ class SchemaContract {
     DatabaseExecutor db, {
     required int version,
   }) async {
-    final required = requiredColumnsByVersion[version] ?? const {};
+    final required = version == 37
+        ? <String, Set<String>>{
+            ...requiredColumnsByVersion[36]!,
+            'channel': {
+              ...?requiredColumnsByVersion[36]?['channel'],
+              'scope',
+              'workspace_id',
+            },
+          }
+        : requiredColumnsByVersion[version] ?? const {};
     final violations = <String>[];
     for (final e in required.entries) {
       final table = e.key;
@@ -249,7 +258,7 @@ class SchemaContract {
         violations.add('missing column: $table.$col (v$version)');
       }
     }
-    if (version == 36) {
+    if (version == 36 || version == 37) {
       for (final table in [
         'msg_c2c',
         'msg_c2g',

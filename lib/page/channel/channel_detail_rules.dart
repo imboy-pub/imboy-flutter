@@ -4,10 +4,42 @@
 /// 便于单元测试和跨 widget 复用。
 library;
 
+import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/i18n/strings.g.dart';
+
+String? channelTargetId(ChannelModel? channel, String target) {
+  if (channel == null || channel.id == 0) return null;
+  final id = channel.id.toString();
+  return target == id || target == channel.customId ? id : null;
+}
+
+/// 叠页归属过滤（J07）：多个页面/组件共享单一全局详情 provider 时，
+/// 判定 [observed] 是否属于 [target]——频道匹配、正在为首载请求该目标，
+/// 或全局仍为初始空态（尚未承载任何目标）。
+bool channelDetailOwnsTarget(
+  ChannelDetailState observed,
+  String? requested,
+  String target,
+) {
+  if (channelTargetId(observed.channel, target) != null) return true;
+  if (requested != null) return requested == target;
+  return observed.channel == null;
+}
+
+/// 归属过滤渲染：全局状态不属于 [target] 时改用该目标的最近快照，
+/// 均无则退加载态，绝不渲染其他目标的内容。
+ChannelDetailState ownChannelDetailState(
+  ChannelDetailState observed,
+  String? requested,
+  String target,
+  ChannelDetailState? snapshot,
+) {
+  if (channelDetailOwnsTarget(observed, requested, target)) return observed;
+  return snapshot ?? const ChannelDetailState(isLoading: true);
+}
 
 /// CD-1 付费频道是否处于锁定状态
 ///

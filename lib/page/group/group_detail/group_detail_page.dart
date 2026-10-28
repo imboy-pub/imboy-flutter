@@ -87,6 +87,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
     super.initState();
     _noticeDisabled = readNoticeDisabled(
       _gidInt,
+      accountUid: UserRepoLocal.to.currentUid,
       readBool: StorageService.to.getBool,
     );
     // initData 首步即 notifier.setLoading(true) 修改 provider，若在 initState 同步
@@ -241,6 +242,7 @@ class _GroupDetailPageState extends ConsumerState<GroupDetailPage> {
       await setNoticeDisabled(
         _gidInt,
         v,
+        accountUid: UserRepoLocal.to.currentUid,
         writeBool: (k, val) async => StorageService.to.setBool(k, val),
       );
     } catch (e) {

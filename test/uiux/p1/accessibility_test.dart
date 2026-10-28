@@ -17,7 +17,7 @@ import 'dart:math' show pow;
 import 'dart:typed_data' show Uint8List;
 
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart' show CupertinoIcons;
+import 'package:flutter/cupertino.dart' show CupertinoButton, CupertinoIcons;
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride, TargetPlatform;
 import 'package:flutter/material.dart';
@@ -222,9 +222,20 @@ void main() {
     tester,
   ) async {
     await pumpT22(tester, kMatrixConfigs.first);
+    final headerButtons = find.descendant(
+      of: find.byType(ChannelHeaderBar),
+      matching: find.byType(CupertinoButton),
+    );
+    expect(headerButtons, findsNWidgets(2));
+    for (var index = 0; index < 2; index++) {
+      final Size size = tester.getSize(headerButtons.at(index));
+      expect(size.width, greaterThanOrEqualTo(48));
+      expect(size.height, greaterThanOrEqualTo(48));
+    }
     // 管理入口收进更多菜单后，仍需从可触达入口找到设置动作。
     final menu = find.byType(PopupMenuButton<String>);
-    expect(tester.getSize(menu).height, greaterThanOrEqualTo(44));
+    expect(tester.getSize(menu).width, greaterThanOrEqualTo(48));
+    expect(tester.getSize(menu).height, greaterThanOrEqualTo(48));
     await tester.tap(menu);
     await tester.pumpAndSettle();
     final manage = find.byWidgetPredicate(
@@ -234,7 +245,7 @@ void main() {
     expect(manage, findsOneWidget);
     expect(find.bySemanticsLabel(RegExp(t.channel.settings)), findsWidgets);
     final Size hit = tester.getSize(manage);
-    expect(hit.height, greaterThanOrEqualTo(44), reason: '语义节点命中区域有效');
+    expect(hit.height, greaterThanOrEqualTo(48), reason: '语义节点命中区域有效');
     expect(tester.takeException(), isNull);
   });
 

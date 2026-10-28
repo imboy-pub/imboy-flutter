@@ -57,7 +57,10 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
     final isSelected = state.selects.any((s) => s.peerId == model.peerId);
 
     return Container(
-      height: _itemHeight.toDouble(),
+      // W12（J22.d）：最小行高而非固定高——大字模式下随 TextScaler 自然
+      // 增高，仍满足 iOS ≥44pt 触达。
+      constraints: BoxConstraints(minHeight: _itemHeight.toDouble()),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
       color: isDark ? colorScheme.surface : AppColors.lightSurface,
       // 多选页必须声明 selected：读屏用户听到名字但不知道自己选没选。
       // 名字由 Text 自带语义提供，此处不重复设 label（避免双标签重复朗读）。
@@ -251,6 +254,9 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
           // 顶部功能入口卡片
           _buildQuickEntries(isDark, colorScheme),
 
+          // W05/F18：联系人搜索（客户端过滤，已选保持）
+          _buildSearchField(),
+
           // 已选成员预览条
           _buildSelectedPreview(),
 
@@ -260,73 +266,138 @@ class _LaunchChatPageState extends ConsumerState<LaunchChatPage> {
               color: isDark ? colorScheme.surface : AppColors.lightSurface,
               child: state.isLoading
                   ? const Center(child: CupertinoActivityIndicator())
-                  : state.items.isEmpty
-                  ? NoDataView(text: t.common.noData)
-                  : AzListView(
-                      data: state.items,
-                      itemCount: state.items.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        ContactModel model = state.items[index];
-                        return _buildListItem(context, model);
-                      },
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      susItemBuilder: (BuildContext context, int index) {
-                        ContactModel model = state.items[index];
-                        if ('↑' == model.getSuspensionTag()) {
-                          return Container();
-                        }
-                        return Container();
-                      },
-                      indexBarData: state.items.isNotEmpty
-                          ? ['↑', ...state.currIndexBarData]
-                          : [],
-                      indexBarOptions: IndexBarOptions(
-                        needRebuild: true,
-                        ignoreDragCancel: true,
-                        downTextStyle: context.textStyle(
-                          FontSizeType.small,
-                          color: AppColors.onPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        downItemDecoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primary,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        indexHintWidth: 64,
-                        indexHintHeight: 64,
-                        indexHintDecoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.9),
-                          borderRadius: AppRadius.borderRadiusSmall,
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.darkBackground.withValues(
-                                alpha: 0.1,
-                              ),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        indexHintTextStyle: context.textStyle(
-                          FontSizeType.largeTitle,
-                          color: AppColors.onPrimary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        indexHintAlignment: Alignment.centerRight,
-                        indexHintChildAlignment: const Alignment(0, 0),
-                        indexHintOffset: const Offset(-20.0, 0),
-                      ),
-                    ),
+                  : state.loadError && state.items.isEmpty
+                  ? _buildLoadFailedView()
+                  : _buildContactList(state),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// W05/F18：联系人搜索框（过滤只影响视图，已选成员预览不受影响）。
+  Widget _buildSearchField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.regular,
+        0,
+        AppSpacing.regular,
+        AppSpacing.small,
+      ),
+      child: CupertinoSearchTextField(
+        placeholder: t.common.search,
+        onChanged: (q) => ref.read(launchChatProvider.notifier).setQuery(q),
+      ),
+    );
+  }
+
+  /// W05/F18：加载失败 ≠ 空好友。区分错误态并给重试入口。
+  Widget _buildLoadFailedView() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            CupertinoIcons.exclamationmark_triangle,
+            size: 44,
+            color: AppColors.iosRed,
+          ),
+          AppSpacing.verticalRegular,
+          Text(
+            t.common.errorNetwork,
+            style: context.textStyle(
+              FontSizeType.subheadline,
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          AppSpacing.verticalMedium,
+          CupertinoButton(
+            onPressed: () =>
+                ref.read(launchChatProvider.notifier).loadContacts(),
+            child: Text(
+              t.common.buttonRetry,
+              style: context.textStyle(
+                FontSizeType.body,
+                color: AppColors.getIosBlue(Theme.of(context).brightness),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// W05/F18：搜索态走纯过滤列表（A-Z 索引条只对全量列表有意义）。
+  Widget _buildContactList(LaunchChatState state) {
+    final visible = state.visibleItems;
+    if (visible.isEmpty) {
+      final searching = state.query.trim().isNotEmpty;
+      return NoDataView(
+        text: searching ? t.common.searchNoResults : t.common.noData,
+      );
+    }
+    if (state.query.trim().isNotEmpty) {
+      return ListView.builder(
+        itemCount: visible.length,
+        itemBuilder: (context, index) =>
+            _buildListItem(context, visible[index]),
+      );
+    }
+    return AzListView(
+      data: visible,
+      itemCount: visible.length,
+      itemBuilder: (BuildContext context, int index) {
+        ContactModel model = visible[index];
+        return _buildListItem(context, model);
+      },
+      physics: const AlwaysScrollableScrollPhysics(),
+      susItemBuilder: (BuildContext context, int index) {
+        return Container();
+      },
+      indexBarData: ['↑', ...state.currIndexBarData],
+      indexBarOptions: IndexBarOptions(
+        needRebuild: true,
+        ignoreDragCancel: true,
+        downTextStyle: context.textStyle(
+          FontSizeType.small,
+          color: AppColors.onPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+        downItemDecoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColors.primary,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        indexHintWidth: 64,
+        indexHintHeight: 64,
+        indexHintDecoration: BoxDecoration(
+          color: AppColors.primary.withValues(alpha: 0.9),
+          borderRadius: AppRadius.borderRadiusSmall,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.darkBackground.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        indexHintTextStyle: context.textStyle(
+          FontSizeType.largeTitle,
+          color: AppColors.onPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+        indexHintAlignment: Alignment.centerRight,
+        indexHintChildAlignment: const Alignment(0, 0),
+        indexHintOffset: const Offset(-20.0, 0),
       ),
     );
   }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/font_types.dart';
-import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/component/ui/button.dart';
 
 /// 无数据视图组件 - 使用优化后的主题系统
 class NoDataView extends StatelessWidget {
@@ -64,6 +65,7 @@ class NoDataView extends StatelessWidget {
       child: SingleChildScrollView(
         child: GestureDetector(
           onTap: onTop,
+          excludeFromSemantics: true,
           child: Container(
             padding: const EdgeInsets.all(AppSpacing.xLarge),
             child: Column(
@@ -90,14 +92,17 @@ class NoDataView extends StatelessWidget {
                 if (icon != null) const SizedBox(height: 16),
 
                 // 主要文本 - 使用优化后的主题样式
-                Text(
-                  text,
-                  style: ThemeManager.instance.getTextStyle(
-                    FontSizeType.medium,
-                    fontWeight: FontWeight.w500,
-                    color: secondaryColor, // 使用主题次要文字色
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    text,
+                    style: ThemeManager.instance.getTextStyle(
+                      FontSizeType.medium,
+                      fontWeight: FontWeight.w500,
+                      color: secondaryColor,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
 
                 // 描述文本 - 使用优化后的主题样式
@@ -119,27 +124,17 @@ class NoDataView extends StatelessWidget {
                 // 文案为空时按钮只剩边框，视觉上是个"空按钮"。
                 if (onTop != null &&
                     (retryLabel ?? t.common.buttonRetry).isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.medium,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                  AppSpacing.verticalMedium,
+                  Shortcuts(
+                    shortcuts: const {
+                      SingleActivator(LogicalKeyboardKey.enter):
+                          ActivateIntent(),
+                    },
+                    child: RoundedCupertinoButton(
+                      text: retryLabel ?? t.common.buttonRetry,
+                      highlighted: false,
+                      onPressed: onTop,
                       borderRadius: AppRadius.borderRadiusRegular,
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      retryLabel ?? t.common.buttonRetry,
-                      style: ThemeManager.instance.getTextStyle(
-                        FontSizeType.small,
-                        color: AppColors.primary, // 使用主题主色
-                        fontWeight: FontWeight.w500,
-                      ),
                     ),
                   ),
                 ],

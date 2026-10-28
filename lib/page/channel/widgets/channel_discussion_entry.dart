@@ -171,7 +171,36 @@ class _ChannelDiscussionEntryState
         ),
       );
     }
-    if (_groupId == null || !_eligible) return const SizedBox.shrink();
+    if (_groupId == null) return const SizedBox.shrink();
+    // W06/J12.a：有绑定但当前资格不足（未订阅/付费未购）→ 明确说明，
+    // 不静默隐藏、不自动加入；加入仅由下方按钮 + 确认弹窗触发。
+    if (!_eligible) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.chat_bubble_2,
+              size: AppSpacing.large,
+              color: AppColors.getTextColor(
+                CupertinoTheme.of(context).brightness ?? Brightness.light,
+                isSecondary: true,
+              ),
+            ),
+            AppSpacing.horizontalSmall,
+            Expanded(
+              child: Text(
+                context.t.channel.discussionIneligible,
+                style: context.textStyle(
+                  FontSizeType.footnote,
+                  color: AppColors.iosGray,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
       child: CupertinoButton(
@@ -183,9 +212,11 @@ class _ChannelDiscussionEntryState
             : Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const Icon(
+                  Icon(
                     CupertinoIcons.chat_bubble_2,
-                    color: AppColors.iosBlue,
+                    color: AppColors.getIosBlue(
+                      CupertinoTheme.of(context).brightness ?? Brightness.light,
+                    ),
                   ),
                   AppSpacing.horizontalSmall,
                   Expanded(child: Text(context.t.channel.joinDiscussion)),

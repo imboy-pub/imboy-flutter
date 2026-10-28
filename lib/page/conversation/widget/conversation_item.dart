@@ -80,6 +80,12 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
         (s) => s.conversationMap[widget.model.uk3] ?? widget.model,
       ),
     );
+    // W09.a（J17.c）：人工待处理可视标记（独立于 unreadNum，互不清除）。
+    final bool manualPending = ref.watch(
+      conversationProvider.select(
+        (s) => s.manualPending[widget.model.uk3] == true,
+      ),
+    );
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -188,6 +194,19 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                       Expanded(
                         child: _buildContent(currentModel, theme, isDark),
                       ),
+                      if (manualPending)
+                        // W09.a：人工待处理旗标（服务端元数据投影，非未读）。
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: AppSpacing.small,
+                          ),
+                          child: Icon(
+                            CupertinoIcons.flag_fill,
+                            size: 12,
+                            color: AppColors.iosOrange,
+                            semanticLabel: context.t.chat.manualPendingBadge,
+                          ),
+                        ),
                       if (currentModel.isMuted > 0)
                         // 纯图标：不补 semanticLabel 的话读屏用户完全不知道
                         // 这个会话已设免打扰。

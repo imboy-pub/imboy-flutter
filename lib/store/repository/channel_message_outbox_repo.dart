@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 
 /// 频道消息本地待同步 outbox。
 ///
@@ -19,10 +20,14 @@ class ChannelMessageOutboxRepo {
   ChannelMessageOutboxRepo.noop() : _enabled = false;
 
   /// 保存或更新待同步消息。message_id 是主键，重复入队不会产生重复记录。
-  Future<void> enqueue(ChannelMessageModel message, {String? error}) async {
+  Future<void> enqueue(
+    ChannelMessageModel message, {
+    String? error,
+    Transaction? txn,
+  }) async {
     if (!_enabled) return;
     final now = DateTime.now().millisecondsSinceEpoch;
-    await _db.insert(tableName, {
+    final values = <String, Object?>{
       'message_id': message.id,
       'channel_id': message.channelId,
       'payload': jsonEncode(message.toJson()),
@@ -31,13 +36,23 @@ class ChannelMessageOutboxRepo {
       'last_error': error,
       'created_at': now,
       'updated_at': now,
-    });
+    };
+    if (txn != null) {
+      await txn.insert(
+        tableName,
+        values,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } else {
+      await _db.insert(tableName, values);
+    }
   }
 
   /// 返回到期的待同步消息。
   Future<List<ChannelMessageModel>> pending({
     String? channelId,
     int limit = 20,
+    Transaction? txn,
   }) async {
     if (!_enabled) return [];
     final now = DateTime.now().millisecondsSinceEpoch;
@@ -48,13 +63,21 @@ class ChannelMessageOutboxRepo {
       args.add(channelId);
     }
 
-    final rows = await _db.query(
-      tableName,
-      where: whereParts.join(' AND '),
-      whereArgs: args,
-      orderBy: 'next_attempt_at ASC, message_id ASC',
-      limit: limit,
-    );
+    final rows = txn != null
+        ? await txn.query(
+            tableName,
+            where: whereParts.join(' AND '),
+            whereArgs: args,
+            orderBy: 'next_attempt_at ASC, message_id ASC',
+            limit: limit,
+          )
+        : await _db.query(
+            tableName,
+            where: whereParts.join(' AND '),
+            whereArgs: args,
+            orderBy: 'next_attempt_at ASC, message_id ASC',
+            limit: limit,
+          );
     return rows
         .map(
           (row) => ChannelMessageModel.fromJson(
@@ -65,8 +88,16 @@ class ChannelMessageOutboxRepo {
   }
 
   /// 本地消息成功落库后移除对应 outbox 记录。
-  Future<void> remove(int messageId) async {
+  Future<void> remove(int messageId, {Transaction? txn}) async {
     if (!_enabled) return;
+    if (txn != null) {
+      await txn.delete(
+        tableName,
+        where: 'message_id = ?',
+        whereArgs: [messageId],
+      );
+      return;
+    }
     await _db.delete(
       tableName,
       where: 'message_id = ?',
@@ -75,28 +106,49 @@ class ChannelMessageOutboxRepo {
   }
 
   /// 本地重放失败时延迟重试，避免每次打开频道都立即打满数据库。
-  Future<void> markRetry(int messageId, Object error) async {
+  Future<void> markRetry(
+    int messageId,
+    Object error, {
+    Transaction? txn,
+  }) async {
     if (!_enabled) return;
-    final row = await _db.query(
-      tableName,
-      where: 'message_id = ?',
-      whereArgs: [messageId],
-      limit: 1,
-    );
+    final row = txn != null
+        ? await txn.query(
+            tableName,
+            where: 'message_id = ?',
+            whereArgs: [messageId],
+            limit: 1,
+          )
+        : await _db.query(
+            tableName,
+            where: 'message_id = ?',
+            whereArgs: [messageId],
+            limit: 1,
+          );
     if (row.isEmpty) return;
 
     final attempts = (row.first['attempts'] as int? ?? 0) + 1;
     final cappedAttempts = attempts > 8 ? 8 : attempts;
     final delaySeconds = 1 << cappedAttempts;
     final now = DateTime.now().millisecondsSinceEpoch;
+    final values = <String, Object?>{
+      'attempts': attempts,
+      'next_attempt_at': now + delaySeconds * 1000,
+      'last_error': error.toString(),
+      'updated_at': now,
+    };
+    if (txn != null) {
+      await txn.update(
+        tableName,
+        values,
+        where: 'message_id = ?',
+        whereArgs: [messageId],
+      );
+      return;
+    }
     await _db.update(
       tableName,
-      {
-        'attempts': attempts,
-        'next_attempt_at': now + delaySeconds * 1000,
-        'last_error': error.toString(),
-        'updated_at': now,
-      },
+      values,
       where: 'message_id = ?',
       whereArgs: [messageId],
     );

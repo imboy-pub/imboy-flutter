@@ -325,6 +325,8 @@ manage:
   retry: 重试
   groupSection: 企业群
   createGroup: 新建群
+  creationRecoveryUnavailable: 创建结果未知，请稍后重试
+  groupCreatedRenamePending: "群已创建（ID：${gid}），名称未保存"
   groupNameHint: 群名称
   groupEmpty: 暂无企业群
   groupMembers: "成员 ${count}"

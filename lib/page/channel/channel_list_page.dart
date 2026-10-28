@@ -40,7 +40,8 @@ class ChannelListPage extends ConsumerStatefulWidget {
 class _ChannelListPageState extends ConsumerState<ChannelListPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  String _query = '';
+  final _queries = ['', ''];
+  final _searchControllers = [TextEditingController(), TextEditingController()];
   bool _searchOpen = false;
 
   @override
@@ -59,6 +60,9 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
   void dispose() {
     _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
+    for (final controller in _searchControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -97,14 +101,18 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       body: ResourcePageLayout(
         child: Column(
           children: [
-            if (_searchOpen || _query.isNotEmpty)
+            if (_searchOpen || _queries[_tabController.index].isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.regular),
                 child: CupertinoSearchTextField(
                   key: const Key('channel-list-search'),
+                  controller: _searchControllers[_tabController.index],
                   placeholder: t.channel.searchHint,
-                  onChanged: (value) =>
-                      setState(() => _query = value.trim().toLowerCase()),
+                  onChanged: (value) => setState(
+                    () => _queries[_tabController.index] = value
+                        .trim()
+                        .toLowerCase(),
+                  ),
                 ),
               ),
             TabBar(
@@ -135,7 +143,11 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
                 controller: _tabController,
                 children: [
                   _buildChannelList(state, isSubscribed: true, showRole: false),
-                  _buildChannelList(state, isSubscribed: false, showRole: true),
+                  _buildChannelList(
+                    state.managed,
+                    isSubscribed: false,
+                    showRole: true,
+                  ),
                 ],
               ),
             ),
@@ -204,15 +216,16 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     required bool isSubscribed,
     bool showRole = false,
   }) {
+    final query = _queries[isSubscribed ? 0 : 1];
     final channels = state.channels
         .where(
           (channel) =>
-              channel.name.toLowerCase().contains(_query) ||
-              channel.id.toString().contains(_query) ||
-              (channel.customId ?? '').toLowerCase().contains(_query),
+              channel.name.toLowerCase().contains(query) ||
+              channel.id.toString().contains(query) ||
+              (channel.customId ?? '').toLowerCase().contains(query),
         )
         .toList(growable: false);
-    final canLoadMore = isSubscribed && state.hasMore && _query.isEmpty;
+    final canLoadMore = isSubscribed && state.hasMore && query.isEmpty;
     final previews = ref.watch(channelListPreviewsProvider).asData?.value;
     if (state.isLoading) {
       return const ShimmerList(itemCount: 6);
@@ -236,6 +249,14 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
     }
 
     if (state.channels.isEmpty) {
+      if (isSubscribed && state.syncError) {
+        return NoDataView(
+          icon: CupertinoIcons.exclamationmark_circle,
+          text: context.t.common.loadError,
+          onTop: () =>
+              ref.read(channelListProvider.notifier).loadSubscribedChannels(),
+        );
+      }
       // 已订阅空态提供"发现频道"跳转入口（引导语可点击）
       return NoDataView(
         icon: CupertinoIcons.speaker_2,
@@ -247,8 +268,23 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
       );
     }
 
-    if (channels.isEmpty) return NoDataView(text: context.t.channel.noResults);
-    return RefreshIndicator(
+    if (channels.isEmpty) {
+      if (isSubscribed && state.syncError) {
+        return Column(
+          children: [
+            CupertinoButton(
+              onPressed: () => ref
+                  .read(channelListProvider.notifier)
+                  .loadSubscribedChannels(),
+              child: Text(context.t.common.loadError),
+            ),
+            Expanded(child: NoDataView(text: context.t.channel.noResults)),
+          ],
+        );
+      }
+      return NoDataView(text: context.t.channel.noResults);
+    }
+    final list = RefreshIndicator(
       onRefresh: () async {
         final notifier = ref.read(channelListProvider.notifier);
         if (isSubscribed) {
@@ -309,6 +345,17 @@ class _ChannelListPageState extends ConsumerState<ChannelListPage>
           },
         ),
       ),
+    );
+    if (!isSubscribed || !state.syncError) return list;
+    return Column(
+      children: [
+        CupertinoButton(
+          onPressed: () =>
+              ref.read(channelListProvider.notifier).loadSubscribedChannels(),
+          child: Text(context.t.common.loadError),
+        ),
+        Expanded(child: list),
+      ],
     );
   }
 }

@@ -1,4 +1,7 @@
+import 'dart:ui' show SemanticsFlag;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/ui/cell_pressable.dart';
 
@@ -21,6 +24,77 @@ ColoredBox _findColoredBox(WidgetTester tester) {
 
 void main() {
   group('CellPressable', () {
+    testWidgets('键盘聚焦有反馈，Enter 和 Space 各执行一次并可移出焦点', (tester) async {
+      var calls = 0;
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              CellPressable(onTap: () => calls++, child: const Text('频道行')),
+              TextButton(onPressed: () {}, child: const Text('下一项')),
+            ],
+          ),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final node = tester.getSemantics(find.text('频道行'));
+      expect(node.hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(node.hasFlag(SemanticsFlag.isFocused), isTrue);
+      expect(_findColoredBox(tester).color, isNot(Colors.transparent));
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(calls, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(calls, 2);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(_findColoredBox(tester).color, Colors.transparent);
+      expect(
+        tester.getSemantics(find.text('下一项')).hasFlag(SemanticsFlag.isFocused),
+        isTrue,
+      );
+    });
+
+    testWidgets('回调撤下后键盘不能继续执行，焦点反馈消失', (tester) async {
+      var calls = 0;
+      Widget view(bool enabled) => _wrap(
+        CellPressable(
+          onTap: enabled ? () => calls++ : null,
+          child: const Text('频道行'),
+        ),
+      );
+      await tester.pumpWidget(view(true));
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.pumpWidget(view(false));
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(calls, 0);
+      expect(_findColoredBox(tester).color, Colors.transparent);
+    });
+
+    testWidgets('只有长按动作时键盘仍能执行该动作，只读行不拦截 Tab', (tester) async {
+      var calls = 0;
+      await tester.pumpWidget(
+        _wrap(
+          Column(
+            children: [
+              const CellPressable(child: Text('只读行')),
+              CellPressable(
+                onLongPress: () => calls++,
+                child: const Text('操作行'),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(calls, 1);
+    });
+
     testWidgets('renders child untouched at idle', (tester) async {
       await tester.pumpWidget(
         _wrap(CellPressable(onTap: () {}, child: const Text('hello'))),

@@ -12,7 +12,8 @@ import 'package:imboy/component/ui/badge_widget.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_avatar_cache.dart'
     show defaultGroupAvatarLoader;
-import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart'
     show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace/workspace_view_widgets.dart';
@@ -29,6 +30,15 @@ import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
+
+final workspaceMessageClockProvider = Provider<int Function()>(
+  (ref) => DateTimeHelper.millisecond,
+);
+
+final workspaceGroupAvatarLoaderProvider =
+    Provider<Future<List<String>> Function(String)>(
+      (ref) => defaultGroupAvatarLoader,
+    );
 
 /// Only server-authorized workspace snapshots; no personal or warm-cache rows.
 class WorkspaceConversationsPage extends ConsumerStatefulWidget {
@@ -55,7 +65,6 @@ class _WorkspaceConversationsPageState
   final _subscriptions = <StreamSubscription<dynamic>>[];
   Timer? _refreshTimer;
   Timer? _expiryTimer;
-  Timer? _poll;
   int _expires = 0;
 
   @override
@@ -79,11 +88,6 @@ class _WorkspaceConversationsPageState
         }
       }),
     );
-    // ponytail: 30s active-page reconciliation covers worker lag/missed events;
-    // replace with a scoped authority event once that server contract exists.
-    _poll = Timer.periodic(const Duration(seconds: 30), (_) {
-      _reload();
-    });
   }
 
   void _scheduleRefresh() {
@@ -95,12 +99,14 @@ class _WorkspaceConversationsPageState
     if (!mounted || !widget.active) return;
     final id = ref.read(currentWorkspaceProvider)?.id ?? '';
     if (id.isNotEmpty) {
-      ref.invalidate(workspaceConversationsProvider(id));
+      unawaited(
+        ref.read(workspaceAccessProvider(_target(id)).notifier).refresh(),
+      );
     }
   }
 
   void _scheduleExpiry(List<WorkspaceConversationModel> list) {
-    final now = DateTimeHelper.millisecond();
+    final now = ref.read(workspaceMessageClockProvider)();
     final deadlines = list
         .map((row) => row.expiresAt)
         .where((time) => time > now);
@@ -111,7 +117,9 @@ class _WorkspaceConversationsPageState
     _expiryTimer?.cancel();
     _expires = next;
     if (next > 0) {
-      _expiryTimer = Timer(Duration(milliseconds: next - now + 1), _reload);
+      _expiryTimer = Timer(Duration(milliseconds: next - now), () {
+        if (mounted) setState(() => _expires = 0);
+      });
     }
   }
 
@@ -122,7 +130,6 @@ class _WorkspaceConversationsPageState
     }
     _refreshTimer?.cancel();
     _expiryTimer?.cancel();
-    _poll?.cancel();
     _search.dispose();
     super.dispose();
   }
@@ -168,20 +175,15 @@ class _WorkspaceConversationsPageState
     }
   }
 
-  Widget _body(String id) {
-    return ref
-        .watch(workspaceConversationsProvider(id))
-        .when(
-          skipLoadingOnRefresh: false,
-          skipLoadingOnReload: false,
-          loading: () => const WorkspaceLoadingView(),
-          error: (error, _) => WorkspaceErrorView(
-            message: workspaceErrorMessage(error),
-            onRetry: _reload,
-          ),
-          data: (rows) => _messageList(id, rows),
-        );
-  }
+  WorkspaceAccessTarget _target(String id) =>
+      (workspaceId: id, resource: kWorkspaceAccessContentResource);
+
+  Widget _body(String id) => WorkspaceAccessGuard(
+    key: ValueKey('workspace-content-$id'),
+    target: _target(id),
+    active: widget.active,
+    builder: (_, access) => _messageList(id, access.rows),
+  );
 
   List<WorkspaceConversationModel> _visibleRows(
     List<WorkspaceConversationModel> rows,
@@ -211,17 +213,23 @@ class _WorkspaceConversationsPageState
   }
 
   Future<void> _refresh(String id) async {
-    ref.invalidate(workspaceConversationsProvider(id));
-    try {
-      await ref.read(workspaceConversationsProvider(id).future);
-    } catch (_) {
-      /* The watched provider exposes the failure above. */
-    }
+    await ref.read(workspaceAccessProvider(_target(id)).notifier).refresh();
   }
 
   Widget _messageList(String id, List<WorkspaceConversationModel> rows) {
     _scheduleExpiry(rows);
-    final visible = _visibleRows(rows);
+    final now = ref.read(workspaceMessageClockProvider)();
+    final visible = _visibleRows(
+      rows.map((row) {
+        if (row.expiresAt <= 0 || row.expiresAt > now) return row;
+        return WorkspaceConversationModel(
+          group: row.group,
+          memberStartSeq: row.memberStartSeq,
+          memberGenerationId: row.memberGenerationId,
+          unreadCount: row.unreadCount,
+        );
+      }).toList(),
+    );
     return CustomScrollView(
       key: ValueKey('workspace-messages-$id'),
       slivers: [
@@ -244,7 +252,10 @@ class _WorkspaceConversationsPageState
             final brightness = Theme.of(context).brightness;
             return Column(
               children: [
-                _MessageRow(row: visible[index]),
+                _MessageRow(
+                  row: visible[index],
+                  avatarLoader: ref.read(workspaceGroupAvatarLoaderProvider),
+                ),
                 // 分隔线：左 16(页面 padding) + 56(头像) + 12(间距) = 84，
                 // 与文字左缘对齐（同 Personal 会话列表，DESIGN.md 8.3 A）；
                 // 末行不画——多一条线会让列表看起来"还没到底"。
@@ -313,8 +324,9 @@ class _WorkspaceConversationsPageState
 }
 
 class _MessageRow extends StatefulWidget {
-  const _MessageRow({required this.row});
+  const _MessageRow({required this.row, required this.avatarLoader});
   final WorkspaceConversationModel row;
+  final Future<List<String>> Function(String) avatarLoader;
 
   @override
   State<_MessageRow> createState() => _MessageRowState();
@@ -393,7 +405,7 @@ class _MessageRowState extends State<_MessageRow> {
                 avatar: group.avatar,
                 groupId: group.groupId.toString(),
                 size: 56,
-                avatarLoader: defaultGroupAvatarLoader,
+                avatarLoader: widget.avatarLoader,
                 heroTag: 'avatar_${group.groupId}',
               ),
             ),

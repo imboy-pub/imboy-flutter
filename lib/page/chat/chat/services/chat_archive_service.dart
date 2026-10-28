@@ -15,6 +15,20 @@ import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
+import 'package:imboy/page/chat/chat/services/chat_burn_service.dart';
+import 'package:imboy/component/http/http_response.dart';
+
+enum MessageLocationResult {
+  located,
+  unavailable,
+  authorizationUnavailable,
+  forbidden,
+  expired,
+  missingKey,
+  undecryptable,
+  failed,
+  cancelled,
+}
 
 /// 历史回填 API 请求失败（与「服务端确认无数据」严格区分）。
 ///
@@ -51,12 +65,13 @@ class HistorySyncPlan {
 ///
 /// 负责从服务端拉取归档消息、加载指定消息附近的上下文以及
 /// 加载较新消息（双向分页）等功能。
-/// 从 ChatNotifier 提取，保持公共方法签名不变。
 class ChatArchiveService {
-  const ChatArchiveService({this.api});
+  const ChatArchiveService({this.api, this.repository, this.sessions});
 
   /// 可注入的 API 客户端（测试用）；为 null 时用默认 [MsgApi]。
   final MsgApi? api;
+  final MessageRepository? repository;
+  final AuthSessionReader? sessions;
 
   static String _repairKey(String convKey) =>
       '${Keys.msgHistorySeqPrefix}${convKey}_repair_v2_${UserRepoLocal.to.currentUid}_${Env().apiBaseUrl}';
@@ -174,16 +189,12 @@ class ChatArchiveService {
     return anyFetched;
   }
 
-  // ===== 消息定位 =====
-
-  /// 加载指定消息及其前后的消息（用于搜索跳转定位）
-  Future<void> loadMessagesAround({
+  Future<MessageLocationResult> loadMessagesAround({
     required SqliteChatService chatService,
     required MessageScrollManager scrollManager,
     required ConversationModel conversation,
     required String msgId,
-    required Future<void> Function(ConversationModel, {bool isInitial})
-    loadMoreMessages,
+    required bool Function() isCurrent,
     required void Function({
       required int nextAutoId,
       required int prevAutoId,
@@ -192,59 +203,198 @@ class ChatArchiveService {
     updateState,
     int count = 20,
   }) async {
-    final String tb = MessageRepo.getTableName(conversation.type);
-    final MessageRepo repo = MessageRepo(tableName: tb);
+    final reader = sessions ?? authSessionReader;
+    final session = reader.current;
+    final endpoint = Env().apiBaseUrl;
+    final conversationId = conversation.uk3;
+    final chatType = conversation.type.toLowerCase();
+    final peerId = conversation.peerId;
+    final generation = conversation.payload?['member_generation_id'];
+    bool current() =>
+        reader.isCurrent(session) &&
+        UserRepoLocal.to.currentUid == session.uid &&
+        Env().apiBaseUrl == endpoint &&
+        conversation.uk3 == conversationId &&
+        conversation.type.toLowerCase() == chatType &&
+        conversation.peerId == peerId &&
+        conversation.payload?['member_generation_id'] == generation &&
+        isCurrent() &&
+        !chatService.isDisposed;
+    if (!current()) return MessageLocationResult.cancelled;
+    try {
+      for (final message in chatService.messages) {
+        if (message.id == msgId) {
+          if (chatType == 'c2c' &&
+              message.authorId != session.uid &&
+              message.authorId != peerId.toString()) {
+            return MessageLocationResult.forbidden;
+          }
+          return _messageLocationStatus(message, conversationId);
+        }
+      }
+      final repo =
+          repository ??
+          MessageRepo(tableName: MessageRepo.getTableName(conversation.type));
+      if (chatType != 'c2c' && chatType != 'c2g') {
+        return MessageLocationResult.authorizationUnavailable;
+      }
+      final limit = count.clamp(1, 20).toInt() * 2 + 1;
+      final response = await (api ?? MsgApi())
+          .historyContext(
+            chatType: chatType,
+            peerId: peerId.toString(),
+            targetMsgId: msgId,
+            limit: limit,
+            did: deviceId,
+          )
+          .timeout(const Duration(seconds: 12));
+      if (!current()) return MessageLocationResult.cancelled;
+      final payload = IMBoyHttpResponse.payloadAsMap(response.payload);
+      if (!response.ok) {
+        return switch (response.code) {
+          401 || 403 => MessageLocationResult.forbidden,
+          404 =>
+            response.msg == 'history_context_unavailable'
+                ? MessageLocationResult.unavailable
+                : MessageLocationResult.authorizationUnavailable,
+          501 => MessageLocationResult.authorizationUnavailable,
+          _ => MessageLocationResult.failed,
+        };
+      }
+      final uid = BigInt.parse(session.uid);
+      final peer = BigInt.from(conversation.peerId);
+      final convKey = chatType == 'c2g'
+          ? 'c2g:$peer'
+          : uid < peer
+          ? 'c2c:$uid:$peer'
+          : 'c2c:$peer:$uid';
+      if (payload['context_msg_id'] != msgId) {
+        return MessageLocationResult.authorizationUnavailable;
+      }
+      final rawRows = payload['messages'];
+      if (payload['conv_key'] != convKey ||
+          rawRows is! List ||
+          rawRows.isEmpty ||
+          rawRows.length > limit ||
+          rawRows.any((row) => row is! Map<String, dynamic>)) {
+        return MessageLocationResult.failed;
+      }
+      final rows = List<Map<String, dynamic>>.from(rawRows);
+      final ids = <String>{};
+      final sequences = <int>{};
+      for (final row in rows) {
+        final id = row['msg_id'];
+        final seq = row['conv_seq'];
+        final from = parseModelString(row['from']);
+        final to = parseModelString(row['to'] ?? row['group_id']);
+        if (id is! String ||
+            id.isEmpty ||
+            !ids.add(id) ||
+            seq is! int ||
+            seq <= 0 ||
+            !sequences.add(seq) ||
+            row['chat_type'] != chatType ||
+            (row['conv_key'] != null && row['conv_key'] != convKey) ||
+            (chatType == 'c2g'
+                ? to != peer.toString()
+                : !{from, to}.containsAll([session.uid, peer.toString()]))) {
+          return MessageLocationResult.failed;
+        }
+      }
+      if (!ids.contains(msgId)) return MessageLocationResult.failed;
+      rows.sort(
+        (left, right) =>
+            (left['conv_seq'] as int).compareTo(right['conv_seq'] as int),
+      );
+      void requireCurrent() {
+        if (!current()) throw const HistoryFetchException();
+      }
 
-    final MessageModel? targetMsgModel = await repo.find(msgId);
-    if (targetMsgModel == null) {
-      await loadMoreMessages(conversation, isInitial: true);
-      return;
+      await _persistHistoryRows(rows, requireCurrent);
+      if (!current()) return MessageLocationResult.cancelled;
+      final messages = <Message>[];
+      var nextAutoId = 0;
+      var prevAutoId = 0;
+      for (final row in rows) {
+        final model = await repo.find(row['msg_id'] as String);
+        if (!current()) return MessageLocationResult.cancelled;
+        if (model == null ||
+            model.id != row['msg_id'] ||
+            model.conversationUk3 != conversationId ||
+            model.type?.toLowerCase() != chatType) {
+          return MessageLocationResult.failed;
+        }
+        final participants = {model.fromId.toString(), model.toId.toString()};
+        if ((chatType == 'c2c' &&
+                !participants.containsAll([session.uid, peer.toString()])) ||
+            (chatType == 'c2g' && model.toId != conversation.peerId) ||
+            model.fromId.toString() != parseModelString(row['from']) ||
+            model.toId.toString() !=
+                parseModelString(row['to'] ?? row['group_id'])) {
+          return MessageLocationResult.forbidden;
+        }
+        final message = await model.toTypeMessage();
+        if (!current()) return MessageLocationResult.cancelled;
+        final status = _messageLocationStatus(message, conversationId);
+        if (model.id == msgId && status != MessageLocationResult.located) {
+          return status;
+        }
+        if (status != MessageLocationResult.expired &&
+            status != MessageLocationResult.forbidden) {
+          messages.add(message);
+          if (nextAutoId == 0) nextAutoId = model.autoId;
+          prevAutoId = model.autoId;
+        }
+      }
+      if (!current()) return MessageLocationResult.cancelled;
+      updateState(
+        nextAutoId: nextAutoId,
+        prevAutoId: prevAutoId,
+        currentConversationId: conversationId,
+      );
+      await chatService.setMessages(messages, animated: false);
+      if (!current()) return MessageLocationResult.cancelled;
+      cacheMessagePositionsForConversation(
+        scrollManager: scrollManager,
+        conversationUk3: conversationId,
+        messages: messages,
+        targetMsgId: msgId,
+      );
+      return MessageLocationResult.located;
+    } catch (_) {
+      return current()
+          ? MessageLocationResult.failed
+          : MessageLocationResult.cancelled;
     }
+  }
 
-    final olderMessages = await repo.pageForConversation(
-      conversation.uk3,
-      targetMsgModel.autoId,
-      count,
-    );
-
-    final newerMessages = await repo.pageNewerForConversation(
-      conversation.uk3,
-      targetMsgModel.autoId,
-      count,
-    );
-
-    final List<MessageModel> allModels = [
-      ...olderMessages,
-      targetMsgModel,
-      ...newerMessages,
-    ];
-
-    final messages = await Future.wait(
-      allModels.map((item) async => await item.toTypeMessage()),
-    );
-
-    final int nextAutoId = olderMessages.isNotEmpty
-        ? olderMessages.first.autoId
-        : targetMsgModel.autoId;
-
-    final int prevAutoId = newerMessages.isNotEmpty
-        ? newerMessages.last.autoId
-        : targetMsgModel.autoId;
-
-    updateState(
-      nextAutoId: nextAutoId,
-      prevAutoId: prevAutoId,
-      currentConversationId: conversation.uk3,
-    );
-
-    chatService.setMessages(messages.toList(), animated: false);
-
-    cacheMessagePositionsForConversation(
-      scrollManager: scrollManager,
-      conversationUk3: conversation.uk3,
-      messages: messages,
-      targetMsgId: msgId,
-    );
+  static MessageLocationResult _messageLocationStatus(
+    Message message,
+    String conversationId,
+  ) {
+    final metadata = message.metadata ?? const <String, dynamic>{};
+    if (metadata['conversation_uk3'] != conversationId) {
+      return MessageLocationResult.forbidden;
+    }
+    const burn = ChatBurnService();
+    if (burn.isBurnTombstonePayload(metadata) ||
+        burn.isBurnExpired(
+          metadata,
+          DateTimeHelper.millisecond(),
+          fallbackStartMs: message.authorId == UserRepoLocal.to.currentUid
+              ? message.createdAt?.millisecondsSinceEpoch ?? 0
+              : 0,
+        )) {
+      return MessageLocationResult.expired;
+    }
+    if (metadata['_e2ee_failed'] == true) {
+      return switch (metadata['_e2ee_reason']) {
+        'historical_room_key_scope_denied' => MessageLocationResult.forbidden,
+        'no_device_key' => MessageLocationResult.missingKey,
+        _ => MessageLocationResult.undecryptable,
+      };
+    }
+    return MessageLocationResult.located;
   }
 
   /// 缓存会话的消息位置，供后续滚动定位使用
@@ -255,26 +405,19 @@ class ChatArchiveService {
     required String targetMsgId,
   }) {
     try {
-      final int targetIndex = messages.indexWhere((m) => m.id == targetMsgId);
-      if (targetIndex == -1) return;
-
+      if (!messages.any((message) => message.id == targetMsgId)) return;
       const double averageMessageHeight = 80.0;
-
-      for (int i = 0; i < messages.length; i++) {
-        final Message message = messages[i];
-        final double offsetFromTarget =
-            (i - targetIndex) * averageMessageHeight;
-        final double estimatedPosition =
-            (targetIndex * averageMessageHeight) + offsetFromTarget;
-        final double position = estimatedPosition.clamp(0.0, double.infinity);
+      for (
+        var messageIndex = 0;
+        messageIndex < messages.length;
+        messageIndex++
+      ) {
         scrollManager.cacheMessagePosition(
           conversationUk3,
-          message.id,
-          position,
+          messages[messageIndex].id,
+          messageIndex * averageMessageHeight,
         );
       }
-
-      iPrint('缓存了 ${messages.length} 条消息的位置，目标消息索引: $targetIndex');
     } catch (e) {
       iPrint('缓存消息位置失败: $e');
     }
@@ -288,6 +431,8 @@ class ChatArchiveService {
     required ConversationModel conversation,
     required int prevAutoId,
     required int pageSize,
+    bool contextOrder = false,
+    bool Function()? isCurrent,
     // BUG#139：接收方按已读时间、发送方按发送时间（fallbackStartMs）判定过期，
     // 故改为传完整 item 而非仅 payload
     required bool Function(MessageModel item, int nowMs) isBurnExpired,
@@ -302,29 +447,33 @@ class ChatArchiveService {
     required Future<void> Function(MessageModel) onSendWsMsg,
     required void Function(int prevAutoId) updatePrevAutoId,
   }) async {
-    final String tb = MessageRepo.getTableName(conversation.type);
-    final MessageRepo repo = MessageRepo(tableName: tb);
-
-    iPrint(
-      'loadNewerMessages: uk3=${conversation.uk3}, prevAutoId=$prevAutoId, pageSize=$pageSize',
+    if (chatService == null) return [];
+    bool current() => (isCurrent?.call() ?? true) && !chatService.isDisposed;
+    if (!current()) return [];
+    final repo = MessageRepo(
+      tableName: MessageRepo.getTableName(conversation.type),
     );
-
-    final items = await repo.pageNewerForConversation(
-      conversation.uk3,
-      prevAutoId,
-      pageSize,
-    );
-
-    if (items.isEmpty) {
-      iPrint('loadNewerMessages: 没有较新的消息');
-      return [];
-    }
-
+    final items = contextOrder
+        ? await repo.pageContextForConversation(
+            conversation.uk3,
+            prevAutoId,
+            pageSize,
+            newer: true,
+          )
+        : await repo.pageNewerForConversation(
+            conversation.uk3,
+            prevAutoId,
+            pageSize,
+          );
+    if (!current() || items.isEmpty) return [];
     final int nowMs = DateTimeHelper.millisecond();
-    final List<MessageModel> kept = [];
+    final messages = <Message>[];
     for (final item in items) {
+      if (!current()) return [];
       if (isBurnExpired(item, nowMs)) {
-        await onRemoveMessage(conversation, await item.toTypeMessage());
+        final message = await item.toTypeMessage();
+        if (!current()) return [];
+        await onRemoveMessage(conversation, message);
         continue;
       }
       await ensureBurnTimer(
@@ -333,34 +482,39 @@ class ChatArchiveService {
         item: item,
         nowMs: nowMs,
       );
-      kept.add(item);
+      if (!current()) return [];
+      if (item.status == IMBoyMessageStatus.sending) {
+        await onSendWsMsg(item);
+        if (!current()) return [];
+      }
+      final message = await item.toTypeMessage();
+      if (!current()) return [];
+      messages.add(message);
     }
-
-    final messages = await Future.wait(
-      kept.map((item) async {
-        if (item.status == IMBoyMessageStatus.sending) {
-          await onSendWsMsg(item);
-        }
-        return await item.toTypeMessage();
-      }),
-    );
-
-    final Set<String> currentIds =
-        chatService?.messages.map((e) => e.id).toSet() ?? <String>{};
+    final currentIds = chatService.messages
+        .map((message) => message.id)
+        .toSet();
     final List<Message> newItems = messages
         .where((msg) => !currentIds.contains(msg.id))
         .toList();
 
     if (newItems.isNotEmpty) {
-      chatService?.insertAllMessages(newItems);
+      await chatService.insertAllMessages(
+        newItems,
+        index: contextOrder ? chatService.messages.length : null,
+      );
+      if (!current()) return [];
+    }
+    if (contextOrder || newItems.isNotEmpty) {
       updatePrevAutoId(
-        parseModelInt(
-          newItems.last.metadata?['auto_id'],
-          defaultValue: prevAutoId,
-        ),
+        contextOrder
+            ? items.last.autoId
+            : parseModelInt(
+                newItems.last.metadata?['auto_id'],
+                defaultValue: prevAutoId,
+              ),
       );
     }
-
     return newItems;
   }
 
@@ -530,9 +684,10 @@ class ChatArchiveService {
     }
     for (final entry in byType.entries) {
       requireCurrent();
-      final persisted = await MessageRepo(
-        tableName: MessageRepo.getTableName(entry.key),
-      ).batchInsertOfflineMessages(entry.value, trustedArchive: true);
+      final persisted =
+          await (repository ??
+                  MessageRepo(tableName: MessageRepo.getTableName(entry.key)))
+              .batchInsertOfflineMessages(entry.value, trustedArchive: true);
       requireCurrent();
       if (persisted == null ||
           entry.value.any((row) => !persisted.contains(row['msg_id']))) {

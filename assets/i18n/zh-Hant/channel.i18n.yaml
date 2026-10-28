@@ -5,6 +5,7 @@ subscribed: 已訂閱
 managed: 我管理的
 discover: 發現頻道
 create: 建立頻道
+creationRecoveryUnavailable: 建立結果未知，請稍後重試
 searchHint: 搜尋頻道名稱或ID
 noResults: 未找到相關頻道
 noRecommendedChannels: 暫無推薦頻道 稍後再來看看吧
@@ -213,6 +214,7 @@ shareInviteText(name, url): "大家快來關注我的頻道【$name】吧！$url
 # Micro-community content and explicit discussion membership.
 discussion: "討論區"
 joinDiscussion: "加入討論"
+discussionIneligible: 訂閱該頻道後才能加入其討論群
 essence: "精華"
 allPosts: "全部內容"
 editPostTags: "編輯標籤"
@@ -224,3 +226,7 @@ shareLink: "分享連結"
 linkAccessHint: "連結用於開啟頻道，存取與訂閱仍須符合頻道權限。企業頻道僅限有權限的成員存取。"
 personalChannelLabel: "個人頻道"
 enterpriseChannelLabel: "企業內部頻道"
+
+subscribePending: 已訂閱，正在重新整理
+subscribeRefresh: 重新整理訂閱狀態
+unseenUpdatesBanner(count): "有 ${count} 條新更新"

@@ -366,6 +366,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get managed => 'Managed';
 	@override String get discover => 'Discover';
 	@override String get create => 'Create Channel';
+	@override String get creationRecoveryUnavailable => 'Creation result unknown, please try again later';
 	@override String get searchHint => 'Search channel name or ID';
 	@override String get noResults => 'No channels found';
 	@override String get noRecommendedChannels => 'No recommended channels Check back later';
@@ -565,6 +566,7 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}';
 	@override String get discussion => 'Discussion';
 	@override String get joinDiscussion => 'Join discussion';
+	@override String get discussionIneligible => 'Subscribe to this channel to join its discussion group';
 	@override String get essence => 'Highlights';
 	@override String get allPosts => 'All posts';
 	@override String get editPostTags => 'Edit tags';
@@ -574,6 +576,9 @@ class _Translations$channel$en_US extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => 'Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership.';
 	@override String get personalChannelLabel => 'Personal channel';
 	@override String get enterpriseChannelLabel => 'Internal enterprise channel';
+	@override String get subscribePending => 'Subscribed; refreshing';
+	@override String get subscribeRefresh => 'Refresh subscription';
+	@override String unseenUpdatesBanner({required Object count}) => '${count} new updates';
 }
 
 // Path: chat
@@ -706,6 +711,10 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => 'Send new message';
 	@override String get markRead => 'Mark as read';
 	@override String get markUnread => 'Mark as unread';
+	@override String get manualPendingBadge => 'Pending';
+	@override String get cancelManualPending => 'Cancel pending';
+	@override String get manualPendingOff => 'Not pending';
+	@override String manualPendingConflict({required Object param}) => 'Server\'s current state: ${param}';
 	@override String get pleaseEnterSignature => 'Please enter signature';
 	@override String get exportProfile => 'Export Profile';
 	@override String get setSignature => 'Set Signature';
@@ -947,6 +956,12 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get messageContent => 'Message content';
 	@override String get messageRevoked => 'Message recalled';
 	@override String get quoteMessageNotAvailable => 'Referenced message is unavailable';
+	@override String get quoteMessageUnavailable => 'This referenced message may have expired or be outside your accessible history. Retry or check with the sender.';
+	@override String get quoteMessageAuthorizationUnavailable => 'Access to this historical message cannot be verified right now. Try again later or contact the conversation administrator.';
+	@override String get quoteMessageExpired => 'The referenced message has expired and cannot be restored. Ask the sender to confirm its content.';
+	@override String get quoteMessageForbidden => 'You do not have access to this referenced message. Contact the conversation administrator to check your permissions.';
+	@override String get quoteMessageLoadFailed => 'The referenced message could not be loaded. Check your connection, then tap again to retry.';
+	@override String get quoteMessageUndecryptable => 'This device cannot decrypt the referenced message. Retry or ask the sender to resend it.';
 	@override String get microphone => 'Microphone';
 	@override String get microphonePermissionNotObtained => 'Microphone permission not granted';
 	@override String get moreInfo => 'More info';
@@ -2149,6 +2164,10 @@ class _Translations$group$en_US extends Translations$group$zh_CN {
 	@override String get e2eeKeyManagementSubtitle => 'Backup, restore and manage end-to-end encryption keys';
 	@override String get e2eeTitle => 'End-to-End Encryption';
 	@override String get e2eeEnableConfirm => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?';
+	@override String get transferAndLeave => 'Transfer and leave';
+	@override String get sureToTransferAndLeave => 'You will transfer ownership and leave this group. Continue?';
+	@override String get transferredButLeaveFailed => 'Ownership transferred, but leaving failed. Please retry leaving.';
+	@override String get noEligibleSuccessor => 'No member available to transfer to';
 }
 
 // Path: groupCategory
@@ -3128,7 +3147,6 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => 'Create one and get started in 3 minutes (Announcements channel and General group included)';
 	@override String get archivedBadge => 'Archived';
 	@override String get emptyNoWorkspace => 'Select or create a workspace first';
-	@override String get dmEntry => 'All messages';
 	@override String get experienceModePersonal => 'Personal';
 	@override String get switchToPersonal => 'Switch to personal';
 	@override String get createTitle => 'Create Workspace';
@@ -3161,7 +3179,6 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups';
 	@override String channelTileSubtitle({required Object count}) => '${count} subscribers';
 	@override String get channelDetailTitle => 'Channel';
-	@override String get discussInGroupGuide => 'Channels are for publishing; want to discuss? Jump to the General group.';
 	@override String get groupsEmptyTitle => 'No workspace groups yet';
 	@override String get groupsEmptySubtitle => 'Groups are real-time discussion spaces in the workspace (the only chat entry)';
 	@override String groupTileSubtitle({required Object count}) => '${count} group members';
@@ -3358,6 +3375,9 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'To-do';
 	@override String get takeABreak => 'Take a break';
 	@override String get todoEmptyTitle => 'No to-dos';
+	@override String get contentProtectedPending => 'Content temporarily hidden, waiting for re-authorization';
+	@override String get contentProtectedRetry => 'Verify again';
+	@override String get contentRevoked => 'You no longer have access to this workspace content';
 }
 
 // Path: account.alipaySim
@@ -3827,6 +3847,8 @@ class _Translations$organization$manage$en_US extends Translations$organization$
 	@override String get retry => 'Retry';
 	@override String get groupSection => 'Enterprise groups';
 	@override String get createGroup => 'New group';
+	@override String get creationRecoveryUnavailable => 'Creation result unknown, retry later';
+	@override String groupCreatedRenamePending({required Object gid}) => 'Group created (ID: ${gid}); name was not saved';
 	@override String get groupNameHint => 'Group name';
 	@override String get groupEmpty => 'No enterprise groups yet';
 	@override String groupMembers({required Object count}) => '${count} members';
@@ -4235,6 +4257,7 @@ extension on TranslationsEnUs {
 			'channel.managed' => 'Managed',
 			'channel.discover' => 'Discover',
 			'channel.create' => 'Create Channel',
+			'channel.creationRecoveryUnavailable' => 'Creation result unknown, please try again later',
 			'channel.searchHint' => 'Search channel name or ID',
 			'channel.noResults' => 'No channels found',
 			'channel.noRecommendedChannels' => 'No recommended channels Check back later',
@@ -4434,6 +4457,7 @@ extension on TranslationsEnUs {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => 'Come and follow my channel "${name}" at ${url}',
 			'channel.discussion' => 'Discussion',
 			'channel.joinDiscussion' => 'Join discussion',
+			'channel.discussionIneligible' => 'Subscribe to this channel to join its discussion group',
 			'channel.essence' => 'Highlights',
 			'channel.allPosts' => 'All posts',
 			'channel.editPostTags' => 'Edit tags',
@@ -4443,6 +4467,9 @@ extension on TranslationsEnUs {
 			'channel.linkAccessHint' => 'Links open this channel. Access and subscriptions remain subject to channel permissions. Enterprise channels require membership.',
 			'channel.personalChannelLabel' => 'Personal channel',
 			'channel.enterpriseChannelLabel' => 'Internal enterprise channel',
+			'channel.subscribePending' => 'Subscribed; refreshing',
+			'channel.subscribeRefresh' => 'Refresh subscription',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '${count} new updates',
 			'chat.bankCard' => 'Bank Card',
 			'chat.receivePayment' => 'Receive & Pay',
 			'chat.alreadyMember' => 'Already a member',
@@ -4505,13 +4532,13 @@ extension on TranslationsEnUs {
 			'chat.quickReplyEmpty' => 'No quick replies yet — tap the button below to add one',
 			'chat.quickReplyDuplicate' => 'This phrase already exists',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'At most ${max} entries',
+			_ => null,
+		} ?? switch (path) {
 			'chat.quickReplyHint' => 'Type your phrase...',
 			'chat.muteMember' => 'Mute Member',
 			'chat.unmuteMember' => 'Unmute',
 			'chat.muted' => 'Muted',
 			'chat.mutedFor' => ({required Object label}) => 'Muted ${label}',
-			_ => null,
-		} ?? switch (path) {
 			'chat.muteUnitMinutes' => ({required Object count}) => '${count} min',
 			'chat.muteUnitHours' => ({required Object count}) => '${count} hr',
 			'chat.muteUnitDays' => ({required Object count}) => '${count} day(s)',
@@ -4568,6 +4595,10 @@ extension on TranslationsEnUs {
 			'chat.sendNewMessage' => 'Send new message',
 			'chat.markRead' => 'Mark as read',
 			'chat.markUnread' => 'Mark as unread',
+			'chat.manualPendingBadge' => 'Pending',
+			'chat.cancelManualPending' => 'Cancel pending',
+			'chat.manualPendingOff' => 'Not pending',
+			'chat.manualPendingConflict' => ({required Object param}) => 'Server\'s current state: ${param}',
 			'chat.pleaseEnterSignature' => 'Please enter signature',
 			'chat.exportProfile' => 'Export Profile',
 			'chat.setSignature' => 'Set Signature',
@@ -4800,6 +4831,12 @@ extension on TranslationsEnUs {
 			'common.messageContent' => 'Message content',
 			'common.messageRevoked' => 'Message recalled',
 			'common.quoteMessageNotAvailable' => 'Referenced message is unavailable',
+			'common.quoteMessageUnavailable' => 'This referenced message may have expired or be outside your accessible history. Retry or check with the sender.',
+			'common.quoteMessageAuthorizationUnavailable' => 'Access to this historical message cannot be verified right now. Try again later or contact the conversation administrator.',
+			'common.quoteMessageExpired' => 'The referenced message has expired and cannot be restored. Ask the sender to confirm its content.',
+			'common.quoteMessageForbidden' => 'You do not have access to this referenced message. Contact the conversation administrator to check your permissions.',
+			'common.quoteMessageLoadFailed' => 'The referenced message could not be loaded. Check your connection, then tap again to retry.',
+			'common.quoteMessageUndecryptable' => 'This device cannot decrypt the referenced message. Retry or ask the sender to resend it.',
 			'common.microphone' => 'Microphone',
 			'common.microphonePermissionNotObtained' => 'Microphone permission not granted',
 			'common.moreInfo' => 'More info',
@@ -5009,6 +5046,8 @@ extension on TranslationsEnUs {
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected',
 			'common.allowNearbyVisible' => 'Visible to nearby people',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
 			'common.clearChatRecordsDesc' => 'Clear all chat records, this action cannot be undone',
@@ -5024,8 +5063,6 @@ extension on TranslationsEnUs {
 			'common.chatDeleteConfirm' => 'Are you sure you want to delete this message? This action cannot be undone.',
 			'common.chatDeleteOnlyLocal' => 'Delete only for you, still visible to others',
 			'common.chatDeleteAll' => 'Delete for everyone, cannot be undone',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatInitFailed' => 'Chat initialization failed',
 			'common.cameraShootFailed' => 'Camera failed',
 			'common.cameraCapture' => 'Camera',
@@ -5523,6 +5560,8 @@ extension on TranslationsEnUs {
 			'common.redPacketDialogTitle' => 'A red packet for you',
 			'common.redPacketDialogSubtitle' => 'Wishing you good fortune and prosperity',
 			'common.redPacketTotalAmount' => 'Total Amount',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketSingleAmount' => 'Amount per Red Packet',
 			'common.redPacketCount' => 'Number of Red Packets',
 			'common.redPacketCountUnit' => 'packets',
@@ -5538,8 +5577,6 @@ extension on TranslationsEnUs {
 			'common.redPacketStuffNormal' => 'Send Normal Red Packet',
 			'common.redPacketReceiverLabel' => ({required Object uid}) => 'User: ${uid}',
 			'common.redPacketView' => 'View Red Packet',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketFetchError' => 'Error loading red packet details',
 			'common.redPacketFetchFailed' => 'Failed to load red packet details',
 			'common.redPacketNotFound' => 'Red packet not found or has been deleted',
@@ -5946,6 +5983,10 @@ extension on TranslationsEnUs {
 			'group.e2eeKeyManagementSubtitle' => 'Backup, restore and manage end-to-end encryption keys',
 			'group.e2eeTitle' => 'End-to-End Encryption',
 			'group.e2eeEnableConfirm' => 'Once enabled, group messages will be end-to-end encrypted and only readable on members\' devices. This cannot be undone. Enable?',
+			'group.transferAndLeave' => 'Transfer and leave',
+			'group.sureToTransferAndLeave' => 'You will transfer ownership and leave this group. Continue?',
+			'group.transferredButLeaveFailed' => 'Ownership transferred, but leaving failed. Please retry leaving.',
+			'group.noEligibleSuccessor' => 'No member available to transfer to',
 			'groupCategory.title' => 'Group Categories',
 			'groupCategory.createCategory' => 'Create Category',
 			'groupCategory.categoryName' => 'Category Name',
@@ -6033,6 +6074,8 @@ extension on TranslationsEnUs {
 			'groupTask.dueSoon' => 'Due soon',
 			'groupTask.submitFailed' => 'Submit failed, please try again',
 			'groupTask.pendingReview' => 'Pending Review',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.taskIdMissing' => 'To-do ID missing, cannot view details',
 			'groupTask.taskIdMissingSubmit' => 'To-do ID missing, cannot submit',
 			'groupTask.publishedAt' => ({required Object time}) => 'Published ${time}',
@@ -6052,8 +6095,6 @@ extension on TranslationsEnUs {
 			'groupVote.voteIdMissing' => 'Vote ID missing, cannot view details',
 			'groupVote.participantCount' => ({required Object count}) => '${count} participants',
 			'groupVote.singleChoice' => 'Single choice',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.multipleChoice' => 'Multiple choice',
 			'groupVote.endVote' => 'End vote',
 			'groupVote.alreadyVoted' => 'Voted',
@@ -6547,6 +6588,8 @@ extension on TranslationsEnUs {
 			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
 			'organization.memberDetail.accountLabel' => 'Login account',
 			'organization.memberDetail.joinedLabel' => 'Joined',
+			_ => null,
+		} ?? switch (path) {
 			'organization.memberDetail.workspacesTitle' => 'Authorized workspaces',
 			'organization.memberDetail.workspacesEmpty' => 'This member has no workspace in this enterprise yet',
 			'organization.memberDetail.workspacesFailed' => 'Failed to load authorized workspaces',
@@ -6566,8 +6609,6 @@ extension on TranslationsEnUs {
 			'organization.manage.roleLine' => ({required Object role}) => 'My role: ${role}',
 			'organization.manage.readOnlyHint' => 'Read-only facts; management actions require owner/admin',
 			'organization.manage.workspaceOwnerHint' => 'Only workspaces you own are shown; organization-level actions (create workspace, set default) require the organization owner or an admin.',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.forbiddenTitle' => 'No management permission',
 			'organization.manage.forbiddenBody' => 'Enterprise management is limited to the owner and admins. Ask an admin to adjust your role if you need access.',
 			'organization.manage.workspaceSection' => 'Workspaces',
@@ -6592,6 +6633,8 @@ extension on TranslationsEnUs {
 			'organization.manage.retry' => 'Retry',
 			'organization.manage.groupSection' => 'Enterprise groups',
 			'organization.manage.createGroup' => 'New group',
+			'organization.manage.creationRecoveryUnavailable' => 'Creation result unknown, retry later',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => 'Group created (ID: ${gid}); name was not saved',
 			'organization.manage.groupNameHint' => 'Group name',
 			'organization.manage.groupEmpty' => 'No enterprise groups yet',
 			'organization.manage.groupMembers' => ({required Object count}) => '${count} members',
@@ -7059,6 +7102,8 @@ extension on TranslationsEnUs {
 			'talkRecord.participantsAddGuest' => 'Add guest',
 			'talkRecord.participantsInvalid' => 'Select up to 100 people. Guest labels must be unique and 1–120 characters. Eligibility may have changed; check the list.',
 			'talkRecord.participantsNoResults' => 'No matching contacts or colleagues. Try searching.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.participantsConflict' => 'The list changed and has been refreshed. Review it before editing again.',
 			'talkRecord.participantsSaveFailed' => 'Could not confirm the save. Your selection is retained; retry or refresh.',
 			'talkRecord.cleanupProcessorUnconfirmed' => 'Processing is stopping or being checked. Temporary audio copies have not yet been confirmed as removed. Refresh to check progress.',
@@ -7080,8 +7125,6 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryPartial' => 'Only exhausted, eligible attachments will be retried. Protected attachments remain retained.',
 			'talkRecord.cleanupRetryProtected' => 'Attachments are protected by a hold, retention or another valid reference and cannot be forcibly cleaned up.',
 			'talkRecord.cleanupRetryWaiting' => 'Cleanup is not eligible for retry yet. Refresh after upload capabilities or other references expire.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.cleanupRetryUnavailable' => 'Cleanup retry permission could not be confirmed. Refresh the status.',
 			'talkRecord.cleanupRetryReconcile' => 'Reconcile the same retry request',
 			'talkRecord.uploadProgressRegister' => 'Preparing upload',
@@ -7170,7 +7213,6 @@ extension on TranslationsEnUs {
 			'workspace.pickerEmptySubtitle' => 'Create one and get started in 3 minutes (Announcements channel and General group included)',
 			'workspace.archivedBadge' => 'Archived',
 			'workspace.emptyNoWorkspace' => 'Select or create a workspace first',
-			'workspace.dmEntry' => 'All messages',
 			'workspace.experienceModePersonal' => 'Personal',
 			'workspace.switchToPersonal' => 'Switch to personal',
 			'workspace.createTitle' => 'Create Workspace',
@@ -7203,7 +7245,6 @@ extension on TranslationsEnUs {
 			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',
-			'workspace.discussInGroupGuide' => 'Channels are for publishing; want to discuss? Jump to the General group.',
 			'workspace.groupsEmptyTitle' => 'No workspace groups yet',
 			'workspace.groupsEmptySubtitle' => 'Groups are real-time discussion spaces in the workspace (the only chat entry)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
@@ -7400,6 +7441,9 @@ extension on TranslationsEnUs {
 			'workspace.tabTodo' => 'To-do',
 			'workspace.takeABreak' => 'Take a break',
 			'workspace.todoEmptyTitle' => 'No to-dos',
+			'workspace.contentProtectedPending' => 'Content temporarily hidden, waiting for re-authorization',
+			'workspace.contentProtectedRetry' => 'Verify again',
+			'workspace.contentRevoked' => 'You no longer have access to this workspace content',
 			_ => null,
 		};
 	}

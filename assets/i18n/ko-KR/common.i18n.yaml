@@ -152,6 +152,12 @@ messageCall: 메시지 보내기
 messageContent: 메시지 내용
 messageRevoked: 메시지가 회수되었습니다
 quoteMessageNotAvailable: 인용된 메시지를 사용할 수 없습니다
+quoteMessageUnavailable: 인용된 메시지가 만료되었거나 접근 가능한 기록 밖에 있을 수 있습니다. 다시 시도하거나 보낸 사람에게 확인해 주세요.
+quoteMessageAuthorizationUnavailable: 이 과거 메시지의 접근 권한을 확인할 수 없습니다. 나중에 다시 시도하거나 대화 관리자에게 문의하세요.
+quoteMessageExpired: 인용된 메시지가 만료되어 복원할 수 없습니다. 보낸 사람에게 내용을 확인하세요.
+quoteMessageForbidden: 이 인용 메시지에 접근할 권한이 없습니다. 대화 관리자에게 권한을 확인하세요.
+quoteMessageLoadFailed: 인용 메시지를 불러오지 못했습니다. 연결을 확인한 후 다시 눌러 주세요.
+quoteMessageUndecryptable: 이 기기에서 인용된 메시지를 복호화할 수 없습니다. 다시 시도하거나 보낸 사람에게 재전송을 요청해 주세요.
 microphone: 마이크
 microphonePermissionNotObtained: 마이크 권한을 얻지 못했습니다
 moreInfo: 더 많은 정보

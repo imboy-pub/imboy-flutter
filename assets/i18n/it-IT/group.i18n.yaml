@@ -46,3 +46,7 @@ moreActions: Altre azioni
 noMemberWithRole(roleName): "Nessun $roleName per ora"
 perfectionGroupInfo: Completa le info del gruppo
 touchContactAddMember: "Tocca un contatto per aggiungerlo come membro del gruppo"
+transferAndLeave: Trasferisci e esci
+sureToTransferAndLeave: Trasferirai la proprietà e uscirai dal gruppo. Continuare?
+transferredButLeaveFailed: Proprietà trasferita, ma uscita non riuscita. Riprova
+noEligibleSuccessor: Nessun membro disponibile per il trasferimento

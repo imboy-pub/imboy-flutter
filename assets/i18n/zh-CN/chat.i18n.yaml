@@ -133,6 +133,10 @@ momentsReplyingTo: "正在回复 @{name}"
 sendNewMessage: 发送新消息
 markRead: 标记已读
 markUnread: 标记未读
+manualPendingBadge: 待处理
+cancelManualPending: 取消待处理
+manualPendingOff: 非待处理
+manualPendingConflict(param): "服务端当前状态：${param}"
 pleaseEnterSignature: 请输入个性签名
 exportProfile: 导出资料
 setSignature: 设置个性签名

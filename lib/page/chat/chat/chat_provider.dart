@@ -30,6 +30,8 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_read_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/services/message_handling_service.dart';
 import 'package:imboy/page/chat/chat/services/chat_network_service.dart';
@@ -61,6 +63,10 @@ class ChatNotifier extends _$ChatNotifier {
   StreamSubscription<PlayerState>? _playerStateSubscription;
   StreamSubscription<int>? _positionSubscription;
   bool _isDisposed = false;
+  late final AuthSessionScope _ownerSession;
+  late final String _ownerEndpoint;
+  int _locationRequest = 0;
+  String? _contextPaginationConversationId;
 
   late final ChatAudioHandler _audioHandler;
 
@@ -125,6 +131,8 @@ class ChatNotifier extends _$ChatNotifier {
 
   @override
   ChatState build() {
+    _ownerSession = authSessionReader.current;
+    _ownerEndpoint = Env().apiBaseUrl;
     _audioHandler = ChatAudioHandler(
       getVoicePlaybackNotifier: () =>
           ref.read(voicePlaybackServiceProvider.notifier),
@@ -238,10 +246,22 @@ class ChatNotifier extends _$ChatNotifier {
   }
 
   void updateNextAutoId(int id) {
-    state = state.copyWith(nextAutoId: id);
+    if (id <= 0) {
+      _locationRequest++;
+      _contextPaginationConversationId = null;
+    }
+    state = state.copyWith(
+      nextAutoId: id,
+      isLoading: id <= 0 ? false : state.isLoading,
+      isLoadingNewer: id <= 0 ? false : state.isLoadingNewer,
+    );
   }
 
   void setCurrentConversationId(String id) {
+    if (state.currentConversationId != id) {
+      _locationRequest++;
+      _contextPaginationConversationId = null;
+    }
     state = state.copyWith(currentConversationId: id);
   }
 
@@ -257,16 +277,21 @@ class ChatNotifier extends _$ChatNotifier {
 
     if (isInitial) {
       final String oldConversationId = state.currentConversationId;
+      if (oldConversationId != obj.uk3) _locationRequest++;
 
       (_chatService?.messages.length ?? 0) > 0;
       final bool isStateReset = state.currentConversationId.isEmpty;
 
       final bool isDifferentConversation =
           !isStateReset && state.currentConversationId != obj.uk3;
+      final keepContext =
+          _contextPaginationConversationId == obj.uk3 &&
+          (_chatService?.messages.isNotEmpty ?? false);
+      if (!keepContext) _contextPaginationConversationId = null;
 
       state = state.copyWith(
-        nextAutoId: 0,
-        prevAutoId: 0,
+        nextAutoId: keepContext ? state.nextAutoId : 0,
+        prevAutoId: keepContext ? state.prevAutoId : 0,
         hasMoreMessage: true,
         currentConversationId: obj.uk3,
       );
@@ -304,8 +329,20 @@ class ChatNotifier extends _$ChatNotifier {
       }
     }
 
+    final request = _locationRequest;
+    final service = _chatService;
+    final conversationId = obj.uk3;
+    bool current() =>
+        !_isDisposed &&
+        authSessionReader.isCurrent(_ownerSession) &&
+        Env().apiBaseUrl == _ownerEndpoint &&
+        request == _locationRequest &&
+        identical(service, _chatService) &&
+        state.currentConversationId == conversationId;
+    if (!current()) return [];
     state = state.copyWith(isLoading: true);
-    final items = await _pageMessages(obj, state.pageSize);
+    final items = await _pageMessages(obj, state.pageSize, current);
+    if (!current()) return [];
     state = state.copyWith(isLoading: false);
 
     syncMessagesToState();
@@ -335,19 +372,25 @@ class ChatNotifier extends _$ChatNotifier {
         );
       } else {
         _chatService?.insertAllMessages(newItems, index: 0);
-        state = state.copyWith(
-          nextAutoId: parseModelInt(
-            newItems.first.metadata?['auto_id'],
-            defaultValue: state.nextAutoId,
-          ),
-        );
+        if (_contextPaginationConversationId != obj.uk3) {
+          state = state.copyWith(
+            nextAutoId: parseModelInt(
+              newItems.first.metadata?['auto_id'],
+              defaultValue: state.nextAutoId,
+            ),
+          );
+        }
       }
     }
 
     return newItems;
   }
 
-  Future<List<Message>> _pageMessages(ConversationModel obj, int size) async {
+  Future<List<Message>> _pageMessages(
+    ConversationModel obj,
+    int size,
+    bool Function() isCurrent,
+  ) async {
     final String tb = MessageRepo.getTableName(obj.type);
     final repo = MessageRepo(tableName: tb);
 
@@ -355,11 +398,10 @@ class ChatNotifier extends _$ChatNotifier {
       '_pageMessages: 加载消息 - conversation: ${obj.uk3}, nextAutoId: ${state.nextAutoId}, size: $size',
     );
 
-    final items = await repo.pageForConversation(
-      obj.uk3,
-      state.nextAutoId,
-      size,
-    );
+    final items = _contextPaginationConversationId == obj.uk3
+        ? await repo.pageContextForConversation(obj.uk3, state.nextAutoId, size)
+        : await repo.pageForConversation(obj.uk3, state.nextAutoId, size);
+    if (!isCurrent()) return [];
 
     iPrint('_pageMessages: 查询返回 ${items.length} 条消息');
 
@@ -376,6 +418,7 @@ class ChatNotifier extends _$ChatNotifier {
         return await item.toTypeMessage();
       }),
     );
+    if (!isCurrent()) return [];
 
     state = state.copyWith(nextAutoId: items.first.autoId);
     return messages.toList();
@@ -1038,27 +1081,47 @@ class ChatNotifier extends _$ChatNotifier {
 
   // ===== 消息定位 / 历史 / 双向分页（委托给 ChatArchiveService）=====
 
-  Future<void> loadMessagesAround(
+  Future<MessageLocationResult> loadMessagesAround(
     ConversationModel obj,
     String msgId, {
     int count = 20,
+    bool Function()? isCurrent,
   }) async {
-    await _archiveService.loadMessagesAround(
-      chatService: _chatService!,
+    final request = ++_locationRequest;
+    final service = _chatService;
+    final conversationId = obj.uk3;
+    final previousConversationId = state.currentConversationId;
+    bool current() =>
+        !_isDisposed &&
+        authSessionReader.isCurrent(_ownerSession) &&
+        Env().apiBaseUrl == _ownerEndpoint &&
+        request == _locationRequest &&
+        (isCurrent?.call() ?? true) &&
+        identical(service, _chatService) &&
+        (state.currentConversationId == previousConversationId ||
+            state.currentConversationId == conversationId);
+    if (service == null || !current()) return MessageLocationResult.cancelled;
+    state = state.copyWith(isLoading: false, isLoadingNewer: false);
+    return _archiveService.loadMessagesAround(
+      chatService: service,
       scrollManager: ref.read(messageScrollManagerProvider.notifier),
       conversation: obj,
       msgId: msgId,
-      loadMoreMessages: loadMoreMessages,
+      isCurrent: current,
       updateState:
           ({
             required int nextAutoId,
             required int prevAutoId,
             required String currentConversationId,
           }) {
+            _contextPaginationConversationId = currentConversationId;
             state = state.copyWith(
               nextAutoId: nextAutoId,
               prevAutoId: prevAutoId,
               currentConversationId: currentConversationId,
+              hasMoreMessage: true,
+              isLoading: false,
+              isLoadingNewer: false,
             );
           },
       count: count,
@@ -1071,6 +1134,17 @@ class ChatNotifier extends _$ChatNotifier {
       return [];
     }
 
+    final request = _locationRequest;
+    final service = _chatService;
+    final conversationId = obj.uk3;
+    bool current() =>
+        !_isDisposed &&
+        authSessionReader.isCurrent(_ownerSession) &&
+        Env().apiBaseUrl == _ownerEndpoint &&
+        request == _locationRequest &&
+        identical(service, _chatService) &&
+        state.currentConversationId == conversationId;
+    if (!current()) return [];
     state = state.copyWith(isLoadingNewer: true);
 
     try {
@@ -1079,6 +1153,8 @@ class ChatNotifier extends _$ChatNotifier {
         conversation: obj,
         prevAutoId: state.prevAutoId,
         pageSize: state.pageSize,
+        contextOrder: _contextPaginationConversationId == conversationId,
+        isCurrent: current,
         isBurnExpired: (item, nowMs) => _burnService.isBurnExpired(
           item.payloadMap,
           nowMs,
@@ -1108,9 +1184,11 @@ class ChatNotifier extends _$ChatNotifier {
         },
       );
 
+      if (!current()) return [];
       state = state.copyWith(isLoadingNewer: false);
       return result;
     } catch (e) {
+      if (!current()) return [];
       iPrint('loadNewerMessages error: $e');
       state = state.copyWith(isLoadingNewer: false);
       return [];
@@ -1127,6 +1205,16 @@ class ChatNotifier extends _$ChatNotifier {
     if (_historySyncing) return;
     final String chatType = obj.type.toLowerCase();
     if (chatType != 'c2c' && chatType != 'c2g') return;
+    final conversationId = obj.uk3;
+    final service = _chatService;
+    final locationRequest = _locationRequest;
+    bool current() =>
+        !_isDisposed &&
+        authSessionReader.isCurrent(_ownerSession) &&
+        Env().apiBaseUrl == _ownerEndpoint &&
+        identical(service, _chatService) &&
+        state.currentConversationId == conversationId;
+    if (!current()) return;
 
     _historySyncing = true;
     try {
@@ -1140,6 +1228,7 @@ class ChatNotifier extends _$ChatNotifier {
         peerId: obj.peerId.toString(),
         maxPages: _historyMaxPagesPerOpen,
       );
+      if (!current() || locationRequest != _locationRequest) return;
       // BUG#119（批次72 真机复现）：回填「成功但 0 条」≠「会话无消息」。
       // 服务端 msg_store 归档为空（生产未开启 msg_archive_enabled）时，
       // history 接口正常返回空，此时不能展示误导性的「暂无数据」——
@@ -1167,6 +1256,7 @@ class ChatNotifier extends _$ChatNotifier {
         }
       }
     } catch (e) {
+      if (!current()) return;
       iPrint('syncHistoryBackfill error: $e');
       // BUG#119：回填失败不能静默。HistoryFetchException（API 失败）或
       // 落库异常都必须置失败标记——聊天页空态据此显示「历史记录加载
@@ -1310,6 +1400,7 @@ class ChatNotifier extends _$ChatNotifier {
 
   void _dispose() {
     if (_isDisposed) return;
+    _locationRequest++;
 
     iPrint('开始释放 Chat 资源...');
 

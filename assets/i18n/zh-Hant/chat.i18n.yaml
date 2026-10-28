@@ -132,6 +132,10 @@ momentsReplyingTo: 正在回覆 @{name}
 sendNewMessage: 傳送新訊息
 markRead: 標記已讀
 markUnread: 標記未讀
+manualPendingBadge: 待處理
+cancelManualPending: "取消待處理"
+manualPendingOff: 非待處理
+manualPendingConflict(param): "伺服器目前狀態：${param}"
 pleaseEnterSignature: "請輸入個人簽名"
 exportProfile: 匯出資料
 setSignature: 設定個性簽名

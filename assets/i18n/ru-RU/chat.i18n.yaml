@@ -126,6 +126,10 @@ momentsReplyingTo: Ответ @{name}
 sendNewMessage: Отправить новое сообщение
 markRead: Пометить как прочитанное
 markUnread: Пометить как непрочитанное
+manualPendingBadge: К обработке
+cancelManualPending: "Снять отметку к обработке"
+manualPendingOff: Не отмечено к обработке
+manualPendingConflict(param): "Текущее состояние сервера: ${param}"
 pleaseEnterSignature: "Введите подпись"
 exportProfile: Экспортировать профиль
 setSignature: Установить подпись

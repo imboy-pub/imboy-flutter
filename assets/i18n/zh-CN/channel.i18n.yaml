@@ -5,6 +5,7 @@ subscribed: 已订阅
 managed: 管理中
 discover: 发现频道
 create: 创建频道
+creationRecoveryUnavailable: 创建结果未知，请稍后重试
 searchHint: 搜索频道名称或ID
 noResults: 未找到相关频道
 noRecommendedChannels: "暂无推荐频道
@@ -217,6 +218,7 @@ shareInviteText(name, url): "大家快来关注我的频道【$name】吧！$url
 # Micro-community content and explicit discussion membership.
 discussion: "讨论区"
 joinDiscussion: "加入讨论"
+discussionIneligible: 订阅该频道后才能加入其讨论群
 essence: "精华"
 allPosts: "全部内容"
 editPostTags: "编辑标签"
@@ -228,3 +230,7 @@ shareLink: "分享链接"
 linkAccessHint: "链接用于打开频道，访问和订阅仍需符合频道权限。企业频道仅限有权限的成员访问。"
 personalChannelLabel: "个人频道"
 enterpriseChannelLabel: "企业内部频道"
+
+subscribePending: 已订阅，正在刷新
+subscribeRefresh: 刷新订阅状态
+unseenUpdatesBanner(count): "有 ${count} 条新更新"

@@ -301,6 +301,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get writeArticle => '게시물 작성';
 	@override String get discover => '채널 찾기';
 	@override String get create => '채널 만들기';
+	@override String get creationRecoveryUnavailable => '생성 결과를 알 수 없습니다. 나중에 다시 시도해 주세요';
 	@override String get searchHint => '채널 이름 또는 ID 검색';
 	@override String get noResults => '채널을 찾을 수 없습니다';
 	@override String get noRecommendedChannels => '추천 채널이 없습니다 나중에 다시 확인하세요';
@@ -499,6 +500,7 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String shareInviteText({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}';
 	@override String get discussion => '토론';
 	@override String get joinDiscussion => '토론 참여';
+	@override String get discussionIneligible => '이 채널을 구독해야 토론 그룹에 참여할 수 있습니다';
 	@override String get essence => '추천 게시물';
 	@override String get allPosts => '모든 게시물';
 	@override String get editPostTags => '태그 편집';
@@ -508,6 +510,9 @@ class _Translations$channel$ko_KR extends Translations$channel$zh_CN {
 	@override String get linkAccessHint => '링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다.';
 	@override String get personalChannelLabel => '개인 채널';
 	@override String get enterpriseChannelLabel => '기업 내부 채널';
+	@override String get subscribePending => '구독 완료, 새로고침 중';
+	@override String get subscribeRefresh => '구독 상태 새로고침';
+	@override String unseenUpdatesBanner({required Object count}) => '새 업데이트 ${count}개';
 }
 
 // Path: chat
@@ -644,6 +649,10 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get sendNewMessage => '새 메시지 전송';
 	@override String get markRead => '읽음으로 표시';
 	@override String get markUnread => '읽지 않음으로 표시';
+	@override String get manualPendingBadge => '처리 대기';
+	@override String get cancelManualPending => '처리 대기 취소';
+	@override String get manualPendingOff => '처리 대기 아님';
+	@override String manualPendingConflict({required Object param}) => '서버 현재 상태: ${param}';
 	@override String get pleaseEnterSignature => '한 줄 소개를 입력하세요';
 	@override String get exportProfile => '프로필 내보내기';
 	@override String get setSignature => '서명 설정';
@@ -883,6 +892,12 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get messageContent => '메시지 내용';
 	@override String get messageRevoked => '메시지가 회수되었습니다';
 	@override String get quoteMessageNotAvailable => '인용된 메시지를 사용할 수 없습니다';
+	@override String get quoteMessageUnavailable => '인용된 메시지가 만료되었거나 접근 가능한 기록 밖에 있을 수 있습니다. 다시 시도하거나 보낸 사람에게 확인해 주세요.';
+	@override String get quoteMessageAuthorizationUnavailable => '이 과거 메시지의 접근 권한을 확인할 수 없습니다. 나중에 다시 시도하거나 대화 관리자에게 문의하세요.';
+	@override String get quoteMessageExpired => '인용된 메시지가 만료되어 복원할 수 없습니다. 보낸 사람에게 내용을 확인하세요.';
+	@override String get quoteMessageForbidden => '이 인용 메시지에 접근할 권한이 없습니다. 대화 관리자에게 권한을 확인하세요.';
+	@override String get quoteMessageLoadFailed => '인용 메시지를 불러오지 못했습니다. 연결을 확인한 후 다시 눌러 주세요.';
+	@override String get quoteMessageUndecryptable => '이 기기에서 인용된 메시지를 복호화할 수 없습니다. 다시 시도하거나 보낸 사람에게 재전송을 요청해 주세요.';
 	@override String get microphone => '마이크';
 	@override String get microphonePermissionNotObtained => '마이크 권한을 얻지 못했습니다';
 	@override String get moreInfo => '더 많은 정보';
@@ -1961,6 +1976,10 @@ class _Translations$group$ko_KR extends Translations$group$zh_CN {
 	@override String noMemberWithRole({required Object roleName}) => '${roleName} 없음';
 	@override String get perfectionGroupInfo => '그룹 정보 완성';
 	@override String get touchContactAddMember => '연락처를 탭하여 그룹 구성원으로 추가';
+	@override String get transferAndLeave => '양도 후 나가기';
+	@override String get sureToTransferAndLeave => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?';
+	@override String get transferredButLeaveFailed => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요';
+	@override String get noEligibleSuccessor => '양도할 수 있는 멤버가 없습니다';
 }
 
 // Path: groupCategory
@@ -2549,7 +2568,6 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get pickerEmptySubtitle => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)';
 	@override String get archivedBadge => '보관됨';
 	@override String get emptyNoWorkspace => '먼저 워크스페이스를 선택하거나 만들어 주세요';
-	@override String get dmEntry => '전체 메시지';
 	@override String get experienceModePersonal => '개인';
 	@override String get switchToPersonal => '개인으로 전환';
 	@override String get createTitle => '워크스페이스 만들기';
@@ -2582,7 +2600,6 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요';
 	@override String channelTileSubtitle({required Object count}) => '구독자 ${count}명';
 	@override String get channelDetailTitle => '채널';
-	@override String get discussInGroupGuide => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 진행하세요.';
 	@override String get groupsEmptyTitle => '아직 워크스페이스 그룹이 없습니다';
 	@override String get groupsEmptySubtitle => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)';
 	@override String groupTileSubtitle({required Object count}) => '그룹 구성원 ${count}명';
@@ -2779,6 +2796,9 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get tabTodo => '할 일';
 	@override String get takeABreak => '잠시 쉬어가세요';
 	@override String get todoEmptyTitle => '할 일이 없습니다';
+	@override String get contentProtectedPending => '콘텐츠가 일시적으로 숨겨져 있습니다. 재인증을 기다리는 중';
+	@override String get contentProtectedRetry => '다시 인증';
+	@override String get contentRevoked => '이 워크스페이스 콘텐츠에 대한 접근 권한이 없습니다';
 }
 
 // Path: account.alipaySim
@@ -3208,6 +3228,8 @@ class _Translations$organization$manage$ko_KR extends Translations$organization$
 	@override String get retry => '다시 시도';
 	@override String get groupSection => '기업 그룹';
 	@override String get createGroup => '그룹 만들기';
+	@override String get creationRecoveryUnavailable => '생성 결과를 알 수 없습니다. 나중에 다시 시도하세요';
+	@override String groupCreatedRenamePending({required Object gid}) => '그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다';
 	@override String get groupNameHint => '그룹 이름';
 	@override String get groupEmpty => '기업 그룹이 없습니다';
 	@override String groupMembers({required Object count}) => '멤버 ${count}';
@@ -3547,6 +3569,7 @@ extension on TranslationsKoKr {
 			'channel.writeArticle' => '게시물 작성',
 			'channel.discover' => '채널 찾기',
 			'channel.create' => '채널 만들기',
+			'channel.creationRecoveryUnavailable' => '생성 결과를 알 수 없습니다. 나중에 다시 시도해 주세요',
 			'channel.searchHint' => '채널 이름 또는 ID 검색',
 			'channel.noResults' => '채널을 찾을 수 없습니다',
 			'channel.noRecommendedChannels' => '추천 채널이 없습니다 나중에 다시 확인하세요',
@@ -3745,6 +3768,7 @@ extension on TranslationsKoKr {
 			'channel.shareInviteText' => ({required Object name, required Object url}) => '제 채널 "${name}"에 팔로우해 주세요! ${url}',
 			'channel.discussion' => '토론',
 			'channel.joinDiscussion' => '토론 참여',
+			'channel.discussionIneligible' => '이 채널을 구독해야 토론 그룹에 참여할 수 있습니다',
 			'channel.essence' => '추천 게시물',
 			'channel.allPosts' => '모든 게시물',
 			'channel.editPostTags' => '태그 편집',
@@ -3754,6 +3778,9 @@ extension on TranslationsKoKr {
 			'channel.linkAccessHint' => '링크로 채널을 열어도 접근 및 구독 권한이 필요합니다. 기업 채널은 권한이 있는 구성원만 접근할 수 있습니다.',
 			'channel.personalChannelLabel' => '개인 채널',
 			'channel.enterpriseChannelLabel' => '기업 내부 채널',
+			'channel.subscribePending' => '구독 완료, 새로고침 중',
+			'channel.subscribeRefresh' => '구독 상태 새로고침',
+			'channel.unseenUpdatesBanner' => ({required Object count}) => '새 업데이트 ${count}개',
 			'chat.bankCard' => '은행 카드',
 			'chat.receivePayment' => '송금·결제',
 			'chat.alreadyMember' => '이미 구성원',
@@ -3871,18 +3898,22 @@ extension on TranslationsKoKr {
 			'chat.historyUnavailable' => '히스토리 메시지를 일시적으로 사용할 수 없습니다',
 			'chat.historyUnavailableHint' => '서버측 히스토리 보관이 비활성화되었거나 사용할 수 없습니다. 다시 시도를 탭하여 재동기화하세요',
 			'chat.momentsRecordVideo' => '동영상 촬영',
+			_ => null,
+		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => '나만 보기',
 			'chat.momentsMediaTooManyImages' => '이미지는 최대 9장까지 선택할 수 있습니다',
 			'chat.momentsMediaTooManyVideos' => '동영상은 최대 1개까지만 선택할 수 있습니다',
 			'chat.momentsMediaMixedImageAndVideo' => '이미지와 동영상은 함께 게시할 수 없습니다',
 			'chat.momentsReplyPrefix' => '답글 @',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsReplySeparator' => ': ',
 			'chat.momentsReplyingTo' => '@{name}님에게 답글 작성 중',
 			'chat.sendNewMessage' => '새 메시지 전송',
 			'chat.markRead' => '읽음으로 표시',
 			'chat.markUnread' => '읽지 않음으로 표시',
+			'chat.manualPendingBadge' => '처리 대기',
+			'chat.cancelManualPending' => '처리 대기 취소',
+			'chat.manualPendingOff' => '처리 대기 아님',
+			'chat.manualPendingConflict' => ({required Object param}) => '서버 현재 상태: ${param}',
 			'chat.pleaseEnterSignature' => '한 줄 소개를 입력하세요',
 			'chat.exportProfile' => '프로필 내보내기',
 			'chat.setSignature' => '서명 설정',
@@ -4113,6 +4144,12 @@ extension on TranslationsKoKr {
 			'common.messageContent' => '메시지 내용',
 			'common.messageRevoked' => '메시지가 회수되었습니다',
 			'common.quoteMessageNotAvailable' => '인용된 메시지를 사용할 수 없습니다',
+			'common.quoteMessageUnavailable' => '인용된 메시지가 만료되었거나 접근 가능한 기록 밖에 있을 수 있습니다. 다시 시도하거나 보낸 사람에게 확인해 주세요.',
+			'common.quoteMessageAuthorizationUnavailable' => '이 과거 메시지의 접근 권한을 확인할 수 없습니다. 나중에 다시 시도하거나 대화 관리자에게 문의하세요.',
+			'common.quoteMessageExpired' => '인용된 메시지가 만료되어 복원할 수 없습니다. 보낸 사람에게 내용을 확인하세요.',
+			'common.quoteMessageForbidden' => '이 인용 메시지에 접근할 권한이 없습니다. 대화 관리자에게 권한을 확인하세요.',
+			'common.quoteMessageLoadFailed' => '인용 메시지를 불러오지 못했습니다. 연결을 확인한 후 다시 눌러 주세요.',
+			'common.quoteMessageUndecryptable' => '이 기기에서 인용된 메시지를 복호화할 수 없습니다. 다시 시도하거나 보낸 사람에게 재전송을 요청해 주세요.',
 			'common.microphone' => '마이크',
 			'common.microphonePermissionNotObtained' => '마이크 권한을 얻지 못했습니다',
 			'common.moreInfo' => '더 많은 정보',
@@ -4375,6 +4412,8 @@ extension on TranslationsKoKr {
 			'common.localDeleteSuccess' => '로컬 삭제 성공',
 			'common.localDeleteFailed' => '로컬 삭제 실패',
 			'common.revokeSuccess' => '회수 성공',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => '편집 내용은 비워둘 수 없습니다',
 			'common.editSuccess' => '편집 성공',
 			'common.enabled' => '활성화됨',
@@ -4390,8 +4429,6 @@ extension on TranslationsKoKr {
 			'common.editTags' => '태그 편집',
 			'common.quickActions' => '빠른 작업',
 			'common.noNewFriendRequests' => '현재 새 친구 요청이 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterVerificationMessage' => '확인 메시지를 입력해 주세요',
 			'common.unknownRegion' => '알 수 없는 지역',
 			'common.noCommonGroups' => '공통 그룹 없음',
@@ -4889,6 +4926,8 @@ extension on TranslationsKoKr {
 			'contact.denylist' => '차단 목록',
 			'contact.denylistEmpty' => '차단 목록이 비어있습니다',
 			'contact.favoriteGroupTagsEtc' => '즐겨찾기 이름, 그룹 이름, 태그 등',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => '새 친구',
 			'contact.recommendToFriend' => '친구에게 추천',
 			'contact.remark' => '메모',
@@ -4904,8 +4943,6 @@ extension on TranslationsKoKr {
 			'contact.tagLengthExceeded' => ({required Object param}) => '태그 길이는 ${param}자를 초과할 수 없습니다',
 			'contact.maxTagsExceeded' => ({required Object param}) => '최대 ${param}개의 태그를 추가할 수 있습니다',
 			'contact.selectedTags' => ({required Object param, required Object max}) => '선택된 태그 (${param}/${max})',
-			_ => null,
-		} ?? switch (path) {
 			'contact.friendRequestSent' => '전송됨',
 			'contact.channelMaxTagsCount' => '태그는 최대 8개까지 추가할 수 있습니다',
 			'contact.tagInputHint' => '태그 입력...',
@@ -5117,6 +5154,10 @@ extension on TranslationsKoKr {
 			'group.noMemberWithRole' => ({required Object roleName}) => '${roleName} 없음',
 			'group.perfectionGroupInfo' => '그룹 정보 완성',
 			'group.touchContactAddMember' => '연락처를 탭하여 그룹 구성원으로 추가',
+			'group.transferAndLeave' => '양도 후 나가기',
+			'group.sureToTransferAndLeave' => '양도 후 이 그룹에서 나가며 소유자 권한을 잃습니다. 계속할까요?',
+			'group.transferredButLeaveFailed' => '소유자는 양도되었지만 나가기에 실패했습니다. 다시 시도하세요',
+			'group.noEligibleSuccessor' => '양도할 수 있는 멤버가 없습니다',
 			'groupCategory.title' => '그룹 폴더',
 			'groupCategory.createCategory' => '폴더 만들기',
 			'groupCategory.categoryName' => '폴더 이름',
@@ -5399,6 +5440,8 @@ extension on TranslationsKoKr {
 			'main.safetyNumberNoDevices' => '상대방이 아직 종단간 암호화를 사용하지 않습니다',
 			'main.safetyNumberPeerDevice' => '상대방 기기',
 			'main.safetyNumberReportRejected' => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => '기기 정보를 가져올 수 없어 보고하지 않았습니다',
 			'main.safetyNumberVerified' => '✓ 확인됨',
 			'main.safetyNumberNotVerified' => '확인 안 됨',
@@ -5418,8 +5461,6 @@ extension on TranslationsKoKr {
 			'mention.title' => '@멘션',
 			'mention.noMention' => '멘션이 없습니다',
 			'mention.allRead' => '모두 읽음',
-			_ => null,
-		} ?? switch (path) {
 			'mention.mentionAllDenied' => '관리자만 @모두를 사용할 수 있습니다',
 			'mention.navInfoMissing' => '메시지 위치 정보가 없어 이동할 수 없습니다',
 			'mention.pickButtonTooltip' => '멤버 @멘션',
@@ -5745,6 +5786,8 @@ extension on TranslationsKoKr {
 			'organization.manage.retry' => '다시 시도',
 			'organization.manage.groupSection' => '기업 그룹',
 			'organization.manage.createGroup' => '그룹 만들기',
+			'organization.manage.creationRecoveryUnavailable' => '생성 결과를 알 수 없습니다. 나중에 다시 시도하세요',
+			'organization.manage.groupCreatedRenamePending' => ({required Object gid}) => '그룹이 생성되었지만 (ID: ${gid}) 이름은 저장되지 않았습니다',
 			'organization.manage.groupNameHint' => '그룹 이름',
 			'organization.manage.groupEmpty' => '기업 그룹이 없습니다',
 			'organization.manage.groupMembers' => ({required Object count}) => '멤버 ${count}',
@@ -5911,6 +5954,8 @@ extension on TranslationsKoKr {
 			'talkRecord.aiProviderResubmitNotice' => '새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?',
 			'talkRecord.aiProviderCancelled' => '전사가 중지되었습니다. 기존 녹음은 유지됩니다.',
 			'talkRecord.aiProviderResumePreparation' => '전사 준비 계속',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '기존 작업은 공급자에게 제출되지 않았습니다. 음성 소스를 다시 준비하고 현재 권한과 동의로 계속합니다.',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',
@@ -5931,9 +5976,6 @@ extension on TranslationsKoKr {
 			'workspace.pickerEmptySubtitle' => '워크스페이스를 만들어 3분 만에 팀 협업을 시작하세요(Announcements 채널과 General 그룹이 자동 생성됩니다)',
 			'workspace.archivedBadge' => '보관됨',
 			'workspace.emptyNoWorkspace' => '먼저 워크스페이스를 선택하거나 만들어 주세요',
-			'workspace.dmEntry' => '전체 메시지',
-			_ => null,
-		} ?? switch (path) {
 			'workspace.experienceModePersonal' => '개인',
 			'workspace.switchToPersonal' => '개인으로 전환',
 			'workspace.createTitle' => '워크스페이스 만들기',
@@ -5966,7 +6008,6 @@ extension on TranslationsKoKr {
 			'workspace.channelsEmptySubtitle' => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '구독자 ${count}명',
 			'workspace.channelDetailTitle' => '채널',
-			'workspace.discussInGroupGuide' => '채널은 콘텐츠 게시용입니다. 토론이 필요하면 General 그룹에서 진행하세요.',
 			'workspace.groupsEmptyTitle' => '아직 워크스페이스 그룹이 없습니다',
 			'workspace.groupsEmptySubtitle' => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '그룹 구성원 ${count}명',
@@ -6163,6 +6204,9 @@ extension on TranslationsKoKr {
 			'workspace.tabTodo' => '할 일',
 			'workspace.takeABreak' => '잠시 쉬어가세요',
 			'workspace.todoEmptyTitle' => '할 일이 없습니다',
+			'workspace.contentProtectedPending' => '콘텐츠가 일시적으로 숨겨져 있습니다. 재인증을 기다리는 중',
+			'workspace.contentProtectedRetry' => '다시 인증',
+			'workspace.contentRevoked' => '이 워크스페이스 콘텐츠에 대한 접근 권한이 없습니다',
 			_ => null,
 		};
 	}

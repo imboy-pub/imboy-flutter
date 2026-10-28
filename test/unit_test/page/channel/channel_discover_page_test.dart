@@ -47,6 +47,7 @@ void main() {
 
   setUp(() {
     service = _MockChannelService();
+    when(() => service.hasPendingSubscription(any())).thenReturn(false);
   });
 
   testWidgets('推荐频道为空时渲染空态 / renders empty view for no recommendations', (
@@ -63,6 +64,17 @@ void main() {
     // 注入的 mock 被调用，证明 channelServiceProvider override 生效
     verify(() => service.discoverChannels(size: any(named: 'size'))).called(1);
     expect(find.text(t.channel.noRecommendedChannels), findsOneWidget);
+  });
+
+  testWidgets('待核对频道显示刷新订阅状态入口', (tester) async {
+    when(() => service.getSubscribedChannels(limit: any(named: 'limit')))
+        .thenAnswer((_) async => const []);
+    when(() => service.discoverChannels(size: any(named: 'size')))
+        .thenAnswer((_) async => [_makeChannel(id: 201, name: '频道')]);
+    when(() => service.hasPendingSubscription('201')).thenReturn(true);
+    await tester.pumpWidget(_buildTestApp(service));
+    await tester.pumpAndSettle();
+    expect(find.text(t.channel.subscribeRefresh), findsOneWidget);
   });
 
   testWidgets('有推荐频道时渲染频道名称 / renders recommended channel names', (

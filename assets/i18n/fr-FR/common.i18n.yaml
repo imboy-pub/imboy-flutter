@@ -152,6 +152,12 @@ messageCall: Envoyer un message
 messageContent: Contenu du message
 messageRevoked: Message retiré
 quoteMessageNotAvailable: Le message cité n'est pas disponible.
+quoteMessageUnavailable: Ce message a peut-être expiré ou ne figure pas dans votre historique accessible. Réessayez ou contactez son expéditeur.
+quoteMessageAuthorizationUnavailable: L’accès à cet ancien message ne peut pas être vérifié actuellement. Réessayez plus tard ou contactez l’administrateur de la conversation.
+quoteMessageExpired: Le message cité a expiré et ne peut pas être restauré. Demandez à l’expéditeur de confirmer son contenu.
+quoteMessageForbidden: Vous n’avez pas accès à ce message cité. Contactez l’administrateur de la conversation pour vérifier vos autorisations.
+quoteMessageLoadFailed: Le message cité n’a pas pu être chargé. Vérifiez votre connexion, puis appuyez à nouveau pour réessayer.
+quoteMessageUndecryptable: Cet appareil ne peut pas déchiffrer le message cité. Réessayez ou demandez à son expéditeur de le renvoyer.
 microphone: Micro
 microphonePermissionNotObtained: Autorisation de microphone non obtenue.
 moreInfo: Plus d'informations

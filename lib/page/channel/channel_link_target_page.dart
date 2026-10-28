@@ -19,10 +19,30 @@ class ChannelLinkTargetPage extends ConsumerStatefulWidget {
 
 class _ChannelLinkTargetState extends ConsumerState<ChannelLinkTargetPage> {
   late Future<ChannelModel?> _target;
+  int _generation = 0;
+
+  Future<ChannelModel?> _loadTarget(String id) {
+    final generation = ++_generation;
+    return ref
+        .read(channelServiceProvider)
+        .refreshChannel(
+          id,
+          isCurrent: () => mounted && generation == _generation,
+        );
+  }
+
   @override
   void initState() {
     super.initState();
-    _target = ref.read(channelServiceProvider).refreshChannel(widget.channelId);
+    _target = _loadTarget(widget.channelId);
+  }
+
+  @override
+  void didUpdateWidget(covariant ChannelLinkTargetPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.channelId != widget.channelId) {
+      _target = _loadTarget(widget.channelId);
+    }
   }
 
   @override
@@ -45,9 +65,7 @@ class _ChannelLinkTargetState extends ConsumerState<ChannelLinkTargetPage> {
                 Text(context.t.common.loadError),
                 TextButton(
                   onPressed: () => setState(() {
-                    _target = ref
-                        .read(channelServiceProvider)
-                        .refreshChannel(widget.channelId);
+                    _target = _loadTarget(widget.channelId);
                   }),
                   child: Text(context.t.common.retry),
                 ),

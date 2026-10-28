@@ -45,3 +45,7 @@ e2eeKeyManagement: E2EE Key Management
 e2eeKeyManagementSubtitle: "Backup, restore and manage end-to-end encryption keys"
 e2eeTitle: End-to-End Encryption
 e2eeEnableConfirm: "Once enabled, group messages will be end-to-end encrypted and only readable on members' devices. This cannot be undone. Enable?"
+transferAndLeave: Transfer and leave
+sureToTransferAndLeave: You will transfer ownership and leave this group. Continue?
+transferredButLeaveFailed: Ownership transferred, but leaving failed. Please retry leaving.
+noEligibleSuccessor: No member available to transfer to

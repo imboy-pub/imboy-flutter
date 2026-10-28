@@ -7,6 +7,7 @@ managed: Управляемый
 writeArticle: Написать публикацию
 discover: Обзор
 create: Создать канал
+creationRecoveryUnavailable: Результат создания неизвестен, попробуйте позже
 searchHint: Поиск по названию или ID
 noResults: Каналы не найдены
 noRecommendedChannels: Нет рекомендуемых каналов Проверьте позже
@@ -210,6 +211,7 @@ shareInviteText(name, url): "Подписывайтесь на мой канал
 # Micro-community content and explicit discussion membership.
 discussion: "Обсуждение"
 joinDiscussion: "Присоединиться к обсуждению"
+discussionIneligible: Подпишитесь на этот канал, чтобы присоединиться к его обсуждению
 essence: "Избранные публикации"
 allPosts: "Все публикации"
 editPostTags: "Изменить теги"
@@ -221,3 +223,7 @@ shareLink: "Поделиться ссылкой"
 linkAccessHint: "Ссылка открывает канал. Доступ и подписка по-прежнему зависят от разрешений канала. Корпоративные каналы доступны только участникам с соответствующими правами."
 personalChannelLabel: "Личный канал"
 enterpriseChannelLabel: "Внутренний канал компании"
+
+subscribePending: Подписка оформлена, обновление
+subscribeRefresh: Обновить подписку
+unseenUpdatesBanner(count): "Новых обновлений: ${count}"

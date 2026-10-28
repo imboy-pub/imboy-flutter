@@ -27,6 +27,7 @@ import 'package:xid/xid.dart';
 
 import '../channel_provider.dart';
 import '../channel_publish_rules.dart';
+import '../channel_detail_rules.dart';
 
 /// 频道发布输入栏
 ///
@@ -68,10 +69,19 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   bool _isInputFocused = false;
 
   late final String? _draftKey;
+  late final String _ownerUid;
+  late final int _ownerSession;
+
+  bool get _sessionCurrent =>
+      UserRepoLocal.to.currentUid == _ownerUid &&
+      UserRepoLocal.to.isCurrentSession(_ownerSession) &&
+      !UserRepoLocal.to.isAuthTransitioning;
 
   @override
   void initState() {
     super.initState();
+    _ownerUid = UserRepoLocal.to.currentUid;
+    _ownerSession = UserRepoLocal.to.sessionGeneration;
     _draftKey = chatDraftKeys(
       UserRepoLocal.to.currentUid,
       'channel-text',
@@ -123,13 +133,14 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
   /// 打开「撰写图文」页（公众号式多图+正文，作为单条 imageText 发布）。
   void _openCompose() {
-    final channelId = ref.read(channelDetailProvider).channel?.id;
+    final channelId = _channelScopeRef;
     if (channelId == null) return;
     context.push('/channel/$channelId/compose');
   }
 
   /// 发送文本消息
   Future<void> _sendMessage() async {
+    if (!_sessionCurrent) return;
     if (ref.read(channelDetailProvider).isPublishing || _isUploadingMedia) {
       return;
     }
@@ -138,7 +149,11 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
 
     final success = await ref
         .read(channelDetailProvider.notifier)
-        .publishMessage(content: content, msgType: ChannelMessageType.text);
+        .publishMessage(
+          content: content,
+          msgType: ChannelMessageType.text,
+          expectedChannelId: widget.channelId,
+        );
 
     // await 之后必须查 mounted：用户发送后立刻返回上一页(dispose)时，
     // 成功分支若不检查会 setState after dispose 崩溃（失败分支已有保护）。
@@ -159,8 +174,11 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   /// 频道附件上传的 scope_ref：后端 attach_logic:can_upload 拿它查订阅关系，
   /// 缺了就走 to_int(undefined)=error 分支直接 403「无权向该范围上传」——
   /// presign 阶段就失败，压根到不了 PUT。频道未加载时返回 null。
-  String? get _channelScopeRef =>
-      ref.read(channelDetailProvider).channel?.id.toString();
+  String? get _channelScopeRef {
+    if (!_sessionCurrent) return null;
+    final channel = ref.read(channelDetailProvider).channel;
+    return channelTargetId(channel, widget.channelId);
+  }
 
   /// 语音录制完成
   Future<void> _handleVoiceRecordFinished(AudioFile? obj) async {
@@ -171,6 +189,11 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     // await(readAsBytes) 之后查 mounted，避免录音完立刻返回页面时
     // setState after dispose（finally 里的 setState 已有 mounted 保护）。
     if (!mounted) return;
+    final scopeRef = _channelScopeRef;
+    if (scopeRef == null) {
+      AppLoading.showError(t.channel.publishFailed);
+      return;
+    }
 
     setState(() => _isUploadingMedia = true);
     AppLoading.show(status: t.common.loading);
@@ -188,9 +211,13 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         // 与同文件的频道视频上传对齐。此前漏传，落到默认 scope='private'：
         // 对象只有上传者可读，其他订阅者点开语音会 403 播不出来。
         scope: 'channel',
-        scopeRef: _channelScopeRef,
+        scopeRef: scopeRef,
       );
       final String? uploadedUri = meta['object_key'] as String?;
+      if (!_sessionCurrent) {
+        await AppLoading.dismiss();
+        return;
+      }
 
       // 上传失败与发布失败必须分开报：此前两条链共用一句「语音发送失败」，
       // 线上无法判断是 presign/PUT（前端+对象存储）还是 publish（后端）出的问题。
@@ -206,6 +233,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       final success = await ref
           .read(channelDetailProvider.notifier)
           .publishMessage(
+            expectedChannelId: widget.channelId,
             // 后端 send_message 对所有 msg_type 一律拒收空 content
             // （channel_handler_message.erl:226），媒体消息内容本在 payload 里。
             // 同文件图片/视频链路早已用 fileName / '[media]' 占位，只有语音传空串
@@ -250,6 +278,10 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
   /// 选择并发送媒体文件（并行上传，分批限流；多图聚合发布见 channel_publish_rules）
   Future<void> _pickAndSendMedia() async {
     if (ref.read(channelDetailProvider).isPublishing || _isUploadingMedia) {
+      return;
+    }
+    if (_channelScopeRef == null) {
+      AppLoading.showError(context.t.channel.publishFailed);
       return;
     }
     setState(() => _isUploadingMedia = true);
@@ -347,9 +379,11 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
           if (items[i].isDone && !publishedIdx.contains(i)) i: items[i].result!,
       };
       for (final job in planChannelMediaPublish(pending)) {
+        if (!_sessionCurrent) return;
         final ok = await ref
             .read(channelDetailProvider.notifier)
             .publishMessage(
+              expectedChannelId: widget.channelId,
               content: job.content,
               msgType: job.msgType,
               payload: job.payload,
@@ -487,6 +521,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     }
 
     if (msgType == ChannelMessageType.video) {
+      final scopeRef = _channelScopeRef;
+      if (scopeRef == null) return null;
       // 视频走统一上传方法（压缩+缩略图+上传三件套）
       final result = await AttachmentApi.uploadVideoFileViaPresign(
         file,
@@ -494,7 +530,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
         width: asset.width,
         height: asset.height,
         scope: 'channel',
-        scopeRef: _channelScopeRef,
+        scopeRef: scopeRef,
       );
       if (result == null) return null;
       payload['uri'] = result['video_uri'];
@@ -577,6 +613,8 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
     File file, {
     required String prefix,
   }) async {
+    final scopeRef = _channelScopeRef;
+    if (scopeRef == null) return null;
     String? uploadedUrl;
     final completer = Completer<bool>();
 
@@ -599,7 +637,7 @@ class _ChannelPublishBarState extends ConsumerState<ChannelPublishBar> {
       // 图片/文件此前连 scope 都没传，落默认 private：只有上传者可读，
       // 其他订阅者渲染时 view_url 授权失败。
       scope: 'channel',
-      scopeRef: _channelScopeRef,
+      scopeRef: scopeRef,
     );
 
     return (await completer.future) ? uploadedUrl : null;

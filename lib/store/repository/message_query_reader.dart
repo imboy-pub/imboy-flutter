@@ -71,6 +71,41 @@ class MessageQueryReader {
     return nextAutoId > 0 ? messages.reversed.toList() : messages;
   }
 
+  Future<List<MessageModel>> pageContextForConversation(
+    String uk3,
+    int anchorAutoId,
+    int size, {
+    bool newer = false,
+  }) async {
+    if (anchorAutoId <= 0 ||
+        size <= 0 ||
+        (tableName != c2cTable && tableName != c2gTable)) {
+      return [];
+    }
+    final direction = newer ? 'ASC' : 'DESC';
+    final rows = await db.query(
+      tableName,
+      columns: _readColumns,
+      where:
+          '${MessageColumns.conversationUk3} = ? '
+          'AND ${MessageColumns.convSeq} > 0 '
+          'AND (${MessageColumns.convSeq}, ${MessageColumns.autoId}) '
+          '${newer ? '>' : '<'} '
+          '(SELECT ${MessageColumns.convSeq}, ${MessageColumns.autoId} '
+          'FROM $tableName WHERE ${MessageColumns.conversationUk3} = ? '
+          'AND ${MessageColumns.autoId} = ? AND ${MessageColumns.convSeq} > 0)',
+      whereArgs: [uk3, uk3, anchorAutoId],
+      orderBy:
+          '${MessageColumns.convSeq} $direction, '
+          '${MessageColumns.autoId} $direction',
+      limit: size.clamp(1, 100).toInt(),
+    );
+    final messages = rows.map(
+      (row) => MessageModel.fromJson(row, fromLocalStore: true),
+    );
+    return (newer ? messages : messages.toList().reversed).toList();
+  }
+
   /// 加载较新的消息（用于双向分页）
   Future<List<MessageModel>> pageNewerForConversation(
     String uk3,

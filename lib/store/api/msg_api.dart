@@ -78,6 +78,23 @@ class MsgApi extends HttpClient {
     );
   }
 
+  Future<IMBoyHttpResponse> historyContext({
+    required String chatType,
+    required String peerId,
+    required String targetMsgId,
+    int limit = 41,
+    String did = '',
+  }) => get(
+    API.msgHistory,
+    queryParameters: {
+      'chat_type': chatType,
+      'peer_id': peerId,
+      'target_msg_id': targetMsgId,
+      'limit': limit.clamp(1, 100),
+      if (did.isNotEmpty) 'did': did,
+    },
+  );
+
   /// R02/D05 有界范围补取（晚到低序号 / 过冲游标恢复）。
   ///
   /// 后端接口：GET /api/v1/msg?action=history_backfill（msg_handler.erl:206）

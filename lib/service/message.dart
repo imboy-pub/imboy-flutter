@@ -1453,6 +1453,7 @@ class MessageService with EventSubscriptionManager {
     try {
       return readNoticeDisabled(
         gid,
+        accountUid: UserRepoLocal.to.currentUid,
         readBool: (key) => StorageService.to.getBool(key),
       );
     } on Object {

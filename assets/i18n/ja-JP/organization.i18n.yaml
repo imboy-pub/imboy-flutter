@@ -324,6 +324,8 @@ manage:
   retry: 再試行
   groupSection: 企業グループ
   createGroup: グループを作成
+  creationRecoveryUnavailable: 作成結果が不明です。後でもう一度お試しください
+  groupCreatedRenamePending: "グループを作成しました（ID：${gid}）。名前は保存されていません"
   groupNameHint: グループ名
   groupEmpty: 企業グループがありません
   groupMembers: "メンバー ${count}"

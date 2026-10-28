@@ -564,7 +564,11 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
 
-      expect(StorageService.to.getBool('group_notice_disabled:1001'), isTrue);
+      // W09.a：DND KV 键为账号范围（group_notice_disabled:$uid:$gid）。
+      expect(
+        StorageService.to.getBool('group_notice_disabled:90001:1001'),
+        isTrue,
+      );
       await unmount(tester);
     });
   });

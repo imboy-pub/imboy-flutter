@@ -57,6 +57,10 @@ class ChannelRepo {
     }
 
     final map = finalChannel.toMap();
+    if (local != null && channel.scope == null) {
+      map['scope'] = local.scope;
+      map['workspace_id'] = local.workspaceId;
+    }
     if (local != null) {
       // 已有行走 UPDATE：INSERT OR REPLACE 是「先 DELETE 再 INSERT」，会触发
       // channel_subscription.channel_id 的 ON DELETE CASCADE，把订阅关系连带
@@ -339,8 +343,16 @@ class ChannelRepo {
   }
 
   /// 设置频道免打扰状态
-  Future<int> setMuted(String channelId, bool muted) async {
-    return await _db.update(
+  Future<int> setMuted(String channelId, bool muted, {Transaction? txn}) async {
+    if (txn != null) {
+      return txn.update(
+        subscriptionTableName,
+        {isMuted: muted ? 1 : 0},
+        where: '$subChannelId = ?',
+        whereArgs: [channelId],
+      );
+    }
+    return _db.update(
       subscriptionTableName,
       {isMuted: muted ? 1 : 0},
       where: '$subChannelId = ?',

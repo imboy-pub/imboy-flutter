@@ -11,7 +11,6 @@ pickerEmptyTitle: "ワークスペースはまだありません"
 pickerEmptySubtitle: "ワークスペースを作成して、3分でチームコラボレーションを始めましょう（AnnouncementsチャンネルとGeneralグループを自動作成）"
 archivedBadge: "アーカイブ済み"
 emptyNoWorkspace: "まずワークスペースを選択または作成してください"
-dmEntry: "すべてのメッセージ"
 # ==================== 個人 / ワークスペース体験の切り替え ====================
 experienceModePersonal: "個人"
 switchToPersonal: "個人に切り替え"
@@ -49,7 +48,6 @@ channelsEmptyTitle: "ワークスペースのチャンネルはまだありま�
 channelsEmptySubtitle: "チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ"
 channelTileSubtitle: "購読者$count人"
 channelDetailTitle: "チャンネル"
-discussInGroupGuide: "チャンネルはコンテンツ配信に使います。ディスカッションしたいときは？Generalグループで話しましょう。"
 # ==================== グループ（チャットの唯一の入口） ====================
 groupsEmptyTitle: "ワークスペースのグループはまだありません"
 groupsEmptySubtitle: "グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）"
@@ -259,3 +257,8 @@ tabSchedule: "スケジュール"
 tabTodo: "やること"
 takeABreak: "ひと休み"
 todoEmptyTitle: "やることはありません"
+
+# ==================== D6 コンテンツ保護（§6.6 表示バジェット） ====================
+contentProtectedPending: "コンテンツを一時的に非表示にしています。再認証を待っています"
+contentProtectedRetry: "再認証"
+contentRevoked: "このワークスペースのコンテンツへのアクセス権がありません"

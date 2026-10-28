@@ -48,5 +48,42 @@ void main() {
       final next = s.copyWith(selects: list);
       expect(next.selects, same(list));
     });
+
+    // ---- W05/F18：加载失败语义与搜索过滤 ----
+
+    test('LC-6 默认无错误；loadError 置位后保留旧列表（失败≠空好友）', () {
+      const s = LaunchChatState();
+      expect(s.loadError, isFalse);
+      expect(s.query, '');
+      final items = <ContactModel>[ContactModel(peerId: 1, nickname: '张三')];
+      final failed = LaunchChatState(items: items).copyWith(loadError: true);
+      expect(failed.loadError, isTrue);
+      expect(failed.items, same(items));
+    });
+
+    test('LC-7 空 query 时 visibleItems 即全量列表', () {
+      final items = <ContactModel>[ContactModel(peerId: 1, nickname: '张三')];
+      const blank = LaunchChatState(query: '  ');
+      expect(blank.visibleItems, isEmpty);
+      final withItems = LaunchChatState(items: items, query: '');
+      expect(identical(withItems.visibleItems, withItems.items), isTrue);
+    });
+
+    test('LC-8 visibleItems 按昵称包含匹配（大小写不敏感），已选不受影响', () {
+      final a = ContactModel(peerId: 1, nickname: 'Zhang San');
+      final b = ContactModel(peerId: 2, nickname: '李四');
+      final s = LaunchChatState(items: [a, b], selects: [b], query: 'zhang');
+      expect(s.visibleItems.single.title, 'Zhang San');
+      // 已选保持：过滤只影响视图列表。
+      expect(s.selects.single.title, '李四');
+    });
+
+    test('LC-9 visibleItems 按拼音包含匹配', () {
+      final a = ContactModel(peerId: 1, nickname: '张三')
+        ..namePinyin = 'zhangsan';
+      final b = ContactModel(peerId: 2, nickname: '李四')..namePinyin = 'lisi';
+      final s = LaunchChatState(items: [a, b], query: 'lis');
+      expect(s.visibleItems.single.title, '李四');
+    });
   });
 }

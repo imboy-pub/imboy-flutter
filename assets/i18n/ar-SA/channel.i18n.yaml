@@ -7,6 +7,7 @@ managed: مُدار
 writeArticle: كتابة منشور
 discover: استكشف
 create: إنشاء قناة
+creationRecoveryUnavailable: نتيجة الإنشاء غير معروفة، يرجى المحاولة لاحقاً
 searchHint: البحث بالاسم أو المعرف
 noResults: لم يتم العثور على قنوات
 noRecommendedChannels: لا توجد قنوات موصى بها تحقق مرة أخرى لاحقاً
@@ -210,6 +211,7 @@ shareInviteText(name, url): "تابعوا قناتي \"$name\" على $url"
 # Micro-community content and explicit discussion membership.
 discussion: "المناقشة"
 joinDiscussion: "الانضمام إلى المناقشة"
+discussionIneligible: اشترك في هذه القناة للانضمام إلى مجموعة النقاش الخاصة بها
 essence: "المنشورات المميزة"
 allPosts: "كل المنشورات"
 editPostTags: "تعديل الوسوم"
@@ -221,3 +223,7 @@ shareLink: "مشاركة الرابط"
 linkAccessHint: "يفتح الرابط القناة، لكن الوصول والاشتراك يظلان خاضعين لأذونات القناة. قنوات المؤسسة متاحة للأعضاء المصرح لهم فقط."
 personalChannelLabel: "قناة شخصية"
 enterpriseChannelLabel: "قناة داخلية للمؤسسة"
+
+subscribePending: تم الاشتراك، جارٍ التحديث
+subscribeRefresh: تحديث الاشتراك
+unseenUpdatesBanner(count): "${count} تحديثات جديدة"
