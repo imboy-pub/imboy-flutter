@@ -246,7 +246,6 @@ class SqliteChatService
     }
   }
 
-  /// 滚动到指定消息（优化版）
   @override
   Future<void> scrollToMessage(
     String messageId, {
@@ -255,29 +254,13 @@ class SqliteChatService
     double alignment = 0,
     double offset = 80.0,
   }) async {
-    try {
-      // 1. 优先尝试使用 ChatAnimatedList 提供的滚动能力 (ScrollToMessageMixin)
-      // 这是最准确的方式，因为它基于列表的实际索引和布局
-      await super.scrollToMessage(
-        messageId,
-        duration: duration,
-        curve: curve,
-        alignment: alignment,
-        offset: offset,
-      );
-
-      // 2. 触发高亮
-      _ref
-          .read(messageScrollManagerProvider.notifier)
-          .highlightMessage(messageId);
-
-      // 注意：我们不再优先使用 MessageScrollManager.scrollToMessage
-      // 因为对于新加载的历史消息，它的位置缓存通常是估算的，很不准确。
-      // 而 super.scrollToMessage 依赖于 ChatAnimatedList 的实现，更为可靠。
-      // 如果 super.scrollToMessage 因为未 attach 而未执行，外部的重试机制会再次调用。
-    } catch (e) {
-      iPrint('滚动到消息失败: $messageId, 错误: $e');
-    }
+    await super.scrollToMessage(
+      messageId,
+      duration: duration,
+      curve: curve,
+      alignment: alignment,
+      offset: offset,
+    );
   }
 
   /// 释放资源

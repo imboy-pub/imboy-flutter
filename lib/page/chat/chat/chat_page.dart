@@ -14,6 +14,9 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
 import 'package:flutter/gestures.dart';
+
+import 'message_location_visibility.dart';
+
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/dialog/ai_plaintext_confirm_dialog.dart';
 import 'package:imboy/component/dialog/e2ee_recovery_guide_dialog.dart';
@@ -241,6 +244,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 用于定位目标消息的 GlobalKey
   final GlobalKey _targetMessageKey = GlobalKey();
+  String? _locationTargetId;
 
   // 消息列表滚动 controller：由本页 State 创建并销毁。
   // 不放入 autoDispose 的 MessageScrollManager：provider 回收与列表
@@ -413,9 +417,13 @@ class ChatPageState extends ConsumerState<ChatPage>
           return;
         }
         // 延迟滚动，确保 ListView 已构建且消息已渲染
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           if (current()) {
-            _scrollToMessageId(widget.msgId, retry: true, isCurrent: current);
+            await _scrollAndReportFailure(
+              widget.msgId,
+              retry: true,
+              isCurrent: current,
+            );
           }
         });
       } else {
@@ -956,12 +964,24 @@ class ChatPageState extends ConsumerState<ChatPage>
       _showMessageLocationFailure(result);
       return;
     }
-    final located = await _scrollToMessageId(
+    await _scrollAndReportFailure(
       quotedMessageId,
       retry: false,
       isCurrent: current,
     );
-    if (!located && current()) {
+  }
+
+  Future<void> _scrollAndReportFailure(
+    String msgId, {
+    required bool retry,
+    required bool Function() isCurrent,
+  }) async {
+    final located = await _scrollToMessageId(
+      msgId,
+      retry: retry,
+      isCurrent: isCurrent,
+    );
+    if (!located && isCurrent()) {
       AppLoading.showToast(t.common.quoteMessageNotAvailable);
     }
   }
@@ -988,7 +1008,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   /// 滚动并高亮指定消息。[retry] 为 true 时做渐进式重试（深链进页场景下
   /// 列表可能尚未完成首帧布局）；用户主动点击时列表已就绪，一次即可。
-  /// 返回是否定位成功（目标在当前已加载列表中）。
+  /// 返回目标消息是否实际出现在列表视口内。
   Future<bool> _scrollToMessageId(
     String msgId, {
     required bool retry,
@@ -1010,7 +1030,12 @@ class ChatPageState extends ConsumerState<ChatPage>
       if (targetIndex == -1) {
         return false;
       }
-      final attempts = retry ? 15 : 1;
+      if (_locationTargetId != msgId) {
+        setState(() => _locationTargetId = msgId);
+        await WidgetsBinding.instance.endOfFrame;
+        if (!current()) return false;
+      }
+      final attempts = retry ? 15 : 5;
 
       // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
       for (var attempt = 0; attempt < attempts; attempt++) {
@@ -1027,37 +1052,42 @@ class ChatPageState extends ConsumerState<ChatPage>
         if (!current()) return false;
 
         // 尝试触发滚动
-        await ref
-            .read(chatProvider.notifier)
-            .chatService
-            ?.scrollToMessage(
-              msgId,
-              // W12：回归组件默认时长（250ms linearToEaseOut），减少动效
-              // 负担；保留偏移避开 AppBar。
-              offset: 120.0,
-            );
+        if (_useOptimizedMessageList) {
+          await _fallbackScrollToMessage(msgId);
+        } else {
+          await ref
+              .read(chatProvider.notifier)
+              .chatService
+              ?.scrollToMessage(
+                msgId,
+                // W12：回归组件默认时长（250ms linearToEaseOut），减少动效
+                // 负担；保留偏移避开 AppBar。
+                offset: 120.0,
+              );
+        }
         if (!current()) return false;
 
-        // 检查目标消息是否已挂载到视图树中
-        if (_targetMessageKey.currentContext != null) {
-          break;
+        if (isLocationTargetVisible(_targetMessageKey)) {
+          ref
+              .read(messageScrollManagerProvider.notifier)
+              .highlightMessage(msgId);
+          return true;
         }
       }
-
-      // 无论是否成功通过 Key 定位，最后都尝试高亮（如果消息在列表中）
-      if (current()) {
-        ref.read(messageScrollManagerProvider.notifier).highlightMessage(msgId);
-      }
-      return true;
+      return false;
     } catch (e) {
-      if (current()) _fallbackScrollToMessage(msgId);
-      // 降级路径无法确认定位成功与否，按未定位处理（调用方给反馈）。
+      if (!current()) return false;
+      await _fallbackScrollToMessage(msgId);
+      if (current() && isLocationTargetVisible(_targetMessageKey)) {
+        ref.read(messageScrollManagerProvider.notifier).highlightMessage(msgId);
+        return true;
+      }
       return false;
     }
   }
 
   // 降级滚动方法
-  void _fallbackScrollToMessage(String msgId) {
+  Future<void> _fallbackScrollToMessage(String msgId) async {
     try {
       // 检查 widget 是否仍然 mounted
       if (!mounted) return;
@@ -1077,7 +1107,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         final maxScroll = scrollController.position.maxScrollExtent;
         final targetPosition = estimatedOffset.clamp(0.0, maxScroll);
 
-        scrollController.animateTo(
+        await scrollController.animateTo(
           targetPosition,
           duration: const Duration(milliseconds: 500),
           curve: Curves.easeOutCubic,
@@ -2072,7 +2102,7 @@ class ChatPageState extends ConsumerState<ChatPage>
                       [],
                   currentUserId: currentUser.id,
                   scrollController: _messageScrollController,
-                  targetMsgId: widget.msgId,
+                  targetMsgId: _locationTargetId ?? widget.msgId,
                   targetMessageKey: _targetMessageKey,
                   onMessageLongPress: (msg) => _onMessageLongPress(
                     context,
@@ -2410,7 +2440,7 @@ class ChatPageState extends ConsumerState<ChatPage>
               index: index,
               animation: animation,
               currentUser: currentUser,
-              targetMsgId: widget.msgId,
+              targetMsgId: _locationTargetId ?? widget.msgId,
               targetMessageKey: _targetMessageKey,
               burnTicker: _burnTicker,
               performanceMonitor: performanceMonitor,
