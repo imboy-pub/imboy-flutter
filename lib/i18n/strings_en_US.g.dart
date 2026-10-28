@@ -956,6 +956,12 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get messageContent => 'Message content';
 	@override String get messageRevoked => 'Message recalled';
 	@override String get quoteMessageNotAvailable => 'Referenced message is unavailable';
+	@override String get quoteMessageUnavailable => 'This referenced message may have expired or be outside your accessible history. Retry or check with the sender.';
+	@override String get quoteMessageAuthorizationUnavailable => 'Access to this historical message cannot be verified right now. Try again later or contact the conversation administrator.';
+	@override String get quoteMessageExpired => 'The referenced message has expired and cannot be restored. Ask the sender to confirm its content.';
+	@override String get quoteMessageForbidden => 'You do not have access to this referenced message. Contact the conversation administrator to check your permissions.';
+	@override String get quoteMessageLoadFailed => 'The referenced message could not be loaded. Check your connection, then tap again to retry.';
+	@override String get quoteMessageUndecryptable => 'This device cannot decrypt the referenced message. Retry or ask the sender to resend it.';
 	@override String get microphone => 'Microphone';
 	@override String get microphonePermissionNotObtained => 'Microphone permission not granted';
 	@override String get moreInfo => 'More info';
@@ -3369,6 +3375,9 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'To-do';
 	@override String get takeABreak => 'Take a break';
 	@override String get todoEmptyTitle => 'No to-dos';
+	@override String get contentProtectedPending => 'Content temporarily hidden, waiting for re-authorization';
+	@override String get contentProtectedRetry => 'Verify again';
+	@override String get contentRevoked => 'You no longer have access to this workspace content';
 }
 
 // Path: account.alipaySim
@@ -4822,6 +4831,12 @@ extension on TranslationsEnUs {
 			'common.messageContent' => 'Message content',
 			'common.messageRevoked' => 'Message recalled',
 			'common.quoteMessageNotAvailable' => 'Referenced message is unavailable',
+			'common.quoteMessageUnavailable' => 'This referenced message may have expired or be outside your accessible history. Retry or check with the sender.',
+			'common.quoteMessageAuthorizationUnavailable' => 'Access to this historical message cannot be verified right now. Try again later or contact the conversation administrator.',
+			'common.quoteMessageExpired' => 'The referenced message has expired and cannot be restored. Ask the sender to confirm its content.',
+			'common.quoteMessageForbidden' => 'You do not have access to this referenced message. Contact the conversation administrator to check your permissions.',
+			'common.quoteMessageLoadFailed' => 'The referenced message could not be loaded. Check your connection, then tap again to retry.',
+			'common.quoteMessageUndecryptable' => 'This device cannot decrypt the referenced message. Retry or ask the sender to resend it.',
 			'common.microphone' => 'Microphone',
 			'common.microphonePermissionNotObtained' => 'Microphone permission not granted',
 			'common.moreInfo' => 'More info',
@@ -5031,14 +5046,14 @@ extension on TranslationsEnUs {
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected',
 			'common.allowNearbyVisible' => 'Visible to nearby people',
+			_ => null,
+		} ?? switch (path) {
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
 			'common.clearChatRecordsDesc' => 'Clear all chat records, this action cannot be undone',
 			'common.deleteAccountAction' => 'Delete account',
 			'common.deleteAccountActionDesc' => 'Permanently delete account and all data, this action cannot be undone',
 			'common.chatHistoryCleared' => 'Chat history cleared',
-			_ => null,
-		} ?? switch (path) {
 			'common.chatDeleteMessage' => 'Delete message',
 			'common.chatCopy' => 'Copy',
 			'common.chatSaveImage' => 'Save image',
@@ -5545,14 +5560,14 @@ extension on TranslationsEnUs {
 			'common.redPacketDialogTitle' => 'A red packet for you',
 			'common.redPacketDialogSubtitle' => 'Wishing you good fortune and prosperity',
 			'common.redPacketTotalAmount' => 'Total Amount',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketSingleAmount' => 'Amount per Red Packet',
 			'common.redPacketCount' => 'Number of Red Packets',
 			'common.redPacketCountUnit' => 'packets',
 			'common.redPacketCountEmpty' => 'Please enter the number of red packets',
 			'common.redPacketCountMin' => 'The number of red packets must be at least 1',
 			'common.redPacketAmountTooSmall' => 'Total amount must be at least ¥0.01 per red packet',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketGreetingLabel' => 'Message / Greeting',
 			'common.redPacketCurrentLucky' => 'Current mode: Lucky Red Packet',
 			'common.redPacketCurrentNormal' => 'Current mode: Normal Red Packet',
@@ -6059,14 +6074,14 @@ extension on TranslationsEnUs {
 			'groupTask.dueSoon' => 'Due soon',
 			'groupTask.submitFailed' => 'Submit failed, please try again',
 			'groupTask.pendingReview' => 'Pending Review',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.taskIdMissing' => 'To-do ID missing, cannot view details',
 			'groupTask.taskIdMissingSubmit' => 'To-do ID missing, cannot submit',
 			'groupTask.publishedAt' => ({required Object time}) => 'Published ${time}',
 			'groupTask.completedAt' => ({required Object time}) => 'Completed ${time}',
 			'groupVote.title' => 'Group Votes',
 			'groupVote.createVote' => 'Create Vote',
-			_ => null,
-		} ?? switch (path) {
 			'groupVote.voteTitle' => 'Vote Title',
 			'groupVote.noVote' => 'No votes yet',
 			'groupVote.voteEnded' => 'Vote ended',
@@ -6573,14 +6588,14 @@ extension on TranslationsEnUs {
 			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
 			'organization.memberDetail.accountLabel' => 'Login account',
 			'organization.memberDetail.joinedLabel' => 'Joined',
+			_ => null,
+		} ?? switch (path) {
 			'organization.memberDetail.workspacesTitle' => 'Authorized workspaces',
 			'organization.memberDetail.workspacesEmpty' => 'This member has no workspace in this enterprise yet',
 			'organization.memberDetail.workspacesFailed' => 'Failed to load authorized workspaces',
 			'organization.manage.renameWorkspace' => 'Rename workspace',
 			'organization.manage.renameWorkspaceTitle' => ({required Object name}) => 'Rename "${name}"',
 			'organization.manage.wsMembersEntry' => 'Manage members',
-			_ => null,
-		} ?? switch (path) {
 			'organization.manage.renameGroup' => 'Rename',
 			'organization.manage.renameGroupTitle' => ({required Object name}) => 'Rename "${name}"',
 			'organization.manage.groupGovernance' => 'Members & roles',
@@ -7087,14 +7102,14 @@ extension on TranslationsEnUs {
 			'talkRecord.participantsAddGuest' => 'Add guest',
 			'talkRecord.participantsInvalid' => 'Select up to 100 people. Guest labels must be unique and 1–120 characters. Eligibility may have changed; check the list.',
 			'talkRecord.participantsNoResults' => 'No matching contacts or colleagues. Try searching.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.participantsConflict' => 'The list changed and has been refreshed. Review it before editing again.',
 			'talkRecord.participantsSaveFailed' => 'Could not confirm the save. Your selection is retained; retry or refresh.',
 			'talkRecord.cleanupProcessorUnconfirmed' => 'Processing is stopping or being checked. Temporary audio copies have not yet been confirmed as removed. Refresh to check progress.',
 			'talkRecord.uploadNoticeTitle' => 'Confirm before uploading',
 			'talkRecord.uploadNoticeHint' => 'Review the current recording notice. This confirms uploading now; it does not rewrite the original recording acknowledgement or change its space.',
 			'talkRecord.uploadRecording' => 'Upload recording',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.retryRecordingUpload' => 'Retry upload',
 			'talkRecord.notificationRequiredTitle' => 'Enable recording notifications',
 			'talkRecord.notificationRequiredMessage' => 'Allow app notifications and enable the recording notification channel in system settings. Return here and retry after enabling them. Recording has not started.',
@@ -7426,6 +7441,9 @@ extension on TranslationsEnUs {
 			'workspace.tabTodo' => 'To-do',
 			'workspace.takeABreak' => 'Take a break',
 			'workspace.todoEmptyTitle' => 'No to-dos',
+			'workspace.contentProtectedPending' => 'Content temporarily hidden, waiting for re-authorization',
+			'workspace.contentProtectedRetry' => 'Verify again',
+			'workspace.contentRevoked' => 'You no longer have access to this workspace content',
 			_ => null,
 		};
 	}

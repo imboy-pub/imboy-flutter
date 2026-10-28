@@ -2593,6 +2593,24 @@ class Translations$common$zh_CN {
 	/// zh-CN: '引用的消息不可用'
 	String get quoteMessageNotAvailable => '引用的消息不可用';
 
+	/// zh-CN: '无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认'
+	String get quoteMessageUnavailable => '无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认';
+
+	/// zh-CN: '暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员'
+	String get quoteMessageAuthorizationUnavailable => '暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员';
+
+	/// zh-CN: '引用的消息已过期，无法恢复；请向发送者确认内容'
+	String get quoteMessageExpired => '引用的消息已过期，无法恢复；请向发送者确认内容';
+
+	/// zh-CN: '你没有权限查看这条引用消息，请联系会话管理员确认权限'
+	String get quoteMessageForbidden => '你没有权限查看这条引用消息，请联系会话管理员确认权限';
+
+	/// zh-CN: '引用消息加载失败，请检查网络后重新点击重试'
+	String get quoteMessageLoadFailed => '引用消息加载失败，请检查网络后重新点击重试';
+
+	/// zh-CN: '本设备无法解密这条引用消息，请重试或请发送者重新发送'
+	String get quoteMessageUndecryptable => '本设备无法解密这条引用消息，请重试或请发送者重新发送';
+
 	/// zh-CN: '麦克风'
 	String get microphone => '麦克风';
 
@@ -9332,6 +9350,15 @@ class Translations$workspace$zh_CN {
 
 	/// zh-CN: '$name 发布'
 	String projectInsightsPostAuthor({required Object name}) => '${name} 发布';
+
+	/// zh-CN: '内容已暂时隐藏，等待重新授权'
+	String get contentProtectedPending => '内容已暂时隐藏，等待重新授权';
+
+	/// zh-CN: '重新验证'
+	String get contentProtectedRetry => '重新验证';
+
+	/// zh-CN: '你已无权查看此工作区内容'
+	String get contentRevoked => '你已无权查看此工作区内容';
 }
 
 // Path: account.alipaySim
@@ -11700,6 +11727,12 @@ extension on Translations {
 			'common.messageContent' => '消息内容',
 			'common.messageRevoked' => '消息已撤回',
 			'common.quoteMessageNotAvailable' => '引用的消息不可用',
+			'common.quoteMessageUnavailable' => '无法获取这条引用消息，可能已过期或不在当前可访问的历史中，请重试或向发送者确认',
+			'common.quoteMessageAuthorizationUnavailable' => '暂时无法确认这条历史消息的访问权限，请稍后重试或联系会话管理员',
+			'common.quoteMessageExpired' => '引用的消息已过期，无法恢复；请向发送者确认内容',
+			'common.quoteMessageForbidden' => '你没有权限查看这条引用消息，请联系会话管理员确认权限',
+			'common.quoteMessageLoadFailed' => '引用消息加载失败，请检查网络后重新点击重试',
+			'common.quoteMessageUndecryptable' => '本设备无法解密这条引用消息，请重试或请发送者重新发送',
 			'common.microphone' => '麦克风',
 			'common.microphonePermissionNotObtained' => '未获取到麦克风权限',
 			'common.moreInfo' => '更多信息',
@@ -11898,14 +11931,14 @@ extension on Translations {
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
 			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
+			_ => null,
+		} ?? switch (path) {
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
 			'common.allowSearchByAccount' => '允许通过账号搜索',
 			'common.allowSearchByAccountDesc' => '其他用户可以通过你的账号找到你',
 			'common.allowAddByPhone' => '允许通过手机号添加',
 			'common.allowAddByPhoneDesc' => '其他用户可以通过你的手机号添加你为好友',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowAddByQR' => '允许通过二维码添加',
 			'common.allowAddByQRDesc' => '其他用户可以通过扫描你的二维码添加你为好友',
 			'common.statusSettings' => '状态设置',
@@ -12412,14 +12445,14 @@ extension on Translations {
 			'common.transferDefaultRemark' => '转账给好友',
 			'common.transferMinAmountError' => '转账最低金额为 0.01 元',
 			'common.redPacketCurrentLucky' => '当前为：拼手气红包',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketCurrentNormal' => '当前为：普通红包',
 			'common.redPacketSwitchToNormal' => '改为普通红包',
 			'common.redPacketSwitchToLucky' => '改为拼手气红包',
 			'common.redPacketCount' => '红包个数',
 			'common.redPacketCountUnit' => '个',
 			'common.redPacketCountEmpty' => '请输入红包个数',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketCountMin' => '红包个数需大于等于 1',
 			'common.redPacketTotalAmount' => '总金额',
 			'common.redPacketSingleAmount' => '单个金额',
@@ -12926,14 +12959,14 @@ extension on Translations {
 			'groupTag.tagName' => '标签名称',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.removeTitle' => '移除标签',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupTask.title' => '待办',
 			'groupTask.createTask' => '创建待办',
 			'groupTask.editTask' => '编辑待办',
 			'groupTask.taskTitle' => '待办标题',
 			'groupTask.taskDescription' => '待办描述',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.deadline' => '截止时间',
 			'groupTask.noDeadline' => '无截止时间',
 			'groupTask.noTask' => '暂无待办',
@@ -13440,14 +13473,14 @@ extension on Translations {
 			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
 			'organization.directory.currentMembersSection' => '本级成员',
 			'organization.directory.structureSection' => '组织架构',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
 			'organization.directory.membersRestricted' => '全员名单仅企业管理员可见；可展开部门查看部门成员。',
 			'organization.directory.imProfileEntry' => '查看 IM 资料',
 			'organization.directory.myDepartmentsSection' => '我的部门',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.membersSection' => '成员',
 			'organization.directory.memberCountWith' => ({required Object count}) => '${count} 人',
 			'organization.directory.searchHint' => '搜索部门或成员',
@@ -13954,14 +13987,14 @@ extension on Translations {
 			'talkRecord.cleanupCompleteTitle' => '清理完成',
 			'talkRecord.cleanupCompleteBody' => '记录与附件均已清理完成。',
 			'talkRecord.cleanupNoneTitle' => '未提交清理',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupNoneBody' => '记录尚未进入清理流程。',
 			'talkRecord.cleanupUnknownTitle' => '清理状态未知',
 			'talkRecord.cleanupUnknownBody' => '暂未能获取清理状态，可刷新重试。',
 			'talkRecord.cleanupRetryAction' => '重试清理',
 			'talkRecord.cleanupRetrying' => '重试中…',
 			'talkRecord.cleanupRetryFailedBody' => '重试清理失败，请稍后再次重试。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteRefreshStatus' => '刷新清理状态',
 			'talkRecord.deleteBackToList' => '返回列表',
 			'talkRecord.deleteStatusFixtureHint' => '组件阶段：清理状态来自 fixture 示例，真实清理进度待联调。',
@@ -14313,6 +14346,9 @@ extension on Translations {
 			'workspace.projectInsightsActivityEmpty' => '项目暂无动态',
 			'workspace.projectInsightsPostsEmpty' => '关联频道暂无帖子',
 			'workspace.projectInsightsPostAuthor' => ({required Object name}) => '${name} 发布',
+			'workspace.contentProtectedPending' => '内容已暂时隐藏，等待重新授权',
+			'workspace.contentProtectedRetry' => '重新验证',
+			'workspace.contentRevoked' => '你已无权查看此工作区内容',
 			_ => null,
 		};
 	}

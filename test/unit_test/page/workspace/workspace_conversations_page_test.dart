@@ -10,6 +10,8 @@ import 'package:imboy/component/ui/button.dart' show RoundedCupertinoButton;
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart'
     show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
@@ -67,6 +69,20 @@ ProviderContainer _container(_Api api) => ProviderContainer(
   overrides: [
     workspaceApiProvider.overrideWithValue(api),
     currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+    workspaceAccessContextReaderProvider.overrideWith((ref) {
+      final uid = ref.watch(currentUserProvider)?.uid ?? '';
+      return () => (
+        origin: 'https://workspace.invalid',
+        uid: uid,
+        session: 1,
+        featureScope: 'workspace:$uid',
+        featureEpoch: 1,
+        featureRevision: 1,
+        channelEnabled: true,
+      );
+    }),
+    workspaceAccessNetworkProvider.overrideWith((ref) => Stream.value(true)),
+    workspaceGroupAvatarLoaderProvider.overrideWithValue((_) async => []),
     conversationProvider.overrideWith(_NeverReadGlobal.new),
   ],
 );
@@ -99,8 +115,19 @@ Future<GoRouter> _pump(WidgetTester tester, ProviderContainer container) async {
     ),
   );
   await tester.pump();
+  await tester.pump();
   return router;
 }
+
+WorkspaceAccessNotifier _access(
+  ProviderContainer container,
+  String workspaceId,
+) => container.read(
+  workspaceAccessProvider((
+    workspaceId: workspaceId,
+    resource: kWorkspaceAccessContentResource,
+  )).notifier,
+);
 
 Future<void> _disposePage(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
@@ -124,15 +151,16 @@ void main() {
       await tester.pump();
       expect(find.text('5'), findsOneWidget);
       expect(find.text('7'), findsOneWidget);
-      container.invalidate(workspaceConversationsProvider('100'));
+      unawaited(_access(container, '100').refresh());
       await tester.pump();
-      expect(find.text('5'), findsNothing);
+      expect(find.text('5'), findsOneWidget);
       api.pending.last.complete([_row(1, 'A'), _row(2, 'B', unread: 7)]);
       await tester.pump();
       await tester.pump();
       expect(find.text('5'), findsNothing);
       expect(find.text('7'), findsOneWidget);
       _select(container, '200');
+      await tester.pump();
       await tester.pump();
       expect(find.text('7'), findsNothing);
       api.pending.last.complete([_row(3, 'C', unread: 9)]);
@@ -141,7 +169,11 @@ void main() {
       expect(find.text('9'), findsOneWidget);
       container.read(_account.notifier).select('2');
       await tester.pump();
+      await tester.pump();
       expect(find.text('9'), findsNothing);
+      _select(container, '200');
+      await tester.pump();
+      await tester.pump();
       api.pending.last.completeError(
         const WorkspaceApiException(403, 'removed'),
       );
@@ -193,6 +225,7 @@ void main() {
       await _pump(tester, container);
       _select(container, '200');
       await tester.pump();
+      await tester.pump();
       expect(api.calls, ['100', '200']);
       api.pending[1].complete([_row(2, 'workspace B')]);
       await tester.pump();
@@ -202,15 +235,15 @@ void main() {
       await tester.pump();
       expect(find.text('workspace B'), findsOneWidget);
       expect(find.text('late workspace A'), findsNothing);
-      container.invalidate(workspaceConversationsProvider('200'));
+      unawaited(_access(container, '200').refresh());
       await tester.pump();
-      expect(find.text('workspace B'), findsNothing);
+      expect(find.text('workspace B'), findsOneWidget);
       api.pending[2].completeError(
         const WorkspaceApiException(403, 'access revoked'),
       );
       await tester.pump();
       await tester.pump();
-      expect(find.text('access revoked'), findsOneWidget);
+      expect(find.text(t.workspace.contentRevoked), findsOneWidget);
       expect(find.text('workspace B'), findsNothing);
       await _disposePage(tester);
     },
@@ -243,11 +276,23 @@ void main() {
     final container = _container(api);
     addTearDown(container.dispose);
     final provider = workspaceConversationsProvider('100');
+    final accessProvider = workspaceAccessProvider((
+      workspaceId: '100',
+      resource: kWorkspaceAccessContentResource,
+    ));
+    final accessSubscription = container.listen(accessProvider, (_, _) {});
+    addTearDown(accessSubscription.close);
     final subscription = container.listen(provider, (_, _) {});
     addTearDown(subscription.close);
+    _access(container, '100').resume();
+    expect(api.calls, ['100']);
     container.read(_account.notifier).select('2');
     await container.pump();
+    await Future<void>.delayed(Duration.zero);
+    expect(container.read(accessProvider).canRenderProtectedContent, isFalse);
+    expect(api.calls, ['100', '100']);
     api.pending[1].complete([_row(2, 'new account')]);
+    await container.pump();
     expect(
       (await container.read(provider.future)).single.previewText,
       'new account',
@@ -261,6 +306,8 @@ void main() {
     container.read(_account.notifier).select('');
     await container.pump();
     expect(await container.read(provider.future), isEmpty);
+    expect(container.read(accessProvider).canRenderProtectedContent, isFalse);
+    expect(container.read(accessProvider).rows, isEmpty);
     expect(api.calls.length, 2);
   });
 }

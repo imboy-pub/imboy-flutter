@@ -152,6 +152,12 @@ messageCall: Nachricht senden
 messageContent: Nachrichteninhalt
 messageRevoked: Nachricht zurückgerufen
 quoteMessageNotAvailable: Referenzierte Nachricht nicht verfügbar
+quoteMessageUnavailable: Die zitierte Nachricht ist möglicherweise abgelaufen oder liegt außerhalb deines zugänglichen Verlaufs. Versuche es erneut oder frage den Absender.
+quoteMessageAuthorizationUnavailable: Der Zugriff auf diese ältere Nachricht kann derzeit nicht geprüft werden. Versuche es später erneut oder kontaktiere die Verwaltung der Unterhaltung.
+quoteMessageExpired: Die zitierte Nachricht ist abgelaufen und kann nicht wiederhergestellt werden. Frage den Absender nach dem Inhalt.
+quoteMessageForbidden: Du hast keinen Zugriff auf diese zitierte Nachricht. Lass deine Berechtigungen von der Verwaltung der Unterhaltung prüfen.
+quoteMessageLoadFailed: Die zitierte Nachricht konnte nicht geladen werden. Prüfe deine Verbindung und tippe erneut darauf.
+quoteMessageUndecryptable: Dieses Gerät kann die zitierte Nachricht nicht entschlüsseln. Versuche es erneut oder bitte den Absender, sie erneut zu senden.
 microphone: Mikrofon
 microphonePermissionNotObtained: Mikrofonberechtigung nicht erteilt
 moreInfo: Mehr Infos

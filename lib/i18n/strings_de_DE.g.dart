@@ -892,6 +892,12 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get messageContent => 'Nachrichteninhalt';
 	@override String get messageRevoked => 'Nachricht zurückgerufen';
 	@override String get quoteMessageNotAvailable => 'Referenzierte Nachricht nicht verfügbar';
+	@override String get quoteMessageUnavailable => 'Die zitierte Nachricht ist möglicherweise abgelaufen oder liegt außerhalb deines zugänglichen Verlaufs. Versuche es erneut oder frage den Absender.';
+	@override String get quoteMessageAuthorizationUnavailable => 'Der Zugriff auf diese ältere Nachricht kann derzeit nicht geprüft werden. Versuche es später erneut oder kontaktiere die Verwaltung der Unterhaltung.';
+	@override String get quoteMessageExpired => 'Die zitierte Nachricht ist abgelaufen und kann nicht wiederhergestellt werden. Frage den Absender nach dem Inhalt.';
+	@override String get quoteMessageForbidden => 'Du hast keinen Zugriff auf diese zitierte Nachricht. Lass deine Berechtigungen von der Verwaltung der Unterhaltung prüfen.';
+	@override String get quoteMessageLoadFailed => 'Die zitierte Nachricht konnte nicht geladen werden. Prüfe deine Verbindung und tippe erneut darauf.';
+	@override String get quoteMessageUndecryptable => 'Dieses Gerät kann die zitierte Nachricht nicht entschlüsseln. Versuche es erneut oder bitte den Absender, sie erneut zu senden.';
 	@override String get microphone => 'Mikrofon';
 	@override String get microphonePermissionNotObtained => 'Mikrofonberechtigung nicht erteilt';
 	@override String get moreInfo => 'Mehr Infos';
@@ -2793,6 +2799,9 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'Aufgaben';
 	@override String get takeABreak => 'Kurze Pause machen';
 	@override String get todoEmptyTitle => 'Keine Aufgaben';
+	@override String get contentProtectedPending => 'Inhalt vorübergehend ausgeblendet, wartet auf erneute Autorisierung';
+	@override String get contentProtectedRetry => 'Erneut prüfen';
+	@override String get contentRevoked => 'Du hast keinen Zugriff mehr auf diesen Arbeitsbereich-Inhalt';
 }
 
 // Path: account.alipaySim
@@ -4138,6 +4147,12 @@ extension on TranslationsDeDe {
 			'common.messageContent' => 'Nachrichteninhalt',
 			'common.messageRevoked' => 'Nachricht zurückgerufen',
 			'common.quoteMessageNotAvailable' => 'Referenzierte Nachricht nicht verfügbar',
+			'common.quoteMessageUnavailable' => 'Die zitierte Nachricht ist möglicherweise abgelaufen oder liegt außerhalb deines zugänglichen Verlaufs. Versuche es erneut oder frage den Absender.',
+			'common.quoteMessageAuthorizationUnavailable' => 'Der Zugriff auf diese ältere Nachricht kann derzeit nicht geprüft werden. Versuche es später erneut oder kontaktiere die Verwaltung der Unterhaltung.',
+			'common.quoteMessageExpired' => 'Die zitierte Nachricht ist abgelaufen und kann nicht wiederhergestellt werden. Frage den Absender nach dem Inhalt.',
+			'common.quoteMessageForbidden' => 'Du hast keinen Zugriff auf diese zitierte Nachricht. Lass deine Berechtigungen von der Verwaltung der Unterhaltung prüfen.',
+			'common.quoteMessageLoadFailed' => 'Die zitierte Nachricht konnte nicht geladen werden. Prüfe deine Verbindung und tippe erneut darauf.',
+			'common.quoteMessageUndecryptable' => 'Dieses Gerät kann die zitierte Nachricht nicht entschlüsseln. Versuche es erneut oder bitte den Absender, sie erneut zu senden.',
 			'common.microphone' => 'Mikrofon',
 			'common.microphonePermissionNotObtained' => 'Mikrofonberechtigung nicht erteilt',
 			'common.moreInfo' => 'Mehr Infos',
@@ -4400,14 +4415,14 @@ extension on TranslationsDeDe {
 			'common.localDeleteSuccess' => 'Lokales Löschen erfolgreich',
 			'common.localDeleteFailed' => 'Lokales Löschen fehlgeschlagen',
 			'common.revokeSuccess' => 'Erfolgreich widerrufen',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'Bearbeitungsinhalt darf nicht leer sein',
 			'common.editSuccess' => 'Erfolgreich bearbeitet',
 			'common.enabled' => 'Aktiviert',
 			'common.disabled' => 'Deaktiviert',
 			'common.fontSizeSettingUpdated' => 'Schriftgröße-Einstellung aktualisiert',
 			'common.fontSizeSetting' => 'Schriftgröße-Einstellung',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Schrift zu klein, kann das Lesen beeinträchtigen',
 			'common.dragSliderAdjustFontSize' => 'Schieberegler ziehen, um Schriftgröße anzupassen',
 			'common.personalInfo' => 'Persönliche Informationen',
@@ -4914,14 +4929,14 @@ extension on TranslationsDeDe {
 			'contact.denylist' => 'Sperrliste',
 			'contact.denylistEmpty' => 'Sperrliste ist leer',
 			'contact.favoriteGroupTagsEtc' => 'Favoriten, Namen, Gruppen, Tags usw.',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'Neue Freunde',
 			'contact.recommendToFriend' => 'Freunden empfehlen',
 			'contact.remark' => 'Bemerkung',
 			'contact.remarksTags' => 'Bemerkungen und Tags',
 			'contact.selectAGroup' => 'Eine Gruppe auswählen',
 			'contact.selectFriends' => 'Freunde auswählen',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => 'Tags',
 			'contact.suggestedTags' => 'Vorgeschlagene Tags',
 			'contact.pleaseEnterRemark' => 'Bitte Bemerkung eingeben',
@@ -5428,14 +5443,14 @@ extension on TranslationsDeDe {
 			'main.complianceKeyInfoServerKey' => 'Vom Server bereitgestellter öffentlicher Schlüssel',
 			'main.e2eeErrComplianceChanged' => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => 'Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator',
 			'main.complianceKeyRotationConfirmed' => 'Compliance-Schlüsselrotation bestätigt, Nachricht kann erneut gesendet werden',
 			'main.complianceKeyRotationNoPending' => 'Keine ausstehende Schlüsseländerung zu bestätigen',
 			'main.e2eeErrDeviceNotReady' => 'Sicherheitsinitialisierung dieses Geräts nicht abgeschlossen. Bitte abmelden, neu anmelden und erneut versuchen',
 			'main.e2eeErrProtocolMismatch' => 'Verschlüsselungsprotokoll-Konfiguration fehlerhaft. Bitte App aktualisieren und erneut versuchen',
 			'main.e2eeErrPeerSuiteUnsupported' => 'Das Gerät der Gegenseite unterstützt die erforderliche Verschlüsselungssuite nicht, Nachricht nicht gesendet. Bitte die Gegenseite zum App-Update auffordern und erneut versuchen',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrSessionExportFailed' => 'Gruppensitzungsschlüssel konnte nicht erstellt werden. Bitte später erneut versuchen',
 			'main.complianceKeyNotConfigured' => 'Für diese Bereitstellung ist kein Compliance-Audit-Schlüssel konfiguriert',
 			'main.mineContent' => 'Meine Inhalte',
@@ -5942,14 +5957,14 @@ extension on TranslationsDeDe {
 			'talkRecord.aiProviderResubmitNotice' => 'Erstellt eine neue Transkription; doppelte Gebühren sind möglich. Der ursprüngliche Auftrag bleibt. Erneut senden und dieser Verarbeitung zustimmen?',
 			'talkRecord.aiProviderCancelled' => 'Transkription gestoppt. Vorhandenes Audio bleibt erhalten.',
 			'talkRecord.aiProviderResumePreparation' => 'Transkription weiter vorbereiten',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'Der ursprüngliche Auftrag wurde noch nicht übermittelt. Audioquelle mit aktuellen Rechten und Einwilligung erneut vorbereiten.',
 			'welcome.step1Title' => 'Einfache Verbindung',
 			'welcome.step1Desc' => 'Erleben Sie die Freude nahtloser Kommunikation. Jederzeit, überall.',
 			'welcome.step2Title' => 'Sicher & Privat',
 			'welcome.step2Desc' => 'Ende-zu-Ende-Verschlüsselung Hält Ihre persönlichen Momente streng vertraulich.',
 			'welcome.step3Title' => 'Bereit zum Erkunden?',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => 'Treten Sie einer lebendigen Gemeinschaft bei. Lassen Sie das Gespräch beginnen!',
 			'welcome.next' => 'Weiter',
 			'welcome.getStarted' => 'Loslegen',
@@ -6192,6 +6207,9 @@ extension on TranslationsDeDe {
 			'workspace.tabTodo' => 'Aufgaben',
 			'workspace.takeABreak' => 'Kurze Pause machen',
 			'workspace.todoEmptyTitle' => 'Keine Aufgaben',
+			'workspace.contentProtectedPending' => 'Inhalt vorübergehend ausgeblendet, wartet auf erneute Autorisierung',
+			'workspace.contentProtectedRetry' => 'Erneut prüfen',
+			'workspace.contentRevoked' => 'Du hast keinen Zugriff mehr auf diesen Arbeitsbereich-Inhalt',
 			_ => null,
 		};
 	}

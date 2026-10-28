@@ -239,3 +239,8 @@ tabSchedule: "Agenda"
 tabTodo: "Da fare"
 takeABreak: "Fai una pausa"
 todoEmptyTitle: "Nessuna attività"
+
+# ==================== D6 protezione contenuti (budget di visualizzazione §6.6) ====================
+contentProtectedPending: "Contenuto temporaneamente nascosto, in attesa di riautorizzazione"
+contentProtectedRetry: "Verifica di nuovo"
+contentRevoked: "Non hai più accesso a questo contenuto dell'area di lavoro"

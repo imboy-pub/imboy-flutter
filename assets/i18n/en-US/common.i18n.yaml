@@ -149,6 +149,12 @@ messageCall: Send message
 messageContent: Message content
 messageRevoked: Message recalled
 quoteMessageNotAvailable: Referenced message is unavailable
+quoteMessageUnavailable: This referenced message may have expired or be outside your accessible history. Retry or check with the sender.
+quoteMessageAuthorizationUnavailable: Access to this historical message cannot be verified right now. Try again later or contact the conversation administrator.
+quoteMessageExpired: The referenced message has expired and cannot be restored. Ask the sender to confirm its content.
+quoteMessageForbidden: You do not have access to this referenced message. Contact the conversation administrator to check your permissions.
+quoteMessageLoadFailed: The referenced message could not be loaded. Check your connection, then tap again to retry.
+quoteMessageUndecryptable: This device cannot decrypt the referenced message. Retry or ask the sender to resend it.
 microphone: Microphone
 microphonePermissionNotObtained: Microphone permission not granted
 moreInfo: More info

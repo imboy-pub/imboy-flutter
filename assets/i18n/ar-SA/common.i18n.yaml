@@ -152,6 +152,12 @@ messageCall: إرسال رسالة
 messageContent: محتوى الرسالة
 messageRevoked: تم سحب الرسالة
 quoteMessageNotAvailable: الرسالة المشار إليها غير متاحة
+quoteMessageUnavailable: قد تكون الرسالة المشار إليها منتهية الصلاحية أو خارج السجل المتاح لك. أعد المحاولة أو تحقق مع المرسل.
+quoteMessageAuthorizationUnavailable: تعذر التحقق من صلاحية الوصول إلى هذه الرسالة القديمة الآن. حاول لاحقًا أو تواصل مع مسؤول المحادثة.
+quoteMessageExpired: انتهت صلاحية الرسالة المشار إليها ولا يمكن استعادتها. اطلب من المرسل تأكيد محتواها.
+quoteMessageForbidden: ليس لديك إذن لعرض هذه الرسالة. تواصل مع مسؤول المحادثة للتحقق من صلاحياتك.
+quoteMessageLoadFailed: تعذر تحميل الرسالة. تحقق من اتصالك ثم اضغط مجددًا للمحاولة.
+quoteMessageUndecryptable: لا يستطيع هذا الجهاز فك تشفير الرسالة المشار إليها. أعد المحاولة أو اطلب من المرسل إعادة إرسالها.
 microphone: ميكروفون
 microphonePermissionNotObtained: لم يتم الحصول على إذن الميكروفون
 moreInfo: المزيد من المعلومات

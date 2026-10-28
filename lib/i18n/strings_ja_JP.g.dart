@@ -892,6 +892,12 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get messageContent => 'メッセージ内容';
 	@override String get messageRevoked => 'メッセージが取り消されました';
 	@override String get quoteMessageNotAvailable => '引用されているメッセージは利用できません';
+	@override String get quoteMessageUnavailable => '引用されたメッセージは期限切れか、アクセス可能な履歴の範囲外の可能性があります。再試行するか送信者に確認してください。';
+	@override String get quoteMessageAuthorizationUnavailable => 'この過去のメッセージへのアクセス権を確認できません。後でもう一度試すか、会話の管理者に確認してください。';
+	@override String get quoteMessageExpired => '引用されたメッセージは期限切れで復元できません。送信者に内容を確認してください。';
+	@override String get quoteMessageForbidden => 'この引用メッセージを表示する権限がありません。会話の管理者に権限を確認してください。';
+	@override String get quoteMessageLoadFailed => '引用メッセージを読み込めませんでした。接続を確認して、もう一度タップしてください。';
+	@override String get quoteMessageUndecryptable => 'この端末では引用メッセージを復号できません。再試行するか、送信者に再送を依頼してください。';
 	@override String get microphone => 'マイク';
 	@override String get microphonePermissionNotObtained => 'マイク権限が取得できませんでした';
 	@override String get moreInfo => '詳細情報';
@@ -2790,6 +2796,9 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'やること';
 	@override String get takeABreak => 'ひと休み';
 	@override String get todoEmptyTitle => 'やることはありません';
+	@override String get contentProtectedPending => 'コンテンツを一時的に非表示にしています。再認証を待っています';
+	@override String get contentProtectedRetry => '再認証';
+	@override String get contentRevoked => 'このワークスペースのコンテンツへのアクセス権がありません';
 }
 
 // Path: account.alipaySim
@@ -4135,6 +4144,12 @@ extension on TranslationsJaJp {
 			'common.messageContent' => 'メッセージ内容',
 			'common.messageRevoked' => 'メッセージが取り消されました',
 			'common.quoteMessageNotAvailable' => '引用されているメッセージは利用できません',
+			'common.quoteMessageUnavailable' => '引用されたメッセージは期限切れか、アクセス可能な履歴の範囲外の可能性があります。再試行するか送信者に確認してください。',
+			'common.quoteMessageAuthorizationUnavailable' => 'この過去のメッセージへのアクセス権を確認できません。後でもう一度試すか、会話の管理者に確認してください。',
+			'common.quoteMessageExpired' => '引用されたメッセージは期限切れで復元できません。送信者に内容を確認してください。',
+			'common.quoteMessageForbidden' => 'この引用メッセージを表示する権限がありません。会話の管理者に権限を確認してください。',
+			'common.quoteMessageLoadFailed' => '引用メッセージを読み込めませんでした。接続を確認して、もう一度タップしてください。',
+			'common.quoteMessageUndecryptable' => 'この端末では引用メッセージを復号できません。再試行するか、送信者に再送を依頼してください。',
 			'common.microphone' => 'マイク',
 			'common.microphonePermissionNotObtained' => 'マイク権限が取得できませんでした',
 			'common.moreInfo' => '詳細情報',
@@ -4397,14 +4412,14 @@ extension on TranslationsJaJp {
 			'common.localDeleteSuccess' => 'ローカル削除に成功しました',
 			'common.localDeleteFailed' => 'ローカル削除に失敗しました',
 			'common.revokeSuccess' => '取り消しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => '編集内容を空にすることはできません',
 			'common.editSuccess' => '編集しました',
 			'common.enabled' => '有効',
 			'common.disabled' => '無効',
 			'common.fontSizeSettingUpdated' => 'フォントサイズ設定を更新しました',
 			'common.fontSizeSetting' => 'フォントサイズ設定',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'フォントが小さすぎて読みやすさに影響する可能性があります',
 			'common.dragSliderAdjustFontSize' => 'スライダーをドラッグしてフォントサイズを調整',
 			'common.personalInfo' => '個人情報',
@@ -4911,14 +4926,14 @@ extension on TranslationsJaJp {
 			'contact.denylist' => 'ブロックリスト',
 			'contact.denylistEmpty' => 'ブロックリストは空です',
 			'contact.favoriteGroupTagsEtc' => 'コレクション：人名、グループ名、タグなど',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => '新しい友達',
 			'contact.recommendToFriend' => '友達に推薦する',
 			'contact.remark' => '備考',
 			'contact.remarksTags' => '備考とタグ',
 			'contact.selectAGroup' => 'グループを選択',
 			'contact.selectFriends' => '友達を選択',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => 'タグ',
 			'contact.suggestedTags' => 'おすすめタグ',
 			'contact.pleaseEnterRemark' => '備考名を入力してください',
@@ -5425,14 +5440,14 @@ extension on TranslationsJaJp {
 			'main.complianceKeyInfoServerKey' => 'サーバーから配信された公開鍵',
 			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
 			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください',
 			'main.complianceKeyRotationConfirmed' => 'コンプライアンスキーのローテーションを確認しました。メッセージを再送信できます',
 			'main.complianceKeyRotationNoPending' => '確認待ちのキー変更はありません',
 			'main.e2eeErrDeviceNotReady' => 'このデバイスはセキュリティの初期化が完了していません。ログアウトして再度ログインしてからお試しください',
 			'main.e2eeErrProtocolMismatch' => '暗号化プロトコルの設定に異常があります。アプリを更新してからもう一度お試しください',
 			'main.e2eeErrPeerSuiteUnsupported' => '相手のデバイスが要求された暗号スイートに対応していないため、メッセージは送信されませんでした。相手にアプリの更新を依頼してから再試行してください',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrSessionExportFailed' => 'グループセッションキーの生成に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyNotConfigured' => 'このデプロイにはコンプライアンス監査キーが設定されていません',
 			'main.mineContent' => 'マイコンテンツ',
@@ -5939,14 +5954,14 @@ extension on TranslationsJaJp {
 			'talkRecord.aiProviderResubmitNotice' => '新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？',
 			'talkRecord.aiProviderCancelled' => '停止しました。既存の録音は保持されます。',
 			'talkRecord.aiProviderResumePreparation' => '文字起こしの準備を続行',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',
 			'welcome.step2Title' => '安全でプライベート',
 			'welcome.step2Desc' => 'エンドツーエンド暗号化 あなたの個人的な瞬間を厳格に保護します。',
 			'welcome.step3Title' => '探索準備はできましたか？',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => '活気あるコミュニティに参加してください。 会話を始めましょう！',
 			'welcome.next' => '次へ',
 			'welcome.getStarted' => '始める',
@@ -6189,6 +6204,9 @@ extension on TranslationsJaJp {
 			'workspace.tabTodo' => 'やること',
 			'workspace.takeABreak' => 'ひと休み',
 			'workspace.todoEmptyTitle' => 'やることはありません',
+			'workspace.contentProtectedPending' => 'コンテンツを一時的に非表示にしています。再認証を待っています',
+			'workspace.contentProtectedRetry' => '再認証',
+			'workspace.contentRevoked' => 'このワークスペースのコンテンツへのアクセス権がありません',
 			_ => null,
 		};
 	}

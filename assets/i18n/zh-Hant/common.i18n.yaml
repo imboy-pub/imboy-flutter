@@ -153,6 +153,12 @@ messageCall: 發訊息
 messageContent: 訊息內容
 messageRevoked: 訊息已撤回
 quoteMessageNotAvailable: 引用的訊息不可用
+quoteMessageUnavailable: 無法取得這則引用訊息，可能已過期或不在目前可存取的歷史中，請重試或向傳送者確認
+quoteMessageAuthorizationUnavailable: 暫時無法確認這則歷史訊息的存取權限，請稍後重試或聯絡對話管理員
+quoteMessageExpired: 引用的訊息已過期，無法恢復；請向傳送者確認內容
+quoteMessageForbidden: 你沒有權限檢視這則引用訊息，請聯絡對話管理員確認權限
+quoteMessageLoadFailed: 引用訊息載入失敗，請檢查網路後再次點擊重試
+quoteMessageUndecryptable: 本裝置無法解密這則引用訊息，請重試或請傳送者重新傳送
 microphone: 麥克風
 microphonePermissionNotObtained: 未獲取麥克風權限
 moreInfo: 更多資訊

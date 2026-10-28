@@ -257,3 +257,8 @@ tabSchedule: "日程"
 tabTodo: "待辦"
 takeABreak: "休息一下"
 todoEmptyTitle: "暫無待辦"
+
+# ==================== D6 內容保護（§6.6 展示預算） ====================
+contentProtectedPending: "內容已暫時隱藏，等待重新授權"
+contentProtectedRetry: "重新驗證"
+contentRevoked: "你已無權查看此工作區內容"

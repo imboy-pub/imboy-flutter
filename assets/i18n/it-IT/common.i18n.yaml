@@ -152,6 +152,12 @@ messageCall: Invia messaggio
 messageContent: Contenuto messaggio
 messageRevoked: Messaggio revocato
 quoteMessageNotAvailable: Il messaggio citato non è disponibile
+quoteMessageUnavailable: Il messaggio citato potrebbe essere scaduto o non essere nella cronologia accessibile. Riprova o contatta il mittente.
+quoteMessageAuthorizationUnavailable: Al momento non è possibile verificare l’accesso a questo messaggio precedente. Riprova più tardi o contatta l’amministratore della conversazione.
+quoteMessageExpired: Il messaggio citato è scaduto e non può essere ripristinato. Chiedi al mittente di confermarne il contenuto.
+quoteMessageForbidden: Non hai accesso a questo messaggio citato. Contatta l’amministratore della conversazione per verificare le autorizzazioni.
+quoteMessageLoadFailed: Impossibile caricare il messaggio citato. Controlla la connessione e tocca di nuovo per riprovare.
+quoteMessageUndecryptable: Questo dispositivo non può decifrare il messaggio citato. Riprova o chiedi al mittente di inviarlo di nuovo.
 microphone: Microfono
 microphonePermissionNotObtained: Permesso microfono non ottenuto
 moreInfo: Più informazioni

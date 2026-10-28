@@ -12,11 +12,51 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:dio/dio.dart';
 
+import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
 import 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
+import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/model/channel_model.dart';
+
+class _ChannelApi extends ChannelApi {
+  @override
+  Future<ChannelModel> getChannelChecked(String channelId) async {
+    expect(channelId, '9002');
+    return ChannelModel(
+      id: 9002,
+      scope: 'workspace',
+      workspaceId: '100',
+      name: 'Workspace channel',
+      creatorId: 1,
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+      visibility: 1,
+      accessType: 0,
+      joinPolicy: 1,
+    );
+  }
+
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    httpTransformer,
+  }) async {
+    expect(uri, '/api/v1/channel/9002/messages');
+    expect(queryParameters, {'limit': 1});
+    return IMBoyHttpResponse.success({'list': <Map<String, dynamic>>[]});
+  }
+}
 
 void main() {
   Future<void> pumpPage(WidgetTester tester, {Widget? detailEntry}) async {
@@ -24,10 +64,28 @@ void main() {
     // provider），必须置于 ProviderScope 内。
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          channelApiProvider.overrideWithValue(_ChannelApi()),
+          workspaceAccessNetworkProvider.overrideWith(
+            (ref) => Stream.value(true),
+          ),
+          workspaceAccessContextReaderProvider.overrideWithValue(
+            () => (
+              origin: 'https://workspace.invalid',
+              uid: '1',
+              session: 1,
+              featureScope: 'workspace:1',
+              featureEpoch: 1,
+              featureRevision: 1,
+              channelEnabled: true,
+            ),
+          ),
+        ],
         child: TranslationProvider(
           child: MaterialApp(
             home: WorkspaceChannelDetailPage(
               channelId: '9002',
+              workspaceId: '100',
               detailEntry: detailEntry ?? const SizedBox.shrink(),
             ),
           ),
@@ -35,6 +93,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('workspace-access-shield')), findsNothing);
   }
 
   testWidgets('频道详情视图无聊天式输入框（I6：不出现 ChatInput）', (tester) async {

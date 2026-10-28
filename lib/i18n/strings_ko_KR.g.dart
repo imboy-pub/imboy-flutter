@@ -892,6 +892,12 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get messageContent => '메시지 내용';
 	@override String get messageRevoked => '메시지가 회수되었습니다';
 	@override String get quoteMessageNotAvailable => '인용된 메시지를 사용할 수 없습니다';
+	@override String get quoteMessageUnavailable => '인용된 메시지가 만료되었거나 접근 가능한 기록 밖에 있을 수 있습니다. 다시 시도하거나 보낸 사람에게 확인해 주세요.';
+	@override String get quoteMessageAuthorizationUnavailable => '이 과거 메시지의 접근 권한을 확인할 수 없습니다. 나중에 다시 시도하거나 대화 관리자에게 문의하세요.';
+	@override String get quoteMessageExpired => '인용된 메시지가 만료되어 복원할 수 없습니다. 보낸 사람에게 내용을 확인하세요.';
+	@override String get quoteMessageForbidden => '이 인용 메시지에 접근할 권한이 없습니다. 대화 관리자에게 권한을 확인하세요.';
+	@override String get quoteMessageLoadFailed => '인용 메시지를 불러오지 못했습니다. 연결을 확인한 후 다시 눌러 주세요.';
+	@override String get quoteMessageUndecryptable => '이 기기에서 인용된 메시지를 복호화할 수 없습니다. 다시 시도하거나 보낸 사람에게 재전송을 요청해 주세요.';
 	@override String get microphone => '마이크';
 	@override String get microphonePermissionNotObtained => '마이크 권한을 얻지 못했습니다';
 	@override String get moreInfo => '더 많은 정보';
@@ -2790,6 +2796,9 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get tabTodo => '할 일';
 	@override String get takeABreak => '잠시 쉬어가세요';
 	@override String get todoEmptyTitle => '할 일이 없습니다';
+	@override String get contentProtectedPending => '콘텐츠가 일시적으로 숨겨져 있습니다. 재인증을 기다리는 중';
+	@override String get contentProtectedRetry => '다시 인증';
+	@override String get contentRevoked => '이 워크스페이스 콘텐츠에 대한 접근 권한이 없습니다';
 }
 
 // Path: account.alipaySim
@@ -4135,6 +4144,12 @@ extension on TranslationsKoKr {
 			'common.messageContent' => '메시지 내용',
 			'common.messageRevoked' => '메시지가 회수되었습니다',
 			'common.quoteMessageNotAvailable' => '인용된 메시지를 사용할 수 없습니다',
+			'common.quoteMessageUnavailable' => '인용된 메시지가 만료되었거나 접근 가능한 기록 밖에 있을 수 있습니다. 다시 시도하거나 보낸 사람에게 확인해 주세요.',
+			'common.quoteMessageAuthorizationUnavailable' => '이 과거 메시지의 접근 권한을 확인할 수 없습니다. 나중에 다시 시도하거나 대화 관리자에게 문의하세요.',
+			'common.quoteMessageExpired' => '인용된 메시지가 만료되어 복원할 수 없습니다. 보낸 사람에게 내용을 확인하세요.',
+			'common.quoteMessageForbidden' => '이 인용 메시지에 접근할 권한이 없습니다. 대화 관리자에게 권한을 확인하세요.',
+			'common.quoteMessageLoadFailed' => '인용 메시지를 불러오지 못했습니다. 연결을 확인한 후 다시 눌러 주세요.',
+			'common.quoteMessageUndecryptable' => '이 기기에서 인용된 메시지를 복호화할 수 없습니다. 다시 시도하거나 보낸 사람에게 재전송을 요청해 주세요.',
 			'common.microphone' => '마이크',
 			'common.microphonePermissionNotObtained' => '마이크 권한을 얻지 못했습니다',
 			'common.moreInfo' => '더 많은 정보',
@@ -4397,14 +4412,14 @@ extension on TranslationsKoKr {
 			'common.localDeleteSuccess' => '로컬 삭제 성공',
 			'common.localDeleteFailed' => '로컬 삭제 실패',
 			'common.revokeSuccess' => '회수 성공',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => '편집 내용은 비워둘 수 없습니다',
 			'common.editSuccess' => '편집 성공',
 			'common.enabled' => '활성화됨',
 			'common.disabled' => '비활성화됨',
 			'common.fontSizeSettingUpdated' => '글꼴 크기 설정이 업데이트되었습니다',
 			'common.fontSizeSetting' => '글꼴 크기 설정',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => '글꼴이 너무 작아 읽기에 영향을 줄 수 있습니다',
 			'common.dragSliderAdjustFontSize' => '슬라이더를 드래그하여 글꼴 크기 조정',
 			'common.personalInfo' => '개인 정보',
@@ -4911,14 +4926,14 @@ extension on TranslationsKoKr {
 			'contact.denylist' => '차단 목록',
 			'contact.denylistEmpty' => '차단 목록이 비어있습니다',
 			'contact.favoriteGroupTagsEtc' => '즐겨찾기 이름, 그룹 이름, 태그 등',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => '새 친구',
 			'contact.recommendToFriend' => '친구에게 추천',
 			'contact.remark' => '메모',
 			'contact.remarksTags' => '메모 및 태그',
 			'contact.selectAGroup' => '그룹 선택',
 			'contact.selectFriends' => '친구 선택',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => '태그',
 			'contact.suggestedTags' => '제안된 태그',
 			'contact.pleaseEnterRemark' => '메모를 입력해 주세요',
@@ -5425,14 +5440,14 @@ extension on TranslationsKoKr {
 			'main.safetyNumberNoDevices' => '상대방이 아직 종단간 암호화를 사용하지 않습니다',
 			'main.safetyNumberPeerDevice' => '상대방 기기',
 			'main.safetyNumberReportRejected' => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => '기기 정보를 가져올 수 없어 보고하지 않았습니다',
 			'main.safetyNumberVerified' => '✓ 확인됨',
 			'main.safetyNumberNotVerified' => '확인 안 됨',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '기기 ${count}대',
 			'main.safetyNumberReporting' => '검증 결과 보고 중...',
 			'main.safetyNumberTitle' => '보안 번호 검증',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => '보안 번호를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요',
 			'main.complianceKeyNotConfigured' => '이 배포에는 컴플라이언스 감사 키가 구성되어 있지 않습니다',
 			'main.mineContent' => '내 콘텐츠',
@@ -5939,14 +5954,14 @@ extension on TranslationsKoKr {
 			'talkRecord.aiProviderResubmitNotice' => '새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?',
 			'talkRecord.aiProviderCancelled' => '전사가 중지되었습니다. 기존 녹음은 유지됩니다.',
 			'talkRecord.aiProviderResumePreparation' => '전사 준비 계속',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '기존 작업은 공급자에게 제출되지 않았습니다. 음성 소스를 다시 준비하고 현재 권한과 동의로 계속합니다.',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',
 			'welcome.step2Title' => '안전하고 개인적인',
 			'welcome.step2Desc' => '엔드투엔드 암호화 당신의 개인 순간을 완벽하게 보호합니다.',
 			'welcome.step3Title' => '탐색할 준비가 되셨나요?',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => '활기찬 커뮤니티에 참여하세요. 대화를 시작해 보세요!',
 			'welcome.next' => '다음',
 			'welcome.getStarted' => '시작하기',
@@ -6189,6 +6204,9 @@ extension on TranslationsKoKr {
 			'workspace.tabTodo' => '할 일',
 			'workspace.takeABreak' => '잠시 쉬어가세요',
 			'workspace.todoEmptyTitle' => '할 일이 없습니다',
+			'workspace.contentProtectedPending' => '콘텐츠가 일시적으로 숨겨져 있습니다. 재인증을 기다리는 중',
+			'workspace.contentProtectedRetry' => '다시 인증',
+			'workspace.contentRevoked' => '이 워크스페이스 콘텐츠에 대한 접근 권한이 없습니다',
 			_ => null,
 		};
 	}

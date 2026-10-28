@@ -256,3 +256,8 @@ tabSchedule: "일정"
 tabTodo: "할 일"
 takeABreak: "잠시 쉬어가세요"
 todoEmptyTitle: "할 일이 없습니다"
+
+# ==================== D6 콘텐츠 보호(§6.6 표시 예산) ====================
+contentProtectedPending: "콘텐츠가 일시적으로 숨겨져 있습니다. 재인증을 기다리는 중"
+contentProtectedRetry: "다시 인증"
+contentRevoked: "이 워크스페이스 콘텐츠에 대한 접근 권한이 없습니다"

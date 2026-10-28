@@ -892,6 +892,12 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get messageContent => 'محتوى الرسالة';
 	@override String get messageRevoked => 'تم سحب الرسالة';
 	@override String get quoteMessageNotAvailable => 'الرسالة المشار إليها غير متاحة';
+	@override String get quoteMessageUnavailable => 'قد تكون الرسالة المشار إليها منتهية الصلاحية أو خارج السجل المتاح لك. أعد المحاولة أو تحقق مع المرسل.';
+	@override String get quoteMessageAuthorizationUnavailable => 'تعذر التحقق من صلاحية الوصول إلى هذه الرسالة القديمة الآن. حاول لاحقًا أو تواصل مع مسؤول المحادثة.';
+	@override String get quoteMessageExpired => 'انتهت صلاحية الرسالة المشار إليها ولا يمكن استعادتها. اطلب من المرسل تأكيد محتواها.';
+	@override String get quoteMessageForbidden => 'ليس لديك إذن لعرض هذه الرسالة. تواصل مع مسؤول المحادثة للتحقق من صلاحياتك.';
+	@override String get quoteMessageLoadFailed => 'تعذر تحميل الرسالة. تحقق من اتصالك ثم اضغط مجددًا للمحاولة.';
+	@override String get quoteMessageUndecryptable => 'لا يستطيع هذا الجهاز فك تشفير الرسالة المشار إليها. أعد المحاولة أو اطلب من المرسل إعادة إرسالها.';
 	@override String get microphone => 'ميكروفون';
 	@override String get microphonePermissionNotObtained => 'لم يتم الحصول على إذن الميكروفون';
 	@override String get moreInfo => 'المزيد من المعلومات';
@@ -2802,6 +2808,9 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'المهام';
 	@override String get takeABreak => 'خذ قسطًا من الراحة';
 	@override String get todoEmptyTitle => 'لا توجد مهام';
+	@override String get contentProtectedPending => 'تم إخفاء المحتوى مؤقتًا، في انتظار إعادة التفويض';
+	@override String get contentProtectedRetry => 'إعادة التحقق';
+	@override String get contentRevoked => 'لم تعد لديك صلاحية الوصول إلى محتوى مساحة العمل هذا';
 }
 
 // Path: account.alipaySim
@@ -4147,6 +4156,12 @@ extension on TranslationsArSa {
 			'common.messageContent' => 'محتوى الرسالة',
 			'common.messageRevoked' => 'تم سحب الرسالة',
 			'common.quoteMessageNotAvailable' => 'الرسالة المشار إليها غير متاحة',
+			'common.quoteMessageUnavailable' => 'قد تكون الرسالة المشار إليها منتهية الصلاحية أو خارج السجل المتاح لك. أعد المحاولة أو تحقق مع المرسل.',
+			'common.quoteMessageAuthorizationUnavailable' => 'تعذر التحقق من صلاحية الوصول إلى هذه الرسالة القديمة الآن. حاول لاحقًا أو تواصل مع مسؤول المحادثة.',
+			'common.quoteMessageExpired' => 'انتهت صلاحية الرسالة المشار إليها ولا يمكن استعادتها. اطلب من المرسل تأكيد محتواها.',
+			'common.quoteMessageForbidden' => 'ليس لديك إذن لعرض هذه الرسالة. تواصل مع مسؤول المحادثة للتحقق من صلاحياتك.',
+			'common.quoteMessageLoadFailed' => 'تعذر تحميل الرسالة. تحقق من اتصالك ثم اضغط مجددًا للمحاولة.',
+			'common.quoteMessageUndecryptable' => 'لا يستطيع هذا الجهاز فك تشفير الرسالة المشار إليها. أعد المحاولة أو اطلب من المرسل إعادة إرسالها.',
 			'common.microphone' => 'ميكروفون',
 			'common.microphonePermissionNotObtained' => 'لم يتم الحصول على إذن الميكروفون',
 			'common.moreInfo' => 'المزيد من المعلومات',
@@ -4409,14 +4424,14 @@ extension on TranslationsArSa {
 			'common.localDeleteSuccess' => 'نجح الحذف المحلي',
 			'common.localDeleteFailed' => 'فشل الحذف المحلي',
 			'common.revokeSuccess' => 'نجح السحب',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'لا يمكن أن يكون محتوى التعديل فارغاً',
 			'common.editSuccess' => 'نجح التعديل',
 			'common.enabled' => 'مُمكَّن',
 			'common.disabled' => 'مُعطّل',
 			'common.fontSizeSettingUpdated' => 'تم تحديث إعدادات حجم الخط',
 			'common.fontSizeSetting' => 'إعدادات حجم الخط',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'الخط صغير جداً، قد يؤثر على القراءة',
 			'common.dragSliderAdjustFontSize' => 'اسحب شريط التمرير لضبط حجم الخط',
 			'common.personalInfo' => 'معلومات شخصية',
@@ -4923,14 +4938,14 @@ extension on TranslationsArSa {
 			'contact.denylist' => 'القائمة السوداء',
 			'contact.denylistEmpty' => 'القائمة السوداء فارغة',
 			'contact.favoriteGroupTagsEtc' => 'الأسماء وأسماء المجموعات والعلامات المفضلة',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'صديق جديد',
 			'contact.recommendToFriend' => 'التوصية به للأصدقاء',
 			'contact.remark' => 'ملاحظة',
 			'contact.remarksTags' => 'ملاحظات وعلامات',
 			'contact.selectAGroup' => 'اختيار مجموعة',
 			'contact.selectFriends' => 'اختيار الأصدقاء',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => 'العلامات',
 			'contact.suggestedTags' => 'علامات مقترحة',
 			'contact.pleaseEnterRemark' => 'يرجى إدخال الملاحظة',
@@ -5437,14 +5452,14 @@ extension on TranslationsArSa {
 			'main.safetyNumberMarkedVerified' => 'تم وضع علامة تم التحقق',
 			'main.safetyNumberPeerDevice' => 'جهاز الطرف الآخر',
 			'main.safetyNumberNoDevices' => 'لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'تعذّر الحصول على رمز الأمان. حاول لاحقاً',
 			'main.safetyNumberReporting' => 'جارٍ الإبلاغ عن نتيجة التحقق...',
 			'main.safetyNumberReportRejected' => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة',
 			'main.safetyNumberReportUnavailable' => 'تعذّر الحصول على معلومات الجهاز، ولم يُرسل الإبلاغ',
 			'main.safetyNumberVerified' => '✓ تم التحقق',
 			'main.safetyNumberNotVerified' => 'غير مُتحقق',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} أجهزة',
 			'main.complianceKeyNotConfigured' => 'لم يتم تكوين مفتاح تدقيق الامتثال لهذا النشر',
 			'main.mineContent' => 'المحتوى الخاص بي',
@@ -5951,14 +5966,14 @@ extension on TranslationsArSa {
 			'talkRecord.aiProviderResubmitNotice' => 'ينشئ تفريغًا جديدًا وقد يسبب رسومًا مكررة. يبقى الطلب الأصلي. هل تؤكد إعادة الإرسال والموافقة على هذه المعالجة؟',
 			'talkRecord.aiProviderCancelled' => 'توقف التفريغ. تم الاحتفاظ بالصوت الموجود.',
 			'talkRecord.aiProviderResumePreparation' => 'متابعة إعداد التفريغ',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'لم تُرسل المهمة الأصلية إلى المزوّد. أعد تجهيز مصدر الصوت وفق الأذونات والموافقة الحالية.',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',
 			'welcome.step2Title' => 'آمن وخاص',
 			'welcome.step2Desc' => 'التشفير من طرف لآخر يحافظ على خصوصية لحظاتك تماماً',
 			'welcome.step3Title' => 'جاهز للاستكشاف؟',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => 'انضم إلى مجتمع نابض بالحياة. لنبدأ المحادثة!',
 			'welcome.next' => 'التالي',
 			'welcome.getStarted' => 'ابدأ',
@@ -6201,6 +6216,9 @@ extension on TranslationsArSa {
 			'workspace.tabTodo' => 'المهام',
 			'workspace.takeABreak' => 'خذ قسطًا من الراحة',
 			'workspace.todoEmptyTitle' => 'لا توجد مهام',
+			'workspace.contentProtectedPending' => 'تم إخفاء المحتوى مؤقتًا، في انتظار إعادة التفويض',
+			'workspace.contentProtectedRetry' => 'إعادة التحقق',
+			'workspace.contentRevoked' => 'لم تعد لديك صلاحية الوصول إلى محتوى مساحة العمل هذا',
 			_ => null,
 		};
 	}

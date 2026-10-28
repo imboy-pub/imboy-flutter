@@ -509,6 +509,15 @@ class MessageRepo implements MessageRepository {
     int nextAutoId,
     int size,
   ) => _reader.pageForConversation(uk3, nextAutoId, size);
+
+  Future<List<MessageModel>> pageContextForConversation(
+    String uk3,
+    int anchorAutoId,
+    int size, {
+    bool newer = false,
+  }) =>
+      _reader.pageContextForConversation(uk3, anchorAutoId, size, newer: newer);
+
   @override
   Future<List<MessageModel>> pageNewerForConversation(
     String uk3,

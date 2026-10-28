@@ -257,3 +257,8 @@ tabSchedule: "スケジュール"
 tabTodo: "やること"
 takeABreak: "ひと休み"
 todoEmptyTitle: "やることはありません"
+
+# ==================== D6 コンテンツ保護（§6.6 表示バジェット） ====================
+contentProtectedPending: "コンテンツを一時的に非表示にしています。再認証を待っています"
+contentProtectedRetry: "再認証"
+contentRevoked: "このワークスペースのコンテンツへのアクセス権がありません"

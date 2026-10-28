@@ -256,3 +256,8 @@ projectInsightsResourcesEmpty: "项目暂无资源链接"
 projectInsightsActivityEmpty: "项目暂无动态"
 projectInsightsPostsEmpty: "关联频道暂无帖子"
 projectInsightsPostAuthor: "$name 发布"
+
+# ==================== D6 内容保护（§6.6 展示预算） ====================
+contentProtectedPending: "内容已暂时隐藏，等待重新授权"
+contentProtectedRetry: "重新验证"
+contentRevoked: "你已无权查看此工作区内容"

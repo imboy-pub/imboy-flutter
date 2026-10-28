@@ -894,6 +894,12 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get messageContent => '訊息內容';
 	@override String get messageRevoked => '訊息已撤回';
 	@override String get quoteMessageNotAvailable => '引用的訊息不可用';
+	@override String get quoteMessageUnavailable => '無法取得這則引用訊息，可能已過期或不在目前可存取的歷史中，請重試或向傳送者確認';
+	@override String get quoteMessageAuthorizationUnavailable => '暫時無法確認這則歷史訊息的存取權限，請稍後重試或聯絡對話管理員';
+	@override String get quoteMessageExpired => '引用的訊息已過期，無法恢復；請向傳送者確認內容';
+	@override String get quoteMessageForbidden => '你沒有權限檢視這則引用訊息，請聯絡對話管理員確認權限';
+	@override String get quoteMessageLoadFailed => '引用訊息載入失敗，請檢查網路後再次點擊重試';
+	@override String get quoteMessageUndecryptable => '本裝置無法解密這則引用訊息，請重試或請傳送者重新傳送';
 	@override String get microphone => '麥克風';
 	@override String get microphonePermissionNotObtained => '未獲取麥克風權限';
 	@override String get moreInfo => '更多資訊';
@@ -2790,6 +2796,9 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get tabTodo => '待辦';
 	@override String get takeABreak => '休息一下';
 	@override String get todoEmptyTitle => '暫無待辦';
+	@override String get contentProtectedPending => '內容已暫時隱藏，等待重新授權';
+	@override String get contentProtectedRetry => '重新驗證';
+	@override String get contentRevoked => '你已無權查看此工作區內容';
 }
 
 // Path: account.alipaySim
@@ -4137,6 +4146,12 @@ extension on TranslationsZhHant {
 			'common.messageContent' => '訊息內容',
 			'common.messageRevoked' => '訊息已撤回',
 			'common.quoteMessageNotAvailable' => '引用的訊息不可用',
+			'common.quoteMessageUnavailable' => '無法取得這則引用訊息，可能已過期或不在目前可存取的歷史中，請重試或向傳送者確認',
+			'common.quoteMessageAuthorizationUnavailable' => '暫時無法確認這則歷史訊息的存取權限，請稍後重試或聯絡對話管理員',
+			'common.quoteMessageExpired' => '引用的訊息已過期，無法恢復；請向傳送者確認內容',
+			'common.quoteMessageForbidden' => '你沒有權限檢視這則引用訊息，請聯絡對話管理員確認權限',
+			'common.quoteMessageLoadFailed' => '引用訊息載入失敗，請檢查網路後再次點擊重試',
+			'common.quoteMessageUndecryptable' => '本裝置無法解密這則引用訊息，請重試或請傳送者重新傳送',
 			'common.microphone' => '麥克風',
 			'common.microphonePermissionNotObtained' => '未獲取麥克風權限',
 			'common.moreInfo' => '更多資訊',
@@ -4397,14 +4412,14 @@ extension on TranslationsZhHant {
 			'common.retrySuccess' => '重試成功',
 			'common.deleteSuccess' => '刪除成功',
 			'common.localDeleteSuccess' => '本地刪除成功',
+			_ => null,
+		} ?? switch (path) {
 			'common.localDeleteFailed' => '本地刪除失敗',
 			'common.revokeSuccess' => '收回成功',
 			'common.editContentCannotBeEmpty' => '編輯內容不能為空',
 			'common.editSuccess' => '編輯成功',
 			'common.enabled' => '已開啟',
 			'common.disabled' => '已關閉',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontSizeSettingUpdated' => '字體大小設定已更新',
 			'common.fontSizeSetting' => '字體大小設定',
 			'common.fontTooSmallMayAffect' => '字體偏小，可能影響閱讀',
@@ -4911,14 +4926,14 @@ extension on TranslationsZhHant {
 			'contact.denylist' => '黑名單',
 			'contact.denylistEmpty' => '黑名單為空',
 			'contact.favoriteGroupTagsEtc' => '收藏人名、群組名、標籤等',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => '新朋友',
 			'contact.recommendToFriend' => '把他推薦給好友',
 			'contact.remark' => '備註',
 			'contact.remarksTags' => '備註和標籤',
 			'contact.selectAGroup' => '選擇一個群組',
 			'contact.selectFriends' => '選擇好友',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => '標籤',
 			'contact.suggestedTags' => '建議標籤',
 			'contact.pleaseEnterRemark' => '請輸入備註名',
@@ -5425,14 +5440,14 @@ extension on TranslationsZhHant {
 			'main.safetyNumberNoDevices' => '對方尚未啟用端對端加密',
 			'main.safetyNumberPeerDevice' => '對方裝置',
 			'main.safetyNumberReportRejected' => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => '無法取得裝置資訊，未上報',
 			'main.safetyNumberVerified' => '✓ 已驗證',
 			'main.safetyNumberNotVerified' => '未驗證',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台裝置',
 			'main.safetyNumberReporting' => '正在上報驗證結果...',
 			'main.safetyNumberTitle' => '安全碼驗證',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => '取得安全碼失敗，請稍後重試',
 			'main.complianceKeyNotConfigured' => '目前部署未配置合規審計金鑰',
 			'main.mineContent' => '我的內容',
@@ -5939,14 +5954,14 @@ extension on TranslationsZhHant {
 			'talkRecord.aiProviderResubmitNotice' => '將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？',
 			'talkRecord.aiProviderCancelled' => '轉寫已停止，已有錄音保留。',
 			'talkRecord.aiProviderResumePreparation' => '繼續準備轉寫',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '原任務尚未提交至供應商。本次將重新準備音訊來源，確認後依目前權限與處理同意繼續。',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',
 			'welcome.step2Title' => '安全又私密',
 			'welcome.step2Desc' => '端到端加密 保護你的個人時刻只屬於你自己。',
 			'welcome.step3Title' => '準備探索？',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => '加入一個充滿活力的社區。 讓對話開始吧！',
 			'welcome.next' => '下一個步驟',
 			'welcome.getStarted' => '開始使用',
@@ -6189,6 +6204,9 @@ extension on TranslationsZhHant {
 			'workspace.tabTodo' => '待辦',
 			'workspace.takeABreak' => '休息一下',
 			'workspace.todoEmptyTitle' => '暫無待辦',
+			'workspace.contentProtectedPending' => '內容已暫時隱藏，等待重新授權',
+			'workspace.contentProtectedRetry' => '重新驗證',
+			'workspace.contentRevoked' => '你已無權查看此工作區內容',
 			_ => null,
 		};
 	}

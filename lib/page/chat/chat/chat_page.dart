@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:imboy/component/ui/app_back_scope.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/page/chat/chat/services/chat_archive_service.dart';
 
 import 'chat_back_handler.dart';
 
@@ -119,6 +122,14 @@ class ChatPage extends ConsumerStatefulWidget {
 
 class ChatPageState extends ConsumerState<ChatPage>
     with MessageEventHandler, SelectionHandler {
+  final _locationSession = authSessionReader.current;
+  final _locationEndpoint = Env().apiBaseUrl;
+  int _quoteRequest = 0;
+
+  bool get _locationIsCurrent =>
+      mounted &&
+      authSessionReader.isCurrent(_locationSession) &&
+      Env().apiBaseUrl == _locationEndpoint;
   // 使用 Riverpod Provider 替代 GetX
   // state 已移除 - 在 build 方法中通过 ref.watch(chatProvider) 获取
 
@@ -385,14 +396,27 @@ class ChatPageState extends ConsumerState<ChatPage>
       await ref
           .read(chatProvider.notifier)
           .cleanupExpiredBurnMessagesForConversation(conversation);
+      if (!_locationIsCurrent) return;
 
       if (widget.msgId.isNotEmpty) {
-        await ref
+        final request = ++_quoteRequest;
+        bool current() => _locationIsCurrent && request == _quoteRequest;
+        final result = await ref
             .read(chatProvider.notifier)
-            .loadMessagesAround(conversation, widget.msgId);
+            .loadMessagesAround(conversation, widget.msgId, isCurrent: current);
+        if (!current() || result == MessageLocationResult.cancelled) return;
+        if (result != MessageLocationResult.located) {
+          _showMessageLocationFailure(result);
+          await ref
+              .read(chatProvider.notifier)
+              .loadMoreMessages(conversation, isInitial: true);
+          return;
+        }
         // 延迟滚动，确保 ListView 已构建且消息已渲染
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _scrollToTargetMessage();
+          if (current()) {
+            _scrollToMessageId(widget.msgId, retry: true, isCurrent: current);
+          }
         });
       } else {
         await ref
@@ -920,58 +944,70 @@ class ChatPageState extends ConsumerState<ChatPage>
   // 移除了 _clearUnreadOnEnter()，依靠消息本身的可见性检查来渐进式消除未读数
 
   // 滚动到目标消息
-  /// 深链进页时定位到 widget.msgId
-  Future<void> _scrollToTargetMessage() async {
-    await _scrollToMessageId(widget.msgId, retry: true);
-  }
-
-  /// 点击引用块跳回被引用的原消息。
-  ///
-  /// F16/J18.f：已加载 → 滚动定位；未加载 → 在成员世代授权边界内拉取
-  /// 该消息上下文（loadMessagesAround，服务端裁决过期/无权/越界——拉取
-  /// 为空即不可达），随后重试定位；仍不可达给可行动说明，不静默返回。
   Future<void> _onQuoteTap(String quotedMessageId) async {
-    if (quotedMessageId.isEmpty) return;
-
-    final messages =
-        ref.read(chatProvider.notifier).chatService?.messages ?? [];
-    final isLoaded = messages.any((m) => m.id == quotedMessageId);
-    if (isLoaded) {
-      await _scrollToMessageId(quotedMessageId, retry: false);
+    if (quotedMessageId.isEmpty || !_locationIsCurrent) return;
+    final request = ++_quoteRequest;
+    bool current() => _locationIsCurrent && request == _quoteRequest;
+    final result = await ref
+        .read(chatProvider.notifier)
+        .loadMessagesAround(conversation, quotedMessageId, isCurrent: current);
+    if (!current()) return;
+    if (result != MessageLocationResult.located) {
+      _showMessageLocationFailure(result);
       return;
     }
-    await ref
-        .read(chatProvider.notifier)
-        .loadMessagesAround(conversation, quotedMessageId);
-    final located = await _scrollToMessageId(quotedMessageId, retry: false);
-    if (!located && mounted) {
+    final located = await _scrollToMessageId(
+      quotedMessageId,
+      retry: false,
+      isCurrent: current,
+    );
+    if (!located && current()) {
       AppLoading.showToast(t.common.quoteMessageNotAvailable);
     }
+  }
+
+  void _showMessageLocationFailure(MessageLocationResult result) {
+    if (!_locationIsCurrent || result == MessageLocationResult.cancelled) {
+      return;
+    }
+    if (result == MessageLocationResult.missingKey) {
+      showE2EERecoveryGuide(context, scene: E2EERecoveryScene.decryptFailed);
+      return;
+    }
+    AppLoading.showToast(switch (result) {
+      MessageLocationResult.unavailable => t.common.quoteMessageUnavailable,
+      MessageLocationResult.authorizationUnavailable =>
+        t.common.quoteMessageAuthorizationUnavailable,
+      MessageLocationResult.expired => t.common.quoteMessageExpired,
+      MessageLocationResult.forbidden => t.common.quoteMessageForbidden,
+      MessageLocationResult.undecryptable => t.common.quoteMessageUndecryptable,
+      MessageLocationResult.failed => t.common.quoteMessageLoadFailed,
+      _ => t.common.quoteMessageNotAvailable,
+    });
   }
 
   /// 滚动并高亮指定消息。[retry] 为 true 时做渐进式重试（深链进页场景下
   /// 列表可能尚未完成首帧布局）；用户主动点击时列表已就绪，一次即可。
   /// 返回是否定位成功（目标在当前已加载列表中）。
-  Future<bool> _scrollToMessageId(String msgId, {required bool retry}) async {
-    if (msgId.isEmpty) return false;
+  Future<bool> _scrollToMessageId(
+    String msgId, {
+    required bool retry,
+    bool Function()? isCurrent,
+  }) async {
+    bool current() => _locationIsCurrent && (isCurrent?.call() ?? true);
+    if (msgId.isEmpty || !current()) return false;
 
     try {
       // 确保消息列表已加载
       final messages =
           ref.read(chatProvider.notifier).chatService?.messages ?? [];
       if (messages.isEmpty) {
-        if (!retry && mounted) {
-          AppLoading.showToast(t.common.quoteMessageNotAvailable);
-        }
         return false;
       }
 
       // 查找目标消息在列表中的索引
       final targetIndex = messages.indexWhere((m) => m.id == msgId);
       if (targetIndex == -1) {
-        if (!retry && mounted) {
-          AppLoading.showToast(t.common.quoteMessageNotAvailable);
-        }
         return false;
       }
       final attempts = retry ? 15 : 1;
@@ -979,7 +1015,7 @@ class ChatPageState extends ConsumerState<ChatPage>
       // 增加重试次数和间隔，确保在复杂布局或低端机上也能成功定位
       for (var attempt = 0; attempt < attempts; attempt++) {
         // 检查 widget 是否仍然 mounted
-        if (!mounted) {
+        if (!current()) {
           return false;
         }
 
@@ -988,7 +1024,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           Duration(milliseconds: attempt < 3 ? 100 : 300),
         );
 
-        if (!mounted) return false;
+        if (!current()) return false;
 
         // 尝试触发滚动
         await ref
@@ -1000,6 +1036,7 @@ class ChatPageState extends ConsumerState<ChatPage>
               // 负担；保留偏移避开 AppBar。
               offset: 120.0,
             );
+        if (!current()) return false;
 
         // 检查目标消息是否已挂载到视图树中
         if (_targetMessageKey.currentContext != null) {
@@ -1008,12 +1045,12 @@ class ChatPageState extends ConsumerState<ChatPage>
       }
 
       // 无论是否成功通过 Key 定位，最后都尝试高亮（如果消息在列表中）
-      if (mounted) {
+      if (current()) {
         ref.read(messageScrollManagerProvider.notifier).highlightMessage(msgId);
       }
       return true;
     } catch (e) {
-      _fallbackScrollToMessage(msgId);
+      if (current()) _fallbackScrollToMessage(msgId);
       // 降级路径无法确认定位成功与否，按未定位处理（调用方给反馈）。
       return false;
     }

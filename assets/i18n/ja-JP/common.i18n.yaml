@@ -152,6 +152,12 @@ messageCall: メッセージを送る
 messageContent: メッセージ内容
 messageRevoked: メッセージが取り消されました
 quoteMessageNotAvailable: 引用されているメッセージは利用できません
+quoteMessageUnavailable: 引用されたメッセージは期限切れか、アクセス可能な履歴の範囲外の可能性があります。再試行するか送信者に確認してください。
+quoteMessageAuthorizationUnavailable: この過去のメッセージへのアクセス権を確認できません。後でもう一度試すか、会話の管理者に確認してください。
+quoteMessageExpired: 引用されたメッセージは期限切れで復元できません。送信者に内容を確認してください。
+quoteMessageForbidden: この引用メッセージを表示する権限がありません。会話の管理者に権限を確認してください。
+quoteMessageLoadFailed: 引用メッセージを読み込めませんでした。接続を確認して、もう一度タップしてください。
+quoteMessageUndecryptable: この端末では引用メッセージを復号できません。再試行するか、送信者に再送を依頼してください。
 microphone: マイク
 microphonePermissionNotObtained: マイク権限が取得できませんでした
 moreInfo: 詳細情報

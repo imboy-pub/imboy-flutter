@@ -892,6 +892,12 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get messageContent => 'Содержание сообщения';
 	@override String get messageRevoked => 'Сообщение отозвано';
 	@override String get quoteMessageNotAvailable => 'Цитируемое сообщение недоступно';
+	@override String get quoteMessageUnavailable => 'Срок хранения сообщения мог истечь, или оно находится вне доступной истории. Повторите попытку или уточните у отправителя.';
+	@override String get quoteMessageAuthorizationUnavailable => 'Сейчас невозможно проверить доступ к этому старому сообщению. Повторите попытку позже или обратитесь к администратору переписки.';
+	@override String get quoteMessageExpired => 'Срок хранения цитируемого сообщения истёк, восстановление невозможно. Уточните его содержание у отправителя.';
+	@override String get quoteMessageForbidden => 'У вас нет доступа к этому цитируемому сообщению. Обратитесь к администратору переписки для проверки прав.';
+	@override String get quoteMessageLoadFailed => 'Не удалось загрузить цитируемое сообщение. Проверьте подключение и нажмите ещё раз.';
+	@override String get quoteMessageUndecryptable => 'Это устройство не может расшифровать сообщение. Повторите попытку или попросите отправителя переслать его.';
 	@override String get microphone => 'Микрофон';
 	@override String get microphonePermissionNotObtained => 'Не получено разрешение на микрофон';
 	@override String get moreInfo => 'Больше информации';
@@ -2799,6 +2805,9 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'Задачи';
 	@override String get takeABreak => 'Немного отдохните';
 	@override String get todoEmptyTitle => 'Нет задач';
+	@override String get contentProtectedPending => 'Содержимое временно скрыто, ожидается повторная авторизация';
+	@override String get contentProtectedRetry => 'Проверить снова';
+	@override String get contentRevoked => 'У вас больше нет доступа к этому содержимому рабочего пространства';
 }
 
 // Path: account.alipaySim
@@ -4144,6 +4153,12 @@ extension on TranslationsRuRu {
 			'common.messageContent' => 'Содержание сообщения',
 			'common.messageRevoked' => 'Сообщение отозвано',
 			'common.quoteMessageNotAvailable' => 'Цитируемое сообщение недоступно',
+			'common.quoteMessageUnavailable' => 'Срок хранения сообщения мог истечь, или оно находится вне доступной истории. Повторите попытку или уточните у отправителя.',
+			'common.quoteMessageAuthorizationUnavailable' => 'Сейчас невозможно проверить доступ к этому старому сообщению. Повторите попытку позже или обратитесь к администратору переписки.',
+			'common.quoteMessageExpired' => 'Срок хранения цитируемого сообщения истёк, восстановление невозможно. Уточните его содержание у отправителя.',
+			'common.quoteMessageForbidden' => 'У вас нет доступа к этому цитируемому сообщению. Обратитесь к администратору переписки для проверки прав.',
+			'common.quoteMessageLoadFailed' => 'Не удалось загрузить цитируемое сообщение. Проверьте подключение и нажмите ещё раз.',
+			'common.quoteMessageUndecryptable' => 'Это устройство не может расшифровать сообщение. Повторите попытку или попросите отправителя переслать его.',
 			'common.microphone' => 'Микрофон',
 			'common.microphonePermissionNotObtained' => 'Не получено разрешение на микрофон',
 			'common.moreInfo' => 'Больше информации',
@@ -4406,14 +4421,14 @@ extension on TranslationsRuRu {
 			'common.localDeleteSuccess' => 'Локальное удаление успешно',
 			'common.localDeleteFailed' => 'Локальное удаление не удалось',
 			'common.revokeSuccess' => 'Успешно отозвано',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'Содержание редактирования не может быть пустым',
 			'common.editSuccess' => 'Успешно отредактировано',
 			'common.enabled' => 'Включено',
 			'common.disabled' => 'Отключено',
 			'common.fontSizeSettingUpdated' => 'Настройка размера шрифта обновлена',
 			'common.fontSizeSetting' => 'Настройка размера шрифта',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Шрифт слишком маленький, может повлиять на чтение',
 			'common.dragSliderAdjustFontSize' => 'Перетащите ползунок для изменения размера шрифта',
 			'common.personalInfo' => 'Личная информация',
@@ -4920,14 +4935,14 @@ extension on TranslationsRuRu {
 			'contact.denylist' => 'Чёрный список',
 			'contact.denylistEmpty' => 'Чёрный список пуст',
 			'contact.favoriteGroupTagsEtc' => 'Сохранённые имена, группы, теги и т.д.',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'Новые друзья',
 			'contact.recommendToFriend' => 'Порекомендовать другу',
 			'contact.remark' => 'Примечание',
 			'contact.remarksTags' => 'Примечания и теги',
 			'contact.selectAGroup' => 'Выберите группу',
 			'contact.selectFriends' => 'Выбрать друзей',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => 'Теги',
 			'contact.suggestedTags' => 'Рекомендуемые теги',
 			'contact.pleaseEnterRemark' => 'Пожалуйста, введите примечание',
@@ -5434,14 +5449,14 @@ extension on TranslationsRuRu {
 			'main.safetyNumberNoDevices' => 'У собеседника не включено сквозное шифрование',
 			'main.safetyNumberPeerDevice' => 'Устройство собеседника',
 			'main.safetyNumberReportRejected' => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Не удалось получить информацию об устройстве, не отправлено',
 			'main.safetyNumberVerified' => '✓ Проверено',
 			'main.safetyNumberNotVerified' => 'Не проверено',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => 'Устройств: ${count}',
 			'main.safetyNumberReporting' => 'Отправка результата проверки...',
 			'main.safetyNumberTitle' => 'Проверка кода безопасности',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'Не удалось получить код безопасности. Повторите позже',
 			'main.complianceKeyNotConfigured' => 'Для этого развёртывания не настроен ключ комплаенс-аудита',
 			'main.mineContent' => 'Мои материалы',
@@ -5948,14 +5963,14 @@ extension on TranslationsRuRu {
 			'talkRecord.aiProviderResubmitNotice' => 'Создаёт новую транскрипцию; возможна повторная оплата. Исходный запрос остаётся. Отправить повторно и согласиться на обработку?',
 			'talkRecord.aiProviderCancelled' => 'Транскрипция остановлена. Аудио сохранено.',
 			'talkRecord.aiProviderResumePreparation' => 'Продолжить подготовку',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'Исходная задача ещё не отправлена поставщику. Повторно подготовьте источник аудио с текущими правами и согласием.',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',
 			'welcome.step2Title' => 'Безопасно и приватно',
 			'welcome.step2Desc' => 'Сквозное шифрование Ваши личные моменты остаются только вашими',
 			'welcome.step3Title' => 'Готовы начать?',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => 'Присоединяйтесь к сообществу Начните общение!',
 			'welcome.next' => 'Далее',
 			'welcome.getStarted' => 'Начать',
@@ -6198,6 +6213,9 @@ extension on TranslationsRuRu {
 			'workspace.tabTodo' => 'Задачи',
 			'workspace.takeABreak' => 'Немного отдохните',
 			'workspace.todoEmptyTitle' => 'Нет задач',
+			'workspace.contentProtectedPending' => 'Содержимое временно скрыто, ожидается повторная авторизация',
+			'workspace.contentProtectedRetry' => 'Проверить снова',
+			'workspace.contentRevoked' => 'У вас больше нет доступа к этому содержимому рабочего пространства',
 			_ => null,
 		};
 	}

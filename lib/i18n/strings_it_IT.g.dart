@@ -892,6 +892,12 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get messageContent => 'Contenuto messaggio';
 	@override String get messageRevoked => 'Messaggio revocato';
 	@override String get quoteMessageNotAvailable => 'Il messaggio citato non è disponibile';
+	@override String get quoteMessageUnavailable => 'Il messaggio citato potrebbe essere scaduto o non essere nella cronologia accessibile. Riprova o contatta il mittente.';
+	@override String get quoteMessageAuthorizationUnavailable => 'Al momento non è possibile verificare l’accesso a questo messaggio precedente. Riprova più tardi o contatta l’amministratore della conversazione.';
+	@override String get quoteMessageExpired => 'Il messaggio citato è scaduto e non può essere ripristinato. Chiedi al mittente di confermarne il contenuto.';
+	@override String get quoteMessageForbidden => 'Non hai accesso a questo messaggio citato. Contatta l’amministratore della conversazione per verificare le autorizzazioni.';
+	@override String get quoteMessageLoadFailed => 'Impossibile caricare il messaggio citato. Controlla la connessione e tocca di nuovo per riprovare.';
+	@override String get quoteMessageUndecryptable => 'Questo dispositivo non può decifrare il messaggio citato. Riprova o chiedi al mittente di inviarlo di nuovo.';
 	@override String get microphone => 'Microfono';
 	@override String get microphonePermissionNotObtained => 'Permesso microfono non ottenuto';
 	@override String get moreInfo => 'Più informazioni';
@@ -2793,6 +2799,9 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get tabTodo => 'Da fare';
 	@override String get takeABreak => 'Fai una pausa';
 	@override String get todoEmptyTitle => 'Nessuna attività';
+	@override String get contentProtectedPending => 'Contenuto temporaneamente nascosto, in attesa di riautorizzazione';
+	@override String get contentProtectedRetry => 'Verifica di nuovo';
+	@override String get contentRevoked => 'Non hai più accesso a questo contenuto dell\'area di lavoro';
 }
 
 // Path: account.alipaySim
@@ -4138,6 +4147,12 @@ extension on TranslationsItIt {
 			'common.messageContent' => 'Contenuto messaggio',
 			'common.messageRevoked' => 'Messaggio revocato',
 			'common.quoteMessageNotAvailable' => 'Il messaggio citato non è disponibile',
+			'common.quoteMessageUnavailable' => 'Il messaggio citato potrebbe essere scaduto o non essere nella cronologia accessibile. Riprova o contatta il mittente.',
+			'common.quoteMessageAuthorizationUnavailable' => 'Al momento non è possibile verificare l’accesso a questo messaggio precedente. Riprova più tardi o contatta l’amministratore della conversazione.',
+			'common.quoteMessageExpired' => 'Il messaggio citato è scaduto e non può essere ripristinato. Chiedi al mittente di confermarne il contenuto.',
+			'common.quoteMessageForbidden' => 'Non hai accesso a questo messaggio citato. Contatta l’amministratore della conversazione per verificare le autorizzazioni.',
+			'common.quoteMessageLoadFailed' => 'Impossibile caricare il messaggio citato. Controlla la connessione e tocca di nuovo per riprovare.',
+			'common.quoteMessageUndecryptable' => 'Questo dispositivo non può decifrare il messaggio citato. Riprova o chiedi al mittente di inviarlo di nuovo.',
 			'common.microphone' => 'Microfono',
 			'common.microphonePermissionNotObtained' => 'Permesso microfono non ottenuto',
 			'common.moreInfo' => 'Più informazioni',
@@ -4400,14 +4415,14 @@ extension on TranslationsItIt {
 			'common.localDeleteSuccess' => 'Eliminazione locale riuscita',
 			'common.localDeleteFailed' => 'Eliminazione locale non riuscita',
 			'common.revokeSuccess' => 'Revocato con successo',
+			_ => null,
+		} ?? switch (path) {
 			'common.editContentCannotBeEmpty' => 'Il contenuto della modifica non può essere vuoto',
 			'common.editSuccess' => 'Modificato con successo',
 			'common.enabled' => 'Attivato',
 			'common.disabled' => 'Disattivato',
 			'common.fontSizeSettingUpdated' => 'Impostazione dimensione font aggiornata',
 			'common.fontSizeSetting' => 'Impostazione dimensione font',
-			_ => null,
-		} ?? switch (path) {
 			'common.fontTooSmallMayAffect' => 'Il font è troppo piccolo e potrebbe influire sulla lettura',
 			'common.dragSliderAdjustFontSize' => 'Trascina il cursore per regolare la dimensione del font',
 			'common.personalInfo' => 'Informazioni personali',
@@ -4914,14 +4929,14 @@ extension on TranslationsItIt {
 			'contact.denylist' => 'Lista bloccati',
 			'contact.denylistEmpty' => 'Lista bloccati vuota',
 			'contact.favoriteGroupTagsEtc' => 'Raccolta nomi, nomi gruppo, tag ecc.',
+			_ => null,
+		} ?? switch (path) {
 			'contact.newFriend' => 'Nuovo amico',
 			'contact.recommendToFriend' => 'Consiglialo agli amici',
 			'contact.remark' => 'Nota',
 			'contact.remarksTags' => 'Note e tag',
 			'contact.selectAGroup' => 'Seleziona un gruppo',
 			'contact.selectFriends' => 'Seleziona amici',
-			_ => null,
-		} ?? switch (path) {
 			'contact.tags' => 'Tag',
 			'contact.suggestedTags' => 'Tag suggeriti',
 			'contact.pleaseEnterRemark' => 'Inserisci nota',
@@ -5428,14 +5443,14 @@ extension on TranslationsItIt {
 			'main.safetyNumberNoDevices' => 'L\'altro non ha ancora attivato la crittografia end-to-end',
 			'main.safetyNumberPeerDevice' => 'Dispositivo dell\'altro',
 			'main.safetyNumberReportRejected' => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Impossibile ottenere le informazioni del dispositivo, non riportato',
 			'main.safetyNumberVerified' => '✓ Verificato',
 			'main.safetyNumberNotVerified' => 'Non verificato',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} dispositivo/i',
 			'main.safetyNumberReporting' => 'Invio del risultato della verifica in corso...',
 			'main.safetyNumberTitle' => 'Verifica del codice di sicurezza',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'Impossibile ottenere il codice di sicurezza, riprova più tardi',
 			'main.complianceKeyNotConfigured' => 'Nessuna chiave di audit di conformità configurata per questo deployment',
 			'main.mineContent' => 'I miei contenuti',
@@ -5942,14 +5957,14 @@ extension on TranslationsItIt {
 			'talkRecord.aiProviderResubmitNotice' => 'Crea una nuova trascrizione e può causare costi duplicati. La richiesta originale resta. Reinviare e acconsentire al trattamento?',
 			'talkRecord.aiProviderCancelled' => 'Trascrizione interrotta. Audio esistente conservato.',
 			'talkRecord.aiProviderResumePreparation' => 'Continua la preparazione',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'L’attività originale non è stata inviata. Prepara nuovamente la sorgente audio con permessi e consenso attuali.',
 			'welcome.step1Title' => 'Connessione semplice',
 			'welcome.step1Desc' => 'Sperimenta la gioia di una comunicazione senza intoppi. In qualsiasi momento, ovunque.',
 			'welcome.step2Title' => 'Sicuro e privato',
 			'welcome.step2Desc' => 'Crittografia end-to-end Mantiene i tuoi momenti personali strettamente tuoi.',
 			'welcome.step3Title' => 'Pronto a esplorare?',
-			_ => null,
-		} ?? switch (path) {
 			'welcome.step3Desc' => 'Unisciti a una comunità vibrante. Iniziamo la conversazione!',
 			'welcome.next' => 'Avanti',
 			'welcome.getStarted' => 'Inizia',
@@ -6192,6 +6207,9 @@ extension on TranslationsItIt {
 			'workspace.tabTodo' => 'Da fare',
 			'workspace.takeABreak' => 'Fai una pausa',
 			'workspace.todoEmptyTitle' => 'Nessuna attività',
+			'workspace.contentProtectedPending' => 'Contenuto temporaneamente nascosto, in attesa di riautorizzazione',
+			'workspace.contentProtectedRetry' => 'Verifica di nuovo',
+			'workspace.contentRevoked' => 'Non hai più accesso a questo contenuto dell\'area di lavoro',
 			_ => null,
 		};
 	}

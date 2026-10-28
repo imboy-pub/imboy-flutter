@@ -258,3 +258,8 @@ tabSchedule: "Terminplan"
 tabTodo: "Aufgaben"
 takeABreak: "Kurze Pause machen"
 todoEmptyTitle: "Keine Aufgaben"
+
+# ==================== D6 Inhaltsschutz (Anzeigebudget §6.6) ====================
+contentProtectedPending: "Inhalt vorübergehend ausgeblendet, wartet auf erneute Autorisierung"
+contentProtectedRetry: "Erneut prüfen"
+contentRevoked: "Du hast keinen Zugriff mehr auf diesen Arbeitsbereich-Inhalt"

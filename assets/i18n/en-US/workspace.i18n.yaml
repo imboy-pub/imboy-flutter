@@ -258,3 +258,8 @@ tabSchedule: "Schedule"
 tabTodo: "To-do"
 takeABreak: "Take a break"
 todoEmptyTitle: "No to-dos"
+
+# ==================== D6 content protection (§6.6 display budget) ====================
+contentProtectedPending: "Content temporarily hidden, waiting for re-authorization"
+contentProtectedRetry: "Verify again"
+contentRevoked: "You no longer have access to this workspace content"
