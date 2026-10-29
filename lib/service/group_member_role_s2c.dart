@@ -20,6 +20,8 @@
 /// 升级 UI 规则时同步考虑。
 library;
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
 /// 解析结果（sealed）：
 ///   - `GroupMemberRolePayload`：字段齐全合法
 ///   - `GroupMemberRoleParseError`：必需字段非法
@@ -30,10 +32,10 @@ sealed class GroupMemberRoleParseResult {
 /// 合法 payload 的结构化视图。
 final class GroupMemberRolePayload extends GroupMemberRoleParseResult {
   /// 群 ID（必需，>0）
-  final int gid;
+  final String gid;
 
   /// 被修改角色的成员 ID（必需，>0）
-  final int userId;
+  final String userId;
 
   /// 新角色（必需，1..5）
   final int role;
@@ -77,13 +79,13 @@ const int _roleMax = 5; // ROLE_VICE_OWNER
 GroupMemberRoleParseResult parseGroupMemberRolePayload(
   Map<String, dynamic> payload,
 ) {
-  final gid = _asInt(payload['gid']);
-  if (gid == null || gid <= 0) {
+  final gid = channelDecimalId(payload['gid']);
+  if (gid == null) {
     return const GroupMemberRoleParseError('invalid_gid');
   }
 
-  final userId = _asInt(payload['user_id']);
-  if (userId == null || userId <= 0) {
+  final userId = channelDecimalId(payload['user_id']);
+  if (userId == null) {
     return const GroupMemberRoleParseError('invalid_user_id');
   }
 
@@ -120,7 +122,12 @@ GroupMemberRoleParseResult parseGroupMemberRolePayload(
 ///     （本地写失败不应阻塞广播）
 Future<void> handleGroupMemberRoleS2C({
   required Map<String, dynamic> payload,
-  required Future<void> Function(int gid, int userId, int role, int updatedAt)
+  required Future<void> Function(
+    String gid,
+    String userId,
+    int role,
+    int updatedAt,
+  )
   applyRoleUpdate,
   required void Function(GroupMemberRolePayload payload) fireEvent,
   void Function(String message)? log,

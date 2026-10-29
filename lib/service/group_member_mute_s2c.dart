@@ -18,6 +18,8 @@
 /// `SqliteService` 等副作用依赖。
 library;
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
 /// 解析结果（sealed）：
 ///   - `GroupMemberMutePayload` 字段齐全、合法
 ///   - `GroupMemberMuteParseError` 必需字段缺失或非法
@@ -28,7 +30,7 @@ sealed class GroupMemberMuteParseResult {
 /// 合法 payload 的结构化视图。
 final class GroupMemberMutePayload extends GroupMemberMuteParseResult {
   /// 群 ID（必需，>0）
-  final int gid;
+  final String gid;
 
   /// 禁言到期时间戳，毫秒 epoch（必需，>0）
   final int muteUntilMs;
@@ -70,7 +72,7 @@ final class GroupMemberMutePayload extends GroupMemberMuteParseResult {
 /// / `durationText`（解禁语义下无意义）。
 final class GroupMemberUnmutePayload extends GroupMemberMuteParseResult {
   /// 群 ID（必需，>0）
-  final int gid;
+  final String gid;
 
   /// 被解禁成员的 user_id（TSID 字符串）。老后端不带此字段时为 `''`，
   /// 调用方应跳过 Repo 写入、仅做群级 toast。
@@ -103,8 +105,8 @@ final class GroupMemberMuteParseError extends GroupMemberMuteParseResult {
 GroupMemberMuteParseResult parseGroupMemberMutePayload(
   Map<String, dynamic> payload,
 ) {
-  final gid = _asInt(payload['gid']);
-  if (gid == null || gid <= 0) {
+  final gid = channelDecimalId(payload['gid']);
+  if (gid == null) {
     return const GroupMemberMuteParseError('invalid_gid');
   }
 
@@ -138,16 +140,7 @@ GroupMemberMuteParseResult parseGroupMemberMutePayload(
 /// - `0` / `'0'` / 空白 → `''`（防止后端 fallback 0 污染）
 /// - int / num → `toString()`
 /// - String → trim 后保留
-String _asUserId(Object? raw) {
-  if (raw == null) return '';
-  if (raw is num) {
-    if (raw == 0) return '';
-    return raw.toString();
-  }
-  final s = raw.toString().trim();
-  if (s.isEmpty || s == '0') return '';
-  return s;
-}
+String _asUserId(Object? raw) => channelDecimalId(raw) ?? '';
 
 int? _asInt(Object? raw) {
   if (raw == null) return null;

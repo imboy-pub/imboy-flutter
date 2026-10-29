@@ -1,4 +1,6 @@
 import 'package:imboy/config/const.dart';
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -23,6 +25,11 @@ class GroupMemberApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.groupMemberPage,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupMember,
+        ),
+      ),
       queryParameters: {'gid': gid, 'page': page, 'size': size},
     );
 

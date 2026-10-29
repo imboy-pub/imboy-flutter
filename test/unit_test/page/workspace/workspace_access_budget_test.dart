@@ -381,7 +381,7 @@ void main() {
         }
         time.flushMicrotasks();
         expect(harness.state, same(renewed));
-        expect(harness.state.rows.single.memberGenerationId, 11);
+        expect(harness.state.rows.single.memberGenerationId, '11');
         harness.dispose();
       });
     }
@@ -840,7 +840,7 @@ void main() {
       await tester.pump(_millisecond);
       expect(find.text('ttl preview'), findsNothing);
       expect(harness.state.canRenderProtectedContent, isTrue);
-      expect(harness.state.rows.single.memberGenerationId, 10);
+      expect(harness.state.rows.single.memberGenerationId, '10');
       expect(harness.state.rows.single.unreadCount, 7);
       expect(harness.state.deadline, deadline);
       expect(harness.api.calls.length, 1);

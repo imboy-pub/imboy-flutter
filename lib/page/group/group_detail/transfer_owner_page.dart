@@ -51,7 +51,7 @@ class _TransferOwnerPageState extends State<TransferOwnerPage> {
       limit: 2000,
       where:
           "${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} != ?",
-      whereArgs: [widget.groupId, int.tryParse(currentUid) ?? 0],
+      whereArgs: [widget.groupId, currentUid],
     );
     if (!mounted) return;
     setState(() {

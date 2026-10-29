@@ -1,3 +1,6 @@
+import 'package:dio/dio.dart' show Options;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/model/channel_comment_model.dart';
@@ -14,6 +17,11 @@ mixin ChannelCommentApi on HttpClient {
   }) async {
     final resp = await get(
       '/api/v1/channel/$channelId/message/$messageId/comments',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: {'cursor': cursor, 'limit': limit},
     );
     if (!resp.ok || resp.payload == null) return [];
@@ -26,11 +34,25 @@ mixin ChannelCommentApi on HttpClient {
     required String channelId,
     required String messageId,
     required String content,
-    int parentId = 0,
+    String parentId = '0',
   }) async {
+    final exactParent = BigInt.tryParse(parentId);
+    if (exactParent == null ||
+        exactParent < BigInt.zero ||
+        exactParent > BigInt.parse('9223372036854775807')) {
+      throw const FormatException('unsupported comment parent ID');
+    }
     final resp = await post(
       '/api/v1/channel/$channelId/message/$messageId/comment',
-      data: {'content': content, 'parent_id': parentId},
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+      data: {
+        'content': content,
+        'parent_id': kIsWeb && exactParent > BigInt.parse('9007199254740991')
+            ? exactParent.toString()
+            : exactParent.toInt(),
+      },
     );
     if (!resp.ok || resp.payload == null) return null;
     return ChannelCommentModel.fromJson(

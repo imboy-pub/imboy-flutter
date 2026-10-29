@@ -940,3 +940,7 @@ collectedVideoFormatIncorrectCannotFindVideoUri: "视频格式暂不支持，无
 
 retry: "重试"
 retrying: "重试中…"
+
+denylistResultUnknown: "操作结果未知，请先核对黑名单。"
+denylistLocalNotSynced: "服务端已处理，本地状态未同步。"
+friendConfirmResultUnknown: "好友确认结果未知，请先核对好友关系。"

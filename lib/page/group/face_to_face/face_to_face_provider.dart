@@ -132,7 +132,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     for (var itemMap in memberList) {
       memberList2.add(
         PeopleModel(
-          id: IMBoyHttpResponse.payloadInt(itemMap, 'user_id') ?? 0,
+          id: (itemMap['user_id'] ?? 0) as Object,
           account: IMBoyHttpResponse.payloadStr(itemMap, 'account') ?? '',
           avatar: IMBoyHttpResponse.payloadStr(itemMap, 'avatar') ?? '',
           nickname:
@@ -166,7 +166,7 @@ class FaceToFaceNotifier extends _$FaceToFaceNotifier {
     for (var itemMap in memberList) {
       memberList2.add(
         PeopleModel(
-          id: IMBoyHttpResponse.payloadInt(itemMap, 'user_id') ?? 0,
+          id: (itemMap['user_id'] ?? 0) as Object,
           account: IMBoyHttpResponse.payloadStr(itemMap, 'account') ?? '',
           avatar: IMBoyHttpResponse.payloadStr(itemMap, 'avatar') ?? '',
           nickname:

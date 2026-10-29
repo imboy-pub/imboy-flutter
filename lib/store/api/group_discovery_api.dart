@@ -1,5 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
@@ -13,8 +15,7 @@ final groupDiscoveryApiProvider = Provider<GroupDiscoveryApi>((ref) {
 /// 群组发现 API 客户端（公开群检索/发现/分类）
 ///
 /// 后端 group_discovery_handler；仅返回公开群（type=1 且 status=1）。
-/// TSID 以 JSON integer 传输，http 层已做大整数安全转换，统一走
-/// parseModelInt 兼容 int/String 两种形态。
+/// 群组和分类 ID 在 JSON 解码前保留十进制原文。
 class GroupDiscoveryApi extends HttpClient {
   GroupDiscoveryApi._();
 
@@ -26,7 +27,7 @@ class GroupDiscoveryApi extends HttpClient {
   Future<Map<String, dynamic>?> discover({
     int page = 1,
     int size = 10,
-    int? categoryId,
+    String? categoryId,
     String sort = 'popular',
   }) async {
     final params = <String, dynamic>{'page': page, 'size': size, 'sort': sort};
@@ -39,7 +40,7 @@ class GroupDiscoveryApi extends HttpClient {
     String q, {
     int page = 1,
     int size = 10,
-    int? categoryId,
+    String? categoryId,
   }) async {
     final params = <String, dynamic>{'q': q, 'page': page, 'size': size};
     if (categoryId != null) params['category_id'] = categoryId;
@@ -58,7 +59,15 @@ class GroupDiscoveryApi extends HttpClient {
     String path,
     Map<String, dynamic> params,
   ) async {
-    IMBoyHttpResponse resp = await get(path, queryParameters: params);
+    IMBoyHttpResponse resp = await get(
+      path,
+      queryParameters: params,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupList,
+        ),
+      ),
+    );
     iPrint("> on GroupDiscoveryApi $path resp: ${resp.payload.toString()}");
     if (!resp.ok) {
       // fail-open 改造：页面层（group_discovery_provider）无 catch 分支，

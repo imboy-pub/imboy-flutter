@@ -4,6 +4,7 @@ import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -45,7 +46,7 @@ class ConversationRepo {
   Future<bool> hideForAccount({
     required String account,
     required String kind,
-    required int peer,
+    required String peer,
   }) async {
     final database = await _db.db;
     if (database == null || UserRepoLocal.to.currentUid != account) {
@@ -73,10 +74,9 @@ class ConversationRepo {
         user.currentUid == account &&
         user.isCurrentSession(generation) &&
         !user.isAuthTransitioning;
-    final parsedPeer = int.tryParse(peer);
+    final parsedPeer = channelDecimalId(peer);
     if (account.isEmpty ||
         parsedPeer == null ||
-        parsedPeer <= 0 ||
         !{'C2C', 'C2G'}.contains(kind)) {
       throw ArgumentError('Invalid conversation identity');
     }
@@ -207,8 +207,9 @@ class ConversationRepo {
   Future<int> updateByPeerId(
     String type,
     String peerId,
-    Map<String, dynamic> data,
-  ) async {
+    Map<String, dynamic> data, {
+    String? account,
+  }) async {
     iPrint('ConversationRepo_updateByPeerId type=$type');
     data.remove(ConversationRepo.id);
     if (data.containsKey(ConversationRepo.payload) &&
@@ -222,7 +223,7 @@ class ConversationRepo {
       data,
       where:
           '${ConversationRepo.type} = ? and ${ConversationRepo.userId} = ? and ${ConversationRepo.peerId} = ?',
-      whereArgs: [type, UserRepoLocal.to.currentUid, peerId],
+      whereArgs: [type, account ?? UserRepoLocal.to.currentUid, peerId],
     );
   }
 
@@ -347,7 +348,7 @@ class ConversationRepo {
       ConversationRepo.tableName,
       columns: [
         ConversationRepo.id,
-        ConversationRepo.peerId,
+        'CAST(peer_id AS TEXT) AS peer_id',
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
@@ -402,7 +403,7 @@ class ConversationRepo {
       columns: [
         ConversationRepo.id,
         ConversationRepo.userId,
-        ConversationRepo.peerId,
+        'CAST(peer_id AS TEXT) AS peer_id',
         ConversationRepo.avatar,
         ConversationRepo.title,
         ConversationRepo.subtitle,
@@ -449,7 +450,7 @@ class ConversationRepo {
         columns: [
           ConversationRepo.id,
           ConversationRepo.userId,
-          ConversationRepo.peerId,
+          'CAST(peer_id AS TEXT) AS peer_id',
           ConversationRepo.avatar,
           ConversationRepo.title,
           ConversationRepo.subtitle,
@@ -476,7 +477,7 @@ class ConversationRepo {
         columns: [
           ConversationRepo.id,
           ConversationRepo.userId,
-          ConversationRepo.peerId,
+          'CAST(peer_id AS TEXT) AS peer_id',
           ConversationRepo.avatar,
           ConversationRepo.title,
           ConversationRepo.subtitle,
@@ -518,7 +519,7 @@ class ConversationRepo {
         columns: [
           ConversationRepo.id,
           ConversationRepo.userId,
-          ConversationRepo.peerId,
+          'CAST(peer_id AS TEXT) AS peer_id',
           ConversationRepo.avatar,
           ConversationRepo.title,
           ConversationRepo.subtitle,
@@ -545,7 +546,7 @@ class ConversationRepo {
         columns: [
           ConversationRepo.id,
           ConversationRepo.userId,
-          ConversationRepo.peerId,
+          'CAST(peer_id AS TEXT) AS peer_id',
           ConversationRepo.avatar,
           ConversationRepo.title,
           ConversationRepo.subtitle,
@@ -661,7 +662,7 @@ class ConversationRepo {
         columns: [
           ConversationRepo.id,
           ConversationRepo.userId,
-          ConversationRepo.peerId,
+          'CAST(peer_id AS TEXT) AS peer_id',
           ConversationRepo.avatar,
           ConversationRepo.title,
           ConversationRepo.subtitle,

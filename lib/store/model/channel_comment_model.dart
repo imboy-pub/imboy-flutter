@@ -1,18 +1,19 @@
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// 频道评论模型
 ///
 /// 对标公众号/知识星球评论：支持多级回复、点赞计数。
 class ChannelCommentModel {
-  final int id;
-  final int channelId;
-  final int messageId;
-  final int userId;
+  final String id;
+  final String channelId;
+  final String messageId;
+  final String userId;
   final String userName;
   final String userAvatar;
   final String content;
-  final int parentId;
-  final int replyToUid;
+  final String parentId;
+  final String replyToUid;
   final String replyToName;
   final int likeCount;
 
@@ -22,20 +23,25 @@ class ChannelCommentModel {
   final DateTime createdAt;
 
   ChannelCommentModel({
-    required this.id,
-    required this.channelId,
-    required this.messageId,
-    required this.userId,
+    required Object id,
+    required Object channelId,
+    required Object messageId,
+    required Object userId,
     required this.userName,
     required this.userAvatar,
     required this.content,
-    this.parentId = 0,
-    this.replyToUid = 0,
+    Object parentId = 0,
+    Object replyToUid = 0,
     this.replyToName = '',
     this.likeCount = 0,
     this.isLiked = false,
     required this.createdAt,
-  });
+  }) : id = id.toString(),
+       channelId = channelId.toString(),
+       messageId = messageId.toString(),
+       userId = userId.toString(),
+       parentId = parentId.toString(),
+       replyToUid = replyToUid.toString();
 
   ChannelCommentModel copyWith({int? likeCount, bool? isLiked}) {
     return ChannelCommentModel(
@@ -57,15 +63,16 @@ class ChannelCommentModel {
 
   factory ChannelCommentModel.fromJson(Map<String, dynamic> json) {
     return ChannelCommentModel(
-      id: parseModelInt(json['id']),
-      channelId: parseModelInt(json['channel_id']),
-      messageId: parseModelInt(json['message_id']),
-      userId: parseModelInt(json['user_id']),
+      id: channelDecimalId(json['id'], allowZero: true) ?? '0',
+      channelId: channelDecimalId(json['channel_id'], allowZero: true) ?? '0',
+      messageId: channelDecimalId(json['message_id'], allowZero: true) ?? '0',
+      userId: channelDecimalId(json['user_id'], allowZero: true) ?? '0',
       userName: parseModelString(json['user_name']),
       userAvatar: parseModelString(json['user_avatar']),
       content: parseModelString(json['content']),
-      parentId: parseModelInt(json['parent_id']),
-      replyToUid: parseModelInt(json['reply_to_uid']),
+      parentId: channelDecimalId(json['parent_id'], allowZero: true) ?? '0',
+      replyToUid:
+          channelDecimalId(json['reply_to_uid'], allowZero: true) ?? '0',
       replyToName: parseModelString(json['reply_to_name']),
       likeCount: parseModelInt(json['like_count']),
       isLiked: json['is_liked'] == true,

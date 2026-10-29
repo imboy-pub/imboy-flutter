@@ -924,3 +924,7 @@ voiceSttPreviewTitle: "Aperçu de la conversion voix en texte"
 
 retry: "Réessayer"
 retrying: "Nouvelle tentative…"
+
+denylistResultUnknown: "Le résultat est inconnu. Vérifiez d’abord la liste de blocage."
+denylistLocalNotSynced: "Le serveur a traité la demande, mais l’état local n’est pas synchronisé."
+friendConfirmResultUnknown: "Le résultat de la confirmation est inconnu. Vérifiez d’abord votre relation."

@@ -512,8 +512,8 @@ void main() {
 
       expect(
         ownChannelDetailState(observed, '2', '7', snapshot).channel?.id,
-        7,
-        reason: '其他目标在途时必须用本目标快照渲染',
+        '7',
+        reason: '其他目标在途时必须用本目标快照渲染（ChannelModel.id 为十进制字符串）',
       );
 
       final fallback = ownChannelDetailState(observed, '2', '7', null);

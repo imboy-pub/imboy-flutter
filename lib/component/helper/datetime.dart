@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
@@ -221,8 +222,11 @@ class ApiTime {
   static int? parseEpochSeconds(dynamic value) {
     final seconds = _parseIntLike(value);
     if (seconds == null) return null;
-    // 溢出防护：秒 * 1000 不得超出 64 位 int 表达范围。
-    if (seconds.abs() > 9223372036854775) return null;
+    // Web 的毫秒结果必须保持在 JavaScript 安全整数范围内。
+    final limit = kIsWeb
+        ? BigInt.from(9007199254740)
+        : BigInt.parse('9223372036854775');
+    if (BigInt.from(seconds).abs() > limit) return null;
     return seconds * 1000;
   }
 

@@ -14,6 +14,8 @@ library;
 
 import 'trust_event_canonical.dart';
 
+import 'package:imboy/store/model/channel_decimal_id.dart';
+
 /// 合法 method（后端 `?VALID_METHODS`，ADR 06 §8.2.2）。
 const Set<String> kTrustMethods = {
   'qr_scan',
@@ -96,7 +98,7 @@ Map<String, dynamic> buildTrustRecordRequest({
   }
   return {
     'actor_device_id': actorDeviceId,
-    'target_uid': fields.targetUid,
+    'target_uid': decimalIdForWire(trustUid(fields.targetUid)),
     'target_device_id': fields.targetDeviceId,
     'target_ed25519': fields.targetEd25519,
     'from_state': fields.fromState,
@@ -123,8 +125,8 @@ class TrustChangedEvent {
     required this.issuedAt,
   });
 
-  final int actorUid;
-  final int targetUid;
+  final String actorUid;
+  final String targetUid;
   final String targetDeviceId;
   final String toState;
   final String method;
@@ -134,8 +136,8 @@ class TrustChangedEvent {
   /// 从广播 payload 解析并校验。外部数据不可信：字段缺失/类型错/非法枚举 →
   /// [FormatException]，绝不静默产出半初始化对象。
   factory TrustChangedEvent.fromBroadcast(Map<String, dynamic> payload) {
-    final actorUid = _requireInt(payload, 'actor_uid');
-    final targetUid = _requireInt(payload, 'target_uid');
+    final actorUid = trustUid(payload['actor_uid']);
+    final targetUid = trustUid(payload['target_uid']);
     final targetDeviceId = _requireNonEmptyStr(payload, 'target_device_id');
     final toState = _requireNonEmptyStr(payload, 'to_state');
     final method = _requireNonEmptyStr(payload, 'method');

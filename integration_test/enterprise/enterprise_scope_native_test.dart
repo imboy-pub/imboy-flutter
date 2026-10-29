@@ -287,7 +287,7 @@ Future<void> checkNativeWorkspaceUnread(WidgetTester tester) async {
   }
   expect(initial, isNotNull);
   expect(
-    initial!.singleWhere((row) => row.group.groupId == 995301).unreadCount,
+    initial!.singleWhere((row) => row.group.groupId == '995301').unreadCount,
     2,
   );
   await selectEnterpriseTab(tester, t.chat.titleMessage);
@@ -346,7 +346,7 @@ Future<void> waitForNativeGroupRead(WidgetTester tester) async {
     final rows = await tester.runAsync(
       () => WorkspaceApi().conversations('995201'),
     );
-    if (rows!.singleWhere((row) => row.group.groupId == 995301).unreadCount ==
+    if (rows!.singleWhere((row) => row.group.groupId == '995301').unreadCount ==
         0) {
       break;
     }

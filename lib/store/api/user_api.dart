@@ -6,6 +6,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/env.dart';
@@ -81,6 +82,9 @@ class UserApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.ftsRecentlyUser,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.people),
+      ),
       queryParameters: {'page': page, 'size': size, 'keyword': keyword},
     );
 
@@ -100,6 +104,9 @@ class UserApi extends HttpClient {
   }) async {
     IMBoyHttpResponse resp = await get(
       API.userSearch,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.people),
+      ),
       queryParameters: {'page': page, 'size': size, 'keyword': keyword},
     );
 

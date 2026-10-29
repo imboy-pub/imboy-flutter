@@ -36,7 +36,7 @@ void main() {
   }
   test('自定义地址成功解析并使用对应入口', () async {
     final api = _Api(IMBoyHttpResponse.success({'id': 12, 'name': 'test'}));
-    expect((await api.getChannelByCustomIdChecked('news')).id, 12);
+    expect((await api.getChannelByCustomIdChecked('news')).id, '12');
     expect(api.path, '/api/v1/channel/by_custom_id/news');
   });
   for (final payload in [null, <String, dynamic>{}, 'invalid']) {

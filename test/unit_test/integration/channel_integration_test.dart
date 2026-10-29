@@ -201,7 +201,7 @@ void main() {
           tags: const ['ci', 'channel'],
         );
         expect(created, isNotNull);
-        expect(created!.id, 1001);
+        expect(created!.id, '1001');
         expect(created.visibility, 1);
         final createReq = api.lastRequest();
         expect(createReq.method, 'POST');

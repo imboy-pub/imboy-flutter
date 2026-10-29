@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart' show Options;
 import 'package:imboy/component/http/http_request_policy.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -8,6 +9,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
 import 'package:imboy/store/model/channel_order_model.dart';
 import 'package:imboy/store/model/channel_stats_model.dart';
@@ -57,7 +59,13 @@ class ChannelApi extends HttpClient
     if (customId != null) data['custom_id'] = customId;
     if (tags != null) data['tags'] = tags;
 
-    final resp = await post('/api/v1/channel/create', data: data);
+    final resp = await post(
+      '/api/v1/channel/create',
+      data: data,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -83,7 +91,13 @@ class ChannelApi extends HttpClient
       'request_id': requestId,
       if (recoverOnly) 'recover_only': true,
     };
-    final resp = await post('/api/v1/channel/create', data: data);
+    final resp = await post(
+      '/api/v1/channel/create',
+      data: data,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
     // 传输层失败（网络断连/超时/会话切换等）：结果未知——服务端可能已受理
     // 也可能未收到；调用方必须保留意图，不得当作"信封已确认拒绝"。
     // 仅 BadRequestException（envelope 业务错误）与 BadResponseException
@@ -107,7 +121,12 @@ class ChannelApi extends HttpClient
 
   /// 获取频道信息
   Future<ChannelModel?> getChannel(String channelId) async {
-    final resp = await get('/api/v1/channel/$channelId');
+    final resp = await get(
+      '/api/v1/channel/$channelId',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -118,13 +137,23 @@ class ChannelApi extends HttpClient
 
   /// 保留服务端拒绝、网络异常与无效响应，供具备错误态的详情链使用。
   Future<ChannelModel> getChannelChecked(String channelId) async {
-    final resp = await get('/api/v1/channel/$channelId');
+    final resp = await get(
+      '/api/v1/channel/$channelId',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
     return _parseChannelResponse(resp);
   }
 
   /// 通过自定义 ID 获取频道
   Future<ChannelModel?> getChannelByCustomId(String customId) async {
-    final resp = await get('/api/v1/channel/by_custom_id/$customId');
+    final resp = await get(
+      '/api/v1/channel/by_custom_id/$customId',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
 
     if (!resp.ok || resp.payload == null) {
       return null;
@@ -134,7 +163,12 @@ class ChannelApi extends HttpClient
   }
 
   Future<ChannelModel> getChannelByCustomIdChecked(String customId) async {
-    final resp = await get('/api/v1/channel/by_custom_id/$customId');
+    final resp = await get(
+      '/api/v1/channel/by_custom_id/$customId',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
     return _parseChannelResponse(resp);
   }
 
@@ -146,7 +180,9 @@ class ChannelApi extends HttpClient
     final channel = ChannelModel.fromJson(
       response.payload as Map<String, dynamic>,
     );
-    if (channel.id <= 0) throw const FormatException('invalid channel id');
+    if ((BigInt.tryParse(channel.id) ?? BigInt.zero) <= BigInt.zero) {
+      throw const FormatException('invalid channel id');
+    }
     return channel;
   }
 
@@ -169,7 +205,13 @@ class ChannelApi extends HttpClient
     // 「设过即锁定」，客户端置灰只是体验，不是权威。
     if (customId != null) data['custom_id'] = customId;
 
-    final resp = await put('/api/v1/channel/$channelId/update', data: data);
+    final resp = await put(
+      '/api/v1/channel/$channelId/update',
+      data: data,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
 
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -309,6 +351,11 @@ class ChannelApi extends HttpClient
     final resp = await get(
       '/api/v1/channels/subscribed',
       queryParameters: params,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
     );
     resp.throwIfFailed();
 
@@ -346,6 +393,11 @@ class ChannelApi extends HttpClient
     final resp = await get(
       '/api/v1/channels/subscribed',
       queryParameters: params,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
     );
 
     // 三个调用点均已有 catch + error 态：channel_provider 的
@@ -420,34 +472,35 @@ class ChannelApi extends HttpClient
   ///
   /// 对应 `GET /api/v1/channels/unread/summary`。
   Future<Map<String, dynamic>> getUnreadSummary() async {
-    final resp = await get('/api/v1/channels/unread/summary');
-
-    if (!resp.ok ||
-        resp.payload == null ||
-        resp.payload is! Map<String, dynamic>) {
-      return const {
-        'total_unread': 0,
-        'unread_channels': 0,
-        'channels': <Map<String, dynamic>>[],
-      };
-    }
-
-    final payload = Map<String, dynamic>.from(
-      IMBoyHttpResponse.payloadAsMap(resp.payload),
+    final resp = await get(
+      '/api/v1/channels/unread/summary',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.unread),
+      ),
     );
+
+    resp.throwIfFailed();
+    if (resp.payload is! Map<String, dynamic>) {
+      throw const FormatException('invalid unread summary');
+    }
+    final payload = Map<String, dynamic>.from(resp.payload as Map);
     final rawChannels = payload['channels'];
-    final channels = rawChannels is List
-        ? rawChannels
-              .whereType<Map<String, dynamic>>()
-              .map(
-                (item) => <String, dynamic>{
-                  'channel_id': parseModelString(item['channel_id']),
-                  'unread_count': parseModelInt(item['unread_count']),
-                },
-              )
-              .where((item) => parseModelString(item['channel_id']).isNotEmpty)
-              .toList(growable: false)
-        : const <Map<String, dynamic>>[];
+    if (rawChannels is! List) {
+      throw const FormatException('invalid unread channels');
+    }
+    final channels = <Map<String, dynamic>>[];
+    final seen = <String>{};
+    for (final row in rawChannels) {
+      if (row is! Map<String, dynamic>) {
+        throw const FormatException('invalid unread channel');
+      }
+      final id = channelDecimalId(row['channel_id']);
+      final count = int.tryParse('${row['unread_count']}');
+      if (id == null || count == null || count < 0 || !seen.add(id)) {
+        throw const FormatException('invalid unread channel');
+      }
+      channels.add({'channel_id': id, 'unread_count': count});
+    }
 
     return <String, dynamic>{
       'total_unread': parseModelInt(payload['total_unread']),
@@ -458,7 +511,14 @@ class ChannelApi extends HttpClient
 
   /// 获取我管理的频道列表
   Future<List<ChannelModel>> getManagedChannels() async {
-    final resp = await get('/api/v1/channels/managed');
+    final resp = await get(
+      '/api/v1/channels/managed',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
+    );
 
     if (!resp.ok || resp.payload == null) {
       return [];
@@ -509,7 +569,13 @@ class ChannelApi extends HttpClient
       data['request_id'] = requestId;
     }
 
-    final resp = await post('/api/v1/channel/$channelId/message', data: data);
+    final resp = await post(
+      '/api/v1/channel/$channelId/message',
+      data: data,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
 
     if (!resp.ok) {
       throw Exception(resp.msg);
@@ -529,7 +595,12 @@ class ChannelApi extends HttpClient
     String channelId,
     String messageId,
   ) async {
-    final resp = await get('/api/v1/channel/$channelId/message/$messageId');
+    final resp = await get(
+      '/api/v1/channel/$channelId/message/$messageId',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+      ),
+    );
     if (!resp.ok || resp.payload == null) return null;
     return ChannelMessageModel.fromJson(
       IMBoyHttpResponse.payloadAsMap(resp.payload),
@@ -546,6 +617,11 @@ class ChannelApi extends HttpClient
 
     final resp = await get(
       '/api/v1/channel/$channelId/messages',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: params,
     );
 
@@ -567,6 +643,11 @@ class ChannelApi extends HttpClient
     if (cursor != null) params['cursor'] = cursor;
     final resp = await get(
       '/api/v1/channel/$channelId/messages',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: params,
     );
     if (!resp.ok || resp.payload == null) {
@@ -643,6 +724,11 @@ class ChannelApi extends HttpClient
   }) async {
     final resp = await get(
       '/api/v1/channels/search',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: {'keyword': keyword, 'limit': limit},
     );
 
@@ -667,6 +753,11 @@ class ChannelApi extends HttpClient
 
     final resp = await get(
       '/api/v1/channels/discover',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: params,
     );
 

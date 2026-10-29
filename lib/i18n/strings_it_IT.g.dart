@@ -1666,6 +1666,9 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get voiceSttPreviewTitle => 'Anteprima di conversione vocale in testo';
 	@override String get retry => 'Riprova';
 	@override String get retrying => 'Riprovo…';
+	@override String get denylistResultUnknown => 'Il risultato è sconosciuto. Controlla prima l’elenco dei blocchi.';
+	@override String get denylistLocalNotSynced => 'Il server ha elaborato la richiesta, ma lo stato locale non è sincronizzato.';
+	@override String get friendConfirmResultUnknown => 'Il risultato della conferma è sconosciuto. Controlla prima la relazione.';
 }
 
 // Path: complaint
@@ -4914,6 +4917,9 @@ extension on TranslationsItIt {
 			'common.voiceSttPreviewTitle' => 'Anteprima di conversione vocale in testo',
 			'common.retry' => 'Riprova',
 			'common.retrying' => 'Riprovo…',
+			'common.denylistResultUnknown' => 'Il risultato è sconosciuto. Controlla prima l’elenco dei blocchi.',
+			'common.denylistLocalNotSynced' => 'Il server ha elaborato la richiesta, ma lo stato locale non è sincronizzato.',
+			'common.friendConfirmResultUnknown' => 'Il risultato della conferma è sconosciuto. Controlla prima la relazione.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
 			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
@@ -4926,11 +4932,11 @@ extension on TranslationsItIt {
 			'contact.blocked' => 'Bloccato',
 			'contact.applyChanges' => 'Riavvia l’app per applicare le modifiche.',
 			'contact.inputNewTag' => 'Inserisci nuovo tag...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => 'Lista bloccati',
 			'contact.denylistEmpty' => 'Lista bloccati vuota',
 			'contact.favoriteGroupTagsEtc' => 'Raccolta nomi, nomi gruppo, tag ecc.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => 'Nuovo amico',
 			'contact.recommendToFriend' => 'Consiglialo agli amici',
 			'contact.remark' => 'Nota',
@@ -5440,11 +5446,11 @@ extension on TranslationsItIt {
 			'main.safetyNumberHint' => 'Confronta il codice di sicurezza con l\'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l\'identità dell\'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo.',
 			'main.safetyNumberMarkVerified' => 'Segna come verificato',
 			'main.safetyNumberMarkedVerified' => 'Segnato come verificato',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'L\'altro non ha ancora attivato la crittografia end-to-end',
 			'main.safetyNumberPeerDevice' => 'Dispositivo dell\'altro',
 			'main.safetyNumberReportRejected' => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Impossibile ottenere le informazioni del dispositivo, non riportato',
 			'main.safetyNumberVerified' => '✓ Verificato',
 			'main.safetyNumberNotVerified' => 'Non verificato',
@@ -5954,11 +5960,11 @@ extension on TranslationsItIt {
 			'talkRecord.aiProviderCancel' => 'Interrompi trascrizione',
 			'talkRecord.aiProviderCancelNotice' => 'Revoca accesso alla sorgente e operazioni IMBoy. Non garantisce arresto del fornitore o rimborso.',
 			'talkRecord.aiProviderResubmit' => 'Invia audio di nuovo',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Crea una nuova trascrizione e può causare costi duplicati. La richiesta originale resta. Reinviare e acconsentire al trattamento?',
 			'talkRecord.aiProviderCancelled' => 'Trascrizione interrotta. Audio esistente conservato.',
 			'talkRecord.aiProviderResumePreparation' => 'Continua la preparazione',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'L’attività originale non è stata inviata. Prepara nuovamente la sorgente audio con permessi e consenso attuali.',
 			'welcome.step1Title' => 'Connessione semplice',
 			'welcome.step1Desc' => 'Sperimenta la gioia di una comunicazione senza intoppi. In qualsiasi momento, ovunque.',

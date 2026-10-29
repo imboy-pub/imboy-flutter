@@ -262,7 +262,7 @@ class ChatArchiveService {
         };
       }
       final uid = BigInt.parse(session.uid);
-      final peer = BigInt.from(conversation.peerId);
+      final peer = BigInt.parse(conversation.peerId);
       final convKey = chatType == 'c2g'
           ? 'c2g:$peer'
           : uid < peer

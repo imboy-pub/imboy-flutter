@@ -17,9 +17,11 @@
 /// GroupMemberRoleEvent 复用 chat_page 既有订阅（按 gid + 当前用户过滤）
 /// 刷新自己的角色展示。不做导航跳转。
 ///
-/// gid 按 JSON integer（TSID）或数字串下发，统一 `_asInt` 归一，
+/// gid 按 JSON integer（TSID）或数字串下发，归一为十进制字符串，
 /// 缺字段/类型漂移防御（对齐 _handleGroupMemberLeave 的 W2R6 教训）。
 library;
+
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// 解析结果（sealed）：
 ///   - `GroupTransferPayload`：gid 合法
@@ -31,13 +33,13 @@ sealed class GroupTransferParseResult {
 /// 合法 payload 的结构化视图。
 final class GroupTransferPayload extends GroupTransferParseResult {
   /// 群 ID（必需，>0）
-  final int gid;
+  final String gid;
 
-  /// 旧主 uid（可选，<=0 表示后端未带，跳过旧主角色写）
-  final int fromOwnerUid;
+  /// 旧主 uid（可选，空字符串表示缺失，跳过旧主角色写）
+  final String fromOwnerUid;
 
-  /// 新主 uid（可选，<=0 表示后端未带，跳过新主角色写与 owner_uid 回填）
-  final int toOwnerUid;
+  /// 新主 uid（可选，空字符串表示缺失，跳过新主角色写与 owner_uid 回填）
+  final String toOwnerUid;
 
   const GroupTransferPayload({
     required this.gid,
@@ -56,13 +58,13 @@ final class GroupTransferParseError extends GroupTransferParseResult {
 GroupTransferParseResult parseGroupTransferPayload(
   Map<String, dynamic> payload,
 ) {
-  final gid = _asInt(payload['gid']);
-  if (gid == null || gid <= 0) {
+  final gid = channelDecimalId(payload['gid']);
+  if (gid == null) {
     return const GroupTransferParseError('invalid_gid');
   }
 
-  final fromOwnerUid = _asInt(payload['from_owner_uid']) ?? 0;
-  final toOwnerUid = _asInt(payload['to_owner_uid']) ?? 0;
+  final fromOwnerUid = channelDecimalId(payload['from_owner_uid']) ?? '';
+  final toOwnerUid = channelDecimalId(payload['to_owner_uid']) ?? '';
 
   return GroupTransferPayload(
     gid: gid,
@@ -79,15 +81,17 @@ GroupTransferParseResult parseGroupTransferPayload(
 /// 契约：
 ///   - 非法 payload → 三个回调都不调用，仅 `log` 原因
 ///   - 合法 payload →
-///     1. `toOwnerUid > 0` 时 `await applyOwnerUpdate(gid, toOwnerUid)`
-///     2. `fromOwnerUid > 0` 时 `await applyRoleUpdate(gid, fromOwnerUid, roleMember)`
-///     3. `toOwnerUid > 0` 时 `await applyRoleUpdate(gid, toOwnerUid, roleOwner)`
+///     1. `toOwnerUid.isNotEmpty` 时 `await applyOwnerUpdate(gid, toOwnerUid)`
+///     2. `fromOwnerUid.isNotEmpty` 时 `await applyRoleUpdate(gid, fromOwnerUid, roleMember)`
+///     3. `toOwnerUid.isNotEmpty` 时 `await applyRoleUpdate(gid, toOwnerUid, roleOwner)`
 ///     4. 最后 `fireEvent(payload)`（广播不被本地写失败拖垮）
 ///   - 任一 `apply*` 抛异常被吞下并 `log`，**不影响后续步骤与 `fireEvent`**
 Future<void> handleGroupTransferS2C({
   required Map<String, dynamic> payload,
-  required Future<void> Function(int gid, int toOwnerUid) applyOwnerUpdate,
-  required Future<void> Function(int gid, int userId, int role) applyRoleUpdate,
+  required Future<void> Function(String gid, String toOwnerUid)
+  applyOwnerUpdate,
+  required Future<void> Function(String gid, String userId, int role)
+  applyRoleUpdate,
   required void Function(GroupTransferPayload payload) fireEvent,
   void Function(String message)? log,
 }) async {
@@ -98,7 +102,7 @@ Future<void> handleGroupTransferS2C({
       logFn('[group_transfer] parse_failed reason=$reason payload=$payload');
       return;
     case GroupTransferPayload():
-      if (parsed.toOwnerUid > 0) {
+      if (parsed.toOwnerUid.isNotEmpty) {
         try {
           await applyOwnerUpdate(parsed.gid, parsed.toOwnerUid);
         } on Object catch (e, st) {
@@ -108,7 +112,7 @@ Future<void> handleGroupTransferS2C({
           );
         }
       }
-      if (parsed.fromOwnerUid > 0) {
+      if (parsed.fromOwnerUid.isNotEmpty) {
         try {
           await applyRoleUpdate(
             parsed.gid,
@@ -123,7 +127,7 @@ Future<void> handleGroupTransferS2C({
           );
         }
       }
-      if (parsed.toOwnerUid > 0) {
+      if (parsed.toOwnerUid.isNotEmpty) {
         try {
           await applyRoleUpdate(
             parsed.gid,
@@ -149,11 +153,3 @@ Future<void> handleGroupTransferS2C({
 /// 新主 update_role(ROLE_OWNER)，此处镜像同一终态。
 const int groupTransferRoleMember = 1; // ROLE_MEMBER
 const int groupTransferRoleOwner = 4; // ROLE_OWNER
-
-int? _asInt(Object? raw) {
-  if (raw == null) return null;
-  if (raw is int) return raw;
-  if (raw is num) return raw.toInt();
-  if (raw is String) return int.tryParse(raw);
-  return null;
-}

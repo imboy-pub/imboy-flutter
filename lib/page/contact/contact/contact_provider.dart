@@ -7,6 +7,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/api/contact_api.dart' as contact_provider;
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:lpinyin/lpinyin.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -15,12 +16,12 @@ import 'package:azlistview/azlistview.dart';
 part 'contact_provider.g.dart';
 
 // 特殊联系人功能入口的虚拟 peerId 常量（使用负数以区别真实用户ID）
-const int kPeerIdMomentFeed = -5;
-const int kPeerIdPeopleNearby = -1;
-const int kPeerIdNewFriend = -2;
-const int kPeerIdGroup = -3;
-const int kPeerIdTag = -4;
-const int kPeerIdAssistantPlaza = -6;
+const String kPeerIdMomentFeed = '-5';
+const String kPeerIdPeopleNearby = '-1';
+const String kPeerIdNewFriend = '-2';
+const String kPeerIdGroup = '-3';
+const String kPeerIdTag = '-4';
+const String kPeerIdAssistantPlaza = '-6';
 
 /// 是否是真实好友（而非上面那些功能入口占位）。
 ///
@@ -29,7 +30,8 @@ const int kPeerIdAssistantPlaza = -6;
 /// 它们只在联系人首页当菜单用。任何"选人"场景（加群成员、@提醒、转发等）
 /// 直接消费整份列表都会把这些入口一并渲染出来 —— 真机实测：
 /// 群详情 `+` 加成员，列表里赫然躺着"朋友圈""找附近的人"。
-bool isRealContact(ContactModel c) => c.peerId > 0;
+bool isRealContact(ContactModel c) =>
+    (BigInt.tryParse(c.peerId) ?? BigInt.zero) > BigInt.zero;
 
 // 联系人状态类
 class ContactState {
@@ -204,9 +206,8 @@ class ContactNotifier extends _$ContactNotifier {
 
   // 判断是否为好友
   Future<bool> isFriend(String peerId) async {
-    final peerIdInt = int.tryParse(peerId) ?? 0;
     for (var ct in state.contactList) {
-      if (ct.peerId == peerIdInt) {
+      if (ct.peerId == peerId) {
         return ct.isFriend == 1;
       }
     }
@@ -217,6 +218,8 @@ class ContactNotifier extends _$ContactNotifier {
   // 接收确认好友
   Future<void> receivedConfirmFriend(Map<String, dynamic> data) async {
     if (!ref.mounted) return;
+    final owner = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
     final repo = ContactRepo();
     final json = {
       ContactRepo.peerId: data['id'],
@@ -234,17 +237,29 @@ class ContactNotifier extends _$ContactNotifier {
       if (data.containsKey(ContactRepo.accountType))
         ContactRepo.accountType: data[ContactRepo.accountType],
     };
-    final newList = List<ContactModel>.from(state.contactList);
-    newList.add(ContactModel.fromMap(json));
     // 同 new_friend_provider：不 await 时落库异常被吞，通讯录里这位新好友
     // 只活在内存里，重启即消失且全程无提示。
+    late final ContactModel saved;
     try {
-      await repo.save(json);
+      final result = await repo.save(json, account: owner);
+      if (result == null) throw StateError('Confirmed contact was not saved');
+      saved = result;
+      if (UserRepoLocal.to.currentUid != owner ||
+          UserRepoLocal.to.sessionGeneration != generation ||
+          UserRepoLocal.to.isAuthTransitioning) {
+        throw StateError('Session changed during contact save');
+      }
     } catch (e) {
       debugPrint("❌ [CONTACT] 新好友落库失败 peerId=${data['id']} error=$e");
       AppLoading.showError(t.common.saveFailedRetry);
+      rethrow;
     }
     if (!ref.mounted) return;
+    final newList =
+        state.contactList
+            .where((contact) => contact.peerId != saved.peerId)
+            .toList()
+          ..add(saved);
     state = state.copyWith(contactList: newList);
   }
 }

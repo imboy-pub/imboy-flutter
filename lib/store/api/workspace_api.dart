@@ -6,6 +6,9 @@
 /// 980 workspace 已归档），页面据此区分 UI（409 冲突清单、980 归档提示）。
 library;
 
+import 'package:dio/dio.dart' show Options;
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -213,7 +216,7 @@ class WorkspaceApi extends HttpClient {
     // list_contracts 时发 pagination=cursor 并线程签名 token（opaque，
     // 终止页 null）；未声明 → 数值 cursor 旧语义零变化（J27.a/b）。
     final signed = AppManifestService.manifest?.listCursorGateEnabled ?? false;
-    var cursor = 0;
+    var cursor = BigInt.zero;
     String? signedToken;
     // ponytail: keep this workspace in memory for local search; use server search for very large directories.
     final result = <ChannelModel>[];
@@ -221,12 +224,20 @@ class WorkspaceApi extends HttpClient {
       final payload = _ensureOk(
         await get(
           '/api/v1/workspaces/$workspaceId/channels',
+          options: Options(
+            responseDecoder: channelIdResponseDecoder(
+              ChannelResponseShape.workspace,
+            ),
+          ),
           queryParameters: {
             'paged': 1,
             'limit': 200,
             if (signed) 'pagination': 'cursor',
             if (signed && signedToken != null) 'cursor': signedToken,
-            if (!signed) 'cursor': cursor,
+            if (!signed)
+              'cursor': cursor <= BigInt.from(9007199254740991)
+                  ? cursor.toInt()
+                  : cursor.toString(),
             if (status != null && status.isNotEmpty) 'status': status,
           },
         ),
@@ -234,7 +245,8 @@ class WorkspaceApi extends HttpClient {
       final rows = payload['list'];
       final more = payload['has_more'];
       final next =
-          int.tryParse('${payload['next_cursor']}') ?? (signed ? 0 : -1);
+          BigInt.tryParse('${payload['next_cursor']}') ??
+          (signed ? BigInt.zero : BigInt.from(-1));
       final nextDyn = payload['next_cursor'];
       final nextToken = (nextDyn == null || nextDyn.toString().isEmpty)
           ? null
@@ -243,17 +255,17 @@ class WorkspaceApi extends HttpClient {
           rows is! List ||
           rows.length > 200 ||
           more is! bool ||
-          (signed ? false : next < 0)) {
+          (signed ? false : next < BigInt.zero)) {
         throw WorkspaceApiException(503, t.common.errorNetwork);
       }
       var lastId = cursor;
       for (final row in rows) {
         final channel = _workspaceChannelRow(row, workspaceId, lastId, status);
-        lastId = channel.id;
+        lastId = BigInt.parse(channel.id);
         result.add(channel);
       }
       if (!more) {
-        if (!signed && next != 0) {
+        if (!signed && next != BigInt.zero) {
           throw WorkspaceApiException(503, t.common.errorNetwork);
         }
         // 签名协议终止页：next_cursor 为空串/缺省即终止（服务端 ws_next_
@@ -279,17 +291,17 @@ class WorkspaceApi extends HttpClient {
   ChannelModel _workspaceChannelRow(
     Object? value,
     EntityId wsId,
-    int before,
+    BigInt before,
     String? status,
   ) {
-    final id = value is Map<String, dynamic>
-        ? int.tryParse('${value['id']}')
+    final canonicalId = value is Map<String, dynamic>
+        ? channelDecimalId(value['id'])
         : null;
+    final id = canonicalId == null ? null : BigInt.tryParse(canonicalId);
     if (value is! Map<String, dynamic> ||
         id == null ||
-        id <= 0 ||
-        id > 9223372036854775807 ||
-        (before > 0 && id >= before) ||
+        id <= BigInt.zero ||
+        (before > BigInt.zero && id >= before) ||
         value['scope'] != 'workspace' ||
         entityIdOf(value['workspace_id']) != wsId ||
         (status == 'all'
@@ -302,7 +314,14 @@ class WorkspaceApi extends HttpClient {
 
   /// 工作区群列表（scope=workspace 严格分区；active 成员可读）。
   Future<List<GroupModel>> groups(EntityId workspaceId) async {
-    final resp = await get('/api/v1/workspaces/$workspaceId/groups');
+    final resp = await get(
+      '/api/v1/workspaces/$workspaceId/groups',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.groupWorkspace,
+        ),
+      ),
+    );
     return _unwrapList(resp, GroupModel.fromJson);
   }
 
@@ -353,26 +372,34 @@ class WorkspaceApi extends HttpClient {
     // 时发 pagination=cursor 并线程签名 token（opaque，终止页 null）；
     // 未声明 → 数值 cursor 旧契约零变化（J27.a/b）。
     final signed = AppManifestService.manifest?.listCursorGateEnabled ?? false;
-    var cursor = 0;
+    var cursor = BigInt.zero;
     String? signedToken;
     final result = <Map<String, dynamic>>[];
     while (true) {
       final payload = _ensureOk(
         await get(
           '/api/v1/workspaces/$workspaceId/groups',
+          options: Options(
+            responseDecoder: channelIdResponseDecoder(
+              ChannelResponseShape.groupWorkspace,
+            ),
+          ),
           queryParameters: {
             'member_only': 1,
             'limit': 200,
             if (signed) 'pagination': 'cursor',
             if (signed && signedToken != null) 'cursor': signedToken,
-            if (!signed) 'cursor': cursor,
+            if (!signed)
+              'cursor': cursor <= BigInt.from(9007199254740991)
+                  ? cursor.toInt()
+                  : cursor.toString(),
             if (preview) 'preview': 1,
           },
         ),
       );
       final raw = payload['list'];
       final more = payload['has_more'];
-      final next = int.tryParse('${payload['next_cursor']}');
+      final next = BigInt.tryParse('${payload['next_cursor']}');
       final nextDyn = payload['next_cursor'];
       final nextToken = (nextDyn == null || nextDyn.toString().isEmpty)
           ? null
@@ -381,7 +408,7 @@ class WorkspaceApi extends HttpClient {
           raw is! List ||
           raw.length > 200 ||
           more is! bool ||
-          (signed ? false : next == null || next < 0)) {
+          (signed ? false : next == null || next < BigInt.zero)) {
         throw WorkspaceApiException(503, t.common.errorNetwork);
       }
       var lastId = cursor;
@@ -391,7 +418,7 @@ class WorkspaceApi extends HttpClient {
         result.add(row);
       }
       if (!more) {
-        if (!signed && next != 0) {
+        if (!signed && next != BigInt.zero) {
           throw WorkspaceApiException(503, t.common.errorNetwork);
         }
         // 签名协议终止页：next_cursor 空串/缺省即终止。
@@ -411,10 +438,10 @@ class WorkspaceApi extends HttpClient {
     }
   }
 
-  (Map<String, dynamic>, int) _memberGroupRow(
+  (Map<String, dynamic>, BigInt) _memberGroupRow(
     Object? raw,
     EntityId workspaceId,
-    int after,
+    BigInt after,
   ) {
     if (raw is! Map<String, dynamic> ||
         raw['scope'] != 'workspace' ||
@@ -422,7 +449,7 @@ class WorkspaceApi extends HttpClient {
         raw['status'] != 1) {
       throw WorkspaceApiException(503, t.common.errorNetwork);
     }
-    final id = GroupModel.fromJson(raw).groupId;
+    final id = BigInt.tryParse(GroupModel.fromJson(raw).groupId) ?? BigInt.zero;
     if (id <= after) {
       throw WorkspaceApiException(503, t.common.errorNetwork);
     }

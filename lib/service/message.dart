@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/config/error_code.dart';
@@ -21,6 +22,7 @@ import 'package:imboy/modules/enterprise_app/public.dart'
     show hostedMessageNotificationPrefix;
 import 'package:imboy/service/mention_service.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -731,7 +733,7 @@ class MessageService with EventSubscriptionManager {
       // 创建临时会话对象用于立即显示
       // Create temporary conversation for immediate UI display
       final tempConv = ConversationModel(
-        peerId: parseModelInt(peerId),
+        peerId: peerId,
         avatar: '', // 稍后异步更新
         title: chatType == 'C2G' ? t.chat.groupChat : t.main.user, // 稍后异步更新
         subtitle: subtitle,
@@ -751,8 +753,8 @@ class MessageService with EventSubscriptionManager {
         parseModelString(data['id']),
         autoId: 0,
         type: chatType,
-        fromId: parseModelInt(data['from']),
-        toId: parseModelInt(data['to']),
+        fromId: parseModelString(data['from']),
+        toId: parseModelString(data['to']),
         payload: nonNullPayload,
         // W8-A1：与落库口径一致，缺失归 0（无 created_at 哨兵），不回填 now。
         createdAt: parseModelInt(data['created_at'], defaultValue: 0),
@@ -1015,7 +1017,7 @@ class MessageService with EventSubscriptionManager {
       );
 
       final conv = ConversationModel(
-        peerId: parseModelInt(peerInfo['peerId']),
+        peerId: peerInfo['peerId']!,
         avatar: peerInfo['avatar']!,
         title: peerInfo['title']!,
         subtitle: tempConv.subtitle,
@@ -1033,8 +1035,8 @@ class MessageService with EventSubscriptionManager {
         parseModelString(msgId),
         autoId: 0,
         type: chatType, // 消息会话类型 (C2C/C2G/C2S)
-        fromId: parseModelInt(data['from']),
-        toId: parseModelInt(data['to']),
+        fromId: parseModelString(data['from']),
+        toId: parseModelString(data['to']),
         payload: payload,
         // W8-A1：created_at 缺失/不可解析（如无 zone 串被 parseIsoZoned
         // 拒绝）落 0 哨兵，绝不回填 now 伪造发送时间；与离线写入侧
@@ -1141,7 +1143,9 @@ class MessageService with EventSubscriptionManager {
       final bool dndSuppressed = chatType == 'C2G'
           ? isGroupDndActive(
               isMutedColumn: savedConv.isMuted,
-              kvNoticeDisabled: _readGroupNoticeDisabledSafe(savedConv.peerId),
+              kvNoticeDisabled: _readGroupNoticeDisabledSafe(
+                parseModelString(data['to']),
+              ),
             )
           : savedConv.isMuted > 0;
       if (!isFromCurrentUser &&
@@ -1358,12 +1362,30 @@ class MessageService with EventSubscriptionManager {
     // 针对频道消息的特殊处理
     if (type == 'C2CH_SERVER_ACK') {
       try {
-        final payload = parseModelJsonMap(data['payload']);
+        final rawPayload = data['payload'];
+        final payload = rawPayload is String
+            ? (jsonDecode(
+                    rewriteChannelIds(
+                      '{"payload":$rawPayload}',
+                      ChannelResponseShape.socket,
+                    ),
+                  ) as Map<String, dynamic>)['payload']
+                  as Map<String, dynamic>?
+            : parseModelJsonMap(rawPayload);
         if (payload != null && payload.containsKey('id')) {
-          final realId = parseModelInt(payload['id']);
-          final localId = int.tryParse(msgId);
-          if (realId > 0 && localId != null && localId < 0) {
-            await ChannelMessageRepo().updateMessageId(localId, realId);
+          final realId = channelDecimalId(payload['id']);
+          final localId = channelDecimalId(msgId, allowNegative: true);
+          if (realId != null &&
+              localId != null &&
+              BigInt.parse(localId) < BigInt.zero) {
+            final updated = await ChannelMessageRepo().updateMessageId(
+              localId,
+              realId,
+            );
+            if (!updated) {
+              iPrint('[SERVER_ACK] 频道临时消息不存在，跳过确认事件');
+              return;
+            }
             iPrint('✅ [SERVER_ACK] 频道消息已确认: 临时ID $localId -> 真实ID $realId');
             AppEventBus.fire(
               ChannelStateChangedEvent(
@@ -1449,7 +1471,7 @@ class MessageService with EventSubscriptionManager {
   /// 兜底，导致整条消息按「处理失败」回滚 UI（消息消失）。因此这里
   /// 吞掉一切读取异常并按「未设置免打扰」（false）降级：宁可多弹一条
   /// 通知，不可让消息落库流程失败。
-  bool _readGroupNoticeDisabledSafe(int gid) {
+  bool _readGroupNoticeDisabledSafe(String gid) {
     try {
       return readNoticeDisabled(
         gid,

@@ -60,9 +60,9 @@ void main() {
         'reaction_summary': {'like': 5, 'heart': 2},
       });
 
-      expect(model.id, 42);
-      expect(model.channelId, 7);
-      expect(model.authorId, 100);
+      expect(model.id, '42');
+      expect(model.channelId, '7');
+      expect(model.authorId, '100');
       expect(model.authorName, 'Alice');
       expect(model.authorAvatar, 'https://example.com/a.jpg');
       expect(model.content, 'Hello world');
@@ -163,8 +163,8 @@ void main() {
         'created_at': baseMs,
         'view_count': '77',
       });
-      expect(model.id, 5);
-      expect(model.channelId, 3);
+      expect(model.id, '5');
+      expect(model.channelId, '3');
       expect(model.viewCount, 77);
     });
   });
@@ -362,7 +362,7 @@ void main() {
       final original = _msg(id: 10, content: 'old', isPinned: false);
       final updated = original.copyWith(content: 'new', isPinned: true);
 
-      expect(updated.id, 10);
+      expect(updated.id, '10');
       expect(updated.content, 'new');
       expect(updated.isPinned, isTrue);
     });
@@ -371,7 +371,7 @@ void main() {
       final original = _msg(id: 10, channelId: 99, viewCount: 7);
       final copy = original.copyWith(content: 'changed');
 
-      expect(copy.channelId, 99);
+      expect(copy.channelId, '99');
       expect(copy.viewCount, 7);
     });
 
@@ -395,7 +395,7 @@ void main() {
 
     test('hashCode — 等于 id.hashCode', () {
       final msg = _msg(id: 42);
-      expect(msg.hashCode, 42.hashCode);
+      expect(msg.hashCode, '42'.hashCode);
     });
   });
 

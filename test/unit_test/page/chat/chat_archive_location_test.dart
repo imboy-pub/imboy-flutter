@@ -179,8 +179,8 @@ void main() {
           id,
           () => _row(id, conversation.uk3, autoId: index + 9)
             ..type = row['type'] as String
-            ..fromId = int.parse(row['from'].toString())
-            ..toId = int.parse(row['to'].toString()),
+            ..fromId = row['from'].toString()
+            ..toId = row['to'].toString(),
         );
       }
       return rows.map((row) => row['msg_id'] as String).toList();
@@ -442,7 +442,7 @@ void main() {
       if (wrongLocal == 'conversation') {
         stored['target']!.conversationUk3 = 'C2C_1001_3003';
       }
-      if (wrongLocal == 'participant') stored['target']!.toId = 3003;
+      if (wrongLocal == 'participant') stored['target']!.toId = '3003';
       if (wrongLocal == 'type') stored['target']!.type = 'C2G';
       expect(await locate('target'), isNot(MessageLocationResult.located));
       expect(updates, isEmpty);

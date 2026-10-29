@@ -6,6 +6,7 @@ import 'package:imboy/service/group_collaboration_summary.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/utils/conversation_uk3_generator.dart';
@@ -18,7 +19,7 @@ class ConversationModel {
   // 等价于 msg type: C2C C2G S2C 等等，根据type显示item
   final String type;
   // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
-  final int peerId;
+  final String peerId;
   String avatar;
   String title; // peerTitle
   String subtitle;
@@ -90,7 +91,7 @@ class ConversationModel {
 
   ConversationModel({
     required this.id,
-    required this.peerId,
+    required Object peerId,
     required this.avatar,
     required this.title,
     required this.subtitle,
@@ -106,7 +107,7 @@ class ConversationModel {
     this.isMuted = 0,
     this.isShow = 1,
     this.payload, // 消息原数据
-  });
+  }) : peerId = channelDecimalId(peerId, allowZero: true) ?? '0';
 
   // CREATE UNIQUE INDEX uk_cv_Type_From_To ON conversation ("type",user_id,peer_id)
   String get uk3 {
@@ -211,7 +212,7 @@ class ConversationModel {
     // iPrint("ConversationModel_payload 2 $payload");
     return ConversationModel(
       id: parseModelInt(json[ConversationRepo.id]),
-      peerId: parseModelInt(json[ConversationRepo.peerId]),
+      peerId: (json[ConversationRepo.peerId] ?? 0) as Object,
       avatar: avatarValue,
       title: parseModelString(json[ConversationRepo.title]),
       region: parseModelString(json[ConversationRepo.region]),
@@ -280,7 +281,7 @@ class ConversationModel {
 
   ConversationModel copyWith({
     int? id,
-    int? peerId,
+    Object? peerId,
     String? avatar,
     String? title,
     String? subtitle,

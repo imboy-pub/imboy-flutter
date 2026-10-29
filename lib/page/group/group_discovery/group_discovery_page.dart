@@ -138,10 +138,10 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
   ) {
     final brightness = Theme.of(context).brightness;
     final all = [
-      GroupDiscoveryCategory(id: 0, name: t.groupDiscovery.allCategories),
+      GroupDiscoveryCategory(id: '0', name: t.groupDiscovery.allCategories),
       ...state.categories,
     ];
-    final selectedId = state.categoryId ?? 0;
+    final selectedId = state.categoryId ?? '0';
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -155,7 +155,7 @@ class _GroupDiscoveryPageState extends ConsumerState<GroupDiscoveryPage> {
           return CupertinoButton(
             padding: EdgeInsets.zero,
             onPressed: () =>
-                notifier.selectCategory(cat.id == 0 ? null : cat.id),
+                notifier.selectCategory(cat.id == '0' ? null : cat.id),
             child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.medium,

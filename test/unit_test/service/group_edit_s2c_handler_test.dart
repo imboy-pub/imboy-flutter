@@ -20,8 +20,8 @@ import 'package:imboy/service/group_edit_s2c.dart';
 
 void main() {
   group('handleGroupEditS2C — 分派契约', () {
-    late List<(int, Map<String, dynamic>)> applyCalls;
-    late List<(int, Map<String, dynamic>)> fireCalls;
+    late List<(String, Map<String, dynamic>)> applyCalls;
+    late List<(String, Map<String, dynamic>)> fireCalls;
     late List<String> logs;
 
     setUp(() {
@@ -32,8 +32,8 @@ void main() {
 
     Future<void> run(
       Map<String, dynamic> payload, {
-      Future<void> Function(int, Map<String, dynamic>)? applyUpdate,
-      void Function(int, Map<String, dynamic>)? fireEvent,
+      Future<void> Function(String, Map<String, dynamic>)? applyUpdate,
+      void Function(String, Map<String, dynamic>)? fireEvent,
     }) {
       return handleGroupEditS2C(
         payload: payload,
@@ -49,11 +49,11 @@ void main() {
       await run({'gid': 1, 'title': 't', 'avatar': 'a.png'});
 
       expect(applyCalls, hasLength(1));
-      expect(applyCalls.first.$1, 1);
+      expect(applyCalls.first.$1, '1');
       expect(applyCalls.first.$2, {'title': 't', 'avatar': 'a.png'});
 
       expect(fireCalls, hasLength(1));
-      expect(fireCalls.first.$1, 1);
+      expect(fireCalls.first.$1, '1');
       expect(fireCalls.first.$2, {'title': 't', 'avatar': 'a.png'});
     });
 
@@ -66,7 +66,7 @@ void main() {
         reason: '空 updates 不应触发 GroupRepo.update（避免无谓写库）',
       );
       expect(fireCalls, hasLength(1));
-      expect(fireCalls.first.$1, 7);
+      expect(fireCalls.first.$1, '7');
       expect(fireCalls.first.$2, isEmpty);
     });
 

@@ -1672,6 +1672,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get voiceSttPreviewTitle => 'Предпросмотр распознанного текста';
 	@override String get retry => 'Повторить';
 	@override String get retrying => 'Повтор…';
+	@override String get denylistResultUnknown => 'Результат неизвестен. Сначала проверьте чёрный список.';
+	@override String get denylistLocalNotSynced => 'Сервер обработал запрос, но локальное состояние не синхронизировано.';
+	@override String get friendConfirmResultUnknown => 'Результат подтверждения неизвестен. Сначала проверьте статус дружбы.';
 }
 
 // Path: complaint
@@ -4920,6 +4923,9 @@ extension on TranslationsRuRu {
 			'common.voiceSttPreviewTitle' => 'Предпросмотр распознанного текста',
 			'common.retry' => 'Повторить',
 			'common.retrying' => 'Повтор…',
+			'common.denylistResultUnknown' => 'Результат неизвестен. Сначала проверьте чёрный список.',
+			'common.denylistLocalNotSynced' => 'Сервер обработал запрос, но локальное состояние не синхронизировано.',
+			'common.friendConfirmResultUnknown' => 'Результат подтверждения неизвестен. Сначала проверьте статус дружбы.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
@@ -4932,11 +4938,11 @@ extension on TranslationsRuRu {
 			'contact.blocked' => 'Заблокирован',
 			'contact.applyChanges' => 'Перезапустите приложение для применения изменений',
 			'contact.inputNewTag' => 'Введите новый тег...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => 'Чёрный список',
 			'contact.denylistEmpty' => 'Чёрный список пуст',
 			'contact.favoriteGroupTagsEtc' => 'Сохранённые имена, группы, теги и т.д.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => 'Новые друзья',
 			'contact.recommendToFriend' => 'Порекомендовать другу',
 			'contact.remark' => 'Примечание',
@@ -5446,11 +5452,11 @@ extension on TranslationsRuRu {
 			'main.safetyNumberHint' => 'Сравните код безопасности с собеседником лично или по телефону. Если коды совпадают, ваша связь не прослушивается посредником; если нет — немедленно прекратите разговор и проверьте личность собеседника другим способом. Статус проверки хранится только на этом устройстве.',
 			'main.safetyNumberMarkVerified' => 'Отметить как проверенного',
 			'main.safetyNumberMarkedVerified' => 'Отмечено как проверенное',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'У собеседника не включено сквозное шифрование',
 			'main.safetyNumberPeerDevice' => 'Устройство собеседника',
 			'main.safetyNumberReportRejected' => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => 'Не удалось получить информацию об устройстве, не отправлено',
 			'main.safetyNumberVerified' => '✓ Проверено',
 			'main.safetyNumberNotVerified' => 'Не проверено',
@@ -5960,11 +5966,11 @@ extension on TranslationsRuRu {
 			'talkRecord.aiProviderCancel' => 'Остановить транскрипцию',
 			'talkRecord.aiProviderCancelNotice' => 'Отзывает доступ IMBoy к источнику и операциям. Остановка у поставщика или возврат оплаты не гарантируются.',
 			'talkRecord.aiProviderResubmit' => 'Отправить аудио повторно',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Создаёт новую транскрипцию; возможна повторная оплата. Исходный запрос остаётся. Отправить повторно и согласиться на обработку?',
 			'talkRecord.aiProviderCancelled' => 'Транскрипция остановлена. Аудио сохранено.',
 			'talkRecord.aiProviderResumePreparation' => 'Продолжить подготовку',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'Исходная задача ещё не отправлена поставщику. Повторно подготовьте источник аудио с текущими правами и согласием.',
 			'welcome.step1Title' => 'Общайтесь свободно',
 			'welcome.step1Desc' => 'Бесшовное общение В любое время, в любом месте',

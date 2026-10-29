@@ -1,6 +1,5 @@
 import 'package:imboy/service/message_conversation_utils.dart';
 import 'package:imboy/store/model/message_model.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 
 class InsertedOfflineMessage {
   final String id;
@@ -40,8 +39,8 @@ class InsertedOfflineMessage {
       id,
       autoId: 0,
       type: type,
-      fromId: parseModelInt(fromId),
-      toId: parseModelInt(toId),
+      fromId: fromId,
+      toId: toId,
       payload: payload,
       createdAt: createdAt,
       isAuthor: isAuthor,

@@ -1663,6 +1663,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get voiceSttPreviewTitle => '음성 텍스트 변환 미리보기';
 	@override String get retry => '다시 시도';
 	@override String get retrying => '다시 시도 중…';
+	@override String get denylistResultUnknown => '작업 결과를 알 수 없습니다. 다시 시도하기 전에 차단 목록을 확인하세요.';
+	@override String get denylistLocalNotSynced => '서버에서 처리했지만 로컬 상태가 동기화되지 않았습니다.';
+	@override String get friendConfirmResultUnknown => '친구 승인 결과를 알 수 없습니다. 먼저 친구 관계를 확인하세요.';
 }
 
 // Path: complaint
@@ -4911,6 +4914,9 @@ extension on TranslationsKoKr {
 			'common.voiceSttPreviewTitle' => '음성 텍스트 변환 미리보기',
 			'common.retry' => '다시 시도',
 			'common.retrying' => '다시 시도 중…',
+			'common.denylistResultUnknown' => '작업 결과를 알 수 없습니다. 다시 시도하기 전에 차단 목록을 확인하세요.',
+			'common.denylistLocalNotSynced' => '서버에서 처리했지만 로컬 상태가 동기화되지 않았습니다.',
+			'common.friendConfirmResultUnknown' => '친구 승인 결과를 알 수 없습니다. 먼저 친구 관계를 확인하세요.',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
@@ -4923,11 +4929,11 @@ extension on TranslationsKoKr {
 			'contact.blocked' => '차단됨',
 			'contact.applyChanges' => '변경사항을 적용하려면 앱을 재시작하세요',
 			'contact.inputNewTag' => '새 태그 입력...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => '차단 목록',
 			'contact.denylistEmpty' => '차단 목록이 비어있습니다',
 			'contact.favoriteGroupTagsEtc' => '즐겨찾기 이름, 그룹 이름, 태그 등',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => '새 친구',
 			'contact.recommendToFriend' => '친구에게 추천',
 			'contact.remark' => '메모',
@@ -5437,11 +5443,11 @@ extension on TranslationsKoKr {
 			'main.safetyNumberHint' => '대면 또는 전화로 상대방과 보안 번호를 비교해 주세요. 일치하면 두 사람의 통신에 중간자가 없는 것이고, 일치하지 않으면 즉시 대화를 중단하고 다른 경로로 상대방의 신원을 확인하세요. 검증 상태는 이 기기에만 저장됩니다.',
 			'main.safetyNumberMarkVerified' => '검증됨으로 표시',
 			'main.safetyNumberMarkedVerified' => '검증됨으로 표시했습니다',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => '상대방이 아직 종단간 암호화를 사용하지 않습니다',
 			'main.safetyNumberPeerDevice' => '상대방 기기',
 			'main.safetyNumberReportRejected' => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => '기기 정보를 가져올 수 없어 보고하지 않았습니다',
 			'main.safetyNumberVerified' => '✓ 확인됨',
 			'main.safetyNumberNotVerified' => '확인 안 됨',
@@ -5951,11 +5957,11 @@ extension on TranslationsKoKr {
 			'talkRecord.aiProviderCancel' => '전사 중지',
 			'talkRecord.aiProviderCancelNotice' => 'IMBoy의 음성 접근 및 작업 권한을 취소합니다. 공급자의 처리 중단이나 환불은 보장할 수 없습니다.',
 			'talkRecord.aiProviderResubmit' => '음성 다시 제출',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => '새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?',
 			'talkRecord.aiProviderCancelled' => '전사가 중지되었습니다. 기존 녹음은 유지됩니다.',
 			'talkRecord.aiProviderResumePreparation' => '전사 준비 계속',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '기존 작업은 공급자에게 제출되지 않았습니다. 음성 소스를 다시 준비하고 현재 권한과 동의로 계속합니다.',
 			'welcome.step1Title' => '간단한 연결',
 			'welcome.step1Desc' => '원활한 소통의 즐거움을 경험해 보세요. 언제 어디서든.',

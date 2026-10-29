@@ -6,7 +6,6 @@ import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/list_cursor_client.dart' show CursorPage;
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/group/group_detail/group_detail_service.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
@@ -91,7 +90,7 @@ class GroupListService {
     required int offset,
   }) async {
     final repo = GroupRepo();
-    final merged = <int, GroupModel>{};
+    final merged = <String, GroupModel>{};
     for (final attr in const ['manager', 'join', 'owner']) {
       if (_cursorGateEnabled) {
         for (final group in await _pullAndSyncViaCursor(
@@ -143,7 +142,7 @@ class GroupListService {
     required GroupModel group,
   }) async {
     final currentUid = UserRepoLocal.to.currentUid;
-    if (currentUid.isEmpty || group.groupId == 0) {
+    if (currentUid.isEmpty || group.groupId == '0') {
       return;
     }
 
@@ -192,7 +191,7 @@ class GroupListService {
       GroupMemberModel(
         id: null,
         groupId: group.groupId,
-        userId: int.tryParse(currentUid) ?? 0,
+        userId: currentUid,
         nickname: UserRepoLocal.to.current.nickname,
         avatar: UserRepoLocal.to.current.avatar,
         sign: UserRepoLocal.to.current.sign,
@@ -390,17 +389,19 @@ class GroupListService {
     required String selfUid,
     required String selfAvatar,
   }) {
-    final byUid = <int, String>{
-      if (selfUid.isNotEmpty) int.tryParse(selfUid) ?? 0: selfAvatar,
+    final byUid = <String, String>{
+      if ((BigInt.tryParse(selfUid) ?? BigInt.zero) > BigInt.zero)
+        selfUid: selfAvatar,
     };
     for (final row in rows) {
-      final uid = parseModelInt(row[GroupMemberRepo.userId]);
-      if (uid <= 0) {
+      final uid = row[GroupMemberRepo.userId]?.toString() ?? '';
+      if ((BigInt.tryParse(uid) ?? BigInt.zero) <= BigInt.zero) {
         continue;
       }
       byUid[uid] = (row[GroupMemberRepo.avatar] as String? ?? '').trim();
     }
-    final uids = byUid.keys.toList()..sort();
+    final uids = byUid.keys.toList()
+      ..sort((a, b) => BigInt.parse(a).compareTo(BigInt.parse(b)));
     final li = [for (final uid in uids) byUid[uid]!];
     if (li.every((url) => url.isEmpty)) {
       return [];
@@ -599,8 +600,8 @@ class GroupListService {
       await gmRepo.insert(
         GroupMemberModel(
           id: null,
-          groupId: parseModelInt(groupId),
-          userId: parseModelInt(userId),
+          groupId: groupId,
+          userId: userId,
           alias: c?.nickname ?? '',
           nickname: c?.nickname ?? '',
           avatar: c?.avatar ?? '',

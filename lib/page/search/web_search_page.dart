@@ -35,6 +35,10 @@ import 'package:imboy/theme/default/app_colors.dart';
 
 import 'web_search_state.dart';
 
+@visibleForTesting
+String searchMessageRoute(String conversationId, String? type) =>
+    '/chat/$conversationId${type == 'C2G' ? '?type=C2G' : ''}';
+
 /// Web 全局搜索页面
 class WebSearchPage extends ConsumerStatefulWidget {
   /// 初始搜索关键词
@@ -809,7 +813,12 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
       case SearchItemType.message:
         // 跳转到消息详情
         if (item.metadata?['conversationId'] != null) {
-          context.push('/chat/${item.metadata!['conversationId']}');
+          context.push(
+            searchMessageRoute(
+              item.metadata!['conversationId'] as String,
+              item.metadata?['type'] as String?,
+            ),
+          );
         }
       case SearchItemType.contact:
         // 资料页路由注册在 /contact 子树下：/contact/people/:id（与

@@ -82,7 +82,10 @@ Future<bool> syncChannelUnreadSnapshot({
       }
       final local = await txn.query(
         ChannelRepo.subscriptionTableName,
-        columns: [ChannelRepo.subChannelId, ChannelRepo.unreadCount],
+        columns: [
+          'CAST(${ChannelRepo.subChannelId} AS TEXT) AS ${ChannelRepo.subChannelId}',
+          ChannelRepo.unreadCount,
+        ],
       );
       // shortcut: 缺席可能是撤权或零未读；W07 权威逐项对账完成后消除待核对状态。
       unresolved = local.any(

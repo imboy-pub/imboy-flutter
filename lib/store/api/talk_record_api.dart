@@ -17,6 +17,7 @@
 library;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:imboy/store/model/talk_record/talk_record_audio_upload_session.dart';
 export 'package:imboy/store/model/talk_record/talk_record_audio_upload_session.dart';

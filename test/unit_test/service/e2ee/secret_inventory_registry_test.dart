@@ -33,10 +33,8 @@ void main() {
     },
     // ── safety number 信任态（C05 verified 标记 + C07/AC-15 设备集合）──
     // 页面直写已收口到 SafetyNumberService（AC-15），表达式全部在 service 内。
-    '_verifiedKeyPrefix + peerUid': const {'prefix': 'safety_number_verified_'},
-    '_approvedDevsetKeyPrefix + peerUid': const {
-      'prefix': 'safety_number_devset_',
-    },
+    '_key(_verifiedKeyPrefix': const {'prefix': 'safety_number_verified_'},
+    '_key(_approvedDevsetKeyPrefix': const {'prefix': 'safety_number_devset_'},
     // 局部变量：_checkDeviceSetDrift 内 baselineKey = _devsetBaselineKeyPrefix
     // + peerUid（safety_number_devset_ 前缀覆盖 devset_baseline_ 子族）
     'baselineKey': const {'prefix': 'safety_number_devset_'},
@@ -44,6 +42,8 @@ void main() {
     // ── 常量（定义处值见各 service）──
     '_accountPickleStorageKey': const {'prefix': 'olm_'},
     '_lastFallbackRotationKey': const {'prefix': 'olm_'},
+    '_sessionInvalidatedKey(owner': const {'prefix': 'olm_'},
+    'markerKey': const {'prefix': 'olm_'},
     '_pickleKeyStorageKey': const {'prefix': 'olm_'},
     '_storageKey(uid': const {'prefix': 'db_cipher_key_'},
     '_storageKey(ref': const {'prefix': 'utk_'},

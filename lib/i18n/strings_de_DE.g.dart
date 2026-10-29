@@ -1666,6 +1666,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get initConfigDecryptFailed => 'Konfiguration konnte nicht entschlüsselt werden: Sicherheitsschlüssel von App und Server stimmen nicht überein. Bitte App aktualisieren oder Administrator kontaktieren';
 	@override String get retry => 'Wiederholen';
 	@override String get retrying => 'Wiederholung…';
+	@override String get denylistResultUnknown => 'Das Ergebnis ist unbekannt. Prüfe zuerst die Sperrliste.';
+	@override String get denylistLocalNotSynced => 'Der Server hat die Anfrage verarbeitet, der lokale Status ist nicht synchronisiert.';
+	@override String get friendConfirmResultUnknown => 'Das Ergebnis der Freundschaftsbestätigung ist ungewiss. Prüfe zuerst die Freundschaft.';
 }
 
 // Path: complaint
@@ -4914,6 +4917,9 @@ extension on TranslationsDeDe {
 			'common.initConfigDecryptFailed' => 'Konfiguration konnte nicht entschlüsselt werden: Sicherheitsschlüssel von App und Server stimmen nicht überein. Bitte App aktualisieren oder Administrator kontaktieren',
 			'common.retry' => 'Wiederholen',
 			'common.retrying' => 'Wiederholung…',
+			'common.denylistResultUnknown' => 'Das Ergebnis ist unbekannt. Prüfe zuerst die Sperrliste.',
+			'common.denylistLocalNotSynced' => 'Der Server hat die Anfrage verarbeitet, der lokale Status ist nicht synchronisiert.',
+			'common.friendConfirmResultUnknown' => 'Das Ergebnis der Freundschaftsbestätigung ist ungewiss. Prüfe zuerst die Freundschaft.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
@@ -4926,11 +4932,11 @@ extension on TranslationsDeDe {
 			'contact.blocked' => 'Blockiert',
 			'contact.applyChanges' => 'Bitte starten Sie die App neu, um die Änderungen zu übernehmen',
 			'contact.inputNewTag' => 'Neuen Tag eingeben...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => 'Sperrliste',
 			'contact.denylistEmpty' => 'Sperrliste ist leer',
 			'contact.favoriteGroupTagsEtc' => 'Favoriten, Namen, Gruppen, Tags usw.',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => 'Neue Freunde',
 			'contact.recommendToFriend' => 'Freunden empfehlen',
 			'contact.remark' => 'Bemerkung',
@@ -5440,11 +5446,11 @@ extension on TranslationsDeDe {
 			'main.complianceKeyInfoPinnedAt' => 'Gepinnt am',
 			'main.complianceKeyInfoPinnedNone' => 'Noch nicht gepinnt (wird beim nächsten Abruf automatisch gepinnt)',
 			'main.complianceKeyInfoRefreshFailed' => 'Abruf fehlgeschlagen. Bitte Netzwerk prüfen und erneut versuchen',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Vom Server bereitgestellter öffentlicher Schlüssel',
 			'main.e2eeErrComplianceChanged' => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => 'Der Compliance-Schlüssel ist abgelaufen. Bitte kontaktieren Sie den Administrator',
 			'main.complianceKeyRotationConfirmed' => 'Compliance-Schlüsselrotation bestätigt, Nachricht kann erneut gesendet werden',
 			'main.complianceKeyRotationNoPending' => 'Keine ausstehende Schlüsseländerung zu bestätigen',
@@ -5954,11 +5960,11 @@ extension on TranslationsDeDe {
 			'talkRecord.aiProviderCancel' => 'Transkription stoppen',
 			'talkRecord.aiProviderCancelNotice' => 'Widerruft IMBoy-Zugriff und Vorgangsrechte. Anbieter-Stopp oder Erstattung werden nicht garantiert.',
 			'talkRecord.aiProviderResubmit' => 'Audio erneut senden',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Erstellt eine neue Transkription; doppelte Gebühren sind möglich. Der ursprüngliche Auftrag bleibt. Erneut senden und dieser Verarbeitung zustimmen?',
 			'talkRecord.aiProviderCancelled' => 'Transkription gestoppt. Vorhandenes Audio bleibt erhalten.',
 			'talkRecord.aiProviderResumePreparation' => 'Transkription weiter vorbereiten',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'Der ursprüngliche Auftrag wurde noch nicht übermittelt. Audioquelle mit aktuellen Rechten und Einwilligung erneut vorbereiten.',
 			'welcome.step1Title' => 'Einfache Verbindung',
 			'welcome.step1Desc' => 'Erleben Sie die Freude nahtloser Kommunikation. Jederzeit, überall.',

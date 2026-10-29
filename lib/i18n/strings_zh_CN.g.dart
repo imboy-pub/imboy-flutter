@@ -4926,6 +4926,15 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '重试中…'
 	String get retrying => '重试中…';
+
+	/// zh-CN: '操作结果未知，请先核对黑名单。'
+	String get denylistResultUnknown => '操作结果未知，请先核对黑名单。';
+
+	/// zh-CN: '服务端已处理，本地状态未同步。'
+	String get denylistLocalNotSynced => '服务端已处理，本地状态未同步。';
+
+	/// zh-CN: '好友确认结果未知，请先核对好友关系。'
+	String get friendConfirmResultUnknown => '好友确认结果未知，请先核对好友关系。';
 }
 
 // Path: complaint
@@ -12507,6 +12516,9 @@ extension on Translations {
 			'common.collectedVideoFormatIncorrectCannotFindVideoUri' => '视频格式暂不支持，无法找到对应视频',
 			'common.retry' => '重试',
 			'common.retrying' => '重试中…',
+			'common.denylistResultUnknown' => '操作结果未知，请先核对黑名单。',
+			'common.denylistLocalNotSynced' => '服务端已处理，本地状态未同步。',
+			'common.friendConfirmResultUnknown' => '好友确认结果未知，请先核对好友关系。',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -12956,11 +12968,11 @@ extension on Translations {
 			'groupSchedule.collapseParticipants' => '收起',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.tagName' => '标签名称',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.removeTitle' => '移除标签',
-			_ => null,
-		} ?? switch (path) {
 			'groupTag.removeConfirm' => '确定要移除这个标签吗？',
 			'groupTask.title' => '待办',
 			'groupTask.createTask' => '创建待办',
@@ -13470,11 +13482,11 @@ extension on Translations {
 			'organization.inviteQr.notAdmin' => '仅企业 Owner/Admin 可管理邀请码',
 			'organization.inviteQr.copyCode' => '复制邀请码',
 			'organization.inviteQr.copied' => '已复制邀请码',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
 			'organization.directory.currentMembersSection' => '本级成员',
 			'organization.directory.structureSection' => '组织架构',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.title' => '通讯录',
 			'organization.directory.deptSection' => '部门',
 			'organization.directory.allMembersSection' => '全部成员',
@@ -13984,11 +13996,11 @@ extension on Translations {
 			'talkRecord.cleanupRetainedBody' => '部分附件仍被其他合法业务引用，暂不物理删除。',
 			'talkRecord.cleanupFailedTitle' => '清理失败',
 			'talkRecord.cleanupFailedBody' => '附件清理未完成。请刷新查看状态；符合条件时可重试清理。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupCompleteTitle' => '清理完成',
 			'talkRecord.cleanupCompleteBody' => '记录与附件均已清理完成。',
 			'talkRecord.cleanupNoneTitle' => '未提交清理',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.cleanupNoneBody' => '记录尚未进入清理流程。',
 			'talkRecord.cleanupUnknownTitle' => '清理状态未知',
 			'talkRecord.cleanupUnknownBody' => '暂未能获取清理状态，可刷新重试。',

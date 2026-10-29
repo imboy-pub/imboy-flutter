@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 
 String getSourceTr(String? source) {
@@ -40,7 +41,7 @@ String getSourceTr(String? source) {
 
 class ContactModel extends ISuspensionBean {
   ContactModel({
-    required this.peerId,
+    required Object peerId,
     required this.nickname,
     this.account = "",
     this.avatar = "",
@@ -64,9 +65,9 @@ class ContactModel extends ISuspensionBean {
     this.firstLetter,
     this.onPressed,
     this.onLongPressed,
-  });
+  }) : peerId = channelDecimalId(peerId, allowNegative: true) ?? '0';
 
-  final int peerId; // 联系人用户ID
+  final String peerId; // 联系人用户ID
   final String account; // 联系人用户账号
   final String nickname; // 联系人用户 备注 or 昵称
   final String avatar; // 用户头像
@@ -107,7 +108,8 @@ class ContactModel extends ISuspensionBean {
   ///
   /// 菜单入口使用负值 `peerId` sentinel（见 contact_provider.dart 的
   /// `kPeerId*` 常量），真实联系人 `peerId > 0`。纯数据谓词，不含 UI 关注点。
-  bool get isMenuEntry => peerId < 0;
+  bool get isMenuEntry =>
+      (BigInt.tryParse(peerId) ?? BigInt.zero) < BigInt.zero;
 
   /// 联系人来源描述
   String get sourceTr {
@@ -131,8 +133,8 @@ class ContactModel extends ISuspensionBean {
     tag = tag.replaceAll(',,', ',');
     tag = tag.endsWith(',') ? tag.substring(0, tag.length - 1) : tag;
 
-    final peerId = parseModelInt(json['id'] ?? json[ContactRepo.peerId]);
-    if (peerId == 0) {
+    final peerId = channelDecimalId(json['id'] ?? json[ContactRepo.peerId]);
+    if (peerId == null) {
       throw Exception('ContactModel peerId is empty');
     }
 

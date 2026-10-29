@@ -55,9 +55,11 @@ void main() {
     test('既有字段不丢失（回归）', () {
       final map = GroupMemberRepo.toInsertMap(_buildMember());
 
-      expect(map[GroupMemberColumns.id], 42);
-      expect(map[GroupMemberColumns.groupId], 10);
-      expect(map[GroupMemberColumns.userId], 100);
+      // TSID 十进制字符串化：channelDecimalId 把 id/groupId/userId 归一为
+      // 十进制字符串后入库（channel_decimal_id.dart 契约）。
+      expect(map[GroupMemberColumns.id], '42');
+      expect(map[GroupMemberColumns.groupId], '10');
+      expect(map[GroupMemberColumns.userId], '100');
       expect(map[GroupMemberColumns.nickname], 'n');
       expect(map[GroupMemberColumns.createdAt], 1700000000000);
     });

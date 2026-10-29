@@ -69,7 +69,7 @@ class SpyAddMemberNotifier extends AddMemberNotifier {
   final bool joinResult;
   int joinCalls = 0;
   String? lastGroupId;
-  List<int> lastMemberIds = <int>[];
+  List<String> lastMemberIds = <String>[];
 
   @override
   AddMemberState build() => const AddMemberState();
@@ -406,8 +406,8 @@ void main() {
     expect(spyAdd.joinCalls, 1, reason: '提交应走 joinGroup');
     expect(spyAdd.lastGroupId, '7001', reason: '群号应随提交传入');
     expect(spyAdd.lastMemberIds.toSet(), {
-      8002,
-      8003,
+      '8002',
+      '8003',
     }, reason: '选中名单应完整入参（成员行 8001 不可选）');
     // pop 转场 300ms：多 pump 数帧等动画走完再断言离树
     await tester.pump(const Duration(milliseconds: 500));

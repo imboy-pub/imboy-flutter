@@ -12,6 +12,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'denylist_provider.g.dart';
 
+enum DenylistMutationResult { success, unknown, partial, sessionChanged }
+
 /// Denylist 模块的状态
 class DenylistState {
   final List<DenylistModel> items;
@@ -76,12 +78,22 @@ class DenylistNotifier extends _$DenylistNotifier {
 
   /// 加载黑名单列表
   Future<void> loadData({int page = 1, int size = 1000}) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool current() =>
+        ref.mounted &&
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    if (!current()) return;
     state = state.copyWith(isLoading: true);
     try {
       var list = await DenylistNotifier.page(page: page, size: size);
-      handleList(list);
+      if (current()) handleList(list);
     } finally {
-      state = state.copyWith(isLoading: false);
+      if (current()) state = state.copyWith(isLoading: false);
     }
   }
 
@@ -91,12 +103,22 @@ class DenylistNotifier extends _$DenylistNotifier {
     int size = 10,
     bool onRefresh = false,
   }) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool current() =>
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    if (!current()) return [];
     List<DenylistModel> list = [];
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
     var repo = UserDenylistRepo();
     if (onRefresh == false) {
       list = await repo.page(limit: size, offset: offset);
+      if (!current()) return [];
     }
     if (list.isNotEmpty) {
       return list;
@@ -105,6 +127,7 @@ class DenylistNotifier extends _$DenylistNotifier {
       page: page,
       size: size,
     );
+    if (!current()) return [];
     if (payload == null) {
       return [];
     }
@@ -112,7 +135,8 @@ class DenylistNotifier extends _$DenylistNotifier {
       json[ContactRepo.isFriend] = 1;
       // checkIsFriend = true 的时候，保留旧的 isFriend 值
       DenylistModel model = DenylistModel.fromJson(json);
-      await repo.insert(model);
+      await repo.insert(model, account: account);
+      if (!current()) return [];
       list.add(model);
     }
     return list;
@@ -125,69 +149,125 @@ class DenylistNotifier extends _$DenylistNotifier {
   }
 
   /// 移除黑名单
-  Future<bool> removeDenylist(String peerId) async {
+  Future<DenylistMutationResult> removeDenylist(String peerId) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool current() =>
+        ref.mounted &&
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    if (!current()) return DenylistMutationResult.sessionChanged;
+    var serverApplied = false;
     try {
       DenylistApi api = DenylistApi();
       UserDenylistRepo repo = UserDenylistRepo();
-      bool res = await api.remove(deniedUserUid: peerId);
+      final response = await api.remove(deniedUserUid: peerId);
+      final res = response.applied;
+      if (!current()) return DenylistMutationResult.sessionChanged;
       if (res) {
-        await repo.deleteForUid(peerId);
+        serverApplied = true;
+        await repo.deleteForUid(peerId, account: account);
+        if (!current()) return DenylistMutationResult.sessionChanged;
         // 显示联系人
         await ContactRepo().update({
-          ContactRepo.userId: UserRepoLocal.to.currentUid,
+          ContactRepo.userId: account,
           ContactRepo.peerId: peerId,
           ContactRepo.isFriend: 1,
-        });
+        }, account: account);
+        if (!current()) return DenylistMutationResult.sessionChanged;
         // 显示会话
         await ConversationRepo().updateByPeerId('C2C', peerId, {
           ConversationRepo.isShow: 1,
-        });
+        }, account: account);
+        if (!current()) return DenylistMutationResult.sessionChanged;
 
         // 从列表中移除
         final newItems = List<DenylistModel>.from(state.items);
         newItems.removeWhere((e) => e.deniedUid.toString() == peerId);
         state = state.copyWith(items: newItems);
       }
-      return res;
-    } on Exception {
-      return false;
+      return res
+          ? DenylistMutationResult.success
+          : DenylistMutationResult.unknown;
+    } catch (_) {
+      if (!current()) return DenylistMutationResult.sessionChanged;
+      return serverApplied
+          ? DenylistMutationResult.partial
+          : DenylistMutationResult.unknown;
     }
   }
 
   /// 添加到黑名单
-  Future<bool> addDenylist(DenylistModel model) async {
+  Future<DenylistMutationResult> addDenylist(DenylistModel model) async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
+    bool current() =>
+        ref.mounted &&
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning;
+    if (!current()) return DenylistMutationResult.sessionChanged;
     DenylistApi api = DenylistApi();
     UserDenylistRepo repo = UserDenylistRepo();
 
-    Map<String, dynamic>? payload = await api.add(
-      deniedUserUid: model.deniedUid.toString(),
-    );
-    bool res = payload == null ? false : true;
-    if (res) {
-      model.createdAt =
-          IMBoyHttpResponse.payloadInt(payload, 'created_at') ??
-          DateTimeHelper.millisecond();
-      await repo.insert(model);
-      // 隐藏联系人
-      await ContactRepo().update({
-        ContactRepo.userId: UserRepoLocal.to.currentUid,
-        ContactRepo.peerId: model.deniedUid,
-        ContactRepo.isFriend: 0,
-      });
-      // 隐藏会话
-      await ConversationRepo().updateByPeerId(
-        'C2C',
-        model.deniedUid.toString(),
-        {ConversationRepo.isShow: 0},
-      );
+    var serverApplied = false;
+    try {
+      final response = await api.add(deniedUserUid: model.deniedUid.toString());
+      if (!current()) return DenylistMutationResult.sessionChanged;
+      final payload = response.payload;
+      final res = response.applied;
+      if (res) {
+        serverApplied = true;
+        model.createdAt =
+            IMBoyHttpResponse.payloadInt(payload, 'created_at') ??
+            DateTimeHelper.millisecond();
+        await repo.insert(model, account: account);
+        if (!current()) return DenylistMutationResult.sessionChanged;
+        // 隐藏联系人
+        await ContactRepo().update({
+          ContactRepo.userId: account,
+          ContactRepo.peerId: model.deniedUid,
+          ContactRepo.isFriend: 0,
+        }, account: account);
+        if (!current()) return DenylistMutationResult.sessionChanged;
+        // 隐藏会话
+        await ConversationRepo().updateByPeerId(
+          'C2C',
+          model.deniedUid.toString(),
+          {ConversationRepo.isShow: 0},
+          account: account,
+        );
+        if (!current()) return DenylistMutationResult.sessionChanged;
+      }
+      return res
+          ? DenylistMutationResult.success
+          : DenylistMutationResult.unknown;
+    } catch (_) {
+      if (!current()) return DenylistMutationResult.sessionChanged;
+      return serverApplied
+          ? DenylistMutationResult.partial
+          : DenylistMutationResult.unknown;
     }
-    return res;
   }
 
   /// 刷新黑名单数据
   Future<void> refreshData() async {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    final generation = user.sessionGeneration;
     // 刷新黑名单列表
     var list2 = await page(page: 1, size: 1000);
-    handleList(list2);
+    if (ref.mounted &&
+        account.isNotEmpty &&
+        user.currentUid == account &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning) {
+      handleList(list2);
+    }
   }
 }

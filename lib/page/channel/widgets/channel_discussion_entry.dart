@@ -23,7 +23,7 @@ class ChannelDiscussionEntry extends ConsumerStatefulWidget {
 class _ChannelDiscussionEntryState
     extends ConsumerState<ChannelDiscussionEntry> {
   bool _busy = false;
-  int? _groupId;
+  String? _groupId;
   String? _error;
   int _generation = 0;
 
@@ -110,7 +110,7 @@ class _ChannelDiscussionEntryState
       final result = await ref
           .read(channelApiProvider)
           .joinDiscussion(widget.channel.id.toString());
-      final joined = int.tryParse('${result['discussion_group_id']}');
+      final joined = result['discussion_group_id']?.toString();
       if (joined != binding) {
         throw const FormatException('discussion identity changed');
       }

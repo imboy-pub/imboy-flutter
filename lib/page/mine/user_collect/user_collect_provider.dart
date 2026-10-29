@@ -1044,8 +1044,8 @@ class UserCollectNotifier extends _$UserCollectNotifier {
           autoId: 0,
           msg.id,
           type: tb, // 使用表名作为类型
-          fromId: parseModelInt(msg.authorId),
-          toId: parseModelInt(msg.metadata?['peer_id']),
+          fromId: msg.authorId,
+          toId: msg.metadata?['peer_id']?.toString() ?? '',
           payload: payload,
           createdAt:
               msg.createdAt?.millisecondsSinceEpoch ??

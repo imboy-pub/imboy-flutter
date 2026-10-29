@@ -99,7 +99,7 @@ void main() {
         lastTime: 1001,
         isUserInChat: false,
       );
-      expect(savedIncoming.peerId, 9002);
+      expect(savedIncoming.peerId, '9002');
       expect(savedIncoming.unreadNum, 1);
 
       final savedEcho = await simulateReceiveAndSaveConversation(
@@ -111,7 +111,7 @@ void main() {
         isUserInChat: false,
       );
 
-      expect(savedEcho.peerId, 9002);
+      expect(savedEcho.peerId, '9002');
       expect(savedEcho.unreadNum, 1); // 自回显 unreadIncrement=0，不应新增未读
       expect(savedEcho.lastMsgId, '102');
 

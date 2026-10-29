@@ -81,7 +81,7 @@ class _GroupScheduleDetailPageState
     try {
       final members = await GroupMemberRepo().page(
         where: '${GroupMemberRepo.groupId} = ?',
-        whereArgs: [int.tryParse(widget.groupId) ?? 0],
+        whereArgs: [widget.groupId],
       );
       final names = <String, String>{};
       final avatars = <String, String>{};

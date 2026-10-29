@@ -20,8 +20,8 @@ import 'package:imboy/service/message_s2c.dart';
 
 void main() {
   group('handleGroupTransferS2C — 分派契约', () {
-    late List<(int, int)> ownerCalls;
-    late List<(int, int, int)> roleCalls;
+    late List<(String, String)> ownerCalls;
+    late List<(String, String, int)> roleCalls;
     late List<GroupTransferPayload> fireCalls;
     late List<String> logs;
 
@@ -34,8 +34,8 @@ void main() {
 
     Future<void> run(
       Map<String, dynamic> payload, {
-      Future<void> Function(int, int)? applyOwnerUpdate,
-      Future<void> Function(int, int, int)? applyRoleUpdate,
+      Future<void> Function(String, String)? applyOwnerUpdate,
+      Future<void> Function(String, String, int)? applyRoleUpdate,
     }) {
       return handleGroupTransferS2C(
         payload: payload,
@@ -53,14 +53,14 @@ void main() {
     test('合法 payload → owner 写一次 + 新旧主角色各写一次 + fireEvent', () async {
       await run({'gid': 10, 'from_owner_uid': 100, 'to_owner_uid': 200});
 
-      expect(ownerCalls, [(10, 200)]);
+      expect(ownerCalls, [('10', '200')]);
       // 旧主降普通成员(1)、新主升群主(4)——镜像服务端 do_transfer 终态
       expect(roleCalls, [
-        (10, 100, groupTransferRoleMember),
-        (10, 200, groupTransferRoleOwner),
+        ('10', '100', groupTransferRoleMember),
+        ('10', '200', groupTransferRoleOwner),
       ]);
       expect(fireCalls, hasLength(1));
-      expect(fireCalls.first.gid, 10);
+      expect(fireCalls.first.gid, '10');
     });
 
     test('缺 gid → 全部回调都不调用，仅 log（防御）', () async {
@@ -101,7 +101,7 @@ void main() {
         },
       );
 
-      expect(ownerCalls, [(10, 200)]);
+      expect(ownerCalls, [('10', '200')]);
       expect(fireCalls, hasLength(1));
       expect(logs.any((l) => l.contains('role_update_failed')), isTrue);
     });
@@ -135,13 +135,13 @@ void main() {
       await subRole.cancel();
 
       expect(editEvents, hasLength(1));
-      expect(editEvents.first.gid, 77);
-      expect(editEvents.first.updates['owner_uid'], 2002);
+      expect(editEvents.first.gid, '77');
+      expect(editEvents.first.updates['owner_uid'], '2002');
 
       expect(roleEvents, hasLength(2));
       expect(roleEvents.map((e) => (e.userId, e.role)).toList(), [
-        (1001, groupTransferRoleMember),
-        (2002, groupTransferRoleOwner),
+        ('1001', groupTransferRoleMember),
+        ('2002', groupTransferRoleOwner),
       ]);
     });
 
@@ -156,8 +156,8 @@ void main() {
       await sub.cancel();
 
       expect(editEvents, hasLength(1));
-      expect(editEvents.first.gid, 88);
-      expect(editEvents.first.updates['owner_uid'], 2002);
+      expect(editEvents.first.gid, '88');
+      expect(editEvents.first.updates['owner_uid'], '2002');
     });
 
     test('payload 缺 gid → 不抛异常、不分发任何事件（防御）', () async {

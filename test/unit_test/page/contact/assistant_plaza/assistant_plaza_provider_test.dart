@@ -68,7 +68,7 @@ void main() {
       expect(state.isLoading, false);
       expect(state.error, isNull);
       expect(state.list.length, 10);
-      expect(state.list.first.id, 1);
+      expect(state.list.first.id, '1');
       expect(state.list.first.nickname, 'bot1');
       expect(state.list.first.sign, 'desc-1');
       expect(state.list.first.accountType, 1);

@@ -97,9 +97,9 @@ class AddMemberNotifier extends _$AddMemberNotifier {
   }
 
   /// 更新成员状态
-  void _updateMemberStatus(Set<int> memberUserIds) {
+  void _updateMemberStatus(Set<String> memberUserIds) {
     final updatedContacts = state.contactItems.map((contact) {
-      contact.selected = memberUserIds.contains(contact.peerId);
+      contact.selected = memberUserIds.contains(contact.peerId.toString());
       return contact;
     }).toList();
 
@@ -109,7 +109,7 @@ class AddMemberNotifier extends _$AddMemberNotifier {
   /// 切换联系人选中状态
   void toggleSelection(ContactModel model, String groupId) {
     final memberUserIds = state.groupMemberList.map((m) => m.userId).toSet();
-    if (memberUserIds.contains(model.peerId)) {
+    if (memberUserIds.contains(model.peerId.toString())) {
       return; // 已经是成员，不能选择
     }
 
@@ -138,7 +138,7 @@ class AddMemberNotifier extends _$AddMemberNotifier {
   }
 
   /// 检查是否是群成员
-  bool isMember(int peerId) {
+  bool isMember(String peerId) {
     return state.groupMemberList.any((m) => m.userId == peerId);
   }
 

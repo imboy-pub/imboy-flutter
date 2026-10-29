@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capture_model.dart';
 
@@ -7,7 +8,12 @@ void main() {
   test(
     'completion capture EntityId serializes exact signed64 JSON integer',
     () {
-      for (final id in ['1', '119258348645517312', '9223372036854775807']) {
+      for (final id in [
+        '1',
+        '9007199254740991',
+        if (!kIsWeb) '119258348645517312',
+        if (!kIsWeb) '9223372036854775807',
+      ]) {
         final body = TalkRecordCompleteCaptureInput(
           captureId: id,
           lastSeq: 0,
@@ -31,6 +37,9 @@ void main() {
         ' 1',
         '9223372036854775808',
         '999999999999999999999999999999999',
+        if (kIsWeb) '9007199254740992',
+        if (kIsWeb) '9007199254740993',
+        if (kIsWeb) '9223372036854775807',
       ]) {
         expect(
           () => TalkRecordCompleteCaptureInput(

@@ -19,9 +19,9 @@ void main() {
 
       expect(result, isA<GroupTransferPayload>());
       final p = result as GroupTransferPayload;
-      expect(p.gid, 77);
-      expect(p.fromOwnerUid, 1001);
-      expect(p.toOwnerUid, 2002);
+      expect(p.gid, '77');
+      expect(p.fromOwnerUid, '1001');
+      expect(p.toOwnerUid, '2002');
     });
 
     test('数字串形态（TSID 以字符串下发）→ 同样归一为 int', () {
@@ -32,9 +32,9 @@ void main() {
       });
 
       final p = result as GroupTransferPayload;
-      expect(p.gid, 77);
-      expect(p.fromOwnerUid, 1001);
-      expect(p.toOwnerUid, 2002);
+      expect(p.gid, '77');
+      expect(p.fromOwnerUid, '1001');
+      expect(p.toOwnerUid, '2002');
     });
 
     test('缺 gid → invalid_gid（不抛异常）', () {
@@ -61,9 +61,9 @@ void main() {
     test('缺 from/to_owner_uid → 容忍为 0（老后端兼容，跳过角色写）', () {
       final result = parseGroupTransferPayload({'gid': 77});
       final p = result as GroupTransferPayload;
-      expect(p.gid, 77);
-      expect(p.fromOwnerUid, 0);
-      expect(p.toOwnerUid, 0);
+      expect(p.gid, '77');
+      expect(p.fromOwnerUid, '');
+      expect(p.toOwnerUid, '');
     });
 
     test('空 payload → invalid_gid（防御：不抛异常）', () {
@@ -71,14 +71,14 @@ void main() {
       expect(result, isA<GroupTransferParseError>());
     });
 
-    test('类型漂移 → 容忍归一而非崩溃（对齐 _asInt 语义）', () {
-      // double 截断为 int（与 group_member_role_s2c._asInt 同款归一）
+    test('类型漂移 → 明确拒绝而非截断身份', () {
+      // 小数类型不能作为身份标识。
       final dbl = parseGroupTransferPayload({
         'gid': 77.0,
         'from_owner_uid': 1,
         'to_owner_uid': 2,
       });
-      expect((dbl as GroupTransferPayload).gid, 77);
+      expect(dbl, isA<GroupTransferParseError>());
 
       // bool / List 无法归一 → invalid_gid，不抛异常
       for (final gid in [true, <dynamic>[]]) {

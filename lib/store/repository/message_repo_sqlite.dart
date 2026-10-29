@@ -117,11 +117,11 @@ class MessageRepo implements MessageRepository {
     }
 
     // 验证 fromId 和 toId
-    if (msg.fromId == 0) {
+    if (msg.fromId == '0') {
       return false;
     }
 
-    if (msg.toId == 0) {
+    if (msg.toId == '0') {
       return false;
     }
 

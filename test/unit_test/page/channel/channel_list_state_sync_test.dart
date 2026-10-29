@@ -103,7 +103,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
 
       final state = container.read(channelListProvider);
-      expect(state.channels.map((c) => c.id), [1001, 1003]);
+      expect(state.channels.map((c) => c.id), ['1001', '1003']);
     });
 
     test('channel_deleted filters the channel out locally', () async {
@@ -121,7 +121,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
 
       final state = container.read(channelListProvider);
-      expect(state.channels.map((c) => c.id), [1002]);
+      expect(state.channels.map((c) => c.id), ['1002']);
     });
 
     test('unknown action does not mutate state', () async {
@@ -138,7 +138,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
 
       final state = container.read(channelListProvider);
-      expect(state.channels.map((c) => c.id), [1001]);
+      expect(state.channels.map((c) => c.id), ['1001']);
     });
 
     test('channel_unsubscribed for an id not in the list is a no-op', () async {
@@ -155,7 +155,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 10));
 
       final state = container.read(channelListProvider);
-      expect(state.channels.map((c) => c.id), [1001, 1002]);
+      expect(state.channels.map((c) => c.id), ['1001', '1002']);
     });
   });
 
@@ -218,8 +218,8 @@ void main() {
     );
     await subLoad;
     final result = container.read(channelListProvider);
-    expect(result.channels.map((c) => c.id), [10]);
-    expect(result.managed.channels.map((c) => c.id), [20]);
+    expect(result.channels.map((c) => c.id), ['10']);
+    expect(result.managed.channels.map((c) => c.id), ['20']);
   });
 
   test('退订事件后迟到的旧订阅响应不能恢复频道', () async {
@@ -303,7 +303,9 @@ void main() {
       ),
     );
     await oldLoad;
-    expect(container.read(channelListProvider).channels.map((c) => c.id), [20]);
+    expect(container.read(channelListProvider).channels.map((c) => c.id), [
+      '20',
+    ]);
   });
 
   test('管理列表首屏请求期间收到删除事件会重拉剩余列表', () async {
@@ -336,7 +338,7 @@ void main() {
     await Future<void>.delayed(const Duration(milliseconds: 10));
     expect(
       container.read(channelListProvider).managed.channels.map((c) => c.id),
-      [20],
+      ['20'],
     );
   });
 

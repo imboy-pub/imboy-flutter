@@ -138,7 +138,7 @@ void main() {
             expect(rows.single.lastMsgStatus, IMBoyMessageStatus.seen);
           }
           if (phase == 'batch_mixed') {
-            expect(rows.single.peerId, 201);
+            expect(rows.single.peerId, '201');
           }
           expect(events.length, phase == 'database' && !stale ? 1 : 0);
         } finally {

@@ -1663,6 +1663,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get initConfigDecryptFailed => '設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください';
 	@override String get retry => '再試行';
 	@override String get retrying => '再試行中…';
+	@override String get denylistResultUnknown => '操作結果が不明です。再試行する前にブロックリストを確認してください。';
+	@override String get denylistLocalNotSynced => 'サーバーでは処理されましたが、ローカルの状態は同期されていません。';
+	@override String get friendConfirmResultUnknown => '友達承認の結果は不明です。先に友達関係を確認してください。';
 }
 
 // Path: complaint
@@ -4911,6 +4914,9 @@ extension on TranslationsJaJp {
 			'common.initConfigDecryptFailed' => '設定の復号に失敗しました：アプリとサーバーのセキュリティキーが一致しません。アプリを最新版に更新するか、管理者に連絡してください',
 			'common.retry' => '再試行',
 			'common.retrying' => '再試行中…',
+			'common.denylistResultUnknown' => '操作結果が不明です。再試行する前にブロックリストを確認してください。',
+			'common.denylistLocalNotSynced' => 'サーバーでは処理されましたが、ローカルの状態は同期されていません。',
+			'common.friendConfirmResultUnknown' => '友達承認の結果は不明です。先に友達関係を確認してください。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
@@ -4923,11 +4929,11 @@ extension on TranslationsJaJp {
 			'contact.blocked' => 'ブロック済み',
 			'contact.applyChanges' => '変更を適用するにはアプリを再起動してください',
 			'contact.inputNewTag' => '新しいタグを入力...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => 'ブロックリスト',
 			'contact.denylistEmpty' => 'ブロックリストは空です',
 			'contact.favoriteGroupTagsEtc' => 'コレクション：人名、グループ名、タグなど',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => '新しい友達',
 			'contact.recommendToFriend' => '友達に推薦する',
 			'contact.remark' => '備考',
@@ -5437,11 +5443,11 @@ extension on TranslationsJaJp {
 			'main.complianceKeyInfoPinnedAt' => '固定日時',
 			'main.complianceKeyInfoPinnedNone' => '未固定（次回の取得時に自動的に固定されます）',
 			'main.complianceKeyInfoRefreshFailed' => '取得に失敗しました。ネットワークを確認してからもう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'サーバーから配信された公開鍵',
 			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
 			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrComplianceExpired' => 'コンプライアンスキーの有効期限が切れました。管理者に連絡してください',
 			'main.complianceKeyRotationConfirmed' => 'コンプライアンスキーのローテーションを確認しました。メッセージを再送信できます',
 			'main.complianceKeyRotationNoPending' => '確認待ちのキー変更はありません',
@@ -5951,11 +5957,11 @@ extension on TranslationsJaJp {
 			'talkRecord.aiProviderCancel' => '文字起こしを停止',
 			'talkRecord.aiProviderCancelNotice' => 'IMBoy の音声アクセスと操作権限を取り消します。提供元の処理停止や返金は保証できません。',
 			'talkRecord.aiProviderResubmit' => '音声を再送信',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => '新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？',
 			'talkRecord.aiProviderCancelled' => '停止しました。既存の録音は保持されます。',
 			'talkRecord.aiProviderResumePreparation' => '文字起こしの準備を続行',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '元のタスクは提供元に未送信です。音声ソースを再準備し、現在の権限と同意で続行します。',
 			'welcome.step1Title' => 'シンプルな接続',
 			'welcome.step1Desc' => 'シームレスなコミュニケーションの喜びを体験してください。 いつでも、どこでも。',

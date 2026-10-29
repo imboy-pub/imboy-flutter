@@ -29,9 +29,9 @@ class GroupMemberRepo {
 
   // 公共列名列表
   static final List<String> defaultColumns = [
-    GroupMemberRepo.id,
-    GroupMemberRepo.groupId,
-    GroupMemberRepo.userId,
+    'CAST(id AS TEXT) AS id',
+    'CAST(group_id AS TEXT) AS group_id',
+    'CAST(user_id AS TEXT) AS user_id',
     GroupMemberRepo.nickname,
     GroupMemberRepo.avatar,
     GroupMemberRepo.sign,
@@ -260,7 +260,7 @@ class GroupMemberRepo {
     if (txn != null) {
       maps = await txn.query(
         GroupMemberRepo.tableName,
-        columns: [],
+        columns: defaultColumns,
         where:
             '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
         whereArgs: [gid, userId],
@@ -268,7 +268,7 @@ class GroupMemberRepo {
     } else {
       maps = await _db.query(
         GroupMemberRepo.tableName,
-        columns: [],
+        columns: defaultColumns,
         where:
             '${GroupMemberRepo.groupId} = ? AND ${GroupMemberRepo.userId} = ?',
         whereArgs: [gid, userId],
@@ -298,7 +298,7 @@ class GroupMemberRepo {
     try {
       final maps = await _db.query(
         GroupMemberRepo.tableName,
-        columns: [GroupMemberRepo.groupId],
+        columns: ['CAST(group_id AS TEXT) AS group_id'],
         where: '${GroupMemberRepo.userId} = ?',
         whereArgs: [userId],
         distinct: true,

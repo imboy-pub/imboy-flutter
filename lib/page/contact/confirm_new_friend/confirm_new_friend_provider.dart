@@ -4,12 +4,16 @@ import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/new_friend_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/page/bottom_navigation/bottom_navigation_provider.dart';
@@ -101,26 +105,61 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
     };
 
     AppLoading.show(status: t.chat.sending);
+    final owner = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
+    bool current() =>
+        ref.mounted &&
+        owner.isNotEmpty &&
+        UserRepoLocal.to.currentUid == owner &&
+        UserRepoLocal.to.sessionGeneration == generation &&
+        !UserRepoLocal.to.isAuthTransitioning;
+    if (!current() || to != owner) {
+      await AppLoading.dismiss();
+      return false;
+    }
+    var accepted = false;
 
     try {
       IMBoyHttpResponse resp = await HttpClient.client.post(
         "${Env().apiBaseUrl}${API.confirmFriend}",
         data: msg,
-        options: Options(contentType: "application/x-www-form-urlencoded"),
+        options: Options(
+          contentType: "application/x-www-form-urlencoded",
+          responseDecoder: channelIdResponseDecoder(
+            ChannelResponseShape.contact,
+          ),
+          extra: {httpNoAutoRetry: true},
+        ),
       );
 
+      if (!current()) {
+        await AppLoading.dismiss();
+        return false;
+      }
       if (resp.ok) {
-        AppLoading.showSuccess(t.main.sent);
+        accepted = true;
 
         // 修正好友申请状态
-        await _receivedConfirmFriend({"from": to, "to": from});
+        await _receivedConfirmFriend({"from": to, "to": from}, owner, current);
+        if (!current()) {
+          await AppLoading.dismiss();
+          return false;
+        }
 
         // 存储好友信息
-        _storeContactInfo(
+        await _storeContactInfo(
           resp.payload is Map<String, dynamic>
               ? resp.payload as Map<String, dynamic>
               : null,
+          from,
+          owner,
+          current,
         );
+        if (!current()) {
+          await AppLoading.dismiss();
+          return false;
+        }
+        AppLoading.showSuccess(t.main.sent);
 
         // 同步触发新好友提醒计数重新计算。
         // ⚠️ 不能再用 Future.delayed：confirmNewFriendProvider 是 autoDispose，
@@ -132,34 +171,37 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
 
         return true;
       } else {
-        // 服务端业务错误须透出真实信息：如 no_pending_request（申请已被确认/
-        // 网络抖动重试时常见）；统一显示「网络故障」会误导用户反复重试。
-        // friend_handler 约定：msg=英文错误码，人类可读中文消息在 payload.field。
-        // 同 apply_friend_provider 的 else 分支契约，避免 DRY 漂移。
-        final field = resp.payload is Map
-            ? (resp.payload as Map)['field']
-            : null;
-        final serverMsg = field is String && field.isNotEmpty
-            ? field
-            : (resp.msg.isNotEmpty
-                  ? resp.msg
-                  : t.common.networkFailureTryAgain);
-        AppLoading.showError(serverMsg);
+        AppLoading.showError(t.common.friendConfirmResultUnknown);
         return false;
       }
     } catch (e) {
       iPrint("❌ [CONFIRM_FRIEND] 好友确认失败 from=$from to=$to error=$e");
-      AppLoading.showError(t.common.networkFailureTryAgain);
+      if (current()) {
+        AppLoading.showError(
+          accepted
+              ? t.common.denylistLocalNotSynced
+              : t.common.friendConfirmResultUnknown,
+        );
+      } else {
+        await AppLoading.dismiss();
+      }
       return false;
     }
   }
 
   /// 收到确认好友
-  Future<void> _receivedConfirmFriend(Map<String, dynamic> data) async {
+  Future<void> _receivedConfirmFriend(
+    Map<String, dynamic> data,
+    String owner,
+    bool Function() current,
+  ) async {
     String from = data["from"] as String;
     String to = data["to"] as String;
     NewFriendRepo repo = NewFriendRepo();
-    var obj = await repo.findByFromTo(to, from);
+    var obj = await repo.findByFromTo(to, from, account: owner);
+    if (!current()) {
+      throw StateError('Session changed during friend confirmation');
+    }
     iPrint(
       "> on _receivedConfirmFriend data=${json.encode(data)} obj=${obj?.from}/${obj?.to}/${obj?.status}",
     );
@@ -169,7 +211,8 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
         "from": to,
         "to": from,
         "status": 1, // NewFriendStatus.added.index
-      });
+      }, account: owner);
+      if (n == 0) throw StateError('Friend request was not updated');
       iPrint("> _receivedConfirmFriend update rows=$n");
     }
   }
@@ -187,37 +230,44 @@ class ConfirmNewFriendNotifier extends _$ConfirmNewFriendNotifier {
   ///     通讯录查不到。
   /// 修复：兼容 id/peerId 两种键名；落库 map 显式注入 is_friend=1 与
   ///       is_from=1（accept 语义即"我确认了对方申请"）。
-  Future<void> _storeContactInfo(Map<String, dynamic>? payload) async {
+  Future<void> _storeContactInfo(
+    Map<String, dynamic>? payload,
+    String from,
+    String owner,
+    bool Function() current,
+  ) async {
     if (payload != null && payload.isNotEmpty) {
-      try {
-        // 兼容后端 `id`（friend_logic.erl confirm_friend_resp 实际契约）
-        // 与 `peerId`（部分旧路径）两种键名
-        final rawPeerId = payload['peerId'] ?? payload['id'];
-        final peerId = rawPeerId?.toString();
-        if (peerId == null || peerId.isEmpty) {
-          return;
-        }
-        final existing = await ContactRepo().findByUid(
-          peerId,
-          autoFetch: false,
-        );
-        // 落库 map：显式注入 is_friend=1，绕过 update() 的 containsKey 门槛
-        final Map<String, dynamic> data = Map<String, dynamic>.from(payload)
-          ..[ContactRepo.isFriend] = 1
-          ..[ContactRepo.isFrom] = 1;
-        if (existing != null) {
-          // 更新现有联系人（含非好友缓存提升为好友）
-          await ContactRepo().update(data);
-        } else {
-          // 插入新联系人
-          await ContactRepo().insert(
-            ContactModel.fromMap({...data, 'id': peerId}),
-          );
-        }
-      } catch (e) {
-        // 忽略错误，因为联系人信息可能在其他地方处理
-        // debugPrint('存储联系人信息失败: $e');
+      // 兼容后端 `id`（friend_logic.erl confirm_friend_resp 实际契约）
+      // 与 `peerId`（部分旧路径）两种键名
+      final rawPeerId = payload['peerId'] ?? payload['id'];
+      final peerId = channelDecimalId(rawPeerId);
+      if (peerId == null || peerId != from) {
+        throw const FormatException('Invalid confirmed peer identity');
       }
+      final existing = await ContactRepo().findByUid(
+        peerId,
+        autoFetch: false,
+        account: owner,
+      );
+      if (!current()) throw StateError('Session changed during contact lookup');
+      // 落库 map：显式注入 is_friend=1，绕过 update() 的 containsKey 门槛
+      final Map<String, dynamic> data = Map<String, dynamic>.from(payload)
+        ..[ContactRepo.isFriend] = 1
+        ..[ContactRepo.isFrom] = 1;
+      if (existing != null) {
+        // 更新现有联系人（含非好友缓存提升为好友）
+        if (await ContactRepo().update(data, account: owner) == 0) {
+          throw StateError('Confirmed contact was not updated');
+        }
+      } else {
+        // 插入新联系人
+        await ContactRepo().insert(
+          ContactModel.fromMap({...data, 'id': peerId}),
+          account: owner,
+        );
+      }
+      return;
     }
+    throw const FormatException('Missing confirmed contact');
   }
 }

@@ -50,10 +50,11 @@ void main() {
     await container.pump();
     expect(api.calls, 2);
     api.pending[1].complete([_group(2)]);
-    expect((await container.read(provider.future)).single.groupId, 2);
+    // GroupModel.groupId 经 channelDecimalId 归一为十进制字符串
+    expect((await container.read(provider.future)).single.groupId, '2');
     api.pending[0].complete([_group(1)]);
     await container.pump();
-    expect(container.read(provider).requireValue.single.groupId, 2);
+    expect(container.read(provider).requireValue.single.groupId, '2');
     container.read(_account.notifier).select('');
     await container.pump();
     expect(await container.read(provider.future), isEmpty);

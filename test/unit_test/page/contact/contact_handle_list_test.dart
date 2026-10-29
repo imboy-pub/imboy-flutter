@@ -48,7 +48,7 @@ void main() {
       expect(peerIds, contains(kPeerIdMomentFeed));
       expect(peerIds, contains(kPeerIdGroup));
       // 空 title 好友归入 '#' 分组而不是崩掉
-      final processed = list.firstWhere((c) => c.peerId == 51698);
+      final processed = list.firstWhere((c) => c.peerId == '51698');
       expect(processed.nameIndex, '#');
     });
 
@@ -67,7 +67,7 @@ void main() {
         final processed = container
             .read(contactProvider)
             .contactList
-            .firstWhere((c) => c.peerId == 51699);
+            .firstWhere((c) => c.peerId == '51699');
         expect(processed.nameIndex, '#');
       }
     });
@@ -80,7 +80,9 @@ void main() {
       notifier.handleList([_c(104603643803863040, nickname: 'Alice')]);
 
       final list = container.read(contactProvider).contactList;
-      final processed = list.firstWhere((c) => c.peerId == 104603643803863040);
+      final processed = list.firstWhere(
+        (c) => c.peerId == '104603643803863040',
+      );
       expect(processed.nameIndex, 'A');
       expect(container.read(contactProvider).indexBarData, contains('A'));
     });

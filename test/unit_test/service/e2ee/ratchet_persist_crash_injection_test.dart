@@ -20,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:vodozemac/vodozemac.dart' as vod;
 
+import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/vodozemac_session_config.dart';
 import 'package:imboy/service/olm_session_service.dart';
@@ -70,6 +71,8 @@ void main() {
 
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    // _loadSession 的 requireCurrent() 账号归属守卫要求非空当前账号
+    await StorageService.to.setString(Keys.currentUid, '100');
 
     const storageChannel = MethodChannel(
       'plugins.it_nomads.com/flutter_secure_storage',

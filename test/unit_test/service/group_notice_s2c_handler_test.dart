@@ -39,8 +39,8 @@ void main() {
         'body': 'B',
       });
       expect(fireCalls, hasLength(1));
-      expect(fireCalls.first.gid, 1);
-      expect(fireCalls.first.noticeId, 99);
+      expect(fireCalls.first.gid, '1');
+      expect(fireCalls.first.noticeId, '99');
       expect(fireCalls.first.publisherNickname, 'Alice');
     });
 

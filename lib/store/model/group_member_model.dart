@@ -1,13 +1,14 @@
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/store/model/group_member_columns.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// 群组成员数据模型
 /// 纯数据模型，不包含响应式状态
 class GroupMemberModel {
-  int? id; // 自增长ID 服务端
-  int groupId; // 群组ID
-  int userId; // 群组成员用户ID
+  String? id; // 自增长ID 服务端
+  String groupId; // 群组ID
+  String userId; // 群组成员用户ID
   String nickname; // 群组成员用户信息
   String avatar; // 群组成员用户信息
   String sign; // 群组成员用户信息a
@@ -33,9 +34,9 @@ class GroupMemberModel {
   // bool selected = false;
 
   GroupMemberModel({
-    required this.id,
-    required this.groupId,
-    required this.userId,
+    required Object? id,
+    required Object groupId,
+    required Object userId,
     required this.nickname,
     required this.avatar,
     required this.sign,
@@ -50,7 +51,9 @@ class GroupMemberModel {
     this.updatedAt = 0,
     required this.createdAt,
     this.muteUntilMs,
-  });
+  }) : id = channelDecimalId(id, allowZero: true),
+       groupId = channelDecimalId(groupId, allowZero: true) ?? '0',
+       userId = channelDecimalId(userId, allowZero: true) ?? '0';
 
   /// 当前是否处于禁言状态。
   /// 语义：`muteUntilMs > nowMs` 才算禁言中；等于或小于都视为已解禁。
@@ -81,9 +84,9 @@ class GroupMemberModel {
   /// [muteUntilMs] 为可空字段，copyWith 无法区分"不传"与"显式传 null"，
   /// 故置空需用 [clearMuteUntil] = true 显式表达（解禁场景）。
   GroupMemberModel copyWith({
-    int? id,
-    int? groupId,
-    int? userId,
+    Object? id,
+    Object? groupId,
+    Object? userId,
     String? nickname,
     String? avatar,
     String? sign,
@@ -124,9 +127,9 @@ class GroupMemberModel {
   factory GroupMemberModel.fromJson(Map<String, dynamic> json) {
     // iPrint("GroupMemberModel.fromJson ${json.toString()}");
     return GroupMemberModel(
-      id: parseModelInt(json[GroupMemberColumns.id]),
-      groupId: parseModelInt(json[GroupMemberColumns.groupId]),
-      userId: parseModelInt(json[GroupMemberColumns.userId]),
+      id: json[GroupMemberColumns.id],
+      groupId: (json[GroupMemberColumns.groupId] ?? 0) as Object,
+      userId: (json[GroupMemberColumns.userId] ?? 0) as Object,
       nickname: parseModelString(json[GroupMemberColumns.nickname]),
       avatar: parseModelString(json[GroupMemberColumns.avatar]),
       sign: parseModelString(json[GroupMemberColumns.sign]),

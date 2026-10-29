@@ -51,7 +51,7 @@ class SpyLaunchChatNotifier extends LaunchChatNotifier {
   GroupModel? groupAddResult;
 
   int groupAddCalls = 0;
-  List<int> lastMemberIds = <int>[];
+  List<String> lastMemberIds = <String>[];
 
   @override
   LaunchChatState build() => const LaunchChatState();
@@ -211,7 +211,7 @@ void main() {
     await tester.pump();
 
     expect(spy.groupAddCalls, 1, reason: '首次点击应提交一次');
-    expect(spy.lastMemberIds, [8002], reason: '提交名单应为选中成员');
+    expect(spy.lastMemberIds, ['8002'], reason: '提交名单应为选中成员');
 
     // 在途（gate 未完成）：_isCreatingGroup 置完成按钮为 null
     expect(

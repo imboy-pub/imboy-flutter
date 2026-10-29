@@ -46,21 +46,8 @@ class ContactSettingNotifier extends _$ContactSettingNotifier {
     required bool addToDenylist,
     required Map<String, dynamic> peerData,
   }) async {
-    bool res;
-    if (addToDenylist) {
-      // 加入黑名单的逻辑由调用方处理
-      res = true;
-    } else {
-      // 移出黑名单
-      final count = await denylistRepo.delete(peerId);
-      res = count > 0;
-    }
-
-    if (res) {
-      state = state.copyWith(isInDenylist: addToDenylist);
-    }
-
-    return res;
+    state = state.copyWith(isInDenylist: addToDenylist);
+    return true;
   }
 
   /// 将联系人删除，同时删除与该联系人的聊天记录

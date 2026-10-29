@@ -300,7 +300,7 @@ void main() {
     expect(beforeFire, isTrue, reason: 'AT-GM10 fire 前应见 2 枚禁言徽章');
     AppEventBus.fire(
       GroupMemberUnmuteEvent(
-        gid: _gid,
+        gid: '$_gid',
         userId: _muted04Uid,
         adminNickname: 'SmokeBob',
       ),

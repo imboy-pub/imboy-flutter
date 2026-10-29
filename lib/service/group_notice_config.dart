@@ -52,7 +52,7 @@ library;
 /// StorageService 是共享设备 KV，旧键 `group_notice_disabled:$gid`
 /// 不含账号、无可信所有者——**保留不删，但绝不自动导入当前账号**，
 /// 新键下默认 false，由用户显式重新设置。
-String groupNoticeDisabledKey(String accountUid, int gid) =>
+String groupNoticeDisabledKey(String accountUid, Object gid) =>
     'group_notice_disabled:$accountUid:$gid';
 
 /// 读取某账号在某群的免打扰状态（账号键隔离，J16.a）。
@@ -61,11 +61,14 @@ String groupNoticeDisabledKey(String accountUid, int gid) =>
 ///   不调 [readBool]（防止脏键读取/跨账号读旧共享键）
 /// - [readBool] 返回 `null`（未设置）→ 默认 `false`
 bool readNoticeDisabled(
-  int gid, {
+  Object gid, {
   required String accountUid,
   required bool? Function(String key) readBool,
 }) {
-  if (gid <= 0 || accountUid.isEmpty) return false;
+  if ((BigInt.tryParse(gid.toString()) ?? BigInt.zero) <= BigInt.zero ||
+      accountUid.isEmpty) {
+    return false;
+  }
   return readBool(groupNoticeDisabledKey(accountUid, gid)) ?? false;
 }
 
@@ -76,11 +79,14 @@ bool readNoticeDisabled(
 /// - `disabled == false` 时**覆盖写 false** 而非 remove：保持语义明确
 ///   （"显式关闭" vs "从未设置" 在未来若做审计可区分）
 Future<void> setNoticeDisabled(
-  int gid,
+  Object gid,
   bool disabled, {
   required String accountUid,
   required Future<void> Function(String key, bool value) writeBool,
 }) async {
-  if (gid <= 0 || accountUid.isEmpty) return;
+  if ((BigInt.tryParse(gid.toString()) ?? BigInt.zero) <= BigInt.zero ||
+      accountUid.isEmpty) {
+    return;
+  }
   await writeBool(groupNoticeDisabledKey(accountUid, gid), disabled);
 }

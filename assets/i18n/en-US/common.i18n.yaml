@@ -924,3 +924,7 @@ collectedVideoFormatIncorrectCannotFindVideoUri: "Unsupported video format, the 
 
 retry: "Retry"
 retrying: "Retrying…"
+
+denylistResultUnknown: "The result is unknown. Check the blocklist before trying again."
+denylistLocalNotSynced: "The server processed the request, but local state is not synced."
+friendConfirmResultUnknown: "Friend confirmation result is unknown. Check the friendship before trying again."

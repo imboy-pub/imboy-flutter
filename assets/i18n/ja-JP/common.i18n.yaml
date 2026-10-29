@@ -930,3 +930,7 @@ initConfigDecryptFailed: 設定の復号に失敗しました：アプリとサ�
 
 retry: "再試行"
 retrying: "再試行中…"
+
+denylistResultUnknown: "操作結果が不明です。再試行する前にブロックリストを確認してください。"
+denylistLocalNotSynced: "サーバーでは処理されましたが、ローカルの状態は同期されていません。"
+friendConfirmResultUnknown: "友達承認の結果は不明です。先に友達関係を確認してください。"

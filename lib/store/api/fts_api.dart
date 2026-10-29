@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:dio/dio.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
@@ -68,7 +71,7 @@ class MessageSearchResult {
       id: parseModelString(json['message_id'] ?? json['id']),
       content: content,
       fromId: parseModelString(json['from'] ?? json['from_id']),
-      toId: parseModelString(json['to'] ?? json['to_id']),
+      toId: parseModelString(json['to'] ?? json['to_id'] ?? json['group_id']),
       type: rawType.toUpperCase(),
       createdAt: parseModelInt(json['created_at']),
       msgType: parseModelNullableString(json['msg_type']),
@@ -99,8 +102,8 @@ class MessageSearchResult {
       autoId: 0,
       type: type,
       status: status ?? IMBoyMessageStatus.delivered,
-      fromId: parseModelInt(fromId),
-      toId: parseModelInt(toId),
+      fromId: fromId,
+      toId: toId,
       payload: payload ?? {'text': content},
       isAuthor: 0,
       conversationUk3: '',
@@ -185,6 +188,9 @@ class FtsApi extends HttpClient {
 
     final IMBoyHttpResponse resp = await get(
       API.ftsMessage,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.fts),
+      ),
       queryParameters: queryParams,
     );
 
@@ -239,6 +245,9 @@ class FtsApi extends HttpClient {
 
     final IMBoyHttpResponse resp = await get(
       API.ftsMessage,
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(ChannelResponseShape.fts),
+      ),
       queryParameters: queryParams,
     );
 
@@ -278,9 +287,9 @@ class FtsApi extends HttpClient {
     final filter = <String, dynamic>{'type': convType};
 
     if (convType == 'C2G' && parts.length >= 3) {
-      final groupId = int.tryParse(parts[2]);
-      if (groupId != null && groupId > 0) {
-        filter['conversation_id'] = groupId;
+      final groupId = channelDecimalId(parts[2]);
+      if (groupId != null) {
+        filter['conversation_id'] = decimalIdForWire(groupId);
       }
     }
     return filter;

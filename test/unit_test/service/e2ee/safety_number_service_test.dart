@@ -1,7 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/service/safety_number_service.dart';
+import 'package:imboy/service/storage.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await StorageService.init();
+    // snapshot() 的账号归属守卫要求非空当前账号
+    await StorageService.to.setString(Keys.currentUid, '100');
+  });
+
   const identities = <String, String>{
     '100:a-1': 'YS0xLWlkZW50aXR5',
     '100:a-2': 'YS0yLWlkZW50aXR5',
@@ -33,14 +46,21 @@ void main() {
       localIdentityLoader: () async => identities['100:a-1']!,
       verifiedIdentityLoader: verifiedIdentity,
     );
-    final fromB = await SafetyNumberService.generateForPeer(
-      peerUid: '100',
-      localUidOverride: '200',
-      localDeviceIdOverride: 'b-1',
-      deviceListLoader: (uid) async => devices(uid),
-      localIdentityLoader: () async => identities['200:b-1']!,
-      verifiedIdentityLoader: verifiedIdentity,
-    );
+    // fromB 以 '200' 为本端账号，须与当前账号一致（snapshot 账号归属守卫）
+    await StorageService.to.setString(Keys.currentUid, '200');
+    late final SafetyNumberResult fromB;
+    try {
+      fromB = await SafetyNumberService.generateForPeer(
+        peerUid: '100',
+        localUidOverride: '200',
+        localDeviceIdOverride: 'b-1',
+        deviceListLoader: (uid) async => devices(uid),
+        localIdentityLoader: () async => identities['200:b-1']!,
+        verifiedIdentityLoader: verifiedIdentity,
+      );
+    } finally {
+      await StorageService.to.setString(Keys.currentUid, '100');
+    }
 
     expect(fromA.number, fromB.number);
     expect(fromA.localDeviceCount, 2);

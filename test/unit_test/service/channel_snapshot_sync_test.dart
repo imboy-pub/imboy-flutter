@@ -569,7 +569,7 @@ void main() {
       repo: ChannelRepo(),
       bindPublishDatabase: true,
     );
-    expect((await service.getChannel('10'))?.id, 10);
+    expect((await service.getChannel('10'))?.id, '10');
     expect(api.started.isCompleted, isFalse);
   });
 
@@ -614,9 +614,9 @@ void main() {
         expect(await publish.pending(txn: txn), hasLength(1));
         expect(await messages.pending(txn: txn), hasLength(1));
         await publish.markRetry('r1', 'failure', txn: txn);
-        await messages.markRetry(100, 'failure', txn: txn);
+        await messages.markRetry('100', 'failure', txn: txn);
         await publish.remove('r1', txn: txn);
-        await messages.remove(100, txn: txn);
+        await messages.remove('100', txn: txn);
         throw StateError('stale session');
       }),
       throwsStateError,
@@ -667,7 +667,7 @@ void main() {
       msgType: 'channel_text',
       requestId: 'r1',
     );
-    expect(result?.id, 101);
+    expect(result?.id, '101');
     expect(await db.query('channel_message'), hasLength(1));
     expect(await db.query(ChannelPublishOutboxRepo.tableName), isEmpty);
   });
@@ -710,7 +710,7 @@ void main() {
         msgType: 'channel_text',
         requestId: 'r2',
       ))?.id,
-      102,
+      '102',
     );
     expect(await db.query('channel_message'), isEmpty);
     expect(await db.query(ChannelMessageOutboxRepo.tableName), hasLength(1));
@@ -817,7 +817,7 @@ void main() {
       outboxRepo: ChannelMessageOutboxRepo(),
       bindPublishDatabase: true,
     );
-    expect((await service.getMessages(channelId: '10')).single.id, 105);
+    expect((await service.getMessages(channelId: '10')).single.id, '105');
     expect(await db.query(ChannelPublishOutboxRepo.tableName), isEmpty);
   });
 
@@ -865,7 +865,7 @@ void main() {
       outboxRepo: outbox,
       bindPublishDatabase: true,
     );
-    expect((await service.getMessages(channelId: '10')).single.id, 106);
+    expect((await service.getMessages(channelId: '10')).single.id, '106');
     expect(await db.query(ChannelMessageOutboxRepo.tableName), isEmpty);
   });
 
@@ -986,7 +986,7 @@ void main() {
       outboxRepo: _FailingMessageOutbox(),
       bindPublishDatabase: true,
     );
-    expect((await service.syncMessages(channelId: '10')).single.id, 110);
+    expect((await service.syncMessages(channelId: '10')).single.id, '110');
     expect(await db.query('channel_message'), isEmpty);
   });
 

@@ -19,7 +19,7 @@ class MentionFrequencyRepo {
 
   /// 核心 SQL — 暴露为公开常量便于日志排查 / 索引审查。
   static const String querySql =
-      'SELECT from_id AS sender, COUNT(*) AS cnt FROM msg_c2g '
+      'SELECT CAST(from_id AS TEXT) AS sender, COUNT(*) AS cnt FROM msg_c2g '
       'WHERE conversation_uk3 = ? AND created_at >= ? '
       'GROUP BY from_id';
 

@@ -39,9 +39,9 @@ void main() {
       });
       expect(r, isA<GroupNoticePublishedPayload>());
       final p = r as GroupNoticePublishedPayload;
-      expect(p.gid, 100);
-      expect(p.noticeId, 999);
-      expect(p.publisherId, 7);
+      expect(p.gid, '100');
+      expect(p.noticeId, '999');
+      expect(p.publisherId, '7');
       expect(p.publisherNickname, 'Alice');
       expect(p.title, '新公告');
       expect(p.body, '放假通知');
@@ -57,9 +57,9 @@ void main() {
       });
       expect(r, isA<GroupNoticePublishedPayload>());
       final p = r as GroupNoticePublishedPayload;
-      expect(p.gid, 123);
-      expect(p.noticeId, 456);
-      expect(p.publisherId, 7);
+      expect(p.gid, '123');
+      expect(p.noticeId, '456');
+      expect(p.publisherId, '7');
     });
 
     test('gid 缺失 → invalid_gid', () {

@@ -166,7 +166,7 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
 
   String get _channelId {
     final id = _channel.id;
-    return id != 0 ? id.toString() : '';
+    return id != '0' ? id.toString() : '';
   }
 
   @override
@@ -445,7 +445,7 @@ class _ChannelOverflowMenuState extends ConsumerState<ChannelOverflowMenu> {
     );
     if (!mounted || result == null || result == false) return;
 
-    final reloadId = result is ChannelModel && result.id != 0
+    final reloadId = result is ChannelModel && result.id != '0'
         ? result.id.toString()
         : _channelId;
 

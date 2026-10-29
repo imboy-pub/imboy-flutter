@@ -257,8 +257,9 @@ class ConversationNotifier extends _$ConversationNotifier {
     bool target,
   ) async {
     final uk3 = conversation.uk3;
-    if (uk3.isEmpty)
+    if (uk3.isEmpty) {
       return (applied: false, conflict: false, serverValue: null);
+    }
     final result = await _conversationApi.setManualPending(
       uk3: uk3,
       value: target,
@@ -693,7 +694,7 @@ class ConversationNotifier extends _$ConversationNotifier {
         if (existing == null) {
           final created = ConversationModel(
             id: 0,
-            peerId: int.tryParse(peerId) ?? 0,
+            peerId: peerId,
             avatar: avatar,
             title: '',
             subtitle: subtitle,
@@ -781,7 +782,7 @@ class ConversationNotifier extends _$ConversationNotifier {
     ConversationModel conversation,
     bool pinned,
   ) async {
-    if (conversation.peerId == 0 || conversation.type.isEmpty) {
+    if (conversation.peerId == '0' || conversation.type.isEmpty) {
       return false;
     }
 
@@ -803,7 +804,7 @@ class ConversationNotifier extends _$ConversationNotifier {
   }
 
   Future<bool> deleteConversationRemote(ConversationModel conversation) {
-    if (conversation.peerId == 0 || conversation.type.isEmpty) {
+    if (conversation.peerId == '0' || conversation.type.isEmpty) {
       return Future.value(false);
     }
     final account = UserRepoLocal.to.currentUid;

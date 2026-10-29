@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart' show Options;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
@@ -272,6 +274,11 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
     }
     final response = await api.get(
       '/api/v1/channel/$id/messages',
+      options: Options(
+        responseDecoder: channelIdResponseDecoder(
+          ChannelResponseShape.subscribed,
+        ),
+      ),
       queryParameters: {'limit': 1},
     );
     if (!response.ok) {

@@ -26,7 +26,7 @@ void main() {
         ContactRepo.isFrom: '1',
       });
 
-      expect(model.peerId, 123);
+      expect(model.peerId, '123');
       expect(model.account, '10086');
       expect(model.nickname, '9527');
       expect(model.avatar, '');
@@ -70,7 +70,7 @@ void main() {
       final model = ContactModel.fromMap(realJson);
 
       // 解析产物身份 + 关键字段不为空
-      expect(model.peerId, 1000000056);
+      expect(model.peerId, '1000000056');
       expect(model.nickname, 'Bob测试');
       expect(model.account, '60002');
       expect(model.isFriend, 1);
@@ -106,7 +106,7 @@ void main() {
       });
 
       expect(model.id, 8);
-      expect(model.peerId, 2001);
+      expect(model.peerId, '2001');
       expect(model.avatar, '3001');
       expect(model.title, '');
       expect(model.subtitle, '4001');
@@ -152,7 +152,7 @@ void main() {
 
       expect(model.payload, isNull);
       expect(model.id, 1);
-      expect(model.peerId, 1001);
+      expect(model.peerId, '1001');
     });
   });
 }

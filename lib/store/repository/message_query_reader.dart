@@ -14,7 +14,14 @@ class MessageQueryReader {
   static const c2cTable = 'msg_c2c';
   static const c2gTable = 'msg_c2g';
   List<String> get _readColumns =>
-      tableName == c2cTable ? c2cColumns : defaultColumns;
+      _exactIds(tableName == c2cTable ? c2cColumns : defaultColumns);
+  static List<String> _exactIds(List<String> columns) => columns.map((column) {
+    if (column == MessageColumns.from) {
+      return 'CAST(from_id AS TEXT) AS from_id';
+    }
+    if (column == MessageColumns.to) return 'CAST(to_id AS TEXT) AS to_id';
+    return column;
+  }).toList();
   const MessageQueryReader({
     required this.db,
     required this.tableName,
@@ -352,7 +359,7 @@ class MessageQueryReader {
       predicates.add('${MessageColumns.createdAt} <= ?');
       arguments.add(endTime);
     }
-    final columns = defaultColumns.join(', ');
+    final columns = _exactIds(defaultColumns).join(', ');
     final where = predicates.isEmpty ? '1=1' : predicates.join(' AND ');
     // 合并后只应用一次 OFFSET，避免每张表分别跳过导致全局历史漏项。
     final rows = await db.rawQuery(

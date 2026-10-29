@@ -22,7 +22,7 @@ class UserDenylistRepo {
 
   // 公共列名列表
   static final List<String> defaultColumns = [
-    UserDenylistRepo.deniedUid,
+    'CAST(denied_user_id AS TEXT) AS denied_user_id',
     UserDenylistRepo.nickname,
     UserDenylistRepo.avatar,
     UserDenylistRepo.account,
@@ -85,9 +85,13 @@ class UserDenylistRepo {
   }
 
   // 插入一条数据
-  Future<DenylistModel> insert(DenylistModel obj, {Transaction? txn}) async {
+  Future<DenylistModel> insert(
+    DenylistModel obj, {
+    Transaction? txn,
+    String? account,
+  }) async {
     Map<String, dynamic> insert = {
-      UserDenylistRepo.uid: UserRepoLocal.to.currentUid,
+      UserDenylistRepo.uid: account ?? UserRepoLocal.to.currentUid,
       UserDenylistRepo.deniedUid: obj.deniedUid,
       UserDenylistRepo.nickname: obj.nickname,
       UserDenylistRepo.avatar: obj.avatar,
@@ -154,12 +158,12 @@ class UserDenylistRepo {
   }
 
   // 根据ID删除信息
-  Future<int> delete(String id) async {
+  Future<int> delete(String id, {String? account}) async {
     return await _db.delete(
       UserDenylistRepo.tableName,
       where:
           '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, id],
+      whereArgs: [account ?? UserRepoLocal.to.currentUid, id],
     );
   }
 
@@ -231,12 +235,12 @@ class UserDenylistRepo {
     });
   }
 
-  Future<int> deleteForUid(String uid) async {
+  Future<int> deleteForUid(String uid, {String? account}) async {
     return await _db.delete(
       UserDenylistRepo.tableName,
       where:
           '${UserDenylistRepo.uid} = ? and ${UserDenylistRepo.deniedUid} = ?',
-      whereArgs: [UserRepoLocal.to.currentUid, uid],
+      whereArgs: [account ?? UserRepoLocal.to.currentUid, uid],
     );
   }
 

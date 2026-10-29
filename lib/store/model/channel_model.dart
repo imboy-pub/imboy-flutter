@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 
 /// 正交频道访问模型字段含义：
 ///
@@ -108,7 +109,7 @@ class ChannelModel {
   /// 将未知或未支持组合按 fail-closed 处理。
   static const int unknownAccessPolicy = -1;
 
-  final int id;
+  final String id;
 
   /// 仅服务端快照携带；旧本地缓存未知时由链接入口重新解析。
   final String? scope;
@@ -123,10 +124,10 @@ class ChannelModel {
   final int joinPolicy; // 0=open, 1=invite, 2=approval, 3=purchase
 
   final String? customId;
-  final int creatorId;
+  final String creatorId;
 
   /// Server-authoritative nullable binding; never inferred from an old cached group.
-  final int? discussionGroupId;
+  final String? discussionGroupId;
   final int subscriberCount;
   final bool isVerified;
   final List<String>? tags;
@@ -147,7 +148,7 @@ class ChannelModel {
   final String currency;
 
   ChannelModel({
-    required this.id,
+    required Object id,
     this.scope,
     this.workspaceId,
     required this.name,
@@ -157,8 +158,8 @@ class ChannelModel {
     this.accessType = unknownAccessPolicy,
     this.joinPolicy = unknownAccessPolicy,
     this.customId,
-    required this.creatorId,
-    this.discussionGroupId,
+    required Object creatorId,
+    Object? discussionGroupId,
     this.subscriberCount = 0,
     this.isVerified = false,
     this.tags,
@@ -169,7 +170,9 @@ class ChannelModel {
     this.hasPurchased = false,
     this.price = 0,
     this.currency = 'CNY',
-  });
+  }) : id = id.toString(),
+       creatorId = creatorId.toString(),
+       discussionGroupId = channelDecimalId(discussionGroupId);
 
   // ---- 计算属性 ----
 
@@ -207,7 +210,7 @@ class ChannelModel {
 
   factory ChannelModel.fromJson(Map<String, dynamic> json) {
     final parsedCustomId = parseModelNullableString(json['custom_id']);
-    final parsedId = parseModelInt(json['id']);
+    final parsedId = channelDecimalId(json['id']) ?? '0';
     return ChannelModel(
       id: parsedId,
       scope: parseModelNullableString(json['scope']),
@@ -229,7 +232,8 @@ class ChannelModel {
       ),
       customId: parsedCustomId,
       // 后端返回 creator_uid 或 creator_id
-      creatorId: parseModelInt(json['creator_uid'] ?? json['creator_id']),
+      creatorId:
+          channelDecimalId(json['creator_uid'] ?? json['creator_id']) ?? '0',
       discussionGroupId: _discussionId(json['discussion_group_id']),
       subscriberCount: parseModelInt(json['subscriber_count']),
       isVerified: parseModelBool(json['is_verified']),
@@ -278,7 +282,7 @@ class ChannelModel {
   /// 从 SQLite Map 创建
   factory ChannelModel.fromMap(Map<String, dynamic> map) {
     final parsedCustomId = parseModelNullableString(map['custom_id']);
-    final parsedId = parseModelInt(map['id']);
+    final parsedId = channelDecimalId(map['id']) ?? '0';
     return ChannelModel(
       id: parsedId,
       scope: parseModelNullableString(map['scope']),
@@ -299,7 +303,7 @@ class ChannelModel {
         defaultValue: unknownAccessPolicy,
       ),
       customId: parsedCustomId,
-      creatorId: parseModelInt(map['creator_id']),
+      creatorId: channelDecimalId(map['creator_id']) ?? '0',
       discussionGroupId: _discussionId(map['discussion_group_id']),
       subscriberCount: parseModelInt(map['subscriber_count']),
       isVerified: parseModelBool(map['is_verified']),
@@ -343,7 +347,7 @@ class ChannelModel {
 
   /// 复制并修改部分字段
   ChannelModel copyWith({
-    int? id,
+    Object? id,
     String? name,
     String? description,
     String? avatar,
@@ -351,8 +355,8 @@ class ChannelModel {
     int? accessType,
     int? joinPolicy,
     String? customId,
-    int? creatorId,
-    int? discussionGroupId,
+    Object? creatorId,
+    Object? discussionGroupId,
     bool clearDiscussionGroup = false,
     int? subscriberCount,
     bool? isVerified,
@@ -393,10 +397,7 @@ class ChannelModel {
     );
   }
 
-  static int? _discussionId(dynamic raw) {
-    final value = raw is int ? raw : (raw is String ? int.tryParse(raw) : null);
-    return value != null && value > 0 ? value : null;
-  }
+  static String? _discussionId(dynamic raw) => channelDecimalId(raw);
 
   @override
   String toString() {

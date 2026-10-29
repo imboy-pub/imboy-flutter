@@ -137,7 +137,7 @@ class _WorkspaceAccessGuardState extends ConsumerState<WorkspaceAccessGuard>
     final context = ref.read(workspaceAccessContextReaderProvider)();
     if ('${event.payload['userId']}' != context.uid) return;
     if (state.rows.any(
-      (row) => '${row.group.groupId}' == '${event.payload['groupId']}',
+      (row) => row.group.groupId == '${event.payload['groupId']}',
     )) {
       _access.markRevoked();
     } else if (state.phase == WorkspaceAccessPhase.unknown &&

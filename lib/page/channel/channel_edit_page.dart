@@ -144,7 +144,7 @@ class _ChannelEditPageState extends ConsumerState<ChannelEditPage> {
 
     try {
       final api = ref.read(channelApiProvider);
-      final channelId = (_channel?.id != null && _channel!.id != 0)
+      final channelId = (_channel?.id != null && _channel!.id != '0')
           ? _channel!.id.toString()
           : widget.channelId;
       final targetName = _nameController.text.trim();

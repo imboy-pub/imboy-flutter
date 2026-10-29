@@ -1675,6 +1675,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get transferTapToReceive => 'انقر للاستلام';
 	@override String get retry => 'إعادة المحاولة';
 	@override String get retrying => 'جارٍ إعادة المحاولة…';
+	@override String get denylistResultUnknown => 'نتيجة العملية غير معروفة. تحقق أولاً من قائمة الحظر.';
+	@override String get denylistLocalNotSynced => 'عالج الخادم الطلب، لكن الحالة المحلية غير متزامنة.';
+	@override String get friendConfirmResultUnknown => 'نتيجة تأكيد الصداقة غير معروفة. تحقّق من حالة الصداقة أولاً.';
 }
 
 // Path: complaint
@@ -4923,6 +4926,9 @@ extension on TranslationsArSa {
 			'common.transferTapToReceive' => 'انقر للاستلام',
 			'common.retry' => 'إعادة المحاولة',
 			'common.retrying' => 'جارٍ إعادة المحاولة…',
+			'common.denylistResultUnknown' => 'نتيجة العملية غير معروفة. تحقق أولاً من قائمة الحظر.',
+			'common.denylistLocalNotSynced' => 'عالج الخادم الطلب، لكن الحالة المحلية غير متزامنة.',
+			'common.friendConfirmResultUnknown' => 'نتيجة تأكيد الصداقة غير معروفة. تحقّق من حالة الصداقة أولاً.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
@@ -4935,11 +4941,11 @@ extension on TranslationsArSa {
 			'contact.blocked' => 'تم الحظر',
 			'contact.applyChanges' => 'يرجى إعادة تشغيل التطبيق لتطبيق التغييرات',
 			'contact.inputNewTag' => 'أدخل علامة جديدة...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => 'القائمة السوداء',
 			'contact.denylistEmpty' => 'القائمة السوداء فارغة',
 			'contact.favoriteGroupTagsEtc' => 'الأسماء وأسماء المجموعات والعلامات المفضلة',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => 'صديق جديد',
 			'contact.recommendToFriend' => 'التوصية به للأصدقاء',
 			'contact.remark' => 'ملاحظة',
@@ -5449,11 +5455,11 @@ extension on TranslationsArSa {
 			'main.safetyNumberCopy' => 'نسخ',
 			'main.safetyNumberCopied' => 'تم النسخ',
 			'main.safetyNumberMarkVerified' => 'وضع علامة تم التحقق',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberMarkedVerified' => 'تم وضع علامة تم التحقق',
 			'main.safetyNumberPeerDevice' => 'جهاز الطرف الآخر',
 			'main.safetyNumberNoDevices' => 'لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerifyFailed' => 'تعذّر الحصول على رمز الأمان. حاول لاحقاً',
 			'main.safetyNumberReporting' => 'جارٍ الإبلاغ عن نتيجة التحقق...',
 			'main.safetyNumberReportRejected' => 'رفض الخادم حدث التحقق هذا (التوقيع أو الصلاحية غير مطابقين)، ولم تُوضع العلامة',
@@ -5963,11 +5969,11 @@ extension on TranslationsArSa {
 			'talkRecord.aiProviderCancel' => 'إيقاف التفريغ',
 			'talkRecord.aiProviderCancelNotice' => 'يلغي صلاحيات IMBoy للمصدر والعمليات. لا يضمن إيقاف معالجة المزوّد أو استرداد الرسوم.',
 			'talkRecord.aiProviderResubmit' => 'إرسال الصوت مجددًا',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'ينشئ تفريغًا جديدًا وقد يسبب رسومًا مكررة. يبقى الطلب الأصلي. هل تؤكد إعادة الإرسال والموافقة على هذه المعالجة؟',
 			'talkRecord.aiProviderCancelled' => 'توقف التفريغ. تم الاحتفاظ بالصوت الموجود.',
 			'talkRecord.aiProviderResumePreparation' => 'متابعة إعداد التفريغ',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => 'لم تُرسل المهمة الأصلية إلى المزوّد. أعد تجهيز مصدر الصوت وفق الأذونات والموافقة الحالية.',
 			'welcome.step1Title' => 'اتصال بسيط',
 			'welcome.step1Desc' => 'استمتع بفرصة التواصل السلس. في أي وقت، وفي أي مكان.',

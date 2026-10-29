@@ -27,7 +27,7 @@ void main() {
       });
       expect(r, isA<GroupEditPayload>());
       final p = r as GroupEditPayload;
-      expect(p.gid, 123);
+      expect(p.gid, '123');
       expect(p.updates, {'title': '新群名', 'introduction': '新简介'});
       expect(p.updates.containsKey('gid'), isFalse);
     });
@@ -35,7 +35,7 @@ void main() {
     test('gid 为数字 String → 正确强转 int', () {
       final r = parseGroupEditPayload({'gid': '456', 'title': 'hello'});
       expect(r, isA<GroupEditPayload>());
-      expect((r as GroupEditPayload).gid, 456);
+      expect((r as GroupEditPayload).gid, '456');
     });
 
     test('gid 缺失 → invalid_gid', () {

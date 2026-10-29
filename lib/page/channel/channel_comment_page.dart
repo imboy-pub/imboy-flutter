@@ -56,7 +56,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   // 三态渲染：首屏加载失败与「评论为空」此前共用同一 NoDataView 空态文案，
   // 用户网络异常时会被误导为"真的没有评论"。加载失败单独态 + 可重试。
   String? _loadError;
-  int _replyToCommentId = 0;
+  String _replyToCommentId = '0';
   String _replyToName = '';
 
   /// 输入框是否有内容：决定发送按钮出现/收起（对标微信、小红书评论区）。
@@ -170,7 +170,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
         HapticFeedback.lightImpact();
         setState(() {
           _comments.add(comment);
-          _replyToCommentId = 0;
+          _replyToCommentId = '0';
           _replyToName = '';
         });
         _inputController.clear();
@@ -204,7 +204,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
 
   void _cancelReply() {
     setState(() {
-      _replyToCommentId = 0;
+      _replyToCommentId = '0';
       _replyToName = '';
     });
   }
@@ -242,7 +242,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
   }
 
   Future<void> _deleteComment(ChannelCommentModel comment) async {
-    final currentUid = int.tryParse(UserRepoLocal.to.currentUid) ?? 0;
+    final currentUid = UserRepoLocal.to.currentUid;
     if (comment.userId != currentUid) {
       AppLoading.showToast(context.t.channel.commentDeleteNoPermission);
       return;
@@ -364,7 +364,7 @@ class _ChannelCommentPageState extends ConsumerState<ChannelCommentPage> {
           ),
           child: Column(
             children: [
-              if (_replyToCommentId > 0)
+              if (_replyToCommentId != '0')
                 Container(
                   padding: AppSpacing.allSmall,
                   margin: const EdgeInsets.only(bottom: AppSpacing.small),

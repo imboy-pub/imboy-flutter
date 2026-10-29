@@ -683,6 +683,11 @@ class E2EEHealthCheckService {
 
         final maps = await db.query(
           table,
+          columns: [
+            '*',
+            'CAST(from_id AS TEXT) AS from_id',
+            'CAST(to_id AS TEXT) AS to_id',
+          ],
           where: whereClause,
           whereArgs: whereArgs,
           orderBy: 'created_at DESC',

@@ -223,7 +223,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage>
 
   String _resolveChannelId([ChannelModel? channel]) {
     final id = channel?.id;
-    if (id != null && id != 0) return id.toString();
+    if (id != null && id != '0') return id.toString();
     return widget.channelId;
   }
 
@@ -303,7 +303,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage>
     // 自动加载统计
     if (widget.autoLoadStats &&
         channel != null &&
-        (_stats == null || _stats!.channelId != channel.id) &&
+        (_stats == null || _stats!.channelId.toString() != channel.id) &&
         _statsRequestedChannelId != channel.id.toString()) {
       _statsRequestedChannelId = channel.id.toString();
       final generation = _statsGeneration;
@@ -632,7 +632,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage>
     );
     if (!mounted || result == null || result == false) return;
 
-    final reloadId = result is ChannelModel && result.id != 0
+    final reloadId = result is ChannelModel && result.id != '0'
         ? result.id.toString()
         : _resolveChannelId(result is ChannelModel ? result : channel);
 

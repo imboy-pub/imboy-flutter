@@ -26,6 +26,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' as crypto;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pointycastle/api.dart' as api;
 import 'package:pointycastle/export.dart';
 
@@ -78,15 +79,19 @@ class CollectCrypto {
   static Uint8List _u16(int value) => _fixedWidth(value, 2);
 
   static Uint8List _fixedWidth(int value, int width) {
-    // u64 上限用 int64 最大值（Dart 无 u64；TSID/修订号均为正整数，足够）
-    final limit = width == 8 ? 0x7FFFFFFFFFFFFFFF : (1 << (8 * width)) - 1;
-    if (value < 0 || value > limit) {
+    final limit = width == 8
+        ? BigInt.parse('9223372036854775807')
+        : (BigInt.one << (8 * width)) - BigInt.one;
+    if (value < 0 ||
+        (kIsWeb && value > 9007199254740991) ||
+        BigInt.from(value) > limit) {
       throw CollectCryptoException('整数超出 u${width * 8} 范围: $value');
     }
     final out = Uint8List(width);
+    var remaining = BigInt.from(value);
     for (var i = width - 1; i >= 0; i--) {
-      out[i] = value & 0xFF;
-      value >>= 8;
+      out[i] = (remaining & BigInt.from(0xFF)).toInt();
+      remaining >>= 8;
     }
     return out;
   }
@@ -271,10 +276,7 @@ class CollectCrypto {
       throw CollectCryptoException('密文头 magic 不符');
     }
     final nonce = Uint8List.sublistView(sealed, 3, 3 + nonceLength);
-    var sealGeneration = 0;
-    for (var i = 0; i < sealGenerationBytes; i++) {
-      sealGeneration = (sealGeneration << 8) | sealed[3 + nonceLength + i];
-    }
+    final sealGeneration = _readSealGeneration(sealed);
     final body = Uint8List.sublistView(sealed, headerLength);
     final rk = deriveRecordKey(
       ck: ck,
@@ -317,11 +319,19 @@ class CollectCrypto {
         !_hasPrefix(sealed, headerMagic)) {
       throw CollectCryptoException('密文头结构不合法');
     }
-    var value = 0;
+    return _readSealGeneration(sealed);
+  }
+
+  static int _readSealGeneration(Uint8List sealed) {
+    var value = BigInt.zero;
     for (var i = 0; i < sealGenerationBytes; i++) {
-      value = (value << 8) | sealed[3 + nonceLength + i];
+      value = (value << 8) | BigInt.from(sealed[3 + nonceLength + i]);
     }
-    return value;
+    final limit = kIsWeb
+        ? BigInt.from(9007199254740991)
+        : BigInt.parse('9223372036854775807');
+    if (value > limit) throw CollectCryptoException('密文修订号超出可表示范围');
+    return value.toInt();
   }
 
   /// 从密文头读出 nonce 的 hex（不解密；A10 审计三元组 kind_id/key_version/nonce

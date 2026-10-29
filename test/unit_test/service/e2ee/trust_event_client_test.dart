@@ -147,8 +147,8 @@ void main() {
 
     test('parses valid broadcast', () {
       final e = TrustChangedEvent.fromBroadcast(validPayload());
-      expect(e.actorUid, 100);
-      expect(e.targetUid, 200);
+      expect(e.actorUid, '100');
+      expect(e.targetUid, '200');
       expect(e.targetDeviceId, 'phone-b');
       expect(e.toState, 'verified');
       expect(e.method, 'qr_scan');
@@ -162,7 +162,7 @@ void main() {
     });
 
     test('throws FormatException on wrong int type', () {
-      final p = validPayload()..['actor_uid'] = '100';
+      final p = validPayload()..['actor_uid'] = '100x';
       expect(() => TrustChangedEvent.fromBroadcast(p), throwsFormatException);
     });
 

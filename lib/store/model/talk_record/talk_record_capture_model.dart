@@ -5,6 +5,7 @@
 /// recover/abandon）。
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 
@@ -245,15 +246,15 @@ class TalkRecordCompleteCaptureInput {
   });
 
   Map<String, dynamic> toJson() {
-    final id = int.tryParse(captureId);
+    final exactId = BigInt.tryParse(captureId);
     if (!RegExp(r'^[1-9][0-9]*$').hasMatch(captureId) ||
-        id == null ||
-        id <= 0 ||
-        id > 9223372036854775807) {
+        exactId == null ||
+        exactId > BigInt.parse('9223372036854775807') ||
+        (kIsWeb && exactId > BigInt.from(9007199254740991))) {
       throw const FormatException('Invalid completion capture ID');
     }
     return {
-      'capture_id': id,
+      'capture_id': exactId.toInt(),
       'last_seq': lastSeq,
       'manifest_hash': manifestHash,
     };

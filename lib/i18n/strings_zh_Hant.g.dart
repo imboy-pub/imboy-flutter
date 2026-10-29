@@ -1663,6 +1663,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get voiceSttPreviewTitle => '語音轉文字預覽';
 	@override String get retry => '重試';
 	@override String get retrying => '重試中…';
+	@override String get denylistResultUnknown => '操作結果未知，請先核對黑名單。';
+	@override String get denylistLocalNotSynced => '伺服器已處理，本機狀態尚未同步。';
+	@override String get friendConfirmResultUnknown => '好友確認結果未知，請先核對好友關係。';
 }
 
 // Path: complaint
@@ -4911,6 +4914,9 @@ extension on TranslationsZhHant {
 			'common.voiceSttPreviewTitle' => '語音轉文字預覽',
 			'common.retry' => '重試',
 			'common.retrying' => '重試中…',
+			'common.denylistResultUnknown' => '操作結果未知，請先核對黑名單。',
+			'common.denylistLocalNotSynced' => '伺服器已處理，本機狀態尚未同步。',
+			'common.friendConfirmResultUnknown' => '好友確認結果未知，請先核對好友關係。',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
@@ -4923,11 +4929,11 @@ extension on TranslationsZhHant {
 			'contact.blocked' => '已封鎖',
 			'contact.applyChanges' => '請重新啟動應用以套用變更',
 			'contact.inputNewTag' => '輸入新標籤...',
+			_ => null,
+		} ?? switch (path) {
 			'contact.denylist' => '黑名單',
 			'contact.denylistEmpty' => '黑名單為空',
 			'contact.favoriteGroupTagsEtc' => '收藏人名、群組名、標籤等',
-			_ => null,
-		} ?? switch (path) {
 			'contact.newFriend' => '新朋友',
 			'contact.recommendToFriend' => '把他推薦給好友',
 			'contact.remark' => '備註',
@@ -5437,11 +5443,11 @@ extension on TranslationsZhHant {
 			'main.safetyNumberHint' => '請透過面對面或電話與對方比對安全碼。若一致，表示你們的通訊沒有被中間人監聽；若不一致，請立即停止對話，並透過其他管道核實對方身分。驗證狀態僅保存在本機。',
 			'main.safetyNumberMarkVerified' => '標記為已驗證',
 			'main.safetyNumberMarkedVerified' => '已標記為已驗證',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => '對方尚未啟用端對端加密',
 			'main.safetyNumberPeerDevice' => '對方裝置',
 			'main.safetyNumberReportRejected' => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberReportUnavailable' => '無法取得裝置資訊，未上報',
 			'main.safetyNumberVerified' => '✓ 已驗證',
 			'main.safetyNumberNotVerified' => '未驗證',
@@ -5951,11 +5957,11 @@ extension on TranslationsZhHant {
 			'talkRecord.aiProviderCancel' => '停止此轉寫',
 			'talkRecord.aiProviderCancelNotice' => '將撤銷 IMBoy 的來源與操作授權；無法保證供應商停止處理或退款。',
 			'talkRecord.aiProviderResubmit' => '重新提交錄音',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => '將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？',
 			'talkRecord.aiProviderCancelled' => '轉寫已停止，已有錄音保留。',
 			'talkRecord.aiProviderResumePreparation' => '繼續準備轉寫',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResumeNotice' => '原任務尚未提交至供應商。本次將重新準備音訊來源，確認後依目前權限與處理同意繼續。',
 			'welcome.step1Title' => '簡單連接',
 			'welcome.step1Desc' => '體驗無縫溝通的樂趣。 隨時隨地，暢所欲言。',

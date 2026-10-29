@@ -9,6 +9,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
@@ -64,8 +65,71 @@ class SafetyNumberResult {
 }
 
 /// Safety Number 计算服务。
+class SafetyIdentitySnapshot {
+  const SafetyIdentitySnapshot(
+    this.account,
+    this.generation,
+    this.peerUid,
+    this.revision,
+  );
+  final String account;
+  final int generation;
+  final String peerUid;
+  final int revision;
+}
+
 class SafetyNumberService {
   SafetyNumberService._();
+
+  static final Map<String, int> _revisions = {};
+  static final Map<String, Future<void>> _writes = {};
+
+  static String _scope(String account, String peerUid) => '$account:$peerUid';
+  static String _key(String prefix, String account, String peerUid) =>
+      '$prefix${_scope(account, peerUid)}';
+
+  static SafetyIdentitySnapshot snapshot(String peerUid) {
+    final user = UserRepoLocal.to;
+    final account = user.currentUid;
+    if (account.isEmpty || user.isAuthTransitioning) {
+      throw StateError('safety number requires a stable session');
+    }
+    return SafetyIdentitySnapshot(
+      account,
+      user.sessionGeneration,
+      peerUid,
+      _revisions[_scope(account, peerUid)] ?? 0,
+    );
+  }
+
+  static bool isCurrent(SafetyIdentitySnapshot state) {
+    return isSameSession(state) &&
+        (_revisions[_scope(state.account, state.peerUid)] ?? 0) ==
+            state.revision;
+  }
+
+  static bool isSameSession(SafetyIdentitySnapshot state) {
+    final user = UserRepoLocal.to;
+    return !user.isAuthTransitioning &&
+        user.currentUid == state.account &&
+        user.sessionGeneration == state.generation;
+  }
+
+  static Future<T> _serialize<T>(String scope, Future<T> Function() action) {
+    final previous = _writes[scope] ?? Future<void>.value();
+    final result = previous.then((_) => action());
+    final barrier = result.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stack) {},
+    );
+    _writes[scope] = barrier;
+    unawaited(
+      barrier.whenComplete(() {
+        if (identical(_writes[scope], barrier)) _writes.remove(scope);
+      }),
+    );
+    return result;
+  }
 
   /// 「已验证」标记存储键前缀（值 = 绑定的 60 位聚合码）。
   static const String _verifiedKeyPrefix = 'safety_number_verified_';
@@ -95,9 +159,11 @@ class SafetyNumberService {
 
   /// 读取本地已验证的聚合码（无标记返回 null）。
   static Future<String?> localVerifiedNumber(String peerUid) async {
+    final state = snapshot(peerUid);
     final raw = await StorageSecureService.to.read(
-      key: _verifiedKeyPrefix + peerUid,
+      key: _key(_verifiedKeyPrefix, state.account, peerUid),
     );
+    if (!isCurrent(state)) throw StateError('safety number session changed');
     return (raw == null || raw.isEmpty) ? null : raw;
   }
 
@@ -110,19 +176,48 @@ class SafetyNumberService {
     required String peerUid,
     required String number,
     required Set<String> approvedRemoteDeviceIds,
+    SafetyIdentitySnapshot? identity,
   }) async {
-    await StorageSecureService.to.write(
-      key: _verifiedKeyPrefix + peerUid,
-      value: number,
-    );
-    await _writeApprovedDevset(peerUid, approvedRemoteDeviceIds);
+    final state = identity ?? snapshot(peerUid);
+    if (state.peerUid != peerUid) {
+      throw StateError('safety number peer changed');
+    }
+    await _serialize(_scope(state.account, peerUid), () async {
+      if (!isCurrent(state)) throw StateError('safety number identity changed');
+      await _writeApprovedDevset(
+        state.account,
+        peerUid,
+        approvedRemoteDeviceIds,
+      );
+      if (!isCurrent(state)) {
+        await StorageSecureService.to.delete(
+          key: _key(_approvedDevsetKeyPrefix, state.account, peerUid),
+        );
+        throw StateError('safety number identity changed');
+      }
+      await StorageSecureService.to.write(
+        key: _key(_verifiedKeyPrefix, state.account, peerUid),
+        value: number,
+      );
+      if (!isCurrent(state)) {
+        await StorageSecureService.to.delete(
+          key: _key(_verifiedKeyPrefix, state.account, peerUid),
+        );
+        await StorageSecureService.to.delete(
+          key: _key(_approvedDevsetKeyPrefix, state.account, peerUid),
+        );
+        throw StateError('safety number identity changed');
+      }
+    });
   }
 
   /// 读取已批准的对端设备集合（未验证过返回空集）。
   static Future<Set<String>> approvedRemoteDeviceIds(String peerUid) async {
+    final state = snapshot(peerUid);
     final raw = await StorageSecureService.to.read(
-      key: _approvedDevsetKeyPrefix + peerUid,
+      key: _key(_approvedDevsetKeyPrefix, state.account, peerUid),
     );
+    if (!isCurrent(state)) throw StateError('safety number session changed');
     if (raw == null || raw.isEmpty) return const <String>{};
     try {
       final decoded = jsonDecode(raw);
@@ -139,31 +234,54 @@ class SafetyNumberService {
   /// （UI 提示「对方身份已变化，请重新验证安全码」）。
   ///
   /// 返回是否确实清除了已存在的信任（从未验证过 → false，幂等无事件）。
-  static Future<bool> invalidateTrust(String peerUid, String reason) async {
-    final stored = await localVerifiedNumber(peerUid);
-    final approved = await approvedRemoteDeviceIds(peerUid);
-    if (stored == null && approved.isEmpty) return false;
-
-    await StorageSecureService.to.delete(key: _verifiedKeyPrefix + peerUid);
-    await StorageSecureService.to.delete(
-      key: _approvedDevsetKeyPrefix + peerUid,
-    );
-    iPrint(
-      '[SafetyNumber][AC-15] trust invalidated: peer=$peerUid reason=$reason',
-    );
-    AppEventBus.fire(
-      SafetyNumberTrustInvalidatedEvent(peerUid: peerUid, reason: reason),
-    );
-    return true;
+  static Future<bool> invalidateTrust(
+    String peerUid,
+    String reason, {
+    SafetyIdentitySnapshot? identity,
+  }) async {
+    final state = identity ?? snapshot(peerUid);
+    if (state.peerUid != peerUid || !isCurrent(state)) {
+      throw StateError('safety number identity changed');
+    }
+    final scope = _scope(state.account, peerUid);
+    _revisions[scope] = state.revision + 1;
+    return _serialize(scope, () async {
+      final stored = await StorageSecureService.to.read(
+        key: _key(_verifiedKeyPrefix, state.account, peerUid),
+      );
+      final approved = await StorageSecureService.to.read(
+        key: _key(_approvedDevsetKeyPrefix, state.account, peerUid),
+      );
+      if (stored == null && (approved == null || approved.isEmpty)) {
+        return false;
+      }
+      await StorageSecureService.to.delete(
+        key: _key(_verifiedKeyPrefix, state.account, peerUid),
+      );
+      await StorageSecureService.to.delete(
+        key: _key(_approvedDevsetKeyPrefix, state.account, peerUid),
+      );
+      if (!isSameSession(state)) {
+        throw StateError('session changed during trust invalidation');
+      }
+      iPrint(
+        '[SafetyNumber][AC-15] trust invalidated: peer=$peerUid reason=$reason',
+      );
+      AppEventBus.fire(
+        SafetyNumberTrustInvalidatedEvent(peerUid: peerUid, reason: reason),
+      );
+      return true;
+    });
   }
 
   static Future<void> _writeApprovedDevset(
+    String account,
     String peerUid,
     Set<String> deviceIds,
   ) async {
     final sorted = deviceIds.toList()..sort();
     await StorageSecureService.to.write(
-      key: _approvedDevsetKeyPrefix + peerUid,
+      key: _key(_approvedDevsetKeyPrefix, account, peerUid),
       value: jsonEncode(sorted),
     );
   }
@@ -181,9 +299,15 @@ class SafetyNumberService {
   static Future<void> _checkDeviceSetDrift(
     String peerUid,
     List<String> currentRemoteDeviceIds,
+    SafetyIdentitySnapshot identity,
   ) async {
     try {
-      final baselineKey = _devsetBaselineKeyPrefix + peerUid;
+      if (!isCurrent(identity)) return;
+      final baselineKey = _key(
+        _devsetBaselineKeyPrefix,
+        identity.account,
+        peerUid,
+      );
       final raw = await StorageSecureService.to.read(key: baselineKey);
       final current = currentRemoteDeviceIds.toSet();
       if (raw == null || raw.isEmpty) {
@@ -260,7 +384,11 @@ class SafetyNumberService {
     @visibleForTesting Future<String> Function()? localIdentityLoader,
     @visibleForTesting SafetyIdentityLoader? verifiedIdentityLoader,
   }) async {
+    final identity = snapshot(peerUid);
     final localUid = localUidOverride ?? UserRepoLocal.to.currentUid.toString();
+    if (localUid != identity.account) {
+      throw StateError('safety number session changed');
+    }
     final localDid = localDeviceIdOverride ?? deviceId;
     if (localUid.isEmpty || localDid.isEmpty || peerUid.isEmpty) {
       throw ArgumentError('uid_and_device_id_required');
@@ -312,7 +440,13 @@ class SafetyNumberService {
     // AC-15：安全码绑定完整设备集合的配套信号——对端设备集合相对上次
     // 观察出现增删时广播告警 + 刷新密钥缓存（不崩溃不静默）。
     // 聚合码本身已由严格相等保证旧验证失效；这里补的是显式用户可见信号。
-    await _checkDeviceSetDrift(peerUid, remoteDeviceIds);
+    if (!isCurrent(identity)) {
+      throw StateError('safety number identity changed');
+    }
+    await _checkDeviceSetDrift(peerUid, remoteDeviceIds, identity);
+    if (!isCurrent(identity)) {
+      throw StateError('safety number identity changed');
+    }
 
     return SafetyNumberResult(
       number: number,

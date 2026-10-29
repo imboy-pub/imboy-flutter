@@ -924,3 +924,7 @@ initConfigDecryptFailed: "Konfiguration konnte nicht entschlüsselt werden: Sich
 
 retry: "Wiederholen"
 retrying: "Wiederholung…"
+
+denylistResultUnknown: "Das Ergebnis ist unbekannt. Prüfe zuerst die Sperrliste."
+denylistLocalNotSynced: "Der Server hat die Anfrage verarbeitet, der lokale Status ist nicht synchronisiert."
+friendConfirmResultUnknown: "Das Ergebnis der Freundschaftsbestätigung ist ungewiss. Prüfe zuerst die Freundschaft."

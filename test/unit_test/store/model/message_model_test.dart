@@ -333,8 +333,8 @@ void main() {
       expect(model.autoId, 12);
       expect(model.type, '123');
       expect(model.status, 20);
-      expect(model.fromId, 1001);
-      expect(model.toId, 1002);
+      expect(model.fromId, '1001');
+      expect(model.toId, '1002');
       expect(model.msgType, '88');
       expect(model.action, 'true');
       expect(model.isAuthor, 1);

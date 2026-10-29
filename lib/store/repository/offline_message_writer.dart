@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart' as func_helper;
 import 'package:imboy/component/helper/datetime.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -139,7 +138,8 @@ class OfflineMessageWriter {
           // 检查消息是否已存在
           final List<Map<String, Object?>> existing = await txn.rawQuery(
             'SELECT ${MessageColumns.payload}, ${MessageColumns.e2ee}, '
-            '${MessageColumns.from}, ${MessageColumns.to}, ${MessageColumns.type}, '
+            'CAST(${MessageColumns.from} AS TEXT) AS ${MessageColumns.from}, '
+            'CAST(${MessageColumns.to} AS TEXT) AS ${MessageColumns.to}, ${MessageColumns.type}, '
             '${MessageColumns.msgType} '
             'FROM $tableName WHERE id = ?',
             [msgId],
@@ -627,7 +627,7 @@ class OfflineMessageWriter {
         // 创建新会话时确保设置所有必要字段
         conv = ConversationModel(
           id: 0,
-          peerId: parseModelInt(agg.peerId),
+          peerId: agg.peerId,
           avatar: avatar,
           title: title,
           subtitle: preview.subtitle,

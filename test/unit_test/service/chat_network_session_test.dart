@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/service/message_actions.dart';
@@ -42,6 +43,19 @@ class _Channel implements WebSocketChannel {
   WebSocketSink get sink => output;
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _CaptureNetwork extends ChatNetworkService {
+  Map<String, dynamic>? sent;
+  @override
+  Future<bool> sendWithRetry(
+    String messageId,
+    Map<String, dynamic> msg, {
+    int? sessionGeneration,
+  }) async {
+    sent = msg;
+    return true;
+  }
 }
 
 class _EmptyDatabase implements Database {
@@ -196,6 +210,49 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
+  for (final kind in ['C2C', 'C2G']) {
+    for (final peer in ['200', '9007199254740993']) {
+      test('first send retains $kind ID $peer', () async {
+        SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+        await StorageService.init();
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureChannel, (_) async => null);
+        final mode = EncryptionModeService.current;
+        final initialized = EncryptionModeService.isInitialized;
+        EncryptionModeService.debugSet(
+          mode: EncryptionMode.plaintext,
+          initialized: true,
+        );
+        try {
+          final network = _CaptureNetwork();
+          final result = await network.sendWsMsg(
+            MessageModel(
+              'id-test',
+              autoId: 0,
+              type: kind,
+              status: IMBoyMessageStatus.sending,
+              fromId: '100',
+              toId: peer,
+              payload: {'text': 'synthetic'},
+              isAuthor: 1,
+              conversationUk3: '${kind}_100_$peer',
+              msgType: 'text',
+            ),
+          );
+          expect(result, isTrue);
+          expect(network.sent?['from'], 100);
+          expect(
+            network.sent?['to'],
+            kIsWeb && peer != '200' ? peer : int.parse(peer),
+          );
+        } finally {
+          EncryptionModeService.debugSet(mode: mode, initialized: initialized);
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(secureChannel, null);
+        }
+      });
+    }
+  }
   final receiptNotifier = _ReceiptConversationNotifier();
   final receiptContainer = ProviderContainer(
     overrides: [conversationProvider.overrideWith(() => receiptNotifier)],
@@ -617,6 +674,11 @@ void main() {
           expect(await pending, !stale);
           await pumpEventQueue();
           expect(requests, stale ? isEmpty : hasLength(1));
+          if (!stale && entry == 'stored') {
+            final sent = jsonDecode(requests.single.message) as Map;
+            expect(sent['from'], 200);
+            expect(sent['to'], 200);
+          }
           expect(channel.output.sent, stale ? isEmpty : hasLength(1));
           expect(MessageRetry.instance.retryQueueSize, stale ? 0 : 1);
         } finally {

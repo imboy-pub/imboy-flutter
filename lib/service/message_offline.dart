@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -335,6 +337,11 @@ class MessageOfflineService {
         final resp = await HttpClient.client.get(
           API.msgOffline,
           queryParameters: queryParams.isEmpty ? null : queryParams,
+          options: Options(
+            responseDecoder: channelIdResponseDecoder(
+              ChannelResponseShape.offline,
+            ),
+          ),
         );
 
         if (resp.code != 0) {
