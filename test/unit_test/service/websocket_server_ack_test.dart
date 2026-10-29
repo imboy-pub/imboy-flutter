@@ -206,7 +206,7 @@ void main() {
       expect(removeEvent.reason, 'ws_action_ack');
     });
 
-    test('小写 action-ACK 也汇入清除入口且不下发业务事件', () async {
+    test('小写 action-ACK 也汇入清除入口；无本机效应者不下发业务事件', () async {
       final retryRemoved =
           AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
       var forwarded = false;
@@ -215,7 +215,7 @@ void main() {
       addTearDown(subscription.cancel);
 
       svc.handleV2BinaryForTest(
-        _s2cFrame({'id': xid, 'type': 'S2C', 'action': 'message_revoke_ack'}),
+        _s2cFrame({'id': xid, 'type': 'S2C', 'action': 'message_read_ack'}),
       );
 
       final removeEvent = await retryRemoved.timeout(
@@ -224,6 +224,34 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 20));
       expect(removeEvent.messageId, xid);
       expect(forwarded, isFalse);
+    });
+
+    test('message_revoke_ack 清除重试后仍转发（发送方本机须转已撤回）', () async {
+      // 后端 c2c_revoke_ack 回给发起方的真实帧形：type=C2C + action。
+      // 本机状态转换在 MessageActions._processRevokeAck 完成，传输层不得截断
+      // （J18.c 真机复现：截断后服务端已确认而发送方气泡永不更新）。
+      final retryRemoved =
+          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
+      final forwardedEvent =
+          AppEventBus.on<WebSocketMessageReceivedEvent>().first;
+
+      svc.handleV2BinaryForTest(
+        _s2cFrame({
+          'id': xid,
+          'type': 'C2C',
+          'action': 'message_revoke_ack',
+          'payload': {'original_msg_id': 'd94ie58821h5446u8cu0'},
+        }),
+      );
+
+      final removeEvent = await retryRemoved.timeout(
+        const Duration(seconds: 1),
+      );
+      final event = await forwardedEvent.timeout(const Duration(seconds: 1));
+      expect(removeEvent.messageId, xid);
+      expect(removeEvent.reason, 'ws_action_ack');
+      expect(event.type, 'C2C');
+      expect(event.data['action'], 'message_revoke_ack');
     });
 
     test('入站 0x03 二进制 ACK 帧仅日志忽略（服务端从不下发）', () {

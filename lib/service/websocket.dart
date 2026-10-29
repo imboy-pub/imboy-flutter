@@ -29,6 +29,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/network_monitor.dart';
 import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/service/websocket_message_queue.dart';
+import 'package:imboy/service/ws_ack_forward_policy.dart';
 import 'package:imboy/service/exponential_backoff.dart';
 import 'package:imboy/config/init.dart' show quitLoginAndNavigateToSignIn;
 
@@ -849,10 +850,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         _handleMessageAck(action, messageId, reason: msg['reason']?.toString());
       }
 
-      // 【优化】过滤 ACK 相关消息，避免转发到 MessageService
-      if (normalizedAction == 'CLIENT_ACK_CONFIRM' ||
-          normalizedAction == 'CLIENT_ACK_ERROR' ||
-          normalizedAction.endsWith('_ACK')) {
+      // 【优化】过滤 ACK 相关消息，避免转发到 MessageService；
+      // message_revoke_ack / message_edit_ack 的本机状态转换在 MessageActions
+      // 完成，须放行（策略与例外集见 ws_ack_forward_policy.dart）。
+      if (isAckSwallowedByTransport(normalizedAction)) {
         return;
       }
 
