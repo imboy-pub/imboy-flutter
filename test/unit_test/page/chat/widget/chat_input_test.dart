@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -391,6 +393,83 @@ void main() {
       // 嵌套 GestureDetector + CupertinoButton 经手势竞技场应只单发
       expect(sendCalls, 1);
 
+      await _unmount(tester);
+    });
+
+    testWidgets('异步发送期间修改的文本不被旧结果清除', (tester) async {
+      final completion = Completer<bool>();
+      final composerHeight = ValueNotifier<double>(52);
+      addTearDown(composerHeight.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ChatInput(
+                  type: 'C2C',
+                  peerId: 'peer_1',
+                  onSendPressed: (_) => completion.future,
+                  composerHeight: composerHeight,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final input = find.byKey(const Key('chat_message_input'));
+      await tester.enterText(input, 'first');
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.tap(find.byKey(const ValueKey('send_button')));
+      await tester.pump();
+      await tester.enterText(input, 'second');
+      completion.complete(true);
+      await tester.pump();
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        'second',
+      );
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.tap(find.byKey(const ValueKey('send_button')));
+      await tester.pump();
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        isEmpty,
+      );
+      await _unmount(tester);
+    });
+
+    testWidgets('发送失败时保留输入内容', (tester) async {
+      final composerHeight = ValueNotifier<double>(52);
+      addTearDown(composerHeight.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: TranslationProvider(
+            child: MaterialApp(
+              home: Scaffold(
+                body: ChatInput(
+                  type: 'C2C',
+                  peerId: 'peer_1',
+                  onSendPressed: (_) async => false,
+                  composerHeight: composerHeight,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.enterText(
+        find.byKey(const Key('chat_message_input')),
+        'draft',
+      );
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.tap(find.byKey(const ValueKey('send_button')));
+      await tester.pump();
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        'draft',
+      );
       await _unmount(tester);
     });
   });

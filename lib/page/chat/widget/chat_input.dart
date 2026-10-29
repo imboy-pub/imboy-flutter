@@ -743,14 +743,15 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 处理发送按钮点击（异步发送，草稿清理，安全判断 mounted）
   Future<void> _handleSendPressed() async {
-    final trimmedText = _textController.text.trim();
+    final submittedText = _textController.text;
+    final trimmedText = submittedText.trim();
     iPrint('📤 [ChatInput._handleSendPressed] 开始: text="$trimmedText"');
     if (trimmedText.isNotEmpty) {
       iPrint('📤 [ChatInput._handleSendPressed] 调用 widget.onSendPressed');
       final res = await widget.onSendPressed(trimmedText);
       iPrint('📤 [ChatInput._handleSendPressed] onSendPressed 返回: $res');
       if (!mounted) return; // 异步gap后安全检查
-      if (res) {
+      if (res && _textController.text == submittedText) {
         _textController.clear();
         if (_draftStorageEnabled) {
           StorageService.to.remove(draftKey);
@@ -762,7 +763,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
         iPrint('✅ [ChatInput._handleSendPressed] 发送成功，已清空输入框');
         // 发送后自动收起键盘
         FocusScope.of(context).unfocus();
-      } else {
+      } else if (!res) {
         iPrint('⚠️ [ChatInput._handleSendPressed] 发送失败，保留输入框内容');
       }
     } else {
