@@ -14,7 +14,7 @@
 //     -d <real_device_id> \
 //     --dart-define=APP_ENV=local_office \
 //     --dart-define=API_BASE_URL=http://127.0.0.1:9800 \
-//     --dart-define=WS_URL_OVERRIDE=ws://127.0.0.1:9800/ws \
+//     --dart-define=WS_URL_OVERRIDE=ws://127.0.0.1:9800/api/v1/ws \
 //     --dart-define=TEST_PHONE=demo_alice \
 //     --dart-define=TEST_PASSWORD=<pwd> \
 //     --dart-define=TEST_EXPECTED_UID=<alice-uid> \
