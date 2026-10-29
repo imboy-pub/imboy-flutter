@@ -183,11 +183,42 @@ void main() {
       final entry = await store.getOutboxEntry('msg-002');
       expect(entry!['status'], equals('sent'));
       expect(entry['sent_at'], isNotNull);
+      const historicalSentAt = 1;
+      expect(
+        await db.update(
+          'crypto_outbox',
+          {'sent_at': historicalSentAt},
+          where: 'id = ?',
+          whereArgs: ['msg-002'],
+        ),
+        1,
+      );
       await store.confirmOutbox('msg-002');
       expect((await store.getOutboxEntry('msg-002'))!['status'], 'sent');
+      expect(
+        (await store.getOutboxEntry('msg-002'))!['sent_at'],
+        historicalSentAt,
+      );
       expect((await store.getOutboxEntry('msg-002'))!['payload'], 'x');
       await store.confirmOutbox('unknown-plaintext-message');
       expect(await store.getOutboxEntry('unknown-plaintext-message'), isNull);
+    });
+
+    test('confirmOutbox 不覆盖已拒绝终态', () async {
+      await store.insertOutbox(id: 'msg-rejected', payload: 'ciphertext');
+      await db.update(
+        'crypto_outbox',
+        {'status': 'rejected'},
+        where: 'id = ?',
+        whereArgs: ['msg-rejected'],
+      );
+      final rejected = await store.getOutboxEntry('msg-rejected');
+      await store.confirmOutbox('msg-rejected');
+      await store.confirmOutbox('msg-rejected');
+      expect(await store.getOutboxEntry('msg-rejected'), rejected);
+      expect(rejected?['status'], 'rejected');
+      expect(rejected?['sent_at'], isNull);
+      expect(await store.pendingOutbox(), isEmpty);
     });
 
     test('pendingOutbox 返回所有未确认条目（崩溃恢复）', () async {

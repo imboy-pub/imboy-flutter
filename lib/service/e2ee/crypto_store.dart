@@ -323,7 +323,7 @@ class CryptoStore {
     if (tables.isEmpty) return;
     final now = DateTime.now().millisecondsSinceEpoch;
     await _db.rawUpdate(
-      "UPDATE crypto_outbox SET status = 'sent', sent_at = ? WHERE id = ?",
+      "UPDATE crypto_outbox SET status = 'sent', sent_at = ? WHERE id = ? AND status = 'pending'",
       [now, id],
     );
   }
