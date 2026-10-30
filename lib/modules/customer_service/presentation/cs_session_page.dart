@@ -19,6 +19,7 @@ import 'package:imboy/modules/customer_service/domain/cs_session_flow.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_api.dart';
 import 'package:imboy/modules/customer_service/infrastructure/cs_seat_events_stream.dart';
 import 'package:imboy/modules/customer_service/presentation/cs_session_timeline.dart';
+import 'package:imboy/service/app_logger.dart';
 
 import 'cs_session_rating_banner.dart';
 import 'cs_attachment_save.dart';
@@ -395,6 +396,11 @@ class _CsSessionPageState extends State<CsSessionPage>
       if (!_canAttach(flow, binding, ownsUpload: true)) return;
       _preparedAttachment = prepared;
       await _uploadPrepared(flow, binding, prepared);
+    } on CsOversizeSeatAttachment {
+      if (_scopeAlive(flow, binding)) {
+        _attachmentOperation = null;
+        setState(() => _error = context.t.customerService.attachTooLarge);
+      }
     } on CsUnsupportedSeatAttachment {
       if (_scopeAlive(flow, binding)) {
         _attachmentOperation = null;
@@ -424,7 +430,11 @@ class _CsSessionPageState extends State<CsSessionPage>
       fileName: prepared.fileName,
       operation: operation,
     );
-    if (!_canAttach(flow, binding, ownsUpload: true) || id.isEmpty) return;
+    if (!_canAttach(flow, binding, ownsUpload: true)) return;
+    if (id.isEmpty) {
+      _reportUploadRefusal(operation);
+      return;
+    }
     final ok = await flow.send('', assetIds: [id]);
     if (!mounted || !_refreshCurrent(flow, binding)) return;
     _toast(
@@ -433,6 +443,23 @@ class _CsSessionPageState extends State<CsSessionPage>
           : context.t.customerService.sendFailed,
     );
     if (ok) _preparedAttachment = null;
+  }
+
+  /// 上传被服务端拒绝时留下判定事实，并把「换文件即可解决」的一类原因直说。
+  ///
+  /// `flow.uploadAsset` 只在拿到 asset id 时返回非空；失败原因不在返回值里，
+  /// 只由 [CsAssetUploadOperation] 记住。没有这段，现场只剩一句「上传失败」。
+  void _reportUploadRefusal(CsAssetUploadOperation operation) {
+    final failure = operation.lastFailure, status = operation.lastStatus;
+    if (failure == null) return;
+    AppLogger.warning(
+      'cs attachment upload refused: ${failure.name} status=${status ?? '-'}',
+    );
+    // 422/415 = 服务端不接受这份内容（mime/大小/文件名）；400 = 请求形状不成立。
+    final rejectedContent = status == 422 || status == 415;
+    if (rejectedContent && mounted) {
+      setState(() => _error = context.t.customerService.attachUnsupportedType);
+    }
   }
 
   Future<void> _retryAttachment() async {

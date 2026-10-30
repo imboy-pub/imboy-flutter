@@ -51,6 +51,13 @@ class CsAssetUploadOperation {
   final CancelToken _cancel = CancelToken();
   CsAssetUploadStage stage = CsAssetUploadStage.preparing;
   int sentBytes = 0, totalBytes = 0;
+
+  /// 最近一次失败的**判定事实**（失败阶段、服务端状态码）。
+  ///
+  /// 只用于把「请求取值不成立」与服务端拒绝对调用方解释清楚（文案分类 +
+  /// 现场排查），不参与 [canRetry] 判定——重试语义仍由 `_retryable` 决定。
+  CsAssetOperationFailure? lastFailure;
+  int? lastStatus;
   bool requestStarted = false, _used = false;
   bool _retryable = true;
   bool _notifying = false;
@@ -121,6 +128,7 @@ class CsAssetUploadOperation {
     }
     _used = true;
     if (size <= 0 || size > 25 * 1024 * 1024) {
+      lastFailure = CsAssetOperationFailure.sizeRejected;
       _stage(CsAssetUploadStage.failed);
       throw const CsAssetOperationException(
         CsAssetOperationFailure.sizeRejected,
@@ -273,12 +281,22 @@ class CsAssetUploadOperation {
         ? error.status
         : null;
     final definite = status != null && status >= 400 && status < 500;
+    // 400/404/415/422 是「请求取值或目标不成立」——同一份字节重试必然再次
+    // 被拒（mime/大小/文件名越界），只给「停止」不给误导性重试入口；
+    // 409/410（凭证过期、hash 冲突）可由一次新的 presign 恢复，保持可重试。
+    final retriable =
+        status != 400 && status != 404 && status != 415 && status != 422;
     _retryable =
         definite &&
+        retriable &&
         status != 401 &&
         status != 403 &&
         stage != CsAssetUploadStage.confirming &&
         _current;
+    lastFailure = error is CsAssetPutException
+        ? CsAssetOperationFailure.putRejected
+        : CsAssetOperationFailure.requestFailed;
+    lastStatus = status;
     _stage(definite ? CsAssetUploadStage.failed : CsAssetUploadStage.unknown);
     throw CsAssetOperationException(
       error is CsAssetPutException

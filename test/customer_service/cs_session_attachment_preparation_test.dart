@@ -30,6 +30,7 @@ void main() {
         var headCalls = 0, byteCalls = 0;
         final preparation = CsSessionAttachmentPreparation(
           pickFiles: () => picker.future,
+          readLength: (File _) async => 1,
           readHead: (File _) {
             headCalls++;
             return head.future;
