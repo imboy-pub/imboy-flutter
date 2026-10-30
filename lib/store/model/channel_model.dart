@@ -368,11 +368,13 @@ class ChannelModel {
     bool? hasPurchased,
     int? price,
     String? currency,
+    String? scope,
+    String? workspaceId,
   }) {
     return ChannelModel(
       id: id ?? this.id,
-      scope: scope,
-      workspaceId: workspaceId,
+      scope: scope ?? this.scope,
+      workspaceId: workspaceId ?? this.workspaceId,
       name: name ?? this.name,
       description: description ?? this.description,
       avatar: avatar ?? this.avatar,

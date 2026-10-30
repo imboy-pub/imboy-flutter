@@ -22,6 +22,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/http/http_transformer.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
+import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
@@ -69,7 +78,17 @@ Future<void> pumpT10OnStack(
   required Widget page,
   bool longName = false,
 }) async {
-  SharedPreferences.setMockInitialValues(<String, Object>{});
+  // access fence 的 context.uid 取 repo.currentUser.uid（读完整用户
+  // map）——只种 currentUid 会让 uid 为空、refresh 短路永 pending；
+  // 必须在 StorageService.init() 之前种好（init 后再 mock 不生效）。
+  SharedPreferences.setMockInitialValues(<String, Object>{
+    Keys.currentUid: '100',
+    Keys.currentUser: jsonEncode(<String, Object>{
+      'uid': '100',
+      'nickname': 'P1 用户',
+      'account': 'p1_synthetic',
+    }),
+  });
   await StorageService.init();
 
   final HttpClientAdapter? prevAdapter = HttpClient.adapterForTest;
@@ -101,6 +120,25 @@ Future<void> pumpT10OnStack(
             ),
           ),
           voicePlaybackServiceProvider.overrideWith(P1SilentPlayback.new),
+          // 嵌入变体（WorkspaceChannelDetailPage 自带内层 scope+access
+          // fence）需要：context/network 放行 + channelApi 桩返回
+          // workspace 域频道；内层 fixture 经页面测试缝注入（见下）。
+          workspaceAccessContextReaderProvider.overrideWith((ref) {
+            final uid = ref.watch(currentUserProvider)?.uid ?? '';
+            return () => (
+              origin: 'https://workspace.invalid',
+              uid: uid,
+              session: 1,
+              featureScope: 'workspace:$uid',
+              featureEpoch: 1,
+              featureRevision: 1,
+              channelEnabled: true,
+            );
+          }),
+          workspaceAccessNetworkProvider.overrideWith(
+            (ref) => Stream.value(true),
+          ),
+          channelApiProvider.overrideWith((ref) => _P1HeaderChannelApi()),
         ],
         child: MaterialApp.router(routerConfig: router),
       ),
@@ -112,15 +150,28 @@ Future<void> pumpT10OnStack(
   router.push('/detail');
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
+  // 频道详情为异步装载（fixture 的 loadChannel 走 provider 微任务/帧），
+  // 仅 3 帧会在装载完成前断言（嵌入变体曾因此缺「工程效率频道」标题
+  // 与 ChannelRoleBadge）——稳定泵到装载落定。
+  await tester.pumpAndSettle(const Duration(milliseconds: 100));
 }
 
 void main() {
   testWidgets('p1_embedded_has_one_navigation_back_and_identity_title', (
     tester,
   ) async {
+    final embeddedTrace = P1FixtureTrace();
     await pumpT10OnStack(
       tester,
-      page: const WorkspaceChannelDetailPage(channelId: '1001'),
+      page: WorkspaceChannelDetailPage(
+        channelId: '1001',
+        workspaceId: '990',
+        channelDetailOverride: () => P1ChannelDetailFixture(
+          trace: embeddedTrace,
+          channel: p1SyntheticChannel(managed: true),
+          messages: p1SyntheticMessages(),
+        ),
+      ),
     );
     // 栈上宿主 AppBar：恰一个返回键
     expect(find.byType(BackButton), findsOneWidget);
@@ -151,9 +202,18 @@ void main() {
   });
 
   testWidgets('p1_metadata_keeps_role_count：紧凑模式保留角色/订阅数/认证', (tester) async {
+    final metadataTrace = P1FixtureTrace();
     await pumpT10OnStack(
       tester,
-      page: const WorkspaceChannelDetailPage(channelId: '1001'),
+      page: WorkspaceChannelDetailPage(
+        channelId: '1001',
+        workspaceId: '990',
+        channelDetailOverride: () => P1ChannelDetailFixture(
+          trace: metadataTrace,
+          channel: p1SyntheticChannel(managed: true),
+          messages: p1SyntheticMessages(),
+        ),
+      ),
     );
     // 角色徽章（managed=admin）
     expect(find.byType(ChannelRoleBadge), findsOneWidget);
@@ -173,4 +233,32 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text(kLongChannelName), findsOneWidget);
   });
+}
+
+/// p1 header 嵌入夹具专用：access fence 的 channelApi 桩（workspace 域）。
+class _P1HeaderChannelApi extends ChannelApi {
+  bool longName = false;
+
+  @override
+  Future<ChannelModel> getChannelChecked(String channelId) async {
+    final ChannelModel base = p1SyntheticChannel(
+      managed: true,
+      longName: longName,
+    );
+    return base.copyWith(scope: 'workspace', workspaceId: '990');
+  }
+
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    HttpTransformer? httpTransformer,
+  }) async =>
+      // liveness GET 合同：payload['list'] 必须是 List（同 p1_fixtures）。
+      IMBoyHttpResponse.success(<String, dynamic>{
+        'list': <Map<String, dynamic>>[],
+      });
 }

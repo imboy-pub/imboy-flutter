@@ -33,6 +33,11 @@ import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
 class WorkspaceChannelDetailPage extends ConsumerWidget {
   final String channelId;
 
+  /// 测试缝：内层 ProviderScope 默认把 [channelDetailProvider] 覆写回
+  /// [ChannelDetailNotifier]（单一真源），会遮蔽外层 harness 的 fixture
+  /// 覆写——p1 嵌入用例经此注入 fixture notifier 构造（null = 生产行为）。
+  final ChannelDetailNotifier Function()? channelDetailOverride;
+
   /// 频道内容区（null = 现有 ChannelDetailPage embedded；测试注入标记
   /// widget 断言结构契约：引导横幅存在 + 无 ChatInput）。
   final Widget? detailEntry;
@@ -42,6 +47,7 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
     required this.channelId,
     this.detailEntry,
     this.workspaceId,
+    this.channelDetailOverride,
   });
 
   final String? workspaceId;
@@ -51,7 +57,9 @@ class WorkspaceChannelDetailPage extends ConsumerWidget {
     final id = workspaceId ?? ref.watch(currentWorkspaceProvider)?.id ?? '';
     final content = ProviderScope(
       overrides: [
-        channelDetailProvider.overrideWith(ChannelDetailNotifier.new),
+        channelDetailProvider.overrideWith(
+          channelDetailOverride ?? ChannelDetailNotifier.new,
+        ),
       ],
       child: _AuthorizedWorkspaceChannelPage(
         channelId: channelId,

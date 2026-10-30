@@ -12,15 +12,26 @@
 /// 网络路径；trace 只覆盖 notifier 方法面（如实登记的局限）。
 library;
 
-import 'dart:convert' show JsonEncoder;
+import 'dart:convert' show JsonEncoder, jsonEncode;
 import 'dart:io' show Directory, File;
 
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/http/http_transformer.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
+// workspaceAccessNetworkProvider 定义在 guard 库中（harness 需覆写）。
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart'
+    show workspaceAccessNetworkProvider;
+import 'package:imboy/store/api/channel_api.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/widgets/channel_message_feed.dart';
@@ -244,7 +255,16 @@ Future<P1FixtureHandle> pumpP1ChannelFixture(
 }) async {
   // ChannelPublishBar/UserRepoLocal 挂载期读 StorageService：测试环境
   // 用内存 mock 初始化（SharedPreferences mock + StorageService.init）。
-  SharedPreferences.setMockInitialValues(<String, Object>{});
+  SharedPreferences.setMockInitialValues(<String, Object>{
+    Keys.currentUid: '100',
+    // access fence 的 context.uid 取 repo.currentUser.uid（读完整用户
+    // map）——只种 currentUid 会让 uid 为空、refresh 短路永 pending。
+    Keys.currentUser: jsonEncode(<String, Object>{
+      'uid': '100',
+      'nickname': 'P1 用户',
+      'account': 'p1_synthetic',
+    }),
+  });
   await StorageService.init();
 
   final double prevDpr = tester.view.devicePixelRatio;
@@ -270,7 +290,21 @@ Future<P1FixtureHandle> pumpP1ChannelFixture(
       GoRoute(
         path: '/',
         builder: (_, _) => hostInWorkspaceShell
-            ? const WorkspaceChannelDetailPage(channelId: '1001')
+            ? WorkspaceChannelDetailPage(
+                channelId: '1001',
+                workspaceId: '990',
+                channelDetailOverride: () => P1ChannelDetailFixture(
+                  trace: trace,
+                  channel: channel,
+                  messages: p1SyntheticMessages(
+                    empty: empty,
+                    count: loadMoreError ? 30 : 2,
+                  ),
+                  hasMore: loadMoreError,
+                  initialError: initialError,
+                  loadMoreError: loadMoreError,
+                ),
+              )
             : ChannelDetailPage(
                 channelId: '1001',
                 // 夹具统一阻断统计请求（测试期不出站网络）；
@@ -312,6 +346,25 @@ Future<P1FixtureHandle> pumpP1ChannelFixture(
               ),
             ),
             voicePlaybackServiceProvider.overrideWith(P1SilentPlayback.new),
+            // 嵌入变体经 WorkspaceAccessGuard 门控：access 检查要求
+            // workspaceId 非空 + channelApi 返回 workspace 域频道，否则
+            // 永远 pending/revoked（J18.e 期 fence 硬化的测试面）。
+            workspaceAccessContextReaderProvider.overrideWith((ref) {
+              final uid = ref.watch(currentUserProvider)?.uid ?? '';
+              return () => (
+                origin: 'https://workspace.invalid',
+                uid: uid,
+                session: 1,
+                featureScope: 'workspace:$uid',
+                featureEpoch: 1,
+                featureRevision: 1,
+                channelEnabled: true,
+              );
+            }),
+            workspaceAccessNetworkProvider.overrideWith(
+              (ref) => Stream.value(true),
+            ),
+            channelApiProvider.overrideWith((ref) => _P1ChannelApi()),
           ],
           child: MaterialApp.router(
             routerConfig: router,
@@ -376,4 +429,31 @@ void expectFeatureGateFailClosed(WidgetTester tester) {
     findsNothing,
     reason: '真实微社区门 fail-closed：筛选/搜索入口不应渲染',
   );
+}
+
+/// p1 嵌入夹具专用：access fence 的 channelApi 桩——返回 workspace 域合成
+/// 频道（fence 校验 scope='workspace' 且 workspaceId 与 target 一致），
+/// 消息 liveness GET 直接给成功空响应（内容走 channelDetailProvider 夹具）。
+class _P1ChannelApi extends ChannelApi {
+  @override
+  Future<ChannelModel> getChannelChecked(String channelId) async {
+    final ChannelModel base = p1SyntheticChannel(managed: true);
+    return base.copyWith(scope: 'workspace', workspaceId: '990');
+  }
+
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    HttpTransformer? httpTransformer,
+  }) async =>
+      // liveness GET 合同：payload['list'] 必须是 List（产品 _loadContent
+      // 校验）；空列表即通过且不注入消息——内容仍走 channelDetailProvider
+      // 夹具单一真源。
+      IMBoyHttpResponse.success(<String, dynamic>{
+        'list': <Map<String, dynamic>>[],
+      });
 }
