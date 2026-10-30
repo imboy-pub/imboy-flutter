@@ -26,6 +26,8 @@ import 'package:imboy/modules/organization/presentation/organization_entry_provi
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/workspace/workspace_channels_page.dart';
 import 'package:imboy/page/workspace/workspace_conversations_page.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';

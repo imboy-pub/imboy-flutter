@@ -191,6 +191,23 @@ Future<ProviderContainer> _pump(
       organizationApiProvider.overrideWithValue(_OrgApi(orgRole)),
       workspaceGroupsProvider('100').overrideWith((ref) async => groups),
       oaWorkbenchApiProvider.overrideWithValue(api),
+      // ecd236d5a 起 WorkspaceAccessGuard 用 access fence 门控受保护内容；
+      // 测试环境无 Connectivity 平台通道恒判离线，shield 顶掉消息列表。
+      // 与 fence 作者在 workspace_conversations_page_test 的适配同构：
+      // 合成上下文 + 恒真校验流，让 fence 走 authorized 分支。
+      workspaceAccessContextReaderProvider.overrideWith((ref) {
+        final uid = ref.watch(currentUserProvider)?.uid ?? '';
+        return () => (
+          origin: 'https://workspace.invalid',
+          uid: uid,
+          session: 1,
+          featureScope: 'workspace:$uid',
+          featureEpoch: 1,
+          featureRevision: 1,
+          channelEnabled: true,
+        );
+      }),
+      workspaceAccessNetworkProvider.overrideWith((ref) => Stream.value(true)),
     ],
   );
   addTearDown(container.dispose);
