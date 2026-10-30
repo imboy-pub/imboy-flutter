@@ -368,6 +368,7 @@ class MessageService with EventSubscriptionManager {
     } else if (action != null && action.isNotEmpty) {
       // 内容 action 可能携带 E2EE 密文；必须先解密再交给 action 处理器。
       // 控制 action（已读/撤回/输入状态/ACK）保持原有明文元数据路径。
+      _warnIfActionSwallowsContent(action, data);
       final committed = await _receiveActionMessage(action, type, data);
       if (committed && (type == 'C2C' || type == 'C2G')) {
         AckManager.to.sendAck(type, msgId);
@@ -405,6 +406,28 @@ class MessageService with EventSubscriptionManager {
       );
     }
     return _receiveMessage(data);
+  }
+
+  /// 诊断「内容消息被写成控制帧」
+  ///
+  /// 未知 action 本身是合法的向前兼容场景（新控制帧），按既定设计忽略并回
+  /// ACK —— 见 `test/unit_test/service/e2ee/inbound_ack_ordering_test.dart`
+  /// 里刻意构造的 `future-compatible-action`。所以这里**不改变投递行为**。
+  ///
+  /// 但这套机制有个致命组合：服务端把一个**可渲染的内容类型**（text/image…）
+  /// 同时写进 `msg_type` 和 `action`，客户端就会走 action 分支把整条消息吞掉，
+  /// 且照常回 ACK —— 收发双方都不知道消息没了。历史事故：转发消息写
+  /// `msg_type=forward` + `action=forward`。这种组合一定是服务端缺陷，用
+  /// error 日志把它暴露出来，而不是让它安静消失。
+  void _warnIfActionSwallowsContent(String action, Map<String, dynamic> data) {
+    if (MessageActions.handlesAction(action)) return;
+    final msgType = data['msg_type']?.toString() ?? '';
+    if (!MessageActions.isContentMsgType(msgType)) return;
+    iPrint(
+      '❌ [action/msg_type 冲突] action=$action 未被客户端实现，但 '
+      'msg_type=$msgType 是可渲染内容类型 → 该消息会被 action 分发丢弃；'
+      '服务端不应给内容消息写 action 字段。msgId=${data['id']}',
+    );
   }
 
   Future<bool> _receiveActionMessage(

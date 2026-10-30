@@ -61,6 +61,42 @@ class MessageActions {
   static Future<MessageModel?> Function(String type, String id)?
   messageLoaderForTest;
 
+  /// 客户端已实现的 action 分发集合。
+  ///
+  /// 必须与 [handleActionMessage] 的 switch 分支逐项对齐：新增分支时同步加
+  /// 到这里，否则该 action 会被当成「未实现」。
+  ///
+  /// 注意语义：**未实现的 action 不是错误**。未知 action 视为向前兼容的新
+  /// 控制帧，忽略并回 ACK 是既定设计（见 inbound_ack_ordering_test 里刻意
+  /// 构造的 `future-compatible-action`）。本集合用于识别另一种组合——
+  /// 服务端把可渲染的**内容类型**同时写进 msg_type 和未实现的 action 时，
+  /// 整条消息会被 action 分发吞掉。历史事故：转发消息写
+  /// `msg_type=forward` + `action=forward`，收发双方都收不到任何东西。
+  static const Set<String> knownActions = <String>{
+    C2SAction.messageRead,
+    C2SAction.messageReadAck,
+    C2SAction.messageReaction,
+    C2SAction.messageRevoke,
+    C2SAction.messageRevokeAck,
+    C2SAction.messageEdit,
+    C2SAction.messageEditAck,
+    C2SAction.messageInput,
+    C2SAction.e2eeRoomKey,
+  };
+
+  /// action 是否已被客户端实现（未实现的按向前兼容忽略并回 ACK）
+  static bool handlesAction(String action) => knownActions.contains(action);
+
+  /// 该 msg_type 是否是「可渲染的内容消息」（排除控制帧载体 custom）
+  ///
+  /// 用于识别服务端把内容消息错写成控制帧的组合：内容类型 + 未实现 action
+  /// ⇒ 消息会被 action 分发整条吞掉。`forward` 这类未注册类型不算内容类型
+  /// （它属于「类型未注册」问题，不是 action 冲突）。
+  static bool isContentMsgType(String msgType) =>
+      msgType.isNotEmpty &&
+      msgType != MessageType.custom &&
+      MessageType.isValidType(msgType);
+
   final MessageRetry _messageRetry = MessageRetry.instance;
   // 缓存常用仓库实例，避免重复 new。
   // Cache repository instances to avoid repeated instantiation.
