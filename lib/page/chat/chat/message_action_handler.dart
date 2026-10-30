@@ -3,8 +3,6 @@
 /// 负责处理消息的各种操作（编辑、删除、复制、收藏、转发等）
 library;
 
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -172,41 +170,7 @@ class MessageActionHandler {
     BuildContext context,
     Message msg,
   ) async {
-    final nav = Navigator.of(context);
-    final currentUid = UserRepoLocal.to.currentUid;
-
-    // WebSocket API v2.0: 使用 message_revoke action 撤回消息
-    final revokeMsg = {
-      'id': Xid().toString(),
-      'type': _chatType, // C2C, C2G, etc.
-      'from': currentUid,
-      'to': msg.metadata?['peer_id'],
-      // v2.0: 字段提升到顶层
-      'msg_type': 'custom',
-      'action': C2SAction.messageRevoke,
-      'e2ee': '',
-      'payload': {'original_msg_id': msg.id},
-      'created_at': DateTimeHelper.millisecond(),
-    };
-
-    iPrint('🔄 发送撤回消息请求 (deleteMessageForEveryone): ${json.encode(revokeMsg)}');
-
-    // 发送撤回消息
-    await ref.read(chatProvider.notifier).sendMessage(revokeMsg);
-
-    // 从本地删除消息
-    bool res = await ref
-        .read(chatProvider.notifier)
-        .removeMessage(conversation, msg);
-    if (res) {
-      await ref
-          .read(chatProvider.notifier)
-          .chatService
-          ?.removeMessageById(msg.id);
-    }
-    if (nav.mounted) {
-      nav.pop();
-    }
+    await revokeMessage(msg);
   }
 
   /// 复制消息文本
@@ -290,7 +254,6 @@ class MessageActionHandler {
       AppLoading.dismiss();
 
       if (result) {
-        AppLoading.showSuccess(t.common.revokeSuccess);
         iPrint('🔍 撤回请求发送完成，等待服务端确认');
       } else {
         AppLoading.showError(

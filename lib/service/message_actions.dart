@@ -6,6 +6,7 @@ import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/message.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:xid/xid.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -326,10 +327,58 @@ class MessageActions {
     final msgType = parseModelString(data['type']);
     final currentUid = UserRepoLocal.to.currentUid;
     final generation = UserRepoLocal.to.sessionGeneration;
+    void requireCurrent() {
+      if (currentUid.isEmpty ||
+          UserRepoLocal.to.currentUid != currentUid ||
+          !UserRepoLocal.to.isCurrentSession(generation) ||
+          UserRepoLocal.to.isClearingSession) {
+        throw StateError('revoke ACK session changed');
+      }
+    }
 
-    // 【重要】从重试队列中移除撤回消息
+    requireCurrent();
+
     final revokeMsgId = parseModelString(data['id']);
-    if (revokeMsgId.isNotEmpty) {
+
+    // 查找原始消息
+    final repo = MessageService.to.getMessageRepo(msgType);
+    final originalMsg = await repo.find(originalMsgId);
+    requireCurrent();
+
+    if (originalMsg == null) {
+      throw StateError('revoke ACK target missing');
+    }
+
+    // 检查是否是我们自己撤回的
+    final isMyRevoke = originalMsg.fromId.toString() == currentUid;
+    if (parseModelString(data['from']) != originalMsg.fromId.toString() ||
+        parseModelString(data['to']) != originalMsg.toId.toString() ||
+        (msgType == 'C2C' &&
+            !isMyRevoke &&
+            originalMsg.toId.toString() != currentUid)) {
+      throw StateError('revoke ACK sender or target mismatch');
+    }
+
+    if (isMyRevoke) {
+      // 自己撤回的确认 - 使用公共撤回方法
+      await MessageActions.convertMessageToRevoked(
+        originalMsg: originalMsg,
+        repo: repo,
+        revokeUserId: currentUid,
+        isMyRevoke: true, // 自己撤回
+        requireCurrent: requireCurrent,
+      );
+      requireCurrent();
+    } else {
+      // 对方撤回的通知
+      await _processPeerRevoke(originalMsg, repo, data, requireCurrent);
+      requireCurrent();
+    }
+    if (isMyRevoke &&
+        revokeMsgId.isNotEmpty &&
+        UserRepoLocal.to.currentUid == currentUid &&
+        UserRepoLocal.to.isCurrentSession(generation) &&
+        !UserRepoLocal.to.isClearingSession) {
       AppEventBus.fire(
         RemoveFromRetryQueueRequestedEvent(
           messageId: revokeMsgId,
@@ -339,40 +388,6 @@ class MessageActions {
           sessionGeneration: generation,
         ),
       );
-      iPrint('✅ [REVOKE_ACK] 已从重试队列移除撤回消息: revokeMsgId=$revokeMsgId');
-    }
-
-    // 查找原始消息
-    final repo = MessageService.to.getMessageRepo(msgType);
-    final originalMsg = await repo.find(originalMsgId);
-
-    if (originalMsg == null) {
-      throw StateError('revoke ACK target missing');
-    }
-
-    // 检查是否是我们自己撤回的
-    final isMyRevoke = originalMsg.fromId.toString() == currentUid;
-
-    if (isMyRevoke) {
-      // 自己撤回的确认 - 使用公共撤回方法
-      await MessageActions.convertMessageToRevoked(
-        originalMsg: originalMsg,
-        repo: repo,
-        revokeUserId: currentUid,
-        isMyRevoke: true, // 自己撤回
-      );
-
-      // 重新获取更新后的消息用于触发UI更新
-      final updatedMsg = await repo.find(originalMsgId);
-      if (updatedMsg != null) {
-        AppEventBus.fireData([
-          await updatedMsg.toTypeMessage(),
-        ], 'List<Message>');
-        await _updateConversationAfterRevoke(updatedMsg);
-      }
-    } else {
-      // 对方撤回的通知
-      await _processPeerRevoke(originalMsg, repo, data);
     }
   }
 
@@ -385,6 +400,17 @@ class MessageActions {
     final msgType = parseModelString(data['type']);
     final fromId = parseModelString(data['from']);
     final currentUid = UserRepoLocal.to.currentUid;
+    final generation = UserRepoLocal.to.sessionGeneration;
+    void requireCurrent() {
+      if (currentUid.isEmpty ||
+          UserRepoLocal.to.currentUid != currentUid ||
+          !UserRepoLocal.to.isCurrentSession(generation) ||
+          UserRepoLocal.to.isClearingSession) {
+        throw StateError('revoke request session changed');
+      }
+    }
+
+    requireCurrent();
 
     // 只有消息接收者才需要处理撤回请求
     if (fromId == currentUid) {
@@ -395,13 +421,21 @@ class MessageActions {
     // 查找原始消息
     final repo = MessageService.to.getMessageRepo(msgType);
     final originalMsg = await repo.find(originalMsgId);
+    requireCurrent();
 
     if (originalMsg == null) {
       throw StateError('revoke target missing');
     }
+    final toId = parseModelString(data['to']);
+    if (originalMsg.fromId.toString() != fromId ||
+        originalMsg.toId.toString() != toId ||
+        (msgType == 'C2C' && toId != currentUid)) {
+      throw StateError('revoke sender or target mismatch');
+    }
 
     // 处理对方撤回
-    await _processPeerRevoke(originalMsg, repo, data);
+    await _processPeerRevoke(originalMsg, repo, data, requireCurrent);
+    requireCurrent();
 
     // 发送撤回确认 (v2.0 格式)
     final ackMessage = {
@@ -436,11 +470,32 @@ class MessageActions {
     Map<String, dynamic> data, {
     required bool isAck,
   }) async {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    void requireCurrent() {
+      if (ownerUid.isEmpty ||
+          session.currentUid != ownerUid ||
+          !session.isCurrentSession(generation) ||
+          session.isClearingSession) {
+        throw StateError('edit action session changed');
+      }
+    }
+
+    requireCurrent();
     final msgType = parseModelString(data['type']);
     final msgId = parseModelString(data['id']);
     final payload = parseModelJsonMap(data['payload']) ?? {};
     final originalMsgId = parseModelString(payload['original_msg_id']);
     final newContent = parseModelString(payload['content']);
+
+    if (_hasEncryptedEnvelope(data) && !isAck) {
+      final metadata = parseModelJsonMap(data['e2ee']) ?? {};
+      final editOf = parseModelString(metadata['edit_of']);
+      if (editOf.isEmpty || originalMsgId.isEmpty || editOf != originalMsgId) {
+        throw const FormatException('encrypted edit target mismatch');
+      }
+    }
 
     iPrint(
       "🔄 处理编辑action: isAck=$isAck, msgType=$msgType, msgId=$msgId, originalMsgId=$originalMsgId",
@@ -448,10 +503,15 @@ class MessageActions {
 
     if (isAck) {
       // 处理编辑确认
-      await _processEditAck(data, originalMsgId, newContent);
+      await _processEditAck(data, originalMsgId, newContent, requireCurrent);
     } else {
       // 处理编辑请求
-      await _processEditRequest(data, originalMsgId, newContent);
+      await _processEditRequest(
+        data,
+        originalMsgId,
+        newContent,
+        requireCurrent,
+      );
     }
   }
 
@@ -461,30 +521,19 @@ class MessageActions {
     Map<String, dynamic> data,
     String originalMsgId,
     String newContent,
+    void Function() requireCurrent,
   ) async {
     final msgType = parseModelString(data['type']);
     final payload = parseModelJsonMap(data['payload']) ?? {};
     final currentUid = UserRepoLocal.to.currentUid;
     final generation = UserRepoLocal.to.sessionGeneration;
 
-    // 【重要】从重试队列中移除编辑消息
     final editMsgId = parseModelString(data['id']);
-    if (editMsgId.isNotEmpty) {
-      AppEventBus.fire(
-        RemoveFromRetryQueueRequestedEvent(
-          messageId: editMsgId,
-          messageType: msgType,
-          reason: 'edited',
-          ownerUid: currentUid,
-          sessionGeneration: generation,
-        ),
-      );
-      iPrint('✅ [EDIT_ACK] 已从重试队列移除编辑消息: editMsgId=$editMsgId');
-    }
 
     // 查找原始消息
     final repo = MessageService.to.getMessageRepo(msgType);
     final originalMsg = await repo.find(originalMsgId);
+    requireCurrent();
 
     if (originalMsg == null) {
       throw StateError('edit ACK target missing');
@@ -494,28 +543,54 @@ class MessageActions {
     final isMyEdit = originalMsg.fromId.toString() == currentUid;
 
     if (isMyEdit) {
+      if (parseModelString(data['from']) != currentUid ||
+          parseModelString(data['to']) != originalMsg.toId.toString()) {
+        throw StateError('edit ACK sender or target mismatch');
+      }
       // 自己编辑的确认
-      final newPayload = Map<String, dynamic>.from(originalMsg.payloadMap);
-      newPayload['text'] = newContent;
-      newPayload['edited_at'] =
-          payload['edited_at'] ?? DateTimeHelper.millisecond();
-      newPayload['is_edited'] = true;
-
-      final updatedRows = await repo.update({
-        'id': originalMsgId,
-        'payload': json.encode(newPayload),
-        'status': IMBoyMessageStatus.sent,
-      });
+      final updatedRows = await _updateEditForSession(
+        repo,
+        originalMsg,
+        newContent,
+        payload['edited_at'],
+        requireCurrent,
+      );
+      requireCurrent();
       if (updatedRows != 1) throw StateError('edit target update failed');
 
       final updatedMsg = await repo.find(originalMsgId);
+      requireCurrent();
       if (updatedMsg == null) throw StateError('edited message missing');
       final updatedMessage = await updatedMsg.toTypeMessage();
+      requireCurrent();
       AppEventBus.fireData([updatedMessage], 'List<Message>');
-      await _updateConversationAfterEdit(updatedMsg, newContent);
     } else {
-      // 对方编辑的通知
-      await _processPeerEdit(originalMsg, repo, data, newContent);
+      final fromId = parseModelString(data['from']);
+      final toId = parseModelString(data['to']);
+      if (fromId != originalMsg.fromId.toString() ||
+          toId != originalMsg.toId.toString() ||
+          (msgType == 'C2C' && toId != currentUid)) {
+        throw StateError('edit ACK sender or target mismatch');
+      }
+      await _processPeerEdit(
+        originalMsg,
+        repo,
+        data,
+        newContent,
+        requireCurrent,
+      );
+    }
+    requireCurrent();
+    if (isMyEdit && editMsgId.isNotEmpty) {
+      AppEventBus.fire(
+        RemoveFromRetryQueueRequestedEvent(
+          messageId: editMsgId,
+          messageType: msgType,
+          reason: 'edited',
+          ownerUid: currentUid,
+          sessionGeneration: generation,
+        ),
+      );
     }
   }
 
@@ -525,6 +600,7 @@ class MessageActions {
     Map<String, dynamic> data,
     String originalMsgId,
     String newContent,
+    void Function() requireCurrent,
   ) async {
     final msgType = parseModelString(data['type']);
     final fromId = parseModelString(data['from']);
@@ -535,7 +611,7 @@ class MessageActions {
       // E2EE 编辑由服务端原样回显给发送者，外层 action 仍为
       // message_edit 以保持 PFv3 header binding；把它按本地 ACK 应用。
       if (_hasEncryptedEnvelope(data)) {
-        await _processEditAck(data, originalMsgId, newContent);
+        await _processEditAck(data, originalMsgId, newContent, requireCurrent);
       } else {
         iPrint('🔄 这是自己发送的编辑请求，无需处理');
       }
@@ -545,13 +621,21 @@ class MessageActions {
     // 查找原始消息
     final repo = MessageService.to.getMessageRepo(msgType);
     final originalMsg = await repo.find(originalMsgId);
+    requireCurrent();
 
     if (originalMsg == null) {
       throw StateError('edit target missing');
     }
+    final toId = parseModelString(data['to']);
+    if (originalMsg.fromId.toString() != fromId ||
+        originalMsg.toId.toString() != toId ||
+        (msgType == 'C2C' && toId != currentUid)) {
+      throw StateError('edit sender or target mismatch');
+    }
 
     // 处理对方编辑
-    await _processPeerEdit(originalMsg, repo, data, newContent);
+    await _processPeerEdit(originalMsg, repo, data, newContent, requireCurrent);
+    requireCurrent();
 
     // E2EE 编辑的服务端回显已经同时作为发送者/接收者的确认，
     // 不再发送一个包含正文的明文 ACK。
@@ -592,110 +676,106 @@ class MessageActions {
     MessageRepo repo,
     Map<String, dynamic> data,
     String newContent,
+    void Function() requireCurrent,
   ) async {
     try {
       final payload = parseModelJsonMap(data['payload']) ?? {};
 
-      // 构建新的payload
-      final newPayload = Map<String, dynamic>.from(msg.payloadMap);
-      newPayload['text'] = newContent;
-      newPayload['edited_at'] =
-          payload['edited_at'] ?? DateTimeHelper.millisecond();
-      newPayload['is_edited'] = true;
-
       iPrint('🔄 处理对方编辑消息: msgId=${msg.id}');
 
       // 更新数据库
-      final updateResult = await repo.update({
-        'id': msg.id,
-        'status': IMBoyMessageStatus.sent,
-        'payload': json.encode(newPayload),
-      });
+      final updateResult = await _updateEditForSession(
+        repo,
+        msg,
+        newContent,
+        payload['edited_at'],
+        requireCurrent,
+      );
+      requireCurrent();
       if (updateResult != 1) throw StateError('edit target update failed');
 
       iPrint('🔄 对方编辑更新数据库结果: $updateResult, msgId=${msg.id}');
 
       // 重新获取更新后的消息
       final updatedMsg = await repo.find(msg.id.toString());
+      requireCurrent();
       if (updatedMsg == null) throw StateError('edited message missing');
       iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
 
       final updatedMessage = await updatedMsg.toTypeMessage();
+      requireCurrent();
       iPrint('🔄 触发编辑消息更新事件: msgId=${updatedMsg.id}');
 
       AppEventBus.fireData([updatedMessage], 'List<Message>');
-      await _updateConversationAfterEdit(updatedMsg, newContent);
     } on Object catch (e) {
       iPrint('❌ 处理对方编辑消息异常: ${e.runtimeType}');
       rethrow;
     }
   }
 
-  /// Update conversation after edit
-  /// 编辑后同步更新会话列表
-  Future<void> _updateConversationAfterEdit(
-    MessageModel msg,
-    String newContent,
+  Future<int> _updateEditForSession(
+    MessageRepo repo,
+    MessageModel original,
+    String content,
+    dynamic editedAt,
+    void Function() requireCurrent,
   ) async {
-    try {
-      iPrint('更新会话编辑状态: msgId=${msg.id}, type=${msg.type}');
-
-      // 确定对话的peerId
-      String peerId;
-      if (msg.type == 'C2C') {
-        peerId = msg.fromId.toString() == UserRepoLocal.to.currentUid
-            ? msg.toId.toString()
-            : msg.fromId.toString();
-      } else if (msg.type == 'C2G') {
-        peerId = msg.toId.toString();
-      } else {
-        peerId = msg.toId.toString();
+    final database = await SqliteService.to.db;
+    requireCurrent();
+    if (database == null) throw StateError('edit database unavailable');
+    final updatedConv = await database.transaction((txn) async {
+      requireCurrent();
+      final current = await repo.find(original.id.toString(), txn: txn);
+      requireCurrent();
+      if (current == null ||
+          current.fromId != original.fromId ||
+          current.toId != original.toId ||
+          current.type != original.type ||
+          current.msgType != original.msgType ||
+          current.status == IMBoyMessageStatus.peerRevoked ||
+          current.status == IMBoyMessageStatus.myRevoked) {
+        throw StateError('edit target changed or revoked');
       }
-
-      if (peerId.isEmpty) {
-        iPrint('无法确定会话peerId，无法更新会话');
-        return;
+      final payload = Map<String, dynamic>.from(current.payloadMap);
+      payload['text'] = content;
+      payload['edited_at'] = editedAt ?? DateTimeHelper.millisecond();
+      payload['is_edited'] = true;
+      final rows = await repo.update({
+        'id': current.id,
+        'payload': json.encode(payload),
+      }, txn: txn);
+      requireCurrent();
+      if (rows != 1) throw StateError('edit target update failed');
+      final peerId =
+          current.type == 'C2C' &&
+              current.fromId.toString() != UserRepoLocal.to.currentUid
+          ? current.fromId.toString()
+          : current.toId.toString();
+      if (peerId.isEmpty || current.type == null) return null;
+      final conv = await _conversationRepo.findByPeerId(
+        current.type!,
+        peerId,
+        txn: txn,
+      );
+      requireCurrent();
+      if (conv == null || conv.lastMsgId != current.id) return null;
+      final conversationRows = await _conversationRepo.updateById(conv.id, {
+        ConversationRepo.msgType: 'text',
+        ConversationRepo.subtitle: content,
+      }, txn: txn);
+      requireCurrent();
+      if (conversationRows != 1) {
+        throw StateError('edit conversation update failed');
       }
-
-      // 查找会话
-      final conv = await _conversationRepo.findByPeerId(msg.type!, peerId);
-      if (conv == null) {
-        iPrint('未找到会话记录: type=${msg.type}, peerId=$peerId');
-        return;
-      }
-
-      // 只有当编辑的消息是会话的最后一条消息时才更新会话
-      // conv.lastMsgId 与 msg.id 均为不透明字符串（同契约）
-      if (conv.lastMsgId == msg.id) {
-        iPrint(
-          '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
-        );
-
-        // 更新会话属性
-        conv.msgType = 'text';
-        conv.subtitle = newContent;
-
-        // 更新会话数据库记录
-        final updateResult = await _conversationRepo.updateById(conv.id, {
-          ConversationRepo.msgType: 'text',
-          ConversationRepo.subtitle: newContent,
-        });
-
-        iPrint('会话更新结果: $updateResult, conversationId=${conv.id}');
-
-        // 重新获取更新后的会话并通知UI更新
-        final updatedConv = await _conversationRepo.findById(conv.id);
-        if (updatedConv != null) {
-          iPrint('触发会话更新事件: ${updatedConv.id}');
-          AppEventBus.fireData(updatedConv);
-        }
-      } else {
-        iPrint('编辑的消息不是会话的最后一条消息，无需更新会话');
-      }
-    } on Object catch (e) {
-      iPrint('更新会话编辑状态异常: ${e.runtimeType}');
-      rethrow;
-    }
+      final updated = await _conversationRepo.findById(conv.id, txn: txn);
+      requireCurrent();
+      if (updated == null) throw StateError('edit conversation missing');
+      return updated;
+    });
+    requireCurrent();
+    SqliteService.to.clearQueryCache(repo.tableName);
+    if (updatedConv != null) AppEventBus.fireData(updatedConv);
+    return 1;
   }
 
   /// 处理对方撤回消息的通用方法
@@ -705,87 +785,20 @@ class MessageActions {
     MessageModel msg,
     MessageRepo repo,
     Map<String, dynamic> data,
+    void Function() requireCurrent,
   ) async {
     try {
-      // 保存原始消息内容（如果是文本消息）
-      final originalText = msg.payload['text'] ?? '';
-
       // 使用公共静态方法处理撤回（isMyRevoke = false 表示对方撤回）
       await MessageActions.convertMessageToRevoked(
         originalMsg: msg,
         repo: repo,
         revokeUserId: data['from'] as String,
-        originalText: originalText as String?,
         isMyRevoke: false, // 对方撤回
+        requireCurrent: requireCurrent,
       );
-
-      // 更新会话
-      await _updateConversationAfterRevoke(msg);
+      requireCurrent();
     } on Object catch (e) {
       iPrint('❌ 处理对方撤回消息异常: ${e.runtimeType}');
-      rethrow;
-    }
-  }
-
-  /// Update conversation record after revoke
-  /// 撤回后同步更新会话列表
-  Future<void> _updateConversationAfterRevoke(MessageModel msg) async {
-    try {
-      iPrint(
-        '更新会话撤回状态: msgId=${msg.id}, type=${msg.type}, status=${msg.status}',
-      );
-
-      // 确定对话的peerId
-      String peerId;
-      if (msg.type == 'C2C') {
-        peerId = msg.fromId.toString() == UserRepoLocal.to.currentUid
-            ? msg.toId.toString()
-            : msg.fromId.toString();
-      } else if (msg.type == 'C2G') {
-        peerId = msg.toId.toString();
-      } else {
-        peerId = msg.toId.toString();
-      }
-
-      if (peerId.isEmpty) {
-        iPrint('无法确定会话peerId，无法更新会话');
-        return;
-      }
-
-      // 查找会话
-      final conv = await _conversationRepo.findByPeerId(msg.type!, peerId);
-      if (conv == null) {
-        iPrint('未找到会话记录: type=${msg.type}, peerId=$peerId');
-        return;
-      }
-
-      // 只有当撤回的消息是会话的最后一条消息时才更新会话
-      // conv.lastMsgId 与 msg.id 均为不透明字符串（同契约）
-      if (conv.lastMsgId == msg.id) {
-        iPrint(
-          '更新会话最后消息: conversationId=${conv.id}, lastMsgId=${conv.lastMsgId}',
-        );
-
-        // WebSocket API v2.0: 保留原始 msgType，使用 status 标识撤回状态
-        // 更新会话数据库记录
-        final updateResult = await _conversationRepo.updateById(conv.id, {
-          ConversationRepo.lastMsgStatus: msg.status, // 30 或 31
-          ConversationRepo.payload: json.encode(msg.payload),
-        });
-
-        iPrint('会话更新结果: $updateResult, conversationId=${conv.id}');
-
-        // 重新获取更新后的会话并通知UI更新
-        final updatedConv = await _conversationRepo.findById(conv.id);
-        if (updatedConv != null) {
-          iPrint('触发会话更新事件: ${updatedConv.id}');
-          AppEventBus.fireData(updatedConv);
-        }
-      } else {
-        iPrint('撤回的消息不是会话的最后一条消息，无需更新会话');
-      }
-    } on Object catch (e) {
-      iPrint('更新会话撤回状态异常: ${e.runtimeType}');
       rethrow;
     }
   }
@@ -1117,29 +1130,34 @@ class MessageActions {
     required String revokeUserId,
     String? originalText,
     bool isMyRevoke = false,
+    void Function()? requireCurrent,
   }) async {
     try {
+      final session = UserRepoLocal.to;
+      final ownerUid = session.currentUid;
+      final generation = session.sessionGeneration;
+      void checkSession() {
+        requireCurrent?.call();
+        if (ownerUid.isEmpty ||
+            session.currentUid != ownerUid ||
+            !session.isCurrentSession(generation) ||
+            session.isClearingSession) {
+          throw StateError('revoke session changed');
+        }
+      }
+
+      checkSession();
       // 获取联系人信息（静态方法中创建新的仓库实例）
       final contactRepo = ContactRepo();
       final contact = await contactRepo.findByUid(revokeUserId);
+      checkSession();
       iPrint("🔄 获取联系人信息: ${contact?.nickname ?? '未知用户'}");
-
-      // 保存原始消息内容（如果是文本消息）
-      final text = originalText ?? originalMsg.payload['text'] ?? '';
 
       // 根据撤回类型设置状态码
       final revokeStatus = isMyRevoke
           ? IMBoyMessageStatus
                 .myRevoked // 31: 自己撤回
           : IMBoyMessageStatus.peerRevoked; // 30: 对方撤回
-
-      // 构建新的 payload（保留撤回相关信息供 UI 使用）
-      final newPayload = <String, dynamic>{
-        'peer_name': contact?.nickname ?? '',
-        'text': text, // 保留原始文本内容
-        'revoke_time': DateTimeHelper.millisecond(),
-        'revoke_user': revokeUserId, // 记录撤回操作的用户ID
-      };
 
       iPrint(
         '🔄 处理撤回消息: originalMsgId=${originalMsg.id}, '
@@ -1148,21 +1166,77 @@ class MessageActions {
 
       // 更新数据库
       // WebSocket API v2.0: msg_type 保留原始内容类型，status 标识撤回状态
-      final updateResult = await repo.update({
-        'id': originalMsg.id,
-        'status': revokeStatus, // 30 或 31
-        'payload': json.encode(newPayload),
+      final database = await SqliteService.to.db;
+      checkSession();
+      if (database == null) throw StateError('revoke database unavailable');
+      final updatedConv = await database.transaction((txn) async {
+        checkSession();
+        final current = await repo.find(originalMsg.id.toString(), txn: txn);
+        checkSession();
+        if (current == null ||
+            current.fromId != originalMsg.fromId ||
+            current.toId != originalMsg.toId ||
+            current.type != originalMsg.type ||
+            current.msgType != originalMsg.msgType) {
+          throw StateError('revoke target changed');
+        }
+        final newPayload = <String, dynamic>{
+          'peer_name': contact?.nickname ?? '',
+          'text': originalText ?? current.payload['text'] ?? '',
+          'revoke_time': DateTimeHelper.millisecond(),
+          'revoke_user': revokeUserId,
+        };
+        final rows = await repo.update({
+          'id': current.id,
+          'status': revokeStatus,
+          'payload': json.encode(newPayload),
+        }, txn: txn);
+        checkSession();
+        if (rows != 1) throw StateError('revoke target update failed');
+        final peerId =
+            current.type == 'C2C' && current.fromId.toString() != ownerUid
+            ? current.fromId.toString()
+            : current.toId.toString();
+        if (peerId.isEmpty || current.type == null) return null;
+        final conversations = ConversationRepo();
+        final conversation = await conversations.findByPeerId(
+          current.type!,
+          peerId,
+          txn: txn,
+        );
+        checkSession();
+        if (conversation == null || conversation.lastMsgId != current.id) {
+          return null;
+        }
+        final conversationRows = await conversations.updateById(
+          conversation.id,
+          {
+            ConversationRepo.lastMsgStatus: revokeStatus,
+            ConversationRepo.payload: json.encode(newPayload),
+          },
+          txn: txn,
+        );
+        checkSession();
+        if (conversationRows != 1) {
+          throw StateError('revoke conversation update failed');
+        }
+        final updated = await conversations.findById(conversation.id, txn: txn);
+        checkSession();
+        if (updated == null) throw StateError('revoke conversation missing');
+        return updated;
       });
-      if (updateResult != 1) throw StateError('revoke target update failed');
-
-      iPrint('🔄 撤回更新数据库结果: $updateResult, originalMsgId=${originalMsg.id}');
+      checkSession();
+      SqliteService.to.clearQueryCache(repo.tableName);
+      if (updatedConv != null) AppEventBus.fireData(updatedConv);
 
       // 重新获取更新后的消息
       final updatedMsg = await repo.find(originalMsg.id.toString());
+      checkSession();
       if (updatedMsg == null) throw StateError('revoked message missing');
       iPrint('🔄 重新获取更新后的消息成功: msgId=${updatedMsg.id}');
 
       final updatedMessage = await updatedMsg.toTypeMessage();
+      checkSession();
       iPrint('🔄 触发撤回消息更新事件: msgId=${updatedMsg.id}');
 
       AppEventBus.fireData([updatedMessage], 'List<Message>');
