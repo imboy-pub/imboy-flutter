@@ -191,6 +191,13 @@ class _NotificationAwaitDatabase implements Database {
   }
 
   @override
+  // FTS best-effort 清理/删除命令（撤回/过期清索引）走 rawUpdate，
+  // 委托真库执行（v37 schema 内 fts 表存在），避免 noSuchMethod 掩盖
+  // 被测的 HistoryFetchException。
+  Future<int> rawUpdate(String sql, [List<Object?>? arguments]) =>
+      delegate.rawUpdate(sql, arguments);
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 

@@ -684,14 +684,26 @@ class ChatArchiveService {
     }
     for (final entry in byType.entries) {
       requireCurrent();
-      final persisted =
-          await (repository ??
-                  MessageRepo(tableName: MessageRepo.getTableName(entry.key)))
-              .batchInsertOfflineMessages(entry.value, trustedArchive: true);
-      requireCurrent();
-      if (persisted == null ||
-          entry.value.any((row) => !persisted.contains(row['msg_id']))) {
-        throw const HistoryFetchException();
+      try {
+        final persisted =
+            await (repository ??
+                    MessageRepo(tableName: MessageRepo.getTableName(entry.key)))
+                .batchInsertOfflineMessages(entry.value, trustedArchive: true);
+        requireCurrent();
+        if (persisted == null ||
+            entry.value.any((row) => !persisted.contains(row['msg_id']))) {
+          throw const HistoryFetchException();
+        }
+      } on StateError catch (e) {
+        // OfflineMessageWriter 的会话守卫（Offline/Archive session changed）
+        // 与本服务的 requireCurrent 同义：会话变更 = 本任务取消。
+        // 统一转为 HistoryFetchException，保持 syncHistory 顶层契约
+        // （其余 StateError 属真缺陷，原样上抛）。
+        if (e.message == 'Offline session changed' ||
+            e.message == 'Archive session changed') {
+          throw const HistoryFetchException();
+        }
+        rethrow;
       }
     }
   }
