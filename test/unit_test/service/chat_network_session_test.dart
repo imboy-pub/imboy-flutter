@@ -80,6 +80,11 @@ class _EmptyDatabase implements Database {
     List<Object?>? arguments,
   ]) async => [];
   @override
+  // FTS best-effort 清理（撤回/删除/过期清索引）走 rawUpdate；空索引上
+  // 命中 0 行，返回 0 且不计入 queries（与真库的 UPDATE 语义一致，
+  // 见 message_repo 的 _ftsRemoveStaleIndexEntry）。
+  Future<int> rawUpdate(String sql, [List<Object?>? arguments]) async => 0;
+  @override
   Future<List<Map<String, Object?>>> query(
     String table, {
     bool? distinct,
@@ -317,7 +322,9 @@ void main() {
           await pumpEventQueue();
           expect(database.updates, 1);
           expect(notifier.updatedIds.length, stale ? 0 : 1);
-          expect(database.queries, stale ? 0 : 2);
+          // 3 = 既有 2 次 + 状态更新后的 FTS 重索引 find（1ae246215 起
+          // 更新路径快照+调度重索引，reindex 在锁内 find 计一次 query）。
+          expect(database.queries, stale ? 0 : 3);
           expect(events.length, stale ? 0 : 1);
           if (!stale) {
             expect((events.single.data as List).single.id, 'synthetic-status');
