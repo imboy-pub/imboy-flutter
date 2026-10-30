@@ -48,6 +48,11 @@ class _NativeMegolm implements E2eeSessionProtocol {
     'protocol': 'megolm',
     'version': 1,
     'session_id': inbound.sessionId,
+    // 生产等形：真实 megolm 协议在 context.gid 非空时把它写入
+    // protocol_metadata（megolm_protocol.dart _meta(sessionId, gid:)），
+    // 接收侧 PFv3 上下文比对依赖该字段（C2G 缺 gid 会被
+    // context_mismatch_gid fail-closed 拒收）。
+    if (context.gid != null && context.gid!.isNotEmpty) 'gid': context.gid,
   });
   @override
   Future<String> decrypt({
