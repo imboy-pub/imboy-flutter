@@ -356,7 +356,7 @@ void main() {
       expect(committed, isNotNull);
 
       // 事务存储不可用（SQLCipher 打不开 / 迁移中 / 磁盘故障）
-      SqliteService.setDbForTest(null);
+      SqliteService.setDbUnavailableForTest();
       OlmSessionService.to.resetForTest();
 
       await expectLater(
@@ -410,7 +410,7 @@ void main() {
 
       // DB 不可用窗口：若生产在此仍允许加密（fail-open），密文会被真实投递给对端，
       // 对端消费掉该 ratchet 索引的 message key，而状态只留在非事务存储。
-      SqliteService.setDbForTest(null);
+      SqliteService.setDbUnavailableForTest();
       OlmSessionService.to.resetForTest();
       try {
         final m2 = await OlmSessionService.to.encryptC2CMessage(
@@ -450,7 +450,7 @@ void main() {
       final inbound = peer.session.encrypt('inbound-during-outage');
       expect(inbound.messageType, equals(1));
 
-      SqliteService.setDbForTest(null);
+      SqliteService.setDbUnavailableForTest();
       OlmSessionService.to.resetForTest();
 
       await expectLater(

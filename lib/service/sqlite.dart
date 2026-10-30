@@ -61,6 +61,9 @@ class SqliteService {
 
   static Database? _db;
 
+  /// 测试哨兵：true 时 [db] 一律返回 null（见 setDbUnavailableForTest）。
+  static bool _dbUnavailableForTest = false;
+
   /// 打开中句柄所属的 uid（DB 文件按 `${env}_${uid}.db` 命名）。
   /// 用于跨账号隔离：uid 漂移时强制关旧重开，防复用旧账号加密库（E2EE-015 纵深防御）。
   static String _openUid = '';
@@ -71,9 +74,22 @@ class SqliteService {
   /// db getter 按 isOpen 复用注入句柄，绕过 _initDatabase。
   @visibleForTesting
   static void setDbForTest(Database? db) {
+    _dbUnavailableForTest = false;
     _db = db;
     _openUid = UserRepoLocal.to.currentUid;
     _openEnv = currentEnv;
+  }
+
+  /// 【测试】注入「数据库不可用」语义：db getter 直接返回 null，等同
+  /// 生产打开失败/迁移预检中止的 fail-closed 路径。宿主机测试环境无
+  /// sqflite_sqlcipher 平台通道，置 null 后走真实重开会抛
+  /// MissingPluginException，到不了受控的 db==null 分支（E2EE-030）。
+  @visibleForTesting
+  static void setDbUnavailableForTest() {
+    _dbUnavailableForTest = true;
+    _db = null;
+    _openUid = '';
+    _openEnv = '';
   }
 
   // SQLite 是否支持 UPDATE ... RETURNING（3.35+）。
@@ -107,6 +123,10 @@ class SqliteService {
   /// 获取数据库连接实例
   /// Get the database connection instance
   Future<Database?> get db async {
+    if (_dbUnavailableForTest) {
+      _lastDbNullReason = '测试注入：数据库不可用';
+      return null;
+    }
     // 仅当缓存句柄仍处于打开状态才复用。迁移回滚等路径可能在 SqliteService
     // 之外关闭底层 Database（见 migration_service._restoreFromSnapshot）却未重置
     // _db，旧逻辑会派发已关闭句柄导致 database_closed 刷屏。此处改为按 isOpen
