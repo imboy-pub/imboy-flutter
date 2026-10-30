@@ -87,15 +87,16 @@ class MessageActions {
   /// action 是否已被客户端实现（未实现的按向前兼容忽略并回 ACK）
   static bool handlesAction(String action) => knownActions.contains(action);
 
-  /// 该 msg_type 是否是「可渲染的内容消息」（排除控制帧载体 custom）
+  /// 该 msg_type 是否代表「一个携带内容的消息帧」
   ///
-  /// 用于识别服务端把内容消息错写成控制帧的组合：内容类型 + 未实现 action
-  /// ⇒ 消息会被 action 分发整条吞掉。`forward` 这类未注册类型不算内容类型
-  /// （它属于「类型未注册」问题，不是 action 冲突）。
+  /// 判据刻意**不看类型是否已注册**：真正的历史事故是 `forward`——它既未注册、
+  /// 又被写进 action，如果这里要求「类型可渲染」才报警，最该被抓住的那一例
+  /// 反而静默通过。只要服务端同时给了非空 msg_type 和客户端没实现的 action，
+  /// 这条消息就一定会被 action 分发吞掉，无论类型认不认识。
+  ///
+  /// `custom` 是控制帧载体，排除。
   static bool isContentMsgType(String msgType) =>
-      msgType.isNotEmpty &&
-      msgType != MessageType.custom &&
-      MessageType.isValidType(msgType);
+      msgType.isNotEmpty && msgType != MessageType.custom;
 
   final MessageRetry _messageRetry = MessageRetry.instance;
   // 缓存常用仓库实例，避免重复 new。

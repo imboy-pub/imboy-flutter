@@ -208,9 +208,11 @@ void main() {
       // 该组合一定是服务端缺陷，客户端至少要能在日志里指出来。
       expect(MessageActions.isContentMsgType(MessageType.text), isTrue);
       expect(MessageActions.isContentMsgType(MessageType.image), isTrue);
-      // custom 是控制帧载体；forward 属于「类型未注册」，都不是内容冲突
+      // 关键：判据不看类型是否已注册。历史事故的 `forward` 恰恰是未注册类型，
+      // 若要求「类型可渲染」才报警，最该抓住的一例会静默通过。
+      expect(MessageActions.isContentMsgType('forward'), isTrue);
+      // custom 是控制帧载体，排除
       expect(MessageActions.isContentMsgType(MessageType.custom), isFalse);
-      expect(MessageActions.isContentMsgType('forward'), isFalse);
       expect(MessageActions.isContentMsgType(''), isFalse);
     });
   });

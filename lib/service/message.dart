@@ -399,6 +399,9 @@ class MessageService with EventSubscriptionManager {
   Future<bool> persistInboundMessage(Map<String, dynamic> data) {
     final action = data['action']?.toString() ?? '';
     if (action.isNotEmpty) {
+      // 离线补拉同样会走 action 分发，未知 action 一样会被 default 分支吞掉；
+      // 诊断要在两条入站路径上一致，否则「实时丢」和「补拉丢」只有一半有日志。
+      _warnIfActionSwallowsContent(action, data);
       return _receiveActionMessage(
         action,
         data['type']?.toString() ?? '',
@@ -414,11 +417,12 @@ class MessageService with EventSubscriptionManager {
   /// ACK —— 见 `test/unit_test/service/e2ee/inbound_ack_ordering_test.dart`
   /// 里刻意构造的 `future-compatible-action`。所以这里**不改变投递行为**。
   ///
-  /// 但这套机制有个致命组合：服务端把一个**可渲染的内容类型**（text/image…）
-  /// 同时写进 `msg_type` 和 `action`，客户端就会走 action 分支把整条消息吞掉，
-  /// 且照常回 ACK —— 收发双方都不知道消息没了。历史事故：转发消息写
-  /// `msg_type=forward` + `action=forward`。这种组合一定是服务端缺陷，用
-  /// error 日志把它暴露出来，而不是让它安静消失。
+  /// 但这套机制有个致命组合：服务端把**一条内容消息**（带非空 msg_type）同时
+  /// 写进 `action`，客户端就会走 action 分支把整条消息吞掉，且照常回 ACK ——
+  /// 收发双方都不知道消息没了。历史上转发消息正是这样：`msg_type=forward` +
+  /// `action=forward`，而 `forward` 恰好是未注册类型，所以判据不能要求「类型
+  /// 可渲染」。这种组合一定是服务端缺陷，用 error 日志把它暴露出来，而不是
+  /// 让它安静消失。
   void _warnIfActionSwallowsContent(String action, Map<String, dynamic> data) {
     if (MessageActions.handlesAction(action)) return;
     final msgType = data['msg_type']?.toString() ?? '';
