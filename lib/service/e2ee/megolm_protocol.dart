@@ -84,6 +84,13 @@ class MegolmProtocol implements E2eeSessionProtocol {
         ? convSeqRaw
         : int.tryParse(convSeqRaw?.toString() ?? '');
     try {
+      if (gid.isNotEmpty) {
+        await GroupSessionService.to.enforceRestoredHistoryGrant(
+          gid,
+          sessionId,
+          convSeq,
+        );
+      }
       final store = await OlmSessionService.to.cryptoStore;
       if (messageId.isNotEmpty &&
           inboxScope.isNotEmpty &&

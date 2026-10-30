@@ -817,6 +817,12 @@ class GroupSessionService {
     }
   }
 
+  Future<void> enforceRestoredHistoryGrant(
+    String gid,
+    String sessionId,
+    int? convSeq,
+  ) => _enforceRestoredHistoryGrant(gid, sessionId, convSeq);
+
   @visibleForTesting
   Future<void> debugEnforceRestoredHistoryGrant(
     String gid,

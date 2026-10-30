@@ -940,6 +940,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     final normalizedAction = action.toUpperCase();
     if (normalizedAction.endsWith('_ACK') &&
         normalizedAction != 'CLIENT_ACK' &&
+        normalizedAction != 'MESSAGE_EDIT_ACK' &&
+        normalizedAction != 'MESSAGE_REVOKE_ACK' &&
         messageId.isNotEmpty) {
       AppEventBus.fire(
         RemoveFromRetryQueueRequestedEvent(

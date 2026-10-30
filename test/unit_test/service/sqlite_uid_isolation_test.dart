@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -8,8 +9,25 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart' hide getDatabasesPath;
 import 'package:sqflite_sqlcipher/sqflite.dart' show getDatabasesPath;
 
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+
+class _DelayedQueryDatabase implements Database {
+  final Completer<List<Map<String, Object?>>> result = Completer();
+
+  @override
+  bool get isOpen => true;
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) => result.future;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 /// E2EE-015 纵深防御：SqliteService.db 句柄按 uid 隔离。
 ///
@@ -62,6 +80,25 @@ void main() {
     expect(got, isNot(same(oldHandle)), reason: '绝不把旧句柄交给新账号');
   });
 
+  test('同账号环境变化时不得复用旧环境句柄', () async {
+    final previousEnv = currentEnv;
+    currentEnv = 'local';
+    await StorageService.to.setString(Keys.currentUid, 'uidA');
+    final oldHandle = await openMem();
+    SqliteService.setDbForTest(oldHandle);
+    try {
+      currentEnv = 'dev';
+      expect(await SqliteService.to.db, isNull);
+      expect(oldHandle.isOpen, isTrue);
+      currentEnv = 'local';
+      expect(await SqliteService.to.db, same(oldHandle));
+    } finally {
+      currentEnv = previousEnv;
+      SqliteService.setDbForTest(null);
+      if (oldHandle.isOpen) await oldHandle.close();
+    }
+  });
+
   test('waitUntilReady：db 就绪时立即返回 true', () async {
     await StorageService.to.setString(Keys.currentUid, 'uidA');
     final injected = await openMem();
@@ -89,6 +126,33 @@ void main() {
     expect(ready, isFalse);
     // 允许少量调度余量，但绝不能等到冷却期（5s）结束
     expect(elapsedMs, lessThan(2000), reason: '必须按 timeout 及时放弃');
+  });
+
+  test('rawQuery distinguishes unavailable database in strict mode', () async {
+    expect(await SqliteService.to.rawQuery('SELECT 1'), isEmpty);
+    await expectLater(
+      SqliteService.to.rawQuery('SELECT 1', null, false, 100, true),
+      throwsA(isA<Exception>()),
+    );
+  });
+
+  test('rawQuery distinguishes timeout in strict mode', () async {
+    await StorageService.to.setString(Keys.currentUid, 'uidA');
+    final database = _DelayedQueryDatabase();
+    SqliteService.setDbForTest(database);
+    try {
+      expect(
+        await SqliteService.to.rawQuery('SELECT 1', null, false, 10),
+        isEmpty,
+      );
+      await expectLater(
+        SqliteService.to.rawQuery('SELECT 1', null, false, 10, true),
+        throwsA(isA<TimeoutException>()),
+      );
+    } finally {
+      database.result.complete([]);
+      SqliteService.setDbForTest(null);
+    }
   });
 
   test('登出时只删除指定 uid 的数据库及 sidecar 文件', () async {

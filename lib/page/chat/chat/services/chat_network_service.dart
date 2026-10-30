@@ -1134,6 +1134,7 @@ class ChatNetworkService {
       'fan_out': 'per_device',
       'devices': devices,
       if (skippedDevices.isNotEmpty) 'skipped_devices': skippedDevices,
+      if (action == C2SAction.messageEdit) ..._editOuterMetadata(plaintext),
     };
     _requireOutboundSession(outboundUid, outboundGeneration);
     await E2eeOutboundRouter.persistOutboxPayload(

@@ -9,10 +9,13 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/channel_id_response_decoder.dart';
+import 'package:imboy/component/http/http_request_policy.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
@@ -51,6 +54,14 @@ class MessageOfflineService {
     final normalized = Map<String, dynamic>.from(message)..['type'] = type;
     final businessId = normalized['msg_id']?.toString() ?? '';
     if (businessId.isNotEmpty) normalized['id'] = businessId;
+    final e2ee = normalized['e2ee'];
+    if (type == 'C2C' &&
+        (normalized['action']?.toString() ?? '').isEmpty &&
+        e2ee is Map &&
+        e2ee['meta_version'] == 3 &&
+        e2ee['relay_action'] == 'message_edit') {
+      normalized['action'] = 'message_edit';
+    }
     return normalized;
   }
 
@@ -291,7 +302,24 @@ class MessageOfflineService {
     required String source,
     String? reason,
   }) async {
+    final session = authSessionReader.current;
+    final endpoint = Env().apiBaseUrl;
+    final client = HttpClient.client;
+    final baseUrl = client.dio.options.baseUrl.isEmpty
+        ? endpoint
+        : client.dio.options.baseUrl;
+    void requireCurrent() {
+      final currentBase = client.dio.options.baseUrl;
+      if (!authSessionReader.isCurrent(session) ||
+          Env().apiBaseUrl != endpoint ||
+          !identical(HttpClient.client, client) ||
+          (currentBase.isEmpty ? Env().apiBaseUrl : currentBase) != baseUrl) {
+        throw StateError('offline pull session or endpoint changed');
+      }
+    }
+
     try {
+      requireCurrent();
       iPrint('开始拉取离线消息 source=$source reason=${reason ?? "-"}');
 
       bool hasMore = true;
@@ -306,6 +334,7 @@ class MessageOfflineService {
       int localS2cLastMsgAt = _s2cLastMsgAt;
 
       while (hasMore && pullCount < _maxPullCount) {
+        requireCurrent();
         pullCount++;
         iPrint(
           '第 $pullCount 次拉取离线消息 c2c_cursor=$localC2cLastMsgAt '
@@ -334,15 +363,17 @@ class MessageOfflineService {
 
         currentPullHttpRequests++;
         _httpRequestsTotal++;
-        final resp = await HttpClient.client.get(
+        final resp = await client.get(
           API.msgOffline,
           queryParameters: queryParams.isEmpty ? null : queryParams,
           options: Options(
+            extra: {httpRequestGuard: requireCurrent, httpNoAutoRetry: true},
             responseDecoder: channelIdResponseDecoder(
               ChannelResponseShape.offline,
             ),
           ),
         );
+        requireCurrent();
 
         if (resp.code != 0) {
           _failedTotal++;
@@ -371,6 +402,8 @@ class MessageOfflineService {
           payload: payload,
           typeKey: 'c2c',
           chatType: 'C2C',
+          requireCurrent: requireCurrent,
+          client: client,
         );
         if (_hasMore(payload['c2c'])) {
           overallHasMore = true;
@@ -386,6 +419,8 @@ class MessageOfflineService {
           payload: payload,
           typeKey: 'c2g',
           chatType: 'C2G',
+          requireCurrent: requireCurrent,
+          client: client,
         );
         if (_hasMore(payload['c2g'])) {
           overallHasMore = true;
@@ -407,6 +442,8 @@ class MessageOfflineService {
           payload: payload,
           typeKey: 's2c',
           chatType: 'S2C',
+          requireCurrent: requireCurrent,
+          client: client,
         );
         if (_hasMore(payload['s2c'])) {
           overallHasMore = true;
@@ -446,10 +483,12 @@ class MessageOfflineService {
       if (_c2gCursorKey != _currentC2gCursorKey()) {
         throw StateError('offline cursor account changed during pull');
       }
+      requireCurrent();
       if (localC2gCursor != _c2gCursor) {
         await StorageService.to.persistPreference(
           () => StorageService.to.setString(_c2gCursorKey, localC2gCursor),
         );
+        requireCurrent();
         _c2gCursor = localC2gCursor;
       }
 
@@ -499,7 +538,10 @@ class MessageOfflineService {
     required Map<String, dynamic> payload,
     required String typeKey,
     required String chatType,
+    required void Function() requireCurrent,
+    required HttpClient client,
   }) async {
+    requireCurrent();
     final section = payload[typeKey];
     if (section is! Map) {
       return 0;
@@ -510,7 +552,8 @@ class MessageOfflineService {
       return 0;
     }
 
-    await _processOfflineMessages(rawList, chatType);
+    await _processOfflineMessages(rawList, chatType, requireCurrent, client);
+    requireCurrent();
     return rawList.length;
   }
 
@@ -631,6 +674,8 @@ class MessageOfflineService {
   Future<void> _processOfflineMessages(
     List<dynamic> messages,
     String type,
+    void Function() requireCurrent,
+    HttpClient client,
   ) async {
     if (messages.isEmpty) {
       return;
@@ -650,6 +695,7 @@ class MessageOfflineService {
       final encryptedAckIds = <String>[];
       final ordinaryMessages = <Map<String, dynamic>>[];
       for (final msg in processedMessages) {
+        requireCurrent();
         if (!requiresSecureReceivePath(msg)) {
           ordinaryMessages.add(msg);
           continue;
@@ -661,11 +707,13 @@ class MessageOfflineService {
         final msgId = (msg['msg_id'] ?? msg['id'])?.toString() ?? '';
         try {
           final committed = await MessageService.to.persistInboundMessage(msg);
+          requireCurrent();
           if (!committed) {
             throw StateError('encrypted offline message not committed');
           }
           if (msgId.isNotEmpty) encryptedAckIds.add(msgId);
         } on Object catch (e) {
+          requireCurrent();
           iPrint('加密离线消息入库失败已隔离 msgId=$msgId err=${e.runtimeType}');
         }
       }
@@ -674,6 +722,7 @@ class MessageOfflineService {
       Object? ordinaryFailure;
       StackTrace? ordinaryFailureStack;
       if (ordinaryMessages.isNotEmpty) {
+        requireCurrent();
         try {
           final ids =
               await MessageRepo(tableName: MessageRepo.getTableName(type))
@@ -687,8 +736,10 @@ class MessageOfflineService {
                       );
                     },
                   );
+          requireCurrent();
           ordinaryAckIds.addAll(ids ?? <String>[]);
         } on Object catch (e, stack) {
+          requireCurrent();
           // 批量入库失败：普通消息不入 ACK（服务端保留 pending 下次重拉，
           // msg_id 幂等兜底重复插入），已入库的加密消息仍正常 ACK
           iPrint('普通离线消息批量入库失败本批不ACK err=${e.runtimeType}');
@@ -699,8 +750,10 @@ class MessageOfflineService {
       final msgIds = {...encryptedAckIds, ...ordinaryAckIds}.toList();
 
       if (msgIds.isNotEmpty) {
+        requireCurrent();
         // 发送确认消息
-        await _sendOfflineAck(type, msgIds);
+        await _sendOfflineAck(type, msgIds, client, requireCurrent);
+        requireCurrent();
       }
       // 已提交的安全消息仍可 ACK，但失败批次不能推进游标或计为成功。
       if (ordinaryFailure != null) {
@@ -714,9 +767,17 @@ class MessageOfflineService {
   }
 
   /// 发送离线消息确认
-  Future<void> _sendOfflineAck(String type, List<String> msgIds) async {
-    final resp = await HttpClient.client.post(
+  Future<void> _sendOfflineAck(
+    String type,
+    List<String> msgIds,
+    HttpClient client,
+    void Function() requireCurrent,
+  ) async {
+    final resp = await client.post(
       API.msgOfflineAck,
+      options: Options(
+        extra: {httpRequestGuard: requireCurrent, httpNoAutoRetry: true},
+      ),
       // 带 did 走服务端按设备送达标记（不再按 uid 删行），
       // 修复双端登录时一端确认导致另一离线端永久丢消息
       data: {

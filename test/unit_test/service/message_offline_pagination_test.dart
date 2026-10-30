@@ -4,8 +4,10 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show MethodChannel, PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -19,6 +21,7 @@ import 'package:imboy/service/message_offline.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../fixtures/sqlite_migration/migration_inventory.dart';
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
@@ -33,6 +36,8 @@ class _PagedAdapter implements HttpClientAdapter {
   void Function()? onTwentiethAck;
   Completer<void>? finalAckObserved;
   Completer<void>? releaseFinalAck;
+  Future<void> Function()? afterAck;
+  void Function()? afterPull;
 
   @override
   Future<ResponseBody> fetch(
@@ -47,6 +52,7 @@ class _PagedAdapter implements HttpClientAdapter {
         return response({'code': 1, 'payload': <String, dynamic>{}});
       }
       acknowledged.addAll(ids);
+      await afterAck?.call();
       if (acknowledged.length == 20) onTwentiethAck?.call();
       if (acknowledged.length == 23 && finalAckObserved != null) {
         finalAckObserved!.complete();
@@ -55,7 +61,9 @@ class _PagedAdapter implements HttpClientAdapter {
       return response({'code': 0, 'payload': <String, dynamic>{}});
     }
     if (options.path != API.msgOffline) throw StateError('Unexpected request');
-    return offlinePage(options);
+    final result = offlinePage(options);
+    afterPull?.call();
+    return result;
   }
 
   ResponseBody offlinePage(RequestOptions options) {
@@ -187,6 +195,106 @@ void main() {
     await AppFeatureRegistry.clear();
   });
 
+  void registerSessionTest() {
+    testWidgets('session change after ACK prevents cursor advancement', (
+      tester,
+    ) async {
+      const channel = MethodChannel(
+        'plugins.it_nomads.com/flutter_secure_storage',
+      );
+      await tester.pumpWidget(
+        MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+      );
+      await tester.runAsync(() async {
+        final originalStorage = FlutterSecureStoragePlatform.instance;
+        adapter.afterAck = () async {
+          FlutterSecureStoragePlatform.instance =
+              MethodChannelFlutterSecureStorage();
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(channel, (call) async {
+                if (call.method == 'write' &&
+                    (call.arguments as Map)['key'] == 'secure_token') {
+                  throw PlatformException(code: 'synthetic-login-stop');
+                }
+                return null;
+              });
+          await expectLater(
+            UserRepoLocal.to.loginAfter('synthetic-session', {
+              'uid': '995013',
+              'token': 'synthetic-token',
+              'refreshtoken': 'synthetic-refresh',
+            }),
+            throwsA(isA<PlatformException>()),
+          );
+        };
+        try {
+          expect(
+            await service.requestPull(source: 'session_test', force: true),
+            isFalse,
+          );
+          expect(adapter.acknowledged, hasLength(1));
+          expect(adapter.cursors, [0]);
+          expect(
+            MessageOfflineService.readStoredCursor(Keys.offlineCursorC2c),
+            0,
+          );
+          expect(await db.query('msg_c2c'), hasLength(1));
+        } finally {
+          FlutterSecureStoragePlatform.instance = originalStorage;
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(channel, null);
+        }
+      });
+    });
+  }
+
+  testWidgets('HTTP guard rejects source change before request dispatch', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+    );
+    await tester.runAsync(() async {
+      final client = HttpClient.client;
+      client.dio.interceptors.insert(
+        0,
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            client.dio.options.baseUrl = 'http://127.0.0.1:1';
+            handler.next(options);
+          },
+        ),
+      );
+      expect(
+        await service.requestPull(source: 'guard_test', force: true),
+        isFalse,
+      );
+      expect(adapter.cursors, isEmpty);
+      expect(adapter.acknowledged, isEmpty);
+      expect(await db.query('msg_c2c'), isEmpty);
+    });
+  });
+  testWidgets('changed HTTP source stops before persistence and ACK', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const SizedBox()),
+    );
+    await tester.runAsync(() async {
+      final client = HttpClient.client;
+      adapter.afterPull = () {
+        client.dio.options.baseUrl = 'http://127.0.0.1:1';
+      };
+      expect(
+        await service.requestPull(source: 'source_test', force: true),
+        isFalse,
+      );
+      expect(adapter.cursors, [0]);
+      expect(adapter.acknowledged, isEmpty);
+      expect(await db.query('msg_c2c'), isEmpty);
+      expect(MessageOfflineService.readStoredCursor(Keys.offlineCursorC2c), 0);
+    });
+  });
   testWidgets(
     'one pull event drains more than 20 pages without another signal',
     (tester) async {
@@ -383,4 +491,5 @@ void main() {
       await tester.pumpAndSettle();
     },
   );
+  registerSessionTest();
 }

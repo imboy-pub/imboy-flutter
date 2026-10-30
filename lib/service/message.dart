@@ -460,9 +460,11 @@ class MessageService with EventSubscriptionManager {
     );
     if (decrypted['_e2ee_failed'] == true) {
       final reason = decrypted['_e2ee_reason']?.toString();
-      // ADR 15 §7.1：duplicate_message（同 id+scope+digest 合法重投）与
-      // already_processed 同为幂等语义——静默跳过，不落占位、不弹错。
-      if (reason == 'already_processed' || reason == 'duplicate_message') {
+      if (reason == 'inbound_identity_conflict' ||
+          reason == 'duplicate_message') {
+        return false;
+      }
+      if (reason == 'already_processed') {
         return true;
       }
       iPrint('🚫 [E2EE] 编辑 action 解密失败，拒绝执行: msgId=$msgId, reason=$reason');
@@ -635,10 +637,11 @@ class MessageService with EventSubscriptionManager {
     if (payload == null) return false;
     if (payload['_e2ee_failed'] == true) {
       final reason = payload['_e2ee_reason']?.toString();
-      // ADR 15 §7.1 / crypto_store.stageInbound：duplicate_message（同 id+
-      // scope+digest 合法重投）与 already_processed 同为幂等语义——
-      // 静默跳过：不落占位、不弹错，ACK 视同已处理。
-      if (reason == 'already_processed' || reason == 'duplicate_message') {
+      if (reason == 'inbound_identity_conflict' ||
+          reason == 'duplicate_message') {
+        return false;
+      }
+      if (reason == 'already_processed') {
         return true;
       }
       // 发生率度量（唯一持久化计数点）：占位行即将落库；幂等重投已在

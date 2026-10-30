@@ -71,5 +71,34 @@ void main() {
       const s2 = MessageSearchState();
       expect(s2.getStartTimeStamp(), isNull);
     });
+
+    test('resetFilters clears custom dates without changing search scope', () {
+      final state = MessageSearchState(
+        selectedTimeRange: 'custom',
+        startDate: DateTime(2024, 1, 1),
+        endDate: DateTime(2024, 2, 1),
+        conversationUk3: 'C2C_100_200',
+        conversationTitle: 'conversation',
+      );
+      final reset = state.resetFilters();
+      expect(reset.startDate, isNull);
+      expect(reset.endDate, isNull);
+      expect(reset.hasActiveFilters(), isFalse);
+      expect(reset.conversationUk3, 'C2C_100_200');
+      expect(reset.conversationTitle, 'conversation');
+    });
+
+    test('copyWith can explicitly clear conversation scope', () {
+      const state = MessageSearchState(
+        conversationUk3: 'C2C_100_200',
+        conversationTitle: 'conversation',
+      );
+      final reset = state.copyWith(
+        conversationUk3: null,
+        conversationTitle: null,
+      );
+      expect(reset.conversationUk3, isNull);
+      expect(reset.conversationTitle, isNull);
+    });
   });
 }

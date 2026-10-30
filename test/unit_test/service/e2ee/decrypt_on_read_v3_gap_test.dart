@@ -288,6 +288,39 @@ void main() {
   });
 
   group('decrypt-on-read v3 正向可用性（生产入口 toTypeMessage）', () {
+    test('编辑后的 SQLite 行按明文 Map 回读，保留原 E2EE 元数据', () async {
+      final row = await buildV3Row();
+      await db.execute('CREATE TABLE edit_probe (payload TEXT, e2ee TEXT)');
+      await db.insert('edit_probe', {
+        'payload': row['payload'],
+        'e2ee': jsonEncode(row['e2ee']),
+      });
+      await db.update('edit_probe', {
+        'payload': jsonEncode({
+          'text': 'edited synthetic text',
+          'is_edited': true,
+          'edited_at': 1753500001000,
+        }),
+      });
+      final stored = (await db.query('edit_probe')).single;
+      final model = MessageModel.fromJson({
+        ...stored,
+        'id': 'offline-v3-001',
+        'type': 'C2C',
+        'from_id': _senderUid,
+        'to_id': _myUid,
+        'msg_type': 'text',
+        'sender_did': _senderDid,
+      }, fromLocalStore: true);
+      final message = await model.toTypeMessage();
+
+      expect(model.payload, isA<Map<String, dynamic>>());
+      expect(model.e2ee, equals(row['e2ee']));
+      expect((message as TextMessage).text, 'edited synthetic text');
+      expect(message.metadata?['is_edited'], isTrue);
+      expect(stored['payload'], isNot(row['payload']));
+    });
+
     // 生产链路：MessageOfflineService._processOfflineMessages
     //   → MessageRepo.batchInsertOfflineMessages（密文原样落库 + sender_did 落列）
     //   → 读取时 MessageModelMapper.toTypeMessage()（本用例的被测入口）

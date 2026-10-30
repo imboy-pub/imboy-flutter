@@ -173,6 +173,34 @@ void main() {
     });
 
     group('消息批量处理', () {
+      test('仅为空 action 的 C2C v3 编辑恢复路由提示', () {
+        final message = <String, dynamic>{
+          'e2ee': {'meta_version': 3, 'relay_action': 'message_edit'},
+        };
+        expect(
+          MessageOfflineService.normalizeForReceive(message, 'C2C')['action'],
+          'message_edit',
+        );
+        expect(message.containsKey('action'), isFalse);
+        expect(
+          MessageOfflineService.normalizeForReceive(message, 'C2G')['action'],
+          isNull,
+        );
+        expect(
+          MessageOfflineService.normalizeForReceive({
+            'action': 'message',
+            ...message,
+          }, 'C2C')['action'],
+          'message',
+        );
+        expect(
+          MessageOfflineService.normalizeForReceive({
+            'e2ee': {'meta_version': 2, 'relay_action': 'message_edit'},
+          }, 'C2C')['action'],
+          isNull,
+        );
+      });
+
       test('REST 内部 id 必须被业务 msg_id 覆盖后再进入 PFv3', () {
         final source = <String, dynamic>{
           'id': 'database-row-id',

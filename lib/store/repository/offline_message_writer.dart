@@ -62,9 +62,17 @@ class OfflineMessageWriter {
     bool trustedArchive = false,
   }) async {
     if (messages.isEmpty) return null;
+    final user = UserRepoLocal.to;
+    final ownerUid = user.currentUid;
+    final generation = user.sessionGeneration;
     final session = trustedArchive ? authSessionReader.current : null;
     final endpoint = trustedArchive ? Env().apiBaseUrl : null;
     void requireCurrent() {
+      if (user.currentUid != ownerUid ||
+          !user.isCurrentSession(generation) ||
+          user.isAuthTransitioning) {
+        throw StateError('Offline session changed');
+      }
       if (session != null &&
           (!authSessionReader.isCurrent(session) ||
               Env().apiBaseUrl != endpoint)) {
@@ -229,7 +237,7 @@ class OfflineMessageWriter {
               int.tryParse((msgData['topic_id'] ?? 0).toString()) ?? 0;
 
           // 确定消息方向（是否为作者）
-          String currentUid = session?.uid ?? UserRepoLocal.to.currentUid;
+          String currentUid = session?.uid ?? ownerUid;
           bool isAuthor = fromId == currentUid;
 
           // 构建会话UK3
@@ -357,7 +365,12 @@ class OfflineMessageWriter {
         }
       }
       if (conversations.isNotEmpty) {
-        await _syncOfflineConversationsAndNotify(inserted, conversations);
+        await _syncOfflineConversationsAndNotify(
+          inserted,
+          conversations,
+          requireCurrent,
+        );
+        requireCurrent();
       }
       // 处理 S2C 消息（在事务外）
       if (s2cMessages.isNotEmpty) {
@@ -366,7 +379,9 @@ class OfflineMessageWriter {
         }
         func_helper.iPrint("开始处理 ${s2cMessages.length} 条 S2C 消息");
         for (final msgData in s2cMessages) {
+          requireCurrent();
           await onS2CMessage(msgData);
+          requireCurrent();
           addAckId((msgData['msg_id'] ?? msgData['id']).toString());
         }
       }
@@ -537,12 +552,17 @@ class OfflineMessageWriter {
   Future<void> _syncOfflineConversationsAndNotify(
     List<InsertedOfflineMessage> inserted,
     List<ConversationModel> conversations,
+    void Function() requireCurrent,
   ) async {
     // 后台入库没有页面监听；跨数据库等待时保留自动释放的会话状态。
     final container = getContainer();
     final subscription = container.listen(conversationProvider, (_, _) {});
     try {
-      await _publishOfflineConversations(inserted, conversations);
+      await _publishOfflineConversations(
+        inserted,
+        conversations,
+        requireCurrent,
+      );
     } finally {
       subscription.close();
     }
@@ -772,25 +792,31 @@ class OfflineMessageWriter {
   Future<void> _publishOfflineConversations(
     List<InsertedOfflineMessage> inserted,
     List<ConversationModel> conversations,
+    void Function() requireCurrent,
   ) async {
+    requireCurrent();
     final conversationNotifier = getContainer().read(
       conversationProvider.notifier,
     );
     for (final conv in conversations) {
+      requireCurrent();
       AppEventBus.fireData(conv);
+      requireCurrent();
       conversationNotifier.applyConversationSnapshot(conv);
     }
+    requireCurrent();
     final currentConversationUk3 = activeConversation() ?? '';
 
     if (currentConversationUk3.isNotEmpty) {
       for (final msg in inserted) {
         if (msg.conversationUk3 != currentConversationUk3) continue;
+        requireCurrent();
         try {
-          AppEventBus.fireData(
-            await msg.toMessageModel().toTypeMessage(),
-            'Message',
-          );
+          final message = await msg.toMessageModel().toTypeMessage();
+          requireCurrent();
+          AppEventBus.fireData(message, 'Message');
         } on Object catch (e, s) {
+          requireCurrent();
           AppLogger.error('[message_repo_sqlite] toMessageModel error', e, s);
         }
       }

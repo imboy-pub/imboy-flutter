@@ -232,6 +232,7 @@ class ChatPageState extends ConsumerState<ChatPage>
   bool _conversationInitialized = false;
   late User _peerUser; // 对方用户信息
   String? _editingMessageId; // 当前正在编辑的消息ID
+  int _editingGeneration = 0;
   bool _burnEnabled = false;
   int _burnAfterMs = 30000;
   StreamSubscription<dynamic>? _connectivitySubscription; // 网络状态监听
@@ -587,6 +588,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         chatInputKey: _chatInputKey,
         onEditingMessageIdChanged: (id) {
           _editingMessageId = id;
+          _editingGeneration++;
         },
         isMutedCheck: () => _isMuted,
       );
@@ -672,6 +674,7 @@ class ChatPageState extends ConsumerState<ChatPage>
         msgIds: msgIds,
         editingMessageIdSetter: (id) {
           _editingMessageId = id;
+          _editingGeneration++;
         },
         chatInputKey: _chatInputKey,
         isBurnMessageChecker: _isBurnMessage,
@@ -1528,9 +1531,7 @@ class ChatPageState extends ConsumerState<ChatPage>
 
   // 发送文本消息
   Future<bool> _handleSendPressed(String text) async {
-    iPrint(
-      'handleSendPressed 开始: text=$text, _editingMessageId=$_editingMessageId',
-    );
+    iPrint('handleSendPressed 开始: editing=$_editingMessageId');
 
     // slice-C-3a: 决策内核已抽到 send_mode_rules.dart 并有 14 个单测钉死优先级
     // (muted > debounce > edit > quote > new)。这里只保留 i18n toast / IO 副作用。
@@ -1551,14 +1552,22 @@ class ChatPageState extends ConsumerState<ChatPage>
         iPrint('消息发送防抖触发：距离上次发送不足 ${_sendDebounceDuration.inMilliseconds}ms');
         return false;
       case SendAsEdit(:final messageId):
-        iPrint('执行编辑消息: messageId=$messageId, newContent=$text');
+        iPrint('执行编辑消息: messageId=$messageId');
+        final editingGeneration = _editingGeneration;
+        final submittedText = _chatInputKey.currentState?.textController.text;
         final result = await MessagingFacade.instance.sendEditMessage(
           messageId,
           _chatType,
           text,
         );
         iPrint('编辑消息结果: $result');
-        _editingMessageId = null;
+        if (!mounted ||
+            editingGeneration != _editingGeneration ||
+            submittedText == null ||
+            _chatInputKey.currentState?.textController.text != submittedText) {
+          return false;
+        }
+        if (result) _editingMessageId = null;
         return result;
       case SendAsNewText():
         iPrint(t.chat.sendNewMessage);

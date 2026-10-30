@@ -226,12 +226,14 @@ void main() {
       expect(forwarded, isFalse);
     });
 
-    test('message_revoke_ack 清除重试后仍转发（发送方本机须转已撤回）', () async {
+    test('message_revoke_ack 转发业务层前不清除重试记录', () async {
       // 后端 c2c_revoke_ack 回给发起方的真实帧形：type=C2C + action。
       // 本机状态转换在 MessageActions._processRevokeAck 完成，传输层不得截断
       // （J18.c 真机复现：截断后服务端已确认而发送方气泡永不更新）。
-      final retryRemoved =
-          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
+      final removed = <RemoveFromRetryQueueRequestedEvent>[];
+      final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+          .listen(removed.add);
+      addTearDown(subscription.cancel);
       final forwardedEvent =
           AppEventBus.on<WebSocketMessageReceivedEvent>().first;
 
@@ -244,14 +246,30 @@ void main() {
         }),
       );
 
-      final removeEvent = await retryRemoved.timeout(
-        const Duration(seconds: 1),
-      );
       final event = await forwardedEvent.timeout(const Duration(seconds: 1));
-      expect(removeEvent.messageId, xid);
-      expect(removeEvent.reason, 'ws_action_ack');
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(removed, isEmpty);
       expect(event.type, 'C2C');
       expect(event.data['action'], 'message_revoke_ack');
+    });
+
+    test('message_edit_ack 转发业务层前不清除重试记录', () async {
+      final removed = <RemoveFromRetryQueueRequestedEvent>[];
+      final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+          .listen(removed.add);
+      addTearDown(subscription.cancel);
+      final forwarded = AppEventBus.on<WebSocketMessageReceivedEvent>().first;
+
+      svc.handleV2BinaryForTest(
+        _s2cFrame({'id': xid, 'type': 'C2C', 'action': 'message_edit_ack'}),
+      );
+
+      expect(
+        (await forwarded.timeout(const Duration(seconds: 1))).data['id'],
+        xid,
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(removed, isEmpty);
     });
 
     test('入站 0x03 二进制 ACK 帧仅日志忽略（服务端从不下发）', () {

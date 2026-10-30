@@ -21,6 +21,7 @@ import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/events/base_event.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/olm_session_service.dart';
+import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/store/api/olm_api.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -639,6 +640,7 @@ class E2EEService {
     // 外层 payload 为空串；v2 时 ciphertext 在顶层 payload。
     // 统一路由到此，按协议解密后 JSON 解码。
     final isMegolmGroup =
+        e2eeData['meta_version'] != 3 &&
         e2eeData['protocol'] == 'megolm' &&
         (e2eeData['gid']?.toString() ?? '').isNotEmpty;
     if (isMegolmGroup) {
@@ -710,9 +712,17 @@ class E2EEService {
         }
         // 将 per-device 信封提升为标准 v3 信封格式
         final envelope = <String, dynamic>{'meta_version': 3, ...myEnvelope};
-        return _decryptV3Payload(payload, envelope);
+        return _decryptV3Payload(
+          payload,
+          envelope,
+          trustedArchiveConvSeq: trustedArchiveConvSeq,
+        );
       }
-      return _decryptV3Payload(payload, e2eeData);
+      return _decryptV3Payload(
+        payload,
+        e2eeData,
+        trustedArchiveConvSeq: trustedArchiveConvSeq,
+      );
     }
 
     final e = e2ee.cast<String, dynamic>();
@@ -801,8 +811,9 @@ class E2EEService {
   /// 6. 返回 verified payload
   static Future<Map<String, dynamic>> _decryptV3Payload(
     Map<String, dynamic> payload,
-    Map<String, dynamic> envelope,
-  ) async {
+    Map<String, dynamic> envelope, {
+    int? trustedArchiveConvSeq,
+  }) async {
     // 1. 资源边界（PF3-08）
     try {
       ProtectedFrameV3.validateEnvelopeBounds(envelope);
@@ -895,7 +906,10 @@ class E2EEService {
         frameJson: jsonEncode(payload),
       );
       if (staged == InboundStageResult.replay) {
-        return _decryptFailedPayload(payload, reason: 'duplicate_message');
+        return _decryptFailedPayload(
+          payload,
+          reason: 'inbound_identity_conflict',
+        );
       }
       if (staged == InboundStageResult.processed) {
         return _decryptFailedPayload(payload, reason: 'already_processed');
@@ -908,6 +922,25 @@ class E2EEService {
     try {
       final recovered = await store.loadInboundResult(messageId);
       if (recovered != null) {
+        if (outerHeader['protocol'] == 'megolm' &&
+            outerHeader['scope'] == 'group') {
+          final rawSeq = payload['conv_seq'] ?? trustedArchiveConvSeq;
+          final convSeq = rawSeq is int
+              ? rawSeq
+              : int.tryParse(rawSeq?.toString() ?? '');
+          try {
+            await GroupSessionService.to.enforceRestoredHistoryGrant(
+              outerHeader['conversation_id'].toString(),
+              outerHeader['session_ref'].toString(),
+              convSeq,
+            );
+          } on StateError {
+            return _decryptFailedPayload(
+              payload,
+              reason: 'historical_room_key_scope_denied',
+            );
+          }
+        }
         innerFrameB64 = recovered;
       } else {
         // 协议路由：从 protocol_metadata 中解析 suite
@@ -918,7 +951,13 @@ class E2EEService {
           'message_id': messageId,
           'inbox_scope': inboxScope,
           'ciphertext_digest': ciphertextDigest,
-        };
+        }..remove('history_conv_seq');
+        if (outerHeader['protocol'] == 'megolm') {
+          final trustedConvSeq = payload['conv_seq'] ?? trustedArchiveConvSeq;
+          if (trustedConvSeq != null) {
+            metadata['history_conv_seq'] = trustedConvSeq;
+          }
+        }
         final ciphertextStr = utf8.decode(base64Url.decode(ciphertextB64));
         innerFrameB64 = await E2eeProtocolRegistry.resolve(metadata)
             .decrypt(ciphertext: ciphertextStr, metadata: metadata);
@@ -1070,6 +1109,13 @@ class E2EEService {
       return 'msg_type';
     }
 
+    final payloadAction = payload['action']?.toString() ?? '';
+    final headerAction = outerHeader['action']?.toString() ?? '';
+    if ((payloadAction == 'message_edit' || headerAction == 'message_edit') &&
+        payloadAction != headerAction) {
+      return 'action';
+    }
+
     // 6. sender_did
     final payloadDid = payload['sender_did']?.toString() ?? '';
     final headerDid = outerHeader['sender_did']?.toString() ?? '';
@@ -1084,6 +1130,11 @@ class E2EEService {
       final headerSessionRef = outerHeader['session_ref']?.toString() ?? '';
       if (payloadSessionId != headerSessionRef) {
         return 'session_id';
+      }
+      if (payloadType == 'C2G' &&
+          outerHeader['protocol'] == 'megolm' &&
+          protoMeta['gid']?.toString() != headerConvId) {
+        return 'gid';
       }
     } else {
       return 'session_id';

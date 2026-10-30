@@ -75,6 +75,33 @@ void main() {
         'hello',
       );
     });
+
+    test('非字符串字段和解密失败占位不参与索引', () {
+      expect(
+        MessageFtsRepo.extractTextContent('text', {
+          'text': {'ciphertext': 'secret'},
+        }),
+        '',
+      );
+      expect(
+        MessageFtsRepo.extractTextContent('quote', {'quote_text': 42}),
+        '',
+      );
+      expect(
+        MessageFtsRepo.extractTextContent('location', {
+          'title': ['secret'],
+          'address': ' 地址 ',
+        }),
+        '地址',
+      );
+      expect(
+        MessageFtsRepo.extractTextContent('text', {
+          '_e2ee_failed': true,
+          'text': 'placeholder',
+        }),
+        '',
+      );
+    });
   });
 
   group('FtsSearchResult', () {

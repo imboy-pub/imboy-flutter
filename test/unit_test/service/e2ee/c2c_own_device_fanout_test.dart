@@ -44,16 +44,20 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../vodozemac_native_lib.dart';
+import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 /// claim 连接层失败 adapter：模拟离线设备 claim 不上 OTK 的瞬态网络错误
 /// （避免测试环境真实网络请求触发 token 过期登出等副作用）。
 class _ClaimConnFailAdapter implements HttpClientAdapter {
+  final requests = <Uri>[];
+
   @override
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
     Future<void>? cancelFuture,
   ) async {
+    requests.add(options.uri);
     throw DioException.connectionError(
       requestOptions: options,
       reason: 'connection refused (test)',
@@ -159,7 +163,7 @@ void main() {
     targetInbound.clear();
     OlmSessionService.to.resetForTest();
     OlmSessionService.debugMarkVodReady(); // 测试进程已自行 vod.init(libraryPath)
-    db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+    db = await openFixtureDatabaseAtVersion(version: 32);
     await CryptoStore(db).ensureSchema();
     SqliteService.setDbForTest(db);
 
@@ -247,6 +251,46 @@ void main() {
     expect(pending, isNotEmpty);
   });
 
+  test('加密编辑 outbox 保留与发送载荷一致的路由元数据', () async {
+    E2EEService.setUserDeviceKeyCacheForTest(peerUid, {peerDid: 'PEM-B1'});
+    E2EEService.setUserDeviceKeyCacheForTest(myUid, {
+      myDid: 'PEM-A1',
+      selfOtherDid: 'PEM-A2',
+    });
+    E2EEService.debugOlmDeviceListLoader = (uid) async => [
+      {'device_id': uid == peerUid ? peerDid : selfOtherDid},
+    ];
+
+    final result = await ChatNetworkService().encryptPayload(
+      chatType: 'C2C',
+      toId: peerUid,
+      plaintextMap: const {
+        'original_msg_id': 'original-edit-id',
+        'content': 'synthetic edit',
+      },
+      action: 'message_edit',
+      messageId: 'msg-edit-outbox',
+      messageType: 'text',
+    );
+    final stored = await CryptoStore(db).getOutboxEntry('msg-edit-outbox');
+    final saved = jsonDecode(stored!['payload'] as String);
+    expect(saved, equals(result));
+    expect(saved['e2ee']['edit_of'], 'original-edit-id');
+    expect(saved['e2ee']['relay_action'], 'message_edit');
+    final senderEcho = await E2EEService.decryptIncomingPayload(
+      payload: {
+        'id': 'msg-edit-outbox',
+        'type': 'C2C',
+        'from': myUid,
+        'to': peerUid,
+        'action': 'message_edit',
+        ...result!,
+      },
+    );
+    expect(senderEcho['_e2ee_failed'], isTrue);
+    expect(senderEcho['_e2ee_reason'], 'no_device_envelope');
+  });
+
   test('AC-16: peer 与 self 各目标信封各自可解出同一 payload', () async {
     E2EEService.setUserDeviceKeyCacheForTest(peerUid, {peerDid: 'PEM-B1'});
     E2EEService.setUserDeviceKeyCacheForTest(myUid, {
@@ -296,7 +340,7 @@ void main() {
 
   test('AC-16: 缺钥设备（瞬态 claim 失败）明确跳过，不阻塞其他设备', () async {
     // b-offline 在 userKeys 与 Olm 列表中（能力合规），但无播种 session，
-    // claim 走真实 HTTP → 测试环境必然瞬态失败 → 必须被明确跳过。
+    // claim 由测试适配器模拟瞬态失败，必须被明确跳过。
     const offlineDid = 'b-offline';
     E2EEService.setUserDeviceKeyCacheForTest(peerUid, {
       peerDid: 'PEM-B1',
@@ -311,7 +355,8 @@ void main() {
       {'device_id': offlineDid},
       {'device_id': selfOtherDid},
     ];
-    HttpClient.adapterForTest = _ClaimConnFailAdapter();
+    final adapter = _ClaimConnFailAdapter();
+    HttpClient.adapterForTest = adapter;
 
     final result = await ChatNetworkService().encryptPayload(
       chatType: 'C2C',
@@ -320,6 +365,12 @@ void main() {
       action: '',
       messageId: 'msg-ac16-003',
       messageType: 'text',
+    );
+
+    expect(adapter.requests, isNotEmpty);
+    expect(
+      adapter.requests.every((uri) => uri.path == '/api/v1/e2ee/olm/claim'),
+      isTrue,
     );
 
     // 其他设备正常投递

@@ -16,8 +16,12 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_repository.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart'
+    show ftsTextContentSql;
+import 'package:synchronized/synchronized.dart';
 
 class MessageRepo implements MessageRepository {
+  static final _ftsReindexLock = Lock();
   final _ftsReindexTasks = <Future<void>>{};
 
   @visibleForTesting
@@ -195,6 +199,9 @@ class MessageRepo implements MessageRepository {
   // 插入一条数据
   @override
   Future<MessageModel> insert(MessageModel msg, {Transaction? txn}) async {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = session.sessionGeneration;
     // 数据验证
     if (!_validateMessageData(msg)) {
       throw ArgumentError('Invalid message data');
@@ -260,16 +267,11 @@ class MessageRepo implements MessageRepository {
         await _db.insert(targetTableName, insert);
       }
 
-      // 同步写入 FTS 索引（异步，不阻塞消息插入）
-      unawaited(
-        _indexMessageToFts(
-          type: msgType,
-          id: msg.id,
-          conversationUk3: msg.conversationUk3,
-          msgTypeField: msg.msgType ?? '',
-          payload: msg.payloadMap,
-        ),
-      );
+      if (session.currentUid == ownerUid &&
+          session.isCurrentSession(generation) &&
+          !session.isClearingSession) {
+        _scheduleFtsReindex(msg.id, targetTableName);
+      }
     } else {
       if (kDebugMode) {}
     }
@@ -302,6 +304,20 @@ class MessageRepo implements MessageRepository {
     updateData.remove(MessageRepo.autoId);
 
     func_helper.iPrint("message_repo/update $tableName ;");
+    final bool ftsTracked =
+        (tableName == MessageRepo.c2cTable ||
+            tableName == MessageRepo.c2gTable) &&
+        msgId.isNotEmpty &&
+        (updateData.containsKey(MessageRepo.payload) ||
+            updateData.containsKey(MessageRepo.status));
+    // v37（<38）：FTS 索引全部经由会话守卫的延迟重索引任务维护，保证
+    // 账号切换后零语句、事务内 FTS 可见性不变、回滚零残留。但 contentless
+    // FTS 无法事后回查列值，清索引需要行更新**之前**的旧文本，因此这里
+    // 仅预读旧值（best-effort，读不到时任务退化为按当前行值清理）。
+    _FtsRowSnapshot? ftsOldRow;
+    if (ftsTracked && txn == null) {
+      ftsOldRow = await _ftsReadRowSnapshot(msgId);
+    }
     final int updatedRows;
     if (txn != null) {
       updatedRows = await txn.update(
@@ -320,16 +336,92 @@ class MessageRepo implements MessageRepository {
     }
     // Re-read only after a successful write, retaining the original session.
     if (updatedRows > 0 &&
-        updateData.containsKey(MessageRepo.payload) &&
-        msgId.isNotEmpty &&
+        ftsTracked &&
         session.currentUid == ownerUid &&
         session.isCurrentSession(generation) &&
         !session.isClearingSession) {
-      final task = _reindexFtsAfterPayloadUpdate(msgId);
-      _ftsReindexTasks.add(task);
-      unawaited(task.whenComplete(() => _ftsReindexTasks.remove(task)));
+      _scheduleFtsReindex(
+        msgId,
+        tableName,
+        oldText: ftsOldRow?.textContent,
+        oldConversationUk3: ftsOldRow?.conversationUk3,
+      );
     }
     return updatedRows;
+  }
+
+  /// 预读消息行旧值（清 contentless 索引行所需），失败返回 null。
+  Future<_FtsRowSnapshot?> _ftsReadRowSnapshot(String msgId) async {
+    try {
+      final rows = await _db.rawQuery(
+        'SELECT ${MessageRepo.autoId}, ${MessageRepo.payload}, '
+        '${MessageRepo.msgType}, ${MessageRepo.conversationUk3} '
+        'FROM $tableName WHERE ${MessageRepo.id} = ?',
+        [msgId],
+        false,
+      );
+      if (rows.isEmpty) return null;
+      final row = rows.first;
+      Map<String, dynamic> payloadMap = {};
+      final rawPayload = row[MessageRepo.payload];
+      if (rawPayload is String && rawPayload.isNotEmpty) {
+        try {
+          final decoded = jsonDecode(rawPayload);
+          if (decoded is Map<String, dynamic>) payloadMap = decoded;
+        } on Object {
+          // 非法 JSON：按空 payload 处理
+        }
+      }
+      return _FtsRowSnapshot(
+        textContent: MessageFtsRepo.extractTextContent(
+          row[MessageRepo.msgType]?.toString() ?? '',
+          payloadMap,
+        ),
+        conversationUk3: row[MessageRepo.conversationUk3]?.toString() ?? '',
+      );
+    } on Object {
+      // 预读失败不阻断更新；延迟任务退化为按更新后的行值清理。
+      return null;
+    }
+  }
+
+  /// 按消息行**旧值**清掉既有 FTS 索引行（必须在行删除之前调用）。
+  ///
+  /// v37 基线的 FTS5 表是 contentless：优先按 rowid 直接 DELETE（常规
+  /// FTS5 表命中即删）；contentless 表 DELETE 命中行会抛错，此时回退为
+  /// `'delete'` 命令并从消息行读取原 payload/msg_type/status（与 v38
+  /// 触发器同源表达式，见 [ftsTextContentSql]）。全部为 best-effort：
+  /// 失败仅记录，不阻断主写入。
+  Future<void> _ftsRemoveStaleIndexEntry(String msgId) async {
+    final ftsTable = '${tableName}_fts';
+    final guard = '(SELECT user_version FROM pragma_user_version) < 38';
+    try {
+      final db = await _db.db;
+      if (db == null) return;
+      try {
+        await db.rawUpdate(
+          'DELETE FROM $ftsTable '
+          'WHERE rowid = (SELECT ${MessageRepo.autoId} FROM $tableName '
+          'WHERE ${MessageRepo.id} = ?) AND $guard',
+          [msgId],
+        );
+        return;
+      } on Object {
+        // contentless 表命中已有行时 DELETE 会抛错 → 回退 'delete' 命令。
+      }
+      await db.rawUpdate(
+        "INSERT INTO $ftsTable($ftsTable, rowid, id, conversation_uk3, text_content) "
+        "SELECT 'delete', ${MessageRepo.autoId}, ${MessageRepo.id}, "
+        '${MessageRepo.conversationUk3}, ${ftsTextContentSql('')} '
+        'FROM $tableName WHERE ${MessageRepo.id} = ? AND $guard',
+        [msgId],
+      );
+    } on Object catch (e) {
+      AppLogger.error(
+        '[message_repo_sqlite] FTS stale entry cleanup failed: '
+        'errType=${e.runtimeType}',
+      );
+    }
   }
 
   /// 【新增 H3】带条件的更新操作（CAS - Compare-And-Set）
@@ -602,6 +694,13 @@ class MessageRepo implements MessageRepository {
   // 根据ID删除信息
   @override
   Future<int> delete(String id) async {
+    // 行删除**之前**清 FTS 索引：contentless 索引无法事后回查列值，
+    // 'delete' 命令依赖行内旧 payload/msg_type/status 原值（见 v38 同源
+    // 表达式）。best-effort，失败不阻断删除。
+    if (tableName == MessageRepo.c2cTable ||
+        tableName == MessageRepo.c2gTable) {
+      await _ftsRemoveStaleIndexEntry(id);
+    }
     return await _db.delete(
       tableName,
       where: '${MessageRepo.id} = ?',
@@ -657,36 +756,62 @@ class MessageRepo implements MessageRepository {
     List<Map<String, dynamic>> messages, {
     Future<void> Function(Map<String, dynamic>)? onS2CMessage,
     bool trustedArchive = false,
-  }) => OfflineMessageWriter(
-    db: _db,
-    getContainer: () => _container,
-    activeConversation: () => _currentActiveConversationUk3,
-    resolveTable: getTableName,
-    indexMessage: (msg) => _indexMessageToFts(
-      type: msg.type,
-      id: msg.id,
-      conversationUk3: msg.conversationUk3,
-      msgTypeField: msg.msgType,
-      payload: msg.payload is Map<String, dynamic>
-          ? msg.payload as Map<String, dynamic>
-          : <String, dynamic>{},
-    ),
-    // W8-B4：注入本 repo 的权威顺序事实补齐实现，替代 writer 直接
-    // import message_repo_sqlite（消除 repo 层循环依赖）。
-    backfillServerOrderFacts: (msgId, {convSeq, acceptedAt, txn}) =>
-        backfillServerOrderFacts(
-          msgId: msgId,
-          convSeq: convSeq,
-          acceptedAt: acceptedAt,
-          txn: txn,
-        ),
-  ).write(messages, onS2CMessage: onS2CMessage, trustedArchive: trustedArchive);
+  }) {
+    final session = UserRepoLocal.to;
+    final ownerUid = session.currentUid;
+    final generation = session.sessionGeneration;
+    return OfflineMessageWriter(
+      db: _db,
+      getContainer: () => _container,
+      activeConversation: () => _currentActiveConversationUk3,
+      resolveTable: getTableName,
+      indexMessage: (msg) async {
+        if (session.currentUid != ownerUid ||
+            !session.isCurrentSession(generation) ||
+            session.isClearingSession) {
+          return;
+        }
+        _scheduleFtsReindex(msg.id, getTableName(msg.type));
+      },
+      // W8-B4：注入本 repo 的权威顺序事实补齐实现，替代 writer 直接
+      // import message_repo_sqlite（消除 repo 层循环依赖）。
+      backfillServerOrderFacts: (msgId, {convSeq, acceptedAt, txn}) =>
+          backfillServerOrderFacts(
+            msgId: msgId,
+            convSeq: convSeq,
+            acceptedAt: acceptedAt,
+            txn: txn,
+          ),
+    ).write(
+      messages,
+      onS2CMessage: onS2CMessage,
+      trustedArchive: trustedArchive,
+    );
+  }
 
-  /// 将消息写入 FTS 索引（fire-and-forget，不阻塞主流程）
-  /// payload 更新后重索引 FTS（update 内异步触发，不阻塞主更新）。
-  /// update 只有 id+payload，回读一行补齐 conversation_uk3/msg_type
-  /// 后复用 [_indexMessageToFts]；索引函数自身幂等（先删后插）。
-  Future<void> _reindexFtsAfterPayloadUpdate(String id) async {
+  void _scheduleFtsReindex(
+    String id,
+    String targetTable, {
+    String? oldText,
+    String? oldConversationUk3,
+  }) {
+    if (targetTable != c2cTable && targetTable != c2gTable) return;
+    final task = _reindexFts(
+      id,
+      targetTable,
+      oldText: oldText,
+      oldConversationUk3: oldConversationUk3,
+    );
+    _ftsReindexTasks.add(task);
+    unawaited(task.whenComplete(() => _ftsReindexTasks.remove(task)));
+  }
+
+  Future<void> _reindexFts(
+    String id,
+    String targetTable, {
+    String? oldText,
+    String? oldConversationUk3,
+  }) async {
     final session = UserRepoLocal.to;
     final uid = session.currentUid;
     final generation = session.sessionGeneration;
@@ -695,53 +820,52 @@ class MessageRepo implements MessageRepository {
         session.isCurrentSession(generation) &&
         !session.isClearingSession;
     try {
-      if (!isCurrent()) return;
-      final row = await find(id);
-      if (row == null || !isCurrent()) return;
-      final ftsType = tableName == MessageRepo.c2cTable
-          ? 'C2C'
-          : tableName == MessageRepo.c2gTable
-          ? 'C2G'
-          : '';
-      if (ftsType.isEmpty) return;
-      await _indexMessageToFts(
-        type: ftsType,
-        id: id,
-        conversationUk3: row.conversationUk3,
-        msgTypeField: row.msgType ?? '',
-        payload: row.payloadMap,
-      );
+      await _ftsReindexLock.synchronized(() async {
+        if (!isCurrent()) return;
+        final repo = targetTable == tableName
+            ? this
+            : MessageRepo(tableName: targetTable);
+        final row = await repo.find(id);
+        if (row == null || !isCurrent()) return;
+        final ftsType = targetTable == MessageRepo.c2cTable ? 'C2C' : 'C2G';
+        final textContent = MessageFtsRepo.extractTextContent(
+          row.msgType ?? '',
+          row.payloadMap,
+        );
+        // 撤回状态区间 (30..39)，与 v38 FTS 表达式保持一致
+        final revoked =
+            row.status != null && row.status! >= 30 && row.status! < 40;
+        final fts = MessageFtsRepo();
+        if (revoked || textContent.isEmpty) {
+          // 撤回/无可索引文本：清掉既有索引行，而不是原样跳过
+          // （否则撤回/清空后的消息仍然可被搜到）。contentless FTS 的
+          // 'delete' 命令需要**建立索引时的原值**，因此优先使用行更新
+          // 前预读的旧文本/旧会话键；预读缺失时退化为当前行值
+          // （仅对"值未变"的撤回场景有效，旧文本已变的历史残留交由
+          // v38 重建收敛）。
+          await fts.removeFromIndex(
+            type: ftsType,
+            id: id,
+            conversationUk3: oldConversationUk3 ?? row.conversationUk3,
+            textContent: oldText ?? textContent,
+            rowid: row.autoId,
+          );
+          return;
+        }
+        await fts.indexMessage(
+          type: ftsType,
+          id: id,
+          conversationUk3: row.conversationUk3,
+          textContent: textContent,
+          rowid: row.autoId,
+        );
+      });
     } on Object catch (e) {
       AppLogger.error(
         '[message_repo_sqlite] FTS reindex after update failed: '
         'errType=${e.runtimeType}',
       );
     }
-  }
-
-  static Future<void> _indexMessageToFts({
-    required String type,
-    required String id,
-    required String conversationUk3,
-    required String msgTypeField,
-    required Map<String, dynamic> payload,
-  }) async {
-    final textContent = MessageFtsRepo.extractTextContent(
-      msgTypeField,
-      payload,
-    );
-    if (textContent.isEmpty) return;
-
-    // 确定 FTS 表类型
-    final ftsType = type.toUpperCase();
-    if (ftsType != 'C2C' && ftsType != 'C2G') return;
-
-    await MessageFtsRepo().indexMessage(
-      type: ftsType,
-      id: id,
-      conversationUk3: conversationUk3,
-      textContent: textContent,
-    );
   }
 
   // 记得及时关闭数据库，防止内存泄漏
@@ -772,6 +896,20 @@ class MessageRepo implements MessageRepository {
   @override
   Future<int> countMessagesWithUser(String peerId, {int? since}) =>
       _reader.countMessagesWithUser(peerId, since: since);
+}
+
+/// 行更新前预读的 FTS 相关旧值（contentless 索引清理依赖建索引时原值）。
+class _FtsRowSnapshot {
+  const _FtsRowSnapshot({
+    required this.textContent,
+    required this.conversationUk3,
+  });
+
+  /// 旧 payload/msg_type 抽取出的可索引文本。
+  final String textContent;
+
+  /// 旧会话键。
+  final String conversationUk3;
 }
 
 /// [MessageRepo.backfillServerOrderFacts] 的结果（R07 phase1）。

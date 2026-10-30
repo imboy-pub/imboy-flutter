@@ -53,39 +53,59 @@ void main() {
     });
   });
 
-  // 会话内搜索的过滤参数推导。
-  // C2G 的 uk3 是 `C2G_<currentUserId>_<groupId>`，群 id 在 parts[2]；
-  // 曾误取 parts[1]（当前用户 uid），真机实测发出
-  // `type=C2G&conversation_id=50`（50 是自己），群消息一条也搜不到。
   group('FtsApi.buildConversationFilter', () {
     test('C2G 取 parts[2] 作为 conversation_id（而非当前用户 uid）', () {
       final filter = FtsApi.buildConversationFilter(
         'C2G_50_104603643803863040',
+        '50',
       );
       expect(filter['type'], 'C2G');
       expect(filter['conversation_id'], 104603643803863040);
     });
 
-    test('C2C 不带 conversation_id（排序后无法区分对端）', () {
-      final filter = FtsApi.buildConversationFilter('C2C_1_50');
-      expect(filter['type'], 'C2C');
-      expect(filter.containsKey('conversation_id'), isFalse);
+    test('C2C 从任一参与者位置取对端', () {
+      expect(FtsApi.buildConversationFilter('C2C_1_50', '50'), {
+        'type': 'C2C',
+        'conversation_id': 1,
+      });
+      expect(FtsApi.buildConversationFilter('C2C_1_50', '1'), {
+        'type': 'C2C',
+        'conversation_id': 50,
+      });
     });
 
-    test('C2G 段数不足时只带 type，不臆造 id', () {
-      final filter = FtsApi.buildConversationFilter('C2G_50');
-      expect(filter['type'], 'C2G');
-      expect(filter.containsKey('conversation_id'), isFalse);
+    test('大整数按十进制准确传输', () {
+      final filter = FtsApi.buildConversationFilter(
+        'C2C_50_9007199254740993',
+        '50',
+      );
+      expect(filter['conversation_id'].toString(), '9007199254740993');
     });
 
-    test('系统会话只带 type', () {
-      final filter = FtsApi.buildConversationFilter('S2C_SYSTEM_50');
-      expect(filter['type'], 'S2C');
-      expect(filter.containsKey('conversation_id'), isFalse);
-    });
-
-    test('空串返回空过滤条件', () {
-      expect(FtsApi.buildConversationFilter(''), isEmpty);
+    test('无效、其他账号和不支持的会话不扩大搜索范围', () {
+      for (final scope in [
+        '',
+        'C2G_50',
+        'C2G_51_7',
+        'C2C_1_2',
+        'C2C_50_50',
+        'C2C_50_x',
+        'C2C_50_0',
+        'C2C_50_-1',
+        'C2C_50_3_extra',
+        'C2C_50_9223372036854775808',
+        'S2C_SYSTEM_50',
+      ]) {
+        expect(
+          () => FtsApi.buildConversationFilter(scope, '50'),
+          throwsFormatException,
+          reason: scope,
+        );
+      }
+      expect(
+        () => FtsApi.buildConversationFilter('C2C_1_50', ''),
+        throwsFormatException,
+      );
     });
   });
 }
