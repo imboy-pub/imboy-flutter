@@ -241,12 +241,21 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         if (uk3 != null && uk3.isNotEmpty) {
           final parts = uk3.split('_');
           if (parts.length >= 3) {
+            // uk3 = "<type>_<uid>_<peer>"：peer 只能取末段——曾把 uid 段一起
+            // 拼进 peerId 导致查找永失。查得到→replace；查不到说明行已被
+            // 外部删除（如退群 cleanData 先删行再广播 refresh_conversations），
+            // 内存表必须同步移除，否则陈旧条目滞留到下一次全量权威同步
+            // （J19.a：退出群聊后 30s 内该群会话应从列表消失）。
             final updatedConv = await ConversationRepo().findByPeerId(
-              parts[0],
-              parts.sublist(1).join('_'),
+              // 前缀归一为大写：历史上存在小写装配链（J19.a 根因），
+              // 对外查询一律按 DB 规范大写类型匹配。
+              parts.first.toUpperCase(),
+              parts.last,
             );
             if (updatedConv != null && updatedConv.id > 0) {
               await notifier.replace(updatedConv);
+            } else {
+              notifier.removeConversationFromMap(uk3);
             }
           }
         }

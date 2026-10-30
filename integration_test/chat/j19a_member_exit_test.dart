@@ -205,7 +205,15 @@ Future<void> _tapLeaveAndWaitDialog(WidgetTester t) async {
   await t.scrollUntilVisible(
     leave.first,
     200,
-    scrollable: find.byType(SingleChildScrollView).first,
+    // scrollUntilVisible 需要真 Scrollable（SingleChildScrollView 只是其容器，
+    // 直接传会在 controller 的类型转换处抛 TypeError）；取群设置页内首个
+    // Scrollable，避免命中路由下层（如会话列表）的滚动视图。
+    scrollable: find
+        .descendant(
+          of: find.byType(GroupDetailPage),
+          matching: find.byType(Scrollable),
+        )
+        .first,
   );
   await settle(t, maxSeconds: 1);
   expect(leave, findsWidgets, reason: '普通成员的群设置页应有「$_leaveLabel」按钮');

@@ -150,7 +150,11 @@ class GroupDetailService {
     } else {
       // 即使会话不存在，也要确保消息被删除（兜底逻辑）
       final tb = MessageRepo.getTableName('C2G');
-      final uk3 = "c2g_${UserRepoLocal.to.currentUid}_$gid";
+      // 会话/消息的 uk3 规范前缀为大写类型（与内存会话表键、DB
+      // conversation_uk3 列一致）；小写会让 deleteByConversationId 与
+      // refresh_conversations 的键匹配静默失配（J19.a：退群后会话条目
+      // 滞留 30s 不消失的根因）。
+      final uk3 = "C2G_${UserRepoLocal.to.currentUid}_$gid";
       await MessageRepo(tableName: tb).deleteByConversationId(uk3);
     }
 
@@ -169,7 +173,7 @@ class GroupDetailService {
     await GroupRepo().delete(gid);
 
     // 4. 触发会话列表刷新事件
-    final uk3 = "c2g_${UserRepoLocal.to.currentUid}_$gid";
+    final uk3 = "C2G_${UserRepoLocal.to.currentUid}_$gid";
     AppEventBus.fire(
       ChatExtendEvent(type: 'refresh_conversations', payload: {'uk3': uk3}),
     );
