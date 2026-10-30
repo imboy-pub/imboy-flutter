@@ -31,6 +31,20 @@ class ChannelCardMessageBuilder extends StatefulWidget {
       ChannelCardMessageBuilderState();
 }
 
+/// 把 metadata 摊平：业务字段优先取顶层，缺失时回落到嵌套的 `payload`。
+///
+/// 历史（≤2026-10-30）频道卡片是通过 `/chat/send_to` 的 `extra['msg']`
+/// 发出的，业务字段被包在 `payload` 里再落库（`buildForwardPayload` 原样
+/// 展开），而卡片渲染器只读顶层 —— 于是卡片点不动（`channel_id` 为空时
+/// 直接 return）。新发送已改为扁平形状（见 channel_share_payload.dart），
+/// 这里保留嵌套兜底，让**已发出的历史消息**同样可点可跳。
+Map<String, dynamic> _flatten(Map<String, dynamic>? metadata) {
+  if (metadata == null) return const <String, dynamic>{};
+  final nested = metadata['payload'];
+  if (nested is! Map) return metadata;
+  return <String, dynamic>{...Map<String, dynamic>.from(nested), ...metadata};
+}
+
 class ChannelCardMessageBuilderState extends State<ChannelCardMessageBuilder> {
   late Future<CustomMessage?> messageFuture;
 
@@ -66,6 +80,7 @@ class ChannelCardMessageBuilderState extends State<ChannelCardMessageBuilder> {
 
         final bool userIsAuthor = widget.user.id == msg.authorId;
         final isDark = Theme.of(context).brightness == Brightness.dark;
+        final meta = _flatten(msg.metadata);
 
         final Color bgColor = AppColors.getChatBubbleBackground(
           userIsAuthor,
@@ -86,11 +101,11 @@ class ChannelCardMessageBuilderState extends State<ChannelCardMessageBuilder> {
               : AppColors.lightTextSecondary;
         }
 
-        final channelId = parseModelString(msg.metadata?['channel_id']);
+        final channelId = parseModelString(meta['channel_id']);
         final channelName = parseModelString(
-          msg.metadata?['channel_name'] ?? msg.metadata?['content'],
+          meta['channel_name'] ?? meta['content'],
         );
-        final channelAvatar = parseModelString(msg.metadata?['channel_avatar']);
+        final channelAvatar = parseModelString(meta['channel_avatar']);
 
         return Container(
           decoration: BoxDecoration(
@@ -109,7 +124,7 @@ class ChannelCardMessageBuilderState extends State<ChannelCardMessageBuilder> {
                 GestureDetector(
                   onTap: () {
                     if (channelId.isEmpty) return;
-                    final messageId = msg.metadata?['message_id']?.toString();
+                    final messageId = meta['message_id']?.toString();
                     final article =
                         messageId != null &&
                         RegExp(r'^[1-9][0-9]*$').hasMatch(messageId);

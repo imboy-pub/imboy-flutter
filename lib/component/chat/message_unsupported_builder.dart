@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
@@ -63,7 +64,12 @@ class ImUnsupportedMessageBuilder extends StatelessWidget {
                         .withValues(alpha: 0.6),
                   ),
                 ),
-                if (displayType.isNotEmpty && displayType != 'unknown')
+                // 协议类型名只在调试包显示：线上用户看到的「(channel_message)」
+                // 是内部标识，既不可读也泄实现细节。排查走
+                // MessageTypeNormalizer 在识别到无效类型时打的 iPrint 日志。
+                if (kDebugMode &&
+                    displayType.isNotEmpty &&
+                    displayType != 'unknown')
                   Text(
                     '($displayType)',
                     style: context

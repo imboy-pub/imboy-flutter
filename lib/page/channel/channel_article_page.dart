@@ -423,7 +423,7 @@ class _ChannelArticlePageState extends ConsumerState<ChannelArticlePage> {
                 Navigator.pop(ctx);
                 context.push(
                   '/chat/send_to',
-                  extra: channelArticleShareExtra(widget.channelId, message),
+                  extra: channelPostShareExtra(widget.channelId, message),
                 );
               },
             ),

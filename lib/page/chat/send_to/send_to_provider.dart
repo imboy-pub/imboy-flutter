@@ -14,6 +14,7 @@ import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/message_type_constants.dart';
+import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/e2ee/attachment_forward.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee_service.dart';
@@ -109,10 +110,13 @@ class SendToNotifier extends Notifier<SendToState> {
   /// 顶层 msg_type 为空时服务端直接回 `action=invalid_message`，客户端
   /// `toTypeMessage` 也判为「msg_type 为空或无效」→ 消息显示「[无效消息类型]」
   /// 并进入无限重试（真机实测每 5~10s 重发一次，服务端每次都拒）。
+  ///
+  /// 历史别名（如 `channel_message`）在这里换成现役类型：转发不应把
+  /// 已废弃、无渲染器的值继续传播到新会话。
   @visibleForTesting
   static String resolveForwardMsgType(Map<String, dynamic>? sourceMetadata) {
     final raw = parseModelString(sourceMetadata?['msg_type']);
-    return raw.isEmpty ? 'text' : raw;
+    return raw.isEmpty ? 'text' : MessageTypeNormalizer.aliasOf(raw);
   }
 
   /// 目标会话的 payload 会不会被加密——与**真正决定出网加密的那一处**

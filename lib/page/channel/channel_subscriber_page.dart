@@ -24,6 +24,7 @@ import 'package:imboy/page/channel/channel_invitation_rules.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
+import 'package:imboy/page/channel/channel_share_payload.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -381,17 +382,7 @@ class _ChannelSubscriberPageState extends ConsumerState<ChannelSubscriberPage>
                 Navigator.pop(context);
                 context.push(
                   '/chat/send_to',
-                  extra: {
-                    'msg': {
-                      'msg_type': 'channel_card',
-                      'content': channel.name,
-                      'payload': {
-                        'channel_id': channel.id,
-                        'channel_name': channel.name,
-                        'channel_avatar': channel.avatar,
-                      },
-                    },
-                  },
+                  extra: channelCardShareExtra(channel),
                 );
               },
             ),

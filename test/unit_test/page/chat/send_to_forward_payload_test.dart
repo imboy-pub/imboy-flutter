@@ -64,6 +64,15 @@ void main() {
     test('msg_type 缺失 → 兜底 text', () {
       expect(SendToNotifier.resolveForwardMsgType({'text': 'hi'}), 'text');
     });
+
+    test('历史别名 channel_message → 现役 channel_card（不传播废弃类型）', () {
+      // 转发旧消息时若原样带出 channel_message，新会话里又是一条
+      // 「不支持的消息类型」；这里必须换成已注册渲染器的现役类型。
+      expect(
+        SendToNotifier.resolveForwardMsgType({'msg_type': 'channel_message'}),
+        'channel_card',
+      );
+    });
   });
 
   // FWDFIX：加密附件转发失败 → 用户可见文案映射（既有 i18n 机制）。

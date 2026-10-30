@@ -70,6 +70,25 @@ void main() {
       );
     });
 
+    test('历史别名 channel_message 归一为 channel_card', () {
+      // 旧版「频道消息 → 分享到聊天」写出的私有类型，全站没有 builder；
+      // 已落库的历史行与旧客户端产出都要靠这条别名救回，否则读回仍是
+      // 「不支持的消息类型 (channel_message)」。
+      expect(
+        MessageTypeNormalizer.normalize(
+          msgType: 'channel_message',
+          payload: {},
+        ),
+        equals('channel_card'),
+      );
+      expect(MessageTypeNormalizer.aliasOf('channel_message'), 'channel_card');
+      // 别名只认精确值，不做前缀/模糊匹配
+      expect(
+        MessageTypeNormalizer.aliasOf('channel_message_v2'),
+        'channel_message_v2',
+      );
+    });
+
     test('下划线命名应判定为 unsupported', () {
       expect(
         MessageTypeNormalizer.normalize(
@@ -295,6 +314,24 @@ void main() {
           rawMsgType: null,
         ),
         equals(''),
+      );
+    });
+
+    test('历史别名 channel_message 渲染为 channel_card', () {
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'unsupported',
+          rawMsgType: 'channel_message',
+        ),
+        equals('channel_card'),
+      );
+      // 旧行的 effective_msg_type 也可能被写成 unsupported，raw 是真值来源
+      expect(
+        MessageTypeNormalizer.renderType(
+          effectiveMsgType: 'channel_message',
+          rawMsgType: '',
+        ),
+        equals('channel_card'),
       );
     });
   });

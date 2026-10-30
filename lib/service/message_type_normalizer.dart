@@ -17,6 +17,27 @@ class MessageTypeNormalizer {
   /// 私有构造函数，防止实例化
   MessageTypeNormalizer._();
 
+  /// 历史/外来类型 → 现役类型的别名表（只做渲染兼容，不是可发送类型）。
+  ///
+  /// `channel_message`：2026-10-30 之前「频道消息 → 分享到聊天」写出的私有
+  /// msg_type，全站没有为它注册 builder —— 发送方自己与接收方都只能看到
+  /// 「不支持的消息类型 (channel_message)」。发送侧已改为 `channel_card`
+  /// （见 page/channel/channel_share_payload.dart），此处把**已落库的历史行**
+  /// 与旧客户端产出的值归一到同一渲染器，读回不再是「不支持」。
+  ///
+  /// 别名刻意不进 `MessageType.allTypes`：它不合法、不可发送、可随时移除。
+  static const Map<String, String> _legacyAliases = <String, String>{
+    MessageType.legacyChannelMessage: MessageType.channelCard,
+  };
+
+  /// 归一历史别名（不做有效性校验）。
+  ///
+  /// 供转发链路使用：把旧消息的 `channel_message` 换成现役类型再发出去，
+  /// 避免继续把不可渲染的值传播给对端。
+  static String aliasOf(String type) => _alias(type.trim());
+
+  static String _alias(String type) => _legacyAliases[type] ?? type;
+
   /// 归一化消息类型。
   ///
   /// 仅处理命名规范与有效性，不再依赖 payload 内的子类型字段。
@@ -24,7 +45,7 @@ class MessageTypeNormalizer {
     required String? msgType,
     required Map<String, dynamic>? payload,
   }) {
-    final type = msgType?.trim() ?? '';
+    final type = _alias(msgType?.trim() ?? '');
     if (type.isEmpty) {
       iPrint('⚠️ [MessageTypeNormalizer] msgType 为空');
       return MessageType.unsupported;
@@ -77,11 +98,11 @@ class MessageTypeNormalizer {
     required String? effectiveMsgType,
     required String? rawMsgType,
   }) {
-    final raw = rawMsgType?.trim() ?? '';
+    final raw = _alias(rawMsgType?.trim() ?? '');
     if (raw.isNotEmpty && raw != MessageType.unsupported && _isValidType(raw)) {
       return _canonical(raw);
     }
-    final effective = effectiveMsgType?.trim() ?? '';
+    final effective = _alias(effectiveMsgType?.trim() ?? '');
     if (effective.isNotEmpty &&
         effective != MessageType.unsupported &&
         _isValidType(effective)) {

@@ -23,6 +23,7 @@ import 'package:imboy/store/api/channel_api.dart';
 
 import 'channel_detail_rules.dart';
 import 'channel_provider.dart';
+import 'channel_share_payload.dart';
 import 'channel_view_tracker.dart';
 import 'widgets/channel_header_bar.dart';
 import 'widgets/channel_overflow_menu.dart';
@@ -443,18 +444,7 @@ class _ChannelDetailPageState extends ConsumerState<ChannelDetailPage>
                 if (state.channel != null) {
                   context.push(
                     '/chat/send_to',
-                    extra: {
-                      'msg': {
-                        'msg_type': 'channel_card',
-                        'content': state.channel!.name,
-                        'payload': {
-                          'channel_id': state.channel!.id,
-                          'channel_name': state.channel!.name,
-                          'channel_avatar': state.channel!.avatar,
-                          'subscriber_count': state.channel!.subscriberCount,
-                        },
-                      },
-                    },
+                    extra: channelCardShareExtra(state.channel!),
                   );
                 }
               },

@@ -465,7 +465,13 @@ extension MessageModelMapper on MessageModel {
         effectiveMsgType == MessageType.webrtcVideo ||
         effectiveMsgType == MessageType.redPacket ||
         effectiveMsgType == MessageType.transfer ||
-        effectiveMsgType == MessageType.groupSchedule) {
+        effectiveMsgType == MessageType.groupSchedule ||
+        // 群协作卡另外三兄弟（投票/作业/公告）此前漏在这条白名单外，
+        // 落到下面的 unknown 分支被打上 `unknown_msg_type` 标记 ——
+        // 渲染虽仍能命中 builder，但「已知类型」被记成未知会误导排查。
+        effectiveMsgType == MessageType.groupVote ||
+        effectiveMsgType == MessageType.groupTask ||
+        effectiveMsgType == MessageType.groupNotice) {
       message = CustomMessage(
         authorId: author.id,
         id: safeId,
@@ -482,8 +488,9 @@ extension MessageModelMapper on MessageModel {
         metadata: {...metadata, ...payloadData},
       );
     } else {
-      // Fallback case for unknown message types
-      // 使用 unsupported 标识
+      // 真未知类型：只有既不在白名单也不被归一化器认可时才打 unsupported
+      // 标记。历史别名（如 channel_message → channel_card）在走到这里之前
+      // 已被 `effectiveMsgType` 归一，不会再落进本分支。
       message = CustomMessage(
         authorId: author.id,
         id: safeId,

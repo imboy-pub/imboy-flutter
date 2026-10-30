@@ -118,7 +118,16 @@ String messagePreviewText(
     case MessageType.talkRecordCard:
       return '[${t.talkRecord.entryTitle}]';
     case MessageType.channelCard:
-      return '[${t.chat.card}]';
+      // 频道名片/频道内容分享：会话列表优先显示频道名或内容摘要，
+      // 只有两者都缺时才退化成「名片」标签（否则分享一篇文章在列表里
+      // 只看到「[名片]」，看不出分享的是什么）。
+      final shown =
+          (body['content']?.toString() ??
+                  body['channel_name']?.toString() ??
+                  body['title']?.toString() ??
+                  '')
+              .trim();
+      return shown.isNotEmpty ? shown : '[${t.chat.card}]';
 
     case MessageType.custom:
     case MessageType.unsupported:

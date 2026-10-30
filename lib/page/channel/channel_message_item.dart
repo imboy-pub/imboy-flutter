@@ -29,6 +29,7 @@ import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 import 'channel_detail_rules.dart';
+import 'channel_share_payload.dart';
 
 import 'package:imboy/page/channel/widgets/channel_markdown.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -1041,16 +1042,10 @@ class _ChannelMessageItemState extends ConsumerState<ChannelMessageItem>
                 Navigator.pop(ctx);
                 context.push(
                   '/chat/send_to',
-                  extra: {
-                    'msg': {
-                      'msg_type': 'channel_message',
-                      'content': widget.message.contentPreview,
-                      'payload': {
-                        'channel_id': widget.channelId,
-                        'message_id': widget.message.id,
-                      },
-                    },
-                  },
+                  extra: channelPostShareExtra(
+                    widget.channelId,
+                    widget.message,
+                  ),
                 );
               },
             ),

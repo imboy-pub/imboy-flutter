@@ -181,6 +181,14 @@ abstract class MessageType {
   static const String channelCard = 'channel_card';
   static const String talkRecordCard = 'talk_record_card';
 
+  /// 历史私有类型：频道消息「分享到聊天」旧实现写出的值。
+  ///
+  /// **不可发送**（刻意不进 [allTypes]）：全站没有为它注册渲染器，
+  /// 收发双方只能看到「不支持的消息类型 (channel_message)」。
+  /// 现役口径是 [channelCard]；本常量只用于渲染/转发侧的历史值识别，
+  /// 见 `MessageTypeNormalizer` 的别名表。
+  static const String legacyChannelMessage = 'channel_message';
+
   /// 红包消息
   static const String redPacket = 'redPacket';
 

@@ -15,6 +15,7 @@ import 'package:imboy/plugins/contracts/message_type_plugin.dart';
 import 'package:imboy/plugins/registry/message_type_registry.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
+import 'package:imboy/service/message_preview_text.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -290,6 +291,16 @@ Widget messageMsgWidget(BuildContext context, Message msg, {Color? txtColor}) {
           ),
           errorBuilder: (context, error, stacktrace) =>
               const Icon(CupertinoIcons.exclamationmark_circle),
+        );
+      } else if (msg is CustomMessage) {
+        // 卡片类（频道名片/频道内容分享/红包/转账/群协作…）在引用块里没有
+        // 专属分支，此前一律渲染空占位 —— 引用一条卡片消息时引用区一片空白。
+        // 统一走 messagePreviewText（与会话列表同一可读摘要真源）。
+        content = Text(
+          messagePreviewText(effectiveMsgType, msg.metadata),
+          style: textStyle,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         );
       } else {
         content = const SizedBox.shrink();
