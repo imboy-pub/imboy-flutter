@@ -99,7 +99,18 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
   late WorkspaceAccessContext _context;
   int _generation = 0;
   int? _inFlight;
-  bool _active = false;
+
+  /// refresh 命中 in-flight 早退时置位：排队期间有新上下文到来，在途
+  /// 请求生命周期结束后补一刷。否则排队中的 refresh 被陈旧在途请求挡死
+  /// （build 重跑递增 _generation 使在途结果被静默丢弃，phase 永久滞留
+  /// unknown）。
+  bool _pendingRefresh = false;
+
+  /// 新实例默认激活：guard 首次 watch 即触发授权检查；「挂起」仍由
+  /// markEnvironmentSuspended 显式管理。此前默认 false 时，任何
+  /// contextReader 失效导致的 notifier 重建都会把 _active 归零且无人
+  /// 再 resume——授权永远停在 unknown（p1 嵌入夹具单测复现）。
+  bool _active = true;
   Object? _visibleOwner;
 
   @override
@@ -153,6 +164,7 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
     if (!ref.mounted) return;
     _generation++;
     _inFlight = null;
+    _pendingRefresh = false;
     _cancelTimers();
     state = WorkspaceAccessState(
       phase: revoked
@@ -176,7 +188,12 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
       _context = ref.read(workspaceAccessContextReaderProvider)();
       _invalidate();
     }
-    if (_inFlight != null) return;
+    if (_inFlight != null) {
+      // 排队期间有新上下文到来：在途请求结束后补一刷，避免被陈旧结果
+      // 丢弃后无人再刷新。
+      _pendingRefresh = true;
+      return;
+    }
     if (_context.uid.isEmpty ||
         target.workspaceId.isEmpty ||
         (target.resource.startsWith('channel:') && !_context.channelEnabled)) {
@@ -198,9 +215,16 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
     );
     try {
       final result = await _loadContent(generation, context);
-      if (!_matches(generation, context)) return;
+      if (!_matches(generation, context)) {
+        // 本请求已被判定陈旧（如 build 重跑递增 _generation），但排队者
+        // 的补刷诉求仍需满足——这是"排队 refresh 被陈旧在途挡死"的关键
+        // 恢复路径。
+        _drainPendingRefresh();
+        return;
+      }
       if (_deadlineReached) {
         _invalidate();
+        _drainPendingRefresh();
         return;
       }
       _inFlight = null;
@@ -215,12 +239,26 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
       state.deadline != null &&
       ref.read(workspaceAccessClockProvider)() >= state.deadline!;
 
+  /// 消费排队中的补刷诉求（只消费一次）。所有"请求生命周期结束"路径
+  /// 调用；被 _invalidate 判定的终态（short-circuit / revoked / 超时）
+  /// 已先清 pending，此处自然为 no-op，不构成循环。
+  void _drainPendingRefresh() {
+    if (!_pendingRefresh || !ref.mounted) return;
+    _pendingRefresh = false;
+    unawaited(refresh());
+  }
+
   void _handleFailure(
     int generation,
     WorkspaceAccessContext context,
     Object error,
   ) {
-    if (!_matches(generation, context)) return;
+    if (!_matches(generation, context)) {
+      // 请求已被判定陈旧：仍需满足排队者的补刷诉求（_loadContent 内部
+      // 检测到陈旧会抛异常走此路径，refresh() 的后置 matches 检查接不住）。
+      _drainPendingRefresh();
+      return;
+    }
     _inFlight = null;
     _requestTimer?.cancel();
     final code = error is WorkspaceApiException
@@ -248,6 +286,7 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
         ),
       );
     }
+    _drainPendingRefresh();
   }
 
   Future<({List<WorkspaceConversationModel> rows, ChannelModel? channel})>
@@ -323,6 +362,7 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
         _invalidate();
       }
     });
+    _drainPendingRefresh();
   }
 
   void _cancelTimers() {
