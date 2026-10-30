@@ -366,7 +366,7 @@ void main() {
 
         final json = conv.toJson();
 
-        expect(json['peer_id'], 1100);
+        expect(json['peer_id'], '1100');
         expect(json['title'], '测试用户');
         expect(json['unread_num'], 5);
         expect(json['type'], 'C2C');

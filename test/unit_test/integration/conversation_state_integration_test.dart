@@ -694,7 +694,7 @@ void main() {
         final json = conv.toJson();
 
         expect(json['id'], 1);
-        expect(json['peer_id'], 1401);
+        expect(json['peer_id'], '1401');
         expect(json['title'], 'JSON测试用户');
         expect(json['unread_num'], 3);
         // payload 可能是 JSON 字符串，也可能已是 Map（取决于当前模型实现）

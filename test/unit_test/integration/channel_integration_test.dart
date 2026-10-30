@@ -249,7 +249,7 @@ void main() {
           requestId: 'channel-publish-ci-1',
         );
         expect(message, isNotNull);
-        expect(message!.id, 5001);
+        expect(message!.id, '5001');
         final publishReq = api.lastRequest();
         expect(publishReq.path, '/api/v1/channel/1001/message');
         expect(
@@ -461,7 +461,7 @@ void main() {
       };
 
       final model = ChannelModel.fromJson(json);
-      expect(model.id, 1001);
+      expect(model.id, '1001');
       expect(model.name, 'Test Channel');
       expect(model.visibility, 0);
       expect(model.subscriberCount, 100);
@@ -469,7 +469,7 @@ void main() {
       expect(model.tags, ['news', 'tech']);
 
       final serialized = model.toJson();
-      expect(serialized['id'], 1001);
+      expect(serialized['id'], '1001');
       expect(serialized['name'], 'Test Channel');
     });
 
@@ -494,13 +494,13 @@ void main() {
       };
 
       final model = ChannelModel.fromJson(json);
-      expect(model.id, 987);
+      expect(model.id, '987');
       expect(model.name, 'Mixed Channel');
       expect(model.description, '12345');
       expect(model.avatar, isNull);
       expect(model.accessType, 1);
       expect(model.customId, '667');
-      expect(model.creatorId, 9001);
+      expect(model.creatorId, '9001');
       expect(model.subscriberCount, 88);
       expect(model.isVerified, isTrue);
       expect(model.tags, ['news', '9', 'true']);
@@ -527,8 +527,8 @@ void main() {
       };
 
       final model = ChannelMessageModel.fromJson(json);
-      expect(model.id, 123);
-      expect(model.channelId, 1001);
+      expect(model.id, '123');
+      expect(model.channelId, '1001');
       expect(model.authorName, 'Test User');
       expect(model.content, 'Hello, Channel!');
       expect(model.msgType, 'text');
@@ -549,8 +549,8 @@ void main() {
       };
 
       final model = ChannelMessageModel.fromJson(json);
-      expect(model.id, 456);
-      expect(model.channelId, 789);
+      expect(model.id, '456');
+      expect(model.channelId, '789');
       expect(model.content, '2468');
       expect(model.msgType, '1011');
       expect(model.isPinned, isTrue);
@@ -573,8 +573,8 @@ void main() {
         };
 
         final model = ChannelMessageModel.fromJson(json);
-        expect(model.id, 9901);
-        expect(model.channelId, 9902);
+        expect(model.id, '9901');
+        expect(model.channelId, '9902');
         expect(model.isPinned, isFalse);
         expect(model.viewCount, 1);
       },
@@ -595,12 +595,12 @@ void main() {
         };
 
         final model = ChannelSubscriptionModel.fromJson(json);
-        expect(model.channelId, 123);
+        expect(model.channelId, '123');
         expect(model.unreadCount, 8);
         expect(model.notificationsEnabled, isTrue);
         expect(model.isPinned, isTrue);
         expect(model.isMuted, isFalse);
-        expect(model.lastMessageId, 999);
+        expect(model.lastMessageId, '999');
         // 秒级时间戳应自动转换为毫秒级
         expect(model.lastReadAt?.millisecondsSinceEpoch, 1767225601000);
       },
