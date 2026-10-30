@@ -1145,9 +1145,28 @@ class ChatPageState extends ConsumerState<ChatPage>
                 0,
             animated: true, // 新消息使用动画
           );
+      if (sent) {
+        // 发送后显式回底：列表插件在「用户已滚动」分支只做 fling 动量滚动，
+        // 长列表下到不了底（J18.e 真机复现：新消息的引用条滞留视口外）。
+        // 立即回底一次；因插件 fling 与本动画会相互争抢（其衰减约 1s），
+        // 再在 fling 衰减后补一次回底，确保最终停在底部。
+        unawaited(_scrollToBottomAfterSend());
+      }
       return sent;
     } catch (e) {
       return false;
+    }
+  }
+
+  /// 发送成功后确定性回底（含插件 fling 衰减后的二次回底）。
+  Future<void> _scrollToBottomAfterSend() async {
+    try {
+      await ref.read(chatProvider.notifier).chatService?.scrollToBottom();
+      await Future<void>.delayed(const Duration(milliseconds: 900));
+      if (!mounted) return;
+      await ref.read(chatProvider.notifier).chatService?.scrollToBottom();
+    } catch (e) {
+      // 滚动失败静默忽略（不影响发送结果）
     }
   }
 

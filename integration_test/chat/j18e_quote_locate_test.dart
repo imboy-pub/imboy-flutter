@@ -223,14 +223,21 @@ void main() {
     await settle(tester, maxSeconds: 5);
 
     // oracle：目标滚入视口，或给出可行动失败提示。二选一。
+    // 视口判定（0 ≤ top ≤ 屏高-留白）：定位落点由 scrollToMessage 的
+    // offset 决定，不做「高于旧预览位置」的相对比较——发送后确定性回底
+    // 会让旧 previewTop 失去锚定意义（J18.e 曾因旧锚定差 30px 误判）。
     final topsAfter = _topsOf(tester, previewFinder);
-    final targetVisible = topsAfter.any((top) => top < previewTop - 80);
+    final screenH =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    final targetVisible = topsAfter.any(
+      (top) => top >= 0 && top < screenH - 80,
+    );
     if (!targetVisible) {
       expect(
         tester.any(find.text('引用的消息不可用')),
         isTrue,
         reason:
-            '点击引用条后目标气泡未滚入视口（预览 top=$previewTop，'
+            '点击引用条后目标气泡未滚入视口（屏高=$screenH，'
             '点击后 tops=$topsAfter），也未出现可行动失败提示',
       );
     }
