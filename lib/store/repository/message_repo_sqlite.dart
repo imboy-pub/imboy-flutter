@@ -424,6 +424,53 @@ class MessageRepo implements MessageRepository {
     }
   }
 
+  /// 按 WHERE 范围批量清掉 FTS 索引行（必须在消息行删除**之前**调用，
+  /// 'delete' 命令需要从行内读取建索引时的原值）。
+  ///
+  /// 与 [_ftsRemoveStaleIndexEntry] 同构的双分支 best-effort：
+  /// 优先按 rowid 集合直接 DELETE（常规 FTS5 表命中即删）；contentless
+  /// 表命中已有行会抛错，此时回退为单条批量 `'delete'` 命令，从消息行
+  /// 读取原 payload/msg_type/status（与 v38 删除触发器同源表达式，见
+  /// [ftsTextContentSql]；`text_content != ''` 过滤与 v38 content view
+  /// 语义一致，只对建立过索引的行发 'delete'）。两条语句均带
+  /// `user_version < 38` guard：v38+ 由触发器自动跟随，此处为 no-op。
+  /// 失败仅记录，不阻断主删除。
+  Future<void> _ftsRemoveStaleIndexRange(
+    String where,
+    List<Object?> whereArgs,
+  ) async {
+    final ftsTable = '${tableName}_fts';
+    final guard = '(SELECT user_version FROM pragma_user_version) < 38';
+    try {
+      final db = await _db.db;
+      if (db == null) return;
+      try {
+        await db.rawUpdate(
+          'DELETE FROM $ftsTable '
+          'WHERE rowid IN (SELECT ${MessageRepo.autoId} FROM $tableName '
+          'WHERE $where) AND $guard',
+          whereArgs,
+        );
+        return;
+      } on Object {
+        // contentless 表命中已有行时 DELETE 会抛错 → 回退 'delete' 命令。
+      }
+      await db.rawUpdate(
+        "INSERT INTO $ftsTable($ftsTable, rowid, id, conversation_uk3, text_content) "
+        "SELECT 'delete', ${MessageRepo.autoId}, ${MessageRepo.id}, "
+        '${MessageRepo.conversationUk3}, ${ftsTextContentSql('')} '
+        'FROM $tableName WHERE ($where) '
+        "AND ${ftsTextContentSql('')} != '' AND $guard",
+        whereArgs,
+      );
+    } on Object catch (e) {
+      AppLogger.error(
+        '[message_repo_sqlite] FTS stale range cleanup failed: '
+        'errType=${e.runtimeType}',
+      );
+    }
+  }
+
   /// 【新增 H3】带条件的更新操作（CAS - Compare-And-Set）
   ///
   /// 用于防止竞态条件，只更新符合特定条件的记录
@@ -694,28 +741,41 @@ class MessageRepo implements MessageRepository {
   // 根据ID删除信息
   @override
   Future<int> delete(String id) async {
-    // 行删除**之前**清 FTS 索引：contentless 索引无法事后回查列值，
-    // 'delete' 命令依赖行内旧 payload/msg_type/status 原值（见 v38 同源
-    // 表达式）。best-effort，失败不阻断删除。
-    if (tableName == MessageRepo.c2cTable ||
-        tableName == MessageRepo.c2gTable) {
-      await _ftsRemoveStaleIndexEntry(id);
-    }
-    return await _db.delete(
-      tableName,
-      where: '${MessageRepo.id} = ?',
-      whereArgs: [id],
-    );
+    // 清索引 + 删行整体置于重索引锁内，与 _reindexFts 延迟任务互斥，
+    // 消除两个方向的窄竞态：①「入库→延迟索引」窗口内被（阅后即焚）删除，
+    // 任务随后把已删消息写回索引；②清理完成后、删行前，任务按旧行回写。
+    return _ftsReindexLock.synchronized(() async {
+      // 行删除**之前**清 FTS 索引：contentless 索引无法事后回查列值，
+      // 'delete' 命令依赖行内旧 payload/msg_type/status 原值（见 v38 同源
+      // 表达式）。best-effort，失败不阻断删除。
+      if (tableName == MessageRepo.c2cTable ||
+          tableName == MessageRepo.c2gTable) {
+        await _ftsRemoveStaleIndexEntry(id);
+      }
+      return _db.delete(
+        tableName,
+        where: '${MessageRepo.id} = ?',
+        whereArgs: [id],
+      );
+    });
   }
 
   // 根据UID删除信息
   @override
   Future<int> deleteByUid(String uid) async {
-    return await _db.delete(
-      tableName,
-      where: '${MessageRepo.from} = ? or ${MessageRepo.to} = ?',
-      whereArgs: [uid, uid],
-    );
+    // v37 基线的 contentless FTS 无删除触发器（v38+ 由触发器自动跟随，
+    // 本 repo 层语句带 user_version guard 为 no-op），范围删除必须在删行
+    // **之前**按同一 WHERE 批量清索引。清索引 + 删行整体置于重索引锁内，
+    // 互斥理由同 [delete]；单条 INSERT..SELECT 覆盖全部受影响行，避免
+    // 删联系人（消息量可能很大）时的逐行 N+1。
+    return _ftsReindexLock.synchronized(() async {
+      final where = '${MessageRepo.from} = ? or ${MessageRepo.to} = ?';
+      if (tableName == MessageRepo.c2cTable ||
+          tableName == MessageRepo.c2gTable) {
+        await _ftsRemoveStaleIndexRange(where, [uid, uid]);
+      }
+      return _db.delete(tableName, where: where, whereArgs: [uid, uid]);
+    });
   }
 
   @override
@@ -741,11 +801,15 @@ class MessageRepo implements MessageRepository {
 
   @override
   Future<int> deleteByConversationId(String uk3) async {
-    return await _db.delete(
-      tableName,
-      where: '${MessageRepo.conversationUk3} = ?',
-      whereArgs: [uk3],
-    );
+    // 退群清空会话消息：批量清索引 + 置于重索引锁内，理由同 [deleteByUid]。
+    return _ftsReindexLock.synchronized(() async {
+      final where = '${MessageRepo.conversationUk3} = ?';
+      if (tableName == MessageRepo.c2cTable ||
+          tableName == MessageRepo.c2gTable) {
+        await _ftsRemoveStaleIndexRange(where, [uk3]);
+      }
+      return _db.delete(tableName, where: where, whereArgs: [uk3]);
+    });
   }
 
   @override
