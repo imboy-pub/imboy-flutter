@@ -7,10 +7,11 @@ import 'package:imboy/component/helper/func.dart';
 
 /// 缓存条目
 class _CacheEntry {
+  final Database database;
   final List<Map<String, dynamic>> data;
   final int timestamp;
 
-  _CacheEntry(this.data, this.timestamp);
+  _CacheEntry(this.database, this.data, this.timestamp);
 }
 
 /// 带缓存的数据库查询服务
@@ -65,7 +66,7 @@ class CachedSqliteService {
     final cached = _queryCache[cacheKey];
     final now = DateTimeHelper.millisecond();
 
-    if (cached != null) {
+    if (cached != null && identical(cached.database, db)) {
       // 检查是否过期
       if (now - cached.timestamp <= ttl.inMilliseconds) {
         _cacheHits++;
@@ -83,7 +84,7 @@ class CachedSqliteService {
     final result = await db.rawQuery(sql, arguments);
 
     // 存入缓存
-    _putCache(cacheKey, result);
+    _putCache(cacheKey, db, result);
 
     return result;
   }
@@ -158,7 +159,7 @@ class CachedSqliteService {
   }
 
   /// 存入缓存（带 LRU 淘汰）
-  void _putCache(String key, List<Map<String, dynamic>> data) {
+  void _putCache(String key, Database db, List<Map<String, dynamic>> data) {
     // 如果缓存已满，移除最旧的条目
     if (_queryCache.length >= _maxCacheSize) {
       final oldestKey = _queryCache.entries
@@ -167,7 +168,7 @@ class CachedSqliteService {
       _queryCache.remove(oldestKey);
     }
 
-    _queryCache[key] = _CacheEntry(data, DateTimeHelper.millisecond());
+    _queryCache[key] = _CacheEntry(db, data, DateTimeHelper.millisecond());
   }
 
   /// 清理过期缓存

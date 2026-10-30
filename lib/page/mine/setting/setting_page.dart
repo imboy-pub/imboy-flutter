@@ -82,9 +82,10 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   /// 切换环境
   Future<void> switchEnvironment(String env) async {
     final storage = StorageService.to;
+    final userRepo = ref.read(userRepoProvider);
     await storage.setString('env', env);
     await storage.setBool('changedEnv', true);
-    await UserRepoLocal.to.quitLogin();
+    await userRepo.quitLogin();
     _restartApp();
   }
 
@@ -395,8 +396,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           ],
           onChanged: (value) {
             if (strNoEmpty(value)) {
-              currentEnv = value!;
-              switchEnvironment(currentEnv);
+              switchEnvironment(value!);
             }
           },
         ),
