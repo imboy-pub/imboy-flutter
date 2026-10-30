@@ -2,6 +2,7 @@ import 'dart:ui' show SemanticsAction;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:imboy/service/channel_service.dart';
@@ -293,8 +294,9 @@ void main() {
     final service = _NotificationService();
     final refresh = Completer<ChannelModel?>();
     when(() => service.getSubscription('1001')).thenAnswer((_) async => null);
-    when(() => service.refreshChannel('1001'))
-        .thenAnswer((_) => refresh.future);
+    when(
+      () => service.refreshChannel('1001', isCurrent: any(named: 'isCurrent')),
+    ).thenAnswer((_) => refresh.future);
     await tester.pumpWidget(
       TranslationProvider(
         child: ProviderScope(
@@ -318,12 +320,46 @@ void main() {
     );
   });
 
+  testWidgets('环境变化后重试返回不能对账到新环境', (tester) async {
+    final previousEnv = currentEnv;
+    addTearDown(() => currentEnv = previousEnv);
+    currentEnv = 'local';
+    final service = _NotificationService();
+    final refresh = Completer<ChannelModel?>();
+    when(() => service.getSubscription('1001')).thenAnswer((_) async => null);
+    when(
+      () => service.refreshChannel('1001', isCurrent: any(named: 'isCurrent')),
+    ).thenAnswer((_) => refresh.future);
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [channelServiceProvider.overrideWithValue(service)],
+          child: MaterialApp(
+            home: Scaffold(
+              body: ChannelHeaderBar(channel: _channel(subscribed: true)),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.text(t.common.retry));
+    await tester.pump();
+    currentEnv = 'dev';
+    refresh.complete(_channel(subscribed: true));
+    await tester.pump();
+    verifyNever(
+      () => service.syncSubscribedChannels(fromList: any(named: 'fromList')),
+    );
+  });
+
   testWidgets('对账等待中切换账号后不读取新账号配置', (tester) async {
     final service = _NotificationService();
     final sync = Completer<List<ChannelModel>>();
     when(() => service.getSubscription('1001')).thenAnswer((_) async => null);
-    when(() => service.refreshChannel('1001'))
-        .thenAnswer((_) async => _channel(subscribed: true));
+    when(
+      () => service.refreshChannel('1001', isCurrent: any(named: 'isCurrent')),
+    ).thenAnswer((_) async => _channel(subscribed: true));
     when(() => service.syncSubscribedChannels(fromList: any(named: 'fromList')))
         .thenAnswer((_) => sync.future);
     await tester.pumpWidget(
@@ -358,8 +394,9 @@ void main() {
             )
           : null,
     );
-    when(() => service.refreshChannel('1001'))
-        .thenAnswer((_) async => _channel(subscribed: true));
+    when(
+      () => service.refreshChannel('1001', isCurrent: any(named: 'isCurrent')),
+    ).thenAnswer((_) async => _channel(subscribed: true));
     when(() => service.syncSubscribedChannels(fromList: any(named: 'fromList')))
         .thenAnswer((_) async {
           repaired = true;

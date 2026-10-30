@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart';
 import 'package:imboy/page/channel/channel_snapshot_sync.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/event_bus.dart';
@@ -27,6 +29,16 @@ ChannelModel _channel(int id) => ChannelModel(
   createdAt: DateTime.utc(2026),
   updatedAt: DateTime.utc(2026),
 );
+
+class _TestEnv implements Env {
+  _TestEnv(this.apiBaseUrl);
+
+  @override
+  final String apiBaseUrl;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _Api extends ChannelApi {
   _Api(this.result);
@@ -277,6 +289,81 @@ void main() {
     expect(service.hasPendingSubscription('10'), isTrue);
   });
 
+  test('订阅通知回读等待时切账号不写入新账号数据库', () async {
+    final api = _DeferredChannelApi();
+    final service = ChannelService.forTest(
+      api: api,
+      repo: ChannelRepo(),
+      bindPublishDatabase: true,
+    );
+    final pending = service.handleChannelSubscribed({'channel_id': '10'});
+    await api.started.future;
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    SqliteService.setDbForTest(db);
+    api.response.complete(_channel(10).copyWith(isSubscribed: true));
+    await pending;
+    expect(await db.query(ChannelRepo.tableName), isEmpty);
+    expect(await db.query(ChannelRepo.subscriptionTableName), isEmpty);
+  });
+
+  test('迟到订阅通知回读未订阅时不重新创建关系', () async {
+    final api = _DeferredChannelApi();
+    final service = ChannelService.forTest(
+      api: api,
+      repo: ChannelRepo(),
+      bindPublishDatabase: true,
+    );
+    final pending = service.handleChannelSubscribed({'channel_id': '10'});
+    await api.started.future;
+    api.response.complete(_channel(10).copyWith(isSubscribed: false));
+    await pending;
+    expect(await db.query(ChannelRepo.subscriptionTableName), isEmpty);
+  });
+
+  test('订阅通知事务中会话失效时回滚频道及订阅', () async {
+    var current = true;
+    final api = _DeferredChannelApi();
+    final service = ChannelService.forTest(
+      api: api,
+      repo: _InvalidatingRepo(() => current = false),
+      bindPublishDatabase: true,
+      sessionValidForTest: () => current,
+    );
+    final pending = service.handleChannelSubscribed({'channel_id': '10'});
+    await api.started.future;
+    api.response.complete(_channel(10).copyWith(isSubscribed: true));
+    await pending;
+    expect(await db.query(ChannelRepo.tableName), isEmpty);
+    expect(await db.query(ChannelRepo.subscriptionTableName), isEmpty);
+  });
+
+  test('重复订阅通知不覆盖已有订阅配置', () async {
+    await syncChannelSnapshot(
+      repo: ChannelRepo(),
+      channels: [_channel(10)],
+      isCurrent: () => true,
+    );
+    await db.update(
+      ChannelRepo.subscriptionTableName,
+      {ChannelRepo.isMuted: 1},
+      where: '${ChannelRepo.subChannelId} = ?',
+      whereArgs: ['10'],
+    );
+    final api = _DeferredChannelApi();
+    final service = ChannelService.forTest(
+      api: api,
+      repo: ChannelRepo(),
+      bindPublishDatabase: true,
+    );
+    final pending = service.handleChannelSubscribed({'channel_id': '10'});
+    await api.started.future;
+    api.response.complete(_channel(10).copyWith(isSubscribed: true));
+    await pending;
+    final rows = await db.query(ChannelRepo.subscriptionTableName);
+    expect(rows, hasLength(1));
+    expect(rows.single[ChannelRepo.isMuted], 1);
+  });
+
   test('服务端已订阅但回读失败，重试只对账并恢复', () async {
     final api = _ReconcileSubscribeApi();
     final service = ChannelService.forTest(
@@ -360,6 +447,37 @@ void main() {
     expect(await db.query(ChannelRepo.subscriptionTableName), hasLength(1));
   });
 
+  test('退订写请求等待中切换服务来源不会删除本地订阅', () async {
+    final previousEnv = currentEnv;
+    envMap['subscription-test-a'] = _TestEnv('https://a.invalid');
+    envMap['subscription-test-b'] = _TestEnv('https://b.invalid');
+    currentEnv = 'subscription-test-a';
+    SqliteService.setDbForTest(db);
+    try {
+      await syncChannelSnapshot(
+        repo: ChannelRepo(),
+        channels: [_channel(10)],
+        isCurrent: () => true,
+      );
+      final api = _DeferredSubscriptionWriteApi();
+      final service = ChannelService.forTest(
+        api: api,
+        repo: ChannelRepo(),
+        bindPublishDatabase: true,
+      );
+      final pending = service.unsubscribeChannel('10');
+      await api.started.future;
+      currentEnv = 'subscription-test-b';
+      api.response.complete(true);
+      expect(await pending, isFalse);
+      expect(await db.query(ChannelRepo.subscriptionTableName), hasLength(1));
+    } finally {
+      currentEnv = previousEnv;
+      envMap.remove('subscription-test-a');
+      envMap.remove('subscription-test-b');
+    }
+  });
+
   test('订阅事务中会话失效时回滚频道和订阅', () async {
     var current = true;
     final api = _DeferredSubscriptionWriteApi();
@@ -407,6 +525,33 @@ void main() {
     expect(await pending, isEmpty);
     expect(await db.query(ChannelRepo.tableName), isEmpty);
     expect(await db.query(ChannelRepo.subscriptionTableName), isEmpty);
+  });
+
+  test('订阅列表等待时切换服务来源不写入本地数据', () async {
+    final previousEnv = currentEnv;
+    envMap['snapshot-test-a'] = _TestEnv('https://a.invalid');
+    envMap['snapshot-test-b'] = _TestEnv('https://b.invalid');
+    currentEnv = 'snapshot-test-a';
+    SqliteService.setDbForTest(db);
+    try {
+      final api = _DeferredSubscriptionsApi();
+      final service = ChannelService.forTest(
+        api: api,
+        repo: ChannelRepo(),
+        bindPublishDatabase: true,
+      );
+      final pending = service.syncSubscribedChannels();
+      await api.started.future;
+      currentEnv = 'snapshot-test-b';
+      api.response.complete([_channel(10)]);
+      expect(await pending, isEmpty);
+      expect(await db.query(ChannelRepo.tableName), isEmpty);
+      expect(await db.query(ChannelRepo.subscriptionTableName), isEmpty);
+    } finally {
+      currentEnv = previousEnv;
+      envMap.remove('snapshot-test-a');
+      envMap.remove('snapshot-test-b');
+    }
   });
 
   test('静音写入期间切账号回滚并返回失败', () async {

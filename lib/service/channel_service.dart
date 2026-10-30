@@ -1,4 +1,5 @@
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
@@ -86,10 +87,14 @@ class ChannelService {
       if (user.isAuthTransitioning) return [];
       final uid = user.currentUid;
       final generation = user.sessionGeneration;
+      final environment = currentEnv;
+      final origin = Env().apiBaseUrl;
       bool isCurrent() =>
           uid.isNotEmpty &&
           user.currentUid == uid &&
           user.isCurrentSession(generation) &&
+          currentEnv == environment &&
+          Env().apiBaseUrl == origin &&
           !user.isAuthTransitioning &&
           (sessionValidForTest?.call() ?? true);
       try {
@@ -384,10 +389,12 @@ class ChannelService {
       final user = UserRepoLocal.to;
       final uid = user.currentUid;
       final generation = user.sessionGeneration;
+      final source = Env().apiBaseUrl;
       bool isCurrent() =>
           !bindPublishDatabase ||
           (uid.isNotEmpty &&
               uid == user.currentUid &&
+              Env().apiBaseUrl == source &&
               user.isCurrentSession(generation) &&
               !user.isAuthTransitioning &&
               (sessionValidForTest?.call() ?? true));
@@ -1380,28 +1387,64 @@ class ChannelService {
       final channelId = parseModelString(data['channel_id']);
       if (channelId.isEmpty) return;
 
+      final user = UserRepoLocal.to;
+      final uid = user.currentUid;
+      final generation = user.sessionGeneration;
+      final environment = currentEnv;
+      final origin = Env().apiBaseUrl;
+      bool isCurrent() =>
+          !bindPublishDatabase ||
+          (uid.isNotEmpty &&
+              uid == user.currentUid &&
+              user.isCurrentSession(generation) &&
+              !user.isAuthTransitioning &&
+              currentEnv == environment &&
+              Env().apiBaseUrl == origin &&
+              (sessionValidForTest?.call() ?? true));
+      final db = bindPublishDatabase ? await SqliteService.to.db : null;
+      if (!isCurrent() || (bindPublishDatabase && db == null)) return;
+
       // 检查本地是否已有订阅；幂等：重复 S2C 不触发二次事件。
-      final existing = await repo.getSubscription(channelId);
-      if (existing != null) return;
+      if (db == null && await repo.getSubscription(channelId) != null) return;
 
       // 获取并保存频道信息
       final channel = await api.getChannel(channelId);
-      if (channel == null) return;
+      if (channel == null || !isCurrent()) return;
       // handleChannelUpdated 已有等价守卫：id=0 表示后端载荷异常/sentinel，
       // 写库会污染 channel/channel_subscription 两张表并可能触发 UI 跳转到
       // 无效详情页。
-      if (channel.id == '0') {
-        iPrint('ChannelService: 忽略 channel.id=0 的订阅通知 - $channelId');
+      if (channel.id == '0' ||
+          channel.id != channelId ||
+          !channel.isSubscribed) {
+        iPrint('ChannelService: 忽略无效的订阅通知回读 - $channelId');
         return;
       }
 
-      await repo.saveChannel(channel);
-      await repo.saveSubscription(
-        ChannelSubscriptionModel(
-          channelId: channelId,
-          subscribedAt: DateTime.now(),
-        ),
+      final subscription = ChannelSubscriptionModel(
+        channelId: channelId,
+        subscribedAt: DateTime.now(),
       );
+      if (db != null) {
+        final inserted = await db.transaction((txn) async {
+          if (!isCurrent()) throw StateError('stale channel session');
+          final existing = await txn.query(
+            ChannelRepo.subscriptionTableName,
+            columns: [ChannelRepo.subChannelId],
+            where: '${ChannelRepo.subChannelId} = ?',
+            whereArgs: [channelId],
+            limit: 1,
+          );
+          if (existing.isNotEmpty) return false;
+          await repo.saveChannel(channel, txn: txn);
+          await repo.saveSubscription(subscription, txn: txn);
+          if (!isCurrent()) throw StateError('stale channel session');
+          return true;
+        });
+        if (!inserted || !isCurrent()) return;
+      } else {
+        await repo.saveChannel(channel);
+        await repo.saveSubscription(subscription);
+      }
 
       AppEventBus.fire(
         ChannelStateChangedEvent(

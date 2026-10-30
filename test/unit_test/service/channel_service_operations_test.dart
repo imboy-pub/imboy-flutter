@@ -2033,6 +2033,7 @@ void main() {
           creatorId: 1,
           createdAt: now,
           updatedAt: now,
+          isSubscribed: true,
         );
         final api = _FakeChannelApi(channelByIdFromApi: channel);
         final svc = ChannelService.forTest(api: api, repo: repo);
@@ -2463,6 +2464,7 @@ void main() {
           creatorId: 1,
           createdAt: now,
           updatedAt: now,
+          isSubscribed: true,
         );
         final api = _FakeChannelApi(channelByIdFromApi: channel);
         final svc = ChannelService.forTest(api: api, repo: repo);

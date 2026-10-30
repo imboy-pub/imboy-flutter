@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/helper/func.dart';
@@ -103,18 +105,38 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     }
   }
 
-  ({String uid, int generation, String channelId}) _scope() => (
+  ({
+    String uid,
+    int generation,
+    String channelId,
+    String environment,
+    String origin,
+  })
+  _scope() => (
     uid: UserRepoLocal.to.currentUid,
     generation: UserRepoLocal.to.sessionGeneration,
     channelId: widget.channel.id,
+    environment: currentEnv,
+    origin: Env().apiBaseUrl,
   );
 
-  bool _isCurrent(({String uid, int generation, String channelId}) scope) {
+  bool _isCurrent(
+    ({
+      String uid,
+      int generation,
+      String channelId,
+      String environment,
+      String origin,
+    })
+    scope,
+  ) {
     final user = UserRepoLocal.to;
     return mounted &&
         widget.channel.id == scope.channelId &&
         widget.channel.isSubscribed &&
         user.currentUid == scope.uid &&
+        currentEnv == scope.environment &&
+        Env().apiBaseUrl == scope.origin &&
         user.isCurrentSession(scope.generation) &&
         !user.isAuthTransitioning;
   }
@@ -149,7 +171,10 @@ class _ChannelHeaderBarState extends ConsumerState<ChannelHeaderBar> {
     setState(() => _isLoadingMute = true);
     try {
       final service = ref.read(channelServiceProvider);
-      final fresh = await service.refreshChannel(scope.channelId.toString());
+      final fresh = await service.refreshChannel(
+        scope.channelId.toString(),
+        isCurrent: current,
+      );
       if (!current()) return;
       if (fresh?.isSubscribed != true || fresh?.id != scope.channelId) {
         AppLoading.showError(t.common.operationFailedAgainLater);
