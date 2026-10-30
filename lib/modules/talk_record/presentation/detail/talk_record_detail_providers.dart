@@ -48,6 +48,11 @@ final talkRecordPlaybackGatewayProvider = Provider<TalkRecordPlaybackGateway>((
   return TalkRecordApiPlaybackGateway();
 });
 
+final talkRecordPartsPlaybackGatewayProvider =
+    Provider<TalkRecordPartsPlaybackGateway>((ref) {
+      return TalkRecordApiPartsPlaybackGateway();
+    });
+
 /// 播放后端（just_audio 真实实现；测试注入 Fake，零平台通道）。
 /// dispose 由 Provider 生命周期管理。
 final talkRecordPlayerBackendProvider = Provider<TalkRecordPlayerBackend>((
@@ -432,10 +437,18 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
   late TalkRecordDetailRequestFence _requests;
   StreamSubscription<TalkRecordPlayerBackendState>? _subscription;
   TalkRecordPlaybackTicket? _ticket;
+  TalkRecordPartsTicket? _partsTicket;
+  int _partIndex = -1;
+  bool _useParts = false;
+  bool _movingPart = false;
+  bool _completed = false;
   String? _loadedUrl;
   TalkRecordDetailRequest? _renewal;
   TalkRecordPlayerBackend? _attachedBackend;
   Future<void> _stopPending = Future<void>.value();
+  Future<void> _sourcePending = Future<void>.value();
+  int _sourceCount = 0;
+  bool _sourceValid = false;
 
   @override
   TalkRecordPlayerState build() {
@@ -466,10 +479,18 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     required EntityId recordId,
     required int durationMs,
     required bool playbackAllowed,
+    bool useParts = false,
   }) {
-    if (state.recordId != recordId) {
+    if (state.recordId == recordId &&
+        _useParts &&
+        _partsTicket != null &&
+        !useParts) {
+      useParts = true;
+    }
+    if (state.recordId != recordId || _useParts != useParts) {
       _requests.reset();
       _clearSession();
+      _useParts = useParts;
       unawaited(_stopAttached());
       state = TalkRecordPlayerState(
         recordId: recordId,
@@ -478,6 +499,11 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
       );
     } else if (state.durationMs != durationMs ||
         state.unavailable == playbackAllowed) {
+      if (!playbackAllowed && !state.unavailable) {
+        _requests.reset();
+        _clearSession();
+        unawaited(_stopAttached());
+      }
       state = state.copyWith(
         durationMs: durationMs,
         unavailable: !playbackAllowed,
@@ -494,8 +520,13 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     unawaited(_subscription?.cancel());
     _subscription = null;
     _ticket = null;
+    _partsTicket = null;
+    _partIndex = -1;
+    _movingPart = false;
+    _completed = false;
     _loadedUrl = null;
     _renewal = null;
+    _sourceValid = false;
   }
 
   Future<void> _stopAttached() {
@@ -504,9 +535,42 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
       return _stopPending;
     }
     final stopping = Future<void>.sync(backend.stop);
-    return _stopPending = Future.wait<void>([_stopPending, stopping])
-        .then((_) {})
-        .catchError(_cleanupFailed);
+    final pendingSource = _sourcePending;
+    final hasPendingSource = _sourceCount > 0;
+    return _stopPending =
+        Future.wait<void>([_stopPending, stopping, pendingSource])
+            .then((_) async {
+              if (hasPendingSource) await backend.stop();
+            })
+            .then((_) {})
+            .catchError(_cleanupFailed);
+  }
+
+  Future<bool> _loadSource(
+    TalkRecordDetailRequest request,
+    TalkRecordPlayerBackend backend,
+    String url,
+    int positionMs,
+  ) async {
+    final previous = _sourcePending;
+    final finished = Completer<void>();
+    _sourcePending = finished.future;
+    _sourceCount++;
+    try {
+      await previous;
+      if (!request.current) return false;
+      await backend.load(url, initialPositionMs: positionMs);
+      if (!request.current) {
+        _sourceValid = false;
+        await backend.stop();
+        return false;
+      }
+      _sourceValid = true;
+      return true;
+    } finally {
+      _sourceCount--;
+      finished.complete();
+    }
   }
 
   void _cleanupFailed(Object error, StackTrace stack) {
@@ -543,6 +607,10 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     if (state.unavailable || state.recordId.isEmpty) {
       return;
     }
+    if (_completed) {
+      await seekTo(0);
+      return;
+    }
     final request = _requests.begin();
     final backend = _backend;
     try {
@@ -554,11 +622,8 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
       if (!request.current) {
         return;
       }
-      state = state.copyWith(failure: false);
+      state = state.copyWith(failure: false, playing: true);
       await backend.play();
-      if (request.current) {
-        state = state.copyWith(playing: true);
-      }
     } on Object {
       await _failed(request);
     }
@@ -569,6 +634,7 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
       return;
     }
     final request = _requests.begin();
+    _completed = false;
     final backend = _backend;
     final clamped = positionMs.clamp(0, _maxPosition);
     try {
@@ -576,20 +642,18 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
       if (!request.current) {
         return;
       }
-      await _ensureTicket(request, backend);
+      await _ensureTicket(request, backend, clamped);
       if (!request.current) {
         return;
       }
-      await backend.seek(clamped);
+      await backend.seek(_partPosition(clamped));
       if (!request.current) {
         return;
       }
       state = state.copyWith(positionMs: clamped, failure: false);
       if (autoplay) {
+        state = state.copyWith(playing: true);
         await backend.play();
-        if (request.current) {
-          state = state.copyWith(playing: true);
-        }
       }
     } on Object {
       await _failed(request);
@@ -602,7 +666,11 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     }
     await _stopAttached();
     if (request.current) {
-      state = state.copyWith(playing: false, failure: true);
+      _ticket = null;
+      _partsTicket = null;
+      _partIndex = -1;
+      _loadedUrl = null;
+      state = state.copyWith(playing: false, loaded: false, failure: true);
     }
   }
 
@@ -613,20 +681,96 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     if (value.blocked) {
       _requests.reset();
       _ticket = null;
+      _partsTicket = null;
+      _partIndex = -1;
       _loadedUrl = null;
       state = state.copyWith(playing: false, loaded: false, failure: true);
       return;
     }
+    if (value.failed) {
+      final request = _requests.begin();
+      state = state.copyWith(playing: false, loaded: false, failure: true);
+      unawaited(_failed(request));
+      return;
+    }
+    if (_movingPart) return;
+    final parts = _partsTicket?.parts;
+    final part = parts != null && _partIndex >= 0 && _partIndex < parts.length
+        ? parts[_partIndex]
+        : null;
+    _completed =
+        value.completed && (part == null || _partIndex + 1 >= parts!.length);
     state = state.copyWith(
-      positionMs: value.positionMs,
-      durationMs: value.durationMs > 0 ? value.durationMs : state.durationMs,
+      positionMs: part == null
+          ? value.positionMs
+          : part.offsetMs + value.positionMs,
+      durationMs: part == null && value.durationMs > 0
+          ? value.durationMs
+          : state.durationMs,
       playing: value.playing && !value.completed,
       loaded: _loadedUrl != null,
     );
+    if (value.completed && part != null && _partIndex + 1 < parts!.length) {
+      unawaited(_advancePart(parts[_partIndex + 1].offsetMs));
+      return;
+    }
     unawaited(_maybeRenew());
   }
 
+  Future<void> _advancePart(int position) async {
+    if (_movingPart) return;
+    _movingPart = true;
+    final request = _requests.begin();
+    try {
+      await _ensurePartsAt(request, _backend, position);
+      if (!request.current) return;
+      state = state.copyWith(
+        positionMs: position,
+        playing: true,
+        failure: false,
+      );
+      _movingPart = false;
+      await _backend.play();
+    } on Object {
+      await _failed(request);
+    } finally {
+      _movingPart = false;
+    }
+  }
+
   Future<void> _maybeRenew() async {
+    if (_useParts) {
+      final ticket = _partsTicket;
+      if (_renewal != null ||
+          ticket == null ||
+          !state.playing ||
+          !ticket.needsRenew(DateTime.now(), renewLead)) {
+        return;
+      }
+      final request = _requests.snapshot();
+      _renewal = request;
+      _movingPart = true;
+      var resume = false;
+      try {
+        _partsTicket = null;
+        _partIndex = -1;
+        await _ensurePartsAt(request, _backend, state.positionMs);
+        resume = request.current && state.playing;
+      } on Object {
+        await _failed(request);
+      } finally {
+        _movingPart = false;
+        if (identical(_renewal, request)) _renewal = null;
+      }
+      if (resume && request.current) {
+        try {
+          await _backend.play();
+        } on Object {
+          await _failed(request);
+        }
+      }
+      return;
+    }
     final ticket = _ticket;
     if (_renewal != null ||
         ticket == null ||
@@ -638,6 +782,7 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     _renewal = request;
     final backend = _backend;
     final id = state.recordId;
+    var resume = false;
     try {
       final renewed = await ref
           .read(talkRecordPlaybackGatewayProvider)
@@ -646,15 +791,12 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
         return;
       }
       final position = state.positionMs, playing = state.playing;
-      await backend.load(renewed.url, initialPositionMs: position);
-      if (!request.current) {
+      if (!await _loadSource(request, backend, renewed.url, position)) {
         return;
       }
       _ticket = renewed;
       _loadedUrl = renewed.url;
-      if (playing) {
-        await backend.play();
-      }
+      resume = playing;
     } on Object {
       await _failed(request);
     } finally {
@@ -662,14 +804,30 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
         _renewal = null;
       }
     }
+    if (resume && request.current) {
+      try {
+        await backend.play();
+      } on Object {
+        await _failed(request);
+      }
+    }
   }
 
   Future<void> _ensureTicket(
     TalkRecordDetailRequest request,
-    TalkRecordPlayerBackend backend,
-  ) async {
+    TalkRecordPlayerBackend backend, [
+    int? targetPosition,
+  ]) async {
+    if (_useParts) {
+      await _ensurePartsAt(
+        request,
+        backend,
+        targetPosition ?? state.positionMs,
+      );
+      return;
+    }
     final now = DateTime.now(), ticket = _ticket;
-    if (ticket != null && !ticket.isExpired(now)) {
+    if (ticket != null && !ticket.isExpired(now) && _sourceValid) {
       if (ticket.needsRenew(now, renewLead)) {
         await _maybeRenew();
       }
@@ -682,13 +840,66 @@ class TalkRecordPlayerNotifier extends Notifier<TalkRecordPlayerState> {
     if (!request.current) {
       return;
     }
-    await backend.load(fresh.url, initialPositionMs: position);
-    if (!request.current) {
+    if (!await _loadSource(request, backend, fresh.url, position)) {
       return;
     }
     _ticket = fresh;
     _loadedUrl = fresh.url;
     state = state.copyWith(loaded: true);
+  }
+
+  int _partPosition(int position) {
+    final parts = _partsTicket?.parts;
+    if (parts == null || _partIndex < 0 || _partIndex >= parts.length) {
+      return position;
+    }
+    return (position - parts[_partIndex].offsetMs).clamp(
+      0,
+      parts[_partIndex].durationMs,
+    );
+  }
+
+  Future<void> _ensurePartsAt(
+    TalkRecordDetailRequest request,
+    TalkRecordPlayerBackend backend,
+    int position,
+  ) async {
+    var ticket = _partsTicket;
+    if (ticket == null || !DateTime.now().isBefore(ticket.expiresAt)) {
+      ticket = await ref
+          .read(talkRecordPartsPlaybackGatewayProvider)
+          .openTicket(state.recordId);
+      if (!request.current) return;
+      _partsTicket = ticket;
+      _partIndex = -1;
+    }
+    final parts = ticket.parts;
+    var index = parts.indexWhere((p) => position < p.offsetMs + p.durationMs);
+    if (index < 0) index = parts.length - 1;
+    if (!_sourceValid ||
+        _partIndex != index ||
+        _loadedUrl != parts[index].url) {
+      final wasMoving = _movingPart;
+      _movingPart = true;
+      try {
+        final loaded = await _loadSource(
+          request,
+          backend,
+          parts[index].url,
+          (position - parts[index].offsetMs).clamp(0, parts[index].durationMs),
+        );
+        if (!loaded) return;
+      } finally {
+        _movingPart = wasMoving;
+      }
+      if (!request.current) return;
+      _partIndex = index;
+      _loadedUrl = parts[index].url;
+      state = state.copyWith(
+        loaded: true,
+        durationMs: parts.last.offsetMs + parts.last.durationMs,
+      );
+    }
   }
 
   int get _maxPosition => state.durationMs > 0 ? state.durationMs : 1 << 40;

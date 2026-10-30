@@ -86,6 +86,9 @@ class _TalkRecordSpeakersPageState
           recordId: record.id,
           durationMs: record.durationMs,
           playbackAllowed: record.capabilitiesForActor.playback,
+          useParts:
+              record.mediaStatus == TalkRecordMediaStatus.assembling ||
+              record.mediaStatus == TalkRecordMediaStatus.retryableFailed,
         );
       });
     }

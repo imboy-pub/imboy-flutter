@@ -97,12 +97,51 @@ void main() {
     await expectLater(resolver.resolve(path), throwsStateError);
   });
 
+  test('native asynchronous media error is exposed without a retry', () async {
+    final native = _NativePlayer();
+    final errors = StreamController<PlayerException>.broadcast();
+    when(() => native.positionStream).thenAnswer((_) => const Stream.empty());
+    when(() => native.durationStream).thenAnswer((_) => const Stream.empty());
+    when(() => native.playerStateStream)
+        .thenAnswer((_) => const Stream.empty());
+    when(() => native.errorStream).thenAnswer((_) => errors.stream);
+    when(() => native.stop()).thenAnswer((_) async {});
+    when(() => native.dispose()).thenAnswer((_) async {});
+    final backend = JustAudioTalkRecordPlayerBackend(
+      player: native,
+      requestResolver: TalkRecordPlaybackRequestResolver(
+        baseUri: () => base,
+        accountId: () => '700001',
+        authenticationHeaders: () async => {'authorization': 'synthetic'},
+      ),
+      addAuthListener: (_) {},
+      removeAuthListener: (_) {},
+    );
+    final events = <TalkRecordPlayerBackendState>[];
+    final subscription = backend.states.listen(events.add);
+    errors.add(PlayerException(1, 'synthetic HTTP 429', 0));
+    await pumpEventQueue();
+    expect(events.where((event) => event.failed).length, 1);
+    verifyNever(
+      () => native.setUrl(
+        any(),
+        headers: any(named: 'headers'),
+        initialPosition: any(named: 'initialPosition'),
+      ),
+    );
+    await subscription.cancel();
+    backend.dispose();
+    await pumpEventQueue();
+    await errors.close();
+  });
+
   test('production backend passes signed auth to native setUrl and account event stops/disposes', () async {
     final native = _NativePlayer();
     when(() => native.positionStream).thenAnswer((_) => const Stream.empty());
     when(() => native.durationStream).thenAnswer((_) => const Stream.empty());
     when(() => native.playerStateStream)
         .thenAnswer((_) => const Stream.empty());
+    when(() => native.errorStream).thenAnswer((_) => const Stream.empty());
     when(
       () => native.setUrl(
         any(),

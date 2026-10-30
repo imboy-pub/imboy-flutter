@@ -14,8 +14,9 @@ class TalkRecordPlaybackRequest {
 
 Uri talkRecordPlaybackUri(String input, Uri base, {String? recordId}) {
   final uri = base.resolve(input);
-  final match = RegExp(r'^/api/v1/talk-records/([1-9][0-9]*)/playback/stream$')
-      .firstMatch(uri.path);
+  final match = RegExp(
+    r'^/api/v1/talk-records/([1-9][0-9]*)/playback/(?:stream|parts/(?:0|[1-9][0-9]*))$',
+  ).firstMatch(uri.path);
   if (!{'http', 'https'}.contains(base.scheme) ||
       base.host.isEmpty ||
       uri.origin != base.origin ||

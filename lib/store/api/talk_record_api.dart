@@ -725,6 +725,12 @@ class TalkRecordApi extends HttpClient {
     return TalkRecordPlaybackSession.fromJson(_ensureOk(resp));
   }
 
+  /// 已确认原始音频段的短时受控播放清单。
+  Future<Map<String, dynamic>> playbackParts(EntityId id) async {
+    final resp = await post('${API.talkRecordPlayback(id)}/parts', data: {});
+    return _ensureOk(resp);
+  }
+
   /// POST /:id/exports（§4：format=txt/md；Idempotency-Key；202 export/job；
   /// 不包含音频/未授权参与者信息）。
   Future<TalkRecordExportResult> createExport(

@@ -46,6 +46,88 @@ class TalkRecordPlaybackTicket {
       expiresAt.difference(now) <= lead;
 }
 
+class TalkRecordPlaybackPart {
+  const TalkRecordPlaybackPart(
+    this.seq,
+    this.offsetMs,
+    this.durationMs,
+    this.url,
+  );
+  final int seq;
+  final int offsetMs;
+  final int durationMs;
+  final String url;
+}
+
+class TalkRecordPartsTicket {
+  const TalkRecordPartsTicket(this.parts, this.expiresAt);
+  final List<TalkRecordPlaybackPart> parts;
+  final DateTime expiresAt;
+
+  bool needsRenew(DateTime now, Duration lead) =>
+      expiresAt.difference(now) <= lead;
+}
+
+abstract class TalkRecordPartsPlaybackGateway {
+  Future<TalkRecordPartsTicket> openTicket(EntityId recordId);
+}
+
+class TalkRecordApiPartsPlaybackGateway
+    implements TalkRecordPartsPlaybackGateway {
+  TalkRecordApiPartsPlaybackGateway([TalkRecordApi? api])
+    : _api = api ?? TalkRecordApi();
+  final TalkRecordApi _api;
+
+  @override
+  Future<TalkRecordPartsTicket> openTicket(EntityId recordId) async {
+    final result = await _api.playbackParts(recordId);
+    final rawExpiry = result['expiry'];
+    final isoExpiry = result['expires_at'];
+    final expiry = isoExpiry is String
+        ? DateTime.tryParse(isoExpiry)
+        : rawExpiry is int && rawExpiry > 0 && rawExpiry <= 253402300799
+        ? DateTime.fromMillisecondsSinceEpoch(rawExpiry * 1000, isUtc: true)
+        : null;
+    final rows = result['parts'];
+    if (expiry == null ||
+        !DateTime.now().isBefore(expiry) ||
+        result['record_id'] != recordId ||
+        rows is! List ||
+        rows.isEmpty) {
+      throw StateError('Playback parts unavailable');
+    }
+    final parts = <TalkRecordPlaybackPart>[];
+    var offset = 0;
+    for (final row in rows) {
+      if (row is! Map ||
+          row['seq'] is! int ||
+          row['offset_ms'] is! int ||
+          row['duration_ms'] is! int ||
+          row['url'] is! String) {
+        throw StateError('Invalid playback part');
+      }
+      final seq = row['seq'] as int;
+      final start = row['offset_ms'] as int;
+      final duration = row['duration_ms'] as int;
+      final url = row['url'] as String;
+      final uri = talkRecordPlaybackUri(
+        url,
+        Uri.parse(Env().apiBaseUrl),
+        recordId: recordId,
+      );
+      if (seq != parts.length ||
+          start != offset ||
+          duration <= 0 ||
+          !uri.path.endsWith('/playback/parts/$seq')) {
+        throw StateError('Invalid playback part timeline');
+      }
+      parts.add(TalkRecordPlaybackPart(seq, start, duration, url));
+      offset += duration;
+    }
+    return TalkRecordPartsTicket(List.unmodifiable(parts), expiry);
+  }
+}
+
 /// 受控回放网关抽象：开票与续签（POST /:id/playback）。
 ///
 /// T13/T15 联调注意：
@@ -159,6 +241,7 @@ class TalkRecordPlayerBackendState {
   final int durationMs;
   final bool completed;
   final bool blocked;
+  final bool failed;
 
   const TalkRecordPlayerBackendState({
     this.playing = false,
@@ -166,6 +249,7 @@ class TalkRecordPlayerBackendState {
     this.durationMs = 0,
     this.completed = false,
     this.blocked = false,
+    this.failed = false,
   });
 }
 
@@ -236,6 +320,11 @@ class JustAudioTalkRecordPlayerBackend implements TalkRecordPlayerBackend {
       if (_completed) _playing = false;
       _emit();
     });
+    _player.errorStream.listen((_) {
+      // shortcut: errors lack source identity; replace when the player exposes it.
+      _playing = false;
+      _emit(failed: true);
+    });
   }
 
   final AudioPlayer _player;
@@ -304,6 +393,7 @@ class JustAudioTalkRecordPlayerBackend implements TalkRecordPlayerBackend {
   Future<void> seek(int positionMs) async {
     _accountSession.check();
     _lastPositionMs = positionMs;
+    _completed = false;
     _emit();
     await _player.seek(Duration(milliseconds: positionMs));
   }
@@ -320,7 +410,7 @@ class JustAudioTalkRecordPlayerBackend implements TalkRecordPlayerBackend {
     unawaited(_accountSession.close().catchError(_teardownFailed));
   }
 
-  void _emit() {
+  void _emit({bool failed = false}) {
     if (_statesController.isClosed) return;
     _statesController.add(
       TalkRecordPlayerBackendState(
@@ -329,6 +419,7 @@ class JustAudioTalkRecordPlayerBackend implements TalkRecordPlayerBackend {
         durationMs: _lastDurationMs,
         completed: _completed,
         blocked: _accountSession.blocked,
+        failed: failed,
       ),
     );
   }
