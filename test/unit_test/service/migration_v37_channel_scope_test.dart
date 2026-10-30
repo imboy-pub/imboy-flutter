@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/http/http_exceptions.dart' as http;
@@ -94,6 +96,69 @@ void main() {
     expect(columns, isNot(contains('scope')));
     expect(columns, isNot(contains('workspace_id')));
     expect(await db.getVersion(), 36);
+  });
+
+  test('v37 失败后重开重试并重复执行时保留数据', () async {
+    final directory = await Directory.systemTemp.createTemp('imboy-v37-retry-');
+    final path = '${directory.path}/channel.db';
+    var db = await openFixtureDatabaseAtVersion(version: 36, path: path);
+    await db.insert('channel', {
+      'id': 10,
+      'name': 'synthetic-old',
+      'creator_id': 1,
+      'created_at': 1,
+      'updated_at': 1,
+    });
+    await expectLater(
+      db.transaction((txn) async {
+        final result = await MigrationService.to.migrate(
+          db: _FailSecondColumn(txn),
+          fromVersion: 36,
+          toVersion: 37,
+        );
+        if (!result.success) throw StateError(result.error!);
+      }),
+      throwsStateError,
+    );
+    await db.close();
+    db = await databaseFactory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(singleInstance: false),
+    );
+    addTearDown(() => db.close());
+    expect(await db.getVersion(), 36);
+    final before = (await db.query('channel')).single;
+    expect(before['name'], 'synthetic-old');
+    expect(before.containsKey('scope'), isFalse);
+    expect(before.containsKey('workspace_id'), isFalse);
+    await db.transaction((txn) async {
+      final result = await MigrationService.to.migrate(
+        db: txn,
+        fromVersion: 36,
+        toVersion: 37,
+      );
+      if (!result.success) throw StateError(result.error!);
+    });
+    expect(await db.getVersion(), 37);
+    expect(await SchemaContract.verifyInvariants(db, version: 37), isEmpty);
+    final upgraded = (await db.query('channel')).single;
+    expect(upgraded['name'], 'synthetic-old');
+    expect(upgraded['scope'], isNull);
+    expect(upgraded['workspace_id'], isNull);
+    await db.close();
+    db = await databaseFactory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(singleInstance: false),
+    );
+    final repeat = await MigrationService.to.migrate(
+      db: db,
+      fromVersion: 37,
+      toVersion: 37,
+    );
+    expect(repeat.success, isTrue, reason: repeat.error);
+    expect(await db.getVersion(), 37);
+    expect((await db.query('channel')).single, upgraded);
+    expect(await SchemaContract.verifyInvariants(db, version: 37), isEmpty);
   });
 
   test('v36 升级保留未知来源并支持权威来源往返', () async {

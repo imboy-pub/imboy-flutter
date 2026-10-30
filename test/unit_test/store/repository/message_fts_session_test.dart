@@ -111,6 +111,52 @@ class _FtsDatabase implements Database {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  test('queued reindex does not cross account sessions', () async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+    await StorageService.init();
+    final db = _FtsDatabase('lookup');
+    SqliteService.setDbForTest(db);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          if (call.method == 'write' &&
+              (call.arguments as Map)['key'] == 'secure_token') {
+            throw PlatformException(code: 'synthetic-login-stop');
+          }
+          return null;
+        });
+    final firstRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+    final secondRepo = MessageRepo(tableName: MessageRepo.c2cTable);
+    try {
+      await firstRepo.update({
+        'id': 'synthetic-reaction',
+        'payload': {'text': 'first'},
+      });
+      await db.entered.future;
+      await secondRepo.update({
+        'id': 'synthetic-reaction',
+        'payload': {'text': 'second'},
+      });
+      await expectLater(
+        UserRepoLocal.to.loginAfter('synthetic-session', {
+          'uid': '101',
+          'token': 'synthetic-token',
+          'refreshtoken': 'synthetic-refresh',
+        }),
+        throwsA(isA<PlatformException>()),
+      );
+      db.release.complete();
+      await firstRepo.waitForFtsReindexForTest();
+      await secondRepo.waitForFtsReindexForTest();
+      expect(db.statements, isEmpty);
+    } finally {
+      if (!db.release.isCompleted) db.release.complete();
+      await firstRepo.waitForFtsReindexForTest();
+      await secondRepo.waitForFtsReindexForTest();
+      SqliteService.setDbForTest(null);
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+    }
+  });
   for (final type in ['C2C', 'C2G']) {
     for (final phase in ['lookup', 'delete', 'retry']) {
       for (final stale in [false, true]) {

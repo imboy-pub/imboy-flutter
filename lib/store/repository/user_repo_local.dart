@@ -54,6 +54,18 @@ class UserRepoLocal extends ChangeNotifier {
   // Lifecycle state only: UID/generation remain authoritative above.
   bool get isAuthTransitioning =>
       _pendingAuthTransitions > 0 || _authTransitionFailed || isClearingSession;
+
+  @visibleForTesting
+  void clearAuthTransitionFailureForTest() {
+    assert(() {
+      if (_pendingAuthTransitions != 0 || _isClearingSession) {
+        throw StateError('Cannot clear auth failure during a transition');
+      }
+      _authTransitionFailed = false;
+      return true;
+    }());
+  }
+
   void addAuthListener(VoidCallback listener) =>
       _authChanges.addListener(listener);
   void removeAuthListener(VoidCallback listener) =>

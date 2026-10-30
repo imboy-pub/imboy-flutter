@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
@@ -10,6 +13,7 @@ import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 
@@ -18,6 +22,7 @@ part 'message_search_provider.g.dart';
 /// 消息搜索数据状态
 @immutable
 class MessageSearchState {
+  static const Object _unchanged = Object();
   // 搜索结果
   final List<MessageSearchResult> searchResults;
   final bool isLoading;
@@ -90,10 +95,10 @@ class MessageSearchState {
     List<String>? searchHistory,
     String? selectedType,
     String? selectedTimeRange,
-    DateTime? startDate,
-    DateTime? endDate,
-    String? conversationUk3,
-    String? conversationTitle,
+    Object? startDate = _unchanged,
+    Object? endDate = _unchanged,
+    Object? conversationUk3 = _unchanged,
+    Object? conversationTitle = _unchanged,
   }) {
     return MessageSearchState(
       searchResults: searchResults ?? this.searchResults,
@@ -110,10 +115,18 @@ class MessageSearchState {
       searchHistory: searchHistory ?? this.searchHistory,
       selectedType: selectedType ?? this.selectedType,
       selectedTimeRange: selectedTimeRange ?? this.selectedTimeRange,
-      startDate: startDate ?? this.startDate,
-      endDate: endDate ?? this.endDate,
-      conversationUk3: conversationUk3 ?? this.conversationUk3,
-      conversationTitle: conversationTitle ?? this.conversationTitle,
+      startDate: identical(startDate, _unchanged)
+          ? this.startDate
+          : startDate as DateTime?,
+      endDate: identical(endDate, _unchanged)
+          ? this.endDate
+          : endDate as DateTime?,
+      conversationUk3: identical(conversationUk3, _unchanged)
+          ? this.conversationUk3
+          : conversationUk3 as String?,
+      conversationTitle: identical(conversationTitle, _unchanged)
+          ? this.conversationTitle
+          : conversationTitle as String?,
     );
   }
 
@@ -127,6 +140,7 @@ class MessageSearchState {
       hasMore: true,
       errorMessage: '',
       totalResults: 0,
+      isLoading: false,
       isSearching: false,
     );
   }
@@ -209,19 +223,68 @@ class MessageSearchState {
 class MessageSearchNotifier extends _$MessageSearchNotifier {
   static const int _maxHistoryCount = 20;
   static const String _messageSearchHistoryKey = 'message_search_history';
+  static Future<void> _historyWrites = Future.value();
+  static int _pendingHistoryWrites = 0;
 
   Timer? _debounceTimer;
+  bool? _localSearchSource;
+  int _searchGeneration = 0;
+  bool _disposed = false;
 
   @override
   MessageSearchState build() {
+    _disposed = false;
+    UserRepoLocal.to.addAuthListener(_onAuthChanged);
+    ref.onDispose(() {
+      _disposed = true;
+      _debounceTimer?.cancel();
+      _searchGeneration++;
+      UserRepoLocal.to.removeAuthListener(_onAuthChanged);
+    });
     // build() 内禁止读写 state（此时 provider 尚未初始化），
     // 直接把历史记录算好作为初始状态返回。
+    if (_pendingHistoryWrites > 0) {
+      _reloadHistoryAfterWrites();
+      return const MessageSearchState();
+    }
     return MessageSearchState(searchHistory: _loadSearchHistory());
+  }
+
+  void _onAuthChanged() {
+    if (_disposed) return;
+    _debounceTimer?.cancel();
+    _searchGeneration++;
+    _localSearchSource = null;
+    state = const MessageSearchState();
+    if (!UserRepoLocal.to.isAuthTransitioning) _reloadHistoryAfterWrites();
+  }
+
+  void _reloadHistoryAfterWrites() {
+    final session = UserRepoLocal.to;
+    final generation = session.sessionGeneration;
+    final key = _historyKey();
+    if (key == null) return;
+    _historyWrites.then((_) {
+      if (!_disposed &&
+          session.isCurrentSession(generation) &&
+          _historyKey() == key) {
+        state = state.copyWith(searchHistory: _loadSearchHistory());
+      }
+    });
+  }
+
+  String? _historyKey() {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    if (uid.isEmpty || session.isAuthTransitioning) return null;
+    final scope = jsonEncode([Env().apiBaseUrl, uid]);
+    return '${_messageSearchHistoryKey}_v2_${sha256.convert(utf8.encode(scope))}';
   }
 
   List<String> _loadSearchHistory() {
     try {
-      return StorageService.to.getStringList(_messageSearchHistoryKey) ?? [];
+      final key = _historyKey();
+      return key == null ? [] : StorageService.to.getStringList(key) ?? [];
     } on Exception {
       return [];
     }
@@ -229,44 +292,83 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
   /// 设置搜索范围（当前会话）
   void setSearchScope(String? conversationUk3, String? conversationTitle) {
+    _searchGeneration++;
+    _localSearchSource = null;
     state = state.copyWith(
       conversationUk3: conversationUk3,
       conversationTitle: conversationTitle,
+      isLoading: false,
+      isSearching: false,
     );
   }
 
   /// 清除搜索范围（切换到全局搜索）
   void clearSearchScope() {
-    state = state.copyWith(conversationUk3: null, conversationTitle: null);
+    _searchGeneration++;
+    _localSearchSource = null;
+    state = state.copyWith(
+      conversationUk3: null,
+      conversationTitle: null,
+      isLoading: false,
+      isSearching: false,
+    );
   }
 
-  Future<void> addToHistory(String query) async {
-    if (query.trim().isEmpty) return;
+  Future<void> _updateHistory(List<String> Function(List<String>) update) {
+    final session = UserRepoLocal.to;
+    final key = _historyKey();
+    final generation = session.sessionGeneration;
+    if (key == null) return Future.value();
+    bool isCurrent() =>
+        !_disposed &&
+        session.isCurrentSession(generation) &&
+        _historyKey() == key;
+    _pendingHistoryWrites++;
+    final operation = _historyWrites
+        .then((_) async {
+          if (!isCurrent()) return;
+          final previous = List<String>.of(
+            StorageService.to.getStringList(key) ?? [],
+          );
+          final history = update(List.of(previous));
+          await StorageService.to.persistPreference(
+            () => StorageService.to.setList(key, history),
+          );
+          if (isCurrent()) {
+            state = state.copyWith(searchHistory: history);
+          } else {
+            await StorageService.to.persistPreference(
+              () => StorageService.to.setList(key, previous),
+            );
+          }
+        })
+        .whenComplete(() => _pendingHistoryWrites--);
+    _historyWrites = operation.then<void>(
+      (_) {},
+      onError: (Object _, StackTrace _) {},
+    );
+    return operation;
+  }
 
-    final List<String> history = List.from(state.searchHistory);
+  Future<void> addToHistory(String query) {
+    final trimmed = query.trim();
+    if (trimmed.isEmpty) return Future.value();
+    return _updateHistory((history) {
+      history.remove(trimmed);
+      history.insert(0, trimmed);
+      if (history.length > _maxHistoryCount) {
+        history.removeRange(_maxHistoryCount, history.length);
+      }
+      return history;
+    });
+  }
+
+  Future<void> removeFromHistory(String query) => _updateHistory((history) {
     history.remove(query);
-    history.insert(0, query.trim());
+    return history;
+  });
 
-    if (history.length > _maxHistoryCount) {
-      history.removeRange(_maxHistoryCount, history.length);
-    }
-
-    await StorageService.to.setList(_messageSearchHistoryKey, history);
-    state = state.copyWith(searchHistory: history);
-  }
-
-  Future<void> removeFromHistory(String query) async {
-    final List<String> history = List.from(state.searchHistory);
-    history.remove(query);
-
-    await StorageService.to.setList(_messageSearchHistoryKey, history);
-    state = state.copyWith(searchHistory: history);
-  }
-
-  Future<void> clearHistory() async {
-    await StorageService.to.remove(_messageSearchHistoryKey);
-    state = state.copyWith(searchHistory: []);
-  }
+  Future<void> clearHistory() => _updateHistory((_) => []);
 
   /// 防抖搜索
   void debouncedSearch(String query, {int debounceMs = 300}) {
@@ -290,6 +392,17 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     if (query.trim().isEmpty) return;
 
     final effectiveQuery = query.trim();
+    final requestGeneration = ++_searchGeneration;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final sessionGeneration = session.sessionGeneration;
+    bool isCurrent() =>
+        !_disposed &&
+        requestGeneration == _searchGeneration &&
+        session.currentUid == uid &&
+        session.isCurrentSession(sessionGeneration) &&
+        !session.isAuthTransitioning;
+    if (!loadMore) _localSearchSource = null;
 
     // 设置搜索状态
     state = state.copyWith(
@@ -303,11 +416,27 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
       int page = loadMore ? state.currentPage + 1 : 1;
 
       // 优先尝试本地 FTS 搜索
-      final localResults = await _searchLocal(effectiveQuery, page: page);
+      final localResults = _localSearchSource == false
+          ? null
+          : await _searchLocal(
+              effectiveQuery,
+              page: page,
+              isCurrent: isCurrent,
+            );
+      if (!isCurrent()) return;
       if (localResults != null) {
-        _applySearchResults(localResults, loadMore: loadMore, page: page);
+        _localSearchSource = true;
+        _applySearchResults(
+          localResults,
+          loadMore: loadMore,
+          page: page,
+          isCurrent: isCurrent,
+        );
         if (!loadMore) await addToHistory(effectiveQuery);
         return;
+      }
+      if (loadMore && _localSearchSource == true) {
+        throw Exception('Local search failed while loading more');
       }
 
       // 本地 FTS 无结果或不可用，降级到服务端 API
@@ -331,8 +460,15 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         );
       }
 
+      if (!isCurrent()) return;
       if (response != null) {
-        _applySearchResults(response, loadMore: loadMore, page: page);
+        _localSearchSource = false;
+        _applySearchResults(
+          response,
+          loadMore: loadMore,
+          page: page,
+          isCurrent: isCurrent,
+        );
         if (!loadMore) await addToHistory(effectiveQuery);
       } else {
         state = state.copyWith(
@@ -343,6 +479,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         );
       }
     } on FtsFeatureDisabledException {
+      if (!isCurrent()) return;
       // 后端按策略关掉了消息搜索（E2EE 模式），不是故障。
       // 文案统一走 i18n，不再用异常里那句硬编码中文。
       state = state.copyWith(
@@ -352,6 +489,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         searchDisabled: true,
       );
     } on Exception catch (e) {
+      if (!isCurrent()) return;
       iPrint('[MessageSearch] 搜索消息失败: $e');
       state = state.copyWith(
         isLoading: false,
@@ -368,6 +506,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
   Future<MessageSearchResponse?> _searchLocal(
     String query, {
     int page = 1,
+    required bool Function() isCurrent,
   }) async {
     try {
       final ftsRepo = MessageFtsRepo();
@@ -380,14 +519,34 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         ftsResults = await ftsRepo.searchAll(
           query: query,
           conversationUk3: state.conversationUk3,
-          limit: limit,
+          type: state.selectedType,
+          startTime: state.getStartTimeStamp(),
+          endTime: state.getEndTimeStamp(),
+          throwOnError: true,
+          isCurrent: isCurrent,
+          limit: page * limit,
         );
       } else {
         // 全局搜索
-        ftsResults = await ftsRepo.searchAll(query: query, limit: limit);
+        ftsResults = await ftsRepo.searchAll(
+          query: query,
+          type: state.selectedType,
+          startTime: state.getStartTimeStamp(),
+          endTime: state.getEndTimeStamp(),
+          throwOnError: true,
+          isCurrent: isCurrent,
+          limit: page * limit,
+        );
       }
 
-      if (ftsResults.isEmpty) return null;
+      if (!isCurrent()) return null;
+      if (ftsResults.isEmpty) {
+        return page > 1 ? MessageSearchResponse(items: [], total: 0) : null;
+      }
+      ftsResults = ftsResults.skip((page - 1) * limit).toList();
+      if (ftsResults.isEmpty) {
+        return MessageSearchResponse(items: [], total: 0);
+      }
 
       // FTS 表只存 (id, conversation_uk3, text_content)，缺少 from/to/created_at。
       // 需要回查消息表补全元数据，否则 UI 会显示 "Loading..." 和 "1970-01-01"。
@@ -395,45 +554,36 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
       final items = <MessageSearchResult>[];
 
       for (final fts in ftsResults) {
+        if (!isCurrent()) return null;
         // 从 conversationUk3 前缀推断消息表和类型
         final uk3 = fts.conversationUk3;
         final isC2G = uk3.startsWith('C2G_');
         final msgType = isC2G ? 'C2G' : 'C2C';
         final tableName = isC2G ? 'msg_c2g' : 'msg_c2c';
 
-        try {
-          final rows = await db.rawQuery(
-            'SELECT CAST(from_id AS TEXT) AS from_id, CAST(to_id AS TEXT) AS to_id, created_at FROM $tableName WHERE id = ? LIMIT 1',
-            [fts.id],
-          );
-          if (rows.isNotEmpty) {
-            final row = rows.first;
-            items.add(
-              MessageSearchResult(
-                id: fts.id,
-                content: fts.snippet,
-                fromId: '${row['from_id'] ?? ''}',
-                toId: '${row['to_id'] ?? ''}',
-                type: msgType,
-                createdAt: (row['created_at'] as num?)?.toInt() ?? 0,
-              ),
-            );
-          } else {
-            // FTS 索引里有但消息表里没有（可能已删除），跳过
-            continue;
-          }
-        } catch (e) {
-          // 回查失败时仍返回 FTS 基本信息（至少 snippet 可用）
+        final rows = await db.rawQuery(
+          'SELECT CAST(from_id AS TEXT) AS from_id, CAST(to_id AS TEXT) AS to_id, created_at FROM $tableName WHERE id = ? LIMIT 1',
+          [fts.id],
+          false,
+          5000,
+          true,
+        );
+        if (!isCurrent()) return null;
+        if (rows.isNotEmpty) {
+          final row = rows.first;
           items.add(
             MessageSearchResult(
               id: fts.id,
               content: fts.snippet,
-              fromId: '',
-              toId: '',
+              fromId: '${row['from_id'] ?? ''}',
+              toId: '${row['to_id'] ?? ''}',
               type: msgType,
-              createdAt: 0,
+              createdAt: (row['created_at'] as num?)?.toInt() ?? 0,
             ),
           );
+        } else {
+          // FTS 索引里有但消息表里没有（可能已删除），跳过
+          continue;
         }
       }
 
@@ -451,6 +601,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     MessageSearchResponse response, {
     required bool loadMore,
     required int page,
+    required bool Function() isCurrent,
   }) {
     if (loadMore) {
       state = state.copyWith(
@@ -473,11 +624,14 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     }
 
     // 预加载联系人信息
-    _preloadContacts(response.items);
+    _preloadContacts(response.items, isCurrent);
   }
 
   /// 预加载联系人信息
-  Future<void> _preloadContacts(List<MessageSearchResult> results) async {
+  Future<void> _preloadContacts(
+    List<MessageSearchResult> results,
+    bool Function() isCurrent,
+  ) async {
     final uids = <String>{};
     for (final result in results) {
       if (result.fromId.isNotEmpty) uids.add(result.fromId);
@@ -485,9 +639,11 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     }
 
     for (final uid in uids) {
+      if (!isCurrent()) return;
       if (state.getCachedContact(uid) == null) {
         try {
           final contact = await ContactRepo().findByUid(uid);
+          if (!isCurrent()) return;
           if (contact != null) {
             state = state.cacheContact(uid, contact);
           }
@@ -507,6 +663,8 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
   /// 重置搜索
   void resetSearch() {
     _debounceTimer?.cancel();
+    _searchGeneration++;
+    _localSearchSource = null;
     state = state.resetSearch();
   }
 
@@ -552,6 +710,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
   void cancelSearch() {
     _debounceTimer?.cancel();
+    _searchGeneration++;
     state = state.copyWith(isLoading: false, isSearching: false);
   }
 

@@ -64,6 +64,7 @@ class SqliteService {
   /// 打开中句柄所属的 uid（DB 文件按 `${env}_${uid}.db` 命名）。
   /// 用于跨账号隔离：uid 漂移时强制关旧重开，防复用旧账号加密库（E2EE-015 纵深防御）。
   static String _openUid = '';
+  static String _openEnv = '';
 
   /// 【测试】注入外部打开的 Database（如 sqflite_common_ffi 内存库）。
   /// 生产路径 sqflite_sqlcipher 在宿主机测试环境无插件实现，
@@ -72,6 +73,7 @@ class SqliteService {
   static void setDbForTest(Database? db) {
     _db = db;
     _openUid = UserRepoLocal.to.currentUid;
+    _openEnv = currentEnv;
   }
 
   // SQLite 是否支持 UPDATE ... RETURNING（3.35+）。
@@ -113,6 +115,10 @@ class SqliteService {
     // 防 logout 未 close（如 purge 失败旁路）导致新账号写进旧账号加密库。
     final currentUid = UserRepoLocal.to.currentUid;
     final cached = _db;
+    if (cached != null && cached.isOpen && _openEnv != currentEnv) {
+      _lastDbNullReason = '数据库句柄环境与当前环境不一致';
+      return null;
+    }
     if (cached != null && cached.isOpen && _openUid == currentUid) {
       return cached;
     }
@@ -128,12 +134,28 @@ class SqliteService {
     }
 
     return await _initLock.synchronized(() async {
+      if (UserRepoLocal.to.currentUid != currentUid) {
+        _lastDbNullReason = '等待数据库初始化期间账号发生变化';
+        return null;
+      }
       // 双重检查：可能已被其它等待者重开
       final c = _db;
+      if (c != null && c.isOpen && _openEnv != currentEnv) {
+        _lastDbNullReason = '数据库句柄环境与当前环境不一致';
+        return null;
+      }
       if (c != null && c.isOpen && _openUid == currentUid) return c;
+      final environment = currentEnv;
       final result = await _initDatabase();
+      if (currentEnv != environment ||
+          UserRepoLocal.to.currentUid != currentUid) {
+        await result?.close();
+        _lastDbNullReason = '数据库初始化期间环境或账号发生变化';
+        return null;
+      }
       _db = result;
       _openUid = result == null ? '' : currentUid;
+      _openEnv = result == null ? '' : environment;
       _initRetryAfter = result == null
           ? DateTime.now().add(_initFailureCooldown)
           : null;
@@ -148,6 +170,7 @@ class SqliteService {
       await _db!.close();
       _db = null;
       _openUid = '';
+      _openEnv = '';
     }
   }
 
@@ -795,9 +818,13 @@ class SqliteService {
     List<Object?>? arguments,
     bool useCache = true,
     int timeoutMs = 5000,
+    bool throwOnUnavailable = false,
   ]) async {
     final db = await this.db;
-    if (db == null) return [];
+    if (db == null) {
+      if (throwOnUnavailable) throw Exception('Database is unavailable');
+      return [];
+    }
 
     try {
       return await _cacheService
@@ -806,6 +833,9 @@ class SqliteService {
             Duration(milliseconds: timeoutMs),
             onTimeout: () {
               AppLogger.warning('SQL query timeout: $sql');
+              if (throwOnUnavailable) {
+                throw TimeoutException('SQL query timed out');
+              }
               return []; // 超时返回空结果
             },
           );

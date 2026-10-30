@@ -8,6 +8,7 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 /// 后端 ERR_FEATURE_DISABLED 错误码（见 imboy/include/error_code.hrl:225）。
 /// 当 E2EE 模式为 secure_e2ee/required 时，后端策略强制关闭 message_search。
@@ -227,7 +228,7 @@ class FtsApi extends HttpClient {
     // 后端 fts_handler.erl msg_type 参数已支持，见 imboy/src/api/fts_handler.erl。
     String? msgType,
   }) async {
-    if (keyword.trim().isEmpty || conversationUk3.isEmpty) {
+    if (keyword.trim().isEmpty) {
       return MessageSearchResponse(items: [], total: 0);
     }
 
@@ -241,7 +242,9 @@ class FtsApi extends HttpClient {
       queryParams['msg_type'] = msgType;
     }
 
-    queryParams.addAll(buildConversationFilter(conversationUk3));
+    final uid = UserRepoLocal.to.currentUid;
+    final scope = buildConversationFilter(conversationUk3, uid);
+    queryParams.addAll(scope);
 
     final IMBoyHttpResponse resp = await get(
       API.ftsMessage,
@@ -261,38 +264,104 @@ class FtsApi extends HttpClient {
 
     final payload = resp.payload;
     if (payload is Map<String, dynamic>) {
+      _validateConversationResponse(payload, uid, scope);
       return MessageSearchResponse.fromJson(payload);
     }
 
-    return null;
+    throw const FormatException('Invalid conversation search response');
+  }
+
+  static void _validateConversationResponse(
+    Map<String, dynamic> payload,
+    String uid,
+    Map<String, dynamic> scope,
+  ) {
+    final rows = payload['list'] ?? payload['items'];
+    if (rows is! List) {
+      throw const FormatException('Invalid conversation search response');
+    }
+    final expectedType = scope['type'];
+    final peer = channelDecimalId(scope['conversation_id']);
+    final user = channelDecimalId(uid);
+    for (final row in rows) {
+      if (row is! Map) {
+        throw const FormatException('Invalid conversation search response');
+      }
+      String? type;
+      for (final key in ['conversation_type', 'type']) {
+        final value = row[key];
+        if (value == null) continue;
+        if (value is! String || (type != null && type != value.toUpperCase())) {
+          throw const FormatException('Conversation search scope mismatch');
+        }
+        type = value.toUpperCase();
+      }
+      final from = _consistentScopeId(row, ['from', 'from_id']);
+      final to = _consistentScopeId(row, ['group_id', 'to', 'to_id']);
+      final matches =
+          type == expectedType &&
+          from != null &&
+          peer != null &&
+          user != null &&
+          (expectedType == 'C2G'
+              ? to == peer
+              : (from == user && to == peer) || (from == peer && to == user));
+      if (!matches) {
+        throw const FormatException('Conversation search scope mismatch');
+      }
+    }
+  }
+
+  static String? _consistentScopeId(
+    Map<dynamic, dynamic> row,
+    List<String> keys,
+  ) {
+    String? result;
+    for (final key in keys) {
+      final raw = row[key];
+      if (raw == null) continue;
+      final value = channelDecimalId(raw);
+      if (value == null || (result != null && result != value)) {
+        throw const FormatException('Conversation search scope mismatch');
+      }
+      result = value;
+    }
+    return result;
   }
 
   /// 由 conversationUk3 推导后端可用的过滤参数。
   ///
-  /// 后端不支持 conversation_uk3，只能拆出 type + conversation_id 做最大化过滤。
-  ///
-  /// uk3 格式（见 [ConversationUk3Generator]）：
-  /// - C2G：`C2G_<currentUserId>_<groupId>` → 群 id 在 **parts[2]**
-  /// - C2C：`C2C_<小 uid>_<大 uid>`（排序后）→ 无法区分哪个是对端，不传 conversation_id
-  /// - S2C/C2S：`<TYPE>_SYSTEM_<userId>`
-  ///
-  /// 原实现对 C2G 取了 parts[1]，那是**当前用户 uid** —— 真机实测发出
-  /// `type=C2G&conversation_id=50`（50 是自己），必然搜不到任何群消息。
+  /// 不能确定当前账号和会话范围时抛错，避免降级成全局搜索。
   @visibleForTesting
-  static Map<String, dynamic> buildConversationFilter(String conversationUk3) {
+  static Map<String, dynamic> buildConversationFilter(
+    String conversationUk3,
+    String currentUid,
+  ) {
     final parts = conversationUk3.split('_');
-    if (parts.isEmpty || parts[0].isEmpty) return {};
-
-    final convType = parts[0].toUpperCase();
-    final filter = <String, dynamic>{'type': convType};
-
-    if (convType == 'C2G' && parts.length >= 3) {
-      final groupId = channelDecimalId(parts[2]);
-      if (groupId != null) {
-        filter['conversation_id'] = decimalIdForWire(groupId);
-      }
+    String? id(String value) =>
+        RegExp(r'^[0-9]+$').hasMatch(value) ? channelDecimalId(value) : null;
+    final uid = id(currentUid);
+    if (parts.length != 3 || uid == null) {
+      throw const FormatException('Invalid conversation scope');
     }
-    return filter;
+    final first = id(parts[1]);
+    final second = id(parts[2]);
+    final type = parts[0].toUpperCase();
+    if (first == null || second == null) {
+      throw const FormatException('Invalid conversation scope');
+    }
+    if (type == 'C2G' && first == uid) {
+      return {'type': type, 'conversation_id': decimalIdForWire(second)};
+    }
+    if (type == 'C2C' && (first == uid || second == uid)) {
+      final peer = first == uid ? second : first;
+      // 旧服务端将自身作为对端时会扩大到所有单聊。
+      if (peer == uid) {
+        throw const FormatException('Invalid conversation scope');
+      }
+      return {'type': type, 'conversation_id': decimalIdForWire(peer)};
+    }
+    throw const FormatException('Invalid conversation scope');
   }
 
   /// 毫秒时间戳 → YYYY-MM-DD（后端 start_date/end_date 格式）

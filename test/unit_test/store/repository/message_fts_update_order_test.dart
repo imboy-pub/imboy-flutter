@@ -69,9 +69,138 @@ class _DelayedUpdateDatabase implements Database {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _PausedReadDatabase implements Database {
+  _PausedReadDatabase(this.inner, this.messageTable);
+  final Database inner;
+  final String messageTable;
+  final entered = Completer<void>();
+  final release = Completer<void>();
+  bool paused = false;
+
+  @override
+  bool get isOpen => inner.isOpen;
+
+  @override
+  Future<int> update(
+    String table,
+    Map<String, Object?> values, {
+    String? where,
+    List<Object?>? whereArgs,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) => inner.update(
+    table,
+    values,
+    where: where,
+    whereArgs: whereArgs,
+    conflictAlgorithm: conflictAlgorithm,
+  );
+
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
+    final result = await inner.query(
+      table,
+      distinct: distinct,
+      columns: columns,
+      where: where,
+      whereArgs: whereArgs,
+      groupBy: groupBy,
+      having: having,
+      orderBy: orderBy,
+      limit: limit,
+      offset: offset,
+    );
+    if (table == messageTable && !paused) {
+      paused = true;
+      entered.complete();
+      await release.future;
+    }
+    return result;
+  }
+
+  @override
+  Future<int> rawUpdate(String sql, [List<Object?>? arguments]) =>
+      inner.rawUpdate(sql, arguments);
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+  for (final type in ['C2C', 'C2G']) {
+    test('FTS $type delayed old read cannot overwrite newer update', () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      sqfliteFfiInit();
+      final inner = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
+      final table = type == 'C2C' ? MessageRepo.c2cTable : MessageRepo.c2gTable;
+      final db = _PausedReadDatabase(inner, table);
+      SqliteService.setDbForTest(db);
+      final row = MessageModel(
+        'synthetic-reorder',
+        autoId: 1,
+        type: type,
+        status: IMBoyMessageStatus.delivered,
+        fromId: 200,
+        toId: 100,
+        payload: {'text': 'initial'},
+        isAuthor: 0,
+        conversationUk3: 'synthetic',
+        msgType: 'text',
+      ).toJson();
+      final olderRepo = MessageRepo(tableName: table);
+      final newerRepo = MessageRepo(tableName: table);
+      try {
+        await inner.execute(
+          'CREATE TABLE $table (${{...row.keys, ...MessageRepo.c2cColumns}.map((k) => '"$k"').join(', ')})',
+        );
+        await inner.insert(table, row);
+        await inner.execute(
+          'CREATE VIRTUAL TABLE ${table}_fts USING fts5(id UNINDEXED, conversation_uk3 UNINDEXED, text_content)',
+        );
+        expect(
+          await olderRepo.update({
+            'id': 'synthetic-reorder',
+            'payload': {'text': 'older'},
+          }),
+          1,
+        );
+        await db.entered.future;
+        expect(
+          await newerRepo.update({
+            'id': 'synthetic-reorder',
+            'payload': {'text': 'newer'},
+          }),
+          1,
+        );
+        db.release.complete();
+        await olderRepo.waitForFtsReindexForTest();
+        await newerRepo.waitForFtsReindexForTest();
+        expect(
+          (await inner.query('${table}_fts')).single['text_content'],
+          'newer',
+        );
+      } finally {
+        if (!db.release.isCompleted) db.release.complete();
+        await olderRepo.waitForFtsReindexForTest();
+        await newerRepo.waitForFtsReindexForTest();
+        SqliteService.setDbForTest(null);
+        await inner.close();
+      }
+    });
+  }
   for (final type in ['C2C', 'C2G']) {
     for (final outcome in [
       'success',

@@ -16,6 +16,7 @@ import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
@@ -24,7 +25,7 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'search_provider.dart';
 
 /// 聊天记录搜索页面 - 极致 iOS 17 Premium 风格
-class SearchChatPage extends ConsumerStatefulWidget {
+class SearchChatPage extends StatelessWidget {
   final String conversationUk3;
   final String type; // [C2C | C2G | C2S]
   final String peerId; // 用户ID | GroupId | SID
@@ -43,29 +44,119 @@ class SearchChatPage extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SearchChatPage> createState() => _SearchChatPageState();
+  Widget build(BuildContext context) => ProviderScope(
+    overrides: [searchProvider.overrideWith(SearchNotifier.new)],
+    child: _SearchChatBody(
+      conversationUk3: conversationUk3,
+      type: type,
+      peerId: peerId,
+      peerAvatar: peerAvatar,
+      peerTitle: peerTitle,
+      peerSign: peerSign,
+    ),
+  );
 }
 
-class _SearchChatPageState extends ConsumerState<SearchChatPage> {
+class _SearchChatBody extends ConsumerStatefulWidget {
+  const _SearchChatBody({
+    required this.conversationUk3,
+    required this.type,
+    required this.peerId,
+    required this.peerAvatar,
+    required this.peerTitle,
+    required this.peerSign,
+  });
+
+  final String conversationUk3;
+  final String type;
+  final String peerId;
+  final String peerAvatar;
+  final String peerTitle;
+  final String peerSign;
+
+  @override
+  ConsumerState<_SearchChatBody> createState() => _SearchChatPageState();
+}
+
+class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   final TextEditingController _searchC = TextEditingController();
   Timer? _debounceTimer;
+  int _searchGeneration = 0;
+  bool _scopeResetPending = false;
+  int _scopeGeneration = 0;
+  late final String _ownerUid;
+  late final int _ownerSession;
   Map<String, HighlightedWord> words = {};
 
   /// 服务端按策略关闭了消息搜索（E2EE 模式下读不到明文）。
   /// 这是预期状态而非故障，错误视图要走说明性空态且不给重试入口。
   bool _searchDisabled = false;
 
+  bool get _ownerActive {
+    final user = UserRepoLocal.to;
+    return _ownerUid.isNotEmpty &&
+        user.currentUid == _ownerUid &&
+        user.isCurrentSession(_ownerSession) &&
+        !user.isAuthTransitioning;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final user = UserRepoLocal.to;
+    _ownerUid = user.currentUid;
+    _ownerSession = user.sessionGeneration;
+    user.addAuthListener(_onAuthChanged);
+  }
+
+  void _onAuthChanged() {
+    if (!mounted || _ownerActive) return;
+    _searchGeneration++;
+    _debounceTimer?.cancel();
+    _searchC.clear();
+    words = {};
+    _searchDisabled = false;
+    ref.read(searchProvider.notifier).resetSearch();
+    setState(() {});
+  }
+
   @override
   void dispose() {
+    _searchGeneration++;
     _debounceTimer?.cancel();
+    UserRepoLocal.to.removeAuthListener(_onAuthChanged);
     _searchC.dispose();
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(covariant _SearchChatBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.conversationUk3 != widget.conversationUk3) {
+      _searchGeneration++;
+      _debounceTimer?.cancel();
+      _searchC.clear();
+      _searchDisabled = false;
+      words = {};
+      _scopeResetPending = true;
+      final generation = _searchGeneration;
+      final scopeGeneration = ++_scopeGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || scopeGeneration != _scopeGeneration) return;
+        if (generation == _searchGeneration) {
+          ref.read(searchProvider.notifier).resetSearch();
+        }
+        setState(() => _scopeResetPending = false);
+      });
+    }
+  }
+
   void debouncedSearch(String query) {
+    if (!_ownerActive) return;
     _debounceTimer?.cancel();
+    _searchGeneration++;
+    ref.read(searchProvider.notifier).resetSearch();
     if (query.trim().isEmpty) {
-      ref.read(searchProvider.notifier).resetSearch();
       return;
     }
     _debounceTimer = Timer(
@@ -75,7 +166,20 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   }
 
   Future<void> performSearch({required String query}) async {
-    if (query.trim().isEmpty) return;
+    if (query.trim().isEmpty || !_ownerActive) return;
+    _debounceTimer?.cancel();
+    final request = ++_searchGeneration;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final sessionGeneration = session.sessionGeneration;
+    final conversation = widget.conversationUk3;
+    bool isCurrent() =>
+        mounted &&
+        request == _searchGeneration &&
+        widget.conversationUk3 == conversation &&
+        session.currentUid == uid &&
+        session.isCurrentSession(sessionGeneration) &&
+        !session.isAuthTransitioning;
     final notifier = ref.read(searchProvider.notifier);
     final effectiveQuery = query.trim();
     notifier.setCurrentQuery(effectiveQuery);
@@ -86,11 +190,12 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
     try {
       final response = await FtsApi.to.searchConversationMessages(
         keyword: effectiveQuery,
-        conversationUk3: widget.conversationUk3,
+        conversationUk3: conversation,
         page: 1,
         size: 50,
         msgType: ref.read(searchProvider).selectedMessageType,
       );
+      if (!isCurrent()) return;
       if (response == null) {
         notifier.setError(t.common.searchError);
         return;
@@ -129,13 +234,17 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
       // 与 message_search_page 同款处理：搜索被策略禁用是预期状态，不是故障。
       // 原先这里被 catch (_) 一并吞成「搜索错误 + 重试」，而重试永远不可能
       // 成功——服务端 imboy_policy:message_search_enabled() 恒为 false。
-      if (mounted) setState(() => _searchDisabled = true);
+      if (!isCurrent()) return;
+      setState(() => _searchDisabled = true);
       notifier.setError(t.common.searchDisabledByEncryption);
     } catch (_) {
+      if (!isCurrent()) return;
       notifier.setError(t.common.searchError);
     } finally {
-      notifier.setLoading(false);
-      notifier.stopSearching();
+      if (isCurrent()) {
+        notifier.setLoading(false);
+        notifier.stopSearching();
+      }
     }
   }
 
@@ -161,6 +270,7 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: CupertinoSearchTextField(
               controller: _searchC,
+              enabled: _ownerActive,
               placeholder: t.common.searchMessagesHint,
               onChanged: debouncedSearch,
               onSubmitted: (v) => performSearch(query: v),
@@ -168,11 +278,17 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
           ),
 
           // 快速过滤器
-          if (state.currentQuery.isNotEmpty || state.hasActiveFilters())
+          if (_ownerActive &&
+              !_scopeResetPending &&
+              (state.currentQuery.isNotEmpty || state.hasActiveFilters()))
             _buildQuickFilterBar(context, state, brightness),
 
           // 结果列表
-          Expanded(child: _buildSearchContent(state, brightness)),
+          Expanded(
+            child: !_ownerActive || _scopeResetPending
+                ? const SizedBox.shrink()
+                : _buildSearchContent(state, brightness),
+          ),
         ],
       ),
     );
@@ -401,8 +517,12 @@ class _SearchChatPageState extends ConsumerState<SearchChatPage> {
   }
 
   Future<void> _loadAndCacheContact(String uid) async {
+    final generation = _searchGeneration;
     final contact = await ContactRepo().findByUid(uid);
-    if (contact != null && mounted) {
+    if (contact != null &&
+        mounted &&
+        _ownerActive &&
+        generation == _searchGeneration) {
       ref.read(searchProvider.notifier).cacheContact(uid, contact);
       setState(() {});
     }
