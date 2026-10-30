@@ -9,15 +9,16 @@
 //   ③ 真实等待 OLD 龄超出服务端编辑窗（fixture：合成 daemon
 //      msg_edit_window_seconds=SERVER_EDIT_WINDOW_SECONDS，默认 60）；客户端
 //      15 分钟门控仍放行 → 长按 OLD →「编辑」→ 预填 → 替换为「原文 EDITED」
-//      → 发送 → 关联出站请求和入站拒绝；产品侧尚未处理错误，最终明确失败。
+//      → 发送 → 关联出站请求和入站拒绝；客户端停重试并提示「编辑失败」。
 //
 // 两层时限：客户端 chat_page_utils.canEditMessage / 域 Message.editWindow
 // 15 分钟（菜单门控）；后端 msg_c2c_logic.erl msg_edit_window_ms() 读 env
 // msg_edit_window_seconds（默认 86400），本旅程以 fixture 把后端窗调短以在
 // 单设备上真实触发"客户端放行、服务端拒绝"分支。
 //
-// 已知缺口（仅记录，不作硬断言）：is_edited 无 UI 消费者（无「已编辑」标记）；
-// 客户端无 message_edit_error 处理（拒绝无失败提示）。
+// 已知缺口（仅记录，不作硬断言）：is_edited 无 UI 消费者（无「已编辑」标记）。
+// message_edit_error 客户端闭环（停重试+失败提示）已由 d63d9128b 落地，
+// 本旅程 ③ 据此断言失败提示与重试终态。
 //
 // 前置（fixture 在测试外完成）：后端本地 daemon 绑定合成库；
 // demo_alice/demo_bob 互为好友；
@@ -284,6 +285,7 @@ void main() {
     }
     await takeScreenshot(tester, 'j18d_02_old_rejected');
     debugPrint('J18D reject failToastSeen=$failToastSeen');
+    expect(failToastSeen, isTrue, reason: '客户端应对服务端超窗拒绝提示「编辑失败」');
     expect(oldApplied, isFalse, reason: '服务端超窗拒绝后 OLD 不得显示为已编辑文本（10s）');
     expect(itemContaining(oldMarker), findsOneWidget, reason: 'OLD 原文气泡应保留');
     expect(
@@ -303,10 +305,16 @@ void main() {
       isEmpty,
       reason: '拒绝后应退出编辑态、输入框清空',
     );
-    drainKnownFrameworkExceptions(tester);
-    fail(
-      '已检查原始回包，但客户端尚未处理编辑错误及其重试终态；'
-      'SERVER_EDIT_WINDOW_SECONDS 也不能证明服务端实际配置',
+    // 终态断言：message_edit_error 到达后客户端必须停止重试。若重试未终止，
+    // 同一编辑帧会被再次发送并再次触发服务端拒绝帧（errors 增长）；运行期
+    // 收到 409 拒绝同时证明 SERVER_EDIT_WINDOW_SECONDS 已在服务端生效。
+    final matchedBefore = matchingErrors.length;
+    await settle(tester, maxSeconds: 10);
+    expect(
+      errors.where(matches).length,
+      matchedBefore,
+      reason: 'message_edit_error 后重试必须终止（10s 内不得再次触发服务端拒绝帧）',
     );
+    drainKnownFrameworkExceptions(tester);
   }, timeout: const Timeout(Duration(minutes: 8)));
 }
