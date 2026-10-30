@@ -16,6 +16,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/service/message_type_normalizer.dart';
 import 'package:imboy/service/e2ee/attachment_forward.dart';
+import 'package:imboy/service/attachment_plain_forward.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/encryption_mode.dart';
@@ -238,24 +239,37 @@ class SendToNotifier extends Notifier<SendToState> {
       // meta、再建消息）。失败（含明文目标域/源不可解密）抛
       // [AttachmentForwardException] —— 在落库**之前**，杜绝半转发状态。
       final String messageId = Xid().toString();
+      // 目标会话上传 scope：加密重封装与明文重上传必须同源（scope 与绑定值
+      // 一旦分歧就是隐性错配），故在分支外算一次。
+      final scope = ChatAttachmentHandler.deriveUploadScope(
+        conversationUk3: conversation.uk3,
+        currentUid: forwarderUid,
+        peerId: conversation.peerId.toString(),
+        type: chatType,
+      );
       final Map<String, dynamic> payload;
       switch (decision) {
         case ForwardNotSealed():
-          payload = buildForwardPayload(
+          final base = buildForwardPayload(
             sourceMetadata: sourceMetadata,
             text: msg is TextMessage ? msg.text : '',
             peerId: conversation.peerId,
             conversationUk3: conversation.uk3,
           );
+          // 明文附件（无 content key）不重封装，但**必须重上传**：源 uri 是
+          // 原会话 scope 下的 object_key，读取授权按 scope 判成员资格，原样
+          // 复制等于投递一条「看得见、点开 403」的消息。
+          payload = PlainAttachmentForward.needsReupload(sourceMetadata)
+              ? await PlainAttachmentForward.reupload(
+                  payload: base,
+                  newMessageId: messageId,
+                  targetScope: scope.scope,
+                  targetConversationId: scope.scopeRef,
+                )
+              : base;
         case ForwardRejected(:final reason):
           throw AttachmentForwardException(reason);
         case ForwardReSeal():
-          final scope = ChatAttachmentHandler.deriveUploadScope(
-            conversationUk3: conversation.uk3,
-            currentUid: forwarderUid,
-            peerId: conversation.peerId.toString(),
-            type: chatType,
-          );
           final base = buildForwardPayload(
             sourceMetadata: sourceMetadata,
             text: msg is TextMessage ? msg.text : '',
@@ -339,6 +353,13 @@ class SendToNotifier extends Notifier<SendToState> {
       // 无半转发状态；重试 = 全新消息 id + 全新密钥重封装，幂等。
       // 日志按 Finding 014 口径只落稳定码，不输出异常对象。
       debugPrint('[send_to_provider] forward blocked, reason=${e.reason}');
+      AppLoading.showError(forwardFailureToast(e.reason));
+    } on PlainAttachmentForwardException catch (e) {
+      // 明文附件重上传失败：同样在落库前失败。稳定码与加密路径同一组映射，
+      // 用户看到的文案一致（下载/上传失败 → 通用发送失败）。
+      debugPrint(
+        '[send_to_provider] plain forward blocked, reason=${e.reason}',
+      );
       AppLoading.showError(forwardFailureToast(e.reason));
     } on Exception catch (e) {
       debugPrint('[send_to_provider] block error: $e');
