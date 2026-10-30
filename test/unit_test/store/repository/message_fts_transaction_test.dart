@@ -281,6 +281,192 @@ void main() {
       }
     });
   }
+  // ===== 阅后即焚到期销毁（chat_burn_service 同路径）=====
+  //
+  // 风险线：到期阅后即焚消息仍可经本地 FTS 返回正文。
+  // ChatBurnService.expireBurnMessage 的库层动作就是 repo.find + repo.delete
+  // （lib/page/chat/chat/services/chat_burn_service.dart:298 与 :317），
+  // MessageRepo.delete 在删行前经 _ftsRemoveStaleIndexEntry 清 FTS。
+  // 本组测试复刻同一调用序列并断言销毁后 FTS 搜索不再命中。
+  for (final type in ['C2C', 'C2G']) {
+    test('burn_expiry $type removes FTS terms on chat_burn_service delete path', () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      final db = await openFixtureDatabaseAtVersion(
+        version: kInventoryCurrentDbVersion,
+      );
+      SqliteService.setDbForTest(db);
+      final table = type == 'C2C' ? MessageRepo.c2cTable : MessageRepo.c2gTable;
+      final repo = MessageRepo(tableName: table);
+      final fts = MessageFtsRepo();
+      const msgId = '116837000000000106';
+      try {
+        // 存活期：带阅后即焚元数据的消息与普通文本一致入索引
+        // （payload 键与 ChatBurnService.isBurnPayload / burnAfterMsFromPayload /
+        //  burnReadAtMsFromPayload 读取的现网形态一致）
+        await repo.insert(
+          MessageModel(
+            msgId,
+            autoId: 1,
+            type: type,
+            status: IMBoyMessageStatus.seen,
+            fromId: 200,
+            toId: 100,
+            payload: {
+              'text': 'burnsecretword',
+              'burn': true,
+              'burn_after_ms': 60000,
+              'burn_read_at': 1700000001000,
+            },
+            createdAt: 1700000000000,
+            isAuthor: 0,
+            conversationUk3: 'synthetic',
+            msgType: 'text',
+          ),
+        );
+        await repo.waitForFtsReindexForTest();
+        expect(
+          await db.rawQuery(
+            'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+            ['burnsecretword'],
+          ),
+          hasLength(1),
+        );
+
+        // 复刻 ChatBurnService.expireBurnMessage：
+        // find(messageId) 非空后调用同一 repo.delete(messageId)
+        final MessageModel? m = await repo.find(msgId);
+        expect(m, isNotNull, reason: '到期销毁前消息行必须仍在库中');
+        expect(m!.payloadMap['burn'], isTrue);
+        await repo.delete(msgId);
+        await repo.waitForFtsReindexForTest();
+
+        // 行已出库
+        expect(await repo.find(msgId), isNull);
+        // FTS 词条已清：裸 MATCH 无命中
+        expect(
+          await db.rawQuery(
+            'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+            ['burnsecretword'],
+          ),
+          isEmpty,
+        );
+        // 搜索 API 层不再返回正文
+        final results = type == 'C2C'
+            ? await fts.searchC2c(
+                query: 'burnsecretword',
+                conversationUk3: 'synthetic',
+              )
+            : await fts.searchC2g(
+                query: 'burnsecretword',
+                conversationUk3: 'synthetic',
+              );
+        expect(results, isEmpty);
+      } finally {
+        await repo.waitForFtsReindexForTest();
+        SqliteService.setDbForTest(null);
+        await db.close();
+      }
+    });
+    test(
+      'burn_expiry $type removes FTS terms after burn_read_at update then expiry',
+      () async {
+        SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+        await StorageService.init();
+        sqfliteFfiInit();
+        databaseFactory = databaseFactoryFfi;
+        final db = await openFixtureDatabaseAtVersion(
+          version: kInventoryCurrentDbVersion,
+        );
+        SqliteService.setDbForTest(db);
+        final table = type == 'C2C'
+            ? MessageRepo.c2cTable
+            : MessageRepo.c2gTable;
+        final repo = MessageRepo(tableName: table);
+        final fts = MessageFtsRepo();
+        const msgId = '116837000000000107';
+        try {
+          // 已送达但未读：payload 尚无 burn_read_at
+          await repo.insert(
+            MessageModel(
+              msgId,
+              autoId: 1,
+              type: type,
+              status: IMBoyMessageStatus.delivered,
+              fromId: 200,
+              toId: 100,
+              payload: {
+                'text': 'burnreadsecret',
+                'burn': true,
+                'burn_after_ms': 60000,
+              },
+              createdAt: 1700000000000,
+              isAuthor: 0,
+              conversationUk3: 'synthetic',
+              msgType: 'text',
+            ),
+          );
+          await repo.waitForFtsReindexForTest();
+          expect(
+            await db.rawQuery(
+              'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+              ['burnreadsecret'],
+            ),
+            hasLength(1),
+          );
+
+          // 复刻 ChatBurnService.markBurnReadAt 的落库动作
+          // （chat_burn_service.dart:254-262：repo.update 写入 burn_read_at）
+          final MessageModel? m = await repo.find(msgId);
+          expect(m, isNotNull);
+          final payload = Map<String, dynamic>.from(m!.payloadMap);
+          payload['burn_read_at'] = 1700000001000;
+          await repo.update({
+            MessageRepo.id: msgId,
+            MessageRepo.payload: payload,
+          });
+          await repo.waitForFtsReindexForTest();
+          // 仍存活：正文保持可搜（倒计时中）
+          expect(
+            await db.rawQuery(
+              'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+              ['burnreadsecret'],
+            ),
+            hasLength(1),
+          );
+
+          // 到期：与 expireBurnMessage 相同的 repo.delete
+          await repo.delete(msgId);
+          await repo.waitForFtsReindexForTest();
+
+          expect(await repo.find(msgId), isNull);
+          expect(
+            await db.rawQuery(
+              'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+              ['burnreadsecret'],
+            ),
+            isEmpty,
+          );
+          final results = type == 'C2C'
+              ? await fts.searchC2c(
+                  query: 'burnreadsecret',
+                  conversationUk3: 'synthetic',
+                )
+              : await fts.searchC2g(
+                  query: 'burnreadsecret',
+                  conversationUk3: 'synthetic',
+                );
+          expect(results, isEmpty);
+        } finally {
+          await repo.waitForFtsReindexForTest();
+          SqliteService.setDbForTest(null);
+          await db.close();
+        }
+      },
+    );
+  }
   for (final type in ['C2C', 'C2G']) {
     for (final rollback in [false, true]) {
       test('FTS $type transactional insert rollback=$rollback', () async {

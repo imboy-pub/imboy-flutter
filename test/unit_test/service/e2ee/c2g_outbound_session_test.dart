@@ -18,6 +18,7 @@ import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/megolm_protocol.dart';
+import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/service/e2ee/policy_gate.dart';
 import 'package:imboy/service/e2ee_service.dart' show E2EEService;
 import 'package:imboy/service/encryption_mode.dart';
@@ -227,7 +228,16 @@ void main() {
           final envelope = result!['e2ee'] as Map;
           expect(envelope['meta_version'], 3);
           expect(envelope['ciphertext'], isNotEmpty);
-          expect((envelope['protocol_metadata'] as Map)['protocol'], 'megolm');
+          final metadata = envelope['protocol_metadata'] as Map;
+          expect(metadata['protocol'], 'megolm');
+          expect(metadata['gid'], _gid);
+          final header = ProtectedFrameV3.verifyOuterEnvelope(
+            Map<String, dynamic>.from(envelope),
+          );
+          expect(header.isValid, isTrue);
+          expect(header.decodedHeader!['conversation_id'], _gid);
+          expect(header.decodedHeader!['destination'], _gid);
+          expect(header.decodedHeader!['session_ref'], metadata['session_id']);
         }
       },
     );

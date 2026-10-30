@@ -323,22 +323,26 @@ void main() {
         'payload': encrypted.ciphertext,
         'e2ee': envelope,
       };
-      metadata['gid'] = 'other-group';
-      expect(
-        (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
-        'context_mismatch_gid',
-      );
-      expect(groupProtocol.decryptMetadata, isEmpty);
       metadata.remove('gid');
       expect(
         (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
         'context_mismatch_gid',
       );
+      expect(groupProtocol.decryptMetadata, isEmpty);
+      for (final invalidGid in [null, '', 'other-group']) {
+        metadata['gid'] = invalidGid;
+        expect(
+          (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
+          'context_mismatch_gid',
+        );
+        expect(groupProtocol.decryptMetadata, isEmpty);
+      }
       metadata['gid'] = 'group-1';
       expect(
         (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
         isNot(true),
       );
+      expect(groupProtocol.decryptMetadata.single['gid'], 'group-1');
     });
 
     test('群聊恢复缓存仍需满足历史授权', () async {
