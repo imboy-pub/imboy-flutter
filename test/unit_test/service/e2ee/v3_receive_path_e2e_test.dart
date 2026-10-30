@@ -43,6 +43,7 @@ library;
 
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
@@ -51,14 +52,25 @@ import 'package:imboy/service/e2ee/e2ee_bootstrap.dart';
 import 'package:imboy/service/e2ee/e2ee_outbound_router.dart';
 import 'package:imboy/service/e2ee/e2ee_protocol.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
+import 'package:imboy/service/e2ee/megolm_protocol.dart';
 import 'package:imboy/service/e2ee_service.dart' hide RecipientDevice;
+import 'package:imboy/service/message_offline.dart';
+import 'package:imboy/service/message.dart';
+import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/olm_session_service.dart'
+    show DuplicateMessageException;
+import 'package:imboy/service/group_session_service.dart';
+import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/config/init.dart';
+
+import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 const String _sessionId = 'kR8pQmXv2TnL7yFwZ0aBcDeGhIjKlMnOpQrStUvWxYz';
 
 /// 恒等协议：只替换密码学，不替换 wiring。
 /// metadata 形状对照真实 `OlmProtocol.encrypt`（olm_protocol.dart:65-78）。
 class _IdentityOlmProtocol implements E2eeSessionProtocol {
+  bool rejectDuplicate = false;
   @override
   ProtocolSuite get suite => ProtocolSuite.olm;
 
@@ -91,6 +103,7 @@ class _IdentityOlmProtocol implements E2eeSessionProtocol {
     required Map<String, dynamic> metadata,
     E2eeContext? context,
   }) async {
+    if (rejectDuplicate) throw DuplicateMessageException('test');
     return ciphertext;
   }
 
@@ -99,6 +112,8 @@ class _IdentityOlmProtocol implements E2eeSessionProtocol {
 }
 
 class _IdentityMegolmProtocol implements E2eeSessionProtocol {
+  final List<Map<String, dynamic>> decryptMetadata = [];
+
   @override
   ProtocolSuite get suite => ProtocolSuite.megolm;
 
@@ -126,7 +141,10 @@ class _IdentityMegolmProtocol implements E2eeSessionProtocol {
     required String ciphertext,
     required Map<String, dynamic> metadata,
     E2eeContext? context,
-  }) async => ciphertext;
+  }) async {
+    decryptMetadata.add(Map<String, dynamic>.from(metadata));
+    return ciphertext;
+  }
 
   @override
   Future<void> clearAll() async {}
@@ -136,12 +154,14 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late Database db;
+  late _IdentityMegolmProtocol groupProtocol;
+  late _IdentityOlmProtocol olmProtocol;
 
   setUpAll(sqfliteFfiInit);
 
   setUp(() async {
     databaseFactory = databaseFactoryFfi;
-    db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+    db = await openFixtureDatabaseAtVersion(version: 32);
     SqliteService.setDbForTest(db);
 
     // 顺序要紧：先让 bootstrap 完成一次真实注册（把内部 _registered 置 true），
@@ -150,8 +170,10 @@ void main() {
     E2eeBootstrap.resetForTest();
     E2eeBootstrap.ensureRegistered();
     E2eeProtocolRegistry.resetForTest();
-    E2eeProtocolRegistry.register(_IdentityOlmProtocol());
-    E2eeProtocolRegistry.register(_IdentityMegolmProtocol());
+    olmProtocol = _IdentityOlmProtocol();
+    E2eeProtocolRegistry.register(olmProtocol);
+    groupProtocol = _IdentityMegolmProtocol();
+    E2eeProtocolRegistry.register(groupProtocol);
   });
 
   tearDown(() async {
@@ -165,7 +187,10 @@ void main() {
   /// 复刻 `chat_network_service._encryptC2COlmFanOut` 的实际产出形状：
   /// e2ee 为 fan_out/devices 结构，**外层 payload 为空串**（密文在信封内）。
   /// 信封挂在本机 deviceId 下，与生产接收侧按 deviceId 取信封一致。
-  Future<Map<String, dynamic>> buildV3Message(String msgId) async {
+  Future<Map<String, dynamic>> buildV3Message(
+    String msgId, {
+    String action = 'message',
+  }) async {
     final myDid = deviceId;
     final encrypted = await E2eeOutboundRouter.encryptV3(
       suite: ProtocolSuite.olm,
@@ -179,7 +204,7 @@ void main() {
       senderDid: 'dev-sender',
       destination: '200',
       messageType: 'text',
-      action: 'message',
+      action: action,
       sessionRef: _sessionId,
       createdAtMs: 1753500000000,
     );
@@ -208,6 +233,339 @@ void main() {
   }
 
   group('PFv3 接收侧接线', () {
+    test('协议去重异常不能作为编辑已完成确认', () async {
+      final data = await buildV3Message(
+        'edit-duplicate',
+        action: 'message_edit',
+      );
+      data['action'] = 'message_edit';
+      olmProtocol.rejectDuplicate = true;
+      try {
+        expect(await MessageService.to.persistInboundMessage(data), isFalse);
+      } finally {
+        MessageService.to.dispose();
+        MessageRetry.instance.dispose();
+      }
+    });
+
+    test('编辑密文身份冲突时接收入口不得确认', () async {
+      final data = await buildV3Message(
+        'edit-conflict',
+        action: 'message_edit',
+      );
+      data['action'] = 'message_edit';
+      expect(
+        (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
+        isNot(true),
+      );
+      final devices = (data['e2ee'] as Map)['devices'] as Map;
+      final envelope = devices[deviceId] as Map;
+      envelope['ciphertext'] = '${envelope['ciphertext']}A';
+      try {
+        expect(await MessageService.to.persistInboundMessage(data), isFalse);
+      } finally {
+        MessageService.to.dispose();
+        MessageRetry.instance.dispose();
+      }
+    });
+
+    test('离线编辑路由提示必须与认证头一致', () async {
+      final edit = await buildV3Message('offline-edit', action: 'message_edit');
+      (edit['e2ee'] as Map)['relay_action'] = 'message_edit';
+      final normalized = MessageOfflineService.normalizeForReceive(edit, 'C2C');
+      expect(normalized['action'], 'message_edit');
+      expect(
+        (await E2EEService.decryptInboundV3(data: normalized))?['_e2ee_failed'],
+        isNot(true),
+      );
+
+      final forged = await buildV3Message('offline-forged');
+      (forged['e2ee'] as Map)['relay_action'] = 'message_edit';
+      final forgedNormalized = MessageOfflineService.normalizeForReceive(
+        forged,
+        'C2C',
+      );
+      expect(
+        (await E2EEService.decryptInboundV3(
+          data: forgedNormalized,
+        ))?['_e2ee_reason'],
+        'context_mismatch_action',
+      );
+    });
+
+    test('群聊协议元数据的 gid 必须与认证头一致', () async {
+      final encrypted = await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.megolm,
+        plaintext: jsonEncode({'text': 'synthetic'}),
+        recipients: const [],
+        context: E2eeContext(gid: 'group-1', scope: 'c2g'),
+        messageId: 'group-metadata-gid',
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: 'group-1',
+        messageType: 'text',
+        action: 'message',
+        sessionRef: _sessionId,
+        createdAtMs: 1753500000000,
+      );
+      final envelope = Map<String, dynamic>.from(encrypted.metadata);
+      final metadata = Map<String, dynamic>.from(
+        envelope['protocol_metadata'] as Map,
+      );
+      envelope['protocol_metadata'] = metadata;
+      final data = <String, dynamic>{
+        'id': 'group-metadata-gid',
+        'type': 'C2G',
+        'from': '100',
+        'to': 'group-1',
+        'msg_type': 'text',
+        'sender_did': 'dev-sender',
+        'payload': encrypted.ciphertext,
+        'e2ee': envelope,
+      };
+      metadata['gid'] = 'other-group';
+      expect(
+        (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
+        'context_mismatch_gid',
+      );
+      expect(groupProtocol.decryptMetadata, isEmpty);
+      metadata.remove('gid');
+      expect(
+        (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
+        'context_mismatch_gid',
+      );
+      metadata['gid'] = 'group-1';
+      expect(
+        (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
+        isNot(true),
+      );
+    });
+
+    test('群聊恢复缓存仍需满足历史授权', () async {
+      const channel = MethodChannel(
+        'plugins.it_nomads.com/flutter_secure_storage',
+      );
+      const grant = MegolmHistoryGrant(
+        scope: 'group-1',
+        sessionId: _sessionId,
+        generationNo: 2,
+        startSeq: 481,
+        endSeq: 500,
+      );
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            channel,
+            (call) async =>
+                call.method == 'read' ? jsonEncode(grant.toJson()) : null,
+          );
+      GroupSessionService.to.clearMemory();
+      try {
+        final encrypted = await E2eeOutboundRouter.encryptV3(
+          suite: ProtocolSuite.megolm,
+          plaintext: jsonEncode({'text': 'synthetic'}),
+          recipients: const [],
+          context: E2eeContext(gid: 'group-1', scope: 'c2g'),
+          messageId: 'group-cached-grant',
+          senderUid: '100',
+          senderDid: 'dev-sender',
+          destination: 'group-1',
+          messageType: 'text',
+          action: 'message',
+          sessionRef: _sessionId,
+          createdAtMs: 1753500000000,
+        );
+        final data = <String, dynamic>{
+          'id': 'group-cached-grant',
+          'type': 'C2G',
+          'from': '100',
+          'to': 'group-1',
+          'msg_type': 'text',
+          'sender_did': 'dev-sender',
+          'conv_seq': 481,
+          'payload': encrypted.ciphertext,
+          'e2ee': encrypted.metadata,
+        };
+        expect(
+          (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
+          isNot(true),
+        );
+        final staged = (await db.query(
+          'crypto_inbox_staging',
+          where: 'message_id = ?',
+          whereArgs: ['group-cached-grant'],
+        )).single;
+        expect(
+          await CryptoStore(db).commitInboundResult(
+            messageId: 'group-cached-grant',
+            scope: staged['scope'] as String,
+            ciphertextDigest: staged['ciphertext_digest'] as String,
+            decryptedPayload: utf8.decode(
+              base64Url.decode(encrypted.metadata['ciphertext'] as String),
+            ),
+          ),
+          isTrue,
+        );
+        data['conv_seq'] = 480;
+        expect(
+          (await E2EEService.decryptInboundV3(data: data))?['_e2ee_reason'],
+          'historical_room_key_scope_denied',
+        );
+        final protocolMetadata = <String, dynamic>{
+          'gid': 'group-1',
+          'session_id': _sessionId,
+          'message_id': 'group-cached-grant',
+          'inbox_scope': staged['scope'],
+          'ciphertext_digest': staged['ciphertext_digest'],
+          'history_conv_seq': 480,
+        };
+        await expectLater(
+          MegolmProtocol().decrypt(ciphertext: '', metadata: protocolMetadata),
+          throwsA(
+            isA<E2eeDecryptException>().having(
+              (error) => error.reason,
+              'reason',
+              'historical_room_key_scope_denied',
+            ),
+          ),
+        );
+        protocolMetadata['history_conv_seq'] = 481;
+        expect(
+          await MegolmProtocol().decrypt(
+            ciphertext: '',
+            metadata: protocolMetadata,
+          ),
+          utf8.decode(
+            base64Url.decode(encrypted.metadata['ciphertext'] as String),
+          ),
+        );
+        data['conv_seq'] = 481;
+        expect(
+          (await E2EEService.decryptInboundV3(data: data))?['_e2ee_failed'],
+          isNot(true),
+        );
+        expect(groupProtocol.decryptMetadata.length, 1);
+      } finally {
+        GroupSessionService.to.clearMemory();
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      }
+    });
+
+    test('群聊 v3 历史序号仅来自可信外层或归档参数', () async {
+      for (final source in ['outer', 'archive', 'missing']) {
+        final encrypted = await E2eeOutboundRouter.encryptV3(
+          suite: ProtocolSuite.megolm,
+          plaintext: jsonEncode({'text': 'synthetic'}),
+          recipients: const [],
+          context: E2eeContext(gid: 'group-1', scope: 'c2g'),
+          messageId: 'group-sequence-$source',
+          senderUid: '100',
+          senderDid: 'dev-sender',
+          destination: 'group-1',
+          messageType: 'text',
+          action: 'message',
+          sessionRef: _sessionId,
+          createdAtMs: 1753500000000,
+        );
+        final envelope = Map<String, dynamic>.from(encrypted.metadata);
+        envelope['protocol_metadata'] = {
+          ...envelope['protocol_metadata'] as Map<String, dynamic>,
+          'history_conv_seq': 1,
+        };
+        final result = await E2EEService.decryptInboundV3(
+          data: {
+            'id': 'group-sequence-$source',
+            'type': 'C2G',
+            'from': '100',
+            'to': 'group-1',
+            'msg_type': 'text',
+            'sender_did': 'dev-sender',
+            if (source == 'outer') 'conv_seq': 485,
+            'payload': encrypted.ciphertext,
+            'e2ee': envelope,
+          },
+          trustedArchiveConvSeq: source == 'missing' ? null : 480,
+        );
+        expect(result?['_e2ee_failed'], isNot(true));
+        final metadata = groupProtocol.decryptMetadata.last;
+        if (source == 'missing') {
+          expect(metadata.containsKey('history_conv_seq'), isFalse);
+        } else {
+          expect(metadata['history_conv_seq'], source == 'outer' ? 485 : 480);
+        }
+      }
+    });
+
+    test('群聊编辑操作与受认证头绑定', () async {
+      final encrypted = await E2eeOutboundRouter.encryptV3(
+        suite: ProtocolSuite.megolm,
+        plaintext: jsonEncode({
+          'original_msg_id': 'group-original',
+          'content': 'edited text',
+        }),
+        recipients: const [],
+        context: E2eeContext(gid: 'group-1', scope: 'c2g'),
+        messageId: 'group-edit-binding',
+        senderUid: '100',
+        senderDid: 'dev-sender',
+        destination: 'group-1',
+        messageType: 'text',
+        action: 'message_edit',
+        sessionRef: _sessionId,
+        createdAtMs: 1753500000000,
+      );
+      final data = <String, dynamic>{
+        'id': 'group-edit-binding',
+        'type': 'C2G',
+        'from': '100',
+        'to': 'group-1',
+        'msg_type': 'text',
+        'sender_did': 'dev-sender',
+        'action': 'message',
+        'payload': encrypted.ciphertext,
+        'e2ee': {...encrypted.metadata, 'protocol': 'megolm', 'gid': 'group-1'},
+      };
+      final forged = await E2EEService.decryptInboundV3(data: data);
+      expect(forged?['_e2ee_reason'], 'context_mismatch_action');
+
+      data['action'] = 'message_edit';
+      final valid = await E2EEService.decryptInboundV3(data: data);
+      expect(valid?['_e2ee_failed'], isNot(true));
+      expect(valid?['original_msg_id'], 'group-original');
+      expect(valid?['content'], 'edited text');
+    });
+
+    test('编辑操作必须与受认证头一致', () async {
+      final forgedEdit = await buildV3Message('v3-forged-edit');
+      forgedEdit['action'] = 'message_edit';
+      final forgedResult = await E2EEService.decryptInboundV3(data: forgedEdit);
+      expect(forgedResult?['_e2ee_reason'], 'context_mismatch_action');
+
+      final missingEdit = await buildV3Message(
+        'v3-missing-edit',
+        action: 'message_edit',
+      );
+      final missingResult = await E2EEService.decryptInboundV3(
+        data: missingEdit,
+      );
+      expect(missingResult?['_e2ee_reason'], 'context_mismatch_action');
+
+      missingEdit['action'] = 'message_edit';
+      final validResult = await E2EEService.decryptInboundV3(data: missingEdit);
+      expect(validResult?['_e2ee_failed'], isNot(true));
+    });
+
+    test('发送设备不在 fan-out 时不能解密服务端回显', () async {
+      final data = await buildV3Message('inbound-v3-no-sender-envelope');
+      final metadata = data['e2ee'] as Map<String, dynamic>;
+      final devices = metadata['devices'] as Map<String, dynamic>;
+      devices['other-device'] = devices.remove(deviceId);
+
+      final result = await E2EEService.decryptInboundV3(data: data);
+      expect(result?['_e2ee_failed'], isTrue);
+      expect(result?['_e2ee_reason'], 'no_device_envelope');
+    });
+
     test('v3 fan-out 消息必须被识别并解出明文', () async {
       final data = await buildV3Message('inbound-v3-001');
       final result = await E2EEService.decryptInboundV3(data: data);
@@ -268,7 +626,7 @@ void main() {
       data['e2ee'] = e2ee;
 
       final tampered = await E2EEService.decryptInboundV3(data: data);
-      expect(tampered?['_e2ee_reason'], 'duplicate_message');
+      expect(tampered?['_e2ee_reason'], 'inbound_identity_conflict');
     });
 
     test('非 v3 信封必须返回 null，交回 v1/v2 路径处理', () async {
