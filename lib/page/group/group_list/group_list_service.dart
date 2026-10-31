@@ -16,9 +16,18 @@ import 'package:imboy/store/api/group_member_api.dart';
 import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
+import 'package:imboy/store/repository/group_list_session_persistence.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
+
+/// 列表响应无效，但此前成功同步的群仍可展示。
+class GroupListIncompleteException extends FormatException {
+  GroupListIncompleteException(FormatException cause, this.syncedGroups)
+    : super(cause.message, cause.source, cause.offset);
+
+  final List<GroupModel> syncedGroups;
+}
 
 /// 群组列表服务类 - 处理业务逻辑
 class GroupListService {
@@ -51,13 +60,14 @@ class GroupListService {
   /// `payload == null → 终止` 同类，绝无第一页伪全量。
   Future<List<GroupModel>> _pullAndSyncViaCursor({
     required String attr,
+    required GroupListSessionPersistence persistence,
     int? want,
     int maxPages = 20,
   }) async {
-    final repo = GroupRepo();
     final acc = <GroupModel>[];
     String? token;
     for (var p = 0; p < maxPages; p++) {
+      persistence.checkCurrent();
       if (want != null && acc.length >= want) break;
       final CursorPage<Map<String, dynamic>> page;
       try {
@@ -66,7 +76,14 @@ class GroupListService {
           token: token,
           limit: want == null ? _cursorPageCap : want.clamp(1, _cursorPageCap),
         );
+        persistence.checkCurrent();
+      } on GroupListSessionCancelled {
+        rethrow;
+      } on FormatException catch (e) {
+        persistence.checkCurrent();
+        throw GroupListIncompleteException(e, List.unmodifiable(acc));
       } catch (e, s) {
+        persistence.checkCurrent();
         iPrint(
           "GroupListService cursor pull attr=$attr page=${p + 1} "
           "rejected: $e\n$s",
@@ -74,13 +91,13 @@ class GroupListService {
         break;
       }
       for (final item in page.list) {
-        final group = await repo.save('', item);
-        await _syncSelfMembershipShadow(attr: attr, group: group);
+        final group = await persistence.saveGroup(item, attr: attr);
         acc.add(group);
       }
       token = page.nextCursor;
       if (token == null) break; // 终止页契约：空 next_cursor 收口
     }
+    persistence.checkCurrent();
     return acc;
   }
 
@@ -88,47 +105,68 @@ class GroupListService {
     required int page,
     required int size,
     required int offset,
+    required GroupListSessionPersistence persistence,
   }) async {
     final repo = GroupRepo();
     final merged = <String, GroupModel>{};
     for (final attr in const ['manager', 'join', 'owner']) {
-      if (_cursorGateEnabled) {
-        for (final group in await _pullAndSyncViaCursor(
-          attr: attr,
-          want: size,
-        )) {
-          merged[group.groupId] = group;
-        }
-        continue;
-      }
-      final payload = await GroupApi().page(page: page, size: size, attr: attr);
-      if (payload == null) {
-        continue;
-      }
-      final rows = payload['list'];
-      if (rows is! List || rows.isEmpty) {
-        continue;
-      }
-      for (final item in rows) {
-        if (item is! Map<String, dynamic>) {
+      persistence.checkCurrent();
+      try {
+        if (_cursorGateEnabled) {
+          for (final group in await _pullAndSyncViaCursor(
+            attr: attr,
+            persistence: persistence,
+            want: size,
+          )) {
+            merged[group.groupId] = group;
+          }
           continue;
         }
-        final json = Map<String, dynamic>.from(item);
-        final group = await repo.save('', json);
-        await _syncSelfMembershipShadow(attr: attr, group: group);
-        merged[group.groupId] = group;
+        final payload = await GroupApi().page(
+          page: page,
+          size: size,
+          attr: attr,
+        );
+        persistence.checkCurrent();
+        if (payload == null) {
+          continue;
+        }
+        final rows = payload['list'];
+        if (rows is! List || rows.isEmpty) {
+          continue;
+        }
+        for (final item in rows) {
+          if (item is! Map<String, dynamic>) {
+            continue;
+          }
+          final json = Map<String, dynamic>.from(item);
+          final group = await persistence.saveGroup(json, attr: attr);
+          merged[group.groupId] = group;
+        }
+      } on GroupListIncompleteException catch (e) {
+        persistence.checkCurrent();
+        for (final group in e.syncedGroups) {
+          merged[group.groupId] = group;
+        }
+        throw GroupListIncompleteException(e, List.unmodifiable(merged.values));
+      } on FormatException catch (e) {
+        persistence.checkCurrent();
+        throw GroupListIncompleteException(e, List.unmodifiable(merged.values));
       }
     }
 
     if (merged.isEmpty) {
       // 远端为空时使用本地激活群兜底，避免因关系字段脏数据导致整页空白。
-      return repo.pageActive(limit: size, offset: offset);
+      final local = await repo.pageActive(limit: size, offset: offset);
+      persistence.checkCurrent();
+      return local;
     }
     final local = await repo.pageByAttr(
       attr: 'all',
       limit: size,
       offset: offset,
     );
+    persistence.checkCurrent();
     if (local.isNotEmpty) {
       return local;
     }
@@ -137,100 +175,33 @@ class GroupListService {
     return list;
   }
 
-  Future<void> _syncSelfMembershipShadow({
-    required String attr,
-    required GroupModel group,
-  }) async {
-    final currentUid = UserRepoLocal.to.currentUid;
-    if (currentUid.isEmpty || group.groupId == '0') {
-      return;
-    }
-
-    final gmRepo = GroupMemberRepo();
-    final existed = await gmRepo.findByUserId(
-      group.groupId.toString(),
-      currentUid,
-    );
-    if (existed != null) {
-      final patch = <String, dynamic>{};
-      if (existed.status != 1) {
-        patch[GroupMemberRepo.status] = 1;
-      }
-      if (group.ownerUid.toString() == currentUid) {
-        if (existed.role < 4) {
-          patch[GroupMemberRepo.role] = 4;
-        }
-        if (existed.isJoin != 0) {
-          patch[GroupMemberRepo.isJoin] = 0;
-        }
-      } else {
-        if (attr == 'manager' && existed.role < 3) {
-          patch[GroupMemberRepo.role] = 3;
-        }
-        if (existed.isJoin != 1) {
-          patch[GroupMemberRepo.isJoin] = 1;
-        }
-      }
-      if (patch.isNotEmpty) {
-        await gmRepo.update(group.groupId.toString(), currentUid, patch);
-      }
-      return;
-    }
-
-    final now = DateTimeHelper.millisecond();
-    int role = 1;
-    int isJoin = 1;
-    if (group.ownerUid.toString() == currentUid) {
-      role = 4;
-      isJoin = 0;
-    } else if (attr == 'manager') {
-      role = 3;
-    }
-
-    await gmRepo.insert(
-      GroupMemberModel(
-        id: null,
-        groupId: group.groupId,
-        userId: currentUid,
-        nickname: UserRepoLocal.to.current.nickname,
-        avatar: UserRepoLocal.to.current.avatar,
-        sign: UserRepoLocal.to.current.sign,
-        account: UserRepoLocal.to.current.account,
-        alias: '',
-        role: role,
-        isJoin: isJoin,
-        joinMode: 'page_sync_$attr',
-        status: 1,
-        updatedAt: now,
-        createdAt: now,
-      ),
-    );
-  }
-
   Future<int> _pullAndSyncByAttr({
     required String attr,
+    required GroupListSessionPersistence persistence,
     int pageSize = 200,
     int maxPages = 20,
   }) async {
     final normalizedAttr = _normalizeAttr(attr);
     int syncedCount = 0;
-    final repo = GroupRepo();
 
     // W07.c 收尾：门开启走签名游标循环（终止页契约收口）；失败中断时
     // 已同步部分保留，与 legacy `payload == null → break` 同类。
     if (_cursorGateEnabled) {
       return (await _pullAndSyncViaCursor(
         attr: normalizedAttr,
+        persistence: persistence,
         maxPages: maxPages,
       )).length;
     }
 
     for (int p = 1; p <= maxPages; p++) {
+      persistence.checkCurrent();
       final payload = await GroupApi().page(
         page: p,
         size: pageSize,
         attr: normalizedAttr,
       );
+      persistence.checkCurrent();
       if (payload == null) {
         break;
       }
@@ -244,8 +215,7 @@ class GroupListService {
           continue;
         }
         final json = Map<String, dynamic>.from(item);
-        final group = await repo.save('', json);
-        await _syncSelfMembershipShadow(attr: normalizedAttr, group: group);
+        await persistence.saveGroup(json, attr: normalizedAttr);
         syncedCount += 1;
       }
 
@@ -261,10 +231,14 @@ class GroupListService {
     int pageSize = 200,
     int maxPages = 20,
   }) async {
+    final persistence = await GroupListSessionPersistence.bind();
     final repo = GroupRepo();
     final beforeOwner = await repo.countByAttr(attr: 'owner');
+    persistence.checkCurrent();
     final beforeJoin = await repo.countByAttr(attr: 'join');
+    persistence.checkCurrent();
     final beforeManager = await repo.countByAttr(attr: 'manager');
+    persistence.checkCurrent();
 
     int groupRows = 0;
     int errors = 0;
@@ -273,20 +247,28 @@ class GroupListService {
       try {
         final count = await _pullAndSyncByAttr(
           attr: attr,
+          persistence: persistence,
           pageSize: pageSize,
           maxPages: maxPages,
         );
+        persistence.checkCurrent();
         perAttr[attr] = count;
         groupRows += count;
+      } on GroupListSessionCancelled {
+        rethrow;
       } catch (e, s) {
+        persistence.checkCurrent();
         iPrint("selfHealMembershipShadows attr=$attr error: $e\n$s");
         errors += 1;
       }
     }
 
     final afterOwner = await repo.countByAttr(attr: 'owner');
+    persistence.checkCurrent();
     final afterJoin = await repo.countByAttr(attr: 'join');
+    persistence.checkCurrent();
     final afterManager = await repo.countByAttr(attr: 'manager');
+    persistence.checkCurrent();
 
     return {
       'groupRows': groupRows,
@@ -313,7 +295,7 @@ class GroupListService {
   ///   驱动表 LEFT JOIN group_member、`gm.group_id = ?` 落在被 join 表上，
   ///   只能取到同时是我好友的成员，拼图缺格（computeTitle 修过的同款 bug）。
   /// - `order by gm.user_id`：同一群任何时刻排列一致，不随查询时刻/位置漂移。
-  /// - `is_join in (0, 1)`：0=群主 1=普通成员（写入侧见 _syncSelfMembershipShadow
+  /// - `is_join in (0, 1)`：0=群主 1=普通成员（写入侧见 GroupListSessionPersistence
   ///   的 owner 分支强制 0，消费侧见 remove_member_provider 过滤注释），用 in
   ///   而非 `= 1`，否则群主头像从拼图消失；`or gm.user_id = ?` 兜底自己行的
   ///   is_join 脏值（DDL DEFAULT 0，正常写入只会是 0/1）。
@@ -529,18 +511,25 @@ class GroupListService {
     page = page > 1 ? page : 1;
     int offset = (page - 1) * size;
     var repo = GroupRepo();
+    final persistence = await GroupListSessionPersistence.bind();
     if (onRefresh == false) {
       list = await repo.pageByAttr(
         attr: normalizedAttr,
         limit: size,
         offset: offset,
       );
+      persistence.checkCurrent();
     }
     if (list.isNotEmpty) {
       return list;
     }
     if (normalizedAttr == 'all') {
-      return _pullAndSyncAllViews(page: page, size: size, offset: offset);
+      return _pullAndSyncAllViews(
+        page: page,
+        size: size,
+        offset: offset,
+        persistence: persistence,
+      );
     }
     // W07.c 收尾：门开启走签名游标循环，取满 offset+size 条后按本地
     // 视图切片返回（legacy 单页请求在游标协议下不可跳页，改由累计
@@ -548,6 +537,7 @@ class GroupListService {
     if (_cursorGateEnabled) {
       final synced = await _pullAndSyncViaCursor(
         attr: normalizedAttr,
+        persistence: persistence,
         want: offset + size,
       );
       return synced.length > offset ? synced.sublist(offset) : <GroupModel>[];
@@ -557,14 +547,14 @@ class GroupListService {
       size: size,
       attr: normalizedAttr,
     );
+    persistence.checkCurrent();
     if (payload == null) {
       return [];
     }
     for (var json in IMBoyHttpResponse.payloadList(payload)) {
-      GroupModel m = await repo.save('', json);
-      await _syncSelfMembershipShadow(attr: normalizedAttr, group: m);
-      list.add(m);
+      list.add(await persistence.saveGroup(json, attr: normalizedAttr));
     }
+    persistence.checkCurrent();
     return list;
   }
 

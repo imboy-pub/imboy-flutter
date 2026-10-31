@@ -493,24 +493,37 @@ class GroupRepo implements GroupRepository {
   }
 
   @override
-  Future<GroupModel> save(String gid, Map<String, dynamic> json) async {
+  Future<GroupModel> save(
+    String gid,
+    Map<String, dynamic> json, {
+    Transaction? txn,
+    void Function()? checkSession,
+  }) async {
     if (gid.isEmpty) {
       gid =
           (json[GroupRepo.groupId] ?? (json['group_id'] ?? (json['gid'] ?? '')))
               .toString();
     }
-    return await _db.transaction<GroupModel>((txn) async {
-      GroupModel? old = await findById(gid, txn: txn);
+    Future<GroupModel> saveInTransaction(Transaction transaction) async {
+      checkSession?.call();
+      final old = await findById(gid, txn: transaction);
+      checkSession?.call();
       iPrint("GroupRepo_save $gid, ${old?.toJson().toString()};");
       if (old == null) {
-        GroupModel model = GroupModel.fromJson(json);
-        await insert(model, txn: txn);
+        final model = GroupModel.fromJson(json);
+        await insert(model, txn: transaction);
+        checkSession?.call();
         return model;
-      } else {
-        await update(gid, json, txn: txn);
-        return (await findById(gid, txn: txn))!;
       }
-    });
+      await update(gid, json, txn: transaction);
+      checkSession?.call();
+      final updated = await findById(gid, txn: transaction);
+      checkSession?.call();
+      return updated!;
+    }
+
+    if (txn != null) return saveInTransaction(txn);
+    return _db.transaction<GroupModel>(saveInTransaction);
   }
 
   @override

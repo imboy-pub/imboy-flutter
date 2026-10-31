@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 part 'group_list_provider.g.dart';
 
@@ -11,6 +12,7 @@ class GroupListState {
   final String attr;
   final bool isSearch;
   final bool isLoading;
+  final bool loadFailed;
 
   const GroupListState({
     this.groupList = const [],
@@ -19,6 +21,7 @@ class GroupListState {
     this.attr = 'all',
     this.isSearch = false,
     this.isLoading = false,
+    this.loadFailed = false,
   });
 
   GroupListState copyWith({
@@ -28,6 +31,7 @@ class GroupListState {
     String? attr,
     bool? isSearch,
     bool? isLoading,
+    bool? loadFailed,
   }) {
     return GroupListState(
       groupList: groupList ?? this.groupList,
@@ -36,6 +40,7 @@ class GroupListState {
       attr: attr ?? this.attr,
       isSearch: isSearch ?? this.isSearch,
       isLoading: isLoading ?? this.isLoading,
+      loadFailed: loadFailed ?? this.loadFailed,
     );
   }
 }
@@ -43,9 +48,80 @@ class GroupListState {
 /// 群组列表 Notifier
 @Riverpod(keepAlive: true)
 class GroupListNotifier extends _$GroupListNotifier {
+  String? _ownerUid;
+  int? _sessionGeneration;
+  bool? _authTransitioning;
+  int _requestGeneration = 0;
+
   @override
   GroupListState build() {
+    final user = UserRepoLocal.to;
+    _ownerUid = user.currentUid;
+    _sessionGeneration = user.sessionGeneration;
+    _authTransitioning = user.isAuthTransitioning;
+    user.addAuthListener(_onAuthChanged);
+    ref.onDispose(() => user.removeAuthListener(_onAuthChanged));
     return const GroupListState();
+  }
+
+  void _ensureOwner() {
+    final user = UserRepoLocal.to;
+    if (_ownerUid == user.currentUid &&
+        _sessionGeneration == user.sessionGeneration &&
+        _authTransitioning == user.isAuthTransitioning) {
+      return;
+    }
+    _ownerUid = user.currentUid;
+    _sessionGeneration = user.sessionGeneration;
+    _authTransitioning = user.isAuthTransitioning;
+    _requestGeneration++;
+    state = const GroupListState();
+  }
+
+  void _onAuthChanged() {
+    if (ref.mounted) _ensureOwner();
+  }
+
+  /// 请求票据在所有页面实例间共享，并绑定账号与会话。
+  ({int request, String uid, int session, String attr})? beginLoad() {
+    _ensureOwner();
+    if (UserRepoLocal.to.isAuthTransitioning) return null;
+    final token = (
+      request: ++_requestGeneration,
+      uid: UserRepoLocal.to.currentUid,
+      session: UserRepoLocal.to.sessionGeneration,
+      attr: state.attr,
+    );
+    state = state.copyWith(isLoading: true);
+    return token;
+  }
+
+  bool isCurrentLoad(
+    ({int request, String uid, int session, String attr}) token,
+  ) {
+    final user = UserRepoLocal.to;
+    return ref.mounted &&
+        !user.isAuthTransitioning &&
+        user.currentUid == token.uid &&
+        user.sessionGeneration == token.session &&
+        _ownerUid == token.uid &&
+        _sessionGeneration == token.session &&
+        _requestGeneration == token.request &&
+        state.attr == token.attr;
+  }
+
+  void finishLoad(
+    ({int request, String uid, int session, String attr}) token, {
+    List<GroupModel>? groups,
+    bool failed = false,
+  }) {
+    if (!isCurrentLoad(token)) return;
+    state = state.copyWith(
+      groupList: groups,
+      page: failed ? state.page : 2,
+      isLoading: false,
+      loadFailed: failed,
+    );
   }
 
   /// 设置加载状态
@@ -60,7 +136,15 @@ class GroupListNotifier extends _$GroupListNotifier {
 
   /// 设置当前筛选属性：owner/join/manager
   void setAttr(String attr) {
-    state = state.copyWith(attr: attr, page: 1, groupList: []);
+    _ensureOwner();
+    _requestGeneration++;
+    state = state.copyWith(
+      attr: attr,
+      page: 1,
+      groupList: [],
+      isLoading: false,
+      loadFailed: false,
+    );
   }
 
   /// 设置页码
@@ -75,6 +159,7 @@ class GroupListNotifier extends _$GroupListNotifier {
 
   /// 重置状态
   void reset() {
+    _requestGeneration++;
     state = const GroupListState();
   }
 }

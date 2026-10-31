@@ -10,6 +10,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -56,26 +57,37 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
   Future<void> initData({bool onRefresh = false}) async {
     final notifier = ref.read(groupListProvider.notifier);
     final service = ref.read(groupListServiceProvider);
+    final token = notifier.beginLoad();
+    if (token == null) return;
     final state = ref.read(groupListProvider);
-    final currentAttr = state.attr;
-
-    notifier.setLoading(true);
     try {
       List<GroupModel> list = await service.page(
         page: 1,
         size: state.size,
-        onRefresh: onRefresh,
-        attr: currentAttr,
+        onRefresh: onRefresh || state.loadFailed,
+        attr: token.attr,
       );
+      if (!notifier.isCurrentLoad(token)) return;
       for (var m in list) {
         if (m.title.isEmpty) {
           m.computeTitle = await service.computeTitle(m.groupId.toString());
+          if (!notifier.isCurrentLoad(token)) return;
         }
       }
-      notifier.setGroupList(list);
-      notifier.setPage(2);
-    } finally {
-      notifier.setLoading(false);
+      notifier.finishLoad(token, groups: list);
+    } catch (e) {
+      if (!notifier.isCurrentLoad(token)) return;
+      List<GroupModel>? partial;
+      if (e is GroupListIncompleteException && e.syncedGroups.isNotEmpty) {
+        final groups = {
+          for (final group in state.groupList) group.groupId: group,
+        };
+        for (final group in e.syncedGroups) {
+          groups[group.groupId] = group;
+        }
+        partial = groups.values.toList();
+      }
+      notifier.finishLoad(token, groups: partial, failed: true);
     }
   }
 
@@ -86,10 +98,20 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
     // 不在外层手动 setLoading(true)：initData 内部已用 try/finally
     // 统一管理 loading，外层再置一次且无 finally 兜底，一旦 selfHeal
     // 抛出非 Exception 错误就永久卡在加载态。交给 initData 管理。
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    if (user.isAuthTransitioning) return;
     await AppInitializer.triggerGroupMembershipSelfHeal(
       force: true,
       source: 'group_list_refresh',
     );
+    if (!mounted ||
+        user.isAuthTransitioning ||
+        user.currentUid != uid ||
+        user.sessionGeneration != session) {
+      return;
+    }
     await initData(onRefresh: true);
   }
 
@@ -213,9 +235,25 @@ class _GroupListPageState extends ConsumerState<GroupListPage> {
           ),
         ),
 
+        // 错误提示不遮挡已同步或此前显示的群；重试强制访问远端。
+        if (!state.isLoading && state.loadFailed)
+          SliverToBoxAdapter(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(child: Text(t.common.loadError)),
+                CupertinoButton(
+                  onPressed: () => initData(onRefresh: true),
+                  child: Text(t.common.retry),
+                ),
+              ],
+            ),
+          ),
         // 列表区域
         if (state.isLoading)
           const SliverFillRemaining(child: ShimmerList())
+        else if (state.loadFailed && state.groupList.isEmpty)
+          const SliverFillRemaining(child: SizedBox.shrink())
         else if (state.groupList.isEmpty)
           SliverFillRemaining(child: _buildEmptyState(context))
         else if (filtered.isEmpty)
