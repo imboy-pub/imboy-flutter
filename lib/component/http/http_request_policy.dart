@@ -67,15 +67,6 @@ class SafeHttpLogInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     log('HTTP ${err.type.name} ${safeHttpUri(err.requestOptions.uri)}');
-    // unknown 类型不打出原异常就没法定位（manual_pending POST 3 连败
-    // 取证：客户端只见 type=unknown，真身藏在 err.error/message 里）。
-    if (err.type == DioExceptionType.unknown) {
-      log(
-        'HTTP unknown detail: error=${err.error} '
-        'msg=${err.message} '
-        'stack=${err.stackTrace.toString().split('\n').take(3).join(' | ')}',
-      );
-    }
     handler.next(err);
   }
 }

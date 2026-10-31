@@ -1,13 +1,171 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_exceptions.dart';
+import 'package:imboy/component/http/channel_id_response_decoder.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
+import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/component/http/http_parse.dart';
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
+// Raw server fixtures must never be built via numeric literals/JS Number.
+class _RawJsonAdapter implements HttpClientAdapter {
+  _RawJsonAdapter(this.body);
+  final String body;
+  final requests = <RequestOptions>[];
+  final requestBodies = <String>[];
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<List<int>>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    requests.add(options);
+    if (requestStream != null) {
+      requestBodies.add(
+        utf8.decode(await requestStream.expand((chunk) => chunk).toList()),
+      );
+    }
+    return ResponseBody.fromString(
+      body,
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
+}
+
 void main() {
+  group('J27.d/e: raw JSON VM boundary (not Web/device/backend acceptance)', () {
+    for (final digits in [
+      '9007199254740991',
+      '9007199254740992',
+      '9007199254740993',
+      '9223372036854775807',
+    ]) {
+      test(
+        'J27.d: $digits survives raw decode, model and wire serialization',
+        () async {
+          final raw =
+              '{"code":0,"msg":"success","payload":'
+              '{"id":$digits,"creator_uid":$digits,"name":"synthetic",'
+              '"created_at":1761868800000,"updated_at":1761868800000}}';
+          final adapter = _RawJsonAdapter(raw);
+          final dio = Dio()..httpClientAdapter = adapter;
+          addTearDown(() => dio.close(force: true));
+          final response = await dio.get<dynamic>(
+            'https://synthetic.invalid/channel',
+            options: Options(
+              responseDecoder: channelIdResponseDecoder(
+                ChannelResponseShape.detail,
+              ),
+            ),
+          );
+          final envelope = handleResponse(response, uri: '/channel');
+          expect(envelope.ok, isTrue);
+          expect(envelope.payload['id'], digits);
+          expect(envelope.payload['creator_uid'], digits);
+          final model = ChannelModel.fromJson(
+            Map<String, dynamic>.from(envelope.payload as Map),
+          );
+          expect(model.id, digits);
+          expect(model.creatorId, digits);
+          expect(model.toJson()['id'], digits);
+          // Synthetic request capture, not a production route/backend echo.
+          await dio.post<dynamic>(
+            'https://synthetic.invalid/channel/${model.id}',
+            data: {'channel_id': decimalIdForWire(model.id)},
+          );
+          expect(adapter.requests.last.uri.pathSegments.last, digits);
+          expect(adapter.requestBodies.single, '{"channel_id":$digits}');
+        },
+      );
+    }
+
+    test('J27.e: non-ID text, timestamps, money, decimals and Xid retain meaning', () async {
+      const raw =
+          r'{"code":0,"payload":{"id":9007199254740993,"creator_uid":9007199254740991,"name":"synthetic","created_at":1761868800000,"updated_at":1761868800000,"price":1299,"amount":12.5,"negative":-7,"text":"00092233720368547758071234567890","escaped":"quote: \"9007199254740993\"","message_id":"d3gk0m1r8s9t2u3v4w5x","nested":{"id":42},"enabled":true,"nothing":null}}';
+      final adapter = _RawJsonAdapter(raw);
+      final dio = Dio()..httpClientAdapter = adapter;
+      addTearDown(() => dio.close(force: true));
+      final response = await dio.get<dynamic>(
+        'https://synthetic.invalid/channel',
+        options: Options(
+          responseDecoder: channelIdResponseDecoder(
+            ChannelResponseShape.detail,
+          ),
+        ),
+      );
+      final envelope = handleResponse(response, uri: '/channel');
+      final payload = Map<String, dynamic>.from(envelope.payload as Map);
+      expect(payload['id'], '9007199254740993');
+      expect(payload['created_at'], isA<int>());
+      expect(payload['created_at'], 1761868800000);
+      expect(payload['price'], isA<int>());
+      expect(payload['price'], 1299);
+      expect(payload['amount'], isA<double>());
+      expect(payload['amount'], 12.5);
+      expect(payload['negative'], -7);
+      expect(payload['text'], '00092233720368547758071234567890');
+      expect(payload['escaped'], 'quote: "9007199254740993"');
+      expect(payload['message_id'], 'd3gk0m1r8s9t2u3v4w5x');
+      expect(payload['nested'], {'id': 42});
+      expect(payload['enabled'], isTrue);
+      expect(payload['nothing'], isNull);
+      final model = ChannelModel.fromJson(payload);
+      expect(model.price, 1299);
+      expect(model.createdAt.millisecondsSinceEpoch, 1761868800000);
+      final preserved = Map<String, dynamic>.from(payload)
+        ..remove('id')
+        ..remove('creator_uid');
+      await dio.post<dynamic>(
+        'https://synthetic.invalid/echo',
+        data: preserved,
+      );
+      expect(jsonDecode(adapter.requestBodies.single), preserved);
+    });
+
+    for (final token in [
+      '0',
+      '-1',
+      '12.5',
+      '1e3',
+      'true',
+      'null',
+      '9223372036854775808',
+      '"not-a-decimal-id"',
+      '"12.5"',
+    ]) {
+      test(
+        'J27.e: decimal validation rejects raw ID $token without truncation',
+        () async {
+          final adapter = _RawJsonAdapter('{"code":0,"payload":{"id":$token}}');
+          final dio = Dio()..httpClientAdapter = adapter;
+          addTearDown(() => dio.close(force: true));
+          final response = await dio.get<dynamic>(
+            'https://synthetic.invalid/channel',
+            options: Options(
+              responseDecoder: channelIdResponseDecoder(
+                ChannelResponseShape.detail,
+              ),
+            ),
+          );
+          final envelope = handleResponse(response, uri: '/channel');
+          expect(channelDecimalId(envelope.payload['id']), isNull);
+          // This validator returns null. ChannelModel.fromJson currently substitutes
+          // '0'; that is NOT explicit model/API rejection and does not close J27.e.
+        },
+      );
+    }
+  });
   group('server clock envelope', () {
     setUp(
       () => NtpHelper.updateOffsetFromServer(

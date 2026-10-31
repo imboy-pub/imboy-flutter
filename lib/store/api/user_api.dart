@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/error_code.dart';
@@ -13,7 +14,7 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:imboy/config/init.dart' show navigateToSignIn;
+import 'package:imboy/config/init.dart' show currentEnv, navigateToSignIn;
 
 /// 用户 API 提供者的 Riverpod Provider
 /// 提供对 UserApi 单例的访问
@@ -34,45 +35,70 @@ class UserApi extends HttpClient {
   /// 获取单例实例
   static UserApi get to => _instance;
 
+  @visibleForTesting
+  static HttpClientAdapter? refreshAdapterForTest;
+
   Future<String> refreshAccessTokenApi(
     String refreshToken, {
     bool checkNewToken = true,
   }) async {
-    if (UserRepoLocal.to.isClearingSession) return '';
-    final generation = UserRepoLocal.to.sessionGeneration;
+    final repo = UserRepoLocal.to;
+    final uid = repo.currentUid;
+    final generation = repo.sessionGeneration;
+    final loggedIn = repo.isLoggedIn;
+    final environment = currentEnv;
+    final endpoint = Env().apiBaseUrl;
+    bool current() =>
+        !repo.isAuthTransitioning &&
+        repo.currentUid == uid &&
+        repo.isCurrentSession(generation) &&
+        repo.isLoggedIn == loggedIn &&
+        currentEnv == environment &&
+        Env().apiBaseUrl == endpoint;
+
+    if (!current()) return '';
     if (strEmpty(refreshToken)) {
-      await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
-      if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
+      await repo.quitLogin(expectedGeneration: generation);
+      if (repo.isLoggedOutAfter(generation) &&
+          currentEnv == environment &&
+          Env().apiBaseUrl == endpoint) {
         navigateToSignIn(source: 'user_api_relogin');
       }
-      return "";
+      return '';
     }
-    Map<String, dynamic> headers = await defaultHeaders();
-    headers[Keys.refreshTokenKey] = refreshToken;
-    var response = await Dio(BaseOptions(baseUrl: Env().apiBaseUrl))
-        .post<dynamic>(API.refreshToken, options: Options(headers: headers));
-    // iPrint("refreshAccessTokenApi ${response.toString()}");
-    // iPrint("refreshAccessTokenApi refreshToken $refreshToken");
-    IMBoyHttpResponse resp = handleResponse(response, uri: API.refreshToken);
-    if (!UserRepoLocal.to.isCurrentSession(generation)) return '';
-    // 处理 token 相关错误（401 UNAUTHORIZED 包含了所有 token 失效情况）
-    if (ErrorCode.shouldReLogin(resp.code)) {
-      checkNewToken = true;
-    }
-    String newToken = resp.payload?['token'] as String? ?? '';
-    if (checkNewToken && strEmpty(newToken)) {
-      await UserRepoLocal.to.quitLogin(expectedGeneration: generation);
-      if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
-        navigateToSignIn(source: 'user_api_relogin');
+    try {
+      final headers = await defaultHeaders();
+      if (!current()) return '';
+      headers[Keys.refreshTokenKey] = refreshToken;
+      final dio = Dio(BaseOptions(baseUrl: endpoint));
+      if (refreshAdapterForTest != null) {
+        dio.httpClientAdapter = refreshAdapterForTest!;
       }
-      return "";
+      final response = await dio.post<dynamic>(
+        API.refreshToken,
+        options: Options(headers: headers),
+      );
+      if (!current()) return '';
+      final resp = handleResponse(response, uri: API.refreshToken);
+      if (ErrorCode.shouldReLogin(resp.code)) checkNewToken = true;
+      final newToken = resp.payload?['token'] as String? ?? '';
+      if (checkNewToken && strEmpty(newToken)) {
+        if (!current()) return '';
+        await repo.quitLogin(expectedGeneration: generation);
+        if (repo.isLoggedOutAfter(generation) &&
+            currentEnv == environment &&
+            Env().apiBaseUrl == endpoint) {
+          navigateToSignIn(source: 'user_api_relogin');
+        }
+        return '';
+      }
+      if (newToken.isEmpty) return '';
+      final saved = await repo.saveAccessTokenForSession(generation, newToken);
+      return saved && current() ? newToken : '';
+    } on Exception {
+      if (!current()) return '';
+      rethrow;
     }
-    if (newToken.isEmpty) return '';
-    final saved = await UserRepoLocal.to.saveAccessTokenForSession(
-      generation,
-      newToken,
-    );
-    return saved ? newToken : '';
   }
 
   Future<Map<String, dynamic>?> ftsRecentlyUser({

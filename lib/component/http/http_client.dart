@@ -97,6 +97,19 @@ Future<Map<String, dynamic>> defaultHeaders() async {
   };
 }
 
+typedef _RequestSession = ({
+  String uid,
+  int generation,
+  bool loggedIn,
+  bool transitioning,
+  bool clearing,
+  String environment,
+  String environmentEndpoint,
+  String endpoint,
+});
+
+class _SessionChanged implements Exception {}
+
 class HttpClient {
   static HttpClient get client => serviceContainer.get<HttpClient>();
   static VoidCallback? onAuthExpired;
@@ -201,11 +214,13 @@ class HttpClient {
   @visibleForTesting
   static HttpClientAdapter? adapterForTest;
 
-  /// 防止并发 Token 刷新：多个请求共享同一次刷新结果
+  /// 防止并发 Token 刷新：仅同一会话共享刷新结果。
   static Completer<String>? _tokenRefreshCompleter;
+  static _RequestSession? _tokenRefreshSession;
 
   /// 防止重复处理登录过期流程
   static Completer<void>? _loginExpiredCompleter;
+  static int? _loginExpiredGeneration;
 
   void _notifyAuthExpired({String reason = ''}) {
     if (onAuthExpired != null) {
@@ -222,97 +237,143 @@ class HttpClient {
     return _publicEndpoints.contains(normalized);
   }
 
-  Future<void> _setDefaultConfig(String uri) async {
-    if (_dio.options.baseUrl == "") {
-      _dio.options.baseUrl = Env().apiBaseUrl;
-    }
+  _RequestSession _captureSession() {
+    if (_dio.options.baseUrl.isEmpty) _dio.options.baseUrl = Env().apiBaseUrl;
+    final repo = UserRepoLocal.to;
+    return (
+      uid: repo.currentUid,
+      generation: repo.sessionGeneration,
+      loggedIn: repo.isLoggedIn,
+      transitioning: repo.isAuthTransitioning,
+      clearing: repo.isClearingSession,
+      environment: currentEnv,
+      environmentEndpoint: Env().apiBaseUrl,
+      endpoint: _dio.options.baseUrl,
+    );
+  }
 
+  bool _sessionMatches(_RequestSession session) {
+    final repo = UserRepoLocal.to;
+    return repo.currentUid == session.uid &&
+        repo.isCurrentSession(session.generation) &&
+        repo.isLoggedIn == session.loggedIn &&
+        repo.isAuthTransitioning == session.transitioning &&
+        repo.isClearingSession == session.clearing &&
+        currentEnv == session.environment &&
+        Env().apiBaseUrl == session.environmentEndpoint &&
+        _dio.options.baseUrl == session.endpoint;
+  }
+
+  void _requireSession(_RequestSession session, String uri) {
+    if (!_sessionMatches(session) ||
+        (session.transitioning &&
+            !session.clearing &&
+            !_shouldSkipAuthForUri(uri))) {
+      throw _SessionChanged();
+    }
+  }
+
+  Future<void> _setDefaultConfig(String uri, _RequestSession session) async {
+    _requireSession(session, uri);
     if (_shouldSkipAuthForUri(uri)) {
+      final headers = await defaultHeaders();
+      _requireSession(session, uri);
       _dio.options.headers.remove(Keys.tokenKey);
       _dio.options.headers.remove(Keys.refreshTokenKey);
-
-      final headers = await defaultHeaders();
       _dio.options.headers.addAll(headers);
       return;
     }
 
-    // Push unregister runs inside serialized logout. It must not refresh or
-    // enqueue another logout while the cleanup is waiting for this request.
-    if (UserRepoLocal.to.isClearingSession) {
+    // Push unregister is part of logout and must not enqueue another logout.
+    if (session.clearing) {
       final token = await UserRepoLocal.to.accessToken;
+      _requireSession(session, uri);
+      final headers = await defaultHeaders();
+      _requireSession(session, uri);
       _dio.options.headers.remove(Keys.tokenKey);
       _dio.options.headers.remove(Keys.refreshTokenKey);
-      _dio.options.headers.addAll(await defaultHeaders());
+      _dio.options.headers.addAll(headers);
       if (token.isNotEmpty) _dio.options.headers[Keys.tokenKey] = token;
       return;
     }
 
-    // 检查是否存在令牌解密失败标记，如果有则触发重新登录
     if (UserRepoLocal.to.hasTokenDecryptionFailure) {
-      await _handleTokenDecryptionFailure();
-      return;
+      _requireSession(session, uri);
+      await _handleTokenDecryptionFailure(session.generation);
+      throw _SessionChanged();
     }
 
-    // 检查 Token 是否为空，如果为空且用户已登录状态，说明 Token 过期或失效
     String tk = await UserRepoLocal.to.accessToken;
-    final isLoggedIn = UserRepoLocal.to.isLoggedIn;
-
-    // 如果用户本地记录显示已登录，但 Token 为空，说明 Token 失效
-    if (isLoggedIn && strEmpty(tk)) {
-      await _handleTokenExpired();
-      return;
+    _requireSession(session, uri);
+    if (session.loggedIn && strEmpty(tk)) {
+      await _handleTokenExpired(session.generation);
+      throw _SessionChanged();
     }
 
-    // Token 已过期时尝试用 refresh token 刷新（互斥锁防止并发刷新）
     if (tokenExpired(tk)) {
-      tk = await _refreshTokenWithMutex();
+      tk = await _refreshTokenWithMutex(session, uri);
+      _requireSession(session, uri);
     }
-    bool notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
-    if (strNoEmpty(tk) && notRTK) {
-      _dio.options.headers[Keys.tokenKey] = tk;
-    }
-    Map<String, dynamic> headers = await defaultHeaders();
-    // 安全日志：不输出包含敏感信息的完整 headers
+    final headers = await defaultHeaders();
+    _requireSession(session, uri);
+    final notRTK = !_dio.options.headers.containsKey(Keys.refreshTokenKey);
+    _dio.options.headers.remove(Keys.tokenKey);
+    if (strNoEmpty(tk) && notRTK) _dio.options.headers[Keys.tokenKey] = tk;
     _dio.options.headers.addAll(headers);
   }
 
   /// 带互斥锁的 Token 刷新：并发请求共享同一次刷新结果
-  Future<String> _refreshTokenWithMutex() async {
-    // 已有刷新任务在进行中，等待其完成
-    if (_tokenRefreshCompleter != null) {
-      return _tokenRefreshCompleter!.future;
+  Future<String> _refreshTokenWithMutex(
+    _RequestSession session,
+    String uri,
+  ) async {
+    if (_tokenRefreshCompleter != null && _tokenRefreshSession == session) {
+      final token = await _tokenRefreshCompleter!.future;
+      _requireSession(session, uri);
+      return token;
     }
-    _tokenRefreshCompleter = Completer<String>();
+    final completer = Completer<String>();
+    _tokenRefreshCompleter = completer;
+    _tokenRefreshSession = session;
     try {
       final rtk = await UserRepoLocal.to.refreshToken;
+      _requireSession(session, uri);
       if (rtk.isEmpty) {
-        _tokenRefreshCompleter!.complete('');
+        completer.complete('');
         return '';
       }
       final newTk = await UserApi.to.refreshAccessTokenApi(
         rtk,
         checkNewToken: false,
       );
-      _tokenRefreshCompleter!.complete(newTk);
+      _requireSession(session, uri);
+      completer.complete(newTk);
       return newTk;
-    } catch (e) {
-      _tokenRefreshCompleter!.completeError(e);
+    } catch (e, stack) {
+      completer.completeError(e, stack);
+      // The owner also throws; consume the shared future if there are no waiters.
+      unawaited(completer.future.catchError((Object _) => ''));
       rethrow;
     } finally {
-      _tokenRefreshCompleter = null;
+      if (identical(_tokenRefreshCompleter, completer)) {
+        _tokenRefreshCompleter = null;
+        _tokenRefreshSession = null;
+      }
     }
   }
 
   /// 处理 Token 过期的后续流程（弹窗提示 + 跳转登录页）
   /// 使用 Completer 替代布尔标志，确保并发请求有序等待且标志不会锁死
-  Future<void> _handleTokenExpired() async {
-    final generation = UserRepoLocal.to.sessionGeneration;
+  Future<void> _handleTokenExpired(int generation) async {
     // 已有过期处理流程在进行中，等待其完成
-    if (_loginExpiredCompleter != null) {
+    if (_loginExpiredCompleter != null &&
+        _loginExpiredGeneration == generation) {
       return _loginExpiredCompleter!.future;
     }
 
-    _loginExpiredCompleter = Completer<void>();
+    final completer = Completer<void>();
+    _loginExpiredCompleter = completer;
+    _loginExpiredGeneration = generation;
 
     try {
       // 执行登出操作
@@ -323,7 +384,7 @@ class HttpClient {
       if (context != null && context.mounted) {
         await Future<dynamic>.delayed(const Duration(milliseconds: 100));
 
-        if (context.mounted) {
+        if (context.mounted && UserRepoLocal.to.isLoggedOutAfter(generation)) {
           AppLoading.showToast(t.chat.loginExpiredMessage);
         }
       }
@@ -334,20 +395,22 @@ class HttpClient {
       if (UserRepoLocal.to.isLoggedOutAfter(generation)) {
         _notifyAuthExpired(reason: 'token_expired');
       }
-      _loginExpiredCompleter!.complete();
-    } catch (e) {
-      _loginExpiredCompleter!.completeError(e);
+      completer.complete();
+    } catch (e, stack) {
+      completer.completeError(e, stack);
     } finally {
       // 延迟重置，防止跳转过程中的重复请求立即重入
       Future<dynamic>.delayed(const Duration(seconds: 2), () {
-        _loginExpiredCompleter = null;
+        if (identical(_loginExpiredCompleter, completer)) {
+          _loginExpiredCompleter = null;
+          _loginExpiredGeneration = null;
+        }
       });
     }
   }
 
   /// 处理令牌解密失败的后续流程
-  Future<void> _handleTokenDecryptionFailure() async {
-    final generation = UserRepoLocal.to.sessionGeneration;
+  Future<void> _handleTokenDecryptionFailure(int generation) async {
     // 清除失败标记
     UserRepoLocal.to.clearTokenDecryptionFailureFlag();
     // 执行登出操作
@@ -367,14 +430,15 @@ class HttpClient {
   }) async {
     return _executeWithNetworkCheck(
       uri,
-      () => _dio.get(
+      (guardedOptions) => _dio.get(
         uri,
         queryParameters: queryParameters,
-        options: options,
+        options: guardedOptions,
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
       ),
       httpTransformer: httpTransformer,
+      options: options,
     );
   }
 
@@ -396,12 +460,27 @@ class HttpClient {
     }
   }
 
+  Options _guardedOptions(
+    Options? options,
+    _RequestSession session,
+    String uri,
+  ) {
+    final extra = <String, dynamic>{..._dio.options.extra, ...?options?.extra};
+    final existingGuard = extra[httpRequestGuard];
+    extra[httpRequestGuard] = () {
+      _requireSession(session, uri);
+      if (existingGuard != null) (existingGuard as void Function())();
+      _requireSession(session, uri);
+    };
+    return (options ?? Options()).copyWith(extra: extra);
+  }
+
   /// 带网络检查的通用请求执行器（DRY）
   Future<IMBoyHttpResponse> _executeWithNetworkCheck(
     String uri,
-    Future<Response<dynamic>> Function() requestFn, {
+    Future<Response<dynamic>> Function(Options) requestFn, {
     HttpTransformer? httpTransformer,
-    void Function(IMBoyHttpResponse)? onResponse,
+    Options? options,
   }) async {
     if (!_isNetworkAvailable) {
       return handleException(
@@ -409,36 +488,39 @@ class HttpClient {
         NetworkException(message: t.common.tipConnectDesc),
       );
     }
-    final requestUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
+    final session = _captureSession();
     try {
-      await _setDefaultConfig(uri);
-      if (requestUid != UserRepoLocal.to.currentUid ||
-          !UserRepoLocal.to.isCurrentSession(generation)) {
-        return IMBoyHttpResponse.failure(
-          errCode: 409,
-          errMsg: t.common.errorNetwork,
-        );
-      }
-      final response = await requestFn();
+      await _setDefaultConfig(uri, session);
+      _requireSession(session, uri);
+      final response = await requestFn(_guardedOptions(options, session, uri));
+      _requireSession(session, uri);
       final resp = handleResponse(
         response,
         uri: safeHttpUri(uri),
         httpTransformer: httpTransformer,
       );
-      if (requestUid != UserRepoLocal.to.currentUid ||
-          !UserRepoLocal.to.isCurrentSession(generation)) {
+      if (!_shouldSkipAuthForUri(uri)) {
+        await _checkAuthExpired(resp, session.generation);
+        // Successful expiry intentionally changes the session. Do not treat it
+        // as a stale response, but reject a concurrent switch to another user.
+        if (!_sessionMatches(session) &&
+            !UserRepoLocal.to.isLoggedOutAfter(session.generation)) {
+          throw _SessionChanged();
+        }
+      }
+      return resp;
+    } on _SessionChanged {
+      return IMBoyHttpResponse.failure(
+        errCode: 409,
+        errMsg: t.common.errorNetwork,
+      );
+    } on Exception catch (e) {
+      if (!_sessionMatches(session)) {
         return IMBoyHttpResponse.failure(
           errCode: 409,
           errMsg: t.common.errorNetwork,
         );
       }
-      if (!_shouldSkipAuthForUri(uri)) {
-        await _checkAuthExpired(resp, generation);
-      }
-      onResponse?.call(resp);
-      return resp;
-    } on Exception catch (e) {
       return handleException(safeHttpUri(uri), e);
     }
   }
@@ -455,16 +537,17 @@ class HttpClient {
   }) async {
     return _executeWithNetworkCheck(
       uri,
-      () => _dio.post(
+      (guardedOptions) => _dio.post(
         uri,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: guardedOptions,
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       ),
       httpTransformer: httpTransformer,
+      options: options,
     );
   }
 
@@ -478,14 +561,15 @@ class HttpClient {
   }) async {
     return _executeWithNetworkCheck(
       uri,
-      () => _dio.delete(
+      (guardedOptions) => _dio.delete(
         uri,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: guardedOptions,
         cancelToken: cancelToken,
       ),
       httpTransformer: httpTransformer,
+      options: options,
     );
   }
 
@@ -501,16 +585,17 @@ class HttpClient {
   }) async {
     return _executeWithNetworkCheck(
       uri,
-      () => _dio.patch(
+      (guardedOptions) => _dio.patch(
         uri,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: guardedOptions,
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       ),
       httpTransformer: httpTransformer,
+      options: options,
     );
   }
 
@@ -524,14 +609,15 @@ class HttpClient {
   }) async {
     return _executeWithNetworkCheck(
       uri,
-      () => _dio.put(
+      (guardedOptions) => _dio.put(
         uri,
         data: data,
         queryParameters: queryParameters,
-        options: options,
+        options: guardedOptions,
         cancelToken: cancelToken,
       ),
       httpTransformer: httpTransformer,
+      options: options,
     );
   }
 
@@ -550,17 +636,25 @@ class HttpClient {
     if (!_isNetworkAvailable) {
       throw NetworkException(message: t.common.tipConnectDesc);
     }
-    await _setDefaultConfig(urlPath);
-    return _dio.download(
-      urlPath,
-      savePath,
-      onReceiveProgress: onReceiveProgress,
-      queryParameters: queryParameters,
-      cancelToken: cancelToken,
-      deleteOnError: deleteOnError,
-      lengthHeader: lengthHeader,
-      data: data,
-      options: options,
-    );
+    final session = _captureSession();
+    try {
+      await _setDefaultConfig(urlPath, session);
+      _requireSession(session, urlPath);
+      final response = await _dio.download(
+        urlPath,
+        savePath,
+        onReceiveProgress: onReceiveProgress,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+        deleteOnError: deleteOnError,
+        lengthHeader: lengthHeader,
+        data: data,
+        options: _guardedOptions(options, session, urlPath),
+      );
+      _requireSession(session, urlPath);
+      return response;
+    } on _SessionChanged {
+      throw CancelException('Request session changed');
+    }
   }
 }
