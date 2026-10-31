@@ -166,9 +166,18 @@ class ConversationApi extends HttpClient {
     required bool value,
     int? expectedVersion,
   }) async {
+    // 修复两处 W09.c 缺陷（r25 真机取证）：
+    // 1. `?expectedVersion: expectedVersion` 是 Dart null-aware **键**语义
+    //    （键表达式的值作键）：expectedVersion=1 时 entry={1: 1}，int 键令
+    //    jsonEncode 抛 unknown → POST 3 连败（真身：Converting object to
+    //    an encodable object failed: _Map len:3）。
+    // 2. 原键名 camelCase `expectedVersion`，服务端读 `expected_version`
+    //    （snake_case）——即使发出 CAS 也永远不生效。
+    // value 位置 null-aware：expectedVersion 为 null 时整条 entry 省略
+    // （键位置 `?expectedVersion:` 才是陷阱——int 值会被当键用）。
     final resp = await post(
       API.conversationManualPending,
-      data: {'uk3': uk3, 'value': value, ?expectedVersion: expectedVersion},
+      data: {'uk3': uk3, 'value': value, 'expected_version': ?expectedVersion},
     );
     if (resp.ok) {
       final payload = IMBoyHttpResponse.payloadAsMap(resp.payload);
