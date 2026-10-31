@@ -13,12 +13,15 @@
 ///   冲突保留、过期清除、无能力不剥键）。
 library;
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/component/http/http_client.dart';
@@ -31,6 +34,16 @@ import 'package:imboy/service/creation_receipt/group_creation_receipt_service.da
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_api.dart';
+
+class _FailedIntentPreferences extends InMemorySharedPreferencesStore {
+  _FailedIntentPreferences() : super.empty();
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (key.contains('creation_intent:')) return false;
+    return super.setValue(valueType, key, value);
+  }
+}
 
 /// 捕获请求并按回调回应的合成 adapter。
 class _ScriptedAdapter implements HttpClientAdapter {
@@ -597,7 +610,8 @@ void main() {
       );
 
       expect(outcome.ok, isFalse);
-      expect(outcome.failure, CreationFlowFailure.conflict);
+      // 保守合同：5462 也可能是代理伪造，统一 unknownPending、意图保留。
+      expect(outcome.failure, CreationFlowFailure.unknownPending);
       expect(body['request_id'], 'cri_replay_1');
       // 重放用存储载荷，不是调用方新载荷。
       expect(body['member_uids'], ['880014']);
@@ -613,7 +627,7 @@ void main() {
       );
     });
 
-    test('>24h 意图 → recover_only 派发；5464 过期 → 意图清除 + 核对 ID', () async {
+    test('>24h 意图 → recover_only 派发；5464 过期 → 意图保留不透传终态', () async {
       AppManifestService.replaceForTest({
         'group_contracts': {'create_request_id': 1},
       });
@@ -647,17 +661,17 @@ void main() {
       );
 
       expect(outcome.ok, isFalse);
-      expect(outcome.failure, CreationFlowFailure.recoveryExpired);
-      expect(outcome.resourceId, '9900123');
+      // 保守合同：5464 不可证明终态（可能为代理伪造），意图保留。
+      expect(outcome.failure, CreationFlowFailure.unknownPending);
       expect(body['request_id'], 'cri_old_1');
       expect(body['recover_only'], isTrue);
       expect(
-        await loadCreationIntent(
+        (await loadCreationIntent(
           account: 'acct-expired',
           operation: 'create_group',
           scopeId: 'personal',
-        ),
-        isNull,
+        ))?.requestId,
+        'cri_old_1',
       );
     });
   });
@@ -731,6 +745,219 @@ void main() {
       );
       expect(body['recover_only'], isTrue);
     });
+  });
+
+  for (final operation in ['create_group', 'create_channel']) {
+    for (final failure in [
+      '502',
+      '504',
+      '500-empty',
+      'malformed',
+      'disconnect',
+      'invalid-success',
+    ]) {
+      test('$operation $failure 结果未知：保留原键和载荷并原样重试', () async {
+        AppManifestService.replaceForTest({
+          'group_contracts': {'create_request_id': 1},
+          'channel_contracts': {'create_request_id': 1},
+        });
+        final account = 'failure-$operation-$failure';
+        var isRetry = false;
+        final adapter = _ScriptedAdapter((options) async {
+          if (isRetry) {
+            return _envelope({
+              'code': 0,
+              'msg': 'success',
+              'payload': {
+                'request_id': (options.data as Map)['request_id'],
+                'creation_state': 'replayed',
+                if (operation == 'create_group') 'group': {'id': 7001},
+                if (operation == 'create_channel') 'id': 6001,
+              },
+            });
+          }
+          switch (failure) {
+            case '502':
+            case '504':
+              return ResponseBody.fromString(
+                'upstream unavailable',
+                int.parse(failure),
+              );
+            case '500-empty':
+              return ResponseBody.fromString('', 500);
+            case 'malformed':
+              return ResponseBody.fromString(
+                '{',
+                200,
+                headers: {
+                  Headers.contentTypeHeader: [Headers.jsonContentType],
+                },
+              );
+            case 'invalid-success':
+              return _envelope({'code': 0, 'payload': <String, dynamic>{}});
+            default:
+              throw DioException(
+                requestOptions: options,
+                type: DioExceptionType.connectionError,
+                error: const SocketException('synthetic disconnect'),
+              );
+          }
+        });
+        HttpClient.adapterForTest = adapter;
+        Future<CreationFlowOutcome> create(String name) =>
+            operation == 'create_group'
+            ? GroupCreationReceiptService().createOrRecoverGroup(
+                account: account,
+                workspaceId: null,
+                memberUserIds: const ['880014'],
+                title: name,
+              )
+            : ChannelCreationReceiptService().createOrRecoverChannel(
+                account: account,
+                name: name,
+              );
+
+        final first = await create('原名称');
+        expect(first.ok, isFalse);
+        expect(first.failure, CreationFlowFailure.unknownPending);
+        final saved = await loadCreationIntent(
+          account: account,
+          operation: operation,
+          scopeId: 'personal',
+        );
+        expect(saved, isNotNull);
+        final firstBody = Map<String, dynamic>.from(
+          adapter.requests.first.data as Map,
+        );
+        expect(firstBody['request_id'], saved!.requestId);
+        isRetry = true;
+        final second = await create('不应替换原载荷');
+        expect(second.ok, isTrue);
+        final lastBody = Map<String, dynamic>.from(
+          adapter.requests.last.data as Map,
+        );
+        expect(lastBody, firstBody);
+        expect(
+          await loadCreationIntent(
+            account: account,
+            operation: operation,
+            scopeId: 'personal',
+          ),
+          isNull,
+        );
+      });
+    }
+  }
+
+  for (final operation in ['create_group', 'create_channel']) {
+    test('$operation 意图持久化返回 false 时不发送 POST', () async {
+      final previous = SharedPreferencesStorePlatform.instance;
+      SharedPreferencesStorePlatform.instance = _FailedIntentPreferences();
+      addTearDown(() => SharedPreferencesStorePlatform.instance = previous);
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+        'channel_contracts': {'create_request_id': 1},
+      });
+      final adapter = _ScriptedAdapter((_) async => _envelope({'code': 0}));
+      HttpClient.adapterForTest = adapter;
+      final future = operation == 'create_group'
+          ? GroupCreationReceiptService().createOrRecoverGroup(
+              account: 'write-fail-$operation',
+              workspaceId: null,
+              memberUserIds: const ['880014'],
+            )
+          : ChannelCreationReceiptService().createOrRecoverChannel(
+              account: 'write-fail-$operation',
+              name: '频道A',
+            );
+      await expectLater(future, throwsStateError);
+      expect(adapter.requests, isEmpty);
+    });
+  }
+
+  test('同一作用域并发创建串行，同一次失败重用原键', () async {
+    final gate = Completer<CreationReceiptResult>();
+    final called = Completer<void>();
+    final requests = <String>[];
+    Future<CreationFlowOutcome> create() => runCreationReceiptFlow(
+      account: 'serial-account',
+      operation: 'create_channel',
+      scopeId: 'serial',
+      capabilityEnabled: true,
+      newPayload: const {'name': '原名称'},
+      extractCreatedId: (p) => p['id']?.toString(),
+      dispatch:
+          ({required requestId, required storedPayload, required recoverOnly}) {
+            requests.add(requestId);
+            if (requests.length == 1) {
+              called.complete();
+              return gate.future;
+            }
+            return Future.value(const CreationReceiptResult(ok: false));
+          },
+    );
+    final first = create();
+    await called.future;
+    final second = create();
+    await Future<void>.delayed(Duration.zero);
+    expect(requests, hasLength(1));
+    gate.complete(const CreationReceiptResult(ok: false));
+    await first;
+    await second;
+    expect(requests, hasLength(2));
+    expect(requests[1], requests[0]);
+  });
+
+  test('迟到结果不能清除已替换的意图', () async {
+    final gate = Completer<CreationReceiptResult>();
+    final called = Completer<void>();
+    final first = runCreationReceiptFlow(
+      account: 'late-account',
+      operation: 'create_channel',
+      scopeId: 'late',
+      capabilityEnabled: true,
+      newPayload: const {'name': '原名称'},
+      extractCreatedId: (p) => p['id']?.toString(),
+      dispatch:
+          ({required requestId, required storedPayload, required recoverOnly}) {
+            called.complete();
+            return gate.future;
+          },
+    );
+    await called.future;
+    final original = await loadCreationIntent(
+      account: 'late-account',
+      operation: 'create_channel',
+      scopeId: 'late',
+    );
+    expect(original, isNotNull);
+    const replacement = CreationIntent(
+      requestId: 'replacement-y',
+      createdAtMs: 1,
+      payload: {'name': '新意图'},
+    );
+    await saveCreationIntent(
+      account: 'late-account',
+      operation: 'create_channel',
+      scopeId: 'late',
+      intent: replacement,
+    );
+    gate.complete(
+      CreationReceiptResult(
+        ok: true,
+        requestId: original!.requestId,
+        creationState: 'accepted',
+        payload: const {'id': 6001},
+      ),
+    );
+    await first;
+    final saved = await loadCreationIntent(
+      account: 'late-account',
+      operation: 'create_channel',
+      scopeId: 'late',
+    );
+    expect(saved?.requestId, replacement.requestId);
+    expect(saved?.payload, replacement.payload);
   });
 
   group('ChannelCreationReceiptService（W04.d.c 生命周期）', () {
@@ -861,7 +1088,8 @@ void main() {
           );
 
       expect(outcome.ok, isFalse);
-      expect(outcome.failure, CreationFlowFailure.conflict);
+      // 保守合同：5462 也可能是代理伪造，统一 unknownPending、意图保留。
+      expect(outcome.failure, CreationFlowFailure.unknownPending);
       expect(body['request_id'], 'cri_ch_replay');
       expect(body['name'], '原名');
       expect(body['scope'], 'workspace');

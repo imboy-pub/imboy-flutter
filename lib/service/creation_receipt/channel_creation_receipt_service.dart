@@ -35,6 +35,7 @@ class ChannelCreationReceiptService {
     List<String>? tags,
     bool workspace = false,
     String? workspaceId,
+    void Function()? guard,
   }) {
     return runCreationReceiptFlow(
       account: account,
@@ -45,6 +46,7 @@ class ChannelCreationReceiptService {
       ),
       capabilityEnabled:
           AppManifestService.manifest?.channelCreateReceiptEnabled ?? false,
+      guard: guard,
       newPayload: <String, dynamic>{
         'name': name,
         'visibility': visibility,
@@ -72,6 +74,7 @@ class ChannelCreationReceiptService {
               requestId: requestId,
               fields: storedPayload,
               recoverOnly: recoverOnly,
+              guard: guard,
             );
           },
     );

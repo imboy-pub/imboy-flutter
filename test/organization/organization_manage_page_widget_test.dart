@@ -24,10 +24,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/modules/organization/presentation/organization_manage_page.dart';
 import 'package:imboy/modules/organization/service/org_group_rename_pending_store.dart';
+import 'package:imboy/service/creation_receipt/creation_intent_store.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/api/channel_api.dart';
 
 const String kOrgId = '900';
 const String kWsId = '801';
@@ -100,6 +104,79 @@ class _RoutingAdapter implements HttpClientAdapter {
 
   @override
   void close({bool force = false}) {}
+}
+
+/// 用实际发送的 JSON 推导归属，模拟旧创建路径的 personal 缺省值。
+class _LegacyChannelCreateAdapter implements HttpClientAdapter {
+  _LegacyChannelCreateAdapter(this.delegate);
+
+  final _RoutingAdapter delegate;
+  final List<Map<String, dynamic>> creates = [];
+  Map<String, dynamic>? createdChannel;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    if (options.method == 'POST' &&
+        options.path.endsWith('/api/v1/channel/create')) {
+      final json = await utf8.decoder.bind(requestStream!).join();
+      final body = Map<String, dynamic>.from(jsonDecode(json) as Map);
+      creates.add(body);
+      final scope = body['scope'] ?? 'personal';
+      createdChannel = {
+        'id': '6003',
+        'name': body['name'],
+        'status': 1,
+        'scope': scope,
+        'workspace_id': scope == 'workspace' ? body['workspace_id'] : null,
+        'visibility': body['visibility'],
+        'access_type': body['access_type'],
+        'join_policy': body['join_policy'],
+        if (body['request_id'] != null) ...{
+          'request_id': body['request_id'],
+          'creation_state': 'accepted',
+        },
+      };
+      return ResponseBody.fromString(
+        jsonEncode(_ok(createdChannel)),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
+    }
+    if (options.method == 'GET' &&
+        options.path.endsWith('/api/v1/workspaces/$kWsId/channels') &&
+        options.queryParameters['status'] != 'archived' &&
+        createdChannel != null) {
+      final channel = createdChannel!;
+      return ResponseBody.fromString(
+        jsonEncode(
+          _ok({
+            'workspace_id': kWsId,
+            'has_more': false,
+            'next_cursor': 0,
+            'list': [
+              if (channel['scope'] == 'workspace' &&
+                  '${channel['workspace_id']}' == kWsId)
+                channel,
+            ],
+          }),
+        ),
+        200,
+        headers: {
+          Headers.contentTypeHeader: [Headers.jsonContentType],
+        },
+      );
+    }
+    return delegate.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) => delegate.close(force: force);
 }
 
 class _GroupRenameAdapter implements HttpClientAdapter {
@@ -306,16 +383,39 @@ Future<void> _pumpUntilFound(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  Completer<String?>? tokenGate;
+  Completer<void>? tokenReadStarted;
+  String token() {
+    String part(Object data) =>
+        base64Url.encode(utf8.encode(jsonEncode(data))).replaceAll('=', '');
+    return '${part({'alg': 'HS256', 'typ': 'JWT'})}.${part({'exp': 4102444800})}.c2ln';
+  }
+
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    SharedPreferences.setMockInitialValues({});
+    tokenGate = null;
+    tokenReadStarted = null;
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
     await StorageService.init();
     // 请求链会走到 secure_storage 平台通道；不 mock 则该调用在
     // FakeAsync 里永不完成（表现为页面永停 loading）。
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
-          (call) async => null,
+          (call) async {
+            if (call.method == 'read' &&
+                (call.arguments as Map)['key'] == 'secure_token') {
+              final gate = tokenGate;
+              if (gate != null) {
+                if (!(tokenReadStarted?.isCompleted ?? true)) {
+                  tokenReadStarted!.complete();
+                }
+                return gate.future;
+              }
+              return token();
+            }
+            return null;
+          },
         );
   });
 
@@ -331,6 +431,15 @@ void main() {
   Widget buildHost() => const MaterialApp(
     home: OrganizationManagePage(orgId: kOrgId, accountKey: '1001'),
   );
+
+  Future<void> proveCreateTransport(_LegacyChannelCreateAdapter adapter) async {
+    final result = await ChannelApi().createChannel(name: 'transport probe');
+    expect(result, isNotNull);
+    expect(adapter.creates, hasLength(1));
+    expect(adapter.creates.single['name'], 'transport probe');
+    adapter.creates.clear();
+    adapter.createdChannel = null;
+  }
 
   testWidgets('已建群改名失败后只重试原群改名', (tester) async {
     final adapter = _GroupRenameAdapter(_happyAdapter());
@@ -601,6 +710,229 @@ void main() {
     expect(find.text('我的个人区'), findsNothing);
     expect(find.text('别家企业区'), findsNothing);
     expect(find.textContaining('默认工作区'), findsWidgets);
+  });
+
+  testWidgets('治理创建频道合同缺失时阻断旧请求并提示不可用', (tester) async {
+    await AppManifestService.clear();
+    expect(
+      AppManifestService.manifest?.channelCreateReceiptEnabled ?? false,
+      isFalse,
+    );
+    expect(
+      await loadCreationIntent(
+        account: '1001',
+        operation: 'create_channel',
+        scopeId: kWsId,
+      ),
+      isNull,
+    );
+    final adapter = _LegacyChannelCreateAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.runAsync(() => proveCreateTransport(adapter));
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(tester, find.text('企业全员群'));
+    final create = find.byKey(const ValueKey('org-manage-create-channel'));
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '研发公告频道');
+    await tester.tap(find.text('确定').last);
+    await tester.pumpAndSettle();
+
+    expect(adapter.creates, isEmpty);
+    expect(adapter.createdChannel, isNull);
+    expect(find.text('研发公告频道'), findsNothing);
+    expect(find.textContaining('功能未启用，暂时无法访问'), findsOneWidget);
+  });
+
+  test('个人旧创建请求不新增工作区归属字段', () async {
+    final adapter = _LegacyChannelCreateAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    final result = await ChannelApi().createChannel(name: '个人频道');
+
+    expect(result, isNotNull);
+    expect(adapter.creates, hasLength(1));
+    expect(adapter.creates.single, isNot(contains('scope')));
+    expect(adapter.creates.single, isNot(contains('workspace_id')));
+  });
+
+  testWidgets('合同已声明时治理创建请求携带工作区与受理键', (tester) async {
+    AppManifestService.replaceForTest({
+      'channel_contracts': {'create_request_id': 1},
+    });
+    addTearDown(AppManifestService.clear);
+    final adapter = _LegacyChannelCreateAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.runAsync(() => proveCreateTransport(adapter));
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(tester, find.text('企业全员群'));
+    final create = find.byKey(const ValueKey('org-manage-create-channel'));
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '研发公告频道');
+    await tester.tap(find.text('确定').last);
+    for (var i = 0; i < 40 && adapter.creates.isEmpty; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    await tester.pumpAndSettle();
+
+    expect(adapter.creates, hasLength(1));
+    final body = adapter.creates.single;
+    expect(body['name'], '研发公告频道');
+    expect(body['visibility'], 1);
+    expect(body['access_type'], 0);
+    expect(body['join_policy'], 1);
+    expect(body['request_id'], isA<String>());
+    expect(body['request_id'], isNotEmpty);
+    expect(
+      await loadCreationIntent(
+        account: '1001',
+        operation: 'create_channel',
+        scopeId: kWsId,
+      ),
+      isNull,
+    );
+    expect(body['scope'], 'workspace');
+    expect('${body['workspace_id']}', kWsId);
+    expect(adapter.createdChannel!['scope'], 'workspace');
+    expect('${adapter.createdChannel!['workspace_id']}', kWsId);
+    await _pumpUntilFound(tester, find.text('企业全员群'));
+    expect(find.text('企业全员群'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('研发公告频道'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('研发公告频道'), findsOneWidget);
+  });
+
+  testWidgets('创建弹窗期间切换账号不发送创建请求', (tester) async {
+    AppManifestService.replaceForTest({
+      'channel_contracts': {'create_request_id': 1},
+    });
+    addTearDown(AppManifestService.clear);
+    final adapter = _LegacyChannelCreateAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.runAsync(() => proveCreateTransport(adapter));
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(tester, find.text('企业全员群'));
+    final create = find.byKey(const ValueKey('org-manage-create-channel'));
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '旧账号频道');
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    await tester.tap(find.text('确定').last);
+    await tester.pumpAndSettle();
+    expect(adapter.creates, isEmpty);
+    expect(find.textContaining('功能未启用'), findsNothing);
+  });
+
+  testWidgets('等待令牌期间切换账号不发送创建请求且保留旧意图', (tester) async {
+    AppManifestService.replaceForTest({
+      'channel_contracts': {'create_request_id': 1},
+    });
+    addTearDown(AppManifestService.clear);
+    final adapter = _LegacyChannelCreateAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.runAsync(() => proveCreateTransport(adapter));
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(tester, find.text('企业全员群'));
+    final create = find.byKey(const ValueKey('org-manage-create-channel'));
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '旧账号频道');
+    tokenGate = Completer<String?>();
+    tokenReadStarted = Completer<void>();
+    await tester.tap(find.text('确定').last);
+    for (var i = 0; i < 40 && !tokenReadStarted!.isCompleted; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(tokenReadStarted!.isCompleted, isTrue);
+    final before = await loadCreationIntent(
+      account: '1001',
+      operation: 'create_channel',
+      scopeId: kWsId,
+    );
+    expect(before, isNotNull);
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    tokenGate!.complete(token());
+    tokenGate = null;
+    await tester.pumpAndSettle();
+    expect(adapter.creates, isEmpty);
+    final after = await loadCreationIntent(
+      account: '1001',
+      operation: 'create_channel',
+      scopeId: kWsId,
+    );
+    expect(after?.requestId, before!.requestId);
+    expect(after?.payload, before.payload);
+    expect(find.textContaining('功能未启用'), findsNothing);
+    expect(find.textContaining('创建结果未知'), findsNothing);
+  });
+
+  testWidgets('合同缺失且存在待恢复意图时治理创建不发送旧请求', (tester) async {
+    await AppManifestService.clear();
+    const intent = CreationIntent(
+      requestId: 'existing-request',
+      createdAtMs: 1,
+      payload: {'name': '待恢复频道', 'scope': 'workspace', 'workspace_id': kWsId},
+    );
+    await saveCreationIntent(
+      account: '1001',
+      operation: 'create_channel',
+      scopeId: kWsId,
+      intent: intent,
+    );
+    final adapter = _LegacyChannelCreateAdapter(_happyAdapter());
+    HttpClient.adapterForTest = adapter;
+    await tester.runAsync(() => proveCreateTransport(adapter));
+    await tester.pumpWidget(buildHost());
+    await _pumpUntilFound(tester, find.text('企业全员群'));
+    final create = find.byKey(const ValueKey('org-manage-create-channel'));
+    await tester.scrollUntilVisible(
+      create,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(create);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, '待恢复频道');
+    await tester.tap(find.text('确定').last);
+    await tester.pumpAndSettle();
+
+    expect(adapter.creates, isEmpty);
+    expect(find.textContaining('创建结果未知，请稍后重试'), findsOneWidget);
+    final saved = await loadCreationIntent(
+      account: '1001',
+      operation: 'create_channel',
+      scopeId: kWsId,
+    );
+    expect(saved?.requestId, intent.requestId);
+    expect(saved?.payload, intent.payload);
   });
 
   testWidgets('群与频道区块渲染，且有可点击的解散/归档动作', (tester) async {

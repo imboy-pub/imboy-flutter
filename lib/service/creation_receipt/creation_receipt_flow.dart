@@ -6,13 +6,13 @@
 /// 能力门（manifest）→ 意图持久化（提交前保存）→ 24h/recover_only
 /// 派发策略 → 合同请求（重放一律原键原载荷）→ 结果分类与意图生命周期：
 /// - 受理成功（accepted/replayed）→ 清除意图；
-/// - create_recovery_expired / create_resource_unavailable → 服务端可证明
-///   终止 → 清除意图（此后用户可显式新建意图=新键）；
-/// - request_id_conflict / create_not_accepted / 传输失败 / 其他 → 意图
-///   保留（未知或非终态；§6.4：不提供换键恢复）；
+/// - 一切失败（业务拒绝码、传输失败、502/504 等）→ 统一 unknownPending、
+///   意图保留：HTTP 解析层不保留可证明的响应来源与终态，任何失败都可能
+///   是代理伪造的终态文案，据此清除意图会违反 §6.4（不提供换键恢复）；
 /// - 能力未启用 → 不发新键；已有未知意图绝不剥键走旧 POST。
 library;
 
+import 'package:imboy/config/env.dart';
 import 'package:imboy/service/creation_receipt/creation_intent_store.dart';
 import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 
@@ -22,19 +22,8 @@ enum CreationFlowFailure {
   /// 已有未知意图时禁止旧路径（保留/核对，绝不剥键）。
   capabilityMissing,
 
-  /// 同键已绑定不同规范载荷。意图保留。
-  conflict,
-
-  /// 只查未见受理（仅表示查询时未见，不证明在途请求不会迟到）。意图保留。
-  notAcceptedPending,
-
-  /// 服务端受理已过 7d 窗口。意图已清除，可显式新建意图（新键）。
-  recoveryExpired,
-
-  /// 资源已删除/撤权/无资格。意图已清除，可显式新建意图（新键）。
-  resourceUnavailable,
-
-  /// 传输失败或其他未知结果。意图保留。
+  /// 一切失败结果（业务拒绝码、传输失败、502/504 等不可证明终态的
+  /// 响应）。意图保留（§6.4：不提供换键恢复，不透传可伪造文案）。
   unknownPending,
 }
 
@@ -56,9 +45,6 @@ class CreationFlowOutcome {
   /// 失败文案（服务端 msg 透传；界面可按 failure 覆写）。
   final String? errorText;
 
-  /// 过期/不可用时可用于核对的资源 ID。
-  final String? resourceId;
-
   /// capabilityMissing 时区分两种情形：false=无未知意图（调用方可走旧
   /// 键less路径，行为零变化）；true=已有未知意图（禁止旧路径——绝不剥键，
   /// 界面应展示恢复不可用并保留意图）。
@@ -71,7 +57,6 @@ class CreationFlowOutcome {
     this.payload = const {},
     this.failure,
     this.errorText,
-    this.resourceId,
     this.pendingIntentBlocked = false,
   });
 }
@@ -92,122 +77,108 @@ Future<CreationFlowOutcome> runCreationReceiptFlow({
   required bool capabilityEnabled,
   required Map<String, dynamic>? newPayload,
   required String? Function(Map<String, dynamic> payload) extractCreatedId,
+  void Function()? guard,
   required Future<CreationReceiptResult> Function({
     required String requestId,
     required Map<String, dynamic> storedPayload,
     required bool recoverOnly,
   })
   dispatch,
-}) async {
-  final intent = await loadCreationIntent(
-    account: account,
-    operation: operation,
-    scopeId: scopeId,
+}) {
+  final endpoint = Env().apiBaseUrl;
+  final key = creationIntentStorageKey(
+    account,
+    operation,
+    scopeId,
+    endpoint: endpoint,
   );
-  if (!capabilityEnabled) {
-    // 无能力：不启新入口；已有未知意图只保留/核对，绝不剥离键走旧 POST。
-    return CreationFlowOutcome(
-      ok: false,
-      failure: CreationFlowFailure.capabilityMissing,
-      pendingIntentBlocked: intent != null,
-    );
-  }
-
-  final nowMs = DateTime.now().millisecondsSinceEpoch;
-  final dispatch_ = decideCreationDispatch(
-    intentCreatedAtMs: intent?.createdAtMs,
-    nowMs: nowMs,
-  );
-  var requestId = intent?.requestId;
-  var storedPayload = intent?.payload ?? const <String, dynamic>{};
-  if (requestId == null) {
-    // 新意图：提交前保存（§6.4）。
-    requestId = generateCreationRequestId();
-    storedPayload = newPayload ?? const <String, dynamic>{};
-    await saveCreationIntent(
+  return withCreationIntentLock(key, () async {
+    guard?.call();
+    final intent = await loadCreationIntent(
       account: account,
       operation: operation,
       scopeId: scopeId,
-      intent: CreationIntent(
-        requestId: requestId,
-        createdAtMs: nowMs,
-        payload: storedPayload,
-      ),
+      endpoint: endpoint,
+      guard: guard,
     );
-  }
-
-  final result = await dispatch(
-    requestId: requestId,
-    storedPayload: storedPayload,
-    recoverOnly: dispatch_.recoverOnly,
-  );
-
-  if (result.ok) {
-    await clearCreationIntent(
-      account: account,
-      operation: operation,
-      scopeId: scopeId,
-    );
-    return CreationFlowOutcome(
-      ok: true,
-      replayed: result.creationState == 'replayed',
-      createdId: extractCreatedId(result.payload) ?? '',
-      payload: result.payload,
-    );
-  }
-
-  switch (result.errorSymbol) {
-    case 'request_id_conflict':
+    guard?.call();
+    if (!capabilityEnabled) {
+      // 无能力：不启新入口；已有未知意图只保留/核对，绝不剥离键走旧 POST。
       return CreationFlowOutcome(
         ok: false,
-        failure: CreationFlowFailure.conflict,
-        errorText: result.errorText,
+        failure: CreationFlowFailure.capabilityMissing,
+        pendingIntentBlocked: intent != null,
       );
-    case 'create_not_accepted':
-      // 仅表示查询时未见受理，不证明在途请求不会迟到；意图保留。
-      return CreationFlowOutcome(
-        ok: false,
-        failure: CreationFlowFailure.notAcceptedPending,
-        errorText: result.errorText,
-      );
-    case 'create_recovery_expired':
-      await clearCreationIntent(
+    }
+
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    final dispatch_ = decideCreationDispatch(
+      intentCreatedAtMs: intent?.createdAtMs,
+      nowMs: nowMs,
+    );
+    var requestId = intent?.requestId;
+    var storedPayload = intent?.payload ?? const <String, dynamic>{};
+    if (requestId == null) {
+      // 新意图：提交前保存（§6.4）。
+      requestId = generateCreationRequestId();
+      storedPayload = newPayload ?? const <String, dynamic>{};
+      await saveCreationIntent(
         account: account,
         operation: operation,
         scopeId: scopeId,
+        endpoint: endpoint,
+        guard: guard,
+        intent: CreationIntent(
+          requestId: requestId,
+          createdAtMs: nowMs,
+          payload: storedPayload,
+        ),
       );
-      return CreationFlowOutcome(
-        ok: false,
-        failure: CreationFlowFailure.recoveryExpired,
-        errorText: result.errorText,
-        resourceId: result.resourceId,
-      );
-    case 'create_resource_unavailable':
-      await clearCreationIntent(
-        account: account,
-        operation: operation,
-        scopeId: scopeId,
-      );
-      return CreationFlowOutcome(
-        ok: false,
-        failure: CreationFlowFailure.resourceUnavailable,
-        errorText: result.errorText,
-        resourceId: result.resourceId,
-      );
-    default:
-      // 信封业务拒绝（无受理副作用）且是新意图 → 清除，避免载荷变更后
-      // 同键冲突；恢复派发（已有意图）的未知失败一律保留。
-      if (intent == null && result.envelopeRejection) {
-        await clearCreationIntent(
-          account: account,
-          operation: operation,
-          scopeId: scopeId,
+    }
+
+    guard?.call();
+    final result = await dispatch(
+      requestId: requestId,
+      storedPayload: storedPayload,
+      recoverOnly: dispatch_.recoverOnly,
+    );
+    guard?.call();
+
+    if (result.ok) {
+      final createdId = extractCreatedId(result.payload);
+      if (result.requestId != requestId ||
+          !const {'accepted', 'replayed'}.contains(result.creationState) ||
+          createdId == null ||
+          !RegExp(r'^[0-9]+$').hasMatch(createdId) ||
+          (BigInt.tryParse(createdId) ?? BigInt.zero) <= BigInt.zero ||
+          (BigInt.tryParse(createdId) ?? BigInt.zero) >
+              BigInt.parse('9223372036854775807')) {
+        return const CreationFlowOutcome(
+          ok: false,
+          failure: CreationFlowFailure.unknownPending,
         );
       }
-      return CreationFlowOutcome(
-        ok: false,
-        failure: CreationFlowFailure.unknownPending,
-        errorText: result.errorText,
+      await clearCreationIntent(
+        account: account,
+        operation: operation,
+        scopeId: scopeId,
+        endpoint: endpoint,
+        guard: guard,
+        expectedRequestId: requestId,
       );
-  }
+      return CreationFlowOutcome(
+        ok: true,
+        replayed: result.creationState == 'replayed',
+        createdId: createdId,
+        payload: result.payload,
+      );
+    }
+
+    // HTTP 解析层未保留可证明的来源与状态，任何失败都可能是代理响应。
+    // 不透传可能伪造的终态文案，保留原键和载荷供后续安全恢复。
+    return const CreationFlowOutcome(
+      ok: false,
+      failure: CreationFlowFailure.unknownPending,
+    );
+  });
 }

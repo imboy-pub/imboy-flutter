@@ -14,6 +14,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synchronized/synchronized.dart';
 
 import 'package:imboy/config/env.dart';
 
@@ -67,26 +68,54 @@ String generateCreationRequestId() {
   return 'cri_${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}_$suffix';
 }
 
+final _intentLocks = <String, Lock>{};
+final _intentFailures = <String>{};
+
+Lock _intentLock(String key) => _intentLocks.putIfAbsent(key, Lock.new);
+
+Future<T> withCreationIntentLock<T>(String key, Future<T> Function() action) =>
+    _intentLock('flow:$key').synchronized(action);
+
 String creationIntentStorageKey(
   String account,
   String operation,
-  String scopeId,
-) =>
-    'creation_intent:'
-    '${Env().apiBaseUrl.length}:'
-    '${Env().apiBaseUrl}:$account:$operation:$scopeId';
+  String scopeId, {
+  String? endpoint,
+}) {
+  final source = endpoint ?? Env().apiBaseUrl;
+  return 'creation_intent:${source.length}:$source:$account:$operation:$scopeId';
+}
 
 Future<void> saveCreationIntent({
   required String account,
   required String operation,
   required String scopeId,
   required CreationIntent intent,
+  String? endpoint,
+  void Function()? guard,
 }) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString(
-    creationIntentStorageKey(account, operation, scopeId),
-    jsonEncode(intent.toMap()),
+  final key = creationIntentStorageKey(
+    account,
+    operation,
+    scopeId,
+    endpoint: endpoint,
   );
+  await _intentLock('storage:$key').synchronized(() async {
+    final prefs = await SharedPreferences.getInstance();
+    guard?.call();
+    if (_intentFailures.contains(key)) {
+      throw StateError('creation intent storage unavailable');
+    }
+    try {
+      if (!await prefs.setString(key, jsonEncode(intent.toMap()))) {
+        throw StateError('creation intent storage unavailable');
+      }
+    } on Object {
+      // SharedPreferences 先更新内存缓存，写失败后不得把缓存当作持久事实。
+      _intentFailures.add(key);
+      throw StateError('creation intent storage unavailable');
+    }
+  });
 }
 
 /// 读取意图；键不存在、内容损坏或字段缺失时返回 null（安全缺省）。
@@ -94,11 +123,21 @@ Future<CreationIntent?> loadCreationIntent({
   required String account,
   required String operation,
   required String scopeId,
+  String? endpoint,
+  void Function()? guard,
 }) async {
   final prefs = await SharedPreferences.getInstance();
-  final raw = prefs.getString(
-    creationIntentStorageKey(account, operation, scopeId),
+  guard?.call();
+  final key = creationIntentStorageKey(
+    account,
+    operation,
+    scopeId,
+    endpoint: endpoint,
   );
+  if (_intentFailures.contains(key)) {
+    throw StateError('creation intent storage unavailable');
+  }
+  final raw = prefs.getString(key);
   if (raw == null) return null;
   try {
     final decoded = jsonDecode(raw);
@@ -117,7 +156,38 @@ Future<void> clearCreationIntent({
   required String account,
   required String operation,
   required String scopeId,
+  String? endpoint,
+  void Function()? guard,
+  String? expectedRequestId,
 }) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.remove(creationIntentStorageKey(account, operation, scopeId));
+  final key = creationIntentStorageKey(
+    account,
+    operation,
+    scopeId,
+    endpoint: endpoint,
+  );
+  await _intentLock('storage:$key').synchronized(() async {
+    final prefs = await SharedPreferences.getInstance();
+    guard?.call();
+    if (_intentFailures.contains(key)) {
+      throw StateError('creation intent storage unavailable');
+    }
+    if (expectedRequestId != null) {
+      final raw = prefs.getString(key);
+      try {
+        final map = raw == null ? null : jsonDecode(raw);
+        if (map is! Map || map['request_id'] != expectedRequestId) return;
+      } on FormatException {
+        return;
+      }
+    }
+    try {
+      if (!await prefs.remove(key)) {
+        throw StateError('creation intent storage unavailable');
+      }
+    } on Object {
+      _intentFailures.add(key);
+      throw StateError('creation intent storage unavailable');
+    }
+  });
 }

@@ -30,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/modules/organization/service/org_group_rename_pending_store.dart';
 
+import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -46,6 +47,7 @@ import 'package:imboy/service/creation_receipt/group_creation_receipt_service.da
 import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/api/group_api.dart';
 import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
@@ -153,7 +155,9 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
 
   // ==================== 数据加载 ====================
 
-  Future<void> _refresh() async {
+  Future<void> _refresh({bool Function()? isCurrent}) async {
+    bool current() => mounted && (isCurrent?.call() ?? true);
+    if (!current()) return;
     setState(() {
       _loading = true;
       _error = null;
@@ -161,7 +165,9 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     });
     try {
       final org = await _orgApi.detail(widget.orgId);
+      if (!current()) return;
       final page = await _wsApi.mine(size: 100);
+      if (!current()) return;
       final mine = page.list
           .where((w) => w.belongsToOrg(widget.orgId))
           .toList();
@@ -172,7 +178,7 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
         // 指针事实缺失 ≠ 企业详情失败，不阻断整页。
         defaultWs = null;
       }
-      if (!mounted) return;
+      if (!current()) return;
       setState(() {
         _org = org;
         _workspaces = mine;
@@ -180,22 +186,23 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
         _activeWsId = _pickActiveWs(mine, _activeWsId);
       });
       if (_activeWsId.isNotEmpty) {
-        await _loadResources(_activeWsId);
+        await _loadResources(_activeWsId, isCurrent: isCurrent);
+        if (!current()) return;
         await _restorePendingGroupRename();
       }
     } on OrganizationApiException catch (e) {
-      if (!mounted) return;
+      if (!current()) return;
       setState(() {
         _permissionDenied = e.isForbidden;
         _error = e.isForbidden ? null : '${e.message} (code=${e.code})';
       });
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!current()) return;
       setState(() {
         _error = e.toString();
       });
     } finally {
-      if (mounted) {
+      if (current()) {
         setState(() {
           _loading = false;
         });
@@ -218,33 +225,40 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     return list.isEmpty ? '' : list.first.id;
   }
 
-  Future<void> _loadResources(EntityId wsId) async {
+  Future<void> _loadResources(
+    EntityId wsId, {
+    bool Function()? isCurrent,
+  }) async {
+    bool current() => mounted && (isCurrent?.call() ?? true);
+    if (!current()) return;
     setState(() {
       _resourcesLoading = true;
       _resourcesError = null;
     });
     try {
       final groups = await _wsApi.groups(wsId);
+      if (!current()) return;
       final active = await _wsApi.channels(wsId);
+      if (!current()) return;
       final archived = await _wsApi.channels(wsId, status: 'archived');
-      if (!mounted) return;
+      if (!current()) return;
       setState(() {
         _groups = groups;
         _activeChannels = active;
         _archivedChannels = archived;
       });
     } on WorkspaceApiException catch (e) {
-      if (!mounted) return;
+      if (!current()) return;
       setState(() {
         _resourcesError = '${e.message} (code=${e.code})';
       });
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!current()) return;
       setState(() {
         _resourcesError = e.toString();
       });
     } finally {
-      if (mounted) {
+      if (current()) {
         setState(() {
           _resourcesLoading = false;
         });
@@ -263,8 +277,9 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   /// 治理动作统一收口：执行 → 服务端文案透出（不叠兜底）→ 回到服务端事实。
   Future<void> _runGovernance(
     Future<String?> Function() action,
-    String failurePrefix,
-  ) async {
+    String failurePrefix, {
+    bool Function()? isCurrent,
+  }) async {
     String? failure;
     try {
       failure = await action();
@@ -275,11 +290,12 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
     } on Object catch (e) {
       failure = e.toString();
     }
+    if (!mounted || !(isCurrent?.call() ?? true)) return;
     if (failure != null) {
       _toast('$failurePrefix：$failure');
       return;
     }
-    await _refresh();
+    await _refresh(isCurrent: isCurrent);
   }
 
   // ==================== 工作区动作 ====================
@@ -596,50 +612,75 @@ class _OrganizationManagePageState extends State<OrganizationManagePage> {
   }
 
   Future<void> _createChannel() async {
-    if (_activeWsId.isEmpty) return;
+    final workspaceId = _activeWsId;
+    final orgId = widget.orgId;
+    final account = _accountKey;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final generation = user.sessionGeneration;
+    final actionGeneration = _groupActionGeneration;
+    final endpoint = Env().apiBaseUrl;
+    bool isCurrent() =>
+        mounted &&
+        uid.isNotEmpty &&
+        user.currentUid == uid &&
+        _accountKey == account &&
+        account == uid &&
+        actionGeneration == _groupActionGeneration &&
+        user.isCurrentSession(generation) &&
+        !user.isAuthTransitioning &&
+        Env().apiBaseUrl == endpoint &&
+        widget.orgId == orgId &&
+        _activeWsId == workspaceId;
+    void guard() {
+      if (!isCurrent()) throw StateError('channel creation session changed');
+    }
+
+    if (workspaceId.isEmpty || !isCurrent()) return;
     final name = await orgPromptInput(
       context,
       title: t.organization.manage.createChannel,
       hint: t.organization.manage.channelNameHint,
     );
-    if (name == null) return;
-    await _runGovernance(() async {
-      // W04.d.c：受理合同路径（manifest 能力门开启时启用；恢复重放/只查
-      // 一律原键原载荷）。capabilityMissing 且无未知意图 → 回落既有键less
-      // 路径（行为零变化）；已有未知意图时绝不剥键走旧 POST。
-      final receipt = await ChannelCreationReceiptService()
-          .createOrRecoverChannel(
-            account: _accountKey,
-            name: name,
-            visibility: 1,
-            accessType: 0,
-            joinPolicy: 1,
-            workspace: true,
-            workspaceId: _activeWsId,
-          );
-      if (receipt.ok) return null;
-      if (receipt.failure == CreationFlowFailure.capabilityMissing) {
-        if (receipt.pendingIntentBlocked) {
-          // 能力被服务端下线但本机仍有未知意图：绝不剥键走旧 POST。
-          return t.organization.manage.creationRecoveryUnavailable;
+    if (name == null || !isCurrent()) return;
+    if (!RegExp(r'^[0-9]+$').hasMatch(workspaceId) ||
+        channelDecimalId(workspaceId) == null) {
+      _toast(
+        t.common.featureDisabledName(name: t.organization.manage.createChannel),
+      );
+      return;
+    }
+    await _runGovernance(
+      () async {
+        // 未声明受理合同无法证明旧服务端会保留工作区归属，因此禁止无键回退。
+        // 已有未知意图仍由受理编排保留，绝不剥键发送旧 POST。
+        final receipt = await ChannelCreationReceiptService()
+            .createOrRecoverChannel(
+              account: account,
+              guard: guard,
+              name: name,
+              visibility: 1,
+              accessType: 0,
+              joinPolicy: 1,
+              workspace: true,
+              workspaceId: workspaceId,
+            );
+        if (receipt.ok) return null;
+        if (receipt.failure == CreationFlowFailure.capabilityMissing) {
+          return receipt.pendingIntentBlocked
+              ? t.organization.manage.creationRecoveryUnavailable
+              : t.common.featureDisabledName(
+                  name: t.organization.manage.createChannel,
+                );
         }
-        // 企业频道固定「免费 + 非公开」：内部治理面不该产生付费/公开发现面
-        // （GZ-J07「企业频道免费且不公开发现」）。
-        final created = await _channelApi.createChannel(
-          name: name,
-          visibility: 1,
-          accessType: 0,
-          joinPolicy: 1,
-        );
-        return created == null
-            ? t.organization.manage.createChannelFailed
-            : null;
-      }
-      // conflict/notAccepted/unknown：意图保留，重试继续恢复；
-      // expired/unavailable：意图已清，可重新发起（新键）。
-      return receipt.errorText ??
-          t.organization.manage.creationRecoveryUnavailable;
-    }, t.organization.manage.createChannel);
+        // conflict/notAccepted/unknown：意图保留，重试继续恢复；
+        // expired/unavailable：意图已清，可重新发起（新键）。
+        return receipt.errorText ??
+            t.organization.manage.creationRecoveryUnavailable;
+      },
+      t.organization.manage.createChannel,
+      isCurrent: isCurrent,
+    );
   }
 
   Future<void> _archiveChannel(ChannelModel c) async {
