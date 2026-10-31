@@ -49,7 +49,7 @@ channelsEmptySubtitle: "チャンネルはコンテンツの継続配信（お�
 channelTileSubtitle: "購読者$count人"
 channelDetailTitle: "チャンネル"
 # ==================== グループ（チャットの唯一の入口） ====================
-groupsEmptyTitle: "ワークスペースのグループはまだありません"
+groupsEmptyTitle: "ワークスペースのグループにはまだ参加していません"
 groupsEmptySubtitle: "グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）"
 groupTileSubtitle: "グループメンバー$count人"
 # ==================== 招待（3件の独立した結果） ====================

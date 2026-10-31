@@ -2603,7 +2603,7 @@ class _Translations$workspace$ja_JP extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ';
 	@override String channelTileSubtitle({required Object count}) => '購読者${count}人';
 	@override String get channelDetailTitle => 'チャンネル';
-	@override String get groupsEmptyTitle => 'ワークスペースのグループはまだありません';
+	@override String get groupsEmptyTitle => 'ワークスペースのグループにはまだ参加していません';
 	@override String get groupsEmptySubtitle => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）';
 	@override String groupTileSubtitle({required Object count}) => 'グループメンバー${count}人';
 	@override String get inviteTitle => 'ワークスペースメンバーを招待';
@@ -6014,7 +6014,7 @@ extension on TranslationsJaJp {
 			'workspace.channelsEmptySubtitle' => 'チャンネルはコンテンツの継続配信（お知らせ/資料）に使い、ディスカッションはグループへ',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '購読者${count}人',
 			'workspace.channelDetailTitle' => 'チャンネル',
-			'workspace.groupsEmptyTitle' => 'ワークスペースのグループはまだありません',
+			'workspace.groupsEmptyTitle' => 'ワークスペースのグループにはまだ参加していません',
 			'workspace.groupsEmptySubtitle' => 'グループはワークスペース内のリアルタイムディスカッションの場です（チャットはここからのみ）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'グループメンバー${count}人',
 			'workspace.inviteTitle' => 'ワークスペースメンバーを招待',

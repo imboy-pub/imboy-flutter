@@ -8838,8 +8838,8 @@ class Translations$workspace$zh_CN {
 	/// zh-CN: '频道'
 	String get channelDetailTitle => '频道';
 
-	/// zh-CN: '还没有工作区群组'
-	String get groupsEmptyTitle => '还没有工作区群组';
+	/// zh-CN: '你还没有加入工作区群组'
+	String get groupsEmptyTitle => '你还没有加入工作区群组';
 
 	/// zh-CN: '群组是工作区里的实时讨论空间（聊天唯一入口）'
 	String get groupsEmptySubtitle => '群组是工作区里的实时讨论空间（聊天唯一入口）';
@@ -14184,7 +14184,7 @@ extension on Translations {
 			'workspace.channelsEmptySubtitle' => '频道用于持续发布内容（公告/资料），讨论请去群组',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位订阅者',
 			'workspace.channelDetailTitle' => '频道',
-			'workspace.groupsEmptyTitle' => '还没有工作区群组',
+			'workspace.groupsEmptyTitle' => '你还没有加入工作区群组',
 			'workspace.groupsEmptySubtitle' => '群组是工作区里的实时讨论空间（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成员',
 			'workspace.inviteTitle' => '邀请工作区成员',

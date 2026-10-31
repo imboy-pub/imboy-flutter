@@ -2612,7 +2612,7 @@ class _Translations$workspace$ru_RU extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы';
 	@override String channelTileSubtitle({required Object count}) => 'Подписчиков: ${count}';
 	@override String get channelDetailTitle => 'Канал';
-	@override String get groupsEmptyTitle => 'Пока нет групп в рабочем пространстве';
+	@override String get groupsEmptyTitle => 'Вы ещё не вступили ни в одну группу рабочего пространства';
 	@override String get groupsEmptySubtitle => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)';
 	@override String groupTileSubtitle({required Object count}) => 'Участников группы: ${count}';
 	@override String get inviteTitle => 'Пригласить участника рабочего пространства';
@@ -6023,7 +6023,7 @@ extension on TranslationsRuRu {
 			'workspace.channelsEmptySubtitle' => 'Каналы нужны для постоянных публикаций (объявления/материалы); для обсуждений есть группы',
 			'workspace.channelTileSubtitle' => ({required Object count}) => 'Подписчиков: ${count}',
 			'workspace.channelDetailTitle' => 'Канал',
-			'workspace.groupsEmptyTitle' => 'Пока нет групп в рабочем пространстве',
+			'workspace.groupsEmptyTitle' => 'Вы ещё не вступили ни в одну группу рабочего пространства',
 			'workspace.groupsEmptySubtitle' => 'Группы — пространство обсуждений в реальном времени внутри рабочего пространства (единный вход к чатам)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => 'Участников группы: ${count}',
 			'workspace.inviteTitle' => 'Пригласить участника рабочего пространства',

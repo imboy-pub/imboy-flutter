@@ -2606,7 +2606,7 @@ class _Translations$workspace$de_DE extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Kanäle dienen der laufenden Veröffentlichung von Inhalten (Ankündigungen/Material); für Diskussionen bitte in die Gruppen';
 	@override String channelTileSubtitle({required Object count}) => '${count} Abonnenten';
 	@override String get channelDetailTitle => 'Kanal';
-	@override String get groupsEmptyTitle => 'Noch keine Arbeitsbereich-Gruppen';
+	@override String get groupsEmptyTitle => 'Sie sind noch keiner Gruppe im Arbeitsbereich beigetreten';
 	@override String get groupsEmptySubtitle => 'Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)';
 	@override String groupTileSubtitle({required Object count}) => '${count} Gruppenmitglieder';
 	@override String get inviteTitle => 'Arbeitsbereich-Mitglieder einladen';
@@ -6017,7 +6017,7 @@ extension on TranslationsDeDe {
 			'workspace.channelsEmptySubtitle' => 'Kanäle dienen der laufenden Veröffentlichung von Inhalten (Ankündigungen/Material); für Diskussionen bitte in die Gruppen',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} Abonnenten',
 			'workspace.channelDetailTitle' => 'Kanal',
-			'workspace.groupsEmptyTitle' => 'Noch keine Arbeitsbereich-Gruppen',
+			'workspace.groupsEmptyTitle' => 'Sie sind noch keiner Gruppe im Arbeitsbereich beigetreten',
 			'workspace.groupsEmptySubtitle' => 'Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} Gruppenmitglieder',
 			'workspace.inviteTitle' => 'Arbeitsbereich-Mitglieder einladen',

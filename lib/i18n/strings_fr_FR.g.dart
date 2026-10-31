@@ -2606,7 +2606,7 @@ class _Translations$workspace$fr_FR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Les canaux servent à publier du contenu en continu (annonces/documents) ; pour discuter, rendez-vous dans les groupes';
 	@override String channelTileSubtitle({required Object count}) => '${count} abonnés';
 	@override String get channelDetailTitle => 'Canal';
-	@override String get groupsEmptyTitle => 'Aucun groupe d\'espace de travail pour le moment';
+	@override String get groupsEmptyTitle => 'Vous n\'avez encore rejoint aucun groupe de l\'espace de travail';
 	@override String get groupsEmptySubtitle => 'Les groupes sont l\'espace de discussion en temps réel de l\'espace de travail (seule entrée pour discuter)';
 	@override String groupTileSubtitle({required Object count}) => '${count} membres du groupe';
 	@override String get inviteTitle => 'Inviter des membres dans l\'espace de travail';
@@ -6017,7 +6017,7 @@ extension on TranslationsFrFr {
 			'workspace.channelsEmptySubtitle' => 'Les canaux servent à publier du contenu en continu (annonces/documents) ; pour discuter, rendez-vous dans les groupes',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} abonnés',
 			'workspace.channelDetailTitle' => 'Canal',
-			'workspace.groupsEmptyTitle' => 'Aucun groupe d\'espace de travail pour le moment',
+			'workspace.groupsEmptyTitle' => 'Vous n\'avez encore rejoint aucun groupe de l\'espace de travail',
 			'workspace.groupsEmptySubtitle' => 'Les groupes sont l\'espace de discussion en temps réel de l\'espace de travail (seule entrée pour discuter)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} membres du groupe',
 			'workspace.inviteTitle' => 'Inviter des membres dans l\'espace de travail',

@@ -49,7 +49,7 @@ channelsEmptySubtitle: "頻道用於持續發布內容（公告/資料），討�
 channelTileSubtitle: "$count 位訂閱者"
 channelDetailTitle: "頻道"
 # ==================== Groups（聊天唯一入口） ====================
-groupsEmptyTitle: "還沒有工作區群組"
+groupsEmptyTitle: "你還沒有加入工作區群組"
 groupsEmptySubtitle: "群組是工作區裡的即時討論空間（聊天唯一入口）"
 groupTileSubtitle: "$count 位群成員"
 # ==================== 邀請（三條獨立結果） ====================

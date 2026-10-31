@@ -202,7 +202,7 @@ void main() {
     await openPage(const WorkspaceGroupsPage());
     final groupsEmpty = await _waitFor(
       tester,
-      () => tester.any(find.text('还没有工作区群组')),
+      () => tester.any(find.text('你还没有加入工作区群组')),
       seconds: 15,
     );
     expect(groupsEmpty, isTrue, reason: 'AT-WG2 空区群列表应显示空态标题');
@@ -248,8 +248,8 @@ void main() {
     final errAnywhere = tester.any(find.text('重试', skipOffstage: false));
     flowLog(
       '[DIAG-WF] 重试 onstage=$errOnstage anywhere=$errAnywhere '
-      '空态标题=${tester.any(find.text('还没有工作区群组'))} '
-      'anywhere=${tester.any(find.text('还没有工作区群组', skipOffstage: false))}',
+      '空态标题=${tester.any(find.text('你还没有加入工作区群组'))} '
+      'anywhere=${tester.any(find.text('你还没有加入工作区群组', skipOffstage: false))}',
     );
     expect(errorShown, isTrue, reason: 'AT-WF 注入失败后应显示错误态+重试按钮');
     flowLog('[AT-WF] 注入失败 → WorkspaceErrorView+重试按钮');
@@ -257,7 +257,7 @@ void main() {
     await _tapText(tester, '重试');
     final emptyRestored = await _waitFor(
       tester,
-      () => tester.any(find.text('还没有工作区群组')),
+      () => tester.any(find.text('你还没有加入工作区群组')),
       seconds: 15,
     );
     expect(emptyRestored, isTrue, reason: 'AT-WF 重试成功应恢复空列表态');

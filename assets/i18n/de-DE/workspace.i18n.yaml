@@ -50,7 +50,7 @@ channelsEmptySubtitle: "Kanäle dienen der laufenden Veröffentlichung von Inhal
 channelTileSubtitle: "$count Abonnenten"
 channelDetailTitle: "Kanal"
 # ==================== Gruppen (einziger Chat-Einstieg) ====================
-groupsEmptyTitle: "Noch keine Arbeitsbereich-Gruppen"
+groupsEmptyTitle: "Sie sind noch keiner Gruppe im Arbeitsbereich beigetreten"
 groupsEmptySubtitle: "Gruppen sind der Echtzeit-Diskussionsraum im Arbeitsbereich (einziger Einstieg für Chats)"
 groupTileSubtitle: "$count Gruppenmitglieder"
 # ==================== Einladungen (drei unabhängige Ergebnisse) ====================

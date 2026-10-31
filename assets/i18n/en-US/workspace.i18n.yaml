@@ -50,7 +50,7 @@ channelsEmptySubtitle: "Channels publish ongoing content (announcements / docs);
 channelTileSubtitle: "$count subscribers"
 channelDetailTitle: "Channel"
 # ==================== Groups (the only chat entry) ====================
-groupsEmptyTitle: "No workspace groups yet"
+groupsEmptyTitle: "You haven't joined any workspace groups yet"
 groupsEmptySubtitle: "Groups are real-time discussion spaces in the workspace (the only chat entry)"
 groupTileSubtitle: "$count group members"
 # ==================== Invite (three independent results) ====================

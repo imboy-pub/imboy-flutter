@@ -2615,7 +2615,7 @@ class _Translations$workspace$ar_SA extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات';
 	@override String channelTileSubtitle({required Object count}) => '${count} مشتركين';
 	@override String get channelDetailTitle => 'القناة';
-	@override String get groupsEmptyTitle => 'لا توجد مجموعات في مساحة العمل بعد';
+	@override String get groupsEmptyTitle => 'لم تنضم إلى أي مجموعة في مساحة العمل بعد';
 	@override String get groupsEmptySubtitle => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)';
 	@override String groupTileSubtitle({required Object count}) => '${count} أعضاء المجموعة';
 	@override String get inviteTitle => 'دعوة أعضاء مساحة العمل';
@@ -6026,7 +6026,7 @@ extension on TranslationsArSa {
 			'workspace.channelsEmptySubtitle' => 'تُستخدم القنوات للنشر المستمر للمحتوى (الإعلانات/المواد)، وللنقاش انتقل إلى المجموعات',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} مشتركين',
 			'workspace.channelDetailTitle' => 'القناة',
-			'workspace.groupsEmptyTitle' => 'لا توجد مجموعات في مساحة العمل بعد',
+			'workspace.groupsEmptyTitle' => 'لم تنضم إلى أي مجموعة في مساحة العمل بعد',
 			'workspace.groupsEmptySubtitle' => 'المجموعات هي مساحة النقاش الفوري داخل مساحة العمل (المدخل الوحيد للدردشة)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} أعضاء المجموعة',
 			'workspace.inviteTitle' => 'دعوة أعضاء مساحة العمل',

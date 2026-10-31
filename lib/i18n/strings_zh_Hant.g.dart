@@ -2603,7 +2603,7 @@ class Translations$workspace$zh_Hant extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '頻道用於持續發布內容（公告/資料），討論請去群組';
 	@override String channelTileSubtitle({required Object count}) => '${count} 位訂閱者';
 	@override String get channelDetailTitle => '頻道';
-	@override String get groupsEmptyTitle => '還沒有工作區群組';
+	@override String get groupsEmptyTitle => '你還沒有加入工作區群組';
 	@override String get groupsEmptySubtitle => '群組是工作區裡的即時討論空間（聊天唯一入口）';
 	@override String groupTileSubtitle({required Object count}) => '${count} 位群成員';
 	@override String get inviteTitle => '邀請工作區成員';
@@ -6014,7 +6014,7 @@ extension on TranslationsZhHant {
 			'workspace.channelsEmptySubtitle' => '頻道用於持續發布內容（公告/資料），討論請去群組',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} 位訂閱者',
 			'workspace.channelDetailTitle' => '頻道',
-			'workspace.groupsEmptyTitle' => '還沒有工作區群組',
+			'workspace.groupsEmptyTitle' => '你還沒有加入工作區群組',
 			'workspace.groupsEmptySubtitle' => '群組是工作區裡的即時討論空間（聊天唯一入口）',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} 位群成員',
 			'workspace.inviteTitle' => '邀請工作區成員',

@@ -2606,7 +2606,7 @@ class _Translations$workspace$it_IT extends Translations$workspace$zh_CN {
 	@override String get governanceTitle => 'Governance dell\'area di lavoro';
 	@override String groupTileSubtitle({required Object count}) => '${count} membri del gruppo';
 	@override String get groupsEmptySubtitle => 'I gruppi sono gli spazi di discussione in tempo reale dell\'area di lavoro (unico punto d\'accesso alla chat)';
-	@override String get groupsEmptyTitle => 'Nessun gruppo nell\'area di lavoro per ora';
+	@override String get groupsEmptyTitle => 'Non fai ancora parte di nessun gruppo dell\'area di lavoro';
 	@override String get inviteCodeCopy => 'Copia';
 	@override String inviteCodeExpiresAt({required Object expiresAt}) => 'Valido fino a ${expiresAt}';
 	@override String get inviteCodeGenerate => 'Genera codice team';
@@ -6017,7 +6017,7 @@ extension on TranslationsItIt {
 			'workspace.governanceTitle' => 'Governance dell\'area di lavoro',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} membri del gruppo',
 			'workspace.groupsEmptySubtitle' => 'I gruppi sono gli spazi di discussione in tempo reale dell\'area di lavoro (unico punto d\'accesso alla chat)',
-			'workspace.groupsEmptyTitle' => 'Nessun gruppo nell\'area di lavoro per ora',
+			'workspace.groupsEmptyTitle' => 'Non fai ancora parte di nessun gruppo dell\'area di lavoro',
 			'workspace.inviteCodeCopy' => 'Copia',
 			'workspace.inviteCodeExpiresAt' => ({required Object expiresAt}) => 'Valido fino a ${expiresAt}',
 			'workspace.inviteCodeGenerate' => 'Genera codice team',

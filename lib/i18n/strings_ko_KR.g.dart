@@ -2603,7 +2603,7 @@ class _Translations$workspace$ko_KR extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요';
 	@override String channelTileSubtitle({required Object count}) => '구독자 ${count}명';
 	@override String get channelDetailTitle => '채널';
-	@override String get groupsEmptyTitle => '아직 워크스페이스 그룹이 없습니다';
+	@override String get groupsEmptyTitle => '아직 참여한 워크스페이스 그룹이 없습니다';
 	@override String get groupsEmptySubtitle => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)';
 	@override String groupTileSubtitle({required Object count}) => '그룹 구성원 ${count}명';
 	@override String get inviteTitle => '워크스페이스 구성원 초대';
@@ -6014,7 +6014,7 @@ extension on TranslationsKoKr {
 			'workspace.channelsEmptySubtitle' => '채널은 콘텐츠(공지/자료)를 지속적으로 게시하는 공간입니다. 토론은 그룹을 이용해 주세요',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '구독자 ${count}명',
 			'workspace.channelDetailTitle' => '채널',
-			'workspace.groupsEmptyTitle' => '아직 워크스페이스 그룹이 없습니다',
+			'workspace.groupsEmptyTitle' => '아직 참여한 워크스페이스 그룹이 없습니다',
 			'workspace.groupsEmptySubtitle' => '그룹은 워크스페이스 안의 실시간 토론 공간입니다(유일한 채팅 창구)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '그룹 구성원 ${count}명',
 			'workspace.inviteTitle' => '워크스페이스 구성원 초대',

@@ -41,7 +41,7 @@ experienceModePersonal: Personale
 governanceTitle: Governance dell'area di lavoro
 groupTileSubtitle: "$count membri del gruppo"
 groupsEmptySubtitle: "I gruppi sono gli spazi di discussione in tempo reale dell'area di lavoro (unico punto d'accesso alla chat)"
-groupsEmptyTitle: Nessun gruppo nell'area di lavoro per ora
+groupsEmptyTitle: "Non fai ancora parte di nessun gruppo dell'area di lavoro"
 inviteCodeCopy: Copia
 inviteCodeExpiresAt(expiresAt): "Valido fino a $expiresAt"
 inviteCodeGenerate: Genera codice team

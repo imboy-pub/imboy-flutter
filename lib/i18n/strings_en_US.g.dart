@@ -3182,7 +3182,7 @@ class _Translations$workspace$en_US extends Translations$workspace$zh_CN {
 	@override String get channelsEmptySubtitle => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups';
 	@override String channelTileSubtitle({required Object count}) => '${count} subscribers';
 	@override String get channelDetailTitle => 'Channel';
-	@override String get groupsEmptyTitle => 'No workspace groups yet';
+	@override String get groupsEmptyTitle => 'You haven\'t joined any workspace groups yet';
 	@override String get groupsEmptySubtitle => 'Groups are real-time discussion spaces in the workspace (the only chat entry)';
 	@override String groupTileSubtitle({required Object count}) => '${count} group members';
 	@override String get inviteTitle => 'Invite Workspace Member';
@@ -7251,7 +7251,7 @@ extension on TranslationsEnUs {
 			'workspace.channelsEmptySubtitle' => 'Channels publish ongoing content (announcements / docs); for discussion go to Groups',
 			'workspace.channelTileSubtitle' => ({required Object count}) => '${count} subscribers',
 			'workspace.channelDetailTitle' => 'Channel',
-			'workspace.groupsEmptyTitle' => 'No workspace groups yet',
+			'workspace.groupsEmptyTitle' => 'You haven\'t joined any workspace groups yet',
 			'workspace.groupsEmptySubtitle' => 'Groups are real-time discussion spaces in the workspace (the only chat entry)',
 			'workspace.groupTileSubtitle' => ({required Object count}) => '${count} group members',
 			'workspace.inviteTitle' => 'Invite Workspace Member',
