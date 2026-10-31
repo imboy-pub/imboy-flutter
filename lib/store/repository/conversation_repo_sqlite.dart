@@ -162,6 +162,10 @@ class ConversationRepo {
       ConversationRepo.type: obj.type,
       ConversationRepo.msgType: obj.msgType,
       ConversationRepo.isShow: obj.isShow,
+      // J16.a（W09.a）：is_muted 是 C2C DND 真源列——insert 此前丢列，
+      // 占位行/新建行的免打扰偏好落库即丢（列默认 0），首消息到达后
+      // 偏好已不存在可保。
+      ConversationRepo.isMuted: obj.isMuted,
       ConversationRepo.payload: jsonEncode(obj.payload),
     };
     // return lastInsertId;
