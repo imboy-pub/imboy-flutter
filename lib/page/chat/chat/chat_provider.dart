@@ -600,7 +600,14 @@ class ChatNotifier extends _$ChatNotifier {
         .read(conversationProvider.notifier)
         .advanceReadWatermarkByMsgIds(c, result.msgIds);
     final current = await ConversationRepo().findById(c.id);
-    await ref.read(conversationProvider.notifier).replace(current ?? c);
+    // J19.e（W09.b）：is_show=0 的会话（已从列表移除）不得因已读同步
+    // （message_read_sync → markAsRead）复活进内存列表——replace 会把
+    // 隐藏行重新塞回 conversationMap（100ms 批量定时器无 isShow 校验），
+    // 造成「删除回弹」。隐藏时跳过 replace，水位/未读推进不受影响。
+    final fresh = current ?? c;
+    if (fresh.isShow != 0) {
+      await ref.read(conversationProvider.notifier).replace(fresh);
+    }
     await _emitUpdatedMessagesAfterStatusChange(type, result.msgIds);
     if (syncToServer) {
       await _enqueueReadReceipt(
