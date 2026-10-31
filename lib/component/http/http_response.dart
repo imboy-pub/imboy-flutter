@@ -66,10 +66,17 @@ class IMBoyHttpResponse {
   }
 
   /// 安全地将 payload 转为 `Map<String, dynamic>`。
-  /// payload 为 Map 时返回 cast 结果，否则返回空 Map。
+  /// payload 为 Map 时转换返回，否则返回空 Map。
   /// 用于替代 `resp.payload as Map<String, dynamic>` 裸 cast。
+  ///
+  /// 放宽为 `is Map` + `Map.from`（J17.d r12 取证）：transformer 的
+  /// _enrichPayload 用 spread 合入 envelope 顶层 extras（conflict/current）
+  /// 后，运行时类型推断为 `Map<dynamic, dynamic>`——严格
+  /// `is Map<String, dynamic>` 检查拒绝它并返回空 map，CAS 冲突回读键
+  /// 全部丢失。浅拷贝
+  /// 的键值引用语义不变，嵌套 map 交由二次 payloadAsMap 同规则转换。
   static Map<String, dynamic> payloadAsMap(dynamic payload) =>
-      payload is Map<String, dynamic> ? payload : <String, dynamic>{};
+      payload is Map ? Map<String, dynamic>.from(payload) : <String, dynamic>{};
 
   /// 安全地将 payload 中的字段转为 `List<Map<String, dynamic>>`。
   /// 字段缺失或类型不匹配时返回空列表。
