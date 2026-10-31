@@ -34,7 +34,6 @@ const _bobUid = '120619871628429312';
 const _markReadLabel = '标记已读';
 const _markUnreadLabel = '标记未读';
 const _cancelPendingLabel = '取消待处理';
-const _pendingBadge = '待处理';
 
 Finder _bobItem(WidgetTester t) => find.byWidgetPredicate(
   (w) =>
@@ -48,22 +47,52 @@ int _bobUnread(WidgetTester t) {
   return t.widget<ConversationItem>(_bobItem(t).first).model.unreadNum;
 }
 
+/// 待处理旗标判定：ConversationItem 内的 flag_fill Icon（W09.a 渲染为
+/// Icon+semanticLabel，**页面无 Text('待处理')**——find.text 永远 miss，
+/// r26 ④段 badgeStill 假阴性根因）。限定 item 内避免撞侧滑面板按钮图标。
+Finder _bobPendingFlag(WidgetTester t) => find.descendant(
+  of: _bobItem(t),
+  matching: find.byIcon(CupertinoIcons.flag_fill),
+);
+
 /// 侧滑 bob 会话并点击标签；返回是否点到。
 /// 收面板用「右滑回」而非点空白——tapAt(20,120) 会误点会话项打开
 /// 聊天页，此后消息按「用户在聊天中」不再计入未读（r1-r4 症状根因）。
+/// 侧滑面板打开可能被忙态/晚到 toast 吞手势（j16 同款）：drag→find
+/// 重试至多 3 次，失败时打印诊断（r22 卡③段根因取证）。
 Future<bool> _swipeAndTapLabel(WidgetTester t, String label) async {
   final item = _bobItem(t);
-  if (!t.any(item)) return false;
-  await t.drag(item.first, const Offset(-300, 0));
-  await settle(t, maxSeconds: 2);
-  final action = find.text(label);
-  if (!t.any(action)) return false;
-  await safeTap(t, action.first);
-  await settle(t, maxSeconds: 1);
-  // 右滑收回面板（tap 空白可能误开会话项）。
-  await t.drag(item.first, const Offset(300, 0));
-  await settle(t, maxSeconds: 2);
-  return true;
+  if (!t.any(item)) {
+    debugPrint('J17C swipe: bob item NOT found for "$label"');
+    return false;
+  }
+  for (var attempt = 0; attempt < 3; attempt++) {
+    await t.drag(item.first, const Offset(-300, 0));
+    await settle(t, maxSeconds: 2);
+    final action = find.text(label);
+    if (t.any(action)) {
+      await safeTap(t, action.first);
+      await settle(t, maxSeconds: 1);
+      // 右滑收回面板（tap 空白可能误开会话项）。
+      await t.drag(item.first, const Offset(300, 0));
+      await settle(t, maxSeconds: 2);
+      debugPrint('J17C swipe: "$label" tapped on attempt $attempt');
+      return true;
+    }
+    debugPrint('J17C swipe: "$label" not visible after drag[$attempt]');
+  }
+  // 诊断：面板打开失败或标签名不符（如 pending 未关时侧滑显示
+  // 「取消待处理」而非「标记未读」——r23 ③段 3 次 miss 嫌疑根因）。
+  final visibleTexts = t
+      .widgetList(find.byType(Text))
+      .map((w) => (w as Text).data ?? '<rich>')
+      .where((s) => s != '<rich>' && s.isNotEmpty)
+      .take(14)
+      .toList();
+  debugPrint(
+    'J17C swipe: "$label" FAILED after 3 drags; visible=$visibleTexts',
+  );
+  return false;
 }
 
 void main() {
@@ -115,9 +144,14 @@ void main() {
       }
     }
     if (tester.any(_bobItem(tester))) {
-      // 若有「待处理」badge 则点一次取消待处理。
-      final sw = await _swipeAndTapLabel(tester, _cancelPendingLabel);
-      if (sw) await settle(tester, maxSeconds: 2);
+      // 若有「待处理」badge：点取消待处理，**并验证**标签翻面（点击经
+      // 服务端 CAS，可能失败不生效——r23 清基线只点不验，pending 残留
+      // on → ③段侧滑标签是「取消待处理」，find「标记未读」3 次 miss）。
+      for (var i = 0; i < 3; i++) {
+        final sw = await _swipeAndTapLabel(tester, _cancelPendingLabel);
+        if (!sw) break; // 面板无「取消待处理」= pending 已 off
+        await settle(tester, maxSeconds: 2);
+      }
     }
     debugPrint('J17C ready; awaiting unread messages (uk3=$uk3)');
 
@@ -156,8 +190,8 @@ void main() {
     expect(tapped, isTrue, reason: '侧滑应出现「标记未读」（设待处理）');
     var pendingOn = false;
     for (var i = 0; i < 20 && !pendingOn; i++) {
-      // 旗标判定：badge 文本「待处理」出现，或侧滑标签翻转为「取消待处理」。
-      pendingOn = tester.any(find.text(_pendingBadge));
+      // 旗标判定：item 内 flag_fill Icon，或侧滑标签翻转为「取消待处理」。
+      pendingOn = tester.any(_bobPendingFlag(tester));
       if (!pendingOn) {
         await tester.drag(_bobItem(tester).first, const Offset(-300, 0));
         await settle(tester, maxSeconds: 1);
@@ -193,7 +227,7 @@ void main() {
       debugPrint('J17C second final: ui=$ui db=$dbv');
     }
     expect(secondSeen, isTrue, reason: '第二条未读应到达');
-    var badgeStill = tester.any(find.text(_pendingBadge));
+    var badgeStill = tester.any(_bobPendingFlag(tester));
     expect(badgeStill, isTrue, reason: '新未读不得清除人工待处理标记');
 
     tapped = await _swipeAndTapLabel(tester, _markReadLabel);
@@ -202,7 +236,7 @@ void main() {
       await settle(tester, maxSeconds: 1);
     }
     expect(_bobUnread(tester), 0, reason: '再标已读后角标回 0');
-    badgeStill = tester.any(find.text(_pendingBadge));
+    badgeStill = tester.any(_bobPendingFlag(tester));
     expect(badgeStill, isTrue, reason: '标已读不得清除人工待处理标记（彼此不清除）');
     final dbU2 = await dbUnread();
     expect(dbU2, 0, reason: '终态 DB unread_num=0');
