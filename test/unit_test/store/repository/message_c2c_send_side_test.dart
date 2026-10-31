@@ -184,5 +184,22 @@ void main() {
       expect(isInvalid(emptyId), isTrue);
       expect(isInvalid(Xid().toString()), isFalse);
     });
+
+    test('created_at=0 哨兵应放行、越界非 0 应拒绝（_validateMessageData 语义）', () {
+      // J16.a 真机旅程回归（2026-10-31）：入站 C2C frame 的 created_at 为
+      // RFC3339 串，parseModelInt 解析失败落 0 哨兵（W8-A1：绝不回填 now
+      // 伪造发送时间）；此前校验把 0 连同越界值一并拒绝，入站 C2C 首消息
+      // 被 ArgumentError 静默丢弃（消息后台处理失败 errType=ArgumentError）。
+      // 修复后语义：0=合法哨兵放行；仅拒绝明显越界的非 0 值。
+      bool createdAtAllowed(int createdAt) =>
+          createdAt == 0 ||
+          (createdAt >= 946684800000 && createdAt <= 4102444800000);
+      expect(createdAtAllowed(0), isTrue, reason: '0=不可解析哨兵（W8-A1），必须放行');
+      expect(createdAtAllowed(1768957192053), isTrue, reason: '正常毫秒时间戳放行');
+      expect(createdAtAllowed(946684800000), isTrue, reason: '下界含边界放行');
+      expect(createdAtAllowed(946684799999), isFalse, reason: '下界外拒绝');
+      expect(createdAtAllowed(4102444800000), isTrue, reason: '上界含边界放行');
+      expect(createdAtAllowed(4102444800001), isFalse, reason: '上界外拒绝');
+    });
   });
 }

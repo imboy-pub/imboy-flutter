@@ -135,7 +135,12 @@ class MessageRepo implements MessageRepository {
     }
 
     // 验证时间戳在合理范围内 (2000-01-01 到 2100-01-01)
-    if (msg.createdAt < 946684800000 || msg.createdAt > 4102444800000) {
+    // W8-A1：created_at 缺失/不可解析（如入站 frame 为 RFC3339 串时
+    // parseModelInt 落 0 哨兵，绝不回填 now 伪造发送时间）——0 是合法
+    // 哨兵值，消息不得因时间戳缺失被整体丢弃（J16.a 真机旅程实测入站
+    // C2C 首消息因此被 ArgumentError 静默丢弃）；仅拒绝明显越界的非 0 值。
+    if (msg.createdAt != 0 &&
+        (msg.createdAt < 946684800000 || msg.createdAt > 4102444800000)) {
       return false;
     }
 
