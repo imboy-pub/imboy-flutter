@@ -25,6 +25,7 @@ class _FakeConversationApi extends ConversationApi {
   bool deleteThrows = false;
 
   final List<Map<String, String>> pinCalls = <Map<String, String>>[];
+  final List<Map<String, String>> unpinCalls = <Map<String, String>>[];
   final List<Map<String, String>> deleteCalls = <Map<String, String>>[];
   final List<Map<String, String>> restoreCalls = <Map<String, String>>[];
 
@@ -39,6 +40,15 @@ class _FakeConversationApi extends ConversationApi {
     required String type,
   }) async {
     pinCalls.add({'conversation_id': conversationId, 'type': type});
+    return pinResult;
+  }
+
+  @override
+  Future<bool> unpin({
+    required String conversationId,
+    required String type,
+  }) async {
+    unpinCalls.add({'conversation_id': conversationId, 'type': type});
     return pinResult;
   }
 
@@ -517,6 +527,144 @@ void main() {
       expect(stored, isNotNull);
       expect(stored!.isPinned, isFalse);
 
+      container.dispose();
+    });
+
+    test('J17.a: 明确 pin=true/false 分别落服务端真源并可回读排序', () async {
+      final api = _FakeConversationApi();
+      final conversation = await _insertConversation(
+        peerId: 6101,
+        type: 'C2C',
+        lastTime: 1000,
+        isPinned: false,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          conversationProvider.overrideWith(
+            () => _TestConversationNotifier(api: api),
+          ),
+        ],
+      );
+      final keepAlive = container.listen(conversationProvider, (_, prev) {});
+
+      // 明确目标 true（非 toggle）：成功后本地 authoritative 真源回读
+      // is_pinned=true，且会话排序进位（置顶优先于更晚的未置顶）。
+      final pinned = await container
+          .read(conversationProvider.notifier)
+          .setConversationPinned(conversation, true);
+      expect(pinned, isTrue);
+      expect(api.pinCalls.single, {'conversation_id': '6101', 'type': 'C2C'});
+      final afterPin = await ConversationRepo().findByPeerId('C2C', '6101');
+      expect(afterPin, isNotNull);
+      expect(afterPin!.isPinned, isTrue);
+      expect(
+        (afterPin.payload?['authoritative'] as Map?)?['is_pinned'],
+        isTrue,
+      );
+      container
+          .read(conversationProvider.notifier)
+          .applyConversationSnapshot(afterPin.copyWith(lastTime: 900));
+      // replaceConversation 走 100ms 批量 Timer，等 flush 后再断言排序。
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      expect(
+        container.read(conversationProvider).conversations.first.peerId,
+        '6101',
+      );
+
+      // 明确目标 false：unpin 调用明确，真源回读翻回。
+      final unpinned = await container
+          .read(conversationProvider.notifier)
+          .setConversationPinned(afterPin, false);
+      expect(unpinned, isTrue);
+      expect(api.unpinCalls.single, {'conversation_id': '6101', 'type': 'C2C'});
+      final afterUnpin = await ConversationRepo().findByPeerId('C2C', '6101');
+      expect(afterUnpin, isNotNull);
+      expect(afterUnpin!.isPinned, isFalse);
+
+      // 工作区成员向量：C2G 会话同 API 通道，type 明确 c2g。
+      final groupConversation = await _insertConversation(
+        peerId: 6102,
+        type: 'C2G',
+        lastTime: 800,
+      );
+      final groupPinned = await container
+          .read(conversationProvider.notifier)
+          .setConversationPinned(groupConversation, true);
+      expect(groupPinned, isTrue);
+      expect(api.pinCalls.last, {'conversation_id': '6102', 'type': 'C2G'});
+      final groupRow = await ConversationRepo().findByPeerId('C2G', '6102');
+      expect(groupRow, isNotNull);
+      expect(groupRow!.isPinned, isTrue);
+
+      keepAlive.close();
+      container.dispose();
+    });
+
+    test('J17.b: hidden=true/false 明确目标本地与远端一致，失败可重试', () async {
+      final api = _FakeConversationApi();
+      final conversation = await _insertConversation(
+        peerId: 6201,
+        type: 'C2C',
+        lastTime: 1000,
+      );
+
+      final container = ProviderContainer(
+        overrides: [
+          conversationProvider.overrideWith(
+            () => _TestConversationNotifier(api: api),
+          ),
+        ],
+      );
+      final keepAlive = container.listen(conversationProvider, (_, prev) {});
+      final notifier = container.read(conversationProvider.notifier);
+
+      // hidden=true：远端 200 → 本地 is_show=0（本地与远端一致）。
+      final hidden = await notifier.deleteConversationRemote(conversation);
+      expect(hidden, isTrue);
+      expect(api.deleteCalls.single, {
+        'conversation_id': '6201',
+        'type': 'C2C',
+      });
+      final afterHide = await ConversationRepo().findByPeerId('C2C', '6201');
+      expect(afterHide, isNotNull);
+      expect(afterHide!.isShow, 0);
+
+      // 防重/失败可重试：先一次失败（本地可见性不动），随后成功同语义。
+      api.deleteResult = false;
+      final retryFailed = await notifier.deleteConversationRemote(afterHide);
+      expect(retryFailed, isFalse);
+      final stillHidden = await ConversationRepo().findByPeerId('C2C', '6201');
+      expect(stillHidden!.isShow, 0);
+      api.deleteResult = true;
+      final retryOk = await notifier.deleteConversationRemote(stillHidden);
+      expect(retryOk, isTrue);
+
+      // hidden=false：restore 走权威 pull 恢复本地可见性（真源一致）。
+      api.entries = <Map<String, dynamic>>[
+        {
+          'conversation_id': '6201',
+          'conversation_type': 'c2c',
+          'server_ts': 3000,
+          'last_msg_id': 16201,
+          'last_msg': {'text': 'restored'},
+          'is_pinned': 0,
+        },
+      ];
+      final restored = await notifier.restoreConversationRemote(
+        peerId: '6201',
+        type: 'C2C',
+      );
+      expect(restored, isTrue);
+      expect(api.restoreCalls.single, {
+        'conversation_id': '6201',
+        'type': 'C2C',
+      });
+      final afterRestore = await ConversationRepo().findByPeerId('C2C', '6201');
+      expect(afterRestore, isNotNull);
+      expect(afterRestore!.isShow, 1);
+
+      keepAlive.close();
       container.dispose();
     });
   });
