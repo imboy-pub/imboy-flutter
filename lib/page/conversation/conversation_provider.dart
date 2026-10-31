@@ -127,6 +127,10 @@ class ConversationNotifier extends _$ConversationNotifier {
 
   // Use a timer and map to batch state updates to prevent UI stuttering
   Timer? _batchUpdateTimer;
+  int _conversationRevision = 0;
+  int _listRequestGeneration = 0;
+  final Map<String, int> _conversationKeyRevisions = {};
+  final Map<String, int> _conversationRemovalGenerations = {};
   final Map<
     String,
     ({ConversationModel conversation, String uid, int generation})
@@ -152,6 +156,8 @@ class ConversationNotifier extends _$ConversationNotifier {
 
     final session = UserRepoLocal.to;
     if (session.isClearingSession) return;
+    _conversationRevision++;
+    _conversationKeyRevisions[obj.uk3] = _conversationRevision;
     _pendingUpdates[obj.uk3] = (
       conversation: obj,
       uid: session.currentUid,
@@ -180,6 +186,11 @@ class ConversationNotifier extends _$ConversationNotifier {
 
   // Remove conversation from map
   void removeConversationFromMap(String uk3) {
+    _conversationRevision++;
+    _conversationKeyRevisions[uk3] = _conversationRevision;
+    _conversationRemovalGenerations[uk3] =
+        (_conversationRemovalGenerations[uk3] ?? 0) + 1;
+    _pendingUpdates.remove(uk3);
     final newMap = Map<String, ConversationModel>.from(state.conversationMap);
     newMap.remove(uk3);
     state = state.copyWith(conversationMap: newMap);
@@ -877,41 +888,96 @@ class ConversationNotifier extends _$ConversationNotifier {
     bool syncAuthoritative = false,
     String syncTrigger = 'manual',
   }) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final sessionGeneration = session.sessionGeneration;
+    final requestGeneration = ++_listRequestGeneration;
     try {
       if (syncAuthoritative) {
         await syncAuthoritativeConversations(trigger: syncTrigger);
       }
-      List<ConversationModel> li = await (ConversationRepo()).list(type: type);
-      await Future.wait(
-        li.map((obj) async {
-          // obj.title = '';
-          if (obj.title.isEmpty) {
-            obj.title = await computeTitle(obj);
+      bool isCurrentRequest() =>
+          _isCurrentSession(uid, sessionGeneration) &&
+          requestGeneration == _listRequestGeneration;
+      List<ConversationModel> li = [];
+      // 合并同一请求期间的变更，最多补查一次本地库；不重复权威同步，
+      // 持续收消息时也不会无限等待。新请求/账号失效则不再补查。
+      for (var attempt = 0; attempt < 2; attempt++) {
+        if (!isCurrentRequest()) return li;
+        final revision = _conversationRevision;
+        final keyRevisions = Map<String, int>.from(_conversationKeyRevisions);
+        li = await (ConversationRepo()).list(type: type);
+        if (!isCurrentRequest()) return li;
+        await Future.wait(
+          li.map((obj) async {
+            if (obj.title.isEmpty) {
+              obj.title = await computeTitle(obj);
+            }
+          }),
+        );
+        if (!isCurrentRequest()) return li;
+        await _cleanupExpiredBurnLastMessages(li);
+        if (!isCurrentRequest()) return li;
+        if (recalculateRemind) {
+          final recounted = await Future.wait(
+            li.map(
+              (cm) => _recountConversation(
+                cm,
+                publishSnapshot: false,
+                isCurrentRequest: isCurrentRequest,
+              ),
+            ),
+          );
+          li = recounted.whereType<ConversationModel>().toList();
+        }
+        if (!isCurrentRequest()) return li;
+        final changedKeys = {
+          for (final entry in _conversationKeyRevisions.entries)
+            if (entry.value != keyRevisions[entry.key]) entry.key,
+        };
+        if (revision != _conversationRevision && attempt == 0) continue;
+
+        // 最后一轮仍有消息时，只补齐查询期间未变更的键；变更键只信
+        // 当前 state/pending。remove 已清两者，不能从旧查询复活。
+        final newMap = {
+          for (final c in li)
+            if (c.isShow == 1 && !changedKeys.contains(c.uk3)) c.uk3: c,
+        };
+        for (final key in changedKeys) {
+          final pending = _pendingUpdates[key];
+          final current =
+              pending != null &&
+                  _isCurrentSession(pending.uid, pending.generation)
+              ? pending.conversation
+              : state.conversationMap[key];
+          if (current != null &&
+              current.isShow == 1 &&
+              (type.isEmpty || current.type == type)) {
+            newMap[key] = current;
           }
-        }),
-      );
-
-      await _cleanupExpiredBurnLastMessages(li);
-
-      if (recalculateRemind) {
-        await recalculateAllReminds(li);
-      }
-
-      final newMap = {for (var c in li) c.uk3: c};
-      // 群头像拼图预热：列表数据就绪后为无自定义头像的 C2G 群并发拉成员
-      // 头像（fire-and-forget，缓存内 in-flight 去重）。下一帧列表项 build
-      // 时 peek 即命中、同步渲染，消除首帧占位图→真图闪变。
-      unawaited(_warmupGroupAvatars(li));
-      if (!ref.mounted) {
+        }
+        // 已纳入当前结果的旧批次不能稍后再覆盖列表。
+        _pendingUpdates.clear();
+        final visible = newMap.values.toList();
+        final newReminds = {
+          ...state.conversationRemind,
+          for (final c in visible) c.uk3: c.unreadNum > 0 ? c.unreadNum : 0,
+        };
+        unawaited(_warmupGroupAvatars(visible));
+        state = state.copyWith(
+          conversationMap: newMap,
+          conversationRemind: recalculateRemind ? newReminds : null,
+          isLoading: false,
+        );
         return li;
       }
-      state = state.copyWith(conversationMap: newMap, isLoading: false);
       return li;
     } catch (e) {
       iPrint('conversationsList error=${e.runtimeType}');
       return [];
     } finally {
-      if (ref.mounted) {
+      if (_isCurrentSession(uid, sessionGeneration) &&
+          requestGeneration == _listRequestGeneration) {
         state = state.copyWith(isLoading: false);
       }
     }
@@ -1138,17 +1204,35 @@ class ConversationNotifier extends _$ConversationNotifier {
   }
 
   Future<void> recalculateConversationRemind(ConversationModel cm) async {
-    if (cm.uk3.isEmpty) return;
+    await _recountConversation(cm);
+  }
+
+  Future<ConversationModel?> _recountConversation(
+    ConversationModel cm, {
+    bool publishSnapshot = true,
+    bool Function()? isCurrentRequest,
+  }) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    final removalGeneration = _conversationRemovalGenerations[cm.uk3] ?? 0;
+    bool isCurrent() =>
+        _isCurrentSession(uid, generation) &&
+        (isCurrentRequest?.call() ?? true) &&
+        removalGeneration == (_conversationRemovalGenerations[cm.uk3] ?? 0);
+    if (cm.uk3.isEmpty || !isCurrent()) return null;
     try {
       _debounceTimers.remove(cm.uk3)?.cancel();
       final db = await SqliteService.to.db;
-      if (db == null) return;
+      if (db == null || !isCurrent()) return null;
       final current = await MessageReadRepo.recount(db, cm.id);
-      if (current != null && ref.mounted) {
-        applyConversationSnapshot(current);
-      }
+      if (current == null || current.isShow != 1 || !isCurrent()) return null;
+      if (publishSnapshot) applyConversationSnapshot(current);
+      return current;
     } catch (e) {
       iPrint('recalculateConversationRemind error=${e.runtimeType}');
+      // 重算失败不应让仍有效的列表行消失；保留原持久化快照。
+      return isCurrent() && cm.isShow == 1 ? cm : null;
     }
   }
 

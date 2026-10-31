@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/ui/network_failure_tips.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
@@ -41,8 +42,13 @@ class _StateOverrideNotifier extends ConversationNotifier {
   ConversationState build() => _initial;
 }
 
-GoRouter _stubRouter() {
-  Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
+// 只验证生产页面的导航分派，不替代真实资料页或真机验收。
+GoRouter _stubRouter({List<String>? visitedRoutes}) {
+  Widget stub(String label, GoRouterState state) {
+    visitedRoutes?.add(state.uri.path);
+    return Scaffold(body: Center(child: Text(label)));
+  }
+
   return GoRouter(
     initialLocation: '/conversation',
     routes: [
@@ -52,15 +58,22 @@ GoRouter _stubRouter() {
       ),
       GoRoute(
         path: '/contact/new_friend',
-        builder: (_, _) => stub('new_friend stub'),
+        builder: (_, state) => stub('new_friend stub', state),
       ),
       GoRoute(
         path: '/contact/people/:id',
-        builder: (_, state) => stub('person ${state.pathParameters['id']}'),
+        builder: (_, state) =>
+            stub('person ${state.pathParameters['id']}', state),
       ),
       GoRoute(
         path: '/group/detail/:id',
-        builder: (_, state) => stub('group ${state.pathParameters['id']}'),
+        builder: (_, state) =>
+            stub('group ${state.pathParameters['id']}', state),
+      ),
+      GoRoute(
+        path: '/chat/:id',
+        builder: (_, state) =>
+            stub('chat ${state.pathParameters['id']}', state),
       ),
     ],
   );
@@ -69,6 +82,7 @@ GoRouter _stubRouter() {
 Future<void> _pumpConv(
   WidgetTester tester, {
   required ConversationState state,
+  List<String>? visitedRoutes,
 }) async {
   tester.view.devicePixelRatio = 1.0;
   tester.view.physicalSize = const Size(390, 844);
@@ -83,7 +97,9 @@ Future<void> _pumpConv(
         conversationProvider.overrideWith(() => _StateOverrideNotifier(state)),
       ],
       child: TranslationProvider(
-        child: MaterialApp.router(routerConfig: _stubRouter()),
+        child: MaterialApp.router(
+          routerConfig: _stubRouter(visitedRoutes: visitedRoutes),
+        ),
       ),
     ),
   );
@@ -102,18 +118,20 @@ ConversationModel _conv({
   required int id,
   required String title,
   String type = 'C2C',
+  int? peerId,
+  int? lastTime,
   int unreadNum = 0,
 }) {
   return ConversationModel(
     id: id,
     type: type,
-    peerId: id, // int 类型（database FK，不是字符串）
+    peerId: peerId ?? id, // int 类型（database FK，不是字符串）
     avatar: '',
     title: title,
     subtitle: 'last msg $id',
     msgType: 'text',
     lastMsgId: 'msg-$id', // Xid 字符串
-    lastTime: DateTime.now().millisecondsSinceEpoch,
+    lastTime: lastTime ?? DateTime.now().millisecondsSinceEpoch,
     unreadNum: unreadNum,
     payload: const {},
     isShow: 1,
@@ -205,30 +223,88 @@ void main() {
 
   group('ConversationPage interactions', () {
     for (final type in ['C2C', 'C2G']) {
-      testWidgets('$type avatar opens the matching profile and returns', (
-        tester,
-      ) async {
-        final conversation = _conv(id: 42, title: 'Profile target', type: type);
-        await _pumpConv(
-          tester,
-          state: ConversationState(
-            isLoading: false,
-            conversationMap: {conversation.uk3: conversation},
-          ),
-        );
-        final item = tester.widget<ConversationItem>(
-          find.byType(ConversationItem),
-        );
-        item.onTapAvatar!();
-        await tester.pumpAndSettle();
-        final expected = type == 'C2G' ? 'group 42' : 'person 42';
-        expect(find.text(expected), findsOneWidget);
-        final context = tester.element(find.text(expected));
-        GoRouter.of(context).pop();
-        await tester.pumpAndSettle();
-        expect(find.text('Profile target'), findsOneWidget);
-        await _unmount(tester);
-      });
+      testWidgets(
+        'J15.a $type avatar tap routes by peerId and preserves scroll',
+        (tester) async {
+          final conversations = List.generate(
+            40,
+            (index) => _conv(
+              id: index + 1,
+              peerId: 1000 + index,
+              title: 'Profile target $index',
+              type: type,
+              lastTime: 10000 - index,
+            ),
+          );
+          final target = conversations[30];
+          final visitedRoutes = <String>[];
+          await _pumpConv(
+            tester,
+            state: ConversationState(
+              isLoading: false,
+              conversationMap: {for (final c in conversations) c.uk3: c},
+            ),
+            visitedRoutes: visitedRoutes,
+          );
+          expect(target.id, isNot(target.peerId));
+          final row = find.byWidgetPredicate(
+            (widget) =>
+                widget is ConversationItem && widget.model.uk3 == target.uk3,
+          );
+          final scrollable = find.descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byWidgetPredicate(
+              (widget) =>
+                  widget is Scrollable &&
+                  widget.axisDirection == AxisDirection.down,
+            ),
+          );
+          final initialOffset = tester
+              .state<ScrollableState>(scrollable)
+              .position
+              .pixels;
+          expect(row.hitTestable(), findsNothing, reason: '目标初始必须在屏外');
+          await tester.scrollUntilVisible(row, 300, scrollable: scrollable);
+          await tester.pumpAndSettle();
+          final position = tester.state<ScrollableState>(scrollable).position;
+          final offsetBefore = position.pixels;
+          expect(offsetBefore, greaterThan(initialOffset));
+          final avatar = find.descendant(
+            of: row,
+            matching: find.byType(type == 'C2G' ? SmartGroupAvatar : Avatar),
+          );
+          expect(avatar.hitTestable(), findsOneWidget);
+          final rowBefore = tester.getTopLeft(row);
+          final avatarBefore = tester.getCenter(avatar);
+          await tester.tap(avatar);
+          await tester.pumpAndSettle();
+          final prefix = type == 'C2G' ? '/group/detail' : '/contact/people';
+          final expected =
+              '${type == 'C2G' ? 'group' : 'person'} ${target.peerId}';
+          expect(find.text(expected), findsOneWidget);
+          expect(visitedRoutes, isNotEmpty);
+          expect(visitedRoutes, everyElement('$prefix/${target.peerId}'));
+          expect(
+            visitedRoutes.where((path) => path.startsWith('/chat/')),
+            isEmpty,
+          );
+          GoRouter.of(tester.element(find.text(expected))).pop();
+          await tester.pumpAndSettle();
+          expect(find.byType(ConversationPage), findsOneWidget);
+          expect(row.hitTestable(), findsOneWidget);
+          expect(
+            tester.state<ScrollableState>(scrollable).position,
+            same(position),
+          );
+          expect(position.pixels, closeTo(offsetBefore, 0.01));
+          expect((tester.getTopLeft(row) - rowBefore).distance, lessThan(0.01));
+          expect(
+            (tester.getCenter(avatar) - avatarBefore).distance,
+            lessThan(0.01),
+          );
+          await _unmount(tester);
+        },
+      );
     }
 
     testWidgets('non-empty state 列表承载于可滚动 CustomScrollView '
