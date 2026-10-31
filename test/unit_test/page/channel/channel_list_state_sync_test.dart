@@ -222,6 +222,72 @@ void main() {
     expect(result.managed.channels.map((c) => c.id), ['20']);
   });
 
+  test('J20.b: 迟到的旧 cursor 分页响应废弃于新代次，不污染 q2 列表与游标', () async {
+    final api = _MockChannelApi();
+    final page1 = Completer<ChannelPageResult<ChannelModel>>();
+    final more = Completer<ChannelPageResult<ChannelModel>>();
+    final refreshed = Completer<ChannelPageResult<ChannelModel>>();
+    var calls = 0;
+    when(
+      () => api.getSubscribedChannelsPage(
+        cursor: any(named: 'cursor'),
+        limit: any(named: 'limit'),
+      ),
+    ).thenAnswer((_) {
+      calls += 1;
+      if (calls == 1) return page1.future;
+      if (calls == 2) return more.future;
+      return refreshed.future;
+    });
+
+    final container = ProviderContainer(
+      overrides: [channelApiProvider.overrideWithValue(api)],
+    );
+    addTearDown(container.dispose);
+    container.listen(channelListProvider, (_, _) {});
+    final notifier = container.read(channelListProvider.notifier);
+
+    // q1 侧：初始页落 [11] + cursor='c1'（hasMore）。
+    page1.complete(
+      ChannelPageResult<ChannelModel>(
+        list: [_channel(11, 'q1-page')],
+        nextCursor: 'c1',
+        hasMore: true,
+      ),
+    );
+    await notifier.loadSubscribedChannels();
+    expect(container.read(channelListProvider).cursor, 'c1');
+
+    // 旧 cursor 分页（loadMore）挂起未完成。
+    final staleMore = notifier.loadMoreSubscribedChannels();
+
+    // q2 侧：新代次刷新落 [12] + cursor='c2'。
+    refreshed.complete(
+      ChannelPageResult<ChannelModel>(
+        list: [_channel(12, 'q2-page')],
+        nextCursor: 'c2',
+        hasMore: true,
+      ),
+    );
+    await notifier.loadSubscribedChannels();
+    final q2 = container.read(channelListProvider);
+    expect(q2.channels.map((c) => c.id), ['12']);
+    expect(q2.cursor, 'c2');
+
+    // 晚到的旧 cursor 分页返回：代次已变，废弃——不 append、不覆盖游标。
+    more.complete(
+      ChannelPageResult<ChannelModel>(
+        list: [_channel(13, 'stale-page')],
+        nextCursor: 'stale-cursor',
+        hasMore: false,
+      ),
+    );
+    await staleMore;
+    final after = container.read(channelListProvider);
+    expect(after.channels.map((c) => c.id), ['12']);
+    expect(after.cursor, 'c2');
+  });
+
   test('退订事件后迟到的旧订阅响应不能恢复频道', () async {
     final api = _MockChannelApi();
     final first = Completer<ChannelPageResult<ChannelModel>>();
