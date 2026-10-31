@@ -85,6 +85,7 @@ class ChannelApi extends HttpClient
     required String requestId,
     required Map<String, dynamic> fields,
     bool recoverOnly = false,
+    void Function()? guard,
   }) async {
     final data = <String, dynamic>{
       ...fields,
@@ -96,6 +97,9 @@ class ChannelApi extends HttpClient
       data: data,
       options: Options(
         responseDecoder: channelIdResponseDecoder(ChannelResponseShape.detail),
+        extra: guard == null
+            ? null
+            : {httpRequestGuard: guard, httpNoAutoRetry: true},
       ),
     );
     // 传输层失败（网络断连/超时/会话切换等）：结果未知——服务端可能已受理
@@ -322,6 +326,27 @@ class ChannelApi extends HttpClient
     return true;
   }
 
+  List<ChannelModel> _parseChannelList(dynamic payload) {
+    final rows = payload is Map ? payload['list'] : null;
+    if (rows is! List) return [];
+    return rows.map((row) {
+      if (row is! Map<String, dynamic>) {
+        throw const FormatException('invalid channel list row');
+      }
+      return _channelListRow(row);
+    }).toList();
+  }
+
+  ChannelModel _channelListRow(Map<String, dynamic> json) {
+    final rawId = json['id'];
+    if ((rawId is! String && rawId is! int) ||
+        !RegExp(r'^[0-9]+$').hasMatch('$rawId') ||
+        channelDecimalId(rawId) == null) {
+      throw const FormatException('invalid channel id field: id');
+    }
+    return ChannelModel.fromJson(json);
+  }
+
   /// 获取我订阅的频道列表
   Future<List<ChannelModel>> getSubscribedChannels({
     String? cursor,
@@ -366,8 +391,7 @@ class ChannelApi extends HttpClient
         hasMore: false,
       );
     }
-    final list = IMBoyHttpResponse.payloadList(resp.payload);
-    final channels = list.map((json) => ChannelModel.fromJson(json)).toList();
+    final channels = _parseChannelList(resp.payload);
     // 新 envelope 显式回传 has_more（服务端按 keyset 取 limit+1 判定），
     // 不再按「满一页」推导；终止页 next_cursor 为空串/缺省 → null。
     final hasMore = resp.payload['has_more'] == true;
@@ -413,9 +437,7 @@ class ChannelApi extends HttpClient
       );
     }
 
-    final list = IMBoyHttpResponse.payloadList(resp.payload);
-
-    final channels = list.map((json) => ChannelModel.fromJson(json)).toList();
+    final channels = _parseChannelList(resp.payload);
     // 只认「下一页游标」字段，绝不回落到 `cursor` —— 那是**请求参数的回显**。
     // /channels/subscribed 目前把入参原样返回（channel_handler.erl:219
     // `#{list => .., cursor => Cursor, ..}`），首屏 Cursor=undefined 又被
@@ -524,9 +546,7 @@ class ChannelApi extends HttpClient
       return [];
     }
 
-    final list = IMBoyHttpResponse.payloadList(resp.payload);
-
-    return list.map((json) => ChannelModel.fromJson(json)).toList();
+    return _parseChannelList(resp.payload);
   }
 
   /// 获取频道订阅者列表
@@ -732,13 +752,7 @@ class ChannelApi extends HttpClient
       queryParameters: {'keyword': keyword, 'limit': limit},
     );
 
-    if (!resp.ok || resp.payload == null) {
-      return [];
-    }
-
-    final list = IMBoyHttpResponse.payloadList(resp.payload);
-
-    return list.map((json) => ChannelModel.fromJson(json)).toList();
+    return _parseDiscoveryResponse(resp);
   }
 
   /// 发现频道（channel_discovery_handler 新契约：分类/排序/分页）
@@ -761,13 +775,16 @@ class ChannelApi extends HttpClient
       queryParameters: params,
     );
 
-    if (!resp.ok || resp.payload == null) {
-      return [];
+    return _parseDiscoveryResponse(resp);
+  }
+
+  List<ChannelModel> _parseDiscoveryResponse(IMBoyHttpResponse resp) {
+    resp.throwIfFailed();
+    final payload = resp.payload;
+    if (payload is! Map || payload['list'] is! List) {
+      throw const FormatException('invalid channel discovery list');
     }
-
-    final list = IMBoyHttpResponse.payloadList(resp.payload);
-
-    return list.map((json) => ChannelModel.fromJson(json)).toList();
+    return _parseChannelList(payload);
   }
 
   /// 频道分类列表 GET /api/v1/channels/categories

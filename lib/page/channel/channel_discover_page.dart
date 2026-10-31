@@ -43,22 +43,69 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   bool _isSearching = false;
   bool _hasSearched = false;
   bool _isLoadingRecommended = true;
+  bool _searchError = false;
+  bool _recommendedError = false;
+  String? _resultsKeyword;
+  int _searchGeneration = 0;
+  int _recommendedGeneration = 0;
+  int _contextGeneration = 0;
+  int _subscribedGeneration = 0;
   Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    UserRepoLocal.to.addAuthListener(_onAuthChanged);
+    if (_hasActiveSession) _loadInitialData();
   }
 
   @override
   void dispose() {
+    UserRepoLocal.to.removeAuthListener(_onAuthChanged);
     _searchController.dispose();
     _debounceTimer?.cancel();
     super.dispose();
   }
 
+  bool get _hasActiveSession =>
+      UserRepoLocal.to.isLoggedIn && !UserRepoLocal.to.isAuthTransitioning;
+
+  bool _isCurrentSession(String uid, int session, int contextGeneration) {
+    final user = UserRepoLocal.to;
+    return mounted &&
+        uid == user.currentUid &&
+        user.isCurrentSession(session) &&
+        !user.isAuthTransitioning &&
+        contextGeneration == _contextGeneration;
+  }
+
+  void _onAuthChanged() {
+    if (!mounted) return;
+    _debounceTimer?.cancel();
+    _searchController.clear();
+    _contextGeneration++;
+    _searchGeneration++;
+    _recommendedGeneration++;
+    _subscribedGeneration++;
+    setState(() {
+      _searchResults = [];
+      _resultsKeyword = null;
+      _recommendedChannels = [];
+      _subscribedChannelIds.clear();
+      _categories = [];
+      _selectedCategoryId = null;
+      _searchError = false;
+      _recommendedError = false;
+      _isSearching = false;
+      _hasSearched = false;
+      _isLoadingRecommended = true;
+    });
+    if (!_hasActiveSession) return;
+    _loadInitialData();
+  }
+
   Future<void> _loadInitialData() async {
+    if (!_hasActiveSession) return;
     await Future.wait<void>([
       _loadSubscribedChannelIds(),
       _loadRecommendedChannels(),
@@ -67,11 +114,16 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   }
 
   Future<void> _loadCategories() async {
+    if (!_hasActiveSession) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final generation = _contextGeneration;
     try {
       final categories = await ref
           .read(channelServiceProvider)
           .channelCategories();
-      if (mounted) {
+      if (_isCurrentSession(uid, session, generation)) {
         setState(() => _categories = categories);
       }
     } catch (_) {
@@ -80,11 +132,20 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   }
 
   Future<void> _loadSubscribedChannelIds() async {
+    if (!_hasActiveSession) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final contextGeneration = _contextGeneration;
+    final generation = ++_subscribedGeneration;
     try {
       final channels = await ref
           .read(channelServiceProvider)
           .getSubscribedChannels(limit: 200);
-      if (!mounted) return;
+      if (!_isCurrentSession(uid, session, contextGeneration) ||
+          generation != _subscribedGeneration) {
+        return;
+      }
       setState(() {
         _subscribedChannelIds
           ..clear()
@@ -102,8 +163,15 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
 
   /// 加载推荐频道
   Future<void> _loadRecommendedChannels() async {
+    if (!_hasActiveSession) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final contextGeneration = _contextGeneration;
+    final generation = ++_recommendedGeneration;
     setState(() {
       _isLoadingRecommended = true;
+      _recommendedError = false;
     });
 
     try {
@@ -114,63 +182,82 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
             sort: _sort,
             size: 50,
           );
-      if (mounted) {
-        setState(() {
-          _recommendedChannels = channels;
-          _isLoadingRecommended = false;
-        });
+      if (!_isCurrentSession(uid, session, contextGeneration) ||
+          generation != _recommendedGeneration) {
+        return;
       }
+      setState(() {
+        _recommendedChannels = channels;
+        _isLoadingRecommended = false;
+      });
     } catch (e) {
       iPrint('加载推荐频道失败: $e');
-      if (mounted) {
-        setState(() {
-          _isLoadingRecommended = false;
-        });
+      if (!_isCurrentSession(uid, session, contextGeneration) ||
+          generation != _recommendedGeneration) {
+        return;
       }
+      setState(() {
+        _isLoadingRecommended = false;
+        _recommendedError = true;
+      });
     }
   }
 
-  /// 输入防抖：300ms 内无新输入才触发搜索，避免每次按键都发请求
+  /// 输入时立即使旧请求失效，再防抖发起新请求。
   void _onSearchChanged(String value) {
-    setState(() {});
+    _searchGeneration++;
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(
-      const Duration(milliseconds: 300),
-      () => _search(value),
-    );
+    final hasKeyword = value.trim().isNotEmpty;
+    setState(() {
+      _hasSearched = hasKeyword;
+      _isSearching = hasKeyword && _hasActiveSession;
+      _searchError = false;
+    });
+    if (hasKeyword && _hasActiveSession) {
+      _debounceTimer = Timer(
+        const Duration(milliseconds: 300),
+        () => _search(value),
+      );
+    }
   }
 
   Future<void> _search(String keyword) async {
-    if (keyword.trim().isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _hasSearched = false;
-      });
-      return;
-    }
-
+    if (keyword.trim().isEmpty || !_hasActiveSession) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final contextGeneration = _contextGeneration;
+    final generation = ++_searchGeneration;
     setState(() {
       _isSearching = true;
       _hasSearched = true;
+      _searchError = false;
     });
 
     try {
       final results = await ref
           .read(channelListProvider.notifier)
           .searchChannels(keyword);
-      if (mounted) {
-        setState(() {
-          _searchResults = results;
-          _isSearching = false;
-        });
+      if (!_isCurrentSession(uid, session, contextGeneration) ||
+          generation != _searchGeneration ||
+          keyword != _searchController.text) {
+        return;
       }
+      setState(() {
+        _searchResults = results;
+        _resultsKeyword = keyword;
+        _isSearching = false;
+      });
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _searchResults = [];
-          _isSearching = false;
-        });
+      if (!_isCurrentSession(uid, session, contextGeneration) ||
+          generation != _searchGeneration ||
+          keyword != _searchController.text) {
+        return;
       }
+      setState(() {
+        _isSearching = false;
+        _searchError = true;
+      });
     }
   }
 
@@ -200,12 +287,8 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
                         icon: const Icon(CupertinoIcons.xmark_circle_fill),
                         tooltip: t.common.clear,
                         onPressed: () {
-                          _debounceTimer?.cancel();
                           _searchController.clear();
-                          setState(() {
-                            _searchResults = [];
-                            _hasSearched = false;
-                          });
+                          _onSearchChanged('');
                         },
                       )
                     : null,
@@ -346,6 +429,13 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
       return const ShimmerList(itemCount: 6);
     }
 
+    if (_recommendedError) {
+      return NoDataView(
+        text: t.common.loadError,
+        onTop: _loadRecommendedChannels,
+      );
+    }
+
     if (_recommendedChannels.isEmpty) {
       return NoDataView(
         icon: CupertinoIcons.speaker_2,
@@ -385,7 +475,14 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
       return const Center(child: CupertinoActivityIndicator());
     }
 
-    if (_searchResults.isEmpty) {
+    if (_searchError) {
+      return NoDataView(
+        text: t.common.loadError,
+        onTop: () => _search(_searchController.text),
+      );
+    }
+
+    if (_resultsKeyword != _searchController.text || _searchResults.isEmpty) {
       return NoDataView(icon: CupertinoIcons.search, text: t.channel.noResults);
     }
 
@@ -443,6 +540,12 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
   }
 
   Future<bool> _unsubscribeChannel(ChannelModel channel) async {
+    if (!mounted || UserRepoLocal.to.isAuthTransitioning) return false;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final contextGeneration = _contextGeneration;
+    bool isCurrent() => _isCurrentSession(uid, session, contextGeneration);
     final t = context.t;
     final channelIdStr = channel.id.toString();
 
@@ -463,24 +566,26 @@ class _ChannelDiscoverPageState extends ConsumerState<ChannelDiscoverPage> {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return false;
+    if (confirmed != true || !isCurrent()) return false;
 
     // 乐观更新
     setState(() {
       _subscribedChannelIds.remove(channelIdStr);
     });
 
+    if (!isCurrent()) return false;
     final success = await ref
         .read(channelListProvider.notifier)
         .unsubscribeChannel(channelIdStr);
 
-    if (!success && mounted) {
+    if (!isCurrent()) return false;
+    if (!success) {
       // 失败回滚
       setState(() {
         _subscribedChannelIds.add(channelIdStr);
       });
       AppLoading.showError(t.common.tipFailed);
-    } else if (success && mounted) {
+    } else {
       AppLoading.showSuccess(t.common.tipSuccess);
     }
 

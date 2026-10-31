@@ -9,7 +9,15 @@ library;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
+import 'package:imboy/component/http/http_parse.dart';
+import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/http/http_transformer.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
 import 'package:imboy/page/channel/channel_di_provider.dart';
@@ -35,6 +43,45 @@ import '../../../secure_storage_test_pin.dart';
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 class _MockChannelApi extends Mock implements ChannelApi {}
+
+// Keep the real cursor request builder, envelope parser and throwIfFailed.
+class _CursorRejectingApi extends ChannelApi {
+  final queries = <Map<String, dynamic>>[];
+
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    Options? options,
+    CancelToken? cancelToken,
+    ProgressCallback? onReceiveProgress,
+    HttpTransformer? httpTransformer,
+  }) async {
+    expect(uri, '/api/v1/channels/subscribed');
+    expect(options?.responseDecoder, isNotNull);
+    queries.add(Map<String, dynamic>.from(queryParameters!));
+    final rejected = queries.length > 2;
+    return handleResponse(
+      Response<dynamic>(
+        requestOptions: RequestOptions(path: uri),
+        statusCode: rejected ? 400 : 200,
+        data: rejected
+            ? {'code': 400, 'msg': 'invalid_request', 'payload': null}
+            : {
+                'code': 0,
+                'payload': {
+                  'list': [_channel(queries.length, 'synced').toJson()],
+                  'has_more': true,
+                  'next_cursor': queries.length == 1
+                      ? 'signed-page-2'
+                      : 'wrong-scope-token',
+                },
+              },
+      ),
+      uri: uri,
+    );
+  }
+}
 
 class _MockPublishOutbox extends Mock implements ChannelPublishOutboxRepo {}
 
@@ -287,6 +334,56 @@ void main() {
     expect(after.channels.map((c) => c.id), ['12']);
     expect(after.cursor, 'c2');
   });
+
+  test(
+    'J27.c: rejected cursor does not restart and preserves both synced pages',
+    () async {
+      AppFeatureRegistry.bindScope(
+        endpoint: 'http://localhost:29927',
+        uid: 'cursor-test',
+      );
+      await AppManifestService.clear();
+      AppManifestService.replaceForTest({
+        'manifest_hash': productFeatureManifestHash,
+        'manifest_schema_version': productFeatureSchemaVersion,
+        'compiled_features': compiledProductFeatures,
+        'list_contracts': {'create_request_id': 1},
+      });
+      addTearDown(AppManifestService.clear);
+      // Empty account avoids unrelated asynchronous database reconciliation;
+      // this case proves the list/API boundary, not durable SQLite completion.
+      final oldUid = StorageService.to.getString(Keys.currentUid);
+      await StorageService.to.setString(Keys.currentUid, '');
+      addTearDown(() => StorageService.to.setString(Keys.currentUid, oldUid));
+      final api = _CursorRejectingApi();
+      addTearDown(() => api.dio.close(force: true));
+      final container = ProviderContainer(
+        overrides: [channelApiProvider.overrideWithValue(api)],
+      );
+      addTearDown(container.dispose);
+      container.listen(channelListProvider, (_, _) {});
+      final notifier = container.read(channelListProvider.notifier);
+      await notifier.loadSubscribedChannels();
+      await notifier.loadMoreSubscribedChannels();
+      final synced = container.read(channelListProvider);
+      expect(synced.channels.map((channel) => channel.id), ['1', '2']);
+      expect(synced.cursor, 'wrong-scope-token');
+      expect(synced.hasMore, isTrue);
+      await notifier.loadMoreSubscribedChannels();
+      await Future<void>.delayed(Duration.zero);
+      final failed = container.read(channelListProvider);
+      expect(failed.channels, same(synced.channels));
+      expect(failed.cursor, synced.cursor);
+      expect(failed.hasMore, isTrue);
+      expect(failed.isLoading, isFalse);
+      expect(failed.error, t.common.loadError);
+      expect(api.queries, [
+        {'pagination': 'cursor', 'limit': 50},
+        {'pagination': 'cursor', 'limit': 50, 'cursor': 'signed-page-2'},
+        {'pagination': 'cursor', 'limit': 50, 'cursor': 'wrong-scope-token'},
+      ]);
+    },
+  );
 
   test('退订事件后迟到的旧订阅响应不能恢复频道', () async {
     final api = _MockChannelApi();

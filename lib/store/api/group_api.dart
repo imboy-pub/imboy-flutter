@@ -10,9 +10,21 @@ import 'package:imboy/service/creation_receipt/creation_receipt_contract.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/list_cursor_client.dart';
+import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 class GroupApi extends HttpClient {
+  void _validateGroupList(dynamic payload) {
+    final rows = payload is Map ? payload['list'] : null;
+    if (rows is! List) return;
+    for (final row in rows) {
+      if (row is! Map<String, dynamic>) {
+        throw const FormatException('invalid group list row');
+      }
+      validateGroupResourceId(row);
+    }
+  }
+
   Future<Map<String, dynamic>?> page({
     int page = 1,
     int size = 10,
@@ -31,6 +43,7 @@ class GroupApi extends HttpClient {
     if (!resp.ok) {
       return null;
     }
+    _validateGroupList(resp.payload);
     return resp.payload is Map<String, dynamic>
         ? resp.payload as Map<String, dynamic>
         : null;
@@ -68,6 +81,7 @@ class GroupApi extends HttpClient {
     if (resp.payload == null) {
       return const CursorPage(list: [], hasMore: false);
     }
+    _validateGroupList(resp.payload);
     final rows = IMBoyHttpResponse.payloadList(resp.payload);
     final hasMore = resp.payload['has_more'] == true;
     final dynamic next = resp.payload['next_cursor'];

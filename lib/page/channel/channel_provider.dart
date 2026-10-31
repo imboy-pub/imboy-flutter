@@ -470,13 +470,8 @@ class ChannelListNotifier extends _$ChannelListNotifier {
   }
 
   /// 搜索频道
-  Future<List<ChannelModel>> searchChannels(String keyword) async {
-    try {
-      return await _api.searchChannels(keyword);
-    } catch (e) {
-      return [];
-    }
-  }
+  Future<List<ChannelModel>> searchChannels(String keyword) =>
+      _api.searchChannels(keyword);
 
   /// 订阅频道
   ///

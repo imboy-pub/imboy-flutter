@@ -322,7 +322,10 @@ class WorkspaceApi extends HttpClient {
         ),
       ),
     );
-    return _unwrapList(resp, GroupModel.fromJson);
+    return _unwrapList(resp, (json) {
+      validateGroupResourceId(json);
+      return GroupModel.fromJson(json);
+    });
   }
 
   /// 本人已加入的群，完整消费游标；任一页失败不返回部分列表。
@@ -705,8 +708,16 @@ class WorkspaceApi extends HttpClient {
     T Function(Map<String, dynamic>) fromJson,
   ) {
     _ensureOk(resp);
-    return IMBoyHttpResponse.payloadList(resp.payload)
-        .map(fromJson)
+    final payload = resp.payload;
+    final rows = payload is Map ? payload['list'] : null;
+    if (rows is! List) return [];
+    return rows
+        .map((row) {
+          if (row is! Map<String, dynamic>) {
+            throw const FormatException('invalid group list row');
+          }
+          return fromJson(row);
+        })
         .toList(growable: false);
   }
 }
