@@ -285,6 +285,9 @@ void main() {
     final subscription = container.listen(provider, (_, _) {});
     addTearDown(subscription.close);
     _access(container, '100').resume();
+    // a12f1a6c7：resume 在 _active 已 true 时早退，请求由 build 排队的
+    // microtask(refresh) 发出——先冲刷微任务队列再断言。
+    await Future<void>.delayed(Duration.zero);
     expect(api.calls, ['100']);
     container.read(_account.notifier).select('2');
     await container.pump();

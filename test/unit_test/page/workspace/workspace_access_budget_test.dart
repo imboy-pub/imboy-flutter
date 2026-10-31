@@ -262,6 +262,7 @@ void main() {
         fakeAsync((time) {
           final harness = _Harness(() => time.elapsed);
           harness.access.resume();
+          time.flushMicrotasks();
           harness.api.accept(0);
           time.flushMicrotasks();
           final rows = harness.state.rows;
@@ -351,6 +352,11 @@ void main() {
       harness.access.markEnvironmentSuspended(owner: oldOwner);
       harness.api.accept(1);
       time.flushMicrotasks();
+      // a12f1a6c7：旧 owner 的 suspend 被忽略后，accept(1) 的响应按代次
+      // 判定丢弃并自动 drain 补刷（rechecking 在途）——补喂补刷响应即
+      // 恢复展示（恢复路径多一跳，合同不变）。
+      harness.api.accept(2);
+      time.flushMicrotasks();
       expect(harness.state.canRenderProtectedContent, isTrue);
       harness.access.markEnvironmentSuspended(owner: newOwner);
       _empty(harness.state);
@@ -363,6 +369,7 @@ void main() {
       fakeAsync((time) {
         final harness = _Harness(() => time.elapsed);
         harness.access.resume();
+        time.flushMicrotasks();
         harness.api.accept(0);
         time.flushMicrotasks();
         time.elapse(const Duration(seconds: 20));
@@ -400,6 +407,7 @@ void main() {
       fakeAsync((time) {
         final harness = _Harness(() => time.elapsed);
         harness.access.resume();
+        time.flushMicrotasks();
         harness.api.accept(0);
         time.flushMicrotasks();
         time.elapse(const Duration(seconds: 20));
@@ -431,6 +439,7 @@ void main() {
       harness.access.resume();
       harness.notifier(other).resume();
       harness.notifier(metadata).resume();
+      time.flushMicrotasks();
       harness.api.accept(0);
       time.flushMicrotasks();
       _empty(harness.container.read(workspaceAccessProvider(other)));
@@ -477,6 +486,7 @@ void main() {
       var clock = Duration.zero;
       final harness = _Harness(() => clock);
       harness.access.resume();
+      time.flushMicrotasks();
       harness.api.accept(0);
       time.flushMicrotasks();
       clock = const Duration(seconds: 20);
@@ -496,6 +506,7 @@ void main() {
         fakeAsync((time) {
           final harness = _Harness(() => time.elapsed);
           harness.access.resume();
+          time.flushMicrotasks();
           harness.api.accept(0);
           time.flushMicrotasks();
           time.elapse(const Duration(seconds: 20));
@@ -520,6 +531,7 @@ void main() {
         final harness = _Harness(() => time.elapsed);
         harness.keep(_channelTarget);
         harness.notifier(_channelTarget).resume();
+        time.flushMicrotasks();
         harness.channelApi.details[0].complete(_channel());
         time.flushMicrotasks();
         _empty(harness.container.read(workspaceAccessProvider(_channelTarget)));
@@ -549,6 +561,7 @@ void main() {
           final harness = _Harness(() => time.elapsed);
           harness.keep(_channelTarget);
           harness.notifier(_channelTarget).resume();
+          time.flushMicrotasks();
           harness.channelApi.details[0].complete(
             _channel(workspace: mismatch ? '200' : '100'),
           );
@@ -574,6 +587,7 @@ void main() {
       final harness = _Harness(() => time.elapsed);
       harness.keep(_channelTarget);
       harness.notifier(_channelTarget).resume();
+      time.flushMicrotasks();
       harness.change(_identity(origin: 'https://two.invalid'));
       harness.channelApi.details[0].complete(_channel());
       time.flushMicrotasks();
@@ -603,24 +617,23 @@ void main() {
         () => tester.binding.clock.now().difference(DateTime(2026)),
       );
       await _pump(tester, harness);
-      expect(harness.api.calls, isEmpty);
-      AppEventBus.fire(
-        const NetworkConnectionEvent(isConnected: true, networkType: 'wifi'),
-      );
-      await _flush(tester);
-      expect(harness.api.calls, isEmpty);
-      harness.network.add(false);
-      await _flush(tester);
-      expect(harness.api.calls, isEmpty);
-      await _online(tester, harness);
+      // a12f1a6c7：guard 首次 watch 即自检（初始 unknown 网络也发授权
+      // 检查请求）；unknown（stream 无数据）时 guard 盾牌不渲染 content。
+      expect(harness.api.calls, isNotEmpty);
+      expect(find.text('protected body'), findsNothing);
       harness.api.accept(0);
       await _flush(tester);
-      expect(find.text('protected body'), findsOneWidget);
       final semantics = tester.ensureSemantics();
+      // online：suspend→resume(owner) 重授权，accept(1) 后渲染。
+      await _online(tester, harness);
+      harness.api.accept(1);
+      await _flush(tester);
+      expect(find.text('protected body'), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp('protected semantics')),
         findsOneWidget,
       );
+      // 已知网络错误：立即撤展示（J29.e 验收正文）。
       harness.network.addError(StateError('network stream failed'));
       await _flush(tester);
       _empty(harness.state);
@@ -629,10 +642,16 @@ void main() {
         find.bySemanticsLabel(RegExp('protected semantics')),
         findsNothing,
       );
+      // 已知断网→恢复 online：恢复前不展示，重授权后渲染。
+      harness.network.add(false);
+      await _flush(tester);
+      _empty(harness.state);
+      expect(find.text('protected body'), findsNothing);
       await _online(tester, harness);
       expect(find.text('protected body'), findsNothing);
-      harness.api.accept(1);
+      harness.api.accept(2);
       await _flush(tester);
+      expect(find.text('protected body'), findsOneWidget);
       harness.network.add(false);
       await _flush(tester);
       _empty(harness.state);
@@ -681,15 +700,19 @@ void main() {
         () => tester.binding.clock.now().difference(DateTime(2026)),
       );
       await _pump(tester, harness);
-      await _online(tester, harness);
+      // a12f1a6c7：初始自检请求（unknown 盾牌不渲染），先消费它。
       harness.api.accept(0);
       await _flush(tester);
+      await _online(tester, harness);
+      harness.api.accept(1);
+      await _flush(tester);
       final semantics = tester.ensureSemantics();
+      expect(find.text('protected body'), findsOneWidget);
       await tester.pump(const Duration(milliseconds: 19999));
-      expect(harness.api.calls.length, 1);
+      expect(harness.api.calls.length, 2);
       expect(find.text('protected body'), findsOneWidget);
       await tester.pump(_millisecond);
-      expect(harness.api.calls.length, 2);
+      expect(harness.api.calls.length, 3);
       expect(find.byType(TextButton), findsOneWidget);
       await tester.pump(const Duration(milliseconds: 9999));
       expect(
@@ -735,8 +758,11 @@ void main() {
         ),
       );
       await _online(tester, harness);
-      harness.api.accept(0);
+      harness.api.accept(0); // 初始自检（a12f1a6c7 watch 即检查）
       await _flush(tester);
+      harness.api.accept(1); // online 重授权
+      await _flush(tester);
+      expect(find.text('route content'), findsOneWidget);
       update(() => active = false);
       await _flush(tester);
       await _flush(tester);
@@ -745,7 +771,7 @@ void main() {
       await _flush(tester);
       await _flush(tester);
       expect(find.text('route content'), findsNothing);
-      harness.api.accept(1);
+      harness.api.accept(2);
       await _flush(tester);
       unawaited(
         navigator.currentState!.push<void>(
@@ -761,7 +787,7 @@ void main() {
       await _flush(tester);
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('route content'), findsNothing);
-      harness.api.accept(2);
+      harness.api.accept(3);
       await _flush(tester);
       expect(find.text('route content'), findsOneWidget);
       await _unmount(tester);
@@ -777,8 +803,11 @@ void main() {
     );
     await _pump(tester, harness);
     await _online(tester, harness);
-    harness.api.accept(0);
+    harness.api.accept(0); // 初始自检（a12f1a6c7 watch 即检查）
     await _flush(tester);
+    harness.api.accept(1); // online 重授权
+    await _flush(tester);
+    expect(find.text('protected body'), findsOneWidget);
     for (final payload in [
       {'userId': '2', 'groupId': '1'},
       {'userId': '1', 'groupId': '2'},
@@ -814,7 +843,9 @@ void main() {
         page: const WorkspaceConversationsPage(embedded: true),
       );
       await _online(tester, harness);
-      harness.api.pending[0].complete([
+      harness.api.accept(0); // 初始自检（a12f1a6c7 watch 即检查）
+      await _flush(tester);
+      harness.api.pending[1].complete([
         WorkspaceConversationModel.fromJson({
           ...messageRow(text: 'ttl preview'),
           'unread_count': 7,
@@ -843,7 +874,7 @@ void main() {
       expect(harness.state.rows.single.memberGenerationId, '10');
       expect(harness.state.rows.single.unreadCount, 7);
       expect(harness.state.deadline, deadline);
-      expect(harness.api.calls.length, 1);
+      expect(harness.api.calls.length, 2);
       harness.access.markRevoked();
       await _flush(tester);
       expect(find.byKey(const ValueKey('workspace-unread-1')), findsNothing);
@@ -939,6 +970,8 @@ void main() {
         () => tester.binding.clock.now().difference(DateTime(2026)),
       );
       harness.access.resume();
+      // build 排队的 microtask(refresh) 由 pump 冲刷（widget 测试无 fakeAsync）。
+      await _flush(tester);
       harness.api.accept(0);
       await _flush(tester);
       expect(harness.state.canRenderProtectedContent, isTrue);
