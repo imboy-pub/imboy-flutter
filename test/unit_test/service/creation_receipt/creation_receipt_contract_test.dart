@@ -5,6 +5,9 @@
 /// 零外发。覆盖：
 /// - J27.d/e 合同能力门精度（恰为整数 1）；
 /// - J24.a 24h 客户端派发窗口时钟向量（含精确边界与时钟倒退）；
+/// - J24.b 两个时钟独立（client 24h 派发 × server 7d 结果）；
+/// - J24.c 同键规范等价与不换键（顺序/重复成员/改名/5463 只查未见/
+///   受理完成后旧键不再外发）；
 /// - 受理响应解析（稳定符号 5462-5465、信封拒绝 vs 传输未知）；
 /// - 意图持久化 roundtrip / 隔离 / 损坏安全缺省 / 清除生命周期；
 /// - GroupApi.createGroupWithReceipt 载荷契约（键不剥、recover_only、
@@ -181,6 +184,304 @@ void main() {
       expect(d.mayCreate, isFalse);
       expect(d.recoverOnly, isTrue);
       expect(d.clockUntrusted, isTrue);
+    });
+  });
+
+  group('J24.b 两个时钟独立（client 24h 派发 × server 7d 结果）', () {
+    test('J24.b 窗口内创建 POST（无 recover_only）遇服务器 7d 过期（5464）'
+        '→ 意图保留不换键：server 年龄独立决定结果', () async {
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+      });
+      // 窗口内（<24h）：相对当前时钟取 1 分钟前，避免绝对时间漂移。
+      await saveCreationIntent(
+        account: 'acct-j24b-window',
+        operation: 'create_group',
+        scopeId: 'personal',
+        intent: CreationIntent(
+          requestId: 'cri_j24b_w1',
+          createdAtMs: DateTime.now().millisecondsSinceEpoch - 60 * 1000,
+          payload: const {
+            'member_uids': ['880014'],
+            'title': '原名',
+          },
+        ),
+      );
+      late Map<String, dynamic> body;
+      final adapter = _ScriptedAdapter((options) async {
+        body = Map<String, dynamic>.from(options.data as Map);
+        // 服务器侧已过 7d：即使客户端窗口内发出创建 POST，服务端年龄
+        // 独立判定过期（两个时钟分工，§6.4）。
+        return _envelope({
+          'code': 5464,
+          'msg': 'recovery expired',
+          'payload': {'gid': 9900123},
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      final outcome = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24b-window',
+        workspaceId: null,
+        memberUserIds: const ['880014'],
+        title: '新名',
+      );
+
+      expect(outcome.ok, isFalse);
+      // 服务器 5464 只是「服务器时钟下的过期」，不构成客户端可证明终态：
+      // 统一 unknownPending，意图保留，绝不换键重建。
+      expect(outcome.failure, CreationFlowFailure.unknownPending);
+      // 窗口内仍是创建 POST：不带 recover_only。
+      expect(body.containsKey('recover_only'), isFalse);
+      expect(body['request_id'], 'cri_j24b_w1');
+      // 客户端不因服务器过期而改载荷（服务端摘要比对负责冲突判定）。
+      expect(body['title'], '原名');
+      expect(
+        (await loadCreationIntent(
+          account: 'acct-j24b-window',
+          operation: 'create_group',
+          scopeId: 'personal',
+        ))?.requestId,
+        'cri_j24b_w1',
+      );
+    });
+
+    test('J24.b 超 24h 意图 → recover_only 只查；服务器 7d 内健康受理'
+        '→ replayed 成功并清意图（客户端窗口只管派发方式）', () async {
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+      });
+      await saveCreationIntent(
+        account: 'acct-j24b-recover',
+        operation: 'create_group',
+        scopeId: 'personal',
+        intent: CreationIntent(
+          requestId: 'cri_j24b_r1',
+          createdAtMs: DateTime.now().millisecondsSinceEpoch - _dayMs - 1,
+          payload: const {
+            'member_uids': ['880014'],
+            'title': '原名',
+          },
+        ),
+      );
+      late Map<String, dynamic> body;
+      final adapter = _ScriptedAdapter((options) async {
+        body = Map<String, dynamic>.from(options.data as Map);
+        return _envelope({
+          'code': 0,
+          'msg': 'success',
+          'payload': {
+            'request_id': 'cri_j24b_r1',
+            'creation_state': 'replayed',
+            'group': {'id': 990077},
+          },
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      final outcome = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24b-recover',
+        workspaceId: null,
+        memberUserIds: const ['880014'],
+        title: '无关名',
+      );
+
+      // 客户端 24h 只决定「只查派发」；服务器 7d 内且有权 → 仍返回完整
+      // 受理结果（同 ID replayed），与客户端窗口无关。
+      expect(outcome.ok, isTrue);
+      expect(outcome.replayed, isTrue);
+      expect(outcome.createdId, '990077');
+      expect(body['recover_only'], isTrue);
+      expect(body['request_id'], 'cri_j24b_r1');
+      expect(
+        await loadCreationIntent(
+          account: 'acct-j24b-recover',
+          operation: 'create_group',
+          scopeId: 'personal',
+        ),
+        isNull,
+      );
+    });
+  });
+
+  group('J24.c 同键规范等价与不换键', () {
+    test('J24.c 成员顺序不同/重复成员/workspace：存储原载荷原样重放，'
+        '客户端不重排不去重不换载荷', () async {
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+      });
+      await saveCreationIntent(
+        account: 'acct-j24c-order',
+        operation: 'create_group',
+        scopeId: 'ws-9',
+        intent: CreationIntent(
+          requestId: 'cri_j24c_o1',
+          createdAtMs: DateTime.now().millisecondsSinceEpoch,
+          payload: const {
+            'member_uids': ['880014', '880015'],
+            'title': '原名',
+            'scope': 'workspace',
+            'workspace_id': 'ws-9',
+          },
+        ),
+      );
+      final bodies = <Map<String, dynamic>>[];
+      final adapter = _ScriptedAdapter((options) async {
+        final body = Map<String, dynamic>.from(options.data as Map);
+        bodies.add(body);
+        // 服务器按规范摘要判等价（顺序/重复成员归一）；此处 5462 冲突
+        // 仅用于保持意图存活以便连续两次派发。
+        return _envelope({
+          'code': 5462,
+          'msg': 'request id conflict',
+          'payload': {'gid': 990001},
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      // 逆序成员 + 改名：客户端必须原样重放存储载荷。
+      final first = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24c-order',
+        workspaceId: 'ws-9',
+        memberUserIds: const ['880015', '880014'],
+        title: '改名',
+      );
+      expect(first.ok, isFalse);
+      expect(first.failure, CreationFlowFailure.unknownPending);
+
+      // 重复成员：同样原样重放存储载荷（客户端不去重、不规范化）。
+      final second = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24c-order',
+        workspaceId: 'ws-9',
+        memberUserIds: const ['880014', '880014', '880015'],
+        title: '再改名',
+      );
+      expect(second.ok, isFalse);
+
+      expect(bodies, hasLength(2));
+      for (final body in bodies) {
+        expect(body['request_id'], 'cri_j24c_o1');
+        expect(body['member_uids'], ['880014', '880015']);
+        expect(body['title'], '原名');
+        expect(body['scope'], 'workspace');
+        expect(body['workspace_id'], 'ws-9');
+      }
+      expect(
+        (await loadCreationIntent(
+          account: 'acct-j24c-order',
+          operation: 'create_group',
+          scopeId: 'ws-9',
+        ))?.requestId,
+        'cri_j24c_o1',
+      );
+    });
+
+    test('J24.c 只查未见受理（5463 create_not_accepted）→ 意图保留；'
+        '再次派发仍原键（超时/断连/单次只查不构成终止证据）', () async {
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+      });
+      await saveCreationIntent(
+        account: 'acct-j24c-notacc',
+        operation: 'create_group',
+        scopeId: 'personal',
+        intent: CreationIntent(
+          requestId: 'cri_j24c_n1',
+          createdAtMs: DateTime.now().millisecondsSinceEpoch - _dayMs - 1,
+          payload: const {
+            'member_uids': ['880014'],
+          },
+        ),
+      );
+      final keys = <String?>[];
+      final adapter = _ScriptedAdapter((options) async {
+        final body = Map<String, dynamic>.from(options.data as Map);
+        keys.add(body['request_id'] as String?);
+        expect(body['recover_only'], isTrue);
+        // 只查未见受理：仅表示查询时未见，不是终态证明（§6.4）。
+        return _envelope({
+          'code': 5463,
+          'msg': 'create not accepted',
+          'payload': <String, dynamic>{},
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      final first = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24c-notacc',
+        workspaceId: null,
+        memberUserIds: const ['880014'],
+      );
+      expect(first.ok, isFalse);
+      expect(first.failure, CreationFlowFailure.unknownPending);
+      expect(
+        (await loadCreationIntent(
+          account: 'acct-j24c-notacc',
+          operation: 'create_group',
+          scopeId: 'personal',
+        ))?.requestId,
+        'cri_j24c_n1',
+      );
+
+      // 单次只查未见后再次派发：仍用原键，绝不生成新键重建。
+      final second = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24c-notacc',
+        workspaceId: null,
+        memberUserIds: const ['880014'],
+      );
+      expect(second.ok, isFalse);
+      expect(keys, ['cri_j24c_n1', 'cri_j24c_n1']);
+    });
+
+    test('J24.c 迟到受理（replayed）成功后意图清除，旧键不再外发'
+        '（同原键最多受理一次的客户端侧观察）', () async {
+      AppManifestService.replaceForTest({
+        'group_contracts': {'create_request_id': 1},
+      });
+      final keys = <String>[];
+      final adapter = _ScriptedAdapter((options) async {
+        final body = Map<String, dynamic>.from(options.data as Map);
+        keys.add(body['request_id'] as String);
+        return _envelope({
+          'code': 0,
+          'msg': 'success',
+          'payload': {
+            'request_id': body['request_id'],
+            'creation_state': 'replayed',
+            'group': {'id': 990077},
+          },
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      final first = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24c-clear',
+        workspaceId: null,
+        memberUserIds: const ['880014'],
+        title: '原名',
+      );
+      expect(first.ok, isTrue);
+      expect(first.replayed, isTrue);
+      expect(
+        await loadCreationIntent(
+          account: 'acct-j24c-clear',
+          operation: 'create_group',
+          scopeId: 'personal',
+        ),
+        isNull,
+      );
+
+      // 受理证据落地（意图已清）后，用户显式重新发起 → 新键，旧键不再外发。
+      final second = await GroupCreationReceiptService().createOrRecoverGroup(
+        account: 'acct-j24c-clear',
+        workspaceId: null,
+        memberUserIds: const ['880014'],
+        title: '原名',
+      );
+      expect(second.ok, isTrue);
+      expect(keys, hasLength(2));
+      expect(keys[0], startsWith('cri_'));
+      expect(keys[1], isNot(keys[0]));
     });
   });
 
@@ -1102,6 +1403,76 @@ void main() {
           scopeId: 'ws-9',
         ))?.requestId,
         'cri_ch_replay',
+      );
+    });
+
+    test('J24.c 频道同键改名与 5463 只查未见：原载荷原样重放，'
+        '意图保留不换键（单次只查不是终止证据）', () async {
+      AppManifestService.replaceForTest({
+        'channel_contracts': {'create_request_id': 1},
+      });
+      await saveCreationIntent(
+        account: 'acct-ch-j24c',
+        operation: 'create_channel',
+        scopeId: 'ws-9',
+        intent: CreationIntent(
+          requestId: 'cri_ch_j24c_1',
+          createdAtMs: DateTime.now().millisecondsSinceEpoch - _dayMs - 1,
+          payload: const {
+            'name': '原名',
+            'scope': 'workspace',
+            'workspace_id': 'ws-9',
+          },
+        ),
+      );
+      final bodies = <Map<String, dynamic>>[];
+      final adapter = _ScriptedAdapter((options) async {
+        final body = Map<String, dynamic>.from(options.data as Map);
+        bodies.add(body);
+        return _envelope({
+          'code': 5463,
+          'msg': 'create not accepted',
+          'payload': <String, dynamic>{},
+        });
+      });
+      HttpClient.adapterForTest = adapter;
+
+      // 调用方传新名：仍按存储载荷只查（同键绝不换载荷）。
+      final first = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(
+            account: 'acct-ch-j24c',
+            name: '改名频道',
+            workspace: true,
+            workspaceId: 'ws-9',
+          );
+      expect(first.ok, isFalse);
+      expect(first.failure, CreationFlowFailure.unknownPending);
+
+      // 单次只查未见后再派发：仍原键原载荷。
+      final second = await ChannelCreationReceiptService()
+          .createOrRecoverChannel(
+            account: 'acct-ch-j24c',
+            name: '改名频道',
+            workspace: true,
+            workspaceId: 'ws-9',
+          );
+      expect(second.ok, isFalse);
+
+      expect(bodies, hasLength(2));
+      for (final body in bodies) {
+        expect(body['request_id'], 'cri_ch_j24c_1');
+        expect(body['name'], '原名');
+        expect(body['scope'], 'workspace');
+        expect(body['workspace_id'], 'ws-9');
+        expect(body['recover_only'], isTrue);
+      }
+      expect(
+        (await loadCreationIntent(
+          account: 'acct-ch-j24c',
+          operation: 'create_channel',
+          scopeId: 'ws-9',
+        ))?.requestId,
+        'cri_ch_j24c_1',
       );
     });
   });
