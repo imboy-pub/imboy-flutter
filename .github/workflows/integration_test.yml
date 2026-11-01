@@ -155,6 +155,22 @@ jobs:
           xcodebuild -version
           pod --version
 
+      # 托管 runner 无 pub.imboy.app 描述文件。flutter test 不把
+      # CODE_SIGNING_* 环境变量映射为 xcodebuild build settings（run
+      # 41325561428 实测 Automatic 签名仍在 resolve 阶段查 profile 并
+      # BUILD FAILED），故改为对 CI 工作区运行时打补丁：Manual +
+      # ad-hoc identity（"-"），跳过 profile 解析；链接器给 arm64
+      # 二进制写 ad-hoc 签名，测试可启动。只改 CI 工作区，macos/
+      # 保留区文件的仓库内容不变。
+      - name: Patch code signing for hosted runner (macos, workspace only)
+        if: env.TEST_DEVICE == 'macos'
+        run: |
+          PBX=macos/Runner.xcodeproj/project.pbxproj
+          perl -pi -e 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;\n\t\t\t\tCODE_SIGN_IDENTITY = "-";/g' "$PBX"
+          COUNT=$(grep -c 'CODE_SIGN_IDENTITY = "-";' "$PBX")
+          echo "patched configurations: $COUNT"
+          [ "$COUNT" -ge 1 ]
+
       - name: Install dependencies
         run: |
           bash .github/scripts/ci_patch_path_deps.sh
