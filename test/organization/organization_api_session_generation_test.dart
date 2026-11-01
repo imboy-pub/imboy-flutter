@@ -82,6 +82,11 @@ void main() {
   });
   tearDown(() {
     HttpClient.adapterForTest = null;
+    // loginAfter 故意失败后单例 UserRepoLocal 留下粘性
+    // _authTransitionFailed=true（isAuthTransitioning 恒真），下个用例的
+    // 请求会在 _setDefaultConfig 直接 _SessionChanged→409，打不到 mock
+    // adapter（表现为 observed 超时）；跨用例单例残留必须显式清位。
+    UserRepoLocal.to.clearAuthTransitionFailureForTest();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
