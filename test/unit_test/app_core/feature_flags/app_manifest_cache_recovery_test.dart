@@ -279,6 +279,146 @@ void main() {
     },
   );
 
+  test('J27.b: after a cache-less 304 a create attempt stays gated and keeps the pending request_id', () async {
+    // 304 无同源缓存失败关闭（manifest 为 null）后，新创建尝试的门值
+    // 必须仍从（空的）manifest 推导 → 关闭；pending 意图的原 request_id
+    // 与载荷原样保留，绝不剥键、绝不 dispatch。
+    client.dio.interceptors.clear();
+    client.dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) {
+          requests.add(request);
+          handler.resolve(
+            Response<dynamic>(requestOptions: request, statusCode: 304),
+          );
+        },
+      ),
+    );
+    expect(await AppManifestService.refresh(), isFalse);
+    expect(AppManifestService.manifest, isNull);
+
+    for (final operation in ['create_group', 'create_channel']) {
+      await clearCreationIntent(
+        account: 'j27-synthetic',
+        operation: operation,
+        scopeId: 'personal',
+      );
+      addTearDown(
+        () => clearCreationIntent(
+          account: 'j27-synthetic',
+          operation: operation,
+          scopeId: 'personal',
+        ),
+      );
+      const pending = CreationIntent(
+        requestId: 'j27-304-original-key',
+        createdAtMs: 1,
+        payload: {'name': 'original'},
+      );
+      await saveCreationIntent(
+        account: 'j27-synthetic',
+        operation: operation,
+        scopeId: 'personal',
+        intent: pending,
+      );
+      var dispatches = 0;
+      final outcome = await runCreationReceiptFlow(
+        account: 'j27-synthetic',
+        operation: operation,
+        scopeId: 'personal',
+        // 门值与生产接线同源：从（null）manifest 推导 → 关闭。
+        capabilityEnabled:
+            (switch (operation) {
+              'create_group' =>
+                AppManifestService.manifest?.groupCreateReceiptEnabled,
+              _ => AppManifestService.manifest?.channelCreateReceiptEnabled,
+            }) ??
+            false,
+        newPayload: const {'name': 'replacement must not be sent'},
+        extractCreatedId: (_) => null,
+        dispatch:
+            ({
+              required String requestId,
+              required Map<String, dynamic> storedPayload,
+              required bool recoverOnly,
+            }) async {
+              dispatches++;
+              throw StateError('Cache-less 304 must never dispatch');
+            },
+      );
+      expect(outcome.ok, isFalse);
+      expect(outcome.failure, CreationFlowFailure.capabilityMissing);
+      expect(outcome.pendingIntentBlocked, isTrue);
+      expect(dispatches, 0);
+      expect(
+        (await loadCreationIntent(
+          account: 'j27-synthetic',
+          operation: operation,
+          scopeId: 'personal',
+        ))?.toMap(),
+        pending.toMap(),
+      );
+    }
+  });
+
+  test('J08.a: 账号切换不写错 manifest 缓存库（A缓存保留、B不读A库、迟到响应不安装）', () async {
+    // 账号 A（setUp 绑定的 cache-test）加载 manifest 并落缓存。
+    await AppManifestService.refresh();
+    final keyA = FeatureScope.cacheKey(Keys.appManifest);
+    expect(StorageService.getMap(keyA)?['etag'], '"synthetic-manifest"');
+
+    // 挂起账号 B 的 refresh（构造迟到响应向量）。
+    final gate = Completer<Response<dynamic>>();
+    final started = Completer<RequestOptions>();
+    client.dio.interceptors.clear();
+    client.dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (request, handler) async {
+          started.complete(request);
+          handler.resolve(await gate.future);
+        },
+      ),
+    );
+
+    // 切账号 B：缓存键按 scope 分区，B 不得读取 A 的缓存。
+    AppFeatureRegistry.bindScope(
+      endpoint: 'http://localhost:29923',
+      uid: 'j08a-account-b',
+    );
+    await AppManifestService.clear();
+    AppManifestService.loadFromCache();
+    expect(AppManifestService.manifest, isNull, reason: 'B 不得读 A 的缓存');
+    final keyB = FeatureScope.cacheKey(Keys.appManifest);
+    expect(keyB, isNot(keyA));
+
+    // B 发起 refresh（挂起）；响应迟到期间 scope 已切回 A。
+    final refresh = AppManifestService.refresh();
+    final request = await started.future;
+    AppFeatureRegistry.bindScope(
+      endpoint: 'http://localhost:29921',
+      uid: 'cache-test',
+    );
+    gate.complete(
+      Response<dynamic>(
+        requestOptions: request,
+        statusCode: 200,
+        data: {
+          ...matchingManifest(),
+          'channel_contracts': {'create_request_id': 1},
+        },
+        headers: Headers.fromMap({
+          'etag': ['"stale-b"'],
+        }),
+      ),
+    );
+    expect(await refresh, isFalse);
+    expect(AppManifestService.manifest, isNull, reason: '迟到响应不得安装进当前 scope');
+    // A 的缓存不被迟到响应覆盖，原值原样保留。
+    expect(StorageService.getMap(keyA)?['etag'], '"synthetic-manifest"');
+    expect(StorageService.getMap(keyA)?['body'], isNotNull);
+    expect(StorageService.getMap(keyB), isEmpty, reason: 'B 的缓存库不得被迟到响应写入');
+  });
+
   test(
     'J27.b: late old-source response cannot install its contracts in new scope',
     () async {
