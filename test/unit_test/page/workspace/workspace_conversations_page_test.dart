@@ -15,6 +15,8 @@ import 'package:imboy/page/workspace/workspace_access_provider.dart';
 import 'package:imboy/page/workspace/workspace_groups_page.dart'
     show WorkspaceGroupsStandalonePage;
 import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/websocket_events.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/user_model.dart';
@@ -45,6 +47,7 @@ class _Api extends WorkspaceApi {
   @override
   Future<List<WorkspaceConversationModel>> conversations(EntityId workspaceId) {
     calls.add(workspaceId);
+    print('CONV_CALL#${calls.length}\n${StackTrace.current}');
     final reply = Completer<List<WorkspaceConversationModel>>();
     pending.add(reply);
     return reply.future;
@@ -128,6 +131,46 @@ WorkspaceAccessNotifier _access(
     resource: kWorkspaceAccessContentResource,
   )).notifier,
 );
+
+/// J10.b：可变 session generation（重入新世代 = 上下文变化）。
+class _SessionGen extends Notifier<int> {
+  @override
+  int build() => 1;
+  void bump() => state++;
+}
+
+final _sessionGen = NotifierProvider<_SessionGen, int>(_SessionGen.new);
+
+ProviderContainer _genContainer(_Api api) => ProviderContainer(
+  overrides: [
+    workspaceApiProvider.overrideWithValue(api),
+    currentUserProvider.overrideWith((ref) => ref.watch(_account)),
+    workspaceAccessContextReaderProvider.overrideWith((ref) {
+      final uid = ref.watch(currentUserProvider)?.uid ?? '';
+      final session = ref.watch(_sessionGen);
+      return () => (
+        origin: 'https://workspace.invalid',
+        uid: uid,
+        session: session,
+        featureScope: 'workspace:$uid',
+        featureEpoch: 1,
+        featureRevision: 1,
+        channelEnabled: true,
+      );
+    }),
+    workspaceAccessNetworkProvider.overrideWith((ref) => Stream.value(true)),
+    workspaceGroupAvatarLoaderProvider.overrideWithValue((_) async => []),
+    conversationProvider.overrideWith(_NeverReadGlobal.new),
+  ],
+);
+
+WorkspaceAccessState _accessState(ProviderContainer container) =>
+    container.read(
+      workspaceAccessProvider((
+        workspaceId: '100',
+        resource: kWorkspaceAccessContentResource,
+      )),
+    );
 
 Future<void> _disposePage(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
@@ -271,6 +314,48 @@ void main() {
     },
   );
 
+  testWidgets('J08.a: 两账号×两workspace切换不残留内容，迟到旧响应不写回', (tester) async {
+    final api = _Api();
+    final container = _container(api);
+    addTearDown(container.dispose);
+    // 账号 A + workspace 100。
+    _select(container, '100');
+    await _pump(tester, container);
+    final ws100A = api.pending.single;
+
+    // 切账号 B：同 workspace 的受保护内容必须失效并重新拉取。
+    container.read(_account.notifier).select('2');
+    await tester.pump();
+    await tester.pump();
+    // 再切 workspace 200：当前目标 = B 账号 × ws200。
+    _select(container, '200');
+    await tester.pump();
+    await tester.pump();
+    expect(api.calls, ['100', '100', '200']);
+
+    // 当前目标先完成并渲染。
+    api.pending[2].complete([_row(3, 'account-b-ws200')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('account-b-ws200'), findsOneWidget);
+
+    // 旧账号 A×ws100 响应迟到：不得残留渲染。
+    ws100A.complete([_row(1, 'account-a-ws100')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('account-a-ws100'), findsNothing);
+    expect(find.text('account-b-ws200'), findsOneWidget);
+
+    // 新账号 B×旧 ws100 响应迟到：同样不得写回当前页面。
+    api.pending[1].complete([_row(2, 'account-b-ws100')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('account-b-ws100'), findsNothing);
+    expect(find.text('account-b-ws200'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _disposePage(tester);
+  });
+
   test('account switch invalidates same-workspace response and logout stops requests', () async {
     final api = _Api();
     final container = _container(api);
@@ -312,5 +397,162 @@ void main() {
     expect(container.read(accessProvider).canRenderProtectedContent, isFalse);
     expect(container.read(accessProvider).rows, isEmpty);
     expect(api.calls.length, 2);
+  });
+
+  testWidgets('J10.b 同资源重入新 generation：旧数据/偏好不继承，仅当前世代呈现', (tester) async {
+    final api = _Api();
+    final container = _genContainer(api);
+    addTearDown(container.dispose);
+    _select(container, '100');
+    await _pump(tester, container);
+    await tester.pump();
+    expect(api.calls, ['100']);
+
+    // 旧世代授权渲染。
+    api.pending[0].complete([_row(1, 'old-era'), _row(2, 'old-pref')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('old-era'), findsOneWidget);
+
+    // 旧世代再校验在途（recheck 形态），响应尚未完成。
+    unawaited(_access(container, '100').refresh());
+    await tester.pump();
+    expect(api.pending, hasLength(2));
+
+    // 重入：membership 新世代（session 上下文变化）→ 在途旧请求作废。
+    container.read(_sessionGen.notifier).bump();
+    await tester.pump();
+    await tester.pump();
+    expect(api.calls, hasLength(3));
+    expect(_accessState(container).canRenderProtectedContent, isFalse);
+
+    // 旧世代迟到响应：数据与旧资格都不呈现。
+    api.pending[1].complete([_row(1, 'old-era'), _row(2, 'old-pref')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('old-era'), findsNothing);
+    expect(find.text('old-pref'), findsNothing);
+    expect(_accessState(container).canRenderProtectedContent, isFalse);
+
+    // 新世代响应到达：仅当前世代可呈现。
+    api.pending[2].complete([_row(9, 'new-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('new-era'), findsOneWidget);
+    expect(find.text('old-era'), findsNothing);
+    expect(_accessState(container).canRenderProtectedContent, isTrue);
+    expect(tester.takeException(), isNull);
+    await _disposePage(tester);
+  });
+
+  testWidgets('J10.c 冷启动：资格未知时不渲染受保护内容', (tester) async {
+    final api = _Api();
+    final container = _genContainer(api);
+    addTearDown(container.dispose);
+    _select(container, '100');
+    await _pump(tester, container);
+    await tester.pump();
+    // 请求在途、资格未知：不得出现任何受保护行。
+    expect(api.pending, hasLength(1));
+    expect(_accessState(container).phase, WorkspaceAccessPhase.unknown);
+    expect(_accessState(container).canRenderProtectedContent, isFalse);
+    expect(find.text('cold-era'), findsNothing);
+    expect(find.text('another-era'), findsNothing);
+    // 授权完成后才呈现。
+    api.pending.single.complete([_row(1, 'cold-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('cold-era'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _disposePage(tester);
+  });
+
+  testWidgets('J10.c 冷启动请求失败：未授权仍无受保护渲染且可重试', (tester) async {
+    final api = _Api();
+    final container = _genContainer(api);
+    addTearDown(container.dispose);
+    _select(container, '100');
+    await _pump(tester, container);
+    await tester.pump();
+    // 非授权类失败（500）：phase 保持 unknown，无受保护渲染。
+    api.pending.single.completeError(const WorkspaceApiException(500, 'boom'));
+    await tester.pump();
+    await tester.pump();
+    expect(_accessState(container).phase, WorkspaceAccessPhase.unknown);
+    expect(_accessState(container).canRenderProtectedContent, isFalse);
+    expect(find.text('failed-era'), findsNothing);
+    // 重试成功后才呈现。
+    unawaited(_access(container, '100').resetForRetry());
+    await tester.pump();
+    await tester.pump();
+    expect(api.pending, hasLength(2));
+    api.pending[1].complete([_row(1, 'failed-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('failed-era'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _disposePage(tester);
+  });
+
+  testWidgets('J10.c 返回：叠页返回后旧快照不直接呈现，须重新授权', (tester) async {
+    final api = _Api();
+    final container = _genContainer(api);
+    addTearDown(container.dispose);
+    _select(container, '100');
+    final router = await _pump(tester, container);
+    await tester.pump();
+    api.pending.single.complete([_row(1, 'return-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('return-era'), findsOneWidget);
+
+    // 叠页（离开受保护页）：内容立即不可见，资格回到未知。
+    unawaited(router.push('/chat/9'));
+    await tester.pumpAndSettle();
+    expect(find.text('return-era'), findsNothing);
+    expect(_accessState(container).canRenderProtectedContent, isFalse);
+
+    // 返回：重新授权完成前不得恢复受保护渲染。
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump();
+    expect(api.pending, hasLength(2));
+    expect(find.text('return-era'), findsNothing);
+    api.pending[1].complete([_row(1, 'return-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('return-era'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _disposePage(tester);
+  });
+
+  testWidgets('J10.c 重连：WS 重连先作废授权，重新拉取前无受保护渲染', (tester) async {
+    final api = _Api();
+    final container = _genContainer(api);
+    addTearDown(container.dispose);
+    _select(container, '100');
+    await _pump(tester, container);
+    await tester.pump();
+    api.pending.single.complete([_row(1, 'reconnect-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('reconnect-era'), findsOneWidget);
+
+    // 重连事件：先作废当前授权（unknown），再排队重新拉取。
+    AppEventBus.fire(const WebSocketStatusChangedEvent(status: 'connected'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('reconnect-era'), findsNothing);
+    expect(_accessState(container).canRenderProtectedContent, isFalse);
+    expect(api.pending, hasLength(2));
+
+    // 重新授权完成前保持无渲染；完成后恢复。
+    api.pending[1].complete([_row(1, 'reconnect-era')]);
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('reconnect-era'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await _disposePage(tester);
   });
 }

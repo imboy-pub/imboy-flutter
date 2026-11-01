@@ -352,11 +352,9 @@ void main() {
       harness.access.markEnvironmentSuspended(owner: oldOwner);
       harness.api.accept(1);
       time.flushMicrotasks();
-      // a12f1a6c7：旧 owner 的 suspend 被忽略后，accept(1) 的响应按代次
-      // 判定丢弃并自动 drain 补刷（rechecking 在途）——补喂补刷响应即
-      // 恢复展示（恢复路径多一跳，合同不变）。
-      harness.api.accept(2);
-      time.flushMicrotasks();
+      // a12f1a6c7：旧 owner 的 suspend 被忽略（owner 不匹配），accept(1)
+      // 按当前代次直接恢复展示。初始化微任务与 resume 直发去重后，恢复
+      // 不再经排队补刷的多一跳（合同不变，路径更短）。
       expect(harness.state.canRenderProtectedContent, isTrue);
       harness.access.markEnvironmentSuspended(owner: newOwner);
       _empty(harness.state);

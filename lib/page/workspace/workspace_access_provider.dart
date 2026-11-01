@@ -123,7 +123,14 @@ class WorkspaceAccessNotifier extends Notifier<WorkspaceAccessState> {
       _generation++;
       _cancelTimers();
     });
-    if (_active) Future.microtask(refresh);
+    // guard 首次订阅链（listenManual fireImmediately → resume）会同步
+    // 直发 refresh；本 build 的微任务刷新遇在途请求即跳过，避免首挂载
+    // 固定双拉（J10.c pending 排队后 accept 时 drain 补刷）。
+    if (_active) {
+      Future.microtask(() {
+        if (_inFlight == null) refresh();
+      });
+    }
     return const WorkspaceAccessState();
   }
 
