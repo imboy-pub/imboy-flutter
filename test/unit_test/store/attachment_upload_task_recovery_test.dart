@@ -260,11 +260,14 @@ void main() {
       ),
       throwsA(isA<_KillSignal>()),
     );
+    expect((await repo.find('t2'))!.stage, AttachmentUploadStage.putDone);
+    expect(f.confirmBodies, isEmpty);
     final putsBefore = f.putBodies.length;
 
     final up2 = _uploader(repo, keys);
     await _runUpload(up2, f, id: 't2');
     expect(f.putBodies.length, putsBefore, reason: 'put_done 检查点后的恢复跳过 PUT 重传');
+    expect(f.confirmBodies, hasLength(1));
     expect((await repo.find('t2'))!.stage, AttachmentUploadStage.confirmed);
   });
 
