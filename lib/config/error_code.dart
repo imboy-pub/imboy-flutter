@@ -76,12 +76,12 @@ class ErrorCode {
   static const int PRECONDITION_FAILED = 412;
 
   /// 错误码 413
-  static const int FILE_SIZE_EXCEEDED = 413;
   static const int PAYLOAD_TOO_LARGE = 413;
+  static const int FILE_SIZE_EXCEEDED = 413;
 
   /// 错误码 415
-  static const int FILE_TYPE_INVALID = 415;
   static const int UNSUPPORTED_MEDIA_TYPE = 415;
+  static const int FILE_TYPE_INVALID = 415;
 
   /// 错误码 422
   static const int UNPROCESSABLE_ENTITY = 422;
@@ -100,11 +100,12 @@ class ErrorCode {
   // 5xx 服务端错误（参考 HTTP 5xx）
   // =====================================================================
 
-  /// 服务器内部错误
+  /// 错误码 500
+  static const int OPERATION_FAILED = 500;
   static const int INTERNAL_SERVER_ERROR = 500;
   static const int SERVER_ERROR = 500;
   static const int BUSINESS_FAILED = 500;
-  static const int OPERATION_FAILED = 500;
+  static const int MSG_TIME_SOURCE_MISSING = 500;
 
   /// 错误码 501
   static const int NOT_IMPLEMENTED = 501;
@@ -256,6 +257,15 @@ class ErrorCode {
 
   /// 错误码 982
   static const int WORKSPACE_INVITE_EXPIRED = 982;
+
+  /// 错误码 990
+  static const int CHANNEL_INVITATION_REQUIRED = 990;
+
+  /// 错误码 991
+  static const int CHANNEL_PURCHASE_REQUIRED = 991;
+
+  /// 错误码 992
+  static const int CHANNEL_JOIN_POLICY_UNAVAILABLE = 992;
 
   // =====================================================================
   // 其余：各子系统扩展错误码
@@ -462,6 +472,18 @@ class ErrorCode {
   /// 错误码 5461
   static const int IDEMPOTENCY_KEY_REQUIRED = 5461;
 
+  /// 错误码 5462
+  static const int CREATE_REQUEST_ID_CONFLICT = 5462;
+
+  /// 错误码 5463
+  static const int CREATE_NOT_ACCEPTED = 5463;
+
+  /// 错误码 5464
+  static const int CREATE_RECOVERY_EXPIRED = 5464;
+
+  /// 错误码 5465
+  static const int CREATE_RESOURCE_UNAVAILABLE = 5465;
+
   /// 错误码 5501
   static const int COLLECT_SEALED_READONLY = 5501;
 
@@ -553,6 +575,9 @@ class ErrorCode {
     980: '工作区已归档，写操作被拒绝',
     981: '团队码无效或已失效',
     982: '团队码已过期',
+    990: '私有频道需要邀请才能订阅',
+    991: '付费频道需要先购买',
+    992: '该加入策略暂未开放',
     5000: '无效的传输会话',
     5001: '传输会话已过期',
     5002: '传输会话不存在',
