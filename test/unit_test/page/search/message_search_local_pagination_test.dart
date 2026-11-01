@@ -121,8 +121,9 @@ void main() {
     Future<void>? rejected;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(secure, (call) async {
-          if (call.method == 'write')
+          if (call.method == 'write') {
             throw PlatformException(code: 'synthetic-stop');
+          }
           return null;
         });
     try {

@@ -17,9 +17,7 @@ import 'package:imboy/store/api/attachment_api.dart';
 
 /// 捕获上传链三个 seam。
 class _UploadCapture {
-  _UploadCapture([this.label = 'dest']);
-
-  final String label;
+  final String label = 'dest';
   final List<String> objectKeys = [];
   final List<Uint8List> putBytes = [];
   final List<String> fileNames = [];
@@ -28,7 +26,7 @@ class _UploadCapture {
 
   PresignFn get presignFn => (filename, mime) async {
     fileNames.add(filename);
-    final k = 'u-${label}/${objectKeys.length}/$filename';
+    final k = 'u-$label/${objectKeys.length}/$filename';
     objectKeys.add(k);
     return IMBoyHttpResponse.success(<String, dynamic>{
       'put_url': 'https://example.invalid/put/${objectKeys.length}',
