@@ -32,6 +32,13 @@
 // same_key_same_ciphertext_after_restart fold target is kill_after_put,
 // whose restore phase asserts object_key and ciphertext_sha256 equality
 // across the restart.
+//
+// W6-02 ac08 / e2e-compat scenario leaves (legacy_acl_cipher_bytes,
+// unknown_history_retained, physical_device_restart, physical_device) are
+// registered under their frozen contract titles so the gate's
+// V5_E2E_SCENARIO injection produces exactly one matching testWidgets per
+// leaf. Each runs the same two-phase kill_after_put protocol over its own
+// scenario task row (derived from V5_E2E_UPLOAD_ID), never a new protocol.
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -88,6 +95,12 @@ const Set<String> _twoPhaseScenarios = {
   'presign_response_lost',
   'expired_capability_resume',
   'authorization_revoked',
+  // W6-02 ac08 / e2e-compat leaves: two-phase by contract (put -> host kill
+  // -> restore), same fail-closed scenario preconditions as the flows above.
+  'legacy_acl_cipher_bytes',
+  'unknown_history_retained',
+  'physical_device_restart',
+  'physical_device',
 };
 
 class _PutPhasePaused implements Exception {}
@@ -377,6 +390,14 @@ Future<void> _runScenario(String scenario, WidgetTester tester) async {
       return _expiredCapabilityResume(tester, ctx);
     case 'authorization_revoked':
       return _authorizationRevoked(tester, ctx);
+    case 'legacy_acl_cipher_bytes':
+      return _legacyAclCipherBytes(tester, ctx);
+    case 'unknown_history_retained':
+      return _unknownHistoryRetained(tester, ctx);
+    case 'physical_device_restart':
+      return _physicalDeviceRestart(tester, ctx);
+    case 'physical_device':
+      return _physicalDevice(tester, ctx);
   }
   fail('unhandled scenario $scenario');
 }
@@ -444,6 +465,10 @@ String _scenarioTaskId(String scenario) {
     'presign_response_lost': '09',
     'expired_capability_resume': '0a',
     'authorization_revoked': '0b',
+    'legacy_acl_cipher_bytes': '0c',
+    'unknown_history_retained': '0d',
+    'physical_device_restart': '0e',
+    'physical_device': '0f',
   };
   final code = codes[scenario];
   expect(code, isNotNull, reason: 'no scenario code for $scenario');
@@ -1062,6 +1087,139 @@ Future<void> _authorizationRevoked(
   expect(after.stage, AttachmentUploadStage.abandoned);
   expect(after.lastError, 'revoked');
   expect(after.objectKey, before.objectKey);
+}
+
+/// W6-02/ac08 legacy_acl_cipher_bytes: 旧客户端/historic 读取保持授权 ACL 与
+/// 载荷语义。put 阶段把行停在 putDone（objectKey 与密文字节 hash 已落库），
+/// 主机 kill/relaunch 后断言恢复链沿用同一 objectKey、同一密文 hash 与同一
+/// 授权 ACL 绑定（bindingHash）。
+Future<void> _legacyAclCipherBytes(
+  WidgetTester tester,
+  _ScenarioCtx ctx,
+) async {
+  const scenario = 'legacy_acl_cipher_bytes';
+  if (_phase == 'put') {
+    final row = await _parkAtPutDone(
+      tester,
+      ctx: ctx,
+      uploader: _scenarioUploader(),
+      scenario: scenario,
+    );
+    expect(row.bindingHash, _scenarioBinding);
+    _killReady(scenario);
+    return;
+  }
+  final before = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(before.userId, _uid);
+  expect(before.bindingHash, _scenarioBinding);
+  final done = await _awaitScenarioStage(
+    tester,
+    repo: ctx.repo,
+    scenario: scenario,
+    stage: AttachmentUploadStage.confirmed,
+  );
+  expect(done.objectKey, before.objectKey);
+  expect(done.ciphertextSha256, before.ciphertextSha256);
+  expect(done.bindingHash, before.bindingHash);
+}
+
+/// W6-02/ac08 unknown_history_retained: 未知历史对象保持 retained，无复活、
+/// 无破坏性清理。put 阶段完成整条管线得到 confirmed 终态历史行；主机
+/// kill/relaunch 后跑一次完整恢复清扫，断言终态行原样保留。
+Future<void> _unknownHistoryRetained(
+  WidgetTester tester,
+  _ScenarioCtx ctx,
+) async {
+  const scenario = 'unknown_history_retained';
+  if (_phase == 'put') {
+    final key = await _uploadScenarioTask(
+      tester,
+      uploader: _scenarioUploader(),
+      scenario: scenario,
+    );
+    final row = await _scenarioRow(tester, ctx.repo, scenario);
+    expect(row.stage, AttachmentUploadStage.confirmed);
+    expect(row.objectKey, key);
+    _killReady(scenario);
+    return;
+  }
+  final before = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(before.stage, AttachmentUploadStage.confirmed);
+  expect(before.userId, _uid);
+  expect(before.objectKey, isNotNull);
+  await tester.runAsync(ResumableAttachmentUploader.recoverCurrentSession);
+  final after = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(after.stage, AttachmentUploadStage.confirmed);
+  expect(after.userId, before.userId);
+  expect(after.objectKey, before.objectKey);
+  expect(after.ciphertextSha256, before.ciphertextSha256);
+  final counted = (await tester.runAsync(
+    () => ctx.db.rawQuery(
+      'SELECT COUNT(*) AS n FROM attachment_upload_task WHERE id = ?',
+      [_scenarioTaskId(scenario)],
+    ),
+  ))!;
+  expect(counted.single['n'], 1, reason: 'no second row for the historic task');
+}
+
+/// W6-02/ac08 physical_device_restart: 物理设备重启后恢复链收敛。put 阶段把
+/// 行停在 putDone；主机 kill/relaunch 后断言生产自动恢复把该行收敛到
+/// confirmed，且 objectKey、密文 hash、明文 hash 与重启前一致
+/// （kill_after_put 同构）。
+Future<void> _physicalDeviceRestart(
+  WidgetTester tester,
+  _ScenarioCtx ctx,
+) async {
+  const scenario = 'physical_device_restart';
+  if (_phase == 'put') {
+    await _parkAtPutDone(
+      tester,
+      ctx: ctx,
+      uploader: _scenarioUploader(),
+      scenario: scenario,
+    );
+    _killReady(scenario);
+    return;
+  }
+  final before = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(before.userId, _uid);
+  final done = await _awaitScenarioStage(
+    tester,
+    repo: ctx.repo,
+    scenario: scenario,
+    stage: AttachmentUploadStage.confirmed,
+  );
+  expect(done.objectKey, before.objectKey);
+  expect(done.ciphertextSha256, before.ciphertextSha256);
+  expect(done.plainSha256, before.plainSha256);
+}
+
+/// W6-02/e2e-compat physical_device: 真机物理设备兼容（两阶段恢复），与
+/// kill_after_put 协议同构：put 停在 putDone → 主机 kill → relaunch 断言
+/// 自动恢复收敛至 confirmed。
+Future<void> _physicalDevice(WidgetTester tester, _ScenarioCtx ctx) async {
+  const scenario = 'physical_device';
+  if (_phase == 'put') {
+    await _parkAtPutDone(
+      tester,
+      ctx: ctx,
+      uploader: _scenarioUploader(),
+      scenario: scenario,
+    );
+    _killReady(scenario);
+    return;
+  }
+  final before = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(before.userId, _uid);
+  final done = await _awaitScenarioStage(
+    tester,
+    repo: ctx.repo,
+    scenario: scenario,
+    stage: AttachmentUploadStage.confirmed,
+  );
+  expect(done.objectKey, before.objectKey);
+  expect(done.ciphertextSha256, before.ciphertextSha256);
+  expect(done.plainSha256, before.plainSha256);
 }
 
 Future<void> _requireOwnedBackend(WidgetTester tester) async {
