@@ -166,10 +166,20 @@ jobs:
         if: env.TEST_DEVICE == 'macos'
         run: |
           PBX=macos/Runner.xcodeproj/project.pbxproj
-          perl -pi -e 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;\n\t\t\t\tCODE_SIGN_IDENTITY = "-";/g' "$PBX"
-          COUNT=$(grep -c 'CODE_SIGN_IDENTITY = "-";' "$PBX")
-          echo "patched configurations: $COUNT"
-          [ "$COUNT" -ge 1 ]
+          # 注意：仅替换 STYLE 行不够——工程里还有显式的
+          # CODE_SIGN_IDENTITY = "Apple Development"（含优先级更高的
+          # [sdk=macosx*] 条件变体，run 41339261773 实测 "requires a
+          # provisioning profile"）以及 project attributes 的
+          # ProvisioningStyle = Automatic，全部一并改为 Manual/ad-hoc。
+          perl -pi -e '
+            s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;\n\t\t\t\tCODE_SIGN_IDENTITY = "-";/g;
+            s/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g;
+            s/"CODE_SIGN_IDENTITY\[sdk=macosx\*\]" = "Apple Development";/"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";/g;
+            s/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g;
+          ' "$PBX"
+          LEFT=$(grep -c 'Apple Development\|CODE_SIGN_STYLE = Automatic\|ProvisioningStyle = Automatic' "$PBX" || true)
+          echo "unpatched signing leftovers: $LEFT"
+          [ "$LEFT" = "0" ]
 
       - name: Install dependencies
         run: |
