@@ -15,6 +15,8 @@ import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
+import 'package:imboy/page/web_shell/web_shell_provider.dart';
+import 'package:imboy/page/web_shell/web_shell_state.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 
@@ -42,18 +44,35 @@ class _StateOverrideNotifier extends ConversationNotifier {
   ConversationState build() => _initial;
 }
 
+/// J15.b 桌面壳向量：捕获右栏派发的 ChatSelection（宿主目的地判据）。
+class _CapturingWebShellNotifier extends WebShellNotifier {
+  final selections = <ChatSelection>[];
+
+  @override
+  WebShellState build() => const WebShellState();
+
+  @override
+  void selectItem(WebSelection selection) {
+    if (selection is ChatSelection) selections.add(selection);
+  }
+}
+
 // 只验证生产页面的导航分派，不替代真实资料页或真机验收。
-GoRouter _stubRouter({List<String>? visitedRoutes}) {
+GoRouter _stubRouter({
+  List<String>? visitedRoutes,
+  List<Object?>? visitedExtras,
+  bool webShellHost = false,
+}) {
   Widget stub(String label, GoRouterState state) {
     visitedRoutes?.add(state.uri.path);
     return Scaffold(body: Center(child: Text(label)));
   }
 
   return GoRouter(
-    initialLocation: '/conversation',
+    initialLocation: webShellHost ? '/web_shell' : '/conversation',
     routes: [
       GoRoute(
-        path: '/conversation',
+        path: webShellHost ? '/web_shell' : '/conversation',
         builder: (_, _) => const ConversationPage(),
       ),
       GoRoute(
@@ -72,8 +91,10 @@ GoRouter _stubRouter({List<String>? visitedRoutes}) {
       ),
       GoRoute(
         path: '/chat/:id',
-        builder: (_, state) =>
-            stub('chat ${state.pathParameters['id']}', state),
+        builder: (_, state) {
+          visitedExtras?.add(state.extra);
+          return stub('chat ${state.pathParameters['id']}', state);
+        },
       ),
     ],
   );
@@ -83,9 +104,13 @@ Future<void> _pumpConv(
   WidgetTester tester, {
   required ConversationState state,
   List<String>? visitedRoutes,
+  List<Object?>? visitedExtras,
+  Size? size,
+  bool webShellHost = false,
+  _CapturingWebShellNotifier? shell,
 }) async {
   tester.view.devicePixelRatio = 1.0;
-  tester.view.physicalSize = const Size(390, 844);
+  tester.view.physicalSize = size ?? const Size(390, 844);
   addTearDown(() {
     tester.view.resetDevicePixelRatio();
     tester.view.resetPhysicalSize();
@@ -95,10 +120,15 @@ Future<void> _pumpConv(
     ProviderScope(
       overrides: [
         conversationProvider.overrideWith(() => _StateOverrideNotifier(state)),
+        if (shell != null) webShellProvider.overrideWith(() => shell),
       ],
       child: TranslationProvider(
         child: MaterialApp.router(
-          routerConfig: _stubRouter(visitedRoutes: visitedRoutes),
+          routerConfig: _stubRouter(
+            visitedRoutes: visitedRoutes,
+            visitedExtras: visitedExtras,
+            webShellHost: webShellHost,
+          ),
         ),
       ),
     ),
@@ -323,6 +353,136 @@ void main() {
       expect(find.byType(CustomScrollView), findsOneWidget);
       await _unmount(tester);
     });
+  });
+
+  group('J15.b 点整行并返回（C2C、C2G；移动/桌面壳分别）', () {
+    // plan-v2.2 §9 J15.b：点整行并返回 → 正确 chat type/对象与宿主目的地。
+    // 移动壳 = push /chat/<peerId>（type/对象随行透传）；桌面壳 = 派发
+    // Web Shell 右栏 ChatSelection，不离开列表。整行热区避开左侧头像
+    // （16+56=72px）与右侧角标，真实命中行 onTap，与 J15.a 头像向量互补。
+    for (final type in ['C2C', 'C2G']) {
+      testWidgets('J15.b $type 移动壳：整行 push /chat/<peerId> 并返回原位（不走头像路由）', (
+        tester,
+      ) async {
+        final conversations = List.generate(
+          40,
+          (index) => _conv(
+            id: index + 1,
+            peerId: 2000 + index,
+            title: 'Row open $index',
+            type: type,
+            lastTime: 10000 - index,
+          ),
+        );
+        final target = conversations[30];
+        final visitedRoutes = <String>[];
+        final visitedExtras = <Object?>[];
+        await _pumpConv(
+          tester,
+          state: ConversationState(
+            isLoading: false,
+            conversationMap: {for (final c in conversations) c.uk3: c},
+          ),
+          visitedRoutes: visitedRoutes,
+          visitedExtras: visitedExtras,
+        );
+        expect(target.id, isNot(target.peerId));
+        final row = find.byWidgetPredicate(
+          (widget) =>
+              widget is ConversationItem && widget.model.uk3 == target.uk3,
+        );
+        final scrollable = find.descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is Scrollable &&
+                widget.axisDirection == AxisDirection.down,
+          ),
+        );
+        expect(row.hitTestable(), findsNothing, reason: '目标初始必须在屏外');
+        await tester.scrollUntilVisible(row, 300, scrollable: scrollable);
+        await tester.pumpAndSettle();
+        final position = tester.state<ScrollableState>(scrollable).position;
+        final offsetBefore = position.pixels;
+        // 整行热区：行中线偏右 40px，避开头像热区
+        final center = tester.getCenter(row);
+        await tester.tapAt(Offset(center.dx + 40, center.dy));
+        await tester.pumpAndSettle();
+        expect(visitedRoutes, equals(['/chat/${target.peerId}']));
+        expect(
+          visitedRoutes.where((path) => path.startsWith('/contact/people/')),
+          isEmpty,
+          reason: '整行点击不得触发头像的人员资料路由',
+        );
+        expect(
+          visitedRoutes.where((path) => path.startsWith('/group/detail/')),
+          isEmpty,
+          reason: '整行点击不得触发头像的群资料路由',
+        );
+        final extra = visitedExtras.single! as Map;
+        expect(extra['type'], type, reason: 'chat type 必须随行透传');
+        expect(extra['title'], 'Row open 30');
+        GoRouter.of(tester.element(find.text('chat ${target.peerId}'))).pop();
+        await tester.pumpAndSettle();
+        expect(find.byType(ConversationPage), findsOneWidget);
+        expect(row.hitTestable(), findsOneWidget);
+        expect(
+          tester.state<ScrollableState>(scrollable).position,
+          same(position),
+        );
+        expect(position.pixels, closeTo(offsetBefore, 0.01));
+        await _unmount(tester);
+      });
+    }
+
+    for (final type in ['C2C', 'C2G']) {
+      testWidgets('J15.b $type 桌面壳：整行派发右栏 ChatSelection，列表不离开', (tester) async {
+        final conversations = List.generate(
+          8,
+          (index) => _conv(
+            id: index + 1,
+            peerId: 3000 + index,
+            title: 'Desktop row $index',
+            type: type,
+            lastTime: 10000 - index,
+          ),
+        );
+        final target = conversations[5];
+        final visitedRoutes = <String>[];
+        final shell = _CapturingWebShellNotifier();
+        await _pumpConv(
+          tester,
+          state: ConversationState(
+            isLoading: false,
+            conversationMap: {for (final c in conversations) c.uk3: c},
+          ),
+          visitedRoutes: visitedRoutes,
+          size: const Size(1280, 900),
+          webShellHost: true,
+          shell: shell,
+        );
+        final row = find.byWidgetPredicate(
+          (widget) =>
+              widget is ConversationItem && widget.model.uk3 == target.uk3,
+        );
+        expect(row.hitTestable(), findsOneWidget);
+        final center = tester.getCenter(row);
+        await tester.tapAt(Offset(center.dx + 40, center.dy));
+        await tester.pumpAndSettle();
+        expect(
+          visitedRoutes.where((path) => path.startsWith('/chat/')),
+          isEmpty,
+          reason: '桌面壳宿主目的地是右栏，不 push 独立 /chat 路由',
+        );
+        expect(shell.selections, hasLength(1));
+        expect(shell.selections.single.peerId, target.peerId.toString());
+        expect(shell.selections.single.chatType, type);
+        // 列表仍在原宿主（未离开、未重建），行保持可命中
+        expect(find.byType(ConversationPage), findsOneWidget);
+        expect(row.hitTestable(), findsOneWidget);
+        await _unmount(tester);
+      });
+    }
   });
 
   group('会话行无障碍（本轮整改回归）', () {
