@@ -188,6 +188,11 @@ jobs:
           # 不修改 macos/ 保留区工程文件。
           CODE_SIGN_IDENTITY: '-'
           CODE_SIGNING_REQUIRED: 'NO'
+          # Automatic 签名在 resolve 阶段就会查找 provisioning profile（即
+          # "No profiles for 'pub.imboy.app'" 失败点），仅 REQUIRED=NO 不够；
+          # ALLOWED=NO 彻底跳过 codesign phase，链接器仍给 arm64 二进制
+          # 写入 ad-hoc 签名，测试进程可正常启动。
+          CODE_SIGNING_ALLOWED: 'NO'
         run: |
           flutter test integration_test/all_tests.dart \
             --dart-define=APP_ENV=${{ env.APP_ENV }} \
