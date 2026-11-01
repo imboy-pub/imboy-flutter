@@ -41,15 +41,19 @@ typedef _GetuidC = Uint32 Function();
 typedef _GetuidD = int Function();
 
 /// Uses openat and no-replace rename relative to a no-follow directory descriptor.
-/// Android is the supported target. macOS is permitted for isolated unit tests.
+/// Android is the supported target. macOS and glibc Linux (x64/arm64) are
+/// permitted for isolated unit tests and CI.
 class V5CheckpointStore {
   V5CheckpointStore(this.directory) {
-    if (!Platform.isAndroid && !Platform.isMacOS) {
+    final abi = Abi.current();
+    final linux64 =
+        Platform.isLinux && (abi == Abi.linuxX64 || abi == Abi.linuxArm64);
+    if (!Platform.isAndroid && !Platform.isMacOS && !linux64) {
       throw UnsupportedError(
         'checkpoint syscalls unsupported on this platform',
       );
     }
-    if (Platform.isAndroid && Abi.current() != Abi.androidArm64) {
+    if (Platform.isAndroid && abi != Abi.androidArm64) {
       throw UnsupportedError(
         'checkpoint stat ABI unsupported on this Android device',
       );
@@ -62,7 +66,7 @@ class V5CheckpointStore {
     // Missing libc support fails closed. Never substitute an overwriting rename.
     try {
       _renameat = _lib.lookupFunction<_RenameAtC, _RenameAtD>(
-        Platform.isAndroid ? 'renameat2' : 'renameatx_np',
+        Platform.isMacOS ? 'renameatx_np' : 'renameat2',
       );
     } on ArgumentError {
       throw UnsupportedError('atomic no-replace rename is unavailable');
@@ -74,9 +78,12 @@ class V5CheckpointStore {
     _fchmod = _lib.lookupFunction<_ChmodC, _ChmodD>('fchmod');
     _malloc = _lib.lookupFunction<_MallocC, _MallocD>('malloc');
     _free = _lib.lookupFunction<_FreeC, _FreeD>('free');
-    _errno = _lib.lookupFunction<_ErrnoC, _ErrnoD>(
-      Platform.isAndroid ? '__errno' : '__error',
-    );
+    final errnoSymbol = Platform.isAndroid
+        ? '__errno'
+        : Platform.isMacOS
+        ? '__error'
+        : '__errno_location';
+    _errno = _lib.lookupFunction<_ErrnoC, _ErrnoD>(errnoSymbol);
     _fstat = _lib.lookupFunction<_FstatC, _FstatD>('fstat');
     _getuid = _lib.lookupFunction<_GetuidC, _GetuidD>('geteuid');
   }
@@ -108,11 +115,14 @@ class V5CheckpointStore {
   late final _FstatD _fstat;
   late final _GetuidD _getuid;
 
-  int get _directoryFlag => Platform.isAndroid ? 0x10000 : 0x100000;
-  int get _noFollow => Platform.isAndroid ? 0x20000 : 0x100;
-  int get _nonblock => Platform.isAndroid ? 0x800 : 0x4;
-  int get _createExclusive => Platform.isAndroid ? 0xc0 : 0xa00;
-  int get _renameNoReplace => Platform.isAndroid ? 1 : 4;
+  // Linux (x86_64 and aarch64) and Android share the kernel UAPI flag values;
+  // Darwin differs. Unknown platforms never reach this store.
+  int get _directoryFlag => Platform.isMacOS ? 0x100000 : 0x10000;
+  int get _noFollow => Platform.isMacOS ? 0x100 : 0x20000;
+  int get _nonblock => Platform.isMacOS ? 0x4 : 0x800;
+  int get _createExclusive => Platform.isMacOS ? 0xa00 : 0xc0;
+  int get _renameNoReplace => Platform.isMacOS ? 4 : 1;
+  static const int _einval = 22; // EINVAL on Darwin and Linux alike.
 
   Pointer<Uint8> _cstring(String value) {
     final bytes = utf8.encode(value);
@@ -134,8 +144,18 @@ class V5CheckpointStore {
   int _directory() {
     final ptr = _cstring(directory.absolute.path);
     try {
-      final fd = _open(ptr, _directoryFlag | _noFollow, 0);
-      if (fd < 0) throw StateError('cannot open checkpoint directory safely');
+      var fd = _open(ptr, _directoryFlag | _noFollow, 0);
+      if (fd < 0 && _errno().value == _einval) {
+        // Some kernels reject the O_DIRECTORY bit outright. The directory
+        // type is still enforced by _checkFd below, so retry without it.
+        fd = _open(ptr, _noFollow, 0);
+      }
+      if (fd < 0) {
+        throw StateError(
+          'cannot open checkpoint directory safely '
+          '(errno ${_errno().value})',
+        );
+      }
       try {
         _checkFd(fd, directory: true);
       } catch (_) {
@@ -149,30 +169,54 @@ class V5CheckpointStore {
   }
 
   (int, int) _checkFd(int fd, {required bool directory}) {
-    // Restricted to the Darwin 64-bit and Android aarch64 stat layouts.
+    // Restricted to three 64-bit stat layouts, all with st_ino u64 at 8:
+    //  Darwin: st_mode u16@4, st_nlink u16@6, st_uid u32@16, st_dev u32@0.
+    //  glibc x86_64: st_nlink u64@16, st_mode u32@24, st_uid u32@28, st_dev u64@0.
+    //  Kernel asm-generic 64-bit (Android bionic, glibc arm64/riscv64):
+    //    st_mode u32@16, st_nlink u32@20, st_uid u32@24, st_dev u64@0.
+    // Other ABIs never reach this store (fail closed in the constructor).
+    final darwin = Platform.isMacOS;
+    final glibcX64 =
+        !darwin && !Platform.isAndroid && Abi.current() == Abi.linuxX64;
     final ptr = _malloc(256);
     if (ptr == nullptr) throw StateError('allocation failed');
     try {
       if (_fstat(fd, ptr) != 0) throw StateError('checkpoint fstat failed');
       final view = ByteData.sublistView(ptr.asTypedList(256));
-      final mode = Platform.isAndroid
-          ? view.getUint32(16, Endian.host)
-          : view.getUint16(4, Endian.host);
-      final links = Platform.isAndroid
-          ? view.getUint32(20, Endian.host)
-          : view.getUint16(6, Endian.host);
-      final owner = view.getUint32(Platform.isAndroid ? 24 : 16, Endian.host);
+      final mode = darwin
+          ? view.getUint16(4, Endian.host)
+          : view.getUint32(glibcX64 ? 24 : 16, Endian.host);
+      final links = darwin
+          ? view.getUint16(6, Endian.host)
+          : glibcX64
+          ? view.getUint64(16, Endian.host)
+          : view.getUint32(20, Endian.host);
+      final owner = view.getUint32(
+        darwin
+            ? 16
+            : glibcX64
+            ? 28
+            : 24,
+        Endian.host,
+      );
+      // Files must be owner-only 0600 (fchmod enforces this before data is
+      // written). The root directory is app-provided, so only writable group
+      // or other bits are rejected: private app dirs (0700) and POSIX temp
+      // dirs (0755) pass, shared writable dirs fail.
+      final forbidden = directory
+          ? 0x12
+          : 0x3f; // 0x12 = group/other write bits
       if (owner != _getuid() ||
           (mode & 0xf000) != (directory ? 0x4000 : 0x8000) ||
-          (mode & 0x3f) != 0 ||
+          (mode & forbidden) != 0 ||
           (!directory && links != 1)) {
         throw StateError(
           'checkpoint owner, type, permissions or links invalid',
         );
       }
-      final dev = Platform.isAndroid
-          ? view.getUint64(0, Endian.host)
-          : view.getUint32(0, Endian.host);
+      final dev = darwin
+          ? view.getUint32(0, Endian.host)
+          : view.getUint64(0, Endian.host);
       return (dev, view.getUint64(8, Endian.host));
     } finally {
       _free(ptr);
