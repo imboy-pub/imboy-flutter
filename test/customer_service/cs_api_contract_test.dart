@@ -23,6 +23,7 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Directory;
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -106,6 +107,25 @@ Map<String, dynamic> okEnvelope({dynamic payload}) => {
 void main() {
   setUp(() async {
     TestWidgetsFlutterBinding.ensureInitialized();
+    // 会话守卫（http_session_side_effect）语义：401 触发 quitLogin 时，
+    // _clearLogin 任何一步抛异常都会让 quitLogin 返回 false →
+    // _authTransitionFailed 持久置位 → isAuthTransitioning 恒 true →
+    // 后续全部非 public 请求被 _requireSession 短路成 409「网络错误」，
+    // 且 UserRepoLocal 单例状态跨用例不重置。登出链路在测试环境缺两个
+    // 系统通道：path_provider（E2EE purge 的临时/缓存目录）与 sqflite
+    // （deleteDatabaseForUid 的 getDatabasesPath）。逐一补 mock 让登出
+    // 完整成功（镜像 unit_test/flutter_test_config.dart 的做法）。
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (call) async => Directory.systemTemp.path,
+    );
+    messenger.setMockMethodCallHandler(
+      const MethodChannel('com.davidmartos96.sqflite_sqlcipher'),
+      (call) async =>
+          call.method == 'getDatabasesPath' ? Directory.systemTemp.path : null,
+    );
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
     await StorageService.to.setString(Keys.currentUid, '7266418340025468999');
