@@ -170,6 +170,27 @@ List<EnterpriseOaRuntimeConfig> _entries(String org) =>
       ],
     });
 
+/// 显式登录态夹具：uid=1 + 有效期至 2100 年的合成 JWT。
+///
+/// 「loggedIn 且无 token」会让 HTTP 层走 _handleTokenExpired →
+/// UserRepoLocal.quitLogin，其 _clearLogin 在测试环境卡无 mock 的
+/// platform channel（sqlite/push），_pendingAuthTransitions 永挂并跨
+/// 用例污染（isAuthTransitioning 恒真 → 后续请求全部 _SessionChanged
+/// →409）。需要登录态的用例必须连带注入有效 token（附件入口用例先例）。
+Future<void> seedLoggedInSessionFixture() async {
+  final jwtHeader = base64Url
+      .encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'))
+      .replaceAll('=', '');
+  final jwtPayload = base64Url
+      .encode(utf8.encode('{"exp":4102444800}'))
+      .replaceAll('=', '');
+  FlutterSecureStorage.setMockInitialValues({
+    'secure_token': '$jwtHeader.$jwtPayload.c3ludGhldGlj',
+  });
+  SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
+  await StorageService.init();
+}
+
 Future<ProviderContainer> _pump(
   WidgetTester tester,
   _OaApi api, {

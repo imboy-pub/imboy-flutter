@@ -80,7 +80,25 @@ void main() {
     FlutterSecureStorage.setMockInitialValues({});
     HttpClient.adapterForTest = _DirectoryTransport();
   });
-  tearDown(() => HttpClient.adapterForTest = null);
+  tearDown(() async {
+    HttpClient.adapterForTest = null;
+    // 跨用例会话复位：显式 StorageService.init 的用例（附件入口/feature
+    // flag 系）会把 prefs 单例的 currentUid 留给下一个用例，而下个用例
+    // 的 setUp 已把 secure token mock 重置为空。「loggedIn 且无 token」
+    // 会触发 HttpClient._handleTokenExpired → UserRepoLocal.quitLogin →
+    // _clearLogin 卡在测试无 mock 的 platform channel（sqlite/push），
+    // _pendingAuthTransitions 永挂 → 后续用例所有 HTTP 走
+    // _SessionChanged→409（网络错误），workspaceGroupSchedulesProvider
+    // 等无 retry 的 FutureProvider 被 riverpod 默认 retry 安排 200ms 起
+    // 的退避 Timer，测试结束时 timersPending invariant 失败。退出登录态
+    // 即断根；未 init 的用例无残留，remove 的 not-initialized 直接忽略
+    // （手法与 organization_api_session_generation_test 的 tearDown 同构）。
+    try {
+      await StorageService.to.remove(Keys.currentUid);
+    } on Object {
+      // StorageService 未 init：本用例无 prefs 残留。
+    }
+  });
   for (final role in ['member', 'admin']) {
     testWidgets('企业抽屉承载身份与快捷入口，角色 $role', (tester) async {
       final api = _OaApi();
@@ -518,17 +536,7 @@ void main() {
   testWidgets('无 OA 工作台附件入口进入企业统一检索中心', (tester) async {
     // Logged-in UID and mock secure storage describe the same synthetic session.
     // The workbench's CS probe legitimately rejects a UID with no access token.
-    final jwtHeader = base64Url
-        .encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'))
-        .replaceAll('=', '');
-    final jwtPayload = base64Url
-        .encode(utf8.encode('{"exp":4102444800}'))
-        .replaceAll('=', '');
-    FlutterSecureStorage.setMockInitialValues({
-      'secure_token': '$jwtHeader.$jwtPayload.c3ludGhldGlj',
-    });
-    SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
-    await StorageService.init();
+    await seedLoggedInSessionFixture();
     expect(
       UserRepoLocal.to.currentUid,
       '1',
@@ -723,8 +731,7 @@ void main() {
   testWidgets(
     'mounted enterprise workbench reacts to validated project flags',
     (tester) async {
-      SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
-      await StorageService.init();
+      await seedLoggedInSessionFixture();
       AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.project: false});
       final api = _OaApi();
       await _pump(tester, api);
@@ -751,8 +758,7 @@ void main() {
   testWidgets(
     'remote project flag respects compiled lock in workbench and deep link',
     (tester) async {
-      SharedPreferences.setMockInitialValues({Keys.currentUid: '1'});
-      await StorageService.init();
+      await seedLoggedInSessionFixture();
       final previousFlags = Map<String, dynamic>.from(
         AppFeatureRegistry.snapshot,
       );
