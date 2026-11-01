@@ -183,7 +183,9 @@ jobs:
 
       # ----------------------------------------------------------------
       # 1.6) 文件行数 ratchet 门（APP-02）：新文件超 800 行 / 存量超限
-      # 文件再增长即 FAIL（存量 47 个已入 file_size_baseline.txt 基线）。
+      # 文件再增长即 FAIL（存量 93 个已入 file_size_baseline.txt 基线；
+      # 2026-11-01 重采：att-v5 / channel-group-ux 批次带入新超限文件，
+      # 债务被承认入基线，ratchet 拦住下一个）。
       # ----------------------------------------------------------------
       - name: File size ratchet gate (800-line)
         run: bash scripts/quality/check_file_size_ratchet.sh
