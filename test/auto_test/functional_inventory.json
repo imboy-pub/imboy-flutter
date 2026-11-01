@@ -4,10 +4,10 @@
     "app_head": "see-catalog",
     "ledger_count": 171,
     "ledger_row_count": 1897,
-    "lib_page_count": 169,
+    "lib_page_count": 171,
     "module_page_count": 40,
     "route_page_component_count": 165,
-    "function_count": 2116,
+    "function_count": 2124,
     "generated_ledger_pages": [],
     "note": "disposition 仅静态 required/excluded；运行结果只写 ignored RUN_ROOT/results/**"
   },
@@ -17355,6 +17355,52 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:group:transfer_owner_page:001",
+      "page": "lib/page/group/group_detail/transfer_owner_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 1 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:group:transfer_owner_page:002",
+      "page": "lib/page/group/group_detail/transfer_owner_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:live_room:live_room_list_page:001",
       "page": "lib/page/live_room/live_room_list/live_room_list_page.dart",
       "route_or_entry": "LiveRoomListPage",
@@ -28908,6 +28954,52 @@
       "source": "generated:module_page",
       "control": "menu_item",
       "action": "触发第 15 处 menu_item 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:organization_manage_page:016",
+      "page": "lib/modules/organization/presentation/organization_manage_page.dart",
+      "route_or_entry": "OrganizationManagePage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "button",
+      "action": "触发第 16 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:organization:organization_manage_page:017",
+      "page": "lib/modules/organization/presentation/organization_manage_page.dart",
+      "route_or_entry": "OrganizationManagePage",
+      "route_registered": true,
+      "source": "generated:module_page",
+      "control": "menu_item",
+      "action": "触发第 17 处 menu_item 交互入口",
       "expected_oracle": "expect(<控件可观察状态>)",
       "details": "GENERATED_ORACLE_PLACEHOLDER; module page static extraction",
       "platforms": [
@@ -46657,6 +46749,98 @@
       "exclusion_code": null
     },
     {
+      "function_id": "fn:workspace:workspace_group_create_page:001",
+      "page": "lib/page/workspace/workspace_group_create_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "text_field",
+      "action": "触发第 1 处 text_field 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace:workspace_group_create_page:002",
+      "page": "lib/page/workspace/workspace_group_create_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 2 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace:workspace_group_create_page:003",
+      "page": "lib/page/workspace/workspace_group_create_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 3 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
+      "function_id": "fn:workspace:workspace_group_create_page:004",
+      "page": "lib/page/workspace/workspace_group_create_page.dart",
+      "route_or_entry": "in_page_control",
+      "route_registered": false,
+      "source": "generated:lib_page",
+      "control": "button",
+      "action": "触发第 4 处 button 交互入口",
+      "expected_oracle": "expect(<控件可观察状态>)",
+      "details": "GENERATED_ORACLE_PLACEHOLDER; lib page static extraction",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "requirements": [
+        "device.android",
+        "device.macos"
+      ],
+      "fixture": "pending:authorized-isolated",
+      "test_target": null,
+      "disposition": "required",
+      "exclusion_code": null
+    },
+    {
       "function_id": "fn:workspace:workspace_groups_page:001",
       "page": "lib/page/workspace/workspace_groups_page.dart",
       "route_or_entry": "in_page_control",
@@ -48845,7 +49029,7 @@
     {
       "page": "lib/modules/organization/presentation/organization_manage_page.dart",
       "module": "organization",
-      "function_count": 15,
+      "function_count": 17,
       "route_registered": true,
       "has_ledger": false,
       "ledger_generated": false
@@ -49432,6 +49616,14 @@
       "function_count": 10,
       "route_registered": true,
       "has_ledger": true,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/group/group_detail/transfer_owner_page.dart",
+      "module": "group",
+      "function_count": 2,
+      "route_registered": false,
+      "has_ledger": false,
       "ledger_generated": false
     },
     {
@@ -50280,6 +50472,14 @@
       "function_count": 10,
       "route_registered": true,
       "has_ledger": true,
+      "ledger_generated": false
+    },
+    {
+      "page": "lib/page/workspace/workspace_group_create_page.dart",
+      "module": "workspace",
+      "function_count": 4,
+      "route_registered": false,
+      "has_ledger": false,
       "ledger_generated": false
     },
     {
