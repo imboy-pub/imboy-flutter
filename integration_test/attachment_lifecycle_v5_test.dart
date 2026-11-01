@@ -101,6 +101,11 @@ const Set<String> _twoPhaseScenarios = {
   'unknown_history_retained',
   'physical_device_restart',
   'physical_device',
+  // W6-02 flutter-recovery-real archived leaves: two-phase by contract; the
+  // case dispatch folds them onto the kill_after_registered / kill_after_put
+  // flows (see the gate folding map comment at the top of this file).
+  'restart_before_put',
+  'same_key_same_ciphertext_after_restart',
 };
 
 class _PutPhasePaused implements Exception {}
@@ -398,6 +403,10 @@ Future<void> _runScenario(String scenario, WidgetTester tester) async {
       return _physicalDeviceRestart(tester, ctx);
     case 'physical_device':
       return _physicalDevice(tester, ctx);
+    case 'restart_before_put':
+      return _restartBeforePut(tester, ctx);
+    case 'same_key_same_ciphertext_after_restart':
+      return _sameKeySameCiphertextAfterRestart(tester, ctx);
   }
   fail('unhandled scenario $scenario');
 }
@@ -469,6 +478,8 @@ String _scenarioTaskId(String scenario) {
     'unknown_history_retained': '0d',
     'physical_device_restart': '0e',
     'physical_device': '0f',
+    'restart_before_put': '10',
+    'same_key_same_ciphertext_after_restart': '11',
   };
   final code = codes[scenario];
   expect(code, isNotNull, reason: 'no scenario code for $scenario');
@@ -1219,6 +1230,78 @@ Future<void> _physicalDevice(WidgetTester tester, _ScenarioCtx ctx) async {
   );
   expect(done.objectKey, before.objectKey);
   expect(done.ciphertextSha256, before.ciphertextSha256);
+  expect(done.plainSha256, before.plainSha256);
+}
+
+/// W6-02 archived restart_before_put (蓝本 t7): 注册（材料落盘、源已缓存）
+/// 后、任何网络阶段前被杀；恢复必须收敛到 confirmed 且密文一致。折到
+/// kill_after_registered 流，仅换本场景自己的 task row。
+Future<void> _restartBeforePut(WidgetTester tester, _ScenarioCtx ctx) async {
+  const scenario = 'restart_before_put';
+  if (_phase == 'put') {
+    await _uploadScenarioTask(
+      tester,
+      uploader: _scenarioUploader(),
+      scenario: scenario,
+      prepareOnly: true,
+    );
+    final row = await _scenarioRow(tester, ctx.repo, scenario);
+    expect(row.stage, AttachmentUploadStage.pending);
+    expect(row.objectKey, isNull, reason: 'presign must not have run');
+    expect(row.uploadPath, isNotNull);
+    expect(
+      await tester.runAsync(() => File(row.uploadPath!).exists()),
+      isTrue,
+      reason: 'registered source must be durably cached',
+    );
+    _killReady(scenario);
+    return;
+  }
+  final before = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(before.userId, _uid);
+  final done = await _awaitScenarioStage(
+    tester,
+    repo: ctx.repo,
+    scenario: scenario,
+    stage: AttachmentUploadStage.confirmed,
+  );
+  expect(done.objectKey, isNotNull);
+  expect(done.ciphertextSha256, isNotNull);
+  expect(done.plainSha256, before.plainSha256);
+}
+
+/// W6-02 archived same_key_same_ciphertext_after_restart (蓝本 t13): putDone
+/// 后被杀；恢复重放同 key 且服务端收到的密文/密文 hash 与重启前一致。折到
+/// kill_after_put 流，仅换本场景自己的 task row。
+Future<void> _sameKeySameCiphertextAfterRestart(
+  WidgetTester tester,
+  _ScenarioCtx ctx,
+) async {
+  const scenario = 'same_key_same_ciphertext_after_restart';
+  if (_phase == 'put') {
+    await _parkAtPutDone(
+      tester,
+      ctx: ctx,
+      uploader: _scenarioUploader(),
+      scenario: scenario,
+    );
+    _killReady(scenario);
+    return;
+  }
+  final before = await _scenarioRow(tester, ctx.repo, scenario);
+  expect(before.userId, _uid);
+  final done = await _awaitScenarioStage(
+    tester,
+    repo: ctx.repo,
+    scenario: scenario,
+    stage: AttachmentUploadStage.confirmed,
+  );
+  expect(done.objectKey, before.objectKey, reason: 'same key across restart');
+  expect(
+    done.ciphertextSha256,
+    before.ciphertextSha256,
+    reason: 'same ciphertext across restart',
+  );
   expect(done.plainSha256, before.plainSha256);
 }
 
