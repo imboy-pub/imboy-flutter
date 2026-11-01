@@ -24,9 +24,11 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart' show MethodChannel;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -86,6 +88,26 @@ void main() {
     // 未初始化会抛异常成为未处理异步错误
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    // quitLogin 内部会做 E2EE purge：purgeArtifacts 经 path_provider 通道
+    // 枚举临时/缓存目录，键清理经 flutter_secure_storage 通道。单测缺这两
+    // 个 mock 会让 _clearLogin 走 purgeFailed → return false → _endAuth
+    // Transition(false) 把 _authTransitionFailed 闩存为 true，后续 403/409
+    // 探针在 _requireSession 处被 fail-closed 拦成 _SessionChanged（镜像
+    // 409），错误映射用例必然假失败。
+    final purgeDir = Directory.systemTemp.createTempSync('imboy_a03_purge');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.flutter.io/path_provider'),
+          (call) async => purgeDir.path,
+        );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (call) async {
+            if (call.method == 'readAll') return <String, String>{};
+            return null;
+          },
+        );
   });
 
   /// 换出口 + 用例结束恢复；返回记录型 adapter 供断言。
