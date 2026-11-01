@@ -176,8 +176,9 @@ jobs:
             s/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g;
             s/"CODE_SIGN_IDENTITY\[sdk=macosx\*\]" = "Apple Development";/"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";/g;
             s/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g;
+            s/MACOSX_DEPLOYMENT_TARGET = "\$\(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET\)";/MACOSX_DEPLOYMENT_TARGET = 12.4;/g;
           ' "$PBX"
-          LEFT=$(grep -c 'Apple Development\|CODE_SIGN_STYLE = Automatic\|ProvisioningStyle = Automatic' "$PBX" || true)
+          LEFT=$(grep -c 'Apple Development\|CODE_SIGN_STYLE = Automatic\|ProvisioningStyle = Automatic\|RECOMMENDED_MACOSX_DEPLOYMENT_TARGET' "$PBX" || true)
           echo "unpatched signing leftovers: $LEFT"
           [ "$LEFT" = "0" ]
 
