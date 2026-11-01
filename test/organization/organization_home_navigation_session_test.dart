@@ -68,6 +68,11 @@ void main() {
     await StorageService.init();
     // Initialize the serialized session queue outside the widget fake-async zone.
     UserRepoLocal.to.sessionGeneration;
+    // A failed loginAfter (stale-session fixture) latches the auth-transition
+    // failure flag on the shared singleton; requests would be refused with a
+    // synthetic 409 for every later case in this file. Reset per test, same
+    // precedent as test/unit_test/component/http/http_session_side_effect_test.dart.
+    UserRepoLocal.to.clearAuthTransitionFailureForTest();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
           const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),

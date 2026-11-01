@@ -76,6 +76,10 @@ void main() {
     PathProviderPlatform.instance = _OwnedCachePaths(cache.path);
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
+    // UserRepoLocal 是进程级单例：前序用例失败的 loginAfter 会留下
+    // _authTransitionFailed latch（isAuthTransitioning 变 true），
+    // 不复位会让后续受保护请求在发出前被 _requireSession 短路成 409。
+    repo.clearAuthTransitionFailureForTest();
     secure = {};
     requests.clear();
     transport = () async => ResponseBody.fromString(
