@@ -112,6 +112,10 @@ void main() {
     'unknown version': {
       'list_contracts': {'create_request_id': 2},
     },
+    // 最易误配的形态：布尔 true（恰为整数 1 之外一律不启用，J27.b 精度）。
+    'non-integer flag': {
+      'list_contracts': {'create_request_id': true},
+    },
   }.entries) {
     testWidgets('J27.f: ${contract.key} keeps the legacy subscribed list', (
       tester,

@@ -5,12 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
+import 'package:imboy/page/channel/channel_di_provider.dart';
 import 'package:imboy/page/channel/channel_provider.dart';
+import 'package:imboy/page/channel/widgets/channel_publish_bar.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/channel_service.dart';
 import 'package:imboy/service/events/channel_events.dart';
 import 'package:imboy/service/events/common_events.dart';
+import 'package:imboy/store/api/channel_api.dart';
 import 'package:imboy/store/model/channel_message_model.dart';
+import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
 class _TestChannelDetailNotifier extends ChannelDetailNotifier {
@@ -101,6 +105,78 @@ ChannelModel _buildChannel() {
     userRole: ChannelUserRole.admin,
     isSubscribed: true,
   );
+}
+
+/// J10.a 用：受保护（workspace）频道 + 可发布角色，供写入口断言。
+ChannelModel _protectedChannel() => ChannelModel(
+  id: 41,
+  scope: 'workspace',
+  workspaceId: '1',
+  name: 'private-ws',
+  creatorId: 1,
+  userRole: ChannelUserRole.creator,
+  isSubscribed: true,
+  createdAt: DateTime.utc(2026),
+  updatedAt: DateTime.utc(2026),
+);
+
+ChannelPageResult<ChannelMessageModel> _emptyMessagePage() =>
+    const ChannelPageResult(list: [], nextCursor: null, hasMore: false);
+
+/// J10.a 用：消息请求逐段延迟，可在撤权事件后精确续放。
+class _StagedMessagesApi extends ChannelApi {
+  final requests = <Completer<ChannelPageResult<ChannelMessageModel>>>[];
+  @override
+  Future<ChannelPageResult<ChannelMessageModel>> getMessagesPage({
+    required String channelId,
+    String? cursor,
+    int limit = 20,
+  }) {
+    final reply = Completer<ChannelPageResult<ChannelMessageModel>>();
+    requests.add(reply);
+    return reply.future;
+  }
+}
+
+/// J10.a 用：详情缓存/刷新逐段延迟，支持撤权后补放旧响应。
+class _StagedDetailService extends Fake implements ChannelService {
+  final cache = <Completer<ChannelModel?>>[];
+  final details = <Completer<ChannelModel?>>[];
+
+  Completer<ChannelModel?> _issue(List<Completer<ChannelModel?>> queue) {
+    final reply = Completer<ChannelModel?>();
+    queue.add(reply);
+    return reply;
+  }
+
+  @override
+  Future<ChannelModel?> getChannel(String id, {bool Function()? isCurrent}) =>
+      _issue(cache).future;
+
+  @override
+  Future<ChannelModel?> refreshChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) => _issue(details).future;
+
+  @override
+  Future<ChannelModel?> refreshChannelChecked(
+    String id, {
+    bool Function()? isCurrent,
+  }) => refreshChannel(id, isCurrent: isCurrent);
+
+  @override
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async {}
+
+  @override
+  bool hasPendingSubscription(String channelId) => false;
+
+  @override
+  Future<ChannelSubscriptionModel?> getSubscription(String channelId) async =>
+      null;
 }
 
 void main() {
@@ -335,5 +411,78 @@ void main() {
 
     expect(find.text('Test message'), findsNothing);
     expect(find.text('Edited message'), findsOneWidget);
+  });
+
+  testWidgets('J10.a 前台保护页：权威撤权后旧响应完成不恢复内容与写入口', (tester) async {
+    final service = _StagedDetailService();
+    final api = _StagedMessagesApi();
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [
+            channelServiceProvider.overrideWithValue(service),
+            channelApiProvider.overrideWithValue(api),
+          ],
+          child: MaterialApp(
+            home: const ChannelDetailPage(
+              channelId: '41',
+              autoLoadStats: false,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(ChannelDetailPage)),
+    );
+
+    // 初始授权加载：受保护频道经权威校验后呈现，写入口（发布条）在位。
+    service.cache.removeAt(0).complete(_protectedChannel());
+    await tester.pump();
+    service.details.removeAt(0).complete(_protectedChannel());
+    await tester.pump();
+    expect(api.requests, hasLength(1));
+    api.requests.single.complete(_emptyMessagePage());
+    await tester.pumpAndSettle();
+    expect(find.text('private-ws'), findsWidgets);
+    expect(find.byType(ChannelPublishBar), findsOneWidget);
+
+    // 同资源刷新在途（旧代次请求，尚未完成）。
+    final staleRefresh = container
+        .read(channelDetailProvider.notifier)
+        .loadChannel('41');
+    await tester.pump();
+    expect(service.cache, hasLength(1));
+    service.cache.removeAt(0).complete(_protectedChannel());
+    await tester.pump();
+    expect(service.details, hasLength(1));
+
+    // 权威撤权事件先于旧响应完成到达：撤内容和写入口。
+    AppEventBus.fire(
+      const ChannelStateChangedEvent(
+        channelId: '41',
+        action: 'channel_deleted',
+        payload: {},
+      ),
+    );
+    await tester.pump();
+    final revoked = container.read(channelDetailProvider);
+    expect(revoked.channel, isNull);
+    expect(revoked.messages, isEmpty);
+    expect(revoked.error, isNotNull);
+    expect(find.byType(ChannelPublishBar), findsNothing);
+    expect(find.text('private-ws'), findsNothing);
+
+    // 旧代次响应此刻完成：不得恢复内容与写入口。
+    service.details.removeAt(0).complete(_protectedChannel());
+    await staleRefresh;
+    await tester.pumpAndSettle();
+    final restored = container.read(channelDetailProvider);
+    expect(restored.channel, isNull);
+    expect(restored.messages, isEmpty);
+    expect(restored.error, isNotNull);
+    expect(find.byType(ChannelPublishBar), findsNothing);
+    expect(find.text('private-ws'), findsNothing);
   });
 }

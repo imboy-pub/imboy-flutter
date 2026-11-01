@@ -204,4 +204,99 @@ void main() {
       expect(copy.error, isNull);
     });
   });
+
+  // ── J06.a 两个Tab集合/条件隔离（AS 落点：provider 状态层）────────────────
+  // 页面两 Tab（订阅/管理）共享 ChannelListNotifier，集合隔离由
+  // ChannelListState.channels（订阅侧，含游标）与 .managed（管理侧子状态）
+  // 两个字段承载；copyWith 任一侧不得覆写另一侧。
+  group('J06.a 两Tab集合隔离（channels vs managed 子状态）', () {
+    test('更新订阅侧 channels 不覆写 managed 集合', () {
+      const state = ChannelListState();
+      final withManaged = state.copyWith(
+        managed: ChannelListState(channels: [_channel(20)]),
+      );
+      final updated = withManaged.copyWith(channels: [_channel(10)]);
+      expect(updated.channels.map((c) => c.id), ['10']);
+      expect(updated.managed.channels.map((c) => c.id), [
+        '20',
+      ], reason: '管理Tab集合不受订阅侧更新影响');
+    });
+
+    test('更新 managed 子状态不覆写订阅侧集合与游标', () {
+      final state = const ChannelListState().copyWith(
+        channels: [_channel(10)],
+        cursor: 'c1',
+        hasMore: true,
+      );
+      final updated = state.copyWith(
+        managed: ChannelListState(channels: [_channel(20)]),
+      );
+      expect(updated.managed.channels.map((c) => c.id), ['20']);
+      expect(updated.channels.map((c) => c.id), ['10']);
+      expect(updated.cursor, 'c1');
+      expect(updated.hasMore, isTrue, reason: '游标/hasMore 只属于订阅侧分页');
+    });
+
+    test('clearCursor 只清除订阅侧游标，不影响 managed', () {
+      final state = const ChannelListState().copyWith(
+        channels: [_channel(10)],
+        cursor: 'c1',
+        managed: ChannelListState(channels: [_channel(20)]),
+      );
+      final cleared = state.copyWith(clearCursor: true);
+      expect(cleared.cursor, isNull);
+      expect(cleared.channels.map((c) => c.id), ['10']);
+      expect(cleared.managed.channels.map((c) => c.id), [
+        '20',
+      ], reason: '管理Tab集合与其状态在订阅侧代次切换时保持独立');
+    });
+  });
+
+  // ── J08.a 账号切换不写错账号库（AS 落点：状态清空契约）──────────────────
+  // 账号/会话代次切换时 ChannelListNotifier._ensureAccount 将整个状态重置为
+  // ChannelListState()——状态层契约：重置后不得残留上一账号的集合、游标、
+  // managed 子状态或错误文案；详情侧 clearChannel 同理。
+  group('J08.a 账号代次清空契约（状态层不残留旧账号片段）', () {
+    test('ChannelListState 重置为默认值后无任何旧集合/游标/managed/error 残留', () {
+      const ChannelListState().copyWith(
+        channels: [_channel(10)],
+        cursor: 'old-account-cursor',
+        hasMore: true,
+        error: 'old error',
+        managed: ChannelListState(channels: [_channel(20)]),
+      );
+      // 账号切换的载体是整状态替换（const ChannelListState()）。
+      const reset = ChannelListState();
+      expect(reset.channels, isEmpty, reason: '不得残留旧账号订阅集合');
+      expect(reset.cursor, isNull, reason: '不得残留旧账号分页游标');
+      expect(reset.hasMore, isFalse);
+      expect(reset.error, isNull);
+      expect(reset.managed.channels, isEmpty, reason: '不得残留旧账号管理集合');
+      expect(reset.managed.cursor, isNull);
+      expect(reset.syncError, isFalse);
+    });
+
+    test('managed 子状态置换时旧 managed 游标/错误不携带进新代次', () {
+      final staleManaged = const ChannelListState().copyWith(
+        managed: ChannelListState(
+          channels: [_channel(20)],
+          cursor: 'managed-stale',
+          error: 'managed-stale-error',
+        ),
+      );
+      final fresh = staleManaged.copyWith(
+        managed: ChannelListState(channels: [_channel(21)]),
+      );
+      expect(fresh.managed.channels.map((c) => c.id), ['21']);
+      expect(fresh.managed.cursor, isNull);
+      expect(fresh.managed.error, isNull);
+    });
+
+    test('ChannelDetailState.clearChannel 使旧账号/旧目标 channel 置 null', () {
+      final oldTarget = ChannelDetailState(channel: _channel(10));
+      final cleared = oldTarget.copyWith(clearChannel: true);
+      expect(cleared.channel, isNull, reason: '切号/切目标后不得残留旧详情资源');
+      expect(cleared.messages, isEmpty);
+    });
+  });
 }

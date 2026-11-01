@@ -1099,7 +1099,262 @@ void main() {
       );
     });
   });
+
+  // ── J07.a 详情A/B叠页：A晚返回、返回A后发布目标同资源 ────────────────────
+  group('J07.a 叠页A/B：晚返回与返回后发布目标同资源', () {
+    test('A→B(晚返回)→返回A恢复快照，发布写回A且B迟到结果不覆盖', () async {
+      final service = _J07abService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(_SnapshotSwitchApi()),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      final notifier = container.read(channelDetailProvider.notifier);
+
+      // 1. A（personal，可发布角色）加载完成。
+      await notifier.loadChannel('11');
+      expect(container.read(channelDetailProvider).channel?.id, '11');
+
+      // 2. 叠页 B：refresh 挂起（晚返回）。切换瞬间同步保存 A 快照。
+      final loadB = notifier.loadChannel('22');
+      expect(
+        notifier.debugSnapshotFor('11')?.channel?.id,
+        '11',
+        reason: '切到 B 前必须保存 A 的完整状态',
+      );
+      expect(container.read(channelDetailProvider).channel, isNull);
+
+      // 3. 返回 A：同步恢复快照，不得闪现 B/清空态。
+      final loadA = notifier.loadChannel('11');
+      expect(container.read(channelDetailProvider).channel?.id, '11');
+      expect(container.read(channelDetailProvider).isLoading, isFalse);
+      await loadA;
+
+      // 4. 返回 A 后发布：发布目标必须与当前页面同为 A，而非叠页 B。
+      final publish = notifier.publishMessage(
+        content: 'back-on-a',
+        msgType: 'channel_text',
+      );
+      await _flushCursorFutures();
+      expect(service.publishCalls, ['11'], reason: '发布目标必须同资源（当前 A）');
+      service.publishGate.complete(
+        ChannelMessageModel(
+          id: 700,
+          channelId: 11,
+          content: 'back-on-a',
+          msgType: 'channel_text',
+          createdAt: DateTime.utc(2026),
+        ),
+      );
+      expect(await publish, isTrue);
+      expect(
+        container.read(channelDetailProvider).messages.first.content,
+        'back-on-a',
+      );
+
+      // 5. B 迟到返回（null）：不得覆盖已回到 A 的页面状态。
+      service.refreshBGate.complete(null);
+      await loadB;
+      expect(container.read(channelDetailProvider).channel?.id, '11');
+      expect(
+        container.read(channelDetailProvider).messages.first.content,
+        'back-on-a',
+        reason: 'B 迟到返回不得清掉 A 上刚发布的内容',
+      );
+    });
+  });
+
+  // ── J09.a 有资格资源：详情/消息 503、403、404、成功空四态 ────────────────
+  group('J09.a 详情与消息错误四态（503/403/404/成功空）', () {
+    test('详情 503 保留缓存内容（暂不可用），403/404 拒绝且不走缓存成功', () async {
+      for (final code in [503, 403, 404]) {
+        final api = _DeferredCursorApi();
+        final service = _DeferredChannelService();
+        final container = ProviderContainer(
+          overrides: [
+            channelApiProvider.overrideWithValue(api),
+            channelServiceProvider.overrideWithValue(service),
+          ],
+        );
+        addTearDown(container.dispose);
+        _watchCursorProvider(container);
+        // 缓存命中先展示，随后权威刷新按错误码区分处置。
+        service.cache['41']!.complete(_cursorChannel(41));
+        final load = container
+            .read(channelDetailProvider.notifier)
+            .loadChannel('41');
+        final request = await _cursorRequest(
+          api,
+          0,
+          channelId: '41',
+          cursor: null,
+        );
+        request.result.complete(_cursorPage(41, [1], next: null));
+        await _flushCursorFutures();
+        service.details['41']!.completeError(
+          http.BadRequestException(code: code, message: 'unavailable'),
+        );
+        await load;
+        final state = container.read(channelDetailProvider);
+        if (code == 503) {
+          expect(state.channel?.id, '41', reason: '503 暂不可用：保留缓存内容与消息，可重试');
+          expect(state.messages, hasLength(1));
+        } else {
+          expect(state.channel, isNull, reason: '$code 拒绝：不得拿缓存冒充成功');
+          expect(state.messages, isEmpty);
+          expect(state.error, isNotNull, reason: '$code 必须有明确错误态');
+        }
+      }
+    });
+
+    test('详情刷新成功空（合法频道）不报错；消息成功空列表合法', () async {
+      final api = _DeferredCursorApi();
+      final service = _DeferredChannelService();
+      final container = ProviderContainer(
+        overrides: [
+          channelApiProvider.overrideWithValue(api),
+          channelServiceProvider.overrideWithValue(service),
+        ],
+      );
+      addTearDown(container.dispose);
+      _watchCursorProvider(container);
+      service.cache['41']!.complete(_cursorChannel(41));
+      final load = container
+          .read(channelDetailProvider.notifier)
+          .loadChannel('41');
+      // 成功空首页：频道合法但暂无消息。
+      final request = await _cursorRequest(
+        api,
+        0,
+        channelId: '41',
+        cursor: null,
+      );
+      request.result.complete(_cursorPage(41, [], next: null));
+      await _flushCursorFutures();
+      service.details['41']!.complete(_cursorChannel(41));
+      // 详情成功后 loadChannel 发起第二次静默消息刷新，同样成功空。
+      final silent = await _cursorRequest(
+        api,
+        1,
+        channelId: '41',
+        cursor: null,
+      );
+      silent.result.complete(_cursorPage(41, [], next: null));
+      await load;
+      final state = container.read(channelDetailProvider);
+      expect(state.channel?.id, '41');
+      expect(state.messages, isEmpty, reason: '成功空列表是合法状态');
+      expect(state.error, isNull, reason: '成功空不得展示错误文案');
+      expect(state.hasMore, isFalse);
+    });
+
+    for (final code in [503, 403, 404]) {
+      test('消息错误 $code：置错误且不虚增/不清空既有消息，不做缓存假成功', () async {
+        final api = _DeferredCursorApi();
+        final service = _DeferredChannelService();
+        final container = ProviderContainer(
+          overrides: [
+            channelApiProvider.overrideWithValue(api),
+            channelServiceProvider.overrideWithValue(service),
+          ],
+        );
+        addTearDown(container.dispose);
+        _watchCursorProvider(container);
+        final notifier = container.read(channelDetailProvider.notifier);
+        notifier.debugSetChannelId('41');
+        // 首页请求挂起 → 完成两消息。
+        final load = notifier.loadMessages('41');
+        final first = await _cursorRequest(
+          api,
+          0,
+          channelId: '41',
+          cursor: null,
+        );
+        first.result.complete(_cursorPage(41, [1, 2], next: null));
+        await load;
+        expect(container.read(channelDetailProvider).messages, hasLength(2));
+        // 刷新（新代次首页）失败：错误可见；既有消息不冒充新数据成功。
+        final retryLoad = notifier.loadMessages('41');
+        final retry = await _cursorRequest(
+          api,
+          1,
+          channelId: '41',
+          cursor: null,
+        );
+        retry.result.completeError(
+          http.BadRequestException(code: code, message: 'unavailable'),
+        );
+        await retryLoad;
+        final state = container.read(channelDetailProvider);
+        expect(state.error, isNotNull, reason: '$code 必须有安全错误文案');
+        expect(state.messages.map((m) => m.id), [
+          '1',
+          '2',
+        ], reason: '失败不得伪造新消息，也不得静默清空既有内容');
+      });
+    }
+  });
 }
+
+/// J07.a 专用：A=personal 可发布即时返回；B refresh 挂起可晚返回；
+/// 记录发布目标。
+class _J07abService extends Fake implements ChannelService {
+  final publishCalls = <String>[];
+  final publishGate = Completer<ChannelMessageModel?>();
+  final refreshBGate = Completer<ChannelModel?>();
+
+  @override
+  Future<ChannelModel?> getChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) async => id == '11' ? _j07Channel() : null;
+
+  @override
+  Future<ChannelModel?> refreshChannel(
+    String id, {
+    bool Function()? isCurrent,
+  }) {
+    if (id == '11') return Future.value(_j07Channel());
+    return refreshBGate.future;
+  }
+
+  @override
+  Future<ChannelModel?> refreshChannelChecked(
+    String id, {
+    bool Function()? isCurrent,
+  }) => refreshChannel(id, isCurrent: isCurrent);
+
+  @override
+  Future<void> cacheChannelSnapshot(
+    ChannelModel channel, {
+    bool Function()? isCurrent,
+  }) async {}
+
+  @override
+  Future<ChannelMessageModel?> publishMessage({
+    required String channelId,
+    required String content,
+    required String msgType,
+    Map<String, dynamic>? payload,
+    String? requestId,
+  }) {
+    publishCalls.add(channelId);
+    return publishGate.future;
+  }
+}
+
+ChannelModel _j07Channel() => ChannelModel(
+  id: 11,
+  scope: 'personal',
+  name: 'snapshot-11',
+  creatorId: 1,
+  userRole: ChannelUserRole.creator,
+  createdAt: DateTime.utc(2026),
+  updatedAt: DateTime.utc(2026),
+);
 
 class _CursorChannelApi extends ChannelApi {
   final requests = <({String channel, String? cursor})>[];
