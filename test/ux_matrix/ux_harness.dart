@@ -202,9 +202,19 @@ Widget uxHost(Widget page, UxCombo combo) {
 
 /// bootstrap 链路（token / dio 拦截器）含真实异步，fakeAsync pump 推不动：
 /// runAsync 放行真实时间，再 pump 反映状态（对齐既有 CS widget 测试）。
+///
+/// 有界纪律：真实时间窗的兜底必须放在 runAsync **内部**——外层
+/// FakeAsync 里的 `.timeout` 是假时钟定时器，只被 pump 推进，防不住
+/// 真实事件循环被卡；内层真实时钟 10s 上限保证任何卡死都降级为
+/// TimeoutException 失败（带现场），而不是永久挂住用例。
 Future<void> settleUx(WidgetTester tester) async {
   await tester.runAsync(() async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
+    await Future<void>.delayed(const Duration(milliseconds: 400)).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => throw TimeoutException(
+        'settleUx: 真实时钟窗口超 10s 未完成（runAsync 真实事件循环被卡）',
+      ),
+    );
   });
   for (var i = 0; i < 6; i++) {
     await tester.pump(const Duration(milliseconds: 50));

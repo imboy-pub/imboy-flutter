@@ -45,6 +45,14 @@ const List<Size> kPlanViewportSweep = [
 /// textScale 冻结档。
 const List<double> kPlanTextScales = [1.0, 1.3, 2.0];
 
+/// testWidgets 在自动化 binding 下默认 Timeout.none：任何形态的死等
+/// （含设备进程级卡死）都会永久挂住整个 flutter test 会话——T19 曾在
+/// 1171 文件全量跑于本文件末用例处挂死 ~10 分钟直至人工 kill。
+/// 本文件所有用例统一加 3 分钟 runner 兜底：触发即失败并保留现场，
+/// 由 runner 强杀设备回收，不再静默挂死。常态单用例矩阵 sweep 约
+/// 1-5s，3 分钟 ≈ 常态 36 倍以上，不会误伤慢机。
+const Timeout kPlanMatrixTestTimeout = Timeout(Duration(minutes: 3));
+
 // ---------- fixture / fake ----------
 
 ChannelModel _channel(int id, String name) {
@@ -201,7 +209,7 @@ void main() {
         child: const ChannelListPage(),
       );
     }, contentProbe: find.text('工程效率双周刊'));
-  });
+  }, timeout: kPlanMatrixTestTimeout);
 
   testWidgets('T19 矩阵：GroupListPage（T11/T13 改造面）', (tester) async {
     await _runMatrix(tester, 'GroupListPage', (combo) {
@@ -212,7 +220,7 @@ void main() {
         child: const GroupListPage(),
       );
     }, contentProbe: find.text('产品研发群'));
-  });
+  }, timeout: kPlanMatrixTestTimeout);
 
   testWidgets('T19 矩阵：OrganizationPickerPage（T07 改造面）+ 热区', (tester) async {
     await initUxHarness();
@@ -261,7 +269,7 @@ void main() {
         reason: 'T19 热区：$key 高度 ${rect.height} < 48',
       );
     }
-  });
+  }, timeout: kPlanMatrixTestTimeout);
 
   testWidgets('T19 矩阵：GroupInfoCard（T12 改造面，组件级）', (tester) async {
     await _runMatrix(
@@ -270,7 +278,7 @@ void main() {
       (combo) => SingleChildScrollView(child: _groupInfoCard()),
       contentProbe: find.text('产品研发群'),
     );
-  });
+  }, timeout: kPlanMatrixTestTimeout);
 
   testWidgets('T19 热区：频道列表分类标签 ≥48 逻辑像素高', (tester) async {
     await initUxHarness();
@@ -293,7 +301,7 @@ void main() {
       greaterThanOrEqualTo(48),
       reason: 'T19 热区：频道列表分类高度 ${segRect.height} < 48',
     );
-  });
+  }, timeout: kPlanMatrixTestTimeout);
 
   testWidgets('T19 热区：群列表分段控件 ≥48 逻辑像素高', (tester) async {
     await initUxHarness();
@@ -318,5 +326,5 @@ void main() {
       greaterThanOrEqualTo(48),
       reason: 'T19 热区：群列表分段高度 ${gRect.height} < 48',
     );
-  });
+  }, timeout: kPlanMatrixTestTimeout);
 }
