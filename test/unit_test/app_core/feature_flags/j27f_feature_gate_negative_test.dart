@@ -18,7 +18,7 @@ import 'package:imboy/service/storage.dart';
 ///      远程 snapshot 任何值都不能启用（fail-closed）。
 ///   2. 远程关闭 / 畸形合同值：channel 父门 false、flag 值不可解析 →
 ///      refresh 拒绝发布、isEnabled false、路由 checkBlocked 拒绝。
-///   3. 旧合法读明确：负例状态下未受门控的旧路径（/chat/<id>、旧 C2C）
+///   3. 旧合法读明确：负例状态下未受门控的旧路径（`/chat/<id>`、旧 C2C）
 ///      明确放行，负例不误伤 legacy 读。
 ///
 /// 独立文件隔离 FeatureScope / manifest / SharedPreferences 全局状态。

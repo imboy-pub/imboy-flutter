@@ -33,7 +33,6 @@ import 'package:imboy/service/creation_receipt/creation_receipt_flow.dart';
 import 'package:imboy/service/creation_receipt/group_creation_receipt_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/group_api.dart';
-import 'package:imboy/store/model/workspace_model.dart' show EntityId;
 
 const MethodChannel _secureStorage = MethodChannel(
   'plugins.it_nomads.com/flutter_secure_storage',
@@ -110,7 +109,7 @@ void main() {
       HttpClient.adapterForTest = adapter;
 
       final r = await GroupApi().createWorkspaceGroup(
-        workspaceId: '120619900000000004' as EntityId,
+        workspaceId: '120619900000000004',
         memberUserIds: const ['880101'],
       );
 

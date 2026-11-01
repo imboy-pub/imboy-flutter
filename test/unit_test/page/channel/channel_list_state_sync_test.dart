@@ -1030,7 +1030,7 @@ void main() {
   }) => {
     'list': [for (final c in list) c.toJson()],
     'has_more': hasMore,
-    if (cursor != null) 'next_cursor': cursor,
+    'next_cursor': ?cursor,
   };
 
   test('J20.a: 目录多页搜索交集——q 上送全范围请求、翻页仅带签名游标不回显 q、尾页私有合法对象按序并入', () async {

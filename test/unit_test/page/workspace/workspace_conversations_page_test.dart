@@ -47,7 +47,6 @@ class _Api extends WorkspaceApi {
   @override
   Future<List<WorkspaceConversationModel>> conversations(EntityId workspaceId) {
     calls.add(workspaceId);
-    print('CONV_CALL#${calls.length}\n${StackTrace.current}');
     final reply = Completer<List<WorkspaceConversationModel>>();
     pending.add(reply);
     return reply.future;

@@ -365,7 +365,7 @@ void main() {
     // 账号 A（setUp 绑定的 cache-test）加载 manifest 并落缓存。
     await AppManifestService.refresh();
     final keyA = FeatureScope.cacheKey(Keys.appManifest);
-    expect(StorageService.getMap(keyA)?['etag'], '"synthetic-manifest"');
+    expect(StorageService.getMap(keyA)['etag'], '"synthetic-manifest"');
 
     // 挂起账号 B 的 refresh（构造迟到响应向量）。
     final gate = Completer<Response<dynamic>>();
@@ -414,8 +414,8 @@ void main() {
     expect(await refresh, isFalse);
     expect(AppManifestService.manifest, isNull, reason: '迟到响应不得安装进当前 scope');
     // A 的缓存不被迟到响应覆盖，原值原样保留。
-    expect(StorageService.getMap(keyA)?['etag'], '"synthetic-manifest"');
-    expect(StorageService.getMap(keyA)?['body'], isNotNull);
+    expect(StorageService.getMap(keyA)['etag'], '"synthetic-manifest"');
+    expect(StorageService.getMap(keyA)['body'], isNotNull);
     expect(StorageService.getMap(keyB), isEmpty, reason: 'B 的缓存库不得被迟到响应写入');
   });
 
