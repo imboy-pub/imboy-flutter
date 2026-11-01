@@ -11,10 +11,12 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart' show CupertinoButton;
+import 'package:flutter/cupertino.dart'
+    show CupertinoAlertDialog, CupertinoButton;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:dio/dio.dart';
 
 import 'package:imboy/component/http/http_client.dart';
@@ -38,6 +40,20 @@ import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/user_model.dart';
 import 'package:imboy/store/model/workspace_model.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
+
+// J12.a：讨论入口绑定向量需要开门（ChannelMicroCommunityPolicy 读
+// manifest + registry 两个全局静态），沿 J27.f 先例在测试内替换并在
+// tearDown 复原。
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/app_manifest_service.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart'
+    show
+        compiledProductFeatures,
+        productFeatureManifestHash,
+        productFeatureSchemaVersion;
+import 'package:imboy/page/channel/widgets/channel_discussion_entry.dart';
+import 'package:go_router/go_router.dart';
 
 class _ChannelApi extends ChannelApi {
   @override
@@ -337,4 +353,279 @@ void main() {
     final appBarBottom = tester.getBottomRight(find.byType(AppBar)).dy;
     expect(bodyDy, greaterThanOrEqualTo(appBarBottom));
   });
+
+  group('J12.a 讨论入口绑定（plan §9：有/无/变更绑定；未入群不自动加入）', () {
+    void openChannelGate() {
+      // bindScope 必须先于 replaceForTest：bindScope 换 scope 会触发
+      // manifest 内存 _checkScope 清空，先定 scope 再写 manifest，
+      // 否则组内首个用例 reads=0（J12.a「无绑定」）。
+      AppFeatureRegistry.bindScope(
+        endpoint: 'http://127.0.0.1:29922',
+        uid: 'j12a-synthetic-account',
+      );
+      AppManifestService.replaceForTest({
+        'manifest_hash': productFeatureManifestHash,
+        'manifest_schema_version': productFeatureSchemaVersion,
+        'compiled_features': compiledProductFeatures,
+        'app_entries': ['channel_tab'],
+        'features': {FeatureKeys.channel: true},
+        'policy': {'profile': 'community'},
+      });
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.channel: true});
+    }
+
+    ChannelModel channel({
+      bool subscribed = true,
+      bool purchased = true,
+      Object? discussionGroupId = '7001',
+    }) => ChannelModel(
+      id: 9002,
+      scope: 'personal',
+      name: 'J12.a channel',
+      creatorId: 1,
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
+      visibility: 1,
+      accessType: 0,
+      joinPolicy: 1,
+      isSubscribed: subscribed,
+      hasPurchased: purchased,
+      discussionGroupId: discussionGroupId,
+    );
+
+    Future<_DiscussionApi> pumpEntry(
+      WidgetTester tester, {
+      required List<String?> bindings,
+      required ChannelModel channelModel,
+    }) async {
+      final api = _DiscussionApi(bindings);
+      final router = GoRouter(
+        initialLocation: '/j12a-entry',
+        routes: [
+          GoRoute(
+            path: '/j12a-entry',
+            builder: (_, _) =>
+                Scaffold(body: ChannelDiscussionEntry(channel: channelModel)),
+          ),
+          // 唯一准确目的地的探针：push 成功后渲染 chat-dest:<gid>。
+          GoRoute(
+            path: '/chat/:gid',
+            builder: (_, state) => Scaffold(
+              body: Text('chat-dest:${state.pathParameters['gid']}'),
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [channelApiProvider.overrideWithValue(api)],
+          child: TranslationProvider(
+            child: MaterialApp.router(
+              routerConfig: router,
+              builder: EasyLoading.init(),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      return api;
+    }
+
+    setUp(() {
+      AppFeatureRegistry.replaceSnapshotForTest({});
+    });
+
+    tearDown(() async {
+      await AppManifestService.clear();
+      AppFeatureRegistry.replaceSnapshotForTest({});
+    });
+
+    testWidgets('C-channel 功能门关闭：入口 fail-closed 不渲染、不读绑定', (tester) async {
+      // 合成部署 channel 功能未交付（§9.1 桶 7）；不开门即默认门关闭。
+      final api = await pumpEntry(
+        tester,
+        bindings: ['7001'],
+        channelModel: channel(),
+      );
+      expect(api.reads, 0, reason: '门关闭时不得发起绑定读');
+      expect(find.byKey(const Key('mc_discussion_join')), findsNothing);
+      expect(find.byKey(const Key('mc_discussion_retry')), findsNothing);
+      expect(find.text(t.channel.joinDiscussion), findsNothing);
+      expect(find.text(t.channel.discussionIneligible), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('无绑定：不渲染入口、不造讨论目的地', (tester) async {
+      openChannelGate();
+      final api = await pumpEntry(
+        tester,
+        bindings: [null],
+        channelModel: channel(discussionGroupId: null),
+      );
+      expect(api.reads, 1, reason: '门开时读一次真实绑定');
+      expect(find.byKey(const Key('mc_discussion_join')), findsNothing);
+      expect(find.text(t.channel.discussionIneligible), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('有绑定无资格（未订阅）：明确说明且不自动加入', (tester) async {
+      openChannelGate();
+      final api = await pumpEntry(
+        tester,
+        bindings: ['7001'],
+        channelModel: channel(subscribed: false),
+      );
+      expect(
+        find.text(t.channel.discussionIneligible),
+        findsOneWidget,
+        reason: 'W06/J12.a：资格不足必须明确说明，不静默隐藏',
+      );
+      expect(
+        find.byKey(const Key('mc_discussion_join')),
+        findsNothing,
+        reason: '无资格不得提供加入按钮',
+      );
+      expect(api.joinCalls, 0);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('未入群点击：取消不加入；确认进唯一绑定群不造 General', (tester) async {
+      openChannelGate();
+      final api = await pumpEntry(
+        tester,
+        bindings: ['7001'],
+        channelModel: channel(),
+      );
+      final joinButton = find.byKey(const Key('mc_discussion_join'));
+      expect(joinButton, findsOneWidget);
+
+      // 显式确认前绝不加入：取消分支零 join 调用、零导航。
+      await tester.tap(joinButton);
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+      await tester.tap(find.text(t.common.buttonCancel));
+      await tester.pumpAndSettle();
+      expect(api.joinCalls, 0, reason: '取消分支不得自动加入');
+      expect(find.textContaining('chat-dest:'), findsNothing);
+
+      // 确认分支：join 幂等回显同 gid → push 唯一绑定目的地 /chat/7001。
+      await tester.tap(joinButton);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('mc_join_confirm')));
+      await tester.pumpAndSettle();
+      expect(api.joinCalls, 1);
+      expect(
+        find.text('chat-dest:7001'),
+        findsOneWidget,
+        reason: '目的地只能是真实绑定 gid，不造 General',
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('变更绑定：确认时绑定漂移拒绝入群、零 join 调用、不导航', (tester) async {
+      openChannelGate();
+      final api = await pumpEntry(
+        tester,
+        bindings: const ['7001', '7002'],
+        channelModel: channel(),
+      );
+      await tester.tap(find.byKey(const Key('mc_discussion_join')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('mc_join_confirm')));
+      await tester.pumpAndSettle();
+      expect(api.joinCalls, 0, reason: '二次读取绑定与首次不一致必须拒绝，不得把人加进漂移后的群');
+      expect(find.textContaining('chat-dest:'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('绑定读取失败：错误行加重试入口，不渲染加入按钮', (tester) async {
+      openChannelGate();
+      final failing = _FailingDiscussionApi();
+      final router = GoRouter(
+        initialLocation: '/j12a-entry',
+        routes: [
+          GoRoute(
+            path: '/j12a-entry',
+            builder: (_, _) =>
+                Scaffold(body: ChannelDiscussionEntry(channel: channel())),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [channelApiProvider.overrideWithValue(failing)],
+          child: TranslationProvider(
+            child: MaterialApp.router(
+              routerConfig: router,
+              builder: EasyLoading.init(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(failing.reads, 1);
+      expect(
+        find.text(t.common.loadError),
+        findsOneWidget,
+        reason: '读取失败显示可行动错误行',
+      );
+      expect(find.byKey(const Key('mc_discussion_retry')), findsOneWidget);
+      expect(find.byKey(const Key('mc_discussion_join')), findsNothing);
+    });
+  });
+}
+
+/// J12.a 绑定序列桩：getDiscussion 依调用序弹出；游标耗尽后重复返回最后一个值。
+/// joinCalls 只统计 joinDiscussion POST；join 载荷缺省回显同 gid。
+class _DiscussionApi extends ChannelApi {
+  _DiscussionApi(this.bindingSequence);
+
+  final List<String?> bindingSequence;
+  int reads = 0;
+  int joinCalls = 0;
+  Map<String, dynamic>? joinPayload;
+  int _cursor = 0;
+
+  @override
+  Future<String?> getDiscussion(String channelId) async {
+    reads++;
+    if (bindingSequence.isEmpty) return null;
+    if (_cursor >= bindingSequence.length) {
+      return bindingSequence.last;
+    }
+    final value = bindingSequence[_cursor];
+    _cursor++;
+    return value;
+  }
+
+  @override
+  Future<Map<String, dynamic>> joinDiscussion(String channelId) async {
+    joinCalls++;
+    return joinPayload ??
+        const {
+          'discussion_group_id': '7001',
+          'title': 'J12A Discussion',
+          'avatar': '',
+          'member_count': 3,
+        };
+  }
+}
+
+/// 绑定读取抛错的 API 桩（J12.a 错误态向量）。
+class _FailingDiscussionApi extends ChannelApi {
+  int reads = 0;
+
+  @override
+  Future<String?> getDiscussion(String channelId) async {
+    reads++;
+    throw StateError('synthetic binding read failure');
+  }
+
+  @override
+  Future<Map<String, dynamic>> joinDiscussion(String channelId) async {
+    throw StateError('join must not be reachable in J12.a error vector');
+  }
 }
