@@ -172,6 +172,9 @@ void main() {
       );
       final reader = SyntheticAuthReader(stable),
           adapter = AttachmentPageAdapter();
+      // The previous case leaves the global auth latch failed; a real login
+      // must restore it before HttpClient accepts this page's requests.
+      await tester.runAsync(establishCsAuthFixture);
       await mountReader(tester, adapter, reader);
       expect(find.text('authorized body'), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, 'private draft');
@@ -201,6 +204,8 @@ void main() {
       );
       final reader = SyntheticAuthReader(stable),
           adapter = AttachmentPageAdapter();
+      // Re-establish global auth after the logout-intent case latched failure.
+      await tester.runAsync(establishCsAuthFixture);
       await mountReader(tester, adapter, reader);
       final count = adapter.requests.length;
       reader.publish(stable);
