@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:io' as io;
 
 import 'package:crypto/crypto.dart' as crypto;
@@ -113,6 +114,25 @@ class DirectUploadEpochMismatch implements Exception {
   const DirectUploadEpochMismatch(this.journalUid, this.currentUid);
   @override
   String toString() => 'DirectUploadEpochMismatch($journalUid != $currentUid)';
+}
+
+/// 生成 36 位 UUID v4 形态的 client_upload_id（幂等恢复键）。
+///
+/// 后端 register 仅校验「36 字节 binary」才落库为幂等键（更短/未提供落
+/// NULL，会话失去 kill 后恢复能力）；用 [Random.secure] 自足生成，不引
+/// 新依赖。
+String newClientUploadId([Random? random]) {
+  final Random r = random ?? Random.secure();
+  final List<int> b = List<int>.generate(16, (_) => r.nextInt(256));
+  b[6] = (b[6] & 0x0f) | 0x40; // version 4
+  b[8] = (b[8] & 0x3f) | 0x80; // variant
+  String h(int i) => b[i].toRadixString(16).padLeft(2, '0');
+  final String hex = [for (int i = 0; i < 16; i++) h(i)].join();
+  return '${hex.substring(0, 8)}-'
+      '${hex.substring(8, 12)}-'
+      '${hex.substring(12, 16)}-'
+      '${hex.substring(16, 20)}-'
+      '${hex.substring(20, 32)}';
 }
 
 /// 流式计算文件 SHA-256（File.openRead 分块；**绝不 readAsBytes**）。

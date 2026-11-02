@@ -858,6 +858,7 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => 'グループのお知らせ';
 	@override String get groupFileUploadSuccess => 'ファイルをアップロードしました';
 	@override String get groupFileUploadFailed => 'ファイルのアップロードに失敗しました。後でもう一度お試しください';
+	@override String groupFileUploadRetry({required Object name}) => '「${name}」のアップロードを再試行';
 	@override String get groupFileDeleteSuccess => 'ファイルを削除しました';
 	@override String get groupFileDeleteFailed => '削除に失敗しました。後でもう一度お試しください';
 	@override String get groupFileUploadTooltip => 'ファイルをアップロード';
@@ -1312,6 +1313,8 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => '画像の読み込みに失敗しました。もう一度お試しください';
 	@override String get groupAlbumPhotoUploaded => '画像をアップロードしました';
 	@override String get groupAlbumPhotoUploadFailed => '画像のアップロードに失敗しました。後でもう一度お試しください';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => '失敗した${count}枚を再アップロード';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '${success}枚アップロード、${fail}枚失敗';
 	@override String get groupAlbumCreateTooltip => 'アルバムを作成';
 	@override String get groupAlbumPhotoBatchDeleteTitle => '画像を一括削除';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '選択した ${count} 枚の画像を削除しますか？';
@@ -1802,6 +1805,12 @@ class _Translations$enterpriseApp$ja_JP extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => 'このメッセージには企業アプリの出所とエンドツーエンド暗号化ペイロードが同時に存在します。暗号化されていない企業ホストのメッセージとして表示し、人の直接送信による暗号化メッセージとしては扱いません。';
 	@override String get originUnrecognized => '出所マーカーを認識できません。暗号化なしとして表示します';
 	@override String get actionDetails => '詳細';
+	@override String get cardLinkBadge => 'リンクカード';
+	@override String get cardLinkOpen => 'リンクを開く';
+	@override String get cardActionBadge => '業務操作カード';
+	@override String get cardActionOpen => '操作を実行';
+	@override String get cardActionUnavailable => '実行できる操作はまだありません';
+	@override String get cardPayloadInvalid => 'カードの内容を表示できません';
 	@override String get groupTitle => '企業グループ';
 	@override String get groupArchivedBadge => 'アーカイブ済み';
 	@override String get groupActionArchive => 'アーカイブ';
@@ -4113,6 +4122,7 @@ extension on TranslationsJaJp {
 			'common.groupAnnouncement' => 'グループのお知らせ',
 			'common.groupFileUploadSuccess' => 'ファイルをアップロードしました',
 			'common.groupFileUploadFailed' => 'ファイルのアップロードに失敗しました。後でもう一度お試しください',
+			'common.groupFileUploadRetry' => ({required Object name}) => '「${name}」のアップロードを再試行',
 			'common.groupFileDeleteSuccess' => 'ファイルを削除しました',
 			'common.groupFileDeleteFailed' => '削除に失敗しました。後でもう一度お試しください',
 			'common.groupFileUploadTooltip' => 'ファイルをアップロード',
@@ -4414,9 +4424,9 @@ extension on TranslationsJaJp {
 			'common.deleteSuccess' => '削除しました',
 			'common.localDeleteSuccess' => 'ローカル削除に成功しました',
 			'common.localDeleteFailed' => 'ローカル削除に失敗しました',
-			'common.revokeSuccess' => '取り消しました',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => '取り消しました',
 			'common.editContentCannotBeEmpty' => '編集内容を空にすることはできません',
 			'common.editSuccess' => '編集しました',
 			'common.enabled' => '有効',
@@ -4563,6 +4573,8 @@ extension on TranslationsJaJp {
 			'common.groupAlbumPhotoReadFailed' => '画像の読み込みに失敗しました。もう一度お試しください',
 			'common.groupAlbumPhotoUploaded' => '画像をアップロードしました',
 			'common.groupAlbumPhotoUploadFailed' => '画像のアップロードに失敗しました。後でもう一度お試しください',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => '失敗した${count}枚を再アップロード',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '${success}枚アップロード、${fail}枚失敗',
 			'common.groupAlbumCreateTooltip' => 'アルバムを作成',
 			'common.groupAlbumPhotoBatchDeleteTitle' => '画像を一括削除',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '選択した ${count} 枚の画像を削除しますか？',
@@ -4926,11 +4938,11 @@ extension on TranslationsJaJp {
 			'complaintReason.harassment' => 'ハラスメント',
 			'complaintReason.inappropriate' => '不適切な内容',
 			'complaintReason.other' => 'その他',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => 'ブロック済み',
 			'contact.applyChanges' => '変更を適用するにはアプリを再起動してください',
 			'contact.inputNewTag' => '新しいタグを入力...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => 'ブロックリスト',
 			'contact.denylistEmpty' => 'ブロックリストは空です',
 			'contact.favoriteGroupTagsEtc' => 'コレクション：人名、グループ名、タグなど',
@@ -5010,6 +5022,12 @@ extension on TranslationsJaJp {
 			'enterpriseApp.originMismatchHint' => 'このメッセージには企業アプリの出所とエンドツーエンド暗号化ペイロードが同時に存在します。暗号化されていない企業ホストのメッセージとして表示し、人の直接送信による暗号化メッセージとしては扱いません。',
 			'enterpriseApp.originUnrecognized' => '出所マーカーを認識できません。暗号化なしとして表示します',
 			'enterpriseApp.actionDetails' => '詳細',
+			'enterpriseApp.cardLinkBadge' => 'リンクカード',
+			'enterpriseApp.cardLinkOpen' => 'リンクを開く',
+			'enterpriseApp.cardActionBadge' => '業務操作カード',
+			'enterpriseApp.cardActionOpen' => '操作を実行',
+			'enterpriseApp.cardActionUnavailable' => '実行できる操作はまだありません',
+			'enterpriseApp.cardPayloadInvalid' => 'カードの内容を表示できません',
 			'enterpriseApp.groupTitle' => '企業グループ',
 			'enterpriseApp.groupArchivedBadge' => 'アーカイブ済み',
 			'enterpriseApp.groupActionArchive' => 'アーカイブ',
@@ -5434,6 +5452,8 @@ extension on TranslationsJaJp {
 			'main.safetyNumberVerifyFailed' => '安全番号の取得に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyInfoTitle' => 'コンプライアンス監査キー',
 			'main.complianceKeyInfoAlgorithm' => 'アルゴリズム',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoChangedWarning' => '⚠️ サーバーから配信されたコンプライアンス公開鍵がローカルの固定値と一致しません！これが管理者による意図的なローテーションでない場合は、直ちに管理者に連絡し、暗号化メッセージの送信を中止してください。',
 			'main.complianceKeyInfoFetchedAt' => '取得日時',
 			'main.complianceKeyInfoFingerprint' => '公開鍵のフィンガープリント',
@@ -5443,8 +5463,6 @@ extension on TranslationsJaJp {
 			'main.complianceKeyInfoPinnedAt' => '固定日時',
 			'main.complianceKeyInfoPinnedNone' => '未固定（次回の取得時に自動的に固定されます）',
 			'main.complianceKeyInfoRefreshFailed' => '取得に失敗しました。ネットワークを確認してからもう一度お試しください',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'サーバーから配信された公開鍵',
 			'main.e2eeErrComplianceChanged' => 'コンプライアンス監査キーが変更されたため、メッセージは送信されませんでした。ローテーションを確認してからもう一度お試しください',
 			'main.e2eeErrComplianceUnavailable' => 'コンプライアンスキーが一時的に利用できないため、メッセージは送信されませんでした。後でもう一度お試しください',
@@ -5948,6 +5966,8 @@ extension on TranslationsJaJp {
 			'talkRecord.aiReplaceNotice' => 'この端末の現在のアカウントにある、このサービスの設定のみを置き換えます。他のアカウントや録音には影響しません。',
 			'talkRecord.aiDeleteTitle' => '端末のキーを削除しますか？',
 			'talkRecord.aiDeleteNotice' => 'このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'キャンセル',
 			'talkRecord.aiDoubaoTitle' => 'Doubao 音声 2.0',
 			'talkRecord.aiDoubaoPurpose' => '音声文字起こしと一時的な話者ラベル',
@@ -5957,8 +5977,6 @@ extension on TranslationsJaJp {
 			'talkRecord.aiProviderCancel' => '文字起こしを停止',
 			'talkRecord.aiProviderCancelNotice' => 'IMBoy の音声アクセスと操作権限を取り消します。提供元の処理停止や返金は保証できません。',
 			'talkRecord.aiProviderResubmit' => '音声を再送信',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => '新しい文字起こしを作成するため、重複課金される場合があります。元の依頼は残ります。再送信と今回の処理に同意しますか？',
 			'talkRecord.aiProviderCancelled' => '停止しました。既存の録音は保持されます。',
 			'talkRecord.aiProviderResumePreparation' => '文字起こしの準備を続行',

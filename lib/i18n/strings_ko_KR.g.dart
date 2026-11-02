@@ -858,6 +858,7 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => '그룹 공지';
 	@override String get groupFileUploadSuccess => '파일 업로드 완료';
 	@override String get groupFileUploadFailed => '파일 업로드 실패, 나중에 다시 시도해주세요';
+	@override String groupFileUploadRetry({required Object name}) => '${name} 업로드 재시도';
 	@override String get groupFileDeleteSuccess => '파일이 삭제되었습니다';
 	@override String get groupFileDeleteFailed => '삭제 실패, 나중에 다시 시도해주세요';
 	@override String get groupFileUploadTooltip => '파일 업로드';
@@ -1312,6 +1313,8 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => '이미지 읽기 실패, 다시 시도해주세요';
 	@override String get groupAlbumPhotoUploaded => '이미지 업로드 완료';
 	@override String get groupAlbumPhotoUploadFailed => '이미지 업로드 실패, 나중에 다시 시도해주세요';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => '실패한 ${count}장 다시 업로드';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '${success}장 업로드, ${fail}장 실패';
 	@override String get groupAlbumCreateTooltip => '앨범 만들기';
 	@override String get groupAlbumPhotoBatchDeleteTitle => '이미지 일괄 삭제';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '선택한 이미지 ${count}장을 삭제하시겠습니까?';
@@ -1802,6 +1805,12 @@ class _Translations$enterpriseApp$ko_KR extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => '이 메시지에는 기업 앱 출처와 종단간 암호화 페이로드가 함께 있습니다. 암호화되지 않은 기업 호스팅 메시지로 표시하며, 사람이 직접 보낸 암호화 메시지로 취급하지 않습니다.';
 	@override String get originUnrecognized => '출처 표식을 인식할 수 없어 암호화 없음으로 표시합니다';
 	@override String get actionDetails => '상세';
+	@override String get cardLinkBadge => '링크 카드';
+	@override String get cardLinkOpen => '링크 열기';
+	@override String get cardActionBadge => '업무 작업 카드';
+	@override String get cardActionOpen => '작업 실행';
+	@override String get cardActionUnavailable => '실행 가능한 작업이 아직 없습니다';
+	@override String get cardPayloadInvalid => '카드 내용을 표시할 수 없습니다';
 	@override String get groupTitle => '기업 그룹';
 	@override String get groupArchivedBadge => '보관됨';
 	@override String get groupActionArchive => '보관';
@@ -4113,6 +4122,7 @@ extension on TranslationsKoKr {
 			'common.groupAnnouncement' => '그룹 공지',
 			'common.groupFileUploadSuccess' => '파일 업로드 완료',
 			'common.groupFileUploadFailed' => '파일 업로드 실패, 나중에 다시 시도해주세요',
+			'common.groupFileUploadRetry' => ({required Object name}) => '${name} 업로드 재시도',
 			'common.groupFileDeleteSuccess' => '파일이 삭제되었습니다',
 			'common.groupFileDeleteFailed' => '삭제 실패, 나중에 다시 시도해주세요',
 			'common.groupFileUploadTooltip' => '파일 업로드',
@@ -4414,9 +4424,9 @@ extension on TranslationsKoKr {
 			'common.deleteSuccess' => '삭제 성공',
 			'common.localDeleteSuccess' => '로컬 삭제 성공',
 			'common.localDeleteFailed' => '로컬 삭제 실패',
-			'common.revokeSuccess' => '회수 성공',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => '회수 성공',
 			'common.editContentCannotBeEmpty' => '편집 내용은 비워둘 수 없습니다',
 			'common.editSuccess' => '편집 성공',
 			'common.enabled' => '활성화됨',
@@ -4563,6 +4573,8 @@ extension on TranslationsKoKr {
 			'common.groupAlbumPhotoReadFailed' => '이미지 읽기 실패, 다시 시도해주세요',
 			'common.groupAlbumPhotoUploaded' => '이미지 업로드 완료',
 			'common.groupAlbumPhotoUploadFailed' => '이미지 업로드 실패, 나중에 다시 시도해주세요',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => '실패한 ${count}장 다시 업로드',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '${success}장 업로드, ${fail}장 실패',
 			'common.groupAlbumCreateTooltip' => '앨범 만들기',
 			'common.groupAlbumPhotoBatchDeleteTitle' => '이미지 일괄 삭제',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '선택한 이미지 ${count}장을 삭제하시겠습니까?',
@@ -4926,11 +4938,11 @@ extension on TranslationsKoKr {
 			'complaintReason.harassment' => '괴롭힘',
 			'complaintReason.inappropriate' => '부적절한 내용',
 			'complaintReason.other' => '기타',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => '차단됨',
 			'contact.applyChanges' => '변경사항을 적용하려면 앱을 재시작하세요',
 			'contact.inputNewTag' => '새 태그 입력...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => '차단 목록',
 			'contact.denylistEmpty' => '차단 목록이 비어있습니다',
 			'contact.favoriteGroupTagsEtc' => '즐겨찾기 이름, 그룹 이름, 태그 등',
@@ -5010,6 +5022,12 @@ extension on TranslationsKoKr {
 			'enterpriseApp.originMismatchHint' => '이 메시지에는 기업 앱 출처와 종단간 암호화 페이로드가 함께 있습니다. 암호화되지 않은 기업 호스팅 메시지로 표시하며, 사람이 직접 보낸 암호화 메시지로 취급하지 않습니다.',
 			'enterpriseApp.originUnrecognized' => '출처 표식을 인식할 수 없어 암호화 없음으로 표시합니다',
 			'enterpriseApp.actionDetails' => '상세',
+			'enterpriseApp.cardLinkBadge' => '링크 카드',
+			'enterpriseApp.cardLinkOpen' => '링크 열기',
+			'enterpriseApp.cardActionBadge' => '업무 작업 카드',
+			'enterpriseApp.cardActionOpen' => '작업 실행',
+			'enterpriseApp.cardActionUnavailable' => '실행 가능한 작업이 아직 없습니다',
+			'enterpriseApp.cardPayloadInvalid' => '카드 내용을 표시할 수 없습니다',
 			'enterpriseApp.groupTitle' => '기업 그룹',
 			'enterpriseApp.groupArchivedBadge' => '보관됨',
 			'enterpriseApp.groupActionArchive' => '보관',
@@ -5434,6 +5452,8 @@ extension on TranslationsKoKr {
 			'main.e2eeErrComplianceExpired' => '컴플라이언스 키가 만료되었습니다. 관리자에게 문의해 주세요',
 			'main.complianceKeyRotationConfirmed' => '컴플라이언스 키 교체가 확인되었습니다. 메시지를 다시 보낼 수 있습니다',
 			'main.complianceKeyRotationNoPending' => '확인 대기 중인 키 변경이 없습니다',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요',
 			'main.e2eeErrProtocolMismatch' => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요',
 			'main.e2eeErrPeerSuiteUnsupported' => '상대방 기기가 필요한 암호화 스위트를 지원하지 않아 메시지가 전송되지 않았습니다. 상대방에게 앱 업데이트를 요청한 후 다시 시도해 주세요',
@@ -5443,8 +5463,6 @@ extension on TranslationsKoKr {
 			'main.safetyNumberHint' => '대면 또는 전화로 상대방과 보안 번호를 비교해 주세요. 일치하면 두 사람의 통신에 중간자가 없는 것이고, 일치하지 않으면 즉시 대화를 중단하고 다른 경로로 상대방의 신원을 확인하세요. 검증 상태는 이 기기에만 저장됩니다.',
 			'main.safetyNumberMarkVerified' => '검증됨으로 표시',
 			'main.safetyNumberMarkedVerified' => '검증됨으로 표시했습니다',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => '상대방이 아직 종단간 암호화를 사용하지 않습니다',
 			'main.safetyNumberPeerDevice' => '상대방 기기',
 			'main.safetyNumberReportRejected' => '서버가 이 검증 이벤트를 거부했습니다(서명/시효 불일치). 표시하지 않았습니다',
@@ -5948,6 +5966,8 @@ extension on TranslationsKoKr {
 			'talkRecord.aiReplaceNotice' => '이 기기의 현재 계정에 있는 이 서비스 설정만 교체합니다. 다른 계정과 저장된 녹음에는 영향을 주지 않습니다.',
 			'talkRecord.aiDeleteTitle' => '기기 키를 삭제할까요?',
 			'talkRecord.aiDeleteNotice' => '이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => '취소',
 			'talkRecord.aiDoubaoTitle' => 'Doubao 음성 2.0',
 			'talkRecord.aiDoubaoPurpose' => '음성 전사 및 임시 화자 라벨',
@@ -5957,8 +5977,6 @@ extension on TranslationsKoKr {
 			'talkRecord.aiProviderCancel' => '전사 중지',
 			'talkRecord.aiProviderCancelNotice' => 'IMBoy의 음성 접근 및 작업 권한을 취소합니다. 공급자의 처리 중단이나 환불은 보장할 수 없습니다.',
 			'talkRecord.aiProviderResubmit' => '음성 다시 제출',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => '새 전사를 생성하며 중복 요금이 발생할 수 있습니다. 기존 요청은 유지됩니다. 다시 제출하고 이번 처리에 동의하시겠습니까?',
 			'talkRecord.aiProviderCancelled' => '전사가 중지되었습니다. 기존 녹음은 유지됩니다.',
 			'talkRecord.aiProviderResumePreparation' => '전사 준비 계속',

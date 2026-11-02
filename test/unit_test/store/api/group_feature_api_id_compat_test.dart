@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_transformer.dart';
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/group_album_api.dart';
 import 'package:imboy/store/api/group_file_api.dart';
 import 'package:imboy/store/api/group_schedule_api.dart';
@@ -110,6 +113,10 @@ class _FakeGroupFileApi extends GroupFileApi {
     <String, dynamic>{},
   );
 
+  /// 按 URI 分发响应（direct 会话 register/declare/grant/finalize 与 bind
+  /// 各返回不同信封，nextResponse 单值不够用）。
+  IMBoyHttpResponse Function(String uri, dynamic data)? postHandler;
+
   @override
   Future<IMBoyHttpResponse> get(
     String uri, {
@@ -142,7 +149,7 @@ class _FakeGroupFileApi extends GroupFileApi {
     lastUri = uri;
     lastData = data;
     lastQuery = queryParameters;
-    return nextResponse;
+    return postHandler?.call(uri, data) ?? nextResponse;
   }
 }
 
@@ -156,6 +163,9 @@ class _FakeGroupAlbumApi extends GroupAlbumApi {
     <String, dynamic>{},
   );
 
+  /// 按 URI 分发响应（direct 会话与 bind_batch 信封不同）。
+  IMBoyHttpResponse Function(String uri, dynamic data)? postHandler;
+
   @override
   Future<IMBoyHttpResponse> get(
     String uri, {
@@ -188,7 +198,7 @@ class _FakeGroupAlbumApi extends GroupAlbumApi {
     lastUri = uri;
     lastData = data;
     lastQuery = queryParameters;
-    return nextResponse;
+    return postHandler?.call(uri, data) ?? nextResponse;
   }
 }
 
@@ -426,42 +436,95 @@ void main() {
       expect(api.requestCount, 0);
     });
 
-    test('uploadFile should short-circuit for empty bytes', () async {
+    test('uploadFileDirect should short-circuit for blank gid', () async {
       final api = _FakeGroupFileApi();
-      final result = await api.uploadFile(
-        groupId: 'gid_test_id',
+      final dir = await Directory.systemTemp.createTemp('gf-compat');
+      final file = File('${dir.path}/a.txt')..writeAsBytesSync(<int>[1, 2, 3]);
+      addTearDown(() => dir.delete(recursive: true));
+
+      final result = await api.uploadFileDirect(
+        groupId: '  ',
+        file: file,
         fileName: 'a.txt',
-        fileBytes: const [],
+        mime: 'text/plain',
       );
       expect(result, isNull);
       expect(api.requestCount, 0);
     });
 
     test(
-      'uploadFile should post multipart payload with gid and file',
+      'uploadFileDirect should drive direct session then JSON bind',
       () async {
         final api = _FakeGroupFileApi();
-        api.nextResponse = IMBoyHttpResponse.success({
-          'file_id': 'oss_001',
-          'file_name': 'a.txt',
-        });
+        final dir = await Directory.systemTemp.createTemp('gf-compat');
+        final file = File('${dir.path}/a.txt')
+          ..writeAsBytesSync(<int>[1, 2, 3]);
+        addTearDown(() => dir.delete(recursive: true));
 
-        final result = await api.uploadFile(
+        api.postHandler = (String uri, dynamic data) {
+          if (uri.endsWith('/attachment/direct/register')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'object_key': 'u1/group/x/a.txt',
+            });
+          }
+          if (uri.endsWith('/attachment/direct/declare')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'state': 'DECLARED',
+            });
+          }
+          if (uri.endsWith('/attachment/direct/grant')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'state': 'GRANTED',
+              'attempt_id': 1,
+              'grant': <String, dynamic>{
+                'transport': 's3_put',
+                'url': 'https://s3.example/put',
+                'method': 'PUT',
+                'required_headers': <dynamic>[
+                  <dynamic>['Content-Type', 'text/plain'],
+                  <dynamic>['x-amz-checksum-sha256', 'YQ=='],
+                ],
+                'expires_in': 3600,
+              },
+            });
+          }
+          if (uri.endsWith('/attachment/direct/finalize')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'state': 'CONFIRMED',
+              'attempt_id': 1,
+            });
+          }
+          return IMBoyHttpResponse.success(<String, dynamic>{
+            'file_id': 'oss_001',
+            'file_name': 'a.txt',
+          });
+        };
+
+        final result = await api.uploadFileDirect(
           groupId: 'gid_test_id',
+          file: file,
           fileName: 'a.txt',
-          fileBytes: const [1, 2, 3],
-          fileType: 'text/plain',
+          mime: 'text/plain',
+          putFn: (
+            String url,
+            File f,
+            int length,
+            Map<String, String> headers,
+          ) async {},
         );
 
         expect(result, isNotNull);
+        expect(result?['file_id'], 'oss_001');
         expect(api.lastMethod, 'POST');
-        expect(api.lastUri, '/api/v1/group/file/upload');
-        final formData = api.lastData as FormData;
-        final fields = Map<String, String>.fromEntries(formData.fields);
-        expect(fields['gid'], 'gid_test_id');
-        expect(fields['file_name'], 'a.txt');
-        expect(fields['file_type'], 'text/plain');
-        expect(formData.files.any((entry) => entry.key == 'file'), isTrue);
+        expect(api.lastUri, '/api/v1/group/file/bind');
+        final body = api.lastData as Map<String, dynamic>;
+        expect(body['gid'], 'gid_test_id');
+        expect(body['file_name'], 'a.txt');
+        expect(body['file_type'], 'text/plain');
+        expect(body['object_key'], 'u1/group/x/a.txt');
+        expect(body['file_size'], 3);
+        // backend validate_bind_metadata：非空 file_md5 必被拒，只能空串
+        expect(body['file_md5'], '');
       },
     );
   });
@@ -573,43 +636,124 @@ void main() {
       expect(api.requestCount, 0);
     });
 
-    test('uploadPhoto should short-circuit for blank album_id', () async {
-      final api = _FakeGroupAlbumApi();
-      final result = await api.uploadPhoto(
-        groupId: 'gid_test_id',
-        albumId: '  ',
-        photoName: 'a.jpg',
-        photoBytes: const [1, 2, 3],
-      );
+    test(
+      'uploadPhotosDirect should short-circuit for blank album_id',
+      () async {
+        final api = _FakeGroupAlbumApi();
+        final dir = await Directory.systemTemp.createTemp('ga-compat');
+        final file = File('${dir.path}/a.png')
+          ..writeAsBytesSync(<int>[1, 2, 3]);
+        addTearDown(() => dir.delete(recursive: true));
 
-      expect(result, isNull);
-      expect(api.requestCount, 0);
-    });
+        final result = await api.uploadPhotosDirect(
+          groupId: 'gid_test_id',
+          albumId: '  ',
+          items: [
+            GroupAlbumUploadItem(
+              file: file,
+              photoName: 'a.png',
+              clientUploadId: 'c-1',
+            ),
+          ],
+        );
 
-    test('uploadPhoto should post multipart payload', () async {
-      final api = _FakeGroupAlbumApi();
-      api.nextResponse = IMBoyHttpResponse.success({
-        'photo_id': 'photo_001',
-        'photo_name': 'a.jpg',
-      });
+        expect(result, isEmpty);
+        expect(api.requestCount, 0);
+      },
+    );
 
-      final result = await api.uploadPhoto(
-        groupId: 'gid_test_id',
-        albumId: 'alb_test_id',
-        photoName: 'a.jpg',
-        photoBytes: const [1, 2, 3, 4],
-      );
+    test(
+      'uploadPhotosDirect should direct-upload then bind_batch JSON',
+      () async {
+        final api = _FakeGroupAlbumApi();
+        final dir = await Directory.systemTemp.createTemp('ga-compat');
+        final file = File('${dir.path}/a.png')
+          ..writeAsBytesSync(<int>[1, 2, 3, 4]);
+        addTearDown(() => dir.delete(recursive: true));
 
-      expect(result, isNotNull);
-      expect(api.lastMethod, 'POST');
-      expect(api.lastUri, '/api/v1/group_album/photo/upload');
-      final formData = api.lastData as FormData;
-      final fields = Map<String, String>.fromEntries(formData.fields);
-      expect(fields['gid'], 'gid_test_id');
-      expect(fields['album_id'], 'alb_test_id');
-      expect(fields['photo_name'], 'a.jpg');
-      expect(formData.files.any((entry) => entry.key == 'photo'), isTrue);
-    });
+        api.postHandler = (String uri, dynamic data) {
+          if (uri.endsWith('/attachment/direct/register')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'object_key': 'u1/group/x/a.png',
+            });
+          }
+          if (uri.endsWith('/attachment/direct/declare')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'state': 'DECLARED',
+            });
+          }
+          if (uri.endsWith('/attachment/direct/grant')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'state': 'GRANTED',
+              'attempt_id': 1,
+              'grant': <String, dynamic>{
+                'transport': 's3_put',
+                'url': 'https://s3.example/put',
+                'method': 'PUT',
+                'required_headers': <dynamic>[
+                  <dynamic>['Content-Type', 'image/png'],
+                  <dynamic>['x-amz-checksum-sha256', 'YQ=='],
+                ],
+                'expires_in': 3600,
+              },
+            });
+          }
+          if (uri.endsWith('/attachment/direct/finalize')) {
+            return IMBoyHttpResponse.success(<String, dynamic>{
+              'state': 'CONFIRMED',
+              'attempt_id': 1,
+            });
+          }
+          return IMBoyHttpResponse.success(<String, dynamic>{
+            'results': <dynamic>[
+              <String, dynamic>{
+                'object_key': 'u1/group/x/a.png',
+                'status': 'ok',
+                'photo': <String, dynamic>{'photo_id': 'photo_001'},
+              },
+            ],
+          });
+        };
+
+        final result = await api.uploadPhotosDirect(
+          groupId: 'gid_test_id',
+          albumId: 'alb_test_id',
+          items: [
+            GroupAlbumUploadItem(
+              file: file,
+              photoName: 'a.png',
+              clientUploadId: 'c-2',
+            ),
+          ],
+          putFn: (
+            String url,
+            File f,
+            int length,
+            Map<String, String> headers,
+          ) async {},
+        );
+
+        expect(result, hasLength(1));
+        expect(result.single.ok, isTrue);
+        expect(result.single.photo?['photo_id'], 'photo_001');
+        expect(api.lastMethod, 'POST');
+        expect(api.lastUri, '/api/v1/group_album/photo/bind_batch');
+        final body = api.lastData as Map<String, dynamic>;
+        expect(body['gid'], 'gid_test_id');
+        final items = body['items'] as List<dynamic>;
+        expect(items, hasLength(1));
+        expect(items.first['album_id'], 'alb_test_id');
+        expect(items.first['photo_name'], 'a.png');
+        expect(items.first['mime_type'], 'image/png');
+        expect(items.first['object_key'], 'u1/group/x/a.png');
+        expect(items.first['photo_size'], 4);
+        expect(
+          items.first['sha256'],
+          await sha256OfFile(file),
+          reason: 'bind_batch sha256 必须与 direct declare 同值',
+        );
+      },
+    );
 
     test('getPhotos should call album photo list endpoint', () async {
       final api = _FakeGroupAlbumApi();

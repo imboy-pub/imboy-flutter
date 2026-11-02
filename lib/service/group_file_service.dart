@@ -1,3 +1,5 @@
+import 'dart:io' as io;
+
 import 'package:flutter/foundation.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/store/api/group_file_api.dart';
@@ -69,18 +71,24 @@ class GroupFileService {
     }
   }
 
-  Future<Map<String, dynamic>?> uploadFile({
+  /// direct-v1 直传群文件（register→PUT→finalize→bind）。
+  ///
+  /// 失败返回 null；本地重试由页面保留同一 [clientUploadId]（register
+  /// 幂等恢复同一会话，不重复建 session）。
+  Future<Map<String, dynamic>?> uploadFileDirect({
     required String groupId,
+    required io.File file,
     required String fileName,
-    required List<int> fileBytes,
-    String? fileType,
+    required String mime,
+    String? clientUploadId,
   }) async {
     try {
-      return await _api.uploadFile(
+      return await _api.uploadFileDirect(
         groupId: groupId,
+        file: file,
         fileName: fileName,
-        fileBytes: fileBytes,
-        fileType: fileType,
+        mime: mime,
+        clientUploadId: clientUploadId,
       );
     } catch (e) {
       iPrint('GroupFileService: 上传群文件失败 - $e');

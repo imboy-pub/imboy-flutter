@@ -66,6 +66,12 @@ enum MsgTypeEnum {
   /// 频道卡片消息
   channelCard,
   talkRecordCard,
+
+  /// 链接卡片消息（V3-23 企业应用代发点名类型）
+  linkCard,
+
+  /// 业务操作卡片消息（V3-23 企业应用代发点名类型，含跳转）
+  businessActionCard,
 }
 
 /// MsgTypeEnum 扩展方法
@@ -109,6 +115,10 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MessageType.channelCard;
       case MsgTypeEnum.talkRecordCard:
         return MessageType.talkRecordCard;
+      case MsgTypeEnum.linkCard:
+        return MessageType.linkCard;
+      case MsgTypeEnum.businessActionCard:
+        return MessageType.businessActionCard;
     }
   }
 
@@ -151,6 +161,10 @@ extension MsgTypeEnumExtension on MsgTypeEnum {
         return MsgTypeEnum.channelCard;
       case MessageType.talkRecordCard:
         return MsgTypeEnum.talkRecordCard;
+      case MessageType.linkCard:
+        return MsgTypeEnum.linkCard;
+      case MessageType.businessActionCard:
+        return MsgTypeEnum.businessActionCard;
       default:
         return null;
     }

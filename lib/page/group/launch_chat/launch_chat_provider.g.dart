@@ -45,7 +45,7 @@ final class LaunchChatNotifierProvider
 }
 
 String _$launchChatNotifierHash() =>
-    r'e17bacd4bc85f40bb6ff20a8b04a28c538ce2d72';
+    r'0d24e0986bbdd1b69cad2073d428943cecaf4ab6';
 
 /// 发起聊天 Notifier
 

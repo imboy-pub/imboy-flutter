@@ -118,6 +118,7 @@ genderUpdateFailed: 성별 설정 실패, 다시 시도해 주세요
 groupAnnouncement: 그룹 공지
 groupFileUploadSuccess: 파일 업로드 완료
 groupFileUploadFailed: 파일 업로드 실패, 나중에 다시 시도해주세요
+groupFileUploadRetry(name): $name 업로드 재시도
 groupFileDeleteSuccess: 파일이 삭제되었습니다
 groupFileDeleteFailed: 삭제 실패, 나중에 다시 시도해주세요
 groupFileUploadTooltip: 파일 업로드
@@ -569,6 +570,8 @@ groupAlbumNoAlbum: 그룹 앨범이 없습니다
 groupAlbumPhotoReadFailed: 이미지 읽기 실패, 다시 시도해주세요
 groupAlbumPhotoUploaded: 이미지 업로드 완료
 groupAlbumPhotoUploadFailed: 이미지 업로드 실패, 나중에 다시 시도해주세요
+groupAlbumUploadRetryFailed(count): 실패한 $count장 다시 업로드
+groupAlbumPhotoUploadedPartial(success, fail): $success장 업로드, $fail장 실패
 groupAlbumCreateTooltip: 앨범 만들기
 groupAlbumPhotoBatchDeleteTitle: 이미지 일괄 삭제
 groupAlbumPhotoBatchDeleteConfirm(count): 선택한 이미지 $count장을 삭제하시겠습니까?

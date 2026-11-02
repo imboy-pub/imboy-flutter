@@ -17,6 +17,13 @@ originMismatchTitle: "출처 정보 불일치"
 originMismatchHint: "이 메시지에는 기업 앱 출처와 종단간 암호화 페이로드가 함께 있습니다. 암호화되지 않은 기업 호스팅 메시지로 표시하며, 사람이 직접 보낸 암호화 메시지로 취급하지 않습니다."
 originUnrecognized: "출처 표식을 인식할 수 없어 암호화 없음으로 표시합니다"
 actionDetails: "상세"
+# ==================== V3-23 기업 앱 대발신 카드(링크 카드 / 업무 작업 카드) ====================
+cardLinkBadge: "링크 카드"
+cardLinkOpen: "링크 열기"
+cardActionBadge: "업무 작업 카드"
+cardActionOpen: "작업 실행"
+cardActionUnavailable: "실행 가능한 작업이 아직 없습니다"
+cardPayloadInvalid: "카드 내용을 표시할 수 없습니다"
 # ==================== 기업 그룹 (INT-18..21) ====================
 groupTitle: "기업 그룹"
 groupArchivedBadge: "보관됨"

@@ -858,6 +858,7 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => 'Annuncio gruppo';
 	@override String get groupFileUploadSuccess => 'File caricato';
 	@override String get groupFileUploadFailed => 'Caricamento fallito. Riprova più tardi.';
+	@override String groupFileUploadRetry({required Object name}) => 'Riprova il caricamento di «${name}»';
 	@override String get groupFileDeleteSuccess => 'File eliminato';
 	@override String get groupFileDeleteFailed => 'Eliminazione fallita. Riprova più tardi.';
 	@override String get groupFileUploadTooltip => 'Carica file';
@@ -1315,6 +1316,8 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => 'Lettura immagine fallita. Riprova.';
 	@override String get groupAlbumPhotoUploaded => 'Immagine caricata';
 	@override String get groupAlbumPhotoUploadFailed => 'Caricamento fallito. Riprova più tardi.';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => 'Riprova ${count} foto non caricate';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '${success} caricate, ${fail} non riuscite';
 	@override String get groupAlbumCreateTooltip => 'Crea album';
 	@override String get groupAlbumPhotoBatchDeleteTitle => 'Elimina immagini';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'Eliminare le ${count} immagini selezionate ?';
@@ -1805,6 +1808,12 @@ class _Translations$enterpriseApp$it_IT extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => 'Questo messaggio porta sia un\'origine applicativa aziendale sia un payload cifrato end-to-end. Viene mostrato come messaggio aziendale non cifrato, non come messaggio cifrato inviato direttamente da una persona.';
 	@override String get originUnrecognized => 'Marcatore di origine non riconosciuto; mostrato come non cifrato';
 	@override String get actionDetails => 'Dettagli';
+	@override String get cardLinkBadge => 'Scheda link';
+	@override String get cardLinkOpen => 'Apri link';
+	@override String get cardActionBadge => 'Scheda azione';
+	@override String get cardActionOpen => 'Esegui azione';
+	@override String get cardActionUnavailable => 'Nessuna azione eseguibile per ora';
+	@override String get cardPayloadInvalid => 'Contenuto della scheda non disponibile';
 	@override String get groupTitle => 'Gruppo aziendale';
 	@override String get groupArchivedBadge => 'Archiviato';
 	@override String get groupActionArchive => 'Archivia';
@@ -4116,6 +4125,7 @@ extension on TranslationsItIt {
 			'common.groupAnnouncement' => 'Annuncio gruppo',
 			'common.groupFileUploadSuccess' => 'File caricato',
 			'common.groupFileUploadFailed' => 'Caricamento fallito. Riprova più tardi.',
+			'common.groupFileUploadRetry' => ({required Object name}) => 'Riprova il caricamento di «${name}»',
 			'common.groupFileDeleteSuccess' => 'File eliminato',
 			'common.groupFileDeleteFailed' => 'Eliminazione fallita. Riprova più tardi.',
 			'common.groupFileUploadTooltip' => 'Carica file',
@@ -4417,9 +4427,9 @@ extension on TranslationsItIt {
 			'common.deleteSuccess' => 'Eliminazione riuscita',
 			'common.localDeleteSuccess' => 'Eliminazione locale riuscita',
 			'common.localDeleteFailed' => 'Eliminazione locale non riuscita',
-			'common.revokeSuccess' => 'Revocato con successo',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => 'Revocato con successo',
 			'common.editContentCannotBeEmpty' => 'Il contenuto della modifica non può essere vuoto',
 			'common.editSuccess' => 'Modificato con successo',
 			'common.enabled' => 'Attivato',
@@ -4566,6 +4576,8 @@ extension on TranslationsItIt {
 			'common.groupAlbumPhotoReadFailed' => 'Lettura immagine fallita. Riprova.',
 			'common.groupAlbumPhotoUploaded' => 'Immagine caricata',
 			'common.groupAlbumPhotoUploadFailed' => 'Caricamento fallito. Riprova più tardi.',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => 'Riprova ${count} foto non caricate',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '${success} caricate, ${fail} non riuscite',
 			'common.groupAlbumCreateTooltip' => 'Crea album',
 			'common.groupAlbumPhotoBatchDeleteTitle' => 'Elimina immagini',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'Eliminare le ${count} immagini selezionate ?',
@@ -4929,11 +4941,11 @@ extension on TranslationsItIt {
 			'complaintReason.harassment' => 'Molestie',
 			'complaintReason.inappropriate' => 'Contenuto inappropriato',
 			'complaintReason.other' => 'Altro',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => 'Bloccato',
 			'contact.applyChanges' => 'Riavvia l’app per applicare le modifiche.',
 			'contact.inputNewTag' => 'Inserisci nuovo tag...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => 'Lista bloccati',
 			'contact.denylistEmpty' => 'Lista bloccati vuota',
 			'contact.favoriteGroupTagsEtc' => 'Raccolta nomi, nomi gruppo, tag ecc.',
@@ -5013,6 +5025,12 @@ extension on TranslationsItIt {
 			'enterpriseApp.originMismatchHint' => 'Questo messaggio porta sia un\'origine applicativa aziendale sia un payload cifrato end-to-end. Viene mostrato come messaggio aziendale non cifrato, non come messaggio cifrato inviato direttamente da una persona.',
 			'enterpriseApp.originUnrecognized' => 'Marcatore di origine non riconosciuto; mostrato come non cifrato',
 			'enterpriseApp.actionDetails' => 'Dettagli',
+			'enterpriseApp.cardLinkBadge' => 'Scheda link',
+			'enterpriseApp.cardLinkOpen' => 'Apri link',
+			'enterpriseApp.cardActionBadge' => 'Scheda azione',
+			'enterpriseApp.cardActionOpen' => 'Esegui azione',
+			'enterpriseApp.cardActionUnavailable' => 'Nessuna azione eseguibile per ora',
+			'enterpriseApp.cardPayloadInvalid' => 'Contenuto della scheda non disponibile',
 			'enterpriseApp.groupTitle' => 'Gruppo aziendale',
 			'enterpriseApp.groupArchivedBadge' => 'Archiviato',
 			'enterpriseApp.groupActionArchive' => 'Archivia',
@@ -5437,6 +5455,8 @@ extension on TranslationsItIt {
 			'main.e2eeErrComplianceExpired' => 'La chiave di conformità è scaduta, contatta l\'amministratore',
 			'main.complianceKeyRotationConfirmed' => 'Rotazione della chiave di conformità confermata, puoi inviare nuovamente il messaggio',
 			'main.complianceKeyRotationNoPending' => 'Nessuna modifica della chiave in attesa di conferma',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova',
 			'main.e2eeErrProtocolMismatch' => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova',
 			'main.e2eeErrPeerSuiteUnsupported' => 'Il dispositivo del destinatario non supporta la suite di cifratura richiesta, messaggio non inviato. Chiedi di aggiornare l\'app e riprova',
@@ -5446,8 +5466,6 @@ extension on TranslationsItIt {
 			'main.safetyNumberHint' => 'Confronta il codice di sicurezza con l\'altro di persona o al telefono. Se corrisponde, le vostre comunicazioni non sono intercettate da un attacco man-in-the-middle; se non corrisponde, interrompi subito la conversazione e verifica l\'identità dell\'altro tramite un altro canale. Lo stato di verifica è salvato solo su questo dispositivo.',
 			'main.safetyNumberMarkVerified' => 'Segna come verificato',
 			'main.safetyNumberMarkedVerified' => 'Segnato come verificato',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'L\'altro non ha ancora attivato la crittografia end-to-end',
 			'main.safetyNumberPeerDevice' => 'Dispositivo dell\'altro',
 			'main.safetyNumberReportRejected' => 'Il server ha rifiutato l\'evento di verifica (firma/validità non corrispondenti), non segnato',
@@ -5951,6 +5969,8 @@ extension on TranslationsItIt {
 			'talkRecord.aiReplaceNotice' => 'Sostituisce solo la configurazione di questo servizio per l’account corrente su questo dispositivo. Altri account e registrazioni restano invariati.',
 			'talkRecord.aiDeleteTitle' => 'Eliminare la chiave locale?',
 			'talkRecord.aiDeleteNotice' => 'Interrompe le nuove richieste a questo servizio. Registrazioni e risultati restano disponibili. Le richieste già inviate al fornitore non possono essere richiamate.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Annulla',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Trascrizione audio ed etichette temporanee dei parlanti',
@@ -5960,8 +5980,6 @@ extension on TranslationsItIt {
 			'talkRecord.aiProviderCancel' => 'Interrompi trascrizione',
 			'talkRecord.aiProviderCancelNotice' => 'Revoca accesso alla sorgente e operazioni IMBoy. Non garantisce arresto del fornitore o rimborso.',
 			'talkRecord.aiProviderResubmit' => 'Invia audio di nuovo',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Crea una nuova trascrizione e può causare costi duplicati. La richiesta originale resta. Reinviare e acconsentire al trattamento?',
 			'talkRecord.aiProviderCancelled' => 'Trascrizione interrotta. Audio esistente conservato.',
 			'talkRecord.aiProviderResumePreparation' => 'Continua la preparazione',

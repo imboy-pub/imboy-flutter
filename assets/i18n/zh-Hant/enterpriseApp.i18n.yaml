@@ -17,6 +17,13 @@ originMismatchTitle: "來源資訊不一致"
 originMismatchHint: "此訊息同時帶有企業應用來源與端對端加密載荷；已依非加密的企業來源顯示，不視為 Human 直發的加密訊息。"
 originUnrecognized: "來源標記無法辨識，已依非加密顯示"
 actionDetails: "詳情"
+# ==================== V3-23 企業應用代發卡片（連結卡片 / 業務操作卡片） ====================
+cardLinkBadge: "連結卡片"
+cardLinkOpen: "開啟連結"
+cardActionBadge: "業務操作卡片"
+cardActionOpen: "執行操作"
+cardActionUnavailable: "暫無可執行操作"
+cardPayloadInvalid: "卡片內容無法顯示"
 # ==================== 企業群（INT-18..21） ====================
 groupTitle: "企業群"
 groupArchivedBadge: "已封存"

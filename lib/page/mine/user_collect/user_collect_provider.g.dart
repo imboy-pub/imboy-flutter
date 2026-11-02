@@ -48,7 +48,7 @@ final class UserCollectNotifierProvider
 }
 
 String _$userCollectNotifierHash() =>
-    r'e3739c8d816cb927d210f35b8fcf5e077c5ad2d6';
+    r'cb2832b67ed161f6f9209853941976d93fc02e78';
 
 /// UserCollect Notifier
 /// 处理收藏相关的业务逻辑

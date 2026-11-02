@@ -17,6 +17,13 @@ originMismatchTitle: "Origine incohérente"
 originMismatchHint: "Ce message porte à la fois une origine d'application d'entreprise et une charge chiffrée de bout en bout. Il est affiché comme message d'entreprise non chiffré, et non comme un message chiffré envoyé directement par un humain."
 originUnrecognized: "Marqueur d'origine non reconnu ; affiché comme non chiffré"
 actionDetails: "Détails"
+# ==================== V3-23 cartes d'application d'entreprise (carte lien / carte d'action) ====================
+cardLinkBadge: "Carte de lien"
+cardLinkOpen: "Ouvrir le lien"
+cardActionBadge: "Carte d'action"
+cardActionOpen: "Exécuter l'action"
+cardActionUnavailable: "Aucune action exécutable pour l'instant"
+cardPayloadInvalid: "Contenu de la carte indisponible"
 # ==================== Groupes d'entreprise (INT-18..21) ====================
 groupTitle: "Groupe d'entreprise"
 groupArchivedBadge: "Archivé"

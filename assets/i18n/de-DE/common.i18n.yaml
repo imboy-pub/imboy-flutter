@@ -118,6 +118,7 @@ genderUpdateFailed: Geschlechtseinstellung fehlgeschlagen, bitte versuchen Sie e
 groupAnnouncement: Gruppenankündigung
 groupFileUploadSuccess: Datei hochgeladen
 groupFileUploadFailed: Upload fehlgeschlagen. Bitte später erneut versuchen.
+groupFileUploadRetry(name): Upload von „$name“ wiederholen
 groupFileDeleteSuccess: Datei gelöscht
 groupFileDeleteFailed: Löschen fehlgeschlagen. Bitte später erneut versuchen.
 groupFileUploadTooltip: Datei hochladen
@@ -572,6 +573,8 @@ groupAlbumNoAlbum: Keine Gruppenalben
 groupAlbumPhotoReadFailed: Bild konnte nicht gelesen werden. Bitte erneut versuchen.
 groupAlbumPhotoUploaded: Bild hochgeladen
 groupAlbumPhotoUploadFailed: Bild-Upload fehlgeschlagen. Bitte später erneut versuchen.
+groupAlbumUploadRetryFailed(count): $count fehlgeschlagene Fotos erneut hochladen
+groupAlbumPhotoUploadedPartial(success, fail): $success hochgeladen, $fail fehlgeschlagen
 groupAlbumCreateTooltip: Album erstellen
 groupAlbumPhotoBatchDeleteTitle: Bilder löschen
 groupAlbumPhotoBatchDeleteConfirm(count): "$count ausgewählte Bilder wirklich löschen?"

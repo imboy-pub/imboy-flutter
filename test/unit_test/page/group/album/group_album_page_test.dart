@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:io' as io;
 
 import 'package:cross_file/cross_file.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,14 +24,14 @@ class _UploadCall {
   const _UploadCall({
     required this.groupId,
     required this.albumId,
-    required this.photoName,
-    required this.photoBytes,
+    required this.photoNames,
+    required this.clientUploadIds,
   });
 
   final String groupId;
   final String albumId;
-  final String photoName;
-  final List<int> photoBytes;
+  final List<String> photoNames;
+  final List<String> clientUploadIds;
 }
 
 class _RenameCall {
@@ -45,6 +46,7 @@ class _FakeGroupAlbumService extends GroupAlbumService {
     required this.albums,
     this.createAlbumResult,
     this.uploadPhotoResult,
+    this.uploadFailItemIndices = const <int>{},
     this.renameAlbumResult = true,
     this.throwOnGetAlbums = false,
   }) : super.withApi(GroupAlbumApi());
@@ -52,6 +54,9 @@ class _FakeGroupAlbumService extends GroupAlbumService {
   final List<Map<String, dynamic>> albums;
   final Map<String, dynamic>? createAlbumResult;
   final Map<String, dynamic>? uploadPhotoResult;
+
+  /// 按 items 下标强制失败的项（模拟 direct/bind_batch 部分失败）。
+  Set<int> uploadFailItemIndices;
   final bool renameAlbumResult;
 
   /// true 时 getAlbums 抛出，模拟网络失败（service 不再 fail-open）。
@@ -84,21 +89,28 @@ class _FakeGroupAlbumService extends GroupAlbumService {
   }
 
   @override
-  Future<Map<String, dynamic>?> uploadPhoto({
+  Future<List<GroupAlbumUploadOutcome>> uploadPhotosDirect({
     required String groupId,
     required String albumId,
-    required String photoName,
-    required List<int> photoBytes,
+    required List<GroupAlbumUploadItem> items,
   }) async {
     uploadCalls.add(
       _UploadCall(
         groupId: groupId,
         albumId: albumId,
-        photoName: photoName,
-        photoBytes: photoBytes,
+        photoNames: [for (final i in items) i.photoName],
+        clientUploadIds: [for (final i in items) i.clientUploadId],
       ),
     );
-    return uploadPhotoResult;
+    return <GroupAlbumUploadOutcome>[
+      for (int i = 0; i < items.length; i++)
+        GroupAlbumUploadOutcome(
+          item: items[i],
+          ok: uploadPhotoResult != null && !uploadFailItemIndices.contains(i),
+          reason: 'mock_failed',
+          photo: uploadPhotoResult,
+        ),
+    ];
   }
 
   @override
@@ -158,16 +170,19 @@ class _FakeFilePicker extends FilePickerPlatform {
 }
 
 /// PlatformFile 是 abstract base class，测试只能 extends 模拟。
+/// direct 直传按 path 读真实文件（页面不再 readAsBytes），fake 需指向
+/// 真实临时文件。
 final class _FakePickedFile extends PlatformFile {
-  _FakePickedFile({required this.name, List<int>? bytes})
+  _FakePickedFile({required this.name, this.realPath, List<int>? bytes})
     : _bytes = bytes == null ? null : Uint8List.fromList(bytes);
 
   @override
   final String name;
+  final String? realPath;
   final Uint8List? _bytes;
 
   @override
-  Uri get uri => Uri.file('/fake/$name');
+  Uri get uri => Uri.file(realPath ?? '/fake/$name');
 
   @override
   XFile get xFile => XFile.fromData(_bytes ?? Uint8List(0));
@@ -201,14 +216,30 @@ Widget _buildTestApp() {
 FilePickerPlatform? _originalFilePicker;
 bool _hasOriginalFilePicker = false;
 
+/// 测试临时目录（direct 直传需要磁盘上的真实文件）。
+late io.Directory _pickTmp;
+int _pickSeq = 0;
+
+List<PlatformFile> _pickResultOf(List<(String, List<int>)> files) {
+  return <PlatformFile>[
+    for (final (String name, List<int> bytes) in files)
+      () {
+        final io.File f = io.File('${_pickTmp.path}/$name-${_pickSeq++}')
+          ..writeAsBytesSync(bytes);
+        return _FakePickedFile(name: name, realPath: f.path, bytes: bytes);
+      }(),
+  ];
+}
+
 List<PlatformFile> _singlePickResult({
   required String fileName,
   required List<int> bytes,
 }) {
-  return [_FakePickedFile(name: fileName, bytes: bytes)];
+  return _pickResultOf(<(String, List<int>)>[(fileName, bytes)]);
 }
 
 List<PlatformFile> _singlePickResultWithoutBytes({required String fileName}) {
+  // 模拟选件无本地路径（如 Web blob）：页面应按读取失败处理。
   return [_FakePickedFile(name: fileName)];
 }
 
@@ -220,12 +251,14 @@ void main() {
     } catch (_) {
       _hasOriginalFilePicker = false;
     }
+    _pickTmp = io.Directory.systemTemp.createTempSync('ga-page-test');
   });
 
   tearDownAll(() {
     if (_hasOriginalFilePicker && _originalFilePicker != null) {
       FilePickerPlatform.instance = _originalFilePicker!;
     }
+    if (_pickTmp.existsSync()) _pickTmp.deleteSync(recursive: true);
   });
 
   tearDown(() async {
@@ -342,10 +375,19 @@ void main() {
     expect(fakeService.uploadCalls.length, 1);
     expect(fakeService.uploadCalls.single.groupId, 'g1');
     expect(fakeService.uploadCalls.single.albumId, 'a-real');
-    expect(fakeService.uploadCalls.single.photoName, 'cover.png');
-    expect(fakeService.uploadCalls.single.photoBytes, [1, 2, 3, 4]);
+    expect(fakeService.uploadCalls.single.photoNames, ['cover.png']);
+    // 每项均有 direct 幂等键
+    expect(
+      fakeService.uploadCalls.single.clientUploadIds.single,
+      matches(
+        RegExp(
+          '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\$',
+        ),
+      ),
+    );
     expect(find.text('图片上传成功'), findsOneWidget);
     expect(fakeService.getAlbumsCallCount, 2);
+    expect(find.textContaining('重试上传'), findsNothing);
   });
 
   testWidgets('upload photo failure shows failed snackbar', (tester) async {
@@ -372,9 +414,56 @@ void main() {
     expect(fakeService.uploadCalls.length, 1);
     expect(find.text('图片上传失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getAlbumsCallCount, 1);
+    // 全部失败保留重试条（失败项有账，不整批回滚）
+    expect(find.text('重试上传 1 张失败图片'), findsOneWidget);
   });
 
-  testWidgets('upload photo with empty bytes shows read failed snackbar', (
+  testWidgets('partial failure keeps failed item for retry only', (
+    tester,
+  ) async {
+    final fakeService = _FakeGroupAlbumService(
+      albums: const [
+        {'album_id': 'a-real', 'album_name': '团队相册', 'photo_count': 1},
+      ],
+      uploadPhotoResult: {'photo_id': 'p-ok'},
+      uploadFailItemIndices: const <int>{1},
+    );
+    final fakePicker = _FakeFilePicker(
+      pickResult: _pickResultOf(<(String, List<int>)>[
+        ('a.png', [1]),
+        ('b.png', [2]),
+      ]),
+    );
+    GroupAlbumService.instanceForTest = fakeService;
+    FilePickerPlatform.instance = fakePicker;
+
+    await tester.pumpWidget(_buildTestApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('上传图片').first);
+    await tester.pumpAndSettle();
+
+    expect(fakeService.uploadCalls.single.photoNames, ['a.png', 'b.png']);
+    expect(find.text('已上传1张，1张失败'), findsOneWidget);
+    expect(fakeService.getAlbumsCallCount, 2, reason: '部分成功也要刷新');
+    expect(find.text('重试上传 1 张失败图片'), findsOneWidget);
+
+    // 重试只带失败项（同 clientUploadId，不重传已成功项）
+    fakeService.uploadFailItemIndices = const <int>{};
+    await tester.tap(find.text('重试'));
+    await tester.pumpAndSettle();
+
+    expect(fakeService.uploadCalls.length, 2);
+    expect(fakeService.uploadCalls.last.photoNames, ['b.png']);
+    expect(
+      fakeService.uploadCalls.last.clientUploadIds.single,
+      fakeService.uploadCalls.first.clientUploadIds[1],
+    );
+    expect(find.text('图片上传成功'), findsOneWidget);
+    expect(find.textContaining('重试上传'), findsNothing);
+  });
+
+  testWidgets('upload photo with no local path shows read failed snackbar', (
     tester,
   ) async {
     final fakeService = _FakeGroupAlbumService(

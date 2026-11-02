@@ -923,6 +923,7 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => 'Group announcement';
 	@override String get groupFileUploadSuccess => 'File uploaded successfully';
 	@override String get groupFileUploadFailed => 'Upload failed, please try again';
+	@override String groupFileUploadRetry({required Object name}) => 'Retry uploading "${name}"';
 	@override String get groupFileDeleteSuccess => 'File deleted';
 	@override String get groupFileDeleteFailed => 'Delete failed, please try again';
 	@override String get groupFileUploadTooltip => 'Upload file';
@@ -1380,6 +1381,8 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => 'Failed to read photo, please retry';
 	@override String get groupAlbumPhotoUploaded => 'Photo uploaded';
 	@override String get groupAlbumPhotoUploadFailed => 'Upload failed, please try again';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => 'Retry uploading ${count} failed photos';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '${success} uploaded, ${fail} failed';
 	@override String get groupAlbumCreateTooltip => 'New album';
 	@override String get groupAlbumPhotoBatchDeleteTitle => 'Bulk delete photos';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'Delete ${count} selected photos?';
@@ -1990,6 +1993,12 @@ class _Translations$enterpriseApp$en_US extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => 'This message carries both an enterprise application origin and an end-to-end encrypted payload. It is shown as a non-encrypted enterprise-hosted message, not as a human direct encrypted message.';
 	@override String get originUnrecognized => 'Origin marker not recognized; shown as unencrypted';
 	@override String get actionDetails => 'Details';
+	@override String get cardLinkBadge => 'Link card';
+	@override String get cardLinkOpen => 'Open link';
+	@override String get cardActionBadge => 'Business action card';
+	@override String get cardActionOpen => 'Run action';
+	@override String get cardActionUnavailable => 'No runnable action yet';
+	@override String get cardPayloadInvalid => 'Card content unavailable';
 	@override String get groupTitle => 'Enterprise group';
 	@override String get groupArchivedBadge => 'Archived';
 	@override String get groupActionArchive => 'Archive';
@@ -4801,6 +4810,7 @@ extension on TranslationsEnUs {
 			'common.groupAnnouncement' => 'Group announcement',
 			'common.groupFileUploadSuccess' => 'File uploaded successfully',
 			'common.groupFileUploadFailed' => 'Upload failed, please try again',
+			'common.groupFileUploadRetry' => ({required Object name}) => 'Retry uploading "${name}"',
 			'common.groupFileDeleteSuccess' => 'File deleted',
 			'common.groupFileDeleteFailed' => 'Delete failed, please try again',
 			'common.groupFileUploadTooltip' => 'Upload file',
@@ -5048,9 +5058,9 @@ extension on TranslationsEnUs {
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected',
-			'common.allowNearbyVisible' => 'Visible to nearby people',
 			_ => null,
 		} ?? switch (path) {
+			'common.allowNearbyVisible' => 'Visible to nearby people',
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
 			'common.clearChatRecordsDesc' => 'Clear all chat records, this action cannot be undone',
@@ -5251,6 +5261,8 @@ extension on TranslationsEnUs {
 			'common.groupAlbumPhotoReadFailed' => 'Failed to read photo, please retry',
 			'common.groupAlbumPhotoUploaded' => 'Photo uploaded',
 			'common.groupAlbumPhotoUploadFailed' => 'Upload failed, please try again',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => 'Retry uploading ${count} failed photos',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '${success} uploaded, ${fail} failed',
 			'common.groupAlbumCreateTooltip' => 'New album',
 			'common.groupAlbumPhotoBatchDeleteTitle' => 'Bulk delete photos',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'Delete ${count} selected photos?',
@@ -5560,11 +5572,11 @@ extension on TranslationsEnUs {
 			'common.purchaseConfirming' => 'Payment is being confirmed. Check your order status shortly.',
 			'common.reconnecting' => 'Poor connection, reconnecting…',
 			'common.redPacketBrand' => 'IMBoy Red Packet',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketDialogTitle' => 'A red packet for you',
 			'common.redPacketDialogSubtitle' => 'Wishing you good fortune and prosperity',
 			'common.redPacketTotalAmount' => 'Total Amount',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketSingleAmount' => 'Amount per Red Packet',
 			'common.redPacketCount' => 'Number of Red Packets',
 			'common.redPacketCountUnit' => 'packets',
@@ -5839,6 +5851,12 @@ extension on TranslationsEnUs {
 			'enterpriseApp.originMismatchHint' => 'This message carries both an enterprise application origin and an end-to-end encrypted payload. It is shown as a non-encrypted enterprise-hosted message, not as a human direct encrypted message.',
 			'enterpriseApp.originUnrecognized' => 'Origin marker not recognized; shown as unencrypted',
 			'enterpriseApp.actionDetails' => 'Details',
+			'enterpriseApp.cardLinkBadge' => 'Link card',
+			'enterpriseApp.cardLinkOpen' => 'Open link',
+			'enterpriseApp.cardActionBadge' => 'Business action card',
+			'enterpriseApp.cardActionOpen' => 'Run action',
+			'enterpriseApp.cardActionUnavailable' => 'No runnable action yet',
+			'enterpriseApp.cardPayloadInvalid' => 'Card content unavailable',
 			'enterpriseApp.groupTitle' => 'Enterprise group',
 			'enterpriseApp.groupArchivedBadge' => 'Archived',
 			'enterpriseApp.groupActionArchive' => 'Archive',
@@ -6068,6 +6086,8 @@ extension on TranslationsEnUs {
 			'groupTask.taskDescription' => 'Description',
 			'groupTask.deadline' => 'Deadline',
 			'groupTask.noDeadline' => 'No deadline',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.noTask' => 'No to-dos yet',
 			'groupTask.all' => 'All',
 			'groupTask.pending' => 'Pending',
@@ -6077,8 +6097,6 @@ extension on TranslationsEnUs {
 			'groupTask.overdue' => 'Overdue',
 			'groupTask.daysLeft' => ({required Object days}) => '${days} days left',
 			'groupTask.hoursLeft' => ({required Object hours}) => '${hours} hours left',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.dueSoon' => 'Due soon',
 			'groupTask.submitFailed' => 'Submit failed, please try again',
 			'groupTask.pendingReview' => 'Pending Review',
@@ -6582,6 +6600,8 @@ extension on TranslationsEnUs {
 			'organization.directory.myDepartmentsSection' => 'My departments',
 			'organization.directory.membersSection' => 'Members',
 			'organization.directory.memberCountWith' => ({required Object count}) => '${count} members',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.searchHint' => 'Search departments or members',
 			'organization.directory.emptyDepartments' => 'No sub-departments',
 			'organization.directory.emptyMembers' => 'No members',
@@ -6591,8 +6611,6 @@ extension on TranslationsEnUs {
 			'organization.directory.inviteColleaguesRow' => 'Invite colleagues...',
 			'organization.directory.memberTotal' => ({required Object count}) => '${count} members in total',
 			'organization.memberDetail.roleLabel' => 'Enterprise role',
-			_ => null,
-		} ?? switch (path) {
 			'organization.memberDetail.roleRestricted' => 'Visible to enterprise admins only',
 			'organization.memberDetail.accountLabel' => 'Login account',
 			'organization.memberDetail.joinedLabel' => 'Joined',
@@ -7096,6 +7114,8 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryFailedBody' => 'Cleanup retry failed; try again later.',
 			'talkRecord.deleteRefreshStatus' => 'Refresh cleanup status',
 			'talkRecord.deleteBackToList' => 'Back to list',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.deleteStatusFixtureHint' => 'Component stage: cleanup status comes from a fixture sample; real progress pending integration.',
 			'talkRecord.microphoneStopUnconfirmed' => 'Microphone stop is not confirmed. Retry stopping; if it still fails, close the app and check the system microphone indicator.',
 			'talkRecord.cleanupWriteOutcomeUnknown' => 'The attachment write outcome is not confirmed. Cleanup is incomplete and remains protected pending operator verification. Refresh to check progress.',
@@ -7105,8 +7125,6 @@ extension on TranslationsEnUs {
 			'talkRecord.participantsInfoHint' => 'Participants describe attendance only. They do not share this record or verify speakers.',
 			'talkRecord.participantsRemove' => 'Remove participant',
 			'talkRecord.participantsGuestLabel' => 'Guest name or label',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.participantsAddGuest' => 'Add guest',
 			'talkRecord.participantsInvalid' => 'Select up to 100 people. Guest labels must be unique and 1–120 characters. Eligibility may have changed; check the list.',
 			'talkRecord.participantsNoResults' => 'No matching contacts or colleagues. Try searching.',

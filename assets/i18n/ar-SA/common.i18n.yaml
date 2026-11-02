@@ -118,6 +118,7 @@ genderUpdateFailed: فشل تعيين الجنس، يرجى المحاولة م�
 groupAnnouncement: إعلان المجموعة
 groupFileUploadSuccess: تم رفع الملف
 groupFileUploadFailed: تعذّر رفع الملف، حاول لاحقاً
+groupFileUploadRetry(name): إعادة محاولة رفع «$name»
 groupFileDeleteSuccess: تم حذف الملف
 groupFileDeleteFailed: تعذّر الحذف، حاول لاحقاً
 groupFileUploadTooltip: رفع ملف
@@ -581,6 +582,8 @@ groupAlbumNoAlbum: لا توجد ألبومات
 groupAlbumPhotoReadFailed: تعذّرت قراءة الصورة، أعد المحاولة
 groupAlbumPhotoUploaded: تم رفع الصورة
 groupAlbumPhotoUploadFailed: تعذّر رفع الصورة، حاول لاحقاً
+groupAlbumUploadRetryFailed(count): إعادة محاولة رفع $count صورة فشلت
+groupAlbumPhotoUploadedPartial(success, fail): تم رفع $success، فشل $fail
 groupAlbumCreateTooltip: إنشاء ألبوم
 groupAlbumPhotoBatchDeleteTitle: حذف الصور
 groupAlbumPhotoBatchDeleteConfirm(count): حذف الصور المحددة ($count)؟

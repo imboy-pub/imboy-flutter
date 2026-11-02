@@ -280,6 +280,41 @@ void main() {
       expect(body['device_type'], 'android');
     });
 
+    // V3-28 账号切换（alias/tag 更新语义的本地合同等价）：产品不调用
+    // JPush setAlias/setTags——服务端按 registration_id 定向（backend
+    // push_provider_jpush_http audience.registration_id），账号-设备绑定由
+    // 服务端 push_token_repo 按 (uid, device_id) 管理。因此账号切换的本地
+    // 合同 = 同一 RegistrationID 注销后随新账号登录重新上报（绑定刷新）。
+    test('账号切换：A 登出注销后 B 登录，同一 rid 重新注册到 B 会话', () async {
+      // adapter 由 setUp 注入（见 setUp 铁律注释）
+      await loginAs(1001);
+      final svc = PushNotificationService.instance;
+      await svc.setToken('rid-shared-device', providerId: 'jpush');
+      expect(adapter.requests, hasLength(1));
+
+      // 账号 A 登出：注销 + 本地登录态清除
+      await svc.unregisterToken();
+      await logoutLocal();
+      expect(
+        adapter.requests.where((r) => r.$2 == '/api/v1/push/unregister'),
+        hasLength(1),
+      );
+
+      // 账号 B 登录：loginAfter → registerToken，同一 rid 必须重新上报
+      // （否则服务端仍按 A 的绑定投递，B 收不到推送）
+      await loginAs(2002);
+      await svc.registerToken();
+      final registers = adapter.requests
+          .where((r) => r.$2 == '/api/v1/push/register')
+          .toList();
+      expect(registers, hasLength(2));
+      expect(svc.isRegistered, isTrue);
+      final body = registers.last.$3 as Map<String, dynamic>;
+      expect(body['token'], 'rid-shared-device');
+      expect(body['platform'], 'jpush');
+      expect(body['device_id'], 'did-android-1');
+    });
+
     test('注销请求只带 device_id', () async {
       // adapter 由 setUp 注入（见 setUp 铁律注释）
       final ok = await PushApi().unregister(deviceId: 'did-android-1');

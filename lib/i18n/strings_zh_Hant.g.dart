@@ -860,6 +860,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => '群組公告';
 	@override String get groupFileUploadSuccess => '檔案上傳成功';
 	@override String get groupFileUploadFailed => '檔案上傳失敗，請稍後重試';
+	@override String groupFileUploadRetry({required Object name}) => '重試上傳「${name}」';
 	@override String get groupFileDeleteSuccess => '檔案已刪除';
 	@override String get groupFileDeleteFailed => '刪除失敗，請稍後重試';
 	@override String get groupFileUploadTooltip => '上傳檔案';
@@ -1314,6 +1315,8 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => '圖片讀取失敗，請重試';
 	@override String get groupAlbumPhotoUploaded => '圖片上傳成功';
 	@override String get groupAlbumPhotoUploadFailed => '圖片上傳失敗，請稍後重試';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => '重試上傳 ${count} 張失敗圖片';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '已上傳${success}張，${fail}張失敗';
 	@override String get groupAlbumCreateTooltip => '新建相簿';
 	@override String get groupAlbumPhotoBatchDeleteTitle => '批次刪除圖片';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '確定刪除選中的 ${count} 張圖片嗎？';
@@ -1802,6 +1805,12 @@ class Translations$enterpriseApp$zh_Hant extends Translations$enterpriseApp$zh_C
 	@override String get originMismatchHint => '此訊息同時帶有企業應用來源與端對端加密載荷；已依非加密的企業來源顯示，不視為 Human 直發的加密訊息。';
 	@override String get originUnrecognized => '來源標記無法辨識，已依非加密顯示';
 	@override String get actionDetails => '詳情';
+	@override String get cardLinkBadge => '連結卡片';
+	@override String get cardLinkOpen => '開啟連結';
+	@override String get cardActionBadge => '業務操作卡片';
+	@override String get cardActionOpen => '執行操作';
+	@override String get cardActionUnavailable => '暫無可執行操作';
+	@override String get cardPayloadInvalid => '卡片內容無法顯示';
 	@override String get groupTitle => '企業群';
 	@override String get groupArchivedBadge => '已封存';
 	@override String get groupActionArchive => '封存';
@@ -4115,6 +4124,7 @@ extension on TranslationsZhHant {
 			'common.groupAnnouncement' => '群組公告',
 			'common.groupFileUploadSuccess' => '檔案上傳成功',
 			'common.groupFileUploadFailed' => '檔案上傳失敗，請稍後重試',
+			'common.groupFileUploadRetry' => ({required Object name}) => '重試上傳「${name}」',
 			'common.groupFileDeleteSuccess' => '檔案已刪除',
 			'common.groupFileDeleteFailed' => '刪除失敗，請稍後重試',
 			'common.groupFileUploadTooltip' => '上傳檔案',
@@ -4414,9 +4424,9 @@ extension on TranslationsZhHant {
 			'common.fileShareNotImplemented' => '檔案分享功能暫未實現',
 			'common.retrySuccess' => '重試成功',
 			'common.deleteSuccess' => '刪除成功',
-			'common.localDeleteSuccess' => '本地刪除成功',
 			_ => null,
 		} ?? switch (path) {
+			'common.localDeleteSuccess' => '本地刪除成功',
 			'common.localDeleteFailed' => '本地刪除失敗',
 			'common.revokeSuccess' => '收回成功',
 			'common.editContentCannotBeEmpty' => '編輯內容不能為空',
@@ -4565,6 +4575,8 @@ extension on TranslationsZhHant {
 			'common.groupAlbumPhotoReadFailed' => '圖片讀取失敗，請重試',
 			'common.groupAlbumPhotoUploaded' => '圖片上傳成功',
 			'common.groupAlbumPhotoUploadFailed' => '圖片上傳失敗，請稍後重試',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => '重試上傳 ${count} 張失敗圖片',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '已上傳${success}張，${fail}張失敗',
 			'common.groupAlbumCreateTooltip' => '新建相簿',
 			'common.groupAlbumPhotoBatchDeleteTitle' => '批次刪除圖片',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '確定刪除選中的 ${count} 張圖片嗎？',
@@ -4926,11 +4938,11 @@ extension on TranslationsZhHant {
 			'complaintReason.harassment' => '騷擾',
 			'complaintReason.inappropriate' => '不當內容',
 			'complaintReason.other' => '其他原因',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => '已封鎖',
 			'contact.applyChanges' => '請重新啟動應用以套用變更',
 			'contact.inputNewTag' => '輸入新標籤...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => '黑名單',
 			'contact.denylistEmpty' => '黑名單為空',
 			'contact.favoriteGroupTagsEtc' => '收藏人名、群組名、標籤等',
@@ -5010,6 +5022,12 @@ extension on TranslationsZhHant {
 			'enterpriseApp.originMismatchHint' => '此訊息同時帶有企業應用來源與端對端加密載荷；已依非加密的企業來源顯示，不視為 Human 直發的加密訊息。',
 			'enterpriseApp.originUnrecognized' => '來源標記無法辨識，已依非加密顯示',
 			'enterpriseApp.actionDetails' => '詳情',
+			'enterpriseApp.cardLinkBadge' => '連結卡片',
+			'enterpriseApp.cardLinkOpen' => '開啟連結',
+			'enterpriseApp.cardActionBadge' => '業務操作卡片',
+			'enterpriseApp.cardActionOpen' => '執行操作',
+			'enterpriseApp.cardActionUnavailable' => '暫無可執行操作',
+			'enterpriseApp.cardPayloadInvalid' => '卡片內容無法顯示',
 			'enterpriseApp.groupTitle' => '企業群',
 			'enterpriseApp.groupArchivedBadge' => '已封存',
 			'enterpriseApp.groupActionArchive' => '封存',
@@ -5434,6 +5452,8 @@ extension on TranslationsZhHant {
 			'main.e2eeErrComplianceExpired' => '合規金鑰已過期，請聯絡管理員',
 			'main.complianceKeyRotationConfirmed' => '合規金鑰輪換已確認，可重新發送訊息',
 			'main.complianceKeyRotationNoPending' => '沒有待確認的金鑰變更',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => '目前裝置未完成安全初始化，請登出後重新登入再試',
 			'main.e2eeErrProtocolMismatch' => '加密協定設定異常，請更新應用程式後重試',
 			'main.e2eeErrPeerSuiteUnsupported' => '對方裝置不支援要求的加密套件，訊息未傳送；請讓對方更新應用程式後重試',
@@ -5443,8 +5463,6 @@ extension on TranslationsZhHant {
 			'main.safetyNumberHint' => '請透過面對面或電話與對方比對安全碼。若一致，表示你們的通訊沒有被中間人監聽；若不一致，請立即停止對話，並透過其他管道核實對方身分。驗證狀態僅保存在本機。',
 			'main.safetyNumberMarkVerified' => '標記為已驗證',
 			'main.safetyNumberMarkedVerified' => '已標記為已驗證',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => '對方尚未啟用端對端加密',
 			'main.safetyNumberPeerDevice' => '對方裝置',
 			'main.safetyNumberReportRejected' => '伺服器拒絕了該驗證事件（簽章/時效不符），未標記',
@@ -5948,6 +5966,8 @@ extension on TranslationsZhHant {
 			'talkRecord.aiReplaceNotice' => '僅替換目前帳號在本裝置的此服務設定，不影響其他帳號或已儲存記錄。',
 			'talkRecord.aiDeleteTitle' => '刪除本裝置金鑰？',
 			'talkRecord.aiDeleteNotice' => '停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => '取消',
 			'talkRecord.aiDoubaoTitle' => '豆包語音 2.0',
 			'talkRecord.aiDoubaoPurpose' => '錄音轉寫與臨時說話人標籤',
@@ -5957,8 +5977,6 @@ extension on TranslationsZhHant {
 			'talkRecord.aiProviderCancel' => '停止此轉寫',
 			'talkRecord.aiProviderCancelNotice' => '將撤銷 IMBoy 的來源與操作授權；無法保證供應商停止處理或退款。',
 			'talkRecord.aiProviderResubmit' => '重新提交錄音',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => '將建立新的轉寫，可能重複計費。原請求保留。確認重新提交並同意本次處理？',
 			'talkRecord.aiProviderCancelled' => '轉寫已停止，已有錄音保留。',
 			'talkRecord.aiProviderResumePreparation' => '繼續準備轉寫',

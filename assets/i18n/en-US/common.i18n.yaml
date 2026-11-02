@@ -116,6 +116,7 @@ genderUpdateFailed: "Gender setting failed, please try again"
 groupAnnouncement: Group announcement
 groupFileUploadSuccess: File uploaded successfully
 groupFileUploadFailed: "Upload failed, please try again"
+groupFileUploadRetry(name): Retry uploading "$name"
 groupFileDeleteSuccess: File deleted
 groupFileDeleteFailed: "Delete failed, please try again"
 groupFileUploadTooltip: Upload file
@@ -571,6 +572,8 @@ groupAlbumNoAlbum: No albums yet
 groupAlbumPhotoReadFailed: "Failed to read photo, please retry"
 groupAlbumPhotoUploaded: Photo uploaded
 groupAlbumPhotoUploadFailed: "Upload failed, please try again"
+groupAlbumUploadRetryFailed(count): Retry uploading $count failed photos
+groupAlbumPhotoUploadedPartial(success, fail): $success uploaded, $fail failed
 groupAlbumCreateTooltip: New album
 groupAlbumPhotoBatchDeleteTitle: Bulk delete photos
 groupAlbumPhotoBatchDeleteConfirm(count): Delete $count selected photos?

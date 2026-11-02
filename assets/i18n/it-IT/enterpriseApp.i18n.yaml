@@ -17,6 +17,13 @@ originMismatchTitle: "Origine incoerente"
 originMismatchHint: "Questo messaggio porta sia un'origine applicativa aziendale sia un payload cifrato end-to-end. Viene mostrato come messaggio aziendale non cifrato, non come messaggio cifrato inviato direttamente da una persona."
 originUnrecognized: "Marcatore di origine non riconosciuto; mostrato come non cifrato"
 actionDetails: "Dettagli"
+# ==================== V3-23 schede app aziendale (scheda link / scheda azione) ====================
+cardLinkBadge: "Scheda link"
+cardLinkOpen: "Apri link"
+cardActionBadge: "Scheda azione"
+cardActionOpen: "Esegui azione"
+cardActionUnavailable: "Nessuna azione eseguibile per ora"
+cardPayloadInvalid: "Contenuto della scheda non disponibile"
 # ==================== Gruppi aziendali (INT-18..21) ====================
 groupTitle: "Gruppo aziendale"
 groupArchivedBadge: "Archiviato"

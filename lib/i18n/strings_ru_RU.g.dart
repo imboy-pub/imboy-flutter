@@ -858,6 +858,7 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => 'Объявление группы';
 	@override String get groupFileUploadSuccess => 'Файл загружен';
 	@override String get groupFileUploadFailed => 'Не удалось загрузить файл, попробуйте позже';
+	@override String groupFileUploadRetry({required Object name}) => 'Повторить загрузку «${name}»';
 	@override String get groupFileDeleteSuccess => 'Файл удалён';
 	@override String get groupFileDeleteFailed => 'Не удалось удалить, попробуйте позже';
 	@override String get groupFileUploadTooltip => 'Загрузить файл';
@@ -1321,6 +1322,8 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => 'Не удалось прочитать фото, попробуйте ещё раз';
 	@override String get groupAlbumPhotoUploaded => 'Фото загружено';
 	@override String get groupAlbumPhotoUploadFailed => 'Не удалось загрузить фото, попробуйте позже';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => 'Повторить загрузку ${count} неудачных фото';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => 'Загружено: ${success}, не удалось: ${fail}';
 	@override String get groupAlbumCreateTooltip => 'Создать альбом';
 	@override String get groupAlbumPhotoBatchDeleteTitle => 'Удалить фото';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'Удалить выбранные фото (${count})?';
@@ -1811,6 +1814,12 @@ class _Translations$enterpriseApp$ru_RU extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => 'Сообщение одновременно содержит корпоративное происхождение и полезную нагрузку со сквозным шифрованием. Оно показывается как нешифрованное корпоративное сообщение, а не как зашифрованное сообщение, отправленное человеком напрямую.';
 	@override String get originUnrecognized => 'Метка происхождения не распознана; показано как нешифрованное';
 	@override String get actionDetails => 'Подробности';
+	@override String get cardLinkBadge => 'Карточка ссылки';
+	@override String get cardLinkOpen => 'Открыть ссылку';
+	@override String get cardActionBadge => 'Карточка действия';
+	@override String get cardActionOpen => 'Выполнить действие';
+	@override String get cardActionUnavailable => 'Действие пока недоступно';
+	@override String get cardPayloadInvalid => 'Содержимое карточки недоступно';
 	@override String get groupTitle => 'Корпоративная группа';
 	@override String get groupArchivedBadge => 'В архиве';
 	@override String get groupActionArchive => 'Архивировать';
@@ -4122,6 +4131,7 @@ extension on TranslationsRuRu {
 			'common.groupAnnouncement' => 'Объявление группы',
 			'common.groupFileUploadSuccess' => 'Файл загружен',
 			'common.groupFileUploadFailed' => 'Не удалось загрузить файл, попробуйте позже',
+			'common.groupFileUploadRetry' => ({required Object name}) => 'Повторить загрузку «${name}»',
 			'common.groupFileDeleteSuccess' => 'Файл удалён',
 			'common.groupFileDeleteFailed' => 'Не удалось удалить, попробуйте позже',
 			'common.groupFileUploadTooltip' => 'Загрузить файл',
@@ -4423,9 +4433,9 @@ extension on TranslationsRuRu {
 			'common.deleteSuccess' => 'Успешно удалено',
 			'common.localDeleteSuccess' => 'Локальное удаление успешно',
 			'common.localDeleteFailed' => 'Локальное удаление не удалось',
-			'common.revokeSuccess' => 'Успешно отозвано',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => 'Успешно отозвано',
 			'common.editContentCannotBeEmpty' => 'Содержание редактирования не может быть пустым',
 			'common.editSuccess' => 'Успешно отредактировано',
 			'common.enabled' => 'Включено',
@@ -4572,6 +4582,8 @@ extension on TranslationsRuRu {
 			'common.groupAlbumPhotoReadFailed' => 'Не удалось прочитать фото, попробуйте ещё раз',
 			'common.groupAlbumPhotoUploaded' => 'Фото загружено',
 			'common.groupAlbumPhotoUploadFailed' => 'Не удалось загрузить фото, попробуйте позже',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => 'Повторить загрузку ${count} неудачных фото',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => 'Загружено: ${success}, не удалось: ${fail}',
 			'common.groupAlbumCreateTooltip' => 'Создать альбом',
 			'common.groupAlbumPhotoBatchDeleteTitle' => 'Удалить фото',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'Удалить выбранные фото (${count})?',
@@ -4935,11 +4947,11 @@ extension on TranslationsRuRu {
 			'complaintReason.harassment' => 'Преследование',
 			'complaintReason.inappropriate' => 'Неподходящий контент',
 			'complaintReason.other' => 'Другое',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => 'Заблокирован',
 			'contact.applyChanges' => 'Перезапустите приложение для применения изменений',
 			'contact.inputNewTag' => 'Введите новый тег...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => 'Чёрный список',
 			'contact.denylistEmpty' => 'Чёрный список пуст',
 			'contact.favoriteGroupTagsEtc' => 'Сохранённые имена, группы, теги и т.д.',
@@ -5019,6 +5031,12 @@ extension on TranslationsRuRu {
 			'enterpriseApp.originMismatchHint' => 'Сообщение одновременно содержит корпоративное происхождение и полезную нагрузку со сквозным шифрованием. Оно показывается как нешифрованное корпоративное сообщение, а не как зашифрованное сообщение, отправленное человеком напрямую.',
 			'enterpriseApp.originUnrecognized' => 'Метка происхождения не распознана; показано как нешифрованное',
 			'enterpriseApp.actionDetails' => 'Подробности',
+			'enterpriseApp.cardLinkBadge' => 'Карточка ссылки',
+			'enterpriseApp.cardLinkOpen' => 'Открыть ссылку',
+			'enterpriseApp.cardActionBadge' => 'Карточка действия',
+			'enterpriseApp.cardActionOpen' => 'Выполнить действие',
+			'enterpriseApp.cardActionUnavailable' => 'Действие пока недоступно',
+			'enterpriseApp.cardPayloadInvalid' => 'Содержимое карточки недоступно',
 			'enterpriseApp.groupTitle' => 'Корпоративная группа',
 			'enterpriseApp.groupArchivedBadge' => 'В архиве',
 			'enterpriseApp.groupActionArchive' => 'Архивировать',
@@ -5443,6 +5461,8 @@ extension on TranslationsRuRu {
 			'main.e2eeErrComplianceExpired' => 'Срок действия комплаенс-ключа истёк, обратитесь к администратору',
 			'main.complianceKeyRotationConfirmed' => 'Ротация ключа соответствия подтверждена, сообщение можно отправить повторно',
 			'main.complianceKeyRotationNoPending' => 'Нет ожидающих подтверждения изменений ключа',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите',
 			'main.e2eeErrProtocolMismatch' => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите',
 			'main.e2eeErrPeerSuiteUnsupported' => 'Устройство собеседника не поддерживает требуемый набор шифрования, сообщение не отправлено. Попросите собеседника обновить приложение и повторите попытку',
@@ -5452,8 +5472,6 @@ extension on TranslationsRuRu {
 			'main.safetyNumberHint' => 'Сравните код безопасности с собеседником лично или по телефону. Если коды совпадают, ваша связь не прослушивается посредником; если нет — немедленно прекратите разговор и проверьте личность собеседника другим способом. Статус проверки хранится только на этом устройстве.',
 			'main.safetyNumberMarkVerified' => 'Отметить как проверенного',
 			'main.safetyNumberMarkedVerified' => 'Отмечено как проверенное',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberNoDevices' => 'У собеседника не включено сквозное шифрование',
 			'main.safetyNumberPeerDevice' => 'Устройство собеседника',
 			'main.safetyNumberReportRejected' => 'Сервер отклонил событие проверки (подпись/срок не совпадают), статус не изменён',
@@ -5957,6 +5975,8 @@ extension on TranslationsRuRu {
 			'talkRecord.aiReplaceNotice' => 'Заменяются только настройки этого сервиса для текущего аккаунта на этом устройстве. Другие аккаунты и записи не изменяются.',
 			'talkRecord.aiDeleteTitle' => 'Удалить ключ устройства?',
 			'talkRecord.aiDeleteNotice' => 'Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Отмена',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Транскрипция аудио и временные метки говорящих',
@@ -5966,8 +5986,6 @@ extension on TranslationsRuRu {
 			'talkRecord.aiProviderCancel' => 'Остановить транскрипцию',
 			'talkRecord.aiProviderCancelNotice' => 'Отзывает доступ IMBoy к источнику и операциям. Остановка у поставщика или возврат оплаты не гарантируются.',
 			'talkRecord.aiProviderResubmit' => 'Отправить аудио повторно',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Создаёт новую транскрипцию; возможна повторная оплата. Исходный запрос остаётся. Отправить повторно и согласиться на обработку?',
 			'talkRecord.aiProviderCancelled' => 'Транскрипция остановлена. Аудио сохранено.',
 			'talkRecord.aiProviderResumePreparation' => 'Продолжить подготовку',

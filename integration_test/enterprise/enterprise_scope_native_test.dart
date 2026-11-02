@@ -41,6 +41,8 @@ import 'package:imboy/page/chat/widget/chat_input.dart';
 import 'package:imboy/page/channel/channel_detail_page.dart';
 import 'package:imboy/page/workspace/workspace_channel_detail_page.dart';
 import 'package:imboy/service/group_file_service.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart'
+    show newClientUploadId;
 import 'package:imboy/component/web_view.dart';
 import 'package:imboy/component/ui/common_bar.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
@@ -458,14 +460,20 @@ Future<void> checkNativeGroupFile(WidgetTester tester) async {
       isTrue,
     );
   }
-  final created = await tester.runAsync(
-    () => GroupFileService.to.uploadFile(
-      groupId: groupId,
-      fileName: name,
-      fileBytes: body.codeUnits,
-      fileType: 'text/plain',
-    ),
-  );
+  // direct-v1 直传：本地落临时文件后走 register→PUT→finalize→bind。
+  final Directory tmp = await Directory.systemTemp.createTemp('ent-group-file');
+  final File local = File('${tmp.path}/$name')..writeAsStringSync(body);
+  addTearDown(() => tmp.delete(recursive: true));
+  final Map<String, dynamic>? created = await tester
+      .runAsync<Map<String, dynamic>?>(
+        () => GroupFileService.to.uploadFileDirect(
+          groupId: groupId,
+          file: local,
+          fileName: name,
+          mime: 'text/plain',
+          clientUploadId: newClientUploadId(),
+        ),
+      );
   expect(created, isNotNull);
   await selectEnterpriseTab(tester, t.enterpriseOa.workbenchTitle);
   await waitFor(tester, find.text(t.chat.groupFile).hitTestable());

@@ -17,6 +17,13 @@ originMismatchTitle: "出所情報の不一致"
 originMismatchHint: "このメッセージには企業アプリの出所とエンドツーエンド暗号化ペイロードが同時に存在します。暗号化されていない企業ホストのメッセージとして表示し、人の直接送信による暗号化メッセージとしては扱いません。"
 originUnrecognized: "出所マーカーを認識できません。暗号化なしとして表示します"
 actionDetails: "詳細"
+# ==================== V3-23 企業アプリ代行カード（リンクカード / 業務操作カード） ====================
+cardLinkBadge: "リンクカード"
+cardLinkOpen: "リンクを開く"
+cardActionBadge: "業務操作カード"
+cardActionOpen: "操作を実行"
+cardActionUnavailable: "実行できる操作はまだありません"
+cardPayloadInvalid: "カードの内容を表示できません"
 # ==================== 企業グループ（INT-18..21） ====================
 groupTitle: "企業グループ"
 groupArchivedBadge: "アーカイブ済み"

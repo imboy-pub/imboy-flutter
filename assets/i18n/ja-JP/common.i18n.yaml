@@ -118,6 +118,7 @@ genderUpdateFailed: 性別設定に失敗しました。もう一度お試しく
 groupAnnouncement: グループのお知らせ
 groupFileUploadSuccess: ファイルをアップロードしました
 groupFileUploadFailed: ファイルのアップロードに失敗しました。後でもう一度お試しください
+groupFileUploadRetry(name): 「$name」のアップロードを再試行
 groupFileDeleteSuccess: ファイルを削除しました
 groupFileDeleteFailed: 削除に失敗しました。後でもう一度お試しください
 groupFileUploadTooltip: ファイルをアップロード
@@ -569,6 +570,8 @@ groupAlbumNoAlbum: グループアルバムはありません
 groupAlbumPhotoReadFailed: 画像の読み込みに失敗しました。もう一度お試しください
 groupAlbumPhotoUploaded: 画像をアップロードしました
 groupAlbumPhotoUploadFailed: 画像のアップロードに失敗しました。後でもう一度お試しください
+groupAlbumUploadRetryFailed(count): 失敗した$count枚を再アップロード
+groupAlbumPhotoUploadedPartial(success, fail): $success枚アップロード、$fail枚失敗
 groupAlbumCreateTooltip: アルバムを作成
 groupAlbumPhotoBatchDeleteTitle: 画像を一括削除
 groupAlbumPhotoBatchDeleteConfirm(count): 選択した $count 枚の画像を削除しますか？

@@ -37,7 +37,7 @@ class TalkRecordAttachmentUploadGateway
     TalkRecordPartTransport? transport,
     this.confirmAttempts = 6,
     Future<void> Function(Duration)? delay,
-  }) : transport = transport ?? TalkRecordGatewayPartTransport(),
+  }) : transport = transport ?? TalkRecordDispatchPartTransport(),
        delay = delay ?? Future<void>.delayed;
   final TalkRecordApi api;
   final TalkRecordPartTransport transport;
