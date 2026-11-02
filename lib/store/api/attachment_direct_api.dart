@@ -153,6 +153,47 @@ class DirectAttachmentApi {
   static const String stateConfirmed = 'CONFIRMED';
   static const String stateFinalizing = 'FINALIZING';
 
+  /// register 单步（RESERVED，无写能力/R08）：同 client_upload_id 同声明幂
+  /// 等，返回服务端生成的 object_key。
+  ///
+  /// 供调用方在 PUT/finalize 之前把 object_key 持久化（恢复链上 status 查
+  /// 询以 object_key 为键；先落盘再续作，崩溃窗口不丢单）。
+  static Future<String> registerSession({
+    required String fileName,
+    String scope = 'private',
+    String? scopeRef,
+    String? clientUploadId,
+    DirectSessionFn? sessionFn,
+  }) async {
+    Future<IMBoyHttpResponse> session(
+      String action, {
+      Map<String, dynamic>? body,
+    }) {
+      final String path = '/api/v1/attachment/direct/$action';
+      return sessionFn != null
+          ? sessionFn(path, body: body)
+          : HttpClient.client.post(path, data: body);
+    }
+
+    final IMBoyHttpResponse reg = await session(
+      'register',
+      body: <String, dynamic>{
+        'filename': fileName,
+        'scope': scope,
+        if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
+        'client_upload_id': ?clientUploadId,
+      },
+    );
+    if (!reg.ok) {
+      throw Exception('direct register 失败: code=${reg.code} msg=${reg.msg}');
+    }
+    final String objectKey = str(reg.payload, 'object_key');
+    if (objectKey.isEmpty) {
+      throw Exception('direct register 响应缺少 object_key');
+    }
+    return objectKey;
+  }
+
   /// 首传：register→declare→grant→PUT→finalize（全链）。
   ///
   /// [file] 即明文材料本身：恢复无需密钥存储，重启后按 [resumeDirect] 以
@@ -190,22 +231,13 @@ class DirectAttachmentApi {
     }
 
     // 1. register（RESERVED，无写能力/R08）：同 client_upload_id 同声明幂等。
-    final IMBoyHttpResponse reg = await session(
-      'register',
-      body: <String, dynamic>{
-        'filename': fileName,
-        'scope': scope,
-        if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
-        'client_upload_id': ?clientUploadId,
-      },
+    final String objectKey = await registerSession(
+      fileName: fileName,
+      scope: scope,
+      scopeRef: scopeRef,
+      clientUploadId: clientUploadId,
+      sessionFn: sessionFn,
     );
-    if (!reg.ok) {
-      throw Exception('direct register 失败: code=${reg.code} msg=${reg.msg}');
-    }
-    final String objectKey = str(reg.payload, 'object_key');
-    if (objectKey.isEmpty) {
-      throw Exception('direct register 响应缺少 object_key');
-    }
     await checkpoint?.call(
       DirectCheckpoint(
         DirectCheckpointStage.registered,
@@ -340,6 +372,36 @@ class DirectAttachmentApi {
       }
     }
     throw StateError('direct upload exhausted attempts (objectKey=$objectKey)');
+  }
+
+  /// 查询会话当前状态（恢复第一跳；RESERVED/DECLARED/GRANTED/FINALIZING/
+  /// CONFIRMED 等服务端权威状态）。网络/信封失败抛异常。
+  static Future<DirectUploadResult> status({
+    required String objectKey,
+    DirectSessionFn? sessionFn,
+  }) async {
+    Future<IMBoyHttpResponse> session(
+      String action, {
+      Map<String, dynamic>? body,
+    }) {
+      final String path = '/api/v1/attachment/direct/$action';
+      return sessionFn != null
+          ? sessionFn(path, body: body)
+          : HttpClient.client.post(path, data: body);
+    }
+
+    final IMBoyHttpResponse st = await session(
+      'status',
+      body: <String, dynamic>{'object_key': objectKey},
+    );
+    if (!st.ok) {
+      throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
+    }
+    return DirectUploadResult(
+      objectKey: objectKey,
+      state: str(st.payload, 'state'),
+      attemptId: 0,
+    );
   }
 
   /// 恢复（重启/断线后续作）：以服务端 status 为权威。

@@ -20,14 +20,21 @@ class TalkRecordUploadCheckpoint {
     this.completeHash = '',
     this.completeConsentFingerprint = '',
     this.submitted = false,
+    Map<String, dynamic>? finalAudio,
   }) : parts = parts ?? {},
        events = events ?? {},
-       marks = marks ?? [];
+       marks = marks ?? [],
+       finalAudio = finalAudio ?? {};
   final String identity, sourceHash;
   final Map<String, dynamic> parts, events;
   final List<String> marks;
   String completeKey, completeEtag, completeHash, completeConsentFingerprint;
   bool submitted;
+
+  /// 成品 direct 冻结身份（TalkRecordFinalAudioDecl 的 wire 形态 +
+  /// 'confirmed' 标志）。空 = 尚未合成。稳定 client_upload_id/object_key
+  /// 在此冻结后不因重启/回包丢失而更换；不存时效 URL 或凭据。
+  Map<String, dynamic> finalAudio;
   Map<String, dynamic> toJson() => {
     'version': 1,
     'identity': identity,
@@ -40,6 +47,7 @@ class TalkRecordUploadCheckpoint {
     'complete_hash': completeHash,
     'complete_consent_fingerprint': completeConsentFingerprint,
     'submitted': submitted,
+    if (finalAudio.isNotEmpty) 'final_audio': finalAudio,
   };
 }
 
@@ -90,6 +98,9 @@ class TalkRecordUploadCheckpointStore {
       completeConsentFingerprint:
           json['complete_consent_fingerprint'] as String? ?? '',
       submitted: json['submitted'] as bool,
+      finalAudio: json['final_audio'] is Map
+          ? Map<String, dynamic>.from(json['final_audio'] as Map)
+          : null,
     );
   }
 

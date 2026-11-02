@@ -6,9 +6,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:imboy/service/talk_record/talk_record_adts.dart';
 import 'package:imboy/service/talk_record/talk_record_manifest.dart';
 import 'package:imboy/service/talk_record/talk_record_platform_adapters.dart';
 import 'package:imboy/service/talk_record/talk_record_segment_crypto.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/talk_record_api.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capture_model.dart';
 import 'package:imboy/store/model/talk_record/talk_record_enums.dart';
@@ -22,7 +24,31 @@ import 'talk_record_recording_coordinator.dart';
 import 'talk_record_upload_checkpoint.dart';
 import 'talk_record_upload_manifest.dart';
 import 'talk_record_upload_progress.dart';
+part 'talk_record_final_audio.dart';
 part 'talk_record_upload_parts.dart';
+
+/// 成品 direct 上传 seam（默认 [DirectAttachmentApi.uploadFile]，scope 固定
+/// talk_record + recordId；测试注入 fake）。file 即明文成品，direct 内部
+/// 流式 hash/PUT，无整成品 readAsBytes。
+typedef TalkRecordFinalDirectUpload = Future<DirectUploadResult> Function(
+  File file, {
+  required String clientUploadId,
+  required String scopeRef,
+});
+
+/// 成品 direct 会话状态查询 seam（默认 [DirectAttachmentApi.status]；
+/// 恢复第一跳，RESERVED/DECLARED/GRANTED/FINALIZING/CONFIRMED 权威态）。
+typedef TalkRecordFinalDirectStatus = Future<DirectUploadResult> Function(
+  String objectKey,
+);
+
+/// 成品 direct register 单步 seam（默认 [DirectAttachmentApi.registerSession]，
+/// 同 client_upload_id 幂等）：object_key 在任何 PUT/finalize 前产生，
+/// 调用方先持久化再续作，崩溃窗口不丢单。
+typedef TalkRecordFinalDirectRegister = Future<String> Function(
+  String clientUploadId,
+  String scopeRef,
+);
 
 class TalkRecordAttachmentUploadGateway
     implements TalkRecordUploadGateway, TalkRecordUploadProgressSource {
@@ -37,12 +63,45 @@ class TalkRecordAttachmentUploadGateway
     TalkRecordPartTransport? transport,
     this.confirmAttempts = 6,
     Future<void> Function(Duration)? delay,
+    TalkRecordFinalDirectUpload? directUpload,
+    TalkRecordFinalDirectStatus? directStatus,
+    TalkRecordFinalDirectRegister? directRegister,
   }) : transport = transport ?? TalkRecordDispatchPartTransport(),
-       delay = delay ?? Future<void>.delayed;
+       delay = delay ?? Future<void>.delayed,
+       directUpload =
+           directUpload ??
+           ((
+             File file, {
+             required String clientUploadId,
+             required String scopeRef,
+           }) => DirectAttachmentApi.uploadFile(
+             file,
+             fileName: 'final.aac',
+             mime: 'audio/aac',
+             scope: 'talk_record',
+             scopeRef: scopeRef,
+             clientUploadId: clientUploadId,
+           )),
+       directStatus =
+           directStatus ??
+           ((String objectKey) =>
+               DirectAttachmentApi.status(objectKey: objectKey)),
+       directRegister =
+           directRegister ??
+           ((String clientUploadId, String scopeRef) =>
+               DirectAttachmentApi.registerSession(
+                 fileName: 'final.aac',
+                 scope: 'talk_record',
+                 scopeRef: scopeRef,
+                 clientUploadId: clientUploadId,
+               ));
   final TalkRecordApi api;
   final TalkRecordPartTransport transport;
   final int confirmAttempts;
   final Future<void> Function(Duration) delay;
+  final TalkRecordFinalDirectUpload directUpload;
+  final TalkRecordFinalDirectStatus directStatus;
+  final TalkRecordFinalDirectRegister directRegister;
 
   @override
   Future<void> upload({
@@ -269,6 +328,17 @@ class TalkRecordAttachmentUploadGateway
           report,
         );
       }
+      // no-backend-ffmpeg V1：客户端合成成品并 S3 直传（数据流 App→S3），
+      // 仅在真实 direct CONFIRMED 后才送 complete。
+      await _finalAudio(
+        binding,
+        manifest,
+        directory,
+        keys,
+        checkpoint,
+        checkpoints,
+        guard,
+      );
       report(TalkRecordUploadPhase.submitting);
       // Server mark bounds use capture.duration_ms, advanced by the end event.
       await _end(binding, manifest, capture, checkpoint, checkpoints, guard);
@@ -320,6 +390,10 @@ class TalkRecordAttachmentUploadGateway
       checkpoints,
       guard,
     );
+    final finalDecl = TalkRecordFinalAudioDecl.fromJson(checkpoint.finalAudio);
+    if (!finalDecl.isWellFormed || checkpoint.finalAudio['confirmed'] != true) {
+      throw StateError('Final audio is not confirmed');
+    }
     guard();
     try {
       final result = await api.complete(
@@ -331,6 +405,7 @@ class TalkRecordAttachmentUploadGateway
             manifestHash: hash,
           ),
         ],
+        finalAudio: finalDecl,
         policyVersion: binding.processingMode == 'record_only'
             ? binding.effectiveUploadPolicy
             : binding.effectiveProcessingPolicy,

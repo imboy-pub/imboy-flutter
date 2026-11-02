@@ -369,11 +369,15 @@ class TalkRecordApi extends HttpClient {
     return TalkRecordAudioPartConfirmResult.fromJson(_ensureOk(resp));
   }
 
-  /// POST /:id/complete（§4：captures 清单 + processing_consent；
-  /// 缺段 409 missing_sequences；202 assembling + job_id）。
+  /// POST /:id/complete（§4：captures 清单 + final_audio + processing_consent；
+  /// 缺段 409 missing_sequences；202 assembling + job_id。
+  /// no-backend-ffmpeg V1：final_audio 必填——客户端合成成品的 direct
+  /// CONFIRMED 声明；服务端以数据库事实准入，同清单换身份
+  /// 409 final_identity_conflict）。
   Future<TalkRecordCompleteResult> complete(
     EntityId id, {
     required List<TalkRecordCompleteCaptureInput> captures,
+    required TalkRecordFinalAudioDecl finalAudio,
     required String policyVersion,
     String? processorConfigVersion,
     required String idempotencyKey,
@@ -383,6 +387,7 @@ class TalkRecordApi extends HttpClient {
       API.talkRecordComplete(id),
       data: {
         'captures': captures.map((c) => c.toJson()).toList(),
+        'final_audio': finalAudio.toJson(),
         'processing_consent': {
           'policy_version': policyVersion,
           'processor_config_version': ?processorConfigVersion,

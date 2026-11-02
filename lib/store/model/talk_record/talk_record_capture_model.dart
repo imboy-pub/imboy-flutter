@@ -260,3 +260,80 @@ class TalkRecordCompleteCaptureInput {
     };
   }
 }
+
+/// POST /:id/complete 请求体 final_audio（no-backend-ffmpeg V1：客户端合成
+/// 成品的 direct 直传声明）。
+///
+/// 八字段与服务端 Complete.yaml/parse_final_audio 逐项对齐；服务端不信任本
+/// 声明——complete 时以 object_key+client_upload_id 反查真实 direct
+/// CONFIRMED 会话、活附件与 winner 物理身份，逐项比对后才创建验证任务。
+class TalkRecordFinalAudioDecl {
+  /// direct API 返回的逻辑对象标识（非 URL/磁盘路径）。
+  final String objectKey;
+
+  /// 本次成品的稳定直传会话 ID（UUIDv4；与分段身份分开，checkpoint 冻结）。
+  final String clientUploadId;
+
+  /// 整个成品的实际 SHA-256（流式计算，非分段 hash 文本的 hash）。
+  final String sha256;
+  final int byteSize;
+
+  /// 实际 ADTS 采样率 Hz（读自帧头，非配置值）。
+  final int sampleRate;
+
+  /// V1 固定单声道（服务端 enum [1]）。
+  final int channels;
+
+  /// 全部编码帧样本总数（Σ 每段真实样本）。
+  final int sampleCount;
+
+  /// 统一整数舍入 ms(S,R) 的成品时长（先累计样本再舍入）。
+  final int durationMs;
+
+  const TalkRecordFinalAudioDecl({
+    required this.objectKey,
+    required this.clientUploadId,
+    required this.sha256,
+    required this.byteSize,
+    required this.sampleRate,
+    required this.channels,
+    required this.sampleCount,
+    required this.durationMs,
+  });
+
+  factory TalkRecordFinalAudioDecl.fromJson(Map<String, dynamic> json) {
+    return TalkRecordFinalAudioDecl(
+      objectKey: '${json['object_key'] ?? ''}',
+      clientUploadId: '${json['client_upload_id'] ?? ''}',
+      sha256: '${json['sha256'] ?? ''}',
+      byteSize: (json['byte_size'] as num?)?.toInt() ?? 0,
+      sampleRate: (json['sample_rate'] as num?)?.toInt() ?? 0,
+      channels: (json['channels'] as num?)?.toInt() ?? 0,
+      sampleCount: (json['sample_count'] as num?)?.toInt() ?? 0,
+      durationMs: (json['duration_ms'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'object_key': objectKey,
+    'client_upload_id': clientUploadId,
+    'sha256': sha256,
+    'byte_size': byteSize,
+    'sample_rate': sampleRate,
+    'channels': channels,
+    'sample_count': sampleCount,
+    'duration_ms': durationMs,
+  };
+
+  /// checkpoint 恢复的形态自检（防止空/部分 checkpoint 被当作可发布声明）。
+  bool get isWellFormed =>
+      objectKey.isNotEmpty &&
+      RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+          .hasMatch(clientUploadId) &&
+      RegExp(r'^[a-f0-9]{64}$').hasMatch(sha256) &&
+      byteSize > 0 &&
+      sampleRate > 0 &&
+      channels == 1 &&
+      sampleCount > 0 &&
+      durationMs > 0;
+}
