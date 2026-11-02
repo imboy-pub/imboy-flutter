@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:imboy/service/talk_record/talk_record_adts.dart';
 import 'package:imboy/service/talk_record/talk_record_recorder_config.dart';
 
 class TalkRecordMinimaxFormatException implements Exception {
@@ -46,7 +47,9 @@ class TalkRecordAiAudioChunk {
     // One bounded copy; multipart later streams this same read-only snapshot.
     final snapshot = Uint8List.fromList(input).asUnmodifiableView();
     final digest = sha256.convert(snapshot).toString();
-    final timing = _adtsTiming(snapshot);
+    // 结构规则统一走共用解析器（talk_record_adts.dart）；MiniMax 特有的
+    // 500 秒上限保留在本调用层，不施加到整份录音。
+    final timing = _minimaxTiming(snapshot);
     if (digest != expectedSha256 ||
         (timing.durationMs - expectedDurationMs).abs() >
             TalkRecordRecorderConfig.progressIntervalMs +
@@ -78,64 +81,21 @@ class TalkRecordAiAudioChunk {
   String toString() => 'TalkRecordAiAudioChunk(redacted)';
 }
 
-const _adtsRates = [
-  96000,
-  88200,
-  64000,
-  48000,
-  44100,
-  32000,
-  24000,
-  22050,
-  16000,
-  12000,
-  11025,
-  8000,
-  7350,
-];
-
-({int durationMs, int frameDurationMs}) _adtsTiming(Uint8List bytes) {
-  var offset = 0, frames = 0;
-  int? frequency, channels;
-  while (offset < bytes.length) {
-    if (bytes.length - offset < 7 ||
-        bytes[offset] != 0xff ||
-        (bytes[offset + 1] & 0xf6) != 0xf0) {
-      throw const TalkRecordMinimaxFormatException();
-    }
-    final index = (bytes[offset + 2] >> 2) & 15;
-    final channel = ((bytes[offset + 2] & 1) << 2) | (bytes[offset + 3] >> 6);
-    final length =
-        ((bytes[offset + 3] & 3) << 11) |
-        (bytes[offset + 4] << 3) |
-        (bytes[offset + 5] >> 5);
-    final header = (bytes[offset + 1] & 1) == 1 ? 7 : 9;
-    if (index >= _adtsRates.length ||
-        ((bytes[offset + 2] >> 6) & 3) != 1 ||
-        channel < 1 ||
-        channel > 2 ||
-        length <= header ||
-        offset + length > bytes.length ||
-        (bytes[offset + 6] & 3) != 0 ||
-        (frequency != null && frequency != _adtsRates[index]) ||
-        (channels != null && channels != channel)) {
-      throw const TalkRecordMinimaxFormatException();
-    }
-    frequency = _adtsRates[index];
-    channels = channel;
-    frames++;
-    if (frames * 1024000 > 500001 * frequency) {
-      throw const TalkRecordMinimaxFormatException();
-    }
-    offset += length;
+/// MiniMax 分块时序：共用 ADTS 结构扫描 + 本调用层的 500 秒上限。
+({int durationMs, int frameDurationMs}) _minimaxTiming(Uint8List bytes) {
+  final TalkRecordAdtsSummary summary;
+  try {
+    summary = talkRecordAdtsScan(bytes);
+  } on TalkRecordAdtsException {
+    throw const TalkRecordMinimaxFormatException();
   }
-  final durationMs = (frames * 1024000 / frequency!).round();
-  if (durationMs <= 0 || durationMs > TalkRecordAiAudioChunk.maxDurationMs) {
+  if (summary.durationMs <= 0 ||
+      summary.durationMs > TalkRecordAiAudioChunk.maxDurationMs) {
     throw const TalkRecordMinimaxFormatException();
   }
   return (
-    durationMs: durationMs,
-    frameDurationMs: (1024000 / frequency).ceil(),
+    durationMs: summary.durationMs,
+    frameDurationMs: (1024000 / summary.sampleRateHz).ceil(),
   );
 }
 

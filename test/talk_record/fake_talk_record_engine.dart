@@ -37,8 +37,8 @@ class FakeTalkRecordEngine implements TalkRecordAudioEngine {
   /// stopSegment 后删除明文文件（模拟空段/丢失）。
   bool dropSegmentFileOnStop = false;
 
-  /// 每段明文字节数（默认按 elapsed 派生，保证非空）。
-  int Function(int elapsedMs)? segmentByteSize;
+  /// 每帧 payload 字节数（默认 32；合法 AAC-LC ADTS 帧总长 = 7 + payload）。
+  int framePayloadBytes = 32;
 
   String? _currentPath;
 
@@ -105,12 +105,35 @@ class FakeTalkRecordEngine implements TalkRecordAudioEngine {
       if (f.existsSync()) f.deleteSync();
       return elapsedMs;
     }
-    final size = segmentByteSize?.call(elapsedMs) ?? 200 + elapsedMs;
-    final bytes = Uint8List.fromList(
-      List<int>.generate(size, (i) => (i + elapsedMs) & 0xFF),
-    );
-    await File(path).writeAsBytes(bytes, flush: true);
+    await File(path).writeAsBytes(_adtsSegmentBytes(), flush: true);
     return elapsedMs;
+  }
+
+  /// 合法 AAC-LC ADTS@16kHz 单声道段（确定性 payload）。
+  ///
+  /// 帧数按 elapsed 派生（每帧 1024 样本 = 64ms）；elapsed=0 也产出 1 帧
+  /// （文件存在即有效内容）。封段侧共用解析器要求结构可遍历，伪随机
+  /// 字节不再可用（PLAN T1：真实样本成为时间轴权威）。
+  Uint8List _adtsSegmentBytes() {
+    final int frames = elapsedMs <= 0 ? 1 : (elapsedMs + 63) ~/ 64;
+    final int payload = framePayloadBytes;
+    final int frameLen = 7 + payload;
+    final out = BytesBuilder(copy: false);
+    for (var n = 0; n < frames; n++) {
+      out.add(<int>[
+        0xff,
+        0xf1,
+        // profile=01(AAC-LC) | freqIdx=8(16kHz) | private=0 | chHigh=0
+        (1 << 6) | (8 << 2),
+        // chLow=01 | frameLen 高 2 位
+        0x40 | ((frameLen >> 11) & 0x3),
+        (frameLen >> 3) & 0xff,
+        ((frameLen & 0x7) << 5) | 0x1f, // fullness 高 5 位=11111
+        0xfc, // fullness 低 6 位=111111 | blocks-1=00（单 raw block）
+        for (var i = 0; i < payload; i++) (i + n + elapsedMs) & 0xff,
+      ]);
+    }
+    return out.toBytes();
   }
 
   @override

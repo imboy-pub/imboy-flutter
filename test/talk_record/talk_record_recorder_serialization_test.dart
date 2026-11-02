@@ -118,8 +118,10 @@ void main() {
       ); // Rollover's old segment and end's empty new segment.
       expect(engine.events.where((e) => e.startsWith('start:')).length, 2);
       expect(result.manifest.marks.single.note, 'during seal');
-      expect(result.manifest.marks.single.positionMs, 1000);
-      expect(result.manifest.segments.map((s) => s.seq), [0]);
+      // 段 0 真实样本 16 帧@16kHz = 1024ms；mark 排队在封段完成后执行。
+      expect(result.manifest.marks.single.positionMs, 1024);
+      // end 的新段有 1 有效帧也保留（真实样本权威）。
+      expect(result.manifest.segments.map((s) => s.seq), [0, 1]);
       expect(result.manifest.status, TalkRecordSessionStatus.ended);
       final disk = await TalkRecordManifestStore(svc.sessionDir!).read();
       expect(disk!.marks.length, 1);
@@ -145,14 +147,15 @@ void main() {
     expect(paused.segments.map((s) => s.seq), [0]);
     await svc.resume();
     final progressed = svc.snapshots.firstWhere(
-      (s) => s.effectiveDurationMs == 1200,
+      (s) => s.effectiveDurationMs == 1224, // 段 0 真实 1024ms + 200 进度
     );
     engine.tick(200);
     await progressed;
     final result = await svc.end();
     expect(result.manifest.marks.length, 1);
     expect(result.manifest.segments.map((s) => s.seq), [0, 1]);
-    expect(result.effectiveDurationMs, 1200);
+    // 段 1：200ms 进度 → 4 帧 256ms；总 1024+256=1280（累计样本舍入）。
+    expect(result.effectiveDurationMs, 1280);
     await svc.dispose();
   });
 

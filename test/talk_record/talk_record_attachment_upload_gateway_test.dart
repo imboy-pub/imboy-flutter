@@ -396,10 +396,10 @@ void main() {
           'sha256': s.plainSha256Hex,
           'byte_size': s.plainSize,
           'offset_ms': 0,
-          'duration_ms': 1000,
+          'duration_ms': 1024, // 16 帧@16kHz 真实样本（tick 1000 → ceil→16 帧）
         },
       ],
-      'total_duration_ms': 1000,
+      'total_duration_ms': 1024,
       'total_bytes': s.plainSize,
     };
     expect(api.completedHash, talkRecordManifestHash(expected));

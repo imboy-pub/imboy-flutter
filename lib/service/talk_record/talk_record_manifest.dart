@@ -56,8 +56,14 @@ class TalkRecordSegmentEntry {
   final int plainSize;
   final String plainSha256Hex;
   final String codec;
+
+  /// 真实采样率/声道（封段时读自 ADTS 头；旧清单为配置回退值）。
   final int sampleRateHz;
   final int numChannels;
+
+  /// 本段编码样本总数（ADTS 帧数 × 1024；0 = 旧清单未记录，时长以
+  /// start/end 毫秒为准）。录后时间轴权威：跨段累计样本再统一舍入。
+  final int sampleCount;
 
   /// 段捕获墙钟（仅溯源，§11.1 captured_wall_time 语义）。
   final String capturedWallTimeIso;
@@ -74,6 +80,7 @@ class TalkRecordSegmentEntry {
     required this.codec,
     required this.sampleRateHz,
     required this.numChannels,
+    this.sampleCount = 0,
     required this.capturedWallTimeIso,
   });
 
@@ -90,6 +97,7 @@ class TalkRecordSegmentEntry {
       codec: _asStr(json['codec'], fallback: 'aac_lc'),
       sampleRateHz: _asInt(json['sample_rate_hz']),
       numChannels: _asInt(json['num_channels'], fallback: 1),
+      sampleCount: _asInt(json['sample_count']),
       capturedWallTimeIso: _asStr(json['captured_wall_time']),
     );
   }
@@ -106,6 +114,7 @@ class TalkRecordSegmentEntry {
     'codec': codec,
     'sample_rate_hz': sampleRateHz,
     'num_channels': numChannels,
+    if (sampleCount > 0) 'sample_count': sampleCount,
     'captured_wall_time': capturedWallTimeIso,
   };
 
@@ -125,23 +134,55 @@ class TalkRecordSegmentEntry {
 
 /// 本地重点标记（UI-SPEC §2 录音行「重点列表」；离线先本机落盘，
 /// 联网幂等补传时再映射 client_mark_id）。
+///
+/// 校准合同（PLAN 2.1）：录制时按进度记 [positionMs]（临时位置）并绑定
+/// [segmentSeq]；所属段封段时按真实样本一次性校正为 [calibratedMs]，
+/// 之后不再改动（续跑不得二次校正）。[calibrationFailed] 表示该段封段时
+/// 无法定位（进度缺失/非正），位置不可信——保留记录但不得当作精确位置
+/// 上传。恢复时坏尾/未封段对应的标记同步裁剪（见 ManifestStore.recover）。
 class TalkRecordLocalMark {
   final String localId;
+
+  /// 临时位置（记录时按进度的有效时长估算；校准后仅作溯源）。
   final int positionMs;
+
+  /// 所属段 seq（记录时当前段；-1 = 旧清单无段归属）。
+  final int segmentSeq;
+
+  /// 校准后的真实样本轴位置；null = 尚未校准（段未封或校准失败）。
+  final int? calibratedMs;
+
+  /// 封段时无法定位（进度缺失但有有效帧）：位置不可信，不上传。
+  final bool calibrationFailed;
+
   final String note;
   final String createdAtIso;
 
   const TalkRecordLocalMark({
     required this.localId,
     required this.positionMs,
+    this.segmentSeq = -1,
+    this.calibratedMs,
+    this.calibrationFailed = false,
     this.note = '',
     required this.createdAtIso,
   });
 
+  /// 有效位置：已校准用校准值；未校准（当前段进行中）退临时位置。
+  /// 校准失败标记无有效位置（调用方跳过上传）。
+  int? get resolvedPositionMs =>
+      calibrationFailed ? null : (calibratedMs ?? positionMs);
+
+  bool get calibrated => calibratedMs != null;
+
   factory TalkRecordLocalMark.fromJson(Map<String, dynamic> json) {
+    final dynamic cal = json['calibrated_ms'];
     return TalkRecordLocalMark(
       localId: _s(json['local_id']),
       positionMs: _i(json['position_ms']),
+      segmentSeq: _i(json['segment_seq'], fallback: -1),
+      calibratedMs: cal is int ? cal : int.tryParse('$cal'),
+      calibrationFailed: json['calibration_failed'] == true,
       note: _s(json['note']),
       createdAtIso: _s(json['created_at']),
     );
@@ -150,12 +191,16 @@ class TalkRecordLocalMark {
   Map<String, dynamic> toJson() => {
     'local_id': localId,
     'position_ms': positionMs,
+    if (segmentSeq >= 0) 'segment_seq': segmentSeq,
+    if (calibratedMs != null) 'calibrated_ms': calibratedMs,
+    if (calibrationFailed) 'calibration_failed': true,
     'note': note,
     'created_at': createdAtIso,
   };
 
   static String _s(dynamic v) => v is String ? v : '';
-  static int _i(dynamic v) => v is int ? v : int.tryParse('$v') ?? 0;
+  static int _i(dynamic v, {int fallback = 0}) =>
+      v is int ? v : (int.tryParse('$v') ?? fallback);
 }
 
 /// 中断原因（持久化，恢复后仍可见——DESIGN §5.2）。
@@ -223,6 +268,17 @@ class TalkRecordManifest {
   /// 有效时长 = 分段累加（暂停/中断不计时，§3）。
   int get effectiveDurationMs =>
       segments.fold<int>(0, (sum, s) => sum + s.durationMs);
+
+  /// 累计编码样本（真实时间轴权威）；任一段未记录 sampleCount（旧清单）
+  /// 返回 null——此时时间轴退回毫秒累加语义，不伪造样本数。
+  int? get totalSampleCount {
+    var total = 0;
+    for (final s in segments) {
+      if (s.sampleCount <= 0) return null;
+      total += s.sampleCount;
+    }
+    return total;
+  }
 
   /// 累计密文字节。
   int get totalCipherBytes =>
@@ -399,9 +455,13 @@ class TalkRecordManifestStore {
   ///
   /// - 密文缺失/大小不符/SHA-256 不符的段：按序截断（从第一个坏段起
   ///   丢弃其后所有段——分段时间轴必须连续有效，不能跳段拼接）；
+  /// - 标记同步裁剪（PLAN 2.1）：坏尾/未封段（segmentSeq 不在保留段
+  ///   集内）与无段归属但位置超出保留时长的标记一并丢弃——位置指向
+  ///   已不存在的音频，不得保留误导 UI/上传；
   /// - 段校验全部通过但状态非 ended：恢复为 interrupted（保留中断
   ///   信息；若此前无中断记录，标记 unknown_interrupt），恢复继续录
-  ///   必须用户显式确认；
+  ///   必须用户显式确认——该分支同样裁掉末段未封（seq 未进清单）的
+  ///   标记；
   /// - 清单状态 ended：直接按已结束恢复。
   Future<TalkRecordRecoveryResult> recover({bool verifyHashes = true}) async {
     final manifest = await read();
@@ -428,15 +488,26 @@ class TalkRecordManifestStore {
     }
     if (!truncated && kept.length == manifest.segments.length) {
       if (manifest.status == TalkRecordSessionStatus.ended) {
+        final prunedEnded = _pruneMarks(manifest, kept);
+        final settled = prunedEnded == null
+            ? manifest
+            : manifest.copyWith(
+                marks: prunedEnded,
+                updatedAtIso: DateTime.now().toIso8601String(),
+              );
+        if (!identical(settled, manifest)) await write(settled);
         return TalkRecordRecoveryResult(
-          manifest: manifest,
+          manifest: settled,
           truncatedTail: false,
         );
       }
       // 段全部完好但状态非 ended：启动时发现"还在录"的清单 ⇒ 上次异常
-      // 退出，归一为 interrupted（unknown_interrupt），续录须用户确认。
+      // 退出（末段未封），归一为 interrupted（unknown_interrupt），续录
+      // 须用户确认；末段未封的标记（seq 未进清单）同步裁剪。
+      final pruned = _pruneMarks(manifest, kept);
       final normalized = manifest.copyWith(
         status: TalkRecordSessionStatus.interrupted,
+        marks: pruned ?? manifest.marks,
         interruption:
             manifest.interruption ??
             const TalkRecordInterruptionRecord(
@@ -451,8 +522,10 @@ class TalkRecordManifestStore {
         truncatedTail: false,
       );
     }
+    final pruned = _pruneMarks(manifest, kept);
     final recovered = manifest.copyWith(
       segments: List.unmodifiable(kept),
+      marks: pruned ?? manifest.marks,
       // M3：非 ended 一律归一 interrupted（含首段损坏 kept 空的形态）
       // ——磁盘 manifest 与 listSessions 不得呈现 recording 误导 T10 UI。
       status: manifest.status == TalkRecordSessionStatus.ended
@@ -468,10 +541,30 @@ class TalkRecordManifestStore {
     );
     // 把截断后的清单写回，保证后续续录从一致状态出发。
     if (recovered.segments.length != manifest.segments.length ||
-        recovered.status != manifest.status) {
+        recovered.status != manifest.status ||
+        (pruned != null && pruned.length != manifest.marks.length)) {
       await write(recovered);
     }
     return TalkRecordRecoveryResult(manifest: recovered, truncatedTail: true);
+  }
+
+  /// 裁剪指向已不存在音频的标记；返回新列表（有裁剪）或 null（无变化）。
+  static List<TalkRecordLocalMark>? _pruneMarks(
+    TalkRecordManifest manifest,
+    List<TalkRecordSegmentEntry> kept,
+  ) {
+    if (manifest.marks.isEmpty) return null;
+    final keptSeqs = kept.map((s) => s.seq).toSet();
+    final keptDurationMs = kept.fold<int>(0, (sum, s) => sum + s.durationMs);
+    final survivors = manifest.marks
+        .where((m) {
+          if (m.segmentSeq >= 0) return keptSeqs.contains(m.segmentSeq);
+          // 无段归属（旧清单）：按位置裁剪。
+          return (m.calibratedMs ?? m.positionMs) <= keptDurationMs;
+        })
+        .toList(growable: false);
+    if (survivors.length == manifest.marks.length) return null;
+    return List.unmodifiable(survivors);
   }
 }
 

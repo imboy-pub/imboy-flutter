@@ -66,6 +66,13 @@ void main() {
   TalkRecordManifest buildManifest(
     List<TalkRecordSegmentEntry> segments, {
     TalkRecordSessionStatus status = TalkRecordSessionStatus.recording,
+    List<TalkRecordLocalMark> marks = const [
+      TalkRecordLocalMark(
+        localId: 'mk1',
+        positionMs: 5000,
+        createdAtIso: '2026-10-20T11:05:00',
+      ),
+    ],
   }) {
     return TalkRecordManifest(
       sessionId: sessionId,
@@ -74,13 +81,7 @@ void main() {
       status: status,
       reportedStartedAtIso: '2026-10-20T11:00:00',
       segments: segments,
-      marks: const [
-        TalkRecordLocalMark(
-          localId: 'mk1',
-          positionMs: 5000,
-          createdAtIso: '2026-10-20T11:05:00',
-        ),
-      ],
+      marks: marks,
       encoder: const TalkRecordEncoderSettings(),
       updatedAtIso: '2026-10-20T12:00:00',
     );
@@ -180,6 +181,97 @@ void main() {
     // 磁盘清单不得残留 recording 误导恢复入口。
     expect(result.manifest!.status, TalkRecordSessionStatus.interrupted);
     expect(result.manifest!.interruption?.reason, 'unknown_interrupt');
+  });
+
+  test('崩溃恢复：坏尾截断同步裁剪对应段标记（PLAN 2.1）', () async {
+    final store = TalkRecordManifestStore(sessionDir);
+    final segs = [
+      await forgeSegment(0, 0, 30000),
+      await forgeSegment(1, 30000, 12000),
+      await forgeSegment(2, 42000, 7000),
+    ];
+    await store.write(
+      buildManifest(
+        segs,
+        marks: [
+          const TalkRecordLocalMark(
+            localId: 'mk-keep0',
+            positionMs: 100,
+            segmentSeq: 0,
+            createdAtIso: '2026-10-20T11:05:00',
+          ),
+          const TalkRecordLocalMark(
+            localId: 'mk-keep1',
+            positionMs: 31000,
+            segmentSeq: 1,
+            calibratedMs: 31000,
+            createdAtIso: '2026-10-20T11:06:00',
+          ),
+          const TalkRecordLocalMark(
+            localId: 'mk-drop2',
+            positionMs: 43000,
+            segmentSeq: 2,
+            createdAtIso: '2026-10-20T11:07:00',
+          ),
+          // 旧清单（无段归属）位置超出保留时长 → 同样裁剪。
+          const TalkRecordLocalMark(
+            localId: 'mk-drop-legacy',
+            positionMs: 42500,
+            createdAtIso: '2026-10-20T11:08:00',
+          ),
+          // 旧清单位置在保留时长内 → 保留。
+          const TalkRecordLocalMark(
+            localId: 'mk-keep-legacy',
+            positionMs: 40000,
+            createdAtIso: '2026-10-20T11:09:00',
+          ),
+        ],
+      ),
+    );
+    File('${sessionDir.path}/${segs[2].cipherFileName}').deleteSync();
+
+    final result = await store.recover();
+    expect(result.truncatedTail, isTrue);
+    expect(result.manifest!.segments.length, 2);
+    final ids = result.manifest!.marks.map((m) => m.localId).toSet();
+    expect(ids, {'mk-keep0', 'mk-keep1', 'mk-keep-legacy'});
+  });
+
+  test('崩溃恢复：段全完好但末段未封 → 未封段标记同步裁剪', () async {
+    final store = TalkRecordManifestStore(sessionDir);
+    final segs = [
+      await forgeSegment(0, 0, 30000),
+      await forgeSegment(1, 30000, 12000),
+    ];
+    // 崩溃形态：已封段 0/1 全完好，状态 recording；当时正在录 seq=2 的
+    // 段（未封、未进清单），但 seq=2 的标记已随 addMark 写入 manifest。
+    await store.write(
+      buildManifest(
+        segs,
+        status: TalkRecordSessionStatus.recording,
+        marks: [
+          const TalkRecordLocalMark(
+            localId: 'mk-sealed',
+            positionMs: 35000,
+            segmentSeq: 1,
+            calibratedMs: 35000,
+            createdAtIso: '2026-10-20T11:05:00',
+          ),
+          const TalkRecordLocalMark(
+            localId: 'mk-unsealed',
+            positionMs: 42500,
+            segmentSeq: 2,
+            createdAtIso: '2026-10-20T11:06:00',
+          ),
+        ],
+      ),
+    );
+
+    final result = await store.recover();
+    expect(result.truncatedTail, isFalse);
+    expect(result.manifest!.status, TalkRecordSessionStatus.interrupted);
+    final ids = result.manifest!.marks.map((m) => m.localId).toSet();
+    expect(ids, {'mk-sealed'}, reason: '未封段（seq=2）标记必须裁剪');
   });
 
   test('崩溃恢复：已 ended 会话 → 保持 ended 不改写', () async {
