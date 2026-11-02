@@ -118,6 +118,7 @@ genderUpdateFailed: Не удалось установить пол, попро�
 groupAnnouncement: Объявление группы
 groupFileUploadSuccess: Файл загружен
 groupFileUploadFailed: Не удалось загрузить файл, попробуйте позже
+groupFileUploadRetry(name): Повторить загрузку «$name»
 groupFileDeleteSuccess: Файл удалён
 groupFileDeleteFailed: Не удалось удалить, попробуйте позже
 groupFileUploadTooltip: Загрузить файл
@@ -578,6 +579,8 @@ groupAlbumNoAlbum: Нет альбомов
 groupAlbumPhotoReadFailed: Не удалось прочитать фото, попробуйте ещё раз
 groupAlbumPhotoUploaded: Фото загружено
 groupAlbumPhotoUploadFailed: Не удалось загрузить фото, попробуйте позже
+groupAlbumUploadRetryFailed(count): Повторить загрузку $count неудачных фото
+groupAlbumPhotoUploadedPartial(success, fail): "Загружено: $success, не удалось: $fail"
 groupAlbumCreateTooltip: Создать альбом
 groupAlbumPhotoBatchDeleteTitle: Удалить фото
 groupAlbumPhotoBatchDeleteConfirm(count): Удалить выбранные фото ($count)?

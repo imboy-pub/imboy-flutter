@@ -858,6 +858,7 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => 'Gruppenankündigung';
 	@override String get groupFileUploadSuccess => 'Datei hochgeladen';
 	@override String get groupFileUploadFailed => 'Upload fehlgeschlagen. Bitte später erneut versuchen.';
+	@override String groupFileUploadRetry({required Object name}) => 'Upload von „${name}“ wiederholen';
 	@override String get groupFileDeleteSuccess => 'Datei gelöscht';
 	@override String get groupFileDeleteFailed => 'Löschen fehlgeschlagen. Bitte später erneut versuchen.';
 	@override String get groupFileUploadTooltip => 'Datei hochladen';
@@ -1315,6 +1316,8 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => 'Bild konnte nicht gelesen werden. Bitte erneut versuchen.';
 	@override String get groupAlbumPhotoUploaded => 'Bild hochgeladen';
 	@override String get groupAlbumPhotoUploadFailed => 'Bild-Upload fehlgeschlagen. Bitte später erneut versuchen.';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => '${count} fehlgeschlagene Fotos erneut hochladen';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '${success} hochgeladen, ${fail} fehlgeschlagen';
 	@override String get groupAlbumCreateTooltip => 'Album erstellen';
 	@override String get groupAlbumPhotoBatchDeleteTitle => 'Bilder löschen';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => '${count} ausgewählte Bilder wirklich löschen?';
@@ -1805,6 +1808,12 @@ class _Translations$enterpriseApp$de_DE extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => 'Diese Nachricht trägt sowohl eine Unternehmens-Anwendungsherkunft als auch eine Ende-zu-Ende-verschlüsselte Nutzlast. Sie wird als unverschlüsselte unternehmensgehostete Nachricht angezeigt, nicht als direkt gesendete verschlüsselte Nachricht eines Menschen.';
 	@override String get originUnrecognized => 'Herkunftsmarkierung nicht erkannt; unverschlüsselt angezeigt';
 	@override String get actionDetails => 'Details';
+	@override String get cardLinkBadge => 'Link-Karte';
+	@override String get cardLinkOpen => 'Link öffnen';
+	@override String get cardActionBadge => 'Aktionskarte';
+	@override String get cardActionOpen => 'Aktion ausführen';
+	@override String get cardActionUnavailable => 'Noch keine ausführbare Aktion';
+	@override String get cardPayloadInvalid => 'Karteninhalt nicht verfügbar';
 	@override String get groupTitle => 'Unternehmensgruppe';
 	@override String get groupArchivedBadge => 'Archiviert';
 	@override String get groupActionArchive => 'Archivieren';
@@ -4116,6 +4125,7 @@ extension on TranslationsDeDe {
 			'common.groupAnnouncement' => 'Gruppenankündigung',
 			'common.groupFileUploadSuccess' => 'Datei hochgeladen',
 			'common.groupFileUploadFailed' => 'Upload fehlgeschlagen. Bitte später erneut versuchen.',
+			'common.groupFileUploadRetry' => ({required Object name}) => 'Upload von „${name}“ wiederholen',
 			'common.groupFileDeleteSuccess' => 'Datei gelöscht',
 			'common.groupFileDeleteFailed' => 'Löschen fehlgeschlagen. Bitte später erneut versuchen.',
 			'common.groupFileUploadTooltip' => 'Datei hochladen',
@@ -4417,9 +4427,9 @@ extension on TranslationsDeDe {
 			'common.deleteSuccess' => 'Erfolgreich gelöscht',
 			'common.localDeleteSuccess' => 'Lokales Löschen erfolgreich',
 			'common.localDeleteFailed' => 'Lokales Löschen fehlgeschlagen',
-			'common.revokeSuccess' => 'Erfolgreich widerrufen',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => 'Erfolgreich widerrufen',
 			'common.editContentCannotBeEmpty' => 'Bearbeitungsinhalt darf nicht leer sein',
 			'common.editSuccess' => 'Erfolgreich bearbeitet',
 			'common.enabled' => 'Aktiviert',
@@ -4566,6 +4576,8 @@ extension on TranslationsDeDe {
 			'common.groupAlbumPhotoReadFailed' => 'Bild konnte nicht gelesen werden. Bitte erneut versuchen.',
 			'common.groupAlbumPhotoUploaded' => 'Bild hochgeladen',
 			'common.groupAlbumPhotoUploadFailed' => 'Bild-Upload fehlgeschlagen. Bitte später erneut versuchen.',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => '${count} fehlgeschlagene Fotos erneut hochladen',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '${success} hochgeladen, ${fail} fehlgeschlagen',
 			'common.groupAlbumCreateTooltip' => 'Album erstellen',
 			'common.groupAlbumPhotoBatchDeleteTitle' => 'Bilder löschen',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '${count} ausgewählte Bilder wirklich löschen?',
@@ -4929,11 +4941,11 @@ extension on TranslationsDeDe {
 			'complaintReason.harassment' => 'Belästigung',
 			'complaintReason.inappropriate' => 'Unangemessener Inhalt',
 			'complaintReason.other' => 'Sonstiges',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => 'Blockiert',
 			'contact.applyChanges' => 'Bitte starten Sie die App neu, um die Änderungen zu übernehmen',
 			'contact.inputNewTag' => 'Neuen Tag eingeben...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => 'Sperrliste',
 			'contact.denylistEmpty' => 'Sperrliste ist leer',
 			'contact.favoriteGroupTagsEtc' => 'Favoriten, Namen, Gruppen, Tags usw.',
@@ -5013,6 +5025,12 @@ extension on TranslationsDeDe {
 			'enterpriseApp.originMismatchHint' => 'Diese Nachricht trägt sowohl eine Unternehmens-Anwendungsherkunft als auch eine Ende-zu-Ende-verschlüsselte Nutzlast. Sie wird als unverschlüsselte unternehmensgehostete Nachricht angezeigt, nicht als direkt gesendete verschlüsselte Nachricht eines Menschen.',
 			'enterpriseApp.originUnrecognized' => 'Herkunftsmarkierung nicht erkannt; unverschlüsselt angezeigt',
 			'enterpriseApp.actionDetails' => 'Details',
+			'enterpriseApp.cardLinkBadge' => 'Link-Karte',
+			'enterpriseApp.cardLinkOpen' => 'Link öffnen',
+			'enterpriseApp.cardActionBadge' => 'Aktionskarte',
+			'enterpriseApp.cardActionOpen' => 'Aktion ausführen',
+			'enterpriseApp.cardActionUnavailable' => 'Noch keine ausführbare Aktion',
+			'enterpriseApp.cardPayloadInvalid' => 'Karteninhalt nicht verfügbar',
 			'enterpriseApp.groupTitle' => 'Unternehmensgruppe',
 			'enterpriseApp.groupArchivedBadge' => 'Archiviert',
 			'enterpriseApp.groupActionArchive' => 'Archivieren',
@@ -5437,6 +5455,8 @@ extension on TranslationsDeDe {
 			'main.safetyNumberVerifyFailed' => 'Sicherheitscode konnte nicht abgerufen werden. Bitte später erneut versuchen',
 			'main.complianceKeyInfoTitle' => 'Compliance-Audit-Schlüssel',
 			'main.complianceKeyInfoAlgorithm' => 'Algorithmus',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoChangedWarning' => '⚠️ Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokalen Pinning überein! Falls dies keine beabsichtigte Rotation durch den Administrator ist, kontaktieren Sie sofort den Administrator und senden Sie keine verschlüsselten Nachrichten.',
 			'main.complianceKeyInfoFetchedAt' => 'Abgerufen am',
 			'main.complianceKeyInfoFingerprint' => 'Öffentlicher Schlüssel-Fingerabdruck',
@@ -5446,8 +5466,6 @@ extension on TranslationsDeDe {
 			'main.complianceKeyInfoPinnedAt' => 'Gepinnt am',
 			'main.complianceKeyInfoPinnedNone' => 'Noch nicht gepinnt (wird beim nächsten Abruf automatisch gepinnt)',
 			'main.complianceKeyInfoRefreshFailed' => 'Abruf fehlgeschlagen. Bitte Netzwerk prüfen und erneut versuchen',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Vom Server bereitgestellter öffentlicher Schlüssel',
 			'main.e2eeErrComplianceChanged' => 'Compliance-Audit-Schlüssel hat sich geändert, Nachricht nicht gesendet. Bitte Rotation bestätigen und erneut versuchen',
 			'main.e2eeErrComplianceUnavailable' => 'Compliance-Schlüssel derzeit nicht verfügbar, Nachricht nicht gesendet. Bitte später erneut versuchen',
@@ -5951,6 +5969,8 @@ extension on TranslationsDeDe {
 			'talkRecord.aiReplaceNotice' => 'Ersetzt nur die Einstellung dieses Dienstes für das aktuelle Konto auf diesem Gerät. Andere Konten und gespeicherte Aufnahmen bleiben unverändert.',
 			'talkRecord.aiDeleteTitle' => 'Geräteschlüssel löschen?',
 			'talkRecord.aiDeleteNotice' => 'Stoppt neue Anfragen an diesen Dienst. Aufnahmen und Ergebnisse bleiben erhalten. Bereits an den Anbieter gesendete Anfragen können nicht zurückgerufen werden.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Abbrechen',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Audiotranskription und temporäre Sprecherlabels',
@@ -5960,8 +5980,6 @@ extension on TranslationsDeDe {
 			'talkRecord.aiProviderCancel' => 'Transkription stoppen',
 			'talkRecord.aiProviderCancelNotice' => 'Widerruft IMBoy-Zugriff und Vorgangsrechte. Anbieter-Stopp oder Erstattung werden nicht garantiert.',
 			'talkRecord.aiProviderResubmit' => 'Audio erneut senden',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'Erstellt eine neue Transkription; doppelte Gebühren sind möglich. Der ursprüngliche Auftrag bleibt. Erneut senden und dieser Verarbeitung zustimmen?',
 			'talkRecord.aiProviderCancelled' => 'Transkription gestoppt. Vorhandenes Audio bleibt erhalten.',
 			'talkRecord.aiProviderResumePreparation' => 'Transkription weiter vorbereiten',

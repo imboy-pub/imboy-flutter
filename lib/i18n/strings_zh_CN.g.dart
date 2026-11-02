@@ -2491,6 +2491,9 @@ class Translations$common$zh_CN {
 	/// zh-CN: '文件上传失败，请稍后重试'
 	String get groupFileUploadFailed => '文件上传失败，请稍后重试';
 
+	/// zh-CN: '重试上传「$name」'
+	String groupFileUploadRetry({required Object name}) => '重试上传「${name}」';
+
 	/// zh-CN: '文件已删除'
 	String get groupFileDeleteSuccess => '文件已删除';
 
@@ -3858,6 +3861,12 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '图片上传失败，请稍后重试'
 	String get groupAlbumPhotoUploadFailed => '图片上传失败，请稍后重试';
+
+	/// zh-CN: '重试上传 $count 张失败图片'
+	String groupAlbumUploadRetryFailed({required Object count}) => '重试上传 ${count} 张失败图片';
+
+	/// zh-CN: '已上传$success张，$fail张失败'
+	String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => '已上传${success}张，${fail}张失败';
 
 	/// zh-CN: '新建相册'
 	String get groupAlbumCreateTooltip => '新建相册';
@@ -5591,6 +5600,24 @@ class Translations$enterpriseApp$zh_CN {
 
 	/// zh-CN: '详情'
 	String get actionDetails => '详情';
+
+	/// zh-CN: '链接卡片'
+	String get cardLinkBadge => '链接卡片';
+
+	/// zh-CN: '打开链接'
+	String get cardLinkOpen => '打开链接';
+
+	/// zh-CN: '业务操作卡片'
+	String get cardActionBadge => '业务操作卡片';
+
+	/// zh-CN: '执行操作'
+	String get cardActionOpen => '执行操作';
+
+	/// zh-CN: '暂无可执行操作'
+	String get cardActionUnavailable => '暂无可执行操作';
+
+	/// zh-CN: '卡片内容无法显示'
+	String get cardPayloadInvalid => '卡片内容无法显示';
 
 	/// zh-CN: '企业群'
 	String get groupTitle => '企业群';
@@ -11702,6 +11729,7 @@ extension on Translations {
 			'common.groupAnnouncement' => '群公告',
 			'common.groupFileUploadSuccess' => '文件上传成功',
 			'common.groupFileUploadFailed' => '文件上传失败，请稍后重试',
+			'common.groupFileUploadRetry' => ({required Object name}) => '重试上传「${name}」',
 			'common.groupFileDeleteSuccess' => '文件已删除',
 			'common.groupFileDeleteFailed' => '删除失败，请稍后重试',
 			'common.groupFileUploadTooltip' => '上传文件',
@@ -11939,9 +11967,9 @@ extension on Translations {
 			'common.groupAnnouncementDeleteSuccess' => '公告已删除',
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
-			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
 			_ => null,
 		} ?? switch (path) {
+			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
 			'common.allowSearchByAccount' => '允许通过账号搜索',
@@ -12158,6 +12186,8 @@ extension on Translations {
 			'common.groupAlbumPhotoReadFailed' => '图片读取失败，请重试',
 			'common.groupAlbumPhotoUploaded' => '图片上传成功',
 			'common.groupAlbumPhotoUploadFailed' => '图片上传失败，请稍后重试',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => '重试上传 ${count} 张失败图片',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => '已上传${success}张，${fail}张失败',
 			'common.groupAlbumCreateTooltip' => '新建相册',
 			'common.groupAlbumPhotoBatchDeleteTitle' => '批量删除图片',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => '确定删除选中的 ${count} 张图片吗？',
@@ -12451,11 +12481,11 @@ extension on Translations {
 			'common.withdrawConfirmAccount' => ({required Object account}) => '提现账号：${account}',
 			'common.noHistory' => '暂无历史记录',
 			'common.enterAmount' => '请输入金额',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferDefaultRemark' => '转账给好友',
 			'common.transferMinAmountError' => '转账最低金额为 0.01 元',
 			'common.redPacketCurrentLucky' => '当前为：拼手气红包',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketCurrentNormal' => '当前为：普通红包',
 			'common.redPacketSwitchToNormal' => '改为普通红包',
 			'common.redPacketSwitchToLucky' => '改为拼手气红包',
@@ -12750,6 +12780,12 @@ extension on Translations {
 			'enterpriseApp.originMismatchHint' => '消息同时带有企业应用来源与端到端加密载荷；已按非加密的企业来源展示，不视为 Human 直发的加密消息。',
 			'enterpriseApp.originUnrecognized' => '来源标记无法识别，已按非加密展示',
 			'enterpriseApp.actionDetails' => '详情',
+			'enterpriseApp.cardLinkBadge' => '链接卡片',
+			'enterpriseApp.cardLinkOpen' => '打开链接',
+			'enterpriseApp.cardActionBadge' => '业务操作卡片',
+			'enterpriseApp.cardActionOpen' => '执行操作',
+			'enterpriseApp.cardActionUnavailable' => '暂无可执行操作',
+			'enterpriseApp.cardPayloadInvalid' => '卡片内容无法显示',
 			'enterpriseApp.groupTitle' => '企业群',
 			'enterpriseApp.groupArchivedBadge' => '已归档',
 			'enterpriseApp.groupActionArchive' => '归档',
@@ -12959,6 +12995,8 @@ extension on Translations {
 			'groupSchedule.remindBefore' => ({required Object minutes}) => '开始前 ${minutes} 分钟提醒',
 			'groupSchedule.duration' => ({required Object minutes}) => '预计 ${minutes} 分钟',
 			'groupSchedule.hintToday' => '今天',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.hintTomorrow' => '明天',
 			'groupSchedule.startsHint' => ({required Object hint, required Object time}) => '${hint} ${time} 开始',
 			'groupSchedule.sectionToday' => '今天',
@@ -12968,8 +13006,6 @@ extension on Translations {
 			'groupSchedule.collapseParticipants' => '收起',
 			'groupTag.title' => '群标签',
 			'groupTag.addTag' => '添加标签',
-			_ => null,
-		} ?? switch (path) {
 			'groupTag.tagName' => '标签名称',
 			'groupTag.noTag' => '暂无标签',
 			'groupTag.removeTitle' => '移除标签',
@@ -13473,6 +13509,8 @@ extension on Translations {
 			'organization.inviteQr.codeLabel' => '企业邀请码',
 			'organization.inviteQr.expiresWith' => ({required Object date}) => '有效期至 ${date}',
 			'organization.inviteQr.generate' => '生成邀请码',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteQr.generateFirst' => '尚无有效邀请码。生成后 7 天有效，对方扫码或输入邀请码即可加入。',
 			'organization.inviteQr.regenerate' => '重新生成',
 			'organization.inviteQr.regenerateTitle' => '重新生成邀请码？',
@@ -13482,8 +13520,6 @@ extension on Translations {
 			'organization.inviteQr.notAdmin' => '仅企业 Owner/Admin 可管理邀请码',
 			'organization.inviteQr.copyCode' => '复制邀请码',
 			'organization.inviteQr.copied' => '已复制邀请码',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteQr.inviteDisabledPending' => '企业待审核，审核通过后才能邀请成员',
 			'organization.directory.currentMembersSection' => '本级成员',
 			'organization.directory.structureSection' => '组织架构',
@@ -13987,6 +14023,8 @@ extension on Translations {
 			'talkRecord.deleteStatusNoContentHint' => '记录内容已不再展示。',
 			'talkRecord.deleteCleanupSectionTitle' => '附件清理状态',
 			'talkRecord.cleanupPendingTitle' => '清理进行中',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupPendingBody' => '已提交清理队列；排队成功不代表附件字节已删除。',
 			'talkRecord.cleanupBlockedRetentionTitle' => '留存期未到',
 			'talkRecord.cleanupBlockedRetentionBody' => '记录已删除，附件受留存规则保护；留存期结束后继续清理。',
@@ -13996,8 +14034,6 @@ extension on Translations {
 			'talkRecord.cleanupRetainedBody' => '部分附件仍被其他合法业务引用，暂不物理删除。',
 			'talkRecord.cleanupFailedTitle' => '清理失败',
 			'talkRecord.cleanupFailedBody' => '附件清理未完成。请刷新查看状态；符合条件时可重试清理。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.cleanupCompleteTitle' => '清理完成',
 			'talkRecord.cleanupCompleteBody' => '记录与附件均已清理完成。',
 			'talkRecord.cleanupNoneTitle' => '未提交清理',

@@ -17,6 +17,13 @@ originMismatchTitle: "Widersprüchliche Herkunft"
 originMismatchHint: "Diese Nachricht trägt sowohl eine Unternehmens-Anwendungsherkunft als auch eine Ende-zu-Ende-verschlüsselte Nutzlast. Sie wird als unverschlüsselte unternehmensgehostete Nachricht angezeigt, nicht als direkt gesendete verschlüsselte Nachricht eines Menschen."
 originUnrecognized: "Herkunftsmarkierung nicht erkannt; unverschlüsselt angezeigt"
 actionDetails: "Details"
+# ==================== V3-23 Unternehmenskarten (Link-Karte / Aktionskarte) ====================
+cardLinkBadge: "Link-Karte"
+cardLinkOpen: "Link öffnen"
+cardActionBadge: "Aktionskarte"
+cardActionOpen: "Aktion ausführen"
+cardActionUnavailable: "Noch keine ausführbare Aktion"
+cardPayloadInvalid: "Karteninhalt nicht verfügbar"
 # ==================== Unternehmensgruppen (INT-18..21) ====================
 groupTitle: "Unternehmensgruppe"
 groupArchivedBadge: "Archiviert"

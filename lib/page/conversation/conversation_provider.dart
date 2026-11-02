@@ -529,6 +529,14 @@ class ConversationNotifier extends _$ConversationNotifier {
         return 'C2C';
       case 'c2g':
         return 'C2G';
+      // 企业频道会话（V3-23 矩阵 S3，matrix spec §5 落点 D3）。wire 值
+      // `channel` 依据 spec §5 B1/B6 冻结方向：origin conversation_kind 扩
+      // `channel` 取值、resource_type `msg_channel` 归一为 `channel`。
+      // backend 频道消息通道（B1–B6）未落地前 authoritative pull 不会下发
+      // 该值——此处先行解析容错：下发时不再被丢弃成空串（归入 CHANNEL，
+      // 与 MessageFlowType.channel 对齐）。
+      case 'channel':
+        return 'CHANNEL';
       default:
         return '';
     }

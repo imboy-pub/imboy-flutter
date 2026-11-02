@@ -45,7 +45,7 @@ final class MessageSearchNotifierProvider
 }
 
 String _$messageSearchNotifierHash() =>
-    r'ee71025b0ca4900369b5f786ae6e0ab9938d2bd4';
+    r'067238e50f22624a136599db1222d14b64caa894';
 
 /// 消息搜索 Provider
 

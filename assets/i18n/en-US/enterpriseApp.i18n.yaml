@@ -17,6 +17,13 @@ originMismatchTitle: "Inconsistent origin"
 originMismatchHint: "This message carries both an enterprise application origin and an end-to-end encrypted payload. It is shown as a non-encrypted enterprise-hosted message, not as a human direct encrypted message."
 originUnrecognized: "Origin marker not recognized; shown as unencrypted"
 actionDetails: "Details"
+# ==================== V3-23 enterprise delegated cards (link card / business action card) ====================
+cardLinkBadge: "Link card"
+cardLinkOpen: "Open link"
+cardActionBadge: "Business action card"
+cardActionOpen: "Run action"
+cardActionUnavailable: "No runnable action yet"
+cardPayloadInvalid: "Card content unavailable"
 # ==================== Enterprise groups (INT-18..21) ====================
 groupTitle: "Enterprise group"
 groupArchivedBadge: "Archived"

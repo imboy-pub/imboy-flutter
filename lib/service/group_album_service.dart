@@ -61,22 +61,32 @@ class GroupAlbumService {
     }
   }
 
-  Future<Map<String, dynamic>?> uploadPhoto({
+  /// direct-v1 批量直传相册照片（逐项 direct + bind_batch）。
+  ///
+  /// 逐项返回 [GroupAlbumUploadOutcome]（失败项保留本地重试：同
+  /// clientUploadId 重试幂等恢复 direct 会话；bind_batch 重复调用幂等）。
+  /// 整体异常（网络不可达等）时全部按 network_error 落账，不吞失败。
+  Future<List<GroupAlbumUploadOutcome>> uploadPhotosDirect({
     required String groupId,
     required String albumId,
-    required String photoName,
-    required List<int> photoBytes,
+    required List<GroupAlbumUploadItem> items,
   }) async {
     try {
-      return await _api.uploadPhoto(
+      return await _api.uploadPhotosDirect(
         groupId: groupId,
         albumId: albumId,
-        photoName: photoName,
-        photoBytes: photoBytes,
+        items: items,
       );
     } catch (e) {
-      iPrint('GroupAlbumService: 上传相册图片失败 - $e');
-      return null;
+      iPrint('GroupAlbumService: 批量上传相册图片失败 - $e');
+      return <GroupAlbumUploadOutcome>[
+        for (final item in items)
+          GroupAlbumUploadOutcome(
+            item: item,
+            ok: false,
+            reason: 'network_error',
+          ),
+      ];
     }
   }
 

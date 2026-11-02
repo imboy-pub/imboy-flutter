@@ -44,7 +44,7 @@ final class AddMemberNotifierProvider
   }
 }
 
-String _$addMemberNotifierHash() => r'907a8dd5d0e9820abae51e24a0ccda40ad4c48b8';
+String _$addMemberNotifierHash() => r'b33a6f64785bd182357e3c215d602a7ea3711bbb';
 
 /// 添加群成员 Notifier
 

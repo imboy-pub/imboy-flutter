@@ -858,6 +858,7 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get groupAnnouncement => 'إعلان المجموعة';
 	@override String get groupFileUploadSuccess => 'تم رفع الملف';
 	@override String get groupFileUploadFailed => 'تعذّر رفع الملف، حاول لاحقاً';
+	@override String groupFileUploadRetry({required Object name}) => 'إعادة محاولة رفع «${name}»';
 	@override String get groupFileDeleteSuccess => 'تم حذف الملف';
 	@override String get groupFileDeleteFailed => 'تعذّر الحذف، حاول لاحقاً';
 	@override String get groupFileUploadTooltip => 'رفع ملف';
@@ -1324,6 +1325,8 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get groupAlbumPhotoReadFailed => 'تعذّرت قراءة الصورة، أعد المحاولة';
 	@override String get groupAlbumPhotoUploaded => 'تم رفع الصورة';
 	@override String get groupAlbumPhotoUploadFailed => 'تعذّر رفع الصورة، حاول لاحقاً';
+	@override String groupAlbumUploadRetryFailed({required Object count}) => 'إعادة محاولة رفع ${count} صورة فشلت';
+	@override String groupAlbumPhotoUploadedPartial({required Object success, required Object fail}) => 'تم رفع ${success}، فشل ${fail}';
 	@override String get groupAlbumCreateTooltip => 'إنشاء ألبوم';
 	@override String get groupAlbumPhotoBatchDeleteTitle => 'حذف الصور';
 	@override String groupAlbumPhotoBatchDeleteConfirm({required Object count}) => 'حذف الصور المحددة (${count})؟';
@@ -1814,6 +1817,12 @@ class _Translations$enterpriseApp$ar_SA extends Translations$enterpriseApp$zh_CN
 	@override String get originMismatchHint => 'تحمل هذه الرسالة مصدر تطبيق مؤسسي وحمولة مشفّرة من الطرف إلى الطرف في الوقت نفسه. تُعرض كرسالة مؤسسية غير مشفّرة، ولا تُعتبر رسالة مشفّرة أرسلها شخص مباشرة.';
 	@override String get originUnrecognized => 'علامة المصدر غير معروفة؛ تُعرض كغير مشفّرة';
 	@override String get actionDetails => 'التفاصيل';
+	@override String get cardLinkBadge => 'بطاقة رابط';
+	@override String get cardLinkOpen => 'فتح الرابط';
+	@override String get cardActionBadge => 'بطاقة إجراء';
+	@override String get cardActionOpen => 'تنفيذ الإجراء';
+	@override String get cardActionUnavailable => 'لا يوجد إجراء قابل للتنفيذ بعد';
+	@override String get cardPayloadInvalid => 'محتوى البطاقة غير متاح';
 	@override String get groupTitle => 'مجموعة المؤسسة';
 	@override String get groupArchivedBadge => 'مؤرشفة';
 	@override String get groupActionArchive => 'أرشفة';
@@ -4125,6 +4134,7 @@ extension on TranslationsArSa {
 			'common.groupAnnouncement' => 'إعلان المجموعة',
 			'common.groupFileUploadSuccess' => 'تم رفع الملف',
 			'common.groupFileUploadFailed' => 'تعذّر رفع الملف، حاول لاحقاً',
+			'common.groupFileUploadRetry' => ({required Object name}) => 'إعادة محاولة رفع «${name}»',
 			'common.groupFileDeleteSuccess' => 'تم حذف الملف',
 			'common.groupFileDeleteFailed' => 'تعذّر الحذف، حاول لاحقاً',
 			'common.groupFileUploadTooltip' => 'رفع ملف',
@@ -4426,9 +4436,9 @@ extension on TranslationsArSa {
 			'common.deleteSuccess' => 'نجح الحذف',
 			'common.localDeleteSuccess' => 'نجح الحذف المحلي',
 			'common.localDeleteFailed' => 'فشل الحذف المحلي',
-			'common.revokeSuccess' => 'نجح السحب',
 			_ => null,
 		} ?? switch (path) {
+			'common.revokeSuccess' => 'نجح السحب',
 			'common.editContentCannotBeEmpty' => 'لا يمكن أن يكون محتوى التعديل فارغاً',
 			'common.editSuccess' => 'نجح التعديل',
 			'common.enabled' => 'مُمكَّن',
@@ -4575,6 +4585,8 @@ extension on TranslationsArSa {
 			'common.groupAlbumPhotoReadFailed' => 'تعذّرت قراءة الصورة، أعد المحاولة',
 			'common.groupAlbumPhotoUploaded' => 'تم رفع الصورة',
 			'common.groupAlbumPhotoUploadFailed' => 'تعذّر رفع الصورة، حاول لاحقاً',
+			'common.groupAlbumUploadRetryFailed' => ({required Object count}) => 'إعادة محاولة رفع ${count} صورة فشلت',
+			'common.groupAlbumPhotoUploadedPartial' => ({required Object success, required Object fail}) => 'تم رفع ${success}، فشل ${fail}',
 			'common.groupAlbumCreateTooltip' => 'إنشاء ألبوم',
 			'common.groupAlbumPhotoBatchDeleteTitle' => 'حذف الصور',
 			'common.groupAlbumPhotoBatchDeleteConfirm' => ({required Object count}) => 'حذف الصور المحددة (${count})؟',
@@ -4938,11 +4950,11 @@ extension on TranslationsArSa {
 			'complaintReason.harassment' => 'مضايقة',
 			'complaintReason.inappropriate' => 'محتوى غير لائق',
 			'complaintReason.other' => 'أخرى',
+			_ => null,
+		} ?? switch (path) {
 			'contact.blocked' => 'تم الحظر',
 			'contact.applyChanges' => 'يرجى إعادة تشغيل التطبيق لتطبيق التغييرات',
 			'contact.inputNewTag' => 'أدخل علامة جديدة...',
-			_ => null,
-		} ?? switch (path) {
 			'contact.denylist' => 'القائمة السوداء',
 			'contact.denylistEmpty' => 'القائمة السوداء فارغة',
 			'contact.favoriteGroupTagsEtc' => 'الأسماء وأسماء المجموعات والعلامات المفضلة',
@@ -5022,6 +5034,12 @@ extension on TranslationsArSa {
 			'enterpriseApp.originMismatchHint' => 'تحمل هذه الرسالة مصدر تطبيق مؤسسي وحمولة مشفّرة من الطرف إلى الطرف في الوقت نفسه. تُعرض كرسالة مؤسسية غير مشفّرة، ولا تُعتبر رسالة مشفّرة أرسلها شخص مباشرة.',
 			'enterpriseApp.originUnrecognized' => 'علامة المصدر غير معروفة؛ تُعرض كغير مشفّرة',
 			'enterpriseApp.actionDetails' => 'التفاصيل',
+			'enterpriseApp.cardLinkBadge' => 'بطاقة رابط',
+			'enterpriseApp.cardLinkOpen' => 'فتح الرابط',
+			'enterpriseApp.cardActionBadge' => 'بطاقة إجراء',
+			'enterpriseApp.cardActionOpen' => 'تنفيذ الإجراء',
+			'enterpriseApp.cardActionUnavailable' => 'لا يوجد إجراء قابل للتنفيذ بعد',
+			'enterpriseApp.cardPayloadInvalid' => 'محتوى البطاقة غير متاح',
 			'enterpriseApp.groupTitle' => 'مجموعة المؤسسة',
 			'enterpriseApp.groupArchivedBadge' => 'مؤرشفة',
 			'enterpriseApp.groupActionArchive' => 'أرشفة',
@@ -5446,6 +5464,8 @@ extension on TranslationsArSa {
 			'main.complianceKeyInfoFingerprint' => 'بصمة المفتاح العام',
 			'main.complianceKeyInfoFetchedAt' => 'وقت الجلب',
 			'main.complianceKeyInfoPinnedAt' => 'وقت التثبيت',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedNone' => 'لم يُثبَّت بعد (سيُثبَّت تلقائياً عند الجلب التالي)',
 			'main.complianceKeyInfoChangedWarning' => '⚠️ المفتاح العام للامتثال الصادر من الخادم لا يطابق التثبيت المحلي! إذا لم يكن هذا تدويراً مقصوداً من المسؤول، فتواصل مع المسؤول فوراً وأوقف إرسال الرسائل المشفّرة.',
 			'main.complianceKeyInfoRefreshFailed' => 'فشل الجلب، تحقق من الشبكة ثم أعد المحاولة',
@@ -5455,8 +5475,6 @@ extension on TranslationsArSa {
 			'main.safetyNumberCopy' => 'نسخ',
 			'main.safetyNumberCopied' => 'تم النسخ',
 			'main.safetyNumberMarkVerified' => 'وضع علامة تم التحقق',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberMarkedVerified' => 'تم وضع علامة تم التحقق',
 			'main.safetyNumberPeerDevice' => 'جهاز الطرف الآخر',
 			'main.safetyNumberNoDevices' => 'لم يفعّل الطرف الآخر التشفير من طرف إلى طرف بعد',
@@ -5960,6 +5978,8 @@ extension on TranslationsArSa {
 			'talkRecord.aiReplaceNotice' => 'يستبدل إعداد هذا الحساب لهذه الخدمة على هذا الجهاز فقط. لا تتأثر الحسابات الأخرى أو التسجيلات المحفوظة.',
 			'talkRecord.aiDeleteTitle' => 'هل تريد حذف مفتاح الجهاز؟',
 			'talkRecord.aiDeleteNotice' => 'يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'إلغاء',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'تحويل الصوت إلى نص وتسميات مؤقتة للمتحدثين',
@@ -5969,8 +5989,6 @@ extension on TranslationsArSa {
 			'talkRecord.aiProviderCancel' => 'إيقاف التفريغ',
 			'talkRecord.aiProviderCancelNotice' => 'يلغي صلاحيات IMBoy للمصدر والعمليات. لا يضمن إيقاف معالجة المزوّد أو استرداد الرسوم.',
 			'talkRecord.aiProviderResubmit' => 'إرسال الصوت مجددًا',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiProviderResubmitNotice' => 'ينشئ تفريغًا جديدًا وقد يسبب رسومًا مكررة. يبقى الطلب الأصلي. هل تؤكد إعادة الإرسال والموافقة على هذه المعالجة؟',
 			'talkRecord.aiProviderCancelled' => 'توقف التفريغ. تم الاحتفاظ بالصوت الموجود.',
 			'talkRecord.aiProviderResumePreparation' => 'متابعة إعداد التفريغ',

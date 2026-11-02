@@ -118,6 +118,7 @@ genderUpdateFailed: Impostazione genere non riuscita, riprova
 groupAnnouncement: Annuncio gruppo
 groupFileUploadSuccess: File caricato
 groupFileUploadFailed: Caricamento fallito. Riprova più tardi.
+groupFileUploadRetry(name): Riprova il caricamento di «$name»
 groupFileDeleteSuccess: File eliminato
 groupFileDeleteFailed: Eliminazione fallita. Riprova più tardi.
 groupFileUploadTooltip: Carica file
@@ -572,6 +573,8 @@ groupAlbumNoAlbum: Nessun album di gruppo
 groupAlbumPhotoReadFailed: Lettura immagine fallita. Riprova.
 groupAlbumPhotoUploaded: Immagine caricata
 groupAlbumPhotoUploadFailed: Caricamento fallito. Riprova più tardi.
+groupAlbumUploadRetryFailed(count): Riprova $count foto non caricate
+groupAlbumPhotoUploadedPartial(success, fail): $success caricate, $fail non riuscite
 groupAlbumCreateTooltip: Crea album
 groupAlbumPhotoBatchDeleteTitle: Elimina immagini
 groupAlbumPhotoBatchDeleteConfirm(count): Eliminare le $count immagini selezionate ?

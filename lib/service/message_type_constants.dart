@@ -181,6 +181,36 @@ abstract class MessageType {
   static const String channelCard = 'channel_card';
   static const String talkRecordCard = 'talk_record_card';
 
+  /// 链接卡片消息（V3-23 企业应用代发点名类型）。
+  ///
+  /// wire 值来源：matrix spec `message-session-matrix.md` §5 落点 A2/D1
+  /// （backend `enterprise_message_logic` build_payload 冻结分支
+  /// `<<"link_card">>`）。payload 结构：
+  /// ```json
+  /// {
+  ///   "title": "页面标题",
+  ///   "url": "https://example.com/page",
+  ///   "description": "摘要（可选）",
+  ///   "thumb": "缩略图 URL（可选）"
+  /// }
+  /// ```
+  static const String linkCard = 'link_card';
+
+  /// 业务操作卡片消息（V3-23 企业应用代发点名类型，含跳转）。
+  ///
+  /// wire 值来源：matrix spec §5 落点 A2/D1（backend 冻结分支
+  /// `<<"business_action_card">>`）。payload 结构：
+  /// ```json
+  /// {
+  ///   "title": "操作标题",
+  ///   "action_type": "业务动作类型",
+  ///   "url": "https://example.com/action（可选跳转）",
+  ///   "description": "摘要（可选）",
+  ///   "action_params": {"...": "..."}（可选，业务参数）
+  /// }
+  /// ```
+  static const String businessActionCard = 'business_action_card';
+
   /// 历史私有类型：频道消息「分享到聊天」旧实现写出的值。
   ///
   /// **不可发送**（刻意不进 [allTypes]）：全站没有为它注册渲染器，
@@ -247,6 +277,8 @@ abstract class MessageType {
     visitCard,
     channelCard,
     talkRecordCard,
+    linkCard,
+    businessActionCard,
     redPacket,
     transfer,
     groupSchedule,

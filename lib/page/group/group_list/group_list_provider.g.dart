@@ -44,7 +44,7 @@ final class GroupListNotifierProvider
   }
 }
 
-String _$groupListNotifierHash() => r'9307ce79fc7d31592bcbe69e5af3b03b29774d32';
+String _$groupListNotifierHash() => r'6042de61d4f0dd75c7bf45482c7b904357f9baba';
 
 /// 群组列表 Notifier
 

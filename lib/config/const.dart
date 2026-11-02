@@ -229,10 +229,10 @@ class API {
   static const makeMyselfVisible = '/api/v1/location/makeMyselfVisible';
   static const makeMyselfUnVisible = '/api/v1/location/makeMyselfUnvisible';
 
-  // 群文件
+  // 群文件（direct-v1：上传走 /attachment/direct/* + bind，multipart 已退役）
   static const groupFileCategories = '/api/v1/group/file/categories';
   static const groupFileList = '/api/v1/group/file/list';
-  static const groupFileUpload = '/api/v1/group/file/upload';
+  static const groupFileBind = '/api/v1/group/file/bind';
   static const groupFileSearch = '/api/v1/group/file/search';
   static const groupFileDelete = '/api/v1/group/file/delete';
 
@@ -272,7 +272,10 @@ class API {
   static const groupAlbumList = '/api/v1/group_album/list';
   static const groupAlbumRename = '/api/v1/group_album/rename';
   static const groupAlbumCoverUpdate = '/api/v1/group_album/cover/update';
-  static const groupAlbumPhotoUpload = '/api/v1/group_album/photo/upload';
+  // direct-v1：照片上传走 /attachment/direct/* + bind/bind_batch，multipart 已退役
+  static const groupAlbumPhotoBind = '/api/v1/group_album/photo/bind';
+  static const groupAlbumPhotoBindBatch =
+      '/api/v1/group_album/photo/bind_batch';
   static const groupAlbumPhotoList = '/api/v1/group_album/photo/list';
   static const groupAlbumPhotoDetail = '/api/v1/group_album/photo/detail';
   static const groupAlbumPhotoDelete = '/api/v1/group_album/photo/delete';

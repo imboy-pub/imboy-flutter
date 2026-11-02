@@ -119,6 +119,7 @@ genderUpdateFailed: 性別設定失敗，請重試
 groupAnnouncement: 群組公告
 groupFileUploadSuccess: 檔案上傳成功
 groupFileUploadFailed: 檔案上傳失敗，請稍後重試
+groupFileUploadRetry(name): 重試上傳「$name」
 groupFileDeleteSuccess: 檔案已刪除
 groupFileDeleteFailed: 刪除失敗，請稍後重試
 groupFileUploadTooltip: 上傳檔案
@@ -570,6 +571,8 @@ groupAlbumNoAlbum: 暫無群相簿
 groupAlbumPhotoReadFailed: 圖片讀取失敗，請重試
 groupAlbumPhotoUploaded: 圖片上傳成功
 groupAlbumPhotoUploadFailed: 圖片上傳失敗，請稍後重試
+groupAlbumUploadRetryFailed(count): 重試上傳 $count 張失敗圖片
+groupAlbumPhotoUploadedPartial(success, fail): 已上傳$success張，$fail張失敗
 groupAlbumCreateTooltip: 新建相簿
 groupAlbumPhotoBatchDeleteTitle: 批次刪除圖片
 groupAlbumPhotoBatchDeleteConfirm(count): 確定刪除選中的 $count 張圖片嗎？

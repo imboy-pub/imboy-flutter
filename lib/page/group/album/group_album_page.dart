@@ -1,5 +1,5 @@
 import 'dart:async' show unawaited;
-import 'dart:typed_data';
+import 'dart:io' as io;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,8 @@ import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/group/group_role_rules.dart' show isGroupAdmin;
 import 'package:imboy/service/group_album_service.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
+import 'package:imboy/store/api/group_album_api.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -36,6 +38,13 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
   /// 加载失败标记：与"真的没有相册"区分，失败态才出重试入口。
   bool _loadFailed = false;
   bool _isUploadingPhoto = false;
+
+  /// 批量上传的失败项（逐项有账：可单独重试，不整批回滚）。
+  /// 重试复用原 clientUploadId——register 幂等恢复 direct 会话。
+  List<GroupAlbumUploadItem> _failedItems = [];
+
+  /// 失败项所属相册（重试时 bind_batch 仍要 album_id）。
+  String _failedAlbumId = '';
 
   /// 当前登录用户在本群的角色（0 = 未加载 / 不在群），安全默认无管理权限。
   int _currentUserRole = 0;
@@ -240,35 +249,75 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     final albumId = _resolveAlbumId(album);
     if (albumId.isEmpty) return;
 
-    final file = await FilePicker.pickFile(type: FileType.image);
-    if (file == null) {
+    final List<PlatformFile> picked = await FilePicker.pickFiles(
+      type: FileType.image,
+    );
+    if (picked.isEmpty) {
       return;
     }
 
-    final photoName = file.name.trim();
-    final Uint8List photoBytes = await file.readAsBytes();
-    if (photoName.isEmpty || photoBytes.isEmpty) {
+    // direct 直传按路径流式读文件（绝不 readAsBytes 整读，R04）；
+    // 无路径/空文件的选件跳过，全部无效才提示读取失败。
+    final List<GroupAlbumUploadItem> items = <GroupAlbumUploadItem>[];
+    for (final PlatformFile file in picked) {
+      final String photoName = file.name.trim();
+      final String? path = file.path;
+      if (photoName.isEmpty ||
+          path == null ||
+          path.isEmpty ||
+          !io.File(path).existsSync() ||
+          io.File(path).lengthSync() <= 0) {
+        continue;
+      }
+      items.add(
+        GroupAlbumUploadItem(
+          file: io.File(path),
+          photoName: photoName,
+          clientUploadId: newClientUploadId(),
+        ),
+      );
+    }
+    if (items.isEmpty) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupAlbumPhotoReadFailed);
       return;
     }
 
+    await _uploadItems(albumId, items);
+  }
+
+  /// 逐项 direct + bind_batch；部分失败有账（失败项可单独重试，不整批回滚）。
+  Future<void> _uploadItems(
+    String albumId,
+    List<GroupAlbumUploadItem> items,
+  ) async {
     setState(() => _isUploadingPhoto = true);
     try {
-      final uploaded = await GroupAlbumService.to.uploadPhoto(
+      final outcomes = await GroupAlbumService.to.uploadPhotosDirect(
         groupId: widget.groupId,
         albumId: albumId,
-        photoName: photoName,
-        photoBytes: photoBytes,
+        items: items,
       );
       if (!mounted) return;
-      final success = uploaded != null;
-      AppLoading.showToast(
-        success
-            ? t.common.groupAlbumPhotoUploaded
-            : t.common.groupAlbumPhotoUploadFailed,
-      );
-      if (success) {
+      final int okCount = outcomes.where((o) => o.ok).length;
+      final int failCount = outcomes.length - okCount;
+      if (failCount == 0) {
+        AppLoading.showToast(t.common.groupAlbumPhotoUploaded);
+      } else if (okCount > 0) {
+        AppLoading.showToast(
+          t.common.groupAlbumPhotoUploadedPartial(
+            success: okCount,
+            fail: failCount,
+          ),
+        );
+      } else {
+        AppLoading.showToast(t.common.groupAlbumPhotoUploadFailed);
+      }
+      setState(() {
+        _failedItems = outcomes.where((o) => !o.ok).map((o) => o.item).toList();
+        _failedAlbumId = _failedItems.isEmpty ? '' : albumId;
+      });
+      if (okCount > 0) {
         await _loadAlbums();
       }
     } finally {
@@ -276,6 +325,11 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
         setState(() => _isUploadingPhoto = false);
       }
     }
+  }
+
+  Future<void> _retryFailedItems() async {
+    if (_isUploadingPhoto || _failedItems.isEmpty) return;
+    await _uploadItems(_failedAlbumId, _failedItems);
   }
 
   @override
@@ -304,6 +358,36 @@ class _GroupAlbumPageState extends ConsumerState<GroupAlbumPage> {
     return Column(
       children: [
         if (_isUploadingPhoto) const CupertinoActivityIndicator(),
+        if (_failedItems.isNotEmpty && !_isUploadingPhoto)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.common.groupAlbumUploadRetryFailed(
+                      count: _failedItems.length,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: _retryFailedItems,
+                  child: Text(t.common.buttonRetry),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => setState(() => _failedItems = []),
+                  child: Text(t.common.cancel),
+                ),
+              ],
+            ),
+          ),
         Expanded(
           child: _loadFailed
               ? NoDataView(

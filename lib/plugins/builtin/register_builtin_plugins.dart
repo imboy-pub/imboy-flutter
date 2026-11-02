@@ -11,6 +11,8 @@ import 'package:imboy/component/chat/message_video_builder.dart';
 import 'package:imboy/component/chat/message_visit_card_builder.dart';
 import 'package:imboy/component/chat/message_channel_card_builder.dart';
 import 'package:imboy/component/chat/message_talk_record_card_builder.dart';
+import 'package:imboy/component/chat/message_link_card_builder.dart';
+import 'package:imboy/component/chat/message_business_action_card_builder.dart';
 import 'package:imboy/component/chat/message_webrtc_builder.dart';
 import 'package:imboy/component/chat/message_red_packet_builder.dart';
 import 'package:imboy/component/chat/message_transfer_builder.dart';
@@ -51,6 +53,9 @@ void registerBuiltinPlugins(MessageTypeRegistry registry) {
     _VisitCardMessageTypePlugin(),
     _ChannelCardMessageTypePlugin(),
     _TalkRecordCardMessageTypePlugin(),
+    // V3-23 企业应用代发点名卡片（matrix spec §5 D1/D2）
+    _LinkCardMessageTypePlugin(),
+    _BusinessActionCardMessageTypePlugin(),
     UnsupportedMessageTypePlugin(),
     RedPacketMessageTypePlugin(),
     TransferMessageTypePlugin(),
@@ -163,4 +168,37 @@ class _TalkRecordCardMessageTypePlugin implements MessageTypePlugin {
   @override
   Widget build(MessageViewModel message, MessageRenderContext context) =>
       TalkRecordCardMessageBuilder(message: message);
+}
+
+/// V3-23 链接卡片（企业应用代发点名类型，matrix spec §5 D1/D2）。
+class _LinkCardMessageTypePlugin implements MessageTypePlugin {
+  const _LinkCardMessageTypePlugin();
+  @override
+  String get id => 'builtin:${MessageType.linkCard}';
+  @override
+  bool get isEnabled => true;
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.standalone;
+  @override
+  String get type => MessageType.linkCard;
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) =>
+      LinkCardMessageBuilder(message: message, user: context.user);
+}
+
+/// V3-23 业务操作卡片（含跳转，DELIVERY_SCOPE D06 客户补充项；
+/// matrix spec §5 D1/D2）。
+class _BusinessActionCardMessageTypePlugin implements MessageTypePlugin {
+  const _BusinessActionCardMessageTypePlugin();
+  @override
+  String get id => 'builtin:${MessageType.businessActionCard}';
+  @override
+  bool get isEnabled => true;
+  @override
+  MessagePluginSurface get surface => MessagePluginSurface.standalone;
+  @override
+  String get type => MessageType.businessActionCard;
+  @override
+  Widget build(MessageViewModel message, MessageRenderContext context) =>
+      BusinessActionCardMessageBuilder(message: message, user: context.user);
 }

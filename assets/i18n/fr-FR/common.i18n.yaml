@@ -118,6 +118,7 @@ genderUpdateFailed: Échec du paramétrage du genre. Réessayez.
 groupAnnouncement: Annonce de groupe
 groupFileUploadSuccess: Fichier envoyé
 groupFileUploadFailed: Échec de l'envoi. Réessayez plus tard.
+groupFileUploadRetry(name): Réessayer l'envoi de « $name »
 groupFileDeleteSuccess: Fichier supprimé
 groupFileDeleteFailed: Échec de la suppression. Réessayez plus tard.
 groupFileUploadTooltip: Envoyer un fichier
@@ -572,6 +573,8 @@ groupAlbumNoAlbum: Aucun album de groupe
 groupAlbumPhotoReadFailed: Lecture de l'image impossible. Réessayez.
 groupAlbumPhotoUploaded: Image envoyée
 groupAlbumPhotoUploadFailed: Échec de l'envoi. Réessayez plus tard.
+groupAlbumUploadRetryFailed(count): Réessayer $count photos échouées
+groupAlbumPhotoUploadedPartial(success, fail): $success envoyées, $fail échecs
 groupAlbumCreateTooltip: Créer un album
 groupAlbumPhotoBatchDeleteTitle: Supprimer les images
 groupAlbumPhotoBatchDeleteConfirm(count): Supprimer les $count images sélectionnées ?

@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:io' as io;
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -23,14 +24,18 @@ class _UploadCall {
   const _UploadCall({
     required this.groupId,
     required this.fileName,
+    required this.mime,
+    required this.clientUploadId,
+    required this.filePath,
     required this.fileBytes,
-    required this.fileType,
   });
 
   final String groupId;
   final String fileName;
+  final String mime;
+  final String clientUploadId;
+  final String filePath;
   final List<int> fileBytes;
-  final String? fileType;
 }
 
 class _FakeGroupFileService extends GroupFileService {
@@ -45,7 +50,7 @@ class _FakeGroupFileService extends GroupFileService {
   final List<Map<String, dynamic>> files;
   final List<Map<String, dynamic>> categoryStats;
   final List<Map<String, dynamic>> searchResult;
-  final Map<String, dynamic>? uploadResult;
+  Map<String, dynamic>? uploadResult;
 
   /// 前 N 次 getFiles 抛异常，用于验证失败态与重试（service 已改为 rethrow）。
   final int getFilesFailures;
@@ -96,18 +101,21 @@ class _FakeGroupFileService extends GroupFileService {
   }
 
   @override
-  Future<Map<String, dynamic>?> uploadFile({
+  Future<Map<String, dynamic>?> uploadFileDirect({
     required String groupId,
+    required io.File file,
     required String fileName,
-    required List<int> fileBytes,
-    String? fileType,
+    required String mime,
+    String? clientUploadId,
   }) async {
     uploadCalls.add(
       _UploadCall(
         groupId: groupId,
         fileName: fileName,
-        fileBytes: fileBytes,
-        fileType: fileType,
+        mime: mime,
+        clientUploadId: clientUploadId ?? '',
+        filePath: file.path,
+        fileBytes: file.existsSync() ? file.readAsBytesSync() : const <int>[],
       ),
     );
     return uploadResult;
@@ -159,16 +167,19 @@ class _FakeFilePicker extends FilePickerPlatform {
 }
 
 /// PlatformFile 是 abstract base class，测试只能 extends 模拟。
+/// direct 直传按 path 读真实文件（页面不再 readAsBytes），fake 需指向
+/// 真实临时文件。
 final class _FakePickedFile extends PlatformFile {
-  _FakePickedFile({required this.name, List<int>? bytes})
+  _FakePickedFile({required this.name, this.realPath, List<int>? bytes})
     : _bytes = bytes == null ? null : Uint8List.fromList(bytes);
 
   @override
   final String name;
+  final String? realPath;
   final Uint8List? _bytes;
 
   @override
-  Uri get uri => Uri.file('/fake/$name');
+  Uri get uri => Uri.file(realPath ?? '/fake/$name');
 
   @override
   XFile get xFile => XFile.fromData(_bytes ?? Uint8List(0));
@@ -199,14 +210,22 @@ Widget _buildTestApp({String groupId = 'g1'}) {
 FilePickerPlatform? _originalFilePicker;
 bool _hasOriginalFilePicker = false;
 
+/// 测试临时目录（direct 直传需要磁盘上的真实文件）。
+late io.Directory _pickTmp;
+final List<String> _pickPaths = <String>[];
+
 List<PlatformFile> _singlePickResult({
   required String fileName,
   required List<int> bytes,
 }) {
-  return [_FakePickedFile(name: fileName, bytes: bytes)];
+  final io.File f = io.File('${_pickTmp.path}/$fileName-${_pickPaths.length}')
+    ..writeAsBytesSync(bytes);
+  _pickPaths.add(f.path);
+  return [_FakePickedFile(name: fileName, realPath: f.path, bytes: bytes)];
 }
 
 List<PlatformFile> _singlePickResultWithoutBytes({required String fileName}) {
+  // 模拟选件无本地路径（如 Web blob）：页面应按读取失败处理。
   return [_FakePickedFile(name: fileName)];
 }
 
@@ -218,12 +237,14 @@ void main() {
     } catch (_) {
       _hasOriginalFilePicker = false;
     }
+    _pickTmp = io.Directory.systemTemp.createTempSync('gf-page-test');
   });
 
   tearDownAll(() {
     if (_hasOriginalFilePicker && _originalFilePicker != null) {
       FilePickerPlatform.instance = _originalFilePicker!;
     }
+    if (_pickTmp.existsSync()) _pickTmp.deleteSync(recursive: true);
   });
 
   tearDown(() {
@@ -678,10 +699,18 @@ void main() {
     expect(fakeService.uploadCalls.single.groupId, 'g1');
     expect(fakeService.uploadCalls.single.fileName, 'upload.txt');
     expect(fakeService.uploadCalls.single.fileBytes, [1, 2, 3]);
-    expect(fakeService.uploadCalls.single.fileType, 'text/plain');
+    expect(fakeService.uploadCalls.single.mime, 'text/plain');
+    // direct 会话幂等键必须随选件生成（kill 后重试恢复同一会话）
+    expect(
+      RegExp(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$')
+          .hasMatch(fakeService.uploadCalls.single.clientUploadId),
+      isTrue,
+    );
     expect(find.text('文件上传成功'), findsOneWidget);
     expect(fakeService.getFilesCallCount, 2);
     expect(fakeService.getCategoryStatsCallCount, 2);
+    // 成功后不残留重试条
+    expect(find.textContaining('重试上传'), findsNothing);
   });
 
   testWidgets('upload failure shows failed snackbar without refresh', (
@@ -718,9 +747,50 @@ void main() {
     expect(find.text('文件上传失败，请稍后重试'), findsOneWidget);
     expect(fakeService.getFilesCallCount, 1);
     expect(fakeService.getCategoryStatsCallCount, 1);
+    // 失败保留本地重试条（同 clientUploadId 幂等恢复 direct 会话）
+    expect(find.text('重试上传「upload.txt」'), findsOneWidget);
   });
 
-  testWidgets('upload with empty bytes shows read failed snackbar', (
+  testWidgets('upload failure retry reuses same clientUploadId', (
+    tester,
+  ) async {
+    final fakeService = _FakeGroupFileService(
+      files: const [],
+      categoryStats: const [],
+      searchResult: const [],
+      uploadResult: null,
+    );
+    final fakePicker = _FakeFilePicker(
+      pickResult: _singlePickResult(fileName: 'retry.txt', bytes: [5]),
+    );
+    GroupFileService.instanceForTest = fakeService;
+    FilePickerPlatform.instance = fakePicker;
+
+    await tester.pumpWidget(_buildTestApp());
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.widgetWithIcon(IconButton, CupertinoIcons.arrow_up_doc),
+    );
+    await tester.pumpAndSettle();
+    expect(fakeService.uploadCalls.length, 1);
+
+    // 点重试：不重新选件，同 clientUploadId 再走一次 direct
+    fakeService.uploadResult = {'file_id': 'f-retry'};
+    await tester.tap(find.text('重试'));
+    await tester.pumpAndSettle();
+
+    expect(fakePicker.pickCallCount, 1, reason: '重试不得重新拉起选件');
+    expect(fakeService.uploadCalls.length, 2);
+    expect(
+      fakeService.uploadCalls[0].clientUploadId,
+      fakeService.uploadCalls[1].clientUploadId,
+    );
+    expect(find.text('文件上传成功'), findsOneWidget);
+    expect(find.textContaining('重试上传'), findsNothing);
+  });
+
+  testWidgets('upload with no local path shows read failed snackbar', (
     tester,
   ) async {
     final fakeService = _FakeGroupFileService(

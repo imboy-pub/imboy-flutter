@@ -1,7 +1,7 @@
 import 'package:imboy/component/ui/resource_page_layout.dart';
 
 import 'dart:async' show unawaited;
-import 'dart:typed_data';
+import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,6 +23,7 @@ import 'package:imboy/page/group/widgets/group_dialogs.dart';
 import 'package:imboy/page/single/video_viewer_page.dart';
 import 'package:imboy/service/group_file_service.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/repository/group_member_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:mime/mime.dart';
@@ -33,6 +34,22 @@ import 'group_attachment_tile.dart';
 import 'package:imboy/component/helper/safe_launcher.dart';
 
 enum _MediaPreviewType { video, audio }
+
+/// direct-v1 上传的本地重试条目（取消/失败保留：重试复用同一
+/// clientUploadId，register 幂等恢复会话，不重复建 session）。
+class _PendingFileUpload {
+  final io.File file;
+  final String fileName;
+  final String mime;
+  final String clientUploadId;
+
+  const _PendingFileUpload({
+    required this.file,
+    required this.fileName,
+    required this.mime,
+    required this.clientUploadId,
+  });
+}
 
 /// 群文件页面
 class GroupFilePage extends ConsumerStatefulWidget {
@@ -80,6 +97,9 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
   bool _isOpening = false;
   int _fileGeneration = 0;
   int _categoryGeneration = 0;
+
+  /// 上传失败/中断后保留的本地重试条目（direct 会话幂等可续）。
+  _PendingFileUpload? _pendingUpload;
 
   /// 首屏/刷新失败的友好文案；非 null 时渲染失败态而非"暂无文件"空态。
   String? _error;
@@ -245,20 +265,40 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     }
 
     final fileName = file.name.trim();
-    final Uint8List fileBytes = await file.readAsBytes();
-    if (fileName.isEmpty || fileBytes.isEmpty) {
+    final String? path = file.path;
+    // direct 直传按路径流式读文件（绝不 readAsBytes 整读，R04）；
+    // 沙盒外/无路径的选件无法直传，按读取失败处理。
+    if (fileName.isEmpty ||
+        path == null ||
+        path.isEmpty ||
+        !io.File(path).existsSync() ||
+        io.File(path).lengthSync() <= 0) {
       if (!mounted) return;
       AppLoading.showToast(t.common.groupFileReadFailed);
       return;
     }
 
+    await _uploadEntry(
+      _PendingFileUpload(
+        file: io.File(path),
+        fileName: fileName,
+        mime: lookupMimeType(fileName) ?? 'application/octet-stream',
+        clientUploadId: newClientUploadId(),
+      ),
+    );
+  }
+
+  /// 执行一次 direct 上传（register→PUT→finalize→bind）。
+  /// 失败/中断保留 [_pendingUpload] 供本地重试（同 clientUploadId 幂等恢复）。
+  Future<void> _uploadEntry(_PendingFileUpload entry) async {
     setState(() => _isUploading = true);
     try {
-      final created = await GroupFileService.to.uploadFile(
+      final created = await GroupFileService.to.uploadFileDirect(
         groupId: widget.groupId,
-        fileName: fileName,
-        fileBytes: fileBytes,
-        fileType: lookupMimeType(fileName),
+        file: entry.file,
+        fileName: entry.fileName,
+        mime: entry.mime,
+        clientUploadId: entry.clientUploadId,
       );
       if (!mounted) return;
       final success = created != null;
@@ -268,13 +308,22 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
             : t.common.groupFileUploadFailed,
       );
       if (success) {
+        setState(() => _pendingUpload = null);
         await _refreshAll();
+      } else {
+        setState(() => _pendingUpload = entry);
       }
     } finally {
       if (mounted) {
         setState(() => _isUploading = false);
       }
     }
+  }
+
+  Future<void> _retryPendingUpload() async {
+    final entry = _pendingUpload;
+    if (_isUploading || entry == null) return;
+    await _uploadEntry(entry);
   }
 
   Future<void> _deleteFile(Map<String, dynamic> file) async {
@@ -574,6 +623,37 @@ class _GroupFilePageState extends ConsumerState<GroupFilePage> {
     return Column(
       children: [
         if (_isUploading) const CupertinoActivityIndicator(),
+        if (_pendingUpload != null && !_isUploading)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.regular),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.common.groupFileUploadRetry(
+                      name: _pendingUpload!.fileName,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyle(
+                      FontSizeType.footnote,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: _retryPendingUpload,
+                  child: Text(t.common.buttonRetry),
+                ),
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => setState(() => _pendingUpload = null),
+                  child: Text(t.common.cancel),
+                ),
+              ],
+            ),
+          ),
         if (widget.scopeHint != null)
           Padding(
             padding: AppSpacing.allRegular,

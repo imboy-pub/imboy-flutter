@@ -85,7 +85,7 @@ void main() {
       await ws.close();
     });
 
-    test('1.3 有效签名但无 token 的握手返回 412', () async {
+    test('1.3 有效签名但无 token 的握手返回 401', () async {
       if (!ApiTestConfig.isConfigured) {
         return markTestSkipped('真实 WS 契约需要测试账号、签名密钥和可用后端');
       }
@@ -97,6 +97,10 @@ void main() {
       ).timeout(const Duration(seconds: 5));
       await authenticated.close();
 
+      // 冻结值对齐 backend CT websocket_connection_flow_SUITE:
+      // 无/无效 token → 401 + x-token-error: invalid + 业务码 706（token_invalid）。
+      // dart WebSocket.connect 失败仅暴露 httpStatusCode，握手响应头与 body
+      // 的 706/invalid 断言由后端 CT 覆盖，这里断言状态码 401。
       final headers = apiClient.authenticatedHeaders..remove('authorization');
       try {
         final ws = await _connect(
@@ -106,7 +110,7 @@ void main() {
         await ws.close();
         fail('无 token 的 WebSocket 握手不应成功');
       } on WebSocketException catch (error) {
-        expect(error.httpStatusCode, HttpStatus.preconditionFailed);
+        expect(error.httpStatusCode, HttpStatus.unauthorized);
       }
     });
   });
