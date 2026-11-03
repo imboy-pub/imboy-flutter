@@ -199,7 +199,7 @@ void main() {
     await settleUntil(tester, () => find.text('1 个重点').evaluate().length == 1);
     expect(find.text('1 个重点'), findsOneWidget);
     expect(svc.snapshot.markCount, 1);
-    expect(svc.snapshot.effectiveDurationMs, 1500);
+    expect(svc.snapshot.effectiveDurationMs, 1536); // T1 真实样本轴：24帧×1024@16kHz
     await drive(tester, svc.end);
   });
 
@@ -235,7 +235,7 @@ void main() {
     expect(result, isNotNull);
     final ended = result!;
     expect(ended.savedCleanly, isTrue);
-    expect(ended.effectiveDurationMs, 700);
+    expect(ended.effectiveDurationMs, 704); // T1 真实样本轴：11帧×1024@16kHz
   });
 
   testWidgets('空间不足：自动结束展示空间不足横幅（不显示保存成功）', (tester) async {

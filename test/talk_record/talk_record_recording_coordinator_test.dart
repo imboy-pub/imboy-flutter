@@ -239,7 +239,10 @@ void main() {
     expect(rows.single.sessionId, c.snapshot.sessionId);
     expect(rows.single.context, request.saveTo);
     expect(rows.single.policyVersion, 'v1');
-    expect(c.snapshot.effectiveDurationMs, 500);
+    expect(
+      c.snapshot.effectiveDurationMs,
+      500,
+    ); // real service：平台引擎无 fake tick，墙钟时长
     await c.pause();
     expect(c.snapshot.phase, TalkRecordRecorderPhase.paused);
     await c.resume();
@@ -418,7 +421,7 @@ void main() {
     await c.end();
     final pending = await c.pendingEnded();
     expect(pending.length, 1);
-    expect(pending.single.durationMs, 500);
+    expect(pending.single.durationMs, 512);
     expect(pending.single.segmentCount, 1);
     await c.retryPending(pending.single.binding);
     expect(await c.pendingEnded(), isEmpty);

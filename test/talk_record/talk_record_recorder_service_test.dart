@@ -38,6 +38,12 @@ Future<bool> waitUntil(bool Function() cond, {int timeoutMs = 5000}) async {
   return true;
 }
 
+/// fake 引擎段时长：16kHz AAC-LC ADTS，每帧 1024 样本=恰 64ms，
+/// 帧数=ceil(elapsed/64)（elapsed≤0 也产出 1 帧）——封段后真实样本是
+/// 时间轴权威（PLAN 2.1），断言按真实 samples 设置，不用墙钟 tick 值。
+int fakeSegMs(int elapsedMs) =>
+    elapsedMs <= 0 ? 64 : (elapsedMs + 63) ~/ 64 * 64;
+
 void main() {
   late Directory baseDir;
   late FakeTalkRecordEngine engine;
@@ -164,11 +170,14 @@ void main() {
       isTrue,
       reason: '滚动封段未在超时内完成',
     );
-    expect(svc.snapshot.effectiveDurationMs, 1200);
+    // 封段后真实样本权威：1200ms 进度 → 19 帧@16kHz = 1216ms。
+    expect(svc.snapshot.effectiveDurationMs, fakeSegMs(1200));
 
     engine.tick(400);
     expect(
-      await waitUntil(() => svc.snapshot.effectiveDurationMs == 1600),
+      await waitUntil(
+        () => svc.snapshot.effectiveDurationMs == fakeSegMs(1200) + 400,
+      ),
       isTrue,
       reason: '新段 disposition 未送达',
     );
@@ -176,12 +185,16 @@ void main() {
 
     final result = await svc.end();
     expect(result.segmentCount, 2);
-    expect(result.effectiveDurationMs, 1600);
+    // 段 0 真实样本 1216ms + 段 1 400ms 进度 → 7 帧 448ms。
+    expect(result.effectiveDurationMs, fakeSegMs(1200) + fakeSegMs(400));
     expect(result.savedCleanly, isTrue);
     expect(result.manifest.segments[0].startMs, 0);
-    expect(result.manifest.segments[0].durationMs, 1200);
-    expect(result.manifest.segments[1].startMs, 1200);
-    expect(result.manifest.segments[1].durationMs, 400);
+    expect(result.manifest.segments[0].durationMs, fakeSegMs(1200));
+    expect(result.manifest.segments[0].sampleCount, 19 * 1024);
+    expect(result.manifest.segments[0].sampleRateHz, 16000);
+    expect(result.manifest.segments[0].numChannels, 1);
+    expect(result.manifest.segments[1].startMs, fakeSegMs(1200));
+    expect(result.manifest.segments[1].durationMs, fakeSegMs(400));
     expect(result.endReason, TalkRecordEndReason.user);
   });
 
@@ -204,7 +217,7 @@ void main() {
     expect(result.endReason, TalkRecordEndReason.engineFailure);
     expect(result.savedCleanly, false);
     expect(result.segmentCount, 1);
-    expect(result.effectiveDurationMs, 1200);
+    expect(result.effectiveDurationMs, fakeSegMs(1200));
     expect(engine.events, contains('close'));
     expect(await audio.readAsBytes(), bytes);
     expect(
@@ -297,7 +310,8 @@ void main() {
     final result = await svc.end(); // 幂等：返回首次结果
     expect(result.endReason, TalkRecordEndReason.durationLimit);
     expect(result.savedCleanly, isTrue);
-    expect(result.effectiveDurationMs, 2600);
+    // 2100ms 段 → 33 帧 2112ms；500ms 段 → 8 帧 512ms。
+    expect(result.effectiveDurationMs, fakeSegMs(2100) + fakeSegMs(500));
     expect(result.segmentCount, greaterThanOrEqualTo(1));
     // 清单终态。
     final persisted = await TalkRecordManifestStore(
@@ -375,18 +389,21 @@ void main() {
     expect(result.endReason, TalkRecordEndReason.diskFull);
     // 已落盘的第 0 段保留。
     expect(result.segmentCount, 1);
-    expect(result.effectiveDurationMs, 1200);
+    expect(result.effectiveDurationMs, fakeSegMs(1200));
   });
 
-  test('空段（start 后立即 end）→ 无段、干净结束', () async {
+  test('空段（start 后立即 end）→ 文件有有效帧仍保留（真实样本权威）', () async {
     final svc = await started();
     final result = await svc.end();
-    expect(result.segmentCount, 0);
-    expect(result.effectiveDurationMs, 0);
+    // fake 引擎 elapsed=0 也产出 1 帧：进度缺失但有有效帧 → 段保留
+    //（PLAN 2.1：不得凭进度丢弃有效音频）。
+    expect(result.segmentCount, 1);
+    expect(result.effectiveDurationMs, fakeSegMs(0));
+    expect(result.manifest.segments.single.sampleCount, 1024);
     expect(result.savedCleanly, isTrue);
   });
 
-  test('重点标记写本地：位置=当时有效时长', () async {
+  test('重点标记写本地：位置=当时有效时长，封段一次性校正', () async {
     final svc = await started();
     engine.tick(1500);
     // 等滚动封段完成（否则第二笔 tick 可能被 _rollingOver 吞掉，
@@ -400,7 +417,9 @@ void main() {
     expect(svc.snapshot.markCount, 1);
     engine.tick(200);
     expect(
-      await waitUntil(() => svc.snapshot.effectiveDurationMs == 1700),
+      await waitUntil(
+        () => svc.snapshot.effectiveDurationMs == fakeSegMs(1500) + 200,
+      ),
       isTrue,
       reason: '续段 disposition 未送达',
     );
@@ -411,10 +430,30 @@ void main() {
       Directory('${baseDir.path}/${svc.sessionId}'),
     ).read();
     expect(persisted!.marks.length, 2);
-    expect(persisted.marks[0].positionMs, 1500);
+    // 临时位置 = 记录时有效时长（段 0 真实样本 1536ms + 段内进度）。
+    expect(persisted.marks[0].positionMs, fakeSegMs(1500));
     expect(persisted.marks[0].note, '结论');
-    expect(persisted.marks[1].positionMs, 1700);
+    expect(persisted.marks[0].segmentSeq, 1);
+    expect(persisted.marks[1].positionMs, fakeSegMs(1500) + 200);
+    expect(persisted.marks[1].segmentSeq, 1);
+    // 段 1 未封：均未校正。
+    expect(persisted.marks[0].calibratedMs, isNull);
     await svc.end();
+
+    // end 封段 1：两标记按真实样本一次性校正且不再变动。
+    final settled = await TalkRecordManifestStore(
+      Directory('${baseDir.path}/${svc.sessionId}'),
+    ).read();
+    final seg1 = settled!.segments[1];
+    expect(seg1.sampleCount, greaterThan(0));
+    for (final mark in settled.marks) {
+      expect(mark.segmentSeq, 1);
+      expect(mark.calibrated, isTrue, reason: '封段后标记必须已校正');
+      expect(mark.calibratedMs, inInclusiveRange(seg1.startMs, seg1.endMs));
+    }
+    // 校正位置 = ms(prevTotal + localSample)：prevTotal=24 帧，
+    // mark0 相对 0ms → localSample=0 → 起点边界。
+    expect(settled.marks[0].calibratedMs, seg1.startMs);
   });
 
   test('崩溃恢复：未 ended 会话 → 恢复 interrupted，续接后继续累计并重新封段', () async {
@@ -434,7 +473,7 @@ void main() {
     final dir = Directory('${baseDir.path}/$sessionId');
     final recovery = await TalkRecordRecorderService.recoverSession(dir);
     expect(recovery.truncatedTail, isFalse);
-    expect(recovery.effectiveDurationMs, 1200);
+    expect(recovery.effectiveDurationMs, fakeSegMs(1200));
 
     final engine2 = FakeTalkRecordEngine();
     final svc2 = TalkRecordRecorderService(
@@ -453,20 +492,24 @@ void main() {
       recordKey: keyStore.store[sessionId]!,
     );
     expect(svc2.phase, TalkRecordRecorderPhase.interrupted);
-    expect(svc2.snapshot.effectiveDurationMs, 1200);
+    expect(svc2.snapshot.effectiveDurationMs, fakeSegMs(1200));
     expect(svc2.snapshot.interruptReason, 'unknown_interrupt');
 
     // 用户确认恢复，继续录。
     await svc2.userResumeAfterInterruption();
     engine2.tick(500);
     await settleIO();
-    expect(svc2.snapshot.effectiveDurationMs, 1700);
+    expect(svc2.snapshot.effectiveDurationMs, fakeSegMs(1200) + 500);
     final result = await svc2.end();
-    // 恢复前 1 段 + 续接 1 段，时间轴连续。
+    // 恢复前 1 段 + 续接 1 段，样本时间轴连续（先累计样本再舍入）。
     expect(result.segmentCount, 2);
     expect(result.manifest.segments[1].seq, 1);
-    expect(result.manifest.segments[1].startMs, 1200);
-    expect(result.effectiveDurationMs, 1700);
+    expect(result.manifest.segments[1].startMs, fakeSegMs(1200));
+    expect(
+      result.effectiveDurationMs,
+      fakeSegMs(1200) + fakeSegMs(500),
+      reason: '累计样本统一舍入：19 帧 + 8 帧 = 27 帧 × 64ms = 1728',
+    );
   });
 
   test('已结束会话不可续接', () async {
@@ -636,7 +679,7 @@ void main() {
     );
     final result = await svc.end();
     expect(result.segmentCount, 1); // 先前段保留
-    expect(result.effectiveDurationMs, 1200);
+    expect(result.effectiveDurationMs, fakeSegMs(1200));
   });
 
   test('空段（dropSegmentFileOnStop）跳过，录音继续不崩溃', () async {
@@ -661,12 +704,15 @@ void main() {
     engine.dropSegmentFileOnStop = false;
     engine.tick(600); // 第 2 段继续累计
     expect(
-      await waitUntil(() => svc.snapshot.effectiveDurationMs == 1800),
+      await waitUntil(
+        () => svc.snapshot.effectiveDurationMs == fakeSegMs(1200) + 600,
+      ),
       isTrue,
       reason: '第 2 段 disposition 未送达',
     );
     final result = await svc.end();
     expect(result.segmentCount, 2);
+    expect(result.effectiveDurationMs, fakeSegMs(1200) + fakeSegMs(600));
     expect(result.savedCleanly, isTrue);
   });
 

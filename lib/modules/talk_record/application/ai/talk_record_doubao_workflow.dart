@@ -187,8 +187,8 @@ extension _TalkRecordDoubaoWorkflow on TalkRecordAiCoordinator {
       throw const FormatException('Provider task identity');
     }
     _sourceFor(task); // Bounded, correctly typed assembly pins.
-    if (task['profile_hash'] != _doubaoProfileHash ||
-        task['request_profile'] is! Map ||
+    if (task['request_profile'] is! Map ||
+        !talkRecordDoubaoProfileAllowed(task['request_profile']) ||
         task['profile_hash'] != talkRecordAiHash(task['request_profile'])) {
       throw const FormatException('Provider request profile');
     }
@@ -658,8 +658,10 @@ extension TalkRecordDoubaoControls on TalkRecordAiCoordinator {
   }
 }
 
-const _doubaoProfileHash =
-    'd723bf03c21bf27f6d35a38d6134c2cdf33ebe4a6700b35c8bd98ec27fc4cfab';
+/// no-backend-ffmpeg V1：profile 白名单与真实参数校验在 talk_record_ai_wire
+/// （公共可测）：kTalkRecordDoubaoFixedRequest + talkRecordDoubaoProfileAllowed；
+/// 任务冻结一致性由 profile_hash == talkRecordAiHash(request_profile) 与
+/// checkpoint 冻结共同保障，恢复/重试沿用已冻结值。
 
 bool _providerEntity(Object? value) =>
     RegExp(r'^[1-9][0-9]{0,19}$').hasMatch('$value');

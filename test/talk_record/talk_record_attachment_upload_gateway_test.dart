@@ -8,10 +8,12 @@ import 'package:imboy/store/model/talk_record/talk_record_capabilities_model.dar
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_attachment_upload_gateway.dart';
+import 'package:imboy/modules/talk_record/application/talk_record_upload_checkpoint.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_local_binding.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_part_transport.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_upload_manifest.dart';
 import 'package:imboy/modules/talk_record/presentation/talk_record_entry_context.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/talk_record_api.dart';
 import 'package:imboy/store/model/talk_record/talk_record_capture_model.dart';
 import 'package:imboy/store/model/talk_record/talk_record_enums.dart';
@@ -181,18 +183,21 @@ class UploadApi extends TalkRecordApi {
   }
 
   String? completedPolicyVersion;
+  TalkRecordFinalAudioDecl? completedFinalAudio;
   @override
   Future<TalkRecordCompleteResult> complete(
     String id, {
     required List<TalkRecordCompleteCaptureInput> captures,
+    required TalkRecordFinalAudioDecl finalAudio,
     required String policyVersion,
     String? processorConfigVersion,
     required String idempotencyKey,
     required String ifMatch,
   }) async {
-    if (rejectCompletion) throw StateError('policy changed');
+    if (rejectCompletion) throw StateError('new policy ack required');
     completedPolicyVersion = policyVersion;
     completedProcessorConfigVersion = processorConfigVersion;
+    completedFinalAudio = finalAudio;
     completes++;
     completeKeys.add(idempotencyKey);
     completedHash = captures.single.manifestHash;
@@ -226,6 +231,51 @@ class UploadTransport implements TalkRecordPartTransport {
       throw StateError('PUT response lost');
     }
   }
+}
+
+/// 成品 direct 通道 fake：register 同 client_upload_id 幂等、PUT 无网络、
+/// finalize 态可控（[finalizeState]）；status 恢复第一跳返回 [sessionState]。
+class FinalDirectFake {
+  FinalDirectFake({this.sessionState = 'RESERVED'});
+  String sessionState;
+  String finalizeState = 'CONFIRMED';
+  int uploads = 0, statuses = 0, registers = 0;
+  final clientUploadIds = <String>[];
+  final scopeRefs = <String>[];
+  bool failFirstPut = false;
+  String objectKeyOf(String id) => 'owner/record/final-$id.aac';
+  TalkRecordFinalDirectRegister get register =>
+      (String clientUploadId, String scopeRef) async {
+        registers++;
+        return objectKeyOf(clientUploadId);
+      };
+  TalkRecordFinalDirectUpload get upload =>
+      (
+        File file, {
+        required String clientUploadId,
+        required String scopeRef,
+      }) async {
+        uploads++;
+        // 会话身份在 register 已确立；PUT 失败不否定 server 侧会话存在。
+        clientUploadIds.add(clientUploadId);
+        scopeRefs.add(scopeRef);
+        if (failFirstPut && uploads == 1) {
+          throw StateError('direct put lost');
+        }
+        return DirectUploadResult(
+          objectKey: objectKeyOf(clientUploadId),
+          state: finalizeState,
+          attemptId: 1,
+        );
+      };
+  TalkRecordFinalDirectStatus get status => (String objectKey) async {
+    statuses++;
+    return DirectUploadResult(
+      objectKey: objectKey,
+      state: sessionState,
+      attemptId: 0,
+    );
+  };
 }
 
 void main() {
@@ -282,21 +332,31 @@ void main() {
     TalkRecordCaptureLease.resetForTest();
     directory.deleteSync(recursive: true);
   });
-  Future<void> upload({int attempts = 6, TalkRecordManifest? source}) =>
-      TalkRecordAttachmentUploadGateway(
-        api: api,
-        transport: transport,
-        confirmAttempts: attempts,
-        delay: (_) async {},
-      ).upload(
-        binding: binding,
-        manifest: source ?? manifest,
-        directory: recorder.sessionDir!,
-        keys: keys,
-        checkAccount: () {
-          if (!accountValid) throw StateError('account changed');
-        },
-      );
+  Future<void> upload({
+    int attempts = 6,
+    TalkRecordManifest? source,
+    FinalDirectFake? finalDirect,
+  }) {
+    final fd = finalDirect ?? FinalDirectFake();
+    return TalkRecordAttachmentUploadGateway(
+      api: api,
+      transport: transport,
+      confirmAttempts: attempts,
+      delay: (_) async {},
+      directUpload: fd.upload,
+      directStatus: fd.status,
+      directRegister: fd.register,
+    ).upload(
+      binding: binding,
+      manifest: source ?? manifest,
+      directory: recorder.sessionDir!,
+      keys: keys,
+      checkAccount: () {
+        if (!accountValid) throw StateError('account changed');
+      },
+    );
+  }
+
   void expectNoPlaintext() => expect(
     Directory('${recorder.sessionDir!.path}/.upload_plain').existsSync(),
     false,
@@ -305,11 +365,15 @@ void main() {
   test(
     'progress follows server receipts and retry resumes confirmed count',
     () async {
+      final fd = FinalDirectFake();
       final gateway = TalkRecordAttachmentUploadGateway(
         api: api,
         transport: transport,
         confirmAttempts: 1,
         delay: (_) async {},
+        directUpload: fd.upload,
+        directStatus: fd.status,
+        directRegister: fd.register,
       );
       final snapshots = <TalkRecordUploadSnapshot>[];
       final subscription = gateway.uploadUpdates.listen(snapshots.add);
@@ -396,10 +460,10 @@ void main() {
           'sha256': s.plainSha256Hex,
           'byte_size': s.plainSize,
           'offset_ms': 0,
-          'duration_ms': 1000,
+          'duration_ms': 1024, // 16 帧@16kHz 真实样本（tick 1000 → ceil→16 帧）
         },
       ],
-      'total_duration_ms': 1000,
+      'total_duration_ms': 1024,
       'total_bytes': s.plainSize,
     };
     expect(api.completedHash, talkRecordManifestHash(expected));
@@ -685,5 +749,124 @@ void main() {
     expect(api.completedPolicyVersion, 'v2');
     expect(binding.policyVersion, isEmpty);
     expectNoPlaintext();
+  });
+  group('final audio direct upload (no-backend-ffmpeg V1 T2)', () {
+    test('composes ordered plaintext, direct-confirms with talk_record scope before complete, freezes identity', () async {
+      final fd = FinalDirectFake();
+      await upload(finalDirect: fd);
+      expect(fd.registers, 1);
+      expect(fd.statuses, 1, reason: 'register must re-check server status');
+      expect(fd.uploads, 1);
+      expect(
+        RegExp(
+          r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+        ).hasMatch(fd.clientUploadIds.single),
+        isTrue,
+        reason: 'client_upload_id must be uuid36 (server register contract)',
+      );
+      expect(fd.scopeRefs.single, binding.recordId);
+      final decl = api.completedFinalAudio!;
+      expect(decl.objectKey, fd.objectKeyOf(fd.clientUploadIds.single));
+      expect(decl.clientUploadId, fd.clientUploadIds.single);
+      expect(decl.channels, 1);
+      expect(decl.sampleRate, 16000);
+      // 成品字节 = 段明文逐字节（单段：size/hash 相等）。
+      expect(decl.byteSize, manifest.segments.single.plainSize);
+      // fake 引擎 tick 1000ms → 16 帧 × 1024 样本 → 统一舍入 1024ms。
+      expect(decl.sampleCount, 16 * 1024);
+      expect(decl.durationMs, 1024);
+      // checkpoint 冻结 confirmed 身份；明文临时目录已清。
+      final cp = await TalkRecordUploadCheckpointStore(recorder.sessionDir!)
+          .load(binding, talkRecordManifestHash(manifest.toJson()));
+      expect(cp.finalAudio['confirmed'], true);
+      expect(cp.finalAudio['client_upload_id'], fd.clientUploadIds.single);
+      expectNoPlaintext();
+    });
+    test(
+      'confirmed identity short-circuits recomposition and re-upload',
+      () async {
+        final fd = FinalDirectFake();
+        await upload(finalDirect: fd);
+        expect(fd.uploads, 1);
+        await upload(finalDirect: fd);
+        expect(
+          fd.uploads,
+          1,
+          reason: 'checkpoint confirmed must not re-upload',
+        );
+        expect(
+          fd.statuses,
+          1,
+          reason: 'only the first-run register re-check queries status',
+        );
+        expect(api.completes, 1);
+      },
+    );
+    test('FINALIZING never reaches complete and leaves no plaintext', () async {
+      final fd = FinalDirectFake()..finalizeState = 'FINALIZING';
+      await expectLater(upload(finalDirect: fd), throwsStateError);
+      expect(api.completes, 0);
+      expectNoPlaintext();
+    });
+    test('lost direct put recovers along the same frozen identity', () async {
+      final fd = FinalDirectFake()..failFirstPut = true;
+      await expectLater(upload(finalDirect: fd), throwsStateError);
+      expect(api.completes, 0);
+      await upload(finalDirect: fd);
+      expect(api.completes, 1);
+      expect(
+        fd.clientUploadIds.toSet().length,
+        1,
+        reason: 'retry must reuse the frozen client_upload_id',
+      );
+      expect(
+        api.completedFinalAudio!.clientUploadId,
+        fd.clientUploadIds.toSet().single,
+      );
+    });
+    test('finalize receipt loss recovers via server status CONFIRMED without re-upload', () async {
+      // 第一次：direct PUT 丢失 → 身份已落盘（无 confirmed）、未到 complete。
+      final fd = FinalDirectFake()..failFirstPut = true;
+      await expectLater(upload(finalDirect: fd), throwsStateError);
+      expect(api.completes, 0);
+      // 真实场景：服务端 finalize 其实已成功，仅 confirmed 落盘前崩溃。
+      fd
+        ..failFirstPut = false
+        ..sessionState = 'CONFIRMED';
+      await upload(finalDirect: fd);
+      expect(fd.statuses, 2, reason: 'recovery must consult server status');
+      expect(fd.registers, 1, reason: 'same session must not re-register');
+      expect(
+        fd.uploads,
+        1,
+        reason: 'status CONFIRMED must short-circuit re-upload',
+      );
+      expect(api.completes, 1);
+      expect(
+        api.completedFinalAudio!.clientUploadId,
+        fd.clientUploadIds.toSet().single,
+      );
+    });
+    test(
+      'status non-confirmed states idempotently re-arm via same identity',
+      () async {
+        // 第一次：direct PUT 丢失 → 身份已落盘、服务端会话停在早期状态。
+        final fd = FinalDirectFake()..failFirstPut = true;
+        await expectLater(upload(finalDirect: fd), throwsStateError);
+        fd.failFirstPut = false;
+        fd.sessionState = 'GRANTED';
+        // 重入：status GRANTED → 沿原身份幂等补齐（同 client_upload_id）。
+        await upload(finalDirect: fd);
+        expect(fd.statuses, 2);
+        expect(fd.registers, 1, reason: 'same session must not re-register');
+        expect(fd.clientUploadIds.toSet().length, 1);
+        expect(fd.uploads, 2);
+        expect(api.completes, 1);
+        expect(
+          api.completedFinalAudio!.clientUploadId,
+          fd.clientUploadIds.toSet().single,
+        );
+      },
+    );
   });
 }

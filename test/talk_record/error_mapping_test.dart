@@ -276,6 +276,7 @@ void main() {
         () => api.complete(
           '2001',
           captures: const [],
+          finalAudio: finalAudioDecl(),
           policyVersion: 'notice-v1',
           idempotencyKey: 'idem-1',
           ifMatch: '"v5"',
@@ -520,3 +521,15 @@ void main() {
     });
   });
 }
+
+/// no-backend-ffmpeg V1：complete 合同的合法 final_audio 八字段样本。
+TalkRecordFinalAudioDecl finalAudioDecl() => TalkRecordFinalAudioDecl(
+  objectKey: 'u1/talk_record/r1/final.aac',
+  clientUploadId: '0f0e0d0c-0b0a-49f8-8a7b-6c5d4e3f2a1b',
+  sha256: List.filled(64, 'a').join(),
+  byteSize: 1024,
+  sampleRate: 16000,
+  channels: 1,
+  sampleCount: 1024,
+  durationMs: 64,
+);

@@ -173,3 +173,39 @@ Map<String, dynamic> talkRecordAiSummary(
 
 bool _text(Object? value, int limit) =>
     value is String && value.isNotEmpty && utf8.encode(value).length <= limit;
+
+/// no-backend-ffmpeg V1：provider profile 白名单（与后端
+/// talk_record_provider_contract:profile_rate / 迁移 00000242 同源）——
+/// 固定 request 策略精确（canonical hash 比较，键序无关且防类型漂移）、
+/// audio 其余参数固定、rate 为 ADTS 合法采样率。不绑定单一 16k 值，也
+/// 不退化为接受任意 request_profile；profile_hash 与 request_profile 的
+/// 自洽由调用方以 [talkRecordAiHash] 复核。
+const List<int> kTalkRecordAdtsRates = <int>[
+  96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, //
+  16000, 12000, 11025, 8000, 7350,
+];
+
+const Map<String, dynamic> kTalkRecordDoubaoFixedRequest = <String, dynamic>{
+  'model_name': 'bigmodel',
+  'enable_speaker_info': true,
+  'show_utterances': true,
+  'ssd_version': '300',
+  'enable_itn': true,
+  'enable_punc': true,
+  'enable_ddc': false,
+};
+
+bool talkRecordDoubaoProfileAllowed(Object? raw) {
+  if (raw is! Map) return false;
+  final Object? audio = raw['audio'];
+  final Object? request = raw['request'];
+  if (audio is! Map || request is! Map) return false;
+  if (talkRecordAiHash(request) !=
+      talkRecordAiHash(kTalkRecordDoubaoFixedRequest)) {
+    return false;
+  }
+  return audio['format'] == 'aac' &&
+      audio['bits'] == 16 &&
+      audio['channel'] == 1 &&
+      kTalkRecordAdtsRates.contains(audio['rate']);
+}
