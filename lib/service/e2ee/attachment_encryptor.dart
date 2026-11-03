@@ -258,33 +258,35 @@ class AttachmentEncryptor {
     );
     final File tmp = File('${cipherFile.path}.part');
 
-    final IOSink out = tmp.openWrite();
     // cipher full hash 写完后对流式复算（openRead 有界内存），保证是连续
     // 真实字节的 hash 而非分块 hash 拼接（协议 5.2）。
     int written = 0;
     try {
-      for (var i = 0; i < chunkCount; i++) {
-        final int start = i * chunkSize;
-        final int end = (start + chunkSize) > plainSize
-            ? plainSize
-            : start + chunkSize;
-        final Uint8List slice = _readSlice(plaintextFile, start, end);
-        final Uint8List sealed = AttachmentChunkCodec.encryptChunk(
-          plaintext: slice,
-          contentKey: contentKey,
-          baseNonce: baseNonce,
-          bindingHash: bindingHash,
-          attachmentId: attachmentId,
-          chunkIndex: i,
-          chunkCount: chunkCount,
-        );
-        out.add(sealed);
-        written += sealed.length;
+      final out = await tmp.open(mode: FileMode.write);
+      try {
+        for (var i = 0; i < chunkCount; i++) {
+          final int start = i * chunkSize;
+          final int end = (start + chunkSize) > plainSize
+              ? plainSize
+              : start + chunkSize;
+          final Uint8List slice = _readSlice(plaintextFile, start, end);
+          final Uint8List sealed = AttachmentChunkCodec.encryptChunk(
+            plaintext: slice,
+            contentKey: contentKey,
+            baseNonce: baseNonce,
+            bindingHash: bindingHash,
+            attachmentId: attachmentId,
+            chunkIndex: i,
+            chunkCount: chunkCount,
+          );
+          await out.writeFrom(sealed);
+          written += sealed.length;
+        }
+        await out.flush();
+      } finally {
+        await out.close();
       }
-      await out.flush();
-      await out.close();
       final Digest cipherDigest = await _fileDigest(tmp);
-      await tmp.rename(cipherFile.path);
       final descriptor = AttachmentDescriptor(
         attachmentId: attachmentId,
         objectKey: objectKey,
@@ -301,6 +303,7 @@ class AttachmentEncryptor {
         name: name,
         thumb: thumb,
       );
+      await tmp.rename(cipherFile.path);
       return SealedAttachmentFile(
         cipherFile: cipherFile,
         descriptor: descriptor,
@@ -342,33 +345,36 @@ class AttachmentEncryptor {
 
     final File tmp = File('${plaintextOut.path}.part');
     final RandomAccessFile raf = cipherFile.openSync();
-    final IOSink out = tmp.openWrite();
     try {
-      for (var i = 0; i < d.chunkCount; i++) {
-        final int start = i * sealedChunkLen;
-        final bool isLast = i == d.chunkCount - 1;
-        final int end = isLast ? cipherLen : start + sealedChunkLen;
-        raf.setPositionSync(start);
-        final Uint8List sealedChunk = raf.readSync(end - start);
-        final Uint8List plain;
-        try {
-          plain = AttachmentChunkCodec.decryptChunk(
-            sealed: sealedChunk,
-            contentKey: d.contentKey,
-            baseNonce: d.baseNonce,
-            bindingHash: bindingHash,
-            attachmentId: d.attachmentId,
-            chunkIndex: i,
-            chunkCount: d.chunkCount,
-          );
-        } on AttachmentChunkException {
-          // 不区分失败粒度（同 [open] 的对外语义）：哪一块失败不成为 oracle
-          throw AttachmentSealException('第 $i 块认证失败');
+      final out = await tmp.open(mode: FileMode.write);
+      try {
+        for (var i = 0; i < d.chunkCount; i++) {
+          final int start = i * sealedChunkLen;
+          final bool isLast = i == d.chunkCount - 1;
+          final int end = isLast ? cipherLen : start + sealedChunkLen;
+          raf.setPositionSync(start);
+          final Uint8List sealedChunk = raf.readSync(end - start);
+          final Uint8List plain;
+          try {
+            plain = AttachmentChunkCodec.decryptChunk(
+              sealed: sealedChunk,
+              contentKey: d.contentKey,
+              baseNonce: d.baseNonce,
+              bindingHash: bindingHash,
+              attachmentId: d.attachmentId,
+              chunkIndex: i,
+              chunkCount: d.chunkCount,
+            );
+          } on AttachmentChunkException {
+            // 不区分失败粒度（同 [open] 的对外语义）：哪一块失败不成为 oracle
+            throw AttachmentSealException('第 $i 块认证失败');
+          }
+          await out.writeFrom(plain);
         }
-        out.add(plain);
+        await out.flush();
+      } finally {
+        await out.close();
       }
-      await out.flush();
-      await out.close();
       // full hash：对流式落盘的连续明文整体计算（非分块拼接）
       final Digest actual = await _fileDigest(tmp);
       if (actual.bytes.length != d.plainSha256.length ||
@@ -385,9 +391,6 @@ class AttachmentEncryptor {
       }
       tmp.renameSync(plaintextOut.path);
     } catch (_) {
-      try {
-        await out.close();
-      } catch (_) {}
       if (tmp.existsSync()) tmp.deleteSync();
       rethrow;
     } finally {
