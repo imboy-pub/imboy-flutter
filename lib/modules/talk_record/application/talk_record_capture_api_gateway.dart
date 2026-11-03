@@ -128,8 +128,9 @@ class TalkRecordApiCaptureGateway implements TalkRecordCaptureGateway {
   Future<TalkRecordLocalBinding> bind(
     TalkRecordLocalBinding local,
     Future<void> Function(TalkRecordLocalBinding) checkpoint,
-    void Function() checkAccount,
-  ) async {
+    void Function() checkAccount, {
+    bool endedRecovery = false,
+  }) async {
     checkAccount();
     if (local.recordId.isEmpty) {
       local = await _bindRecord(local, checkpoint, checkAccount);
@@ -190,12 +191,14 @@ class TalkRecordApiCaptureGateway implements TalkRecordCaptureGateway {
       }
       // Existing or response-lost captures must recover authoritatively; never
       // reset segment sequence or create a new capture when lease is unknown.
+      // endedRecovery：本地已结束的会话允许 recording+expired-lease 通过
+      // （上传网关随后补投 end 事件）。
       final capture = await api.recoverCapture(
         local.recordId,
         local.captureId,
         deviceSessionId: local.deviceSessionId,
       );
-      _requireCapture(capture, local);
+      _requireCapture(capture, local, endedRecovery: endedRecovery);
       return local.copyWith(
         deviceId: local.deviceId.isEmpty ? capture.deviceId : local.deviceId,
         captureEtag: capture.etag,
@@ -243,8 +246,9 @@ class TalkRecordApiCaptureGateway implements TalkRecordCaptureGateway {
 
   void _requireCapture(
     TalkRecordCaptureModel capture,
-    TalkRecordLocalBinding local,
-  ) {
+    TalkRecordLocalBinding local, {
+    bool endedRecovery = false,
+  }) {
     if ((local.deviceId.isNotEmpty &&
             capture.deviceId.isNotEmpty &&
             capture.deviceId != local.deviceId) ||
@@ -257,7 +261,8 @@ class TalkRecordApiCaptureGateway implements TalkRecordCaptureGateway {
         (capture.status == TalkRecordCaptureStatus.ended &&
             capture.leaseEpoch > 0) ||
         capture.leaseEpoch != 0 ||
-        (capture.status != TalkRecordCaptureStatus.ended &&
+        (!endedRecovery &&
+            capture.status != TalkRecordCaptureStatus.ended &&
             (capture.leaseUntil == null ||
                 !capture.leaseUntil!.isAfter(DateTime.now())))) {
       throw StateError('Capture ownership, status or lease unavailable');

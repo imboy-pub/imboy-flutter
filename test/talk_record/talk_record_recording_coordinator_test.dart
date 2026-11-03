@@ -42,8 +42,9 @@ class LeaseGateway implements TalkRecordCaptureGateway {
   Future<TalkRecordLocalBinding> bind(
     TalkRecordLocalBinding local,
     Future<void> Function(TalkRecordLocalBinding) checkpoint,
-    void Function() checkAccount,
-  ) async {
+    void Function() checkAccount, {
+    bool endedRecovery = false,
+  }) async {
     checkAccount();
     calls++;
     return local.copyWith(

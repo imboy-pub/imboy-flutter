@@ -17,12 +17,16 @@ import 'talk_record_upload_progress.dart';
 import 'package:imboy/store/model/talk_record/talk_record_participant_model.dart';
 
 /// The gateway must use current server authorization and return a durable lease.
+/// endedRecovery：本地会话已 ended 而服务端 capture 仍 recording（end 事件
+/// 响应丢失）时，允许 expired-lease 状态通过 bind——上传网的 _end 会以
+/// checkpointed 幂等键补投 end 事件，服务端事件门不查租约。
 abstract interface class TalkRecordCaptureGateway {
   Future<TalkRecordLocalBinding> bind(
     TalkRecordLocalBinding local,
     Future<void> Function(TalkRecordLocalBinding) checkpoint,
-    void Function() checkAccount,
-  );
+    void Function() checkAccount, {
+    bool endedRecovery = false,
+  });
 }
 
 /// Reuses attachment sessions/confirm. Only an actual confirmed completion can
@@ -602,8 +606,14 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
       checkCurrentOperation?.call();
     }
 
-    final bound = await gateway.bind(local, store.save, check);
+    final bound = await gateway.bind(
+      local,
+      store.save,
+      check,
+      endedRecovery: manifest.status == TalkRecordSessionStatus.ended,
+    );
     check();
+    final endedRecovery = manifest.status == TalkRecordSessionStatus.ended;
     if (bound.account != local.account ||
         bound.context != local.context ||
         bound.clientRecordingId != local.clientRecordingId ||
@@ -620,7 +630,8 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
           'ended',
         ].contains(bound.captureStatus) ||
         (bound.captureStatus == 'ended' && bound.leaseEpoch > 0) ||
-        (bound.captureStatus != 'ended' &&
+        (!endedRecovery &&
+            bound.captureStatus != 'ended' &&
             (bound.leaseUntil == null ||
                 !bound.leaseUntil!.isAfter(DateTime.now())))) {
       throw StateError('Capture lease unknown or expired');
