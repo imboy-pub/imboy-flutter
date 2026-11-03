@@ -110,39 +110,38 @@ class TalkRecordS3PutPartTransport implements TalkRecordPartTransport {
     if (!ticket.isS3Put || !ticket.canUploadAt(DateTime.now())) {
       throw StateError('s3_put descriptor unavailable');
     }
-    final bytes = await plaintext.readAsBytes();
+    final length = await plaintext.length();
     guard();
-    final response = await HttpClient.client.put(
-      ticket.grantUrl,
-      data: Stream.fromIterable([bytes]),
-      httpTransformer: TalkRecordS3PutReceiptTransformer(),
-      options: Options(
-        extra: {httpNoAutoRetry: true, httpRequestGuard: guard},
-        headers: {...ticket.requiredHeaders, 'Content-Length': bytes.length},
-        // presign URL 已含全部鉴权；followRedirects 关闭防签名重定向泄露
+    final dio = Dio(
+      BaseOptions(
         followRedirects: false,
+        maxRedirects: 0,
+        connectTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(minutes: 2),
+        receiveTimeout: const Duration(seconds: 30),
+        responseType: ResponseType.plain,
+        validateStatus: (_) => true,
       ),
-    );
-    guard();
-    if (response.ok) {
-      return;
+    )..interceptors.add(HttpRequestGuardInterceptor());
+    try {
+      final response = await dio.put<void>(
+        ticket.grantUrl,
+        data: plaintext.openRead().map((chunk) {
+          guard();
+          return chunk;
+        }),
+        options: Options(
+          extra: {httpRequestGuard: guard},
+          headers: {...ticket.requiredHeaders, 'Content-Length': length},
+        ),
+      );
+      guard();
+      final code = response.statusCode ?? 0;
+      if (code < 200 || code >= 300) {
+        throw StateError('s3_put upload failed: $code');
+      }
+    } finally {
+      dio.close(force: true);
     }
-    throw StateError('s3_put upload failed: ${response.code}');
-  }
-}
-
-/// S3 presign PUT 的 2xx 响应是对象存储回执（空体/ETag 头），**不是**
-/// 业务 JSON 信封——不按 payload 结构解析（同 Gateway receipt 先例）。
-class TalkRecordS3PutReceiptTransformer extends HttpTransformer {
-  @override
-  IMBoyHttpResponse parse(Response<dynamic> response, String uri) {
-    final code = response.statusCode ?? 0;
-    if (code >= 200 && code < 300) {
-      return IMBoyHttpResponse.success(const <String, dynamic>{});
-    }
-    return IMBoyHttpResponse.failure(
-      errMsg: 's3_put rejected: $code',
-      errCode: code,
-    );
   }
 }
