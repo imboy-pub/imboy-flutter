@@ -5,7 +5,29 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/component/http/http_response.dart';
+import 'package:imboy/component/http/http_client.dart' as app_http;
+import 'package:imboy/config/init.dart' show serviceContainer;
 import 'package:imboy/store/api/attachment_direct_api.dart';
+
+class _StatusHttpClient implements app_http.HttpClient {
+  final List<({String path, Map<String, dynamic>? query})> requests = [];
+
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    dynamic options,
+    dynamic cancelToken,
+    dynamic onReceiveProgress,
+    dynamic httpTransformer,
+  }) async {
+    requests.add((path: uri, query: queryParameters));
+    return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 /// step-8（direct-v1 文件化传输）定向测试：
 ///   * 流式 sha256 正确性 + 全链编排（mock 会话/PUT，不触网）；
@@ -56,6 +78,24 @@ void main() {
       ],
       'expires_in': 3600,
     },
+  });
+
+  test('status 和恢复使用 GET 查询 object_key', () async {
+    final client = _StatusHttpClient();
+    serviceContainer.put<app_http.HttpClient>(client);
+    addTearDown(serviceContainer.clear);
+    final file = writeFile('status.png', [1]);
+    await DirectAttachmentApi.status(objectKey: 'u1/file/x');
+    await DirectAttachmentApi.resumeDirect(
+      objectKey: 'u1/file/x',
+      file: file,
+      mime: 'image/png',
+    );
+    expect(client.requests, hasLength(2));
+    for (final request in client.requests) {
+      expect(request.path, '/api/v1/attachment/direct/status');
+      expect(request.query, {'object_key': 'u1/file/x'});
+    }
   });
 
   test('sha256OfFile 与单块/多块向量一致（流式，不整读）', () async {

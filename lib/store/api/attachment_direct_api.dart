@@ -380,20 +380,11 @@ class DirectAttachmentApi {
     required String objectKey,
     DirectSessionFn? sessionFn,
   }) async {
-    Future<IMBoyHttpResponse> session(
-      String action, {
-      Map<String, dynamic>? body,
-    }) {
-      final String path = '/api/v1/attachment/direct/$action';
-      return sessionFn != null
-          ? sessionFn(path, body: body)
-          : HttpClient.client.post(path, data: body);
-    }
-
-    final IMBoyHttpResponse st = await session(
-      'status',
-      body: <String, dynamic>{'object_key': objectKey},
-    );
+    const String path = '/api/v1/attachment/direct/status';
+    final Map<String, dynamic> query = {'object_key': objectKey};
+    final IMBoyHttpResponse st = sessionFn != null
+        ? await sessionFn(path, body: query)
+        : await HttpClient.client.get(path, queryParameters: query);
     if (!st.ok) {
       throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
     }
@@ -429,10 +420,11 @@ class DirectAttachmentApi {
           : HttpClient.client.post(path, data: body);
     }
 
-    final IMBoyHttpResponse st = await session(
-      'status',
-      body: <String, dynamic>{'object_key': objectKey},
-    );
+    const String statusPath = '/api/v1/attachment/direct/status';
+    final Map<String, dynamic> statusQuery = {'object_key': objectKey};
+    final IMBoyHttpResponse st = sessionFn != null
+        ? await sessionFn(statusPath, body: statusQuery)
+        : await HttpClient.client.get(statusPath, queryParameters: statusQuery);
     if (!st.ok) {
       throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
     }
