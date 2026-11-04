@@ -1,11 +1,82 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:crypto/crypto.dart' as crypto;
 
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/api/group_album_api.dart';
 import 'package:imboy/store/api/group_file_api.dart';
+
+mixin _RecordingMethods {
+  final methods = <String>[];
+  IMBoyHttpResponse response(String method, String path, dynamic data) {
+    methods.add('$method $path');
+    if (path.endsWith('/register')) {
+      return IMBoyHttpResponse.success({
+        'object_key': 'group/3001/photo',
+        'state': 'CONFIRMED',
+      });
+    }
+    if (path.endsWith('/status') && method == 'GET') {
+      return IMBoyHttpResponse.success({
+        'state': 'CONFIRMED',
+        'expected': {
+          'sha256': crypto.sha256.convert([1, 2, 3]).toString(),
+          'size_bytes': 3,
+          'mime': 'image/png',
+        },
+      });
+    }
+    throw StateError('unexpected $method $path');
+  }
+}
+
+class _FileMethodApi extends GroupFileApi with _RecordingMethods {
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    dynamic options,
+    dynamic cancelToken,
+    dynamic onReceiveProgress,
+    dynamic httpTransformer,
+  }) async => response('GET', uri, queryParameters);
+  @override
+  Future<IMBoyHttpResponse> post(
+    String uri, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    dynamic options,
+    dynamic cancelToken,
+    dynamic onSendProgress,
+    dynamic onReceiveProgress,
+    dynamic httpTransformer,
+  }) async => response('POST', uri, data);
+}
+
+class _AlbumMethodApi extends GroupAlbumApi with _RecordingMethods {
+  @override
+  Future<IMBoyHttpResponse> get(
+    String uri, {
+    Map<String, dynamic>? queryParameters,
+    dynamic options,
+    dynamic cancelToken,
+    dynamic onReceiveProgress,
+    dynamic httpTransformer,
+  }) async => response('GET', uri, queryParameters);
+  @override
+  Future<IMBoyHttpResponse> post(
+    String uri, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    dynamic options,
+    dynamic cancelToken,
+    dynamic onSendProgress,
+    dynamic onReceiveProgress,
+    dynamic httpTransformer,
+  }) async => response('POST', uri, data);
+}
 
 /// V3-12 群文件/群相册 direct 化（Lane B3）定向测试：不触网，全 seam 注入。
 ///
@@ -19,6 +90,55 @@ import 'package:imboy/store/api/group_file_api.dart';
 ///   * direct 会话：register(scope=group,scope_ref=gid)→declare→grant→
 ///     s3_put PUT→finalize(CONFIRMED)。
 void main() {
+  test('默认 HTTP：群文件和相册恢复均用 GET status', () async {
+    final dir = await Directory.systemTemp.createTemp('group-status-test');
+    try {
+      final file = await File('${dir.path}/a.png').writeAsBytes([1, 2, 3]);
+      final fileApi = _FileMethodApi();
+      final fileResult = await fileApi.uploadFileDirect(
+        groupId: '3001',
+        file: file,
+        fileName: 'a.png',
+        mime: 'image/png',
+        clientUploadId: 'f0e0d0c0-b0a0-4908-8877-665544332211',
+        bindFn: (_) async => IMBoyHttpResponse.success({'file_id': 'ok'}),
+      );
+      expect(fileResult?['file_id'], 'ok');
+      expect(fileApi.methods, [
+        'POST /api/v1/attachment/direct/register',
+        'GET /api/v1/attachment/direct/status',
+      ]);
+      final albumApi = _AlbumMethodApi();
+      final outcomes = await albumApi.uploadPhotosDirect(
+        groupId: '3001',
+        albumId: 'album1',
+        items: [
+          GroupAlbumUploadItem(
+            file: file,
+            photoName: 'a.png',
+            clientUploadId: 'f0e0d0c0-b0a0-4908-8877-665544332211',
+          ),
+        ],
+        bindBatchFn: (_) async => IMBoyHttpResponse.success({
+          'results': [
+            {
+              'object_key': 'group/3001/photo',
+              'status': 'ok',
+              'photo': {'photo_id': 'ok'},
+            },
+          ],
+        }),
+      );
+      expect(outcomes.single.ok, isTrue);
+      expect(albumApi.methods, [
+        'POST /api/v1/attachment/direct/register',
+        'GET /api/v1/attachment/direct/status',
+      ]);
+    } finally {
+      await dir.delete(recursive: true);
+    }
+  });
+
   late Directory tmp;
 
   setUpAll(() async {
@@ -131,6 +251,60 @@ void main() {
       expect(body['file_size'], 3);
       // backend validate_bind_metadata：非空 file_md5 必被拒（unverifiable_file_md5）
       expect(body['file_md5'], '');
+    });
+
+    test('已确认会话恢复只绑定原文件，变更文件不得绑定', () async {
+      final file = writeFile('resume.pdf', <int>[1, 2, 3]);
+      final digest = await sha256OfFile(file);
+      var binds = 0;
+      var puts = 0;
+      final actions = <String>[];
+      final session = directSession(
+        keyOf: (_) => 'u1/group/3001/resume.pdf',
+        onRequest: (action, _) => actions.add(action),
+        override: (action, _) {
+          if (action == 'register') {
+            return ok({
+              'object_key': 'u1/group/3001/resume.pdf',
+              'state': 'CONFIRMED',
+            });
+          }
+          if (action == 'status') {
+            return ok({
+              'state': 'CONFIRMED',
+              'expected': {
+                'sha256': digest,
+                'size_bytes': '3',
+                'mime': 'application/pdf',
+              },
+            });
+          }
+          return null;
+        },
+      );
+      Future<Map<String, dynamic>?> upload() => api.uploadFileDirect(
+        groupId: '3001',
+        file: file,
+        fileName: 'resume.pdf',
+        mime: 'application/pdf',
+        clientUploadId: '0aaaaaaa-bbbb-4ccc-8ddd-0123456789ab',
+        sessionFn: session,
+        putFn: (_, _, _, _) async {
+          puts++;
+        },
+        bindFn: (_) async {
+          binds++;
+          return ok({'file_id': 'existing'});
+        },
+      );
+      expect((await upload())?['file_id'], 'existing');
+      expect(actions, ['register', 'status']);
+      expect(puts, 0);
+      expect(binds, 1);
+      file.writeAsBytesSync([3, 2, 1]);
+      await expectLater(upload(), throwsStateError);
+      expect(binds, 1);
+      expect(puts, 0);
     });
 
     test('register 带 scope=group/scope_ref=gid/client_upload_id', () async {
@@ -528,6 +702,46 @@ void main() {
       expect(outcomes.single.ok, isFalse);
       expect(outcomes.single.reason, 'bind_batch_failed');
     });
+
+    test(
+      // C08（source-audit C08-album-partial）：bindBatch 传输层异常不得逃逸
+      // 吞掉已回填结果——按项落账 bind_batch_failed 后整批继续。
+      'bind_batch 抛异常（传输层 throw）：按项落账不丢前序结果',
+      () async {
+        final File a = writeFile('throw-a.png', <int>[1]);
+        final File b = writeFile('throw-b.png', <int>[2]);
+
+        final List<GroupAlbumUploadOutcome> outcomes = await api
+            .uploadPhotosDirect(
+              groupId: '3002',
+              albumId: '88',
+              items: <GroupAlbumUploadItem>[
+                itemOf(a, 'throw-a.png', 'c-ta'),
+                itemOf(b, 'throw-b.png', 'c-tb'),
+              ],
+              sessionFn: directSession(
+                keyOf: (String f) => 'u1/group/3002/$f',
+                onRequest: (_, _) {},
+              ),
+              putFn: (
+                String url,
+                File f,
+                int l,
+                Map<String, String> h,
+              ) async {},
+              bindBatchFn: (Map<String, dynamic> body) async {
+                throw Exception('transport down');
+              },
+            );
+
+        expect(outcomes, hasLength(2));
+        expect(outcomes.every((GroupAlbumUploadOutcome o) => !o.ok), isTrue);
+        expect(
+          outcomes.map((GroupAlbumUploadOutcome o) => o.reason),
+          everyElement('bind_batch_failed'),
+        );
+      },
+    );
 
     test(
       '白名单外 MIME（heic）：不发起 direct，直接 failed unsupported_image_type',

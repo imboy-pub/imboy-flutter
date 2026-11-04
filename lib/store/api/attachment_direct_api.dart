@@ -99,6 +99,11 @@ class DirectUploadResult {
   });
 }
 
+/// 原登记身份与当前协议声明不一致，必须隔离原任务。
+class DirectRegistrationConflict implements Exception {
+  const DirectRegistrationConflict();
+}
+
 /// 本地取消（用户中止）：中止流/不调 finalize，服务端会话由 sweep 收敛。
 class DirectUploadCancelled implements Exception {
   final String objectKey;
@@ -163,7 +168,11 @@ class DirectAttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? clientUploadId,
+    String? cipher,
+    String purpose = 'attachment',
+    String? anchorMsgId,
     DirectSessionFn? sessionFn,
+    void Function(String state)? onState,
   }) async {
     Future<IMBoyHttpResponse> session(
       String action, {
@@ -182,15 +191,22 @@ class DirectAttachmentApi {
         'scope': scope,
         if (scopeRef != null && scopeRef.isNotEmpty) 'scope_ref': scopeRef,
         'client_upload_id': ?clientUploadId,
+        'cipher': ?cipher,
+        'purpose': purpose,
+        'anchor_msg_id': ?anchorMsgId,
       },
     );
     if (!reg.ok) {
+      if (reg.msg == 'declaration_conflict') {
+        throw const DirectRegistrationConflict();
+      }
       throw Exception('direct register 失败: code=${reg.code} msg=${reg.msg}');
     }
     final String objectKey = str(reg.payload, 'object_key');
     if (objectKey.isEmpty) {
       throw Exception('direct register 响应缺少 object_key');
     }
+    onState?.call(str(reg.payload, 'state'));
     return objectKey;
   }
 
@@ -205,12 +221,16 @@ class DirectAttachmentApi {
     String scope = 'private',
     String? scopeRef,
     String? clientUploadId,
+    String? cipher,
+    String purpose = 'attachment',
+    String? anchorMsgId,
 
     /// 非 null 时本地取消该 attempt（AbortSignal 语义）：中断流并抛
     /// [DirectUploadCancelled]，不调 finalize。
     VoidCallback? registerCancelHandler,
     DirectSessionFn? sessionFn,
     DirectFilePutFn? putFn,
+    void Function(int sent, int total)? onProgress,
     Future<void> Function(DirectCheckpoint event)? checkpoint,
   }) async {
     if (mime == 'image/jpg') mime = 'image/jpeg';
@@ -231,12 +251,17 @@ class DirectAttachmentApi {
     }
 
     // 1. register（RESERVED，无写能力/R08）：同 client_upload_id 同声明幂等。
+    String registeredState = '';
     final String objectKey = await registerSession(
       fileName: fileName,
       scope: scope,
       scopeRef: scopeRef,
       clientUploadId: clientUploadId,
+      cipher: cipher,
+      purpose: purpose,
+      anchorMsgId: anchorMsgId,
       sessionFn: sessionFn,
+      onState: (state) => registeredState = state,
     );
     await checkpoint?.call(
       DirectCheckpoint(
@@ -245,6 +270,24 @@ class DirectAttachmentApi {
         clientUploadId: clientUploadId,
       ),
     );
+
+    if (registeredState == stateConfirmed ||
+        registeredState == 'GRANTED' ||
+        registeredState == stateFinalizing) {
+      return resumeDirect(
+        objectKey: objectKey,
+        file: file,
+        mime: mime,
+        sessionFn: sessionFn,
+        putFn: putFn,
+        onProgress: onProgress,
+        checkpoint: checkpoint,
+      );
+    }
+
+    if (registeredState != 'RESERVED' && registeredState != 'DECLARED') {
+      throw StateError('direct session terminal: $registeredState');
+    }
 
     // 2. declare：expected 冻结（同值幂等；异值 expected_conflict）。
     final String sha256Hex = await sha256OfFile(file);
@@ -301,12 +344,15 @@ class DirectAttachmentApi {
       bool cancelled = false;
       bool putFailed = false;
       try {
-        final Future<void> putting = (putFn ?? _ioFilePut)(
-          grant.url,
-          file,
-          size,
-          grant.requiredHeaders,
-        );
+        final Future<void> putting = putFn != null
+            ? putFn(grant.url, file, size, grant.requiredHeaders)
+            : _ioFilePut(
+                grant.url,
+                file,
+                size,
+                grant.requiredHeaders,
+                onProgress: onProgress,
+              );
         registerCancelHandler?.call();
         await putting;
       } on DirectUploadCancelled {
@@ -376,6 +422,29 @@ class DirectAttachmentApi {
 
   /// 查询会话当前状态（恢复第一跳；RESERVED/DECLARED/GRANTED/FINALIZING/
   /// CONFIRMED 等服务端权威状态）。网络/信封失败抛异常。
+  static Future<String?> strictStatus({
+    required String objectKey,
+    DirectSessionFn? sessionFn,
+  }) async {
+    const path = '/api/v1/attachment/direct/status';
+    final query = <String, dynamic>{'object_key': objectKey};
+    final response = sessionFn != null
+        ? await sessionFn(path, body: query)
+        : await HttpClient.client.get(path, queryParameters: query);
+    final payload = response.payload;
+    if (!response.ok ||
+        payload is! Map ||
+        payload['object_key'] != objectKey ||
+        !payload.containsKey('state')) {
+      throw StateError('direct status unavailable or invalid');
+    }
+    final state = payload['state'];
+    if (state != null && state is! String) {
+      throw StateError('direct status invalid state');
+    }
+    return state as String?;
+  }
+
   static Future<DirectUploadResult> status({
     required String objectKey,
     DirectSessionFn? sessionFn,
@@ -406,6 +475,7 @@ class DirectAttachmentApi {
     required String mime,
     DirectSessionFn? sessionFn,
     DirectFilePutFn? putFn,
+    void Function(int sent, int total)? onProgress,
     Future<void> Function(DirectCheckpoint event)? checkpoint,
   }) async {
     if (mime == 'image/jpg') mime = 'image/jpeg';
@@ -429,6 +499,23 @@ class DirectAttachmentApi {
       throw Exception('direct status 失败: code=${st.code} msg=${st.msg}');
     }
     final String state = str(st.payload, 'state');
+    if (state != stateConfirmed &&
+        state != 'GRANTED' &&
+        state != stateFinalizing) {
+      throw StateError('direct session terminal: $state');
+    }
+    final payload = IMBoyHttpResponse.payloadAsMap(st.payload);
+    final rawExpected = payload['expected'];
+    final dynamic decoded = rawExpected is String
+        ? jsonDecode(rawExpected)
+        : rawExpected;
+    final sha256Hex = await sha256OfFile(file);
+    if (decoded is! Map ||
+        decoded['sha256'] != sha256Hex ||
+        decoded['size_bytes']?.toString() != size.toString() ||
+        decoded['mime'] != mime) {
+      throw StateError('direct upload does not match local file');
+    }
     if (state == stateConfirmed) {
       return DirectUploadResult(
         objectKey: objectKey,
@@ -436,14 +523,10 @@ class DirectAttachmentApi {
         attemptId: 0,
       );
     }
-    if (state != 'GRANTED' && state != stateFinalizing) {
-      throw StateError('direct session terminal: $state');
-    }
     final int used = attemptCount(st.payload);
     if (used >= maxAttempts) {
       throw StateError('direct attempt budget exhausted (remote)');
     }
-    final String sha256Hex = await sha256OfFile(file);
     final IMBoyHttpResponse renew = await session(
       'renew',
       body: <String, dynamic>{'object_key': objectKey, 'sha256': sha256Hex},
@@ -459,7 +542,17 @@ class DirectAttachmentApi {
         attemptId: grant.attemptId,
       ),
     );
-    await (putFn ?? _ioFilePut)(grant.url, file, size, grant.requiredHeaders);
+    if (putFn != null) {
+      await putFn(grant.url, file, size, grant.requiredHeaders);
+    } else {
+      await _ioFilePut(
+        grant.url,
+        file,
+        size,
+        grant.requiredHeaders,
+        onProgress: onProgress,
+      );
+    }
     await checkpoint?.call(
       DirectCheckpoint(
         DirectCheckpointStage.putDone,
@@ -508,8 +601,9 @@ class DirectAttachmentApi {
     String url,
     io.File file,
     int length,
-    Map<String, String> headers,
-  ) async {
+    Map<String, String> headers, {
+    void Function(int sent, int total)? onProgress,
+  }) async {
     final io.HttpClient client = io.HttpClient();
     client.connectionTimeout = const Duration(milliseconds: 30000);
     try {
@@ -517,11 +611,19 @@ class DirectAttachmentApi {
         'PUT',
         Uri.parse(url),
       );
+      request.followRedirects = false;
       headers.forEach((String k, String v) {
         request.headers.set(k, v);
       });
       request.contentLength = length;
-      await request.addStream(file.openRead());
+      var sent = 0;
+      await request.addStream(
+        file.openRead().map((chunk) {
+          sent += chunk.length;
+          onProgress?.call(sent, length);
+          return chunk;
+        }),
+      );
       final io.HttpClientResponse response = await request.close();
       // 签名 PUT 的负向（缺头/换值/换正文）由存储端拒绝；这里只区分成败，
       // 错误体不读取（服务端 finalize 的 proof 才是权威，T05/T06）。
@@ -543,17 +645,51 @@ class DirectAttachmentApi {
     final dynamic rh = g['required_headers'];
     // 后端 to_js 线格式：tuple {K,V} → JSON 二元数组 [K, V]（20b 真 HTTP
     // driver 实证）。只按真实形态解析——同时兼容 {K:V} 会再次掩盖两端漂移。
-    final Map<String, String> headers = <String, String>{
-      if (rh is List)
-        for (final dynamic item in rh)
-          if (item is List && item.length == 2) '${item[0]}': '${item[1]}',
-    };
-    // attempt_id 在信封顶层（协议 §2：finalize 以其绑定单次 dispatch）
-    final int attemptId =
+    if (rh is! List ||
+        rh.length != 2 ||
+        g['transport'] != 's3_put' ||
+        g['method'] != 'PUT') {
+      throw StateError('invalid direct grant');
+    }
+    final headers = <String, String>{};
+    for (final item in rh) {
+      if (item is! List ||
+          item.length != 2 ||
+          item[0] is! String ||
+          item[1] is! String) {
+        throw StateError('invalid direct grant header');
+      }
+      final key = (item[0] as String).toLowerCase();
+      final value = item[1] as String;
+      if (!{'content-type', 'x-amz-checksum-sha256'}.contains(key) ||
+          value.isEmpty ||
+          value.contains('\r') ||
+          value.contains('\n') ||
+          headers.keys.any((existing) => existing.toLowerCase() == key)) {
+        throw StateError('invalid direct grant header');
+      }
+      headers[item[0] as String] = value;
+    }
+    final rawUrl = g['url'];
+    if (rawUrl is! String || rawUrl.trim() != rawUrl || rawUrl.contains('\\')) {
+      throw StateError('invalid direct grant url');
+    }
+    final uri = Uri.tryParse(rawUrl);
+    if (uri == null ||
+        !uri.hasAuthority ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasFragment ||
+        !(uri.scheme == 'https' ||
+            (uri.scheme == 'http' &&
+                (uri.host == 'localhost' || uri.host == '127.0.0.1')))) {
+      throw StateError('invalid direct grant url');
+    }
+    final attemptId =
         int.tryParse('${payload is Map ? payload['attempt_id'] : null}') ?? 0;
+    if (attemptId <= 0) throw StateError('invalid direct attempt');
     return DirectGrantDescriptor(
-      url: '${g['url']}',
-      method: '${g['method']}',
+      url: rawUrl,
+      method: 'PUT',
       requiredHeaders: headers,
       attemptId: attemptId,
       expiresIn: int.tryParse('${g['expires_in']}') ?? 3600,

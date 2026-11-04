@@ -196,10 +196,12 @@ class GroupAlbumApi extends HttpClient {
       return const <GroupAlbumUploadOutcome>[];
     }
 
-    // direct 会话默认走本实例 post（统一拦截器/测试 fake 路径）。
+    // status 是 GET；其他 direct 操作使用 POST。
     final DirectSessionFn session =
         sessionFn ??
-        (String path, {Map<String, dynamic>? body}) => post(path, data: body);
+        (String path, {Map<String, dynamic>? body}) => path.endsWith('/status')
+            ? get(path, queryParameters: body)
+            : post(path, data: body);
 
     // 逐项 direct：白名单外直接落账失败；direct 异常按项吞掉（其余项继续）。
     // outcomes 按输入顺序占位（成功项在 bind 后回填），调用方按下标对账。
@@ -264,6 +266,9 @@ class GroupAlbumApi extends HttpClient {
     }
 
     // bind_batch：≤50/批（backend 硬门）；每批后合并逐项结果。
+    // C08（source-audit C08-album-partial）：bindBatch 抛出的传输层异常
+    // 与 !resp.ok 同形态按项落账——异常不再逃逸出本方法吞掉前面批次
+    // 已回填的结果（部分失败继续，逐项有账）。
     final GroupAlbumBindBatchFn bindBatch =
         bindBatchFn ??
         (Map<String, dynamic> body) =>
@@ -273,23 +278,33 @@ class GroupAlbumApi extends HttpClient {
         i,
         i + bindBatchLimit > ready.length ? ready.length : i + bindBatchLimit,
       );
-      final IMBoyHttpResponse resp = await bindBatch(<String, dynamic>{
-        'gid': gid,
-        'items': <Map<String, dynamic>>[
-          for (final _ReadyBind r in chunk)
-            <String, dynamic>{
-              'album_id': aid,
-              'photo_name': r.item.photoName,
-              'photo_size': r.item.file.lengthSync(),
-              'mime_type': r.mime,
-              'sha256': await sha256OfFile(r.item.file),
-              'object_key': r.objectKey,
-            },
-        ],
-      });
-      if (!resp.ok || resp.payload == null) {
-        // 传输层/信封失败：整批落账失败但照片已 CONFIRMED——重试只重
-        // bind_batch（幂等），不必重传对象。
+      Map<String, dynamic>? payload;
+      try {
+        final IMBoyHttpResponse resp = await bindBatch(<String, dynamic>{
+          'gid': gid,
+          'items': <Map<String, dynamic>>[
+            for (final _ReadyBind r in chunk)
+              <String, dynamic>{
+                'album_id': aid,
+                'photo_name': r.item.photoName,
+                'photo_size': r.item.file.lengthSync(),
+                'mime_type': r.mime,
+                'sha256': await sha256OfFile(r.item.file),
+                'object_key': r.objectKey,
+              },
+          ],
+        });
+        if (resp.ok && resp.payload != null) {
+          payload = Map<String, dynamic>.from(
+            IMBoyHttpResponse.payloadAsMap(resp.payload),
+          );
+        }
+      } on Exception {
+        // 传输层异常：整批按项落账失败（照片已 CONFIRMED，重试只重
+        // bind_batch 幂等），继续下一批——不吞掉前序批次结果。
+        payload = null;
+      }
+      if (payload == null) {
         for (final _ReadyBind r in chunk) {
           slots[r.slotIndex] = GroupAlbumUploadOutcome(
             item: r.item,
@@ -299,9 +314,6 @@ class GroupAlbumApi extends HttpClient {
         }
         continue;
       }
-      final Map<String, dynamic> payload = Map<String, dynamic>.from(
-        IMBoyHttpResponse.payloadAsMap(resp.payload),
-      );
       _matchBindResults(chunk, payload['results'], slots);
     }
     return slots.cast<GroupAlbumUploadOutcome>();

@@ -22,7 +22,14 @@ class _StatusHttpClient implements app_http.HttpClient {
     dynamic httpTransformer,
   }) async {
     requests.add((path: uri, query: queryParameters));
-    return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+    return IMBoyHttpResponse.success({
+      'state': 'CONFIRMED',
+      'expected': {
+        'sha256': crypto.sha256.convert([1]).toString(),
+        'size_bytes': '1',
+        'mime': 'image/png',
+      },
+    });
   }
 
   @override
@@ -38,6 +45,39 @@ class _StatusHttpClient implements app_http.HttpClient {
 ///   * 大文件路径不 readAsBytes（putFn 收到 File；源码无 readAsBytes 调用）；
 ///   * journal epoch 隔离（E10）。
 void main() {
+  test(
+    'strict status distinguishes legacy null from invalid and unavailable',
+    () async {
+      const key = 'u1/thumbnail';
+      Future<String?> check(IMBoyHttpResponse response) =>
+          DirectAttachmentApi.strictStatus(
+            objectKey: key,
+            sessionFn: (_, {body}) async => response,
+          );
+      expect(
+        await check(
+          IMBoyHttpResponse.success({'object_key': key, 'state': null}),
+        ),
+        isNull,
+      );
+      expect(
+        await check(
+          IMBoyHttpResponse.success({'object_key': key, 'state': 'CONFIRMED'}),
+        ),
+        'CONFIRMED',
+      );
+      for (final response in [
+        IMBoyHttpResponse.success({'object_key': key}),
+        IMBoyHttpResponse.success({'object_key': 'other', 'state': null}),
+        IMBoyHttpResponse.success({'object_key': key, 'state': 1}),
+        IMBoyHttpResponse.failure(errMsg: 'not_found'),
+        IMBoyHttpResponse.failure(errMsg: 'offline'),
+      ]) {
+        await expectLater(check(response), throwsStateError);
+      }
+    },
+  );
+
   late Directory tmp;
 
   setUp(() async {
@@ -96,6 +136,159 @@ void main() {
       expect(request.path, '/api/v1/attachment/direct/status');
       expect(request.query, {'object_key': 'u1/file/x'});
     }
+  });
+
+  test('默认流式 PUT 报告进度并接受真实 loopback 响应', () async {
+    final previous = HttpOverrides.current;
+    HttpOverrides.global = null;
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final served = server.first.then((request) async {
+      var received = 0;
+      await for (final chunk in request) {
+        received += chunk.length;
+      }
+      request.response.statusCode = 200;
+      await request.response.close();
+      return received;
+    });
+    final file = writeFile('progress.bin', List.filled(200000, 42));
+    final progress = <int>[];
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      switch (path.split('/').last) {
+        case 'register':
+          return ok({'object_key': 'u1/file/progress', 'state': 'RESERVED'});
+        case 'declare':
+          return ok({'state': 'DECLARED'});
+        case 'grant':
+          return grantPayload('http://127.0.0.1:${server.port}/put', 1, 'YQ==');
+        case 'finalize':
+          return ok({'state': 'CONFIRMED'});
+        default:
+          throw StateError(path);
+      }
+    }
+
+    try {
+      final result = await DirectAttachmentApi.uploadFile(
+        file,
+        fileName: 'progress.bin',
+        mime: 'image/png',
+        sessionFn: session,
+        onProgress: (sent, total) {
+          expect(total, file.lengthSync());
+          progress.add(sent);
+        },
+      );
+      expect(result.state, 'CONFIRMED');
+      expect(await served, file.lengthSync());
+      expect(progress, isNotEmpty);
+      expect(progress.last, file.lengthSync());
+    } finally {
+      await server.close(force: true);
+      HttpOverrides.global = previous;
+    }
+  });
+
+  test('默认流式 PUT 失败时保持进度回调并上抛错误', () async {
+    final previous = HttpOverrides.current;
+    HttpOverrides.global = null;
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    final serverSub = server.listen((request) async {
+      await request.drain<void>();
+      request.response.statusCode = 403;
+      await request.response.close();
+    });
+    final file = writeFile('progress-fail.bin', List.filled(80000, 42));
+    final progress = <int>[];
+    var attempt = 0;
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      switch (path.split('/').last) {
+        case 'register':
+          return ok({'object_key': 'u1/file/progress', 'state': 'RESERVED'});
+        case 'declare':
+          return ok({'state': 'DECLARED'});
+        case 'grant':
+        case 'renew':
+          return grantPayload(
+            'http://127.0.0.1:${server.port}/put',
+            ++attempt,
+            'YQ==',
+          );
+        default:
+          throw StateError(path);
+      }
+    }
+
+    try {
+      await expectLater(
+        DirectAttachmentApi.uploadFile(
+          file,
+          fileName: 'progress-fail.bin',
+          mime: 'image/png',
+          sessionFn: session,
+          onProgress: (sent, _) => progress.add(sent),
+        ),
+        throwsException,
+      );
+      expect(progress, isNotEmpty);
+      expect(progress.last, file.lengthSync());
+      expect(attempt, 3);
+    } finally {
+      await serverSub.cancel();
+      await server.close(force: true);
+      HttpOverrides.global = previous;
+    }
+  });
+
+  test('grant 描述符拒绝不安全 URL、重复及业务鉴权头', () {
+    Map<String, dynamic> grant(String url, List<List<String>> headers) => {
+      'attempt_id': 1,
+      'grant': {
+        'transport': 's3_put',
+        'method': 'PUT',
+        'url': url,
+        'required_headers': headers,
+      },
+    };
+    const valid = [
+      ['Content-Type', 'image/png'],
+      ['x-amz-checksum-sha256', 'sha'],
+    ];
+    expect(
+      () =>
+          DirectAttachmentApi.grantOf(grant('http://outside.example/a', valid)),
+      throwsStateError,
+    );
+    expect(
+      () => DirectAttachmentApi.grantOf(
+        grant('https://user:pass@s3.example/a', valid),
+      ),
+      throwsStateError,
+    );
+    expect(
+      () => DirectAttachmentApi.grantOf(
+        grant('https://s3.example/a', [
+          ['Authorization', 'secret'],
+          ['x-amz-checksum-sha256', 'sha'],
+        ]),
+      ),
+      throwsStateError,
+    );
+    expect(
+      () => DirectAttachmentApi.grantOf(
+        grant('https://s3.example/a', [
+          ['Content-Type', 'image/png'],
+          ['content-type', 'image/jpeg'],
+        ]),
+      ),
+      throwsStateError,
+    );
   });
 
   test('sha256OfFile 与单块/多块向量一致（流式，不整读）', () async {
@@ -204,7 +397,10 @@ void main() {
       actions.add(action);
       switch (action) {
         case 'register':
-          return ok(<String, dynamic>{'object_key': 'u1/file/dv1b'});
+          return ok(<String, dynamic>{
+            'object_key': 'u1/file/dv1b',
+            'state': 'RESERVED',
+          });
         case 'declare':
           return ok(<String, dynamic>{'state': 'DECLARED'});
         case 'grant':
@@ -255,7 +451,10 @@ void main() {
       final String action = path.split('/').last;
       switch (action) {
         case 'register':
-          return ok(<String, dynamic>{'object_key': 'u1/file/dv1c'});
+          return ok(<String, dynamic>{
+            'object_key': 'u1/file/dv1c',
+            'state': 'RESERVED',
+          });
         case 'declare':
           return ok(<String, dynamic>{'state': 'DECLARED'});
         case 'grant':
@@ -296,7 +495,10 @@ void main() {
       final String action = path.split('/').last;
       switch (action) {
         case 'register':
-          return ok(<String, dynamic>{'object_key': 'u1/file/dv1d'});
+          return ok(<String, dynamic>{
+            'object_key': 'u1/file/dv1d',
+            'state': 'RESERVED',
+          });
         case 'declare':
           return ok(<String, dynamic>{'state': 'DECLARED'});
         case 'grant':
@@ -346,7 +548,10 @@ void main() {
       actions.add(action);
       switch (action) {
         case 'register':
-          return ok(<String, dynamic>{'object_key': 'u1/file/dv1e'});
+          return ok(<String, dynamic>{
+            'object_key': 'u1/file/dv1e',
+            'state': 'RESERVED',
+          });
         case 'declare':
           return ok(<String, dynamic>{'state': 'DECLARED'});
         case 'grant':
@@ -419,6 +624,11 @@ void main() {
         return ok(<String, dynamic>{
           'state': 'CONFIRMED',
           'session_state': 'confirmed',
+          'expected': <String, dynamic>{
+            'sha256': await sha256OfFile(file),
+            'size_bytes': '${file.lengthSync()}',
+            'mime': 'image/png',
+          },
           'attempts': <dynamic>[],
         });
       }
@@ -450,6 +660,11 @@ void main() {
         case 'status':
           return ok(<String, dynamic>{
             'state': 'GRANTED',
+            'expected': {
+              'sha256': await sha256OfFile(file),
+              'size_bytes': file.lengthSync(),
+              'mime': 'image/png',
+            },
             'attempts': <dynamic>[<String, dynamic>{}],
           });
         case 'renew':
@@ -492,6 +707,11 @@ void main() {
           case 'status':
             return ok(<String, dynamic>{
               'state': 'FINALIZING',
+              'expected': {
+                'sha256': await sha256OfFile(file),
+                'size_bytes': file.lengthSync(),
+                'mime': 'image/png',
+              },
               'attempts': <dynamic>[<String, dynamic>{}, <String, dynamic>{}],
             });
           case 'renew':

@@ -183,10 +183,12 @@ class GroupFileApi extends HttpClient {
       return null;
     }
 
-    // direct 会话默认走本实例 post（统一拦截器/测试 fake 路径）。
+    // status 是 GET；其他 direct 操作使用 POST。
     final DirectSessionFn session =
         sessionFn ??
-        (String path, {Map<String, dynamic>? body}) => post(path, data: body);
+        (String path, {Map<String, dynamic>? body}) => path.endsWith('/status')
+            ? get(path, queryParameters: body)
+            : post(path, data: body);
     final DirectUploadResult direct = await DirectAttachmentApi.uploadFile(
       file,
       fileName: name,
