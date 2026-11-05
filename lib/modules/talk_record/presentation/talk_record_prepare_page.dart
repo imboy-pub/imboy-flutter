@@ -328,11 +328,16 @@ class _TalkRecordPreparePageState extends ConsumerState<TalkRecordPreparePage> {
                       .read(talkRecordDraftProvider.notifier)
                       .toggleParticipant(p),
                 ),
-              TalkRecordNoticeRow(
-                value: draft.noticeAcknowledged,
-                onChanged: (v) => ref
-                    .read(talkRecordDraftProvider.notifier)
-                    .setNoticeAcknowledged(v),
+              // 勾选行包卡片：与整体卡片语言/左缘对齐（此前 checkbox 贴屏缘）。
+              TalkRecordPrepareSectionCard(
+                children: [
+                  TalkRecordNoticeRow(
+                    value: draft.noticeAcknowledged,
+                    onChanged: (v) => ref
+                        .read(talkRecordDraftProvider.notifier)
+                        .setNoticeAcknowledged(v),
+                  ),
+                ],
               ),
               if (_micDenied) ...[
                 const SizedBox(height: AppSpacing.small),
@@ -352,6 +357,9 @@ class _TalkRecordPreparePageState extends ConsumerState<TalkRecordPreparePage> {
                       .openSettings(),
                 ),
               ],
+              // 全局录音浮条（已有会话进行中）——置于提示面板之后、
+              // 开始按钮之前，避免面板与浮条相互挤压。
+              TalkRecordGlobalRecordingBar(currentContext: saveTo),
               if (_recordingUnavailable) ...[
                 const SizedBox(height: AppSpacing.small),
                 TalkRecordInfoPanel(
@@ -359,7 +367,6 @@ class _TalkRecordPreparePageState extends ConsumerState<TalkRecordPreparePage> {
                   message: t.talkRecord.recordingUnavailableMessage,
                 ),
               ],
-              TalkRecordGlobalRecordingBar(currentContext: saveTo),
               const SizedBox(height: AppSpacing.medium),
               if (!draft.noticeAcknowledged)
                 Padding(

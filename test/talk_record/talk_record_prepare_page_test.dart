@@ -457,6 +457,8 @@ void main() {
 
       final noticeRow = find.byKey(const ValueKey('talk_record_notice_row'));
       expect(tester.getSize(noticeRow).height, greaterThanOrEqualTo(67));
+      // 勾选行包卡片后列表变长：交互前先滚入视口。
+      await tester.ensureVisible(noticeRow);
 
       await tester.tap(
         find.byKey(const ValueKey('talk_record_start_button')),
@@ -478,6 +480,7 @@ void main() {
       await pumpPrepare(tester, container);
       await tester.pumpAndSettle();
 
+      await tester.ensureVisible(find.text(t.talkRecord.noticeCheckbox));
       await tester.tap(find.text(t.talkRecord.noticeCheckbox));
       await tester.pumpAndSettle();
       expect(container.read(talkRecordDraftProvider).noticeAcknowledged, true);
@@ -495,6 +498,10 @@ void main() {
       await pumpPrepare(tester, container);
       await tester.pumpAndSettle();
 
+      // 勾选行包卡片后列表变长：tap 前先滚入视口（否则命中屏外）。
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('talk_record_notice_row')),
+      );
       await tester.tap(find.byKey(const ValueKey('talk_record_notice_row')));
       await tester.pumpAndSettle();
       await tester.ensureVisible(
@@ -546,6 +553,9 @@ void main() {
         '需求评审',
       );
       await tester.pump();
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('talk_record_notice_row')),
+      );
       await tester.tap(find.byKey(const ValueKey('talk_record_notice_row')));
       await tester.pumpAndSettle();
       await tester.ensureVisible(

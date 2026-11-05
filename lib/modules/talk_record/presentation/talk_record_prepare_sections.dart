@@ -286,15 +286,29 @@ class _SingleModeTile extends StatelessWidget {
             : AppColors.lightSurfaceGrouped,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(
-        label,
-        style: context.textStyle(
-          FontSizeType.medium,
-          fontWeight: FontWeight.w600,
-          color: brightness == Brightness.dark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
-        ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: context.textStyle(
+                FontSizeType.medium,
+                fontWeight: FontWeight.w600,
+                color: brightness == Brightness.dark
+                    ? AppColors.darkTextPrimary
+                    : AppColors.lightTextPrimary,
+              ),
+            ),
+          ),
+          // 降级单档的「已选定」语义：非可点灰块，而是唯一生效选项。
+          Icon(
+            CupertinoIcons.checkmark_alt_circle_fill,
+            size: AppSpacing.xLarge,
+            color: brightness == Brightness.dark
+                ? AppColors.darkTextSecondary
+                : AppColors.lightTextSecondary,
+          ),
+        ],
       ),
     );
   }

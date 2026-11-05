@@ -88,8 +88,13 @@ class TalkRecordAiEntryRow extends StatelessWidget {
     minimumSize: const Size(AppSpacing.xxxLarge, AppSpacing.xxxLarge),
     onPressed: onTap,
     child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: AppColors.getIosBlue(Theme.of(context).brightness)),
+        Icon(
+          icon,
+          size: AppSpacing.xLarge,
+          color: AppColors.getIosBlue(Theme.of(context).brightness),
+        ),
         const SizedBox(width: AppSpacing.medium),
         Expanded(
           child: Column(
