@@ -1,6 +1,6 @@
 # 构建 / 发布（Build & Release）
 
-> **最后更新 / Last updated**: 2026-09-30
+> **最后更新 / Last updated**: 2026-11-05
 > **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
@@ -14,22 +14,13 @@
 #     ./scripts/build_play_aab.sh 70102 0.7.2
 ```
 
-脚本行为（按实际内容）：
+脚本校验 versionCode（1–2100000000）后检查 Flutter SDK 与后端 `full-selected` 生成物；`build_name` 默认从 `pubspec.yaml` 读取并去掉 `+build`。实际构建使用 `--release --flavor standard --obfuscate`，注入公开的 `ALIPAY_APP_ID`，并将 Dart 符号写到 `debugInfo/play/<build_number>`；可用 `PLAY_SYMBOL_DIR` 指定安全目录。
 
-1. 前置门禁：调用后端仓 `../imboy/scripts/generate_product_features.py --check --require-profile full-selected`，不满足即退出（exit 2）。
-2. `build_name` 未传时从 `pubspec.yaml` 的 `version:` 读取；读不到则要求显式传参。
-3. 注入支付宝公开 AppID：`--dart-define=ALIPAY_APP_ID`，默认 `2021004142626807`，可用环境变量 `ALIPAY_APP_ID` 覆盖（非密钥；商户密钥全在服务端）。不注入时客户端充值降级为「即将开通」。
-4. 构建命令等价于：
+产物：`build/app/outputs/bundle/standardRelease/app-standard-release.aab`。每次发布前须到 Play Console 核对并分配大于所有已用版本的 versionCode，脚本不能验证远端历史。构建成功也不代表已正式签名或通过 Play 审核。须用 `jarsigner -verify -verbose -certs <AAB>` 检查完整性，用 `keytool -printcert -jarfile <AAB>` 对照预期上传证书的 SHA-256，并用 bundletool 检查实际包名、版本、targetSdk 和 ABI。保存该 AAB 对应的 Dart symbols、R8 mapping 和原生符号并真机回归；`PLAY_SYMBOL_DIR` 不能使用临时或公开位置。
 
-   ```bash
-   flutter build appbundle --flavor standard \
-     --build-name="$BUILD_NAME" --build-number="$BUILD_NUMBER" \
-     --dart-define=ALIPAY_APP_ID="$ALIPAY_APP_ID"
-   ```
+签名通过 `android/key.properties` 优先配置，四个属性可分别回退到 `android/local.properties`；不得混用旧值或使用 debug keystore。Play 上传证书与 Play 分发 APK 的应用签名证书可能不同，第三方 SDK 应核对实际分发证书。构建与签名操作详见产品主仓 `docs/guides/release/android-googleplay-checklist.md`。
 
-5. 产物：`build/app/outputs/bundle/release/app-standard-release.aab`
-
-⚠️ **必须显式 `--flavor standard`**：白标 flavor（standard / gzCustomer）引入后必传；standard = 原 imboy 基线（applicationId/显示名/图标不变），Play 上架包固定走 standard，gzCustomer 白标包不在本脚本范围内。`build_number` 必须单调递增（Play 要求，脚本经 `flutter.versionCode` 保证）。
+CI 的 AAB 是临时 debug key 签名的构建冒烟检查，不能用于 Play 上传。
 
 ### 正式 release APK（分渠道直发用）
 
@@ -62,7 +53,7 @@ flutter build apk --debug --flavor standard
 |---|---|
 | merged manifest | 不存在时自动跑 `:app:processStandardReleaseMainManifest` 生成 |
 | 禁用权限 | manifest 中不得出现 `ACCESS_BACKGROUND_LOCATION`、`QUERY_ALL_PACKAGES`、`MANAGE_EXTERNAL_STORAGE`、`REQUEST_INSTALL_PACKAGES`、`PACKAGE_USAGE_STATS` |
-| AAB 产物 | `app-standard-release.aab` 存在（仅 WARN） |
+| AAB 产物 | `bundle/standardRelease/app-standard-release.aab` 存在（仅 WARN，不检查签名或版本） |
 | flutter.versionCode | `android/local.properties` 已配置（仅 WARN；未配置请用 build_play_aab.sh 保证单调） |
 | 商店 URL | `$PLAY_BASE_URL/privacy-policy` 与 `/account-deletion` 可达（10s 超时） |
 
@@ -78,11 +69,10 @@ flutter build apk --debug --flavor standard
 
 ## Android 签名注意事项
 
-- 签名四件套全部在 **`android/local.properties`（gitignored，不入库）**：`storeFile` / `keyAlias` / `keyPassword` / `storePassword`；`release.keystore` 也在 `android/app/` 下，路径以 local.properties 为准。
-- release `signingConfig` 启用 V1 + V2 签名；`storeFile` 未配置时 release 构建取不到值会失败/回落（见 build.gradle.kts signingConfigs）。
-- 包名 + 签名是第三方「双锁」：极光后台不符报 1005（包名）/ 1011（签名）；debug/release keystore 指纹都要在第三方登记。换 keystore = 全新应用身份，老包无法覆盖升级。
-- 高德 Key 不填发布版 SHA1 → 定位必报 `errorCode=7`。
-- 详见 [third-party-config-guide.md](./third-party-config-guide.md)（极光/高德/支付宝换号流程）。
+- `android/key.properties` 读取 `storeFile`、`keyAlias`、`keyPassword`、`storePassword`；缺少的属性逐项回退 `android/local.properties`。签名配置和 keystore 不得提交或输出；推荐使用 keystore 绝对路径。
+- release 使用 release signingConfig；脚本不会证明证书是正式上传证书，必须核对签名和 Play Console 的证书指纹。上传密钥与 Play 应用签名密钥可不同，分别做好安全备份和第三方平台登记。
+- debug 构建在 `local.properties` 配置 `storeFile` 时也使用 release 签名，否则使用默认 debug 签名。
+- 高德、极光等第三方需核对包名与实际安装包的证书指纹；具体见 [third-party-config-guide.md](./third-party-config-guide.md)。
 
 ## 相关文档
 

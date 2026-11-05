@@ -82,7 +82,7 @@ macOS 桌面（无需真机）：同一套 integration_test 用 `-d macos`，并
 |------|------|------|
 | `flutter build apk --debug --flavor standard` | 本地 Android 构建（白标 flavor 引入后必须显式指定） | README |
 | `./scripts/build_android_apk.sh <version>`（例 `1.0.0-alpha.18`） | 发布用 APK 构建（校验版本号格式与 `docs/changelog.md` 条目） | scripts/build_android_apk.sh |
-| `./scripts/build_play_aab.sh <build_number> [build_name]` | Google Play AAB（`--flavor standard`，注入 `ALIPAY_APP_ID`；build_name 缺省取 pubspec.yaml `version`） | scripts/build_play_aab.sh |
+| `./scripts/build_play_aab.sh <build_number> [build_name]` | Google Play AAB（`--flavor standard`、Dart 混淆与符号，注入 `ALIPAY_APP_ID`；需自行验证签名及 Play versionCode） | scripts/build_play_aab.sh |
 | `./scripts/build_ios.sh <build_number> [build_name]` | iOS 构建（同 full-selected 前置检查） | scripts/build_ios.sh |
 | `./scripts/check_play_release.sh` | Play 发布产物校验（可配 `PLAY_BASE_URL`、`SKIP_URL_CHECK=1`） | scripts/check_play_release.sh |
 | `bash scripts/sbom_check.sh`（`SBOM_OUT_DIR=<目录>` 可选） | SBOM 生成 + CVE 扫描；默认输出到系统临时目录（仓外，不入仓） | scripts/sbom_check.sh |

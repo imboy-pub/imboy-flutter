@@ -227,3 +227,6 @@ macos/Shims/vendor/Sentry/**/*.png
 docs/ux-plan
 test/*/*.png
 .workbuddy
+
+# Dart symbols generated for Google Play releases (archive securely).
+/debugInfo/play/

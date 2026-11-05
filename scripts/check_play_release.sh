@@ -19,7 +19,7 @@ resolve_merged_manifest() {
   printf '%s' "$found"
 }
 MERGED_MANIFEST="$(resolve_merged_manifest)"
-AAB_PATH="$ROOT_DIR/build/app/outputs/bundle/release/app-standard-release.aab"
+AAB_PATH="$ROOT_DIR/build/app/outputs/bundle/standardRelease/app-standard-release.aab"
 
 PLAY_BASE_URL="${PLAY_BASE_URL:-https://pro.imboy.pub}"
 PRIVACY_URL="$PLAY_BASE_URL/privacy-policy"
@@ -69,7 +69,7 @@ fi
 if [[ -f "$AAB_PATH" ]]; then
   ok "release AAB exists: $AAB_PATH"
 else
-  warn "release AAB not found, run: flutter build appbundle"
+  warn "standard release AAB not found; run ./scripts/build_play_aab.sh <build_number>"
 fi
 
 if [[ -f "$ROOT_DIR/android/local.properties" ]]; then
