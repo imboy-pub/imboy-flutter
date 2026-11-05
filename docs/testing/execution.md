@@ -224,7 +224,25 @@ Android 沿用真机约束。配对角色配置 `IMBOY_EXECUTION_DEVICE_SENDER/R
 ### Golden
 
 设置 `IMBOY_GOLDEN_ENVIRONMENT` 指向环境 JSON，声明 platform/frameworkRevision/engineRevision、
-fonts 文件 SHA-256，及 baselines 按 target 列出的基线文件 SHA-256。缺条件为 ENV_MISSING；
+fonts 文件 SHA-256，及 baselines 按 target 列出的基线文件 SHA-256。`baselines` 始终只接受
+仓内文件；普通 `fonts` 也限于仓内。实际 import 闭包使用 `golden_font_loader.dart` 的目标
+（当前 p1/p2/p3 及 `test/enterprise_oa/t15_enterprise_layout_test.dart`）必须额外绑定
+该 loader 真正加载的全部字体，不能用无关仓内字体替代：
+
+- 文本字体使用 `kGoldenFontAssets` 已登记的精确绝对路径、SHA-256 和非空许可说明。
+  manifest 的 `fonts` 必须包含该路径且哈希与源码一致。
+- 图标字体从 `kGoldenIconFontAssets` 严格读取 literal path/family，并按路径去重。
+  manifest 的 `fonts` 必须包含全部实际路径，由基线维护者固定各文件 SHA-256。
+  当前是 MaterialIcons 和 Cupertino 两个文件；后者注册两个 family。
+- 只有这些已登记的精确路径可作为仓外字体；任意路径、别名或仓内 symlink 越界均不获例外。
+  缺文本/图标文件、字节与哈希不符、清单漏项或登记格式不明确均为 ENV_MISSING。
+  执行器不复制、下载或提交系统字体，也不允许图标缺失后静默降级为方块。
+- 使用该 loader 的 Golden 还校验真实 `flutter --version --machine` 的 frameworkVersion
+  与 `kFlutterVersionPin` 一致，并核对清单的 frameworkRevision/engineRevision。
+  当前专项登记为 Flutter 3.47.7；普通 PR 使用 3.47.5，PR 成功不能证明该像素环境就绪。
+  原有本机字体路径和专项准备见 [专项 fixture 说明](specialist-fixtures.md)。
+
+预检通过只证明声明的输入当前可用，像素通过仍须实际比较已批准基线并核验机器事件。
 CI 不能直接跳过后算通过。回归不生成/更新基线。显式 `flutter test <target> --update-goldens`
 只用于基线维护，产物须人工审查，该命令成功不是像素回归通过。
 

@@ -89,6 +89,17 @@ coordinator 是 `coordinator-gate`，不计 Flutter 用例数。其 receipt 保�
 
 ## 其他专项
 
+- Golden p1/p2/p3 及企业 OA 的 `t15_enterprise_layout_test.dart`：使用
+  `golden_font_loader.dart` 的原登记环境。文本字体为
+  `/Library/Fonts/Arial Unicode.ttf`，SHA-256 与许可说明以该源码为准。
+  图标字体原路径为 `/Users/leeyi/dev/flutter/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf`
+  和 `/Users/leeyi/.pub-cache/hosted/pub.dev/cupertino_icons-2.0.0/assets/CupertinoIcons.ttf`。
+  在已有合法本机 SDK/缓存环境准备这些文件，基线维护者将三个精确绝对路径及对应
+  SHA-256 写入 `IMBOY_GOLDEN_ENVIRONMENT` 的 `fonts`；文本哈希不能偏离源码登记。
+  预检核验所有文件存在和字节，包括原 Dart loader 容错跳过的图标字体，缺失即 ENV_MISSING。
+  其他机器不能用任意外部路径或不相关字体代替；迁移登记需要审查 loader 与基线环境，
+  不自动复制或分发系统字体。专项 SDK 必须符合源码 `kFlutterVersionPin`（当前 3.47.7）及
+  清单的 framework/engine revision。基线仍只允许仓内已批准文件，预检成功不是像素通过。
 - RTC group：两台不同 Android、不同合成 UID、同一 TEST_GROUP_ID，要求真实远端 tracks。
   RTC negative matrix 使用真实 WS 和已有 mock 媒体，不额外要求真实 SFU。两者均需已核验的
   full-selected/RTC 真实编译产物；缺时为 ENV_MISSING。

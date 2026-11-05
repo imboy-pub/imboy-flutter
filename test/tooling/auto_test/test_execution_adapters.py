@@ -466,6 +466,143 @@ class RegisteredFontEnvironmentTests(unittest.TestCase):
         self.assertEqual([], adapters.registered_golden_font_errors(
             self.root, {**self.item, 'dependencies': []}))
 
+    def golden_contract(self):
+        self.icons = [self.font.with_name('synthetic-material.otf'),
+                      self.font.with_name('synthetic-cupertino.ttf')]
+        for index, icon in enumerate(self.icons):
+            icon.write_bytes(f'synthetic-icon-{index}'.encode())
+        self.golden_source = self.source + (
+            "const String kFlutterVersionPin = '99.12.3';\n"
+            'const List<(String, String)> kGoldenIconFontAssets = <(String, String)>[\n'
+            f"  ('{self.icons[0].parent}/' '{self.icons[0].name}', 'MaterialIcons',),\n"
+            f"  ('{self.icons[1]}', 'packages/cupertino_icons/CupertinoIcons',),\n"
+            f"  ('{self.icons[1]}', 'CupertinoIcons',),\n];\n")
+        self.registry.write_text(self.golden_source)
+        self.golden_item = {'suite': 'golden', 'target': 'test/uiux/golden/synthetic_test.dart',
+                            'source_dependencies': [adapters.REGISTERED_GOLDEN_FONT_SOURCE]}
+        self.baseline = self.root / 'baseline.png'
+        self.baseline.write_bytes(b'synthetic-pixel-fixture')
+        self.golden_data = {
+            'platform': {'darwin': 'macos', 'win32': 'windows'}.get(sys.platform, sys.platform),
+            'frameworkRevision': 'fixture-framework', 'engineRevision': 'fixture-engine',
+            'fonts': {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                      for path in [self.font, *self.icons]},
+            'baselines': {self.golden_item['target']: {
+                'baseline.png': hashlib.sha256(self.baseline.read_bytes()).hexdigest()}}}
+        self.golden_manifest = self.root / 'environment.json'
+        self.golden_manifest.write_text(json.dumps(self.golden_data))
+        self.golden_version = {**self.golden_data, 'frameworkVersion': '99.12.3'}
+
+    def golden_errors(self, data=None, version=None):
+        self.golden_manifest.write_text(json.dumps(self.golden_data if data is None else data))
+        completed = subprocess.CompletedProcess(
+            [], 0, json.dumps(self.golden_version if version is None else version), '')
+        with patch.object(adapters.subprocess, 'run', return_value=completed):
+            return adapters.golden_environment_errors(
+                self.root, self.golden_item, {'IMBOY_GOLDEN_ENVIRONMENT': str(self.golden_manifest)})
+
+    def test_actual_golden_targets_retain_the_real_loader_dependency_and_literal_pins(self):
+        from auto_test_lib import execution_catalog
+        catalog = execution_catalog.build_catalog(ROOT)
+        self.assertEqual([], catalog['errors'])
+        targets = {row['target']: row for row in catalog['targets']}
+        paths = [f'test/uiux/golden/{page}_golden_test.dart' for page in ('p1', 'p2', 'p3')]
+        paths.append('test/enterprise_oa/t15_enterprise_layout_test.dart')
+        for path in paths:
+            row = targets[path]
+            self.assertEqual('golden', row['suite'])
+            self.assertIn(adapters.REGISTERED_GOLDEN_FONT_SOURCE, row['source_dependencies'])
+        asset = adapters.registered_golden_font_asset(ROOT, include_environment=True)
+        self.assertRegex(asset['flutter_version'], r'^\d+\.\d+\.\d+$')
+        self.assertEqual(2, len(asset['icon_fonts']))
+        self.assertEqual(3, sum(len(families) for families in asset['icon_fonts'].values()))
+
+    def test_registered_external_golden_inputs_pass_without_copying_or_updating_assets(self):
+        self.golden_contract()
+        assets = [self.font, *self.icons, self.registry, self.baseline, self.golden_manifest]
+        before = {path: path.read_bytes() for path in assets}
+        self.assertEqual([], self.golden_errors())
+        self.assertEqual(before, {path: path.read_bytes() for path in assets})
+        parsed = adapters.registered_golden_font_asset(self.root, include_environment=True)
+        self.assertEqual(2, len(parsed['icon_fonts']))
+        self.assertEqual(2, len(parsed['icon_fonts'][str(self.icons[1])]))
+
+    def test_one_font_manifest_can_cover_loader_users_and_other_golden_targets(self):
+        self.golden_contract()
+        self.assertEqual([], self.golden_errors())
+        self.golden_data['baselines']['test/other_golden_test.dart'] = {
+            'baseline.png': hashlib.sha256(self.baseline.read_bytes()).hexdigest()}
+        self.golden_item = {'suite': 'golden', 'target': 'test/other_golden_test.dart'}
+        self.assertEqual([], self.golden_errors())
+
+    def test_manifest_cannot_substitute_unrelated_fonts_or_change_registered_text_pin(self):
+        self.golden_contract()
+        unrelated = self.root / 'unrelated.ttf'
+        unrelated.write_bytes(b'unrelated-font')
+        data = copy.deepcopy(self.golden_data)
+        data['fonts'].pop(str(self.font))
+        data['fonts']['unrelated.ttf'] = hashlib.sha256(unrelated.read_bytes()).hexdigest()
+        self.assertIn('GOLDEN_REGISTERED_FONT_CONTRACT_MISSING:' + str(self.font), self.golden_errors(data))
+        self.font.write_bytes(b'replaced-font-with-new-manifest-hash')
+        data['fonts'][str(self.font)] = hashlib.sha256(self.font.read_bytes()).hexdigest()
+        self.assertIn('GOLDEN_REGISTERED_FONT_PIN_MISMATCH:' + str(self.font), self.golden_errors(data))
+
+    def test_icon_manifest_entries_are_required_even_when_dart_would_skip_missing_icons(self):
+        self.golden_contract()
+        for icon in self.icons:
+            with self.subTest(icon=icon):
+                data = copy.deepcopy(self.golden_data)
+                data['fonts'].pop(str(icon))
+                self.assertIn('GOLDEN_REGISTERED_ICON_FONT_CONTRACT_MISSING:' + str(icon), self.golden_errors(data))
+                data['fonts'][str(icon)] = 'not-a-sha256'
+                self.assertIn('GOLDEN_REGISTERED_ICON_FONT_HASH_INVALID:' + str(icon), self.golden_errors(data))
+
+    def test_missing_or_modified_registered_golden_assets_block_without_recreation(self):
+        self.golden_contract()
+        for asset in [self.font, *self.icons]:
+            with self.subTest(asset=asset):
+                original = asset.read_bytes()
+                asset.write_bytes(b'modified-fixture')
+                self.assertIn('GOLDEN_FONT_HASH_MISMATCH:' + str(asset), self.golden_errors())
+                asset.unlink()
+                self.assertIn('GOLDEN_FONT_MISSING:' + str(asset), self.golden_errors())
+                self.assertFalse(asset.exists())
+                asset.write_bytes(original)
+
+    def test_font_exception_does_not_allow_unknown_paths_aliases_or_external_baselines(self):
+        self.golden_contract()
+        foreign = self.font.with_name('unregistered.ttf')
+        foreign.write_bytes(self.font.read_bytes())
+        (self.root / 'linked-font.ttf').symlink_to(self.font)
+        for name in (str(foreign), str(self.font.parent) + '/./' + self.font.name, 'linked-font.ttf'):
+            with self.subTest(name=name):
+                data = copy.deepcopy(self.golden_data)
+                data['fonts'][name] = self.digest
+                self.assertIn('GOLDEN_FONT_PATH_OUTSIDE_REPO', self.golden_errors(data))
+        data = copy.deepcopy(self.golden_data)
+        data['baselines'][self.golden_item['target']] = {str(self.font): self.digest}
+        self.assertIn('GOLDEN_BASELINE_PATH_OUTSIDE_REPO', self.golden_errors(data))
+
+    def test_registered_sdk_version_cannot_be_replaced_by_a_self_consistent_manifest(self):
+        self.golden_contract()
+        version = {**self.golden_version, 'frameworkVersion': '99.12.4'}
+        self.assertIn('GOLDEN_REGISTERED_FLUTTER_VERSION_MISMATCH:expected=99.12.3',
+                      self.golden_errors(version=version))
+        self.registry.write_text(self.golden_source.replace("'99.12.3'", 'findSdkVersion()'))
+        self.assertTrue(any('REGISTERED_GOLDEN_FLUTTER_PIN_INVALID' in error for error in self.golden_errors()))
+
+    def test_icon_registry_requires_literal_absolute_paths_and_nonempty_families(self):
+        self.golden_contract()
+        invalid = [self.golden_source.replace("'MaterialIcons'", "''"),
+                   self.golden_source.replace(f"'{self.icons[1]}'", 'findIconFont()'),
+                   self.golden_source.replace(f"'{self.icons[1]}'", "'relative.ttf'"),
+                   self.golden_source.replace('kGoldenIconFontAssets', 'removedIconRegistry')]
+        for source in invalid:
+            with self.subTest(source=source):
+                self.registry.write_text(source)
+                self.assertTrue(any('REGISTERED_GOLDEN_ICON_REGISTRY_INVALID' in error
+                                    for error in self.golden_errors()))
+
 
 class GoldenAndPatrolEvidenceTests(unittest.TestCase):
     def test_missing_golden_contract_blocks_without_creating_baselines(self):

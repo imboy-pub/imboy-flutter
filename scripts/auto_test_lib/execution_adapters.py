@@ -247,12 +247,14 @@ def product_environment_errors(root: Path, instance: dict, env: dict) -> list[st
 REGISTERED_GOLDEN_FONT_SOURCE = 'test/uiux/support/golden_font_loader.dart'
 
 
-def registered_golden_font_asset(root: Path) -> dict:
+def registered_golden_font_asset(root: Path, *, include_environment: bool = False) -> dict:
     """Read the existing single literal asset; never evaluate Dart or copy its pins.
 
     This deliberately accepts only the current declaration shape. A registry
     migration requires adapter review rather than guessing a new font contract.
     Parsing is independent of local font availability, so plans work on Linux.
+    Pixel callers also request the same loader's literal SDK pin and icon paths;
+    the component font contract remains independent of SDK and pixel baselines.
     """
     try:
         source = (root / REGISTERED_GOLDEN_FONT_SOURCE).read_text(encoding='utf-8')
@@ -277,6 +279,35 @@ def registered_golden_font_asset(root: Path) -> dict:
             or not re.fullmatch(r'[0-9a-f]{64}', registration['sha256'])
             or not registration['license'].strip()):
         raise ValueError('REGISTERED_GOLDEN_FONT_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+    if include_environment:
+        versions = re.findall(
+            rf'\bconst\s+String\s+kFlutterVersionPin\s*=\s*({literal})\s*;', source)
+        if len(versions) != 1 or not re.fullmatch(r'\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?', versions[0][1:-1]):
+            raise ValueError('REGISTERED_GOLDEN_FLUTTER_PIN_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+        registration['flutter_version'] = versions[0][1:-1]
+        icon_declarations = re.findall(
+            r'\bconst\s+List<\(String,\s*String\)>\s+kGoldenIconFontAssets\s*'
+            r'=\s*<\(String,\s*String\)>\s*\[([\s\S]*?)\]\s*;', source)
+        if len(icon_declarations) != 1:
+            raise ValueError('REGISTERED_GOLDEN_ICON_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+        remaining, icons = icon_declarations[0].strip(), {}
+        shape = (rf'\s*\(\s*(?P<path>(?:{literal}\s*)+)\s*,'
+                 rf'\s*(?P<family>(?:{literal}\s*)+)\s*,\s*\),\s*')
+        while remaining:
+            icon = re.match(shape, remaining)
+            if icon is None:
+                raise ValueError('REGISTERED_GOLDEN_ICON_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+            path, family = (''.join(value[1:-1] for value in re.findall(literal, icon[name]))
+                            for name in ('path', 'family'))
+            if not Path(path).is_absolute() or not family.strip():
+                raise ValueError('REGISTERED_GOLDEN_ICON_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+            icons.setdefault(path, [])
+            if family not in icons[path]:
+                icons[path].append(family)
+            remaining = remaining[icon.end():]
+        if not icons:
+            raise ValueError('REGISTERED_GOLDEN_ICON_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+        registration['icon_fonts'] = icons
     return registration
 
 
@@ -319,34 +350,77 @@ def golden_environment_errors(root: Path, instance: dict, env: dict) -> list[str
         data = json.loads(Path(path).read_text())
     except (OSError, ValueError):
         return ['GOLDEN_ENVIRONMENT_MANIFEST_INVALID']
+    if not isinstance(data, dict):
+        return ['GOLDEN_ENVIRONMENT_MANIFEST_INVALID']
     errors = []
     host = {'darwin': 'macos', 'win32': 'windows'}.get(sys.platform, sys.platform)
     if data.get('platform') != host:
         errors.append('GOLDEN_PLATFORM_MISMATCH')
-    baseline_map = data.get('baselines', {}).get(instance.get('target'))
+    baselines = data.get('baselines')
+    baseline_map = baselines.get(instance.get('target')) if isinstance(baselines, dict) else None
     fonts = data.get('fonts')
     if not isinstance(baseline_map, dict) or not baseline_map:
         errors.append('GOLDEN_TARGET_BASELINES_MISSING')
     if not isinstance(fonts, dict) or not fonts:
         errors.append('GOLDEN_FONT_CONTRACT_MISSING')
+    registered, external_fonts = None, {}
+    # The catalog's real import closure makes these inputs mandatory for the
+    # loader's goldens. An unrelated repository font cannot replace its
+    # text or icon assets. No arbitrary external path is authorized here.
+    requires_registered = (REGISTERED_GOLDEN_FONT_SOURCE in instance.get('source_dependencies', [])
+                           or 'registered-golden-font' in instance.get('dependencies', []))
+    # A single manifest may cover both loader users and other golden targets.
+    # Its shared font map can include registered external assets for either;
+    # only real loader users require the complete set and its extra SDK pin.
+    has_external_fonts = isinstance(fonts, dict) and any(
+        not (root / name).resolve().is_relative_to(root.resolve()) for name in fonts)
+    if requires_registered or has_external_fonts:
+        try:
+            registered = registered_golden_font_asset(root, include_environment=True)
+            external_fonts[registered['path']] = registered['sha256']
+            if not isinstance(fonts, dict) or registered['path'] not in fonts:
+                if requires_registered:
+                    errors.append('GOLDEN_REGISTERED_FONT_CONTRACT_MISSING:' + registered['path'])
+            elif fonts[registered['path']] != registered['sha256']:
+                errors.append('GOLDEN_REGISTERED_FONT_PIN_MISMATCH:' + registered['path'])
+            for name in registered['icon_fonts']:
+                expected = fonts.get(name) if isinstance(fonts, dict) else None
+                if expected is None:
+                    if requires_registered:
+                        errors.append('GOLDEN_REGISTERED_ICON_FONT_CONTRACT_MISSING:' + name)
+                elif not isinstance(expected, str) or not re.fullmatch(r'[0-9a-f]{64}', expected):
+                    errors.append('GOLDEN_REGISTERED_ICON_FONT_HASH_INVALID:' + name)
+                else:
+                    external_fonts[name] = expected
+        except ValueError as error:
+            errors.append(str(error))
     for kind, files in (('BASELINE', baseline_map), ('FONT', fonts)):
         for name, expected in (files.items() if isinstance(files, dict) else []):
             candidate = (root / name).resolve()
-            if not candidate.is_relative_to(root.resolve()):
+            approved_external_font = (kind == 'FONT' and name in external_fonts
+                                      and expected == external_fonts[name])
+            if not candidate.is_relative_to(root.resolve()) and not approved_external_font:
                 errors.append(f'GOLDEN_{kind}_PATH_OUTSIDE_REPO')
                 continue
-            if not candidate.is_file():
-                errors.append(f'GOLDEN_{kind}_MISSING:{name}')
-            elif not isinstance(expected, str) or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
-                errors.append(f'GOLDEN_{kind}_HASH_MISMATCH:{name}')
+            try:
+                if not candidate.is_file():
+                    errors.append(f'GOLDEN_{kind}_MISSING:{name}')
+                elif not isinstance(expected, str) or hashlib.sha256(candidate.read_bytes()).hexdigest() != expected:
+                    errors.append(f'GOLDEN_{kind}_HASH_MISMATCH:{name}')
+            except OSError:
+                errors.append(f'GOLDEN_{kind}_UNREADABLE:{name}')
     try:
         completed = subprocess.run(['flutter', '--version', '--machine'], cwd=root,
                                    capture_output=True, text=True, timeout=30, check=False)
         version = json.loads(completed.stdout)
+        if not isinstance(version, dict):
+            raise ValueError('Flutter version must be an object')
         if (completed.returncode != 0 or not data.get('frameworkRevision')
                 or not data.get('engineRevision')
                 or any(data.get(k) != version.get(k) for k in ('frameworkRevision', 'engineRevision'))):
             errors.append('GOLDEN_FLUTTER_VERSION_MISMATCH')
+        if requires_registered and registered and version.get('frameworkVersion') != registered['flutter_version']:
+            errors.append('GOLDEN_REGISTERED_FLUTTER_VERSION_MISMATCH:expected=' + registered['flutter_version'])
     except (OSError, ValueError, subprocess.TimeoutExpired):
         errors.append('GOLDEN_FLUTTER_VERSION_UNAVAILABLE')
     return errors

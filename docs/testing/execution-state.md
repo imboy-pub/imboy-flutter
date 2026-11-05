@@ -5,7 +5,7 @@
 - 工作区：`/workspace/scratch/c02895233621/imboy-flutter`；分支 `fix/test-execution-governance`。不要创建第二个任务分支/worktree。
 - remote：`https://github.com/imboy-pub/imboy-flutter.git`；Draft PR：[#41](https://github.com/imboy-pub/imboy-flutter/pull/41)。用户明确要求本任务所有代码提交到该 PR，已授权发布；没有授权合并。
 - 先运行 `git status --short --branch`、`git log -1`、`git worktree list --porcelain`，读 PR 当前 head 与最新 CI。保留其他 worktree 和未提交内容；不用 reset/clean/强推。
-- 最初基于 main `9f5d36e5b852f0a3dc20c94a0997fde82d9852d2`。2026-11-05 再次 fetch 的 main 为 `2e06c75ebf9885920d6809d4f4581be103aec49a`。本补丁前的 task head 是 `306ef36da5664129d4b39b773114f4f5359dbb12`；发布后的 head 以 Git/PR 为准。
+- 最初基于 main `9f5d36e5b852f0a3dc20c94a0997fde82d9852d2`。2026-11-05 再次 fetch 的 main 为 `2e06c75ebf9885920d6809d4f4581be103aec49a`。本轮 Golden 环境补丁前的 task head 是 `9d8535740fc4d2329e7b6e95e2e3920f21098428`；发布后的 head 以 Git/PR 为准。
 - 已读 AGENTS/CLAUDE 与测试说明。ios/macOS/plugin 保留区没有修改。并排 imboy `cb95fa72`、imboyadmin `202de6b` 只用于源码合同，不连接服务。
 - CLI push 没有凭证；已授权发布使用 GitHub Git database 接口，必须对比创建 tree 与本地 index tree，并用 expected_sha、非 force 更新原分支。同步本地 ref 前核对 parent/tree/无未暂存差异。不寻找额外凭证。
 
@@ -49,9 +49,19 @@
 - 第五轮 macOS 已下载、核验 ZIP SHA 并逐实例重放：1,179 PASS / 1 FTS BLOCKED；12,458 passed / 0 failed / 2 skipped。准备页目标 21/21 PASS，字体合同 5/5 PASS。该证据验证先前 helper 重构，不能代替本轮新矩阵与覆盖率实现的 CI。
 - 原始证据：`pr-ci-followup/run3/`、`run5/`；时长/失败归因：`receipt-performance-audit.json`、`run3/linux-failure-and-timing-audit.json`。旧运行记录和失败保留，不通过重试断言洗绿。
 
+## 最新完整 PR CI 与 Golden 环境修正
+
+- 第六轮 [42019559624](https://github.com/imboy-pub/imboy-flutter/actions/runs/42019559624) 已完成，task head `9d853574`，实际 merge `5ebad76317b6d8d4775153f0f99d2e5c172e1622`（main `2e06c75` + task head）。静态门全部通过；12 个 worker 与最终 summary/coverage 的 ZIP SHA、实际日志/事件/进程/LCOV 已独立核验。
+- 2,359/2,359 个实例均有收据，0 缺失/重复/无效证据。逐 worker 汇总 2,357 PASS、2 个 FTS BLOCKED；24,967 passed、0 failed、4 skipped，actually_run=24,967、executed=24,971。没有普通断言重试洗绿。整体 summary 保持 BLOCKED/UPSTREAM_FAILED，明确依赖 host-tests、coverage；不会把局部 PASS 当作完整 PR 通过。
+- Linux 1,179 实例：12,481 passed/0 failed/2 skipped；macOS 1,180 实例：12,486/0/2。两平台 tooling 各 46 目标/751 用例 PASS；macOS 字体 5/5、准备页 21/21 PASS。最长 Mac job 日志跨度约 26 分 40 秒，Linux unit 主执行约 23 分 28 秒；原 60 分钟 job/900 秒进程预算未增加。
+- 覆盖率 72,073/120,306=59.9081%，原阈值 38%；1,132 应核验、1,131 完整成功，唯一缺口仍是 FTS UNEXPECTED_SKIP，故 BLOCKED/INCOMPLETE_COVERAGE_EVIDENCE。独立重放产生相同 LCOV 字节。完整证据位于 `pr-ci-followup/run6/`，包括 linux-audit.json、macos-audit.json、quality-audit.json、final-independent-audit.json。
+- 最后文档复核发现 Golden 预检只允许仓内字体，与实际 loader 的 macOS 系统/SDK 字体登记矛盾。本轮复用真实 import 闭包与既有登记，严格绑定文本字体路径/SHA/许可、全部图标路径及其 manifest SHA、源码 SDK pin；只为已登记精确字体路径提供外部例外，基线仍须仓内。共享 manifest 兼容不使用 loader 的其他 Golden；component 字体合同不新增 SDK/图标/像素前置。未改 Dart、字体、基线或 skip。
+- Golden 补丁验证：完整 adapter 56 tests PASS；归属硬门禁、11 实例 Golden 计划、framework --checks-only 七项静态检查、py_compile、git diff --check 均 PASS。实际无环境执行返回 11/11 BLOCKED/ENV_MISSING，0 用例、exit 2，明确缺 macOS host、Flutter/包和 IMBOY_GOLDEN_ENVIRONMENT，没有生成基线。
+- 上述第六轮结果属于 Golden 修正前候选。修正后的工具测试与最终 CI 以 `pr-ci-followup/golden-font-fix/`、PR 最新 head/run 为准；不要复用第六轮收据冒充新提交已执行。当前无像素回归通过证据，真实 Golden 仍需已批准环境与基线。
+
 ## 继续执行的顺序
 
-1. 核对本轮 platform × suite / font / coverage 补丁是否已发布至 PR #41；已发布就继续其最新 run，不重复创建分支、提交或恢复旧计划。
+1. 核对本轮 Golden 环境合同补丁是否已发布至 PR #41；已发布就继续其最新 run，不重复创建分支、提交或恢复旧计划。
 2. 新 CI 完成后下载 plan、各 worker、coverage 和 summary，先核验 archive SHA，再按同一 merge checkout/源指纹对账。检查每个 worker 及字体/准备页目标，确认 coverage 失败原因；不把旧候选收据当新候选验证。
 3. 若发现新的编排问题，保留全部实例和业务断言，只修本任务范围并补适当正反向验证，仍提交原 PR。不要为记录进度单独发 docs-only 提交触发重复全跑；更新 PR 描述和仓外状态即可，必要代码提交再带上状态文档。
 4. 报告分级：静态、工具、Flutter 子集/全部、后端、设备/双端、full 必须分开。未得到所有适用实例与公共前置的成功证据前，complete_regression 必须为 false。
