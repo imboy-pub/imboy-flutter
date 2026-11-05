@@ -34,6 +34,15 @@
 
 完整原始证据：`/workspace/scratch/c02895233621/verification-final/`。关键文件 ownership.json/md、migration.json、pr/full-plan.json、profile-checks.json、tooling-reconciled.json、full-reconciled.json、各ENV报告和日志。
 
+## PR #41 后续验证（2026-11-05）
+
+- Draft PR：https://github.com/imboy-pub/imboy-flutter/pull/41；首个发布提交 `43dcfb372c29f0e99d7862257fd31182b7184aa7`，仍基于上述 main。
+- 首轮 CI：https://github.com/imboy-pub/imboy-flutter/actions/runs/41999512600。归属与计划、框架静态门禁、SQLite 迁移静态门禁、错误码/Protobuf 源码契约、Secrets scan、DCO 已通过。
+- CI 成功准备 Flutter 3.47.5 / Dart 3.13.4。首次分析为 0 error / 1 warning / 1 info；格式检查在 2792 个文件中只发现两份本 PR 改动的后端契约文件有差异。
+- 后续修复删除 `group_collaboration_flow_test.dart` 中 `fail()` 后的不可达 return，并为 `group_pro_readonly_contract_test.dart` 的隔离 URL 守卫补齐花括号、调整格式。隔离条件和业务断言保持原义。
+- 本地定向验证 `PYTHONPATH=test/tooling/auto_test python3 -m unittest test_execution_adapters test_execution_catalog test_execution_entrypoints`：99 tests PASS；归属门禁和 `git diff --check` 通过。
+- 当前开发环境仍没有 Dart/Flutter，修复后的格式与分析必须由下一轮固定 SDK 的 CI 复核。记录时首轮 Linux/macOS 业务测试仍在执行，不能据静态门禁通过推断业务或完整回归通过。
+
 ## 未解除条件及下一步
 
 1. 安装仓库固定Flutter3.47.5/Dart，按锁定依赖准备包、SQLite和Rust加密库；本环境固定SDK下载/发行索引探测返回404，未替换版本。

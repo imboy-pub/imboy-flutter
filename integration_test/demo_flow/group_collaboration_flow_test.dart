@@ -84,9 +84,7 @@ bool _requireAuthorization() {
     defaultValue: 'false',
   );
   if (allow.toLowerCase() != 'true') {
-    markTestSkipped(
-      '隔离群协作写入必须显式设置 TEST_ALLOW_BUSINESS_WRITES=true',
-    );
+    markTestSkipped('隔离群协作写入必须显式设置 TEST_ALLOW_BUSINESS_WRITES=true');
     return false;
   }
   if (!FlowConfig.hasCredentials || !FlowConfig.hasExplicitTestEnvironment) {
@@ -103,7 +101,6 @@ bool _requireAuthorization() {
       api.userInfo.isNotEmpty ||
       localAddress?.isLoopback != true) {
     fail('ENV_MISSING: 群协作要求隔离本地后端与合成账号');
-    return false;
   }
   if (_role != 'owner' && _role != 'member') {
     markTestSkipped('TEST_COLLAB_ROLE 必须是 owner 或 member');

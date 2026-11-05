@@ -20,8 +20,11 @@ import 'package:test/test.dart';
 
 bool _isIsolatedTarget(String value) {
   final uri = Uri.tryParse(value);
-  if (uri == null || !['http', 'https'].contains(uri.scheme) ||
-      uri.userInfo.isNotEmpty) return false;
+  if (uri == null ||
+      !['http', 'https'].contains(uri.scheme) ||
+      uri.userInfo.isNotEmpty) {
+    return false;
+  }
   final host = uri.host.toLowerCase();
   final address = InternetAddress.tryParse(host);
   return address?.isLoopback ?? false;
@@ -196,14 +199,18 @@ void main() {
 
   setUpAll(() async {
     final env = Platform.environment;
-    final optedIn = env['DEMO_FLOW_LOCAL_READONLY'] == 'true' &&
-        env['IMBOY_TEST_ISOLATED'] == 'true' && env['APP_ENV'] == 'local';
+    final optedIn =
+        env['DEMO_FLOW_LOCAL_READONLY'] == 'true' &&
+        env['IMBOY_TEST_ISOLATED'] == 'true' &&
+        env['APP_ENV'] == 'local';
     final url = env['API_BASE_URL'] ?? '';
     final key = env['IMBOY_SOLIDIFIED_KEY']?.trim() ?? '';
     if (!optedIn || !_isIsolatedTarget(url) || key.isEmpty) {
-      fail('ENV_MISSING: 显式 loopback API_BASE_URL、隔离签名密钥、'
-          'IMBOY_TEST_ISOLATED=true、APP_ENV=local、'
-          'DEMO_FLOW_LOCAL_READONLY=true 均为必需条件');
+      fail(
+        'ENV_MISSING: 显式 loopback API_BASE_URL、隔离签名密钥、'
+        'IMBOY_TEST_ISOLATED=true、APP_ENV=local、'
+        'DEMO_FLOW_LOCAL_READONLY=true 均为必需条件',
+      );
     }
     final account = env['TEST_PHONE'] ?? '';
     final password = env['TEST_PASSWORD'] ?? '';
