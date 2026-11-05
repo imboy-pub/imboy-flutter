@@ -174,7 +174,12 @@ TalkRecordPendingEnded talkRecordPendingUploadProjection(
       (local.recordId.isNotEmpty && local.recordId != bound.recordId)) {
     return item;
   }
-  return TalkRecordPendingEnded(bound, item.durationMs, item.segmentCount);
+  return TalkRecordPendingEnded(
+    bound,
+    item.durationMs,
+    item.segmentCount,
+    startedAt: item.startedAt,
+  );
 }
 
 String talkRecordUploadProgressLabel(TalkRecordUploadSnapshot snapshot) {
@@ -294,7 +299,12 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
       checkCurrentOperation: check,
     );
     check();
-    return TalkRecordPendingEnded(binding, item.durationMs, item.segmentCount);
+    return TalkRecordPendingEnded(
+      binding,
+      item.durationMs,
+      item.segmentCount,
+      startedAt: item.startedAt,
+    );
   }
 
   Future<TalkRecordPendingEnded?> _confirmProcessing(
@@ -344,7 +354,12 @@ class _PendingUploadsState extends ConsumerState<TalkRecordPendingUploads> {
       checkCurrentOperation: check,
     );
     check();
-    return TalkRecordPendingEnded(updated, item.durationMs, item.segmentCount);
+    return TalkRecordPendingEnded(
+      updated,
+      item.durationMs,
+      item.segmentCount,
+      startedAt: item.startedAt,
+    );
   }
 
   Future<bool?> _showNotice(String version) => showCupertinoDialog<bool>(
@@ -583,8 +598,9 @@ class _PendingDraftCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
+                      // 空标题（老草稿）按开始时间命名，格式同新记录。
                       item.binding.title.isEmpty
-                          ? t.talkRecord.untitledRecord
+                          ? talkRecordStampTitle(item.startedAt)
                           : item.binding.title,
                       style: context.textStyle(
                         FontSizeType.medium,

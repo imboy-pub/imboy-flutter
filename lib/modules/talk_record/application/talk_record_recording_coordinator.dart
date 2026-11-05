@@ -406,6 +406,7 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
             local,
             manifest.effectiveDurationMs,
             manifest.segments.length,
+            startedAt: DateTime.tryParse(manifest.reportedStartedAtIso),
           ),
         );
       }
@@ -649,8 +650,12 @@ class TalkRecordPendingEnded {
   const TalkRecordPendingEnded(
     this.binding,
     this.durationMs,
-    this.segmentCount,
-  );
+    this.segmentCount, {
+    this.startedAt,
+  });
   final TalkRecordLocalBinding binding;
   final int durationMs, segmentCount;
+
+  /// 会话开始时间（manifest 记录；老草稿标题为空时按其时间戳命名）。
+  final DateTime? startedAt;
 }
