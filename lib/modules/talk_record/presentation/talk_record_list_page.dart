@@ -29,6 +29,7 @@ import 'package:go_router/go_router.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/talk_record/application/talk_record_local_binding.dart';
 import 'package:imboy/store/model/talk_record/talk_record_enums.dart';
 import 'package:imboy/store/model/talk_record/talk_record_model.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -398,7 +399,8 @@ class _RecordRow extends StatelessWidget {
                 Text(
                   record.title.isNotEmpty
                       ? record.title
-                      : t.talkRecord.untitledRecord,
+                      // 老数据无标题：按创建时间显示时间戳命名。
+                      : talkRecordStampTitle(record.createdAt),
                   style: context.textStyle(
                     FontSizeType.medium,
                     fontWeight: FontWeight.w600,

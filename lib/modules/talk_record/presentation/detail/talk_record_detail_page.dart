@@ -25,6 +25,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/shimmer_list.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/router/routes/talk_record_routes.dart';
+import 'package:imboy/modules/talk_record/application/talk_record_local_binding.dart';
 import 'package:imboy/modules/talk_record/presentation/detail/talk_record_detail_providers.dart';
 import 'package:imboy/modules/talk_record/presentation/detail/talk_record_detail_service.dart';
 import 'package:imboy/modules/talk_record/presentation/detail/talk_record_player_bar.dart';
@@ -106,9 +107,13 @@ class _TalkRecordDetailPageState extends ConsumerState<TalkRecordDetailPage> {
       });
     }
 
-    final title = record != null && record.title.isNotEmpty
-        ? record.title
-        : t.talkRecord.untitledRecord;
+    // 未加载完成沿用中性占位；已加载但无标题的老数据按创建时间显示
+    // 时间戳命名（20261105-152101 式），不显示无信息量的「未命名」。
+    final title = record == null
+        ? t.talkRecord.untitledRecord
+        : (record.title.isNotEmpty
+              ? record.title
+              : talkRecordStampTitle(record.createdAt));
     // 更多入口仅在存在可用操作时出现（UI-SPEC §3：viewer/editor 不显示
     // 分享管理与删除；无任何能力时隐藏入口而非空菜单）。
     final caps = record?.capabilitiesForActor;

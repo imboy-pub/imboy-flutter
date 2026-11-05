@@ -135,6 +135,34 @@ void main() {
       await c.end();
     },
   );
+  test(
+    'empty request title falls back to yyyyMMdd-HHmmss stamp naming',
+    () async {
+      final c = coordinator();
+      final before = DateTime.now();
+      expect(
+        (await c.launch(
+          const TalkRecordRecordingDraftRequest(
+            title: '',
+            saveTo: TalkRecordEntryContext.personal(),
+            policyVersion: 'v1',
+          ),
+        )).started,
+        true,
+      );
+      final title = (await store.list(account)).single.title;
+      // 形如 20261105-152101（跨秒不抖动：只校验格式与时间邻近）。
+      expect(RegExp(r'^\d{8}-\d{6}$').hasMatch(title), isTrue);
+      final parsed = DateTime.parse(
+        '${title.substring(0, 4)}-${title.substring(4, 6)}-'
+        '${title.substring(6, 8)}T${title.substring(9, 11)}:'
+        '${title.substring(11, 13)}:${title.substring(13, 15)}',
+      );
+      expect(parsed.difference(before).inSeconds.abs(), lessThanOrEqualTo(5));
+      await c.end();
+    },
+  );
+
   test('real local service starts and durable ownership mapping survives navigation', () async {
     final c = coordinator();
     expect((await c.launch(request)).started, true);

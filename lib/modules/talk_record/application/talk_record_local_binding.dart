@@ -309,3 +309,14 @@ class TalkRecordBindingStore {
     return out;
   }
 }
+
+/// 空标题的时间戳默认命名（yyyyMMdd-HHmmss，本地时区；例 20261105-152101）。
+///
+/// 产品约定（真机反馈）：用户未命名时以开始时间命名，不用无信息量的
+/// 「未命名记录」；后续编辑标题仍可覆盖。
+String talkRecordStampTitle(DateTime? at) {
+  final t = at ?? DateTime.now();
+  String two(int n) => n.toString().padLeft(2, '0');
+  return '${t.year}${two(t.month)}${two(t.day)}'
+      '-${two(t.hour)}${two(t.minute)}${two(t.second)}';
+}

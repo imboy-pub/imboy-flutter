@@ -208,7 +208,11 @@ class TalkRecordRecordingCoordinator implements TalkRecordRecordingLauncher {
           account: account,
           clientRecordingId: clientId,
           context: request.saveTo,
-          title: request.title,
+          // 空标题按开始时间落默认命名（yyyyMMdd-HHmmss），全链路
+          // （本地/列表/上传/服务端）可读；用户编辑仍可覆盖。
+          title: request.title.isEmpty
+              ? talkRecordStampTitle(DateTime.now())
+              : request.title,
           participantsRequested: true,
           participants: List.unmodifiable(
             request.participants.map(

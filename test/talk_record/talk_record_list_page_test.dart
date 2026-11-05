@@ -326,8 +326,15 @@ void main() {
       expect(find.text('10:55'), findsOneWidget);
       expect(find.text(t.talkRecord.statusTranscribeReady), findsOneWidget);
       expect(find.text(t.talkRecord.visibilityOwnerOnly), findsOneWidget);
-      // 未命名 + 仅录音 + 本机草稿（仅本机标记）。
-      expect(find.text(t.talkRecord.untitledRecord), findsOneWidget);
+      // 空标题按创建时间显示时间戳命名（20261105-152101 式），
+      // 不再显示「未命名记录」。
+      expect(find.text(t.talkRecord.untitledRecord), findsNothing);
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Text && RegExp(r'^\d{8}-\d{6}$').hasMatch(w.data ?? ''),
+        ),
+        findsOneWidget,
+      );
       expect(find.text(t.talkRecord.statusRecordOnly), findsOneWidget);
       expect(find.text(t.talkRecord.localDraftBadge), findsOneWidget);
     });
