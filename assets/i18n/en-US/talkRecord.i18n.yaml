@@ -65,6 +65,7 @@ saveLocationTitle: Save Location
 saveLocationPersonalSection: Personal
 saveLocationOrgSection: Organizations
 saveLocationWorkspaceOptional: No workspace
+saveLocationEmpty: No save location available
 retentionPolicyLabel: Retention
 changeConfirmTitle: Change save location
 changeConfirmTarget(name): "Will save to: $name"

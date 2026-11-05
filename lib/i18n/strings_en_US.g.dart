@@ -2762,6 +2762,7 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get saveLocationPersonalSection => 'Personal';
 	@override String get saveLocationOrgSection => 'Organizations';
 	@override String get saveLocationWorkspaceOptional => 'No workspace';
+	@override String get saveLocationEmpty => 'No save location available';
 	@override String get retentionPolicyLabel => 'Retention';
 	@override String get changeConfirmTitle => 'Change save location';
 	@override String changeConfirmTarget({required Object name}) => 'Will save to: ${name}';
@@ -6856,6 +6857,7 @@ extension on TranslationsEnUs {
 			'talkRecord.saveLocationPersonalSection' => 'Personal',
 			'talkRecord.saveLocationOrgSection' => 'Organizations',
 			'talkRecord.saveLocationWorkspaceOptional' => 'No workspace',
+			'talkRecord.saveLocationEmpty' => 'No save location available',
 			'talkRecord.retentionPolicyLabel' => 'Retention',
 			'talkRecord.changeConfirmTitle' => 'Change save location',
 			'talkRecord.changeConfirmTarget' => ({required Object name}) => 'Will save to: ${name}',
@@ -7113,9 +7115,9 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetrying' => 'Retrying…',
 			'talkRecord.cleanupRetryFailedBody' => 'Cleanup retry failed; try again later.',
 			'talkRecord.deleteRefreshStatus' => 'Refresh cleanup status',
-			'talkRecord.deleteBackToList' => 'Back to list',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.deleteBackToList' => 'Back to list',
 			'talkRecord.deleteStatusFixtureHint' => 'Component stage: cleanup status comes from a fixture sample; real progress pending integration.',
 			'talkRecord.microphoneStopUnconfirmed' => 'Microphone stop is not confirmed. Retry stopping; if it still fails, close the app and check the system microphone indicator.',
 			'talkRecord.cleanupWriteOutcomeUnknown' => 'The attachment write outcome is not confirmed. Cleanup is incomplete and remains protected pending operator verification. Refresh to check progress.',

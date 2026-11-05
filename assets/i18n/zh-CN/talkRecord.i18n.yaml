@@ -66,6 +66,7 @@ saveLocationTitle: 保存位置
 saveLocationPersonalSection: 个人
 saveLocationOrgSection: 有权企业
 saveLocationWorkspaceOptional: 不指定工作区
+saveLocationEmpty: 暂无可选的保存位置
 retentionPolicyLabel: 保存期限
 changeConfirmTitle: 更改保存位置
 changeConfirmTarget(name): "将保存到：$name"

@@ -7548,6 +7548,9 @@ class Translations$talkRecord$zh_CN {
 	/// zh-CN: '不指定工作区'
 	String get saveLocationWorkspaceOptional => '不指定工作区';
 
+	/// zh-CN: '暂无可选的保存位置'
+	String get saveLocationEmpty => '暂无可选的保存位置';
+
 	/// zh-CN: '保存期限'
 	String get retentionPolicyLabel => '保存期限';
 
@@ -13785,6 +13788,7 @@ extension on Translations {
 			'talkRecord.saveLocationPersonalSection' => '个人',
 			'talkRecord.saveLocationOrgSection' => '有权企业',
 			'talkRecord.saveLocationWorkspaceOptional' => '不指定工作区',
+			'talkRecord.saveLocationEmpty' => '暂无可选的保存位置',
 			'talkRecord.retentionPolicyLabel' => '保存期限',
 			'talkRecord.changeConfirmTitle' => '更改保存位置',
 			'talkRecord.changeConfirmTarget' => ({required Object name}) => '将保存到：${name}',
@@ -14022,9 +14026,9 @@ extension on Translations {
 			'talkRecord.deleteStatusTitle' => '记录已删除',
 			'talkRecord.deleteStatusNoContentHint' => '记录内容已不再展示。',
 			'talkRecord.deleteCleanupSectionTitle' => '附件清理状态',
-			'talkRecord.cleanupPendingTitle' => '清理进行中',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.cleanupPendingTitle' => '清理进行中',
 			'talkRecord.cleanupPendingBody' => '已提交清理队列；排队成功不代表附件字节已删除。',
 			'talkRecord.cleanupBlockedRetentionTitle' => '留存期未到',
 			'talkRecord.cleanupBlockedRetentionBody' => '记录已删除，附件受留存规则保护；留存期结束后继续清理。',

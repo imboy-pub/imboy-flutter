@@ -120,6 +120,15 @@ class TalkRecordSaveLocationPage extends ConsumerWidget {
             final workspaces = organizations
                 .where((c) => c.workspaceId.isNotEmpty)
                 .toList(growable: false);
+            // 空态如实呈现（真机实证：服务端返回空集合时不得渲染成
+            // 无提示的白屏；提供重试入口）。
+            if (personal.isEmpty && orgRoots.isEmpty) {
+              return _LoadFailedView(
+                title: t.talkRecord.saveLocationEmpty,
+                onRetry: () =>
+                    ref.invalidate(talkRecordCreationContextsProvider),
+              );
+            }
 
             return ListView(
               padding: const EdgeInsets.all(AppSpacing.regular),
@@ -339,9 +348,12 @@ class _LocationTile extends StatelessWidget {
 }
 
 class _LoadFailedView extends StatelessWidget {
-  const _LoadFailedView({required this.onRetry});
+  const _LoadFailedView({required this.onRetry, this.title});
 
   final VoidCallback onRetry;
+
+  /// 空态/失败共用视图：title 缺省为加载失败文案。
+  final String? title;
 
   @override
   Widget build(BuildContext context) {
@@ -351,7 +363,7 @@ class _LoadFailedView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t.talkRecord.loadFailedTitle,
+            title ?? t.talkRecord.loadFailedTitle,
             textAlign: TextAlign.center,
             style: context.textStyle(
               FontSizeType.medium,
