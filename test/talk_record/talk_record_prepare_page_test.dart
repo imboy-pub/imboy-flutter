@@ -188,22 +188,22 @@ TalkRecordCapabilitiesModel _caps(Map<String, dynamic> json) {
   return TalkRecordCapabilitiesModel.fromJson(json);
 }
 
-/// 统一 pump：显式容器（供断言草稿）+ 可选 router（导航用例）。
+/// 统一 pump 并等待稳定：显式容器（供断言草稿）+ 可选 router（导航用例）。
 Future<void> pumpPrepare(
   WidgetTester tester,
   ProviderContainer container, {
   TalkRecordEntryContext entryContext = kOrgEntry,
   GoRouter? router,
-}) {
-  final child = router == null
-      ? TalkRecordPreparePage(entryContext: entryContext)
-      : null;
-  return tester.pumpWidget(
+}) async {
+  await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(home: child),
+      child: router == null
+          ? MaterialApp(home: TalkRecordPreparePage(entryContext: entryContext))
+          : MaterialApp.router(routerConfig: router),
     ),
   );
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -259,7 +259,6 @@ void main() {
         },
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
       container
           .read(talkRecordDraftProvider.notifier)
           .setNoticeAcknowledged(true);
@@ -288,7 +287,6 @@ void main() {
         service: FakeDataService(caps: _caps(const {'asr_enabled': false})),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       expect(find.text(t.talkRecord.processingRecordOnly), findsOneWidget);
       expect(find.text(t.talkRecord.processingTranscribe), findsNothing);
@@ -311,7 +309,6 @@ void main() {
         ),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       expect(find.text(t.talkRecord.processingReasonQuota), findsOneWidget);
       expect(find.text(t.talkRecord.processingTranscribe), findsNothing);
@@ -322,7 +319,6 @@ void main() {
         service: FakeDataService(capError: StateError('caps down')),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       expect(find.text(t.talkRecord.processingRecordOnly), findsOneWidget);
       expect(
@@ -344,7 +340,6 @@ void main() {
         ),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       expect(find.text(t.talkRecord.processingTranscribe), findsOneWidget);
       expect(find.text(t.talkRecord.processingSummarize), findsOneWidget);
@@ -371,7 +366,6 @@ void main() {
         ),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
       expect(
         find.text(t.talkRecord.maxDurationHint(minutes: 120)),
         findsOneWidget,
@@ -389,7 +383,6 @@ void main() {
         container,
         entryContext: const TalkRecordEntryContext.personal(),
       );
-      await tester.pumpAndSettle();
       expect(find.text(t.talkRecord.collabSectionTitle), findsNothing);
     });
 
@@ -398,7 +391,6 @@ void main() {
         service: FakeDataService(caps: _caps(const {'asr_enabled': false})),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       expect(find.text(t.talkRecord.collabSectionTitle), findsOneWidget);
       expect(find.text(t.talkRecord.collabParticipantsLabel), findsNothing);
@@ -420,7 +412,6 @@ void main() {
         ]),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       await tester.tap(find.text(t.talkRecord.collabSectionTitle));
       await tester.pumpAndSettle();
@@ -453,7 +444,6 @@ void main() {
         mic: mic,
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       final noticeRow = find.byKey(const ValueKey('talk_record_notice_row'));
       expect(tester.getSize(noticeRow).height, greaterThanOrEqualTo(67));
@@ -476,7 +466,6 @@ void main() {
         service: FakeDataService(caps: _caps(const {'asr_enabled': false})),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       await tester.tap(find.text(t.talkRecord.noticeCheckbox));
       await tester.pumpAndSettle();
@@ -493,7 +482,6 @@ void main() {
         launcher: FakeLauncher(),
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       await tester.tap(find.byKey(const ValueKey('talk_record_notice_row')));
       await tester.pumpAndSettle();
@@ -539,7 +527,6 @@ void main() {
         launcher: launcher,
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
 
       await tester.enterText(
         find.byKey(const ValueKey('talk_record_title_field')),
@@ -583,13 +570,7 @@ void main() {
         initialLocation: kOrgPreparePath,
         routes: talkRecordRoutes(),
       );
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await pumpPrepare(tester, container, router: router);
 
       // 1) 准备页（企业入口）：填标题、勾参与者。
       await tester.enterText(
@@ -684,13 +665,7 @@ void main() {
         initialLocation: kOrgPreparePath,
         routes: talkRecordRoutes(),
       );
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await pumpPrepare(tester, container, router: router);
 
       await tester.tap(find.text(t.talkRecord.saveToChangeAction));
       await tester.pumpAndSettle();
@@ -718,13 +693,7 @@ void main() {
         initialLocation: kTalkRecordSaveLocationPath,
         routes: talkRecordRoutes(),
       );
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp.router(routerConfig: router),
-        ),
-      );
-      await tester.pumpAndSettle();
+      await pumpPrepare(tester, container, router: router);
 
       expect(find.text(t.talkRecord.loadFailedTitle), findsOneWidget);
       expect(
@@ -764,7 +733,6 @@ void main() {
           launcher: launcher,
         );
         await pumpPrepare(tester, container);
-        await tester.pumpAndSettle();
         expect(notifications.requests, 0);
         await pressStart(tester, container);
         expect(notifications.requests, 1);
@@ -816,7 +784,6 @@ void main() {
         launcher: launcher,
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
       await pressStart(tester, container);
       expect(
         find.byKey(const ValueKey('talk_record_notification_denied_panel')),
@@ -839,7 +806,6 @@ void main() {
       launcher: launcher,
     );
     await pumpPrepare(tester, container);
-    await tester.pumpAndSettle();
     await pressStart(tester, container);
     expect(notifications.requests, 0);
     expect(launcher.lastRequest, isNotNull);
@@ -863,7 +829,6 @@ void main() {
         },
       );
       await pumpPrepare(tester, container);
-      await tester.pumpAndSettle();
       container
           .read(talkRecordDraftProvider.notifier)
           .setNoticeAcknowledged(true);
