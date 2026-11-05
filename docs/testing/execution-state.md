@@ -52,7 +52,16 @@
 - 修复 macOS 首轮发现的 3 个工具断言失败：Bash 3.2 在 `set -u` 下展开空参数数组、临时目录 `/var` 与 `/private/var` 的规范路径差异，以及测试 fixture 硬编码 Linux。没有改动业务断言。
 - 补齐超时清理：每次调用拥有独立 POSIX 进程组，只清理该组并回收主进程，冻结日志/事件快照后再记录哈希。合成测试验证忽略 TERM 的后代不会继续写日志、无关进程保留、部分执行不能 PASS；这项生命周期缺陷由定向测试复现，不能表述为已发现 CI 原始收据哈希错误。非 POSIX 主机明确阻断，不声称已支持 Windows 进程树监督。
 - 当前修复的本地验证：`PYTHONPATH=test/tooling/auto_test python3 -m unittest discover -s test/tooling -p 'test_*.py'` 为 **625 tests PASS**；统一 tooling 执行与独立证据再对账均为 46/46 有结果、44 PASS / 2 ENV_MISSING、691 passed / 0 failed / 0 skipped。另有 8 项路由包装器测试通过，路由 dry-run 计划含 176 实例、业务执行 0。归属、Python 编译、shell 语法和 diff 检查通过。
-- CI 原始证据在 `/workspace/scratch/c02895233621/pr-ci-followup/original-hosts/`；修复验证在 `pr-ci-followup/runtime-fix-validation/`。下一步提交本运行器修复到同一 Draft PR，重新检查真实 Linux/macOS 执行耗时、Bash 3.2、覆盖率与最终对账。保留此前失败结果，不用重试洗掉断言失败。
+- CI 原始证据在 `/workspace/scratch/c02895233621/pr-ci-followup/original-hosts/`；修复验证在 `pr-ci-followup/runtime-fix-validation/`。运行器修复已发布为 `a045b78bc0a7e5596cdf45e7e36d0ff3d4d722dd`，全部本任务修改集中在 Draft PR #41；工作分支不更换。保留此前失败结果，不用重试洗掉断言失败。
+
+### 第三轮 CI 的源码绑定与既有业务阻塞
+
+- [第三轮 CI](https://github.com/imboy-pub/imboy-flutter/actions/runs/42007621614) 对应 task head `a045b78`，实际 checkout 是 `de2f298e2bb58376895fc5292d05bbc862697993`。其第一 parent 为任务进行中前进后的 main `2e06c75ebf9885920d6809d4f4581be103aec49a`，第二 parent 为 task head。PR 元数据一度仍返回旧 `base_sha=9f5d36e`；来源以实际 checkout 日志和 Git parent 为准，不能把旧 base 快照当成本轮测试源码。
+- 本轮冻结计划 ZIP 的 SHA-256 已核验：1180 个目标 / 2360 个实例，commit 为上述 merge checkout，源指纹 `3ec04fd9ae47f25179cda369ba363cc564fa6b705ac033289db4599a3bf7baba`。任务分支独立计划仍为原始 main 基准上的源指纹 `5339c90f3c7a3d3d2bdaa27507d69a6b8f0bbf4355d87210d99f403d982456fb`；两者不得混用于证据对账。
+- 本轮格式仍为 2792 文件 / 0 changed，Analyzer 0 error / 0 warning / 0 info；归属、源码契约、框架与 SQLite 静态门通过。文件行数门失败：main 新改动使 `test/talk_record/talk_record_prepare_page_test.dart` 从基线 886 增至 905 行。任务分支该文件仍是 886 行、与原基准 blob 完全一致；合并候选与新 main 的 905 行 blob 完全一致。保留他人变更，不提高基线；该合并候选的质量门失败有效，最终汇总须体现上游失败。
+- 找到了 FTS skip 注释引用的既定设计：后端 sibling 仓库 `cb95fa72f9bc617d0f30ddd6b98da51f39cfd2af` 的 `docs/design/2026-10-20-channel-group-ux/plan-v2.2.md`，以及 App 原提交 `1ae24621590ae4b285419731c1f871f71034561d`。两项 current-version 用例有意等待 v38 正式注册；它们不是缺少一段可任意替换的 draft fixture。
+- 现有 `migration_v38_fts_draft_test.dart` 已在首轮两平台各 12/12 PASS，但它手动升级临时 v37 库，不能替代当前已注册 schema 的验收。保留原两项 `UNEXPECTED_SKIP`，不删除、不豁免，也不将其重新归类为第二份 draft 验证。解除前需要处理本地时效、远端回退和展示期间到期语义，证明应用实际连接的 `recursive_triggers` 条件，完成相应 Web/SQLCipher 二进制隔离验证，再按既有迁移流程正式注册；这些工作使用合成环境，不要求生产数据或服务。
+- 记录时第三轮 Linux/macOS host 任务尚在运行。运行器分批耗时、macOS 修复、完整覆盖率和最终汇总必须以本轮完成后的收据判断；不能根据静态或旧轮子集通过提前记为全量 PASS。
 
 ## 未解除条件及下一步
 
