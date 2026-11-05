@@ -2,140 +2,30 @@
 
 # 测试目录说明 / Test Directory Guide
 
-> 最后更新：2026-08-06
+执行方式和环境合同以 [统一测试执行说明](../docs/testing/execution.md) 为准。
+机器合同是 `test/auto_test/execution_contract.json`；入口为
+`python3 scripts/auto_test.py execution-*` / `bash scripts/run_test_suite.sh`。
 
----
-
-## test账号
-
-* 账号1:15001@imboy.pub   密码 admin888
-* 账号2:15002@imboy.pub   密码 admin888
-
-## 目录结构
-
-```
-imboyapp/
-├── test/
-│   ├── unit_test/      单元 / widget 测试（586 个 .dart），无头 VM 运行
-│   ├── auto_test/      自动化测试计划表（文档，非可执行代码）
-│   ├── test_driver/    flutter drive 驱动入口
-│   └── CLAUDE.md       本文件
-└── integration_test/   端到端测试（48 个 *_test.dart）—— 刻意留在仓库根目录
-```
-
-### ⚠️ 为什么 `integration_test/` 不在 `test/` 里面
-
-`flutter test` 不带路径参数时，会**递归扫描 `test/` 下所有 `*_test.dart`**。
-
-`integration_test/` 里的 46 个文件都调用 `IntegrationTestWidgetsFlutterBinding.ensureInitialized()`
-并 `app.main()` 启动整个 App，**必须有真机或桌面窗口**才能跑。一旦放进 `test/`，
-下面这些裸调用会把它们当单元测试执行，在无设备环境（如 CI 的 ubuntu runner）必然失败：
-
-| 位置 | 命令 |
-|---|---|
-| `.github/workflows/ci.yml:316` | `flutter test --coverage` |
-| `.github/workflows/integration_test.yml:92` | `flutter test --coverage` |
-| `.github/workflows/sonar.yml:43` | `flutter test --coverage` |
-
-**同理**：`test_driver/` 下的驱动文件已从 `integration_test.dart` **改名为 `driver.dart`**
-——原名匹配 `*_test.dart`，挪进 `test/` 后会被裸 `flutter test` 扫到，
-而 `integrationDriver()` 是等待设备连接的，会挂住。
-
-> **约束**：`test/` 下**不得**出现任何需要设备才能运行的 `*_test.dart`。
-> 新增端到端测试一律放 `integration_test/`。
-
----
-
-## 各目录用途
-
-### `unit_test/` —— 单元与 widget 测试
-
-无需设备，跑在无头 VM。按被测代码结构组织：`page/` `service/` `store/` `component/`
-`modules/` `api/` `integration/`（进程内集成，非设备）`smoke/` 等。
+- `test/unit_test/` 和 `test/` 下其他业务目录都有宿主测试，不得只扫描前者。
+- `integration_test/` 保留在根；真实后端、设备、配对、Patrol 按依赖分开编排。
+- `test/tooling/` 和现有 Python 自检受同一归属门禁管理。
+- `test/auto_test/` 页面需求/规格/catalog 负责业务映射，声明不代表执行通过。
+- 驱动/聚合/fixture/辅助显式分类；`all_tests.dart` 不能代表完整设备回归。
 
 ```bash
-flutter test test/unit_test                      # 全量
-flutter test test/unit_test/service/e2ee/        # 按模块
-flutter test test/unit_test/api/                 # Tier 1 API 契约（pre-push 门禁跑这个）
-```
-
-`flutter_test_config.dart` 在 `test/unit_test/` 根，作用域覆盖其下全部子目录。
-**例外**：`api/` 子目录有自己的就近 `flutter_test_config.dart`（package:test 取最近
-config），其中 `HttpOverrides.global = null` 关掉根 config 的 smoke HTTP 拦截——
-API 契约测试需要真实网络。
-
-#### e2ee 测试的 vodozemac 动态库依赖（macOS 本机）
-
-`service/e2ee/` 与 `group_session_service_test.dart` 的 `setUpAll` 会加载
-`flutter_vodozemac` 提供的原生动态库。宿主测试前先按锁定版本构建：
-
-```bash
-cd ~/.pub-cache/hosted/pub.dev/flutter_vodozemac-0.8.1/rust
-cargo build --release
-mkdir -p ~/project/imboy.pub/spikes/e2ee-group/rust/target/release
-cp target/release/libvodozemac_bindings_dart.dylib \
-  ~/project/imboy.pub/spikes/e2ee-group/rust/target/release/
-```
-
-动态库必须与 `pubspec.lock` 中的插件版本一致；当前依赖为
-`flutter_vodozemac ^0.8.1` / `vodozemac ^0.8.0`。Linux CI 由
-`.github/scripts/ci_build_vod.sh` 构建并布置 `.so`；Android/iOS 由插件构建。
-
-
-### `auto_test/` —— 可复用测试要求与规格
-
-[`auto_test/page_requirements.json`](./auto_test/page_requirements.json) 声明页面功能要求；
-[`auto_test/functional_inventory.json`](./auto_test/functional_inventory.json) 是确定性生成的清单。
-[`auto_test/specs/README.md`](./auto_test/specs/README.md) 说明可执行规格与运行命令。
-声明或静态清单不代表功能已经验收通过。
-
-新增或修改页面时，维护对应声明、可执行规格和实际回归测试，再运行：
-
-```bash
-python3 scripts/auto_test_lib/inventory.py --check
-python3 scripts/auto_test.py validate --strict
+bash .github/scripts/validate_ci_test_paths.sh
+python3 scripts/auto_test.py execution-plan --profile pr --output /tmp/imboy-pr-plan.json
+# 本机 PR 分片；Linux 改为 --platform linux
+bash scripts/run_test_suite.sh --profile pr --platform macos
+# 全量缺平台/设备/基线/后端必须阻塞
+bash scripts/run_test_suite.sh --profile full
 bash scripts/check_auto_test_framework.sh
+bash scripts/run_sqlite_migration_gate.sh --local
 ```
 
-AI 计划、执行台账、截图、日志和运行报告保存在仓外，不提交到 Git。
-`AUTO_TEST_REPORT_ROOT` 可指定仓外报告目录；未指定时，工具使用用户状态目录，
-统一检查门使用独立临时目录。`report`/`coverage-report` 显示实际报告路径。
-历史 `demo_flow/` Markdown 和页面台账仅为本地保留材料，不是新检出的必要输入。
-可复用业务旅程回归保留在 `integration_test/`。
-
-### `test_driver/` —— flutter drive 驱动
-
-只有 `driver.dart` 一个文件。当前 CI 未使用（走 `flutter test integration_test/xxx -d <device>`），
-保留供需要 `flutter drive` 的场景：
-
-```bash
-flutter drive --driver=test/test_driver/driver.dart \
-              --target=integration_test/app_test.dart -d <device>
-```
-
----
-
-## 常用命令
-
-```bash
-# 单元 / widget（无需设备）
-flutter test test/unit_test
-flutter test test/unit_test --coverage
-
-# 端到端（必须指定设备）
-flutter test integration_test/all_tests.dart -d macos \
-  --dart-define=APP_ENV=pro --dart-define=API_BASE_URL=https://pro.imboy.pub
-
-flutter test integration_test/smoke/smoke_test.dart -d <真机ID> --dart-define=APP_ENV=pro
-```
-
-> 裸 `flutter test`（不带路径）会扫 `test/` 全量，等价于 `flutter test test/unit_test`。
-> 保持这个等价关系成立，是本目录约束存在的意义。
-
----
-
-## 相关文档
-
-- [`auto_test/README.md`](./auto_test/README.md) —— 测试计划总索引
-- [`../integration_test/README.md`](../integration_test/README.md) —— 端到端测试方案与设备要求
-- [`../CLAUDE.md`](../CLAUDE.md) —— imboyapp 架构文档
+新增测试先进入 Git 跟踪范围，合法规则会自动接管；新家族/特殊依赖补合同并校验。
+不得用裸 flutter test 默认扫描代替计划，也不得用 disabled 掩盖未执行。
+最近的 flutter_test_config.dart 生效；宿主使用 loopback 合成环境、临时数据库、模拟服务。
+真实后端专项使用显式隔离合同；禁止生产账号与生产回退。FFI 按锁定依赖构建，不手填旧版本。
+结果必须结合机器事件和退出码；零执行/全跳过/未批准部分skip/缺结果/上游失败不得 PASS。
+修改后执行相应验证，在回复中报告命令、结果、未执行原因和证据等级。

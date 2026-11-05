@@ -253,7 +253,8 @@ class DryRunInferenceSeparationTest(unittest.TestCase):
             code = auto_test.run([], device='NOPE123', execute=False,
                                  artifact_dir=Path(tempfile.mkdtemp()))
             disc.assert_not_called()
-        self.assertEqual(code, 0)
+        # Empty selection is incomplete; dry-run still performs no device I/O.
+        self.assertEqual(code, 2)
 
 
 if __name__ == '__main__':

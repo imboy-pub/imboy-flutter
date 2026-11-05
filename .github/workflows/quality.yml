@@ -1,35 +1,25 @@
 # imboyapp 质量门 — Flutter analyze + Secrets
 #
 # 关联：.claude/plans/quality-loop.md v1.3 T4.1（v1.1 §301: 三仓各一份）
-# 与 ci.yml/core-automation.yml/integration_test.yml 互补：本 workflow 仅跑质量门
+# 与 ci.yml/integration_test.yml 互补：本 workflow 仅跑质量门
 # Ratchet 上限：analyzer warnings 830 + infos 703 / gitleaks 22
 # 创建：2026-05-09 / iteration 74 / T4.1
 
 name: imboyapp Quality Gate
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+  workflow_call:
+    inputs:
+      tests_owned_by_ci:
+        description: 'The caller executes the shared tooling and SQLite target plan'
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  # ----------------------------------------------------------------
-  # 0) AI 真机规格 — JSON/源码/截图检查点一致性（无需设备或凭证）
-  # ----------------------------------------------------------------
-  ai-test-specs:
-    name: AI test specs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Validate executable device-test specs
-        run: python3 scripts/auto_test.py validate
-
   # ----------------------------------------------------------------
   # 0.2) Auto-test 框架统一验收 gate（Step 7, 2026-09-18）
   # 与本地完全同一入口命令；无设备、无网络后端、无视觉模型。
@@ -55,10 +45,21 @@ jobs:
           path: imboy
           fetch-depth: 1
 
+      - name: Checkout admin product contract sources
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy-admin-frontend
+          path: imboyadmin
+          fetch-depth: 1
+
       - name: Run unified framework gate (same entry as local)
         env:
           AUTO_TEST_REPORT_ROOT: ${{ runner.temp }}/auto-test-framework
-        run: bash scripts/check_auto_test_framework.sh
+          TESTS_OWNED_BY_CI: ${{ inputs.tests_owned_by_ci }}
+        run: |
+          args=()
+          if [[ "$TESTS_OWNED_BY_CI" == "true" ]]; then args+=(--checks-only); fi
+          bash scripts/check_auto_test_framework.sh "${args[@]}"
 
       - name: Upload framework gate diagnostics
         if: always()
@@ -103,7 +104,12 @@ jobs:
         run: bash .github/scripts/ci_gen_env.sh
 
       - name: Run migration gate
-        run: bash scripts/run_sqlite_migration_gate.sh --ci
+        env:
+          TESTS_OWNED_BY_CI: ${{ inputs.tests_owned_by_ci }}
+        run: |
+          args=(--ci)
+          if [[ "$TESTS_OWNED_BY_CI" == "true" ]]; then args+=(--checks-only); fi
+          bash scripts/run_sqlite_migration_gate.sh "${args[@]}"
 
       - name: Upload gate evidence
         if: always()
@@ -124,6 +130,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
+          fetch-depth: 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -146,7 +153,14 @@ jobs:
       - name: Analyze (ratchet — errors==0 / warnings<=830 / infos<=703)
         run: |
           set -euo pipefail
-          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.txt || true
+          set +e
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze.txt
+          analyze_codes=("${PIPESTATUS[@]}")
+          set -e
+          if [ "${analyze_codes[0]}" -ne 0 ] || [ "${analyze_codes[1]}" -ne 0 ]; then
+            echo "::error::analyzer or evidence capture did not finish successfully"
+            exit 1
+          fi
           # flutter analyze 输出 column-aligned：
           #   "warning • The type ..."           (无前导空格，warning 7 字符)
           #   "   info • The argument ..."        (3 空格，让 • 列对齐)
@@ -175,6 +189,15 @@ jobs:
       # 指纹级零基线：基线 scripts/quality/analyzer_ratchet_baseline.txt
       # 之外新增 1 条 analyzer 问题即 FAIL；基线内减少仅提示收紧。
       # ----------------------------------------------------------------
+      - name: Formatting of tracked first-party Dart files
+        run: git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed
+
+      - name: Analyze lib (existing zero-issue E2EE gate)
+        run: dart analyze lib
+
+      - name: New code guard
+        run: bash .github/scripts/lint_changed_dart.sh
+
       - name: Analyzer ratchet gate (whole-repo, zero baseline)
         run: bash scripts/quality/check_analyzer_ratchet.sh
 

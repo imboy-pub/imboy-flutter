@@ -1,0 +1,2078 @@
+{
+  "schema_version": 1,
+  "platforms": [
+    "linux",
+    "macos",
+    "android",
+    "ios",
+    "web"
+  ],
+  "products": {
+    "phase1_delivery": {
+      "manifest_profile": "phase1_delivery",
+      "description": "Current generated product artifact; verify against sibling backend manifest, never mutate it for a test."
+    },
+    "full-selected": {
+      "manifest_profile": "full-selected",
+      "required_features": [
+        "rtc"
+      ],
+      "description": "Existing full-selected build profile; requires a separately prepared matching artifact with RTC. A dart-define does not change generated compile-time features."
+    },
+    "phase1_delivery-channel-enabled": {
+      "manifest_profile": "phase1_delivery",
+      "dart_defines": {
+        "ACCEPTANCE_NAV_CHANNEL_PROFILE": "enabled"
+      },
+      "description": "Existing actual enabled channel runtime contract on the phase1 compiled artifact."
+    },
+    "phase1_delivery-channel-disabled": {
+      "manifest_profile": "phase1_delivery",
+      "dart_defines": {
+        "ACCEPTANCE_NAV_CHANNEL_PROFILE": "disabled"
+      },
+      "description": "Existing actual disabled channel runtime contract; the define states the expectation, not a fake runtime toggle."
+    }
+  },
+  "runners": {
+    "flutter-machine": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "flutter-machine",
+      "callable": "run_plan"
+    },
+    "flutter-device": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "flutter-device",
+      "callable": "run_plan"
+    },
+    "device-pair": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "device-pair",
+      "callable": "run_plan"
+    },
+    "patrol": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "patrol",
+      "callable": "run_plan"
+    },
+    "python-unittest": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "python-unittest",
+      "callable": "run_plan"
+    },
+    "python-cases": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "python-cases",
+      "callable": "run_plan"
+    },
+    "python-recovery": {
+      "entrypoint": "scripts/auto_test_lib/execution_runner.py",
+      "adapter": "python-recovery",
+      "callable": "run_plan"
+    }
+  },
+  "suites": {
+    "unit": {
+      "description": "Pure logic, models and protocol contracts.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages"
+      ],
+      "coverage": true
+    },
+    "widget": {
+      "description": "Host Widget, navigation and state tests.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages"
+      ],
+      "coverage": true
+    },
+    "component": {
+      "description": "In-process simulated integration, fake HTTP/services.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages"
+      ],
+      "coverage": true
+    },
+    "sqlite-ffi": {
+      "description": "Real temporary SQLite/FFI and migration contracts.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "sqlite-ffi"
+      ],
+      "coverage": true
+    },
+    "crypto-ffi": {
+      "description": "Native Rust/vodozemac tests, including synthetic host harnesses.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "crypto-ffi"
+      ],
+      "coverage": true
+    },
+    "backend-contract": {
+      "description": "Actual isolated backend API/WS contracts; never production.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "backend",
+        "accounts",
+        "signing-key"
+      ],
+      "coverage": false
+    },
+    "golden": {
+      "description": "Pixel comparison in the declared fixed environment; baseline updates are separate.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "golden-baseline",
+        "golden-environment"
+      ],
+      "coverage": false
+    },
+    "route-smoke": {
+      "description": "Route rendering in one process per route.",
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages"
+      ],
+      "coverage": false
+    },
+    "device-single": {
+      "description": "One qualified physical device/desktop business target.",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "device"
+      ],
+      "coverage": false
+    },
+    "device-pair": {
+      "description": "Paired roles with explicit orchestration, never a single-device loop.",
+      "runner": "device-pair",
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "device"
+      ],
+      "coverage": false
+    },
+    "native-ui": {
+      "description": "Patrol/native platform interaction.",
+      "runner": "patrol",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "flutter-sdk",
+        "dart-packages",
+        "device",
+        "patrol"
+      ],
+      "coverage": false
+    },
+    "tooling": {
+      "description": "Python orchestration/contract self-tests.",
+      "runner": "python-unittest",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "python3"
+      ],
+      "coverage": false,
+      "product_independent": true
+    }
+  },
+  "rules": [
+    {
+      "id": "host-unit-test",
+      "prefixes": [
+        "test/unit_test/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-talk-record",
+      "prefixes": [
+        "test/talk_record/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-customer-service",
+      "prefixes": [
+        "test/customer_service/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-organization",
+      "prefixes": [
+        "test/organization/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-uiux",
+      "prefixes": [
+        "test/uiux/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-enterprise-oa",
+      "prefixes": [
+        "test/enterprise_oa/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-enterprise-app",
+      "prefixes": [
+        "test/enterprise_app/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-enterprise",
+      "prefixes": [
+        "test/enterprise/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-micro-community",
+      "prefixes": [
+        "test/micro_community/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-service",
+      "prefixes": [
+        "test/service/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-ux-matrix",
+      "prefixes": [
+        "test/ux_matrix/"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "root-host-and-support",
+      "paths": [
+        "test/deeplink_push_stack_probe_test.dart",
+        "test/env_test_pin.dart",
+        "test/flutter_test_config.dart",
+        "test/golden_baseline_guard.dart",
+        "test/mc22_router_push_repro_test.dart",
+        "test/secure_storage_test_pin.dart"
+      ],
+      "classifier": "host-dart"
+    },
+    {
+      "id": "host-fixtures",
+      "prefixes": [
+        "test/fixtures/"
+      ],
+      "classifier": "support"
+    },
+    {
+      "id": "test-drivers",
+      "prefixes": [
+        "test/test_driver/",
+        "test_driver/"
+      ],
+      "classifier": "support"
+    },
+    {
+      "id": "tooling-tests",
+      "prefixes": [
+        "test/tooling/"
+      ],
+      "classifier": "python-test"
+    },
+    {
+      "id": "device-business",
+      "prefixes": [
+        "integration_test/"
+      ],
+      "classifier": "device-dart",
+      "review_prefixes": [
+        "integration_test/two_client/",
+        "integration_test/rtc/",
+        "integration_test/full_acceptance/"
+      ]
+    },
+    {
+      "id": "existing-tooling-entrypoints",
+      "paths": [
+        "scripts/auto_test.py",
+        "scripts/auto_test_lib/auto_test_platform_gate_test.py",
+        "scripts/auto_test_lib/capture_integrity_test.py",
+        "scripts/test_mc22_owned_coordinator.py",
+        "tool/uiux/recovery_contract_test.py",
+        "tool/uiux/test_lock_contract.py",
+        "tool/uiux/test_scope_contract.py",
+        "tool/uiux/test_state_contract.py"
+      ],
+      "classifier": "python-test"
+    }
+  ],
+  "overrides": {
+    "scripts/auto_test.py": {
+      "kind": "driver",
+      "basis": [
+        "Existing orchestration CLI, not a Python test module."
+      ]
+    },
+    "test/test_driver/driver.dart": {
+      "kind": "driver",
+      "basis": [
+        "integrationDriver waits for a device test; not a business target."
+      ]
+    },
+    "test_driver/integration_test.dart": {
+      "kind": "driver",
+      "basis": [
+        "integrationDriver for flutter drive --use-application-binary."
+      ]
+    },
+    "test/unit_test/smoke/extract_routes.dart": {
+      "suite": "component",
+      "coverage": false,
+      "basis": [
+        "Route inventory utility has a real count>100 assertion and isolated mocked routing setup; execute its own sanity contract once, without duplicating route rendering."
+      ]
+    },
+    "integration_test/all_tests.dart": {
+      "kind": "aggregate",
+      "basis": [
+        "Legacy 12-target convenience aggregation; members run via their individual ownership."
+      ],
+      "members": [
+        "integration_test/app_test.dart",
+        "integration_test/chat/c2c_e2ee_send_render_test.dart",
+        "integration_test/chat/conversation_test.dart",
+        "integration_test/chat/group_chat_test.dart",
+        "integration_test/channel/channel_e2e_test.dart",
+        "integration_test/channel/channel_publish_test.dart",
+        "integration_test/channel/channel_edit_persistence_test.dart",
+        "integration_test/channel/channel_subscribed_detail_consistency_test.dart",
+        "integration_test/contact/friend_management_test.dart",
+        "integration_test/contact/add_friend_request_test.dart",
+        "integration_test/auth/register_flow_test.dart",
+        "integration_test/auth/password_change_test.dart"
+      ]
+    },
+    "integration_test/e2ee_release/harness_smoke_test.dart": {
+      "kind": "included-test",
+      "basis": [
+        "Synthetic host harness source, executed once through its host wrapper to avoid Flutter device-directory dispatch."
+      ],
+      "included_by": [
+        "test/unit_test/service/e2ee_release_harness_host_test.dart"
+      ]
+    },
+    "test/unit_test/service/e2ee_release_harness_host_test.dart": {
+      "suite": "crypto-ffi",
+      "basis": [
+        "Host wrapper executes the real vodozemac harness with an in-memory transport and synthetic identities."
+      ],
+      "source_dependencies": [
+        "integration_test/e2ee_release/harness_smoke_test.dart"
+      ]
+    },
+    "test/unit_test/api/api_test_client_safety_test.dart": {
+      "suite": "component",
+      "basis": [
+        "Injected fake Dio adapter verifies the API client safety contract without contacting a backend."
+      ]
+    },
+    "test/unit_test/smoke/route_smoke_test.dart": {
+      "suite": "route-smoke",
+      "basis": [
+        "Existing route registry and isolated process runner; file must never be batched."
+      ],
+      "orchestration": "test/unit_test/smoke/run_smoke_isolated.sh",
+      "route_registry": {
+        "path": "test/unit_test/smoke/route_registry.dart",
+        "test_group": "路由烟雾测试 / Route smoke test"
+      }
+    },
+    "tool/uiux/recovery_contract_test.py": {
+      "suite": "tooling",
+      "runner": "python-recovery",
+      "dependencies": [
+        "process-identity",
+        "uiux-recovery-fixture"
+      ],
+      "basis": [
+        "Existing recovery drill uses a declared runtime fixture; adapter must relocate outputs and operate on a disposable copy.",
+        "Existing plan_lock.pid_lstart uses a real ps process-identity probe; a host without it is blocked."
+      ]
+    },
+    "test/talk_record/talk_record_doubao_workflow_test.dart": {
+      "dart_defines": {
+        "TALK_RECORD_DOUBAO_ENABLED": "true"
+      },
+      "basis": [
+        "Synthetic Doubao branch requires its real compile-time feature switch; no external provider is contacted."
+      ]
+    },
+    "test/talk_record/talk_record_doubao_wire_view_test.dart": {
+      "dart_defines": {
+        "TALK_RECORD_DOUBAO_ENABLED": "true"
+      },
+      "basis": [
+        "Synthetic Doubao branch requires its real compile-time feature switch; no external provider is contacted."
+      ]
+    },
+    "test/talk_record/talk_record_doubao_processing_panel_test.dart": {
+      "dart_defines": {
+        "TALK_RECORD_DOUBAO_ENABLED": "true"
+      },
+      "basis": [
+        "Synthetic Doubao branch requires its real compile-time feature switch; no external provider is contacted."
+      ]
+    },
+    "test/talk_record/talk_record_doubao_client_workflow_test.dart": {
+      "dart_defines": {
+        "TALK_RECORD_DOUBAO_ENABLED": "true"
+      },
+      "basis": [
+        "Synthetic Doubao branch requires its real compile-time feature switch; no external provider is contacted."
+      ]
+    },
+    "test/auto_test/scripts/imboy_api.py": {
+      "kind": "driver",
+      "basis": [
+        "Historical manual production API diagnostic CLI; contains no automated test declarations and is never invoked by this plan."
+      ]
+    },
+    "integration_test/demo_flow/group_pro_readonly_contract_test.dart": {
+      "suite": "backend-contract",
+      "basis": [
+        "Self-contained HTTP read-only contract, no device binding; runner requires its migrated isolated-backend configuration.",
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ],
+      "runner": "flutter-machine",
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts"
+      ],
+      "required_env": [
+        "DEMO_FLOW_LOCAL_READONLY"
+      ]
+    },
+    "tool/uiux/test_lock_contract.py": {
+      "dependencies": [
+        "process-identity"
+      ],
+      "basis": [
+        "Existing plan_lock.pid_lstart uses a real ps process-identity probe; a host without it is blocked."
+      ]
+    },
+    "test/tooling/auto_test/test_domain.py": {
+      "dependencies": [
+        "backend-source"
+      ],
+      "basis": [
+        "domain.generate_domain_matrix and validate_domain read sibling backend manifest, Makefile and actual backend target sources; no service is contacted."
+      ]
+    },
+    "integration_test/e2ee_cross_platform_interop_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        },
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        },
+        {
+          "role": "final",
+          "platforms": [
+            "android"
+          ],
+          "device_role": "sender"
+        }
+      ],
+      "pair_group": "e2ee-c2c-interop",
+      "orchestration": "e2ee-vector",
+      "dependencies": [
+        "physical-android",
+        "macos-device",
+        "native-crypto"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "runner": "device-pair",
+      "offline": true,
+      "product_independent": true,
+      "basis": [
+        "Direct real vodozemac/synthetic SQLite session transport; no app launch, authentication or service socket; TEST_INTEROP_ROLE coordinates three stages."
+      ],
+      "reviewed_source_sha256": "50a605a87dcc348596659e692bf6f2ff21216ab9d1cc9cf64a2142a9aa368623"
+    },
+    "integration_test/e2ee_cross_platform_group_interop_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        },
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        },
+        {
+          "role": "final",
+          "platforms": [
+            "android"
+          ],
+          "device_role": "sender"
+        }
+      ],
+      "pair_group": "e2ee-c2g-interop",
+      "orchestration": "e2ee-vector",
+      "dependencies": [
+        "physical-android",
+        "macos-device",
+        "native-crypto"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "runner": "device-pair",
+      "offline": true,
+      "product_independent": true,
+      "basis": [
+        "Direct real vodozemac/synthetic SQLite session transport; no app launch, authentication or service socket; TEST_INTEROP_ROLE coordinates three stages."
+      ],
+      "reviewed_source_sha256": "0fd42b48023117f768cd1c78145aed22df97d918c6f3ee0c444621abb76623eb"
+    },
+    "integration_test/rtc/c2c_call_matrix_a_side_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "roles": [
+        {
+          "role": "caller",
+          "platforms": [
+            "android"
+          ]
+        }
+      ],
+      "pair_group": "rtc-c2c",
+      "orchestration": "rtc-concurrent",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "livekit",
+        "business-writes"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "runner": "device-pair",
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/rtc/c2c_call_matrix_b_side_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "roles": [
+        {
+          "role": "callee",
+          "platforms": [
+            "android"
+          ]
+        }
+      ],
+      "pair_group": "rtc-c2c",
+      "orchestration": "rtc-concurrent",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "livekit",
+        "business-writes"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "runner": "device-pair",
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/demo_flow/dual_account_message_flow_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        },
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "dual-c2c",
+      "orchestration": "dual-concurrent",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "runner": "device-pair",
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/demo_flow/group_dual_account_message_flow_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        },
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "dual-c2g",
+      "orchestration": "dual-concurrent",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "runner": "device-pair",
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/demo_flow/local_dual_account_message_flow_test.dart": {
+      "suite": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android",
+            "macos"
+          ]
+        },
+        {
+          "role": "receiver",
+          "platforms": [
+            "android",
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "local-dual-c2c",
+      "orchestration": "dual-sequential",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "runner": "device-pair",
+      "pair_topology": "same-platform",
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/patrol/handshake_test.dart": {
+      "suite": "native-ui",
+      "platforms": [
+        "android"
+      ],
+      "dependencies": [
+        "physical-android",
+        "patrol",
+        "native-junit"
+      ],
+      "runner": "patrol",
+      "basis": [
+        "Patrol native handshake mounts a minimal synthetic widget and native channel without app.main, accounts, backend or product feature behavior."
+      ],
+      "offline": true,
+      "product_independent": true,
+      "reviewed_source_sha256": "4a972e332c46c901c5f8b25f8b28880643aa7d0ac2eb8412d2f0f478f21dc7bd"
+    },
+    "integration_test/patrol/app_launch_test.dart": {
+      "suite": "native-ui",
+      "platforms": [
+        "android"
+      ],
+      "dependencies": [
+        "physical-android",
+        "patrol",
+        "native-junit",
+        "isolated-backend"
+      ],
+      "runner": "patrol",
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/enterprise_nav_perm_nonoa_macos_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/macos_storage_isolation_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/organization_chart_nonoa_macos_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/organization_ux_macos_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/workbench_website_macos_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/workspace_channel_navigation_macos_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/enterprise/organization_chart_nonoa_android_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/micro_community_flow_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/attachment_lifecycle_v5_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "required_env": [
+        "V5_E2E_OPT_IN",
+        "V5_E2E_RUN_ID",
+        "V5_E2E_UPLOAD_ID",
+        "V5_E2E_UID",
+        "V5_E2E_DRIVER",
+        "V5_E2E_PHASE",
+        "V5_E2E_SCENARIO"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/talk_record_owned_capture_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "required_env": [
+        "TALK_CAPTURE_OPT_IN",
+        "TALK_CAPTURE_DEVICE_LEASED",
+        "TALK_CAPTURE_RUN_ID",
+        "TALK_CAPTURE_SOURCE_SHA256",
+        "TALK_CAPTURE_SOURCE_KIND"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/talk_record_owned_lifecycle_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "required_env": [
+        "A03_OPT_IN",
+        "A03_RUN_ID",
+        "A03_UID_A",
+        "A03_UID_B",
+        "A03_PASSWORD",
+        "A03_ACCOUNT_A",
+        "A03_ACCOUNT_B"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/single/upgrade_failure_retry_realdevice_batch168_test.dart": {
+      "platforms": [
+        "android"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/rtc/rtc_relay_realdevice_test.dart": {
+      "suite": "device-single",
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "livekit",
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_GROUP_ID"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "basis": [
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+      ]
+    },
+    "integration_test/e2ee_olm_device_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "dependencies": [
+        "native-crypto"
+      ],
+      "basis": [
+        "Uses real native vodozemac with synthetic sessions/storage and mocked secure storage; source explicitly performs no login/backend/business requests."
+      ],
+      "reviewed_source_sha256": "b9224f4599d141ddf08095dbfa75c883428d907ac5af94b63575341a149da8c6"
+    },
+    "integration_test/e2ee_megolm_device_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "dependencies": [
+        "native-crypto"
+      ],
+      "basis": [
+        "Uses real native vodozemac with synthetic sessions/storage and mocked secure storage; source explicitly performs no login/backend/business requests."
+      ],
+      "reviewed_source_sha256": "bc00dfbaaeff75a611d83513ae6485fcb5857a57db113f38fddd223f957ca421"
+    },
+    "integration_test/e2ee_c2c_outbound_frame_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "dependencies": [
+        "native-crypto"
+      ],
+      "basis": [
+        "Uses real native vodozemac with synthetic sessions/storage and mocked secure storage; source explicitly performs no login/backend/business requests."
+      ],
+      "reviewed_source_sha256": "bfccb4c455766e4eaa2975ba4a3f9f4a612be31c6d7de6449edbcf9f67056073"
+    },
+    "integration_test/e2ee_group_outbound_frame_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "dependencies": [
+        "native-crypto"
+      ],
+      "basis": [
+        "Uses real native vodozemac with synthetic sessions/storage and mocked secure storage; source explicitly performs no login/backend/business requests."
+      ],
+      "reviewed_source_sha256": "0a56ea26291ffc7aedf109e9b518af42a2c3bf37db0093f9a27353423dcc0450"
+    },
+    "integration_test/two_client/h2_c2c_android_a_side_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        }
+      ],
+      "pair_group": "h2-live-c2c",
+      "orchestration": "h2-c2c",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "H2_RUN_TAG",
+        "PEER_UID"
+      ],
+      "basis": [
+        "Real API/WS peer ciphertext and response assertions require concurrent qualified Android/macOS roles; C2G receiver releases the macOS slot before new-member rotation."
+      ]
+    },
+    "integration_test/two_client/h2_c2c_mac_b_side_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "h2-live-c2c",
+      "orchestration": "h2-c2c",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "H2_RUN_TAG",
+        "PEER_UID"
+      ],
+      "basis": [
+        "Real API/WS peer ciphertext and response assertions require concurrent qualified Android/macOS roles; C2G receiver releases the macOS slot before new-member rotation."
+      ]
+    },
+    "integration_test/two_client/h2_c2c_history_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "history-sender",
+          "platforms": [
+            "android"
+          ],
+          "account_role": "sender",
+          "device_role": "sender"
+        },
+        {
+          "role": "history-receiver",
+          "platforms": [
+            "macos"
+          ],
+          "account_role": "receiver",
+          "device_role": "receiver"
+        }
+      ],
+      "pair_group": "h2-live-c2c",
+      "orchestration": "h2-c2c",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "H2_RUN_TAG",
+        "PEER_UID"
+      ],
+      "basis": [
+        "Restart history reads require both successful pair stages and the original device storage."
+      ]
+    },
+    "integration_test/two_client/h2_c2g_android_a_side_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        }
+      ],
+      "pair_group": "h2-live-c2g",
+      "orchestration": "h2-c2g",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "H2_RUN_TAG",
+        "H2_C2G_GID",
+        "H2_C2G_SPARE7_UID"
+      ],
+      "basis": [
+        "Real API/WS peer ciphertext and response assertions require concurrent qualified Android/macOS roles; C2G receiver releases the macOS slot before new-member rotation."
+      ]
+    },
+    "integration_test/two_client/h2_c2g_mac_b_side_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "h2-live-c2g",
+      "orchestration": "h2-c2g",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "H2_RUN_TAG",
+        "H2_C2G_GID"
+      ],
+      "basis": [
+        "Real API/WS peer ciphertext and response assertions require concurrent qualified Android/macOS roles; C2G receiver releases the macOS slot before new-member rotation."
+      ]
+    },
+    "integration_test/two_client/h2_c2g_new_member_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "new-member",
+          "platforms": [
+            "macos"
+          ],
+          "device_role": "receiver"
+        }
+      ],
+      "pair_group": "h2-live-c2g",
+      "orchestration": "h2-c2g",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "native-crypto"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "H2_RUN_TAG",
+        "H2_C2G_GID"
+      ],
+      "basis": [
+        "Third synthetic member takes over the same macOS slot only after original receiver exits; Android sender remains alive for key redistribution."
+      ]
+    },
+    "integration_test/chat/j16c_dnd_two_device_a_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "roles": [
+        {
+          "role": "sender",
+          "platforms": [
+            "android"
+          ]
+        }
+      ],
+      "pair_group": "j16c-dnd",
+      "orchestration": "dnd-fixture",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "host-fixture-driver"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "TEST_GROUP_ID",
+        "TEST_GROUP_TITLE"
+      ],
+      "external_roles": [
+        {
+          "role": "fixture-peer",
+          "driver_env": "IMBOY_DND_PAIR_DRIVER",
+          "checksum_env": "IMBOY_DND_PAIR_DRIVER_SHA256"
+        }
+      ],
+      "basis": [
+        "A writes local state then B observes independent storage; B awaits host-injected peer message and SQL projection evidence. A/B cannot run in an ordinary single-device loop."
+      ]
+    },
+    "integration_test/chat/j16c_dnd_two_device_b_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "receiver",
+          "platforms": [
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "j16c-dnd",
+      "orchestration": "dnd-fixture",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "host-fixture-driver"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "TEST_GROUP_ID",
+        "TEST_GROUP_TITLE"
+      ],
+      "external_roles": [
+        {
+          "role": "fixture-peer",
+          "driver_env": "IMBOY_DND_PAIR_DRIVER",
+          "checksum_env": "IMBOY_DND_PAIR_DRIVER_SHA256"
+        }
+      ],
+      "basis": [
+        "A writes local state then B observes independent storage; B awaits host-injected peer message and SQL projection evidence. A/B cannot run in an ordinary single-device loop."
+      ]
+    },
+    "integration_test/chat/j28b_two_client_new_end_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "roles": [
+        {
+          "role": "new-client",
+          "platforms": [
+            "android"
+          ]
+        }
+      ],
+      "pair_group": "j28b-legacy-client",
+      "orchestration": "legacy-fixture",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "legacy-client-driver"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID"
+      ],
+      "external_roles": [
+        {
+          "role": "legacy-client",
+          "driver_env": "IMBOY_LEGACY_PAIR_DRIVER",
+          "checksum_env": "IMBOY_LEGACY_PAIR_DRIVER_SHA256"
+        }
+      ],
+      "basis": [
+        "Source requires a separately prepared older macOS client (historical b6afea584) to preload batch4 and perform one write after J28B_V0; the companion file/host script is absent from this repository. Driver machine evidence is a mandatory upstream obligation."
+      ]
+    },
+    "integration_test/demo_flow/group_collaboration_flow_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "roles": [
+        {
+          "role": "owner",
+          "platforms": [
+            "android"
+          ]
+        },
+        {
+          "role": "member",
+          "platforms": [
+            "macos"
+          ]
+        }
+      ],
+      "pair_group": "group-collaboration",
+      "orchestration": "collaboration-sequential",
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_COLLAB_OWNER_UID",
+        "TEST_COLLAB_MEMBER_UID",
+        "TEST_GROUP_ID",
+        "TEST_GROUP_TITLE",
+        "TEST_SCHEDULE_TITLE",
+        "TEST_TASK_TITLE",
+        "TEST_VOTE_TITLE",
+        "TEST_COLLAB_MARKER"
+      ],
+      "basis": [
+        "Owner creates schedule/task/vote; member responds only after successful owner stage. Source production-only guard migrated to explicit local fixture authorization."
+      ]
+    },
+    "integration_test/two_client/mac_e2ee_server_probe_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_ALLOW_DEVICE_KEY_REPORT",
+        "TEST_EXPECTED_UID",
+        "PEER_UID"
+      ],
+      "basis": [
+        "Source asserts only this macOS client operation; peer data is a synthetic backend fixture, with no required concurrent companion result. Does not certify receiver workflow."
+      ]
+    },
+    "integration_test/two_client/mac_peer_c2c_ping_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_ALLOW_C2C_PING",
+        "TEST_EXPECTED_UID",
+        "PEER_UID",
+        "PEER_TITLE"
+      ],
+      "basis": [
+        "Source asserts only this macOS client operation; peer data is a synthetic backend fixture, with no required concurrent companion result. Does not certify receiver workflow."
+      ]
+    },
+    "integration_test/two_client/mac_peer_friend_apply_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes"
+      ],
+      "required_env": [
+        "TEST_ALLOW_FRIEND_APPLY",
+        "TEST_EXPECTED_UID",
+        "PEER_UID"
+      ],
+      "basis": [
+        "Source asserts only this macOS client operation; peer data is a synthetic backend fixture, with no required concurrent companion result. Does not certify receiver workflow."
+      ]
+    },
+    "integration_test/two_client/mac_probe_rail_tap_test.dart": {
+      "kind": "driver",
+      "non_asserting_utility": true,
+      "reviewed_source_sha256": "ce16c879371d6282ac533b4a931f2f46daae54ba33511925f8c888ec2bc52fea",
+      "basis": [
+        "Explicit source header marks a diagnostic probe; after bootstrap it only logs selectedIndex/ContactPage presence. It has no navigation business oracle, so it cannot count as a business test. Any source change requires a fresh classification review."
+      ]
+    },
+    "integration_test/chat/j15b_row_open_desktop_test.dart": {
+      "platforms": [
+        "macos"
+      ],
+      "basis": [
+        "Uses desktop navigation/double-click and asserts desktop event routing."
+      ]
+    },
+    "integration_test/rtc/rtc_negative_matrix_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "products": [
+        "full-selected"
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "backend-ws"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID"
+      ],
+      "dart_defines": {
+        "LK_RTC_RUN": "true",
+        "LK_RTC_STRICT": "true"
+      },
+      "basis": [
+        "Source N1/N2 uses the real authenticated WS signaling bus with a nonexistent synthetic peer; N3-N6 test the RTC state machine. rtcApiOverride and roomConnectOverride replace media, so no second client or real LiveKit room is required.",
+        "Actual signed-in WS but recording RtcRoomApi and roomConnectOverride; no SFU media or online peer required."
+      ],
+      "platforms": [
+        "android",
+        "macos"
+      ]
+    },
+    "integration_test/rtc/rtc_group_regression_test.dart": {
+      "suite": "device-pair",
+      "runner": "device-pair",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "full-selected"
+      ],
+      "pair_group": "rtc-group",
+      "orchestration": "rtc-group-concurrent",
+      "roles": [
+        {
+          "role": "sender"
+        },
+        {
+          "role": "receiver"
+        }
+      ],
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "backend-ws",
+        "livekit"
+      ],
+      "required_env": [
+        "TEST_EXPECTED_UID",
+        "TEST_GROUP_ID"
+      ],
+      "dart_defines": {
+        "LK_RTC_RUN": "true",
+        "LK_RTC_STRICT": "true",
+        "TEST_GROUP_EXPECT_REMOTE": "true"
+      },
+      "basis": [
+        "Real RTC group join, microphone publication and remote-track assertions require two distinct Android clients in the same isolated group. Full regression explicitly enables the remote-track oracle rather than running only the default local publication path.",
+        "Actual group SFU connect, microphone publish and remote track assertions require two concurrent distinct synthetic members in one owned group."
+      ]
+    },
+    "integration_test/full_acceptance/billing/plan_list_device_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "acceptance_preflight": true,
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "acceptance-preparation"
+      ],
+      "basis": [
+        "Tracked full_acceptance source validates actual runtime, fixture, authorization and leased device inputs. Provenance defines must be derived by the existing acceptance preflight verifier; supplying ACCEPTANCE_RUNNER_VERIFIED=true alone is not admission.",
+        "Git-tracked full_acceptance target checks provenance; adapter composes existing acceptance_preflight and state.read_lease before deriving runner verification."
+      ],
+      "acceptance_fixture_fields": [
+        "TEST_EXPECTED_UID",
+        "ACCEPTANCE_PLAN_NAME",
+        "ACCEPTANCE_PLAN_PRICE"
+      ]
+    },
+    "integration_test/full_acceptance/navigation/bottom_navigation_device_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery-channel-enabled",
+        "phase1_delivery-channel-disabled"
+      ],
+      "acceptance_preflight": true,
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "acceptance-preparation"
+      ],
+      "basis": [
+        "Tracked full_acceptance source validates actual runtime, fixture, authorization and leased device inputs. Provenance defines must be derived by the existing acceptance preflight verifier; supplying ACCEPTANCE_RUNNER_VERIFIED=true alone is not admission.",
+        "Actual channel enabled and disabled fixtures are both required on Android and macOS; the product define states the expected runtime behavior and cannot simulate the feature toggle.",
+        "Git-tracked full_acceptance target checks provenance; adapter composes existing acceptance_preflight and state.read_lease before deriving runner verification.",
+        "Real AppFeatureRegistry and compiled channel asserted on Android/macOS x actual enabled/disabled runtime, no fake toggle."
+      ],
+      "acceptance_fixture_fields": [
+        "TEST_EXPECTED_UID"
+      ],
+      "required_features": [
+        "channel"
+      ]
+    },
+    "integration_test/full_acceptance/organization/organization_home_device_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "acceptance_preflight": true,
+      "dependencies": [
+        "isolated-backend",
+        "isolated-accounts",
+        "business-writes",
+        "acceptance-preparation"
+      ],
+      "basis": [
+        "Tracked full_acceptance source validates actual runtime, fixture, authorization and leased device inputs. Provenance defines must be derived by the existing acceptance preflight verifier; supplying ACCEPTANCE_RUNNER_VERIFIED=true alone is not admission.",
+        "Git-tracked full_acceptance target checks provenance; adapter composes existing acceptance_preflight and state.read_lease before deriving runner verification."
+      ],
+      "acceptance_fixture_fields": [
+        "TEST_EXPECTED_UID",
+        "ACCEPTANCE_ORG_ID",
+        "ACCEPTANCE_ORG_NAME",
+        "ACCEPTANCE_DIRECTORY_MEMBER_ID",
+        "ACCEPTANCE_DIRECTORY_MEMBER_NAME"
+      ]
+    },
+    "integration_test/micro_community_owned_android_negative_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "session_mode": "mc-owned",
+      "flavor": "gzCustomer",
+      "dependencies": [
+        "isolated-backend",
+        "business-writes",
+        "owned-session",
+        "owned-device-lease"
+      ],
+      "required_features": [
+        "channel"
+      ],
+      "dart_defines": {
+        "IMBOY_JPUSH_ENABLED": "false"
+      },
+      "orchestration": "mc-owned-coordinator",
+      "variants": [
+        {
+          "variant": "live",
+          "dart_defines": {
+            "MC_OWNED_NEGATIVE_MODE": "live"
+          },
+          "device_role": "mc-live"
+        },
+        {
+          "variant": "reconnect",
+          "dart_defines": {
+            "MC_OWNED_NEGATIVE_MODE": "reconnect"
+          },
+          "device_role": "mc-reconnect"
+        }
+      ],
+      "basis": [
+        "owned_session enforces physical Android, clean account, local owned session and disabled external push.",
+        "Live/reconnect use distinct owned fixtures/databases. Existing mc22_owned_coordinator.py drives actual VIEW and owned adb reverse removal/restoration."
+      ]
+    },
+    "integration_test/micro_community_owned_android_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "session_mode": "mc-owned",
+      "flavor": "gzCustomer",
+      "dependencies": [
+        "isolated-backend",
+        "business-writes",
+        "owned-session",
+        "owned-device-lease"
+      ],
+      "required_features": [
+        "channel"
+      ],
+      "dart_defines": {
+        "IMBOY_JPUSH_ENABLED": "false"
+      },
+      "basis": [
+        "Existing micro_community_flow after owned session; no phone login. Exact community fixture identifiers/body and private session required."
+      ]
+    },
+    "integration_test/smoke/camera_capture_real_smoke_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "dependencies": [
+        "camera-hardware",
+        "camera-permission"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "required_true_env": [
+        "IMBOY_REAL_CAMERA_SMOKE",
+        "IMBOY_CAMERA_PERMISSION_READY"
+      ],
+      "dart_defines": {
+        "IMBOY_REAL_CAMERA_REQUIRED": "true"
+      },
+      "basis": [
+        "Standalone camera_desktop/AVFoundation widget, no app bootstrap or backend. Selected regression requires camera output, not degraded no-camera return."
+      ],
+      "reviewed_source_sha256": "1ec3dec1315df667929294e8b70f64ad6cb02ae452131636f0d19ae242d212f2"
+    },
+    "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart": {
+      "products": [
+        "phase1_delivery",
+        "full-selected"
+      ],
+      "basis": [
+        "The first two widget contracts exercise disabled RTC and the actual compiled gate. The retained-callback contract is registered only when the compiled artifact contains RTC; full regression therefore requires both the real phase1_delivery artifact and the separately verified full-selected artifact with required rtc."
+      ]
+    }
+  },
+  "profiles": {
+    "pr": {
+      "description": "Deterministic host PR gate; specialized external lanes remain explicit.",
+      "suites": [
+        "unit",
+        "widget",
+        "component",
+        "sqlite-ffi",
+        "crypto-ffi",
+        "tooling"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership",
+        "static-analysis",
+        "framework",
+        "sqlite-generator",
+        "contracts"
+      ]
+    },
+    "full": {
+      "description": "All declared applicable platforms, product contracts and roles; unavailable prerequisites block.",
+      "suites": [
+        "*"
+      ],
+      "platforms": [
+        "*"
+      ],
+      "products": [
+        "*"
+      ],
+      "gates": [
+        "ownership",
+        "static-analysis",
+        "framework",
+        "sqlite-generator",
+        "contracts"
+      ]
+    },
+    "tooling": {
+      "description": "All discovered Python tooling targets, once on a portable POSIX host.",
+      "suites": [
+        "tooling"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ]
+    },
+    "sqlite": {
+      "description": "Existing SQLite gate contracts plus all classified FFI targets.",
+      "suites": [
+        "sqlite-ffi"
+      ],
+      "targets": [
+        "test/unit_test/integration/db_downgrade_v10_to_v9_test.dart",
+        "test/unit_test/integration/db_multi_version_downgrade_test.dart",
+        "test/unit_test/integration/db_multi_version_upgrade_test.dart",
+        "test/unit_test/integration/db_v25_msg_c2c_sender_did_test.dart",
+        "test/unit_test/integration/db_v30_channel_has_purchased_test.dart",
+        "test/unit_test/integration/sqlite_migration_matrix_test.dart",
+        "test/unit_test/integration/sqlite_migration_v34_test.dart",
+        "test/unit_test/service/database_migration_orchestrator_test.dart",
+        "test/unit_test/service/database_snapshot_service_test.dart",
+        "test/unit_test/service/db_migration_encryption_test.dart",
+        "test/unit_test/service/embedded_schema_asset_sync_test.dart",
+        "test/unit_test/service/migration_atomic_failure_test.dart",
+        "test/unit_test/service/migration_baseline_inventory_test.dart",
+        "test/unit_test/service/migration_downgrade_v19_to_v25_exec_test.dart",
+        "test/unit_test/service/migration_downgrade_v19_to_v25_test.dart",
+        "test/unit_test/service/migration_manifest_test.dart",
+        "test/unit_test/service/migration_missing_path_test.dart",
+        "test/unit_test/service/migration_script_planner_test.dart",
+        "test/unit_test/service/migration_service_v25_test.dart",
+        "test/unit_test/service/migration_v36_message_id_test.dart",
+        "test/unit_test/service/migration_v37_channel_scope_test.dart",
+        "test/unit_test/service/schema_contract_test.dart",
+        "test/unit_test/service/schema_fingerprint_test.dart",
+        "test/unit_test/service/sqlite_uid_isolation_test.dart"
+      ],
+      "platforms": [
+        "linux",
+        "macos",
+        "web"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership",
+        "sqlite-generator"
+      ]
+    },
+    "e2ee": {
+      "description": "Existing E2EE/protocol family plus real native crypto targets.",
+      "suites": [
+        "crypto-ffi"
+      ],
+      "prefixes": [
+        "test/unit_test/service/e2ee/",
+        "test/unit_test/service/protocol/"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership",
+        "static-analysis"
+      ]
+    },
+    "routes": {
+      "suites": [
+        "route-smoke"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "backend": {
+      "suites": [
+        "backend-contract"
+      ],
+      "platforms": [
+        "linux",
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "golden": {
+      "suites": [
+        "golden"
+      ],
+      "platforms": [
+        "macos"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "device-single": {
+      "suites": [
+        "device-single"
+      ],
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "products": [
+        "*"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "device-pair": {
+      "suites": [
+        "device-pair"
+      ],
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "products": [
+        "*"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "native-ui": {
+      "suites": [
+        "native-ui"
+      ],
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "products": [
+        "*"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "device": {
+      "suites": [
+        "device-single",
+        "device-pair",
+        "native-ui"
+      ],
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "products": [
+        "*"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
+    "web": {
+      "suites": [
+        "unit",
+        "widget",
+        "component",
+        "sqlite-ffi"
+      ],
+      "platforms": [
+        "web"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    }
+  },
+  "legacy_selection": {
+    "commit": "9f5d36e5b852f0a3dc20c94a0997fde82d9852d2",
+    "source": ".github/workflows/ci.yml Run unit/widget tests",
+    "excluded_prefixes": [
+      "test/unit_test/integration/",
+      "test/unit_test/smoke/"
+    ],
+    "excluded_targets": [
+      "test/unit_test/service/e2ee_health_check_service_test.dart"
+    ]
+  },
+  "product_artifacts": [
+    "lib/app_core/feature_flags/generated_product_features.dart",
+    "lib/config/router/generated_product_feature_routes.dart",
+    "lib/app_core/feature_flags/generated_channel_order_widget.dart",
+    "android/app/product-features.properties",
+    "android/app/src/debug/AndroidManifest.xml",
+    "android/app/src/profile/AndroidManifest.xml",
+    "android/app/src/release/AndroidManifest.xml"
+  ]
+}

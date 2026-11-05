@@ -200,5 +200,60 @@ class DerivedRealFixtureTest(unittest.TestCase):
         self.assertIn(result.test_status, ("PASS", "PASS_WITH_SKIPS"))
 
 
+class MachineEvidenceIntegrityTest(unittest.TestCase):
+    def test_nonzero_exit_is_not_success_even_with_complete_green_events(self):
+        result = parse_machine_events(load_lines('pass.jsonl'), 139)
+        self.assertEqual(result.test_status, 'BLOCKED')
+        self.assertEqual(result.reason_code, 'PROCESS_EXIT_NONZERO')
+
+    def test_duplicate_terminal_event_cannot_inflate_execution(self):
+        lines = load_lines('pass.jsonl')
+        lines.insert(-1, '{"type":"testDone","testID":3,"result":"success"}')
+        result = parse_machine_events(lines, 0)
+        self.assertEqual(result.executed, 2)
+        self.assertEqual(result.reason_code, 'INVALID_MACHINE_EVENTS')
+
+    def test_started_test_without_completion_is_incomplete_even_with_done_true(self):
+        lines = load_lines('pass.jsonl')
+        lines.insert(-1, '{"type":"testStart","test":{"id":99,"name":"unfinished"}}')
+        self.assertEqual(parse_machine_events(lines, 0).reason_code, 'INVALID_MACHINE_EVENTS')
+
+    def test_truncated_event_cannot_be_treated_as_an_ordinary_banner(self):
+        lines = load_lines('pass.jsonl')
+        lines.insert(-1, '{"type":"testDone"')
+        self.assertEqual(parse_machine_events(lines, 0).reason_code, 'INVALID_MACHINE_EVENTS')
+
+    def test_assertion_followed_by_runner_crash_is_terminal_business_failure(self):
+        lines = [line for line in load_lines('fail.jsonl') if '"type": "done"' not in line]
+        result = parse_machine_events(lines, 137)
+        self.assertEqual(result.test_status, 'FAIL')
+        self.assertEqual(result.failure_class, 'business')
+
+    def test_unknown_error_cannot_hide_behind_successful_terminal_events(self):
+        lines = load_lines('pass.jsonl')
+        lines.insert(-1, '{"type":"error","message":"unexpected error","isFailure":false}')
+        self.assertEqual(parse_machine_events(lines, 0).test_status, 'FAIL')
+
+    def test_global_failure_does_not_invent_a_failed_case_in_this_suite(self):
+        lines = load_lines('pass.jsonl')
+        lines[-1] = '{"type":"done","success":false}'
+        result = parse_machine_events(lines, 1)
+        self.assertEqual(result.test_status, 'FAIL')
+        self.assertEqual(result.failed, 0)
+        self.assertEqual(result.passed, 2)
+        self.assertEqual(result.reason_code, 'RUNNER_REPORTED_FAILURE')
+
+    def test_duplicate_done_event_is_invalid(self):
+        result = parse_machine_events(load_lines('pass.jsonl') + ['{"type":"done","success":true}'], 0)
+        self.assertEqual(result.reason_code, 'INVALID_MACHINE_EVENTS')
+
+    def test_executed_and_actually_run_have_distinct_skip_semantics(self):
+        result = parse_machine_events(load_lines('pass_with_skips.jsonl'), 0)
+        self.assertEqual(result.executed, 2)
+        self.assertEqual(result.actually_run, 1)
+        self.assertEqual(result.passed, 1)
+        self.assertEqual(result.to_dict()['actually_run'], 1)
+
+
 if __name__ == "__main__":
     unittest.main()

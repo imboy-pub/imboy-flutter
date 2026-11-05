@@ -1,25 +1,13 @@
-// DF-09 生产只读群契约（group + group_member GET 只读，纯 dart test，无设备）。
+// 隔离后端的群只读契约（group + group_member GET，纯 Dart，无设备）。
+// 保留密码预哈希迁移的 md5→明文兼容验证，使用合成账号及已加入群 fixture。
+// 历史文件名保留以避免破坏引用；运行时仅接受显式 loopback 环境。
 //
-// 背景（2026-08-27）：后端 alpha.69 含 2026-08-26 密码预哈希迁移（imboy
-// ba8da098：verify 先试 hmac(sha256(明文)) 新格式，失败回退 hmac(md5(明文))
-// 旧存量格式）。存量账号（存储 hmac(md5hex(明文))）在 md5 传输下恒
-// errorPassword，真实客户端（passport_notifier）以 md5 失败→明文重试兼容。
-// 共享 test/unit_test/api/api_test_client.dart 仅发 md5，暂无法登录
-// alpha.69 生产；本文件按「确有必要才新增」落在 integration_test/demo_flow/，
-// 自包含 HTTP/签名客户端（不依赖共享客户端内部状态），登录镜像真实客户端
-// 的 md5→明文回退，断言口径 1:1 复刻
-// test/unit_test/api/{group,group_member}_api_test.dart（08-19 基线 6+5）。
-//
-// 运行（生产严格只读，双重 opt-in 门禁，默认 SKIP）：
-//   API_BASE_URL=https://pro.imboy.pub \
-//   IMBOY_SOLIDIFIED_KEY=<bake 解码 key（env_pro.g.dart XOR）> \
-//   TEST_PHONE=118@imboy.pub TEST_PASSWORD=<生产测试账号密码> \
-//   DEMO_FLOW_PRO_READONLY=true \
-//   dart test integration_test/demo_flow/group_pro_readonly_contract_test.dart \
-//     --concurrency=1
-//
-// 安全约束：仅登录 POST + GET 只读端点；绝不调用写端点、不设置
-// TEST_ALLOW_API_WRITES；生产账号 118@imboy.pub（uid=4）为历史只读契约账号。
+// 通过统一 backend-contract profile 运行；必须提供：
+// IMBOY_TEST_ISOLATED=true APP_ENV=local DEMO_FLOW_LOCAL_READONLY=true
+// API_BASE_URL=http://127.0.0.1:<isolated-port>
+// IMBOY_SOLIDIFIED_KEY=<isolated-signing-key>
+// TEST_PHONE=<synthetic-account> TEST_PASSWORD=<synthetic-password>
+// 仅登录 POST + GET 只读端点；不调用业务写端点、不启用 API writes。
 
 @TestOn('vm')
 library;
@@ -30,17 +18,24 @@ import 'dart:io';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:test/test.dart';
 
-const _proBase = 'https://pro.imboy.pub';
+bool _isIsolatedTarget(String value) {
+  final uri = Uri.tryParse(value);
+  if (uri == null || !['http', 'https'].contains(uri.scheme) ||
+      uri.userInfo.isNotEmpty) return false;
+  final host = uri.host.toLowerCase();
+  final address = InternetAddress.tryParse(host);
+  return address?.isLoopback ?? false;
+}
 
 /// 自包含最小客户端：HMAC-SHA512 请求签名 + Bearer 鉴权 + JSON envelope 解析。
-class _ProReadOnlyClient {
+class _ReadOnlyContractClient {
   final Uri base;
   final String signingKey;
   final String did = 'e2e-dart-test-001';
   String? _token;
   String? _uid;
 
-  _ProReadOnlyClient(this.base, this.signingKey);
+  _ReadOnlyContractClient(this.base, this.signingKey);
 
   String? get currentUid => _uid;
 
@@ -193,36 +188,33 @@ String? _firstGid(dynamic payload) {
 }
 
 void main() {
-  late _ProReadOnlyClient client;
+  late _ReadOnlyContractClient client;
   bool ready = false;
-  String skipReason = '';
   String? sampleGid;
   bool md5Rejected = false;
   bool plainRetryOk = false;
 
   setUpAll(() async {
     final env = Platform.environment;
-    final optedIn = (env['DEMO_FLOW_PRO_READONLY'] ?? '') == 'true';
+    final optedIn = env['DEMO_FLOW_LOCAL_READONLY'] == 'true' &&
+        env['IMBOY_TEST_ISOLATED'] == 'true' && env['APP_ENV'] == 'local';
     final url = env['API_BASE_URL'] ?? '';
     final key = env['IMBOY_SOLIDIFIED_KEY']?.trim() ?? '';
-    if (!optedIn || url != _proBase || key.isEmpty) {
-      skipReason =
-          '需要 API_BASE_URL=$_proBase + IMBOY_SOLIDIFIED_KEY + '
-          'DEMO_FLOW_PRO_READONLY=true 显式 opt-in';
-      return;
+    if (!optedIn || !_isIsolatedTarget(url) || key.isEmpty) {
+      fail('ENV_MISSING: 显式 loopback API_BASE_URL、隔离签名密钥、'
+          'IMBOY_TEST_ISOLATED=true、APP_ENV=local、'
+          'DEMO_FLOW_LOCAL_READONLY=true 均为必需条件');
     }
     final account = env['TEST_PHONE'] ?? '';
     final password = env['TEST_PASSWORD'] ?? '';
     if (account.isEmpty || password.isEmpty) {
-      skipReason = '需要 TEST_PHONE/TEST_PASSWORD 生产只读测试账号';
-      return;
+      fail('ENV_MISSING: 需要合成 TEST_PHONE/TEST_PASSWORD 只读测试账号');
     }
-    client = _ProReadOnlyClient(Uri.parse(_proBase), key);
+    client = _ReadOnlyContractClient(Uri.parse(url), key);
     final r = await client.loginCompat(account, password);
     if (r['ok'] != true) {
       final resp = r['resp'] as Map<String, dynamic>;
-      skipReason = '生产登录失败（code=${resp['code']} msg=${resp['msg']}）';
-      return;
+      fail('隔离后端登录失败（code=${resp['code']} msg=${resp['msg']}）');
     }
     md5Rejected = r['md5Rejected'] == true;
     plainRetryOk = r['plainRetryOk'] == true;
@@ -230,12 +222,16 @@ void main() {
       '/api/v1/group/page',
       query: {'page': '1', 'size': '10', 'attr': 'join'},
     );
-    if (page['code'] == 0) sampleGid = _firstGid(page['payload']);
+    _assertOk(page, 'setUpAll group/page');
+    sampleGid = _firstGid(page['payload']);
+    if (sampleGid == null) {
+      fail('ENV_MISSING: 合成账号需要至少一个已加入群 fixture');
+    }
     ready = true;
   });
 
   bool requireReady() {
-    if (!ready) markTestSkipped(skipReason);
+    expect(ready, isTrue, reason: '隔离契约 setUpAll 未成功');
     return ready;
   }
 

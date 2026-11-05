@@ -13,9 +13,8 @@
 #      + git diff --check
 #   5. py_compile 全部控制面脚本
 #   6. 框架自检（唯一 target / 假绿 / 凭证字段 / requirement 枚举 / catalog 页覆盖）
-#   7. product-feature-manifest 漂移检查（只读；stale => 记 BLOCKED_PRODUCT_DRIFT
-#      环境项并继续，gate 仍可退出 0 —— 漂移由上层建模为 BLOCKED，不是框架红，
-#      且绝不在此重生成产品路由）。
+#   7. product-feature-manifest 只读校验当前产品生成物；缺源或漂移阻塞，
+#      不重生成路由，不再强加历史 full-selected profile。
 #
 # 测试钩子（供 test/tooling/auto_test/test_gate.py 注入负向用例）：
 #   AUTO_TEST_FRAMEWORK_NEGATIVE=<case>  =>  只运行框架自检的第 6 步，
@@ -23,9 +22,17 @@
 #   target_conflict, credential_field}；注入必须使 gate 非零退出。
 #   未设置该变量时行为零差异（完整串行 gate）。
 #
-# 退出码：0=框架验收通过；1=任一必需检查失败；64=用法/注入用例名错误。
+# 退出码：0=框架验收通过；1=检查失败；2=环境/产品契约阻塞；64=用法错误。
 
 set -uo pipefail
+
+CHECKS_ONLY=false
+case "${1:-}" in
+  --checks-only) CHECKS_ONLY=true; shift ;;
+  "") ;;
+  *) echo "usage: $0 [--checks-only]" >&2; exit 64 ;;
+esac
+[ "$#" -eq 0 ] || { echo "unexpected arguments" >&2; exit 64; }
 
 APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKEND_ROOT="${IMBOY_BACKEND_ROOT:-$APP_ROOT/../imboy}"
@@ -187,12 +194,23 @@ fi
 # ---------------------------------------------------------------------------
 cd "$APP_ROOT"
 
-# 1. tooling 单元测试（含凭证负向测试）
-if (cd "$APP_ROOT" && PYTHONPATH="$APP_ROOT/test/tooling/auto_test${PYTHONPATH:+:$PYTHONPATH}" python3 -m unittest discover -s test/tooling -p 'test_*.py' >"$AUTO_TEST_REPORT_ROOT/gate_unittest.log" 2>&1); then
-  record "tooling_unittest" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_unittest.log")"
+# 0. 全仓 Git 跟踪测试归属是硬门禁，不以业务测试已通过表述。
+if python3 scripts/auto_test.py execution-check >"$AUTO_TEST_REPORT_ROOT/gate_ownership.log" 2>&1; then
+  record "execution_ownership" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_ownership.log")"
 else
-  code=$?
-  record "tooling_unittest" "$code" "log: $AUTO_TEST_REPORT_ROOT/gate_unittest.log"
+  record "execution_ownership" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_ownership.log"
+fi
+
+# 1. --checks-only 供统一执行计划使用：tooling 实例由计划执行一次。
+# 单独调用 gate 仍执行全部已声明工具测试，避免 unittest 路径规则分叉。
+if ! $CHECKS_ONLY; then
+  TOOLING_PLATFORM="$(python3 -c 'import sys; print({"darwin": "macos", "win32": "windows"}.get(sys.platform, sys.platform))')"
+  if python3 scripts/auto_test.py execution-run --profile tooling --platform "$TOOLING_PLATFORM" \
+      --artifact-dir "$AUTO_TEST_REPORT_ROOT/tooling" >"$AUTO_TEST_REPORT_ROOT/gate_unittest.log" 2>&1; then
+    record "tooling_unittest" 0 "$(tail -1 "$AUTO_TEST_REPORT_ROOT/gate_unittest.log")"
+  else
+    record "tooling_unittest" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_unittest.log"
+  fi
 fi
 
 # 2. validate --strict
@@ -243,30 +261,35 @@ else
   record "framework_selfcheck" "$?" "log: $AUTO_TEST_REPORT_ROOT/gate_selfcheck.log"
 fi
 
-# 7. product-feature-manifest 漂移（只读；非致命，建模为环境 BLOCKED 项）
+# 7. product-feature-manifest 漂移（只读；未验证则阻塞）
 if [ ! -f "$BACKEND_ROOT/scripts/generate_product_features.py" ]; then
   DRIFT_STATUS="BLOCKED_PRODUCT_DRIFT"
   DRIFT_DETAIL="backend repo not available at $BACKEND_ROOT（CI 环境无 ../imboy；无法只读核对 profile 漂移）"
   printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
-  printf '[gate] %-26s ENV(-) %s（不阻断 gate）\n' "product_drift" "$DRIFT_DETAIL"
-elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --require-profile full-selected) >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
+  printf '[gate] %-26s ENV(-) %s（必需契约未验证）\n' "product_drift" "$DRIFT_DETAIL"
+elif (cd "$BACKEND_ROOT" && python3 scripts/generate_product_features.py --check --app-dir "$APP_ROOT") >"$AUTO_TEST_REPORT_ROOT/gate_drift.log" 2>&1; then
   DRIFT_STATUS="OK"
-  DRIFT_DETAIL="product feature manifest 与 full-selected 生成物一致"
+  DRIFT_DETAIL="product feature manifest 与当前产品生成物一致"
   printf '[gate] %-26s OK %s\n' "product_drift" "$DRIFT_DETAIL"
 else
   drift_code=$?
   DRIFT_STATUS="BLOCKED_PRODUCT_DRIFT"
   DRIFT_DETAIL="$(head -1 "$AUTO_TEST_REPORT_ROOT/gate_drift.log" | tr -d '\r')"
   printf 'BLOCKED_PRODUCT_DRIFT: %s\n' "$DRIFT_DETAIL"
-  printf '[gate] %-26s ENV(%s) %s（不阻断 gate；不得重生成产品路由）\n' "product_drift" "$drift_code" "$DRIFT_DETAIL"
+  printf '[gate] %-26s ENV(%s) %s（必需契约未验证；不得重生成产品路由）\n' "product_drift" "$drift_code" "$DRIFT_DETAIL"
 fi
 
 # ---------------------------------------------------------------------------
 # 汇总 + 退出码
 # ---------------------------------------------------------------------------
 overall=0
+[ "$DRIFT_STATUS" = "OK" ] || overall=2
 for code in "${CHECK_CODES[@]}"; do
-  [ "$code" -ne 0 ] && overall=1
+  if [ "$code" -eq 2 ]; then
+    [ "$overall" -ne 1 ] && overall=2
+  elif [ "$code" -ne 0 ]; then
+    overall=1
+  fi
 done
 
 SUMMARY_PATH_DIR="$(dirname "$SUMMARY_PATH")"
@@ -289,7 +312,8 @@ details = os.environ['SUMMARY_DETAILS'].splitlines()
 summary = {
     'schema_version': 1,
     'gate': 'check_auto_test_framework.sh',
-    'result': 'PASS' if overall == 0 else 'FAIL',
+    'result': 'PASS' if overall == 0 else ('BLOCKED' if overall == 2 else 'FAIL'),
+    'reason_code': 'ENV_MISSING' if overall == 2 else ('CHECK_FAILED' if overall else None),
     'negative_injection': negative or None,
     'checks': [
         {'name': name, 'exit_code': code, 'detail': detail}
@@ -298,7 +322,7 @@ summary = {
     'environment': {
         'product_drift_status': drift_status,
         'product_drift_detail': drift_detail,
-        'product_drift_is_gate_fatal': False,
+        'product_drift_is_gate_fatal': True,
     },
 }
 target = Path(path)
@@ -307,5 +331,5 @@ tmp.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + '\n', encodin
 os.replace(tmp, target)
 PY
 
-printf '[gate] 总结: %s（明细: %s）\n' "$( [ $overall -eq 0 ] && echo PASS || echo FAIL )" "$SUMMARY_PATH"
+printf '[gate] 总结: %s（明细: %s）\n' "$( [ $overall -eq 0 ] && echo PASS || { [ $overall -eq 2 ] && echo BLOCKED || echo FAIL; } )" "$SUMMARY_PATH"
 exit "$overall"

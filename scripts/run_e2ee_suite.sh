@@ -1,40 +1,5 @@
 #!/usr/bin/env bash
-# E2EE 客户端安全验证套件（一键可审计）
-# 用法: bash scripts/run_e2ee_suite.sh
-# 前置: flutter pub get && dart pub global activate protoc_plugin (可选)
-set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
-BACKEND_DIR="$(cd "$PROJECT_DIR/../imboy" && pwd)"
-python3 "$BACKEND_DIR/scripts/generate_product_features.py" \
-  --check --require-profile full-selected || {
-  echo "测试版本必须使用 full-selected 全 features 生成物" >&2
-  exit 2
-}
-cd "$PROJECT_DIR"
-
-echo "=== IMBoy E2EE 客户端安全验证套件 ==="
-echo ""
-
-# 1. 静态分析
-echo "--- [1/3] dart analyze (E2EE 相关) ---"
-dart analyze lib/service/e2ee/ lib/service/protocol/ --fatal-infos
-echo "[OK] 静态分析零警告"
-echo ""
-
-# 2. E2EE 单元测试套件
-echo "--- [2/3] flutter test test/unit_test/service/e2ee/ ---"
-flutter test test/unit_test/service/e2ee/ --reporter compact
-echo ""
-
-# 3. 协议集成测试
-echo "--- [3/3] flutter test test/unit_test/service/protocol/ ---"
-if ls test/unit_test/service/protocol/*_test.dart 1>/dev/null 2>&1; then
-    flutter test test/unit_test/service/protocol/ --reporter compact
-else
-    echo "[SKIP] 无 protocol 测试文件"
-fi
-echo ""
-
-echo "=== E2EE 客户端验证全部通过 ==="
+# E2EE 专项沿用统一归属、机器事件判定和对账；不再维护另一套文件列表。
+set -uo pipefail
+APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec bash "$APP_ROOT/scripts/run_test_suite.sh" --profile e2ee "$@"

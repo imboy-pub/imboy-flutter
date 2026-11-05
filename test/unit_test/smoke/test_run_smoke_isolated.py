@@ -1,86 +1,122 @@
-"""Runner contracts without Flutter compilation or application/network startup."""
+"""The legacy route command delegates selection and verdicts to one runner."""
 import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
-RUNNER = Path(__file__).with_name("run_smoke_isolated.sh")
+RUNNER = Path(__file__).with_name('run_smoke_isolated.sh')
 REPO = RUNNER.parents[3]
+sys.path.insert(0, str(REPO / 'scripts'))
+from auto_test_lib.execution_runner import _persist_process_receipt, _record_attempt, _verdict
 
 
 class IsolatedRunnerTests(unittest.TestCase):
-    def run_case(self, mode, names=("welcome",), exit_code=0, include_quarantined=False):
-        with tempfile.TemporaryDirectory(prefix="imboy-runner-contract-") as tmp:
-            root = Path(tmp)
-            executable = root / "flutter"
-            executable.write_text("""#!/usr/bin/env python3
-import json, os, sys
-assert os.getcwd() == os.environ['EXPECTED_REPO']
-assert sys.argv[1:3] == ['test', 'test/unit_test/smoke/route_smoke_test.dart']
-assert ('--dart-define=SMOKE_INCLUDE_QUARANTINED=true' in sys.argv) == (os.environ['INCLUDE_QUARANTINED'] == 'True')
-print(json.dumps([]))  # Flutter/dependency log lines can contain valid non-event JSON.
-mode = os.environ['FAKE_MODE']
-name = os.environ.get('FAKE_NAME', 'welcome')
-if mode != 'missing':
-    title = '[quarantine] ' + name + ' — fixture' if mode == 'skip' else name + ' (/fixture) rendering'
-    print(json.dumps({'type': 'testStart', 'test': {'id': 9, 'name': title}}))
-    print(json.dumps({'type': 'testDone', 'testID': 9, 'result': 'failure' if mode == 'fail' else 'success', 'skipped': mode == 'skip'}))
-if mode != 'unfinished':
-    print(json.dumps({'type': 'done', 'success': mode != 'fail'}))
-sys.exit(int(os.environ['FAKE_EXIT']))
+    def invoke(self, options=(), exit_code=0):
+        with tempfile.TemporaryDirectory(prefix='imboy-route-wrapper-') as tmp:
+            temporary = Path(tmp)
+            shim = temporary / 'python3'
+            # Observe the real shell boundary. This shim supplies no test verdict;
+            # it only proves the wrapper preserves the unified CLI's exit code.
+            shim.write_text('#!' + sys.executable + '\n' + """import json, os, sys
+from pathlib import Path
+Path(os.environ['CAPTURE']).write_text(json.dumps({
+    'cwd': os.getcwd(), 'argv': sys.argv[1:],
+    'probe_quarantine': os.environ.get('IMBOY_SMOKE_INCLUDE_QUARANTINED'),
+}))
+print('unified runner receipt')
+sys.exit(int(os.environ['CLI_EXIT']))
 """)
-            executable.chmod(0o755)
-            env = dict(os.environ, PATH=str(root) + os.pathsep + os.environ['PATH'],
-                       EXPECTED_REPO=str(REPO), FAKE_MODE=mode, FAKE_NAME=names[0],
-                       FAKE_EXIT=str(exit_code), INCLUDE_QUARANTINED=str(include_quarantined), SMOKE_OUTPUT_DIR=str(root / 'evidence'))
-            args = ['bash', str(RUNNER), '--quiet']
-            if include_quarantined:
-                args += ['--include-quarantined']
-            for name in names:
-                args += ['--route', name]
-            return subprocess.run(args, cwd=tmp, env=env, capture_output=True, text=True)
+            shim.chmod(0o755)
+            env = {**os.environ, 'PATH': str(temporary) + os.pathsep + os.environ['PATH'],
+                   'CAPTURE': str(temporary / 'capture.json'), 'CLI_EXIT': str(exit_code),
+                   'SMOKE_OUTPUT_DIR': str(temporary / 'evidence')}
+            env.pop('IMBOY_SMOKE_INCLUDE_QUARANTINED', None)
+            result = subprocess.run(['bash', str(RUNNER), *options], cwd=temporary,
+                                    env=env, capture_output=True, text=True)
+            capture = temporary / 'capture.json'
+            return result, json.loads(capture.read_text()) if capture.exists() else None
 
-    def test_pass_and_repository_root(self):
-        result = self.run_case('pass')
-        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
-        self.assertIn('PASS=1 SKIP=0 FAIL=0', result.stdout)
+    def test_wrapper_selects_current_host_via_shared_cli(self):
+        result, receipt = self.invoke(['--quiet', '--route', 'welcome', '--route', 'e2ee_key_recovery'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(receipt['cwd'], str(REPO))
+        self.assertEqual(receipt['argv'][:4], ['scripts/auto_test.py', 'execution-run', '--profile', 'routes'])
+        platform = receipt['argv'][receipt['argv'].index('--platform') + 1]
+        self.assertEqual(platform, 'macos' if sys.platform == 'darwin' else 'linux')
+        self.assertEqual(receipt['argv'][6:10], ['--variant', 'route:welcome', '--variant', 'route:e2ee_key_recovery'])
+        self.assertIn('--artifact-dir', receipt['argv'])
+        self.assertNotIn('flutter', receipt['argv'])
 
-    def test_skip_is_incomplete_not_pass(self):
-        result = self.run_case('skip')
-        self.assertEqual(2, result.returncode)
-        self.assertIn('PASS=0 SKIP=1', result.stdout)
-        self.assertNotIn('All selected routes executed and passed.', result.stdout)
+    def test_wrapper_preserves_failure_and_incomplete_exit_codes(self):
+        for exit_code in (0, 1, 2, 7):
+            with self.subTest(exit_code=exit_code):
+                result, _ = self.invoke(exit_code=exit_code)
+                self.assertEqual(result.returncode, exit_code)
+                self.assertNotIn('All selected routes executed and passed', result.stdout)
 
-    def test_missing_target_fails(self):
-        self.assertEqual(1, self.run_case('missing').returncode)
+    def test_include_quarantined_is_real_probe_flag_not_a_skip_waiver(self):
+        result, receipt = self.invoke(['--include-quarantined'], exit_code=2)
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(receipt['probe_quarantine'], 'true')
+        self.assertFalse(any('waiver' in value or 'allow-skip' in value for value in receipt['argv']))
 
-    def test_unfinished_report_fails(self):
-        self.assertEqual(1, self.run_case('unfinished').returncode)
+    def test_dry_run_only_delegates_plan(self):
+        result, receipt = self.invoke(['--dry-run', '--route', 'welcome'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(receipt['argv'][1], 'execution-plan')
+        self.assertNotIn('--artifact-dir', receipt['argv'])
 
-    def test_failure_fails(self):
-        self.assertEqual(1, self.run_case('fail', exit_code=1).returncode)
+    def test_missing_value_or_unknown_flag_never_reaches_runner(self):
+        for options in (['--route'], ['--unknown']):
+            with self.subTest(options=options):
+                result, receipt = self.invoke(options)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIsNone(receipt)
 
-    def test_nonzero_process_cannot_certify_success(self):
-        self.assertEqual(1, self.run_case('pass', exit_code=1).returncode)
+    def test_unknown_route_is_rejected_by_real_catalog_cli(self):
+        result = subprocess.run(['bash', str(RUNNER), '--dry-run', '--route', 'not_a_registered_route'],
+                                cwd=REPO, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('UNKNOWN_SELECTED_VARIANT', result.stderr)
 
-    def test_digit_route_names_are_selected(self):
-        result = self.run_case('pass', names=('e2ee_key_recovery',))
-        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
 
-    def test_quarantine_probe_executes_instead_of_certifying_a_skip(self):
-        result = self.run_case('pass', names=('chat',), include_quarantined=True)
-        self.assertEqual(0, result.returncode, result.stdout + result.stderr)
-        result = self.run_case('skip', names=('chat',), include_quarantined=True)
-        self.assertEqual(2, result.returncode, result.stdout + result.stderr)
-        result = self.run_case('fail', names=('chat',), exit_code=1, include_quarantined=True)
-        self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+class SharedRouteVerdictTests(unittest.TestCase):
+    def verdict(self, results, exit_code=0, done=True):
+        events = []
+        for index, kind in enumerate(results):
+            events.extend([
+                {'type': 'testStart', 'test': {'id': index, 'name': 'route case ' + str(index)}},
+                {'type': 'testDone', 'testID': index, 'result': 'failure' if kind == 'fail' else 'success',
+                 'skipped': kind == 'skip'},
+            ])
+        if done:
+            events.append({'type': 'done', 'success': 'fail' not in results})
+        lines = [json.dumps(event) for event in events]
+        evidence = tempfile.TemporaryDirectory(prefix='imboy-route-evidence-')
+        self.addCleanup(evidence.cleanup)
+        path = Path(evidence.name) / 'machine.jsonl'
+        path.write_text('\n'.join(lines))
+        target = 'test/unit_test/smoke/route_smoke_test.dart'
+        receipt = _persist_process_receipt({'exit_code': exit_code,
+            'log': str(path), 'machine': str(path),
+            'command': ['flutter', 'test', target, '--machine']}, Path(evidence.name))
+        attempt = _record_attempt(REPO, {'commit': 'synthetic-route-contract'},
+            {'id': 'synthetic-route', 'target': target, 'dependencies': []}, receipt, lines)
+        return _verdict([attempt])
 
-    def test_unknown_route_fails_before_flutter(self):
-        result = self.run_case('pass', names=('not_a_registered_route',))
-        self.assertEqual(1, result.returncode)
-        self.assertIn('unknown route', result.stderr)
+    def test_zero_all_skip_partial_skip_and_incomplete_stream_never_pass(self):
+        for results, done in [([], True), (['skip'], True), (['pass', 'skip'], True), (['pass'], False)]:
+            with self.subTest(results=results, done=done):
+                self.assertNotEqual(self.verdict(results, done=done)['test_status'], 'PASS')
+        self.assertEqual(self.verdict(['pass', 'skip'])['reason_code'], 'UNEXPECTED_SKIP')
+
+    def test_nonzero_process_vetoes_successful_events(self):
+        self.assertEqual(self.verdict(['pass'])['test_status'], 'PASS')
+        self.assertNotEqual(self.verdict(['pass'], exit_code=1)['test_status'], 'PASS')
+        self.assertEqual(self.verdict(['fail'], exit_code=1)['test_status'], 'FAIL')
 
 
 if __name__ == '__main__':
