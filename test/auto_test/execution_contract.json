@@ -105,7 +105,7 @@
       "coverage": true
     },
     "component": {
-      "description": "In-process simulated integration, fake HTTP/services.",
+      "description": "In-process component contracts, simulated services and registered local assets.",
       "runner": "flutter-machine",
       "platforms": [
         "linux",
@@ -416,6 +416,19 @@
     }
   ],
   "overrides": {
+    "test/uiux/contract/font_contract_test.dart": {
+      "suite": "component",
+      "platforms": [
+        "macos"
+      ],
+      "dependencies": [
+        "registered-golden-font"
+      ],
+      "basis": [
+        "All five cases exercise the registered local font contract, including file SHA, CJK glyph coverage and Flutter FontLoader; there is no pixel baseline comparison.",
+        "The existing golden_font_loader.dart registry accepts one macOS system font. Keep this contract in PR and full macOS runs; other platforms are not applicable. Missing or mismatched registered font blocks execution."
+      ]
+    },
     "scripts/auto_test.py": {
       "kind": "driver",
       "basis": [

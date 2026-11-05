@@ -213,7 +213,12 @@ def parse_machine_events(
             if isinstance(message, str) and ORACLE_PRINT_RE.search(message):
                 oracle_count += 1
         elif etype == "error":
-            message = event.get("message")
+            # Flutter's reporter uses "error"; existing framework adapters use
+            # "message". Keep the native text when present, falling back only
+            # when it is absent or unusable. Verdict rules below stay shared.
+            message = event.get("error")
+            if not isinstance(message, str) or not message.strip():
+                message = event.get("message")
             stack = event.get("stackTrace")
             message_text = message if isinstance(message, str) else ""
             stack_text = stack if isinstance(stack, str) else ""

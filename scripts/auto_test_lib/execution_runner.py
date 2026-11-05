@@ -100,14 +100,38 @@ def _verdict(attempts):
     return verdict
 
 
-def _worker_instances(plan, worker_platform=None, worker_suites=None, worker_product_profile=None):
+def _worker_instances(plan, worker_platform=None, worker_suites=None, worker_product_profile=None,
+                      *, coverage_only=False):
     suites = set(worker_suites or [])
     products = ({worker_product_profile} if isinstance(worker_product_profile, str)
                 else set(worker_product_profile or []))
     return [i for i in plan.get('instances', []) if i.get('selected')
             and (worker_platform is None or i.get('platform') == worker_platform)
             and (not suites or i.get('suite') in suites)
-            and (not products or i.get('product_profile') in products)]
+            and (not products or i.get('product_profile') in products)
+            and (not coverage_only or i.get('coverage_eligible', i.get('coverage')))]
+
+
+def host_worker_matrix(plan, coverage_platform='linux'):
+    """Partition the frozen obligations; never rediscover or exclude targets."""
+    selected = _worker_instances(plan)
+    if not selected:
+        raise ValueError('EMPTY_PLAN: host workers require selected execution instances')
+    if len(selected) != len({i['id'] for i in selected}):
+        raise ValueError('DUPLICATE_EXECUTION_INSTANCE')
+    operating_systems = {'linux': 'ubuntu-latest', 'macos': 'macos-latest'}
+    host_runners = {'flutter-machine', 'python-unittest', 'python-cases', 'python-recovery'}
+    for item in selected:
+        if item.get('platform') not in operating_systems or _runner_name(item) not in host_runners:
+            raise ValueError(f'HOST_WORKER_UNSUPPORTED: {item["id"]}; use its declared specialist orchestrator')
+    workers = []
+    for platform, suite in sorted({(i['platform'], i['suite']) for i in selected}):
+        instances = _worker_instances(plan, platform, [suite])
+        covered = platform == coverage_platform and any(
+            i.get('coverage_eligible', i.get('coverage')) for i in instances)
+        workers.append({'os': operating_systems[platform], 'platform': platform, 'suite': suite,
+                        'coverage': '--coverage' if covered else ''})
+    return {'include': workers}
 
 
 def _instance_upstream(plan, instance, upstream, require_gates):
@@ -161,15 +185,16 @@ def _companion_issue(instance, row):
 
 
 def reconcile(plan, results, upstream=None, *, worker_platform=None, worker_suites=None,
-              worker_product_profile=None, require_gates=True):
+              worker_product_profile=None, require_gates=True, coverage_only=False):
     """Reconcile a complete plan (or explicitly named worker) without path dedup.
 
     No disk writes occur here. Missing, duplicate, stale, unexpected, or unsupported
     successful receipts are failures of evidence, never successful business tests.
     ``require_gates=False`` is only for a worker; final summaries use the default.
     """
-    expected = _worker_instances(plan, worker_platform, worker_suites, worker_product_profile)
-    is_worker = bool(worker_platform or worker_suites or worker_product_profile)
+    expected = _worker_instances(plan, worker_platform, worker_suites, worker_product_profile,
+                                 coverage_only=coverage_only)
+    is_worker = bool(worker_platform or worker_suites or worker_product_profile or coverage_only)
     declared = {i.get('id'): i for i in plan.get('instances', [])}
     by_id, issues = defaultdict(list), []
     for row in results:
@@ -388,7 +413,8 @@ def _record_attempt(root, plan, instance, receipt, lines):
             'process_exit_code': receipt.get('exit_code'),
             'command': receipt.get('command', []),
             'product_artifact': receipt.get('product_artifact', {}),
-            'coverage': receipt.get('coverage'), 'native_evidence': receipt.get('native_evidence'),
+            'coverage': receipt.get('coverage'), 'coverage_sha256': receipt.get('coverage_sha256'),
+            'native_evidence': receipt.get('native_evidence'),
             'native_evidence_sha256': receipt.get('native_evidence_sha256'),
             'related_evidence': receipt.get('related_evidence', []), 'execution_errors': []}
 
@@ -693,6 +719,7 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
                 receipt['related_evidence'] = invocation.get('evidence_artifacts', [])
                 if group[0].get('coverage') and (output / 'lcov.info').is_file():
                     receipt['coverage'] = str(output / 'lcov.info')
+                    receipt['coverage_sha256'] = _file_sha256(output / 'lcov.info')
                 if invocation.get('evidence_kind') == 'junit':
                     receipt['lines'] = _patrol_events(adapters, root, invocation, receipt, group[0]['target'])
                 streams = split_machine_events(root, [i['target'] for i in pending], receipt['lines'], aliases)

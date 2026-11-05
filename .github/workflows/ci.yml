@@ -19,33 +19,45 @@ jobs:
   execution-plan:
     name: Test ownership and PR plan
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v7
       - name: Validate all tracked test ownership
         run: bash .github/scripts/validate_ci_test_paths.sh
       - name: Freeze expected instances
         run: python3 scripts/auto_test.py execution-plan --profile pr --output "${{ runner.temp }}/pr-plan.json"
+      - name: Derive host workers from the frozen plan
+        id: matrix
+        run: |
+          python3 scripts/auto_test.py execution-matrix \
+            --plan "${{ runner.temp }}/pr-plan.json" \
+            --output "${{ runner.temp }}/host-matrix.json"
+          python3 - "${{ runner.temp }}/host-matrix.json" <<'PY'
+          import json
+          import os
+          import sys
+          with open(sys.argv[1], encoding='utf-8') as source:
+              matrix = json.load(source)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('matrix=' + json.dumps(matrix, separators=(',', ':')) + '\n')
+          PY
       - uses: actions/upload-artifact@v7
         with:
           name: execution-plan
-          path: ${{ runner.temp }}/pr-plan.json
+          path: |
+            ${{ runner.temp }}/pr-plan.json
+            ${{ runner.temp }}/host-matrix.json
           if-no-files-found: error
 
   host-tests:
-    name: PR tests (${{ matrix.platform }})
+    name: PR tests (${{ matrix.platform }}, ${{ matrix.suite }})
     needs: execution-plan
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            platform: linux
-            coverage: '--coverage'
-          - os: macos-latest
-            platform: macos
-            coverage: ''
+      matrix: ${{ fromJSON(needs.execution-plan.outputs.matrix) }}
     defaults:
       run:
         working-directory: imboyapp
@@ -89,22 +101,56 @@ jobs:
           SDK_OUTCOME: ${{ steps.sdk.outcome }}
           DEPENDENCIES_OUTCOME: ${{ steps.dependencies.outcome }}
           WORKER_PLATFORM: ${{ matrix.platform }}
+          WORKER_SUITE: ${{ matrix.suite }}
           COVERAGE_OPTION: ${{ matrix.coverage }}
         run: |
           python3 scripts/auto_test.py execution-run \
             --plan "${{ runner.temp }}/execution-plan/pr-plan.json" \
-            --worker-platform "$WORKER_PLATFORM" $COVERAGE_OPTION \
+            --worker-platform "$WORKER_PLATFORM" --worker-suite "$WORKER_SUITE" $COVERAGE_OPTION \
             --upstream "sdk=$SDK_OUTCOME" --upstream "dependencies=$DEPENDENCIES_OUTCOME" \
-            --artifact-dir "${{ runner.temp }}/execution-${{ matrix.platform }}"
-      - name: Verify declared coverage threshold
-        if: matrix.platform == 'linux'
-        run: python3 scripts/auto_test.py execution-coverage --input "${{ runner.temp }}/execution-linux/coverage/lcov.info" --minimum 38
+            --artifact-dir "${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}"
       - name: Upload execution evidence even after failure
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: execution-${{ matrix.platform }}
-          path: ${{ runner.temp }}/execution-${{ matrix.platform }}/
+          name: execution-${{ matrix.platform }}-${{ matrix.suite }}
+          path: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}/
+          if-no-files-found: warn
+
+  coverage:
+    name: PR coverage (all Linux suites)
+    if: always()
+    needs: [execution-plan, host-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Download frozen PR plan
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          name: execution-plan
+          path: ${{ runner.temp }}/execution-plan
+      - name: Collect every Linux worker artifact
+        if: always()
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          pattern: execution-linux-*
+          path: ${{ runner.temp }}/linux-results
+          merge-multiple: false
+      - name: Reconcile declared coverage evidence and check the combined threshold
+        if: always()
+        run: |
+          python3 scripts/auto_test.py execution-coverage \
+            --plan "${{ runner.temp }}/execution-plan/pr-plan.json" \
+            --results "${{ runner.temp }}/linux-results" --platform linux \
+            --output "${{ runner.temp }}/execution-coverage/lcov.info" --minimum 38
+      - name: Retain combined coverage evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: execution-coverage
+          path: ${{ runner.temp }}/execution-coverage/
           if-no-files-found: warn
 
   quality-gates:
@@ -118,7 +164,7 @@ jobs:
   test-summary:
     name: IMBoy Test Summary
     if: always()
-    needs: [execution-plan, host-tests, quality-gates, contract-gates]
+    needs: [execution-plan, host-tests, coverage, quality-gates, contract-gates]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7

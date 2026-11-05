@@ -244,6 +244,65 @@ def product_environment_errors(root: Path, instance: dict, env: dict) -> list[st
     return product_artifact_evidence(root, instance, env)['errors']
 
 
+REGISTERED_GOLDEN_FONT_SOURCE = 'test/uiux/support/golden_font_loader.dart'
+
+
+def registered_golden_font_asset(root: Path) -> dict:
+    """Read the existing single literal asset; never evaluate Dart or copy its pins.
+
+    This deliberately accepts only the current declaration shape. A registry
+    migration requires adapter review rather than guessing a new font contract.
+    Parsing is independent of local font availability, so plans work on Linux.
+    """
+    try:
+        source = (root / REGISTERED_GOLDEN_FONT_SOURCE).read_text(encoding='utf-8')
+    except (OSError, UnicodeError) as error:
+        raise ValueError('REGISTERED_GOLDEN_FONT_REGISTRY_UNREADABLE:' +
+                         REGISTERED_GOLDEN_FONT_SOURCE) from error
+    # Preserve quoted text while removing the declaration's explanatory comments.
+    source = re.sub(r"'(?:\\.|[^'\\])*'|\"(?:\\.|[^\"\\])*\"|//[^\n]*|/\*[\s\S]*?\*/",
+                    lambda match: ' ' if match[0].startswith(('//', '/*')) else match[0], source)
+    declarations = re.findall(
+        r'\bconst\s+List<GoldenFontAsset>\s+kGoldenFontAssets\s*=\s*\[([\s\S]*?)\]\s*;', source)
+    literal = r"'[^'\\$\r\n]*'"
+    shape = (rf'\s*GoldenFontAsset\(\s*path:\s*(?P<path>{literal})\s*,'
+             rf'\s*sha256Hex:\s*(?P<sha256>{literal})\s*,'
+             rf'\s*licenseNote:\s*(?P<license>(?:{literal}\s*)+)\s*,\s*\),\s*')
+    asset = re.fullmatch(shape, declarations[0]) if len(declarations) == 1 else None
+    if asset is None:
+        raise ValueError('REGISTERED_GOLDEN_FONT_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+    registration = {'path': asset['path'][1:-1], 'sha256': asset['sha256'][1:-1],
+                    'license': ''.join(value[1:-1] for value in re.findall(literal, asset['license']))}
+    if (not Path(registration['path']).is_absolute()
+            or not re.fullmatch(r'[0-9a-f]{64}', registration['sha256'])
+            or not registration['license'].strip()):
+        raise ValueError('REGISTERED_GOLDEN_FONT_REGISTRY_INVALID:' + REGISTERED_GOLDEN_FONT_SOURCE)
+    return registration
+
+
+def registered_golden_font_errors(root: Path, instance: dict) -> list[str]:
+    """Check the licensed local asset without requiring or generating pixels.
+
+    This is only an environment prerequisite. The unchanged Dart cases still
+    verify glyph coverage, FontLoader and negative/synthetic contract behavior.
+    """
+    if 'registered-golden-font' not in instance.get('dependencies', []):
+        return []
+    try:
+        asset = registered_golden_font_asset(root)
+    except ValueError as error:
+        return [str(error)]
+    path = Path(asset['path'])
+    try:
+        if not path.is_file():
+            return ['REGISTERED_GOLDEN_FONT_MISSING:' + asset['path']]
+        if hashlib.sha256(path.read_bytes()).hexdigest() != asset['sha256']:
+            return ['REGISTERED_GOLDEN_FONT_HASH_MISMATCH:' + asset['path']]
+    except OSError:
+        return ['REGISTERED_GOLDEN_FONT_UNREADABLE:' + asset['path']]
+    return []
+
+
 def golden_environment_errors(root: Path, instance: dict, env: dict) -> list[str]:
     """Pinned engine, fonts and pre-existing baseline hashes form the golden contract.
 
@@ -522,6 +581,7 @@ def preflight_instance(root: Path, instance: dict, env: dict | None = None,
     errors = list(owned['errors'])
     errors.extend(backend_environment_errors(instance, env))
     errors.extend(product_environment_errors(root, instance, env))
+    errors.extend(registered_golden_font_errors(root, instance))
     errors.extend(golden_environment_errors(root, instance, env))
     errors.extend(acceptance_environment_evidence(root, instance, env)['errors'])
     runner = instance.get('runner')

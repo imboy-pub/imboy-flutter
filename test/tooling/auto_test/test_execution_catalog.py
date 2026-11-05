@@ -132,6 +132,57 @@ class ExecutionCatalogTest(unittest.TestCase):
             'suite': 'component', 'basis': ['Reviewed in-process transport fixture']}
         self.assertEqual(validate_catalog(self.root, self.cfg)['targets'][0]['suite'], 'component')
 
+    def add_registered_font_contract(self):
+        from auto_test_lib.execution_adapters import REGISTERED_GOLDEN_FONT_SOURCE
+        target = 'test/uiux/contract/font_contract_test.dart'
+        self.put(target, (ROOT / target).read_text())
+        self.put(REGISTERED_GOLDEN_FONT_SOURCE, (ROOT / REGISTERED_GOLDEN_FONT_SOURCE).read_text())
+        self.cfg['rules'].append({'id': 'font-support', 'paths': [REGISTERED_GOLDEN_FONT_SOURCE],
+                                  'classifier': 'support'})
+        self.cfg['overrides'][target] = load_contract(ROOT)['overrides'][target]
+        return target, REGISTERED_GOLDEN_FONT_SOURCE
+
+    def test_registered_font_contract_stays_in_pr_full_and_coverage_without_pixel_baselines(self):
+        target, source = self.add_registered_font_contract()
+        pr, full, covered = self.plan(), self.plan(profile='full'), self.plan(coverage=True)
+        for plan in (pr, full, covered):
+            rows = [row for row in plan['instances'] if row['selected'] and row['target'] == target]
+            self.assertEqual({'macos'}, {row['platform'] for row in rows})
+            self.assertTrue(rows)
+            for row in rows:
+                self.assertEqual('component', row['suite'])
+                self.assertEqual('flutter-machine', row['runner'])
+                self.assertIn('registered-golden-font', row['dependencies'])
+                self.assertIn(source, row['source_dependencies'])
+                self.assertNotIn('golden-baseline', row['dependencies'])
+                self.assertNotIn('test_name', row)  # The complete five-case file executes.
+        self.assertEqual({row['id'] for row in pr['instances'] if row['selected']},
+                         {row['id'] for row in covered['instances'] if row['selected']})
+        self.assertEqual(pr['counts']['assigned_targets'], full['counts']['assigned_targets'])
+
+    def test_linux_font_na_preserves_the_required_macos_obligation(self):
+        target, _ = self.add_registered_font_contract()
+        plan = self.plan(platforms=['linux'])
+        rows = {row['platform']: row for row in plan['instances'] if row['target'] == target}
+        self.assertEqual('PLATFORM_NA', rows['linux']['reason_code'])
+        self.assertEqual('NOT_APPLICABLE', rows['linux']['status'])
+        self.assertFalse(rows['linux']['required'])
+        self.assertEqual('OUT_OF_SCOPE', rows['macos']['reason_code'])
+        self.assertTrue(rows['macos']['required'])
+        self.assertNotEqual(rows['linux']['id'], rows['macos']['id'])
+
+    def test_changed_font_registration_shape_fails_the_ownership_gate(self):
+        _, source = self.add_registered_font_contract()
+        self.put(source, (self.root / source).read_text().replace(
+            'kGoldenFontAssets = [', 'kGoldenFontAssets = buildFontRegistry(['))
+        self.fail('REGISTERED_GOLDEN_FONT_REGISTRY_INVALID')
+
+    def test_untracked_font_registry_cannot_supply_an_execution_dependency(self):
+        _, source = self.add_registered_font_contract()
+        self.cfg['rules'].pop()  # Isolate the dependency check from dangling rule checks.
+        self.git('rm', '--cached', '--', source)
+        self.fail('REGISTERED_GOLDEN_FONT_REGISTRY_UNTRACKED')
+
     def test_dangling_target_reference_is_rejected(self):
         self.cfg['profiles']['pr']['targets'] = ['test/unit_test/missing_test.dart']
         self.fail('UNKNOWN_PROFILE_TARGET')

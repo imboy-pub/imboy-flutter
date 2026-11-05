@@ -5,6 +5,7 @@ import importlib.util
 import copy
 import json
 import os
+import re
 import subprocess
 import shutil
 import sys
@@ -19,6 +20,14 @@ from auto_test_lib import execution_cli, execution_gates
 
 
 class EntrypointTest(unittest.TestCase):
+    def ci_job(self, name):
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text(encoding='utf-8')
+        jobs = workflow.split('\njobs:\n', 1)[1]
+        match = re.search(r'^  ' + re.escape(name) + r':\n(.*?)(?=^  [\w-]+:\n|\Z)',
+                          jobs, re.MULTILINE | re.DOTALL)
+        self.assertIsNotNone(match, f'CI job is missing: {name}')
+        return match.group(1)
+
     def test_empty_forwarded_arguments_keep_default_and_explicit_profiles(self):
         with tempfile.TemporaryDirectory() as directory:
             binary = Path(directory) / 'python3'
@@ -220,12 +229,80 @@ class EntrypointTest(unittest.TestCase):
 
     def test_ci_jobs_attest_only_their_declared_prerequisite_gates(self):
         gates = execution_gates.merge_gate_statuses({}, {
-            'execution-plan': 'success', 'quality-gates': 'cancelled', 'contract-gates': 'failure'})
+            'execution-plan': 'success', 'quality-gates': 'cancelled',
+            'contract-gates': 'failure', 'coverage': 'failure'})
         self.assertEqual(gates['ownership'], 'success')
-        self.assertEqual(gates['framework'], 'cancelled')
-        self.assertEqual(gates['static-analysis'], 'cancelled')
-        self.assertEqual(gates['sqlite-generator'], 'cancelled')
-        self.assertEqual(gates['contracts'], 'failure')
+        self.assertEqual(gates['framework'], 'missing')
+        self.assertEqual(gates['static-analysis'], 'missing')
+        self.assertEqual(gates['sqlite-generator'], 'missing')
+        self.assertEqual(gates['contracts'], 'missing')
+        self.assertEqual(gates['quality-gates'], 'cancelled')
+        self.assertEqual(gates['contract-gates'], 'failure')
+        self.assertEqual(gates['coverage'], 'failure')
+
+    def test_failed_aggregate_preserves_individual_gate_evidence(self):
+        receipts = {'framework': {'status': 'PASS'}, 'sqlite-generator': {'status': 'FAIL'}}
+        for outcome in ('failure', 'cancelled', 'skipped'):
+            with self.subTest(outcome=outcome):
+                gates = execution_gates.merge_gate_statuses(receipts, {'quality-gates': outcome})
+                self.assertEqual(gates['quality-gates'], outcome)
+                self.assertEqual(gates['framework'], 'PASS')
+                self.assertEqual(gates['sqlite-generator'], 'FAIL')
+                self.assertEqual(gates['static-analysis'], 'missing')
+
+    def test_ci_worker_matrix_is_derived_from_the_same_frozen_plan(self):
+        plan = self.ci_job('execution-plan')
+        self.assertIn('matrix: ${{ steps.matrix.outputs.matrix }}', plan)
+        self.assertIn('execution-plan --profile pr --output "${{ runner.temp }}/pr-plan.json"', plan)
+        self.assertIn('execution-matrix', plan)
+        self.assertIn('--plan "${{ runner.temp }}/pr-plan.json"', plan)
+        self.assertIn('--output "${{ runner.temp }}/host-matrix.json"', plan)
+        self.assertIn("os.environ['GITHUB_OUTPUT']", plan)
+        host = self.ci_job('host-tests')
+        self.assertIn('matrix: ${{ fromJSON(needs.execution-plan.outputs.matrix) }}', host)
+        self.assertNotIn('include:', host)
+
+    def test_ci_suite_workers_keep_isolated_artifacts_and_the_original_plan(self):
+        host = self.ci_job('host-tests')
+        self.assertIn('fail-fast: false', host)
+        self.assertIn('timeout-minutes: 60', host)
+        self.assertIn('--plan "${{ runner.temp }}/execution-plan/pr-plan.json"', host)
+        self.assertIn('WORKER_SUITE: ${{ matrix.suite }}', host)
+        self.assertIn('--worker-platform "$WORKER_PLATFORM" --worker-suite "$WORKER_SUITE"', host)
+        artifact = 'execution-${{ matrix.platform }}-${{ matrix.suite }}'
+        self.assertIn('--artifact-dir "${{ runner.temp }}/' + artifact + '"', host)
+        self.assertIn('name: ' + artifact, host)
+        upload = host[host.index('- name: Upload execution evidence even after failure'):]
+        self.assertIn('if: always()', upload)
+        self.assertNotIn('execution-coverage', host)
+
+    def test_ci_coverage_joins_all_linux_evidence_after_upstream_failure(self):
+        coverage = self.ci_job('coverage')
+        self.assertIn('if: always()', coverage.split('steps:', 1)[0])
+        self.assertIn('needs: [execution-plan, host-tests]', coverage)
+        self.assertIn('name: execution-plan', coverage)
+        self.assertIn('pattern: execution-linux-*', coverage)
+        self.assertIn('merge-multiple: false', coverage)
+        command = coverage[coverage.index('- name: Reconcile declared coverage evidence'):]
+        self.assertIn('if: always()', command.split('run:', 1)[0])
+        self.assertIn('execution-coverage', command)
+        self.assertIn('--plan "${{ runner.temp }}/execution-plan/pr-plan.json"', command)
+        self.assertIn('--results "${{ runner.temp }}/linux-results" --platform linux', command)
+        self.assertIn('--minimum 38', command)
+        self.assertNotIn('--input', command)
+
+    def test_ci_summary_waits_for_coverage_and_remains_an_unfiltered_required_check(self):
+        summary = self.ci_job('test-summary')
+        self.assertIn('name: IMBoy Test Summary', summary)
+        self.assertIn('if: always()', summary.split('steps:', 1)[0])
+        needs = re.search(r'^    needs: \[([^]]+)\]', summary, re.MULTILINE)
+        self.assertIsNotNone(needs)
+        self.assertTrue({'execution-plan', 'host-tests', 'coverage', 'quality-gates', 'contract-gates'}
+                        <= {name.strip() for name in needs.group(1).split(',')})
+        self.assertIn('UPSTREAM_JOBS: ${{ toJSON(needs) }}', summary)
+        self.assertIn('--upstream-env UPSTREAM_JOBS', summary)
+        workflow = (ROOT / '.github/workflows/ci.yml').read_text(encoding='utf-8')
+        self.assertNotRegex(workflow.split('\npermissions:', 1)[0], r'\bpaths(?:-ignore)?:')
 
     def test_coverage_counts_unique_lines_and_empty_evidence_fails(self):
         with tempfile.TemporaryDirectory() as directory:

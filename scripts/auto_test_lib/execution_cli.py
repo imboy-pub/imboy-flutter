@@ -40,6 +40,9 @@ def register_cli(subparsers):
     gates = subparsers.add_parser('execution-gates', help='Run shared prerequisites once for a frozen multi-worker plan')
     gates.add_argument('--plan', required=True)
     gates.add_argument('--artifact-dir', required=True)
+    matrix = subparsers.add_parser('execution-matrix', help='Partition a frozen host plan by platform and suite')
+    matrix.add_argument('--plan', required=True)
+    matrix.add_argument('--output')
     summary = subparsers.add_parser('execution-summary')
     summary.add_argument('--plan', required=True)
     summary.add_argument('--results', action='append', default=[])
@@ -47,7 +50,12 @@ def register_cli(subparsers):
     summary.add_argument('--upstream-env', help='Environment variable containing GitHub needs JSON')
     summary.add_argument('--output', required=True)
     coverage = subparsers.add_parser('execution-coverage')
-    coverage.add_argument('--input', required=True)
+    source = coverage.add_mutually_exclusive_group(required=True)
+    source.add_argument('--input', help='Measure one LCOV file only; this does not certify plan completeness')
+    source.add_argument('--plan', help='Verify all declared coverage obligations before merging worker evidence')
+    coverage.add_argument('--results', action='append', default=[])
+    coverage.add_argument('--platform', default='linux')
+    coverage.add_argument('--output', help='Merged LCOV destination; a sibling .summary.json preserves the verdict')
     coverage.add_argument('--minimum', type=float, default=38.0)
 
 
@@ -133,7 +141,15 @@ def verify_result_files(row, payload, candidate):
                 if hashlib.sha256(path.read_bytes()).hexdigest() != attempt.get('native_evidence_sha256'):
                     raise ValueError('native evidence digest mismatch')
             if attempt.get('coverage'):
-                artifact_path(attempt['coverage'], recorded_root, root)
+                path = artifact_path(attempt['coverage'], recorded_root, root)
+                if hashlib.sha256(path.read_bytes()).hexdigest() != attempt.get('coverage_sha256'):
+                    raise ValueError('coverage digest mismatch')
+                command = attempt.get('command', [])
+                if '--coverage' not in command or '--coverage-path' not in command:
+                    raise ValueError('coverage was not requested by the recorded process')
+                index = command.index('--coverage-path') + 1
+                if index >= len(command) or artifact_path(command[index], recorded_root, root) != path:
+                    raise ValueError('coverage path contradicts the recorded process')
         companion = row.get('companion_evidence')
         if companion:
             if not isinstance(companion, dict):
@@ -157,7 +173,7 @@ def verify_result_files(row, payload, candidate):
                 'evidence_error': str(error)}
 
 
-def load_results(paths):
+def load_results(paths, *, locations=None):
     records = []
     seen_files = set()
     for value in paths:
@@ -172,7 +188,10 @@ def load_results(paths):
             rows = payload.get('results') if isinstance(payload, dict) else payload
             if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
                 raise ValueError(f'invalid result collection: {candidate}')
-            records.extend(verify_result_files(row, payload, candidate) for row in rows)
+            for row in rows:
+                records.append(verify_result_files(row, payload, candidate))
+                if locations is not None:
+                    locations.setdefault(row.get('id'), []).append((payload, candidate))
     return records
 
 
@@ -229,7 +248,7 @@ def print_summary(summary):
             stream.write('\n')
 
 
-def coverage_check(path, minimum):
+def coverage_metrics(path, minimum):
     """Use unique source/line keys; merged LCOV must not inflate denominators."""
     if not 0 <= minimum <= 100:
         raise ValueError('--minimum must be between 0 and 100')
@@ -250,8 +269,53 @@ def coverage_check(path, minimum):
         raise ValueError('coverage contains zero source lines')
     covered = sum(count > 0 for count in lines.values())
     percent = covered / len(lines) * 100
-    print(f'Coverage: {covered}/{len(lines)} lines = {percent:.2f}% (required {minimum:.2f}%)')
-    return 0 if percent >= minimum else 1
+    return {'covered_lines': covered, 'source_lines': len(lines), 'percent': percent,
+            'minimum': minimum, 'threshold_met': percent >= minimum}
+
+
+def coverage_check(path, minimum):
+    metrics = coverage_metrics(path, minimum)
+    print(f'Coverage measurement: {metrics["covered_lines"]}/{metrics["source_lines"]} lines = '
+          f'{metrics["percent"]:.2f}% (required {minimum:.2f}%); no plan completeness claim')
+    return 0 if metrics['threshold_met'] else 1
+
+
+def coverage_from_results(plan, paths, platform, destination, minimum):
+    """Reconcile every eligible instance before deduplicating its LCOV files."""
+    from .execution_runner import reconcile, merge_coverage_files
+    locations = {}
+    rows = load_results(paths, locations=locations)
+    reconciled = reconcile(plan, rows, worker_platform=platform, require_gates=False, coverage_only=True)
+    files, missing = [], []
+    for row in reconciled['results']:
+        if row['status'] != 'PASS':
+            missing.append({'id': row['id'], 'reason_code': row.get('reason_code', 'INCOMPLETE_EVIDENCE')})
+            continue
+        payload, candidate = locations[row['id']][0]
+        recorded_root = payload.get('artifact_root', str(candidate.parent)) if isinstance(payload, dict) else str(candidate.parent)
+        attempts = row.get('attempts', [])
+        if not attempts or not all(attempt.get('coverage') for attempt in attempts):
+            missing.append({'id': row['id'], 'reason_code': 'MISSING_COVERAGE_RESULT'})
+            continue
+        files.extend(artifact_path(attempt['coverage'], recorded_root, candidate.parent.resolve())
+                     for attempt in attempts)
+    destination = Path(destination)
+    merge_coverage_files(files, destination)
+    metrics = coverage_metrics(destination, minimum) if files else None
+    code = reconciled['exit_code']
+    if missing or reconciled['issues'] or not files:
+        code = code or 2
+    elif metrics and not metrics['threshold_met']:
+        code = 1
+    return {'status': {0: 'PASS', 1: 'FAIL', 2: 'BLOCKED'}[code], 'exit_code': code,
+            'reason_code': 'INCOMPLETE_COVERAGE_EVIDENCE' if missing or not files or reconciled['issues'] else (
+                'COVERAGE_BELOW_THRESHOLD' if code else 'NONE'),
+            'commit': plan.get('commit'), 'profile': plan.get('profile'), 'platform': platform,
+            'scope': 'coverage', 'complete_regression': False,
+            'expected_instances': reconciled['expected_instances'],
+            'verified_instances': len(reconciled['results']) - len(missing),
+            'missing_evidence': missing, 'issues': reconciled['issues'],
+            'coverage_files': len(set(files)), 'coverage': metrics, 'output': str(destination)}
 
 
 def validate_saved_plan(root, plan, catalog):
@@ -266,7 +330,26 @@ def run_cli(args, root: Path, reports: Path):
     from . import execution_catalog as catalog
     try:
         if args.command == 'execution-coverage':
-            return coverage_check(args.input, args.minimum)
+            if args.input:
+                if args.results or args.output:
+                    raise ValueError('--input cannot certify --results; use --plan')
+                return coverage_check(args.input, args.minimum)
+            if not args.results or not args.output:
+                raise ValueError('--plan coverage requires --results and --output')
+            plan = validate_saved_plan(root, read_json(args.plan), catalog)
+            summary = coverage_from_results(plan, args.results, args.platform, args.output, args.minimum)
+            write_json(Path(args.output).with_suffix('.summary.json'), summary)
+            print(json.dumps({key: value for key, value in summary.items() if key != 'missing_evidence'}, ensure_ascii=False))
+            return summary['exit_code']
+        if args.command == 'execution-matrix':
+            from .execution_runner import host_worker_matrix
+            plan = validate_saved_plan(root, read_json(args.plan), catalog)
+            matrix = host_worker_matrix(plan)
+            if args.output:
+                write_json(Path(args.output), matrix)
+            else:
+                print(json.dumps(matrix))
+            return 0
         if args.command == 'execution-gates':
             from .execution_gates import run_gates
             plan = validate_saved_plan(root, read_json(args.plan), catalog)
@@ -350,5 +433,7 @@ def run_cli(args, root: Path, reports: Path):
                    'detail': str(error), 'results': [], 'exit_code': 2}
         if args.command == 'execution-summary':
             write_json(Path(args.output), failure)
+        elif args.command == 'execution-coverage' and args.output:
+            write_json(Path(args.output).with_suffix('.summary.json'), failure)
         print(json.dumps(failure, ensure_ascii=False), file=sys.stderr)
         return 2

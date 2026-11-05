@@ -6,6 +6,7 @@ import copy
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -18,6 +19,7 @@ from unittest.mock import patch
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / 'scripts'))
 from auto_test_lib import execution_adapters as adapters
+from auto_test_lib import execution_cli as cli
 from auto_test_lib import execution_runner as runner
 from auto_test_lib.machine_events import parse_machine_events
 
@@ -99,6 +101,124 @@ class RunnerTest(unittest.TestCase):
         return runner._persist_process_receipt(
             {'exit_code': 0, 'lines': lines, 'log': str(path), 'machine': str(path),
              'command': list(command)}, output)
+
+    def coverage_workers(self, *, process=None, widget_coverage=True):
+        declared = plan(instance(), instance('test/b_test.dart', suite='widget'),
+                        instance(platform='macos'))
+        with self.mock_execution(process or self.process):
+            for suite in ('unit', 'widget'):
+                report = runner.run_plan(self.root, declared, self.output / suite,
+                    worker_platform='linux', worker_suites=[suite],
+                    coverage=suite == 'unit' or widget_coverage)
+                self.assertEqual(report['expected_instances'], 1)
+        return declared
+
+    def test_host_matrix_preserves_every_platform_product_and_role_instance(self):
+        items = [instance(platform=platform, product=product, role=role)
+                 for platform in ('linux', 'macos') for product in ('current', 'phase1')
+                 for role in ('primary', 'secondary')]
+        items += [instance('test/b_test.dart', suite='widget'),
+                  instance('test/c_test.dart', selected=False, reason_code='OUT_OF_SCOPE')]
+        declared = plan(*items)
+        matrix = runner.host_worker_matrix(declared)['include']
+        selected = [item['id'] for worker in matrix for item in runner._worker_instances(
+            declared, worker['platform'], [worker['suite']])]
+        self.assertCountEqual(selected, [item['id'] for item in items if item['selected']])
+        self.assertEqual(len(selected), len(set(selected)))
+        self.assertEqual(len(matrix), 3)
+        self.assertTrue(all(worker['coverage'] == ('--coverage' if worker['platform'] == 'linux' else '')
+                            for worker in matrix))
+        items[0].update(selected=False, reason_code='PLATFORM_NA')
+        self.assertIn('macos', {worker['platform'] for worker in runner.host_worker_matrix(declared)['include']})
+
+    def test_host_matrix_rejects_empty_duplicate_and_specialist_obligations(self):
+        for declared in (plan(), plan(instance(), instance()),
+                         plan(instance(runner='device-pair', suite='device-pair')),
+                         plan(instance(runner='patrol', suite='native-ui')),
+                         plan(instance(platform='android'))):
+            with self.subTest(plan=declared), self.assertRaises(ValueError):
+                runner.host_worker_matrix(declared)
+
+    def test_coverage_reconciles_workers_before_merging_unique_source_lines(self):
+        declared = self.coverage_workers()
+        downloaded = self.root / 'downloaded'
+        shutil.copytree(self.output, downloaded)
+        self.output.rename(self.root / 'unavailable-workers')
+        report = cli.coverage_from_results(declared, [downloaded], 'linux', self.root / 'merged.info', 38)
+        self.assertEqual(report['status'], 'PASS', report)
+        self.assertEqual((report['expected_instances'], report['verified_instances']), (2, 2))
+        self.assertEqual(report['coverage']['source_lines'], 2)
+        self.assertEqual(report['coverage']['percent'], 50)
+        self.assertEqual(report['coverage_files'], 2)
+        self.assertFalse(report['complete_regression'])
+        low = cli.coverage_from_results(declared, [downloaded], 'linux', self.root / 'higher.info', 51)
+        self.assertEqual((low['exit_code'], low['reason_code']), (1, 'COVERAGE_BELOW_THRESHOLD'))
+
+    def test_missing_coverage_worker_cannot_pass_even_when_remaining_lcov_meets_threshold(self):
+        declared = self.coverage_workers()
+        report = cli.coverage_from_results(declared, [self.output / 'unit'], 'linux', self.root / 'merged.info', 38)
+        self.assertEqual(report['status'], 'BLOCKED')
+        self.assertTrue(report['coverage']['threshold_met'])
+        self.assertEqual(report['verified_instances'], 1)
+        self.assertEqual(report['missing_evidence'], [
+            {'id': declared['instances'][1]['id'], 'reason_code': 'MISSING_RESULT'}])
+
+    def test_worker_without_coverage_cannot_be_hidden_by_another_worker_lcov(self):
+        declared = self.coverage_workers(widget_coverage=False)
+        report = cli.coverage_from_results(declared, [self.output], 'linux', self.root / 'merged.info', 38)
+        self.assertEqual(report['exit_code'], 2)
+        self.assertEqual(report['missing_evidence'][0]['reason_code'], 'MISSING_COVERAGE_RESULT')
+        self.assertTrue(report['coverage']['threshold_met'])
+
+    def test_tampered_lcov_and_forged_collection_command_cannot_certify_coverage(self):
+        declared = self.coverage_workers(widget_coverage=False)
+        results = self.output / 'widget/results.json'
+        payload = json.loads(results.read_text())
+        attempt = payload['results'][0]['attempts'][0]
+        coverage = self.output / 'widget/forged.info'
+        coverage.write_text('SF:lib/sample.dart\nDA:1,1\nend_of_record\n')
+        attempt.update(coverage=str(coverage), coverage_sha256=runner._file_sha256(coverage))
+        cli.write_json(results, payload)
+        report = cli.coverage_from_results(declared, [self.output], 'linux', self.root / 'merged.info', 38)
+        self.assertEqual(report['missing_evidence'][0]['reason_code'], 'ARTIFACT_EVIDENCE_MISSING_OR_INVALID')
+        unit = json.loads((self.output / 'unit/results.json').read_text())
+        Path(unit['results'][0]['attempts'][0]['coverage']).write_text('SF:lib/forged.dart\nDA:1,100\nend_of_record\n')
+        report = cli.coverage_from_results(declared, [self.output], 'linux', self.root / 'merged.info', 0)
+        self.assertEqual(report['verified_instances'], 0)
+        self.assertNotEqual(report['exit_code'], 0)
+
+    def test_duplicate_or_stale_worker_receipts_cannot_certify_coverage(self):
+        declared = self.coverage_workers()
+        duplicate = self.root / 'duplicate'
+        shutil.copytree(self.output / 'unit', duplicate)
+        report = cli.coverage_from_results(declared, [self.output, duplicate], 'linux', self.root / 'merged.info', 38)
+        self.assertEqual(report['missing_evidence'][0]['reason_code'], 'DUPLICATE_RESULT')
+        declared['commit'] = 'b' * 40
+        report = cli.coverage_from_results(declared, [self.output], 'linux', self.root / 'stale.info', 38)
+        self.assertEqual({item['reason_code'] for item in report['missing_evidence']}, {'RESULT_IDENTITY_MISMATCH'})
+
+    def test_zero_skip_and_nonzero_process_results_block_coverage(self):
+        for counts, code in (({'passed': 0}, 0), ({'passed': 0, 'skipped': 1}, 0),
+                             ({'passed': 1, 'skipped': 1}, 0), ({'passed': 1}, 137)):
+            def incomplete(command, env, output, **kwargs):
+                receipt = self.process(command, env, output, **kwargs)
+                if 'test/b_test.dart' in command:
+                    receipt.update(lines=events('test/b_test.dart', **counts), exit_code=code)
+                    Path(receipt['machine']).write_text('\n'.join(receipt['lines']))
+                    runner._persist_process_receipt(receipt, output)
+                return receipt
+            with self.subTest(counts=counts, code=code):
+                declared = self.coverage_workers(process=incomplete)
+                report = cli.coverage_from_results(declared, [self.output], 'linux', self.root / 'merged.info', 38)
+                self.assertNotEqual(report['exit_code'], 0)
+                self.assertEqual(report['verified_instances'], 1)
+                self.assertTrue(report['coverage']['threshold_met'])
+
+    def test_empty_coverage_plan_cannot_pass(self):
+        report = cli.coverage_from_results(plan(full_regression=True), [], 'linux', self.root / 'empty.info', 0)
+        self.assertEqual(report['exit_code'], 2)
+        self.assertEqual(report['expected_instances'], 0)
+        self.assertFalse(report['complete_regression'])
 
     def test_success_requires_matching_receipt_for_every_instance(self):
         a, b = instance(), instance('test/b_test.dart')
@@ -414,6 +534,19 @@ class RunnerTest(unittest.TestCase):
                                       worker_platform='linux', upstream={'sdk': 'failure'})
         execute.assert_not_called()
         self.assertEqual(summary['results'][0]['reason_code'], 'UPSTREAM_FAILED')
+
+    def test_failed_aggregate_blocks_summary_even_with_all_child_receipts_passed(self):
+        from auto_test_lib.execution_gates import merge_gate_statuses
+        gates = ['static-analysis', 'framework', 'sqlite-generator']
+        declared = plan(instance(), gates=gates)
+        row = self.result(planned=declared)
+        upstream = merge_gate_statuses({name: {'status': 'PASS'} for name in gates},
+                                       {'quality-gates': 'failure'})
+        self.assertTrue(all(upstream[name] == 'PASS' for name in gates))
+        report = runner.reconcile(declared, [row], upstream=upstream)
+        self.assertEqual(report['reason_code'], 'UPSTREAM_FAILED')
+        self.assertNotEqual(report['exit_code'], 0)
+        self.assertEqual(report['upstream_failed'], [{'dependency': 'quality-gates', 'status': 'failure'}])
 
     def test_changed_source_blocks_stale_plan(self):
         a = instance(source_sha256=hashlib.sha256(b'old content').hexdigest())

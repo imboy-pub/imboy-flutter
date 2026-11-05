@@ -10,7 +10,7 @@
 |---|---|---|
 | unit | 纯逻辑、模型、协议 | 宿主 Flutter VM |
 | widget | 页面、组件、导航、状态 | 宿主 Widget runner |
-| component | 模拟 HTTP/服务、无设备集成 | 合成 fixture；浏览器专属目标另标 web |
+| component | 模拟 HTTP/服务、无设备集成及字体加载合同 | 合成 fixture；浏览器/系统字体目标声明各自平台与依赖 |
 | sqlite-ffi | 临时数据库、迁移 | SQLite 动态库；浏览器目标需 WASM/Chrome |
 | crypto-ffi | Rust/vodozemac 加密与宿主 harness | 与锁定依赖一致的原生库 |
 | backend-contract | 真实 API/WS、无设备 API 流程 | 隔离后端、测试账号、签名材料 |
@@ -40,6 +40,8 @@ python3 scripts/auto_test.py execution-check \
 
 # 无 SDK、设备、凭证也可生成计划
 python3 scripts/auto_test.py execution-plan --profile pr --output "$REPORT_DIR/pr-plan.json"
+python3 scripts/auto_test.py execution-matrix --plan "$REPORT_DIR/pr-plan.json" \
+  --output "$REPORT_DIR/host-matrix.json"
 python3 scripts/auto_test.py execution-plan --profile full --output "$REPORT_DIR/full-plan.json"
 bash scripts/run_test_suite.sh --mode full --dry-run --output "$REPORT_DIR/full-plan.json"
 
@@ -100,20 +102,37 @@ PR 包含逻辑、Widget、模拟集成、SQLite、加密 FFI、工具目标，�
 以外的业务目录。真实后端、Golden、路由、浏览器、设备/双端/Patrol 有明确专项；full 纳入
 全部适用目标。无可靠影响映射时，保守执行所选 profile 全目标，不猜测是否能裁掉测试。
 
-主 CI 冻结计划，Linux/macOS worker 共用。质量和跨仓契约工作流由主 CI 调用；稳定的
+主 CI 冻结计划，`execution-matrix` 按已选实例生成 `(platform, suite)` worker，Linux/macOS
+各套件分别执行，artifact 保留独立目录。矩阵分区不改变 target/product/role/variant 身份，
+并集必须覆盖原计划全部已选实例。该命令拒绝空计划或包含设备、配对、Patrol 的计划，
+这些目标继续交给其专项编排器。质量和跨仓契约工作流由主 CI 调用；稳定的
 `IMBoy Test Summary` 使用 `if: always()` 对账实例与上游任务。上游不使用 workflow paths
 过滤。分支保护应选择该汇总检查，仓库设置需维护者另行配置。
 
 `--coverage` 给已声明可统计的实例增加收集参数，与业务测试同次执行，不重新选文件。
 路由、后端、Golden、设备和工具不混入宿主覆盖率。原 38% 门槛保留，实际扩大范围后的
-覆盖率须在环境完整的 runner 核验，不自动降低门槛。
+覆盖率须在环境完整的 runner 核验，不自动降低门槛。CI 在全部 Linux worker 结束后，
+先对账每个 coverage_eligible 实例，再核验原始进程、实际 `--coverage` 参数、LCOV 路径与
+SHA-256，最后按源文件/行合并，原阈值只检查一次。缺 worker、某个 worker 没开启收集、
+证据漂移、非零退出或未批准 skip 都会阻止覆盖率检查通过，即使剩余 LCOV 已超过阈值。
 
 ```bash
-python3 scripts/auto_test.py execution-run --profile pr --platform linux --coverage \
-  --artifact-dir "$REPORT_DIR/coverage"
+python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/pr-plan.json" \
+  --worker-platform linux --coverage --artifact-dir "$REPORT_DIR/coverage-linux"
 python3 scripts/auto_test.py execution-coverage \
-  --input "$REPORT_DIR/coverage/coverage/lcov.info" --minimum 38
+  --plan "$REPORT_DIR/pr-plan.json" --results "$REPORT_DIR/coverage-linux" --platform linux \
+  --output "$REPORT_DIR/coverage/lcov.info" --minimum 38
 ```
+
+合并目录同时保存 `lcov.summary.json`，列出应有/已核验实例、缺失证据及百分比。
+`execution-coverage --input <lcov>` 保留为单份文件的数值测量命令，不证明执行计划完整。
+覆盖率范围只涵盖指定平台；其他平台和非统计目标仍由最终 `execution-summary` 对账。
+
+`test/uiux/contract/font_contract_test.dart` 的五个用例保持完整，主归属为 component，
+在 PR/full 的 macOS 上执行。它验证现有 macOS 授权字体、CJK 字形、FontLoader 及错误分支，
+没有像素比较，因而不要求 Golden 图片基线。执行前从 `golden_font_loader.dart` 读取既有
+登记并核对本地字体 SHA-256；缺文件或不匹配报告 ENV_MISSING。Linux 为 PLATFORM_NA，
+不删除 macOS 义务。登记格式变化要求同步审查适配器，禁止分发、下载替代系统字体或添加 skip。
 
 原框架、SQLite、E2EE 脚本保留；框架/SQLite 的 `--checks-only` 复用其静态合同，测试由
 计划执行一次。Moment/E2EE/component/性能断言不再因多个 CI 步骤重复执行相同实例。
@@ -148,6 +167,9 @@ POSIX 进程组并冻结日志，保留已产生的机器事件，结果仍为�
 | UNEXPECTED_SKIP | 已选且适用却发生未批准 skip | BLOCKED，退出 0 也不通过 |
 
 缺结果、运行器异常、零执行、不完整事件、重复或过期证据另有精确原因码。
+聚合 CI job 失败/取消只证明该 job 未成功，不能推断它的所有子门禁都失败。
+汇总保留已核验的独立门禁结果；没有独立收据的子门禁记为缺证据，具体聚合 job 的
+failure/cancelled 仍使最终结果阻断。这里的 missing 不等于该子门禁没有运行。
 状态与原因分开。结果保存 commit/profile/suite/target/platform/product_profile/role/variant、
 selected/status/reason_code/upstream、计数、日志、证据和全部尝试。
 `executed = passed + failed + skipped`；`actually_run = passed + failed`。隐藏加载/setup 不充数。实例汇总使用最后一次尝试的计数；完整 attempts 保留每次计数，重试工作量须单独对 attempts 求和。

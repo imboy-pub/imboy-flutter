@@ -85,5 +85,11 @@ def merge_gate_statuses(gates: dict, upstream: dict) -> dict:
     for job, gate_names in mapping.items():
         if job in upstream:
             for name in gate_names:
-                merge(name, upstream[job])
+                if str(upstream[job]).lower() in {'pass', 'passed', 'success'}:
+                    merge(name, upstream[job])
+                else:
+                    # The aggregate job failed, but that does not identify a
+                    # failed child. Keep independent receipts; otherwise the
+                    # child's evidence is missing. The job still blocks CI.
+                    values.setdefault(name, 'missing')
     return values

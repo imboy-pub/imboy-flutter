@@ -405,6 +405,18 @@ def build_catalog(root: Path, contract: dict | None = None,
                     row['dependencies'] = sorted(set(
                         suite.get('dependencies', []) + row.get('dependencies', [])))
                     row = {**copy.deepcopy(suite), **row}
+                    if 'registered-golden-font' in row['dependencies']:
+                        from .execution_adapters import (REGISTERED_GOLDEN_FONT_SOURCE,
+                                                         registered_golden_font_asset)
+                        if REGISTERED_GOLDEN_FONT_SOURCE not in files:
+                            raise ContractError(['REGISTERED_GOLDEN_FONT_REGISTRY_UNTRACKED: ' +
+                                                 REGISTERED_GOLDEN_FONT_SOURCE])
+                        try:
+                            registered_golden_font_asset(root)
+                        except ValueError as error:
+                            raise ContractError([str(error)]) from error
+                        row['source_dependencies'] = sorted(set(row.get('source_dependencies', [])) |
+                                                            {REGISTERED_GOLDEN_FONT_SOURCE})
                     if row.get('runner') not in cfg.get('runners', {}):
                         raise ContractError([f'TARGET_RUNNER_MISSING: {path}'])
                     if row['runner'] in {'flutter-device', 'device-pair', 'patrol'}:

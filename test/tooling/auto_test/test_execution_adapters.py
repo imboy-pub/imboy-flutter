@@ -394,6 +394,79 @@ class OwnedFixtureAndCoordinatorTests(unittest.TestCase):
         self.assertEqual('coordinator-gate', result['companion_evidence']['kind'])
 
 
+class RegisteredFontEnvironmentTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory(prefix='imboy-font-prerequisite-')
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name) / 'repo'
+        # Synthetic bytes exercise only the read-only hash prerequisite, not a
+        # replacement for the real Dart glyph or FontLoader assertions.
+        self.font = Path(tmp.name) / 'synthetic-font.bin'
+        self.font.write_bytes(b'synthetic-preflight-fixture')
+        self.digest = hashlib.sha256(self.font.read_bytes()).hexdigest()
+        self.registry = self.root / adapters.REGISTERED_GOLDEN_FONT_SOURCE
+        self.registry.parent.mkdir(parents=True)
+        self.source = ("const List<GoldenFontAsset> kGoldenFontAssets = [\n"
+                       "  GoldenFontAsset(\n"
+                       f"    path: '{self.font}',\n"
+                       "    // A temporary local test fixture, never distributed.\n"
+                       f"    sha256Hex:\n        '{self.digest}',\n"
+                       "    licenseNote: 'synthetic fixture; ' 'https://example.invalid/license',\n"
+                       "  ),\n];\n")
+        self.registry.write_text(self.source)
+        self.item = {'suite': 'component', 'runner': 'flutter-machine', 'platform': 'macos',
+                     'target': 'test/uiux/contract/font_contract_test.dart',
+                     'dependencies': ['registered-golden-font']}
+
+    def test_current_dart_registry_is_the_only_source_of_asset_pins(self):
+        asset = adapters.registered_golden_font_asset(ROOT)
+        self.assertTrue(Path(asset['path']).is_absolute())
+        self.assertRegex(asset['sha256'], r'^[0-9a-f]{64}$')
+        self.assertTrue(asset['license'].strip())
+
+    def test_matching_external_registered_font_needs_no_pixel_environment(self):
+        self.assertFalse(self.font.is_relative_to(self.root))
+        before = {path: path.read_bytes() for path in (self.font, self.registry)}
+        with patch.object(adapters.shutil, 'which', return_value='/fixture/flutter'), \
+             patch.object(adapters.subprocess, 'run') as run:
+            self.assertEqual([], adapters.preflight_instance(self.root, self.item, {}))
+        run.assert_not_called()
+        self.assertEqual(before, {path: path.read_bytes() for path in before})
+
+    def test_missing_or_mismatched_font_blocks_preflight(self):
+        with patch.object(adapters.shutil, 'which', return_value='/fixture/flutter'):
+            self.font.write_bytes(b'different-synthetic-bytes')
+            self.assertIn('REGISTERED_GOLDEN_FONT_HASH_MISMATCH:' + str(self.font),
+                          adapters.preflight_instance(self.root, self.item, {}))
+            self.font.unlink()
+            self.assertIn('REGISTERED_GOLDEN_FONT_MISSING:' + str(self.font),
+                          adapters.preflight_instance(self.root, self.item, {}))
+            self.assertFalse(self.font.exists())
+
+    def test_unknown_registration_shape_never_uses_an_inferred_font(self):
+        invalid = [self.source + self.source,
+                   self.source.replace('kGoldenFontAssets = [', 'kGoldenFontAssets = <GoldenFontAsset>['),
+                   self.source.replace(f"path: '{self.font}'", 'path: findFont()'),
+                   self.source.replace(f"path: '{self.font}'", "path: 'relative.ttf'"),
+                   self.source.replace(self.digest, 'invalid-hash'),
+                   self.source.replace("'synthetic fixture; ' 'https://example.invalid/license'", "''"),
+                   self.source.replace('  GoldenFontAsset(\n',
+                       "  GoldenFontAsset(path: '/another.ttf', sha256Hex: '0', licenseNote: 'fixture'),\n"
+                       '  GoldenFontAsset(\n')]
+        for source in invalid:
+            with self.subTest(source=source):
+                self.registry.write_text(source)
+                errors = adapters.registered_golden_font_errors(self.root, self.item)
+                self.assertTrue(any('REGISTRY_INVALID' in error for error in errors), errors)
+
+    def test_missing_registry_blocks_only_a_declared_font_dependency(self):
+        self.registry.unlink()
+        errors = adapters.registered_golden_font_errors(self.root, self.item)
+        self.assertTrue(any('REGISTRY_UNREADABLE' in error for error in errors), errors)
+        self.assertEqual([], adapters.registered_golden_font_errors(
+            self.root, {**self.item, 'dependencies': []}))
+
+
 class GoldenAndPatrolEvidenceTests(unittest.TestCase):
     def test_missing_golden_contract_blocks_without_creating_baselines(self):
         with tempfile.TemporaryDirectory() as tmp:
