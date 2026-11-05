@@ -9,7 +9,9 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from unittest.mock import patch
 
@@ -52,7 +54,7 @@ class RunnerTest(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         (self.root / 'test').mkdir()
         (self.root / 'test/a_test.dart').write_text('// synthetic\n')
         (self.root / 'test/b_test.dart').write_text('// synthetic\n')
@@ -159,7 +161,8 @@ class RunnerTest(unittest.TestCase):
                              'INCOMPLETE_EVIDENCE')
 
     def test_process_identity_dependency_blocks_before_target_execution(self):
-        spec = instance(runner='python-cases', dependencies=['process-identity'])
+        host = {'darwin': 'macos', 'win32': 'windows'}.get(sys.platform, sys.platform)
+        spec = instance(platform=host, runner='python-cases', dependencies=['process-identity'])
         reason = 'process-identity: ps cannot verify live parent/child start times'
         with patch.object(runner, '_process_identity_preflight', return_value=[reason]):
             self.assertEqual(runner._default_preflight(self.root, spec, dict(os.environ)), [reason])
@@ -245,6 +248,19 @@ class RunnerTest(unittest.TestCase):
             command, _, _ = runner._host_command(self.root, [instance()], {}, self.output, stack, adapters)
         self.assertIn('--no-pub', command)
 
+    def test_host_parallelism_preserves_specialist_serial_execution(self):
+        def invocation(root, spec, env, output):
+            return {'command': ['flutter', 'test', spec['target'], '--machine',
+                                '--no-pub', '--concurrency=1'], 'env': env}
+        for suites in [('unit', 'widget', 'component'), ('sqlite-ffi',), ('crypto-ffi',),
+                       ('backend-contract',), ('route-smoke',), ('unit', 'sqlite-ffi')]:
+            with self.subTest(suites=suites), patch.object(adapters, 'build_invocation', side_effect=invocation), contextlib.ExitStack() as stack:
+                items = [instance(suite=suite) for suite in suites]
+                command, _, _ = runner._host_command(self.root, items, {}, self.output, stack, adapters)
+                self.assertEqual('--concurrency=1' in command,
+                                 any(suite not in {'unit', 'widget', 'component'} for suite in suites))
+                self.assertIn('--no-pub', command)
+
     def test_explicit_upstream_failure_vetoes_even_without_named_dependency(self):
         result = runner.reconcile(plan(instance()), [self.result()], upstream={'coverage-job': 'failure'})
         self.assertEqual(result['reason_code'], 'UPSTREAM_FAILED')
@@ -327,6 +343,26 @@ class RunnerTest(unittest.TestCase):
             summary = runner.run_plan(self.root, plan(instance(role='one'), instance(role='two')), self.output)
         self.assertEqual(summary['status'], 'PASS')
         self.assertEqual(len(calls), 2)
+
+    def test_bounded_host_batches_keep_every_instance_and_merge_coverage_once(self):
+        items = [instance(f'test/chunk_{index}_test.dart') for index in range(5)]
+        for item in items:
+            (self.root / item['target']).write_text('// synthetic host target\n')
+        calls = []
+        def process(*args, **kwargs):
+            calls.append(args[0])
+            return self.process(*args, **kwargs)
+        with self.mock_execution(process), patch.object(runner, 'HOST_BATCH_MAX_TARGETS', 2):
+            summary = runner.run_plan(self.root, plan(*items), self.output, coverage=True)
+        batches = [[arg for arg in command if arg.endswith('_test.dart')] for command in calls]
+        self.assertEqual([len(batch) for batch in batches], [2, 2, 1])
+        self.assertEqual([target for batch in batches for target in batch], [item['target'] for item in items])
+        self.assertEqual(summary['status'], 'PASS')
+        self.assertEqual(summary['counts']['actually_run'], 5)
+        self.assertEqual({row['id'] for row in summary['results']}, {item['id'] for item in items})
+        merged = (self.output / 'coverage/lcov.info').read_text()
+        self.assertEqual(merged.count('SF:lib/sample.dart'), 1)
+        self.assertEqual(merged.count('DA:1,1'), 1)
 
     def test_route_variants_keep_separate_processes(self):
         items = [instance(suite='route-smoke', variant=f'route-{i}', test_name=f'route {i}') for i in (1, 2)]
@@ -539,6 +575,103 @@ class RunnerTest(unittest.TestCase):
         self.assertNotIn('"success":false', Path(receipt['machine']).read_text())
         self.assertIn(nested_event, Path(receipt['log']).read_text())
         self.assertNotIn(nested_event, Path(receipt['machine']).read_text())
+
+    @unittest.skipUnless(os.name == 'posix', 'owned process-group execution requires POSIX')
+    def test_timeout_stops_descendants_and_preserves_partial_evidence(self):
+        for separate in (False, True):
+            with self.subTest(separate_stderr=separate):
+                output = self.output / str(separate)
+                release = self.root / f'release-{separate}'
+                late = self.root / f'late-{separate}'
+                child = (
+                    'import signal,sys,time\nfrom pathlib import Path\n'
+                    'signal.signal(signal.SIGTERM, signal.SIG_IGN)\n'
+                    'print("descendant ready", file=sys.stderr, flush=True)\n'
+                    'deadline=time.monotonic()+8\n'
+                    f'while not Path({str(release)!r}).exists() and time.monotonic()<deadline: time.sleep(0.01)\n'
+                    f'if Path({str(release)!r}).exists():\n'
+                    ' print("late stdout", flush=True)\n'
+                    ' print("late stderr", file=sys.stderr, flush=True)\n'
+                    f' Path({str(late)!r}).write_text("descendant survived")\n'
+                )
+                partial = '\n'.join(events(passed=2, skipped=1, done=False))
+                parent = (
+                    'import signal,subprocess,sys,time\n'
+                    'signal.signal(signal.SIGTERM, signal.SIG_IGN)\n'
+                    f'subprocess.Popen([sys.executable,"-c",{child!r}])\n'
+                    f'print({partial!r},flush=True)\n'
+                    'time.sleep(8)\n'
+                )
+                # This unrelated process must survive another invocation's timeout.
+                with subprocess.Popen([sys.executable, '-c', 'import sys; sys.stdin.read()'],
+                                      stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                      stderr=subprocess.DEVNULL) as sentinel:
+                    try:
+                        started = time.monotonic()
+                        receipt = runner.execute_process([sys.executable, '-c', parent],
+                            dict(os.environ), output, timeout=2, separate_stderr=separate)
+                        self.assertLess(time.monotonic() - started, 6, 'TERM-ignoring children delayed cleanup')
+                        self.assertIsNone(sentinel.poll())
+                        self.assertEqual(receipt['exit_code'], 124)
+                        self.assertEqual(receipt['error'], 'RUNNER_TIMEOUT')
+                        self.assertIn('descendant ready', Path(receipt['log']).read_text())
+                        parsed = parse_machine_events(receipt['lines'], receipt['exit_code'])
+                        self.assertEqual((parsed.executed, parsed.skipped, parsed.actually_run), (3, 1, 2))
+                        self.assertFalse(parsed.done_event_seen)
+                        self.assertEqual(parsed.test_status, 'BLOCKED')
+                        release.touch()
+                        # A surviving child was instructed to write both streams
+                        # only after the receipt; the original implementation did.
+                        deadline = time.monotonic() + 0.5
+                        while time.monotonic() < deadline and not late.exists():
+                            time.sleep(0.01)
+                        self.assertFalse(late.exists(), 'timed-out descendant still ran')
+                        for key in ('log', 'machine'):
+                            self.assertEqual(runner._file_sha256(receipt[key]), receipt[key + '_sha256'])
+                            self.assertNotIn('late ', Path(receipt[key]).read_text())
+                    finally:
+                        release.touch()
+                        sentinel.stdin.close()
+                        sentinel.wait(timeout=5)
+
+    @unittest.skipUnless(os.name == 'posix', 'owned process-group execution requires POSIX')
+    def test_custom_process_log_remains_visible_while_command_runs(self):
+        live = self.output / 'receiver' / 'process.log'
+        release = self.root / 'release-live'
+        source = (
+            'import time\nfrom pathlib import Path\n'
+            'print("receiver ready",flush=True)\n'
+            'deadline=time.monotonic()+5\n'
+            f'while not Path({str(release)!r}).exists() and time.monotonic()<deadline: time.sleep(0.01)\n'
+            f'print({chr(10).join(events())!r},flush=True)\n'
+        )
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(runner.execute_process, [sys.executable, '-c', source],
+                                 dict(os.environ), self.output, log_path=live, timeout=5)
+            try:
+                deadline = time.monotonic() + 3
+                while time.monotonic() < deadline and not future.done():
+                    if live.is_file() and 'receiver ready' in live.read_text():
+                        break
+                    time.sleep(0.01)
+                self.assertIn('receiver ready', live.read_text())
+                self.assertFalse(future.done())
+            finally:
+                release.touch()
+            receipt = future.result(timeout=5)
+        self.assertEqual(receipt['log'], str(live))
+        self.assertEqual(receipt['exit_code'], 0)
+        self.assertEqual(parse_machine_events(receipt['lines'], 0).test_status, 'PASS')
+
+    def test_unavailable_process_supervision_blocks_before_spawning(self):
+        with patch.object(runner, 'os', wraps=os) as unavailable, \
+                patch.object(runner.subprocess, 'Popen') as process:
+            unavailable.name = 'nt'
+            receipt = runner.execute_process(['unused-command'], dict(os.environ), self.output)
+        process.assert_not_called()
+        self.assertEqual(receipt['exit_code'], 127)
+        self.assertIn('PROCESS_SUPERVISION_UNAVAILABLE', receipt['error'])
+        self.assertEqual(parse_machine_events(receipt['lines'], receipt['exit_code']).test_status, 'BLOCKED')
 
 
 if __name__ == '__main__':

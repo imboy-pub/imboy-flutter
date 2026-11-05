@@ -64,10 +64,20 @@ sys.exit(int(os.environ['CLI_EXIT']))
         self.assertFalse(any('waiver' in value or 'allow-skip' in value for value in receipt['argv']))
 
     def test_dry_run_only_delegates_plan(self):
-        result, receipt = self.invoke(['--dry-run', '--route', 'welcome'])
-        self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(receipt['argv'][1], 'execution-plan')
-        self.assertNotIn('--artifact-dir', receipt['argv'])
+        for routes in ([], ['welcome'], ['page with spaces/*', '']):
+            with self.subTest(routes=routes):
+                options = ['--dry-run']
+                variants = []
+                for route in routes:
+                    options.extend(['--route', route])
+                    variants.extend(['--variant', 'route:' + route])
+                result, receipt = self.invoke(options)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                platform = 'macos' if sys.platform == 'darwin' else 'linux'
+                self.assertEqual(receipt['argv'], [
+                    'scripts/auto_test.py', 'execution-plan', '--profile', 'routes',
+                    '--platform', platform, *variants])
+                self.assertNotIn('--artifact-dir', receipt['argv'])
 
     def test_missing_value_or_unknown_flag_never_reaches_runner(self):
         for options in (['--route'], ['--unknown']):

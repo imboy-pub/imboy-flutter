@@ -119,6 +119,12 @@ python3 scripts/auto_test.py execution-coverage \
 计划执行一次。Moment/E2EE/component/性能断言不再因多个 CI 步骤重复执行相同实例。
 错误码/protobuf 契约保留；`regen_protobuf.sh --check` 在临时目录生成后比较，不覆盖工作区。
 
+宿主 Flutter 进程每批最多 128 个目标，纯 unit/widget/component 使用 Flutter 默认并发；
+SQLite、加密、后端及路由保留串行/进程隔离要求。分批不改变已选实例或覆盖率范围，
+每批结果分别保存后统一对账、合并覆盖率。每个进程仍有 900 秒预算；超时会终止本次创建的
+POSIX 进程组并冻结日志，保留已产生的机器事件，结果仍为阻塞。进程组监督当前支持 Linux/macOS；
+不具备该能力的宿主在启动前阻塞。执行日志会显示批次、平台及目标数，便于定位执行进度。
+
 ## 新增测试
 
 1. 放入合适家族，检查真实依赖是否适合该 runner。

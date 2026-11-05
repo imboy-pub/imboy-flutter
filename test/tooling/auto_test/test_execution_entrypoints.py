@@ -19,6 +19,44 @@ from auto_test_lib import execution_cli, execution_gates
 
 
 class EntrypointTest(unittest.TestCase):
+    def test_empty_forwarded_arguments_keep_default_and_explicit_profiles(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / 'python3'
+            binary.write_text('#!/bin/sh\nprintf "%s\\0" "$@"\n')
+            binary.chmod(0o755)
+            env = {**os.environ, 'PATH': directory + os.pathsep + os.environ['PATH']}
+            for options, command, profile in (
+                ([], 'execution-run', 'full'),
+                (['--dry-run'], 'execution-plan', 'full'),
+                (['--mode', 'quick'], 'execution-run', 'pr'),
+                (['--profile', 'tooling', '--dry-run'], 'execution-plan', 'tooling'),
+            ):
+                with self.subTest(options=options):
+                    result = subprocess.run(
+                        ['bash', str(ROOT / 'scripts/run_test_suite.sh'), *options],
+                        cwd=ROOT, env=env, text=True, capture_output=True, check=False)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.split('\0')[:-1], [
+                        'scripts/auto_test.py', command, '--profile', profile])
+
+    def test_forwarded_arguments_preserve_spaces_globs_and_empty_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / 'python3'
+            binary.write_text('#!/bin/sh\nprintf "%s\\0" "$@"\n')
+            binary.chmod(0o755)
+            env = {**os.environ, 'PATH': directory + os.pathsep + os.environ['PATH']}
+            arguments = ['--target', 'test/widget tests/a_test.dart',
+                         '--target', 'test/unit_test/*_test.dart',
+                         '--artifact-dir', 'report output', '--variant', '']
+            for options, command in (([], 'execution-run'), (['--dry-run'], 'execution-plan')):
+                with self.subTest(command=command):
+                    result = subprocess.run(
+                        ['bash', str(ROOT / 'scripts/run_test_suite.sh'), *options, *arguments],
+                        cwd=ROOT, env=env, text=True, capture_output=True, check=False)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.split('\0')[:-1], [
+                        'scripts/auto_test.py', command, '--profile', 'full', *arguments])
+
     def test_quick_and_full_delegation_preserve_the_selection_arguments(self):
         with tempfile.TemporaryDirectory() as directory:
             binary = Path(directory) / 'python3'

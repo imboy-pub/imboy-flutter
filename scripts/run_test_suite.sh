@@ -35,7 +35,9 @@ while [[ "$#" -gt 0 ]]; do
   esac
 done
 cd "$APP_ROOT"
+# Bash 3.2 treats an empty array as unset under nounset. Expand it only when
+# populated, while preserving each argument (including spaces and empty values).
 if $DRY_RUN; then
-  exec python3 scripts/auto_test.py execution-plan --profile "$MODE" "${ARGS[@]}"
+  exec python3 scripts/auto_test.py execution-plan --profile "$MODE" ${ARGS[@]+"${ARGS[@]}"}
 fi
-exec python3 scripts/auto_test.py execution-run --profile "$MODE" "${ARGS[@]}"
+exec python3 scripts/auto_test.py execution-run --profile "$MODE" ${ARGS[@]+"${ARGS[@]}"}

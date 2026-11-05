@@ -41,4 +41,5 @@ if [ "$COMMAND" = execution-run ]; then
 fi
 # --platform deliberately creates a scoped run. It never pretends that the other
 # host platform's full-regression obligations have been executed.
-exec python3 scripts/auto_test.py "$COMMAND" --profile routes --platform "$PLATFORM" "${ARGS[@]}"
+# An unfiltered plan has no extra arguments; keep nounset compatible with Bash 3.2.
+exec python3 scripts/auto_test.py "$COMMAND" --profile routes --platform "$PLATFORM" ${ARGS[@]+"${ARGS[@]}"}

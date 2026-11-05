@@ -15,6 +15,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -30,6 +31,7 @@ IDENTITY = ('id', 'commit', 'profile', 'suite', 'target', 'platform',
             'product_profile', 'role', 'variant', 'selected')
 GOOD_UPSTREAM = {'PASS', 'success', 'passed'}
 COUNT_KEYS = ('passed', 'failed', 'skipped', 'executed', 'actually_run')
+HOST_BATCH_MAX_TARGETS = 128
 
 
 def _write_json(path, value):
@@ -320,7 +322,7 @@ def _persist_process_receipt(receipt, evidence_dir):
 
 
 def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_path=None, separate_stderr=False):
-    """Save a process receipt and its exact mixed stdout/machine stream."""
+    """Keep live logs, then freeze evidence after stopping a timed-out process group."""
     evidence_dir = Path(evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
     log = Path(log_path) if log_path else evidence_dir / 'machine.jsonl'
@@ -333,13 +335,34 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
         output = stack.enter_context(machine.open('w', encoding='utf-8'))
         errors = stack.enter_context(log.open('w', encoding='utf-8')) if separate_stderr else subprocess.STDOUT
         try:
-            completed = subprocess.run(command, cwd=cwd, env=env, stdout=output,
-                                       stderr=errors, text=True, timeout=timeout)
-            code = completed.returncode
-        except subprocess.TimeoutExpired:
-            code, error = 124, 'RUNNER_TIMEOUT'
+            if os.name != 'posix':
+                raise OSError('PROCESS_SUPERVISION_UNAVAILABLE: a POSIX host is required for owned process groups')
+            with subprocess.Popen(command, cwd=cwd, env=env, stdout=output,
+                                  stderr=errors, text=True, start_new_session=True) as process:
+                try:
+                    code = process.wait(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    # The unreaped session leader pins this group identity. Kill
+                    # only its group, including children that ignore SIGTERM;
+                    # killing just the Flutter CLI leaves flutter_tester alive.
+                    with contextlib.suppress(ProcessLookupError):
+                        os.killpg(process.pid, signal.SIGKILL)
+                    process.wait()
+                    code, error = 124, 'RUNNER_TIMEOUT'
         except OSError as exc:
             code, error = 127, f'{type(exc).__name__}: {exc}'
+    if error == 'RUNNER_TIMEOUT':
+        # A dying descendant may still hold the old stdout/stderr descriptor.
+        # Atomically replace each live file with a snapshot so pending writes
+        # cannot mutate the paths used by the receipt and its hashes.
+        for path in {log, machine}:
+            with tempfile.NamedTemporaryFile(dir=path.parent, prefix='.' + path.name + '.', delete=False) as frozen:
+                snapshot = Path(frozen.name)
+                frozen.write(path.read_bytes())
+            try:
+                snapshot.replace(path)
+            finally:
+                snapshot.unlink(missing_ok=True)
     receipt = {'command': _display_command(command), 'exit_code': code, 'log': str(log), 'machine': str(machine), 'error': error,
                'lines': machine.read_text(encoding='utf-8', errors='replace').splitlines()}
     return _persist_process_receipt(receipt, evidence_dir)
@@ -486,6 +509,10 @@ def _host_command(root, group, env, output, stack, adapters=None):
         process_env = env
     if '--no-pub' not in command:
         command.append('--no-pub')
+    if all(i.get('suite') in {'unit', 'widget', 'component'} for i in group):
+        # Use Flutter's existing host concurrency, as the original CI did.
+        # Native FFI, backend and route groups retain the adapter's isolation.
+        command = [argument for argument in command if argument != '--concurrency=1']
     if first.get('test_name'):
         command += ['--name', first['test_name']]
     for key, value in sorted((first.get('dart_defines', {}) if adapters is None else {}).items()):
@@ -520,6 +547,16 @@ def _target_hashes(root, instances):
         except OSError:
             result[target] = None
     return result
+
+
+def _execution_batches(groups):
+    """Bound host process work without changing selected execution identities."""
+    for group in groups:
+        if not group:
+            continue
+        size = HOST_BATCH_MAX_TARGETS if _runner_name(group[0]) == 'flutter-machine' else len(group)
+        for start in range(0, len(group), size):
+            yield group[start:start + size]
 
 
 def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, coverage=False,
@@ -597,8 +634,11 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
             if runner != 'flutter-machine' or instance.get('suite') == 'route-smoke':
                 key += (instance['id'],)
             groups[key].append(instance)
-    for batch_index, group in enumerate(groups.values()):
+    batches = list(_execution_batches(groups.values()))
+    for batch_index, group in enumerate(batches):
         runner = _runner_name(group[0])
+        print(f'Execution batch {batch_index + 1}/{len(batches)}: {runner} '
+              f'platform={group[0]["platform"]} targets={len(group)}', file=sys.stderr, flush=True)
         if runner == 'flutter-device' and group[0].get('orchestration') == 'mc-owned-coordinator':
             for instance in group:
                 output = artifact_dir / 'batches' / f'{batch_index:04d}' / 'coordinated'

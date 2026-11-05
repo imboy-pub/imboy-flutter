@@ -43,6 +43,17 @@
 - 本地定向验证 `PYTHONPATH=test/tooling/auto_test python3 -m unittest test_execution_adapters test_execution_catalog test_execution_entrypoints`：99 tests PASS；归属门禁和 `git diff --check` 通过。
 - 当前开发环境仍没有 Dart/Flutter，修复后的格式与分析必须由下一轮固定 SDK 的 CI 复核。记录时首轮 Linux/macOS 业务测试仍在执行，不能据静态门禁通过推断业务或完整回归通过。
 
+### 已取得的 CI 结果与运行器修复
+
+- 格式修复已发布为 `bdbe06bd2d37c227ae1602c86c4ebbf65c406f1f`。[第二轮 CI](https://github.com/imboy-pub/imboy-flutter/actions/runs/42001967982) 在固定 Flutter 3.47.5 / Dart 3.13.4 下验证 2792 个 Dart 文件格式通过、0 changed；Analyzer 为 0 error / 0 warning / 0 info，全部静态和源码契约门禁通过。两平台业务任务及最终汇总仍失败，没有完整 PR 通过证据。
+- 已下载并核验首轮 CI 的真实执行证据。Linux：1180/1180 目标有结果，198 PASS / 982 BLOCKED，4221 passed / 0 failed / 2 skipped。macOS：1180/1180 有结果，195 PASS / 983 BLOCKED / 2 FAIL，4054 passed / 3 failed / 2 skipped。两平台证据哈希均与原始收据一致。
+- 首轮主要阻塞是一个包含约 980 个目标的 Flutter 串行进程达到既有 900 秒限时，缺失 machine `done`；最后一个已开始测试不能据此被认定为挂起。修复为对既有 host 分组按最多 128 个目标分批，并恢复纯 unit/widget/component 分组的 Flutter 默认并发；SQLite、crypto、后端、Golden、路由等专项继续串行或隔离执行。原限时、目标矩阵、覆盖率范围和逐实例对账保持不变。
+- 首轮两平台各 21 个 crypto-ffi 目标 / 185 用例通过；SQLite 各 126 个目标通过、1 个因 2 个 FTS skip 被阻断，合计 1292 passed / 2 skipped。Linux 全部 46 个 tooling 目标 / 716 用例通过，说明本地的两个 `ps` 阻塞可在正常 Linux CI 解除。以上是实际通过的子集，不代表整个 Flutter 或完整回归通过。
+- 修复 macOS 首轮发现的 3 个工具断言失败：Bash 3.2 在 `set -u` 下展开空参数数组、临时目录 `/var` 与 `/private/var` 的规范路径差异，以及测试 fixture 硬编码 Linux。没有改动业务断言。
+- 补齐超时清理：每次调用拥有独立 POSIX 进程组，只清理该组并回收主进程，冻结日志/事件快照后再记录哈希。合成测试验证忽略 TERM 的后代不会继续写日志、无关进程保留、部分执行不能 PASS；这项生命周期缺陷由定向测试复现，不能表述为已发现 CI 原始收据哈希错误。非 POSIX 主机明确阻断，不声称已支持 Windows 进程树监督。
+- 当前修复的本地验证：`PYTHONPATH=test/tooling/auto_test python3 -m unittest discover -s test/tooling -p 'test_*.py'` 为 **625 tests PASS**；统一 tooling 执行与独立证据再对账均为 46/46 有结果、44 PASS / 2 ENV_MISSING、691 passed / 0 failed / 0 skipped。另有 8 项路由包装器测试通过，路由 dry-run 计划含 176 实例、业务执行 0。归属、Python 编译、shell 语法和 diff 检查通过。
+- CI 原始证据在 `/workspace/scratch/c02895233621/pr-ci-followup/original-hosts/`；修复验证在 `pr-ci-followup/runtime-fix-validation/`。下一步提交本运行器修复到同一 Draft PR，重新检查真实 Linux/macOS 执行耗时、Bash 3.2、覆盖率与最终对账。保留此前失败结果，不用重试洗掉断言失败。
+
 ## 未解除条件及下一步
 
 1. 安装仓库固定Flutter3.47.5/Dart，按锁定依赖准备包、SQLite和Rust加密库；本环境固定SDK下载/发行索引探测返回404，未替换版本。
