@@ -422,15 +422,20 @@ void main() {
       await pumpPrepare(tester, container);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text(t.talkRecord.collabSectionTitle));
+      // SafeArea 消费导航栏高度后列表整体下移：tap 前滚入视口。
+      final collabTitle = find.text(t.talkRecord.collabSectionTitle);
+      await tester.ensureVisible(collabTitle);
+      await tester.tap(collabTitle);
       await tester.pumpAndSettle();
 
       await tester.tap(
         find.byKey(const ValueKey('talk_record_participants_choose')),
       );
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('张三'));
       await tester.tap(find.text('张三'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text(t.common.buttonAccomplish));
       await tester.tap(find.text(t.common.buttonAccomplish));
       await tester.pumpAndSettle();
 
@@ -607,14 +612,18 @@ void main() {
         '客户访谈',
       );
       await tester.pump();
-      await tester.tap(find.text(t.talkRecord.collabSectionTitle));
+      final collabTitle = find.text(t.talkRecord.collabSectionTitle);
+      await tester.ensureVisible(collabTitle);
+      await tester.tap(collabTitle);
       await tester.pumpAndSettle();
       await tester.tap(
         find.byKey(const ValueKey('talk_record_participants_choose')),
       );
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('张三'));
       await tester.tap(find.text('张三'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text(t.common.buttonAccomplish));
       await tester.tap(find.text(t.common.buttonAccomplish));
       await tester.pumpAndSettle();
       expect(

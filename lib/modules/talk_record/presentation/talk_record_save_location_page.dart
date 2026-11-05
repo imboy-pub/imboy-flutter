@@ -99,7 +99,7 @@ class TalkRecordSaveLocationPage extends ConsumerWidget {
         automaticallyImplyLeading: true,
       ),
       child: SafeArea(
-        top: false,
+        // top 必须消费：同 prepare_page——top:false 会致 body 被 topbar 覆盖。
         child: contextsAsync.when(
           skipLoadingOnRefresh: false,
           skipLoadingOnReload: false,

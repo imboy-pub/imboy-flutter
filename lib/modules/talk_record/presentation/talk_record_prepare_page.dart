@@ -244,7 +244,8 @@ class _TalkRecordPreparePageState extends ConsumerState<TalkRecordPreparePage> {
         automaticallyImplyLeading: true,
       ),
       child: SafeArea(
-        top: false,
+        // top 必须消费：CupertinoPageScaffold 把导航栏高度注入 padding.top，
+        // top:false 会丢弃 → body 首卡片被 topbar 覆盖（真机实证）。
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics(),
