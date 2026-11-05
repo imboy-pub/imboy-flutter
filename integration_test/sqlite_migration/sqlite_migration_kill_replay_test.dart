@@ -16,6 +16,7 @@ library;
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/service/embedded_schema_scripts.dart';
@@ -47,8 +48,7 @@ Future<String> _dbPath() async {
 
 void _evidence(String step, Map<String, Object?> kv) {
   final pairs = kv.entries.map((e) => '${e.key}=${e.value}').join(' ');
-  // ignore: avoid_print
-  print('[WP7-EVIDENCE] step=$step $pairs');
+  debugPrintSynchronously('[WP7-EVIDENCE] step=$step $pairs');
 }
 
 Future<Database> _open(String path, {String? password}) =>
