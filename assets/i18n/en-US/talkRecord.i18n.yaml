@@ -10,6 +10,7 @@ filterAll: All
 filterOwned: Created by me
 filterShared: Shared with me
 searchHint: Search notes
+durationLabel: Duration
 untitledRecord: Untitled note
 visibilityOwnerOnly: Only me
 visibilityShared: Shared

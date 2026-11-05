@@ -7383,6 +7383,9 @@ class Translations$talkRecord$zh_CN {
 	/// zh-CN: '搜索面聊记录'
 	String get searchHint => '搜索面聊记录';
 
+	/// zh-CN: '时长'
+	String get durationLabel => '时长';
+
 	/// zh-CN: '未命名记录'
 	String get untitledRecord => '未命名记录';
 
@@ -13733,6 +13736,7 @@ extension on Translations {
 			'talkRecord.filterOwned' => '我创建',
 			'talkRecord.filterShared' => '共享给我',
 			'talkRecord.searchHint' => '搜索面聊记录',
+			'talkRecord.durationLabel' => '时长',
 			'talkRecord.untitledRecord' => '未命名记录',
 			'talkRecord.visibilityOwnerOnly' => '仅自己可见',
 			'talkRecord.visibilityShared' => '已共享',
@@ -14025,9 +14029,9 @@ extension on Translations {
 			'talkRecord.deleteConflictHint' => '记录已被他人更新，请刷新后重试。',
 			'talkRecord.deleteStatusTitle' => '记录已删除',
 			'talkRecord.deleteStatusNoContentHint' => '记录内容已不再展示。',
-			'talkRecord.deleteCleanupSectionTitle' => '附件清理状态',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.deleteCleanupSectionTitle' => '附件清理状态',
 			'talkRecord.cleanupPendingTitle' => '清理进行中',
 			'talkRecord.cleanupPendingBody' => '已提交清理队列；排队成功不代表附件字节已删除。',
 			'talkRecord.cleanupBlockedRetentionTitle' => '留存期未到',

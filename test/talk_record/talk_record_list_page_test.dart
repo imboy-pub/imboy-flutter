@@ -323,7 +323,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('客户访谈'), findsOneWidget);
-      expect(find.text('10:55'), findsOneWidget);
+      // 时长显式标注「时长 x:xx」，与标题时间戳区分。
+      expect(find.text('${t.talkRecord.durationLabel} 10:55'), findsOneWidget);
       expect(find.text(t.talkRecord.statusTranscribeReady), findsOneWidget);
       expect(find.text(t.talkRecord.visibilityOwnerOnly), findsOneWidget);
       // 空标题按创建时间显示时间戳命名（20261105-152101 式），

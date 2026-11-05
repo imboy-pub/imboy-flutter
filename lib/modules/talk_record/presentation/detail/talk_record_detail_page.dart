@@ -294,7 +294,9 @@ class _OverviewCard extends StatelessWidget {
                 ),
               _Pill(
                 key: const ValueKey('talk_record_duration_badge'),
-                text: talkRecordFormatDuration(record.durationMs),
+                text:
+                    '${t.talkRecord.durationLabel} '
+                    '${talkRecordFormatDuration(record.durationMs)}',
                 color: brightness == Brightness.dark
                     ? AppColors.darkTextSecondary
                     : AppColors.lightTextSecondary,

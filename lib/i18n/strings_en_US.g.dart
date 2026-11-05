@@ -2707,6 +2707,7 @@ class _Translations$talkRecord$en_US extends Translations$talkRecord$zh_CN {
 	@override String get filterOwned => 'Created by me';
 	@override String get filterShared => 'Shared with me';
 	@override String get searchHint => 'Search notes';
+	@override String get durationLabel => 'Duration';
 	@override String get untitledRecord => 'Untitled note';
 	@override String get visibilityOwnerOnly => 'Only me';
 	@override String get visibilityShared => 'Shared';
@@ -6802,6 +6803,7 @@ extension on TranslationsEnUs {
 			'talkRecord.filterOwned' => 'Created by me',
 			'talkRecord.filterShared' => 'Shared with me',
 			'talkRecord.searchHint' => 'Search notes',
+			'talkRecord.durationLabel' => 'Duration',
 			'talkRecord.untitledRecord' => 'Untitled note',
 			'talkRecord.visibilityOwnerOnly' => 'Only me',
 			'talkRecord.visibilityShared' => 'Shared',
@@ -7114,9 +7116,9 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryAction' => 'Retry cleanup',
 			'talkRecord.cleanupRetrying' => 'Retrying…',
 			'talkRecord.cleanupRetryFailedBody' => 'Cleanup retry failed; try again later.',
-			'talkRecord.deleteRefreshStatus' => 'Refresh cleanup status',
 			_ => null,
 		} ?? switch (path) {
+			'talkRecord.deleteRefreshStatus' => 'Refresh cleanup status',
 			'talkRecord.deleteBackToList' => 'Back to list',
 			'talkRecord.deleteStatusFixtureHint' => 'Component stage: cleanup status comes from a fixture sample; real progress pending integration.',
 			'talkRecord.microphoneStopUnconfirmed' => 'Microphone stop is not confirmed. Retry stopping; if it still fails, close the app and check the system microphone indicator.',

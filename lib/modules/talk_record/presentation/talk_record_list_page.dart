@@ -417,7 +417,10 @@ class _RecordRow extends StatelessWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      talkRecordFormatDuration(record.durationMs),
+                      // 时长显式标注：卡片上唯一的「时间」是标题里的
+                      // 开始时间戳，避免把时长误读为时刻。
+                      '${t.talkRecord.durationLabel} '
+                      '${talkRecordFormatDuration(record.durationMs)}',
                       style: context.textStyle(
                         FontSizeType.normal,
                         color: brightness == Brightness.dark

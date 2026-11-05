@@ -618,7 +618,9 @@ class _PendingDraftCard extends StatelessWidget {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text(
-                          talkRecordFormatDuration(item.durationMs),
+                          // 时长显式标注（同上：避免与标题时间戳混淆）。
+                          '${t.talkRecord.durationLabel} '
+                          '${talkRecordFormatDuration(item.durationMs)}',
                           style: context.textStyle(
                             FontSizeType.small,
                             color: isDark
