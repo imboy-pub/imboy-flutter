@@ -1111,6 +1111,12 @@ def _kill_replay_ready(lines, attempt, *, interrupted=False):
             or any(seeded[0].get(key) != str(value) for key, value in
                    (('contact', 8000), ('user_tag', 8000), ('user_collect', 4000)))):
         raise ValueError('KILL_REPLAY_PREPARE_EVIDENCE_INVALID')
+    # Protocol 2 is emitted only after a real 16→17 migration has changed the
+    # schema inside the still-open outer transaction. A legacy pre-transaction
+    # ready line cannot establish a rollback obligation, even with valid hashes.
+    if any(ready[0].get(key) != value for key, value in
+           (('protocol', '2'), ('transaction', 'active'), ('from', '16'), ('reached', '17'), ('to', '31'))):
+        raise ValueError('KILL_REPLAY_TRANSACTION_NOT_PROVEN')
     db = Path(ready[0].get('db', ''))
     if not db.is_absolute() or '..' in db.parts or db.parts[-2:] != ('imboy_wp7_kill', f'replay_{attempt}.db'):
         raise ValueError('KILL_REPLAY_SYNTHETIC_DATABASE_REQUIRED')
@@ -1160,6 +1166,7 @@ def verify_kill_replay_evidence(gate: dict, resolve_path: Callable[[str], Path])
     try:
         attempt, device = gate['attempt'], gate['device_id']
         if (gate.get('kind') != 'kill-replay-gate' or gate.get('target') != KILL_REPLAY_TARGET
+                or gate.get('protocol') != 2
                 or not gate.get('instance_id') or gate.get('platform') != 'android'
                 or gate.get('package') != KILL_REPLAY_PACKAGE or not isinstance(device, str) or not device
                 or type(attempt) is not int or not 1 <= attempt <= 999999999):
@@ -1292,6 +1299,7 @@ def run_kill_replay(root: Path, instance: dict, env: dict, output_dir: Path,
     observation_path = output_dir / 'observations.jsonl'
     observation_path.write_text(''.join(json.dumps(row) + '\n' for row in observations))
     gate = {'kind': 'kill-replay-gate', 'instance_id': instance['id'], 'target': instance['target'],
+            'protocol': 2,
             'platform': 'android', 'device_id': device, 'package': KILL_REPLAY_PACKAGE,
             'attempt': attempt, 'phases': phases, 'observations': reference(observation_path),
             'ready_evidence': reference(ready_path) if ready_path.is_file() else None}

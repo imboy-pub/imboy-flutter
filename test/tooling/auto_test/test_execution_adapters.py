@@ -847,7 +847,19 @@ class KillReplayTests(unittest.TestCase):
                      json.dumps({'type': 'testStart', 'test': {'id': 1, 'suiteID': 1, 'name': 'prepare'}}),
                      self.marker('kill_seeded', contact=8000, user_tag=8000, user_collect=4000, seed_ms=1)]
             if self.scenario != 'missing_ready':
-                lines.append(self.marker('kill_ready', db='/data/user/0/pub.imboy.app/files/imboy_wp7_kill/replay_23.db'))
+                ready = {'db': '/data/user/0/pub.imboy.app/files/imboy_wp7_kill/replay_23.db',
+                         'protocol': 2, 'transaction': 'active', 'from': 16, 'reached': 17, 'to': 31}
+                if self.scenario == 'legacy_ready':
+                    ready = {'db': ready['db']}
+                for scenario, key, value in (
+                        ('old_protocol', 'protocol', 1), ('future_protocol', 'protocol', 3),
+                        ('transaction_not_started', 'transaction', 'pending'),
+                        ('transaction_committed', 'transaction', 'committed'),
+                        ('no_migration_write', 'reached', 16), ('wrong_start', 'from', 17),
+                        ('wrong_destination', 'to', 38)):
+                    if self.scenario == scenario:
+                        ready[key] = value
+                lines.append(self.marker('kill_ready', **ready))
             if self.scenario == 'window_before_stop':
                 lines.append(self.marker('kill_done_window_missed', user_version=31, **{'from': 16, 'to': 31}))
             live = Path(kwargs['log_path'])
@@ -923,6 +935,7 @@ class KillReplayTests(unittest.TestCase):
         self.assertEqual(1, result['counts']['actually_run'])
         self.assertEqual(1, len(result['attempts']))
         self.assertIn('--dart-define=KILL_PHASE=verify', result['attempts'][0]['command'])
+        self.assertEqual(2, result['companion_evidence']['protocol'])
         self.assertEqual([], adapters.verify_kill_replay_evidence(result['companion_evidence'], Path))
         candidate = self.output / 'results.json'
         payload = {'artifact_root': str(self.output), 'results': [result]}
@@ -992,6 +1005,43 @@ class KillReplayTests(unittest.TestCase):
                 result = self.run_fixture(scenario)
                 self.assertEqual('BLOCKED', result['status'])
                 self.assertEqual(0, self.verify_calls)
+
+    def test_ready_without_an_active_partly_applied_transaction_never_touches_device(self):
+        for scenario in ('legacy_ready', 'old_protocol', 'future_protocol', 'transaction_not_started',
+                         'transaction_committed', 'no_migration_write', 'wrong_start', 'wrong_destination'):
+            with self.subTest(scenario=scenario):
+                self.commands = []
+                result = self.run_fixture(scenario)
+                self.assertEqual('BLOCKED', result['status'])
+                self.assertEqual(0, self.verify_calls)
+                self.assertFalse(any(command[0] == 'adb' for command in self.commands))
+                self.assertIn('KILL_REPLAY_TRANSACTION_NOT_PROVEN', result['companion_evidence']['errors'])
+
+    def test_replay_rejects_old_ready_even_with_consistent_file_hashes(self):
+        result = self.run_fixture()
+        gate = result['companion_evidence']
+        process = json.loads(Path(gate['phases']['prepare']['path']).read_text())
+        lines = Path(process['machine']).read_text().replace('protocol=2', 'protocol=1').splitlines()
+        receipt = self.persist(process['command'], Path(gate['phases']['prepare']['path']).parent,
+                               lines, code=process['exit_code'], error=process['error'], log_path=process['log'])
+        ready = Path(gate['ready_evidence']['path'])
+        ready.write_text(ready.read_text().replace('protocol=2', 'protocol=1'))
+
+        def reference(path):
+            return {'path': str(path), 'sha256': hashlib.sha256(Path(path).read_bytes()).hexdigest()}
+
+        gate['phases']['prepare'] = reference(receipt['process_receipt'])
+        gate['ready_evidence'] = reference(ready)
+        coordinator = Path(gate['receipt']['path'])
+        coordinator.write_text(json.dumps({key: value for key, value in gate.items()
+                                          if key not in ('receipt', 'status', 'reason_code', 'errors')}))
+        gate['receipt'] = reference(coordinator)
+        self.assertEqual(['KILL_REPLAY_TRANSACTION_NOT_PROVEN'], adapters.verify_kill_replay_evidence(gate, Path))
+
+    def test_replay_requires_the_transaction_protocol_on_the_coordinator(self):
+        gate = self.run_fixture()['companion_evidence']
+        gate.pop('protocol', None)
+        self.assertEqual(['KILL_REPLAY_RECEIPT_INVALID'], adapters.verify_kill_replay_evidence(gate, Path))
 
     def test_verify_skip_zero_nonzero_and_window_miss_cannot_be_green(self):
         for scenario in ('verify_skip', 'verify_zero', 'verify_nonzero', 'verify_marker_missing', 'verify_window_missed', 'verify_assertion'):

@@ -1844,12 +1844,12 @@
       "required_true_env": [
         "IMBOY_TEST_ISOLATED"
       ],
-      "reviewed_source_sha256": "6660fddde15c88c739d0462dc1a56864cca67d2b5b03a06972da8bbee499caa1",
+      "reviewed_source_sha256": "d078ded7d76f5ce2bdf3b5919a2bda67bd6cb5d26cd20ce5f80adefde301177f",
       "basis": [
         "Standalone SQLCipher synthetic database under imboy_wp7_kill/replay_N.db; no app bootstrap, login, backend or customer data.",
         "The Dart target requires KILL_PHASE prepare/verify and a matching attempt. The existing Android adb force-stop protocol is now executed by the shared runner; generic single-device invocation is invalid.",
         "Android standard flavor only: the controlled package is pub.imboy.app. iOS/macOS have no equivalent implemented interruption controller.",
-        "kill_ready is emitted before db.transaction; evidence proves readiness, controlled stop and restored v16 data, not the exact SQL transaction boundary."
+        "Protocol 2 readiness is emitted inside the caller-owned transaction only after the real 16→17 migration changes user_version and adds conversation.mention_unread. A bounded 30-second checkpoint precedes 17→31; legacy pre-transaction evidence is rejected. Real SQLCipher device interruption remains separately required."
       ]
     }
   },

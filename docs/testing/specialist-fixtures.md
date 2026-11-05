@@ -108,16 +108,25 @@ IMBOY_TEST_ISOLATED=true bash scripts/run_kill_replay.sh "$ANDROID_TEST_DEVICE" 
   --artifact-dir "$REPORT_DIR/kill-replay"
 ```
 
+设备目标在同一个外层事务内先调用真实 `MigrationService` 完成 16→17，读回版本 17 并
+核验 `conversation.mention_unread` 已存在，才发出协议 2 的 `kill_ready`。标记包含
+`protocol=2 transaction=active from=16 reached=17 to=31`，并保留 attempt 与合成库路径。
+事务保持打开，最多等待 30 秒供控制器停止进程；未被停止时继续 17→31，完成后明确记录
+`kill_done_window_missed`，不能把已完成的迁移当作中断回滚通过。
+
 运行器从 Flutter machine 的 print 事件读取相同 attempt 的 `kill_seeded`、`kill_ready`，
-核对合成库命名空间，记录准备阶段证据前缀，再确认测试包 PID、受控 force-stop、确认 PID
+核对事务协议、已发生的迁移写入和合成库命名空间，记录准备阶段证据前缀，再确认测试包 PID、受控 force-stop、确认 PID
 消失。随后使用同一 attempt 执行 verify，沿用 machine events、进程退出码和零执行/skip
 判定。成功还必须有 `KILLED_ROLLED_BACK`；缺 ready、错 attempt、漏过中断窗口、PID 未停止、
 verify 非零/跳过或缺少任何阶段证据均不能通过。准备阶段是协调证据，不计业务用例；
 最终计数只来自 verify。汇总重新核验阶段命令、进程收据、事件顺序和文件 SHA-256。
 
-现有 Dart 在调用 `db.transaction` **之前**打印 `kill_ready`，因此这套证据证明“观察到就绪、
-受控停止、重开后保留 v16 和数据”，不能精确证明停止发生在 SQLite 事务内部。更严格的
-事务内杀点需要另行补充可观测契约和真实设备验证；不能靠更改报告措辞扩大结论。
+旧的事务前 ready、缺协议、未发生迁移写入或已提交状态，在运行时与工件重放时均被拒绝；
+即使日志和收据哈希自洽，也不能升级为协议 2 的证据。宿主 FFI 回滚测试与设备目标共用
+同一个小型迁移 helper，验证检查点前失败不发 ready、检查点内中断回滚和正常完成。
+宿主测试不包含 Android force-stop 或真实 SQLCipher 二进制；设备通过仍须本次真实
+prepare/stop/verify 的完整证据。该协议验证事务内、迁移边之间的中断，不声称停止在某条
+SQLite 指令执行中的精确位置。
 
 `run_cross_platform_e2ee_interop.sh` 和 `run_cross_platform_e2ee_group_interop.sh` 也只转交
 同一 device-pair profile 的对应目标。它们需要明确的 Android sender 和 macOS receiver，
