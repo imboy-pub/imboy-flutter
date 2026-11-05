@@ -93,6 +93,28 @@ class TalkRecordRecorderService {
   double? _lastDecibels;
   TalkRecordRecorderSnapshot _snapshot = const TalkRecordRecorderSnapshot();
 
+  /// 录音中读秒的本地驱动：引擎上报节奏（resume 后首条可能迟到）不决定
+  /// UI 刷新及时性——recording 态每 300ms 主动 emit 一次，读秒 ≤300ms
+  /// 必刷（暂停/结束即停，不产生额外功耗）。
+  Timer? _recordingTicker;
+
+  void _startRecordingTicker() {
+    _recordingTicker?.cancel();
+    _recordingTicker = Timer.periodic(const Duration(milliseconds: 300), (_) {
+      if (_phase != TalkRecordRecorderPhase.recording) {
+        _recordingTicker?.cancel();
+        _recordingTicker = null;
+        return;
+      }
+      _emit();
+    });
+  }
+
+  void _stopRecordingTicker() {
+    _recordingTicker?.cancel();
+    _recordingTicker = null;
+  }
+
   // ───────────────────────────────────────────────────────────────────────
   // 观测面
   // ───────────────────────────────────────────────────────────────────────
@@ -169,6 +191,7 @@ class TalkRecordRecorderService {
       await _startSegment(0, beforeOpen: beforeOpen);
       await _listenEngine();
       _phase = TalkRecordRecorderPhase.recording;
+      _startRecordingTicker();
       _emit();
     } catch (e) {
       await _abortStart();
@@ -262,6 +285,9 @@ class TalkRecordRecorderService {
     await _engine.resume();
     _phase = TalkRecordRecorderPhase.recording;
     await _persistStatus(TalkRecordSessionStatus.recording);
+    // pause 后 300ms ticker 已自毁（phase≠recording）；不重启则读秒只能
+    // 等引擎迟到上报（真机实测延迟远超 2s，两个读秒器同延迟）。
+    _startRecordingTicker();
     _emit();
   }
 
@@ -270,10 +296,15 @@ class TalkRecordRecorderService {
       _control(_userResumeAfterInterruptionInternal);
 
   Future<void> _userResumeAfterInterruptionInternal() async {
-    if (_phase != TalkRecordRecorderPhase.interrupted) return;
+    if (_phase != TalkRecordRecorderPhase.interrupted) {
+      // 状态错位自愈：同 _resumeInternal。
+      _emit();
+      return;
+    }
     await _engine.resume();
     _phase = TalkRecordRecorderPhase.recording;
     await _persistStatus(TalkRecordSessionStatus.recording);
+    _startRecordingTicker();
     _emit();
   }
 
@@ -421,6 +452,14 @@ class TalkRecordRecorderService {
       () async {
         await _interruptionSub?.cancel();
         _interruptionSub = null;
+      },
+      () async {
+        // 结束/拆解必停读秒 ticker（正常自毁路径为 tick 时 phase 翻转；
+        // 测试 dispose 后才自毁会挂 pending timer）。
+        _stopRecordingTicker();
+      },
+      () async {
+        await interruptionSource?.dispose();
       },
       () async {
         await interruptionSource?.dispose();
