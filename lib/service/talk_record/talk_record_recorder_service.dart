@@ -28,8 +28,13 @@ class TalkRecordRecorderService {
     DiskSpaceProbe? diskProbe,
     this.interruptionSource,
     this.config = const TalkRecordRecorderConfig(),
+    DateTime Function()? nowSource,
   }) : _engine = engine ?? FlutterSoundTalkRecordEngine(),
-       diskProbe = diskProbe ?? ProbeFileDiskSpaceProbe();
+       diskProbe = diskProbe ?? ProbeFileDiskSpaceProbe(),
+       nowSource = nowSource ?? DateTime.now;
+
+  /// 墙钟源（测试注入可控时钟；生产 DateTime.now）。
+  DateTime Function() nowSource;
 
   // All mutating controls share one queue. Internal terminal/failure helpers
   // run inside its current operation and never re-enter the queue.
@@ -66,6 +71,20 @@ class TalkRecordRecorderService {
   String? _leasedRecordLocalId;
   int _sealedDurationMs = 0;
   int _currentSegmentElapsedMs = 0;
+
+  /// 当前段读秒的墙钟锚点（recording 态非空；pause/interrupted/封段清空）。
+  ///
+  /// 真机实证（MRD-AL00/EMUI9）：flutter_sound pause→resume 后 onProgress
+  /// 上报停摆（重设 subscriptionDuration 无效），引擎 elapsed 轴冻结直至
+  /// 段滚动 stop→start 才恢复——读秒依赖引擎上报会冻结长达分钟级，且
+  /// 恢复瞬间把停摆墙钟计入（00:51→02:07 跳变）。故读秒权威改为墙钟轴：
+  /// 只累计 recording 态墙钟，暂停/中断不计入；引擎上报不再推进读秒
+  /// （decibels 照常），段滚动也由墙钟触发（上报停摆时仍能 stop→start
+  /// 自愈）。封段时长权威仍是真实编码样本（_sealCurrentSegment）。
+  DateTime? _segmentRecordingSince;
+
+  /// 当前锚点之前当前段已录墙钟毫秒（resume 接续累计）。
+  int _segmentRecordedMsBase = 0;
   int _currentSeq = 0;
   bool _rollingOver = false;
   bool _ending = false;
@@ -106,7 +125,7 @@ class TalkRecordRecorderService {
         _recordingTicker = null;
         return;
       }
-      _emit();
+      _heartbeat();
     });
   }
 
@@ -128,7 +147,24 @@ class TalkRecordRecorderService {
       : Directory('${baseDirectory.path}/${_manifest!.sessionId}');
 
   /// 当前有效时长（封段累计 + 当前段）。
-  int get effectiveDurationMs => _sealedDurationMs + _currentSegmentElapsedMs;
+  ///
+  /// 读取即推进墙钟轴（惰性）：所有消费点（emit/限额/轮转/封段/标记）
+  /// 自动拿到最新值，正确性不依赖 ticker 节奏。
+  int get effectiveDurationMs {
+    _advanceSegmentElapsedByWallClock();
+    return _sealedDurationMs + _currentSegmentElapsedMs;
+  }
+
+  /// 墙钟轴推进当前段读秒（recording 态限定；引擎上报不参与）。
+  void _advanceSegmentElapsedByWallClock() {
+    final since = _segmentRecordingSince;
+    if (since == null) return;
+    final wall =
+        _segmentRecordedMsBase + nowSource().difference(since).inMilliseconds;
+    if (wall > _currentSegmentElapsedMs) {
+      _currentSegmentElapsedMs = wall;
+    }
+  }
 
   // ───────────────────────────────────────────────────────────────────────
   // 生命周期
@@ -191,6 +227,7 @@ class TalkRecordRecorderService {
       await _startSegment(0, beforeOpen: beforeOpen);
       await _listenEngine();
       _phase = TalkRecordRecorderPhase.recording;
+      _segmentRecordingSince = nowSource();
       _startRecordingTicker();
       _emit();
     } catch (e) {
@@ -248,6 +285,7 @@ class TalkRecordRecorderService {
   Future<void> _pauseInternal() async {
     if (_phase != TalkRecordRecorderPhase.recording) return;
     await _engine.pause();
+    _freezeSegmentWallClock();
     _phase = TalkRecordRecorderPhase.paused;
     await _persistStatus(TalkRecordSessionStatus.paused);
     _emit();
@@ -257,9 +295,17 @@ class TalkRecordRecorderService {
   Future<void> markInterrupted(String reason) =>
       _control(() => _markInterruptedInternal(reason));
 
+  /// 离开 recording 态：墙钟轴推进并固化（暂停/中断期间不计入）。
+  void _freezeSegmentWallClock() {
+    _advanceSegmentElapsedByWallClock();
+    _segmentRecordedMsBase = _currentSegmentElapsedMs;
+    _segmentRecordingSince = null;
+  }
+
   Future<void> _markInterruptedInternal(String reason) async {
     if (_phase != TalkRecordRecorderPhase.recording) return;
     await _engine.pause();
+    _freezeSegmentWallClock();
     _phase = TalkRecordRecorderPhase.interrupted;
     _manifest = _manifest!.copyWith(
       status: TalkRecordSessionStatus.interrupted,
@@ -284,9 +330,12 @@ class TalkRecordRecorderService {
     }
     await _engine.resume();
     _phase = TalkRecordRecorderPhase.recording;
+    // 墙钟轴重新落锚：读秒 ≤300ms（ticker emit）即恢复走动，不依赖引擎
+    // 上报（真机实证 resume 后上报可停摆分钟级）。
+    _segmentRecordingSince = nowSource();
     await _persistStatus(TalkRecordSessionStatus.recording);
-    // pause 后 300ms ticker 已自毁（phase≠recording）；不重启则读秒只能
-    // 等引擎迟到上报（真机实测延迟远超 2s，两个读秒器同延迟）。
+    // pause 后 300ms ticker 已自毁（phase≠recording）；不重启则读秒连
+    // 墙钟轴也不刷新（真机实测引擎迟到上报延迟远超 2s）。
     _startRecordingTicker();
     _emit();
   }
@@ -303,6 +352,7 @@ class TalkRecordRecorderService {
     }
     await _engine.resume();
     _phase = TalkRecordRecorderPhase.recording;
+    _segmentRecordingSince = nowSource();
     await _persistStatus(TalkRecordSessionStatus.recording);
     _startRecordingTicker();
     _emit();
@@ -381,6 +431,8 @@ class TalkRecordRecorderService {
         }
       }
       _currentSegmentElapsedMs = 0;
+      _segmentRecordedMsBase = 0;
+      _segmentRecordingSince = null;
       _phase = TalkRecordRecorderPhase.ended;
       _manifest = _manifest!.copyWith(
         status: TalkRecordSessionStatus.ended,
@@ -531,11 +583,20 @@ class TalkRecordRecorderService {
         _ending) {
       return;
     }
-    if (d.elapsedMs > _currentSegmentElapsedMs) {
-      _currentSegmentElapsedMs = d.elapsedMs;
-    }
+    // 引擎 elapsed 不推进读秒（真机实证 resume 后上报可停摆分钟级、
+    // 恢复时把停摆墙钟计入——读秒权威是墙钟轴，见类字段注释）。
+    // 引擎帧仍承担电平与「引擎存活心跳」：读取路径的 effectiveDurationMs
+    // getter 会惰性推进墙钟轴。
     if (d.decibels != null) _lastDecibels = d.decibels;
+    _heartbeat();
+  }
 
+  /// 心跳：墙钟轴推进后的限额/轮转判定 + 快照下发。
+  ///
+  /// 引擎帧与读秒 ticker 共用（真机实证引擎上报 resume 后可停摆——
+  /// ticker 每 300ms 兜底，停摆期间段滚动/限额照常由墙钟触发 stop→start
+  /// 自愈，读秒不再冻结）。
+  void _heartbeat() {
     // 限额：到限结束并保留已录（§11.4）。
     if (effectiveDurationMs >= config.effectiveMaxDurationMs) {
       _scheduleBoundary(() async {
@@ -576,6 +637,8 @@ class TalkRecordRecorderService {
     final completer = _endCompleter ?? Completer<TalkRecordSessionResult>();
     _endCompleter = completer;
     _currentSegmentElapsedMs = 0;
+    _segmentRecordedMsBase = 0;
+    _segmentRecordingSince = null;
     _phase = TalkRecordRecorderPhase.ended;
     _manifest = _manifest!.copyWith(
       status: TalkRecordSessionStatus.ended,

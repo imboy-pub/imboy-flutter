@@ -14,6 +14,14 @@ import 'package:imboy/service/talk_record/talk_record_platform_adapters.dart';
 import 'package:imboy/service/talk_record/talk_record_recorder_config.dart';
 import 'package:imboy/service/talk_record/talk_record_segment_crypto.dart';
 
+/// 可控时钟（墙钟轴）：读秒/轮转判定由墙钟驱动（真机实证引擎上报
+/// resume 后可停摆，不再作为读秒权威），测试注入显式推进。
+class FakeClock {
+  DateTime _now = DateTime(2026, 1, 1);
+  DateTime call() => _now;
+  void advanceMs(int ms) => _now = _now.add(Duration(milliseconds: ms));
+}
+
 /// 可编程 fake 引擎。
 class FakeTalkRecordEngine implements TalkRecordAudioEngine {
   final StreamController<TalkRecordEngineDisposition> _ctrl =

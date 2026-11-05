@@ -11,6 +11,8 @@ extension _RecorderSegments on TalkRecordRecorderService {
     final path = '${tmpDir.path}/seg_${seq.toString().padLeft(6, '0')}.aac';
     _currentSeq = seq;
     _currentSegmentElapsedMs = 0;
+    _segmentRecordedMsBase = 0;
+    _segmentRecordingSince = null;
     _lastPlainFilePath = path;
     beforeOpen?.call();
     await _engine.startSegment(path, config.encoder);
@@ -57,6 +59,9 @@ extension _RecorderSegments on TalkRecordRecorderService {
       final next = _currentSeq + 1;
       _sealedDurationMs = _manifest?.effectiveDurationMs ?? _sealedDurationMs;
       await _startSegment(next);
+      // 仍在 recording 态：新段墙钟锚即落（读秒连续；引擎上报停摆时
+      // 墙钟轴照常触发后续轮转 stop→start 自愈）。
+      _segmentRecordingSince = nowSource();
       _emit();
     } finally {
       _rollingOver = false;
@@ -79,6 +84,8 @@ extension _RecorderSegments on TalkRecordRecorderService {
     final m = _manifest;
     final key = _recordKey;
     if (m == null || key == null) return true;
+    // 封段前推进墙钟轴（旧清单毫秒轴 endMs 与空段判定用最新值）。
+    _advanceSegmentElapsedByWallClock();
     if (_currentSegmentElapsedMs <= 0 && _lastPlainFilePath == null) {
       return null;
     }
@@ -178,6 +185,9 @@ extension _RecorderSegments on TalkRecordRecorderService {
       }
       _sealedDurationMs = _manifest!.effectiveDurationMs;
       _currentSegmentElapsedMs = 0;
+      // 清墙钟锚（旧段已封；轮转时 _rolloverSegment 起新段后重落锚）。
+      _segmentRecordedMsBase = 0;
+      _segmentRecordingSince = null;
       return true;
     } catch (e) {
       _lastWriteFailureIsDisk = e is FileSystemException;

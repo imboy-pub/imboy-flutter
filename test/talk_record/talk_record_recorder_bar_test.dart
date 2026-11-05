@@ -19,12 +19,14 @@ void main() {
   late FakeTalkRecordEngine engine;
   late FakeDiskSpaceProbe diskProbe;
   late FakeInterruptionSource interruptionSource;
+  late FakeClock clock;
 
   setUp(() {
     baseDir = Directory.systemTemp.createTempSync('t09_widget');
     engine = FakeTalkRecordEngine();
     diskProbe = FakeDiskSpaceProbe();
     interruptionSource = FakeInterruptionSource();
+    clock = FakeClock();
     TalkRecordCaptureLease.resetForTest();
   });
 
@@ -32,6 +34,12 @@ void main() {
     TalkRecordCaptureLease.resetForTest();
     if (baseDir.existsSync()) baseDir.deleteSync(recursive: true);
   });
+
+  /// 双轴推进：墙钟（读秒/轮转判定）+ 引擎样本（封段权威帧数）。
+  void tickBoth(int ms, {double? decibels}) {
+    clock.advanceMs(ms);
+    engine.tick(ms, decibels: decibels);
+  }
 
   TalkRecordRecorderService newService() {
     return TalkRecordRecorderService(
@@ -45,6 +53,7 @@ void main() {
         maxDurationMs: 10000,
         minFreeDiskBytesPerSegment: 1,
       ),
+      nowSource: clock.call,
     );
   }
 
@@ -146,7 +155,7 @@ void main() {
     expect(find.text('正在录音 · 本机分段保存'), findsOneWidget);
     expect(find.text('00:00'), findsOneWidget);
 
-    await drive(tester, () async => engine.tick(1100, decibels: -10));
+    await drive(tester, () async => tickBoth(1100, decibels: -10));
     // Segment sealing uses real file I/O; wait for the observable duration
     // rather than assuming 30ms suffices under concurrent module tests.
     await settleUntil(tester, () => svc.snapshot.effectiveDurationMs >= 1100);
@@ -163,7 +172,7 @@ void main() {
 
     await tapAndSettle(tester, find.byKey(const ValueKey('trr_btn_resume')));
     expect(svc.phase, TalkRecordRecorderPhase.recording);
-    await drive(tester, () async => engine.tick(500));
+    await drive(tester, () async => tickBoth(500));
     await tester.pump();
     expect(find.text('00:01'), findsOneWidget); // 1600ms → 00:01
     expect(find.text('本机分段 1'), findsOneWidget);
@@ -173,7 +182,7 @@ void main() {
   testWidgets('中断态：持久原因横幅，用户点击继续', (tester) async {
     final svc = await pumpRecording(tester);
     await drive(tester, () async {
-      engine.tick(300);
+      tickBoth(300);
       await Future<void>.delayed(const Duration(milliseconds: 10));
       interruptionSource.interrupt('audio_interruption');
     });
@@ -192,7 +201,7 @@ void main() {
 
   testWidgets('重点标记：点击写本地并计数', (tester) async {
     final svc = await pumpRecording(tester);
-    await drive(tester, () async => engine.tick(1500));
+    await drive(tester, () async => tickBoth(1500));
     await tester.pump();
 
     await tapAndSettle(tester, find.byKey(const ValueKey('trr_btn_mark')));
@@ -206,7 +215,7 @@ void main() {
   testWidgets('结束确认弹窗：取消继续录，确认后结束', (tester) async {
     final svc = await pumpRecording(tester);
 
-    await drive(tester, () async => engine.tick(700));
+    await drive(tester, () async => tickBoth(700));
     await tester.pump();
 
     await tester.tap(find.byKey(const ValueKey('trr_btn_end')));
@@ -240,12 +249,12 @@ void main() {
 
   testWidgets('空间不足：自动结束展示空间不足横幅（不显示保存成功）', (tester) async {
     final svc = await pumpRecording(tester);
-    await drive(tester, () async => engine.tick(1200));
+    await drive(tester, () async => tickBoth(1200));
     await settleUntil(tester, () => svc.snapshot.segmentCount == 1);
     expect(svc.snapshot.segmentCount, 1);
 
     diskProbe.failingDirs.add(svc.sessionDir!.path);
-    await drive(tester, () async => engine.tick(1000));
+    await drive(tester, () async => tickBoth(1000));
     await settleUntil(
       tester,
       () => find.text('空间不足，已停止写入；已录内容保留在本机').evaluate().isNotEmpty,
@@ -258,7 +267,7 @@ void main() {
 
   testWidgets('收起：持久录音条不自动结束，点击恢复面板', (tester) async {
     final svc = await pumpRecording(tester);
-    await drive(tester, () async => engine.tick(1100));
+    await drive(tester, () async => tickBoth(1100));
     await settleUntil(tester, () => find.text('00:01').evaluate().length == 1);
 
     await tester.tap(find.byKey(const ValueKey('trr_btn_collapse')));
@@ -270,7 +279,7 @@ void main() {
     expect(svc.phase, TalkRecordRecorderPhase.recording);
 
     // 收起后继续计时（无自动结束）。
-    await drive(tester, () async => engine.tick(200));
+    await drive(tester, () async => tickBoth(200));
     await tester.pump();
     expect(svc.phase, TalkRecordRecorderPhase.recording);
     expect(find.text('00:01'), findsOneWidget);

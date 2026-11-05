@@ -34,6 +34,9 @@ void main() {
   late MemoryTalkRecordKeyStore keys;
   late List<FakeTalkRecordEngine> engines;
   late List<TalkRecordRecorderService> recorders;
+  // 墙钟轴（读秒/轮转判定）：真机实证引擎上报 resume 后可停摆，读秒
+  // 权威改墙钟（只累计 recording 态），测试注入显式推进。
+  late FakeClock clock;
   setUp(() {
     root = Directory.systemTemp.createTempSync('talk_coordinator_');
     store = TalkRecordBindingStore(root);
@@ -41,6 +44,7 @@ void main() {
     keys = MemoryTalkRecordKeyStore();
     engines = [];
     recorders = [];
+    clock = FakeClock();
     TalkRecordCaptureLease.resetForTest();
   });
   tearDown(() async {
@@ -69,6 +73,7 @@ void main() {
         engine: engine,
         diskProbe: FakeDiskSpaceProbe(),
         config: const TalkRecordRecorderConfig(minFreeDiskBytesPerSegment: 1),
+        nowSource: clock.call,
       );
       recorders.add(recorder);
       return recorder;
@@ -80,6 +85,8 @@ void main() {
     policyVersion: 'v1',
   );
   Future<void> tick() async {
+    // 双轴：墙钟（读秒/轮转）+ 引擎样本（封段权威帧数）。
+    clock.advanceMs(500);
     engines.last.tick(500);
     await Future<void>.delayed(const Duration(milliseconds: 20));
   }

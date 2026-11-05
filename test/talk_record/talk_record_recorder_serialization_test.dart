@@ -78,8 +78,9 @@ void main() {
 
   TalkRecordRecorderService service(
     FakeTalkRecordEngine engine,
-    DiskSpaceProbe probe,
-  ) => TalkRecordRecorderService(
+    DiskSpaceProbe probe, {
+    DateTime Function()? nowSource,
+  }) => TalkRecordRecorderService(
     baseDirectory: root,
     engine: engine,
     diskProbe: probe,
@@ -90,14 +91,17 @@ void main() {
       maxRecordingBytes: 100 * 1024 * 1024,
       minFreeDiskBytesPerSegment: 1,
     ),
+    nowSource: nowSource,
   );
 
   test(
     'stop barrier serializes mark, pause and end without duplicate sealing',
     () async {
+      final clock = FakeClock();
       final engine = _StopGateEngine();
-      final svc = service(engine, FakeDiskSpaceProbe());
+      final svc = service(engine, FakeDiskSpaceProbe(), nowSource: clock.call);
       await svc.start(recordLocalId: 'r', clientRecordingId: 'c');
+      clock.advanceMs(1000);
       engine.tick(1000);
       for (var i = 0; i < 5; i++) {
         engine.emitRaw(1000);
@@ -131,10 +135,12 @@ void main() {
   );
 
   test('seal I/O barrier preserves pause and marks before resume seals next segment', () async {
+    final clock = FakeClock();
     final engine = FakeTalkRecordEngine();
     final probe = _SealProbe();
-    final svc = service(engine, probe);
+    final svc = service(engine, probe, nowSource: clock.call);
     await svc.start(recordLocalId: 'r', clientRecordingId: 'c');
+    clock.advanceMs(1000);
     engine.tick(1000);
     await probe.entered.future;
     final mark = svc.addMark(note: 'I/O mark');
@@ -149,6 +155,7 @@ void main() {
     final progressed = svc.snapshots.firstWhere(
       (s) => s.effectiveDurationMs == 1224, // 段 0 真实 1024ms + 200 进度
     );
+    clock.advanceMs(200);
     engine.tick(200);
     await progressed;
     final result = await svc.end();
@@ -162,10 +169,12 @@ void main() {
   test(
     'seal failure and queued end finish without recursive control deadlock',
     () async {
+      final clock = FakeClock();
       final engine = FakeTalkRecordEngine();
       final probe = _SealProbe()..failSeal = true;
-      final svc = service(engine, probe);
+      final svc = service(engine, probe, nowSource: clock.call);
       await svc.start(recordLocalId: 'r', clientRecordingId: 'c');
+      clock.advanceMs(1000);
       engine.tick(1000);
       await probe.entered.future;
       final end = svc.end();

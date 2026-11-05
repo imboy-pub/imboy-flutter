@@ -50,6 +50,7 @@ void main() {
   late MemoryTalkRecordKeyStore keyStore;
   late FakeDiskSpaceProbe diskProbe;
   late FakeInterruptionSource interruptionSource;
+  late FakeClock clock;
 
   setUp(() {
     baseDir = Directory.systemTemp.createTempSync('t09_service');
@@ -57,6 +58,7 @@ void main() {
     keyStore = MemoryTalkRecordKeyStore();
     diskProbe = FakeDiskSpaceProbe();
     interruptionSource = FakeInterruptionSource();
+    clock = FakeClock();
     TalkRecordCaptureLease.resetForTest();
   });
 
@@ -64,6 +66,12 @@ void main() {
     TalkRecordCaptureLease.resetForTest();
     if (baseDir.existsSync()) baseDir.deleteSync(recursive: true);
   });
+
+  /// 双轴推进：墙钟（读秒/轮转判定）+ 引擎样本（封段权威帧数）。
+  void tickBoth(int ms, {double? decibels}) {
+    clock.advanceMs(ms);
+    engine.tick(ms, decibels: decibels);
+  }
 
   TalkRecordRecorderService newService({TalkRecordRecorderConfig? config}) {
     return TalkRecordRecorderService(
@@ -80,6 +88,7 @@ void main() {
             maxRecordingBytes: 100 * 1024 * 1024,
             minFreeDiskBytesPerSegment: 1,
           ),
+      nowSource: clock.call,
     );
   }
 
@@ -159,12 +168,12 @@ void main() {
 
   test('计时与段滚动：目标 1000ms 滚动，有效时长=分段累加', () async {
     final svc = await started();
-    engine.tick(500, decibels: -20);
+    tickBoth(500, decibels: -20);
     await settleIO();
     expect(svc.snapshot.effectiveDurationMs, 500);
     expect(svc.snapshot.decibels, -20);
 
-    engine.tick(700); // 1200ms ≥ 1000 → 滚动封段
+    tickBoth(700); // 墙钟 1200ms ≥ 1000 → 滚动封段
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
@@ -173,7 +182,7 @@ void main() {
     // 封段后真实样本权威：1200ms 进度 → 19 帧@16kHz = 1216ms。
     expect(svc.snapshot.effectiveDurationMs, fakeSegMs(1200));
 
-    engine.tick(400);
+    tickBoth(400);
     expect(
       await waitUntil(
         () => svc.snapshot.effectiveDurationMs == fakeSegMs(1200) + 400,
@@ -200,7 +209,7 @@ void main() {
 
   test('foreground service loss ends as failure and preserves encrypted sealed audio', () async {
     final svc = await started();
-    engine.tick(1200);
+    tickBoth(1200);
     expect(await waitUntil(() => svc.snapshot.segmentCount == 1), isTrue);
     await settleIO();
     final dir = svc.sessionDir!;
@@ -227,9 +236,9 @@ void main() {
     await svc.dispose();
   });
 
-  test('暂停不计时；恢复后继续累计', () async {
+  test('暂停不计时（含墙钟流逝）；恢复后墙钟轴继续累计（不依赖引擎上报）', () async {
     final svc = await started();
-    engine.tick(600);
+    tickBoth(600);
     await settleIO();
     await svc.pause();
     expect(svc.phase, TalkRecordRecorderPhase.paused);
@@ -237,9 +246,21 @@ void main() {
     engine.emitRaw(9000);
     await settleIO();
     expect(svc.snapshot.effectiveDurationMs, 600);
+    // 暂停期墙钟流逝不计时（真机缺陷语义：暂停不可计入录音时长）。
+    clock.advanceMs(5000);
+    expect(svc.snapshot.effectiveDurationMs, 600);
 
     await svc.resume();
-    engine.tick(200);
+    // 引擎上报停摆（真机实证）：仅墙钟推进，读秒照常走动（快照由
+    // ticker 周期 emit 刷新，300ms 内必达）。
+    clock.advanceMs(200);
+    expect(
+      await waitUntil(() => svc.snapshot.effectiveDurationMs == 800),
+      isTrue,
+      reason: 'resume 后墙钟轴读秒未恢复走动',
+    );
+    // 恢复后引擎帧到达也只带电平，不把引擎 elapsed 灌入读秒。
+    engine.tick(99999);
     await settleIO();
     expect(svc.snapshot.effectiveDurationMs, 800);
     await svc.end();
@@ -247,7 +268,7 @@ void main() {
 
   test('中断：真实暂停+持久原因；恢复必须用户点击', () async {
     final svc = await started();
-    engine.tick(300);
+    tickBoth(300);
     await settleIO();
 
     interruptionSource.interrupt('audio_interruption');
@@ -277,9 +298,12 @@ void main() {
     // 用户点击恢复。
     await svc.userResumeAfterInterruption();
     expect(svc.phase, TalkRecordRecorderPhase.recording);
-    engine.tick(100);
-    await settleIO();
-    expect(svc.snapshot.effectiveDurationMs, 400);
+    clock.advanceMs(100);
+    expect(
+      await waitUntil(() => svc.snapshot.effectiveDurationMs == 400),
+      isTrue,
+      reason: '中断恢复后墙钟轴读秒未恢复走动',
+    );
     await svc.end();
   });
 
@@ -292,7 +316,7 @@ void main() {
         minFreeDiskBytesPerSegment: 1,
       ),
     );
-    engine.tick(2100); // ≥ warn 线 2000（2500×0.8）
+    tickBoth(2100); // 墙钟 ≥ warn 线 2000（2500×0.8）
     expect(
       await waitUntil(
         () => svc.snapshot.limitWarn == TalkRecordLimitWarn.duration,
@@ -301,7 +325,7 @@ void main() {
       reason: '滚动后的限额提示未送达',
     );
 
-    engine.tick(500); // 2600 ≥ 2500 → 自动结束
+    tickBoth(500); // 2600 ≥ 2500 → 自动结束
     expect(
       await waitUntil(() => svc.phase == TalkRecordRecorderPhase.ended),
       isTrue,
@@ -331,10 +355,10 @@ void main() {
         minFreeDiskBytesPerSegment: 1,
       ),
     );
-    engine.tick(500);
+    tickBoth(500);
     await settleIO();
     expect(svc.phase, TalkRecordRecorderPhase.recording);
-    engine.tick(600); // 1100ms → est ≈ 3300B ≥ 3000
+    tickBoth(600); // 墙钟 1100ms → est ≈ 3300B ≥ 3000
     expect(
       await waitUntil(
         () =>
@@ -364,7 +388,7 @@ void main() {
 
   test('录制中空间耗尽 → 中止并保留已落盘段，不显示保存成功', () async {
     final svc = await started();
-    engine.tick(1200); // 滚动封第 0 段成功
+    tickBoth(1200); // 滚动封第 0 段成功
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
@@ -373,7 +397,7 @@ void main() {
 
     // 下一次封段前预检失败。
     diskProbe.failingDirs.add(svc.sessionDir!.path);
-    engine.tick(1000); // 第 1 段到滚动点 → 预检失败 → 中止
+    tickBoth(1000); // 第 1 段到滚动点 → 预检失败 → 中止
     expect(
       await waitUntil(
         () =>
@@ -405,7 +429,7 @@ void main() {
 
   test('重点标记写本地：位置=当时有效时长，封段一次性校正', () async {
     final svc = await started();
-    engine.tick(1500);
+    tickBoth(1500);
     // 等滚动封段完成（否则第二笔 tick 可能被 _rollingOver 吞掉，
     // 位置断言随负载漂移）。
     expect(
@@ -415,7 +439,7 @@ void main() {
     );
     await svc.addMark(note: '结论');
     expect(svc.snapshot.markCount, 1);
-    engine.tick(200);
+    tickBoth(200);
     expect(
       await waitUntil(
         () => svc.snapshot.effectiveDurationMs == fakeSegMs(1500) + 200,
@@ -459,7 +483,7 @@ void main() {
   test('崩溃恢复：未 ended 会话 → 恢复 interrupted，续接后继续累计并重新封段', () async {
     // 第一段：录制一段并封段（通过滚动），随后不 end（模拟崩溃）。
     final svc = await started();
-    engine.tick(1200);
+    tickBoth(1200);
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
@@ -486,6 +510,7 @@ void main() {
         maxDurationMs: 10000,
         minFreeDiskBytesPerSegment: 1,
       ),
+      nowSource: clock.call,
     );
     await svc2.attachRecovered(
       manifest: recovery.manifest!,
@@ -495,11 +520,18 @@ void main() {
     expect(svc2.snapshot.effectiveDurationMs, fakeSegMs(1200));
     expect(svc2.snapshot.interruptReason, 'unknown_interrupt');
 
-    // 用户确认恢复，继续录。
+    // 用户确认恢复，继续录（墙钟轴接续，不依赖引擎上报；引擎照常
+    // 编码推进样本轴——封段权威仍按真实样本）。
     await svc2.userResumeAfterInterruption();
+    clock.advanceMs(500);
     engine2.tick(500);
-    await settleIO();
-    expect(svc2.snapshot.effectiveDurationMs, fakeSegMs(1200) + 500);
+    expect(
+      await waitUntil(
+        () => svc2.snapshot.effectiveDurationMs == fakeSegMs(1200) + 500,
+      ),
+      isTrue,
+      reason: '恢复续接后墙钟轴读秒未接续走动',
+    );
     final result = await svc2.end();
     // 恢复前 1 段 + 续接 1 段，样本时间轴连续（先累计样本再舍入）。
     expect(result.segmentCount, 2);
@@ -530,7 +562,7 @@ void main() {
 
   test('listSessions：枚举含已结束与进行中会话', () async {
     final svc = await started();
-    engine.tick(1200);
+    tickBoth(1200);
     await settleIO();
     await svc.end();
     final svc2 = newService();
@@ -558,7 +590,7 @@ void main() {
 
   test('H1：attachRecovered 恢复续接同样激活中断源', () async {
     final svc = await started();
-    engine.tick(1200);
+    tickBoth(1200);
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
@@ -581,6 +613,7 @@ void main() {
         maxDurationMs: 10000,
         minFreeDiskBytesPerSegment: 1,
       ),
+      nowSource: clock.call,
     );
     await svc2.attachRecovered(
       manifest: recovery.manifest!,
@@ -593,7 +626,7 @@ void main() {
 
   test('H2：diskFull 失败结束进行中调 end()——等待失败结果而非空引用崩溃', () async {
     final svc = await started();
-    engine.tick(1200); // 封第 0 段
+    tickBoth(1200); // 封第 0 段
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
@@ -605,7 +638,7 @@ void main() {
     diskProbe.failingDirs.add(svc.sessionDir!.path);
     final gate = Completer<void>();
     engine.closeGate = gate;
-    engine.tick(1000);
+    tickBoth(1000);
     expect(
       await waitUntil(() => svc.phase == TalkRecordRecorderPhase.ended),
       isTrue,
@@ -645,7 +678,7 @@ void main() {
 
   test('M2：listSessions 单目录损坏不击穿枚举（一坏多好）', () async {
     final svc = await started();
-    engine.tick(1200);
+    tickBoth(1200);
     await settleIO();
     await svc.end();
     // 伪造一个 manifest 损坏的会话目录。
@@ -658,7 +691,7 @@ void main() {
 
   test('M4：writeFailure 注入（密文路径被目录占位）——ended+失败+保留先前段', () async {
     final svc = await started();
-    engine.tick(1200); // 第 0 段正常封段
+    tickBoth(1200); // 第 0 段正常封段
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
@@ -666,7 +699,7 @@ void main() {
     );
     // 让下一段的密文落盘失败：目录占位 seg_000001.aes → rename 失败。
     Directory('${svc.sessionDir!.path}/seg_000001.aes').createSync();
-    engine.tick(1100); // 滚动封第 1 段 → seal 抛 → 失败结束
+    tickBoth(1100); // 滚动封第 1 段 → seal 抛 → 失败结束
     expect(
       await waitUntil(
         () =>
@@ -686,14 +719,14 @@ void main() {
     int startCount() =>
         engine.events.where((e) => e.startsWith('start:')).length;
     final svc = await started();
-    engine.tick(1200); // 第 0 段正常
+    tickBoth(1200); // 第 0 段正常
     expect(
       await waitUntil(() => startCount() == 2), // seg0 已封、seg1 已开
       isTrue,
       reason: '第一次滚动未完成（段 0 封存+段 1 启动）',
     );
     engine.dropSegmentFileOnStop = true; // 第 1 段 stop 时丢明文
-    engine.tick(1100); // 滚动：第 1 段文件缺失 → 空段跳过 → seg2 启动
+    tickBoth(1100); // 滚动：第 1 段文件缺失 → 空段跳过 → seg2 启动
     expect(
       await waitUntil(() => startCount() == 3), // 跳过后第 2 段已开
       isTrue,
@@ -702,7 +735,7 @@ void main() {
     expect(svc.phase, TalkRecordRecorderPhase.recording); // 未中止
     expect(svc.snapshot.segmentCount, 1); // 仅第 0 段
     engine.dropSegmentFileOnStop = false;
-    engine.tick(600); // 第 2 段继续累计
+    tickBoth(600); // 第 2 段继续累计
     expect(
       await waitUntil(
         () => svc.snapshot.effectiveDurationMs == fakeSegMs(1200) + 600,
@@ -718,13 +751,13 @@ void main() {
 
   test('会话目录中段文件为密文（无明文残留），明文临时文件即用即删', () async {
     final svc = await started();
-    engine.tick(1200);
+    tickBoth(1200);
     expect(
       await waitUntil(() => svc.snapshot.segmentCount == 1),
       isTrue,
       reason: '第一次滚动未完成（避免与 end 竞态）',
     );
-    engine.tick(500);
+    tickBoth(500);
     await settleIO();
     await svc.end();
 
