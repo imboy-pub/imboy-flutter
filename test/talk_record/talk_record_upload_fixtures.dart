@@ -87,18 +87,26 @@ class UploadApi extends TalkRecordApi {
     return TalkRecordAudioUploadSession.fromJson({
       'part_id': 3,
       'attachment_id': null,
+      // attach_direct_logic s3_put descriptor；pendingTicket → descriptor
+      // 不可用（缺 grant），门禁 fail closed。
       'upload_ref': {
-        'gateway': true,
-        'integration_pending': pendingTicket,
-        'put_url': '/api/v1/attachment/gateway/client-part?capability=cap',
+        'state': 'GRANTED',
         'object_key': 'owner/record/audio.aac',
-        'client_upload_id': 'client-part',
-        'upload_capability': 'cap',
-        'expires_at':
-            DateTime.now()
-                .add(const Duration(minutes: 5))
-                .millisecondsSinceEpoch ~/
-            1000,
+        'attempt_id': 1,
+        'grant': pendingTicket
+            ? <String, dynamic>{}
+            : <String, dynamic>{
+                'transport': 's3_put',
+                'url':
+                    'https://garage.example.test/owner/record/audio.aac'
+                    '?X-Amz-Signature=synthetic',
+                'method': 'PUT',
+                'required_headers': <String, String>{
+                  'Content-Type': 'audio/aac',
+                  'x-amz-checksum-sha256': 'synthetic-checksum',
+                },
+                'expires_in': 3600,
+              },
       },
     });
   }

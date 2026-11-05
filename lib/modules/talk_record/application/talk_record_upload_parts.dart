@@ -62,8 +62,7 @@ extension _TalkRecordUploadParts on TalkRecordAttachmentUploadGateway {
       idempotencyKey: state['key'] as String,
     );
     guard();
-    if (session.partId.isEmpty ||
-        !session.uploadRef.canUploadAt(DateTime.now())) {
+    if (session.partId.isEmpty || !session.uploadRef.uploadable) {
       throw StateError('Part upload ticket unavailable');
     }
     for (final pair in {

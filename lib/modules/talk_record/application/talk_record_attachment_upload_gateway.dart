@@ -66,7 +66,7 @@ class TalkRecordAttachmentUploadGateway
     TalkRecordFinalDirectUpload? directUpload,
     TalkRecordFinalDirectStatus? directStatus,
     TalkRecordFinalDirectRegister? directRegister,
-  }) : transport = transport ?? TalkRecordDispatchPartTransport(),
+  }) : transport = transport ?? TalkRecordS3PutPartTransport(),
        delay = delay ?? Future<void>.delayed,
        directUpload =
            directUpload ??
