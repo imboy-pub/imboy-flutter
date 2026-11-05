@@ -190,6 +190,13 @@ class FlutterSoundTalkRecordEngine implements TalkRecordAudioEngine {
       if (_foregroundFailed) throw StateError('录音前台服务已中断');
       await _foreground.update(paused: false);
       await _recorder.resumeRecorder();
+      // Android 怪癖兜底：pause→resume 后部分机型 onProgress 上报停摆
+      // （读秒冻结），重设上报周期重启计时器（幂等；open 时同款先例）。
+      await _recorder.setSubscriptionDuration(
+        const Duration(
+          milliseconds: TalkRecordRecorderConfig.progressIntervalMs,
+        ),
+      );
     } catch (e) {
       throw TalkRecordEngineException('resumeRecorder 失败: $e');
     }

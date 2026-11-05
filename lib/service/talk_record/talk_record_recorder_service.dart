@@ -254,7 +254,11 @@ class TalkRecordRecorderService {
   Future<void> resume() => _control(_resumeInternal);
 
   Future<void> _resumeInternal() async {
-    if (_phase != TalkRecordRecorderPhase.paused) return;
+    if (_phase != TalkRecordRecorderPhase.paused) {
+      // 状态错位自愈：把真实快照推给 UI，避免「继续」点击永久无反应。
+      _emit();
+      return;
+    }
     await _engine.resume();
     _phase = TalkRecordRecorderPhase.recording;
     await _persistStatus(TalkRecordSessionStatus.recording);
