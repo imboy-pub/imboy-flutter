@@ -69,7 +69,9 @@ commit-msg:
 #     新增 1 条即拦（scripts/quality/analyzer_ratchet_baseline.txt）。
 #   - error-code-sync: 并排仓时跑 --check；覆盖"后端 hrl 已改、本仓生成物
 #     未同步"的漂移（该场景不触碰 error_code.dart，pre-commit glob 不命中）
-#   - api-contract-tests: 后端可达时跑 Tier 1 契约测试；不可达/未配置凭证时优雅跳过
+#   - api-contract-tests: 默认只校验统一测试归属；后端为 OUT_OF_SCOPE。
+#     IMBOY_PRE_PUSH_BACKEND=1 显式执行本机 backend profile，缺环境/skip/失败均阻塞。
+#     不自动加载 scripts/test.env 或探测后端；详见 docs/testing/execution.md。
 # 紧急跳过：IMBOY_SKIP_PRE_PUSH=1 git push ...
 # ⚠️ 门禁生效前提：lefthook 需算出 push 文件集（首选 HEAD @{push}）。新 clone 后执行
 #   git config remote.pushDefault gitcode && git branch --set-upstream-to=gitcode/main main

@@ -19,6 +19,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -160,13 +161,24 @@ def _missing_product_evidence(instance, row):
 
 def _companion_issue(instance, row):
     method = instance.get('orchestration')
-    required = (method in ('mc-owned-coordinator', 'legacy-fixture') or
+    required = (method in ('mc-owned-coordinator', 'legacy-fixture', 'sqlite-kill-replay') or
                 (method == 'dnd-fixture' and instance.get('role') == 'receiver'))
     companion = row.get('companion_evidence')
     if not companion:
         return 'MISSING_COMPANION_EVIDENCE' if required else None
     if not isinstance(companion, dict) or companion.get('status') != 'PASS':
         return 'UPSTREAM_FAILED'
+    if method == 'sqlite-kill-replay':
+        phases = companion.get('phases') or {}
+        if (companion.get('kind') != 'kill-replay-gate'
+                or companion.get('instance_id') != instance['id']
+                or set(phases) != {'prepare', 'pid_before', 'force_stop', 'pid_after', 'verify'}
+                or not all(isinstance(value, dict) and value.get('path') and
+                           re.fullmatch(r'[a-f0-9]{64}', str(value.get('sha256', '')))
+                           for value in [*phases.values(), companion.get('observations', {}),
+                                         companion.get('receipt', {}), companion.get('ready_evidence', {})])):
+            return 'INCOMPLETE_COMPANION_EVIDENCE'
+        return None
     if companion.get('kind') == 'coordinator-gate':
         # Phase semantics and downloaded files are verified by the existing
         # adapter and CLI resolver. Here require a complete portable receipt.
@@ -319,7 +331,8 @@ def _fingerprint(root, plan, instance):
 
 def _display_command(command):
     safe_defines = {'SMOKE_INCLUDE_QUARANTINED', 'RUN_DEVICE_INTEGRATION', 'CHANNEL_ENABLED',
-                    'TEST_CHANNEL_ENABLED', 'CHANNEL_FEATURE_ENABLED', 'TEST_GOLDEN'}
+                    'TEST_CHANNEL_ENABLED', 'CHANNEL_FEATURE_ENABLED', 'TEST_GOLDEN',
+                    'APP_ENV', 'KILL_PHASE', 'KILL_ATTEMPT'}
     display = []
     for argument in command:
         if argument.startswith('--dart-define='):
@@ -346,13 +359,15 @@ def _persist_process_receipt(receipt, evidence_dir):
     return receipt
 
 
-def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_path=None, separate_stderr=False):
+def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_path=None,
+                    separate_stderr=False, observer=None):
     """Keep live logs, then freeze evidence after stopping a timed-out process group."""
     evidence_dir = Path(evidence_dir)
     evidence_dir.mkdir(parents=True, exist_ok=True)
     log = Path(log_path) if log_path else evidence_dir / 'machine.jsonl'
     log.parent.mkdir(parents=True, exist_ok=True)
     error = None
+    interrupted = False
     machine = evidence_dir / 'machine.jsonl' if separate_stderr else log
     if separate_stderr and log == machine:
         log = evidence_dir / 'process.log'
@@ -364,19 +379,33 @@ def execute_process(command, env, evidence_dir, *, cwd=None, timeout=900, log_pa
                 raise OSError('PROCESS_SUPERVISION_UNAVAILABLE: a POSIX host is required for owned process groups')
             with subprocess.Popen(command, cwd=cwd, env=env, stdout=output,
                                   stderr=errors, text=True, start_new_session=True) as process:
-                try:
-                    code = process.wait(timeout=timeout)
-                except subprocess.TimeoutExpired:
-                    # The unreaped session leader pins this group identity. Kill
-                    # only its group, including children that ignore SIGTERM;
-                    # killing just the Flutter CLI leaves flutter_tester alive.
-                    with contextlib.suppress(ProcessLookupError):
-                        os.killpg(process.pid, signal.SIGKILL)
-                    process.wait()
-                    code, error = 124, 'RUNNER_TIMEOUT'
+                deadline = time.monotonic() + timeout
+                while True:
+                    try:
+                        code = process.wait(timeout=min(0.05, timeout) if observer else timeout)
+                        break
+                    except subprocess.TimeoutExpired:
+                        if time.monotonic() >= deadline:
+                            code, error = 124, 'RUNNER_TIMEOUT'
+                        elif observer:
+                            try:
+                                error = observer(machine)
+                            except Exception as exc:
+                                error = 'RUNNER_OBSERVER_FAILED:' + type(exc).__name__
+                            if not error:
+                                continue
+                            code = 130
+                        else:
+                            code, error = 124, 'RUNNER_TIMEOUT'
+                        # The unreaped leader pins this owned group identity.
+                        with contextlib.suppress(ProcessLookupError):
+                            os.killpg(process.pid, signal.SIGKILL)
+                        process.wait()
+                        interrupted = True
+                        break
         except OSError as exc:
             code, error = 127, f'{type(exc).__name__}: {exc}'
-    if error == 'RUNNER_TIMEOUT':
+    if interrupted:
         # A dying descendant may still hold the old stdout/stderr descriptor.
         # Atomically replace each live file with a snapshot so pending writes
         # cannot mutate the paths used by the receipt and its hashes.
@@ -628,6 +657,8 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
         row = _base(plan, instance, 'BLOCKED', (receipt or {}).get('reason_code', 'MISSING_RESULT'))
         row.update(environment_missing=receipt.get('environment_missing', receipt.get('errors', [])),
                    upstream=(receipt or {}).get('upstream', row['upstream']))
+        if receipt.get('companion_evidence'):
+            row['companion_evidence'] = receipt['companion_evidence']
         return row
 
     for instance in selected:
@@ -665,14 +696,16 @@ def run_plan(root, plan, artifact_dir, *, env=None, worker_platform=None, covera
         runner = _runner_name(group[0])
         print(f'Execution batch {batch_index + 1}/{len(batches)}: {runner} '
               f'platform={group[0]["platform"]} targets={len(group)}', file=sys.stderr, flush=True)
-        if runner == 'flutter-device' and group[0].get('orchestration') == 'mc-owned-coordinator':
+        if runner == 'flutter-device' and group[0].get('orchestration') in ('mc-owned-coordinator', 'sqlite-kill-replay'):
             for instance in group:
                 output = artifact_dir / 'batches' / f'{batch_index:04d}' / 'coordinated'
-                if adapters is None or not hasattr(adapters, 'run_coordinated'):
+                method = 'run_kill_replay' if instance.get('orchestration') == 'sqlite-kill-replay' else 'run_coordinated'
+                if adapters is None or not hasattr(adapters, method):
                     receipt = {'reason_code': 'RUNNER_UNAVAILABLE', 'errors': ['MC coordinator adapter unavailable']}
                 else:
                     try:
-                        receipt = adapters.run_coordinated(root, instance, runtime_env, output, execute_invocation)
+                        kwargs = {'execute_process': execute_process} if method == 'run_kill_replay' else {}
+                        receipt = getattr(adapters, method)(root, instance, runtime_env, output, execute_invocation, **kwargs)
                     except Exception as error:
                         receipt = {'reason_code': 'RUNNER_CRASH', 'errors': [type(error).__name__ + ': ' + str(error)]}
                 results.append(adapter_result(instance, receipt))

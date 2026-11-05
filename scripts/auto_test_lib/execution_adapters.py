@@ -50,6 +50,8 @@ PAIR_TARGETS = {
     'integration_test/chat/j28b_two_client_new_end_test.dart': 'legacy-fixture',
 }
 DEVICE_RUNNERS = {'flutter-device', 'device-pair', 'patrol'}
+KILL_REPLAY_TARGET = 'integration_test/sqlite_migration/sqlite_migration_kill_replay_test.dart'
+KILL_REPLAY_PACKAGE = 'pub.imboy.app'
 BACKEND_DEPENDENCIES = {'backend', 'isolated-backend', 'backend-api', 'backend-ws',
                         'backend-contract', 'isolated-accounts', 'livekit'}
 ENV_ALIASES = {
@@ -651,8 +653,23 @@ def mc_owned_environment(instance: dict, env: dict) -> tuple[dict, dict]:
 def preflight_instance(root: Path, instance: dict, env: dict | None = None,
                        devices: list[dict] | None = None, *, probe: bool = False) -> list[str]:
     env = dict(os.environ if env is None else env)
+    if instance.get('target') == KILL_REPLAY_TARGET and instance.get('orchestration') != 'sqlite-kill-replay':
+        return ['KILL_REPLAY_REQUIRES_ORCHESTRATION']
+    kill_errors = []
+    if instance.get('orchestration') == 'sqlite-kill-replay':
+        if (instance.get('target') != KILL_REPLAY_TARGET or instance.get('runner') != 'flutter-device'
+                or instance.get('platform') != 'android' or instance.get('flavor') != 'standard'):
+            kill_errors.append('KILL_REPLAY_ANDROID_STANDARD_REQUIRED')
+        if env.get('IMBOY_TEST_ISOLATED') != 'true':
+            kill_errors.append('ISOLATED_FIXTURE_OPT_IN_MISSING:IMBOY_TEST_ISOLATED=true')
+        if not re.fullmatch(r'[1-9][0-9]{0,8}', env.get('IMBOY_KILL_REPLAY_ATTEMPT', '')):
+            kill_errors.append('KILL_REPLAY_ATTEMPT_REQUIRED:IMBOY_KILL_REPLAY_ATTEMPT')
+        if not shutil.which('adb'):
+            kill_errors.append('RUNNER_MISSING:adb')
+        if not device_id_for(instance, env):
+            return [*kill_errors, 'KILL_REPLAY_EXPLICIT_DEVICE_REQUIRED']
     env, owned = mc_owned_environment(instance, env)
-    errors = list(owned['errors'])
+    errors = [*owned['errors'], *kill_errors]
     errors.extend(backend_environment_errors(instance, env))
     errors.extend(product_environment_errors(root, instance, env))
     errors.extend(registered_golden_font_errors(root, instance))
@@ -705,6 +722,9 @@ def build_invocation(root: Path, instance: dict, env: dict, output_dir: Path,
         raise ValueError('PAIR_TARGET_REQUIRES_PAIR_ORCHESTRATION')
     role = str(instance.get('account_role') or instance.get('role') or '')
     target = str(instance['target'])
+    if target == KILL_REPLAY_TARGET and (instance.get('orchestration') != 'sqlite-kill-replay'
+            or (extra_defines or {}).get('KILL_PHASE') not in ('prepare', 'verify')):
+        raise ValueError('KILL_REPLAY_REQUIRES_ORCHESTRATION')
     env, owned = mc_owned_environment(instance, env)
     process_env = dict(env)
     defines = dict(instance.get('dart_defines') or {})
@@ -1054,6 +1074,242 @@ def run_pair(root: Path, instances: list[dict], env: dict, output_dir: Path,
             results[by_role[second]['id']] = run(second)
         results[by_role[first]['id']] = future.result()
     return results
+
+
+def _kill_replay_markers(lines):
+    markers = []
+    for line in lines:
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(event, dict) or event.get('type') != 'print':
+            continue
+        message = event.get('message', '')
+        if not isinstance(message, str) or not message.startswith('[WP7-EVIDENCE] '):
+            continue
+        match = re.fullmatch(r'\[WP7-EVIDENCE\] ((?:\w+=[^\s]+)(?: \w+=[^\s]+)*)', message)
+        if not match:
+            raise ValueError('KILL_REPLAY_MARKER_INVALID')
+        pairs = [part.split('=', 1) for part in match[1].split(' ')]
+        if len(dict(pairs)) != len(pairs):
+            raise ValueError('KILL_REPLAY_MARKER_INVALID')
+        markers.append(dict(pairs))
+    return markers
+
+
+def _kill_replay_ready(lines, attempt, *, interrupted=False):
+    markers = _kill_replay_markers(lines)
+    if any(row.get('step') == 'kill_done_window_missed' for row in markers):
+        raise ValueError('KILL_REPLAY_WINDOW_MISSED')
+    ready = [row for row in markers if row.get('step') == 'kill_ready']
+    if not ready:
+        return False
+    seeded = [row for row in markers if row.get('step') == 'kill_seeded']
+    if (len(ready) != 1 or len(seeded) != 1 or markers != [seeded[0], ready[0]]
+            or any(row.get('attempt') != str(attempt) for row in markers)
+            or any(seeded[0].get(key) != str(value) for key, value in
+                   (('contact', 8000), ('user_tag', 8000), ('user_collect', 4000)))):
+        raise ValueError('KILL_REPLAY_PREPARE_EVIDENCE_INVALID')
+    db = Path(ready[0].get('db', ''))
+    if not db.is_absolute() or '..' in db.parts or db.parts[-2:] != ('imboy_wp7_kill', f'replay_{attempt}.db'):
+        raise ValueError('KILL_REPLAY_SYNTHETIC_DATABASE_REQUIRED')
+    from .machine_events import parse_machine_events, INFRA_MESSAGE_RE
+    parsed = parse_machine_events(lines, 130 if interrupted else None).to_dict()
+    if parsed.get('failure_class') == 'business' or parsed.get('reason_code') == 'BUSINESS_ASSERTION_FAIL':
+        raise ValueError('KILL_REPLAY_PREPARE_BUSINESS_ASSERTION_FAIL')
+    if parsed.get('skipped'):
+        raise ValueError('KILL_REPLAY_PREPARE_UNEXPECTED_SKIP')
+    terminal_events, transport_errors = [], 0
+    for line in lines:
+        try:
+            event = json.loads(line)
+        except ValueError:
+            continue
+        if not interrupted and isinstance(event, dict) and (event.get('type') in ('error', 'done') or
+                (event.get('type') == 'testDone' and not event.get('hidden'))):
+            raise ValueError('KILL_REPLAY_PREPARE_ALREADY_FINISHED')
+        if interrupted and isinstance(event, dict):
+            if event.get('type') == 'error':
+                message = event.get('error')
+                if not isinstance(message, str) or not message.strip():
+                    message = event.get('message', '')
+                # Reuse the existing parser's infrastructure contract. Missing
+                # done alone is expected here; it must not conceal an unknown
+                # error, assertion or skipped preparation case.
+                if event.get('isFailure') is not False or not isinstance(message, str) or not INFRA_MESSAGE_RE.search(message):
+                    raise ValueError('KILL_REPLAY_PREPARE_ERROR_NOT_INFRA')
+                transport_errors += 1
+            elif event.get('type') == 'done' or (event.get('type') == 'testDone' and not event.get('hidden')):
+                terminal_events.append(event)
+    if terminal_events and (not transport_errors or any(
+            event.get('success') is True or event.get('result') not in (None, 'error') for event in terminal_events)):
+        raise ValueError('KILL_REPLAY_PREPARE_ALREADY_FINISHED')
+    return True
+
+
+def _kill_replay_file(reference, resolve_path):
+    path = Path(resolve_path(reference['path']))
+    if hashlib.sha256(path.read_bytes()).hexdigest() != reference['sha256']:
+        raise ValueError('KILL_REPLAY_ARTIFACT_HASH_MISMATCH')
+    return path
+
+
+def verify_kill_replay_evidence(gate: dict, resolve_path: Callable[[str], Path]) -> list[str]:
+    """Replay owned interruption evidence separately from the real verify cases."""
+    try:
+        attempt, device = gate['attempt'], gate['device_id']
+        if (gate.get('kind') != 'kill-replay-gate' or gate.get('target') != KILL_REPLAY_TARGET
+                or not gate.get('instance_id') or gate.get('platform') != 'android'
+                or gate.get('package') != KILL_REPLAY_PACKAGE or not isinstance(device, str) or not device
+                or type(attempt) is not int or not 1 <= attempt <= 999999999):
+            raise ValueError('KILL_REPLAY_RECEIPT_INVALID')
+        snapshot = json.loads(_kill_replay_file(gate['receipt'], resolve_path).read_text())
+        if snapshot != {key: value for key, value in gate.items()
+                        if key not in ('receipt', 'status', 'reason_code', 'errors')}:
+            raise ValueError('KILL_REPLAY_RECEIPT_MISMATCH')
+        if set(gate['phases']) != {'prepare', 'pid_before', 'force_stop', 'pid_after', 'verify'}:
+            raise ValueError('KILL_REPLAY_PHASE_EVIDENCE_MISSING')
+        phases, streams = {}, {}
+        for name, reference in gate['phases'].items():
+            phase = json.loads(_kill_replay_file(reference, resolve_path).read_text())
+            for key in ('log', 'machine'):
+                _kill_replay_file({'path': phase[key], 'sha256': phase[key + '_sha256']}, resolve_path)
+            phases[name] = phase
+            streams[name] = Path(resolve_path(phase['machine'])).read_text().splitlines()
+        for name in ('prepare', 'verify'):
+            command = phases[name]['command']
+            if (command[:3] != ['flutter', 'test', KILL_REPLAY_TARGET] or '--machine' not in command
+                    or command.count('-d') != 1 or command[command.index('-d') + 1] != device
+                    or command.count('--flavor') != 1 or command[command.index('--flavor') + 1] != 'standard'
+                    or any([arg for arg in command if arg.startswith('--dart-define=' + key + '=')] !=
+                           ['--dart-define=' + key + '=' + value] for key, value in
+                           (('KILL_PHASE', name), ('KILL_ATTEMPT', str(attempt)), ('APP_ENV', 'local')))):
+                raise ValueError('KILL_REPLAY_COMMAND_INVALID:' + name)
+        prefix = ['adb', '-s', device, 'shell']
+        for name, tail in (('pid_before', ['pidof', KILL_REPLAY_PACKAGE]),
+                           ('force_stop', ['am', 'force-stop', KILL_REPLAY_PACKAGE]),
+                           ('pid_after', ['pidof', KILL_REPLAY_PACKAGE])):
+            if phases[name]['command'] != prefix + tail:
+                raise ValueError('KILL_REPLAY_COMMAND_INVALID:' + name)
+        ready_path = _kill_replay_file(gate['ready_evidence'], resolve_path)
+        prepared_bytes = Path(resolve_path(phases['prepare']['machine'])).read_bytes()
+        if (not prepared_bytes.startswith(ready_path.read_bytes())
+                or not _kill_replay_ready(ready_path.read_text().splitlines(), attempt)):
+            raise ValueError('KILL_REPLAY_READY_OBSERVATION_INVALID')
+        if (phases['prepare']['exit_code'] != 130 or phases['prepare'].get('error') != 'KILL_REPLAY_INTERRUPTED'
+                or not _kill_replay_ready(streams['prepare'], attempt, interrupted=True)
+                or phases['pid_before']['exit_code'] != 0
+                or not re.fullmatch(r'[1-9][0-9]*(?: [1-9][0-9]*)*', '\n'.join(streams['pid_before']).strip())
+                or phases['force_stop']['exit_code'] != 0 or phases['force_stop'].get('error')
+                or phases['pid_after']['exit_code'] not in (0, 1)
+                or '\n'.join(streams['pid_after']).strip()):
+            raise ValueError('KILL_REPLAY_INTERRUPTION_NOT_PROVEN')
+        observations = [json.loads(line) for line in _kill_replay_file(gate['observations'], resolve_path).read_text().splitlines()]
+        if ([row.get('event') for row in observations] != ['ready_observed', 'force_stop_requested', 'force_stop_confirmed', 'verify_started']
+                or any(set(row) != {'event', 'monotonic'} or type(row['monotonic']) not in (int, float)
+                       or not math.isfinite(row['monotonic']) or row['monotonic'] < 0 for row in observations)
+                or any(a['monotonic'] > b['monotonic'] for a, b in zip(observations, observations[1:]))):
+            raise ValueError('KILL_REPLAY_OBSERVATIONS_INVALID')
+        markers = _kill_replay_markers(streams['verify'])
+        if any(row.get('outcome') == 'WINDOW_MISSED_COMPLETED' for row in markers):
+            raise ValueError('KILL_REPLAY_WINDOW_MISSED')
+        if markers != [{'step': 'kill_verify', 'attempt': str(attempt), 'user_version': '16',
+                        'outcome': 'KILLED_ROLLED_BACK', 'quick_check': 'ok', 'rowsPreserved': 'true'}]:
+            raise ValueError('KILL_REPLAY_VERIFY_EVIDENCE_MISSING')
+        from .machine_events import parse_machine_events
+        parsed = parse_machine_events(streams['verify'], phases['verify']['exit_code']).to_dict()
+        if parsed['test_status'] != 'PASS' or parsed.get('skipped') or not parsed.get('done_event_seen'):
+            raise ValueError('KILL_REPLAY_VERIFY_NOT_PASS')
+        return []
+    except (OSError, ValueError, KeyError, TypeError, AttributeError, IndexError) as exc:
+        return [str(exc) if isinstance(exc, ValueError) and str(exc).startswith('KILL_REPLAY_')
+                else 'KILL_REPLAY_EVIDENCE_MISSING_OR_INVALID']
+
+
+def run_kill_replay(root: Path, instance: dict, env: dict, output_dir: Path,
+                    execute: Callable[[dict, dict], dict], *, execute_process: Callable,
+                    devices: list[dict] | None = None) -> dict:
+    """Observe prepare, stop only the selected app, then classify actual verify tests."""
+    errors = preflight_instance(root, instance, env, devices)
+    if errors:
+        return {'status': 'BLOCKED', 'reason_code': 'ENV_MISSING', 'errors': errors}
+    attempt = int(env['IMBOY_KILL_REPLAY_ATTEMPT'])
+    device = device_id_for(instance, env)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    phases, observations = {}, []
+    ready_path = output_dir / 'ready.jsonl'
+    def reference(path):
+        return {'path': str(path), 'sha256': hashlib.sha256(Path(path).read_bytes()).hexdigest()}
+    def observe(event):
+        observations.append({'event': event, 'monotonic': time.monotonic()})
+    def adb(name, tail):
+        receipt = execute_process(['adb', '-s', device, 'shell', *tail], env,
+                                  output_dir / name, cwd=root, timeout=15)
+        phases[name] = reference(receipt['process_receipt'])
+        return receipt
+    def interrupt_when_ready(path):
+        lines = path.read_text().splitlines()
+        if not _kill_replay_ready(lines, attempt):
+            return None
+        observe('ready_observed')
+        before = adb('pid_before', ['pidof', KILL_REPLAY_PACKAGE])
+        if before['exit_code'] != 0 or not re.fullmatch(r'[1-9][0-9]*(?: [1-9][0-9]*)*', '\n'.join(before['lines']).strip()):
+            return 'KILL_REPLAY_PROCESS_NOT_RUNNING'
+        # Recheck the live machine stream immediately before the device action.
+        ready_bytes = path.read_bytes()
+        _kill_replay_ready(ready_bytes.decode('utf-8').splitlines(), attempt)
+        ready_path.write_bytes(ready_bytes)
+        observe('force_stop_requested')
+        stopped = adb('force_stop', ['am', 'force-stop', KILL_REPLAY_PACKAGE])
+        if stopped['exit_code'] != 0 or stopped.get('error'):
+            return 'KILL_REPLAY_FORCE_STOP_FAILED'
+        after = adb('pid_after', ['pidof', KILL_REPLAY_PACKAGE])
+        if after['exit_code'] not in (0, 1) or '\n'.join(after['lines']).strip():
+            return 'KILL_REPLAY_PROCESS_STILL_RUNNING'
+        observe('force_stop_confirmed')
+        return 'KILL_REPLAY_INTERRUPTED'
+    prepared = build_invocation(root, instance, env, output_dir / 'prepare', devices,
+        extra_defines={'APP_ENV': 'local', 'KILL_PHASE': 'prepare', 'KILL_ATTEMPT': str(attempt)})
+    if prepared['errors']:
+        return {'status': 'BLOCKED', 'reason_code': 'ENV_MISSING', 'errors': prepared['errors']}
+    receipt = execute_process(prepared['command'], prepared['env'], output_dir / 'prepare',
+                              cwd=root, log_path=prepared['log_path'], observer=interrupt_when_ready)
+    phases['prepare'] = reference(receipt['process_receipt'])
+    primary, interruption_error = None, receipt.get('error')
+    try:
+        ready = _kill_replay_ready(receipt['lines'], attempt, interrupted=True)
+        if interruption_error == 'KILL_REPLAY_INTERRUPTED' and ready:
+            observe('verify_started')
+            invocation = build_invocation(root, instance, env, output_dir / 'verify', devices,
+                extra_defines={'APP_ENV': 'local', 'KILL_PHASE': 'verify', 'KILL_ATTEMPT': str(attempt)})
+            primary = execute(instance, invocation)
+            if primary.get('attempts'):
+                phases['verify'] = reference(primary['attempts'][-1]['process_receipt'])
+    except Exception as exc:
+        interruption_error = (str(exc) if isinstance(exc, ValueError) and str(exc).startswith('KILL_REPLAY_')
+                              else 'KILL_REPLAY_VERIFY_RUNNER_CRASH:' + type(exc).__name__)
+    observation_path = output_dir / 'observations.jsonl'
+    observation_path.write_text(''.join(json.dumps(row) + '\n' for row in observations))
+    gate = {'kind': 'kill-replay-gate', 'instance_id': instance['id'], 'target': instance['target'],
+            'platform': 'android', 'device_id': device, 'package': KILL_REPLAY_PACKAGE,
+            'attempt': attempt, 'phases': phases, 'observations': reference(observation_path),
+            'ready_evidence': reference(ready_path) if ready_path.is_file() else None}
+    gate_path = output_dir / 'coordinator.json'
+    gate_path.write_text(json.dumps(gate, sort_keys=True, indent=2) + '\n')
+    gate['receipt'] = reference(gate_path)
+    problems = verify_kill_replay_evidence(gate, Path)
+    if interruption_error != 'KILL_REPLAY_INTERRUPTED':
+        problems.insert(0, interruption_error or 'KILL_REPLAY_READY_NOT_OBSERVED')
+    gate.update(status='BLOCKED' if problems else 'PASS',
+                reason_code='KILL_REPLAY_EVIDENCE_INVALID' if problems else 'NONE', errors=problems)
+    if primary is None:
+        primary = {'status': 'BLOCKED', 'reason_code': 'UPSTREAM_FAILED', 'errors': problems,
+                   'upstream': [instance['id'] + ':kill-replay']}
+    elif problems and primary.get('status') == 'PASS':
+        primary.update(status='BLOCKED', reason_code='UPSTREAM_FAILED', upstream=[instance['id'] + ':kill-replay'])
+    primary['companion_evidence'] = gate
+    return primary
 
 
 def verify_coordinator_evidence(receipt: dict, resolve_path: Callable[[str], Path]) -> list[str]:

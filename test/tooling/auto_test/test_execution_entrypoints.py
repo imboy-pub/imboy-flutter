@@ -20,6 +20,253 @@ from auto_test_lib import execution_cli, execution_gates
 
 
 class EntrypointTest(unittest.TestCase):
+    def run_pre_push(self, arguments=(), environment=None):
+        """Exercise the hook in isolation; any config load or direct runner fails."""
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            scripts = project / 'scripts'
+            scripts.mkdir()
+            script = scripts / 'pre_push_gate.sh'
+            shutil.copyfile(ROOT / 'scripts/pre_push_gate.sh', script)
+            (scripts / 'test.env').write_text('echo UNEXPECTED_TEST_ENV_LOAD >&2\nexit 97\n')
+            binaries = project / 'bin'
+            binaries.mkdir()
+            commands = {
+                'python3': '#!/bin/sh\n'
+                           '[ -z "${GIT_DIR+x}${GIT_WORK_TREE+x}${GIT_INDEX_FILE+x}" ] || exit 96\n'
+                           'printf "%s\\0" "$@"\nexit "${PRE_PUSH_FIXTURE_EXIT:-0}"\n',
+                'uname': '#!/bin/sh\nprintf "%s\\n" "${PRE_PUSH_FIXTURE_HOST:-Linux}"\n',
+            }
+            for name in ('curl', 'dart', 'flutter'):
+                commands[name] = '#!/bin/sh\necho UNEXPECTED_DIRECT_RUNNER >&2\nexit 98\n'
+            for name, content in commands.items():
+                binary = binaries / name
+                binary.write_text(content)
+                binary.chmod(0o755)
+            env = {**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH'],
+                   'IMBOY_SKIP_PRE_PUSH': '0', 'IMBOY_PRE_PUSH_BACKEND': '0',
+                   'GIT_DIR': 'injected', 'GIT_WORK_TREE': 'injected', 'GIT_INDEX_FILE': 'injected',
+                   'TEST_PHONE': 'synthetic-phone-must-not-print',
+                   'TEST_PASSWORD': 'synthetic-password-must-not-print', **(environment or {})}
+            result = subprocess.run(['bash', str(script), *arguments], cwd=project, env=env,
+                                    text=True, capture_output=True, check=False)
+            self.assertNotIn('UNEXPECTED_', result.stdout + result.stderr)
+            self.assertNotIn('must-not-print', result.stdout + result.stderr)
+            return result
+
+    def test_pre_push_defaults_to_static_ownership_and_keeps_backend_out_of_scope(self):
+        for code in (0, 1, 2):
+            with self.subTest(code=code):
+                result = self.run_pre_push(environment={'PRE_PUSH_FIXTURE_EXIT': str(code)})
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertEqual(result.stdout.split('\0')[:-1], ['scripts/auto_test.py', 'execution-check'])
+                self.assertIn('NOT_SELECTED reason_code=OUT_OF_SCOPE', result.stderr)
+                self.assertNotIn('PASS', result.stderr)
+
+    def test_pre_push_backend_opt_in_uses_shared_profile_and_local_platform(self):
+        for host, platform in (('Linux', 'linux'), ('Darwin', 'macos')):
+            for option, environment in ((['--backend'], {}), ([], {'IMBOY_PRE_PUSH_BACKEND': '1'})):
+                with self.subTest(host=host, option=option):
+                    arguments = [*option, '--artifact-dir', 'evidence directory']
+                    result = self.run_pre_push(arguments, {**environment, 'PRE_PUSH_FIXTURE_HOST': host})
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertEqual(result.stdout.split('\0')[:-1], [
+                        'scripts/auto_test.py', 'execution-run', '--profile', 'backend',
+                        '--platform', platform, '--artifact-dir', 'evidence directory'])
+
+    def test_pre_push_backend_preserves_failed_blocked_and_crashed_runner_exits(self):
+        for code in (1, 2, 137):
+            with self.subTest(code=code):
+                result = self.run_pre_push(['--backend'], {'PRE_PUSH_FIXTURE_EXIT': str(code)})
+                self.assertEqual(result.returncode, code, result.stderr)
+                self.assertIn('execution-run\0', result.stdout)
+                self.assertNotIn('PASS', result.stderr)
+
+    def test_pre_push_dry_run_uses_the_same_backend_plan_without_execution(self):
+        result = self.run_pre_push(['--dry-run', '--output', 'plan output.json'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.split('\0')[:-1], [
+            'scripts/auto_test.py', 'execution-plan', '--profile', 'backend',
+            '--platform', 'linux', '--output', 'plan output.json'])
+
+    def test_pre_push_opt_out_reports_no_business_success_or_execution(self):
+        result = self.run_pre_push(['--backend'], {'IMBOY_SKIP_PRE_PUSH': '1'})
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, '')
+        self.assertIn('OUT_OF_SCOPE', result.stderr)
+        self.assertIn('checks were not run', result.stderr)
+        self.assertNotIn('PASS', result.stderr)
+
+    def test_pre_push_unsupported_host_and_invalid_options_cannot_turn_green(self):
+        result = self.run_pre_push(['--backend'], {'PRE_PUSH_FIXTURE_HOST': 'FreeBSD'})
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertEqual(result.stdout, '')
+        self.assertIn('ENV_MISSING', result.stderr)
+        for arguments, environment in ((['--profile', 'pr'], {}), (['--output'], {}),
+                                       ([], {'IMBOY_PRE_PUSH_BACKEND': 'maybe'})):
+            with self.subTest(arguments=arguments, environment=environment):
+                result = self.run_pre_push(arguments, environment)
+                self.assertEqual(result.returncode, 64, result.stderr)
+                self.assertEqual(result.stdout, '')
+
+    def test_e2ee_legacy_wrappers_keep_paired_selection_arguments_and_exit_codes(self):
+        wrappers = {
+            'run_cross_platform_e2ee_interop.sh': 'integration_test/e2ee_cross_platform_interop_test.dart',
+            'run_cross_platform_e2ee_group_interop.sh': 'integration_test/e2ee_cross_platform_group_interop_test.dart',
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            scripts = project / 'scripts'
+            scripts.mkdir()
+            for name in (*wrappers, 'run_test_suite.sh'):
+                shutil.copyfile(ROOT / 'scripts' / name, scripts / name)
+            binaries = project / 'bin'
+            binaries.mkdir()
+            for name in ('python3', 'flutter', 'patrol', 'adb'):
+                binary = binaries / name
+                binary.write_text('#!/bin/sh\nprintf "%s\\0" "$@"\nexit "${PAIR_FIXTURE_EXIT:-0}"\n'
+                                  if name == 'python3' else
+                                  '#!/bin/sh\necho UNEXPECTED_DIRECT_RUNNER >&2\nexit 98\n')
+                binary.chmod(0o755)
+            for name, target in wrappers.items():
+                for dry_run, command in ((False, 'execution-run'), (True, 'execution-plan')):
+                    arguments = ['--dry-run', '--output', 'plan output.json'] if dry_run else [
+                        '--artifact-dir', 'evidence output']
+                    arguments += ['--product-profile', 'full-selected']
+                    for code in (0, 1, 2, 137):
+                        with self.subTest(name=name, dry_run=dry_run, code=code):
+                            result = subprocess.run(
+                                ['bash', str(scripts / name), *arguments], cwd=project,
+                                env={**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH'],
+                                     'PAIR_FIXTURE_EXIT': str(code)},
+                                text=True, capture_output=True, check=False)
+                            self.assertEqual(result.returncode, code, result.stderr)
+                            self.assertNotIn('UNEXPECTED_', result.stderr)
+                            forwarded = [value for value in arguments if value != '--dry-run']
+                            self.assertEqual(result.stdout.split('\0')[:-1], [
+                                'scripts/auto_test.py', command, '--profile', 'device-pair',
+                                '--target', target, *forwarded])
+
+    def test_e2ee_legacy_wrappers_do_not_pin_devices_or_run_flutter_independently(self):
+        for name in ('run_cross_platform_e2ee_interop.sh', 'run_cross_platform_e2ee_group_interop.sh'):
+            with self.subTest(name=name):
+                script = (ROOT / 'scripts' / name).read_text(encoding='utf-8')
+                self.assertNotIn('XWE6R19916004085', script)
+                self.assertNotRegex(script, r'\b(?:flutter|patrol)\s+test\b|\badb\s+-s\b')
+
+    def run_web_shell(self, arguments=(), environment=None, *, assets=True, inside_artifacts=False):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            project = base / 'project'
+            scripts = project / 'scripts'
+            scripts.mkdir(parents=True)
+            shutil.copyfile(ROOT / 'scripts/verify_web_shell.sh', scripts / 'verify_web_shell.sh')
+            if assets:
+                asset_dir = project / 'web/pkg'
+                asset_dir.mkdir(parents=True)
+                for name in ('vodozemac_bindings_dart.js', 'vodozemac_bindings_dart_bg.wasm'):
+                    (asset_dir / name).write_text('synthetic asset')
+            evidence = (project if inside_artifacts else base) / 'evidence output'
+            calls_file = base / 'calls.jsonl'
+            binaries = base / 'bin'
+            binaries.mkdir()
+            stub = '#!' + sys.executable + '\n' + '''import json, os, sys
+from pathlib import Path
+name, args = Path(sys.argv[0]).name, sys.argv[1:]
+with open(os.environ['WEB_FIXTURE_CALLS'], 'a') as stream:
+    stream.write(json.dumps([name, *args]) + '\\n')
+if name == 'python3' and args[0] == '-c':
+    os.execv(sys.executable, [sys.executable, *args])
+if name == 'uname':
+    print(os.environ.get('WEB_FIXTURE_HOST', 'Linux'))
+    raise SystemExit(0)
+if name == 'python3' and args[0].endswith('check_sdk_compatibility.py'):
+    code = int(os.environ.get('WEB_FIXTURE_SDK_EXIT', '0'))
+elif name == 'python3' and args[:2] == ['scripts/auto_test.py', 'execution-plan']:
+    code = 0
+elif name == 'python3' and args[:2] == ['scripts/auto_test.py', 'execution-run']:
+    code = 2 if '--upstream' in args else int(os.environ.get('WEB_FIXTURE_TEST_EXIT', '0'))
+elif name == 'flutter' and args[0] in ('analyze', 'build'):
+    code = int(os.environ.get('WEB_FIXTURE_' + args[0].upper() + '_EXIT', '0'))
+else:
+    raise SystemExit('UNEXPECTED_DIRECT_RUNNER: ' + repr([name, *args]))
+print('synthetic command fixture exit', code)
+raise SystemExit(code)
+'''
+            for name in ('python3', 'flutter', 'uname'):
+                binary = binaries / name
+                binary.write_text(stub)
+                binary.chmod(0o755)
+            result = subprocess.run(
+                ['bash', str(scripts / 'verify_web_shell.sh'), '--artifact-dir', str(evidence), *arguments],
+                cwd=project, env={**os.environ, 'PATH': str(binaries) + os.pathsep + os.environ['PATH'],
+                                  'WEB_FIXTURE_CALLS': str(calls_file), **(environment or {})},
+                text=True, capture_output=True, check=False)
+            self.assertNotIn('UNEXPECTED_', result.stdout + result.stderr)
+            calls = [json.loads(line) for line in calls_file.read_text().splitlines()] if calls_file.exists() else []
+            logs = sorted(path.name for path in evidence.glob('*.log'))
+            return result, calls, logs
+
+    def test_web_shell_dry_run_precedes_sdk_assets_analysis_and_build(self):
+        for host, platform in (('Linux', 'linux'), ('Darwin', 'macos')):
+            with self.subTest(host=host):
+                result, calls, logs = self.run_web_shell(
+                    ['--dry-run', '--quick', '--no-server', '--output', 'plan output.json'],
+                    {'WEB_FIXTURE_HOST': host, 'WEB_FIXTURE_SDK_EXIT': '97'}, assets=False)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(calls, [['uname', '-s'], [
+                    'python3', 'scripts/auto_test.py', 'execution-plan', '--profile', 'web-shell',
+                    '--platform', platform, '--platform', 'web', '--output', 'plan output.json']])
+                self.assertEqual(logs, [])
+
+    def test_web_shell_quick_keeps_host_and_browser_obligations_and_shared_verdict(self):
+        for host, platform in (('Linux', 'linux'), ('Darwin', 'macos')):
+            for code in (0, 1, 2, 137):
+                with self.subTest(host=host, code=code):
+                    result, calls, logs = self.run_web_shell(
+                        ['--quick', '--no-server'], {'WEB_FIXTURE_HOST': host, 'WEB_FIXTURE_TEST_EXIT': str(code)})
+                    self.assertEqual(result.returncode, code, result.stderr)
+                    run = next(call for call in calls if 'execution-run' in call)
+                    self.assertEqual(run[:-1], ['python3', 'scripts/auto_test.py', 'execution-run',
+                                               '--profile', 'web-shell', '--platform', platform,
+                                               '--platform', 'web', '--artifact-dir'])
+                    self.assertTrue(run[-1].endswith('/evidence output/tests'), run)
+                    self.assertEqual([call[1] for call in calls if call[0] == 'flutter'], ['analyze'])
+                    self.assertEqual(logs, ['analyze.log', 'execution.log', 'sdk.log'])
+                    self.assertNotIn('all checks passed', result.stdout)
+
+    def test_web_shell_prerequisite_failures_still_reconcile_selected_instances(self):
+        for stage, environment, assets in (
+            ('sdk', {'WEB_FIXTURE_SDK_EXIT': '1'}, True),
+            ('assets', {}, False),
+            ('analyze', {'WEB_FIXTURE_ANALYZE_EXIT': '1'}, True),
+            ('build', {'WEB_FIXTURE_BUILD_EXIT': '1'}, True),
+        ):
+            with self.subTest(stage=stage):
+                result, calls, logs = self.run_web_shell(['--no-server'], environment, assets=assets)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                run = next(call for call in calls if 'execution-run' in call)
+                self.assertIn('--upstream', run)
+                self.assertIn('web-shell-' + stage + ('=blocked' if stage == 'assets' else '=failure'), run)
+                self.assertIn(stage + '.log', logs)
+                self.assertIn('execution.log', logs)
+                self.assertEqual(calls[-1], run)
+
+    def test_web_shell_full_keeps_build_and_no_server_without_a_second_test_runner(self):
+        result, calls, logs = self.run_web_shell(['--no-server'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual([call[1] for call in calls if call[0] == 'flutter'], ['analyze', 'build'])
+        self.assertEqual(sum('execution-run' in call for call in calls), 1)
+        self.assertIn('execution-run', calls[-1])
+        self.assertEqual(logs, ['analyze.log', 'build.log', 'execution.log', 'sdk.log'])
+
+    def test_web_shell_rejects_artifacts_inside_repository_before_execution(self):
+        result, calls, logs = self.run_web_shell(['--quick', '--no-server'], inside_artifacts=True)
+        self.assertEqual(result.returncode, 64, result.stderr)
+        self.assertIn('outside the repository', result.stderr)
+        self.assertFalse(any('execution-run' in call for call in calls))
+        self.assertEqual(logs, [])
+
     def ci_job(self, name):
         workflow = (ROOT / '.github/workflows/ci.yml').read_text(encoding='utf-8')
         jobs = workflow.split('\njobs:\n', 1)[1]
@@ -303,6 +550,40 @@ class EntrypointTest(unittest.TestCase):
         self.assertIn('--upstream-env UPSTREAM_JOBS', summary)
         workflow = (ROOT / '.github/workflows/ci.yml').read_text(encoding='utf-8')
         self.assertNotRegex(workflow.split('\npermissions:', 1)[0], r'\bpaths(?:-ignore)?:')
+
+    def test_manual_golden_uses_dart_check_before_its_own_flutter_environment_contract(self):
+        workflow = (ROOT / '.github/workflows/integration_test.yml').read_text(encoding='utf-8')
+        step = re.search(r'^      - name: Verify prepared SDK\n(.*?)(?=^      - |\Z)',
+                         workflow, re.MULTILINE | re.DOTALL)
+        self.assertIsNotNone(step)
+        self.assertIn('PROFILE: ${{ inputs.profile }}', step.group(1))
+        command = '\n'.join(line[10:] for line in step.group(1).split('        run: |\n', 1)[1].splitlines())
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / 'python3'
+            binary.write_text('#!/bin/sh\nprintf "%s\\0" "$@"\nexit "${SDK_FIXTURE_EXIT:-0}"\n')
+            binary.chmod(0o755)
+            for profile in ('golden', 'backend', 'web', 'web-shell'):
+                for code in (0, 2):
+                    with self.subTest(profile=profile, code=code):
+                        result = subprocess.run(
+                            ['bash', '-e', '-o', 'pipefail', '-c', command], cwd=ROOT,
+                            env={**os.environ, 'PATH': directory + os.pathsep + os.environ['PATH'],
+                                 'CI': 'true', 'PROFILE': profile, 'SDK_FIXTURE_EXIT': str(code)},
+                            text=True, capture_output=True, check=False)
+                        self.assertEqual(result.returncode, code, result.stderr)
+                        self.assertEqual(result.stdout.split('\0')[:-1], [
+                            'scripts/check_sdk_compatibility.py', *(['--dart-only'] if profile == 'golden' else [])])
+
+    def test_manual_choices_and_suite_help_expose_web_specialists(self):
+        workflow = (ROOT / '.github/workflows/integration_test.yml').read_text(encoding='utf-8')
+        profile = workflow.split('      profile:\n', 1)[1].split('      platform:\n', 1)[0]
+        choices = re.search(r'options: \[([^]]+)\]', profile)
+        self.assertIsNotNone(choices)
+        self.assertTrue({'web', 'web-shell'} <= {value.strip() for value in choices[1].split(',')})
+        result = subprocess.run(['bash', str(ROOT / 'scripts/run_test_suite.sh'), '--help'],
+                                cwd=ROOT, text=True, capture_output=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('|web|web-shell|', result.stdout)
 
     def test_coverage_counts_unique_lines_and_empty_evidence_fails(self):
         with tempfile.TemporaryDirectory() as directory:

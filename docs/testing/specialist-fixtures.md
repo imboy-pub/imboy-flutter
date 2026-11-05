@@ -87,6 +87,44 @@ coordinator 是 `coordinator-gate`，不计 Flutter 用例数。其 receipt 保�
 最终汇总重读文件，验证精确阶段顺序、最终 coordinator_verified 和单调时间，并与父实例绑定。
 仅退出0或仅父 Flutter PASS 均不足；私有 context 含密钥，不复制进可公开上传的工件。
 
+## SQLite kill-replay 与离线 E2EE 入口
+
+`integration_test/sqlite_migration/sqlite_migration_kill_replay_test.dart` 使用自己的
+`imboy_wp7_kill/replay_N.db` 合成数据库，不登录、不连接后端、不使用客户数据库。
+它需要 `prepare` 和 `verify` 两阶段，不能直接作为普通单设备目标执行。统一合同将它
+归入 device-single，编排方式为 `sqlite-kill-replay`；目前只有 Android standard flavor
+的 `adb` 控制器，对应应用包 `pub.imboy.app`。iOS/macOS 为 PLATFORM_NA；即使按其他
+平台生成计划，Android 适用义务仍保留。
+
+在明确用于本测试的物理 Android 设备上，准备 Flutter/Dart、项目锁定依赖、adb，以及
+可安装 standard 测试应用的环境。设备 ID 必须显式提供；attempt 是 1 到 999999999 的整数，
+用于隔离本次合成库。执行器只 force-stop 所选设备上的固定测试包，不清除包数据。
+
+```bash
+# 无设备、SDK 或凭证也能查看计划
+bash scripts/run_kill_replay.sh --dry-run --output "$REPORT_DIR/kill-replay-plan.json"
+# ANDROID_TEST_DEVICE 由调用者选择隔离测试设备，不设默认真实设备 ID
+IMBOY_TEST_ISOLATED=true bash scripts/run_kill_replay.sh "$ANDROID_TEST_DEVICE" 1 \
+  --artifact-dir "$REPORT_DIR/kill-replay"
+```
+
+运行器从 Flutter machine 的 print 事件读取相同 attempt 的 `kill_seeded`、`kill_ready`，
+核对合成库命名空间，记录准备阶段证据前缀，再确认测试包 PID、受控 force-stop、确认 PID
+消失。随后使用同一 attempt 执行 verify，沿用 machine events、进程退出码和零执行/skip
+判定。成功还必须有 `KILLED_ROLLED_BACK`；缺 ready、错 attempt、漏过中断窗口、PID 未停止、
+verify 非零/跳过或缺少任何阶段证据均不能通过。准备阶段是协调证据，不计业务用例；
+最终计数只来自 verify。汇总重新核验阶段命令、进程收据、事件顺序和文件 SHA-256。
+
+现有 Dart 在调用 `db.transaction` **之前**打印 `kill_ready`，因此这套证据证明“观察到就绪、
+受控停止、重开后保留 v16 和数据”，不能精确证明停止发生在 SQLite 事务内部。更严格的
+事务内杀点需要另行补充可观测契约和真实设备验证；不能靠更改报告措辞扩大结论。
+
+`run_cross_platform_e2ee_interop.sh` 和 `run_cross_platform_e2ee_group_interop.sh` 也只转交
+同一 device-pair profile 的对应目标。它们需要明确的 Android sender 和 macOS receiver，
+由现有向量传递控制器执行 sender → receiver → final，保留每阶段机器事件及最终对账。
+两个 wrapper 均支持 `--dry-run`；设备变量、原生加密库和角色准备按主说明，不再内置设备 ID
+或用日志里的 PASS 文本作为结果。离线合成互操作不需要真实后端或产品登录。
+
 ## 其他专项
 
 - Golden p1/p2/p3 及企业 OA 的 `t15_enterprise_layout_test.dart`：使用

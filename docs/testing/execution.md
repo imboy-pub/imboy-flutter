@@ -16,7 +16,7 @@
 | backend-contract | 真实 API/WS、无设备 API 流程 | 隔离后端、测试账号、签名材料 |
 | golden | 像素比较 | 固定 SDK/engine、字体、平台和已批准基线 |
 | route-smoke | 路由页面烟雾 | 每条路由独立进程；守卫合同单独保留 |
-| device-single | 单设备业务流程 | 声明的平台、设备和隔离后端 |
+| device-single | 单设备业务流程、受控 SQLite 中断重放 | 声明的平台/设备；联网目标需隔离后端，离线目标遵守自身 fixture 合同 |
 | device-pair | 双端消息、RTC、跨平台加密 | 成组角色、平台拓扑及编排器 |
 | native-ui | Patrol、权限与系统 UI | Android instrumentation 与本次 JUnit |
 | tooling | Python unittest、现有 CASES/恢复自检 | Python；部分源码契约需并排后端源码 |
@@ -72,6 +72,48 @@ python3 scripts/auto_test.py execution-summary --plan "$REPORT_DIR/full-plan.jso
 `scope=scoped`，不能签发 `complete_regression=true`。执行身份保留目标、平台、产品 profile、
 角色及必要 variant；不能按文件去重。分片消费同一个冻结计划，最后汇总全部 `results.json`。
 配对组必须交给能协调完整角色集合的控制器，不能拆成普通单设备遍历。
+
+### pre-push hook
+
+`lefthook.yml` 的 `api-contract-tests` 保留既有可选后端语义；默认调用
+`execution-check`，归属错误会阻止 push，后端明确记为 `OUT_OF_SCOPE`。
+静态归属通过不代表 API/WS 或任何业务测试通过。显式选择后端后，脚本把 Linux/macOS
+本机平台交给同一 `backend` profile；统一运行器记录机器事件、结果与证据，环境缺失、
+未批准 skip、零执行或非零退出会阻止 push。脚本不读取 `scripts/test.env`，不自行探活，
+不打印账号；环境必须按下文隔离后端合同显式注入。
+
+```bash
+bash scripts/pre_push_gate.sh
+# 只生成本机 backend 计划，不访问后端，也不执行测试
+bash scripts/pre_push_gate.sh --dry-run --output "$REPORT_DIR/backend-plan.json"
+# 隔离 fixture 已准备后显式执行；也可 IMBOY_PRE_PUSH_BACKEND=1 git push ...
+bash scripts/pre_push_gate.sh --backend --artifact-dir "$REPORT_DIR/pre-push-backend"
+```
+
+原 `IMBOY_SKIP_PRE_PUSH=1` 仍可显式退出该 hook；输出 `OUT_OF_SCOPE`，表示归属及后端
+均未执行，不产生业务通过结论。该变量不会改变远端 CI 的执行合同。
+
+### Web Shell
+
+`web-shell` profile 由合同中的目录前缀接管目标，保留各目标实际平台；完整专项包含
+Linux、macOS 和 Chrome 的适用实例。本机兼容脚本选择本机宿主加 `web`，浏览器专属
+目标不会发往 VM。`--dry-run` 在 SDK、资产、分析及构建检查前直接生成同一计划。
+
+```bash
+python3 scripts/auto_test.py execution-plan --profile web-shell --output "$REPORT_DIR/web-shell-all.json"
+bash scripts/verify_web_shell.sh --dry-run --output "$REPORT_DIR/web-shell-local.json"
+bash scripts/verify_web_shell.sh --quick --no-server --artifact-dir "$REPORT_DIR/web-shell-quick"
+bash scripts/verify_web_shell.sh --no-server --artifact-dir "$REPORT_DIR/web-shell-build"
+```
+
+真实运行保留 SDK 检查、Web E2EE JS/WASM 资产检查、模块静态分析，以及未指定 `--quick`
+时的 Web 构建；这些前置检查先写日志，再交统一 `execution-run` 执行测试。前置失败
+以具体 `web-shell-*` 依赖记录为 `UPSTREAM_FAILED`，仍生成每个选中实例的结果，整体
+非零退出。测试失败、零执行、未批准 skip 及运行器非零退出沿用统一判定。
+`--quick` 只省略构建和预览，测试范围不变。`--artifact-dir` 必须在仓外，未指定时创建
+临时目录；静态/构建日志在该目录，计划、机器事件、结果和汇总在其 `tests/` 子目录。
+默认构建后可启动仅绑定 loopback 的预览服务器；`--no-server` 关闭此步骤。
+人工浏览器检查不构成自动化像素或业务通过证据，本机专项也不代表其他宿主或完整回归通过。
 
 ### 多宿主 / 多产品执行
 
@@ -155,6 +197,8 @@ POSIX 进程组并冻结日志，保留已产生的机器事件，结果仍为�
 
 未知目录、多主规则命中、悬空路径/profile、无真实 runner、无主执行者的 included-test、
 空计划均失败。支持目录中新增真实测试不能伪装成 helper。清单有效不是业务通过。
+profile 的目录前缀必须指向至少一个已归属可执行目标；合法前缀下的新文件自动进入计划。
+需要阶段控制的 kill-replay 必须声明现有 controller 和证据 verifier，不能回落成普通单设备命令。
 
 ## 状态与计数
 
@@ -253,5 +297,6 @@ CI 不能直接跳过后算通过。回归不生成/更新基线。显式 `flutt
 
 `integration_test.yml` 仅手动，默认生成计划；执行需带 `imboy-test` 标签的隔离 self-hosted
 runner；多产品执行可预配置 `IMBOY_EXECUTION_WORKTREE` 为同一提交的独立产品 worktree，防止 checkout 覆盖已准备的生成物。该目录仍接受完整源码/产品指纹校验。完整配对拓扑将 platform 选为 `all`，所选 product 必须与该 runner 预先准备的生成物一致。环境不齐不恢复自动触发。已不存在脚本的旧 YAML automation 入口由此接替。
+手动 Golden 先用 SDK 检查的 `--dart-only` 核验源码钉版一致性与 Dart 依赖约束，再由统一 Golden preflight 核验实际 Flutter 钉版、framework/engine 和基线环境；其他 profile 仍执行完整 SDK 检查。
 修改后运行对应工具、归属和业务验证，回复分别报告静态清单、工具、Flutter、后端契约、
 设备/双端、完整回归等级。缺环境时继续独立验证，列出解除条件，不把模拟 runner 当业务验证。

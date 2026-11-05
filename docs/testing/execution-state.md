@@ -1,75 +1,66 @@
 # 测试执行治理续跑状态
 
-## 先核对工作区和授权
+## 工作区、来源和授权
 
-- 工作区：`/workspace/scratch/c02895233621/imboy-flutter`；分支 `fix/test-execution-governance`。不要创建第二个任务分支/worktree。
-- remote：`https://github.com/imboy-pub/imboy-flutter.git`；Draft PR：[#41](https://github.com/imboy-pub/imboy-flutter/pull/41)。用户明确要求本任务所有代码提交到该 PR，已授权发布；没有授权合并。
-- 先运行 `git status --short --branch`、`git log -1`、`git worktree list --porcelain`，读 PR 当前 head 与最新 CI。保留其他 worktree 和未提交内容；不用 reset/clean/强推。
-- 最初基于 main `9f5d36e5b852f0a3dc20c94a0997fde82d9852d2`。2026-11-05 再次 fetch 的 main 为 `2e06c75ebf9885920d6809d4f4581be103aec49a`。本轮 Golden 环境补丁前的 task head 是 `9d8535740fc4d2329e7b6e95e2e3920f21098428`；发布后的 head 以 Git/PR 为准。
-- 已读 AGENTS/CLAUDE 与测试说明。ios/macOS/plugin 保留区没有修改。并排 imboy `cb95fa72`、imboyadmin `202de6b` 只用于源码合同，不连接服务。
-- CLI push 没有凭证；已授权发布使用 GitHub Git database 接口，必须对比创建 tree 与本地 index tree，并用 expected_sha、非 force 更新原分支。同步本地 ref 前核对 parent/tree/无未暂存差异。不寻找额外凭证。
+- 继续使用 `/workspace/scratch/c02895233621/imboy-flutter`，分支 `fix/test-execution-governance`；不要再创建任务分支/worktree。
+- remote 为 `https://github.com/imboy-pub/imboy-flutter.git`；全部任务代码提交到 [Draft PR #41](https://github.com/imboy-pub/imboy-flutter/pull/41)，用户已明确授权发布，没有授权合并。
+- 先查 `git status --short --branch`、`git log -1`、`git worktree list --porcelain`、PR 当前 head 和对应 CI。保留其他 worktree/未提交内容，不用 reset、clean 或强推。
+- 原始 main 基点 `9f5d36e5b852f0a3dc20c94a0997fde82d9852d2`；已核验 CI 的 main parent 为 `2e06c75ebf9885920d6809d4f4581be103aec49a`。本轮入口修复前的 task head 是 `87194335cfcd80245e588271ce55e08ef0610d88`；发布后 head 以 Git/PR 为准。
+- 已读 AGENTS/CLAUDE 和测试说明；ios/macOS/plugin 保留区未修改。并排 imboy `cb95fa72`、imboyadmin `202de6b` 只供源码合同，不连接服务。
+- CLI push 没有凭证；沿用已授权 GitHub Git database 接口。创建的 tree 必须等于本地 index tree；用原 head 的 expected_sha、force=false 更新原分支。同步本地 ref 前核验 parent/tree/无未暂存差异，不寻找额外凭证。
 
-## 当前实现和计数
+## 当前实现与计数
 
-继续复用 `auto_test.py` / `auto_test_lib`：Git 跟踪发现、唯一主套件、13 profiles、平台/产品/角色/variant 实例、可靠 machine events/result、逐实例证据与最终对账。驱动/聚合/辅助文件显式分类；合法目录新增自动接管，未知/冲突/悬空/无 runner 失败。
+继续复用 `auto_test.py` / `auto_test_lib`，没有另建测试系统：Git 跟踪发现、唯一主套件、14 profiles、平台/产品/角色/variant 实例、原 machine_events/result、逐实例证据和最终对账。未知目录、多主归属、悬空引用、无真实 runner/controller、空计划、缺结果都不能通过。
 
-- 发现 1,522 个 Dart/Python 源文件；1,420 独立目标，102 辅助等，0 未归属。辅助口径：helper 92、fixture 3、driver 5、aggregate 1、included-test 1。
-- 套件：unit 580、widget 292、component 117、sqlite-ffi 129、crypto-ffi 21、backend-contract 45、golden 11、route-smoke 1、device-single 158、device-pair 18、native-ui 2、tooling 46。
-- PR：1,180 个目标 / 2,359 个已选实例；Linux 1,179，macOS 1,180。full：1,420 个目标 / 3,284 个实例。13 profiles 均可生成非空计划，PR/coverage 已选 ID 相同。
-- CI 从冻结 PR plan 生成 12 个 platform × suite worker；并集 2,359，遗漏/重复均 0。Linux coverage_eligible 为 1,132；覆盖率按实例对账后合并 LCOV，只检查一次原 38% 阈值。
-- 唯一新增归属修正：font_contract_test.dart 从 unit/Linux+macOS 改为 component/macOS，声明既有授权字体依赖。全部 5 用例仍在 PR/full macOS 执行；Linux PLATFORM_NA，不删除 Mac 义务。未改字体、Dart 断言、skip 或像素基线。
-- 非零退出、零执行、全/部分未批准 skip、缺结果/证据均不通过。覆盖率核验原始进程、收集参数、路径与 SHA256；一个 worker 的 LCOV 不能掩盖另一个 worker 缺结果/未收集。
-- Flutter 原生 error 字段现在保留为失败正文，兼容旧 message。聚合 job 失败不会把每个子门禁伪称为失败；具体收据保留，没有独立收据记 missing，实际聚合失败仍阻断最终结果。
+- 发现 1,522 个 Dart/Python 源文件；1,420 个独立目标、102 个辅助等、0 未归属。辅助为 helper 92、fixture 3、driver 5、aggregate 1、included-test 1。
+- 主套件：unit 580、widget 292、component 117、sqlite-ffi 129、crypto-ffi 21、backend-contract 45、golden 11、route-smoke 1、device-single 158、device-pair 18、native-ui 2、tooling 46。
+- PR 为 1,180 目标/2,359 实例（Linux 1,179，macOS 1,180）；full 为 1,420 目标/3,282 实例。full 计划不是 full 通过。
+- CI 冻结同一 PR plan，12 个 platform×suite worker，Linux coverage_eligible 1,132；业务与覆盖率选择同源，覆盖率不重纳入专项或再跑一遍业务。
+- `web-shell` profile 按合法前缀自动接管，当前 16 目标/31 实例；本机 wrapper 为宿主15+Chrome1。Chrome 专属不发 VM。profile 前缀为空、非法或只指向辅助文件会失败。
+- 字体合同保持 component/macOS，五用例完整，Linux PLATFORM_NA 不删除 Mac 义务。
+- kill-replay 保持 device-single 主归属，改为实际 Android standard 控制器。原来错误的 iOS/macOS 义务改为 PLATFORM_NA；Android 义务仍在。full 因此从 3,284 更正为 3,282，device-single 从433为431，device从465为463。
+- 计数：executed=passed+failed+skipped；actually_run=passed+failed。普通断言不重试洗绿；基础设施重试保留全部尝试。任何未批准 skip、非零进程、零执行、缺事件/收据/文件/hash 均不能通过。
 
-## 本轮本地验证（2026-11-05，提交前源码快照）
+## 本轮入口修复
 
-报告根：`/workspace/scratch/c02895233621/pr-ci-followup/worker-fix-validation/`。报告中的 commit/source_fingerprint 标识被验证的快照，发布后重新冻结计划，不能混用旧结果。
+1. pre-push 默认只执行归属硬门禁，backend 明确 OUT_OF_SCOPE。显式 `--backend` / `IMBOY_PRE_PUSH_BACKEND=1` 才走统一 backend 计划；缺环境、skip、失败均阻断。不再自动加载 test.env、探测后端或输出账号。
+2. 两个跨平台 E2EE shell 只转交声明的 device-pair 目标，保留 sender→receiver→final；无默认真实设备 ID、grep PASS 或独立选择器。
+3. Web Shell 保留 SDK/资产/analyze/build 用途，测试交统一 profile；dry-run 在前置之前。前置失败留日志并生成全部 UPSTREAM_FAILED，quick 不缩测试范围；人工预览不算自动化通过。
+4. SQLite kill-replay 复用原进程与 invocation：prepare→结构化 ready→PID→固定测试包 force-stop→PID 消失→verify。准备仅协调证据，业务计数只来自 verify。五阶段、ready 前缀、观察顺序、命令、收据与 hash 可重放；verify 必须 KILLED_ROLLED_BACK。
+5. 独立审查发现的 ready 后 prepare 断言被中断逻辑掩盖已修复：assertion、skip、unknown error 均 BLOCKED 且不调用 verify；只有原基础设施分类明确认可的 transport 异常可保留为受控停止证据。没有新增 skip 豁免。
+6. 手动 Golden 先做现有 SDK 的 Dart/源码配置检查，实际 Flutter pin/framework/engine 交统一 Golden preflight；其他 profile 保留普通完整 SDK 检查。避免 PR3.47.5 误挡 Golden 登记3.47.7；工作流仍仅手动、默认只计划。
 
-| 验证 | 实际结果 |
-|---|---|
-| `PYTHONPATH=test/tooling/auto_test python3 -m unittest discover -s test/tooling -p 'test_*.py'` | 651 tests PASS；随后新增聚合门禁回归由下两项覆盖，不累加重复用例 |
-| `PYTHONPATH=scripts:test/tooling/auto_test python3 -m unittest test_execution_runner test_execution_entrypoints` | 最终 76 tests PASS |
-| `execution-run --profile tooling --platform linux` | 46/46 有收据；44 PASS、2 ENV_MISSING；719 passed / 0 failed / 0 skipped，exit 2 |
-| `execution-summary` 对 tooling-final 的实际文件/hash/事件再对账 | 同样 44 PASS、2 BLOCKED；无缺结果 |
-| `scripts/check_auto_test_framework.sh --checks-only` | 静态框架/归属/规格/catalog/产品合同 PASS，exit 0 |
-| `.github/scripts/validate_ci_test_paths.sh`、13 profiles、matrix/coverage 选择检查 | PASS；清单不是业务执行证明 |
-| Python compileall、workflow YAML 接线测试、文件行数门、git diff --check | PASS |
+环境和精确命令见 [execution.md](execution.md)、[specialist-fixtures.md](specialist-fixtures.md)。kill_ready 在现有 Dart 的 db.transaction 之前，证据不能证明精确 SQL 事务内杀点；本任务未改该业务源码。
 
-本地两项环境阻塞：`tool/uiux/recovery_contract_test.py`、`tool/uiux/test_lock_contract.py` 需要可靠查询父/子进程启动时间的 ps。当前没有 Flutter/Dart，不能声称本机运行了 Flutter。
+## 本轮本地验证与证据
 
-关键文件：ownership.json/md、ownership-delta.json、migration.json、profile-checks.json、pr/full-plan.json、host-matrix.json、tooling-final/、tooling-reconciled.json。比较原选择规则：297 newly-selected、883 retained、38 moved-to-specialist、202 specialist-owned；这是范围迁移，不是历史执行证明。
+仓外报告根：`/workspace/scratch/c02895233621/pr-ci-followup/entrypoint-followup/`；文件内 commit/source_fingerprint 标识实际快照。旧收据不可冒充新 head。
 
-## 已取得的真实 CI 证据
+- catalog 56 tests、adapter/runner 127 tests、entrypoint 34 tests 分别 PASS；这些命令含重叠范围，不相加冒充独立用例总数。
+- 独立 kill 注入复核四种情形见 `kill-review-recheck.json`。实际 wrapper dry-run 选中1个Android；无设备执行 ENV_MISSING、0 attempts、exit2，无 adb 调用；证据另存 `pr-ci-followup/kill-replay-no-device/`。
+- 实际 pre-push 默认静态归属 PASS，backend OUT_OF_SCOPE；backend 显式缺环境45/45 ENV_MISSING、0用例、exit2。
+- 实际 Web Shell dry-run 为16目标/16实例；无SDK执行16/16 UPSTREAM_FAILED、依赖web-shell-sdk、0用例、exit2、无缺结果。
+- 全仓归属、SDK --config-only、文件行数门、bash -n、Python compileall、git diff --check 通过。最终统一 tooling：46/46结果齐全，44 PASS、2 ENV_MISSING，764 passed/0 failed/0 skipped，exit2；见 `tooling-final/summary.json`。framework --checks-only 七项静态门 PASS，见 `framework/gate_summary.json`。
+- 14 profile/PR覆盖率选择/12worker分区检查、pr/full计划、归属与迁移差异见 `candidate-*`；发布后必须重新生成 `published-*`。相对旧主选择器仍为297新增接管、883保留、38移入专项、202专项归属；这是选择迁移，不是执行证明。
+- 当前本机无 Flutter/Dart。两个现有工具目标 `tool/uiux/recovery_contract_test.py`、`tool/uiux/test_lock_contract.py` 需要可靠的 ps 进程起始时间，当前环境预检阻塞；已发布候选的 CI 已实际执行通过。
 
-- 第三轮 [42007621614](https://github.com/imboy-pub/imboy-flutter/actions/runs/42007621614)，task head a045b78，实际 merge checkout `de2f298e2bb58376895fc5292d05bbc862697993`，parent 为 main 2e06c75 + task head。
-- 该轮 Linux 1,180/1,180 有收据：1,051 PASS / 128 FAIL / 1 BLOCKED，12,456 passed / 2 failed / 2 skipped。只有字体目标产生 2 个真实断言失败；另外 127 个目标因同批非零退出/done=false 不能 PASS。运行器原大批次超时已解除，本轮所有 batch 完成。
-- 该轮 macOS 1,180/1,180：1,179 PASS / 1 BLOCKED，12,458 passed / 0 failed / 2 skipped。两个平台各 46 个 tooling 目标 / 723 用例全部 PASS，证明本地 ps 阻塞可在正常 CI 解除。
-- Linux 主执行 55 分 48 秒；Mac 也逼近 job 60 分钟上限，最终 job 记录 cancelled，但完整收据已成功上传。最终稳定 summary 实际运行，对账 2,360/2,360、无缺结果，并保持失败。近一小时主要来自真实 Flutter 批次累计；哈希/报告不是主因，因此本轮按 suite 并行，原进程预算/阈值不增加。
-- 第五轮 [42010636599](https://github.com/imboy-pub/imboy-flutter/actions/runs/42010636599)，task head 306ef36，实际 merge `bf5adcc51cabebcf2c97ccd772357e4014dc59cf`。质量门全部 PASS：Flutter 3.47.5 / Dart 3.13.4，2792 个文件格式 0 changed，分析 0 error/warning/info，合并后的准备页测试 870 行 <= 原 886 基线。
-- 第五轮 macOS 已下载、核验 ZIP SHA 并逐实例重放：1,179 PASS / 1 FTS BLOCKED；12,458 passed / 0 failed / 2 skipped。准备页目标 21/21 PASS，字体合同 5/5 PASS。该证据验证先前 helper 重构，不能代替本轮新矩阵与覆盖率实现的 CI。
-- 原始证据：`pr-ci-followup/run3/`、`run5/`；时长/失败归因：`receipt-performance-audit.json`、`run3/linux-failure-and-timing-audit.json`。旧运行记录和失败保留，不通过重试断言洗绿。
+## 已完成的最新 CI 证据（入口修复前）
 
-## 最新完整 PR CI 与 Golden 环境修正
+[run7：42024193817](https://github.com/imboy-pub/imboy-flutter/actions/runs/42024193817)，task head `87194335`，实际 merge `24e8aec4ca9bd11512654f03fe49dea6240137a9`，parents 为 main `2e06c75` + task head。GitHub completed/failure。
 
-- 第六轮 [42019559624](https://github.com/imboy-pub/imboy-flutter/actions/runs/42019559624) 已完成，task head `9d853574`，实际 merge `5ebad76317b6d8d4775153f0f99d2e5c172e1622`（main `2e06c75` + task head）。静态门全部通过；12 个 worker 与最终 summary/coverage 的 ZIP SHA、实际日志/事件/进程/LCOV 已独立核验。
-- 2,359/2,359 个实例均有收据，0 缺失/重复/无效证据。逐 worker 汇总 2,357 PASS、2 个 FTS BLOCKED；24,967 passed、0 failed、4 skipped，actually_run=24,967、executed=24,971。没有普通断言重试洗绿。整体 summary 保持 BLOCKED/UPSTREAM_FAILED，明确依赖 host-tests、coverage；不会把局部 PASS 当作完整 PR 通过。
-- Linux 1,179 实例：12,481 passed/0 failed/2 skipped；macOS 1,180 实例：12,486/0/2。两平台 tooling 各 46 目标/751 用例 PASS；macOS 字体 5/5、准备页 21/21 PASS。最长 Mac job 日志跨度约 26 分 40 秒，Linux unit 主执行约 23 分 28 秒；原 60 分钟 job/900 秒进程预算未增加。
-- 覆盖率 72,073/120,306=59.9081%，原阈值 38%；1,132 应核验、1,131 完整成功，唯一缺口仍是 FTS UNEXPECTED_SKIP，故 BLOCKED/INCOMPLETE_COVERAGE_EVIDENCE。独立重放产生相同 LCOV 字节。完整证据位于 `pr-ci-followup/run6/`，包括 linux-audit.json、macos-audit.json、quality-audit.json、final-independent-audit.json。
-- 最后文档复核发现 Golden 预检只允许仓内字体，与实际 loader 的 macOS 系统/SDK 字体登记矛盾。本轮复用真实 import 闭包与既有登记，严格绑定文本字体路径/SHA/许可、全部图标路径及其 manifest SHA、源码 SDK pin；只为已登记精确字体路径提供外部例外，基线仍须仓内。共享 manifest 兼容不使用 loader 的其他 Golden；component 字体合同不新增 SDK/图标/像素前置。未改 Dart、字体、基线或 skip。
-- Golden 补丁验证：完整 adapter 56 tests PASS；归属硬门禁、11 实例 Golden 计划、framework --checks-only 七项静态检查、py_compile、git diff --check 均 PASS。实际无环境执行返回 11/11 BLOCKED/ENV_MISSING，0 用例、exit 2，明确缺 macOS host、Flutter/包和 IMBOY_GOLDEN_ENVIRONMENT，没有生成基线。
-- 上述第六轮结果属于 Golden 修正前候选。修正后的工具测试与最终 CI 以 `pr-ci-followup/golden-font-fix/`、PR 最新 head/run 为准；不要复用第六轮收据冒充新提交已执行。当前无像素回归通过证据，真实 Golden 仍需已批准环境与基线。
+- 12 个 worker 和8个静态/契约 job 已核验；所有 artifact ZIP 摘要/长度、安全解压、原始机器事件、进程、LCOV 和最终汇总已独立重放。验证器冻结自87194335，未用未发布代码解释旧收据。
+- 2,359/2,359 实例齐全，0 缺失/重复/无效证据；原始状态2,357 PASS、2 FTS BLOCKED。24,985 passed、0 failed、4 skipped，actually_run=24,985、executed=24,989；122进程退出0，没有重试/超时。
+- Linux12,490 passed/2skip，macOS12,495/2skip；两平台 tooling 各760用例通过。Mac字体5/5、准备页21/21通过。静态SDK为Flutter3.47.5/Dart3.13.4，formatter2792文件0changed，analyzer0/0/0。
+- 覆盖率72,073/120,306=59.9081%，高于原38%阈值；但1,132义务只1,131完整成功，唯一缺口为Linux FTS UNEXPECTED_SKIP。coverage 保持 BLOCKED/INCOMPLETE_COVERAGE_EVIDENCE，LCOV独立重建逐字节一致。
+- 最终 IMBoy Test Summary 实际运行，保持 BLOCKED/UPSTREAM_FAILED，具体依赖host-tests、coverage。全局阻塞后的2,359行与原始worker的2,357 PASS是不同层次；不是2,359个断言失败。
+- 完整证据在 `pr-ci-followup/run7/`；`final-independent-audit.json`、`coverage-audit.json`、`upstream-audit.json` 的完整结论与CI一致。更早失败/修复证据仍在run3/run5/run6，不能混入本轮results目录。
 
-## 继续执行的顺序
+## 继续顺序与未解除条件
 
-1. 核对本轮 Golden 环境合同补丁是否已发布至 PR #41；已发布就继续其最新 run，不重复创建分支、提交或恢复旧计划。
-2. 新 CI 完成后下载 plan、各 worker、coverage 和 summary，先核验 archive SHA，再按同一 merge checkout/源指纹对账。检查每个 worker 及字体/准备页目标，确认 coverage 失败原因；不把旧候选收据当新候选验证。
-3. 若发现新的编排问题，保留全部实例和业务断言，只修本任务范围并补适当正反向验证，仍提交原 PR。不要为记录进度单独发 docs-only 提交触发重复全跑；更新 PR 描述和仓外状态即可，必要代码提交再带上状态文档。
-4. 报告分级：静态、工具、Flutter 子集/全部、后端、设备/双端、full 必须分开。未得到所有适用实例与公共前置的成功证据前，complete_regression 必须为 false。
-
-## 已知未解除条件
-
-- FTS current-schema C2C/C2G 两用例仍 UNEXPECTED_SKIP。dbVersion/注册 inventory 37，v38 仍是 draft；draft 12/12 PASS 不等于当前 schema 验收。不要删用例、改为 draft fixture、加豁免或仅为 CI 注册生产迁移。
-- 既定前置见 sibling imboy cb95fa72 的 `docs/design/2026-10-20-channel-group-ux/plan-v2.2.md` 及 app 提交 `1ae24621590ae4b285419731c1f871f71034561d`：时效/远端回退/展示期间到期语义、实际应用连接 recursive_triggers、目标 Web/SQLCipher 二进制隔离验证，然后按迁移流程注册。
-- 没有真实后端、设备/双端、Patrol、Golden 像素或完整回归通过证据。使用合成数据、临时数据库和隔离账号，准备要求见 `docs/testing/execution.md`、`specialist-fixtures.md`；不访问生产。
-- Golden 缺环境/基线为 ENV_MISSING，不自动生成后声明回归通过。j16c/j28b companion、MC owned context、验收冻结输入/租约仍须真实准备。
-- 分支保护选择稳定的 IMBoy Test Summary 仍需维护者设置；保持 Draft，不合并。
+1. 确认入口修复是否已提交PR41；未发布时先完成/读取本地最终门禁，核验精确stage tree再发布。已发布就续查最新head对应CI，不重复创建分支/提交。
+2. 发布后重新冻结published清单/计划；新CI的plan、12workers、coverage、summary都绑定同一merge/source fingerprint。核验ZIP与物理收据，不拿run7旧结果替代新提交。不要仅为进度发docs-only提交重复全跑。
+3. 更新PR描述及仓外current-state.json；生成报告包时只放生成的清单/日志/收据/报告，不复制Git源代码。已存在验证包应更新同一文件，而不是重复创建。
+4. FTS current-schema两用例仍 UNEXPECTED_SKIP：dbVersion/注册inventory37，v38是draft。不要删用例、改draft fixture、加豁免或仅为绿CI注册生产迁移。既定前置见 sibling imboy cb95fa72 的 `docs/design/2026-10-20-channel-group-ux/plan-v2.2.md` 和 app `1ae24621590ae4b285419731c1f871f71034561d`：到期/远端回退语义、实际连接recursive_triggers、Web/SQLCipher隔离验证后再正式注册。
+5. 没有真实后端、Golden像素、设备/双端/Patrol或full通过证据。Golden缺基线为ENV_MISSING，禁止自动生成后声称回归通过；j16c/j28b companion、MC owned context、验收冻结输入/租约仍须真实准备。所有数据使用合成fixture/隔离账号，不访问生产。
+6. 分支保护选择稳定的 IMBoy Test Summary 需维护者设置；保持Draft，不合并。最终回复分开报告静态、工具、Flutter、后端、设备/双端、完整回归等级及具体阻塞。

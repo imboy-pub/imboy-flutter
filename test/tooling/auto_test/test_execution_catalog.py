@@ -187,6 +187,88 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.cfg['profiles']['pr']['targets'] = ['test/unit_test/missing_test.dart']
         self.fail('UNKNOWN_PROFILE_TARGET')
 
+    def test_profile_prefix_must_be_a_relative_directory_with_executable_targets(self):
+        for prefix, error in [('test/unit_test/missing/', 'UNKNOWN_PROFILE_PREFIX'),
+                              ('test/unit_test', 'INVALID_PROFILE_PREFIX'),
+                              ('/test/unit_test/', 'INVALID_PROFILE_PREFIX'),
+                              ('test/../unit_test/', 'INVALID_PROFILE_PREFIX')]:
+            with self.subTest(prefix=prefix):
+                self.cfg['profiles']['pr']['prefixes'] = [prefix]
+                self.fail(error)
+        self.put('test/unit_test/support/helper.dart', 'const fixtureValue = 1;\n')
+        self.cfg['profiles']['pr']['prefixes'] = ['test/unit_test/support/']
+        self.fail('UNKNOWN_PROFILE_PREFIX')
+
+    def test_web_shell_prefix_automatically_selects_new_owned_tests_on_their_platforms(self):
+        self.cfg['profiles']['web-shell'] = load_contract(ROOT)['profiles']['web-shell']
+        host = 'test/unit_test/page/web_shell/new_view_test.dart'
+        browser = 'test/unit_test/page/web_shell/new_browser_test.dart'
+        self.put(host, WIDGET)
+        self.put(browser, "@TestOn('browser')\n" + WIDGET)
+        plan = self.plan(profile='web-shell', platforms=['linux', 'web'])
+        selected = [r for r in plan['instances'] if r['selected']]
+        self.assertEqual({(host, 'linux'), (browser, 'web')},
+                         {(r['target'], r['platform']) for r in selected})
+        self.assertNotIn('test/unit_test/base_test.dart', {r['target'] for r in selected})
+        mac = next(r for r in plan['instances'] if r['target'] == host and r['platform'] == 'macos')
+        self.assertTrue(mac['required'])
+        self.assertEqual('OUT_OF_SCOPE', mac['reason_code'])
+        browser_host = next(r for r in plan['instances']
+                            if r['target'] == browser and r['platform'] == 'linux')
+        self.assertEqual('PLATFORM_NA', browser_host['reason_code'])
+
+    def test_repository_web_shell_profile_preserves_host_and_chrome_obligations(self):
+        plan = build_plan(ROOT, profile='web-shell')
+        selected = [r for r in plan['instances'] if r['selected']]
+        self.assertGreaterEqual(len({r['target'] for r in selected}), 16)
+        chrome = [r for r in selected
+                  if r['target'].endswith('/web_shell_chrome_e2e_smoke_test.dart')]
+        self.assertEqual(['web'], [r['platform'] for r in chrome])
+        for platform in ('linux', 'macos'):
+            subset = build_plan(ROOT, profile='web-shell', platforms=[platform, 'web'])
+            self.assertEqual({r['id'] for r in selected if r['platform'] in {platform, 'web'}},
+                             {r['id'] for r in subset['instances'] if r['selected']})
+
+    def add_kill_replay_contract(self):
+        from auto_test_lib.execution_adapters import KILL_REPLAY_TARGET
+        self.put(KILL_REPLAY_TARGET, (ROOT / KILL_REPLAY_TARGET).read_text())
+        self.cfg['overrides'][KILL_REPLAY_TARGET] = load_contract(ROOT)['overrides'][KILL_REPLAY_TARGET]
+        self.put('scripts/auto_test_lib/execution_adapters.py',
+                 'def run_kill_replay(): pass\ndef verify_kill_replay_evidence(): pass\n')
+        return KILL_REPLAY_TARGET
+
+    def test_kill_replay_has_one_real_android_controller_and_preserves_its_obligation(self):
+        target = self.add_kill_replay_contract()
+        rows = [r for r in self.plan(profile='full')['instances'] if r['target'] == target]
+        selected = [r for r in rows if r['selected']]
+        self.assertEqual(1, len(selected))
+        self.assertEqual('android', selected[0]['platform'])
+        self.assertEqual('sqlite-kill-replay', selected[0]['orchestration'])
+        self.assertNotIn('isolated-backend', selected[0]['dependencies'])
+        self.assertEqual('any', selected[0]['product_contract']['manifest_profile'])
+        rows = {r['platform']: r for r in self.plan(profile='full', platforms=['macos'])['instances']
+                if r['target'] == target}
+        self.assertEqual('PLATFORM_NA', rows['macos']['reason_code'])
+        self.assertEqual('OUT_OF_SCOPE', rows['android']['reason_code'])
+        self.assertTrue(rows['android']['required'])
+
+    def test_kill_replay_cannot_fall_back_to_ordinary_single_device_invocation(self):
+        target = self.add_kill_replay_contract()
+        del self.cfg['overrides'][target]
+        self.fail('KILL_REPLAY_ORCHESTRATION_REQUIRED')
+
+    def test_kill_replay_cannot_claim_an_unimplemented_platform(self):
+        target = self.add_kill_replay_contract()
+        self.cfg['overrides'][target]['platforms'].append('macos')
+        self.fail('KILL_REPLAY_ORCHESTRATION_REQUIRED')
+
+    def test_kill_replay_requires_both_a_real_controller_and_evidence_verifier(self):
+        target = self.add_kill_replay_contract()
+        self.put('scripts/auto_test_lib/execution_adapters.py', 'def run_kill_replay(): pass\n')
+        self.fail('ORCHESTRATION_CALLABLE_MISSING')
+        self.cfg['overrides'][target]['orchestration_entrypoint']['entrypoint'] = 'scripts/missing.py'
+        self.fail('ORCHESTRATION_ENTRYPOINT_MISSING')
+
     def test_dangling_explicit_override_is_rejected(self):
         self.cfg['overrides']['test/missing_test.dart'] = {'suite': 'unit', 'basis': ['reviewed']}
         self.fail('DANGLING_OVERRIDE')

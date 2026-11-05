@@ -291,6 +291,10 @@ def _config_errors(root: Path, cfg: dict, files: set[str]) -> list[str]:
         if 'disabled' in override or 'enabled' in override or 'safe_to_execute' in override:
             errors.append(f'DISABLED_OWNERSHIP_NOT_ALLOWED: {path}')
     for profile, spec in cfg.get('profiles', {}).items():
+        for prefix in spec.get('prefixes', []):
+            if (not isinstance(prefix, str) or not prefix.endswith('/') or
+                    prefix.startswith('/') or any(part in {'', '.', '..'} for part in prefix[:-1].split('/'))):
+                errors.append(f'INVALID_PROFILE_PREFIX: {profile}: {prefix}')
         for suite in spec.get('suites', []):
             if suite != '*' and suite not in cfg.get('suites', {}):
                 errors.append(f'UNKNOWN_PROFILE_SUITE: {profile}: {suite}')
@@ -300,6 +304,41 @@ def _config_errors(root: Path, cfg: dict, files: set[str]) -> list[str]:
         for product in spec.get('products', []):
             if product != '*' and product not in cfg.get('products', {}):
                 errors.append(f'UNKNOWN_PROFILE_PRODUCT: {profile}: {product}')
+    return errors
+
+
+def _coordinated_contract_errors(root: Path, targets: list[dict], files: set[str]) -> list[str]:
+    """A phase-driven target needs its actual controller and evidence verifier."""
+    from .execution_adapters import KILL_REPLAY_TARGET
+    errors = []
+    for target in targets:
+        path = target['target']
+        method = target.get('orchestration')
+        if path != KILL_REPLAY_TARGET and method != 'sqlite-kill-replay':
+            continue
+        if (path != KILL_REPLAY_TARGET or method != 'sqlite-kill-replay' or
+                target.get('suite') != 'device-single' or target.get('runner') != 'flutter-device' or
+                target.get('platforms') != ['android'] or target.get('flavor') != 'standard' or
+                target.get('offline') is not True or
+                not {'physical-android', 'adb'} <= set(target.get('dependencies', [])) or
+                'IMBOY_KILL_REPLAY_ATTEMPT' not in target.get('required_env', []) or
+                'IMBOY_TEST_ISOLATED' not in target.get('required_true_env', [])):
+            errors.append(f'KILL_REPLAY_ORCHESTRATION_REQUIRED: {path}')
+        spec = target.get('orchestration_entrypoint', {})
+        expected = {'entrypoint': 'scripts/auto_test_lib/execution_adapters.py',
+                    'callable': 'run_kill_replay', 'verifier': 'verify_kill_replay_evidence'}
+        if spec != expected or spec['entrypoint'] not in files:
+            errors.append(f'ORCHESTRATION_ENTRYPOINT_MISSING: {path}')
+            continue
+        try:
+            tree = ast.parse((root / spec['entrypoint']).read_text(encoding='utf-8'))
+            functions = {node.name for node in tree.body
+                         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
+        except (OSError, SyntaxError, UnicodeError):
+            functions = set()
+        for key in ('callable', 'verifier'):
+            if spec[key] not in functions:
+                errors.append(f'ORCHESTRATION_CALLABLE_MISSING: {path}: {spec[key]}')
     return errors
 
 
@@ -471,6 +510,7 @@ def build_catalog(root: Path, contract: dict | None = None,
     by_path = {e['target']: e for e in entries}
     targets = [e for e in entries if e['kind'] == 'test']
     errors.extend(_pair_contract_errors(targets))
+    errors.extend(_coordinated_contract_errors(root, targets, files))
     for entry in entries:
         for reference in entry.get('included_by', []) + entry.get('members', []):
             if reference not in by_path or by_path[reference]['kind'] != 'test':
@@ -478,6 +518,9 @@ def build_catalog(root: Path, contract: dict | None = None,
         if entry['kind'] == 'included-test' and not entry.get('included_by'):
             errors.append(f'INCLUDED_TEST_HAS_NO_EXECUTABLE_OWNER: {entry["target"]}')
     for profile, spec in cfg.get('profiles', {}).items():
+        for prefix in spec.get('prefixes', []):
+            if isinstance(prefix, str) and not any(e['target'].startswith(prefix) for e in targets):
+                errors.append(f'UNKNOWN_PROFILE_PREFIX: {profile}: {prefix}')
         for target in spec.get('targets', []):
             if target not in by_path or by_path[target]['kind'] != 'test':
                 errors.append(f'UNKNOWN_PROFILE_TARGET: {profile}: {target}')

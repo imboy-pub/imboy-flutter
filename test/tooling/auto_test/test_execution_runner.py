@@ -807,5 +807,63 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(parse_machine_events(receipt['lines'], receipt['exit_code']).test_status, 'BLOCKED')
 
 
+    def test_kill_replay_target_routes_only_to_its_coordinator(self):
+        spec = instance(adapters.KILL_REPLAY_TARGET, platform='android', suite='device-single',
+                        runner='flutter-device', orchestration='sqlite-kill-replay')
+        with self.mock_execution(self.process), \
+                patch.object(adapters, 'run_kill_replay', return_value={
+                    'reason_code': 'ENV_MISSING', 'errors': ['synthetic missing device']}) as coordinator, \
+                patch.object(runner, 'execute_process') as process:
+            summary = runner.run_plan(self.root, plan(spec), self.output)
+        coordinator.assert_called_once()
+        process.assert_not_called()
+        self.assertEqual('ENV_MISSING', summary['results'][0]['reason_code'])
+        self.assertIs(coordinator.call_args.kwargs['execute_process'], process)
+
+    def test_successful_kill_verify_requires_its_interruption_companion(self):
+        spec = instance(adapters.KILL_REPLAY_TARGET, platform='android', suite='device-single',
+                        runner='flutter-device', orchestration='sqlite-kill-replay')
+        target = self.root / spec['target']
+        target.parent.mkdir(parents=True)
+        target.write_text('// isolated synthetic target\n')
+        row = self.result(spec)
+        result = runner.reconcile(plan(spec), [row])['results'][0]
+        self.assertEqual('MISSING_COMPANION_EVIDENCE', result['reason_code'])
+        row['companion_evidence'] = {'status': 'PASS', 'kind': 'coordinator-gate'}
+        self.assertEqual('INCOMPLETE_COMPANION_EVIDENCE',
+                         runner.reconcile(plan(spec), [row])['results'][0]['reason_code'])
+
+    @unittest.skipUnless(os.name == 'posix', 'owned process-group execution requires POSIX')
+    def test_observed_interruption_stops_owned_descendants_and_freezes_partial_evidence(self):
+        release, late = self.root / 'release-observed', self.root / 'late-observed'
+        child = ('import signal,time\nfrom pathlib import Path\n'
+                 'signal.signal(signal.SIGTERM,signal.SIG_IGN)\n'
+                 'print("child ready",flush=True)\n'
+                 f'while not Path({str(release)!r}).exists(): time.sleep(0.01)\n'
+                 f'Path({str(late)!r}).write_text("orphan survived")\n')
+        source = ('import subprocess,sys,time\n'
+                  f'subprocess.Popen([sys.executable,"-c",{child!r}])\n'
+                  'print("prepare ready",flush=True)\n'
+                  'time.sleep(8)\n')
+        def observe(path):
+            return 'KILL_REPLAY_INTERRUPTED' if 'child ready' in path.read_text() and 'prepare ready' in path.read_text() else None
+        with subprocess.Popen([sys.executable, '-c', 'import sys;sys.stdin.read()'], stdin=subprocess.PIPE) as sentinel:
+            try:
+                receipt = runner.execute_process([sys.executable, '-c', source], dict(os.environ),
+                    self.output, timeout=3, observer=observe)
+                self.assertEqual((130, 'KILL_REPLAY_INTERRUPTED'), (receipt['exit_code'], receipt['error']))
+                self.assertIsNone(sentinel.poll())
+                self.assertNotEqual('PASS', parse_machine_events(receipt['lines'], 130).test_status)
+                release.touch()
+                time.sleep(0.15)
+                self.assertFalse(late.exists())
+                self.assertEqual(receipt['machine_sha256'], runner._file_sha256(receipt['machine']))
+                self.assertIn('prepare ready', Path(receipt['machine']).read_text())
+            finally:
+                release.touch()
+                sentinel.stdin.close()
+                sentinel.wait(timeout=3)
+
+
 if __name__ == '__main__':
     unittest.main()

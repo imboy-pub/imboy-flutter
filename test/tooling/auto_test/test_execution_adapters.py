@@ -809,5 +809,219 @@ class PairOrchestrationTests(unittest.TestCase):
                 adapters.reassemble_vector(bad)
 
 
+class KillReplayTests(unittest.TestCase):
+    def setUp(self):
+        from auto_test_lib import execution_runner, execution_cli
+        self.runner, self.cli = execution_runner, execution_cli
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name).resolve()
+        self.output = self.root / 'evidence'
+        self.item = {**instance(target=adapters.KILL_REPLAY_TARGET), 'orchestration': 'sqlite-kill-replay',
+                     'flavor': 'standard', 'selected': True, 'variant': 'default'}
+        target = self.root / self.item['target']
+        target.parent.mkdir(parents=True)
+        target.write_text('// isolated synthetic target\n')
+        self.env = {**ENV, 'IMBOY_KILL_REPLAY_ATTEMPT': '23'}
+        self.planned = {'commit': 'a' * 40, 'profile': 'device-single', 'instances': [self.item],
+                        'source_fingerprint': 'b' * 64, 'gates': []}
+        self.commands = []
+        self.scenario = 'success'
+        self.verify_calls = 0
+
+    def marker(self, step, **fields):
+        return json.dumps({'type': 'print', 'message': '[WP7-EVIDENCE] step=' + step +
+                          ' attempt=23' + ''.join(' ' + key + '=' + str(value) for key, value in fields.items())})
+
+    def persist(self, command, output, lines, code=0, error=None, log_path=None):
+        output.mkdir(parents=True, exist_ok=True)
+        path = Path(log_path) if log_path else output / 'machine.jsonl'
+        path.write_text('\n'.join(lines) + '\n')
+        return self.runner._persist_process_receipt({'command': list(command), 'exit_code': code,
+            'log': str(path), 'machine': str(path), 'lines': lines, 'error': error}, output)
+
+    def process(self, command, env, output, **kwargs):
+        self.commands.append(command)
+        if command[0] == 'flutter':
+            lines = [json.dumps({'type': 'suite', 'suite': {'id': 1, 'path': self.item['target']}}),
+                     json.dumps({'type': 'testStart', 'test': {'id': 1, 'suiteID': 1, 'name': 'prepare'}}),
+                     self.marker('kill_seeded', contact=8000, user_tag=8000, user_collect=4000, seed_ms=1)]
+            if self.scenario != 'missing_ready':
+                lines.append(self.marker('kill_ready', db='/data/user/0/pub.imboy.app/files/imboy_wp7_kill/replay_23.db'))
+            if self.scenario == 'window_before_stop':
+                lines.append(self.marker('kill_done_window_missed', user_version=31, **{'from': 16, 'to': 31}))
+            live = Path(kwargs['log_path'])
+            live.parent.mkdir(parents=True, exist_ok=True)
+            live.write_text('\n'.join(lines) + '\n')
+            self.live_prepare = live
+            try:
+                reason = kwargs['observer'](live)
+            except ValueError as exc:
+                reason = 'RUNNER_OBSERVER_FAILED:' + type(exc).__name__
+            if self.scenario == 'prepare_transport_lost_after_stop':
+                with live.open('a') as stream:
+                    stream.write(json.dumps({'type': 'error', 'testID': 1, 'isFailure': False,
+                                             'error': 'synthetic lost device transport'}) + '\n')
+                    stream.write(json.dumps({'type': 'testDone', 'testID': 1, 'result': 'error', 'skipped': False}) + '\n')
+                    stream.write(json.dumps({'type': 'done', 'success': False}) + '\n')
+            elif self.scenario in ('prepare_assertion_after_stop', 'prepare_skip_after_stop', 'prepare_unknown_error_after_stop'):
+                with live.open('a') as stream:
+                    if self.scenario != 'prepare_skip_after_stop':
+                        stream.write(json.dumps({'type': 'error', 'testID': 1,
+                            'isFailure': self.scenario == 'prepare_assertion_after_stop',
+                            'error': 'synthetic prepare assertion failed'}) + '\n')
+                    stream.write(json.dumps({'type': 'testDone', 'testID': 1,
+                        'result': 'failure' if self.scenario == 'prepare_assertion_after_stop' else 'success',
+                        'skipped': self.scenario == 'prepare_skip_after_stop'}) + '\n')
+                    stream.write(json.dumps({'type': 'done', 'success': False}) + '\n')
+            # Model an owned interrupted process or the existing bounded timeout.
+            return self.persist(command, output, live.read_text().splitlines(),
+                code=130 if reason else 124, error=reason or 'RUNNER_TIMEOUT', log_path=live)
+        if output.name == 'pid_before':
+            if self.scenario == 'window_after_pid':
+                with self.live_prepare.open('a') as stream:
+                    stream.write(self.marker('kill_done_window_missed', user_version=31, **{'from': 16, 'to': 31}) + '\n')
+            return self.persist(command, output, [] if self.scenario == 'pid_missing' else ['1234'],
+                                code=1 if self.scenario == 'pid_missing' else 0)
+        if output.name == 'force_stop':
+            return self.persist(command, output, [], code=1 if self.scenario == 'force_stop_failed' else 0)
+        return self.persist(command, output, ['1234'] if self.scenario == 'pid_stays' else [], code=0)
+
+    def execute(self, item, invocation):
+        self.verify_calls += 1
+        if self.scenario == 'verify_runner_crash':
+            raise RuntimeError('synthetic runner crash')
+        code = 7 if self.scenario == 'verify_nonzero' else 0
+        lines = [json.dumps({'type': 'suite', 'suite': {'id': 1, 'path': item['target']}})]
+        if self.scenario != 'verify_zero':
+            lines.append(json.dumps({'type': 'testStart', 'test': {'id': 2, 'suiteID': 1, 'name': 'verify'}}))
+            if self.scenario != 'verify_marker_missing':
+                missed = self.scenario == 'verify_window_missed'
+                lines.append(self.marker('kill_verify', user_version=31 if missed else 16,
+                    outcome='WINDOW_MISSED_COMPLETED' if missed else 'KILLED_ROLLED_BACK',
+                    quick_check='ok', rowsPreserved='true'))
+            if self.scenario == 'verify_assertion':
+                lines.append(json.dumps({'type': 'error', 'testID': 2, 'error': 'synthetic assertion failed'}))
+            lines.append(json.dumps({'type': 'testDone', 'testID': 2,
+                                     'result': 'failure' if self.scenario == 'verify_assertion' else 'success',
+                                     'skipped': self.scenario == 'verify_skip'}))
+        lines.append(json.dumps({'type': 'done', 'success': self.scenario != 'verify_assertion'}))
+        output = Path(invocation['log_path']).parent
+        receipt = self.persist(invocation['command'], output, lines, code=code)
+        attempt = self.runner._record_attempt(self.root, self.planned, item, receipt, lines)
+        return self.runner._finish(self.planned, item, [attempt])
+
+    def run_fixture(self, scenario='success'):
+        self.scenario = scenario
+        with patch.object(adapters.shutil, 'which', return_value='/synthetic/tool'):
+            return adapters.run_kill_replay(self.root, self.item, self.env, self.output / scenario,
+                self.execute, execute_process=self.process, devices=DEVICES)
+
+    def test_success_uses_only_verify_cases_and_portable_phase_receipts(self):
+        result = self.run_fixture()
+        self.assertEqual('PASS', result['status'])
+        self.assertEqual(1, result['counts']['actually_run'])
+        self.assertEqual(1, len(result['attempts']))
+        self.assertIn('--dart-define=KILL_PHASE=verify', result['attempts'][0]['command'])
+        self.assertEqual([], adapters.verify_kill_replay_evidence(result['companion_evidence'], Path))
+        candidate = self.output / 'results.json'
+        payload = {'artifact_root': str(self.output), 'results': [result]}
+        candidate.write_text(json.dumps(payload))
+        relocated = self.root / 'downloaded'
+        import shutil
+        shutil.copytree(self.output, relocated)
+        self.assertEqual('PASS', self.cli.load_results([relocated])[0]['status'])
+
+    def test_missing_environment_never_starts_prepare_or_adb(self):
+        for key in ('IMBOY_KILL_REPLAY_ATTEMPT', 'IMBOY_TEST_ISOLATED'):
+            with self.subTest(key=key), patch.object(adapters.shutil, 'which', return_value='/synthetic/tool'):
+                result = adapters.run_kill_replay(self.root, self.item,
+                    {k: v for k, v in self.env.items() if k != key}, self.output,
+                    self.execute, execute_process=self.process, devices=DEVICES)
+                self.assertEqual('ENV_MISSING', result['reason_code'])
+        self.item.pop('device_id')
+        with patch.object(adapters, 'discover_devices') as discover:
+            result = adapters.run_kill_replay(self.root, self.item, self.env, self.output,
+                self.execute, execute_process=self.process)
+        discover.assert_not_called()
+        self.assertEqual('ENV_MISSING', result['reason_code'])
+        self.assertEqual([], self.commands)
+
+    def test_prepare_transport_loss_after_owned_stop_is_coordination_not_business_success(self):
+        result = self.run_fixture('prepare_transport_lost_after_stop')
+        self.assertEqual('PASS', result['status'])
+        self.assertEqual(1, result['counts']['actually_run'])
+        gate = result['companion_evidence']
+        self.assertEqual([], adapters.verify_kill_replay_evidence(gate, Path))
+        self.assertNotIn('lost device transport', Path(gate['ready_evidence']['path']).read_text())
+
+    def test_prepare_assertion_skip_and_unknown_error_after_ready_are_never_ignored(self):
+        for scenario, reason in (('prepare_assertion_after_stop', 'BUSINESS_ASSERTION_FAIL'),
+                                 ('prepare_skip_after_stop', 'UNEXPECTED_SKIP'),
+                                 ('prepare_unknown_error_after_stop', 'ERROR_NOT_INFRA')):
+            with self.subTest(scenario=scenario):
+                result = self.run_fixture(scenario)
+                self.assertEqual('BLOCKED', result['status'])
+                self.assertEqual(0, self.verify_calls)
+                self.assertTrue(any(reason in error for error in result['companion_evidence']['errors']))
+
+    def test_verify_runner_crash_retains_completed_interruption_phase_evidence(self):
+        result = self.run_fixture('verify_runner_crash')
+        self.assertEqual('BLOCKED', result['status'])
+        self.assertEqual({'prepare', 'pid_before', 'force_stop', 'pid_after'},
+                         set(result['companion_evidence']['phases']))
+        self.assertTrue(any('RUNNER_CRASH' in error for error in result['companion_evidence']['errors']))
+
+    def test_plain_single_device_invocation_cannot_bypass_coordinator(self):
+        with self.assertRaisesRegex(ValueError, 'KILL_REPLAY_REQUIRES_ORCHESTRATION'):
+            adapters.build_invocation(self.root, self.item, self.env, self.output, DEVICES)
+
+    def test_missing_ready_or_missed_window_never_calls_force_stop_or_verify(self):
+        for scenario in ('missing_ready', 'window_before_stop', 'window_after_pid', 'pid_missing'):
+            with self.subTest(scenario=scenario):
+                self.commands = []
+                result = self.run_fixture(scenario)
+                self.assertEqual('BLOCKED', result['status'])
+                self.assertEqual(0, self.verify_calls)
+                self.assertFalse(any('force-stop' in command for command in self.commands))
+                self.assertIn('prepare', result['companion_evidence']['phases'])
+
+    def test_unsuccessful_force_stop_cannot_start_verify(self):
+        for scenario in ('force_stop_failed', 'pid_stays'):
+            with self.subTest(scenario=scenario):
+                result = self.run_fixture(scenario)
+                self.assertEqual('BLOCKED', result['status'])
+                self.assertEqual(0, self.verify_calls)
+
+    def test_verify_skip_zero_nonzero_and_window_miss_cannot_be_green(self):
+        for scenario in ('verify_skip', 'verify_zero', 'verify_nonzero', 'verify_marker_missing', 'verify_window_missed', 'verify_assertion'):
+            with self.subTest(scenario=scenario):
+                result = self.run_fixture(scenario)
+                self.assertNotEqual('PASS', result['status'])
+                self.assertEqual('BLOCKED', result['companion_evidence']['status'])
+                self.assertEqual(1, len(result['attempts']))
+                if scenario == 'verify_assertion':
+                    self.assertEqual('FAIL', result['status'])
+        self.assertEqual(6, self.verify_calls, 'no assertion/skip retry is permitted')
+
+    def test_missing_or_changed_phase_file_invalidates_a_successful_receipt(self):
+        result = self.run_fixture()
+        payload = {'artifact_root': str(self.output), 'results': [result]}
+        candidate = self.output / 'results.json'
+        gate = result['companion_evidence']
+        process = json.loads(Path(gate['phases']['force_stop']['path']).read_text())
+        Path(process['machine']).write_text('changed after receipt\n')
+        self.assertEqual('BLOCKED', self.cli.verify_result_files(result, payload, candidate)['status'])
+        Path(gate['phases']['pid_before']['path']).unlink()
+        self.assertTrue(adapters.verify_kill_replay_evidence(gate, Path))
+
+    def test_verify_receipt_is_bound_to_the_actual_business_attempt(self):
+        result = self.run_fixture()
+        result['companion_evidence']['phases']['verify'] = result['companion_evidence']['phases']['prepare']
+        checked = self.cli.verify_result_files(result, {'artifact_root': str(self.output)}, self.output / 'results.json')
+        self.assertEqual('BLOCKED', checked['status'])
+        self.assertIn('actual test attempt', checked['evidence_error'])
+
+
 if __name__ == '__main__':
     unittest.main()

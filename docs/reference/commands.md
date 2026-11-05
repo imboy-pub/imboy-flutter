@@ -91,5 +91,9 @@ macOS 桌面（无需真机）：同一套 integration_test 用 `-d macos`，并
 
 <!-- 手工补充的长期备注写在这里，不进上方生成表。 -->
 
+- 测试执行以 [统一测试执行说明](../testing/execution.md) 为准；上方历史生成表中的裸目录扫描、
+  生产地址及聚合入口不作为当前回归命令。`pre_push_gate.sh` 默认仅做 `execution-check`，
+  后端为 `OUT_OF_SCOPE`；`--backend` / `IMBOY_PRE_PUSH_BACKEND=1` 显式进入本机 backend
+  profile，`--dry-run` 查看同一计划。它不自动读取 `scripts/test.env`，缺隔离环境时不会报告业务通过。
 - 翻译新增后在 `assets/i18n/zh-CN/<namespace>.i18n.yaml` 添加键 → `dart run slang` → 同步其他语言；YAML 新值一律加引号。
 - `example.env` 与 `scripts/test.env` 是 git 跟踪的模板；本地 `.env.*` 被 `.gitignore` 的 `.env*` 忽略，不入库。变量清单见 [environment-variables.md](./environment-variables.md)。

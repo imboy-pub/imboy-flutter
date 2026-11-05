@@ -8,7 +8,7 @@ on:
         description: 'Declared specialist profile'
         type: choice
         default: device-single
-        options: [device-single, device-pair, native-ui, backend, golden, routes]
+        options: [device-single, device-pair, native-ui, backend, golden, routes, web, web-shell]
       platform:
         description: 'Target platform; choose all for complete paired topologies'
         type: choice
@@ -67,7 +67,14 @@ jobs:
           name: specialist-plan
           path: ${{ runner.temp }}/specialist-plan
       - name: Verify prepared SDK
-        run: python3 scripts/check_sdk_compatibility.py
+        env:
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          if [[ "$PROFILE" == "golden" ]]; then
+            python3 scripts/check_sdk_compatibility.py --dart-only
+          else
+            python3 scripts/check_sdk_compatibility.py
+          fi
       - name: Run selected targets with environment preflight
         env:
           # 只使用隔离后端与专用测试身份。设备角色及签名由该 runner 预先配置。

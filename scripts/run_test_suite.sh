@@ -26,7 +26,7 @@ while [[ "$#" -gt 0 ]]; do
       export IMBOY_TEST_DEVICE="$2"; shift 2 ;;
     --help|-h)
       printf '%s\n' \
-        'Usage: scripts/run_test_suite.sh --profile pr|full|sqlite|e2ee|routes|backend|golden|device-single|device-pair|native-ui|tooling [--dry-run] [selection options]' \
+        'Usage: scripts/run_test_suite.sh --profile pr|full|sqlite|e2ee|routes|backend|golden|web|web-shell|device-single|device-pair|native-ui|tooling [--dry-run] [selection options]' \
         'Selection: --platform PLATFORM --product-profile PROFILE --suite SUITE --target PATH' \
         'Execution: --artifact-dir DIR --coverage; plan: --output FILE' \
         'full without filters retains all platforms/roles/products; missing prerequisites block it.'

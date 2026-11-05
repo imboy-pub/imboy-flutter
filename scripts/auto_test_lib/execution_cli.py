@@ -154,7 +154,20 @@ def verify_result_files(row, payload, candidate):
         if companion:
             if not isinstance(companion, dict):
                 raise ValueError('invalid companion receipt')
-            if companion.get('kind') == 'coordinator-gate':
+            if companion.get('kind') == 'kill-replay-gate':
+                if any(companion.get(a) != row.get(b) for a, b in (
+                        ('instance_id', 'id'), ('target', 'target'), ('platform', 'platform'))):
+                    raise ValueError('kill-replay instance identity mismatch')
+                expected = {'path': attempts[-1]['process_receipt'],
+                            'sha256': attempts[-1]['process_receipt_sha256']}
+                if companion.get('phases', {}).get('verify') != expected:
+                    raise ValueError('kill-replay verify receipt differs from the actual test attempt')
+                from .execution_adapters import verify_kill_replay_evidence
+                errors = verify_kill_replay_evidence(companion,
+                    lambda value: artifact_path(value, recorded_root, root))
+                if errors:
+                    raise ValueError('kill-replay evidence: ' + '; '.join(errors))
+            elif companion.get('kind') == 'coordinator-gate':
                 if any(companion.get(a) != row.get(b) for a, b in (
                         ('instance_id', 'id'), ('target', 'target'), ('mode', 'variant'))):
                     raise ValueError('coordinator instance identity mismatch')
