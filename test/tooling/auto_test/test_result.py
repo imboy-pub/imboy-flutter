@@ -236,13 +236,29 @@ class OverallExitCodeTest(unittest.TestCase):
             overall_exit_code([{"test_status": "PASS"}, {"test_status": "FLAKY"}]), 2
         )
 
-    def test_empty_results_exit_0(self):
-        self.assertEqual(overall_exit_code([]), 0)
+    def test_empty_results_are_not_a_successful_plan(self):
+        self.assertEqual(overall_exit_code([]), 2)
 
     def test_fixture_fixture_end_to_end_exit_codes(self):
         self.assertEqual(overall_exit_code([PASS_PARSED]), 0)
         self.assertEqual(overall_exit_code([FAIL_PARSED]), 1)
         self.assertEqual(overall_exit_code([INFRA_PARSED]), 2)
+
+
+class RetryEvidenceIntegrityTest(unittest.TestCase):
+    def test_all_skip_cannot_be_washed_green_by_later_attempt(self):
+        self.assertEqual(classify_attempts([attempt(ALL_SKIP_PARSED), attempt(PASS_PARSED)])['reason_code'], 'RETRY_NOT_ALLOWED')
+
+    def test_success_then_crash_is_not_a_successful_attempt_sequence(self):
+        self.assertEqual(classify_attempts([attempt(PASS_PARSED), attempt(INFRA_PARSED)])['reason_code'], 'RETRY_NOT_ALLOWED')
+
+    def test_partial_skip_cannot_be_retried_to_erase_skip(self):
+        self.assertEqual(classify_attempts([attempt(SKIPS_PARSED), attempt(PASS_PARSED)])['reason_code'], 'RETRY_NOT_ALLOWED')
+
+    def test_existing_status_schema_and_parser_status_schema_both_supported(self):
+        self.assertEqual(overall_exit_code([{'status': 'PASS'}]), 0)
+        self.assertEqual(overall_exit_code([{'test_status': 'PASS'}, {'status': 'FAIL'}]), 1)
+        self.assertEqual(overall_exit_code([{'status': 'BLOCKED'}]), 2)
 
 
 if __name__ == "__main__":

@@ -53,7 +53,7 @@ lib/
 └── i18n/          # slang 生成物（*.g.dart），勿手动修改
 assets/i18n/       # 国际化源文件 <locale>/<namespace>.i18n.yaml（先改这里）
 assets/migrations/ # SQLite 迁移脚本
-test/              # 测试根目录 → test/CLAUDE.md（unit_test 无需设备；auto_test 测试计划表 137 页/1538 功能点；test_driver 为 flutter drive 入口）
+test/              # 测试根目录 → test/CLAUDE.md（各业务目录由统一执行合同归属；auto_test 保留页面需求规格；test_driver 为驱动）
 integration_test/  # 端到端测试（需真机/桌面设备）—— 刻意留在根，勿移入 test/
 plugin/            # 插件源码（勿动 plugin/r_upgrade）
 scripts/           # 构建/测试脚本
@@ -162,44 +162,20 @@ flutter build ios                   # iOS 发布构建（iOS 无 flavor scheme�
 | 方案 | 工具 | 定位 | 状态 |
 |------|------|------|------|
 | **integration_test** | Flutter 官方 | 底座，进程内、`Key` 可直接用 | ✅ 现役 |
-| **Patrol** | LeanCode | 主 E2E 框架，补原生权限/通知/WebView | 📋 待接入（Android 优先） |
+| **Patrol** | LeanCode | 原生权限/通知/WebView 专项 | Android 专项入口，按实际环境执行 |
 | **mobile-mcp** | Claude Code MCP | 探索验证、故障复现、AI 辅助 | ✅ 可用（Android） |
 | ~~Maestro YAML~~ | — | — | ❌ 已删除 |
 
 - **删 Maestro 原因**：Flutter 的 `Key()` 不接入 accessibility bridge，Maestro 只能匹配 `Semantics(identifier:)`；本仓 83 个字面量 `Key('...')`、0 个 `Semantics`，51 个 flow 从来没工作过。
 - **iOS 受阻**：`ios/Runner.xcodeproj` 仅真机（`SUPPORTED_PLATFORMS = iphoneos`）且 `ios/*` 为保留区，同样卡住 Patrol iOS 接入；Android 侧不受影响，先落地 Android。
 
-### 推荐流程（方案 C，真机）
+### 统一执行入口
 
-```bash
-# 1. 冒烟门控（快，合并前必跑）
-flutter test integration_test/smoke/smoke_test.dart \
-  -d 00008140-000E30561E32801C \
-  --dart-define=APP_ENV=pro \
-  --dart-define=TEST_PHONE=+86手机号 \
-  --dart-define=TEST_PASSWORD=密码
-
-# 2. 全量 UI 流程
-flutter test integration_test/all_tests.dart \
-  -d 00008140-000E30561E32801C \
-  --dart-define=APP_ENV=pro \
-  --dart-define=TEST_PHONE=+86手机号 \
-  --dart-define=TEST_PASSWORD=密码
-```
-
-### macOS 桌面（无需真机）
-
-同一套 integration_test，`-d macos` 即可；macOS 上需显式传 `API_BASE_URL`：
-
-```bash
-flutter test integration_test/smoke/smoke_test.dart -d macos \
-  --dart-define=APP_ENV=pro \
-  --dart-define=API_BASE_URL=https://pro.imboy.pub \
-  --dart-define=TEST_PHONE=账号 \
-  --dart-define=TEST_PASSWORD=密码
-```
-
-> 实测（2026-07-29）：macOS 冒烟 31s 通过。Keychain `-34018 entitlement` 报错是 macOS 桌面固有，不影响断言。
+完整规则见 [docs/testing/execution.md](./docs/testing/execution.md)。
+先 `python3 scripts/auto_test.py execution-plan --profile full` 查看矩阵；
+PR 用 `bash scripts/run_test_suite.sh --profile pr --platform <linux|macos>` 验证本机分片。
+完整回归用 `--profile full`，对账所有平台、产品及角色；设备/后端只使用隔离环境和合成账号。
+旧 `all_tests.dart` 聚合入口不代表全量。
 
 ### Patrol 接入路线（待执行）
 

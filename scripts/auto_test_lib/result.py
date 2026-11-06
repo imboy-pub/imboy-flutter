@@ -195,6 +195,14 @@ def classify_attempts(attempts: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
                 "attempt_count": index + 1,
             }
 
+    # Only a retryable infrastructure failure may precede another attempt.
+    # A zero/all-skipped run or an already successful run cannot be replaced
+    # by a later green attempt; that would erase evidence rather than retry it.
+    if any(parsed.get("test_status") != "BLOCKED" or not _is_infra_attempt(parsed)
+           for parsed in parsed_list[:-1]):
+        return {"test_status": "BLOCKED", "reason_code": "RETRY_NOT_ALLOWED",
+                "attempt_count": attempt_count}
+
     # Success after a retryable infra failure => FLAKY (all attempts kept).
     first_success = next(
         (
@@ -254,9 +262,9 @@ def overall_exit_code(results: Sequence[Dict[str, Any]]) -> int:
     0 = every target PASS; 1 = at least one FAIL; 2 = no FAIL but any
     PASS_WITH_SKIPS / FLAKY / BLOCKED / PLANNED (or unknown status).
     """
-    statuses = [str(result.get("test_status", "")) for result in results]
+    statuses = [str(result.get("test_status", result.get("status", ""))) for result in results]
     if not statuses:
-        return 0
+        return 2
     if any(status == "FAIL" for status in statuses):
         return 1
     if all(status == "PASS" for status in statuses):

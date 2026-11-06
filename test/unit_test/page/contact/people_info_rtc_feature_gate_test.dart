@@ -58,29 +58,33 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('retained call callbacks recheck latest disabled snapshot', (
-    tester,
-  ) async {
-    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
-    await mount(tester);
-    final callbacks = [t.common.voiceCall, t.common.videoCall].map((title) {
-      final tile = tester.widget<ImBoySettingsTile>(
-        find.ancestor(
-          of: find.text(title),
-          matching: find.byType(ImBoySettingsTile),
-        ),
-      );
-      return tile.onTap!;
-    }).toList();
-    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: false});
-    for (final callback in callbacks) {
-      callback();
-    }
-    await tester.pump();
-    expect(tester.takeException(), isNull);
-    expect(p2pCallScreenOn, isFalse);
-    expect(p2pEntry, isNull);
-    expect(find.byType(PeopleInfoPage), findsOneWidget);
-    expect(find.byType(Overlay), findsOneWidget);
-  }, skip: !compiledProductFeatures.contains(FeatureKeys.rtc));
+  // The execution contract runs this target in both phase1_delivery and
+  // full-selected artifacts. Callbacks exist only in the compiled RTC product.
+  if (compiledProductFeatures.contains(FeatureKeys.rtc)) {
+    testWidgets('retained call callbacks recheck latest disabled snapshot', (
+      tester,
+    ) async {
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
+      await mount(tester);
+      final callbacks = [t.common.voiceCall, t.common.videoCall].map((title) {
+        final tile = tester.widget<ImBoySettingsTile>(
+          find.ancestor(
+            of: find.text(title),
+            matching: find.byType(ImBoySettingsTile),
+          ),
+        );
+        return tile.onTap!;
+      }).toList();
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: false});
+      for (final callback in callbacks) {
+        callback();
+      }
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(p2pCallScreenOn, isFalse);
+      expect(p2pEntry, isNull);
+      expect(find.byType(PeopleInfoPage), findsOneWidget);
+      expect(find.byType(Overlay), findsOneWidget);
+    });
+  }
 }

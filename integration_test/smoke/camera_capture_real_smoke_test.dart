@@ -7,7 +7,7 @@
 //
 // 默认跳过，显式开启才跑（避免 CI/全量误触相机硬件与授权弹窗）：
 //   flutter test integration_test/smoke/camera_capture_real_smoke_test.dart \
-//     -d macos --dart-define=IMBOY_REAL_CAMERA_SMOKE=1
+//     -d macos --dart-define=IMBOY_REAL_CAMERA_SMOKE=true
 //
 // 前置（缺一则 initialize 会触发系统授权框并挂起测试）：
 //   1. 运行宿主（终端/IDE）已在 系统设置→隐私与安全性→相机 授权；
@@ -27,6 +27,9 @@ import 'package:imboy/page/camera/camera_capture_page.dart';
 
 /// 未显式开启时整文件跳过（CI/全量默认不碰相机硬件）。
 const bool _realSmoke = bool.fromEnvironment('IMBOY_REAL_CAMERA_SMOKE');
+// Governed hardware regression cannot count the separate no-camera guard as a
+// successful capture. Baseline manual use may still exercise that fallback.
+const bool _cameraRequired = bool.fromEnvironment('IMBOY_REAL_CAMERA_REQUIRED');
 
 Future<void> _settle(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 200));
@@ -95,6 +98,9 @@ void main() {
       if (find.byType(CameraCapturePage).evaluate().isEmpty) break;
     }
     if (!viewfinderReady) {
+      if (_cameraRequired) {
+        fail('ENV_MISSING: CAMERA_DEVICE_OR_PERMISSION_UNAVAILABLE');
+      }
       expect(
         find.byType(CameraCapturePage),
         findsNothing,

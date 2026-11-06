@@ -7,208 +7,198 @@ on:
     branches: [ main, dev ]
   workflow_dispatch:
   schedule:
-    # 每日 UTC 18:00 跑全量路由烟雾测试（进程隔离，较慢，不放 PR 快速门）
     - cron: '0 18 * * *'
+
+permissions:
+  contents: read
 
 env:
   FLUTTER_VERSION: '3.47.5'
 
 jobs:
-  # ==================== 测试任务 ====================
-  unit-widget-test:
-    name: Run Unit/Widget Tests
+  execution-plan:
+    name: Test ownership and PR plan
     runs-on: ubuntu-latest
-    # vodozemac cargo 构建（~6-8min）+ 全量 1372 文件测试，15min 不够曾被 kill（cancelled）
-    timeout-minutes: 35
-
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+      - name: Validate all tracked test ownership
+        run: bash .github/scripts/validate_ci_test_paths.sh
+      - name: Freeze expected instances
+        run: python3 scripts/auto_test.py execution-plan --profile pr --output "${{ runner.temp }}/pr-plan.json"
+      - name: Derive host workers from the frozen plan
+        id: matrix
+        run: |
+          python3 scripts/auto_test.py execution-matrix \
+            --plan "${{ runner.temp }}/pr-plan.json" \
+            --output "${{ runner.temp }}/host-matrix.json"
+          python3 - "${{ runner.temp }}/host-matrix.json" <<'PY'
+          import json
+          import os
+          import sys
+          with open(sys.argv[1], encoding='utf-8') as source:
+              matrix = json.load(source)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write('matrix=' + json.dumps(matrix, separators=(',', ':')) + '\n')
+          PY
+      - uses: actions/upload-artifact@v7
         with:
+          name: execution-plan
+          path: |
+            ${{ runner.temp }}/pr-plan.json
+            ${{ runner.temp }}/host-matrix.json
+          if-no-files-found: error
+
+  host-tests:
+    name: PR tests (${{ matrix.platform }}, ${{ matrix.suite }})
+    needs: execution-plan
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.execution-plan.outputs.matrix) }}
+    defaults:
+      run:
+        working-directory: imboyapp
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: imboyapp
           submodules: recursive
           fetch-depth: 0
-
-      - name: Validate CI test paths
-        run: .github/scripts/validate_ci_test_paths.sh
-
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy
+          path: imboy
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy-admin-frontend
+          path: imboyadmin
+      - uses: actions/download-artifact@v7
+        with:
+          name: execution-plan
+          path: ${{ runner.temp }}/execution-plan
       - name: Setup Flutter
+        id: sdk
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: stable
           cache: true
-
       - name: Verify SDK compatibility
         run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Get dependencies
+      - name: Prepare isolated host dependencies
+        id: dependencies
         run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
-
-      - name: Verify formatting
-        # 此前是 `flutter format`，该子命令在 Flutter 3.19 已移除，而 CI 固定 3.41.0
-        # → 本 step 必挂 → 同 job 后续 analyze / 边界检查 / 单元测试 / moment 回归门
-        #   全部从未执行过。命令修正后，格式问题才第一次暴露出来：148 个文件未格式化。
-        #
-        # 检查范围改为 `git ls-files '*.dart' ':!plugin/'`：
-        # plugin/ 下是 vendored 第三方插件源码（2026-08-02 实体化，原 gitlink），
-        # 第三方风格不归本仓格式门禁约束；其余排除逻辑同原注释。
-        #
-        # C-01b 已完成：1359 个受版本控制的 .dart 全部合规，本地实测退出码 0，
-        # 故摘掉此前的 `|| true`，恢复为硬门禁。
+      - name: Run declared PR instances and collect coverage in the same run
+        if: always()
+        env:
+          SDK_OUTCOME: ${{ steps.sdk.outcome }}
+          DEPENDENCIES_OUTCOME: ${{ steps.dependencies.outcome }}
+          WORKER_PLATFORM: ${{ matrix.platform }}
+          WORKER_SUITE: ${{ matrix.suite }}
+          COVERAGE_OPTION: ${{ matrix.coverage }}
         run: |
-          set -o pipefail
-          # ':!plugin/'=vendored 第三方插件源码不归本仓风格约束。
-          # 暂排 chat_page_utils_test.dart（X17）：HEAD 版旧格式，别线工作树已改好
-          # 未提交，其提交落仓后须撤销该排除。
-          git ls-files -z '*.dart' ':!plugin/' ':!test/unit_test/page/chat/chat/chat_page_utils_test.dart' | xargs -0 dart format --output=write
-          if ! git diff --quiet -- '*.dart'; then
-            echo '::error::受版本控制的 Dart 文件未按当前 CI SDK 格式化'
-            git diff --name-only -- '*.dart'
-            git diff -- '*.dart'
-            exit 1
-          fi
+          python3 scripts/auto_test.py execution-run \
+            --plan "${{ runner.temp }}/execution-plan/pr-plan.json" \
+            --worker-platform "$WORKER_PLATFORM" --worker-suite "$WORKER_SUITE" $COVERAGE_OPTION \
+            --upstream "sdk=$SDK_OUTCOME" --upstream "dependencies=$DEPENDENCIES_OUTCOME" \
+            --artifact-dir "${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}"
+      - name: Upload execution evidence even after failure
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: execution-${{ matrix.platform }}-${{ matrix.suite }}
+          path: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}/
+          if-no-files-found: warn
 
-      - name: Analyze code
-        # errors 仍然阻断；warnings/infos 的 ratchet 计数由 quality.yml 负责，
-        # 此处不再用默认的 fatal-warnings（与 830 基线矛盾会导致永久红）
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
-
-      - name: Check module boundaries
-        run: dart scripts/check_boundaries.dart
-        continue-on-error: true   # 基线期，收集数据；归零后删此行
-
-      - name: New code guard (changed dart files)
-        run: .github/scripts/lint_changed_dart.sh
-
-      - name: Run unit/widget tests
-        run: |
-          # 排除 test/unit_test/integration/（独立 job）与 test/unit_test/smoke/（共享 isolate 会级联，
-          # 由专用隔离 runner job route-smoke-test 运行）。
-          # 另排除需要真实本地后端的环境依赖文件（X16）：
-          # - e2ee_health_check_service_test：直接实例化 E2EEApi 打真实后端（本地 9800）
-          TEST_FILES="$(find test/unit_test -type f -name '*_test.dart' ! -path 'test/unit_test/integration/*' ! -path 'test/unit_test/smoke/*' ! -path 'test/unit_test/service/e2ee_health_check_service_test.dart' | tr '\n' ' ')"
-          if [ -z "$TEST_FILES" ]; then
-            echo "No unit/widget test files found outside test/unit_test/integration/ and test/unit_test/smoke/"
-            exit 0
-          fi
-          flutter test $TEST_FILES --reporter=github
-
-      - name: Moment regression gate
-        run: |
-          flutter test test/unit_test/service/message_type_constants_test.dart --reporter=github
-          flutter test test/unit_test/service/message_s2c_test.dart --reporter=github
-          flutter test test/unit_test/service/moment_event_test.dart --reporter=github
-          flutter test test/unit_test/page/moment/moment_routes_test.dart --reporter=github
-
-  # ----------------------------------------------------------------
-  # E2EE Suite — 加密套件门（阻塞）
-  # 基线 2026-08-02：588 例全绿 + dart analyze lib 零 issue。
-  # CI 从 flutter_vodozemac 包内 Rust 源码重建测试动态库。
-  # ----------------------------------------------------------------
-  e2ee:
-    name: E2EE Suite Gate
+  coverage:
+    name: PR coverage (all Linux suites)
+    if: always()
+    needs: [execution-plan, host-tests]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+      - name: Download frozen PR plan
+        uses: actions/download-artifact@v7
+        continue-on-error: true
         with:
-          submodules: recursive
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+          name: execution-plan
+          path: ${{ runner.temp }}/execution-plan
+      - name: Collect every Linux worker artifact
+        if: always()
+        uses: actions/download-artifact@v7
+        continue-on-error: true
         with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-          cache: true
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Get dependencies
-        run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Analyze lib (zero-issue gate)
-        run: dart analyze lib
-
-      - name: Run E2EE suite
-        run: |
-          set -o pipefail
-          flutter test test/unit_test/service/e2ee/ --reporter=github 2>&1 | tee e2ee-suite.log
-
-      - name: Summarize E2EE suite
+          pattern: execution-linux-*
+          path: ${{ runner.temp }}/linux-results
+          merge-multiple: false
+      - name: Reconcile declared coverage evidence and check the combined threshold
         if: always()
         run: |
-          echo "## E2EE suite" >> "$GITHUB_STEP_SUMMARY"
-          tail -3 e2ee-suite.log >> "$GITHUB_STEP_SUMMARY" || true
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "动态库由 flutter_vodozemac 包内 Rust 源码重建；FFI 用例不得因缺库跳过。" >> "$GITHUB_STEP_SUMMARY"
+          python3 scripts/auto_test.py execution-coverage \
+            --plan "${{ runner.temp }}/execution-plan/pr-plan.json" \
+            --results "${{ runner.temp }}/linux-results" --platform linux \
+            --output "${{ runner.temp }}/execution-coverage/lcov.info" --minimum 38
+      - name: Retain combined coverage evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: execution-coverage
+          path: ${{ runner.temp }}/execution-coverage/
+          if-no-files-found: warn
 
-  test:
-    name: Run Integration Tests
+  quality-gates:
+    uses: ./.github/workflows/quality.yml
+    with:
+      tests_owned_by_ci: true
+
+  contract-gates:
+    uses: ./.github/workflows/contract.yml
+
+  test-summary:
+    name: IMBoy Test Summary
+    if: always()
+    needs: [execution-plan, host-tests, coverage, quality-gates, contract-gates]
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+      - name: Reconstruct expected plan from the checked-out commit
+        run: python3 scripts/auto_test.py execution-plan --profile pr --output "${{ runner.temp }}/pr-plan.json"
+      - name: Collect results
+        if: always()
+        uses: actions/download-artifact@v7
+        continue-on-error: true
         with:
-          submodules: recursive
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-          cache: true
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Get dependencies
+          pattern: execution-*
+          path: ${{ runner.temp }}/execution-results
+      - name: Reconcile every required instance and upstream job
+        if: always()
+        env:
+          UPSTREAM_JOBS: ${{ toJSON(needs) }}
         run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Run integration tests
-        run: flutter test test/unit_test/integration/ --reporter=github
-
-      - name: Channel regression gate (test/unit_test/integration)
-        run: flutter test test/unit_test/integration/channel_integration_test.dart --reporter=github
-
-      # integration_test/（真机/桌面设备套件）不在 ubuntu 跑：
-      # "Web devices are not supported for integration tests yet"（无 -d 设备）。
-      # 该套件由 integration_test.yml 在 macos-latest 以 -d macos 执行，此处不重复。
-
-      - name: Generate coverage report
-        run: |
-          flutter test test/unit_test/integration/ --coverage
-          mv coverage/lcov.info coverage/lcov.test_integration.info
-          cp coverage/lcov.test_integration.info coverage/lcov.integration_test.info
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v7
+          python3 scripts/auto_test.py execution-summary \
+            --plan "${{ runner.temp }}/pr-plan.json" \
+            --results "${{ runner.temp }}/execution-results" \
+            --upstream-env UPSTREAM_JOBS \
+            --output "${{ runner.temp }}/execution-summary.json"
+      - name: Retain final reconciliation
+        if: always()
+        uses: actions/upload-artifact@v7
         with:
-          files: coverage/lcov.test_integration.info,coverage/lcov.integration_test.info
-          flags: integration-tests
-          name: integration-test-coverage
+          name: execution-summary
+          path: ${{ runner.temp }}/execution-summary.json
+          if-no-files-found: warn
 
-  # ==================== 构建任务 ====================
   build:
     name: Build APK
     runs-on: ubuntu-latest
-    needs: [unit-widget-test, test]
+    needs: [test-summary]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       # secrets 上下文不允许出现在 step if 中（会致整个 workflow 验证失败 0s 红），
@@ -239,8 +229,8 @@ jobs:
 
       - name: Get dependencies
         run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
@@ -297,7 +287,7 @@ jobs:
   build-ios:
     name: Build iOS
     runs-on: macos-latest
-    needs: [unit-widget-test, test]
+    needs: [test-summary]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
@@ -320,8 +310,8 @@ jobs:
 
       - name: Get dependencies
         run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
 
@@ -342,91 +332,6 @@ jobs:
           flutter build ios --release --no-codesign \
             --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
-  # ==================== 静态分析任务 ====================
-  analyze:
-    name: Code Analysis
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          submodules: recursive
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Get dependencies
-        run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Analyze code
-        run: flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings
-
-      - name: Check code coverage
-        run: |
-          set -euo pipefail
-          flutter test test/unit_test --coverage
-          test -f coverage/lcov.info
-          read -r hit found < <(
-            awk -F: '
-              /^LH:/ { hit += $2 }
-              /^LF:/ { found += $2 }
-              END { print hit + 0, found + 0 }
-            ' coverage/lcov.info
-          )
-          test "$found" -gt 0
-          awk -v hit="$hit" -v found="$found" \
-            'BEGIN { exit !((100 * hit / found) >= 38) }' || {
-            echo "::error::Line coverage $(awk -v h="$hit" -v f="$found" 'BEGIN { printf "%.2f", 100 * h / f }')% is below 38%"
-            exit 1
-          }
-
-  # ==================== 性能测试任务 ====================
-  performance-test:
-    name: Performance Tests
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
-        with:
-          submodules: recursive
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Get dependencies
-        run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Run performance tests
-        run: |
-          flutter test test/unit_test/integration/conversation_state_mock_test.dart --reporter=github
-          flutter test test/unit_test/integration/message_action_conversation_update_mock_test.dart --name="性能" --reporter=github
-
-  # ----------------------------------------------------------------
-  # DCO — 仅 PR 检查，验证所有 commits 带有 Signed-off-by
-  # ----------------------------------------------------------------
   dco-check:
     name: DCO check
     runs-on: ubuntu-latest
@@ -453,38 +358,46 @@ jobs:
           done < <(git log --format='%H %ae' "$range")
           exit $rc
 
-  # ----------------------------------------------------------------
-  # 全页面路由烟雾测试（进程隔离）——仅 nightly schedule + 手动触发。
-  # 每条路由独立进程运行，规避共享 isolate 级联；较慢，不放 PR 快速门。
-  # ----------------------------------------------------------------
   route-smoke-test:
     name: Route Smoke Test (isolated)
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: imboyapp
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
-
+          path: imboyapp
+      - uses: actions/checkout@v7
+        with:
+          repository: ${{ github.repository_owner }}/imboy
+          path: imboy
+      - name: Freeze isolated route plan
+        run: python3 scripts/auto_test.py execution-plan --profile routes --platform linux --output "${{ runner.temp }}/routes-plan.json"
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
           cache: true
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Get dependencies
+      - name: Prepare host
         run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          flutter pub get
+          python3 scripts/check_sdk_compatibility.py
+          bash .github/scripts/ci_patch_path_deps.sh --check
+          flutter pub get --enforce-lockfile
           bash .github/scripts/ci_gen_env.sh
           bash .github/scripts/ci_build_vod.sh
-
-      - name: Run isolated route smoke test
-        run: bash test/unit_test/smoke/run_smoke_isolated.sh --quiet
+      - name: Run each route in its own process
+        run: python3 scripts/auto_test.py execution-run --plan "${{ runner.temp }}/routes-plan.json" --artifact-dir "${{ runner.temp }}/routes"
+      - name: Reconcile routes
+        if: always()
+        run: python3 scripts/auto_test.py execution-summary --plan "${{ runner.temp }}/routes-plan.json" --results "${{ runner.temp }}/routes" --output "${{ runner.temp }}/routes-summary.json"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: route-smoke-evidence
+          path: |
+            ${{ runner.temp }}/routes/
+            ${{ runner.temp }}/routes-summary.json

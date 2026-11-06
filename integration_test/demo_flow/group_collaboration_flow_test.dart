@@ -1,6 +1,8 @@
 // P0 群协作双账号 flow：群主创建/回读，成员确认日程、提交任务、投票。
 // 只使用授权测试账号和既有 P0 测试群；不取消日程、不删除任务、不撤销投票。
 
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/page/group/schedule/group_schedule_detail_page.dart';
@@ -78,22 +80,27 @@ void main() {
 
 bool _requireAuthorization() {
   const allow = String.fromEnvironment(
-    'TEST_ALLOW_DUAL_ACCOUNT_GROUP_COLLAB_PROD_WRITES',
+    'TEST_ALLOW_BUSINESS_WRITES',
     defaultValue: 'false',
   );
   if (allow.toLowerCase() != 'true') {
-    markTestSkipped(
-      '群协作生产写入必须显式设置 TEST_ALLOW_DUAL_ACCOUNT_GROUP_COLLAB_PROD_WRITES=true',
-    );
+    markTestSkipped('隔离群协作写入必须显式设置 TEST_ALLOW_BUSINESS_WRITES=true');
     return false;
   }
   if (!FlowConfig.hasCredentials || !FlowConfig.hasExplicitTestEnvironment) {
     markTestSkipped('缺少群协作测试凭证或显式环境');
     return false;
   }
-  if (!FlowConfig.targetsProduction) {
-    markTestSkipped('本 flow 只接受已明确授权的生产双账号验证');
-    return false;
+  const isolated = bool.fromEnvironment('IMBOY_TEST_ISOLATED');
+  final api = Uri.tryParse(FlowConfig.apiBaseUrl);
+  final localAddress = api == null ? null : InternetAddress.tryParse(api.host);
+  if (!isolated ||
+      FlowConfig.appEnv != 'local' ||
+      api == null ||
+      !{'http', 'https'}.contains(api.scheme) ||
+      api.userInfo.isNotEmpty ||
+      localAddress?.isLoopback != true) {
+    fail('ENV_MISSING: 群协作要求隔离本地后端与合成账号');
   }
   if (_role != 'owner' && _role != 'member') {
     markTestSkipped('TEST_COLLAB_ROLE 必须是 owner 或 member');

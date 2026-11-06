@@ -16,25 +16,28 @@ library;
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:imboy/service/embedded_schema_scripts.dart';
-import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/schema_contract.dart';
 import 'package:imboy/service/schema_fingerprint.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+
+import '../../test/fixtures/sqlite_migration/kill_replay_transaction.dart';
 
 // 合成密钥（仅本测试沙箱），不含任何真实凭据。
 const _password = 'wp7-synthetic-key-material'; // gitleaks:allow
 const _phase = String.fromEnvironment('KILL_PHASE');
 const _attempt = int.fromEnvironment('KILL_ATTEMPT', defaultValue: 1);
 
-// 缩减版数据集（设备存储紧张）：20k 行足以让 3 次全表重建在 arm32 上
-// 形成 1-3 秒的迁移窗口
+// 缩减版数据集（设备存储紧张）：保留 20k 行验证重开后的数据完整性。
+// 杀点窗口由事务内的真实 v17 检查点提供，不依赖设备执行 SQL 的速度。
 const _contactRows = 8000;
 const _tagRows = 8000;
 const _collectRows = 4000;
+const _killWindow = Duration(seconds: 30);
 
 Future<String> _dbPath() async {
   final base = await getApplicationSupportDirectory();
@@ -45,8 +48,7 @@ Future<String> _dbPath() async {
 
 void _evidence(String step, Map<String, Object?> kv) {
   final pairs = kv.entries.map((e) => '${e.key}=${e.value}').join(' ');
-  // ignore: avoid_print
-  print('[WP7-EVIDENCE] step=$step $pairs');
+  debugPrintSynchronously('[WP7-EVIDENCE] step=$step $pairs');
 }
 
 Future<Database> _open(String path, {String? password}) =>
@@ -87,8 +89,7 @@ void main() {
       await db.transaction((txn) => applyBaseline(txn));
       await db.execute('PRAGMA user_version = 16');
 
-      // 大数据集：命中 v17(user_tag 重建) / v22(user_collect 重建) /
-      // v24(contact 重建) 三个全表重建，拉宽可杀窗口
+      // 合成数据覆盖三个存量表；v22 会重建 user_collect，v24 为 contact 加列。
       final sw = Stopwatch()..start();
       await db.transaction((txn) async {
         final contact = txn.batch();
@@ -133,19 +134,25 @@ void main() {
         'seed_ms': sw.elapsedMilliseconds,
       });
 
-      // 就绪标记：宿主见此行后 force-stop（杀点落在迁移事务内）
-      _evidence('kill_ready', {'attempt': _attempt, 'db': dbPath});
-
-      final result = await db.transaction((txn) async {
-        final r = await MigrationService.to.migrate(
-          db: txn,
-          fromVersion: 16,
-          toVersion: 31,
-          isUpgrade: true,
-        );
-        if (!r.success) throw Exception(r.error);
-        return r;
-      });
+      final result = await db.transaction(
+        (txn) => migrateKillReplayWithCheckpoint(
+          txn,
+          onCheckpoint: (_) async {
+            // 同一事务已经真实添加 mention_unread 并推进到 v17，尚未提交。
+            // 只证明事务内的迁移写入；不声称 SIGKILL 恰好发生在某条 SQL 内。
+            _evidence('kill_ready', {
+              'attempt': _attempt,
+              'db': dbPath,
+              'protocol': 2,
+              'transaction': 'active',
+              'from': 16,
+              'reached': 17,
+              'to': 31,
+            });
+            await Future<void>.delayed(_killWindow);
+          },
+        ),
+      );
       final uv = (await db.rawQuery('PRAGMA user_version')).first.values.first;
       _evidence('kill_done_window_missed', {
         'attempt': _attempt,

@@ -1,243 +1,143 @@
 name: Integration Tests
 
+# 外部条件尚未就绪：仅手动触发。默认只生成计划，不隐式连接后端或设备。
 on:
-  # 2026-11-02 决策：移除 push/pull_request 自动触发，仅保留手动运行。
-  # 本 workflow 存在公网 runner 无法满足的结构性依赖：
-  #   1. APP_ENV=local_office 要求连内网后端；
-  #   2. 需 TEST_PHONE/TEST_PASSWORD secrets（仓库尚未配置）。
-  # 历史上该 workflow 0 次成功，自动触发只会让 main 每 push 白红一次
-  # （单次 ~2.5 小时）。后端可达性与账号 secrets 就绪后再恢复自动触发。
   workflow_dispatch:
     inputs:
-      test_device:
-        description: 'Test device (macos/android)'
-        required: false
-        default: 'macos'
-      smoke_only:
-        description: 'Run backend smoke only (skip Flutter tests)'
-        required: false
+      profile:
+        description: 'Declared specialist profile'
+        type: choice
+        default: device-single
+        options: [device-single, device-pair, native-ui, backend, golden, routes, web, web-shell]
+      platform:
+        description: 'Target platform; choose all for complete paired topologies'
+        type: choice
+        default: macos
+        options: [linux, macos, android, ios, web, all]
+      product_profile:
+        description: 'Prepared product artifact / runtime contract'
+        type: choice
+        default: phase1_delivery
+        options: [phase1_delivery, full-selected, phase1_delivery-channel-enabled, phase1_delivery-channel-disabled]
+      execute:
+        description: 'Execute on a prepared isolated self-hosted runner'
         type: boolean
         default: false
 
 env:
-  # 与 ci.yml 保持一致；Flutter 3.47.5 内置 Dart 3.13.4，满足 ^3.13.3。
   FLUTTER_VERSION: '3.47.5'
-  TEST_DEVICE: ${{ github.event.inputs.test_device || 'macos' }}
+
+permissions:
+  contents: read
 
 jobs:
-  # ── Job 1: 静态分析 ──
-  analyze:
-    name: Static Analysis
-    runs-on: macos-latest
+  plan:
+    name: Specialist plan (no devices or credentials required)
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Install dependencies
-        run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          for attempt in 1 2 3; do
-            if flutter pub get; then
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then
-              echo "::error::flutter pub get failed after ${attempt} attempts"
-              exit 1
-            fi
-            echo "flutter pub get failed; retrying in $((attempt * 10)) seconds"
-            sleep $((attempt * 10))
-          done
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Flutter analyze (zero-error gate)
-        # warning/info 的数量由 quality.yml 的 ratchet 统一约束；集成工作流
-        # 只阻断实际 error，避免与该基线策略互相矛盾。
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
-
-      - name: Dart format check
-        # 与 ci.yml 同款：范围必须是 git ls-files 而不是目录扫描 `.`。
-        # `.` 会扫进 plugin/amap_flutter_location_plus（submodule）和 build/
-        # 等 gitignored 生成物，submodule 里的文件属于另一个仓库、本仓改不了，
-        # 这个**无 `|| true` 的硬门禁**因此会永久失败。
-        run: |
-          set -o pipefail
-          git ls-files -z '*.dart' ':!plugin/' | xargs -0 dart format --output=none --set-exit-if-changed
-
-  # ── Job 2: 单元测试 ──
-  unit-test:
-    name: Unit Tests
-    runs-on: macos-latest
-    needs: analyze
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: recursive
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      - name: Install dependencies
-        run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          for attempt in 1 2 3; do
-            if flutter pub get; then
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then
-              echo "::error::flutter pub get failed after ${attempt} attempts"
-              exit 1
-            fi
-            echo "flutter pub get failed; retrying in $((attempt * 10)) seconds"
-            sleep $((attempt * 10))
-          done
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Run unit tests
-        run: flutter test --coverage
-
-      - name: Upload coverage
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 7
-
-  # ── Job 3: 集成测试（需要后端 + 测试账号） ──
-  integration-test:
-    name: Integration Tests (${{ github.event.inputs.test_device || 'macos' }})
-    runs-on: macos-latest
-    needs: unit-test
-    if: ${{ !github.event.inputs.smoke_only || github.event.inputs.smoke_only == 'false' }}
-    env:
-      APP_ENV: local_office
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          submodules: recursive
-          fetch-depth: 0
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
-
-      - name: Verify SDK compatibility
-        run: python3 scripts/check_sdk_compatibility.py
-
-      # Keep this legacy CocoaPods project on its existing dependency path.
-      # SwiftPM auto-migration currently crashes Xcode before any test starts.
-      - name: Use CocoaPods for macOS integration tests
-        if: env.TEST_DEVICE == 'macos'
-        run: |
-          flutter config --no-enable-swift-package-manager
-          flutter config --list
-          xcodebuild -version
-          pod --version
-
-      # 托管 runner 无 pub.imboy.app 描述文件。flutter test 不把
-      # CODE_SIGNING_* 环境变量映射为 xcodebuild build settings（run
-      # 41325561428 实测 Automatic 签名仍在 resolve 阶段查 profile 并
-      # BUILD FAILED），故改为对 CI 工作区运行时打补丁：Manual +
-      # ad-hoc identity（"-"），跳过 profile 解析；链接器给 arm64
-      # 二进制写 ad-hoc 签名，测试可启动。只改 CI 工作区，macos/
-      # 保留区文件的仓库内容不变。
-      - name: Patch code signing for hosted runner (macos, workspace only)
-        if: env.TEST_DEVICE == 'macos'
-        run: |
-          PBX=macos/Runner.xcodeproj/project.pbxproj
-          # 注意：仅替换 STYLE 行不够——工程里还有显式的
-          # CODE_SIGN_IDENTITY = "Apple Development"（含优先级更高的
-          # [sdk=macosx*] 条件变体，run 41339261773 实测 "requires a
-          # provisioning profile"）以及 project attributes 的
-          # ProvisioningStyle = Automatic，全部一并改为 Manual/ad-hoc。
-          perl -pi -e '
-            s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;\n\t\t\t\tCODE_SIGN_IDENTITY = "-";/g;
-            s/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g;
-            s/"CODE_SIGN_IDENTITY\[sdk=macosx\*\]" = "Apple Development";/"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";/g;
-            s/ProvisioningStyle = Automatic;/ProvisioningStyle = Manual;/g;
-            s/MACOSX_DEPLOYMENT_TARGET = "\$\(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET\)";/MACOSX_DEPLOYMENT_TARGET = 12.4;/g;
-          ' "$PBX"
-          LEFT=$(grep -c 'Apple Development\|CODE_SIGN_STYLE = Automatic\|ProvisioningStyle = Automatic\|RECOMMENDED_MACOSX_DEPLOYMENT_TARGET' "$PBX" || true)
-          echo "unpatched signing leftovers: $LEFT"
-          [ "$LEFT" = "0" ]
-
-      - name: Install dependencies
-        run: |
-          bash .github/scripts/ci_patch_path_deps.sh
-          for attempt in 1 2 3; do
-            if flutter pub get; then
-              break
-            fi
-            if [ "$attempt" -eq 3 ]; then
-              echo "::error::flutter pub get failed after ${attempt} attempts"
-              exit 1
-            fi
-            echo "flutter pub get failed; retrying in $((attempt * 10)) seconds"
-            sleep $((attempt * 10))
-          done
-          bash .github/scripts/ci_gen_env.sh
-          bash .github/scripts/ci_build_vod.sh
-
-      - name: Run integration tests
+      - name: Validate ownership and produce declared instances
         env:
-          # 托管 runner 无 pub.imboy.app 的开发证书/描述文件，工程 Release 配置
-          # 带 DEVELOPMENT_TEAM + Automatic 签名会在 xcodebuild 阶段失败。
-          # 强制 ad-hoc（identity "-"）替代；arm64 macOS 要求至少 ad-hoc 签名才能启动。
-          # 不修改 macos/ 保留区工程文件。
-          CODE_SIGN_IDENTITY: '-'
-          CODE_SIGNING_REQUIRED: 'NO'
-          # Automatic 签名在 resolve 阶段就会查找 provisioning profile（即
-          # "No profiles for 'pub.imboy.app'" 失败点），仅 REQUIRED=NO 不够；
-          # ALLOWED=NO 彻底跳过 codesign phase，链接器仍给 arm64 二进制
-          # 写入 ad-hoc 签名，测试进程可正常启动。
-          CODE_SIGNING_ALLOWED: 'NO'
+          PROFILE: ${{ inputs.profile }}
+          PLATFORM: ${{ inputs.platform }}
+          PRODUCT_PROFILE: ${{ inputs.product_profile }}
         run: |
-          flutter test integration_test/all_tests.dart \
-            --dart-define=APP_ENV=${{ env.APP_ENV }} \
-            --dart-define=TEST_PHONE=${{ secrets.TEST_PHONE }} \
-            --dart-define=TEST_PASSWORD=${{ secrets.TEST_PASSWORD }} \
-            -d ${{ env.TEST_DEVICE }}
-        continue-on-error: true
-        id: integration
+          python3 scripts/auto_test.py execution-check
+          args=(--profile "$PROFILE" --product-profile "$PRODUCT_PROFILE")
+          if [[ "$PLATFORM" != "all" ]]; then args+=(--platform "$PLATFORM"); fi
+          python3 scripts/auto_test.py execution-plan "${args[@]}" --output "${{ runner.temp }}/specialist-plan.json"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: specialist-plan
+          path: ${{ runner.temp }}/specialist-plan.json
+          if-no-files-found: error
 
-      - name: Collect test output
-        if: always()
+  execute:
+    name: Isolated specialist execution
+    if: inputs.execute
+    needs: plan
+    runs-on: [self-hosted, imboy-test]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/download-artifact@v7
+        with:
+          name: specialist-plan
+          path: ${{ runner.temp }}/specialist-plan
+      - name: Verify prepared SDK
+        env:
+          PROFILE: ${{ inputs.profile }}
         run: |
-          mkdir -p test_output/screenshots
-          echo "integration_exit_code=${{ steps.integration.outcome }}" >> test_output/summary.env
-
-      - name: Upload test artifacts
+          if [[ "$PROFILE" == "golden" ]]; then
+            python3 scripts/check_sdk_compatibility.py --dart-only
+          else
+            python3 scripts/check_sdk_compatibility.py
+          fi
+      - name: Run selected targets with environment preflight
+        env:
+          # 只使用隔离后端与专用测试身份。设备角色及签名由该 runner 预先配置。
+          IMBOY_APP_ENV: local
+          IMBOY_TEST_ISOLATED: 'true'
+          IMBOY_API_BASE_URL_OVERRIDE: ${{ secrets.TEST_API_BASE_URL }}
+          IMBOY_WS_URL_OVERRIDE: ${{ secrets.TEST_WS_URL }}
+          IMBOY_TEST_PHONE: ${{ secrets.TEST_PHONE }}
+          IMBOY_TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          IMBOY_SOLIDIFIED_KEY_OVERRIDE: ${{ secrets.TEST_SOLIDIFIED_KEY }}
+          IMBOY_SOLIDIFIED_KEY_IV_OVERRIDE: ${{ secrets.TEST_SOLIDIFIED_KEY_IV }}
+        run: |
+          # Optional separately prepared product worktree; the saved plan still
+          # checks commit, all ordinary source, and real generated artifacts.
+          execution_root="${IMBOY_EXECUTION_WORKTREE:-$PWD}"
+          case "$execution_root" in /*) ;; *) echo 'ENV_MISSING: execution worktree must be absolute'; exit 2 ;; esac
+          test "$(git -C "$execution_root" rev-parse HEAD)" = "$(git rev-parse HEAD)" || {
+            echo 'ENV_MISSING: prepared worktree must match the requested commit'; exit 2;
+          }
+          cd "$execution_root"
+          python3 scripts/auto_test.py execution-run \
+            --plan "${{ runner.temp }}/specialist-plan/specialist-plan.json" \
+            --artifact-dir "${{ runner.temp }}/specialist-results"
+      - name: Retain results even after failure
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: integration-test-output
-          path: |
-            test_output/
-          retention-days: 14
+          name: specialist-results
+          path: ${{ runner.temp }}/specialist-results/
+          if-no-files-found: warn
 
-      - name: Check integration result
-        if: steps.integration.outcome == 'failure'
+  summary:
+    name: Specialist Summary
+    if: always()
+    needs: [plan, execute]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          pattern: specialist-*
+          path: ${{ runner.temp }}/specialist
+      - name: Report planning only
+        if: ${{ !inputs.execute }}
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
         run: |
-          echo "::error::Integration tests failed"
-          exit 1
+          echo 'Plan only; no business, backend, device or full-regression PASS has been issued.' >> "$GITHUB_STEP_SUMMARY"
+          test "$PLAN_RESULT" = success
+      - name: Reconcile selected specialist instances
+        if: ${{ inputs.execute && always() }}
+        env:
+          UPSTREAM_JOBS: ${{ toJSON(needs) }}
+        run: |
+          python3 scripts/auto_test.py execution-summary \
+            --plan "${{ runner.temp }}/specialist/specialist-plan/specialist-plan.json" \
+            --results "${{ runner.temp }}/specialist/specialist-results" \
+            --upstream-env UPSTREAM_JOBS \
+            --output "${{ runner.temp }}/specialist-summary.json"
+      - uses: actions/upload-artifact@v7
+        if: ${{ inputs.execute && always() }}
+        with:
+          name: specialist-summary
+          path: ${{ runner.temp }}/specialist-summary.json
+          if-no-files-found: warn

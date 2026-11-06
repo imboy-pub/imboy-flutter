@@ -21,8 +21,10 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/migration_service.dart';
+import 'package:imboy/service/schema_fingerprint.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import '../../fixtures/sqlite_migration/kill_replay_transaction.dart';
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
 void main() {
@@ -174,6 +176,117 @@ void main() {
       expect(result.success, isTrue, reason: '失败原因：${result.error}');
       final uv = await db.rawQuery('PRAGMA user_version');
       expect(uv.first.values.first, equals(31));
+    });
+  });
+
+  // FFI 用异常验证共享检查点的事务回滚；真机 force-stop/SQLCipher 仍须专项执行。
+  group('WP7 kill replay 的真实事务检查点 / mutation checkpoint', () {
+    late Database db;
+
+    setUp(() async {
+      db = await openFixtureDatabaseAtVersion(
+        version: 16,
+        withSyntheticRows: true,
+      );
+    });
+
+    tearDown(() async => db.close());
+
+    test('检查点已发生迁移写入，模拟中断后版本/schema/原数据全部回滚', () async {
+      final beforeSchema = await SchemaFingerprint.compute(db);
+      final beforeRows = await db.query('conversation');
+      final interruption = StateError('synthetic interruption at checkpoint');
+      var checkpoints = 0;
+
+      await expectLater(
+        db.transaction(
+          (txn) => migrateKillReplayWithCheckpoint(
+            txn,
+            onCheckpoint: (activeTxn) async {
+              checkpoints++;
+              expect(activeTxn, same(txn));
+              final version = await activeTxn.rawQuery('PRAGMA user_version');
+              expect(version.single['user_version'], 17);
+              final rows = await activeTxn.query('conversation');
+              expect(rows.single['mention_unread'], 0);
+              expect(
+                await SchemaFingerprint.compute(activeTxn),
+                isNot(beforeSchema),
+              );
+              await activeTxn.update('conversation', {
+                'title': 'uncommitted-synthetic-title',
+              });
+              throw interruption;
+            },
+          ),
+        ),
+        throwsA(same(interruption)),
+      );
+
+      expect(checkpoints, 1);
+      expect(db.isOpen, isTrue);
+      final version = await db.rawQuery('PRAGMA user_version');
+      expect(version.single['user_version'], 16);
+      expect(await SchemaFingerprint.compute(db), beforeSchema);
+      expect(await db.query('conversation'), beforeRows);
+    });
+
+    test('未中断时继续同一事务到 v31，不能伪装成回滚结果', () async {
+      final beforeRows = await db.query('msg_c2c');
+      var checkpoints = 0;
+      final result = await db.transaction(
+        (txn) => migrateKillReplayWithCheckpoint(
+          txn,
+          onCheckpoint: (activeTxn) async {
+            checkpoints++;
+            expect(activeTxn, same(txn));
+            final version = await activeTxn.rawQuery('PRAGMA user_version');
+            expect(version.single['user_version'], 17);
+          },
+        ),
+      );
+
+      expect(checkpoints, 1);
+      expect(result.success, isTrue);
+      expect(result.fromVersion, 16);
+      expect(result.toVersion, 31);
+      final version = await db.rawQuery('PRAGMA user_version');
+      expect(version.single['user_version'], 31);
+      expect(
+        await db.query('msg_c2c', columns: beforeRows.single.keys.toList()),
+        beforeRows,
+      );
+      final completed = await openFixtureDatabaseAtVersion(version: 31);
+      addTearDown(completed.close);
+      expect(
+        await SchemaFingerprint.compute(db),
+        await SchemaFingerprint.compute(completed),
+      );
+    });
+
+    test('检查点前真实 SQL 失败时不发 ready，也不推进版本', () async {
+      await db.execute('DROP TABLE conversation');
+      final beforeSchema = await SchemaFingerprint.compute(db);
+      final beforeRows = await db.query('msg_c2c');
+      var checkpoints = 0;
+
+      await expectLater(
+        db.transaction(
+          (txn) => migrateKillReplayWithCheckpoint(
+            txn,
+            onCheckpoint: (_) async {
+              checkpoints++;
+            },
+          ),
+        ),
+        throwsStateError,
+      );
+
+      expect(checkpoints, 0);
+      final version = await db.rawQuery('PRAGMA user_version');
+      expect(version.single['user_version'], 16);
+      expect(await SchemaFingerprint.compute(db), beforeSchema);
+      expect(await db.query('msg_c2c'), beforeRows);
     });
   });
 }

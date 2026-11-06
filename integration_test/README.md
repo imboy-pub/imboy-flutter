@@ -1,106 +1,63 @@
+> **执行归属与全量范围**：先读 [统一测试执行说明](../docs/testing/execution.md)。
+> `all_tests.dart` 仅为部分目标聚合，宿主 API、单设备、双端、Patrol 分别编排。
+> `bash scripts/run_test_suite.sh --profile device --dry-run` 查看设备义务；full 缺环境必须阻塞。
+> 以下历史单目标示例不代表全量通过；不得使用生产地址或真实用户身份。
+
 # ImBoy Flutter 集成测试
 
-## 测试三层架构
+## 统一执行范围
 
-```
-Tier 1 ── API/WS 契约测试   test/api/              dart test，无设备，可 CI，环境变量配置
-Tier 2 ── 冒烟门控          integration_test/smoke/ flutter test，需真机，合并必须绿
-Tier 3 ── UI 流程测试       integration_test/       flutter test，需真机，回归可选
-```
+执行合同、结果口径和隔离环境准备见 [统一测试执行说明](../docs/testing/execution.md)。
+`all_tests.dart` 是历史小范围聚合入口，明确归为 aggregate，不重复作为独立业务目标执行。
+设备文件也不等于设备全量；真实 API 目标、平台专项、双端和 Patrol 各有归属及 runner。
 
----
+| 范围 | profile | 运行条件 |
+|---|---|---|
+| 无设备真实 API/WS | backend | 字面 loopback 后端、合成身份、隔离签名材料 |
+| 单设备流程 | device-single | 已核对的平台/设备与目标 fixture |
+| 双端消息、RTC、跨端加密 | device-pair | 完整配对角色、平台拓扑与编排 |
+| Patrol 原生权限/系统 UI | native-ui | Android instrumentation、本次 JUnit |
+| 所有适用目标与产品组合 | full | 以上及宿主、FFI、Golden 等全部条件 |
 
-## Tier 1：API 契约测试（无设备）
-
-```bash
-API_BASE_URL=http://127.0.0.1:9800 \
-TEST_PHONE=+8613800138000 \
-TEST_PASSWORD=<pwd> \
-  dart test test/api/ --concurrency=1
-```
-
-覆盖：`auth_api_test.dart`（认证/版本/用户）、`conversation_api_test.dart`（会话/消息/好友/群组）、`ws_api_test.dart`（WebSocket 连接/心跳/格式）
-
----
-
-## Tier 2：冒烟门控（合并前必须绿）
+## 命令
 
 ```bash
-flutter test integration_test/smoke/smoke_test.dart \
-  --dart-define=API_BASE_URL=http://127.0.0.1:9800 \
-  --dart-define=TEST_PHONE=+8613800138000 \
-  --dart-define=TEST_PASSWORD=<pwd> \
-  -d <real_device_id>
+# 无设备、无账号也能查看精确实例；只生成计划不代表执行通过。
+bash scripts/run_test_suite.sh --profile device --dry-run
+bash scripts/run_test_suite.sh --profile full --dry-run
+
+# 各专项，准备条件见统一说明；报告放在仓外。
+bash scripts/run_test_suite.sh --profile backend --platform macos --artifact-dir /tmp/imboy-backend
+bash scripts/run_test_suite.sh --profile device-single --platform android --artifact-dir /tmp/imboy-android
+bash scripts/run_test_suite.sh --profile device-pair --artifact-dir /tmp/imboy-pairs
+bash scripts/run_test_suite.sh --profile native-ui --platform android --artifact-dir /tmp/imboy-native
+
+# 单目标仍消费同一归属/平台/产品合同；结果仅代表这个显式范围。
+bash scripts/run_test_suite.sh --profile device-single --platform android \
+  --target integration_test/app_test.dart --artifact-dir /tmp/imboy-app-target
+
+# 真正完整回归；缺任一适用平台、fixture 或结果会阻塞。
+bash scripts/run_test_suite.sh --profile full --artifact-dir /tmp/imboy-full
 ```
 
-前置失败一律 `fail()`，禁止跳过。
+使用唯一报告目录保存每次尝试。多宿主、多产品和配对控制器的分片方式、最终对账命令
+见统一说明；不能把同一设备遍历成功表述为 full 通过。相机等系统权限专项要求明确准备
+硬件和授权；目标内部保留的无设备降级断言，只证明该降级路径，不能证明真实拍照通过。
 
----
+## 未执行与失败
 
-## Tier 2.5：桌面真实相机冒烟（显式开启才跑）
+| 场景 | reason_code | 结果 |
+|---|---|---|
+| 当前平台不适用 | PLATFORM_NA | NOT_APPLICABLE；保留其他适用平台义务 |
+| 本次 profile 未选择 | OUT_OF_SCOPE | NOT_SELECTED |
+| 后端/账号/密钥/设备/基线缺失 | ENV_MISSING | BLOCKED |
+| 前置失败、取消或缺证据 | UPSTREAM_FAILED | BLOCKED，附具体前置 |
+| 已选目标运行时出现未批准 skip | UNEXPECTED_SKIP | BLOCKED；即使进程退出 0 |
+| 断言失败 | BUSINESS_ASSERTION_FAIL | FAIL，不重试洗绿 |
 
-```bash
-flutter test integration_test/smoke/camera_capture_real_smoke_test.dart \
-  -d macos --dart-define=IMBOY_REAL_CAMERA_SMOKE=1
-```
-
-默认 skip（不碰相机硬件、不触发授权弹窗）。开启前置：宿主（终端/IDE）
-已在「系统设置→隐私与安全性→相机」授权，且关闭其他占用相机的应用；
-否则 initialize 挂起（TCC 归因到宿主，flutter#70374）。仅拍照不录像，
-不依赖后端、不发送消息；无摄像头机器按无设备降级路径验证并通过。
-
----
-
-## Tier 3：UI 流程测试
-
-### 全量
-
-```bash
-flutter test integration_test/all_tests.dart \
-  --dart-define=APP_ENV=local_office \
-  --dart-define=TEST_PHONE=+8613800138000 \
-  --dart-define=TEST_PASSWORD=<pwd> \
-  -d <real_device_id>
-```
-
-### 单模块
-
-```bash
-flutter test integration_test/app_test.dart -d <device> --dart-define=APP_ENV=local_office
-flutter test integration_test/chat/conversation_test.dart ...
-flutter test integration_test/chat/group_chat_test.dart ...
-flutter test integration_test/chat/c2c_e2ee_send_render_test.dart ...
-flutter test integration_test/channel/channel_e2e_test.dart ... \
-  --dart-define=TEST_ALLOW_CHANNEL_WRITES=true
-flutter test integration_test/channel/channel_publish_test.dart ... \
-  --dart-define=TEST_ALLOW_CHANNEL_WRITES=true
-flutter test integration_test/channel/channel_edit_persistence_test.dart ... \
-  --dart-define=TEST_ALLOW_CHANNEL_WRITES=true
-flutter test integration_test/channel/channel_subscribed_detail_consistency_test.dart ...
-flutter test integration_test/contact/friend_management_test.dart ...
-flutter test integration_test/contact/add_friend_request_test.dart --dart-define=TEST_SEARCH_KEYWORD=<uid> ...
-flutter test integration_test/auth/register_flow_test.dart ...
-flutter test integration_test/auth/password_change_test.dart \
-  --dart-define=TEST_NEW_PASSWORD=<new_pwd> \
-  --dart-define=TEST_ALLOW_PASSWORD_CHANGE=true ...
-# 关系/消息/群/密码等业务写入还必须显式设置
-# --dart-define=TEST_ALLOW_BUSINESS_WRITES=true，且目标环境不能是生产
-```
-
----
-
-## 跳过策略
-
-| 场景 | 处理方式 | CI 结果 |
-|------|---------|---------|
-| 后端不可达 | `markTestSkipped` | SKIP（不假绿） |
-| 未配置凭证 | `markTestSkipped` | SKIP |
-| 登录失败 | `markTestSkipped` | SKIP |
-| 数据为空 | `markTestSkipped` | SKIP |
-| 频道或业务写入未显式授权/指向生产 | `markTestSkipped` + 立即 `return` | SKIP |
-| 断言失败 | `fail` / `expect` | FAIL（真实失败） |
-
-> 门禁必须先调用 `markTestSkipped`，再由调用方立即 `return`；禁止在没有跳过标记的情况下裸返回。
+底层旧测试的 `markTestSkipped` 不再等于专项通过。登录失败、缺 fixture、数据为空和未授权
+写入必须被预检或最终 machine 对账发现；缺结果、零执行、运行器崩溃同样不能通过。
+测试账号和数据必须在隔离环境合成，禁止通过生产地址或真实客户身份补齐环境。
 
 ---
 

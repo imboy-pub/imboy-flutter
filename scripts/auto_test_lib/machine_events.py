@@ -81,6 +81,16 @@ class ParsedResult:
     malformed_lines: int = 0
     done_event_seen: bool = False
     process_exit_code: Optional[int] = None
+    invalid_events: int = 0
+
+    @property
+    def actually_run(self) -> int:
+        """Completed visible cases excluding skips; executed includes skips."""
+        return max(0, self.executed - self.skipped)
+
+    @property
+    def passed(self) -> int:
+        return max(0, self.actually_run - self.failed)
 
     def to_dict(self) -> Dict[str, Any]:
         """Serializable view used by result.classify_attempts and evidence."""
@@ -96,6 +106,9 @@ class ParsedResult:
             "malformed_lines": self.malformed_lines,
             "done_event_seen": self.done_event_seen,
             "process_exit_code": self.process_exit_code,
+            "invalid_events": self.invalid_events,
+            "passed": self.passed,
+            "actually_run": self.actually_run,
         }
 
 
@@ -114,9 +127,10 @@ def parse_machine_events(
 ) -> ParsedResult:
     """Parse machine-event lines (one JSON object per line) into ParsedResult.
 
-    ``process_exit_code`` and ``process_stderr_tail`` are recorded for
-    evidence only; classification itself is driven by the event stream so
-    PASS is never inferred from exit codes or log keywords.
+    Events establish which cases ran; process exit is an additional veto.
+    A successful event stream cannot hide a nonzero process exit. Omitting
+    the exit code is supported for offline event inspection; execution
+    reconciliers must require the actual process receipt before accepting PASS.
     """
     executed = 0
     skipped = 0
@@ -125,6 +139,10 @@ def parse_machine_events(
     malformed_lines = 0
     done_event_seen = False
     interrupted = False
+    invalid_events = 0
+    unknown_error = False
+    run_failed = False
+    terminal_ids = set()
     business_fail = False
     infra_fail = False
     first_failure = FirstFailure()
@@ -154,6 +172,8 @@ def parse_machine_events(
             event = json.loads(text)
         except (ValueError, TypeError):
             malformed_lines += 1
+            if text.startswith("{"):
+                invalid_events += 1
             continue
         if not isinstance(event, dict):
             malformed_lines += 1
@@ -168,10 +188,17 @@ def parse_machine_events(
                     name = test.get("name")
                     test_names[test_id] = name if isinstance(name, str) else ""
         elif etype == "testDone":
+            test_id = _as_int(event.get("testID"))
+            if test_id is None or test_id in terminal_ids:
+                invalid_events += 1
+                continue
+            terminal_ids.add(test_id)
             if bool(event.get("hidden", False)):
                 continue  # hidden loading pseudo-tests never count
             executed += 1
             result = event.get("result")
+            if result not in ("success", "skipped", *FAILED_RESULTS):
+                invalid_events += 1
             # test_core reports skipped tests as result=success for protocol
             # compatibility; the separate skipped flag is authoritative.
             if result in FAILED_RESULTS:
@@ -186,7 +213,12 @@ def parse_machine_events(
             if isinstance(message, str) and ORACLE_PRINT_RE.search(message):
                 oracle_count += 1
         elif etype == "error":
-            message = event.get("message")
+            # Flutter's reporter uses "error"; existing framework adapters use
+            # "message". Keep the native text when present, falling back only
+            # when it is absent or unusable. Verdict rules below stay shared.
+            message = event.get("error")
+            if not isinstance(message, str) or not message.strip():
+                message = event.get("message")
             stack = event.get("stackTrace")
             message_text = message if isinstance(message, str) else ""
             stack_text = stack if isinstance(stack, str) else ""
@@ -197,21 +229,33 @@ def parse_machine_events(
                 business_fail = True
             elif is_failure is False and INFRA_MESSAGE_RE.search(message_text):
                 infra_fail = True
+            else:
+                unknown_error = True
             record_first_failure(
                 _as_int(event.get("testID")),
                 message_text or None,
                 is_failure if isinstance(is_failure, bool) else None,
             )
         elif etype == "done":
+            if done_event_seen:
+                invalid_events += 1
             done_event_seen = True
             if event.get("success") is False:
-                failed = max(failed, 1)
-            elif "success" in event and event["success"] is None:
+                run_failed = True
+            elif event.get("success") is not True:
                 interrupted = True
         # start / suite and unknown types (e.g. type=comment) are ignored.
 
+    invalid_events += len(set(test_names) - terminal_ids)
+
     # reason_code decision order (see Step 3 contract); statuses map from §4.1.
-    if interrupted or not done_event_seen:
+    if business_fail:
+        # Assertions remain terminal even if the runner subsequently crashes;
+        # otherwise an assertion could be retried as an infrastructure fault.
+        reason_code = "BUSINESS_ASSERTION_FAIL"
+        failure_class = "business"
+        test_status = "FAIL"
+    elif interrupted or not done_event_seen:
         reason_code = "RUNNER_CRASH"
         failure_class = "infra"
         test_status = "BLOCKED"
@@ -223,22 +267,30 @@ def parse_machine_events(
         reason_code = "ZERO_EXECUTED"
         failure_class = "unknown"
         test_status = "BLOCKED"
-    elif business_fail:
-        reason_code = "BUSINESS_ASSERTION_FAIL"
-        failure_class = "business"
-        test_status = "FAIL"
+    elif invalid_events:
+        reason_code = "INVALID_MACHINE_EVENTS"
+        failure_class = "unknown"
+        test_status = "BLOCKED"
     elif infra_fail:
         reason_code = "INFRA_FAIL"
         failure_class = "infra"
         test_status = "BLOCKED"
-    elif failed > 0:
-        # Failing testDone without a recognisable business/infra marker:
-        # still a terminal failure, class unknown (never PASS, never silent).
-        reason_code = "BUSINESS_ASSERTION_FAIL"
+    elif unknown_error:
+        reason_code = "TEST_ERROR"
         failure_class = "unknown"
         test_status = "FAIL"
+    elif failed > 0 or run_failed:
+        # Failing testDone without a recognisable business/infra marker:
+        # still a terminal failure, class unknown (never PASS, never silent).
+        reason_code = "BUSINESS_ASSERTION_FAIL" if failed else "RUNNER_REPORTED_FAILURE"
+        failure_class = "unknown"
+        test_status = "FAIL"
+    elif process_exit_code is not None and process_exit_code != 0:
+        reason_code = "PROCESS_EXIT_NONZERO"
+        failure_class = "infra"
+        test_status = "BLOCKED"
     elif skipped > 0:
-        reason_code = "NONE"
+        reason_code = "UNEXPECTED_SKIP"
         failure_class = "unknown"
         test_status = "PASS_WITH_SKIPS"
     else:
@@ -258,4 +310,5 @@ def parse_machine_events(
         malformed_lines=malformed_lines,
         done_event_seen=done_event_seen,
         process_exit_code=process_exit_code,
+        invalid_events=invalid_events,
     )

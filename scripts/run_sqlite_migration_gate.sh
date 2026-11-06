@@ -19,11 +19,29 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 MODE="${1:-}"
+CHECKS_ONLY=false
+[ "${2:-}" != "--checks-only" ] || CHECKS_ONLY=true
+[ "$#" -le 2 ] || { echo "usage: $0 --local|--ci [--checks-only]"; exit 64; }
+if [ "$#" -eq 2 ] && ! $CHECKS_ONLY; then
+  echo "unknown option: $2" >&2; exit 64
+fi
 case "$MODE" in
   --local) EVID_ROOT="$(mktemp -d /tmp/imboy-sqlite-gate.XXXXXX)" ;;
   --ci)    EVID_ROOT="$REPO_ROOT/build/sqlite-migration-gate"; mkdir -p "$EVID_ROOT" ;;
-  *) echo "usage: $0 --local | --ci"; exit 64 ;;
+  *) echo "usage: $0 --local | --ci [--checks-only]"; exit 64 ;;
 esac
+
+# Standalone entry delegates both prerequisites and tests to the shared plan.
+# The plan calls back with --checks-only, so generator/analyze execute once.
+if ! $CHECKS_ONLY; then
+  case "$(uname -s)" in
+    Darwin) TEST_PLATFORM=macos ;;
+    Linux) TEST_PLATFORM=linux ;;
+    *) echo "BLOCKED: unsupported SQLite host" >&2; exit 2 ;;
+  esac
+  exec python3 scripts/auto_test.py execution-run --profile sqlite \
+    --platform "$TEST_PLATFORM" --artifact-dir "$EVID_ROOT/tests"
+fi
 
 PASS_COUNT=0
 FAIL_COUNT=0
@@ -97,50 +115,6 @@ run_item "02_dart_analyze" \
   test/unit_test/integration/db_downgrade_v10_to_v9_test.dart \
   test/unit_test/integration/db_v30_channel_has_purchased_test.dart \
   test/unit_test/integration/db_v25_msg_c2c_sender_did_test.dart
-
-# ---------- 3. 核心单元/契约测试 ----------
-run_item "03_planner_fail_fast" \
-  flutter test test/unit_test/service/migration_script_planner_test.dart test/unit_test/service/migration_missing_path_test.dart --reporter compact
-
-run_item "04_manifest_contract" \
-  flutter test test/unit_test/service/migration_manifest_test.dart --reporter compact
-
-run_item "05_atomic_failure" \
-  flutter test test/unit_test/service/migration_atomic_failure_test.dart --reporter compact
-
-run_item "06_baseline_inventory" \
-  flutter test test/unit_test/service/migration_baseline_inventory_test.dart --reporter compact
-
-run_item "07_schema_fingerprint" \
-  flutter test test/unit_test/service/schema_fingerprint_test.dart --reporter compact
-
-run_item "08_schema_contract_golden" \
-  flutter test test/unit_test/service/schema_contract_test.dart test/unit_test/service/migration_v36_message_id_test.dart test/unit_test/service/migration_v37_channel_scope_test.dart --reporter compact
-
-run_item "09_snapshot_service" \
-  flutter test test/unit_test/service/database_snapshot_service_test.dart --reporter compact
-
-run_item "10_orchestrator" \
-  flutter test test/unit_test/service/database_migration_orchestrator_test.dart --reporter compact
-
-# ---------- 4. 全矩阵与既有迁移回归 ----------
-run_item "11_migration_matrix" \
-  flutter test test/unit_test/integration/sqlite_migration_matrix_test.dart test/unit_test/integration/sqlite_migration_v34_test.dart --reporter compact
-
-run_item "12_legacy_migration_regression" \
-  flutter test \
-    test/unit_test/service/migration_downgrade_v19_to_v25_test.dart \
-    test/unit_test/service/migration_downgrade_v19_to_v25_exec_test.dart \
-    test/unit_test/service/migration_service_v25_test.dart \
-    test/unit_test/service/embedded_schema_asset_sync_test.dart \
-    test/unit_test/service/db_migration_encryption_test.dart \
-    test/unit_test/service/sqlite_uid_isolation_test.dart \
-    test/unit_test/integration/db_multi_version_upgrade_test.dart \
-    test/unit_test/integration/db_multi_version_downgrade_test.dart \
-    test/unit_test/integration/db_downgrade_v10_to_v9_test.dart \
-    test/unit_test/integration/db_v30_channel_has_purchased_test.dart \
-    test/unit_test/integration/db_v25_msg_c2c_sender_did_test.dart \
-    --reporter compact
 
 # ---------- 5. 仓库卫生 ----------
 run_item "13_git_diff_check" git diff --check

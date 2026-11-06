@@ -10,17 +10,14 @@
 #
 # 不加 paths 过滤：漂移不只来自"有人手改 error_code.dart"（那会被 paths
 # 命中），更来自"后端 hrl 已改、本仓生成物未同步"（本仓可能零文件变更，
-# paths 过滤会漏检）。每次 push/PR 都断言，本 job 全程 <1min。
+# paths 过滤会漏检）。由主 CI 每次 push/PR 调用并断言，本 job 全程 <1min。
 #
 # 后续（计划 §2.3 C2）admin 枚举/EntityId 契约 job 预留并入本 workflow。
 
 name: imboyapp Contract Gate
 
 on:
-  push:
-    branches: [main, dev]
-  pull_request:
-    branches: [main, dev]
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -105,8 +102,4 @@ jobs:
 
       - name: Regen and verify no drift
         run: |
-          bash scripts/regen_protobuf.sh
-          if ! git diff --exit-code -- lib/service/protocol/; then
-            echo "::error::proto 产物漂移：imboy.proto 变更后须在 imboyapp 执行 scripts/regen_protobuf.sh 并同 PR 提交生成物"
-            exit 1
-          fi
+          bash scripts/regen_protobuf.sh --check

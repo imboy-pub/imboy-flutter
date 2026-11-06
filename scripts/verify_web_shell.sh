@@ -1,107 +1,103 @@
 #!/usr/bin/env bash
-# Web Shell 模块健康度一键验证脚本
-#
-# 用法 / Usage:
-#   ./scripts/verify_web_shell.sh           # 完整验证（推荐 reviewer 使用）
-#   ./scripts/verify_web_shell.sh --quick   # 快速模式（跳过 build web）
-#   ./scripts/verify_web_shell.sh --no-server  # 不启动 http server
-#
-# 验证项 / Checks:
-#   1. flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/    (静态分析零警告)
-#   2. flutter test test/unit_test/page/web_shell/                           (16 个 _test.dart 文件)
-#   3. flutter build web --release --no-tree-shake-icons           (完整构建)
-#   4. python3 -m http.server 9820 (build/web)                     (烟雾测试 server)
-#
-# 退出码 / Exit codes:
-#   0  全部通过
-#   1  analyze 报错
-#   2  测试失败
-#   3  build web 失败
-#   4  环境检查失败（flutter / dart 不可用）
-
+# Web Shell analysis/build plus the shared host + Chrome test profile.
+# Usage: scripts/verify_web_shell.sh [--quick] [--no-server] [--artifact-dir DIR]
+# Plan:  scripts/verify_web_shell.sh --dry-run [--output FILE]
+# --quick skips the build and preview, never tests. Missing prerequisites block.
 set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-python3 "$PROJECT_DIR/scripts/check_sdk_compatibility.py"
-
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_DIR"
 QUICK=false
 START_SERVER=true
-for arg in "$@"; do
-  case "$arg" in
-    --quick) QUICK=true ;;
-    --no-server) START_SERVER=false ;;
+DRY_RUN=false
+ARTIFACT_DIR=''
+PLAN_OUTPUT=''
+PLAN_ARGS=()
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --quick) QUICK=true; shift ;;
+    --no-server) START_SERVER=false; shift ;;
+    --dry-run) DRY_RUN=true; shift ;;
+    --artifact-dir|--output)
+      [[ "$#" -ge 2 && -n "$2" ]] || { echo "$1 needs a value" >&2; exit 64; }
+      if [[ "$1" == '--artifact-dir' ]]; then ARTIFACT_DIR="$2"; else PLAN_OUTPUT="$2"; fi
+      shift 2 ;;
     --help|-h)
-      grep '^#' "$0" | sed 's/^# \?//'
-      exit 0
-      ;;
+      printf '%s\n' \
+        'Usage: scripts/verify_web_shell.sh [--quick] [--no-server] [--artifact-dir DIR]' \
+        'Plan: scripts/verify_web_shell.sh --dry-run [--output FILE]' \
+        'Artifacts must be outside the repository; default is a temporary directory.' \
+        'The web-shell profile selects this host plus Chrome; --quick skips only build/preview.'
+      exit 0 ;;
+    *) echo "Unknown Web Shell option: $1" >&2; exit 64 ;;
   esac
 done
+case "$(uname -s)" in
+  Linux) TEST_PLATFORM=linux ;;
+  Darwin) TEST_PLATFORM=macos ;;
+  *) echo 'BLOCKED reason_code=ENV_MISSING: Web Shell requires a Linux or macOS host.' >&2; exit 2 ;;
+esac
+if $DRY_RUN; then
+  [[ -z "$PLAN_OUTPUT" ]] || PLAN_ARGS=(--output "$PLAN_OUTPUT")
+  exec python3 scripts/auto_test.py execution-plan --profile web-shell \
+    --platform "$TEST_PLATFORM" --platform web ${PLAN_ARGS[@]+"${PLAN_ARGS[@]}"}
+fi
+[[ -z "$PLAN_OUTPUT" ]] || { echo '--output requires --dry-run' >&2; exit 64; }
+if [[ -z "$ARTIFACT_DIR" ]]; then
+  ARTIFACT_DIR="$(mktemp -d "${TMPDIR:-/tmp}/imboy-web-shell.XXXXXX")"
+fi
+ARTIFACT_DIR="$(python3 -c '
+from pathlib import Path
+import sys
+root, output = (Path(value).resolve() for value in sys.argv[1:])
+if output == root or root in output.parents:
+    raise SystemExit("--artifact-dir must be outside the repository")
+print(output)
+' "$PROJECT_DIR" "$ARTIFACT_DIR")" || exit 64
+mkdir -p "$ARTIFACT_DIR"
+echo "Web Shell evidence: $ARTIFACT_DIR"
+UPSTREAM_ARGS=()
+READY=true
 
-cd "$PROJECT_DIR"
-
-for asset in \
-  web/pkg/vodozemac_bindings_dart.js \
-  web/pkg/vodozemac_bindings_dart_bg.wasm; do
-  if [ ! -s "$asset" ]; then
-    echo "❌ 缺少 Web E2EE 运行产物：$asset" >&2
-    exit 4
+# Preserve the existing static/build checks, recording failures as dependencies
+# of the shared execution. No business verdict is inferred from their exit codes.
+run_check() {
+  local name="$1"; shift
+  local code=0
+  echo "==> $name"
+  "$@" >"$ARTIFACT_DIR/$name.log" 2>&1 || code=$?
+  cat "$ARTIFACT_DIR/$name.log" || code=$?
+  if [[ "$code" -ne 0 ]]; then
+    echo "Web Shell prerequisite $name failed (exit $code); see $ARTIFACT_DIR/$name.log" >&2
+    UPSTREAM_ARGS+=(--upstream "web-shell-$name=failure")
+    READY=false
   fi
-done
-
-# ─── 环境检查 / Environment check ──────────────────────────
-echo "==> [1/4] 环境检查 / Environment check"
-if ! command -v flutter >/dev/null 2>&1; then
-  echo "❌ flutter 命令不可用 / flutter command not found" >&2
-  exit 4
+}
+run_check sdk python3 scripts/check_sdk_compatibility.py
+if $READY; then
+  for asset in web/pkg/vodozemac_bindings_dart.js web/pkg/vodozemac_bindings_dart_bg.wasm; do
+    if [[ ! -s "$asset" ]]; then
+      echo "ENV_MISSING: Web E2EE asset $asset" | tee -a "$ARTIFACT_DIR/assets.log" >&2
+      UPSTREAM_ARGS+=(--upstream 'web-shell-assets=blocked')
+      READY=false
+    fi
+  done
 fi
-flutter --version | head -1
-echo ""
-
-# ─── flutter analyze ─────────────────────────────────────
-echo "==> [2/4] flutter analyze (web_shell 模块)"
-if flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/ --no-fatal-infos; then
-  echo "✅ analyze 零警告 / clean"
-else
-  echo "❌ analyze 失败 / failed" >&2
-  exit 1
+if $READY; then
+  run_check analyze flutter analyze lib/page/web_shell/ test/unit_test/page/web_shell/ --no-fatal-infos
 fi
-echo ""
-
-# ─── flutter test (web_shell only) ────────────────────────
-echo "==> [3/4] flutter test (web_shell 模块, 应有 255 测全绿)"
-if flutter test test/unit_test/page/web_shell/ --reporter compact; then
-  echo "✅ web_shell 测试全绿 / tests pass"
-else
-  echo "❌ 测试失败 / tests failed" >&2
-  exit 2
-fi
-echo ""
-
-# ─── flutter build web (跳过 quick 模式) ────────────────────
-if [ "$QUICK" = "true" ]; then
-  echo "==> [4/4] flutter build web — 已跳过 (--quick 模式)"
-else
-  echo "==> [4/4] flutter build web --release（首次约 60-75s, 增量更快）"
-  if flutter build web --release --no-tree-shake-icons; then
-    BUILD_SIZE=$(du -sh build/web 2>/dev/null | cut -f1)
-    JS_SIZE=$(stat -f "%z" build/web/main.dart.js 2>/dev/null || stat -c "%s" build/web/main.dart.js 2>/dev/null)
-    echo "✅ build web 成功 / built: build/web ($BUILD_SIZE, main.dart.js=$JS_SIZE bytes)"
-  else
-    echo "❌ build web 失败 / failed" >&2
-    exit 3
-  fi
-fi
-echo ""
-
-# ─── HTTP server (烟雾测试 / smoke server) ─────────────────
-if [ "$START_SERVER" = "true" ] && [ "$QUICK" != "true" ]; then
-  echo "==> 启动 HTTP server 在 :9820 (Ctrl+C 停止)"
-  echo "    浏览器访问: http://localhost:9820/"
-  echo "    验证项: 1) 不白屏 2) 看到 WebLoginPage 3) F12 控制台无致命错误"
-  echo ""
-  cd build/web
-  python3 -m http.server 9820 || python -m http.server 9820
+if $READY && ! $QUICK; then
+  run_check build flutter build web --release --no-tree-shake-icons
 fi
 
-echo "✅ 全部验证通过 / all checks passed"
+# One plan owns VM/Chrome selection and machine-event evidence. Prerequisite
+# failures still produce per-instance UPSTREAM_FAILED results and a nonzero exit.
+python3 scripts/auto_test.py execution-run --profile web-shell \
+  --platform "$TEST_PLATFORM" --platform web --artifact-dir "$ARTIFACT_DIR/tests" \
+  ${UPSTREAM_ARGS[@]+"${UPSTREAM_ARGS[@]}"} | tee "$ARTIFACT_DIR/execution.log"
+
+if $QUICK; then
+  echo 'Build and preview OUT_OF_SCOPE (--quick); test scope is unchanged.'
+elif $START_SERVER; then
+  echo 'Local preview: http://127.0.0.1:9820/ (Ctrl+C stops it; manual browser review is not an automated test verdict).'
+  python3 -m http.server 9820 --bind 127.0.0.1 --directory build/web
+fi

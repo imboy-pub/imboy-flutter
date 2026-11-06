@@ -2,27 +2,29 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart' show autoUpdateGoldenFiles;
 
-/// golden 基线不入库的交付边界守卫。
-///
-/// 基线惯例：test/ 零跟踪 PNG（.gitignore `test/**/goldens/`，
-/// CLAUDE.md 交付边界 + 用户确认 2026-10-17），基线由本地
-/// `flutter test --update-goldens` 生成后仅存开发机。CI / 全新检出
-/// 没有基线文件，此时相关用例 skip——`matchesGoldenFile` 对缺失文件
-/// 会直接判失败，把「无基线可比较」误报成渲染回归。
-///
-/// [repoRelativePath] 传仓库根相对路径（flutter test 的工作目录是包根）。
-bool goldenBaselineExists(String repoRelativePath) =>
-    File(repoRelativePath).existsSync();
+/// Golden 基线由维护者在固定 Flutter/engine/字体环境显式生成，保持本地
+/// 交付边界；执行治理入口会核验基线与字体哈希后设置 required 标记。
+/// 缺基线是环境阻塞，不是像素回归通过，也不能靠 CI 环境直接跳过。
+bool get _goldenRequired =>
+    Platform.environment['IMBOY_GOLDEN_REQUIRED'] == 'true';
 
-/// 一个 testWidgets 内循环比对整组基线时的 skip 判定（取反后传给 `skip:`）。
-///
-/// `flutter test --update-goldens` 时恒为就绪——否则「没有基线 → 跳过 →
-/// 永远生成不出基线」。CI 上恒为未就绪：像素比对只对生成基线的那台机器
-/// 成立，runner 的 Flutter/字体栅格与开发机不同（run 39399556106：p1 已
-/// 入库基线在 CI 上 "Pixel test failed"），比对结果不是渲染回归信号。
-/// 其余情况任一基线缺失即视为未就绪，整组跳过。
+/// [repoRelativePath] 是仓库根相对路径（flutter test 的工作目录是包根）。
+bool goldenBaselineExists(String repoRelativePath) {
+  final exists = File(repoRelativePath).existsSync();
+  if (!exists && _goldenRequired) {
+    throw StateError('ENV_MISSING: GOLDEN_BASELINE_MISSING:$repoRelativePath');
+  }
+  return exists;
+}
+
+/// 显式基线维护仍支持 --update-goldens。受治理的回归执行禁止更新基线，
+/// 防止把新生成的图片当作已验证的像素回归证据。
 bool goldenBaselinesReady(Iterable<String> repoRelativePaths) {
-  if (autoUpdateGoldenFiles) return true;
-  if (Platform.environment['CI'] == 'true') return false;
+  if (autoUpdateGoldenFiles) {
+    if (_goldenRequired) {
+      throw StateError('GOLDEN_BASELINE_UPDATE_FORBIDDEN_DURING_REGRESSION');
+    }
+    return true;
+  }
   return repoRelativePaths.every(goldenBaselineExists);
 }

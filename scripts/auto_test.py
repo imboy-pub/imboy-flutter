@@ -789,7 +789,11 @@ def main() -> int:
     acceptance_navigation_profiles.register_cli(sub)
     acceptance_execution.register_cli(sub)
     acceptance_upstream.register_cli(sub)
+    from auto_test_lib import execution_cli
+    execution_cli.register_cli(sub)
     args = parser.parse_args()
+    if args.command.startswith('execution-'):
+        return execution_cli.run_cli(args, ROOT, REPORTS)
     if args.command == 'acceptance-upstream-preflight':
         return acceptance_upstream.run_cli(args, ROOT.parent)
     if args.command == 'acceptance-navigation-profiles':
@@ -923,7 +927,43 @@ def main() -> int:
         if args.execute and args.dry_run:
             parser.error('--execute 与 --dry-run 不能同时使用')
         artifact_dir = Path(args.artifact_dir) if args.artifact_dir else REPORTS / datetime.now().strftime('%Y%m%d-%H%M%S')
-        return run(select(specs, args.phase), args.device, args.execute, artifact_dir)
+        selected_specs = [spec for _, spec in select(specs, args.phase)]
+        # Page specs supply scope; the execution contract owns classification,
+        # platform/role selection and evidence. The legacy helper above remains
+        # for its isolated device-qualification tests, not as a second CLI runner.
+        if not selected_specs:
+            print('BLOCKED: EMPTY_EXECUTION_PLAN', file=sys.stderr)
+            return 2
+        platforms = []
+        if args.execute:
+            if any(not spec.get('safe_to_execute') for spec in selected_specs):
+                print('BLOCKED: page spec requires its dedicated isolated execution profile', file=sys.stderr)
+                return 2
+            from auto_test_lib.devices import qualify_device as qualify_execution_device
+            devices, discovery_error = discover_devices()
+            platform, errors = qualify_execution_device(args.device, devices,
+                                                         allowed_platforms={'android', 'ios', 'macos'})
+            if discovery_error or errors:
+                print(f'BLOCKED: ENV_MISSING {discovery_error or errors}', file=sys.stderr)
+                return 2
+            platforms = [platform]
+        options = argparse.Namespace(
+            command='execution-run' if args.execute else 'execution-plan',
+            profile='device', platform=platforms, product_profile=[], suite=[],
+            target=[spec['runner']['target'] for spec in selected_specs], variant=[],
+            plan=None, artifact_dir=str(artifact_dir), coverage=False,
+            worker_platform=None, worker_suite=[], worker_product_profile=None,
+            upstream=[], output=str(artifact_dir / 'plan.json'))
+        previous_device = os.environ.get('IMBOY_TEST_DEVICE')
+        if args.device:
+            os.environ['IMBOY_TEST_DEVICE'] = args.device
+        try:
+            return execution_cli.run_cli(options, ROOT, REPORTS)
+        finally:
+            if previous_device is None:
+                os.environ.pop('IMBOY_TEST_DEVICE', None)
+            else:
+                os.environ['IMBOY_TEST_DEVICE'] = previous_device
     return 0
 
 

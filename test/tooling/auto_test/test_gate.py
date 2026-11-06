@@ -129,9 +129,11 @@ class TestGateCiParity(unittest.TestCase):
         self.assertIn('check_auto_test_framework.sh', suite)
         # 漂移检查不再在解析参数前阻断
         self.assertNotIn('generate_product_features.py', suite)
-        # 自动设备发现仅限 android（不自动选 iOS）
-        self.assertIn('platform.startswith("android")', suite)
-        self.assertNotIn('platform.startswith(("android", "ios"))', suite)
+        # 兼容壳只委托共享计划；必须显式提供设备，不能自行挑一台发往全部目标。
+        self.assertIn('execution-plan', suite)
+        self.assertIn('execution-run', suite)
+        self.assertNotIn('flutter devices', suite)
+        self.assertNotIn('find integration_test', suite)
 
 
 if __name__ == '__main__':

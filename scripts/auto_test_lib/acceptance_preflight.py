@@ -16,7 +16,7 @@ _REMAINING = [
 
 def audit_preparation_inputs(
     root: Path, frozen_descriptor: Any, report_descriptor: Any,
-    repository_paths: Any,
+    repository_paths: Any, *, allow_initial_empty_history: bool = False,
 ) -> Dict[str, Any]:
     """Check pinned JSON, required cases and live candidates without writes.
 
@@ -45,8 +45,14 @@ def audit_preparation_inputs(
     result['errors'].extend(acceptance_bindings.audit_runtime_binding_files(
         root, frozen.get('runtime_bindings'), report.get('runtime_bindings'),
         frozen.get('required_runtime_binding_ids')))
-    result['errors'].extend(acceptance_attempts.validate_attempt_journal(
-        frozen.get('attempt_index'), report.get('attempts')))
+    # A first preparation may have an independently frozen empty history. The
+    # execution-record gate keeps the strict default, and existing records may
+    # never be omitted or discarded under this option.
+    initial = (allow_initial_empty_history and frozen.get('attempt_index') == []
+               and report.get('attempts') == [])
+    if not initial:
+        result['errors'].extend(acceptance_attempts.validate_attempt_journal(
+            frozen.get('attempt_index'), report.get('attempts')))
     return result
 
 

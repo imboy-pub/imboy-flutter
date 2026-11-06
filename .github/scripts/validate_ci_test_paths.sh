@@ -1,56 +1,12 @@
 #!/usr/bin/env bash
-
+# 全仓 Git 跟踪测试归属硬门禁。旧 workflow 路径参数仅作存在性兼容检查。
 set -euo pipefail
-
-WORKFLOW_FILE="${1:-.github/workflows/ci.yml}"
-
-if [[ ! -f "$WORKFLOW_FILE" ]]; then
-  echo "[ci-test-path] workflow file not found: $WORKFLOW_FILE" >&2
-  exit 1
+APP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$APP_ROOT"
+if [[ "$#" -gt 1 ]]; then
+  echo "usage: $0 [workflow-path]" >&2; exit 64
 fi
-
-errors=0
-checks=0
-
-while IFS= read -r entry; do
-  line_no="${entry%%:*}"
-  content="${entry#*:}"
-  content="${content#"${content%%[![:space:]]*}"}"
-
-  cmd_part="${content#*flutter test }"
-  test_path="${cmd_part%% *}"
-  test_path="${test_path%%;*}"
-  test_path="${test_path%%|*}"
-
-  # strip optional wrapping quotes
-  test_path="${test_path%\"}"
-  test_path="${test_path#\"}"
-  test_path="${test_path%\'}"
-  test_path="${test_path#\'}"
-
-  # skip dynamic or flag-based invocations
-  if [[ -z "$test_path" || "$test_path" == -* || "$test_path" == '$'* ]]; then
-    echo "[ci-test-path] skip dynamic path at line $line_no: $content"
-    continue
-  fi
-
-  checks=$((checks + 1))
-  if [[ -e "$test_path" ]]; then
-    echo "[ci-test-path] ok: $test_path (line $line_no)"
-  else
-    echo "[ci-test-path] missing: $test_path (line $line_no)" >&2
-    errors=$((errors + 1))
-  fi
-done < <(grep -nE "flutter test " "$WORKFLOW_FILE" || true)
-
-if [[ "$checks" -eq 0 ]]; then
-  echo "[ci-test-path] no 'flutter test' command found in $WORKFLOW_FILE."
-  exit 0
+if [[ "$#" -eq 1 && ! -f "$1" ]]; then
+  echo "workflow not found: $1" >&2; exit 1
 fi
-
-if [[ "$errors" -gt 0 ]]; then
-  echo "[ci-test-path] found $errors invalid test path(s)." >&2
-  exit 1
-fi
-
-echo "[ci-test-path] verified $checks path(s) in $WORKFLOW_FILE."
+exec python3 scripts/auto_test.py execution-check
