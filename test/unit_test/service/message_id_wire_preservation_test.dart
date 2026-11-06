@@ -72,9 +72,32 @@ class _FakeChannel implements WebSocketChannel {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// 空库 fake：send-gate（claimOutboxDispatch/beginOutboxSend）需要
+/// transaction/insert/execute——与 websocket_send_session_test 的版本对齐，
+/// query 恒空 => 门控判定为首次派发并放行。
+class _EmptyRetryTransaction extends _EmptyRetryDatabase
+    implements Transaction {}
+
 class _EmptyRetryDatabase implements Database {
   @override
   bool get isOpen => true;
+
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => action(_EmptyRetryTransaction());
+
+  @override
+  Future<void> execute(String sql, [List<Object?>? arguments]) async {}
+
+  @override
+  Future<int> insert(
+    String table,
+    Map<String, Object?> values, {
+    String? nullColumnHack,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async => 1;
 
   @override
   Future<List<Map<String, Object?>>> rawQuery(

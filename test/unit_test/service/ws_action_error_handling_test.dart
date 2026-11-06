@@ -135,6 +135,28 @@ const String _msgC2cDdl = '''
   )
 ''';
 
+/// msg_c2g 最小 DDL（同 retry_plaintext_guard_c2g_test；C2G 用例的
+/// pendingRetry 置位会回读消息行，缺表即失败并污染队列断言）。
+const String _msgC2gDdl = '''
+  CREATE TABLE msg_c2g (
+    auto_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER,
+    type TEXT,
+    from_id INTEGER,
+    to_id INTEGER,
+    payload TEXT,
+    created_at INTEGER,
+    is_author INTEGER,
+    status INTEGER,
+    conversation_uk3 TEXT,
+    topic_id INTEGER,
+    msg_type TEXT,
+    action TEXT,
+    e2ee TEXT,
+    sender_did TEXT
+  )
+''';
+
 /// toTypeMessage 的作者信息查询依赖 contact 表（本文件仅 repo.find，
 /// 建空表防无关异常）。
 const String _contactDdl = '''
@@ -206,6 +228,17 @@ void main() {
   Future<Database> openTestDb() async {
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
+    await db.execute(_msgC2gDdl);
+    // send-gate 读 attachment_upload_task（迁移 v33）；缺表会让重试
+    // claim 抛错，队列条目残留导致移除断言失败。
+    await db.execute(
+      'CREATE TABLE attachment_upload_task ('
+      'id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, business_intent TEXT,'
+      'scope TEXT, scope_ref TEXT, file_name TEXT, mime TEXT, plain_size INTEGER,'
+      'plain_sha256 TEXT, object_key TEXT, stage TEXT, cipher TEXT, binding_hash TEXT,'
+      'key_ref TEXT, ciphertext_sha256 TEXT, last_error TEXT, created_at INTEGER,'
+      'updated_at INTEGER, upload_path TEXT)',
+    );
     await db.execute(_contactDdl);
     await db.execute(_msgC2cFtsDdl);
     await db.execute(_cryptoOutboxDdl);
@@ -292,6 +325,15 @@ void main() {
     });
   });
 
+  /// FFI 事务经真实事件循环（native port）返回，pumpEventQueue 只排空微任务
+  /// 队列——CI 慢机上移除事件会晚于断言到达（批次 0001 时序性失败实证）。
+  /// 有界轮询真实事件循环直到条件满足。
+  Future<void> pumpUntilEventLoop(bool Function() done) async {
+    for (var i = 0; i < 200 && !done(); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+  }
+
   group('error 帧停止重试（MessageRetry 队列条目移除）', () {
     test('message_revoke_error 移除对应操作帧的重试条目', () async {
       final svc = bootedService();
@@ -309,7 +351,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await pumpUntilEventLoop(() => retry.getRetryInfo(opId) == null);
       expect(retry.getRetryInfo(opId), isNull);
     });
 
@@ -330,7 +372,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await pumpUntilEventLoop(() => retry.getRetryInfo(opId) == null);
       expect(retry.getRetryInfo(opId), isNull);
     });
 
@@ -350,7 +392,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await pumpUntilEventLoop(() => retry.getRetryInfo(opId) == null);
       expect(retry.getRetryInfo(opId), isNull);
     });
   });

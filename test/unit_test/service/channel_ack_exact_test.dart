@@ -13,7 +13,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   test('synthetic C2CH ACK updates exact SQLite and visible message IDs', () async {
-    SharedPreferences.setMockInitialValues({});
+    // SERVER_ACK 处理带会话作用域（ownerUid 非空才走频道临时 ID 替换），
+    // mock 里须有当前 uid，否则 ACK 被当前性检查提前丢弃。
+    SharedPreferences.setMockInitialValues({'current_uid': '100'});
     await StorageService.init();
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);

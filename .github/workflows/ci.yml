@@ -101,6 +101,12 @@ jobs:
           if [ "$WORKER_PLATFORM" = web ]; then
             mkdir -p "$WORKER_EVIDENCE_DIR"
             bash .github/scripts/ci_prepare_chrome.sh 2>&1 | tee "$WORKER_EVIDENCE_DIR/chrome-preflight.log"
+            # cs_asset_put_transport_web_test 的 19972 直传 fixture（随仓
+            # 提交但此前漏接线：不启动服务且未设 dart-define，测试恒 skip
+            # → 编排器判 UNEXPECTED_SKIP 阻断 web unit）。
+            node test/customer_service/fixtures/cs_direct_web_server.cjs \
+              > "$WORKER_EVIDENCE_DIR/cs-direct-fixture.log" 2>&1 &
+            echo "cs fixture pid=$!" | tee -a "$WORKER_EVIDENCE_DIR/cs-direct-fixture.log"
           else
             bash .github/scripts/ci_build_vod.sh
           fi

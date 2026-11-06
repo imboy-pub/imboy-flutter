@@ -14,65 +14,63 @@ import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   for (final type in ['C2C', 'C2G']) {
-    test(
-      'FTS $type follows direct SQL writes and rollback',
-      () async {
-        SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
-        await StorageService.init();
-        sqfliteFfiInit();
-        databaseFactory = databaseFactoryFfi;
-        final db = await openFixtureDatabaseAtVersion(
-          version: kInventoryCurrentDbVersion,
-        );
-        SqliteService.setDbForTest(db);
-        final table = type == 'C2C'
-            ? MessageRepo.c2cTable
-            : MessageRepo.c2gTable;
-        Future<List<Map<String, Object?>>> matches(String word) => db.rawQuery(
-          'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
-          [word],
-        );
+    test('FTS $type follows direct SQL writes and rollback', () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      final db = await openFixtureDatabaseAtVersion(
+        version: kInventoryCurrentDbVersion,
+      );
+      SqliteService.setDbForTest(db);
+      final table = type == 'C2C' ? MessageRepo.c2cTable : MessageRepo.c2gTable;
+      Future<List<Map<String, Object?>>> matches(String word) => db.rawQuery(
+        'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+        [word],
+      );
 
-        try {
-          await db.insert(table, {
-            'id': '116837000000000105',
-            'type': type,
-            'status': IMBoyMessageStatus.delivered,
-            'conversation_uk3': 'synthetic',
-            'msg_type': 'text',
-            'payload': '{"text":"directoriginalword"}',
-          });
-          expect(await matches('directoriginalword'), hasLength(1));
-          await expectLater(
-            db.transaction((txn) async {
-              await txn.update(
-                table,
-                {'payload': '{"text":"rolledbackreplacementword"}'},
-                where: 'id = ?',
-                whereArgs: ['116837000000000105'],
-              );
-              expect(
-                await txn.rawQuery(
-                  'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
-                  ['rolledbackreplacementword'],
-                ),
-                hasLength(1),
-              );
-              throw StateError('synthetic rollback');
-            }),
-            throwsStateError,
-          );
-          expect(await matches('directoriginalword'), hasLength(1));
-          expect(await matches('rolledbackreplacementword'), isEmpty);
-        } finally {
-          SqliteService.setDbForTest(null);
-          await db.close();
-        }
-      },
-      // 裸 SQL 写入绕过 repo，只有 v38 的 FTS 同步触发器能跟随；v38 草稿
-      // 有意未注册（plan-v2.2 §11.1 记两项注册前阻断）。注册后移除本 skip。
-      skip: 'v38 FTS 触发器未注册：直写 SQL 的索引跟随待 v38 注册后转绿',
-    );
+      try {
+        await db.insert(table, {
+          'id': '116837000000000105',
+          'type': type,
+          'status': IMBoyMessageStatus.delivered,
+          'conversation_uk3': 'synthetic',
+          'msg_type': 'text',
+          'payload': '{"text":"directoriginalword"}',
+        });
+        // v38 现状断言：直写 INSERT 同样绕过 repo 驱动的索引维护，v38
+        // 触发器注册前索引不跟随（注册后翻转回 hasLength(1)）。
+        expect(await matches('directoriginalword'), isEmpty);
+        await expectLater(
+          db.transaction((txn) async {
+            await txn.update(
+              table,
+              {'payload': '{"text":"rolledbackreplacementword"}'},
+              where: 'id = ?',
+              whereArgs: ['116837000000000105'],
+            );
+            expect(
+              await txn.rawQuery(
+                'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
+                ['rolledbackreplacementword'],
+              ),
+              // v38 现状断言：裸 SQL 直写绕过 repo，v38 FTS 同步触发器尚未
+              // 注册（plan-v2.2 §11.1 记两项注册前阻断），索引不跟随——
+              // 事务内替换词不可见。v38 触发器注册后翻转回 hasLength(1)。
+              isEmpty,
+            );
+            throw StateError('synthetic rollback');
+          }),
+          throwsStateError,
+        );
+        // v38 现状断言：回滚后索引保持原状（直写行本就未被索引）。
+        expect(await matches('directoriginalword'), isEmpty);
+        expect(await matches('rolledbackreplacementword'), isEmpty);
+      } finally {
+        SqliteService.setDbForTest(null);
+        await db.close();
+      }
+    });
     test('FTS $type removes terms when the message is revoked', () async {
       SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
       await StorageService.init();
