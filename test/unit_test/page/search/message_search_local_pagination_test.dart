@@ -1,19 +1,32 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/page/search/message_search_provider.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/contact_model.dart';
+import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
+
+class _UnexpectedRemoteSearch implements FtsApi {
+  int calls = 0;
+  @override
+  dynamic noSuchMethod(Invocation invocation) {
+    calls++;
+    throw Exception('A successful local query must not call remote search');
+  }
+}
 
 class _DelayedSearchDatabase implements Database {
   final entered = Completer<void>();
@@ -53,6 +66,124 @@ class _DelayedSearchDatabase implements Database {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'successful empty and expired-only first pages never use remote fallback',
+    () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      final db = await openFixtureDatabaseAtVersion(version: 37);
+      SqliteService.setDbForTest(db);
+      final remote = _UnexpectedRemoteSearch();
+      final container = ProviderContainer(
+        overrides: [ftsApiProvider.overrideWithValue(remote)],
+      );
+      final subscription = container.listen(messageSearchProvider, (_, _) {});
+      try {
+        for (final sql in upgradeV38Fts.sqlStatements) {
+          await db.execute(sql);
+        }
+        final notifier = container.read(messageSearchProvider.notifier);
+        await notifier.performSearch(query: 'absentfixture');
+        expect(container.read(messageSearchProvider).errorMessage, isEmpty);
+        expect(container.read(messageSearchProvider).hasMore, isFalse);
+        await db.insert('msg_c2c', {
+          'id': 'expired-only',
+          'type': 'C2C',
+          'from_id': '',
+          'to_id': '',
+          'conversation_uk3': 'C2C_100_200',
+          'msg_type': 'text',
+          'is_author': 0,
+          'payload': '{"text":"expiredfixture","burn":true,"burn_after_ms":1000,"burn_read_at":1}',
+          'status': 20,
+          'created_at': 1,
+        });
+        await notifier.performSearch(query: 'expiredfixture');
+        expect(container.read(messageSearchProvider).searchResults, isEmpty);
+        expect(container.read(messageSearchProvider).errorMessage, isEmpty);
+        expect(remote.calls, 0);
+      } finally {
+        subscription.close();
+        container.dispose();
+        SqliteService.setDbForTest(null);
+        await db.close();
+      }
+    },
+  );
+
+  test(
+    'expiry of a displayed result does not skip the next local page item',
+    () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+      final db = await openFixtureDatabaseAtVersion(version: 37);
+      SqliteService.setDbForTest(db);
+      final container = ProviderContainer();
+      final subscription = container.listen(messageSearchProvider, (_, _) {});
+      try {
+        for (final sql in upgradeV38Fts.sqlStatements) {
+          await db.execute(sql);
+        }
+        final nowMs = DateTimeHelper.millisecond();
+        for (var index = 0; index < 41; index++) {
+          await db.insert('msg_c2c', {
+            'id': 'lifetime-${index.toString().padLeft(2, '0')}',
+            'type': 'C2C',
+            'from_id': '',
+            'to_id': '',
+            'conversation_uk3': 'C2C_100_200',
+            'msg_type': 'text',
+            'status': 20,
+            'created_at': nowMs,
+            'is_author': 1,
+            'payload': jsonEncode({
+              'text': 'lifetimefixture',
+              if (index == 0) ...{'burn': true, 'burn_after_ms': 60000},
+            }),
+          });
+        }
+        final notifier = container.read(messageSearchProvider.notifier);
+        await notifier.performSearch(query: 'lifetimefixture');
+        expect(
+          container.read(messageSearchProvider).searchResults,
+          hasLength(20),
+        );
+        final first = container.read(messageSearchProvider).searchResults.first;
+        expect(first.id, 'lifetime-00');
+        expect(first.payload?['burn'], isTrue);
+        expect(first.isAuthor, 1);
+        NtpHelper.updateOffsetFromServer(nowMs + 61000);
+        notifier.removeExpiredResults();
+        expect(
+          container.read(messageSearchProvider).searchResults,
+          hasLength(19),
+        );
+        await notifier.loadMore();
+        final second = container.read(messageSearchProvider).searchResults;
+        expect(second, hasLength(39));
+        expect(second.map((item) => item.id), contains('lifetime-20'));
+        await notifier.loadMore();
+        final finalPage = container.read(messageSearchProvider);
+        expect(
+          finalPage.searchResults.map((item) => item.id).toSet(),
+          hasLength(40),
+        );
+        expect(finalPage.hasMore, isFalse);
+      } finally {
+        subscription.close();
+        container.dispose();
+        SqliteService.setDbForTest(null);
+        NtpHelper.debugReset();
+        await db.close();
+      }
+    },
+  );
 
   test('reset discards an in-flight search result', () async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});

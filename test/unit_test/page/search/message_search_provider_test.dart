@@ -1,8 +1,66 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:imboy/page/search/message_search_provider.dart';
+import 'package:imboy/page/search/search_result_expiry.dart';
+import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'display deadlines use one timer, preserve unread, and recheck on resume',
+    () {
+      fakeAsync((async) {
+        int now() => 1000 + async.elapsed.inMilliseconds;
+        MessageSearchResult item(String id, int? readAt) => MessageSearchResult(
+          id: id,
+          content: id,
+          fromId: '200',
+          toId: '100',
+          type: 'C2C',
+          createdAt: 1,
+          payload: {
+            'burn': true,
+            'burn_after_ms': 100,
+            if (readAt != null) 'burn_read_at': readAt,
+          },
+        );
+        var results = [
+          item('first', 1100),
+          item('second', 1400),
+          item('unread', null),
+        ];
+        var callbacks = 0;
+        late SearchResultExpiry expiry;
+        expiry = SearchResultExpiry(() {
+          callbacks++;
+          results = results
+              .where((item) => item.isVisibleAt(now(), '100'))
+              .toList();
+          expiry.schedule(results.map((item) => item.expiresAtMs('100')));
+        }, nowMs: now);
+        expiry.schedule(results.map((item) => item.expiresAtMs('100')));
+        expect(async.nonPeriodicTimerCount, 1);
+        async.elapse(const Duration(milliseconds: 199));
+        expect(results, hasLength(3));
+        async.elapse(const Duration(milliseconds: 1));
+        expect(results.map((item) => item.id), ['second', 'unread']);
+        expect(async.nonPeriodicTimerCount, 1);
+        expiry.cancel();
+        async.elapse(const Duration(milliseconds: 400));
+        expect(callbacks, 1);
+        expiry.didChangeAppLifecycleState(AppLifecycleState.resumed);
+        expect(results.map((item) => item.id), ['unread']);
+        expect(async.nonPeriodicTimerCount, 0);
+        expiry.dispose();
+        expiry.didChangeAppLifecycleState(AppLifecycleState.resumed);
+        expect(callbacks, 2);
+      });
+    },
+  );
+
   group('MessageSearchState 纯内存方法', () {
     test('MS-1 默认值正确', () {
       const s = MessageSearchState();

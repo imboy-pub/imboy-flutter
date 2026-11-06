@@ -20,9 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:highlight_text/highlight_text.dart';
-
-import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/service/storage.dart';
@@ -31,11 +28,12 @@ import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
 import 'package:imboy/store/repository/group_repo_sqlite.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
-import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 
 import 'web_search_state.dart';
+import 'web_search_result_tile.dart';
+import 'search_result_expiry.dart';
 
 @visibleForTesting
 String searchMessageRoute(String conversationId, String? type) =>
@@ -108,6 +106,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   final ScrollController _scrollController = ScrollController();
 
   Timer? _debounceTimer;
+  late final SearchResultExpiry _resultExpiry;
   WebSearchState _state = const WebSearchState();
   WebMessageSearchFailure? _messageSearchFailure;
   int _searchGeneration = 0;
@@ -118,6 +117,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   @override
   void initState() {
     super.initState();
+    _resultExpiry = SearchResultExpiry(_removeExpiredResults);
     _historyChanges.addListener(_reloadHistoryAfterWrites);
     if (widget.authChangesForTest case final changes?) {
       changes.addListener(_onAuthChanged);
@@ -142,6 +142,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
   @override
   void dispose() {
+    _resultExpiry.dispose();
     _historyChanges.removeListener(_reloadHistoryAfterWrites);
     if (widget.authChangesForTest case final changes?) {
       changes.removeListener(_onAuthChanged);
@@ -157,6 +158,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
   void _onAuthChanged() {
     if (!mounted) return;
+    _resultExpiry.cancel();
     _debounceTimer?.cancel();
     _searchGeneration++;
     _searchController.clear();
@@ -231,6 +233,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     _searchGeneration++;
 
     if (query.trim().isEmpty) {
+      _resultExpiry.cancel();
       setState(() {
         _state = _state.copyWith(
           query: '',
@@ -327,6 +330,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         _state = _state.copyWith(results: results, isLoading: false);
         _messageSearchFailure = messageFailure;
       });
+      _removeExpiredResults();
 
       // 保存搜索记录
       _saveSearchHistory(query);
@@ -342,12 +346,9 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   /// 搜索消息
   Future<List<SearchItem>> _searchMessages(String query) async {
     final results = <SearchItem>[];
-    final response = await FtsApi.to.searchMessages(
-      keyword: query,
-      page: 1,
-      size: 10,
-      type: 'all',
-    );
+    final response = await ref
+        .read(ftsApiProvider)
+        .searchMessages(keyword: query, page: 1, size: 10, type: 'all');
 
     if (response == null) {
       throw const FormatException('Invalid message search response');
@@ -355,6 +356,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
     if (response.items.isNotEmpty) {
       for (final item in response.items) {
+        final uid = UserRepoLocal.to.currentUid;
+        if (!item.isVisibleAt(DateTimeHelper.millisecond(), uid)) continue;
         // 判断消息的发送者/接收者
         final isAuthor = item.fromId == UserRepoLocal.to.currentUid;
         final peerId = isAuthor ? item.toId : item.fromId;
@@ -367,6 +370,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
             subtitle: item.content,
             avatar: '',
             highlightText: query,
+            message: item,
             metadata: {
               'timestamp': item.createdAt * 1000,
               'conversationId': item.type == 'C2G' ? item.toId : peerId,
@@ -898,127 +902,45 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   }
 
   /// 构建搜索结果项
-  Widget _buildSearchItem(SearchItem item, bool isDark) {
-    final words = <String, HighlightedWord>{};
-    if (item.highlightText != null && item.highlightText!.isNotEmpty) {
-      words[item.highlightText!.toLowerCase()] = HighlightedWord(
-        textStyle: TextStyle(
-          color: isDark
-              ? AppColors.darkTextPrimary
-              : AppColors.lightTextPrimary,
-          backgroundColor: AppColors.chatWebBrand.withAlpha(50),
-          fontWeight: FontWeight.bold,
-        ),
-      );
-    }
-
-    return GestureDetector(
-      onTap: () => _onItemTap(item),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            // 图标或头像
-            _buildItemIcon(item, isDark),
-            AppSpacing.horizontalMedium,
-
-            // 内容
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 标题
-                  TextHighlight(
-                    text: item.title,
-                    words: words,
-                    textStyle: context.textStyle(
-                      FontSizeType.subheadline,
-                      fontWeight: FontWeight.w500,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                    ),
-                  ),
-                  if (item.subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    TextHighlight(
-                      text: item.subtitle!,
-                      words: words,
-                      textStyle: context.textStyle(
-                        FontSizeType.footnote,
-                        color: isDark
-                            ? AppColors.chatWebSecondaryDark
-                            : AppColors.chatWebSecondaryLight,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ],
-              ),
-            ),
-
-            // 时间戳（消息类型）
-            if (item.type == SearchItemType.message &&
-                item.metadata?['timestamp'] != null) ...[
-              AppSpacing.horizontalSmall,
-              Text(
-                DateTimeHelper.lastTimeFmt(
-                  parseModelInt(item.metadata?['timestamp']),
-                ),
-                style: context.textStyle(
-                  FontSizeType.small,
-                  color: isDark
-                      ? AppColors.chatWebSecondaryDark
-                      : AppColors.chatWebSecondaryLight,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// 构建项目图标
-  Widget _buildItemIcon(SearchItem item, bool isDark) {
-    if (item.avatar != null && item.avatar!.isNotEmpty) {
-      return Avatar(imgUri: item.avatar!);
-    }
-
-    IconData iconData;
-    switch (item.type) {
-      case SearchItemType.conversation:
-        iconData = CupertinoIcons.chat_bubble;
-      case SearchItemType.message:
-        iconData = CupertinoIcons.chat_bubble_fill;
-      case SearchItemType.contact:
-        iconData = CupertinoIcons.person;
-      case SearchItemType.group:
-        iconData = CupertinoIcons.group;
-    }
-
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: isDark
-            ? AppColors.chatWebSurfaceDark
-            : AppColors.chatWebBackgroundLight,
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        iconData,
-        color: isDark
-            ? AppColors.chatWebSecondaryDark
-            : AppColors.chatWebSecondaryLight,
-        size: 24,
-      ),
-    );
-  }
+  Widget _buildSearchItem(SearchItem item, bool isDark) => WebSearchResultTile(
+    item: item,
+    isDark: isDark,
+    onTap: () => _onItemTap(item),
+  );
 
   /// 处理结果项点击
-  void _onItemTap(SearchItem item) {
+  Future<void> _onItemTap(SearchItem item) async {
+    if (!_isVisibleMessage(item, DateTimeHelper.millisecond())) {
+      _removeExpiredResults();
+      return;
+    }
+    if (item.message case final message?) {
+      final user = UserRepoLocal.to;
+      final uid = user.currentUid;
+      final session = user.sessionGeneration;
+      final generation = _searchGeneration;
+      final current = await FtsApi.to.refreshResultVisibility(message);
+      if (!mounted ||
+          _isAuthTransitioning ||
+          user.currentUid != uid ||
+          !user.isCurrentSession(session) ||
+          generation != _searchGeneration) {
+        return;
+      }
+      if (current == null ||
+          !current.isVisibleAt(DateTimeHelper.millisecond(), uid)) {
+        setState(() {
+          _state = _state.copyWith(
+            results: _state.results
+                .where((result) => !identical(result, item))
+                .toList(),
+          );
+        });
+        _removeExpiredResults();
+        return;
+      }
+    }
+    if (!mounted) return;
     switch (item.type) {
       case SearchItemType.conversation:
         context.push('/chat/${item.id}');
@@ -1041,5 +963,29 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         // 群聊点击进入会话，统一走 /chat/:peerId?type=C2G
         context.push('/chat/${item.id}?type=C2G');
     }
+  }
+
+  bool _isVisibleMessage(SearchItem item, int nowMs) {
+    if (item.type != SearchItemType.message) return true;
+    return item.message?.isVisibleAt(nowMs, UserRepoLocal.to.currentUid) ??
+        true;
+  }
+
+  void _removeExpiredResults() {
+    if (!mounted || _isAuthTransitioning) return;
+    final nowMs = DateTimeHelper.millisecond();
+    final remaining = _state.results
+        .where((item) => _isVisibleMessage(item, nowMs))
+        .toList();
+    if (remaining.length != _state.results.length) {
+      setState(() => _state = _state.copyWith(results: remaining));
+    }
+    _resultExpiry.schedule(
+      remaining
+          .where((item) => item.type == SearchItemType.message)
+          .map(
+            (item) => item.message?.expiresAtMs(UserRepoLocal.to.currentUid),
+          ),
+    );
   }
 }

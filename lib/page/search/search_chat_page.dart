@@ -23,6 +23,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'search_provider.dart';
+import 'search_result_expiry.dart';
 
 /// 聊天记录搜索页面 - 极致 iOS 17 Premium 风格
 class SearchChatPage extends StatelessWidget {
@@ -81,6 +82,8 @@ class _SearchChatBody extends ConsumerStatefulWidget {
 class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   final TextEditingController _searchC = TextEditingController();
   Timer? _debounceTimer;
+  late final SearchResultExpiry _resultExpiry;
+  Map<String, MessageSearchResult> _resultFacts = {};
   int _searchGeneration = 0;
   bool _scopeResetPending = false;
   int _scopeGeneration = 0;
@@ -103,6 +106,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   @override
   void initState() {
     super.initState();
+    _resultExpiry = SearchResultExpiry(_removeExpiredResults);
     final user = UserRepoLocal.to;
     _ownerUid = user.currentUid;
     _ownerSession = user.sessionGeneration;
@@ -113,6 +117,8 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     if (!mounted || _ownerActive) return;
     _searchGeneration++;
     _debounceTimer?.cancel();
+    _resultExpiry.cancel();
+    _resultFacts = {};
     _searchC.clear();
     words = {};
     _searchDisabled = false;
@@ -124,6 +130,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   void dispose() {
     _searchGeneration++;
     _debounceTimer?.cancel();
+    _resultExpiry.dispose();
     UserRepoLocal.to.removeAuthListener(_onAuthChanged);
     _searchC.dispose();
     super.dispose();
@@ -135,6 +142,8 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     if (oldWidget.conversationUk3 != widget.conversationUk3) {
       _searchGeneration++;
       _debounceTimer?.cancel();
+      _resultExpiry.cancel();
+      _resultFacts = {};
       _searchC.clear();
       _searchDisabled = false;
       words = {};
@@ -154,6 +163,8 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   void debouncedSearch(String query) {
     if (!_ownerActive) return;
     _debounceTimer?.cancel();
+    _resultExpiry.cancel();
+    _resultFacts = {};
     _searchGeneration++;
     ref.read(searchProvider.notifier).resetSearch();
     if (query.trim().isEmpty) {
@@ -188,19 +199,26 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     notifier.setError('');
     _searchDisabled = false;
     try {
-      final response = await FtsApi.to.searchConversationMessages(
-        keyword: effectiveQuery,
-        conversationUk3: conversation,
-        page: 1,
-        size: 50,
-        msgType: ref.read(searchProvider).selectedMessageType,
-      );
+      final response = await ref
+          .read(ftsApiProvider)
+          .searchConversationMessages(
+            keyword: effectiveQuery,
+            conversationUk3: conversation,
+            page: 1,
+            size: 50,
+            msgType: ref.read(searchProvider).selectedMessageType,
+          );
       if (!isCurrent()) return;
       if (response == null) {
         notifier.setError(t.common.searchError);
         return;
       }
-      final messages = response.items.map((item) {
+      final nowMs = DateTimeHelper.millisecond();
+      final visibleItems = response.items
+          .where((item) => item.isVisibleAt(nowMs, uid))
+          .toList();
+      _resultFacts = {for (final item in visibleItems) item.id: item};
+      final messages = visibleItems.map((item) {
         final text = item.payload?['text'] as String? ?? item.content;
         return CustomMessage(
           authorId: item.fromId,
@@ -217,6 +235,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
         );
       }).toList();
       notifier.updateSearchResults(messages);
+      _removeExpiredResults();
       notifier.addToHistory(effectiveQuery);
       if (mounted) {
         setState(() {
@@ -502,7 +521,27 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     );
   }
 
-  void _goToChat(String msgId) {
+  Future<void> _goToChat(String msgId) async {
+    if (!_ownerActive) return;
+    final generation = _searchGeneration;
+    final result = _resultFacts[msgId];
+    if (result != null &&
+        !result.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
+      _removeExpiredResults();
+      return;
+    }
+    if (result != null) {
+      final current = await FtsApi.to.refreshResultVisibility(result);
+      if (!mounted || !_ownerActive || generation != _searchGeneration) return;
+      if (current == null ||
+          !current.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
+        _resultFacts.remove(msgId);
+        ref.read(searchProvider.notifier).removeSearchResults({msgId});
+        _removeExpiredResults();
+        return;
+      }
+    }
+    if (!mounted) return;
     // 统一走 go_router：原生 push 的 ChatPage 内 go_router 调用会失灵
     context.push(
       '/chat/${widget.peerId}',
@@ -513,6 +552,22 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
         'sign': widget.peerSign,
         'msg_id': msgId,
       },
+    );
+  }
+
+  void _removeExpiredResults() {
+    if (!mounted || !_ownerActive) return;
+    final nowMs = DateTimeHelper.millisecond();
+    final expired = _resultFacts.values
+        .where((item) => !item.isVisibleAt(nowMs, _ownerUid))
+        .map((item) => item.id)
+        .toSet();
+    for (final id in expired) {
+      _resultFacts.remove(id);
+    }
+    ref.read(searchProvider.notifier).removeSearchResults(expired);
+    _resultExpiry.schedule(
+      _resultFacts.values.map((item) => item.expiresAtMs(_ownerUid)),
     );
   }
 

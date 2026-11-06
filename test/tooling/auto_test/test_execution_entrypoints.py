@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+import contextlib
 import copy
 import json
 import os
@@ -584,6 +585,57 @@ raise SystemExit(code)
                                 cwd=ROOT, text=True, capture_output=True, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('|web|web-shell|', result.stdout)
+
+    def test_fts_browser_invocation_forwards_its_fixed_same_origin_wasm(self):
+        from auto_test_lib import execution_adapters as adapters, execution_runner as runner
+        from auto_test_lib.execution_catalog import build_plan
+        target = 'test/unit_test/service/migration_v38_fts_web_test.dart'
+        plan = build_plan(ROOT, profile='web', targets=[target])
+        selected = [row for row in plan['instances'] if row['selected']]
+        with tempfile.TemporaryDirectory() as directory, contextlib.ExitStack() as stack, \
+                mock.patch.object(adapters, 'preflight_instance', return_value=[]), \
+                mock.patch.object(adapters, 'product_artifact_evidence', return_value={'errors': []}):
+            command, _, _ = runner._host_command(
+                ROOT, selected, {'SQLITE_WASM_URL': 'https://external-fixture.invalid/sqlite3.wasm'},
+                Path(directory), stack, adapters=adapters)
+        self.assertIn('--machine', command)
+        self.assertIn('--no-pub', command)
+        self.assertEqual('chrome', command[command.index('--platform') + 1])
+        self.assertIn('--dart-define=SQLITE_WASM_URL=/fixtures/sqlite3.wasm', command)
+        self.assertFalse(any('external-fixture.invalid' in argument for argument in command))
+
+    def test_sqlcipher_fts_needs_a_native_device_but_no_backend_or_product_artifact(self):
+        from auto_test_lib import execution_adapters as adapters
+        from auto_test_lib.execution_catalog import build_plan
+        target = 'integration_test/sqlcipher_fts_v38_draft_test.dart'
+        plan = build_plan(ROOT, profile='device-single', targets=[target])
+        selected = [row for row in plan['instances'] if row['selected']]
+        native = {'android': 'android-arm64', 'ios': 'ios', 'macos': 'darwin'}
+        self.assertEqual(set(native), {row['platform'] for row in selected})
+        env = {'IMBOY_EXECUTION_DEVICE': 'synthetic-native'}
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch.object(adapters.shutil, 'which', return_value='/synthetic/flutter'), \
+                mock.patch.object(adapters.socket, 'create_connection') as connect:
+            for item in selected:
+                with self.subTest(platform=item['platform']):
+                    device = {'id': 'synthetic-native', 'targetPlatform': native[item['platform']],
+                              'emulator': False}
+                    self.assertFalse(adapters.needs_backend(item))
+                    self.assertEqual([], adapters.preflight_instance(ROOT, item, env, [device], probe=True))
+                    self.assertIn('DEVICE_NOT_FOUND', adapters.preflight_instance(ROOT, item, env, []))
+                    invocation = adapters.build_invocation(ROOT, item, env, Path(directory), [device])
+                    self.assertEqual([], invocation['errors'])
+                    command = invocation['command']
+                    self.assertEqual('synthetic-native', command[command.index('-d') + 1])
+                    self.assertIn('--machine', command)
+                    self.assertIn('--no-test-assets', command)
+                    self.assertFalse(any('API_BASE_URL' in argument or 'TEST_PHONE' in argument
+                                         for argument in command))
+                    if item['platform'] != 'macos':
+                        errors = adapters.preflight_instance(ROOT, item, env, [{**device, 'emulator': True}])
+                        self.assertIn('ANDROID_EMULATOR_FORBIDDEN' if item['platform'] == 'android'
+                                      else 'IOS_SIMULATOR_FORBIDDEN', errors)
+            connect.assert_not_called()
 
     def test_coverage_counts_unique_lines_and_empty_evidence_fails(self):
         with tempfile.TemporaryDirectory() as directory:

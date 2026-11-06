@@ -416,6 +416,46 @@
     }
   ],
   "overrides": {
+    "test/fixtures/sqlite3.wasm": {
+      "kind": "fixture",
+      "source_dependencies": [
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Tracked symlink to the existing application WASM. Flutter browser tests serve test/ as their static root, so /fixtures/sqlite3.wasm uses the same local origin and introduces no fixture server or binary copy."
+      ]
+    },
+    "test/unit_test/service/migration_v38_fts_web_test.dart": {
+      "dart_defines": {
+        "SQLITE_WASM_URL": "/fixtures/sqlite3.wasm"
+      },
+      "source_dependencies": [
+        "test/fixtures/sqlite3.wasm",
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Browser-only FTS migration draft uses the existing application SQLite WASM via Flutter test static serving. The fixed same-origin fixture URL is forwarded by the shared runner; no backend, account or externally hosted WASM is required."
+      ]
+    },
+    "integration_test/sqlcipher_fts_v38_draft_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "dependencies": [
+        "native-sqlcipher"
+      ],
+      "reviewed_source_sha256": "3d7b8d800cd9053be17d57d9818be92a876b3db715785349e520ea89bdf221c5",
+      "basis": [
+        "Uses fresh temporary SQLCipher databases, a synthetic password and the production connection configurator. It performs no app bootstrap, login or backend request, and does not depend on generated product features.",
+        "The real native SQLCipher driver must report cipher_version and execute FTS5. Android/iOS require qualified physical devices; macOS uses its native SQLCipher implementation. Host SQLite and browser WASM cannot satisfy these obligations."
+      ]
+    },
     "test/uiux/contract/font_contract_test.dart": {
       "suite": "component",
       "platforms": [

@@ -510,6 +510,69 @@ class ExecutionCatalogTest(unittest.TestCase):
         self.assertEqual(full_web['reason_code'], 'OUT_OF_SCOPE')
         self.assertTrue(full_web['required'])
 
+    def add_fts_web_fixture(self):
+        target = 'test/unit_test/service/migration_v38_fts_web_test.dart'
+        fixture = 'test/fixtures/sqlite3.wasm'
+        source = 'web/sqlite3.wasm'
+        actual = load_contract(ROOT)
+        self.put(target, (ROOT / target).read_text())
+        destination = self.root / source
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes((ROOT / source).read_bytes())
+        self.git('add', '--', source)
+        alias = self.root / fixture
+        alias.parent.mkdir(parents=True, exist_ok=True)
+        alias.symlink_to((ROOT / fixture).readlink())
+        self.git('add', '--', fixture)
+        for path in (target, fixture):
+            self.cfg['overrides'][path] = actual['overrides'][path]
+        self.cfg['profiles']['web'] = actual['profiles']['web']
+        return target, fixture, source
+
+    def test_fts_browser_plan_uses_tracked_same_origin_application_wasm(self):
+        target, fixture, source = self.add_fts_web_fixture()
+        selected = [row for row in self.plan(profile='web')['instances'] if row['selected']]
+        self.assertEqual([(target, 'web')], [(row['target'], row['platform']) for row in selected])
+        item = selected[0]
+        self.assertEqual('flutter-machine', item['runner'])
+        self.assertEqual({'SQLITE_WASM_URL': '/fixtures/sqlite3.wasm'}, item['dart_defines'])
+        self.assertEqual({fixture, source}, set(item['source_dependencies']))
+        self.assertEqual('fixture', self.cfg['overrides'][fixture]['kind'])
+        served = self.root / 'test' / item['dart_defines']['SQLITE_WASM_URL'].lstrip('/')
+        self.assertTrue(served.samefile(self.root / source))
+        self.assertEqual(b'\x00asm\x01\x00\x00\x00', served.read_bytes()[:8])
+        self.assertFalse(item.get('required_env'))
+
+    def test_fts_wasm_fixture_must_be_tracked_and_resolve_to_a_present_asset(self):
+        _, fixture, source = self.add_fts_web_fixture()
+        self.git('rm', '--cached', '--', fixture)
+        self.fail('DANGLING_OVERRIDE')
+        self.git('add', '--', fixture)
+        (self.root / source).unlink()
+        self.fail('DANGLING_OVERRIDE')
+
+    def test_sqlcipher_fts_offline_contract_retains_each_native_platform(self):
+        target = 'integration_test/sqlcipher_fts_v38_draft_test.dart'
+        self.put(target, (ROOT / target).read_text())
+        self.cfg['platforms'].append('ios')
+        self.cfg['overrides'][target] = load_contract(ROOT)['overrides'][target]
+        native = [row for row in self.plan(profile='full')['instances']
+                  if row['selected'] and row['target'] == target]
+        self.assertEqual({'android', 'ios', 'macos'}, {row['platform'] for row in native})
+        for row in native:
+            self.assertEqual('device-single', row['suite'])
+            self.assertEqual('flutter-device', row['runner'])
+            self.assertTrue(row['offline'])
+            self.assertEqual('any', row['product_contract']['manifest_profile'])
+            self.assertIn('native-sqlcipher', row['dependencies'])
+            self.assertFalse({'isolated-backend', 'isolated-accounts'} & set(row['dependencies']))
+        scoped = {row['platform']: row for row in self.plan(profile='full', platforms=['linux'])['instances']
+                  if row['target'] == target}
+        self.assertEqual('PLATFORM_NA', scoped['linux']['reason_code'])
+        for platform in ('android', 'ios', 'macos'):
+            self.assertEqual('OUT_OF_SCOPE', scoped[platform]['reason_code'])
+            self.assertTrue(scoped[platform]['required'])
+
     def test_saved_selectors_and_coverage_eligibility_are_explicit(self):
         plan = self.plan(platforms=['linux'])
         self.assertEqual(plan['selectors']['platforms'], ['linux'])

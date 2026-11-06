@@ -12,6 +12,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
 import 'package:imboy/service/schema_contract.dart';
 import 'package:imboy/service/schema_fingerprint.dart';
 
@@ -117,6 +118,89 @@ void main() {
         await SchemaContract.verifyInvariants(db, version: 31),
         isNotEmpty,
         reason: '空库对 v31 invariant 必须报缺失',
+      );
+    });
+  });
+
+  group('v38 草稿结构准入（不注册迁移）', () {
+    late Database db;
+    setUp(() async {
+      db = await openFixtureDatabaseAtVersion(version: 37);
+      await db.transaction((txn) async {
+        for (final sql in upgradeV38Fts.sqlStatements) {
+          await txn.execute(sql);
+        }
+      });
+    });
+    tearDown(() async => db.close());
+
+    test('完整草稿满足继承的业务结构和全部 FTS DDL', () async {
+      expect(await SchemaContract.verifyInvariants(db, version: 38), isEmpty);
+    });
+
+    test('v38 继续要求 v37 来源字段和 v36 TEXT 消息标识', () async {
+      await db.execute('ALTER TABLE channel DROP COLUMN scope');
+      await db.execute('ALTER TABLE channel DROP COLUMN workspace_id');
+      await db.execute('ALTER TABLE msg_c2s RENAME TO msg_c2s_tampered');
+      await db.execute('CREATE TABLE msg_c2s (id INTEGER)');
+      final violations = await SchemaContract.verifyInvariants(db, version: 38);
+      expect(violations, contains('missing column: channel.scope (v38)'));
+      expect(
+        violations,
+        contains('missing column: channel.workspace_id (v38)'),
+      );
+      expect(violations, contains('expected TEXT: msg_c2s.id (v38)'));
+    });
+
+    test('每个 FTS 视图、虚表及五类触发器都是必要结构', () async {
+      for (final table in ['msg_c2c', 'msg_c2g']) {
+        for (final suffix in [
+          'guard_insert',
+          'guard_update',
+          'insert',
+          'after_update',
+          'delete',
+        ]) {
+          final name = '${table}_fts_$suffix';
+          await db.execute('DROP TRIGGER $name');
+          expect(
+            await SchemaContract.verifyInvariants(db, version: 38),
+            contains('missing trigger: $name (v38)'),
+          );
+        }
+        await db.execute('DROP VIEW ${table}_fts_content');
+        await db.execute('DROP TABLE ${table}_fts');
+        final violations = await SchemaContract.verifyInvariants(
+          db,
+          version: 38,
+        );
+        expect(
+          violations,
+          contains('missing view: ${table}_fts_content (v38)'),
+        );
+        expect(violations, contains('missing table: ${table}_fts (v38)'));
+      }
+    });
+
+    test('同名空触发器和旧 contentless FTS 不能伪装为 v38', () async {
+      await db.execute('DROP TRIGGER msg_c2c_fts_delete');
+      await db.execute(
+        'CREATE TRIGGER msg_c2c_fts_delete BEFORE DELETE ON msg_c2c '
+        'BEGIN SELECT 1; END;',
+      );
+      await db.execute('DROP TABLE msg_c2g_fts');
+      await db.execute(
+        'CREATE VIRTUAL TABLE msg_c2g_fts USING fts5('
+        "id, conversation_uk3, text_content, content='')",
+      );
+      final violations = await SchemaContract.verifyInvariants(db, version: 38);
+      expect(
+        violations,
+        contains('unexpected trigger definition: msg_c2c_fts_delete (v38)'),
+      );
+      expect(
+        violations,
+        contains('unexpected table definition: msg_c2g_fts (v38)'),
       );
     });
   });

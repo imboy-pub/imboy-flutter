@@ -9,6 +9,8 @@ import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/page/search/web_search_page.dart';
@@ -35,6 +37,53 @@ Future<void> waitForHistoryWrites(WidgetTester tester, Finder page) async {
 }
 
 void main() {
+  testWidgets(
+    'visible Web burn result is removed at expiry while unread remains',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      addTearDown(NtpHelper.debugReset);
+      final nowMs = DateTimeHelper.millisecond();
+      SearchItem message(String id, {bool unread = false}) => SearchItem(
+        type: SearchItemType.message,
+        id: id,
+        title: id,
+        message: MessageSearchResult(
+          id: id,
+          content: id,
+          fromId: unread ? '200' : '100',
+          toId: '200',
+          type: 'C2C',
+          createdAt: nowMs,
+          payload: {'text': id, 'burn': true, 'burn_after_ms': 60000},
+        ),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            home: WebSearchPage(
+              initialQuery: 'fixture',
+              messageSearchForTest: (_) async => [
+                message('live fixture'),
+                message('unread fixture', unread: true),
+              ],
+              otherSearchForTest: (_) async => [],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(resultTitle('live fixture'), findsOneWidget);
+      expect(resultTitle('unread fixture'), findsOneWidget);
+      NtpHelper.updateOffsetFromServer(nowMs + 61000);
+      await tester.pump(const Duration(seconds: 61));
+      expect(resultTitle('live fixture'), findsNothing);
+      expect(resultTitle('unread fixture'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets('two pages synchronize history clearing and adding', (
     tester,
   ) async {

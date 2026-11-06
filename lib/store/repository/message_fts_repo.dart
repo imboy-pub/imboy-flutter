@@ -12,7 +12,12 @@
 /// - 仅索引文本内容 (text_content)，不索引密文
 library;
 
+import 'dart:convert';
+
+import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/modules/messaging/public.dart'
+    show burnExpiresAtMs, isBurnExpiredAt;
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:synchronized/synchronized.dart';
@@ -23,21 +28,27 @@ class FtsSearchResult {
   final String conversationUk3;
   final String snippet;
   final double rank;
+  final int? expiresAtMs;
 
   FtsSearchResult({
     required this.id,
     required this.conversationUk3,
     required this.snippet,
     required this.rank,
+    this.expiresAtMs,
   });
 }
 
 /// 消息 FTS 仓库
 class MessageFtsRepo {
+  MessageFtsRepo({int Function()? nowMs})
+    : _nowMs = nowMs ?? DateTimeHelper.millisecond;
+
   // FTS5 has no unique constraint. All repo instances must serialize each
   // delete/insert pair so concurrent background reindex tasks cannot duplicate.
   static final _indexLock = Lock();
   final SqliteService _db = SqliteService.to;
+  final int Function() _nowMs;
 
   /// 向 FTS 索引中插入 C2C 消息
   ///
@@ -261,6 +272,7 @@ class MessageFtsRepo {
     bool Function()? isCurrent,
     int limit = 50,
   }) async {
+    if (query.trim().isEmpty || limit <= 0) return [];
     if (isCurrent != null && !isCurrent()) return [];
     final c2cResults = type == 'C2G'
         ? <FtsSearchResult>[]
@@ -285,7 +297,11 @@ class MessageFtsRepo {
           );
     if (isCurrent != null && !isCurrent()) return [];
 
-    final merged = [...c2cResults, ...c2gResults];
+    final now = _nowMs();
+    final merged = [
+      ...c2cResults,
+      ...c2gResults,
+    ].where((r) => r.expiresAtMs == null || r.expiresAtMs! > now).toList();
     // FTS5 rank 为负数，越负越相关；升序排列使最相关结果在前。
     // NaN 守卫：将 NaN 推到末尾。
     merged.sort((a, b) {
@@ -330,8 +346,8 @@ class MessageFtsRepo {
   /// id/conversation_uk3 列值（查询结果恒为 NULL），因此生产 schema 下
   /// JOIN 消息表回填消息身份（rowid == auto_id 对齐由索引写入保证），
   /// 会话/时间过滤也走消息表列；v38（content 视图）下 rowid 仍等于
-  /// auto_id，同一 SQL 两种版本通用。仅当消息表不存在（独立合成的
-  /// 常规 FTS5 mini schema）时才回退到直接查 FTS 表的旧路径。
+  /// auto_id，同一 SQL 两种版本通用。消息行不可用时不得绕过其生命周期
+  /// 约束直接返回索引中的旧正文。
   Future<List<FtsSearchResult>> _search({
     required String table,
     required String query,
@@ -341,7 +357,16 @@ class MessageFtsRepo {
     bool throwOnError = false,
     int limit = 50,
   }) async {
-    if (query.trim().isEmpty) return [];
+    if (query.trim().isEmpty || limit <= 0) return [];
+
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool isCurrent() =>
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isClearingSession;
+    if (!isCurrent()) return [];
 
     try {
       return await _searchJoined(
@@ -351,22 +376,10 @@ class MessageFtsRepo {
         startTime: startTime,
         endTime: endTime,
         limit: limit,
+        isCurrent: isCurrent,
       );
     } on Object catch (e) {
       iPrint('[FTS] JOIN 搜索失败: $e');
-      if (throwOnError) rethrow;
-    }
-    try {
-      return await _searchFtsOnly(
-        table: table,
-        query: query,
-        conversationUk3: conversationUk3,
-        startTime: startTime,
-        endTime: endTime,
-        limit: limit,
-      );
-    } catch (e) {
-      iPrint('[FTS] 搜索失败: $e');
       if (throwOnError) rethrow;
       return [];
     }
@@ -380,6 +393,7 @@ class MessageFtsRepo {
     int? startTime,
     int? endTime,
     required int limit,
+    required bool Function() isCurrent,
   }) async {
     // 转义 FTS5 特殊字符
     final safeQuery = _escapeFts5Query(query);
@@ -399,62 +413,75 @@ class MessageFtsRepo {
       conditions.add('message.created_at <= ?');
       params.add(endTime);
     }
-    params.add(limit);
     // 注意：snippet() 的首参必须是 FTS5 表名本身（别名会被当作普通
     // 列引用解析而报 no such column），因此 fts 表不使用别名。
     final sql =
         'SELECT message.id AS id, message.conversation_uk3 AS conversation_uk3, '
+        'message.payload, message.msg_type, message.status, '
+        'message.is_author, message.created_at, '
         "snippet($table, 2, '<b>', '</b>', '...', 32) as snippet, $table.rank AS rank "
         'FROM $table '
         'JOIN $messageTable AS message ON message.auto_id = $table.rowid '
         'WHERE $table MATCH ?${conditions.isEmpty ? '' : ' AND ${conditions.join(' AND ')}'} '
-        'ORDER BY $table.rank, message.conversation_uk3, message.id LIMIT ?';
+        'ORDER BY $table.rank, message.conversation_uk3, message.id LIMIT ? OFFSET ?';
 
-    final rows = await _db.rawQuery(sql, params, false, 5000);
-    return _rowsToResults(rows);
+    // Apply the shared chat deadline before the public result limit. A first
+    // batch full of expired matches must not hide later live messages. Keeping
+    // this in Dart also preserves the exact integer/string parsing contract.
+    final batchSize = limit < 64 ? 64 : limit;
+    final visible = <Map<String, Object?>>[];
+    var offset = 0;
+    while (isCurrent()) {
+      final rows = await _db.rawQuery(
+        sql,
+        [...params, batchSize, offset],
+        false,
+        5000,
+        true,
+      );
+      if (!isCurrent()) return [];
+      // Earlier batches may expire while the next SQLite query is awaited.
+      visible.removeWhere((row) => !_isVisibleMessage(row));
+      for (final row in rows) {
+        if (_isVisibleMessage(row)) visible.add(row);
+        if (visible.length == limit) {
+          visible.removeWhere((candidate) => !_isVisibleMessage(candidate));
+          if (visible.length == limit) return _rowsToResults(visible);
+        }
+      }
+      if (rows.length < batchSize) {
+        visible.removeWhere((row) => !_isVisibleMessage(row));
+        return _rowsToResults(visible);
+      }
+      offset += rows.length;
+    }
+    return [];
   }
 
-  /// 回退路径：直接查 FTS 表（无消息表的合成 mini schema）。
-  Future<List<FtsSearchResult>> _searchFtsOnly({
-    required String table,
-    required String query,
-    String? conversationUk3,
-    int? startTime,
-    int? endTime,
-    required int limit,
-  }) async {
-    final safeQuery = _escapeFts5Query(query);
-    final conditions = <String>['$table MATCH ?'];
-    final params = <dynamic>[safeQuery];
-    if (conversationUk3 != null && conversationUk3.isNotEmpty) {
-      conditions.add('$table.conversation_uk3 = ?');
-      params.add(conversationUk3);
+  bool _isVisibleMessage(Map<String, Object?> row) {
+    final status = row['status'];
+    if (status is int && status >= 30 && status <= 39) return false;
+    final raw = row['payload'];
+    if (raw is! String) return false;
+    dynamic decoded;
+    try {
+      decoded = jsonDecode(raw);
+    } on FormatException {
+      return false;
     }
-    if (startTime != null || endTime != null) {
-      final messageTable = table == 'msg_c2c_fts' ? 'msg_c2c' : 'msg_c2g';
-      final timeConditions = <String>['message.id = $table.id'];
-      if (startTime != null) {
-        timeConditions.add('message.created_at >= ?');
-        params.add(startTime);
-      }
-      if (endTime != null) {
-        timeConditions.add('message.created_at <= ?');
-        params.add(endTime);
-      }
-      conditions.add(
-        'EXISTS (SELECT 1 FROM $messageTable AS message '
-        'WHERE ${timeConditions.join(' AND ')})',
-      );
+    if (decoded is! Map<String, dynamic>) return false;
+    if (decoded['burn_deleted'] == true ||
+        extractTextContent(row['msg_type'] as String?, decoded).isEmpty) {
+      return false;
     }
-    params.add(limit);
-    final sql =
-        'SELECT id, conversation_uk3, '
-        'snippet($table, 2, \'<b>\', \'</b>\', \'...\', 32) as snippet, '
-        'rank FROM $table WHERE ${conditions.join(' AND ')} '
-        'ORDER BY rank, conversation_uk3, id LIMIT ?';
-
-    final rows = await _db.rawQuery(sql, params, false, 5000);
-    return _rowsToResults(rows);
+    final createdAt = row['created_at'];
+    return !isBurnExpiredAt(
+      decoded,
+      _nowMs(),
+      fallbackStartMs: row['is_author'] == 1 && createdAt is int
+          ? createdAt
+          : 0,
+    );
   }
 
   List<FtsSearchResult> _rowsToResults(List<Map<String, Object?>> rows) {
@@ -464,6 +491,12 @@ class MessageFtsRepo {
         conversationUk3: row['conversation_uk3'] as String? ?? '',
         snippet: row['snippet'] as String? ?? '',
         rank: (row['rank'] as num?)?.toDouble() ?? 0.0,
+        expiresAtMs: burnExpiresAtMs(
+          jsonDecode(row['payload']! as String) as Map<String, dynamic>,
+          fallbackStartMs: row['is_author'] == 1 && row['created_at'] is int
+              ? row['created_at']! as int
+              : 0,
+        ),
       );
     }).toList();
   }

@@ -8,9 +8,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/page/search/search_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/api/fts_api.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _DelayedAdapter implements HttpClientAdapter {
@@ -38,9 +42,88 @@ ResponseBody _response(int status) => ResponseBody.fromString(
   },
 );
 
+class _SearchResponseApi implements FtsApi {
+  _SearchResponseApi(this.response);
+  final MessageSearchResponse response;
+  @override
+  Future<MessageSearchResponse?> searchConversationMessages({
+    required String keyword,
+    required String conversationUk3,
+    int page = 1,
+    int size = 20,
+    String? msgType,
+  }) async => response;
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   // FtsApi is a singleton and retains the first injected Dio adapter.
   final sharedAdapter = _DelayedAdapter();
+  testWidgets(
+    'chat search removes a visible burn result at its known deadline',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      addTearDown(NtpHelper.debugReset);
+      final nowMs = DateTimeHelper.millisecond();
+      MessageSearchResult item(String id, {bool unread = false}) =>
+          MessageSearchResult(
+            id: id,
+            content: id,
+            fromId: unread ? '1002' : '1001',
+            toId: '1002',
+            type: 'C2C',
+            createdAt: nowMs,
+            payload: {'text': id, 'burn': true, 'burn_after_ms': 60000},
+          );
+      final api = _SearchResponseApi(
+        MessageSearchResponse(
+          items: [item('live fixture'), item('unread fixture', unread: true)],
+          total: 2,
+        ),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [ftsApiProvider.overrideWithValue(api)],
+          child: const MaterialApp(
+            home: SearchChatPage(
+              conversationUk3: 'C2C_1001_1002',
+              type: 'C2C',
+              peerId: '1002',
+              peerTitle: '',
+              peerAvatar: '',
+              peerSign: '',
+            ),
+          ),
+        ),
+      );
+      final field = find.byType(EditableText);
+      final scoped = ProviderScope.containerOf(tester.element(field));
+      for (final uid in ['1001', '1002']) {
+        scoped
+            .read(searchProvider.notifier)
+            .cacheContact(
+              uid,
+              ContactModel(peerId: uid, nickname: 'synthetic $uid'),
+            );
+      }
+      await tester.enterText(field, 'fixture');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+      expect(scoped.read(searchProvider).searchResults, hasLength(2));
+      final page = scoped.read(searchProvider).currentPage;
+      NtpHelper.updateOffsetFromServer(nowMs + 61000);
+      await tester.pump(const Duration(seconds: 61));
+      expect(scoped.read(searchProvider).searchResults.map((item) => item.id), [
+        'unread fixture',
+      ]);
+      expect(scoped.read(searchProvider).currentPage, page);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets(
     'older failures and cleared searches do not overwrite current state',
     (tester) async {

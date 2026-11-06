@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
 import 'package:imboy/service/sqflite_init.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -15,14 +16,10 @@ void main() {
     final directory = await temporaryDirectory.createTemp('imboy_fts_v38_');
     final databasePath = path.join(directory.path, 'synthetic.db');
     const password = 'synthetic-test-password';
-    Future<void> configure(Database database) async {
-      await database.execute('PRAGMA recursive_triggers = ON');
-    }
-
     var db = await openEncryptedDatabase(
       databasePath,
       password: password,
-      onConfigure: configure,
+      onConfigure: SqliteService.configureConnection,
     );
     try {
       final cipher = await db.rawQuery('PRAGMA cipher_version');
@@ -78,7 +75,7 @@ void main() {
       db = await openEncryptedDatabase(
         databasePath,
         password: password,
-        onConfigure: configure,
+        onConfigure: SqliteService.configureConnection,
       );
       final recursive = await db.rawQuery('PRAGMA recursive_triggers');
       expect(recursive.single.values.single, 1);
@@ -177,7 +174,7 @@ void main() {
       password: password,
       singleInstance: false,
       onConfigure: (database) async {
-        await database.execute('PRAGMA recursive_triggers = ON');
+        await SqliteService.configureConnection(database);
         await database.rawQuery('PRAGMA journal_mode = WAL');
       },
     );

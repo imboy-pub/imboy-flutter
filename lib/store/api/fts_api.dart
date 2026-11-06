@@ -9,6 +9,9 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/modules/messaging/public.dart' show burnExpiresAtMs;
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/service/sqlite.dart';
 
 /// 后端 ERR_FEATURE_DISABLED 错误码（见 imboy/include/error_code.hrl:225）。
 /// 当 E2EE 模式为 secure_e2ee/required 时，后端策略强制关闭 message_search。
@@ -41,6 +44,8 @@ class MessageSearchResult {
   final Map<String, dynamic>? payload;
   final int? status;
   final String? highlight; // 后端 ts_headline 高亮片段
+  // 本地回查时保留真实 is_author；远端响应未给出时由当前用户 ID 判断。
+  final int? isAuthor;
 
   MessageSearchResult({
     required this.id,
@@ -53,7 +58,23 @@ class MessageSearchResult {
     this.payload,
     this.status,
     this.highlight,
+    this.isAuthor,
   });
+
+  int? expiresAtMs(String currentUid) => burnExpiresAtMs(
+    payload ?? const {},
+    fallbackStartMs:
+        (isAuthor == 1 || (isAuthor == null && fromId == currentUid))
+        ? createdAt
+        : 0,
+  );
+
+  bool isVisibleAt(int nowMs, String currentUid) {
+    if (payload?['burn_deleted'] == true) return false;
+    if (status != null && status! >= 30 && status! < 40) return false;
+    final deadline = expiresAtMs(currentUid);
+    return deadline == null || nowMs < deadline;
+  }
 
   factory MessageSearchResult.fromJson(Map<String, dynamic> json) {
     final statusValue = json['status'];
@@ -106,7 +127,7 @@ class MessageSearchResult {
       fromId: fromId,
       toId: toId,
       payload: payload ?? {'text': content},
-      isAuthor: 0,
+      isAuthor: isAuthor ?? 0,
       conversationUk3: '',
       createdAt: createdAt,
       msgType: msgType,
@@ -119,7 +140,14 @@ class MessageSearchResponse {
   final List<MessageSearchResult> items;
   final int total;
 
-  MessageSearchResponse({required this.items, required this.total});
+  /// 本页原始条数用于继续翻页；客户端过滤到期结果不能截断后续页。
+  final int sourceItemCount;
+
+  MessageSearchResponse({
+    required this.items,
+    required this.total,
+    int? sourceItemCount,
+  }) : sourceItemCount = sourceItemCount ?? items.length;
 
   factory MessageSearchResponse.fromJson(Map<String, dynamic> json) {
     // 后端返回 'list'，兼容旧字段名 'items'
@@ -150,6 +178,100 @@ class FtsApi extends HttpClient {
   /// 获取单例实例
   static FtsApi get to => _instance;
 
+  /// 远端搜索不能覆盖本机的已读期限、撤回或焚毁墓碑。没有本地行时
+  /// 保留远端事实；后端未提供 expire_at，不能在客户端猜它的期限。
+  Future<MessageSearchResponse> _withLocalVisibility(
+    MessageSearchResponse response, {
+    required String uid,
+    required int sessionGeneration,
+  }) async {
+    final session = UserRepoLocal.to;
+    bool current() =>
+        session.currentUid == uid &&
+        session.isCurrentSession(sessionGeneration) &&
+        !session.isAuthTransitioning;
+    final visible = <MessageSearchResult>[];
+    for (final item in response.items) {
+      if (!current()) return MessageSearchResponse(items: [], total: 0);
+      if (!item.isVisibleAt(DateTimeHelper.millisecond(), uid)) continue;
+      var resolved = item;
+      var localChecked = false;
+      if (item.type == 'C2C' || item.type == 'C2G') {
+        try {
+          final db = await SqliteService.to.db;
+          if (!current()) return MessageSearchResponse(items: [], total: 0);
+          if (db != null) {
+            final table = item.type == 'C2G' ? 'msg_c2g' : 'msg_c2c';
+            final rows = await db.rawQuery(
+              'SELECT payload, created_at, is_author, status, msg_type FROM $table '
+              'WHERE id = ? AND from_id = ? AND to_id = ? LIMIT 1',
+              [item.id, item.fromId, item.toId],
+            );
+            if (!current()) return MessageSearchResponse(items: [], total: 0);
+            localChecked = true;
+            if (rows.isNotEmpty) {
+              final row = rows.first;
+              final payload = parseModelJsonMap(row['payload']) ?? item.payload;
+              resolved = MessageSearchResult(
+                id: item.id,
+                content:
+                    parseModelNullableString(payload?['text']) ?? item.content,
+                fromId: item.fromId,
+                toId: item.toId,
+                type: item.type,
+                createdAt: parseModelInt(row['created_at']),
+                msgType:
+                    parseModelNullableString(row['msg_type']) ?? item.msgType,
+                payload: payload,
+                status: row['status'] == null
+                    ? item.status
+                    : parseModelInt(row['status']),
+                isAuthor: row['is_author'] == null
+                    ? item.isAuthor
+                    : parseModelInt(row['is_author']),
+                // 远端高亮可能仍含编辑前正文，不与本机新 payload 混用。
+              );
+            }
+          }
+        } on Exception {
+          // 下方对 burn 结果明确报错；不能把读取失败解释为本机未读。
+        }
+      }
+      if (!current()) return MessageSearchResponse(items: [], total: 0);
+      if (!localChecked &&
+          (item.payload?['burn'] == true || item.payload?['is_burn'] == true)) {
+        throw const FormatException('Local burn visibility is unavailable');
+      }
+      if (resolved.isVisibleAt(DateTimeHelper.millisecond(), uid)) {
+        visible.add(resolved);
+      }
+    }
+    final removed = response.items.length - visible.length;
+    return MessageSearchResponse(
+      items: visible,
+      total: response.total > removed ? response.total - removed : 0,
+      sourceItemCount: response.sourceItemCount,
+    );
+  }
+
+  /// 点击前重新读取当前账号的已知事实，处理搜索后才开始的接收方计时。
+  Future<MessageSearchResult?> refreshResultVisibility(
+    MessageSearchResult item,
+  ) async {
+    final session = UserRepoLocal.to;
+    try {
+      final response = await _withLocalVisibility(
+        MessageSearchResponse(items: [item], total: 1),
+        uid: session.currentUid,
+        sessionGeneration: session.sessionGeneration,
+      );
+      return response.items.firstOrNull;
+    } on FormatException {
+      // 点击时不能核验也不打开旧正文；重新搜索会显示明确的错误态。
+      return null;
+    }
+  }
+
   /// 搜索消息
   ///
   /// [keyword] 搜索关键词
@@ -169,6 +291,10 @@ class FtsApi extends HttpClient {
     if (keyword.trim().isEmpty) {
       return MessageSearchResponse(items: [], total: 0);
     }
+
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final sessionGeneration = session.sessionGeneration;
 
     final queryParams = <String, dynamic>{
       'keyword': keyword.trim(),
@@ -207,7 +333,11 @@ class FtsApi extends HttpClient {
 
     final payload = resp.payload;
     if (payload is Map<String, dynamic>) {
-      return MessageSearchResponse.fromJson(payload);
+      return _withLocalVisibility(
+        MessageSearchResponse.fromJson(payload),
+        uid: uid,
+        sessionGeneration: sessionGeneration,
+      );
     }
 
     return null;
@@ -242,7 +372,9 @@ class FtsApi extends HttpClient {
       queryParams['msg_type'] = msgType;
     }
 
-    final uid = UserRepoLocal.to.currentUid;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final sessionGeneration = session.sessionGeneration;
     final scope = buildConversationFilter(conversationUk3, uid);
     queryParams.addAll(scope);
 
@@ -265,7 +397,11 @@ class FtsApi extends HttpClient {
     final payload = resp.payload;
     if (payload is Map<String, dynamic>) {
       _validateConversationResponse(payload, uid, scope);
-      return MessageSearchResponse.fromJson(payload);
+      return _withLocalVisibility(
+        MessageSearchResponse.fromJson(payload),
+        uid: uid,
+        sessionGeneration: sessionGeneration,
+      );
     }
 
     throw const FormatException('Invalid conversation search response');

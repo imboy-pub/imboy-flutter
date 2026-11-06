@@ -1,7 +1,206 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/fts_api.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
+
+class _SearchFactsDatabase implements Database {
+  _SearchFactsDatabase(this.lookup);
+  final Future<List<Map<String, Object?>>> Function(List<Object?>? arguments)
+  lookup;
+  int queries = 0;
+  @override
+  bool get isOpen => true;
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) {
+    queries++;
+    return lookup(arguments);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  group('search visibility preserves burn semantics', () {
+    MessageSearchResult result({
+      String from = '100',
+      int? isAuthor,
+      Map<String, dynamic>? payload,
+      int? status,
+    }) => MessageSearchResult(
+      id: 'burn',
+      content: 'synthetic',
+      fromId: from,
+      toId: '200',
+      type: 'C2C',
+      createdAt: 1000,
+      isAuthor: isAuthor,
+      status: status,
+      payload: payload ?? {'burn': true, 'burn_after_ms': 100},
+    );
+
+    test(
+      'sender expires at creation boundary; unread receiver stays searchable',
+      () {
+        expect(result().isVisibleAt(1099, '100'), isTrue);
+        expect(result().isVisibleAt(1100, '100'), isFalse);
+        final unread = result(from: '200');
+        expect(unread.expiresAtMs('100'), isNull);
+        expect(unread.isVisibleAt(100000, '100'), isTrue);
+        expect(unread.payload!.containsKey('burn_read_at'), isFalse);
+      },
+    );
+
+    test('local author fact, read timestamp, tombstone and revocation are respected', () {
+      expect(result(isAuthor: 0).expiresAtMs('100'), isNull);
+      final read = result(
+        from: '200',
+        payload: {
+          'is_burn': true,
+          'expiry_time': '100',
+          'burn_read_at': '5000',
+        },
+      );
+      expect(read.isVisibleAt(5099, '100'), isTrue);
+      expect(read.isVisibleAt(5100, '100'), isFalse);
+      expect(
+        result(payload: {'burn_deleted': true}).isVisibleAt(0, '100'),
+        isFalse,
+      );
+      expect(result(payload: {}, status: 30).isVisibleAt(0, '100'), isFalse);
+      expect(
+        result(payload: {}, status: 20).isVisibleAt(100000, '100'),
+        isTrue,
+      );
+    });
+  });
+
+  group('remote search checks current local facts', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+    });
+    tearDown(() => SqliteService.setDbForTest(null));
+    MessageSearchResult remote() => MessageSearchResult(
+      id: 'received-burn',
+      content: 'remote',
+      fromId: '200',
+      toId: '100',
+      type: 'C2C',
+      createdAt: 1000,
+      payload: {'text': 'remote', 'burn': true, 'burn_after_ms': 1000},
+      highlight: 'old remote text',
+    );
+
+    test(
+      'local expiry, tombstone and revocation override an unread remote copy',
+      () async {
+        for (final row in [
+          {
+            'payload': jsonEncode({
+              'burn': true,
+              'burn_after_ms': 1000,
+              'burn_read_at': 1,
+            }),
+            'is_author': 0,
+            'status': 20,
+          },
+          {'payload': '{"burn_deleted":true}', 'is_author': 0, 'status': 20},
+          {'payload': '{"text":"revoked"}', 'is_author': 0, 'status': 30},
+        ]) {
+          final db = _SearchFactsDatabase((arguments) async {
+            expect(arguments, ['received-burn', '200', '100']);
+            return [
+              {...row, 'created_at': 1000},
+            ];
+          });
+          SqliteService.setDbForTest(db);
+          expect(await FtsApi.to.refreshResultVisibility(remote()), isNull);
+          expect(db.queries, 1);
+        }
+      },
+    );
+
+    test(
+      'live local countdown is retained and missing local row is not deletion',
+      () async {
+        final readAt = DateTimeHelper.millisecond();
+        SqliteService.setDbForTest(
+          _SearchFactsDatabase(
+            (_) async => [
+              {
+                'payload': jsonEncode({
+                  'text': 'local',
+                  'burn': true,
+                  'burn_after_ms': 60000,
+                  'burn_read_at': readAt,
+                }),
+                'created_at': 1000,
+                'is_author': 0,
+                'status': 20,
+              },
+            ],
+          ),
+        );
+        final live = await FtsApi.to.refreshResultVisibility(remote());
+        expect(live, isNotNull);
+        expect(live!.expiresAtMs('100'), readAt + 60000);
+        expect(live.content, 'local');
+        expect(live.highlight, isNull);
+        SqliteService.setDbForTest(_SearchFactsDatabase((_) async => []));
+        final unknown = await FtsApi.to.refreshResultVisibility(remote());
+        expect(unknown, isNotNull);
+        expect(unknown!.expiresAtMs('100'), isNull);
+      },
+    );
+
+    test(
+      'unavailable local facts cannot authorize opening a remote burn result',
+      () async {
+        SqliteService.setDbUnavailableForTest();
+        expect(await FtsApi.to.refreshResultVisibility(remote()), isNull);
+        SqliteService.setDbForTest(
+          _SearchFactsDatabase(
+            (_) async => throw Exception('synthetic query failure'),
+          ),
+        );
+        expect(await FtsApi.to.refreshResultVisibility(remote()), isNull);
+      },
+    );
+
+    test(
+      'account change during hydration discards the old account response',
+      () async {
+        final entered = Completer<void>();
+        final release = Completer<void>();
+        final db = _SearchFactsDatabase((_) async {
+          entered.complete();
+          await release.future;
+          return [];
+        });
+        SqliteService.setDbForTest(db);
+        final pending = FtsApi.to.refreshResultVisibility(remote());
+        await entered.future;
+        await StorageService.to.setString(Keys.currentUid, '300');
+        release.complete();
+        expect(await pending, isNull);
+        expect(db.queries, 1);
+      },
+    );
+  });
+
   group('MessageSearchResult.fromJson', () {
     test('parses mixed value types and payload json string safely', () {
       final result = MessageSearchResult.fromJson({

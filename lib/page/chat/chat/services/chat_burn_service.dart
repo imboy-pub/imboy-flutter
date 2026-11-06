@@ -72,12 +72,7 @@ class ChatBurnService {
     int nowMs, {
     int fallbackStartMs = 0,
   }) {
-    if (!isBurnPayload(payload)) return false;
-    final int burnAfter = burnAfterMsFromPayload(payload);
-    if (burnAfter <= 0) return false;
-    final int startMs = burnCountdownStartMs(payload, fallbackStartMs);
-    if (startMs <= 0) return false;
-    return startMs + burnAfter <= nowMs;
+    return isBurnExpiredAt(payload, nowMs, fallbackStartMs: fallbackStartMs);
   }
 
   // ===== 定时器调度 =====
