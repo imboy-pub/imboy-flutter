@@ -1903,6 +1903,17 @@
         "Android standard flavor only: the controlled package is pub.imboy.app. iOS/macOS have no equivalent implemented interruption controller.",
         "Protocol 2 readiness is emitted inside the caller-owned transaction only after the real 16→17 migration changes user_version and adds conversation.mention_unread. A bounded 30-second checkpoint precedes 17→31; legacy pre-transaction evidence is rejected. Real SQLCipher device interruption remains separately required."
       ]
+    },
+    "test/customer_service/cs_asset_put_transport_web_test.dart": {
+      "dart_defines": {
+        "CS_DIRECT_WEB_FIXTURE": "true"
+      },
+      "source_dependencies": [
+        "test/customer_service/fixtures/cs_direct_web_server.cjs"
+      ],
+      "basis": [
+        "Browser-only direct web-put transport contract (307/308 redirect rejection, cookie omission, PUT timeout/cancel) needs the committed same-host Node fixture on 127.0.0.1:19972. CI starts it in the web worker prepare step; the dart-define un-skips the two cases. No backend, account or externally hosted service is required."
+      ]
     }
   },
   "profiles": {
