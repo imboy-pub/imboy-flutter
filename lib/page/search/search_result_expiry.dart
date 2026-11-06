@@ -6,12 +6,13 @@ import 'package:imboy/component/helper/datetime.dart';
 /// 搜索结果只为最近的已知期限安排一个计时器；恢复前台时重新核验。
 /// 未知的接收方已读时间不在这里补造，搜索不会启动阅后即焚计时。
 class SearchResultExpiry extends WidgetsBindingObserver {
-  SearchResultExpiry(this.onExpired, {int Function()? nowMs})
+  SearchResultExpiry(this.onExpired, {this.onResume, int Function()? nowMs})
     : nowMs = nowMs ?? DateTimeHelper.millisecond {
     WidgetsBinding.instance.addObserver(this);
   }
 
   final VoidCallback onExpired;
+  final VoidCallback? onResume;
   final int Function() nowMs;
   Timer? _timer;
   bool _disposed = false;
@@ -39,7 +40,9 @@ class SearchResultExpiry extends WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!_disposed && state == AppLifecycleState.resumed) onExpired();
+    if (!_disposed && state == AppLifecycleState.resumed) {
+      (onResume ?? onExpired)();
+    }
   }
 
   void dispose() {

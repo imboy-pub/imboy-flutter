@@ -85,6 +85,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   late final SearchResultExpiry _resultExpiry;
   Map<String, MessageSearchResult> _resultFacts = {};
   int _searchGeneration = 0;
+  int _visibilityGeneration = 0;
   bool _scopeResetPending = false;
   int _scopeGeneration = 0;
   late final String _ownerUid;
@@ -106,7 +107,10 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
   @override
   void initState() {
     super.initState();
-    _resultExpiry = SearchResultExpiry(_removeExpiredResults);
+    _resultExpiry = SearchResultExpiry(
+      _removeExpiredResults,
+      onResume: () => unawaited(_refreshResultFacts()),
+    );
     final user = UserRepoLocal.to;
     _ownerUid = user.currentUid;
     _ownerSession = user.sessionGeneration;
@@ -525,25 +529,27 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
     if (!_ownerActive) return;
     final generation = _searchGeneration;
     final result = _resultFacts[msgId];
-    if (result != null &&
-        !result.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
+    if (result == null) return;
+    if (!result.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
       _removeExpiredResults();
       return;
     }
-    if (result != null) {
-      final current = await FtsApi.to.refreshResultVisibility(result);
-      if (!mounted || !_ownerActive || generation != _searchGeneration) return;
-      if (current == null ||
-          !current.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
-        _resultFacts.remove(msgId);
-        ref.read(searchProvider.notifier).removeSearchResults({msgId});
-        _removeExpiredResults();
-        return;
-      }
+    final current = await ref
+        .read(ftsApiProvider)
+        .refreshResultVisibility(result);
+    if (!mounted || !_ownerActive || generation != _searchGeneration) return;
+    if (current == null ||
+        !current.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
+      _resultFacts.remove(msgId);
+      ref.read(searchProvider.notifier).removeSearchResults({msgId});
+      _removeExpiredResults();
+      return;
     }
+    _resultFacts[msgId] = current;
+    _removeExpiredResults();
     if (!mounted) return;
     // 统一走 go_router：原生 push 的 ChatPage 内 go_router 调用会失灵
-    context.push(
+    await context.push(
       '/chat/${widget.peerId}',
       extra: {
         'type': widget.type,
@@ -553,6 +559,39 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
         'msg_id': msgId,
       },
     );
+    if (mounted && _ownerActive && generation == _searchGeneration) {
+      await _refreshResultFacts();
+    }
+  }
+
+  /// 接收方可能在聊天页才开始倒计时；返回/恢复时重新读取本机事实。
+  Future<void> _refreshResultFacts() async {
+    if (!mounted || !_ownerActive) return;
+    _removeExpiredResults();
+    if (ref.read(searchProvider).isLoading) return;
+    final search = _searchGeneration;
+    final refresh = ++_visibilityGeneration;
+    final snapshot = Map<String, MessageSearchResult>.of(_resultFacts);
+    for (final item in snapshot.values) {
+      final current = await ref
+          .read(ftsApiProvider)
+          .refreshResultVisibility(item);
+      if (!mounted ||
+          !_ownerActive ||
+          search != _searchGeneration ||
+          refresh != _visibilityGeneration) {
+        return;
+      }
+      // 定时器可能已删除结果；晚到的回查不能将其重新放回列表。
+      if (!identical(_resultFacts[item.id], item)) continue;
+      if (current == null) {
+        _resultFacts.remove(item.id);
+        ref.read(searchProvider.notifier).removeSearchResults({item.id});
+      } else {
+        _resultFacts[item.id] = current;
+      }
+      _removeExpiredResults();
+    }
   }
 
   void _removeExpiredResults() {

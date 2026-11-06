@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/const.dart';
@@ -12,10 +13,31 @@ import 'package:imboy/config/env.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/page/search/web_search_page.dart';
 import 'package:imboy/page/search/web_search_state.dart';
 import 'package:imboy/store/api/fts_api.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
+
+class _SearchFactsDatabase implements Database {
+  _SearchFactsDatabase(this.lookup);
+  final Future<List<Map<String, Object?>>> Function() lookup;
+  int queries = 0;
+  @override
+  bool get isOpen => true;
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) {
+    queries++;
+    return lookup();
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _AuthChanges extends ChangeNotifier {
   void change() => notifyListeners();
@@ -37,6 +59,101 @@ Future<void> waitForHistoryWrites(WidgetTester tester, Finder page) async {
 }
 
 void main() {
+  for (final navigate in [false, true]) {
+    testWidgets(
+      'Web ${navigate ? 'return' : 'resume'} reloads a countdown started after search',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+        await StorageService.init();
+        NtpHelper.debugReset();
+        var readAt = 0;
+        final db = _SearchFactsDatabase(
+          () async => [
+            {
+              'payload': jsonEncode({
+                'text': 'unread fixture',
+                'burn': true,
+                'burn_after_ms': 60000,
+                if (readAt > 0) 'burn_read_at': readAt,
+              }),
+              'created_at': 1,
+              'is_author': 0,
+              'status': 20,
+              'msg_type': 'text',
+            },
+          ],
+        );
+        SqliteService.setDbForTest(db);
+        addTearDown(() {
+          SqliteService.setDbForTest(null);
+          NtpHelper.debugReset();
+        });
+        final item = SearchItem(
+          type: SearchItemType.message,
+          id: 'unread',
+          title: 'unread fixture',
+          metadata: const {'conversationId': '200', 'type': 'C2C'},
+          message: MessageSearchResult(
+            id: 'unread',
+            content: 'unread fixture',
+            fromId: '200',
+            toId: '100',
+            type: 'C2C',
+            createdAt: 1,
+            payload: {
+              'text': 'unread fixture',
+              'burn': true,
+              'burn_after_ms': 60000,
+            },
+          ),
+        );
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, _) => WebSearchPage(
+                initialQuery: 'fixture',
+                messageSearchForTest: (_) async => [item],
+                otherSearchForTest: (_) async => [],
+              ),
+            ),
+            GoRoute(
+              path: '/chat/:peer',
+              builder: (_, _) => const Scaffold(body: Text('isolated chat')),
+            ),
+          ],
+        );
+        addTearDown(router.dispose);
+        await tester.pumpWidget(
+          ProviderScope(child: MaterialApp.router(routerConfig: router)),
+        );
+        await tester.pumpAndSettle();
+        expect(resultTitle('unread fixture'), findsOneWidget);
+        if (navigate) {
+          await tester.tap(resultTitle('unread fixture'));
+          await tester.pumpAndSettle();
+          expect(find.text('isolated chat'), findsOneWidget);
+        } else {
+          tester.binding.handleAppLifecycleStateChanged(
+            AppLifecycleState.paused,
+          );
+        }
+        readAt = DateTimeHelper.millisecond() - 61000;
+        if (navigate) {
+          router.pop();
+        } else {
+          tester.binding.handleAppLifecycleStateChanged(
+            AppLifecycleState.resumed,
+          );
+        }
+        await tester.pumpAndSettle();
+        expect(db.queries, greaterThanOrEqualTo(navigate ? 2 : 1));
+        expect(resultTitle('unread fixture'), findsNothing);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
   testWidgets(
     'visible Web burn result is removed at expiry while unread remains',
     (tester) async {

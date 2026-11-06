@@ -229,6 +229,10 @@ selected/status/reason_code/upstream、计数、日志、证据和全部尝试�
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
 SQLite 需宿主 sqlite3。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，
 `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` 指向库目录；真实加载仍需机器事件验证。
+FTS v38 草稿的宿主、Chrome/WASM 和原生 SQLCipher 三类验收及注册前阻塞，见
+[SQLite 迁移验证矩阵](../sqlite-migration-test-matrix.md#消息-fts-v38-的注册前验证--message-fts-v38-admission)。
+原生草稿使用合成临时库，属于显式 offline 目标；它不需要后端账号，但仍要求合格设备和
+真实加密驱动。The FTS draft's offline classification removes backend prerequisites, not native driver obligations.
 框架产品合同需要并排 `imboy`、`imboyadmin` 源码（可指定 `IMBOY_BACKEND_ROOT`）；只读源码
 不连接服务。当前 profile 以 manifest/生成物校验为准；额外 feature 需对应隔离构建，
 不能仅添加 dart-define 冒充 full-selected。

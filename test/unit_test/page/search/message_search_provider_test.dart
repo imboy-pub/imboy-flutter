@@ -1,13 +1,80 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:imboy/page/search/message_search_provider.dart';
 import 'package:imboy/page/search/search_result_expiry.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
+class _FilteredRemotePages implements FtsApi {
+  final pages = <int>[];
+  @override
+  Future<MessageSearchResponse?> searchMessages({
+    required String keyword,
+    int page = 1,
+    int size = 20,
+    String type = 'all',
+    int? startTime,
+    int? endTime,
+  }) async {
+    pages.add(page);
+    return page == 1
+        ? MessageSearchResponse(items: [], total: 1, sourceItemCount: 20)
+        : MessageSearchResponse(
+            items: [
+              MessageSearchResult(
+                id: 'live-on-second-page',
+                content: 'fixture',
+                fromId: '',
+                toId: '',
+                type: 'C2C',
+                createdAt: 1,
+              ),
+            ],
+            total: 1,
+          );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test(
+    'a filtered empty full remote page cannot hide the following live page',
+    () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      SqliteService.setDbUnavailableForTest();
+      final api = _FilteredRemotePages();
+      final container = ProviderContainer(
+        overrides: [ftsApiProvider.overrideWithValue(api)],
+      );
+      final subscription = container.listen(messageSearchProvider, (_, _) {});
+      try {
+        await container
+            .read(messageSearchProvider.notifier)
+            .performSearch(query: 'fixture');
+        final state = container.read(messageSearchProvider);
+        expect(api.pages, [1, 2]);
+        expect(state.searchResults.single.id, 'live-on-second-page');
+        expect(state.currentPage, 2);
+        expect(state.hasMore, isFalse);
+        expect(state.errorMessage, isEmpty);
+      } finally {
+        subscription.close();
+        container.dispose();
+        SqliteService.setDbForTest(null);
+      }
+    },
+  );
 
   test(
     'display deadlines use one timer, preserve unread, and recheck on resume',
@@ -24,7 +91,7 @@ void main() {
           payload: {
             'burn': true,
             'burn_after_ms': 100,
-            if (readAt != null) 'burn_read_at': readAt,
+            'burn_read_at': ?readAt,
           },
         );
         var results = [

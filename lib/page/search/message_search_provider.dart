@@ -37,11 +37,17 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
   int _searchGeneration = 0;
   bool _disposed = false;
   SearchResultExpiry? _resultExpiry;
+  int _visibilityGeneration = 0;
+
+  int get searchGeneration => _searchGeneration;
 
   @override
   MessageSearchState build() {
     _disposed = false;
-    _resultExpiry = SearchResultExpiry(removeExpiredResults);
+    _resultExpiry = SearchResultExpiry(
+      removeExpiredResults,
+      onResume: () => unawaited(refreshVisibleResults()),
+    );
     UserRepoLocal.to.addAuthListener(_onAuthChanged);
     ref.onDispose(() {
       _disposed = true;
@@ -251,27 +257,38 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
 
       // 仅本地 FTS 不可用或查询失败时降级；成功的空结果已在上面返回。
       MessageSearchResponse? response;
-
-      if (state.conversationUk3 != null && state.conversationUk3!.isNotEmpty) {
-        response = await ref
-            .read(ftsApiProvider)
-            .searchConversationMessages(
-              keyword: effectiveQuery,
-              conversationUk3: state.conversationUk3!,
-              page: page,
-              size: 20,
-            );
-      } else {
-        response = await ref
-            .read(ftsApiProvider)
-            .searchMessages(
-              keyword: effectiveQuery,
-              page: page,
-              size: 20,
-              type: state.selectedType,
-              startTime: state.getStartTimeStamp(),
-              endTime: state.getEndTimeStamp(),
-            );
+      while (true) {
+        if (state.conversationUk3 != null &&
+            state.conversationUk3!.isNotEmpty) {
+          response = await ref
+              .read(ftsApiProvider)
+              .searchConversationMessages(
+                keyword: effectiveQuery,
+                conversationUk3: state.conversationUk3!,
+                page: page,
+                size: 20,
+              );
+        } else {
+          response = await ref
+              .read(ftsApiProvider)
+              .searchMessages(
+                keyword: effectiveQuery,
+                page: page,
+                size: 20,
+                type: state.selectedType,
+                startTime: state.getStartTimeStamp(),
+                endTime: state.getEndTimeStamp(),
+              );
+        }
+        if (!isCurrent()) return;
+        if (response == null ||
+            response.items.isNotEmpty ||
+            response.sourceItemCount < 20) {
+          break;
+        }
+        // 客户端到期过滤可能清空满页；继续既有远端分页，不能用空态
+        // 隐藏后续仍有效的命中。每次 await 后保留取消/账号栅栏。
+        page++;
       }
 
       if (!isCurrent()) return;
@@ -398,6 +415,8 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         if (!isCurrent()) return null;
         if (rows.isNotEmpty) {
           final row = rows.first;
+          final payload = parseModelJsonMap(row['payload']);
+          if (payload == null) continue;
           items.add(
             MessageSearchResult(
               id: fts.id,
@@ -406,7 +425,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
               toId: '${row['to_id'] ?? ''}',
               type: msgType,
               createdAt: (row['created_at'] as num?)?.toInt() ?? 0,
-              payload: parseModelJsonMap(row['payload']),
+              payload: payload,
               msgType: parseModelNullableString(row['msg_type']),
               status: row['status'] == null
                   ? null
@@ -414,6 +433,7 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
               isAuthor: row['is_author'] == null
                   ? null
                   : parseModelInt(row['is_author']),
+              localRowObserved: true,
             ),
           );
         } else {
@@ -500,6 +520,50 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     final removed = state.searchResults.length - remaining.length;
     state = state.copyWith(
       searchResults: remaining,
+      totalResults: state.totalResults > removed
+          ? state.totalResults - removed
+          : 0,
+    );
+    removeExpiredResults();
+  }
+
+  /// 搜索时尚未读的消息可能在聊天页/后台开始计时，恢复展示时重读本机事实。
+  Future<void> refreshVisibleResults() async {
+    if (_disposed) return;
+    removeExpiredResults();
+    final snapshot = List<MessageSearchResult>.of(state.searchResults);
+    if (snapshot.isEmpty) return;
+    final request = _searchGeneration;
+    final refresh = ++_visibilityGeneration;
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool current() =>
+        !_disposed &&
+        request == _searchGeneration &&
+        refresh == _visibilityGeneration &&
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isAuthTransitioning;
+    final refreshed = <MessageSearchResult>[];
+    for (final item in snapshot) {
+      if (!current()) return;
+      final resolved = await ref
+          .read(ftsApiProvider)
+          .refreshResultVisibility(item);
+      if (!current()) return;
+      if (resolved != null) refreshed.add(resolved);
+    }
+    // 同期计时器已剔除的条目不能被较早发起的回查重新加回。
+    final present = state.searchResults
+        .map((item) => '${item.type}:${item.id}')
+        .toSet();
+    final items = refreshed
+        .where((item) => present.contains('${item.type}:${item.id}'))
+        .toList();
+    final removed = state.searchResults.length - items.length;
+    state = state.copyWith(
+      searchResults: items,
       totalResults: state.totalResults > removed
           ? state.totalResults - removed
           : 0,

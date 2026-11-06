@@ -110,6 +110,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   WebSearchState _state = const WebSearchState();
   WebMessageSearchFailure? _messageSearchFailure;
   int _searchGeneration = 0;
+  int _visibilityGeneration = 0;
   static Future<void> _historyWrites = Future.value();
   static int _pendingHistoryWrites = 0;
   static final _historyChanges = _WebSearchHistoryChanges();
@@ -117,7 +118,10 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   @override
   void initState() {
     super.initState();
-    _resultExpiry = SearchResultExpiry(_removeExpiredResults);
+    _resultExpiry = SearchResultExpiry(
+      _removeExpiredResults,
+      onResume: () => unawaited(_refreshResultFacts()),
+    );
     _historyChanges.addListener(_reloadHistoryAfterWrites);
     if (widget.authChangesForTest case final changes?) {
       changes.addListener(_onAuthChanged);
@@ -882,24 +886,8 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
   }
 
   /// 构建分组标题
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: isDark
-          ? AppColors.chatWebBackgroundDark
-          : AppColors.chatWebBackgroundLight,
-      child: Text(
-        title,
-        style: context.textStyle(
-          FontSizeType.footnote,
-          fontWeight: FontWeight.w500,
-          color: isDark
-              ? AppColors.chatWebSecondaryDark
-              : AppColors.chatWebSecondaryLight,
-        ),
-      ),
-    );
-  }
+  Widget _buildSectionHeader(String title, bool isDark) =>
+      WebSearchSectionHeader(title: title, isDark: isDark);
 
   /// 构建搜索结果项
   Widget _buildSearchItem(SearchItem item, bool isDark) => WebSearchResultTile(
@@ -910,16 +898,19 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
 
   /// 处理结果项点击
   Future<void> _onItemTap(SearchItem item) async {
+    if (_isAuthTransitioning) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final generation = _searchGeneration;
     if (!_isVisibleMessage(item, DateTimeHelper.millisecond())) {
       _removeExpiredResults();
       return;
     }
     if (item.message case final message?) {
-      final user = UserRepoLocal.to;
-      final uid = user.currentUid;
-      final session = user.sessionGeneration;
-      final generation = _searchGeneration;
-      final current = await FtsApi.to.refreshResultVisibility(message);
+      final current = await ref
+          .read(ftsApiProvider)
+          .refreshResultVisibility(message);
       if (!mounted ||
           _isAuthTransitioning ||
           user.currentUid != uid ||
@@ -943,11 +934,11 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
     if (!mounted) return;
     switch (item.type) {
       case SearchItemType.conversation:
-        context.push('/chat/${item.id}');
+        await context.push('/chat/${item.id}');
       case SearchItemType.message:
         // 跳转到消息详情
         if (item.metadata?['conversationId'] != null) {
-          context.push(
+          await context.push(
             searchMessageRoute(
               item.metadata!['conversationId'] as String,
               item.metadata?['type'] as String?,
@@ -958,10 +949,67 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
         // 资料页路由注册在 /contact 子树下：/contact/people/:id（与
         // contact_page 的跳转一致）。此前推 /people_info/:id 不存在，
         // 点联系人结果无反应。
-        context.push('/contact/people/${item.id}');
+        await context.push('/contact/people/${item.id}');
       case SearchItemType.group:
         // 群聊点击进入会话，统一走 /chat/:peerId?type=C2G
-        context.push('/chat/${item.id}?type=C2G');
+        await context.push('/chat/${item.id}?type=C2G');
+    }
+    if (mounted &&
+        !_isAuthTransitioning &&
+        user.currentUid == uid &&
+        user.isCurrentSession(session) &&
+        generation == _searchGeneration) {
+      await _refreshResultFacts();
+    }
+  }
+
+  Future<void> _refreshResultFacts() async {
+    if (!mounted || _isAuthTransitioning) return;
+    _removeExpiredResults();
+    if (_state.isLoading) return;
+    final user = UserRepoLocal.to;
+    final uid = user.currentUid;
+    final session = user.sessionGeneration;
+    final search = _searchGeneration;
+    final refresh = ++_visibilityGeneration;
+    final snapshot = List<SearchItem>.of(_state.results);
+    for (final item in snapshot) {
+      final message = item.message;
+      if (message == null) continue;
+      final current = await ref
+          .read(ftsApiProvider)
+          .refreshResultVisibility(message);
+      if (!mounted ||
+          _isAuthTransitioning ||
+          user.currentUid != uid ||
+          !user.isCurrentSession(session) ||
+          search != _searchGeneration ||
+          refresh != _visibilityGeneration) {
+        return;
+      }
+      // 只替换仍在展示的同一结果，不能复活已被计时器清掉的项目。
+      if (!_state.results.contains(item)) continue;
+      setState(() {
+        _state = _state.copyWith(
+          results: [
+            for (final result in _state.results)
+              if (!identical(result, item))
+                result
+              else if (current != null)
+                SearchItem(
+                  type: item.type,
+                  id: item.id,
+                  title: item.title,
+                  subtitle: current.content,
+                  avatar: item.avatar,
+                  highlightText: item.highlightText,
+                  metadata: item.metadata,
+                  message: current,
+                ),
+          ],
+        );
+      });
+      _removeExpiredResults();
     }
   }
 

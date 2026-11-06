@@ -12,6 +12,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/modules/messaging/public.dart' show burnExpiresAtMs;
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/repository/message_fts_repo.dart';
 
 /// 后端 ERR_FEATURE_DISABLED 错误码（见 imboy/include/error_code.hrl:225）。
 /// 当 E2EE 模式为 secure_e2ee/required 时，后端策略强制关闭 message_search。
@@ -47,6 +48,12 @@ class MessageSearchResult {
   // 本地回查时保留真实 is_author；远端响应未给出时由当前用户 ID 判断。
   final int? isAuthor;
 
+  /// 已观察到的期限只能收紧；本地尚未读不能抹掉远端已提供的有效期限。
+  final int? knownExpiresAtMs;
+
+  /// 曾在当前账号本机读到这一行，后续消失是删除事实；仅远端历史为 false。
+  final bool localRowObserved;
+
   MessageSearchResult({
     required this.id,
     required this.content,
@@ -59,15 +66,27 @@ class MessageSearchResult {
     this.status,
     this.highlight,
     this.isAuthor,
+    this.knownExpiresAtMs,
+    this.localRowObserved = false,
   });
 
-  int? expiresAtMs(String currentUid) => burnExpiresAtMs(
-    payload ?? const {},
-    fallbackStartMs:
-        (isAuthor == 1 || (isAuthor == null && fromId == currentUid))
-        ? createdAt
-        : 0,
-  );
+  int? expiresAtMs(String currentUid) {
+    final payloadDeadline = burnExpiresAtMs(
+      payload ?? const {},
+      fallbackStartMs:
+          (isAuthor == 1 ||
+              (isAuthor == null &&
+                  currentUid.isNotEmpty &&
+                  fromId == currentUid))
+          ? createdAt
+          : 0,
+    );
+    final known = knownExpiresAtMs;
+    if (known == null) return payloadDeadline;
+    return payloadDeadline != null && payloadDeadline < known
+        ? payloadDeadline
+        : known;
+  }
 
   bool isVisibleAt(int nowMs, String currentUid) {
     if (payload?['burn_deleted'] == true) return false;
@@ -208,27 +227,47 @@ class FtsApi extends HttpClient {
               [item.id, item.fromId, item.toId],
             );
             if (!current()) return MessageSearchResponse(items: [], total: 0);
-            localChecked = true;
+            if (rows.isEmpty && item.localRowObserved) continue;
+            localChecked = rows.isEmpty;
             if (rows.isNotEmpty) {
               final row = rows.first;
-              final payload = parseModelJsonMap(row['payload']) ?? item.payload;
+              final localStatus = row['status'] == null
+                  ? item.status
+                  : parseModelInt(row['status']);
+              if (localStatus != null &&
+                  localStatus >= 30 &&
+                  localStatus < 40) {
+                continue;
+              }
+              final payload = parseModelJsonMap(row['payload']);
+              if (payload == null) {
+                throw const FormatException('Invalid local search payload');
+              }
+              localChecked = true;
+              final msgType =
+                  parseModelNullableString(row['msg_type']) ?? item.msgType;
+              final textContent = MessageFtsRepo.extractTextContent(
+                msgType ?? '',
+                payload,
+              );
+              // 本地当前正文已清空、解密失败或变成不可索引类型时，不能
+              // 继续显示服务端旧正文；与实际本地入索引规则保持一致。
+              if (textContent.isEmpty) continue;
               resolved = MessageSearchResult(
                 id: item.id,
-                content:
-                    parseModelNullableString(payload?['text']) ?? item.content,
+                content: textContent,
                 fromId: item.fromId,
                 toId: item.toId,
                 type: item.type,
                 createdAt: parseModelInt(row['created_at']),
-                msgType:
-                    parseModelNullableString(row['msg_type']) ?? item.msgType,
+                msgType: msgType,
                 payload: payload,
-                status: row['status'] == null
-                    ? item.status
-                    : parseModelInt(row['status']),
+                status: localStatus,
                 isAuthor: row['is_author'] == null
                     ? item.isAuthor
                     : parseModelInt(row['is_author']),
+                knownExpiresAtMs: item.expiresAtMs(uid),
+                localRowObserved: true,
                 // 远端高亮可能仍含编辑前正文，不与本机新 payload 混用。
               );
             }
@@ -246,9 +285,14 @@ class FtsApi extends HttpClient {
         visible.add(resolved);
       }
     }
-    final removed = response.items.length - visible.length;
+    if (!current()) return MessageSearchResponse(items: [], total: 0);
+    final nowMs = DateTimeHelper.millisecond();
+    final stillVisible = visible
+        .where((item) => item.isVisibleAt(nowMs, uid))
+        .toList();
+    final removed = response.items.length - stillVisible.length;
     return MessageSearchResponse(
-      items: visible,
+      items: stillVisible,
       total: response.total > removed ? response.total - removed : 0,
       sourceItemCount: response.sourceItemCount,
     );

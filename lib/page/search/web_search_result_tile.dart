@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:highlight_text/highlight_text.dart';
 
 import 'package:imboy/component/helper/datetime.dart';
@@ -10,6 +9,36 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 import 'web_search_state.dart';
+
+/// 搜索结果列表的分组标题，与结果项共用展示层。
+class WebSearchSectionHeader extends StatelessWidget {
+  const WebSearchSectionHeader({
+    super.key,
+    required this.title,
+    required this.isDark,
+  });
+
+  final String title;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    color: isDark
+        ? AppColors.chatWebBackgroundDark
+        : AppColors.chatWebBackgroundLight,
+    child: Text(
+      title,
+      style: context.textStyle(
+        FontSizeType.footnote,
+        fontWeight: FontWeight.w500,
+        color: isDark
+            ? AppColors.chatWebSecondaryDark
+            : AppColors.chatWebSecondaryLight,
+      ),
+    ),
+  );
+}
 
 /// Web 搜索结果的展示；点击与消息可见性校验由页面处理。
 class WebSearchResultTile extends StatelessWidget {

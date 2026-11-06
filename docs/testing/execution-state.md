@@ -1,5 +1,32 @@
 # 测试执行治理续跑状态
 
+## 后续 FTS 任务（2026-11-06）
+
+PR #41 已由用户合并；下方旧分支、授权和 CI 数据仅保留为历史记录。本次用户另行授权
+“继续开新 PR 做 FTS”，从 main `8e4c93ebf1e1a59a6091390bec35d503d66b50a0` 开始，
+使用 `/workspace/scratch/c02895233621/imboy-flutter-fts`、分支 `fix/message-fts-consistency`。
+续跑先核对该工作区、远端分支与 [Draft PR #42](https://github.com/imboy-pub/imboy-flutter/pull/42)，
+不重用已关闭的 #41，不覆盖其他 WIP，不合并。远端 `139266bca51a2d65985dea7814a3077dc9004937`
+已包含同任务的文件长度门禁拆分；后续保留该提交并整合本地新增边界修复，不强推覆盖。
+
+本轮实现生产连接递归触发器确认、v38 草稿结构合同、聊天/搜索共用期限、查询及展示期
+失效过滤，以及 Web WASM/离线 SQLCipher 的可执行合同。迁移仍未注册；两个直写 SQL
+skip 保留并继续阻塞完整通过。实际原生驱动/真机二进制、远端历史绝对期限的后端合同
+仍需证据，详见 [SQLite 矩阵](../sqlite-migration-test-matrix.md)。
+
+验证命令、日志和可续跑 SDK 保存在仓外 `../fts-evidence/`；以 `current-state.json`、
+当前新 PR 的 head 和该 head 的机器事件为准，旧 #41 结果不得重标为新代码结果。
+新 PR 的验证状态以其描述和当前提交 CI 为准；没有原生/后端证据时保持 Draft。
+
+English: PR #41 is merged. Continue the separate FTS branch above, preserve WIP and
+verify the new PR's exact head. v38 activation and the original direct-SQL skips remain
+blocked pending real native/binary evidence and the remote expiry contract. Historical
+results below are not validation of this FTS change.
+
+---
+
+## PR #41 历史记录
+
 ## 工作区、来源和授权
 
 - 续用 `/workspace/scratch/c02895233621/imboy-flutter`，分支 `fix/test-execution-governance`，remote 为 `https://github.com/imboy-pub/imboy-flutter.git`。

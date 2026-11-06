@@ -56,7 +56,12 @@ class _DelayedSearchDatabase implements Database {
     }
     if (sql.contains('FROM msg_c2g_fts')) return [];
     return [
-      {'from_id': '', 'to_id': '', 'created_at': 1},
+      {
+        'from_id': '',
+        'to_id': '',
+        'created_at': 1,
+        'payload': '{"text":"old"}',
+      },
     ];
   }
 
@@ -66,6 +71,74 @@ class _DelayedSearchDatabase implements Database {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  test('returning to unread search results reloads a newly started local countdown', () async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+    await StorageService.init();
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+    final db = await openFixtureDatabaseAtVersion(version: 37);
+    SqliteService.setDbForTest(db);
+    final container = ProviderContainer();
+    final subscription = container.listen(messageSearchProvider, (_, _) {});
+    try {
+      for (final sql in upgradeV38Fts.sqlStatements) {
+        await db.execute(sql);
+      }
+      await db.insert('msg_c2c', {
+        'id': 'unread-then-read',
+        'type': 'C2C',
+        'from_id': '200',
+        'to_id': '100',
+        'conversation_uk3': 'C2C_100_200',
+        'msg_type': 'text',
+        'is_author': 0,
+        'payload': '{"text":"resumefixture","burn":true,"burn_after_ms":1000}',
+        'status': 20,
+        'created_at': 1,
+      });
+      final notifier = container.read(messageSearchProvider.notifier);
+      for (final uid in ['100', '200']) {
+        notifier.cacheContact(
+          uid,
+          ContactModel(peerId: uid, nickname: 'synthetic $uid'),
+        );
+      }
+      await notifier.performSearch(query: 'resumefixture');
+      expect(
+        container
+            .read(messageSearchProvider)
+            .searchResults
+            .single
+            .expiresAtMs('100'),
+        isNull,
+      );
+      expect(
+        container
+            .read(messageSearchProvider)
+            .searchResults
+            .single
+            .localRowObserved,
+        isTrue,
+      );
+      await db.update(
+        'msg_c2c',
+        {
+          'payload': '{"text":"resumefixture","burn":true,"burn_after_ms":1000,"burn_read_at":1}',
+        },
+        where: 'id = ?',
+        whereArgs: ['unread-then-read'],
+      );
+      await notifier.refreshVisibleResults();
+      expect(container.read(messageSearchProvider).searchResults, isEmpty);
+      expect(container.read(messageSearchProvider).totalResults, 0);
+    } finally {
+      subscription.close();
+      container.dispose();
+      SqliteService.setDbForTest(null);
+      await db.close();
+    }
+  });
 
   test(
     'successful empty and expired-only first pages never use remote fallback',

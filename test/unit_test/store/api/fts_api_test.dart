@@ -21,9 +21,11 @@ class _SearchFactsDatabase implements Database {
   Future<List<Map<String, Object?>>> rawQuery(
     String sql, [
     List<Object?>? arguments,
-  ]) {
+  ]) async {
     queries++;
-    return lookup(arguments);
+    return (await lookup(arguments))
+        .map((row) => {'msg_type': 'text', ...row})
+        .toList();
   }
 
   @override
@@ -110,6 +112,7 @@ void main() {
         for (final row in [
           {
             'payload': jsonEncode({
+              'text': 'synthetic',
               'burn': true,
               'burn_after_ms': 1000,
               'burn_read_at': 1,
@@ -179,6 +182,116 @@ void main() {
         expect(await FtsApi.to.refreshResultVisibility(remote()), isNull);
       },
     );
+
+    test(
+      'a previously observed local row disappearing is not remote-only history',
+      () async {
+        SqliteService.setDbForTest(
+          _SearchFactsDatabase(
+            (_) async => [
+              {
+                'payload':
+                    '{"text":"local unread","burn":true,"burn_after_ms":1000}',
+                'created_at': 1000,
+                'is_author': 0,
+                'status': 20,
+              },
+            ],
+          ),
+        );
+        final observed = await FtsApi.to.refreshResultVisibility(remote());
+        expect(observed, isNotNull);
+        expect(observed!.localRowObserved, isTrue);
+        expect(observed.expiresAtMs('100'), isNull);
+        SqliteService.setDbForTest(_SearchFactsDatabase((_) async => []));
+        expect(await FtsApi.to.refreshResultVisibility(observed), isNull);
+        final remoteOnly = await FtsApi.to.refreshResultVisibility(remote());
+        expect(remoteOnly, isNotNull);
+        expect(remoteOnly!.localRowObserved, isFalse);
+      },
+    );
+
+    test(
+      'local hydration cannot erase or postpone an observed remote deadline',
+      () async {
+        final nowMs = DateTimeHelper.millisecond();
+        final remoteRead = MessageSearchResult(
+          id: 'received-burn',
+          content: 'remote',
+          fromId: '200',
+          toId: '100',
+          type: 'C2C',
+          createdAt: 1000,
+          payload: {
+            'burn': true,
+            'burn_after_ms': 60000,
+            'burn_read_at': nowMs,
+          },
+        );
+        for (final localRead in [null, nowMs + 10000, nowMs - 10000]) {
+          SqliteService.setDbForTest(
+            _SearchFactsDatabase(
+              (_) async => [
+                {
+                  'payload': jsonEncode({
+                    'text': 'local fixture',
+                    'burn': true,
+                    'burn_after_ms': 60000,
+                    'burn_read_at': ?localRead,
+                  }),
+                  'created_at': 1000,
+                  'is_author': 0,
+                  'status': 20,
+                },
+              ],
+            ),
+          );
+          final result = await FtsApi.to.refreshResultVisibility(remoteRead);
+          expect(result, isNotNull);
+          final earliest = localRead != null && localRead < nowMs
+              ? localRead
+              : nowMs;
+          expect(result!.expiresAtMs('100'), earliest + 60000);
+          expect(result.isVisibleAt(earliest + 60000, '100'), isFalse);
+        }
+      },
+    );
+
+    test(
+      'malformed local payload cannot be treated as an unread burn message',
+      () async {
+        SqliteService.setDbForTest(
+          _SearchFactsDatabase(
+            (_) async => [
+              {
+                'payload': 'not-json',
+                'created_at': 1000,
+                'is_author': 0,
+                'status': 20,
+              },
+            ],
+          ),
+        );
+        expect(await FtsApi.to.refreshResultVisibility(remote()), isNull);
+      },
+    );
+
+    test('local cleared, undecryptable and non-indexable content cannot revive remote text', () async {
+      for (final row in [
+        {'payload': '{"text":""}', 'msg_type': 'text'},
+        {'payload': '{"text":"stale","_e2ee_failed":true}', 'msg_type': 'text'},
+        {'payload': '{"text":"stale"}', 'msg_type': 'image'},
+      ]) {
+        SqliteService.setDbForTest(
+          _SearchFactsDatabase(
+            (_) async => [
+              {...row, 'created_at': 1000, 'is_author': 0, 'status': 20},
+            ],
+          ),
+        );
+        expect(await FtsApi.to.refreshResultVisibility(remote()), isNull);
+      }
+    });
 
     test(
       'account change during hydration discards the old account response',

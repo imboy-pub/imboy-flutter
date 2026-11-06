@@ -737,6 +737,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
     final session = UserRepoLocal.to;
     final uid = session.currentUid;
     final generation = session.sessionGeneration;
+    final notifier = ref.read(messageSearchProvider.notifier);
+    final searchGeneration = notifier.searchGeneration;
     if (!result.isVisibleAt(
       DateTimeHelper.millisecond(),
       UserRepoLocal.to.currentUid,
@@ -744,10 +746,13 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       ref.read(messageSearchProvider.notifier).removeExpiredResults();
       return;
     }
-    final current = await FtsApi.to.refreshResultVisibility(result);
+    final current = await ref
+        .read(ftsApiProvider)
+        .refreshResultVisibility(result);
     if (!mounted ||
         session.currentUid != uid ||
         !session.isCurrentSession(generation) ||
+        notifier.searchGeneration != searchGeneration ||
         session.isAuthTransitioning) {
       return;
     }
@@ -768,7 +773,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       peerId = isAuthor ? result.toId : result.fromId;
     }
 
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       CupertinoPageRoute<dynamic>(
         builder: (context) => ChatPage(
           peerId: peerId,
@@ -780,5 +785,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         ),
       ),
     );
+    if (mounted) {
+      await ref.read(messageSearchProvider.notifier).refreshVisibleResults();
+    }
   }
 }
