@@ -1,9 +1,9 @@
-/// Phase 2.1.c — Web Shell + ChatPanel Chrome 端到端 smoke
+/// Web Shell + ChatPanel Chrome 组件 smoke
 ///
 /// 在真实 Chrome JS 引擎里集成 [WebShellPage] + 真实 [ChatPanel]，覆盖：
-/// - 用户登录后看到三栏布局
+/// - 合成数据下的默认三栏布局
 /// - 选中 [ChatSelection] 后右栏切到真实 ChatPanel（不是 fake builder）
-/// - 当前阶段输入框 + 发送按钮均禁用（钉死 Phase 2.1.c TODO 真相）
+/// - 调用方注入的只读输入区保持输入框和发送按钮禁用
 /// - 关闭聊天 → 回欢迎屏
 /// - 切 Tab → selection 清空
 ///
@@ -31,8 +31,8 @@ const _kChannelTab = Center(
 );
 const _kMineTab = Center(key: ValueKey('mine-tab'), child: Text('MINE_TAB'));
 
-/// 模拟 web_shell_bootstrap.dart `_SimpleWebInput`：禁用 TextField + 禁用发送按钮。
-/// 与生产代码完全等价（只是 ValueKey 标识便于断言）。
+/// 只读合成输入区，用于验证 ChatPanel 保留调用方注入的禁用状态。
+/// 生产 `_WebChatInput` 有真实发送回调，本 fixture 不覆盖其发送行为。
 class _DisabledInputArea extends StatelessWidget {
   const _DisabledInputArea();
 
@@ -47,15 +47,13 @@ class _DisabledInputArea extends StatelessWidget {
             child: TextField(
               key: ValueKey('disabled-text-field'),
               enabled: false,
-              decoration: InputDecoration(
-                hintText: 'Send message (TODO Phase 2.1.c real ChatInput)',
-              ),
+              decoration: InputDecoration(hintText: 'Read-only message input'),
             ),
           ),
           IconButton(
             key: const ValueKey('disabled-send-btn'),
             icon: const Icon(Icons.send),
-            tooltip: 'Disabled (Phase 2.1.c TODO)',
+            tooltip: 'Read-only input',
             onPressed: null,
           ),
         ],
@@ -84,6 +82,9 @@ Future<ProviderContainer> _pumpShell(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
+        // 对齐 lib/run.dart：Cupertino 页面中的输入组件使用导航器上方的 Material。
+        builder: (_, child) =>
+            Material(type: MaterialType.transparency, child: child),
         home: WebShellPage(
           tabMessageLabel: 'Messages',
           tabContactLabel: 'Contacts',
@@ -124,12 +125,13 @@ Future<ProviderContainer> _pumpShell(
       ),
     ),
   );
+  expect(tester.takeException(), isNull);
   return container;
 }
 
 void main() {
-  group('Web Shell + 真实 ChatPanel — Chrome 端到端 smoke', () {
-    testWidgets('登录后默认三栏 + welcome 屏', (tester) async {
+  group('Web Shell + 真实 ChatPanel — Chrome 组件 smoke', () {
+    testWidgets('默认三栏 + welcome 屏', (tester) async {
       await _pumpShell(tester);
       expect(find.byType(WebNavRail), findsOneWidget);
       expect(find.byType(WebMiddlePanel), findsOneWidget);
@@ -145,7 +147,9 @@ void main() {
       container
           .read(webShellProvider.notifier)
           .selectItem(const ChatSelection(peerId: 'u-001', chatType: 'C2C'));
-      await tester.pump();
+      // WebMainPanel 的 300ms 交叉淡出结束后，旧 welcome 才移出树。
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
 
       expect(find.byType(ChatPanel), findsOneWidget);
       expect(find.text('Peer u-001'), findsOneWidget);
@@ -155,14 +159,13 @@ void main() {
       expect(find.text('WelcomeTitle'), findsNothing);
     });
 
-    testWidgets('ChatPanel 当前阶段：输入框禁用 + 发送按钮禁用（钉死 Phase 2.1.c TODO）', (
-      tester,
-    ) async {
+    testWidgets('注入只读输入区：输入框和发送按钮保持禁用', (tester) async {
       final container = await _pumpShell(tester);
       container
           .read(webShellProvider.notifier)
           .selectItem(const ChatSelection(peerId: 'u-002', chatType: 'C2C'));
-      await tester.pump();
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
 
       final textField = tester.widget<TextField>(
         find.byKey(const ValueKey('disabled-text-field')),
@@ -170,17 +173,13 @@ void main() {
       expect(
         textField.enabled,
         isFalse,
-        reason: 'TextField 必须禁用，等 Phase 2.1.c 接 ChatInput',
+        reason: 'ChatPanel 应保留调用方注入的 TextField 禁用状态',
       );
 
       final sendBtn = tester.widget<IconButton>(
         find.byKey(const ValueKey('disabled-send-btn')),
       );
-      expect(
-        sendBtn.onPressed,
-        isNull,
-        reason: '发送按钮必须禁用，等 Phase 2.1.c 接 ChatInput',
-      );
+      expect(sendBtn.onPressed, isNull, reason: 'ChatPanel 应保留调用方注入的发送按钮禁用状态');
     });
 
     testWidgets('点击 ChatPanel close → clearSelection 回 welcome', (
@@ -190,11 +189,13 @@ void main() {
       container
           .read(webShellProvider.notifier)
           .selectItem(const ChatSelection(peerId: 'u-003', chatType: 'C2C'));
-      await tester.pump();
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
       expect(find.byType(ChatPanel), findsOneWidget);
 
       await tester.tap(find.byTooltip('Close'));
-      await tester.pump();
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
 
       expect(find.byType(ChatPanel), findsNothing);
       expect(find.text('WelcomeTitle'), findsOneWidget);
@@ -208,12 +209,14 @@ void main() {
       container
           .read(webShellProvider.notifier)
           .selectItem(const ChatSelection(peerId: 'u-004', chatType: 'C2C'));
-      await tester.pump();
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
       expect(find.byType(ChatPanel), findsOneWidget);
 
       // 切到联系人 Tab
       container.read(webShellProvider.notifier).switchTab(1);
-      await tester.pump();
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      expect(tester.takeException(), isNull);
 
       expect(container.read(webShellProvider).currentTab, 1);
       expect(container.read(webShellProvider).selectedItem, isNull);
