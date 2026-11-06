@@ -1,5 +1,49 @@
 # 测试执行治理续跑状态
 
+## 后续 FTS 任务（2026-11-06）
+
+PR #41 已由用户合并；下方旧分支、授权和 CI 数据仅保留为历史记录。本次用户另行授权
+“继续开新 PR 做 FTS”，从 main `8e4c93ebf1e1a59a6091390bec35d503d66b50a0` 开始，
+使用 `/workspace/scratch/c02895233621/imboy-flutter-fts`、分支 `fix/message-fts-consistency`。
+续跑先核对该工作区、远端分支与 [PR #42](https://github.com/imboy-pub/imboy-flutter/pull/42)，
+不重用已关闭的 #41，不覆盖其他 WIP，不合并。远端 `139266bca51a2d65985dea7814a3077dc9004937`
+已包含同任务的文件长度门禁拆分；后续保留该提交并整合本地新增边界修复，不强推覆盖。
+
+本轮实现生产连接递归触发器确认、v38 草稿结构合同、聊天/搜索共用期限、查询及展示期
+失效过滤，以及 Web WASM/离线 SQLCipher 的可执行合同。迁移仍未注册；两个直写 SQL
+skip 保留并继续阻塞完整通过。用户随后授权继续解决这两个 BLOCKED，本轮补齐：
+
+- C2C/C2G 搜索消费现有 REST 毫秒合同的 `expire_at`，JSON 往返保留期限，本地事实只能
+  缩短已知期限。测试覆盖真实 API 解析/过滤、分页以及无本地行的结果在展示期间到期。
+- 原 SQLCipher 入口改用 baseline + 实际 16→37 迁移，验证完整 schema、字段值、加密
+  快照、错误密钥拒绝、写入后的事务回滚、重新打开及重试；仍只是显式应用草稿。
+- 后端 formatter 的两处透传修复位于独立 worktree
+  `/workspace/scratch/c02895233621/imboy-fts-expiry`、分支 `fix/fts-expiry-contract`，
+  [关联 PR #37](https://github.com/imboy-pub/imboy/pull/37)。复用现有 PostgreSQL CI
+  执行四个 FTS EUnit 模块，并检查非零计数、无 skip、完整 XML 和进程结果。
+
+后端 PR 的实际 head 和 CI 结论单独核对，不能把 Flutter 模拟响应测试当成后端验收。
+真实数据库三态回归当前覆盖 C2C，C2G 有真实 REST 转换及共享 SQL 谓词回归，尚不等同于
+实际 HTTP 的 C2G 数据库验收。Android 真机与 macOS 原生/安装二进制证据仍需实际运行；
+本次不扩大既有 iOS 暂缓裁决，也不删除 catalog 中的 iOS/full 义务。
+解除条件和命令详见 [SQLite 矩阵](../sqlite-migration-test-matrix.md)。
+
+验证命令、日志和可续跑 SDK 保存在仓外 `../fts-evidence/`；以 `current-state.json`、
+当前新 PR 的 head 和该 head 的机器事件为准，旧 #41 结果不得重标为新代码结果。
+新 PR 的验证状态以其描述和当前提交 CI 为准；PR #42 已被用户设为 ready，尊重该状态，
+但 ready 不代表 BLOCKED 已解除或可以合并。不要擅自合并、改变 ready 状态或放宽 skip。
+
+English: PR #41 is merged. Continue the separate FTS branch above, preserve WIP and
+verify the new PR's exact head. v38 activation and the original direct-SQL skips remain
+blocked pending real native/binary evidence and verified remote expiry behavior. The backend
+companion is imboy PR #37; audit its evidence separately. Preserve the user's ready status
+for PR #42 without claiming admission or merge approval. Historical results below are not
+validation of this FTS change.
+
+---
+
+## PR #41 历史记录
+
 ## 工作区、来源和授权
 
 - 续用 `/workspace/scratch/c02895233621/imboy-flutter`，分支 `fix/test-execution-governance`，remote 为 `https://github.com/imboy-pub/imboy-flutter.git`。

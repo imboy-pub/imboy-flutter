@@ -15,6 +15,8 @@ import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart';
 
+import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
+
 /// 库内 schema 元数据表（KV 形态，避免为加字段改表结构）。
 class ImboySchemaMeta {
   static const String tableName = '_imboy_schema_meta';
@@ -231,7 +233,7 @@ class SchemaContract {
     DatabaseExecutor db, {
     required int version,
   }) async {
-    final required = version == 37
+    final required = version == 37 || version == 38
         ? <String, Set<String>>{
             ...requiredColumnsByVersion[36]!,
             'channel': {
@@ -258,7 +260,7 @@ class SchemaContract {
         violations.add('missing column: $table.$col (v$version)');
       }
     }
-    if (version == 36 || version == 37) {
+    if (version == 36 || version == 37 || version == 38) {
       for (final table in [
         'msg_c2c',
         'msg_c2g',
@@ -275,8 +277,38 @@ class SchemaContract {
         }
       }
     }
+    if (version == 38) {
+      // v38 仍须通过独立注册准入；声明结构约束不会将草稿加入 manifest。
+      // 两种建库路径都执行同一份 DDL，因此比对迁移真源，避免另维护一份
+      // FTS SQL。仅有同名对象不足：空触发器、contentless 旧表也必须拒绝。
+      final createObject = RegExp(
+        r'^CREATE (VIRTUAL TABLE|VIEW|TRIGGER) (\w+) ',
+      );
+      for (final statement in upgradeV38Fts.sqlStatements) {
+        final match = createObject.firstMatch(statement.trim());
+        if (match == null) continue;
+        final kind = match.group(1)!;
+        final type = kind == 'VIRTUAL TABLE' ? 'table' : kind.toLowerCase();
+        final name = match.group(2)!;
+        final rows = await db.rawQuery(
+          'SELECT sql FROM sqlite_master WHERE type = ? AND name = ?',
+          [type, name],
+        );
+        if (rows.isEmpty) {
+          violations.add('missing $type: $name (v$version)');
+        } else if (_schemaDdl(rows.single['sql'] as String? ?? '') !=
+            _schemaDdl(statement)) {
+          violations.add('unexpected $type definition: $name (v$version)');
+        }
+      }
+    }
     return violations;
   }
+
+  // SQLite 保留这些 CREATE 语句的文本，但去掉结尾分号。保留字符串里的
+  // 空白，避免规范化把不同的可索引正文表达式错误地视为相同。
+  static String _schemaDdl(String sql) =>
+      sql.trim().replaceFirst(RegExp(r';$'), '');
 
   /// 捕获完整结构 contract（golden JSON 的数据形态）。
   ///

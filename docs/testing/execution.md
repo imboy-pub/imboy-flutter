@@ -8,8 +8,8 @@
 
 | 主套件 | 对象 | 条件 |
 |---|---|---|
-| unit | 纯逻辑、模型、协议 | 宿主 Flutter VM |
-| widget | 页面、组件、导航、状态 | 宿主 Widget runner |
+| unit | 纯逻辑、模型、协议 | 宿主 Flutter VM；显式浏览器目标使用 Chrome |
+| widget | 页面、组件、导航、状态 | 宿主 Widget runner；显式浏览器目标使用 Chrome |
 | component | 模拟 HTTP/服务、无设备集成及字体加载合同 | 合成 fixture；浏览器/系统字体目标声明各自平台与依赖 |
 | sqlite-ffi | 临时数据库、迁移 | SQLite 动态库；浏览器目标需 WASM/Chrome |
 | crypto-ffi | Rust/vodozemac 加密与宿主 harness | 与锁定依赖一致的原生库 |
@@ -47,6 +47,8 @@ bash scripts/run_test_suite.sh --mode full --dry-run --output "$REPORT_DIR/full-
 
 # 本机 PR 分片；Linux 使用 --platform linux
 bash scripts/run_test_suite.sh --profile pr --platform macos --artifact-dir "$REPORT_DIR/pr-macos"
+# 离线 Chrome PR 分片，在具备浏览器的宿主执行
+bash scripts/run_test_suite.sh --profile pr --platform web --artifact-dir "$REPORT_DIR/pr-web"
 
 # 完整回归，不加过滤；缺任何必需环境均阻塞
 bash scripts/run_test_suite.sh --profile full --artifact-dir "$REPORT_DIR/full"
@@ -92,6 +94,30 @@ bash scripts/pre_push_gate.sh --backend --artifact-dir "$REPORT_DIR/pre-push-bac
 
 原 `IMBOY_SKIP_PRE_PUSH=1` 仍可显式退出该 hook；输出 `OUT_OF_SCOPE`，表示归属及后端
 均未执行，不产生业务通过结论。该变量不会改变远端 CI 的执行合同。
+
+### 离线浏览器 / Offline browser
+
+PR 包含已声明的 Chrome 编译/运行时、Web Shell 与 SQLite WASM 目标。它们使用合成数据、
+内存数据库或 HTTP 替身，不需要真实后端、账号或原生设备。`web` profile 保留为浏览器
+专项重跑入口，目标来自同一合同；不会把未声明支持浏览器的宿主测试发往 Chrome。
+
+```bash
+python3 scripts/auto_test.py execution-plan --profile web --output "$REPORT_DIR/web-plan.json"
+python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/web-plan.json" \
+  --artifact-dir "$REPORT_DIR/web"
+# 只重跑 FTS 草稿时，可对 plan 加 --target；其余实例仍不算已执行。
+python3 scripts/auto_test.py execution-plan --profile web \
+  --target test/unit_test/service/migration_v38_fts_web_test.dart \
+  --output "$REPORT_DIR/fts-web-plan.json"
+```
+
+准备仓库固定 SDK/锁定依赖及可正常启动 Chrome 的宿主，必要时用 `CHROME_EXECUTABLE`
+指定路径。浏览器必须允许 Flutter 测试服务和本地调试 socket；只有版本查询成功不能
+证明浏览器用例已运行。两个 SQLite Web 目标共用固定的
+`SQLITE_WASM_URL=/fixtures/sqlite3.wasm`，由 Flutter 测试静态服务提供 Git 跟踪的
+`test/fixtures/sqlite3.wasm` → `web/sqlite3.wasm`，不下载外部替代文件。
+缺浏览器或启动失败为 `ENV_MISSING`，已选择目标的意外 skip 仍阻断。宿主 `HttpOverrides`
+不拦截浏览器 XHR；新增联网代码必须显式使用合成 HTTP 替身，不能依赖 VM 的禁网钩子。
 
 ### Web Shell
 
@@ -141,17 +167,21 @@ worktree 准备真实生成物，源提交/执行合同/测试代码保持一致
 ## PR、覆盖率与门禁
 
 PR 包含逻辑、Widget、模拟集成、SQLite、加密 FFI、工具目标，含原来 `test/unit_test/`
-以外的业务目录。真实后端、Golden、路由、浏览器、设备/双端/Patrol 有明确专项；full 纳入
-全部适用目标。无可靠影响映射时，保守执行所选 profile 全目标，不猜测是否能裁掉测试。
+以外的业务目录，以及已声明的离线 Chrome 目标。真实后端、Golden、路由、设备/双端/Patrol
+仍有明确专项；full 纳入全部适用目标。无可靠影响映射时，保守执行所选 profile 全目标，
+不猜测是否能裁掉测试。
 
 主 CI 冻结计划，`execution-matrix` 按已选实例生成 `(platform, suite)` worker，Linux/macOS
-各套件分别执行，artifact 保留独立目录。矩阵分区不改变 target/product/role/variant 身份，
-并集必须覆盖原计划全部已选实例。该命令拒绝空计划或包含设备、配对、Patrol 的计划，
+各套件分别执行，`platform=web` 分配到同一矩阵中的 Ubuntu worker，执行前明确检查 Chrome。
+浏览器准备失败作为前置结果交给统一运行器，仍保留结果与最终对账。artifact 保留独立目录。
+矩阵分区不改变 target/product/role/variant 身份，并集必须覆盖原计划全部已选实例。
+该命令拒绝空计划或包含设备、配对、Patrol 的计划，
 这些目标继续交给其专项编排器。质量和跨仓契约工作流由主 CI 调用；稳定的
 `IMBoy Test Summary` 使用 `if: always()` 对账实例与上游任务。上游不使用 workflow paths
 过滤。分支保护应选择该汇总检查，仓库设置需维护者另行配置。
 
 `--coverage` 给已声明可统计的实例增加收集参数，与业务测试同次执行，不重新选文件。
+CI 覆盖率仍只收集 Linux 分片，Chrome worker 不开启覆盖率，也不额外重跑目标。
 路由、后端、Golden、设备和工具不混入宿主覆盖率。原 38% 门槛保留，实际扩大范围后的
 覆盖率须在环境完整的 runner 核验，不自动降低门槛。CI 在全部 Linux worker 结束后，
 先对账每个 coverage_eligible 实例，再核验原始进程、实际 `--coverage` 参数、LCOV 路径与
@@ -180,8 +210,9 @@ python3 scripts/auto_test.py execution-coverage \
 计划执行一次。Moment/E2EE/component/性能断言不再因多个 CI 步骤重复执行相同实例。
 错误码/protobuf 契约保留；`regen_protobuf.sh --check` 在临时目录生成后比较，不覆盖工作区。
 
-宿主 Flutter 进程每批最多 128 个目标，纯 unit/widget/component 使用 Flutter 默认并发；
-SQLite、加密、后端及路由保留串行/进程隔离要求。分批不改变已选实例或覆盖率范围，
+宿主 Flutter 进程每批最多 64 个目标，限制每个进程承担的加载工作量；纯 unit/widget/component
+使用 Flutter 默认并发，SQLite、加密、后端及路由保留串行/进程隔离要求。分批不改变选择、
+执行实例身份、覆盖率范围或重试规则，
 每批结果分别保存后统一对账、合并覆盖率。每个进程仍有 900 秒预算；超时会终止本次创建的
 POSIX 进程组并冻结日志，保留已产生的机器事件，结果仍为阻塞。进程组监督当前支持 Linux/macOS；
 不具备该能力的宿主在启动前阻塞。执行日志会显示批次、平台及目标数，便于定位执行进度。
@@ -217,6 +248,10 @@ failure/cancelled 仍使最终结果阻断。这里的 missing 不等于该子�
 状态与原因分开。结果保存 commit/profile/suite/target/platform/product_profile/role/variant、
 selected/status/reason_code/upstream、计数、日志、证据和全部尝试。
 `executed = passed + failed + skipped`；`actually_run = passed + failed`。隐藏加载/setup 不充数。实例汇总使用最后一次尝试的计数；完整 attempts 保留每次计数，重试工作量须单独对 attempts 求和。
+由 suite 路径和 reporter 元数据确认的 loading 伪用例，即使加载失败后变成非隐藏事件，
+也不计入业务用例数量。浏览器启动失败记为 `BLOCKED/ENV_MISSING`，须修复环境后再运行；
+编译和未识别的加载错误仍使目标失败，不能因为实际运行数量为零而忽略。Reporter loading
+events are not business cases; zero business execution never certifies a pass.
 断言失败不重试洗绿；基础设施重试保留尝试，恢复后仍是 FLAKY。未批准部分 skip 也阻断，
 不增加兜底 skip 白名单。存量硬编码 skip 需修复或建立可核验的适用合同。
 联系人 RTC gate 在 phase1_delivery 与 full-selected 两个真实构建中执行；依赖已编译 RTC 回调的断言仅在 RTC 构建注册，full-selected 的产物核验保证该分支不会被缺 feature 的构建跳过。
@@ -227,8 +262,13 @@ selected/status/reason_code/upstream、计数、日志、证据和全部尝试�
 
 使用仓库固定 Flutter/Dart，先 `python3 scripts/check_sdk_compatibility.py` 再 `flutter pub get --enforce-lockfile`。冻结计划后只运行 `.github/scripts/ci_patch_path_deps.sh --check`，不在执行阶段改写依赖源码。
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
-SQLite 需宿主 sqlite3。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，
+SQLite FFI 需可加载的宿主动态库；Linux 需让动态加载器找到 `libsqlite3.so`，例如安装
+`libsqlite3-dev`。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，
 `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` 指向库目录；真实加载仍需机器事件验证。
+FTS v38 草稿的宿主、Chrome/WASM 和原生 SQLCipher 三类验收及注册前阻塞，见
+[SQLite 迁移验证矩阵](../sqlite-migration-test-matrix.md#消息-fts-v38-的注册前验证--message-fts-v38-admission)。
+原生草稿使用合成临时库，属于显式 offline 目标；它不需要后端账号，但仍要求合格设备和
+真实加密驱动。The FTS draft's offline classification removes backend prerequisites, not native driver obligations.
 框架产品合同需要并排 `imboy`、`imboyadmin` 源码（可指定 `IMBOY_BACKEND_ROOT`）；只读源码
 不连接服务。当前 profile 以 manifest/生成物校验为准；额外 feature 需对应隔离构建，
 不能仅添加 dart-define 冒充 full-selected。
@@ -297,6 +337,8 @@ CI 不能直接跳过后算通过。回归不生成/更新基线。显式 `flutt
 
 `integration_test.yml` 仅手动，默认生成计划；执行需带 `imboy-test` 标签的隔离 self-hosted
 runner；多产品执行可预配置 `IMBOY_EXECUTION_WORKTREE` 为同一提交的独立产品 worktree，防止 checkout 覆盖已准备的生成物。该目录仍接受完整源码/产品指纹校验。完整配对拓扑将 platform 选为 `all`，所选 product 必须与该 runner 预先准备的生成物一致。环境不齐不恢复自动触发。已不存在脚本的旧 YAML automation 入口由此接替。
+离线 Web 由主 PR 矩阵负责执行；手动工作流的 `profile=web` 仅作已准备 runner 上的专项重跑，
+不改变真实后端、Golden、设备/双端/Patrol 的隔离环境合同与手动执行用途。
 手动 Golden 先用 SDK 检查的 `--dart-only` 核验源码钉版一致性与 Dart 依赖约束，再由统一 Golden preflight 核验实际 Flutter 钉版、framework/engine 和基线环境；其他 profile 仍执行完整 SDK 检查。
 修改后运行对应工具、归属和业务验证，回复分别报告静态清单、工具、Flutter、后端契约、
 设备/双端、完整回归等级。缺环境时继续独立验证，列出解除条件，不把模拟 runner 当业务验证。

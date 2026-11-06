@@ -1,3 +1,5 @@
+import 'package:imboy/store/api/fts_api.dart';
+
 /// 搜索结果类型
 enum SearchItemType { conversation, message, contact, group }
 
@@ -11,6 +13,9 @@ class SearchItem {
   final String? highlightText;
   final Map<String, dynamic>? metadata;
 
+  /// 消息结果保留其可见性事实，计时与点击前复核使用同一份数据。
+  final MessageSearchResult? message;
+
   const SearchItem({
     required this.type,
     required this.id,
@@ -19,6 +24,7 @@ class SearchItem {
     this.avatar,
     this.highlightText,
     this.metadata,
+    this.message,
   });
 }
 

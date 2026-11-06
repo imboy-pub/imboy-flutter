@@ -104,7 +104,7 @@ class RunnerTest(unittest.TestCase):
 
     def coverage_workers(self, *, process=None, widget_coverage=True):
         declared = plan(instance(), instance('test/b_test.dart', suite='widget'),
-                        instance(platform='macos'))
+                        instance(platform='macos'), instance(platform='web'))
         with self.mock_execution(process or self.process):
             for suite in ('unit', 'widget'):
                 report = runner.run_plan(self.root, declared, self.output / suite,
@@ -115,7 +115,7 @@ class RunnerTest(unittest.TestCase):
 
     def test_host_matrix_preserves_every_platform_product_and_role_instance(self):
         items = [instance(platform=platform, product=product, role=role)
-                 for platform in ('linux', 'macos') for product in ('current', 'phase1')
+                 for platform in ('linux', 'macos', 'web') for product in ('current', 'phase1')
                  for role in ('primary', 'secondary')]
         items += [instance('test/b_test.dart', suite='widget'),
                   instance('test/c_test.dart', selected=False, reason_code='OUT_OF_SCOPE')]
@@ -125,7 +125,10 @@ class RunnerTest(unittest.TestCase):
             declared, worker['platform'], [worker['suite']])]
         self.assertCountEqual(selected, [item['id'] for item in items if item['selected']])
         self.assertEqual(len(selected), len(set(selected)))
-        self.assertEqual(len(matrix), 3)
+        self.assertEqual(len(matrix), 4)
+        browser = next(worker for worker in matrix if worker['platform'] == 'web')
+        self.assertEqual(browser['os'], 'ubuntu-latest')
+        self.assertEqual(browser['coverage'], '')
         self.assertTrue(all(worker['coverage'] == ('--coverage' if worker['platform'] == 'linux' else '')
                             for worker in matrix))
         items[0].update(selected=False, reason_code='PLATFORM_NA')
@@ -135,7 +138,8 @@ class RunnerTest(unittest.TestCase):
         for declared in (plan(), plan(instance(), instance()),
                          plan(instance(runner='device-pair', suite='device-pair')),
                          plan(instance(runner='patrol', suite='native-ui')),
-                         plan(instance(platform='android'))):
+                         plan(instance(platform='android')),
+                         plan(instance(platform='web', runner='python-unittest'))):
             with self.subTest(plan=declared), self.assertRaises(ValueError):
                 runner.host_worker_matrix(declared)
 
@@ -221,13 +225,14 @@ class RunnerTest(unittest.TestCase):
         self.assertFalse(report['complete_regression'])
 
     def test_success_requires_matching_receipt_for_every_instance(self):
-        a, b = instance(), instance('test/b_test.dart')
-        declared = plan(a, b)
-        good = [self.result(i, planned=declared) for i in (a, b)]
+        a, b, browser = instance(), instance('test/b_test.dart'), instance(platform='web')
+        declared = plan(a, b, browser)
+        good = [self.result(i, planned=declared) for i in (a, b, browser)]
         self.assertEqual(runner.reconcile(declared, good)['status'], 'PASS')
-        missing = runner.reconcile(declared, good[:1])
+        missing = runner.reconcile(declared, good[:2])
         self.assertEqual(missing['status'], 'BLOCKED')
-        self.assertEqual(missing['results'][1]['reason_code'], 'MISSING_RESULT')
+        self.assertEqual(missing['results'][2]['reason_code'], 'MISSING_RESULT')
+        self.assertEqual(missing['results'][2]['platform'], 'web')
 
     def test_empty_full_plan_cannot_pass(self):
         actual = runner.reconcile(plan(profile='full', full_regression=True), [])
@@ -465,21 +470,26 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(len(calls), 2)
 
     def test_bounded_host_batches_keep_every_instance_and_merge_coverage_once(self):
-        items = [instance(f'test/chunk_{index}_test.dart') for index in range(5)]
+        items = [instance(f'test/chunk_{index}_test.dart') for index in range(129)]
         for item in items:
             (self.root / item['target']).write_text('// synthetic host target\n')
         calls = []
         def process(*args, **kwargs):
             calls.append(args[0])
             return self.process(*args, **kwargs)
-        with self.mock_execution(process), patch.object(runner, 'HOST_BATCH_MAX_TARGETS', 2):
+        with self.mock_execution(process), patch.object(
+                runner, 'merge_coverage_files', wraps=runner.merge_coverage_files) as merge:
             summary = runner.run_plan(self.root, plan(*items), self.output, coverage=True)
         batches = [[arg for arg in command if arg.endswith('_test.dart')] for command in calls]
-        self.assertEqual([len(batch) for batch in batches], [2, 2, 1])
+        self.assertEqual([len(batch) for batch in batches], [64, 64, 1])
         self.assertEqual([target for batch in batches for target in batch], [item['target'] for item in items])
+        self.assertTrue(all('--coverage' in command for command in calls))
         self.assertEqual(summary['status'], 'PASS')
-        self.assertEqual(summary['counts']['actually_run'], 5)
+        self.assertEqual(summary['counts']['actually_run'], 129)
+        self.assertEqual(len(summary['results']), 129)
         self.assertEqual({row['id'] for row in summary['results']}, {item['id'] for item in items})
+        merge.assert_called_once()
+        self.assertEqual(len(set(merge.call_args.args[0])), 3)
         merged = (self.output / 'coverage/lcov.info').read_text()
         self.assertEqual(merged.count('SF:lib/sample.dart'), 1)
         self.assertEqual(merged.count('DA:1,1'), 1)

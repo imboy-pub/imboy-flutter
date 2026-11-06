@@ -49,10 +49,16 @@ void main() {
 
     test('搜索结果渲染调用同一判定入口', () {
       final String src = read(path);
-      expect(src.contains('resolveHostedMessageFacts('), isTrue);
-      expect(src.contains('HostedMessageFactsRow('), isTrue);
+      final String card = read(
+        'lib/page/search/message_search_result_card.dart',
+      );
+      expect(src.contains("import 'message_search_result_card.dart'"), isTrue);
+      expect(src.contains('return MessageSearchResultCard('), isTrue);
+      expect(card.contains('_buildHostedFacts(result)'), isTrue);
+      expect(card.contains('resolveHostedMessageFacts('), isTrue);
+      expect(card.contains('HostedMessageFactsRow('), isTrue);
       expect(
-        src.contains(
+        card.contains(
           "import 'package:imboy/modules/enterprise_app/public.dart'",
         ),
         isTrue,

@@ -6,12 +6,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
+import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/ntp.dart';
 import 'package:imboy/page/search/search_chat_page.dart';
 import 'package:imboy/page/search/search_provider.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/store/api/fts_api.dart';
+import 'package:imboy/store/model/contact_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
+
+class _SearchFactsDatabase implements Database {
+  _SearchFactsDatabase(this.lookup);
+  final Future<List<Map<String, Object?>>> Function() lookup;
+  int queries = 0;
+  @override
+  bool get isOpen => true;
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) {
+    queries++;
+    return lookup();
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 class _DelayedAdapter implements HttpClientAdapter {
   final requests = <String, Completer<ResponseBody>>{};
@@ -38,9 +65,330 @@ ResponseBody _response(int status) => ResponseBody.fromString(
   },
 );
 
+class _SearchResponseApi implements FtsApi {
+  _SearchResponseApi(this.response, {this.refresh});
+  final MessageSearchResponse response;
+  final Future<MessageSearchResult?> Function(MessageSearchResult)? refresh;
+  @override
+  Future<MessageSearchResponse?> searchConversationMessages({
+    required String keyword,
+    required String conversationUk3,
+    int page = 1,
+    int size = 20,
+    String? msgType,
+  }) async => response;
+  @override
+  Future<MessageSearchResult?> refreshResultVisibility(
+    MessageSearchResult item,
+  ) async => refresh == null ? item : await refresh!(item);
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 void main() {
   // FtsApi is a singleton and retains the first injected Dio adapter.
   final sharedAdapter = _DelayedAdapter();
+  for (final navigate in [false, true]) {
+    testWidgets(
+      'chat ${navigate ? 'return' : 'resume'} reloads a countdown started after search',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+        await StorageService.init();
+        HttpClient.adapterForTest = sharedAdapter;
+        NtpHelper.debugReset();
+        var readAt = 0;
+        final db = _SearchFactsDatabase(
+          () async => [
+            {
+              'payload': jsonEncode({
+                'text': 'unread fixture',
+                'burn': true,
+                'burn_after_ms': 60000,
+                if (readAt > 0) 'burn_read_at': readAt,
+              }),
+              'created_at': 1,
+              'is_author': 0,
+              'status': 20,
+              'msg_type': 'text',
+            },
+          ],
+        );
+        SqliteService.setDbForTest(db);
+        addTearDown(() {
+          SqliteService.setDbForTest(null);
+          HttpClient.adapterForTest = null;
+          NtpHelper.debugReset();
+        });
+        final api = _SearchResponseApi(
+          MessageSearchResponse(
+            items: [
+              MessageSearchResult(
+                id: 'unread',
+                content: 'unread fixture',
+                fromId: '1002',
+                toId: '1001',
+                type: 'C2C',
+                createdAt: 1,
+                payload: {
+                  'text': 'unread fixture',
+                  'burn': true,
+                  'burn_after_ms': 60000,
+                },
+              ),
+            ],
+            total: 1,
+          ),
+          refresh: FtsApi.to.refreshResultVisibility,
+        );
+        final router = GoRouter(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (_, _) => const SearchChatPage(
+                conversationUk3: 'C2C_1001_1002',
+                type: 'C2C',
+                peerId: '1002',
+                peerTitle: '',
+                peerAvatar: '',
+                peerSign: '',
+              ),
+            ),
+            GoRoute(
+              path: '/chat/:peer',
+              builder: (_, _) => const Scaffold(body: Text('isolated chat')),
+            ),
+          ],
+        );
+        addTearDown(router.dispose);
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [ftsApiProvider.overrideWithValue(api)],
+            child: MaterialApp.router(routerConfig: router),
+          ),
+        );
+        final field = find.byType(EditableText);
+        final scoped = ProviderScope.containerOf(tester.element(field));
+        for (final uid in ['1001', '1002']) {
+          scoped
+              .read(searchProvider.notifier)
+              .cacheContact(
+                uid,
+                ContactModel(peerId: uid, nickname: 'synthetic $uid'),
+              );
+        }
+        await tester.enterText(field, 'fixture');
+        await tester.pump(const Duration(milliseconds: 350));
+        await tester.pumpAndSettle();
+        expect(scoped.read(searchProvider).searchResults, hasLength(1));
+        if (navigate) {
+          await tester.tap(
+            find.byWidgetPredicate(
+              (widget) =>
+                  widget is TextHighlight && widget.text == 'unread fixture',
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(find.text('isolated chat'), findsOneWidget);
+        } else {
+          for (final state in [
+            AppLifecycleState.inactive,
+            AppLifecycleState.hidden,
+            AppLifecycleState.paused,
+          ]) {
+            tester.binding.handleAppLifecycleStateChanged(state);
+          }
+        }
+        // 没有重新搜索；本机事实在搜索页离开之后才变为已读且到期。
+        readAt = DateTimeHelper.millisecond() - 61000;
+        if (navigate) {
+          router.pop();
+        } else {
+          for (final state in [
+            AppLifecycleState.hidden,
+            AppLifecycleState.inactive,
+            AppLifecycleState.resumed,
+          ]) {
+            tester.binding.handleAppLifecycleStateChanged(state);
+          }
+        }
+        await tester.pumpAndSettle();
+        expect(db.queries, greaterThanOrEqualTo(navigate ? 2 : 1));
+        expect(scoped.read(searchProvider).searchResults, isEmpty);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
+  testWidgets(
+    'late chat click lookup cannot restore a result removed by resume',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      addTearDown(NtpHelper.debugReset);
+      final result = MessageSearchResult(
+        id: 'unread',
+        content: 'unread fixture',
+        fromId: '1002',
+        toId: '1001',
+        type: 'C2C',
+        createdAt: 1,
+        payload: {
+          'text': 'unread fixture',
+          'burn': true,
+          'burn_after_ms': 60000,
+        },
+      );
+      final clickLookup = Completer<MessageSearchResult?>();
+      var lookups = 0;
+      final api = _SearchResponseApi(
+        MessageSearchResponse(items: [result], total: 1),
+        refresh: (_) {
+          lookups++;
+          return lookups == 1
+              ? clickLookup.future
+              : Future<MessageSearchResult?>.value(null);
+        },
+      );
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const SearchChatPage(
+              conversationUk3: 'C2C_1001_1002',
+              type: 'C2C',
+              peerId: '1002',
+              peerTitle: '',
+              peerAvatar: '',
+              peerSign: '',
+            ),
+          ),
+          GoRoute(
+            path: '/chat/:peer',
+            builder: (_, _) => const Scaffold(body: Text('isolated chat')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [ftsApiProvider.overrideWithValue(api)],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      final field = find.byType(EditableText);
+      final scoped = ProviderScope.containerOf(tester.element(field));
+      scoped
+          .read(searchProvider.notifier)
+          .cacheContact(
+            '1002',
+            ContactModel(peerId: '1002', nickname: 'synthetic 1002'),
+          );
+      await tester.enterText(field, 'fixture');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+      expect(scoped.read(searchProvider).searchResults, hasLength(1));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is TextHighlight && widget.text == 'unread fixture',
+        ),
+      );
+      await tester.pump();
+      expect(lookups, 1);
+      void resume() {
+        for (final state in [
+          AppLifecycleState.inactive,
+          AppLifecycleState.hidden,
+          AppLifecycleState.paused,
+          AppLifecycleState.hidden,
+          AppLifecycleState.inactive,
+          AppLifecycleState.resumed,
+        ]) {
+          tester.binding.handleAppLifecycleStateChanged(state);
+        }
+      }
+
+      resume();
+      await tester.pumpAndSettle();
+      expect(lookups, 2);
+      expect(scoped.read(searchProvider).searchResults, isEmpty);
+      clickLookup.complete(result);
+      await tester.pumpAndSettle();
+      expect(find.text('isolated chat'), findsNothing);
+      expect(scoped.read(searchProvider).searchResults, isEmpty);
+      // 已摘除的事实也不能留在页面私有缓存，后续恢复不应再回查它。
+      resume();
+      await tester.pumpAndSettle();
+      expect(lookups, 2);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'chat search removes a visible burn result at its known deadline',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      addTearDown(NtpHelper.debugReset);
+      final nowMs = DateTimeHelper.millisecond();
+      MessageSearchResult item(String id, {bool unread = false}) =>
+          MessageSearchResult(
+            id: id,
+            content: id,
+            fromId: unread ? '1002' : '1001',
+            toId: '1002',
+            type: 'C2C',
+            createdAt: nowMs,
+            payload: {'text': id, 'burn': true, 'burn_after_ms': 60000},
+          );
+      final api = _SearchResponseApi(
+        MessageSearchResponse(
+          items: [item('live fixture'), item('unread fixture', unread: true)],
+          total: 2,
+        ),
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [ftsApiProvider.overrideWithValue(api)],
+          child: const MaterialApp(
+            home: SearchChatPage(
+              conversationUk3: 'C2C_1001_1002',
+              type: 'C2C',
+              peerId: '1002',
+              peerTitle: '',
+              peerAvatar: '',
+              peerSign: '',
+            ),
+          ),
+        ),
+      );
+      final field = find.byType(EditableText);
+      final scoped = ProviderScope.containerOf(tester.element(field));
+      for (final uid in ['1001', '1002']) {
+        scoped
+            .read(searchProvider.notifier)
+            .cacheContact(
+              uid,
+              ContactModel(peerId: uid, nickname: 'synthetic $uid'),
+            );
+      }
+      await tester.enterText(field, 'fixture');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+      expect(scoped.read(searchProvider).searchResults, hasLength(2));
+      final page = scoped.read(searchProvider).currentPage;
+      NtpHelper.updateOffsetFromServer(nowMs + 61000);
+      await tester.pump(const Duration(seconds: 61));
+      expect(scoped.read(searchProvider).searchResults.map((item) => item.id), [
+        'unread fixture',
+      ]);
+      expect(scoped.read(searchProvider).currentPage, page);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets(
     'older failures and cleared searches do not overwrite current state',
     (tester) async {

@@ -6,8 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:highlight_text/highlight_text.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/ui/nodata_view.dart';
-import 'package:imboy/modules/enterprise_app/public.dart'
-    show HostedMessageFacts, HostedMessageFactsRow, resolveHostedMessageFacts;
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -20,6 +18,7 @@ import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'message_search_provider.dart';
+import 'message_search_result_card.dart';
 
 /// 消息搜索页面
 class MessageSearchPage extends ConsumerStatefulWidget {
@@ -711,130 +710,12 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       );
     }
 
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.medium,
-        vertical: AppSpacing.tiny,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: AppRadius.borderRadiusMedium,
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).shadowColor.withValues(alpha: 0.03),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: GestureDetector(
-        onTap: () => _onResultTap(result),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.medium),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 顶部：会话信息和时间
-              Row(
-                children: [
-                  // 会话图标
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.small,
-                      vertical: AppSpacing.tiny,
-                    ),
-                    decoration: BoxDecoration(
-                      color: result.type == 'C2G'
-                          ? AppColors.secondary.withValues(alpha: 0.1)
-                          : AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.borderRadiusTiny,
-                    ),
-                    child: Text(
-                      result.type == 'C2G'
-                          ? t.chat.groupChat
-                          : t.chat.privateChat,
-                      style: context.textStyle(
-                        FontSizeType.tiny,
-                        fontWeight: FontWeight.w500,
-                        color: result.type == 'C2G'
-                            ? AppColors.secondary
-                            : AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  AppSpacing.horizontalSmall,
-                  // 发送者名称
-                  Expanded(
-                    child: Text(
-                      sender.nickname,
-                      style: context.textStyle(
-                        FontSizeType.small,
-                        color: AppColors.textSecondary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  // 时间
-                  Text(
-                    DateTimeHelper.lastTimeFmt(result.createdAt),
-                    style: context.textStyle(
-                      FontSizeType.tiny,
-                      color: AppColors.textSecondary.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
-              AppSpacing.verticalSmall,
-              // 消息内容（高亮显示）
-              TextHighlight(
-                text: _getMessageContent(result),
-                words: _highlightWords,
-                textStyle: context
-                    .textStyle(
-                      FontSizeType.normal,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    )
-                    .copyWith(height: 1.4),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              // FULL-05：搜索面与企业托管消息保持一致——命中企业托管消息时
-              // 同样展示来源徽标与非 E2EE 标记（plan §3.3「会话/详情/通知/
-              // 搜索/历史一致」）。普通消息不渲染任何额外内容。
-              _buildHostedFacts(result),
-            ],
-          ),
-        ),
-      ),
+    return MessageSearchResultCard(
+      result: result,
+      sender: sender,
+      highlightWords: _highlightWords,
+      onTap: () => _onResultTap(result),
     );
-  }
-
-  /// 企业托管消息的来源事实行（复用 enterprise_app 的唯一判定与组件）。
-  Widget _buildHostedFacts(MessageSearchResult result) {
-    final Map<String, dynamic>? metadata = result.payload;
-    if (metadata == null) return const SizedBox.shrink();
-    final HostedMessageFacts facts = resolveHostedMessageFacts(
-      payload: metadata,
-    );
-    if (!facts.showsDelegationBadge && !facts.needsOriginWarning) {
-      return const SizedBox.shrink();
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.tiny),
-      child: HostedMessageFactsRow(facts: facts),
-    );
-  }
-
-  /// 获取消息内容
-  String _getMessageContent(MessageSearchResult result) {
-    if (result.payload != null && result.payload!['text'] != null) {
-      return result.payload!['text'].toString();
-    }
-    return result.content;
   }
 
   /// 异步加载联系人
@@ -852,7 +733,30 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
   }
 
   /// 点击搜索结果
-  void _onResultTap(MessageSearchResult result) {
+  Future<void> _onResultTap(MessageSearchResult result) async {
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    final notifier = ref.read(messageSearchProvider.notifier);
+    final searchGeneration = notifier.searchGeneration;
+    if (!result.isVisibleAt(
+      DateTimeHelper.millisecond(),
+      UserRepoLocal.to.currentUid,
+    )) {
+      ref.read(messageSearchProvider.notifier).removeExpiredResults();
+      return;
+    }
+    final current = await ref
+        .read(ftsApiProvider)
+        .refreshResultVisibility(result);
+    if (!mounted ||
+        session.currentUid != uid ||
+        !session.isCurrentSession(generation) ||
+        notifier.searchGeneration != searchGeneration ||
+        session.isAuthTransitioning) {
+      return;
+    }
+    if (!notifier.applyVisibilityResult(result, current)) return;
     // 跳转到聊天页面，定位到该消息。
     // 对端判定与 web_search_page 对齐：C2G 的会话目标是群（msg_c2g.to_id）；
     // C2C 按「我是否为发送者」取另一端——此前恒取 toId，收到的消息
@@ -865,7 +769,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
       peerId = isAuthor ? result.toId : result.fromId;
     }
 
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       CupertinoPageRoute<dynamic>(
         builder: (context) => ChatPage(
           peerId: peerId,
@@ -877,5 +781,8 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         ),
       ),
     );
+    if (mounted) {
+      await ref.read(messageSearchProvider.notifier).refreshVisibleResults();
+    }
   }
 }

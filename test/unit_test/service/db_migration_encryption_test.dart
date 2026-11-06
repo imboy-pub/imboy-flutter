@@ -170,9 +170,18 @@ void main() {
     test(
       'does not delete or copy an existing database during verification',
       () {
+        final verificationStart = source.indexOf(
+          'Future<bool> _verifyEncryptedDatabase(',
+        );
+        expect(verificationStart, greaterThanOrEqualTo(0));
+        final verificationEnd = source.indexOf(
+          'static Future<void> configureConnection(',
+          verificationStart,
+        );
+        expect(verificationEnd, greaterThan(verificationStart));
         final verification = source.substring(
-          source.indexOf('Future<bool> _verifyEncryptedDatabase'),
-          source.indexOf('/// 打开数据库时的配置回调'),
+          verificationStart,
+          verificationEnd,
         );
         expect(verification, isNot(contains('.delete(')));
         expect(verification, isNot(contains('.copy(')));

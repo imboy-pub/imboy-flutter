@@ -21,6 +21,7 @@ import 'package:imboy/service/sqflite_init.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
 part 'sqlite_scalar_query.dart';
+part 'sqlite_connection_config.dart';
 
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// SQLite 本地数据库服务
@@ -361,7 +362,7 @@ class SqliteService {
         path,
         password: password,
         version: _dbVersion,
-        onConfigure: _onConfigure,
+        onConfigure: configureConnection,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
         onDowngrade: _onDowngrade,
@@ -401,28 +402,13 @@ class SqliteService {
     }
   }
 
-  /// 打开数据库时的配置回调
-  /// Configure callback when database is opened
-  FutureOr<void> _onConfigure(Database db) async {
-    AppLogger.debug("SqliteService_onConfigure ${db.toString()}");
-
-    ///  请记住，回调onCreate onUpgrade onDowngrade已经内部包装在事务中，
-    ///  因此无需将语句包装在这些回调内的事务中。
-
-    // 启用外键约束
-    await db.execute('PRAGMA foreign_keys = ON');
-    // 设置同步模式为NORMAL，平衡性能和数据安全
-    await db.execute('PRAGMA synchronous = NORMAL');
-    // 设置缓存大小为64MB，提升查询性能
-    await db.execute('PRAGMA cache_size = -64000');
-    // 【审计修复 F-01/H1】busy_timeout：拿不到写锁时最多等待 5s 而非立刻抛
-    // SQLITE_BUSY。配合 _dbLock 串行化与 query 的 locked 重试，避免并发 S2C
-    // 包写同一会话时出现 "database is locked" 异常冒泡到 save()。
-    // 注意：PRAGMA busy_timeout 会返回当前值（一行），必须用 rawQuery 而非 execute，
-    // 否则 Android SQLCipher 在 WAL 模式下抛 "Queries can be performed using
-    // SQLiteDatabase query or rawQuery methods only."
-    await db.rawQuery('PRAGMA busy_timeout = 5000');
-  }
+  /// 所有应用写连接在版本迁移前执行的配置回调。
+  ///
+  /// 与 FFI、Web、SQLCipher 驱动验收共用此入口。recursive_triggers 是连接
+  /// 属性，不会随数据库文件保存；每次重新打开都必须设置并确认。v38 FTS
+  /// 依赖它在 INSERT OR REPLACE 隐式删除旧消息时执行删除触发器。
+  static Future<void> configureConnection(Database db) =>
+      _configureSqliteConnection(db);
 
   ///
   /// 如果在调用之前数据库不存在，则调用[onCreate]

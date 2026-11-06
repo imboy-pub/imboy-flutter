@@ -316,6 +316,17 @@ class SearchNotifier extends _$SearchNotifier {
     state = state.copyWith(typeDistribution: distribution);
   }
 
+  void removeSearchResults(Set<String> ids) {
+    if (ids.isEmpty) return;
+    final remaining = state.searchResults
+        .where((message) => !ids.contains(message.id))
+        .toList();
+    state = state.copyWith(
+      searchResults: remaining,
+      totalResults: remaining.length,
+    );
+  }
+
   void setError(String message) {
     state = state.copyWith(errorMessage: message);
   }

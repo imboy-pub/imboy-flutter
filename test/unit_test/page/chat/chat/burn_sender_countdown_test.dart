@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/modules/messaging/domain/policy/burn_expiry_rules.dart';
 import 'package:imboy/page/chat/chat/services/chat_burn_service.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -59,6 +60,42 @@ MessageModel item({
 }
 
 void main() {
+  group('chat/search shared burn deadline', () {
+    test('numeric strings, legacy keys and the exact deadline agree', () {
+      final payload = <String, dynamic>{
+        'is_burn': true,
+        'expiry_time': '30000',
+        'burn_read_at': '1000',
+      };
+      expect(burnExpiresAtMs(payload, fallbackStartMs: 500), 31000);
+      expect(isBurnExpiredAt(payload, 30999), isFalse);
+      expect(isBurnExpiredAt(payload, 31000), isTrue);
+      expect(service().isBurnExpired(payload, 31000), isTrue);
+    });
+
+    test('unknown or invalid countdowns never invent a read timestamp', () {
+      for (final duration in [null, 0, -1, 1.5, true, 'invalid']) {
+        expect(
+          burnExpiresAtMs({
+            'burn': true,
+            'burn_after_ms': duration,
+            'burn_read_at': 1000,
+          }),
+          isNull,
+          reason: 'invalid burn duration: $duration',
+        );
+      }
+      final unread = burnPayload();
+      expect(burnExpiresAtMs(unread), isNull);
+      expect(burnExpiresAtMs(unread, fallbackStartMs: 1000), 31000);
+      expect(unread.containsKey('burn_read_at'), isFalse);
+      expect(
+        burnExpiresAtMs({'text': 'ordinary'}, fallbackStartMs: 1000),
+        isNull,
+      );
+    });
+  });
+
   group('isBurnExpired 发送方语义（倒计时从发送时间起算）', () {
     test('发送方消息 burn_read_at 为 0 时，超过发送时间+burnAfter 即过期', () {
       final int createdAt = DateTime.now().millisecondsSinceEpoch - 60000;

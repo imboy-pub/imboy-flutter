@@ -8,6 +8,7 @@ import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/repository/message_fts_repo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common/sqlite_api.dart' show OpenDatabaseOptions;
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 void main() {
@@ -29,13 +30,19 @@ void main() {
         noWebWorker: true,
         options: SqfliteFfiWebOptions(sqlite3WasmUri: Uri.parse(wasmUrl)),
       );
-      final db = await factory.openDatabase(':memory:');
+      final db = await factory.openDatabase(
+        ':memory:',
+        options: OpenDatabaseOptions(
+          onConfigure: SqliteService.configureConnection,
+        ),
+      );
       SqliteService.setDbForTest(db);
       try {
         for (final table in ['msg_c2c', 'msg_c2g']) {
           await db.execute(
             'CREATE TABLE $table (auto_id INTEGER PRIMARY KEY, '
-            'id TEXT UNIQUE, conversation_uk3 TEXT, msg_type TEXT, payload TEXT, status INTEGER)',
+            'id TEXT UNIQUE, conversation_uk3 TEXT, msg_type TEXT, payload TEXT, '
+            'status INTEGER, is_author INTEGER DEFAULT 0, created_at INTEGER DEFAULT 0)',
           );
           await db.execute(
             'CREATE VIRTUAL TABLE ${table}_fts USING fts5('
@@ -61,10 +68,12 @@ void main() {
               ? repo.searchC2c(
                   query: 'originalword',
                   conversationUk3: 'synthetic',
+                  throwOnError: true,
                 )
               : repo.searchC2g(
                   query: 'originalword',
                   conversationUk3: 'synthetic',
+                  throwOnError: true,
                 );
           Future<List<Map<String, Object?>>> search(String word) => db.rawQuery(
             'SELECT id FROM ${table}_fts WHERE ${table}_fts MATCH ?',
@@ -102,7 +111,7 @@ void main() {
             ),
           );
           expect(await search('updatedword'), hasLength(1));
-          await db.execute('PRAGMA recursive_triggers = ON');
+          await SqliteService.configureConnection(db);
           await db.rawInsert(
             'INSERT OR REPLACE INTO $table(id, msg_type, payload, status) VALUES(?, ?, ?, ?)',
             ['synthetic-$table', 'text', '{"text":"replacementword"}', 20],
