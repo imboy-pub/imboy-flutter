@@ -32,7 +32,7 @@ IDENTITY = ('id', 'commit', 'profile', 'suite', 'target', 'platform',
             'product_profile', 'role', 'variant', 'selected')
 GOOD_UPSTREAM = {'PASS', 'success', 'passed'}
 COUNT_KEYS = ('passed', 'failed', 'skipped', 'executed', 'actually_run')
-HOST_BATCH_MAX_TARGETS = 128
+HOST_BATCH_MAX_TARGETS = 64
 
 
 def _write_json(path, value):

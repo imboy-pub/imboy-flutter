@@ -470,21 +470,26 @@ class RunnerTest(unittest.TestCase):
         self.assertEqual(len(calls), 2)
 
     def test_bounded_host_batches_keep_every_instance_and_merge_coverage_once(self):
-        items = [instance(f'test/chunk_{index}_test.dart') for index in range(5)]
+        items = [instance(f'test/chunk_{index}_test.dart') for index in range(129)]
         for item in items:
             (self.root / item['target']).write_text('// synthetic host target\n')
         calls = []
         def process(*args, **kwargs):
             calls.append(args[0])
             return self.process(*args, **kwargs)
-        with self.mock_execution(process), patch.object(runner, 'HOST_BATCH_MAX_TARGETS', 2):
+        with self.mock_execution(process), patch.object(
+                runner, 'merge_coverage_files', wraps=runner.merge_coverage_files) as merge:
             summary = runner.run_plan(self.root, plan(*items), self.output, coverage=True)
         batches = [[arg for arg in command if arg.endswith('_test.dart')] for command in calls]
-        self.assertEqual([len(batch) for batch in batches], [2, 2, 1])
+        self.assertEqual([len(batch) for batch in batches], [64, 64, 1])
         self.assertEqual([target for batch in batches for target in batch], [item['target'] for item in items])
+        self.assertTrue(all('--coverage' in command for command in calls))
         self.assertEqual(summary['status'], 'PASS')
-        self.assertEqual(summary['counts']['actually_run'], 5)
+        self.assertEqual(summary['counts']['actually_run'], 129)
+        self.assertEqual(len(summary['results']), 129)
         self.assertEqual({row['id'] for row in summary['results']}, {item['id'] for item in items})
+        merge.assert_called_once()
+        self.assertEqual(len(set(merge.call_args.args[0])), 3)
         merged = (self.output / 'coverage/lcov.info').read_text()
         self.assertEqual(merged.count('SF:lib/sample.dart'), 1)
         self.assertEqual(merged.count('DA:1,1'), 1)
