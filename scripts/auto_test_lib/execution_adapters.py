@@ -746,7 +746,12 @@ def build_invocation(root: Path, instance: dict, env: dict, output_dir: Path,
         defines.update(owned['defines'])
     for name in ('TEST_ALLOW_BUSINESS_WRITES', 'TEST_ALLOW_CHANNEL_WRITES', 'TEST_EXPECTED_UID',
                  'PEER_UID', 'TEST_PEER_UID', 'TEST_GROUP_ID', 'TEST_REQUIRED_MEMBER_UIDS',
-                 'TEST_DUAL_RUN_ID', 'LK_RTC_WS_OVERRIDE', 'TEST_ALLOW_API_WRITES'):
+                 'TEST_DUAL_RUN_ID', 'LK_RTC_WS_OVERRIDE', 'TEST_ALLOW_API_WRITES',
+                 # rtc-c2c 变体参数（W3）：合同 variant.dart_defines 提供默认值，
+                 # 运行环境可按角色覆盖（仅 export 同名 shell 变量不生效——必须
+                 # 经本转发进入 --dart-define，见 execution_contract.json 变体注释）。
+                 'LK_RTC_MEDIA', 'LK_RTC_B_CASE',
+                 'TEST_C2C_CONNECTED_HOLD_SECONDS', 'TEST_C2C_INCOMING_HOLD_SECONDS'):
         value = _value(env, name, role)
         if value:
             defines[name] = value

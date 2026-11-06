@@ -762,7 +762,46 @@
       ],
       "runner": "device-pair",
       "basis": [
-        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration.",
+        "Variants map media x callee case to real dart-defines consumed by integration_test/rtc/* (LK_RTC_MEDIA / LK_RTC_B_CASE / TEST_C2C_CONNECTED_HOLD_SECONDS / TEST_C2C_INCOMING_HOLD_SECONDS); caller/callee direction swap is expressed by exchanging role-scoped account env between two paired runs (TEST_PHONE(role)/TEST_CODE(role))."
+      ],
+      "variants": [
+        {
+          "variant": "video-accept",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "video",
+            "LK_RTC_B_CASE": "accept",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        },
+        {
+          "variant": "audio-accept",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "audio",
+            "LK_RTC_B_CASE": "accept",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        },
+        {
+          "variant": "video-decline",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "video",
+            "LK_RTC_B_CASE": "decline",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        },
+        {
+          "variant": "audio-decline",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "audio",
+            "LK_RTC_B_CASE": "decline",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        }
       ]
     },
     "integration_test/rtc/c2c_call_matrix_b_side_test.dart": {
@@ -791,7 +830,46 @@
       ],
       "runner": "device-pair",
       "basis": [
-        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration.",
+        "Variants map media x callee case to real dart-defines consumed by integration_test/rtc/* (LK_RTC_MEDIA / LK_RTC_B_CASE / TEST_C2C_CONNECTED_HOLD_SECONDS / TEST_C2C_INCOMING_HOLD_SECONDS); caller/callee direction swap is expressed by exchanging role-scoped account env between two paired runs (TEST_PHONE(role)/TEST_CODE(role))."
+      ],
+      "variants": [
+        {
+          "variant": "video-accept",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "video",
+            "LK_RTC_B_CASE": "accept",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        },
+        {
+          "variant": "audio-accept",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "audio",
+            "LK_RTC_B_CASE": "accept",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        },
+        {
+          "variant": "video-decline",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "video",
+            "LK_RTC_B_CASE": "decline",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        },
+        {
+          "variant": "audio-decline",
+          "dart_defines": {
+            "LK_RTC_MEDIA": "audio",
+            "LK_RTC_B_CASE": "decline",
+            "TEST_C2C_CONNECTED_HOLD_SECONDS": "15",
+            "TEST_C2C_INCOMING_HOLD_SECONDS": "15"
+          }
+        }
       ]
     },
     "integration_test/demo_flow/dual_account_message_flow_test.dart": {
