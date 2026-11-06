@@ -325,6 +325,15 @@ void main() {
     });
   });
 
+  /// FFI 事务经真实事件循环（native port）返回，pumpEventQueue 只排空微任务
+  /// 队列——CI 慢机上移除事件会晚于断言到达（批次 0001 时序性失败实证）。
+  /// 有界轮询真实事件循环直到条件满足。
+  Future<void> pumpUntilEventLoop(bool Function() done) async {
+    for (var i = 0; i < 200 && !done(); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+  }
+
   group('error 帧停止重试（MessageRetry 队列条目移除）', () {
     test('message_revoke_error 移除对应操作帧的重试条目', () async {
       final svc = bootedService();
@@ -342,7 +351,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await pumpUntilEventLoop(() => retry.getRetryInfo(opId) == null);
       expect(retry.getRetryInfo(opId), isNull);
     });
 
@@ -363,7 +372,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await pumpUntilEventLoop(() => retry.getRetryInfo(opId) == null);
       expect(retry.getRetryInfo(opId), isNull);
     });
 
@@ -383,7 +392,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await pumpUntilEventLoop(() => retry.getRetryInfo(opId) == null);
       expect(retry.getRetryInfo(opId), isNull);
     });
   });
