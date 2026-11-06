@@ -51,14 +51,22 @@ python3 scripts/auto_test.py execution-plan --profile web \
 python3 scripts/auto_test.py execution-run --plan "$REPORT_DIR/fts-web-plan.json" \
   --artifact-dir "$REPORT_DIR/fts-web"
 
-# Inspect all native obligations before selecting a physical Android device,
-# physical iOS device, or native macOS runner. No backend/account is required.
+# Inspect all native obligations. No backend/account is required for this target.
 python3 scripts/auto_test.py execution-plan --profile device-single \
   --target integration_test/sqlcipher_fts_v38_draft_test.dart \
   --output "$REPORT_DIR/fts-native-all.json"
+
+# Set ANDROID_DEVICE_ID to the verified physical device ID, never an emulator.
+IMBOY_EXECUTION_DEVICE_ANDROID="$ANDROID_DEVICE_ID" \
 python3 scripts/auto_test.py execution-run --profile device-single --platform android \
   --target integration_test/sqlcipher_fts_v38_draft_test.dart \
   --artifact-dir "$REPORT_DIR/fts-native-android"
+
+# Run on a macOS host with the native SQLCipher implementation.
+IMBOY_EXECUTION_DEVICE_MACOS=macos \
+python3 scripts/auto_test.py execution-run --profile device-single --platform macos \
+  --target integration_test/sqlcipher_fts_v38_draft_test.dart \
+  --artifact-dir "$REPORT_DIR/fts-native-macos"
 ```
 
 FTS 草稿与离线群消息两个 Web 目标共用固定 `SQLITE_WASM_URL=/fixtures/sqlite3.wasm`；
@@ -73,11 +81,61 @@ SQLCipher 目标使用临时数据库和合成密码，只能由真正支持加�
 `IMBOY_EXECUTION_DEVICE_ANDROID/IOS/MACOS` 指定设备。缺 SDK、浏览器或合格设备为
 `ENV_MISSING`，主机 SQLite 探针不能代替原生证明。
 
+原生入口从真实 baseline 执行 16→37，使用完整的 v37 schema 和合成消息/会话数据，再
+显式应用 v38 草稿。它检查字段值保持、旧索引重建、加密快照、独立错误密钥连接拒绝、
+DDL/版本/meta/数据写入后的事务失败回滚、关闭重开和成功重试；同时保留独立连接的
+recursive trigger、REPLACE/UPSERT 与 WAL 可见性验证。这些断言只有在原生运行后才是
+证据，静态分析或宿主 FFI 不能代替。该入口不安装新旧应用包，不证明保留数据的覆盖升级、
+旧包回退或进程被杀后的恢复。
+
+### 远端到期合同 / Remote expiry contract
+
+[后端 PR #37](https://github.com/imboy-pub/imboy/pull/37) 补齐 C2C/C2G 搜索 formatter 的
+`expire_at` 透传，复用已有 REST 时间转换：JSON 字段为 epoch **毫秒**或 `null`。
+客户端经 `ApiTime.parseEpochMillis` 读取并在 JSON 往返中保留；不按数字长度猜秒/毫秒，
+缺失或非法值保持未知。0/负值按真实过去时刻处理，已知期限取远端与本地事实的较早者；
+接收方未读不能以创建时间冒充已读。未下载过本地行的历史也按服务端绝对期限过滤并在
+展示期间到期，不需要再次搜索。筛掉结果仍保留原页条数，避免提前结束后续分页。
+
+Flutter 定向验证复用统一 PR 入口，精确目标可在无设备环境执行：
+
+```bash
+python3 scripts/auto_test.py execution-run --profile pr --platform linux \
+  --target test/unit_test/store/api/fts_api_test.dart \
+  --target test/unit_test/page/search/message_search_provider_test.dart \
+  --target test/unit_test/page/search/message_search_local_pagination_test.dart \
+  --artifact-dir "$REPORT_DIR/fts-expiry-client"
+```
+
+后端四个模块接入既有已迁移、带中文分词配置的隔离 PostgreSQL CI：`fts_logic_tests`、
+`fts_handler_tests`、`fts_user_ds_tests`、`fts_user_repo_tests`。本地在同等合成测试库、
+测试配置及依赖就绪后，可从后端仓执行：
+
+```bash
+IMBOYENV=local make eunit-local EUNIT_CONFIG=config/sys EUNIT_USE_RELAY=0 \
+  EUNIT_MODS='fts_logic_tests fts_handler_tests fts_user_ds_tests fts_user_repo_tests'
+```
+
+响应测试真实执行 logic→REST 时间转换→JSON，覆盖 C2C/C2G 的绝对期限及 null；真实 PG
+三态回归目前覆盖 C2C 的 null/未来/过去期限。它们不是部署后的双端 HTTP 验收，模拟响应
+也不能代替该数据库证据。CI 要求四个模块都有非零、无失败/跳过的 XML 和成功进程结果，
+上传 `fts-expiry-contract` 工件；缺数据库不能退化为零执行通过。
+
+### 尚待取得的注册证据 / Outstanding admission evidence
+
 注册 v38 前仍需绑定当前候选代码的真实 SQLCipher/安装二进制证据，并完成阅后即焚的
-本地查询、远端回退和展示期到期验收。搜索结果已知期限取可信来源中较早者；接收方未读
-不能以创建时间冒充已读。当前服务端搜索响应没有绝对 `expire_at`，仅远端保存的历史消息
-无法由客户端独立证明其服务端期限；需先补齐该响应合同及隔离后端验收，不能通过隐藏所有
-未过期 burn 消息、添加 skip 豁免或假造时钟消除阻塞。
+本地查询、隔离后端远端回退和展示期到期验收。沿用原项目已裁决的 Android 真机 + macOS
+App 范围；暂缓的 iOS 不升级为本次前置修复 PR 的新合并条件，其 catalog/full 义务仍保留，
+不能据此宣称全平台通过。保留原数据的新旧包升级、旧目标安全拒绝及实际中断证据应另附
+确切包版本、哈希、设备、命令与机器结果；本地草稿 fixture 不满足这些条件。
+v38 声明 `reversible: false` 且没有 38→37 降级边，旧包必须按现有协议安全拒绝而不破坏库，
+或使用已验证的快照恢复流程；不要求凭空成功降级，也不能临时添加降级边掩盖风险。
+既有 v31 安装/16→31 kill replay 是历史回归，不能重标为本次 37→38 二进制证据。
+
+只有实际证据满足注册条件后，才注册 manifest、重生成迁移资产并移除原来两个针对
+生产当前版本的 skip，随后重跑 Linux/macOS PR 和覆盖率对账。不能通过隐藏所有未过期
+burn 消息、添加 skip 豁免、改为草稿 fixture 或假造时钟消除阻塞。缺原生环境为
+`ENV_MISSING`，现有两个被选中的直写用例继续为 `UNEXPECTED_SKIP`，两个原因不可混写。
 
 **English:** v38 remains an unregistered draft. The shared production connection configurator
 and draft schema checks are prerequisites, not native deployment evidence. Run the declared
@@ -85,6 +143,10 @@ host, Chrome/WASM and native SQLCipher instances separately and retain machine e
 receipts. Offline Chrome/WASM now runs in the existing PR Ubuntu matrix and can be rerun with
 the same `web` profile; coverage remains Linux-only. Missing environments block execution.
 Existing direct-SQL skips remain unexpected.
-Activation also requires current physical/native binary evidence and a verified server expiry
-contract for remote-only burn history; do not infer a recipient's read time or hide valid
-unexpired burn messages to make the gate pass.
+The native fixture now uses the real v37 schema and tests encrypted snapshots, rollback and
+retry, but does not install old/new applications. The companion backend PR #37 preserves
+absolute expiry in milliseconds; client tests cover unseen remote history and display-time
+expiry. Audit backend, client, native and retained-data binary evidence separately. Activation
+still requires those real results; preserve the existing Android/macOS scope decision and the
+separate iOS/full obligations. Do not infer a recipient's read time or hide valid unexpired burn
+messages to make the gate pass.

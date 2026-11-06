@@ -119,6 +119,8 @@ class MessageSearchResult {
       payload: payloadMap,
       status: statusValue == null ? null : parseModelInt(statusValue),
       highlight: parseModelNullableString(json['highlight']),
+      // 通用 REST 的绝对期限是 epoch 毫秒；缺失/非法保持未知。
+      knownExpiresAtMs: ApiTime.parseEpochMillis(json['expire_at']),
     );
   }
 
@@ -133,6 +135,7 @@ class MessageSearchResult {
       'msg_type': msgType,
       'payload': payload,
       'status': status,
+      'expire_at': knownExpiresAtMs,
     };
   }
 
@@ -198,7 +201,7 @@ class FtsApi extends HttpClient {
   static FtsApi get to => _instance;
 
   /// 远端搜索不能覆盖本机的已读期限、撤回或焚毁墓碑。没有本地行时
-  /// 保留远端事实；后端未提供 expire_at，不能在客户端猜它的期限。
+  /// 保留远端 expire_at；缺少绝对期限时不能猜测接收方的已读时间。
   Future<MessageSearchResponse> _withLocalVisibility(
     MessageSearchResponse response, {
     required String uid,

@@ -145,6 +145,95 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
+    'remote expiry removes C2C and C2G history without another search',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      SqliteService.setDbUnavailableForTest();
+      final nowMs = DateTimeHelper.millisecond();
+      final response = MessageSearchResponse.fromJson({
+        'total': 3,
+        'list': [
+          for (final type in ['c2c', 'c2g'])
+            {
+              'message_id': 'remote-$type',
+              'from': '200',
+              'to': '100',
+              'conversation_type': type,
+              'created_at': 1,
+              'msg_type': 'text',
+              'payload': {
+                'text': 'remote-$type',
+                'burn': true,
+                'burn_after_ms': 60000,
+              },
+              'expire_at': nowMs + (type == 'c2c' ? 60000 : 120000),
+            },
+          {
+            'message_id': 'ordinary',
+            'from': '200',
+            'to': '100',
+            'conversation_type': 'c2c',
+            'created_at': 1,
+            'payload': {'text': 'ordinary'},
+            'expire_at': null,
+          },
+        ],
+      });
+      final api = _VisibilityApi(response.items);
+      final container = ProviderContainer(
+        overrides: [ftsApiProvider.overrideWithValue(api)],
+      );
+      final subscription = container.listen(messageSearchProvider, (_, _) {});
+      addTearDown(() {
+        subscription.close();
+        container.dispose();
+        SqliteService.setDbForTest(null);
+        NtpHelper.debugReset();
+      });
+      final notifier = container.read(messageSearchProvider.notifier);
+      for (final uid in ['100', '200']) {
+        notifier.cacheContact(uid, ContactModel(peerId: uid, nickname: uid));
+      }
+      await tester.runAsync(() => notifier.performSearch(query: 'remote'));
+      expect(container.read(messageSearchProvider).searchResults, hasLength(3));
+      expect(
+        container
+            .read(messageSearchProvider)
+            .searchResults
+            .every((item) => !item.localRowObserved),
+        isTrue,
+      );
+      // Re-arm the real provider timer in the widget test's controlled zone.
+      notifier.removeExpiredResults();
+      NtpHelper.updateOffsetFromServer(nowMs + 59000);
+      await tester.pump(const Duration(seconds: 59));
+      expect(container.read(messageSearchProvider).searchResults, hasLength(3));
+      NtpHelper.updateOffsetFromServer(nowMs + 61000);
+      await tester.pump(const Duration(seconds: 2));
+      expect(
+        container
+            .read(messageSearchProvider)
+            .searchResults
+            .map((item) => item.id),
+        ['remote-c2g', 'ordinary'],
+      );
+      NtpHelper.updateOffsetFromServer(nowMs + 121000);
+      await tester.pump(const Duration(seconds: 60));
+      expect(
+        container
+            .read(messageSearchProvider)
+            .searchResults
+            .map((item) => item.id),
+        ['ordinary'],
+      );
+      expect(container.read(messageSearchProvider).totalResults, 1);
+      expect(api.searches, 1);
+    },
+  );
+
+  testWidgets(
     'new deadlines apply before later hydration and late results cannot revive removed rows',
     (tester) async {
       SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});

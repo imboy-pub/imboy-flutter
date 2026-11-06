@@ -462,7 +462,7 @@
       "dependencies": [
         "native-sqlcipher"
       ],
-      "reviewed_source_sha256": "3d7b8d800cd9053be17d57d9818be92a876b3db715785349e520ea89bdf221c5",
+      "reviewed_source_sha256": "8af58c71f004152f4c2e68a6b171a0664594b39a32579690d2ee8d050a7b7456",
       "basis": [
         "Uses fresh temporary SQLCipher databases, a synthetic password and the production connection configurator. It performs no app bootstrap, login or backend request, and does not depend on generated product features.",
         "The real native SQLCipher driver must report cipher_version and execute FTS5. Android/iOS require qualified physical devices; macOS uses its native SQLCipher implementation. Host SQLite and browser WASM cannot satisfy these obligations."

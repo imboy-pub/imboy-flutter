@@ -1,14 +1,60 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/component/helper/datetime.dart';
+import 'package:imboy/component/helper/ntp.dart';
+import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/fts_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+
+Map<String, dynamic> _remoteHistoryRow(String type, {Object? expiresAt}) => {
+  'message_id': 'remote-$type',
+  'from': '200',
+  if (type == 'C2G') 'group_id': '300' else 'to': '100',
+  'conversation_type': type.toLowerCase(),
+  'created_at': 1000,
+  'msg_type': 'text',
+  'status': 20,
+  'payload': {
+    'text': 'synthetic remote history',
+    'burn': true,
+    'burn_after_ms': 60000,
+  },
+  'expire_at': expiresAt,
+};
+
+class _FtsResponseAdapter implements HttpClientAdapter {
+  _FtsResponseAdapter(this.payload);
+  Map<String, dynamic> payload;
+  final requests = <RequestOptions>[];
+
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    expect(options.path, endsWith(API.ftsMessage));
+    requests.add(options);
+    return ResponseBody.fromString(
+      jsonEncode({'code': 0, 'msg': 'success', 'payload': payload}),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+}
 
 class _SearchFactsDatabase implements Database {
   _SearchFactsDatabase(this.lookup);
@@ -211,51 +257,46 @@ void main() {
       },
     );
 
-    test(
-      'local hydration cannot erase or postpone an observed remote deadline',
-      () async {
-        final nowMs = DateTimeHelper.millisecond();
-        final remoteRead = MessageSearchResult(
-          id: 'received-burn',
-          content: 'remote',
-          fromId: '200',
-          toId: '100',
-          type: 'C2C',
-          createdAt: 1000,
-          payload: {
-            'burn': true,
-            'burn_after_ms': 60000,
-            'burn_read_at': nowMs,
-          },
-        );
-        for (final localRead in [null, nowMs + 10000, nowMs - 10000]) {
-          SqliteService.setDbForTest(
-            _SearchFactsDatabase(
-              (_) async => [
-                {
-                  'payload': jsonEncode({
-                    'text': 'local fixture',
-                    'burn': true,
-                    'burn_after_ms': 60000,
-                    'burn_read_at': ?localRead,
-                  }),
-                  'created_at': 1000,
-                  'is_author': 0,
-                  'status': 20,
-                },
-              ],
-            ),
+    for (final type in ['C2C', 'C2G']) {
+      test(
+        '$type local hydration can only tighten the server absolute deadline',
+        () async {
+          final nowMs = DateTimeHelper.millisecond();
+          final remoteRead = MessageSearchResult.fromJson(
+            _remoteHistoryRow(type, expiresAt: nowMs + 60000),
           );
-          final result = await FtsApi.to.refreshResultVisibility(remoteRead);
-          expect(result, isNotNull);
-          final earliest = localRead != null && localRead < nowMs
-              ? localRead
-              : nowMs;
-          expect(result!.expiresAtMs('100'), earliest + 60000);
-          expect(result.isVisibleAt(earliest + 60000, '100'), isFalse);
-        }
-      },
-    );
+          for (final localRead in [null, nowMs + 10000, nowMs - 10000]) {
+            SqliteService.setDbForTest(
+              _SearchFactsDatabase(
+                (_) async => [
+                  {
+                    'payload': jsonEncode({
+                      'text': 'local fixture',
+                      'burn': true,
+                      'burn_after_ms': 60000,
+                      'burn_read_at': ?localRead,
+                    }),
+                    'created_at': 1000,
+                    'is_author': 0,
+                    'status': 20,
+                  },
+                ],
+              ),
+            );
+            final result = await FtsApi.to.refreshResultVisibility(remoteRead);
+            expect(result, isNotNull);
+            final earliest = localRead != null && localRead < nowMs
+                ? localRead
+                : nowMs;
+            expect(result!.expiresAtMs('100'), earliest + 60000);
+            expect(result.isVisibleAt(earliest + 59999, '100'), isTrue);
+            expect(result.isVisibleAt(earliest + 60000, '100'), isFalse);
+            final restored = MessageSearchResult.fromJson(result.toJson());
+            expect(restored.expiresAtMs('100'), earliest + 60000);
+          }
+        },
+      );
+    }
 
     test(
       'malformed local payload cannot be treated as an unread burn message',
@@ -314,6 +355,124 @@ void main() {
     );
   });
 
+  group('remote-only history consumes server expiry', () {
+    const secure = MethodChannel(
+      'plugins.it_nomads.com/flutter_secure_storage',
+    );
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      final encode = base64Url.encode;
+      final token =
+          '${encode(utf8.encode(jsonEncode({'alg': 'HS256'})))}.'
+          '${encode(utf8.encode(jsonEncode({'exp': 4102444800})))}.'
+          '${encode(utf8.encode('synthetic'))}';
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            secure,
+            (call) async =>
+                call.method == 'read' && call.arguments['key'] == 'secure_token'
+                ? token
+                : null,
+          );
+    });
+    tearDown(() {
+      HttpClient.adapterForTest = null;
+      SqliteService.setDbForTest(null);
+      NtpHelper.debugReset();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(secure, null);
+    });
+
+    for (final type in ['C2C', 'C2G']) {
+      for (final scoped in [false, true]) {
+        test(
+          '$type ${scoped ? 'conversation' : 'global'} search preserves pagination and expires unseen history',
+          () async {
+            final nowMs = DateTimeHelper.millisecond();
+            final deadline = nowMs + 60000;
+            final adapter = _FtsResponseAdapter({
+              'total': 3,
+              'list': [
+                {
+                  ..._remoteHistoryRow(type, expiresAt: nowMs - 1),
+                  'message_id': 'expired-$type',
+                },
+                {
+                  ..._remoteHistoryRow(type, expiresAt: nowMs),
+                  'message_id': 'boundary-$type',
+                },
+              ],
+            });
+            final api = FtsApi.to;
+            final previousAdapter = api.dio.httpClientAdapter;
+            // adapterForTest 仅影响新实例；前面的可见性测试已创建这个单例。
+            HttpClient.adapterForTest = adapter;
+            api.dio.httpClientAdapter = adapter;
+            addTearDown(() => api.dio.httpClientAdapter = previousAdapter);
+            final db = _SearchFactsDatabase((arguments) async {
+              expect(arguments, [
+                'remote-$type',
+                '200',
+                type == 'C2G' ? '300' : '100',
+              ]);
+              // 历史从未下载到本机，不能依赖本地行或 burn_read_at 才到期。
+              return [];
+            });
+            SqliteService.setDbForTest(db);
+            Future<MessageSearchResponse?> search(int page) => scoped
+                ? api.searchConversationMessages(
+                    keyword: 'synthetic',
+                    conversationUk3: type == 'C2G'
+                        ? 'C2G_100_300'
+                        : 'C2C_100_200',
+                    page: page,
+                    size: 2,
+                  )
+                : api.searchMessages(
+                    keyword: 'synthetic',
+                    type: type,
+                    page: page,
+                    size: 2,
+                  );
+
+            final first = (await search(1))!;
+            expect(adapter.requests, hasLength(1));
+            expect(first.items, isEmpty);
+            expect(first.total, 1);
+            expect(first.sourceItemCount, 2);
+            expect(db.queries, 0);
+
+            adapter.payload = {
+              'total': 3,
+              'list': [_remoteHistoryRow(type, expiresAt: deadline)],
+            };
+            final second = (await search(2))!;
+            final live = second.items.single;
+            expect(second.sourceItemCount, 1);
+            expect(live.id, 'remote-$type');
+            expect(live.localRowObserved, isFalse);
+            expect(live.knownExpiresAtMs, deadline);
+            expect(live.isVisibleAt(deadline - 1, '100'), isTrue);
+            expect(live.isVisibleAt(deadline, '100'), isFalse);
+            expect(db.queries, 1);
+            expect(
+              adapter.requests.map(
+                (request) => request.queryParameters['page'],
+              ),
+              [1, 2],
+            );
+
+            NtpHelper.updateOffsetFromServer(deadline);
+            expect(await api.refreshResultVisibility(live), isNull);
+            expect(db.queries, 1);
+          },
+        );
+      }
+    }
+  });
+
   group('MessageSearchResult.fromJson', () {
     test('parses mixed value types and payload json string safely', () {
       final result = MessageSearchResult.fromJson({
@@ -340,6 +499,64 @@ void main() {
       expect(result.payload, {'text': 'hello', 'count': '2'});
       expect(result.status, 20);
     });
+
+    test('absolute expiry uses milliseconds and survives JSON round trips', () {
+      for (final type in ['C2C', 'C2G']) {
+        for (final (raw, deadline) in [
+          (1789600000000, 1789600000000),
+          ('1789600000000', 1789600000000),
+          (1789600000, 1789600000),
+          ('1789600000', 1789600000),
+          (1789600000.0, 1789600000),
+          (0, 0),
+          (-1, -1),
+        ]) {
+          final result = MessageSearchResult.fromJson(
+            _remoteHistoryRow(type, expiresAt: raw),
+          );
+          expect(result.knownExpiresAtMs, deadline);
+          expect(result.expiresAtMs('100'), deadline);
+          expect(result.isVisibleAt(deadline - 1, '100'), isTrue);
+          expect(result.isVisibleAt(deadline, '100'), isFalse);
+          expect(result.toJson()['expire_at'], deadline);
+          final restored = MessageSearchResult.fromJson(result.toJson());
+          expect(restored.expiresAtMs('100'), deadline);
+          expect(restored.isVisibleAt(deadline, '100'), isFalse);
+        }
+      }
+    });
+
+    test(
+      'missing null and invalid expiry do not invent an unread deadline',
+      () {
+        for (final type in ['C2C', 'C2G']) {
+          for (final field in <Map<String, dynamic>>[
+            {},
+            {'expire_at': null},
+            {'expire_at': ''},
+            {'expire_at': 'not-a-time'},
+            {'expire_at': '1e3'},
+            {'expire_at': '0x10'},
+            {'expire_at': '2026-11-06T00:00:00Z'},
+            {'expire_at': 1.5},
+            {'expire_at': true},
+            {'expire_at': <Object?>[]},
+            {'expire_at': <String, Object?>{}},
+          ]) {
+            final row = _remoteHistoryRow(type)..remove('expire_at');
+            final result = MessageSearchResult.fromJson({...row, ...field});
+            expect(result.knownExpiresAtMs, isNull, reason: '$field');
+            expect(result.expiresAtMs('100'), isNull, reason: '$field');
+            expect(
+              result.isVisibleAt(DateTimeHelper.millisecond(), '100'),
+              isTrue,
+              reason: '$field',
+            );
+            expect(result.toJson()['expire_at'], isNull);
+          }
+        }
+      },
+    );
   });
 
   group('MessageSearchResponse.fromJson', () {
