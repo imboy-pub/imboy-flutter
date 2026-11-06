@@ -785,6 +785,9 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get callDuration => 'مدة المكالمة';
 	@override String get callEnded => 'انتهت المكالمة';
 	@override String get calling => 'جارٍ الاتصال';
+	@override String get returnToCall => 'العودة إلى المكالمة الحالية';
+	@override String get callInProgressHint => 'هناك مكالمة جارية بالفعل';
+	@override String get networkUnstable => 'الشبكة غير مستقرة';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => 'تمت العملية بنجاح';
@@ -4068,6 +4071,9 @@ extension on TranslationsArSa {
 			'common.callDuration' => 'مدة المكالمة',
 			'common.callEnded' => 'انتهت المكالمة',
 			'common.calling' => 'جارٍ الاتصال',
+			'common.returnToCall' => 'العودة إلى المكالمة الحالية',
+			'common.callInProgressHint' => 'هناك مكالمة جارية بالفعل',
+			'common.networkUnstable' => 'الشبكة غير مستقرة',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => 'تمت العملية بنجاح',
@@ -4440,11 +4446,11 @@ extension on TranslationsArSa {
 			'common.fileOpenNotImplemented' => 'ميزة فتح الملف غير متاحة بعد',
 			'common.fileShareNotImplemented' => 'ميزة مشاركة الملف غير متاحة بعد',
 			'common.retrySuccess' => 'نجحت إعادة المحاولة',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => 'نجح الحذف',
 			'common.localDeleteSuccess' => 'نجح الحذف المحلي',
 			'common.localDeleteFailed' => 'فشل الحذف المحلي',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'نجح السحب',
 			'common.editContentCannotBeEmpty' => 'لا يمكن أن يكون محتوى التعديل فارغاً',
 			'common.editSuccess' => 'نجح التعديل',
@@ -4954,11 +4960,11 @@ extension on TranslationsArSa {
 			'common.legacyUploadOutboxCheck' => 'قد تكون الرسالة في قائمة الإرسال بالفعل. تحقق من سجل المحادثة قبل إعادة الإرسال.',
 			'common.legacyUploadRecoveryMismatch' => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.',
 			'common.legacyUploadRecoveryContinues' => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
 			'complaint.e2eeConsentSubmit' => 'أوافق وأرسل الدليل',
 			'complaint.e2eeConsentDecline' => 'الإبلاغ فقط (بدون محتوى)',
@@ -5468,11 +5474,11 @@ extension on TranslationsArSa {
 			'main.complianceKeyRotationNoPending' => 'لا يوجد تغيير مفتاح في انتظار التأكيد',
 			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
 			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrPeerSuiteUnsupported' => 'جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
 			'main.complianceKeyInfoTitle' => 'مفتاح تدقيق الامتثال',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'المفتاح العام الصادر من الخادم',
 			'main.complianceKeyInfoLocalPin' => 'التثبيت المحلي (TOFU)',
 			'main.complianceKeyInfoKeyId' => 'معرّف المفتاح (ID)',
@@ -5982,11 +5988,11 @@ extension on TranslationsArSa {
 			'talkRecord.aiUnsupportedPlatform' => 'لم يتم التحقق من التخزين الآمن على هذه المنصة بعد. حفظ المفاتيح غير متاح.',
 			'talkRecord.aiKeyPlaceholder' => 'أدخل مفتاح API',
 			'talkRecord.aiReplacePlaceholder' => 'أدخل مفتاح API جديدًا؛ لا تتم تعبئة المفتاح المحفوظ مسبقًا',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'حفظ على هذا الجهاز',
 			'talkRecord.aiReplaceAction' => 'استبدال مفتاح الجهاز',
 			'talkRecord.aiDeleteAction' => 'حذف مفتاح الجهاز',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'جارٍ الحفظ…',
 			'talkRecord.aiSaved' => 'تم الحفظ على هذا الجهاز. لم يتم التحقق من المفتاح بعد.',
 			'talkRecord.aiDeleted' => 'حُذفت إعدادات الجهاز. تبقى التسجيلات والنتائج الحالية محفوظة.',

@@ -7,6 +7,19 @@ import 'package:url_launcher/url_launcher.dart' show LaunchMode;
 /// 需要用户在系统设置中恢复的媒体权限。
 enum MediaPermissionTarget { microphone, camera }
 
+/// 查询媒体权限当前是否已授予（从系统设置返回 App 后的复查用，
+/// MEDIA-02/03："打开过设置"不等于已授权，必须以真实查询结果为准）。
+Future<bool> isMediaPermissionGranted(MediaPermissionTarget target) async {
+  try {
+    final status = target == MediaPermissionTarget.camera
+        ? await permission_handler.Permission.camera.status
+        : await permission_handler.Permission.microphone.status;
+    return status.isGranted;
+  } on Object {
+    return false;
+  }
+}
+
 /// 打开当前平台对应的媒体权限设置。
 ///
 /// permission_handler 没有 macOS TCC 实现，因此 macOS 直接跳转到系统

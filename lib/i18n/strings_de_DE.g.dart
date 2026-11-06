@@ -785,6 +785,9 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get callDuration => 'Anrufdauer';
 	@override String get callEnded => 'Anruf beendet';
 	@override String get calling => 'Im Gespräch';
+	@override String get returnToCall => 'Zurück zum aktuellen Anruf';
+	@override String get callInProgressHint => 'Ein Anruf läuft bereits';
+	@override String get networkUnstable => 'Instabile Netzwerkverbindung';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => 'Erfolgreich';
@@ -4059,6 +4062,9 @@ extension on TranslationsDeDe {
 			'common.callDuration' => 'Anrufdauer',
 			'common.callEnded' => 'Anruf beendet',
 			'common.calling' => 'Im Gespräch',
+			'common.returnToCall' => 'Zurück zum aktuellen Anruf',
+			'common.callInProgressHint' => 'Ein Anruf läuft bereits',
+			'common.networkUnstable' => 'Instabile Netzwerkverbindung',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => 'Erfolgreich',
@@ -4431,11 +4437,11 @@ extension on TranslationsDeDe {
 			'common.fileOpenNotImplemented' => 'Dateiöffnungsfunktion noch nicht implementiert',
 			'common.fileShareNotImplemented' => 'Dateiteilungsfunktion noch nicht implementiert',
 			'common.retrySuccess' => 'Wiederholung erfolgreich',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => 'Erfolgreich gelöscht',
 			'common.localDeleteSuccess' => 'Lokales Löschen erfolgreich',
 			'common.localDeleteFailed' => 'Lokales Löschen fehlgeschlagen',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'Erfolgreich widerrufen',
 			'common.editContentCannotBeEmpty' => 'Bearbeitungsinhalt darf nicht leer sein',
 			'common.editSuccess' => 'Erfolgreich bearbeitet',
@@ -4945,11 +4951,11 @@ extension on TranslationsDeDe {
 			'common.legacyUploadOutboxCheck' => 'Die Nachricht ist möglicherweise bereits in der Sendewarteschlange. Prüfe zuerst den Chatverlauf.',
 			'common.legacyUploadRecoveryMismatch' => 'Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich.',
 			'common.legacyUploadRecoveryContinues' => 'Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet.',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
 			'complaint.e2eeConsentSubmit' => 'Zustimmen und einreichen',
 			'complaint.e2eeConsentDecline' => 'Nur melden (ohne Inhalt)',
@@ -5459,11 +5465,11 @@ extension on TranslationsDeDe {
 			'main.safetyNumberMarkVerified' => 'Als verifiziert markieren',
 			'main.safetyNumberMarkedVerified' => 'Als verifiziert markiert',
 			'main.safetyNumberNoDevices' => 'Die Gegenseite hat Ende-zu-Ende-Verschlüsselung noch nicht aktiviert',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberPeerDevice' => 'Gerät der Gegenseite',
 			'main.safetyNumberReportRejected' => 'Der Server hat das Verifizierungsereignis abgelehnt (Signatur/Gültigkeit passt nicht), nicht markiert',
 			'main.safetyNumberReportUnavailable' => 'Geräteinformationen nicht verfügbar, nicht gemeldet',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerified' => '✓ Verifiziert',
 			'main.safetyNumberNotVerified' => 'Nicht verifiziert',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} Gerät(e)',
@@ -5973,11 +5979,11 @@ extension on TranslationsDeDe {
 			'talkRecord.aiUnsupportedPlatform' => 'Der sichere Gerätespeicher ist auf dieser Plattform noch nicht geprüft. Schlüssel können nicht gespeichert werden.',
 			'talkRecord.aiKeyPlaceholder' => 'API-Schlüssel eingeben',
 			'talkRecord.aiReplacePlaceholder' => 'Neuen API-Schlüssel eingeben; gespeicherte Schlüssel werden nie vorbefüllt',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Auf diesem Gerät speichern',
 			'talkRecord.aiReplaceAction' => 'Geräteschlüssel ersetzen',
 			'talkRecord.aiDeleteAction' => 'Geräteschlüssel löschen',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Wird gespeichert…',
 			'talkRecord.aiSaved' => 'Auf diesem Gerät gespeichert. Der Schlüssel wurde nicht geprüft.',
 			'talkRecord.aiDeleted' => 'Gerätekonfiguration gelöscht. Aufnahmen und vorhandene Ergebnisse bleiben erhalten.',

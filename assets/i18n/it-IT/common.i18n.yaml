@@ -45,6 +45,9 @@ cacheTips: La cache è dati temporanei generati durante l'uso dell'APP, pulire l
 callDuration: Durata della chiamata
 callEnded: "Chiamata terminata"
 calling: In chiamata
+returnToCall: Torna alla chiamata in corso
+callInProgressHint: Una chiamata è già in corso
+networkUnstable: Rete instabile
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: Operazione riuscita

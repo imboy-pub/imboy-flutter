@@ -44,6 +44,9 @@ cacheTips: 快取是使用應用過程中產生的暫時資料，清理快取不
 callDuration: 通話時長
 callEnded: "通話已結束"
 calling: 正在通話
+returnToCall: 返回當前通話
+callInProgressHint: 通話進行中，無法發起新的通話
+networkUnstable: 網路不穩定
 cancel: '@:common.buttonCancel'
 ok: '@:common.buttonOk'
 operationSuccessful: 操作已完成

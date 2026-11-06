@@ -9,7 +9,8 @@ import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
-import 'package:imboy/config/init.dart' show deviceId, p2pCallScreenOn;
+import 'package:imboy/config/init.dart'
+    show deviceId, p2pCallMsgId, p2pCallScreenOn;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_state_machine.dart';
@@ -95,6 +96,10 @@ class P2pCallScreenState {
   /// 网络重连中（LiveKit Room Reconnecting/Resuming）。用于顶部“网络不佳”横幅。
   final bool reconnecting;
 
+  /// 对端连接质量持续下降（NET-06 轻度档，带进入/退出迟滞）。非遮挡
+  /// “网络不稳定”提示；与 [reconnecting]（持续中断档）分级展示。
+  final bool networkUnstable;
+
   /// 对端已关闭摄像头（track_state 信令同步）。用于主画面占位提示，
   /// 否则对端关摄像头后本端只看到黑屏、无从分辨。
   final bool remoteVideoOff;
@@ -120,6 +125,7 @@ class P2pCallScreenState {
     this.floatX = 0.0,
     this.floatY = 0.0,
     this.reconnecting = false,
+    this.networkUnstable = false,
     this.remoteVideoOff = false,
     this.errorMessage = '',
     this.permissionTarget,
@@ -141,6 +147,7 @@ class P2pCallScreenState {
     double? floatX,
     double? floatY,
     bool? reconnecting,
+    bool? networkUnstable,
     bool? remoteVideoOff,
     String? errorMessage,
     MediaPermissionTarget? permissionTarget,
@@ -162,6 +169,7 @@ class P2pCallScreenState {
       floatX: floatX ?? this.floatX,
       floatY: floatY ?? this.floatY,
       reconnecting: reconnecting ?? this.reconnecting,
+      networkUnstable: networkUnstable ?? this.networkUnstable,
       remoteVideoOff: remoteVideoOff ?? this.remoteVideoOff,
       errorMessage: errorMessage ?? this.errorMessage,
       permissionTarget: clearPermissionTarget
@@ -196,6 +204,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   Timer? _answerTimer;
   Timer? _callTimer;
   int _callSeconds = 0;
+
+  // NET-06 迟滞：对端连接质量持续 poor/lost 才进入"网络不稳定"提示，
+  // 恢复稳定一段时间才退出；短暂抖动不闪横幅。
+  Timer? _unstableEnterTimer;
+  Timer? _unstableExitTimer;
+  bool _remoteQualityPoor = false;
 
   // ===== LiveKit 媒体面（参照 rtc_room_provider） =====
   Room? _room;
@@ -258,9 +272,17 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     media = newMedia;
     caller = isCaller;
     msgId = newMsgId;
+    // 登记当前活动通话：上游 MessageWebrtc 据此区分本通与旧通的终态
+    // 信令（CALL-11）。
+    p2pCallMsgId = newMsgId;
     _closing = false;
     _answeredNotified = false;
     _callSeconds = 0;
+    _remoteQualityPoor = false;
+    _unstableEnterTimer?.cancel();
+    _unstableEnterTimer = null;
+    _unstableExitTimer?.cancel();
+    _unstableExitTimer = null;
   }
 
   /// 处理对端信令（ringing/busy/bye/answer/track_state）。
@@ -290,7 +312,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         onCallStateChange?.call(s, WebRTCCallState.callStateRinging);
         break;
       case 'busy':
-        onCallStateChange?.call(s, WebRTCCallState.callStateBusy);
+        // 与 bye 同规（CALL-11）：迟到的旧通话 busy 不得打断当前通话。
+        if (msg.msgId == msgId) {
+          onCallStateChange?.call(s, WebRTCCallState.callStateBusy);
+        } else {
+          iPrint('> rtc busy: stale busy (msgId mismatch), ignored');
+        }
         break;
       case 'answer':
         // 主叫侧：被叫已接听。msgId 匹配（被叫沿用主叫 invite 的 msgId）
@@ -476,6 +503,12 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         ..on<RoomReconnectingEvent>((_) => setReconnecting(true))
         ..on<RoomResumingEvent>((_) => setReconnecting(true))
         ..on<RoomReconnectedEvent>((_) => setReconnecting(false))
+        ..on<ParticipantConnectionQualityUpdatedEvent>((e) {
+          // 只跟踪对端质量：本端质量由本端自己的重连/权限路径负责。
+          if (e.participant is RemoteParticipant) {
+            _onRemoteQuality(e.connectionQuality);
+          }
+        })
         ..on<RoomDisconnectedEvent>((e) {
           if (_closing || !ref.mounted) return;
           // 非本端挂断的彻底断开 = 链路故障（对应原 ICE 重启耗尽语义），
@@ -578,10 +611,15 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     // 先置位再做任何异步清理：阻止仍在飞行中的 onMessageP2P 继续读写
     // 即将被释放的 LiveKit Room。
     _closing = true;
+    _unstableEnterTimer?.cancel();
+    _unstableEnterTimer = null;
+    _unstableExitTimer?.cancel();
+    _unstableExitTimer = null;
     await releaseMedia();
     // ⚠️ 不在此处复位 _closing：关闭流程是异步的，飞行中的原生回调可能
     // 随后到达；复位由下一通通话的 initSession 完成。
     p2pCallScreenOn = false;
+    p2pCallMsgId = null;
   }
 
   /// 前后镜头切换（本地 camera track 的采集方位）。
@@ -726,6 +764,82 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     // "Cannot use Ref after disposed"。
     if (!ref.mounted) return;
     state = state.copyWith(reconnecting: v);
+    if (v) {
+      // 升级为持续中断档：轻度"网络不稳定"让位于重连横幅。
+      _unstableEnterTimer?.cancel();
+      _unstableEnterTimer = null;
+    }
+  }
+
+  /// NET-06：对端连接质量变化的迟滞状态机。进入需持续 poor/lost 3 秒，
+  /// 退出需恢复稳定 5 秒，避免瞬时抖动造成提示闪烁。
+  void _onRemoteQuality(ConnectionQuality quality) {
+    final poor =
+        quality == ConnectionQuality.poor || quality == ConnectionQuality.lost;
+    if (poor == _remoteQualityPoor) return;
+    _remoteQualityPoor = poor;
+    _unstableEnterTimer?.cancel();
+    _unstableEnterTimer = null;
+    _unstableExitTimer?.cancel();
+    _unstableExitTimer = null;
+    if (poor) {
+      _unstableEnterTimer = Timer(const Duration(seconds: 3), () {
+        if (!ref.mounted || state.reconnecting) return;
+        state = state.copyWith(networkUnstable: true);
+      });
+    } else {
+      _unstableExitTimer = Timer(const Duration(seconds: 5), () {
+        if (!ref.mounted) return;
+        state = state.copyWith(networkUnstable: false);
+      });
+    }
+  }
+
+  /// CALL-10："返回当前通话"——取消最小化回到全屏通话。
+  void restoreFromFloating() {
+    if (!ref.mounted) return;
+    state = state.copyWith(minimized: false);
+  }
+
+  /// App 回到前台（LIFE-02/03）：复查本通是否已结束、媒体权限与轨道，
+  /// 按用户既有选择恢复采集；权限仍拒绝时保留横幅与设置入口，不虚报
+  /// 已恢复（MEDIA-02/03："打开过设置"不等于已授权）。
+  Future<void> onAppResumed() async {
+    if (_closing || !ref.mounted) return;
+    if (state.callStatus.isTerminal) return;
+    final target = state.permissionTarget;
+    if (target == null) return;
+
+    final granted = await isMediaPermissionGranted(target);
+    if (!granted || _closing || !ref.mounted) return;
+
+    var recovered = true;
+    final lp = _room?.localParticipant;
+    try {
+      if (target == MediaPermissionTarget.microphone) {
+        if (lp != null) {
+          await lp.setMicrophoneEnabled(!state.micOff);
+        }
+      } else if (media == 'video' && !state.cameraOff) {
+        if (lp != null) {
+          await lp.setCameraEnabled(
+            true,
+            cameraCaptureOptions: CameraCaptureOptions(
+              cameraPosition: _cameraPosition,
+            ),
+          );
+        } else {
+          // 接通前：重试房外预览轨（预览失败是相机权限横幅的常见来源）。
+          startLocalPreview();
+        }
+      }
+    } on Exception catch (e) {
+      iPrint('> rtc onAppResumed: media retry failed: $e');
+      recovered = false;
+    }
+    if (!recovered || _closing || !ref.mounted) return;
+    // 权限已授予且轨道重建成功：清除旧的失败横幅。
+    state = state.copyWith(errorMessage: '', clearPermissionTarget: true);
   }
 
   void startCallTimer(void Function() onUpdate) {
@@ -786,5 +900,9 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
   void cleanup() {
     _callTimer?.cancel();
     _answerTimer?.cancel();
+    _unstableEnterTimer?.cancel();
+    _unstableEnterTimer = null;
+    _unstableExitTimer?.cancel();
+    _unstableExitTimer = null;
   }
 }

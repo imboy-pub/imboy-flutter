@@ -17,9 +17,17 @@ import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/component/webrtc/func.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/component/webrtc/func.dart' as webrtc_func;
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart'
-    show gTimer, navigatorKey, p2pCallScreenOn, p2pCallSignalingReady, p2pEntry;
+    show
+        gTimer,
+        navigatorKey,
+        p2pCallMsgId,
+        p2pCallScreenOn,
+        p2pCallSignalingReady,
+        p2pEntry;
 import 'package:imboy/modules/messaging/public.dart'
     show ContactModel, MessagingFacade;
 import 'package:imboy/page/chat/p2p_call_screen/incoming_call_view.dart';
@@ -301,6 +309,69 @@ void main() {
     // phone icon 出现两次（17pt 说明行 + 34pt 接听钮），tap 取后者
     await tester.tap(find.byIcon(CupertinoIcons.phone).last);
     expect(accepted, isTrue);
+  });
+
+  group('CALL-10 重复呼出反馈', () {
+    testWidgets('通话 overlay 存在时重复呼出提示正在通话并提供返回当前通话', (tester) async {
+      _resetEntryState();
+      addTearDown(_resetEntryState);
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
+      await _mountEntryHost(tester);
+      var restored = false;
+      webrtc_func.p2pCallRestoreHandler = () => restored = true;
+      // 模拟已存在的通话 overlay（不真正插入 UI，只占据全局槽位）。
+      p2pEntry = OverlayEntry(builder: (_) => const SizedBox.shrink());
+
+      final peer = ContactModel.fromMap({'id': '2001', 'nickname': 'Peer'});
+      await openCallScreen(tester.element(find.byType(Scaffold)), peer, {
+        'media': 'video',
+      });
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.common.calling), findsOneWidget, reason: '应提示正在通话');
+      expect(
+        find.text(t.common.callInProgressHint),
+        findsOneWidget,
+        reason: '应说明已有通话进行中',
+      );
+      expect(
+        find.text(t.common.returnToCall),
+        findsOneWidget,
+        reason: '应提供返回当前通话入口',
+      );
+      expect(p2pCallScreenOn, isFalse, reason: '重复呼出不得创建新通话状态');
+
+      await tester.tap(find.text(t.common.returnToCall));
+      await tester.pumpAndSettle();
+      expect(restored, isTrue, reason: '返回当前通话应调用通话页注册的恢复回调');
+      expect(find.text(t.common.calling), findsNothing, reason: '点击后弹窗关闭');
+    });
+
+    testWidgets('来电弹窗等待中重复呼出只提示，不提供返回当前通话', (tester) async {
+      _resetEntryState();
+      addTearDown(_resetEntryState);
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
+      await _mountEntryHost(tester);
+      // 无 overlay（p2pEntry 为空）但来电等待中（p2pCallScreenOn 置位）。
+      p2pCallScreenOn = true;
+      p2pCallMsgId = 'waiting-call';
+
+      final peer = ContactModel.fromMap({'id': '2001', 'nickname': 'Peer'});
+      await openCallScreen(tester.element(find.byType(Scaffold)), peer, {
+        'media': 'audio',
+      });
+      await tester.pumpAndSettle();
+
+      expect(find.text(t.common.calling), findsOneWidget);
+      expect(
+        find.text(t.common.returnToCall),
+        findsNothing,
+        reason: '尚无通话 overlay，不应出现返回当前通话',
+      );
+      expect(p2pCallScreenOn, isTrue, reason: '原来电等待状态不被破坏');
+      await tester.tap(find.text(t.common.ok));
+      await tester.pumpAndSettle();
+    });
   });
 
   testWidgets('Reduce Motion: 关闭呼吸动画(pumpAndSettle 不挂起)', (tester) async {

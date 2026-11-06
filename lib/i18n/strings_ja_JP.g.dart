@@ -785,6 +785,9 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get callDuration => '通話時間';
 	@override String get callEnded => '通話終了';
 	@override String get calling => '通話中';
+	@override String get returnToCall => '現在の通話に戻る';
+	@override String get callInProgressHint => '通話中のため新しい通話を開始できません';
+	@override String get networkUnstable => 'ネットワークが不安定です';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => '操作が完了しました';
@@ -4056,6 +4059,9 @@ extension on TranslationsJaJp {
 			'common.callDuration' => '通話時間',
 			'common.callEnded' => '通話終了',
 			'common.calling' => '通話中',
+			'common.returnToCall' => '現在の通話に戻る',
+			'common.callInProgressHint' => '通話中のため新しい通話を開始できません',
+			'common.networkUnstable' => 'ネットワークが不安定です',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => '操作が完了しました',
@@ -4428,11 +4434,11 @@ extension on TranslationsJaJp {
 			'common.fileOpenNotImplemented' => 'ファイルを開く機能は実装されていません',
 			'common.fileShareNotImplemented' => 'ファイル共有機能は実装されていません',
 			'common.retrySuccess' => 'リトライしました',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => '削除しました',
 			'common.localDeleteSuccess' => 'ローカル削除に成功しました',
 			'common.localDeleteFailed' => 'ローカル削除に失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => '取り消しました',
 			'common.editContentCannotBeEmpty' => '編集内容を空にすることはできません',
 			'common.editSuccess' => '編集しました',
@@ -4942,11 +4948,11 @@ extension on TranslationsJaJp {
 			'common.legacyUploadOutboxCheck' => 'メッセージは送信待ちの可能性があります。再送する前に履歴を確認してください。',
 			'common.legacyUploadRecoveryMismatch' => '選択したファイルが一致しないか、復元できません。',
 			'common.legacyUploadRecoveryContinues' => '添付ファイルを復元しました。元のメッセージの処理を続けます。',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
 			'complaint.e2eeConsentSubmit' => '同意して証拠を提出',
 			'complaint.e2eeConsentDecline' => '内容なしで通報のみ',
@@ -5456,11 +5462,11 @@ extension on TranslationsJaJp {
 			'main.safetyNumberMarkVerified' => '検証済みとしてマーク',
 			'main.safetyNumberMarkedVerified' => '検証済みとしてマークしました',
 			'main.safetyNumberNoDevices' => '相手はまだエンドツーエンド暗号化を有効にしていません',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberPeerDevice' => '相手のデバイス',
 			'main.safetyNumberReportRejected' => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません',
 			'main.safetyNumberReportUnavailable' => 'デバイス情報を取得できないため、未報告です',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberVerified' => '✓ 確認済み',
 			'main.safetyNumberNotVerified' => '未確認',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台のデバイス',
@@ -5970,11 +5976,11 @@ extension on TranslationsJaJp {
 			'talkRecord.aiUnsupportedPlatform' => 'このプラットフォームの安全な保存機能は未検証のため、キーを保存できません。',
 			'talkRecord.aiKeyPlaceholder' => 'API キーを入力',
 			'talkRecord.aiReplacePlaceholder' => '新しい API キーを入力（保存済みキーは表示しません）',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'この端末に保存',
 			'talkRecord.aiReplaceAction' => '端末のキーを置き換える',
 			'talkRecord.aiDeleteAction' => '端末のキーを削除',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => '保存中…',
 			'talkRecord.aiSaved' => 'この端末に保存しました。キーは未検証です。',
 			'talkRecord.aiDeleted' => '端末の設定を削除しました。録音と既存の結果は保持されます。',

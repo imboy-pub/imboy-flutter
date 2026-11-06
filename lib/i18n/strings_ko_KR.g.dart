@@ -785,6 +785,9 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get callDuration => '통화 시간';
 	@override String get callEnded => '통화 종료';
 	@override String get calling => '통화 중';
+	@override String get returnToCall => '현재 통화로 돌아가기';
+	@override String get callInProgressHint => '통화 중이므로 새 통화를 시작할 수 없어요';
+	@override String get networkUnstable => '네트워크 불안정';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => '작업이 완료되었습니다';
@@ -4056,6 +4059,9 @@ extension on TranslationsKoKr {
 			'common.callDuration' => '통화 시간',
 			'common.callEnded' => '통화 종료',
 			'common.calling' => '통화 중',
+			'common.returnToCall' => '현재 통화로 돌아가기',
+			'common.callInProgressHint' => '통화 중이므로 새 통화를 시작할 수 없어요',
+			'common.networkUnstable' => '네트워크 불안정',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => '작업이 완료되었습니다',
@@ -4428,11 +4434,11 @@ extension on TranslationsKoKr {
 			'common.fileOpenNotImplemented' => '파일 열기 기능이 아직 구현되지 않음',
 			'common.fileShareNotImplemented' => '파일 공유 기능이 아직 구현되지 않음',
 			'common.retrySuccess' => '재시도 성공',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => '삭제 성공',
 			'common.localDeleteSuccess' => '로컬 삭제 성공',
 			'common.localDeleteFailed' => '로컬 삭제 실패',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => '회수 성공',
 			'common.editContentCannotBeEmpty' => '편집 내용은 비워둘 수 없습니다',
 			'common.editSuccess' => '편집 성공',
@@ -4942,11 +4948,11 @@ extension on TranslationsKoKr {
 			'common.legacyUploadOutboxCheck' => '메시지가 이미 전송 대기 중일 수 있습니다. 다시 보내기 전에 대화 기록을 확인하세요.',
 			'common.legacyUploadRecoveryMismatch' => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.',
 			'common.legacyUploadRecoveryContinues' => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
 			'complaint.e2eeConsentSubmit' => '동의하고 증거 제출',
 			'complaint.e2eeConsentDecline' => '콘텐츠 없이 신고만',
@@ -5456,11 +5462,11 @@ extension on TranslationsKoKr {
 			'main.complianceKeyInfoHint' => '컴플라이언스 감사 키는 compliance_e2ee 모드의 이중 암호화에 사용됩니다. 위 지문이 관리자가 공표한 지문과 일치하지 않으면 서버가 변조되었을 수 있습니다.',
 			'main.complianceKeyInfoKeyId' => '키 ID',
 			'main.complianceKeyInfoLocalPin' => '로컬 고정(TOFU)',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => '고정 시간',
 			'main.complianceKeyInfoPinnedNone' => '아직 고정되지 않음(다음 가져오기 시 자동 고정)',
 			'main.complianceKeyInfoRefreshFailed' => '가져오기 실패. 네트워크 확인 후 다시 시도해 주세요',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => '서버가 내려준 공개 키',
 			'main.complianceKeyInfoTitle' => '컴플라이언스 감사 키',
 			'main.e2eeErrComplianceChanged' => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요',
@@ -5970,11 +5976,11 @@ extension on TranslationsKoKr {
 			'talkRecord.aiUnsupportedPlatform' => '이 플랫폼의 기기 보안 저장소가 검증되지 않아 키를 저장할 수 없습니다.',
 			'talkRecord.aiKeyPlaceholder' => 'API 키 입력',
 			'talkRecord.aiReplacePlaceholder' => '새 API 키 입력(기존 키는 미리 표시하지 않음)',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => '이 기기에 저장',
 			'talkRecord.aiReplaceAction' => '기기 키 교체',
 			'talkRecord.aiDeleteAction' => '기기 키 삭제',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => '저장 중…',
 			'talkRecord.aiSaved' => '이 기기에 저장했습니다. 키는 아직 검증되지 않았습니다.',
 			'talkRecord.aiDeleted' => '기기 설정을 삭제했습니다. 녹음과 기존 결과는 유지됩니다.',

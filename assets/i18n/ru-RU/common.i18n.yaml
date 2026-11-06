@@ -45,6 +45,9 @@ cacheTips: Временные данные приложения. Очистка 
 callDuration: Длительность звонка
 callEnded: "Звонок завершён"
 calling: Вызов
+returnToCall: Вернуться к текущему звонку
+callInProgressHint: Звонок уже идёт
+networkUnstable: Нестабильная сеть
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: Операция выполнена

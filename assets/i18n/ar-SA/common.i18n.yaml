@@ -45,6 +45,9 @@ cacheTips: الذاكرة المؤقتة هي بيانات مؤقتة تُنشأ
 callDuration: مدة المكالمة
 callEnded: "انتهت المكالمة"
 calling: جارٍ الاتصال
+returnToCall: العودة إلى المكالمة الحالية
+callInProgressHint: هناك مكالمة جارية بالفعل
+networkUnstable: الشبكة غير مستقرة
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: تمت العملية بنجاح

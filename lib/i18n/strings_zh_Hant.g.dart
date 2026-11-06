@@ -785,6 +785,9 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get callDuration => '通話時長';
 	@override String get callEnded => '通話已結束';
 	@override String get calling => '正在通話';
+	@override String get returnToCall => '返回當前通話';
+	@override String get callInProgressHint => '通話進行中，無法發起新的通話';
+	@override String get networkUnstable => '網路不穩定';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => '操作已完成';
@@ -4056,6 +4059,9 @@ extension on TranslationsZhHant {
 			'common.callDuration' => '通話時長',
 			'common.callEnded' => '通話已結束',
 			'common.calling' => '正在通話',
+			'common.returnToCall' => '返回當前通話',
+			'common.callInProgressHint' => '通話進行中，無法發起新的通話',
+			'common.networkUnstable' => '網路不穩定',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => '操作已完成',
@@ -4428,11 +4434,11 @@ extension on TranslationsZhHant {
 			'common.featureNotImplemented' => '功能暫未實現',
 			'common.sendCollectionNotImplemented' => '收藏傳送功能暫未實現',
 			'common.fileOpenNotImplemented' => '檔案開啟功能暫未實現',
+			_ => null,
+		} ?? switch (path) {
 			'common.fileShareNotImplemented' => '檔案分享功能暫未實現',
 			'common.retrySuccess' => '重試成功',
 			'common.deleteSuccess' => '刪除成功',
-			_ => null,
-		} ?? switch (path) {
 			'common.localDeleteSuccess' => '本地刪除成功',
 			'common.localDeleteFailed' => '本地刪除失敗',
 			'common.revokeSuccess' => '收回成功',
@@ -4942,11 +4948,11 @@ extension on TranslationsZhHant {
 			'common.legacyUploadOutboxCheck' => '訊息可能已進入傳送佇列，請先檢查聊天紀錄，避免重複傳送。',
 			'common.legacyUploadRecoveryMismatch' => '所選檔案與原檔案不一致或暫時無法恢復。',
 			'common.legacyUploadRecoveryContinues' => '附件已恢復，正在繼續處理原訊息。',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
 			'complaint.e2eeConsentSubmit' => '同意並提交證據',
 			'complaint.e2eeConsentDecline' => '僅舉報（不提交內容）',
@@ -5456,11 +5462,11 @@ extension on TranslationsZhHant {
 			'main.complianceKeyInfoHint' => '合規稽核金鑰用於 compliance_e2ee 模式的雙重加密。若上方指紋與管理員公布的指紋不一致，表示伺服器可能已遭竄改。',
 			'main.complianceKeyInfoKeyId' => '金鑰 ID',
 			'main.complianceKeyInfoLocalPin' => '裝置端固定（TOFU）',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => '固定時間',
 			'main.complianceKeyInfoPinnedNone' => '尚未固定（下次取得時自動固定）',
 			'main.complianceKeyInfoRefreshFailed' => '取得失敗，請檢查網路後重試',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => '伺服器下發的公開金鑰',
 			'main.complianceKeyInfoTitle' => '合規稽核金鑰',
 			'main.e2eeErrComplianceChanged' => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試',
@@ -5970,11 +5976,11 @@ extension on TranslationsZhHant {
 			'talkRecord.aiUnsupportedPlatform' => '此平台尚未驗證本裝置安全儲存，暫不支援儲存 Key。',
 			'talkRecord.aiKeyPlaceholder' => '輸入 API Key',
 			'talkRecord.aiReplacePlaceholder' => '輸入新的 API Key，不回填已有金鑰',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => '儲存在本裝置',
 			'talkRecord.aiReplaceAction' => '替換本裝置金鑰',
 			'talkRecord.aiDeleteAction' => '刪除本裝置金鑰',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => '正在儲存…',
 			'talkRecord.aiSaved' => '已儲存在本裝置，尚未驗證 Key。',
 			'talkRecord.aiDeleted' => '已刪除本裝置設定，錄音與既有結果保留。',

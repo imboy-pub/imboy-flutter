@@ -45,6 +45,9 @@ cacheTips: Le cache est constitué de données temporaires générées lors de l
 callDuration: Durée de l'appel
 callEnded: "Appel terminé"
 calling: Appel en cours
+returnToCall: Revenir à l'appel en cours
+callInProgressHint: Un appel est déjà en cours
+networkUnstable: Réseau instable
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: Succès

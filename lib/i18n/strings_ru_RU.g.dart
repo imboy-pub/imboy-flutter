@@ -785,6 +785,9 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get callDuration => 'Длительность звонка';
 	@override String get callEnded => 'Звонок завершён';
 	@override String get calling => 'Вызов';
+	@override String get returnToCall => 'Вернуться к текущему звонку';
+	@override String get callInProgressHint => 'Звонок уже идёт';
+	@override String get networkUnstable => 'Нестабильная сеть';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => 'Операция выполнена';
@@ -4065,6 +4068,9 @@ extension on TranslationsRuRu {
 			'common.callDuration' => 'Длительность звонка',
 			'common.callEnded' => 'Звонок завершён',
 			'common.calling' => 'Вызов',
+			'common.returnToCall' => 'Вернуться к текущему звонку',
+			'common.callInProgressHint' => 'Звонок уже идёт',
+			'common.networkUnstable' => 'Нестабильная сеть',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => 'Операция выполнена',
@@ -4437,11 +4443,11 @@ extension on TranslationsRuRu {
 			'common.fileOpenNotImplemented' => 'Функция открытия файла не реализована',
 			'common.fileShareNotImplemented' => 'Функция обмена файлом не реализована',
 			'common.retrySuccess' => 'Повтор успешен',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => 'Успешно удалено',
 			'common.localDeleteSuccess' => 'Локальное удаление успешно',
 			'common.localDeleteFailed' => 'Локальное удаление не удалось',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'Успешно отозвано',
 			'common.editContentCannotBeEmpty' => 'Содержание редактирования не может быть пустым',
 			'common.editSuccess' => 'Успешно отредактировано',
@@ -4951,11 +4957,11 @@ extension on TranslationsRuRu {
 			'common.legacyUploadOutboxCheck' => 'Сообщение уже может быть в очереди. Проверьте историю чата перед повторной отправкой.',
 			'common.legacyUploadRecoveryMismatch' => 'Файл не совпадает или восстановление недоступно.',
 			'common.legacyUploadRecoveryContinues' => 'Вложение восстановлено; обработка исходного сообщения продолжается.',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
 			'complaint.e2eeConsentSubmit' => 'Согласен и отправить',
 			'complaint.e2eeConsentDecline' => 'Только жалоба (без содержимого)',
@@ -5465,11 +5471,11 @@ extension on TranslationsRuRu {
 			'main.complianceKeyInfoHint' => 'Ключ комплаенс-аудита используется для двойного шифрования в режиме compliance_e2ee. Если отпечаток выше не совпадает с опубликованным администратором, сервер мог быть подменён.',
 			'main.complianceKeyInfoKeyId' => 'ID ключа',
 			'main.complianceKeyInfoLocalPin' => 'Локальная фиксация (TOFU)',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Время фиксации',
 			'main.complianceKeyInfoPinnedNone' => 'Ещё не зафиксирован (зафиксируется автоматически при следующем получении)',
 			'main.complianceKeyInfoRefreshFailed' => 'Не удалось получить. Проверьте сеть и повторите',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Открытый ключ сервера',
 			'main.complianceKeyInfoTitle' => 'Ключ комплаенс-аудита',
 			'main.e2eeErrComplianceChanged' => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите',
@@ -5979,11 +5985,11 @@ extension on TranslationsRuRu {
 			'talkRecord.aiUnsupportedPlatform' => 'Защищённое хранилище этой платформы ещё не проверено. Сохранение ключей недоступно.',
 			'talkRecord.aiKeyPlaceholder' => 'Введите API-ключ',
 			'talkRecord.aiReplacePlaceholder' => 'Введите новый API-ключ; сохранённый ключ не подставляется',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Сохранить на устройстве',
 			'talkRecord.aiReplaceAction' => 'Заменить ключ устройства',
 			'talkRecord.aiDeleteAction' => 'Удалить ключ устройства',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Сохранение…',
 			'talkRecord.aiSaved' => 'Сохранено на устройстве. Ключ ещё не проверен.',
 			'talkRecord.aiDeleted' => 'Настройки устройства удалены. Записи и готовые результаты сохранены.',

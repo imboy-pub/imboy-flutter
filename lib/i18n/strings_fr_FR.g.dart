@@ -785,6 +785,9 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get callDuration => 'Durée de l\'appel';
 	@override String get callEnded => 'Appel terminé';
 	@override String get calling => 'Appel en cours';
+	@override String get returnToCall => 'Revenir à l\'appel en cours';
+	@override String get callInProgressHint => 'Un appel est déjà en cours';
+	@override String get networkUnstable => 'Réseau instable';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => 'Succès';
@@ -4059,6 +4062,9 @@ extension on TranslationsFrFr {
 			'common.callDuration' => 'Durée de l\'appel',
 			'common.callEnded' => 'Appel terminé',
 			'common.calling' => 'Appel en cours',
+			'common.returnToCall' => 'Revenir à l\'appel en cours',
+			'common.callInProgressHint' => 'Un appel est déjà en cours',
+			'common.networkUnstable' => 'Réseau instable',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => 'Succès',
@@ -4431,11 +4437,11 @@ extension on TranslationsFrFr {
 			'common.fileOpenNotImplemented' => 'Fonction d\'ouverture de fichier non implémentée.',
 			'common.fileShareNotImplemented' => 'Fonction de partage de fichier non implémentée.',
 			'common.retrySuccess' => 'Nouvelle tentative réussie.',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => 'Suppression réussie.',
 			'common.localDeleteSuccess' => 'Suppression locale réussie.',
 			'common.localDeleteFailed' => 'Échec de la suppression locale.',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'Révocation réussie.',
 			'common.editContentCannotBeEmpty' => 'Le contenu de l\'édition ne peut pas être vide.',
 			'common.editSuccess' => 'Édition réussie.',
@@ -4945,11 +4951,11 @@ extension on TranslationsFrFr {
 			'common.legacyUploadOutboxCheck' => 'Le message est peut-être déjà en attente. Vérifiez la conversation avant de le renvoyer.',
 			'common.legacyUploadRecoveryMismatch' => 'Le fichier ne correspond pas ou la récupération est impossible.',
 			'common.legacyUploadRecoveryContinues' => 'Pièce jointe récupérée ; traitement du message initial en cours.',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d\'accord ?',
 			'complaint.e2eeConsentSubmit' => 'Accepter et soumettre',
 			'complaint.e2eeConsentDecline' => 'Signaler uniquement (sans contenu)',
@@ -5459,11 +5465,11 @@ extension on TranslationsFrFr {
 			'main.complianceKeyInfoHint' => 'La clé d\'audit de conformité sert au double chiffrement du mode compliance_e2ee. Si l\'empreinte ci-dessus diffère de celle publiée par l\'administrateur, le serveur a peut-être été altéré.',
 			'main.complianceKeyInfoKeyId' => 'ID de la clé',
 			'main.complianceKeyInfoLocalPin' => 'Épinglage local (TOFU)',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Épinglée le',
 			'main.complianceKeyInfoPinnedNone' => 'Pas encore épinglée (épinglage automatique lors de la prochaine récupération)',
 			'main.complianceKeyInfoRefreshFailed' => 'Échec de la récupération. Vérifiez le réseau et réessayez',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Clé publique fournie par le serveur',
 			'main.complianceKeyInfoTitle' => 'Clé d\'audit de conformité',
 			'main.e2eeErrComplianceChanged' => 'La clé d\'audit de conformité a changé, message non envoyé. Confirmez la rotation puis réessayez',
@@ -5973,11 +5979,11 @@ extension on TranslationsFrFr {
 			'talkRecord.aiUnsupportedPlatform' => 'Le stockage sécurisé n’est pas encore vérifié sur cette plateforme. L’enregistrement de clés est indisponible.',
 			'talkRecord.aiKeyPlaceholder' => 'Saisir la clé API',
 			'talkRecord.aiReplacePlaceholder' => 'Saisir une nouvelle clé API ; la clé existante n’est jamais préremplie',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Enregistrer sur cet appareil',
 			'talkRecord.aiReplaceAction' => 'Remplacer la clé locale',
 			'talkRecord.aiDeleteAction' => 'Supprimer la clé locale',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Enregistrement…',
 			'talkRecord.aiSaved' => 'Enregistré sur cet appareil. La clé n’a pas été validée.',
 			'talkRecord.aiDeleted' => 'Configuration locale supprimée. Les enregistrements et résultats existants sont conservés.',

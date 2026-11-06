@@ -45,6 +45,9 @@ cacheTips: Temporäre App-Daten. Bereinigung beeinflusst Nutzung nicht.
 callDuration: Anrufdauer
 callEnded: "Anruf beendet"
 calling: Im Gespräch
+returnToCall: Zurück zum aktuellen Anruf
+callInProgressHint: Ein Anruf läuft bereits
+networkUnstable: Instabile Netzwerkverbindung
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: Erfolgreich

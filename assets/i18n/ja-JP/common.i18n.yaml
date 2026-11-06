@@ -45,6 +45,9 @@ cacheTips: キャッシュはアプリ使用中に生成される一時データ
 callDuration: 通話時間
 callEnded: "通話終了"
 calling: 通話中
+returnToCall: 現在の通話に戻る
+callInProgressHint: 通話中のため新しい通話を開始できません
+networkUnstable: ネットワークが不安定です
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: 操作が完了しました

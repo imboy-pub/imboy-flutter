@@ -45,6 +45,9 @@ cacheTips: 캐시는 앱 사용 중 생성되는 임시 데이터입니다. 캐�
 callDuration: 통화 시간
 callEnded: "통화 종료"
 calling: 통화 중
+returnToCall: 현재 통화로 돌아가기
+callInProgressHint: 통화 중이므로 새 통화를 시작할 수 없어요
+networkUnstable: 네트워크 불안정
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: 작업이 완료되었습니다

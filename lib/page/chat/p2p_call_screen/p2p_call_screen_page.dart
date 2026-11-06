@@ -16,7 +16,8 @@ import 'package:imboy/component/ui/avatar.dart';
 import 'package:imboy/component/webrtc/enum.dart';
 import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/func.dart' as webrtc_func;
-import 'package:imboy/config/init.dart' show p2pCallSignalingReady;
+import 'package:imboy/config/init.dart'
+    show p2pCallMsgId, p2pCallSignalingReady;
 import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
@@ -60,7 +61,7 @@ class P2pCallScreenPage extends ConsumerStatefulWidget {
 }
 
 class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   String msgId = '';
   String media = 'video';
   StreamSubscription<dynamic>? subscription;
@@ -103,6 +104,8 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
   void initState() {
     super.initState();
     _notifier = ref.read(p2pCallScreenProvider.notifier);
+    // LIFE-02/03：前后台/锁屏恢复时复查本通状态与媒体权限。
+    WidgetsBinding.instance.addObserver(this);
     _pulse = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1400),
@@ -125,7 +128,23 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
       _notifier.enterFloating(size.width - 118, 70);
     };
 
+    // CALL-10："返回当前通话"入口（重复呼叫提示弹窗）= 取消最小化。
+    webrtc_func.p2pCallRestoreHandler = () {
+      if (!mounted) return;
+      _notifier.restoreFromFloating();
+    };
+
     _initData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      // LIFE-02/03：回到前台先核对本通是否已结束、权限与轨道，
+      // 权限已恢复时按用户既有选择重建采集；仍拒绝则保留横幅。
+      _notifier.onAppResumed();
+    }
   }
 
   @override
@@ -152,6 +171,7 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     // 在 dispose 之前发送 bye 消息通知对方（用缓存的 notifier，勿用 ref）；
     // 挂断按钮路径已发过（_byeSent）则跳过，避免双发。sendBye 同时释放
     // LiveKit Room（离开房间 + 释放 track/连接）。
@@ -160,6 +180,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     }
     // 复位信令就绪标志，为下一通通话恢复 pending 排队语义。
     p2pCallSignalingReady = false;
+    // 解除本页注册的全局回调并清除活动通话标识（cleanUpP2P 亦会清）。
+    if (webrtc_func.p2pCallRestoreHandler != null) {
+      webrtc_func.p2pCallRestoreHandler = null;
+    }
+    p2pCallMsgId = null;
 
     // 同步清理：必须在 super.dispose() 之前完成
     msgId = '';
@@ -621,6 +646,32 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// NET-06 轻度质量提示：非遮挡、不阻挡任何控制（重连横幅负责中断档）。
+  Widget _buildNetworkUnstableBanner() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: SafeArea(
+        bottom: false,
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            decoration: BoxDecoration(color: CallTokens.blackA55),
+            child: Text(
+              t.common.networkUnstable,
+              style: context.textStyle(
+                FontSizeType.footnote,
+                color: CallTokens.white70,
+              ),
             ),
           ),
         ),
@@ -1390,6 +1441,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
 
           // 5. 网络不佳横幅（接通后 Room 重连中）——真实连接态驱动
           if (state.connected && state.reconnecting) _buildReconnectingBanner(),
+
+          // 5.5 NET-06 轻度档：对端质量持续下降的非遮挡提示（迟滞驱动，
+          // 不与重连横幅同时出现）。
+          if (state.connected && !state.reconnecting && state.networkUnstable)
+            _buildNetworkUnstableBanner(),
 
           // 6. 摄像头/麦克风权限或设备错误：明确告知，不再伪装成“等待中”。
           if (state.errorMessage.isNotEmpty) _buildMediaErrorBanner(state),

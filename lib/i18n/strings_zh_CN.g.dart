@@ -2266,6 +2266,15 @@ class Translations$common$zh_CN {
 	/// zh-CN: '正在通话'
 	String get calling => '正在通话';
 
+	/// zh-CN: '返回当前通话'
+	String get returnToCall => '返回当前通话';
+
+	/// zh-CN: '通话进行中，无法发起新的通话'
+	String get callInProgressHint => '通话进行中，无法发起新的通话';
+
+	/// zh-CN: '网络不稳定'
+	String get networkUnstable => '网络不稳定';
+
 	/// zh-CN: '取消'
 	String get cancel => _root.common.buttonCancel;
 
@@ -11681,6 +11690,9 @@ extension on Translations {
 			'common.callDuration' => '通话时长',
 			'common.callEnded' => '通话已结束',
 			'common.calling' => '正在通话',
+			'common.returnToCall' => '返回当前通话',
+			'common.callInProgressHint' => '通话进行中，无法发起新的通话',
+			'common.networkUnstable' => '网络不稳定',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => '操作成功',
@@ -11991,11 +12003,11 @@ extension on Translations {
 			'common.groupAnnouncementPublishFailed' => '公告发布失败',
 			'common.groupAnnouncementPublishSuccess' => '公告已发布',
 			'common.groupAnnouncementDeleteFailed' => '公告删除失败',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementDeleteSuccess' => '公告已删除',
 			'common.privacyClearChatHistory' => '清除聊天记录',
 			'common.privacyClearChatHistoryConfirm' => '确定要清除所有聊天记录吗？此操作不可恢复。',
-			_ => null,
-		} ?? switch (path) {
 			'common.privacyLogoutAccountConfirm' => '确定要注销账号吗？此操作将永久删除你的账号和所有数据，且不可恢复。',
 			'common.privacySettings' => '隐私设置',
 			'common.searchSettings' => '搜索设置',
@@ -12505,11 +12517,11 @@ extension on Translations {
 			'common.withdrawWechatFormatError' => '请输入正确的微信号（6-20位，字母开头）',
 			'common.withdrawConfirmAmount' => ({required Object amount}) => '提现金额：￥${amount}',
 			'common.withdrawConfirmMethod' => ({required Object method}) => '提现方式：${method}',
+			_ => null,
+		} ?? switch (path) {
 			'common.withdrawConfirmAccount' => ({required Object account}) => '提现账号：${account}',
 			'common.noHistory' => '暂无历史记录',
 			'common.enterAmount' => '请输入金额',
-			_ => null,
-		} ?? switch (path) {
 			'common.transferDefaultRemark' => '转账给好友',
 			'common.transferMinAmountError' => '转账最低金额为 0.01 元',
 			'common.redPacketCurrentLucky' => '当前为：拼手气红包',
@@ -13019,11 +13031,11 @@ extension on Translations {
 			'groupSchedule.cancelSchedule' => '取消日程',
 			'groupSchedule.scheduleIdMissing' => '日程ID缺失，无法查看详情',
 			'groupSchedule.untitledSchedule' => '未命名日程',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.cardViewAndAttend' => '查看详情并确认参加',
 			'groupSchedule.cardViewDetail' => '查看详情',
 			'groupSchedule.organizer' => '发起人',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.participantAttending' => '已参加',
 			'groupSchedule.participantDeclined' => '已拒绝',
 			'groupSchedule.participantPending' => '待回应',
@@ -13533,11 +13545,11 @@ extension on Translations {
 			'organization.inviteColleagues.revokeBody' => ({required Object name}) => '撤销对「${name}」的邀请？',
 			'organization.inviteColleagues.revoked' => '已撤销邀请',
 			'organization.inviteColleagues.groupStep1' => '把邀请码分享到你的微信群',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.groupStep2' => '同事复制邀请码，打开 imboy App',
 			'organization.inviteColleagues.groupStep3' => '在「通讯录 → 加入企业」输入邀请码即可加入',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀请码：${code}',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteQr.orgQrcode' => '企业二维码',
 			'organization.inviteQr.title' => '邀请成员',
 			'organization.inviteQr.entryHint' => '出示二维码或邀请码，对方扫码 / 输码即可加入',
@@ -14047,11 +14059,11 @@ extension on Translations {
 			'talkRecord.deleteTitle' => '删除记录',
 			'talkRecord.deleteConfirmTitle' => '确认删除这条记录？',
 			'talkRecord.deleteConfirmDialogContent' => '删除后不再展示正文；已导出或保存的副本无法收回。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.deleteConfirmBodyPoint1' => '删除后不再展示记录正文与摘要。',
 			'talkRecord.deleteConfirmBodyPoint2' => '删除会先撤销所有人的访问；已导出或保存的副本无法收回。',
 			'talkRecord.deleteConfirmBodyPoint3' => '附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteConfirmAction' => '删除',
 			'talkRecord.deleteDeleting' => '删除中…',
 			'talkRecord.deleteOnlyOwner' => '只有创建者可以删除记录。',

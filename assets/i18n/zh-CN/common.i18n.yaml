@@ -49,6 +49,9 @@ cacheTips: 缓存是使用APP过程中产生的临时数据，清理缓存不会
 callDuration: 通话时长
 callEnded: "通话已结束"
 calling: 正在通话
+returnToCall: 返回当前通话
+callInProgressHint: 通话进行中，无法发起新的通话
+networkUnstable: 网络不稳定
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: 操作成功

@@ -785,6 +785,9 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get callDuration => 'Durata della chiamata';
 	@override String get callEnded => 'Chiamata terminata';
 	@override String get calling => 'In chiamata';
+	@override String get returnToCall => 'Torna alla chiamata in corso';
+	@override String get callInProgressHint => 'Una chiamata è già in corso';
+	@override String get networkUnstable => 'Rete instabile';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => 'Operazione riuscita';
@@ -4059,6 +4062,9 @@ extension on TranslationsItIt {
 			'common.callDuration' => 'Durata della chiamata',
 			'common.callEnded' => 'Chiamata terminata',
 			'common.calling' => 'In chiamata',
+			'common.returnToCall' => 'Torna alla chiamata in corso',
+			'common.callInProgressHint' => 'Una chiamata è già in corso',
+			'common.networkUnstable' => 'Rete instabile',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => 'Operazione riuscita',
@@ -4431,11 +4437,11 @@ extension on TranslationsItIt {
 			'common.fileOpenNotImplemented' => 'Funzione di apertura file non ancora implementata',
 			'common.fileShareNotImplemented' => 'Funzione di condivisione file non ancora implementata',
 			'common.retrySuccess' => 'Ritentativo riuscito',
+			_ => null,
+		} ?? switch (path) {
 			'common.deleteSuccess' => 'Eliminazione riuscita',
 			'common.localDeleteSuccess' => 'Eliminazione locale riuscita',
 			'common.localDeleteFailed' => 'Eliminazione locale non riuscita',
-			_ => null,
-		} ?? switch (path) {
 			'common.revokeSuccess' => 'Revocato con successo',
 			'common.editContentCannotBeEmpty' => 'Il contenuto della modifica non può essere vuoto',
 			'common.editSuccess' => 'Modificato con successo',
@@ -4945,11 +4951,11 @@ extension on TranslationsItIt {
 			'common.legacyUploadOutboxCheck' => 'Il messaggio potrebbe essere già in coda. Controlla la chat prima di reinviarlo.',
 			'common.legacyUploadRecoveryMismatch' => 'Il file non corrisponde o il recupero non è disponibile.',
 			'common.legacyUploadRecoveryContinues' => 'Allegato recuperato; elaborazione del messaggio originale in corso.',
+			_ => null,
+		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
-			_ => null,
-		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
 			'complaint.e2eeConsentSubmit' => 'Acconsenti e invia',
 			'complaint.e2eeConsentDecline' => 'Solo segnala (senza contenuto)',
@@ -5459,11 +5465,11 @@ extension on TranslationsItIt {
 			'main.complianceKeyInfoHint' => 'La chiave di audit di conformità è usata per la doppia cifratura della modalità compliance_e2ee. Se l\'impronta sopra non corrisponde a quella pubblicata dall\'amministratore, il server potrebbe essere stato manomesso.',
 			'main.complianceKeyInfoKeyId' => 'ID chiave',
 			'main.complianceKeyInfoLocalPin' => 'Pin locale (TOFU)',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Ora del pin',
 			'main.complianceKeyInfoPinnedNone' => 'Non ancora bloccato (verrà bloccato automaticamente al prossimo recupero)',
 			'main.complianceKeyInfoRefreshFailed' => 'Recupero non riuscito, controlla la rete e riprova',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Chiave pubblica distribuita dal server',
 			'main.complianceKeyInfoTitle' => 'Chiave di audit di conformità',
 			'main.e2eeErrComplianceChanged' => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova',
@@ -5973,11 +5979,11 @@ extension on TranslationsItIt {
 			'talkRecord.aiUnsupportedPlatform' => 'L’archivio sicuro non è ancora verificato su questa piattaforma. Non è possibile salvare chiavi.',
 			'talkRecord.aiKeyPlaceholder' => 'Inserisci la chiave API',
 			'talkRecord.aiReplacePlaceholder' => 'Inserisci una nuova chiave API; quella salvata non viene mai precompilata',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Salva su questo dispositivo',
 			'talkRecord.aiReplaceAction' => 'Sostituisci la chiave locale',
 			'talkRecord.aiDeleteAction' => 'Elimina la chiave locale',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Salvataggio…',
 			'talkRecord.aiSaved' => 'Salvato su questo dispositivo. La chiave non è stata verificata.',
 			'talkRecord.aiDeleted' => 'Configurazione locale eliminata. Registrazioni e risultati esistenti restano disponibili.',

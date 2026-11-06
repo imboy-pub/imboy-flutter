@@ -44,6 +44,9 @@ cacheTips: Cache is temporary data generated during app usage. Clearing cache wi
 callDuration: Call duration
 callEnded: "Call ended"
 calling: Calling
+returnToCall: Return to current call
+callInProgressHint: A call is already in progress
+networkUnstable: Unstable network
 cancel: "@:common.buttonCancel"
 ok: "@:common.buttonOk"
 operationSuccessful: Operation successful

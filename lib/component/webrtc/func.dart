@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart'
+    show CupertinoAlertDialog, CupertinoDialogAction;
 import 'package:flutter/material.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
@@ -8,6 +10,7 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/webrtc/session.dart';
+import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/config/init.dart';
 import 'package:imboy/modules/messaging/public.dart';
@@ -41,6 +44,10 @@ void clearPendingWebRTCSignals(String peerId) {
 /// 通话 overlay 期间的系统返回键（Android）处理器：由通话页注册，
 /// 行为 = 最小化为悬浮窗（与微信/FaceTime 一致），而不是弹掉底层业务路由。
 void Function()? p2pCallSystemBackHandler;
+
+/// 通话页注册的"返回当前通话"处理器（CALL-10）：重复呼叫提示弹窗用它
+/// 取消最小化回到全屏通话；通话页关闭时置空。
+void Function()? p2pCallRestoreHandler;
 
 /// 通话页的返回键吸收层：通话页是 OverlayEntry 而非路由，Android 系统返回
 /// 会直接 pop 底层 go_router 路由。推一个透明哑路由拦截返回并转发给上面的
@@ -136,6 +143,9 @@ Future<void> incomingCallScreen(
     return;
   }
   p2pCallScreenOn = true;
+  // 登记"当前活动通话"标识：busy/bye 等终态信令据此区分本通与旧通
+  // （CALL-11）。来电被拒/超时后清除；接听后由通话页 initSession 沿用。
+  p2pCallMsgId = msgId;
   final messages = messaging ?? MessagingFacade.instance;
 
   final sid = sessionId(peer.peerId.toString());
@@ -156,6 +166,7 @@ Future<void> incomingCallScreen(
     gTimer?.cancel();
     gTimer = null;
     p2pCallScreenOn = false;
+    if (p2pCallMsgId == msgId) p2pCallMsgId = null;
     p2pCallSignalingReady = false;
     if (dialogContext != null && dialogContext.mounted) {
       Navigator.of(dialogContext).pop();
@@ -192,6 +203,7 @@ Future<void> incomingCallScreen(
     gTimer?.cancel();
     gTimer = null;
     p2pCallScreenOn = false;
+    if (p2pCallMsgId == msgId) p2pCallMsgId = null;
   });
 
   await signal('ringing');
@@ -249,11 +261,19 @@ Future<void> openCallScreen(
   if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
     return;
   }
-  if (p2pEntry != null) return;
+  if (p2pEntry != null) {
+    // CALL-10：已有通话 overlay 时不重复创建邀请；用户主动呼出/回拨
+    // 给出"正在通话"提示并提供返回当前通话（programmatic 接听路径除外）。
+    // 提示弹窗 fire-and-forget：不阻塞入口调用方（await showDialog 会等
+    // 弹窗关闭才返回，呼出入口将无法继续处理后续手势）。
+    if (caller) unawaited(_showCallInProgressDialog());
+    return;
+  }
   // 来电弹窗还开着（p2pCallScreenOn 已置位但尚未接听）时禁止再发起呼出：
   // overlay 会盖死来电弹窗使其失去关闭路径，只剩 60s 超时兜底。
   if (p2pCallScreenOn && caller) {
     iPrint('> rtc openCallScreen: 来电待接听中，忽略新的呼出请求');
+    unawaited(_showCallInProgressDialog(canRestore: false));
     return;
   }
   p2pCallScreenOn = true;
@@ -283,6 +303,8 @@ Future<void> openCallScreen(
         p2pCallScreenOn = false;
         p2pCallSignalingReady = false;
         p2pCallSystemBackHandler = null;
+        p2pCallRestoreHandler = null;
+        p2pCallMsgId = null;
         final route = _p2pCallBackdropRoute;
         _p2pCallBackdropRoute = null;
         if (route != null && route.isActive) {
@@ -314,4 +336,34 @@ Future<void> openCallScreen(
     );
     nav.push(_p2pCallBackdropRoute!);
   }
+}
+
+/// CALL-10：已有活动通话时重复呼出的反馈弹窗。通话 overlay 已建立时
+/// 提供"返回当前通话"（取消最小化），否则只提示不提供入口。
+Future<void> _showCallInProgressDialog({bool canRestore = true}) async {
+  final context = navigatorKey.currentContext;
+  if (context == null) return;
+  final restore = canRestore ? p2pCallRestoreHandler : null;
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) => CupertinoAlertDialog(
+      title: Text(t.common.calling),
+      content: Text(t.common.callInProgressHint),
+      actions: [
+        if (restore != null)
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              restore();
+            },
+            child: Text(t.common.returnToCall),
+          ),
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(dialogContext).pop(),
+          child: Text(t.common.ok),
+        ),
+      ],
+    ),
+  );
 }

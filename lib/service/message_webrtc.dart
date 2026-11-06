@@ -119,24 +119,36 @@ class MessageWebrtc {
       }
       if (['WEBRTC_BUSY', 'WEBRTC_BYE'].contains(type)) {
         // busy=对方拒接/占线(5)；bye=对方挂断(3)。
-        // 只改写同一对端的通话记录，避免跨会话污染。
+        // CALL-11 / UX_SPEC §8：终态信令先按 msgId 判定归属——只有属于
+        // 当前活动通话才收敛全局状态；迟到的旧通话信令只改写对应记录，
+        // 不得污染新一通的弹窗/计时器/全局开关。
         final endState = type == 'WEBRTC_BUSY' ? 5 : 3;
-        webrtcMsgFrom.removeWhere((k, v) {
-          if (v != fromUid) return false;
-          changeLocalMsgState(k, endState);
-          return true;
-        });
-        // 关闭来电对话框（incomingCallScreen 是 showDialog 路由）。
-        // ⚠️ 仅在来电弹窗还开着（无通话 overlay）时才允许 pop：通话页以
-        // OverlayEntry 呈现时导航栈顶是业务页面，裸 pop 会弹掉它。
-        if (p2pEntry == null &&
-            (navigatorKey.currentState?.canPop() ?? false)) {
-          navigatorKey.currentState?.pop();
+        final signalMsgId = msgId is String ? msgId : null;
+        final belongsToActiveCall =
+            signalMsgId != null && signalMsgId == p2pCallMsgId;
+        if (belongsToActiveCall) {
+          webrtcMsgFrom.remove(signalMsgId);
+          // changeLocalMsgState 经 repo 按 msgId 直查，未登记也能收敛
+          // （对端未先 ringing 直接 busy 的场景）。
+          changeLocalMsgState(signalMsgId, endState);
+          // 关闭来电对话框（incomingCallScreen 是 showDialog 路由）。
+          // ⚠️ 仅在来电弹窗还开着（无通话 overlay）时才允许 pop：通话页以
+          // OverlayEntry 呈现时导航栈顶是业务页面，裸 pop 会弹掉它。
+          if (p2pEntry == null &&
+              (navigatorKey.currentState?.canPop() ?? false)) {
+            navigatorKey.currentState?.pop();
+          }
+          gTimer?.cancel();
+          gTimer = null;
+          p2pCallScreenOn = false;
+          p2pCallMsgId = null;
+          clearPendingWebRTCSignals(fromUid);
+        } else if (signalMsgId != null &&
+            webrtcMsgFrom.containsKey(signalMsgId)) {
+          // 旧通话的迟到终态：只收敛它自己的记录（对方暂时无法接通/
+          // 已结束），全局通话状态保持不变。
+          changeLocalMsgState(signalMsgId, endState);
         }
-        gTimer?.cancel();
-        gTimer = null;
-        p2pCallScreenOn = false;
-        clearPendingWebRTCSignals(fromUid);
       }
       // WRTC-00 修复：answer/candidate/ringing/busy/bye 必须 fire
       // WebRTCSignalingEvent（通话页 page:245 订阅的类型），此前误发

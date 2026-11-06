@@ -851,6 +851,9 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get callDuration => 'Call duration';
 	@override String get callEnded => 'Call ended';
 	@override String get calling => 'Calling';
+	@override String get returnToCall => 'Return to current call';
+	@override String get callInProgressHint => 'A call is already in progress';
+	@override String get networkUnstable => 'Unstable network';
 	@override String get cancel => _root.common.buttonCancel;
 	@override String get ok => _root.common.buttonOk;
 	@override String get operationSuccessful => 'Operation successful';
@@ -4747,6 +4750,9 @@ extension on TranslationsEnUs {
 			'common.callDuration' => 'Call duration',
 			'common.callEnded' => 'Call ended',
 			'common.calling' => 'Calling',
+			'common.returnToCall' => 'Return to current call',
+			'common.callInProgressHint' => 'A call is already in progress',
+			'common.networkUnstable' => 'Unstable network',
 			'common.cancel' => _root.common.buttonCancel,
 			'common.ok' => _root.common.buttonOk,
 			'common.operationSuccessful' => 'Operation successful',
@@ -5064,11 +5070,11 @@ extension on TranslationsEnUs {
 			'common.allowAddByPhoneDesc' => 'Other users can add you as a friend through your phone number',
 			'common.allowAddByQR' => 'Allow add by QR code',
 			'common.allowAddByQRDesc' => 'Other users can add you as a friend by scanning your QR code',
+			_ => null,
+		} ?? switch (path) {
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected',
-			_ => null,
-		} ?? switch (path) {
 			'common.allowNearbyVisible' => 'Visible to nearby people',
 			'common.dataSettings' => 'Data settings',
 			'common.clearChatRecords' => 'Clear chat records',
@@ -5578,11 +5584,11 @@ extension on TranslationsEnUs {
 			'common.noHistory' => 'No history yet',
 			'common.noNewRegisteredUsersTitle' => 'No newly registered users',
 			'common.payReceiveSuccess' => 'Payment received!',
+			_ => null,
+		} ?? switch (path) {
 			'common.purchaseConfirming' => 'Payment is being confirmed. Check your order status shortly.',
 			'common.reconnecting' => 'Poor connection, reconnecting…',
 			'common.redPacketBrand' => 'IMBoy Red Packet',
-			_ => null,
-		} ?? switch (path) {
 			'common.redPacketDialogTitle' => 'A red packet for you',
 			'common.redPacketDialogSubtitle' => 'Wishing you good fortune and prosperity',
 			'common.redPacketTotalAmount' => 'Total Amount',
@@ -6092,11 +6098,11 @@ extension on TranslationsEnUs {
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
+			_ => null,
+		} ?? switch (path) {
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.removeTitle' => 'Remove Tag',
 			'groupTag.removeConfirm' => 'Remove this tag?',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.title' => 'To-dos',
 			'groupTask.createTask' => 'Create To-do',
 			'groupTask.editTask' => 'Edit To-do',
@@ -6606,11 +6612,11 @@ extension on TranslationsEnUs {
 			'organization.inviteQr.copyCode' => 'Copy code',
 			'organization.inviteQr.copied' => 'Invite code copied',
 			'organization.inviteQr.inviteDisabledPending' => 'The enterprise is pending review; members can be invited once approved',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Organization structure',
 			'organization.directory.title' => 'Directory',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
 			'organization.directory.membersRestricted' => 'The full member list is visible to enterprise admins only; expand a department to see its members.',
@@ -7120,11 +7126,11 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetainedTitle' => 'Attachments still referenced',
 			'talkRecord.cleanupRetainedBody' => 'Some attachments are still legally referenced by other business and are not physically deleted yet.',
 			'talkRecord.cleanupFailedTitle' => 'Cleanup failed',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupFailedBody' => 'Attachment cleanup has not completed. Refresh the status; retry is available when eligible.',
 			'talkRecord.cleanupCompleteTitle' => 'Cleanup complete',
 			'talkRecord.cleanupCompleteBody' => 'The note and its attachments have been cleaned up.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.cleanupNoneTitle' => 'Cleanup not submitted',
 			'talkRecord.cleanupNoneBody' => 'The note has not entered the cleanup flow.',
 			'talkRecord.cleanupUnknownTitle' => 'Cleanup status unknown',
