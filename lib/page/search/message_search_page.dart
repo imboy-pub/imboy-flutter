@@ -756,11 +756,7 @@ class _MessageSearchPageState extends ConsumerState<MessageSearchPage> {
         session.isAuthTransitioning) {
       return;
     }
-    if (current == null ||
-        !current.isVisibleAt(DateTimeHelper.millisecond(), uid)) {
-      ref.read(messageSearchProvider.notifier).removeResult(result.id);
-      return;
-    }
+    if (!notifier.applyVisibilityResult(result, current)) return;
     // 跳转到聊天页面，定位到该消息。
     // 对端判定与 web_search_page 对齐：C2G 的会话目标是群（msg_c2g.to_id）；
     // C2C 按「我是否为发送者」取另一端——此前恒取 toId，收到的消息

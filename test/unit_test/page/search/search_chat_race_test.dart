@@ -190,18 +190,26 @@ void main() {
           await tester.pumpAndSettle();
           expect(find.text('isolated chat'), findsOneWidget);
         } else {
-          tester.binding.handleAppLifecycleStateChanged(
+          for (final state in [
+            AppLifecycleState.inactive,
+            AppLifecycleState.hidden,
             AppLifecycleState.paused,
-          );
+          ]) {
+            tester.binding.handleAppLifecycleStateChanged(state);
+          }
         }
         // 没有重新搜索；本机事实在搜索页离开之后才变为已读且到期。
         readAt = DateTimeHelper.millisecond() - 61000;
         if (navigate) {
           router.pop();
         } else {
-          tester.binding.handleAppLifecycleStateChanged(
+          for (final state in [
+            AppLifecycleState.hidden,
+            AppLifecycleState.inactive,
             AppLifecycleState.resumed,
-          );
+          ]) {
+            tester.binding.handleAppLifecycleStateChanged(state);
+          }
         }
         await tester.pumpAndSettle();
         expect(db.queries, greaterThanOrEqualTo(navigate ? 2 : 1));
@@ -210,6 +218,112 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'late chat click lookup cannot restore a result removed by resume',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+      await StorageService.init();
+      NtpHelper.debugReset();
+      addTearDown(NtpHelper.debugReset);
+      final result = MessageSearchResult(
+        id: 'unread',
+        content: 'unread fixture',
+        fromId: '1002',
+        toId: '1001',
+        type: 'C2C',
+        createdAt: 1,
+        payload: {
+          'text': 'unread fixture',
+          'burn': true,
+          'burn_after_ms': 60000,
+        },
+      );
+      final clickLookup = Completer<MessageSearchResult?>();
+      var lookups = 0;
+      final api = _SearchResponseApi(
+        MessageSearchResponse(items: [result], total: 1),
+        refresh: (_) {
+          lookups++;
+          return lookups == 1
+              ? clickLookup.future
+              : Future<MessageSearchResult?>.value(null);
+        },
+      );
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const SearchChatPage(
+              conversationUk3: 'C2C_1001_1002',
+              type: 'C2C',
+              peerId: '1002',
+              peerTitle: '',
+              peerAvatar: '',
+              peerSign: '',
+            ),
+          ),
+          GoRoute(
+            path: '/chat/:peer',
+            builder: (_, _) => const Scaffold(body: Text('isolated chat')),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [ftsApiProvider.overrideWithValue(api)],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
+      final field = find.byType(EditableText);
+      final scoped = ProviderScope.containerOf(tester.element(field));
+      scoped
+          .read(searchProvider.notifier)
+          .cacheContact(
+            '1002',
+            ContactModel(peerId: '1002', nickname: 'synthetic 1002'),
+          );
+      await tester.enterText(field, 'fixture');
+      await tester.pump(const Duration(milliseconds: 350));
+      await tester.pumpAndSettle();
+      expect(scoped.read(searchProvider).searchResults, hasLength(1));
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is TextHighlight && widget.text == 'unread fixture',
+        ),
+      );
+      await tester.pump();
+      expect(lookups, 1);
+      void resume() {
+        for (final state in [
+          AppLifecycleState.inactive,
+          AppLifecycleState.hidden,
+          AppLifecycleState.paused,
+          AppLifecycleState.hidden,
+          AppLifecycleState.inactive,
+          AppLifecycleState.resumed,
+        ]) {
+          tester.binding.handleAppLifecycleStateChanged(state);
+        }
+      }
+
+      resume();
+      await tester.pumpAndSettle();
+      expect(lookups, 2);
+      expect(scoped.read(searchProvider).searchResults, isEmpty);
+      clickLookup.complete(result);
+      await tester.pumpAndSettle();
+      expect(find.text('isolated chat'), findsNothing);
+      expect(scoped.read(searchProvider).searchResults, isEmpty);
+      // 已摘除的事实也不能留在页面私有缓存，后续恢复不应再回查它。
+      resume();
+      await tester.pumpAndSettle();
+      expect(lookups, 2);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   testWidgets(
     'chat search removes a visible burn result at its known deadline',

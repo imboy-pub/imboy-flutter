@@ -918,18 +918,7 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           generation != _searchGeneration) {
         return;
       }
-      if (current == null ||
-          !current.isVisibleAt(DateTimeHelper.millisecond(), uid)) {
-        setState(() {
-          _state = _state.copyWith(
-            results: _state.results
-                .where((result) => !identical(result, item))
-                .toList(),
-          );
-        });
-        _removeExpiredResults();
-        return;
-      }
+      if (!_applyMessageVisibility(item, current)) return;
     }
     if (!mounted) return;
     switch (item.type) {
@@ -987,30 +976,40 @@ class _WebSearchPageState extends ConsumerState<WebSearchPage> {
           refresh != _visibilityGeneration) {
         return;
       }
-      // 只替换仍在展示的同一结果，不能复活已被计时器清掉的项目。
-      if (!_state.results.contains(item)) continue;
-      setState(() {
-        _state = _state.copyWith(
-          results: [
-            for (final result in _state.results)
-              if (!identical(result, item))
-                result
-              else if (current != null)
-                SearchItem(
-                  type: item.type,
-                  id: item.id,
-                  title: item.title,
-                  subtitle: current.content,
-                  avatar: item.avatar,
-                  highlightText: item.highlightText,
-                  metadata: item.metadata,
-                  message: current,
-                ),
-          ],
-        );
-      });
-      _removeExpiredResults();
+      _applyMessageVisibility(item, current);
     }
+  }
+
+  bool _applyMessageVisibility(SearchItem item, MessageSearchResult? current) {
+    // 只替换仍在展示的同一结果，不能复活已被计时器清掉的项目。
+    final index = _state.results.indexWhere(
+      (result) => identical(result, item),
+    );
+    if (index < 0) return false;
+    final results = List<SearchItem>.of(_state.results);
+    SearchItem? updated;
+    if (current == null ||
+        !current.isVisibleAt(
+          DateTimeHelper.millisecond(),
+          UserRepoLocal.to.currentUid,
+        )) {
+      results.removeAt(index);
+    } else {
+      updated = SearchItem(
+        type: item.type,
+        id: item.id,
+        title: item.title,
+        subtitle: current.content,
+        avatar: item.avatar,
+        highlightText: item.highlightText,
+        metadata: item.metadata,
+        message: current,
+      );
+      results[index] = updated;
+    }
+    setState(() => _state = _state.copyWith(results: results));
+    _removeExpiredResults();
+    return updated != null && _state.results.contains(updated);
   }
 
   bool _isVisibleMessage(SearchItem item, int nowMs) {

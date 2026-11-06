@@ -256,6 +256,162 @@ class ParseMachineEventsTest(unittest.TestCase):
         self.assertIn("BUSINESS_ASSERTION_FAIL", payload)
 
 
+class LoaderMachineEventsTest(unittest.TestCase):
+    @staticmethod
+    def loader_events(path="/synthetic/browser_test.dart", suite_id=0, test_id=1,
+                      error=None, hidden=False):
+        # Normalized real Flutter 3.47.5 Chrome-launch failure: failed LoadSuite
+        # is visible, has no groups/location, and finishes before done=false.
+        if error is None:
+            error = (f'Failed to load "{path}": Failed to launch browser. '
+                     'Make sure you are using an up-to-date Chrome or Edge.')
+        return [
+            {"type": "start", "protocolVersion": "0.1.1", "runnerVersion": "1.31.1"},
+            {"type": "suite", "suite": {"id": suite_id, "platform": "chrome", "path": path}},
+            {"type": "testStart", "test": {
+                "id": test_id, "name": f"loading {path}", "suiteID": suite_id,
+                "groupIDs": [], "metadata": {"skip": False, "skipReason": None},
+                "line": None, "column": None, "url": None}},
+            {"type": "allSuites", "count": 1},
+            {"type": "error", "testID": test_id, "error": error,
+             "isFailure": False, "stackTrace": "package:flutter_tools/src/web/chrome.dart"},
+            {"type": "testDone", "testID": test_id, "result": "error",
+             "hidden": hidden, "skipped": False},
+            {"type": "done", "success": False},
+        ]
+
+    @staticmethod
+    def parse(events, exit_code=1):
+        return parse_machine_events([json.dumps(event) for event in events], exit_code)
+
+    def test_real_visible_browser_loader_error_is_not_a_business_case(self):
+        events = self.loader_events()
+        lines = [json.dumps(event) for event in events]
+        lines.insert(4, '[CHROME]: socket() failed: Operation not permitted (1)')
+        result = parse_machine_events(lines, 1)
+        self.assertEqual((result.test_status, result.reason_code, result.failure_class),
+                         ('BLOCKED', 'ENV_MISSING', 'unknown'))
+        self.assertEqual((result.executed, result.actually_run, result.passed,
+                          result.failed, result.skipped), (0, 0, 0, 0, 0))
+        self.assertEqual(result.first_failure.message, events[4]['error'])
+        self.assertEqual(result.first_failure.name, events[2]['test']['name'])
+        self.assertFalse(result.first_failure.is_failure)
+        self.assertTrue(result.done_event_seen)
+        self.assertEqual((result.process_exit_code, result.invalid_events), (1, 0))
+
+    def test_browser_environment_failure_is_not_retryable_to_green(self):
+        fingerprint = dict.fromkeys(ATTEMPT_FINGERPRINT_KEYS, 'synthetic-fingerprint')
+        first = {'parsed': self.parse(self.loader_events()).to_dict(),
+                 'fingerprint': fingerprint}
+        self.assertEqual(classify_attempts([first])['reason_code'], 'ENV_MISSING')
+        passed = {'parsed': parse_machine_events(load_lines('pass.jsonl'), 0).to_dict(),
+                  'fingerprint': fingerprint}
+        verdict = classify_attempts([first, passed])
+        self.assertEqual((verdict['test_status'], verdict['reason_code']),
+                         ('BLOCKED', 'RETRY_NOT_ALLOWED'))
+
+    def test_compile_loader_error_remains_terminal_without_business_cases(self):
+        for hidden in (False, True):
+            with self.subTest(hidden=hidden):
+                events = self.loader_events(
+                    error='Failed to load "/synthetic/browser_test.dart": Compilation failed.',
+                    hidden=hidden)
+                result = self.parse(events)
+                self.assertEqual((result.test_status, result.reason_code, result.failure_class),
+                                 ('FAIL', 'TEST_ERROR', 'unknown'))
+                self.assertEqual((result.executed, result.failed, result.actually_run), (0, 0, 0))
+
+    def test_loader_terminal_error_without_diagnostic_is_still_failure(self):
+        events = [event for event in self.loader_events() if event['type'] != 'error']
+        result = self.parse(events)
+        self.assertEqual((result.test_status, result.reason_code, result.executed),
+                         ('FAIL', 'TEST_ERROR', 0))
+
+    def test_existing_transient_loader_infrastructure_error_stays_retryable(self):
+        events = self.loader_events(error=(
+            'Failed to load "/synthetic/browser_test.dart": transport connection lost'))
+        result = self.parse(events)
+        self.assertEqual((result.test_status, result.reason_code, result.failure_class),
+                         ('BLOCKED', 'INFRA_FAIL', 'infra'))
+        self.assertEqual((result.executed, result.failed, result.actually_run), (0, 0, 0))
+        fingerprint = dict.fromkeys(ATTEMPT_FINGERPRINT_KEYS, 'synthetic-fingerprint')
+        attempts = [{'parsed': result.to_dict(), 'fingerprint': fingerprint},
+                    {'parsed': parse_machine_events(load_lines('pass.jsonl'), 0).to_dict(),
+                     'fingerprint': fingerprint}]
+        self.assertEqual(classify_attempts(attempts)['test_status'], 'FLAKY')
+
+    def test_browser_text_inside_compiler_diagnostic_is_not_environment_missing(self):
+        events = self.loader_events(error=(
+            'Failed to load "/synthetic/browser_test.dart": Compilation failed: '
+            'undefined variable in "Failed to launch browser."'))
+        self.assertEqual(self.parse(events).reason_code, 'TEST_ERROR')
+
+    def test_loader_identity_requires_suite_path_empty_groups_and_no_location(self):
+        for override in ({'suiteID': 99}, {'name': 'loading another_test.dart'},
+                         {'groupIDs': [2]}, {'groupIDs': None}, {'line': 12},
+                         {'url': 'file:///synthetic/browser_test.dart'}):
+            with self.subTest(override=override):
+                events = self.loader_events()
+                events[2]['test'].update(override)
+                result = self.parse(events)
+                self.assertEqual((result.test_status, result.reason_code), ('FAIL', 'TEST_ERROR'))
+                self.assertEqual((result.executed, result.failed, result.actually_run), (1, 1, 1))
+
+    def test_successful_business_test_named_exactly_like_loader_still_counts(self):
+        events = self.loader_events()
+        events[2]['test']['groupIDs'] = [2]
+        events = [event for event in events if event['type'] != 'error']
+        events[-2]['result'] = 'success'
+        events[-1]['success'] = True
+        result = self.parse(events, 0)
+        self.assertEqual((result.test_status, result.executed, result.passed), ('PASS', 1, 1))
+
+    def test_visible_loader_success_or_skip_alone_is_zero_executed(self):
+        for terminal in ('success', 'skipped'):
+            with self.subTest(terminal=terminal):
+                events = [event for event in self.loader_events() if event['type'] != 'error']
+                events[-2]['result'] = terminal
+                events[-1]['success'] = True
+                result = self.parse(events, 0)
+                self.assertEqual((result.test_status, result.reason_code, result.executed,
+                                  result.skipped), ('BLOCKED', 'ZERO_EXECUTED', 0, 0))
+
+    def test_business_assertion_wins_over_browser_environment_in_either_order(self):
+        business = [
+            {'type': 'testStart', 'test': {'id': 10, 'name': 'browser search assertion'}},
+            {'type': 'error', 'testID': 10, 'error': 'Expected: correct result', 'isFailure': True},
+            {'type': 'testDone', 'testID': 10, 'result': 'failure', 'hidden': False},
+        ]
+        for assertion_first in (False, True):
+            with self.subTest(assertion_first=assertion_first):
+                loader = self.loader_events()
+                events = ((loader[:1] + business + loader[1:]) if assertion_first
+                          else (loader[:-1] + business + loader[-1:]))
+                result = self.parse(events)
+                self.assertEqual((result.test_status, result.reason_code, result.failure_class),
+                                 ('FAIL', 'BUSINESS_ASSERTION_FAIL', 'business'))
+                self.assertEqual((result.executed, result.failed, result.actually_run), (1, 1, 1))
+
+    def test_browser_environment_does_not_hide_other_loader_or_business_error(self):
+        for other_loader in (False, True):
+            with self.subTest(other_loader=other_loader):
+                first = self.loader_events()
+                other = self.loader_events('/synthetic/other_test.dart', 10, 11, 'Compilation failed')
+                if not other_loader:
+                    other[2]['test']['groupIDs'] = [12]
+                result = self.parse(first[:-1] + other[1:])
+                self.assertEqual((result.test_status, result.reason_code), ('FAIL', 'TEST_ERROR'))
+                self.assertEqual(result.actually_run, 0 if other_loader else 1)
+
+    def test_browser_loader_still_requires_complete_valid_events(self):
+        events = self.loader_events()
+        self.assertEqual(self.parse(events[:-1]).reason_code, 'RUNNER_CRASH')
+        duplicate = events[:-1] + [events[-2]] + events[-1:]
+        self.assertEqual(self.parse(duplicate).reason_code, 'INVALID_MACHINE_EVENTS')
+        missing = [event for event in events if event['type'] != 'testDone']
+        self.assertEqual(self.parse(missing).reason_code, 'INVALID_MACHINE_EVENTS')
+
+
 class DerivedRealFixtureTest(unittest.TestCase):
     def test_derived_real_flutter_test_output_parses_with_executed(self):
         path = FIXTURES / "derived_real_flutter_test.jsonl"

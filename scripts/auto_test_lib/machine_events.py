@@ -7,8 +7,8 @@ Source of truth for the rules implemented here:
   node ``machine_event_parser``.
 
 Key invariants (mirrored from the contract):
-- ``executed`` counts only non-hidden ``testDone`` events (the hidden
-  "loading" pseudo-test is excluded); a ``testDone`` with
+- ``executed`` counts only non-hidden business ``testDone`` events (suite
+  loaders are excluded even when a failed loader is visible); a ``testDone`` with
   ``result == "skipped"`` counts into both ``executed`` and ``skipped``.
 - ``executed == 0`` can never map to PASS, regardless of process exit code.
 - A business assertion failure (``error`` with ``isFailure == true`` or a
@@ -17,6 +17,10 @@ Key invariants (mirrored from the contract):
 - A retryable infrastructure failure (``error`` with ``isFailure == false``
   whose message matches the infra pattern) maps to BLOCKED / INFRA_FAIL
   (failure_class=infra).
+- A structurally identified loader that cannot launch its browser maps to
+  BLOCKED / ENV_MISSING, without retrying an unchanged environment. Other
+  non-infrastructure loader errors remain FAIL / TEST_ERROR; loaders never
+  invent business cases.
 - No visible ``testDone`` and no ``done`` event means the runner died
   before/at loading: BLOCKED / RUNNER_CRASH (failure_class=infra).
 - Lines that fail JSON parsing are skipped and counted in
@@ -147,6 +151,11 @@ def parse_machine_events(
     infra_fail = False
     first_failure = FirstFailure()
     test_names: Dict[int, str] = {}
+    suite_paths: Dict[int, str] = {}
+    loader_paths: Dict[int, str] = {}
+    loader_failures = set()
+    browser_launch_failures = set()
+    infra_loader_failures = set()
 
     def record_first_failure(
         test_id: Optional[int],
@@ -180,23 +189,46 @@ def parse_machine_events(
             continue
 
         etype = event.get("type")
-        if etype == "testStart":
+        if etype == "suite":
+            suite = event.get("suite")
+            if isinstance(suite, dict):
+                suite_id = _as_int(suite.get("id"))
+                path = suite.get("path")
+                if suite_id is not None and isinstance(path, str) and path:
+                    suite_paths[suite_id] = path
+        elif etype == "testStart":
             test = event.get("test")
             if isinstance(test, dict):
                 test_id = _as_int(test.get("id"))
                 if test_id is not None:
                     name = test.get("name")
                     test_names[test_id] = name if isinstance(name, str) else ""
+                    path = suite_paths.get(_as_int(test.get("suiteID")))
+                    # test_core's JSON reporter gives LoadSuite an empty
+                    # group list and no source location. A business test may
+                    # be named "loading ...", so its name alone is insufficient.
+                    if (path and name == f"loading {path}"
+                            and test.get("groupIDs") == []
+                            and all(test.get(key) is None
+                                    for key in ("line", "column", "url"))):
+                        loader_paths[test_id] = path
         elif etype == "testDone":
             test_id = _as_int(event.get("testID"))
             if test_id is None or test_id in terminal_ids:
                 invalid_events += 1
                 continue
             terminal_ids.add(test_id)
+            result = event.get("result")
+            if test_id in loader_paths:
+                if result not in ("success", "skipped", *FAILED_RESULTS):
+                    invalid_events += 1
+                if result in FAILED_RESULTS:
+                    loader_failures.add(test_id)
+                    record_first_failure(test_id, None, None)
+                continue
             if bool(event.get("hidden", False)):
                 continue  # hidden loading pseudo-tests never count
             executed += 1
-            result = event.get("result")
             if result not in ("success", "skipped", *FAILED_RESULTS):
                 invalid_events += 1
             # test_core reports skipped tests as result=success for protocol
@@ -225,14 +257,26 @@ def parse_machine_events(
             if ORACLE_ERROR_MARKER in message_text or ORACLE_ERROR_MARKER in stack_text:
                 oracle_count += 1
             is_failure = event.get("isFailure")
+            test_id = _as_int(event.get("testID"))
             if is_failure is True:
                 business_fail = True
+            elif test_id in loader_paths:
+                prefix = (f'Failed to load "{loader_paths[test_id]}": '
+                          'Failed to launch browser.')
+                if is_failure is False and message_text.startswith(prefix):
+                    browser_launch_failures.add(test_id)
+                elif is_failure is False and INFRA_MESSAGE_RE.search(message_text):
+                    infra_loader_failures.add(test_id)
+                    infra_fail = True
+                else:
+                    loader_failures.add(test_id)
+                    unknown_error = True
             elif is_failure is False and INFRA_MESSAGE_RE.search(message_text):
                 infra_fail = True
             else:
                 unknown_error = True
             record_first_failure(
-                _as_int(event.get("testID")),
+                test_id,
                 message_text or None,
                 is_failure if isinstance(is_failure, bool) else None,
             )
@@ -244,7 +288,7 @@ def parse_machine_events(
                 run_failed = True
             elif event.get("success") is not True:
                 interrupted = True
-        # start / suite and unknown types (e.g. type=comment) are ignored.
+        # start and unknown types (e.g. type=comment) are ignored.
 
     invalid_events += len(set(test_names) - terminal_ids)
 
@@ -258,6 +302,21 @@ def parse_machine_events(
     elif interrupted or not done_event_seen:
         reason_code = "RUNNER_CRASH"
         failure_class = "infra"
+        test_status = "BLOCKED"
+    elif (loader_failures - browser_launch_failures - infra_loader_failures
+          or (browser_launch_failures and (unknown_error or failed))):
+        reason_code = "TEST_ERROR"
+        failure_class = "unknown"
+        test_status = "FAIL"
+    elif browser_launch_failures:
+        reason_code = "INVALID_MACHINE_EVENTS" if invalid_events else "ENV_MISSING"
+        # Only failure_class=infra is retryable in the existing runner/result
+        # contract. A missing browser environment needs preparation, not retry.
+        failure_class = "unknown"
+        test_status = "BLOCKED"
+    elif infra_loader_failures:
+        reason_code = "INVALID_MACHINE_EVENTS" if invalid_events else "INFRA_FAIL"
+        failure_class = "unknown" if invalid_events else "infra"
         test_status = "BLOCKED"
     elif executed > 0 and skipped == executed:
         reason_code = "ALL_SKIPPED"

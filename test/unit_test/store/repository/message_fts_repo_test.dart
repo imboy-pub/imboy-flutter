@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,12 +12,12 @@ import 'package:imboy/store/repository/message_fts_repo.dart';
 import '../../../fixtures/sqlite_migration/migration_inventory.dart';
 import '../../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
-/// 只控制真实 SQLite 查询返回时的时钟变化，不伪造查询结果或排序。
+/// 只控制真实 SQLite 查询返回时的时钟/会话变化，不伪造查询结果或排序。
 class _ObservedQueryDatabase implements Database {
   _ObservedQueryDatabase(this.delegate, this.onQueryCompleted);
 
   final Database delegate;
-  final void Function(String sql) onQueryCompleted;
+  final FutureOr<void> Function(String sql) onQueryCompleted;
 
   @override
   bool get isOpen => delegate.isOpen;
@@ -27,7 +28,7 @@ class _ObservedQueryDatabase implements Database {
     List<Object?>? arguments,
   ]) async {
     final rows = await delegate.rawQuery(sql, arguments);
-    onQueryCompleted(sql);
+    await onQueryCompleted(sql);
     return rows;
   }
 
@@ -317,17 +318,23 @@ void main() {
           await seed('10-malformed', {}, rawPayload: '{broken');
           await seed('11-non-object', {}, rawPayload: '[]');
 
-          expect((await search()).map((r) => r.id), [
-            '02-live-read',
-            '03-unread-recipient',
-            '05-live-author',
-            '06-ordinary',
-          ]);
+          final visible = await search();
+          expect(
+            visible.map((r) => r.id),
+            unorderedEquals([
+              '02-live-read',
+              '03-unread-recipient',
+              '05-live-author',
+              '06-ordinary',
+            ]),
+          );
+          final ranks = visible.map((r) => r.rank).toList();
+          expect(ranks, orderedEquals([...ranks]..sort()));
           now = 100001;
-          expect((await search()).map((r) => r.id), [
-            '03-unread-recipient',
-            '06-ordinary',
-          ]);
+          expect(
+            (await search()).map((r) => r.id),
+            unorderedEquals(['03-unread-recipient', '06-ordinary']),
+          );
           expect(
             await db.rawQuery(
               'SELECT rowid FROM ${table}_fts WHERE ${table}_fts MATCH ?',
@@ -390,6 +397,27 @@ void main() {
       );
 
       if (type == 'C2C') {
+        test(
+          'combined search discards earlier rows after an account switch',
+          () async {
+            await seed('old-account-result', {});
+            var switched = false;
+            SqliteService.setDbForTest(
+              _ObservedQueryDatabase(db, (sql) async {
+                if (sql.contains('JOIN msg_c2g AS message')) {
+                  switched = true;
+                  await StorageService.to.setString(Keys.currentUid, '200');
+                }
+              }),
+            );
+
+            final results = await MessageFtsRepo(nowMs: () => now)
+                .searchAll(query: 'searchword', throwOnError: true);
+            expect(switched, isTrue);
+            expect(results, isEmpty);
+          },
+        );
+
         test('combined search rechecks C2C after awaiting C2G', () async {
           await seed('01-expiring', {
             'burn': true,

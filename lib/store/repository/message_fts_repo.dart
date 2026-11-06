@@ -273,7 +273,15 @@ class MessageFtsRepo {
     int limit = 50,
   }) async {
     if (query.trim().isEmpty || limit <= 0) return [];
-    if (isCurrent != null && !isCurrent()) return [];
+    final session = UserRepoLocal.to;
+    final uid = session.currentUid;
+    final generation = session.sessionGeneration;
+    bool current() =>
+        session.currentUid == uid &&
+        session.isCurrentSession(generation) &&
+        !session.isAuthTransitioning &&
+        (isCurrent?.call() ?? true);
+    if (!current()) return [];
     final c2cResults = type == 'C2G'
         ? <FtsSearchResult>[]
         : await searchC2c(
@@ -284,7 +292,7 @@ class MessageFtsRepo {
             throwOnError: throwOnError,
             limit: limit,
           );
-    if (isCurrent != null && !isCurrent()) return [];
+    if (!current()) return [];
     final c2gResults = type == 'C2C'
         ? <FtsSearchResult>[]
         : await searchC2g(
@@ -295,7 +303,7 @@ class MessageFtsRepo {
             throwOnError: throwOnError,
             limit: limit,
           );
-    if (isCurrent != null && !isCurrent()) return [];
+    if (!current()) return [];
 
     final now = _nowMs();
     final merged = [

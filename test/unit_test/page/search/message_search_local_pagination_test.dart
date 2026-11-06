@@ -51,6 +51,11 @@ class _DelayedSearchDatabase implements Database {
           'conversation_uk3': 'C2C_100_200',
           'snippet': 'old',
           'rank': -1.0,
+          'payload': '{"text":"old"}',
+          'msg_type': 'text',
+          'status': 20,
+          'is_author': 0,
+          'created_at': 1,
         },
       ];
     }
@@ -61,6 +66,9 @@ class _DelayedSearchDatabase implements Database {
         'to_id': '',
         'created_at': 1,
         'payload': '{"text":"old"}',
+        'msg_type': 'text',
+        'status': 20,
+        'is_author': 0,
       },
     ];
   }

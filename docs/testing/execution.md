@@ -217,6 +217,10 @@ failure/cancelled 仍使最终结果阻断。这里的 missing 不等于该子�
 状态与原因分开。结果保存 commit/profile/suite/target/platform/product_profile/role/variant、
 selected/status/reason_code/upstream、计数、日志、证据和全部尝试。
 `executed = passed + failed + skipped`；`actually_run = passed + failed`。隐藏加载/setup 不充数。实例汇总使用最后一次尝试的计数；完整 attempts 保留每次计数，重试工作量须单独对 attempts 求和。
+由 suite 路径和 reporter 元数据确认的 loading 伪用例，即使加载失败后变成非隐藏事件，
+也不计入业务用例数量。浏览器启动失败记为 `BLOCKED/ENV_MISSING`，须修复环境后再运行；
+编译和未识别的加载错误仍使目标失败，不能因为实际运行数量为零而忽略。Reporter loading
+events are not business cases; zero business execution never certifies a pass.
 断言失败不重试洗绿；基础设施重试保留尝试，恢复后仍是 FLAKY。未批准部分 skip 也阻断，
 不增加兜底 skip 白名单。存量硬编码 skip 需修复或建立可核验的适用合同。
 联系人 RTC gate 在 phase1_delivery 与 full-selected 两个真实构建中执行；依赖已编译 RTC 回调的断言仅在 RTC 构建注册，full-selected 的产物核验保证该分支不会被缺 feature 的构建跳过。
@@ -227,7 +231,8 @@ selected/status/reason_code/upstream、计数、日志、证据和全部尝试�
 
 使用仓库固定 Flutter/Dart，先 `python3 scripts/check_sdk_compatibility.py` 再 `flutter pub get --enforce-lockfile`。冻结计划后只运行 `.github/scripts/ci_patch_path_deps.sh --check`，不在执行阶段改写依赖源码。
 专用测试 checkout 可用 `.github/scripts/ci_gen_env.sh` 生成合成 loopback 配置，不复制真实配置。
-SQLite 需宿主 sqlite3。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，
+SQLite FFI 需可加载的宿主动态库；Linux 需让动态加载器找到 `libsqlite3.so`，例如安装
+`libsqlite3-dev`。加密库沿用 `.github/scripts/ci_build_vod.sh` 按锁定插件构建，
 `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` 指向库目录；真实加载仍需机器事件验证。
 FTS v38 草稿的宿主、Chrome/WASM 和原生 SQLCipher 三类验收及注册前阻塞，见
 [SQLite 迁移验证矩阵](../sqlite-migration-test-matrix.md#消息-fts-v38-的注册前验证--message-fts-v38-admission)。

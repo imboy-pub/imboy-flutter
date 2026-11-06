@@ -527,6 +527,38 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
     removeExpiredResults();
   }
 
+  /// 写回点击/恢复时新取得的事实；迟到回查不能复活已移除或替换的结果。
+  bool applyVisibilityResult(
+    MessageSearchResult previous,
+    MessageSearchResult? current,
+  ) {
+    if (_disposed) return false;
+    final index = state.searchResults.indexWhere(
+      (item) => identical(item, previous),
+    );
+    if (index < 0) return false;
+    final items = List<MessageSearchResult>.of(state.searchResults);
+    if (current == null ||
+        !current.isVisibleAt(
+          DateTimeHelper.millisecond(),
+          UserRepoLocal.to.currentUid,
+        )) {
+      items.removeAt(index);
+    } else {
+      items[index] = current;
+    }
+    final removed = state.searchResults.length - items.length;
+    state = state.copyWith(
+      searchResults: items,
+      totalResults: state.totalResults > removed
+          ? state.totalResults - removed
+          : 0,
+    );
+    removeExpiredResults();
+    return current != null &&
+        state.searchResults.any((item) => identical(item, current));
+  }
+
   /// 搜索时尚未读的消息可能在聊天页/后台开始计时，恢复展示时重读本机事实。
   Future<void> refreshVisibleResults() async {
     if (_disposed) return;
@@ -545,30 +577,15 @@ class MessageSearchNotifier extends _$MessageSearchNotifier {
         session.currentUid == uid &&
         session.isCurrentSession(generation) &&
         !session.isAuthTransitioning;
-    final refreshed = <MessageSearchResult>[];
     for (final item in snapshot) {
       if (!current()) return;
       final resolved = await ref
           .read(ftsApiProvider)
           .refreshResultVisibility(item);
       if (!current()) return;
-      if (resolved != null) refreshed.add(resolved);
+      // 后续行查询可能阻塞；本条新期限/删除事实须立即生效并重排计时器。
+      applyVisibilityResult(item, resolved);
     }
-    // 同期计时器已剔除的条目不能被较早发起的回查重新加回。
-    final present = state.searchResults
-        .map((item) => '${item.type}:${item.id}')
-        .toSet();
-    final items = refreshed
-        .where((item) => present.contains('${item.type}:${item.id}'))
-        .toList();
-    final removed = state.searchResults.length - items.length;
-    state = state.copyWith(
-      searchResults: items,
-      totalResults: state.totalResults > removed
-          ? state.totalResults - removed
-          : 0,
-    );
-    removeExpiredResults();
   }
 
   /// 预加载联系人信息

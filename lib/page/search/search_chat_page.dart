@@ -538,6 +538,7 @@ class _SearchChatPageState extends ConsumerState<_SearchChatBody> {
         .read(ftsApiProvider)
         .refreshResultVisibility(result);
     if (!mounted || !_ownerActive || generation != _searchGeneration) return;
+    if (!identical(_resultFacts[msgId], result)) return;
     if (current == null ||
         !current.isVisibleAt(DateTimeHelper.millisecond(), _ownerUid)) {
       _resultFacts.remove(msgId);

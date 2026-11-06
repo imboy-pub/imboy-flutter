@@ -59,7 +59,10 @@ python3 scripts/auto_test.py execution-run --profile device-single --platform an
 ```
 
 Web 合同固定 `SQLITE_WASM_URL=/fixtures/sqlite3.wasm`；该 fixture 是指向现有
-`web/sqlite3.wasm` 的 Git 符号链接，避免复制二进制。需要 Chrome；不在运行时下载替代 WASM。
+`web/sqlite3.wasm` 的 Git 符号链接，避免复制二进制。需要可正常启动并建立测试本地 socket
+的 Chrome；不在运行时下载替代 WASM。浏览器启动失败是 `ENV_MISSING`，不计业务执行。
+也可使用既有 `Integration Tests` 手动工作流的 `profile=web`、`platform=web`、
+`execute=true`，前提是已准备好 `self-hosted/imboy-test` runner；默认仅生成计划。
 SQLCipher 目标使用临时数据库和合成密码，只能由真正支持加密的原生驱动满足；通过
 `IMBOY_EXECUTION_DEVICE_ANDROID/IOS/MACOS` 指定设备。缺 SDK、浏览器或合格设备为
 `ENV_MISSING`，主机 SQLite 探针不能代替原生证明。
