@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/extra_item.dart';
@@ -110,7 +111,7 @@ void main() {
     expect(titles.contains(title), compiledProductFeatures.contains(feature));
   }
 
-  for (final type in ['C2C', 'C2G']) {
+  for (final type in ['C2C', 'C2G', 'C2S', 'S2C']) {
     testWidgets('$type 保留基础媒体入口并隐藏旧表情占位', (tester) async {
       await pumpItems(tester, type: type);
       expect(find.text(t.main.album), findsOneWidget);
@@ -137,18 +138,55 @@ void main() {
       final titles = await visiblePageTitles(tester);
       expectCompiledTool(titles, t.common.redPacket, 'wallet');
       if (type == 'C2G') {
-        expectCompiledTool(titles, t.common.groupCall, 'rtc');
+        expect(
+          titles.contains(t.common.groupCall),
+          compiledProductFeatures.contains(FeatureKeys.rtc) &&
+              compiledProductFeatures.contains(FeatureKeys.rtcGroup),
+        );
         expect(titles, isNot(contains(t.common.voiceCall)));
         expect(titles, isNot(contains(t.common.videoCall)));
         expect(titles, isNot(contains(t.common.transfer)));
       } else {
-        expectCompiledTool(titles, t.common.voiceCall, 'rtc');
-        expectCompiledTool(titles, t.common.videoCall, 'rtc');
+        final hasC2cRtc =
+            type == 'C2C' && compiledProductFeatures.contains(FeatureKeys.rtc);
+        expect(titles.contains(t.common.voiceCall), hasC2cRtc);
+        expect(titles.contains(t.common.videoCall), hasC2cRtc);
+        expect(titles, isNot(contains(t.common.groupCall)));
         expectCompiledTool(titles, t.common.transfer, 'wallet');
       }
       expect(tester.takeException(), isNull);
     });
   }
+
+  for (final flags in [
+    {FeatureKeys.rtc: true, FeatureKeys.rtcGroup: false},
+    {FeatureKeys.rtc: false, FeatureKeys.rtcGroup: true},
+  ]) {
+    testWidgets('群通话需要父子运行开关同时开启: $flags', (tester) async {
+      AppFeatureRegistry.replaceSnapshotForTest(flags);
+      await pumpItems(tester, type: 'C2G');
+      final titles = await visiblePageTitles(tester);
+      expect(titles, isNot(contains(t.common.groupCall)));
+      expect(titles, isNot(contains(t.common.voiceCall)));
+      expect(titles, isNot(contains(t.common.videoCall)));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('远端群通话开关不能打开产品组合外的群入口', (tester) async {
+    AppFeatureRegistry.replaceSnapshotForTest({
+      FeatureKeys.rtc: true,
+      FeatureKeys.rtcGroup: true,
+    });
+    await pumpItems(tester, type: 'C2G');
+    final titles = await visiblePageTitles(tester);
+    expect(
+      titles.contains(t.common.groupCall),
+      compiledProductFeatures.contains(FeatureKeys.rtc) &&
+          compiledProductFeatures.contains(FeatureKeys.rtcGroup),
+    );
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('群协作工具裁剪后仍可在可用页面中找到', (tester) async {
     await pumpItems(tester, type: 'C2G');

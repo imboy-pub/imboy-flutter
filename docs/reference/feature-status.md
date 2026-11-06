@@ -1,6 +1,6 @@
 # imboyapp 功能状态清单 / Feature Status Checklist
 
-> 最后更新 / Last updated：2026-10-08
+> 最后更新 / Last updated：2026-11-06
 > 范围 / Scope：Flutter 客户端（iOS / Android / macOS）功能开关与实现状态
 > 真源 / Source of truth：
 > - 编译期产品面：`lib/app_core/feature_flags/generated_product_features.dart`（**生成物勿手改**，生成器 `imboy/scripts/generate_product_features.py`）
@@ -18,13 +18,17 @@
 |------|------|--------|
 | ① 编译期产品面 | `compiledProductFeatures`（生成文件，不含即恒 false） | 最高 |
 | ② 本地硬关闭 | `AppFeatureRegistry._localDisabledKeys`（编译期常量集合） | 次之，覆盖后端 |
-| ③ 远程开关 | 后端 `/v1/app/features` snapshot，无数据默认 **true**，子功能随父级联动 | 最低 |
+| ③ 远程开关 | 后端 `/v1/app/features` snapshot，无数据默认 **false**（`core` 例外），子功能随父级联动 | 最低 |
 
-**开发态与交付态**：仓内生成文件以当前 manifest 为准；一期交付使用 `phase1_delivery` profile 重新生成。第一期包含 Core IM、企业、客服、频道基础、朋友圈、附近的人，以及群投票、群日程、群作业。二期和三期功能按交付白名单关闭。生成物中的功能键与服务端 profile 必须一致，不能仅凭入口可见认定能力已验收。
+**开发态与交付态**：仓内生成文件以当前 manifest 为准；一期交付使用 `phase1_delivery` profile 重新生成。第一期包含 Core IM、企业、客服、频道基础、朋友圈、附近的人，以及群投票、群日程、群作业。本次默认与一期候选组合增选一对一音视频 `rtc`，其余二期和三期功能仍按交付白名单关闭。生成物中的功能键与服务端 profile 必须一致，不能仅凭入口可见认定能力已验收。
+
+**本次音视频范围 A**：仅两个已登录 imboyapp 用户的一对一语音/视频，保留服务端好友与黑名单规则。聊天入口限 `C2C`；联系人页仍要求好友且非本人。公共呼出、来电展示和接听会再次检查当前 `rtc` 开关，关闭期间不启动新通话；等待来电若在接听或异步检查时发现开关已关闭，则按既有拒接流程收尾。群通话需另外编译选入并开启 `rtc_group`，且父功能 `rtc` 同时开启；本次组合不选 `rtc_group`。访客、Web 坐席音视频和群通话不随本次开放。
 
 **解除本地硬关闭**：从 `_localDisabledKeys` 删除对应 `FeatureKeys.*` 常量即可，功能代码保留。
 
 Feature visibility is controlled by the compiled product profile, local hard-disable rules and the remote snapshot. Phase 1 includes moments, nearby people and group collaboration; delivery artifacts must be regenerated from the matching profile.
+
+The current default and phase-1 candidates add `rtc` for one-to-one calls between signed-in app users. Existing friendship and blocklist checks remain authoritative. Group calls require an independently selected `rtc_group` feature and its `rtc` parent; this delivery does not select `rtc_group` or add visitor/Web-seat calling. Entry visibility and local tests do not establish real-device media acceptance.
 
 ---
 
@@ -56,6 +60,7 @@ Feature visibility is controlled by the compiled product profile, local hard-dis
 | 朋友圈 `moment` | ✅ | ✅ | 📦 🟢 | 动态流/发布/点赞/评论/通知中心 |
 | 附近的人 `location` | ✅ | ✅ | 📦 🟢 | 定位权限与可见性受用户设置控制 |
 | 群投票/日程/作业 `group_vote/group_schedule/group_task` | ✅ | ✅ | 📦 🟢 | 创建后发布群消息卡片，点击进入详情 |
+| 一对一音视频 `rtc` | 现有通话与 LiveKit SFU 实现 | 既有签票和好友/黑名单校验 | 编译面与运行开关共同控制 | 聊天、联系人语音/视频四入口；真实双端媒体验收仍须执行 |
 
 ### 开发态可用 / Development-only（一期交付不生成入口）
 
@@ -74,6 +79,6 @@ Feature visibility is controlled by the compiled product profile, local hard-dis
 |------|------|------|---------|--------------|
 | 直播间 `liveRoom` | ✅ 完整（WHIP 推流） | 元数据 API 已实现；缺 WHIP/WHEP 媒体服务器 | 🔒 `_localDisabledKeys` + 编译面不含（双重） | 2026-09-10 产品决策：暂不做。需产品重新批准 + 移出硬关 + 入 manifest |
 | 钱包 `wallet` | ✅ 完整（充值/流水/分页） | ✅ 已实现并通过测试（沙箱充值闭环；真实支付 SDK 待接入） | 编译面不含（manifest full-selected 未选 `wallet`） | 已移出 `_localDisabledKeys`，但加入 manifest 前 isEnabled 恒 false；真实支付 SDK（fluwx/tobias/stripe）接入后方可面向用户 |
-| 音视频通话（WebRTC/LiveRoom 群通话） | ✅ | ⚠️ 一期 5190 拒绝 | **不经过 Feature Flag 体系**（无 `FeatureKeys.rtc` 键） | 开发态构建入口存在（聊天页群通话 extra_item）；一期服务端 `rtc/room/join` 返回 5190（AC02 实测），点击透出后端错误提示。一期交付面的入口收敛依赖 phase1 重渲染路由裁剪覆盖核验（Q12 门复核项） |
+| 群音视频通话 `rtc_group` | 保留既有实现 | `kind=group` 需要 `rtc` 与 `rtc_group` 双门 | 本次编译组合不含 `rtc_group`；一期交付锁保持关闭 | 群入口及调用前都复核子功能；服务端使用既有 5190 功能关闭响应。需另行选择产品能力与多端验收，不随一对一开放 |
 
 ---

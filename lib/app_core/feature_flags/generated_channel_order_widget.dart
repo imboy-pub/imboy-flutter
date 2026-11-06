@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:imboy/store/model/channel_model.dart';
 
 const channelOrderWidgetManifestHash =
-    "sha256:022090cbdac05698250905a34bad19b5be2b4c397b54cd5604ec880e6f8a9ebf";
+    "sha256:6169ea829d530502a4a92ccde65b8d515984257548f04eb21c7bf98de3cf71b2";
 const channelOrderWidgetSchemaVersion = 1;
 const channelOrderWidgetFeatures = <String>[
   "channel",
@@ -15,6 +15,7 @@ const channelOrderWidgetFeatures = <String>[
   "group_vote",
   "location",
   "moment",
+  "rtc",
 ];
 
 Widget? compiledChannelPaywall({

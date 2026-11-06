@@ -31,6 +31,7 @@ class AppFeatureRegistry {
   }
 
   static const Map<String, String> _parentFeatures = {
+    FeatureKeys.rtcGroup: FeatureKeys.rtc,
     FeatureKeys.channelDiscover: FeatureKeys.channel,
     FeatureKeys.channelInvitation: FeatureKeys.channel,
     FeatureKeys.channelOrder: FeatureKeys.channel,

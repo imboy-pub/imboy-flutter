@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/func.dart' show iPrint;
 import 'package:imboy/component/webrtc/session.dart';
@@ -115,15 +117,26 @@ Future<void> incomingCallScreen(
   BuildContext context,
   String msgId,
   ContactModel peer,
-  Map<String, dynamic> option,
-) async {
+  Map<String, dynamic> option, {
+  // 测试替换持久化/信令；正常入口继续使用既有服务。
+  MessagingFacade? messaging,
+  Future<bool> Function(String event)? sendSignal,
+}) async {
+  if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+    return;
+  }
+  Future<bool> signal(String event) =>
+      sendSignal?.call(event) ??
+      sendWebRTCMsg(event, {}, msgId: msgId, to: peer.peerId.toString());
+
   if (p2pCallScreenOn) {
     // 本机已在通话/已有来电展示中：主动回 busy，避免对端毫无提示地
     // 一直响铃到 60s 超时（双方几乎同时互相呼叫时的常见场景）。
-    await sendWebRTCMsg('busy', {}, msgId: msgId, to: peer.peerId.toString());
+    await signal('busy');
     return;
   }
   p2pCallScreenOn = true;
+  final messages = messaging ?? MessagingFacade.instance;
 
   final sid = sessionId(peer.peerId.toString());
   // LK-APP-01：会话仅承载信令标识（peerId/sid/media），媒体面由 LiveKit
@@ -135,16 +148,43 @@ Future<void> incomingCallScreen(
   );
   option['msgId'] = msgId;
 
-  await MessagingFacade.instance.addLocalMsg(
+  var incomingHandled = false;
+  Future<void> declineIncoming({BuildContext? dialogContext}) async {
+    if (incomingHandled) return;
+    incomingHandled = true;
+    clearPendingWebRTCSignals(peer.peerId.toString());
+    gTimer?.cancel();
+    gTimer = null;
+    p2pCallScreenOn = false;
+    p2pCallSignalingReady = false;
+    if (dialogContext != null && dialogContext.mounted) {
+      Navigator.of(dialogContext).pop();
+    }
+    messages.markAsRead('C2C', peer.peerId.toString(), [msgId]);
+    messages.changeLocalMsgState(msgId, 5);
+    try {
+      if (!await signal('busy')) {
+        iPrint('> rtc declineIncoming: busy signal was not sent');
+      }
+    } on Object catch (error) {
+      iPrint('> rtc declineIncoming: busy signal failed: $error');
+    }
+  }
+
+  await messages.addLocalMsg(
     media: option['media'] as String,
     caller: false,
     msgId: msgId,
     peer: peer,
   );
+  if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+    await declineIncoming();
+    return;
+  }
 
   gTimer = Timer(const Duration(seconds: 60), () {
     clearPendingWebRTCSignals(peer.peerId.toString());
-    MessagingFacade.instance.changeLocalMsgState(msgId, 5);
+    messages.changeLocalMsgState(msgId, 5);
     // Check if dialog is still open and close it
     if (navigatorKey.currentState?.overlay != null) {
       navigatorKey.currentState?.pop();
@@ -154,12 +194,15 @@ Future<void> incomingCallScreen(
     p2pCallScreenOn = false;
   });
 
-  await sendWebRTCMsg('ringing', {}, msgId: msgId, to: peer.peerId.toString());
+  await signal('ringing');
 
   // DONE(2026-04-04): 标记来电消息为已读
-  MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [msgId]);
+  messages.markAsRead('C2C', peer.peerId.toString(), [msgId]);
 
-  if (!context.mounted) return;
+  if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+    await declineIncoming();
+    return;
+  }
 
   // 全屏来电界面（FaceTime / iOS 风格）。沿用 showDialog 的弹出/关闭语义
   // （60s 超时与拒接/接听均通过 pop 关闭），仅将廉价的小弹窗替换为全屏呈现。
@@ -171,31 +214,17 @@ Future<void> incomingCallScreen(
       avatar: peer.avatar,
       nickname: peer.nickname,
       media: option['media'] as String,
-      onDecline: () async {
-        // DONE(2026-04-04): 标记消息已读
-        MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [
-          msgId,
-        ]);
-        MessagingFacade.instance.changeLocalMsgState(msgId, 5);
-        clearPendingWebRTCSignals(peer.peerId.toString());
-        gTimer?.cancel();
-        gTimer = null;
-        await sendWebRTCMsg(
-          'busy',
-          {},
-          msgId: msgId,
-          to: peer.peerId.toString(),
-        );
-        p2pCallScreenOn = false;
-        if (dialogContext.mounted) {
-          Navigator.of(dialogContext).pop();
-        }
-      },
+      onDecline: () => declineIncoming(dialogContext: dialogContext),
       onAccept: () {
+        if (incomingHandled) return;
+        if (!context.mounted ||
+            !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+          unawaited(declineIncoming(dialogContext: dialogContext));
+          return;
+        }
+        incomingHandled = true;
         // DONE(2026-04-04): 标记消息已读
-        MessagingFacade.instance.markAsRead('C2C', peer.peerId.toString(), [
-          msgId,
-        ]);
+        messages.markAsRead('C2C', peer.peerId.toString(), [msgId]);
         gTimer?.cancel();
         gTimer = null;
         if (dialogContext.mounted) {
@@ -216,6 +245,10 @@ Future<void> openCallScreen(
   WebRTCSession? session,
   bool caller = true,
 }) async {
+  // 所有入口（包括通话记录回拨和已保存的点击回调）都复核当前 RTC 门。
+  if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+    return;
+  }
   if (p2pEntry != null) return;
   // 来电弹窗还开着（p2pCallScreenOn 已置位但尚未接听）时禁止再发起呼出：
   // overlay 会盖死来电弹窗使其失去关闭路径，只剩 60s 超时兜底。

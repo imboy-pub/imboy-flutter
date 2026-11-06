@@ -168,6 +168,11 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
   /// 群通话：join 拿到 LiveKit 入场券后进群通话页
   Future<void> _joinGroupCall(BuildContext context) async {
+    if (!context.mounted ||
+        widget.type != 'C2G' ||
+        !AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup)) {
+      return;
+    }
     final gid = '${widget.options['to'] ?? ''}';
     if (gid.isEmpty) return;
     AppLoading.show(status: context.t.common.loading);
@@ -177,7 +182,11 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
       did: deviceId,
     );
     await AppLoading.dismiss();
-    if (!context.mounted) return;
+    if (!context.mounted ||
+        widget.type != 'C2G' ||
+        !AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup)) {
+      return;
+    }
     if (res == null) {
       // 失败原因已由 RtcRoomApi.joinRoom 透出（后端 msg），不再叠兜底文案
       return;
@@ -287,11 +296,12 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
         image: const Icon(CupertinoIcons.person, size: iconSize),
         onPressed: widget.handleVisitCardSelection,
       ),
-      if (widget.type != 'C2G' && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
+      if (widget.type == 'C2C' && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
         ExtraItem(
           title: t.common.voiceCall,
           image: const Icon(CupertinoIcons.phone, size: iconSize),
           onPressed: () {
+            if (widget.type != 'C2C') return;
             openCallScreen(
               context,
               ContactModel.fromMap({
@@ -304,11 +314,12 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
             );
           },
         ),
-      if (widget.type != 'C2G' && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
+      if (widget.type == 'C2C' && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
         ExtraItem(
           title: t.common.videoCall,
           image: const Icon(CupertinoIcons.videocam, size: iconSize),
           onPressed: () {
+            if (widget.type != 'C2C') return;
             openCallScreen(
               context,
               ContactModel.fromMap({
@@ -325,7 +336,7 @@ class _ExtraItemsState extends ConsumerState<ExtraItems> {
 
     // —— 群协作（仅群聊 C2G，直达创建表单）——
     final collabItems = <ExtraItem>[
-      if (isC2G && AppFeatureRegistry.isEnabled(FeatureKeys.rtc))
+      if (isC2G && AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup))
         ExtraItem(
           title: t.common.groupCall,
           image: const Icon(CupertinoIcons.videocam, size: iconSize),

@@ -1,5 +1,7 @@
 class FeatureKeys {
   static const rtc = 'rtc';
+  // 群通话必须独立选入产品组合，不能随一对一 RTC 一起开放。
+  static const rtcGroup = 'rtc_group';
   static const channel = 'channel';
   static const channelDiscover = 'channel_discover';
   static const channelInvitation = 'channel_invitation';

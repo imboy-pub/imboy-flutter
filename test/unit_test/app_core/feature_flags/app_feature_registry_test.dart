@@ -1,10 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
 import 'package:imboy/app_core/routing/route_feature_guard.dart';
 import 'package:imboy/config/routes.dart';
 
 void main() {
+  tearDown(() => AppFeatureRegistry.replaceSnapshotForTest({}));
+
   test('normalizes supported feature flag payload values', () {
     final normalized = AppFeatureRegistry.normalizeFlags({
       FeatureKeys.channel: true,
@@ -39,6 +42,48 @@ void main() {
   test('server cannot enable a locally disabled feature', () {
     AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.liveRoom: true});
     expect(AppFeatureRegistry.isEnabled(FeatureKeys.liveRoom), isFalse);
+  });
+
+  test('RTC group opt-in cannot widen the compiled product', () {
+    AppFeatureRegistry.replaceSnapshotForTest({
+      FeatureKeys.rtc: true,
+      FeatureKeys.rtcGroup: true,
+    });
+
+    final hasRtc = compiledProductFeatures.contains(FeatureKeys.rtc);
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.rtc), hasRtc);
+    expect(
+      AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup),
+      hasRtc && compiledProductFeatures.contains(FeatureKeys.rtcGroup),
+    );
+  });
+
+  test('group RTC requires the parent RTC flag', () {
+    AppFeatureRegistry.replaceSnapshotForTest({
+      FeatureKeys.rtc: false,
+      FeatureKeys.rtcGroup: true,
+    });
+
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.rtc), isFalse);
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup), isFalse);
+  });
+
+  test('one-to-one RTC does not require group RTC', () {
+    AppFeatureRegistry.replaceSnapshotForTest({
+      FeatureKeys.rtc: true,
+      FeatureKeys.rtcGroup: false,
+    });
+
+    expect(
+      AppFeatureRegistry.isEnabled(FeatureKeys.rtc),
+      compiledProductFeatures.contains(FeatureKeys.rtc),
+    );
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup), isFalse);
+  });
+
+  test('missing remote group flag remains closed', () {
+    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
+    expect(AppFeatureRegistry.isEnabled(FeatureKeys.rtcGroup), isFalse);
   });
 
   // E2EE 收藏能力门（PLAN 2026-10-24-e2ee-collect §9/A7）：门查 e2ee 域键
