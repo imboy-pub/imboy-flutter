@@ -77,8 +77,8 @@
 ## CI 触发的检查
 
 本 PR 会自动跑（详见 `.github/workflows/`）：
-- `quality.yml` → flutter-analyze + secrets-scan
-- `sonar.yml` → SonarCloud 扫描（含 coverage trend）
-- `ci.yml` / `core-automation.yml` / `integration_test.yml` → 业务 CI
+- `quality.yml` → flutter-analyze / secrets-scan / auto-test-framework / sqlite-migration-gate
+- `contract.yml` → error-code-contract / proto-regen-contract（跨仓契约）
+- `ci.yml` / `integration_test.yml` → 业务 CI
 
 合并前所有上述 status check 必须 ✅。
