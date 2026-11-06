@@ -1,6 +1,6 @@
 # SQLite 迁移维护指南
 
-本页记录可重复执行的维护方法，不保存某次测试成绩或发布结论。迁移版本以 `lib/service/sqlite.dart` 和 `lib/service/migrations/manifest_all.dart` 为准；当前源版本为 32。历史 v31 测试场景不能单独证明当前版本验收通过。
+本页记录可重复执行的维护方法，不保存某次测试成绩或发布结论。迁移版本以 `lib/service/sqlite.dart` 和 `lib/service/migrations/manifest_all.dart` 为准；当前源版本为 37。历史 v31 测试场景不能单独证明当前版本验收通过。
 
 ## 修改迁移
 
@@ -16,7 +16,7 @@ Gate 的 `--local` 使用仓外临时目录，`--ci` 使用 ignored `build/sqlit
 
 ## 数据安全边界
 
-升级和降级必须有完整路径；缺边由规划器拒绝，不能只修改 `user_version`。每条边的数据损失需与实际执行结果一致。当前 32→31 恢复 `group.user_id_sum` 列时历史值置 0，31→30 会移除频道字段；“存在降级 SQL”不等于已验证旧版安装包兼容。
+升级和降级必须有完整路径；缺边由规划器拒绝，不能只修改 `user_version`。每条边的数据损失需与实际执行结果一致。32→31 恢复 `group.user_id_sum` 列时历史值置 0，31→30 会移除频道字段；“存在降级 SQL”不等于已验证旧版安装包兼容。
 
 `DatabaseMigrationOrchestrator.prepareForOpen` 在迁移事务前执行预检与快照；`MigrationService` 在数据库版本回调事务内执行。不要在活动迁移事务内复制主数据库文件、关闭连接或覆盖库。快照和恢复由 `DatabaseSnapshotService` 管理；需同时验证 WAL 提交数据与加密库处理。损坏或密钥错误时保留原库，不能自动删库以伪装修复。
 

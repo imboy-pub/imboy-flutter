@@ -7,9 +7,10 @@ import 'dart:convert';
 /// - 值脱敏：JWT / Bearer / 手机号 / 邮箱 / URL 敏感参数（参数名保留）
 ///
 /// 接入点：
-/// - SentryFlutter.init 的 beforeSend（事件级清洗）与 beforeBreadcrumb
-///   （默认面包屑整体禁用——面包屑会自动记录路由与请求，无法逐一审计）
+/// - 日志出口统一经 [scrubText] 清洗（见 app_logger.dart）
 /// - 任何自行拼装上报载荷的调用点应先过 [scrubDynamic]
+///   （历史：SentryFlutter beforeSend/beforeBreadcrumb 接入已随 Sentry 摘除，
+///   2026-09）
 class LogRedactor {
   static const String _redacted = '[REDACTED]';
 

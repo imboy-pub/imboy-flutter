@@ -10,14 +10,14 @@ import 'package:imboy/i18n/strings.g.dart';
 /// #95：此前 main() 里 initialize 抛异常直接 return → runApp 永不执行 →
 /// 永久白屏（且 _initialized 已提前置位，进程内再无自愈机会）。
 /// 本页在 init 失败时渲染，展示错误并提供「重试」，重试重新走完整
-/// bootstrap 链（init → Sentry → run）。
+/// bootstrap 链（init → run）。
 ///
 /// 注意：本页运行于真实 App / i18n 恢复之前，文案硬编码
 /// （app 默认语言即简体中文，与兜底语义一致），不依赖任何待初始化服务。
 class InitErrorPage extends StatefulWidget {
   const InitErrorPage({super.key, required this.error, required this.onRetry});
 
-  /// 重新执行完整启动链（init → Sentry → run）
+  /// 重新执行完整启动链（init → run）
   final Future<void> Function() onRetry;
 
   /// 初始化抛出的原始异常，用于现场诊断

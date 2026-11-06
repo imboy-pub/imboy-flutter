@@ -73,7 +73,7 @@
 
 ### 第 3 步：客户端（imboyapp）
 
-1. 改 5 个文件（值都是公开非密钥）：
+1. 改 6 个文件（值都是公开非密钥）：
    `.env`、`.env.dev`、`.env.pro`、`.env.local`、`.env.local_home`、`.env.local_office` 里：
 
    ```
@@ -89,8 +89,8 @@
    # 验证：rg alipayAppId lib/config/env_pro.g.dart 应显示新 APPID
    ```
 
-3. 重新构建安装 App（脚本**无需传参**，配置自动带上）：
-   - Android：`scripts/build_play_aab.sh` 或 `flutter run --release`
+3. 重新构建安装 App（配置自动烘焙，无需作为参数传入）：
+   - Android：`./scripts/build_play_aab.sh <build_number>` 或 `flutter run --release --flavor standard`
    - iOS：`scripts/build_ios.sh <build_number>`
 
 ### 第 4 步：端到端验证

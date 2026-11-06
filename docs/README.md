@@ -8,7 +8,7 @@
 |---|---|
 | 第一次运行项目 | [根 README](../README.md) |
 | 了解架构和边界 | [CLAUDE.md](../CLAUDE.md) · [模块地图](./module-map.md) |
-| 找代码入口 | [代码地图](./codemaps/index.md) |
+| 找代码入口 | [代码地图](./codemaps/index.md)（2026-06-18 生成快照，文件路径以实际代码为准） |
 | 写 UI | 先读 [DESIGN.md](../DESIGN.md) |
 | 做单元 / Widget / 真机测试 | [测试源码](../test/) · [原生集成测试](../integration_test/) · [运行命令](../README.md) |
 | 构建正式包 / 发布 Play | [构建与发布](./build-and-release.md) |
@@ -20,9 +20,9 @@
 
 | 项目 | 当前约定 |
 |---|---|
-| 客户端 | Flutter / Dart 3.8+，支持 iOS、Android 和桌面端 |
+| 客户端 | Flutter / Dart 3.13+，支持 iOS、Android 和桌面端 |
 | 状态与路由 | Riverpod · go_router |
-| 数据与实时通信 | SQLite（schema v32）· Dio · WebSocket · WebRTC |
+| 数据与实时通信 | SQLite（schema v37）· Dio · WebSocket · WebRTC |
 | 架构 | MVVM + Repository；业务模块按 DDD 组织 |
 | 国际化 | slang；源文件在 `assets/i18n/`，`lib/i18n/` 是生成物 |
 | 后端 | 相邻仓库 `../imboy/`（Erlang/OTP 28+） |
@@ -39,7 +39,7 @@
 | `adr/` | 架构决策记录 | 按需 |
 | `archive/` | 仍有维护价值的历史产品说明 | 按需 |
 
-根目录的 `FAQ.md`、`privacy-policy.md`、`data-safety-declaration.md` 会随 App 打包，文件名和路径不可改。
+`docs/` 目录的 `changelog.md`、`FAQ.md`、`privacy-policy.md`、`about.md` 会随 App 打包，文件名和路径不可改。
 
 ## 开发硬约束
 

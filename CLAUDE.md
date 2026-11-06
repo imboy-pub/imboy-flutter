@@ -25,10 +25,10 @@
 
 | 层级 | 技术 |
 |------|------|
-| 框架 | Flutter / Dart 3.8+ |
+| 框架 | Flutter / Dart 3.13+ |
 | 状态管理 | Riverpod（100% 迁移完成，0 GetX） |
 | 路由 | go_router |
-| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v32（manifest 单一真源） |
+| 本地数据库 | SQLite (sqflite 2.4+ + SQLCipher)，当前 schema v37（manifest 单一真源） |
 | 网络 | Dio 5.10 |
 | 实时通讯 | WebSocket + WebRTC |
 | 国际化 | slang ^4.18.0，默认语言 zh-CN |
@@ -85,7 +85,7 @@ scripts/           # 构建/测试脚本
 
 ### SQLite 版本
 
-当前 `_dbVersion = 32`（以 `lib/service/sqlite.dart` 为准；v32 = `group.user_id_sum` 死列退役，对齐服务端迁移 00000079）。
+当前 `_dbVersion = 37`（以 `lib/service/sqlite.dart` 为准；v37 = 频道来源和工作区 ID，旧行保持未知、不推断授权）。
 **迁移唯一真源是 `lib/service/migrations/manifest_all.dart` 的类型化清单**（2026-08-27 起）：
 assets/migrations/*.sql 与 embedded 常量都是生成物。改迁移必须改 manifest 后跑
 `dart run tool/generate_sqlite_migrations.dart --check`；统一测试门

@@ -91,7 +91,7 @@ integration_test/  真机集成测试
 - [项目约定与架构](./CLAUDE.md)
 - [贡献指南](./CONTRIBUTING.md)
 - [命令参考](./docs/reference/commands.md) · [环境变量参考](./docs/reference/environment-variables.md)
-- [代码地图](./docs/codemaps/index.md)
+- [代码地图](./docs/codemaps/index.md)（2026-06-18 生成快照，文件路径以实际代码为准）
 - [模块地图](./docs/module-map.md)
 - [自动化测试](./integration_test/README.md)
 - [构建与发布](./docs/build-and-release.md)

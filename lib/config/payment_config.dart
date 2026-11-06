@@ -11,7 +11,7 @@ import 'env.dart';
 ///
 /// **微信**尚未接入，暂仅支持 `--dart-define` 注入：
 /// ```
-/// flutter build apk \
+/// flutter build apk --flavor standard \
 ///   --dart-define=WECHAT_APP_ID=wxxxxxxxxxxxxxxxx \
 ///   --dart-define=WECHAT_UNIVERSAL_LINK=https://imboy.pub/app/
 /// ```
