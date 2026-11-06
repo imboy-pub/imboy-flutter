@@ -29,8 +29,11 @@
 查询使用消息行的撤回、墓碑、解密状态及聊天同源的到期期限；索引仍有旧词也不能直接返回
 已失效正文。失效候选不占最终结果上限。
 
-先在仓外设置 `REPORT_DIR`，沿用统一计划、机器事件和最终对账；以下均为明确专项，不能
-据此宣称 full 通过：
+宿主 FTS 和离线 Chrome/WASM 目标均进入现有 PR 计划，Chrome 使用主 CI 的 Ubuntu
+矩阵 worker，与宿主沿用同一计划、机器事件和最终对账。CI 覆盖率仍只收集 Linux 分片，
+不会为 Chrome 再选或重跑一份目标。PR 纳入 Web 不代表 SQLCipher 真机验收或 v38 已注册。
+
+先在仓外设置 `REPORT_DIR`；以下命令用于单独重跑明确专项，不能据此宣称 full 通过：
 
 ```bash
 # Host draft/configuration and schema contract; use macos on that host.
@@ -41,7 +44,7 @@ python3 scripts/auto_test.py execution-run --profile sqlite --platform linux \
   --target test/unit_test/store/repository/message_fts_repo_test.dart \
   --artifact-dir "$REPORT_DIR/fts-host"
 
-# Chrome and the application's tracked WASM; no external fixture server.
+# Re-run the PR Chrome target with the tracked WASM; no external fixture server.
 python3 scripts/auto_test.py execution-plan --profile web \
   --target test/unit_test/service/migration_v38_fts_web_test.dart \
   --output "$REPORT_DIR/fts-web-plan.json"
@@ -58,11 +61,14 @@ python3 scripts/auto_test.py execution-run --profile device-single --platform an
   --artifact-dir "$REPORT_DIR/fts-native-android"
 ```
 
-Web 合同固定 `SQLITE_WASM_URL=/fixtures/sqlite3.wasm`；该 fixture 是指向现有
-`web/sqlite3.wasm` 的 Git 符号链接，避免复制二进制。需要可正常启动并建立测试本地 socket
+FTS 草稿与离线群消息两个 Web 目标共用固定 `SQLITE_WASM_URL=/fixtures/sqlite3.wasm`；
+该 fixture 是指向现有 `web/sqlite3.wasm` 的 Git 符号链接，避免复制二进制。
+需要可正常启动并建立测试本地 socket
 的 Chrome；不在运行时下载替代 WASM。浏览器启动失败是 `ENV_MISSING`，不计业务执行。
+`execution-plan --profile web` 可查看全部浏览器目标，`execution-run --plan` 可单独重跑。
 也可使用既有 `Integration Tests` 手动工作流的 `profile=web`、`platform=web`、
 `execute=true`，前提是已准备好 `self-hosted/imboy-test` runner；默认仅生成计划。
+真实后端、设备配对等外部任务仍保留明确手动用途，不因离线 Web 进入 PR 恢复自动触发。
 SQLCipher 目标使用临时数据库和合成密码，只能由真正支持加密的原生驱动满足；通过
 `IMBOY_EXECUTION_DEVICE_ANDROID/IOS/MACOS` 指定设备。缺 SDK、浏览器或合格设备为
 `ENV_MISSING`，主机 SQLite 探针不能代替原生证明。
@@ -76,7 +82,9 @@ SQLCipher 目标使用临时数据库和合成密码，只能由真正支持加�
 **English:** v38 remains an unregistered draft. The shared production connection configurator
 and draft schema checks are prerequisites, not native deployment evidence. Run the declared
 host, Chrome/WASM and native SQLCipher instances separately and retain machine events and
-receipts. Missing environments block execution. Existing direct-SQL skips remain unexpected.
+receipts. Offline Chrome/WASM now runs in the existing PR Ubuntu matrix and can be rerun with
+the same `web` profile; coverage remains Linux-only. Missing environments block execution.
+Existing direct-SQL skips remain unexpected.
 Activation also requires current physical/native binary evidence and a verified server expiry
 contract for remote-only burn history; do not infer a recipient's read time or hide valid
 unexpired burn messages to make the gate pass.

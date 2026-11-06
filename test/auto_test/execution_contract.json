@@ -437,6 +437,18 @@
         "Browser-only FTS migration draft uses the existing application SQLite WASM via Flutter test static serving. The fixed same-origin fixture URL is forwarded by the shared runner; no backend, account or externally hosted WASM is required."
       ]
     },
+    "test/unit_test/service/offline_group_wire_web_test.dart": {
+      "dart_defines": {
+        "SQLITE_WASM_URL": "/fixtures/sqlite3.wasm"
+      },
+      "source_dependencies": [
+        "test/fixtures/sqlite3.wasm",
+        "web/sqlite3.wasm"
+      ],
+      "basis": [
+        "Browser-only offline-message contract uses an in-memory SQLite WASM database, synthetic credentials and an HTTP adapter that rejects unexpected requests. The shared runner supplies the same tracked same-origin application WASM as the FTS migration target; no backend, account or externally hosted WASM is required."
+      ]
+    },
     "integration_test/sqlcipher_fts_v38_draft_test.dart": {
       "suite": "device-single",
       "runner": "flutter-device",
@@ -1895,7 +1907,7 @@
   },
   "profiles": {
     "pr": {
-      "description": "Deterministic host PR gate; specialized external lanes remain explicit.",
+      "description": "Deterministic host and offline Chrome PR gates; environment-dependent specialist lanes remain explicit.",
       "suites": [
         "unit",
         "widget",
@@ -1906,7 +1918,8 @@
       ],
       "platforms": [
         "linux",
-        "macos"
+        "macos",
+        "web"
       ],
       "products": [
         "phase1_delivery"

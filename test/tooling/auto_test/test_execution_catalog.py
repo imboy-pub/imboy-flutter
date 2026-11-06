@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import hashlib
+import json
 import subprocess
 import sys
 import tempfile
@@ -58,7 +59,7 @@ class ExecutionCatalogTest(unittest.TestCase):
             'overrides': {},
             'profiles': {
                 'pr': {'suites': ['unit', 'widget', 'component', 'sqlite-ffi', 'crypto-ffi', 'tooling'],
-                       'platforms': ['linux', 'macos'], 'products': ['phase1_delivery']},
+                       'platforms': ['linux', 'macos', 'web'], 'products': ['phase1_delivery']},
                 'full': {'suites': ['*'], 'platforms': ['*'], 'products': ['*']},
                 'device-single': {'suites': ['device-single'], 'platforms': ['android', 'macos'],
                                   'products': ['phase1_delivery']},
@@ -501,21 +502,59 @@ class ExecutionCatalogTest(unittest.TestCase):
         selected = [r for r in plan['instances'] if r['selected'] and r['target'].endswith('browser_test.dart')]
         self.assertEqual([r['platform'] for r in selected], ['web'])
         self.assertIn('chrome', selected[0]['dependencies'])
-        pr_web = next(r for r in self.plan()['instances']
+        pr_rows = self.plan()['instances']
+        pr_web = next(r for r in pr_rows
                       if r['target'].endswith('browser_test.dart') and r['platform'] == 'web')
-        self.assertEqual(pr_web['reason_code'], 'OUT_OF_SCOPE')
-        self.assertFalse(pr_web['required'])
-        full_web = next(r for r in self.plan(profile='full', platforms=['linux'])['instances']
-                        if r['target'].endswith('browser_test.dart') and r['platform'] == 'web')
-        self.assertEqual(full_web['reason_code'], 'OUT_OF_SCOPE')
-        self.assertTrue(full_web['required'])
+        self.assertTrue(pr_web['selected'])
+        self.assertTrue(pr_web['required'])
+        host_web = next(r for r in pr_rows if r['target'].endswith('base_test.dart')
+                        and r['platform'] == 'web')
+        self.assertEqual('PLATFORM_NA', host_web['reason_code'])
+        for profile in ('pr', 'full'):
+            with self.subTest(profile=profile):
+                scoped = self.plan(profile=profile, platforms=['linux'])['instances']
+                browser = {r['platform']: r for r in scoped
+                           if r['target'].endswith('browser_test.dart')}
+                self.assertEqual('PLATFORM_NA', browser['linux']['reason_code'])
+                self.assertEqual('OUT_OF_SCOPE', browser['web']['reason_code'])
+                self.assertTrue(browser['web']['required'])
+                self.assertFalse(browser['web']['selected'])
 
-    def add_fts_web_fixture(self):
-        target = 'test/unit_test/service/migration_v38_fts_web_test.dart'
+    def test_repository_pr_and_web_profiles_retain_browser_obligations(self):
+        selected = {profile: [r for r in build_plan(ROOT, profile=profile)['instances']
+                              if r['selected']]
+                    for profile in ('pr', 'full', 'web')}
+        browser = selected['web']
+        known_targets = {
+            'test/unit_test/page/chat/chat/chat_provider_chrome_import_smoke_test.dart',
+            'test/unit_test/page/chat/chat/chat_provider_chrome_runtime_smoke_test.dart',
+            'test/unit_test/page/web_shell/web_shell_chrome_e2e_smoke_test.dart',
+            'test/unit_test/service/migration_v38_fts_web_test.dart',
+            'test/unit_test/service/offline_group_wire_web_test.dart',
+        }
+        self.assertLessEqual(known_targets, {r['target'] for r in browser})
+        browser_ids = {r['id'] for r in browser}
+        self.assertEqual(browser_ids, {r['id'] for r in selected['pr'] if r['platform'] == 'web'})
+        self.assertLessEqual(browser_ids, {r['id'] for r in selected['full']})
+        for row in browser:
+            with self.subTest(target=row['target']):
+                self.assertEqual('web', row['platform'])
+                self.assertEqual('flutter-machine', row['runner'])
+                self.assertIn('chrome', row['dependencies'])
+                self.assertFalse({'isolated-backend', 'isolated-accounts', 'native-sqlcipher'}
+                                 & set(row['dependencies']))
+                self.assertFalse(row.get('required_env'))
+                self.assertFalse(row['coverage'])
+                self.assertEqual('phase1_delivery', row['product_profile'])
+
+    def add_wasm_web_fixtures(self):
+        targets = ('test/unit_test/service/migration_v38_fts_web_test.dart',
+                   'test/unit_test/service/offline_group_wire_web_test.dart')
         fixture = 'test/fixtures/sqlite3.wasm'
         source = 'web/sqlite3.wasm'
         actual = load_contract(ROOT)
-        self.put(target, (ROOT / target).read_text())
+        for target in targets:
+            self.put(target, (ROOT / target).read_text())
         destination = self.root / source
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((ROOT / source).read_bytes())
@@ -524,32 +563,51 @@ class ExecutionCatalogTest(unittest.TestCase):
         alias.parent.mkdir(parents=True, exist_ok=True)
         alias.symlink_to((ROOT / fixture).readlink())
         self.git('add', '--', fixture)
-        for path in (target, fixture):
+        for path in (*targets, fixture):
             self.cfg['overrides'][path] = actual['overrides'][path]
         self.cfg['profiles']['web'] = actual['profiles']['web']
-        return target, fixture, source
+        return targets, fixture, source
 
-    def test_fts_browser_plan_uses_tracked_same_origin_application_wasm(self):
-        target, fixture, source = self.add_fts_web_fixture()
-        selected = [row for row in self.plan(profile='web')['instances'] if row['selected']]
-        self.assertEqual([(target, 'web')], [(row['target'], row['platform']) for row in selected])
-        item = selected[0]
-        self.assertEqual('flutter-machine', item['runner'])
-        self.assertEqual({'SQLITE_WASM_URL': '/fixtures/sqlite3.wasm'}, item['dart_defines'])
-        self.assertEqual({fixture, source}, set(item['source_dependencies']))
+    def test_browser_sqlite_plans_share_tracked_same_origin_application_wasm(self):
+        targets, fixture, source = self.add_wasm_web_fixtures()
         self.assertEqual('fixture', self.cfg['overrides'][fixture]['kind'])
-        served = self.root / 'test' / item['dart_defines']['SQLITE_WASM_URL'].lstrip('/')
-        self.assertTrue(served.samefile(self.root / source))
-        self.assertEqual(b'\x00asm\x01\x00\x00\x00', served.read_bytes()[:8])
-        self.assertFalse(item.get('required_env'))
+        for profile in ('pr', 'full', 'web'):
+            selected = [r for r in self.plan(profile=profile)['instances']
+                        if r['selected'] and r['target'] in targets]
+            self.assertEqual({(t, 'web') for t in targets},
+                             {(r['target'], r['platform']) for r in selected})
+            for item in selected:
+                with self.subTest(profile=profile, target=item['target']):
+                    self.assertEqual('flutter-machine', item['runner'])
+                    self.assertEqual({'SQLITE_WASM_URL': '/fixtures/sqlite3.wasm'}, item['dart_defines'])
+                    self.assertEqual({fixture, source}, set(item['source_dependencies']))
+                    served = self.root / 'test' / item['dart_defines']['SQLITE_WASM_URL'].lstrip('/')
+                    self.assertTrue(served.samefile(self.root / source))
+                    self.assertEqual(b'\x00asm\x01\x00\x00\x00', served.read_bytes()[:8])
+                    self.assertFalse(item.get('required_env'))
 
-    def test_fts_wasm_fixture_must_be_tracked_and_resolve_to_a_present_asset(self):
-        _, fixture, source = self.add_fts_web_fixture()
+    def test_wasm_fixture_must_be_tracked_and_resolve_to_a_present_asset(self):
+        _, fixture, source = self.add_wasm_web_fixtures()
         self.git('rm', '--cached', '--', fixture)
         self.fail('DANGLING_OVERRIDE')
         self.git('add', '--', fixture)
         (self.root / source).unlink()
         self.fail('DANGLING_OVERRIDE')
+
+    def test_wasm_source_change_invalidates_the_frozen_browser_plan(self):
+        from auto_test_lib import execution_catalog, execution_cli
+        _, _, source = self.add_wasm_web_fixtures()
+        self.put('test/auto_test/execution_contract.json', json.dumps(self.cfg))
+        self.git('-c', 'user.name=fixture', '-c', 'user.email=fixture@example.invalid',
+                 'commit', '-qm', 'synthetic WASM baseline')
+        original = self.plan(profile='web')
+        self.assertEqual(original, execution_cli.validate_saved_plan(self.root, original, execution_catalog))
+        with (self.root / source).open('ab') as asset:
+            asset.write(b'synthetic-change')
+        changed = self.plan(profile='web')
+        self.assertNotEqual(original['source_fingerprint'], changed['source_fingerprint'])
+        with self.assertRaisesRegex(ValueError, 'PLAN_SOURCE_FINGERPRINT_MISMATCH'):
+            execution_cli.validate_saved_plan(self.root, original, execution_catalog)
 
     def test_sqlcipher_fts_offline_contract_retains_each_native_platform(self):
         target = 'integration_test/sqlcipher_fts_v38_draft_test.dart'

@@ -114,16 +114,18 @@ def _worker_instances(plan, worker_platform=None, worker_suites=None, worker_pro
 
 
 def host_worker_matrix(plan, coverage_platform='linux'):
-    """Partition the frozen obligations; never rediscover or exclude targets."""
+    """Partition VM and browser obligations without rediscovering targets."""
     selected = _worker_instances(plan)
     if not selected:
         raise ValueError('EMPTY_PLAN: host workers require selected execution instances')
     if len(selected) != len({i['id'] for i in selected}):
         raise ValueError('DUPLICATE_EXECUTION_INSTANCE')
-    operating_systems = {'linux': 'ubuntu-latest', 'macos': 'macos-latest'}
+    operating_systems = {'linux': 'ubuntu-latest', 'macos': 'macos-latest',
+                         'web': 'ubuntu-latest'}
     host_runners = {'flutter-machine', 'python-unittest', 'python-cases', 'python-recovery'}
     for item in selected:
-        if item.get('platform') not in operating_systems or _runner_name(item) not in host_runners:
+        if (item.get('platform') not in operating_systems or _runner_name(item) not in host_runners
+                or (item.get('platform') == 'web' and _runner_name(item) != 'flutter-machine')):
             raise ValueError(f'HOST_WORKER_UNSUPPORTED: {item["id"]}; use its declared specialist orchestrator')
     workers = []
     for platform, suite in sorted({(i['platform'], i['suite']) for i in selected}):

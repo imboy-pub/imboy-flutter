@@ -276,6 +276,57 @@ raise SystemExit(code)
         self.assertIsNotNone(match, f'CI job is missing: {name}')
         return match.group(1)
 
+    def run_ci_dependencies(self, platform, *, chrome='success', binary_name='google-chrome'):
+        """Run CI's actual dependency command and Chrome helper with synthetic SDK tools."""
+        host = self.ci_job('host-tests')
+        step = re.search(r'^      - name: Prepare isolated host dependencies\n(.*?)(?=^      - |\Z)',
+                         host, re.MULTILINE | re.DOTALL)
+        self.assertIsNotNone(step)
+        self.assertIn('id: dependencies', step[1])
+        self.assertIn('WORKER_PLATFORM: ${{ matrix.platform }}', step[1])
+        self.assertIn('WORKER_EVIDENCE_DIR: ${{ runner.temp }}/execution-${{ matrix.platform }}-${{ matrix.suite }}',
+                      step[1])
+        command = '\n'.join(line[10:] for line in step[1].split('        run: |\n', 1)[1].splitlines())
+        bash = shutil.which('bash')
+        self.assertIsNotNone(bash)
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            scripts = project / '.github/scripts'
+            scripts.mkdir(parents=True)
+            shutil.copyfile(ROOT / '.github/scripts/ci_prepare_chrome.sh', scripts / 'ci_prepare_chrome.sh')
+            for name, label in (('ci_patch_path_deps.sh', 'path-deps'),
+                                ('ci_gen_env.sh', 'env'), ('ci_build_vod.sh', 'vod')):
+                (scripts / name).write_text('#!/bin/sh\nprintf "' + label + ' %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n')
+            binaries = project / 'installed browsers'
+            binaries.mkdir()
+            for name in ('bash', 'mkdir', 'tee'):
+                executable = shutil.which(name)
+                self.assertIsNotNone(executable)
+                (binaries / name).symlink_to(executable)
+            flutter = binaries / 'flutter'
+            flutter.write_text('#!/bin/sh\nprintf "flutter %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n')
+            flutter.chmod(0o755)
+            browser = binaries / binary_name
+            if chrome != 'missing':
+                response = ('printf "synthetic Chrome loader failure\\n" >&2\nexit 17\n'
+                            if chrome == 'failure' else
+                            'exit 0\n' if chrome == 'empty' else
+                            'printf "Google Chrome 156.0.0.0\\n"\n')
+                browser.write_text('#!/bin/sh\nprintf "chrome %s\\n" "$*" >> "$CI_FIXTURE_CALLS"\n' + response)
+                browser.chmod(0o755)
+            evidence = project / 'worker evidence'
+            calls_file, env_file = project / 'calls.log', project / 'github.env'
+            env = {**os.environ, 'PATH': str(binaries), 'WORKER_PLATFORM': platform,
+                   'WORKER_EVIDENCE_DIR': str(evidence), 'GITHUB_ENV': str(env_file),
+                   'CI_FIXTURE_CALLS': str(calls_file)}
+            env.pop('CHROME_EXECUTABLE', None)
+            result = subprocess.run([bash, '-e', '-c', command], cwd=project, env=env,
+                                    text=True, capture_output=True, check=False)
+            calls = [line.strip() for line in calls_file.read_text().splitlines()]
+            published = env_file.read_text() if env_file.exists() else ''
+            log = evidence / 'chrome-preflight.log'
+            return result, calls, published, log.read_text() if log.exists() else None, str(browser)
+
     def test_empty_forwarded_arguments_keep_default_and_explicit_profiles(self):
         with tempfile.TemporaryDirectory() as directory:
             binary = Path(directory) / 'python3'
@@ -498,6 +549,38 @@ raise SystemExit(code)
                 self.assertEqual(gates['sqlite-generator'], 'FAIL')
                 self.assertEqual(gates['static-analysis'], 'missing')
 
+    def test_ci_web_prepares_installed_chrome_and_publishes_its_verified_path(self):
+        for binary_name in ('google-chrome', 'google-chrome-stable'):
+            with self.subTest(binary_name=binary_name):
+                result, calls, published, log, browser = self.run_ci_dependencies('web', binary_name=binary_name)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(calls, ['path-deps --check', 'flutter pub get --enforce-lockfile',
+                                         'env', 'chrome --version'])
+                self.assertEqual(published, 'CHROME_EXECUTABLE=' + browser + '\n')
+                self.assertIn('Google Chrome 156.0.0.0', log)
+                self.assertIn(browser, log)
+
+    def test_ci_web_chrome_failures_keep_nonzero_status_and_preflight_evidence(self):
+        for failure in ('missing', 'failure', 'empty'):
+            with self.subTest(failure=failure):
+                result, calls, published, log, _ = self.run_ci_dependencies('web', chrome=failure)
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertEqual(published, '')
+                self.assertNotIn('vod', calls)
+                self.assertIn('ENV_MISSING', log)
+                if failure == 'failure':
+                    self.assertIn('exit 17', log)
+                    self.assertIn('synthetic Chrome loader failure', log)
+
+    def test_ci_native_dependencies_keep_vod_without_requiring_a_browser(self):
+        for platform in ('linux', 'macos'):
+            with self.subTest(platform=platform):
+                result, calls, published, log, _ = self.run_ci_dependencies(platform, chrome='missing')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(calls, ['path-deps --check', 'flutter pub get --enforce-lockfile', 'env', 'vod'])
+                self.assertEqual(published, '')
+                self.assertIsNone(log)
+
     def test_ci_worker_matrix_is_derived_from_the_same_frozen_plan(self):
         plan = self.ci_job('execution-plan')
         self.assertIn('matrix: ${{ steps.matrix.outputs.matrix }}', plan)
@@ -520,6 +603,10 @@ raise SystemExit(code)
         artifact = 'execution-${{ matrix.platform }}-${{ matrix.suite }}'
         self.assertIn('--artifact-dir "${{ runner.temp }}/' + artifact + '"', host)
         self.assertIn('name: ' + artifact, host)
+        run = host[host.index('- name: Run declared PR instances'):host.index('- name: Upload execution evidence')]
+        self.assertIn('if: always()', run.split('run:', 1)[0])
+        self.assertIn('DEPENDENCIES_OUTCOME: ${{ steps.dependencies.outcome }}', run)
+        self.assertIn('--upstream "dependencies=$DEPENDENCIES_OUTCOME"', run)
         upload = host[host.index('- name: Upload execution evidence even after failure'):]
         self.assertIn('if: always()', upload)
         self.assertNotIn('execution-coverage', host)
