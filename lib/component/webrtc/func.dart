@@ -89,6 +89,7 @@ Future<bool> sendWebRTCMsg(
 }) async {
   // 使用 NetworkMonitorService 检查网络状态
   if (!NetworkMonitorService.to.hasNetwork) {
+    iPrint('> rtc sendWebRTCMsg($event): 丢弃——NetworkMonitor 无网络');
     return false;
   }
 

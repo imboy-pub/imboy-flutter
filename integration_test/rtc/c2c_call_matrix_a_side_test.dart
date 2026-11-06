@@ -40,6 +40,10 @@ const _connectedHoldSeconds = int.fromEnvironment(
   'TEST_C2C_CONNECTED_HOLD_SECONDS',
 );
 
+/// 与 B 侧的 LK_RTC_B_CASE 对齐：decline 时被叫拒接回 busy，
+/// A 侧不得按接通/媒体路径断言。
+const _bCase = String.fromEnvironment('LK_RTC_B_CASE', defaultValue: 'accept');
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -80,6 +84,24 @@ void main() {
     expect(pageOpened, isTrue, reason: '主叫通话页未打开');
     final notifier = container.read(p2pCallScreenProvider.notifier);
     flowLog('[A] 真实通话页已打开 media=$media msgId=${notifier.msgId}');
+
+    if (_bCase == 'decline') {
+      // ── decline 路径：被叫拒接 → busy 终态 → 通话页自动收尾 ─────────
+      // 断言只认终态收尾（页面关闭 + room 未建），不与 ringing 断言耦合：
+      // 拒接够快时 busy 可在 ringing 状态可观测之前到达并直接收尾。
+      final busyClosed = await pollUntil(
+        () => !tester.any(callPage) && notifier.room == null,
+        tester: tester,
+        timeout: const Duration(seconds: 60),
+      );
+      expect(busyClosed, isTrue, reason: '未收到 B 的 busy 或通话页未收尾');
+      flowLog('[A] 已收到 busy（拒接），通话页与 room 已收尾');
+      // busy 同为事件总线异步派发的对端回流；给本地记录收敛留出时间。
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await tester.pump();
+      await takeScreenshot(tester, 'lk_a_call_declined');
+      return;
+    }
 
     // ── 2. 等 B ringing（真实 WS 回流；超时 45s）─────────────────────────
     var okRinging = await pollUntil(
@@ -166,6 +188,12 @@ void main() {
     );
     expect(released, isTrue, reason: '挂断后通话页与 LiveKit Room 必须释放');
     flowLog('[A] 挂断完成，room 已释放');
+    // bye 经事件总线异步派发（fire → 微任务 → outbox gate → WS 写入），
+    // 实测真机上在 pollUntil 返回之后才落到 socket；测试进程随即退出会
+    // 截断这条链，对端将等不到 bye。给终态信令留出派发时间再收尾。
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
+    await tester.pump();
+    flowLog('[A] bye 派发窗口已保留');
     await takeScreenshot(tester, 'lk_a_call_ended');
   }, timeout: const Timeout(Duration(minutes: 6)));
 }

@@ -189,6 +189,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     final session = UserRepoLocal.to;
     if (!session.isCurrentSession(event.sessionGeneration) ||
         session.isClearingSession) {
+      iPrint(
+        '> ws: 消息丢弃（发送请求会话守卫）'
+        'gen=${event.sessionGeneration}/${session.sessionGeneration} '
+        'clearing=${session.isClearingSession} id=${event.messageId}',
+      );
       return;
     }
     sendMessage(
@@ -1435,7 +1440,10 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         actor.isCurrentSession(generation) &&
         !actor.isClearingSession;
     final wireId = _wireMessageId(message);
-    if (dispatchClaimed && wireId != null && wireId != messageId) return false;
+    if (dispatchClaimed && wireId != null && wireId != messageId) {
+      iPrint('> ws: 消息丢弃（dispatchClaimed 与 wireId 不符）: $messageId');
+      return false;
+    }
     final gateId = wireId ?? messageId;
     if (!dispatchClaimed &&
         !_isControlAck(message) &&
@@ -1447,13 +1455,18 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
           ownerUid,
           isCurrent: current,
         )) {
+          iPrint('> ws: 消息丢弃（outbox claim 失败）: $gateId');
           return false;
         }
-      } on Object {
+      } on Object catch (e) {
+        iPrint('> ws: 消息丢弃（outbox claim 异常: ${e.runtimeType}）: $gateId');
         return false;
       }
     }
-    if (!current()) return false;
+    if (!current()) {
+      iPrint('> ws: 消息丢弃（会话代次失效/清理中）: $messageId');
+      return false;
+    }
 
     if (_status == SocketStatus.connected) {
       final selectedChannel = _channel;
@@ -1472,12 +1485,19 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
             isCurrent: current,
             attemptToken: token,
           );
-          if (!began) return false;
+          if (!began) {
+            iPrint('> ws: 消息丢弃（outbox begin 失败）: $gateId');
+            return false;
+          }
           await afterOutboxBeginForTest?.call();
         }
         if (!current() ||
             _status != SocketStatus.connected ||
             !identical(_channel, selectedChannel)) {
+          iPrint(
+            '> ws: 消息丢弃（发送前置失效 current=${current()} '
+            'status=$_status channelMatch=${identical(_channel, selectedChannel)}）: $gateId',
+          );
           if (began && current()) {
             await uploads.cancelUnsentOutboxAttempt(
               gateId!,
