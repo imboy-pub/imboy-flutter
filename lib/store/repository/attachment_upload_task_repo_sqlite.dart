@@ -3,7 +3,7 @@ import 'package:imboy/service/server_ack_receipts.dart';
 import 'dart:convert';
 
 import 'package:sqflite_sqlcipher/sqflite.dart'
-    show DatabaseExecutor, ConflictAlgorithm;
+    show Database, DatabaseExecutor, ConflictAlgorithm;
 
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -174,7 +174,11 @@ class AttachmentUploadTask {
 class AttachmentUploadTaskRepo {
   static const String tableName = 'attachment_upload_task';
 
-  final _boundDb = SqliteService.to.db;
+  /// 惰性绑定：构造期取 `SqliteService.to.db` 会立即启动数据库打开，且
+  /// 构造后未 await 的实例（如 sendMessage 无门控路径）会把打开失败的
+  /// future 泄漏成未处理异步错误，污染整个测试进程。改为使用期解析，
+  /// SqliteService 内部有锁与句柄缓存，重复取值行为等价。
+  Future<Database?> get _boundDb => SqliteService.to.db;
 
   Future<bool> insert(AttachmentUploadTask task) async {
     final db = await _boundDb;

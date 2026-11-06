@@ -276,6 +276,9 @@ void main() {
           if (uri.endsWith('/attachment/direct/register')) {
             return IMBoyHttpResponse.success(<String, dynamic>{
               'object_key': 'u1/group/x/a.txt',
+              // 直传会话契约：register 响应必须携带 state（缺省会被判为
+              // 终态直接抛 direct session terminal）。
+              'state': 'RESERVED',
             });
           }
           if (uri.endsWith('/attachment/direct/declare')) {
@@ -486,6 +489,7 @@ void main() {
           if (uri.endsWith('/attachment/direct/register')) {
             return IMBoyHttpResponse.success(<String, dynamic>{
               'object_key': 'u1/group/x/a.png',
+              'state': 'RESERVED',
             });
           }
           if (uri.endsWith('/attachment/direct/declare')) {

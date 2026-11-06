@@ -147,6 +147,16 @@ void main() {
         await db.execute(_msgC2cDdl.replaceFirst('msg_c2c', table));
       }
       await db.execute(_contactDdl);
+      // send-gate 读 attachment_upload_task（迁移 v33）；内存库缺表会让
+      // claim 查询抛错 → 重试空转/超时（与 outbox_read_side_wiring 同因）。
+      await db.execute(
+        'CREATE TABLE attachment_upload_task ('
+        'id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, business_intent TEXT,'
+        'scope TEXT, scope_ref TEXT, file_name TEXT, mime TEXT, plain_size INTEGER,'
+        'plain_sha256 TEXT, object_key TEXT, stage TEXT, cipher TEXT, binding_hash TEXT,'
+        'key_ref TEXT, ciphertext_sha256 TEXT, last_error TEXT, created_at INTEGER,'
+        'updated_at INTEGER, upload_path TEXT)',
+      );
       final retry = MessageRetry.instance;
       await retry.debugWaitForIdle();
       final sends = <WebSocketMessageSendRequestEvent>[];
