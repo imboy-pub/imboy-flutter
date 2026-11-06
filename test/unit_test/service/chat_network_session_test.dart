@@ -58,8 +58,24 @@ class _CaptureNetwork extends ChatNetworkService {
   }
 }
 
+class _EmptyTransaction extends _EmptyDatabase implements Transaction {}
+
 class _EmptyDatabase implements Database {
   int updates = 0;
+  @override
+  Future<void> execute(String sql, [List<Object?>? arguments]) async {}
+  @override
+  Future<int> insert(
+    String table,
+    Map<String, Object?> values, {
+    String? nullColumnHack,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async => 1;
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => action(_EmptyTransaction());
   @override
   Future<int> update(
     String table,

@@ -36,7 +36,11 @@ Future<Map<String, dynamic>> restoreAttachmentGroupTemplate({
 }) async {
   final count = intent['expected_objects'] as int;
   if (rows.length != count ||
-      rows.any((r) => r.stage != AttachmentUploadStage.confirmed)) {
+      rows.any(
+        (r) =>
+            r.stage != AttachmentUploadStage.confirmed ||
+            (r.lastError?.startsWith('legacy_migrating:') ?? false),
+      )) {
     throw StateError('attachment group incomplete');
   }
   final kind = intent['attachment_kind'];

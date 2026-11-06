@@ -4944,6 +4944,27 @@ class Translations$common$zh_CN {
 
 	/// zh-CN: '好友确认结果未知，请先核对好友关系。'
 	String get friendConfirmResultUnknown => '好友确认结果未知，请先核对好友关系。';
+
+	/// zh-CN: '附件需要恢复'
+	String get legacyUploadRecoveryTitle => '附件需要恢复';
+
+	/// zh-CN: '原上传记录会保留。请先检查聊天记录，确认原消息未发送后，再选择文件作为新消息发送。'
+	String get legacyUploadRecoveryBody => '原上传记录会保留。请先检查聊天记录，确认原消息未发送后，再选择文件作为新消息发送。';
+
+	/// zh-CN: '选择文件并发送新消息'
+	String get legacyUploadSelectOriginal => '选择文件并发送新消息';
+
+	/// zh-CN: '消息可能已进入发送队列，请先检查聊天记录，避免重复发送。'
+	String get legacyUploadOutboxCheck => '消息可能已进入发送队列，请先检查聊天记录，避免重复发送。';
+
+	/// zh-CN: '所选文件与原文件不一致或暂时无法恢复。'
+	String get legacyUploadRecoveryMismatch => '所选文件与原文件不一致或暂时无法恢复。';
+
+	/// zh-CN: '附件已恢复，正在继续处理原消息。'
+	String get legacyUploadRecoveryContinues => '附件已恢复，正在继续处理原消息。';
+
+	/// zh-CN: '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。'
+	String get legacyUploadReturnToOriginalPage => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。';
 }
 
 // Path: complaint
@@ -12555,6 +12576,13 @@ extension on Translations {
 			'common.denylistResultUnknown' => '操作结果未知，请先核对黑名单。',
 			'common.denylistLocalNotSynced' => '服务端已处理，本地状态未同步。',
 			'common.friendConfirmResultUnknown' => '好友确认结果未知，请先核对好友关系。',
+			'common.legacyUploadRecoveryTitle' => '附件需要恢复',
+			'common.legacyUploadRecoveryBody' => '原上传记录会保留。请先检查聊天记录，确认原消息未发送后，再选择文件作为新消息发送。',
+			'common.legacyUploadSelectOriginal' => '选择文件并发送新消息',
+			'common.legacyUploadOutboxCheck' => '消息可能已进入发送队列，请先检查聊天记录，避免重复发送。',
+			'common.legacyUploadRecoveryMismatch' => '所选文件与原文件不一致或暂时无法恢复。',
+			'common.legacyUploadRecoveryContinues' => '附件已恢复，正在继续处理原消息。',
+			'common.legacyUploadReturnToOriginalPage' => '原上传未完成，请返回原页面重新选择文件并提交；原记录已保留。',
 			'complaint.complaint' => '投诉',
 			'complaint.e2eeConsentTitle' => '提交加密消息证据',
 			'complaint.e2eeConsentBody' => '该消息为端到端加密消息，服务器无法查看其内容。提交内容摘录会将你选择的消息明文随工单披露给审核员用于核实举报。是否同意提交？',
@@ -12994,6 +13022,8 @@ extension on Translations {
 			'groupSchedule.cardViewAndAttend' => '查看详情并确认参加',
 			'groupSchedule.cardViewDetail' => '查看详情',
 			'groupSchedule.organizer' => '发起人',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.participantAttending' => '已参加',
 			'groupSchedule.participantDeclined' => '已拒绝',
 			'groupSchedule.participantPending' => '待回应',
@@ -13001,8 +13031,6 @@ extension on Translations {
 			'groupSchedule.remindBefore' => ({required Object minutes}) => '开始前 ${minutes} 分钟提醒',
 			'groupSchedule.duration' => ({required Object minutes}) => '预计 ${minutes} 分钟',
 			'groupSchedule.hintToday' => '今天',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.hintTomorrow' => '明天',
 			'groupSchedule.startsHint' => ({required Object hint, required Object time}) => '${hint} ${time} 开始',
 			'groupSchedule.sectionToday' => '今天',
@@ -13508,6 +13536,8 @@ extension on Translations {
 			'organization.inviteColleagues.groupStep2' => '同事复制邀请码，打开 imboy App',
 			'organization.inviteColleagues.groupStep3' => '在「通讯录 → 加入企业」输入邀请码即可加入',
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => '邀请码：${code}',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteQr.orgQrcode' => '企业二维码',
 			'organization.inviteQr.title' => '邀请成员',
 			'organization.inviteQr.entryHint' => '出示二维码或邀请码，对方扫码 / 输码即可加入',
@@ -13515,8 +13545,6 @@ extension on Translations {
 			'organization.inviteQr.codeLabel' => '企业邀请码',
 			'organization.inviteQr.expiresWith' => ({required Object date}) => '有效期至 ${date}',
 			'organization.inviteQr.generate' => '生成邀请码',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteQr.generateFirst' => '尚无有效邀请码。生成后 7 天有效，对方扫码或输入邀请码即可加入。',
 			'organization.inviteQr.regenerate' => '重新生成',
 			'organization.inviteQr.regenerateTitle' => '重新生成邀请码？',
@@ -14022,6 +14050,8 @@ extension on Translations {
 			'talkRecord.deleteConfirmBodyPoint1' => '删除后不再展示记录正文与摘要。',
 			'talkRecord.deleteConfirmBodyPoint2' => '删除会先撤销所有人的访问；已导出或保存的副本无法收回。',
 			'talkRecord.deleteConfirmBodyPoint3' => '附件按留存规则与引用情况清理；提交清理不代表字节已立即删除。',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.deleteConfirmAction' => '删除',
 			'talkRecord.deleteDeleting' => '删除中…',
 			'talkRecord.deleteOnlyOwner' => '只有创建者可以删除记录。',
@@ -14029,8 +14059,6 @@ extension on Translations {
 			'talkRecord.deleteConflictHint' => '记录已被他人更新，请刷新后重试。',
 			'talkRecord.deleteStatusTitle' => '记录已删除',
 			'talkRecord.deleteStatusNoContentHint' => '记录内容已不再展示。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteCleanupSectionTitle' => '附件清理状态',
 			'talkRecord.cleanupPendingTitle' => '清理进行中',
 			'talkRecord.cleanupPendingBody' => '已提交清理队列；排队成功不代表附件字节已删除。',

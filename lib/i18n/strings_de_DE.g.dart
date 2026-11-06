@@ -1672,6 +1672,13 @@ class _Translations$common$de_DE extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => 'Das Ergebnis ist unbekannt. Prüfe zuerst die Sperrliste.';
 	@override String get denylistLocalNotSynced => 'Der Server hat die Anfrage verarbeitet, der lokale Status ist nicht synchronisiert.';
 	@override String get friendConfirmResultUnknown => 'Das Ergebnis der Freundschaftsbestätigung ist ungewiss. Prüfe zuerst die Freundschaft.';
+	@override String get legacyUploadRecoveryTitle => 'Anhang wiederherstellen';
+	@override String get legacyUploadRecoveryBody => 'Der alte Upload bleibt erhalten. Prüfe zuerst den Chatverlauf; falls die ursprüngliche Nachricht nicht gesendet wurde, wähle eine Datei für eine neue Nachricht.';
+	@override String get legacyUploadSelectOriginal => 'Datei wählen und neue Nachricht senden';
+	@override String get legacyUploadOutboxCheck => 'Die Nachricht ist möglicherweise bereits in der Sendewarteschlange. Prüfe zuerst den Chatverlauf.';
+	@override String get legacyUploadRecoveryMismatch => 'Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich.';
+	@override String get legacyUploadRecoveryContinues => 'Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet.';
+	@override String get legacyUploadReturnToOriginalPage => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.';
 }
 
 // Path: complaint
@@ -4932,8 +4939,17 @@ extension on TranslationsDeDe {
 			'common.denylistResultUnknown' => 'Das Ergebnis ist unbekannt. Prüfe zuerst die Sperrliste.',
 			'common.denylistLocalNotSynced' => 'Der Server hat die Anfrage verarbeitet, der lokale Status ist nicht synchronisiert.',
 			'common.friendConfirmResultUnknown' => 'Das Ergebnis der Freundschaftsbestätigung ist ungewiss. Prüfe zuerst die Freundschaft.',
+			'common.legacyUploadRecoveryTitle' => 'Anhang wiederherstellen',
+			'common.legacyUploadRecoveryBody' => 'Der alte Upload bleibt erhalten. Prüfe zuerst den Chatverlauf; falls die ursprüngliche Nachricht nicht gesendet wurde, wähle eine Datei für eine neue Nachricht.',
+			'common.legacyUploadSelectOriginal' => 'Datei wählen und neue Nachricht senden',
+			'common.legacyUploadOutboxCheck' => 'Die Nachricht ist möglicherweise bereits in der Sendewarteschlange. Prüfe zuerst den Chatverlauf.',
+			'common.legacyUploadRecoveryMismatch' => 'Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich.',
+			'common.legacyUploadRecoveryContinues' => 'Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet.',
+			'common.legacyUploadReturnToOriginalPage' => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Diese Nachricht ist Ende-zu-Ende-verschlüsselt; der Server kann ihren Inhalt nicht einsehen. Durch das Einreichen eines Auszugs wird der ausgewählte Klartext den Moderatoren zur Prüfung offengelegt. Stimmen Sie zu?',
 			'complaint.e2eeConsentSubmit' => 'Zustimmen und einreichen',
 			'complaint.e2eeConsentDecline' => 'Nur melden (ohne Inhalt)',
@@ -4941,8 +4957,6 @@ extension on TranslationsDeDe {
 			'complaintReason.harassment' => 'Belästigung',
 			'complaintReason.inappropriate' => 'Unangemessener Inhalt',
 			'complaintReason.other' => 'Sonstiges',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => 'Blockiert',
 			'contact.applyChanges' => 'Bitte starten Sie die App neu, um die Änderungen zu übernehmen',
 			'contact.inputNewTag' => 'Neuen Tag eingeben...',
@@ -5448,6 +5462,8 @@ extension on TranslationsDeDe {
 			'main.safetyNumberPeerDevice' => 'Gerät der Gegenseite',
 			'main.safetyNumberReportRejected' => 'Der Server hat das Verifizierungsereignis abgelehnt (Signatur/Gültigkeit passt nicht), nicht markiert',
 			'main.safetyNumberReportUnavailable' => 'Geräteinformationen nicht verfügbar, nicht gemeldet',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerified' => '✓ Verifiziert',
 			'main.safetyNumberNotVerified' => 'Nicht verifiziert',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} Gerät(e)',
@@ -5455,8 +5471,6 @@ extension on TranslationsDeDe {
 			'main.safetyNumberVerifyFailed' => 'Sicherheitscode konnte nicht abgerufen werden. Bitte später erneut versuchen',
 			'main.complianceKeyInfoTitle' => 'Compliance-Audit-Schlüssel',
 			'main.complianceKeyInfoAlgorithm' => 'Algorithmus',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoChangedWarning' => '⚠️ Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokalen Pinning überein! Falls dies keine beabsichtigte Rotation durch den Administrator ist, kontaktieren Sie sofort den Administrator und senden Sie keine verschlüsselten Nachrichten.',
 			'main.complianceKeyInfoFetchedAt' => 'Abgerufen am',
 			'main.complianceKeyInfoFingerprint' => 'Öffentlicher Schlüssel-Fingerabdruck',
@@ -5962,6 +5976,8 @@ extension on TranslationsDeDe {
 			'talkRecord.aiSaveAction' => 'Auf diesem Gerät speichern',
 			'talkRecord.aiReplaceAction' => 'Geräteschlüssel ersetzen',
 			'talkRecord.aiDeleteAction' => 'Geräteschlüssel löschen',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Wird gespeichert…',
 			'talkRecord.aiSaved' => 'Auf diesem Gerät gespeichert. Der Schlüssel wurde nicht geprüft.',
 			'talkRecord.aiDeleted' => 'Gerätekonfiguration gelöscht. Aufnahmen und vorhandene Ergebnisse bleiben erhalten.',
@@ -5969,8 +5985,6 @@ extension on TranslationsDeDe {
 			'talkRecord.aiReplaceNotice' => 'Ersetzt nur die Einstellung dieses Dienstes für das aktuelle Konto auf diesem Gerät. Andere Konten und gespeicherte Aufnahmen bleiben unverändert.',
 			'talkRecord.aiDeleteTitle' => 'Geräteschlüssel löschen?',
 			'talkRecord.aiDeleteNotice' => 'Stoppt neue Anfragen an diesen Dienst. Aufnahmen und Ergebnisse bleiben erhalten. Bereits an den Anbieter gesendete Anfragen können nicht zurückgerufen werden.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Abbrechen',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Audiotranskription und temporäre Sprecherlabels',

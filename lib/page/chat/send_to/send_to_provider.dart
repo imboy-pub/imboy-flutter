@@ -335,7 +335,7 @@ class SendToNotifier extends Notifier<SendToState> {
         tableName: MessageRepo.getTableName(chatType),
       );
       if (isCurrent != null && !isCurrent()) return false;
-      await msgRepo.insert(msgModel);
+      await msgRepo.insert(msgModel, outbound: true);
       if (isCurrent != null && !isCurrent()) return false;
       onQueued?.call(msgModel);
 

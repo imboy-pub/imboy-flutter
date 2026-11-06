@@ -1672,6 +1672,13 @@ class _Translations$common$fr_FR extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => 'Le résultat est inconnu. Vérifiez d’abord la liste de blocage.';
 	@override String get denylistLocalNotSynced => 'Le serveur a traité la demande, mais l’état local n’est pas synchronisé.';
 	@override String get friendConfirmResultUnknown => 'Le résultat de la confirmation est inconnu. Vérifiez d’abord votre relation.';
+	@override String get legacyUploadRecoveryTitle => 'Récupérer la pièce jointe';
+	@override String get legacyUploadRecoveryBody => 'Le suivi initial est conservé. Vérifiez d’abord la conversation ; si le message initial n’a pas été envoyé, choisissez un fichier pour un nouveau message.';
+	@override String get legacyUploadSelectOriginal => 'Choisir un fichier et envoyer un nouveau message';
+	@override String get legacyUploadOutboxCheck => 'Le message est peut-être déjà en attente. Vérifiez la conversation avant de le renvoyer.';
+	@override String get legacyUploadRecoveryMismatch => 'Le fichier ne correspond pas ou la récupération est impossible.';
+	@override String get legacyUploadRecoveryContinues => 'Pièce jointe récupérée ; traitement du message initial en cours.';
+	@override String get legacyUploadReturnToOriginalPage => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.';
 }
 
 // Path: complaint
@@ -4932,8 +4939,17 @@ extension on TranslationsFrFr {
 			'common.denylistResultUnknown' => 'Le résultat est inconnu. Vérifiez d’abord la liste de blocage.',
 			'common.denylistLocalNotSynced' => 'Le serveur a traité la demande, mais l’état local n’est pas synchronisé.',
 			'common.friendConfirmResultUnknown' => 'Le résultat de la confirmation est inconnu. Vérifiez d’abord votre relation.',
+			'common.legacyUploadRecoveryTitle' => 'Récupérer la pièce jointe',
+			'common.legacyUploadRecoveryBody' => 'Le suivi initial est conservé. Vérifiez d’abord la conversation ; si le message initial n’a pas été envoyé, choisissez un fichier pour un nouveau message.',
+			'common.legacyUploadSelectOriginal' => 'Choisir un fichier et envoyer un nouveau message',
+			'common.legacyUploadOutboxCheck' => 'Le message est peut-être déjà en attente. Vérifiez la conversation avant de le renvoyer.',
+			'common.legacyUploadRecoveryMismatch' => 'Le fichier ne correspond pas ou la récupération est impossible.',
+			'common.legacyUploadRecoveryContinues' => 'Pièce jointe récupérée ; traitement du message initial en cours.',
+			'common.legacyUploadReturnToOriginalPage' => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Ce message est chiffré de bout en bout ; le serveur ne peut pas en voir le contenu. Soumettre un extrait divulguera le texte clair sélectionné aux modérateurs pour examen. Êtes-vous d\'accord ?',
 			'complaint.e2eeConsentSubmit' => 'Accepter et soumettre',
 			'complaint.e2eeConsentDecline' => 'Signaler uniquement (sans contenu)',
@@ -4941,8 +4957,6 @@ extension on TranslationsFrFr {
 			'complaintReason.harassment' => 'Harcèlement',
 			'complaintReason.inappropriate' => 'Contenu inapproprié',
 			'complaintReason.other' => 'Autre',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => 'Bloqué',
 			'contact.applyChanges' => 'Redémarrez l\'application pour appliquer les modifications.',
 			'contact.inputNewTag' => 'Saisir une nouvelle étiquette...',
@@ -5448,6 +5462,8 @@ extension on TranslationsFrFr {
 			'main.complianceKeyInfoPinnedAt' => 'Épinglée le',
 			'main.complianceKeyInfoPinnedNone' => 'Pas encore épinglée (épinglage automatique lors de la prochaine récupération)',
 			'main.complianceKeyInfoRefreshFailed' => 'Échec de la récupération. Vérifiez le réseau et réessayez',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Clé publique fournie par le serveur',
 			'main.complianceKeyInfoTitle' => 'Clé d\'audit de conformité',
 			'main.e2eeErrComplianceChanged' => 'La clé d\'audit de conformité a changé, message non envoyé. Confirmez la rotation puis réessayez',
@@ -5455,8 +5471,6 @@ extension on TranslationsFrFr {
 			'main.e2eeErrComplianceExpired' => 'La clé de conformité a expiré, veuillez contacter l\'administrateur',
 			'main.complianceKeyRotationConfirmed' => 'Rotation de la clé de conformité confirmée, le message peut être renvoyé',
 			'main.complianceKeyRotationNoPending' => 'Aucun changement de clé en attente de confirmation',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => 'L\'initialisation de sécurité de cet appareil n\'est pas terminée. Déconnectez-vous, reconnectez-vous puis réessayez',
 			'main.e2eeErrProtocolMismatch' => 'Configuration du protocole de chiffrement anormale. Mettez à jour l\'application puis réessayez',
 			'main.e2eeErrPeerSuiteUnsupported' => 'L\'appareil du destinataire ne prend pas en charge la suite de chiffrement requise, message non envoyé. Demandez-lui de mettre à jour l\'application puis réessayez',
@@ -5962,6 +5976,8 @@ extension on TranslationsFrFr {
 			'talkRecord.aiSaveAction' => 'Enregistrer sur cet appareil',
 			'talkRecord.aiReplaceAction' => 'Remplacer la clé locale',
 			'talkRecord.aiDeleteAction' => 'Supprimer la clé locale',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Enregistrement…',
 			'talkRecord.aiSaved' => 'Enregistré sur cet appareil. La clé n’a pas été validée.',
 			'talkRecord.aiDeleted' => 'Configuration locale supprimée. Les enregistrements et résultats existants sont conservés.',
@@ -5969,8 +5985,6 @@ extension on TranslationsFrFr {
 			'talkRecord.aiReplaceNotice' => 'Remplace uniquement la configuration de ce service pour ce compte sur cet appareil. Les autres comptes et enregistrements ne sont pas modifiés.',
 			'talkRecord.aiDeleteTitle' => 'Supprimer la clé locale ?',
 			'talkRecord.aiDeleteNotice' => 'Arrête les nouvelles requêtes à ce service. Les enregistrements et résultats sont conservés. Les requêtes déjà envoyées au fournisseur ne peuvent pas être rappelées.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Annuler',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Transcription audio et étiquettes temporaires des locuteurs',

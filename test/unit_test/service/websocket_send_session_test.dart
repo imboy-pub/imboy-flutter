@@ -15,6 +15,7 @@ import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:sqflite_sqlcipher/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as ffi;
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/service/event_bus.dart' show AppEventBus;
 import 'package:imboy/service/websocket.dart';
@@ -73,7 +74,24 @@ class _FakeChannel implements WebSocketChannel {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class _EmptyRetryTransaction extends _EmptyRetryDatabase
+    implements Transaction {}
+
 class _EmptyRetryDatabase implements Database {
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => action(_EmptyRetryTransaction());
+  @override
+  Future<void> execute(String sql, [List<Object?>? arguments]) async {}
+  @override
+  Future<int> insert(
+    String table,
+    Map<String, Object?> values, {
+    String? nullColumnHack,
+    ConflictAlgorithm? conflictAlgorithm,
+  }) async => 1;
   @override
   bool get isOpen => true;
 
@@ -99,6 +117,41 @@ class _EmptyRetryDatabase implements Database {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _FencedDatabase extends _EmptyRetryDatabase {
+  @override
+  Future<T> transaction<T>(
+    Future<T> Function(Transaction txn) action, {
+    bool? exclusive,
+  }) => action(_FencedTransaction());
+}
+
+class _FencedTransaction extends _EmptyRetryTransaction {
+  @override
+  Future<List<Map<String, Object?>>> query(
+    String table, {
+    bool? distinct,
+    List<String>? columns,
+    String? where,
+    List<Object?>? whereArgs,
+    String? groupBy,
+    String? having,
+    String? orderBy,
+    int? limit,
+    int? offset,
+  }) async {
+    if (table == 'attachment_upload_task' && whereArgs?.first == 'blocked-id') {
+      return [
+        {
+          'id': 'upload',
+          'stage': 'confirmed',
+          'business_intent': jsonEncode({'state': 'commit_unknown'}),
+        },
+      ];
+    }
+    return [];
+  }
 }
 
 void main() {
@@ -127,8 +180,10 @@ void main() {
         });
 
     WebSocketService.resetForTest();
+    SqliteService.setDbForTest(_EmptyRetryDatabase());
   });
   tearDown(() {
+    SqliteService.setDbForTest(null);
     WebSocketService.to.dispose();
     WebSocketService.resetForTest();
     PersistentMessageQueue.to.dispose();
@@ -436,6 +491,91 @@ void main() {
       );
     });
   }
+  test('发送许可后通道变化，未调用 sink 时恢复预留状态', () async {
+    ffi.sqfliteFfiInit();
+    final db = await ffi.databaseFactoryFfi.openDatabase(
+      ffi.inMemoryDatabasePath,
+    );
+    await db.execute(
+      'CREATE TABLE attachment_upload_task (id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, stage TEXT, last_error TEXT, business_intent TEXT)',
+    );
+    await db.insert('attachment_upload_task', {
+      'id': 'upload',
+      'user_id': '100',
+      'anchor_msg_id': 'channel-race',
+      'stage': 'confirmed',
+      'business_intent': jsonEncode({'state': 'dispatch_reserved_v2'}),
+    });
+    SqliteService.setDbForTest(db);
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    svc.afterOutboxBeginForTest = () async {
+      svc.channelForTest = null;
+    };
+    expect(
+      await svc.sendMessage(
+        jsonEncode({'id': 'channel-race', 'type': 'C2C'}),
+        'channel-race',
+        dispatchClaimed: true,
+      ),
+      isFalse,
+    );
+    expect(fake._sink.sent, isEmpty);
+    final row = (await db.query('attachment_upload_task')).single;
+    expect(
+      jsonDecode(row['business_intent'] as String)['state'],
+      'dispatch_reserved_v2',
+    );
+    expect(await db.query('message_send_attempt'), isEmpty);
+    svc.afterOutboxBeginForTest = null;
+    svc.channelForTest = fake;
+    fake._sink.onAdd = () => throw StateError('sink failure after invocation');
+    expect(
+      await svc.sendMessage(
+        jsonEncode({'id': 'channel-race', 'type': 'C2C'}),
+        'channel-race',
+        dispatchClaimed: true,
+      ),
+      isFalse,
+    );
+    expect(
+      jsonDecode(
+        (await db.query('attachment_upload_task')).single['business_intent']
+            as String,
+      )['state'],
+      'commit_unknown',
+    );
+    expect(await db.query('message_send_attempt'), hasLength(1));
+    await db.close();
+    SqliteService.setDbForTest(_EmptyRetryDatabase());
+  });
+
+  test('未知提交附件留队时不阻塞后续离线消息', () async {
+    SqliteService.setDbForTest(_FencedDatabase());
+    final svc = WebSocketService.to;
+    final fake = _FakeChannel();
+    svc.channelForTest = fake;
+    svc.statusForTest = SocketStatus.connected;
+    final generation = UserRepoLocal.to.sessionGeneration;
+    PersistentMessageQueue.to.enqueue(
+      'blocked',
+      jsonEncode({'id': 'blocked-id'}),
+      ownerUid: '100',
+      sessionGeneration: generation,
+    );
+    PersistentMessageQueue.to.enqueue(
+      'ordinary',
+      'synthetic-ordinary',
+      ownerUid: '100',
+      sessionGeneration: generation,
+    );
+    await svc.flushMessageQueueForTest();
+    expect(fake._sink.sent, hasLength(1));
+    expect(PersistentMessageQueue.to.messages.map((m) => m.id), ['blocked']);
+  });
+
   for (final stage in ['restore-normal', 'restore-other', 'restore-legacy']) {
     test('offline persistence $stage', () async {
       final raw = {

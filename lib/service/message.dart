@@ -1,3 +1,5 @@
+import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -26,6 +28,7 @@ import 'package:imboy/store/model/channel_decimal_id.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/model/message_model.dart';
+import 'package:imboy/store/api/msg_api.dart';
 import 'package:imboy/store/model/model_parse_utils.dart';
 import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -197,7 +200,16 @@ class MessageService with EventSubscriptionManager {
     // 订阅 WebSocket 消息接收事件
     subscribeTo(
       AppEventBus.on<WebSocketMessageReceivedEvent>().listen((event) {
-        processMessage(event.type, event.data);
+        if (event.ownerUid != UserRepoLocal.to.currentUid ||
+            !UserRepoLocal.to.isCurrentSession(event.sessionGeneration)) {
+          return;
+        }
+        processMessage(
+          event.type,
+          event.data,
+          ownerUid: event.ownerUid,
+          sessionGeneration: event.sessionGeneration,
+        );
       }),
     );
 
@@ -327,7 +339,12 @@ class MessageService with EventSubscriptionManager {
 
   /// 处理消息的主入口
   /// Main entry point for message processing
-  Future<void> processMessage(String type, Map<String, dynamic> data) async {
+  Future<void> processMessage(
+    String type,
+    Map<String, dynamic> data, {
+    String? ownerUid,
+    int? sessionGeneration,
+  }) async {
     final msgId = data['id']?.toString() ?? 'unknown';
     final from = data['from']?.toString() ?? 'unknown';
     final to = data['to']?.toString() ?? 'unknown';
@@ -361,7 +378,12 @@ class MessageService with EventSubscriptionManager {
     if (type.startsWith('WEBRTC_')) {
       await webrtc.handleWebRTC(type, data);
     } else if (type.endsWith('_SERVER_ACK')) {
-      await _receiveServerAck(data);
+      if (data['type']?.toString() != type) return;
+      await _receiveServerAck(
+        data,
+        ownerUid: ownerUid,
+        sessionGeneration: sessionGeneration,
+      );
     } else if (type == 'S2C') {
       // S2C 消息优先走 switchS2C（包含所有 S2C action 处理）
       await MessageS2CService.switchS2C(data);
@@ -1379,9 +1401,13 @@ class MessageService with EventSubscriptionManager {
 
   /// Handle server-side ACK for sent messages
   /// 处理服务端发送确认
-  Future<void> _receiveServerAck(Map<String, dynamic> data) async {
-    final ownerUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
+  Future<void> _receiveServerAck(
+    Map<String, dynamic> data, {
+    String? ownerUid,
+    int? sessionGeneration,
+  }) async {
+    ownerUid ??= UserRepoLocal.to.currentUid;
+    final generation = sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
     final msgId = parseModelString(data['id']);
     final type = parseModelString(data['type']);
     if (msgId.isEmpty || type.isEmpty) return;
@@ -1389,6 +1415,12 @@ class MessageService with EventSubscriptionManager {
     // 【改进】添加SERVER_ACK接收日志
     iPrint('📥 [SERVER_ACK] 收到服务端ACK: msgId=$msgId, type=$type');
 
+    bool current() =>
+        ownerUid!.isNotEmpty &&
+        UserRepoLocal.to.currentUid == ownerUid &&
+        UserRepoLocal.to.isCurrentSession(generation) &&
+        !UserRepoLocal.to.isAuthTransitioning;
+    if (!current()) return;
     // 针对频道消息的特殊处理
     if (type == 'C2CH_SERVER_ACK') {
       try {
@@ -1432,8 +1464,83 @@ class MessageService with EventSubscriptionManager {
       return;
     }
 
-    // 【重要】从重试队列中移除该消息，避免重复发送（解耦：通过事件总线）
-    // Remove from retry queue to avoid duplicate sending (decoupling: via event bus)
+    if (!current()) return;
+    final chatType = type.endsWith('_SERVER_ACK')
+        ? type.substring(0, type.length - '_SERVER_ACK'.length)
+        : '';
+    if (!{'C2C', 'C2G', 'C2S'}.contains(chatType)) {
+      iPrint('[SERVER_ACK] 暂无可验证的服务端结果接口，保留待确认: $msgId');
+      return;
+    }
+    final repo = getMessageRepo(chatType);
+    final candidate = await repo.find(msgId);
+    if (!current() ||
+        candidate == null ||
+        candidate.id != msgId ||
+        candidate.type != chatType ||
+        candidate.fromId.toString() != ownerUid ||
+        candidate.isAuthor != 1 ||
+        candidate.conversationUk3.isEmpty ||
+        !{
+          IMBoyMessageStatus.sending,
+          IMBoyMessageStatus.pendingRetry,
+          IMBoyMessageStatus.error,
+        }.contains(candidate.status)) {
+      return;
+    }
+    final peerId = chatType == 'C2S'
+        ? (await repo.findC2sPeer(msgId, ownerUid, candidate.autoId) ??
+              candidate.toId)
+        : candidate.toId;
+    if (!current() || peerId.isEmpty || peerId == '0') return;
+    final unprotected = await AttachmentUploadTaskRepo()
+        .allowUnprotectedActionAck(msgId, ownerUid, isCurrent: current);
+    if (!current()) return;
+    final requiresProof = !unprotected || chatType == 'C2S';
+    if (requiresProof) {
+      bool verified;
+      try {
+        verified = await MsgApi()
+            .isCommitted(
+              chatType: chatType.toLowerCase(),
+              peerId: peerId,
+              messageId: msgId,
+            )
+            .timeout(const Duration(seconds: 3));
+      } on Object {
+        verified = false;
+      }
+      if (!current() || !verified) {
+        iPrint('[SERVER_ACK] 服务端结果未获正证，保留待确认: $msgId');
+        return;
+      }
+    }
+    final db = await SqliteService.to.db;
+    if (db == null || !current()) return;
+    final persisted = await ServerAckReceipts.persist(
+      db: db,
+      ackId: msgId,
+      ackType: type,
+      ownerUid: ownerUid,
+      expectedAutoId: candidate.autoId,
+      expectedPeerId: peerId,
+      requireAttempt: requiresProof,
+      isCurrent: current,
+    );
+    if (!persisted || !current()) return;
+    final msg = await repo.find(msgId);
+    if (!current() || msg == null) return;
+    if (!ServerAckReceipts.record(
+      message: msg,
+      ackId: msgId,
+      ackType: type,
+      ownerUid: ownerUid,
+      generation: generation,
+      isCurrent: current,
+      emit: AppEventBus.fire,
+    )) {
+      return;
+    }
     AppEventBus.fire(
       RemoveFromRetryQueueRequestedEvent(
         messageId: msgId,
@@ -1443,42 +1550,12 @@ class MessageService with EventSubscriptionManager {
         sessionGeneration: generation,
       ),
     );
-    iPrint('✅ [SERVER_ACK] 请求从重试队列移除: msgId=$msgId');
 
-    bool current() =>
-        UserRepoLocal.to.currentUid == ownerUid &&
-        UserRepoLocal.to.isCurrentSession(generation) &&
-        !UserRepoLocal.to.isAuthTransitioning;
-    if (!current()) return;
-    final repo = getMessageRepo(type);
-    final msg = await updateStatus(repo, msgId, IMBoyMessageStatus.sent);
-    if (!current()) return;
-    ServerAckReceipts.record(
-      message: msg,
-      ackId: msgId,
-      ackType: type,
-      ownerUid: ownerUid,
-      generation: generation,
-      isCurrent: current,
-      emit: AppEventBus.fire,
-    );
-
-    if (msg != null) {
-      // 【改进】确认消息状态已更新
-      iPrint('✅ [SERVER_ACK] 消息状态已更新为 sent: msgId=$msgId');
-
-      // 更新会话里面的消息列表的特定消息状态
-      // 修复：使用正确的 dataType 'messages' 以匹配监听器
-      AppEventBus.fireData([await msg.toTypeMessage()], 'messages');
-
-      // 确保会话列表中的lastMsgStatus也得到更新
-      await _conversationNotifier.updateConversationByMsgId(msgId, {
-        ConversationRepo.lastMsgStatus: IMBoyMessageStatus.sent,
-      });
-    } else {
-      // 【改进】消息未找到
-      iPrint('⚠️ [SERVER_ACK] 消息未找到: msgId=$msgId');
-    }
+    iPrint('✅ [SERVER_ACK] 消息状态已更新为 sent: msgId=$msgId');
+    AppEventBus.fireData([await msg.toTypeMessage()], 'messages');
+    await _conversationNotifier.updateConversationByMsgId(msgId, {
+      ConversationRepo.lastMsgStatus: IMBoyMessageStatus.sent,
+    });
   }
 
   /// 检查用户当前是否正在浏览指定会话

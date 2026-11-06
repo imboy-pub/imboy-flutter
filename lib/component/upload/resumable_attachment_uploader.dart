@@ -1,3 +1,5 @@
+import 'package:imboy/service/server_ack_receipts.dart';
+
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:math';
@@ -7,7 +9,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 
 import 'package:crypto/crypto.dart';
-import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/config/init.dart' show currentEnv, navigatorKey;
+import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
@@ -20,6 +24,7 @@ import 'package:imboy/service/e2ee/attachment_descriptor.dart';
 import 'package:imboy/service/e2ee/attachment_encryptor.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/attachment_api.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/component/upload/attachment_template_restore.dart';
 
@@ -116,6 +121,10 @@ class ResumableAttachmentUploader {
     this.process = true,
     this.cacheDirectory,
     this.cacheWriter,
+    this.directSessionFn,
+    this.directPutFn,
+    this.legacyMigrationBarrier,
+    this.legacyMigrationCommittedBarrier,
   }) : _repo = repo ?? AttachmentUploadTaskRepo(),
        _keys = keyStore ?? SecureUploadKeyStore(),
        _sessionGuard = sessionGuard ?? _currentSessionGuard(),
@@ -128,6 +137,11 @@ class ResumableAttachmentUploader {
   final bool encrypt;
   final bool process;
   final Directory? cacheDirectory;
+  final DirectSessionFn? directSessionFn;
+  final DirectFilePutFn? directPutFn;
+  final Future<void> Function(String replacementId)? legacyMigrationBarrier;
+  final Future<void> Function(String replacementId)?
+  legacyMigrationCommittedBarrier;
   final Future<void> Function(Future<void> Function(), Future<void> Function())?
   cacheWriter;
   final int _generation;
@@ -136,10 +150,12 @@ class ResumableAttachmentUploader {
   static bool Function(String userId) _currentSessionGuard() {
     final actor = UserRepoLocal.to;
     final generation = actor.sessionGeneration;
+    final environment = currentEnv;
     return (userId) =>
         actor.currentUid == userId &&
         actor.isCurrentSession(generation) &&
-        !actor.isAuthTransitioning;
+        !actor.isAuthTransitioning &&
+        currentEnv == environment;
   }
 
   void _requireSession(String userId) {
@@ -220,12 +236,356 @@ class ResumableAttachmentUploader {
     return File('${directory.path}/$name.bin');
   }
 
+  Future<File> _migrationFile(
+    AttachmentUploadTask task,
+    String replacementId,
+  ) async {
+    final parent = (await _cacheFile(task)).parent;
+    final name = sha256.convert(utf8.encode(replacementId)).toString();
+    return File('${parent.path}/$name.migration');
+  }
+
+  Future<void> _cleanupMigrationParts(File target) async {
+    final prefix = '${target.path}.part-';
+    await for (final entry in target.parent.list()) {
+      if (entry is File && entry.path.startsWith(prefix)) {
+        try {
+          await entry.delete();
+        } on FileSystemException {
+          // An active concurrent writer may still own this encrypted part.
+        }
+      }
+    }
+  }
+
+  Uint8List _migrationKey(
+    Uint8List original,
+    String id,
+    String purpose,
+    int length,
+  ) {
+    final digest = Hmac(
+      sha256,
+      original,
+    ).convert(utf8.encode('imboy-legacy-migration-v1:$id:$purpose'));
+    return Uint8List.fromList(digest.bytes.sublist(0, length));
+  }
+
+  Map<String, String> _derivedMigrationMaterial(
+    AttachmentUploadTask task,
+    String replacementId,
+    Map<String, String> original, {
+    String? finalObjectKey,
+  }) {
+    final oldKey = Uint8List.fromList(base64Decode(original['content_key']!));
+    if (oldKey.length != 32) throw LostCipherMaterialError(task.id);
+    final uploadKey = _migrationKey(oldKey, replacementId, 'upload-key', 32);
+    final uploadNonce = _migrationKey(
+      oldKey,
+      replacementId,
+      'upload-nonce',
+      12,
+    );
+    final stageKey = _migrationKey(oldKey, replacementId, 'staging-key', 32);
+    final stageNonce = _migrationKey(
+      oldKey,
+      replacementId,
+      'staging-nonce',
+      12,
+    );
+    final chunkSize = int.parse(
+      original['chunk_size'] ?? '${AttachmentEncryptor.defaultChunkSize}',
+    );
+    AttachmentDescriptor descriptor(
+      String id,
+      String key,
+      Uint8List contentKey,
+      Uint8List nonce,
+      int chunks, {
+      AttachmentDescriptor? thumb,
+    }) => AttachmentDescriptor(
+      attachmentId: id,
+      objectKey: key,
+      contentKey: contentKey,
+      cipher: AttachmentDescriptor.supportedCipher,
+      chunkSize: chunks,
+      chunkCount: AttachmentDescriptor.expectedChunkCount(
+        task.plainSize,
+        chunks,
+      ),
+      baseNonce: nonce,
+      plainSize: task.plainSize,
+      plainSha256: _hexDecode(task.plainSha256),
+      mime: task.mime,
+      name: task.fileName,
+      thumb: thumb,
+    );
+    final temp = descriptor(
+      'migration-$replacementId',
+      'migration/$replacementId',
+      stageKey,
+      stageNonce,
+      AttachmentEncryptor.defaultChunkSize,
+    );
+    final thumb = original['thumb'] == null
+        ? null
+        : AttachmentDescriptor.fromMap(
+            jsonDecode(original['thumb']!) as Map<String, dynamic>,
+          );
+    return {
+      'content_key': base64Encode(uploadKey),
+      'base_nonce': base64Encode(uploadNonce),
+      'attachment_id': replacementId,
+      'chunk_size': '$chunkSize',
+      'migration_descriptor': jsonEncode(temp.toMap()),
+      if (original['thumb'] != null) 'thumb': original['thumb']!,
+      if (finalObjectKey != null && finalObjectKey.isNotEmpty)
+        'descriptor': jsonEncode(
+          descriptor(
+            replacementId,
+            finalObjectKey,
+            uploadKey,
+            uploadNonce,
+            chunkSize,
+            thumb: thumb,
+          ).toMap(),
+        ),
+    };
+  }
+
+  // Retain legacy plaintext until durable source ownership and absence of
+  // references can both be proven atomically. A digest alone is not proof.
+  Future<void> _cleanupLegacyPlainSource(AttachmentUploadTask task) async {}
+
+  /// Keeps the old journal row until encrypted staging and key material are durable.
+  Future<String> _migrateLegacy(
+    AttachmentUploadTask task, {
+    bool allowConfirmedVideoThumb = false,
+  }) async {
+    _requireSession(task.userId);
+    if (task.cipher == null) {
+      throw LostCipherMaterialError(task.id);
+    }
+    final oldMaterial = await _loadMaterials(task);
+    if (oldMaterial == null ||
+        task.uploadPath == null ||
+        oldMaterial['content_key'] == null ||
+        oldMaterial['base_nonce'] == null) {
+      throw LostCipherMaterialError(task.id);
+    }
+    final cached = await File(task.uploadPath!).readAsBytes();
+    _requireSession(task.userId);
+    final originalKey = Uint8List.fromList(
+      base64Decode(oldMaterial['content_key']!),
+    );
+    if (originalKey.length != 32) throw LostCipherMaterialError(task.id);
+    final oldCache = (await _cacheFile(task)).path;
+    final Uint8List plaintext;
+    if (task.uploadPath == '$oldCache.source') {
+      plaintext = cached;
+    } else if (task.uploadPath == '$oldCache.source.enc') {
+      plaintext = await _readEncryptedSource(
+        task,
+        oldMaterial,
+        File(task.uploadPath!),
+      );
+    } else if ((task.uploadPath == oldCache ||
+            task.uploadPath!.startsWith('$oldCache.material-')) &&
+        oldMaterial['descriptor'] != null &&
+        sha256.convert(cached).toString() == task.ciphertextSha256) {
+      final descriptor = AttachmentDescriptor.fromMap(
+        jsonDecode(oldMaterial['descriptor']!) as Map<String, dynamic>,
+      );
+      if (descriptor.objectKey != task.objectKey ||
+          base64Encode(descriptor.contentKey) != oldMaterial['content_key'] ||
+          base64Encode(descriptor.baseNonce) != oldMaterial['base_nonce']) {
+        throw LostCipherMaterialError(task.id);
+      }
+      plaintext = AttachmentEncryptor.open(
+        ciphertext: cached,
+        descriptor: descriptor,
+        bindingHash: _hexDecode(task.bindingHash!),
+      );
+    } else {
+      throw LostCipherMaterialError(task.id);
+    }
+    if (plaintext.length != task.plainSize ||
+        sha256.convert(plaintext).toString() != task.plainSha256) {
+      throw LostCipherMaterialError(task.id);
+    }
+    _requireSession(task.userId);
+    final replacementId = await _repo.reserveLegacyMigration(
+      task,
+      _newUuid(),
+      isCurrent: () => _sessionGuard(task.userId),
+      allowConfirmedVideoThumb: allowConfirmedVideoThumb,
+    );
+    await legacyMigrationBarrier?.call(replacementId);
+    _requireSession(task.userId);
+    final tempKey = _migrationKey(
+      originalKey,
+      replacementId,
+      'staging-key',
+      32,
+    );
+    final tempNonce = _migrationKey(
+      originalKey,
+      replacementId,
+      'staging-nonce',
+      12,
+    );
+    final stage = AttachmentEncryptor.seal(
+      plaintext: plaintext,
+      bindingHash: _hexDecode(task.bindingHash!),
+      attachmentId: 'migration-$replacementId',
+      objectKey: 'migration/$replacementId',
+      mime: task.mime,
+      name: task.fileName,
+      contentKey: tempKey,
+      baseNonce: tempNonce,
+    );
+    final target = await _migrationFile(task, replacementId);
+    final temporary = File('${target.path}.part-${_newUuid()}');
+    await temporary.writeAsBytes(stage.ciphertext, flush: true);
+    _requireSession(task.userId);
+    await temporary.rename(target.path);
+    _requireSession(task.userId);
+    if (!await _repo.commitLegacyMigration(
+      task,
+      replacementId,
+      target.path,
+      isCurrent: () => _sessionGuard(task.userId),
+    )) {
+      // Another recovery may already have committed the same deterministic replacement.
+      final replacement = await _repo.find(replacementId);
+      if (replacement == null ||
+          replacement.userId != task.userId ||
+          replacement.lastError !=
+              AttachmentUploadTaskRepo.legacyMigrationMarker(task)) {
+        throw StateError('legacy migration commit failed');
+      }
+      // A late writer must not recreate staging after the replacement advanced.
+      if (replacement.uploadPath != target.path && await target.exists()) {
+        await target.delete();
+      }
+    }
+    await _cleanupMigrationParts(target);
+    await legacyMigrationCommittedBarrier?.call(replacementId);
+    _requireSession(task.userId);
+    final replacement = await _repo.find(replacementId);
+    if (replacement == null) throw StateError('legacy replacement missing');
+    await _cleanupLegacyPlainSource(replacement);
+    return replacementId;
+  }
+
+  AttachmentDescriptor _sourceDescriptor(
+    AttachmentUploadTask task,
+    Map<String, String> material,
+  ) {
+    final key = Uint8List.fromList(base64Decode(material['content_key']!));
+    if (key.length != 32) throw LostCipherMaterialError(task.id);
+    final chunkSize = AttachmentEncryptor.defaultChunkSize;
+    return AttachmentDescriptor(
+      attachmentId: 'source-${task.id}',
+      objectKey: 'source/${task.id}',
+      contentKey: _migrationKey(key, task.id, 'source-cache-key', 32),
+      cipher: AttachmentDescriptor.supportedCipher,
+      chunkSize: chunkSize,
+      chunkCount: AttachmentDescriptor.expectedChunkCount(
+        task.plainSize,
+        chunkSize,
+      ),
+      baseNonce: _migrationKey(key, task.id, 'source-cache-nonce', 12),
+      plainSize: task.plainSize,
+      plainSha256: _hexDecode(task.plainSha256),
+      mime: task.mime,
+      name: task.fileName,
+    );
+  }
+
+  Future<Uint8List> _readEncryptedSource(
+    AttachmentUploadTask task,
+    Map<String, String> material,
+    File file,
+  ) async {
+    final bytes = await file.readAsBytes();
+    _requireSession(task.userId);
+    return AttachmentEncryptor.open(
+      ciphertext: bytes,
+      descriptor: _sourceDescriptor(task, material),
+      bindingHash: _hexDecode(task.bindingHash!),
+    );
+  }
+
+  Future<AttachmentUploadTask?> _recoverEncryptedSource(
+    AttachmentUploadTask task,
+    Map<String, String> material,
+  ) async {
+    final target = File('${(await _cacheFile(task)).path}.source.enc');
+    final candidates = <File>[];
+    if (await target.exists()) candidates.add(target);
+    await for (final entry in target.parent.list()) {
+      if (entry is File && entry.path.startsWith('${target.path}.part-')) {
+        candidates.add(entry);
+      }
+    }
+    for (final candidate in candidates) {
+      try {
+        final source = await _readEncryptedSource(task, material, candidate);
+        if (source.length != task.plainSize ||
+            sha256.convert(source).toString() != task.plainSha256) {
+          continue;
+        }
+        _requireSession(task.userId);
+        if (candidate.path != target.path) await candidate.rename(target.path);
+        _requireSession(task.userId);
+        if (!await _repo.advanceStage(
+          task.id,
+          task.stage,
+          task.stage,
+          userId: task.userId,
+          uploadPath: target.path,
+        )) {
+          throw StateError('source recovery checkpoint failed');
+        }
+        await _cleanupMigrationParts(target);
+        return task.copyWith(uploadPath: target.path);
+      } on AttachmentSealException {
+        // A crash may leave an incomplete encrypted part; never trust it.
+      } on FileSystemException {
+        // A concurrent recovery can move an encrypted part; try the next one.
+      }
+    }
+    return null;
+  }
+
   Future<void> _cacheSource(AttachmentUploadTask task, Uint8List bytes) async {
-    final file = File('${(await _cacheFile(task)).path}.source');
-    final temporary = File('${file.path}.tmp');
+    final encrypted = task.cipher != null;
+    final base = (await _cacheFile(task)).path;
+    final file = File('$base.source${encrypted ? '.enc' : ''}');
+    final temporary = File('${file.path}.part-${_newUuid()}');
+    Uint8List output = bytes;
+    if (encrypted) {
+      final material = await _loadMaterials(task);
+      if (material == null || material['content_key'] == null) {
+        throw LostCipherMaterialError(task.id);
+      }
+      final descriptor = _sourceDescriptor(task, material);
+      output = AttachmentEncryptor.seal(
+        plaintext: bytes,
+        bindingHash: _hexDecode(task.bindingHash!),
+        attachmentId: descriptor.attachmentId,
+        objectKey: descriptor.objectKey,
+        mime: descriptor.mime,
+        name: descriptor.name,
+        contentKey: descriptor.contentKey,
+        baseNonce: descriptor.baseNonce,
+        chunkSize: descriptor.chunkSize,
+      ).ciphertext;
+    }
     Future<void> write() async {
       _requireSession(task.userId);
-      await temporary.writeAsBytes(bytes, flush: true);
+      await temporary.writeAsBytes(output, flush: true);
       _requireSession(task.userId);
       await temporary.rename(file.path);
       if (!await _repo.advanceStage(
@@ -237,11 +597,11 @@ class ResumableAttachmentUploader {
       )) {
         throw StateError('source checkpoint failed');
       }
+      await _cleanupMigrationParts(file);
     }
 
     Future<void> discard() async {
       if (await temporary.exists()) await temporary.delete();
-      if (await file.exists()) await file.delete();
     }
 
     if (cacheWriter != null) {
@@ -258,12 +618,14 @@ class ResumableAttachmentUploader {
 
   Future<void> _cacheUpload(
     AttachmentUploadTask task,
-    UploadCheckpoint event,
-  ) async {
+    UploadCheckpoint event, {
+    String? expectedKeyRef,
+  }) async {
     if (event.uploadBytes == null) {
       throw StateError('upload checkpoint missing bytes');
     }
-    final file = await _cacheFile(task);
+    final base = await _cacheFile(task);
+    final file = File('${base.path}.material-${_newUuid()}');
     final temporary = File('${file.path}.tmp');
     Future<void> write() async {
       _requireSession(task.userId);
@@ -277,17 +639,25 @@ class ResumableAttachmentUploader {
         userId: task.userId,
         uploadPath: file.path,
         ciphertextSha256: event.ciphertextSha256,
+        expectedKeyRef: expectedKeyRef,
       )) {
         throw StateError('upload cache checkpoint failed');
       }
       _requireSession(task.userId);
-      final source = File('${file.path}.source');
+      final source = File('${base.path}.source');
       if (await source.exists()) await source.delete();
+      final encryptedSource = File('${base.path}.source.enc');
+      if (await encryptedSource.exists()) await encryptedSource.delete();
+      await _cleanupMigrationParts(encryptedSource);
+      if (task.lastError?.startsWith('legacy_migrated:') ?? false) {
+        final migration = await _migrationFile(task, task.id);
+        if (await migration.exists()) await migration.delete();
+        await _cleanupMigrationParts(migration);
+      }
     }
 
     Future<void> discard() async {
       if (await temporary.exists()) await temporary.delete();
-      if (await file.exists()) await file.delete();
     }
 
     if (cacheWriter != null) {
@@ -320,6 +690,7 @@ class ResumableAttachmentUploader {
         final uploader = ResumableAttachmentUploader();
         // 单阶段故障不阻挡已经确认的业务 outbox；账号切换仍停止整轮。
         for (final recover in <Future<void> Function()>[
+          () => ServerAckReceipts.restoreDurable(uid, uploader._generation),
           () async {
             await uploader.resumeAll(uid);
           },
@@ -334,6 +705,14 @@ class ResumableAttachmentUploader {
             debugPrint(
               '[attachment_upload] recovery phase blocked; checkpoints retained',
             );
+          }
+        }
+        uploader._requireSession(uid);
+        if (await uploader.repo.hasUnrecoverableNonChat(uid)) {
+          uploader._requireSession(uid);
+          final context = navigatorKey.currentContext;
+          if (context != null && context.mounted) {
+            AppLoading.showError(t.common.legacyUploadReturnToOriginalPage);
           }
         }
       } on Object {
@@ -355,12 +734,15 @@ class ResumableAttachmentUploader {
       if (intent['author_id'] != uid || intent['state'] == 'committed') {
         continue;
       }
-      if (intent['state'] == 'outbox_ready') continue;
+      if (intent['state'] == 'outbox_ready' ||
+          intent['state'] == 'dispatch_reserved_v2') {
+        continue;
+      }
       if (intent['state'] == 'uploading' &&
           intent['message_template'] != null) {
         continue;
       }
-      if (intent['message'] == null) {
+      if (intent['message'] == null && intent['message_template'] == null) {
         await _repo.saveBusinessIntent(
           row.anchorMsgId!,
           uid,
@@ -378,6 +760,35 @@ class ResumableAttachmentUploader {
         messageId: row.anchorMsgId!,
       );
       _requireSession(uid);
+      if ({'dispatch_intent', 'commit_unknown'}.contains(intent['state'])) {
+        final changed = committed
+            ? await _repo.reconcileOutboxCommitted(
+                row.anchorMsgId!,
+                uid,
+                isCurrent: () => _sessionGuard(uid),
+              )
+            : await _repo.markOutboxUnknown(
+                row.anchorMsgId!,
+                uid,
+                type,
+                isCurrent: () => _sessionGuard(uid),
+              );
+        if (changed && committed) {
+          final messages = MessageRepo(
+            tableName: MessageRepo.getTableName(type.toUpperCase()),
+          );
+          final message = await messages.find(row.anchorMsgId!);
+          if (message != null && _sessionGuard(uid)) {
+            ServerAckReceipts.announceVerified(
+              message: message,
+              ownerUid: uid,
+              generation: _generation,
+              isCurrent: () => _sessionGuard(uid),
+            );
+          }
+        }
+        continue;
+      }
       if (committed) {
         final repo = MessageRepo(
           tableName: MessageRepo.getTableName(type.toUpperCase()),
@@ -412,7 +823,11 @@ class ResumableAttachmentUploader {
       if (row.anchorMsgId == null || !seen.add(row.anchorMsgId!)) continue;
       final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
       if (intent['author_id'] != uid ||
-          !{'uploading', 'outbox_ready'}.contains(intent['state'])) {
+          !{
+            'uploading',
+            'outbox_ready',
+            'dispatch_reserved_v2',
+          }.contains(intent['state'])) {
         continue;
       }
       try {
@@ -529,16 +944,6 @@ class ResumableAttachmentUploader {
         }
         return existing.id;
       }
-      if (existing.stage == AttachmentUploadStage.pending &&
-          existing.objectKey == null &&
-          _externalSeal?.thumbDescriptor != null) {
-        final material = await _loadMaterials(existing);
-        if (material == null) throw LostCipherMaterialError(existing.id);
-        await _keys.write(existing.keyRef ?? existing.id, {
-          ...material,
-          'thumb': jsonEncode(_externalSeal!.thumbDescriptor!.toMap()),
-        });
-      }
       if (existing.stage == AttachmentUploadStage.confirmed) {
         if (encrypt && _externalSeal != null) {
           final material = await _loadMaterials(existing);
@@ -616,8 +1021,6 @@ class ResumableAttachmentUploader {
         'base_nonce': base64Encode(AttachmentEncryptor.randomBaseNonce()),
         'attachment_id': _externalSeal?.attachmentId ?? task.id,
         'chunk_size': (_externalSeal?.chunkSize ?? chunkSize).toString(),
-        if (_externalSeal?.thumbDescriptor != null)
-          'thumb': jsonEncode(_externalSeal!.thumbDescriptor!.toMap()),
       });
     }
     _requireSession(userId);
@@ -676,10 +1079,113 @@ class ResumableAttachmentUploader {
   }) async {
     _requireSession(userId);
     final rows = await _repo.listResumable(userId);
+    final scheduled = rows.map((row) => row.id).toSet();
     final ok = <String>[];
-    for (final row in rows) {
+    Future<void> scheduleReplacement(String id) async {
       _requireSession(userId);
+      if (scheduled.contains(id)) return;
+      final replacement = await _repo.find(id);
+      _requireSession(userId);
+      if (replacement != null &&
+          replacement.userId == userId &&
+          !replacement.stage.isTerminal) {
+        scheduled.add(id);
+        rows.add(replacement);
+      }
+    }
+
+    Future<void> scheduleVideoDependent(AttachmentUploadTask thumb) async {
+      if (!thumb.mime.startsWith('image/') ||
+          thumb.anchorMsgId == null ||
+          !(thumb.lastError?.startsWith('legacy_migrated:') ?? false)) {
+        return;
+      }
+      final group = await _repo.findByAnchor(thumb.anchorMsgId!, userId);
+      for (final row in group) {
+        if (row.mime.startsWith('video/') &&
+            !row.stage.isTerminal &&
+            (row.lastError == 'legacy_reselect' ||
+                (row.lastError?.startsWith('legacy_migrating:') ?? false))) {
+          await scheduleReplacement(row.id);
+        }
+      }
+    }
+
+    for (var index = 0; index < rows.length; index++) {
+      var row = rows[index];
+      scheduled.remove(row.id);
+      _requireSession(userId);
+      if (row.lastError == 'legacy_outbox_check' ||
+          row.lastError == 'legacy_return_page') {
+        continue;
+      }
+      if (row.mime.startsWith('video/') &&
+          row.cipher != null &&
+          row.stage == AttachmentUploadStage.pending &&
+          row.objectKey == null &&
+          row.anchorMsgId != null &&
+          row.lastError != 'legacy_reselect' &&
+          !(row.lastError?.startsWith('legacy_migrating:') ?? false) &&
+          !(row.lastError?.startsWith('legacy_migrated:') ?? false)) {
+        try {
+          if (await _repo.legacyOutboxMayExist(row)) {
+            await _repo.setRecoveryReason(row, 'legacy_outbox_check');
+            continue;
+          }
+          final group = await _repo.findByAnchor(row.anchorMsgId!, userId);
+          final thumbs = group
+              .where((r) => r.id != row.id && r.mime.startsWith('image/'))
+              .toList();
+          if (group.length != 2 ||
+              thumbs.length != 1 ||
+              thumbs.single.stage != AttachmentUploadStage.confirmed ||
+              thumbs.single.objectKey == null) {
+            continue;
+          }
+          final thumb = thumbs.single;
+          final state = await DirectAttachmentApi.strictStatus(
+            objectKey: thumb.objectKey!,
+            sessionFn: directSessionFn,
+          );
+          _requireSession(userId);
+          if (state == null) {
+            if (await _repo.setRecoveryReason(row, 'legacy_reselect')) {
+              final current = await _repo.find(row.id);
+              if (current != null) {
+                final replacementId = await _prepareLegacyMigration(current);
+                if (replacementId != null) {
+                  await scheduleReplacement(replacementId);
+                }
+              }
+            }
+            continue;
+          }
+          if (state != 'CONFIRMED') continue;
+        } on Object {
+          _requireSession(userId);
+          continue;
+        }
+      }
+      if (row.lastError == 'legacy_reselect' ||
+          (row.lastError?.startsWith('legacy_migrating:') ?? false)) {
+        try {
+          final replacementId = await _prepareLegacyMigration(row);
+          if (replacementId != null) await scheduleReplacement(replacementId);
+        } on LegacyOutboxConflict {
+          _requireSession(userId);
+          final current = await _repo.find(row.id);
+          if (current != null &&
+              !current.stage.isTerminal &&
+              !(current.lastError?.startsWith('legacy_migrating:') ?? false)) {
+            await _repo.setRecoveryReason(current, 'legacy_outbox_check');
+          }
+        } on Object {
+          _requireSession(userId);
+        }
+        continue;
+      }
       try {
+        await _cleanupLegacyPlainSource(row);
         final materials = await _loadMaterials(row);
         if (bytesProvider != null) {
           final bytes = await bytesProvider(row);
@@ -695,24 +1201,76 @@ class ResumableAttachmentUploader {
               sessionFn: sessionFn,
             ),
           );
+          await scheduleVideoDependent(row);
           continue;
         }
+        if ((row.uploadPath == null || !await File(row.uploadPath!).exists()) &&
+            row.cipher != null &&
+            materials != null &&
+            (row.stage == AttachmentUploadStage.pending ||
+                row.stage == AttachmentUploadStage.presigned)) {
+          final recovered = await _recoverEncryptedSource(row, materials);
+          if (recovered != null) row = recovered;
+        }
         if (row.uploadPath == null || !await File(row.uploadPath!).exists()) {
-          // 无恢复字节时不能新建能力或复用旧 key；用户必须显式新任务。
-          await _repo.abandon(
-            row.id,
-            userId,
-            'upload cache lost; new task and key required',
-          );
+          // Migrated keys still need their marker to reconstruct from the old key.
+          if (!(row.lastError?.startsWith('legacy_migrated:') ?? false)) {
+            await _repo.abandon(
+              row.id,
+              userId,
+              'upload cache lost; new task and key required',
+            );
+          }
           continue;
         }
         final cachePath = (await _cacheFile(row)).path;
-        if (row.uploadPath == '$cachePath.source') {
+        final migrationPath = (await _migrationFile(row, row.id)).path;
+        if (row.uploadPath == migrationPath &&
+            (row.lastError?.startsWith('legacy_migrated:') ?? false)) {
+          if (materials?['migration_descriptor'] == null) {
+            throw LostCipherMaterialError(row.id);
+          }
+          final descriptor = AttachmentDescriptor.fromMap(
+            jsonDecode(materials!['migration_descriptor']!)
+                as Map<String, dynamic>,
+          );
+          final sealed = await File(migrationPath).readAsBytes();
+          final source = AttachmentEncryptor.open(
+            ciphertext: sealed,
+            descriptor: descriptor,
+            bindingHash: _hexDecode(row.bindingHash!),
+          );
+          if (source.length != row.plainSize ||
+              sha256.convert(source).toString() != row.plainSha256) {
+            throw LostCipherMaterialError(row.id);
+          }
+          ok.add(
+            await _runWithMaterials(
+              row,
+              materials,
+              bytes: source,
+              presignFn: presignFn,
+              putFn: putFn,
+              confirmFn: confirmFn,
+              sessionFn: sessionFn,
+            ),
+          );
+          await scheduleVideoDependent(row);
+          continue;
+        }
+        if (row.uploadPath == '$cachePath.source' ||
+            row.uploadPath == '$cachePath.source.enc') {
           if (row.stage != AttachmentUploadStage.pending &&
               row.stage != AttachmentUploadStage.presigned) {
             throw LostCipherMaterialError(row.id);
           }
-          final source = await File(row.uploadPath!).readAsBytes();
+          final source = row.uploadPath == '$cachePath.source.enc'
+              ? await _readEncryptedSource(
+                  row,
+                  materials!,
+                  File(row.uploadPath!),
+                )
+              : await File(row.uploadPath!).readAsBytes();
           if (sha256.convert(source).toString() != row.plainSha256) {
             throw LostCipherMaterialError(row.id);
           }
@@ -730,7 +1288,6 @@ class ResumableAttachmentUploader {
               ...sourceMaterial,
               'thumb': thumbMaterial!['descriptor']!,
             };
-            await _keys.write(row.keyRef ?? row.id, sourceMaterial);
           }
           ok.add(
             await _runWithMaterials(
@@ -743,9 +1300,11 @@ class ResumableAttachmentUploader {
               sessionFn: sessionFn,
             ),
           );
+          await scheduleVideoDependent(row);
           continue;
         }
-        if (row.uploadPath != cachePath) {
+        if (row.uploadPath != cachePath &&
+            !(row.uploadPath?.startsWith('$cachePath.material-') ?? false)) {
           throw LostCipherMaterialError(row.id);
         }
         final cached = await File(row.uploadPath!).readAsBytes();
@@ -785,20 +1344,55 @@ class ResumableAttachmentUploader {
             sessionFn: sessionFn,
           ),
         );
+        await scheduleVideoDependent(row);
+      } on LegacyUploadConflict {
+        _requireSession(userId);
+        final current = await _repo.find(row.id);
+        if (current != null &&
+            !current.stage.isTerminal &&
+            !(current.lastError?.startsWith('legacy_migrated:') ?? false)) {
+          final reason = current.businessIntent == null
+              ? 'legacy_return_page'
+              : await _repo.legacyOutboxMayExist(current)
+              ? 'legacy_outbox_check'
+              : 'legacy_reselect';
+          _requireSession(userId);
+          await _repo.setRecoveryReason(current, reason);
+          if (reason == 'legacy_reselect') {
+            try {
+              final latest = await _repo.find(current.id);
+              if (latest != null &&
+                  (latest.lastError == 'legacy_reselect' ||
+                      (latest.lastError?.startsWith('legacy_migrating:') ??
+                          false))) {
+                final replacementId = await _prepareLegacyMigration(latest);
+                if (replacementId != null) {
+                  await scheduleReplacement(replacementId);
+                }
+              }
+            } on Object {
+              _requireSession(userId);
+            }
+          }
+        }
       } on LostCipherMaterialError {
         _requireSession(userId);
-        await _repo.abandon(
-          row.id,
-          userId,
-          'cipher material lost; new task and key required',
-        );
+        if (!(row.lastError?.startsWith('legacy_migrated:') ?? false)) {
+          await _repo.abandon(
+            row.id,
+            userId,
+            'cipher material lost; new task and key required',
+          );
+        }
       } on UploadSessionRejected {
         _requireSession(userId);
-        await _repo.abandon(
-          row.id,
-          userId,
-          'upload session rejected; new task required',
-        );
+        if (!(row.lastError?.startsWith('legacy_migrated:') ?? false)) {
+          await _repo.abandon(
+            row.id,
+            userId,
+            'upload session rejected; new task required',
+          );
+        }
       } on Object {
         _requireSession(userId);
         // 保留原身份、密文和实际已落盘阶段；下一轮重试，不阻塞其它任务。
@@ -807,12 +1401,9 @@ class ResumableAttachmentUploader {
         if (current != null &&
             current.userId == userId &&
             !current.stage.isTerminal) {
-          await _repo.advanceStage(
-            row.id,
-            current.stage,
-            current.stage,
-            userId: userId,
-            lastError: 'upload recovery failed; original checkpoint retained',
+          await _repo.setRecoveryReason(
+            current,
+            'upload recovery failed; original checkpoint retained',
           );
         }
       }
@@ -820,10 +1411,88 @@ class ResumableAttachmentUploader {
     return ok;
   }
 
-  Future<Map<String, String>?> _loadMaterials(AttachmentUploadTask task) =>
-      task.cipher != null
-      ? _keys.read(task.keyRef ?? task.id)
-      : Future.value(null);
+  Future<String> _videoThumbDescriptor(AttachmentUploadTask task) async {
+    if (task.anchorMsgId == null) throw LostCipherMaterialError(task.id);
+    final group = await _repo.findByAnchor(task.anchorMsgId!, task.userId);
+    final thumbs = group
+        .where((row) => row.id != task.id && row.mime.startsWith('image/'))
+        .toList();
+    if (group.length != 2 || thumbs.length != 1) {
+      throw LostCipherMaterialError(task.id);
+    }
+    final thumb = thumbs.single;
+    if (thumb.stage != AttachmentUploadStage.confirmed ||
+        !(thumb.lastError?.startsWith('legacy_migrated:') ?? false) ||
+        thumb.objectKey == null ||
+        thumb.ciphertextSha256 == null) {
+      throw LostCipherMaterialError(task.id);
+    }
+    final material = await _loadMaterials(thumb);
+    _requireSession(task.userId);
+    final raw = material?['descriptor'];
+    if (raw == null) throw LostCipherMaterialError(task.id);
+    final descriptor = AttachmentDescriptor.fromMap(
+      jsonDecode(raw) as Map<String, dynamic>,
+    );
+    if (descriptor.objectKey != thumb.objectKey ||
+        descriptor.plainSize != thumb.plainSize ||
+        descriptor.mime != thumb.mime ||
+        descriptor.name != thumb.fileName ||
+        base64Encode(descriptor.plainSha256) !=
+            base64Encode(_hexDecode(thumb.plainSha256))) {
+      throw LostCipherMaterialError(task.id);
+    }
+    return raw;
+  }
+
+  Future<String?> _prepareLegacyMigration(AttachmentUploadTask task) async {
+    if (!task.mime.startsWith('video/')) return _migrateLegacy(task);
+    if (task.anchorMsgId == null) throw LostCipherMaterialError(task.id);
+    final group = await _repo.findByAnchor(task.anchorMsgId!, task.userId);
+    final thumbs = group
+        .where((row) => row.id != task.id && row.mime.startsWith('image/'))
+        .toList();
+    if (group.length != 2 || thumbs.length != 1) {
+      throw LostCipherMaterialError(task.id);
+    }
+    final thumb = thumbs.single;
+    if (thumb.stage != AttachmentUploadStage.confirmed) return null;
+    if (!(thumb.lastError?.startsWith('legacy_migrated:') ?? false)) {
+      return _migrateLegacy(thumb, allowConfirmedVideoThumb: true);
+    }
+    await _videoThumbDescriptor(task);
+    return _migrateLegacy(task);
+  }
+
+  Future<Map<String, String>?> _loadMaterials(AttachmentUploadTask task) async {
+    if (task.cipher == null) return null;
+    final material = await _keys.read(task.keyRef ?? task.id);
+    if (material != null) return material;
+    final marker = task.lastError;
+    if (marker == null || !marker.startsWith('legacy_migrated:')) return null;
+    try {
+      final encoded = marker.substring('legacy_migrated:'.length);
+      final decoded = jsonDecode(utf8.decode(base64Url.decode(encoded)));
+      if (decoded is! Map ||
+          decoded['key_ref'] is! String ||
+          decoded['id'] is! String) {
+        return null;
+      }
+      final old = await _keys.read(decoded['key_ref'] as String);
+      if (old == null || old['content_key'] == null) return null;
+      final effective = task.mime.startsWith('video/')
+          ? {...old, 'thumb': await _videoThumbDescriptor(task)}
+          : old;
+      return _derivedMigrationMaterial(
+        task,
+        task.id,
+        effective,
+        finalObjectKey: task.objectKey,
+      );
+    } on Object {
+      return null;
+    }
+  }
 
   Future<String> _run(
     AttachmentUploadTask task,
@@ -870,9 +1539,67 @@ class ResumableAttachmentUploader {
     PutFn? putFn,
     ConfirmFn? confirmFn,
     Future<void> Function(UploadCheckpoint event)? checkpoint,
-  }) {
+  }) async {
     _requireSession(task.userId);
     final encrypted = task.cipher != null;
+    if (encrypted &&
+        task.mime.startsWith('video/') &&
+        task.stage == AttachmentUploadStage.pending &&
+        task.objectKey == null &&
+        task.anchorMsgId != null &&
+        task.businessIntent != null) {
+      if (await _repo.legacyOutboxMayExist(task)) {
+        await _repo.setRecoveryReason(task, 'legacy_outbox_check');
+        throw StateError('video outbox state is uncertain');
+      }
+      final group = await _repo.findByAnchor(task.anchorMsgId!, task.userId);
+      final thumbs = group
+          .where((r) => r.id != task.id && r.mime.startsWith('image/'))
+          .toList();
+      if (group.length != 2 ||
+          thumbs.length != 1 ||
+          thumbs.single.stage != AttachmentUploadStage.confirmed ||
+          thumbs.single.objectKey == null) {
+        throw StateError('video thumbnail is not confirmed');
+      }
+      final thumb = thumbs.single;
+      final state = await DirectAttachmentApi.strictStatus(
+        objectKey: thumb.objectKey!,
+        sessionFn: directSessionFn,
+      );
+      _requireSession(task.userId);
+      if (state == null) {
+        await _repo.setRecoveryReason(task, 'legacy_reselect');
+        throw StateError('legacy thumbnail requires migration');
+      }
+      if (state != 'CONFIRMED') {
+        throw StateError('thumbnail status not confirmed');
+      }
+      final proposedThumb = _externalSeal?.thumbDescriptor;
+      final rawThumb =
+          materials?['thumb'] ??
+          (proposedThumb == null ? null : jsonEncode(proposedThumb.toMap()));
+      final thumbMaterials = await _loadMaterials(thumb);
+      _requireSession(task.userId);
+      final actualThumb = thumbMaterials?['descriptor'];
+      if (rawThumb == null || actualThumb == null) {
+        throw StateError('video thumbnail descriptor unavailable');
+      }
+      final savedDescriptor = AttachmentDescriptor.fromMap(
+        jsonDecode(rawThumb) as Map<String, dynamic>,
+      );
+      final confirmedDescriptor = AttachmentDescriptor.fromMap(
+        jsonDecode(actualThumb) as Map<String, dynamic>,
+      );
+      if (savedDescriptor.objectKey != thumb.objectKey ||
+          jsonEncode(savedDescriptor.toMap()) !=
+              jsonEncode(confirmedDescriptor.toMap())) {
+        throw StateError('video thumbnail descriptor changed');
+      }
+      if (materials != null && materials['thumb'] == null) {
+        materials = {...materials, 'thumb': rawThumb};
+      }
+    }
     if (task.stage.isTerminal) {
       throw StateError('terminal upload cannot resume');
     }
@@ -963,6 +1690,9 @@ class ResumableAttachmentUploader {
                     )),
       resume: resumeState,
       checkpoint: pipeline,
+      requireSession: () => _requireSession(task.userId),
+      directSessionFn: directSessionFn,
+      directPutFn: directPutFn,
       persistTask: false,
     );
   }
@@ -986,22 +1716,41 @@ class ResumableAttachmentUploader {
         }
       case UploadCheckpointStage.sealed:
         if (stage == AttachmentUploadStage.putDone) return;
+        String? materialRef;
         if (event.contentKey != null &&
             event.contentKey!.isNotEmpty &&
             event.baseNonce != null &&
             event.baseNonce!.isNotEmpty) {
           // 材料落安全存储必须先于密文上网络（fail-closed）。
-          await _keys.write(task.keyRef ?? task.id, {
-            ...?await _loadMaterials(task),
-            'content_key': base64Encode(event.contentKey!),
-            'base_nonce': base64Encode(event.baseNonce!),
-            if (event.descriptor != null)
-              'descriptor': jsonEncode(event.descriptor!.toMap()),
-            if (event.descriptor?.thumb != null)
-              'thumb': jsonEncode(event.descriptor!.thumb!.toMap()),
-          });
+          final ref = task.keyRef ?? task.id;
+          final stored = await _keys.read(ref);
+          final descriptor = event.descriptor == null
+              ? null
+              : jsonEncode(event.descriptor!.toMap());
+          if (stored?['descriptor'] != null) {
+            if (stored!['descriptor'] != descriptor ||
+                stored['content_key'] != base64Encode(event.contentKey!) ||
+                stored['base_nonce'] != base64Encode(event.baseNonce!)) {
+              throw StateError('sealed material changed for ${task.id}');
+            }
+            materialRef = ref;
+          } else {
+            final nextRef = '${task.id}:material:${_newUuid()}';
+            materialRef = nextRef;
+            await _keys.write(nextRef, {
+              ...?await _loadMaterials(task),
+              'content_key': base64Encode(event.contentKey!),
+              'base_nonce': base64Encode(event.baseNonce!),
+              'descriptor': ?descriptor,
+              if (event.descriptor?.thumb != null)
+                'thumb': jsonEncode(event.descriptor!.thumb!.toMap()),
+            });
+            if (!await _repo.publishMaterialReference(task, nextRef)) {
+              throw StateError('material reference CAS failed for ${task.id}');
+            }
+          }
         }
-        await _cacheUpload(task, event);
+        await _cacheUpload(task, event, expectedKeyRef: materialRef);
       case UploadCheckpointStage.putDone:
         // 事件顺序保证 presigned 检查点已把行推进到 presigned
         // （恢复 put_done 行走 skipPut 不触发本分支）。

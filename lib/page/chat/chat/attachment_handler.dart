@@ -3,6 +3,7 @@
 /// 负责处理所有附件相关的上传、选择和消息创建逻辑
 library;
 
+import 'dart:async' show unawaited;
 import 'dart:convert' show jsonDecode;
 import 'dart:io';
 import 'dart:typed_data';
@@ -14,6 +15,7 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show AssetEntity, AssetType;
 import 'package:file_picker/file_picker.dart';
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/page/chat/chat/legacy_upload_recovery.dart';
 import 'package:image/image.dart' as img;
 import 'package:xid/xid.dart';
 import 'package:mime/mime.dart';
@@ -232,7 +234,7 @@ class ChatAttachmentHandler {
   );
 
   /// Recovery uses the original conversation, template and sending callback.
-  Future<void> recoverPendingMessages() async {
+  Future<void> recoverPendingMessages({BuildContext? context}) async {
     final actor = UserRepoLocal.to;
     final uid = actor.currentUid;
     final generation = actor.sessionGeneration;
@@ -253,6 +255,45 @@ class ChatAttachmentHandler {
       }
       final group = await uploader.repo.findByAnchor(row.anchorMsgId!, uid);
       if (group.any((r) => r.stage != AttachmentUploadStage.confirmed)) {
+        final actionable = group
+            .where(
+              (r) => {
+                'legacy_reselect',
+                'legacy_outbox_check',
+                'upload cache lost; new task and key required',
+                'cipher material lost; new task and key required',
+              }.contains(r.lastError),
+            )
+            .toList();
+        if (context != null && context.mounted && actionable.isNotEmpty) {
+          final task = actionable.first;
+          final outboxMayExist = await uploader.repo.legacyOutboxMayExist(task);
+          if (!context.mounted || !actor.isCurrentSession(generation)) return;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!context.mounted || !actor.isCurrentSession(generation)) return;
+            unawaited(
+              showLegacyUploadRecovery(
+                context,
+                task,
+                outboxMayExist: outboxMayExist,
+                selectAndSend: () async {
+                  if (!actor.isCurrentSession(generation) ||
+                      await uploader.repo.legacyOutboxMayExist(task)) {
+                    throw const LegacyOutboxConflict();
+                  }
+                  if (!context.mounted) return;
+                  await handleFileSelection(
+                    context,
+                    legacyTask: task,
+                    legacySessionCurrent: () =>
+                        actor.isCurrentSession(generation),
+                  );
+                },
+              ),
+            );
+          });
+          return;
+        }
         AppLoading.showError('附件恢复未完成，原上传记录已保留；请保留原文件，联网后重新打开会话恢复');
         continue;
       }
@@ -525,7 +566,11 @@ class ChatAttachmentHandler {
   }
 
   /// 处理文件选择
-  Future<void> handleFileSelection(BuildContext context) async {
+  Future<void> handleFileSelection(
+    BuildContext context, {
+    AttachmentUploadTask? legacyTask,
+    bool Function()? legacySessionCurrent,
+  }) async {
     final List<PlatformFile> files;
     try {
       files = await FilePicker.pickFiles(type: FileType.any);
@@ -548,20 +593,43 @@ class ChatAttachmentHandler {
       return;
     }
     if (!context.mounted) return;
-    await uploadFile(context, files.single);
+    await uploadFile(
+      context,
+      files.single,
+      legacyTask: legacyTask,
+      legacySessionCurrent: legacySessionCurrent,
+    );
   }
 
   /// 上传文件
   ///
   /// S6：聊天文件走 Garage presign 直传（source 存 object_key，
   /// 下载经 IMBoyCacheManager.getSingleFile 异步解析）。
-  Future<void> uploadFile(BuildContext context, PlatformFile file) async {
+  Future<void> uploadFile(
+    BuildContext context,
+    PlatformFile file, {
+    AttachmentUploadTask? legacyTask,
+    bool Function()? legacySessionCurrent,
+  }) async {
     final String? path = file.path;
     if (path == null) {
       return;
     }
     try {
       final Uint8List bytes = await File(path).readAsBytes();
+      if (legacyTask != null) {
+        if (!matchesLegacyUpload(legacyTask, bytes)) {
+          AppLoading.showError(t.common.legacyUploadRecoveryMismatch);
+          return;
+        }
+        if (legacySessionCurrent?.call() != true ||
+            await ResumableAttachmentUploader().repo.legacyOutboxMayExist(
+              legacyTask,
+            ) ||
+            legacySessionCurrent?.call() != true) {
+          throw const LegacyOutboxConflict();
+        }
+      }
       final String mime = lookupMimeType(path) ?? 'application/octet-stream';
       // file_picker 4.x platform_interface: length() 可返回 null，本地路径兜底取实际大小
       final int fileSize = (await file.length()) ?? File(path).lengthSync();
@@ -617,6 +685,8 @@ class ChatAttachmentHandler {
         ),
       );
       await _sendMessage(message);
+    } on LegacyOutboxConflict {
+      rethrow;
     } on Object catch (e) {
       final p = _attachmentFailurePresentation(e);
       debugPrint('[attachment_handler] uploadFile failed, ${p.log}');

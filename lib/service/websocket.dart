@@ -1,7 +1,12 @@
+import 'package:imboy/service/server_ack_receipts.dart';
+import 'package:imboy/store/api/msg_api.dart';
+import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/app_core/feature_flags/runtime_feature_recovery.dart';
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
@@ -108,6 +113,14 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   set statusForTest(SocketStatus status) => _status = status;
 
   @visibleForTesting
+  Future<void> Function()? afterOutboxBeginForTest;
+
+  String _outboxAttemptToken() {
+    final random = Random.secure();
+    return base64UrlEncode(List<int>.generate(24, (_) => random.nextInt(256)));
+  }
+
+  @visibleForTesting
   Future<void> flushMessageQueueForTest() => _flushMessageQueue();
 
   @visibleForTesting
@@ -178,7 +191,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         session.isClearingSession) {
       return;
     }
-    sendMessage(event.message, event.messageId);
+    sendMessage(
+      event.message,
+      event.messageId,
+      dispatchClaimed: event.dispatchClaimed,
+    );
   }
 
   /// 处理强制关闭事件
@@ -349,6 +366,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
 
     final generation = ++_connectionGeneration;
+    final connectionOwner = UserRepoLocal.to.currentUid;
+    final sessionGeneration = UserRepoLocal.to.sessionGeneration;
     final completer = Completer<void>();
     _connectCompleter = completer;
     _connecting = true;
@@ -356,7 +375,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     iPrint('> ws: 开始连接 (from: $from)');
 
     WebSocketChannel? attemptChannel;
-    bool isCurrentAttempt() => generation == _connectionGeneration;
+    bool isCurrentAttempt() =>
+        generation == _connectionGeneration &&
+        connectionOwner.isNotEmpty &&
+        UserRepoLocal.to.currentUid == connectionOwner &&
+        UserRepoLocal.to.isCurrentSession(sessionGeneration);
 
     try {
       // 增强的网络连通性检查
@@ -456,7 +479,11 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       final start = DateTime.now();
 
       _wsSub = attemptChannel.stream.listen(
-        (data) => _onMessage(data),
+        (data) {
+          if (isCurrentAttempt() && identical(_channel, attemptChannel)) {
+            _onMessage(data);
+          }
+        },
         onError: _onError,
         onDone: () {
           final end = DateTime.now();
@@ -935,26 +962,13 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
   /// 统一处理消息确认（包含ACK和撤回确认）
   void _handleMessageAck(String action, String messageId, {String? reason}) {
-    final ownerUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
-    // action-ACK（撤回/编辑/表情回应等无 *_SERVER_ACK 的操作确认）：
-    // 汇入出站确认状态机的单一清除入口（MessageRetry 停重发）。
-    // CLIENT_ACK_CONFIRM/ERROR 属机制C（入站收据），不在此列。
     final normalizedAction = action.toUpperCase();
     if (normalizedAction.endsWith('_ACK') &&
         normalizedAction != 'CLIENT_ACK' &&
         normalizedAction != 'MESSAGE_EDIT_ACK' &&
         normalizedAction != 'MESSAGE_REVOKE_ACK' &&
         messageId.isNotEmpty) {
-      AppEventBus.fire(
-        RemoveFromRetryQueueRequestedEvent(
-          messageId: messageId,
-          messageType: 'UNKNOWN',
-          reason: 'ws_action_ack',
-          ownerUid: ownerUid,
-          sessionGeneration: generation,
-        ),
-      );
+      unawaited(_clearUnprotectedActionRetry(messageId));
     }
 
     // 【改进】处理CLIENT_ACK的确认消息，通知AckManager停止重试
@@ -1005,16 +1019,8 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     final bool isEditError = normalizedAction == 'MESSAGE_EDIT_ERROR';
     if (!isRevokeError && !isEditError) return;
 
-    final ownerUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
-    AppEventBus.fire(
-      RemoveFromRetryQueueRequestedEvent(
-        messageId: messageId,
-        messageType: 'UNKNOWN',
-        reason: 'ws_action_error',
-        ownerUid: ownerUid,
-        sessionGeneration: generation,
-      ),
+    unawaited(
+      _clearUnprotectedActionRetry(messageId, reason: 'ws_action_error'),
     );
     // 本地化失败类别词在前（设备测试 J18.d 以「编辑失败」文案轮询失败提示），
     // 服务端拒绝原因拼接在后直给用户（AppLoading.showBackendError 的透传语义）。
@@ -1030,6 +1036,42 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
   }
 
   /// 处理原始消息（当JSON解析失败时）
+  Future<void> _clearUnprotectedActionRetry(
+    String messageId, {
+    String reason = 'ws_action_ack',
+  }) async {
+    final actor = UserRepoLocal.to;
+    final uid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    bool current() =>
+        uid.isNotEmpty &&
+        actor.currentUid == uid &&
+        actor.isCurrentSession(generation) &&
+        !actor.isClearingSession;
+    if (!current()) return;
+    try {
+      if (!await AttachmentUploadTaskRepo().allowUnprotectedActionAck(
+            messageId,
+            uid,
+            isCurrent: current,
+          ) ||
+          !current()) {
+        return;
+      }
+      AppEventBus.fire(
+        RemoveFromRetryQueueRequestedEvent(
+          messageId: messageId,
+          messageType: 'UNKNOWN',
+          reason: reason,
+          ownerUid: uid,
+          sessionGeneration: generation,
+        ),
+      );
+    } on Object {
+      iPrint('[WS] 操作回执无法验证，保留待处理: $messageId');
+    }
+  }
+
   void _handleRawMessage(dynamic rawMessage) {
     try {
       AppEventBus.fireData({
@@ -1058,6 +1100,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
       const Duration minDelay = Duration(milliseconds: 30);
 
       int sentCount = 0;
+      final deferred = <QueuedMessage>{};
       final session = UserRepoLocal.to;
       final ownerUid = session.currentUid;
       final generation = session.sessionGeneration;
@@ -1072,16 +1115,131 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
         final queued = _messageQueue.reserveByPriority(
           eligible: (entry) =>
               !entry.quarantined &&
+              !deferred.contains(entry) &&
               entry.ownerUid == ownerUid &&
               entry.sessionGeneration == generation,
         );
         if (queued == null) break;
 
+        final selectedChannel = _channel;
+        if (selectedChannel == null) {
+          _messageQueue.releaseReservation(queued);
+          break;
+        }
+        String? attemptAnchor;
+        String? attemptToken;
+        var began = false;
+        var sinkInvoked = false;
         try {
           try {
+            dynamic decoded;
+            try {
+              decoded = jsonDecode(queued.data);
+            } on FormatException {
+              decoded = null;
+            }
+            final queuedId = decoded is Map && !_isControlAck(queued.data)
+                ? decoded['id']?.toString()
+                : null;
+            if (queuedId != null && queuedId.isNotEmpty) {
+              final uploads = AttachmentUploadTaskRepo();
+              await uploads.claimOutboxDispatch(
+                queuedId,
+                ownerUid,
+                isCurrent: current,
+              );
+              if (!current()) break;
+              attemptAnchor = queuedId;
+              attemptToken = _outboxAttemptToken();
+              final permitted = await uploads.beginOutboxSend(
+                queuedId,
+                ownerUid,
+                isCurrent: current,
+                attemptToken: attemptToken,
+              );
+              began = permitted;
+              if (permitted) await afterOutboxBeginForTest?.call();
+              if (!current()) break;
+              if (!permitted) {
+                final chatType = decoded is Map
+                    ? decoded['type']?.toString().toLowerCase()
+                    : null;
+                final peerId = decoded is Map
+                    ? decoded['to']?.toString()
+                    : null;
+                var committed = false;
+                if ((chatType == 'c2c' || chatType == 'c2g') &&
+                    peerId != null &&
+                    peerId.isNotEmpty) {
+                  try {
+                    committed = await MsgApi()
+                        .isCommitted(
+                          chatType: chatType!,
+                          peerId: peerId,
+                          messageId: queuedId,
+                        )
+                        .timeout(const Duration(seconds: 2));
+                  } on Object {
+                    committed = false;
+                  }
+                }
+                if (!current()) break;
+                if (committed &&
+                    await uploads.reconcileOutboxCommitted(
+                      queuedId,
+                      ownerUid,
+                      isCurrent: current,
+                    )) {
+                  final messages = MessageRepo(
+                    tableName: MessageRepo.getTableName(
+                      chatType!.toUpperCase(),
+                    ),
+                  );
+                  final result = await messages.find(queuedId);
+                  if (!current()) break;
+                  if (result != null) {
+                    ServerAckReceipts.announceVerified(
+                      message: result,
+                      ownerUid: ownerUid,
+                      generation: generation,
+                      isCurrent: current,
+                    );
+                  }
+                  _messageQueue.removeAccepted(queued);
+                } else {
+                  deferred.add(queued);
+                }
+                continue;
+              }
+            }
+            if (!current() ||
+                _status != SocketStatus.connected ||
+                !identical(_channel, selectedChannel)) {
+              if (began && current()) {
+                await AttachmentUploadTaskRepo().cancelUnsentOutboxAttempt(
+                  attemptAnchor!,
+                  ownerUid,
+                  attemptToken!,
+                  isCurrent: current,
+                );
+              }
+              break;
+            }
             final payload = _outboundPayload(queued.data);
-            _channel!.sink.add(payload);
+            final sink = selectedChannel.sink;
+            sinkInvoked = true;
+            sink.add(payload);
             _messageQueue.removeAccepted(queued);
+          } catch (_) {
+            if (began && !sinkInvoked && current()) {
+              await AttachmentUploadTaskRepo().cancelUnsentOutboxAttempt(
+                attemptAnchor!,
+                ownerUid,
+                attemptToken!,
+                isCurrent: current,
+              );
+            }
+            rethrow;
           } finally {
             _messageQueue.releaseReservation(queued);
           }
@@ -1240,21 +1398,113 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     }
   }
 
+  bool _isControlAck(String message) {
+    if (message.startsWith('CLIENT_ACK,')) return true;
+    try {
+      final data = jsonDecode(message);
+      return data is Map &&
+          (data['action'] == 'message_revoke_ack' ||
+              data['action'] == 'message_edit_ack');
+    } on FormatException {
+      return false;
+    }
+  }
+
+  String? _wireMessageId(String message) {
+    try {
+      final data = jsonDecode(message);
+      return data is Map ? data['id']?.toString() : null;
+    } on FormatException {
+      return null;
+    }
+  }
+
   /// 发送消息核心方法（优化版：简化确认机制）
-  Future<bool> sendMessage(String message, String? messageId) async {
+  Future<bool> sendMessage(
+    String message,
+    String? messageId, {
+    bool dispatchClaimed = false,
+  }) async {
     if (!_preMessageCheck(message)) return false;
-    final ownerUid = UserRepoLocal.to.currentUid;
-    final generation = UserRepoLocal.to.sessionGeneration;
+    final actor = UserRepoLocal.to;
+    final ownerUid = actor.currentUid;
+    final generation = actor.sessionGeneration;
+    bool current() =>
+        ownerUid.isNotEmpty &&
+        actor.currentUid == ownerUid &&
+        actor.isCurrentSession(generation) &&
+        !actor.isClearingSession;
+    final wireId = _wireMessageId(message);
+    if (dispatchClaimed && wireId != null && wireId != messageId) return false;
+    final gateId = wireId ?? messageId;
+    if (!dispatchClaimed &&
+        !_isControlAck(message) &&
+        gateId != null &&
+        gateId.isNotEmpty) {
+      try {
+        if (!await AttachmentUploadTaskRepo().claimOutboxDispatch(
+          gateId,
+          ownerUid,
+          isCurrent: current,
+        )) {
+          return false;
+        }
+      } on Object {
+        return false;
+      }
+    }
+    if (!current()) return false;
 
     if (_status == SocketStatus.connected) {
+      final selectedChannel = _channel;
+      if (selectedChannel == null) return false;
+      final hasGate =
+          !_isControlAck(message) && gateId != null && gateId.isNotEmpty;
+      final token = _outboxAttemptToken();
+      final uploads = AttachmentUploadTaskRepo();
+      var began = false;
+      var sinkInvoked = false;
       try {
+        if (hasGate) {
+          began = await uploads.beginOutboxSend(
+            gateId,
+            ownerUid,
+            isCurrent: current,
+            attemptToken: token,
+          );
+          if (!began) return false;
+          await afterOutboxBeginForTest?.call();
+        }
+        if (!current() ||
+            _status != SocketStatus.connected ||
+            !identical(_channel, selectedChannel)) {
+          if (began && current()) {
+            await uploads.cancelUnsentOutboxAttempt(
+              gateId!,
+              ownerUid,
+              token,
+              isCurrent: current,
+            );
+          }
+          return false;
+        }
         final payload = _outboundPayload(message);
-        _channel?.sink.add(payload);
+        final sink = selectedChannel.sink;
+        sinkInvoked = true;
+        sink.add(payload);
         _logMessageSent(message, messageId);
         // 出站确认/重发由 MessageRetry 状态机负责（调用方 addToRetryQueue），
         // 此处不再做本地待确认簿记。
         return true;
       } catch (e) {
+        if (began && !sinkInvoked && current()) {
+          await uploads.cancelUnsentOutboxAttempt(
+            gateId!,
+            ownerUid,
+            token,
+            isCurrent: current,
+          );
+        }
         iPrint('> ws: 消息发送失败: ${e.runtimeType}');
         await _handleSendFailure(message, messageId, ownerUid, generation);
         return false;

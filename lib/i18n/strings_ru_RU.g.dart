@@ -1678,6 +1678,13 @@ class _Translations$common$ru_RU extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => 'Результат неизвестен. Сначала проверьте чёрный список.';
 	@override String get denylistLocalNotSynced => 'Сервер обработал запрос, но локальное состояние не синхронизировано.';
 	@override String get friendConfirmResultUnknown => 'Результат подтверждения неизвестен. Сначала проверьте статус дружбы.';
+	@override String get legacyUploadRecoveryTitle => 'Восстановление вложения';
+	@override String get legacyUploadRecoveryBody => 'Исходная запись сохранится. Проверьте историю чата; если сообщение не отправлено, выберите файл для нового сообщения.';
+	@override String get legacyUploadSelectOriginal => 'Выбрать файл и отправить новое сообщение';
+	@override String get legacyUploadOutboxCheck => 'Сообщение уже может быть в очереди. Проверьте историю чата перед повторной отправкой.';
+	@override String get legacyUploadRecoveryMismatch => 'Файл не совпадает или восстановление недоступно.';
+	@override String get legacyUploadRecoveryContinues => 'Вложение восстановлено; обработка исходного сообщения продолжается.';
+	@override String get legacyUploadReturnToOriginalPage => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.';
 }
 
 // Path: complaint
@@ -4938,8 +4945,17 @@ extension on TranslationsRuRu {
 			'common.denylistResultUnknown' => 'Результат неизвестен. Сначала проверьте чёрный список.',
 			'common.denylistLocalNotSynced' => 'Сервер обработал запрос, но локальное состояние не синхронизировано.',
 			'common.friendConfirmResultUnknown' => 'Результат подтверждения неизвестен. Сначала проверьте статус дружбы.',
+			'common.legacyUploadRecoveryTitle' => 'Восстановление вложения',
+			'common.legacyUploadRecoveryBody' => 'Исходная запись сохранится. Проверьте историю чата; если сообщение не отправлено, выберите файл для нового сообщения.',
+			'common.legacyUploadSelectOriginal' => 'Выбрать файл и отправить новое сообщение',
+			'common.legacyUploadOutboxCheck' => 'Сообщение уже может быть в очереди. Проверьте историю чата перед повторной отправкой.',
+			'common.legacyUploadRecoveryMismatch' => 'Файл не совпадает или восстановление недоступно.',
+			'common.legacyUploadRecoveryContinues' => 'Вложение восстановлено; обработка исходного сообщения продолжается.',
+			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Это сообщение зашифровано сквозным шифрованием; сервер не видит его содержимое. Отправка выдержки раскроет выбранный открытый текст модераторам для проверки. Согласны?',
 			'complaint.e2eeConsentSubmit' => 'Согласен и отправить',
 			'complaint.e2eeConsentDecline' => 'Только жалоба (без содержимого)',
@@ -4947,8 +4963,6 @@ extension on TranslationsRuRu {
 			'complaintReason.harassment' => 'Преследование',
 			'complaintReason.inappropriate' => 'Неподходящий контент',
 			'complaintReason.other' => 'Другое',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => 'Заблокирован',
 			'contact.applyChanges' => 'Перезапустите приложение для применения изменений',
 			'contact.inputNewTag' => 'Введите новый тег...',
@@ -5454,6 +5468,8 @@ extension on TranslationsRuRu {
 			'main.complianceKeyInfoPinnedAt' => 'Время фиксации',
 			'main.complianceKeyInfoPinnedNone' => 'Ещё не зафиксирован (зафиксируется автоматически при следующем получении)',
 			'main.complianceKeyInfoRefreshFailed' => 'Не удалось получить. Проверьте сеть и повторите',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Открытый ключ сервера',
 			'main.complianceKeyInfoTitle' => 'Ключ комплаенс-аудита',
 			'main.e2eeErrComplianceChanged' => 'Ключ комплаенс-аудита изменён, сообщение не отправлено. Подтвердите ротацию и повторите',
@@ -5461,8 +5477,6 @@ extension on TranslationsRuRu {
 			'main.e2eeErrComplianceExpired' => 'Срок действия комплаенс-ключа истёк, обратитесь к администратору',
 			'main.complianceKeyRotationConfirmed' => 'Ротация ключа соответствия подтверждена, сообщение можно отправить повторно',
 			'main.complianceKeyRotationNoPending' => 'Нет ожидающих подтверждения изменений ключа',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => 'Безопасная инициализация этого устройства не завершена. Выйдите, войдите заново и повторите',
 			'main.e2eeErrProtocolMismatch' => 'Ненормальная конфигурация протокола шифрования. Обновите приложение и повторите',
 			'main.e2eeErrPeerSuiteUnsupported' => 'Устройство собеседника не поддерживает требуемый набор шифрования, сообщение не отправлено. Попросите собеседника обновить приложение и повторите попытку',
@@ -5968,6 +5982,8 @@ extension on TranslationsRuRu {
 			'talkRecord.aiSaveAction' => 'Сохранить на устройстве',
 			'talkRecord.aiReplaceAction' => 'Заменить ключ устройства',
 			'talkRecord.aiDeleteAction' => 'Удалить ключ устройства',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Сохранение…',
 			'talkRecord.aiSaved' => 'Сохранено на устройстве. Ключ ещё не проверен.',
 			'talkRecord.aiDeleted' => 'Настройки устройства удалены. Записи и готовые результаты сохранены.',
@@ -5975,8 +5991,6 @@ extension on TranslationsRuRu {
 			'talkRecord.aiReplaceNotice' => 'Заменяются только настройки этого сервиса для текущего аккаунта на этом устройстве. Другие аккаунты и записи не изменяются.',
 			'talkRecord.aiDeleteTitle' => 'Удалить ключ устройства?',
 			'talkRecord.aiDeleteNotice' => 'Новые запросы к сервису будут остановлены. Записи и результаты сохранятся. Уже отправленные поставщику запросы нельзя отозвать.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Отмена',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Транскрипция аудио и временные метки говорящих',

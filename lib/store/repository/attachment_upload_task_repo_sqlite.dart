@@ -1,9 +1,18 @@
+import 'package:imboy/service/server_ack_receipts.dart';
+
 import 'dart:convert';
+
+import 'package:sqflite_sqlcipher/sqflite.dart'
+    show DatabaseExecutor, ConflictAlgorithm;
 
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
+
+class LegacyOutboxConflict implements Exception {
+  const LegacyOutboxConflict();
+}
 
 /// 附件上传任务的持久化阶段（W5-01 / AC08）。
 ///
@@ -170,12 +179,55 @@ class AttachmentUploadTaskRepo {
   Future<bool> insert(AttachmentUploadTask task) async {
     final db = await _boundDb;
     if (db == null) throw StateError('upload journal database unavailable');
-    final n = await db.insert(
+    return db.transaction((tx) async {
+      await _ensureSendGate(tx);
+      if (task.anchorMsgId != null && task.anchorMsgId!.isNotEmpty) {
+        final sent = await tx.query(
+          'attachment_send_gate',
+          columns: ['anchor'],
+          where: 'user_id = ? AND anchor = ?',
+          whereArgs: [task.userId, task.anchorMsgId],
+          limit: 1,
+        );
+        if (sent.isNotEmpty) {
+          throw StateError('outbound anchor already dispatched');
+        }
+      }
+      final n = await tx.insert(
+        tableName,
+        task.toMap(),
+        conflictAlgorithm: null,
+      );
+      return n > 0;
+    });
+  }
+
+  static Future<void> _ensureSendGate(DatabaseExecutor tx) => tx.execute(
+    'CREATE TABLE IF NOT EXISTS attachment_send_gate '
+    '(user_id TEXT NOT NULL, anchor TEXT NOT NULL, PRIMARY KEY (user_id, anchor))',
+  );
+
+  Future<bool> publishMaterialReference(
+    AttachmentUploadTask task,
+    String next,
+  ) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('upload journal database unavailable');
+    final count = await db.update(
       tableName,
-      task.toMap(),
-      conflictAlgorithm: null, // 主键冲突直接抛——幂等键重复由调用方处理
+      {'key_ref': next, 'updated_at': DateTime.now().millisecondsSinceEpoch},
+      where:
+          "id = ? AND user_id = ? AND key_ref = ? AND stage IN (?, ?) "
+          "AND (last_error IS NULL OR last_error NOT LIKE 'legacy_migrating:%')",
+      whereArgs: [
+        task.id,
+        task.userId,
+        task.keyRef ?? task.id,
+        AttachmentUploadStage.pending.value,
+        AttachmentUploadStage.presigned.value,
+      ],
     );
-    return n > 0;
+    return count == 1;
   }
 
   /// CAS 阶段推进。成功返回 true；行不存在/阶段不匹配/已终态返回 false。
@@ -188,6 +240,7 @@ class AttachmentUploadTaskRepo {
     String? uploadPath,
     String? lastError,
     String? userId,
+    String? expectedKeyRef,
   }) async {
     final allowed =
         !from.isTerminal &&
@@ -211,10 +264,265 @@ class AttachmentUploadTaskRepo {
         'last_error': ?lastError,
         'updated_at': DateTime.now().millisecondsSinceEpoch,
       },
-      where: 'id = ? AND stage = ?${userId == null ? '' : ' AND user_id = ?'}',
-      whereArgs: [id, from.value, ?userId],
+      where:
+          'id = ? AND stage = ?${userId == null ? '' : ' AND user_id = ?'}'
+          '${lastError == null ? '' : " AND (last_error IS NULL OR (last_error NOT LIKE 'legacy_migrating:%' AND last_error NOT LIKE 'legacy_migrated:%'))"}'
+          '${expectedKeyRef == null ? '' : ' AND key_ref = ?'}',
+      whereArgs: [id, from.value, ?userId, ?expectedKeyRef],
     );
     return n > 0;
+  }
+
+  /// Updates a recovery reason only if no competing writer changed the row.
+  Future<bool> setRecoveryReason(
+    AttachmentUploadTask observed,
+    String reason,
+  ) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('upload journal database unavailable');
+    if (observed.lastError?.startsWith('legacy_migrating:') == true ||
+        observed.lastError?.startsWith('legacy_migrated:') == true) {
+      return false;
+    }
+    final n = await db.update(
+      tableName,
+      {
+        'last_error': reason,
+        'updated_at': DateTime.now().millisecondsSinceEpoch,
+      },
+      where:
+          'id = ? AND user_id = ? AND stage = ? AND '
+          '${observed.lastError == null ? 'last_error IS NULL' : 'last_error = ?'}',
+      whereArgs: [
+        observed.id,
+        observed.userId,
+        observed.stage.value,
+        ?observed.lastError,
+      ],
+    );
+    return n == 1;
+  }
+
+  /// 未能证明未提交时按可能已发送处理，避免自动重复发送。
+  Future<bool> legacyOutboxMayExist(AttachmentUploadTask task) async {
+    try {
+      if (task.anchorMsgId == null ||
+          task.anchorMsgId!.isEmpty ||
+          task.businessIntent == null) {
+        return true;
+      }
+      final intent = jsonDecode(task.businessIntent!);
+      if (intent is! Map ||
+          intent['state'] != 'uploading' ||
+          intent['author_id']?.toString() != task.userId ||
+          !{'c2c', 'c2g'}.contains(intent['chat_type'])) {
+        return true;
+      }
+      final db = await _boundDb;
+      if (db == null) return true;
+      final table = MessageRepo.getTableName(
+        intent['chat_type'].toString().toUpperCase(),
+      );
+      final rows = await db.query(
+        table,
+        columns: ['id'],
+        where: 'id = ?',
+        whereArgs: [task.anchorMsgId],
+        limit: 1,
+      );
+      return rows.isNotEmpty;
+    } on Object {
+      return true;
+    }
+  }
+
+  /// Reserves a replacement identity before any migration material is created.
+  /// The old row remains authoritative until [commitLegacyMigration] succeeds.
+  Future<String> reserveLegacyMigration(
+    AttachmentUploadTask task,
+    String proposedId, {
+    required bool Function() isCurrent,
+    bool allowConfirmedVideoThumb = false,
+  }) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('upload journal database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('upload account changed');
+      final rows = await tx.query(
+        tableName,
+        where: 'id = ? AND user_id = ?',
+        whereArgs: [task.id, task.userId],
+        limit: 1,
+      );
+      if (rows.length != 1) throw StateError('legacy upload no longer exists');
+      final current = AttachmentUploadTask.fromMap(rows.single);
+      if ((current.stage.isTerminal &&
+              !(allowConfirmedVideoThumb &&
+                  current.stage == AttachmentUploadStage.confirmed)) ||
+          current.stage != task.stage ||
+          current.objectKey != task.objectKey ||
+          current.keyRef != task.keyRef ||
+          current.uploadPath != task.uploadPath ||
+          current.ciphertextSha256 != task.ciphertextSha256 ||
+          current.businessIntent != task.businessIntent) {
+        throw StateError('legacy upload changed');
+      }
+      await _requireLegacyOutboxEmpty(tx, current);
+      if (current.stage == AttachmentUploadStage.confirmed) {
+        await _requireConfirmedVideoThumb(tx, current);
+      }
+      final existing = current.lastError;
+      if (existing != null && existing.startsWith('legacy_migrating:')) {
+        final id = existing.substring('legacy_migrating:'.length);
+        if (!_validMigrationId(id)) {
+          throw StateError('legacy migration identity invalid');
+        }
+        return id;
+      }
+      if (!_validMigrationId(proposedId)) {
+        throw StateError('legacy migration identity invalid');
+      }
+      final updated = await tx.update(
+        tableName,
+        {
+          'last_error': 'legacy_migrating:$proposedId',
+          'updated_at': DateTime.now().millisecondsSinceEpoch,
+        },
+        where: 'id = ? AND user_id = ? AND stage = ?',
+        whereArgs: [task.id, task.userId, task.stage.value],
+      );
+      if (updated != 1 || !isCurrent()) {
+        throw StateError('legacy migration reservation failed');
+      }
+      return proposedId;
+    });
+  }
+
+  /// Swaps the single authoritative row while preserving its intent and anchor.
+  Future<bool> commitLegacyMigration(
+    AttachmentUploadTask original,
+    String replacementId,
+    String encryptedPath, {
+    required bool Function() isCurrent,
+  }) async {
+    if (!_validMigrationId(replacementId)) {
+      throw StateError('legacy migration identity invalid');
+    }
+    final db = await _boundDb;
+    if (db == null) throw StateError('upload journal database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('upload account changed');
+      final rows = await tx.query(
+        tableName,
+        where: 'id = ? AND user_id = ?',
+        whereArgs: [original.id, original.userId],
+        limit: 1,
+      );
+      if (rows.length != 1) return false;
+      final current = AttachmentUploadTask.fromMap(rows.single);
+      if (current.stage != original.stage ||
+          current.objectKey != original.objectKey ||
+          current.keyRef != original.keyRef ||
+          current.uploadPath != original.uploadPath ||
+          current.ciphertextSha256 != original.ciphertextSha256 ||
+          current.businessIntent != original.businessIntent ||
+          current.lastError != 'legacy_migrating:$replacementId') {
+        return false;
+      }
+      await _requireLegacyOutboxEmpty(tx, current);
+      if (current.stage == AttachmentUploadStage.confirmed) {
+        await _requireConfirmedVideoThumb(tx, current);
+      }
+      final n = await tx.update(
+        tableName,
+        {
+          'id': replacementId,
+          'key_ref': replacementId,
+          'object_key': null,
+          'stage': AttachmentUploadStage.pending.value,
+          'upload_path': encryptedPath,
+          'ciphertext_sha256': null,
+          'last_error': legacyMigrationMarker(original),
+          'updated_at': DateTime.now().millisecondsSinceEpoch,
+        },
+        where: 'id = ? AND user_id = ? AND stage = ? AND last_error = ?',
+        whereArgs: [
+          original.id,
+          original.userId,
+          original.stage.value,
+          'legacy_migrating:$replacementId',
+        ],
+      );
+      if (!isCurrent()) throw StateError('upload account changed');
+      return n == 1;
+    });
+  }
+
+  static String legacyMigrationMarker(AttachmentUploadTask original) =>
+      'legacy_migrated:${base64UrlEncode(utf8.encode(jsonEncode({'id': original.id, 'key_ref': original.keyRef ?? original.id})))}';
+
+  static bool _validMigrationId(String id) => RegExp(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+    caseSensitive: false,
+  ).hasMatch(id);
+
+  Future<void> _requireConfirmedVideoThumb(
+    DatabaseExecutor tx,
+    AttachmentUploadTask thumb,
+  ) async {
+    final raw = thumb.businessIntent == null
+        ? null
+        : jsonDecode(thumb.businessIntent!);
+    if (!thumb.mime.startsWith('image/') ||
+        raw is! Map ||
+        raw['attachment_kind'] != 'video' ||
+        raw['expected_objects'] != 2) {
+      throw const LegacyOutboxConflict();
+    }
+    final rows = await tx.query(
+      tableName,
+      where: 'user_id = ? AND anchor_msg_id = ?',
+      whereArgs: [thumb.userId, thumb.anchorMsgId],
+    );
+    if (rows.length != 2) throw const LegacyOutboxConflict();
+    final other = rows
+        .map(AttachmentUploadTask.fromMap)
+        .where((row) => row.id != thumb.id)
+        .toList();
+    if (other.length != 1 ||
+        !other.single.mime.startsWith('video/') ||
+        other.single.stage.isTerminal ||
+        other.single.businessIntent != thumb.businessIntent) {
+      throw const LegacyOutboxConflict();
+    }
+  }
+
+  Future<void> _requireLegacyOutboxEmpty(
+    DatabaseExecutor tx,
+    AttachmentUploadTask task,
+  ) async {
+    final intent = task.businessIntent == null
+        ? null
+        : jsonDecode(task.businessIntent!);
+    if (task.anchorMsgId == null ||
+        task.anchorMsgId!.isEmpty ||
+        intent is! Map ||
+        intent['state'] != 'uploading' ||
+        intent['author_id']?.toString() != task.userId ||
+        !{'c2c', 'c2g'}.contains(intent['chat_type'])) {
+      throw const LegacyOutboxConflict();
+    }
+    final table = MessageRepo.getTableName(
+      intent['chat_type'].toString().toUpperCase(),
+    );
+    final rows = await tx.query(
+      table,
+      columns: ['id'],
+      where: 'id = ?',
+      whereArgs: [task.anchorMsgId],
+      limit: 1,
+    );
+    if (rows.isNotEmpty) throw const LegacyOutboxConflict();
   }
 
   Future<AttachmentUploadTask?> find(String id) async {
@@ -297,7 +605,10 @@ class AttachmentUploadTaskRepo {
         return true;
       }
       if (rows.any(
-            (r) => r['stage'] != AttachmentUploadStage.confirmed.value,
+            (r) =>
+                r['stage'] != AttachmentUploadStage.confirmed.value ||
+                (r['last_error'] as String?)?.startsWith('legacy_migrating:') ==
+                    true,
           ) ||
           intents.any((i) => i['state'] != 'uploading')) {
         return false;
@@ -314,7 +625,8 @@ class AttachmentUploadTaskRepo {
           )) {
         throw StateError('outbox upload group identity mismatch');
       }
-      await MessageRepo(tableName: table).insert(message, txn: txn);
+      await MessageRepo(tableName: table)
+          .insert(message, txn: txn, outbound: true, attachmentCommit: true);
       for (var index = 0; index < rows.length; index++) {
         await txn.update(
           tableName,
@@ -334,6 +646,35 @@ class AttachmentUploadTaskRepo {
     });
   }
 
+  /// Legacy action ACKs may clear a non-attachment retry, but never race a
+  /// protected attachment being created under the same identity.
+  Future<bool> allowUnprotectedActionAck(
+    String anchor,
+    String userId, {
+    required bool Function() isCurrent,
+  }) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('outbox database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('outbox account changed');
+      final rows = await tx.query(
+        tableName,
+        columns: ['id'],
+        where: 'anchor_msg_id = ? AND user_id = ?',
+        whereArgs: [anchor, userId],
+        limit: 1,
+      );
+      if (rows.isNotEmpty) return false;
+      await _ensureSendGate(tx);
+      await tx.insert('attachment_send_gate', {
+        'user_id': userId,
+        'anchor': anchor,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      if (!isCurrent()) throw StateError('outbox account changed');
+      return true;
+    });
+  }
+
   Future<bool> claimOutboxDispatch(
     String anchor,
     String userId, {
@@ -348,7 +689,15 @@ class AttachmentUploadTaskRepo {
         where: 'anchor_msg_id = ? AND user_id = ?',
         whereArgs: [anchor, userId],
       );
-      if (rows.isEmpty) return true;
+      if (rows.isEmpty) {
+        await _ensureSendGate(txn);
+        await txn.insert('attachment_send_gate', {
+          'user_id': userId,
+          'anchor': anchor,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        if (!isCurrent()) throw StateError('outbox account changed');
+        return true;
+      }
       final intents = rows
           .map(
             (r) =>
@@ -356,20 +705,342 @@ class AttachmentUploadTaskRepo {
                     as Map<String, dynamic>,
           )
           .toList();
-      if (intents.any((i) => i['state'] != 'outbox_ready')) return false;
+      if (intents.every((i) => i['state'] == 'dispatch_reserved_v2') &&
+          rows.every(
+            (r) =>
+                r['stage'] == AttachmentUploadStage.confirmed.value &&
+                (r['last_error'] as String?)?.startsWith('legacy_migrating:') !=
+                    true,
+          )) {
+        return true;
+      }
+      if (intents.any((i) => i['state'] != 'outbox_ready') ||
+          rows.any(
+            (r) =>
+                r['stage'] != AttachmentUploadStage.confirmed.value ||
+                (r['last_error'] as String?)?.startsWith('legacy_migrating:') ==
+                    true,
+          )) {
+        return false;
+      }
       for (var index = 0; index < rows.length; index++) {
         await txn.update(
           tableName,
           {
             'business_intent': jsonEncode({
               ...intents[index],
-              'state': 'dispatch_intent',
+              'state': 'dispatch_reserved_v2',
             }),
           },
           where: 'id = ? AND user_id = ?',
           whereArgs: [rows[index]['id'], userId],
         );
       }
+      if (!isCurrent()) throw StateError('outbox account changed');
+      return true;
+    });
+  }
+
+  /// Move a reserved dispatch to an unknown outcome immediately before I/O.
+  /// A crash at or after this transition is reconciled, never blindly resent.
+  Future<bool> beginOutboxSend(
+    String anchor,
+    String userId, {
+    required bool Function() isCurrent,
+    String? attemptToken,
+  }) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('outbox database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('outbox account changed');
+      final rows = await tx.query(
+        tableName,
+        where: 'anchor_msg_id = ? AND user_id = ?',
+        whereArgs: [anchor, userId],
+      );
+      await tx.execute(
+        'CREATE TABLE IF NOT EXISTS message_send_attempt '
+        '(user_id TEXT NOT NULL, anchor TEXT NOT NULL, token TEXT NOT NULL, '
+        'PRIMARY KEY (user_id, anchor, token))',
+      );
+      if (rows.isEmpty) {
+        if (attemptToken != null) {
+          await tx.insert('message_send_attempt', {
+            'user_id': userId,
+            'anchor': anchor,
+            'token': attemptToken,
+          }, conflictAlgorithm: ConflictAlgorithm.ignore);
+        }
+        if (!isCurrent()) throw StateError('outbox account changed');
+        return true;
+      }
+      final intents = rows
+          .map(
+            (row) =>
+                jsonDecode(row['business_intent'] as String)
+                    as Map<String, dynamic>,
+          )
+          .toList();
+      if (rows.any(
+            (row) =>
+                row['stage'] != AttachmentUploadStage.confirmed.value ||
+                (row['last_error'] as String?)?.startsWith(
+                      'legacy_migrating:',
+                    ) ==
+                    true,
+          ) ||
+          intents.any((intent) => intent['state'] != 'dispatch_reserved_v2')) {
+        return false;
+      }
+      for (var i = 0; i < rows.length; i++) {
+        await tx.update(
+          tableName,
+          {
+            'business_intent': jsonEncode({
+              ...intents[i],
+              'state': 'commit_unknown',
+              'dispatch_attempt': ?attemptToken,
+            }),
+          },
+          where: 'id = ? AND user_id = ?',
+          whereArgs: [rows[i]['id'], userId],
+        );
+      }
+      if (attemptToken != null) {
+        await tx.insert('message_send_attempt', {
+          'user_id': userId,
+          'anchor': anchor,
+          'token': attemptToken,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      }
+      if (!isCurrent()) throw StateError('outbox account changed');
+      return true;
+    });
+  }
+
+  /// Revert only our own attempt when the sink was never invoked.
+  Future<bool> cancelUnsentOutboxAttempt(
+    String anchor,
+    String userId,
+    String token, {
+    required bool Function() isCurrent,
+  }) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('outbox database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('outbox account changed');
+      final rows = await tx.query(
+        tableName,
+        where: 'anchor_msg_id = ? AND user_id = ?',
+        whereArgs: [anchor, userId],
+      );
+      if (rows.isEmpty) {
+        await tx.delete(
+          'message_send_attempt',
+          where: 'user_id = ? AND anchor = ? AND token = ?',
+          whereArgs: [userId, anchor, token],
+        );
+        return true;
+      }
+      final intents = rows
+          .map(
+            (row) =>
+                jsonDecode(row['business_intent'] as String)
+                    as Map<String, dynamic>,
+          )
+          .toList();
+      if (intents.any(
+        (intent) =>
+            intent['state'] != 'commit_unknown' ||
+            intent['dispatch_attempt'] != token,
+      )) {
+        return false;
+      }
+      for (var i = 0; i < rows.length; i++) {
+        final next = {...intents[i], 'state': 'dispatch_reserved_v2'}
+          ..remove('dispatch_attempt');
+        await tx.update(
+          tableName,
+          {'business_intent': jsonEncode(next)},
+          where: 'id = ? AND user_id = ?',
+          whereArgs: [rows[i]['id'], userId],
+        );
+      }
+      await tx.delete(
+        'message_send_attempt',
+        where: 'user_id = ? AND anchor = ? AND token = ?',
+        whereArgs: [userId, anchor, token],
+      );
+      if (!isCurrent()) throw StateError('outbox account changed');
+      return true;
+    });
+  }
+
+  Future<bool> reconcileOutboxCommitted(
+    String anchor,
+    String userId, {
+    required bool Function() isCurrent,
+  }) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('outbox database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('outbox account changed');
+      final rows = await tx.query(
+        tableName,
+        where: 'anchor_msg_id = ? AND user_id = ?',
+        whereArgs: [anchor, userId],
+      );
+      if (rows.isEmpty) return false;
+      String? chatType;
+      for (final row in rows) {
+        final intent = jsonDecode(
+          row['business_intent'] as String,
+        ) as Map<String, dynamic>;
+        final type = intent['chat_type']?.toString().toUpperCase();
+        if (row['stage'] != 'confirmed' ||
+            intent['author_id']?.toString() != userId ||
+            !{'C2C', 'C2G'}.contains(type) ||
+            (chatType != null && chatType != type) ||
+            !{
+              'dispatch_intent',
+              'commit_unknown',
+              'committed',
+            }.contains(intent['state'])) {
+          return false;
+        }
+        chatType = type;
+      }
+      final messageTable = MessageRepo.getTableName(chatType!);
+      final messages = await tx.query(
+        messageTable,
+        columns: [
+          'id',
+          'type',
+          'from_id',
+          'is_author',
+          'status',
+          'conversation_uk3',
+        ],
+        where: 'id = ?',
+        whereArgs: [anchor],
+        limit: 1,
+      );
+      if (messages.length != 1) return false;
+      final message = messages.single;
+      if (message['type'] != chatType ||
+          message['from_id'].toString() != userId ||
+          message['is_author'] != 1 ||
+          (message['conversation_uk3']?.toString().isEmpty ?? true) ||
+          !{
+            IMBoyMessageStatus.sending,
+            IMBoyMessageStatus.pendingRetry,
+            IMBoyMessageStatus.error,
+            IMBoyMessageStatus.sent,
+          }.contains(message['status'])) {
+        return false;
+      }
+      for (final row in rows) {
+        final intent = jsonDecode(
+          row['business_intent'] as String,
+        ) as Map<String, dynamic>;
+        await tx.update(
+          tableName,
+          {
+            'business_intent': jsonEncode({...intent, 'state': 'committed'}),
+          },
+          where: 'id = ? AND user_id = ?',
+          whereArgs: [row['id'], userId],
+        );
+      }
+      await tx.update(
+        messageTable,
+        {'status': IMBoyMessageStatus.sent},
+        where: 'id = ? AND from_id = ?',
+        whereArgs: [anchor, userId],
+      );
+      final tables = await tx.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+        ['crypto_outbox'],
+      );
+      if (tables.isNotEmpty) {
+        await tx.rawUpdate(
+          "UPDATE crypto_outbox SET status = 'sent', sent_at = ? WHERE id = ? AND status = 'pending'",
+          [DateTime.now().millisecondsSinceEpoch, anchor],
+        );
+      }
+      await ServerAckReceipts.persistReceipt(
+        tx,
+        userId,
+        anchor,
+        chatType,
+        message['conversation_uk3'] as String,
+      );
+      if (!isCurrent()) throw StateError('outbox account changed');
+      return true;
+    });
+  }
+
+  /// An inconclusive result must not roll a concurrent positive result back.
+  Future<bool> markOutboxUnknown(
+    String anchor,
+    String userId,
+    String chatType, {
+    required bool Function() isCurrent,
+  }) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('outbox database unavailable');
+    return db.transaction((tx) async {
+      if (!isCurrent()) throw StateError('outbox account changed');
+      final rows = await tx.query(
+        tableName,
+        where: 'anchor_msg_id = ? AND user_id = ?',
+        whereArgs: [anchor, userId],
+      );
+      if (rows.isEmpty) return false;
+      final intents = rows
+          .map(
+            (row) =>
+                jsonDecode(row['business_intent'] as String)
+                    as Map<String, dynamic>,
+          )
+          .toList();
+      if (intents.any(
+        (intent) =>
+            !{'dispatch_intent', 'commit_unknown'}.contains(intent['state']),
+      )) {
+        return false;
+      }
+      final table = MessageRepo.getTableName(chatType.toUpperCase());
+      final messages = await tx.query(
+        table,
+        columns: ['status'],
+        where: 'id = ?',
+        whereArgs: [anchor],
+        limit: 1,
+      );
+      if (messages.isNotEmpty &&
+          messages.single['status'] == IMBoyMessageStatus.sent) {
+        return false;
+      }
+      for (var i = 0; i < rows.length; i++) {
+        await tx.update(
+          tableName,
+          {
+            'business_intent': jsonEncode({
+              ...intents[i],
+              'state': 'commit_unknown',
+            }),
+          },
+          where: 'id = ? AND user_id = ?',
+          whereArgs: [rows[i]['id'], userId],
+        );
+      }
+      await tx.update(
+        table,
+        {'status': IMBoyMessageStatus.error},
+        where: 'id = ? AND status != ?',
+        whereArgs: [anchor, IMBoyMessageStatus.sent],
+      );
       if (!isCurrent()) throw StateError('outbox account changed');
       return true;
     });
@@ -398,6 +1069,8 @@ class AttachmentUploadTaskRepo {
           row['business_intent'] as String,
         ) as Map<String, dynamic>;
         if (row['stage'] != AttachmentUploadStage.confirmed.value ||
+            (row['last_error'] as String?)?.startsWith('legacy_migrating:') ==
+                true ||
             intent['state'] != 'uploading') {
           return false;
         }
@@ -456,6 +1129,25 @@ class AttachmentUploadTaskRepo {
     return rows.map(AttachmentUploadTask.fromMap).toList();
   }
 
+  Future<bool> hasUnrecoverableNonChat(String userId) async {
+    final db = await _boundDb;
+    if (db == null) throw StateError('upload journal database unavailable');
+    final rows = await db.query(
+      tableName,
+      columns: ['id'],
+      limit: 1,
+      where:
+          'user_id = ? AND business_intent IS NULL AND last_error IN (?, ?, ?)',
+      whereArgs: [
+        userId,
+        'legacy_return_page',
+        'upload cache lost; new task and key required',
+        'cipher material lost; new task and key required',
+      ],
+    );
+    return rows.isNotEmpty;
+  }
+
   /// 显式放弃（密钥材料丢失/授权撤销）：任何非终态 → abandoned。
   Future<bool> abandon(String id, String userId, String reason) async {
     final db = await _boundDb;
@@ -467,7 +1159,9 @@ class AttachmentUploadTaskRepo {
         'last_error': reason,
         'updated_at': DateTime.now().millisecondsSinceEpoch,
       },
-      where: 'id = ? AND user_id = ? AND stage NOT IN (?, ?)',
+      where:
+          'id = ? AND user_id = ? AND stage NOT IN (?, ?)'
+          " AND (last_error IS NULL OR (last_error NOT LIKE 'legacy_migrating:%' AND last_error NOT LIKE 'legacy_migrated:%'))",
       whereArgs: [
         id,
         userId,

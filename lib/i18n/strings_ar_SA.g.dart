@@ -1681,6 +1681,13 @@ class _Translations$common$ar_SA extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => 'نتيجة العملية غير معروفة. تحقق أولاً من قائمة الحظر.';
 	@override String get denylistLocalNotSynced => 'عالج الخادم الطلب، لكن الحالة المحلية غير متزامنة.';
 	@override String get friendConfirmResultUnknown => 'نتيجة تأكيد الصداقة غير معروفة. تحقّق من حالة الصداقة أولاً.';
+	@override String get legacyUploadRecoveryTitle => 'استعادة المرفق';
+	@override String get legacyUploadRecoveryBody => 'سيبقى سجل الرفع الأصلي. تحقق من سجل المحادثة أولاً؛ إذا لم تُرسل الرسالة الأصلية فاختر ملفاً لإرسال رسالة جديدة.';
+	@override String get legacyUploadSelectOriginal => 'اختيار ملف وإرسال رسالة جديدة';
+	@override String get legacyUploadOutboxCheck => 'قد تكون الرسالة في قائمة الإرسال بالفعل. تحقق من سجل المحادثة قبل إعادة الإرسال.';
+	@override String get legacyUploadRecoveryMismatch => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.';
+	@override String get legacyUploadRecoveryContinues => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.';
+	@override String get legacyUploadReturnToOriginalPage => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.';
 }
 
 // Path: complaint
@@ -4941,8 +4948,17 @@ extension on TranslationsArSa {
 			'common.denylistResultUnknown' => 'نتيجة العملية غير معروفة. تحقق أولاً من قائمة الحظر.',
 			'common.denylistLocalNotSynced' => 'عالج الخادم الطلب، لكن الحالة المحلية غير متزامنة.',
 			'common.friendConfirmResultUnknown' => 'نتيجة تأكيد الصداقة غير معروفة. تحقّق من حالة الصداقة أولاً.',
+			'common.legacyUploadRecoveryTitle' => 'استعادة المرفق',
+			'common.legacyUploadRecoveryBody' => 'سيبقى سجل الرفع الأصلي. تحقق من سجل المحادثة أولاً؛ إذا لم تُرسل الرسالة الأصلية فاختر ملفاً لإرسال رسالة جديدة.',
+			'common.legacyUploadSelectOriginal' => 'اختيار ملف وإرسال رسالة جديدة',
+			'common.legacyUploadOutboxCheck' => 'قد تكون الرسالة في قائمة الإرسال بالفعل. تحقق من سجل المحادثة قبل إعادة الإرسال.',
+			'common.legacyUploadRecoveryMismatch' => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.',
+			'common.legacyUploadRecoveryContinues' => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.',
+			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'هذه الرسالة مشفّرة من الطرف إلى الطرف ولا يمكن للخادم الاطلاع على محتواها. سيكشف تقديم مقتطف النص محتوى الرسالة المحدد للمشرفين لمراجعة البلاغ. هل توافق؟',
 			'complaint.e2eeConsentSubmit' => 'أوافق وأرسل الدليل',
 			'complaint.e2eeConsentDecline' => 'الإبلاغ فقط (بدون محتوى)',
@@ -4950,8 +4966,6 @@ extension on TranslationsArSa {
 			'complaintReason.harassment' => 'مضايقة',
 			'complaintReason.inappropriate' => 'محتوى غير لائق',
 			'complaintReason.other' => 'أخرى',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => 'تم الحظر',
 			'contact.applyChanges' => 'يرجى إعادة تشغيل التطبيق لتطبيق التغييرات',
 			'contact.inputNewTag' => 'أدخل علامة جديدة...',
@@ -5457,6 +5471,8 @@ extension on TranslationsArSa {
 			'main.e2eeErrPeerSuiteUnsupported' => 'جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
 			'main.complianceKeyInfoTitle' => 'مفتاح تدقيق الامتثال',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'المفتاح العام الصادر من الخادم',
 			'main.complianceKeyInfoLocalPin' => 'التثبيت المحلي (TOFU)',
 			'main.complianceKeyInfoKeyId' => 'معرّف المفتاح (ID)',
@@ -5464,8 +5480,6 @@ extension on TranslationsArSa {
 			'main.complianceKeyInfoFingerprint' => 'بصمة المفتاح العام',
 			'main.complianceKeyInfoFetchedAt' => 'وقت الجلب',
 			'main.complianceKeyInfoPinnedAt' => 'وقت التثبيت',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedNone' => 'لم يُثبَّت بعد (سيُثبَّت تلقائياً عند الجلب التالي)',
 			'main.complianceKeyInfoChangedWarning' => '⚠️ المفتاح العام للامتثال الصادر من الخادم لا يطابق التثبيت المحلي! إذا لم يكن هذا تدويراً مقصوداً من المسؤول، فتواصل مع المسؤول فوراً وأوقف إرسال الرسائل المشفّرة.',
 			'main.complianceKeyInfoRefreshFailed' => 'فشل الجلب، تحقق من الشبكة ثم أعد المحاولة',
@@ -5971,6 +5985,8 @@ extension on TranslationsArSa {
 			'talkRecord.aiSaveAction' => 'حفظ على هذا الجهاز',
 			'talkRecord.aiReplaceAction' => 'استبدال مفتاح الجهاز',
 			'talkRecord.aiDeleteAction' => 'حذف مفتاح الجهاز',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'جارٍ الحفظ…',
 			'talkRecord.aiSaved' => 'تم الحفظ على هذا الجهاز. لم يتم التحقق من المفتاح بعد.',
 			'talkRecord.aiDeleted' => 'حُذفت إعدادات الجهاز. تبقى التسجيلات والنتائج الحالية محفوظة.',
@@ -5978,8 +5994,6 @@ extension on TranslationsArSa {
 			'talkRecord.aiReplaceNotice' => 'يستبدل إعداد هذا الحساب لهذه الخدمة على هذا الجهاز فقط. لا تتأثر الحسابات الأخرى أو التسجيلات المحفوظة.',
 			'talkRecord.aiDeleteTitle' => 'هل تريد حذف مفتاح الجهاز؟',
 			'talkRecord.aiDeleteNotice' => 'يوقف الطلبات الجديدة لهذه الخدمة. تبقى التسجيلات والنتائج محفوظة. لا يمكن سحب الطلبات التي أُرسلت إلى المزوّد.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'إلغاء',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'تحويل الصوت إلى نص وتسميات مؤقتة للمتحدثين',

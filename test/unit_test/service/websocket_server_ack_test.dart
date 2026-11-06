@@ -18,6 +18,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart' as ffi;
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/protocol/imboy_frame.dart';
@@ -191,39 +196,44 @@ void main() {
       expect(fake.capturingSink.sent, isEmpty);
     });
 
-    test('action-ACK 汇入单一清除入口（RemoveFromRetryQueueRequestedEvent）', () async {
-      final retryRemoved =
-          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
-
+    test('普通 action ACK 保留移除行为，附件同 ID 不被移除', () async {
+      SharedPreferences.setMockInitialValues({Keys.currentUid: '101'});
+      await StorageService.init();
+      ffi.sqfliteFfiInit();
+      final db = await ffi.databaseFactoryFfi.openDatabase(
+        ffi.inMemoryDatabasePath,
+      );
+      await db.execute(
+        'CREATE TABLE attachment_upload_task (id TEXT, user_id TEXT, anchor_msg_id TEXT)',
+      );
+      await db.insert('attachment_upload_task', {
+        'id': 'upload',
+        'user_id': '101',
+        'anchor_msg_id': 'protected',
+      });
+      SqliteService.setDbForTest(db);
+      final removed = <RemoveFromRetryQueueRequestedEvent>[];
+      final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+          .listen(removed.add);
       svc.handleV2BinaryForTest(
-        _s2cFrame({'id': xid, 'type': 'S2C', 'action': 'C2C_REVOKE_ACK'}),
+        _s2cFrame({
+          'id': 'protected',
+          'type': 'S2C',
+          'action': 'C2C_REVOKE_ACK',
+        }),
       );
-
-      final removeEvent = await retryRemoved.timeout(
-        const Duration(seconds: 1),
-      );
-      expect(removeEvent.messageId, xid);
-      expect(removeEvent.reason, 'ws_action_ack');
-    });
-
-    test('小写 action-ACK 也汇入清除入口；无本机效应者不下发业务事件', () async {
-      final retryRemoved =
-          AppEventBus.on<RemoveFromRetryQueueRequestedEvent>().first;
-      var forwarded = false;
-      final subscription = AppEventBus.on<WebSocketMessageReceivedEvent>()
-          .listen((_) => forwarded = true);
-      addTearDown(subscription.cancel);
-
       svc.handleV2BinaryForTest(
-        _s2cFrame({'id': xid, 'type': 'S2C', 'action': 'message_read_ack'}),
+        _s2cFrame({
+          'id': 'unprotected',
+          'type': 'S2C',
+          'action': 'message_read_ack',
+        }),
       );
-
-      final removeEvent = await retryRemoved.timeout(
-        const Duration(seconds: 1),
-      );
-      await Future<void>.delayed(const Duration(milliseconds: 20));
-      expect(removeEvent.messageId, xid);
-      expect(forwarded, isFalse);
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+      expect(removed.map((event) => event.messageId), ['unprotected']);
+      await subscription.cancel();
+      SqliteService.setDbForTest(null);
+      await db.close();
     });
 
     test('message_revoke_ack 转发业务层前不清除重试记录', () async {

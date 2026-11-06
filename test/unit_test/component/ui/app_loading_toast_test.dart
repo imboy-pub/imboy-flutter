@@ -26,6 +26,47 @@ import 'package:imboy/component/ui/app_loading.dart';
 /// 一律 unawaited + 显式 pump 推进动画帧。真实 app 事件循环自动流转，
 /// 无此问题。
 void main() {
+  testWidgets('新上传未显示进度就结束时清理继承的旧进度', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const Scaffold()),
+    );
+    final first = AppLoading.beginProgress();
+    unawaited(AppLoading.showOwnedProgress(first, 0.2, status: '旧上传'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('旧上传'), findsOneWidget);
+    final second = AppLoading.beginProgress();
+    unawaited(AppLoading.dismissOwnedProgress(first));
+    await tester.pump();
+    expect(find.text('旧上传'), findsOneWidget);
+    unawaited(AppLoading.dismissOwnedProgress(second));
+    await tester.pumpAndSettle();
+    expect(find.text('旧上传'), findsNothing);
+  });
+
+  testWidgets('旧上传不能覆盖或关闭后来的提示', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const Scaffold()),
+    );
+    final oldUpload = AppLoading.beginProgress();
+    unawaited(AppLoading.showOwnedProgress(oldUpload, 0.2, status: '旧上传'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('旧上传'), findsOneWidget);
+
+    unawaited(AppLoading.show(status: '新会话'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    unawaited(AppLoading.showOwnedProgress(oldUpload, 0.8, status: '旧上传'));
+    unawaited(AppLoading.dismissOwnedProgress(oldUpload));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('新会话'), findsOneWidget);
+    expect(find.text('旧上传'), findsNothing);
+
+    unawaited(AppLoading.dismiss(animation: false));
+    await tester.pumpAndSettle();
+  });
   testWidgets('showError toast 文本渲染且自动消失', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

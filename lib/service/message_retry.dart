@@ -1,3 +1,5 @@
+import 'package:imboy/service/server_ack_receipts.dart';
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -5,14 +7,12 @@ import 'package:imboy/component/helper/app_clock.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee/attachment_seal_policy.dart';
 import 'package:imboy/service/e2ee/capability_guard.dart';
-import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/e2ee/retry_plaintext_guard.dart';
 import 'package:imboy/service/e2ee/protected_frame_v3.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/event_subscription_manager.dart';
 import 'package:imboy/service/group_session_service.dart';
-import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/channel_decimal_id.dart';
@@ -172,9 +172,6 @@ class MessageRetry with EventSubscriptionManager {
           return;
         }
         removeFromRetryQueue(event.messageId);
-        // E2EE-027 outbox 读侧接线：ACK 移除重试时同步确认 outbox 条目
-        // （防 crypto_outbox 无限增长；清理失败只记日志，不影响 ACK 主路径）
-        unawaited(_confirmOutboxQuietly(event));
         iPrint(
           '🗑️ [RETRY_QUEUE] 从重试队列移除: messageId=${event.messageId}, reason=${event.reason}',
         );
@@ -187,23 +184,6 @@ class MessageRetry with EventSubscriptionManager {
     return !session.isClearingSession &&
         session.currentUid == event.ownerUid &&
         session.isCurrentSession(event.sessionGeneration);
-  }
-
-  /// E2EE-027 outbox 读侧接线：确认 outbox 条目（ACK 汇聚点调用）。
-  /// 卫生动作非安全路径：失败静默记录，不阻断 ACK/重试移除。
-  Future<void> _confirmOutboxQuietly(
-    RemoveFromRetryQueueRequestedEvent event,
-  ) async {
-    if (!_isRemovalSessionCurrent(event)) return;
-    try {
-      final db = await SqliteService.to.db;
-      if (db == null || !_isRemovalSessionCurrent(event)) return;
-      await CryptoStore(db).confirmOutbox(event.messageId);
-    } on Object catch (e) {
-      iPrint(
-        '⚠️ [RETRY] outbox 确认失败（不影响 ACK）: ${event.messageId}, errType=${e.runtimeType}',
-      );
-    }
   }
 
   /// 释放资源
@@ -603,13 +583,11 @@ class MessageRetry with EventSubscriptionManager {
   Future<bool> _claimAttachmentDispatch(
     MessageModel message,
     bool Function() isCurrent,
-  ) => !_isAttachmentMessage(message)
-      ? Future.value(true)
-      : AttachmentUploadTaskRepo().claimOutboxDispatch(
-          message.id,
-          UserRepoLocal.to.currentUid,
-          isCurrent: isCurrent,
-        );
+  ) => AttachmentUploadTaskRepo().claimOutboxDispatch(
+    message.id,
+    UserRepoLocal.to.currentUid,
+    isCurrent: isCurrent,
+  );
 
   Future<bool> _attachmentRetryBlocked(
     MessageModel message,
@@ -629,7 +607,10 @@ class MessageRetry with EventSubscriptionManager {
       (row) =>
           row.stage == AttachmentUploadStage.confirmed &&
           row.businessIntent != null &&
-          (jsonDecode(row.businessIntent!) as Map)['state'] == 'outbox_ready',
+          {
+            'outbox_ready',
+            'dispatch_reserved_v2',
+          }.contains((jsonDecode(row.businessIntent!) as Map)['state']),
     )) {
       return false;
     }
@@ -639,28 +620,38 @@ class MessageRetry with EventSubscriptionManager {
       messageId: message.id,
     );
     if (!sessionValid() || actor.currentUid != uid) return true;
-    for (final row in rows) {
-      final intent = row.businessIntent == null
-          ? <String, dynamic>{}
-          : jsonDecode(row.businessIntent!) as Map<String, dynamic>;
-      await uploads.saveBusinessIntent(
-        message.id,
-        uid,
-        jsonEncode({
-          ...intent,
-          'state': committed ? 'committed' : 'commit_unknown',
-        }),
-      );
-    }
-    if (!sessionValid()) return true;
+    final chatType = _normalizeMessageType(message.type ?? '').toLowerCase();
+    final changed = committed
+        ? await uploads.reconcileOutboxCommitted(
+            message.id,
+            uid,
+            isCurrent: sessionValid,
+          )
+        : await uploads.markOutboxUnknown(
+            message.id,
+            uid,
+            chatType,
+            isCurrent: sessionValid,
+          );
+    if (!changed || !sessionValid()) return true;
     final messages = getMessageRepo(message.type ?? '');
-    await messages.update({
-      'id': message.id,
-      'status': committed ? IMBoyMessageStatus.sent : IMBoyMessageStatus.error,
-    });
+    if (committed) {
+      await messages.update({
+        'id': message.id,
+        'status': IMBoyMessageStatus.sent,
+      });
+    }
     if (!sessionValid()) return true;
     final updated = await messages.find(message.id);
     if (updated != null && sessionValid()) {
+      if (committed) {
+        ServerAckReceipts.announceVerified(
+          message: updated,
+          ownerUid: uid,
+          generation: actor.sessionGeneration,
+          isCurrent: sessionValid,
+        );
+      }
       AppEventBus.fireData([await updated.toTypeMessage()], 'List<Message>');
     }
     return true;
@@ -764,6 +755,7 @@ class MessageRetry with EventSubscriptionManager {
           message: json.encode(messageData),
           messageId: info.messageId,
           sessionGeneration: info.sessionGeneration,
+          dispatchClaimed: true,
         ),
       );
 
@@ -883,6 +875,7 @@ class MessageRetry with EventSubscriptionManager {
           message: json.encode(messageData),
           messageId: messageId,
           sessionGeneration: generation,
+          dispatchClaimed: true,
         ),
       );
 

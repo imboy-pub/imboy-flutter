@@ -1669,6 +1669,13 @@ class _Translations$common$ja_JP extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => '操作結果が不明です。再試行する前にブロックリストを確認してください。';
 	@override String get denylistLocalNotSynced => 'サーバーでは処理されましたが、ローカルの状態は同期されていません。';
 	@override String get friendConfirmResultUnknown => '友達承認の結果は不明です。先に友達関係を確認してください。';
+	@override String get legacyUploadRecoveryTitle => '添付ファイルの復元';
+	@override String get legacyUploadRecoveryBody => '元のアップロード記録は保持されます。履歴を確認し、元のメッセージが未送信の場合に新しいメッセージとしてファイルを送信してください。';
+	@override String get legacyUploadSelectOriginal => 'ファイルを選んで新しいメッセージを送信';
+	@override String get legacyUploadOutboxCheck => 'メッセージは送信待ちの可能性があります。再送する前に履歴を確認してください。';
+	@override String get legacyUploadRecoveryMismatch => '選択したファイルが一致しないか、復元できません。';
+	@override String get legacyUploadRecoveryContinues => '添付ファイルを復元しました。元のメッセージの処理を続けます。';
+	@override String get legacyUploadReturnToOriginalPage => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。';
 }
 
 // Path: complaint
@@ -4929,8 +4936,17 @@ extension on TranslationsJaJp {
 			'common.denylistResultUnknown' => '操作結果が不明です。再試行する前にブロックリストを確認してください。',
 			'common.denylistLocalNotSynced' => 'サーバーでは処理されましたが、ローカルの状態は同期されていません。',
 			'common.friendConfirmResultUnknown' => '友達承認の結果は不明です。先に友達関係を確認してください。',
+			'common.legacyUploadRecoveryTitle' => '添付ファイルの復元',
+			'common.legacyUploadRecoveryBody' => '元のアップロード記録は保持されます。履歴を確認し、元のメッセージが未送信の場合に新しいメッセージとしてファイルを送信してください。',
+			'common.legacyUploadSelectOriginal' => 'ファイルを選んで新しいメッセージを送信',
+			'common.legacyUploadOutboxCheck' => 'メッセージは送信待ちの可能性があります。再送する前に履歴を確認してください。',
+			'common.legacyUploadRecoveryMismatch' => '選択したファイルが一致しないか、復元できません。',
+			'common.legacyUploadRecoveryContinues' => '添付ファイルを復元しました。元のメッセージの処理を続けます。',
+			'common.legacyUploadReturnToOriginalPage' => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'このメッセージはエンドツーエンド暗号化されており、サーバーは内容を確認できません。抜粋を提出すると、選択した平文が審査員に開示されます。同意しますか？',
 			'complaint.e2eeConsentSubmit' => '同意して証拠を提出',
 			'complaint.e2eeConsentDecline' => '内容なしで通報のみ',
@@ -4938,8 +4954,6 @@ extension on TranslationsJaJp {
 			'complaintReason.harassment' => 'ハラスメント',
 			'complaintReason.inappropriate' => '不適切な内容',
 			'complaintReason.other' => 'その他',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => 'ブロック済み',
 			'contact.applyChanges' => '変更を適用するにはアプリを再起動してください',
 			'contact.inputNewTag' => '新しいタグを入力...',
@@ -5445,6 +5459,8 @@ extension on TranslationsJaJp {
 			'main.safetyNumberPeerDevice' => '相手のデバイス',
 			'main.safetyNumberReportRejected' => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません',
 			'main.safetyNumberReportUnavailable' => 'デバイス情報を取得できないため、未報告です',
+			_ => null,
+		} ?? switch (path) {
 			'main.safetyNumberVerified' => '✓ 確認済み',
 			'main.safetyNumberNotVerified' => '未確認',
 			'main.safetyNumberDeviceCount' => ({required Object count}) => '${count} 台のデバイス',
@@ -5452,8 +5468,6 @@ extension on TranslationsJaJp {
 			'main.safetyNumberVerifyFailed' => '安全番号の取得に失敗しました。後でもう一度お試しください',
 			'main.complianceKeyInfoTitle' => 'コンプライアンス監査キー',
 			'main.complianceKeyInfoAlgorithm' => 'アルゴリズム',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoChangedWarning' => '⚠️ サーバーから配信されたコンプライアンス公開鍵がローカルの固定値と一致しません！これが管理者による意図的なローテーションでない場合は、直ちに管理者に連絡し、暗号化メッセージの送信を中止してください。',
 			'main.complianceKeyInfoFetchedAt' => '取得日時',
 			'main.complianceKeyInfoFingerprint' => '公開鍵のフィンガープリント',
@@ -5959,6 +5973,8 @@ extension on TranslationsJaJp {
 			'talkRecord.aiSaveAction' => 'この端末に保存',
 			'talkRecord.aiReplaceAction' => '端末のキーを置き換える',
 			'talkRecord.aiDeleteAction' => '端末のキーを削除',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => '保存中…',
 			'talkRecord.aiSaved' => 'この端末に保存しました。キーは未検証です。',
 			'talkRecord.aiDeleted' => '端末の設定を削除しました。録音と既存の結果は保持されます。',
@@ -5966,8 +5982,6 @@ extension on TranslationsJaJp {
 			'talkRecord.aiReplaceNotice' => 'この端末の現在のアカウントにある、このサービスの設定のみを置き換えます。他のアカウントや録音には影響しません。',
 			'talkRecord.aiDeleteTitle' => '端末のキーを削除しますか？',
 			'talkRecord.aiDeleteNotice' => 'このサービスへの新しいリクエストを停止します。既存の録音と結果は保持されます。送信済みのリクエストは取り消せません。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'キャンセル',
 			'talkRecord.aiDoubaoTitle' => 'Doubao 音声 2.0',
 			'talkRecord.aiDoubaoPurpose' => '音声文字起こしと一時的な話者ラベル',

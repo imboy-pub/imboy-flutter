@@ -203,7 +203,18 @@ class MessageRepo implements MessageRepository {
 
   // 插入一条数据
   @override
-  Future<MessageModel> insert(MessageModel msg, {Transaction? txn}) async {
+  Future<MessageModel> insert(
+    MessageModel msg, {
+    Transaction? txn,
+    bool outbound = false,
+    bool attachmentCommit = false,
+  }) async {
+    if (outbound && txn == null) {
+      if (attachmentCommit) {
+        throw StateError('attachment commit requires transaction');
+      }
+      return _db.transaction((tx) => insert(msg, txn: tx, outbound: true));
+    }
     final session = UserRepoLocal.to;
     final ownerUid = session.currentUid;
     final generation = session.sessionGeneration;
@@ -217,6 +228,20 @@ class MessageRepo implements MessageRepository {
         ? msg.type!
         : 'C2C'; // 默认为 C2C
     final targetTableName = MessageRepo.getTableName(msgType);
+
+    if (outbound && !attachmentCommit) {
+      final active = await txn!.query(
+        'attachment_upload_task',
+        columns: ['id'],
+        where:
+            'anchor_msg_id = ? AND user_id = ? AND business_intent IS NOT NULL',
+        whereArgs: [msg.id, msg.fromId.toString()],
+        limit: 1,
+      );
+      if (active.isNotEmpty) {
+        throw StateError('attachment message requires atomic outbox commit');
+      }
+    }
 
     int? count;
     if (txn != null) {
@@ -232,6 +257,24 @@ class MessageRepo implements MessageRepository {
         where: "id=?",
         whereArgs: [msg.id],
       );
+    }
+    if (count == 0 && outbound) {
+      final tables = await txn!.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name IN (?, ?, ?)",
+        ['attachment_send_gate', 'message_send_attempt', 'server_ack_receipt'],
+      );
+      for (final table in tables) {
+        final used = await txn.query(
+          table['name'] as String,
+          columns: ['anchor'],
+          where: 'user_id = ? AND anchor = ?',
+          whereArgs: [msg.fromId.toString(), msg.id],
+          limit: 1,
+        );
+        if (used.isNotEmpty) {
+          throw StateError('outbound message identity already used');
+        }
+      }
     }
     if (count == 0) {
       Map<String, dynamic> insert = {
@@ -267,7 +310,20 @@ class MessageRepo implements MessageRepository {
       }
       if (kDebugMode) {}
       if (txn != null) {
-        await txn.insert(targetTableName, insert);
+        final insertedId = await txn.insert(targetTableName, insert);
+        if (outbound && targetTableName == MessageRepo.c2sTable) {
+          await txn.execute(
+            'CREATE TABLE IF NOT EXISTS c2s_message_peer '
+            '(user_id TEXT NOT NULL, message_id TEXT NOT NULL, auto_id INTEGER NOT NULL, peer TEXT NOT NULL, '
+            'PRIMARY KEY(user_id, message_id))',
+          );
+          await txn.insert('c2s_message_peer', {
+            'user_id': msg.fromId,
+            'message_id': msg.id,
+            'auto_id': insertedId,
+            'peer': msg.toId,
+          });
+        }
       } else {
         await _db.insert(targetTableName, insert);
       }
@@ -740,8 +796,33 @@ class MessageRepo implements MessageRepository {
 
   //
   @override
-  Future<MessageModel?> find(String id, {Transaction? txn}) =>
-      _reader.find(id, txn: txn);
+  Future<MessageModel?> find(String id, {Transaction? txn}) async {
+    final message = await _reader.find(id, txn: txn);
+    if (message != null && tableName == MessageRepo.c2sTable && txn == null) {
+      message.toId =
+          await findC2sPeer(id, message.fromId, message.autoId) ?? message.toId;
+    }
+    return message;
+  }
+
+  /// Exact outbound C2S peer: SQLite INTEGER affinity may otherwise rewrite it.
+  Future<String?> findC2sPeer(String id, String ownerUid, int autoId) async {
+    final db = await _db.db;
+    if (db == null) throw StateError('message database unavailable');
+    final tables = await db.rawQuery(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+      ['c2s_message_peer'],
+    );
+    if (tables.isEmpty) return null;
+    final rows = await db.query(
+      'c2s_message_peer',
+      columns: ['peer'],
+      where: 'user_id = ? AND message_id = ? AND auto_id = ?',
+      whereArgs: [ownerUid, id, autoId],
+      limit: 1,
+    );
+    return rows.isEmpty ? null : rows.single['peer'] as String?;
+  }
 
   // 根据ID删除信息
   @override

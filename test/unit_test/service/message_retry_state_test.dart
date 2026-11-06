@@ -12,6 +12,9 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
 
 import 'dart:convert';
 
@@ -151,6 +154,11 @@ void main() {
   final List<WebSocketMessageSendRequestEvent> sendRequests = [];
 
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({
+      Keys.currentUid: '1001',
+      Keys.currentUser: jsonEncode({'id': '1001'}),
+    });
+    await StorageService.init();
     // 生产的 sqflite_sqlcipher 在宿主机无插件实现，注入 ffi 内存库。
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
@@ -158,6 +166,14 @@ void main() {
     await db.execute(_contactDdl);
     await db.execute(_msgC2cFtsDdl);
     await db.execute(_cryptoOutboxDdl);
+    await db.execute(
+      'CREATE TABLE attachment_upload_task ('
+      'id TEXT PRIMARY KEY, user_id TEXT, anchor_msg_id TEXT, business_intent TEXT,'
+      'scope TEXT, scope_ref TEXT, file_name TEXT, mime TEXT, plain_size INTEGER,'
+      'plain_sha256 TEXT, object_key TEXT, stage TEXT, cipher TEXT, binding_hash TEXT,'
+      'key_ref TEXT, ciphertext_sha256 TEXT, last_error TEXT, created_at INTEGER,'
+      'updated_at INTEGER, upload_path TEXT)',
+    );
     // 播种联系人：toTypeMessage 的作者查询本地命中，避免走 HTTP 拉取
     // （测试环境该请求失败会级联登出/关库，污染后续用例）。
     for (final peerId in [1001, 2002]) {
@@ -439,7 +455,11 @@ void main() {
       'id': 'upload-retry-guard',
       'user_id': UserRepoLocal.to.currentUid,
       'anchor_msg_id': id,
-      'business_intent': jsonEncode({'state': 'dispatch_intent'}),
+      'business_intent': jsonEncode({
+        'state': 'dispatch_intent',
+        'author_id': UserRepoLocal.to.currentUid,
+        'chat_type': 'c2c',
+      }),
       'scope': 'private',
       'file_name': 'file.bin',
       'mime': 'application/octet-stream',

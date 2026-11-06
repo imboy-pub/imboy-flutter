@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
 import 'package:imboy/component/upload/resumable_attachment_uploader.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/api/attachment_direct_api.dart';
 import 'package:video_compress/video_compress.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:xid/xid.dart';
@@ -30,6 +33,77 @@ import 'package:imboy/i18n/strings.g.dart';
 /// 服务端已明确拒绝原上传身份；恢复队列必须隔离，不能换 key 重试。
 class UploadSessionRejected extends StateError {
   UploadSessionRejected(super.message);
+}
+
+/// 服务端拒绝跨协议复用旧 client_upload_id。
+class LegacyUploadConflict extends UploadSessionRejected {
+  LegacyUploadConflict()
+    : super('upload registration conflicts with stored session');
+}
+
+@visibleForTesting
+class UploadProgressSession {
+  UploadProgressSession(
+    this.actor,
+    this.generation,
+    this.environment,
+    this.requireSession,
+  ) {
+    if (_current) {
+      owner = AppLoading.beginProgress();
+      actor.addAuthListener(_onAuthChange);
+    }
+  }
+
+  final UserRepoLocal actor;
+  final int generation;
+  final String environment;
+  final void Function()? requireSession;
+  Object? owner;
+
+  bool get _current {
+    if (!actor.isCurrentSession(generation) ||
+        actor.isAuthTransitioning ||
+        currentEnv != environment) {
+      return false;
+    }
+    try {
+      requireSession?.call();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _onAuthChange() {
+    final token = owner;
+    if (token != null && !_current) {
+      unawaited(AppLoading.dismissOwnedProgress(token));
+    }
+  }
+
+  void update(int sent, int total) {
+    final token = owner;
+    if (token == null) return;
+    if (!_current) {
+      unawaited(AppLoading.dismissOwnedProgress(token));
+    } else if (total > 0) {
+      unawaited(
+        AppLoading.showOwnedProgress(
+          token,
+          sent / total,
+          status: t.common.uploading,
+        ),
+      );
+    }
+  }
+
+  Future<void> dispose() {
+    final token = owner;
+    if (token == null) return Future.value();
+    actor.removeAuthListener(_onAuthChange);
+    return AppLoading.dismissOwnedProgress(token);
+  }
 }
 
 /// presign 请求注入 seam（默认走 [HttpClient]，测试可注入 fake）。
@@ -283,6 +357,9 @@ class AttachmentApi {
     String? clientUploadId,
     bool persistTask = true,
     UploadSessionFn? sessionFn,
+    DirectSessionFn? directSessionFn,
+    DirectFilePutFn? directPutFn,
+    void Function()? requireSession,
 
     /// W5-01：远程阶段边界的持久化检查点。每个边界 await 一次；抛错即
     /// 中止上传推进（durable checkpoint fail-closed：材料未落盘不上网络）。
@@ -315,6 +392,28 @@ class AttachmentApi {
         anchorMsgId: anchorMsgId,
         messageIntent: messageIntent,
         clientUploadId: clientUploadId,
+      );
+    }
+
+    if (presignFn == null &&
+        putFn == null &&
+        confirmFn == null &&
+        sessionFn == null) {
+      return _uploadDirect(
+        bytes,
+        fileName,
+        mime,
+        process: process,
+        scope: scope,
+        scopeRef: scopeRef,
+        anchorMsgId: anchorMsgId,
+        clientUploadId: clientUploadId,
+        seal: seal,
+        resume: resume,
+        checkpoint: checkpoint,
+        sessionFn: directSessionFn,
+        putFn: directPutFn,
+        requireSession: requireSession,
       );
     }
 
@@ -540,6 +639,182 @@ class AttachmentApi {
     );
 
     return objectKey;
+  }
+
+  static Future<String> _uploadDirect(
+    Uint8List bytes,
+    String fileName,
+    String mime, {
+    required bool process,
+    required String scope,
+    String? scopeRef,
+    String? anchorMsgId,
+    String? clientUploadId,
+    AttachmentSealRequest? seal,
+    ResumableUploadState? resume,
+    Future<void> Function(UploadCheckpoint event)? checkpoint,
+    DirectSessionFn? sessionFn,
+    DirectFilePutFn? putFn,
+    void Function()? requireSession,
+  }) async {
+    final actor = UserRepoLocal.to;
+    final generation = actor.sessionGeneration;
+    final environment = currentEnv;
+
+    Future<IMBoyHttpResponse> guardedSession(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      requireSession?.call();
+      final response = sessionFn != null
+          ? await sessionFn(path, body: body)
+          : path.endsWith('/status')
+          ? await HttpClient.client.get(path, queryParameters: body)
+          : await HttpClient.client.post(path, data: body);
+      requireSession?.call();
+      if (path.endsWith('/register') &&
+          !response.ok &&
+          response.msg == 'legacy_session_conflict') {
+        throw LegacyUploadConflict();
+      }
+      if (path.endsWith('/register') &&
+          !response.ok &&
+          response.msg == 'declaration_conflict') {
+        throw UploadSessionRejected('upload declaration conflict');
+      }
+      return response;
+    }
+
+    final validationError = validateUpload(bytes.length, mime);
+    if (validationError != null) throw StateError(validationError);
+    final id = clientUploadId ?? newClientUploadId();
+    final groupMessage =
+        scope == 'group' && anchorMsgId != null && anchorMsgId.isNotEmpty;
+    final purpose = groupMessage ? 'message' : 'attachment';
+    final anchor = groupMessage ? anchorMsgId : null;
+    final cipher = seal == null ? null : AttachmentDescriptor.supportedCipher;
+    String state = '';
+    final key = await DirectAttachmentApi.registerSession(
+      fileName: fileName,
+      scope: scope,
+      scopeRef: scopeRef,
+      clientUploadId: id,
+      cipher: cipher,
+      purpose: purpose,
+      anchorMsgId: anchor,
+      sessionFn: guardedSession,
+      onState: (value) => state = value,
+    );
+    if (!{
+      'RESERVED',
+      'DECLARED',
+      'GRANTED',
+      'FINALIZING',
+      'CONFIRMED',
+    }.contains(state)) {
+      throw UploadSessionRejected('direct session terminal: $state');
+    }
+    if (resume?.objectKey.isNotEmpty == true && resume!.objectKey != key) {
+      throw UploadSessionRejected('upload object identity changed');
+    }
+    if (resume?.objectKey.isNotEmpty != true) {
+      await checkpoint?.call(UploadCheckpoint.presigned(objectKey: key));
+    }
+    SealedAttachment? sealed = resume?.sealedAttachment;
+    if (seal != null && sealed == null) {
+      if (resume?.skipPut == true &&
+          (resume?.contentKey == null || resume?.baseNonce == null)) {
+        throw StateError(
+          'confirmed encrypted upload requires original material',
+        );
+      }
+      sealed = AttachmentEncryptor.seal(
+        plaintext: bytes,
+        bindingHash: seal.bindingHash,
+        attachmentId: seal.attachmentId,
+        objectKey: key,
+        mime: mime,
+        name: fileName,
+        contentKey:
+            resume?.contentKey ?? AttachmentEncryptor.randomContentKey(),
+        baseNonce: resume?.baseNonce ?? AttachmentEncryptor.randomBaseNonce(),
+        chunkSize: seal.chunkSize,
+        thumb: seal.thumbDescriptor,
+      );
+    }
+    if (sealed != null) {
+      if (seal == null || sealed.descriptor.objectKey != key) {
+        throw UploadSessionRejected('upload ciphertext identity changed');
+      }
+      seal.descriptor = sealed.descriptor;
+    }
+    final body = sealed?.ciphertext ?? bytes;
+    final hash = sealed?.ciphertextSha256Hex ?? sha256.convert(body).toString();
+    seal?.uploadedFileHash256 = hash;
+    if (resume?.skipPut != true) {
+      await checkpoint?.call(
+        UploadCheckpoint(
+          UploadCheckpointStage.sealed,
+          contentKey: sealed?.descriptor.contentKey,
+          baseNonce: sealed?.descriptor.baseNonce,
+          ciphertextSha256: hash,
+          uploadBytes: body,
+          descriptor: sealed?.descriptor,
+        ),
+      );
+    }
+    final directory = await Directory.systemTemp.createTemp('imboy-direct-');
+    final progress = process
+        ? UploadProgressSession(actor, generation, environment, requireSession)
+        : null;
+    try {
+      final file = File('${directory.path}/body');
+      await file.writeAsBytes(body, flush: true);
+      bool putCheckpoint = resume?.skipPut == true;
+      final result = await DirectAttachmentApi.uploadFile(
+        file,
+        fileName: fileName,
+        mime: mime,
+        scope: scope,
+        scopeRef: scopeRef,
+        clientUploadId: id,
+        cipher: cipher,
+        purpose: purpose,
+        anchorMsgId: anchor,
+        sessionFn: guardedSession,
+        putFn: putFn,
+        onProgress: (sent, total) {
+          progress?.update(sent, total);
+        },
+        checkpoint: (event) async {
+          requireSession?.call();
+          if (event.objectKey != null && event.objectKey != key) {
+            throw UploadSessionRejected('upload object identity changed');
+          }
+          if (event.stage == DirectCheckpointStage.putDone && !putCheckpoint) {
+            await checkpoint?.call(
+              UploadCheckpoint.putDone(ciphertextSha256: hash),
+            );
+            putCheckpoint = true;
+          }
+        },
+      );
+      if (result.objectKey != key ||
+          result.state != DirectAttachmentApi.stateConfirmed ||
+          result.quarantined) {
+        throw StateError('direct upload not confirmed');
+      }
+      if (!putCheckpoint) {
+        await checkpoint?.call(
+          UploadCheckpoint.putDone(ciphertextSha256: hash),
+        );
+      }
+      await checkpoint?.call(const UploadCheckpoint.confirmed());
+      return key;
+    } finally {
+      await progress?.dispose();
+      await directory.delete(recursive: true);
+    }
   }
 
   /// presign 兼容版上传（drop-in 替换旧 [uploadFile]，签名一致）。

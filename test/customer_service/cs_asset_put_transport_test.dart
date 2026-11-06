@@ -78,6 +78,77 @@ Future<void> member(
   },
 );
 void main() {
+  test(
+    'direct PUT sends signed headers without business credentials',
+    () async {
+      final adapter = PutAdapter();
+      final transport = CsAssetPutTransport(adapter: adapter);
+      final headers = {
+        'Content-Type': 'text/plain',
+        'x-amz-checksum-sha256': base64.encode(sha256.convert(data).bytes),
+      };
+      await transport.putDirect(
+        url: 'https://objects.invalid/key?signature=synthetic',
+        permittedOrigin: Uri.parse('https://objects.invalid'),
+        bytes: data,
+        requiredHeaders: {
+          'Content-Type': 'text/plain',
+          'x-amz-checksum-sha256': base64.encode(sha256.convert(data).bytes),
+        },
+      );
+      final sent = adapter.requests.single;
+      expect(sent.headers['content-type'], 'text/plain');
+      expect(
+        sent.headers['x-amz-checksum-sha256'],
+        headers['x-amz-checksum-sha256'],
+      );
+      expect(
+        sent.headers.keys.map((k) => k.toLowerCase()),
+        isNot(contains('authorization')),
+      );
+      expect(sent.followRedirects, false);
+      await expectLater(
+        transport.putDirect(
+          url: 'https://objects.invalid/key',
+          permittedOrigin: Uri.parse('https://objects.invalid'),
+          bytes: data,
+          requiredHeaders: {...headers, 'Authorization': 'must-not-send'},
+        ),
+        throwsA(isA<CsAssetPutException>()),
+      );
+      expect(adapter.requests.length, 1);
+      for (final invalid in [
+        {
+          ...headers,
+          'x-amz-checksum-sha256': base64.encode(List.filled(32, 0)),
+        },
+        {...headers, 'content-type': 'different'},
+      ]) {
+        await expectLater(
+          transport.putDirect(
+            url: 'https://objects.invalid/key',
+            permittedOrigin: Uri.parse('https://objects.invalid'),
+            bytes: data,
+            requiredHeaders: invalid,
+          ),
+          throwsA(isA<CsAssetPutException>()),
+        );
+      }
+      final cancelled = CancelToken()..cancel();
+      await expectLater(
+        transport.putDirect(
+          url: 'https://objects.invalid/key',
+          permittedOrigin: Uri.parse('https://objects.invalid'),
+          bytes: data,
+          requiredHeaders: headers,
+          cancelToken: cancelled,
+        ),
+        throwsA(isA<CsAssetPutException>()),
+      );
+      expect(adapter.requests.length, 1);
+      transport.close();
+    },
+  );
   for (final field in ['org', 'workspace', 'asset']) {
     test('signed64 overflow $field performs zero requests', () async {
       const overflow = '9223372036854775808';
@@ -215,6 +286,19 @@ void main() {
         url: 'https://elsewhere.invalid/owned',
         permittedOrigin: Uri.parse('https://objects.invalid'),
         bytes: data,
+      ),
+      throwsA(isA<CsAssetPutException>()),
+    );
+    expect(adapter.requests.length, 1);
+    await expectLater(
+      transport.putDirect(
+        url: 'http://objects.invalid/key',
+        permittedOrigin: Uri.parse('http://objects.invalid'),
+        bytes: data,
+        requiredHeaders: {
+          'Content-Type': 'text/plain',
+          'x-amz-checksum-sha256': base64.encode(sha256.convert(data).bytes),
+        },
       ),
       throwsA(isA<CsAssetPutException>()),
     );

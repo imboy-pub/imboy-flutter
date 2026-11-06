@@ -1672,6 +1672,13 @@ class _Translations$common$it_IT extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => 'Il risultato è sconosciuto. Controlla prima l’elenco dei blocchi.';
 	@override String get denylistLocalNotSynced => 'Il server ha elaborato la richiesta, ma lo stato locale non è sincronizzato.';
 	@override String get friendConfirmResultUnknown => 'Il risultato della conferma è sconosciuto. Controlla prima la relazione.';
+	@override String get legacyUploadRecoveryTitle => 'Recupera allegato';
+	@override String get legacyUploadRecoveryBody => 'Il record originale viene conservato. Controlla prima la chat; se il messaggio originale non è stato inviato, scegli un file per un nuovo messaggio.';
+	@override String get legacyUploadSelectOriginal => 'Scegli file e invia nuovo messaggio';
+	@override String get legacyUploadOutboxCheck => 'Il messaggio potrebbe essere già in coda. Controlla la chat prima di reinviarlo.';
+	@override String get legacyUploadRecoveryMismatch => 'Il file non corrisponde o il recupero non è disponibile.';
+	@override String get legacyUploadRecoveryContinues => 'Allegato recuperato; elaborazione del messaggio originale in corso.';
+	@override String get legacyUploadReturnToOriginalPage => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.';
 }
 
 // Path: complaint
@@ -4932,8 +4939,17 @@ extension on TranslationsItIt {
 			'common.denylistResultUnknown' => 'Il risultato è sconosciuto. Controlla prima l’elenco dei blocchi.',
 			'common.denylistLocalNotSynced' => 'Il server ha elaborato la richiesta, ma lo stato locale non è sincronizzato.',
 			'common.friendConfirmResultUnknown' => 'Il risultato della conferma è sconosciuto. Controlla prima la relazione.',
+			'common.legacyUploadRecoveryTitle' => 'Recupera allegato',
+			'common.legacyUploadRecoveryBody' => 'Il record originale viene conservato. Controlla prima la chat; se il messaggio originale non è stato inviato, scegli un file per un nuovo messaggio.',
+			'common.legacyUploadSelectOriginal' => 'Scegli file e invia nuovo messaggio',
+			'common.legacyUploadOutboxCheck' => 'Il messaggio potrebbe essere già in coda. Controlla la chat prima di reinviarlo.',
+			'common.legacyUploadRecoveryMismatch' => 'Il file non corrisponde o il recupero non è disponibile.',
+			'common.legacyUploadRecoveryContinues' => 'Allegato recuperato; elaborazione del messaggio originale in corso.',
+			'common.legacyUploadReturnToOriginalPage' => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => 'Questo messaggio è cifrato end-to-end; il server non può vederne il contenuto. Inviare un estratto renderà visibile il testo selezionato ai moderatori per la revisione. Acconsenti?',
 			'complaint.e2eeConsentSubmit' => 'Acconsenti e invia',
 			'complaint.e2eeConsentDecline' => 'Solo segnala (senza contenuto)',
@@ -4941,8 +4957,6 @@ extension on TranslationsItIt {
 			'complaintReason.harassment' => 'Molestie',
 			'complaintReason.inappropriate' => 'Contenuto inappropriato',
 			'complaintReason.other' => 'Altro',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => 'Bloccato',
 			'contact.applyChanges' => 'Riavvia l’app per applicare le modifiche.',
 			'contact.inputNewTag' => 'Inserisci nuovo tag...',
@@ -5448,6 +5462,8 @@ extension on TranslationsItIt {
 			'main.complianceKeyInfoPinnedAt' => 'Ora del pin',
 			'main.complianceKeyInfoPinnedNone' => 'Non ancora bloccato (verrà bloccato automaticamente al prossimo recupero)',
 			'main.complianceKeyInfoRefreshFailed' => 'Recupero non riuscito, controlla la rete e riprova',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => 'Chiave pubblica distribuita dal server',
 			'main.complianceKeyInfoTitle' => 'Chiave di audit di conformità',
 			'main.e2eeErrComplianceChanged' => 'La chiave di audit di conformità è cambiata, messaggio non inviato; conferma la rotazione e riprova',
@@ -5455,8 +5471,6 @@ extension on TranslationsItIt {
 			'main.e2eeErrComplianceExpired' => 'La chiave di conformità è scaduta, contatta l\'amministratore',
 			'main.complianceKeyRotationConfirmed' => 'Rotazione della chiave di conformità confermata, puoi inviare nuovamente il messaggio',
 			'main.complianceKeyRotationNoPending' => 'Nessuna modifica della chiave in attesa di conferma',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => 'Questo dispositivo non ha completato l\'inizializzazione di sicurezza; esci, accedi di nuovo e riprova',
 			'main.e2eeErrProtocolMismatch' => 'Configurazione del protocollo di cifratura anomala; aggiorna l\'app e riprova',
 			'main.e2eeErrPeerSuiteUnsupported' => 'Il dispositivo del destinatario non supporta la suite di cifratura richiesta, messaggio non inviato. Chiedi di aggiornare l\'app e riprova',
@@ -5962,6 +5976,8 @@ extension on TranslationsItIt {
 			'talkRecord.aiSaveAction' => 'Salva su questo dispositivo',
 			'talkRecord.aiReplaceAction' => 'Sostituisci la chiave locale',
 			'talkRecord.aiDeleteAction' => 'Elimina la chiave locale',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => 'Salvataggio…',
 			'talkRecord.aiSaved' => 'Salvato su questo dispositivo. La chiave non è stata verificata.',
 			'talkRecord.aiDeleted' => 'Configurazione locale eliminata. Registrazioni e risultati esistenti restano disponibili.',
@@ -5969,8 +5985,6 @@ extension on TranslationsItIt {
 			'talkRecord.aiReplaceNotice' => 'Sostituisce solo la configurazione di questo servizio per l’account corrente su questo dispositivo. Altri account e registrazioni restano invariati.',
 			'talkRecord.aiDeleteTitle' => 'Eliminare la chiave locale?',
 			'talkRecord.aiDeleteNotice' => 'Interrompe le nuove richieste a questo servizio. Registrazioni e risultati restano disponibili. Le richieste già inviate al fornitore non possono essere richiamate.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => 'Annulla',
 			'talkRecord.aiDoubaoTitle' => 'Doubao Speech 2.0',
 			'talkRecord.aiDoubaoPurpose' => 'Trascrizione audio ed etichette temporanee dei parlanti',

@@ -1669,6 +1669,13 @@ class _Translations$common$ko_KR extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => '작업 결과를 알 수 없습니다. 다시 시도하기 전에 차단 목록을 확인하세요.';
 	@override String get denylistLocalNotSynced => '서버에서 처리했지만 로컬 상태가 동기화되지 않았습니다.';
 	@override String get friendConfirmResultUnknown => '친구 승인 결과를 알 수 없습니다. 먼저 친구 관계를 확인하세요.';
+	@override String get legacyUploadRecoveryTitle => '첨부파일 복구';
+	@override String get legacyUploadRecoveryBody => '기존 업로드 기록은 유지됩니다. 대화 기록을 확인하고 원래 메시지가 전송되지 않았다면 파일을 선택해 새 메시지로 보내세요.';
+	@override String get legacyUploadSelectOriginal => '파일을 선택해 새 메시지 보내기';
+	@override String get legacyUploadOutboxCheck => '메시지가 이미 전송 대기 중일 수 있습니다. 다시 보내기 전에 대화 기록을 확인하세요.';
+	@override String get legacyUploadRecoveryMismatch => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.';
+	@override String get legacyUploadRecoveryContinues => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.';
+	@override String get legacyUploadReturnToOriginalPage => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。';
 }
 
 // Path: complaint
@@ -4929,8 +4936,17 @@ extension on TranslationsKoKr {
 			'common.denylistResultUnknown' => '작업 결과를 알 수 없습니다. 다시 시도하기 전에 차단 목록을 확인하세요.',
 			'common.denylistLocalNotSynced' => '서버에서 처리했지만 로컬 상태가 동기화되지 않았습니다.',
 			'common.friendConfirmResultUnknown' => '친구 승인 결과를 알 수 없습니다. 먼저 친구 관계를 확인하세요.',
+			'common.legacyUploadRecoveryTitle' => '첨부파일 복구',
+			'common.legacyUploadRecoveryBody' => '기존 업로드 기록은 유지됩니다. 대화 기록을 확인하고 원래 메시지가 전송되지 않았다면 파일을 선택해 새 메시지로 보내세요.',
+			'common.legacyUploadSelectOriginal' => '파일을 선택해 새 메시지 보내기',
+			'common.legacyUploadOutboxCheck' => '메시지가 이미 전송 대기 중일 수 있습니다. 다시 보내기 전에 대화 기록을 확인하세요.',
+			'common.legacyUploadRecoveryMismatch' => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.',
+			'common.legacyUploadRecoveryContinues' => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.',
+			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => '이 메시지는 종단 간 암호화되어 있어 서버가 내용을 볼 수 없습니다. 발췌를 제출하면 선택한 평문이 검토자에게 공개됩니다. 동의하시겠습니까?',
 			'complaint.e2eeConsentSubmit' => '동의하고 증거 제출',
 			'complaint.e2eeConsentDecline' => '콘텐츠 없이 신고만',
@@ -4938,8 +4954,6 @@ extension on TranslationsKoKr {
 			'complaintReason.harassment' => '괴롭힘',
 			'complaintReason.inappropriate' => '부적절한 내용',
 			'complaintReason.other' => '기타',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => '차단됨',
 			'contact.applyChanges' => '변경사항을 적용하려면 앱을 재시작하세요',
 			'contact.inputNewTag' => '새 태그 입력...',
@@ -5445,6 +5459,8 @@ extension on TranslationsKoKr {
 			'main.complianceKeyInfoPinnedAt' => '고정 시간',
 			'main.complianceKeyInfoPinnedNone' => '아직 고정되지 않음(다음 가져오기 시 자동 고정)',
 			'main.complianceKeyInfoRefreshFailed' => '가져오기 실패. 네트워크 확인 후 다시 시도해 주세요',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => '서버가 내려준 공개 키',
 			'main.complianceKeyInfoTitle' => '컴플라이언스 감사 키',
 			'main.e2eeErrComplianceChanged' => '컴플라이언스 감사 키가 변경되어 메시지를 보내지 않았습니다. 교체를 확인한 후 다시 시도해 주세요',
@@ -5452,8 +5468,6 @@ extension on TranslationsKoKr {
 			'main.e2eeErrComplianceExpired' => '컴플라이언스 키가 만료되었습니다. 관리자에게 문의해 주세요',
 			'main.complianceKeyRotationConfirmed' => '컴플라이언스 키 교체가 확인되었습니다. 메시지를 다시 보낼 수 있습니다',
 			'main.complianceKeyRotationNoPending' => '확인 대기 중인 키 변경이 없습니다',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => '현재 기기의 보안 초기화가 완료되지 않았습니다. 로그아웃 후 다시 로그인하고 시도해 주세요',
 			'main.e2eeErrProtocolMismatch' => '암호화 프로토콜 설정에 이상이 있습니다. 앱을 업데이트한 후 다시 시도해 주세요',
 			'main.e2eeErrPeerSuiteUnsupported' => '상대방 기기가 필요한 암호화 스위트를 지원하지 않아 메시지가 전송되지 않았습니다. 상대방에게 앱 업데이트를 요청한 후 다시 시도해 주세요',
@@ -5959,6 +5973,8 @@ extension on TranslationsKoKr {
 			'talkRecord.aiSaveAction' => '이 기기에 저장',
 			'talkRecord.aiReplaceAction' => '기기 키 교체',
 			'talkRecord.aiDeleteAction' => '기기 키 삭제',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => '저장 중…',
 			'talkRecord.aiSaved' => '이 기기에 저장했습니다. 키는 아직 검증되지 않았습니다.',
 			'talkRecord.aiDeleted' => '기기 설정을 삭제했습니다. 녹음과 기존 결과는 유지됩니다.',
@@ -5966,8 +5982,6 @@ extension on TranslationsKoKr {
 			'talkRecord.aiReplaceNotice' => '이 기기의 현재 계정에 있는 이 서비스 설정만 교체합니다. 다른 계정과 저장된 녹음에는 영향을 주지 않습니다.',
 			'talkRecord.aiDeleteTitle' => '기기 키를 삭제할까요?',
 			'talkRecord.aiDeleteNotice' => '이 서비스의 새 요청을 중지합니다. 기존 녹음과 결과는 유지됩니다. 제공업체에 이미 보낸 요청은 취소할 수 없습니다.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => '취소',
 			'talkRecord.aiDoubaoTitle' => 'Doubao 음성 2.0',
 			'talkRecord.aiDoubaoPurpose' => '음성 전사 및 임시 화자 라벨',

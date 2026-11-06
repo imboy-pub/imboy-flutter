@@ -6,6 +6,7 @@
 // uploader（同一底层 DB 与 KeyStore）后 resume。
 //
 // 测试名与合同场景同名不代表逐叶通过；HTTP Range、消息未知提交及真实进程恢复另验。
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -225,6 +226,2022 @@ void main() {
     SqliteService.setDbForTest(null);
     await db.close();
     await _uploadCache.delete(recursive: true);
+  });
+
+  test('并发任务插入和无任务发送栅栏只能有一方成功', () async {
+    final base = await _seedRow(
+      'race-upload',
+      uid: _uidA,
+      stage: AttachmentUploadStage.pending,
+      objectKey: '',
+    );
+    final task = AttachmentUploadTask.fromMap({
+      ...base.toMap(),
+      'anchor_msg_id': 'race-anchor',
+      'business_intent': jsonEncode({'state': 'uploading'}),
+    });
+    final results = await Future.wait([
+      repo.claimOutboxDispatch('race-anchor', _uidA, isCurrent: () => true),
+      repo.insert(task).catchError((Object _) => false),
+    ]);
+    expect(results.where((result) => result).length, 1);
+    if (results.first) {
+      expect(await repo.find(task.id), isNull);
+      expect(await db.query('attachment_send_gate'), hasLength(1));
+    } else {
+      expect(await repo.find(task.id), isNotNull);
+    }
+  });
+
+  test('独立 SQLite 连接上的发送和任务创建竞争保持互斥', () async {
+    final path = '${_uploadCache.path}/fence.sqlite';
+    final firstDb = await _openDb(path);
+    final secondDb = await _openDb(path);
+    try {
+      SqliteService.setDbForTest(firstDb);
+      final first = AttachmentUploadTaskRepo();
+      SqliteService.setDbForTest(secondDb);
+      final second = AttachmentUploadTaskRepo();
+      final base = await _seedRow(
+        'two-connection',
+        uid: _uidA,
+        stage: AttachmentUploadStage.pending,
+        objectKey: '',
+      );
+      final task = AttachmentUploadTask.fromMap({
+        ...base.toMap(),
+        'anchor_msg_id': 'two-connection-anchor',
+        'business_intent': jsonEncode({'state': 'uploading'}),
+      });
+      final results = await Future.wait([
+        first.claimOutboxDispatch(
+          'two-connection-anchor',
+          _uidA,
+          isCurrent: () => true,
+        ),
+        second.insert(task).catchError((Object _) => false),
+      ]);
+      expect(results.where((value) => value).length, 1);
+      if (results.first) {
+        expect(await second.find(task.id), isNull);
+        await expectLater(second.insert(task), throwsStateError);
+      } else {
+        expect(await second.find(task.id), isNotNull);
+        expect(
+          await first.claimOutboxDispatch(
+            'two-connection-anchor',
+            _uidA,
+            isCurrent: () => true,
+          ),
+          isFalse,
+        );
+      }
+    } finally {
+      SqliteService.setDbForTest(db);
+      await firstDb.close();
+      await secondDb.close();
+    }
+  });
+
+  test('普通操作 ACK 可保留旧行为并阻止以后同 ID 建附件', () async {
+    expect(
+      await repo.allowUnprotectedActionAck(
+        'action-anchor',
+        _uidA,
+        isCurrent: () => true,
+      ),
+      isTrue,
+    );
+    final base = await _seedRow(
+      'action-attachment',
+      uid: _uidA,
+      stage: AttachmentUploadStage.pending,
+      objectKey: '',
+    );
+    final task = AttachmentUploadTask.fromMap({
+      ...base.toMap(),
+      'anchor_msg_id': 'action-anchor',
+      'business_intent': jsonEncode({'state': 'uploading'}),
+    });
+    await expectLater(repo.insert(task), throwsStateError);
+    final other = AttachmentUploadTask.fromMap({
+      ...base.toMap(),
+      'id': 'protected-upload',
+      'anchor_msg_id': 'protected-anchor',
+      'business_intent': jsonEncode({'state': 'uploading'}),
+    });
+    await repo.insert(other);
+    expect(
+      await repo.allowUnprotectedActionAck(
+        'protected-anchor',
+        _uidA,
+        isCurrent: () => true,
+      ),
+      isFalse,
+    );
+  });
+
+  test('已有发送记录的消息 ID 不可复用为新出站', () async {
+    await _createMessageOutboxTables(db);
+    expect(
+      await repo.claimOutboxDispatch('reused-id', _uidA, isCurrent: () => true),
+      isTrue,
+    );
+    final message = MessageModel(
+      'reused-id',
+      autoId: 0,
+      type: 'C2C',
+      status: IMBoyMessageStatus.sending,
+      fromId: _uidA,
+      toId: _uidB,
+      payload: {'text': 'test'},
+      isAuthor: 1,
+      conversationUk3: 'c2c-101-202',
+      msgType: 'text',
+      createdAt: 1751850000000,
+    );
+    await expectLater(
+      MessageRepo(tableName: 'msg_c2c').insert(message, outbound: true),
+      throwsStateError,
+    );
+    expect(await db.query('msg_c2c'), isEmpty);
+    await MessageRepo(tableName: 'msg_c2c').insert(message);
+    expect(await db.query('msg_c2c'), hasLength(1));
+  });
+
+  test('持久状态重开后区分未发送、未知和服务器确认', () async {
+    final path = '${_uploadCache.path}/dispatch.sqlite';
+    var disk = await _openDb(path);
+    await _createMessageOutboxTables(disk);
+    await disk.execute(
+      "CREATE TABLE crypto_outbox (id TEXT PRIMARY KEY, status TEXT, sent_at INTEGER)",
+    );
+    await disk.insert('msg_c2c', {
+      'id': 'durable-anchor',
+      'type': 'C2C',
+      'from_id': 101,
+      'is_author': 1,
+      'conversation_uk3': 'c2c-101-202',
+      'status': IMBoyMessageStatus.sending,
+    });
+    await disk.insert('crypto_outbox', {
+      'id': 'durable-anchor',
+      'status': 'pending',
+    });
+    try {
+      SqliteService.setDbForTest(disk);
+      var service = AttachmentUploadTaskRepo();
+      final base = await _seedRow(
+        'durable-dispatch',
+        uid: _uidA,
+        stage: AttachmentUploadStage.confirmed,
+        objectKey: 'object',
+      );
+      final task = AttachmentUploadTask.fromMap({
+        ...base.toMap(),
+        'anchor_msg_id': 'durable-anchor',
+        'business_intent': jsonEncode({
+          'state': 'outbox_ready',
+          'author_id': _uidA,
+          'chat_type': 'c2c',
+        }),
+      });
+      await service.insert(task);
+      expect(
+        await service.claimOutboxDispatch(
+          'durable-anchor',
+          _uidA,
+          isCurrent: () => true,
+        ),
+        isTrue,
+      );
+      await disk.close();
+      disk = await _openDb(path);
+      SqliteService.setDbForTest(disk);
+      service = AttachmentUploadTaskRepo();
+      expect(
+        jsonDecode((await service.find(task.id))!.businessIntent!)['state'],
+        'dispatch_reserved_v2',
+      );
+      final attempts = await Future.wait([
+        service.beginOutboxSend('durable-anchor', _uidA, isCurrent: () => true),
+        service.beginOutboxSend('durable-anchor', _uidA, isCurrent: () => true),
+      ]);
+      expect(attempts.where((value) => value), hasLength(1));
+      await disk.close();
+      disk = await _openDb(path);
+      SqliteService.setDbForTest(disk);
+      service = AttachmentUploadTaskRepo();
+      expect(
+        jsonDecode((await service.find(task.id))!.businessIntent!)['state'],
+        'commit_unknown',
+      );
+      expect(
+        await service.beginOutboxSend(
+          'durable-anchor',
+          _uidA,
+          isCurrent: () => true,
+        ),
+        isFalse,
+      );
+      expect(
+        await service.reconcileOutboxCommitted(
+          'durable-anchor',
+          _uidA,
+          isCurrent: () => true,
+        ),
+        isTrue,
+      );
+      expect(
+        jsonDecode((await service.find(task.id))!.businessIntent!)['state'],
+        'committed',
+      );
+      expect(
+        (await disk.query('msg_c2c')).single['status'],
+        IMBoyMessageStatus.sent,
+      );
+      expect((await disk.query('crypto_outbox')).single['status'], 'sent');
+      expect(
+        await service.markOutboxUnknown(
+          'durable-anchor',
+          _uidA,
+          'c2c',
+          isCurrent: () => true,
+        ),
+        isFalse,
+      );
+      expect(
+        jsonDecode((await service.find(task.id))!.businessIntent!)['state'],
+        'committed',
+      );
+    } finally {
+      SqliteService.setDbForTest(db);
+      await disk.close();
+    }
+  });
+
+  test('模板业务意图的未知提交可由服务器正证调和', () async {
+    await _createMessageOutboxTables(db);
+    await db.insert('msg_c2c', {
+      'id': 'template-anchor',
+      'type': 'C2C',
+      'from_id': 101,
+      'is_author': 1,
+      'conversation_uk3': 'c2c-101-202',
+      'status': IMBoyMessageStatus.sending,
+    });
+    final base = await _seedRow(
+      'template-result',
+      uid: _uidA,
+      stage: AttachmentUploadStage.confirmed,
+      objectKey: 'object',
+    );
+    final task = AttachmentUploadTask.fromMap({
+      ...base.toMap(),
+      'anchor_msg_id': 'template-anchor',
+      'business_intent': jsonEncode({
+        'author_id': _uidA,
+        'peer_id': _uidB,
+        'chat_type': 'c2c',
+        'state': 'commit_unknown',
+        'message_template': <String, dynamic>{},
+      }),
+    });
+    await repo.insert(task);
+    final api = _ResultApi({
+      'message_id': 'template-anchor',
+      'chat_type': 'c2c',
+      'peer_id': _uidB,
+      'state': 'committed',
+    });
+    await _uploader(repo, keys).reconcileMessages(_uidA, api: api);
+    expect(api.queries, hasLength(1));
+    expect(
+      jsonDecode((await repo.find(task.id))!.businessIntent!)['state'],
+      'committed',
+    );
+  });
+
+  test('暂停写入的旧版本不能覆盖已发布材料指针', () async {
+    final task = await _seedRow(
+      'material-race',
+      uid: _uidA,
+      stage: AttachmentUploadStage.pending,
+      objectKey: '',
+    );
+    await repo.insert(task);
+    final resume = Completer<void>();
+    final late = () async {
+      await resume.future;
+      await keys.write('old-version', {'descriptor': 'old'});
+      return repo.publishMaterialReference(task, 'old-version');
+    }();
+    await keys.write('new-version', {'descriptor': 'new'});
+    expect(await repo.publishMaterialReference(task, 'new-version'), isTrue);
+    resume.complete();
+    expect(await late, isFalse);
+    final current = (await repo.find(task.id))!;
+    expect(current.keyRef, 'new-version');
+    expect((await keys.read(current.keyRef!))!['descriptor'], 'new');
+    expect(
+      await repo.advanceStage(
+        task.id,
+        AttachmentUploadStage.pending,
+        AttachmentUploadStage.pending,
+        userId: _uidA,
+        uploadPath: 'stale-ciphertext',
+        expectedKeyRef: 'old-version',
+      ),
+      isFalse,
+    );
+    expect((await repo.find(task.id))!.uploadPath, isNull);
+  });
+
+  test('新 E2EE 源文件加密落盘，模拟 checkpoint 前崩溃后恢复', () async {
+    const id = 'encrypted-source-crash';
+    final up = _uploader(repo, keys);
+    expect(
+      await up.upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        prepareOnly: true,
+      ),
+      id,
+    );
+    final initial = (await repo.find(id))!;
+    expect(initial.uploadPath, endsWith('.source.enc'));
+    final source = File(initial.uploadPath!);
+    expect(await source.readAsBytes(), isNot(_testBytes()));
+    final partial = File('${source.path}.part-crash');
+    await source.rename(partial.path);
+    await db.update(
+      'attachment_upload_task',
+      {'upload_path': null},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    final restarted = _uploader(repo, keys);
+    expect(
+      await restarted.resumeAll(
+        _uidA,
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+      ),
+      [f.objectKey],
+    );
+    expect((await repo.find(id))!.stage, AttachmentUploadStage.confirmed);
+    expect(await source.exists(), isFalse);
+    expect(await partial.exists(), isFalse);
+    expect(f.putBodies.single, isNot(_testBytes()));
+  });
+
+  test('同一任务不同明文拒绝，源缓存密钥和 nonce 与上传密钥分域', () async {
+    const id = 'source-identity-guard';
+    final up = _uploader(repo, keys);
+    await up.upload(
+      idempotencyKey: id,
+      userId: _uidA,
+      bytes: _testBytes(),
+      fileName: 'resume.bin',
+      mime: 'application/octet-stream',
+      bindingHashHex: _binding,
+      prepareOnly: true,
+    );
+    final row = (await repo.find(id))!;
+    final source = File(row.uploadPath!);
+    final ciphertext = await source.readAsBytes();
+    final material = Map<String, String>.from(keys.store[id]!);
+    final uploadKey = base64Decode(material['content_key']!);
+    final uploadNonce = base64Decode(material['base_nonce']!);
+    final sourceKey = Hmac(sha256, uploadKey)
+        .convert(utf8.encode('imboy-legacy-migration-v1:$id:source-cache-key'))
+        .bytes;
+    final sourceNonce = Hmac(sha256, uploadKey)
+        .convert(
+          utf8.encode('imboy-legacy-migration-v1:$id:source-cache-nonce'),
+        )
+        .bytes
+        .sublist(0, 12);
+    expect(sourceKey, isNot(uploadKey));
+    expect(sourceNonce, isNot(uploadNonce));
+    final changed = Uint8List.fromList(_testBytes())..[0] ^= 1;
+    await expectLater(
+      up.upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: changed,
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        prepareOnly: true,
+      ),
+      throwsStateError,
+    );
+    expect(await source.readAsBytes(), ciphertext);
+    expect(keys.store[id], material);
+  });
+
+  test('旧密文会话以加密暂存迁移并保留原材料', () async {
+    await _createMessageOutboxTables(db);
+    const id = 'legacy-preserved';
+    const anchor = 'legacy-anchor';
+    final intent = {
+      'state': 'uploading',
+      'author_id': _uidA,
+      'chat_type': 'c2c',
+    };
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final before = (await repo.find(id))!;
+    final cache = File(before.uploadPath!);
+    final ciphertext = await cache.readAsBytes();
+    final material = Map<String, String>.from(keys.store[id]!);
+    var requests = 0;
+    var interrupt = true;
+    final resumed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      legacyMigrationBarrier: (_) async {
+        if (interrupt) throw _KillSignal('after-marker');
+      },
+      directSessionFn: (_, {body}) async {
+        requests++;
+        return IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict');
+      },
+    );
+    expect(await resumed.resumeAll(_uidA), isEmpty);
+    final interrupted = (await repo.find(id))!;
+    expect(interrupted.lastError, startsWith('legacy_migrating:'));
+    expect(interrupted.objectKey, before.objectKey);
+    expect(await cache.readAsBytes(), ciphertext);
+    expect(keys.store[id], material);
+    interrupt = false;
+    await db.insert('msg_c2c', {'id': anchor});
+    expect(await resumed.resumeAll(_uidA), isEmpty);
+    expect((await repo.find(id))!.lastError, interrupted.lastError);
+    expect(keys.store[id], material);
+    await db.delete('msg_c2c', where: 'id = ?', whereArgs: [anchor]);
+    expect(await resumed.resumeAll(_uidA), isEmpty);
+    expect(await repo.find(id), isNull);
+    final group = await repo.findByAnchor(anchor, _uidA);
+    expect(group, hasLength(1));
+    final after = group.single;
+    expect(after.id, isNot(id));
+    expect(after.stage, AttachmentUploadStage.pending);
+    expect(after.objectKey, isNull);
+    expect(after.businessIntent, before.businessIntent);
+    expect(
+      after.lastError,
+      AttachmentUploadTaskRepo.legacyMigrationMarker(before),
+    );
+    expect(await cache.readAsBytes(), ciphertext);
+    expect(keys.store[id], material);
+    expect(keys.store.containsKey(after.id), isFalse);
+    final staged = await File(after.uploadPath!).readAsBytes();
+    expect(staged, isNot(_testBytes()));
+    expect(requests, 2);
+
+    // Simulate secure-store discard after an account transition; the original
+    // key reference and deterministic migration identity reconstruct the keys.
+    Uint8List? sent;
+    final restarted = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      directSessionFn: (path, {body}) async {
+        switch (path.split('/').last) {
+          case 'register':
+            return IMBoyHttpResponse.success({
+              'object_key': 'new/direct/key',
+              'state': 'RESERVED',
+            });
+          case 'declare':
+            return IMBoyHttpResponse.success({'state': 'DECLARED'});
+          case 'grant':
+            return IMBoyHttpResponse.success({
+              'attempt_id': 1,
+              'grant': {
+                'transport': 's3_put',
+                'method': 'PUT',
+                'url': 'https://s3.example/staging',
+                'required_headers': [
+                  ['Content-Type', 'application/octet-stream'],
+                  ['x-amz-checksum-sha256', 'checksum'],
+                ],
+                'expires_in': 300,
+              },
+            });
+          case 'finalize':
+            return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+          default:
+            throw StateError('unexpected direct action: $path');
+        }
+      },
+      directPutFn: (url, file, length, headers) async {
+        sent = await file.readAsBytes();
+      },
+    );
+    expect(await restarted.resumeAll(_uidA), ['new/direct/key']);
+    final completed = (await repo.find(after.id))!;
+    expect(completed.stage, AttachmentUploadStage.confirmed);
+    expect(completed.businessIntent, before.businessIntent);
+    final newMaterial = keys.store[(await repo.find(after.id))!.keyRef]!;
+    expect(newMaterial['content_key'], isNot(material['content_key']));
+    expect(newMaterial['base_nonce'], isNot(material['base_nonce']));
+    expect(newMaterial['descriptor'], isNotNull);
+    expect(sent, isNot(_testBytes()));
+    expect(await cache.readAsBytes(), ciphertext);
+    expect(await File(after.uploadPath!).exists(), isFalse);
+  });
+
+  test('无法证明来源归属时保留旧明文和无关文件', () async {
+    await _createMessageOutboxTables(db);
+    const oldId = 'old-plaintext-owned';
+    const anchor = 'old-plaintext-anchor';
+    await _uploader(repo, keys).upload(
+      idempotencyKey: oldId,
+      userId: _uidA,
+      bytes: _testBytes(),
+      fileName: 'resume.bin',
+      mime: 'application/octet-stream',
+      bindingHashHex: _binding,
+      anchorMsgId: anchor,
+      messageIntent: {
+        'state': 'uploading',
+        'author_id': _uidA,
+        'chat_type': 'c2c',
+      },
+      prepareOnly: true,
+    );
+    final before = (await repo.find(oldId))!;
+    final encryptedSource = File(before.uploadPath!);
+    final oldSource = File(
+      encryptedSource.path.replaceFirst('.source.enc', '.source'),
+    );
+    await oldSource.writeAsBytes(_testBytes(), flush: true);
+    await db.update(
+      'attachment_upload_task',
+      {'upload_path': oldSource.path},
+      where: 'id = ?',
+      whereArgs: [oldId],
+    );
+    final unrelated = File('${oldSource.parent.path}/unrelated.bin.source');
+    await unrelated.writeAsBytes([9, 8, 7]);
+    final interrupted = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      legacyMigrationCommittedBarrier: (_) async =>
+          throw _KillSignal('post-commit'),
+      directSessionFn: (path, {body}) async => IMBoyHttpResponse.failure(
+        errMsg: body?['client_upload_id'] == oldId
+            ? 'legacy_session_conflict'
+            : 'offline',
+      ),
+    );
+    expect(await interrupted.resumeAll(_uidA), isEmpty);
+    final replacement = (await repo.findByAnchor(anchor, _uidA)).single;
+    expect(replacement.id, isNot(oldId));
+    expect(await oldSource.exists(), isTrue);
+    final staged = File(replacement.uploadPath!);
+    final validStage = await staged.readAsBytes();
+    await staged.writeAsBytes([0, 1], flush: true);
+    final retry = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      directSessionFn: (_, {body}) async =>
+          IMBoyHttpResponse.failure(errMsg: 'offline'),
+    );
+    expect(await retry.resumeAll(_uidA), isEmpty);
+    expect(
+      await oldSource.exists(),
+      isTrue,
+      reason: 'invalid replacement cannot justify deletion',
+    );
+    await staged.writeAsBytes(validStage, flush: true);
+    await oldSource.writeAsBytes([1, 2], flush: true);
+    expect(await retry.resumeAll(_uidA), isEmpty);
+    expect(
+      await oldSource.exists(),
+      isTrue,
+      reason: 'changed source is not ours to delete',
+    );
+    await oldSource.writeAsBytes(_testBytes(), flush: true);
+    expect(await retry.resumeAll(_uidA), isEmpty);
+    expect(await oldSource.exists(), isTrue);
+    expect(await unrelated.readAsBytes(), [9, 8, 7]);
+    expect(
+      (await repo.find(replacement.id))!.businessIntent,
+      before.businessIntent,
+    );
+  });
+
+  test('旧密文迁移后同轮确认并恢复原消息 outbox', () async {
+    await _createMessageOutboxTables(db);
+    const id = 'same-round-legacy';
+    const anchor = 'same-round-original-message';
+    final handler = ChatAttachmentHandler(
+      peerId: _uidB,
+      conversationUk3: 'c2c-101-202',
+      type: 'C2C',
+      currentUserOverride: const User(id: _uidA),
+      onMessageCreated: (_) async => true,
+    );
+    final intent = handler.pendingMessageIntent(
+      anchor,
+      'file',
+      name: 'original.bin',
+      size: _testBytes().length,
+    );
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final actions = <String>[];
+    final recovered = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      directSessionFn: (path, {body}) async {
+        final action = path.split('/').last;
+        actions.add(action);
+        switch (action) {
+          case 'register':
+            if (body?['client_upload_id'] == id) {
+              return IMBoyHttpResponse.failure(
+                errMsg: 'legacy_session_conflict',
+              );
+            }
+            return IMBoyHttpResponse.success({
+              'object_key': 'new/direct/same-round',
+              'state': 'RESERVED',
+            });
+          case 'declare':
+            return IMBoyHttpResponse.success({'state': 'DECLARED'});
+          case 'grant':
+            return IMBoyHttpResponse.success({
+              'attempt_id': 1,
+              'grant': {
+                'transport': 's3_put',
+                'method': 'PUT',
+                'url': 'https://s3.example/staging',
+                'required_headers': [
+                  ['Content-Type', 'application/octet-stream'],
+                  ['x-amz-checksum-sha256', 'checksum'],
+                ],
+                'expires_in': 300,
+              },
+            });
+          case 'finalize':
+            return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+          default:
+            throw StateError('unexpected direct action: $action');
+        }
+      },
+      directPutFn: (url, file, length, headers) async {
+        expect(await file.readAsBytes(), isNot(_testBytes()));
+      },
+    );
+    expect(await recovered.resumeAll(_uidA), ['new/direct/same-round']);
+    final group = await repo.findByAnchor(anchor, _uidA);
+    expect(group, hasLength(1));
+    expect(group.single.stage, AttachmentUploadStage.confirmed);
+    expect(jsonDecode(group.single.businessIntent!)['state'], 'uploading');
+    expect(actions, [
+      'register',
+      'register',
+      'register',
+      'declare',
+      'grant',
+      'finalize',
+    ]);
+    final notified = <String>[];
+    await recovered.recoverBusinessOutbox(
+      _uidA,
+      prepareMessage: (savedIntent, message) async => MessageModel(
+        message.id,
+        autoId: 0,
+        type: 'C2C',
+        status: IMBoyMessageStatus.sending,
+        fromId: 101,
+        toId: 202,
+        payload: '',
+        e2ee: {'protocol': 'olm', 'meta_version': 3},
+        isAuthor: 1,
+        conversationUk3: 'c2c-101-202',
+        msgType: 'file',
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+      ),
+      notifyRetry: (messageId, _) => notified.add(messageId),
+    );
+    expect(await db.rawQuery('SELECT id FROM msg_c2c'), [
+      {'id': anchor},
+    ]);
+    expect(notified, [anchor]);
+    expect(
+      jsonDecode((await repo.find(group.single.id))!.businessIntent!)['state'],
+      'outbox_ready',
+    );
+  });
+
+  test('旧视频先迁移已确认缩略图，再同轮迁移视频并保留原消息', () async {
+    await _createMessageOutboxTables(db);
+    const thumbId = 'old-video-thumb';
+    const videoId = 'old-video-main';
+    const anchor = 'old-video-original-message';
+    final handler = ChatAttachmentHandler(
+      peerId: _uidB,
+      conversationUk3: 'c2c-101-202',
+      type: 'C2C',
+      currentUserOverride: const User(id: _uidA),
+      onMessageCreated: (_) async => true,
+    );
+    final intent = handler.pendingMessageIntent(
+      anchor,
+      'video',
+      name: 'original.mp4',
+      width: 640,
+      height: 480,
+      duration: const Duration(seconds: 2),
+    );
+    final up = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async => IMBoyHttpResponse.success({
+        'object_key': body?['object_key'],
+        'state': 'CONFIRMED',
+      }),
+    );
+    for (final (id, name, mime) in [
+      (thumbId, 'thumb.jpg', 'image/jpeg'),
+      (videoId, 'video.mp4', 'video/mp4'),
+    ]) {
+      await up.upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: name,
+        mime: mime,
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        prepareOnly: true,
+      );
+    }
+    f.objectKey = 'old/thumbnail';
+    await up.upload(
+      idempotencyKey: thumbId,
+      userId: _uidA,
+      bytes: _testBytes(),
+      fileName: 'thumb.jpg',
+      mime: 'image/jpeg',
+      bindingHashHex: _binding,
+      anchorMsgId: anchor,
+      messageIntent: intent,
+      presignFn: f.presign,
+      putFn: f.put,
+      confirmFn: f.confirm,
+    );
+    keys.store[videoId]!['thumb'] =
+        keys.store[(await repo.find(thumbId))!.keyRef]!['descriptor']!;
+    f.objectKey = 'old/video';
+    await expectLater(
+      up.upload(
+        idempotencyKey: videoId,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'video.mp4',
+        mime: 'video/mp4',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('old-video');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final uploaded = <String>[];
+    final resumed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      directSessionFn: (path, {body}) async {
+        switch (path.split('/').last) {
+          case 'status':
+            return IMBoyHttpResponse.success({
+              'object_key': body?['object_key'],
+              'state': 'CONFIRMED',
+            });
+          case 'register':
+            if (body?['client_upload_id'] == videoId) {
+              return IMBoyHttpResponse.failure(
+                errMsg: 'legacy_session_conflict',
+              );
+            }
+            return IMBoyHttpResponse.success({
+              'object_key': body?['filename'] == 'thumb.jpg'
+                  ? 'new/thumbnail'
+                  : 'new/video',
+              'state': 'RESERVED',
+            });
+          case 'declare':
+            return IMBoyHttpResponse.success({'state': 'DECLARED'});
+          case 'grant':
+            return IMBoyHttpResponse.success({
+              'attempt_id': 1,
+              'grant': {
+                'transport': 's3_put',
+                'method': 'PUT',
+                'url': 'https://s3.example/staging',
+                'required_headers': [
+                  [
+                    'Content-Type',
+                    body?['object_key'] == 'new/thumbnail'
+                        ? 'image/jpeg'
+                        : 'video/mp4',
+                  ],
+                  ['x-amz-checksum-sha256', 'checksum'],
+                ],
+                'expires_in': 300,
+              },
+            });
+          case 'finalize':
+            return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+          default:
+            throw StateError('unexpected direct action: $path');
+        }
+      },
+      directPutFn: (url, file, length, headers) async {
+        uploaded.add(headers['Content-Type']!);
+        expect(await file.readAsBytes(), isNot(_testBytes()));
+      },
+    );
+    expect(await resumed.resumeAll(_uidA), ['new/thumbnail', 'new/video']);
+    expect(uploaded, ['image/jpeg', 'video/mp4']);
+    final group = await repo.findByAnchor(anchor, _uidA);
+    expect(group, hasLength(2));
+    expect(
+      group.every((row) => row.stage == AttachmentUploadStage.confirmed),
+      isTrue,
+    );
+    expect(await repo.find(thumbId), isNull);
+    expect(await repo.find(videoId), isNull);
+    expect(keys.store.containsKey(thumbId), isTrue);
+    expect(keys.store.containsKey(videoId), isTrue);
+    final video = group.singleWhere((row) => row.mime.startsWith('video/'));
+    final restored = await resumed.restoreMessageTemplate(video);
+    final metadata = Map<String, dynamic>.from(restored['metadata'] as Map);
+    final descriptor = AttachmentDescriptor.fromMap(
+      Map<String, dynamic>.from(metadata['attachment_descriptor'] as Map),
+    );
+    expect(descriptor.objectKey, 'new/video');
+    expect(descriptor.thumb?.objectKey, 'new/thumbnail');
+    expect(restored['id'], anchor);
+  });
+
+  test('旧视频未注册时依据服务端旧状态迁移缩略图并保留原消息', () async {
+    await _createMessageOutboxTables(db);
+    const thumbId = 'old-video-thumb';
+    const videoId = 'old-video-main';
+    const anchor = 'old-video-original-message';
+    final handler = ChatAttachmentHandler(
+      peerId: _uidB,
+      conversationUk3: 'c2c-101-202',
+      type: 'C2C',
+      currentUserOverride: const User(id: _uidA),
+      onMessageCreated: (_) async => true,
+    );
+    final intent = handler.pendingMessageIntent(
+      anchor,
+      'video',
+      name: 'original.mp4',
+      width: 640,
+      height: 480,
+      duration: const Duration(seconds: 2),
+    );
+    final up = _uploader(repo, keys);
+    for (final (id, name, mime) in [
+      (thumbId, 'thumb.jpg', 'image/jpeg'),
+      (videoId, 'video.mp4', 'video/mp4'),
+    ]) {
+      await up.upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: name,
+        mime: mime,
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        prepareOnly: true,
+      );
+    }
+    f.objectKey = 'old/thumbnail';
+    await up.upload(
+      idempotencyKey: thumbId,
+      userId: _uidA,
+      bytes: _testBytes(),
+      fileName: 'thumb.jpg',
+      mime: 'image/jpeg',
+      bindingHashHex: _binding,
+      anchorMsgId: anchor,
+      messageIntent: intent,
+      presignFn: f.presign,
+      putFn: f.put,
+      confirmFn: f.confirm,
+    );
+    keys.store[videoId]!['thumb'] =
+        keys.store[(await repo.find(thumbId))!.keyRef]!['descriptor']!;
+    final uploaded = <String>[];
+    final resumed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      directSessionFn: (path, {body}) async {
+        switch (path.split('/').last) {
+          case 'status':
+            return IMBoyHttpResponse.success({
+              'object_key': body?['object_key'],
+              'state': body?['object_key'] == 'old/thumbnail'
+                  ? null
+                  : 'CONFIRMED',
+            });
+          case 'register':
+            if (body?['client_upload_id'] == videoId) {
+              return IMBoyHttpResponse.failure(
+                errMsg: 'legacy_session_conflict',
+              );
+            }
+            return IMBoyHttpResponse.success({
+              'object_key': body?['filename'] == 'thumb.jpg'
+                  ? 'new/thumbnail'
+                  : 'new/video',
+              'state': 'RESERVED',
+            });
+          case 'declare':
+            return IMBoyHttpResponse.success({'state': 'DECLARED'});
+          case 'grant':
+            return IMBoyHttpResponse.success({
+              'attempt_id': 1,
+              'grant': {
+                'transport': 's3_put',
+                'method': 'PUT',
+                'url': 'https://s3.example/staging',
+                'required_headers': [
+                  [
+                    'Content-Type',
+                    body?['object_key'] == 'new/thumbnail'
+                        ? 'image/jpeg'
+                        : 'video/mp4',
+                  ],
+                  ['x-amz-checksum-sha256', 'checksum'],
+                ],
+                'expires_in': 300,
+              },
+            });
+          case 'finalize':
+            return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+          default:
+            throw StateError('unexpected direct action: $path');
+        }
+      },
+      directPutFn: (url, file, length, headers) async {
+        uploaded.add(headers['Content-Type']!);
+        expect(await file.readAsBytes(), isNot(_testBytes()));
+      },
+    );
+    expect(await resumed.resumeAll(_uidA), ['new/thumbnail', 'new/video']);
+    expect(uploaded, ['image/jpeg', 'video/mp4']);
+    final group = await repo.findByAnchor(anchor, _uidA);
+    expect(group, hasLength(2));
+    expect(
+      group.every((row) => row.stage == AttachmentUploadStage.confirmed),
+      isTrue,
+    );
+    expect(await repo.find(thumbId), isNull);
+    expect(await repo.find(videoId), isNull);
+    expect(keys.store.containsKey(thumbId), isTrue);
+    expect(keys.store.containsKey(videoId), isTrue);
+    final video = group.singleWhere((row) => row.mime.startsWith('video/'));
+    final restored = await resumed.restoreMessageTemplate(video);
+    final metadata = Map<String, dynamic>.from(restored['metadata'] as Map);
+    final descriptor = AttachmentDescriptor.fromMap(
+      Map<String, dynamic>.from(metadata['attachment_descriptor'] as Map),
+    );
+    expect(descriptor.objectKey, 'new/video');
+    expect(descriptor.thumb?.objectKey, 'new/thumbnail');
+    expect(restored['id'], anchor);
+  });
+
+  test('视频直接调用在状态不可达时不注册也不更改原任务', () async {
+    await _createMessageOutboxTables(db);
+    const thumbId = 'old-video-thumb';
+    const videoId = 'old-video-main';
+    const anchor = 'old-video-original-message';
+    final handler = ChatAttachmentHandler(
+      peerId: _uidB,
+      conversationUk3: 'c2c-101-202',
+      type: 'C2C',
+      currentUserOverride: const User(id: _uidA),
+      onMessageCreated: (_) async => true,
+    );
+    final intent = handler.pendingMessageIntent(
+      anchor,
+      'video',
+      name: 'original.mp4',
+      width: 640,
+      height: 480,
+      duration: const Duration(seconds: 2),
+    );
+    final up = _uploader(repo, keys);
+    for (final (id, name, mime) in [
+      (thumbId, 'thumb.jpg', 'image/jpeg'),
+      (videoId, 'video.mp4', 'video/mp4'),
+    ]) {
+      await up.upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: name,
+        mime: mime,
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        prepareOnly: true,
+      );
+    }
+    f.objectKey = 'old/thumbnail';
+    await up.upload(
+      idempotencyKey: thumbId,
+      userId: _uidA,
+      bytes: _testBytes(),
+      fileName: 'thumb.jpg',
+      mime: 'image/jpeg',
+      bindingHashHex: _binding,
+      anchorMsgId: anchor,
+      messageIntent: intent,
+      presignFn: f.presign,
+      putFn: f.put,
+      confirmFn: f.confirm,
+    );
+    keys.store[videoId]!['thumb'] =
+        keys.store[(await repo.find(thumbId))!.keyRef]!['descriptor']!;
+    var calls = 0;
+    final offline = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (path, {body}) async {
+        calls++;
+        expect(path, endsWith('/status'));
+        return IMBoyHttpResponse.failure(errMsg: 'offline');
+      },
+    );
+    await expectLater(
+      offline.upload(
+        idempotencyKey: videoId,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'video.mp4',
+        mime: 'video/mp4',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+      ),
+      throwsA(anything),
+    );
+    expect(calls, 1);
+    expect((await repo.find(videoId))!.stage, AttachmentUploadStage.pending);
+    expect(await repo.find(thumbId), isNotNull);
+    expect(await offline.resumeAll(_uidA), isEmpty);
+    expect((await repo.find(videoId))!.stage, AttachmentUploadStage.pending);
+    final originalThumb = keys.store[videoId]!['thumb']!;
+    final unrelated = jsonDecode(originalThumb) as Map<String, dynamic>;
+    unrelated['name'] = 'not-the-confirmed-thumbnail.jpg';
+    final seal = AttachmentSealRequest(
+      bindingHash: _hexDecode(_binding),
+      attachmentId: videoId,
+    )..thumbDescriptor = AttachmentDescriptor.fromMap(unrelated);
+    final before = Map<String, String>.of(keys.store[videoId]!);
+    final rejected = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sealRequest: seal,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async =>
+          IMBoyHttpResponse.failure(errMsg: 'offline'),
+    );
+    await expectLater(
+      rejected.upload(
+        idempotencyKey: videoId,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'video.mp4',
+        mime: 'video/mp4',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+      ),
+      throwsA(anything),
+    );
+    expect(keys.store[videoId], before);
+    final changed = jsonDecode(originalThumb) as Map<String, dynamic>;
+    changed['name'] = 'different-name.jpg';
+    keys.store[videoId]!['thumb'] = jsonEncode(changed);
+    final confirmed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (path, {body}) async {
+        expect(path, endsWith('/status'));
+        return IMBoyHttpResponse.success({
+          'object_key': body?['object_key'],
+          'state': 'CONFIRMED',
+        });
+      },
+    );
+    await expectLater(
+      confirmed.upload(
+        idempotencyKey: videoId,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'video.mp4',
+        mime: 'video/mp4',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+      ),
+      throwsStateError,
+    );
+    expect((await repo.find(videoId))!.stage, AttachmentUploadStage.pending);
+    keys.store[videoId]!['thumb'] = originalThumb;
+    await db.insert('msg_c2c', {'id': anchor});
+    final callsBeforeOutbox = calls;
+    expect(await offline.resumeAll(_uidA), isEmpty);
+    expect(calls, callsBeforeOutbox);
+    expect((await repo.find(videoId))!.lastError, 'legacy_outbox_check');
+    expect(await repo.find(thumbId), isNotNull);
+  });
+
+  test('视频先遍历时，正式密文缩略图重启确认后同轮恢复视频', () async {
+    await _createMessageOutboxTables(db);
+    const thumbId = 'old-resume-thumb';
+    const videoId = 'old-resume-video';
+    const anchor = 'old-resume-message';
+    final handler = ChatAttachmentHandler(
+      peerId: _uidB,
+      conversationUk3: 'c2c-101-202',
+      type: 'C2C',
+      currentUserOverride: const User(id: _uidA),
+      onMessageCreated: (_) async => true,
+    );
+    final intent = handler.pendingMessageIntent(
+      anchor,
+      'video',
+      name: 'original.mp4',
+    );
+    final up = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async => IMBoyHttpResponse.success({
+        'object_key': body?['object_key'],
+        'state': 'CONFIRMED',
+      }),
+    );
+    for (final (id, name, mime) in [
+      (thumbId, 'thumb.jpg', 'image/jpeg'),
+      (videoId, 'video.mp4', 'video/mp4'),
+    ]) {
+      await up.upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: name,
+        mime: mime,
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        prepareOnly: true,
+      );
+    }
+    f.objectKey = 'old/thumbnail';
+    await up.upload(
+      idempotencyKey: thumbId,
+      userId: _uidA,
+      bytes: _testBytes(),
+      fileName: 'thumb.jpg',
+      mime: 'image/jpeg',
+      bindingHashHex: _binding,
+      anchorMsgId: anchor,
+      messageIntent: intent,
+      presignFn: f.presign,
+      putFn: f.put,
+      confirmFn: f.confirm,
+    );
+    keys.store[videoId]!['thumb'] =
+        keys.store[(await repo.find(thumbId))!.keyRef]!['descriptor']!;
+    f.objectKey = 'old/video';
+    await expectLater(
+      up.upload(
+        idempotencyKey: videoId,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'video.mp4',
+        mime: 'video/mp4',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: intent,
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('old-video');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final expectedByKey = <String, Map<String, dynamic>>{};
+    final confirmed = <String>{};
+    final uploads = <String>[];
+    var loseThumbFinalize = true;
+    Future<IMBoyHttpResponse> direct(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      final action = path.split('/').last;
+      final objectKey = body?['object_key']?.toString();
+      switch (action) {
+        case 'register':
+          if (body?['client_upload_id'] == videoId) {
+            return IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict');
+          }
+          final key = body?['filename'] == 'thumb.jpg'
+              ? 'new/restart-thumb'
+              : 'new/restart-video';
+          return IMBoyHttpResponse.success({
+            'object_key': key,
+            'state': confirmed.contains(key) ? 'CONFIRMED' : 'RESERVED',
+          });
+        case 'declare':
+          expectedByKey[objectKey!] = {
+            'sha256': body?['sha256'],
+            'size_bytes': body?['size_bytes'],
+            'mime': body?['mime'],
+          };
+          return IMBoyHttpResponse.success({'state': 'DECLARED'});
+        case 'grant':
+          return IMBoyHttpResponse.success({
+            'attempt_id': 1,
+            'grant': {
+              'transport': 's3_put',
+              'method': 'PUT',
+              'url': 'https://s3.example/staging',
+              'required_headers': [
+                [
+                  'Content-Type',
+                  objectKey == 'new/restart-thumb' ? 'image/jpeg' : 'video/mp4',
+                ],
+                ['x-amz-checksum-sha256', 'checksum'],
+              ],
+              'expires_in': 300,
+            },
+          });
+        case 'finalize':
+          confirmed.add(objectKey!);
+          if (objectKey == 'new/restart-thumb' && loseThumbFinalize) {
+            loseThumbFinalize = false;
+            throw _KillSignal('response-lost');
+          }
+          return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+        case 'status':
+          return IMBoyHttpResponse.success({
+            'object_key': objectKey,
+            'state': confirmed.contains(objectKey) ? 'CONFIRMED' : 'GRANTED',
+            'expected': expectedByKey[objectKey],
+          });
+        default:
+          throw StateError('unexpected direct action: $action');
+      }
+    }
+
+    ResumableAttachmentUploader make() => ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      process: false,
+      directSessionFn: direct,
+      directPutFn: (url, file, length, headers) async =>
+          uploads.add(headers['Content-Type']!),
+    );
+    expect(await make().resumeAll(_uidA), isEmpty);
+    final firstGroup = await repo.findByAnchor(anchor, _uidA);
+    final pendingThumb = firstGroup.singleWhere(
+      (row) => row.mime.startsWith('image/'),
+    );
+    expect(pendingThumb.stage, AttachmentUploadStage.putDone);
+    expect(pendingThumb.uploadPath, contains('.bin.material-'));
+    expect((await repo.find(videoId))!.lastError, 'legacy_reselect');
+    await db.update(
+      'attachment_upload_task',
+      {'created_at': 1},
+      where: 'id = ?',
+      whereArgs: [videoId],
+    );
+    expect((await repo.listResumable(_uidA)).first.id, videoId);
+    expect(await make().resumeAll(_uidA), [
+      'new/restart-thumb',
+      'new/restart-video',
+    ]);
+    expect(uploads, ['image/jpeg', 'video/mp4']);
+    final group = await repo.findByAnchor(anchor, _uidA);
+    expect(group, hasLength(2));
+    expect(
+      group.every((row) => row.stage == AttachmentUploadStage.confirmed),
+      isTrue,
+    );
+    final video = group.singleWhere((row) => row.mime.startsWith('video/'));
+    final restored = await make().restoreMessageTemplate(video);
+    final meta = Map<String, dynamic>.from(restored['metadata'] as Map);
+    final descriptor = AttachmentDescriptor.fromMap(
+      Map<String, dynamic>.from(meta['attachment_descriptor'] as Map),
+    );
+    expect(descriptor.thumb?.objectKey, 'new/restart-thumb');
+    expect(restored['id'], anchor);
+    Future<MessageModel> prepare(
+      Map<String, dynamic> savedIntent,
+      Message message,
+    ) async => MessageModel(
+      message.id,
+      autoId: 0,
+      type: 'C2C',
+      status: IMBoyMessageStatus.sending,
+      fromId: 101,
+      toId: 202,
+      payload: '',
+      e2ee: {'protocol': 'olm', 'meta_version': 3},
+      isAuthor: 1,
+      conversationUk3: 'c2c-101-202',
+      msgType: 'video',
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+    );
+    final retry = <String>[];
+    await make().recoverBusinessOutbox(
+      _uidA,
+      prepareMessage: prepare,
+      notifyRetry: (id, _) => retry.add(id),
+    );
+    await make().recoverBusinessOutbox(
+      _uidA,
+      prepareMessage: prepare,
+      notifyRetry: (id, _) => retry.add(id),
+    );
+    expect(await db.rawQuery('SELECT id FROM msg_c2c'), [
+      {'id': anchor},
+    ]);
+  });
+
+  test('已确认缩略图正在迁移时，模板与 outbox 均阻断', () async {
+    await _createMessageOutboxTables(db);
+    const anchor = 'migrating-thumb-anchor';
+    final handler = ChatAttachmentHandler(
+      peerId: _uidB,
+      conversationUk3: 'c2c-101-202',
+      type: 'C2C',
+      currentUserOverride: const User(id: _uidA),
+      onMessageCreated: (_) async => true,
+    );
+    final intent = jsonEncode(
+      handler.pendingMessageIntent(anchor, 'video', name: 'video.mp4'),
+    );
+    final thumbBase = await _seedRow(
+      'busy-thumb',
+      uid: _uidA,
+      stage: AttachmentUploadStage.confirmed,
+      objectKey: 'old/thumb',
+    );
+    final videoBase = await _seedRow(
+      'busy-video',
+      uid: _uidA,
+      stage: AttachmentUploadStage.confirmed,
+      objectKey: 'old/video',
+    );
+    await repo.insert(
+      AttachmentUploadTask.fromMap({
+        ...thumbBase.toMap(),
+        'anchor_msg_id': anchor,
+        'business_intent': intent,
+        'mime': 'image/jpeg',
+        'last_error': 'legacy_migrating:a12c5f87-944d-416d-bdcc-a7533ab3491f',
+      }),
+    );
+    await repo.insert(
+      AttachmentUploadTask.fromMap({
+        ...videoBase.toMap(),
+        'anchor_msg_id': anchor,
+        'business_intent': intent,
+        'mime': 'video/mp4',
+      }),
+    );
+    await expectLater(
+      _uploader(
+        repo,
+        keys,
+      ).restoreMessageTemplate((await repo.find('busy-video'))!),
+      throwsStateError,
+    );
+    expect(
+      await repo.claimBusinessDispatch(anchor, _uidA, {
+        'metadata': <String, dynamic>{},
+      }),
+      isFalse,
+    );
+    final message = MessageModel(
+      anchor,
+      autoId: 0,
+      type: 'C2C',
+      status: IMBoyMessageStatus.sending,
+      fromId: 101,
+      toId: 202,
+      payload: '',
+      e2ee: {'protocol': 'olm', 'meta_version': 3},
+      isAuthor: 1,
+      conversationUk3: 'c2c-101-202',
+      msgType: 'video',
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+    );
+    expect(
+      await repo.enqueueBusinessOutbox(
+        message,
+        userId: _uidA,
+        isCurrent: () => true,
+      ),
+      isFalse,
+    );
+    expect(await db.rawQuery('SELECT id FROM msg_c2c'), isEmpty);
+    await expectLater(
+      MessageRepo(tableName: 'msg_c2c').insert(message, outbound: true),
+      throwsStateError,
+    );
+    expect(await db.rawQuery('SELECT id FROM msg_c2c'), isEmpty);
+    // 服务端已经接受的事实仍要落库，后续上传恢复据此停止而非重发。
+    await MessageRepo(tableName: 'msg_c2c').insert(message);
+    expect(await db.rawQuery('SELECT id FROM msg_c2c'), hasLength(1));
+    expect(
+      await repo.legacyOutboxMayExist((await repo.find('busy-video'))!),
+      isTrue,
+    );
+  });
+
+  test('旧迁移标记不能被过期的恢复结果覆盖或放弃', () async {
+    await _createMessageOutboxTables(db);
+    final base = await _seedRow(
+      'marker-race',
+      uid: _uidA,
+      stage: AttachmentUploadStage.putDone,
+      objectKey: 'old/key',
+    );
+    final observed = AttachmentUploadTask.fromMap({
+      ...base.toMap(),
+      'anchor_msg_id': 'marker-anchor',
+      'business_intent': jsonEncode({
+        'state': 'uploading',
+        'author_id': _uidA,
+        'chat_type': 'c2c',
+      }),
+    });
+    await repo.insert(observed);
+    const replacement = 'a12c5f87-944d-416d-bdcc-a7533ab3491f';
+    final releaseStaleWriter = Completer<void>();
+    final staleWrite = () async {
+      await releaseStaleWriter.future;
+      return repo.setRecoveryReason(observed, 'legacy_reselect');
+    }();
+    expect(
+      await repo.reserveLegacyMigration(
+        observed,
+        replacement,
+        isCurrent: () => true,
+      ),
+      replacement,
+    );
+    final marker = (await repo.find(observed.id))!.lastError;
+    expect(marker, 'legacy_migrating:$replacement');
+    releaseStaleWriter.complete();
+    expect(await staleWrite, isFalse);
+    expect(
+      await repo.advanceStage(
+        observed.id,
+        observed.stage,
+        observed.stage,
+        userId: _uidA,
+        lastError: 'legacy_outbox_check',
+      ),
+      isFalse,
+    );
+    expect(await repo.abandon(observed.id, _uidA, 'conflict'), isFalse);
+    expect((await repo.find(observed.id))!.lastError, marker);
+  });
+
+  test('迟到的迁移不能覆盖已确认 descriptor 或留下暂存', () async {
+    await _createMessageOutboxTables(db);
+    const id = 'late-legacy';
+    const anchor = 'late-legacy-anchor';
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: {
+          'state': 'uploading',
+          'author_id': _uidA,
+          'chat_type': 'c2c',
+        },
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final old = (await repo.find(id))!;
+    final oldCiphertext = File(old.uploadPath!);
+    final oldSource = File(
+      '${oldCiphertext.path.split('.material-').first}.source',
+    );
+    await oldSource.writeAsBytes(_testBytes(), flush: true);
+    await db.update(
+      'attachment_upload_task',
+      {
+        'upload_path': oldSource.path,
+        'stage': AttachmentUploadStage.presigned.value,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    final held = Completer<void>();
+    final release = Completer<void>();
+    Future<IMBoyHttpResponse> direct(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      switch (path.split('/').last) {
+        case 'register':
+          if (body?['client_upload_id'] == id) {
+            return IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict');
+          }
+          return IMBoyHttpResponse.success({
+            'object_key': 'new/direct/late',
+            'state': 'RESERVED',
+          });
+        case 'declare':
+          return IMBoyHttpResponse.success({'state': 'DECLARED'});
+        case 'grant':
+          return IMBoyHttpResponse.success({
+            'attempt_id': 1,
+            'grant': {
+              'transport': 's3_put',
+              'method': 'PUT',
+              'url': 'https://s3.example/staging',
+              'required_headers': [
+                ['Content-Type', 'application/octet-stream'],
+                ['x-amz-checksum-sha256', 'checksum'],
+              ],
+              'expires_in': 300,
+            },
+          });
+        case 'finalize':
+          return IMBoyHttpResponse.success({'state': 'CONFIRMED'});
+        default:
+          throw StateError('unexpected direct action: $path');
+      }
+    }
+
+    ResumableAttachmentUploader make({bool delay = false}) =>
+        ResumableAttachmentUploader(
+          repo: repo,
+          keyStore: keys,
+          sessionGuard: (_) => true,
+          cacheDirectory: _uploadCache,
+          cacheWriter: (write, _) => write(),
+          process: false,
+          directSessionFn: direct,
+          directPutFn: (url, file, length, headers) async {},
+          legacyMigrationBarrier: delay
+              ? (_) async {
+                  held.complete();
+                  await release.future;
+                }
+              : null,
+        );
+    final slow = make(delay: true).resumeAll(_uidA);
+    await held.future;
+    expect(await make().resumeAll(_uidA), ['new/direct/late']);
+    final completed = (await repo.findByAnchor(anchor, _uidA)).single;
+    final descriptor =
+        keys.store[(await repo.find(completed.id))!.keyRef]!['descriptor'];
+    expect(descriptor, isNotNull);
+    release.complete();
+    await slow;
+    expect(
+      keys.store[(await repo.find(completed.id))!.keyRef]!['descriptor'],
+      descriptor,
+    );
+    expect(
+      (await repo.find(completed.id))!.stage,
+      AttachmentUploadStage.confirmed,
+    );
+    expect(await oldSource.exists(), isTrue);
+    expect(await oldCiphertext.exists(), isTrue);
+    expect(
+      _uploadCache
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((file) => file.path.contains('.migration')),
+      isEmpty,
+    );
+  });
+
+  test('旧任务恢复过程切号不写记录或生成新材料', () async {
+    await _createMessageOutboxTables(db);
+    const id = 'legacy-switch';
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        anchorMsgId: 'switch-anchor',
+        messageIntent: {
+          'state': 'uploading',
+          'author_id': _uidA,
+          'chat_type': 'c2c',
+        },
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final before = (await repo.find(id))!;
+    final material = Map<String, String>.from(keys.store[id]!);
+    final paths = _uploadCache
+        .listSync(recursive: true)
+        .map((e) => e.path)
+        .toSet();
+    var active = true;
+    final uploader = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => active,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async {
+        active = false;
+        return IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict');
+      },
+    );
+    await expectLater(uploader.resumeAll(_uidA), throwsStateError);
+    final after = (await repo.find(id))!;
+    expect(after.lastError, isNull);
+    expect(after.objectKey, before.objectKey);
+    expect(keys.store[id], material);
+    expect(
+      _uploadCache.listSync(recursive: true).map((e) => e.path).toSet(),
+      paths,
+    );
+  });
+
+  test('并发旧任务恢复只生成一个新身份并保留旧材料', () async {
+    await _createMessageOutboxTables(db);
+    const id = 'legacy-race';
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        anchorMsgId: 'race-anchor',
+        messageIntent: {
+          'state': 'uploading',
+          'author_id': _uidA,
+          'chat_type': 'c2c',
+        },
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final before = (await repo.find(id))!;
+    final material = Map<String, String>.from(keys.store[id]!);
+    ResumableAttachmentUploader make() => ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async =>
+          IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict'),
+    );
+    await Future.wait([make().resumeAll(_uidA), make().resumeAll(_uidA)]);
+    final rows = await repo.findByAnchor('race-anchor', _uidA);
+    expect(rows, hasLength(1));
+    expect(rows.single.id, isNot(id));
+    expect(rows.single.stage, AttachmentUploadStage.pending);
+    expect(rows.single.businessIntent, before.businessIntent);
+    expect(keys.store[id], material);
+    expect(keys.store.keys, isNot(contains(rows.single.id)));
+    expect(await File(before.uploadPath!).exists(), isTrue);
+  });
+
+  test('旧任务已有 outbox 消息时不提供重发依据', () async {
+    await _createMessageOutboxTables(db);
+    const id = 'legacy-outbox';
+    const anchor = 'outbox-anchor';
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        anchorMsgId: anchor,
+        messageIntent: {
+          'state': 'uploading',
+          'author_id': _uidA,
+          'chat_type': 'c2c',
+        },
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    await db.insert('msg_c2c', {'id': anchor});
+    final resumed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async =>
+          IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict'),
+    );
+    expect(await resumed.resumeAll(_uidA), isEmpty);
+    final old = (await repo.find(id))!;
+    expect(old.stage, AttachmentUploadStage.putDone);
+    expect(old.lastError, 'legacy_outbox_check');
+    expect(await repo.legacyOutboxMayExist(old), isTrue);
+    expect(await repo.findByAnchor(anchor, _uidA), hasLength(1));
+  });
+
+  test('无业务意图的旧任务保留并提示返回原页面', () async {
+    const id = 'legacy-no-intent';
+    await expectLater(
+      _uploader(repo, keys).upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        presignFn: f.presign,
+        putFn: f.put,
+        confirmFn: f.confirm,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.presigned) {
+            throw _KillSignal('presigned');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final before = (await repo.find(id))!;
+    final resumed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async =>
+          IMBoyHttpResponse.failure(errMsg: 'legacy_session_conflict'),
+    );
+    expect(await resumed.resumeAll(_uidA), isEmpty);
+    final old = (await repo.find(id))!;
+    expect(old.stage, AttachmentUploadStage.presigned);
+    expect(old.lastError, 'legacy_return_page');
+    expect(old.objectKey, before.objectKey);
+    expect(await repo.hasUnrecoverableNonChat(_uidA), isTrue);
+    expect(await File(old.uploadPath!).exists(), isTrue);
+    expect(keys.store[id], isNotNull);
+  });
+
+  test('direct 密文 PUT 后中断，重启后 renew 并完成原身份', () async {
+    var state = 'RESERVED';
+    Map<String, dynamic>? expected;
+    var attempt = 0;
+    final uploaded = <Uint8List>[];
+    Future<IMBoyHttpResponse> session(
+      String path, {
+      Map<String, dynamic>? body,
+    }) async {
+      switch (path.split('/').last) {
+        case 'register':
+          expect(body?['cipher'], AttachmentDescriptor.supportedCipher);
+          return IMBoyHttpResponse.success({
+            'object_key': 'private/direct-key',
+            'state': state,
+          });
+        case 'declare':
+          expected = {
+            'sha256': body!['sha256'],
+            'size_bytes': body['size_bytes'],
+            'mime': body['mime'],
+          };
+          state = 'DECLARED';
+          return IMBoyHttpResponse.success({'state': state});
+        case 'grant':
+        case 'renew':
+          state = 'GRANTED';
+          attempt++;
+          return IMBoyHttpResponse.success({
+            'attempt_id': attempt,
+            'grant': {
+              'transport': 's3_put',
+              'url': 'https://garage.test/$attempt',
+              'method': 'PUT',
+              'required_headers': [
+                ['Content-Type', 'application/octet-stream'],
+                ['x-amz-checksum-sha256', 'sha'],
+              ],
+            },
+          });
+        case 'status':
+          return IMBoyHttpResponse.success({
+            'state': state,
+            'expected': expected,
+            'attempts': List.filled(attempt, <String, dynamic>{}),
+          });
+        case 'finalize':
+          state = 'CONFIRMED';
+          return IMBoyHttpResponse.success({'state': state});
+        default:
+          throw StateError(path);
+      }
+    }
+
+    ResumableAttachmentUploader makeUploader() => ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: session,
+      directPutFn: (_, file, _, _) async =>
+          uploaded.add(await file.readAsBytes()),
+    );
+    const id = 'f0e0d0c0-b0a0-4908-8877-665544332211';
+    await expectLater(
+      makeUploader().upload(
+        idempotencyKey: id,
+        userId: _uidA,
+        bytes: _testBytes(),
+        fileName: 'resume.bin',
+        mime: 'application/octet-stream',
+        bindingHashHex: _binding,
+        checkpoint: (event) async {
+          if (event.stage == UploadCheckpointStage.putDone) {
+            throw _KillSignal('put');
+          }
+        },
+      ),
+      throwsA(isA<_KillSignal>()),
+    );
+    final pending = (await repo.find(id))!;
+    expect(pending.stage, AttachmentUploadStage.putDone);
+    expect(
+      pending.ciphertextSha256,
+      sha256.convert(uploaded.single).toString(),
+    );
+    final result = await makeUploader().resumeAll(_uidA);
+    expect(result, ['private/direct-key']);
+    expect((await repo.find(id))!.stage, AttachmentUploadStage.confirmed);
+    expect(uploaded, hasLength(2));
+    expect(uploaded[1], uploaded[0]);
+    expect(attempt, 2);
   });
 
   test('kill_after_registered: 注册后（presign 前）被杀，恢复重走全链', () async {
@@ -997,7 +3014,7 @@ void main() {
     final row = (await repo.find('cache-resume'))!;
     final saved = await File(row.uploadPath!).readAsBytes();
     expect(saved, isNot(_testBytes()));
-    expect(keys.store['cache-resume']!['descriptor'], isNotNull);
+    expect(keys.store[row.keyRef]!['descriptor'], isNotNull);
     final operations = <String>[];
     final restored = await _uploader(repo, keys).resumeAll(
       _uidA,
@@ -1151,6 +3168,7 @@ void main() {
   test(
     'business_intent_unknown_preserved_without_send: 未知消息提交不推进为成功',
     () async {
+      await _createMessageOutboxTables(db);
       final intent = {
         'author_id': _uidA,
         'message_id': 'anchor-1',
@@ -1265,6 +3283,7 @@ void main() {
     await db.close();
     final databasePath = '${_uploadCache.path}/pair.sqlite';
     db = await _openDb(databasePath);
+    await _createMessageOutboxTables(db);
     SqliteService.setDbForTest(db);
     repo = AttachmentUploadTaskRepo();
     final handler = ChatAttachmentHandler(
@@ -1330,7 +3349,17 @@ void main() {
     SqliteService.setDbForTest(db);
     repo = AttachmentUploadTaskRepo();
     f.objectKey = 'u101/pair-video';
-    final resumed = _uploader(repo, keys);
+    final resumed = ResumableAttachmentUploader(
+      repo: repo,
+      keyStore: keys,
+      sessionGuard: (_) => true,
+      cacheDirectory: _uploadCache,
+      cacheWriter: (write, _) => write(),
+      directSessionFn: (_, {body}) async => IMBoyHttpResponse.success({
+        'object_key': body!['object_key'],
+        'state': 'CONFIRMED',
+      }),
+    );
     await resumed.resumeAll(
       _uidA,
       presignFn: f.presign,
@@ -1761,26 +3790,34 @@ void main() {
         isTrue,
       );
       final before = notified.length;
-      // The process can die here before WS. A new uploader must not call this a first attempt.
+      // A reserved send can resume; only the I/O boundary makes its result unknown.
       await _uploader(repo, keys).recoverBusinessOutbox(
         _uidA,
         prepareMessage: prepare,
         notifyRetry: (id, _) => notified.add(id),
       );
-      expect(notified, hasLength(before));
+      expect(notified, hasLength(before + 1));
       expect(
         await repo.claimOutboxDispatch(
           'atomic-original-id',
           _uidA,
           isCurrent: () => true,
         ),
-        isFalse,
+        isTrue,
       );
       expect(
         jsonDecode(
           (await repo.find('atomic-upload'))!.businessIntent!,
         )['state'],
-        'dispatch_intent',
+        'dispatch_reserved_v2',
+      );
+      expect(
+        await repo.beginOutboxSend(
+          'atomic-original-id',
+          _uidA,
+          isCurrent: () => true,
+        ),
+        isTrue,
       );
       final original = (await MessageRepo(tableName: MessageRepo.c2cTable)
           .find('atomic-original-id'))!;
@@ -1808,7 +3845,7 @@ void main() {
         prepareMessage: prepare,
         notifyRetry: (id, _) => notified.add(id),
       );
-      expect(notified, hasLength(before));
+      expect(notified, hasLength(before + 1));
       MessageRetry.instance.clearRetryQueue();
       await MessageRetry.instance.debugWaitForIdle();
       MessageRetry.instance.dispose();

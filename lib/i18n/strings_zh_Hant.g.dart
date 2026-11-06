@@ -1669,6 +1669,13 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => '操作結果未知，請先核對黑名單。';
 	@override String get denylistLocalNotSynced => '伺服器已處理，本機狀態尚未同步。';
 	@override String get friendConfirmResultUnknown => '好友確認結果未知，請先核對好友關係。';
+	@override String get legacyUploadRecoveryTitle => '附件需要恢復';
+	@override String get legacyUploadRecoveryBody => '原上傳紀錄會保留。請先檢查聊天紀錄，確認原訊息未傳送後，再選擇檔案作為新訊息傳送。';
+	@override String get legacyUploadSelectOriginal => '選擇檔案並傳送新訊息';
+	@override String get legacyUploadOutboxCheck => '訊息可能已進入傳送佇列，請先檢查聊天紀錄，避免重複傳送。';
+	@override String get legacyUploadRecoveryMismatch => '所選檔案與原檔案不一致或暫時無法恢復。';
+	@override String get legacyUploadRecoveryContinues => '附件已恢復，正在繼續處理原訊息。';
+	@override String get legacyUploadReturnToOriginalPage => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。';
 }
 
 // Path: complaint
@@ -4929,8 +4936,17 @@ extension on TranslationsZhHant {
 			'common.denylistResultUnknown' => '操作結果未知，請先核對黑名單。',
 			'common.denylistLocalNotSynced' => '伺服器已處理，本機狀態尚未同步。',
 			'common.friendConfirmResultUnknown' => '好友確認結果未知，請先核對好友關係。',
+			'common.legacyUploadRecoveryTitle' => '附件需要恢復',
+			'common.legacyUploadRecoveryBody' => '原上傳紀錄會保留。請先檢查聊天紀錄，確認原訊息未傳送後，再選擇檔案作為新訊息傳送。',
+			'common.legacyUploadSelectOriginal' => '選擇檔案並傳送新訊息',
+			'common.legacyUploadOutboxCheck' => '訊息可能已進入傳送佇列，請先檢查聊天紀錄，避免重複傳送。',
+			'common.legacyUploadRecoveryMismatch' => '所選檔案與原檔案不一致或暫時無法恢復。',
+			'common.legacyUploadRecoveryContinues' => '附件已恢復，正在繼續處理原訊息。',
+			'common.legacyUploadReturnToOriginalPage' => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
+			_ => null,
+		} ?? switch (path) {
 			'complaint.e2eeConsentBody' => '該訊息為端對端加密訊息，伺服器無法查看其內容。提交內容摘錄會將你選擇的訊息明文隨工單披露給審核員用於核實舉報。是否同意提交？',
 			'complaint.e2eeConsentSubmit' => '同意並提交證據',
 			'complaint.e2eeConsentDecline' => '僅舉報（不提交內容）',
@@ -4938,8 +4954,6 @@ extension on TranslationsZhHant {
 			'complaintReason.harassment' => '騷擾',
 			'complaintReason.inappropriate' => '不當內容',
 			'complaintReason.other' => '其他原因',
-			_ => null,
-		} ?? switch (path) {
 			'contact.blocked' => '已封鎖',
 			'contact.applyChanges' => '請重新啟動應用以套用變更',
 			'contact.inputNewTag' => '輸入新標籤...',
@@ -5445,6 +5459,8 @@ extension on TranslationsZhHant {
 			'main.complianceKeyInfoPinnedAt' => '固定時間',
 			'main.complianceKeyInfoPinnedNone' => '尚未固定（下次取得時自動固定）',
 			'main.complianceKeyInfoRefreshFailed' => '取得失敗，請檢查網路後重試',
+			_ => null,
+		} ?? switch (path) {
 			'main.complianceKeyInfoServerKey' => '伺服器下發的公開金鑰',
 			'main.complianceKeyInfoTitle' => '合規稽核金鑰',
 			'main.e2eeErrComplianceChanged' => '合規稽核金鑰已變更，訊息未傳送，請確認輪替後重試',
@@ -5452,8 +5468,6 @@ extension on TranslationsZhHant {
 			'main.e2eeErrComplianceExpired' => '合規金鑰已過期，請聯絡管理員',
 			'main.complianceKeyRotationConfirmed' => '合規金鑰輪換已確認，可重新發送訊息',
 			'main.complianceKeyRotationNoPending' => '沒有待確認的金鑰變更',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrDeviceNotReady' => '目前裝置未完成安全初始化，請登出後重新登入再試',
 			'main.e2eeErrProtocolMismatch' => '加密協定設定異常，請更新應用程式後重試',
 			'main.e2eeErrPeerSuiteUnsupported' => '對方裝置不支援要求的加密套件，訊息未傳送；請讓對方更新應用程式後重試',
@@ -5959,6 +5973,8 @@ extension on TranslationsZhHant {
 			'talkRecord.aiSaveAction' => '儲存在本裝置',
 			'talkRecord.aiReplaceAction' => '替換本裝置金鑰',
 			'talkRecord.aiDeleteAction' => '刪除本裝置金鑰',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiSaving' => '正在儲存…',
 			'talkRecord.aiSaved' => '已儲存在本裝置，尚未驗證 Key。',
 			'talkRecord.aiDeleted' => '已刪除本裝置設定，錄音與既有結果保留。',
@@ -5966,8 +5982,6 @@ extension on TranslationsZhHant {
 			'talkRecord.aiReplaceNotice' => '僅替換目前帳號在本裝置的此服務設定，不影響其他帳號或已儲存記錄。',
 			'talkRecord.aiDeleteTitle' => '刪除本裝置金鑰？',
 			'talkRecord.aiDeleteNotice' => '停止此服務的新請求。既有錄音和結果保留；已傳送至供應商的請求無法撤回。',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiCancel' => '取消',
 			'talkRecord.aiDoubaoTitle' => '豆包語音 2.0',
 			'talkRecord.aiDoubaoPurpose' => '錄音轉寫與臨時說話人標籤',

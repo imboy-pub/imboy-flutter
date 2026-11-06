@@ -577,7 +577,8 @@ class ChatPageState extends ConsumerState<ChatPage>
         isMutedCheck: () => _isMuted,
       );
 
-      await _attachmentHandler.recoverPendingMessages();
+      if (!context.mounted) return;
+      await _attachmentHandler.recoverPendingMessages(context: context);
 
       // 初始化消息操作处理器
       _messageActionHandler = MessageActionHandler(

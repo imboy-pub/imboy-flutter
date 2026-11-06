@@ -1738,6 +1738,13 @@ class _Translations$common$en_US extends Translations$common$zh_CN {
 	@override String get denylistResultUnknown => 'The result is unknown. Check the blocklist before trying again.';
 	@override String get denylistLocalNotSynced => 'The server processed the request, but local state is not synced.';
 	@override String get friendConfirmResultUnknown => 'Friend confirmation result is unknown. Check the friendship before trying again.';
+	@override String get legacyUploadRecoveryTitle => 'Attachment recovery';
+	@override String get legacyUploadRecoveryBody => 'The original upload record is kept. Check chat history first; if the original message was not sent, select a file to send as a new message.';
+	@override String get legacyUploadSelectOriginal => 'Select file and send new message';
+	@override String get legacyUploadOutboxCheck => 'The message may already be queued. Check the chat history before sending again.';
+	@override String get legacyUploadRecoveryMismatch => 'The selected file does not match or recovery is unavailable.';
+	@override String get legacyUploadRecoveryContinues => 'Attachment recovered; continuing the original message.';
+	@override String get legacyUploadReturnToOriginalPage => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.';
 }
 
 // Path: complaint
@@ -5622,6 +5629,13 @@ extension on TranslationsEnUs {
 			'common.denylistResultUnknown' => 'The result is unknown. Check the blocklist before trying again.',
 			'common.denylistLocalNotSynced' => 'The server processed the request, but local state is not synced.',
 			'common.friendConfirmResultUnknown' => 'Friend confirmation result is unknown. Check the friendship before trying again.',
+			'common.legacyUploadRecoveryTitle' => 'Attachment recovery',
+			'common.legacyUploadRecoveryBody' => 'The original upload record is kept. Check chat history first; if the original message was not sent, select a file to send as a new message.',
+			'common.legacyUploadSelectOriginal' => 'Select file and send new message',
+			'common.legacyUploadOutboxCheck' => 'The message may already be queued. Check the chat history before sending again.',
+			'common.legacyUploadRecoveryMismatch' => 'The selected file does not match or recovery is unavailable.',
+			'common.legacyUploadRecoveryContinues' => 'Attachment recovered; continuing the original message.',
+			'common.legacyUploadReturnToOriginalPage' => 'The upload is incomplete. Return to the original screen, select the file again and submit; the old record is kept.',
 			'complaint.complaint' => 'Complaint',
 			'complaint.e2eeConsentTitle' => 'Submit encrypted evidence',
 			'complaint.e2eeConsentBody' => 'This message is end-to-end encrypted and the server cannot see its content. Submitting an excerpt will disclose the selected plaintext to moderators for review. Do you consent?',
@@ -6081,6 +6095,8 @@ extension on TranslationsEnUs {
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.removeTitle' => 'Remove Tag',
 			'groupTag.removeConfirm' => 'Remove this tag?',
+			_ => null,
+		} ?? switch (path) {
 			'groupTask.title' => 'To-dos',
 			'groupTask.createTask' => 'Create To-do',
 			'groupTask.editTask' => 'Edit To-do',
@@ -6088,8 +6104,6 @@ extension on TranslationsEnUs {
 			'groupTask.taskDescription' => 'Description',
 			'groupTask.deadline' => 'Deadline',
 			'groupTask.noDeadline' => 'No deadline',
-			_ => null,
-		} ?? switch (path) {
 			'groupTask.noTask' => 'No to-dos yet',
 			'groupTask.all' => 'All',
 			'groupTask.pending' => 'Pending',
@@ -6595,6 +6609,8 @@ extension on TranslationsEnUs {
 			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Organization structure',
 			'organization.directory.title' => 'Directory',
+			_ => null,
+		} ?? switch (path) {
 			'organization.directory.deptSection' => 'Departments',
 			'organization.directory.allMembersSection' => 'All members',
 			'organization.directory.membersRestricted' => 'The full member list is visible to enterprise admins only; expand a department to see its members.',
@@ -6602,8 +6618,6 @@ extension on TranslationsEnUs {
 			'organization.directory.myDepartmentsSection' => 'My departments',
 			'organization.directory.membersSection' => 'Members',
 			'organization.directory.memberCountWith' => ({required Object count}) => '${count} members',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.searchHint' => 'Search departments or members',
 			'organization.directory.emptyDepartments' => 'No sub-departments',
 			'organization.directory.emptyMembers' => 'No members',
@@ -7109,6 +7123,8 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupFailedBody' => 'Attachment cleanup has not completed. Refresh the status; retry is available when eligible.',
 			'talkRecord.cleanupCompleteTitle' => 'Cleanup complete',
 			'talkRecord.cleanupCompleteBody' => 'The note and its attachments have been cleaned up.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.cleanupNoneTitle' => 'Cleanup not submitted',
 			'talkRecord.cleanupNoneBody' => 'The note has not entered the cleanup flow.',
 			'talkRecord.cleanupUnknownTitle' => 'Cleanup status unknown',
@@ -7116,8 +7132,6 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetryAction' => 'Retry cleanup',
 			'talkRecord.cleanupRetrying' => 'Retrying…',
 			'talkRecord.cleanupRetryFailedBody' => 'Cleanup retry failed; try again later.',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteRefreshStatus' => 'Refresh cleanup status',
 			'talkRecord.deleteBackToList' => 'Back to list',
 			'talkRecord.deleteStatusFixtureHint' => 'Component stage: cleanup status comes from a fixture sample; real progress pending integration.',

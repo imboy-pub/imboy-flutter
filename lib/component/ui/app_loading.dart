@@ -20,6 +20,30 @@ import 'package:flutter_easyloading/flutter_easyloading.dart' as el;
 class AppLoading {
   const AppLoading._();
 
+  static Object? _progressOwner;
+  static bool _ownedProgressShown = false;
+
+  /// 保证异步上传不会覆盖或关闭后来显示的提示。
+  static Object beginProgress() => _progressOwner = Object();
+
+  static Future<void> showOwnedProgress(
+    Object owner,
+    double value, {
+    String? status,
+  }) {
+    if (!identical(_progressOwner, owner)) return Future.value();
+    _ownedProgressShown = true;
+    return el.EasyLoading.showProgress(value, status: status);
+  }
+
+  static Future<void> dismissOwnedProgress(Object owner) {
+    if (!identical(_progressOwner, owner)) return Future.value();
+    _progressOwner = null;
+    final shown = _ownedProgressShown;
+    _ownedProgressShown = false;
+    return shown ? el.EasyLoading.dismiss() : Future.value();
+  }
+
   // 使用 GlobalKey 确保 EasyLoading 宿主 Widget 在整个生命周期中（包括热重载和打开 Flutter Inspector）
   // 保持状态与 Element 实例的唯一性，从而避免 "EasyLoading supports one active Host" 重复挂载报错。
   static final GlobalKey _easyLoadingKey = GlobalKey(
@@ -41,17 +65,29 @@ class AppLoading {
     };
   }
 
-  static Future<void> show({String? status}) =>
-      el.EasyLoading.show(status: status);
+  static Future<void> show({String? status}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.show(status: status);
+  }
 
-  static Future<void> showProgress(double value, {String? status}) =>
-      el.EasyLoading.showProgress(value, status: status);
+  static Future<void> showProgress(double value, {String? status}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.showProgress(value, status: status);
+  }
 
-  static Future<void> showSuccess(String status, {Duration? duration}) =>
-      el.EasyLoading.showSuccess(status, duration: duration);
+  static Future<void> showSuccess(String status, {Duration? duration}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.showSuccess(status, duration: duration);
+  }
 
-  static Future<void> showError(String status, {Duration? duration}) =>
-      el.EasyLoading.showError(status, duration: duration);
+  static Future<void> showError(String status, {Duration? duration}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.showError(status, duration: duration);
+  }
 
   /// 显示后端返回的业务错误消息（fire-and-forget）。
   ///
@@ -68,12 +104,21 @@ class AppLoading {
     unawaited(showError(msg).catchError((_) {}));
   }
 
-  static Future<void> showInfo(String status, {Duration? duration}) =>
-      el.EasyLoading.showInfo(status, duration: duration);
+  static Future<void> showInfo(String status, {Duration? duration}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.showInfo(status, duration: duration);
+  }
 
-  static Future<void> showToast(String status, {Duration? duration}) =>
-      el.EasyLoading.showToast(status, duration: duration);
+  static Future<void> showToast(String status, {Duration? duration}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.showToast(status, duration: duration);
+  }
 
-  static Future<void> dismiss({bool animation = true}) =>
-      el.EasyLoading.dismiss(animation: animation);
+  static Future<void> dismiss({bool animation = true}) {
+    _progressOwner = null;
+    _ownedProgressShown = false;
+    return el.EasyLoading.dismiss(animation: animation);
+  }
 }

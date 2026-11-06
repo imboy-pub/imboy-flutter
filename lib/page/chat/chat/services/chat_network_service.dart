@@ -36,6 +36,7 @@ import 'package:imboy/store/repository/conversation_repo_sqlite.dart';
 import 'package:imboy/service/group_session_service.dart';
 import 'package:imboy/service/message_type_constants.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/store/repository/attachment_upload_task_repo_sqlite.dart';
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 import 'package:imboy/page/conversation/conversation_provider.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -120,7 +121,8 @@ class ChatNetworkService {
         '📤 [ChatNetworkService.addMessage] 准备插入数据库: table=$tb, msgId=${obj.id}',
       );
       try {
-        final insertResult = await (MessageRepo(tableName: tb)).insert(obj);
+        final insertResult = await (MessageRepo(tableName: tb))
+            .insert(obj, outbound: sendToServer);
         iPrint(
           '📤 [ChatNetworkService.addMessage] 数据库插入完成: msgId=${obj.id}, result=$insertResult',
         );
@@ -698,6 +700,16 @@ class ChatNetworkService {
     }
 
     if (!current()) return false;
+    if (msgId != null &&
+        msgId.isNotEmpty &&
+        !await AttachmentUploadTaskRepo().claimOutboxDispatch(
+          msgId,
+          ownerUid,
+          isCurrent: current,
+        )) {
+      return false;
+    }
+    if (!current()) return false;
     final encoded = json.encode(msg);
     if (!current()) return false;
     AppEventBus.fire(
@@ -705,6 +717,7 @@ class ChatNetworkService {
         message: encoded,
         messageId: msg['id']?.toString(),
         sessionGeneration: generation,
+        dispatchClaimed: true,
       ),
     );
 
@@ -738,6 +751,13 @@ class ChatNetworkService {
         '📤 [sendWithRetry] 开始发送: msgId=$messageId, type=${msg['type']}, msgType=${msg['msg_type']}',
       );
 
+      if (!await AttachmentUploadTaskRepo().claimOutboxDispatch(
+        messageId,
+        ownerUid,
+        isCurrent: current,
+      )) {
+        return false;
+      }
       final encoded = json.encode(msg);
       if (!current()) return false;
       AppEventBus.fire(
@@ -745,6 +765,7 @@ class ChatNetworkService {
           message: encoded,
           messageId: messageId,
           sessionGeneration: generation,
+          dispatchClaimed: true,
         ),
       );
 

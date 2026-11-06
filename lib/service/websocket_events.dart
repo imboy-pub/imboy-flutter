@@ -37,10 +37,20 @@ final class WebSocketMessageReceivedEvent extends AppEvent {
   /// 消息数据
   final Map<String, dynamic> data;
 
-  const WebSocketMessageReceivedEvent({required this.type, required this.data});
+  final String ownerUid;
+  final int sessionGeneration;
+
+  WebSocketMessageReceivedEvent({
+    required this.type,
+    required this.data,
+    String? ownerUid,
+    int? sessionGeneration,
+  }) : ownerUid = ownerUid ?? UserRepoLocal.to.currentUid,
+       sessionGeneration =
+           sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 
   @override
-  List<Object> get props => [type, data];
+  List<Object> get props => [type, data, ownerUid, sessionGeneration];
 }
 
 // ============================================================================
@@ -118,6 +128,9 @@ final class WebSocketMessageSendRequestEvent extends AppEvent {
   /// 消息 ID（可选）
   final String? messageId;
 
+  /// 已在业务事务中取得附件发送许可。
+  final bool dispatchClaimed;
+
   /// 优先级（可选）
   final int priority;
 
@@ -128,12 +141,19 @@ final class WebSocketMessageSendRequestEvent extends AppEvent {
     required this.message,
     this.messageId,
     this.priority = 0,
+    this.dispatchClaimed = false,
     int? sessionGeneration,
   }) : sessionGeneration =
            sessionGeneration ?? UserRepoLocal.to.sessionGeneration;
 
   @override
-  List<Object?> get props => [message, messageId, priority, sessionGeneration];
+  List<Object?> get props => [
+    message,
+    messageId,
+    priority,
+    sessionGeneration,
+    dispatchClaimed,
+  ];
 }
 
 /// 消息发送成功事件

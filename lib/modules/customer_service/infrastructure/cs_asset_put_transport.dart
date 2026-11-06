@@ -1,7 +1,12 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
+
+import 'cs_direct_web_put_stub.dart'
+    if (dart.library.js_interop) 'cs_direct_web_put.dart';
 
 enum CsAssetPutFailure {
   invalidTarget,
@@ -27,21 +32,33 @@ class CsAssetPutException implements Exception {
 
 /// The only byte PUT engine. No inherited auth, cookies, logging or retries.
 class CsAssetPutTransport {
-  CsAssetPutTransport({HttpClientAdapter? adapter})
-    : _dio = Dio(
-        BaseOptions(
-          followRedirects: false,
-          maxRedirects: 0,
-          connectTimeout: const Duration(seconds: 30),
-          sendTimeout: const Duration(minutes: 2),
-          receiveTimeout: const Duration(seconds: 30),
-          validateStatus: (_) => true,
-        ),
-      ) {
+  CsAssetPutTransport({
+    HttpClientAdapter? adapter,
+    @visibleForTesting Duration? webTimeout,
+  }) : _webTimeout = webTimeout ?? const Duration(minutes: 2),
+       _dio = Dio(
+         BaseOptions(
+           followRedirects: false,
+           maxRedirects: 0,
+           connectTimeout: const Duration(seconds: 30),
+           sendTimeout: const Duration(minutes: 2),
+           receiveTimeout: const Duration(seconds: 30),
+           validateStatus: (_) => true,
+         ),
+       ) {
     if (adapter != null) _dio.httpClientAdapter = adapter;
   }
   final Dio _dio;
-  void close() => _dio.close(force: true);
+  final Duration _webTimeout;
+  final Set<void Function()> _webAborters = {};
+  bool _closed = false;
+  void close() {
+    _closed = true;
+    for (final abort in _webAborters.toList()) {
+      abort();
+    }
+    _dio.close(force: true);
+  }
 
   Future<void> putMember({
     required String url,
@@ -120,10 +137,108 @@ class CsAssetPutTransport {
     );
   }
 
-  Uri _target(String url, Uri permittedOrigin) {
+  /// Sends only the two headers bound into a direct-v1 storage grant.
+  Future<void> putDirect({
+    required String url,
+    required Uri permittedOrigin,
+    required Uint8List bytes,
+    required Map<String, String> requiredHeaders,
+    CancelToken? cancelToken,
+    ProgressCallback? onSendProgress,
+  }) async {
+    if (_closed) {
+      throw const CsAssetPutException(CsAssetPutFailure.cancelled);
+    }
+    final target = _target(url, permittedOrigin, allowLocalHttp: true);
+    final headers = <String, String>{};
+    for (final entry in requiredHeaders.entries) {
+      final key = entry.key.toLowerCase();
+      if (!{'content-type', 'x-amz-checksum-sha256'}.contains(key) ||
+          headers.containsKey(key) ||
+          entry.value.isEmpty ||
+          entry.value.contains('\r') ||
+          entry.value.contains('\n')) {
+        throw const CsAssetPutException(CsAssetPutFailure.invalidTarget);
+      }
+      headers[key] = entry.value;
+    }
+    if (headers.length != 2 ||
+        headers['x-amz-checksum-sha256'] !=
+            base64.encode(sha256.convert(bytes).bytes)) {
+      throw const CsAssetPutException(CsAssetPutFailure.invalidTarget);
+    }
+    if (cancelToken?.isCancelled == true) {
+      throw const CsAssetPutException(CsAssetPutFailure.cancelled);
+    }
+    if (kIsWeb) {
+      try {
+        final status = await directWebPut(
+          target,
+          bytes,
+          headers,
+          cancelToken,
+          _webTimeout,
+          _webAborters.add,
+          _webAborters.remove,
+        );
+        if (status < 200 || status >= 300) {
+          throw CsAssetPutException(
+            CsAssetPutFailure.rejected,
+            status: status,
+            requestStarted: true,
+          );
+        }
+        onSendProgress?.call(bytes.length, bytes.length);
+        return;
+      } on CsAssetPutException {
+        rethrow;
+      } on Object {
+        throw CsAssetPutException(
+          cancelToken?.isCancelled == true || _closed
+              ? CsAssetPutFailure.cancelled
+              : CsAssetPutFailure.networkFailure,
+          requestStarted: true,
+        );
+      }
+    }
+    try {
+      final response = await _dio.putUri<Object?>(
+        target,
+        data: bytes,
+        cancelToken: cancelToken,
+        onSendProgress: onSendProgress,
+        options: Options(
+          responseType: ResponseType.plain,
+          headers: {...headers, 'content-length': bytes.length},
+        ),
+      );
+      if (response.statusCode == null ||
+          response.statusCode! < 200 ||
+          response.statusCode! >= 300) {
+        throw CsAssetPutException(
+          CsAssetPutFailure.rejected,
+          status: response.statusCode,
+          requestStarted: true,
+        );
+      }
+    } on DioException catch (e) {
+      throw CsAssetPutException(
+        e.type == DioExceptionType.cancel
+            ? CsAssetPutFailure.cancelled
+            : CsAssetPutFailure.networkFailure,
+        requestStarted: true,
+      );
+    }
+  }
+
+  Uri _target(String url, Uri permittedOrigin, {bool allowLocalHttp = false}) {
     try {
       final target = Uri.parse(url);
-      if (target.scheme != 'https' ||
+      if (!(target.scheme == 'https' ||
+              (allowLocalHttp &&
+                  target.scheme == 'http' &&
+                  (target.host == 'localhost' ||
+                      target.host == '127.0.0.1'))) ||
           !target.hasAuthority ||
           target.userInfo.isNotEmpty ||
           target.hasFragment ||

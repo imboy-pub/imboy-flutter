@@ -267,7 +267,9 @@ class MessageModel {
     this.e2ee,
     this.senderDid,
   }) : fromId = channelDecimalId(fromId, allowZero: true) ?? '0',
-       toId = channelDecimalId(toId, allowZero: true) ?? '0';
+       toId = type?.toUpperCase() == 'C2S'
+           ? parseModelString(toId, defaultValue: '0')
+           : channelDecimalId(toId, allowZero: true) ?? '0';
 
   factory MessageModel.fromJson(
     Map<String, dynamic> data, {
