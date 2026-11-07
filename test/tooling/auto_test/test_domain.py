@@ -187,9 +187,14 @@ class FeatureManifestMappingTest(unittest.TestCase):
             'integration_test/rtc/c2c_call_matrix_b_side_test.dart',
             'integration_test/rtc/rtc_negative_matrix_test.dart',
             'test/unit_test/page/chat/p2p_call_livekit_test.dart',
+            'test/unit_test/page/chat/p2p_call_preview_test.dart',
+            'test/unit_test/page/chat/p2p_call_floating_test.dart',
+            'test/unit_test/rtc/rtc_strict_gate_test.dart',
+            'test/unit_test/rtc/rtc_relay_stats_judge_test.dart',
             'test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart',
         }.issubset(cap['app_targets']))
         self.assertEqual(set(cap['backend_targets']), {
+            'test/api/rtc_room_handler_tests.erl',
             'test/logic/rtc_room_logic_tests.erl',
             'test/logic/webrtc_ws_logic_tests.erl',
         })
