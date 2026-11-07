@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -7,9 +8,12 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart'
     show gTimer, p2pCallMsgId, p2pCallScreenOn, p2pEntry;
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_webrtc.dart';
 import 'package:imboy/service/sqlite.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart'
     show openFixtureDatabaseAtVersion;
@@ -23,6 +27,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late Database db;
+  late int generation;
 
   setUpAll(() {
     sqfliteFfiInit();
@@ -34,9 +39,18 @@ void main() {
     await StorageService.init();
     await StorageService.to.setString(Keys.currentUid, _currentUid);
 
-    // 生产真源 fixture：真实 msg_c2c/contact/FTS 形态（含 user_version=16 基线）。
+    // 生产真源 fixture：真实 msg_c2c/contact/FTS 形态。
     db = await openFixtureDatabaseAtVersion(version: 37);
     SqliteService.setDbForTest(db);
+    // 消息富化会读取作者；缺少联系人会触发 HTTP 补全，并因合成会话
+    // 没有 token 而登出关库。本套件只验证本地终态信令，提供完整本地数据。
+    await db.insert('contact', {
+      'user_id': int.parse(_currentUid),
+      'peer_id': int.parse(_peerUid),
+      'nickname': 'RTC fixture peer',
+    });
+    generation = UserRepoLocal.to.sessionGeneration;
+    MessageWebrtc.instance.webrtcMsgFrom.clear();
 
     p2pEntry = null;
     p2pCallScreenOn = false;
@@ -51,8 +65,8 @@ void main() {
     p2pCallMsgId = null;
     gTimer?.cancel();
     gTimer = null;
-    await pumpEventQueue();
-    await db.close();
+    MessageWebrtc.instance.webrtcMsgFrom.clear();
+    await SqliteService.to.close();
   });
 
   Future<void> insertCallRecord(String msgId, {String media = 'video'}) async {
@@ -88,18 +102,40 @@ void main() {
     return int.parse(state!);
   }
 
-  /// sqflite ffi 在独立 isolate 上执行，pumpEventQueue 只排空微任务不够；
-  /// 有界轮询直到记录状态达到期望（隔离时序鲁棒）。
-  Future<void> expectRecordStateEventually(
+  /// handleWebRTC 返回时写库仍可能进行中；等待真实消息更新事件，
+  /// 确保写库和消息富化都已完成后再断言、关闭 fixture。
+  Future<void> handleTerminalSignal(
+    String type,
     String msgId,
-    int expected, {
-    String? reason,
-  }) async {
-    for (var i = 0; i < 100; i++) {
-      if (await recordState(msgId) == expected) return;
-      await Future<void>.delayed(const Duration(milliseconds: 20));
+    int expected,
+  ) async {
+    final updated = Completer<Message>();
+    final subscription = AppEventBus.on<DataWrapperEvent<dynamic>>().listen((
+      event,
+    ) {
+      final message = event.data;
+      if (event.dataType == 'Message' &&
+          message is Message &&
+          message.id == msgId &&
+          !updated.isCompleted) {
+        updated.complete(message);
+      }
+    });
+    try {
+      await MessageWebrtc.instance.handleWebRTC(type, {
+        'id': msgId,
+        'from': _peerUid,
+        'payload': <String, dynamic>{},
+      });
+      final message = await updated.future.timeout(const Duration(seconds: 5));
+      expect(message.metadata?['state'], expected);
+      expect(await recordState(msgId), expected);
+      expect(UserRepoLocal.to.currentUid, _currentUid);
+      expect(UserRepoLocal.to.sessionGeneration, generation);
+      expect(db.isOpen, isTrue);
+    } finally {
+      await subscription.cancel();
     }
-    expect(await recordState(msgId), expected, reason: reason);
   }
 
   test('本通 busy：按 msgId 收敛记录并复位全局通话状态', () async {
@@ -108,14 +144,7 @@ void main() {
     p2pCallScreenOn = true;
     p2pCallMsgId = msgId;
     gTimer = Timer(const Duration(seconds: 60), () {});
-    await MessageWebrtc.instance.handleWebRTC('WEBRTC_BUSY', {
-      'id': msgId,
-      'from': _peerUid,
-      'payload': <String, dynamic>{},
-    });
-    // 记录收敛与 test2/3/4 走同一 changeLocalMsgState 按 msgId 写库路径；
-    // 首测冷启动存在与路由无关的会话级联（quitLogin 清理关库），此处
-    // 只断言路由决策本身，不在冷启动上追DB终态。
+    await handleTerminalSignal('WEBRTC_BUSY', msgId, 5);
     expect(p2pCallScreenOn, isFalse, reason: '本通终态应复位全局通话开关');
     expect(p2pCallMsgId, isNull, reason: '本通终态应清除活动通话标识');
     expect(gTimer, isNull, reason: '本通终态应取消来电等待计时器');
@@ -131,12 +160,7 @@ void main() {
     p2pCallMsgId = newMsgId;
     gTimer = Timer(const Duration(seconds: 60), () {});
 
-    await MessageWebrtc.instance.handleWebRTC('WEBRTC_BUSY', {
-      'id': oldMsgId,
-      'from': _peerUid,
-      'payload': <String, dynamic>{},
-    });
-    await expectRecordStateEventually(oldMsgId, 5, reason: '旧通话记录按其 msgId 收敛');
+    await handleTerminalSignal('WEBRTC_BUSY', oldMsgId, 5);
     expect(await recordState(newMsgId), 0, reason: '新一通记录不得被旧 busy 污染');
     expect(p2pCallScreenOn, isTrue, reason: '新一通不得被旧 busy 终止');
     expect(p2pCallMsgId, newMsgId, reason: '活动通话标识保持新一通');
@@ -154,16 +178,7 @@ void main() {
     p2pCallScreenOn = true;
     p2pCallMsgId = newMsgId;
 
-    await MessageWebrtc.instance.handleWebRTC('WEBRTC_BYE', {
-      'id': oldMsgId,
-      'from': _peerUid,
-      'payload': <String, dynamic>{},
-    });
-    await expectRecordStateEventually(
-      oldMsgId,
-      3,
-      reason: '旧通话记录按其 msgId 收敛为挂断(3)',
-    );
+    await handleTerminalSignal('WEBRTC_BYE', oldMsgId, 3);
     expect(await recordState(newMsgId), 0);
     expect(p2pCallScreenOn, isTrue);
     expect(p2pCallMsgId, newMsgId);
@@ -174,12 +189,7 @@ void main() {
     await insertCallRecord(msgId);
     expect(p2pCallMsgId, isNull);
 
-    await MessageWebrtc.instance.handleWebRTC('WEBRTC_BYE', {
-      'id': msgId,
-      'from': _peerUid,
-      'payload': <String, dynamic>{},
-    });
-    await expectRecordStateEventually(msgId, 3);
+    await handleTerminalSignal('WEBRTC_BYE', msgId, 3);
     expect(p2pCallScreenOn, isFalse, reason: '无活动通话时不得置位全局状态');
   });
 }

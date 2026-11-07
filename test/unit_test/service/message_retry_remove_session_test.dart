@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
@@ -12,6 +14,7 @@ import 'package:sqflite_sqlcipher/sqflite.dart';
 class _Database implements Database {
   int confirmations = 0;
   void Function()? onOpen;
+  Future<void> Function()? onOutboxProbe;
   @override
   bool get isOpen {
     final callback = onOpen;
@@ -45,6 +48,9 @@ class _Database implements Database {
     // 走到 UPDATE（confirmations 计数）。
     if (sql.contains('sqlite_master') &&
         arguments?.contains('crypto_outbox') == true) {
+      final callback = onOutboxProbe;
+      onOutboxProbe = null;
+      if (callback != null) await callback();
       return [
         <String, Object?>{'name': 'crypto_outbox'},
       ];
@@ -74,11 +80,20 @@ void main() {
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );
-  for (final phase in ['current', 'before_delivery', 'outbox_getter']) {
+  for (final phase in [
+    'current',
+    'before_delivery',
+    'owner_switch',
+    'owner_round_trip',
+    'outbox_getter',
+    'outbox_probe',
+    'outbox_probe_owner_switch',
+  ]) {
     test('retry remove session phase=$phase', () async {
       SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
       await StorageService.init();
       final database = _Database();
+      final otherDatabase = _Database();
       SqliteService.setDbForTest(database);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(secureChannel, (call) async {
@@ -97,42 +112,84 @@ void main() {
         }),
         throwsA(isA<PlatformException>()),
       );
+      final beforeDelivery = {
+        'before_delivery',
+        'owner_switch',
+        'owner_round_trip',
+      }.contains(phase);
+      final probeStarted = Completer<void>();
+      final releaseProbe = Completer<void>();
       try {
         await retry.debugWaitForIdle();
         retry.addToRetryQueue('synthetic-shared-id', 'C2C');
         await pumpEventQueue();
         final event = RemoveFromRetryQueueRequestedEvent(
           messageId: 'synthetic-shared-id',
-          messageType: 'C2C',
-          reason: 'synthetic-ack',
+          messageType: 'C2C_SERVER_ACK',
+          reason: 'server_ack',
         );
-        if (phase == 'before_delivery') {
+        if (beforeDelivery) {
           await change();
+          if (phase == 'owner_switch' || phase == 'owner_round_trip') {
+            await StorageService.to.setString(Keys.currentUid, '101');
+            if (phase == 'owner_round_trip') {
+              // Returning to the same UID must not revive the old generation.
+              await change();
+              await StorageService.to.setString(Keys.currentUid, '100');
+            }
+            SqliteService.setDbForTest(
+              phase == 'owner_switch' ? otherDatabase : database,
+            );
+          }
           retry.clearRetryQueue();
           retry.addToRetryQueue('synthetic-shared-id', 'C2C');
           await pumpEventQueue();
         }
-        final current = retry.getRetryInfo('synthetic-shared-id');
+        var current = retry.getRetryInfo('synthetic-shared-id');
         Future<void>? changed;
         if (phase == 'outbox_getter') {
           database.onOpen = () {
             changed = change();
           };
         }
+        if (phase.startsWith('outbox_probe')) {
+          database.onOutboxProbe = () async {
+            probeStarted.complete();
+            await releaseProbe.future;
+          };
+        }
         AppEventBus.fire(event);
+        if (phase.startsWith('outbox_probe')) {
+          // Force the await inside confirmOutbox, after its caller's session
+          // check, to resume only once the captured generation is obsolete.
+          await probeStarted.future;
+          await change();
+          if (phase == 'outbox_probe_owner_switch') {
+            await StorageService.to.setString(Keys.currentUid, '101');
+            SqliteService.setDbForTest(otherDatabase);
+            retry.addToRetryQueue('synthetic-shared-id', 'C2C');
+            current = retry.getRetryInfo('synthetic-shared-id');
+          }
+          releaseProbe.complete();
+        }
         await pumpEventQueue();
         if (changed != null) await changed;
         expect(
           retry.getRetryInfo('synthetic-shared-id'),
-          phase == 'before_delivery' ? same(current) : isNull,
+          beforeDelivery || phase == 'outbox_probe_owner_switch'
+              ? same(current)
+              : isNull,
         );
         expect(database.confirmations, phase == 'current' ? 1 : 0);
+        expect(otherDatabase.confirmations, 0);
       } finally {
+        if (!releaseProbe.isCompleted) releaseProbe.complete();
         await retry.debugWaitForIdle();
         retry.dispose();
         SqliteService.setDbForTest(null);
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(secureChannel, null);
+        UserRepoLocal.to.clearAuthTransitionFailureForTest();
       }
     });
   }
