@@ -12,9 +12,10 @@
       "group_schedule",
       "group_task",
       "enterprise_business",
-      "customer_service"
+      "customer_service",
+      "rtc"
     ],
-    "capability_count": 44,
+    "capability_count": 45,
     "backend_target_base": "../imboy（路径相对 imboy 仓；make:* 指 Makefile target）",
     "note": "matrix 只保存声明性要求；运行 verdict 只写 ignored RUN_ROOT/results/**"
   },
@@ -1400,6 +1401,38 @@
       "details": ""
     },
     {
+      "capability_id": "rtc.c2c_call_lifecycle",
+      "feature_key": "rtc",
+      "domain": "rtc",
+      "positive": "C2C 音视频通话生命周期合同（发起/振铃/接听/忙线/挂断/超时与 msgId 作用域收敛）",
+      "negative": "feature gate 未开放/越作用域的终态信令被拒（迟到 busy/bye 不得污染新一通）",
+      "recovery": "无应答与对端离线的有限分支收口",
+      "app_targets": [
+        "test/unit_test/page/chat/p2p_call_floating_test.dart",
+        "test/unit_test/page/chat/p2p_call_preview_test.dart",
+        "test/unit_test/page/chat/p2p_call_state_machine_test.dart",
+        "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart",
+        "test/unit_test/rtc/rtc_relay_stats_judge_test.dart",
+        "test/unit_test/rtc/rtc_strict_gate_test.dart",
+        "test/unit_test/service/message_webrtc_msgid_scoping_test.dart"
+      ],
+      "backend_targets": [
+        "test/api/rtc_room_handler_tests.erl",
+        "test/logic/rtc_room_logic_tests.erl",
+        "test/logic/webrtc_ws_logic_tests.erl"
+      ],
+      "required_evidence_level": "B",
+      "level_basis": "App/Backend 合同",
+      "requirements": [
+        "backend.local"
+      ],
+      "fixture": "shared:readonly",
+      "disposition": "required",
+      "exclusion_code": null,
+      "blocked_code": null,
+      "details": ""
+    },
+    {
       "capability_id": "bot.webhook_delivery",
       "feature_key": "bot_webhook",
       "domain": "bot",
@@ -1500,6 +1533,14 @@
     "customer_service": {
       "capabilities": [
         "cs.queue_claim_transfer_close_rating"
+      ],
+      "disposition": "mapped",
+      "exclusion_code": null,
+      "details": ""
+    },
+    "rtc": {
+      "capabilities": [
+        "rtc.c2c_call_lifecycle"
       ],
       "disposition": "mapped",
       "exclusion_code": null,

@@ -52,7 +52,19 @@ void main() {
     gTimer?.cancel();
     gTimer = null;
     await pumpEventQueue();
+    // 终态处理触发的 quitLogin 会话级联（与路由无关，见首测注释）内含
+    // 100ms + 1s 延时步：异步跨 tearDown 落地时会把 SqliteService 当前句柄
+    // （下一测刚注入的新库）关掉 → database_closed 连坐同批 VM。此处有界
+    // 排空级联后再交还控制权，隔离时序不确定。
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
+    await pumpEventQueue();
     await db.close();
+    // 复位注入句柄：SqliteService 的静态 _db 若继续持有已关闭的 fixture 库，
+    // 同批后续套件经 SqliteService.to.db 触发 DatabaseException(database_closed)
+    // （sqlite.dart rawUpdate 路径），整批 VM 非零退出连坐同批全部 target
+    // （2026-11-07 main 42328863736 批次连坐源）。与 new_friend_remind_session
+    // 等套件的 teardown 惯例一致。
+    SqliteService.setDbForTest(null);
   });
 
   Future<void> insertCallRecord(String msgId, {String media = 'video'}) async {
