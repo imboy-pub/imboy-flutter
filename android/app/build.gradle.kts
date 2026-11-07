@@ -191,6 +191,10 @@ android {
             // strip 的严格校验不匹配）。strip 失败仅告警且产物不确定（保留
             // 未剥离库），这里显式跳过剥离：仅增大体积，装载行为不变。
             keepDebugSymbols.add("**/libvodozemac_bindings_dart.so")
+            // libCtaApiLib.so（厂商 aar 预编译合规库）同样触发 llvm-strip 的
+            // program header 严格校验失败（armeabi-v7a/x86），release 打包中断；
+            // 与 vodozemac 同理跳过剥离，仅增大体积，装载行为不变。
+            keepDebugSymbols.add("**/libCtaApiLib.so")
         }
         resources {
             excludes += "META-INF/{AL2.0,LGPL2.1}"
