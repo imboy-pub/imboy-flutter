@@ -26,7 +26,6 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/helper/jwt.dart';
 import 'package:imboy/component/http/http_client.dart' show defaultHeaders;
-import 'package:imboy/component/http/channel_id_response_decoder.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -36,6 +35,7 @@ import 'package:imboy/component/helper/datetime.dart' show DateTimeHelper;
 import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/websocket_message_queue.dart';
+import 'package:imboy/service/websocket_message_parser.dart';
 import 'package:imboy/service/ws_ack_forward_policy.dart';
 import 'package:imboy/service/exponential_backoff.dart';
 import 'package:imboy/config/init.dart' show quitLoginAndNavigateToSignIn;
@@ -830,7 +830,7 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
 
     try {
       // 统一消息解析
-      final msg = _parseMessage(message);
+      final msg = parseWebSocketMessage(message);
       if (msg.isEmpty) return;
 
       final action = msg['action']?.toString() ?? '';
@@ -920,49 +920,6 @@ class WebSocketService with WidgetsBindingObserver, EventSubscriptionManager {
     } catch (e) {
       iPrint('[WS_ACK] fail: ${e.runtimeType}');
     }
-  }
-
-  /// 统一消息解析方法
-  Map<String, dynamic> _parseMessage(dynamic message) {
-    if (message is String) {
-      final decoded = jsonDecode(message) as Map<String, dynamic>;
-      if (decoded['action'] == 'e2ee_trust_changed' ||
-          decoded['action'] == 'e2ee_device_key_changed') {
-        return jsonDecode(
-          rewriteChannelIds(
-            message,
-            decoded['action'] == 'e2ee_trust_changed'
-                ? ChannelResponseShape.trustSocket
-                : ChannelResponseShape.deviceKeySocket,
-          ),
-        ) as Map<String, dynamic>;
-      }
-      if ((decoded['action']?.toString().toLowerCase() ?? '').startsWith(
-            'group_',
-          ) ||
-          decoded['action'] == 'apply_friend' ||
-          decoded['action'] == 'apply_friend_confirm' ||
-          decoded['type']?.toString().toUpperCase() == 'C2G' ||
-          decoded['type']?.toString().toUpperCase() == 'C2C') {
-        return jsonDecode(
-          rewriteChannelIds(message, ChannelResponseShape.groupSocket),
-        ) as Map<String, dynamic>;
-      }
-      if ((decoded['action']?.toString().toLowerCase() ?? '').startsWith(
-            'channel_',
-          ) ||
-          (decoded['type']?.toString().toUpperCase() == 'C2CH_SERVER_ACK')) {
-        return jsonDecode(
-          rewriteChannelIds(message, ChannelResponseShape.socket),
-        ) as Map<String, dynamic>;
-      }
-      return decoded;
-    } else if (message is Map<String, dynamic>) {
-      return message;
-    } else if (message is Map) {
-      return Map<String, dynamic>.from(message);
-    }
-    throw FormatException('不支持的消息格式: ${message.runtimeType}');
   }
 
   /// 统一处理消息确认（包含ACK和撤回确认）

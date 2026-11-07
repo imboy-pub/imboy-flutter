@@ -8,7 +8,7 @@
 //    若重发路径重新加密会当场爆炸，故通过即证「不重新 encrypt」。
 // 2. 「confirmOutbox 零生产调用者」：
 //    已接入 ACK 单一汇聚点（RemoveFromRetryQueueRequestedEvent 监听），
-//    本测试驱动真实事件总线断言 crypto_outbox 被置 sent。
+//    仅 server_ack 可确认；停止重试、拒绝和消息操作不得消费恢复数据。
 //
 // 守护（空验证）：对照组必须同时成立——
 // - 若重发事件根本没出网（harness 没驱动起来），用例 1 的绿无意义，
@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee/crypto_store.dart';
 import 'package:imboy/service/events/events.dart';
+import 'package:imboy/service/message_actions.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -99,9 +100,13 @@ class _AckDatabase implements Database {
   final releaseUpdate = Completer<void>();
   final confirmed = Completer<void>();
   final probed = Completer<void>();
+  int openChecks = 0;
 
   @override
-  bool get isOpen => delegate.isOpen;
+  bool get isOpen {
+    openChecks++;
+    return delegate.isOpen;
+  }
 
   @override
   Future<List<Map<String, Object?>>> rawQuery(
@@ -224,6 +229,40 @@ void main() {
     await pumpEventQueue();
   }
 
+  Future<void> deliverRemoval(String id, String reason) async {
+    // Observe delivery after MessageRetry's synchronous listener has run.
+    final delivered = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
+        .firstWhere((event) => event.messageId == id && event.reason == reason);
+    // Exercise the real business-rejection producers, not just their labels.
+    if (reason == 'not_a_friend') {
+      await MessageActions.handleNotAFriendError(msgId: id, chatType: 'C2C');
+    } else if (reason == 'in_denylist') {
+      await MessageActions.handleDenylistError(msgId: id, chatType: 'C2C');
+    } else {
+      AppEventBus.fire(
+        RemoveFromRetryQueueRequestedEvent(
+          messageId: id,
+          messageType: reason == 'server_ack' ? 'C2C_SERVER_ACK' : 'C2C',
+          reason: reason,
+        ),
+      );
+    }
+    await delivered;
+  }
+
+  Future<void> expectRecoverable(
+    CryptoStore store,
+    String id,
+    Map<String, dynamic>? original,
+  ) async {
+    expect(original?['status'], 'pending');
+    expect(original?['sent_at'], isNull);
+    expect(await store.getOutboxEntry(id), original);
+    await store.purgeOutbox(olderThanMs: 0);
+    expect(await store.getOutboxEntry(id), original);
+    expect(await store.pendingOutbox(), contains(equals(original)));
+  }
+
   test('重发复用已提交信封：e2ee 与落库逐字节一致（不重新加密）', () async {
     final envelope = _v3Envelope();
     await insertEncryptedRow('msg-resend-1', envelope);
@@ -264,8 +303,8 @@ void main() {
     AppEventBus.fire(
       RemoveFromRetryQueueRequestedEvent(
         messageId: 'msg-resend-1',
-        messageType: 'C2C',
-        reason: 'SERVER_ACK',
+        messageType: 'C2C_SERVER_ACK',
+        reason: 'server_ack',
       ),
     );
     try {
@@ -302,8 +341,8 @@ void main() {
       expect(pending, isNotNull);
       final event = RemoveFromRetryQueueRequestedEvent(
         messageId: 'stale-ack',
-        messageType: 'C2C',
-        reason: 'SERVER_ACK',
+        messageType: 'C2C_SERVER_ACK',
+        reason: 'server_ack',
         ownerUid: staleField == 'ownerUid' ? 'stale-owner' : null,
         sessionGeneration: staleField == 'sessionGeneration'
             ? UserRepoLocal.to.sessionGeneration - 1
@@ -330,8 +369,8 @@ void main() {
     AppEventBus.fire(
       RemoveFromRetryQueueRequestedEvent(
         messageId: 'msg-ghost',
-        messageType: 'C2C',
-        reason: 'SERVER_ACK',
+        messageType: 'C2C_SERVER_ACK',
+        reason: 'server_ack',
       ),
     );
     await observed.probed.future;
@@ -339,5 +378,148 @@ void main() {
 
     // 移除生效即通过（确认失败不得阻断）；队列中不应再有该 id
     expect(retry.getRetryInfo('msg-ghost'), isNull);
+  });
+
+  for (final reason in [
+    'not_a_friend',
+    'in_denylist',
+    'revoked',
+    'edited',
+    'ws_action_ack',
+    'ws_action_error',
+    'success', // The event constructor's default is not proof of delivery.
+    'SERVER_ACK', // Only the production reason is accepted.
+    'unknown_reason',
+    '',
+    'client_ack_confirm',
+  ]) {
+    test('非发送确认及重复事件保留 outbox 恢复数据：$reason', () async {
+      const id = 'not-confirmed';
+      final store = CryptoStore(db);
+      await store.ensureSchema();
+      await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
+      final original = await store.getOutboxEntry(id);
+      retry.addToRetryQueue(id, 'C2C');
+      final pending = retry.getRetryInfo(id);
+      final observed = _AckDatabase(db);
+      SqliteService.setDbForTest(observed);
+
+      for (var delivery = 0; delivery < 2; delivery++) {
+        await deliverRemoval(id, reason);
+        // The db getter runs synchronously before confirmation's first await.
+        // Drain an incorrectly started confirmation too: the old implementation
+        // must fail on persisted state, without racing SQLite or teardown.
+        if (observed.openChecks > 0) await observed.confirmed.future;
+        expect(
+          retry.getRetryInfo(id),
+          reason == 'client_ack_confirm' ? same(pending) : isNull,
+        );
+        await expectRecoverable(store, id, original);
+        expect(observed.openChecks, 0);
+      }
+    });
+  }
+
+  test('拒绝后真实 ACK 可确认，重复 ACK 不改写已确认记录', () async {
+    const id = 'rejected-then-confirmed';
+    final store = CryptoStore(db);
+    await store.ensureSchema();
+    await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
+    final original = await store.getOutboxEntry(id);
+    retry.addToRetryQueue(id, 'C2C');
+    final rejected = _AckDatabase(db);
+    SqliteService.setDbForTest(rejected);
+    await deliverRemoval(id, 'not_a_friend');
+    if (rejected.openChecks > 0) await rejected.confirmed.future;
+    expect(retry.getRetryInfo(id), isNull);
+    await expectRecoverable(store, id, original);
+
+    final confirmed = _AckDatabase(db);
+    SqliteService.setDbForTest(confirmed);
+    await deliverRemoval(id, 'server_ack');
+    await confirmed.confirmed.future;
+    expect((await store.getOutboxEntry(id))?['status'], 'sent');
+    expect((await store.getOutboxEntry(id))?['payload'], original?['payload']);
+
+    // A fixed old timestamp makes an accidental duplicate write observable
+    // without relying on the wall clock moving between the two events.
+    await db.update(
+      'crypto_outbox',
+      {'sent_at': 123},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    final once = await store.getOutboxEntry(id);
+    final duplicate = _AckDatabase(db);
+    SqliteService.setDbForTest(duplicate);
+    await deliverRemoval(id, 'server_ack');
+    await duplicate.confirmed.future;
+    expect(await store.getOutboxEntry(id), once);
+    expect(await store.pendingOutbox(), isEmpty);
+    await store.purgeOutbox(olderThanMs: 0);
+    expect(await store.getOutboxEntry(id), isNull);
+  });
+
+  test('ACK 写入等待期间的拒绝事件不启动另一笔确认', () async {
+    const id = 'ack-rejection-race';
+    final store = CryptoStore(db);
+    await store.ensureSchema();
+    await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
+    final original = await store.getOutboxEntry(id);
+    retry.addToRetryQueue(id, 'C2C');
+    final ack = _AckDatabase(db, holdUpdate: true);
+    SqliteService.setDbForTest(ack);
+    await deliverRemoval(id, 'server_ack');
+    await ack.updateStarted.future;
+    try {
+      final rejection = _AckDatabase(db);
+      SqliteService.setDbForTest(rejection);
+      await deliverRemoval(id, 'in_denylist');
+      if (rejection.openChecks > 0) await rejection.confirmed.future;
+      expect(rejection.updateStarted.isCompleted, isFalse);
+      await expectRecoverable(store, id, original);
+      expect(retry.getRetryInfo(id), isNull);
+    } finally {
+      ack.releaseUpdate.complete();
+      await ack.confirmed.future;
+    }
+    expect((await store.getOutboxEntry(id))?['status'], 'sent');
+  });
+
+  test('数据库不可用时 ACK 仍停止重试且保留恢复数据', () async {
+    const id = 'unavailable-db';
+    final store = CryptoStore(db);
+    await store.ensureSchema();
+    await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
+    final original = await store.getOutboxEntry(id);
+    retry.addToRetryQueue(id, 'C2C');
+    SqliteService.setDbUnavailableForTest();
+    await deliverRemoval(id, 'server_ack');
+    expect(retry.getRetryInfo(id), isNull);
+    await expectRecoverable(store, id, original);
+  });
+
+  test('真实 outbox UPDATE 错误不阻断 ACK 出队且不破坏 pending', () async {
+    // Existing optional table with a missing column: this reaches a real SQL
+    // error, unlike the absent-table fast path above.
+    await db.execute(
+      'CREATE TABLE crypto_outbox (id TEXT PRIMARY KEY, payload TEXT, '
+      'status TEXT, created_at INTEGER)',
+    );
+    const id = 'broken-outbox-schema';
+    final store = CryptoStore(db);
+    await store.insertOutbox(id: id, payload: jsonEncode(_v3Envelope()));
+    final original = await store.getOutboxEntry(id);
+    retry.addToRetryQueue(id, 'C2C');
+    final observed = _AckDatabase(db);
+    SqliteService.setDbForTest(observed);
+    final failed = expectLater(
+      observed.confirmed.future,
+      throwsA(isA<DatabaseException>()),
+    );
+    await deliverRemoval(id, 'server_ack');
+    await failed;
+    expect(retry.getRetryInfo(id), isNull);
+    await expectRecoverable(store, id, original);
   });
 }

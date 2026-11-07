@@ -1375,6 +1375,46 @@
       "details": ""
     },
     {
+      "capability_id": "rtc.c2c_call",
+      "feature_key": "rtc",
+      "domain": "rtc",
+      "positive": "双端一对一音视频呼叫、接听、媒体与挂断闭环",
+      "negative": "非好友/黑名单拒绝；拒接、超时与迟到信令不误建媒体房或影响其他通话",
+      "recovery": "结束或连接失败后释放媒体与信令，后续通话按独立 msgId 处理",
+      "app_targets": [
+        "integration_test/rtc/c2c_call_matrix_a_side_test.dart",
+        "integration_test/rtc/c2c_call_matrix_b_side_test.dart",
+        "integration_test/rtc/rtc_negative_matrix_test.dart",
+        "test/unit_test/page/chat/p2p_call_floating_test.dart",
+        "test/unit_test/page/chat/p2p_call_livekit_test.dart",
+        "test/unit_test/page/chat/p2p_call_preview_test.dart",
+        "test/unit_test/page/chat/p2p_call_state_machine_test.dart",
+        "test/unit_test/page/chat/webrtc_protocol_alignment_test.dart",
+        "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart",
+        "test/unit_test/rtc/rtc_relay_stats_judge_test.dart",
+        "test/unit_test/rtc/rtc_strict_gate_test.dart",
+        "test/unit_test/service/message_webrtc_msgid_scoping_test.dart"
+      ],
+      "backend_targets": [
+        "test/api/rtc_room_handler_tests.erl",
+        "test/logic/rtc_room_logic_tests.erl",
+        "test/logic/webrtc_ws_logic_tests.erl"
+      ],
+      "required_evidence_level": "A",
+      "level_basis": "真客户端聊天/跨角色写/真机业务闭环",
+      "requirements": [
+        "device.android",
+        "backend.local",
+        "livekit",
+        "fixture.disposable_account"
+      ],
+      "fixture": "iso:orgA_owner+orgA_member",
+      "disposition": "required",
+      "exclusion_code": null,
+      "blocked_code": null,
+      "details": ""
+    },
+    {
       "capability_id": "location.share",
       "feature_key": "location",
       "domain": "location",
@@ -1388,38 +1428,6 @@
       "backend_targets": [
         "test/api/location_handler_tests.erl",
         "test/logic/location_logic_tests.erl"
-      ],
-      "required_evidence_level": "B",
-      "level_basis": "App/Backend 合同",
-      "requirements": [
-        "backend.local"
-      ],
-      "fixture": "shared:readonly",
-      "disposition": "required",
-      "exclusion_code": null,
-      "blocked_code": null,
-      "details": ""
-    },
-    {
-      "capability_id": "rtc.c2c_call_lifecycle",
-      "feature_key": "rtc",
-      "domain": "rtc",
-      "positive": "C2C 音视频通话生命周期合同（发起/振铃/接听/忙线/挂断/超时与 msgId 作用域收敛）",
-      "negative": "feature gate 未开放/越作用域的终态信令被拒（迟到 busy/bye 不得污染新一通）",
-      "recovery": "无应答与对端离线的有限分支收口",
-      "app_targets": [
-        "test/unit_test/page/chat/p2p_call_floating_test.dart",
-        "test/unit_test/page/chat/p2p_call_preview_test.dart",
-        "test/unit_test/page/chat/p2p_call_state_machine_test.dart",
-        "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart",
-        "test/unit_test/rtc/rtc_relay_stats_judge_test.dart",
-        "test/unit_test/rtc/rtc_strict_gate_test.dart",
-        "test/unit_test/service/message_webrtc_msgid_scoping_test.dart"
-      ],
-      "backend_targets": [
-        "test/api/rtc_room_handler_tests.erl",
-        "test/logic/rtc_room_logic_tests.erl",
-        "test/logic/webrtc_ws_logic_tests.erl"
       ],
       "required_evidence_level": "B",
       "level_basis": "App/Backend 合同",
@@ -1540,7 +1548,7 @@
     },
     "rtc": {
       "capabilities": [
-        "rtc.c2c_call_lifecycle"
+        "rtc.c2c_call"
       ],
       "disposition": "mapped",
       "exclusion_code": null,

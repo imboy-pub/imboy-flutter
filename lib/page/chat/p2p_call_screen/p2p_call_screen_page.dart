@@ -18,9 +18,9 @@ import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/component/webrtc/func.dart' as webrtc_func;
 import 'package:imboy/config/init.dart'
     show p2pCallMsgId, p2pCallSignalingReady;
-import 'package:imboy/component/webrtc/media_permission.dart';
 import 'package:imboy/component/webrtc/session.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_constants.dart';
+import 'package:imboy/page/chat/p2p_call_screen/p2p_call_status_banners.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_state_machine.dart';
 import 'package:imboy/page/chat/p2p_call_screen/p2p_call_screen_provider.dart'
     show
@@ -611,123 +611,6 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// 顶部“网络不佳，正在重连…”横幅（接通后 Room Reconnecting/Resuming 时显示）。
-  /// 数据源是真实连接态，非伪造信号格，断连时不会误显“良好”。
-  Widget _buildReconnectingBanner() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: SafeArea(
-        bottom: false,
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.only(top: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            decoration: BoxDecoration(color: CallTokens.blackA55),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(
-                  width: 13,
-                  height: 13,
-                  child: CupertinoActivityIndicator(color: CallTokens.white70),
-                ),
-                AppSpacing.horizontalSmall,
-                Text(
-                  t.common.reconnecting,
-                  style: context.textStyle(
-                    // fs13(13) 精确匹配 footnote(13)
-                    FontSizeType.footnote,
-                    color: CallTokens.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// NET-06 轻度质量提示：非遮挡、不阻挡任何控制（重连横幅负责中断档）。
-  Widget _buildNetworkUnstableBanner() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: SafeArea(
-        bottom: false,
-        child: Center(
-          child: Container(
-            margin: const EdgeInsets.only(top: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-            decoration: BoxDecoration(color: CallTokens.blackA55),
-            child: Text(
-              t.common.networkUnstable,
-              style: context.textStyle(
-                FontSizeType.footnote,
-                color: CallTokens.white70,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMediaErrorBanner(P2pCallScreenState state) {
-    final target = state.permissionTarget;
-    return Positioned(
-      left: 16,
-      right: 16,
-      bottom: 116,
-      child: SafeArea(
-        top: false,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(14, 10, 8, 10),
-          decoration: BoxDecoration(
-            color: CallTokens.blackA75,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: CallTokens.white24),
-          ),
-          child: Row(
-            children: [
-              const Icon(
-                CupertinoIcons.exclamationmark_circle,
-                color: CallTokens.white70,
-                size: 20,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  state.errorMessage,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: CallTokens.white,
-                  ),
-                ),
-              ),
-              if (target != null)
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: () =>
-                      unawaited(openMediaPermissionSettings(target)),
-                  child: Text(
-                    t.common.privacySettings,
-                    style: context.textStyle(
-                      FontSizeType.footnote,
-                      color: CallTokens.white,
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
@@ -1444,15 +1327,21 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
             _buildVideoTopInfo(state, visible: state.showTool),
 
           // 5. 网络不佳横幅（接通后 Room 重连中）——真实连接态驱动
-          if (state.connected && state.reconnecting) _buildReconnectingBanner(),
+          if (state.connected && state.reconnecting)
+            P2pCallReconnectingBanner(message: t.common.reconnecting),
 
           // 5.5 NET-06 轻度档：对端质量持续下降的非遮挡提示（迟滞驱动，
           // 不与重连横幅同时出现）。
           if (state.connected && !state.reconnecting && state.networkUnstable)
-            _buildNetworkUnstableBanner(),
+            P2pCallNetworkUnstableBanner(message: t.common.networkUnstable),
 
           // 6. 摄像头/麦克风权限或设备错误：明确告知，不再伪装成“等待中”。
-          if (state.errorMessage.isNotEmpty) _buildMediaErrorBanner(state),
+          if (state.errorMessage.isNotEmpty)
+            P2pCallMediaErrorBanner(
+              message: state.errorMessage,
+              permissionTarget: state.permissionTarget,
+              settingsLabel: t.common.privacySettings,
+            ),
 
           // 7. 顶部左上角最小化按钮（淡入淡出）
           _buildMinimizeButton(visible: toolsVisible),

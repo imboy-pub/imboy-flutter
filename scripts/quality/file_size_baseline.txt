@@ -1,6 +1,6 @@
 # IMBoy 文件行数 ratchet 基线（门脚本生成，勿手改）
 # 再生成：bash scripts/quality/check_file_size_ratchet.sh --update-baseline
-# 日期：2026-11-07
+# 日期：2026-11-06
 # 格式：count<TAB>file ｜ 上限 800 行 ｜ 只许减不许增
 1335	integration_test/attachment_lifecycle_v5_test.dart
 821	integration_test/enterprise/enterprise_cs_e2e_test.dart
@@ -8,7 +8,7 @@
 913	integration_test/personal_info/personal_info_acceptance_test.dart
 1779	lib/component/upload/resumable_attachment_uploader.dart
 957	lib/component/voice_record/voice_widget.dart
-946	lib/config/init.dart
+941	lib/config/init.dart
 889	lib/config/router/app_router.dart
 1140	lib/modules/customer_service/infrastructure/cs_api.dart
 825	lib/modules/customer_service/presentation/cs_session_page.dart
@@ -28,8 +28,7 @@
 1467	lib/page/chat/chat/chat_provider.dart
 856	lib/page/chat/chat/services/chat_archive_service.dart
 1366	lib/page/chat/chat/services/chat_network_service.dart
-1469	lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart
-914	lib/page/chat/p2p_call_screen/p2p_call_screen_provider.dart
+1409	lib/page/chat/p2p_call_screen/p2p_call_screen_page.dart
 1416	lib/page/chat/widget/chat_input.dart
 1273	lib/page/conversation/conversation_provider.dart
 1073	lib/page/mine/user_collect/user_collect_page.dart
@@ -57,7 +56,7 @@
 1385	lib/service/migrations/upgrade_edges_v09_v16.dart
 1191	lib/service/olm_session_service.dart
 1112	lib/service/sqlite.dart
-1722	lib/service/websocket.dart
+1702	lib/service/websocket.dart
 1457	lib/store/api/attachment_api.dart
 1071	lib/store/api/channel_api.dart
 808	lib/store/model/message_model.dart
