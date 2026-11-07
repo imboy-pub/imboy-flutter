@@ -167,7 +167,7 @@ worktree 准备真实生成物，源提交/执行合同/测试代码保持一致
 ## PR、覆盖率与门禁
 
 PR 包含逻辑、Widget、模拟集成、SQLite、加密 FFI、工具目标，含原来 `test/unit_test/`
-以外的业务目录，以及已声明的离线 Chrome 目标。真实后端、Golden、路由、设备/双端/Patrol
+以外的业务目录，以及已声明的离线 Chrome 目标。真实后端、Golden、设备/双端/Patrol
 仍有明确专项；full 纳入全部适用目标。无可靠影响映射时，保守执行所选 profile 全目标，
 不猜测是否能裁掉测试。
 
@@ -179,6 +179,12 @@ PR 包含逻辑、Widget、模拟集成、SQLite、加密 FFI、工具目标，�
 这些目标继续交给其专项编排器。质量和跨仓契约工作流由主 CI 调用；稳定的
 `IMBoy Test Summary` 使用 `if: always()` 对账实例与上游任务。上游不使用 workflow paths
 过滤。分支保护应选择该汇总检查，仓库设置需维护者另行配置。
+
+PR 同时执行独立的 Linux `routes` 计划，每条路由各用一个进程，结果经自身
+`execution-summary` 对账并作为 `IMBoy Test Summary` 的上游门禁。PR、手动执行和
+`main` 推送在测试汇总成功后运行 Android APK/AAB 与无签名 iOS Release 构建；
+PR/手动构建使用合成配置和 Android 调试签名，不注入发布用 Firebase/Sentry 配置。
+These PR route and native build jobs execute real checks; skipped jobs do not certify success.
 
 `--coverage` 给已声明可统计的实例增加收集参数，与业务测试同次执行，不重新选文件。
 CI 覆盖率仍只收集 Linux 分片，Chrome worker 不开启覆盖率，也不额外重跑目标。

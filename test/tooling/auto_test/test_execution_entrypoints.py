@@ -1,6 +1,7 @@
 """Entrypoint and evidence regressions; no SDK, credentials or network."""
 from __future__ import annotations
 
+import ast
 import importlib.util
 import contextlib
 import copy
@@ -626,13 +627,50 @@ raise SystemExit(code)
         self.assertIn('--minimum 38', command)
         self.assertNotIn('--input', command)
 
+    def test_ci_pr_runs_native_builds_and_isolated_routes(self):
+        def selected(node):
+            if isinstance(node, ast.Constant):
+                return node.value
+            if isinstance(node, ast.BoolOp):
+                values = [selected(value) for value in node.values]
+                return all(values) if isinstance(node.op, ast.And) else any(values)
+            if isinstance(node, ast.Compare):
+                self.assertEqual(len(node.ops), 1)
+                self.assertIsInstance(node.ops[0], ast.Eq)
+                return selected(node.left) == selected(node.comparators[0])
+            self.fail(f'Unsupported CI event condition: {ast.dump(node)}')
+
+        for job in ('build', 'build-ios'):
+            header = self.ci_job(job).split('steps:', 1)[0]
+            condition = re.search(r'^    if: (.+)$', header, re.MULTILINE)
+            self.assertIsNotNone(condition)
+            self.assertIn('needs: [test-summary]', header)
+            for event, ref, expected in (
+                ('pull_request', 'refs/pull/44/merge', True),
+                ('push', 'refs/heads/main', True),
+                ('workflow_dispatch', 'refs/heads/fix/example', True),
+                ('push', 'refs/heads/dev', False),
+                ('schedule', 'refs/heads/main', False),
+            ):
+                with self.subTest(job=job, event=event, ref=ref):
+                    expression = condition[1].replace('github.event_name', repr(event))
+                    expression = expression.replace('github.ref', repr(ref))
+                    expression = expression.replace('&&', ' and ').replace('||', ' or ')
+                    self.assertEqual(selected(ast.parse(expression, mode='eval').body), expected)
+        routes = self.ci_job('route-smoke-test')
+        self.assertNotRegex(routes.split('steps:', 1)[0], re.compile(r'^    if:', re.MULTILINE))
+        self.assertIn('execution-plan --profile routes --platform linux', routes)
+        self.assertIn('execution-run --plan', routes)
+        self.assertIn('execution-summary --plan', routes)
+
     def test_ci_summary_waits_for_coverage_and_remains_an_unfiltered_required_check(self):
         summary = self.ci_job('test-summary')
         self.assertIn('name: IMBoy Test Summary', summary)
         self.assertIn('if: always()', summary.split('steps:', 1)[0])
         needs = re.search(r'^    needs: \[([^]]+)\]', summary, re.MULTILINE)
         self.assertIsNotNone(needs)
-        self.assertTrue({'execution-plan', 'host-tests', 'coverage', 'quality-gates', 'contract-gates'}
+        self.assertTrue({'execution-plan', 'host-tests', 'coverage', 'quality-gates', 'contract-gates',
+                         'route-smoke-test'}
                         <= {name.strip() for name in needs.group(1).split(',')})
         self.assertIn('UPSTREAM_JOBS: ${{ toJSON(needs) }}', summary)
         self.assertIn('--upstream-env UPSTREAM_JOBS', summary)

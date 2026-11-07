@@ -41,7 +41,7 @@ class DomainGenerationTest(unittest.TestCase):
         self.assertEqual(domain.check_domain(self.root), [])
 
     def test_capability_and_feature_counts(self):
-        self.assertEqual(len(self.first['capabilities']), 44)
+        self.assertEqual(len(self.first['capabilities']), 45)
         self.assertEqual(set(self.first['feature_mapping']),
                          set(domain.load_selected_features(ROOT)))
         for feature, item in self.first['feature_mapping'].items():
@@ -174,6 +174,26 @@ class FeatureManifestMappingTest(unittest.TestCase):
                  if s['capability_id'] in expected]
         self.assertEqual(len(specs), 6)
         self.assertTrue(all(s['feature_key'] == 'project' for s in specs))
+
+    def test_rtc_feature_requires_c2c_device_and_signaling_evidence(self):
+        matrix = domain.generate_domain_matrix(ROOT)
+        self.assertEqual(domain.FEATURE_CAPABILITY_MAP.get('rtc'), ['rtc.c2c_call'])
+        cap = next(c for c in matrix['capabilities'] if c['capability_id'] == 'rtc.c2c_call')
+        self.assertEqual(cap['feature_key'], 'rtc')
+        self.assertEqual(cap['required_evidence_level'], 'A')
+        self.assertIsNone(cap['blocked_code'])
+        self.assertTrue({
+            'integration_test/rtc/c2c_call_matrix_a_side_test.dart',
+            'integration_test/rtc/c2c_call_matrix_b_side_test.dart',
+            'integration_test/rtc/rtc_negative_matrix_test.dart',
+            'test/unit_test/page/chat/p2p_call_livekit_test.dart',
+            'test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart',
+        }.issubset(cap['app_targets']))
+        self.assertEqual(set(cap['backend_targets']), {
+            'test/logic/rtc_room_logic_tests.erl',
+            'test/logic/webrtc_ws_logic_tests.erl',
+        })
+        self.assertNotIn('integration_test/rtc/rtc_group_regression_test.dart', cap['app_targets'])
 
     def test_feature_key_values_are_manifest_or_core(self):
         # CAPABILITY_SPECS 是跨 profile 全集：feature_key 只需属于已知 feature 全集或 core，
