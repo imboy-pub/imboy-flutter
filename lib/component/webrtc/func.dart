@@ -166,7 +166,13 @@ Future<void> incomingCallScreen(
     clearPendingWebRTCSignals(peer.peerId.toString());
     gTimer?.cancel();
     gTimer = null;
-    p2pCallScreenOn = false;
+    // 归属判定（CALL-11 同款）：异步窗口内若对端重拨已接管全局登记
+    // （p2pCallMsgId 已指向新一通），开关归属新登记，此处不得复位；
+    // p2pCallMsgId 为 null 时通常已被终态 handler 收敛（开关同为 false），
+    // 置 false 幂等无害。
+    if (p2pCallMsgId == msgId || p2pCallMsgId == null) {
+      p2pCallScreenOn = false;
+    }
     if (p2pCallMsgId == msgId) p2pCallMsgId = null;
     p2pCallSignalingReady = false;
     if (dialogContext != null && dialogContext.mounted) {
@@ -189,7 +195,12 @@ Future<void> incomingCallScreen(
     msgId: msgId,
     peer: peer,
   );
-  if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+  // liveness 复查（CALL-06 竞态）：持久化期间主叫可能已取消——busy 经
+  // message_webrtc 终态 handler 清掉本通登记（p2pCallMsgId）。此时不得
+  // 再起 60s 铃窗、不得发 ringing、不得弹出全屏来电。
+  if (!context.mounted ||
+      !AppFeatureRegistry.isEnabled(FeatureKeys.rtc) ||
+      p2pCallMsgId != msgId) {
     await declineIncoming();
     return;
   }
@@ -197,14 +208,18 @@ Future<void> incomingCallScreen(
   gTimer = Timer(const Duration(seconds: 60), () {
     clearPendingWebRTCSignals(peer.peerId.toString());
     messages.changeLocalMsgState(msgId, 5);
-    // Check if dialog is still open and close it
-    if (navigatorKey.currentState?.overlay != null) {
-      navigatorKey.currentState?.pop();
+    // 归属判定：60s 兜底触发时若登记已被接管（对端重拨的新一通），不得
+    // pop 新弹窗、不得复位新登记的全局开关；只收敛本通记录。
+    if (p2pCallMsgId == msgId) {
+      // Check if dialog is still open and close it
+      if (navigatorKey.currentState?.overlay != null) {
+        navigatorKey.currentState?.pop();
+      }
+      gTimer?.cancel();
+      gTimer = null;
+      p2pCallScreenOn = false;
+      p2pCallMsgId = null;
     }
-    gTimer?.cancel();
-    gTimer = null;
-    p2pCallScreenOn = false;
-    if (p2pCallMsgId == msgId) p2pCallMsgId = null;
   });
 
   await signal('ringing');
@@ -212,7 +227,10 @@ Future<void> incomingCallScreen(
   // DONE(2026-04-04): 标记来电消息为已读
   messages.markAsRead('C2C', peer.peerId.toString(), [msgId]);
 
-  if (!context.mounted || !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
+  // liveness 复查（同上）：ringing 往返期间主叫可能已取消。
+  if (!context.mounted ||
+      !AppFeatureRegistry.isEnabled(FeatureKeys.rtc) ||
+      p2pCallMsgId != msgId) {
     await declineIncoming();
     return;
   }
@@ -301,11 +319,13 @@ Future<void> openCallScreen(
         p2pEntry?.remove();
         p2pEntry = null;
         // Get.delete removed - cleanup is handled by closePage callback
-        p2pCallScreenOn = false;
+        // p2pCallSignalingReady 等信令/回调层立即复位；
+        // p2pCallScreenOn / p2pCallMsgId 属"活动通话归属"状态，紧随的页面
+        // dispose 与 cleanUpP2P 按归属判定复位（CALL-11）：异步收尾窗口内
+        // 对端重拨接管登记时，不得在此无条件抹掉新一通的登记。
         p2pCallSignalingReady = false;
         p2pCallSystemBackHandler = null;
         p2pCallRestoreHandler = null;
-        p2pCallMsgId = null;
         final route = _p2pCallBackdropRoute;
         _p2pCallBackdropRoute = null;
         if (route != null && route.isActive) {

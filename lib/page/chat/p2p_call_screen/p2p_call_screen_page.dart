@@ -184,7 +184,11 @@ class _P2pCallScreenPageState extends ConsumerState<P2pCallScreenPage>
     if (webrtc_func.p2pCallRestoreHandler != null) {
       webrtc_func.p2pCallRestoreHandler = null;
     }
-    p2pCallMsgId = null;
+    // 归属判定（CALL-11）：异步收尾窗口内对端重拨可能已接管登记（指向
+    // 新一通 msgId），仅当标识仍属本通才清除。
+    if (p2pCallMsgId == msgId) {
+      p2pCallMsgId = null;
+    }
 
     // 同步清理：必须在 super.dispose() 之前完成
     msgId = '';

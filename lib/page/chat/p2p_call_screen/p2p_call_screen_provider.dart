@@ -618,8 +618,14 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
     await releaseMedia();
     // ⚠️ 不在此处复位 _closing：关闭流程是异步的，飞行中的原生回调可能
     // 随后到达；复位由下一通通话的 initSession 完成。
-    p2pCallScreenOn = false;
-    p2pCallMsgId = null;
+    // 归属判定（CALL-11）：releaseMedia 的异步窗口内对端重拨可能已接管
+    // 全局登记（指向新一通 msgId），此时开关归属新登记不得复位；标识为
+    // null 时已被终态 handler 或 dispose 复位（开关同为 false 或待此处
+    // 收敛），置 false 幂等无害。
+    if (p2pCallMsgId == msgId || p2pCallMsgId == null) {
+      p2pCallScreenOn = false;
+      if (p2pCallMsgId == msgId) p2pCallMsgId = null;
+    }
   }
 
   /// 前后镜头切换（本地 camera track 的采集方位）。
