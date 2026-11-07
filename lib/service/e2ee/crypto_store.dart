@@ -312,7 +312,8 @@ class CryptoStore {
   }
 
   /// 确认 outbox 条目已发送。
-  Future<void> confirmOutbox(String id) async {
+  /// [isCurrent] 在异步表探测后、提交 UPDATE 前复核会话。
+  Future<void> confirmOutbox(String id, {bool Function()? isCurrent}) async {
     // 明文消息也进入统一 ACK 汇聚点，但未启用加密发送的本机库
     // 没有此可选表。不要为明文 ACK 创建二期加密 schema；真实 SQL
     // 故障（例如已有表缺列）仍由下方 UPDATE 抛出。
@@ -320,7 +321,7 @@ class CryptoStore {
       'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
       ['table', 'crypto_outbox'],
     );
-    if (tables.isEmpty) return;
+    if (tables.isEmpty || isCurrent?.call() == false) return;
     final now = DateTime.now().millisecondsSinceEpoch;
     await _db.rawUpdate(
       "UPDATE crypto_outbox SET status = 'sent', sent_at = ? WHERE id = ? AND status = 'pending'",
