@@ -1385,13 +1385,18 @@
         "integration_test/rtc/c2c_call_matrix_a_side_test.dart",
         "integration_test/rtc/c2c_call_matrix_b_side_test.dart",
         "integration_test/rtc/rtc_negative_matrix_test.dart",
+        "test/unit_test/page/chat/p2p_call_floating_test.dart",
         "test/unit_test/page/chat/p2p_call_livekit_test.dart",
+        "test/unit_test/page/chat/p2p_call_preview_test.dart",
         "test/unit_test/page/chat/p2p_call_state_machine_test.dart",
         "test/unit_test/page/chat/webrtc_protocol_alignment_test.dart",
         "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart",
+        "test/unit_test/rtc/rtc_relay_stats_judge_test.dart",
+        "test/unit_test/rtc/rtc_strict_gate_test.dart",
         "test/unit_test/service/message_webrtc_msgid_scoping_test.dart"
       ],
       "backend_targets": [
+        "test/api/rtc_room_handler_tests.erl",
         "test/logic/rtc_room_logic_tests.erl",
         "test/logic/webrtc_ws_logic_tests.erl"
       ],
