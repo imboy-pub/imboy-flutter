@@ -93,6 +93,23 @@ void main() {
       return;
     }
 
+    if (_bCase == 'noanswer') {
+      // ── 不接路径（CALL-06）：保持来电页直到 60s 铃窗超时自动收尾 ──────
+      // 来电页 gTimer（CallTimeoutConfig 60s）到点自动 pop 并收敛记录；
+      // 本分支只断言"超时后来电页已关闭"，不点任何按钮。
+      final timedOut = await pollUntil(
+        () => !tester.any(incoming),
+        tester: tester,
+        // 60s 铃窗 + 收尾余量
+        timeout: const Duration(seconds: 90),
+      );
+      expect(timedOut, isTrue, reason: '来电页未在铃窗超时后自动关闭');
+      flowLog('[B] 来电超时自动收尾（CALL-06）');
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await tester.pump();
+      return;
+    }
+
     // ── 2. 接听：tap 接听 → answer 信令 → joinRoom c2c → Room 接通 ──────
     final answerBtn = find.descendant(
       of: incoming,

@@ -103,6 +103,26 @@ void main() {
       return;
     }
 
+    if (_bCase == 'noanswer') {
+      // ── noanswer 路径（CALL-06/07）：对端不接或完全离线 ─────────────
+      // B 在线不接：B 回 ringing 后无人 answer，answerTimer 兜底；
+      // B 完全离线：连 ringing 都没有，同样由 answerTimer 收尾。
+      // 断言：answerTimer 到点后通话页收尾、room 未建、无残留。
+      final timedOut = await pollUntil(
+        () => !tester.any(callPage) && notifier.room == null,
+        tester: tester,
+        // answerTimer 上限 + ringing 窗口 + 收尾延迟，取 150s 安全界
+        timeout: const Duration(seconds: 150),
+      );
+      expect(timedOut, isTrue, reason: '对端未接听时超时收尾未完成（页/room 残留）');
+      flowLog('[A] 无人接听超时收尾完成（CALL-06/07）');
+      // 给 bye/记录收敛留派发窗口（与挂断路径同理）
+      await Future<void>.delayed(const Duration(milliseconds: 1200));
+      await tester.pump();
+      await takeScreenshot(tester, 'lk_a_call_noanswer');
+      return;
+    }
+
     // ── 2. 等 B ringing（真实 WS 回流；超时 45s）─────────────────────────
     var okRinging = await pollUntil(
       () =>
