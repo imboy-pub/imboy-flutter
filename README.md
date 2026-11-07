@@ -1,6 +1,8 @@
 # IMBoy App
 
-IMBoy 的 Flutter 客户端，支持 iOS、Android 和桌面端。一期交付能力：单聊、群聊、联系人、频道、朋友圈、收藏与通知。音视频通话（RTC）、直播（live_room）、Bot、AI 助手与端到端加密（E2EE）为二期保留能力，交付版默认关闭，开发态状态详见 [功能状态](./docs/reference/feature-status.md)。
+IMBoy 的 Flutter 客户端，支持 iOS、Android 和桌面端。一期交付（`phase1_delivery`）能力：单聊、群聊、联系人、频道、朋友圈、收藏与通知，以及已登录 App 好友之间的一对一语音/视频通话（`rtc`）。直播（live_room）、Bot、AI 助手与端到端加密（E2EE）为二期保留能力，交付版默认关闭，开发态状态详见 [功能状态](./docs/reference/feature-status.md)。
+
+`phase1_delivery` 的编译清单包含 `rtc`，后端运行时 preset 默认允许；现场可通过 `features.rtc=false` 显式关闭，客户端仍受编译清单、本地门禁和后端功能快照共同控制。群通话（`rtc_group`）仍被一期交付锁禁止，访客/Web 坐席及 C2S 音视频不在本次开放范围。编译包含、入口可见或 CI 成功均不代表真实双端音视频已通过交付验收。
 
 首页只有两种模式：`personal`（个人）和 `workspace`（企业）。新登录或未选择企业时进入个人模式；从企业选择器明确选择企业后进入企业模式（消息 / 通讯录 / 工作台 / 我的）。模式偏好按账号保存在本机，服务端部署默认值不会代替用户选择企业。旧版“群聊 / 概览 / 频道 / 群组 / 项目”独立首页已移除。
 
