@@ -184,7 +184,10 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
 
     switch (msg.webRtcType) {
       case 'ringing':
-        onCallStateChange?.call(s, WebRTCCallState.callStateRinging);
+        // 同一 peer 连续拨号时，迟到的响铃信令仍只属于原通话。
+        if (msg.msgId == msgId) {
+          onCallStateChange?.call(s, WebRTCCallState.callStateRinging);
+        }
         break;
       case 'busy':
         // 与 bye 同规（CALL-11）：迟到的旧通话 busy 不得打断当前通话。
@@ -217,7 +220,8 @@ class P2pCallScreenNotifier extends _$P2pCallScreenNotifier {
         break;
       case 'track_state':
         // 对端摄像头开关的信令同步：驱动本端 remoteVideoOff 占位 UI。
-        if (ref.mounted && !_closing) {
+        // 对端相同也需核对 msgId，避免旧通话信令污染新通话画面。
+        if (msg.msgId == msgId && ref.mounted && !_closing) {
           final videoOn = msg.payload['video'] as bool? ?? true;
           state = state.copyWith(remoteVideoOff: !videoOn);
         }

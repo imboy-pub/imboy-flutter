@@ -105,6 +105,7 @@ void _resetEntryState() {
   if (p2pEntry?.mounted ?? false) p2pEntry?.remove();
   p2pEntry = null;
   p2pCallScreenOn = false;
+  p2pCallMsgId = null;
   p2pCallSignalingReady = false;
   clearPendingWebRTCSignals('2001');
   AppFeatureRegistry.replaceSnapshotForTest({});
@@ -165,6 +166,130 @@ void main() {
   // 正向来电只在正规生成且包含 rtc 的产品组合执行，未编译组合仍执行上面的关闭门。
   // 只替换消息持久化和信令传输，不触碰真实数据库、账号、网络或媒体设备。
   if (compiledProductFeatures.contains(FeatureKeys.rtc)) {
+    for (final pauseAt in ['persistence', 'ringing']) {
+      testWidgets('旧来电在 $pauseAt 等待后收尾，只清理本通资源', (tester) async {
+        _resetEntryState();
+        addTearDown(_resetEntryState);
+        AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
+        final context = await _mountEntryHost(tester);
+        final peer = ContactModel.fromMap({'id': '2001', 'nickname': 'Peer'});
+        final oldMessages = _IncomingMessages();
+        final gate = Completer<void>();
+        addTearDown(() {
+          if (!gate.isCompleted) gate.complete();
+        });
+        if (pauseAt == 'persistence') oldMessages.addGate = gate;
+        final oldSignals = <String>[];
+        final oldIncoming = incomingCallScreen(
+          context,
+          'old-call',
+          peer,
+          {'media': 'video'},
+          messaging: oldMessages,
+          sendSignal: (event) async {
+            oldSignals.add(event);
+            if (pauseAt == 'ringing' && event == 'ringing') await gate.future;
+            return true;
+          },
+        );
+        await tester.pump();
+        expect(p2pCallMsgId, 'old-call');
+        final oldTimer = gTimer;
+
+        // 模拟旧来电终止后同一联系人重拨，新的来电实际取得自己的 Timer。
+        gTimer?.cancel();
+        gTimer = null;
+        p2pCallScreenOn = false;
+        p2pCallMsgId = null;
+        final newMessages = _IncomingMessages();
+        await incomingCallScreen(
+          context,
+          'new-call',
+          peer,
+          {'media': 'audio'},
+          messaging: newMessages,
+          sendSignal: (_) async => true,
+        );
+        await tester.pump();
+        final newTimer = gTimer!;
+        p2pCallSignalingReady = true;
+        queuePendingWebRTCSignal({'from': '2001', 'id': 'old-call'});
+        final newSignal = {'from': '2001', 'id': 'new-call'};
+        queuePendingWebRTCSignal(newSignal);
+
+        gate.complete();
+        await oldIncoming;
+        await tester.pump();
+
+        expect(p2pCallMsgId, 'new-call');
+        expect(p2pCallScreenOn, isTrue);
+        expect(p2pCallSignalingReady, isTrue);
+        expect(gTimer, same(newTimer));
+        expect(newTimer.isActive, isTrue);
+        if (oldTimer != null) expect(oldTimer.isActive, isFalse);
+        expect(takePendingWebRTCSignals('2001'), [newSignal]);
+        expect(oldMessages.endedStates, [5]);
+        expect(oldSignals.where((event) => event == 'busy'), ['busy']);
+        expect(newMessages.endedStates, isEmpty);
+        expect(find.byType(IncomingCallView), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        tester
+            .widget<IncomingCallView>(find.byType(IncomingCallView))
+            .onDecline();
+        await tester.pumpAndSettle();
+      });
+    }
+
+    testWidgets('ringing 尚未完成时超时，只终止来电，不弹出业务页', (tester) async {
+      _resetEntryState();
+      addTearDown(_resetEntryState);
+      AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
+      await _mountEntryHost(tester);
+      late BuildContext businessContext;
+      unawaited(
+        navigatorKey.currentState!.push<void>(
+          MaterialPageRoute<void>(
+            builder: (context) {
+              businessContext = context;
+              return const Scaffold(body: Text('business page'));
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final ringingGate = Completer<bool>();
+      addTearDown(() {
+        if (!ringingGate.isCompleted) ringingGate.complete(true);
+      });
+      final messages = _IncomingMessages();
+      final pending = incomingCallScreen(
+        businessContext,
+        'timeout-before-dialog',
+        ContactModel.fromMap({'id': '2001', 'nickname': 'Peer'}),
+        {'media': 'audio'},
+        messaging: messages,
+        sendSignal: (event) =>
+            event == 'ringing' ? ringingGate.future : Future<bool>.value(true),
+      );
+      await tester.pump();
+      expect(gTimer!.isActive, isTrue);
+      await tester.pump(const Duration(seconds: 61));
+      await tester.pumpAndSettle();
+      expect(businessContext.mounted, isTrue);
+      expect(find.text('business page'), findsOneWidget);
+      expect(navigatorKey.currentState!.canPop(), isTrue);
+      expect(gTimer, isNull);
+      expect(messages.endedStates, [5]);
+
+      ringingGate.complete(true);
+      await pending;
+      await tester.pumpAndSettle();
+      expect(find.byType(IncomingCallView), findsNothing);
+      expect(messages.endedStates, [5]);
+      expect(p2pCallScreenOn, isFalse);
+    });
+
     for (final busyFails in [false, true]) {
       testWidgets('来电等待中关闭 RTC，busy 失败=$busyFails 仍只清理一次', (tester) async {
         _resetEntryState();
@@ -194,7 +319,7 @@ void main() {
         expect(p2pCallScreenOn, isTrue);
         final waitingTimer = gTimer!;
         expect(waitingTimer.isActive, isTrue);
-        queuePendingWebRTCSignal({'from': '2001', 'id': 'waiting-signal'});
+        queuePendingWebRTCSignal({'from': '2001', 'id': 'waiting-call'});
         p2pCallSignalingReady = true;
 
         AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: false});

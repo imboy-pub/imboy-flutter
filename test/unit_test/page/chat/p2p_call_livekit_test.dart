@@ -70,13 +70,17 @@ void main() {
     return container;
   }
 
-  WebRTCSignalingModel signaling(String type, {String? msgId}) {
+  WebRTCSignalingModel signaling(
+    String type, {
+    String? msgId,
+    Map<String, dynamic> payload = const {},
+  }) {
     return WebRTCSignalingModel(
       msgId: msgId ?? 'mid-lk-1',
       type: 'WEBRTC_${type.toUpperCase()}',
       from: peerId,
       to: '117',
-      payload: const <String, dynamic>{},
+      payload: payload,
     );
   }
 
@@ -235,6 +239,60 @@ void main() {
 
       expect(states, isNot(contains(WebRTCCallState.callStateBye)));
     });
+
+    test('同一 peer 的旧通话 ringing 不广播新通话状态，当前通话仍可响铃', () async {
+      final container = setupContainer(_FakeRtcRoomApi());
+      addTearDown(container.dispose);
+
+      final notifier = container.read(p2pCallScreenProvider.notifier);
+      final states = <WebRTCCallState>[];
+      notifier.onCallStateChange = (s, state) => states.add(state);
+      final session = WebRTCSession(peerId: peerId, sid: '117-$peerId');
+
+      await notifier.onMessageP2P(
+        session,
+        signaling('ringing', msgId: 'old-call'),
+      );
+      expect(states, isEmpty, reason: '相同 peer 不代表相同通话');
+
+      await notifier.onMessageP2P(session, signaling('ringing'));
+      expect(states, [WebRTCCallState.callStateRinging]);
+    });
+
+    for (final videoOn in [false, true]) {
+      test('旧通话 track_state(video=$videoOn) 不改变新通话的摄像头状态', () async {
+        final container = setupContainer(_FakeRtcRoomApi());
+        addTearDown(container.dispose);
+
+        final notifier = container.read(p2pCallScreenProvider.notifier);
+        final session = WebRTCSession(peerId: peerId, sid: '117-$peerId');
+        await notifier.onMessageP2P(
+          session,
+          signaling('track_state', payload: {'video': !videoOn}),
+        );
+        expect(container.read(p2pCallScreenProvider).remoteVideoOff, videoOn);
+
+        await notifier.onMessageP2P(
+          session,
+          signaling(
+            'track_state',
+            msgId: 'old-call',
+            payload: {'video': videoOn},
+          ),
+        );
+        expect(
+          container.read(p2pCallScreenProvider).remoteVideoOff,
+          videoOn,
+          reason: '旧通话的开关摄像头信令不得污染同一 peer 的新通话',
+        );
+
+        await notifier.onMessageP2P(
+          session,
+          signaling('track_state', payload: {'video': videoOn}),
+        );
+        expect(container.read(p2pCallScreenProvider).remoteVideoOff, !videoOn);
+      });
+    }
 
     test('track_state 同步对端摄像头关闭状态', () async {
       final container = setupContainer(_FakeRtcRoomApi());

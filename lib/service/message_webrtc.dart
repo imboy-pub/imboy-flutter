@@ -131,18 +131,14 @@ class MessageWebrtc {
           // changeLocalMsgState 经 repo 按 msgId 直查，未登记也能收敛
           // （对端未先 ringing 直接 busy 的场景）。
           changeLocalMsgState(signalMsgId, endState);
-          // 关闭来电对话框（incomingCallScreen 是 showDialog 路由）。
-          // ⚠️ 仅在来电弹窗还开着（无通话 overlay）时才允许 pop：通话页以
-          // OverlayEntry 呈现时导航栈顶是业务页面，裸 pop 会弹掉它。
-          if (p2pEntry == null &&
-              (navigatorKey.currentState?.canPop() ?? false)) {
-            navigatorKey.currentState?.pop();
-          }
+          // 尚未创建来电路由时只清登记，异步入口复查后不会再显示来电。
+          // 已创建时按句柄精确关闭；其上方的其他页面也不会被误弹出。
+          closeIncomingCallScreen(signalMsgId);
           gTimer?.cancel();
           gTimer = null;
           p2pCallScreenOn = false;
           p2pCallMsgId = null;
-          clearPendingWebRTCSignals(fromUid);
+          clearPendingWebRTCSignals(fromUid, msgId: signalMsgId);
         } else if (signalMsgId != null &&
             webrtcMsgFrom.containsKey(signalMsgId)) {
           // 旧通话的迟到终态：只收敛它自己的记录（对方暂时无法接通/

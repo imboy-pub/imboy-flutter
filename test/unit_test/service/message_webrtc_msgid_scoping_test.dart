@@ -1,13 +1,27 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart' show Message;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
+import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/app_core/feature_flags/generated_product_features.dart';
+import 'package:imboy/component/webrtc/func.dart';
 import 'package:imboy/config/const.dart' show Keys;
 import 'package:imboy/config/init.dart'
-    show gTimer, p2pCallMsgId, p2pCallScreenOn, p2pEntry;
+    show
+        gTimer,
+        navigatorKey,
+        p2pCallMsgId,
+        p2pCallScreenOn,
+        p2pCallSignalingReady,
+        p2pEntry;
+import 'package:imboy/modules/messaging/public.dart'
+    show ContactModel, MessagingFacade;
+import 'package:imboy/page/chat/p2p_call_screen/incoming_call_view.dart';
 import 'package:imboy/service/event_bus.dart';
 import 'package:imboy/service/events/common_events.dart';
 import 'package:imboy/service/message_webrtc.dart';
@@ -22,6 +36,85 @@ import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart'
 /// 迟到的旧通话信令只收敛自己的记录，不得改写新一通的全局状态。
 const String _currentUid = '1817128709888507904';
 const String _peerUid = '1825989847768576000';
+
+class _IncomingMessages implements MessagingFacade {
+  Completer<void>? addGate;
+
+  @override
+  Future<void> addLocalMsg({
+    required String media,
+    required bool caller,
+    required String msgId,
+    required ContactModel peer,
+  }) async {
+    await addGate?.future;
+  }
+
+  @override
+  Future<void> changeLocalMsgState(
+    String msgId,
+    int state, {
+    int startAt = -1,
+    int endAt = -1,
+  }) async {}
+
+  @override
+  Future<bool> markAsRead(
+    String type,
+    String peerId,
+    List<String> msgIds,
+  ) async => true;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class _RouteObserver extends NavigatorObserver {
+  final pushed = <Route<dynamic>>[];
+  final popped = <Route<dynamic>>[];
+  final removed = <Route<dynamic>>[];
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushed.add(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    popped.add(route);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    removed.add(route);
+  }
+}
+
+Future<BuildContext> _mountBusinessPage(
+  WidgetTester tester,
+  _RouteObserver observer,
+) async {
+  await tester.pumpWidget(
+    MaterialApp(
+      navigatorKey: navigatorKey,
+      navigatorObservers: [observer],
+      home: const Scaffold(body: Text('home')),
+    ),
+  );
+  late BuildContext businessContext;
+  unawaited(
+    navigatorKey.currentState!.push<void>(
+      MaterialPageRoute<void>(
+        builder: (context) {
+          businessContext = context;
+          return const Scaffold(body: Text('business page'));
+        },
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+  return businessContext;
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +148,9 @@ void main() {
     p2pEntry = null;
     p2pCallScreenOn = false;
     p2pCallMsgId = null;
+    p2pCallSignalingReady = false;
+    clearPendingWebRTCSignals(_peerUid);
+    AppFeatureRegistry.replaceSnapshotForTest({FeatureKeys.rtc: true});
     gTimer?.cancel();
     gTimer = null;
   });
@@ -63,6 +159,9 @@ void main() {
     p2pEntry = null;
     p2pCallScreenOn = false;
     p2pCallMsgId = null;
+    p2pCallSignalingReady = false;
+    clearPendingWebRTCSignals(_peerUid);
+    AppFeatureRegistry.replaceSnapshotForTest({});
     gTimer?.cancel();
     gTimer = null;
     MessageWebrtc.instance.webrtcMsgFrom.clear();
@@ -136,6 +235,153 @@ void main() {
     } finally {
       await subscription.cancel();
     }
+  }
+
+  if (compiledProductFeatures.contains(FeatureKeys.rtc)) {
+    for (final pauseAt in ['persistence', 'ringing']) {
+      testWidgets('来电在 $pauseAt 等待时取消，不弹出底层业务页面', (tester) async {
+        const msgId = 'cancel-before-dialog';
+        await tester.runAsync(() => insertCallRecord(msgId));
+        final observer = _RouteObserver();
+        final context = await _mountBusinessPage(tester, observer);
+        final messages = _IncomingMessages();
+        final gate = Completer<void>();
+        addTearDown(() {
+          if (!gate.isCompleted) gate.complete();
+        });
+        if (pauseAt == 'persistence') messages.addGate = gate;
+        final pending = incomingCallScreen(
+          context,
+          msgId,
+          ContactModel.fromMap({'id': _peerUid, 'nickname': 'Peer'}),
+          {'media': 'video'},
+          messaging: messages,
+          sendSignal: (event) async {
+            if (pauseAt == 'ringing' && event == 'ringing') await gate.future;
+            return true;
+          },
+        );
+        await tester.pump();
+        expect(p2pCallMsgId, msgId);
+        expect(navigatorKey.currentState!.canPop(), isTrue);
+        expect(find.byType(IncomingCallView), findsNothing);
+
+        await tester.runAsync(
+          () => handleTerminalSignal('WEBRTC_BYE', msgId, 3),
+        );
+        await tester.pumpAndSettle();
+        expect(observer.popped, isEmpty);
+        expect(observer.removed, isEmpty);
+        expect(context.mounted, isTrue);
+        expect(find.text('business page'), findsOneWidget);
+
+        gate.complete();
+        await pending;
+        await tester.pumpAndSettle();
+        expect(p2pCallMsgId, isNull);
+        expect(gTimer, isNull);
+        expect(find.byType(IncomingCallView), findsNothing);
+        expect(observer.popped, isEmpty);
+        expect(navigatorKey.currentState!.canPop(), isTrue);
+      });
+    }
+
+    for (final coverDialog in [false, true]) {
+      testWidgets('终态只关闭本通来电路由，另有顶层路由=$coverDialog', (tester) async {
+        const msgId = 'cancel-visible-dialog';
+        await tester.runAsync(() => insertCallRecord(msgId));
+        final observer = _RouteObserver();
+        final context = await _mountBusinessPage(tester, observer);
+        await incomingCallScreen(
+          context,
+          msgId,
+          ContactModel.fromMap({'id': _peerUid, 'nickname': 'Peer'}),
+          {'media': 'video'},
+          messaging: _IncomingMessages(),
+          sendSignal: (_) async => true,
+        );
+        await tester.pump();
+        final incomingRoute = observer.pushed.last;
+        expect(find.byType(IncomingCallView), findsOneWidget);
+        if (coverDialog) {
+          unawaited(
+            navigatorKey.currentState!.push<void>(
+              MaterialPageRoute<void>(
+                builder: (_) => const Scaffold(body: Text('another page')),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+        }
+
+        await tester.runAsync(
+          () => handleTerminalSignal('WEBRTC_BUSY', msgId, 5),
+        );
+        await tester.pumpAndSettle();
+        expect(incomingRoute.isActive, isFalse);
+        expect([...observer.removed, ...observer.popped], [incomingRoute]);
+        expect(context.mounted, isTrue);
+        expect(find.byType(IncomingCallView), findsNothing);
+        expect(
+          find.text(coverDialog ? 'another page' : 'business page'),
+          findsOneWidget,
+        );
+        expect(gTimer, isNull);
+      });
+    }
+
+    testWidgets('旧来电落库收尾后，新通话 bye 仍派发给已有订阅', (tester) async {
+      const oldMsgId = 'old-persisting-call';
+      const newMsgId = 'new-subscribed-call';
+      await tester.runAsync(() async {
+        await insertCallRecord(oldMsgId);
+        await insertCallRecord(newMsgId);
+      });
+      final context = await _mountBusinessPage(tester, _RouteObserver());
+      final messages = _IncomingMessages()..addGate = Completer<void>();
+      addTearDown(() {
+        if (!messages.addGate!.isCompleted) messages.addGate!.complete();
+      });
+      final oldIncoming = incomingCallScreen(
+        context,
+        oldMsgId,
+        ContactModel.fromMap({'id': _peerUid, 'nickname': 'Peer'}),
+        {'media': 'video'},
+        messaging: messages,
+        sendSignal: (_) async => true,
+      );
+      await tester.pump();
+      await tester.runAsync(
+        () => handleTerminalSignal('WEBRTC_BYE', oldMsgId, 3),
+      );
+
+      // 模拟新通话页已经建立 overlay 和事件订阅，不启动真实媒体设备。
+      final entry = OverlayEntry(builder: (_) => const SizedBox.shrink());
+      navigatorKey.currentState!.overlay!.insert(entry);
+      addTearDown(() {
+        entry.remove();
+        entry.dispose();
+      });
+      p2pEntry = entry;
+      p2pCallMsgId = newMsgId;
+      p2pCallScreenOn = true;
+      p2pCallSignalingReady = true;
+      final delivered = <Map<String, dynamic>>[];
+      final subscription = AppEventBus.on<WebRTCSignalingEvent>().listen(
+        (event) => delivered.add(event.data),
+      );
+      addTearDown(subscription.cancel);
+
+      messages.addGate!.complete();
+      await oldIncoming;
+      await tester.pump();
+      await tester.runAsync(
+        () => handleTerminalSignal('WEBRTC_BYE', newMsgId, 3),
+      );
+      expect(delivered.map((data) => data['id']), [newMsgId]);
+      expect(takePendingWebRTCSignals(_peerUid), isEmpty);
+      expect(p2pCallMsgId, isNull);
+    });
   }
 
   test('本通 busy：按 msgId 收敛记录并复位全局通话状态', () async {
