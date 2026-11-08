@@ -82,7 +82,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -129,8 +133,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          submodules: recursive
+          submodules: false
           fetch-depth: 0
+
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        run: bash .github/scripts/ci_checkout_submodules.sh 0
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
