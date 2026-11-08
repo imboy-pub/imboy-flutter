@@ -454,14 +454,14 @@ void main() {
       const malformedId = 'unk00000000000000err2';
 
       final removals = <RemoveFromRetryQueueRequestedEvent>[];
-      final pendingRemovalIds = {unknownId, malformedId};
-      final removalsReceived = Completer<void>();
+      final removalsDone = Completer<void>();
       final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
           .listen((event) {
             removals.add(event);
-            pendingRemovalIds.remove(event.messageId);
-            if (pendingRemovalIds.isEmpty && !removalsReceived.isCompleted) {
-              removalsReceived.complete();
+            if (!removalsDone.isCompleted &&
+                removals.any((event) => event.messageId == unknownId) &&
+                removals.any((event) => event.messageId == malformedId)) {
+              removalsDone.complete();
             }
           });
       addTearDown(subscription.cancel);
@@ -490,9 +490,8 @@ void main() {
           ),
         ),
       );
-      // 等待两帧各自的 SQLite 校验完成后发出的事件，不以队列本来为空
-      // 或固定次数的事件循环让步作为处理完成的依据。
-      await removalsReceived.future.timeout(const Duration(seconds: 3));
+      // 两帧都要等待 SQLite FFI 事务完成，固定轮次的事件循环让步不足以同步。
+      await removalsDone.future.timeout(const Duration(seconds: 3));
 
       expect(retry.getRetryInfo(unknownId), isNull);
       expect(removals, hasLength(2));

@@ -61,7 +61,14 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          submodules: recursive
+          submodules: false
+
+      - name: Checkout pinned submodules (bounded retry)
+        timeout-minutes: 10
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: bash .github/scripts/ci_checkout_submodules.sh
+
       - uses: actions/download-artifact@v7
         with:
           name: specialist-plan
