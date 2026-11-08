@@ -37,8 +37,24 @@ List<Map<String, dynamic>> takePendingWebRTCSignals(String peerId) {
   return _pendingWebRTCSignals.remove(peerId) ?? <Map<String, dynamic>>[];
 }
 
-void clearPendingWebRTCSignals(String peerId) {
-  _pendingWebRTCSignals.remove(peerId);
+void clearPendingWebRTCSignals(String peerId, {String? msgId}) {
+  if (msgId == null) {
+    _pendingWebRTCSignals.remove(peerId);
+    return;
+  }
+  final pending = _pendingWebRTCSignals[peerId];
+  pending?.removeWhere((data) => data['id'] == msgId);
+  if (pending?.isEmpty ?? false) _pendingWebRTCSignals.remove(peerId);
+}
+
+// 保存每通来电的实际路由；持久化/响铃尚未完成时没有路由可关闭。
+final Map<String, DialogRoute<void>> _incomingCallRoutes = {};
+
+void closeIncomingCallScreen(String msgId) {
+  final route = _incomingCallRoutes.remove(msgId);
+  if (route != null && route.isActive) {
+    route.navigator?.removeRoute(route);
+  }
 }
 
 /// 通话 overlay 期间的系统返回键（Android）处理器：由通话页注册，
@@ -160,24 +176,30 @@ Future<void> incomingCallScreen(
   option['msgId'] = msgId;
 
   var incomingHandled = false;
-  Future<void> declineIncoming({BuildContext? dialogContext}) async {
+  Timer? incomingTimer;
+  void cancelIncomingTimer() {
+    final timer = incomingTimer;
+    incomingTimer = null;
+    timer?.cancel();
+    if (timer != null && identical(gTimer, timer)) gTimer = null;
+  }
+
+  void releaseIncoming() {
+    clearPendingWebRTCSignals(peer.peerId.toString(), msgId: msgId);
+    cancelIncomingTimer();
+    // 异步收尾只复位本通拥有的登记；同一联系人重拨后也不能动新通话。
+    if (p2pCallMsgId == msgId) {
+      p2pCallScreenOn = false;
+      p2pCallMsgId = null;
+      p2pCallSignalingReady = false;
+    }
+    closeIncomingCallScreen(msgId);
+  }
+
+  Future<void> declineIncoming() async {
     if (incomingHandled) return;
     incomingHandled = true;
-    clearPendingWebRTCSignals(peer.peerId.toString());
-    gTimer?.cancel();
-    gTimer = null;
-    // 归属判定（CALL-11 同款）：异步窗口内若对端重拨已接管全局登记
-    // （p2pCallMsgId 已指向新一通），开关归属新登记，此处不得复位；
-    // p2pCallMsgId 为 null 时通常已被终态 handler 收敛（开关同为 false），
-    // 置 false 幂等无害。
-    if (p2pCallMsgId == msgId || p2pCallMsgId == null) {
-      p2pCallScreenOn = false;
-    }
-    if (p2pCallMsgId == msgId) p2pCallMsgId = null;
-    p2pCallSignalingReady = false;
-    if (dialogContext != null && dialogContext.mounted) {
-      Navigator.of(dialogContext).pop();
-    }
+    releaseIncoming();
     messages.markAsRead('C2C', peer.peerId.toString(), [msgId]);
     messages.changeLocalMsgState(msgId, 5);
     try {
@@ -205,22 +227,13 @@ Future<void> incomingCallScreen(
     return;
   }
 
-  gTimer = Timer(const Duration(seconds: 60), () {
-    clearPendingWebRTCSignals(peer.peerId.toString());
+  incomingTimer = Timer(const Duration(seconds: 60), () {
+    if (incomingHandled) return;
+    incomingHandled = true;
+    releaseIncoming();
     messages.changeLocalMsgState(msgId, 5);
-    // 归属判定：60s 兜底触发时若登记已被接管（对端重拨的新一通），不得
-    // pop 新弹窗、不得复位新登记的全局开关；只收敛本通记录。
-    if (p2pCallMsgId == msgId) {
-      // Check if dialog is still open and close it
-      if (navigatorKey.currentState?.overlay != null) {
-        navigatorKey.currentState?.pop();
-      }
-      gTimer?.cancel();
-      gTimer = null;
-      p2pCallScreenOn = false;
-      p2pCallMsgId = null;
-    }
   });
+  gTimer = incomingTimer;
 
   await signal('ringing');
 
@@ -235,36 +248,48 @@ Future<void> incomingCallScreen(
     return;
   }
 
-  // 全屏来电界面（FaceTime / iOS 风格）。沿用 showDialog 的弹出/关闭语义
-  // （60s 超时与拒接/接听均通过 pop 关闭），仅将廉价的小弹窗替换为全屏呈现。
-  showDialog<void>(
+  // 显式保存 DialogRoute，取消/超时/接听仅移除本通路由，不猜测栈顶归属。
+  final navigator = Navigator.of(context, rootNavigator: true);
+  if (!navigator.mounted) {
+    await declineIncoming();
+    return;
+  }
+  final route = DialogRoute<void>(
     context: context,
     barrierDismissible: false,
     useSafeArea: false,
-    builder: (dialogContext) => IncomingCallView(
+    traversalEdgeBehavior: TraversalEdgeBehavior.closedLoop,
+    themes: InheritedTheme.capture(from: context, to: navigator.context),
+    builder: (_) => IncomingCallView(
       avatar: peer.avatar,
       nickname: peer.nickname,
       media: option['media'] as String,
-      onDecline: () => declineIncoming(dialogContext: dialogContext),
+      onDecline: declineIncoming,
       onAccept: () {
         if (incomingHandled) return;
         if (!context.mounted ||
-            !AppFeatureRegistry.isEnabled(FeatureKeys.rtc)) {
-          unawaited(declineIncoming(dialogContext: dialogContext));
+            !AppFeatureRegistry.isEnabled(FeatureKeys.rtc) ||
+            p2pCallMsgId != msgId) {
+          unawaited(declineIncoming());
           return;
         }
         incomingHandled = true;
         // DONE(2026-04-04): 标记消息已读
         messages.markAsRead('C2C', peer.peerId.toString(), [msgId]);
-        gTimer?.cancel();
-        gTimer = null;
-        if (dialogContext.mounted) {
-          Navigator.of(dialogContext).pop();
-        }
+        cancelIncomingTimer();
+        closeIncomingCallScreen(msgId);
         option['msgId'] = msgId;
         openCallScreen(context, peer, session: s, option, caller: false);
       },
     ),
+  );
+  _incomingCallRoutes[msgId] = route;
+  unawaited(
+    navigator.push<void>(route).whenComplete(() {
+      if (identical(_incomingCallRoutes[msgId], route)) {
+        _incomingCallRoutes.remove(msgId);
+      }
+    }),
   );
 }
 
