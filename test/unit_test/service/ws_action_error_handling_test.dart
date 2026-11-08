@@ -325,8 +325,8 @@ void main() {
     });
   });
 
-  /// FFI 事务经真实事件循环（native port）返回，pumpEventQueue 只排空微任务
-  /// 队列——CI 慢机上移除事件会晚于断言到达（批次 0001 时序性失败实证）。
+  /// FFI 事务经真实事件循环（native port）返回；固定次数的 pumpEventQueue
+  /// 不保证事务完成，CI 慢机上移除事件可能晚于断言到达。
   /// 有界轮询真实事件循环直到条件满足。
   Future<void> pumpUntilEventLoop(bool Function() done) async {
     for (var i = 0; i < 200 && !done(); i++) {
@@ -405,8 +405,14 @@ void main() {
       await _insertMsg(originalId, status: IMBoyMessageStatus.sent);
 
       final removals = <RemoveFromRetryQueueRequestedEvent>[];
+      final removalReceived = Completer<void>();
       final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
-          .listen(removals.add);
+          .listen((event) {
+            removals.add(event);
+            if (event.messageId == opId && !removalReceived.isCompleted) {
+              removalReceived.complete();
+            }
+          });
       addTearDown(subscription.cancel);
 
       svc.handleV2BinaryForTest(
@@ -419,7 +425,7 @@ void main() {
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      await removalReceived.future.timeout(const Duration(seconds: 3));
 
       // 本地无乐观写库：error 帧不得碰原消息行（原文展示即"恢复"）
       final msg = await MessageRepo(tableName: MessageRepo.c2cTable)
@@ -445,10 +451,19 @@ void main() {
     test('未知 request_id 的 error 帧不崩溃、队列保持为空', () async {
       final svc = bootedService();
       const unknownId = 'unk00000000000000err1';
+      const malformedId = 'unk00000000000000err2';
 
       final removals = <RemoveFromRetryQueueRequestedEvent>[];
+      final pendingRemovalIds = {unknownId, malformedId};
+      final removalsReceived = Completer<void>();
       final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
-          .listen(removals.add);
+          .listen((event) {
+            removals.add(event);
+            pendingRemovalIds.remove(event.messageId);
+            if (pendingRemovalIds.isEmpty && !removalsReceived.isCompleted) {
+              removalsReceived.complete();
+            }
+          });
       addTearDown(subscription.cancel);
 
       // 队列里没有该 id；payload 缺 error 字段（后端 C2G 编辑 error 不带 content）
@@ -468,18 +483,29 @@ void main() {
         _s2cFrame(
           _actionErrorFrame(
             action: 'message_revoke_error',
-            opMsgId: 'unk00000000000000err2',
+            opMsgId: malformedId,
             type: 'C2C',
             originalMsgId: 'orig00000000000000unk1',
             payloadOverride: 'not-a-map',
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      // 等待两帧各自的 SQLite 校验完成后发出的事件，不以队列本来为空
+      // 或固定次数的事件循环让步作为处理完成的依据。
+      await removalsReceived.future.timeout(const Duration(seconds: 3));
 
       expect(retry.getRetryInfo(unknownId), isNull);
       expect(removals, hasLength(2));
-      expect(retry.getRetryInfo('unk00000000000000err2'), isNull);
+      expect(
+        removals.map((event) => event.messageId),
+        unorderedEquals([unknownId, malformedId]),
+      );
+      for (final event in removals) {
+        expect(event.reason, 'ws_action_error');
+        expect(event.ownerUid, '100');
+        expect(event.sessionGeneration, UserRepoLocal.to.sessionGeneration);
+      }
+      expect(retry.getRetryInfo(malformedId), isNull);
     });
   });
 }
