@@ -445,10 +445,19 @@ void main() {
     test('未知 request_id 的 error 帧不崩溃、队列保持为空', () async {
       final svc = bootedService();
       const unknownId = 'unk00000000000000err1';
+      const malformedId = 'unk00000000000000err2';
 
       final removals = <RemoveFromRetryQueueRequestedEvent>[];
+      final removalsDone = Completer<void>();
       final subscription = AppEventBus.on<RemoveFromRetryQueueRequestedEvent>()
-          .listen(removals.add);
+          .listen((event) {
+            removals.add(event);
+            if (!removalsDone.isCompleted &&
+                removals.any((event) => event.messageId == unknownId) &&
+                removals.any((event) => event.messageId == malformedId)) {
+              removalsDone.complete();
+            }
+          });
       addTearDown(subscription.cancel);
 
       // 队列里没有该 id；payload 缺 error 字段（后端 C2G 编辑 error 不带 content）
@@ -468,18 +477,23 @@ void main() {
         _s2cFrame(
           _actionErrorFrame(
             action: 'message_revoke_error',
-            opMsgId: 'unk00000000000000err2',
+            opMsgId: malformedId,
             type: 'C2C',
             originalMsgId: 'orig00000000000000unk1',
             payloadOverride: 'not-a-map',
           ),
         ),
       );
-      await pumpEventQueue(times: 50);
+      // 两帧都要等待 SQLite FFI 事务完成，固定轮次的事件循环让步不足以同步。
+      await removalsDone.future.timeout(const Duration(seconds: 3));
 
       expect(retry.getRetryInfo(unknownId), isNull);
       expect(removals, hasLength(2));
-      expect(retry.getRetryInfo('unk00000000000000err2'), isNull);
+      expect(
+        removals.map((event) => event.messageId),
+        unorderedEquals([unknownId, malformedId]),
+      );
+      expect(retry.getRetryInfo(malformedId), isNull);
     });
   });
 }
