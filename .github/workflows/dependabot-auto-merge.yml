@@ -2,7 +2,7 @@
 #
 # patch  → 自动 approve + auto-merge（squash），CI 全绿后触发
 # minor  → 自动 approve + 打 label auto-approved，需人工合并
-# major  → 打 label needs-review，不做其他操作
+# major / 人工跟进 → 打 label needs-review，不自动批准或启用自动合并
 #
 # 前置：在仓库 Settings → Actions → General 勾选
 #   "Allow GitHub Actions to create and approve pull requests"
@@ -23,19 +23,41 @@ jobs:
   auto-merge:
     name: Triage & auto-merge dependabot PR
     runs-on: ubuntu-latest
-    # 仅处理 dependabot[bot] 发起的 PR
-    if: github.actor == 'dependabot[bot]'
+    # 人工跟进只补标签；本次任务不自动批准或启用自动合并。
+    # Maintainer pushes only label; this job does not approve or enable auto-merge.
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    env:
+      GH_REPO: ${{ github.repository }}
 
     steps:
       - name: Fetch Dependabot metadata
+        if: github.actor == 'dependabot[bot]'
         id: meta
         uses: dependabot/fetch-metadata@v3
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Ensure configured dependency labels
+        run: |
+          gh label create "dependencies" --color "0366d6" --description "Dependency updates" --force
+          gh pr edit "$PR_URL" --add-label "dependencies"
+          case "$DEPENDABOT_BRANCH" in
+            dependabot/github_actions/*) ecosystem_label="github-actions" ;;
+            dependabot/pub/*) ecosystem_label="flutter" ;;
+            *) ecosystem_label="" ;;
+          esac
+          if [ -n "$ecosystem_label" ]; then
+            gh label create "$ecosystem_label" --color "0366d6" --description "Dependency ecosystem" --force
+            gh pr edit "$PR_URL" --add-label "$ecosystem_label"
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          DEPENDABOT_BRANCH: ${{ github.event.pull_request.head.ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # ── patch：approve + 开启 auto-merge（squash）──────────────────
       - name: Approve patch PR
-        if: steps.meta.outputs.update-type == 'version-update:semver-patch'
+        if: github.actor == 'dependabot[bot]' && steps.meta.outputs.update-type == 'version-update:semver-patch'
         # 折叠标量：--body 文本里的"冒号+空格"会被 YAML 当成映射分隔符，
         # 整个 workflow 文件随之解析失败。文件级解析失败不是"这个 job 红"，
         # 而是**每次 PR 都凭空多一条 0 秒失败的 run**——CI 面板长期常红的来源。
@@ -48,7 +70,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Enable auto-merge for patch PR
-        if: steps.meta.outputs.update-type == 'version-update:semver-patch'
+        if: github.actor == 'dependabot[bot]' && steps.meta.outputs.update-type == 'version-update:semver-patch'
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
@@ -56,7 +78,7 @@ jobs:
 
       # ── minor：approve + label，等人工合并 ────────────────────────
       - name: Approve minor PR
-        if: steps.meta.outputs.update-type == 'version-update:semver-minor'
+        if: github.actor == 'dependabot[bot]' && steps.meta.outputs.update-type == 'version-update:semver-minor'
         # 同上：折叠标量规避 --body 内"冒号+空格"的 YAML 映射歧义
         run: >-
           gh pr review "$PR_URL" --approve
@@ -66,7 +88,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Label minor PR
-        if: steps.meta.outputs.update-type == 'version-update:semver-minor'
+        if: github.actor == 'dependabot[bot]' && steps.meta.outputs.update-type == 'version-update:semver-minor'
         run: |
           gh label create "auto-approved" --color "0e8a16" --description "minor 升级已自动 approve，待人工合并" --force
           gh pr edit "$PR_URL" --add-label "auto-approved"
@@ -74,11 +96,11 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ── major：打 needs-review label，不自动操作 ──────────────────
-      - name: Label major PR for review
-        if: steps.meta.outputs.update-type == 'version-update:semver-major'
+      # ── major / 人工跟进：只标记需评审 ───────────────────────────
+      - name: Label major or maintainer-updated PR for review
+        if: github.actor != 'dependabot[bot]' || steps.meta.outputs.update-type == 'version-update:semver-major'
         run: |
-          gh label create "needs-review" --color "fbca04" --description "major 升级需人工评审" --force
+          gh label create "needs-review" --color "fbca04" --description "major 升级或人工改动需评审" --force
           gh pr edit "$PR_URL" --add-label "needs-review"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}

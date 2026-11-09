@@ -121,7 +121,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
-        continue-on-error: true
         with:
           pattern: specialist-*
           path: ${{ runner.temp }}/specialist
