@@ -97,10 +97,10 @@ class DatabaseSnapshotService {
   /// VACUUM INTO 能力（null = 未探测）。
   bool? _vacuumIntoSupported;
 
-  /// 默认用项目平台适配层打开（sqflite_init：加密平台带 password，
-  /// 非加密平台忽略——与 SqliteService 打开路径一致）。
+  /// 专用只读连接；VACUUM INTO 只写目标快照，不修改源库。
+  /// 加密平台同时校验 SQLCipher/密钥，错误密钥不得触发原生损坏删库。
   static Future<sq.Database> defaultOpener(String path, String? password) =>
-      sqinit.openEncryptedDatabase(path, password: password);
+      sqinit.openEncryptedDatabase(path, password: password, readOnly: true);
 
   static const String baseDirName = 'imboy_db_snapshots';
   static const int defaultKeepCount = 3;
@@ -198,7 +198,7 @@ class DatabaseSnapshotService {
       db = await open(sourcePath, password);
       await db.execute("VACUUM INTO '$tmpTarget'");
     } catch (e) {
-      await db!.close();
+      await db?.close();
       // 空间不足/能力缺失/源库损坏 → fail-closed；绝不部分产物当成功
       await _tryDelete(tmpTarget);
       return SnapshotResult.failure(

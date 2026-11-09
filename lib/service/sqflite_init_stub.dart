@@ -9,6 +9,7 @@ library;
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:imboy/service/sqlcipher_database.dart';
 import 'package:sqflite_common/sqflite.dart' as common show databaseFactory;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' as ffi;
 import 'package:sqflite_sqlcipher/sqflite.dart';
@@ -43,7 +44,7 @@ bool get isEncryptionSupported {
 
 /// 打开加密数据库
 ///
-/// 在支持加密的平台上，使用 sqflite_sqlcipher 的 password 参数。
+/// 在支持加密的平台上，要求非空密钥并验证原生 SQLCipher 与数据库可读性。
 /// 在不支持加密的平台上，忽略 password 参数打开明文数据库。
 ///
 /// [path] 数据库文件路径
@@ -63,10 +64,12 @@ Future<Database> openEncryptedDatabase(
   OnDatabaseVersionChangeFn? onUpgrade,
   OnDatabaseVersionChangeFn? onDowngrade,
   OnDatabaseOpenFn? onOpen,
+  bool readOnly = false,
 }) async {
   final effectivePassword = isEncryptionSupported ? password : null;
+  final open = isEncryptionSupported ? openSqlCipherDatabase : openDatabase;
 
-  return await openDatabase(
+  return await open(
     path,
     password: effectivePassword,
     version: version,
@@ -75,5 +78,6 @@ Future<Database> openEncryptedDatabase(
     onUpgrade: onUpgrade,
     onDowngrade: onDowngrade,
     onOpen: onOpen,
+    readOnly: readOnly,
   );
 }

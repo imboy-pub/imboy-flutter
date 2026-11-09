@@ -16,7 +16,11 @@ Future<Database> openFileDb(String path) => databaseFactory.openDatabase(
   options: OpenDatabaseOptions(singleInstance: false),
 );
 
-Future<Database> ffiOpen(String path, String? password) => openFileDb(path);
+Future<Database> ffiOpen(String path, String? password) =>
+    databaseFactory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
+    );
 
 void main() {
   setUpAll(() {
@@ -35,6 +39,38 @@ void main() {
   });
 
   DatabaseSnapshotService svc() => DatabaseSnapshotService.to;
+
+  test('源库打开失败返回失败并保留原件和最近有效快照', () async {
+    final dbPath = '${tmp.path}/main.db';
+    final db = await openFileDb(dbPath);
+    await db.execute('CREATE TABLE proof (value TEXT)');
+    await db.insert('proof', {'value': 'synthetic-snapshot-data'});
+    await db.close();
+    final original = await File(dbPath).readAsBytes();
+    final snapshotDir = Directory(
+      svc().snapshotDir(base: tmp.path, env: 'local', uid: 'fixture'),
+    );
+    await snapshotDir.create(recursive: true);
+    final previous = File('${snapshotDir.path}/snapshot_v1_1.db');
+    await previous.writeAsBytes(original);
+
+    final result = await svc().createSnapshot(
+      sourcePath: dbPath,
+      base: tmp.path,
+      env: 'local',
+      uid: 'fixture',
+      opener: (_, _) async => throw StateError('synthetic open failure'),
+    );
+
+    expect(result.success, isFalse);
+    expect(result.error, contains('synthetic open failure'));
+    expect(await File(dbPath).readAsBytes(), original);
+    expect(await previous.readAsBytes(), original);
+    expect(
+      await File('${snapshotDir.path}/snapshot.pending.tmp').exists(),
+      isFalse,
+    );
+  });
 
   test('WAL 未 checkpoint 的最新提交行进入快照（VACUUM INTO 一致性）', () async {
     final dbPath = '${tmp.path}/main.db';

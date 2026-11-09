@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:imboy/service/storage_secure.dart';
+import 'package:synchronized/synchronized.dart';
 
 /// 数据库加密密钥管理服务
 ///
@@ -23,6 +24,9 @@ import 'package:imboy/service/storage_secure.dart';
 class DbEncryptionKeyService {
   DbEncryptionKeyService._();
 
+  // Serialize read/create/write and deletion without retaining keys in memory.
+  static final Lock _keyLock = Lock();
+
   /// 存储 key 前缀，按用户 uid 隔离
   static String _storageKey(String uid) => 'db_cipher_key_$uid';
 
@@ -30,17 +34,22 @@ class DbEncryptionKeyService {
   ///
   /// 如果密钥不存在，生成一个 256-bit 随机密钥并持久化到安全存储。
   /// 如果密钥已存在，直接返回。
-  static Future<String> getOrCreateKey(String uid) async {
-    final key = _storageKey(uid);
-    final existing = await StorageSecureService.to.read(key: key);
-    if (existing != null && existing.isNotEmpty) {
-      return existing;
-    }
+  /// 已有数据库必须传 [allowCreate] = false：缺失密钥不能用新密钥替换。
+  static Future<String> getOrCreateKey(String uid, {bool allowCreate = true}) =>
+      _keyLock.synchronized(() async {
+        final key = _storageKey(uid);
+        final existing = await StorageSecureService.to.read(key: key);
+        if (existing != null && existing.isNotEmpty) {
+          return existing;
+        }
+        if (!allowCreate) {
+          throw StateError('Encryption key unavailable for existing database');
+        }
 
-    final newKey = _generateKey();
-    await StorageSecureService.to.write(key: key, value: newKey);
-    return newKey;
-  }
+        final newKey = _generateKey();
+        await StorageSecureService.to.write(key: key, value: newKey);
+        return newKey;
+      });
 
   /// 检查指定用户是否已有加密密钥
   static Future<bool> hasKey(String uid) async {
@@ -51,9 +60,9 @@ class DbEncryptionKeyService {
   /// 删除密钥（仅用于调试或账号注销）
   ///
   /// 警告：删除密钥后将无法打开对应的加密数据库！
-  static Future<void> deleteKey(String uid) async {
+  static Future<void> deleteKey(String uid) => _keyLock.synchronized(() async {
     await StorageSecureService.to.delete(key: _storageKey(uid));
-  }
+  });
 
   /// 生成 256-bit 随机密钥
   ///

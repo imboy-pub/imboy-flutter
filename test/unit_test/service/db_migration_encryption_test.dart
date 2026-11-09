@@ -186,6 +186,7 @@ void main() {
         expect(verification, isNot(contains('.delete(')));
         expect(verification, isNot(contains('.copy(')));
         expect(verification, contains('password: password'));
+        expect(verification, contains('readOnly: true'));
       },
     );
 

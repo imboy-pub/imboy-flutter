@@ -35,6 +35,7 @@ Future<Database> openEncryptedDatabase(
   OnDatabaseVersionChangeFn? onUpgrade,
   OnDatabaseVersionChangeFn? onDowngrade,
   OnDatabaseOpenFn? onOpen,
+  bool readOnly = false,
 }) async {
   // Web 平台忽略 password，使用明文数据库
   return await openDatabase(
@@ -45,5 +46,6 @@ Future<Database> openEncryptedDatabase(
     onUpgrade: onUpgrade,
     onDowngrade: onDowngrade,
     onOpen: onOpen,
+    readOnly: readOnly,
   );
 }

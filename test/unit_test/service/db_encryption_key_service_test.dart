@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -15,10 +17,14 @@ void main() {
   );
 
   final store = <String, String?>{};
+  final calls = <String>[];
+  Future<void> Function(MethodCall)? beforeCall;
 
   setUpAll(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(storageChannel, (call) async {
+          calls.add(call.method);
+          await beforeCall?.call(call);
           switch (call.method) {
             case 'write':
               final key = call.arguments['key'] as String;
@@ -48,6 +54,8 @@ void main() {
 
   setUp(() {
     store.clear();
+    calls.clear();
+    beforeCall = null;
   });
 
   group('DbEncryptionKeyService', () {
@@ -92,6 +100,107 @@ void main() {
         expect(key.length, 64);
         expect(key, isNot(isEmpty));
       });
+
+      for (final missing in <String?>[null, '']) {
+        test(
+          'existing database with key $missing cannot create a key',
+          () async {
+            if (missing != null) store['db_cipher_key_existing'] = missing;
+
+            await expectLater(
+              DbEncryptionKeyService.getOrCreateKey(
+                'existing',
+                allowCreate: false,
+              ),
+              throwsStateError,
+            );
+
+            expect(calls, ['read']);
+            expect(store['db_cipher_key_existing'], missing);
+            expect(store.length, missing == null ? 0 : 1);
+          },
+        );
+      }
+
+      test(
+        'existing database keeps its legacy nonempty key unchanged',
+        () async {
+          const legacyKey = 'synthetic-legacy-password';
+          store['db_cipher_key_existing'] = legacyKey;
+
+          expect(
+            await DbEncryptionKeyService.getOrCreateKey(
+              'existing',
+              allowCreate: false,
+            ),
+            legacyKey,
+          );
+          expect(calls, ['read']);
+          expect(store, {'db_cipher_key_existing': legacyKey});
+        },
+      );
+
+      test(
+        'existing database storage failure does not generate a key',
+        () async {
+          beforeCall = (call) async {
+            if (call.method == 'read') {
+              throw PlatformException(code: 'synthetic-storage-unavailable');
+            }
+          };
+
+          await expectLater(
+            DbEncryptionKeyService.getOrCreateKey(
+              'existing',
+              allowCreate: false,
+            ),
+            throwsA(isA<PlatformException>()),
+          );
+          expect(calls, ['read']);
+          expect(store, isEmpty);
+        },
+      );
+
+      test('concurrent creation returns one persisted key', () async {
+        final writeStarted = Completer<void>();
+        final finishWrite = Completer<void>();
+        beforeCall = (call) async {
+          if (call.method == 'write' && !writeStarted.isCompleted) {
+            writeStarted.complete();
+            await finishWrite.future;
+          }
+        };
+
+        final first = DbEncryptionKeyService.getOrCreateKey('concurrent');
+        await writeStarted.future;
+        final second = DbEncryptionKeyService.getOrCreateKey('concurrent');
+        finishWrite.complete();
+        final keys = await Future.wait([first, second]);
+
+        expect(keys.toSet(), hasLength(1));
+        expect(store['db_cipher_key_concurrent'], keys.first);
+        expect(calls.where((method) => method == 'write'), hasLength(1));
+      });
+
+      test(
+        'failed creation releases the lock and a retry persists a key',
+        () async {
+          beforeCall = (call) async {
+            if (call.method == 'write') {
+              throw PlatformException(code: 'synthetic-write-unavailable');
+            }
+          };
+          await expectLater(
+            DbEncryptionKeyService.getOrCreateKey('retry'),
+            throwsA(isA<PlatformException>()),
+          );
+          expect(store, isEmpty);
+
+          beforeCall = null;
+          final key = await DbEncryptionKeyService.getOrCreateKey('retry');
+          expect(store['db_cipher_key_retry'], key);
+        },
+      );
     });
 
     group('hasKey', () {
@@ -117,6 +226,27 @@ void main() {
     });
 
     group('deleteKey', () {
+      test('deletion waits for an in-flight key write', () async {
+        final writeStarted = Completer<void>();
+        final finishWrite = Completer<void>();
+        beforeCall = (call) async {
+          if (call.method == 'write') {
+            writeStarted.complete();
+            await finishWrite.future;
+          }
+        };
+
+        final creating = DbEncryptionKeyService.getOrCreateKey('delete_race');
+        await writeStarted.future;
+        final deleting = DbEncryptionKeyService.deleteKey('delete_race');
+        finishWrite.complete();
+        await creating;
+        await deleting;
+
+        expect(calls, ['read', 'write', 'delete']);
+        expect(store.containsKey('db_cipher_key_delete_race'), isFalse);
+      });
+
       test('removes key from storage', () async {
         await DbEncryptionKeyService.getOrCreateKey('user_del');
         expect(await DbEncryptionKeyService.hasKey('user_del'), isTrue);

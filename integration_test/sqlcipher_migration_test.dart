@@ -91,13 +91,13 @@ void main() {
   });
 
   group('SQLCipher Migration - Upgrade User Flow', () {
-    test('existing user without key gets new key on upgrade', () async {
+    test('user without a database can create the first encryption key', () async {
       const uid = 'upgrade_user';
 
-      // Simulate pre-SQLCipher state: user exists, no encryption key
+      // User exists, but no local database or encryption key has been created.
       expect(await DbEncryptionKeyService.hasKey(uid), isFalse);
 
-      // App upgrade triggers key generation
+      // Only a new database may generate a key; existing files require theirs.
       final key = await DbEncryptionKeyService.getOrCreateKey(uid);
       expect(key.length, 64);
       expect(await DbEncryptionKeyService.hasKey(uid), isTrue);
@@ -169,6 +169,7 @@ void main() {
             wrongKeyDb = await openEncryptedDatabase(
               dbPath,
               password: wrongKey,
+              readOnly: true,
             );
             await wrongKeyDb.rawQuery('SELECT value FROM proof');
           } catch (e) {

@@ -449,6 +449,28 @@
         "Browser-only offline-message contract uses an in-memory SQLite WASM database, synthetic credentials and an HTTP adapter that rejects unexpected requests. The shared runner supplies the same tracked same-origin application WASM as the FTS migration target; no backend, account or externally hosted WASM is required."
       ]
     },
+    "integration_test/sqlcipher_encryption_acceptance_test.dart": {
+      "suite": "device-single",
+      "runner": "flutter-device",
+      "platforms": [
+        "android",
+        "ios",
+        "macos"
+      ],
+      "offline": true,
+      "product_independent": true,
+      "dependencies": [
+        "native-sqlcipher"
+      ],
+      "source_dependencies": [
+        "assets/example10.db"
+      ],
+      "reviewed_source_sha256": "3016e303e642fbb6a4243f6e6de980220fcee1357be684e588a3a054f14dd8b1",
+      "basis": [
+        "Uses disposable SQLCipher databases and synthetic passwords through the production encrypted opener and snapshot service. It does not bootstrap the application, use accounts, access a backend, or depend on product features.",
+        "Native acceptance verifies keyed reopen, wrong/missing-key refusal, preservation of a copied plaintext fixture, encrypted WAL and snapshots, and independent live handles. Android/iOS require qualified physical devices; macOS requires its native SQLCipher driver. Host mocks and SQLite FFI cannot establish these results."
+      ]
+    },
     "integration_test/sqlcipher_fts_v38_draft_test.dart": {
       "suite": "device-single",
       "runner": "flutter-device",

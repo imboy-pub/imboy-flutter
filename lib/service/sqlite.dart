@@ -269,8 +269,6 @@ class SqliteService {
     return join(await getDatabasesPath(), name);
   }
 
-  /// 初始化数据库
-  /// Initialize the database
   Future<Database?> _initDatabase() async {
     if (UserRepoLocal.to.currentUid.isEmpty) {
       _lastDbNullReason = 'currentUid 为空（未登录或登录态尚未就绪）';
@@ -319,11 +317,13 @@ class SqliteService {
     String? password;
     final uid = UserRepoLocal.to.currentUid;
     if (isEncryptionSupported) {
-      password = await DbEncryptionKeyService.getOrCreateKey(uid);
+      password = await DbEncryptionKeyService.getOrCreateKey(
+        uid,
+        allowCreate: !exists,
+      );
 
       if (exists && !await _verifyEncryptedDatabase(path, password)) {
-        // 错钥、明文库或损坏库都必须保留原文件并停止初始化。客户端不能
-        // 通过无密码探测来区分它们，更不能自动复制、删除或重建用户数据。
+        // 验证失败保留原件，禁止无密码重试或重建用户数据。
         _lastDbNullReason = 'SQLCipher 密钥校验失败（错钥/明文库/损坏库）：$path';
         return null;
       }
@@ -370,20 +370,20 @@ class SqliteService {
       );
     } catch (e) {
       AppLogger.error('Failed to open database (${e.runtimeType})');
-      _lastDbNullReason = 'openEncryptedDatabase 失败：$e';
+      _lastDbNullReason = 'openEncryptedDatabase 失败：${e.runtimeType}';
       return null;
     }
   }
 
-  /// 验证已有数据库只能由当前账号的 SQLCipher 密钥打开。
-  ///
-  /// 失败可能表示错钥、旧明文库或文件损坏；这些状态不能在客户端安全
-  /// 区分，因此统一 fail-closed，并保留原文件供经授权的恢复流程处理。
+  /// 独立只读校验；错钥、明文或损坏库均保留原件并停止初始化。
   Future<bool> _verifyEncryptedDatabase(String path, String password) async {
     Database? testDb;
     try {
-      testDb = await openEncryptedDatabase(path, password: password);
-      await testDb.rawQuery('SELECT count(*) FROM sqlite_master');
+      testDb = await openEncryptedDatabase(
+        path,
+        password: password,
+        readOnly: true,
+      );
       await testDb.close();
       return true;
     } catch (e) {
@@ -391,7 +391,7 @@ class SqliteService {
         try {
           await testDb.close();
         } catch (_) {
-          // 关闭探测句柄失败同样保持 fail-closed；不得继续主打开流程。
+          // 关闭失败也不得继续主打开流程。
         }
       }
       AppLogger.error(
