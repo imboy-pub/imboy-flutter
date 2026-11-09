@@ -990,7 +990,20 @@
       "runner": "device-pair",
       "pair_topology": "same-platform",
       "basis": [
-        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration."
+        "Reviewed target platform prerequisites and native runner behavior; paired roles use execution_adapters.py orchestration.",
+        "Variants map the J01 offline batch to the real dart-define consumed by integration_test/demo_flow/dual_account_message_flow_test.dart (TEST_OFFLINE_MESSAGE_COUNT); dual-sequential orchestration injects TEST_DUAL_ROLE, role-scoped TEST_STOP_AFTER_OUTGOING_ACK and TEST_FORCE_LOGOUT_BEFORE_LOGIN, so the 2026-11-07 j01 r7/r7b manual --dart-define run (23 offline messages, sender ACK-then-exit, receiver fresh-process pickup) is now a frozen plan instance.",
+        "Read-state persistence replay (J01 g3): after one completed offline-23 pass, re-running the receiver phase with the same TEST_DUAL_RUN_ID is a fresh process over persisted SQLite; it re-asserts batch integrity plus the read-state no-regression snapshot (seen count must not decrease, conversation unread_num must not increase; receiver read marking is visibility-threshold driven, so scroll-out-of-view messages may legitimately stay unread) instead of waiting for new arrivals."
+      ],
+      "variants": [
+        {
+          "variant": "default"
+        },
+        {
+          "variant": "offline-23",
+          "dart_defines": {
+            "TEST_OFFLINE_MESSAGE_COUNT": "23"
+          }
+        }
       ]
     },
     "integration_test/patrol/handshake_test.dart": {
