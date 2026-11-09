@@ -322,6 +322,75 @@ void main() {
     });
   });
 
+  // AT05 NC-1 / F01 App 腿：100MiB 上限是 PRE-upload 前置校验（validateUpload
+  // 在触网前执行，attachment_api.dart presign 路径与 _uploadDirect 路径共用），
+  // 超限文件不上 presign/PUT/confirm 任何网络面——「先拒绝、零网络调用」。
+  // 与后端 elib_oss 边界三值同合同：UNDER/EXACT 放行，OVER 拒绝。
+  group('uploadViaPresign - 100MiB 大小上限边界（elib_oss 对齐）', () {
+    IMBoyHttpResponse okPresign() =>
+        IMBoyHttpResponse.success(<String, dynamic>{
+          'put_url': 'https://garage.local/put?sig=x',
+          'object_key': 'u1/file_1_a/big.bin',
+        });
+
+    test('超限 104857601 字节 → 校验失败先于任何网络调用（presign/put/confirm 零调用）', () async {
+      bool presignCalled = false;
+      bool putCalled = false;
+      bool confirmCalled = false;
+      final Uint8List over = Uint8List(104857601);
+      await expectLater(
+        AttachmentApi.uploadViaPresign(
+          over,
+          'big.bin',
+          'application/octet-stream',
+          process: false,
+          presignFn: (String f, String m) async {
+            presignCalled = true;
+            return okPresign();
+          },
+          putFn: (String u, Uint8List b, String m, bool p) async {
+            putCalled = true;
+          },
+          confirmFn: (Map<String, dynamic> body) async {
+            confirmCalled = true;
+            return IMBoyHttpResponse.success(<String, dynamic>{});
+          },
+        ),
+        throwsA(predicate((Object? e) => e.toString().contains('文件超过上限'))),
+      );
+      expect(presignCalled, isFalse);
+      expect(putCalled, isFalse);
+      expect(confirmCalled, isFalse);
+    });
+
+    test(
+      '恰好 104857600 字节 → 放行进入 presign，confirm 上报 size=104857600（含端）',
+      () async {
+        bool presignCalled = false;
+        Map<String, dynamic>? confirmBody;
+        final Uint8List exact = Uint8List(104857600);
+        final String objectKey = await AttachmentApi.uploadViaPresign(
+          exact,
+          'big.bin',
+          'application/octet-stream',
+          process: false,
+          presignFn: (String f, String m) async {
+            presignCalled = true;
+            return okPresign();
+          },
+          putFn: (String u, Uint8List b, String m, bool p) async {},
+          confirmFn: (Map<String, dynamic> body) async {
+            confirmBody = body;
+            return IMBoyHttpResponse.success(<String, dynamic>{});
+          },
+        );
+        expect(presignCalled, isTrue);
+        expect(objectKey, 'u1/file_1_a/big.bin');
+        expect(confirmBody?['size'], 104857600);
+      },
+    );
+  });
+
   group('uploadViaPresign - mime 归一', () {
     // 本组内联成功 presign 响应（okPresign 局部于编排组）
     IMBoyHttpResponse okPresign() =>
