@@ -15,7 +15,7 @@
       "customer_service",
       "rtc"
     ],
-    "capability_count": 45,
+    "capability_count": 49,
     "backend_target_base": "../imboy（路径相对 imboy 仓；make:* 指 Makefile target）",
     "note": "matrix 只保存声明性要求；运行 verdict 只写 ignored RUN_ROOT/results/**"
   },
@@ -1468,6 +1468,125 @@
       "exclusion_code": null,
       "blocked_code": null,
       "details": ""
+    },
+    {
+      "capability_id": "rtc.c2c_call",
+      "feature_key": "rtc",
+      "domain": "rtc",
+      "positive": "一对一音视频呼叫：双端真实 accept/decline、双向媒体与终态释放",
+      "negative": "非好友/越权 join 被拒；rtc_group 房间按批准矩阵锁定返回功能未启用",
+      "recovery": "挂断/取消后房间与页面资源释放，重复呼叫幂等",
+      "app_targets": [
+        "integration_test/rtc/c2c_call_matrix_a_side_test.dart",
+        "integration_test/rtc/c2c_call_matrix_b_side_test.dart",
+        "test/unit_test/page/chat/p2p_call_floating_test.dart",
+        "test/unit_test/page/chat/p2p_call_livekit_test.dart",
+        "test/unit_test/page/chat/p2p_call_preview_test.dart",
+        "test/unit_test/widget/incoming_call_view_test.dart"
+      ],
+      "backend_targets": [
+        "test/api/rtc_room_handler_tests.erl",
+        "test/logic/rtc_room_logic_tests.erl"
+      ],
+      "required_evidence_level": "A",
+      "level_basis": "真客户端聊天/跨角色写/真机业务闭环",
+      "requirements": [
+        "device.android",
+        "device.macos",
+        "backend.local",
+        "fixture.disposable_account"
+      ],
+      "fixture": "iso:user_device_a+user_device_b",
+      "disposition": "required",
+      "exclusion_code": null,
+      "blocked_code": null,
+      "details": ""
+    },
+    {
+      "capability_id": "rtc.signaling_negative",
+      "feature_key": "rtc",
+      "domain": "rtc",
+      "positive": "invite/accept/bye 信令按 msgId 收敛，双方终态一致",
+      "negative": "重复 accept/晚到 answer/幽灵 bye/迟到 busy 不破坏状态机",
+      "recovery": "取消/超时后通话资源不泄漏，旧事件不复活",
+      "app_targets": [
+        "integration_test/rtc/rtc_negative_matrix_test.dart",
+        "test/unit_test/component/chat/message_webrtc_builder_test.dart",
+        "test/unit_test/page/chat/webrtc_protocol_alignment_test.dart",
+        "test/unit_test/service/message_webrtc_msgid_scoping_test.dart"
+      ],
+      "backend_targets": [
+        "test/logic/rtc_room_logic_tests.erl",
+        "test/logic/webrtc_ws_logic_tests.erl"
+      ],
+      "required_evidence_level": "B",
+      "level_basis": "App/Backend 合同",
+      "requirements": [
+        "backend.local",
+        "fixture.disposable_account"
+      ],
+      "fixture": "iso:user_device_a+user_device_b",
+      "disposition": "required",
+      "exclusion_code": null,
+      "blocked_code": null,
+      "details": ""
+    },
+    {
+      "capability_id": "rtc.relay_force",
+      "feature_key": "rtc",
+      "domain": "rtc",
+      "positive": "TURN relay-only 路径下建立连接并收发真实媒体",
+      "negative": "直连不可达时不静默降级为无媒体",
+      "recovery": "relay 失败可见且可重试",
+      "app_targets": [
+        "integration_test/rtc/rtc_relay_realdevice_test.dart",
+        "test/unit_test/rtc/rtc_relay_stats_judge_test.dart"
+      ],
+      "backend_targets": [
+        "test/api/rtc_room_handler_tests.erl"
+      ],
+      "required_evidence_level": "A",
+      "level_basis": "真客户端聊天/跨角色写/真机业务闭环",
+      "requirements": [
+        "device.android",
+        "backend.local"
+      ],
+      "fixture": "iso:user_device_a",
+      "disposition": "required",
+      "exclusion_code": null,
+      "blocked_code": null,
+      "details": ""
+    },
+    {
+      "capability_id": "rtc.feature_gate",
+      "feature_key": "rtc",
+      "domain": "rtc",
+      "positive": "rtc 选中时入口/按钮按矩阵可见且可用",
+      "negative": "rtc_group 未选入：群入口不可见、服务端功能门先于 ACL 拒绝",
+      "recovery": "特性刷新后入口状态与 manifest 一致",
+      "app_targets": [
+        "integration_test/rtc/rtc_group_regression_test.dart",
+        "test/unit_test/api/rtc_room_api_test.dart",
+        "test/unit_test/app_core/feature_flags/app_feature_registry_test.dart",
+        "test/unit_test/page/chat/widget/extra_items_feature_gate_test.dart",
+        "test/unit_test/page/contact/people_info_rtc_feature_gate_test.dart",
+        "test/unit_test/rtc/rtc_strict_gate_test.dart",
+        "test/unit_test/store/api/rtc_room_api_test.dart"
+      ],
+      "backend_targets": [
+        "test/api/feature_gate_middleware_tests.erl",
+        "test/lib/imboy_feature_tests.erl"
+      ],
+      "required_evidence_level": "B",
+      "level_basis": "App/Backend 合同",
+      "requirements": [
+        "backend.local"
+      ],
+      "fixture": "shared:readonly",
+      "disposition": "required",
+      "exclusion_code": null,
+      "blocked_code": null,
+      "details": ""
     }
   ],
   "feature_mapping": {
@@ -1548,7 +1667,10 @@
     },
     "rtc": {
       "capabilities": [
-        "rtc.c2c_call"
+        "rtc.c2c_call",
+        "rtc.signaling_negative",
+        "rtc.relay_force",
+        "rtc.feature_gate"
       ],
       "disposition": "mapped",
       "exclusion_code": null,

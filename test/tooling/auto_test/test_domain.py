@@ -41,7 +41,7 @@ class DomainGenerationTest(unittest.TestCase):
         self.assertEqual(domain.check_domain(self.root), [])
 
     def test_capability_and_feature_counts(self):
-        self.assertEqual(len(self.first['capabilities']), 45)
+        self.assertEqual(len(self.first['capabilities']), 49)
         self.assertEqual(set(self.first['feature_mapping']),
                          set(domain.load_selected_features(ROOT)))
         for feature, item in self.first['feature_mapping'].items():
