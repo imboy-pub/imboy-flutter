@@ -118,10 +118,10 @@ void main() {
     );
 
     // ── 1. 后端签发（真实 token 链）；token 只引用，绝不打印 ──────────
-    final grant = await RtcRoomApi().joinRoom(
-      kind: 'group',
-      targetId: _groupId,
-    );
+    // IMBOY_AUTOTEST：广州 2.1 批准矩阵已锁定 rtc_group——group join 会被
+    // 功能门拒（功能未启用）。relay 连接级采样与房间群/c2c 语义无关，
+    // 改走批准启用的 c2c 面；TEST_GROUP_ID 此时承载对端 uid（种子 U2）。
+    final grant = await RtcRoomApi().joinRoom(kind: 'c2c', targetId: _groupId);
     expect(grant, isNotNull, reason: 'joinRoom 签发失败');
     final token = grant!['token'] ?? '';
     expect(token, isNotEmpty, reason: 'joinRoom 未返回 token');

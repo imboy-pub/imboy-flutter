@@ -14,6 +14,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/config/init.dart' show navigatorKey;
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/page/chat/chat/chat_page.dart';
+import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/sqlite.dart';
@@ -59,6 +60,13 @@ const _messageWaitSeconds = int.fromEnvironment(
 const _stopAfterOutgoingAck = bool.fromEnvironment(
   'TEST_STOP_AFTER_OUTGOING_ACK',
   defaultValue: false,
+);
+// 离线批量场景：>1 时 sender 连发 N 条带序号 marker（P0-OFFLINE-<run>-01..N），
+// 每条等到服务端 ACK；receiver 重启后断言 N 条各一份且按服务端序列
+// （conv_seq）有序。默认 1 = 普通（单条）闭环，不受影响。
+const _offlineCount = int.fromEnvironment(
+  'TEST_OFFLINE_MESSAGE_COUNT',
+  defaultValue: 1,
 );
 
 void main() {
@@ -132,6 +140,38 @@ void main() {
       final senderMarker = 'P0-DUAL-A-$_runId';
       final receiverMarker = 'P0-DUAL-B-$_runId';
 
+      if (_offlineCount > 1) {
+        // ── 离线批量场景（J01 收尾）：B 全程离线，A 连发 N 条后退出，
+        //    再由外部编排重启 B 验证离线取件的完整性与服务端序列。──
+        if (_dualRole == 'sender') {
+          if (!_stopAfterOutgoingAck) {
+            fail(
+              'TEST_OFFLINE_MESSAGE_COUNT>1 必须搭配 TEST_STOP_AFTER_OUTGOING_ACK=true',
+            );
+          }
+          for (var i = 1; i <= _offlineCount; i++) {
+            final marker = 'P0-OFFLINE-$_runId-${i.toString().padLeft(2, '0')}';
+            flowLog('步骤: 离线批量发送 [$i/$_offlineCount] $marker');
+            await _sendText(tester, marker);
+            await _waitForOutgoingAck(tester, marker);
+          }
+          await _assertHistoryContains(
+            'P0-OFFLINE-$_runId-${_offlineCount.toString().padLeft(2, '0')}',
+          );
+          flowLog('离线批量发送完成：$_offlineCount 条全部 ACK，A 进程按参数退出');
+          drainKnownFrameworkExceptions(tester);
+          return;
+        }
+        final lastMarker =
+            'P0-OFFLINE-$_runId-${_offlineCount.toString().padLeft(2, '0')}';
+        flowLog('步骤: offline receiver 等待末条 $lastMarker 上屏');
+        await _waitForMarker(tester, lastMarker);
+        await _assertOfflineBatchViaDb(tester);
+        flowLog('离线批量验收通过：$_offlineCount 条各一份、按服务端序列 conv_seq 有序');
+        drainKnownFrameworkExceptions(tester);
+        return;
+      }
+
       if (_dualRole == 'sender') {
         flowLog('步骤: sender 发送 A=$senderMarker');
         await _sendText(tester, senderMarker);
@@ -187,8 +227,76 @@ void main() {
       drainKnownFrameworkExceptions(tester);
     },
     semanticsEnabled: false,
-    timeout: const Timeout(Duration(minutes: 6)),
+    timeout: Timeout(Duration(minutes: _offlineCount > 1 ? 15 : 6)),
   );
+}
+
+/// 离线批量断言（J01 收尾）：本地库中本轮 23 条离线 marker
+/// 1) 恰好 N 条消息（各一份，无重复无缺失）；2) 按 conv_seq（服务端序列）
+/// 升序与序号 01..N 完全一致。这是落库证据，UI 上屏证据由调用方的
+/// _waitForMarker（末条）先行取得。
+/// j01r7 实证：LIKE 会捎带 typing 草稿回显行（action=message_input 的
+/// payload 内嵌不完整草稿，如 ...j01r7-2），必须按完整序号 marker 提取
+/// 并跳过非消息行，只对真实消息行断言。
+Future<void> _assertOfflineBatchViaDb(WidgetTester tester) async {
+  const seqCol = 'conv_seq';
+  final markerRe = RegExp('P0-OFFLINE-$_runId-(\\d{2})');
+  final rows = await SqliteService.to.query(
+    MessageRepo.c2cTable,
+    columns: [...MessageRepo.c2cColumns, seqCol],
+    where: '${MessageRepo.payload} LIKE ?',
+    whereArgs: ['%P0-OFFLINE-$_runId-%'],
+    orderBy: '$seqCol ASC',
+  );
+  final expected = List.generate(
+    _offlineCount,
+    (i) => 'P0-OFFLINE-$_runId-${(i + 1).toString().padLeft(2, '0')}',
+  );
+  // 完整序号 marker → (conv_seq, 重复次数)；不含完整 marker 的行是
+  // typing 草稿/action 回显，不计入批断言。
+  final seqByMarker = <String, int?>{};
+  var skippedEchoRows = 0;
+  for (final row in rows) {
+    final payload = '${row[MessageRepo.payload]}';
+    final m = markerRe.firstMatch(payload);
+    if (m == null) {
+      skippedEchoRows++;
+      continue;
+    }
+    final marker = m.group(0)!;
+    if (!expected.contains(marker)) {
+      fail('发现本轮命名空间外的完整 marker：$marker');
+    }
+    if (seqByMarker.containsKey(marker)) {
+      fail('离线消息重复落库：$marker 出现多次（各一份契约被破坏）');
+    }
+    seqByMarker[marker] = row[seqCol] as int?;
+  }
+  flowLog(
+    '离线批量提取：消息 ${seqByMarker.length}/$_offlineCount，'
+    '跳过草稿/action 回显行 $skippedEchoRows',
+  );
+  final missing = expected.where((m) => !seqByMarker.containsKey(m)).toList();
+  if (missing.isNotEmpty) {
+    fail('离线消息缺失：${missing.join(', ')}（共 ${missing.length} 条未落库）');
+  }
+  final actualInSeqOrder = seqByMarker.keys.toList();
+  final missingSeq = <String>[];
+  for (final e in seqByMarker.entries) {
+    if (e.value == null) missingSeq.add(e.key);
+  }
+  if (missingSeq.isNotEmpty) {
+    fail('以下消息 conv_seq 为空，无法证明服务端序列：${missingSeq.join(', ')}');
+  }
+  for (var i = 0; i < expected.length; i++) {
+    if (actualInSeqOrder[i] != expected[i]) {
+      fail(
+        '服务端序列错位：conv_seq 第${i + 1}条应为 ${expected[i]}，'
+        '实际 ${actualInSeqOrder[i]}（全序：${actualInSeqOrder.join(' → ')}）',
+      );
+    }
+  }
+  flowLog('离线批量 DB 断言完成：$_offlineCount 条消息各一份、conv_seq 升序与序号一致');
 }
 
 Future<void> _ensureTestWebSocket(WidgetTester tester) async {
@@ -247,14 +355,44 @@ bool _requireDualWriteAuthorization() {
   return true;
 }
 
+/// 是否正显示会话列表。
+///
+/// 2026-11-07 j01r2 实证旧判定全失效：当前 UI 的搜索入口是
+/// CupertinoSearchTextField（conversation_search_input），不再有
+/// Material Icons.search + add_circle_outline 组合；类型判定改用
+/// find.byType 并放宽 skipOffstage（列表被返回动画/浮层临时遮挡时
+/// 仍应命中）。ChatPage 是否真正离栈由 _leaveChatPage 独立验证，
+/// 本判定不承担「在栈顶」语义。
 bool _isConversationList(WidgetTester tester) =>
+    tester.any(find.byType(ConversationPage, skipOffstage: false)) ||
     tester.any(
-      find.byWidgetPredicate(
-        (widget) => widget.runtimeType.toString() == 'ConversationPage',
-      ),
-    ) ||
-    (tester.any(find.byIcon(Icons.search)) &&
-        tester.any(find.byIcon(Icons.add_circle_outline)));
+      find.byKey(const Key('conversation_search_input'), skipOffstage: false),
+    );
+
+/// 诊断转储：路由位置 + 前 12 条可见文本 + 关键页在树状态。
+/// 与 _waitForMarker 的周期转储同口径，失败现场不再盲查。
+void _dumpUiState(WidgetTester tester, String scene) {
+  final texts = <String>[];
+  for (final e in find.byType(Text, skipOffstage: false).evaluate().take(12)) {
+    final t = (e.widget as Text).data ?? '';
+    texts.add(t.length > 40 ? '${t.substring(0, 40)}…' : t);
+  }
+  var route = '?';
+  final ctx = navigatorKey.currentContext;
+  if (ctx != null) {
+    try {
+      // ignore: use_build_context_synchronously -- 仅读路由位置做诊断转储
+      route = GoRouter.of(ctx).routeInformationProvider.value.uri.toString();
+    } on Object {
+      route = 'n/a';
+    }
+  }
+  flowLog(
+    '[ui-state] $scene route=$route chatPage=${tester.any(find.byType(ChatPage, skipOffstage: false))} '
+    'conversationPage=${tester.any(find.byType(ConversationPage, skipOffstage: false))} '
+    'Text=${texts.join(' | ')}',
+  );
+}
 
 Future<bool> _openConversationTab(WidgetTester tester) async {
   if (_isConversationList(tester)) return true;
@@ -270,6 +408,7 @@ Future<bool> _openConversationTab(WidgetTester tester) async {
     await settle(tester, maxSeconds: 1);
     if (_isConversationList(tester)) return true;
   }
+  _dumpUiState(tester, 'open_conversation_tab_failed');
   return false;
 }
 
@@ -302,12 +441,24 @@ Future<bool> _waitForChatPage(WidgetTester tester) async {
 Future<void> _sendText(WidgetTester tester, String marker) async {
   final input = find.byKey(const Key('chat_message_input'));
   if (!tester.any(input)) fail('聊天页没有消息输入框');
-  await tester.enterText(input, marker);
-  await settle(tester, maxSeconds: 1);
-  final sent = await tapAny(tester, [
-    find.byKey(const Key('send_button')),
-    find.byKey(const Key('send_button_inner')),
-  ]);
+  // 发送键显隐由焦点（chat_input.dart 焦点路径置 visible=true）与
+  // 输入非空（300ms 防抖）共同驱动。2026-11-07 j01r6 实证：首条发送
+  // 后键盘收起，第 2 条起 enterText 直改控制器不经焦点路径，按钮缺席。
+  // 按真实用户行为：先真实点击输入框聚焦，再输入；按钮带 3 次重试。
+  var sent = false;
+  for (var attempt = 1; attempt <= 3 && !sent; attempt++) {
+    await safeTap(tester, input);
+    await settle(tester, maxSeconds: 1);
+    await tester.enterText(input, marker);
+    await settle(tester, maxSeconds: 2);
+    sent = await tapAny(tester, [
+      find.byKey(const Key('send_button')),
+      find.byKey(const Key('send_button_inner')),
+    ]);
+    if (!sent && attempt < 3) {
+      flowLog('步骤: 发送按钮缺席（第$attempt次），重试输入');
+    }
+  }
   if (!sent) fail('未找到消息发送按钮');
   flowLog('步骤: _sendText 已点击发送 $marker');
   await _waitForMarker(tester, marker);
@@ -346,14 +497,34 @@ Future<void> _waitForOutgoingAck(WidgetTester tester, String marker) async {
   fail('消息已出现在本地，但未在 60 秒内反映服务端 ACK：$marker');
 }
 
+/// 离开聊天页并确认 ChatPage 真正离栈。
+///
+/// 2026-11-07 j01r2 双端实证：ChatPage 顶栏返回键是 GlassBackButton
+/// （lib/component/ui/common_bar.dart），图标为 CupertinoIcons.chevron_left，
+/// 不是 CupertinoNavigationBarBackButton / Icons.arrow_back；旧 fallback
+/// handlePopRoute() 在 Router 应用上 WidgetsApp.didPopRoute 对
+/// Router delegate 直接 return false（系统返回由 backButtonDispatcher
+/// 处理），等于空操作 —— 双端都停在聊天页，随后 20 次轮询
+/// _isConversationList 全 false，以「发送/回复后无法回到会话列表」失败。
+/// 现改为点真实返回键，并轮询确认 ChatPage 已不在 onstage 树。
 Future<void> _leaveChatPage(WidgetTester tester) async {
   final tapped = await tapAny(tester, [
+    find.byIcon(CupertinoIcons.chevron_left),
     find.byType(CupertinoNavigationBarBackButton),
     find.byIcon(Icons.arrow_back),
+    find.byIcon(Icons.arrow_back_ios_new),
   ]);
   if (!tapped) {
+    // Router 应用上大概率 no-op（见函数注释），仅作最后兜底。
     await tester.binding.handlePopRoute();
   }
+  for (var i = 0; i < 16; i++) {
+    if (!tester.any(find.byType(ChatPage))) return;
+    await tester.pump(const Duration(milliseconds: 500));
+  }
+  // 返回键没点中或 pop 未生效：转储现场后显式失败，不静默带病继续。
+  _dumpUiState(tester, 'leave_chat_page_failed');
+  fail('点击返回键后 ChatPage 仍未离栈');
 }
 
 Future<void> _waitForMarker(WidgetTester tester, String marker) async {
