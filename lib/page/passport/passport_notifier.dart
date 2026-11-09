@@ -279,8 +279,11 @@ class PassportNotifier extends _$PassportNotifier {
   }
 
   /// 返回按钮组件
-  Widget backButton({Color? color}) {
+  Widget backButton({Color? color, bool isRtl = false}) {
     Color c = color ?? AppColors.onPrimary;
+    final backIcon = isRtl
+        ? CupertinoIcons.chevron_right_circle
+        : CupertinoIcons.chevron_left_circle;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -303,11 +306,12 @@ class PassportNotifier extends _$PassportNotifier {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               padding: const EdgeInsets.only(left: 0, top: 10, bottom: 10),
               // 圆形返回图标（设计拍板：返回键用圆形）
-              child: Icon(CupertinoIcons.chevron_left_circle, color: c),
+              child: Icon(backIcon, color: c),
             ),
             Text(
               t.common.buttonBack,

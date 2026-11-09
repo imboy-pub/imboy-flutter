@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -17,6 +18,8 @@ import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/theme.dart';
 
 /// LoginPage widget test
 ///
@@ -120,15 +123,22 @@ GoRouter _stubRouter() {
   );
 }
 
-Future<void> _pump(WidgetTester tester, {PassportNotifier? notifier}) async {
-  // LoginPage 渲染含 BezierContainer + 表单 + Tab + button，需充足画布
+Future<void> _pump(
+  WidgetTester tester, {
+  PassportNotifier? notifier,
+  Size viewport = const Size(390, 1200),
+  double textScale = 1,
+  ThemeMode themeMode = ThemeMode.light,
+}) async {
   tester.view.devicePixelRatio = 1.0;
-  tester.view.physicalSize = const Size(390, 1200);
+  tester.view.physicalSize = viewport;
   addTearDown(() {
     tester.view.resetDevicePixelRatio();
     tester.view.resetPhysicalSize();
   });
 
+  final router = _stubRouter();
+  addTearDown(router.dispose);
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -137,7 +147,29 @@ Future<void> _pump(WidgetTester tester, {PassportNotifier? notifier}) async {
         ),
       ],
       child: TranslationProvider(
-        child: MaterialApp.router(routerConfig: _stubRouter()),
+        child: Builder(
+          builder: (context) {
+            Translations.of(context);
+            return MaterialApp.router(
+              routerConfig: router,
+              locale: LocaleSettings.currentLocale.flutterLocale,
+              supportedLocales: AppLocaleUtils.supportedLocales,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              theme: AppTheme.getLightTheme(),
+              darkTheme: AppTheme.getDarkTheme(),
+              themeMode: themeMode,
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: TextScaler.linear(textScale)),
+                child: child!,
+              ),
+            );
+          },
+        ),
       ),
     ),
   );
@@ -151,6 +183,7 @@ Future<void> _unmount(WidgetTester tester) async {
 
 void main() {
   setUp(() async {
+    LocaleSettings.setLocaleSync(AppLocale.zhCn);
     SharedPreferences.setMockInitialValues({});
     await StorageService.init();
   });
@@ -252,6 +285,169 @@ void main() {
 
       expect(find.byType(TabBarView), findsOneWidget);
 
+      await _unmount(tester);
+    });
+
+    testWidgets('swiping forms preserves entered credentials', (tester) async {
+      await _pump(tester);
+      final account = find.descendant(
+        of: find.byKey(const Key('login_phone_input')),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(account, 'alice');
+      await tester.enterText(
+        find.byKey(const Key('login_password_input')),
+        'unchanged-password',
+      );
+      // Swipe between inputs so the text field's selection gesture cannot win.
+      final gap = Offset(
+        tester.getCenter(find.byType(TabBarView)).dx,
+        tester.getTopLeft(find.byKey(const Key('login_password_input'))).dy - 8,
+      );
+      await tester.dragFrom(gap, const Offset(-300, 0));
+      await tester.pumpAndSettle();
+      expect(tester.widget<TabBar>(find.byType(TabBar)).controller!.index, 1);
+      final code = find.byWidgetPredicate(
+        (widget) =>
+            widget is TextField &&
+            (widget.autofillHints?.contains(AutofillHints.oneTimeCode) ??
+                false),
+      );
+      await tester.dragFrom(
+        Offset(gap.dx, tester.getTopLeft(code).dy - 8),
+        const Offset(300, 0),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<TabBar>(find.byType(TabBar)).controller!.index, 0);
+      expect(tester.widget<TextField>(account).controller!.text, 'alice');
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('login_password_input')))
+            .controller!
+            .text,
+        'unchanged-password',
+      );
+      expect(tester.takeException(), isNull);
+      await _unmount(tester);
+    });
+  });
+
+  group('LoginPage translated layouts', () {
+    for (final locale in AppLocale.values) {
+      for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+        testWidgets(
+          '${locale.languageTag} $mode fits narrow large-text forms',
+          (tester) async {
+            await tester.runAsync(() => LocaleSettings.setLocale(locale));
+            await _pump(
+              tester,
+              notifier: _HistoryPassportNotifier(),
+              viewport: const Size(320, 568),
+              textScale: 2,
+              themeMode: mode,
+            );
+            await tester.pumpAndSettle();
+            expect(tester.takeException(), isNull);
+            final tabs = [t.account.account, t.account.mobile, t.account.email];
+            for (final label in tabs) {
+              final tab = find.widgetWithText(Tab, label);
+              await tester.ensureVisible(tab);
+              await tester.tap(tab);
+              await tester.pumpAndSettle();
+              expect(
+                tester.widget<TabBar>(find.byType(TabBar)).controller!.index,
+                tabs.indexOf(label),
+                reason: 'The requested form must actually become active',
+              );
+              expect(tester.takeException(), isNull, reason: label);
+              final submit = find.byKey(const Key('login_submit_button')).last;
+              // Nested PageView reveal calculations use a different axis.
+              // Move the page vertically while preserving the active form.
+              final position = Scrollable.of(
+                tester.element(submit),
+                axis: Axis.vertical,
+              ).position;
+              final viewport = tester.getRect(
+                find.byType(SingleChildScrollView).first,
+              );
+              final offset =
+                  position.pixels +
+                  tester.getCenter(submit).dy -
+                  viewport.center.dy;
+              position.jumpTo(
+                offset.clamp(
+                  position.minScrollExtent,
+                  position.maxScrollExtent,
+                ),
+              );
+              await tester.pumpAndSettle();
+              expect(
+                tester.widget<TabBar>(find.byType(TabBar)).controller!.index,
+                tabs.indexOf(label),
+              );
+              expect(submit.hitTestable(), findsOneWidget, reason: label);
+              expect(tester.widget<CupertinoButton>(submit).onPressed, isNull);
+              final submitLabel = tester.widget<Text>(
+                find.descendant(
+                  of: submit,
+                  matching: find.text(t.account.login),
+                ),
+              );
+              expect(
+                submitLabel.style?.color,
+                mode == ThemeMode.dark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
+              );
+            }
+            final forgot = find.text(t.account.forgotPassword);
+            await tester.ensureVisible(forgot);
+            await tester.pumpAndSettle();
+            expect(forgot.hitTestable(), findsOneWidget);
+            final signup = find.text(t.account.signup);
+            await tester.ensureVisible(signup);
+            await tester.pumpAndSettle();
+            expect(signup.hitTestable(), findsOneWidget);
+            expect(tester.takeException(), isNull);
+            await _unmount(tester);
+          },
+        );
+      }
+    }
+
+    testWidgets('changing language retains entered credentials and all tabs', (
+      tester,
+    ) async {
+      await _pump(tester, notifier: _HistoryPassportNotifier());
+      await tester.enterText(
+        find.byKey(const Key('login_phone_input')),
+        'alice',
+      );
+      await tester.enterText(
+        find.byKey(const Key('login_password_input')),
+        'unchanged-password',
+      );
+      await tester.runAsync(() => LocaleSettings.setLocale(AppLocale.arSa));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(Tab, t.account.account), findsOneWidget);
+      expect(find.text(t.account.forgotPassword), findsOneWidget);
+      final page = tester.element(find.byType(LoginPage));
+      expect(Directionality.of(page), TextDirection.rtl);
+      final back = find.byIcon(CupertinoIcons.chevron_right_circle);
+      expect(back, findsOneWidget);
+      expect(
+        tester.getCenter(back).dx,
+        greaterThan(tester.view.physicalSize.width / 2),
+      );
+      expect(find.text('alice'), findsOneWidget);
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('login_password_input')))
+            .controller!
+            .text,
+        'unchanged-password',
+      );
+      expect(tester.takeException(), isNull);
       await _unmount(tester);
     });
   });

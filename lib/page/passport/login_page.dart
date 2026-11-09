@@ -8,6 +8,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +22,7 @@ import 'package:imboy/page/passport/passport_state.dart';
 import 'package:imboy/page/passport/widget/passport_title.dart';
 import 'package:imboy/page/passport/widget/bezier_container.dart';
 import 'package:imboy/page/passport/widget/login_history_input.dart';
+import 'package:imboy/page/passport/widget/login_form_tabs.dart';
 import 'package:imboy/page/passport/widget/other_login_section.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -106,6 +109,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
 
   @override
   Widget build(BuildContext context) {
+    final t = Translations.of(context);
     final state = ref.watch(passportProvider);
     final notifier = ref.read(passportProvider.notifier);
     final height = MediaQuery.of(context).size.height;
@@ -118,108 +122,93 @@ class _LoginPageState extends ConsumerState<LoginPage>
           children: [
             const Positioned(top: -120, right: -60, child: BezierContainer()),
             SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    SizedBox(height: height * 0.04),
-                    const PassportTitle(color: AppColors.primary),
-                    AppSpacing.verticalXLarge,
-
-                    // TabBar 对齐 iOS 风格
-                    Container(
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.darkSurfaceGrouped
-                            : AppColors.lightSurfaceGrouped,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: AppSpacing.allTiny,
-                      child: TabBar(
-                        controller: _tabController,
-                        indicator: BoxDecoration(
-                          color: isDark
-                              ? AppColors.darkSurfaceGroupedTertiary
-                              : AppColors.lightSurface,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.darkBackground.withValues(
-                                alpha: 0.05,
-                              ),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        labelColor: AppColors.primary,
-                        unselectedLabelColor: AppColors.iosGray,
-                        dividerColor: Colors.transparent,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        tabs: [
-                          Tab(text: t.account.account),
-                          Tab(text: t.account.mobile),
-                          Tab(text: t.account.email),
-                        ],
-                      ),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: notifier.backButton(
+                      color: AppColors.primary,
+                      isRtl: Directionality.of(context) == TextDirection.rtl,
                     ),
-                    AppSpacing.verticalRegular,
-
-                    SizedBox(
-                      height: 220,
-                      child: TabBarView(
-                        controller: _tabController,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
                         children: [
-                          _buildAccountLogin(state, notifier, isDark),
-                          _buildMobileLogin(state, notifier, isDark),
-                          _buildEmailLogin(state, notifier, isDark),
+                          SizedBox(height: height * 0.04),
+                          const PassportTitle(color: AppColors.primary),
+                          AppSpacing.verticalXLarge,
+
+                          LoginFormTabs(
+                            controller: _tabController,
+                            labels: [
+                              t.account.account,
+                              t.account.mobile,
+                              t.account.email,
+                            ],
+                            children: [
+                              _buildAccountLogin(state, notifier, isDark),
+                              _buildMobileLogin(state, notifier, isDark),
+                              _buildEmailLogin(state, notifier, isDark),
+                            ],
+                          ),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              children: [
+                                CupertinoButton(
+                                  onPressed: () =>
+                                      context.push(AppRoutes.forgotPassword),
+                                  child: Text(
+                                    t.account.forgotPassword,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: isDark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.lightTextSecondary,
+                                    ),
+                                  ),
+                                ),
+                                CupertinoButton(
+                                  onPressed: () =>
+                                      context.push(AppRoutes.signUp),
+                                  child: Text(
+                                    t.account.signup,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          AppSpacing.verticalLarge,
+                          if ((!kIsWeb &&
+                                  defaultTargetPlatform ==
+                                      TargetPlatform.android) &&
+                              resolveEnterpriseOaRuntimeConfig()
+                                  .inboundLoginEnabled)
+                            CupertinoButton(
+                              onPressed: () => context.push('/oa/login'),
+                              child: Text(t.enterpriseOa.startInbound),
+                            ),
+                          OtherLoginSection(
+                            notifier: notifier,
+                            isDark: isDark,
+                            showAlipay: true,
+                            showOneKey: true,
+                          ),
                         ],
                       ),
                     ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        CupertinoButton(
-                          onPressed: () =>
-                              context.push(AppRoutes.forgotPassword),
-                          child: Text(
-                            t.account.forgotPassword,
-                            style: const TextStyle(color: AppColors.iosGray),
-                          ),
-                        ),
-                        CupertinoButton(
-                          onPressed: () => context.push(AppRoutes.signUp),
-                          child: Text(
-                            t.account.signup,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    AppSpacing.verticalLarge,
-                    if ((!kIsWeb &&
-                            defaultTargetPlatform == TargetPlatform.android) &&
-                        resolveEnterpriseOaRuntimeConfig().inboundLoginEnabled)
-                      CupertinoButton(
-                        onPressed: () => context.push('/oa/login'),
-                        child: Text(t.enterpriseOa.startInbound),
-                      ),
-                    OtherLoginSection(
-                      notifier: notifier,
-                      isDark: isDark,
-                      showAlipay: true,
-                      showOneKey: true,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ),
-            Positioned(
-              top: 10,
-              left: 0,
-              child: notifier.backButton(color: AppColors.primary),
             ),
           ],
         ),
@@ -412,54 +401,19 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
           ),
           AppSpacing.verticalRegular,
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: _mobileCodeController,
-                  readOnly: _isLoading,
-                  autofillHints: const [AutofillHints.oneTimeCode],
-                  decoration: _getInputDecoration(
-                    hintText: t.passport.hintVerifyCode,
-                    prefixIcon: CupertinoIcons.shield,
-                    isDark: isDark,
-                  ),
-                ),
-              ),
-              AppSpacing.horizontalMedium,
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: AppColors.getIosBlue(
-                  isDark ? Brightness.dark : Brightness.light,
-                ).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        if (_fullMobile.isNotEmpty) {
-                          notifier.sendCode('mobile', _fullMobile, 'login');
-                        } else {
-                          notifier.snackBar(
-                            t.common.errorEmptyDirectory(
-                              param: t.account.mobile,
-                            ),
-                          );
-                        }
-                      },
-                child: Text(
-                  t.common.getVerificationCode,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.getIosBlue(
-                      isDark ? Brightness.dark : Brightness.light,
-                    ),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          _buildVerificationCodeInput(
+            controller: _mobileCodeController,
+            buttonText: t.common.getVerificationCode,
+            isDark: isDark,
+            onPressed: () {
+              if (_fullMobile.isNotEmpty) {
+                notifier.sendCode('mobile', _fullMobile, 'login');
+              } else {
+                notifier.snackBar(
+                  t.common.errorEmptyDirectory(param: t.account.mobile),
+                );
+              }
+            },
           ),
           AppSpacing.verticalXXLarge,
           _buildLoginButton(() async {
@@ -521,58 +475,19 @@ class _LoginPageState extends ConsumerState<LoginPage>
             keyboardType: TextInputType.emailAddress,
           ),
           AppSpacing.verticalRegular,
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: _emailCodeController,
-                  readOnly: _isLoading,
-                  autofillHints: const [AutofillHints.oneTimeCode],
-                  decoration: _getInputDecoration(
-                    hintText: t.passport.hintVerifyCode,
-                    prefixIcon: CupertinoIcons.shield,
-                    isDark: isDark,
-                  ),
-                ),
-              ),
-              AppSpacing.horizontalMedium,
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: AppColors.getIosBlue(
-                  isDark ? Brightness.dark : Brightness.light,
-                ).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                        if (_emailController.text.isNotEmpty) {
-                          notifier.sendCode(
-                            'email',
-                            _emailController.text,
-                            'login',
-                          );
-                        } else {
-                          notifier.snackBar(
-                            t.common.errorEmptyDirectory(
-                              param: t.account.email,
-                            ),
-                          );
-                        }
-                      },
-                child: Text(
-                  t.passport.getVerifyCode,
-                  style: context.textStyle(
-                    FontSizeType.footnote,
-                    color: AppColors.getIosBlue(
-                      isDark ? Brightness.dark : Brightness.light,
-                    ),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+          _buildVerificationCodeInput(
+            controller: _emailCodeController,
+            buttonText: t.passport.getVerifyCode,
+            isDark: isDark,
+            onPressed: () {
+              if (_emailController.text.isNotEmpty) {
+                notifier.sendCode('email', _emailController.text, 'login');
+              } else {
+                notifier.snackBar(
+                  t.common.errorEmptyDirectory(param: t.account.email),
+                );
+              }
+            },
           ),
           AppSpacing.verticalXXLarge,
           _buildLoginButton(() async {
@@ -603,6 +518,79 @@ class _LoginPageState extends ConsumerState<LoginPage>
           }, isEnabled: isEnabled),
         ],
       ),
+    );
+  }
+
+  Widget _buildVerificationCodeInput({
+    required TextEditingController controller,
+    required String buttonText,
+    required VoidCallback onPressed,
+    required bool isDark,
+  }) {
+    final brightness = isDark ? Brightness.dark : Brightness.light;
+    final color = AppColors.getIosBlue(brightness);
+    final style = context.textStyle(
+      FontSizeType.footnote,
+      color: _isLoading
+          ? (isDark ? AppColors.darkTextDisabled : AppColors.lightTextDisabled)
+          : color,
+      fontWeight: FontWeight.w600,
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scaler = MediaQuery.textScalerOf(context);
+        final painter = TextPainter(
+          text: TextSpan(text: buttonText, style: style),
+          textDirection: Directionality.of(context),
+          textScaler: scaler,
+        )..layout();
+        final buttonWidth = painter.width + AppSpacing.xxLarge;
+        painter.dispose();
+        // Reserve room for six digits, the input icon and its padding.
+        final inputWidth =
+            scaler.scale(
+                  Theme.of(context).textTheme.bodyLarge?.fontSize ??
+                      FontSizeType.medium.size,
+                ) *
+                6 +
+            AppSizes.touchTarget +
+            AppSpacing.xxLarge;
+        final stacked =
+            inputWidth + AppSpacing.medium + buttonWidth > constraints.maxWidth;
+        final input = TextField(
+          enableSuggestions: false,
+          autocorrect: false,
+          controller: controller,
+          readOnly: _isLoading,
+          autofillHints: const [AutofillHints.oneTimeCode],
+          decoration: _getInputDecoration(
+            hintText: t.passport.hintVerifyCode,
+            prefixIcon: CupertinoIcons.shield,
+            isDark: isDark,
+          ),
+        );
+        final button = CupertinoButton(
+          padding: AppSpacing.symmetricRegular,
+          minimumSize: const Size(0, AppSizes.touchTarget),
+          color: color.withValues(alpha: 0.1),
+          borderRadius: AppRadius.borderRadiusCell,
+          onPressed: _isLoading ? null : onPressed,
+          child: Text(buttonText, style: style, textAlign: TextAlign.center),
+        );
+        if (stacked) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [input, AppSpacing.verticalMedium, button],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: input),
+            AppSpacing.horizontalMedium,
+            button,
+          ],
+        );
+      },
     );
   }
 
@@ -642,21 +630,26 @@ class _LoginPageState extends ConsumerState<LoginPage>
   }
 
   Widget _buildLoginButton(VoidCallback onPressed, {bool isEnabled = true}) {
+    final brightness = Theme.of(context).brightness;
+    final disabled = _isLoading || _isClearingHistory || !isEnabled;
+    final foreground = disabled
+        ? AppColors.getTextColor(brightness, isSecondary: true)
+        : AppColors.onPrimary;
     return SizedBox(
       width: double.infinity,
       child: CupertinoButton.filled(
         minimumSize: const Size(0, 50),
         key: const Key('login_submit_button'),
         padding: EdgeInsets.zero,
-        onPressed: (_isLoading || _isClearingHistory || !isEnabled)
+        onPressed: disabled
             ? null
             : () {
                 FocusScope.of(context).unfocus();
                 onPressed();
               },
         child: _isLoading
-            ? const CupertinoActivityIndicator(color: AppColors.onPrimary)
-            : Text(t.account.login),
+            ? CupertinoActivityIndicator(color: foreground)
+            : Text(t.account.login, style: TextStyle(color: foreground)),
       ),
     );
   }

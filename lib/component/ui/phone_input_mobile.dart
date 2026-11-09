@@ -37,10 +37,13 @@ class MobilePhoneInputWidget extends StatelessWidget {
       },
       selectorConfig: const SelectorConfig(
         selectorType: PhoneInputSelectorType.DIALOG,
+        trailingSpace: false,
       ),
       ignoreBlank: false,
       autoValidateMode: AutovalidateMode.disabled,
-      selectorTextStyle: const TextStyle(color: AppColors.lightTextPrimary),
+      selectorTextStyle: TextStyle(
+        color: AppColors.getTextColor(Theme.of(context).brightness),
+      ),
       initialValue: initialValue.isNotEmpty
           ? PhoneNumber(isoCode: 'CN', phoneNumber: initialValue)
           : PhoneNumber(isoCode: 'CN'),

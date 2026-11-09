@@ -776,7 +776,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonBack => '回上一頁';
 	@override String get bindMobileAndEmailTips => '綁定手機號和郵箱，讓你的帳號更安全';
 	@override String get bindNow => '立即綁定';
-	@override String get buttonCancel => '關閉';
+	@override String get buttonCancel => '取消';
 	@override String get buttonCreate => '建立';
 	@override String get phoneInputHint => '請輸入手機號';
 	@override String get buttonMore => '查看更多';
@@ -4062,7 +4062,7 @@ extension on TranslationsZhHant {
 			'common.buttonBack' => '回上一頁',
 			'common.bindMobileAndEmailTips' => '綁定手機號和郵箱，讓你的帳號更安全',
 			'common.bindNow' => '立即綁定',
-			'common.buttonCancel' => '關閉',
+			'common.buttonCancel' => '取消',
 			'common.buttonCreate' => '建立',
 			'common.phoneInputHint' => '請輸入手機號',
 			'common.buttonMore' => '查看更多',
