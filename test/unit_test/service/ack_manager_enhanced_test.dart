@@ -1,16 +1,17 @@
 /// ACK 管理器增强测试
 ///
-/// 测试目标：
-/// 1. ACK 发送和重试
-/// 2. ACK 超时处理
-/// 3. ACK 状态跟踪
-/// 4. 资源清理（Timer 清理）
+/// 测试目标（IMBOY_AUTOTEST AT03 / M01、M02）：
+/// 1. ACK 发送、待确认状态与统计的真实行为（精确计数，非恒真断言）
+/// 2. 确认/拒绝语义区分：确认记 RTT 成功指标；拒绝停止重试且不记成功指标
+/// 3. 超时清理边界：未过期（<30s）的待确认 ACK 必须保留，不得提前丢失重试义务
+/// 4. 重试策略契约：RetryPolicy 间隔边界与最大重试次数一致；重试命中上限事件可观测
 library;
-
-import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/ack_manager.dart';
+import 'package:imboy/service/event_bus.dart';
+import 'package:imboy/service/events/message_operation_events.dart';
+import 'package:imboy/service/retry_policy.dart';
 
 void main() {
   group('AckManager 增强测试', () {
@@ -25,13 +26,12 @@ void main() {
       ackManager.clear();
     });
 
-    group('ACK 发送和重试', () {
+    group('ACK 发送和待确认状态', () {
       test('应该正确生成 ACK 消息格式', () {
         const type = 'C2C';
         const msgId = 'msg_123';
         const deviceId = 'test_device';
 
-        // 【修复 C1】使用 overrideDeviceId 参数进行测试
         final ackMsg = ackManager.generateAckMessage(
           type,
           msgId,
@@ -56,357 +56,183 @@ void main() {
         );
       });
 
-      test('应该发送 ACK 并记录待确认', () {
-        // 【修复 C1】使用 overrideDeviceId 参数进行测试
+      test('发送 ACK 后待确认恰好为该一条', () {
         ackManager.sendAck('C2C', 'msg_123', overrideDeviceId: 'test_device');
 
-        expect(ackManager.pendingCount, greaterThan(0));
+        expect(ackManager.pendingCount, 1);
+        expect(ackManager.pendingAckList, ['msg_123']);
       });
 
-      test('应该在最大重试次数后停止重试', () async {
-        const maxRetries = 3;
-        var retryCount = 0;
+      test('多条 ACK 各自独立登记待确认', () {
+        ackManager.sendAck('C2C', 'msg_a', overrideDeviceId: 'test_device');
+        ackManager.sendAck('C2G', 'msg_b', overrideDeviceId: 'test_device');
+        ackManager.sendAck('C2C', 'msg_c', overrideDeviceId: 'test_device');
 
-        // 模拟重试逻辑
-        for (int i = 0; i < 5; i++) {
-          if (retryCount < maxRetries) {
-            retryCount++;
-          }
-        }
-
-        expect(retryCount, maxRetries);
-      });
-
-      test('应该记录每次重试的时间戳', () {
-        final retryHistory = <DateTime>[];
-
-        // 模拟重试
-        retryHistory.add(DateTime.now());
-        Future<dynamic>.delayed(const Duration(milliseconds: 100), () {
-          retryHistory.add(DateTime.now());
-        });
-
-        expect(retryHistory.isNotEmpty, true);
-      });
-    });
-
-    group('ACK 超时处理', () {
-      test('应该在 ACK 超时后清理记录', () async {
-        ackManager.sendAck(
-          'C2C',
-          'msg_timeout',
-          overrideDeviceId: 'test_device',
+        expect(ackManager.pendingCount, 3);
+        expect(
+          ackManager.pendingAckList,
+          containsAll(<String>['msg_a', 'msg_b', 'msg_c']),
         );
-
-        // 等待超时（实际超时是 30 秒，这里模拟）
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
-
-        // 清理过期 ACK
-        ackManager.cleanupExpired();
-
-        // 验证已清理（实际测试需要调整超时时间）
-        expect(ackManager.pendingCount, greaterThanOrEqualTo(0));
       });
 
-      test('应该计算 ACK 超时时间', () {
-        const sendTime = 1640000000000; // 毫秒时间戳
-        // const timeoutSeconds = 30; // Reference value
-        final currentTime = DateTime.now().millisecondsSinceEpoch;
-
-        final elapsed = currentTime - sendTime;
-        // final isExpired = elapsed > (timeoutSeconds * 1000); // Reference calculation
-
-        expect(elapsed, greaterThanOrEqualTo(0));
-      });
-
-      test('应该记录超时的 ACK 统计', () {
-        final expiredAcks = <String>[];
-        // const timeoutThreshold = 30 * 1000; // 30 秒 - Reference value
-
-        // 模拟超时检测
-        // final now = DateTime.now().millisecondsSinceEpoch; // Reference time
-        expiredAcks.add('msg_1'); // 假设已超时
-
-        expect(expiredAcks.length, greaterThanOrEqualTo(0));
-      });
-    });
-
-    group('ACK 状态跟踪', () {
-      test('应该提供待确认 ACK 列表', () {
-        ackManager.sendAck('C2C', 'msg_1', overrideDeviceId: 'test_device');
-        ackManager.sendAck('C2G', 'msg_2', overrideDeviceId: 'test_device');
-
-        final pendingList = ackManager.pendingAckList;
-        expect(pendingList.length, 2);
-        expect(pendingList, contains('msg_1'));
-        expect(pendingList, contains('msg_2'));
-      });
-
-      test('应该提供 ACK 统计信息', () {
+      test('getStats 反映真实待确认数与重试契约常量', () {
         ackManager.sendAck('C2C', 'msg_1', overrideDeviceId: 'test_device');
         ackManager.sendAck('C2G', 'msg_2', overrideDeviceId: 'test_device');
 
         final stats = ackManager.getStats();
 
         expect(stats['pending_count'], 2);
-        expect(stats['max_retries'], 4);
-        expect(stats['retry_interval_ms'], 3000);
+        expect(stats['max_retries'], RetryPolicy.maxRetryAttempts);
+        expect(
+          stats['retry_interval_ms'],
+          RetryPolicy.ackConfirmRetryIntervals.first,
+        );
         expect(stats['pending_ack_list'], isA<List<dynamic>>());
       });
 
-      test('应该更新 ACK 状态', () {
-        final ackStates = <String, String>{};
-
-        // 模拟状态更新
-        ackStates['msg_1'] = 'pending';
-        ackStates['msg_1'] = 'sent';
-        ackStates['msg_1'] = 'confirmed';
-
-        expect(ackStates['msg_1'], 'confirmed');
-      });
-
-      test('应该记录 ACK 发送延迟', () {
-        final sendDelays = <int>[];
-
-        // 模拟记录延迟
-        sendDelays.add(100); // 100ms
-        sendDelays.add(150); // 150ms
-
-        // 计算平均延迟
-        final avgDelay = sendDelays.reduce((a, b) => a + b) / sendDelays.length;
-        expect(avgDelay, greaterThan(0));
-      });
-    });
-
-    group('资源清理（Timer 清理）', () {
-      test('应该取消所有 Timer', () {
-        // 创建多个 Timer
-        final timers = <Timer>[];
-        for (int i = 0; i < 5; i++) {
-          timers.add(Timer(const Duration(seconds: 10), () {}));
-        }
-
-        // 取消所有 Timer
-        for (final timer in timers) {
-          timer.cancel();
-        }
-
-        // 验证所有 Timer 已取消
-        expect(timers.every((t) => t.isActive), false);
-      });
-
-      test('应该清理孤立的 Timer', () {
-        final activeTimers = <String, Timer>{};
-        final pendingAcks = <String>{'msg_1', 'msg_2'};
-
-        // 添加一个孤立的 Timer（对应的 ACK 不存在）
-        activeTimers['msg_orphan'] = Timer(const Duration(seconds: 10), () {});
-
-        // 清理孤立 Timer
-        activeTimers.removeWhere((msgId, timer) {
-          if (!pendingAcks.contains(msgId)) {
-            timer.cancel();
-            return true;
-          }
-          return false;
-        });
-
-        expect(activeTimers.containsKey('msg_orphan'), false);
-      });
-
-      test('应该定期清理资源', () async {
-        var cleanupCount = 0;
-
-        // 模拟定期清理
-        Timer.periodic(const Duration(seconds: 1), (timer) {
-          cleanupCount++;
-          if (cleanupCount >= 3) {
-            timer.cancel();
-          }
-        });
-
-        await Future<dynamic>.delayed(const Duration(seconds: 4));
-
-        expect(cleanupCount, greaterThanOrEqualTo(3));
-      });
-
-      test('应该在 dispose 时清理所有资源', () {
+      test('dispose 清空全部待确认', () {
         ackManager.sendAck('C2C', 'msg_1', overrideDeviceId: 'test_device');
         ackManager.sendAck('C2G', 'msg_2', overrideDeviceId: 'test_device');
 
         expect(ackManager.pendingCount, 2);
 
-        // dispose
         ackManager.dispose();
 
-        // 验证已清理
         expect(ackManager.pendingCount, 0);
       });
     });
 
-    group('ACK 确认处理', () {
-      test('应该在收到确认时停止重试', () {
-        ackManager.sendAck(
-          'C2C',
-          'msg_confirmed',
-          overrideDeviceId: 'test_device',
+    group('ACK 确认与拒绝语义（M01：失败/拒绝不得推进成功）', () {
+      test('确认后移除待确认并发出 RTT 成功指标事件', () async {
+        final events = <AckRttMetricsUpdatedEvent>[];
+        final sub = AppEventBus.on<AckRttMetricsUpdatedEvent>().listen(
+          events.add,
         );
 
+        ackManager.sendAck('C2C', 'msg_confirmed', overrideDeviceId: 'dev');
         expect(ackManager.pendingAckList, contains('msg_confirmed'));
 
-        // 模拟收到确认
         ackManager.ackConfirmed('msg_confirmed');
+        await Future<void>.delayed(Duration.zero);
+        await sub.cancel();
 
+        expect(ackManager.pendingCount, 0);
         expect(ackManager.pendingAckList, isNot(contains('msg_confirmed')));
+        expect(events, hasLength(1));
+        expect(events.single.messageId, 'msg_confirmed');
+        expect(events.single.messageType, 'C2C');
+        expect(events.single.retryCount, 0);
+        expect(events.single.rttMs, greaterThanOrEqualTo(0));
+        expect(events.single.sampleCount, 1);
+        expect(events.single.p50Ms, greaterThanOrEqualTo(0));
+        expect(events.single.p99Ms, greaterThanOrEqualTo(0));
       });
 
-      test('应该处理确认超时', () async {
-        ackManager.sendAck(
-          'C2C',
-          'msg_timeout',
-          overrideDeviceId: 'test_device',
+      test('确认不存在的收据：状态不变且不产生成功指标', () async {
+        final events = <AckRttMetricsUpdatedEvent>[];
+        final sub = AppEventBus.on<AckRttMetricsUpdatedEvent>().listen(
+          events.add,
         );
 
-        // 等待超时
-        await Future<dynamic>.delayed(const Duration(milliseconds: 100));
+        ackManager.sendAck('C2C', 'msg_real', overrideDeviceId: 'dev');
+        ackManager.ackConfirmed('msg_unknown');
+        await Future<void>.delayed(Duration.zero);
+        await sub.cancel();
 
-        // 清理
+        expect(ackManager.pendingCount, 1);
+        expect(ackManager.pendingAckList, ['msg_real']);
+        expect(events, isEmpty);
+      });
+
+      test('拒绝（CLIENT_ACK_ERROR）停止重试且不记 RTT 成功指标', () async {
+        final events = <AckRttMetricsUpdatedEvent>[];
+        final sub = AppEventBus.on<AckRttMetricsUpdatedEvent>().listen(
+          events.add,
+        );
+
+        ackManager.sendAck('C2C', 'msg_rejected', overrideDeviceId: 'dev');
+        expect(ackManager.pendingCount, 1);
+
+        ackManager.ackRejected('msg_rejected', reason: 'invalid_receipt');
+        await Future<void>.delayed(Duration.zero);
+        await sub.cancel();
+
+        expect(ackManager.pendingCount, 0);
+        expect(ackManager.pendingAckList, isNot(contains('msg_rejected')));
+        expect(events, isEmpty, reason: '被拒绝的收据不得进入成功 RTT 统计');
+      });
+    });
+
+    group('ACK 超时清理边界（不得提前丢失重试义务）', () {
+      test('未过期（<30s）的待确认 ACK 在清理后必须原样保留', () async {
+        ackManager.sendAck('C2C', 'msg_fresh', overrideDeviceId: 'dev');
+
+        // 首次重试间隔 3s、过期阈值 30s：100ms 远未到期
+        await Future<void>.delayed(const Duration(milliseconds: 100));
         ackManager.cleanupExpired();
 
-        // 验证（实际测试需要调整超时时间）
-        expect(ackManager.pendingCount, greaterThanOrEqualTo(0));
+        expect(
+          ackManager.pendingCount,
+          1,
+          reason: '提前清理会让客户端丢失 CLIENT_ACK 重试义务',
+        );
+        expect(ackManager.pendingAckList, ['msg_fresh']);
       });
 
-      test('应该记录确认接收时间', () {
-        final confirmTimes = <String, int>{};
+      test('清理后再确认仍走完整移除路径', () async {
+        ackManager.sendAck('C2C', 'msg_keep', overrideDeviceId: 'dev');
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        ackManager.cleanupExpired();
+        expect(ackManager.pendingCount, 1);
 
-        // 模拟确认接收
-        confirmTimes['msg_1'] = DateTime.now().millisecondsSinceEpoch;
-
-        expect(confirmTimes['msg_1'], isNotNull);
-        expect(confirmTimes['msg_1']!, greaterThan(0));
-      });
-    });
-
-    group('ACK 性能优化', () {
-      test('应该批量发送 ACK', () {
-        final ackBatch = <String>[];
-
-        // 模拟批量发送
-        for (int i = 0; i < 10; i++) {
-          ackBatch.add('msg_$i');
-        }
-
-        // 批量发送
-        expect(ackBatch.length, 10);
-      });
-
-      test('应该限制批量发送大小', () {
-        const maxBatchSize = 50;
-        final ackBatch = <String>[];
-
-        for (int i = 0; i < 100; i++) {
-          if (ackBatch.length < maxBatchSize) {
-            ackBatch.add('msg_$i');
-          }
-        }
-
-        expect(ackBatch.length, maxBatchSize);
-      });
-
-      test('应该记录 ACK 发送性能指标', () {
-        final metrics = {
-          'total_sent': 100,
-          'total_confirmed': 95,
-          'total_timeout': 5,
-          'avg_latency_ms': 150,
-        };
-
-        expect(metrics['total_sent'], 100);
-        expect(metrics['total_confirmed'], 95);
-        expect(metrics['avg_latency_ms'], 150);
+        ackManager.ackConfirmed('msg_keep');
+        expect(ackManager.pendingCount, 0);
       });
     });
 
-    group('ACK 错误处理', () {
-      test('应该处理发送失败', () {
-        var sendFailed = false;
-
-        // 模拟发送失败
-        try {
-          throw Exception('Send failed');
-        } catch (e) {
-          sendFailed = true;
-        }
-
-        expect(sendFailed, true);
+    group('重试策略契约与命中上限事件（M02：不超过配置重试次数）', () {
+      test('ackConfirmIntervalAt 边界：负数取首档、越界钳制到末档', () {
+        expect(RetryPolicy.ackConfirmIntervalAt(-1), 3000);
+        expect(RetryPolicy.ackConfirmIntervalAt(0), 3000);
+        expect(RetryPolicy.ackConfirmIntervalAt(1), 5000);
+        expect(RetryPolicy.ackConfirmIntervalAt(2), 10000);
+        expect(RetryPolicy.ackConfirmIntervalAt(3), 15000);
+        expect(RetryPolicy.ackConfirmIntervalAt(4), 15000);
+        expect(RetryPolicy.ackConfirmIntervalAt(99), 15000);
       });
 
-      test('应该记录失败次数', () {
-        final failureCounts = <String, int>{};
-
-        // 模拟失败
-        failureCounts['msg_1'] = (failureCounts['msg_1'] ?? 0) + 1;
-        failureCounts['msg_1'] = (failureCounts['msg_1'] ?? 0) + 1;
-
-        expect(failureCounts['msg_1'], 2);
+      test('最大重试次数与间隔档数一致（单一真值契约）', () {
+        expect(RetryPolicy.maxRetryAttempts, 4);
+        expect(
+          RetryPolicy.ackConfirmRetryIntervals.length,
+          RetryPolicy.maxRetryAttempts,
+          reason: '间隔档数与最大重试次数必须同源一致',
+        );
       });
 
-      test('应该在多次失败后放弃重试', () {
-        const maxFailures = 3;
-        var failureCount = 0;
-        var shouldGiveUp = false;
+      test('重试命中上限事件携带完整告警字段且可重复观测', () async {
+        final events = <AckRetryCeilingReachedEvent>[];
+        final sub = AppEventBus.on<AckRetryCeilingReachedEvent>().listen(
+          events.add,
+        );
 
-        // 模拟多次失败
-        for (int i = 0; i < 5; i++) {
-          if (failureCount < maxFailures) {
-            failureCount++;
-          } else {
-            shouldGiveUp = true;
-            break;
-          }
-        }
+        ackManager.debugMarkRetryCeilingReached(messageId: 'msg_ceiling_1');
+        ackManager.debugMarkRetryCeilingReached(
+          messageId: 'msg_ceiling_2',
+          messageType: 'C2G',
+        );
+        await Future<void>.delayed(Duration.zero);
+        await sub.cancel();
 
-        expect(shouldGiveUp, true);
-        expect(failureCount, maxFailures);
-      });
-    });
-
-    group('ACK 网络状态感知', () {
-      test('应该在网络恢复时重发待确认 ACK', () {
-        final pendingAcks = ['msg_1', 'msg_2', 'msg_3'];
-        var resendCount = 0;
-
-        // 模拟网络恢复
-        for (final _ in pendingAcks) {
-          resendCount++;
-        }
-
-        expect(resendCount, pendingAcks.length);
-      });
-
-      test('应该在网络断开时暂停重试', () {
-        var isPaused = false;
-        var isNetworkDown = true;
-
-        // 模拟网络断开
-        if (isNetworkDown) {
-          isPaused = true;
-        }
-
-        expect(isPaused, true);
-      });
-
-      test('应该记录网络状态变化', () {
-        final networkEvents = <String>[];
-
-        // 模拟网络状态变化
-        networkEvents.add('connected');
-        networkEvents.add('disconnected');
-        networkEvents.add('connected');
-
-        expect(networkEvents.length, 3);
-        expect(networkEvents.last, 'connected');
+        expect(events, hasLength(2));
+        final first = events.first;
+        expect(first.messageId, 'msg_ceiling_1');
+        expect(first.messageType, 'C2C');
+        expect(first.retryCount, RetryPolicy.maxRetryAttempts);
+        expect(first.maxRetryCount, RetryPolicy.maxRetryAttempts);
+        expect(first.occurredAtMs, greaterThan(0));
+        expect(first.pendingCount, greaterThanOrEqualTo(0));
+        expect(events.last.messageType, 'C2G');
       });
     });
   });
