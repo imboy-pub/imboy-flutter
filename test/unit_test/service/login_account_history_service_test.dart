@@ -54,25 +54,39 @@ void main() {
     expect(history.ownsLastSession(bob), isFalse);
   });
 
-  test(
-    'same uid in another deployment prevents deleting shared storage',
-    () async {
-      await remember('1001', 'alice');
-      final alice = resolve('alice');
-      expect(() => history.requireIndependentStorage(alice), returnsNormally);
-      await remember('1001', 'alice-dev', environment: 'dev');
-      expect(
-        () => history.requireIndependentStorage(alice),
-        throwsA(isA<LoginAccountSharedDataException>()),
-      );
-      expect(
-        () => history.requireIndependentStorage(
-          resolve('alice-dev', environment: 'dev'),
-        ),
-        throwsA(isA<LoginAccountSharedDataException>()),
-      );
-    },
-  );
+  for (final deployment in [
+    (environment: 'dev', endpoint: endpoint),
+    (environment: 'pro', endpoint: 'https://another.test/api'),
+  ]) {
+    test(
+      'same uid in ${deployment.environment} at ${deployment.endpoint} prevents deleting shared storage',
+      () async {
+        await remember('1001', 'alice');
+        final alice = resolve('alice');
+        expect(() => history.requireIndependentStorage(alice), returnsNormally);
+        await remember(
+          '1001',
+          'alice-other',
+          environment: deployment.environment,
+          api: deployment.endpoint,
+        );
+        expect(
+          () => history.requireIndependentStorage(alice),
+          throwsA(isA<LoginAccountSharedDataException>()),
+        );
+        expect(
+          () => history.requireIndependentStorage(
+            resolve(
+              'alice-other',
+              environment: deployment.environment,
+              api: deployment.endpoint,
+            ),
+          ),
+          throwsA(isA<LoginAccountSharedDataException>()),
+        );
+      },
+    );
+  }
 
   test(
     'interrupted history cleanup retains its retry entry across new logins',

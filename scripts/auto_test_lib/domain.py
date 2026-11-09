@@ -511,12 +511,13 @@ CAPABILITY_SPECS: list[dict] = [
     # ---- 补充：manifest 启用 feature 的 capability 映射 ----
     # rtc 只开放一对一通话；群通话由独立的 rtc_group 产品开关控制。
     dict(capability_id='rtc.c2c_call', feature_key='rtc', domain='rtc', min_level='A',
-         positive='双端一对一音视频呼叫、接听、媒体与挂断闭环',
-         negative='非好友/黑名单拒绝；拒接、超时与迟到信令不误建媒体房或影响其他通话',
-         recovery='结束或连接失败后释放媒体与信令，后续通话按独立 msgId 处理',
+         positive='双端一对一音视频呼叫、接听/拒接、双向媒体与挂断闭环',
+         negative='非好友/黑名单/越权 join 被拒；拒接、超时与迟到信令不误建媒体房或影响其他通话；rtc_group 按批准矩阵锁定',
+         recovery='结束或连接失败后释放媒体与信令，重复呼叫幂等，后续通话按独立 msgId 处理',
          app_globs=['test/unit_test/page/chat/p2p_call_livekit_test.dart',
                     'test/unit_test/page/chat/p2p_call_preview_test.dart',
                     'test/unit_test/page/chat/p2p_call_floating_test.dart',
+                    'test/unit_test/widget/incoming_call_view_test.dart',
                     'test/unit_test/rtc/rtc_strict_gate_test.dart',
                     'test/unit_test/rtc/rtc_relay_stats_judge_test.dart',
                     'test/unit_test/page/chat/p2p_call_state_machine_test.dart',
@@ -529,8 +530,9 @@ CAPABILITY_SPECS: list[dict] = [
          backend_globs=['test/api/rtc_room_handler_tests.erl',
                         'test/logic/rtc_room_logic_tests.erl',
                         'test/logic/webrtc_ws_logic_tests.erl'],
-         fixture='iso:orgA_owner+orgA_member',
-         requirements=['device.android', 'backend.local', 'livekit', 'fixture.disposable_account']),
+         # fixtures_contract 将两个设备分别绑定到 orgA_owner / orgA_member。
+         fixture='iso:user_device_a+user_device_b',
+         requirements=['device.android', 'device.macos', 'backend.local', 'livekit', 'fixture.disposable_account']),
     dict(capability_id='location.share', feature_key='location', domain='location', min_level='B',
          positive='位置分享 API/组件合同（消息位置构建）', negative='未授权定位请求被拒',
          recovery='定位失败降级不发半成品消息',
@@ -549,21 +551,7 @@ CAPABILITY_SPECS: list[dict] = [
                         'test/logic/ai_agent_group_reply_tests.erl',
                         'test/ds/channel_webhook_ds_tests.erl'],
          fixture='shared:readonly', requirements=['backend.local']),
-    # ---- RTC（4；phase1_delivery 批准矩阵：c2c 一对一开放 / rtc_group 锁定）----
-    dict(capability_id='rtc.c2c_call', feature_key='rtc', domain='rtc', min_level='A',
-         positive='一对一音视频呼叫：双端真实 accept/decline、双向媒体与终态释放',
-         negative='非好友/越权 join 被拒；rtc_group 房间按批准矩阵锁定返回功能未启用',
-         recovery='挂断/取消后房间与页面资源释放，重复呼叫幂等',
-         app_globs=['integration_test/rtc/c2c_call_matrix_a_side_test.dart',
-                    'integration_test/rtc/c2c_call_matrix_b_side_test.dart',
-                    'test/unit_test/page/chat/p2p_call_livekit_test.dart',
-                    'test/unit_test/page/chat/p2p_call_preview_test.dart',
-                    'test/unit_test/page/chat/p2p_call_floating_test.dart',
-                    'test/unit_test/widget/incoming_call_view_test.dart'],
-         backend_globs=['test/api/rtc_room_handler_tests.erl',
-                        'test/logic/rtc_room_logic_tests.erl'],
-         fixture='iso:user_device_a+user_device_b',
-         requirements=['device.android', 'device.macos', 'backend.local', 'fixture.disposable_account']),
+    # ---- RTC 补充（3；phase1_delivery 批准矩阵：c2c 一对一开放 / rtc_group 锁定）----
     dict(capability_id='rtc.signaling_negative', feature_key='rtc', domain='rtc', min_level='B',
          positive='invite/accept/bye 信令按 msgId 收敛，双方终态一致',
          negative='重复 accept/晚到 answer/幽灵 bye/迟到 busy 不破坏状态机',
@@ -762,6 +750,8 @@ def validate_domain(root: Path, matrix: dict) -> list[str]:
     ids = set()
     for cap in matrix.get('capabilities', []):
         cid = cap.get('capability_id', '?')
+        if cid in ids:
+            errors.append(f'matrix capability_id 重复: {cid}')
         ids.add(cid)
         if not cap.get('app_targets') and not cap.get('blocked_code'):
             errors.append(f'capability 缺 app target 且未 BLOCKED 标注: {cid}')

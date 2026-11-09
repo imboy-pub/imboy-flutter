@@ -309,6 +309,93 @@ void main() {
     },
   );
 
+  test('partial database removal retains history for retry without changing B data', () async {
+    final selectedDatabase = await createFile(
+      'databases/${currentEnv}_$selectedUid.db',
+    );
+    // A non-empty directory at the journal path makes the real filesystem
+    // deletion fail after A's key and main database have already been removed.
+    final obstruction = await createFile(
+      'databases/${currentEnv}_$selectedUid.db-journal/obstruction',
+    );
+    AccountLocalTaskOwner owner(String uid) => AccountLocalTaskOwner(
+      uid: uid,
+      environment: currentEnv,
+      endpoint: Env().apiBaseUrl,
+    );
+    String attachmentPath(String uid) => p.join(
+      AccountLocalFiles.folderFor('temporary', owner(uid)),
+      'attachment.bin',
+    );
+    final selectedAttachment = await createFile(attachmentPath(selectedUid));
+    final preserved = <File, String>{};
+    for (final relative in [
+      'databases/${currentEnv}_$otherUid.db',
+      'databases/${currentEnv}_$otherUid.db-wal',
+      attachmentPath(otherUid),
+    ]) {
+      final file = await createFile(relative);
+      final contents = 'retained B data: $relative';
+      await file.writeAsString(contents);
+      preserved[file] = contents;
+    }
+    final retainedProfile = StorageService.getMap(Keys.currentUser);
+    final retainedSecrets = Map<String, String>.of(secure)
+      ..remove('db_cipher_key_$selectedUid');
+    Future<void> expectOtherAccountIntact() async {
+      expect(secure, retainedSecrets);
+      for (final entry in preserved.entries) {
+        expect(await entry.key.readAsString(), entry.value);
+      }
+      expect(StorageService.getMap(Keys.currentUser), retainedProfile);
+      expect(
+        StorageService.to.getString('draft_v2:$otherUid:C2C:peer'),
+        'retained draft',
+      );
+    }
+
+    await expectLater(
+      repo.clearHistoricalAccountData(selectedAccount),
+      throwsA(isA<FileSystemException>()),
+    );
+    expect(await selectedDatabase.exists(), isFalse);
+    expect(await selectedAttachment.exists(), isTrue);
+    expect(await obstruction.exists(), isTrue);
+    expect(repo.isAuthTransitioning, isFalse);
+    expect(history.readHistory(Keys.loginHistoryAccount), [
+      selectedAccount,
+      otherAccount,
+    ]);
+    await expectOtherAccountIntact();
+
+    // Reload persisted preferences and resolve the same identity afresh; retry
+    // must continue past the already-removed key and database.
+    await (await SharedPreferences.getInstance()).reload();
+    final restartedHistory = LoginAccountHistoryService();
+    expect(
+      restartedHistory
+          .resolve(
+            value: selectedAccount,
+            environment: currentEnv,
+            endpoint: Env().apiBaseUrl,
+          )
+          .uid,
+      selectedUid,
+    );
+    await obstruction.delete();
+    await repo.clearHistoricalAccountData(selectedAccount);
+    expect(await obstruction.parent.exists(), isFalse);
+    expect(await selectedAttachment.exists(), isFalse);
+    expect(restartedHistory.readHistory(Keys.loginHistoryAccount), [
+      otherAccount,
+    ]);
+    expect(
+      StorageService.to.getString('draft_v2:$selectedUid:C2C:peer'),
+      isEmpty,
+    );
+    await expectOtherAccountIntact();
+  });
+
   for (final stage in ['token', 'refresh', 'profile', 'uid']) {
     test('a failed $stage commit does not publish login history', () async {
       await StorageService.to.setList(Keys.loginHistory, [otherAccount]);
