@@ -326,7 +326,7 @@ class _PausedEditTransaction implements Transaction {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
+  setUp(UserRepoLocal.to.clearAuthTransitionFailureForTest);
   for (final failConversation in [false, true]) {
     test('peer revoke commits atomically, conversation failure=$failConversation', () async {
       SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});

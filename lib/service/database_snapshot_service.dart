@@ -79,7 +79,9 @@ class RestoreResult {
   final int? userVersion;
   final String? error;
 
-  /// 恢复失败时原库是否被保留（必须为 true——失败绝不允许动原库）。
+  /// 恢复失败时原库及 sidecar 是否完整保留或还原到原路径。
+  /// false 表示未能完整还原到原路径；error 指明仍保留恢复文件的目录。
+  /// 原件可能分布在该目录与原路径，恢复前不得清理。
   final bool preservedOriginal;
 }
 
@@ -252,9 +254,10 @@ class DatabaseSnapshotService {
   /// 契约（计划 Step 6）：调用方必须先关闭主库的**全部**连接（注入
   /// [closeAllConnections]）；本方法：
   ///   1) 先验证快照本身可用（打开 + quick_check + 版本）；
-  ///   2) 移走旧主库（.bak，含 -wal/-shm/journal sidecar 一并清理）；
-  ///   3) 复制快照到主库位置（保留快照原件）；
-  ///   4) 重开验证（quick_check + 版本）；失败则回滚：删半成品、还原 .bak。
+  ///   2) 在同目录创建并验证快照副本（保留快照原件）；
+  ///   3) 暂存旧主库及全部 sidecar，再将副本落位；
+  ///   4) 重开验证（quick_check + 版本）；失败则还原完整原库文件集。
+  /// 多文件移动不能抵御任意进程中断；回滚失败时保留暂存目录供恢复。
   Future<RestoreResult> restoreFromSnapshot({
     required String snapshotPath,
     required String targetPath,
@@ -294,67 +297,111 @@ class DatabaseSnapshotService {
       return RestoreResult.failure('snapshot unusable: $e');
     }
 
-    await closeAllConnections();
-
-    final bakPath = '$targetPath.pre_restore.bak';
-    final halfDone = '$targetPath.restoring.tmp';
-    await _tryDelete(halfDone);
-    await _tryDelete('$halfDone-wal');
-    await _tryDelete('$halfDone-shm');
-
+    const suffixes = ['', '-wal', '-shm', '-journal'];
+    Directory? recoveryDir;
+    String? backupPath;
+    final movedSuffixes = <String>[];
+    var promoted = false;
+    late final int restoredVersion;
     try {
+      await closeAllConnections();
+
+      // 独立同目录暂存区避免覆盖上次未完成恢复留下的原件。
+      recoveryDir = await Directory(p.dirname(targetPath))
+          .createTemp('${p.basename(targetPath)}.restore.');
+      backupPath = p.join(recoveryDir.path, 'original.db');
+      final halfDone = p.join(recoveryDir.path, 'replacement.db');
+
       // 2) 快照复制到临时位置（不直接写主库路径，失败不伤原库）
       await snapFile.copy(halfDone);
 
       // 3) 重开临时副本验证（确保复制过程无 I/O 损坏）
       final verify = await open(halfDone, password);
-      final quick = await verify.rawQuery('PRAGMA quick_check');
-      await verify.close();
-
-      if (quick.first.values.first != 'ok') {
-        throw Exception('copied snapshot quick_check failed');
+      try {
+        final quick = await verify.rawQuery('PRAGMA quick_check');
+        if (quick.first.values.first != 'ok') {
+          throw Exception('copied snapshot quick_check failed');
+        }
+      } finally {
+        await verify.close();
       }
 
-      // 4) 原子替换：旧库 → .bak；副本 → 主库
-      await _tryDelete('$bakPath-wal');
-      await _tryDelete('$bakPath-shm');
-      if (await File(targetPath).exists()) {
-        await File(targetPath).rename(bakPath);
+      // 4) 关连接不代表 WAL 已 checkpoint（例如上次进程异常退出）。
+      // 在最终验证成功前保留完整原件，任一步移动失败都进入同一回滚路径。
+      for (final suffix in suffixes) {
+        final original = File('$targetPath$suffix');
+        if (await original.exists()) {
+          await original.rename('$backupPath$suffix');
+          movedSuffixes.add(suffix);
+        }
       }
-      // 清理旧 sidecar（旧 wal/shm 对新主库无效且有害）
-      await _tryDelete('$targetPath-wal');
-      await _tryDelete('$targetPath-shm');
-      await _tryDelete('$targetPath-journal');
       await File(halfDone).rename(targetPath);
+      promoted = true;
 
       // 5) 最终重开验证；失败回滚
+      final finalProbe = await open(targetPath, password);
       try {
-        final finalProbe = await open(targetPath, password);
         final fQuick = await finalProbe.rawQuery('PRAGMA quick_check');
-        final fUv =
+        restoredVersion =
             (await finalProbe.rawQuery('PRAGMA user_version'))
                     .first
                     .values
                     .first
                 as int;
-        await finalProbe.close();
         if (fQuick.first.values.first != 'ok') {
           throw Exception('restored database quick_check failed');
         }
-        return RestoreResult.ok(targetPath, fUv);
-      } catch (e) {
-        await _tryDelete(targetPath);
-        if (await File(bakPath).exists()) {
-          await File(bakPath).rename(targetPath);
+        if (expectedVersion != null && restoredVersion != expectedVersion) {
+          throw Exception(
+            'restored database version $restoredVersion != expected $expectedVersion',
+          );
         }
-        return RestoreResult.failure('post-restore verify failed: $e');
+      } finally {
+        await finalProbe.close();
       }
     } catch (e) {
-      await _tryDelete(halfDone);
+      final rollbackErrors = <Object>[];
+      if (promoted) {
+        for (final suffix in suffixes) {
+          try {
+            final replacement = File('$targetPath$suffix');
+            if (await replacement.exists()) await replacement.delete();
+          } catch (rollbackError) {
+            rollbackErrors.add(rollbackError);
+          }
+        }
+      }
+      for (final suffix in movedSuffixes.reversed) {
+        try {
+          await File('$backupPath$suffix').rename('$targetPath$suffix');
+        } catch (rollbackError) {
+          rollbackErrors.add(rollbackError);
+        }
+      }
+      if (rollbackErrors.isNotEmpty) {
+        return RestoreResult.failure(
+          'restore failed: $e; rollback incomplete: $rollbackErrors; '
+          'retain recovery files at ${recoveryDir!.path}',
+          preservedOriginal: false,
+        );
+      }
+      Object? cleanupError;
+      try {
+        await recoveryDir?.delete(recursive: true);
+      } catch (error) {
+        cleanupError = error;
+      }
       return RestoreResult.failure(
-        'restore aborted, original preserved at $targetPath: $e',
+        'restore aborted, original preserved at $targetPath: $e'
+        '${cleanupError == null ? '' : '; temporary cleanup failed: $cleanupError'}',
       );
     }
+
+    // 目标已验证成功；旧备份清理失败只留下额外副本，不再触发回滚。
+    try {
+      await recoveryDir.delete(recursive: true);
+    } catch (_) {}
+    return RestoreResult.ok(targetPath, restoredVersion);
   }
 
   /// 列出某 env+uid 的快照（新→旧）。

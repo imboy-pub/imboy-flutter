@@ -82,7 +82,8 @@ class DatabaseMigrationOrchestrator {
 
   /// 打开前预检 + 一致性快照。
   ///
-  /// [unsyncedOutboxProbe]：返回未同步 outbox 描述清单（空=无阻塞）。
+  /// [unsyncedOutboxProbe]：在预检连接上读取 outbox（空=无阻塞），
+  /// 不得递归获取尚在初始化中的业务连接。
   /// 降级场景存在未同步 outbox 时禁止迁移（防未同步数据丢失）；
   /// 升级场景不阻塞（升级不删数据）。
   Future<PreMigrationDecision> prepareForOpen({
@@ -93,7 +94,7 @@ class DatabaseMigrationOrchestrator {
     required int targetVersion,
     String? password,
     DatabaseOpener? opener,
-    Future<List<String>> Function()? unsyncedOutboxProbe,
+    Future<List<String>> Function(sq.DatabaseExecutor)? unsyncedOutboxProbe,
   }) async {
     final open = opener ?? DatabaseSnapshotService.defaultOpener;
 
@@ -120,33 +121,35 @@ class DatabaseMigrationOrchestrator {
             'or database unreadable (corrupt / wrong key)',
       );
     }
-    final versionRows = await preflight.rawQuery('PRAGMA user_version');
-    final currentVersion = versionRows.first.values.first as int;
+    late final int currentVersion;
+    try {
+      final versionRows = await preflight.rawQuery('PRAGMA user_version');
+      currentVersion = versionRows.first.values.first as int;
 
-    if (currentVersion == targetVersion) {
-      await preflight.close();
-      return PreMigrationDecision._(
-        proceed: true,
-        migrationNeeded: false,
-        currentVersion: currentVersion,
-      );
-    }
-
-    // 需要迁移（升或降）。降级 + 未同步 outbox → 阻塞
-    final isDowngrade = currentVersion > targetVersion;
-    if (isDowngrade && unsyncedOutboxProbe != null) {
-      final blockers = await unsyncedOutboxProbe();
-      if (blockers.isNotEmpty) {
-        await preflight.close();
+      if (currentVersion == targetVersion) {
         return PreMigrationDecision._(
-          proceed: false,
+          proceed: true,
+          migrationNeeded: false,
           currentVersion: currentVersion,
-          abortReason: 'downgrade blocked: unsynced outbox present',
-          blockers: blockers,
         );
       }
+
+      // 需要迁移（升或降）。降级 + 未同步 outbox → 阻塞
+      final isDowngrade = currentVersion > targetVersion;
+      if (isDowngrade && unsyncedOutboxProbe != null) {
+        final blockers = await unsyncedOutboxProbe(preflight);
+        if (blockers.isNotEmpty) {
+          return PreMigrationDecision._(
+            proceed: false,
+            currentVersion: currentVersion,
+            abortReason: 'downgrade blocked: unsynced outbox present',
+            blockers: blockers,
+          );
+        }
+      }
+    } finally {
+      await preflight.close();
     }
-    await preflight.close();
 
     // 事务外一致性快照（fail-closed：失败不迁移）
     final snap = await _snapshots.createSnapshot(
@@ -276,21 +279,24 @@ class DatabaseMigrationOrchestrator {
     String? password,
     required DatabaseOpener opener,
   }) async {
+    sq.Database? db;
+    var transferOwnership = false;
     try {
-      final db = await opener(dbPath, password);
+      db = await opener(dbPath, password);
       final quick = await db.rawQuery('PRAGMA quick_check');
       if (quick.first.values.first != 'ok') {
-        await db.close();
         return null;
       }
       final fk = await db.rawQuery('PRAGMA foreign_key_check');
       if (fk.isNotEmpty) {
-        await db.close();
         return null;
       }
+      transferOwnership = true;
       return db;
     } catch (_) {
       return null; // 打不开（密钥错/损坏）= fail-closed
+    } finally {
+      if (!transferOwnership) await db?.close();
     }
   }
 }

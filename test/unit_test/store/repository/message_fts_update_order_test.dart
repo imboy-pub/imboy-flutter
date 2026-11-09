@@ -138,6 +138,7 @@ class _PausedReadDatabase implements Database {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(UserRepoLocal.to.clearAuthTransitionFailureForTest);
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   for (final type in ['C2C', 'C2G']) {
     test('FTS $type delayed old read cannot overwrite newer update', () async {

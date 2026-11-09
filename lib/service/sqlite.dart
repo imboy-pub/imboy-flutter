@@ -12,6 +12,7 @@ import 'package:synchronized/synchronized.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/service/app_logger.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/cached_sqlite_service.dart';
 import 'package:imboy/service/database_migration_orchestrator.dart';
@@ -22,6 +23,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 part 'sqlite_scalar_query.dart';
 part 'sqlite_connection_config.dart';
+part 'sqlite_lifecycle.dart';
 
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// SQLite 本地数据库服务
@@ -61,6 +63,8 @@ class SqliteService {
   static final SqliteService to = SqliteService._privateConstructor();
 
   static Database? _db;
+  static bool _dbInjectedForTest = false;
+  static bool _dbNeedsClose = false;
 
   /// 测试哨兵：true 时 [db] 一律返回 null（见 setDbUnavailableForTest）。
   static bool _dbUnavailableForTest = false;
@@ -69,6 +73,18 @@ class SqliteService {
   /// 用于跨账号隔离：uid 漂移时强制关旧重开，防复用旧账号加密库（E2EE-015 纵深防御）。
   static String _openUid = '';
   static String _openEnv = '';
+  static Future<Database?> Function(String, String, int)? _initializerForTest;
+
+  /// Delayed synthetic initializers exercise lifecycle ordering without a device.
+  @visibleForTesting
+  static void setInitializerForTest(
+    Future<Database?> Function(String uid, String environment, int generation)?
+    initializer,
+  ) {
+    _initializerForTest = initializer;
+    to._initRetryAfter = null;
+    to._initRetryScope = null;
+  }
 
   /// 【测试】注入外部打开的 Database（如 sqflite_common_ffi 内存库）。
   /// 生产路径 sqflite_sqlcipher 在宿主机测试环境无插件实现，
@@ -77,6 +93,8 @@ class SqliteService {
   static void setDbForTest(Database? db) {
     _dbUnavailableForTest = false;
     _db = db;
+    _dbInjectedForTest = db != null;
+    _dbNeedsClose = false;
     _openUid = UserRepoLocal.to.currentUid;
     _openEnv = currentEnv;
   }
@@ -89,6 +107,8 @@ class SqliteService {
   static void setDbUnavailableForTest() {
     _dbUnavailableForTest = true;
     _db = null;
+    _dbInjectedForTest = false;
+    _dbNeedsClose = false;
     _openUid = '';
     _openEnv = '';
   }
@@ -114,6 +134,7 @@ class SqliteService {
   // _initDatabase() 失败时的冷却截止时间。避免同一持续性错误（如资源缺失、
   // 密钥服务异常）在短时间内被每一次 db 访问反复重试，刷屏日志。
   DateTime? _initRetryAfter;
+  _SqliteSessionScope? _initRetryScope;
   static const _initFailureCooldown = Duration(seconds: 5);
 
   // db getter 最近一次返回 null 的原因（冷却中 / uid 未就绪 / 错钥 / 打开失败等）。
@@ -123,77 +144,11 @@ class SqliteService {
 
   /// 获取数据库连接实例
   /// Get the database connection instance
-  Future<Database?> get db async {
-    if (_dbUnavailableForTest) {
-      _lastDbNullReason = '测试注入：数据库不可用';
-      return null;
-    }
-    // 仅当缓存句柄仍处于打开状态才复用。迁移回滚等路径可能在 SqliteService
-    // 之外关闭底层 Database（见 migration_service._restoreFromSnapshot）却未重置
-    // _db，旧逻辑会派发已关闭句柄导致 database_closed 刷屏。此处改为按 isOpen
-    // 判断并自动重开。
-    // 跨账号隔离：仅当 uid 与打开句柄一致时才复用；漂移则关旧句柄后重开，
-    // 防 logout 未 close（如 purge 失败旁路）导致新账号写进旧账号加密库。
-    final currentUid = UserRepoLocal.to.currentUid;
-    final cached = _db;
-    if (cached != null && cached.isOpen && _openEnv != currentEnv) {
-      _lastDbNullReason = '数据库句柄环境与当前环境不一致';
-      return null;
-    }
-    if (cached != null && cached.isOpen && _openUid == currentUid) {
-      return cached;
-    }
-    if (cached != null && _openUid != currentUid) {
-      await close();
-    }
-
-    // 上次初始化刚失败且仍在冷却期内，直接返回 null，不再重试
-    final retryAfter = _initRetryAfter;
-    if (retryAfter != null && DateTime.now().isBefore(retryAfter)) {
-      _lastDbNullReason = 'init 失败冷却中（至 $retryAfter）';
-      return null;
-    }
-
-    return await _initLock.synchronized(() async {
-      if (UserRepoLocal.to.currentUid != currentUid) {
-        _lastDbNullReason = '等待数据库初始化期间账号发生变化';
-        return null;
-      }
-      // 双重检查：可能已被其它等待者重开
-      final c = _db;
-      if (c != null && c.isOpen && _openEnv != currentEnv) {
-        _lastDbNullReason = '数据库句柄环境与当前环境不一致';
-        return null;
-      }
-      if (c != null && c.isOpen && _openUid == currentUid) return c;
-      final environment = currentEnv;
-      final result = await _initDatabase();
-      if (currentEnv != environment ||
-          UserRepoLocal.to.currentUid != currentUid) {
-        await result?.close();
-        _lastDbNullReason = '数据库初始化期间环境或账号发生变化';
-        return null;
-      }
-      _db = result;
-      _openUid = result == null ? '' : currentUid;
-      _openEnv = result == null ? '' : environment;
-      _initRetryAfter = result == null
-          ? DateTime.now().add(_initFailureCooldown)
-          : null;
-      return result;
-    });
-  }
+  Future<Database?> get db => _databaseForCurrentSession();
 
   /// 关闭数据库连接
   /// Close the database connection
-  Future<void> close() async {
-    if (_db != null) {
-      await _db!.close();
-      _db = null;
-      _openUid = '';
-      _openEnv = '';
-    }
-  }
+  Future<void> close() => _initLock.synchronized(_closeCachedDatabase);
 
   /// 等待数据库就绪（最多 [timeout]），返回是否就绪。
   ///
@@ -239,10 +194,8 @@ class SqliteService {
       throw ArgumentError.value(uid, 'uid', 'must be a filename component');
     }
 
-    final path = join(
-      await getDatabasesPath(),
-      databaseNameForUid(normalizedUid),
-    );
+    final name = databaseNameForUid(normalizedUid);
+    final path = join(await getDatabasesPath(), name);
     for (final suffix in const ['', '-wal', '-shm', '-journal']) {
       final file = File('$path$suffix');
       if (await file.exists()) {
@@ -254,33 +207,19 @@ class SqliteService {
 
   /// 构建数据库文件路径
   /// Build the database file path
-  Future<String> dbPath() async {
-    String name = databaseNameForUid(UserRepoLocal.to.currentUid);
-    iPrint(
-      "Database path: currentEnv=$currentEnv, uid=${UserRepoLocal.to.currentUid}, dbName=$name",
-    );
+  Future<String> dbPath() => _databasePathForScope(_captureSqliteScope());
 
-    // Web 平台使用相对路径
-    if (kIsWeb) {
-      return name;
-    }
-
-    // 移动端/桌面端使用完整路径
-    return join(await getDatabasesPath(), name);
-  }
-
-  Future<Database?> _initDatabase() async {
-    if (UserRepoLocal.to.currentUid.isEmpty) {
-      _lastDbNullReason = 'currentUid 为空（未登录或登录态尚未就绪）';
-      return null;
-    }
+  Future<Database?> _initDatabase(_SqliteSessionScope scope) async {
+    if (!_isCurrentSqliteScope(scope)) return null;
 
     // 👇 初始化 SQLite 数据库工厂（Web/桌面平台需要）
     // 条件导入会自动选择正确的实现
     initSqfliteFactory();
 
-    String path = await dbPath();
+    final path = await _databasePathForScope(scope);
+    if (!_isCurrentSqliteScope(scope)) return null;
     bool exists = await databaseExists(path);
+    if (!_isCurrentSqliteScope(scope)) return null;
 
     if (!exists) {
       iPrint("Creating new database");
@@ -293,6 +232,7 @@ class SqliteService {
           AppLogger.error('[sqlite] Directory creation error', e, s);
           rethrow;
         }
+        if (!_isCurrentSqliteScope(scope)) return null;
 
         // 加密平台不复制明文模板：
         // SQLCipher 创建数据库时会自动加密，onCreate 回调负责建表。
@@ -302,6 +242,7 @@ class SqliteService {
           ByteData data = await rootBundle.load(
             url.join("assets", "example10.db"),
           );
+          if (!_isCurrentSqliteScope(scope)) return null;
           List<int> bytes = data.buffer.asUint8List(
             data.offsetInBytes,
             data.lengthInBytes,
@@ -314,13 +255,15 @@ class SqliteService {
     }
 
     // 获取加密密钥（支持加密的平台才启用）
+    if (!_isCurrentSqliteScope(scope)) return null;
     String? password;
-    final uid = UserRepoLocal.to.currentUid;
+    final uid = scope.session.uid;
     if (isEncryptionSupported) {
       password = await DbEncryptionKeyService.getOrCreateKey(
         uid,
         allowCreate: !exists,
       );
+      if (!_isCurrentSqliteScope(scope)) return null;
 
       if (exists && !await _verifyEncryptedDatabase(path, password)) {
         // 验证失败保留原件，禁止无密码重试或重建用户数据。
@@ -332,12 +275,14 @@ class SqliteService {
     // 【WP5】打开前协调：预检（quick/fk check）+ 若需要版本迁移则在
     // 迁移事务外创建一致性快照（VACUUM INTO，WAL 安全）。任何失败都
     // fail-closed（返回 null 走现有降级处理），绝不跳过快照直接迁移。
+    if (!_isCurrentSqliteScope(scope)) return null;
     if (!kIsWeb) {
       final baseDir = (await getApplicationSupportDirectory()).path;
+      if (!_isCurrentSqliteScope(scope)) return null;
       final decision = await DatabaseMigrationOrchestrator.to.prepareForOpen(
         dbPath: path,
         baseDir: baseDir,
-        env: currentEnv,
+        env: scope.environment,
         uid: uid,
         targetVersion: _dbVersion,
         password: password,
@@ -357,16 +302,25 @@ class SqliteService {
       }
     }
 
+    if (!_isCurrentSqliteScope(scope)) return null;
     try {
       return await openEncryptedDatabase(
         path,
         password: password,
         version: _dbVersion,
-        onConfigure: configureConnection,
-        onCreate: _onCreate,
-        onUpgrade: _onUpgrade,
-        onDowngrade: _onDowngrade,
-        onOpen: _onOpen,
+        onConfigure: (db) =>
+            _withSqliteScope(scope, () => configureConnection(db)),
+        onCreate: (db, version) =>
+            _withSqliteScope(scope, () => _onCreate(db, version)),
+        onUpgrade: (db, oldVersion, newVersion) => _withSqliteScope(
+          scope,
+          () => _onUpgrade(db, oldVersion, newVersion, scope),
+        ),
+        onDowngrade: (db, oldVersion, newVersion) => _withSqliteScope(
+          scope,
+          () => _onDowngrade(db, oldVersion, newVersion),
+        ),
+        onOpen: (db) => _withSqliteScope(scope, () => _onOpen(db)),
       );
     } catch (e) {
       AppLogger.error('Failed to open database (${e.runtimeType})');
@@ -533,7 +487,12 @@ class SqliteService {
   ///
   /// 事务保证：onUpgrade 回调已经在 SQLite 的事务中执行（由 sqflite 自动处理）
   /// 如果迁移失败，SQLite 会自动回滚整个事务，确保数据库不会处于不一致状态
-  Future<void> _onUpgrade(Database db, int oldVsn, int newVsn) async {
+  Future<void> _onUpgrade(
+    Database db,
+    int oldVsn,
+    int newVsn,
+    _SqliteSessionScope scope,
+  ) async {
     iPrint("SqliteService_onUpgrade oldVsn: $oldVsn, newVsn: $newVsn");
 
     // 检查当前数据库版本
@@ -578,7 +537,7 @@ class SqliteService {
     );
 
     // 迁移成功后按保留策略清理快照（fire-and-forget，不阻塞启动）
-    unawaited(_cleanupMigrationSnapshots());
+    unawaited(_cleanupMigrationSnapshots(scope));
 
     // 验证表结构是否正确
     await _verifyTableStructure(db);
@@ -587,44 +546,38 @@ class SqliteService {
   /// 【WP5】未同步 outbox 探测：降级场景存在未同步数据时阻塞迁移。
   ///
   /// v28+ 存在 channel_message_outbox / channel_publish_outbox；低版本库
-  /// 无这些表（无阻塞）。探测失败按"无阻塞"处理（表缺失是合法形态），
-  /// 读到行数>0 视为阻塞。
-  static Future<List<String>> _unsyncedOutboxProbe() async {
-    final db = await SqliteService.to.db;
-    if (db == null) return const [];
+  /// 无这些表（无阻塞）；读取失败必须中止降级。复用预检连接，避免重入初始化锁。
+  static Future<List<String>> _unsyncedOutboxProbe(DatabaseExecutor db) async {
     final blockers = <String>[];
     for (final table in ['channel_message_outbox', 'channel_publish_outbox']) {
-      try {
-        final exists = await db.rawQuery(
-          "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
-          [table],
-        );
-        if (exists.isEmpty) continue;
-        final count =
-            (await db.rawQuery('SELECT count(*) AS c FROM $table'))
-                    .first
-                    .values
-                    .first
-                as int;
-        if (count > 0) blockers.add('$table: $count unsynced rows');
-      } catch (_) {
-        // 表不存在/不可读：非阻塞（降级预检的保守豁免由调用方决定）
-      }
+      final exists = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
+        [table],
+      );
+      if (exists.isEmpty) continue;
+      final count =
+          (await db.rawQuery('SELECT count(*) AS c FROM $table'))
+                  .first
+                  .values
+                  .first
+              as int;
+      if (count > 0) blockers.add('$table: $count unsynced rows');
     }
     return blockers;
   }
 
   /// 【WP5】迁移成功后的快照保留清理。
-  static Future<void> _cleanupMigrationSnapshots() async {
+  static Future<void> _cleanupMigrationSnapshots(
+    _SqliteSessionScope scope,
+  ) async {
     try {
-      if (kIsWeb) return;
-      final uid = UserRepoLocal.to.currentUid;
-      if (uid.isEmpty) return;
+      if (kIsWeb || !_isCurrentSqliteScope(scope)) return;
       final baseDir = (await getApplicationSupportDirectory()).path;
+      if (!_isCurrentSqliteScope(scope)) return;
       await DatabaseMigrationOrchestrator.to.postMigrationCleanup(
         baseDir: baseDir,
-        env: currentEnv,
-        uid: uid,
+        env: scope.environment,
+        uid: scope.session.uid,
       );
     } catch (e) {
       AppLogger.debug('snapshot cleanup skipped: $e');

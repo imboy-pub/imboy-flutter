@@ -117,7 +117,13 @@ class StorageSecureService {
         wOptions: wOptions,
       );
     } on PlatformException catch (e) {
-      if (e.details != _errSecDuplicateItem) rethrow;
+      // A database key cannot be recreated safely: losing the old item can
+      // make retained ciphertext permanently unreadable. Do not retry by
+      // deleting it. This does not make the plugin's first write atomic.
+      if (e.details != _errSecDuplicateItem ||
+          key.startsWith('db_cipher_key_')) {
+        rethrow;
+      }
       // 同名旧条目（旧 accessibility）挡住了 SecItemAdd。插件的 delete 会跨
       // accessibility / synchronizable 变体清除，删掉后重写即可。
       await _self.delete(
@@ -179,6 +185,12 @@ class StorageSecureService {
       mOptions: _legacyMOptions,
     );
     if (legacy == null) return null;
+    if (key.startsWith('db_cipher_key_')) {
+      // Avoid even the first native write: its attribute-update fallback may
+      // delete the retained key before recreating it. Preserve the old item
+      // until a non-destructive native migration is available.
+      throw StateError('Safe migration required for legacy database key');
+    }
     await write(
       key: key,
       value: legacy,

@@ -20,6 +20,14 @@ Gate 的 `--local` 使用仓外临时目录，`--ci` 使用 ignored `build/sqlit
 
 `DatabaseMigrationOrchestrator.prepareForOpen` 在迁移事务前执行预检与快照；`MigrationService` 在数据库版本回调事务内执行。不要在活动迁移事务内复制主数据库文件、关闭连接或覆盖库。快照和恢复由 `DatabaseSnapshotService` 管理；需同时验证 WAL 提交数据与加密库处理。损坏或密钥错误时保留原库，不能自动删库以伪装修复。
 
+预检连接的所有失败出口都必须关闭句柄；降级 outbox 检查复用预检连接，不能递归等待正在初始化的业务连接。初始化固定 UID、环境和会话代次，过期会话不得发布连接或清理其他会话的快照。登出及登录补救清理须先等待初始化/密钥读写结束并关闭连接，再清理密钥；关闭失败时保留密钥并报告未完成。
+
+SQLCipher 密钥命中 Apple 旧 accessibility 回退查询时，停止自动写回并保留原条目，等待无损原生迁移；重复条目错误也不得触发应用层删除重建。此约束不能证明原生插件内部的写入具有原子性，也不能仅凭当前配置宣称历史条目已迁到 ThisDeviceOnly，需真实保留安装验收。
+
+显式快照恢复在同目录的独立暂存区保留原主库及 WAL/SHM/journal，最终验证成功后才清理。任何移动或验证失败都尝试还原完整文件集；若回滚未完成，`preservedOriginal` 为 false，错误中给出恢复目录，原件可能分布在该目录与原路径，不能清理这些文件。多文件移动不具备掉电原子性；当前没有自动恢复日志或重放流程，不能据此宣称已通过进程强杀/断电恢复验收。
+
+Preflight handles close on every unsuccessful exit. Session-bound initialization drains before secret purge. Explicit restore retains the complete original file set until validation succeeds; failed rollback reports retained recovery files. This does not establish crash-atomic replacement or add automatic recovery.
+
 本地消息、未发送数据和个人密钥不能默认视为云端可重建缓存。清缓存保留消息索引；删除聊天记录不自动恢复。账号切换、数据库与快照目录须隔离，测试只能使用合成数据。
 
 ## APP 数据库加密（I7D6LX）
