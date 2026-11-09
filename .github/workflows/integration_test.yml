@@ -69,7 +69,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: bash .github/scripts/ci_checkout_submodules.sh
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: specialist-plan
           path: ${{ runner.temp }}/specialist-plan
@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           pattern: specialist-*
