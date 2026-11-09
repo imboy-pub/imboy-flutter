@@ -230,3 +230,4 @@ test/*/*.png
 
 # Dart symbols generated for Google Play releases (archive securely).
 /debugInfo/play/
+google-services.json.*bak

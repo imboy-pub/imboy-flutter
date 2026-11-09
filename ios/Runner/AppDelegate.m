@@ -5,9 +5,14 @@
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  [GeneratedPluginRegistrant registerWithRegistry:self];
-  // Override point for customization after application launch.
+  // UIScene lifecycle: the engine (and therefore the plugin registry) only exists
+  // once the scene connects, so plugins are registered in
+  // -didInitializeImplicitFlutterEngine: below.
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
+}
+
+- (void)didInitializeImplicitFlutterEngine:(NSObject<FlutterImplicitEngineBridge>*)engineBridge {
+  [GeneratedPluginRegistrant registerWithRegistry:engineBridge.pluginRegistry];
 }
 
 @end

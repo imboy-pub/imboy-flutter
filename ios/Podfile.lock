@@ -112,12 +112,12 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - JCore (5.6.0)
-  - JPush (6.2.6):
+  - JPush (6.3.0):
     - JCore (> 5.5.0)
   - jpush_flutter (0.0.2):
     - Flutter
     - JCore (> 5.5.0)
-    - JPush (= 6.2.6)
+    - JPush (= 6.3.0)
   - just_audio (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -413,8 +413,8 @@ SPEC CHECKSUMS:
   ic_storage_space: d2c12892dec7eabbf6757df81e72539a16aa7dc6
   integration_test: 4a889634ef21a45d28d50d622cf412dc6d9f586e
   JCore: 8917bec456f222197e2c9e7b38c5c9315cd03718
-  JPush: 4a7e5df2be0d19f5fbbfab9050f4da9f7a35f1dd
-  jpush_flutter: 3c3d98d791f73be50fecee2216b5c2a45e496164
+  JPush: 51edf7cd44403b62aec64bc117d5fcc71e008ebb
+  jpush_flutter: 2ed80523bf11830fcf2486dd9af794d34e688ed0
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   JVerification: b59df3fbdfc48b67706141b8539e1ba41b3eb840
   jverify: 16302a55a8c5ad64c1e77c4e3e823f56c6079580
