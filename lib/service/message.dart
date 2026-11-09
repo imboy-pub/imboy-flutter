@@ -9,6 +9,8 @@ import 'package:imboy/i18n/strings.g.dart';
 
 import 'package:imboy/config/error_code.dart';
 import 'package:imboy/service/active_conversation_notifier.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee_service.dart';
 import 'package:imboy/service/ack_manager.dart';
 import 'package:imboy/service/server_ack_receipts.dart';
@@ -52,6 +54,8 @@ import 'message_s2c.dart';
 import 'message_webrtc.dart';
 import 'notification.dart';
 import 'notification_provider.dart';
+
+part 'message_notifications.dart';
 
 // Legacy compatibility surface. External callers should now import
 // `package:imboy/modules/messaging/public.dart`; this file remains the
@@ -570,6 +574,8 @@ class MessageService with EventSubscriptionManager {
   /// }
   /// ```
   Future<bool> _receiveMessage(Map<String, dynamic> data) async {
+    final notificationSession = authSessionReader.current;
+    final notificationOwner = AccountLocalTaskOwner.capture();
     final startTime = DateTimeHelper.millisecond();
     final msgId = parseModelString(data['id']);
     // chatType 持会话类型 (C2C/C2G/C2S)，对齐 WebSocket API v2.0 顶层 `type` 字段
@@ -839,6 +845,8 @@ class MessageService with EventSubscriptionManager {
         tempConv,
         tempMsg,
         repo,
+        notificationSession: notificationSession,
+        notificationOwner: notificationOwner,
       );
       if (!committed) return false;
       if (!await _completeInboundIfStaged(data, msgId)) return false;
@@ -1018,8 +1026,10 @@ class MessageService with EventSubscriptionManager {
     Map<String, dynamic> payload,
     ConversationModel tempConv,
     MessageModel tempMsg,
-    MessageRepo repo,
-  ) async {
+    MessageRepo repo, {
+    required AuthSessionScope notificationSession,
+    required AccountLocalTaskOwner notificationOwner,
+  }) async {
     final msgId = parseModelString(data['id']);
     final chatType = parseModelString(data['type']); // 消息会话类型 (C2C/C2G/C2S)
     // WebSocket API v2.0: 从顶层读取消息内容类型
@@ -1207,6 +1217,9 @@ class MessageService with EventSubscriptionManager {
             isMentioned: mentionIncrement > 0,
           )) {
         _showMessageNotification(
+          this,
+          session: notificationSession,
+          owner: notificationOwner,
           msg: msg,
           senderName: peerInfo['title'] ?? '',
           conversationUk3: savedConv.uk3,
@@ -1588,63 +1601,6 @@ class MessageService with EventSubscriptionManager {
     } on Object {
       return false;
     }
-  }
-
-  /// 显示消息通知
-  ///
-  /// 当收到新消息且用户不在当前会话时，显示系统通知
-  /// 通知点击后可以跳转到对应的会话
-  ///
-  /// [msg] 消息模型
-  /// [senderName] 发送者昵称
-  /// [conversationUk3] 会话 UK3
-  /// [peerId] 对方 ID
-  /// [msgType] 消息类型（C2C 或 C2G）
-  Future<void> _showMessageNotification({
-    required MessageModel msg,
-    required String senderName,
-    required String conversationUk3,
-    required String peerId,
-    required String chatType,
-  }) async {
-    try {
-      // 获取通知内容
-      final content = _getNotificationContent(msg);
-
-      // FULL-05：企业托管消息的通知标题带来源前缀（Application 代发 /
-      // 人工经应用），普通消息前缀为空串——通知面与会话/详情/搜索同一条
-      // 判定（plan §3.3「一致」），且不静默把代发消息通知成普通消息。
-      final rawPayload = msg.payload;
-      final hostedPrefix = hostedMessageNotificationPrefix(
-        rawPayload is Map ? Map<String, dynamic>.from(rawPayload) : null,
-        e2ee: msg.e2ee,
-      );
-
-      // 调用通知服务显示通知
-      await _notificationService.showMessageNotification(
-        senderName: '$hostedPrefix$senderName',
-        content: content,
-        conversationUk3: conversationUk3,
-        peerId: peerId,
-        chatType: chatType,
-      );
-
-      iPrint(
-        '🔔 [Notification] 消息通知已触发: '
-        'sender=$senderName, uk3=$conversationUk3',
-      );
-    } on Object catch (e) {
-      iPrint('❌ [Notification] 显示消息通知失败: $e');
-    }
-  }
-
-  /// 获取通知内容
-  String _getNotificationContent(MessageModel msg) {
-    return messagePreviewText(
-      msg.msgType ?? '',
-      msg.payloadMap,
-      fallback: '[新消息]',
-    );
   }
 
   /// Handle error codes from server

@@ -228,6 +228,7 @@ class _ChangeOnEncode {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // Each case seeds a fresh session after deliberate failed login attempts.
   setUp(UserRepoLocal.to.clearAuthTransitionFailureForTest);
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',

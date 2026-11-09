@@ -6,6 +6,9 @@ import 'dart:math';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 
 import 'package:crypto/crypto.dart';
@@ -62,7 +65,9 @@ class ResumableAttachmentUploader {
        _keys = keyStore ?? SecureUploadKeyStore(),
        _sessionGuard = sessionGuard ?? _currentSessionGuard(),
        _externalSeal = sealRequest,
-       _generation = UserRepoLocal.to.sessionGeneration;
+       _generation = UserRepoLocal.to.sessionGeneration,
+       _environment = currentEnv,
+       _endpoint = Env().apiBaseUrl;
 
   final AttachmentUploadTaskRepo _repo;
   final UploadKeyStore _keys;
@@ -78,7 +83,38 @@ class ResumableAttachmentUploader {
   final Future<void> Function(Future<void> Function(), Future<void> Function())?
   cacheWriter;
   final int _generation;
+  final String _environment;
+  final String _endpoint;
+  final CancelToken _cancel = CancelToken();
   final bool Function(String userId) _sessionGuard;
+
+  bool _isSessionCurrent(String uid) =>
+      !_cancel.isCancelled && _sessionGuard(uid);
+
+  Future<T> _runOwned<T>(String uid, Future<T> Function() operation) =>
+      AccountLocalTaskRegistry.instance.run<T>(
+        AccountLocalTaskOwner(
+          uid: uid,
+          environment: _environment.isEmpty ? 'pro' : _environment,
+          endpoint: _endpoint,
+        ),
+        onCancel: () => _cancel.cancel('account local data cleanup'),
+        operation: (task) async {
+          task.throwIfCancelled();
+          final actor = UserRepoLocal.to;
+          void onAuthChanged() {
+            if (!_sessionGuard(uid)) _cancel.cancel('upload account changed');
+          }
+
+          actor.addAuthListener(onAuthChanged);
+          try {
+            _requireSession(uid);
+            return await operation();
+          } finally {
+            actor.removeAuthListener(onAuthChanged);
+          }
+        },
+      );
 
   static bool Function(String userId) _currentSessionGuard() {
     final actor = UserRepoLocal.to;
@@ -92,7 +128,7 @@ class ResumableAttachmentUploader {
   }
 
   void _requireSession(String userId) {
-    if (userId.isEmpty || !_sessionGuard(userId)) {
+    if (userId.isEmpty || !_isSessionCurrent(userId)) {
       throw StateError('upload session changed');
     }
   }
@@ -108,7 +144,7 @@ class ResumableAttachmentUploader {
     String? clientUploadId,
     Map<String, dynamic>? messageIntent,
     bool prepareOnly = false,
-  }) async {
+  }) => _runOwned(userId, () async {
     _requireSession(userId);
     final binding =
         _externalSeal?.bindingHash
@@ -147,7 +183,7 @@ class ResumableAttachmentUploader {
       messageIntent: messageIntent,
       prepareOnly: prepareOnly,
     );
-  }
+  });
 
   static String _newUuid() {
     final random = Random.secure();
@@ -159,13 +195,16 @@ class ResumableAttachmentUploader {
   }
 
   Future<File> _cacheFile(AttachmentUploadTask task) async {
+    _requireSession(task.userId);
     final root = cacheDirectory ?? await getApplicationCacheDirectory();
+    _requireSession(task.userId);
     final scope = sha256
-        .convert(utf8.encode('$currentEnv:${task.userId}'))
+        .convert(utf8.encode('$_environment:${task.userId}'))
         .toString();
     final name = sha256.convert(utf8.encode(task.id)).toString();
     final directory = Directory('${root.path}/attachment_uploads/$scope');
     await directory.create(recursive: true);
+    _requireSession(task.userId);
     return File('${directory.path}/$name.bin');
   }
 
@@ -350,7 +389,7 @@ class ResumableAttachmentUploader {
     final replacementId = await _repo.reserveLegacyMigration(
       task,
       _newUuid(),
-      isCurrent: () => _sessionGuard(task.userId),
+      isCurrent: () => _isSessionCurrent(task.userId),
       allowConfirmedVideoThumb: allowConfirmedVideoThumb,
     );
     await legacyMigrationBarrier?.call(replacementId);
@@ -387,7 +426,7 @@ class ResumableAttachmentUploader {
       task,
       replacementId,
       target.path,
-      isCurrent: () => _sessionGuard(task.userId),
+      isCurrent: () => _isSessionCurrent(task.userId),
     )) {
       // Another recovery may already have committed the same deterministic replacement.
       final replacement = await _repo.find(replacementId);
@@ -618,9 +657,9 @@ class ResumableAttachmentUploader {
           : _recovering!.then((_) => recoverCurrentSession());
     }
     _recoveringScope = scope;
-    _recovering = () async {
+    final uploader = ResumableAttachmentUploader();
+    _recovering = uploader._runOwned(uid, () async {
       try {
-        final uploader = ResumableAttachmentUploader();
         // 单阶段故障不阻挡已经确认的业务 outbox；账号切换仍停止整轮。
         for (final recover in <Future<void> Function()>[
           () => ServerAckReceipts.restoreDurable(uid, uploader._generation),
@@ -655,101 +694,104 @@ class ResumableAttachmentUploader {
       } finally {
         _recovering = null;
       }
-    }();
+    });
     return _recovering!;
   }
 
-  Future<void> reconcileMessages(String uid, {MsgApi? api}) async {
-    for (final row in await _repo.listBusinessPending(uid)) {
-      _requireSession(uid);
-      if (row.stage != AttachmentUploadStage.confirmed) continue;
-      final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
-      if (intent['author_id'] != uid || intent['state'] == 'committed') {
-        continue;
-      }
-      if (intent['state'] == 'outbox_ready' ||
-          intent['state'] == 'dispatch_reserved_v2') {
-        continue;
-      }
-      if (intent['state'] == 'uploading' &&
-          intent['message_template'] != null) {
-        continue;
-      }
-      if (intent['message'] == null && intent['message_template'] == null) {
+  Future<void> reconcileMessages(String uid, {MsgApi? api}) => _runOwned(
+    uid,
+    () async {
+      for (final row in await _repo.listBusinessPending(uid)) {
+        _requireSession(uid);
+        if (row.stage != AttachmentUploadStage.confirmed) continue;
+        final intent = jsonDecode(row.businessIntent!) as Map<String, dynamic>;
+        if (intent['author_id'] != uid || intent['state'] == 'committed') {
+          continue;
+        }
+        if (intent['state'] == 'outbox_ready' ||
+            intent['state'] == 'dispatch_reserved_v2') {
+          continue;
+        }
+        if (intent['state'] == 'uploading' &&
+            intent['message_template'] != null) {
+          continue;
+        }
+        if (intent['message'] == null && intent['message_template'] == null) {
+          await _repo.saveBusinessIntent(
+            row.anchorMsgId!,
+            uid,
+            jsonEncode({...intent, 'state': 'unknown_business_intent'}),
+          );
+          continue;
+        }
+        final type = intent['chat_type'].toString();
+        if (type != 'c2c' && type != 'c2g') {
+          continue;
+        }
+        final committed = await (api ?? MsgApi()).isCommitted(
+          chatType: type,
+          peerId: intent['peer_id'].toString(),
+          messageId: row.anchorMsgId!,
+        );
+        _requireSession(uid);
+        if ({'dispatch_intent', 'commit_unknown'}.contains(intent['state'])) {
+          final changed = committed
+              ? await _repo.reconcileOutboxCommitted(
+                  row.anchorMsgId!,
+                  uid,
+                  isCurrent: () => _isSessionCurrent(uid),
+                )
+              : await _repo.markOutboxUnknown(
+                  row.anchorMsgId!,
+                  uid,
+                  type,
+                  isCurrent: () => _isSessionCurrent(uid),
+                );
+          if (changed && committed) {
+            final messages = MessageRepo(
+              tableName: MessageRepo.getTableName(type.toUpperCase()),
+            );
+            final message = await messages.find(row.anchorMsgId!);
+            if (message != null && _isSessionCurrent(uid)) {
+              ServerAckReceipts.announceVerified(
+                message: message,
+                ownerUid: uid,
+                generation: _generation,
+                isCurrent: () => _isSessionCurrent(uid),
+              );
+            }
+          }
+          continue;
+        }
+        if (committed) {
+          final repo = MessageRepo(
+            tableName: MessageRepo.getTableName(type.toUpperCase()),
+          );
+          if (await repo.find(row.anchorMsgId!) != null) {
+            await repo.update({
+              'id': row.anchorMsgId,
+              'status': IMBoyMessageStatus.sent,
+            });
+          }
+        }
         await _repo.saveBusinessIntent(
           row.anchorMsgId!,
           uid,
-          jsonEncode({...intent, 'state': 'unknown_business_intent'}),
+          jsonEncode({
+            ...intent,
+            'state': committed ? 'committed' : 'commit_unknown',
+          }),
         );
-        continue;
       }
-      final type = intent['chat_type'].toString();
-      if (type != 'c2c' && type != 'c2g') {
-        continue;
-      }
-      final committed = await (api ?? MsgApi()).isCommitted(
-        chatType: type,
-        peerId: intent['peer_id'].toString(),
-        messageId: row.anchorMsgId!,
-      );
-      _requireSession(uid);
-      if ({'dispatch_intent', 'commit_unknown'}.contains(intent['state'])) {
-        final changed = committed
-            ? await _repo.reconcileOutboxCommitted(
-                row.anchorMsgId!,
-                uid,
-                isCurrent: () => _sessionGuard(uid),
-              )
-            : await _repo.markOutboxUnknown(
-                row.anchorMsgId!,
-                uid,
-                type,
-                isCurrent: () => _sessionGuard(uid),
-              );
-        if (changed && committed) {
-          final messages = MessageRepo(
-            tableName: MessageRepo.getTableName(type.toUpperCase()),
-          );
-          final message = await messages.find(row.anchorMsgId!);
-          if (message != null && _sessionGuard(uid)) {
-            ServerAckReceipts.announceVerified(
-              message: message,
-              ownerUid: uid,
-              generation: _generation,
-              isCurrent: () => _sessionGuard(uid),
-            );
-          }
-        }
-        continue;
-      }
-      if (committed) {
-        final repo = MessageRepo(
-          tableName: MessageRepo.getTableName(type.toUpperCase()),
-        );
-        if (await repo.find(row.anchorMsgId!) != null) {
-          await repo.update({
-            'id': row.anchorMsgId,
-            'status': IMBoyMessageStatus.sent,
-          });
-        }
-      }
-      await _repo.saveBusinessIntent(
-        row.anchorMsgId!,
-        uid,
-        jsonEncode({
-          ...intent,
-          'state': committed ? 'committed' : 'commit_unknown',
-        }),
-      );
-    }
-  }
+    },
+  );
 
   Future<void> recoverBusinessOutbox(
     String uid, {
     Future<MessageModel> Function(Map<String, dynamic>, Message)?
     prepareMessage,
     void Function(String, String)? notifyRetry,
-  }) async {
+  }) => _runOwned(uid, () async {
     final seen = <String>{};
     for (final row in await _repo.listBusinessPending(uid)) {
       _requireSession(uid);
@@ -779,7 +821,7 @@ class ResumableAttachmentUploader {
           if (!await _repo.enqueueBusinessOutbox(
             model,
             userId: uid,
-            isCurrent: () => _sessionGuard(uid),
+            isCurrent: () => _isSessionCurrent(uid),
           )) {
             continue;
           }
@@ -795,7 +837,7 @@ class ResumableAttachmentUploader {
         );
       }
     }
-  }
+  });
 
   static Message messageFromPendingTemplate(Map<String, dynamic> json) {
     final message = Message.fromJson(json);
@@ -847,7 +889,7 @@ class ResumableAttachmentUploader {
     ConfirmFn? confirmFn,
 
     Future<void> Function(UploadCheckpoint event)? checkpoint,
-  }) async {
+  }) => _runOwned(userId, () async {
     _requireSession(userId);
     final digest = sha256.convert(bytes).toString();
     final existing = await _repo.find(idempotencyKey);
@@ -972,7 +1014,7 @@ class ResumableAttachmentUploader {
       confirmFn: confirmFn,
       checkpoint: checkpoint,
     );
-  }
+  });
 
   Future<String> resume(
     AttachmentUploadTask task,
@@ -986,7 +1028,7 @@ class ResumableAttachmentUploader {
     PutFn? putFn,
     ConfirmFn? confirmFn,
     Future<void> Function(UploadCheckpoint event)? checkpoint,
-  }) async {
+  }) => _runOwned(task.userId, () async {
     return _run(
       task,
       bytes,
@@ -1000,7 +1042,7 @@ class ResumableAttachmentUploader {
       confirmFn: confirmFn,
       checkpoint: checkpoint,
     );
-  }
+  });
 
   Future<List<String>> resumeAll(
     String userId, {
@@ -1009,7 +1051,7 @@ class ResumableAttachmentUploader {
     PutFn? putFn,
     ConfirmFn? confirmFn,
     UploadSessionFn? sessionFn,
-  }) async {
+  }) => _runOwned(userId, () async {
     _requireSession(userId);
     final rows = await _repo.listResumable(userId);
     final scheduled = rows.map((row) => row.id).toSet();
@@ -1079,6 +1121,7 @@ class ResumableAttachmentUploader {
           final state = await DirectAttachmentApi.strictStatus(
             objectKey: thumb.objectKey!,
             sessionFn: directSessionFn,
+            cancelToken: _cancel,
           );
           _requireSession(userId);
           if (state == null) {
@@ -1342,7 +1385,7 @@ class ResumableAttachmentUploader {
       }
     }
     return ok;
-  }
+  });
 
   Future<String> _videoThumbDescriptor(AttachmentUploadTask task) async {
     if (task.anchorMsgId == null) throw LostCipherMaterialError(task.id);
@@ -1499,6 +1542,7 @@ class ResumableAttachmentUploader {
       final state = await DirectAttachmentApi.strictStatus(
         objectKey: thumb.objectKey!,
         sessionFn: directSessionFn,
+        cancelToken: _cancel,
       );
       _requireSession(task.userId);
       if (state == null) {
@@ -1590,6 +1634,7 @@ class ResumableAttachmentUploader {
       await _persistCheckpoint(task, stage, event);
       _requireSession(task.userId);
       await checkpoint?.call(event);
+      _requireSession(task.userId);
     }
 
     return AttachmentApi.uploadViaPresign(
@@ -1627,6 +1672,7 @@ class ResumableAttachmentUploader {
       directSessionFn: directSessionFn,
       directPutFn: directPutFn,
       persistTask: false,
+      cancelToken: _cancel,
     );
   }
 

@@ -22,13 +22,17 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 /// 与 `message_retry_state_test.dart` 同一份最小 DDL（列集合 = MessageRepo.defaultColumns）。
@@ -114,9 +118,26 @@ void main() {
   final List<WebSocketMessageSendRequestEvent> sendRequests = [];
 
   setUpAll(() async {
+    // Set the owner before injecting its FFI database and starting retry work.
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+    await StorageService.init();
+    await StorageService.setMap(Keys.currentUser, {
+      'id': '1001',
+      'nickname': 'peer1001',
+      'avatar': '',
+    });
+    expect(UserRepoLocal.to.currentUid, '1001');
+    expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
+    // The signed-in startup scan reads all three message tables.
+    await db.execute('CREATE TABLE msg_c2g AS SELECT * FROM msg_c2c WHERE 0');
+    await db.execute('CREATE TABLE msg_c2s AS SELECT * FROM msg_c2c WHERE 0');
+    await db.execute(
+      'CREATE TABLE msg_c2c_fts ('
+      'id TEXT, conversation_uk3 TEXT, text_content TEXT)',
+    );
     await db.execute(_contactDdl);
     // send-gate 读 attachment_upload_task（迁移 v33）；内存库缺表会让
     // claim 查询抛错 → 重试空转/超时（与 outbox_read_side_wiring 同因）。
@@ -130,7 +151,7 @@ void main() {
     );
     for (final peerId in [1001, 2002]) {
       await db.insert('contact', {
-        'user_id': '',
+        'user_id': '1001',
         'peer_id': peerId,
         'nickname': 'peer$peerId',
         'avatar': '',
@@ -151,7 +172,7 @@ void main() {
     SqliteService.setDbForTest(db);
     expect(await SqliteService.to.db, isNotNull);
     retry = MessageRetry.instance;
-    await pumpEventQueue(times: 200);
+    await retry.debugWaitForIdle().timeout(const Duration(seconds: 5));
     AppEventBus.on<WebSocketMessageSendRequestEvent>().listen(sendRequests.add);
   });
 

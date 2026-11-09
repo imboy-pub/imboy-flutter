@@ -3,10 +3,14 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 
 import 'dart:convert';
 
+import 'package:dio/dio.dart' show CancelToken;
 import 'package:imboy/component/helper/func.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/service/storage_secure.dart';
+import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 
@@ -80,13 +84,27 @@ class E2EEBackupSetupService {
   void markPrompted() => _promptedThisSession = true;
 
   /// 向导/导出页云端上传成功后的统一回执
-  Future<void> completeSetup({required String passphrase, String? uid}) async {
-    final uidKey = uid ?? UserRepoLocal.to.currentUid;
-    await StorageSecureService.to.write(
-      key: kE2eeBackupPassphraseSecureKey,
-      value: jsonEncode({'uid': uidKey, 'passphrase': passphrase}),
+  Future<void> completeSetup({
+    required String passphrase,
+    String? uid,
+    int? generation,
+  }) async {
+    final actor = UserRepoLocal.to;
+    final uidKey = uid ?? actor.currentUid;
+    await actor.writeSessionSecret(
+      uid: uidKey,
+      generation: generation ?? actor.sessionGeneration,
+      write: () async {
+        await StorageSecureService.to.write(
+          key: kE2eeBackupPassphraseSecureKey,
+          value: jsonEncode({'uid': uidKey, 'passphrase': passphrase}),
+        );
+        await StorageService.to.setBool(kE2eeBackupSetupDoneKey, true);
+      },
+      discard: () => E2eeSecretInventory.production().deleteKey(
+        kE2eeBackupPassphraseSecureKey,
+      ),
     );
-    await StorageService.to.setBool(kE2eeBackupSetupDoneKey, true);
   }
 
   /// 读取属于当前账号的缓存口令；无缓存 / 属于其他账号（并清除）→ null。
@@ -95,18 +113,36 @@ class E2EEBackupSetupService {
   /// 只返回 null，**不触发清除**。缓存的口令是用户唯一的恢复凭据副本，
   /// 不能因 uid 读取时序的意外把它误删（合法换号清除要求 uid 非空且不等）。
   Future<String?> cachedPassphrase() async {
+    final session = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    bool current() =>
+        authSessionReader.isCurrent(session) &&
+        AccountLocalTaskOwner.capture() == owner;
+    if (!current()) return null;
     final raw = await StorageSecureService.to.read(
       key: kE2eeBackupPassphraseSecureKey,
     );
-    if (raw == null || raw.isEmpty) return null;
+    if (!current() || raw == null || raw.isEmpty) return null;
     try {
       final m = jsonDecode(raw);
       if (m is! Map<String, dynamic>) return null;
-      final uidKey = UserRepoLocal.to.currentUid;
-      if (uidKey.isEmpty) return null;
-      if ((m['uid'] ?? '').toString() != uidKey) {
-        await StorageSecureService.to.delete(
-          key: kE2eeBackupPassphraseSecureKey,
+      if ((m['uid'] ?? '').toString() != session.uid) {
+        await UserRepoLocal.to.writeSessionSecret(
+          uid: session.uid,
+          generation: session.generation,
+          write: () async {
+            final latest = await StorageSecureService.to.read(
+              key: kE2eeBackupPassphraseSecureKey,
+            );
+            if (current() && latest == raw) {
+              await StorageSecureService.to.delete(
+                key: kE2eeBackupPassphraseSecureKey,
+              );
+            }
+          },
+          // This operation only removes a stale value; it creates no secret
+          // to discard if the session is revoked while deletion is in flight.
+          discard: () async {},
         );
         return null;
       }
@@ -123,25 +159,12 @@ class E2EEBackupSetupService {
   Future<E2EEBackupPutResult> uploadWithCachedPassphrase({
     E2EEBackupApi? api,
   }) async {
+    final session = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
     try {
-      final passphrase = await cachedPassphrase();
-      final privateKey = await StorageSecureService.to.getPrivateKey();
-      final publicKey = await StorageSecureService.to.getPublicKey();
-      if (passphrase == null ||
-          passphrase.isEmpty ||
-          privateKey == null ||
-          publicKey == null) {
-        return const E2EEBackupPutResult(ok: false);
-      }
-      final result = await E2EEServerBackupService.upload(
-        password: passphrase,
-        privateKey: privateKey,
-        publicKey: publicKey,
-        deviceId: await StorageSecureService.to.getDeviceId() ?? 'unknown',
-        keyId: await StorageSecureService.to.getKeyId() ?? 'unknown',
-        // 账号绑定：写入备份明文 JSON 的 account_id，恢复端据此拒绝
-        // 跨账号恢复（与 completeSetup 的 uid 绑定同一语义）。
-        accountId: UserRepoLocal.to.currentUid,
+      final result = await uploadForSession(
+        session: session,
+        owner: owner,
         api: api,
       );
       iPrint(
@@ -153,5 +176,65 @@ class E2EEBackupSetupService {
       iPrint('[E2EE_BACKUP_SETUP] 自动重传失败(下次密钥变化再试): ${e.runtimeType}');
       return const E2EEBackupPutResult(ok: false);
     }
+  }
+
+  /// Keep credential preparation and upload in the original account's task.
+  /// Omitting [password] uses its cached passphrase within the same barrier.
+  Future<E2EEBackupPutResult> uploadForSession({
+    required AuthSessionScope session,
+    required AccountLocalTaskOwner owner,
+    String? password,
+    CancelToken? cancelToken,
+    bool Function()? isActive,
+    E2EEBackupApi? api,
+  }) async {
+    final cancellation = cancelToken ?? CancelToken();
+    void ensureCurrent([AccountLocalTask? task]) {
+      task?.throwIfCancelled();
+      if (cancellation.isCancelled ||
+          !(isActive?.call() ?? true) ||
+          !authSessionReader.isCurrent(session) ||
+          session.uid != owner.uid ||
+          AccountLocalTaskOwner.capture() != owner) {
+        throw const AccountLocalTaskCancelledException();
+      }
+    }
+
+    ensureCurrent();
+    return AccountLocalTaskRegistry.instance.run<E2EEBackupPutResult>(
+      owner,
+      onCancel: () => cancellation.cancel('account cleanup'),
+      operation: (task) async {
+        ensureCurrent(task);
+        final passphrase = password ?? await cachedPassphrase();
+        ensureCurrent(task);
+        if (passphrase == null || passphrase.isEmpty) {
+          return const E2EEBackupPutResult(ok: false);
+        }
+        final privateKey = await StorageSecureService.to.getPrivateKey();
+        ensureCurrent(task);
+        final publicKey = await StorageSecureService.to.getPublicKey();
+        ensureCurrent(task);
+        if (privateKey == null || publicKey == null) {
+          return const E2EEBackupPutResult(ok: false);
+        }
+        final deviceId = await StorageSecureService.to.getDeviceId();
+        ensureCurrent(task);
+        final keyId = await StorageSecureService.to.getKeyId();
+        ensureCurrent(task);
+        final result = await E2EEServerBackupService.upload(
+          password: passphrase,
+          privateKey: privateKey,
+          publicKey: publicKey,
+          deviceId: deviceId ?? 'unknown',
+          keyId: keyId ?? 'unknown',
+          accountId: session.uid,
+          api: api,
+          cancelToken: cancellation,
+        );
+        ensureCurrent(task);
+        return result;
+      },
+    );
   }
 }

@@ -296,9 +296,11 @@ class EnterpriseApi extends HttpClient {
     required int sizeBytes,
     required String objectHash,
     String fileName = '',
+    CancelToken? cancelToken,
   }) async {
     final resp = await post(
       _org(orgId, 'assets/presign'),
+      cancelToken: cancelToken,
       data: {
         'workspace_id': workspaceId,
         'conversation_id': conversationId,

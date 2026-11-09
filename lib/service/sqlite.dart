@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite_common/sqflite.dart' as common show databaseFactory;
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -24,6 +25,7 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 part 'sqlite_scalar_query.dart';
 part 'sqlite_connection_config.dart';
 part 'sqlite_lifecycle.dart';
+part 'sqlite_account_data.dart';
 
 /// 参考 https://www.javacodegeeks.com/2020/06/using-sqlite-in-flutter-tutorial.html
 /// SQLite 本地数据库服务
@@ -184,26 +186,18 @@ class SqliteService {
   ///
   /// 这里严格使用环境 + uid 的单个文件名，不接受路径片段，避免清理
   /// 目标越界；不删除其他账号的数据库。
-  Future<void> deleteDatabaseForUid(String uid) async {
-    final normalizedUid = uid.trim();
-    if (normalizedUid.isEmpty || kIsWeb) return;
-    if (normalizedUid.contains('/') ||
-        normalizedUid.contains('\\') ||
-        normalizedUid == '.' ||
-        normalizedUid == '..') {
-      throw ArgumentError.value(uid, 'uid', 'must be a filename component');
-    }
+  Future<void> deleteDatabaseForUid(String uid, {String? environment}) =>
+      _deleteAccountDatabase(this, uid, environment: environment);
 
-    final name = databaseNameForUid(normalizedUid);
-    final path = join(await getDatabasesPath(), name);
-    for (final suffix in const ['', '-wal', '-shm', '-journal']) {
-      final file = File('$path$suffix');
-      if (await file.exists()) {
-        await file.delete();
-        iPrint('🗑️ Deleted local database file: ${file.path}');
-      }
-    }
-  }
+  /// Close only the selected stale handle before removing its cipher key.
+  /// A failed close retains the handle for retry and must abort key deletion.
+  Future<void> closeDatabaseForUid(String uid, {String? environment}) =>
+      _closeAccountDatabase(this, uid, environment: environment);
+
+  /// Drain existing SQL/initialization before cleanup reads account keys.
+  /// The caller keeps authentication blocked; this never opens a database.
+  Future<void> waitForPendingInitialization() =>
+      _waitForAccountDatabaseInitialization(this);
 
   /// 构建数据库文件路径
   /// Build the database file path

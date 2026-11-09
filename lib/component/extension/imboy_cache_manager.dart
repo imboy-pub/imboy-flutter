@@ -1,17 +1,25 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cross_cache/cross_cache.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
 import 'package:imboy/component/http/http_interceptor.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/account_media_cache_store.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/service/asset_url_resolver.dart';
 import 'package:imboy/service/e2ee/attachment_open_registry.dart';
 import 'package:imboy/service/e2ee/attachment_temp_hygiene.dart';
 import 'package:imboy/service/e2ee/attachment_opener.dart';
 import 'package:imboy/service/assets.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:synchronized/synchronized.dart';
+
+class MediaCacheCleanupException implements Exception {
+  const MediaCacheCleanupException();
+}
 
 class IMBoyCacheManager {
   /// 控制 debug 日志输出（默认 true）
@@ -28,26 +36,38 @@ class IMBoyCacheManager {
 
   static final IMBoyCacheManager _instance = IMBoyCacheManager._();
 
-  final CrossCache _crossCache;
+  late final CrossCache _crossCache;
+  final Dio _dio;
+  final AccountMediaCacheStore _ownership = AccountMediaCacheStore();
   final Lock _fileLock = Lock();
-
-  /// 残留临时明文只在每个进程内清扫一次（见 [AttachmentTempHygiene]）。
-  bool _sweptStaleTempFiles = false;
+  final Map<String, Set<Future<void>>> _pendingFiles = {};
+  final Map<String, Future<void>> _cacheClears = {};
+  final Map<String, int> _generations = {};
+  final Map<String, List<WeakReference<Object>>> _imageKeys = {};
+  final Set<String> _sweptStaleScopes = {};
+  int get generation => generationFor(AccountLocalTaskOwner.capture());
+  int generationFor(AccountLocalTaskOwner owner) =>
+      _generations[AccountMediaCacheStore.scopeId(owner)] ?? 0;
 
   factory IMBoyCacheManager() {
     return _instance;
   }
 
   IMBoyCacheManager._()
-    : _crossCache = CrossCache(
-        dio: Dio(
-          BaseOptions(
-            connectTimeout: const Duration(seconds: 30),
-            receiveTimeout: const Duration(seconds: 30),
-            sendTimeout: const Duration(seconds: 30),
-          ),
-        )..interceptors.add(IMBoyInterceptor()),
-      );
+    : _dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
+        ),
+      )..interceptors.add(IMBoyInterceptor()) {
+    _crossCache = CrossCache(dio: _dio);
+  }
+
+  @visibleForTesting
+  IMBoyCacheManager.forTest(Dio dio) : _dio = dio {
+    _crossCache = CrossCache(dio: dio);
+  }
 
   /// 验证图片数据是否有效
   bool _isValidImageData(List<int> bytes) {
@@ -149,7 +169,75 @@ class IMBoyCacheManager {
     /// 直接下载，**不**走 object_key 短时签发，**不**拼 go-fastdfs HMAC 授权
     /// （见 resource-access-control.md §9）。
     bool publicDirect = false,
+    AccountLocalTaskOwner? owner,
+  }) {
+    try {
+      final account = owner ?? AccountLocalTaskOwner.capture();
+      final session = authSessionReader.current;
+      final scope = AccountMediaCacheStore.scopeId(account);
+      if (_cacheClears.containsKey(scope) ||
+          (account.uid.isEmpty && !publicDirect)) {
+        throw const MediaCacheCleanupException();
+      }
+      final generation = generationFor(account);
+      final cancel = CancelToken();
+      Future<File> load(AccountLocalTask? task) => _getSingleFile(
+        url,
+        headers: headers,
+        maxRetries: maxRetries,
+        validateImageData: validateImageData,
+        publicDirect: publicDirect,
+        owner: account,
+        cancelToken: cancel,
+        requireCurrent: () {
+          task?.throwIfCancelled();
+          if (generationFor(account) != generation ||
+              (account.uid.isNotEmpty &&
+                  (!authSessionReader.isCurrent(session) ||
+                      session.uid != account.uid ||
+                      account != AccountLocalTaskOwner.capture()))) {
+            throw const MediaCacheCleanupException();
+          }
+        },
+      );
+      final result = account.uid.isEmpty
+          ? load(null)
+          : AccountLocalTaskRegistry.instance.run<File>(
+              account,
+              onCancel: () => cancel.cancel(),
+              operation: load,
+            );
+      // Include authorization, downloading, decryption and all file writes.
+      final pending = result.then<void>(
+        (_) {},
+        onError: (Object _, StackTrace _) {},
+      );
+      (_pendingFiles[scope] ??= {}).add(pending);
+      unawaited(
+        pending.then((_) {
+          _pendingFiles[scope]?.remove(pending);
+          if (_pendingFiles[scope]?.isEmpty ?? false) {
+            _pendingFiles.remove(scope);
+          }
+        }),
+      );
+      return result;
+    } on Object catch (error, stack) {
+      return Future<File>.error(error, stack);
+    }
+  }
+
+  Future<File> _getSingleFile(
+    String url, {
+    Map<String, String>? headers,
+    required int maxRetries,
+    required bool validateImageData,
+    required bool publicDirect,
+    required AccountLocalTaskOwner owner,
+    required CancelToken cancelToken,
+    required void Function() requireCurrent,
   }) async {
+    requireCurrent();
     // 添加调试日志
     _log('📦 getSingleFile: url=$url, validateImageData=$validateImageData');
 
@@ -198,23 +286,23 @@ class IMBoyCacheManager {
     //   稳定 object_key，与 rotating 签发参数解耦，命中率更高。
     // - 完整 URL（旧 go-fastdfs / 历史消息）→ 同步 viewUrl 拼 HMAC 授权，行为不变。
     final bool isObjKey = AssetsService.isObjectKey(url);
-    final String cacheKey;
+    final String resourceKey;
     final String downloadUrl;
     final String extSource; // 推导文件扩展名的来源串
     if (publicDirect) {
       // 公开资源：url 即完整公开 URL，直读直下，cacheKey 用规范化 URL。
       final rawUri = Uri.parse(url);
-      cacheKey =
+      resourceKey =
           '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
       downloadUrl = url;
       extSource = rawUri.path;
     } else if (isObjKey) {
-      cacheKey = 'objkey://$url';
+      resourceKey = 'objkey://$url';
       downloadUrl = await AssetUrlResolver.instance.resolve(url);
       extSource = url;
     } else {
       final rawUri = Uri.parse(url);
-      cacheKey =
+      resourceKey =
           '${rawUri.scheme}://${rawUri.host}:${rawUri.port}${rawUri.path}';
       // BUG#137：Garage 私桶完整 URL（群文件等，elib_oss:upload 落库的裸
       // URL 不带签名，attachment 表无记录）——viewUrl 拼的 go-fastdfs HMAC
@@ -232,6 +320,9 @@ class IMBoyCacheManager {
         downloadUrl = viewUri.toString();
       }
     }
+    requireCurrent();
+    final cacheKey = await _ownership.reserve(owner, resourceKey);
+    requireCurrent();
     // 验证真实下载域名：public 头像应为 s3.imboy.pub 直读；附件应为后端签发的
     // presigned host（X-Amz-Signature）。若这里出现 pro.imboy.pub，即下载走了 API 域名。
     _log(
@@ -243,8 +334,10 @@ class IMBoyCacheManager {
 
     // 尝试从缓存获取
     for (int retry = 0; retry < maxRetries; retry++) {
+      requireCurrent();
       try {
         bytes = await _crossCache.get(cacheKey);
+        requireCurrent();
         // 检查缓存是否为空
         if (bytes.isEmpty) {
           _log('缓存为空，重新下载 (尝试 ${retry + 1}/$maxRetries): $url');
@@ -259,12 +352,28 @@ class IMBoyCacheManager {
         // 缓存成功，跳出循环
         break;
       } catch (e) {
+        requireCurrent();
         // 缓存失败，尝试下载
         try {
-          final rawDownloaded = await _crossCache.downloadAndSave(
+          // The same Dio retains authentication/interceptor behavior. Never use
+          // downloadAndSave: it first persists an ownerless signed-URL entry.
+          final response = await _dio.get<List<int>>(
             downloadUrl,
-            headers: headers,
+            options: Options(
+              headers: headers,
+              responseType: ResponseType.bytes,
+            ),
+            cancelToken: cancelToken,
           );
+          requireCurrent();
+          if (response.statusCode != 200) {
+            throw DioException.badResponse(
+              statusCode: response.statusCode ?? -1,
+              requestOptions: response.requestOptions,
+              response: response,
+            );
+          }
+          final rawDownloaded = Uint8List.fromList(response.data ?? const []);
 
           // E2EE-061 Slice 6：开封必须排在**验证与落盘之前**——
           // 密文过不了图片魔数校验（会被当成"损坏"反复重下），
@@ -312,18 +421,23 @@ class IMBoyCacheManager {
           }
 
           await _crossCache.set(cacheKey, downloaded);
-          await _crossCache.delete(downloadUrl);
+          requireCurrent();
           bytes = downloaded;
           _log('✅ 下载成功');
           // 下载成功，跳出循环
           break;
         } catch (downloadError) {
+          requireCurrent();
+          if (downloadError is DioException &&
+              CancelToken.isCancel(downloadError)) {
+            rethrow;
+          }
           // E2EE-061：开封失败**绝不重试**——重下同一个对象不会变好，
           // 而重试会把 3 次下载 + 清缓存全走一遍。密文也不得留在缓存里。
           if (downloadError is AttachmentOpenException) {
             _log('❌ 附件开封失败，不重试: ${downloadError.message}');
             try {
-              await _crossCache.delete(downloadUrl);
+              await _crossCache.delete(cacheKey);
             } on Object catch (_) {
               // best-effort：删不掉也不该盖住开封失败这个真因
             }
@@ -355,37 +469,37 @@ class IMBoyCacheManager {
 
     // 使用文件锁防止并发写入冲突
     return await _fileLock.synchronized(() async {
-      final tempDir = await getTemporaryDirectory();
-      final directory = Directory('${tempDir.path}/imboy_cache');
+      requireCurrent();
+      final directory = await _ownership.materializedDirectory(owner);
+      requireCurrent();
       if (!await directory.exists()) {
         await directory.create(recursive: true);
       }
-
-      // E2EE-061 Slice 8（ATT-05）：清掉上次被 kill / 磁盘满留下的 `.tmp` 残留。
-      // Slice 6 之后这些残留是**解密后的明文碎片**，没人引用也没人删。
-      // 每进程一次、在文件锁内做：不影响热路径，也不会与本次写入打架。
-      if (!_sweptStaleTempFiles) {
-        _sweptStaleTempFiles = true;
-        final int removed = await AttachmentTempHygiene.sweep(directory);
-        if (removed > 0) {
-          _log('🧹 清理残留临时明文 $removed 个');
-        }
+      requireCurrent();
+      // Preserve the existing stale-plaintext hygiene within this owner only.
+      if (_sweptStaleScopes.add(AccountMediaCacheStore.scopeId(owner))) {
+        await AttachmentTempHygiene.sweep(directory);
+        requireCurrent();
       }
-
-      final ext = _getFileExtension(extSource) ?? 'cache';
-      final fileName = 'imboy_cache_${_hashCode(cacheKey)}.$ext';
+      final candidateExt = _getFileExtension(extSource) ?? 'cache';
+      final ext = RegExp(r'^[A-Za-z0-9]{1,12}$').hasMatch(candidateExt)
+          ? candidateExt
+          : 'cache';
+      final fileName = '${AccountMediaCacheStore.digest(cacheKey)}.$ext';
       final file = File('${directory.path}/$fileName');
 
       // 检查文件是否已存在且有效
       if (await file.exists()) {
         try {
           final existingBytes = await file.readAsBytes();
+          requireCurrent();
           if (existingBytes.isNotEmpty &&
               (validateImageData ? _isValidImageData(existingBytes) : true)) {
             // debugPrint('使用现有缓存文件: ${file.path}');
             return file;
           }
         } catch (e) {
+          requireCurrent();
           _log('[CacheManager] cache operation failed: $e');
           // 文件损坏，删除后重新写入
           await file.delete();
@@ -395,8 +509,10 @@ class IMBoyCacheManager {
       // 使用临时文件确保原子性写入
       final tempFile = File('${directory.path}/$fileName.tmp');
       try {
+        requireCurrent();
         // 写入临时文件
         await tempFile.writeAsBytes(bytes, flush: true);
+        requireCurrent();
 
         // 验证临时文件是否写入成功
         if (!await tempFile.exists()) {
@@ -405,6 +521,7 @@ class IMBoyCacheManager {
 
         // 原子性重命名
         await tempFile.rename(file.path);
+        requireCurrent();
 
         // 最终验证文件是否成功创建
         if (!await file.exists()) {
@@ -424,10 +541,6 @@ class IMBoyCacheManager {
         rethrow;
       }
     });
-  }
-
-  String _hashCode(String input) {
-    return input.hashCode.toString();
   }
 
   /// 判断 IPv4 是否落在 172.16.0.0/12 私网段（172.16.x ~ 172.31.x）。
@@ -454,17 +567,86 @@ class IMBoyCacheManager {
     return null;
   }
 
-  Future<void> emptyCache() async {
-    final cacheDir = await getApplicationCacheDirectory();
-    final crossCacheDir = Directory('${cacheDir.path}/cross_cache');
-    if (await crossCacheDir.exists()) {
-      await crossCacheDir.delete(recursive: true);
+  Future<void> emptyCache() => clearAccount(AccountLocalTaskOwner.capture());
+
+  Future<void> clearAccount(AccountLocalTaskOwner owner) {
+    final scope = AccountMediaCacheStore.scopeId(owner);
+    final existing = _cacheClears[scope];
+    if (existing != null) return existing;
+    final clearing = _clearAccountAfterDownloads(owner).whenComplete(() {
+      _cacheClears.remove(scope);
+    });
+    _cacheClears[scope] = clearing;
+    return clearing;
+  }
+
+  Future<void> _clearAccountAfterDownloads(AccountLocalTaskOwner owner) async {
+    final scope = AccountMediaCacheStore.scopeId(owner);
+    await Future.wait(_pendingFiles[scope]?.toList() ?? <Future<void>>[]);
+    await _ownership.assertRemovalCanBeAttributed();
+    _generations[scope] = generationFor(owner) + 1;
+    for (final reference
+        in _imageKeys.remove(scope) ?? <WeakReference<Object>>[]) {
+      final key = reference.target;
+      if (key != null) PaintingBinding.instance.imageCache.evict(key);
+    }
+    await _ownership.removeAccount(
+      owner,
+      deleteKey: _crossCache.delete,
+      containsKey: _crossCache.contains,
+    );
+    _sweptStaleScopes.remove(scope);
+  }
+
+  void trackImageKey(AccountLocalTaskOwner owner, Object key) {
+    final entries = _imageKeys.putIfAbsent(
+      AccountMediaCacheStore.scopeId(owner),
+      () => [],
+    );
+    entries.removeWhere((reference) => reference.target == null);
+    if (!entries.any((reference) => reference.target == key)) {
+      entries.add(WeakReference(key));
+    }
+  }
+
+  Future<void> removeResource(
+    String url, {
+    required AccountLocalTaskOwner owner,
+    int? generation,
+  }) async {
+    final session = authSessionReader.current;
+    final scope = AccountMediaCacheStore.scopeId(owner);
+    if (_cacheClears.containsKey(scope)) {
+      throw const MediaCacheCleanupException();
+    }
+    final uri = Uri.tryParse(url);
+    final resource = AssetsService.isObjectKey(url)
+        ? 'objkey://$url'
+        : '${uri!.scheme}://${uri.host}:${uri.port}${uri.path}';
+    final key = AccountMediaCacheStore.cacheKey(owner, resource);
+    Future<void> remove(AccountLocalTask? task) async {
+      if ((generation != null && generationFor(owner) != generation) ||
+          (owner.uid.isNotEmpty &&
+              (!authSessionReader.isCurrent(session) ||
+                  session.uid != owner.uid ||
+                  owner != AccountLocalTaskOwner.capture()))) {
+        throw const MediaCacheCleanupException();
+      }
+      task?.throwIfCancelled();
+      await _crossCache.delete(key);
+      task?.throwIfCancelled();
+      await _fileLock.synchronized(
+        () => _ownership.removeResourceFiles(owner, key),
+      );
     }
 
-    final tempDir = await getTemporaryDirectory();
-    final imboyCacheDir = Directory('${tempDir.path}/imboy_cache');
-    if (await imboyCacheDir.exists()) {
-      await imboyCacheDir.delete(recursive: true);
+    if (owner.uid.isEmpty) {
+      await remove(null);
+    } else {
+      await AccountLocalTaskRegistry.instance.run<void>(
+        owner,
+        operation: remove,
+      );
     }
   }
 

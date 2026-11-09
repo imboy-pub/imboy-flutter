@@ -180,9 +180,11 @@ final class _FakePickedFile extends PlatformFile {
 Widget _buildTestApp({String groupId = 'g1'}) {
   // 群文件页用 AppLoading.showToast 反馈；未挂 builder 时 EasyLoading 会断言。
   return ProviderScope(
-    child: MaterialApp(
-      home: GroupFilePage(groupId: groupId),
-      builder: AppLoading.init(),
+    child: TranslationProvider(
+      child: MaterialApp(
+        home: GroupFilePage(groupId: groupId),
+        builder: AppLoading.init(),
+      ),
     ),
   );
 }

@@ -17,6 +17,12 @@ class TalkRecordAiCheckpointStore {
   static const maxBytes = 16 * 1024 * 1024;
 
   Future<Uint8List> _key({required bool create}) async {
+    if (create) {
+      // Persist account-directory ownership before the global trk_ key exists.
+      // A crash before the encrypted checkpoint is written must remain cleanable.
+      await directory.create(recursive: true);
+      await File('${file.path}.owner').writeAsString('', flush: true);
+    }
     final stored = await keys.readRecordKey(keyId);
     if (stored != null && stored.length == 32) {
       return Uint8List.fromList(stored);
@@ -81,6 +87,10 @@ class TalkRecordAiCheckpointStore {
       final temporary = File('${file.path}.tmp');
       await temporary.writeAsBytes([...nonce, ...sealed], flush: true);
       await temporary.rename(file.path);
+      // The completed file now proves ownership; interrupted writes retain the
+      // marker so account cleanup can still find and remove their secure key.
+      final marker = File('${file.path}.owner');
+      if (await marker.exists()) await marker.delete();
     } finally {
       plain.fillRange(0, plain.length, 0);
       key.fillRange(0, key.length, 0);

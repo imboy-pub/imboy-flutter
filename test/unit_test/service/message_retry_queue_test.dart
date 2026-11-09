@@ -1,18 +1,28 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
+import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 
 void main() {
   group('MessageRetry queue behavior', () {
     late MessageRetry retry;
 
-    setUp(() {
+    setUp(() async {
+      await StorageService.to.setString(Keys.currentUid, '100');
+      // These queue-only cases do not require a native database.
+      SqliteService.setDbUnavailableForTest();
       retry = MessageRetry.instance;
       retry.clearRetryQueue();
+      await retry.debugWaitForIdle();
     });
 
-    tearDown(() {
+    tearDown(() async {
       retry.dispose();
+      await retry.debugWaitForIdle();
+      SqliteService.setDbForTest(null);
+      await StorageService.to.remove(Keys.currentUid);
     });
 
     test('normalizes queue message type', () {

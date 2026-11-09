@@ -13,6 +13,8 @@ import 'package:imboy/store/model/message_model.dart';
 
 class ServerAckReceipts {
   static final _receipts = <String>{};
+  static void removeAccount(String uid) =>
+      _receipts.removeWhere((key) => key.startsWith('$uid:'));
   static String _key(
     String uid,
     int generation,

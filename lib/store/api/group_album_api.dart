@@ -1,5 +1,11 @@
 import 'dart:io' as io;
 
+import 'package:dio/dio.dart' show CancelToken;
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+
 import 'package:imboy/component/http/http_client.dart';
 import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/config/const.dart';
@@ -196,127 +202,181 @@ class GroupAlbumApi extends HttpClient {
       return const <GroupAlbumUploadOutcome>[];
     }
 
-    // status 是 GET；其他 direct 操作使用 POST。
-    final DirectSessionFn session =
-        sessionFn ??
-        (String path, {Map<String, dynamic>? body}) => path.endsWith('/status')
-            ? get(path, queryParameters: body)
-            : post(path, data: body);
-
-    // 逐项 direct：白名单外直接落账失败；direct 异常按项吞掉（其余项继续）。
-    // outcomes 按输入顺序占位（成功项在 bind 后回填），调用方按下标对账。
-    final List<GroupAlbumUploadOutcome?> slots =
-        List<GroupAlbumUploadOutcome?>.filled(items.length, null);
-    final List<_ReadyBind> ready = <_ReadyBind>[];
-    for (int i = 0; i < items.length; i++) {
-      final GroupAlbumUploadItem item = items[i];
-      final String? mime = albumMimeOf(item.file.path, item.photoName);
-      if (mime == null) {
-        slots[i] = GroupAlbumUploadOutcome(
-          item: item,
-          ok: false,
-          reason: 'unsupported_image_type',
-        );
-        continue;
+    final auth = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: auth.uid);
+    final cancel = CancelToken();
+    final task = AccountLocalTaskRegistry.instance.register(
+      owner,
+      onCancel: () => cancel.cancel('account local data cleanup'),
+    );
+    void check() {
+      task.throwIfCancelled();
+      if (!authSessionReader.isCurrent(auth) ||
+          (currentEnv.isEmpty ? 'pro' : currentEnv) != owner.environment ||
+          Env().apiBaseUrl != owner.endpoint) {
+        throw const AccountLocalTaskCancelledException();
       }
-      try {
-        final DirectUploadResult direct = await DirectAttachmentApi.uploadFile(
-          item.file,
-          fileName: item.photoName,
-          mime: mime,
-          scope: 'group',
-          scopeRef: gid,
-          clientUploadId: item.clientUploadId,
-          sessionFn: session,
-          putFn: putFn,
-        );
-        if (direct.state != DirectAttachmentApi.stateConfirmed) {
+    }
+
+    void onAuthChanged() {
+      if (!authSessionReader.isCurrent(auth)) {
+        cancel.cancel('upload account changed');
+      }
+    }
+
+    authSessionReader.addListener(onAuthChanged);
+    try {
+      check();
+      // status 是 GET；其他 direct 操作使用 POST。
+      Future<IMBoyHttpResponse> session(
+        String path, {
+        Map<String, dynamic>? body,
+      }) async {
+        check();
+        final response = sessionFn != null
+            ? await sessionFn(path, body: body)
+            : path.endsWith('/status')
+            ? await get(path, queryParameters: body, cancelToken: cancel)
+            : await post(path, data: body, cancelToken: cancel);
+        check();
+        return response;
+      }
+
+      // 逐项 direct：白名单外直接落账失败；direct 异常按项吞掉（其余项继续）。
+      // outcomes 按输入顺序占位（成功项在 bind 后回填），调用方按下标对账。
+      final List<GroupAlbumUploadOutcome?> slots =
+          List<GroupAlbumUploadOutcome?>.filled(items.length, null);
+      final List<_ReadyBind> ready = <_ReadyBind>[];
+      for (int i = 0; i < items.length; i++) {
+        check();
+        final GroupAlbumUploadItem item = items[i];
+        final String? mime = albumMimeOf(item.file.path, item.photoName);
+        if (mime == null) {
           slots[i] = GroupAlbumUploadOutcome(
             item: item,
             ok: false,
-            reason: 'not_confirmed',
+            reason: 'unsupported_image_type',
           );
           continue;
         }
-        ready.add(
-          _ReadyBind(
+        try {
+          final DirectUploadResult direct =
+              await DirectAttachmentApi.uploadFile(
+                item.file,
+                fileName: item.photoName,
+                mime: mime,
+                scope: 'group',
+                scopeRef: gid,
+                clientUploadId: item.clientUploadId,
+                sessionFn: session,
+                putFn: putFn,
+                cancelToken: cancel,
+              );
+          check();
+          if (direct.state != DirectAttachmentApi.stateConfirmed) {
+            slots[i] = GroupAlbumUploadOutcome(
+              item: item,
+              ok: false,
+              reason: 'not_confirmed',
+            );
+            continue;
+          }
+          ready.add(
+            _ReadyBind(
+              item: item,
+              slotIndex: i,
+              objectKey: direct.objectKey,
+              mime: mime,
+            ),
+          );
+        } on DirectUploadCancelled {
+          check();
+          // 本地取消：按项失败记账（不阻断其余项，本地可重试）
+          slots[i] = GroupAlbumUploadOutcome(
             item: item,
-            slotIndex: i,
-            objectKey: direct.objectKey,
-            mime: mime,
-          ),
-        );
-      } on DirectUploadCancelled {
-        // 本地取消：按项失败记账（不阻断其余项，本地可重试）
-        slots[i] = GroupAlbumUploadOutcome(
-          item: item,
-          ok: false,
-          reason: 'cancelled',
-        );
-      } on Exception {
-        slots[i] = GroupAlbumUploadOutcome(
-          item: item,
-          ok: false,
-          reason: 'direct_failed',
-        );
-      }
-    }
-    if (ready.isEmpty) {
-      return slots.cast<GroupAlbumUploadOutcome>();
-    }
-
-    // bind_batch：≤50/批（backend 硬门）；每批后合并逐项结果。
-    // C08（source-audit C08-album-partial）：bindBatch 抛出的传输层异常
-    // 与 !resp.ok 同形态按项落账——异常不再逃逸出本方法吞掉前面批次
-    // 已回填的结果（部分失败继续，逐项有账）。
-    final GroupAlbumBindBatchFn bindBatch =
-        bindBatchFn ??
-        (Map<String, dynamic> body) =>
-            post(API.groupAlbumPhotoBindBatch, data: body);
-    for (int i = 0; i < ready.length; i += bindBatchLimit) {
-      final List<_ReadyBind> chunk = ready.sublist(
-        i,
-        i + bindBatchLimit > ready.length ? ready.length : i + bindBatchLimit,
-      );
-      Map<String, dynamic>? payload;
-      try {
-        final IMBoyHttpResponse resp = await bindBatch(<String, dynamic>{
-          'gid': gid,
-          'items': <Map<String, dynamic>>[
-            for (final _ReadyBind r in chunk)
-              <String, dynamic>{
-                'album_id': aid,
-                'photo_name': r.item.photoName,
-                'photo_size': r.item.file.lengthSync(),
-                'mime_type': r.mime,
-                'sha256': await sha256OfFile(r.item.file),
-                'object_key': r.objectKey,
-              },
-          ],
-        });
-        if (resp.ok && resp.payload != null) {
-          payload = Map<String, dynamic>.from(
-            IMBoyHttpResponse.payloadAsMap(resp.payload),
-          );
-        }
-      } on Exception {
-        // 传输层异常：整批按项落账失败（照片已 CONFIRMED，重试只重
-        // bind_batch 幂等），继续下一批——不吞掉前序批次结果。
-        payload = null;
-      }
-      if (payload == null) {
-        for (final _ReadyBind r in chunk) {
-          slots[r.slotIndex] = GroupAlbumUploadOutcome(
-            item: r.item,
             ok: false,
-            reason: 'bind_batch_failed',
+            reason: 'cancelled',
+          );
+        } on Exception {
+          check();
+          slots[i] = GroupAlbumUploadOutcome(
+            item: item,
+            ok: false,
+            reason: 'direct_failed',
           );
         }
-        continue;
       }
-      _matchBindResults(chunk, payload['results'], slots);
+      if (ready.isEmpty) {
+        return slots.cast<GroupAlbumUploadOutcome>();
+      }
+
+      // bind_batch：≤50/批（backend 硬门）；每批后合并逐项结果。
+      // C08（source-audit C08-album-partial）：bindBatch 抛出的传输层异常
+      // 与 !resp.ok 同形态按项落账——异常不再逃逸出本方法吞掉前面批次
+      // 已回填的结果（部分失败继续，逐项有账）。
+      Future<IMBoyHttpResponse> bindBatch(Map<String, dynamic> body) async {
+        check();
+        final response = bindBatchFn != null
+            ? await bindBatchFn(body)
+            : await post(
+                API.groupAlbumPhotoBindBatch,
+                data: body,
+                cancelToken: cancel,
+              );
+        check();
+        return response;
+      }
+
+      for (int i = 0; i < ready.length; i += bindBatchLimit) {
+        check();
+        final List<_ReadyBind> chunk = ready.sublist(
+          i,
+          i + bindBatchLimit > ready.length ? ready.length : i + bindBatchLimit,
+        );
+        Map<String, dynamic>? payload;
+        try {
+          final IMBoyHttpResponse resp = await bindBatch(<String, dynamic>{
+            'gid': gid,
+            'items': <Map<String, dynamic>>[
+              for (final _ReadyBind r in chunk)
+                <String, dynamic>{
+                  'album_id': aid,
+                  'photo_name': r.item.photoName,
+                  'photo_size': r.item.file.lengthSync(),
+                  'mime_type': r.mime,
+                  'sha256': await sha256OfFile(r.item.file),
+                  'object_key': r.objectKey,
+                },
+            ],
+          });
+          if (resp.ok && resp.payload != null) {
+            payload = Map<String, dynamic>.from(
+              IMBoyHttpResponse.payloadAsMap(resp.payload),
+            );
+          }
+        } on Exception {
+          check();
+          // 传输层异常：整批按项落账失败（照片已 CONFIRMED，重试只重
+          // bind_batch 幂等），继续下一批——不吞掉前序批次结果。
+          payload = null;
+        }
+        if (payload == null) {
+          for (final _ReadyBind r in chunk) {
+            slots[r.slotIndex] = GroupAlbumUploadOutcome(
+              item: r.item,
+              ok: false,
+              reason: 'bind_batch_failed',
+            );
+          }
+          continue;
+        }
+        _matchBindResults(chunk, payload['results'], slots);
+      }
+      return slots.cast<GroupAlbumUploadOutcome>();
+    } finally {
+      authSessionReader.removeListener(onAuthChanged);
+      task.finish();
     }
-    return slots.cast<GroupAlbumUploadOutcome>();
   }
 
   /// bind_batch 逐项结果按 object_key 对回本地 item（结果缺项视为失败），

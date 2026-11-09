@@ -24,6 +24,7 @@ extension _TalkRecordFinalAudio on TalkRecordAttachmentUploadGateway {
     TalkRecordUploadCheckpoint cp,
     TalkRecordUploadCheckpointStore store,
     void Function() guard,
+    CancelToken? cancelToken,
   ) async {
     // 1. 已冻结且 CONFIRMED：直接发布冻结身份（密文段/明文均无需在场）。
     if (cp.finalAudio['confirmed'] == true) {
@@ -35,7 +36,7 @@ extension _TalkRecordFinalAudio on TalkRecordAttachmentUploadGateway {
     if (_hasIdentity(cp.finalAudio)) {
       final objectKey = '${cp.finalAudio['object_key']}';
       guard();
-      final status = await directStatus(objectKey);
+      final status = await directStatus(objectKey, cancelToken: cancelToken);
       guard();
       if (status.state == DirectAttachmentApi.stateConfirmed) {
         cp.finalAudio = Map<String, dynamic>.from(cp.finalAudio)
@@ -109,6 +110,7 @@ extension _TalkRecordFinalAudio on TalkRecordAttachmentUploadGateway {
           final objectKey = await directRegister(
             identity['client_upload_id'] as String,
             b.recordId,
+            cancelToken: cancelToken,
           );
           guard();
           cp.finalAudio = Map<String, dynamic>.from(cp.finalAudio)
@@ -117,7 +119,10 @@ extension _TalkRecordFinalAudio on TalkRecordAttachmentUploadGateway {
           // register 幂等找回的可能是已 CONFIRMED 的旧会话（finalize 成功
           // 而 confirmed 落盘前崩溃的窗口）：status 复查，短路不重传。
           guard();
-          final status = await directStatus(objectKey);
+          final status = await directStatus(
+            objectKey,
+            cancelToken: cancelToken,
+          );
           guard();
           if (status.state == DirectAttachmentApi.stateConfirmed) {
             cp.finalAudio = Map<String, dynamic>.from(cp.finalAudio)
@@ -135,6 +140,7 @@ extension _TalkRecordFinalAudio on TalkRecordAttachmentUploadGateway {
           finalFile,
           clientUploadId: cp.finalAudio['client_upload_id'] as String,
           scopeRef: b.recordId,
+          cancelToken: cancelToken,
         );
         guard();
         if (uploaded.state != DirectAttachmentApi.stateConfirmed) {

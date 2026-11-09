@@ -3,11 +3,9 @@ import 'dart:convert';
 
 export 'package:imboy/page/chat/chat/chat_stream_state_notifier.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:xid/xid.dart';
-import 'package:synchronized/synchronized.dart';
 import 'package:imboy/page/workspace/workspace_data_providers.dart';
 import 'package:imboy/store/api/workspace_api.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
@@ -31,6 +29,9 @@ import 'package:imboy/store/repository/message_read_repo.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/account_preferences.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/pending_chat_actions.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/chat/services/message_handling_service.dart';
@@ -46,6 +47,7 @@ import 'package:imboy/service/message_type_constants.dart';
 export 'package:imboy/page/chat/chat/chat_state.dart' show ChatState;
 
 part 'chat_provider.g.dart';
+part 'chat_local_preferences.dart';
 
 /// 消息处理服务 Provider
 @riverpod
@@ -64,6 +66,7 @@ class ChatNotifier extends _$ChatNotifier {
   StreamSubscription<int>? _positionSubscription;
   bool _isDisposed = false;
   late final AuthSessionScope _ownerSession;
+  late final AccountPreferences _preferences;
   late final String _ownerEndpoint;
   int _locationRequest = 0;
   String? _contextPaginationConversationId;
@@ -98,13 +101,11 @@ class ChatNotifier extends _$ChatNotifier {
 
   // SharedPreferences keys
   static const String _spPendingReadReceiptsKey =
-      'imboy.pending_read_receipts.v1';
-  static const String _spPendingReactionsKey = 'imboy.pending_reactions.v1';
-  static const String _spDeletedMessageIdsKey = 'imboy.deleted_message_ids.v1';
+      PendingChatActions.readReceiptsKey;
+  static const String _spPendingReactionsKey = PendingChatActions.reactionsKey;
 
   // Timers
   Timer? _readReceiptFlushTimer;
-  final _pendingLock = Lock();
   final _flushingPending = <String>{};
   final _pendingFlushAgain = <String>{};
   Timer? _cleanupDeletedMessageIdsTimer;
@@ -132,6 +133,9 @@ class ChatNotifier extends _$ChatNotifier {
   @override
   ChatState build() {
     _ownerSession = authSessionReader.current;
+    _preferences = AccountPreferences.capture(
+      isActive: () => ref.mounted && !_isDisposed,
+    );
     _ownerEndpoint = Env().apiBaseUrl;
     _audioHandler = ChatAudioHandler(
       getVoicePlaybackNotifier: () =>
@@ -160,7 +164,7 @@ class ChatNotifier extends _$ChatNotifier {
 
     _cleanupDeletedMessageIdsTimer = Timer.periodic(
       const Duration(hours: 1),
-      (_) => _burnService.cleanupDeletedMessageIds(_spDeletedMessageIdsKey),
+      (_) => _burnService.cleanupDeletedMessageIds(_preferences),
     );
 
     ref.listen<VoicePlaybackState>(voicePlaybackServiceProvider, (
@@ -586,20 +590,43 @@ class ChatNotifier extends _$ChatNotifier {
     List<String> msgIds, {
     bool syncToServer = true,
   }) async {
-    final owner = UserRepoLocal.to.currentUid;
-    if (owner.isEmpty) return false;
+    var applied = false;
+    await _runChatAccountTask(this, (isCurrent) async {
+      applied = await _markAsRead(
+        type,
+        peerId,
+        msgIds,
+        syncToServer,
+        isCurrent,
+      );
+    });
+    return applied;
+  }
+
+  Future<bool> _markAsRead(
+    String type,
+    String peerId,
+    List<String> msgIds,
+    bool syncToServer,
+    bool Function() isCurrent,
+  ) async {
+    final owner = _preferences.owner.uid;
+    if (!isCurrent()) return false;
     Database? db = await SqliteService.to.db;
-    if (db == null || UserRepoLocal.to.currentUid != owner) return false;
+    if (db == null || !isCurrent()) return false;
 
     ConversationModel? c = await ConversationRepo().findByPeerId(type, peerId);
-    if (c == null || UserRepoLocal.to.currentUid != owner) return false;
+    if (c == null || !isCurrent()) return false;
 
     final result = await MessageReadRepo.apply(db, c, msgIds);
+    if (!isCurrent()) return false;
     c = c.copyWith(unreadNum: result.unreadNum);
     await ref
         .read(conversationProvider.notifier)
         .advanceReadWatermarkByMsgIds(c, result.msgIds);
+    if (!isCurrent()) return false;
     final current = await ConversationRepo().findById(c.id);
+    if (!isCurrent()) return false;
     // J19.e（W09.b）：is_show=0 的会话（已从列表移除）不得因已读同步
     // （message_read_sync → markAsRead）复活进内存列表——replace 会把
     // 隐藏行重新塞回 conversationMap（100ms 批量定时器无 isShow 校验），
@@ -647,7 +674,11 @@ class ChatNotifier extends _$ChatNotifier {
     required String peerId,
     required List<String> msgIds,
   }) async {
-    if (msgIds.isEmpty) return;
+    if (msgIds.isEmpty ||
+        !_preferences.isCurrent ||
+        owner != _preferences.owner.uid) {
+      return;
+    }
     final int now = DateTimeHelper.millisecond();
     final item = _networkService.buildReadReceiptItem(
       type,
@@ -656,6 +687,7 @@ class ChatNotifier extends _$ChatNotifier {
       now,
     );
     await _enqueuePending(_spPendingReadReceiptsKey, {...item, 'from': owner});
+    if (!_preferences.isCurrent) return;
     _readReceiptFlushTimer?.cancel();
     _readReceiptFlushTimer = Timer(const Duration(milliseconds: 300), () {
       _flushPendingReadReceipts();
@@ -666,69 +698,26 @@ class ChatNotifier extends _$ChatNotifier {
     await _flushPending(_spPendingReadReceiptsKey);
   }
 
-  Future<void> _enqueuePending(String key, Map<String, dynamic> item) =>
-      _updatePending(key, (items) => items.add(item));
-
-  Future<List<dynamic>> _updatePending(
-    String key,
-    void Function(List<dynamic>) change,
-  ) => _pendingLock.synchronized(() async {
-    final sp = await SharedPreferences.getInstance();
-    final raw = sp.getString(key);
-    final decoded = raw == null ? <dynamic>[] : jsonDecode(raw);
-    final items = decoded is List ? List<dynamic>.from(decoded) : <dynamic>[];
-    change(items);
-    await sp.setString(key, jsonEncode(items));
-    return List<dynamic>.from(items);
-  });
-
-  Future<void> _flushPending(String key) async {
-    if (_isDisposed || !MessagingFacade.instance.isOnline) return;
-    if (!_flushingPending.add(key)) {
-      _pendingFlushAgain.add(key);
-      return;
-    }
-    final owner = UserRepoLocal.to.currentUid;
-    final completed = <String>{};
-    var retry = false;
-    try {
-      final items = await _updatePending(key, (_) {});
-      for (final item in items.whereType<Map<String, dynamic>>()) {
-        if (_isDisposed || UserRepoLocal.to.currentUid != owner) break;
-        if (item['from'] != owner) continue;
-        if (await _dispatchPending(key, item)) {
-          completed.add('${item['id']}');
-        } else {
-          retry = true;
-        }
-      }
-      await _updatePending(
+  Future<void> _enqueuePending(String key, Map<String, dynamic> item) async {
+    final action = Map<String, dynamic>.of(item);
+    await _runChatAccountTask(this, (isCurrent) async {
+      if (action['from'] != _preferences.owner.uid) return;
+      await PendingChatActions.instance.update(
         key,
-        (items) => items.removeWhere(
-          (item) => item is Map && completed.contains('${item['id']}'),
-        ),
+        (items) => items.add(action),
+        isCurrent: isCurrent,
       );
-    } catch (e) {
-      retry = true;
-      iPrint('[chat_provider] pending receipt failure=${e.runtimeType}');
-    } finally {
-      _flushingPending.remove(key);
-      final again = _pendingFlushAgain.remove(key);
-      if ((retry || again) && !_isDisposed) {
-        if (key == _spPendingReadReceiptsKey) {
-          _readReceiptFlushTimer?.cancel();
-          _readReceiptFlushTimer = Timer(
-            retry ? const Duration(seconds: 5) : Duration.zero,
-            _flushPendingReadReceipts,
-          );
-        } else if (again) {
-          unawaited(_flushPending(key));
-        }
-      }
-    }
+    });
   }
 
-  Future<bool> _dispatchPending(String key, Map<String, dynamic> item) async {
+  Future<void> _flushPending(String key) => _flushChatPending(this, key);
+
+  Future<bool> _dispatchPending(
+    String key,
+    Map<String, dynamic> item, {
+    required bool Function() isCurrent,
+  }) async {
+    if (!isCurrent()) return false;
     final type = item['type']?.toString() ?? 'C2C';
     if (key == _spPendingReadReceiptsKey && type == 'C2G') {
       final payload = item['payload'];
@@ -742,7 +731,8 @@ class ChatNotifier extends _$ChatNotifier {
               ids.cast<String>(),
               owner: '${item['from']}',
             );
-        if (!_isDisposed && item['from'] == UserRepoLocal.to.currentUid) {
+        if (!isCurrent()) return false;
+        if (item['from'] == _preferences.owner.uid) {
           ref.invalidate(workspaceConversationsProvider);
         }
         return true;
@@ -751,7 +741,7 @@ class ChatNotifier extends _$ChatNotifier {
         // Personal groups have no workspace cursor; keep their existing receipt.
       }
     }
-    if (_isDisposed || item['from'] != UserRepoLocal.to.currentUid) {
+    if (!isCurrent() || item['from'] != _preferences.owner.uid) {
       return false;
     }
     final id = item['id']?.toString() ?? Xid().toString();
@@ -1053,13 +1043,17 @@ class ChatNotifier extends _$ChatNotifier {
     String messageId, {
     int? deletedAtMs,
   }) async {
-    await _burnService.expireBurnMessage(
-      chatService: _chatService,
-      conversation: conversation,
-      messageId: messageId,
-      deletedMessageIdsKey: _spDeletedMessageIdsKey,
-      onRemoveMessage: removeMessage,
-      deletedAtMs: deletedAtMs,
+    await _runChatAccountTask(
+      this,
+      (isCurrent) => _burnService.expireBurnMessage(
+        chatService: _chatService,
+        conversation: conversation,
+        messageId: messageId,
+        preferences: _preferences,
+        isCurrent: isCurrent,
+        onRemoveMessage: removeMessage,
+        deletedAtMs: deletedAtMs,
+      ),
     );
   }
 
@@ -1067,12 +1061,16 @@ class ChatNotifier extends _$ChatNotifier {
     ConversationModel conversation,
     String messageId,
   ) async {
-    await _burnService.deleteBurnMessage(
-      burnDeleteTimers: burnDeleteTimers,
-      chatService: _chatService,
-      conversation: conversation,
-      messageId: messageId,
-      onExpire: expireBurnMessage,
+    await _runChatAccountTask(
+      this,
+      (isCurrent) => _burnService.deleteBurnMessage(
+        burnDeleteTimers: burnDeleteTimers,
+        chatService: _chatService,
+        conversation: conversation,
+        messageId: messageId,
+        onExpire: expireBurnMessage,
+        isCurrent: isCurrent,
+      ),
     );
     // 此处原有一次无条件 burnDeleteTimers.remove(messageId)?.cancel()：
     // 与 ChatBurnService.deleteBurnMessage 内部的清理重复，且会把销毁失败后
@@ -1082,7 +1080,7 @@ class ChatNotifier extends _$ChatNotifier {
   static Future<bool> isMessageDeleted(String messageId) async {
     return ChatBurnService.isMessageDeleted(
       messageId,
-      'imboy.deleted_message_ids.v1',
+      AccountPreferences.capture(),
     );
   }
 

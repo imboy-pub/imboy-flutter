@@ -3,13 +3,17 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/storage_secure.dart';
 import 'package:imboy/store/api/e2ee_api.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/e2ee/e2ee_secret_inventory.dart';
+import 'package:imboy/store/repository/user_repo_local.dart';
+
+import 'e2ee_local_backup_files.dart';
 
 import 'e2ee_crypto_service.dart';
 
@@ -101,22 +105,7 @@ class E2EELocalBackupService {
   /// @throws ArgumentError 如果密码强度不足
   /// @throws Exception 如果加密失败
   ///
-  /// @example
-  /// ```dart
-  /// try {
-  ///   final filePath = await E2EELocalBackupService.exportBackup(
-  ///     password: 'MyPass123',
-  ///     privateKey: privateKeyPem,
-  ///     publicKey: publicKeyPem,
-  ///     deviceId: 'device-001',
-  ///     keyId: 'key-abc123',
-  ///     userNotes: '主手机备份',
-  ///   );
-  ///   print('备份已保存到: $filePath');
-  /// } catch (e) {
-  ///   print('备份失败: $e');
-  /// }
-  /// ```
+  /// 临时副本按账号隔离；清理会取消并等待完整打包、写盘过程。
   static Future<String> exportBackup({
     required String password,
     required String privateKey,
@@ -130,27 +119,21 @@ class E2EELocalBackupService {
     Future<E2EEGroupHistoryGrant> Function(String gid, String sessionId)?
     historyGrantLoaderForTest,
   }) async {
-    final backupFile = await packBackupBytes(
-      password: password,
-      privateKey: privateKey,
-      publicKey: publicKey,
-      deviceId: deviceId,
-      keyId: keyId,
-      userNotes: userNotes,
+    _validatePassword(password);
+    return E2eeLocalBackupFiles.writeExport(
       accountId: accountId,
-      secureEntriesForTest: secureEntriesForTest,
-      historyGrantLoaderForTest: historyGrantLoaderForTest,
+      pack: (uid) => packBackupBytes(
+        password: password,
+        privateKey: privateKey,
+        publicKey: publicKey,
+        deviceId: deviceId,
+        keyId: keyId,
+        userNotes: userNotes,
+        accountId: uid,
+        secureEntriesForTest: secureEntriesForTest,
+        historyGrantLoaderForTest: historyGrantLoaderForTest,
+      ),
     );
-
-    // 保存到临时目录
-    final tempDir = await getTemporaryDirectory();
-    final timestamp = DateTime.now().toIso8601String().replaceAll(':', '-');
-    final fileName = 'imboy_e2ee_backup_$timestamp.enc';
-    final filePath = '${tempDir.path}/$fileName';
-    final file = File(filePath);
-    await file.writeAsBytes(backupFile);
-
-    return filePath;
   }
 
   /// 打包加密备份为字节（不落盘）
@@ -362,11 +345,11 @@ class E2EELocalBackupService {
   ///     filePath: '/path/to/backup.enc',
   ///     password: 'MyStrongPassword123!',
   ///   );
-  ///   print('密钥已恢复:');
-  ///   print('设备 ID: ${result['device_id']}');
-  ///   print('密钥 ID: ${result['key_id']}');
+  ///   imboyPrint('密钥已恢复:');
+  ///   imboyPrint('设备 ID: ${result['device_id']}');
+  ///   imboyPrint('密钥 ID: ${result['key_id']}');
   /// } catch (e) {
-  ///   print('导入失败: $e');
+  ///   imboyPrint('导入失败: $e');
   /// }
   /// ```
   static Future<Map<String, dynamic>> importBackup({
@@ -411,6 +394,7 @@ class E2EELocalBackupService {
     if (!historicalGrantConfirmed && !section.isEmpty) {
       throw StateError('historical_room_key_grant_required');
     }
+    final session = writeForTest == null ? authSessionReader.current : null;
     if (!section.isEmpty) await auditBeforeRestore(section);
     final entries = megolmRestoreEntries(section);
     var written = 0;
@@ -419,9 +403,15 @@ class E2EELocalBackupService {
         if (writeForTest != null) {
           await writeForTest(entry.key, entry.value);
         } else {
-          await StorageSecureService.to.write(
-            key: entry.key,
-            value: entry.value,
+          await UserRepoLocal.to.writeSessionSecret(
+            uid: session!.uid,
+            generation: session.generation,
+            write: () => StorageSecureService.to.write(
+              key: entry.key,
+              value: entry.value,
+            ),
+            discard: () =>
+                E2eeSecretInventory.production().deleteKey(entry.key),
           );
         }
         written++;
@@ -589,11 +579,11 @@ class E2EELocalBackupService {
   /// ```dart
   /// try {
   ///   final info = await E2EELocalBackupService.verifyBackupFile(filePath);
-  ///   print('版本: ${info['version']}');
-  ///   print('算法: ${info['algorithm']}');
-  ///   print('文件大小: ${info['file_size']} bytes');
+  ///   imboyPrint('版本: ${info['version']}');
+  ///   imboyPrint('算法: ${info['algorithm']}');
+  ///   imboyPrint('文件大小: ${info['file_size']} bytes');
   /// } catch (e) {
-  ///   print('文件验证失败: $e');
+  ///   imboyPrint('文件验证失败: $e');
   /// }
   /// ```
   static Future<Map<String, dynamic>> verifyBackupFile(String filePath) async {

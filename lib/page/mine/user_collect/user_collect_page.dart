@@ -14,7 +14,7 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/page/user_tag/user_tag_relation/tag_relation_page.dart'
     show TagRelationPage;
 import 'package:imboy/store/model/user_collect_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/service/account_preferences.dart';
 
 import 'user_collect_detail_page.dart';
 import 'user_collect_provider.dart';
@@ -52,6 +52,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   // 若后续需要跨设备同步，需先在后端加字段+接口，再把下面两个方法改走网络。
   final Set<String> _pinnedIds = {};
   static const String _kPinnedPrefsKey = 'user_collect_pinned_ids';
+  late final AccountPreferences _preferences;
   bool _multiSelect = false;
   final Set<String> _selectedIds = {};
   Timer? _searchTimer;
@@ -60,6 +61,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   @override
   void initState() {
     super.initState();
+    _preferences = AccountPreferences.capture(isActive: () => mounted);
     _localeSubscription = LocaleSettings.getLocaleStream().listen((_) {
       if (mounted) setState(() {});
     });
@@ -167,24 +169,21 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
     });
   }
 
-  Future<void> _loadPinnedIds() async {
+  void _loadPinnedIds() {
+    if (!_preferences.isCurrent) return;
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final list = prefs.getStringList(_kPinnedPrefsKey) ?? <String>[];
-      if (mounted) {
-        setState(
-          () => _pinnedIds
-            ..clear()
-            ..addAll(list),
-        );
-      }
+      final list = _preferences.readList(_kPinnedPrefsKey);
+      setState(
+        () => _pinnedIds
+          ..clear()
+          ..addAll(list),
+      );
     } catch (_) {}
   }
 
   Future<void> _savePinnedIds() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setStringList(_kPinnedPrefsKey, _pinnedIds.toList());
+      await _preferences.writeList(_kPinnedPrefsKey, _pinnedIds.toList());
     } catch (_) {}
   }
 
@@ -240,6 +239,7 @@ class _UserCollectPageState extends ConsumerState<UserCollectPage> {
   }
 
   void _togglePin(UserCollectModel obj) {
+    if (!_preferences.isCurrent) return;
     setState(() {
       final id = obj.kindId.toString();
       if (_pinnedIds.contains(id)) {

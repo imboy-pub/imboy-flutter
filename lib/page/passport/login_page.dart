@@ -5,6 +5,8 @@ import 'package:imboy/modules/enterprise_oa/enterprise_oa_runtime_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/login_account_history_service.dart';
+import 'package:imboy/component/ui/app_back_scope.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +46,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _emailCodeController = TextEditingController();
   bool _isLoading = false;
+  bool _isClearingHistory = false;
 
   @override
   void initState() {
@@ -78,6 +81,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     _emailCodeController.addListener(() => setState(() {}));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       ref.read(passportProvider.notifier).initLoginHistory();
       if (widget.account?.isNotEmpty ?? false) {
         _accountController.text = widget.account!;
@@ -107,7 +111,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
     final height = MediaQuery.of(context).size.height;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return CupertinoPageScaffold(
+    final page = CupertinoPageScaffold(
       child: Material(
         type: MaterialType.transparency,
         child: Stack(
@@ -221,6 +225,68 @@ class _LoginPageState extends ConsumerState<LoginPage>
         ),
       ),
     );
+    return AppBackScope<void>(
+      canPop: !_isClearingHistory,
+      onPopInvokedWithResult: (_, _) {},
+      child: AbsorbPointer(
+        absorbing: _isClearingHistory || _isLoading,
+        child: page,
+      ),
+    );
+  }
+
+  void _historyBusyChanged(bool busy) {
+    if (mounted) setState(() => _isClearingHistory = busy);
+  }
+
+  String _historyClearErrorMessage(Object error) {
+    if (error is LoginAccountIdentityUnavailableException) {
+      return t.account.loginHistoryIdentityUnavailable;
+    }
+    if (error is LoginAccountCleanupBusyException) {
+      return t.account.loginHistoryCleanupBusy;
+    }
+    if (error is LoginAccountSharedDataException) {
+      return t.account.loginHistorySharedData;
+    }
+    if (error is AccountLocalDataOwnershipException) {
+      return t.account.loginHistoryOwnershipUnavailable;
+    }
+    return t.common.operationFailedAgainLater;
+  }
+
+  Future<void> _clearHistoryAccountData(String type, String value) async {
+    final before = ref.read(passportProvider);
+    await ref
+        .read(passportProvider.notifier)
+        .clearHistoryAccountData(type, value);
+    if (!mounted) return;
+    final after = ref.read(passportProvider);
+    if (before.accountHistory.contains(_accountController.text) &&
+        !after.accountHistory.contains(_accountController.text)) {
+      _accountController.clear();
+    }
+    if (before.emailHistory.contains(_emailController.text) &&
+        !after.emailHistory.contains(_emailController.text)) {
+      _emailController.clear();
+    }
+    _passwordController.clear();
+    _emailCodeController.clear();
+  }
+
+  Future<void> _finishLogin(
+    PassportNotifier notifier,
+    String type,
+    String value,
+  ) async {
+    try {
+      await notifier.saveHistory(type, value);
+    } catch (_) {
+      if (mounted) notifier.snackBar(t.common.operationFailedAgainLater);
+    }
+    // Authentication and account ownership are already persisted. A history
+    // display preference failure must not strand a signed-in user here.
+    if (mounted) context.go('/bottom_navigation');
   }
 
   Widget _buildAccountLogin(
@@ -241,12 +307,15 @@ class _LoginPageState extends ConsumerState<LoginPage>
             hintText: t.account.hintLoginAccount,
             prefixIcon: CupertinoIcons.person,
             historyList: state.accountHistory,
+            enabled: !_isLoading && !_isClearingHistory,
             autofillHints: const [AutofillHints.username, AutofillHints.email],
             onSelect: (val) {
               _accountController.text = val;
               setState(() {});
             },
-            onDelete: (val) => notifier.removeHistory('account', val),
+            onClear: (val) => _clearHistoryAccountData('account', val),
+            onBusyChanged: _historyBusyChanged,
+            clearErrorMessage: _historyClearErrorMessage,
           ),
           AppSpacing.verticalRegular,
           TextField(
@@ -275,7 +344,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
             ),
           ),
           AppSpacing.verticalXXLarge,
-          _buildLoginButton(() {
+          _buildLoginButton(() async {
             final account = _accountController.text;
             final pwd = _passwordController.text;
             if (account.isEmpty || pwd.isEmpty) {
@@ -288,15 +357,20 @@ class _LoginPageState extends ConsumerState<LoginPage>
             }
             final accountType = account.contains('@') ? 'email' : 'account';
             setState(() => _isLoading = true);
-            notifier.loginUser(accountType, account, pwd).then((err) {
-              if (mounted) setState(() => _isLoading = false);
+            try {
+              final err = await notifier.loginUser(accountType, account, pwd);
               if (err == null) {
-                notifier.saveHistory('account', account);
-                if (mounted) context.go('/bottom_navigation');
+                await _finishLogin(notifier, 'account', account);
               } else {
                 notifier.snackBar(err);
               }
-            });
+            } catch (_) {
+              if (mounted) {
+                notifier.snackBar(t.common.operationFailedAgainLater);
+              }
+            } finally {
+              if (mounted) setState(() => _isLoading = false);
+            }
           }, isEnabled: isEnabled),
         ],
       ),
@@ -393,17 +467,24 @@ class _LoginPageState extends ConsumerState<LoginPage>
               return;
             }
             setState(() => _isLoading = true);
-            final err = await notifier.loginUserByCode(
-              'mobile',
-              _fullMobile,
-              _mobileCodeController.text,
-            );
-            if (mounted) setState(() => _isLoading = false);
-            if (err == null) {
-              notifier.saveHistory('mobile', _fullMobile);
-              if (mounted) context.go('/bottom_navigation');
-            } else {
-              notifier.snackBar(err);
+            try {
+              final mobile = _fullMobile;
+              final err = await notifier.loginUserByCode(
+                'mobile',
+                mobile,
+                _mobileCodeController.text,
+              );
+              if (err == null) {
+                await _finishLogin(notifier, 'mobile', mobile);
+              } else {
+                notifier.snackBar(err);
+              }
+            } catch (_) {
+              if (mounted) {
+                notifier.snackBar(t.common.operationFailedAgainLater);
+              }
+            } finally {
+              if (mounted) setState(() => _isLoading = false);
             }
           }, isEnabled: isEnabled),
         ],
@@ -428,12 +509,15 @@ class _LoginPageState extends ConsumerState<LoginPage>
             hintText: t.passport.hintEmail,
             prefixIcon: CupertinoIcons.mail,
             historyList: state.emailHistory,
+            enabled: !_isLoading && !_isClearingHistory,
             autofillHints: const [AutofillHints.email],
             onSelect: (val) {
               _emailController.text = val;
               setState(() {});
             },
-            onDelete: (val) => notifier.removeHistory('email', val),
+            onClear: (val) => _clearHistoryAccountData('email', val),
+            onBusyChanged: _historyBusyChanged,
+            clearErrorMessage: _historyClearErrorMessage,
             keyboardType: TextInputType.emailAddress,
           ),
           AppSpacing.verticalRegular,
@@ -497,17 +581,24 @@ class _LoginPageState extends ConsumerState<LoginPage>
               return;
             }
             setState(() => _isLoading = true);
-            final err = await notifier.loginUserByCode(
-              'email',
-              _emailController.text,
-              _emailCodeController.text,
-            );
-            if (mounted) setState(() => _isLoading = false);
-            if (err == null) {
-              notifier.saveHistory('email', _emailController.text);
-              if (mounted) context.go('/bottom_navigation');
-            } else {
-              notifier.snackBar(err);
+            try {
+              final email = _emailController.text;
+              final err = await notifier.loginUserByCode(
+                'email',
+                email,
+                _emailCodeController.text,
+              );
+              if (err == null) {
+                await _finishLogin(notifier, 'email', email);
+              } else {
+                notifier.snackBar(err);
+              }
+            } catch (_) {
+              if (mounted) {
+                notifier.snackBar(t.common.operationFailedAgainLater);
+              }
+            } finally {
+              if (mounted) setState(() => _isLoading = false);
             }
           }, isEnabled: isEnabled),
         ],
@@ -557,7 +648,7 @@ class _LoginPageState extends ConsumerState<LoginPage>
         minimumSize: const Size(0, 50),
         key: const Key('login_submit_button'),
         padding: EdgeInsets.zero,
-        onPressed: (_isLoading || !isEnabled)
+        onPressed: (_isLoading || _isClearingHistory || !isEnabled)
             ? null
             : () {
                 FocusScope.of(context).unfocus();

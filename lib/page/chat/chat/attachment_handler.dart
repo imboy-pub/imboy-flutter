@@ -38,6 +38,9 @@ import 'package:imboy/store/model/entity_video.dart';
 import 'package:imboy/component/helper/datetime.dart';
 import 'package:imboy/component/helper/permission.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/model/user_collect_model.dart';
@@ -49,6 +52,7 @@ import 'package:imboy/component/voice_record/voice_widget.dart' show AudioFile;
 import 'package:imboy/modules/messaging/infrastructure/message_model_mapper.dart';
 
 part 'attachment_handler_multi_image.dart';
+part 'attachment_handler_lifecycle.dart';
 
 /// 附件上传回调
 typedef AttachmentUploadedCallback = Future<bool> Function(Message message);
@@ -121,75 +125,6 @@ class ChatAttachmentHandler {
   /// 是否已进入 E2EE-061 附件封装的推出阶段，默认 [kAttachmentSealRolloutEnabled]。
   /// 关闭时上传路径逐字节维持今天的明文行为。
   final bool sealRollout;
-
-  /// 安全拦截：如果用户被禁言，直接拦截消息创建与发送，并弹出 EasyLoading 提示 (C13)
-  Future<bool> _sendMessage(Message message) async {
-    if (isMutedCheck != null && isMutedCheck!()) {
-      AppLoading.showError(t.chat.youAreMuted);
-      return false;
-    }
-    if (currentUserOverride == null && (type == 'C2C' || type == 'C2G')) {
-      final actor = UserRepoLocal.to;
-      final generation = actor.sessionGeneration;
-      final uid = actor.currentUid;
-      if (message.authorId != uid ||
-          actor.isAuthTransitioning ||
-          (ownerGeneration != null &&
-              !actor.isCurrentSession(ownerGeneration!))) {
-        return false;
-      }
-      final repo = MessageRepo(tableName: MessageRepo.getTableName(type));
-      final existing = await repo.find(message.id);
-      final tasks = await AttachmentUploadTaskRepo().findByAnchor(
-        message.id,
-        uid,
-      );
-      final uncertain = tasks.any(
-        (row) =>
-            row.businessIntent != null &&
-            (jsonDecode(row.businessIntent!) as Map)['state'] != 'uploading',
-      );
-      final ready =
-          tasks.isNotEmpty &&
-          tasks.every(
-            (row) =>
-                (jsonDecode(row.businessIntent!) as Map)['state'] ==
-                'outbox_ready',
-          );
-      if (ready) return true;
-      if (existing != null || uncertain) {
-        final committed = await MsgApi().isCommitted(
-          chatType: type.toLowerCase(),
-          peerId: peerId,
-          messageId: message.id,
-        );
-        if (!actor.isCurrentSession(generation) ||
-            actor.currentUid != uid ||
-            !committed) {
-          return false;
-        }
-        if (existing != null) {
-          await repo.update({
-            'id': message.id,
-            'status': IMBoyMessageStatus.sent,
-          });
-        }
-        return true;
-      }
-      if (tasks.isNotEmpty) {
-        final uploader = ResumableAttachmentUploader();
-        await uploader.recoverBusinessOutbox(uid);
-        final refreshed = await uploader.repo.findByAnchor(message.id, uid);
-        return actor.isCurrentSession(generation) &&
-            refreshed.every(
-              (r) =>
-                  (jsonDecode(r.businessIntent!) as Map)['state'] ==
-                  'outbox_ready',
-            );
-      }
-    }
-    return await onMessageCreated(message);
-  }
 
   Map<String, dynamic> _safeMessageJson(Message message) {
     final result = message.toJson();
@@ -570,10 +505,11 @@ class ChatAttachmentHandler {
     BuildContext context, {
     AttachmentUploadTask? legacyTask,
     bool Function()? legacySessionCurrent,
-  }) async {
+  }) => _runOwned((check) async {
     final List<PlatformFile> files;
     try {
       files = await FilePicker.pickFiles(type: FileType.any);
+      check();
     } on Object catch (e) {
       // macOS App Sandbox 缺 user-selected entitlement 时，file_picker 抛
       // PlatformException(ENTITLEMENT_NOT_FOUND)；不捕获即 uncaught，
@@ -599,7 +535,7 @@ class ChatAttachmentHandler {
       legacyTask: legacyTask,
       legacySessionCurrent: legacySessionCurrent,
     );
-  }
+  });
 
   /// 上传文件
   ///
@@ -610,13 +546,14 @@ class ChatAttachmentHandler {
     PlatformFile file, {
     AttachmentUploadTask? legacyTask,
     bool Function()? legacySessionCurrent,
-  }) async {
+  }) => _runOwned((check) async {
     final String? path = file.path;
     if (path == null) {
       return;
     }
     try {
       final Uint8List bytes = await File(path).readAsBytes();
+      check();
       if (legacyTask != null) {
         if (!matchesLegacyUpload(legacyTask, bytes)) {
           AppLoading.showError(t.common.legacyUploadRecoveryMismatch);
@@ -633,10 +570,12 @@ class ChatAttachmentHandler {
       final String mime = lookupMimeType(path) ?? 'application/octet-stream';
       // file_picker 4.x platform_interface: length() 可返回 null，本地路径兜底取实际大小
       final int fileSize = (await file.length()) ?? File(path).lengthSync();
+      check();
       final s = _uploadScope;
       // message_id 必须在上传**之前**生成：它是绑定值（方案甲）的输入。
       final String messageId = Xid().toString();
       final seal = await _sealFor(messageId, 'file');
+      check();
       // 上传对象名匿名化（对齐图片路径 '${Xid()}.$ext'）：macOS 等桌面端原始
       // 文件名常含空格/中文/emoji，直接进 presign→object_key→PUT 签名链路会
       // 因编码不一致被 Garage 拒收（重试 3 次后抛 Exception）。展示名仍用
@@ -647,6 +586,7 @@ class ChatAttachmentHandler {
               rawName.substring(rawName.lastIndexOf('.') + 1).isNotEmpty
           ? rawName.substring(rawName.lastIndexOf('.') + 1).toLowerCase()
           : 'bin';
+      check();
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         '${Xid()}.$ext',
@@ -684,6 +624,7 @@ class ChatAttachmentHandler {
           }, seal),
         ),
       );
+      check();
       await _sendMessage(message);
     } on LegacyOutboxConflict {
       rethrow;
@@ -697,136 +638,153 @@ class ChatAttachmentHandler {
       // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
       AppLoading.showError(p.toast);
     }
-  }
+  });
 
   /// 处理相机选择
-  Future<void> handlePickerSelection(BuildContext context) async {
-    if (!context.mounted) return;
-    // Phase 2.2: Web 平台不支持原生 camera picker (wechat_camera_picker 是
-    // 移动端专用)。提示用户改用 + 号选文件（file_picker 已在 Web 工作）。
-    if (kIsWeb) {
-      if (context.mounted) {
-        AppLoading.showToast(
-          'Camera not supported on Web. Use file picker instead.',
-        );
-      }
-      return;
-    }
-    try {
-      // 桌面(macOS/Windows/Linux)：拍摄产物为本地临时文件（不经照片库，
-      // 不依赖照片库 TCC 授权），走文件直传管道；移动端维持 AssetEntity
-      // 管线不变（kIsWeb 已在上方 return，此处 Platform 安全）。
-      if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
-        final PickedMedia? media = await CapabilityLocator.I
-            .get<MediaPickerCapability>()
-            .pickCameraCapture(context, dual: true);
-        if (!context.mounted || media == null) return;
-        await uploadCameraFile(context, File(media.path), type: media.type);
-        return;
-      }
+  Future<void> handlePickerSelection(BuildContext context) =>
+      _runOwned((check) async {
+        if (!context.mounted) return;
+        // Phase 2.2: Web 平台不支持原生 camera picker (wechat_camera_picker 是
+        // 移动端专用)。提示用户改用 + 号选文件（file_picker 已在 Web 工作）。
+        if (kIsWeb) {
+          if (context.mounted) {
+            AppLoading.showToast(
+              'Camera not supported on Web. Use file picker instead.',
+            );
+          }
+          return;
+        }
+        try {
+          // 桌面(macOS/Windows/Linux)：拍摄产物为本地临时文件（不经照片库，
+          // 不依赖照片库 TCC 授权），走文件直传管道；移动端维持 AssetEntity
+          // 管线不变（kIsWeb 已在上方 return，此处 Platform 安全）。
+          if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+            final PickedMedia? media = await CapabilityLocator.I
+                .get<MediaPickerCapability>()
+                .pickCameraCapture(context, dual: true);
+            if (!context.mounted || media == null) return;
+            check();
+            await uploadCameraFile(context, File(media.path), type: media.type);
+            check();
+            return;
+          }
 
-      bool hasPermission = await requestCameraPermission();
-      if (!hasPermission || !context.mounted) return;
+          bool hasPermission = await requestCameraPermission();
+          check();
+          if (!hasPermission || !context.mounted) return;
 
-      // 相机拍摄统一走全局 MediaPickerCapability.pickCameraDual（双模：
-      // 点按拍照 / 长按录像），不再在此直调 CameraPicker——全局唯一相机入口，
-      // 与 moment/channel/profile 等复用同一实现。返回 AssetEntity 与下面
-      // uploadCameraAsset 的图片/视频双分支上传逻辑无缝对接，无需改动。
-      final AssetEntity? entity = await CapabilityLocator.I
-          .get<MediaPickerCapability>()
-          .pickCameraDual(context);
+          // 相机拍摄统一走全局 MediaPickerCapability.pickCameraDual（双模：
+          // 点按拍照 / 长按录像），不再在此直调 CameraPicker——全局唯一相机入口，
+          // 与 moment/channel/profile 等复用同一实现。返回 AssetEntity 与下面
+          // uploadCameraAsset 的图片/视频双分支上传逻辑无缝对接，无需改动。
+          final AssetEntity? entity = await CapabilityLocator.I
+              .get<MediaPickerCapability>()
+              .pickCameraDual(context);
 
-      if (!context.mounted || entity == null) return;
-      await uploadCameraAsset(context, entity);
-    } on Object catch (e) {
-      // 014 口径：相机异常只落 errType，toast 用稳定文案不拼 $e
-      debugPrint(
-        '[attachment_handler] pickCamera error, errType=${e.runtimeType}',
-      );
-      if (context.mounted) {
-        AppLoading.showToast(t.common.cameraShootFailed);
-      }
-    }
-  }
+          if (!context.mounted || entity == null) return;
+          check();
+          await uploadCameraAsset(context, entity);
+          check();
+        } on Object catch (e) {
+          // 014 口径：相机异常只落 errType，toast 用稳定文案不拼 $e
+          debugPrint(
+            '[attachment_handler] pickCamera error, errType=${e.runtimeType}',
+          );
+          if (context.mounted) {
+            AppLoading.showToast(t.common.cameraShootFailed);
+          }
+        }
+      });
 
   /// 上传拍摄的资源
-  Future<void> uploadCameraAsset(
-    BuildContext context,
-    AssetEntity entity,
-  ) async {
-    // S3：图片走 Garage presign 直传（消息 source 存 object_key）；
-    // 视频仍走旧 go-fastdfs 链路（待 S5 切换）。
-    if (entity.type == AssetType.image) {
-      try {
-        final s = _uploadScope;
-        final String messageId = Xid().toString();
-        final seal = await _sealFor(messageId, 'image');
-        final meta = await AttachmentApi.uploadImageEntityViaPresign(
-          entity,
-          scope: s.scope,
-          scopeRef: s.scopeRef,
-          // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
-          // （group 校验必需，c2c/private 忽略）
-          anchorMsgId: messageId,
-          messageIntent: pendingMessageIntent(
-            messageId,
-            'image',
-            name: await entity.titleAsync,
-            width: entity.width.toDouble(),
-            height: entity.height.toDouble(),
-          ),
-          seal: seal,
-        );
-        await handleImageUploadPresign(
-          meta,
-          entity,
-          messageId: messageId,
-          seal: seal,
-        );
-      } on Object catch (e) {
-        final p = _attachmentFailurePresentation(e);
-        debugPrint(
-          '[attachment_handler] handleImageUploadPresign failed, ${p.log}',
-        );
-        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈；
-        // E2EE 封装失败（未上传明文、可安全重试）给专用文案
-        AppLoading.showError(p.toast);
-      }
-    } else if (entity.type == AssetType.video) {
-      // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
-      try {
-        final s = _uploadScope;
-        final String messageId = Xid().toString();
-        final seal = await _sealFor(messageId, 'video');
-        final resp = await AttachmentApi.uploadVideoViaPresign(
-          entity,
-          scope: s.scope,
-          scopeRef: s.scopeRef,
-          // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
-          anchorMsgId: messageId,
-          messageIntent: pendingMessageIntent(
-            messageId,
-            'video',
-            name: await entity.titleAsync,
-            width: entity.width.toDouble(),
-            height: entity.height.toDouble(),
-            duration: Duration(milliseconds: entity.duration),
-          ),
-          videoSeal: seal,
-          // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
-          thumbSeal: await _sealFor(messageId, 'video_thumb'),
-        );
-        await handleVideoUpload(resp, messageId: messageId, seal: seal);
-      } on Object catch (e) {
-        final p = _attachmentFailurePresentation(e);
-        debugPrint('[attachment_handler] handleVideoUpload failed, ${p.log}');
-        // 同上：视频压缩/上传失败此前完全无提示（BUG#65）
-        AppLoading.showError(p.toast);
-      }
-    }
-    // 上传后删除临时文件
-    (await entity.file)?.deleteSync();
-  }
+  Future<void> uploadCameraAsset(BuildContext context, AssetEntity entity) =>
+      _runOwned((check) async {
+        // S3：图片走 Garage presign 直传（消息 source 存 object_key）；
+        // 视频仍走旧 go-fastdfs 链路（待 S5 切换）。
+        if (entity.type == AssetType.image) {
+          try {
+            final s = _uploadScope;
+            final String messageId = Xid().toString();
+            final seal = await _sealFor(messageId, 'image');
+            check();
+            final entityName = await entity.titleAsync;
+            check();
+            final meta = await AttachmentApi.uploadImageEntityViaPresign(
+              entity,
+              scope: s.scope,
+              scopeRef: s.scopeRef,
+              // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
+              // （group 校验必需，c2c/private 忽略）
+              anchorMsgId: messageId,
+              messageIntent: pendingMessageIntent(
+                messageId,
+                'image',
+                name: entityName,
+                width: entity.width.toDouble(),
+                height: entity.height.toDouble(),
+              ),
+              seal: seal,
+            );
+            check();
+            await handleImageUploadPresign(
+              meta,
+              entity,
+              messageId: messageId,
+              seal: seal,
+            );
+          } on Object catch (e) {
+            final p = _attachmentFailurePresentation(e);
+            debugPrint(
+              '[attachment_handler] handleImageUploadPresign failed, ${p.log}',
+            );
+            // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈；
+            // E2EE 封装失败（未上传明文、可安全重试）给专用文案
+            AppLoading.showError(p.toast);
+          }
+        } else if (entity.type == AssetType.video) {
+          // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
+          try {
+            final s = _uploadScope;
+            final String messageId = Xid().toString();
+            final seal = await _sealFor(messageId, 'video');
+            check();
+            final videoName = await entity.titleAsync;
+            final thumbSeal = await _sealFor(messageId, 'video_thumb');
+            check();
+            final resp = await AttachmentApi.uploadVideoViaPresign(
+              entity,
+              scope: s.scope,
+              scopeRef: s.scopeRef,
+              // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
+              anchorMsgId: messageId,
+              messageIntent: pendingMessageIntent(
+                messageId,
+                'video',
+                name: videoName,
+                width: entity.width.toDouble(),
+                height: entity.height.toDouble(),
+                duration: Duration(milliseconds: entity.duration),
+              ),
+              videoSeal: seal,
+              // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
+              thumbSeal: thumbSeal,
+            );
+            check();
+            await handleVideoUpload(resp, messageId: messageId, seal: seal);
+            check();
+          } on Object catch (e) {
+            final p = _attachmentFailurePresentation(e);
+            debugPrint(
+              '[attachment_handler] handleVideoUpload failed, ${p.log}',
+            );
+            // 同上：视频压缩/上传失败此前完全无提示（BUG#65）
+            AppLoading.showError(p.toast);
+          }
+        }
+        // 上传后删除临时文件
+        (await entity.file)?.deleteSync();
+        check();
+      });
 
   /// 桌面拍摄产物上传（本地文件语义）：产物只落临时目录、不经照片库，
   /// 因此不依赖照片库授权（App Sandbox TCC）。图片走 [_uploadImageBytes]
@@ -837,19 +795,25 @@ class ChatAttachmentHandler {
     BuildContext context,
     File file, {
     required MediaType type,
-  }) async {
+  }) => _runOwned((check) async {
     try {
       if (type == MediaType.video) {
         final s = _uploadScope;
         final String messageId = Xid().toString();
         final seal = await _sealFor(messageId, 'video');
+        check();
         // 探测只读元数据不转码；探测失败不放弃上传（0 值由下游兜底）
         MediaInfo? info;
         try {
           info = await VideoCompress.getMediaInfo(file.path);
+          check();
         } on Object catch (e) {
           debugPrint('[attachment_handler] getMediaInfo failed: $e');
         }
+        check();
+        final fileSize = await file.length();
+        final thumbSeal = await _sealFor(messageId, 'video_thumb');
+        check();
         final resp = await AttachmentApi.uploadVideoFileViaPresign(
           file,
           durationMs: info?.duration?.round() ?? 0,
@@ -862,26 +826,31 @@ class ChatAttachmentHandler {
             messageId,
             'video',
             name: file.path.split('/').last,
-            size: await file.length(),
+            size: fileSize,
             width: (info?.width ?? 0).toDouble(),
             height: (info?.height ?? 0).toDouble(),
             duration: Duration(milliseconds: info?.duration?.round() ?? 0),
           ),
           videoSeal: seal,
-          thumbSeal: await _sealFor(messageId, 'video_thumb'),
+          thumbSeal: thumbSeal,
         );
         if (resp == null) {
           throw Exception('uploadVideoFileViaPresign returned null');
         }
+        check();
         await handleVideoUpload(resp, messageId: messageId, seal: seal);
+        check();
       } else {
         final Uint8List bytes = await file.readAsBytes();
+        check();
         if (bytes.isEmpty) {
           debugPrint('[attachment_handler] camera image bytes is empty');
           return;
         }
         final String name = file.path.split(Platform.pathSeparator).last;
+        check();
         await _uploadImageBytes(bytes, fileName: name);
+        check();
       }
     } on Object catch (e) {
       final p = _attachmentFailurePresentation(e);
@@ -894,7 +863,7 @@ class ChatAttachmentHandler {
         // 临时文件删除失败不影响主流程
       }
     }
-  }
+  });
 
   /// 处理图片上传（S3 presign：source 存 object_key，渲染经 cachedImageProvider 异步解析）
   ///
@@ -905,7 +874,7 @@ class ChatAttachmentHandler {
     AssetEntity entity, {
     String? messageId,
     AttachmentSealRequest? seal,
-  }) async {
+  }) => _runOwned((check) async {
     final message = ImageMessage(
       authorId: _currentUser.id,
       createdAt: DateTime.fromMillisecondsSinceEpoch(
@@ -926,22 +895,24 @@ class ChatAttachmentHandler {
         }, seal),
       ),
     );
+    check();
     await _sendMessage(message);
-  }
+  });
 
   /// 处理视频上传
   Future<void> handleVideoUpload(
     Map<String, dynamic> resp, {
     String? messageId,
     AttachmentSealRequest? seal,
-  }) async {
+  }) => _runOwned((check) async {
     final message = _videoMessageFromUploadResp(
       resp,
       messageId: messageId,
       seal: seal,
     );
+    check();
     await _sendMessage(message);
-  }
+  });
 
   /// 上传响应 → 视频消息，按返回形状分流（macOS 冒烟实证：明文会话视频
   /// 上传后构造消息直接 _TypeError）：
@@ -1026,39 +997,47 @@ class ChatAttachmentHandler {
   /// 弹出，用 file_picker（走系统原生 Intent ACTION_GET_CONTENT）完全绕过。
   /// macOS：App Sandbox 下 wechat_assets_picker 依赖照片库 TCC 授权（可拒），
   /// 同样绕行系统选择器（配合 Runner entitlements 的 user-selected read-only）。
-  Future<void> handleImageFileSelection(BuildContext context) async {
-    try {
-      final files = await FilePicker.pickFiles(type: FileType.image);
-      if (files.isEmpty) return;
-      if (!context.mounted) return;
+  Future<void> handleImageFileSelection(BuildContext context) =>
+      _runOwned((check) async {
+        try {
+          final files = await FilePicker.pickFiles(type: FileType.image);
+          check();
+          if (files.isEmpty) return;
+          if (!context.mounted) return;
 
-      for (final file in files) {
-        await _uploadImagePlatformFile(file);
-      }
-    } on Object catch (e) {
-      debugPrint(
-        '[attachment_handler] handleImageFileSelection error, '
-        'errType=${e.runtimeType}',
-      );
-      // 与 handleFileSelection 同款：失败必须可见，否则用户以为点击无效
-      AppLoading.showError(
-        e is PlatformException
-            ? t.common.permissionAcquisitionFailed
-            : t.common.operationFailedAgainLater,
-      );
-    }
-  }
+          for (final file in files) {
+            check();
+            await _uploadImagePlatformFile(file);
+            check();
+          }
+        } on Object catch (e) {
+          debugPrint(
+            '[attachment_handler] handleImageFileSelection error, '
+            'errType=${e.runtimeType}',
+          );
+          // 与 handleFileSelection 同款：失败必须可见，否则用户以为点击无效
+          AppLoading.showError(
+            e is PlatformException
+                ? t.common.permissionAcquisitionFailed
+                : t.common.operationFailedAgainLater,
+          );
+        }
+      });
 
   /// 上传 FilePicker 选中的图片文件
-  Future<void> _uploadImagePlatformFile(PlatformFile file) async {
-    // file_picker 12 移除同步 bytes，统一走异步读取
-    final Uint8List bytes = await file.readAsBytes();
-    if (bytes.isEmpty) {
-      debugPrint('[attachment_handler] image bytes is null: ${file.name}');
-      return;
-    }
-    await _uploadImageBytes(bytes, fileName: file.name);
-  }
+  Future<void> _uploadImagePlatformFile(PlatformFile file) =>
+      _runOwned((check) async {
+        // file_picker 12 移除同步 bytes，统一走异步读取
+        final Uint8List bytes = await file.readAsBytes();
+        check();
+        if (bytes.isEmpty) {
+          debugPrint('[attachment_handler] image bytes is null: ${file.name}');
+          return;
+        }
+        check();
+        await _uploadImageBytes(bytes, fileName: file.name);
+        check();
+      });
 
   /// 图片字节上传公共管道（file_picker 选中文件与桌面拍摄产物共用）：
   /// 尺寸解码 → seal → presign 直传 → ImageMessage。
@@ -1066,7 +1045,7 @@ class ChatAttachmentHandler {
     Uint8List bytes, {
     required String fileName,
     String? anchorId,
-  }) async {
+  }) => _runOwned((check) async {
     try {
       // 解析图片尺寸
       int width = 0;
@@ -1092,6 +1071,7 @@ class ChatAttachmentHandler {
       final s = _uploadScope;
       final String messageId = anchorId ?? Xid().toString();
       final seal = await _sealFor(messageId, 'image');
+      check();
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         '${Xid()}.$ext',
@@ -1129,6 +1109,7 @@ class ChatAttachmentHandler {
           }, seal),
         ),
       );
+      check();
       await _sendMessage(message);
     } on Object catch (e) {
       final p = _attachmentFailurePresentation(e);
@@ -1136,19 +1117,22 @@ class ChatAttachmentHandler {
       // 静默 catch 会让用户以为"点了发送什么都没发生"，必须给可见反馈
       AppLoading.showError(p.toast);
     }
-  }
+  });
 
   /// 处理图片选择
   Future<void> handleImageSelection(
     BuildContext context,
     Future<List<AssetEntity>?> Function() onSelect,
-  ) async {
+  ) => _runOwned((check) async {
     try {
       final result = await onSelect();
+      check();
       if (!context.mounted) return;
       if (result != null) {
         // ≥2 张图片聚合为单条 imageMulti，其余逐条（见 part 文件）
+        check();
         await uploadPickedImages(this, context, result);
+        check();
       }
     } on StateError catch (e) {
       debugPrint(
@@ -1159,103 +1143,117 @@ class ChatAttachmentHandler {
       // 「点了没反应」，提示文案与 moment_album_picker 保持一致
       AppLoading.showError(t.common.permissionAcquisitionFailed);
     }
-  }
+  });
 
   /// 上传选择的资源
-  Future<void> uploadSelectedAsset(
-    BuildContext context,
-    AssetEntity entity,
-  ) async {
-    // S3：图片走 Garage presign 直传；视频仍走旧链路（待 S5）。
-    if (entity.type == AssetType.image) {
-      try {
-        final s = _uploadScope;
-        final String messageId = Xid().toString();
-        final seal = await _sealFor(messageId, 'image');
-        final meta = await AttachmentApi.uploadImageEntityViaPresign(
-          entity,
-          scope: s.scope,
-          scopeRef: s.scopeRef,
-          // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
-          // （group 校验必需，c2c/private 忽略）
-          anchorMsgId: messageId,
-          messageIntent: pendingMessageIntent(
-            messageId,
-            'image',
-            name: await entity.titleAsync,
-            width: entity.width.toDouble(),
-            height: entity.height.toDouble(),
-          ),
-          seal: seal,
-        );
-        await handleImageUploadPresign(
-          meta,
-          entity,
-          messageId: messageId,
-          seal: seal,
-        );
-      } on Object catch (e) {
-        final p = _attachmentFailurePresentation(e);
-        debugPrint(
-          '[attachment_handler] handleImageUploadPresign failed, ${p.log}',
-        );
-        // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈；
-        // E2EE 封装失败（未上传明文、可安全重试）给专用文案
-        AppLoading.showError(p.toast);
-      }
-    } else if (entity.type == AssetType.video) {
-      // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
-      try {
-        final s = _uploadScope;
-        final String messageId = Xid().toString();
-        final seal = await _sealFor(messageId, 'video');
-        final resp = await AttachmentApi.uploadVideoViaPresign(
-          entity,
-          scope: s.scope,
-          scopeRef: s.scopeRef,
-          // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
-          anchorMsgId: messageId,
-          messageIntent: pendingMessageIntent(
-            messageId,
-            'video',
-            name: await entity.titleAsync,
-            width: entity.width.toDouble(),
-            height: entity.height.toDouble(),
-            duration: Duration(milliseconds: entity.duration),
-          ),
-          videoSeal: seal,
-          // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
-          thumbSeal: await _sealFor(messageId, 'video_thumb'),
-        );
-        await handleSelectedVideoUpload(resp, messageId: messageId, seal: seal);
-      } on Object catch (e) {
-        final p = _attachmentFailurePresentation(e);
-        debugPrint(
-          '[attachment_handler] handleSelectedVideoUpload failed, ${p.log}',
-        );
-        AppLoading.showError(p.toast);
-      }
-    }
-  }
+  Future<void> uploadSelectedAsset(BuildContext context, AssetEntity entity) =>
+      _runOwned((check) async {
+        // S3：图片走 Garage presign 直传；视频仍走旧链路（待 S5）。
+        if (entity.type == AssetType.image) {
+          try {
+            final s = _uploadScope;
+            final String messageId = Xid().toString();
+            final seal = await _sealFor(messageId, 'image');
+            check();
+            final entityName = await entity.titleAsync;
+            check();
+            final meta = await AttachmentApi.uploadImageEntityViaPresign(
+              entity,
+              scope: s.scope,
+              scopeRef: s.scopeRef,
+              // 群附件消息锚点：messageId 即最终消息 id，服务端按 scope 消费
+              // （group 校验必需，c2c/private 忽略）
+              anchorMsgId: messageId,
+              messageIntent: pendingMessageIntent(
+                messageId,
+                'image',
+                name: entityName,
+                width: entity.width.toDouble(),
+                height: entity.height.toDouble(),
+              ),
+              seal: seal,
+            );
+            check();
+            await handleImageUploadPresign(
+              meta,
+              entity,
+              messageId: messageId,
+              seal: seal,
+            );
+          } on Object catch (e) {
+            final p = _attachmentFailurePresentation(e);
+            debugPrint(
+              '[attachment_handler] handleImageUploadPresign failed, ${p.log}',
+            );
+            // 静默 catch 会让用户以为"点了确认什么都没发生"，必须给可见反馈；
+            // E2EE 封装失败（未上传明文、可安全重试）给专用文案
+            AppLoading.showError(p.toast);
+          }
+        } else if (entity.type == AssetType.video) {
+          // S5：视频走 Garage presign 直传（缩略图+视频双 object_key）。
+          try {
+            final s = _uploadScope;
+            final String messageId = Xid().toString();
+            final seal = await _sealFor(messageId, 'video');
+            check();
+            final videoName = await entity.titleAsync;
+            final thumbSeal = await _sealFor(messageId, 'video_thumb');
+            check();
+            final resp = await AttachmentApi.uploadVideoViaPresign(
+              entity,
+              scope: s.scope,
+              scopeRef: s.scopeRef,
+              // 群附件消息锚点：messageId 即最终消息 id（服务端按 scope 消费）
+              anchorMsgId: messageId,
+              messageIntent: pendingMessageIntent(
+                messageId,
+                'video',
+                name: videoName,
+                width: entity.width.toDouble(),
+                height: entity.height.toDouble(),
+                duration: Duration(milliseconds: entity.duration),
+              ),
+              videoSeal: seal,
+              // Slice 7：缩略图必须一起封装，否则预览即泄漏（设计 §3.3）
+              thumbSeal: thumbSeal,
+            );
+            check();
+            await handleSelectedVideoUpload(
+              resp,
+              messageId: messageId,
+              seal: seal,
+            );
+            check();
+          } on Object catch (e) {
+            final p = _attachmentFailurePresentation(e);
+            debugPrint(
+              '[attachment_handler] handleSelectedVideoUpload failed, ${p.log}',
+            );
+            AppLoading.showError(p.toast);
+          }
+        }
+      });
 
   /// 处理选择的视频上传
   Future<void> handleSelectedVideoUpload(
     Map<String, dynamic> resp, {
     String? messageId,
     AttachmentSealRequest? seal,
-  }) async {
+  }) => _runOwned((check) async {
     final message = _videoMessageFromUploadResp(
       resp,
       messageId: messageId,
       seal: seal,
     );
+    check();
     await _sendMessage(message);
-  }
+  });
 
   /// 处理语音选择
-  Future<void> handleVoiceSelection(AudioFile? obj) async {
+  Future<void> handleVoiceSelection(AudioFile? obj) => _runOwned((check) async {
     if (obj == null) return;
     final Uint8List bytes = await obj.file.readAsBytes();
+    check();
     if (bytes.isEmpty) return;
 
     // S4：语音走 Garage presign 直传（source 存 object_key，播放经 getSingleFile 解析）。
@@ -1266,6 +1264,7 @@ class ChatAttachmentHandler {
       final s = _uploadScope;
       final String messageId = Xid().toString();
       final seal = await _sealFor(messageId, 'voice');
+      check();
       final meta = await AttachmentApi.uploadBytesViaPresignMeta(
         bytes,
         name,
@@ -1306,6 +1305,7 @@ class ChatAttachmentHandler {
         ),
       );
       await obj.file.delete(recursive: true);
+      check();
       await _sendMessage(message);
     } on Object catch (e) {
       final p = _attachmentFailurePresentation(e);
@@ -1313,7 +1313,7 @@ class ChatAttachmentHandler {
       // 同 C1：语音上传失败此前完全无提示，必须给可见反馈
       AppLoading.showError(p.toast);
     }
-  }
+  });
 
   /// 处理位置选择
   Future<void> handleLocationSelection(

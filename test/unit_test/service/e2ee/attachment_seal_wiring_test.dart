@@ -84,7 +84,9 @@ void main() {
         dotAll: true,
       ),
       RegExp(
-        r"uploadCameraAsset\(.*?uploadVideoViaPresign\(.*?anchorMsgId:\s*messageId,.*?thumbSeal:\s*await _sealFor\(messageId,\s*'video_thumb'\).*?handleVideoUpload\(.*?messageId:\s*messageId,",
+        r"uploadCameraAsset\(.*?final thumbSeal = await _sealFor\(messageId,\s*'video_thumb'\);"
+        r'.*?uploadVideoViaPresign\(.*?anchorMsgId:\s*messageId,'
+        r'.*?thumbSeal:\s*thumbSeal,.*?handleVideoUpload\(.*?messageId:\s*messageId,',
         dotAll: true,
       ),
       RegExp(
@@ -92,7 +94,9 @@ void main() {
         dotAll: true,
       ),
       RegExp(
-        r"uploadCameraFile\(.*?uploadVideoFileViaPresign\(.*?anchorMsgId:\s*messageId,.*?thumbSeal:\s*await _sealFor\(messageId,\s*'video_thumb'\).*?handleVideoUpload\(.*?messageId:\s*messageId,",
+        r"uploadCameraFile\(.*?final thumbSeal = await _sealFor\(messageId,\s*'video_thumb'\);"
+        r'.*?uploadVideoFileViaPresign\(.*?anchorMsgId:\s*messageId,'
+        r'.*?thumbSeal:\s*thumbSeal,.*?handleVideoUpload\(.*?messageId:\s*messageId,',
         dotAll: true,
       ),
       RegExp(
@@ -100,7 +104,9 @@ void main() {
         dotAll: true,
       ),
       RegExp(
-        r"uploadSelectedAsset\(.*?uploadVideoViaPresign\(.*?anchorMsgId:\s*messageId,.*?thumbSeal:\s*await _sealFor\(messageId,\s*'video_thumb'\).*?handleSelectedVideoUpload\(.*?messageId:\s*messageId,",
+        r"uploadSelectedAsset\(.*?final thumbSeal = await _sealFor\(messageId,\s*'video_thumb'\);"
+        r'.*?uploadVideoViaPresign\(.*?anchorMsgId:\s*messageId,'
+        r'.*?thumbSeal:\s*thumbSeal,.*?handleSelectedVideoUpload\(.*?messageId:\s*messageId,',
         dotAll: true,
       ),
       RegExp(

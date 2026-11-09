@@ -9,6 +9,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_setup_page.dart';
 import 'package:imboy/service/e2ee_backup_setup_service.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,7 @@ void main() {
 
   final secureStore = <String, String?>{};
   final uploaded = <String>[];
+  Future<String?> Function(String key, String? value)? interceptRead;
 
   setUp(() async {
     LocaleSettings.setLocaleRaw('zh-CN');
@@ -32,6 +34,7 @@ void main() {
     await StorageService.init();
     secureStore.clear();
     uploaded.clear();
+    interceptRead = null;
     await StorageService.to.setBool(kE2eeBackupSetupDoneKey, false);
     // 模拟已登录账号（cachedPassphrase 的 uid 绑定校验依赖它）
     await StorageService.to.setString(Keys.currentUid, '1000000056');
@@ -46,7 +49,11 @@ void main() {
                 return null;
               case 'read':
                 final args = call.arguments as Map<Object?, Object?>;
-                return secureStore[args['key'] as String];
+                final key = args['key'] as String;
+                final value = secureStore[key];
+                return interceptRead == null
+                    ? value
+                    : await interceptRead!(key, value);
               case 'delete':
                 final args = call.arguments as Map<Object?, Object?>;
                 secureStore.remove(args['key'] as String);
@@ -118,6 +125,65 @@ void main() {
     return tester.widget<CupertinoButton>(btn.first);
   }
 
+  Future<void> submitAndWait(WidgetTester tester) async {
+    final submit = submitButton(tester).onPressed! as Future<void> Function();
+    // The persistent session-write queue runs in the real async zone.
+    // Settling widget frames alone does not wait for its receipt writes.
+    await tester.runAsync(() => submit().timeout(const Duration(seconds: 5)));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('真实上传准备期间清理等待旧读取且不落完成回执', (tester) async {
+    secureStore['e2ee_private_key'] = 'A-private';
+    secureStore['e2ee_public_key'] = 'A-public';
+    await openPage(tester);
+    await enterPassword(tester, 'SyntheticPassword123!');
+    final submit = submitButton(tester).onPressed! as Future<void> Function();
+    await tester.runAsync(() async {
+      // The gate and the upload must share the real async zone. A Completer
+      // created in testWidgets would complete on its paused FakeAsync queue.
+      const wait = Duration(seconds: 5);
+      final reading = Completer<void>(), release = Completer<void>();
+      interceptRead = (key, value) async {
+        if (key == 'e2ee_private_key' && !reading.isCompleted) {
+          reading.complete();
+          await release.future;
+        }
+        return value;
+      };
+      final owner = AccountLocalTaskOwner.capture();
+      final submitted = submit();
+      AccountLocalTaskCleanup? cleanup;
+      try {
+        await reading.future.timeout(wait);
+        cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+        var drained = false;
+        final stopped = cleanup.stopped.then((_) => drained = true);
+        await Future<void>.delayed(Duration.zero);
+        expect(drained, isFalse);
+        await StorageService.to.remove(Keys.currentUid);
+        release.complete();
+        await stopped.timeout(wait);
+        await submitted.timeout(wait);
+        expect(drained, isTrue);
+      } finally {
+        if (!release.isCompleted) release.complete();
+        cleanup ??= AccountLocalTaskRegistry.instance.beginCleanup(owner);
+        try {
+          await cleanup.stopped.timeout(wait);
+        } finally {
+          cleanup.release();
+          interceptRead = null;
+        }
+      }
+    });
+    await tester.pump();
+    expect(StorageService.to.getBool(kE2eeBackupSetupDoneKey), isFalse);
+    expect(secureStore.containsKey(kE2eeBackupPassphraseSecureKey), isFalse);
+    expect(find.text(t.common.e2eeBackupSetupSavedNote), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('初始未输入：提交按钮禁用，点击不触网', (tester) async {
     await openPage(
       tester,
@@ -164,8 +230,7 @@ void main() {
     await enterPassword(tester, 'abcdefgh1234');
     expect(find.text(t.common.e2eeBackupSetupWeakHint), findsNothing);
 
-    await tester.tap(find.text(t.common.e2eeBackupSetupSubmit));
-    await tester.pumpAndSettle();
+    await submitAndWait(tester);
 
     expect(uploaded, ['abcdefgh1234']);
     expect(await E2EEBackupSetupService.to.cachedPassphrase(), 'abcdefgh1234');
@@ -222,8 +287,7 @@ void main() {
     expect(await E2EEBackupSetupService.to.cachedPassphrase(), isNull);
 
     await enterPassword(tester, 'second-passphrase-1234');
-    await tester.tap(find.text(t.common.e2eeBackupSetupSubmit));
-    await tester.pumpAndSettle();
+    await submitAndWait(tester);
     expect(uploaded, ['abcdefgh1234', 'second-passphrase-1234']);
     expect(
       await E2EEBackupSetupService.to.cachedPassphrase(),

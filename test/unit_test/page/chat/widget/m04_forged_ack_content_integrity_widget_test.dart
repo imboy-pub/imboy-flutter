@@ -7,7 +7,7 @@
 /// 验证客户端防线：即使一条伪造的 ACK 帧（from/to 与原消息作者/收件人
 /// 不符）打进客户端 action 分发，也必须：
 ///   - handleActionMessage 返回 false（拒绝）；
-///   - 不向事件总线发 'List<Message>' 更新事件（UI 不会被刷新）；
+///   - 不向事件总线发 `List<Message>` 更新事件（UI 不会被刷新）；
 ///   - SQLite 里原文 / 状态保持不变；
 ///   - 已渲染的消息内容保持不变。
 ///
@@ -46,7 +46,7 @@ const _meUid = '100';
 const _originalText = 'original text';
 
 /// 模拟聊天页里"已渲染的消息"：初始渲染原文，并监听消息更新事件
-/// （MessageActions 成功后 fireData([message], 'List<Message>')）刷新文本。
+/// （MessageActions 成功后 `fireData([message], 'List<Message>')`）刷新文本。
 class _RenderedMessageHost extends StatefulWidget {
   const _RenderedMessageHost({
     required this.messageId,

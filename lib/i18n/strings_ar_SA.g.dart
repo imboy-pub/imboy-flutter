@@ -187,6 +187,18 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'ربط Alipay';
 	@override String get unbindAlipay => 'إلغاء الربط';
 	@override String get confirmUnbindAlipay => 'تأكيد إلغاء الربط';
+	@override String get loginHistoryTitle => 'سجل تسجيل الدخول';
+	@override String loginHistorySelected({required Object account}) => 'الحساب المحدد: ${account}';
+	@override String get loginHistoryChooseToClear => 'اختر حسابًا محفوظًا قبل مسح بياناته';
+	@override String get loginHistoryClear => 'مسح بيانات الحساب المحدد على هذا الجهاز';
+	@override String get loginHistoryClearTitle => 'مسح بيانات هذا الحساب على الجهاز؟';
+	@override String get loginHistoryClearConfirm => 'تأكيد المسح';
+	@override String loginHistoryClearBody({required Object account}) => 'هل تريد مسح جميع البيانات المحلية للحساب «${account}» على هذا الجهاز؟ ستحتاج إلى تسجيل الدخول مجددًا بعد المسح. لن يُحذف الحساب وبياناته على الخادم.';
+	@override String get loginHistoryClearFailed => 'لم يكتمل المسح';
+	@override String get loginHistoryIdentityUnavailable => 'سجّل الدخول إلى هذا الحساب مرة واحدة، ثم سجّل الخروج وأعد المحاولة. لا يمكن تحديد الحساب بشكل موثوق من هذا السجل القديم، لذا لم تُمسح أي بيانات.';
+	@override String get loginHistoryCleanupBusy => 'سجّل الخروج من الحساب الحالي وانتظر انتهاء أي عملية تسجيل دخول أو مسح، ثم أعد المحاولة.';
+	@override String get loginHistorySharedData => 'يشترك هذا الحساب في البيانات المحلية مع بيئة تسجيل دخول أخرى، ولا يمكن حاليًا مسح بياناته بشكل منفصل.';
+	@override String get loginHistoryOwnershipUnavailable => 'يحتوي هذا الجهاز على بيانات مشتركة قديمة لا يمكن تحديد الحساب الذي تخصه. لم تُمسح أي بيانات. لتجنب التأثير على الحسابات الأخرى، عالج البيانات القديمة أولًا ثم أعد المحاولة.';
 }
 
 // Path: agent
@@ -3534,6 +3546,18 @@ extension on TranslationsArSa {
 			'account.bindAlipay' => 'ربط Alipay',
 			'account.unbindAlipay' => 'إلغاء الربط',
 			'account.confirmUnbindAlipay' => 'تأكيد إلغاء الربط',
+			'account.loginHistoryTitle' => 'سجل تسجيل الدخول',
+			'account.loginHistorySelected' => ({required Object account}) => 'الحساب المحدد: ${account}',
+			'account.loginHistoryChooseToClear' => 'اختر حسابًا محفوظًا قبل مسح بياناته',
+			'account.loginHistoryClear' => 'مسح بيانات الحساب المحدد على هذا الجهاز',
+			'account.loginHistoryClearTitle' => 'مسح بيانات هذا الحساب على الجهاز؟',
+			'account.loginHistoryClearConfirm' => 'تأكيد المسح',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'هل تريد مسح جميع البيانات المحلية للحساب «${account}» على هذا الجهاز؟ ستحتاج إلى تسجيل الدخول مجددًا بعد المسح. لن يُحذف الحساب وبياناته على الخادم.',
+			'account.loginHistoryClearFailed' => 'لم يكتمل المسح',
+			'account.loginHistoryIdentityUnavailable' => 'سجّل الدخول إلى هذا الحساب مرة واحدة، ثم سجّل الخروج وأعد المحاولة. لا يمكن تحديد الحساب بشكل موثوق من هذا السجل القديم، لذا لم تُمسح أي بيانات.',
+			'account.loginHistoryCleanupBusy' => 'سجّل الخروج من الحساب الحالي وانتظر انتهاء أي عملية تسجيل دخول أو مسح، ثم أعد المحاولة.',
+			'account.loginHistorySharedData' => 'يشترك هذا الحساب في البيانات المحلية مع بيئة تسجيل دخول أخرى، ولا يمكن حاليًا مسح بياناته بشكل منفصل.',
+			'account.loginHistoryOwnershipUnavailable' => 'يحتوي هذا الجهاز على بيانات مشتركة قديمة لا يمكن تحديد الحساب الذي تخصه. لم تُمسح أي بيانات. لتجنب التأثير على الحسابات الأخرى، عالج البيانات القديمة أولًا ثم أعد المحاولة.',
 			'agent.plazaTitle' => 'مساعدو الذكاء الاصطناعي',
 			'agent.transparencyBanner' => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.',
 			'agent.searchHint' => 'البحث عن مساعد',
@@ -3920,6 +3944,8 @@ extension on TranslationsArSa {
 			'chat.chatResend' => 'إعادة الإرسال',
 			'chat.profileExportProfile' => 'تصدير الملف الشخصي',
 			'chat.momentsSend' => 'إرسال',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'انتهت صلاحية تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى',
 			'chat.customImage' => 'صورة مخصصة',
 			'chat.burnAfterReading' => 'الحرق بعد القراءة',
@@ -3932,8 +3958,6 @@ extension on TranslationsArSa {
 			'chat.historyUnavailable' => 'رسائل السجل غير متاحة مؤقتاً',
 			'chat.historyUnavailableHint' => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة',
 			'chat.momentsRecordVideo' => 'تسجيل فيديو',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'أنا فقط',
 			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
@@ -4434,6 +4458,8 @@ extension on TranslationsArSa {
 			'common.pleaseEnterContent' => 'يرجى إدخال المحتوى',
 			'common.comingSoon' => 'قريباً',
 			'common.backgroundTransparency' => 'شفافية الخلفية',
+			_ => null,
+		} ?? switch (path) {
 			'common.defaultBackground' => 'الخلفية الافتراضية',
 			'common.solidColorBackground' => 'خلفية صلبة',
 			'common.selectImageFailed' => 'فشل اختيار الصورة',
@@ -4446,8 +4472,6 @@ extension on TranslationsArSa {
 			'common.fileOpenNotImplemented' => 'ميزة فتح الملف غير متاحة بعد',
 			'common.fileShareNotImplemented' => 'ميزة مشاركة الملف غير متاحة بعد',
 			'common.retrySuccess' => 'نجحت إعادة المحاولة',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'نجح الحذف',
 			'common.localDeleteSuccess' => 'نجح الحذف المحلي',
 			'common.localDeleteFailed' => 'فشل الحذف المحلي',
@@ -4948,6 +4972,8 @@ extension on TranslationsArSa {
 			'common.transferAccepted' => 'تم الاستلام',
 			'common.transferReceiving' => 'جارٍ استلام المبلغ...',
 			'common.transferRefunded' => 'تمت الإعادة',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferTapToReceive' => 'انقر للاستلام',
 			'common.retry' => 'إعادة المحاولة',
 			'common.retrying' => 'جارٍ إعادة المحاولة…',
@@ -4960,8 +4986,6 @@ extension on TranslationsArSa {
 			'common.legacyUploadOutboxCheck' => 'قد تكون الرسالة في قائمة الإرسال بالفعل. تحقق من سجل المحادثة قبل إعادة الإرسال.',
 			'common.legacyUploadRecoveryMismatch' => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.',
 			'common.legacyUploadRecoveryContinues' => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
@@ -5462,6 +5486,8 @@ extension on TranslationsArSa {
 			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
 			'main.webQRRefresh' => 'تحديث رمز QR',
 			'main.webSwitchToQR' => 'الدخول برمز QR',
+			_ => null,
+		} ?? switch (path) {
 			'main.e2eeErrDefault' => 'فشل التشفير من طرف إلى طرف، لم تُرسل الرسالة',
 			'main.e2eeErrPeerDeviceNotReady' => 'لم تكتمل إعدادات الأمان على أجهزة بعض الأعضاء، لم تُرسل الرسالة؛ يُرجى المحاولة لاحقاً',
 			'main.liveRoomTitleLabel' => 'عنوان الغرفة',
@@ -5474,8 +5500,6 @@ extension on TranslationsArSa {
 			'main.complianceKeyRotationNoPending' => 'لا يوجد تغيير مفتاح في انتظار التأكيد',
 			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
 			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrPeerSuiteUnsupported' => 'جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
 			'main.complianceKeyInfoTitle' => 'مفتاح تدقيق الامتثال',
@@ -5976,6 +6000,8 @@ extension on TranslationsArSa {
 			'talkRecord.aiConfigured' => 'تم الإعداد على هذا الجهاز',
 			'talkRecord.aiNotConfigured' => 'غير مُعدّ',
 			'talkRecord.aiLoading' => 'جارٍ قراءة إعدادات الجهاز…',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiDeviceOnlyNotice' => 'تُحفظ المفاتيح مشفّرة لهذا الحساب على هذا الجهاز فقط. لا تُرفع إلى IMBoy ولا تُضمّن في النسخ السحابية أو نقل الجهاز. أعد إدخالها على الجهاز الجديد.',
 			'talkRecord.aiEnterprisePolicyNotice' => 'حفظ المفتاح لا يسمح بالمعالجة الخارجية. تحتاج تسجيلات المؤسسة إلى سماح سياسة المؤسسة والموافقة على كل طلب معالجة.',
 			'talkRecord.aiMaxNotice' => 'يُستخدم API العام من Zhipu بفوترة منفصلة. لا تغطي خطة Coding Plan Max السنوية هذا الاستخدام تلقائيًا. ستُرسل النصوص المفرّغة إلى Zhipu.',
@@ -5988,8 +6014,6 @@ extension on TranslationsArSa {
 			'talkRecord.aiUnsupportedPlatform' => 'لم يتم التحقق من التخزين الآمن على هذه المنصة بعد. حفظ المفاتيح غير متاح.',
 			'talkRecord.aiKeyPlaceholder' => 'أدخل مفتاح API',
 			'talkRecord.aiReplacePlaceholder' => 'أدخل مفتاح API جديدًا؛ لا تتم تعبئة المفتاح المحفوظ مسبقًا',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'حفظ على هذا الجهاز',
 			'talkRecord.aiReplaceAction' => 'استبدال مفتاح الجهاز',
 			'talkRecord.aiDeleteAction' => 'حذف مفتاح الجهاز',
