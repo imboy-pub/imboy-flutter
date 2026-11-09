@@ -21,6 +21,7 @@ import 'package:imboy/service/embedded_schema_scripts.dart';
 import 'package:imboy/service/migration_manifest.dart';
 import 'package:imboy/service/migration_service.dart';
 import 'package:imboy/service/migrations/manifest_all.dart';
+import 'package:imboy/service/migrations/upgrade_edges_v38_fts.dart';
 
 import '../../fixtures/sqlite_migration/migration_inventory.dart';
 
@@ -274,6 +275,30 @@ void main() {
         MigrationService.to.debugDowngradeScripts.keys.toSet(),
         equals(kMigrationManifest.downgradesByFrom.keys.toSet()),
       );
+    });
+  });
+
+  group('IMBOY_AUTOTEST L02：v38 FTS 草稿未注册（生产决定未落）', () {
+    // TEST_PLAN L02 已知阻塞显式化：v38 迁移草稿（upgrade_edges_v38_fts.dart）
+    // 尚未注册进 kMigrationManifest——这是 schema_contract「独立注册准入」
+    // 的有意设计，注册与否属生产迁移决定（PLAN §8 未决项），测试建设不偷改。
+    // 基于 upgradeV38Fts.sqlStatements 手动铺设的 FTS 事务测试只验证草稿
+    // DDL 语义，不代表注册 schema 的生产行为；不得据此宣称 FTS 已启用。
+    test('manifest 不含 toVersion=38 的边', () {
+      expect(
+        kMigrationManifest.upgradesByTo.containsKey(38),
+        isFalse,
+        reason:
+            'v38 注册需生产决定并同步更新 kInventoryCurrentDbVersion、'
+            'SqliteService._dbVersion 与本守护；半注册状态必须被本测试拦截',
+      );
+      expect(kMigrationManifest.latestVersion, 37);
+    });
+
+    test('草稿边身份固定（37→38、不可逆），保持可发现性', () {
+      expect(upgradeV38Fts.fromVersion, 37);
+      expect(upgradeV38Fts.toVersion, 38);
+      expect(upgradeV38Fts.reversible, isFalse);
     });
   });
 }
