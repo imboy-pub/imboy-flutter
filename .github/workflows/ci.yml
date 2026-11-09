@@ -219,6 +219,8 @@ jobs:
     needs: [test-summary]
     if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
     env:
+      # GitHub-hosted runners use official Google Maven / Maven Central.
+      ORG_GRADLE_PROJECT_imboyUseMavenMirror: 'false'
       # secrets 上下文不允许出现在 step if 中（会致整个 workflow 验证失败 0s 红），
       # 必须在 job 级 env 映射后用 env 上下文判断
       GOOGLE_SERVICES_JSON_B64: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.GOOGLE_SERVICES_JSON_B64 || '' }}
@@ -285,7 +287,7 @@ jobs:
         env:
           SENTRY_DSN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_DSN || '' }}
         run: |
-          flutter build apk --release \
+          bash .github/scripts/ci_retry_build_downloads.sh flutter build apk --release \
             --flavor standard \
             --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
@@ -293,9 +295,12 @@ jobs:
         env:
           SENTRY_DSN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_DSN || '' }}
         run: |
-          flutter build appbundle --release --flavor standard \
+          bash .github/scripts/ci_retry_build_downloads.sh flutter build appbundle --release --flavor standard \
             --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
           test -f build/app/outputs/bundle/standardRelease/app-standard-release.aab
+
+      - name: Verify Android Maven repository modes (isolated fixtures)
+        run: python3 .github/scripts/ci_check_android_repositories.py --artifact-dir "${RUNNER_TEMP}/android-repositories"
 
       - name: Upload APK
         uses: actions/upload-artifact@v7
@@ -351,6 +356,8 @@ jobs:
         env:
           SENTRY_DSN: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SENTRY_DSN || '' }}
         run: |
+          bash .github/scripts/ci_retry_build_downloads.sh flutter build ios --config-only --release --no-codesign \
+            --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
           flutter build ios --release --no-codesign \
             --dart-define=SENTRY_DSN="${SENTRY_DSN:-}"
 
