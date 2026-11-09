@@ -110,6 +110,7 @@ class _FtsDatabase implements Database {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(UserRepoLocal.to.clearAuthTransitionFailureForTest);
   const channel = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
   test('queued reindex does not cross account sessions', () async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
