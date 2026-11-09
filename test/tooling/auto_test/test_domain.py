@@ -177,7 +177,12 @@ class FeatureManifestMappingTest(unittest.TestCase):
 
     def test_rtc_feature_requires_c2c_device_and_signaling_evidence(self):
         matrix = domain.generate_domain_matrix(ROOT)
-        self.assertEqual(domain.FEATURE_CAPABILITY_MAP.get('rtc'), ['rtc.c2c_call'])
+        self.assertEqual(domain.FEATURE_CAPABILITY_MAP.get('rtc'), [
+            'rtc.c2c_call',
+            'rtc.signaling_negative',
+            'rtc.relay_force',
+            'rtc.feature_gate',
+        ])
         cap = next(c for c in matrix['capabilities'] if c['capability_id'] == 'rtc.c2c_call')
         self.assertEqual(cap['feature_key'], 'rtc')
         self.assertEqual(cap['required_evidence_level'], 'A')
