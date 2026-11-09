@@ -371,7 +371,7 @@ class MessageRepo implements MessageRepository {
         msgId.isNotEmpty &&
         (updateData.containsKey(MessageRepo.payload) ||
             updateData.containsKey(MessageRepo.status));
-    // v37（<38）：FTS 索引全部经由会话守卫的延迟重索引任务维护，保证
+    // v37/v39：FTS 索引全部经由会话守卫的延迟重索引任务维护，保证
     // 账号切换后零语句、事务内 FTS 可见性不变、回滚零残留。但 contentless
     // FTS 无法事后回查列值，清索引需要行更新**之前**的旧文本，因此这里
     // 仅预读旧值（best-effort，读不到时任务退化为按当前行值清理）。
@@ -455,7 +455,7 @@ class MessageRepo implements MessageRepository {
   /// 失败仅记录，不阻断主写入。
   Future<void> _ftsRemoveStaleIndexEntry(String msgId) async {
     final ftsTable = '${tableName}_fts';
-    final guard = '(SELECT user_version FROM pragma_user_version) < 38';
+    const guard = messageFtsRepositoryMaintenanceGuardSql;
     try {
       final db = await _db.db;
       if (db == null) return;
@@ -494,14 +494,14 @@ class MessageRepo implements MessageRepository {
   /// 读取原 payload/msg_type/status（与 v38 删除触发器同源表达式，见
   /// [ftsTextContentSql]；`text_content != ''` 过滤与 v38 content view
   /// 语义一致，只对建立过索引的行发 'delete'）。两条语句均带
-  /// `user_version < 38` guard：v38+ 由触发器自动跟随，此处为 no-op。
+  /// 集中模式 guard：仅 v38 草稿由触发器跟随；v39 仍由 repo 维护。
   /// 失败仅记录，不阻断主删除。
   Future<void> _ftsRemoveStaleIndexRange(
     String where,
     List<Object?> whereArgs,
   ) async {
     final ftsTable = '${tableName}_fts';
-    final guard = '(SELECT user_version FROM pragma_user_version) < 38';
+    const guard = messageFtsRepositoryMaintenanceGuardSql;
     try {
       final db = await _db.db;
       if (db == null) return;
@@ -849,7 +849,7 @@ class MessageRepo implements MessageRepository {
   // 根据UID删除信息
   @override
   Future<int> deleteByUid(String uid) async {
-    // v37 基线的 contentless FTS 无删除触发器（v38+ 由触发器自动跟随，
+    // v37/v39 的 contentless FTS 无删除触发器（v38 草稿由触发器跟随，
     // 本 repo 层语句带 user_version guard 为 no-op），范围删除必须在删行
     // **之前**按同一 WHERE 批量清索引。清索引 + 删行整体置于重索引锁内，
     // 互斥理由同 [delete]；单条 INSERT..SELECT 覆盖全部受影响行，避免

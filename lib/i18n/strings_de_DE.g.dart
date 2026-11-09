@@ -730,6 +730,7 @@ class _Translations$chat$de_DE extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Videoanruf]';
 	@override String get voiceCallPlaceholder => '[Sprachanruf]';
 	@override String get notFriendCannotSend => 'Keine Freundschaft, Senden nicht möglich';
+	@override late final _Translations$chat$inbox$de_DE inbox = _Translations$chat$inbox$de_DE._(_root);
 }
 
 // Path: common
@@ -2844,6 +2845,30 @@ class _Translations$account$alipaySim$de_DE extends Translations$account$alipayS
 	@override String get storeName => 'IT-Flagship-Store';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$de_DE extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
+
+	final TranslationsDeDe _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Direkt';
+	@override String get searchHint => 'Namen oder neueste Nachrichten suchen';
+	@override String get searchHistory => 'Nachrichtenverlauf durchsuchen';
+	@override String get unreadEmpty => 'Keine ungelesenen oder ausstehenden Nachrichten';
+	@override String get emptyFilter => 'Keine Unterhaltungen in dieser Kategorie';
+	@override String get clearFilters => 'Alle Nachrichten anzeigen';
+	@override String get channelLoadFailed => 'Kanalnachrichten konnten nicht geladen werden';
+	@override String get notificationSettings => 'Benachrichtigungseinstellungen';
+	@override String get channelOnly => 'Nur unter Kanäle anzeigen';
+	@override String get channelOnlyDescription => 'Abonnement und Benachrichtigungen bleiben erhalten. Unter Kanäle wieder zu Nachrichten hinzufügen.';
+	@override String get restoreToInbox => 'Unter Nachrichten anzeigen';
+	@override String get actionFailed => 'Aktion fehlgeschlagen. Bitte erneut versuchen.';
+	@override String get undo => 'Rückgängig';
+	@override String get openChannels => 'Kanäle öffnen';
+	@override String get channelEmptyDescription => 'Unter Kanäle Abonnements aktualisieren oder ausgeblendete Kanäle wiederherstellen.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$de_DE extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$de_DE._(TranslationsDeDe root) : this._root = root, super.internal(root);
@@ -4016,6 +4041,21 @@ extension on TranslationsDeDe {
 			'chat.videoCallPlaceholder' => '[Videoanruf]',
 			'chat.voiceCallPlaceholder' => '[Sprachanruf]',
 			'chat.notFriendCannotSend' => 'Keine Freundschaft, Senden nicht möglich',
+			'chat.inbox.filterDirect' => 'Direkt',
+			'chat.inbox.searchHint' => 'Namen oder neueste Nachrichten suchen',
+			'chat.inbox.searchHistory' => 'Nachrichtenverlauf durchsuchen',
+			'chat.inbox.unreadEmpty' => 'Keine ungelesenen oder ausstehenden Nachrichten',
+			'chat.inbox.emptyFilter' => 'Keine Unterhaltungen in dieser Kategorie',
+			'chat.inbox.clearFilters' => 'Alle Nachrichten anzeigen',
+			'chat.inbox.channelLoadFailed' => 'Kanalnachrichten konnten nicht geladen werden',
+			'chat.inbox.notificationSettings' => 'Benachrichtigungseinstellungen',
+			'chat.inbox.channelOnly' => 'Nur unter Kanäle anzeigen',
+			'chat.inbox.channelOnlyDescription' => 'Abonnement und Benachrichtigungen bleiben erhalten. Unter Kanäle wieder zu Nachrichten hinzufügen.',
+			'chat.inbox.restoreToInbox' => 'Unter Nachrichten anzeigen',
+			'chat.inbox.actionFailed' => 'Aktion fehlgeschlagen. Bitte erneut versuchen.',
+			'chat.inbox.undo' => 'Rückgängig',
+			'chat.inbox.openChannels' => 'Kanäle öffnen',
+			'chat.inbox.channelEmptyDescription' => 'Unter Kanäle Abonnements aktualisieren oder ausgeblendete Kanäle wiederherstellen.',
 			'common.about' => 'Über',
 			'common.aboutApp' => 'Über die App',
 			'common.accept' => 'Akzeptieren',
@@ -4422,6 +4462,8 @@ extension on TranslationsDeDe {
 			'common.audioPlayFailed' => 'Wiedergabe fehlgeschlagen',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Sie wurden vom Gerät [${device}] zwangsabgemeldet',
 			'common.loadingTagDataFailed' => 'Laden der Tag-Daten fehlgeschlagen',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Bitte Inhalt eingeben',
 			'common.comingSoon' => 'Demnächst verfügbar',
 			'common.backgroundTransparency' => 'Hintergrundtransparenz',
@@ -4437,8 +4479,6 @@ extension on TranslationsDeDe {
 			'common.fileOpenNotImplemented' => 'Dateiöffnungsfunktion noch nicht implementiert',
 			'common.fileShareNotImplemented' => 'Dateiteilungsfunktion noch nicht implementiert',
 			'common.retrySuccess' => 'Wiederholung erfolgreich',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'Erfolgreich gelöscht',
 			'common.localDeleteSuccess' => 'Lokales Löschen erfolgreich',
 			'common.localDeleteFailed' => 'Lokales Löschen fehlgeschlagen',
@@ -4936,6 +4976,8 @@ extension on TranslationsDeDe {
 			'common.e2eeRecoveryKeySaveNote' => 'Bitte sichern Sie diesen Wiederherstellungsschlüssel sofort (Screenshot oder Passwort-Manager). Bei vergessener Passphrase ist er der einzige Schlüssel zum Entschlüsseln des Backups; geht er verloren, ist das Backup dauerhaft nicht wiederherstellbar.',
 			'common.e2eeUseRecoveryKey' => 'Wiederherstellungsschlüssel erstellen (Ersatz-Zugang bei vergessener Passphrase)',
 			'common.complianceKeyChangedTitle' => 'Compliance-Audit-Schlüssel hat sich geändert',
+			_ => null,
+		} ?? switch (path) {
 			'common.complianceKeyChangedBody' => 'Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokal gepinnten Wert überein. Handelt es sich um eine beabsichtigte Schlüsselrotation durch den Administrator, tippen Sie auf „Rotation bestätigen“; andernfalls senden Sie keine weiteren verschlüsselten Nachrichten und kontaktieren Sie den Administrator zur Prüfung.',
 			'common.complianceKeyChangedActionConfirm' => 'Rotation bestätigen',
 			'common.complianceKeyChangedActionKeep' => 'Vorerst nicht bestätigen',
@@ -4951,8 +4993,6 @@ extension on TranslationsDeDe {
 			'common.legacyUploadOutboxCheck' => 'Die Nachricht ist möglicherweise bereits in der Sendewarteschlange. Prüfe zuerst den Chatverlauf.',
 			'common.legacyUploadRecoveryMismatch' => 'Die Datei stimmt nicht überein oder die Wiederherstellung ist nicht möglich.',
 			'common.legacyUploadRecoveryContinues' => 'Anhang wiederhergestellt; die ursprüngliche Nachricht wird weiterbearbeitet.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Der Upload ist unvollständig. Kehre zur ursprünglichen Seite zurück, wähle die Datei erneut und sende sie ab.',
 			'complaint.complaint' => 'Beschwerde',
 			'complaint.e2eeConsentTitle' => 'Verschlüsselte Beweise einreichen',
@@ -5450,6 +5490,8 @@ extension on TranslationsDeDe {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Aus Backup wiederherstellen oder neuen Schlüssel erstellen',
 			'main.gotIt' => 'Verstanden',
 			'main.webQRLoggingIn' => 'Anmeldung...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'QR-Code abgelaufen',
 			'main.webQRRefresh' => 'QR-Code aktualisieren',
 			'main.webSwitchToQR' => 'Per QR-Code anmelden',
@@ -5465,8 +5507,6 @@ extension on TranslationsDeDe {
 			'main.safetyNumberMarkVerified' => 'Als verifiziert markieren',
 			'main.safetyNumberMarkedVerified' => 'Als verifiziert markiert',
 			'main.safetyNumberNoDevices' => 'Die Gegenseite hat Ende-zu-Ende-Verschlüsselung noch nicht aktiviert',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberPeerDevice' => 'Gerät der Gegenseite',
 			'main.safetyNumberReportRejected' => 'Der Server hat das Verifizierungsereignis abgelehnt (Signatur/Gültigkeit passt nicht), nicht markiert',
 			'main.safetyNumberReportUnavailable' => 'Geräteinformationen nicht verfügbar, nicht gemeldet',
@@ -5964,6 +6004,8 @@ extension on TranslationsDeDe {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Audiotranskription und vorläufige Sprecherlabels',
 			'talkRecord.aiZhipuPurpose' => 'Entwürfe für Zusammenfassungen, Entscheidungen und Aufgaben',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Auf diesem Gerät eingerichtet',
 			'talkRecord.aiNotConfigured' => 'Nicht eingerichtet',
 			'talkRecord.aiLoading' => 'Gerätekonfiguration wird gelesen…',
@@ -5979,8 +6021,6 @@ extension on TranslationsDeDe {
 			'talkRecord.aiUnsupportedPlatform' => 'Der sichere Gerätespeicher ist auf dieser Plattform noch nicht geprüft. Schlüssel können nicht gespeichert werden.',
 			'talkRecord.aiKeyPlaceholder' => 'API-Schlüssel eingeben',
 			'talkRecord.aiReplacePlaceholder' => 'Neuen API-Schlüssel eingeben; gespeicherte Schlüssel werden nie vorbefüllt',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Auf diesem Gerät speichern',
 			'talkRecord.aiReplaceAction' => 'Geräteschlüssel ersetzen',
 			'talkRecord.aiDeleteAction' => 'Geräteschlüssel löschen',

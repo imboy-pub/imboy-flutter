@@ -233,7 +233,7 @@ class SchemaContract {
     DatabaseExecutor db, {
     required int version,
   }) async {
-    final required = version == 37 || version == 38
+    final required = version == 37 || version == 38 || version == 39
         ? <String, Set<String>>{
             ...requiredColumnsByVersion[36]!,
             'channel': {
@@ -241,6 +241,8 @@ class SchemaContract {
               'scope',
               'workspace_id',
             },
+            if (version == 39)
+              'channel_inbox_preference': {'endpoint', 'channel_id', 'scope'},
           }
         : requiredColumnsByVersion[version] ?? const {};
     final violations = <String>[];
@@ -260,7 +262,7 @@ class SchemaContract {
         violations.add('missing column: $table.$col (v$version)');
       }
     }
-    if (version == 36 || version == 37 || version == 38) {
+    if (version == 36 || version == 37 || version == 38 || version == 39) {
       for (final table in [
         'msg_c2c',
         'msg_c2g',
@@ -275,6 +277,37 @@ class SchemaContract {
         )) {
           violations.add('expected TEXT: $table.$column (v$version)');
         }
+      }
+    }
+    if (version == 39) {
+      final info = await db.rawQuery(
+        'PRAGMA table_info(channel_inbox_preference)',
+      );
+      for (final column in ['endpoint', 'channel_id', 'scope']) {
+        if (!info.any(
+          (row) =>
+              row['name'] == column &&
+              row['type'] == 'TEXT' &&
+              row['notnull'] == 1,
+        )) {
+          violations.add(
+            'expected NOT NULL TEXT: channel_inbox_preference.$column (v$version)',
+          );
+        }
+      }
+      final key = info.where((row) => (row['pk'] as int) > 0).toList()
+        ..sort((a, b) => (a['pk'] as int).compareTo(b['pk'] as int));
+      if (key.map((row) => row['name']).join(',') != 'endpoint,channel_id') {
+        violations.add('expected endpoint/channel composite key (v$version)');
+      }
+      final ddl = await db.rawQuery(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'channel_inbox_preference'",
+      );
+      if (ddl.isEmpty ||
+          !(ddl.single['sql'] as String).contains(
+            "CHECK (scope = 'personal')",
+          )) {
+        violations.add('expected personal-only preference scope (v$version)');
       }
     }
     if (version == 38) {

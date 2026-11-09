@@ -730,6 +730,7 @@ class _Translations$chat$fr_FR extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Appel vidéo]';
 	@override String get voiceCallPlaceholder => '[Appel audio]';
 	@override String get notFriendCannotSend => 'Pas amis, impossible d\'envoyer';
+	@override late final _Translations$chat$inbox$fr_FR inbox = _Translations$chat$inbox$fr_FR._(_root);
 }
 
 // Path: common
@@ -2844,6 +2845,30 @@ class _Translations$account$alipaySim$fr_FR extends Translations$account$alipayS
 	@override String get storeName => 'Boutique phare des technologies de l\'information';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$fr_FR extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Privés';
+	@override String get searchHint => 'Rechercher un nom ou un message récent';
+	@override String get searchHistory => 'Rechercher dans l’historique';
+	@override String get unreadEmpty => 'Aucun message non lu ou en attente';
+	@override String get emptyFilter => 'Aucune conversation dans cette catégorie';
+	@override String get clearFilters => 'Voir tous les messages';
+	@override String get channelLoadFailed => 'Impossible de charger les messages des canaux';
+	@override String get notificationSettings => 'Paramètres de notification';
+	@override String get channelOnly => 'Afficher uniquement dans Canaux';
+	@override String get channelOnlyDescription => 'L’abonnement et les notifications sont conservés. Vous pouvez rétablir l’affichage dans Messages depuis Canaux.';
+	@override String get restoreToInbox => 'Afficher dans Messages';
+	@override String get actionFailed => 'Échec de l’action. Réessayez.';
+	@override String get undo => 'Annuler';
+	@override String get openChannels => 'Ouvrir Canaux';
+	@override String get channelEmptyDescription => 'Actualisez vos abonnements ou rétablissez les canaux masqués depuis la page Canaux.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$fr_FR extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
@@ -4016,6 +4041,21 @@ extension on TranslationsFrFr {
 			'chat.videoCallPlaceholder' => '[Appel vidéo]',
 			'chat.voiceCallPlaceholder' => '[Appel audio]',
 			'chat.notFriendCannotSend' => 'Pas amis, impossible d\'envoyer',
+			'chat.inbox.filterDirect' => 'Privés',
+			'chat.inbox.searchHint' => 'Rechercher un nom ou un message récent',
+			'chat.inbox.searchHistory' => 'Rechercher dans l’historique',
+			'chat.inbox.unreadEmpty' => 'Aucun message non lu ou en attente',
+			'chat.inbox.emptyFilter' => 'Aucune conversation dans cette catégorie',
+			'chat.inbox.clearFilters' => 'Voir tous les messages',
+			'chat.inbox.channelLoadFailed' => 'Impossible de charger les messages des canaux',
+			'chat.inbox.notificationSettings' => 'Paramètres de notification',
+			'chat.inbox.channelOnly' => 'Afficher uniquement dans Canaux',
+			'chat.inbox.channelOnlyDescription' => 'L’abonnement et les notifications sont conservés. Vous pouvez rétablir l’affichage dans Messages depuis Canaux.',
+			'chat.inbox.restoreToInbox' => 'Afficher dans Messages',
+			'chat.inbox.actionFailed' => 'Échec de l’action. Réessayez.',
+			'chat.inbox.undo' => 'Annuler',
+			'chat.inbox.openChannels' => 'Ouvrir Canaux',
+			'chat.inbox.channelEmptyDescription' => 'Actualisez vos abonnements ou rétablissez les canaux masqués depuis la page Canaux.',
 			'common.about' => 'À propos',
 			'common.aboutApp' => 'À propos de l\'application',
 			'common.accept' => 'Accepter',
@@ -4422,6 +4462,8 @@ extension on TranslationsFrFr {
 			'common.audioPlayFailed' => 'Échec de la lecture.',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Vous avez été déconnecté de force par l\'appareil [${device}].',
 			'common.loadingTagDataFailed' => 'Échec du chargement des données des étiquettes.',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Entrez le contenu.',
 			'common.comingSoon' => 'Bientôt disponible.',
 			'common.backgroundTransparency' => 'Transparence de l\'arrière-plan',
@@ -4437,8 +4479,6 @@ extension on TranslationsFrFr {
 			'common.fileOpenNotImplemented' => 'Fonction d\'ouverture de fichier non implémentée.',
 			'common.fileShareNotImplemented' => 'Fonction de partage de fichier non implémentée.',
 			'common.retrySuccess' => 'Nouvelle tentative réussie.',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'Suppression réussie.',
 			'common.localDeleteSuccess' => 'Suppression locale réussie.',
 			'common.localDeleteFailed' => 'Échec de la suppression locale.',
@@ -4936,6 +4976,8 @@ extension on TranslationsFrFr {
 			'common.transferRefunded' => 'Remboursé',
 			'common.transferRemarkLabel' => 'Note du virement',
 			'common.transferTapToReceive' => 'Appuyez pour recevoir',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Échec du téléversement de ${count} éléments',
 			'common.voiceSttConverting' => 'Reconnaissance en cours...',
 			'common.voiceSttNotConfigured' => 'La conversion en texte n\'est pas encore configurée',
@@ -4951,8 +4993,6 @@ extension on TranslationsFrFr {
 			'common.legacyUploadOutboxCheck' => 'Le message est peut-être déjà en attente. Vérifiez la conversation avant de le renvoyer.',
 			'common.legacyUploadRecoveryMismatch' => 'Le fichier ne correspond pas ou la récupération est impossible.',
 			'common.legacyUploadRecoveryContinues' => 'Pièce jointe récupérée ; traitement du message initial en cours.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'L’envoi est incomplet. Revenez à la page initiale, sélectionnez le fichier et validez.',
 			'complaint.complaint' => 'Plainte',
 			'complaint.e2eeConsentTitle' => 'Soumettre des preuves chiffrées',
@@ -5450,6 +5490,8 @@ extension on TranslationsFrFr {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Restaurer depuis une sauvegarde ou générer une nouvelle clé',
 			'main.gotIt' => 'Compris',
 			'main.webQRLoggingIn' => 'Connexion...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'QR code expiré',
 			'main.webQRRefresh' => 'Actualiser le QR code',
 			'main.webSwitchToQR' => 'Connexion par QR code',
@@ -5465,8 +5507,6 @@ extension on TranslationsFrFr {
 			'main.complianceKeyInfoHint' => 'La clé d\'audit de conformité sert au double chiffrement du mode compliance_e2ee. Si l\'empreinte ci-dessus diffère de celle publiée par l\'administrateur, le serveur a peut-être été altéré.',
 			'main.complianceKeyInfoKeyId' => 'ID de la clé',
 			'main.complianceKeyInfoLocalPin' => 'Épinglage local (TOFU)',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Épinglée le',
 			'main.complianceKeyInfoPinnedNone' => 'Pas encore épinglée (épinglage automatique lors de la prochaine récupération)',
 			'main.complianceKeyInfoRefreshFailed' => 'Échec de la récupération. Vérifiez le réseau et réessayez',
@@ -5964,6 +6004,8 @@ extension on TranslationsFrFr {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Transcription audio et étiquettes temporaires de locuteurs',
 			'talkRecord.aiZhipuPurpose' => 'Brouillons de synthèse, décisions et actions',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Configuré sur cet appareil',
 			'talkRecord.aiNotConfigured' => 'Non configuré',
 			'talkRecord.aiLoading' => 'Lecture de la configuration locale…',
@@ -5979,8 +6021,6 @@ extension on TranslationsFrFr {
 			'talkRecord.aiUnsupportedPlatform' => 'Le stockage sécurisé n’est pas encore vérifié sur cette plateforme. L’enregistrement de clés est indisponible.',
 			'talkRecord.aiKeyPlaceholder' => 'Saisir la clé API',
 			'talkRecord.aiReplacePlaceholder' => 'Saisir une nouvelle clé API ; la clé existante n’est jamais préremplie',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Enregistrer sur cet appareil',
 			'talkRecord.aiReplaceAction' => 'Remplacer la clé locale',
 			'talkRecord.aiDeleteAction' => 'Supprimer la clé locale',

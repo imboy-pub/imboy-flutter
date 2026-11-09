@@ -730,6 +730,7 @@ class _Translations$chat$ru_RU extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Видеозвонок]';
 	@override String get voiceCallPlaceholder => '[Аудиозвонок]';
 	@override String get notFriendCannotSend => 'Не друзья, отправка невозможна';
+	@override late final _Translations$chat$inbox$ru_RU inbox = _Translations$chat$inbox$ru_RU._(_root);
 }
 
 // Path: common
@@ -2850,6 +2851,30 @@ class _Translations$account$alipaySim$ru_RU extends Translations$account$alipayS
 	@override String get storeName => 'Флагманский магазин информационных технологий';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$ru_RU extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
+
+	final TranslationsRuRu _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Личные';
+	@override String get searchHint => 'Поиск по именам или последним сообщениям';
+	@override String get searchHistory => 'Поиск в истории сообщений';
+	@override String get unreadEmpty => 'Нет непрочитанных или ожидающих сообщений';
+	@override String get emptyFilter => 'В этой категории нет бесед';
+	@override String get clearFilters => 'Показать все сообщения';
+	@override String get channelLoadFailed => 'Не удалось загрузить сообщения каналов';
+	@override String get notificationSettings => 'Настройки уведомлений';
+	@override String get channelOnly => 'Показывать только в Каналах';
+	@override String get channelOnlyDescription => 'Подписка и уведомления сохранятся. Вернуть канал в Сообщения можно на странице Каналы.';
+	@override String get restoreToInbox => 'Показывать в Сообщениях';
+	@override String get actionFailed => 'Не удалось выполнить действие. Повторите попытку.';
+	@override String get undo => 'Отменить';
+	@override String get openChannels => 'Открыть Каналы';
+	@override String get channelEmptyDescription => 'Обновите подписки или восстановите скрытые каналы на странице Каналы.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$ru_RU extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$ru_RU._(TranslationsRuRu root) : this._root = root, super.internal(root);
@@ -4022,6 +4047,21 @@ extension on TranslationsRuRu {
 			'chat.videoCallPlaceholder' => '[Видеозвонок]',
 			'chat.voiceCallPlaceholder' => '[Аудиозвонок]',
 			'chat.notFriendCannotSend' => 'Не друзья, отправка невозможна',
+			'chat.inbox.filterDirect' => 'Личные',
+			'chat.inbox.searchHint' => 'Поиск по именам или последним сообщениям',
+			'chat.inbox.searchHistory' => 'Поиск в истории сообщений',
+			'chat.inbox.unreadEmpty' => 'Нет непрочитанных или ожидающих сообщений',
+			'chat.inbox.emptyFilter' => 'В этой категории нет бесед',
+			'chat.inbox.clearFilters' => 'Показать все сообщения',
+			'chat.inbox.channelLoadFailed' => 'Не удалось загрузить сообщения каналов',
+			'chat.inbox.notificationSettings' => 'Настройки уведомлений',
+			'chat.inbox.channelOnly' => 'Показывать только в Каналах',
+			'chat.inbox.channelOnlyDescription' => 'Подписка и уведомления сохранятся. Вернуть канал в Сообщения можно на странице Каналы.',
+			'chat.inbox.restoreToInbox' => 'Показывать в Сообщениях',
+			'chat.inbox.actionFailed' => 'Не удалось выполнить действие. Повторите попытку.',
+			'chat.inbox.undo' => 'Отменить',
+			'chat.inbox.openChannels' => 'Открыть Каналы',
+			'chat.inbox.channelEmptyDescription' => 'Обновите подписки или восстановите скрытые каналы на странице Каналы.',
 			'common.about' => 'О приложении',
 			'common.aboutApp' => 'О приложении',
 			'common.accept' => 'Принять',
@@ -4428,6 +4468,8 @@ extension on TranslationsRuRu {
 			'common.audioPlayFailed' => 'Не удалось воспроизвести',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Вы были принудительно выведены из сети устройством [${device}]',
 			'common.loadingTagDataFailed' => 'Не удалось загрузить данные тегов',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Пожалуйста, введите содержание',
 			'common.comingSoon' => 'Скоро будет доступно',
 			'common.backgroundTransparency' => 'Прозрачность фона',
@@ -4443,8 +4485,6 @@ extension on TranslationsRuRu {
 			'common.fileOpenNotImplemented' => 'Функция открытия файла не реализована',
 			'common.fileShareNotImplemented' => 'Функция обмена файлом не реализована',
 			'common.retrySuccess' => 'Повтор успешен',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'Успешно удалено',
 			'common.localDeleteSuccess' => 'Локальное удаление успешно',
 			'common.localDeleteFailed' => 'Локальное удаление не удалось',
@@ -4942,6 +4982,8 @@ extension on TranslationsRuRu {
 			'common.transferRefunded' => 'Возвращено',
 			'common.transferRemarkLabel' => 'Примечание к переводу',
 			'common.transferTapToReceive' => 'Нажмите, чтобы получить',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Не удалось загрузить элементов: ${count}',
 			'common.voiceSttConverting' => 'Распознавание...',
 			'common.voiceSttNotConfigured' => 'Функция распознавания речи не настроена',
@@ -4957,8 +4999,6 @@ extension on TranslationsRuRu {
 			'common.legacyUploadOutboxCheck' => 'Сообщение уже может быть в очереди. Проверьте историю чата перед повторной отправкой.',
 			'common.legacyUploadRecoveryMismatch' => 'Файл не совпадает или восстановление недоступно.',
 			'common.legacyUploadRecoveryContinues' => 'Вложение восстановлено; обработка исходного сообщения продолжается.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Загрузка не завершена. Вернитесь на исходную страницу, снова выберите файл и отправьте.',
 			'complaint.complaint' => 'Жалоба',
 			'complaint.e2eeConsentTitle' => 'Отправить зашифрованные доказательства',
@@ -5456,6 +5496,8 @@ extension on TranslationsRuRu {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Нужно восстановить из копии или создать новый ключ',
 			'main.gotIt' => 'Понятно',
 			'main.webQRLoggingIn' => 'Вход...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'Срок действия QR-кода истёк',
 			'main.webQRRefresh' => 'Обновить QR-код',
 			'main.webSwitchToQR' => 'Войти по QR-коду',
@@ -5471,8 +5513,6 @@ extension on TranslationsRuRu {
 			'main.complianceKeyInfoHint' => 'Ключ комплаенс-аудита используется для двойного шифрования в режиме compliance_e2ee. Если отпечаток выше не совпадает с опубликованным администратором, сервер мог быть подменён.',
 			'main.complianceKeyInfoKeyId' => 'ID ключа',
 			'main.complianceKeyInfoLocalPin' => 'Локальная фиксация (TOFU)',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Время фиксации',
 			'main.complianceKeyInfoPinnedNone' => 'Ещё не зафиксирован (зафиксируется автоматически при следующем получении)',
 			'main.complianceKeyInfoRefreshFailed' => 'Не удалось получить. Проверьте сеть и повторите',
@@ -5970,6 +6010,8 @@ extension on TranslationsRuRu {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Расшифровка аудио и временные метки говорящих',
 			'talkRecord.aiZhipuPurpose' => 'Черновики сводок, решений и действий',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Настроено на этом устройстве',
 			'talkRecord.aiNotConfigured' => 'Не настроено',
 			'talkRecord.aiLoading' => 'Чтение настроек устройства…',
@@ -5985,8 +6027,6 @@ extension on TranslationsRuRu {
 			'talkRecord.aiUnsupportedPlatform' => 'Защищённое хранилище этой платформы ещё не проверено. Сохранение ключей недоступно.',
 			'talkRecord.aiKeyPlaceholder' => 'Введите API-ключ',
 			'talkRecord.aiReplacePlaceholder' => 'Введите новый API-ключ; сохранённый ключ не подставляется',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Сохранить на устройстве',
 			'talkRecord.aiReplaceAction' => 'Заменить ключ устройства',
 			'talkRecord.aiDeleteAction' => 'Удалить ключ устройства',

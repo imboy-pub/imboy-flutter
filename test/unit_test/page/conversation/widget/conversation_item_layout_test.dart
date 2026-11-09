@@ -1,7 +1,7 @@
 /// 会话行的几何契约（DESIGN.md 8.3 A / 6.4）。
 ///
 /// 起因是一处真实的视觉错位：头像后间距写的 14pt，而 conversation_page 的
-/// 分隔线按 16(页面 padding) + 56(头像) + 12 = 84 起画——文字左缘和分隔线
+/// 分隔线按 16(页面 padding) + 48(头像) + 12 = 76 起画——文字左缘和分隔线
 /// 差了 2pt。单看代码不容易发现，因为这两个数字分散在两个文件里。
 ///
 /// 这里把"分隔线起点必须等于文字左缘"钉成可执行断言，改任一边都会报警。
@@ -15,13 +15,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/conversation/widget/conversation_item.dart';
+import 'package:imboy/page/conversation/widget/message_inbox_tile.dart';
 import 'package:imboy/store/model/conversation_model.dart';
 import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 
-/// conversation_page 里分隔线的左缩进，改这里必须同步改那边。
-const double kSeparatorIndent = 84;
-const double kAvatarSize = 56;
+/// 页面分隔线与会话/频道行共用同一个布局契约。
+const double kSeparatorIndent = MessageInboxTile.contentIndent;
+const double kAvatarSize = MessageInboxTile.avatarSize;
 
 ConversationModel _model() => ConversationModel(
   id: 1,
@@ -74,7 +75,7 @@ void main() {
   });
 
   testWidgets('几何来源可追溯：页面 padding + 头像 + 头像后间距 == 分隔线缩进', (tester) async {
-    // 不是把 84 抄两遍，而是断言它由三个 token 推导出来。
+    // 不是把 76 抄两遍，而是断言它由三个 token 推导出来。
     // 任何一项改了而另一处没跟上，这条就红。
     expect(
       AppSpacing.regular + kAvatarSize + AppSpacing.medium,

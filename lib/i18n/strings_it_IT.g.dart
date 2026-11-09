@@ -730,6 +730,7 @@ class _Translations$chat$it_IT extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Videochiamata]';
 	@override String get voiceCallPlaceholder => '[Chiamata vocale]';
 	@override String get notFriendCannotSend => 'Non amici, invio impossibile';
+	@override late final _Translations$chat$inbox$it_IT inbox = _Translations$chat$inbox$it_IT._(_root);
 }
 
 // Path: common
@@ -2844,6 +2845,30 @@ class _Translations$account$alipaySim$it_IT extends Translations$account$alipayS
 	@override String get storeName => 'Negozio flagship di tecnologia dell\'informazione';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$it_IT extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
+
+	final TranslationsItIt _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Privati';
+	@override String get searchHint => 'Cerca nomi o ultimi messaggi';
+	@override String get searchHistory => 'Cerca nella cronologia dei messaggi';
+	@override String get unreadEmpty => 'Nessun messaggio non letto o in sospeso';
+	@override String get emptyFilter => 'Nessuna conversazione in questa categoria';
+	@override String get clearFilters => 'Mostra tutti i messaggi';
+	@override String get channelLoadFailed => 'Impossibile caricare i messaggi dei canali';
+	@override String get notificationSettings => 'Impostazioni notifiche';
+	@override String get channelOnly => 'Mostra solo in Canali';
+	@override String get channelOnlyDescription => 'Iscrizione e notifiche restano attive. Puoi ripristinare la visualizzazione in Messaggi dalla pagina Canali.';
+	@override String get restoreToInbox => 'Mostra in Messaggi';
+	@override String get actionFailed => 'Operazione non riuscita. Riprova.';
+	@override String get undo => 'Annulla';
+	@override String get openChannels => 'Apri Canali';
+	@override String get channelEmptyDescription => 'Aggiorna le iscrizioni o ripristina i canali nascosti dalla pagina Canali.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$it_IT extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$it_IT._(TranslationsItIt root) : this._root = root, super.internal(root);
@@ -4016,6 +4041,21 @@ extension on TranslationsItIt {
 			'chat.videoCallPlaceholder' => '[Videochiamata]',
 			'chat.voiceCallPlaceholder' => '[Chiamata vocale]',
 			'chat.notFriendCannotSend' => 'Non amici, invio impossibile',
+			'chat.inbox.filterDirect' => 'Privati',
+			'chat.inbox.searchHint' => 'Cerca nomi o ultimi messaggi',
+			'chat.inbox.searchHistory' => 'Cerca nella cronologia dei messaggi',
+			'chat.inbox.unreadEmpty' => 'Nessun messaggio non letto o in sospeso',
+			'chat.inbox.emptyFilter' => 'Nessuna conversazione in questa categoria',
+			'chat.inbox.clearFilters' => 'Mostra tutti i messaggi',
+			'chat.inbox.channelLoadFailed' => 'Impossibile caricare i messaggi dei canali',
+			'chat.inbox.notificationSettings' => 'Impostazioni notifiche',
+			'chat.inbox.channelOnly' => 'Mostra solo in Canali',
+			'chat.inbox.channelOnlyDescription' => 'Iscrizione e notifiche restano attive. Puoi ripristinare la visualizzazione in Messaggi dalla pagina Canali.',
+			'chat.inbox.restoreToInbox' => 'Mostra in Messaggi',
+			'chat.inbox.actionFailed' => 'Operazione non riuscita. Riprova.',
+			'chat.inbox.undo' => 'Annulla',
+			'chat.inbox.openChannels' => 'Apri Canali',
+			'chat.inbox.channelEmptyDescription' => 'Aggiorna le iscrizioni o ripristina i canali nascosti dalla pagina Canali.',
 			'common.about' => 'Informazioni',
 			'common.aboutApp' => 'Informazioni sull\'app',
 			'common.accept' => 'Accetta',
@@ -4422,6 +4462,8 @@ extension on TranslationsItIt {
 			'common.audioPlayFailed' => 'Riproduzione non riuscita',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Sei stato disconnesso forzatamente dal dispositivo [${device}]',
 			'common.loadingTagDataFailed' => 'Caricamento dati tag non riuscito',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Inserisci contenuto',
 			'common.comingSoon' => 'Prossimamente',
 			'common.backgroundTransparency' => 'Trasparenza sfondo',
@@ -4437,8 +4479,6 @@ extension on TranslationsItIt {
 			'common.fileOpenNotImplemented' => 'Funzione di apertura file non ancora implementata',
 			'common.fileShareNotImplemented' => 'Funzione di condivisione file non ancora implementata',
 			'common.retrySuccess' => 'Ritentativo riuscito',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'Eliminazione riuscita',
 			'common.localDeleteSuccess' => 'Eliminazione locale riuscita',
 			'common.localDeleteFailed' => 'Eliminazione locale non riuscita',
@@ -4936,6 +4976,8 @@ extension on TranslationsItIt {
 			'common.transferRefunded' => 'Restituito',
 			'common.transferRemarkLabel' => 'Note del bonifico',
 			'common.transferTapToReceive' => 'Tocca per ricevere',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Caricamento non riuscito per ${count} elementi',
 			'common.voiceSttConverting' => 'Riconoscimento in corso...',
 			'common.voiceSttNotConfigured' => 'La conversione in testo non è ancora configurata',
@@ -4951,8 +4993,6 @@ extension on TranslationsItIt {
 			'common.legacyUploadOutboxCheck' => 'Il messaggio potrebbe essere già in coda. Controlla la chat prima di reinviarlo.',
 			'common.legacyUploadRecoveryMismatch' => 'Il file non corrisponde o il recupero non è disponibile.',
 			'common.legacyUploadRecoveryContinues' => 'Allegato recuperato; elaborazione del messaggio originale in corso.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'Il caricamento è incompleto. Torna alla pagina originale, seleziona il file e invia.',
 			'complaint.complaint' => 'Reclamo',
 			'complaint.e2eeConsentTitle' => 'Invia prove crittografate',
@@ -5450,6 +5490,8 @@ extension on TranslationsItIt {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Ripristina da backup o genera una nuova chiave',
 			'main.gotIt' => 'Capito',
 			'main.webQRLoggingIn' => 'Accesso...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'QR code scaduto',
 			'main.webQRRefresh' => 'Aggiorna QR code',
 			'main.webSwitchToQR' => 'Accesso via QR code',
@@ -5465,8 +5507,6 @@ extension on TranslationsItIt {
 			'main.complianceKeyInfoHint' => 'La chiave di audit di conformità è usata per la doppia cifratura della modalità compliance_e2ee. Se l\'impronta sopra non corrisponde a quella pubblicata dall\'amministratore, il server potrebbe essere stato manomesso.',
 			'main.complianceKeyInfoKeyId' => 'ID chiave',
 			'main.complianceKeyInfoLocalPin' => 'Pin locale (TOFU)',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => 'Ora del pin',
 			'main.complianceKeyInfoPinnedNone' => 'Non ancora bloccato (verrà bloccato automaticamente al prossimo recupero)',
 			'main.complianceKeyInfoRefreshFailed' => 'Recupero non riuscito, controlla la rete e riprova',
@@ -5964,6 +6004,8 @@ extension on TranslationsItIt {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Trascrizione audio ed etichette temporanee dei parlanti',
 			'talkRecord.aiZhipuPurpose' => 'Bozze di riepiloghi, decisioni e azioni',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Configurato su questo dispositivo',
 			'talkRecord.aiNotConfigured' => 'Non configurato',
 			'talkRecord.aiLoading' => 'Lettura della configurazione locale…',
@@ -5979,8 +6021,6 @@ extension on TranslationsItIt {
 			'talkRecord.aiUnsupportedPlatform' => 'L’archivio sicuro non è ancora verificato su questa piattaforma. Non è possibile salvare chiavi.',
 			'talkRecord.aiKeyPlaceholder' => 'Inserisci la chiave API',
 			'talkRecord.aiReplacePlaceholder' => 'Inserisci una nuova chiave API; quella salvata non viene mai precompilata',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'Salva su questo dispositivo',
 			'talkRecord.aiReplaceAction' => 'Sostituisci la chiave locale',
 			'talkRecord.aiDeleteAction' => 'Elimina la chiave locale',

@@ -730,6 +730,7 @@ class _Translations$chat$ja_JP extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[ビデオ通話]';
 	@override String get voiceCallPlaceholder => '[音声通話]';
 	@override String get notFriendCannotSend => '友達ではないため送信できません';
+	@override late final _Translations$chat$inbox$ja_JP inbox = _Translations$chat$inbox$ja_JP._(_root);
 }
 
 // Path: common
@@ -2841,6 +2842,30 @@ class _Translations$account$alipaySim$ja_JP extends Translations$account$alipayS
 	@override String get storeName => '情報テクノロジー旗艦店';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$ja_JP extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
+
+	final TranslationsJaJp _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => '個別';
+	@override String get searchHint => '名前や最新のメッセージを検索';
+	@override String get searchHistory => 'メッセージ履歴を検索';
+	@override String get unreadEmpty => '未読・対応待ちのメッセージはありません';
+	@override String get emptyFilter => 'このカテゴリに会話はありません';
+	@override String get clearFilters => 'すべてのメッセージを表示';
+	@override String get channelLoadFailed => 'チャンネルのメッセージを読み込めませんでした';
+	@override String get notificationSettings => '通知設定';
+	@override String get channelOnly => 'チャンネル画面のみに表示';
+	@override String get channelOnlyDescription => '登録と通知はそのままです。チャンネル画面からメッセージ一覧に戻せます。';
+	@override String get restoreToInbox => 'メッセージ一覧に表示';
+	@override String get actionFailed => '操作に失敗しました。再試行してください。';
+	@override String get undo => '元に戻す';
+	@override String get openChannels => 'チャンネルを開く';
+	@override String get channelEmptyDescription => 'チャンネル画面で登録一覧の更新や非表示チャンネルの復元ができます。';
+}
+
 // Path: organization.common
 class _Translations$organization$common$ja_JP extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$ja_JP._(TranslationsJaJp root) : this._root = root, super.internal(root);
@@ -4013,6 +4038,21 @@ extension on TranslationsJaJp {
 			'chat.videoCallPlaceholder' => '[ビデオ通話]',
 			'chat.voiceCallPlaceholder' => '[音声通話]',
 			'chat.notFriendCannotSend' => '友達ではないため送信できません',
+			'chat.inbox.filterDirect' => '個別',
+			'chat.inbox.searchHint' => '名前や最新のメッセージを検索',
+			'chat.inbox.searchHistory' => 'メッセージ履歴を検索',
+			'chat.inbox.unreadEmpty' => '未読・対応待ちのメッセージはありません',
+			'chat.inbox.emptyFilter' => 'このカテゴリに会話はありません',
+			'chat.inbox.clearFilters' => 'すべてのメッセージを表示',
+			'chat.inbox.channelLoadFailed' => 'チャンネルのメッセージを読み込めませんでした',
+			'chat.inbox.notificationSettings' => '通知設定',
+			'chat.inbox.channelOnly' => 'チャンネル画面のみに表示',
+			'chat.inbox.channelOnlyDescription' => '登録と通知はそのままです。チャンネル画面からメッセージ一覧に戻せます。',
+			'chat.inbox.restoreToInbox' => 'メッセージ一覧に表示',
+			'chat.inbox.actionFailed' => '操作に失敗しました。再試行してください。',
+			'chat.inbox.undo' => '元に戻す',
+			'chat.inbox.openChannels' => 'チャンネルを開く',
+			'chat.inbox.channelEmptyDescription' => 'チャンネル画面で登録一覧の更新や非表示チャンネルの復元ができます。',
 			'common.about' => '概要',
 			'common.aboutApp' => 'このアプリについて',
 			'common.accept' => '承認',
@@ -4419,6 +4459,8 @@ extension on TranslationsJaJp {
 			'common.audioPlayFailed' => '再生に失敗しました',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'デバイス【${device}】により強制ログアウトされました',
 			'common.loadingTagDataFailed' => 'タグデータの読み込みに失敗しました',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => '内容を入力してください',
 			'common.comingSoon' => '近日公開',
 			'common.backgroundTransparency' => '背景の透明度',
@@ -4434,8 +4476,6 @@ extension on TranslationsJaJp {
 			'common.fileOpenNotImplemented' => 'ファイルを開く機能は実装されていません',
 			'common.fileShareNotImplemented' => 'ファイル共有機能は実装されていません',
 			'common.retrySuccess' => 'リトライしました',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => '削除しました',
 			'common.localDeleteSuccess' => 'ローカル削除に成功しました',
 			'common.localDeleteFailed' => 'ローカル削除に失敗しました',
@@ -4933,6 +4973,8 @@ extension on TranslationsJaJp {
 			'common.e2eeUseRecoveryKey' => 'リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）',
 			'common.e2eeErrPeerNotOnboarded' => '相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください',
 			'common.complianceKeyChangedTitle' => 'コンプライアンス監査キーが変更されました',
+			_ => null,
+		} ?? switch (path) {
 			'common.complianceKeyChangedActionConfirm' => 'ローテーションを承認',
 			'common.complianceKeyChangedActionKeep' => '今は承認しない',
 			'common.complianceKeyChangedBody' => 'サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。',
@@ -4948,8 +4990,6 @@ extension on TranslationsJaJp {
 			'common.legacyUploadOutboxCheck' => 'メッセージは送信待ちの可能性があります。再送する前に履歴を確認してください。',
 			'common.legacyUploadRecoveryMismatch' => '選択したファイルが一致しないか、復元できません。',
 			'common.legacyUploadRecoveryContinues' => '添付ファイルを復元しました。元のメッセージの処理を続けます。',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'アップロードが未完了です。元の画面でファイルを選び直して送信してください。',
 			'complaint.complaint' => '通報',
 			'complaint.e2eeConsentTitle' => '暗号化メッセージの証拠を提出',
@@ -5447,6 +5487,8 @@ extension on TranslationsJaJp {
 			'main.e2eeWarnNeedRestoreOrNew' => '• バックアップから復元するか、新しいキーを生成する必要があります',
 			'main.gotIt' => '了解',
 			'main.webQRLoggingIn' => 'ログイン中...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'QRコードの有効期限が切れました',
 			'main.webQRRefresh' => 'QRコードを更新',
 			'main.webSwitchToQR' => 'QRコードでログイン',
@@ -5462,8 +5504,6 @@ extension on TranslationsJaJp {
 			'main.safetyNumberMarkVerified' => '検証済みとしてマーク',
 			'main.safetyNumberMarkedVerified' => '検証済みとしてマークしました',
 			'main.safetyNumberNoDevices' => '相手はまだエンドツーエンド暗号化を有効にしていません',
-			_ => null,
-		} ?? switch (path) {
 			'main.safetyNumberPeerDevice' => '相手のデバイス',
 			'main.safetyNumberReportRejected' => 'サーバーがこの検証イベントを拒否しました（署名/有効期限の不一致）。マークされていません',
 			'main.safetyNumberReportUnavailable' => 'デバイス情報を取得できないため、未報告です',
@@ -5961,6 +6001,8 @@ extension on TranslationsJaJp {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => '音声の文字起こしと一時的な話者ラベル',
 			'talkRecord.aiZhipuPurpose' => '要約、決定事項、アクションの下書き',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'この端末に設定済み',
 			'talkRecord.aiNotConfigured' => '未設定',
 			'talkRecord.aiLoading' => '端末の設定を読み込み中…',
@@ -5976,8 +6018,6 @@ extension on TranslationsJaJp {
 			'talkRecord.aiUnsupportedPlatform' => 'このプラットフォームの安全な保存機能は未検証のため、キーを保存できません。',
 			'talkRecord.aiKeyPlaceholder' => 'API キーを入力',
 			'talkRecord.aiReplacePlaceholder' => '新しい API キーを入力（保存済みキーは表示しません）',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'この端末に保存',
 			'talkRecord.aiReplaceAction' => '端末のキーを置き換える',
 			'talkRecord.aiDeleteAction' => '端末のキーを削除',

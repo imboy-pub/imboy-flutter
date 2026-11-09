@@ -730,6 +730,7 @@ class _Translations$chat$ko_KR extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[영상 통화]';
 	@override String get voiceCallPlaceholder => '[음성 통화]';
 	@override String get notFriendCannotSend => '친구가 아니어서 메시지를 보낼 수 없습니다';
+	@override late final _Translations$chat$inbox$ko_KR inbox = _Translations$chat$inbox$ko_KR._(_root);
 }
 
 // Path: common
@@ -2841,6 +2842,30 @@ class _Translations$account$alipaySim$ko_KR extends Translations$account$alipayS
 	@override String get balanceSource => '계정 잔액';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$ko_KR extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
+
+	final TranslationsKoKr _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => '개인';
+	@override String get searchHint => '이름 또는 최근 메시지 검색';
+	@override String get searchHistory => '메시지 기록 검색';
+	@override String get unreadEmpty => '읽지 않거나 처리 대기 중인 메시지가 없습니다';
+	@override String get emptyFilter => '이 분류에 대화가 없습니다';
+	@override String get clearFilters => '모든 메시지 보기';
+	@override String get channelLoadFailed => '채널 메시지를 불러오지 못했습니다';
+	@override String get notificationSettings => '알림 설정';
+	@override String get channelOnly => '채널 화면에만 표시';
+	@override String get channelOnlyDescription => '구독과 알림은 유지됩니다. 채널 화면에서 메시지 목록으로 복원할 수 있습니다.';
+	@override String get restoreToInbox => '메시지 목록에 표시';
+	@override String get actionFailed => '작업에 실패했습니다. 다시 시도해 주세요.';
+	@override String get undo => '실행 취소';
+	@override String get openChannels => '채널 열기';
+	@override String get channelEmptyDescription => '채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$ko_KR extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$ko_KR._(TranslationsKoKr root) : this._root = root, super.internal(root);
@@ -4013,6 +4038,21 @@ extension on TranslationsKoKr {
 			'chat.videoCallPlaceholder' => '[영상 통화]',
 			'chat.voiceCallPlaceholder' => '[음성 통화]',
 			'chat.notFriendCannotSend' => '친구가 아니어서 메시지를 보낼 수 없습니다',
+			'chat.inbox.filterDirect' => '개인',
+			'chat.inbox.searchHint' => '이름 또는 최근 메시지 검색',
+			'chat.inbox.searchHistory' => '메시지 기록 검색',
+			'chat.inbox.unreadEmpty' => '읽지 않거나 처리 대기 중인 메시지가 없습니다',
+			'chat.inbox.emptyFilter' => '이 분류에 대화가 없습니다',
+			'chat.inbox.clearFilters' => '모든 메시지 보기',
+			'chat.inbox.channelLoadFailed' => '채널 메시지를 불러오지 못했습니다',
+			'chat.inbox.notificationSettings' => '알림 설정',
+			'chat.inbox.channelOnly' => '채널 화면에만 표시',
+			'chat.inbox.channelOnlyDescription' => '구독과 알림은 유지됩니다. 채널 화면에서 메시지 목록으로 복원할 수 있습니다.',
+			'chat.inbox.restoreToInbox' => '메시지 목록에 표시',
+			'chat.inbox.actionFailed' => '작업에 실패했습니다. 다시 시도해 주세요.',
+			'chat.inbox.undo' => '실행 취소',
+			'chat.inbox.openChannels' => '채널 열기',
+			'chat.inbox.channelEmptyDescription' => '채널 화면에서 구독 목록을 업데이트하거나 숨긴 채널을 복원하세요.',
 			'common.about' => '정보',
 			'common.aboutApp' => '앱 정보',
 			'common.accept' => '수락',
@@ -4419,6 +4459,8 @@ extension on TranslationsKoKr {
 			'common.audioPlayFailed' => '재생 실패',
 			'common.forcedOfflineByDevice' => ({required Object device}) => '기기 [${device}]에서 강제 로그아웃되었습니다',
 			'common.loadingTagDataFailed' => '태그 데이터 로드 실패',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => '내용을 입력하세요',
 			'common.comingSoon' => '출시 예정',
 			'common.backgroundTransparency' => '배경 투명도',
@@ -4434,8 +4476,6 @@ extension on TranslationsKoKr {
 			'common.fileOpenNotImplemented' => '파일 열기 기능이 아직 구현되지 않음',
 			'common.fileShareNotImplemented' => '파일 공유 기능이 아직 구현되지 않음',
 			'common.retrySuccess' => '재시도 성공',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => '삭제 성공',
 			'common.localDeleteSuccess' => '로컬 삭제 성공',
 			'common.localDeleteFailed' => '로컬 삭제 실패',
@@ -4933,6 +4973,8 @@ extension on TranslationsKoKr {
 			'common.transferRefunded' => '반환됨',
 			'common.transferRemarkLabel' => '송금 메모',
 			'common.transferTapToReceive' => '탭하여 받기',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count}개 항목 업로드 실패',
 			'common.voiceSttConverting' => '인식 중...',
 			'common.voiceSttNotConfigured' => '텍스트 변환 기능이 아직 설정되지 않았습니다',
@@ -4948,8 +4990,6 @@ extension on TranslationsKoKr {
 			'common.legacyUploadOutboxCheck' => '메시지가 이미 전송 대기 중일 수 있습니다. 다시 보내기 전에 대화 기록을 확인하세요.',
 			'common.legacyUploadRecoveryMismatch' => '선택한 파일이 일치하지 않거나 복구할 수 없습니다.',
 			'common.legacyUploadRecoveryContinues' => '첨부파일을 복구했습니다. 원래 메시지 처리를 계속합니다.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => '업로드가 완료되지 않았습니다. 원래 화면에서 파일을 다시 선택하고 제출하세요。',
 			'complaint.complaint' => '신고',
 			'complaint.e2eeConsentTitle' => '암호화 메시지 증거 제출',
@@ -5447,6 +5487,8 @@ extension on TranslationsKoKr {
 			'main.e2eeWarnNeedRestoreOrNew' => '• 백업에서 복구하거나 새 키를 생성해야 합니다',
 			'main.gotIt' => '확인',
 			'main.webQRLoggingIn' => '로그인 중...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'QR 코드가 만료되었습니다',
 			'main.webQRRefresh' => 'QR 코드 새로고침',
 			'main.webSwitchToQR' => 'QR 코드로 로그인',
@@ -5462,8 +5504,6 @@ extension on TranslationsKoKr {
 			'main.complianceKeyInfoHint' => '컴플라이언스 감사 키는 compliance_e2ee 모드의 이중 암호화에 사용됩니다. 위 지문이 관리자가 공표한 지문과 일치하지 않으면 서버가 변조되었을 수 있습니다.',
 			'main.complianceKeyInfoKeyId' => '키 ID',
 			'main.complianceKeyInfoLocalPin' => '로컬 고정(TOFU)',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => '고정 시간',
 			'main.complianceKeyInfoPinnedNone' => '아직 고정되지 않음(다음 가져오기 시 자동 고정)',
 			'main.complianceKeyInfoRefreshFailed' => '가져오기 실패. 네트워크 확인 후 다시 시도해 주세요',
@@ -5961,6 +6001,8 @@ extension on TranslationsKoKr {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => '음성 전사 및 임시 화자 레이블',
 			'talkRecord.aiZhipuPurpose' => '요약, 결정 사항 및 작업 초안',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => '이 기기에 설정됨',
 			'talkRecord.aiNotConfigured' => '설정 안 됨',
 			'talkRecord.aiLoading' => '기기 설정을 읽는 중…',
@@ -5976,8 +6018,6 @@ extension on TranslationsKoKr {
 			'talkRecord.aiUnsupportedPlatform' => '이 플랫폼의 기기 보안 저장소가 검증되지 않아 키를 저장할 수 없습니다.',
 			'talkRecord.aiKeyPlaceholder' => 'API 키 입력',
 			'talkRecord.aiReplacePlaceholder' => '새 API 키 입력(기존 키는 미리 표시하지 않음)',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => '이 기기에 저장',
 			'talkRecord.aiReplaceAction' => '기기 키 교체',
 			'talkRecord.aiDeleteAction' => '기기 키 삭제',

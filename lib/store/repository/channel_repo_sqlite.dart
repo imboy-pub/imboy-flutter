@@ -363,7 +363,19 @@ class ChannelRepo {
   // ==================== 置顶和通知设置 ====================
 
   /// 设置频道置顶状态
-  Future<int> setPinned(String channelId, bool pinned) async {
+  Future<int> setPinned(
+    String channelId,
+    bool pinned, {
+    Transaction? txn,
+  }) async {
+    if (txn != null) {
+      return txn.update(
+        subscriptionTableName,
+        {isPinned: pinned ? 1 : 0},
+        where: '$subChannelId = ?',
+        whereArgs: [channelId],
+      );
+    }
     return await _db.update(
       subscriptionTableName,
       {isPinned: pinned ? 1 : 0},

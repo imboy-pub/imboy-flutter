@@ -730,6 +730,7 @@ class _Translations$chat$ar_SA extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[مكالمة فيديو]';
 	@override String get voiceCallPlaceholder => '[مكالمة صوتية]';
 	@override String get notFriendCannotSend => 'لستما أصدقاء، لا يمكن الإرسال';
+	@override late final _Translations$chat$inbox$ar_SA inbox = _Translations$chat$inbox$ar_SA._(_root);
 }
 
 // Path: common
@@ -2853,6 +2854,30 @@ class _Translations$account$alipaySim$ar_SA extends Translations$account$alipayS
 	@override String get balanceSource => 'رصيد الحساب';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$ar_SA extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
+
+	final TranslationsArSa _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'خاصة';
+	@override String get searchHint => 'ابحث عن الأسماء أو أحدث الرسائل';
+	@override String get searchHistory => 'البحث في سجل الرسائل';
+	@override String get unreadEmpty => 'لا توجد رسائل غير مقروءة أو معلّقة';
+	@override String get emptyFilter => 'لا توجد محادثات في هذه الفئة';
+	@override String get clearFilters => 'عرض جميع الرسائل';
+	@override String get channelLoadFailed => 'تعذّر تحميل رسائل القنوات';
+	@override String get notificationSettings => 'إعدادات الإشعارات';
+	@override String get channelOnly => 'العرض في القنوات فقط';
+	@override String get channelOnlyDescription => 'سيبقى الاشتراك والإشعارات. يمكنك إعادة العرض في الرسائل من صفحة القنوات.';
+	@override String get restoreToInbox => 'العرض في الرسائل';
+	@override String get actionFailed => 'تعذّر تنفيذ الإجراء. حاول مجددًا.';
+	@override String get undo => 'تراجع';
+	@override String get openChannels => 'فتح القنوات';
+	@override String get channelEmptyDescription => 'حدّث الاشتراكات أو أعد إظهار القنوات المخفية من صفحة القنوات.';
+}
+
 // Path: organization.common
 class _Translations$organization$common$ar_SA extends Translations$organization$common$zh_CN {
 	_Translations$organization$common$ar_SA._(TranslationsArSa root) : this._root = root, super.internal(root);
@@ -4025,6 +4050,21 @@ extension on TranslationsArSa {
 			'chat.videoCallPlaceholder' => '[مكالمة فيديو]',
 			'chat.voiceCallPlaceholder' => '[مكالمة صوتية]',
 			'chat.notFriendCannotSend' => 'لستما أصدقاء، لا يمكن الإرسال',
+			'chat.inbox.filterDirect' => 'خاصة',
+			'chat.inbox.searchHint' => 'ابحث عن الأسماء أو أحدث الرسائل',
+			'chat.inbox.searchHistory' => 'البحث في سجل الرسائل',
+			'chat.inbox.unreadEmpty' => 'لا توجد رسائل غير مقروءة أو معلّقة',
+			'chat.inbox.emptyFilter' => 'لا توجد محادثات في هذه الفئة',
+			'chat.inbox.clearFilters' => 'عرض جميع الرسائل',
+			'chat.inbox.channelLoadFailed' => 'تعذّر تحميل رسائل القنوات',
+			'chat.inbox.notificationSettings' => 'إعدادات الإشعارات',
+			'chat.inbox.channelOnly' => 'العرض في القنوات فقط',
+			'chat.inbox.channelOnlyDescription' => 'سيبقى الاشتراك والإشعارات. يمكنك إعادة العرض في الرسائل من صفحة القنوات.',
+			'chat.inbox.restoreToInbox' => 'العرض في الرسائل',
+			'chat.inbox.actionFailed' => 'تعذّر تنفيذ الإجراء. حاول مجددًا.',
+			'chat.inbox.undo' => 'تراجع',
+			'chat.inbox.openChannels' => 'فتح القنوات',
+			'chat.inbox.channelEmptyDescription' => 'حدّث الاشتراكات أو أعد إظهار القنوات المخفية من صفحة القنوات.',
 			'common.about' => 'حول',
 			'common.aboutApp' => 'حول التطبيق',
 			'common.accept' => 'قبول',
@@ -4431,6 +4471,8 @@ extension on TranslationsArSa {
 			'common.audioPlayFailed' => 'فشل التشغيل',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'تم تسجيل الخروج إجبارياً من الجهاز 【${device}】',
 			'common.loadingTagDataFailed' => 'فشل تحميل بيانات العلامات',
+			_ => null,
+		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'يرجى إدخال المحتوى',
 			'common.comingSoon' => 'قريباً',
 			'common.backgroundTransparency' => 'شفافية الخلفية',
@@ -4446,8 +4488,6 @@ extension on TranslationsArSa {
 			'common.fileOpenNotImplemented' => 'ميزة فتح الملف غير متاحة بعد',
 			'common.fileShareNotImplemented' => 'ميزة مشاركة الملف غير متاحة بعد',
 			'common.retrySuccess' => 'نجحت إعادة المحاولة',
-			_ => null,
-		} ?? switch (path) {
 			'common.deleteSuccess' => 'نجح الحذف',
 			'common.localDeleteSuccess' => 'نجح الحذف المحلي',
 			'common.localDeleteFailed' => 'فشل الحذف المحلي',
@@ -4945,6 +4985,8 @@ extension on TranslationsArSa {
 			'common.transferConfirm' => 'تأكيد التحويل',
 			'common.transferMinAmountError' => 'الحد الأدنى لمبلغ التحويل هو 0.01 يوان',
 			'common.transferPending' => 'في انتظار تأكيد الطرف الآخر',
+			_ => null,
+		} ?? switch (path) {
 			'common.transferAccepted' => 'تم الاستلام',
 			'common.transferReceiving' => 'جارٍ استلام المبلغ...',
 			'common.transferRefunded' => 'تمت الإعادة',
@@ -4960,8 +5002,6 @@ extension on TranslationsArSa {
 			'common.legacyUploadOutboxCheck' => 'قد تكون الرسالة في قائمة الإرسال بالفعل. تحقق من سجل المحادثة قبل إعادة الإرسال.',
 			'common.legacyUploadRecoveryMismatch' => 'الملف المحدد غير مطابق أو يتعذر الاستعادة.',
 			'common.legacyUploadRecoveryContinues' => 'تمت استعادة المرفق؛ يجري استكمال الرسالة الأصلية.',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => 'لم يكتمل الرفع. عُد إلى الصفحة الأصلية واختر الملف مجدداً ثم أرسله.',
 			'complaint.complaint' => 'شكوى',
 			'complaint.e2eeConsentTitle' => 'تقديم دليل مشفّر',
@@ -5459,6 +5499,8 @@ extension on TranslationsArSa {
 			'main.e2eeWarnNeedRestoreOrNew' => '• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد',
 			'main.gotIt' => 'فهمت',
 			'main.webQRLoggingIn' => 'جارٍ الدخول...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
 			'main.webQRRefresh' => 'تحديث رمز QR',
 			'main.webSwitchToQR' => 'الدخول برمز QR',
@@ -5474,8 +5516,6 @@ extension on TranslationsArSa {
 			'main.complianceKeyRotationNoPending' => 'لا يوجد تغيير مفتاح في انتظار التأكيد',
 			'main.e2eeErrDeviceNotReady' => 'لم تكتمل التهيئة الأمنية لهذا الجهاز. سجّل الخروج ثم سجّل الدخول من جديد وأعد المحاولة',
 			'main.e2eeErrProtocolMismatch' => 'هناك خلل في إعداد بروتوكول التشفير. حدّث التطبيق ثم أعد المحاولة',
-			_ => null,
-		} ?? switch (path) {
 			'main.e2eeErrPeerSuiteUnsupported' => 'جهاز الطرف الآخر لا يدعم حزمة التشفير المطلوبة، ولم يتم إرسال الرسالة؛ اطلب منه تحديث التطبيق ثم أعد المحاولة',
 			'main.e2eeErrSessionExportFailed' => 'تعذّر إنشاء مفتاح جلسة المجموعة. حاول لاحقاً',
 			'main.complianceKeyInfoTitle' => 'مفتاح تدقيق الامتثال',
@@ -5973,6 +6013,8 @@ extension on TranslationsArSa {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'تفريغ الصوت وتسميات مؤقتة للمتحدثين',
 			'talkRecord.aiZhipuPurpose' => 'مسودات الملخصات والقرارات والإجراءات',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'تم الإعداد على هذا الجهاز',
 			'talkRecord.aiNotConfigured' => 'غير مُعدّ',
 			'talkRecord.aiLoading' => 'جارٍ قراءة إعدادات الجهاز…',
@@ -5988,8 +6030,6 @@ extension on TranslationsArSa {
 			'talkRecord.aiUnsupportedPlatform' => 'لم يتم التحقق من التخزين الآمن على هذه المنصة بعد. حفظ المفاتيح غير متاح.',
 			'talkRecord.aiKeyPlaceholder' => 'أدخل مفتاح API',
 			'talkRecord.aiReplacePlaceholder' => 'أدخل مفتاح API جديدًا؛ لا تتم تعبئة المفتاح المحفوظ مسبقًا',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => 'حفظ على هذا الجهاز',
 			'talkRecord.aiReplaceAction' => 'استبدال مفتاح الجهاز',
 			'talkRecord.aiDeleteAction' => 'حذف مفتاح الجهاز',

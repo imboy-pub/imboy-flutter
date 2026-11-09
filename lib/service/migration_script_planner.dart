@@ -121,7 +121,13 @@ class MigrationScriptPlanner {
   /// 合法单步升级。此前该事实只存在于代码注释里，"跳号合法"与"中间块
   /// 缺失"不可区分；现在路径校验只豁免本集合内的版本号，其余区间内
   /// 版本没有块一律视为缺边抛错。新增版本块时若跳号，必须在这里登记。
-  static const Set<int> allowedVersionGaps = {15};
+  // v38 is reserved by an unregistered FTS draft. v37 → v39 adds only local
+  // inbox preferences; it must not register the draft to fill this gap.
+  static const Set<int> allowedVersionGaps = {15, 38};
+
+  /// A development-only schema must not become a production path endpoint.
+  /// Its FTS admission still needs a separately reviewed future migration.
+  static const Set<int> unregisteredDraftVersions = {38};
 
   /// 根据起止版本从 [scripts] 中选出需要执行的脚本并按执行顺序排序；
   /// 路径上任何所需块缺失时抛错，绝不返回不完整的计划。
@@ -133,6 +139,12 @@ class MigrationScriptPlanner {
     required int fromVersion,
     required int toVersion,
   }) {
+    if (unregisteredDraftVersions.contains(fromVersion) ||
+        unregisteredDraftVersions.contains(toVersion)) {
+      throw StateError(
+        'Unregistered draft schema is not a production migration endpoint: v$fromVersion → v$toVersion',
+      );
+    }
     if (fromVersion == toVersion) return const [];
 
     final isUpgrade = toVersion > fromVersion;

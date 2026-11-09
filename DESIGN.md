@@ -406,7 +406,7 @@ Layout:
 - 左 16pt padding，右 16pt padding
 - 行高 ≥ 64pt（带头像）/ ≥ 44pt（纯文字）
 - 左图标/头像后 12pt 间距
-- 底部 0.33pt separator，从左 16+56（头像宽度）+12 = 84pt 起始
+- 底部分隔线与文字左缘对齐；消息页使用 16+48（头像宽度）+12 = 76pt，其余列表按实际头像宽度计算
 ```
 
 **B. Inset Grouped List**（设置页、个人信息页）
@@ -511,6 +511,22 @@ Layout:
 - 点筛选档弹出 topLeft 锚定气泡菜单（见 8.10）：九档筛选 + 「编辑」动作，
   全部/未读行尾计数胶囊（PopoverCountBadge：灰底胶囊、Footnote w600）
 ```
+
+#### 个人消息统一列表（2026-11）
+
+- 私聊、群聊与有权访问的个人频道在一个虚拟化列表中展示；取消固定频道区和五条截断。手动置顶优先，其余按真实最新消息时间倒序，时间相同使用稳定身份键；频道元数据更新时间不得参与排序。
+- 搜索框下提供「全部 / 未读 / 私聊 / 群聊 / 频道」单行筛选。筛选控件保持至少 48pt 热区，文字增大或翻译较长时横向滚动，不压缩系统字号。关闭/裁剪频道功能后移除频道选项，其他会话仍可使用。
+- 搜索仅匹配当前分类的名称与最新预览；清空搜索保留分类。历史消息搜索保留在「+」菜单和输入查询后的明确文字入口，继续使用现有历史搜索路由。
+- 消息行共用 48pt 头像、12pt 图文间距及 16pt 水平内边距。普通字号右上显示短时间、右下显示未读和状态；大字号将元信息放到预览下方，保证标题可读。当天显示 HH:mm、昨天显示本地化文案、更早显示月/日、跨年显示年/月/日；比较本地日历日期。
+- 真实未读与人工待处理相互独立；「未读」筛选包含两者，筛选和搜索不会推进已读水位。免打扰消息仍能在列表中找到，继续沿用底栏未读消息计数规则。
+- 保留原侧滑与读屏动作，并提供长按菜单。私聊/群聊的通知入口进入既有设置页；频道置顶继续调用原服务。
+- 无消息预览、无真实未读且未置顶的频道留在频道目录；同名频道保留各自身份并用实际公开标识辅助区分。只有明确 personal scope、当前账号仍有内容权限的订阅可以带预览进入此列表，企业/未知scope和失效权限不得混入。
+- 「仅在频道页显示」是账号与服务器隔离的本机展示偏好，不退订、不改通知、不清消息；操作有撤销，频道目录可恢复。底栏频道未读仍按现有规则计算。账号删除时随该账号数据库一起清理。
+- 频道加载或偏好读取失败应显示可重试状态，不能遮挡已加载聊天；初始加载、空分类、搜索无结果与错误保持不同语义。企业壳的消息/日程/待办工具条维持本节原有契约。
+
+The personal inbox uses one virtualized list for direct chats, groups and accessible personal channels, with pinned entries first and real message timestamps thereafter. Filters and local search never advance read state. History search remains a labelled action. A shared 48pt avatar row adapts metadata placement to large text without reducing system scaling.
+
+Channel visibility is a device-local preference scoped to the account database and server endpoint. Hiding preserves subscriptions, notifications and message facts; undo and directory restore remain available. Unknown channel provenance is not inferred: the empty channel filter links to the existing directory, whose paginated authoritative loading refreshes subscriptions. Enterprise inbox controls and feature stripping retain their existing contracts.
 
 ### 8.10 锚定气泡菜单 | Popover Menu（2026-10）
 

@@ -33,6 +33,12 @@
 -- 当前版本无需降级，此块留空
 -- PRAGMA user_version = 9;
 
+
+-- VERSION: 39
+-- DESC: remove local inbox preferences; return to released v37, not draft v38
+
+DROP TABLE channel_inbox_preference;
+PRAGMA user_version = 37;
 -- ============================================================
 -- VERSION: 35
 -- DESC: 从 v35 降级到 v34（删除消息四表 conv_seq/accepted_at 列与

@@ -2115,6 +2115,7 @@
         "test/unit_test/service/migration_service_v25_test.dart",
         "test/unit_test/service/migration_v36_message_id_test.dart",
         "test/unit_test/service/migration_v37_channel_scope_test.dart",
+        "test/unit_test/service/migration_v39_channel_inbox_preference_test.dart",
         "test/unit_test/service/schema_contract_test.dart",
         "test/unit_test/service/schema_fingerprint_test.dart",
         "test/unit_test/service/sqlite_uid_isolation_test.dart"

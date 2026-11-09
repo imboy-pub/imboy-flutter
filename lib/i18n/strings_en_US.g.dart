@@ -796,6 +796,7 @@ class _Translations$chat$en_US extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[Video call]';
 	@override String get voiceCallPlaceholder => '[Voice call]';
 	@override String get notFriendCannotSend => 'You are not friends, unable to send messages';
+	@override late final _Translations$chat$inbox$en_US inbox = _Translations$chat$inbox$en_US._(_root);
 }
 
 // Path: common
@@ -3422,6 +3423,30 @@ class _Translations$account$alipaySim$en_US extends Translations$account$alipayS
 	@override String get balanceSource => 'Account Balance';
 }
 
+// Path: chat.inbox
+class _Translations$chat$inbox$en_US extends Translations$chat$inbox$zh_CN {
+	_Translations$chat$inbox$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
+
+	final TranslationsEnUs _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => 'Direct';
+	@override String get searchHint => 'Search names or latest messages';
+	@override String get searchHistory => 'Search message history';
+	@override String get unreadEmpty => 'No unread or pending messages';
+	@override String get emptyFilter => 'No conversations in this category';
+	@override String get clearFilters => 'View all messages';
+	@override String get channelLoadFailed => 'Channel messages could not be loaded';
+	@override String get notificationSettings => 'Notification settings';
+	@override String get channelOnly => 'Show only in Channels';
+	@override String get channelOnlyDescription => 'Keep your subscription and notifications. Restore to Messages from the Channels page.';
+	@override String get restoreToInbox => 'Show in Messages';
+	@override String get actionFailed => 'Action failed. Please try again.';
+	@override String get undo => 'Undo';
+	@override String get openChannels => 'Open Channels';
+	@override String get channelEmptyDescription => 'Update subscriptions or restore hidden channels from the Channels page.';
+}
+
 // Path: customerService.governance
 class _Translations$customerService$governance$en_US extends Translations$customerService$governance$zh_CN {
 	_Translations$customerService$governance$en_US._(TranslationsEnUs root) : this._root = root, super.internal(root);
@@ -4704,6 +4729,21 @@ extension on TranslationsEnUs {
 			'chat.videoCallPlaceholder' => '[Video call]',
 			'chat.voiceCallPlaceholder' => '[Voice call]',
 			'chat.notFriendCannotSend' => 'You are not friends, unable to send messages',
+			'chat.inbox.filterDirect' => 'Direct',
+			'chat.inbox.searchHint' => 'Search names or latest messages',
+			'chat.inbox.searchHistory' => 'Search message history',
+			'chat.inbox.unreadEmpty' => 'No unread or pending messages',
+			'chat.inbox.emptyFilter' => 'No conversations in this category',
+			'chat.inbox.clearFilters' => 'View all messages',
+			'chat.inbox.channelLoadFailed' => 'Channel messages could not be loaded',
+			'chat.inbox.notificationSettings' => 'Notification settings',
+			'chat.inbox.channelOnly' => 'Show only in Channels',
+			'chat.inbox.channelOnlyDescription' => 'Keep your subscription and notifications. Restore to Messages from the Channels page.',
+			'chat.inbox.restoreToInbox' => 'Show in Messages',
+			'chat.inbox.actionFailed' => 'Action failed. Please try again.',
+			'chat.inbox.undo' => 'Undo',
+			'chat.inbox.openChannels' => 'Open Channels',
+			'chat.inbox.channelEmptyDescription' => 'Update subscriptions or restore hidden channels from the Channels page.',
 			'common.about' => 'About',
 			'common.aboutApp' => 'About App',
 			'common.accept' => 'Accept',
@@ -5055,6 +5095,8 @@ extension on TranslationsEnUs {
 			'common.groupAnnouncementDeleteConfirm' => 'Are you sure you want to delete this announcement?',
 			'common.groupAnnouncementDelete' => 'Delete',
 			'common.groupAnnouncementLoadFailed' => 'Failed to load announcements, please try again later',
+			_ => null,
+		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'Failed to publish announcement',
 			'common.groupAnnouncementPublishSuccess' => 'Announcement published',
 			'common.groupAnnouncementDeleteFailed' => 'Failed to delete announcement',
@@ -5070,8 +5112,6 @@ extension on TranslationsEnUs {
 			'common.allowAddByPhoneDesc' => 'Other users can add you as a friend through your phone number',
 			'common.allowAddByQR' => 'Allow add by QR code',
 			'common.allowAddByQRDesc' => 'Other users can add you as a friend by scanning your QR code',
-			_ => null,
-		} ?? switch (path) {
 			'common.statusSettings' => 'Status settings',
 			'common.showOnlineStatus' => 'Show online status',
 			'common.showOnlineStatusDesc' => 'When off, friends cannot see your online status or last seen time; message delivery is unaffected',
@@ -5569,6 +5609,8 @@ extension on TranslationsEnUs {
 			'common.e2eeErrForwardUndecryptable' => 'The original encrypted attachment cannot be decrypted on this device; forwarding failed',
 			'common.e2eeRetryFailedMessages' => 'Retry messages that failed to decrypt',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Retried ${count} messages that failed to decrypt',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeRetryFailedNone' => 'No failed messages to retry',
 			'common.e2eeModeStandard' => 'Standard mode',
 			'common.e2eeModeCompliance' => 'Compliance encryption',
@@ -5584,8 +5626,6 @@ extension on TranslationsEnUs {
 			'common.noHistory' => 'No history yet',
 			'common.noNewRegisteredUsersTitle' => 'No newly registered users',
 			'common.payReceiveSuccess' => 'Payment received!',
-			_ => null,
-		} ?? switch (path) {
 			'common.purchaseConfirming' => 'Payment is being confirmed. Check your order status shortly.',
 			'common.reconnecting' => 'Poor connection, reconnecting…',
 			'common.redPacketBrand' => 'IMBoy Red Packet',
@@ -6083,6 +6123,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.organizer' => 'Organizer',
 			'groupSchedule.participantAttending' => 'Joined',
 			'groupSchedule.participantDeclined' => 'Declined',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.participantPending' => 'Pending',
 			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} joined',
 			'groupSchedule.remindBefore' => ({required Object minutes}) => 'Reminds ${minutes} min before',
@@ -6098,8 +6140,6 @@ extension on TranslationsEnUs {
 			'groupTag.title' => 'Group Tags',
 			'groupTag.addTag' => 'Add Tag',
 			'groupTag.tagName' => 'Tag Name',
-			_ => null,
-		} ?? switch (path) {
 			'groupTag.noTag' => 'No tags yet',
 			'groupTag.removeTitle' => 'Remove Tag',
 			'groupTag.removeConfirm' => 'Remove this tag?',
@@ -6597,6 +6637,8 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Invite code: ${code}',
 			'organization.inviteQr.orgQrcode' => 'Enterprise QR code',
 			'organization.inviteQr.title' => 'Invite members',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteQr.entryHint' => 'Show the QR code or share the invite code; others join by scanning or typing',
 			'organization.inviteQr.scanHint' => 'Others scan this code with the imboy scanner to join this enterprise',
 			'organization.inviteQr.codeLabel' => 'Enterprise invite code',
@@ -6612,8 +6654,6 @@ extension on TranslationsEnUs {
 			'organization.inviteQr.copyCode' => 'Copy code',
 			'organization.inviteQr.copied' => 'Invite code copied',
 			'organization.inviteQr.inviteDisabledPending' => 'The enterprise is pending review; members can be invited once approved',
-			_ => null,
-		} ?? switch (path) {
 			'organization.directory.currentMembersSection' => 'Direct members',
 			'organization.directory.structureSection' => 'Organization structure',
 			'organization.directory.title' => 'Directory',
@@ -7111,6 +7151,8 @@ extension on TranslationsEnUs {
 			'talkRecord.deleteConfirmBodyPoint3' => 'Attachments are cleaned up per retention rules and references; submitting cleanup does not mean bytes are deleted immediately.',
 			'talkRecord.deleteConfirmAction' => 'Delete',
 			'talkRecord.deleteDeleting' => 'Deleting…',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.deleteOnlyOwner' => 'Only the owner can delete this note.',
 			'talkRecord.deleteFailedBody' => 'Delete failed, retry later.',
 			'talkRecord.deleteConflictHint' => 'The note was updated by someone else. Refresh and retry.',
@@ -7126,8 +7168,6 @@ extension on TranslationsEnUs {
 			'talkRecord.cleanupRetainedTitle' => 'Attachments still referenced',
 			'talkRecord.cleanupRetainedBody' => 'Some attachments are still legally referenced by other business and are not physically deleted yet.',
 			'talkRecord.cleanupFailedTitle' => 'Cleanup failed',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.cleanupFailedBody' => 'Attachment cleanup has not completed. Refresh the status; retry is available when eligible.',
 			'talkRecord.cleanupCompleteTitle' => 'Cleanup complete',
 			'talkRecord.cleanupCompleteBody' => 'The note and its attachments have been cleaned up.',

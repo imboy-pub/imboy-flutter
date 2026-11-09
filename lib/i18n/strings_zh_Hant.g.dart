@@ -730,6 +730,7 @@ class Translations$chat$zh_Hant extends Translations$chat$zh_CN {
 	@override String get videoCallPlaceholder => '[視訊通話]';
 	@override String get voiceCallPlaceholder => '[語音通話]';
 	@override String get notFriendCannotSend => '非好友關係，無法發送訊息';
+	@override late final Translations$chat$inbox$zh_Hant inbox = Translations$chat$inbox$zh_Hant.internal(_root);
 }
 
 // Path: common
@@ -2841,6 +2842,30 @@ class Translations$account$alipaySim$zh_Hant extends Translations$account$alipay
 	@override String get balanceSource => '帳戶餘額';
 }
 
+// Path: chat.inbox
+class Translations$chat$inbox$zh_Hant extends Translations$chat$inbox$zh_CN {
+	Translations$chat$inbox$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
+
+	final TranslationsZhHant _root; // ignore: unused_field
+
+	// Translations
+	@override String get filterDirect => '私訊';
+	@override String get searchHint => '搜尋名稱或最新訊息';
+	@override String get searchHistory => '搜尋歷史訊息';
+	@override String get unreadEmpty => '沒有未讀或待處理訊息';
+	@override String get emptyFilter => '此分類沒有對話';
+	@override String get clearFilters => '查看所有訊息';
+	@override String get channelLoadFailed => '頻道訊息載入失敗';
+	@override String get notificationSettings => '通知設定';
+	@override String get channelOnly => '僅在頻道頁顯示';
+	@override String get channelOnlyDescription => '保留訂閱與通知，可在頻道頁恢復至訊息頁。';
+	@override String get restoreToInbox => '在訊息頁顯示';
+	@override String get actionFailed => '操作失敗，請重試';
+	@override String get undo => '復原';
+	@override String get openChannels => '前往頻道';
+	@override String get channelEmptyDescription => '在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。';
+}
+
 // Path: organization.common
 class Translations$organization$common$zh_Hant extends Translations$organization$common$zh_CN {
 	Translations$organization$common$zh_Hant.internal(TranslationsZhHant root) : this._root = root, super.internal(root);
@@ -4013,6 +4038,21 @@ extension on TranslationsZhHant {
 			'chat.videoCallPlaceholder' => '[視訊通話]',
 			'chat.voiceCallPlaceholder' => '[語音通話]',
 			'chat.notFriendCannotSend' => '非好友關係，無法發送訊息',
+			'chat.inbox.filterDirect' => '私訊',
+			'chat.inbox.searchHint' => '搜尋名稱或最新訊息',
+			'chat.inbox.searchHistory' => '搜尋歷史訊息',
+			'chat.inbox.unreadEmpty' => '沒有未讀或待處理訊息',
+			'chat.inbox.emptyFilter' => '此分類沒有對話',
+			'chat.inbox.clearFilters' => '查看所有訊息',
+			'chat.inbox.channelLoadFailed' => '頻道訊息載入失敗',
+			'chat.inbox.notificationSettings' => '通知設定',
+			'chat.inbox.channelOnly' => '僅在頻道頁顯示',
+			'chat.inbox.channelOnlyDescription' => '保留訂閱與通知，可在頻道頁恢復至訊息頁。',
+			'chat.inbox.restoreToInbox' => '在訊息頁顯示',
+			'chat.inbox.actionFailed' => '操作失敗，請重試',
+			'chat.inbox.undo' => '復原',
+			'chat.inbox.openChannels' => '前往頻道',
+			'chat.inbox.channelEmptyDescription' => '在頻道頁更新訂閱清單，也可以恢復已隱藏的頻道。',
 			'common.about' => '關於',
 			'common.aboutApp' => '關於應用',
 			'common.accept' => '同意',
@@ -4419,6 +4459,8 @@ extension on TranslationsZhHant {
 			'common.tagClearAllConfirm' => '確定要清空所有標籤嗎？',
 			'common.tagClearAll' => '確認清空',
 			'common.audioPlayFailed' => '播放失敗',
+			_ => null,
+		} ?? switch (path) {
 			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被裝置【${device}】強制下線',
 			'common.loadingTagDataFailed' => '載入標籤資料失敗',
 			'common.pleaseEnterContent' => '請輸入內容',
@@ -4434,8 +4476,6 @@ extension on TranslationsZhHant {
 			'common.featureNotImplemented' => '功能暫未實現',
 			'common.sendCollectionNotImplemented' => '收藏傳送功能暫未實現',
 			'common.fileOpenNotImplemented' => '檔案開啟功能暫未實現',
-			_ => null,
-		} ?? switch (path) {
 			'common.fileShareNotImplemented' => '檔案分享功能暫未實現',
 			'common.retrySuccess' => '重試成功',
 			'common.deleteSuccess' => '刪除成功',
@@ -4933,6 +4973,8 @@ extension on TranslationsZhHant {
 			'common.transferRefunded' => '已退還',
 			'common.transferRemarkLabel' => '轉帳備註',
 			'common.transferTapToReceive' => '點擊收款',
+			_ => null,
+		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} 項上傳失敗',
 			'common.voiceSttConverting' => '正在辨識中...',
 			'common.voiceSttNotConfigured' => '轉文字功能尚未設定',
@@ -4948,8 +4990,6 @@ extension on TranslationsZhHant {
 			'common.legacyUploadOutboxCheck' => '訊息可能已進入傳送佇列，請先檢查聊天紀錄，避免重複傳送。',
 			'common.legacyUploadRecoveryMismatch' => '所選檔案與原檔案不一致或暫時無法恢復。',
 			'common.legacyUploadRecoveryContinues' => '附件已恢復，正在繼續處理原訊息。',
-			_ => null,
-		} ?? switch (path) {
 			'common.legacyUploadReturnToOriginalPage' => '原上傳未完成，請返回原頁面重新選擇檔案並提交；原紀錄已保留。',
 			'complaint.complaint' => '投訴',
 			'complaint.e2eeConsentTitle' => '提交加密訊息證據',
@@ -5447,6 +5487,8 @@ extension on TranslationsZhHant {
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要從備份恢復或生成新金鑰',
 			'main.gotIt' => '了解了',
 			'main.webQRLoggingIn' => '登入中...',
+			_ => null,
+		} ?? switch (path) {
 			'main.webQRExpired' => '二維碼已過期',
 			'main.webQRRefresh' => '重新整理二維碼',
 			'main.webSwitchToQR' => '使用 QR 碼登入',
@@ -5462,8 +5504,6 @@ extension on TranslationsZhHant {
 			'main.complianceKeyInfoHint' => '合規稽核金鑰用於 compliance_e2ee 模式的雙重加密。若上方指紋與管理員公布的指紋不一致，表示伺服器可能已遭竄改。',
 			'main.complianceKeyInfoKeyId' => '金鑰 ID',
 			'main.complianceKeyInfoLocalPin' => '裝置端固定（TOFU）',
-			_ => null,
-		} ?? switch (path) {
 			'main.complianceKeyInfoPinnedAt' => '固定時間',
 			'main.complianceKeyInfoPinnedNone' => '尚未固定（下次取得時自動固定）',
 			'main.complianceKeyInfoRefreshFailed' => '取得失敗，請檢查網路後重試',
@@ -5961,6 +6001,8 @@ extension on TranslationsZhHant {
 			'talkRecord.aiZhipuTitle' => '智譜 GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => '音訊轉文字與臨時說話人標籤',
 			'talkRecord.aiZhipuPurpose' => '摘要草稿、決定與待辦事項',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.aiConfigured' => '本裝置已設定',
 			'talkRecord.aiNotConfigured' => '尚未設定',
 			'talkRecord.aiLoading' => '正在讀取本裝置設定…',
@@ -5976,8 +6018,6 @@ extension on TranslationsZhHant {
 			'talkRecord.aiUnsupportedPlatform' => '此平台尚未驗證本裝置安全儲存，暫不支援儲存 Key。',
 			'talkRecord.aiKeyPlaceholder' => '輸入 API Key',
 			'talkRecord.aiReplacePlaceholder' => '輸入新的 API Key，不回填已有金鑰',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiSaveAction' => '儲存在本裝置',
 			'talkRecord.aiReplaceAction' => '替換本裝置金鑰',
 			'talkRecord.aiDeleteAction' => '刪除本裝置金鑰',

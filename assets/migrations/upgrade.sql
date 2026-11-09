@@ -1774,3 +1774,14 @@ PRAGMA user_version = 36;
 ALTER TABLE channel ADD COLUMN scope TEXT;
 ALTER TABLE channel ADD COLUMN workspace_id TEXT;
 PRAGMA user_version = 37;
+
+-- VERSION: 39
+-- DESC: local personal channel inbox preferences; v38 FTS remains unregistered
+
+CREATE TABLE channel_inbox_preference (
+    endpoint TEXT NOT NULL,
+    channel_id TEXT NOT NULL,
+    scope TEXT NOT NULL CHECK (scope = 'personal'),
+    PRIMARY KEY (endpoint, channel_id)
+);
+PRAGMA user_version = 39;

@@ -39,6 +39,11 @@ class _RightButtonState extends State<RightButton> {
             action: () => pageContext.push('/launch_chat'),
           ),
           _AddMenuEntry(
+            icon: CupertinoIcons.search,
+            title: t.chat.inbox.searchHistory,
+            action: () => pageContext.push('/message_search'),
+          ),
+          _AddMenuEntry(
             icon: CupertinoIcons.person_add,
             title: t.common.addFriend,
             action: () => pageContext.push('/contact/add_friend'),
@@ -73,35 +78,15 @@ class _RightButtonState extends State<RightButton> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 用 CupertinoIcons 而不是 Icons：Material 图标笔画明显更重，
-        // 摆在导航栏上显得又粗又脏。DESIGN.md 7.1 规定 iOS 侧用 SF Symbols
-        // （即 CupertinoIcons），仓里其他导航栏按钮也都是 CupertinoIcons + 22pt
-        // （contact_page 的 person_add、group_list 的 refresh）。
-        // CupertinoButton(padding: zero)：与 contact_page 导航栏按钮同款。
-        // 此前 IconButton 默认内边距叠加外层 Padding，图标字面浮在距屏缘
-        // ~37px 处（SDK trailing 16 + 外层 8 + 按钮内边距 13），比其他页面
-        // 多出 10px；44px 点击热区不缩水。
-        // 图标不显式指定颜色：继承 CupertinoButton 默认色调（iOS 系统蓝），
-        // 与频道页导航按钮同款（曾显式 onSurface 黑色，两页不一致）。
-        CupertinoButton(
-          minimumSize: const Size(44, 44),
-          padding: EdgeInsets.zero,
-          onPressed: () => context.push('/message_search'),
-          child: const Icon(
-            CupertinoIcons.search,
-            size: _navIconSize,
-            semanticLabel: '搜索消息',
-          ),
-        ),
         CupertinoButton(
           key: _addKey,
           minimumSize: const Size(44, 44),
           padding: EdgeInsets.zero,
           onPressed: _showAddMenu,
-          child: const Icon(
+          child: Icon(
             CupertinoIcons.plus_circle,
             size: _navIconSize,
-            semanticLabel: '更多功能',
+            semanticLabel: t.common.buttonMore,
           ),
         ),
       ],
