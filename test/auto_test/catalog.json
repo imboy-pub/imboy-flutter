@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "generated_from": {
-    "app_head": "9c4ac205cc760e6e516365caf673ab8643b7ccd1",
-    "backend_head": "4f4e39608364cf743da36c2ee5a8bfbe9c87a8a3",
-    "integration_test_count": 195,
+    "app_head": "d03e60cf1ef3781b6780ab99e1a83bff6b0e09bc",
+    "backend_head": "9e4fc46a0420ed9c9e4830111976c0436b540c12",
+    "integration_test_count": 196,
     "lib_page_count": 171,
     "module_page_count": 40,
     "route_page_component_count": 165,
@@ -1046,7 +1046,7 @@
     {
       "id": "test:integration_test/demo_flow/group_collaboration_flow_test.dart",
       "target": "integration_test/demo_flow/group_collaboration_flow_test.dart",
-      "target_sha256": "e9878eb1738a4f5ad4838e2588314ab884f5ca7d09132aa400e7772bffc56d22",
+      "target_sha256": "ebf3f554e3f1ba6e51c1282127d2428b766fbb183b91e18edbaa48324cee5b8e",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1214,7 +1214,7 @@
     {
       "id": "test:integration_test/demo_flow/group_pro_readonly_contract_test.dart",
       "target": "integration_test/demo_flow/group_pro_readonly_contract_test.dart",
-      "target_sha256": "890dc2b953cb39fe26643ba3108580b0a739031eca558275e1a17e9b1d2a74df",
+      "target_sha256": "3a7471b846d294c17718b76e12671e5c842a072a1650b4b81679cf7c96b9c023",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -1513,7 +1513,7 @@
     {
       "id": "test:integration_test/enterprise/enterprise_scope_native_test.dart",
       "target": "integration_test/enterprise/enterprise_scope_native_test.dart",
-      "target_sha256": "3f91f7d51cbb715470f3aad84716eb5882899585935aecaa60f4a9f96f3fdbab",
+      "target_sha256": "323f9ea2713556f2bebe91e512f7a5b98eb07e7295f3ed98952d3107b04d7c6f",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2243,7 +2243,7 @@
     {
       "id": "test:integration_test/rtc/c2c_call_matrix_a_side_test.dart",
       "target": "integration_test/rtc/c2c_call_matrix_a_side_test.dart",
-      "target_sha256": "1a3ea3a3c313a8ac2ee9b3f8b240d8407eab25f4526a6a18ba5204b808496718",
+      "target_sha256": "2852fbb33020811d938b49c42273f5d79bf59adcce1454b52d3e33dd8e3dd990",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2257,7 +2257,7 @@
     {
       "id": "test:integration_test/rtc/c2c_call_matrix_b_side_test.dart",
       "target": "integration_test/rtc/c2c_call_matrix_b_side_test.dart",
-      "target_sha256": "5c63cb2c93ec5d1f754aa062dd22c311a7a704ee7759d8a6869eee1ddb4de7d2",
+      "target_sha256": "fc8a8498df685a9c53a9ed23ba1c5272b5ecbccd6c5401d692626365ab121b6a",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2505,7 +2505,7 @@
     {
       "id": "test:integration_test/smoke/camera_capture_real_smoke_test.dart",
       "target": "integration_test/smoke/camera_capture_real_smoke_test.dart",
-      "target_sha256": "be4c3e0ccdad57634bb3003cf1a1b0f905c9d3723dcf4976fbbdf50d5931d972",
+      "target_sha256": "1ec3dec1315df667929294e8b70f64ad6cb02ae452131636f0d19ae242d212f2",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2539,9 +2539,23 @@
       "oracle_hint": true
     },
     {
+      "id": "test:integration_test/sqlcipher_encryption_acceptance_test.dart",
+      "target": "integration_test/sqlcipher_encryption_acceptance_test.dart",
+      "target_sha256": "3016e303e642fbb6a4243f6e6de980220fcee1357be684e588a3a054f14dd8b1",
+      "sources": [],
+      "dependencies": [],
+      "risk": "device-readonly",
+      "requirements": [],
+      "tags": [
+        "sqlcipher_encryption_acceptance_test.dart"
+      ],
+      "enabled": false,
+      "oracle_hint": true
+    },
+    {
       "id": "test:integration_test/sqlcipher_fts_v38_draft_test.dart",
       "target": "integration_test/sqlcipher_fts_v38_draft_test.dart",
-      "target_sha256": "0a2a6e8f7f794306db80b33653de30490afa6a63418384eb8fc4a537baece197",
+      "target_sha256": "8af58c71f004152f4c2e68a6b171a0664594b39a32579690d2ee8d050a7b7456",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2555,7 +2569,7 @@
     {
       "id": "test:integration_test/sqlcipher_migration_test.dart",
       "target": "integration_test/sqlcipher_migration_test.dart",
-      "target_sha256": "c6804f3f34dab7efdb955f39e626ba1a00fdc7d999c50744d87737a6ce9b7662",
+      "target_sha256": "72c64d4c762b068733aa650419b8871f6c679fad55fb1b1052868127b3e29a12",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
@@ -2583,7 +2597,7 @@
     {
       "id": "test:integration_test/sqlite_migration/sqlite_migration_kill_replay_test.dart",
       "target": "integration_test/sqlite_migration/sqlite_migration_kill_replay_test.dart",
-      "target_sha256": "6660fddde15c88c739d0462dc1a56864cca67d2b5b03a06972da8bbee499caa1",
+      "target_sha256": "d9baf0f0a6a068cbf61dc95f3b9d754186ce915583489b1a07c83f1d7ea7a543",
       "sources": [],
       "dependencies": [],
       "risk": "device-readonly",
