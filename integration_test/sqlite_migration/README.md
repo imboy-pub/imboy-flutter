@@ -6,7 +6,7 @@
 flutter test integration_test/sqlite_migration/sqlite_migration_device_acceptance_test.dart -d <DEVICE_ID>
 ```
 
-实际测试目标版本由测试与 manifest 决定。通过要求是命令成功且每个断言执行；只有部分步骤或旧 v31 场景通过，不能声称当前 v32 的全部验收通过。Android 和 macOS 平台项分别记录；不能以模拟器替代真机，也不能以 SQLCipher 参数测试替代真实加密库。
+实际测试目标版本由测试与 manifest 决定。通过要求是命令成功且每个断言执行；只有部分步骤或旧场景通过，不能声称 manifest 当前版本（源版本以 lib/service/sqlite.dart _dbVersion 为准，现为 37）的全部验收通过。Android 和 macOS 平台项分别记录；不能以模拟器替代真机，也不能以 SQLCipher 参数测试替代真实加密库。
 
 验收要覆盖：两条建库路径 schema 一致；application_id、user_version、结构与数据校验正确；WAL 提交行进入快照；真实加密与错误密钥拒绝；支持的降级边数据损失符合声明；缺边安全拒绝；恢复失败保留原库；迁移中断后安全重开。
 

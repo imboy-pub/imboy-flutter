@@ -55,7 +55,8 @@ flutter run -d <设备ID> --dart-define=APP_ENV=local_home
 
 ```bash
 flutter analyze                         # 静态检查
-flutter test                            # 单元和 Widget 测试
+flutter test                            # 单元和 Widget 测试（裸扫描，仅快速回归）
+python3 scripts/auto_test.py execution-plan --profile full   # 全量冻结计划入口（execution-run 执行，见 test/CLAUDE.md）
 dart scripts/check_boundaries.dart      # 模块边界检查
 dart run slang                          # 重新生成多语言代码
 flutter build apk --release --flavor standard   # 构建 Android APK
