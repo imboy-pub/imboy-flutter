@@ -340,7 +340,19 @@ class UserRepoLocal extends ChangeNotifier {
     );
     _authChanges.notifyListeners();
     return result.then((ok) {
-      if (ok) unawaited(ResumableAttachmentUploader.recoverCurrentSession());
+      if (ok) {
+        unawaited(
+          SqliteService.to.db.then<void>(
+            (_) {},
+            onError: (Object error, StackTrace _) {
+              AppLogger.error(
+                '[user_repo_local] Database warmup failed (${error.runtimeType})',
+              );
+            },
+          ),
+        );
+        unawaited(ResumableAttachmentUploader.recoverCurrentSession());
+      }
       return ok;
     });
   }
@@ -352,6 +364,7 @@ class UserRepoLocal extends ChangeNotifier {
     // E2EE-015：上次 logout 秘密清理未完成时先补救；
     // 补救仍失败则抛异常，拒绝建立新账号会话（fail-closed）。
     if (StorageService.to.getBool(Keys.e2eePurgePending) ?? false) {
+      await SqliteService.to.close();
       await E2eeSecretInventory.production().purgeAll();
       await StorageService.to.remove(Keys.e2eePurgePending);
     }
@@ -396,7 +409,6 @@ class UserRepoLocal extends ChangeNotifier {
 
     unawaited(RuntimeFeatureRecovery.refreshNow());
     notifyListeners();
-    SqliteService.to.db;
     // 初始化 WebSocket 链接
     // 检查WS链接状
     WebSocketService.to;
@@ -509,31 +521,55 @@ class UserRepoLocal extends ChangeNotifier {
         await StorageService.to.remove(key);
       }
 
-      iPrint("> quitLogin: Purging E2EE secret inventory");
-      // E2EE-015：logout 必须清空全部秘密（RSA/Olm/Megolm/SQLCipher key/
-      // compliance 缓存/临时备份文件）。失败置位标记，由 loginAfter 闸门补救。
-      // ⚠️ purge 失败**不得**中断下面的物理资源收尾（token/WS/DB close）——
-      // 否则旧账号 SQLCipher 句柄仍打开，换号后 SqliteService 会按 isOpen 复用
-      // 旧库句柄致跨账号数据串号（安全审查 CRITICAL）。
-      var purgeFailed = false;
+      // Drain initialization/key acquisition before purging: a late writer must
+      // not recreate a key after the inventory's final residual check.
+      var databaseClosed = false;
+      iPrint("> quitLogin: Closing database");
       try {
-        await StorageSecureService.to.delete(key: oaLoginAttemptKey);
+        await SqliteService.to.close();
+        databaseClosed = true;
       } on Object catch (error, stack) {
         AppLogger.error(
-          '[user_repo_local] OA proof cleanup failed',
+          '[user_repo_local] database close failed',
           error,
           stack,
         );
-        purgeFailed = true;
+        try {
+          await StorageService.to.setBool(Keys.e2eePurgePending, true);
+        } on Object catch (error, stack) {
+          AppLogger.error(
+            '[user_repo_local] purge marker failed',
+            error,
+            stack,
+          );
+        }
       }
-      try {
-        await E2eeSecretInventory.production().purgeAll();
-        await StorageService.to.remove(Keys.e2eePurgePending);
-        iPrint("> quitLogin: E2EE secrets purged");
-      } on Object catch (e, s) {
-        AppLogger.error('[user_repo_local] e2ee secret purge failed', e, s);
-        await StorageService.to.setBool(Keys.e2eePurgePending, true);
-        purgeFailed = true;
+
+      // E2EE-015：logout 必须清空全部秘密（RSA/Olm/Megolm/SQLCipher key/
+      // compliance 缓存/临时备份文件）。失败置位标记，由 loginAfter 闸门补救。
+      // 关闭失败保留密钥；关闭或 purge 失败仍继续 token/WS 收尾并返回失败。
+      var purgeFailed = !databaseClosed;
+      if (databaseClosed) {
+        iPrint("> quitLogin: Purging E2EE secret inventory");
+        try {
+          await StorageSecureService.to.delete(key: oaLoginAttemptKey);
+        } on Object catch (error, stack) {
+          AppLogger.error(
+            '[user_repo_local] OA proof cleanup failed',
+            error,
+            stack,
+          );
+          purgeFailed = true;
+        }
+        try {
+          await E2eeSecretInventory.production().purgeAll();
+          await StorageService.to.remove(Keys.e2eePurgePending);
+          iPrint("> quitLogin: E2EE secrets purged");
+        } on Object catch (e, s) {
+          AppLogger.error('[user_repo_local] e2ee secret purge failed', e, s);
+          await StorageService.to.setBool(Keys.e2eePurgePending, true);
+          purgeFailed = true;
+        }
       }
 
       iPrint("> quitLogin: Clearing secure tokens");
@@ -546,9 +582,7 @@ class UserRepoLocal extends ChangeNotifier {
 
       iPrint("> quitLogin: Closing WebSocket");
       await WebSocketService.to.closeSocket(permanent: true);
-      iPrint("> quitLogin: Closing database");
-      await SqliteService.to.close();
-      // purge 失败时返回 false（logout 不算完整成功），但物理资源已强制收尾。
+      // 关闭或 purge 失败不算完整登出；已尝试 token/WS 收尾，不删除 DB 文件。
       if (purgeFailed) return false;
       if (logoutUid.isNotEmpty) {
         iPrint("> quitLogin: Removing database for uid=$logoutUid");

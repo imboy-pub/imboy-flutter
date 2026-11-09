@@ -228,6 +228,7 @@ class _ChangeOnEncode {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(UserRepoLocal.to.clearAuthTransitionFailureForTest);
   const secureChannel = MethodChannel(
     'plugins.it_nomads.com/flutter_secure_storage',
   );

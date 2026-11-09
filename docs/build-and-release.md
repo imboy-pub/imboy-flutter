@@ -1,10 +1,41 @@
 # 构建 / 发布（Build & Release）
 
-> **最后更新 / Last updated**: 2026-11-05
+> **最后更新 / Last updated**: 2026-11-09
 > **真源 / Source of truth**: `scripts/build_play_aab.sh` · `scripts/check_play_release.sh` · `scripts/verify_web_shell.sh` · `scripts/build_android_apk.sh` · `android/app/build.gradle.kts`
 > 本文由脚本内容提取生成；脚本改动后须同步本页。
 
 ## Android
+
+### Maven 仓库选择
+
+Gradle 属性 `imboyUseMavenMirror` 控制插件解析、Firebase buildscript、项目依赖和
+Flutter 插件子项目的 buildscript。默认 `true` 保留国内开发的阿里云镜像配置；
+`false` 使用官方 Google Maven、Maven Central 和插件门户，不注入阿里云仓库。
+必须使用 `true` 或 `false`，无效值会使配置失败。
+
+GitHub Actions 的 Android 构建显式设置
+`ORG_GRADLE_PROJECT_imboyUseMavenMirror=false`，并按现有步骤移除本机代理配置。
+本地可通过同一环境变量切换；直接运行 Gradle 时也可使用
+`-PimboyUseMavenMirror=false`（命令行 Gradle 属性优先）：
+
+```bash
+ORG_GRADLE_PROJECT_imboyUseMavenMirror=false flutter build apk --release --flavor standard
+ORG_GRADLE_PROJECT_imboyUseMavenMirror=true flutter build apk --release --flavor standard
+```
+
+此开关只选择 Maven 仓库，不改变 AGP、Gradle、Kotlin 或依赖锁定版本。
+Gradle 分发包与 Swift Package Manager 二进制包仍使用各自的原下载来源。
+
+配置回归使用真实 Gradle、生产 Kotlin DSL 与 loopback 合成 Maven 服务：
+
+```bash
+python3 .github/scripts/ci_check_android_repositories.py --gradle /path/to/gradle-8.14/bin/gradle --artifact-dir /tmp/imboy-maven-check
+```
+
+也可在一次 Android 构建成功后省略 `--gradle`，复用 Wrapper 已安装的同版本 Gradle。
+检查覆盖官方模式绕开镜像 502、默认镜像优先、镜像故障仍失败及非法开关值失败；
+GitHub APK job 在 APK/AAB 构建后执行同一检查。合成依赖与缓存隔离于临时目录，
+不会替换实际 APK/AAB 构建依赖；该检查不能替代真实 Android 构建或原生功能验收。
 
 ### 正式 Play AAB（发布上架用）
 

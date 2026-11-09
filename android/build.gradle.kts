@@ -3,6 +3,9 @@ val localProperties = java.util.Properties().apply {
 }
 val flutterSdkPath = localProperties.getProperty("flutter.sdk")
     ?: error("Flutter SDK path not found in local.properties")
+// Local development retains mirrors; overseas CI explicitly selects official repositories.
+val useMavenMirror = providers.gradleProperty("imboyUseMavenMirror")
+    .orElse("true").get().toBooleanStrict()
 
 // Firebase 配置只在开发机或 CI 注入 google-services.json 后启用。无配置的
 // 开源/契约构建不应为了一个未使用的插件访问 Google Maven，避免网络波动阻断 APK。
@@ -11,11 +14,15 @@ val flutterSdkPath = localProperties.getProperty("flutter.sdk")
 // 且 buildscript 作用域无法引用脚本顶层 val——条件判断须块内内联；
 // 插件的实际 apply 由 app/build.gradle.kts 按同一条件执行。
 buildscript {
+    val useMavenMirror = providers.gradleProperty("imboyUseMavenMirror")
+        .orElse("true").get().toBooleanStrict()
     val hasGoogleServicesJson = java.io.File(rootDir, "app/google-services.json").isFile
     repositories {
         if (hasGoogleServicesJson) {
-            maven { url = uri("https://maven.aliyun.com/repository/public") }
-            maven { url = uri("https://maven.aliyun.com/repository/google") }
+            if (useMavenMirror) {
+                maven { url = uri("https://maven.aliyun.com/repository/public") }
+                maven { url = uri("https://maven.aliyun.com/repository/google") }
+            }
             google()
             mavenCentral()
         }
@@ -30,16 +37,14 @@ buildscript {
 
 allprojects {
     repositories {
-        // ponytail: 仅用阿里云镜像，移除 google()/mavenCentral() 默认 host
-        // —— GFW 对 gradle 的 JDK TLS 握手指纹注入 RST，阿里云镜像不受影响
-        // 上限：只有阿里云同步过的构件能解析。刚发布的版本、私有库、以及只在
-        // Google 托管的预览版构件会直接构建失败（报"找不到依赖"而非网络错，
-        // 容易误判成版本号写错）；境外/无 GFW 的 CI 也被迫走这三个国内源。
-        // 升级触发：出现镜像缺件，或需要在境外 CI 构建时，改为按环境判断追加
-        // google()/mavenCentral()（如读 env CN_MIRROR），而不是无条件二选一。
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        if (useMavenMirror) {
+            maven { url = uri("https://maven.aliyun.com/repository/public") }
+            maven { url = uri("https://maven.aliyun.com/repository/google") }
+            maven { url = uri("https://maven.aliyun.com/repository/central") }
+        } else {
+            google()
+            mavenCentral()
+        }
         // 添加 Flutter SDK 的本地 Maven 仓库
         maven {
             url = uri("$flutterSdkPath/packages/flutter_tools/gradle")
@@ -47,18 +52,19 @@ allprojects {
     }
 }
 
-// 插件子项目（.pub-cache 里的 build.gradle）自带的 buildscript 仓库仍是
-// google()/mavenCentral()，不受上面 allprojects 管辖——JVM 到
-// repo.maven.apache.org 的 TLS 握手会被注入 RST，插件 AGP classpath 解析
-// 直接失败（"Remote host terminated the handshake"）。这里给 buildscript
-// 前置阿里云镜像：根 subprojects 动作先于子项目自身 buildscript 求值，
-// 镜像排在插件自声明的仓库之前，命中即不再访问裸源。
+// 插件的 buildscript 不受 allprojects.repositories 管辖，必须在子项目
+// 求值前应用同一选择。官方模式不注入镜像，避免镜像 5xx 阻断插件 AGP 解析。
 subprojects {
     buildscript {
         repositories {
-            maven { url = uri("https://maven.aliyun.com/repository/public") }
-            maven { url = uri("https://maven.aliyun.com/repository/google") }
-            maven { url = uri("https://maven.aliyun.com/repository/central") }
+            if (useMavenMirror) {
+                maven { url = uri("https://maven.aliyun.com/repository/public") }
+                maven { url = uri("https://maven.aliyun.com/repository/google") }
+                maven { url = uri("https://maven.aliyun.com/repository/central") }
+            } else {
+                google()
+                mavenCentral()
+            }
         }
     }
 }

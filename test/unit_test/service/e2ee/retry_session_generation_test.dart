@@ -90,6 +90,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});
     await StorageService.init();
+    UserRepoLocal.to.clearAuthTransitionFailureForTest();
     transport = _UnexpectedTransport();
     imboy_http.HttpClient.adapterForTest = transport;
     final encode = base64Url.encode;

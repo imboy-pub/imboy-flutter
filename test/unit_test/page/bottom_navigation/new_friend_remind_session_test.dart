@@ -59,6 +59,7 @@ class _Database implements Database {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(UserRepoLocal.to.clearAuthTransitionFailureForTest);
   for (final stale in [false, true]) {
     test('friend reminders account changed=$stale', () async {
       SharedPreferences.setMockInitialValues({Keys.currentUid: '100'});

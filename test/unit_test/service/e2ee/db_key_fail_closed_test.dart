@@ -127,13 +127,14 @@ void main() {
 
   test('sqlite.dart：getOrCreateKey 调用无 catch 降级为空密码', () {
     final source = File('lib/service/sqlite.dart').readAsStringSync();
-    // 取密钥行必须原样存在（无 try 包裹/无 ?? '' 兜底）
+    // 已有数据库只能读取原密钥；缺失时不得保存一把无法解密旧库的新钥。
     expect(
-      source.contains(
-        'password = await DbEncryptionKeyService.getOrCreateKey(uid);',
-      ),
+      RegExp(
+        r'password\s*=\s*await DbEncryptionKeyService\.getOrCreateKey\('
+        r'\s*uid\s*,\s*allowCreate:\s*!exists\s*,?\s*\)',
+      ).hasMatch(source),
       isTrue,
-      reason: 'getOrCreateKey 调用形态被改动，需复核 fail-closed 语义',
+      reason: '已有数据库不得创建新密钥，需复核 fail-closed 语义',
     );
     // 打开句柄必须直接使用该 password（而非重算/置空）
     expect(source.contains('password: password,'), isTrue);

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/service/db_encryption_key_service.dart';
 import 'package:imboy/service/storage_secure.dart';
 
 /// 回归：Keychain accessibility 从默认 `unlocked` 改为 `first_unlock` 后，
@@ -43,6 +44,56 @@ void main() {
 
     expect(calls.map((c) => c.method).toList(), ['write', 'delete', 'write']);
     expect((calls.last.arguments as Map)['value'], 'v2');
+  });
+
+  test('DB key duplicate 不触发应用层删除或第二次写入', () async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      throw PlatformException(
+        code: 'Unexpected security result code',
+        details: -25299,
+      );
+    });
+
+    await expectLater(
+      StorageSecureService.to.write(
+        key: 'db_cipher_key_synthetic',
+        value: 'synthetic-proposed-key',
+      ),
+      throwsA(
+        isA<PlatformException>().having((e) => e.details, 'details', -25299),
+      ),
+    );
+    // The channel seam observes calls only, not the native write internals.
+    expect(calls.map((c) => c.method).toList(), ['write']);
+  });
+
+  test('旧 DB key 回退读取在任何写入前中止并保留条目', () async {
+    const uid = 'synthetic-retained';
+    const key = 'db_cipher_key_$uid';
+    const original = 'synthetic-retained-cipher-key';
+    final legacyItems = <String, String>{key: original};
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      if (call.method == 'read') {
+        return accessibilityOf(call) == 'unlocked' ? legacyItems[key] : null;
+      }
+      if (call.method == 'delete') legacyItems.remove(key);
+      if (call.method == 'write') {
+        throw PlatformException(
+          code: 'Unexpected security result code',
+          details: -25299,
+        );
+      }
+      return null;
+    });
+
+    await expectLater(
+      DbEncryptionKeyService.getOrCreateKey(uid, allowCreate: false),
+      throwsStateError,
+    );
+    expect(calls.map((c) => c.method).toList(), ['read', 'read']);
+    expect(legacyItems[key], original);
   });
 
   test('write 遇其他 Keychain 错误时原样抛出', () async {

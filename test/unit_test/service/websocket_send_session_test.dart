@@ -178,7 +178,7 @@ void main() {
           if (call.method == 'read') return secure[key];
           return null;
         });
-
+    UserRepoLocal.to.clearAuthTransitionFailureForTest();
     WebSocketService.resetForTest();
     SqliteService.setDbForTest(_EmptyRetryDatabase());
   });

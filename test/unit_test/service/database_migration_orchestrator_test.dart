@@ -14,8 +14,42 @@ import 'package:imboy/service/schema_contract.dart';
 
 import '../../fixtures/sqlite_migration/sqlite_migration_fixtures.dart';
 
-Future<Database> ffiOpen(String path, String? password) => databaseFactory
-    .openDatabase(path, options: OpenDatabaseOptions(singleInstance: false));
+Future<Database> ffiOpen(String path, String? password) =>
+    databaseFactory.openDatabase(
+      path,
+      options: OpenDatabaseOptions(readOnly: true, singleInstance: false),
+    );
+
+class _ObservedPreflightDatabase implements Database {
+  _ObservedPreflightDatabase(this.inner, {this.failedQuery});
+
+  final Database inner;
+  final String? failedQuery;
+  int closeCalls = 0;
+
+  @override
+  bool get isOpen => inner.isOpen;
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(
+    String sql, [
+    List<Object?>? arguments,
+  ]) async {
+    if (sql == failedQuery) {
+      throw StateError('synthetic preflight read failure');
+    }
+    return inner.rawQuery(sql, arguments);
+  }
+
+  @override
+  Future<void> close() async {
+    closeCalls++;
+    await inner.close();
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   setUpAll(() {
@@ -101,12 +135,119 @@ void main() {
         uid: '990001',
         targetVersion: 30, // 降级
         opener: ffiOpen,
-        unsyncedOutboxProbe: () async => ['channel_message_outbox: 2 unsynced'],
+        unsyncedOutboxProbe: (_) async => [
+          'channel_message_outbox: 2 unsynced',
+        ],
       );
       expect(decision.proceed, isFalse);
       expect(decision.blockers, isNotEmpty);
       expect(decision.abortReason, contains('unsynced outbox'));
     });
+
+    for (final query in [
+      'PRAGMA quick_check',
+      'PRAGMA foreign_key_check',
+      'PRAGMA user_version',
+    ]) {
+      test('预检读取异常关闭每个独立连接并保留原件：$query', () async {
+        final dbPath = await buildV30FileDb();
+        final original = await File(dbPath).readAsBytes();
+        final opened = <_ObservedPreflightDatabase>[];
+        addTearDown(() async {
+          for (final db in opened) {
+            if (db.inner.isOpen) await db.inner.close();
+          }
+        });
+
+        for (var attempt = 0; attempt < 2; attempt++) {
+          final pending = DatabaseMigrationOrchestrator.to.prepareForOpen(
+            dbPath: dbPath,
+            baseDir: tmp.path,
+            env: 'prod',
+            uid: 'synthetic',
+            targetVersion: 31,
+            opener: (path, password) async {
+              final db = _ObservedPreflightDatabase(
+                await ffiOpen(path, password),
+                failedQuery: query,
+              );
+              opened.add(db);
+              return db;
+            },
+          );
+          if (query == 'PRAGMA user_version') {
+            await expectLater(pending, throwsStateError);
+          } else {
+            expect((await pending).proceed, isFalse);
+          }
+          expect(opened, hasLength(attempt + 1));
+          expect(
+            opened.every((db) => !db.isOpen && db.closeCalls == 1),
+            isTrue,
+          );
+        }
+        expect(await File(dbPath).readAsBytes(), original);
+        expect(
+          Directory('${tmp.path}/imboy_db_snapshots').existsSync(),
+          isFalse,
+        );
+      });
+    }
+
+    for (final failProbe in [false, true]) {
+      test('降级复用预检连接，outbox 结束后必关闭：fail=$failProbe', () async {
+        final dbPath = await buildV30FileDb();
+        final original = await File(dbPath).readAsBytes();
+        final opened = <_ObservedPreflightDatabase>[];
+        addTearDown(() async {
+          for (final db in opened) {
+            if (db.inner.isOpen) await db.inner.close();
+          }
+        });
+        var calls = 0;
+        final pending = DatabaseMigrationOrchestrator.to.prepareForOpen(
+          dbPath: dbPath,
+          baseDir: tmp.path,
+          env: 'prod',
+          uid: 'synthetic',
+          targetVersion: 29,
+          opener: (path, password) async {
+            final db = _ObservedPreflightDatabase(
+              await ffiOpen(path, password),
+            );
+            opened.add(db);
+            return db;
+          },
+          unsyncedOutboxProbe: (db) async {
+            calls++;
+            expect(opened, hasLength(1));
+            expect(db, same(opened.single));
+            expect(opened.single.isOpen, isTrue);
+            expect(
+              (await db.rawQuery('PRAGMA user_version')).single.values.single,
+              30,
+            );
+            if (failProbe) throw StateError('synthetic outbox read failure');
+            return ['synthetic pending message'];
+          },
+        );
+        if (failProbe) {
+          await expectLater(pending, throwsStateError);
+        } else {
+          final decision = await pending;
+          expect(decision.proceed, isFalse);
+          expect(decision.blockers, ['synthetic pending message']);
+        }
+        expect(calls, 1);
+        expect(opened.single.isOpen, isFalse);
+        expect(opened.single.closeCalls, 1);
+        expect(await File(dbPath).readAsBytes(), original);
+        expect(
+          Directory('${tmp.path}/imboy_db_snapshots').existsSync(),
+          isFalse,
+        );
+      });
+    }
 
     test('库不存在（全新安装）：proceed 且无需快照', () async {
       final decision = await DatabaseMigrationOrchestrator.to.prepareForOpen(
