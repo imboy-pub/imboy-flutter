@@ -82,3 +82,59 @@ source scripts/test.env && bash scripts/setup_test_data.sh   # 幂等准备测�
 - [ ] 新增 API/字段与三端术语对齐后端仓 `docs/glossary.md`
 - [ ] 提交信息符合 Conventional Commits，未包含密钥或 PII
 - [ ] 涉及 SQLite 迁移：改 `lib/service/migrations/manifest_all.dart` 后通过 `bash scripts/run_sqlite_migration_gate.sh --local`
+
+## 自动安全扫描
+
+[Security Scan](./.github/workflows/security-scan.yml) 在推送到 `main` / `dev`、以这两个分支为目标的 PR，以及手动触发时运行。其他分支仅 push 不触发；开 PR 后会随 PR 更新扫描。扫描当前检出的完整工作区，不是只检查新增问题，也不扫描完整 Git 历史。
+
+- Semgrep CE 使用 `p/security-audit`、`p/secrets`、`p/owasp-top-ten`；所有规则级别进入报告，`HIGH` / `CRITICAL` 及旧格式 `ERROR` 级发现使检查失败。Semgrep 规则级别不等同于 CVSS 高危评分。
+- Trivy 显式启用 `vuln,misconfig,secret`，扫描依赖、受支持的配置及密钥；报告并阻断 `HIGH,CRITICAL`，包含开发依赖和暂无修复版本的漏洞。
+- 两个扫描 job 独立运行；安装失败、规则/数据库下载错误、扫描器致命错误或报告上传失败都使检查失败。汇总检查名称固定为 `security-scan`。
+- 两份 SARIF 使用独立 category 上传到 **Security → Code scanning**；PR 分析也显示在对应 PR 检查中。报告可能包含源码或密钥片段，因此不上传公开 Actions artifact，不把报告提交进仓库。
+- 保留既有 Gitleaks、测试和质量门。使用普通 `pull_request`，不需要业务密钥或 Semgrep 账号，不运行应用安装/构建脚本。
+
+Semgrep 的 `warn` / `warning` 级解析、规则匹配或超时诊断不单独阻断，但摘要会明确显示数量、类型和“部分文件或规则未完成分析”。其他级别（含未知级别）的诊断、报告无效或零文件扫描均失败。绿色只表示配置的门禁通过，不保证所有源码路径都被完整分析；不得把覆盖告警当成零问题。
+
+### 接入与维护
+
+工作流默认 `FINDINGS_EXIT_CODE: "1"`。存量发现也会让检查失败。若维护者明确选择观察期，可在评审后的变更中设为 `"0"`；仅发现问题不再阻断，扫描器执行/报告错误仍失败。这不自动提供“只拦新增”的基线能力，也不改变既有 Gitleaks 门。
+
+首次运行后，在目标分支保护或 ruleset 中把 **`security-scan`** 加入必需检查，才会强制阻止失败 PR 合并；仅合入 YAML 不会修改仓库设置。先确认三项 job 实际执行及 SARIF 可见，再启用必需检查。若 Code scanning 上传被权限或仓库功能设置拒绝，应修正配置，不能以忽略错误代替成功。
+
+Dependabot/fork 的普通 PR 可上传 SARIF。若 Dependabot authored 的 squash merge 使 `push` 运行只有只读 token，上传可能返回 403；由有权限维护者发起新的 `workflow_dispatch` 获取该提交的报告，并评估后续合并方式。不要为解决此问题改用 `pull_request_target` 执行 PR 代码或忽略上传错误。
+
+外部 Actions 固定到完整提交 SHA，注释保留版本；既有 Dependabot 的 `github-actions` 更新继续适用。Semgrep/Trivy 引擎版本固定在 workflow 中，需要随升级验证。Semgrep Registry 规则和 Trivy 漏洞数据库随上游更新，因此即使代码不变，发现也可能变化。误报或例外应逐项记录理由并审阅，不用排除整个业务目录压低数量。
+
+### 本仓覆盖边界
+
+Dart 在 Semgrep CE 中属于社区支持，实际覆盖取决于所选规则，不能把成功运行等同于完整 Dart 安全审计。Trivy 可读取 `pubspec.lock`、`ios/Podfile.lock`、`macos/Podfile.lock`；读取保留区不会修改这些文件。当前 Android 没有 `*gradle.lockfile`，不能宣称扫描了全部原生 Android 依赖。SDK 的 `0.0.0`、Git/path 依赖及本地 fork 的包名版本匹配，不能证明真实 SDK 或 fork 源码安全。本 workflow 不初始化子模块，未检出的子模块源码不在覆盖内。
+
+参考：[Semgrep CE 语言](https://semgrep.dev/docs/semgrep-ce-languages)、[Trivy Dart](https://trivy.dev/docs/latest/coverage/language/dart/)、[Trivy 原生依赖覆盖](https://trivy.dev/docs/latest/coverage/language/)。
+
+## Automated security scanning
+
+[Security Scan](./.github/workflows/security-scan.yml) runs on pushes to `main` / `dev`, pull requests targeting either branch, and manual dispatch. A push to another branch alone does not trigger it; subsequent PR updates do. It scans the checked-out workspace, not only newly introduced findings or the entire Git history.
+
+- Semgrep CE uses `p/security-audit`, `p/secrets`, and `p/owasp-top-ten`. All rule severities are reported; `HIGH` / `CRITICAL` and legacy `ERROR` findings fail the check. Semgrep rule severity is not a CVSS rating.
+- Trivy explicitly enables `vuln,misconfig,secret` for dependencies, supported configurations, and secrets. It reports and blocks `HIGH,CRITICAL`, including development dependencies and vulnerabilities with no available fix.
+- The scanners run independently. Installation, rule/database download, fatal scanner, and report-upload errors fail the workflow. The aggregate check has the stable name `security-scan`.
+- Separate SARIF categories are uploaded to **Security → Code scanning**, with PR analyses also appearing in PR checks. Reports can contain source or secret snippets: they are not published as public Actions artifacts or committed.
+- Existing Gitleaks, tests, and quality gates remain in place. Ordinary `pull_request` events require no application secrets or Semgrep account, and no application install/build scripts are executed.
+
+Semgrep `warn` / `warning` diagnostics for parsing, rule matching, or timeouts do not independently block, but the summary shows their counts/types and explicitly states that some files or rules were not fully analyzed. Other or unknown diagnostic levels, invalid reports, and zero scanned files fail. A green check means the configured gate passed, not that every source path was fully analyzed; coverage warnings are not zero findings.
+
+### Rollout and maintenance
+
+The default is `FINDINGS_EXIT_CODE: "1"`, so existing findings also fail the check. If maintainers explicitly choose an observation period, change it to `"0"` through a reviewed change. Findings then become report-only, but scanner/report errors still fail. This does not implement a new-findings-only baseline or relax existing Gitleaks gates.
+
+After the first run, require **`security-scan`** in the target branch protection or ruleset to enforce merge blocking. Merging the YAML does not change repository settings. Verify that all three jobs run and SARIF reports are visible before requiring the check. Resolve permission or Code scanning availability errors instead of ignoring upload failures.
+
+Ordinary Dependabot/fork PR runs can upload SARIF. A Dependabot-authored squash merge may leave a push run with a read-only token and produce an upload 403. A maintainer can start a new `workflow_dispatch` to report that commit and review the merge strategy for future updates. Do not switch to `pull_request_target` to execute PR code or ignore upload errors.
+
+External Actions are pinned to full commit SHAs with version comments; existing Dependabot `github-actions` updates still apply. Engine versions are pinned in the workflow and need validation when upgraded. Semgrep Registry rules and the Trivy vulnerability database update independently, so findings may change without source changes. Review and document individual exceptions instead of excluding entire application directories.
+
+### Repository coverage limits
+
+Dart has community support in Semgrep CE; actual coverage depends on the selected rules. A successful run is not a complete Dart security audit. Trivy can read `pubspec.lock`, `ios/Podfile.lock`, and `macos/Podfile.lock` without modifying reserved paths. There is no Android `*gradle.lockfile`, so this workflow cannot claim complete native Android dependency coverage. SDK `0.0.0` entries and package name/version matches for Git/path dependencies or local forks do not establish the safety of the actual SDK or fork source. Submodules are not initialized, so their unpopulated source is outside this scan.
+
+References: [Semgrep CE languages](https://semgrep.dev/docs/semgrep-ce-languages), [Trivy Dart](https://trivy.dev/docs/latest/coverage/language/dart/), [Trivy native dependency coverage](https://trivy.dev/docs/latest/coverage/language/).
