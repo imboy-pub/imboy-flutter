@@ -44,6 +44,7 @@ Future<void> _pumpRail(
   required ValueChanged<int> onTap,
   double? width,
   Brightness brightness = Brightness.light,
+  Widget? leading,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -61,6 +62,7 @@ Future<void> _pumpRail(
               currentIndex: currentIndex,
               onTap: onTap,
               width: width ?? 72,
+              leading: leading,
             ),
             const Expanded(child: SizedBox()),
           ],
@@ -72,6 +74,32 @@ Future<void> _pumpRail(
 
 void main() {
   group('WebNavRail — 基础渲染', () {
+    testWidgets('矮窗口固定全局入口，滚动目的地仍能到达我', (tester) async {
+      tester.view.physicalSize = const Size(750, 200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      var selected = -1;
+      const key = ValueKey('rail-global-entry');
+      await _pumpRail(
+        tester,
+        items: _kSampleItems,
+        currentIndex: 0,
+        onTap: (index) => selected = index,
+        leading: const SizedBox(key: key, height: 64, child: Text('Space')),
+      );
+      final position = tester.getTopLeft(find.byKey(key));
+      expect(tester.takeException(), isNull);
+      await tester.drag(
+        find.byType(SingleChildScrollView),
+        const Offset(0, -300),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(find.byKey(key)), position);
+      await tester.tap(find.byTooltip('Mine'));
+      expect(selected, 3);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('渲染 4 个 items', (tester) async {
       await _pumpRail(
         tester,

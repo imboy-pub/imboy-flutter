@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_duration.dart';
 import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
@@ -68,18 +70,42 @@ Future<void> showPopoverMenu(
   );
 }
 
+/// 同一气泡路由承载带分组、滚动等结构的内容；平面菜单继续使用
+/// [showPopoverMenu]。内容自行提供表面，路由负责锚点、屏幕边界与关闭。
+Future<void> showPopoverContent(
+  BuildContext context, {
+  required Rect anchor,
+  required WidgetBuilder builder,
+  PopoverMenuSide side = PopoverMenuSide.topLeft,
+}) {
+  return Navigator.of(context, rootNavigator: true).push(
+    _PopoverMenuRoute(
+      anchor: anchor,
+      entries: const [],
+      side: side,
+      showArrow: false,
+      contentBuilder: builder,
+      reduceMotion: MediaQuery.disableAnimationsOf(context),
+    ),
+  );
+}
+
 class _PopoverMenuRoute extends PopupRoute<void> {
   _PopoverMenuRoute({
     required this.anchor,
     required this.entries,
     required this.side,
     required this.showArrow,
+    this.contentBuilder,
+    this.reduceMotion = false,
   });
 
   final Rect anchor;
   final List<PopoverMenuEntry> entries;
   final PopoverMenuSide side;
   final bool showArrow;
+  final WidgetBuilder? contentBuilder;
+  final bool reduceMotion;
 
   @override
   Color? get barrierColor => AppColors.overlayBlack10;
@@ -91,10 +117,14 @@ class _PopoverMenuRoute extends PopupRoute<void> {
   String? get barrierLabel => t.common.buttonCancel;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 180);
+  Duration get transitionDuration => contentBuilder == null
+      ? const Duration(milliseconds: 180)
+      : AppDuration.respectReducedMotion(reduceMotion, AppDuration.normal);
 
   @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 120);
+  Duration get reverseTransitionDuration => contentBuilder == null
+      ? const Duration(milliseconds: 120)
+      : AppDuration.respectReducedMotion(reduceMotion, AppDuration.fast);
 
   @override
   Widget buildPage(
@@ -102,6 +132,7 @@ class _PopoverMenuRoute extends PopupRoute<void> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
+    if (contentBuilder != null) return _buildContent(context);
     final size = MediaQuery.of(context).size;
     final alignRight = side == PopoverMenuSide.topRight;
     return Align(
@@ -123,6 +154,62 @@ class _PopoverMenuRoute extends PopupRoute<void> {
     );
   }
 
+  Widget _buildContent(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final minLeft = media.padding.left + AppSpacing.regular;
+    final maxRight =
+        media.size.width - media.padding.right - AppSpacing.regular;
+    final width = math.min(
+      AppSizes.dialogWidthMedium,
+      math.max(0.0, maxRight - minLeft),
+    );
+    final preferredLeft = side == PopoverMenuSide.topRight
+        ? anchor.right - width
+        : anchor.left;
+    final left = preferredLeft
+        .clamp(minLeft, math.max(minLeft, maxRight - width))
+        .toDouble();
+    final minTop = media.padding.top + AppSpacing.regular;
+    final maxBottom =
+        media.size.height -
+        math.max(media.padding.bottom, media.viewInsets.bottom) -
+        AppSpacing.regular;
+    final below = math.max(0.0, maxBottom - anchor.bottom - AppSpacing.small);
+    final above = math.max(0.0, anchor.top - AppSpacing.small - minTop);
+    final openAbove = above > below;
+    return Stack(
+      children: [
+        Positioned(
+          left: left,
+          top: openAbove
+              ? null
+              : math.max(minTop, anchor.bottom + AppSpacing.small),
+          bottom: openAbove
+              ? math.max(
+                  media.size.height - maxBottom,
+                  media.size.height - anchor.top + AppSpacing.small,
+                )
+              : null,
+          width: width,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: openAbove ? above : below),
+            child: CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.escape): () {
+                  if (isCurrent) navigator?.pop();
+                },
+              },
+              child: Focus(
+                autofocus: true,
+                child: Builder(builder: contentBuilder!),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget buildTransitions(
     BuildContext context,
@@ -138,7 +225,10 @@ class _PopoverMenuRoute extends PopupRoute<void> {
     return FadeTransition(
       opacity: curved,
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.72, end: 1.0).animate(curved),
+        scale: Tween<double>(
+          begin: contentBuilder == null ? 0.72 : 0.98,
+          end: 1.0,
+        ).animate(curved),
         alignment: side == PopoverMenuSide.topRight
             ? Alignment.topRight
             : Alignment.topLeft,

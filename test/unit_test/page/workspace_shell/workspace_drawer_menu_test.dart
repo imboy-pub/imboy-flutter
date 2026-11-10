@@ -10,6 +10,7 @@
 /// - golden 基线（t14_*.png）。
 library;
 
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
@@ -21,6 +22,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/domain/organization_models.dart';
@@ -55,9 +57,10 @@ final String _syntheticJwt = () {
 }();
 
 class _Experience extends ProductExperienceNotifier {
-  _Experience(this.initial);
+  _Experience(this.initial, {this.beforeSelect});
 
   final ProductExperience initial;
+  final Future<void> Function()? beforeSelect;
   final selections = <ProductExperience>[];
 
   @override
@@ -65,6 +68,7 @@ class _Experience extends ProductExperienceNotifier {
 
   @override
   Future<void> select(ProductExperience experience) async {
+    await beforeSelect?.call();
     selections.add(experience);
     state = experience;
   }
@@ -118,6 +122,10 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
   ProductExperience initialExperience = ProductExperience.workspace,
   List<WorkspaceModel> workspaces = const [],
   HttpClientAdapter? httpAdapter,
+  bool compact = false,
+  double compactMaxHeight = 600,
+  VoidCallback? onClose,
+  _Experience? experienceOverride,
 }) async {
   final neutral = scenario == 'neutral';
   final organization = scenario == 'long' ? '合成企业名称' * 12 : '合成企业';
@@ -125,7 +133,7 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
     await CurrentOrganizationStore.forAccount(_account)
         .set(Organization(id: _orgA, name: organization));
   }
-  final experience = _Experience(initialExperience);
+  final experience = experienceOverride ?? _Experience(initialExperience);
   HttpClient.adapterForTest =
       httpAdapter ??
       RouteStubAdapter([
@@ -163,7 +171,9 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
         path: '/',
         builder: (context, state) => Scaffold(
           key: scaffold,
-          drawer: WorkspaceDrawerMenu(organizationId: neutral ? '' : _orgA),
+          drawer: compact
+              ? null
+              : WorkspaceDrawerMenu(organizationId: neutral ? '' : _orgA),
           body: const SizedBox.shrink(),
         ),
       ),
@@ -191,17 +201,45 @@ Future<(ProviderContainer, GoRouter, _Experience)> _pumpDrawer(
       child: MaterialApp.router(
         routerConfig: router,
         theme: ThemeData(brightness: combo.brightness),
-        builder: (context, child) => MediaQuery(
-          data: MediaQuery.of(context)
-              .copyWith(textScaler: TextScaler.linear(combo.textScale)),
-          child: TranslationProvider(child: child!),
+        builder: AppLoading.init(
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: TextScaler.linear(combo.textScale)),
+            child: TranslationProvider(child: child!),
+          ),
         ),
       ),
     ),
   );
-  scaffold.currentState!.openDrawer();
+  if (compact) {
+    unawaited(
+      showDialog<void>(
+        context: scaffold.currentContext!,
+        builder: (menuContext) => Dialog(
+          insetPadding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 320,
+              maxHeight: compactMaxHeight,
+            ),
+            child: WorkspaceDrawerMenu(
+              organizationId: neutral ? '' : _orgA,
+              compact: true,
+              onClose: () {
+                onClose?.call();
+                Navigator.of(menuContext).pop();
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  } else {
+    scaffold.currentState!.openDrawer();
+  }
   await tester.pumpAndSettle();
   addTearDown(() async {
+    await AppLoading.dismiss(animation: false);
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
   });
@@ -348,35 +386,44 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('个人→企业：两阶段切换移动指针、壳重载并切体验模式', (tester) async {
-    final adapter = _DetailAdapter();
-    final (container, _, _) = await _pumpDrawer(
-      tester,
-      initialExperience: ProductExperience.personal,
-      workspaces: const [
-        WorkspaceModel(
-          id: '9002',
-          name: 'WS乙',
-          ownerId: '1',
-          organizationId: _orgB,
-        ),
-      ],
-      httpAdapter: adapter,
-    );
-    final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
-    await tester.pumpAndSettle();
-    await tester.ensureVisible(orgB);
-    await tester.tap(orgB);
-    await tester.pumpAndSettle();
-    expect(adapter.detailCalls, greaterThanOrEqualTo(1));
-    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgB);
-    expect(container.read(workspaceShellProvider).currentWorkspaceId, '9002');
-    expect(
-      container.read(productExperienceProvider),
-      ProductExperience.workspace,
-    );
-    expect(tester.takeException(), isNull);
-  });
+  for (final compact in [false, true]) {
+    testWidgets('个人→企业：两阶段切换移动指针、壳重载并切体验模式 (compact=$compact)', (tester) async {
+      final adapter = _DetailAdapter();
+      var closed = 0;
+      final (container, _, _) = await _pumpDrawer(
+        tester,
+        initialExperience: ProductExperience.personal,
+        workspaces: const [
+          WorkspaceModel(
+            id: '9002',
+            name: 'WS乙',
+            ownerId: '1',
+            organizationId: _orgB,
+          ),
+        ],
+        httpAdapter: adapter,
+        compact: compact,
+        onClose: () => closed++,
+      );
+      final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(orgB);
+      await tester.tap(orgB);
+      await tester.pumpAndSettle();
+      expect(adapter.detailCalls, greaterThanOrEqualTo(1));
+      expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgB);
+      expect(container.read(workspaceShellProvider).currentWorkspaceId, '9002');
+      expect(
+        container.read(productExperienceProvider),
+        ProductExperience.workspace,
+      );
+      if (compact) {
+        expect(closed, 1);
+        expect(find.byType(WorkspaceDrawerMenu), findsNothing);
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   for (final (label, path) in [
     ('合成用户', '/personal_info/profile'),
@@ -499,7 +546,7 @@ void main() {
     await _pumpDrawer(tester);
     await tester.pumpAndSettle();
     final label = tester.widget<Text>(find.text(t.account.logOut));
-    expect(label.style?.color, AppColors.iosRed);
+    expect(label.style?.color, AppColors.getDestructiveText(Brightness.light));
   });
 
   testWidgets('long names and large text retain settings navigation', (
@@ -521,10 +568,157 @@ void main() {
     expect(find.text('/mine/setting'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('compact 按内容收缩，不带 Drawer 或满高布局', (tester) async {
+    await _pumpDrawer(
+      tester,
+      scenario: 'neutral',
+      initialExperience: ProductExperience.personal,
+      compact: true,
+      compactMaxHeight: 640,
+    );
+    final menu = find.byType(WorkspaceDrawerMenu);
+    expect(find.byType(Drawer), findsNothing);
+    expect(
+      find.descendant(of: menu, matching: find.byType(IntrinsicHeight)),
+      findsNothing,
+    );
+    expect(
+      find.descendant(of: menu, matching: find.byType(Spacer)),
+      findsNothing,
+    );
+    expect(tester.getSize(menu).height, lessThan(640));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('compact 矮面板与大字可滚动，退出仍需确认', (tester) async {
+    var closed = 0;
+    await _pumpDrawer(
+      tester,
+      compact: true,
+      compactMaxHeight: 260,
+      combo: const UxCombo(
+        Size(320, 560),
+        textScale: 2,
+        brightness: Brightness.dark,
+      ),
+      onClose: () => closed++,
+    );
+    final menu = find.byType(WorkspaceDrawerMenu);
+    final scrollable = find.descendant(
+      of: menu,
+      matching: find.byType(Scrollable),
+    );
+    expect(tester.getSize(menu).height, lessThanOrEqualTo(260));
+    expect(scrollable, findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text(t.account.logOut),
+      160,
+      scrollable: scrollable,
+    );
+    await tester.tap(find.text(t.account.logOut));
+    await tester.pumpAndSettle();
+    expect(find.byType(CupertinoAlertDialog), findsOneWidget);
+    await tester.tap(find.text(t.common.buttonCancel));
+    await tester.pumpAndSettle();
+    expect(menu, findsOneWidget);
+    expect(closed, 0);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('compact 等待切换期间保留菜单，成功后关闭且保留底页', (tester) async {
+    final gate = Completer<void>();
+    var closed = 0;
+    final experience = _Experience(
+      ProductExperience.workspace,
+      beforeSelect: () => gate.future,
+    );
+    final (container, router, _) = await _pumpDrawer(
+      tester,
+      compact: true,
+      experienceOverride: experience,
+      onClose: () => closed++,
+    );
+    final personal = find.byKey(const ValueKey('drawer-space-personal'));
+    await tester.tap(personal);
+    await tester.pump();
+    expect(closed, 0);
+    expect(
+      find.descendant(
+        of: personal,
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsOneWidget,
+    );
+    gate.complete();
+    await tester.pumpAndSettle();
+    expect(closed, 1);
+    expect(find.byType(WorkspaceDrawerMenu), findsNothing);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgA);
+    expect(router.routeInformationProvider.value.uri.path, '/');
+    expect(router.canPop(), isFalse);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('compact 企业切换失败不关闭，也不改变原空间', (tester) async {
+    var closed = 0;
+    final (container, _, _) = await _pumpDrawer(
+      tester,
+      compact: true,
+      initialExperience: ProductExperience.personal,
+      httpAdapter: _DetailAdapter(failDetail: true),
+      onClose: () => closed++,
+    );
+    final orgB = find.byKey(const ValueKey('drawer-space-$_orgB'));
+    await tester.tap(orgB);
+    await tester.pumpAndSettle();
+    expect(closed, 0);
+    expect(find.byType(WorkspaceDrawerMenu), findsOneWidget);
+    expect(CurrentOrganizationStore.forAccount(_account).value?.id, _orgA);
+    expect(
+      container.read(productExperienceProvider),
+      ProductExperience.personal,
+    );
+    expect(
+      find.descendant(
+        of: orgB,
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsNothing,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('compact 资料跳转先关闭自身，返回后不重现旧菜单', (tester) async {
+    var closed = 0;
+    final (_, router, _) = await _pumpDrawer(
+      tester,
+      compact: true,
+      onClose: () => closed++,
+    );
+    await tester.tap(find.text('合成用户'));
+    await tester.pumpAndSettle();
+    expect(closed, 1);
+    expect(find.text('/personal_info/profile'), findsOneWidget);
+    expect(find.byType(WorkspaceDrawerMenu), findsNothing);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, '/');
+    expect(router.canPop(), isFalse);
+    expect(find.byType(WorkspaceDrawerMenu), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 /// organizations/* 全链路 stub：mine 列表 + detail + default-workspace。
 class _DetailAdapter implements HttpClientAdapter {
+  _DetailAdapter({this.failDetail = false});
+
+  final bool failDetail;
   int detailCalls = 0;
 
   ResponseBody _response(dynamic body) => ResponseBody.fromString(
@@ -547,6 +741,13 @@ class _DetailAdapter implements HttpClientAdapter {
     }
     if (path.endsWith('/organizations/$_orgB')) {
       detailCalls++;
+      if (failDetail) {
+        return _response({
+          'code': 500,
+          'msg': 'synthetic detail failure',
+          'payload': null,
+        });
+      }
       return _response(
         _ok({
           'id': int.parse(_orgB),

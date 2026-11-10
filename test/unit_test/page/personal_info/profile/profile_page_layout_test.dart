@@ -5,11 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/component/ui/detail_settings_tile.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/personal_info/profile/profile_page.dart';
 import 'package:imboy/page/personal_info/profile/profile_provider.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 
 class _Fixture extends ProfileNotifier {
   _Fixture(this.fixture);
@@ -98,6 +100,16 @@ void main() {
   tearDown(() async {
     await StorageService.to.remove(Keys.currentUser);
   });
+  testWidgets('宽窗口资料列居中且保留长内容滚动', (tester) async {
+    await _mount(tester, width: 1280, scale: 2, long: true);
+    final scrollRect = tester.getRect(find.byType(CustomScrollView));
+    expect(scrollRect.width, ResourcePageLayout.maxWidth);
+    expect(scrollRect.center.dx, 640);
+    await tester.scrollUntilVisible(find.text(t.common.privacySettings), 240);
+    expect(find.text(t.common.privacySettings).hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('联系方式仅展示，不暴露编辑入口', (tester) async {
     await _mount(tester);
     for (final label in [t.account.email, t.account.mobile]) {
@@ -115,8 +127,30 @@ void main() {
       expect(find.byType(CupertinoActionSheet), findsNothing);
     }
   });
-  testWidgets('资料头紧凑无装饰渐变，完整度百分比只展示一次', (tester) async {
+  testWidgets('资料头身份居中、动作独立且完整度百分比只展示一次', (tester) async {
     await _mount(tester);
+    final header = find.byKey(const ValueKey('profile-identity-header'));
+    final center = tester.getCenter(header).dx;
+    for (final item in [
+      find.byKey(const ValueKey('profile-avatar-preview')),
+      find.descendant(of: header, matching: find.text('示例用户')),
+      find.text('ID: synthetic-account'),
+    ]) {
+      expect(tester.getCenter(item).dx, closeTo(center, 1));
+    }
+    for (final key in ['profile-avatar-edit', 'profile-qrcode']) {
+      final action = find.byKey(ValueKey(key));
+      expect(action.hitTestable(), findsOneWidget);
+      expect(
+        tester.getSize(action).height,
+        greaterThanOrEqualTo(AppSizes.touchTarget),
+      );
+      expect(
+        tester.getSize(action).width,
+        greaterThanOrEqualTo(AppSizes.touchTarget),
+      );
+    }
+    expect(find.text(t.account.myQRCode), findsOneWidget);
     expect(find.text('67%'), findsOneWidget);
     expect(find.bySemanticsLabel(t.common.avatarEditAvatar), findsOneWidget);
     expect(
@@ -141,6 +175,23 @@ void main() {
     expect(find.byType(CupertinoActionSheet), findsOneWidget);
     expect(find.text(t.main.takePhoto), findsOneWidget);
     expect(find.text(t.main.selectFromAlbum), findsOneWidget);
+    await tester.tap(find.text(t.common.buttonCancel));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('profile-background-cover')));
+    await tester.pumpAndSettle();
+    expect(find.text(t.main.chooseFromAlbum), findsOneWidget);
+  });
+  testWidgets('资料头二维码打开既有路由且不重复底部入口', (tester) async {
+    await _mount(tester);
+    final header = find.byKey(const ValueKey('profile-identity-header'));
+    expect(
+      find.descendant(of: header, matching: find.text(t.account.myQRCode)),
+      findsOneWidget,
+    );
+    expect(find.text(t.account.myQRCode), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('profile-qrcode')));
+    await tester.pumpAndSettle();
+    expect(find.text('QR destination'), findsOneWidget);
   });
   testWidgets('完整度摘要可访问后续建议并保留生日编辑', (tester) async {
     await _mount(tester);
@@ -173,6 +224,20 @@ void main() {
           long: true,
         );
         expect(tester.takeException(), isNull);
+        final editRect = tester.getRect(
+          find.byKey(const ValueKey('profile-avatar-edit')),
+        );
+        final qrRect = tester.getRect(
+          find.byKey(const ValueKey('profile-qrcode')),
+        );
+        expect(qrRect.top, greaterThanOrEqualTo(editRect.bottom));
+        await tester.ensureVisible(
+          find.byKey(const ValueKey('profile-qrcode')),
+        );
+        expect(
+          find.byKey(const ValueKey('profile-qrcode')).hitTestable(),
+          findsOneWidget,
+        );
         await tester.scrollUntilVisible(
           find.text(t.common.privacySettings),
           240,

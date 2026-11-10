@@ -22,6 +22,7 @@ class IosPageTemplate extends StatelessWidget {
     this.useLargeTitle = false, // 默认改为紧凑模式
     this.backgroundColor,
     this.bottomWidget,
+    this.contentMaxWidth,
   });
 
   final String title;
@@ -47,6 +48,9 @@ class IosPageTemplate extends StatelessWidget {
   final bool useLargeTitle;
   final Color? backgroundColor;
   final Widget? bottomWidget;
+
+  /// 可选的内容列最大宽度；导航栏保持全宽，默认不改变既有页面布局。
+  final double? contentMaxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -109,11 +113,21 @@ class IosPageTemplate extends StatelessWidget {
           : null,
     );
 
+    final pageBody = _buildBody(context, bgColor);
+
     // 核心重构：即便有 slivers，我们也使用固定高度的 appBar，确保 title 和返回键永远在同一行
     return Scaffold(
       backgroundColor: bgColor,
       appBar: navBar,
-      body: _buildBody(context, bgColor),
+      body: contentMaxWidth == null
+          ? pageBody
+          : Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: contentMaxWidth!),
+                child: pageBody,
+              ),
+            ),
       bottomNavigationBar: bottomWidget,
     );
   }

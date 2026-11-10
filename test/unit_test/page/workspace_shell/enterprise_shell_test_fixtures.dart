@@ -1,8 +1,39 @@
-part of 'enterprise_shell_page_test.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/i18n/strings.g.dart';
+import 'package:imboy/modules/enterprise_oa/public.dart';
+import 'package:imboy/modules/enterprise_oa/data/oa_workbench_api.dart';
+import 'package:imboy/modules/organization/public.dart';
+import 'package:imboy/modules/organization/presentation/organization_entry_provider.dart';
+import 'package:imboy/page/workspace/workspace_access_provider.dart';
+import 'package:imboy/page/workspace/widget/workspace_access_guard.dart';
+import 'package:imboy/page/workspace/workspace_data_providers.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_bootstrap.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_page.dart';
+import 'package:imboy/page/workspace_shell/workspace_shell_provider.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:imboy/store/api/workspace_api.dart';
+import 'package:imboy/store/model/channel_model.dart';
+import 'package:imboy/store/model/group_model.dart';
+import 'package:imboy/store/model/user_model.dart';
+import 'package:imboy/store/model/workspace_conversation_model.dart';
+import 'package:imboy/store/model/workspace_model.dart';
+import 'package:imboy/store/repository/user_repo_provider.dart';
 
 // Shared synthetic fixtures for enterprise shell navigation and role tests.
 
-class _Shell extends WorkspaceShellNotifier {
+class EnterpriseShellFake extends WorkspaceShellNotifier {
   @override
   Future<void> initialize() async {}
   void empty(String mode) => state = WorkspaceShellState(
@@ -48,7 +79,7 @@ class _Shell extends WorkspaceShellNotifier {
   );
 }
 
-class _Api extends WorkspaceApi {
+class EnterpriseWorkspaceApi extends WorkspaceApi {
   @override
   Future<List<GroupModel>> memberGroups(EntityId workspaceId) async => [];
   @override
@@ -130,7 +161,7 @@ class _DirectoryTransport implements HttpClientAdapter {
   void close({bool force = false}) {}
 }
 
-class _OaApi extends OaWorkbenchApi {
+class EnterpriseOaApi extends OaWorkbenchApi {
   final calls = <String>[];
   // initState watch + postFrame invalidate 会双触发请求：按队列缓存
   // completer，completeFirst 消费最早一个（键控单 completer 会被二次
@@ -157,7 +188,7 @@ class _OaApi extends OaWorkbenchApi {
   }
 }
 
-List<EnterpriseOaRuntimeConfig> _entries(String org) =>
+List<EnterpriseOaRuntimeConfig> enterpriseOaEntries(String org) =>
     parseOaWorkbenchEntries({
       'entries': [
         {
@@ -191,9 +222,9 @@ Future<void> seedLoggedInSessionFixture() async {
   await StorageService.init();
 }
 
-Future<ProviderContainer> _pump(
+Future<ProviderContainer> pumpEnterpriseShell(
   WidgetTester tester,
-  _OaApi api, {
+  EnterpriseOaApi api, {
   Size size = const Size(430, 900),
   String? emptyMode,
   List<GroupModel> groups = const [],
@@ -207,8 +238,8 @@ Future<ProviderContainer> _pump(
       currentUserProvider.overrideWithValue(
         UserModel(uid: '1', account: 'synthetic-account', nickname: '合成员工'),
       ),
-      workspaceShellProvider.overrideWith(_Shell.new),
-      workspaceApiProvider.overrideWithValue(_Api()),
+      workspaceShellProvider.overrideWith(EnterpriseShellFake.new),
+      workspaceApiProvider.overrideWithValue(EnterpriseWorkspaceApi()),
       organizationApiProvider.overrideWithValue(_OrgApi(orgRole)),
       workspaceGroupsProvider('100').overrideWith((ref) async => groups),
       oaWorkbenchApiProvider.overrideWithValue(api),
@@ -233,9 +264,8 @@ Future<ProviderContainer> _pump(
   );
   addTearDown(container.dispose);
   if (emptyMode != null) {
-    (container.read(workspaceShellProvider.notifier) as _Shell).empty(
-      emptyMode,
-    );
+    (container.read(workspaceShellProvider.notifier) as EnterpriseShellFake)
+        .empty(emptyMode);
   }
   await tester.pumpWidget(
     TranslationProvider(
@@ -251,4 +281,31 @@ Future<ProviderContainer> _pump(
   );
   await tester.pump(const Duration(milliseconds: 100));
   return container;
+}
+
+/// 两个企业壳测试入口共享隔离环境与跨用例会话清理。
+void registerEnterpriseShellFixture() {
+  setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
+    HttpClient.adapterForTest = _DirectoryTransport();
+  });
+  tearDown(() async {
+    HttpClient.adapterForTest = null;
+    // 跨用例会话复位：显式 StorageService.init 的用例（附件入口/feature
+    // flag 系）会把 prefs 单例的 currentUid 留给下一个用例，而下个用例
+    // 的 setUp 已把 secure token mock 重置为空。「loggedIn 且无 token」
+    // 会触发 HttpClient._handleTokenExpired → UserRepoLocal.quitLogin →
+    // _clearLogin 卡在测试无 mock 的 platform channel（sqlite/push），
+    // _pendingAuthTransitions 永挂 → 后续用例所有 HTTP 走
+    // _SessionChanged→409（网络错误），workspaceGroupSchedulesProvider
+    // 等无 retry 的 FutureProvider 被 riverpod 默认 retry 安排 200ms 起
+    // 的退避 Timer，测试结束时 timersPending invariant 失败。退出登录态
+    // 即断根；未 init 的用例无残留，remove 的 not-initialized 直接忽略
+    // （手法与 organization_api_session_generation_test 的 tearDown 同构）。
+    try {
+      await StorageService.to.remove(Keys.currentUid);
+    } on Object {
+      // StorageService 未 init：本用例无 prefs 残留。
+    }
+  });
 }

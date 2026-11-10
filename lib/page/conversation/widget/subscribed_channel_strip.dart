@@ -193,7 +193,8 @@ class _ChannelInboxTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final brightness = Theme.of(context).brightness;
-    final secondary = AppColors.getTextSecondary(brightness);
+    final secondary = AppColors.getTextSecondary(brightness)
+        .withValues(alpha: 0.75);
     return MessageInboxTile(
       key: ValueKey('channel-inbox-row-${summary.channelId}'),
       avatar: _ChannelAvatar(avatar: summary.avatar, name: summary.name),
@@ -213,7 +214,7 @@ class _ChannelInboxTile extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: context.textStyle(
                 FontSizeType.body,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
                 color: AppColors.getTextColor(brightness),
               ),
             ),
@@ -224,7 +225,13 @@ class _ChannelInboxTile extends ConsumerWidget {
         preview,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: context.textStyle(FontSizeType.subheadline, color: secondary),
+        style: context
+            .textStyle(
+              FontSizeType.normal,
+              fontWeight: FontWeight.w400,
+              color: secondary,
+            )
+            .copyWith(height: 1.4),
       ),
       timeLabel: formatMessageInboxTime(summary.lastMessageTime ?? 0),
       unreadCount: summary.unreadCount,

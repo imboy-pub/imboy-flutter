@@ -59,7 +59,9 @@ class _MessageInboxTileState extends State<MessageInboxTile> {
     final isDark = brightness == Brightness.dark;
     final surface = isDark ? AppColors.darkSurface : AppColors.lightSurface;
     final background = widget.isPinned
-        ? AppColors.getSurfaceGrouped(brightness)
+        ? (isDark
+              ? Color.alphaBlend(AppColors.overlayLight, surface)
+              : AppColors.lightSurfaceVariant)
         : surface;
     final hasTime = widget.timeLabel?.isNotEmpty ?? false;
     final hasStatus =
@@ -96,7 +98,10 @@ class _MessageInboxTileState extends State<MessageInboxTile> {
           children: [
             SizedBox.square(
               dimension: MessageInboxTile.avatarSize,
-              child: widget.avatar,
+              child: ClipRRect(
+                borderRadius: AppRadius.borderRadiusMedium,
+                child: widget.avatar,
+              ),
             ),
             AppSpacing.horizontalMedium,
             Expanded(
@@ -195,7 +200,8 @@ class _MessageInboxTileState extends State<MessageInboxTile> {
     style: context
         .textStyle(
           FontSizeType.small,
-          color: AppColors.getTextSecondary(brightness),
+          fontWeight: FontWeight.w400,
+          color: AppColors.getTextSecondary(brightness).withValues(alpha: 0.75),
         )
         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
   );

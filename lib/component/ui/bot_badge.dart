@@ -16,7 +16,12 @@ import 'package:imboy/theme/default/font_types.dart';
 /// 身份不单靠颜色传达：图标形状 + 文字双通道（WCAG 1.4.1），
 /// 并带 Semantics 标签供屏幕阅读器朗读。
 class BotBadge extends StatelessWidget {
-  const BotBadge({super.key, required this.accountType, this.compact = false});
+  const BotBadge({
+    super.key,
+    required this.accountType,
+    this.compact = false,
+    this.dense = false,
+  });
 
   /// 见类注释的 account_type 语义。
   final int accountType;
@@ -24,6 +29,10 @@ class BotBadge extends StatelessWidget {
   /// 紧凑模式：仅图标不带文字（导航栏标题等窄空间用），
   /// Semantics 标签仍完整朗读身份。
   final bool compact;
+
+  /// 消息列表的轻量身份标记：减少留白，仍保留文字和完整读屏标签。
+  /// [compact] 单独控制是否因可用宽度不足而省略可见文字。
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -53,31 +62,38 @@ class BotBadge extends StatelessWidget {
     required Color color,
     required IconData icon,
   }) {
+    final isDark = CupertinoTheme.brightnessOf(context) == Brightness.dark;
+    final foreground = !dense
+        ? color
+        : accountType == 1
+        ? (isDark ? AppColors.tertiaryContainer : AppColors.onTertiaryContainer)
+        : (isDark ? AppColors.primaryContainer : AppColors.primaryDark);
     return Semantics(
       label: a11yLabel,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.small,
-          vertical: AppSpacing.tiny,
+        padding: EdgeInsets.symmetric(
+          horizontal: dense ? AppSpacing.tiny : AppSpacing.small,
+          vertical: dense ? AppSpacing.tiny / 2 : AppSpacing.tiny,
         ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
+          color: color.withValues(alpha: dense && isDark ? 0.18 : 0.12),
           borderRadius: AppRadius.tag,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 图标尺寸非 token 管辖，12 对齐 caption2 字号视觉
-            Icon(icon, size: 12, color: color),
+            Icon(icon, size: AppSpacing.medium, color: foreground),
             if (!compact) ...[
               AppSpacing.horizontalTiny,
               Text(
                 label,
-                style: context.textStyle(
-                  FontSizeType.caption2,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
+                style: context
+                    .textStyle(
+                      FontSizeType.caption2,
+                      fontWeight: dense ? FontWeight.w500 : FontWeight.w600,
+                      color: foreground,
+                    )
+                    .copyWith(height: dense ? 1.25 : null),
               ),
             ],
           ],

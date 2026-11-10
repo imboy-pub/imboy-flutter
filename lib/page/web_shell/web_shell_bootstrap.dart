@@ -43,6 +43,7 @@ import 'package:imboy/page/chat/chat/chat_panel.dart';
 import 'package:imboy/page/chat/chat/chat_provider.dart';
 import 'package:imboy/page/conversation/conversation_page.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
+import 'package:imboy/page/workspace_shell/space_switcher_button.dart';
 import 'package:imboy/store/model/contact_model.dart';
 import 'package:imboy/store/model/group_model.dart';
 import 'package:imboy/store/repository/contact_repo_sqlite.dart';
@@ -73,6 +74,10 @@ class WebShellBootstrap extends ConsumerWidget {
       tabChannelLabel: t.channel.title,
       tabMineLabel: t.common.me,
       welcomeTitle: appName.isEmpty ? 'ImBoy' : appName,
+      navigationLeading: const SpaceSwitcherButton(
+        key: ValueKey('web-shell-space-switcher'),
+        inRail: true,
+      ),
       // welcomeSubtitle 暂不传：避免新增 i18n key（Phase 4 桌面增强时再补）
 
       // Tab 中栏内容 — 与 BottomNavigationPage._buildPageList() 顺序对齐
