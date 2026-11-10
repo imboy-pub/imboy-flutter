@@ -17,8 +17,6 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'package:imboy/service/asset_url_resolver.dart';
-import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/config/routes.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -32,9 +30,7 @@ import 'package:imboy/page/passport/qr_sse_session.dart';
 import 'package:imboy/page/passport/sse_client.dart';
 import 'package:imboy/page/passport/web_e2e_bypass.dart';
 import 'package:imboy/component/http/http_client.dart';
-import 'package:imboy/service/secure_token_storage_service.dart';
-import 'package:imboy/config/const.dart' show Keys;
-import 'package:imboy/service/storage.dart' show StorageService;
+import 'package:imboy/store/repository/user_repo_local.dart';
 
 part 'web_login_page.g.dart';
 
@@ -273,18 +269,7 @@ class QRLogin extends _$QRLogin {
         return;
       case ProceedWithToken(:final token):
         try {
-          await SecureTokenStorageService.saveToken(token);
-          // QR 登录必须落 currentUid 建立登录态：路由守卫 isLoggedIn 以
-          // currentUid 为依据，只写 token 会在跳 /web_shell 时被守卫弹回
-          // 登录页（批次126 实证）。uid 由后端 confirmed 响应透传。
-          if (uid != null && uid.isNotEmpty) {
-            AssetUrlResolver.instance.clear();
-            await StorageService.to.setString(Keys.currentUid, uid);
-            final existing = StorageService.getMap(Keys.currentUser);
-            if (existing.isEmpty || (existing['uid'] ?? '').toString() != uid) {
-              await StorageService.setMap(Keys.currentUser, {'uid': uid});
-            }
-          }
+          await UserRepoLocal.to.loginAfterQr(uid: uid, token: token);
           state = state.copyWith(status: QRLoginStatus.success);
           _pollTimer?.cancel();
           _expireTimer?.cancel();
@@ -405,10 +390,8 @@ class _WebLoginPageState extends ConsumerState<WebLoginPage> {
           case BypassDisabled():
             ref.read(qRLoginProvider.notifier).generateQRCode();
           case BypassEnabled(:final token, :final uid):
-            // 注入登录态：写 currentUid + secure token，不走 QR/SSE 链路
-            AssetUrlResolver.instance.clear();
-            await StorageService.to.setString(Keys.currentUid, uid);
-            await SecureTokenStorageService.saveToken(token);
+            // 合成登录仍通过与 QR 相同的会话和所有者提交边界。
+            await UserRepoLocal.to.loginAfterQr(uid: uid, token: token);
             if (mounted) context.go('/web_shell');
         }
       });

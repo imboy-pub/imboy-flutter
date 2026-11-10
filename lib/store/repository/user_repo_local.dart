@@ -374,10 +374,33 @@ class UserRepoLocal extends ChangeNotifier {
       throw const LoginAccountCleanupBusyException();
     }
     validateLoginPayload(payload);
+    return _queueLogin(account, Map.of(payload));
+  }
+
+  /// QR authentication has no refresh token or selectable login alias.
+  /// The confirmed response must identify its owner before any session write.
+  Future<bool> loginAfterQr({required String? uid, required String token}) {
+    if (_isClearingAccountData) {
+      throw const LoginAccountCleanupBusyException();
+    }
+    if (uid == null || uid.trim().isEmpty) {
+      throw ArgumentError('扫码登录响应缺少有效的 uid 字段');
+    }
+    _validateToken(token);
+    return _queueLogin('', {'uid': uid, 'token': token}, qrLogin: true);
+  }
+
+  Future<bool> _queueLogin(
+    String account,
+    Map<String, dynamic> payload, {
+    bool qrLogin = false,
+  }) {
     _sessionGeneration++;
     _beginAuthTransition();
     final result = _serializeSessionWrite(
-      () => _finishAuthTransition(() => _commitLogin(account, Map.of(payload))),
+      () => _finishAuthTransition(
+        () => _commitLogin(account, payload, qrLogin: qrLogin),
+      ),
     );
     _authChanges.notifyListeners();
     return result.then((ok) {
@@ -400,8 +423,10 @@ class UserRepoLocal extends ChangeNotifier {
 
   Future<bool> _commitLogin(
     String account,
-    Map<String, dynamic> payload,
-  ) async {
+    Map<String, dynamic> payload, {
+    bool qrLogin = false,
+  }) async {
+    await StorageService.to.reload();
     // E2EE-015：上次 logout 秘密清理未完成时先补救；
     // 补救仍失败则抛异常，拒绝建立新账号会话（fail-closed）。
     if (StorageService.to.getBool(Keys.e2eePurgePending) ?? false) {
@@ -411,14 +436,22 @@ class UserRepoLocal extends ChangeNotifier {
     }
 
     // 验证必需字段
-    validateLoginPayload(payload);
+    if (!qrLogin) validateLoginPayload(payload);
     // Persist deletion ownership before publishing credentials/currentUid. A
     // failed history write must not introduce a partially established session.
+    final loginScope = LoginAccountIdentity(
+      uid: (payload['user_id'] ?? payload['uid']).toString(),
+      environment: currentEnv.isEmpty ? 'pro' : currentEnv,
+      endpoint: Env().apiBaseUrl,
+      aliases: const <String>{},
+    );
     final loginIdentity = await LoginAccountHistoryService().rememberLogin(
       account: account,
       profile: payload,
       environment: currentEnv.isEmpty ? 'pro' : currentEnv,
       endpoint: Env().apiBaseUrl,
+      storageWasUnusedAtStartup:
+          AccountLocalDataService.wasStorageUnusedAtStartup(loginScope),
     );
     AssetUrlResolver.instance.clear();
 
@@ -430,9 +463,13 @@ class UserRepoLocal extends ChangeNotifier {
     await SecureTokenStorageService.saveToken(
       IMBoyHttpResponse.payloadStr(payload, 'token') ?? '',
     );
-    await SecureTokenStorageService.saveRefreshToken(
-      IMBoyHttpResponse.payloadStr(payload, 'refreshtoken') ?? '',
-    );
+    if (qrLogin) {
+      await SecureTokenStorageService.clearRefreshToken();
+    } else {
+      await SecureTokenStorageService.saveRefreshToken(
+        IMBoyHttpResponse.payloadStr(payload, 'refreshtoken') ?? '',
+      );
+    }
 
     payload.remove('token');
     payload.remove('refreshtoken');
@@ -452,25 +489,27 @@ class UserRepoLocal extends ChangeNotifier {
     );
     // Only a committed local session can become visible login history. Failure
     // to save this optional display state must not strand an authenticated user.
-    try {
-      final previous = LoginAccountHistoryService().readHistory(
-        Keys.loginHistory,
-      );
-      await StorageService.to.persistPreference(
-        () => StorageService.to.setList(Keys.loginHistory, [
-          account,
-          ...previous.where((value) => value != account),
-        ]),
-      );
-      await StorageService.to.persistPreference(
-        () => StorageService.to.setString(Keys.lastLoginAccount, account),
-      );
-    } on Object catch (error, stack) {
-      AppLogger.error(
-        '[user_repo_local] login history save failed',
-        error,
-        stack,
-      );
+    if (account.trim().isNotEmpty) {
+      try {
+        final previous = LoginAccountHistoryService().readHistory(
+          Keys.loginHistory,
+        );
+        await StorageService.to.persistPreference(
+          () => StorageService.to.setList(Keys.loginHistory, [
+            account,
+            ...previous.where((value) => value != account),
+          ]),
+        );
+        await StorageService.to.persistPreference(
+          () => StorageService.to.setString(Keys.lastLoginAccount, account),
+        );
+      } on Object catch (error, stack) {
+        AppLogger.error(
+          '[user_repo_local] login history save failed',
+          error,
+          stack,
+        );
+      }
     }
     unawaited(RuntimeFeatureRecovery.refreshNow());
     notifyListeners();
@@ -577,9 +616,13 @@ class UserRepoLocal extends ChangeNotifier {
         // it before taking that same queue, otherwise cleanup would deadlock.
         await tasks.stopped.timeout(const Duration(seconds: 30));
         await _serializeSessionWrite(() async {
+          // A preference cache may predate another instance's owner update.
+          // Recheck after the task barrier and before entering any data store.
+          await StorageService.to.reload();
           if (isLoggedIn || generation != _sessionGeneration) {
             throw const LoginAccountCleanupBusyException();
           }
+          history.requireIndependentStorage(identity);
           await AccountLocalDataService().clear(
             uid: identity.uid,
             environment: identity.environment,

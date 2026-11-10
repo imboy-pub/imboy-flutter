@@ -24,6 +24,7 @@ void main() {
       profile: {'user_id': uid, ...profile},
       environment: environment,
       endpoint: api,
+      storageWasUnusedAtStartup: true,
     );
     await StorageService.setMap(Keys.currentUser, {
       'user_id': uid,
@@ -523,6 +524,132 @@ void main() {
       );
     },
   );
+
+  for (final incomplete in <bool?>[null, false]) {
+    test(
+      'valid legacy registry with incomplete=$incomplete has no deletion proof',
+      () async {
+        const legacy = LoginAccountIdentity(
+          uid: '1001',
+          environment: 'pro',
+          endpoint: endpoint,
+          aliases: {'alice'},
+        );
+        await StorageService.to.setString(
+          LoginAccountHistoryService.storageKey,
+          jsonEncode({
+            'version': 1,
+            'accounts': [legacy.toJson()],
+            'ownershipIncomplete': ?incomplete,
+          }),
+        );
+        expect(resolve('alice').uid, '1001');
+        expect(
+          () => history.requireIndependentStorage(resolve('alice')),
+          throwsA(isA<AccountLocalDataOwnershipException>()),
+        );
+        // Authentication and server-supplied fields cannot certify legacy bytes.
+        await history.rememberLogin(
+          account: 'alice',
+          profile: {'user_id': '1001', 'storageOwnershipVerified': true},
+          environment: 'pro',
+          endpoint: endpoint,
+        );
+        await reloadPersistedHistory();
+        expect(
+          () => history.requireIndependentStorage(resolve('alice')),
+          throwsA(isA<AccountLocalDataOwnershipException>()),
+        );
+        // Proven new storage has an account-scoped authorization. The unknown
+        // legacy owner does not poison an unrelated, newly initialized UID.
+        await remember('1002', 'new-user');
+        expect(
+          () => history.requireIndependentStorage(resolve('new-user')),
+          returnsNormally,
+        );
+        await history.forget(resolve('new-user'));
+        expect(
+          () => history.requireIndependentStorage(resolve('alice')),
+          throwsA(isA<AccountLocalDataOwnershipException>()),
+        );
+      },
+    );
+  }
+
+  test(
+    'verified ownership survives login without a new empty-storage proof',
+    () async {
+      await remember('1001', 'alice');
+      final identity = await history.rememberLogin(
+        account: 'renamed',
+        profile: {'user_id': '1001'},
+        environment: 'pro',
+        endpoint: endpoint,
+      );
+      await reloadPersistedHistory();
+      expect(identity.storageOwnershipVerified, isTrue);
+      expect(
+        () => history.requireIndependentStorage(resolve('alice')),
+        returnsNormally,
+      );
+      expect(
+        () => history.requireIndependentStorage(resolve('renamed')),
+        returnsNormally,
+      );
+    },
+  );
+
+  test('old-writer loss of proof cannot be bypassed using a stale verified identity', () async {
+    await remember('1001', 'alice');
+    final stale = resolve('alice');
+    final document = jsonDecode(
+      StorageService.to.getString(LoginAccountHistoryService.storageKey),
+    ) as Map<String, dynamic>;
+    for (final raw in document['accounts'] as List) {
+      (raw as Map<String, dynamic>).remove('storageOwnershipVerified');
+    }
+    await StorageService.to.setString(
+      LoginAccountHistoryService.storageKey,
+      jsonEncode(document),
+    );
+    expect(stale.storageOwnershipVerified, isTrue);
+    expect(
+      () => history.requireIndependentStorage(stale),
+      throwsA(isA<AccountLocalDataOwnershipException>()),
+    );
+  });
+
+  for (final value in <Object?>['true', 1, null]) {
+    test(
+      'invalid ownership proof $value fails closed after authentication',
+      () async {
+        await StorageService.to.setString(
+          LoginAccountHistoryService.storageKey,
+          jsonEncode({
+            'version': 1,
+            'accounts': [
+              {
+                'uid': '1001',
+                'environment': 'pro',
+                'endpoint': endpoint,
+                'aliases': ['alice'],
+                'storageOwnershipVerified': value,
+              },
+            ],
+          }),
+        );
+        expect(
+          () => resolve('alice'),
+          throwsA(isA<LoginAccountIdentityUnavailableException>()),
+        );
+        await remember('1001', 'alice');
+        expect(
+          () => history.requireIndependentStorage(resolve('alice')),
+          throwsA(isA<AccountLocalDataOwnershipException>()),
+        );
+      },
+    );
+  }
 }
 
 class _FailingRegistryPreferences extends InMemorySharedPreferencesStore {

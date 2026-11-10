@@ -54,6 +54,14 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
   }
 
+  /// Re-read durable values before authorizing account ownership changes.
+  Future<void> reload() async {
+    if (_prefs == null) {
+      throw StateError('StorageService not initialized');
+    }
+    await _prefs!.reload();
+  }
+
   /// 存储字符串
   /// Store string value
   Future<bool> setString(String key, String value) async {
