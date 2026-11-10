@@ -189,6 +189,9 @@ def main():
         assert fixture['native_oa']['redirect_uri'] == Oa.redirect
         Oa.fixture = fixture
         for port in [server.server_port, fixture['port']]:
+            # Operator-selected SDK/device and local fixture ports; fixed ADB
+            # reverse arguments are passed as argv, without a shell.
+            # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
             subprocess.run([adb, '-s', device, 'reverse', f'tcp:{port}', f'tcp:{port}'],
                 check=True, stdout=subprocess.DEVNULL)
             ports.append(port)

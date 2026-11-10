@@ -207,6 +207,9 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
         for conflict in conflicts:
             print(f"  {conflict['target']}: {conflict}", file=sys.stderr)
         return 64
+    if any(spec['runner']['type'] not in VALID_RUNNERS for spec in plan):
+        print('❌ runner.type 必须为 flutter 或 patrol，拒绝执行。', file=sys.stderr)
+        return 64
     api_url, ws_url = _target_urls()
     env = dict(os.environ)
     if execute:
@@ -229,11 +232,10 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
     for spec in plan:
         runner = spec['runner']
         status, reason, code = 'PLANNED', 'dry-run；未触发设备或网络操作', 0
-        command = [runner['type']]
         if runner['type'] == 'flutter':
-            command += ['test', runner['target'], '-d', device, *env_defines]
+            command = ['flutter', 'test', runner['target'], '-d', device, *env_defines]
         else:
-            command += ['test', '--target', runner['target'], '--device', device]
+            command = ['patrol', 'test', '--target', runner['target'], '--device', device]
         if not spec['safe_to_execute']:
             status, reason, code = 'BLOCKED', 'case 标记为高风险，必须由专用受控测试替代', 2
         elif not device:
@@ -241,7 +243,10 @@ def run(specs: list[tuple[Path, dict]], device: str, execute: bool, artifact_dir
         elif not cfg.consistent or 'REMOTE_TARGET_FORBIDDEN' in cfg.blocked_codes:
             status, reason, code = 'BLOCKED', f'目标配置不一致或远程目标被拒绝（{cfg.inconsistency_code}）', 2
         elif execute:
+            # Fixed Flutter/Patrol executables; the operator's test configuration
+            # and qualified device ID remain separate argv items, without a shell.
             completed = subprocess.run(
+                # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
                 command + ['--machine'],
                 cwd=ROOT,
                 stdout=subprocess.PIPE,
@@ -582,6 +587,9 @@ def visual_review(request: Path, output: Path, execute: bool) -> int:
         print('BLOCKED: 缺少 IMBOY_VISION_REVIEW_COMMAND 私有模型适配命令。')
         return 2
     command = shlex.split(command_text) + [str(request.resolve())]
+    # The operator explicitly selects the private adapter and enables upload;
+    # the request contributes only one absolute path argument, without a shell.
+    # nosemgrep: python.django.security.injection.command.subprocess-injection.subprocess-injection, python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
     completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=False)
     if completed.returncode != 0:
         raise ValueError(f'视觉模型适配命令失败（退出码 {completed.returncode}）: {completed.stderr.strip()[:500]}')

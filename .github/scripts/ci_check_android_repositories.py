@@ -122,6 +122,9 @@ def maven_files(work, distribution, settings, build, logs):
         f'class Noop{i} implements org.gradle.api.Plugin<Object> {{ void apply(Object target) {{}} }}'
         for i in range(len(plugins))))
     java = str(Path(os.environ['JAVA_HOME']) / 'bin/java') if os.environ.get('JAVA_HOME') else 'java'
+    # The operator's JDK/Gradle installation compiles generated fixture source;
+    # compiler flags and temporary paths are separate argv items, without a shell.
+    # nosemgrep: python.lang.security.audit.dangerous-subprocess-use-tainted-env-args.dangerous-subprocess-use-tainted-env-args
     result = subprocess.run([java, '-cp', str(distribution / 'lib/*'),
                              'org.codehaus.groovy.tools.FileSystemCompiler', '-d', str(classes), str(source)],
                             capture_output=True, text=True, timeout=60)

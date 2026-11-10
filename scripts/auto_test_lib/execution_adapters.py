@@ -18,6 +18,8 @@ import socket
 import subprocess
 import sys
 import time
+# Local fresh Patrol JUnit is parsed only with the DOCTYPE-rejecting target below.
+# nosemgrep: python.lang.security.use-defused-xml.use-defused-xml
 import xml.etree.ElementTree as ET
 from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
@@ -830,6 +832,13 @@ def fresh_junit_paths(root: Path, before: dict) -> list[str]:
             if tuple(before.get(path, ())) != fingerprint]
 
 
+class _PatrolJUnitTreeBuilder(ET.TreeBuilder):
+    """Patrol evidence does not use DTD declarations."""
+
+    def doctype(self, name, pubid, system):
+        raise ValueError('PATROL_JUNIT_DOCTYPE_FORBIDDEN')
+
+
 def parse_patrol_junit(paths: list[str | Path], exit_code: int | None) -> dict:
     """Patrol's parameterized native cases delegate to each Dart patrolTest.
 
@@ -842,7 +851,10 @@ def parse_patrol_junit(paths: list[str | Path], exit_code: int | None) -> dict:
         errors.append('PATROL_RESULT_MISSING')
     for path in paths:
         try:
-            tree = ET.parse(path).getroot()
+            parser = ET.XMLParser(target=_PatrolJUnitTreeBuilder())
+            # The caller selects fresh local JUnit; every parse rejects DOCTYPE.
+            # nosemgrep: python.lang.security.use-defused-xml-parse.use-defused-xml-parse
+            tree = ET.parse(path, parser=parser).getroot()
             for suite in tree.iter('testsuite'):
                 cases = list(suite.findall('testcase'))
                 if suite.get('tests') is not None and int(suite.get('tests', '0')) != len(cases):

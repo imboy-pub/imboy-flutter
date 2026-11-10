@@ -189,6 +189,7 @@ jobs:
       security-events: write
     env:
       TRIVY_INCLUDE_DEV_DEPS: "true"
+      TRIVY_IGNOREFILE: .trivyignore.yaml
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -197,6 +198,7 @@ jobs:
 
       - name: Prepare report directory
         run: |
+          printf '%s\n\n' 'Reviewed exceptions are limited to exact finding IDs and unused upstream-maintainer file paths in .trivyignore.yaml, expiring 2027-02-10; no directory-wide exclusions.' >> "$GITHUB_STEP_SUMMARY"
           printf '%s\n\n' 'Trivy reads pubspec.lock and existing Podfile.lock files. Android Gradle dependencies without a lockfile, actual SDK versions and fork contents are not fully covered.' >> "$GITHUB_STEP_SUMMARY"
           mkdir -p .security-reports
 

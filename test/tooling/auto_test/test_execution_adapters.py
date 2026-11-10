@@ -635,17 +635,28 @@ class GoldenAndPatrolEvidenceTests(unittest.TestCase):
                 manifest.write_text(json.dumps(data))
                 self.assertIn('GOLDEN_FLUTTER_VERSION_MISMATCH', adapters.golden_environment_errors(root, {'suite': 'golden', 'target': 'test/a_test.dart'}, env))
 
-    def junit(self, body, exit_code=0):
+    def junit(self, body, exit_code=0, encoding='utf-8'):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'result.xml'
-            path.write_text(body)
+            path.write_text(body, encoding=encoding)
             return adapters.parse_patrol_junit([path], exit_code)
 
     def test_native_dart_case_success_requires_machine_correspondence_and_zero_exit(self):
         xml = '<testsuite tests="1"><testcase classname="pub.imboy.MainActivityTest" name="runDartTest[flow]"/></testsuite>'
-        self.assertEqual('PASS', self.junit(xml)['test_status'])
-        self.assertNotEqual('PASS', self.junit(xml, 1)['test_status'])
-        self.assertNotEqual('PASS', self.junit(xml, None)['test_status'])
+        for encoding in ('utf-8', 'utf-16'):
+            with self.subTest(encoding=encoding):
+                self.assertEqual('PASS', self.junit(xml, encoding=encoding)['test_status'])
+                self.assertNotEqual('PASS', self.junit(xml, 1, encoding)['test_status'])
+                self.assertNotEqual('PASS', self.junit(xml, None, encoding)['test_status'])
+
+    def test_native_junit_rejects_doctype_declarations(self):
+        xml = '<!DOCTYPE testsuite><testsuite tests="1"><testcase classname="MainActivityTest" name="runDartTest[flow]"/></testsuite>'
+        for encoding in ('utf-8', 'utf-16'):
+            with self.subTest(encoding=encoding):
+                result = self.junit(xml, encoding=encoding)
+                self.assertEqual('FAIL', result['test_status'])
+                self.assertIn('PATROL_RESULT_INVALID', result['errors'])
+                self.assertEqual(0, result['executed'])
 
     def test_native_bootstrap_empty_skipped_or_inconsistent_evidence_never_passes(self):
         for xml in ('<testsuite tests="0"/>',

@@ -142,3 +142,20 @@ External Actions are pinned to full commit SHAs with version comments; existing 
 Dart has community support in Semgrep CE; actual coverage depends on the selected rules. A successful run is not a complete Dart security audit. Trivy can read `pubspec.lock`, `ios/Podfile.lock`, and `macos/Podfile.lock` without modifying reserved paths. There is no Android `*gradle.lockfile`, so this workflow cannot claim complete native Android dependency coverage. SDK `0.0.0` entries and package name/version matches for Git/path dependencies or local forks do not establish the safety of the actual SDK or fork source. Submodules are not initialized, so their unpopulated source is outside this scan.
 
 References: [Semgrep CE languages](https://semgrep.dev/docs/semgrep-ce-languages), [Trivy Dart](https://trivy.dev/docs/latest/coverage/language/dart/), [Trivy native dependency coverage](https://trivy.dev/docs/latest/coverage/language/).
+
+### 逐项扫描例外与解析边界 / Reviewed findings and parser boundaries
+
+Semgrep 的 `nosemgrep` 只放在已复核的调用点，并列出完整规则 ID：JDK/Gradle fixture 编译、操作者明确选择并授权上传的私有视觉适配器、固定 ADB 操作，以及测试执行器的独立 argv 参数。这些例外依赖当前输入来源和调用权限，不能用于来自服务请求的命令。旧 `auto_test.run()` 也在设备发现前拒绝 `flutter` / `patrol` 之外的执行器。
+
+Patrol JUnit 只读取当前运行新产生的本地报告；解析器显式拒绝所有 DOCTYPE 声明，拒绝结果仍使证据校验失败。正常 UTF-8/UTF-16、退出码、计数、跳过和 freshness 检查继续保留。此策略不是通用不可信 XML 服务，也不承诺任意大小输入的资源隔离。Semgrep JSON 门禁不计入已标注结果，SARIF 仍保留 `inSource` suppression 记录。
+
+[`.trivyignore.yaml`](./.trivyignore.yaml) 将例外限定到具体 finding ID 和以下两个文件，复核期限为 **2027-02-10**；不排除整个 `macos/`、vendor 或 Ruby 生态：
+
+- `macos/Shims/vendor/Sentry/Gemfile.lock`：仅列出的 9 个漏洞 ID。对应 Gemfile 和上游 Makefile 的 `init-local` 用于 Sentry 自己的 Fastlane/Slather 维护流程；IMBoy CI 使用 Flutter/CocoaPods，没有安装该 Ruby bundle。
+- `macos/Shims/vendor/Sentry/test-server/Dockerfile`：仅 `DS-0017`。这是由上游 `run-test-server` 单独启动的 Vapor 测试服务，不在 IMBoy 的构建/部署入口或 Sentry runtime podspec/SwiftPM targets 中。
+
+正向构建依据是 `macos/Podfile` 只把 `flutter_sound` 指向局部 shim，该 podspec 的源码范围为 `Classes/**/*`；应用 Xcode framework phase 链接 Pods，CI 执行 Flutter 构建。历史 SwiftPM 文件仍有 Sentry pin，部分 CI 仍传递 SENTRY_DSN，因此不能把这些例外写成“已验证最终二进制没有 Sentry”。例外只说明上述维护工具未被当前构建执行。若引入对应 bundle 或 test-server，必须先移除例外并重新验收。其他路径上的同一 ID、未列出的 ID，以及过期例外都继续阻断。
+
+Semgrep annotations name exact rule IDs at reviewed call sites: operator-selected toolchains/private adapters, fixed ADB operations, and separate argv values. The legacy runner rejects unsupported executables before device discovery. Reassess these annotations if inputs or execution authority change; they do not authorize request-controlled commands. The local Patrol JUnit parser rejects every DOCTYPE while preserving result validation, without claiming general untrusted-XML resource isolation. Annotated findings remain visible as in-source suppressions in SARIF.
+
+Trivy exceptions cover only the listed IDs in the two exact upstream-maintainer files, expiring **2027-02-10**. The vendored Ruby bundle belongs to Sentry's own maintenance workflow; the Vapor test server is a separate upstream target. Neither is installed or executed by the current IMBoy Flutter/CocoaPods build. Runtime podspec/SwiftPM source targets do not consume those tools. Residual Sentry pins/defines are not final-binary evidence. Remove the exceptions before enabling those upstream tasks. Findings at other paths, other IDs and expired exceptions remain blocking; HIGH/CRITICAL, secret scanning and scanner-failure gates stay enabled.
