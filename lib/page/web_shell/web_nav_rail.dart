@@ -11,6 +11,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:imboy/component/ui/cell_pressable.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -132,33 +135,44 @@ class _WebNavRailItem extends StatelessWidget {
 
     return Tooltip(
       message: item.label,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: 56,
-          height: 56,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? colorScheme.primary.withAlpha(31) // ≈ 0.12 alpha
-                : AppColors.transparent,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Icon(
-                isSelected ? item.activeIcon : item.icon,
-                color: iconColor,
-                size: 26,
-              ),
-              if (item.badgeCount > 0)
-                Positioned(
-                  top: 6,
-                  right: 6,
-                  child: _Badge(count: item.badgeCount),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.tiny,
+          horizontal: AppSpacing.small,
+        ),
+        child: ClipRRect(
+          borderRadius: AppRadius.borderRadiusMedium,
+          child: Semantics(
+            selected: isSelected,
+            child: CellPressable(
+              onTap: onTap,
+              child: Container(
+                width: AppSizes.buttonHeightXLarge,
+                height: AppSizes.buttonHeightXLarge,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? colorScheme.primary.withAlpha(31) // ≈ 0.12 alpha
+                      : AppColors.transparent,
+                  borderRadius: AppRadius.borderRadiusMedium,
                 ),
-            ],
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      isSelected ? item.activeIcon : item.icon,
+                      color: iconColor,
+                      size: 26,
+                    ),
+                    if (item.badgeCount > 0)
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: _Badge(count: item.badgeCount),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

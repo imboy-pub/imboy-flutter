@@ -47,6 +47,7 @@ import 'mixin/selection_handler.dart';
 import '../widget/message_semantics.dart';
 import '../widget/message_quick_action_menu.dart';
 import '../widget/typing_indicator.dart';
+import '../widget/chat_history_status.dart';
 
 // 显式导入需要特殊处理的
 import 'package:flutter_chat_ui/flutter_chat_ui.dart' as flutter_chat_ui;
@@ -449,7 +450,6 @@ class ChatPageState extends ConsumerState<ChatPage>
       // State.context 在 dispose 后本身会抛异常；这里必须先检查 State.mounted，
       // 不能通过 context.mounted 读取已卸载 State 的 context。
       if (mounted) {
-        // ignore: use_build_context_synchronously
         AppLoading.showToast('${t.common.chatInitFailed}: $e');
       }
     }
@@ -1294,10 +1294,8 @@ class ChatPageState extends ConsumerState<ChatPage>
 
     // 如果用户选择了好友，发送名片消息
     if (result != null && mounted) {
-      // ignore: use_build_context_synchronously
       await _attachmentHandler.sendVisitCardMessage(
         // State.mounted 已在上方检查；此处仅把当前页面上下文传给发送服务。
-        // ignore: use_build_context_synchronously
         context,
         result.peerId.toString(),
         result.title,
@@ -1326,7 +1324,6 @@ class ChatPageState extends ConsumerState<ChatPage>
     // 如果用户选择了收藏消息，发送它
     if (result != null && mounted) {
       try {
-        // ignore: use_build_context_synchronously
         await _attachmentHandler.sendCollectMessage(context, result);
       } catch (e) {
         iPrint('[chat_page] 发送收藏消息失败: $e');
@@ -1777,75 +1774,6 @@ class ChatPageState extends ConsumerState<ChatPage>
     );
   }
 
-  /// BUG#119：归档历史回填失败的可见空态视图（带重试入口）。
-  ///
-  /// 与「服务端确认无数据」的 [EmptyChatList]（暂无数据）区分：失败时
-  /// 显示本视图，点击重试重新执行 [ChatNotifier.syncHistoryBackfill]。
-  Widget _buildHistoryUnavailableView({required VoidCallback onRetry}) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(CupertinoIcons.clock, size: 48, color: AppColors.textSecondary),
-          SizedBox(height: AppSpacing.small),
-          Text(
-            t.chat.historyUnavailable,
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          SizedBox(height: AppSpacing.tiny),
-          Text(
-            t.chat.historyUnavailableHint,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: FontSizeType.small.size,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          SizedBox(height: AppSpacing.medium),
-          CupertinoButton(
-            onPressed: onRetry,
-            child: Text(t.common.buttonRetry),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// BUG#119：归档历史回填失败的可见空态视图（带重试入口）。
-  ///
-  /// 与「服务端确认无数据」的 [EmptyChatList]（暂无数据）区分：失败时
-  /// 显示本视图，点击重试重新执行 [ChatNotifier.syncHistoryBackfill]。
-  Widget _buildHistorySyncFailedView({required VoidCallback onRetry}) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            CupertinoIcons.exclamationmark_circle,
-            size: 48,
-            color: AppColors.textSecondary,
-          ),
-          SizedBox(height: AppSpacing.small),
-          Text(
-            t.chat.pleaseTryAgainLater,
-            style: TextStyle(
-              fontSize: FontSizeType.normal.size,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          SizedBox(height: AppSpacing.medium),
-          CupertinoButton(
-            onPressed: onRetry,
-            child: Text(t.common.buttonRetry),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // 精准订阅：本页只在「构建期真正决定布局」的两个标量变化时重建。
@@ -2238,7 +2166,7 @@ class ChatPageState extends ConsumerState<ChatPage>
           // 重试入口（重新执行 syncHistoryBackfill），避免失败被静默吞掉、
           // 用户看到误导性的「暂无数据」。
           if (s.historySyncFailed && isEmpty) {
-            return _buildHistorySyncFailedView(
+            return ChatHistorySyncFailedView(
               onRetry: () {
                 ref
                     .read(chatProvider.notifier)
@@ -2250,7 +2178,7 @@ class ChatPageState extends ConsumerState<ChatPage>
             // BUG#119：回填成功但服务端归档为空、会话却有 lastMsgId（消息存在
             // 但历史不可取）时，不能展示误导性的「暂无数据」。
             if (s.historyUnavailable) {
-              return _buildHistoryUnavailableView(
+              return ChatHistoryUnavailableView(
                 onRetry: () {
                   ref
                       .read(chatProvider.notifier)
