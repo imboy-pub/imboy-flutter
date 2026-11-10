@@ -2130,6 +2130,27 @@
         "phase1_delivery"
       ]
     },
+    "linux-compat": {
+      "description": "Small Linux distribution compatibility lane: protocol, real system SQLite and native vodozemac. Does not replace the PR matrix.",
+      "suites": [],
+      "targets": [
+        "test/unit_test/service/protocol/imboy_pb_codec_test.dart",
+        "test/unit_test/service/protocol/channel_id_wire_test.dart",
+        "test/unit_test/integration/sqlite_migration_matrix_test.dart",
+        "test/unit_test/service/database_snapshot_service_test.dart",
+        "test/unit_test/service/sqlite_uid_isolation_test.dart",
+        "test/unit_test/service/e2ee/olm_ratchet_pfs_pcs_test.dart"
+      ],
+      "platforms": [
+        "linux"
+      ],
+      "products": [
+        "phase1_delivery"
+      ],
+      "gates": [
+        "ownership"
+      ]
+    },
     "sqlite": {
       "description": "Existing SQLite gate contracts plus all classified FFI targets.",
       "suites": [

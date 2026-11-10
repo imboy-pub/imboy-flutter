@@ -52,6 +52,15 @@ part 'talk_record_no_ffmpeg_scan_helpers.dart';
 /// 合同常量（DESIGN §6）：AAC-LC mono，目标 16kHz。
 const TalkRecordEncoderSettings kContractEncoder = TalkRecordEncoderSettings();
 
+/// 刻意超过旧固定等待的名义 120ms，覆盖慢封段。
+class _SlowSegmentEngine extends FakeTalkRecordEngine {
+  @override
+  Future<int?> stopSegment() async {
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    return super.stopSegment();
+  }
+}
+
 /// 合法 AAC-LC ADTS 段字节（确定性 payload；freqIdx/channels 可参数化，
 /// 供 NC-2 构造漂移段：44100Hz→freqIdx 4，立体声→channels 2）。
 Uint8List adtsSegmentBytes({
@@ -442,33 +451,30 @@ packages:
   late FinalDirectCapture fd;
   late TalkRecordLocalBinding binding;
 
-  /// 每段同时推进墙钟与引擎；等封段和下一段启动完成后再推进。
-  /// 固定 sleep 无法保证真实文件 IO 已完成，提前 tick 会被 startSegment 清零。
+  /// 真实 recorder 录 N 段；前段封存且下一段已启动后才推进双轴。
   Future<TalkRecordManifest> recordSegments(List<int> tickMsPerSegment) async {
     await recorder.start(
       recordLocalId: 'record-client',
       clientRecordingId: 'record-client',
     );
     for (var i = 0; i < tickMsPerSegment.length; i++) {
-      // 先订阅再 tick，避免漏掉快速完成的轮转。心跳也可能在封段中发快照，
-      // 因此同时核对下一段的 start 轨迹，不能只等待 segmentCount 增加。
-      final nextSegment = i + 1;
-      final rolled = nextSegment < tickMsPerSegment.length
+      // 先订阅，避免错过滚动完成事件。单看 segmentCount 不足以证明
+      // 下一段已启动：封段后创建目录的 await 期间也可能收到 ticker 快照。
+      final rolledOver = i + 1 < tickMsPerSegment.length
           ? recorder.snapshots
                 .firstWhere(
                   (snapshot) =>
-                      snapshot.phase == TalkRecordRecorderPhase.recording &&
-                      snapshot.segmentCount == nextSegment &&
+                      snapshot.segmentCount == i + 1 &&
                       engine.events
-                              .where((e) => e.startsWith('start:'))
+                              .where((event) => event.startsWith('start:'))
                               .length ==
-                          nextSegment + 1,
+                          i + 2,
                 )
                 .timeout(const Duration(seconds: 5))
           : null;
       clock.advanceMs(tickMsPerSegment[i]);
       engine.tick(tickMsPerSegment[i]);
-      if (rolled != null) await rolled;
+      if (rolledOver != null) await rolledOver;
     }
     final result = await recorder.end();
     return result.manifest;
@@ -518,7 +524,7 @@ packages:
 
   setUp(() async {
     baseDir = Directory.systemTemp.createTempSync('talk_ffmpeg_gate_');
-    engine = FakeTalkRecordEngine();
+    engine = _SlowSegmentEngine();
     clock = FakeClock();
     keys = MemoryTalkRecordKeyStore();
     api = MinimalUploadApi();
