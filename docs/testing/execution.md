@@ -199,6 +199,9 @@ Docker 宿主，在固定日期与 digest 的 Debian 13 `trixie` 容器内准备
 执行同一个 `linux-compat` profile。其六个既有目标覆盖 protobuf/帧身份、真实系统
 SQLite 的迁移/快照/UID 隔离，以及真实 Rust/vodozemac Olm round-trip 与 ratchet。
 这是有意缩小的发行版兼容范围；既有 PR Linux/macOS/Web 矩阵仍是完整 PR 义务。
+与现有 host worker 一样，客户端和后端源码并排 checkout 到 `imboyapp` / `imboy`，
+供执行器对 `phase1_delivery` 的七个客户端产品生成物做只读核验；不启动后端服务。
+The Debian lane preserves the existing product-manifest validation using sibling backend sources.
 
 容器先断言 `/etc/os-release` 为 Debian 13，再安装 Git、CA、curl、jq、tar/xz/unzip/zip/zstd、
 Python、C/C++ 构建工具、pkg-config、libGLU 和 `libsqlite3-dev`。Git 必须在 checkout 前可用，
