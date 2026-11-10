@@ -186,8 +186,9 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
     final socketStatus =
         socketStatusAsync.value ?? WebSocketConnectionState.disconnected;
 
-    final mediaQuery = MediaQuery.of(context);
-    final width = mediaQuery.size.width;
+    // 只取宽度：MediaQuery.sizeOf 不会因为键盘内边距/方向以外的无关
+    // MediaQueryData 变化（例如 viewInsets 抖动）而重建整个壳层。
+    final width = MediaQuery.sizeOf(context).width;
     // mobile(600px) - wide(900px) 为 tablet 模式（使用 NavigationRail）
     final isTablet =
         width >= AppBreakpoints.mobile && width < AppBreakpoints.wide;
@@ -211,14 +212,20 @@ class _BottomNavigationPageState extends ConsumerState<BottomNavigationPage> {
         icon: CupertinoIcons.chat_bubble,
         activeIcon: CupertinoIcons.chat_bubble_fill,
         label: t.chat.titleMessage,
-        remindCount: ref.watch(conversationProvider).chatMsgRemindCounter,
+        // 只订阅「未读总数」这个标量：历史上这里是
+        // `ref.watch(conversationProvider)`，导致任意会话状态变化（收到消息、
+        // isLoading / connectDesc 翻转）都会重建整个底部导航壳层及其 PageView
+        // 子页。select 之后仅在未读数真的变化时才重建。
+        remindCount: ref.watch(
+          conversationProvider.select((s) => s.chatMsgRemindCounter),
+        ),
         tabKey: const Key('tab_conversations'),
       ),
       _NavigationItemData(
         icon: CupertinoIcons.person_2,
         activeIcon: CupertinoIcons.person_2_fill,
         label: t.organization.directory.title,
-        remindCount: ref.watch(newFriendRemindProvider).length,
+        remindCount: ref.watch(newFriendRemindProvider.select((s) => s.length)),
         tabKey: const Key('tab_contacts'),
       ),
       if (_isTabEnabled('channel_tab') && compiledChannelListPage() != null)

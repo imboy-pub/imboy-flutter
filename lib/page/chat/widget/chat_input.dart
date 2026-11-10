@@ -329,8 +329,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
     // 立即检查一次键盘状态
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final mediaQuery = MediaQuery.of(context);
-      final newKeyboardHeight = mediaQuery.viewInsets.bottom;
+      final newKeyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
 
       if (newKeyboardHeight != _keyboardHeight) {
         _cacheKeyboardHeight(newKeyboardHeight);
@@ -864,7 +863,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
           // 扩展功能面板
           return widget.extraWidget ?? Center(child: Text(t.chat.extraItems));
         } else if (inputType == InputType.emoji) {
-          final columns = MediaQuery.of(context).size.width ~/ (fontSize + 10);
+          final columns = MediaQuery.sizeOf(context).width ~/ (fontSize + 10);
           return ValueListenableBuilder<bool>(
             valueListenable: _emojiShowing,
             builder: (context, emojiShowing, _) {
@@ -1153,7 +1152,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
 
   /// 构建发送按钮（带动画效果，iOS 17 风格）
   Widget _buildSendButton() {
-    final brightness = MediaQuery.of(context).platformBrightness;
+    final brightness = MediaQuery.platformBrightnessOf(context);
     return ValueListenableBuilder<bool>(
       valueListenable: _sendButtonVisible,
       builder: (context, sendButtonVisible, _) {
@@ -1206,7 +1205,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final view = View.of(context);
     final bottomInset = view.viewInsets.bottom / view.devicePixelRatio;
-    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     _cacheKeyboardHeight(bottomInset);
 
@@ -1283,7 +1282,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
       );
     }
 
-    final isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final isDark = MediaQuery.platformBrightnessOf(context) == Brightness.dark;
     final composerBgColor = isDark
         ? AppColors.darkSurface
         : AppColors.lightSurfaceGrouped;
@@ -1310,7 +1309,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
               border: Border(
                 top: BorderSide(
                   color: AppColors.getIosSeparator(
-                    MediaQuery.of(context).platformBrightness,
+                    MediaQuery.platformBrightnessOf(context),
                   ).withValues(alpha: 0.3),
                   width: 0.33,
                 ),
@@ -1344,7 +1343,7 @@ class ChatInputState extends State<ChatInput> with TickerProviderStateMixin {
                             color: isFocused
                                 ? _themeColor('primary').withValues(alpha: 0.5)
                                 : AppColors.getIosSeparator(
-                                    MediaQuery.of(context).platformBrightness,
+                                    MediaQuery.platformBrightnessOf(context),
                                   ).withValues(alpha: 0.2),
                             width: isFocused ? 1.0 : 0.5,
                           ),
