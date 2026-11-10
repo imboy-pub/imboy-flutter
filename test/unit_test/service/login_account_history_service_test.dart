@@ -5,6 +5,7 @@ import 'package:imboy/config/const.dart';
 import 'package:imboy/service/login_account_history_service.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -339,4 +340,191 @@ void main() {
       );
     },
   );
+
+  Future<void> reloadPersistedHistory() async {
+    // Hydrate a fresh facade from the plugin store, not its optimistic cache.
+    // This exercises persisted metadata, not a native process restart.
+    final persisted = await SharedPreferencesStorePlatform.instance.getAll();
+    SharedPreferences.setMockInitialValues({
+      for (final entry in persisted.entries)
+        entry.key.replaceFirst(RegExp(r'^flutter\.'), ''): entry.value,
+    });
+    await StorageService.init();
+  }
+
+  test('last alias reassignment retains the shared storage owner', () async {
+    const otherEndpoint = 'https://another.test/api';
+    await remember('1001', 'alice');
+    await remember('1001', 'remote-alias', api: otherEndpoint);
+    await remember('1002', 'remote-alias', api: otherEndpoint);
+    // A later login must not discard an already aliasless row either.
+    await remember('1003', 'unrelated');
+    await reloadPersistedHistory();
+    final reloaded = LoginAccountHistoryService();
+    final document = jsonDecode(
+      StorageService.to.getString(LoginAccountHistoryService.storageKey),
+    ) as Map<String, dynamic>;
+    final owners = (document['accounts'] as List)
+        .map(LoginAccountIdentity.fromJson)
+        .whereType<LoginAccountIdentity>()
+        .toList();
+    expect(
+      owners.singleWhere(
+        (owner) => owner.uid == '1001' && owner.endpoint == otherEndpoint,
+      ).aliases,
+      isEmpty,
+    );
+    expect(resolve('remote-alias', api: otherEndpoint).uid, '1002');
+    expect(
+      () => reloaded.requireIndependentStorage(resolve('alice')),
+      throwsA(isA<LoginAccountSharedDataException>()),
+    );
+    expect(
+      () => reloaded.requireIndependentStorage(
+        resolve('remote-alias', api: otherEndpoint),
+      ),
+      returnsNormally,
+    );
+  });
+
+  test('an aliasless owner can regain a verified alias without stealing it back', () async {
+    await remember('1001', 'reassigned');
+    await remember('1002', 'reassigned');
+    await remember('1001', 'restored');
+    expect(resolve('reassigned').uid, '1002');
+    expect(resolve('restored').aliases, {'restored'});
+    expect(
+      () => history.requireIndependentStorage(resolve('restored')),
+      returnsNormally,
+    );
+    await history.forget(resolve('restored'));
+    await reloadPersistedHistory();
+    expect(resolve('reassigned').uid, '1002');
+    expect(
+      () => history.requireIndependentStorage(resolve('reassigned')),
+      returnsNormally,
+    );
+    expect(
+      () => resolve('restored'),
+      throwsA(isA<LoginAccountIdentityUnavailableException>()),
+    );
+  });
+
+  for (final corruption in <String, Object>{
+    'invalid JSON': '{',
+    'invalid account': jsonEncode({
+      'version': 1,
+      'accounts': [
+        {'uid': '1001'},
+      ],
+    }),
+    'empty stored value': '',
+    'invalid completeness flag': jsonEncode({
+      'version': 1,
+      'accounts': [],
+      'ownershipIncomplete': 'false',
+    }),
+    'wrong preference type': true,
+  }.entries) {
+    test(
+      '${corruption.key} keeps deletion blocked across login, forget and reload',
+      () async {
+        if (corruption.value is String) {
+          await StorageService.to.setString(
+            LoginAccountHistoryService.storageKey,
+            corruption.value as String,
+          );
+        } else {
+          await StorageService.to.setBool(
+            LoginAccountHistoryService.storageKey,
+            corruption.value as bool,
+          );
+        }
+        await remember('1001', 'alice');
+        expect(resolve('alice').uid, '1001');
+        expect(
+          () => history.requireIndependentStorage(resolve('alice')),
+          throwsA(isA<AccountLocalDataOwnershipException>()),
+        );
+        await remember('1002', 'bob');
+        // Test the metadata writer independently: completing one known account
+        // must never certify storage belonging to any unknown account.
+        await history.forget(resolve('bob'));
+        await reloadPersistedHistory();
+        final reloaded = LoginAccountHistoryService();
+        expect(
+          () => reloaded.requireIndependentStorage(resolve('alice')),
+          throwsA(isA<AccountLocalDataOwnershipException>()),
+        );
+        final document = jsonDecode(
+          StorageService.to.getString(LoginAccountHistoryService.storageKey),
+        ) as Map<String, dynamic>;
+        expect(document['ownershipIncomplete'], isTrue);
+        expect(document.containsKey('retryHistory'), isFalse);
+        expect(
+          reloaded.visibleHistory(
+            ['alice'],
+            environment: 'pro',
+            endpoint: endpoint,
+          ),
+          ['alice'],
+        );
+      },
+    );
+  }
+
+  test('a failed uncertainty write retains corruption and retries fail closed', () async {
+    await StorageService.to.setString(
+      LoginAccountHistoryService.storageKey,
+      '{',
+    );
+    final persisted = await SharedPreferencesStorePlatform.instance.getAll();
+    SharedPreferences.setMockInitialValues({});
+    final store = _FailingRegistryPreferences(persisted);
+    SharedPreferencesStorePlatform.instance = store;
+    await StorageService.init();
+    await expectLater(remember('1001', 'alice'), throwsStateError);
+    expect(
+      StorageService.to.getString(LoginAccountHistoryService.storageKey),
+      '{',
+    );
+    expect(
+      () => resolve('alice'),
+      throwsA(isA<LoginAccountIdentityUnavailableException>()),
+    );
+    store.failRegistryWrite = false;
+    await remember('1001', 'alice');
+    await reloadPersistedHistory();
+    expect(
+      () => LoginAccountHistoryService().requireIndependentStorage(
+        resolve('alice'),
+      ),
+      throwsA(isA<AccountLocalDataOwnershipException>()),
+    );
+  });
+
+  test('a forgotten identity cannot authorize deletion through a stale object', () async {
+    await remember('1001', 'alice');
+    final alice = resolve('alice');
+    await history.forget(alice);
+    expect(
+      () => history.requireIndependentStorage(alice),
+      throwsA(isA<LoginAccountIdentityUnavailableException>()),
+    );
+  });
+}
+
+class _FailingRegistryPreferences extends InMemorySharedPreferencesStore {
+  _FailingRegistryPreferences(super.data) : super.withData();
+
+  bool failRegistryWrite = true;
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (failRegistryWrite &&
+        key == 'flutter.${LoginAccountHistoryService.storageKey}') {
+      return false;
+    }
+    return super.setValue(valueType, key, value);
+  }
 }

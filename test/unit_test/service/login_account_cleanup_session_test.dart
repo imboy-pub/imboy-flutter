@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -608,4 +610,129 @@ void main() {
       expect(repo.isAuthTransitioning, isFalse);
     },
   );
+
+  for (final scenario in ['alias reassignment', 'registry recovery']) {
+    test('cleanup rejects $scenario before touching shared account data', () async {
+      const remoteEndpoint = 'https://retained.example.test/api';
+      expect(remoteEndpoint, isNot(Env().apiBaseUrl));
+      await history.rememberLogin(
+        account: 'remote-only-alias',
+        profile: {'user_id': selectedUid},
+        environment: currentEnv,
+        endpoint: remoteEndpoint,
+      );
+      final selectedIdentity = history.resolve(
+        value: selectedAccount,
+        environment: currentEnv,
+        endpoint: Env().apiBaseUrl,
+      );
+      expect(
+        () => history.requireIndependentStorage(selectedIdentity),
+        throwsA(isA<LoginAccountSharedDataException>()),
+      );
+      final uploadDigest = sha256
+          .convert(utf8.encode('$currentEnv:$selectedUid'))
+          .toString();
+      final preserved = <File, List<int>>{};
+      for (final relative in [
+        for (final suffix in ['', '-wal', '-shm', '-journal'])
+          'databases/${currentEnv}_$selectedUid.db$suffix',
+        'databases/${currentEnv}_$otherUid.db',
+        'databases/${currentEnv}_$otherUid.db-wal',
+        'cache/attachment_uploads/$uploadDigest/shared.bin',
+        for (final owner in [
+          AccountLocalTaskOwner(
+            uid: selectedUid,
+            environment: currentEnv,
+            endpoint: Env().apiBaseUrl,
+          ),
+          AccountLocalTaskOwner(
+            uid: selectedUid,
+            environment: currentEnv,
+            endpoint: remoteEndpoint,
+          ),
+          AccountLocalTaskOwner(
+            uid: otherUid,
+            environment: currentEnv,
+            endpoint: Env().apiBaseUrl,
+          ),
+        ])
+          p.join(AccountLocalFiles.folderFor('temporary', owner), 'file.bin'),
+      ]) {
+        final file = await createFile(relative);
+        final bytes = utf8.encode('synthetic preserved data: $relative');
+        await file.writeAsBytes(bytes);
+        preserved[file] = bytes;
+      }
+      for (final uid in [selectedUid, otherUid]) {
+        secure['utk_${Uri.encodeComponent(currentEnv)}:${Uri.encodeComponent(uid)}:synthetic'] =
+            'synthetic upload key for $uid';
+      }
+      final savedSecrets = Map<String, String>.of(secure);
+      final generation = repo.sessionGeneration;
+      if (scenario == 'alias reassignment') {
+        await history.rememberLogin(
+          account: 'remote-only-alias',
+          profile: {'user_id': 'history-reassigned'},
+          environment: currentEnv,
+          endpoint: remoteEndpoint,
+        );
+      } else {
+        await StorageService.to.setString(
+          LoginAccountHistoryService.storageKey,
+          '{',
+        );
+        await history.rememberLogin(
+          account: selectedAccount,
+          profile: {'user_id': selectedUid},
+          environment: currentEnv,
+          endpoint: Env().apiBaseUrl,
+        );
+      }
+      for (var attempt = 0; attempt < 2; attempt++) {
+        if (attempt == 1) {
+          await history.rememberLogin(
+            account: 'unrelated-later',
+            profile: {'user_id': 'history-later'},
+            environment: currentEnv,
+            endpoint: Env().apiBaseUrl,
+          );
+        }
+        // Recreate preferences from the plugin store before each attempt.
+        // This is persisted-state hydration, not a native process restart.
+        final persisted = await SharedPreferencesStorePlatform.instance
+            .getAll();
+        SharedPreferences.setMockInitialValues({
+          for (final entry in persisted.entries)
+            entry.key.replaceFirst(RegExp(r'^flutter\.'), ''): entry.value,
+        });
+        await StorageService.init();
+        final savedPreferences = await SharedPreferencesStorePlatform.instance
+            .getAll();
+        final rejection = scenario == 'alias reassignment'
+            ? isA<LoginAccountSharedDataException>()
+            : isA<AccountLocalDataOwnershipException>();
+        await expectLater(
+          Future<void>.sync(
+            () => repo.clearHistoricalAccountData(selectedAccount),
+          ),
+          throwsA(rejection),
+        );
+        expect(paths.supportReads, 0);
+        expect(databaseCalls, 0);
+        expect(secureCalls, isEmpty);
+        expect(secure, savedSecrets);
+        expect(
+          await SharedPreferencesStorePlatform.instance.getAll(),
+          savedPreferences,
+        );
+        for (final entry in preserved.entries) {
+          expect(await entry.key.readAsBytes(), entry.value);
+        }
+        expect(repo.currentUid, isEmpty);
+        expect(repo.sessionGeneration, generation);
+        expect(repo.isAuthTransitioning, isFalse);
+      }
+    });
+  }
 }

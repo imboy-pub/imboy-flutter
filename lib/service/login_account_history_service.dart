@@ -78,14 +78,27 @@ class LoginAccountIdentity {
 class LoginAccountHistoryService {
   static const storageKey = 'login_account_identities_v1';
   static const localProfileKey = '_login_account_identity_v1';
+  static const _ownershipIncompleteKey = 'ownershipIncomplete';
 
   Map<String, dynamic> _read() {
-    final raw = StorageService.to.getString(storageKey);
-    if (raw.isEmpty) return {'accounts': <dynamic>[]};
+    String raw;
+    try {
+      raw = StorageService.to.getString(storageKey);
+    } on TypeError {
+      throw const FormatException('Invalid login account history value');
+    }
+    if (raw.isEmpty) {
+      if (StorageService.to.containsKey(storageKey)) {
+        throw const FormatException('Empty login account history value');
+      }
+      return {'accounts': <dynamic>[]};
+    }
     final decoded = jsonDecode(raw);
     if (decoded is! Map<String, dynamic> ||
         decoded['version'] != 1 ||
-        decoded['accounts'] is! List) {
+        decoded['accounts'] is! List ||
+        (decoded.containsKey(_ownershipIncompleteKey) &&
+            decoded[_ownershipIncompleteKey] is! bool)) {
       throw const FormatException('Invalid login account history');
     }
     return decoded;
@@ -127,10 +140,11 @@ class LoginAccountHistoryService {
       document = _read();
       accounts = _accounts(document);
     } on FormatException {
-      // A verified login can rebuild damaged identity metadata; no files are
-      // deleted and all other string-only entries remain unverified hints.
+      // Authentication can restore a login hint, not prove exclusive ownership
+      // of existing UID-scoped files or keys. Persist this uncertainty together
+      // with the repaired registry; later login/forget writes must retain it.
       accounts = [];
-      document = {};
+      document = {_ownershipIncompleteKey: true};
     }
     final aliases = <String>{
       if (account.trim().isNotEmpty) account,
@@ -162,21 +176,20 @@ class LoginAccountHistoryService {
           previous.environment == environment && previous.endpoint == endpoint
           ? previous.aliases.difference(aliases)
           : previous.aliases;
-      if (retainedAliases.isNotEmpty) {
-        result.add(
-          LoginAccountIdentity(
-            uid: previous.uid,
-            environment: previous.environment,
-            endpoint: previous.endpoint,
-            aliases: retainedAliases,
-          ),
-        );
-      }
+      // Display aliases may move to a new UID without deleting the old data.
+      // Keep the storage owner even when it has no selectable login alias.
+      result.add(
+        LoginAccountIdentity(
+          uid: previous.uid,
+          environment: previous.environment,
+          endpoint: previous.endpoint,
+          aliases: retainedAliases,
+        ),
+      );
     }
     await _write({
+      ...document,
       'accounts': result.map((a) => a.toJson()).toList(),
-      if (document['retryHistory'] is Map)
-        'retryHistory': document['retryHistory'],
     });
     return identity;
   }
@@ -218,7 +231,15 @@ class LoginAccountHistoryService {
   /// Several legacy stores use uid alone. Do not delete their shared namespace
   /// while another deployment's identity still references the same local uid.
   void requireIndependentStorage(LoginAccountIdentity identity) {
-    if (_accounts(_read()).any(
+    final document = _read();
+    final accounts = _accounts(document);
+    if (document[_ownershipIncompleteKey] == true) {
+      throw const AccountLocalDataOwnershipException();
+    }
+    if (!accounts.any((account) => account.sameAccount(identity))) {
+      throw const LoginAccountIdentityUnavailableException();
+    }
+    if (accounts.any(
       (account) =>
           account.uid == identity.uid && !account.sameAccount(identity),
     )) {
@@ -301,6 +322,10 @@ class LoginAccountHistoryService {
         () => StorageService.to.remove(Keys.lastLoginAccount),
       );
     }
-    await _write({'accounts': remaining.map((a) => a.toJson()).toList()});
+    // Completing one identity's history removal cannot certify other storage.
+    final completed = Map<String, dynamic>.of(document)
+      ..remove('retryHistory')
+      ..['accounts'] = remaining.map((a) => a.toJson()).toList();
+    await _write(completed);
   }
 }
