@@ -5,8 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:imboy/component/extension/imboy_cache_manager.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
+import 'package:imboy/config/init.dart' show appVsn;
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
 import 'package:imboy/page/mine/setting/setting_page.dart';
@@ -146,6 +148,26 @@ void main() {
   }
 
   group('SettingPage layout', () {
+    testWidgets('宽窗口内容列居中，版本信息随大字号移到标题下方', (tester) async {
+      final previousVersion = appVsn;
+      appVsn = '1.2.3+456';
+      addTearDown(() => appVsn = previousVersion);
+      await _pumpSetting(tester, width: 1280, scale: 2);
+
+      final scrollRect = tester.getRect(find.byType(CustomScrollView));
+      expect(scrollRect.width, ResourcePageLayout.maxWidth);
+      expect(scrollRect.center.dx, 640);
+      await tester.scrollUntilVisible(find.text(t.common.aboutApp), 220);
+      final titleRect = tester.getRect(find.text(t.common.aboutApp));
+      final versionRect = tester.getRect(
+        find.text('${t.common.version} $appVsn'),
+      );
+      expect(versionRect.top, greaterThanOrEqualTo(titleRect.bottom));
+      expect(versionRect.right, lessThanOrEqualTo(scrollRect.right));
+      expect(tester.takeException(), isNull);
+      await _unmount(tester);
+    });
+
     testWidgets('Scaffold uses iOS surfaceGrouped background', (tester) async {
       await _pumpSetting(tester);
 

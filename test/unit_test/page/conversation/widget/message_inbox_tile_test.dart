@@ -44,7 +44,7 @@ Widget _tile(
       ),
       if (hasBotBadge) ...[
         AppSpacing.horizontalTiny,
-        const BotBadge(accountType: 2),
+        const BotBadge(accountType: 2, dense: true),
       ],
     ],
   ),

@@ -63,12 +63,16 @@ class WebNavRail extends StatelessWidget {
   /// 导航条宽度（默认 72px，对齐 Telegram Web）
   final double width;
 
+  /// 独立于业务 tab 的全局入口（例如当前空间）。
+  final Widget? leading;
+
   const WebNavRail({
     super.key,
     required this.items,
     required this.currentIndex,
     required this.onTap,
     this.width = 72,
+    this.leading,
   }) : assert(items.length >= 2, 'WebNavRail 至少需要 2 个 items'),
        assert(
          currentIndex >= 0 && currentIndex < items.length,
@@ -85,12 +89,22 @@ class WebNavRail extends StatelessWidget {
         child: Column(
           children: [
             AppSpacing.verticalMedium,
-            for (var i = 0; i < items.length; i++)
-              _WebNavRailItem(
-                item: items[i],
-                isSelected: i == currentIndex,
-                onTap: () => onTap(i),
+            if (leading != null) ...[leading!, AppSpacing.verticalMedium],
+            Expanded(
+              child: SingleChildScrollView(
+                primary: false,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < items.length; i++)
+                      _WebNavRailItem(
+                        item: items[i],
+                        isSelected: i == currentIndex,
+                        onTap: () => onTap(i),
+                      ),
+                  ],
+                ),
               ),
+            ),
           ],
         ),
       ),

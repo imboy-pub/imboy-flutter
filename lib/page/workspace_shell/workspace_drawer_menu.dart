@@ -1,6 +1,6 @@
 /// 壳级左侧抽屉菜单（2026-10 空间切换中心改版）。
 ///
-/// 深海军蓝渐变面板：身份区（头像/昵称 → 个人资料）、我的名片 + 企业二维码
+/// 明暗主题中性色面板：身份区（头像/昵称 → 个人资料）、我的名片 + 企业二维码
 /// （出码是 owner/admin 治理动作，成员不显示）、空间切换区（个人空间行 +
 /// 我的企业列表，当前项✓高亮，点击行内直接两阶段原子切换——个人↔企业、
 /// 企业↔企业的统一入口，替代「我」页工作区胶囊与旧「切换到个人」行）、
@@ -33,14 +33,27 @@ import 'package:imboy/page/chat_shell/experience_provider.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/store/repository/user_repo_provider.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
 import 'package:imboy/theme/default/font_types.dart';
 
 class WorkspaceDrawerMenu extends ConsumerStatefulWidget {
-  const WorkspaceDrawerMenu({super.key, this.organizationId = ''});
+  const WorkspaceDrawerMenu({
+    super.key,
+    this.organizationId = '',
+    this.compact = false,
+    this.onClose,
+  });
 
   /// 当前企业 id（由企业壳注入）；空（个人壳上下文）时隐藏高级功能入口。
   final String organizationId;
+
+  /// 弹出菜单 / Sheet 复用内容：随内容收缩，超出调用方高度约束时滚动。
+  /// 外层负责 Material、圆角、安全区与最大尺寸。
+  final bool compact;
+
+  /// 仅关闭承载本菜单的弹层；未注入时兼容原 Scaffold Drawer。
+  final VoidCallback? onClose;
 
   @override
   ConsumerState<WorkspaceDrawerMenu> createState() =>
@@ -75,11 +88,19 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
     return uid.isNotEmpty ? uid : UserRepoLocal.to.currentUid;
   }
 
-  void _close(BuildContext context) => Scaffold.maybeOf(context)?.closeDrawer();
+  void _close(BuildContext context) {
+    final onClose = widget.onClose;
+    if (onClose != null) {
+      onClose();
+    } else {
+      Scaffold.maybeOf(context)?.closeDrawer();
+    }
+  }
 
   void _closeAndPush(BuildContext context, String location) {
+    final router = GoRouter.of(context);
     _close(context);
-    context.push(location);
+    router.push(location);
   }
 
   @override
@@ -123,10 +144,12 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
     if (switcher == null || _switchingTarget != null) return;
     setState(() => _switchingTarget = _kPersonalTarget);
     final outcome = await switcher.selectPersonal();
-    // 成功/中止时壳随体验模式销毁重建，抽屉随之 unmount，无需收尾。
+    // Drawer 随壳重建；根导航器上的 compact 弹层可能仍然存活。
     if (!mounted) return;
     setState(() => _switchingTarget = null);
-    if (outcome.status == SpaceSwitchStatus.failed) {
+    if (widget.compact && outcome.isSuccess) {
+      _close(context);
+    } else if (outcome.status == SpaceSwitchStatus.failed) {
       await AppLoading.showError(
         outcome.message ?? t.common.settingFailedPleaseTryAgain,
       );
@@ -140,7 +163,9 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
     final outcome = await switcher.switchToOrganization(org);
     if (!mounted) return;
     setState(() => _switchingTarget = null);
-    if (outcome.status == SpaceSwitchStatus.failed) {
+    if (widget.compact && outcome.isSuccess) {
+      _close(context);
+    } else if (outcome.status == SpaceSwitchStatus.failed) {
       await AppLoading.showError(
         outcome.message ?? t.common.settingFailedPleaseTryAgain,
       );
@@ -158,10 +183,11 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
   }
 
   void _openOrgQrcode(BuildContext context, Organization org) {
+    final navigator = Navigator.of(context, rootNavigator: true);
     _close(context);
     // 出码页不是 go_router 路由（既有页面均 Navigator push）；走根导航器
     // 盖住整壳，避免落进当前 tab 的分支导航器。
-    Navigator.of(context, rootNavigator: true).push(
+    navigator.push(
       CupertinoPageRoute<void>(
         builder: (_) => OrgInviteQrPage(orgId: org.id, orgName: org.name),
       ),
@@ -205,86 +231,83 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
         ? ''
         : CurrentOrganizationStore.forAccount(_account).value?.id ?? '';
     final governableOrg = _governableCurrentOrg();
-
-    return Drawer(
-      width: math.min(MediaQuery.sizeOf(context).width * 0.84, 360),
-      backgroundColor: AppColors.transparent,
-      elevation: 0,
-      child: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: [AppColors.enterpriseNavy, AppColors.enterpriseNavyDeep],
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.regular,
+            AppSpacing.medium,
+            AppSpacing.regular,
+            AppSpacing.small,
+          ),
+          child: _identity(
+            context,
+            nickname: user?.nickname ?? '',
+            account: user?.account ?? '',
+            avatar: user?.avatar ?? '',
           ),
         ),
-        child: SafeArea(
-          bottom: false,
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
-                          AppSpacing.regular,
-                          AppSpacing.large,
-                          AppSpacing.regular,
-                          0,
-                        ),
-                        child: _identity(
-                          context,
-                          nickname: user?.nickname ?? '',
-                          account: user?.account ?? '',
-                          avatar: user?.avatar ?? '',
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: AppSpacing.regular,
-                          vertical: AppSpacing.large,
-                        ),
-                        child: Container(
-                          height: 1,
-                          color: AppColors.enterpriseNavyDivider,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: AppSpacing.regular,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _DrawerRow(
-                              icon: CupertinoIcons.qrcode,
-                              label: t.workspace.myCard,
-                              onTap: () =>
-                                  _closeAndPush(context, '/qrcode/user'),
-                            ),
-                            // 企业二维码（邀请码出码页）与「我的名片」并列；出码是
-                            // owner/admin 治理动作，成员不展示（避免进页即 403）。
-                            if (governableOrg != null)
-                              _DrawerRow(
-                                key: const ValueKey('drawer-org-qrcode'),
-                                icon: CupertinoIcons.qrcode_viewfinder,
-                                label: t.organization.inviteQr.orgQrcode,
-                                onTap: () =>
-                                    _openOrgQrcode(context, governableOrg),
-                              ),
-                          ],
-                        ),
-                      ),
-                      AppSpacing.verticalRegular,
-                      _spacesArea(experience, pointedOrgId),
-                      const Spacer(),
-                      _footerActions(context),
-                    ],
-                  ),
+        _spacesArea(experience, pointedOrgId),
+        Padding(
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.regular,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _hairline(context),
+              _DrawerRow(
+                icon: CupertinoIcons.qrcode,
+                label: t.workspace.myCard,
+                onTap: () => _closeAndPush(context, '/qrcode/user'),
+              ),
+              // 出码仍是 owner/admin 治理动作，与个人名片同组。
+              if (governableOrg != null)
+                _DrawerRow(
+                  key: const ValueKey('drawer-org-qrcode'),
+                  icon: CupertinoIcons.qrcode_viewfinder,
+                  label: t.organization.inviteQr.orgQrcode,
+                  onTap: () => _openOrgQrcode(context, governableOrg),
                 ),
+            ],
+          ),
+        ),
+      ],
+    );
+    final footer = _footerActions(context);
+
+    if (widget.compact) {
+      return SingleChildScrollView(
+        primary: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [content, footer],
+        ),
+      );
+    }
+
+    final brightness = Theme.of(context).brightness;
+    return Drawer(
+      width: math.min(MediaQuery.sizeOf(context).width * 0.84, 360),
+      backgroundColor: brightness == Brightness.dark
+          ? AppColors.darkSurface
+          : AppColors.lightSurfaceVariant,
+      elevation: 0,
+      child: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
+            primary: false,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [content, footer],
               ),
             ),
           ),
@@ -302,6 +325,7 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
         horizontal: AppSpacing.regular,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SpaceRow(
@@ -347,6 +371,7 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
         horizontal: AppSpacing.regular,
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.organizationId.isNotEmpty) ...[
@@ -358,7 +383,7 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
                 '$kOrganizationHomePath/${widget.organizationId}/tools',
               ),
             ),
-            _hairline(),
+            _hairline(context),
           ],
           _DrawerRow(
             icon: CupertinoIcons.rectangle_stack_badge_plus,
@@ -370,23 +395,27 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
             label: t.main.setting,
             onTap: () => _closeAndPush(context, '/mine/setting'),
           ),
-          _hairline(),
+          _hairline(context),
           _DrawerRow(
             icon: CupertinoIcons.square_arrow_right,
             label: t.account.logOut,
             destructive: true,
             onTap: () => unawaited(_logout(context)),
           ),
-          AppSpacing.verticalXLarge,
+          AppSpacing.verticalMedium,
         ],
       ),
     );
   }
 
-  Widget _hairline() => Container(
+  Widget _hairline(BuildContext context) => Container(
     height: 1,
-    margin: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.tiny),
-    color: AppColors.enterpriseNavyDivider,
+    margin: const EdgeInsetsDirectional.symmetric(
+      horizontal: AppSpacing.medium,
+      vertical: AppSpacing.small,
+    ),
+    color: AppColors.getDividerColor(Theme.of(context).brightness)
+        .withValues(alpha: 0.45),
   );
 
   /// 身份区：头像 + 昵称行（→ 个人资料）。
@@ -396,92 +425,87 @@ class _WorkspaceDrawerMenuState extends ConsumerState<WorkspaceDrawerMenu> {
     required String account,
     required String avatar,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () => _closeAndPush(context, '/personal_info/profile'),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: SizedBox(
-                  width: 68,
-                  height: 68,
-                  child: avatar.isNotEmpty
-                      ? Image(
-                          image: avatarImageProvider(avatar),
-                          fit: BoxFit.cover,
-                        )
-                      : ColoredBox(
-                          color: AppColors.enterpriseNavyLight,
-                          child: Center(
-                            child: Text(
-                              nickname.isNotEmpty
-                                  ? nickname.substring(0, 1)
-                                  : '?',
-                              style: context.textStyle(
-                                FontSizeType.extraLarge,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.enterpriseOnNavy,
-                              ),
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-            ),
-            AppSpacing.horizontalMedium,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Flexible(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () =>
-                              _closeAndPush(context, '/personal_info/profile'),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  nickname.isEmpty ? account : nickname,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: context.textStyle(
-                                    FontSizeType.title,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.enterpriseOnNavy,
-                                  ),
-                                ),
-                              ),
-                              AppSpacing.horizontalTiny,
-                              const Icon(
-                                CupertinoIcons.chevron_right,
-                                size: 15,
-                                color: AppColors.enterpriseOnNavyMuted,
-                              ),
-                            ],
+    final brightness = Theme.of(context).brightness;
+    final secondary = AppColors.getTextSecondary(brightness)
+        .withValues(alpha: 0.76);
+    return CupertinoButton(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.small,
+      ),
+      minimumSize: const Size(AppSpacing.xxxLarge, AppSpacing.xxxLarge),
+      onPressed: () => _closeAndPush(context, '/personal_info/profile'),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: AppRadius.borderRadiusMedium,
+            child: SizedBox(
+              width: AppSpacing.xxxLarge,
+              height: AppSpacing.xxxLarge,
+              child: avatar.isNotEmpty
+                  ? Image(image: avatarImageProvider(avatar), fit: BoxFit.cover)
+                  : ColoredBox(
+                      color: brightness == Brightness.dark
+                          ? AppColors.primaryLight.withValues(alpha: 0.16)
+                          : AppColors.primaryLight,
+                      child: Center(
+                        child: Text(
+                          nickname.isNotEmpty ? nickname.characters.first : '?',
+                          style: context.textStyle(
+                            FontSizeType.extraLarge,
+                            fontWeight: FontWeight.w600,
+                            color: brightness == Brightness.dark
+                                ? AppColors.primaryContainer
+                                : AppColors.primaryDark,
                           ),
                         ),
                       ),
-                    ],
+                    ),
+            ),
+          ),
+          AppSpacing.horizontalMedium,
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nickname.isEmpty ? account : nickname,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textStyle(
+                    FontSizeType.large,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.getTextColor(brightness),
+                  ),
+                ),
+                if (nickname.isNotEmpty &&
+                    account.isNotEmpty &&
+                    account != nickname) ...[
+                  AppSpacing.verticalTiny,
+                  Text(
+                    account,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.textStyle(
+                      FontSizeType.small,
+                      fontWeight: FontWeight.w400,
+                      color: secondary,
+                    ),
                   ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+          AppSpacing.horizontalSmall,
+          Icon(CupertinoIcons.chevron_right, size: 16, color: secondary),
+        ],
+      ),
     );
   }
 }
 
-/// 空间行：图标 + 名称 + 行尾（✓当前 / 切换 spinner）；当前项通栏高亮。
+/// 空间行：图标 + 名称 + 行尾（✓当前 / 切换 spinner）；当前项浅色圆角高亮。
 class _SpaceRow extends StatelessWidget {
   const _SpaceRow({
     super.key,
@@ -500,47 +524,76 @@ class _SpaceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = AppColors.enterpriseOnNavy;
-    return CupertinoButton(
-      padding: EdgeInsets.zero,
-      minimumSize: const Size(0, 52),
-      pressedOpacity: 0.55,
-      onPressed: onTap,
-      child: ColoredBox(
-        color: selected ? AppColors.enterpriseNavyLight : AppColors.transparent,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.small,
-          ),
-          child: Row(
-            children: [
-              Icon(icon, size: 24, color: color),
-              AppSpacing.horizontalMedium,
-              Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textStyle(
-                    FontSizeType.medium,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                    color: color,
-                  ),
+    final brightness = Theme.of(context).brightness;
+    final selectedColor = brightness == Brightness.dark
+        ? AppColors.primaryContainer
+        : AppColors.primaryDark;
+    final color = selected ? selectedColor : AppColors.getTextColor(brightness);
+    return Semantics(
+      selected: selected,
+      child: Tooltip(
+        message: label,
+        child: CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: const Size(AppSpacing.xxxLarge, AppSpacing.xxxLarge),
+          pressedOpacity: 0.55,
+          onPressed: onTap,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: selected
+                  ? brightness == Brightness.dark
+                        ? AppColors.primaryLight.withValues(alpha: 0.16)
+                        : AppColors.primaryLight
+                  : AppColors.transparent,
+              borderRadius: AppRadius.borderRadiusCell,
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.xxxLarge),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: AppSpacing.medium,
+                  vertical: AppSpacing.small,
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      icon,
+                      size: 22,
+                      color: selected
+                          ? selectedColor
+                          : AppColors.getTextSecondary(brightness)
+                                .withValues(alpha: 0.76),
+                    ),
+                    AppSpacing.horizontalMedium,
+                    Expanded(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textStyle(
+                          FontSizeType.medium,
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: color,
+                        ),
+                      ),
+                    ),
+                    if (switching)
+                      SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: selectedColor,
+                        ),
+                      )
+                    else if (selected)
+                      Icon(CupertinoIcons.check_mark, size: 18, color: color),
+                  ],
                 ),
               ),
-              if (switching)
-                const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else if (selected)
-                const Icon(
-                  CupertinoIcons.check_mark,
-                  size: 18,
-                  color: AppColors.enterpriseOnNavy,
-                ),
-            ],
+            ),
           ),
         ),
       ),
@@ -565,22 +618,35 @@ class _DrawerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive ? AppColors.iosRed : AppColors.enterpriseOnNavy;
+    final brightness = Theme.of(context).brightness;
+    final color = destructive
+        ? AppColors.getDestructiveText(brightness)
+        : AppColors.getTextColor(brightness);
     return CupertinoButton(
-      padding: EdgeInsets.zero,
-      minimumSize: const Size(0, 52),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: AppSpacing.medium,
+        vertical: AppSpacing.small,
+      ),
+      minimumSize: const Size(AppSpacing.xxxLarge, AppSpacing.xxxLarge),
       pressedOpacity: 0.55,
       onPressed: onTap,
       child: Row(
         children: [
-          Icon(icon, size: 24, color: color),
+          Icon(
+            icon,
+            size: 22,
+            color: destructive
+                ? color
+                : AppColors.getTextSecondary(brightness)
+                      .withValues(alpha: 0.76),
+          ),
           AppSpacing.horizontalMedium,
           Expanded(
             child: Text(
               label,
               style: context.textStyle(
                 FontSizeType.medium,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w400,
                 color: color,
               ),
             ),

@@ -136,8 +136,8 @@ Text
 
 ### 2.4 企业深蓝（Enterprise Navy，2026-10）
 
-企业模式深蓝抽屉专用色板（`AppColors.enterpriseNavy` 族，见 8.8）。
-固定品牌色，**不随工作区 branding.primaryColor 联动**——branding 只覆盖
+企业历史品牌元素使用的色板（`AppColors.enterpriseNavy` 族）；共享空间菜单自 2026-11 起采用 §8.8 的明暗自适应中性表面，不再固定使用深蓝渐变。
+这些固定品牌色**不随工作区 branding.primaryColor 联动**——branding 只覆盖
 `ColorScheme.primary`（见 workspace_branding_theme.dart 的作用域约束）：
 
 ```
@@ -153,7 +153,7 @@ enterpriseNavyDivider #FFFFFF 10%  深蓝底分隔线
 
 - ✅ 主按钮文字 on `primaryDark` 永远用 `#FFFFFF`；`brand` 底配白字仅限发送气泡等既定场景
 - ✅ Cell 里可点击的次级动作（如「查看全部 >」）用 `iosBlue`，不用 `brand`
-- ✅ 破坏性动作（Delete、Logout）必须用 `iosRed`，不能用自定义红
+- ✅ 破坏性动作（Delete、Logout）沿用 `iosRed` 系统语义；共享空间菜单及设置列表的常规字号危险操作文字使用 `getDestructiveText`（浅色 `#B42318`、暗色 `iosRedDark`）保证浅底可读性，确认弹窗继续使用系统 destructive action
 - ❌ 不要在同一屏幕同时出现 `brand` 的背景 + `iosBlue` 的大面积色块，会打架
 - ❌ 不要用透明度 < 0.30 的文字作为正文（违反可访问性）
 - ❌ 不要在暗色模式下直接用浅色模式的颜色，必须查 Dark Palette 对应值
@@ -482,22 +482,16 @@ Layout:
 - 按钮文字 Body 17pt，默认 iosBlue；破坏性 iosRed；默认态 w600
 - 宽度 270pt，毛玻璃背景
 
-### 8.8 企业壳深蓝抽屉 | Enterprise Drawer（2026-10）
+### 8.8 全局空间入口与菜单 | Space Menu（2026-11）
 
-企业模式仅“消息”页显示左上汉堡按钮（上长下短两杠图标），通讯录、工作台、我不显示；按钮唤起的左侧抽屉，文件
-`lib/page/workspace_shell/workspace_drawer_menu.dart`：
+- 空间切换由应用壳承接，个人与企业共用 `WorkspaceDrawerMenu` 的业务动作；“我”继续进入完整个人中心。头像/昵称进入资料、二维码进入名片，不能把个人中心替换成空间菜单。
+- 当布局使用左侧导航时，空间入口位于导航顶部，在各 tab 中保持可达，消息标题栏不重复入口；个人与企业的导航均从 `AppBreakpoints.mobile` 起采用 rail，900pt 的内容壳断点保持独立。普通窄屏使用底栏导航，消息页保留小型空间入口：个人头像或企业标识 + 下拉提示，语义统一为“切换空间”，完整上下文保留可访问名称。
+- 桌面入口打开锚定弹层，手机入口打开可滚动底部面板；面板按内容收缩并受可用高度约束，长企业名、大字号与多空间列表不能溢出。关闭只移除当前浮层，不返回底层页面；成功切换后收起，失败保留菜单和反馈。
+- 面板使用浅色中性表面／暗色对应表面，正文、次级文字与分隔线采用主题 token。当前空间为内缩圆角的轻蓝选中行，同时保留勾选与切换中反馈；身份区适度突出，普通功能行用常规字重。
+- `compact` 内容复用同一身份区、空间列表与功能组；传统 Drawer 保留兼容呈现，不因弹层形态分叉权限、路由或数据加载逻辑。个人资料、名片、企业二维码、企业工具、创建/加入、设置与退出入口继续遵守原有角色和功能判断。
+- 退出作为独立的低强调危险操作，文字使用 `AppColors.getDestructiveText`，保留原确认流程。缓存播种、成员资格真源、会话代防护及两阶段原子切换不因视觉调整改变。
 
-```
-- 面板宽 min(屏宽×0.84, 360pt)，深蓝对角渐变 enterpriseNavy → enterpriseNavyDeep
-- 身份区：68pt 圆角 14 头像 + 昵称 Title 22 w700 白 + chevron（→ 个人资料）
-  + 「智能助理」胶囊（白 12% 底、蓝渐变圆点）；次行企业名 + 「未认证」徽标
-- 分隔线白 10%（enterpriseNavyDivider）
-- 功能行高 52pt：图标 24pt + 文字 Medium 16 w500 白；次级行 onNavyMuted、
-  退出登录 #FF8A80
-- 当前企业带：通栏 enterpriseNavyLight 高亮，44pt 白底圆角 10 logo 位
-  + 企业名 ExtraLarge 20 w700 + check_mark；点击 → 企业主页
-- 无企业名/无工作区时不渲染企业带（不出现空名字入口）
-```
+The application shell owns the space switcher. Rails expose it globally; compact message headers keep a small identity-aware trigger. Anchored desktop panels and mobile sheets share the existing menu actions, use neutral theme surfaces, and close only their own presentation. Personal profiles, permissions, destructive confirmation and atomic space switching retain their contracts.
 
 ### 8.9 消息筛选条 | Message Filter Bar（2026-10）
 
@@ -516,17 +510,24 @@ Layout:
 
 - 私聊、群聊与有权访问的个人频道在一个虚拟化列表中展示；取消固定频道区和五条截断。手动置顶优先，其余按真实最新消息时间倒序，时间相同使用稳定身份键；频道元数据更新时间不得参与排序。
 - 搜索框下提供「全部 / 未读 / 私聊 / 群聊 / 频道」单行筛选。筛选控件保持至少 48pt 热区，文字增大或翻译较长时横向滚动，不压缩系统字号。关闭/裁剪频道功能后移除频道选项，其他会话仍可使用。
+- 个人消息快捷筛选采用轻量标签：未选中透明底、次级文字 w400；选中浅色模式 `primaryLight` 底 + `primaryDark` 字，暗色模式 `primaryAlpha20` 底 + `primaryContainer` 字，subheadline w500。可见背景最小 32pt、radiusCell 10pt，外层保持 48pt 热区；水平内边距 12pt、项间距 4pt、无末项额外间距。背景切换用 `AppDuration.fast`，Reduce Motion 时关闭。企业工具条与 §8.15 分段控件仍沿用各自契约。
 - 搜索仅匹配当前分类的名称与最新预览；清空搜索保留分类。历史消息搜索保留在「+」菜单和输入查询后的明确文字入口，继续使用现有历史搜索路由。
+- 搜索框使用 medium w400、至少 `AppSizes.inputHeight` 高度，系统大字可撑高；保留「名称或最新消息」搜索范围提示。消息名称使用 body w500、预览 normal w400、时间 small w400，预览和时间使用次级文字色 75% 透明度；以默认表面和置顶表面校验对比度，不降低系统文字缩放。
 - 消息行共用 48pt 头像、12pt 图文间距及 16pt 水平内边距。普通字号右上显示短时间、右下显示未读和状态；大字号将元信息放到预览下方，保证标题可读。当天显示 HH:mm、昨天显示本地化文案、更早显示月/日、跨年显示年/月/日；比较本地日历日期。
+- 头像在消息行内统一裁切为 12pt 圆角；置顶保留图钉，浅色用 `lightSurfaceVariant`，暗色在 surface 上叠加 `overlayLight`，与按下反馈区分。AI/官方身份标记在消息行使用 `BotBadge.dense`，缩小留白并保留图标、文字和完整读屏标签；只有空间不足时沿用 compact 图标模式，不全局改变其他页面的徽标密度。
 - 真实未读与人工待处理相互独立；「未读」筛选包含两者，筛选和搜索不会推进已读水位。免打扰消息仍能在列表中找到，继续沿用底栏未读消息计数规则。
 - 保留原侧滑与读屏动作，并提供长按菜单。私聊/群聊的通知入口进入既有设置页；频道置顶继续调用原服务。
 - 无消息预览、无真实未读且未置顶的频道留在频道目录；同名频道保留各自身份并用实际公开标识辅助区分。只有明确 personal scope、当前账号仍有内容权限的订阅可以带预览进入此列表，企业/未知scope和失效权限不得混入。
 - 「仅在频道页显示」是账号与服务器隔离的本机展示偏好，不退订、不改通知、不清消息；操作有撤销，频道目录可恢复。底栏频道未读仍按现有规则计算。账号删除时随该账号数据库一起清理。
-- 频道加载或偏好读取失败应显示可重试状态，不能遮挡已加载聊天；初始加载、空分类、搜索无结果与错误保持不同语义。企业壳的消息/日程/待办工具条维持本节原有契约。
+- 频道加载或偏好读取失败应显示可重试状态，不能遮挡已加载聊天；有条目时使用可换行的紧凑提示，完全无条目时复用完整异步失败态。重试操作与错误说明相邻，忙碌期间显示加载反馈并避免重复触发。初始加载、空分类、搜索无结果与错误保持不同语义。企业壳的消息/日程/待办工具条维持本节原有契约。
 
 The personal inbox uses one virtualized list for direct chats, groups and accessible personal channels, with pinned entries first and real message timestamps thereafter. Filters and local search never advance read state. History search remains a labelled action. A shared 48pt avatar row adapts metadata placement to large text without reducing system scaling.
 
+Personal inbox filters use a soft selected fill and transparent inactive labels inside 48pt touch targets. Search and previews use regular weight; names, timestamps and compact identity badges retain a clear hierarchy in both themes. Avatar clipping, subtle pinned surfaces and dense badges apply only to inbox rows, preserving identity labels and independent avatar actions.
+
 Channel visibility is a device-local preference scoped to the account database and server endpoint. Hiding preserves subscriptions, notifications and message facts; undo and directory restore remain available. Unknown channel provenance is not inferred: the empty channel filter links to the existing directory, whose paginated authoritative loading refreshes subscriptions. Enterprise inbox controls and feature stripping retain their existing contracts.
+
+Channel failures use a compact, wrapping notice when chat rows remain visible and a full failure state when no rows can be shown. Keep the retry action beside its explanation, announce progress and prevent repeated requests while retrying. Loading, empty results and failures remain distinct.
 
 ### 8.10 锚定气泡菜单 | Popover Menu（2026-10）
 
@@ -563,23 +564,26 @@ Resource entries share one geometry (16pt padding, 32pt icon slot, 24pt icon, 12
 
 ### 8.12 我的页面（个人与企业，2026-10）
 
-- 两种空间共用资料区、轻量空间选择器与中性色管理列表。昵称与二维码分别可操作，避免把空间按钮嵌套进资料按钮；个人保留账号 ID，企业不重复展示“个人资料”提示。
-- 空间选择器放在昵称下方，仅显示空间名称与下拉箭头；企业模式合并企业与当前工作区。取消独立空间卡片及“当前空间 / 切换空间”常驻文案，企业“我”页顶栏不重复空间上下文。完整名称通过语义标签和 Tooltip 保留，选择器触达至少 48pt，继续进入现有空间选择流程。
+- 两种空间共用资料区和中性色管理列表。昵称、头像与二维码分别可操作；个人保留账号 ID，企业不重复展示“个人资料”提示。
+- 空间切换由应用壳的全局空间入口承接，资料区不嵌套空间按钮。企业名称只作身份上下文展示，企业“我”页顶栏不重复空间上下文；设置中的切换空间入口继续作为备用路径。
 - 个人常用卡片为收藏、面聊记录、本机附件；取消“我的频道”，钱包继续遵循既有功能开关。企业常用卡片为收藏与企业入口，后者沿用现有权限判定显示“企业”或“企业管理”，不混入个人工具。
 - 卡片使用浅色 surface / 暗色 surfaceElevated、10pt 圆角、24pt 线性图标与品牌蓝，确保与 grouped 页面底色区分；最多三列，窄屏和大字号自动减少列数，文字允许换行。管理项采用无外卡片的紧凑分隔列表，图标使用次文字色。
 - 客服卡片只在个人模式且坐席授权成立后显示；加载、无权限和失败均不占位。企业客服继续从工作台进入。
 
-The personal and enterprise Me pages share profile geometry, an inline space picker and quiet management rows. Existing routes, feature gates and authorization remain authoritative. Shortcut columns adapt to available width and text scaling; the enterprise shell omits duplicate context only on its Me page.
+The personal and enterprise Me pages share profile geometry and quiet management rows. The application shell owns space switching while Settings retains its existing fallback entry. Existing routes, feature gates and authorization remain authoritative. Shortcut columns adapt to available width and text scaling; the enterprise shell omits duplicate context only on its Me page.
 
 ---
 
-### 8.13 我的相关详情页（2026-10）
+### 8.13 我的相关详情页（2026-11）
 
 - 设置与个人资料沿用 grouped 底色、10pt 分组卡片和中性线性图标；账号操作集中分组。长侧值在窄屏或大字号下移到标题下方，不挤压标题与操作区，触达至少 48pt。
-- 资料摘要在无自定义背景时使用紧凑头像与账号 ID；已有背景继续展示，并保留头像预览、头像编辑与背景编辑的独立入口。完善度只显示一处百分比，继续使用真实评分与完善建议。
+- 设置与个人资料的内容列最大 680pt，与“我”页一致；窄屏占用可用宽度，导航栏和页面滚动保持原契约。版本信息复用 `DetailSettingsTile.value` 的测量与下移机制，开发环境选择按当前行可用空间布局，不以整屏宽度固定占位。
+- 资料摘要使用居中头像、姓名与账号 ID；头像预览与下方“编辑头像／我的二维码”操作分开，两个操作随可用宽度和字号换行，二维码复用原路由且不在底部重复。已有背景继续展示并保留独立编辑入口；上传状态保留忙碌反馈。完善度只显示一处百分比，继续使用真实评分与完善建议。
 - 本机附件采用紧凑搜索、文件名与次级元信息分层、来源箭头和合并说明；保留加载、空、错误与内容状态。文件仍进入来源消息，本机可见不代表云端备份。
 - 空间列表移除个人空间组头与首行的重复表述；加入操作为主、创建为次，当前勾选与切换忙碌状态保持明确。原有角色、归档提示和原子切换流程不变。
 - 浅色卡片使用 surface，暗色使用 surfaceElevated；颜色、字号、间距沿用现有 token。精简视觉不得移除业务入口、权限、安全说明或确认流程。
+
+Settings and profile pages use a centered content column capped at 680 logical pixels. Long values stack below their labels when text scaling or available width requires it. The profile header centers the avatar and identity, with separate Edit avatar and My QR code actions that wrap as needed; the QR action reuses its existing route and has one entry. Preserve avatar preview, background editing, upload progress and field-level editing. Regular-weight destructive menu and settings labels use `getDestructiveText`; system confirmation actions retain their existing destructive semantics.
 
 ---
 
@@ -913,7 +917,7 @@ large(20) / xLarge(24) / xxLarge(32) / xxxLarge(48)`；
    → 使用 iosBlue (#007AFF)
 
 4. 是破坏性操作? (删除, 退出登录, 解散群)
-   → 使用 iosRed (#FF3B30)
+   → 系统动作使用 iosRed (#FF3B30)；菜单和设置列表正文使用 getDestructiveText（§2.5）
 
 5. 是列表页? 
    → 设置/个人中心 → Inset Grouped List (surfaceGrouped 背景 + surface 卡片 + radius 10)
@@ -988,7 +992,7 @@ Scaffold(
 
 - [ ] 没有硬编码 Color / padding / fontSize
 - [ ] 没有违反 44×44pt 最小触达
-- [ ] 破坏性操作用 `iosRed`，而非自定义红
+- [ ] 破坏性系统动作用 `iosRed`，菜单和设置列表正文用 `getDestructiveText`（§2.5）
 - [ ] 暗色模式查表并验证对比度
 - [ ] VoiceOver 标签完整
 - [ ] 动画 duration ≤ 400ms（除引导）

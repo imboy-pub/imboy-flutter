@@ -157,7 +157,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
                   : context.t.agent.badgeOfficial,
               style: context.textStyle(
                 FontSizeType.caption2,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w500,
               ),
             ),
             textDirection: Directionality.of(context),
@@ -165,7 +165,7 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
           )..layout();
           final badgeWidth =
               measurement.width +
-              AppSpacing.small * 2 +
+              AppSpacing.tiny * 2 +
               AppSpacing.medium +
               AppSpacing.tiny;
           final titleSize = context.textStyle(FontSizeType.body).fontSize!;
@@ -180,15 +180,13 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
             Flexible(
               child: Text(
                 displayTitle,
-                style: context
-                    .textStyle(
-                      FontSizeType.body,
-                      fontWeight: FontWeight.w600,
-                      color: isDark
-                          ? AppColors.darkTextPrimary
-                          : AppColors.lightTextPrimary,
-                    )
-                    .copyWith(letterSpacing: -0.4),
+                style: context.textStyle(
+                  FontSizeType.body,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -196,7 +194,11 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
             // 窄屏和大字体使用现有紧凑徽章，身份读屏标签仍完整保留。
             if (_peerAccountType > 0) ...[
               AppSpacing.horizontalTiny,
-              BotBadge(accountType: _peerAccountType, compact: compactBadge),
+              BotBadge(
+                accountType: _peerAccountType,
+                compact: compactBadge,
+                dense: true,
+              ),
             ],
           ],
         );
@@ -208,12 +210,15 @@ class _ConversationItemState extends ConsumerState<ConversationItem> {
     String content = currentModel.content;
     TextStyle contentStyle = context
         .textStyle(
-          FontSizeType.subheadline,
-          color: isDark
-              ? AppColors.darkTextSecondary
-              : AppColors.lightTextSecondary,
+          FontSizeType.normal,
+          fontWeight: FontWeight.w400,
+          color:
+              (isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary)
+                  .withValues(alpha: 0.75),
         )
-        .copyWith(height: 1.3, letterSpacing: -0.2);
+        .copyWith(height: 1.4);
 
     if (content.contains('_color_red_')) {
       List<String> parts = content.split('_color_red_');

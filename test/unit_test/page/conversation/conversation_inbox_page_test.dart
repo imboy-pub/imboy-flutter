@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +8,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:imboy/app_core/feature_flags/app_feature_registry.dart';
 import 'package:imboy/app_core/feature_flags/feature_keys.dart';
+import 'package:imboy/component/ui/async_state_view.dart';
+import 'package:imboy/component/ui/nodata_view.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/i18n/strings.g.dart';
@@ -20,6 +24,8 @@ import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/channel_model.dart';
 import 'package:imboy/store/model/channel_subscription_model.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/theme/default/font_types.dart';
+import 'package:imboy/theme/providers/theme_provider.dart';
 
 class _InboxConversations extends ConversationNotifier {
   _InboxConversations(this.initial);
@@ -53,10 +59,14 @@ class _InboxChannels extends SubscribedChannelStripNotifier {
   _InboxChannels(this.summaries);
   final List<SubscribedChannelSummary> summaries;
   int builds = 0;
+  Completer<List<SubscribedChannelSummary>>? nextLoad;
 
   @override
   Future<List<SubscribedChannelSummary>> build() async {
     builds++;
+    final pending = nextLoad;
+    nextLoad = null;
+    if (pending != null) return pending.future;
     return summaries;
   }
 
@@ -67,8 +77,18 @@ class _InboxChannels extends SubscribedChannelStripNotifier {
 }
 
 class _VisibleChannels extends ChannelInboxHiddenIdsNotifier {
+  int builds = 0;
+
   @override
-  Future<Set<String>> build() async => <String>{};
+  Future<Set<String>> build() async {
+    builds++;
+    return <String>{};
+  }
+}
+
+class _SearchThemeNotifier extends ThemeNotifier {
+  @override
+  ThemeState build() => const ThemeState(fontSizeOption: FontSizeOption.large);
 }
 
 ConversationModel _conversation(
@@ -138,6 +158,7 @@ Future<_InboxHarness> _pump(
   bool channelFailure = false,
   double width = 390,
   double textScale = 1,
+  Brightness brightness = Brightness.light,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = Size(width, 844);
@@ -194,6 +215,7 @@ Future<_InboxHarness> _pump(
       child: TranslationProvider(
         child: MaterialApp.router(
           routerConfig: router,
+          theme: ThemeData(brightness: brightness),
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(context)
                 .copyWith(textScaler: TextScaler.linear(textScale)),
@@ -384,6 +406,151 @@ void main() {
     },
   );
 
+  for (final (width, scale, brightness) in [
+    (1280.0, 1.0, Brightness.light),
+    (320.0, 2.0, Brightness.dark),
+  ]) {
+    testWidgets('partial channel failure stays compact at $width $brightness', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        width: width,
+        textScale: scale,
+        brightness: brightness,
+        channelsEnabled: true,
+        channelFailure: true,
+        conversations: [_conversation(52, 'Preserved chat')],
+      );
+      expect(find.text('Preserved chat'), findsOneWidget);
+      expect(find.byType(NoDataView), findsNothing);
+      final noticeRect = tester.getRect(
+        find.byKey(const ValueKey('message-inbox-channel-notice')),
+      );
+      expect(noticeRect.left, greaterThanOrEqualTo(0));
+      expect(noticeRect.right, lessThanOrEqualTo(width));
+      expect(find.text(t.common.buttonRetry).hitTestable(), findsOneWidget);
+      if (width > 1000) {
+        final errorRect = tester.getRect(
+          find.text(t.chat.inbox.channelLoadFailed),
+        );
+        final retryRect = tester.getRect(
+          find.byKey(const ValueKey('message-inbox-channel-retry')),
+        );
+        expect(retryRect.left - errorRect.right, lessThan(48));
+      }
+      expect(tester.takeException(), isNull);
+      await _finish(tester);
+    });
+
+    testWidgets(
+      'empty channel failure uses the full state at $width $brightness',
+      (tester) async {
+        await _pump(
+          tester,
+          width: width,
+          textScale: scale,
+          brightness: brightness,
+          channelsEnabled: true,
+          channelFailure: true,
+          conversations: [],
+        );
+        expect(find.byType(NoDataView), findsOneWidget);
+        expect(find.text(t.chat.inbox.channelLoadFailed), findsOneWidget);
+        expect(find.text(t.common.noConversationMessages), findsNothing);
+        expect(
+          find.byKey(const ValueKey('message-inbox-channel-notice')),
+          findsNothing,
+        );
+        expect(find.text(t.common.buttonRetry).hitTestable(), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await _finish(tester);
+      },
+    );
+  }
+
+  testWidgets(
+    'channel retry stays busy once, preserves chats and can recover',
+    (tester) async {
+      final harness = await _pump(
+        tester,
+        channelsEnabled: true,
+        channelFailure: true,
+        conversations: [_conversation(53, 'Chat during retry')],
+      );
+      final pending = Completer<List<SubscribedChannelSummary>>();
+      harness.channels.nextLoad = pending;
+      final channelBuilds = harness.channels.builds;
+      final preferences = harness.container.read(
+        channelInboxHiddenIdsProvider.notifier,
+      ) as _VisibleChannels;
+      final preferenceBuilds = preferences.builds;
+      final retry = find.byKey(const ValueKey('message-inbox-channel-retry'));
+
+      await tester.tap(retry);
+      await tester.pump();
+      await tester.pump();
+      expect(tester.widget<CupertinoButton>(retry).onPressed, isNull);
+      expect(find.text(t.common.loading), findsOneWidget);
+      expect(find.text('Chat during retry'), findsOneWidget);
+      await tester.tap(retry);
+      await tester.pump();
+      expect(harness.channels.builds, channelBuilds + 1);
+      expect(preferences.builds, preferenceBuilds + 1);
+
+      pending.completeError(
+        StateError('retry fixture failed'),
+        StackTrace.current,
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<CupertinoButton>(retry).onPressed, isNotNull);
+      expect(find.text(t.chat.inbox.channelLoadFailed), findsOneWidget);
+
+      await tester.tap(retry);
+      await tester.pumpAndSettle();
+      expect(harness.channels.builds, channelBuilds + 2);
+      expect(preferences.builds, preferenceBuilds + 2);
+      expect(find.text(t.chat.inbox.channelLoadFailed), findsNothing);
+      expect(find.text('Chat during retry'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await _finish(tester);
+    },
+  );
+
+  testWidgets(
+    'full channel failure shows progress while retrying then content',
+    (tester) async {
+      final harness = await _pump(
+        tester,
+        channelsEnabled: true,
+        channelFailure: true,
+        conversations: [],
+      );
+      final pending = Completer<List<SubscribedChannelSummary>>();
+      harness.channels.nextLoad = pending;
+      await tester.tap(find.text(t.common.buttonRetry));
+      await tester.pump();
+      await tester.pump();
+      expect(
+        tester
+            .widget<AsyncStateView>(
+              find.byKey(const ValueKey('message-inbox-channel-state')),
+            )
+            .isLoading,
+        isTrue,
+      );
+      expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
+      expect(find.text(t.common.buttonRetry), findsNothing);
+
+      pending.complete([_channel(9050, 'Recovered channel')]);
+      await tester.pumpAndSettle();
+      expect(find.text('Recovered channel'), findsOneWidget);
+      expect(find.text(t.chat.inbox.channelLoadFailed), findsNothing);
+      expect(tester.takeException(), isNull);
+      await _finish(tester);
+    },
+  );
+
   testWidgets('disabling channels while selected falls back to all chats', (
     tester,
   ) async {
@@ -449,6 +616,52 @@ void main() {
     expect(MediaQuery.textScalerOf(filterContext).scale(10), 20);
     await _finish(tester);
   });
+
+  testWidgets(
+    'search applies system scaling once while preserving app text size',
+    (tester) async {
+      final themeContainer = ProviderContainer(
+        overrides: [themeProvider.overrideWith(_SearchThemeNotifier.new)],
+      );
+      // Match the app's live theme subscription, including its font-size choice.
+      // Without this container, ThemeManager's fallback hides double scaling.
+      themeContainer.listen(themeProvider, (_, _) {});
+      ThemeManager.instance.setProviderContainer(themeContainer);
+      addTearDown(() {
+        ThemeManager.instance.dispose();
+        themeContainer.dispose();
+      });
+
+      final appFontSize = FontSizeType.medium.size * FontSizeOption.large.scale;
+      for (final systemScale in [1.0, 2.0]) {
+        await _pump(
+          tester,
+          textScale: systemScale,
+          conversations: [_conversation(66, 'Search typography')],
+        );
+        final search = tester.widget<CupertinoSearchTextField>(
+          find.byKey(_searchKey),
+        );
+        final editableFinder = find.descendant(
+          of: find.byKey(_searchKey),
+          matching: find.byType(EditableText),
+        );
+        final editable = tester.widget<EditableText>(editableFinder);
+        expect(editable.style.fontSize, closeTo(appFontSize, 0.001));
+        expect(search.placeholderStyle!.fontSize, closeTo(appFontSize, 0.001));
+        expect(
+          tester
+              .state<EditableTextState>(editableFinder)
+              .renderEditable
+              .textScaler
+              .scale(appFontSize),
+          closeTo(appFontSize * systemScale, 0.001),
+        );
+        expect(tester.takeException(), isNull);
+        await _finish(tester);
+      }
+    },
+  );
 
   testWidgets('long press exposes read, pin, notification and delete actions', (
     tester,

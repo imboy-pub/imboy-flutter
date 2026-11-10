@@ -22,8 +22,8 @@ class MineProfile extends StatelessWidget {
   final UserModel? user;
   final bool enterprise;
 
-  /// 企业空间上下文的企业名（纯展示身份提示；空间切换统一在消息页
-  /// 左上角抽屉，本页不再承载切换入口）。
+  /// 企业空间上下文的企业名（纯展示身份提示；空间切换由应用壳的
+  /// 全局空间入口承接，本页不再承载切换入口）。
   final String? enterpriseName;
 
   @override

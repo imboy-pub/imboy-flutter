@@ -56,6 +56,7 @@ Future<ProviderContainer> _pumpShell(
   int channelBadgeCount = 0,
   String welcomeTitle = 'Welcome',
   String? welcomeSubtitle,
+  Widget? navigationLeading,
 }) async {
   // MediaQuery.of(context).size 读 view.physicalSize / view.devicePixelRatio，
   // setSurfaceSize 不影响 MediaQuery — 必须直接设 view.physicalSize（按 DPR 放大）
@@ -91,6 +92,7 @@ Future<ProviderContainer> _pumpShell(
           channelBuilder: _channelBuilder,
           mineBuilder: _mineBuilder,
           mobileFallback: _kMobile,
+          navigationLeading: navigationLeading,
           messageBadgeCount: messageBadgeCount,
           contactBadgeCount: contactBadgeCount,
           channelBadgeCount: channelBadgeCount,
@@ -120,6 +122,35 @@ void main() {
   });
 
   group('WebShellPage — threeColumn (>= 900px)', () {
+    testWidgets('全局入口在所有 tab 保留且不占导航索引', (tester) async {
+      var opened = 0;
+      const key = ValueKey('global-space-entry');
+      final container = await _pumpShell(
+        tester,
+        navigationLeading: CupertinoButton(
+          key: key,
+          onPressed: () => opened++,
+          child: const Text('Space'),
+        ),
+      );
+      final entry = find.byKey(key);
+      expect(
+        find.descendant(of: find.byType(WebNavRail), matching: entry),
+        findsOneWidget,
+      );
+      await tester.tap(entry);
+      expect(opened, 1);
+      expect(container.read(webShellProvider).currentTab, 0);
+      for (var index = 1; index < 4; index++) {
+        tester.widget<WebNavRail>(find.byType(WebNavRail)).onTap(index);
+        await tester.pump();
+        expect(entry, findsOneWidget);
+        expect(container.read(webShellProvider).currentTab, index);
+      }
+      expect(find.byTooltip('Me'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('width 1400 → 渲染 NavRail + MiddlePanel + MainPanel', (
       tester,
     ) async {

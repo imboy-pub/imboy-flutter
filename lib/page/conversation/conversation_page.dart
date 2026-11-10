@@ -41,12 +41,16 @@ import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
 import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_radius.dart';
+import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
+import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/i18n/strings.g.dart';
 
 import 'conversation_provider.dart';
 import 'message_inbox_channel_host.dart';
 import 'message_inbox_entry.dart';
+import 'widget/message_inbox_channel_status.dart';
 import 'widget/message_inbox_filter_bar.dart';
 import 'widget/message_inbox_tile.dart';
 import 'widget/message_inbox_actions.dart';
@@ -104,11 +108,22 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
   final TextEditingController _searchCtrl = TextEditingController();
   String _searchQuery = '';
   MessageInboxFilter _filter = MessageInboxFilter.all;
+  bool _retryingChannels = false;
 
   void _onSearchChanged(String value) {
     final q = value.trim().toLowerCase();
     if (q == _searchQuery) return;
     setState(() => _searchQuery = q);
+  }
+
+  Future<void> _retryChannels(Future<void> Function() refresh) async {
+    if (_retryingChannels) return;
+    setState(() => _retryingChannels = true);
+    try {
+      await refresh();
+    } finally {
+      if (mounted) setState(() => _retryingChannels = false);
+    }
   }
 
   /// 首启强制备份向导（发生率压降路径3）：有密钥 + 未完成备份设置 +
@@ -344,10 +359,17 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
         (filter == MessageInboxFilter.all ||
             filter == MessageInboxFilter.unread ||
             filter == MessageInboxFilter.channel);
+    final channelBusy =
+        includesChannels && (channels.isLoading || _retryingChannels);
     final waiting =
         (filter != MessageInboxFilter.channel && state.isLoading) ||
-        (includesChannels && channels.isLoading);
+        channelBusy;
     final channelError = includesChannels && channels.error != null;
+    final channelNotice =
+        channelError || (includesChannels && _retryingChannels);
+    final VoidCallback? retryChannels = channels.refresh == null
+        ? null
+        : () => unawaited(_retryChannels(channels.refresh!));
     void clearView() {
       _searchCtrl.clear();
       setState(() {
@@ -383,23 +405,52 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
               AppSpacing.regular,
               AppSpacing.small,
               AppSpacing.regular,
-              AppSpacing.medium,
+              AppSpacing.tiny,
             ),
-            child: CupertinoSearchTextField(
-              key: const Key('conversation_search_input'),
-              controller: _searchCtrl,
-              onChanged: _onSearchChanged,
-              placeholder: t.chat.inbox.searchHint,
-              backgroundColor: AppColors.getSurfaceGrouped(
-                brightness,
-                isOLEDMode: true,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: AppSizes.inputHeight,
+              ),
+              child: CupertinoSearchTextField(
+                key: const Key('conversation_search_input'),
+                controller: _searchCtrl,
+                onChanged: _onSearchChanged,
+                placeholder: t.chat.inbox.searchHint,
+                // EditableText applies system scaling; only apply the app's
+                // font preference here so accessibility text scales once.
+                style: ThemeManager.instance.getTextStyle(
+                  FontSizeType.medium,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.getTextColor(brightness),
+                ),
+                placeholderStyle: ThemeManager.instance.getTextStyle(
+                  FontSizeType.medium,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.getTextSecondary(brightness)
+                      .withValues(alpha: 0.75),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.small),
+                prefixInsets: const EdgeInsetsDirectional.only(
+                  start: AppSpacing.medium,
+                  end: AppSpacing.small,
+                ),
+                suffixInsets: const EdgeInsetsDirectional.only(
+                  start: AppSpacing.small,
+                  end: AppSpacing.medium,
+                ),
+                itemColor: AppColors.getTextSecondary(brightness)
+                    .withValues(alpha: 0.75),
+                borderRadius: AppRadius.borderRadiusMedium,
+                backgroundColor: brightness == Brightness.dark
+                    ? AppColors.darkSurfaceGroupedTertiary
+                    : AppColors.getSurfaceGrouped(brightness),
               ),
             ),
           ),
         ),
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.small),
+            padding: const EdgeInsets.only(bottom: AppSpacing.tiny),
             child: MessageInboxFilterBar(
               selected: filter,
               showChannels: showChannels,
@@ -433,27 +484,16 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
           ),
         if (state.connectDesc.isNotEmpty)
           SliverToBoxAdapter(child: NetworkFailureTips()),
-        if (channelError)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.regular,
-              ),
-              child: Row(
-                children: [
-                  Expanded(child: Text(t.chat.inbox.channelLoadFailed)),
-                  CupertinoButton(
-                    minimumSize: const Size(48, 48),
-                    onPressed: channels.refresh,
-                    child: Text(t.common.buttonRetry),
-                  ),
-                ],
-              ),
-            ),
+        if (channelNotice)
+          MessageInboxChannelStatusSliver(
+            compact: filtered.isNotEmpty,
+            isLoading: filtered.isEmpty ? waiting : channelBusy,
+            error: channels.error,
+            onRetry: retryChannels,
           ),
-        if (filtered.isEmpty && waiting)
+        if (filtered.isEmpty && !channelNotice && waiting)
           const SliverFillRemaining(child: ShimmerList())
-        else if (filtered.isEmpty && !channelError)
+        else if (filtered.isEmpty && !channelNotice)
           SliverFillRemaining(
             hasScrollBody: false,
             child: NoDataView(

@@ -17,40 +17,92 @@ class ProfileIdentityHeader extends StatelessWidget {
     required this.onPreviewAvatar,
     required this.onEditAvatar,
     required this.onEditBackground,
+    required this.onOpenQrCode,
   });
   final ProfileState state;
-  final VoidCallback onPreviewAvatar, onEditAvatar, onEditBackground;
+  final VoidCallback onPreviewAvatar,
+      onEditAvatar,
+      onEditBackground,
+      onOpenQrCode;
 
   @override
   Widget build(BuildContext context) => Padding(
     key: const ValueKey('profile-identity-header'),
     padding: const EdgeInsets.all(AppSpacing.regular),
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (state.background.isNotEmpty) _cover(context),
-        Row(
+        _avatar(context),
+        AppSpacing.verticalRegular,
+        _identity(context),
+        AppSpacing.verticalRegular,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: AppSpacing.medium,
+          runSpacing: AppSpacing.small,
           children: [
-            _avatar(context),
-            AppSpacing.horizontalRegular,
-            Expanded(child: _identity(context)),
-            CupertinoButton(
+            _action(
+              context,
               key: const ValueKey('profile-avatar-edit'),
-              padding: EdgeInsets.zero,
-              minimumSize: const Size.square(AppSizes.touchTarget),
+              icon: CupertinoIcons.camera,
+              label: context.t.common.avatarEditAvatar,
               onPressed: onEditAvatar,
-              child: Icon(
-                CupertinoIcons.camera,
-                semanticLabel: context.t.common.avatarEditAvatar,
-                size: AppSizes.iconSizeMedium,
-                color: AppColors.getIosBlue(Theme.of(context).brightness),
-              ),
+            ),
+            _action(
+              context,
+              key: const ValueKey('profile-qrcode'),
+              icon: CupertinoIcons.qrcode,
+              label: context.t.account.myQRCode,
+              onPressed: onOpenQrCode,
             ),
           ],
         ),
       ],
     ),
   );
+
+  Widget _action(
+    BuildContext context, {
+    required Key key,
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    final brightness = Theme.of(context).brightness;
+    final color = AppColors.getIosBlue(brightness);
+    return CupertinoButton(
+      key: key,
+      color: brightness == Brightness.dark
+          ? AppColors.darkSurfaceGroupedTertiary
+          : AppColors.lightSurface,
+      borderRadius: AppRadius.borderRadiusCell,
+      minimumSize: const Size.square(AppSizes.touchTarget),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.regular,
+        vertical: AppSpacing.medium,
+      ),
+      onPressed: onPressed,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: AppSizes.iconSizeSmall, color: color),
+          AppSpacing.horizontalSmall,
+          Flexible(
+            child: Text(
+              label,
+              textAlign: TextAlign.center,
+              style: context.textStyle(
+                FontSizeType.subheadline,
+                fontWeight: FontWeight.w600,
+                color: color,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _cover(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: AppSpacing.regular),
@@ -87,8 +139,8 @@ class ProfileIdentityHeader extends StatelessWidget {
         children: [
           Avatar(
             imgUri: state.avatar,
-            width: AppSizes.avatarSizeXLarge,
-            height: AppSizes.avatarSizeXLarge,
+            width: AppSizes.avatarSizeXXLarge,
+            height: AppSizes.avatarSizeXXLarge,
           ),
           if (state.isUploading)
             const Positioned.fill(
@@ -100,14 +152,13 @@ class ProfileIdentityHeader extends StatelessWidget {
   );
 
   Widget _identity(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       Text(
         state.nickname.isEmpty
             ? context.t.common.nicknameNotSet
             : state.nickname,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
         style: context.textStyle(
           FontSizeType.title,
           fontWeight: FontWeight.w500,
@@ -117,6 +168,7 @@ class ProfileIdentityHeader extends StatelessWidget {
       AppSpacing.verticalTiny,
       Text(
         'ID: ${state.userModel.account}',
+        textAlign: TextAlign.center,
         style: context.textStyle(
           FontSizeType.small,
           color: AppColors.getTextColor(

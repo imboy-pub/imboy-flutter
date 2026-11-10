@@ -22,18 +22,18 @@ import 'package:imboy/page/workspace/workspace_view_widgets.dart';
 import 'package:imboy/page/workspace/workspace_group_agenda_views.dart';
 import 'package:imboy/page/mine/mine/mine_page.dart';
 import 'package:imboy/page/mine/mine/mine_shortcut.dart';
-import 'package:imboy/page/workspace_shell/workspace_drawer_menu.dart';
+import 'package:imboy/page/workspace_shell/space_switcher_button.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_filter.dart';
 import 'package:imboy/page/workspace_shell/workspace_message_toolbar.dart';
 import 'package:imboy/page/workspace_shell/workspace_plus_menu.dart';
 import 'package:imboy/theme/default/app_colors.dart';
+import 'package:imboy/theme/default/app_breakpoints.dart';
 import 'package:imboy/component/ui/resource_entry_tile.dart';
 import 'package:imboy/theme/default/font_types.dart';
 import 'package:imboy/component/ui/badge_widget.dart';
 
 // WorkspaceSwitcherChip 定义于此（账号 Sheet 文件）；会话页 standalone
 // 模式仍在使用。
-import 'workspace_shell_breakpoint.dart';
 import 'workspace_shell_provider.dart';
 import 'workspace_top_bar.dart';
 
@@ -46,8 +46,7 @@ final _mineOrganizationProvider = FutureProvider.autoDispose
 /// 企业主导航。Key 由宿主绑定账号、企业及工作区，切换时销毁旧页面。
 ///
 /// 2026-10 飞书风格改版：底栏维持四栏（消息/通讯录/工作台/我，用户
-/// 拍板）；左上汉堡按钮仅「消息」页展示，唤起深蓝抽屉（身份/我的名片/
-/// 企业带/高级功能/创建加入企业/设置/切换到个人/退出登录）；消息 tab
+/// 拍板）；空间入口在侧栏顶部全局常驻，窄屏放在消息顶栏；消息 tab
 /// 顶部挂内容态 tab（筛选/日程/待办），日程·待办聚合企业群数据。
 class EnterpriseShellPage extends ConsumerStatefulWidget {
   const EnterpriseShellPage({
@@ -148,16 +147,27 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
       _visited.add(_selected);
       _rememberNavigation();
     });
-    final desktop =
-        resolveWorkspaceShellLayout(MediaQuery.sizeOf(context).width) ==
-        WorkspaceShellLayout.desktop;
+    // 这里只决定导航呈现，与个人壳的 600pt rail 保持一致；900pt 内容壳
+    // 断点仍由各自 bootstrap / resolveWorkspaceShellLayout 管理。
+    final useRail = MediaQuery.sizeOf(context).width >= AppBreakpoints.mobile;
+    final spaceSwitcher = SpaceSwitcherButton(
+      key: ValueKey(
+        useRail
+            ? 'enterprise-shell-space-switcher'
+            : 'enterprise-shell-menu-button',
+      ),
+      organizationId: widget.organizationId,
+      spaceName: orgName,
+      inRail: useRail,
+    );
     return _frame(
       destinations,
       labels,
       icons,
       index,
-      desktop,
+      useRail,
       select,
+      spaceSwitcher,
       _content(
         destinations,
         configs,
@@ -165,6 +175,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
         index,
         labels[index],
         contextSubtitle,
+        useRail ? null : spaceSwitcher,
       ),
     );
   }
@@ -221,6 +232,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     int index,
     String title,
     String contextSubtitle,
+    Widget? spaceSwitcher,
   ) {
     return Column(
       children: [
@@ -238,10 +250,9 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           WorkspaceTopBar(
             title: title,
             subtitle: contextSubtitle.isEmpty ? null : contextSubtitle,
-            // 左上汉堡（企业抽屉入口）只在「消息」页展示；通讯录/工作台
-            // 两个 tab 不挂，需要抽屉时切回消息页。
+            // 侧栏已有全局入口时不重复；窄屏沿用消息顶栏位置。
             leading: _selected == EnterpriseShellDestination.messages
-                ? const _ShellMenuButton()
+                ? spaceSwitcher
                 : null,
             actions: switch (_selected) {
               EnterpriseShellDestination.messages => const [
@@ -291,17 +302,19 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
     List<String> labels,
     List<IconData> icons,
     int index,
-    bool desktop,
+    bool useRail,
     ValueChanged<int> select,
+    Widget spaceSwitcher,
     Widget content,
   ) {
     return Scaffold(
-      drawer: WorkspaceDrawerMenu(organizationId: widget.organizationId),
       body: Row(
         children: [
-          if (desktop)
+          if (useRail)
             NavigationRail(
               key: const ValueKey('enterprise-shell-rail'),
+              leading: spaceSwitcher,
+              scrollable: true,
               selectedIndex: index,
               onDestinationSelected: select,
               labelType: NavigationRailLabelType.all,
@@ -316,7 +329,7 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           Expanded(child: content),
         ],
       ),
-      bottomNavigationBar: desktop
+      bottomNavigationBar: useRail
           ? null
           : NavigationBar(
               key: const ValueKey('enterprise-shell-bottom-nav'),
@@ -516,57 +529,4 @@ class _EnterpriseShellPageState extends ConsumerState<EnterpriseShellPage> {
           ),
         ),
       );
-}
-
-/// 左上角汉堡按钮：唤起企业抽屉（参考稿①）。
-///
-/// 图标为参考稿的两杠不等长样式（上长下短），比三点/三杠更轻盈；
-/// Scaffold.of 依赖本按钮元素位于 Scaffold 子树内。
-class _ShellMenuButton extends StatelessWidget {
-  const _ShellMenuButton();
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final tint = isDark
-        ? AppColors.darkTextPrimary
-        : AppColors.lightTextPrimary;
-    return CupertinoButton(
-      key: const ValueKey('enterprise-shell-menu-button'),
-      padding: EdgeInsets.zero,
-      minimumSize: const Size(44, 44),
-      onPressed: () => Scaffold.of(context).openDrawer(),
-      child: Semantics(
-        label: t.common.buttonMore,
-        button: true,
-        child: SizedBox(
-          width: 22,
-          height: 22,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 18,
-                height: 2,
-                decoration: BoxDecoration(
-                  color: tint,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-              const SizedBox(height: 5),
-              Container(
-                width: 12,
-                height: 2,
-                decoration: BoxDecoration(
-                  color: tint,
-                  borderRadius: BorderRadius.circular(1),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

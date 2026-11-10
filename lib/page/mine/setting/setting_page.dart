@@ -3,6 +3,7 @@ import 'package:imboy/app_core/feature_flags/feature_revision_provider.dart';
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:imboy/app_core/feature_flags/feature_keys.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/component/ui/detail_settings_tile.dart';
+import 'package:imboy/component/ui/resource_page_layout.dart';
 import 'package:imboy/theme/default/app_sizes.dart';
 import 'package:imboy/config/init.dart';
 import 'package:imboy/modules/organization/presentation/organization_routes.dart';
@@ -61,6 +63,12 @@ class SettingPage extends ConsumerStatefulWidget {
 }
 
 class _SettingPageState extends ConsumerState<SettingPage> {
+  static const _environments = {
+    'local': 'Local',
+    'dev': 'Development',
+    'pro': 'Production',
+  };
+
   // 防抖状态
   bool _isUpdatingAllowSearch = false;
   bool _isRefreshingKeys = false;
@@ -130,6 +138,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
     return IosPageTemplate(
       title: t.main.setting,
       useLargeTitle: false,
+      contentMaxWidth: ResourcePageLayout.maxWidth,
       slivers: [
         // 常规设置 Section
         SliverToBoxAdapter(
@@ -265,6 +274,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
               DetailSettingsTile(
                 title: Text(t.common.aboutApp),
                 leading: _buildIcon(CupertinoIcons.info),
+                value: '${t.common.version} $appVsn',
                 trailing: _buildAboutTrailing(),
                 onTap: _showAboutDialog,
               ),
@@ -277,13 +287,7 @@ class _SettingPageState extends ConsumerState<SettingPage> {
           SliverToBoxAdapter(
             child: ImBoySettingsSection(
               header: Text(t.common.developer),
-              children: [
-                DetailSettingsTile(
-                  title: Text(t.common.switchEnvironment),
-                  leading: _buildIcon(CupertinoIcons.hammer),
-                  trailing: _buildEnvDropdown(),
-                ),
-              ],
+              children: [_buildEnvironmentSetting()],
             ),
           ),
 
@@ -340,66 +344,96 @@ class _SettingPageState extends ConsumerState<SettingPage> {
   );
 
   Widget _buildAboutTrailing() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final hasUpdate = AppUpgradeService.to.hasUpdate;
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width * .38,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Text(
-              "${t.common.version} $appVsn",
-              style: context.textStyle(
-                FontSizeType.subheadline,
-                color: isDark
-                    ? AppColors.darkTextSecondary
-                    : AppColors.lightTextSecondary,
-              ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (hasUpdate) ...[
+          Container(
+            width: AppSpacing.small,
+            height: AppSpacing.small,
+            decoration: const BoxDecoration(
+              color: AppColors.iosRed,
+              shape: BoxShape.circle,
             ),
           ),
-          if (hasUpdate) ...[
-            const SizedBox(width: AppSpacing.small),
-            Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.iosRed,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
-          const SizedBox(width: AppSpacing.small),
-          const CupertinoListTileChevron(),
+          AppSpacing.horizontalSmall,
         ],
-      ),
+        const CupertinoListTileChevron(),
+      ],
     );
   }
 
-  Widget _buildEnvDropdown() {
+  Widget _buildEnvironmentSetting() => LayoutBuilder(
+    builder: (context, constraints) {
+      final dropdownStyle = context.textStyle(
+        FontSizeType.normal,
+        color: AppColors.iosRed,
+        fontWeight: FontWeight.w600,
+      );
+      double textWidth(String text, TextStyle style) {
+        final painter = TextPainter(
+          text: TextSpan(text: text, style: style),
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+          locale: Localizations.maybeLocaleOf(context),
+        )..layout();
+        final width = painter.width;
+        painter.dispose();
+        return width;
+      }
+
+      final dropdownWidth =
+          _environments.values
+              .map((label) => textWidth(label, dropdownStyle))
+              .reduce(math.max) +
+          AppSizes.iconSizeMedium +
+          AppSpacing.small;
+      const reserved =
+          AppSpacing.regular * 2 +
+          AppSizes.iconSizeLarge +
+          AppSpacing.medium +
+          AppSpacing.small;
+      final availableWidth = math.max(0.0, constraints.maxWidth - reserved);
+      final titleWidth = textWidth(
+        t.common.switchEnvironment,
+        context.textStyle(FontSizeType.body),
+      );
+      final stacked = titleWidth + dropdownWidth > availableWidth;
+      final dropdown = SizedBox(
+        width: math.min(dropdownWidth, availableWidth),
+        child: _buildEnvDropdown(dropdownStyle),
+      );
+      return DetailSettingsTile(
+        title: Text(t.common.switchEnvironment),
+        leading: _buildIcon(CupertinoIcons.hammer),
+        subtitle: stacked ? dropdown : null,
+        trailing: stacked ? const SizedBox.shrink() : dropdown,
+      );
+    },
+  );
+
+  Widget _buildEnvDropdown(TextStyle style) {
     return DropdownButtonHideUnderline(
-      child: SizedBox(
-        width: MediaQuery.sizeOf(context).width * .36,
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: _normalizeEnvValue(currentEnv),
-          isDense: true,
-          style: context.textStyle(
-            FontSizeType.normal,
-            color: AppColors.iosRed,
-            fontWeight: FontWeight.w600,
-          ),
-          items: const [
-            DropdownMenuItem(value: 'local', child: Text('Local')),
-            DropdownMenuItem(value: 'dev', child: Text('Development')),
-            DropdownMenuItem(value: 'pro', child: Text('Production')),
-          ],
-          onChanged: (value) {
-            if (strNoEmpty(value)) {
-              switchEnvironment(value!);
-            }
-          },
-        ),
+      child: DropdownButton<String>(
+        isExpanded: true,
+        value: _normalizeEnvValue(currentEnv),
+        isDense: true,
+        itemHeight: null,
+        style: style,
+        items: [
+          for (final entry in _environments.entries)
+            DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+        ],
+        selectedItemBuilder: (_) => [
+          for (final label in _environments.values)
+            Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+        ],
+        onChanged: (value) {
+          if (strNoEmpty(value)) {
+            switchEnvironment(value!);
+          }
+        },
       ),
     );
   }
