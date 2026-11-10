@@ -369,9 +369,11 @@ void main() {
         .whereType<LoginAccountIdentity>()
         .toList();
     expect(
-      owners.singleWhere(
-        (owner) => owner.uid == '1001' && owner.endpoint == otherEndpoint,
-      ).aliases,
+      owners
+          .singleWhere(
+            (owner) => owner.uid == '1001' && owner.endpoint == otherEndpoint,
+          )
+          .aliases,
       isEmpty,
     );
     expect(resolve('remote-alias', api: otherEndpoint).uid, '1002');
@@ -387,28 +389,31 @@ void main() {
     );
   });
 
-  test('an aliasless owner can regain a verified alias without stealing it back', () async {
-    await remember('1001', 'reassigned');
-    await remember('1002', 'reassigned');
-    await remember('1001', 'restored');
-    expect(resolve('reassigned').uid, '1002');
-    expect(resolve('restored').aliases, {'restored'});
-    expect(
-      () => history.requireIndependentStorage(resolve('restored')),
-      returnsNormally,
-    );
-    await history.forget(resolve('restored'));
-    await reloadPersistedHistory();
-    expect(resolve('reassigned').uid, '1002');
-    expect(
-      () => history.requireIndependentStorage(resolve('reassigned')),
-      returnsNormally,
-    );
-    expect(
-      () => resolve('restored'),
-      throwsA(isA<LoginAccountIdentityUnavailableException>()),
-    );
-  });
+  test(
+    'an aliasless owner can regain a verified alias without stealing it back',
+    () async {
+      await remember('1001', 'reassigned');
+      await remember('1002', 'reassigned');
+      await remember('1001', 'restored');
+      expect(resolve('reassigned').uid, '1002');
+      expect(resolve('restored').aliases, {'restored'});
+      expect(
+        () => history.requireIndependentStorage(resolve('restored')),
+        returnsNormally,
+      );
+      await history.forget(resolve('restored'));
+      await reloadPersistedHistory();
+      expect(resolve('reassigned').uid, '1002');
+      expect(
+        () => history.requireIndependentStorage(resolve('reassigned')),
+        returnsNormally,
+      );
+      expect(
+        () => resolve('restored'),
+        throwsA(isA<LoginAccountIdentityUnavailableException>()),
+      );
+    },
+  );
 
   for (final corruption in <String, Object>{
     'invalid JSON': '{',
@@ -421,7 +426,7 @@ void main() {
     'empty stored value': '',
     'invalid completeness flag': jsonEncode({
       'version': 1,
-      'accounts': [],
+      'accounts': <dynamic>[],
       'ownershipIncomplete': 'false',
     }),
     'wrong preference type': true,
@@ -473,45 +478,51 @@ void main() {
     );
   }
 
-  test('a failed uncertainty write retains corruption and retries fail closed', () async {
-    await StorageService.to.setString(
-      LoginAccountHistoryService.storageKey,
-      '{',
-    );
-    final persisted = await SharedPreferencesStorePlatform.instance.getAll();
-    SharedPreferences.setMockInitialValues({});
-    final store = _FailingRegistryPreferences(persisted);
-    SharedPreferencesStorePlatform.instance = store;
-    await StorageService.init();
-    await expectLater(remember('1001', 'alice'), throwsStateError);
-    expect(
-      StorageService.to.getString(LoginAccountHistoryService.storageKey),
-      '{',
-    );
-    expect(
-      () => resolve('alice'),
-      throwsA(isA<LoginAccountIdentityUnavailableException>()),
-    );
-    store.failRegistryWrite = false;
-    await remember('1001', 'alice');
-    await reloadPersistedHistory();
-    expect(
-      () => LoginAccountHistoryService().requireIndependentStorage(
-        resolve('alice'),
-      ),
-      throwsA(isA<AccountLocalDataOwnershipException>()),
-    );
-  });
+  test(
+    'a failed uncertainty write retains corruption and retries fail closed',
+    () async {
+      await StorageService.to.setString(
+        LoginAccountHistoryService.storageKey,
+        '{',
+      );
+      final persisted = await SharedPreferencesStorePlatform.instance.getAll();
+      SharedPreferences.setMockInitialValues({});
+      final store = _FailingRegistryPreferences(persisted);
+      SharedPreferencesStorePlatform.instance = store;
+      await StorageService.init();
+      await expectLater(remember('1001', 'alice'), throwsStateError);
+      expect(
+        StorageService.to.getString(LoginAccountHistoryService.storageKey),
+        '{',
+      );
+      expect(
+        () => resolve('alice'),
+        throwsA(isA<LoginAccountIdentityUnavailableException>()),
+      );
+      store.failRegistryWrite = false;
+      await remember('1001', 'alice');
+      await reloadPersistedHistory();
+      expect(
+        () => LoginAccountHistoryService().requireIndependentStorage(
+          resolve('alice'),
+        ),
+        throwsA(isA<AccountLocalDataOwnershipException>()),
+      );
+    },
+  );
 
-  test('a forgotten identity cannot authorize deletion through a stale object', () async {
-    await remember('1001', 'alice');
-    final alice = resolve('alice');
-    await history.forget(alice);
-    expect(
-      () => history.requireIndependentStorage(alice),
-      throwsA(isA<LoginAccountIdentityUnavailableException>()),
-    );
-  });
+  test(
+    'a forgotten identity cannot authorize deletion through a stale object',
+    () async {
+      await remember('1001', 'alice');
+      final alice = resolve('alice');
+      await history.forget(alice);
+      expect(
+        () => history.requireIndependentStorage(alice),
+        throwsA(isA<LoginAccountIdentityUnavailableException>()),
+      );
+    },
+  );
 }
 
 class _FailingRegistryPreferences extends InMemorySharedPreferencesStore {
