@@ -54,15 +54,23 @@ void main() {
       ),
     );
     expect(find.text('owner:91001'), findsOneWidget);
-    await StorageService.to.setString(Keys.currentUid, '91002');
-    await UserRepoLocal.to.changeInfo({'uid': '91002', 'account': 'synthetic'});
+    // Session writes share a real asynchronous queue with login and cleanup.
+    await tester.runAsync(() async {
+      await StorageService.to.setString(Keys.currentUid, '91002');
+      await UserRepoLocal.to.changeInfo({
+        'uid': '91002',
+        'account': 'synthetic',
+      });
+    });
     await tester.pumpAndSettle();
     expect(disposed, ['91001']);
     expect(find.text('owner:91002'), findsOneWidget);
   });
   testWidgets('匿名状态不构造组织业务子树', (tester) async {
-    await StorageService.to.remove(Keys.currentUid);
-    await UserRepoLocal.to.changeInfo({});
+    await tester.runAsync(() async {
+      await StorageService.to.remove(Keys.currentUid);
+      await UserRepoLocal.to.changeInfo({});
+    });
     var builds = 0;
     await tester.pumpWidget(
       ProviderScope(

@@ -187,6 +187,18 @@ class _Translations$account$it_IT extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Collega Alipay';
 	@override String get unbindAlipay => 'Scollega';
 	@override String get confirmUnbindAlipay => 'Conferma scollegamento';
+	@override String get loginHistoryTitle => 'Cronologia degli accessi';
+	@override String loginHistorySelected({required Object account}) => 'Account selezionato: ${account}';
+	@override String get loginHistoryChooseToClear => 'Seleziona un account salvato prima di cancellarne i dati';
+	@override String get loginHistoryClear => 'Cancella i dati locali dell’account selezionato';
+	@override String get loginHistoryClearTitle => 'Cancellare i dati locali di questo account?';
+	@override String get loginHistoryClearConfirm => 'Conferma pulizia';
+	@override String loginHistoryClearBody({required Object account}) => 'Cancellare tutti i dati locali dell’account «${account}» su questo dispositivo? Dopo la pulizia dovrai accedere di nuovo. L’account e i suoi dati sul server non verranno eliminati.';
+	@override String get loginHistoryClearFailed => 'Pulizia non completata';
+	@override String get loginHistoryIdentityUnavailable => 'Accedi una volta a questo account, poi esci e riprova. Questa vecchia voce non consente di identificare l’account con certezza, quindi nessun dato è stato cancellato.';
+	@override String get loginHistoryCleanupBusy => 'Esci dall’account attuale e attendi la fine di eventuali operazioni di accesso o pulizia, poi riprova.';
+	@override String get loginHistorySharedData => 'Questo account condivide dati locali con un altro ambiente di accesso e al momento non può essere ripulito separatamente.';
+	@override String get loginHistoryOwnershipUnavailable => 'Questo dispositivo contiene vecchi dati condivisi che non possono essere associati con certezza a un account. Nessun dato è stato cancellato. Per non compromettere altri account, risolvi prima la situazione dei vecchi dati e riprova.';
 }
 
 // Path: agent
@@ -3550,6 +3562,18 @@ extension on TranslationsItIt {
 			'account.bindAlipay' => 'Collega Alipay',
 			'account.unbindAlipay' => 'Scollega',
 			'account.confirmUnbindAlipay' => 'Conferma scollegamento',
+			'account.loginHistoryTitle' => 'Cronologia degli accessi',
+			'account.loginHistorySelected' => ({required Object account}) => 'Account selezionato: ${account}',
+			'account.loginHistoryChooseToClear' => 'Seleziona un account salvato prima di cancellarne i dati',
+			'account.loginHistoryClear' => 'Cancella i dati locali dell’account selezionato',
+			'account.loginHistoryClearTitle' => 'Cancellare i dati locali di questo account?',
+			'account.loginHistoryClearConfirm' => 'Conferma pulizia',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'Cancellare tutti i dati locali dell’account «${account}» su questo dispositivo? Dopo la pulizia dovrai accedere di nuovo. L’account e i suoi dati sul server non verranno eliminati.',
+			'account.loginHistoryClearFailed' => 'Pulizia non completata',
+			'account.loginHistoryIdentityUnavailable' => 'Accedi una volta a questo account, poi esci e riprova. Questa vecchia voce non consente di identificare l’account con certezza, quindi nessun dato è stato cancellato.',
+			'account.loginHistoryCleanupBusy' => 'Esci dall’account attuale e attendi la fine di eventuali operazioni di accesso o pulizia, poi riprova.',
+			'account.loginHistorySharedData' => 'Questo account condivide dati locali con un altro ambiente di accesso e al momento non può essere ripulito separatamente.',
+			'account.loginHistoryOwnershipUnavailable' => 'Questo dispositivo contiene vecchi dati condivisi che non possono essere associati con certezza a un account. Nessun dato è stato cancellato. Per non compromettere altri account, risolvi prima la situazione dei vecchi dati e riprova.',
 			'agent.plazaTitle' => 'Assistenti IA',
 			'agent.transparencyBanner' => 'Tutti i membri qui sono assistenti IA, chiaramente identificati. Nelle chat crittografate ci sono solo persone reali.',
 			'agent.searchHint' => 'Cerca assistenti',
@@ -3936,6 +3960,8 @@ extension on TranslationsItIt {
 			'chat.chatResend' => 'Invia di nuovo',
 			'chat.profileExportProfile' => 'Esporta profilo',
 			'chat.momentsSend' => 'Invia',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Sessione scaduta, accedi di nuovo',
 			'chat.customImage' => 'Immagine personalizzata',
 			'chat.burnAfterReading' => 'Distruggi dopo la lettura',
@@ -3948,8 +3974,6 @@ extension on TranslationsItIt {
 			'chat.historyUnavailable' => 'Cronologia messaggi temporaneamente non disponibile',
 			'chat.historyUnavailableHint' => 'L\'archivio cronologico sul server è disabilitato o non disponibile. Tocca Riprova per risincronizzare',
 			'chat.momentsRecordVideo' => 'Registra video',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Privato',
 			'chat.momentsMediaTooManyImages' => 'Massimo 9 immagini',
 			'chat.momentsMediaTooManyVideos' => 'Massimo 1 video',
@@ -4450,6 +4474,8 @@ extension on TranslationsItIt {
 			'common.cameraModePhoto' => 'Foto',
 			'common.cameraModeVideo' => 'Video',
 			'common.cameraRetake' => 'Riprova',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => 'Usa',
 			'common.cameraNoDevice' => 'Nessuna fotocamera disponibile',
 			'common.avatarEditAvatar' => 'Modifica avatar',
@@ -4462,8 +4488,6 @@ extension on TranslationsItIt {
 			'common.audioPlayFailed' => 'Riproduzione non riuscita',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Sei stato disconnesso forzatamente dal dispositivo [${device}]',
 			'common.loadingTagDataFailed' => 'Caricamento dati tag non riuscito',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Inserisci contenuto',
 			'common.comingSoon' => 'Prossimamente',
 			'common.backgroundTransparency' => 'Trasparenza sfondo',
@@ -4964,6 +4988,8 @@ extension on TranslationsItIt {
 			'common.switchCamera' => 'Cambia fotocamera',
 			'common.timeDaysShort' => ({required Object count}) => '${count}g',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'adesso',
 			'common.transferAccepted' => 'Ricevuto',
@@ -4976,8 +5002,6 @@ extension on TranslationsItIt {
 			'common.transferRefunded' => 'Restituito',
 			'common.transferRemarkLabel' => 'Note del bonifico',
 			'common.transferTapToReceive' => 'Tocca per ricevere',
-			_ => null,
-		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Caricamento non riuscito per ${count} elementi',
 			'common.voiceSttConverting' => 'Riconoscimento in corso...',
 			'common.voiceSttNotConfigured' => 'La conversione in testo non è ancora configurata',
@@ -5478,6 +5502,8 @@ extension on TranslationsItIt {
 			'main.myOrders' => 'Ordini',
 			'main.purchaseUnlockHint' => 'Dopo l\'acquisto, accedi allo storico e agli aggiornamenti del canale.',
 			'main.payingDots' => 'Pagamento...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => 'Acquista e sblocca',
 			'main.orderDetail' => 'Dettagli ordine',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Importo: ${currency} ${amount}',
@@ -5490,8 +5516,6 @@ extension on TranslationsItIt {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Ripristina da backup o genera una nuova chiave',
 			'main.gotIt' => 'Capito',
 			'main.webQRLoggingIn' => 'Accesso...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => 'QR code scaduto',
 			'main.webQRRefresh' => 'Aggiorna QR code',
 			'main.webSwitchToQR' => 'Accesso via QR code',
@@ -5992,6 +6016,8 @@ extension on TranslationsItIt {
 			'passport.oneKeyFailedRetry' => 'Login one-tap non riuscito, controlla la rete e riprova',
 			'splash.slogan' => 'Parla liberamente, comunica con facilità',
 			'talkRecord.uploadProgressRegister' => 'Preparazione del caricamento',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'Caricamento audio',
 			'talkRecord.uploadProgressConfirm' => 'Conferma audio',
 			'talkRecord.uploadProgressSubmitting' => 'Invio del salvataggio',
@@ -6004,8 +6030,6 @@ extension on TranslationsItIt {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Trascrizione audio ed etichette temporanee dei parlanti',
 			'talkRecord.aiZhipuPurpose' => 'Bozze di riepiloghi, decisioni e azioni',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Configurato su questo dispositivo',
 			'talkRecord.aiNotConfigured' => 'Non configurato',
 			'talkRecord.aiLoading' => 'Lettura della configurazione locale…',

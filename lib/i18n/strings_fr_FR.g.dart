@@ -187,6 +187,18 @@ class _Translations$account$fr_FR extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Lier Alipay';
 	@override String get unbindAlipay => 'Délier';
 	@override String get confirmUnbindAlipay => 'Confirmer la déliaison';
+	@override String get loginHistoryTitle => 'Historique de connexion';
+	@override String loginHistorySelected({required Object account}) => 'Compte sélectionné : ${account}';
+	@override String get loginHistoryChooseToClear => 'Sélectionnez un compte enregistré avant d’effacer ses données';
+	@override String get loginHistoryClear => 'Effacer les données locales du compte sélectionné';
+	@override String get loginHistoryClearTitle => 'Effacer les données locales de ce compte ?';
+	@override String get loginHistoryClearConfirm => 'Confirmer l’effacement';
+	@override String loginHistoryClearBody({required Object account}) => 'Effacer toutes les données locales du compte « ${account} » sur cet appareil ? Vous devrez vous reconnecter après l’effacement. Le compte et ses données sur le serveur ne seront pas supprimés.';
+	@override String get loginHistoryClearFailed => 'Nettoyage incomplet';
+	@override String get loginHistoryIdentityUnavailable => 'Connectez-vous une fois à ce compte, puis déconnectez-vous et réessayez. Cette ancienne entrée ne permet pas d’identifier le compte avec certitude ; aucune donnée n’a été effacée.';
+	@override String get loginHistoryCleanupBusy => 'Déconnectez-vous du compte actuel et attendez la fin de toute connexion ou opération de nettoyage avant de réessayer.';
+	@override String get loginHistorySharedData => 'Ce compte partage des données locales avec un autre environnement de connexion et ne peut pas être nettoyé séparément pour le moment.';
+	@override String get loginHistoryOwnershipUnavailable => 'Cet appareil contient d’anciennes données partagées dont le compte propriétaire ne peut pas être déterminé. Aucune donnée n’a été effacée. Pour préserver les autres comptes, traitez ces anciennes données avant de réessayer.';
 }
 
 // Path: agent
@@ -3550,6 +3562,18 @@ extension on TranslationsFrFr {
 			'account.bindAlipay' => 'Lier Alipay',
 			'account.unbindAlipay' => 'Délier',
 			'account.confirmUnbindAlipay' => 'Confirmer la déliaison',
+			'account.loginHistoryTitle' => 'Historique de connexion',
+			'account.loginHistorySelected' => ({required Object account}) => 'Compte sélectionné : ${account}',
+			'account.loginHistoryChooseToClear' => 'Sélectionnez un compte enregistré avant d’effacer ses données',
+			'account.loginHistoryClear' => 'Effacer les données locales du compte sélectionné',
+			'account.loginHistoryClearTitle' => 'Effacer les données locales de ce compte ?',
+			'account.loginHistoryClearConfirm' => 'Confirmer l’effacement',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'Effacer toutes les données locales du compte « ${account} » sur cet appareil ? Vous devrez vous reconnecter après l’effacement. Le compte et ses données sur le serveur ne seront pas supprimés.',
+			'account.loginHistoryClearFailed' => 'Nettoyage incomplet',
+			'account.loginHistoryIdentityUnavailable' => 'Connectez-vous une fois à ce compte, puis déconnectez-vous et réessayez. Cette ancienne entrée ne permet pas d’identifier le compte avec certitude ; aucune donnée n’a été effacée.',
+			'account.loginHistoryCleanupBusy' => 'Déconnectez-vous du compte actuel et attendez la fin de toute connexion ou opération de nettoyage avant de réessayer.',
+			'account.loginHistorySharedData' => 'Ce compte partage des données locales avec un autre environnement de connexion et ne peut pas être nettoyé séparément pour le moment.',
+			'account.loginHistoryOwnershipUnavailable' => 'Cet appareil contient d’anciennes données partagées dont le compte propriétaire ne peut pas être déterminé. Aucune donnée n’a été effacée. Pour préserver les autres comptes, traitez ces anciennes données avant de réessayer.',
 			'agent.plazaTitle' => 'Assistants IA',
 			'agent.transparencyBanner' => 'Tous les membres ici sont des assistants IA, clairement identifiés. Dans les discussions chiffrées, il n\'y a que de vraies personnes.',
 			'agent.searchHint' => 'Rechercher un assistant',
@@ -3936,6 +3960,8 @@ extension on TranslationsFrFr {
 			'chat.chatResend' => 'Renvoyer',
 			'chat.profileExportProfile' => 'Exporter le profil',
 			'chat.momentsSend' => 'Envoyer',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Connexion expirée. Veuillez vous reconnecter.',
 			'chat.customImage' => 'Image personnalisée',
 			'chat.burnAfterReading' => 'Détruire après lecture',
@@ -3948,8 +3974,6 @@ extension on TranslationsFrFr {
 			'chat.historyUnavailable' => 'Historique des messages temporairement indisponible',
 			'chat.historyUnavailableHint' => 'L\'archive d\'historique côté serveur est désactivée ou indisponible. Touchez Réessayer pour resynchroniser',
 			'chat.momentsRecordVideo' => 'Filmer une vidéo',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Privé',
 			'chat.momentsMediaTooManyImages' => '9 images maximum',
 			'chat.momentsMediaTooManyVideos' => '1 vidéo maximum',
@@ -4450,6 +4474,8 @@ extension on TranslationsFrFr {
 			'common.cameraModePhoto' => 'Photo',
 			'common.cameraModeVideo' => 'Vidéo',
 			'common.cameraRetake' => 'Reprendre',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => 'Utiliser',
 			'common.cameraNoDevice' => 'Aucun appareil disponible',
 			'common.avatarEditAvatar' => 'Modifier l\'avatar',
@@ -4462,8 +4488,6 @@ extension on TranslationsFrFr {
 			'common.audioPlayFailed' => 'Échec de la lecture.',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Vous avez été déconnecté de force par l\'appareil [${device}].',
 			'common.loadingTagDataFailed' => 'Échec du chargement des données des étiquettes.',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Entrez le contenu.',
 			'common.comingSoon' => 'Bientôt disponible.',
 			'common.backgroundTransparency' => 'Transparence de l\'arrière-plan',
@@ -4964,6 +4988,8 @@ extension on TranslationsFrFr {
 			'common.switchCamera' => 'Changer de caméra',
 			'common.timeDaysShort' => ({required Object count}) => '${count}j',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}min',
 			'common.timeNowShort' => 'maint.',
 			'common.transferAccepted' => 'Reçu',
@@ -4976,8 +5002,6 @@ extension on TranslationsFrFr {
 			'common.transferRefunded' => 'Remboursé',
 			'common.transferRemarkLabel' => 'Note du virement',
 			'common.transferTapToReceive' => 'Appuyez pour recevoir',
-			_ => null,
-		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Échec du téléversement de ${count} éléments',
 			'common.voiceSttConverting' => 'Reconnaissance en cours...',
 			'common.voiceSttNotConfigured' => 'La conversion en texte n\'est pas encore configurée',
@@ -5478,6 +5502,8 @@ extension on TranslationsFrFr {
 			'main.myOrders' => 'Commandes',
 			'main.purchaseUnlockHint' => 'Après achat, accédez à l\'historique et aux nouveautés du canal.',
 			'main.payingDots' => 'Paiement...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => 'Acheter et déverrouiller',
 			'main.orderDetail' => 'Détails de la commande',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Montant : ${currency} ${amount}',
@@ -5490,8 +5516,6 @@ extension on TranslationsFrFr {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Restaurer depuis une sauvegarde ou générer une nouvelle clé',
 			'main.gotIt' => 'Compris',
 			'main.webQRLoggingIn' => 'Connexion...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => 'QR code expiré',
 			'main.webQRRefresh' => 'Actualiser le QR code',
 			'main.webSwitchToQR' => 'Connexion par QR code',
@@ -5992,6 +6016,8 @@ extension on TranslationsFrFr {
 			'passport.oneKeyFailedRetry' => 'Échec de la connexion en un clic, vérifiez le réseau et réessayez',
 			'splash.slogan' => 'Communiquez librement',
 			'talkRecord.uploadProgressRegister' => 'Préparation du transfert',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'Transfert audio',
 			'talkRecord.uploadProgressConfirm' => 'Confirmation audio',
 			'talkRecord.uploadProgressSubmitting' => 'Envoi pour enregistrement',
@@ -6004,8 +6030,6 @@ extension on TranslationsFrFr {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Transcription audio et étiquettes temporaires de locuteurs',
 			'talkRecord.aiZhipuPurpose' => 'Brouillons de synthèse, décisions et actions',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Configuré sur cet appareil',
 			'talkRecord.aiNotConfigured' => 'Non configuré',
 			'talkRecord.aiLoading' => 'Lecture de la configuration locale…',

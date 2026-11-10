@@ -187,6 +187,18 @@ class _Translations$account$ja_JP extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Alipayを連携';
 	@override String get unbindAlipay => '連携解除';
 	@override String get confirmUnbindAlipay => '連携解除の確認';
+	@override String get loginHistoryTitle => 'ログイン履歴';
+	@override String loginHistorySelected({required Object account}) => '選択中のアカウント：${account}';
+	@override String get loginHistoryChooseToClear => 'データを消去するアカウントを選択してください';
+	@override String get loginHistoryClear => '選択したアカウントの端末データを消去';
+	@override String get loginHistoryClearTitle => 'このアカウントの端末データを消去しますか？';
+	@override String get loginHistoryClearConfirm => '消去を確認';
+	@override String loginHistoryClearBody({required Object account}) => 'この端末に保存されたアカウント「${account}」のすべてのローカルデータを消去しますか？消去後は再度ログインする必要があります。サーバー上のアカウントとデータは削除されません。';
+	@override String get loginHistoryClearFailed => '消去が完了していません';
+	@override String get loginHistoryIdentityUnavailable => 'このアカウントに一度ログインし、ログアウトしてから再試行してください。古い履歴ではアカウントを確実に識別できないため、データは消去していません。';
+	@override String get loginHistoryCleanupBusy => '現在のアカウントからログアウトし、ログインや消去処理の完了を待ってから再試行してください。';
+	@override String get loginHistorySharedData => 'このアカウントは別のログイン環境と端末データを共有しているため、個別に消去できません。';
+	@override String get loginHistoryOwnershipUnavailable => 'この端末には、どのアカウントに属するか確認できない旧バージョンの共有データがあります。データは消去されていません。他のアカウントに影響しないよう、古いデータを処理してから再試行してください。';
 }
 
 // Path: agent
@@ -3547,6 +3559,18 @@ extension on TranslationsJaJp {
 			'account.bindAlipay' => 'Alipayを連携',
 			'account.unbindAlipay' => '連携解除',
 			'account.confirmUnbindAlipay' => '連携解除の確認',
+			'account.loginHistoryTitle' => 'ログイン履歴',
+			'account.loginHistorySelected' => ({required Object account}) => '選択中のアカウント：${account}',
+			'account.loginHistoryChooseToClear' => 'データを消去するアカウントを選択してください',
+			'account.loginHistoryClear' => '選択したアカウントの端末データを消去',
+			'account.loginHistoryClearTitle' => 'このアカウントの端末データを消去しますか？',
+			'account.loginHistoryClearConfirm' => '消去を確認',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'この端末に保存されたアカウント「${account}」のすべてのローカルデータを消去しますか？消去後は再度ログインする必要があります。サーバー上のアカウントとデータは削除されません。',
+			'account.loginHistoryClearFailed' => '消去が完了していません',
+			'account.loginHistoryIdentityUnavailable' => 'このアカウントに一度ログインし、ログアウトしてから再試行してください。古い履歴ではアカウントを確実に識別できないため、データは消去していません。',
+			'account.loginHistoryCleanupBusy' => '現在のアカウントからログアウトし、ログインや消去処理の完了を待ってから再試行してください。',
+			'account.loginHistorySharedData' => 'このアカウントは別のログイン環境と端末データを共有しているため、個別に消去できません。',
+			'account.loginHistoryOwnershipUnavailable' => 'この端末には、どのアカウントに属するか確認できない旧バージョンの共有データがあります。データは消去されていません。他のアカウントに影響しないよう、古いデータを処理してから再試行してください。',
 			'agent.plazaTitle' => 'AI アシスタント広場',
 			'agent.transparencyBanner' => 'ここにいるのはすべて AI アシスタントで、身元は明確に表示されます。暗号化チャットには本物の人間しかいません。',
 			'agent.searchHint' => 'アシスタントを検索',
@@ -3933,6 +3957,8 @@ extension on TranslationsJaJp {
 			'chat.chatResend' => '再送信',
 			'chat.profileExportProfile' => 'プロフィールをエクスポート',
 			'chat.momentsSend' => '送信',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'ログインの有効期限が切れました。再度ログインしてください',
 			'chat.customImage' => 'カスタム画像',
 			'chat.burnAfterReading' => '閲覧後自動削除',
@@ -3945,8 +3971,6 @@ extension on TranslationsJaJp {
 			'chat.historyUnavailable' => '履歴メッセージは一時的に利用できません',
 			'chat.historyUnavailableHint' => 'サーバー側の履歴アーカイブが無効または利用できません。再試行をタップして再同期してください',
 			'chat.momentsRecordVideo' => '動画を撮影',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => '非公開',
 			'chat.momentsMediaTooManyImages' => '画像は最大9枚まで選択できます',
 			'chat.momentsMediaTooManyVideos' => '動画は最大1つまで選択できます',
@@ -4447,6 +4471,8 @@ extension on TranslationsJaJp {
 			'common.cameraModePhoto' => '写真',
 			'common.cameraModeVideo' => '動画',
 			'common.cameraRetake' => '撮り直す',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => '使用する',
 			'common.cameraNoDevice' => '利用可能なカメラがありません',
 			'common.avatarEditAvatar' => 'アバターを編集',
@@ -4459,8 +4485,6 @@ extension on TranslationsJaJp {
 			'common.audioPlayFailed' => '再生に失敗しました',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'デバイス【${device}】により強制ログアウトされました',
 			'common.loadingTagDataFailed' => 'タグデータの読み込みに失敗しました',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => '内容を入力してください',
 			'common.comingSoon' => '近日公開',
 			'common.backgroundTransparency' => '背景の透明度',
@@ -4961,6 +4985,8 @@ extension on TranslationsJaJp {
 			'common.e2eeRecoveryKeyTitle' => 'リカバリーキー',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'リカバリーキーをコピーしました。${seconds}秒後にクリップボードから自動的に消去されます。すぐに保存してください',
 			'common.e2eeErrAttachmentSeal' => '暗号化添付ファイルの封印に失敗したため、ファイルはアップロードされていません。後でもう一度お試しください',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeErrForwardPlaintextTarget' => '転送先の会話はエンドツーエンド暗号化されていないため、暗号化添付ファイルを転送できません',
 			'common.e2eeErrForwardUndecryptable' => '元の暗号化添付ファイルをこの端末で復号できませんでした。転送に失敗しました',
 			'common.e2eeRetryFailedMessages' => '復号に失敗したメッセージを再試行',
@@ -4973,8 +4999,6 @@ extension on TranslationsJaJp {
 			'common.e2eeUseRecoveryKey' => 'リカバリーキーを生成（パスフレーズ忘れ時のバックアップ手段）',
 			'common.e2eeErrPeerNotOnboarded' => '相手はまだどのデバイスでもログインしたことがないため、暗号化して送信できません。相手のログイン後にもう一度お試しください',
 			'common.complianceKeyChangedTitle' => 'コンプライアンス監査キーが変更されました',
-			_ => null,
-		} ?? switch (path) {
 			'common.complianceKeyChangedActionConfirm' => 'ローテーションを承認',
 			'common.complianceKeyChangedActionKeep' => '今は承認しない',
 			'common.complianceKeyChangedBody' => 'サーバーから配信されたコンプライアンス監査の公開鍵が、ローカルの固定値と一致しません。これが管理者による意図的なキーローテーションであれば「ローテーションを承認」をタップしてください。そうでない場合は、暗号化メッセージの送信をやめ、管理者に確認してください。',
@@ -5475,6 +5499,8 @@ extension on TranslationsJaJp {
 			'main.myOrders' => '注文履歴',
 			'main.purchaseUnlockHint' => '購入すると、チャンネルの過去のメッセージと今後の更新を閲覧できます。',
 			'main.payingDots' => '決済中...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => '今すぐ購入してロック解除',
 			'main.orderDetail' => '注文詳細',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
@@ -5487,8 +5513,6 @@ extension on TranslationsJaJp {
 			'main.e2eeWarnNeedRestoreOrNew' => '• バックアップから復元するか、新しいキーを生成する必要があります',
 			'main.gotIt' => '了解',
 			'main.webQRLoggingIn' => 'ログイン中...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => 'QRコードの有効期限が切れました',
 			'main.webQRRefresh' => 'QRコードを更新',
 			'main.webSwitchToQR' => 'QRコードでログイン',
@@ -5989,6 +6013,8 @@ extension on TranslationsJaJp {
 			'passport.oneKeyFailedRetry' => 'ワンタップログインに失敗しました。ネットワークを確認して再試行してください',
 			'splash.slogan' => '自由に話し、自然に繋がる',
 			'talkRecord.uploadProgressRegister' => 'アップロードを準備中',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => '音声をアップロード中',
 			'talkRecord.uploadProgressConfirm' => '音声を確認中',
 			'talkRecord.uploadProgressSubmitting' => '保存を送信中',
@@ -6001,8 +6027,6 @@ extension on TranslationsJaJp {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => '音声の文字起こしと一時的な話者ラベル',
 			'talkRecord.aiZhipuPurpose' => '要約、決定事項、アクションの下書き',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'この端末に設定済み',
 			'talkRecord.aiNotConfigured' => '未設定',
 			'talkRecord.aiLoading' => '端末の設定を読み込み中…',

@@ -1,4 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart' as crypto;
@@ -7,7 +14,28 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/service/e2ee/attachment_descriptor.dart';
 import 'package:imboy/store/api/attachment_api.dart';
 
+class _DirectTemporaryPaths extends PathProviderPlatform {
+  _DirectTemporaryPaths(this.root);
+  final String root;
+  @override
+  Future<String?> getTemporaryPath() async => root;
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late Directory temporary;
+  late PathProviderPlatform previousPaths;
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({Keys.currentUid: 'direct-owner'});
+    await StorageService.init();
+    temporary = await Directory.systemTemp.createTemp('direct-owned-');
+    previousPaths = PathProviderPlatform.instance;
+    PathProviderPlatform.instance = _DirectTemporaryPaths(temporary.path);
+  });
+  tearDown(() async {
+    PathProviderPlatform.instance = previousPaths;
+    await temporary.delete(recursive: true);
+  });
   test('群消息密文 direct 登记并冻结密文与锚点', () async {
     final bytes = Uint8List.fromList([1, 2, 3, 4]);
     final requests = <({String action, Map<String, dynamic> body})>[];

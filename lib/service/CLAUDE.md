@@ -8,7 +8,7 @@
 |---------|------|---------|
 | `event_bus.dart` | 事件总线（服务间解耦） | AppEventBus.fire() |
 | `websocket.dart` | WebSocket 连接管理 | 自动重连、心跳保活；**不做出站确认簿记**（原机制A已删，确认/重发归 `message_retry.dart`） |
-| `message.dart` | 消息核心服务 | C2C/C2G/C2S/S2C |
+| `message.dart` + `message_notifications.dart` | 消息核心服务 | C2C/C2G/C2S/S2C；通知沿用入站消息最初的账号与会话代次 |
 | `message_actions.dart` | 消息操作处理 | 撤回、阅后即焚 |
 | `message_s2c.dart` | 服务端→客户端消息 | - |
 | `message_offline.dart` | 离线消息拉取/批量插入 | - |
@@ -17,6 +17,9 @@
 | `message_webrtc.dart` | WebRTC 信令处理 | 信令不入重试状态机（防 SDP 重放 glare） |
 | `websocket_message_queue.dart` | WS 离线队列 | 仅兜底**未被** MessageRetry 跟踪的报文（B×D 去重见 `shouldEnqueueOffline`） |
 | `sqlite.dart` | SQLite（v9, WAL, 64MB缓存） | synchronized并发控制 |
+| `sqlite_lifecycle.dart` | SQLite 会话与句柄生命周期（`sqlite.dart` part） | 初始化绑定账号/环境/会话代次；关闭失败保留句柄供重试；关闭排空初始化 |
+| `sqlite_account_data.dart` | SQLite 账号数据库关闭与删除（`sqlite.dart` part） | 清理读取密钥前排空数据库/初始化锁，删密钥前关闭选中旧句柄；回收 sidecar、旧恢复文件及账号 `.db.restore.*` 目录；Web 使用初始化后的工厂 |
+| `sqlcipher_database.dart` | 独立 SQLCipher 打开及只读探测 | 校验原生加密能力和真实数据库页；探测不执行业务回调，不复用其他密码的句柄 |
 | `cached_sqlite_service.dart` | SQLite 查询缓存 | - |
 | `migration_service.dart` | 数据库迁移执行（事务内、失败回滚） | 从 manifest 构造脚本；快照/恢复在事务外（见下） |
 | `migration_manifest.dart` + `migrations/` | **迁移唯一真源**（类型化边：SQL/reversible/dataLoss/affectedObjects） | .sql 与 embedded 常量均为生成物（tool/generate_sqlite_migrations.dart --check 守护） |
@@ -26,6 +29,12 @@
 | `storage.dart` | 键值对存储 | shared_preferences |
 | `storage_secure.dart` | 安全存储 | flutter_secure_storage |
 | `secure_token_storage_service.dart` | Token 存储 | - |
+| `login_account_history_service.dart` | 成功登录账号的本机身份与历史 | 按环境、服务端、UID 关联账号别名；去重与归属检查；数据清理成功后才移除历史，写入失败保留重试日志 |
+| `account_local_task_registry.dart` + `account_local_files.dart` | 账号任务与临时文件归属 | 按 env + endpoint + UID 登记完整任务；清理先取消并等待任务收尾，再进入会话写队列；临时文件使用账号目录 |
+| `account_preferences.dart` + `account_draft_store.dart` + `pending_chat_actions.dart` | 账号偏好、草稿与待发送动作 | 原会话失效后拒绝延迟写入；清理等待原生偏好写入落盘；草稿沿用 UID/会话键，队列按发送者清除 |
+| `account_local_data_service.dart` + `account_local_data_ownership.dart` | 清除历史账号在本机的数据 / Local account data removal | 先检验归属；按 env + endpoint + UID 清 DB/快照/草稿/录音/秘密/缓存与任务；无法归属的旧数据阻止清理，保留其他账号及设备配置；历史仅成功后移除 |
+| `account_media_cache_store.dart` + `account_media_cache_web.dart` | 媒体缓存归属 / Media cache ownership | 索引先于缓存字节写入；账号与公共设备资源独立；原生文件及 Web IndexedDB 均检查旧无主数据，删除失败保留索引可重试 |
+| `olm_session_service.dart` + `olm_session_cleanup.dart` | Olm 会话及本机状态清理 | cleanup part 分别处理已删除账号的内存句柄和原有完整 Olm 清理，避免重新打开已删除数据库 |
 | `encrypter.dart` | AES 加密解密 | pointycastle |
 | `rsa.dart` | RSA 加密 | pointycastle |
 | `ack_manager.dart` | ACK 确认管理（含超时重试） | - |

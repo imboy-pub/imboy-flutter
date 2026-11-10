@@ -6,12 +6,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/ui/app_loading.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/settings/e2ee_backup_import_page.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 
 import '../../helper/sqflite_test_helper.dart';
@@ -219,6 +222,15 @@ void main() {
     });
 
     testWidgets('P0-1 导入成功后以恢复的公钥回写服务端设备登记', (tester) async {
+      // Restoring keys is a signed-in settings operation. Keep this account
+      // local to the success case instead of weakening the session guard.
+      const accountUid = 'backup-import-page-synthetic';
+      SharedPreferences.setMockInitialValues({Keys.currentUid: accountUid});
+      await StorageService.init();
+      addTearDown(() async {
+        SharedPreferences.setMockInitialValues(<String, Object>{});
+        await StorageService.init();
+      });
       mockSqfliteSqlcipher();
       final tmpDir = Directory.systemTemp.createTempSync('e2ee_restore_');
       addTearDown(() => tmpDir.deleteSync(recursive: true));
@@ -236,6 +248,7 @@ void main() {
           publicKey: 'FAKE_PUBLIC_KEY_PEM',
           deviceId: 'backup-src-device',
           keyId: 'backup-key-id',
+          accountId: accountUid,
           secureEntriesForTest: const {},
         );
         file.writeAsBytesSync(bytes);

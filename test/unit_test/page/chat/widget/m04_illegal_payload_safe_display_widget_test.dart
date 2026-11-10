@@ -121,39 +121,101 @@ void main() {
     expect(find.textContaining('leak-me-not'), findsNothing);
   });
 
-  // PRODUCT_DEFECT-M04-APP-01：text 消息 payload['text'] 为非字符串
-  // （如 {'text': 12345} / {'text': {...}}）时，mapper 走
-  // `(payloadData['text'] ?? '') as String` 硬转型 → TypeError 直接抛出，
-  // 「[无效消息]」降级分支接不住（降级只覆盖 payload 整体非 Map/String
-  // 的情形）。期望修复规则：非法 text 字段也应安全降级为
-  // t.chat.invalidMessagePlaceholder（或 toString 兜底），不应让
-  // toTypeMessage 抛异常。修复后去掉 skip 即可转正。
-  testWidgets(
-    'PRODUCT_DEFECT-M04-APP-01 复现：text 字段非字符串 → 期望「[无效消息]」降级'
-    '（当前：TypeError 未降级，skip 待修复）',
-    (tester) async {
-      final model = MessageModel(
-        'm-m04-text-field-int',
-        autoId: 3,
-        type: 'C2C',
-        status: IMBoyMessageStatus.delivered,
-        // 作者=当前用户：隔离缺陷本体（text 字段硬转型），避免联系人分支
-        // 在测试环境引发 DB/网络旁路
-        fromId: 100,
-        toId: 200,
-        payload: {'text': 12345},
-        isAuthor: 1,
-        conversationUk3: 'C2C_100_200',
-        msgType: 'text',
-      );
+  // PRODUCT_DEFECT-M04-APP-01：非法 text 字段也应走现有 invalid_payload
+  // 占位分支，不能强制转型崩溃，也不能把对象 toString 后展示。
+  for (final msgType in ['text', 'textStream']) {
+    for (final entry in <String, Object>{
+      'int': 12345,
+      'Map': {'nested': '12345'},
+      'List': ['12345'],
+      'bool': true,
+    }.entries) {
+      testWidgets(
+        'PRODUCT_DEFECT-M04-APP-01 $msgType 正文为 ${entry.key} → 无效消息占位且原文不上屏',
+        (tester) async {
+          final model = _textModel(msgType, payload: {'text': entry.value});
+          final message = await model.toTypeMessage();
+          expect(message, isA<TextMessage>());
+          final text = message as TextMessage;
+          expect(text.text, t.chat.invalidMessagePlaceholder);
+          expect(text.status, MessageStatus.error);
+          expect(text.metadata?['error'], 'invalid_payload');
+          expect(text.metadata?.containsKey('text'), isFalse);
+          expect(text.text, isNot(contains('12345')));
 
+          await _pumpText(tester, text);
+          expect(find.text(t.chat.invalidMessagePlaceholder), findsOneWidget);
+          expect(find.textContaining('12345'), findsNothing);
+          expect(find.textContaining('nested'), findsNothing);
+          expect(find.text('true'), findsNothing);
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+
+    for (final entry in <String, Map<String, dynamic>>{
+      'String': {'text': '正常正文 12345'},
+      'null': {'text': null},
+      'missing': {},
+    }.entries) {
+      testWidgets('$msgType 正文为 ${entry.key} → 保留既有正常/空串语义', (tester) async {
+        final model = _textModel(msgType, payload: entry.value);
+        final message = await model.toTypeMessage();
+        expect(message, isA<TextMessage>());
+        final text = message as TextMessage;
+        final expectedText = entry.value['text'] as String? ?? '';
+        expect(text.text, expectedText);
+        expect(text.status, MessageStatus.delivered);
+        expect(text.metadata?['error'], isNull);
+        if (msgType == 'textStream') {
+          expect(text.metadata?['index'], 0);
+          expect(text.metadata?['is_end'], false);
+        }
+
+        await _pumpText(tester, text);
+        expect(find.text(expectedText), findsOneWidget);
+        expect(find.text(t.chat.invalidMessagePlaceholder), findsNothing);
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('$msgType 已撤回消息保持撤回优先级，不改为无效正文', (tester) async {
+      final model = _textModel(
+        msgType,
+        payload: {'text': 12345},
+        status: IMBoyMessageStatus.peerRevoked,
+      );
       final message = await model.toTypeMessage();
-      // 期望（修复后）：TextMessage 且 text == '[无效消息]'（或原文安全 toString）
-      expect(message, isA<TextMessage>());
-      final text = message as TextMessage;
-      expect(text.text, isNot(contains('12345')));
-      expect(find.textContaining('12345'), findsNothing);
-    },
-    skip: true, // PRODUCT_DEFECT-M04-APP-01：非法 text 字段硬转型崩溃，待修复后转正
+      expect(message, isA<CustomMessage>());
+      expect(message.metadata?['status'], IMBoyMessageStatus.peerRevoked);
+      expect(message.metadata?['error'], isNull);
+    });
+  }
+}
+
+MessageModel _textModel(
+  String msgType, {
+  required Map<String, dynamic> payload,
+  int status = IMBoyMessageStatus.delivered,
+}) => MessageModel(
+  'm-m04-$msgType',
+  autoId: 3,
+  type: 'C2C',
+  status: status,
+  // 作者=当前用户：避免联系人查询引发 DB/网络旁路。
+  fromId: 100,
+  toId: 200,
+  payload: payload,
+  isAuthor: 1,
+  conversationUk3: 'C2C_100_200',
+  msgType: msgType,
+);
+
+Future<void> _pumpText(WidgetTester tester, TextMessage message) async {
+  await tester.pumpWidget(
+    TranslationProvider(
+      child: MaterialApp(home: Scaffold(body: Text(message.text))),
+    ),
   );
+  await tester.pump();
 }

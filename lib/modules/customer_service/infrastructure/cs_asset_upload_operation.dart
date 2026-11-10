@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:imboy/component/http/http_retry_interceptor.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/modules/enterprise/domain/enterprise_models.dart';
 import 'package:imboy/modules/enterprise/infrastructure/enterprise_api.dart';
 
@@ -161,28 +162,33 @@ class CsAssetUploadOperation {
     required String mime,
     required Uint8List bytes,
     required String fileName,
-  }) async {
-    begin(bytes.length);
-    final input = _CsUploadInput(
-      org,
-      workspace,
-      conversation,
-      mime,
-      Uint8List.fromList(bytes).asUnmodifiableView(),
-      fileName,
-    );
-    api.dio.interceptors.removeWhere(
-      (i) => i is HttpRetryInterceptor || i is LogInterceptor,
-    );
-    try {
-      return await _perform(api, transportFactory, input);
-    } on CsAssetOperationException {
-      rethrow;
-    } on Object catch (error) {
-      check();
-      return _fail(error);
-    }
-  }
+  }) => AccountLocalTaskRegistry.instance.run<EnterpriseAsset>(
+    AccountLocalTaskOwner.capture(),
+    onCancel: cancel,
+    operation: (task) async {
+      task.throwIfCancelled();
+      begin(bytes.length);
+      final input = _CsUploadInput(
+        org,
+        workspace,
+        conversation,
+        mime,
+        Uint8List.fromList(bytes).asUnmodifiableView(),
+        fileName,
+      );
+      api.dio.interceptors.removeWhere(
+        (i) => i is HttpRetryInterceptor || i is LogInterceptor,
+      );
+      try {
+        return await _perform(api, transportFactory, input);
+      } on CsAssetOperationException {
+        rethrow;
+      } on Object catch (error) {
+        check();
+        return _fail(error);
+      }
+    },
+  );
 
   Future<EnterpriseAsset> _perform(
     EnterpriseApi api,
@@ -199,6 +205,7 @@ class CsAssetUploadOperation {
       sizeBytes: input.bytes.length,
       objectHash: hash,
       fileName: input.fileName,
+      cancelToken: _cancel,
     );
     check();
     await _put(
@@ -229,6 +236,7 @@ class CsAssetUploadOperation {
     final response = await api.post(
       '/api/v1/enterprise/organizations/${input.org}/assets/confirm',
       data: {'workspace_id': input.workspace, 'upload_ref': ticket.uploadRef},
+      cancelToken: _cancel,
     );
     check();
     if (!response.ok) {

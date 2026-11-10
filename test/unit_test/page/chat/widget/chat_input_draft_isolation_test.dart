@@ -5,8 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/page/chat/widget/chat_input.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/conversation_model.dart';
+import 'package:imboy/utils/chat_draft_keys.dart';
 
 void main() {
   Future<void> mount(WidgetTester tester, String uid) async {
@@ -110,9 +112,7 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('late save remains bound to the creating account', (
-    tester,
-  ) async {
+  testWidgets('late save after account switch is ignored', (tester) async {
     await mount(tester, '1001');
     await tester.enterText(
       find.byKey(const Key('chat_message_input')),
@@ -126,8 +126,50 @@ void main() {
     await mount(tester, '1002');
     expect(field(tester).controller!.text, isEmpty);
     await mount(tester, '1001');
-    expect(field(tester).controller!.text, 'pending A');
-    expect(field(tester).controller!.selection.baseOffset, 4);
+    expect(field(tester).controller!.text, isEmpty);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('cleanup before debounce rejects late draft and preserves B', (
+    tester,
+  ) async {
+    await mount(tester, '1001');
+    final owner = AccountLocalTaskOwner.capture();
+    final a = chatDraftKeys('1001', 'C2G', '995301')!;
+    final b = chatDraftKeys('1002', 'C2G', '995301')!;
+    await tester.enterText(
+      find.byKey(const Key('chat_message_input')),
+      'late A',
+    );
+    await StorageService.to.setString(Keys.currentUid, '1002');
+    await StorageService.to.setString(b.text, 'B draft');
+    final cleanup = AccountLocalTaskRegistry.instance.beginCleanup(owner);
+    try {
+      await cleanup.stopped;
+      await StorageService.to.remove(a.text);
+      await StorageService.to.remove(a.cursor);
+    } finally {
+      cleanup.release();
+    }
+    await tester.pump(const Duration(milliseconds: 350));
+    expect(StorageService.to.getKeys(), isNot(contains(a.text)));
+    expect(StorageService.to.getKeys(), isNot(contains(a.cursor)));
+    expect(StorageService.to.getString(b.text), 'B draft');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('successful send reset is not recreated by empty debounce', (
+    tester,
+  ) async {
+    await mount(tester, '1001');
+    await save(tester, 'send this', 3);
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(const ValueKey('send_button')));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 350));
+    final keys = chatDraftKeys('1001', 'C2G', '995301')!;
+    expect(StorageService.to.getKeys(), isNot(contains(keys.text)));
+    expect(StorageService.to.getKeys(), isNot(contains(keys.cursor)));
     await tester.pumpWidget(const SizedBox.shrink());
   });
 }

@@ -11,14 +11,17 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:imboy/config/const.dart';
 import 'package:imboy/service/encryption_mode.dart';
 import 'package:imboy/service/events/events.dart';
 import 'package:imboy/service/message_retry.dart';
 import 'package:imboy/service/retry_policy.dart';
 import 'package:imboy/service/sqlite.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/store/model/message_model.dart';
 import 'package:imboy/store/repository/message_repo_sqlite.dart';
 import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 const String _msgC2cDdl = '''
@@ -97,6 +100,16 @@ void main() {
   late MessageRetry retry;
 
   setUpAll(() async {
+    // Set the owner before injecting its FFI database and starting retry work.
+    SharedPreferences.setMockInitialValues({Keys.currentUid: '1001'});
+    await StorageService.init();
+    await StorageService.setMap(Keys.currentUser, {
+      'id': '1001',
+      'nickname': 'peer1001',
+      'avatar': '',
+    });
+    expect(UserRepoLocal.to.currentUid, '1001');
+    expect(UserRepoLocal.to.isAuthTransitioning, isFalse);
     sqfliteFfiInit();
     final db = await databaseFactoryFfi.openDatabase(inMemoryDatabasePath);
     await db.execute(_msgC2cDdl);
@@ -107,7 +120,7 @@ void main() {
     await db.execute(_contactDdl);
     await db.execute(_msgC2cFtsDdl);
     await db.insert('contact', {
-      'user_id': '',
+      'user_id': '1001',
       'peer_id': 1001,
       'nickname': 'peer1001',
       'avatar': '',
@@ -127,7 +140,7 @@ void main() {
     });
     SqliteService.setDbForTest(db);
     retry = MessageRetry.instance;
-    await pumpEventQueue(times: 200);
+    await retry.debugWaitForIdle().timeout(const Duration(seconds: 5));
   });
 
   setUp(() async {

@@ -396,6 +396,46 @@ class PersistentMessageQueue {
 
   bool get isEmpty => _totalSize == 0;
 
+  /// Remove one account's durable backlog, including its in-memory copy.
+  /// Waiting for old writes prevents a queued snapshot from restoring deleted data.
+  static Future<void> removeAccount(String uid) async {
+    if (uid.isEmpty) throw ArgumentError.value(uid, 'uid');
+    final queue = _instance;
+    if (queue?._recoveryBlocked ?? false) {
+      throw StateError('Message queue recovery is in progress');
+    }
+    await queue?._pendingPersistence;
+    final prefs = queue?._prefs ?? await SharedPreferences.getInstance();
+    final persisted = prefs.getStringList(_storageKey) ?? const <String>[];
+    final remaining = persisted.where((raw) {
+      try {
+        final item = jsonDecode(raw);
+        return item is! Map || item['ownerUid'] != uid;
+      } on FormatException {
+        // An unreadable record has no proven owner. Preserve it.
+        return true;
+      }
+    }).toList();
+    if (queue != null) {
+      for (final entries in queue._priorityQueues.values) {
+        entries.removeWhere((item) => item.ownerUid == uid);
+      }
+      queue._inFlight.removeWhere((item) => item.ownerUid == uid);
+      queue._deduplicationSet
+        ..clear()
+        ..addAll(queue.messages.map((item) => item.deduplicationKey));
+      final snapshot = queue._prefs == null
+          ? remaining
+          : queue.messages.map((item) => jsonEncode(item.toJson())).toList();
+      if (!await queue._writeSnapshot(prefs, snapshot)) {
+        throw StateError('Could not remove account message queue');
+      }
+    } else if (!await prefs.setStringList(_storageKey, remaining)) {
+      await prefs.reload();
+      throw StateError('Could not remove account message queue');
+    }
+  }
+
   /// 清空消息队列（不影响定期清理 Timer 的生命周期）
   void clear() {
     for (final queue in _priorityQueues.values) {

@@ -26,6 +26,30 @@ import 'package:imboy/component/ui/app_loading.dart';
 /// 一律 unawaited + 显式 pump 推进动画帧。真实 app 事件循环自动流转，
 /// 无此问题。
 void main() {
+  testWidgets('旧转文字任务不能覆盖或关闭新会话提示', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(builder: AppLoading.init(), home: const Scaffold()),
+    );
+    final speech = AppLoading.beginProgress();
+    unawaited(AppLoading.showOwned(speech, status: '转文字中'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('转文字中'), findsOneWidget);
+
+    unawaited(AppLoading.show(status: '新会话'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    unawaited(AppLoading.showOwned(speech, status: '迟到的识别'));
+    unawaited(AppLoading.dismissOwnedProgress(speech));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('新会话'), findsOneWidget);
+    expect(find.text('转文字中'), findsNothing);
+    expect(find.text('迟到的识别'), findsNothing);
+    unawaited(AppLoading.dismiss(animation: false));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('新上传未显示进度就结束时清理继承的旧进度', (tester) async {
     await tester.pumpWidget(
       MaterialApp(builder: AppLoading.init(), home: const Scaffold()),

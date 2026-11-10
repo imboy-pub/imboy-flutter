@@ -21,7 +21,6 @@ library;
 
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:imboy/service/sqflite_init.dart' as sqinit;
 import 'package:path/path.dart' as p;
 import 'package:sqflite_sqlcipher/sqflite.dart' as sq;
@@ -107,8 +106,7 @@ class DatabaseSnapshotService {
   static const String baseDirName = 'imboy_db_snapshots';
   static const int defaultKeepCount = 3;
 
-  /// 快照根目录（按 env + uid 隔离）。
-  @visibleForTesting
+  /// 快照根目录（按 env + uid 隔离），供备份、恢复和账号数据清理共用。
   String snapshotDir({
     required String base,
     required String env,

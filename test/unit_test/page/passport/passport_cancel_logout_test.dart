@@ -1,5 +1,8 @@
-import 'dart:typed_data';
+import 'dart:async';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:device_info_plus_platform_interface/device_info_plus_platform_interface.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:imboy/component/http/http_client.dart';
+import 'package:imboy/component/ui/app_loading.dart';
 import 'package:imboy/config/const.dart';
 import 'package:imboy/config/env.dart';
 import 'package:imboy/config/env_field.dart';
@@ -27,27 +31,43 @@ import 'package:imboy/store/repository/user_repo_local.dart';
 
 import '../../../env_test_pin.dart';
 
-/// A01-NC-4：登录响应 status==2（账号处于注销冷静期）的行为验证。
-///
-/// 源码考察结论（详见 A01_APP_TEST_REPORT.md PD-2）：
-/// `PassportNotifier._login/_loginByCode` 对 `payload.status==2` 的账号
-/// 直接执行 loginAfter 建立完整会话并返回 1，`_handleLoginStatus` 的
-/// status==2 分支（`_showCancelLogoutDialog` → `userApi.cancelLogout`
-/// → 换页）在两条登录路径上都**不可达**（`_login/_loginByCode` 只返回
-/// 0/1，从不透传服务端 status）。因此取消注销确认弹窗永远不会出现。
-///
-/// 本用例按现行行为特征化（M02 规则：缺陷存在时测试锁定现状）：
-/// - status==2 登录成功 → 建立会话并导航 /bottom_navigation
-/// - 取消注销弹窗不出现、/user/cancel_logout 请求不发出
-/// - 凭据在本机完整落盘（注销中账号可直接进入主界面——风险面）
-/// 修复（透传 status 或移除死分支）后应同步改写本用例。
+/// A01-NC-4: status==2 retains the authenticated session but requires the
+/// cancellation confirmation before the login page can leave for home.
+/// The request and session writes use the real notifier and local repository.
 
 const MethodChannel _secureChannel = MethodChannel(
   'plugins.it_nomads.com/flutter_secure_storage',
 );
-const MethodChannel _deviceInfoChannel = MethodChannel(
-  'dev.fluttercommunity.plus/device_info',
-);
+
+class _SyntheticDeviceInfo extends DeviceInfoPlatform {
+  @override
+  Future<BaseDeviceInfo> deviceInfo() async {
+    if (Platform.isLinux) {
+      return LinuxDeviceInfo(
+        name: 'test',
+        id: 'synthetic-device',
+        prettyName: 'test',
+        machineId: 'synthetic-machine',
+      );
+    }
+    return BaseDeviceInfo({
+      'computerName': 'test',
+      'hostName': 'test',
+      'arch': 'arm64',
+      'model': 'test',
+      'modelName': 'test',
+      'kernelVersion': 'test',
+      'osRelease': 'test',
+      'majorVersion': 1,
+      'minorVersion': 0,
+      'patchVersion': 0,
+      'activeCPUs': 1,
+      'memorySize': 1,
+      'cpuFrequency': 1,
+      'systemGUID': 'synthetic-device',
+    });
+  }
+}
 
 class _RouterAdapter implements HttpClientAdapter {
   final List<String> requests = <String>[];
@@ -131,6 +151,17 @@ class _NoWsLoopbackEnv implements Env, EnvField {
   bool get aiTestEnabled => false;
 }
 
+/// Observe completion without replacing the production authentication path.
+class _AwaitablePassportNotifier extends PassportNotifier {
+  late Future<String?> loginRequest;
+
+  @override
+  Future<String?> loginUserByCode(String type, String account, String code) {
+    loginRequest = super.loginUserByCode(type, account, code);
+    return loginRequest;
+  }
+}
+
 GoRouter _stubRouter() {
   Widget stub(String label) => Scaffold(body: Center(child: Text(label)));
   // 必须复用全局 navigatorKey：_showCancelLogoutDialog 取
@@ -152,8 +183,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final secure = <String, String>{};
   late _RouterAdapter adapter;
+  late DeviceInfoPlatform originalDeviceInfo;
 
-  setUpAll(() {
+  setUpAll(() async {
+    await LocaleSettings.setLocale(AppLocale.zhCn);
     envMap['dev'] = const _NoWsLoopbackEnv();
     currentEnv = 'dev';
   });
@@ -161,8 +194,13 @@ void main() {
   tearDownAll(pinLoopbackTestEnv);
 
   setUp(() async {
+    originalDeviceInfo = DeviceInfoPlatform.instance;
+    DeviceInfoPlatform.instance = _SyntheticDeviceInfo();
     SharedPreferences.setMockInitialValues(<String, Object>{});
     await StorageService.init();
+    // Initialize the session-write queue in setUp's real async zone, matching
+    // the login submitted through runAsync rather than the widget's FakeAsync.
+    expect(UserRepoLocal.to.isLoggedIn, isFalse);
     SqliteService.setDbUnavailableForTest();
     secure.clear();
     secure[Keys.publicKey] = 'test-public-key-pem';
@@ -194,108 +232,99 @@ void main() {
           }
           return null;
         });
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(_deviceInfoChannel, (call) async {
-          if (call.method == 'getDeviceInfo') {
-            return <String, dynamic>{
-              'computerName': 'imboy-test',
-              'hostName': 'imboy-test.local',
-              'arch': 'arm64',
-              'model': 'MacTest',
-              'modelName': 'MacTest',
-              'kernelVersion': 'test-kernel',
-              'osRelease': '27.0.0',
-              'majorVersion': 27,
-              'minorVersion': 0,
-              'patchVersion': 0,
-              'activeCPUs': 8,
-              'memorySize': 16,
-              'cpuFrequency': 3200,
-              'systemGUID': 'test-device-guid-2002',
-            };
-          }
-          return null;
-        });
   });
 
   tearDown(() async {
     HttpClient.adapterForTest = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_secureChannel, null);
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(_deviceInfoChannel, null);
+    DeviceInfoPlatform.instance = originalDeviceInfo;
   });
 
-  Finder _fieldByHint(String hint) => find.byWidgetPredicate(
+  Finder fieldByHint(String hint) => find.byWidgetPredicate(
     (w) => w is TextField && w.decoration?.hintText == hint,
   );
 
-  testWidgets(
-    'status==2 注销冷静期账号登录：现行行为=直接建立会话，无取消注销弹窗、无 cancelLogout 请求（PD-2 特征化）',
-    (tester) async {
-      tester.view.devicePixelRatio = 1.0;
-      tester.view.physicalSize = const Size(390, 1200);
-      addTearDown(() {
-        tester.view.resetDevicePixelRatio();
-        tester.view.resetPhysicalSize();
-      });
+  testWidgets('status==2 注销冷静期账号登录：显示取消注销确认，取消后不导航、不请求 cancelLogout', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.physicalSize = const Size(390, 1200);
+    addTearDown(() {
+      tester.view.resetDevicePixelRatio();
+      tester.view.resetPhysicalSize();
+    });
+    final notifier = _AwaitablePassportNotifier();
+    final router = _stubRouter();
+    addTearDown(router.dispose);
 
+    try {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [passportProvider.overrideWith(PassportNotifier.new)],
+          overrides: [passportProvider.overrideWith(() => notifier)],
           child: TranslationProvider(
-            child: MaterialApp.router(routerConfig: _stubRouter()),
+            child: MaterialApp.router(
+              routerConfig: router,
+              builder: AppLoading.init(),
+            ),
           ),
         ),
       );
       await tester.pump();
 
-      // 切到邮箱 Tab（验证码登录 → _loginByCode 路径）
+      // The email tab drives the real verification-code login path.
       await tester.tap(find.text('邮箱').last);
       await tester.pumpAndSettle();
-
       await tester.enterText(
-        _fieldByHint(t.passport.hintEmail),
+        fieldByHint(t.passport.hintEmail),
         'alice_status2@imboy.pub',
       );
       await tester.enterText(
-        _fieldByHint(t.passport.hintVerifyCode).last,
+        fieldByHint(t.passport.hintVerifyCode).last,
         '123456',
       );
       await tester.pump();
 
-      await tester.tap(find.byKey(const Key('login_submit_button')));
-      // 推进 fake-async：微任务 + _loginByCode 内 100ms 延迟
+      final submit = tester
+          .widget<CupertinoButton>(find.byKey(const Key('login_submit_button')))
+          .onPressed!;
+      // The session-write queue may have been created in the real zone.
+      // Wait for the complete real request instead of estimating frame delays.
+      await tester.runAsync(() async {
+        submit();
+        final result = await notifier.loginRequest.timeout(
+          const Duration(seconds: 5),
+        );
+        expect(result, t.common.cancelLogoutTitle);
+      });
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 250));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 250));
+      unawaited(AppLoading.dismiss(animation: false));
       await tester.pumpAndSettle();
 
-      // ① 现行行为：登录被放行，页面导航到主界面
+      expect(find.text('bottom_nav stub'), findsNothing);
+      expect(find.byType(CupertinoAlertDialog), findsOneWidget);
       expect(
-        find.text('bottom_nav stub'),
+        find.descendant(
+          of: find.byType(CupertinoAlertDialog),
+          matching: find.text(t.common.cancelLogoutTitle),
+        ),
         findsOneWidget,
-        reason: 'status==2 现行行为：loginAfter 建立会话后 context.go 主界面',
       );
-
-      // ② 取消注销确认弹窗从未出现（PD-2：status==2 分支不可达）
       expect(
-        find.byType(CupertinoAlertDialog),
-        findsNothing,
-        reason: '_showCancelLogoutDialog 分支不可达：_loginByCode 只返回 0/1',
+        find.descendant(
+          of: find.byType(CupertinoAlertDialog),
+          matching: find.text(t.common.cancelLogoutBody),
+        ),
+        findsOneWidget,
       );
-      expect(find.text(t.common.cancelLogoutTitle), findsNothing);
-
-      // ③ 取消注销接口零调用
       expect(
         adapter.requests,
         isNot(contains(API.userCancelLogout)),
-        reason: '不可达分支的另一面：cancelLogout 网络请求不发出',
+        reason: '用户确认前不得发出取消注销请求',
       );
       expect(adapter.requests.where((p) => p == API.login).length, 1);
 
-      // ④ 风险面：注销中账号在本机建立了完整会话（凭据已落盘）
+      // Status propagation does not alter the pre-existing session semantics.
       expect(UserRepoLocal.to.isLoggedIn, isTrue);
       expect(UserRepoLocal.to.currentUid, '2002');
       expect(secure['secure_token'], 'synthetic-status2-access-token');
@@ -304,12 +333,23 @@ void main() {
       expect(currentUser['status'], 2, reason: '注销状态原样存入 currentUser');
       expect(currentUser['account'], 'alice_status2@imboy.pub');
 
-      // 登录成功腿会让 WS 单例 init（重连定时器）、拉起消息队列定期清理
-      // 定时器，且 feature refresh loop 会因 manifest 不一致排 2s 重试；
-      // 测试结束前统一销毁，满足 pending-timer 不变量
+      await tester.tap(
+        find.widgetWithText(CupertinoButton, t.common.buttonCancel),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(CupertinoAlertDialog), findsNothing);
+      expect(find.byType(LoginPage), findsOneWidget);
+      expect(find.text('bottom_nav stub'), findsNothing);
+      expect(adapter.requests, isNot(contains(API.userCancelLogout)));
+      expect(secure['secure_token'], 'synthetic-status2-access-token');
+      expect(tester.takeException(), isNull);
+    } finally {
       RuntimeFeatureRecovery.dispose();
       WebSocketService.to.dispose();
       PersistentMessageQueue.to.dispose();
-    },
-  );
+      unawaited(AppLoading.dismiss(animation: false));
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+    }
+  });
 }

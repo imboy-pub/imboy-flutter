@@ -187,6 +187,18 @@ class _Translations$account$ru_RU extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Привязать Alipay';
 	@override String get unbindAlipay => 'Отвязать';
 	@override String get confirmUnbindAlipay => 'Подтвердить отвязку';
+	@override String get loginHistoryTitle => 'История входов';
+	@override String loginHistorySelected({required Object account}) => 'Выбранная учётная запись: ${account}';
+	@override String get loginHistoryChooseToClear => 'Выберите сохранённую учётную запись для очистки её данных';
+	@override String get loginHistoryClear => 'Очистить данные выбранной учётной записи на устройстве';
+	@override String get loginHistoryClearTitle => 'Очистить данные этой учётной записи на устройстве?';
+	@override String get loginHistoryClearConfirm => 'Подтвердить очистку';
+	@override String loginHistoryClearBody({required Object account}) => 'Удалить все локальные данные учётной записи «${account}» на этом устройстве? После очистки потребуется снова войти. Учётная запись и её данные на сервере не будут удалены.';
+	@override String get loginHistoryClearFailed => 'Очистка не завершена';
+	@override String get loginHistoryIdentityUnavailable => 'Войдите в эту учётную запись один раз, затем выйдите и повторите попытку. По старой записи нельзя надёжно определить учётную запись, поэтому данные не удалены.';
+	@override String get loginHistoryCleanupBusy => 'Выйдите из текущей учётной записи и дождитесь завершения операций входа или очистки, затем повторите попытку.';
+	@override String get loginHistorySharedData => 'Эта учётная запись использует общие локальные данные с другой средой входа, поэтому пока нельзя очистить её отдельно.';
+	@override String get loginHistoryOwnershipUnavailable => 'На устройстве есть старые общие данные, которые нельзя надёжно отнести к конкретной учётной записи. Данные не были удалены. Сначала разберитесь с этими старыми данными, затем повторите попытку, чтобы не затронуть другие учётные записи.';
 }
 
 // Path: agent
@@ -3556,6 +3568,18 @@ extension on TranslationsRuRu {
 			'account.bindAlipay' => 'Привязать Alipay',
 			'account.unbindAlipay' => 'Отвязать',
 			'account.confirmUnbindAlipay' => 'Подтвердить отвязку',
+			'account.loginHistoryTitle' => 'История входов',
+			'account.loginHistorySelected' => ({required Object account}) => 'Выбранная учётная запись: ${account}',
+			'account.loginHistoryChooseToClear' => 'Выберите сохранённую учётную запись для очистки её данных',
+			'account.loginHistoryClear' => 'Очистить данные выбранной учётной записи на устройстве',
+			'account.loginHistoryClearTitle' => 'Очистить данные этой учётной записи на устройстве?',
+			'account.loginHistoryClearConfirm' => 'Подтвердить очистку',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'Удалить все локальные данные учётной записи «${account}» на этом устройстве? После очистки потребуется снова войти. Учётная запись и её данные на сервере не будут удалены.',
+			'account.loginHistoryClearFailed' => 'Очистка не завершена',
+			'account.loginHistoryIdentityUnavailable' => 'Войдите в эту учётную запись один раз, затем выйдите и повторите попытку. По старой записи нельзя надёжно определить учётную запись, поэтому данные не удалены.',
+			'account.loginHistoryCleanupBusy' => 'Выйдите из текущей учётной записи и дождитесь завершения операций входа или очистки, затем повторите попытку.',
+			'account.loginHistorySharedData' => 'Эта учётная запись использует общие локальные данные с другой средой входа, поэтому пока нельзя очистить её отдельно.',
+			'account.loginHistoryOwnershipUnavailable' => 'На устройстве есть старые общие данные, которые нельзя надёжно отнести к конкретной учётной записи. Данные не были удалены. Сначала разберитесь с этими старыми данными, затем повторите попытку, чтобы не затронуть другие учётные записи.',
 			'agent.plazaTitle' => 'ИИ-ассистенты',
 			'agent.transparencyBanner' => 'Все участники здесь — ИИ-ассистенты с чётко обозначенным статусом. В зашифрованных чатах — только настоящие люди.',
 			'agent.searchHint' => 'Поиск ассистентов',
@@ -3942,6 +3966,8 @@ extension on TranslationsRuRu {
 			'chat.chatResend' => 'Отправить снова',
 			'chat.profileExportProfile' => 'Экспортировать профиль',
 			'chat.momentsSend' => 'Отправить',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Срок входа истёк, войдите снова',
 			'chat.customImage' => 'Пользовательское изображение',
 			'chat.burnAfterReading' => 'Удалить после прочтения',
@@ -3954,8 +3980,6 @@ extension on TranslationsRuRu {
 			'chat.historyUnavailable' => 'История сообщений временно недоступна',
 			'chat.historyUnavailableHint' => 'Архив истории на сервере отключён или недоступен. Нажмите «Повторить», чтобы синхронизировать заново',
 			'chat.momentsRecordVideo' => 'Снять видео',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Только я',
 			'chat.momentsMediaTooManyImages' => 'Можно выбрать не более 9 изображений',
 			'chat.momentsMediaTooManyVideos' => 'Можно выбрать только 1 видео',
@@ -4456,6 +4480,8 @@ extension on TranslationsRuRu {
 			'common.cameraModePhoto' => 'Фото',
 			'common.cameraModeVideo' => 'Видео',
 			'common.cameraRetake' => 'Переснять',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => 'Использовать',
 			'common.cameraNoDevice' => 'Камера не найдена',
 			'common.avatarEditAvatar' => 'Редактировать аватар',
@@ -4468,8 +4494,6 @@ extension on TranslationsRuRu {
 			'common.audioPlayFailed' => 'Не удалось воспроизвести',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Вы были принудительно выведены из сети устройством [${device}]',
 			'common.loadingTagDataFailed' => 'Не удалось загрузить данные тегов',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Пожалуйста, введите содержание',
 			'common.comingSoon' => 'Скоро будет доступно',
 			'common.backgroundTransparency' => 'Прозрачность фона',
@@ -4970,6 +4994,8 @@ extension on TranslationsRuRu {
 			'common.switchCamera' => 'Переключить камеру',
 			'common.timeDaysShort' => ({required Object count}) => '${count} д',
 			'common.timeHoursShort' => ({required Object count}) => '${count} ч',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count} мин',
 			'common.timeNowShort' => 'сейчас',
 			'common.transferAccepted' => 'Получено',
@@ -4982,8 +5008,6 @@ extension on TranslationsRuRu {
 			'common.transferRefunded' => 'Возвращено',
 			'common.transferRemarkLabel' => 'Примечание к переводу',
 			'common.transferTapToReceive' => 'Нажмите, чтобы получить',
-			_ => null,
-		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => 'Не удалось загрузить элементов: ${count}',
 			'common.voiceSttConverting' => 'Распознавание...',
 			'common.voiceSttNotConfigured' => 'Функция распознавания речи не настроена',
@@ -5484,6 +5508,8 @@ extension on TranslationsRuRu {
 			'main.myOrders' => 'Мои заказы',
 			'main.purchaseUnlockHint' => 'После покупки откроется история сообщений канала и новые публикации.',
 			'main.payingDots' => 'Оплата...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => 'Купить и открыть',
 			'main.orderDetail' => 'Детали заказа',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Сумма: ${currency} ${amount}',
@@ -5496,8 +5522,6 @@ extension on TranslationsRuRu {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Нужно восстановить из копии или создать новый ключ',
 			'main.gotIt' => 'Понятно',
 			'main.webQRLoggingIn' => 'Вход...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => 'Срок действия QR-кода истёк',
 			'main.webQRRefresh' => 'Обновить QR-код',
 			'main.webSwitchToQR' => 'Войти по QR-коду',
@@ -5998,6 +6022,8 @@ extension on TranslationsRuRu {
 			'passport.oneKeyFailedRetry' => 'Не удалось выполнить вход в один клик, проверьте сеть и повторите',
 			'splash.slogan' => 'Свободно общайтесь — легко и удобно',
 			'talkRecord.uploadProgressRegister' => 'Подготовка загрузки',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'Загрузка аудио',
 			'talkRecord.uploadProgressConfirm' => 'Подтверждение аудио',
 			'talkRecord.uploadProgressSubmitting' => 'Отправка для сохранения',
@@ -6010,8 +6036,6 @@ extension on TranslationsRuRu {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Расшифровка аудио и временные метки говорящих',
 			'talkRecord.aiZhipuPurpose' => 'Черновики сводок, решений и действий',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Настроено на этом устройстве',
 			'talkRecord.aiNotConfigured' => 'Не настроено',
 			'talkRecord.aiLoading' => 'Чтение настроек устройства…',

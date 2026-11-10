@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_chat_core/flutter_chat_core.dart';
 import 'package:imboy/store/model/contact_model.dart';
-import 'package:imboy/service/storage.dart';
+import 'package:imboy/service/account_preferences.dart';
 
 part 'search_provider.g.dart';
 
@@ -179,15 +179,17 @@ class SearchNotifier extends _$SearchNotifier {
 
   Timer? _debounceTimer;
   final Map<String, List<Message>> _searchCache = {};
+  late final AccountPreferences _preferences;
 
   @override
   SearchDataState build() {
+    _preferences = AccountPreferences.capture(isActive: () => ref.mounted);
     return SearchDataState(searchHistory: _readSearchHistory());
   }
 
   List<String> _readSearchHistory() {
     try {
-      return StorageService.to.getStringList(_chatSearchHistoryKey) ?? [];
+      return _preferences.readList(_chatSearchHistoryKey);
     } on Exception {
       return [];
     }
@@ -196,21 +198,22 @@ class SearchNotifier extends _$SearchNotifier {
   Future<void> addToHistory(String query) async {
     if (query.trim().isEmpty) return;
 
-    final List<String> history = List.from(state.searchHistory);
-    history.remove(query);
-    history.insert(0, query.trim());
-
-    if (history.length > _maxHistoryCount) {
-      history.removeRange(_maxHistoryCount, history.length);
+    final history = await _preferences.updateList(_chatSearchHistoryKey, (
+      stored,
+    ) {
+      final history = List<String>.of(stored)
+        ..remove(query.trim())
+        ..insert(0, query.trim());
+      return history.take(_maxHistoryCount).toList();
+    });
+    if (history != null && _preferences.isCurrent) {
+      state = state.copyWith(searchHistory: history);
     }
-
-    await StorageService.to.setList(_chatSearchHistoryKey, history);
-    state = state.copyWith(searchHistory: history);
   }
 
   Future<void> clearHistory() async {
-    await StorageService.to.remove(_chatSearchHistoryKey);
-    state = state.copyWith(searchHistory: []);
+    await _preferences.remove(_chatSearchHistoryKey);
+    if (_preferences.isCurrent) state = state.copyWith(searchHistory: []);
   }
 
   void updateSearchSuggestions(String query) {
@@ -233,11 +236,7 @@ class SearchNotifier extends _$SearchNotifier {
   }
 
   List<String> getSearchHistory() {
-    try {
-      return StorageService.to.getStringList(_chatSearchHistoryKey) ?? [];
-    } catch (e) {
-      return [];
-    }
+    return _readSearchHistory();
   }
 
   void resetSearch() {

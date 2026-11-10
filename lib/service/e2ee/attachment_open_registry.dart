@@ -115,6 +115,9 @@ class AttachmentOpenRegistry {
     }
   }
 
+  /// Release material belonging to the last session after local data removal.
+  static void clear() => _specs.clear();
+
   /// 仅测试用：清表，避免用例间串味。
-  static void resetForTest() => _specs.clear();
+  static void resetForTest() => clear();
 }

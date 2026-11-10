@@ -52,6 +52,15 @@ class CurrentOrganizationStore {
     StorageService.to.remove('$kCurrentOrgStoragePrefix$accountKey');
   }
 
+  /// Local account removal awaits persistence before dropping the cached scope.
+  static Future<void> removeAccount(String accountKey) async {
+    await StorageService.to.persistPreference(
+      () => StorageService.to.remove('$kCurrentOrgStoragePrefix$accountKey'),
+    );
+    final store = _byAccount.remove(accountKey);
+    store?._notifier.value = null;
+  }
+
   Organization? get value => _notifier.value;
 
   /// 指针变更监听（chip / WS picker 顶部企业行）。

@@ -187,6 +187,18 @@ class _Translations$account$de_DE extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Alipay verknüpfen';
 	@override String get unbindAlipay => 'Verknüpfung aufheben';
 	@override String get confirmUnbindAlipay => 'Verknüpfung aufheben bestätigen';
+	@override String get loginHistoryTitle => 'Anmeldeverlauf';
+	@override String loginHistorySelected({required Object account}) => 'Ausgewähltes Konto: ${account}';
+	@override String get loginHistoryChooseToClear => 'Wählen Sie ein gespeichertes Konto aus, um dessen Daten zu löschen';
+	@override String get loginHistoryClear => 'Lokale Daten des ausgewählten Kontos löschen';
+	@override String get loginHistoryClearTitle => 'Lokale Daten dieses Kontos löschen?';
+	@override String get loginHistoryClearConfirm => 'Löschen bestätigen';
+	@override String loginHistoryClearBody({required Object account}) => 'Alle lokalen Daten des Kontos „${account}“ auf diesem Gerät löschen? Danach müssen Sie sich erneut anmelden. Das Konto und seine Daten auf dem Server werden nicht gelöscht.';
+	@override String get loginHistoryClearFailed => 'Löschen nicht abgeschlossen';
+	@override String get loginHistoryIdentityUnavailable => 'Melden Sie sich einmal bei diesem Konto an, dann ab und versuchen Sie es erneut. Dieser ältere Eintrag kann das Konto nicht zuverlässig zuordnen. Es wurden keine Daten gelöscht.';
+	@override String get loginHistoryCleanupBusy => 'Melden Sie sich vom aktuellen Konto ab und warten Sie, bis laufende Anmelde- oder Löschvorgänge abgeschlossen sind. Versuchen Sie es dann erneut.';
+	@override String get loginHistorySharedData => 'Dieses Konto teilt lokale Daten mit einer anderen Anmeldeumgebung und kann derzeit nicht separat bereinigt werden.';
+	@override String get loginHistoryOwnershipUnavailable => 'Auf diesem Gerät befinden sich ältere gemeinsam genutzte Daten, die keinem Konto zuverlässig zugeordnet werden können. Es wurden keine Daten gelöscht. Klären Sie zunächst diese älteren Daten und versuchen Sie es erneut, damit andere Konten nicht betroffen sind.';
 }
 
 // Path: agent
@@ -3550,6 +3562,18 @@ extension on TranslationsDeDe {
 			'account.bindAlipay' => 'Alipay verknüpfen',
 			'account.unbindAlipay' => 'Verknüpfung aufheben',
 			'account.confirmUnbindAlipay' => 'Verknüpfung aufheben bestätigen',
+			'account.loginHistoryTitle' => 'Anmeldeverlauf',
+			'account.loginHistorySelected' => ({required Object account}) => 'Ausgewähltes Konto: ${account}',
+			'account.loginHistoryChooseToClear' => 'Wählen Sie ein gespeichertes Konto aus, um dessen Daten zu löschen',
+			'account.loginHistoryClear' => 'Lokale Daten des ausgewählten Kontos löschen',
+			'account.loginHistoryClearTitle' => 'Lokale Daten dieses Kontos löschen?',
+			'account.loginHistoryClearConfirm' => 'Löschen bestätigen',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'Alle lokalen Daten des Kontos „${account}“ auf diesem Gerät löschen? Danach müssen Sie sich erneut anmelden. Das Konto und seine Daten auf dem Server werden nicht gelöscht.',
+			'account.loginHistoryClearFailed' => 'Löschen nicht abgeschlossen',
+			'account.loginHistoryIdentityUnavailable' => 'Melden Sie sich einmal bei diesem Konto an, dann ab und versuchen Sie es erneut. Dieser ältere Eintrag kann das Konto nicht zuverlässig zuordnen. Es wurden keine Daten gelöscht.',
+			'account.loginHistoryCleanupBusy' => 'Melden Sie sich vom aktuellen Konto ab und warten Sie, bis laufende Anmelde- oder Löschvorgänge abgeschlossen sind. Versuchen Sie es dann erneut.',
+			'account.loginHistorySharedData' => 'Dieses Konto teilt lokale Daten mit einer anderen Anmeldeumgebung und kann derzeit nicht separat bereinigt werden.',
+			'account.loginHistoryOwnershipUnavailable' => 'Auf diesem Gerät befinden sich ältere gemeinsam genutzte Daten, die keinem Konto zuverlässig zugeordnet werden können. Es wurden keine Daten gelöscht. Klären Sie zunächst diese älteren Daten und versuchen Sie es erneut, damit andere Konten nicht betroffen sind.',
 			'agent.plazaTitle' => 'KI-Assistenten',
 			'agent.transparencyBanner' => 'Alle Mitglieder hier sind KI-Assistenten und klar als solche gekennzeichnet. In verschlüsselten Chats gibt es nur echte Menschen.',
 			'agent.searchHint' => 'Assistenten suchen',
@@ -3936,6 +3960,8 @@ extension on TranslationsDeDe {
 			'chat.chatResend' => 'Erneut senden',
 			'chat.profileExportProfile' => 'Profil exportieren',
 			'chat.momentsSend' => 'Senden',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'Anmeldung abgelaufen, bitte erneut anmelden',
 			'chat.customImage' => 'Benutzerdefiniertes Bild',
 			'chat.burnAfterReading' => 'Nach dem Lesen vernichten',
@@ -3948,8 +3974,6 @@ extension on TranslationsDeDe {
 			'chat.historyUnavailable' => 'Verlaufsnachrichten vorübergehend nicht verfügbar',
 			'chat.historyUnavailableHint' => 'Serverseitiges Verlaufsarchiv ist deaktiviert oder nicht verfügbar. Tippen Sie auf Erneut versuchen, um die Synchronisierung neu zu starten',
 			'chat.momentsRecordVideo' => 'Video aufnehmen',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'Nur ich',
 			'chat.momentsMediaTooManyImages' => 'Max. 9 Bilder auswählbar',
 			'chat.momentsMediaTooManyVideos' => 'Max. 1 Video auswählbar',
@@ -4450,6 +4474,8 @@ extension on TranslationsDeDe {
 			'common.cameraModePhoto' => 'Foto',
 			'common.cameraModeVideo' => 'Video',
 			'common.cameraRetake' => 'Neu aufnehmen',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => 'Verwenden',
 			'common.cameraNoDevice' => 'Keine Kamera verfügbar',
 			'common.avatarEditAvatar' => 'Avatar bearbeiten',
@@ -4462,8 +4488,6 @@ extension on TranslationsDeDe {
 			'common.audioPlayFailed' => 'Wiedergabe fehlgeschlagen',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'Sie wurden vom Gerät [${device}] zwangsabgemeldet',
 			'common.loadingTagDataFailed' => 'Laden der Tag-Daten fehlgeschlagen',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'Bitte Inhalt eingeben',
 			'common.comingSoon' => 'Demnächst verfügbar',
 			'common.backgroundTransparency' => 'Hintergrundtransparenz',
@@ -4964,6 +4988,8 @@ extension on TranslationsDeDe {
 			'common.e2eeErrPeerNotOnboarded' => 'Die Gegenseite war noch auf keinem Gerät angemeldet, verschlüsseltes Senden derzeit nicht möglich. Bitte warten Sie, bis sich die Gegenseite angemeldet hat, und versuchen Sie es erneut',
 			'common.e2eeRecoveryKeyTitle' => 'Wiederherstellungsschlüssel',
 			'common.e2eeRecoveryKeyCopiedAutoClear' => ({required Object seconds}) => 'Wiederherstellungsschlüssel kopiert. Die Zwischenablage wird in ${seconds} Sek. automatisch geleert. Bitte schnellstmöglich sichern',
+			_ => null,
+		} ?? switch (path) {
 			'common.e2eeErrAttachmentSeal' => 'Versiegeln der verschlüsselten Datei fehlgeschlagen, die Datei wurde nicht hochgeladen. Bitte später erneut versuchen',
 			'common.e2eeErrForwardPlaintextTarget' => 'Der Ziel-Chat ist nicht Ende-zu-Ende-verschlüsselt; die verschlüsselte Datei kann nicht weitergeleitet werden',
 			'common.e2eeErrForwardUndecryptable' => 'Die ursprüngliche verschlüsselte Datei kann auf diesem Gerät nicht entschlüsselt werden; Weiterleitung fehlgeschlagen',
@@ -4976,8 +5002,6 @@ extension on TranslationsDeDe {
 			'common.e2eeRecoveryKeySaveNote' => 'Bitte sichern Sie diesen Wiederherstellungsschlüssel sofort (Screenshot oder Passwort-Manager). Bei vergessener Passphrase ist er der einzige Schlüssel zum Entschlüsseln des Backups; geht er verloren, ist das Backup dauerhaft nicht wiederherstellbar.',
 			'common.e2eeUseRecoveryKey' => 'Wiederherstellungsschlüssel erstellen (Ersatz-Zugang bei vergessener Passphrase)',
 			'common.complianceKeyChangedTitle' => 'Compliance-Audit-Schlüssel hat sich geändert',
-			_ => null,
-		} ?? switch (path) {
 			'common.complianceKeyChangedBody' => 'Der vom Server bereitgestellte öffentliche Compliance-Schlüssel stimmt nicht mit dem lokal gepinnten Wert überein. Handelt es sich um eine beabsichtigte Schlüsselrotation durch den Administrator, tippen Sie auf „Rotation bestätigen“; andernfalls senden Sie keine weiteren verschlüsselten Nachrichten und kontaktieren Sie den Administrator zur Prüfung.',
 			'common.complianceKeyChangedActionConfirm' => 'Rotation bestätigen',
 			'common.complianceKeyChangedActionKeep' => 'Vorerst nicht bestätigen',
@@ -5478,6 +5502,8 @@ extension on TranslationsDeDe {
 			'main.myOrders' => 'Bestellungen',
 			'main.purchaseUnlockHint' => 'Nach Kauf werden Verlauf und neue Nachrichten freigeschaltet.',
 			'main.payingDots' => 'Zahlung...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => 'Jetzt kaufen & freischalten',
 			'main.orderDetail' => 'Bestelldetails',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'Betrag: ${currency} ${amount}',
@@ -5490,8 +5516,6 @@ extension on TranslationsDeDe {
 			'main.e2eeWarnNeedRestoreOrNew' => '• Aus Backup wiederherstellen oder neuen Schlüssel erstellen',
 			'main.gotIt' => 'Verstanden',
 			'main.webQRLoggingIn' => 'Anmeldung...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => 'QR-Code abgelaufen',
 			'main.webQRRefresh' => 'QR-Code aktualisieren',
 			'main.webSwitchToQR' => 'Per QR-Code anmelden',
@@ -5992,6 +6016,8 @@ extension on TranslationsDeDe {
 			'passport.oneKeyFailedRetry' => 'One-Tap-Login fehlgeschlagen, bitte Netzwerk prüfen und erneut versuchen',
 			'splash.slogan' => 'Frei kommunizieren.',
 			'talkRecord.uploadProgressRegister' => 'Upload wird vorbereitet',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'Audio wird hochgeladen',
 			'talkRecord.uploadProgressConfirm' => 'Audio wird bestätigt',
 			'talkRecord.uploadProgressSubmitting' => 'Speicherung wird übermittelt',
@@ -6004,8 +6030,6 @@ extension on TranslationsDeDe {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'Audiotranskription und vorläufige Sprecherlabels',
 			'talkRecord.aiZhipuPurpose' => 'Entwürfe für Zusammenfassungen, Entscheidungen und Aufgaben',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'Auf diesem Gerät eingerichtet',
 			'talkRecord.aiNotConfigured' => 'Nicht eingerichtet',
 			'talkRecord.aiLoading' => 'Gerätekonfiguration wird gelesen…',

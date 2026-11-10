@@ -187,6 +187,18 @@ class Translations$account$zh_Hant extends Translations$account$zh_CN {
 	@override String get bindAlipay => '綁定支付寶';
 	@override String get unbindAlipay => '解除綁定';
 	@override String get confirmUnbindAlipay => '確認解除綁定';
+	@override String get loginHistoryTitle => '歷史登入帳號';
+	@override String loginHistorySelected({required Object account}) => '目前選取帳號：${account}';
+	@override String get loginHistoryChooseToClear => '請先選擇要清理的歷史帳號';
+	@override String get loginHistoryClear => '清理所選帳號的本機資料';
+	@override String get loginHistoryClearTitle => '清理此帳號的本機資料？';
+	@override String get loginHistoryClearConfirm => '確認清理';
+	@override String loginHistoryClearBody({required Object account}) => '是否清理帳號「${account}」在目前裝置上的全部本機資料？清理後需要重新登入，不會刪除伺服器上的帳號和資料。';
+	@override String get loginHistoryClearFailed => '清理未完成';
+	@override String get loginHistoryIdentityUnavailable => '請先登入此帳號一次，再登出後重試。舊記錄無法可靠識別帳號，本次未清理資料。';
+	@override String get loginHistoryCleanupBusy => '請先登出目前帳號，並等待登入或清理作業結束後重試。';
+	@override String get loginHistorySharedData => '此帳號與其他登入環境共用本機資料，暫時無法單獨清理。';
+	@override String get loginHistoryOwnershipUnavailable => '此裝置有無法確認帳號歸屬的舊版共用資料，本次未清理。為避免影響其他帳號，請先處理舊資料後重試。';
 }
 
 // Path: agent
@@ -765,7 +777,7 @@ class Translations$common$zh_Hant extends Translations$common$zh_CN {
 	@override String get buttonBack => '回上一頁';
 	@override String get bindMobileAndEmailTips => '綁定手機號和郵箱，讓你的帳號更安全';
 	@override String get bindNow => '立即綁定';
-	@override String get buttonCancel => '關閉';
+	@override String get buttonCancel => '取消';
 	@override String get buttonCreate => '建立';
 	@override String get phoneInputHint => '請輸入手機號';
 	@override String get buttonMore => '查看更多';
@@ -3547,6 +3559,18 @@ extension on TranslationsZhHant {
 			'account.bindAlipay' => '綁定支付寶',
 			'account.unbindAlipay' => '解除綁定',
 			'account.confirmUnbindAlipay' => '確認解除綁定',
+			'account.loginHistoryTitle' => '歷史登入帳號',
+			'account.loginHistorySelected' => ({required Object account}) => '目前選取帳號：${account}',
+			'account.loginHistoryChooseToClear' => '請先選擇要清理的歷史帳號',
+			'account.loginHistoryClear' => '清理所選帳號的本機資料',
+			'account.loginHistoryClearTitle' => '清理此帳號的本機資料？',
+			'account.loginHistoryClearConfirm' => '確認清理',
+			'account.loginHistoryClearBody' => ({required Object account}) => '是否清理帳號「${account}」在目前裝置上的全部本機資料？清理後需要重新登入，不會刪除伺服器上的帳號和資料。',
+			'account.loginHistoryClearFailed' => '清理未完成',
+			'account.loginHistoryIdentityUnavailable' => '請先登入此帳號一次，再登出後重試。舊記錄無法可靠識別帳號，本次未清理資料。',
+			'account.loginHistoryCleanupBusy' => '請先登出目前帳號，並等待登入或清理作業結束後重試。',
+			'account.loginHistorySharedData' => '此帳號與其他登入環境共用本機資料，暫時無法單獨清理。',
+			'account.loginHistoryOwnershipUnavailable' => '此裝置有無法確認帳號歸屬的舊版共用資料，本次未清理。為避免影響其他帳號，請先處理舊資料後重試。',
 			'agent.plazaTitle' => 'AI 助手廣場',
 			'agent.transparencyBanner' => '這裡的成員都是 AI 助手，身分會明確標註；加密聊天裡，只有真人。',
 			'agent.searchHint' => '搜尋助手',
@@ -3933,6 +3957,8 @@ extension on TranslationsZhHant {
 			'chat.chatResend' => '重新傳送',
 			'chat.releaseConvertToText' => '放開 轉文字',
 			'chat.voiceReleaseCancelSend' => '放開 取消傳送',
+			_ => null,
+		} ?? switch (path) {
 			'chat.voiceReleaseCancel' => '放開 取消',
 			'chat.voiceSlideHint' => '上滑 取消 / 轉文字',
 			'chat.convertToText' => '轉文字',
@@ -3945,8 +3971,6 @@ extension on TranslationsZhHant {
 			'chat.burnReadBadge' => '閱後',
 			'chat.goodReadability' => '可讀性良好',
 			'chat.profileCompleteness' => '資料完善度',
-			_ => null,
-		} ?? switch (path) {
 			'chat.tagStatistics' => '標籤統計',
 			'chat.unsupportedMessageType' => '不支援的訊息類型',
 			'chat.passwordMismatch' => '兩次密碼不一致',
@@ -4078,7 +4102,7 @@ extension on TranslationsZhHant {
 			'common.buttonBack' => '回上一頁',
 			'common.bindMobileAndEmailTips' => '綁定手機號和郵箱，讓你的帳號更安全',
 			'common.bindNow' => '立即綁定',
-			'common.buttonCancel' => '關閉',
+			'common.buttonCancel' => '取消',
 			'common.buttonCreate' => '建立',
 			'common.phoneInputHint' => '請輸入手機號',
 			'common.buttonMore' => '查看更多',
@@ -4447,6 +4471,8 @@ extension on TranslationsZhHant {
 			'common.cameraShootFailed' => '拍攝失敗',
 			'common.cameraCapture' => '拍攝',
 			'common.cameraModePhoto' => '照片',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraModeVideo' => '影片',
 			'common.cameraRetake' => '重拍',
 			'common.cameraUse' => '使用',
@@ -4459,8 +4485,6 @@ extension on TranslationsZhHant {
 			'common.tagClearAllConfirm' => '確定要清空所有標籤嗎？',
 			'common.tagClearAll' => '確認清空',
 			'common.audioPlayFailed' => '播放失敗',
-			_ => null,
-		} ?? switch (path) {
 			'common.forcedOfflineByDevice' => ({required Object device}) => '你已被裝置【${device}】強制下線',
 			'common.loadingTagDataFailed' => '載入標籤資料失敗',
 			'common.pleaseEnterContent' => '請輸入內容',
@@ -4961,6 +4985,8 @@ extension on TranslationsZhHant {
 			'common.switchCamera' => '切換鏡頭',
 			'common.timeDaysShort' => ({required Object count}) => '${count}d',
 			'common.timeHoursShort' => ({required Object count}) => '${count}h',
+			_ => null,
+		} ?? switch (path) {
 			'common.timeMinutesShort' => ({required Object count}) => '${count}m',
 			'common.timeNowShort' => 'now',
 			'common.transferAccepted' => '已收款',
@@ -4973,8 +4999,6 @@ extension on TranslationsZhHant {
 			'common.transferRefunded' => '已退還',
 			'common.transferRemarkLabel' => '轉帳備註',
 			'common.transferTapToReceive' => '點擊收款',
-			_ => null,
-		} ?? switch (path) {
 			'common.uploadPartialFailed' => ({required Object count}) => '${count} 項上傳失敗',
 			'common.voiceSttConverting' => '正在辨識中...',
 			'common.voiceSttNotConfigured' => '轉文字功能尚未設定',
@@ -5475,6 +5499,8 @@ extension on TranslationsZhHant {
 			'main.myOrders' => '我的訂單',
 			'main.purchaseUnlockHint' => '購買後可解鎖頻道歷史訊息與後續更新內容。',
 			'main.payingDots' => '付款中...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => '立即購買並解鎖',
 			'main.orderDetail' => '訂單詳情',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => '金額: ${currency} ${amount}',
@@ -5487,8 +5513,6 @@ extension on TranslationsZhHant {
 			'main.e2eeWarnNeedRestoreOrNew' => '• 需要從備份恢復或生成新金鑰',
 			'main.gotIt' => '了解了',
 			'main.webQRLoggingIn' => '登入中...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => '二維碼已過期',
 			'main.webQRRefresh' => '重新整理二維碼',
 			'main.webSwitchToQR' => '使用 QR 碼登入',
@@ -5989,6 +6013,8 @@ extension on TranslationsZhHant {
 			'passport.oneKeyFailedRetry' => '一鍵登入失敗，請檢查網路後重試',
 			'splash.slogan' => '暢所欲言，自在溝通',
 			'talkRecord.uploadProgressRegister' => '準備上傳',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => '上傳音訊',
 			'talkRecord.uploadProgressConfirm' => '確認音訊',
 			'talkRecord.uploadProgressSubmitting' => '提交儲存',
@@ -6001,8 +6027,6 @@ extension on TranslationsZhHant {
 			'talkRecord.aiZhipuTitle' => '智譜 GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => '音訊轉文字與臨時說話人標籤',
 			'talkRecord.aiZhipuPurpose' => '摘要草稿、決定與待辦事項',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => '本裝置已設定',
 			'talkRecord.aiNotConfigured' => '尚未設定',
 			'talkRecord.aiLoading' => '正在讀取本裝置設定…',

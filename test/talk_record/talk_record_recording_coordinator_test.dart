@@ -3,6 +3,11 @@ import 'package:imboy/modules/talk_record/presentation/talk_record_pending_uploa
 
 import 'dart:io';
 
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show ChangeNotifier, Listenable;
+import 'package:imboy/config/init.dart' show currentEnv;
+import 'package:imboy/service/account_local_task_registry.dart';
+
 import 'package:flutter/services.dart';
 import 'package:imboy/modules/talk_record/application/talk_record_launch_failure.dart';
 
@@ -26,6 +31,7 @@ import 'package:imboy/service/talk_record/talk_record_segment_crypto.dart';
 import 'fake_talk_record_engine.dart';
 
 part 'talk_record_coordinator_fixtures.dart';
+part 'talk_record_coordinator_cleanup_cases.dart';
 
 void main() {
   late Directory root;
@@ -58,12 +64,14 @@ void main() {
     LeaseGateway? gateway,
     TestUploader? uploader,
     FakeTalkRecordEngine? testEngine,
+    Listenable? authChanges,
   }) => TalkRecordRecordingCoordinator(
     store: store,
     keys: keys,
     currentAccount: () => account,
     captureGateway: gateway,
     uploadGateway: uploader,
+    authChanges: authChanges,
     recorderFactory: (directory) {
       final engine = testEngine ?? FakeTalkRecordEngine();
       engines.add(engine);
@@ -208,6 +216,16 @@ void main() {
       await expectLater(c.uploadEnded(binding), throwsStateError);
     },
   );
+  _registerRecordingCleanupTests(
+    coordinator: coordinator,
+    tick: tick,
+    request: request,
+    account: () => account,
+    changeAccount: (value) => account = value,
+    store: () => store,
+    recorders: () => recorders,
+  );
+
   test('auth transition interrupts mic; old control rejected', () async {
     final c = coordinator();
     await c.launch(request);

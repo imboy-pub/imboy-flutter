@@ -1,8 +1,52 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/storage.dart';
 import 'package:imboy/page/search/search_provider.dart';
 import 'package:imboy/store/model/contact_model.dart';
 
 void main() {
+  test('chat search history stays with its provider account and ignores global legacy data', () async {
+    SharedPreferences.setMockInitialValues({
+      Keys.currentUid: 'synthetic-A',
+      'chat_search_history': ['legacy mixed accounts'],
+    });
+    await StorageService.init();
+    final ownerA = AccountLocalTaskOwner.capture();
+    final containerA = ProviderContainer();
+    containerA.listen(searchProvider, (_, _) {});
+    addTearDown(containerA.dispose);
+    final notifierA = containerA.read(searchProvider.notifier);
+    expect(notifierA.getSearchHistory(), isEmpty);
+    await Future.wait([
+      notifierA.addToHistory(' first '),
+      notifierA.addToHistory('second'),
+    ]);
+    expect(notifierA.getSearchHistory(), ['second', 'first']);
+
+    await StorageService.to.setString(Keys.currentUid, 'synthetic-B');
+    final containerB = ProviderContainer();
+    containerB.listen(searchProvider, (_, _) {});
+    addTearDown(containerB.dispose);
+    final notifierB = containerB.read(searchProvider.notifier);
+    expect(notifierB.getSearchHistory(), isEmpty);
+    await notifierB.addToHistory('B history');
+    await notifierA.addToHistory('late A history');
+    await notifierA.clearHistory();
+    expect(notifierB.getSearchHistory(), ['B history']);
+    expect(
+      StorageService.to.getStringList(
+        ownerA.preferenceKey('chat_search_history'),
+      ),
+      ['second', 'first'],
+    );
+    expect(StorageService.to.getStringList('chat_search_history'), [
+      'legacy mixed accounts',
+    ]);
+  });
+
   group('SearchDataState 纯内存方法', () {
     test('SD-1 默认值正确', () {
       const s = SearchDataState();

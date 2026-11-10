@@ -6,18 +6,19 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:imboy/component/extension/device_ext.dart';
 import 'package:imboy/component/helper/func.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/service/e2ee_backup_restore_state.dart';
+import 'package:imboy/service/e2ee_backup_device_key_sync.dart';
+import 'package:imboy/service/auth_session_scope.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
 import 'package:imboy/service/e2ee/megolm_backup_section.dart';
 import 'package:imboy/service/e2ee/crypto_audit_log.dart';
 import 'package:imboy/service/e2ee_server_backup_service.dart';
 import 'package:imboy/service/e2ee_backup_url_download_service.dart';
 import 'package:imboy/service/e2ee_health_check_service.dart';
-import 'package:imboy/service/storage_secure.dart';
-import 'package:imboy/store/api/e2ee_api.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:imboy/theme/default/app_radius.dart';
 import 'package:imboy/theme/default/app_colors.dart';
@@ -61,7 +62,7 @@ class E2EEBackupImportPage extends StatefulWidget {
   )?
   cloudBackupRestorer;
 
-  /// 恢复成功后回写服务端设备公钥的实现（测试注入用；null 走真实 [E2EEApi]）。
+  /// 恢复成功后回写设备公钥的实现（null 走 [E2eeBackupDeviceKeySync]）。
   final Future<bool> Function(Map<String, dynamic> restored)? deviceKeyReporter;
   final Future<bool> Function(int sessionCount)? historicalKeyGrantConfirmer;
   final Future<void> Function(MegolmBackupSection section)?
@@ -718,6 +719,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       return;
     }
     final password = _passwordController.text;
+    final session = authSessionReader.current;
 
     try {
       setState(() => _isImporting = true);
@@ -734,8 +736,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 expectedAccountId: _currentAccountId,
               ));
 
-      if (!mounted) return;
-      await _applyRestoredKeys(result);
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
+      await _applyRestoredKeys(result, session);
     } on StateError catch (e) {
       iPrint('[E2EEBackupImport] 导入被拒绝: ${e.message}');
       if (mounted) _showError(_stateErrorMessage(e));
@@ -859,6 +861,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   Future<void> _handleCloudRestore(String password) async {
     if (!mounted || _isImporting || _isCloudRestoring) return;
+    final session = authSessionReader.current;
     try {
       setState(() => _isCloudRestoring = true);
 
@@ -872,8 +875,8 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
                 expectedAccountId: _currentAccountId,
               ));
 
-      if (!mounted) return;
-      await _applyRestoredKeys(result);
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
+      await _applyRestoredKeys(result, session);
     } on StateError catch (e) {
       if (!mounted) return;
       if (e.message == '无云端备份') {
@@ -893,22 +896,23 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
 
   /// 恢复成功后的统一后处理：保存密钥四元组到安全存储 + 成功弹窗。
   /// 文件导入与云端恢复两条路径共用。
-  Future<void> _applyRestoredKeys(Map<String, dynamic> result) async {
+  Future<void> _applyRestoredKeys(
+    Map<String, dynamic> result,
+    AuthSessionScope session,
+  ) async {
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    bool current() =>
+        mounted &&
+        authSessionReader.isCurrent(session) &&
+        AccountLocalTaskOwner.capture() == owner;
     // 抗回滚：比本机最近一次成功恢复更旧且换钥的备份（旧密钥重放）
     // 在写任何存储前拒绝（stale_backup_rejected 由调用方映射文案）。
     await _ensureNotStaleRestore(result);
+    if (!current()) return;
 
-    await StorageSecureService.to.savePrivateKey(
-      result['private_key'] as String,
-    );
-    await StorageSecureService.to.savePublicKey(result['public_key'] as String);
-    // E2EE-016 req3：备份内的 device_id 仅作归档元数据展示（见成功弹窗），
-    // 不得覆盖当前物理设备 DID——否则本机会冒充备份来源设备，
-    // 破坏 E2EE-013「加密写入绑定已认证设备」的授权边界。故此处不再 setDeviceId。
-    // 同理，恢复材料不含 Olm account/session（活跃 ratchet），本机 C2C
-    // 会话与新 DID 独立建立——恢复的是「身份密钥 + 群历史解密材料」，
-    // 不是克隆原设备。
-    await StorageSecureService.to.setKeyId(result['key_id'] as String);
+    // E2EE-016/013：只恢复身份和群历史密钥；保留当前设备 DID/Olm ratchet。
+    await E2eeBackupRestoreState.saveIdentity(result, session);
+    if (!current()) return;
 
     final section = E2EELocalBackupService.megolmBackupSection(result);
     var restored = 0;
@@ -917,6 +921,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     MegolmRestoreException? partialFailure;
     if (!section.isEmpty &&
         await _confirmHistoricalKeyGrant(section.sessions.length)) {
+      if (!current()) return;
       try {
         restored = await E2EELocalBackupService.restoreMegolmSessions(
           result,
@@ -930,6 +935,7 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
           '${e.writtenEntries}/${e.totalEntries} failedKey=${e.failedKey}',
         );
       }
+      if (!current()) return;
       GroupSessionService.to.clearMemory();
     }
 
@@ -937,42 +943,40 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
       iPrint('[RESTORE] Megolm 会话回填 $restored');
     }
 
-    // 恢复得到的私钥必须与服务端登记的该设备公钥一致：登录时本地无密钥会先
-    // 生成并上报一套「新」公钥（passport_notifier._reportE2EEPublicKey），此处
-    // 不回写，服务端就持久持有一把本机没有私钥的公钥——legacy v1/v2 路径的对端
-    // 仍按它加密（本机解不开），密钥盘点与 e2ee_device_key_changed 广播链同样
-    // 建立在错误状态上。立即回写消除该窗口（Olm v3 信封按每设备 Olm 身份键
-    // 加密，不在本修复的直接症状路径内）。
-    final synced = await _syncRestoredPublicKeyToServer(result);
+    // 恢复私钥后回写服务端设备公钥，避免仍用登录时生成的另一套密钥。
+    // 此同步覆盖 legacy v1/v2 和设备密钥变更通知；Olm v3 身份键独立处理。
+    final synced = await _syncRestoredPublicKeyToServer(result, session, owner);
+    if (!current()) return;
     if (synced) {
-      // 密钥已恢复，清除会话页「恢复待办」横幅标记并通知撤下——
-      // 否则横幅常驻（唯一清除入口此前只有横幅 ×）
-      await StorageService.to.setBool(kE2eeRecoveryNeededKey, false);
+      // 密钥恢复且设备身份同步后，撤下会话页「恢复待办」横幅。
+      await E2eeBackupRestoreState.writePreference(
+        kE2eeRecoveryNeededKey,
+        false,
+        session,
+      );
       AppEventBus.fire(const E2EERecoveryCompletedEvent());
     } else {
-      // 保留「恢复待办」标记：设备身份未同步即视为恢复未完成，让横幅继续提示。
-      // 下次登录 _reportE2EEPublicKey 在本地已有密钥时会用本地（已恢复）公钥
-      // 重报，届时自愈。
+      // 同步失败保留待办；下次登录重报已恢复的本地公钥。
       iPrint('[RESTORE] 设备公钥回写未完成，保留恢复待办标记');
     }
 
-    // 抗回滚水位：密钥本体已应用即记录 created_at/key_id（Megolm 部分完成
-    // 也记录——水位锚定的是密钥版本，群历史可幂等重试补完）。
-    await _writeRestoreMarker(result);
+    // 密钥本体已应用即记抗回滚水位；群历史部分完成可幂等重试。
+    await _writeRestoreMarker(result, session);
+    if (!current()) return;
 
-    // 路径4：自动重试解密失败消息。Megolm session 已回填，群聊历史的
-    // 「[加密消息]」占位此刻即可翻明文——若等用户去恢复中心手动点
-    // 「重试解密」，等于没人点。逐条修复自带 events/messages 回填，
-    // 打开着的会话页会原地刷新。
+    // 自动重试历史解密并刷新会话；账号清理须等待该回填任务结束。
     int recovered = 0;
     try {
-      recovered = await E2EEHealthCheckService.to.retryFailedMessages();
+      recovered = await AccountLocalTaskRegistry.instance.run<int>(
+        AccountLocalTaskOwner.capture(uid: session.uid),
+        operation: (_) => E2EEHealthCheckService.to.retryFailedMessages(),
+      );
     } on Object catch (e) {
       // 重试失败不阻断恢复成功态：用户可在恢复中心手动重试兜底
       iPrint('[RESTORE] 自动重试解密中断: ${e.runtimeType}');
     }
 
-    if (!mounted) return;
+    if (!current()) return;
     if (partialFailure != null) {
       // 部分完成：密钥已恢复 + Megolm 写入 X/Y——精确陈述，不虚报完整成功，
       // 也不把已完成部分说成全失败；重试同一备份按幂等键续写收敛。
@@ -1025,15 +1029,12 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
     }
   }
 
-  Future<void> _writeRestoreMarker(Map<String, dynamic> result) async {
+  Future<void> _writeRestoreMarker(
+    Map<String, dynamic> result,
+    AuthSessionScope session,
+  ) async {
     try {
-      await StorageService.to.setString(
-        E2EELocalBackupService.kLastRestoreMarkerKey,
-        jsonEncode({
-          'created_at': result['created_at']?.toString() ?? '',
-          'key_id': result['key_id']?.toString() ?? '',
-        }),
-      );
+      await E2eeBackupRestoreState.writeMarker(result, session);
     } on Object catch (e) {
       // 水位写入失败不阻断恢复成功态：只是少一道回滚防线
       iPrint('[RESTORE] 水位标记写入失败: ${e.runtimeType}');
@@ -1105,33 +1106,15 @@ class _E2EEBackupImportPageState extends State<E2EEBackupImportPage> {
   /// 备份来源设备（E2EE-013 / E2EE-016 req3）。
   Future<bool> _syncRestoredPublicKeyToServer(
     Map<String, dynamic> result,
-  ) async {
-    final reporter = widget.deviceKeyReporter;
-    if (reporter != null) return reporter(result);
-    try {
-      final storage = StorageSecureService.to;
-      var deviceId = await storage.getDeviceId() ?? '';
-      final detail = await DeviceExt.to.detail;
-      if (deviceId.isEmpty) {
-        deviceId = detail?['did']?.toString() ?? '';
-        if (deviceId.isNotEmpty) {
-          await storage.setDeviceId(deviceId);
-        }
-      }
-      if (deviceId.isEmpty) return false;
-      final res = await E2EEApi().reportDeviceKey(
-        deviceId: deviceId,
-        deviceType: detail?['cos']?.toString() ?? 'unknown',
-        deviceName: detail?['deviceName']?.toString(),
-        publicKey: result['public_key'] as String,
-        keyId: result['key_id'] as String,
-      );
-      return res.ok;
-    } on Object catch (e) {
-      iPrint('[RESTORE] 设备公钥回写异常: ${e.runtimeType}');
-      return false;
-    }
-  }
+    AuthSessionScope session,
+    AccountLocalTaskOwner owner,
+  ) => E2eeBackupDeviceKeySync.synchronize(
+    restored: result,
+    session: session,
+    owner: owner,
+    isActive: () => mounted,
+    reporter: widget.deviceKeyReporter,
+  );
 
   /// 部分完成弹窗（durable progress 精确文案）：
   /// 密钥本体已恢复；群密钥写入 X/Y 条中断，重试同一备份即可幂等补完。

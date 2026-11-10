@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'dart:async';
+
+import 'package:dio/dio.dart' show CancelToken;
+
 import 'dart:io';
 
 import 'package:crypto/crypto.dart' as crypto;
@@ -8,6 +12,8 @@ import 'package:imboy/component/http/http_response.dart';
 import 'package:imboy/component/http/http_client.dart' as app_http;
 import 'package:imboy/config/init.dart' show serviceContainer;
 import 'package:imboy/store/api/attachment_direct_api.dart';
+
+part 'attachment_direct_cancellation_cases.dart';
 
 class _StatusHttpClient implements app_http.HttpClient {
   final List<({String path, Map<String, dynamic>? query})> requests = [];
@@ -119,6 +125,12 @@ void main() {
       'expires_in': 3600,
     },
   });
+
+  _registerDirectCancellationTests(
+    writeFile: writeFile,
+    ok: ok,
+    grantPayload: grantPayload,
+  );
 
   test('status 和恢复使用 GET 查询 object_key', () async {
     final client = _StatusHttpClient();
@@ -586,8 +598,14 @@ void main() {
   });
 
   test('大文件路径无 readAsBytes：源码静态断言 + putFn 收 File', () async {
-    final String src = File('lib/store/api/attachment_direct_api.dart')
+    final String api = File('lib/store/api/attachment_direct_api.dart')
         .readAsStringSync();
+    final String transport = File(
+      'lib/store/api/attachment_direct_transport.dart',
+    ).readAsStringSync();
+    expect(api, contains("part 'attachment_direct_transport.dart';"));
+    expect(transport, contains("part of 'attachment_direct_api.dart';"));
+    final String src = '$api\n$transport';
     // 调用级断言（注释文本不算）：无 readAsBytes( / readAsBytesSync( 调用
     expect(
       RegExp(r'readAsBytes\w*\s*\(').allMatches(src),

@@ -189,6 +189,18 @@ class _Translations$account$en_US extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'Link Alipay';
 	@override String get unbindAlipay => 'Unlink';
 	@override String get confirmUnbindAlipay => 'Confirm unlink';
+	@override String get loginHistoryTitle => 'Login history';
+	@override String loginHistorySelected({required Object account}) => 'Selected account: ${account}';
+	@override String get loginHistoryChooseToClear => 'Select a saved account before clearing its data';
+	@override String get loginHistoryClear => 'Clear selected account data on this device';
+	@override String get loginHistoryClearTitle => 'Clear this account’s device data?';
+	@override String get loginHistoryClearConfirm => 'Confirm clearing';
+	@override String loginHistoryClearBody({required Object account}) => 'Clear all local data for “${account}” on this device? You will need to sign in again after clearing. The account and its data on the server will not be deleted.';
+	@override String get loginHistoryClearFailed => 'Cleanup incomplete';
+	@override String get loginHistoryIdentityUnavailable => 'Sign in to this account once, then sign out and try again. This older history entry cannot reliably identify the account, so no data was cleared.';
+	@override String get loginHistoryCleanupBusy => 'Sign out of the current account and wait for any sign-in or cleanup operation to finish, then try again.';
+	@override String get loginHistorySharedData => 'This account shares local data with another sign-in environment and cannot currently be cleared separately.';
+	@override String get loginHistoryOwnershipUnavailable => 'This device has older shared data whose account ownership cannot be determined. No data was cleared. To avoid affecting other accounts, address the older data before trying again.';
 }
 
 // Path: agent
@@ -4183,6 +4195,18 @@ extension on TranslationsEnUs {
 			'account.bindAlipay' => 'Link Alipay',
 			'account.unbindAlipay' => 'Unlink',
 			'account.confirmUnbindAlipay' => 'Confirm unlink',
+			'account.loginHistoryTitle' => 'Login history',
+			'account.loginHistorySelected' => ({required Object account}) => 'Selected account: ${account}',
+			'account.loginHistoryChooseToClear' => 'Select a saved account before clearing its data',
+			'account.loginHistoryClear' => 'Clear selected account data on this device',
+			'account.loginHistoryClearTitle' => 'Clear this account’s device data?',
+			'account.loginHistoryClearConfirm' => 'Confirm clearing',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'Clear all local data for “${account}” on this device? You will need to sign in again after clearing. The account and its data on the server will not be deleted.',
+			'account.loginHistoryClearFailed' => 'Cleanup incomplete',
+			'account.loginHistoryIdentityUnavailable' => 'Sign in to this account once, then sign out and try again. This older history entry cannot reliably identify the account, so no data was cleared.',
+			'account.loginHistoryCleanupBusy' => 'Sign out of the current account and wait for any sign-in or cleanup operation to finish, then try again.',
+			'account.loginHistorySharedData' => 'This account shares local data with another sign-in environment and cannot currently be cleared separately.',
+			'account.loginHistoryOwnershipUnavailable' => 'This device has older shared data whose account ownership cannot be determined. No data was cleared. To avoid affecting other accounts, address the older data before trying again.',
 			'agent.plazaTitle' => 'AI Assistants',
 			'agent.transparencyBanner' => 'Everyone here is an AI assistant, clearly labeled as such. In encrypted chats, there are only real people.',
 			'agent.searchHint' => 'Search assistants',
@@ -4569,6 +4593,8 @@ extension on TranslationsEnUs {
 			'chat.card' => 'Card',
 			'chat.messageWasWithdrawn' => 'recalled a message',
 			'chat.messageWasWithdrawnWithTitle' => ({required Object param}) => '${param} recalled a message',
+			_ => null,
+		} ?? switch (path) {
 			'chat.offline' => 'Offline',
 			'chat.online' => 'Online',
 			'chat.paramAlreadyExist' => ({required Object param}) => '${param} already exists',
@@ -4581,8 +4607,6 @@ extension on TranslationsEnUs {
 			'chat.quickReplyEmpty' => 'No quick replies yet — tap the button below to add one',
 			'chat.quickReplyDuplicate' => 'This phrase already exists',
 			'chat.quickReplyMaxReached' => ({required Object max}) => 'At most ${max} entries',
-			_ => null,
-		} ?? switch (path) {
 			'chat.quickReplyHint' => 'Type your phrase...',
 			'chat.muteMember' => 'Mute Member',
 			'chat.unmuteMember' => 'Unmute',
@@ -5083,6 +5107,8 @@ extension on TranslationsEnUs {
 			'common.officialReply' => 'Official reply',
 			'common.setPasswordSecurityTips' => 'Set a login password to enhance security and ensure you can always access your account.',
 			'common.locationHidden' => 'Your location has been hidden',
+			_ => null,
+		} ?? switch (path) {
 			'common.locationVisible' => 'Your location has been shown',
 			'common.noNearbyPeople' => 'No nearby people yet',
 			'common.clickSearchButtonToFind' => 'Click the search button above to find nearby people',
@@ -5095,8 +5121,6 @@ extension on TranslationsEnUs {
 			'common.groupAnnouncementDeleteConfirm' => 'Are you sure you want to delete this announcement?',
 			'common.groupAnnouncementDelete' => 'Delete',
 			'common.groupAnnouncementLoadFailed' => 'Failed to load announcements, please try again later',
-			_ => null,
-		} ?? switch (path) {
 			'common.groupAnnouncementPublishFailed' => 'Failed to publish announcement',
 			'common.groupAnnouncementPublishSuccess' => 'Announcement published',
 			'common.groupAnnouncementDeleteFailed' => 'Failed to delete announcement',
@@ -5597,6 +5621,8 @@ extension on TranslationsEnUs {
 			'common.searchDisabledTitle' => 'Message search unavailable',
 			'common.searchDisabledByEncryption' => 'End-to-end encryption is on, so the server cannot read your messages and full-text search is not available',
 			'common.amountMustPositive' => 'Amount must be greater than 0',
+			_ => null,
+		} ?? switch (path) {
 			'common.answer' => 'Answer',
 			'common.collapse' => 'Collapse',
 			'common.declineCall' => 'Decline',
@@ -5609,8 +5635,6 @@ extension on TranslationsEnUs {
 			'common.e2eeErrForwardUndecryptable' => 'The original encrypted attachment cannot be decrypted on this device; forwarding failed',
 			'common.e2eeRetryFailedMessages' => 'Retry messages that failed to decrypt',
 			'common.e2eeRetryFailedDone' => ({required Object count}) => 'Retried ${count} messages that failed to decrypt',
-			_ => null,
-		} ?? switch (path) {
 			'common.e2eeRetryFailedNone' => 'No failed messages to retry',
 			'common.e2eeModeStandard' => 'Standard mode',
 			'common.e2eeModeCompliance' => 'Compliance encryption',
@@ -6111,6 +6135,8 @@ extension on TranslationsEnUs {
 			'groupSchedule.statusInProgress' => 'In Progress',
 			'groupSchedule.statusNotStarted' => 'Not Started',
 			'groupSchedule.statusEnded' => 'Ended',
+			_ => null,
+		} ?? switch (path) {
 			'groupSchedule.cancelSuccess' => 'Schedule cancelled',
 			'groupSchedule.cancelFailed' => 'Cancel failed, please try again',
 			'groupSchedule.confirmAttend' => 'Confirm Attendance',
@@ -6123,8 +6149,6 @@ extension on TranslationsEnUs {
 			'groupSchedule.organizer' => 'Organizer',
 			'groupSchedule.participantAttending' => 'Joined',
 			'groupSchedule.participantDeclined' => 'Declined',
-			_ => null,
-		} ?? switch (path) {
 			'groupSchedule.participantPending' => 'Pending',
 			'groupSchedule.attendSummary' => ({required Object attending, required Object total}) => '${attending}/${total} joined',
 			'groupSchedule.remindBefore' => ({required Object minutes}) => 'Reminds ${minutes} min before',
@@ -6625,6 +6649,8 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.generateForbidden' => 'Only enterprise admins can generate the invite code',
 			'organization.inviteColleagues.possibleEmpty' => 'No pending colleagues',
 			'organization.inviteColleagues.possibleEmptyHint' => 'Invite your colleagues to join',
+			_ => null,
+		} ?? switch (path) {
 			'organization.inviteColleagues.invitedBy' => ({required Object name}) => 'Invited by ${name}',
 			'organization.inviteColleagues.invitedAt' => ({required Object time}) => 'Invited at ${time}',
 			'organization.inviteColleagues.revoke' => 'Revoke',
@@ -6637,8 +6663,6 @@ extension on TranslationsEnUs {
 			'organization.inviteColleagues.codeLabelWith' => ({required Object code}) => 'Invite code: ${code}',
 			'organization.inviteQr.orgQrcode' => 'Enterprise QR code',
 			'organization.inviteQr.title' => 'Invite members',
-			_ => null,
-		} ?? switch (path) {
 			'organization.inviteQr.entryHint' => 'Show the QR code or share the invite code; others join by scanning or typing',
 			'organization.inviteQr.scanHint' => 'Others scan this code with the imboy scanner to join this enterprise',
 			'organization.inviteQr.codeLabel' => 'Enterprise invite code',
@@ -7139,6 +7163,8 @@ extension on TranslationsEnUs {
 			'talkRecord.transferSuccessKeptAccess' => 'You still have view access; sharing is managed by the new owner.',
 			'talkRecord.transferSuccessScopeUnchanged' => 'The note\'s organization and workspace are unchanged.',
 			'talkRecord.transferFailedBody' => 'Transfer failed, retry later.',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.transferConflictHint' => 'The note was updated by someone else. Refresh and retry.',
 			'talkRecord.transferPersonalUnsupported' => 'Personal notes do not support ownership transfer yet.',
 			'talkRecord.transferOnlyOwner' => 'Only the current managing owner can transfer ownership.',
@@ -7151,8 +7177,6 @@ extension on TranslationsEnUs {
 			'talkRecord.deleteConfirmBodyPoint3' => 'Attachments are cleaned up per retention rules and references; submitting cleanup does not mean bytes are deleted immediately.',
 			'talkRecord.deleteConfirmAction' => 'Delete',
 			'talkRecord.deleteDeleting' => 'Deleting…',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.deleteOnlyOwner' => 'Only the owner can delete this note.',
 			'talkRecord.deleteFailedBody' => 'Delete failed, retry later.',
 			'talkRecord.deleteConflictHint' => 'The note was updated by someone else. Refresh and retry.',

@@ -204,8 +204,9 @@ class UploadTransport implements TalkRecordPartTransport {
   Future<void> put(
     TalkRecordUploadRef ticket,
     File plaintext,
-    void Function() guard,
-  ) async {
+    void Function() guard, {
+    CancelToken? cancelToken,
+  }) async {
     guard();
     puts++;
     plaintextHash = (await sha256.bind(plaintext.openRead()).first).toString();
@@ -228,7 +229,11 @@ class FinalDirectFake {
   bool failFirstPut = false;
   String objectKeyOf(String id) => 'owner/record/final-$id.aac';
   TalkRecordFinalDirectRegister get register =>
-      (String clientUploadId, String scopeRef) async {
+      (
+        String clientUploadId,
+        String scopeRef, {
+        CancelToken? cancelToken,
+      }) async {
         registers++;
         return objectKeyOf(clientUploadId);
       };
@@ -237,6 +242,7 @@ class FinalDirectFake {
         File file, {
         required String clientUploadId,
         required String scopeRef,
+        CancelToken? cancelToken,
       }) async {
         uploads++;
         // 会话身份在 register 已确立；PUT 失败不否定 server 侧会话存在。
@@ -251,12 +257,13 @@ class FinalDirectFake {
           attemptId: 1,
         );
       };
-  TalkRecordFinalDirectStatus get status => (String objectKey) async {
-    statuses++;
-    return DirectUploadResult(
-      objectKey: objectKey,
-      state: sessionState,
-      attemptId: 0,
-    );
-  };
+  TalkRecordFinalDirectStatus get status =>
+      (String objectKey, {CancelToken? cancelToken}) async {
+        statuses++;
+        return DirectUploadResult(
+          objectKey: objectKey,
+          state: sessionState,
+          attemptId: 0,
+        );
+      };
 }

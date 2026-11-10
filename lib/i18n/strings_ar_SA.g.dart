@@ -187,6 +187,18 @@ class _Translations$account$ar_SA extends Translations$account$zh_CN {
 	@override String get bindAlipay => 'ربط Alipay';
 	@override String get unbindAlipay => 'إلغاء الربط';
 	@override String get confirmUnbindAlipay => 'تأكيد إلغاء الربط';
+	@override String get loginHistoryTitle => 'سجل تسجيل الدخول';
+	@override String loginHistorySelected({required Object account}) => 'الحساب المحدد: ${account}';
+	@override String get loginHistoryChooseToClear => 'اختر حسابًا محفوظًا قبل مسح بياناته';
+	@override String get loginHistoryClear => 'مسح بيانات الحساب المحدد على هذا الجهاز';
+	@override String get loginHistoryClearTitle => 'مسح بيانات هذا الحساب على الجهاز؟';
+	@override String get loginHistoryClearConfirm => 'تأكيد المسح';
+	@override String loginHistoryClearBody({required Object account}) => 'هل تريد مسح جميع البيانات المحلية للحساب «${account}» على هذا الجهاز؟ ستحتاج إلى تسجيل الدخول مجددًا بعد المسح. لن يُحذف الحساب وبياناته على الخادم.';
+	@override String get loginHistoryClearFailed => 'لم يكتمل المسح';
+	@override String get loginHistoryIdentityUnavailable => 'سجّل الدخول إلى هذا الحساب مرة واحدة، ثم سجّل الخروج وأعد المحاولة. لا يمكن تحديد الحساب بشكل موثوق من هذا السجل القديم، لذا لم تُمسح أي بيانات.';
+	@override String get loginHistoryCleanupBusy => 'سجّل الخروج من الحساب الحالي وانتظر انتهاء أي عملية تسجيل دخول أو مسح، ثم أعد المحاولة.';
+	@override String get loginHistorySharedData => 'يشترك هذا الحساب في البيانات المحلية مع بيئة تسجيل دخول أخرى، ولا يمكن حاليًا مسح بياناته بشكل منفصل.';
+	@override String get loginHistoryOwnershipUnavailable => 'يحتوي هذا الجهاز على بيانات مشتركة قديمة لا يمكن تحديد الحساب الذي تخصه. لم تُمسح أي بيانات. لتجنب التأثير على الحسابات الأخرى، عالج البيانات القديمة أولًا ثم أعد المحاولة.';
 }
 
 // Path: agent
@@ -3559,6 +3571,18 @@ extension on TranslationsArSa {
 			'account.bindAlipay' => 'ربط Alipay',
 			'account.unbindAlipay' => 'إلغاء الربط',
 			'account.confirmUnbindAlipay' => 'تأكيد إلغاء الربط',
+			'account.loginHistoryTitle' => 'سجل تسجيل الدخول',
+			'account.loginHistorySelected' => ({required Object account}) => 'الحساب المحدد: ${account}',
+			'account.loginHistoryChooseToClear' => 'اختر حسابًا محفوظًا قبل مسح بياناته',
+			'account.loginHistoryClear' => 'مسح بيانات الحساب المحدد على هذا الجهاز',
+			'account.loginHistoryClearTitle' => 'مسح بيانات هذا الحساب على الجهاز؟',
+			'account.loginHistoryClearConfirm' => 'تأكيد المسح',
+			'account.loginHistoryClearBody' => ({required Object account}) => 'هل تريد مسح جميع البيانات المحلية للحساب «${account}» على هذا الجهاز؟ ستحتاج إلى تسجيل الدخول مجددًا بعد المسح. لن يُحذف الحساب وبياناته على الخادم.',
+			'account.loginHistoryClearFailed' => 'لم يكتمل المسح',
+			'account.loginHistoryIdentityUnavailable' => 'سجّل الدخول إلى هذا الحساب مرة واحدة، ثم سجّل الخروج وأعد المحاولة. لا يمكن تحديد الحساب بشكل موثوق من هذا السجل القديم، لذا لم تُمسح أي بيانات.',
+			'account.loginHistoryCleanupBusy' => 'سجّل الخروج من الحساب الحالي وانتظر انتهاء أي عملية تسجيل دخول أو مسح، ثم أعد المحاولة.',
+			'account.loginHistorySharedData' => 'يشترك هذا الحساب في البيانات المحلية مع بيئة تسجيل دخول أخرى، ولا يمكن حاليًا مسح بياناته بشكل منفصل.',
+			'account.loginHistoryOwnershipUnavailable' => 'يحتوي هذا الجهاز على بيانات مشتركة قديمة لا يمكن تحديد الحساب الذي تخصه. لم تُمسح أي بيانات. لتجنب التأثير على الحسابات الأخرى، عالج البيانات القديمة أولًا ثم أعد المحاولة.',
 			'agent.plazaTitle' => 'مساعدو الذكاء الاصطناعي',
 			'agent.transparencyBanner' => 'جميع الأعضاء هنا مساعدو ذكاء اصطناعي، وهويتهم موضحة بوضوح. في المحادثات المشفّرة لا يوجد سوى أشخاص حقيقيين.',
 			'agent.searchHint' => 'البحث عن مساعد',
@@ -3945,6 +3969,8 @@ extension on TranslationsArSa {
 			'chat.chatResend' => 'إعادة الإرسال',
 			'chat.profileExportProfile' => 'تصدير الملف الشخصي',
 			'chat.momentsSend' => 'إرسال',
+			_ => null,
+		} ?? switch (path) {
 			'chat.loginExpiredMessage' => 'انتهت صلاحية تسجيل الدخول، يرجى تسجيل الدخول مرة أخرى',
 			'chat.customImage' => 'صورة مخصصة',
 			'chat.burnAfterReading' => 'الحرق بعد القراءة',
@@ -3957,8 +3983,6 @@ extension on TranslationsArSa {
 			'chat.historyUnavailable' => 'رسائل السجل غير متاحة مؤقتاً',
 			'chat.historyUnavailableHint' => 'أرشيف السجل على الخادم معطّل أو غير متاح. اضغط على إعادة المحاولة لإعادة المزامنة',
 			'chat.momentsRecordVideo' => 'تسجيل فيديو',
-			_ => null,
-		} ?? switch (path) {
 			'chat.momentsVisibilityPrivate' => 'أنا فقط',
 			'chat.momentsMediaTooManyImages' => 'يمكنك اختيار 9 صور كحد أقصى',
 			'chat.momentsMediaTooManyVideos' => 'يمكنك اختيار فيديو واحد فقط',
@@ -4459,6 +4483,8 @@ extension on TranslationsArSa {
 			'common.cameraModePhoto' => 'صورة',
 			'common.cameraModeVideo' => 'فيديو',
 			'common.cameraRetake' => 'إعادة التصوير',
+			_ => null,
+		} ?? switch (path) {
 			'common.cameraUse' => 'استخدام',
 			'common.cameraNoDevice' => 'لا توجد كاميرا متاحة',
 			'common.avatarEditAvatar' => 'تعديل الصورة الرمزية',
@@ -4471,8 +4497,6 @@ extension on TranslationsArSa {
 			'common.audioPlayFailed' => 'فشل التشغيل',
 			'common.forcedOfflineByDevice' => ({required Object device}) => 'تم تسجيل الخروج إجبارياً من الجهاز 【${device}】',
 			'common.loadingTagDataFailed' => 'فشل تحميل بيانات العلامات',
-			_ => null,
-		} ?? switch (path) {
 			'common.pleaseEnterContent' => 'يرجى إدخال المحتوى',
 			'common.comingSoon' => 'قريباً',
 			'common.backgroundTransparency' => 'شفافية الخلفية',
@@ -4973,6 +4997,8 @@ extension on TranslationsArSa {
 			'common.redPacketCurrentNormal' => 'الوضع الحالي: مغلف عادي',
 			'common.redPacketSwitchToLucky' => 'التحويل إلى مغلف حظ',
 			'common.redPacketSwitchToNormal' => 'التحويل إلى مغلف عادي',
+			_ => null,
+		} ?? switch (path) {
 			'common.redPacketStuffLucky' => 'إرسال مغلف حظ',
 			'common.redPacketStuffNormal' => 'إرسال من المحفظة',
 			'common.redPacketFetchError' => 'خطأ في جلب تفاصيل المغلف',
@@ -4985,8 +5011,6 @@ extension on TranslationsArSa {
 			'common.transferConfirm' => 'تأكيد التحويل',
 			'common.transferMinAmountError' => 'الحد الأدنى لمبلغ التحويل هو 0.01 يوان',
 			'common.transferPending' => 'في انتظار تأكيد الطرف الآخر',
-			_ => null,
-		} ?? switch (path) {
 			'common.transferAccepted' => 'تم الاستلام',
 			'common.transferReceiving' => 'جارٍ استلام المبلغ...',
 			'common.transferRefunded' => 'تمت الإعادة',
@@ -5487,6 +5511,8 @@ extension on TranslationsArSa {
 			'main.myOrders' => 'طلباتي',
 			'main.purchaseUnlockHint' => 'بعد الشراء يُفتح سجل رسائل القناة والتحديثات القادمة.',
 			'main.payingDots' => 'جارٍ الدفع...',
+			_ => null,
+		} ?? switch (path) {
 			'main.purchaseAndUnlock' => 'شراء وفتح',
 			'main.orderDetail' => 'تفاصيل الطلب',
 			'main.orderAmountLabel' => ({required Object currency, required Object amount}) => 'المبلغ: ${currency} ${amount}',
@@ -5499,8 +5525,6 @@ extension on TranslationsArSa {
 			'main.e2eeWarnNeedRestoreOrNew' => '• يجب الاستعادة من نسخة أو إنشاء مفتاح جديد',
 			'main.gotIt' => 'فهمت',
 			'main.webQRLoggingIn' => 'جارٍ الدخول...',
-			_ => null,
-		} ?? switch (path) {
 			'main.webQRExpired' => 'انتهت صلاحية رمز QR',
 			'main.webQRRefresh' => 'تحديث رمز QR',
 			'main.webSwitchToQR' => 'الدخول برمز QR',
@@ -6001,6 +6025,8 @@ extension on TranslationsArSa {
 			'passport.oneKeyFailedRetry' => 'فشل تسجيل الدخول بنقرة واحدة، تحقق من الشبكة وحاول مجددًا',
 			'splash.slogan' => 'تواصل بحرية وبدون قيود',
 			'talkRecord.uploadProgressRegister' => 'جارٍ تحضير الرفع',
+			_ => null,
+		} ?? switch (path) {
 			'talkRecord.uploadProgressUpload' => 'جارٍ رفع الصوت',
 			'talkRecord.uploadProgressConfirm' => 'جارٍ تأكيد الصوت',
 			'talkRecord.uploadProgressSubmitting' => 'جارٍ إرسال الحفظ',
@@ -6013,8 +6039,6 @@ extension on TranslationsArSa {
 			'talkRecord.aiZhipuTitle' => 'Zhipu GLM-5.3-Flash',
 			'talkRecord.aiMinimaxPurpose' => 'تفريغ الصوت وتسميات مؤقتة للمتحدثين',
 			'talkRecord.aiZhipuPurpose' => 'مسودات الملخصات والقرارات والإجراءات',
-			_ => null,
-		} ?? switch (path) {
 			'talkRecord.aiConfigured' => 'تم الإعداد على هذا الجهاز',
 			'talkRecord.aiNotConfigured' => 'غير مُعدّ',
 			'talkRecord.aiLoading' => 'جارٍ قراءة إعدادات الجهاز…',

@@ -13,6 +13,14 @@ import 'package:imboy/service/talk_record/talk_record_segment_crypto.dart';
 
 import 'talk_record_ai_workflow_helpers.dart';
 
+class _InterruptedCheckpointKeys extends AiTestKeys {
+  @override
+  Future<void> writeRecordKey(String id, Uint8List key) async {
+    await super.writeRecordKey(id, key);
+    throw StateError('synthetic interruption after key persistence');
+  }
+}
+
 void main() {
   late Directory temporary;
   late AiTestKeys keys;
@@ -105,6 +113,18 @@ void main() {
       expect(temporary.listSync().whereType<File>().length, 1);
     },
   );
+  test('interrupted key creation retains durable ownership before checkpoint bytes', () async {
+    final interrupted = _InterruptedCheckpointKeys();
+    final checkpoint = TalkRecordAiCheckpointStore(
+      temporary,
+      interrupted,
+      store.identity,
+    );
+    await expectLater(checkpoint.save({'text': 'synthetic'}), throwsStateError);
+    expect(interrupted.values, contains(checkpoint.keyId));
+    expect(await checkpoint.file.exists(), isFalse);
+    expect(await File('${checkpoint.file.path}.owner').exists(), isTrue);
+  });
   test('tamper, missing key and changed identity fail closed', () async {
     await store.save({'text': 'private'});
     final bytes = await store.file.readAsBytes();

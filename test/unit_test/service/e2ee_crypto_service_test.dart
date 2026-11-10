@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
 import 'package:imboy/service/e2ee_local_backup_service.dart';
+import 'package:imboy/config/const.dart';
+import 'package:imboy/service/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   // 初始化 Flutter 测试绑定（用于 path_provider 等插件）
@@ -14,6 +17,10 @@ void main() {
   );
 
   setUpAll(() async {
+    SharedPreferences.setMockInitialValues({
+      Keys.currentUid: 'synthetic-backup-owner',
+    });
+    await StorageService.init();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(pathProviderChannel, (methodCall) async {
           switch (methodCall.method) {

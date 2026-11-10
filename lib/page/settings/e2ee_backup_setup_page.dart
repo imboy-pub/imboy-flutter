@@ -9,9 +9,8 @@ import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:imboy/i18n/strings.g.dart';
 import 'package:imboy/service/e2ee_backup_setup_service.dart';
 import 'package:imboy/service/e2ee_crypto_service.dart';
-import 'package:imboy/service/e2ee_server_backup_service.dart';
-import 'package:imboy/service/storage_secure.dart';
-import 'package:imboy/store/repository/user_repo_local.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:imboy/store/api/e2ee_backup_api.dart';
 import 'package:imboy/theme/default/app_colors.dart';
 import 'package:imboy/theme/default/app_spacing.dart';
@@ -74,6 +73,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
 
   @override
   void dispose() {
+    _activeCancelToken?.cancel('page disposed');
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -340,6 +340,9 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
   }
 
   Future<void> _handleSubmit() async {
+    final session = authSessionReader.current;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
+    if (_submitting || !authSessionReader.isCurrent(session)) return;
     final pwd = _passwordController.text;
     if (pwd.length < 8) {
       AppLoading.showToast(t.common.e2eeBackupSetupPwdTooShort);
@@ -360,7 +363,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
     try {
       final upload = widget.uploadOverride != null
           ? widget.uploadOverride!(pwd)
-          : _uploadReal(pwd, cancelToken);
+          : _uploadReal(pwd, cancelToken, session, owner);
       final result = await upload.timeout(
         _uploadTimeout,
         onTimeout: () {
@@ -369,7 +372,7 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
           return const E2EEBackupPutResult(ok: false);
         },
       );
-      if (!mounted) return;
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
       if (!result.ok) {
         _reportUploadFailure(
           timedOut: timedOut,
@@ -377,12 +380,16 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
         );
         return;
       }
-      await E2EEBackupSetupService.to.completeSetup(passphrase: pwd);
-      if (!mounted) return;
+      await E2EEBackupSetupService.to.completeSetup(
+        passphrase: pwd,
+        uid: session.uid,
+        generation: session.generation,
+      );
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
       setState(() => _allowLeave = true);
       _showSuccessDialog(result.backupVersion);
     } on Object catch (e) {
-      if (!mounted) return;
+      if (!mounted || !authSessionReader.isCurrent(session)) return;
       final cancelled = cancelToken.isCancelled;
       if (!cancelled) {
         // 完整错误（含超时/状态码）——只打 runtimeType 时弱网问题无从定位
@@ -414,23 +421,15 @@ class _E2EEBackupSetupPageState extends State<E2EEBackupSetupPage> {
   Future<E2EEBackupPutResult> _uploadReal(
     String pwd,
     CancelToken cancelToken,
-  ) async {
-    final privateKey = await StorageSecureService.to.getPrivateKey();
-    final publicKey = await StorageSecureService.to.getPublicKey();
-    if (privateKey == null || publicKey == null) {
-      return const E2EEBackupPutResult(ok: false);
-    }
-    return E2EEServerBackupService.upload(
-      password: pwd,
-      privateKey: privateKey,
-      publicKey: publicKey,
-      deviceId: await StorageSecureService.to.getDeviceId() ?? 'unknown',
-      keyId: await StorageSecureService.to.getKeyId() ?? 'unknown',
-      // 账号绑定：恢复端据此拒绝跨账号恢复
-      accountId: UserRepoLocal.to.currentUid,
-      cancelToken: cancelToken,
-    );
-  }
+    AuthSessionScope session,
+    AccountLocalTaskOwner owner,
+  ) => E2EEBackupSetupService.to.uploadForSession(
+    password: pwd,
+    session: session,
+    owner: owner,
+    cancelToken: cancelToken,
+    isActive: () => mounted,
+  );
 
   void _showSuccessDialog(int backupVersion) {
     showCupertinoDialog<void>(

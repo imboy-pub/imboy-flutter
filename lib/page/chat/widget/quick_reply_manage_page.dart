@@ -38,7 +38,7 @@ class _QuickReplyManagePageState extends State<QuickReplyManagePage> {
   void initState() {
     super.initState();
     _service = QuickReplyService(
-      const StorageServiceQuickReplyStore(),
+      StorageServiceQuickReplyStore(),
       defaults: widget.defaults,
     );
     _refresh();

@@ -10,7 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:imboy/component/ui/ios_settings_ui.dart';
 import 'package:intl/intl.dart';
 import 'package:imboy/i18n/strings.g.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:imboy/service/account_local_files.dart';
+import 'package:imboy/service/account_local_task_registry.dart';
+import 'package:imboy/service/auth_session_scope.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:imboy/store/api/user_api.dart';
@@ -72,34 +74,47 @@ class LogoutAccountNotifier extends _$LogoutAccountNotifier {
   }
 
   Future<String?> exportUserData() async {
+    final session = authSessionReader.current;
+    if (!authSessionReader.isCurrent(session)) return null;
+    final owner = AccountLocalTaskOwner.capture(uid: session.uid);
     state = state.copyWith(isLoading: true, error: null);
     try {
       final userApi = ref.read(userApiProvider);
-      final data = await userApi.exportUserData();
-      if (data == null) {
-        // HttpClient fail-open（http_client.dart 吞异常返回 ok:false 响应，
-        // 永不抛异常），此分支是实际失败路径：必须设置 error，否则页面
-        // iosRed 错误区块（state.error 渲染）永远不可达，用户只见一闪 toast。
-        state = state.copyWith(
-          isLoading: false,
-          error: t.common.operationFailedAgainLater,
-        );
-        return null;
-      }
-      final tempDir = await getTemporaryDirectory();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${tempDir.path}/imboy_data_$timestamp.json');
-      final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
-      await file.writeAsString(jsonStr);
-      state = state.copyWith(isLoading: false);
-      return file.path;
-    } on Exception catch (e) {
-      iPrint('[LogoutAccount] 导出用户数据失败: $e');
-      state = state.copyWith(
-        isLoading: false,
-        error: t.common.operationFailedAgainLater,
+      return await AccountLocalTaskRegistry.instance.run<String>(
+        owner,
+        operation: (task) async {
+          void ensureCurrent() {
+            task.throwIfCancelled();
+            if (!ref.mounted ||
+                !authSessionReader.isCurrent(session) ||
+                AccountLocalTaskOwner.capture() != owner) {
+              throw const AccountLocalTaskCancelledException();
+            }
+          }
+
+          final data = await userApi.exportUserData();
+          ensureCurrent();
+          if (data == null) throw StateError('Account export failed');
+          final tempDir = await AccountLocalFiles.directory(task);
+          ensureCurrent();
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final file = File('${tempDir.path}/imboy_data_$timestamp.json');
+          final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
+          await file.writeAsString(jsonStr, flush: true);
+          ensureCurrent();
+          return file.path;
+        },
       );
+    } on Object catch (e) {
+      iPrint('[LogoutAccount] 导出用户数据失败: ${e.runtimeType}');
+      if (ref.mounted) {
+        state = state.copyWith(error: t.common.operationFailedAgainLater);
+      }
       return null;
+    } finally {
+      if (ref.mounted) {
+        state = state.copyWith(isLoading: false, error: state.error);
+      }
     }
   }
 
